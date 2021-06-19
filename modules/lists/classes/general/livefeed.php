@@ -63,7 +63,7 @@ class CListsLiveFeed
 		$logId = 0;
 		$userObject = CUser::getByID($createdBy);
 		$siteId = array();
-		$siteObject = CSite::getList($by="sort", $order="desc", array("ACTIVE" => "Y"));
+		$siteObject = CSite::getList("sort", "desc", array("ACTIVE" => "Y"));
 		while ($site = $siteObject->fetch())
 			$siteId[] = $site['LID'];
 
@@ -618,7 +618,7 @@ class CListsLiveFeed
 		return COption::getOptionString('main', 'site_name', '');
 	}
 
-	function BeforeIndexSocNet($bxSocNetSearch, $fields)
+	public static function BeforeIndexSocNet($bxSocNetSearch, $fields)
 	{
 		static $bizprocForumId = false;
 
@@ -793,8 +793,8 @@ class CListsLiveFeed
 		$messageAddComment = Loc::getMessage("LISTS_LF_COMMENT_MESSAGE_ADD",
 			array("#PROCESS#" => '<a href="'.$url.'" class="bx-notifier-item-action">'.$comment["TITLE"].'</a>'));
 		$userQuery = CUser::getList(
-			$by = "id",
-			$order = "asc",
+			"id",
+			"asc",
 			array("ID_EQUAL_EXACT" => intval($comment["FROM_USER_ID"])),
 			array("FIELDS" => array("PERSONAL_GENDER"))
 		);

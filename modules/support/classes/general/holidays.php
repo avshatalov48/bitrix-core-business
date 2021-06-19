@@ -1,4 +1,5 @@
 <?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CSupportHolidays
@@ -21,15 +22,14 @@ class CSupportHolidays
 	const table_s2h = "b_ticket_sla_2_holidays";
 	const table_sla = "b_ticket_sla";
 	
-	
-	static function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "support";
 		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/" . $module_id . "/install/version.php");
 		return "<br>Module: " . $module_id . " <br>Class: CSupportHolidays<br>File: " . __FILE__;
 	}
 	
-	function Set($arFields, $arFieldsSLA) //$arFields, $arFieldsSLA = array(0 => array("HOLIDAYS_ID" => 1, "SLA_ID" => 1), 1 => array("HOLIDAYS_ID" => 2, "SLA_ID" => 2) ...)
+	public static function Set($arFields, $arFieldsSLA) //$arFields, $arFieldsSLA = array(0 => array("HOLIDAYS_ID" => 1, "SLA_ID" => 1), 1 => array("HOLIDAYS_ID" => 2, "SLA_ID" => 2) ...)
 	{
 		global $DB, $APPLICATION;
 		$err_mess = (self::err_mess())."<br>Function: Set<br>Line: ";
@@ -137,7 +137,7 @@ class CSupportHolidays
 	}
 
 	// get Holidays list
-	function GetList($arSort, $arFilter)
+	public static function GetList($arSort, $arFilter)
 	{
 	
 		$err_mess = (self::err_mess())."<br>Function: GetList<br>Line: ";
@@ -230,7 +230,7 @@ class CSupportHolidays
 	}
 	
 	// get Holidays list
-	function GetSLAByID($id, $needObj = false)
+	public static function GetSLAByID($id, $needObj = false)
 	{
 		$err_mess = (self::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $USER, $APPLICATION;		
@@ -263,7 +263,7 @@ class CSupportHolidays
 		return $f_s;
 	}
 	
-	function GetOpenTimeArray()
+	public static function GetOpenTimeArray()
 	{
 		return array(
 			"GB_1" => "SUP_OPEN_TIME_HOLIDAY_G",
@@ -284,14 +284,14 @@ class CSupportHolidays
 
 	}
 	
-	function GetOpenTimeT($v)
+	public static function GetOpenTimeT($v)
 	{
 		$arr = self::GetOpenTimeArray();
 		return (isset($arr[$v]) ? $arr[$v] : "");
 	}
 	
 	// delete Holiday
-	function Delete($id, $checkRights=true)
+	public static function Delete($id, $checkRights=true)
 	{
 		$err_mess = (self::err_mess())."<br>Function: Delete<br>Line: ";
 		global $DB, $USER, $APPLICATION;
@@ -337,6 +337,4 @@ class CSupportHolidays
 
 		return true;
 	}
-	
 }
-?>

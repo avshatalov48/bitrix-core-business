@@ -1,8 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
+
 class CEditorUtils
 {
-	function RenderComponents($arParams)
+	public static function RenderComponents($arParams)
 	{
 		global $USER;
 		$bLPA = !$USER->CanDoOperation('edit_php');
@@ -32,7 +34,7 @@ class CEditorUtils
 		echo $s;
 	}
 
-	function _RenderOneComponent($arParams, $bLPA)
+	public static function _RenderOneComponent($arParams, $bLPA)
 	{
 		global $APPLICATION, $USER;
 
@@ -116,7 +118,7 @@ class CEditorUtils
 		return $s;
 	}
 
-	function _RenderAllComponents($arParams, $bLPA)
+	public static function _RenderAllComponents($arParams, $bLPA)
 	{
 		global $APPLICATION, $USER;
 		$s = '';
@@ -243,7 +245,7 @@ class CEditorUtils
 		return $s;
 	}
 
-	function GetCompProperties($name, $template = '', $siteTemplateId = '', $arCurVals = array())
+	public static function GetCompProperties($name, $template = '', $siteTemplateId = '', $arCurVals = array())
 	{
 		$stid = $siteTemplateId;
 		$arProps = CComponentUtil::GetComponentProps($name, $arCurVals);
@@ -251,12 +253,12 @@ class CEditorUtils
 		return $arProps['PARAMETERS'] + $arTemplateProps;
 	}
 
-	function StartFetchCSS()
+	public static function StartFetchCSS()
 	{
 		return count($GLOBALS['APPLICATION']->sPath2css);
 	}
 
-	function GetCSS($startCount)
+	public static function GetCSS($startCount)
 	{
 		global $APPLICATION;
 		$arCSS = array();
@@ -285,7 +287,7 @@ class CEditorUtils
 		echo '</script>';
 	}
 
-	function UnJSEscapeArray($ar)
+	public static function UnJSEscapeArray($ar)
 	{
 		//$APPLICATION->UnJSEscape
 		foreach($ar as $key => $val)
@@ -298,4 +300,3 @@ class CEditorUtils
 		return $ar;
 	}
 }
-?>

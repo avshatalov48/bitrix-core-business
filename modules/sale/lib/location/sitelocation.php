@@ -21,12 +21,12 @@ class SiteLocationTable extends Connector
 		return 'b_sale_loc_2site';
 	}
 
-	public function getLinkField()
+	public static function getLinkField()
 	{
 		return 'SITE_ID';
 	}
 
-	public function getTargetEntityName()
+	public static function getTargetEntityName()
 	{
 		return 'Bitrix\Main\Site';
 	}

@@ -4,7 +4,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 $arSites = array(
 	"" =>  GetMessage("GD_STAT_P_SITE_ID_ALL")
 );
-$dbSite = CSite::GetList($by1="sort", $order1="desc", Array("ACTIVE" => "Y"));
+$dbSite = CSite::GetList("sort", "desc", Array("ACTIVE" => "Y"));
 while($arSite = $dbSite->GetNext())
 	$arSites[$arSite["LID"]] = "[".$arSite["LID"]."] ".$arSite["NAME"];
 

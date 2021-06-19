@@ -302,10 +302,10 @@ if(!$hasErrors) {
 					<?php if(!empty($arResult['field']['ENUM'])):
 						foreach($arResult['field']['ENUM'] as $enum): ?>
 							<option
-								<?= ($enum['def'] === 'Y' ? 'selected="selected"' : ''); ?>
-								data-id="<?= (int)$enum['id'] ;?>"
-								value="<?= htmlspecialcharsbx($enum['value']); ?>"
-							><?= htmlspecialcharsbx($enum['value']); ?></option>
+								<?= ($enum['DEF'] === 'Y' ? 'selected="selected"' : ''); ?>
+								data-id="<?= (int)$enum['ID'] ;?>"
+								value="<?= htmlspecialcharsbx($enum['VALUE']); ?>"
+							><?= htmlspecialcharsbx($enum['VALUE']); ?></option>
 						<?php endforeach;;
 					endif; ?>
 				</select>

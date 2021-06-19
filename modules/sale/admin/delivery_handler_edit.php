@@ -47,7 +47,7 @@ if (CModule::IncludeModule("fileman"))
 	$bFilemanModuleInst = true;
 
 $siteList = array();
-$rsSites = CSite::GetList($by = "sort", $order = "asc", Array());
+$rsSites = CSite::GetList();
 $i = 0;
 while($arRes = $rsSites->Fetch())
 {

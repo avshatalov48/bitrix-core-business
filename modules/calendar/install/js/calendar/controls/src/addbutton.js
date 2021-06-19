@@ -1,6 +1,7 @@
-import {Dom, Event, Loc, Type} from 'main.core';
+import {Dom, Loc, Type} from 'main.core';
+import {EventEmitter} from 'main.core.events';
 
-export class AddButton extends Event.EventEmitter
+export class AddButton extends EventEmitter
 {
 	showTasks = false;
 	DOM = {};
@@ -38,7 +39,7 @@ export class AddButton extends Event.EventEmitter
 		if (this.menuItems.length > 1)
 		{
 			this.DOM.wrap = Dom.create("span", {
-				props: {className: "ui-btn-split ui-btn-primary"},
+				props: {className: "ui-btn-split ui-btn-success"},
 				children: [
 					Dom.create("button", {
 						props: {className: "ui-btn-main", type: "button"},
@@ -57,7 +58,7 @@ export class AddButton extends Event.EventEmitter
 		else
 		{
 			this.DOM.wrap = Dom.create("button", {
-				props: {className: "ui-btn ui-btn-primary", type: "button"},
+				props: {className: "ui-btn ui-btn-success", type: "button"},
 				html: Loc.getMessage('EC_ADD'),
 				events: {click: this.addEntry.bind(this)}
 			});

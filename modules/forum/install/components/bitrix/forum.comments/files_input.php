@@ -33,10 +33,10 @@ class CCommentFiles extends CCommentBase
 
 		$APPLICATION->AddHeadScript("/bitrix/js/main/utils.js");
 
-		if (true || $this->mfiParams["ALLOW"]["ALLOW_UPLOAD"] === "N")
+		$this->removeHandler("OnCommentFormDisplay");
+		$this->removeHandler("OnCommentsInit");
+		if ($this->mfiParams["ALLOW"]["ALLOW_UPLOAD"] === "N")
 		{
-			$this->removeHandler("OnCommentFormDisplay");
-			$this->removeHandler("OnCommentsInit");
 			$this->removeHandler("OnCommentAdd");
 		}
 	}
@@ -286,4 +286,3 @@ class CCommentFiles extends CCommentBase
 		return !array_key_exists("ERROR", $arPost);
 	}
 }
-?>

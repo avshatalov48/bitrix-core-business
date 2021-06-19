@@ -8,7 +8,7 @@ endif;
 
 $arSiteList = array();
 $strDefSite = '';
-$rsSites = CSite::GetList($by="sort", $order="desc");
+$rsSites = CSite::GetList("sort", "desc");
 while ($arSite = $rsSites->GetNext())
 {
 	if ('Y' == $arSite['DEF'])

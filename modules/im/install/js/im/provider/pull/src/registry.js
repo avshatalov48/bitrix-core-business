@@ -9,8 +9,10 @@
 
 import {ImBasePullHandler} from "./base";
 import {ImCallPullHandler} from "./call";
+import {ImNotificationsPullHandler} from "./notifications";
 
 export {
 	ImBasePullHandler,
 	ImCallPullHandler,
+	ImNotificationsPullHandler
 }

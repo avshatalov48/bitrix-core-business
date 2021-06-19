@@ -1,10 +1,11 @@
-<?
+<?php
+
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/forum/classes/general/ratings_components.php");
 
 class CAllRatingsComponentsForum
 {
 	// return configs of component-rating
-	function OnGetRatingConfigs()
+	public static function OnGetRatingConfigs()
 	{
 		$arConfigs = array(
 			'MODULE_ID' => 'FORUM',
@@ -106,7 +107,7 @@ class CAllRatingsComponentsForum
 	}
 
 	// return support object
-	function OnGetRatingObject()
+	public static function OnGetRatingObject()
 	{
 		$arRatingConfigs = CRatingsComponentsForum::OnGetRatingConfigs();
 		foreach ($arRatingConfigs["COMPONENT"] as $SupportType => $value)
@@ -116,7 +117,7 @@ class CAllRatingsComponentsForum
 	}
 
 	// check the value of the component-rating which relate to the module
-	function OnAfterAddRating($ID, $arFields)
+	public static function OnAfterAddRating($ID, $arFields)
 	{
 		$arFields['CONFIGS']['FORUM'] = CRatingsComponentsForum::__CheckFields($arFields['ENTITY_ID'], $arFields['CONFIGS']['FORUM']);
 
@@ -124,7 +125,7 @@ class CAllRatingsComponentsForum
 	}
 
 	// check the value of the component-rating which relate to the module
-	function OnAfterUpdateRating($ID, $arFields)
+	public static function OnAfterUpdateRating($ID, $arFields)
 	{
 		$arFields['CONFIGS']['FORUM'] = CRatingsComponentsForum::__CheckFields($arFields['ENTITY_ID'], $arFields['CONFIGS']['FORUM']);
 
@@ -134,7 +135,7 @@ class CAllRatingsComponentsForum
 	// Utilities
 
 	// check input values, if value does not validate, set the default value
-	function __CheckFields($entityId, $arConfigs)
+	public static function __CheckFields($entityId, $arConfigs)
 	{
 		$arDefaultConfig = CRatingsComponentsForum::__AssembleConfigDefault($entityId);
 		if ($entityId == "USER") {
@@ -186,7 +187,7 @@ class CAllRatingsComponentsForum
 	}
 
 	// collect the default and regular expressions for the fields component-rating
-	function __AssembleConfigDefault($objectType = null)
+	public static function __AssembleConfigDefault($objectType = null)
 	{
 		$arConfigs = array();
 		$arRatingConfigs = CRatingsComponentsForum::OnGetRatingConfigs();
@@ -210,7 +211,7 @@ class CAllRatingsComponentsForum
 		return $arConfigs;
 	}
 
-	function OnGetRatingContentOwner($arParams)
+	public static function OnGetRatingContentOwner($arParams)
 	{
 		if ($arParams['ENTITY_TYPE_ID'] == 'FORUM_TOPIC')
 		{
@@ -225,5 +226,3 @@ class CAllRatingsComponentsForum
 		return false;
 	}
 }
-
-?>

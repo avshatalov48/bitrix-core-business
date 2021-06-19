@@ -1,0 +1,215 @@
+/* region Modified Light theme */
+
+.bitrix24-light-theme .main-ui-filter-theme-light.main-ui-filter-search {
+	border: 1px solid rgba(255,255,255,.44);
+	background-color: rgba(255,255,255,.14);
+}
+
+.bitrix24-light-theme .main-ui-filter-search--active.main-ui-filter-theme-light.main-ui-filter-search,
+.bitrix24-light-theme .main-ui-filter-search--showed.main-ui-filter-theme-light.main-ui-filter-search {
+	background-color: rgba(255, 255, 255, 1);
+}
+
+.bitrix24-light-theme .main-ui-filter-theme-light .main-ui-filter-search-filter,
+.bitrix24-light-theme .main-ui-filter-theme-light .main-ui-filter-search-square:nth-last-child(3)::after,
+.bitrix24-light-theme .main-ui-filter-theme-light .main-ui-filter-search-filter::-webkit-input-placeholder {
+	background-color: transparent;
+	color: rgba(255,255,255,.5);
+}
+
+.bitrix24-light-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-filter-search-filter,
+.bitrix24-light-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-filter-search-filter,
+.bitrix24-light-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-filter-search-square:nth-last-child(3)::after,
+.bitrix24-light-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-filter-search-square:nth-last-child(3)::after,
+.bitrix24-light-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-filter-search-filter::-webkit-input-placeholder,
+.bitrix24-light-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-filter-search-filter::-webkit-input-placeholder {
+	background-color: transparent;
+	color: #333!important;
+}
+
+.bitrix24-light-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-filter-search-filter:hover::-webkit-input-placeholder,
+.bitrix24-light-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-filter-search-filter:hover::-webkit-input-placeholder,
+.bitrix24-default-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-filter-search-filter:hover::-webkit-input-placeholder,
+.bitrix24-default-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-filter-search-filter:hover::-webkit-input-placeholder,
+.bitrix24-dark-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-filter-search-filter:hover::-webkit-input-placeholder,
+.bitrix24-dark-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-filter-search-filter:hover::-webkit-input-placeholder {
+	color: #c5c8cc;
+}
+
+.bitrix24-light-theme .main-ui-filter-theme-light .main-ui-item-icon.main-ui-search {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2215%22%20height%3D%2215%22%20viewBox%3D%220%200%2015%2015%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20fill-rule%3D%22evenodd%22%20d%3D%22M1.33%205.5c0-2.304%201.866-4.17%204.17-4.17S9.67%203.195%209.67%205.5c0%202.305-1.865%204.17-4.17%204.17-2.305%200-4.17-1.865-4.17-4.17m12.528%206.944l-3.816-3.817-.014-.008C10.64%207.73%2011%206.66%2011%205.5%2011%202.462%208.537%200%205.5%200S0%202.462%200%205.5%202.463%2011%205.5%2011c1.158%200%202.232-.36%203.118-.972.004.004.005.01.01.014l3.816%203.817c.372.37.982.37%201.354%200l.06-.063c.372-.372.372-.982%200-1.354%22/%3E%3C/svg%3E');
+	opacity: .5;
+}
+
+.bitrix24-light-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-item-icon.main-ui-search,
+.bitrix24-light-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-item-icon.main-ui-search,
+.bitrix24-default-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-item-icon.main-ui-search,
+.bitrix24-default-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-item-icon.main-ui-search,
+.bitrix24-dark-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-item-icon.main-ui-search,
+.bitrix24-dark-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-item-icon.main-ui-search {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2215%22%20height%3D%2215%22%20viewBox%3D%220%200%2015%2015%22%3E%3Cpath%20fill%3D%22%23535C68%22%20fill-rule%3D%22evenodd%22%20d%3D%22M1.33%205.5c0-2.304%201.866-4.17%204.17-4.17S9.67%203.195%209.67%205.5c0%202.305-1.865%204.17-4.17%204.17-2.305%200-4.17-1.865-4.17-4.17m12.528%206.944l-3.816-3.817-.014-.008C10.64%207.73%2011%206.66%2011%205.5%2011%202.462%208.537%200%205.5%200S0%202.462%200%205.5%202.463%2011%205.5%2011c1.158%200%202.232-.36%203.118-.972.004.004.005.01.01.014l3.816%203.817c.372.37.982.37%201.354%200l.06-.063c.372-.372.372-.982%200-1.354%22/%3E%3C/svg%3E');
+	opacity: .3;
+}
+
+.bitrix24-light-theme .main-ui-filter-theme-light .main-ui-item-icon.main-ui-search:hover {
+	opacity: 1;
+}
+
+.bitrix24-light-theme .main-ui-filter-theme-light .main-ui-show.main-ui-item-icon-block .main-ui-item-icon.main-ui-delete {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2211%22%20viewBox%3D%220%200%2012%2011%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20fill-rule%3D%22evenodd%22%20d%3D%22M7.587%205.503l4.4-4.398-1.132-1.13-4.4%204.397L2.06-.026l-1.13%201.13%204.397%204.4L.927%209.9l1.13%201.132%204.4-4.398%204.398%204.398%201.13-1.13-4.398-4.4z%22/%3E%3C/svg%3E');
+	opacity: .5;
+}
+
+.bitrix24-light-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-show.main-ui-item-icon-block .main-ui-item-icon.main-ui-delete,
+.bitrix24-light-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-show.main-ui-item-icon-block .main-ui-item-icon.main-ui-delete,
+.bitrix24-default-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-show.main-ui-item-icon-block .main-ui-item-icon.main-ui-delete,
+.bitrix24-default-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-show.main-ui-item-icon-block .main-ui-item-icon.main-ui-delete,
+.bitrix24-dark-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-show.main-ui-item-icon-block .main-ui-item-icon.main-ui-delete,
+.bitrix24-dark-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-show.main-ui-item-icon-block .main-ui-item-icon.main-ui-delete {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2211%22%20viewBox%3D%220%200%2012%2011%22%3E%3Cpath%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M7.587%205.503l4.4-4.398-1.132-1.13-4.4%204.397L2.06-.026l-1.13%201.13%204.397%204.4L.927%209.9l1.13%201.132%204.4-4.398%204.398%204.398%201.13-1.13-4.398-4.4z%22/%3E%3C/svg%3E');
+	opacity: .3;
+}
+
+.bitrix24-light-theme .main-ui-filter-theme-light .main-ui-show.main-ui-item-icon-block .main-ui-item-icon.main-ui-delete:hover,
+.bitrix24-dark-theme .main-ui-filter-theme-light .main-ui-show.main-ui-item-icon-block .main-ui-item-icon.main-ui-delete:hover,
+.bitrix24-default-theme .main-ui-filter-theme-light .main-ui-show.main-ui-item-icon-block .main-ui-item-icon.main-ui-delete:hover {
+	opacity: 1;
+}
+
+.bitrix24-light-theme .main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square {
+	background-color: rgba(0,186,242,.6);
+}
+
+.bitrix24-light-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square,
+.bitrix24-light-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square,
+.bitrix24-default-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square,
+.bitrix24-default-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square,
+.bitrix24-dark-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square,
+.bitrix24-dark-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square {
+	background-color: #bcedfc;
+}
+
+.bitrix24-light-theme .main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-item {
+	color: #fff;
+}
+
+.bitrix24-light-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-item,
+.bitrix24-light-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-item,
+.bitrix24-default-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-item,
+.bitrix24-default-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-item,
+.bitrix24-dark-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-item,
+.bitrix24-dark-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-item {
+	color: #333;
+}
+
+.bitrix24-light-theme .main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-delete {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2210%22%20height%3D%2210%22%20viewBox%3D%220%200%2010%2010%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20fill-rule%3D%22evenodd%22%20d%3D%22M5.065%203.682L2.377.994%201.01%202.362%203.696%205.05.99%207.757l1.368%201.37%202.708-2.71%202.7%202.703%201.37-1.368-2.702-2.7%202.682-2.684L7.748%201%205.065%203.682z%22/%3E%3C/svg%3E');
+	opacity: .45;
+}
+
+.bitrix24-light-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-delete,
+.bitrix24-light-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-delete,
+.bitrix24-default-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-delete,
+.bitrix24-default-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-delete,
+.bitrix24-dark-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-delete,
+.bitrix24-dark-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-delete {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2210%22%20height%3D%2210%22%20viewBox%3D%220%200%2010%2010%22%3E%3Cpath%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M5.065%203.682L2.377.994%201.01%202.362%203.696%205.05.99%207.757l1.368%201.37%202.708-2.71%202.7%202.703%201.37-1.368-2.702-2.7%202.682-2.684L7.748%201%205.065%203.682z%22/%3E%3C/svg%3E');
+	opacity: .3;
+}
+
+.bitrix24-light-theme .main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-delete:hover {
+	opacity: 1;
+}
+
+/* endregion */
+
+/* region Modified Dark and Default theme */
+
+.bitrix24-default-theme .main-ui-filter-theme-light.main-ui-filter-search,
+.bitrix24-dark-theme .main-ui-filter-theme-light.main-ui-filter-search {
+	border: 1px solid rgba(82,92,105,.17);
+	background-color: rgba(82,92,105,.06);
+}
+
+.bitrix24-default-theme .main-ui-filter-search--active.main-ui-filter-theme-light.main-ui-filter-search,
+.bitrix24-default-theme .main-ui-filter-search--showed.main-ui-filter-theme-light.main-ui-filter-search,
+.bitrix24-dark-theme .main-ui-filter-search--active.main-ui-filter-theme-light.main-ui-filter-search,
+.bitrix24-dark-theme .main-ui-filter-search--showed.main-ui-filter-theme-light.main-ui-filter-search {
+	border: 1px solid #fff;
+	background-color: #fff;
+}
+
+.bitrix24-default-theme .main-ui-filter-theme-light .main-ui-filter-search-filter,
+.bitrix24-default-theme .main-ui-filter-theme-light .main-ui-filter-search-square:nth-last-child(3)::after,
+.bitrix24-default-theme .main-ui-filter-theme-light .main-ui-filter-search-filter::-webkit-input-placeholder,
+.bitrix24-dark-theme .main-ui-filter-theme-light .main-ui-filter-search-filter,
+.bitrix24-dark-theme .main-ui-filter-theme-light .main-ui-filter-search-square:nth-last-child(3)::after,
+.bitrix24-dark-theme .main-ui-filter-theme-light .main-ui-filter-search-filter::-webkit-input-placeholder {
+	background-color: transparent;
+	color: rgba(51,51,51,.3);
+}
+
+.bitrix24-default-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-filter-search-filter,
+.bitrix24-default-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-filter-search-filter,
+.bitrix24-default-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-filter-search-square:nth-last-child(3)::after,
+.bitrix24-default-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-filter-search-square:nth-last-child(3)::after,
+.bitrix24-default-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-filter-search-filter::-webkit-input-placeholder,
+.bitrix24-default-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-filter-search-filter::-webkit-input-placeholder,
+.bitrix24-dark-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-filter-search-filter,
+.bitrix24-dark-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-filter-search-filter,
+.bitrix24-dark-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-filter-search-square:nth-last-child(3)::after,
+.bitrix24-dark-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-filter-search-square:nth-last-child(3)::after,
+.bitrix24-dark-theme .main-ui-filter-search--active.main-ui-filter-theme-light .main-ui-filter-search-filter::-webkit-input-placeholder,
+.bitrix24-dark-theme .main-ui-filter-search--showed.main-ui-filter-theme-light .main-ui-filter-search-filter::-webkit-input-placeholder {
+	background-color: transparent;
+	color: #333333;
+}
+
+.bitrix24-default-theme .main-ui-filter-theme-light .main-ui-filter-search-filter:hover::-webkit-input-placeholder,
+.bitrix24-dark-theme .main-ui-filter-theme-light .main-ui-filter-search-filter:hover::-webkit-input-placeholder {
+	color: rgba(51,51,51,.9);
+}
+
+.bitrix24-default-theme .main-ui-filter-theme-light .main-ui-item-icon.main-ui-search,
+.bitrix24-dark-theme .main-ui-filter-theme-light .main-ui-item-icon.main-ui-search {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2215%22%20height%3D%2215%22%20viewBox%3D%220%200%2015%2015%22%3E%3Cpath%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M1.33%205.5c0-2.304%201.866-4.17%204.17-4.17S9.67%203.195%209.67%205.5c0%202.305-1.865%204.17-4.17%204.17-2.305%200-4.17-1.865-4.17-4.17m12.528%206.944l-3.816-3.817-.014-.008C10.64%207.73%2011%206.66%2011%205.5%2011%202.462%208.537%200%205.5%200S0%202.462%200%205.5%202.463%2011%205.5%2011c1.158%200%202.232-.36%203.118-.972.004.004.005.01.01.014l3.816%203.817c.372.37.982.37%201.354%200l.06-.063c.372-.372.372-.982%200-1.354%22/%3E%3C/svg%3E');
+	opacity: .5;
+}
+
+.bitrix24-default-theme .main-ui-filter-theme-light .main-ui-item-icon.main-ui-search:hover,
+.bitrix24-dark-theme .main-ui-filter-theme-light .main-ui-item-icon.main-ui-search:hover {
+	opacity: 1;
+}
+
+.bitrix24-default-theme .main-ui-filter-theme-light .main-ui-show.main-ui-item-icon-block .main-ui-item-icon.main-ui-delete,
+.bitrix24-dark-theme .main-ui-filter-theme-light .main-ui-show.main-ui-item-icon-block .main-ui-item-icon.main-ui-delete {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2211%22%20viewBox%3D%220%200%2012%2011%22%3E%3Cpath%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M7.587%205.503l4.4-4.398-1.132-1.13-4.4%204.397L2.06-.026l-1.13%201.13%204.397%204.4L.927%209.9l1.13%201.132%204.4-4.398%204.398%204.398%201.13-1.13-4.398-4.4z%22/%3E%3C/svg%3E');
+	opacity: .5;
+}
+
+.bitrix24-default-theme .main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square,
+.bitrix24-dark-theme .main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square {
+	background-color: rgba(0,186,242,.6);
+}
+
+.bitrix24-default-theme .main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-item,
+.bitrix24-dark-theme .main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-item {
+	color: #fff;
+}
+
+.bitrix24-default-theme .main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-delete,
+.bitrix24-dark-theme .main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-delete {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2210%22%20height%3D%2210%22%20viewBox%3D%220%200%2010%2010%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20fill-rule%3D%22evenodd%22%20d%3D%22M5.065%203.682L2.377.994%201.01%202.362%203.696%205.05.99%207.757l1.368%201.37%202.708-2.71%202.7%202.703%201.37-1.368-2.702-2.7%202.682-2.684L7.748%201%205.065%203.682z%22/%3E%3C/svg%3E');
+	opacity: .45;
+}
+
+.bitrix24-default-theme .main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-delete:hover,
+.bitrix24-dark-theme .main-ui-filter-theme-light .main-ui-square.main-ui-filter-search-square .main-ui-square-delete:hover {
+	opacity: 1;
+}
+
+/* endregion */
+
+.main-ui-filter-theme-light {
+	transition: border 200ms ease, background-color 200ms ease;
+}

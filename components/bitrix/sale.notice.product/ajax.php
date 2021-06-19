@@ -4,14 +4,14 @@ define("PUBLIC_AJAX_MODE", true);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
+global $USER, $APPLICATION;
+
 if (isset($_REQUEST["reloadcaptha"]) && $_REQUEST["reloadcaptha"] == "Y")
 {
-	echo CMain::CaptchaGetCode();
+	echo $APPLICATION->CaptchaGetCode();
 
 	die();
 }
-
-global $USER;
 
 $arResult = array("STATUS" => "N", "NOTIFY_URL" => "", "ERRORS" => "NOTIFY_ERR_REG");
 
@@ -41,7 +41,7 @@ if (CModule::IncludeModule('sale'))
 
 		if ($user_mail <> '' && $arResult["ERRORS"] == '')
 		{
-			$res = CUser::GetList($b, $o, array("=EMAIL" => $user_mail));
+			$res = CUser::GetList('', '', array("=EMAIL" => $user_mail));
 			if($res->Fetch())
 				$arResult["ERRORS"] = 'NOTIFY_ERR_MAIL_EXIST';
 		}

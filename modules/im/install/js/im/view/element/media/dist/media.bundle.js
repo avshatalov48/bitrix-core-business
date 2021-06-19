@@ -9,7 +9,7 @@
 	 * @subpackage im
 	 * @copyright 2001-2019 Bitrix
 	 */
-	ui_vue.Vue.component('bx-im-view-element-file', {
+	ui_vue.BitrixVue.component('bx-im-view-element-file', {
 	  /*
 	   * @emits 'uploadCancel' {file: object, event: MouseEvent}
 	   */
@@ -192,7 +192,7 @@
 	      return im_const.FileStatus;
 	    },
 	    localize: function localize() {
-	      return ui_vue.Vue.getFilteredPhrases('IM_MESSENGER_ELEMENT_FILE_', this.$root.$bitrixMessages);
+	      return ui_vue.BitrixVue.getFilteredPhrases('IM_MESSENGER_ELEMENT_FILE_', this);
 	    },
 	    fileName: function fileName() {
 	      var maxLength = 70;
@@ -285,9 +285,6 @@
 	    }
 	  },
 	  computed: {
-	    localize: function localize() {
-	      return ui_vue.Vue.getFilteredPhrases('IM_MESSENGER_ELEMENT_FILE_', this.$root.$bitrixMessages);
-	    },
 	    styleFileSizes: function styleFileSizes() {
 	      var sizes = this.getImageSize(this.file.image.width, this.file.image.height, 280);
 	      return {
@@ -309,7 +306,7 @@
 	      return this.file.urlPreview;
 	    }
 	  },
-	  template: "\n\t\t<div class=\"bx-im-element-file-image\" @click=\"download(file, $event)\" :style=\"styleBoxSizes\" ref=\"container\">\n\t\t\t<img v-bx-lazyload\n\t\t\t\tclass=\"bx-im-element-file-image-source\"\n\t\t\t\t:data-lazyload-src=\"fileSource\"\n\t\t\t\t:title=\"localize.IM_MESSENGER_ELEMENT_FILE_SHOW_TITLE.replace('#NAME#', file.name).replace('#SIZE#', fileSize)\"\n\t\t\t\t:style=\"styleFileSizes\"\n\t\t\t\t:data-viewer=\"file.viewerAttrs.viewer === null\"\n\t\t\t\t:data-viewer-type=\"file.viewerAttrs.viewerType? file.viewerAttrs.viewerType: false\"\n\t\t\t\t:data-src=\"file.viewerAttrs.src? file.viewerAttrs.src: false\"\n\t\t\t\t:data-viewer-group-by=\"file.viewerAttrs.viewerGroupBy? file.viewerAttrs.viewerGroupBy: false\"\n\t\t\t\t:data-title=\"file.viewerAttrs.title? file.viewerAttrs.title: false\"\n\t\t\t\t:data-actions=\"file.viewerAttrs.actions? file.viewerAttrs.actions: false\"\n\t\t\t/>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div class=\"bx-im-element-file-image\" @click=\"download(file, $event)\" :style=\"styleBoxSizes\" ref=\"container\">\n\t\t\t<img v-bx-lazyload\n\t\t\t\tclass=\"bx-im-element-file-image-source\"\n\t\t\t\t:data-lazyload-src=\"fileSource\"\n\t\t\t\t:title=\"$Bitrix.Loc.getMessage('IM_MESSENGER_ELEMENT_FILE_SHOW_TITLE').replace('#NAME#', file.name).replace('#SIZE#', fileSize)\"\n\t\t\t\t:style=\"styleFileSizes\"\n\t\t\t\t:data-viewer=\"file.viewerAttrs.viewer === null\"\n\t\t\t\t:data-viewer-type=\"file.viewerAttrs.viewerType? file.viewerAttrs.viewerType: false\"\n\t\t\t\t:data-src=\"file.viewerAttrs.src? file.viewerAttrs.src: false\"\n\t\t\t\t:data-viewer-group-by=\"file.viewerAttrs.viewerGroupBy? file.viewerAttrs.viewerGroupBy: false\"\n\t\t\t\t:data-title=\"file.viewerAttrs.title? file.viewerAttrs.title: false\"\n\t\t\t\t:data-actions=\"file.viewerAttrs.actions? file.viewerAttrs.actions: false\"\n\t\t\t/>\n\t\t</div>\n\t"
 	});
 
 	/**
@@ -340,9 +337,6 @@
 	  computed: {
 	    isSafari: function isSafari() {
 	      return im_lib_utils.Utils.browser.isSafari() || im_lib_utils.Utils.platform.isBitrixMobile();
-	    },
-	    localize: function localize() {
-	      return ui_vue.Vue.getFilteredPhrases('IM_MESSENGER_ELEMENT_FILE_', this.$root.$bitrixMessages);
 	    },
 	    styleBoxSizes: function styleBoxSizes() {
 	      if (parseInt(this.styleVideoSizes.height) <= 280) {

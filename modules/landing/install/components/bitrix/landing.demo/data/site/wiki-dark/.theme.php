@@ -3,23 +3,17 @@
 return [
 	'newBlockStyle' => [
 		'titleBig' => [
-			'g-color-white',
-			'g-font-size-76',
-			'g-font-weight-700',
-			'g-line-height-1_2',
-			'g-letter-spacing-0',
-			'g-text-transform-none',
+			//not used in blocks
 		],
-
 		'titleMedium' => [
 			'g-color-white',
-			'g-font-size-50',
+			//'g-font-size-50',
+			'g-font-size-40',
 			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
 		],
-
 		'titleSmall' => [
 			'g-color-white',
 			'g-font-size-40',
@@ -36,15 +30,14 @@ return [
 			'g-letter-spacing-0',
 			'g-text-transform-none',
 		],
-
 		'subtitleMedium' => [
 			'g-color-white',
-			'g-font-size-22',
+			//'g-font-size-22',
+			'g-font-size-20',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
 		],
-
 		'subtitleSmall' => [
 			'g-color-white',
 			'g-font-size-20',
@@ -60,15 +53,14 @@ return [
 			'g-letter-spacing-0',
 			'g-text-transform-none',
 		],
-
 		'subtitleMediumPrimary' => [
 			'g-color-primary',
-			'g-font-size-22',
+			//'g-font-size-22',
+			'g-font-size-20',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
 		],
-
 		'subtitleSmallPrimary' => [
 			'g-color-primary',
 			'g-font-size-20',
@@ -78,19 +70,15 @@ return [
 		],
 
 		'textBig' => [
-			'g-color-white',
-			'g-font-size-27',
-			'g-line-height-1_2',
-			'g-letter-spacing-0',
+			//not used in blocks
 		],
-
 		'textMedium' => [
 			'g-color-white',
-			'g-font-size-18',
+			//'g-font-size-18',
+			'g-font-size-14',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 		],
-
 		'textSmall' => [
 			'g-color-white',
 			'g-font-size-14',
@@ -99,21 +87,20 @@ return [
 		],
 
 		'titleImageBig' => [
-			'g-font-size-76',
+			'g-font-size-75',
 			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
 		],
-
 		'titleImageMedium' => [
-			'g-font-size-50',
+			//'g-font-size-50',
+			'g-font-size-40',
 			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
 		],
-
 		'titleImageSmall' => [
 			'g-font-size-40',
 			'g-font-weight-700',
@@ -128,14 +115,13 @@ return [
 			'g-letter-spacing-0',
 			'g-text-transform-none',
 		],
-
 		'subtitleImageMedium' => [
-			'g-font-size-22',
+			//'g-font-size-22',
+			'g-font-size-20',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
 		],
-
 		'subtitleImageSmall' => [
 			'g-font-size-20',
 			'g-line-height-1_2',
@@ -148,13 +134,12 @@ return [
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 		],
-
 		'textImageMedium' => [
-			'g-font-size-18',
+			//'g-font-size-18',
+			'g-font-size-14',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 		],
-
 		'textImageSmall' => [
 			'g-font-size-14',
 			'g-line-height-1_2',

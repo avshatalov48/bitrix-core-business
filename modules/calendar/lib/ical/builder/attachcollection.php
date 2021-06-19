@@ -67,6 +67,14 @@ class AttachCollection implements IteratorAggregate, Serializable
 		return new ArrayIterator($this->collection);
 	}
 
+	public function getCount(): int
+	{
+		return count($this->collection);
+	}
+	/**
+	 * @param array $collection
+	 * @return bool
+	 */
 	private function checkCollection(array $collection): bool
 	{
 		if (is_null($collection))

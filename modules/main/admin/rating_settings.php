@@ -42,7 +42,7 @@ $ratingAssignRatingGroupDelete = isset($_POST["RATING_ASSIGN_RATING_GROUP_DELETE
 $ratingAssignAuthorityGroupAdd = isset($_POST["RATING_ASSIGN_AUTHORITY_GROUP_ADD"]) ? intval($_POST["RATING_ASSIGN_AUTHORITY_GROUP_ADD"]) : 2;
 $ratingAssignAuthorityGroupDelete = isset($_POST["RATING_ASSIGN_AUTHORITY_GROUP_DELETE"]) ? intval($_POST["RATING_ASSIGN_AUTHORITY_GROUP_DELETE"]) : 2;
 
-$dbSites = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+$dbSites = CSite::GetList('', '', Array("ACTIVE" => "Y"));
 $arSites = array();
 $aSubTabs = array();
 while ($site = $dbSites->Fetch())
@@ -437,7 +437,7 @@ $editTab->BeginNextTab();
 	$arRatingVoteGroupIdList2 = Array();
 	$arRatingVoteGroupIdList2["REFERENCE"][] = "";
 	$arRatingVoteGroupIdList2["REFERENCE_ID"][] = 0;
-	$rsGroups = CGroup::GetList($by="c_sort", $order="asc", $filter=array());
+	$rsGroups = CGroup::GetList();
 	while($arGroup = $rsGroups->Fetch())
 	{
 		if ($arGroup['ID'] == 2)

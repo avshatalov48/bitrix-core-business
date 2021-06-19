@@ -298,7 +298,7 @@ class CSMTPServerHost
 		return array();
 	}
 
-	function CSMTPServerHost($server, $arFields)
+	public function __construct($server, $arFields)
 	{
 		$this->server = $server;
 		$this->arFields = $arFields;
@@ -404,7 +404,7 @@ class CSMTPConnection
 	var $auth_user_id = 0;
 	var $msgCount = 0;
 
-	function CSMTPConnection($id, $sock, $serv)
+	public function __construct($id, $sock, $serv)
 	{
 		$this->id = $id;
 		$this->sock = $sock;

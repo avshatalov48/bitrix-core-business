@@ -54,7 +54,7 @@ function CheckFields() // проверка на наличие обязательных полей
 			"SITE"	=> $arrSITE
 			);
 
-		$z = CTicketDictionary::GetList($v1, $v2, $arFilter, $v3);
+		$z = CTicketDictionary::GetList();
 		if ($zr = $z->Fetch())
 		{
 			$s = str_replace("#TYPE#", CTicketDictionary::GetTypeNameByID($str_C_TYPE), GetMessage("SUP_SID_ALREADY_IN_USE"));
@@ -212,7 +212,7 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $bAdmin=="Y" && 
 }
 
 $arrSites = array();
-$rs = CSite::GetList(($by="sort"), ($order="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 	$arrSites[$ar["ID"]] = $ar;
 
@@ -350,8 +350,7 @@ $tabControl->Begin();?>
 		<td>
 			<div class="adm-list">
 			<?
-			reset($arrSites);
-			while(list($sid, $arrS) = each($arrSites)):
+			foreach ($arrSites as $sid => $arrS):
 			$checked = ((is_array($arrSITE) && in_array($sid, $arrSITE)) || ($ID<=0 && $def_site_id==$sid)) ? "checked" : "";
 			/*<?=$disabled?>*/
 			?>
@@ -360,7 +359,7 @@ $tabControl->Begin();?>
 				<div class="adm-list-label"><label for="<?=htmlspecialcharsbx($sid)?>"><?echo '[<a title="'.GetMessage("MAIN_ADMIN_MENU_EDIT").'" href="/bitrix/admin/site_edit.php?LID='.htmlspecialcharsbx($sid).'&lang='.LANGUAGE_ID.'">'.htmlspecialcharsex($sid).'</a>]&nbsp;'.htmlspecialcharsex($arrS["NAME"])?></label></div>
 			</div>
 			<?
-		endwhile;
+			endforeach;
 		?></div></td>
 	</tr>
 	<tr>

@@ -53,6 +53,7 @@ class MailMessageTable extends Entity\DataManager
 			),
 			'FIELD_FROM' => array(
 				'data_type' => 'string',
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'FIELD_REPLY_TO' => array(
 				'data_type' => 'string',
@@ -71,12 +72,14 @@ class MailMessageTable extends Entity\DataManager
 			),
 			'SUBJECT' => array(
 				'data_type' => 'string',
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'BODY' => array(
 				'data_type' => 'text',
 			),
 			'BODY_HTML' => array(
 				'data_type' => 'text',
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'ATTACHMENTS' => array(
 				'data_type' => 'integer',

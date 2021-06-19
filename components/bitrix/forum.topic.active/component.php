@@ -273,27 +273,26 @@ if ($_REQUEST["ACTION"] == "SET_BE_READ")
 
 /*******************************************************************/
 CPageOption::SetOptionString("main", "nav_page_in_session", "N");
-if (!$USER->IsAuthorized()):
-	$rsTopics = CForumTopic::GetListEx(
-		array(
-			$by => $order,
-			"POSTS" => "DESC"),
+if (!$USER->IsAuthorized())
+{
+	$dbRes = CForumTopic::GetListEx(
+		[$by => $order, 'POSTS' => 'DESC'],
 		$arFilter,
 		false,
 		500,
-		array(
-			"sNameTemplate" => $arParams["NAME_TEMPLATE"]
-		)
+		['sNameTemplate' => $arParams['NAME_TEMPLATE']]
 	);
-	while ($arTopic = $rsTopics->Fetch())
+	$topics = [];
+	while ($arTopic = $dbRes->Fetch())
 	{
 		if (!NewMessageTopic($arTopic["FORUM_ID"], $arTopic["ID"], $arTopic["LAST_POST_DATE"], false))
-			continue; 
-		$arrTOPICS[] = $arTopic;
+			continue;
+		$topics[] = $arTopic;
 	}
-	$rsTopics = new CDBResult;
-	$rsTopics->InitFromArray($arrTOPICS);
-else:
+	$rsTopics = new CDBResult($topics);
+}
+else
+{
 	$rsTopics = CForumTopic::GetListEx(
 		array(
 			$by => $order,
@@ -308,7 +307,7 @@ else:
 			"sNameTemplate" => $arParams["NAME_TEMPLATE"]
 		)
 	);
-endif;
+}
 $rsTopics->nPageWindow = $arParams["PAGE_NAVIGATION_WINDOW"];
 $rsTopics->NavStart($arParams["TOPICS_PER_PAGE"], false);
 $arResult["NAV_RESULT"] = $rsTopics;

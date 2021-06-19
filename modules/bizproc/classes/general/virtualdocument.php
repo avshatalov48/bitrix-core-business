@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Bizproc\FieldType;
 use Bitrix\Iblock\BizprocType;
@@ -8,8 +8,7 @@ if (!CModule::IncludeModule("iblock") || !class_exists("CIBlockDocument"))
 
 IncludeModuleLangFile(__FILE__);
 
-class CBPVirtualDocument
-	extends CIBlockDocument
+class CBPVirtualDocument extends CIBlockDocument
 {
 	public static function getEntityName()
 	{
@@ -31,7 +30,7 @@ class CBPVirtualDocument
 		return $result['NAME'];
 	}
 
-	function GetFieldInputControlOptions($documentType, &$arFieldType, $jsFunctionName, &$value)
+	public static function GetFieldInputControlOptions($documentType, &$arFieldType, $jsFunctionName, &$value)
 	{
 		$result = "";
 
@@ -155,7 +154,7 @@ class CBPVirtualDocument
 		return $result;
 	}
 
-	function GetFieldInputControl($documentType, $arFieldType, $arFieldName, $fieldValue, $bAllowSelection = false, $publicMode = false)
+	public static function GetFieldInputControl($documentType, $arFieldType, $arFieldName, $fieldValue, $bAllowSelection = false, $publicMode = false)
 	{
 		$v = mb_substr($documentType, mb_strlen("type_"));
 		if (intval($v)."!" != $v."!")
@@ -506,7 +505,7 @@ class CBPVirtualDocument
 		return $s;
 	}
 
-	function GetFieldInputValue($documentType, $arFieldType, $arFieldName, $arRequest, &$arErrors)
+	public static function GetFieldInputValue($documentType, $arFieldType, $arFieldName, $arRequest, &$arErrors)
 	{
 		$v = mb_substr($documentType, mb_strlen("type_"));
 		if (intval($v)."!" != $v."!")
@@ -749,7 +748,7 @@ class CBPVirtualDocument
 		return $result;
 	}
 
-	function GetFieldInputValuePrintable($documentType, $arFieldType, $fieldValue)
+	public static function GetFieldInputValuePrintable($documentType, $arFieldType, $fieldValue)
 	{
 		$result = $fieldValue;
 
@@ -862,7 +861,7 @@ class CBPVirtualDocument
 		return $result;
 	}
 
-	function CanUserOperateDocument($operation, $userId, $documentId, $arParameters = array())
+	public static function CanUserOperateDocument($operation, $userId, $documentId, $arParameters = array())
 	{
 		$documentId = trim($documentId);
 		if ($documentId == '')
@@ -963,7 +962,7 @@ class CBPVirtualDocument
 		return $r;
 	}
 
-	function CanUserOperateDocumentType($operation, $userId, $documentType, $arParameters = array())
+	public static function CanUserOperateDocumentType($operation, $userId, $documentType, $arParameters = array())
 	{
 		$documentType = trim($documentType);
 		if ($documentType == '')
@@ -1048,7 +1047,7 @@ class CBPVirtualDocument
 		return $r;
 	}
 
-	function GetList($arOrder = array("SORT" => "ASC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields=array())
+	public static function GetList($arOrder = array("SORT" => "ASC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields=array())
 	{
 		$arFilter["SHOW_NEW"] = "Y";
 		$arFilter["ACTIVE"] = "Y";
@@ -1176,7 +1175,7 @@ class CBPVirtualDocument
 		return array($dbTasksList1, $dbTasksList);
 	}
 
-	private function PrepareUserForPrint($value)
+	private static function PrepareUserForPrint($value)
 	{
 		$arReturn = array();
 
@@ -1200,7 +1199,7 @@ class CBPVirtualDocument
 		return (is_array($value) ? $arReturn : ((count($arReturn) > 0) ? $arReturn[0] : ""));
 	}
 
-	private function PrepareSectionForPrint($value, $iblockId = 0)
+	private static function PrepareSectionForPrint($value, $iblockId = 0)
 	{
 		if ($iblockId <= 0)
 			$iblockId = COption::GetOptionInt("intranet", "iblock_tasks", 0);
@@ -1231,7 +1230,7 @@ class CBPVirtualDocument
 	* @param string $documentId
 	* @return string - document admin page url.
 	*/
-	public function GetDocumentAdminPage($documentId)
+	public static function GetDocumentAdminPage($documentId)
 	{
 		return null;
 
@@ -1252,7 +1251,7 @@ class CBPVirtualDocument
 		return null;
 	}
 
-	public function GetDocument($documentId)
+	public static function GetDocument($documentId)
 	{
 		$documentId = intval($documentId);
 		if ($documentId <= 0)
@@ -1366,7 +1365,7 @@ class CBPVirtualDocument
 		return $arResult;
 	}
 
-	public function GetDocumentType($documentId)
+	public static function GetDocumentType($documentId)
 	{
 		if (mb_substr($documentId, 0, mb_strlen("type_")) == "type_")
 			return $documentId;
@@ -1383,7 +1382,7 @@ class CBPVirtualDocument
 		return "type_".$arResult["IBLOCK_ID"];
 	}
 
-	public function GetDocumentFields($documentType)
+	public static function GetDocumentFields($documentType)
 	{
 		$v = mb_substr($documentType, mb_strlen("type_"));
 		if (intval($v)."!" != $v."!")
@@ -1635,7 +1634,7 @@ class CBPVirtualDocument
 		return $arResult;
 	}
 
-	public function GetDocumentFieldTypes($documentType)
+	public static function GetDocumentFieldTypes($documentType)
 	{
 		$typesMap = FieldType::getBaseTypesMap();
 
@@ -1708,7 +1707,7 @@ class CBPVirtualDocument
 		return $arResult;
 	}
 
-	public function AddDocumentField($documentType, $arFields)
+	public static function AddDocumentField($documentType, $arFields)
 	{
 		$iblockId = intval(mb_substr($documentType, mb_strlen("type_")));
 		if ($iblockId <= 0)
@@ -1791,7 +1790,7 @@ class CBPVirtualDocument
 		return "PROPERTY_".$arFields["code"];
 	}
 
-	public function UpdateDocument($documentId, $arFields)
+	public static function UpdateDocument($documentId, $arFields)
 	{
 		$documentId = intval($documentId);
 		if ($documentId <= 0)
@@ -1907,7 +1906,7 @@ class CBPVirtualDocument
 		}
 	}
 
-	public function CreateDocument($parentDocumentId, $arFields)
+	public static function CreateDocument($parentDocumentId, $arFields)
 	{
 		if (!array_key_exists("IBLOCK_ID", $arFields) || intval($arFields["IBLOCK_ID"]) <= 0)
 			throw new Exception("IBlock ID is not found");
@@ -2007,13 +2006,13 @@ class CBPVirtualDocument
 		return $id;
 	}
 
-	public function GetAllowableOperations($documentType)
+	public static function GetAllowableOperations($documentType)
 	{
 		return array("read" => GetMessage("BPVDX_OP_READ"), "create" => GetMessage("BPVDX_OP_CREATE")/*, "admin" => GetMessage("BPVDX_OP_ADMIN")*/);
 	}
 
 	// array("1" => "Admins", 2 => "Guests", 3 => ..., "Author" => "Author")
-	public function GetAllowableUserGroups($documentType, $withExtended = false)
+	public static function GetAllowableUserGroups($documentType, $withExtended = false)
 	{
 		$documentType = trim($documentType);
 		if ($documentType == '')
@@ -2038,7 +2037,7 @@ class CBPVirtualDocument
 		return $arResult;
 	}
 
-	public function GetUsersFromUserGroup($group, $documentId)
+	public static function GetUsersFromUserGroup($group, $documentId)
 	{
 		$group = mb_strtolower($group);
 		if ($group == "author")
@@ -2064,8 +2063,8 @@ class CBPVirtualDocument
 		$arResult = array();
 
 		$dbUsersList = CUser::GetList(
-			($b = "ID"),
-			($o = "ASC"),
+			"ID",
+			"ASC",
 			['GROUPS_ID' => $group, 'ACTIVE' => 'Y', 'IS_REAL_USER' => true],
 			['FIELDS' => ['ID']]
 		);
@@ -2076,7 +2075,7 @@ class CBPVirtualDocument
 		return $arResult;
 	}
 
-	public function GetJSFunctionsForFields($documentType, $objectName, $arDocumentFields = array(), $arDocumentFieldTypes = array())
+	public static function GetJSFunctionsForFields($documentType, $objectName, $arDocumentFields = array(), $arDocumentFieldTypes = array())
 	{
 		$iblockId = intval(mb_substr($documentType, mb_strlen("type_")));
 		if ($iblockId <= 0)
@@ -2249,7 +2248,7 @@ class CBPVirtualDocument
 		return $str;
 	}
 
-	function GetGUIFieldEdit($documentType, $formName, $fieldName, $fieldValue, $arDocumentField = null, $bAllowSelection = false)
+	public static function GetGUIFieldEdit($documentType, $formName, $fieldName, $fieldValue, $arDocumentField = null, $bAllowSelection = false)
 	{
 		return self::GetFieldInputControl(
 			$documentType,
@@ -2260,12 +2259,12 @@ class CBPVirtualDocument
 		);
 	}
 
-	function SetGUIFieldEdit($documentType, $fieldName, $arRequest, &$arErrors, $arDocumentField = null)
+	public static function SetGUIFieldEdit($documentType, $fieldName, $arRequest, &$arErrors, $arDocumentField = null)
 	{
 		return self::GetFieldInputValue($documentType, $arDocumentField, array("Field" => $fieldName), $arRequest, $arErrors);
 	}
 
-	function GetFieldValuePrintable($documentId, $fieldName, $fieldType, $fieldValue, $arFieldType)
+	public static function GetFieldValuePrintable($documentId, $fieldName, $fieldType, $fieldValue, $arFieldType)
 	{
 		$documentType = null;
 
@@ -2289,14 +2288,14 @@ class CBPVirtualDocument
 		return self::GetFieldInputValuePrintable($documentType, $arFieldType, $fieldValue);
 	}
 
-	public function SetPermissions($documentId, $workflowId, $arPermissions, $bRewrite = true)
+	public static function SetPermissions($documentId, $workflowId, $arPermissions, $bRewrite = true)
 	{
 		$documentId = intval($documentId);
 		if ($documentId <= 0)
 			throw new CBPArgumentNullException("documentId");
 	}
 
-	public function OnAfterIBlockElementDelete($arFields)
+	public static function OnAfterIBlockElementDelete($arFields)
 	{
 		CBPDocument::OnDocumentDelete(array("bizproc", "CBPVirtualDocument", $arFields["ID"]), $arErrorsTmp);
 	}

@@ -68,6 +68,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Dom.addClass(_this.layout, _this.options.className);
 	    }
 
+	    if (main_core.Type.isObject(_this.options.attrs)) {
+	      main_core.Dom.adjust(_this.layout, {
+	        attrs: _this.options.attrs
+	      });
+	    }
+
 	    main_core.Event.bind(_this.layout, 'click', _this.onClick);
 	    return _this;
 	  }

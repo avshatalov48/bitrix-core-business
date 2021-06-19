@@ -48,7 +48,7 @@ class CDeliveryRusPost
 
 	const LOCATION_CODE_RUSSIA = "0000028023";
 
-	function Init()
+	public static function Init()
 	{
 		return array(
 			/* Basic description */
@@ -69,7 +69,8 @@ class CDeliveryRusPost
 
 			'COMPABILITY' => array('CDeliveryRusPost', 'Compability'),
 			'CALCULATOR' => array('CDeliveryRusPost', 'Calculate'),
-			"TRACKING_CLASS_NAME" => '\Bitrix\Sale\Delivery\Tracking\RusPost',
+			'TRACKING_CLASS_NAME' => '\Bitrix\Sale\Delivery\Tracking\RusPost',
+			'IS_HANDLER_COMPATIBLE' => array('CDeliveryRusPost', 'isHandlerCompatible'),
 
 			/* List of delivery profiles */
 			'PROFILES' => array(
@@ -94,7 +95,7 @@ class CDeliveryRusPost
 		);
 	}
 
-	function GetConfig($siteId = false)
+	public static function GetConfig($siteId = false)
 	{
 		$shopLocationId = CSaleHelper::getShopLocationId($siteId);
 		$arShopLocation = \CSaleHelper::getLocationByIdHitCached($shopLocationId);
@@ -329,7 +330,7 @@ class CDeliveryRusPost
 		return $arConfig;
 	}
 
-	function GetSettings($strSettings)
+	public static function GetSettings($strSettings)
 	{
 		$result = unserialize($strSettings, ['allowed_classes' => false]);
 
@@ -359,7 +360,7 @@ class CDeliveryRusPost
 		return $result;
 	}
 
-	function SetSettings($arSettings)
+	public static function SetSettings($arSettings)
 	{
 		if(isset($arSettings['RESET_HANDLER_SETTINGS']))
 			unset($arSettings['RESET_HANDLER_SETTINGS']);
@@ -382,7 +383,7 @@ class CDeliveryRusPost
 		return serialize($arSettings);
 	}
 
-	function GetFeatures($arConfig)
+	public static function GetFeatures($arConfig)
 	{
 		$arResult = array();
 
@@ -395,7 +396,7 @@ class CDeliveryRusPost
 		return $arResult;
 	}
 
-	function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
+	public static function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
 	{
 		$maxWeight = self::isHeavyEnabled($arConfig) ? self::$MAX_WEIGHT_HEAVY : self::$MAX_WEIGHT;
 
@@ -440,7 +441,7 @@ class CDeliveryRusPost
 		return $arResult;
 	}
 
-	function Compability($arOrder, $arConfig)
+	public static function Compability($arOrder, $arConfig)
 	{
 		$profiles = array('land', 'avia');
 
@@ -486,7 +487,7 @@ class CDeliveryRusPost
 
 	/* Particular services helper functions*/
 
-	public function importZonesFromCsv(array $arShopLocation)
+	public static function importZonesFromCsv(array $arShopLocation)
 	{
 		if(empty($arShopLocation) || !isset($arShopLocation["REGION_ID"]) || !isset($arShopLocation['REGION_NAME_LANG']))
 			return array();
@@ -546,7 +547,7 @@ class CDeliveryRusPost
 	 * using file /bitrix/modules/sale/delivery/rus_post/zip_zones.csv created
 	 * from http://info.russianpost.ru/database/tzones.html
 	 */
-	public function importZonesFromZipCsv()
+	public static function importZonesFromZipCsv()
 	{
 		$COL_ZIP = 0;
 		$COL_ZONE = 1;
@@ -781,6 +782,17 @@ class CDeliveryRusPost
 		}
 
 		return isset($data[$regionLangName]) ? $data[$regionLangName] : "";
+	}
+
+	/**
+	 * Checks if handler is compatible
+	 *
+	 * @return bool
+	 * @throws \Bitrix\Main\LoaderException
+	 */
+	public static function isHandlerCompatible(): bool
+	{
+		return \Bitrix\Sale\Delivery\Helper::getPortalZone() !== 'ua';
 	}
 }
 

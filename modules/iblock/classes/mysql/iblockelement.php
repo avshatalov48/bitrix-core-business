@@ -137,7 +137,7 @@ class CIBlockElement extends CAllIBlockElement
 	///////////////////////////////////////////////////////////////////
 	// List the history items
 	///////////////////////////////////////////////////////////////////
-	function WF_GetHistoryList($ELEMENT_ID, &$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function WF_GetHistoryList($ELEMENT_ID, $by = 's_id', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = "FILE: ".__FILE__."<br>LINE: ";
 		global $DB;
@@ -147,10 +147,10 @@ class CIBlockElement extends CAllIBlockElement
 		{
 			foreach ($arFilter as $key => $val)
 			{
-				if ($val == '' || $val == "NOT_REF")
+				if ((string)$val == '' || $val == "NOT_REF")
 					continue;
 				$val = $DB->ForSql($val);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 				case "ID":
@@ -199,14 +199,12 @@ class CIBlockElement extends CAllIBlockElement
 			$strSqlOrder = "ORDER BY E.WF_STATUS_ID";
 		else
 		{
-			$by = "s_id";
 			$strSqlOrder = "ORDER BY E.ID";
 		}
 
-		if($order!="asc")
+		if($order != "asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 
 		$strSql = "
@@ -225,7 +223,7 @@ class CIBlockElement extends CAllIBlockElement
 			".$strSqlOrder."
 		";
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = ($strSqlSearch <> '');
+
 		return $res;
 	}
 
@@ -1079,7 +1077,7 @@ class CIBlockElement extends CAllIBlockElement
 			}
 
 			if(
-				array_key_exists("PREVIEW_PICTURE", $arFields)
+				isset($arFields["PREVIEW_PICTURE"])
 				&& is_array($arFields["PREVIEW_PICTURE"])
 				&& $arFields["PREVIEW_PICTURE"]["size"] > 0
 				&& $arDef["SCALE"] === "Y"
@@ -1099,7 +1097,7 @@ class CIBlockElement extends CAllIBlockElement
 			}
 
 			if(
-				array_key_exists("PREVIEW_PICTURE", $arFields)
+				isset($arFields["PREVIEW_PICTURE"])
 				&& is_array($arFields["PREVIEW_PICTURE"])
 				&& $arDef["USE_WATERMARK_FILE"] === "Y"
 			)
@@ -1130,7 +1128,7 @@ class CIBlockElement extends CAllIBlockElement
 			}
 
 			if(
-				array_key_exists("PREVIEW_PICTURE", $arFields)
+				isset($arFields["PREVIEW_PICTURE"])
 				&& is_array($arFields["PREVIEW_PICTURE"])
 				&& $arDef["USE_WATERMARK_TEXT"] === "Y"
 			)
@@ -1164,7 +1162,7 @@ class CIBlockElement extends CAllIBlockElement
 			$arDef = $arIBlock["FIELDS"]["DETAIL_PICTURE"]["DEFAULT_VALUE"];
 
 			if(
-				array_key_exists("DETAIL_PICTURE", $arFields)
+				isset($arFields["DETAIL_PICTURE"])
 				&& is_array($arFields["DETAIL_PICTURE"])
 				&& $arDef["SCALE"] === "Y"
 			)
@@ -1183,7 +1181,7 @@ class CIBlockElement extends CAllIBlockElement
 			}
 
 			if(
-				array_key_exists("DETAIL_PICTURE", $arFields)
+				isset($arFields["DETAIL_PICTURE"])
 				&& is_array($arFields["DETAIL_PICTURE"])
 				&& $arDef["USE_WATERMARK_FILE"] === "Y"
 			)
@@ -1214,7 +1212,7 @@ class CIBlockElement extends CAllIBlockElement
 			}
 
 			if(
-				array_key_exists("DETAIL_PICTURE", $arFields)
+				isset($arFields["DETAIL_PICTURE"])
 				&& is_array($arFields["DETAIL_PICTURE"])
 				&& $arDef["USE_WATERMARK_TEXT"] === "Y"
 			)
@@ -1300,6 +1298,11 @@ class CIBlockElement extends CAllIBlockElement
 		if(is_set($arFields, "EXTERNAL_ID"))
 			$arFields["XML_ID"] = $arFields["EXTERNAL_ID"];
 
+		if (isset($arFields['NAME']) && is_array($arFields['NAME']))
+		{
+			unset($arFields['NAME']);
+		}
+
 		$existFields = array(
 			'NAME' => isset($arFields['NAME']),
 			'PREVIEW_TEXT' => array_key_exists('PREVIEW_TEXT', $arFields),
@@ -1308,9 +1311,9 @@ class CIBlockElement extends CAllIBlockElement
 		$searchableFields = [
 			'NAME' => $existFields['NAME'] ? $arFields["NAME"] : $ar_wf_element["NAME"],
 			'PREVIEW_TEXT' => $existFields['PREVIEW_TEXT'] ? $arFields["PREVIEW_TEXT"]: $ar_wf_element["PREVIEW_TEXT"],
-			'PREVIEW_TEXT_TYPE' => isset($arFields["PREVIEW_TEXT_TYPE"]) ? $arFields["PREVIEW_TEXT_TYPE"]: $ar_wf_element["PREVIEW_TEXT_TYPE"],
+			'PREVIEW_TEXT_TYPE' => $arFields["PREVIEW_TEXT_TYPE"] ?? $ar_wf_element["PREVIEW_TEXT_TYPE"],
 			'DETAIL_TEXT' => $existFields['DETAIL_TEXT'] ? $arFields["DETAIL_TEXT"]: $ar_wf_element["DETAIL_TEXT"],
-			'DETAIL_TEXT_TYPE' => isset($arFields["DETAIL_TEXT_TYPE"]) ? $arFields["DETAIL_TEXT_TYPE"]: $ar_wf_element["DETAIL_TEXT_TYPE"]
+			'DETAIL_TEXT_TYPE' => $arFields["DETAIL_TEXT_TYPE"] ?? $ar_wf_element["DETAIL_TEXT_TYPE"],
 		];
 
 		if ($this->searchIncluded)
@@ -1331,6 +1334,7 @@ class CIBlockElement extends CAllIBlockElement
 			elseif (is_array($arFields["IBLOCK_SECTION"]) && !in_array($arFields["IBLOCK_SECTION_ID"], $arFields["IBLOCK_SECTION"]))
 			{
 				unset($arFields["IBLOCK_SECTION_ID"]);
+
 			}
 		}
 
@@ -1763,7 +1767,7 @@ class CIBlockElement extends CAllIBlockElement
 		return $Result;
 	}
 
-	function SetPropertyValues($ELEMENT_ID, $IBLOCK_ID, $PROPERTY_VALUES, $PROPERTY_CODE = false)
+	public static function SetPropertyValues($ELEMENT_ID, $IBLOCK_ID, $PROPERTY_VALUES, $PROPERTY_CODE = false)
 	{
 		global $DB;
 		global $BX_IBLOCK_PROP_CACHE;

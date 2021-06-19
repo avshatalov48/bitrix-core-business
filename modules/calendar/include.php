@@ -56,9 +56,9 @@ CJSCore::RegisterExt('event_calendar', array(
 		$basePath.'calendar-section.js',
 		$basePath.'calendar-controls.js',
 		$basePath.'calendar-dialogs.js',
-		$basePath.'calendar-section-slider.js',
+//		$basePath.'calendar-section-slider.js',
 		$basePath.'calendar-settings-slider.js',
-		$basePath.'calendar-sync-slider.js',
+//		$basePath.'calendar-sync-slider.js',
 		$basePath.'calendar-util.js',
 		$basePath.'calendar-search.js'
 	),

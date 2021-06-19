@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
-(function (exports,im_application_core,ui_vue,ui_vue_vuex,im_lib_logger,im_const,im_lib_utils) {
+(function (exports,im_application_core,ui_vue,ui_vue_vuex) {
 	'use strict';
 
 	/**
@@ -15,7 +15,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @notice Do not mutate or clone this component! It is under development.
 	 */
 
-	ui_vue.Vue.component('bx-im-component-sidebar', {
+	ui_vue.BitrixVue.component('bx-im-component-sidebar', {
 	  data: function data() {
 	    return {};
 	  },
@@ -34,10 +34,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }),
 	  methods: {
 	    getController: function getController() {
-	      return this.$root.$bitrixController;
+	      return this.$Bitrix.Data.get('controller');
 	    },
 	    getStore: function getStore() {
-	      return this.$root.$bitrixController.store;
+	      return this.getController().store;
 	    },
 	    onScroll: function onScroll(event) {
 	      if (this.oneScreenRemaining(event)) {
@@ -179,5 +179,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	exports.SidebarApplication = SidebarApplication;
 
-}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX.Messenger.Application,BX,BX,BX.Messenger.Lib,BX.Messenger.Const,BX.Messenger.Lib));
+}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX.Messenger.Application,BX,BX));
 //# sourceMappingURL=sidebar.bundle.js.map

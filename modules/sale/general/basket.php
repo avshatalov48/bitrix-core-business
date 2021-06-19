@@ -1,5 +1,5 @@
-<?
-use Bitrix\Main\Event;
+<?php
+
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale;
 use Bitrix\Sale\DiscountCouponsManager;
@@ -54,7 +54,7 @@ class CAllSaleBasket
 	 * @param string $LID - site for cleaning
 	 * @return bool
 	 */
-	function ClearProductSubscribe($LID)
+	public static function ClearProductSubscribe($LID)
 	{
 		CSaleBasket::_ClearProductSubscribe($LID);
 
@@ -1228,7 +1228,7 @@ class CAllSaleBasket
 	}
 
 	//************** ADD, UPDATE, DELETE ********************//
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $APPLICATION;
 		static $orderList = array();
@@ -1574,7 +1574,7 @@ class CAllSaleBasket
 		return true;
 	}
 
-	function _Update($ID, &$arFields)
+	public static function _Update($ID, &$arFields)
 	{
 		global $DB;
 
@@ -1667,7 +1667,7 @@ class CAllSaleBasket
 		return true;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $APPLICATION;
 
@@ -1785,7 +1785,7 @@ class CAllSaleBasket
 
 
 	//************** BASKET USER ********************//
-	function Init($bVar = false, $bSkipFUserInit = false)
+	public static function Init($bVar = false, $bSkipFUserInit = false)
 	{
 		$bSkipFUserInit = ($bSkipFUserInit !== false);
 
@@ -1832,7 +1832,7 @@ class CAllSaleBasket
 
 
 	//************** SELECT ********************//
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -1849,7 +1849,7 @@ class CAllSaleBasket
 	}
 
 	//************** CALLBACK FUNCTIONS ********************//
-	static function ExecuteCallbackFunction($callbackFunc = "", $module = "", $productID = 0)
+	public static function ExecuteCallbackFunction($callbackFunc = "", $module = "", $productID = 0)
 	{
 		$callbackFunc = trim($callbackFunc);
 		$module = trim($module);
@@ -1891,7 +1891,7 @@ class CAllSaleBasket
 		*/
 	}
 
-	public function ReReadPrice($callbackFunc = "", $module = "", $productID = 0, $quantity = 0, $renewal = "N", $productProvider = "")
+	public static function ReReadPrice($callbackFunc = "", $module = "", $productID = 0, $quantity = 0, $renewal = "N", $productProvider = "")
 	{
 		if (CSaleBasket::GetProductProvider(array("MODULE" => $module, "PRODUCT_PROVIDER_CLASS" => $productProvider)))
 		{
@@ -1905,7 +1905,7 @@ class CAllSaleBasket
 			return CSaleBasket::ExecuteCallbackFunction($callbackFunc, $module, $productID, $quantity, $renewal);
 	}
 
-	function OnOrderProduct($callbackFunc = "", $module = "", $productID = 0, $quantity = 0, $productProvider = "")
+	public static function OnOrderProduct($callbackFunc = "", $module = "", $productID = 0, $quantity = 0, $productProvider = "")
 	{
 		if (CSaleBasket::GetProductProvider(array("MODULE" => $module, "PRODUCT_PROVIDER_CLASS" => $productProvider)))
 		{
@@ -1920,7 +1920,7 @@ class CAllSaleBasket
 		return True;
 	}
 
-	public function UpdatePrice($ID, $callbackFunc = '', $module = '', $productID = 0, $quantity = 0, $renewal = 'N', $productProvider = '', $notes = '')
+	public static function UpdatePrice($ID, $callbackFunc = '', $module = '', $productID = 0, $quantity = 0, $renewal = 'N', $productProvider = '', $notes = '')
 	{
 		$ID = (int)$ID;
 		if ($ID <= 0)
@@ -2208,12 +2208,12 @@ class CAllSaleBasket
 		return true;
 	}
 
-	function OrderPayment($orderID, $bPaid, $recurringID = 0)
+	public static function OrderPayment($orderID, $bPaid, $recurringID = 0)
 	{
 		CSaleBasket::OrderDelivery($orderID, $bPaid, $recurringID);
 	}
 
-	function OrderDelivery($orderID, $bPaid, $recurringID = 0)
+	public static function OrderDelivery($orderID, $bPaid, $recurringID = 0)
 	{
 		global $DB, $APPLICATION;
 
@@ -2323,7 +2323,7 @@ class CAllSaleBasket
 		}
 	}
 
-	function OrderCanceled($orderID, $bCancel)
+	public static function OrderCanceled($orderID, $bCancel)
 	{
 		global $DB;
 
@@ -2372,7 +2372,7 @@ class CAllSaleBasket
 	 * @param bool $bUndoReservation
 	 * @return mixed array
 	 */
-	function OrderReservation($orderID, $bUndoReservation = false)
+	public static function OrderReservation($orderID, $bUndoReservation = false)
 	{
 		global $APPLICATION;
 
@@ -2516,7 +2516,7 @@ class CAllSaleBasket
 	 * @param bool $isOrderDeducted
 	 * @return mixed array
 	 */
-	function ReserveBasketProduct($basketID, $deltaQuantity, $isOrderDeducted = false)
+	public static function ReserveBasketProduct($basketID, $deltaQuantity, $isOrderDeducted = false)
 	{
 		global $APPLICATION;
 
@@ -2635,7 +2635,7 @@ class CAllSaleBasket
 	 * @param array $arStoreBarcodeData
 	 * @return mixed array
 	 */
-	function DeductBasketProduct($basketID, $deltaQuantity, $arStoreBarcodeData = array())
+	public static function DeductBasketProduct($basketID, $deltaQuantity, $arStoreBarcodeData = array())
 	{
 		if (defined("SALE_DEBUG") && SALE_DEBUG)
 		{
@@ -2753,7 +2753,7 @@ class CAllSaleBasket
 	 * @param array $arStoreBarcodeOrderFormData
 	 * @return mixed array
 	 */
-	function OrderDeduction($orderID, $bUndoDeduction = false, $recurringID = 0, $bAutoDeduction = true, $arStoreBarcodeOrderFormData  = array())
+	public static function OrderDeduction($orderID, $bUndoDeduction = false, $recurringID = 0, $bAutoDeduction = true, $arStoreBarcodeOrderFormData  = array())
 	{
 		global $APPLICATION;
 		static $storesCount = NULL;
@@ -3212,7 +3212,7 @@ class CAllSaleBasket
 		return $arResult;
 	}
 
-	function TransferBasket($FROM_FUSER_ID, $TO_FUSER_ID)
+	public static function TransferBasket($FROM_FUSER_ID, $TO_FUSER_ID)
 	{
 		$FROM_FUSER_ID = (int)$FROM_FUSER_ID;
 		$TO_FUSER_ID = (int)$TO_FUSER_ID;
@@ -3588,9 +3588,7 @@ class CAllSaleUser
 
 		if ($anonUserID > 0)
 		{
-			$by = "id";
-			$order = "asc";
-			$dbUser = CUser::GetList($by, $order, array("ID_EQUAL_EXACT"=>$anonUserID), array("FIELDS"=>array("ID")));
+			$dbUser = CUser::GetList('id', 'asc', array("ID_EQUAL_EXACT"=>$anonUserID), array("FIELDS"=>array("ID")));
 			if ($arUser = $dbUser->Fetch())
 				$bUserExists = true;
 		}
@@ -3758,12 +3756,12 @@ class CAllSaleUser
 		return $userId;
 	}
 
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		return true;
 	}
 
-	function GetID($bSkipFUserInit = false)
+	public static function GetID($bSkipFUserInit = false)
 	{
 		global $USER;
 
@@ -3824,7 +3822,7 @@ class CAllSaleUser
 		return (int)$ID;
 	}
 
-	function Update($ID, $allowUpdate = true)
+	public static function Update($ID, $allowUpdate = true)
 	{
 		global $DB, $USER;
 
@@ -3878,7 +3876,7 @@ class CAllSaleUser
 		return true;
 	}
 
-	function _Update($ID, $arFields)
+	public static function _Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -3917,7 +3915,7 @@ class CAllSaleUser
 		return $ID;
 	}
 
-	function GetList($arFilter)
+	public static function GetList($arFilter)
 	{
 		global $DB;
 		$arSqlSearch = Array();
@@ -3971,7 +3969,7 @@ class CAllSaleUser
 		return $db_res->Fetch();
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -3984,7 +3982,7 @@ class CAllSaleUser
 		return true;
 	}
 
-	function OnUserLogin($new_user_id, array $params = array())
+	public static function OnUserLogin($new_user_id, array $params = array())
 	{
 		$cookie_name = COption::GetOptionString("main", "cookie_name", "BITRIX_SM");
 
@@ -4080,7 +4078,7 @@ class CAllSaleUser
 		return 0;
 	}
 
-	function OnUserLogout($userID)
+	public static function OnUserLogout($userID)
 	{
 		global $APPLICATION;
 
@@ -4100,7 +4098,7 @@ class CAllSaleUser
 		unset($_COOKIE[$cookie_name."_SALE_UID"]);
 	}
 
-	function DeleteOldAgent($nDays, $speed = 0)
+	public static function DeleteOldAgent($nDays, $speed = 0)
 	{
 		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 
@@ -4110,7 +4108,7 @@ class CAllSaleUser
 		return $basketClass::deleteOldAgent($nDays, $speed);
 	}
 
-	function OnUserDelete($userID)
+	public static function OnUserDelete($userID)
 	{
 		if($userID<=0)
 			return false;

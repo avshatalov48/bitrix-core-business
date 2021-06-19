@@ -40,6 +40,7 @@ if ($_REQUEST['action'])
 
 		$name = $path.'/'.$_REQUEST['f_id'];
 
+		$tar = new CTar;
 		if ($BUCKET_ID = intval($_REQUEST['BUCKET_ID']))
 		{
 			if (CModule::IncludeModule('clouds'))
@@ -50,7 +51,7 @@ if ($_REQUEST['action'])
 					while($obBucket->FileExists($name))
 					{
 						$arLink[] = htmlspecialcharsbx($obBucket->GetFileSRC(array("URN" => $name)));
-						$name = CTar::getNextName($name);
+						$name = $tar->getNextName($name);
 					}
 				}
 			}
@@ -60,7 +61,7 @@ if ($_REQUEST['action'])
 			while(file_exists(DOCUMENT_ROOT.$name))
 			{
 				$arLink[] = htmlspecialcharsbx($name);
-				$name = CTar::getNextName($name);
+				$name = $tar->getNextName($name);
 			}
 		}
 
@@ -190,6 +191,8 @@ if ($arID = $lAdmin->GroupAction())
 					$BUCKET_ID = $regs[1];
 					$item = $regs[2];
 
+					$tar = new CTar;
+
 					if ($BUCKET_ID == -1)
 					{
 						if (!$bBitrixCloudDelete)
@@ -209,7 +212,7 @@ if ($arID = $lAdmin->GroupAction())
 									$file_size = $obBucket->GetFileSize($name);
 									if ($obBucket->DeleteFile($name))
 										$obBucket->DecFileCounter($file_size);
-									$name = CTar::getNextName($name);
+									$name = $tar->getNextName($name);
 								}
 
 								$e = $APPLICATION->GetException();
@@ -227,7 +230,7 @@ if ($arID = $lAdmin->GroupAction())
 							if (!unlink($f))
 								$lAdmin->AddGroupError(GetMessage('DUMP_DELETE_ERROR',array('#FILE#' => $f)), $ID);
 
-							$item = CTar::getNextName($item);
+							$item = $tar->getNextName($item);
 						}
 					}
 				}
@@ -244,6 +247,7 @@ if ($arID = $lAdmin->GroupAction())
 					}
 					else
 					{
+						$tar = new CTar;
 						while(file_exists(DOCUMENT_ROOT.$path.'/'.$ID))
 						{
 							if (!rename(DOCUMENT_ROOT.$path.'/'.$ID, DOCUMENT_ROOT.$path.'/'.$new_name))
@@ -252,8 +256,8 @@ if ($arID = $lAdmin->GroupAction())
 								break;
 							}
 
-							$ID = CTar::getNextName($ID);
-							$new_name = CTar::getNextName($new_name);
+							$ID = $tar->getNextName($ID);
+							$new_name = $tar->getNextName($new_name);
 						}
 					}
 				}

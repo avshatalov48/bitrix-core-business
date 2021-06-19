@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CForm extends CAllForm
 {
 	public static function err_mess()
@@ -8,14 +9,13 @@ class CForm extends CAllForm
 		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CForm<br>File: ".__FILE__;
 	}
 
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered, $min_permission=10)
+	public static function GetList($by = 's_sort', $order = 'asc', $arFilter = [], $is_filtered = null, $min_permission = 10)
 	{
 		$err_mess = (CForm::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $USER, $strError;
 		$min_permission = intval($min_permission);
 
 		$arSqlSearch = Array();
-		$strSqlSearch = "";
 		if (is_array($arFilter))
 		{
 			if ($arFilter["SID"] <> '') $arFilter["VARNAME"] = $arFilter["SID"];
@@ -38,7 +38,7 @@ class CForm extends CAllForm
 						continue;
 				}
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys));
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -67,20 +67,17 @@ class CForm extends CAllForm
 		elseif ($by == "s_varname" || $by == "s_sid")	$strSqlOrder = "ORDER BY F.SID";
 		else
 		{
-			$by = "s_sort";
 			$strSqlOrder = "ORDER BY F.C_SORT";
 		}
+
 		if ($order!="desc")
 		{
 			$strSqlOrder .= " asc ";
-			$order="asc";
 		}
 		else
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
-
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 		if (CForm::IsAdmin())
@@ -149,7 +146,7 @@ class CForm extends CAllForm
 		}
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 

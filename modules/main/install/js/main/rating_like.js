@@ -740,6 +740,7 @@ RatingLike.Init = function(likeId, params)
 	else if (BXRL[likeId].buttonText != undefined)
 	{
 		BXRL[likeId].buttonText.innerHTML = BXRL[likeId].localize['LIKE_D'];
+		BXRL[likeId].buttonText.classList.add('bx-ilike-text-unavailable');
 	}
 	// get like-user-list
 

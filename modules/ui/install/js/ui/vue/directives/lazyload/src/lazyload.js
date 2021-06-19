@@ -39,7 +39,7 @@
 	/>
  */
 
-import {Vue} from "ui.vue";
+import {BitrixVue} from "ui.vue";
 import 'main.polyfill.intersectionobserver';
 
 const WATCH = 'bx-lazyload-watch';
@@ -178,7 +178,7 @@ if (typeof window.IntersectionObserver !== 'undefined')
 	});
 }
 
-Vue.directive('bx-lazyload',
+BitrixVue.directive('bx-lazyload',
 {
 	bind(element, bindings)
 	{

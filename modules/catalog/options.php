@@ -41,9 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && !empty($_REQUEST['RestoreDefaults']) 
 		$strValTmp = Option::get('catalog', 'avail_content_groups');
 
 	Option::delete('catalog', array());
-	$v1 = 'id';
-	$v2 = 'asc';
-	$z = CGroup::GetList($v1, $v2, array("ACTIVE" => "Y", "ADMIN" => "N"));
+	$z = CGroup::GetList('id', 'asc', array("ACTIVE" => "Y", "ADMIN" => "N"));
 	while($zr = $z->Fetch())
 		$APPLICATION->DelGroupRight($module_id, array($zr["ID"]));
 
@@ -175,51 +173,64 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['Update']) && !$bReadO
 	if ($updateViewedProductSettings)
 	{
 		$enableViewedProducts = $_POST['enable_viewed_products'];
-		$oldEnableViewedProducts = (string)Option::get('catalog', 'enable_viewed_products');
+		$oldEnableViewedProducts = Option::get('catalog', 'enable_viewed_products');
 		$viewedProductChange = $enableViewedProducts !== $oldEnableViewedProducts;
 		Option::set('catalog', 'enable_viewed_products', $enableViewedProducts, '');
 		if ($enableViewedProducts === 'Y')
 		{
 			$viewedPeriodChange = false;
 			$viewedTimeChange = false;
-			if (isset($_POST['viewed_period']))
+			if (isset($_POST['viewed_period']) && is_string($_POST['viewed_period']))
 			{
 				$viewedPeriod = (int)$_POST['viewed_period'];
 				if ($viewedPeriod > 0)
 				{
 					$oldViewedPeriod = (int)Option::get('catalog', 'viewed_period');
 					$viewedPeriodChange = ($viewedPeriod !== $oldViewedPeriod);
-					Option::set('catalog', 'viewed_period', $viewedPeriod, '');
+					Option::set('catalog', 'viewed_period', $viewedPeriod);
 				}
 			}
 
-			if (isset($_POST['viewed_time']))
+			if (isset($_POST['viewed_time']) && is_string($_POST['viewed_time']))
 			{
 				$viewedTime = (int)$_POST['viewed_time'];
 				if ($viewedTime > 0)
 				{
 					$oldViewedTime = (int)Option::get('catalog', 'viewed_time');
 					$viewedTimeChange = ($viewedTime !== $oldViewedTime);
-					Option::set('catalog', 'viewed_time', $viewedTime, '');
+					Option::set('catalog', 'viewed_time', $viewedTime);
 				}
 			}
 
 			if ($viewedProductChange || $viewedPeriodChange || $viewedTimeChange)
 			{
-				CAgent::RemoveAgent('\Bitrix\Catalog\CatalogViewedProductTable::clearAgent();', 'catalog');
-				CAgent::AddAgent('\Bitrix\Catalog\CatalogViewedProductTable::clearAgent();', 'catalog', 'N', (int)Option::get('catalog', 'viewed_period') * 24 * 3600);
+				CAgent::RemoveAgent(
+					'\Bitrix\Catalog\CatalogViewedProductTable::clearAgent();',
+					'catalog'
+				);
+				CAgent::AddAgent(
+					'\Bitrix\Catalog\CatalogViewedProductTable::clearAgent();',
+					'catalog',
+					'N',
+					(int)Option::get('catalog', 'viewed_period') * 86400
+				);
 			}
 
-			if (isset($_POST['viewed_count']))
+			if (isset($_POST['viewed_count']) && is_string($_POST['viewed_count']))
 			{
 				$viewedCount = (int)$_POST['viewed_count'];
 				if ($viewedCount >= 0)
-					Option::set('catalog', 'viewed_count', $viewedCount, '');
+				{
+					Option::set('catalog', 'viewed_count', $viewedCount);
+				}
 			}
 		}
 		else
 		{
-			CAgent::RemoveAgent('\Bitrix\Catalog\CatalogViewedProductTable::clearAgent();', 'catalog');
+			CAgent::RemoveAgent(
+				'\Bitrix\Catalog\CatalogViewedProductTable::clearAgent();',
+				'catalog'
+			);
 		}
 	}
 

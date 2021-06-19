@@ -10,7 +10,7 @@ $application->initializeBasicKernel();
 
 require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/php_interface/dbconn.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/tools.php");
-require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/".$DBType."/database.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/mysql/database.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/general/cache.php");	//various cache classes
 require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/general/module.php");
 
@@ -78,9 +78,9 @@ function UpdateGetOption($name, $default = "")
 
 function UpdateSetOption($name, $value)
 {
-	global $DB, $DBType;
+	global $DB;
 
-	$fn = $_SERVER['DOCUMENT_ROOT']."/bitrix/managed_cache/".strtoupper($DBType)."/e5/".md5("b_option").".php";
+	$fn = $_SERVER['DOCUMENT_ROOT']."/bitrix/managed_cache/MYSQL/e5/".md5("b_option").".php";
 	@chmod($fn, BX_FILE_PERMISSIONS);
 	@unlink($fn);
 

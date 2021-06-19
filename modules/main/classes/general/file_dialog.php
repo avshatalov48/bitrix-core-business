@@ -278,7 +278,7 @@ if (window.jsUtils)
 		$bCloudsBrowse = is_object($USER) && $USER->CanDoOperation('clouds_browse') && $Params["operation"] === "O";
 
 		$arSites = Array();
-		$dbSitesList = CSite::GetList($b = "SORT", $o = "asc");
+		$dbSitesList = CSite::GetList();
 		$arSitesPP = Array();
 		while($arSite = $dbSitesList->GetNext())
 		{

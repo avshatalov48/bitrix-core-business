@@ -55,6 +55,7 @@ this.BX = this.BX || {};
 	    _this.getPosDateMap = params.getPosDateMap;
 	    _this.getTimelineWidth = params.getTimelineWidth;
 	    _this.getScaleInfo = params.getScaleInfo;
+	    _this.solidStatus = params.solidStatus;
 	    _this.useAnimation = params.useAnimation !== false;
 	    _this.DOM.timelineWrap = params.timelineWrap;
 
@@ -347,14 +348,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "checkStatus",
 	    value: function checkStatus(selectorPos, checkPosition) {
-	      // if (this.config.useSolidBlueSelector)
-	      // {
-	      // 	Dom.removeClass(this.DOM.wrap, 'calendar-planner-timeline-selector-warning');
-	      // 	Dom.removeClass(this.mainContWrap, 'calendar-planner-selector-warning');
-	      // 	Dom.addClass(this.DOM.wrap, 'solid');
-	      // }
-	      // else
-	      {
+	      if (this.solidStatus) {
+	        main_core.Dom.removeClass(this.DOM.wrap, 'calendar-planner-timeline-selector-warning');
+	        main_core.Dom.removeClass(this.mainContWrap, 'calendar-planner-selector-warning');
+	        main_core.Dom.addClass(this.DOM.wrap, 'solid');
+	      } else {
 	        if (!selectorPos) {
 	          selectorPos = Selector.roundPos(this.DOM.wrap.style.left);
 	        }
@@ -826,56 +824,57 @@ this.BX = this.BX || {};
 	  // ms
 	  // in days
 	  function Planner() {
-	    var _this2;
+	    var _this;
 
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Planner);
-	    _this2 = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Planner).call(this));
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "DOM", {});
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "config", {});
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "entryStatusMap", {
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Planner).call(this));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "DOM", {});
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "config", {});
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "entryStatusMap", {
 	      h: 'user-status-h',
 	      y: 'user-status-y',
 	      q: 'user-status-q',
 	      n: 'user-status-n'
 	    });
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "scaleTypes", ['15min', '30min', '1hour', '2hour', '1day']);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "savedScaleType", null);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "SCALE_OFFSET_BEFORE", 3);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "SCALE_OFFSET_AFTER", 10);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "EXPAND_OFFSET", 3);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "EXPAND_DELAY", 2000);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "REBUILD_DELAY", 100);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "maxTimelineSize", 20);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "MIN_ENTRY_ROWS", 3);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "MAX_ENTRY_ROWS", 300);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "width", 700);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "height", 84);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "minWidth", 700);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "minHeight", 84);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "workTime", [9, 18]);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "scrollStep", 10);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "shown", false);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "built", false);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "shownScaleTimeFrom", 24);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "shownScaleTimeTo", 0);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "timelineCellWidthOrig", false);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "proposeTimeLimit", 60);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "expandTimelineDelay", 600);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "limitScaleSizeMode", false);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "useAnimation", true);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "checkTimeCache", {});
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "scaleTypes", ['15min', '30min', '1hour', '2hour', '1day']);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "savedScaleType", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "SCALE_OFFSET_BEFORE", 3);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "SCALE_OFFSET_AFTER", 10);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "EXPAND_OFFSET", 3);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "EXPAND_DELAY", 2000);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "REBUILD_DELAY", 100);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "maxTimelineSize", 20);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "MIN_ENTRY_ROWS", 3);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "MAX_ENTRY_ROWS", 300);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "width", 700);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "height", 84);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "minWidth", 700);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "minHeight", 84);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "workTime", [9, 18]);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "scrollStep", 10);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "shown", false);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "built", false);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "shownScaleTimeFrom", 24);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "shownScaleTimeTo", 0);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "timelineCellWidthOrig", false);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "proposeTimeLimit", 60);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "expandTimelineDelay", 600);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "limitScaleSizeMode", false);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "useAnimation", true);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "checkTimeCache", {});
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "entriesIndex", new Map());
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "solidStatus", false);
 
-	    _this2.setEventNamespace('BX.Calendar.Planner');
+	    _this.setEventNamespace('BX.Calendar.Planner');
 
-	    _this2.config = params;
-	    _this2.id = params.id;
-	    _this2.userId = params.userId || main_core.Loc.getMessage('USER_ID');
-	    _this2.DOM.wrap = params.wrap;
-	    _this2.SCALE_TIME_FORMAT = BX.isAmPmMode() ? 'g a' : 'G';
-	    _this2.entriesIndex = new Map();
+	    _this.config = params;
+	    _this.id = params.id;
+	    _this.userId = parseInt(params.userId || main_core.Loc.getMessage('USER_ID'));
+	    _this.DOM.wrap = params.wrap;
+	    _this.SCALE_TIME_FORMAT = BX.isAmPmMode() ? 'g a' : 'G';
 
-	    _this2.setConfig(params); // this.SetLoadedDataLimits(this.scaleDateFrom, this.scaleDateTo);
+	    _this.setConfig(params); // this.SetLoadedDataLimits(this.scaleDateFrom, this.scaleDateTo);
 	    // BX.addCustomEvent('OnCalendarPlannerDoUpdate', BX.proxy(this.DoUpdate, this));
 	    // BX.addCustomEvent('OnCalendarPlannerDoExpand', BX.proxy(this.DoExpand, this));
 	    // BX.addCustomEvent('OnCalendarPlannerDoResize', BX.proxy(this.DoResize, this));
@@ -902,7 +901,7 @@ this.BX = this.BX || {};
 	    // }
 
 
-	    return _this2;
+	    return _this;
 	  }
 
 	  babelHelpers.createClass(Planner, [{
@@ -919,8 +918,7 @@ this.BX = this.BX || {};
 	        this.bindEventHandlers();
 	      } else {
 	        this.resizePlannerWidth(this.width);
-	      } //this.HideSelector();
-
+	      }
 
 	      this.buildTimeline();
 
@@ -929,8 +927,19 @@ this.BX = this.BX || {};
 	      }
 
 	      this.DOM.wrap.style.display = '';
-	      if (this.readonly) main_core.Dom.addClass(this.DOM.mainWrap, 'calendar-planner-readonly');else main_core.Dom.removeClass(this.DOM.mainWrap, 'calendar-planner-readonly');
-	      if (this.compactMode) main_core.Dom.addClass(this.DOM.mainWrap, 'calendar-planner-compact');else main_core.Dom.removeClass(this.DOM.mainWrap, 'calendar-planner-compact');
+
+	      if (this.readonly) {
+	        main_core.Dom.addClass(this.DOM.mainWrap, 'calendar-planner-readonly');
+	      } else {
+	        main_core.Dom.removeClass(this.DOM.mainWrap, 'calendar-planner-readonly');
+	      }
+
+	      if (this.compactMode) {
+	        main_core.Dom.addClass(this.DOM.mainWrap, 'calendar-planner-compact');
+	      } else {
+	        main_core.Dom.removeClass(this.DOM.mainWrap, 'calendar-planner-compact');
+	      }
+
 	      this.DOM.entriesOuterWrap.style.display = this.compactMode ? 'none' : '';
 
 	      {
@@ -942,49 +951,7 @@ this.BX = this.BX || {};
 	      }
 
 	      this.shown = true;
-	    } // Hide(animation)
-	    // {
-	    // 	if (this.showAnimation)
-	    // 	{
-	    // 		this.showAnimation.stop();
-	    // 		this.showAnimation = null;
-	    // 	}
-	    //
-	    // 	if (this.shown)
-	    // 	{
-	    // 		this.shown = false;
-	    //
-	    // 		if (animation)
-	    // 		{
-	    // 			if (this.hideAnimation)
-	    // 			{
-	    // 				this.hideAnimation.stop();
-	    // 			}
-	    // 			this.hideAnimation = new BX.easing({
-	    // 				duration: 300,
-	    // 				start: {height: this.height},
-	    // 				finish: {height: 0},
-	    // 				transition: BX.easing.makeEaseOut(BX.easing.transitions.quart),
-	    // 				step: (state)=>{this.DOM.wrap.style.height = state.height + 'px';},
-	    // 				complete: ()=>{
-	    // 					this.hideAnimation = null;
-	    // 					this.Hide(false);
-	    // 				}
-	    // 			});
-	    // 			this.hideAnimation.animate();
-	    // 		}
-	    // 		else
-	    // 		{
-	    // 			this.DOM.wrap.style.display = 'none';
-	    // 			Dom.clean(this.DOM.timelineScaleWrap);
-	    // 			this.DOM.timelineInnerWrap.removeAttribute('style');
-	    // 			this.DOM.wrap.removeAttribute('style');
-	    // 			this.DOM.mainWrap.removeAttribute('style');
-	    // 			this.DOM.entriesOuterWrap.removeAttribute('style');
-	    // 		}
-	    // 	}
-	    // }
-
+	    }
 	  }, {
 	    key: "setConfig",
 	    value: function setConfig(params) {
@@ -1059,6 +1026,7 @@ this.BX = this.BX || {};
 
 	      this.entriesListWidth = parseInt(params.entriesListWidth) || this.entriesListWidth || 200;
 	      this.timelineCellWidth = params.timelineCellWidth || this.timelineCellWidth || 40;
+	      this.solidStatus = params.solidStatus === true;
 	      this.showEntiesHeader = params.showEntiesHeader === undefined ? true : !!params.showEntiesHeader;
 	      this.showEntryName = params.showEntryName === undefined ? true : !!params.showEntryName;
 
@@ -1148,7 +1116,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "build",
 	    value: function build() {
-	      var _this4 = this;
+	      var _this3 = this;
 
 	      if (!main_core.Type.isDomNode(this.DOM.wrap)) {
 	        throw new TypeError("Wrap is not DOM node");
@@ -1271,18 +1239,19 @@ this.BX = this.BX || {};
 	        getPosByDate: this.getPosByDate.bind(this),
 	        getDateByPos: this.getDateByPos.bind(this),
 	        getPosDateMap: function getPosDateMap() {
-	          return _this4.posDateMap;
+	          return _this3.posDateMap;
 	        },
 	        useAnimation: this.useAnimation,
+	        solidStatus: this.solidStatus,
 	        getScaleInfo: function getScaleInfo() {
 	          return {
-	            scale: _this4.scaleType,
-	            shownTimeFrom: _this4.shownScaleTimeFrom,
-	            shownTimeTo: _this4.shownScaleTimeTo
+	            scale: _this3.scaleType,
+	            shownTimeFrom: _this3.shownScaleTimeFrom,
+	            shownTimeTo: _this3.shownScaleTimeTo
 	          };
 	        },
 	        getTimelineWidth: function getTimelineWidth() {
-	          return parseInt(_this4.DOM.timelineInnerWrap.style.width);
+	          return parseInt(_this3.DOM.timelineInnerWrap.style.width);
 	        }
 	      });
 	      this.DOM.timelineDataWrap.appendChild(this.selector.getWrap());
@@ -1379,13 +1348,13 @@ this.BX = this.BX || {};
 	          }
 	        }
 
-	        var mapDatePosRes = this.mapDatePos(); //this.datePosMap = mapDatePosRes.datePosMap;
-
+	        var mapDatePosRes = this.mapDatePos();
 	        this.posDateMap = mapDatePosRes.posDateMap;
 	        var timelineOffset = this.DOM.timelineScaleWrap.offsetWidth;
 	        this.DOM.timelineInnerWrap.style.width = timelineOffset + 'px';
 	        this.DOM.entrieListWrap.style.top = parseInt(this.DOM.timelineDataWrap.offsetTop) + 10 + 'px';
-	        this.lastTimelineKey = this.getTimelineShownKey(); //this.checkRebuildTimeout(timelineOffset);
+	        this.lastTimelineKey = this.getTimelineShownKey();
+	        this.checkRebuildTimeout(timelineOffset);
 	      }
 	    }
 	  }, {
@@ -1396,11 +1365,9 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "checkRebuildTimeout",
 	    value: function checkRebuildTimeout(timelineOffset) {
-	      var _this5 = this;
+	      var _this4 = this;
 
-	      var timeout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 200;
-
-	      var _this = this;
+	      var timeout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 300;
 
 	      if (!this._checkRebuildTimeoutCount) {
 	        this._checkRebuildTimeoutCount = 0;
@@ -1410,19 +1377,21 @@ this.BX = this.BX || {};
 	        this.rebuildTimeout = !!clearTimeout(this.rebuildTimeout);
 	      }
 
-	      if (this._checkRebuildTimeoutCount <= 5) {
+	      if (this._checkRebuildTimeoutCount <= 10 && main_core.Type.isElementNode(this.DOM.timelineScaleWrap) && main_core.Dom.isShown(this.DOM.timelineScaleWrap)) {
 	        this._checkRebuildTimeoutCount++;
 	        this.rebuildTimeout = setTimeout(function () {
-	          if (timelineOffset !== _this.DOM.timelineScaleWrap.offsetWidth) {
-	            if (_this5.rebuildTimeout) {
-	              _this5.rebuildTimeout = !!clearTimeout(_this5.rebuildTimeout);
+	          if (timelineOffset !== _this4.DOM.timelineScaleWrap.offsetWidth) {
+	            if (_this4.rebuildTimeout) {
+	              _this4.rebuildTimeout = !!clearTimeout(_this4.rebuildTimeout);
 	            }
 
-	            _this5.rebuild();
+	            _this4.rebuild();
 
-	            _this5.FocusSelector(true, 200);
+	            if (_this4.selector) {
+	              _this4.selector.focus(false, 300);
+	            }
 	          } else {
-	            _this5.checkRebuildTimeout(timelineOffset, timeout);
+	            _this4.checkRebuildTimeout(timelineOffset, timeout);
 	          }
 	        }, timeout);
 	      } else {
@@ -1707,7 +1676,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "displayEntryRow",
 	    value: function displayEntryRow(entry) {
-	      var _this6 = this;
+	      var _this5 = this;
 
 	      var accessibility = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 	      var rowWrap;
@@ -1816,9 +1785,8 @@ this.BX = this.BX || {};
 	            props: {
 	              className: 'calendar-planner-user-name'
 	            }
-	          })).appendChild(BX.create("A", {
+	          })).appendChild(BX.create("span", {
 	            props: {
-	              href: entry.url ? entry.url : '#',
 	              className: 'calendar-planner-entry-name'
 	            },
 	            style: {
@@ -1912,7 +1880,7 @@ this.BX = this.BX || {};
 	        item = Planner.prepareAccessibilityItem(item);
 
 	        if (item) {
-	          _this6.addAccessibilityItem(item, dataRowWrap);
+	          _this5.addAccessibilityItem(item, dataRowWrap);
 	        }
 	      });
 	    }
@@ -2119,7 +2087,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "checkTimelineScroll",
 	    value: function checkTimelineScroll() {
-	      var _this7 = this;
+	      var _this6 = this;
 
 	      var minScroll = this.scrollStep,
 	          maxScroll = this.DOM.timelineFixedWrap.scrollWidth - this.DOM.timelineFixedWrap.offsetWidth - this.scrollStep; // Check and expand only if it is visible
@@ -2127,11 +2095,11 @@ this.BX = this.BX || {};
 	      if (this.DOM.timelineFixedWrap.offsetWidth > 0) {
 	        if (this.DOM.timelineFixedWrap.scrollLeft <= minScroll) {
 	          main_core.Runtime.debounce(function () {
-	            _this7.expandTimeline('left');
+	            _this6.expandTimeline('left');
 	          }, this.EXPAND_DELAY)();
 	        } else if (this.DOM.timelineFixedWrap.scrollLeft >= maxScroll) {
 	          main_core.Runtime.debounce(function () {
-	            _this7.expandTimeline('right');
+	            _this6.expandTimeline('right');
 	          }, this.EXPAND_DELAY)();
 	        }
 	      }
@@ -2346,7 +2314,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "resizePlannerHeight",
 	    value: function resizePlannerHeight(height) {
-	      var _this8 = this;
+	      var _this7 = this;
 
 	      var animation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 	      this.height = height;
@@ -2368,10 +2336,10 @@ this.BX = this.BX || {};
 	          },
 	          transition: BX.easing.makeEaseOut(BX.easing.transitions.quart),
 	          step: function step(state) {
-	            _this8.resizePlannerHeight(state.height, false);
+	            _this7.resizePlannerHeight(state.height, false);
 	          },
 	          complete: function complete() {
-	            _this8.resizeAnimation = null;
+	            _this7.resizeAnimation = null;
 	          }
 	        });
 	        this.resizeAnimation.animate();
@@ -2426,7 +2394,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "expandTimeline",
 	    value: function expandTimeline(direction, scaleDateFrom, scaleDateTo) {
-	      var _this9 = this;
+	      var _this8 = this;
 
 	      var loadedTimelineSize;
 	      var scrollLeft;
@@ -2460,7 +2428,7 @@ this.BX = this.BX || {};
 	          this.loadedDataTo = this.scaleDateTo;
 	          scrollLeft = this.getPosByDate(oldDateTo) - this.DOM.timelineFixedWrap.offsetWidth;
 	          setTimeout(function () {
-	            _this9.DOM.timelineFixedWrap.scrollLeft = _this9.getPosByDate(oldDateTo) - _this9.DOM.timelineFixedWrap.offsetWidth;
+	            _this8.DOM.timelineFixedWrap.scrollLeft = _this8.getPosByDate(oldDateTo) - _this8.DOM.timelineFixedWrap.offsetWidth;
 	          }, 10);
 	          this.limitScaleSizeMode = true;
 	        }
@@ -2486,13 +2454,12 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "update",
 	    value: function update() {
-	      var _this10 = this;
+	      var _this9 = this;
 
 	      var entries = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 	      var accessibility = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	      main_core.Dom.clean(this.DOM.entrieListWrap);
-	      main_core.Dom.clean(this.DOM.accessibilityWrap); //this.entriesRowMap = new WeakMap();
-
+	      main_core.Dom.clean(this.DOM.accessibilityWrap);
 	      this.entriesDataRowMap = new Map();
 
 	      if (!main_core.Type.isArray(entries)) {
@@ -2531,16 +2498,16 @@ this.BX = this.BX || {};
 	          entry.uid = Planner.getEntryUniqueId(entry);
 	          var accData = main_core.Type.isArray(accessibility[entry.uid]) ? accessibility[entry.uid] : [];
 
-	          _this10.entriesIndex.set(entry.uid, entry);
+	          _this9.entriesIndex.set(entry.uid, entry);
 
 	          if (entry.type === 'user') {
 	            usersCount++;
 	          }
 
-	          if (ind < _this10.MIN_ENTRY_ROWS || entries.length === _this10.MIN_ENTRY_ROWS + 1) {
+	          if (ind < _this9.MIN_ENTRY_ROWS || entries.length === _this9.MIN_ENTRY_ROWS + 1) {
 	            dispDataCount++;
 
-	            _this10.displayEntryRow(entry, accData);
+	            _this9.displayEntryRow(entry, accData);
 	          } else {
 	            cutAmount++;
 	            cutDataTitle.push(entry.name);
@@ -2574,12 +2541,16 @@ this.BX = this.BX || {};
 	        }
 	      }
 
+	      calendar_util.Util.extendPlannerWatches({
+	        entries: entries,
+	        userId: this.userId
+	      });
 	      this.adjustHeight();
 	    }
 	  }, {
 	    key: "updateAccessibility",
 	    value: function updateAccessibility(accessibility) {
-	      var _this11 = this;
+	      var _this10 = this;
 
 	      this.accessibility = accessibility;
 
@@ -2589,14 +2560,14 @@ this.BX = this.BX || {};
 	        for (key in accessibility) {
 	          if (accessibility.hasOwnProperty(key) && main_core.Type.isArray(accessibility[key]) && accessibility[key].length) {
 	            (function () {
-	              var wrap = _this11.entriesDataRowMap.get(key);
+	              var wrap = _this10.entriesDataRowMap.get(key);
 
 	              if (main_core.Type.isDomNode(wrap)) {
 	                accessibility[key].forEach(function (event) {
 	                  event = Planner.prepareAccessibilityItem(event);
 
 	                  if (event) {
-	                    _this11.addAccessibilityItem(event, wrap);
+	                    _this10.addAccessibilityItem(event, wrap);
 	                  }
 	                });
 	              }
@@ -2637,8 +2608,7 @@ this.BX = this.BX || {};
 	          from: from,
 	          to: to,
 	          fullDay: fullDay
-	        }); //this.selector.focus();
-
+	        });
 	        this.selector.focus(false, 300);
 	      }
 	    }
@@ -2757,17 +2727,7 @@ this.BX = this.BX || {};
 	              for (i = 0; i < this.entries.length; i++) {
 	                entry = this.entries[i];
 	                entrieIds.push(entry.id);
-	              } // BX.onCustomEvent('OnCalendarPlannerScaleChanged', [{
-	              // 	from: Util.formatDate(this.loadedDataFrom),
-	              // 	to: Util.formatDate(loadedDataTo),
-	              // 	entrieIds: entrieIds,
-	              // 	entries: this.entries,
-	              // 	focusSelector: true,
-	              // 	params: {
-	              // 		callback: function(){_this.ProposeTime({checkedFuture: true});}
-	              // 	}
-	              // }]);
-
+	              }
 	            }
 	          } else {
 	            if (this.fullDayMode) dateTo = new Date(dateTo.getTime() - calendar_util.Util.getDayLength());
@@ -2804,7 +2764,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "checkTimePeriod",
 	    value: function checkTimePeriod(fromDate, toDate, data) {
-	      var _this12 = this;
+	      var _this11 = this;
 
 	      var result = true,
 	          entry,
@@ -2828,16 +2788,16 @@ this.BX = this.BX || {};
 	        }
 	      } else if (main_core.Type.isArray(this.entries)) {
 	        (function () {
-	          var selectorAccuracy = _this12.selectorAccuracy * 1000,
+	          var selectorAccuracy = _this11.selectorAccuracy * 1000,
 	              entryId;
 
-	          if (_this12.checkTimeCache[cacheKey] !== undefined) {
-	            result = _this12.checkTimeCache[cacheKey];
+	          if (_this11.checkTimeCache[cacheKey] !== undefined) {
+	            result = _this11.checkTimeCache[cacheKey];
 	          } else {
-	            for (entryId in _this12.accessibility) {
-	              if (_this12.accessibility.hasOwnProperty(entryId)) {
-	                if (_this12.selectMode) {
-	                  entry = _this12.entries.find(function (el) {
+	            for (entryId in _this11.accessibility) {
+	              if (_this11.accessibility.hasOwnProperty(entryId)) {
+	                if (_this11.selectMode) {
+	                  entry = _this11.entries.find(function (el) {
 	                    return parseInt(el.id) === parseInt(entryId);
 	                  });
 
@@ -2846,9 +2806,9 @@ this.BX = this.BX || {};
 	                  }
 	                }
 
-	                if (main_core.Type.isArray(_this12.accessibility[entryId])) {
-	                  for (i = 0; i < _this12.accessibility[entryId].length; i++) {
-	                    item = _this12.accessibility[entryId][i];
+	                if (main_core.Type.isArray(_this11.accessibility[entryId])) {
+	                  for (i = 0; i < _this11.accessibility[entryId].length; i++) {
+	                    item = _this11.accessibility[entryId][i];
 
 	                    if (item.type && item.type === 'hr') {
 	                      continue;
@@ -2874,7 +2834,7 @@ this.BX = this.BX || {};
 	            // }
 
 
-	            _this12.checkTimeCache[cacheKey] = result;
+	            _this11.checkTimeCache[cacheKey] = result;
 	          }
 	        })();
 	      }
@@ -2907,7 +2867,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "showSettingsPopup",
 	    value: function showSettingsPopup() {
-	      var _this13 = this;
+	      var _this12 = this;
 
 	      var settingsDialogCont = BX.create('DIV', {
 	        props: {
@@ -2932,7 +2892,7 @@ this.BX = this.BX || {};
 	      }
 
 	      this.scaleTypes.forEach(function (scale) {
-	        scaleWrap.appendChild(main_core.Tag.render(_templateObject3$1(), scale === _this13.scaleType ? ' calendar-planner-option-tab-active' : '', scale, main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE_' + scale.toUpperCase())));
+	        scaleWrap.appendChild(main_core.Tag.render(_templateObject3$1(), scale === _this12.scaleType ? ' calendar-planner-option-tab-active' : '', scale, main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE_' + scale.toUpperCase())));
 	      }); // Create and show settings popup
 
 	      var popup = main_popup.PopupWindowManager.create(this.id + "-settings-popup", this.DOM.settingsButton, {
@@ -2950,12 +2910,12 @@ this.BX = this.BX || {};
 	      });
 	      popup.show(true);
 	      main_core.Event.bind(scaleWrap, 'click', function (e) {
-	        if (!_this13.fullDayMode) {
+	        if (!_this12.fullDayMode) {
 	          var nodeTarget = e.target || e.srcElement,
 	              scale = nodeTarget && nodeTarget.getAttribute && nodeTarget.getAttribute('data-bx-planner-scale');
 
 	          if (scale) {
-	            _this13.changeScaleType(scale);
+	            _this12.changeScaleType(scale);
 
 	            popup.close();
 	          }

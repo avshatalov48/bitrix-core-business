@@ -31,7 +31,8 @@ class Component
 				'SALELEADER',
 				'SPECIALOFFER'
 			),
-			'CONVERT_CURRENCY' => 'Y'
+			'CONVERT_CURRENCY' => 'Y',
+			'LANDING_MODE' => 'Y'
 		));
 
 		if (
@@ -98,7 +99,7 @@ class Component
 				}
 			}
 		}
-		
+
 		return $manifest;
 	}
 }

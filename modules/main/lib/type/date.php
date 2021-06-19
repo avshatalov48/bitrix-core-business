@@ -219,10 +219,10 @@ class Date
 	/**
 	 * Returns difference between dates.
 	 *
-	 * @param DateTime $time
+	 * @param Date $time
 	 * @return \DateInterval
 	 */
-	public function getDiff(DateTime $time)
+	public function getDiff(Date $time)
 	{
 		return $this->value->diff($time->value);
 	}

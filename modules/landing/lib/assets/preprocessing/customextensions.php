@@ -41,12 +41,17 @@ class CustomExtensions
 				$params = str_replace('data-pseudo-url=', '', $params);
 				$params = substr($params,0,-1);
 				$params = substr($params,1);
-				$params = Json::decode($params);
-				if($params['enabled'])
+				// preserve JSON syntax error if params in wrong format
+				try
 				{
-					$newExtensions[] = self::EXT_POPUP;
-					break;
+					$params = Json::decode($params);
+					if($params['enabled'])
+					{
+						$newExtensions[] = self::EXT_POPUP;
+						break;
+					}
 				}
+				catch (\Exception $e){}
 			}
 		}
 

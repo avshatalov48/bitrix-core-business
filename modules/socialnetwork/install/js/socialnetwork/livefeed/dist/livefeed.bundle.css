@@ -153,8 +153,7 @@
 	        align-items: flex-start;
 }
 
-.feed-grat-block.feed-info-block .feed-workday-left-side,
-.feed-grat-block.feed-info-block .feed-user-name-wrap {
+.feed-grat-block.feed-info-block .feed-workday-left-side {
 	width: auto;
 }
 
@@ -170,6 +169,10 @@
 	-webkit-box-align: center;
 	    -ms-flex-align: center;
 	        align-items: center;
+}
+
+.feed-grat-block.feed-grat-block-one.feed-info-block .feed-user-name-wrap {
+	width: 100%;
 }
 
 .feed-grat-block .feed-workday-left-side .feed-user-name-wrap {

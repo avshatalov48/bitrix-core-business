@@ -6,6 +6,9 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
+use Bitrix\Main\UI\EntitySelector;
+
+
 if (!empty($arResult["Post"]))
 {
 	$arResult["Post"]["SPERM_SHOW"] = $arResult["Post"]["SPERM"];
@@ -108,4 +111,63 @@ if (!empty($arResult['Post']['BACKGROUND_CODE']))
 {
 	$arResult['Post']['IS_IMPORTANT'] = false;
 	$arResult['GRATITUDE'] = [];
+}
+
+if (
+	!$arResult['bPublicPage']
+	&& (!isset($arParams["MOBILE"]) || $arParams["MOBILE"] !== "Y")
+	&& !empty($arResult['Post'])
+	&& is_set($arResult['Post']['SPERM'])
+	&& is_array($arResult['Post']['SPERM'])
+)
+{
+	$postDestList = [];
+
+	foreach($arResult['Post']['SPERM'] as $type => $itemsList)
+	{
+		if (!in_array($type, [ 'U', 'SG', 'DR', 'G' ]))
+		{
+			continue;
+		}
+
+		switch($type)
+		{
+			case 'SG':
+				$typeText = 'sonetgroups';
+				break;
+			case 'DR':
+				$typeText = 'department';
+				break;
+			default:
+				$typeText = 'users';
+		}
+
+		foreach($itemsList as $id => $item)
+		{
+			$postDest = (
+			$type === 'U'
+			&& (int)$item['ID'] <= 0
+				? [
+				'id' => 'UA',
+				'type' => 'groups'
+			]
+				: [
+				'id' => $type.$id,
+				'type' => $typeText,
+			]
+			);
+			$postDestList[$postDest['id']] = $postDest['type'];
+		}
+	}
+
+	$postDestListCodes = array_keys($postDestList);
+
+	if (
+		isset($arResult['PostSrc'])
+		&& isset($arResult['PostSrc']['SPERM_HIDDEN'])
+	)
+	{
+		$postDestListCodes = array_merge($postDestListCodes, $arResult['PostSrc']['SPERM_HIDDEN']);
+	}
+	$arResult['postDestEntities'] = EntitySelector\Converter::sortEntities(EntitySelector\Converter::convertFromFinderCodes($postDestListCodes));
 }

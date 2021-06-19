@@ -10,4 +10,5 @@ $MESS['LANDING_BLOCK_20_4_AUTHOR'] = 'Автор';
 $MESS['LANDING_BLOCK_20_4_AUTHORIMG'] = 'Фото автора';
 $MESS['LANDING_BLOCK_20_4_CARD_BLOCK'] = 'Карточка блока';
 $MESS['LANDING_BLOCK_20_4_BOTTOM_BLOCK'] = 'Нижняя часть блока';
+$MESS['LANDING_BLOCK_20_4_ELEMENT'] = 'Набор элементов';
 

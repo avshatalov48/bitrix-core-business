@@ -1198,7 +1198,7 @@ class OrderBasket
 		return $flagAll? static::$arSkuProps[$iblockId] : static::filterProps(static::$arSkuProps[$iblockId]);
 	}
 
-	protected function getOffersCatalog($iblockId)
+	protected static function getOffersCatalog($iblockId)
 	{
 		if (self::$catalogIncluded === null)
 			self::$catalogIncluded = Main\Loader::includeModule('catalog');
@@ -1211,7 +1211,7 @@ class OrderBasket
 		return static::$offersCatalog[$iblockId];
 	}
 
-	protected function getPropsList($iblockId, $skuPropertyId = 0)
+	protected static function getPropsList($iblockId, $skuPropertyId = 0)
 	{
 		if (self::$catalogIncluded === null)
 			self::$catalogIncluded = Main\Loader::includeModule('catalog');
@@ -1249,7 +1249,7 @@ class OrderBasket
 		return $arResult;
 	}
 
-	protected function filterProps(&$props)
+	protected static function filterProps(&$props)
 	{
 		$result = array();
 		if ($props)

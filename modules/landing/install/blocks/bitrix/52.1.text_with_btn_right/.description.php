@@ -6,34 +6,38 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
-return array(
-	'block' => array(
+return [
+	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_52_TEXT_WITH_BTN_RIGHT-NAME'),
-		'section' => array('tiles'),
-	),
-	'cards' => array(),
-	'nodes' => array(
-		'.landing-block-node-text' => array(
+		'section' => ['tiles'],
+	],
+	'cards' => [],
+	'nodes' => [
+		'.landing-block-node-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_52_TEXT_WITH_BTN_RIGHT-TEXT'),
 			'type' => 'text',
-		),
-		'.landing-block-node-button' => array(
+		],
+		'.landing-block-node-button' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_52_TEXT_WITH_BTN_RIGHT-BTN'),
 			'type' => 'link',
-		),
-	),
-	'style' => array(
-		'.landing-block-node-text' => array(
+		],
+	],
+	'style' => [
+		'.landing-block-node-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_52_TEXT_WITH_BTN_RIGHT-TEXT'),
-			'type' => array('typo', 'animation'),
-		),
-		'.landing-block-node-button' => array(
+			'type' => ['typo', 'animation'],
+		],
+		'.landing-block-node-button' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_52_TEXT_WITH_BTN_RIGHT-BTN'),
-			'type' => array('button'),
-		),
-		'.landing-block-node-button-container' => array(
+			'type' => ['button'],
+		],
+		'.landing-block-node-button-container' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_52_TEXT_WITH_BTN_RIGHT-BTN'),
-			'type' => array('text-align', 'animation'),
-		),
-	),
-);
+			'type' => ['text-align', 'animation'],
+		],
+		'.landing-block-node-container' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_52_TEXT_WITH_BTN_RIGHT_CONTAINER'),
+			'type' => ['container'],
+		],
+	],
+];

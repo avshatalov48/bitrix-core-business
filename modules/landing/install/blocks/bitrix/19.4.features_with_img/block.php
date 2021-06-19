@@ -1,12 +1,12 @@
-<section class="g-pt-90 g-pb-30">
+<section class="g-pt-30 g-pb-30">
 	<div class="container">
 		<div class="row">
 			<div class="col-lg-7 order-2 order-md-1 d-flex">
 				<div>
-					<div class="text-uppercase g-line-height-1_3 g-mb-20">
-						<h4 class="landing-block-node-subtitle landing-semantic-subtitle-small g-font-weight-700 g-font-size-11 g-mb-15">
-							<span class="g-color-primary landing-semantic-subtitle-small-primary">06.</span> Why our app</h4>
-						<h2 class="landing-block-node-title landing-semantic-title-medium g-line-height-1_3 g-font-size-36 mb-0">
+					<div class="text-uppercase g-line-height-1_3">
+						<h6 class="landing-block-node-subtitle landing-semantic-subtitle-small g-font-weight-700 g-mb-15">
+							<span class="g-color-primary landing-semantic-subtitle-small-primary">06.</span> Why our app</h6>
+						<h2 class="landing-block-node-title landing-semantic-title-medium g-line-height-1_3 h1 g-mb-20">
 							Only <span style="font-weight: bold;">just try</span>
 						</h2>
 					</div>

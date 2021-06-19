@@ -17,7 +17,13 @@ class MetaUserProvider extends BaseProvider
 		if (isset($options['all-users']))
 		{
 			$this->options['all-users'] = is_array($options['all-users']) ? $options['all-users'] : [];
-			$this->options['all-users']['allowView'] = null;
+			if (
+				!isset($this->options['all-users']['allowView'])
+				|| !is_bool($this->options['all-users']['allowView'])
+			)
+			{
+				$this->options['all-users']['allowView'] = null;
+			}
 		}
 	}
 
@@ -29,7 +35,11 @@ class MetaUserProvider extends BaseProvider
 	public function fillDialog(Dialog $dialog): void
 	{
 		$options = $this->getOptions();
-		if (self::canViewAllUsers() && isset($options['all-users']))
+		if (
+			self::canViewAllUsers()
+			&& isset($options['all-users'])
+			&& $options['all-users']['allowView'] !== false
+		)
 		{
 			$dialog->addRecentItem(self::getAllUsersItem($options['all-users']));
 		}
@@ -42,12 +52,12 @@ class MetaUserProvider extends BaseProvider
 
 	public function getSelectedItems(array $ids): array
 	{
-		$options = array_merge($this->getOptions(), [
+		$options = array_merge([
 			'all-users' => [
 				'allowView' => true,
 				'deselectable' => self::canViewAllUsers()
 			]
-		]);
+		], $this->getOptions());
 
 		return self::getMetaUsers($ids, $options);
 	}
@@ -102,6 +112,10 @@ class MetaUserProvider extends BaseProvider
 			isset($options['deselectable']) && is_bool($options['deselectable']) ? $options['deselectable'] : true
 		;
 
+		$searchable =
+			isset($options['searchable']) && is_bool($options['searchable']) ? $options['searchable'] : false
+		;
+
 		$availableInRecentTab =
 			isset($options['availableInRecentTab']) && is_bool($options['availableInRecentTab'])
 				? $options['availableInRecentTab']
@@ -113,7 +127,7 @@ class MetaUserProvider extends BaseProvider
 			'entityId' => 'meta-user',
 			'entityType' => 'all-users',
 			'title' => $title,
-			'searchable' => false,
+			'searchable' => $searchable,
 			'saveable' => false,
 			'deselectable' => $deselectable,
 			'availableInRecentTab' => $availableInRecentTab,

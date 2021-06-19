@@ -12,7 +12,7 @@ CModule::IncludeModule('blog');
 if ($REQUEST_METHOD=="GET" && $RestoreDefaults <> '' && $BLOG_RIGHT=="W" && check_bitrix_sessid())
 {
 	COption::RemoveOption("blog");
-	$z = CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
+	$z = CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 	while($zr = $z->Fetch())
 		$APPLICATION->DelGroupRight($module_id, array($zr["ID"]));
 }
@@ -75,7 +75,7 @@ if ($REQUEST_METHOD=="POST" && $Update <> '' && $BLOG_RIGHT=="W" && check_bitrix
 	"G" - group blog,
 	"H" - group post
 	*/
-	$dbSites = CSite::GetList(($b = ""), ($o = ""), array("ACTIVE" => "Y"));
+	$dbSites = CSite::GetList('', '', array("ACTIVE" => "Y"));
 	while ($arSite = $dbSites->Fetch())
 	{
 		BXClearCache(True, "/".$arSite["LID"]."/blog/");
@@ -189,7 +189,7 @@ $tabControl->BeginNextTab();
 	while ($arPath = $dbPaths->Fetch())
 		$arPaths[$arPath["SITE_ID"]][$arPath["TYPE"]] = $arPath["PATH"];
 
-	$dbSites = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+	$dbSites = CSite::GetList('', '', Array("ACTIVE" => "Y"));
 	while ($arSite = $dbSites->Fetch())
 	{
 		?>
@@ -258,7 +258,7 @@ $tabControl->BeginNextTab();
 			$arPaths[$arPath["SITE_ID"]] = $arPath["PATH"];
 	}
 
-	$dbSites = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+	$dbSites = CSite::GetList('', '', Array("ACTIVE" => "Y"));
 	while ($arSite = $dbSites->Fetch())
 	{
 		?>

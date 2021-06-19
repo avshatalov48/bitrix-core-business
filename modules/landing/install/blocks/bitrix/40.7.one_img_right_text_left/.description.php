@@ -40,20 +40,20 @@ return [
 	],
 	'style' => [
 		'.landing-block-card-border-left' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_40_7_SEPARATOR'),
-			'type' => ['border-color', 'border-width'],
+			'name' => Loc::getMessage('LANDING_BLOCK_40_7_CONTAINER'),
+			'type' => ['border-color', 'heading-v2', 'margin-bottom'],
 		],
 		'.landing-block-card-title-left' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_7_TITLE'),
-			'type' => ['typo'],
+			'type' => ['typo', 'heading'],
 		],
 		'.landing-block-card-text-left' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_7_TEXT'),
-			'type' => 'typo',
+			'type' => ['typo'],
 		],
 		'.landing-block-card-title-right' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_7_TITLE'),
-			'type' => ['typo', 'border-color', 'border-width'],
+			'type' => ['typo', 'heading'],
 		],
 		'.landing-block-card-text-right' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_7_TEXT'),

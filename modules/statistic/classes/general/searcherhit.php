@@ -1,7 +1,7 @@
 <?php
 class CSearcherHit
 {
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetList($by = 's_date_hit', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -18,11 +18,11 @@ class CSearcherHit
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -76,14 +76,14 @@ class CSearcherHit
 		elseif ($by == "s_url")			$strSqlOrder = "ORDER BY H.URL ";
 		else
 		{
-			$by = "s_date_hit";
 			$strSqlOrder = "ORDER BY H.DATE_HIT";
 		}
-		if ($order!="asc")
+
+		if ($order != "asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
+
 		$strSql = "
 			SELECT /*TOP*/
 				H.ID, H.SEARCHER_ID, H.URL, H.URL_404, H.IP, H.USER_AGENT, H.HIT_KEEP_DAYS, H.SITE_ID,
@@ -98,7 +98,7 @@ class CSearcherHit
 		";
 
 		$res = $DB->Query(CStatistics::DBTopSql($strSql), false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 }

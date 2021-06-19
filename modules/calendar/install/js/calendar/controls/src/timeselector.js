@@ -1,4 +1,4 @@
-import {Util} from "calendar.util";
+import {Util} from 'calendar.util';
 import {Type} from 'main.core';
 
 export class TimeSelector {

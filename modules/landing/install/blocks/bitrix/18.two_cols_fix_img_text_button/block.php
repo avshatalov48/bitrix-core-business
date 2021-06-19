@@ -8,9 +8,9 @@
 
 			<div class="col-lg-6 u-bg-overlay__inner g-flex-centered">
 				<div class="w-100">
-					<h2 class="landing-block-node-title landing-semantic-subtitle-medium js-animation fadeInDown text-uppercase g-line-height-1_1 g-font-weight-700 g-font-size-26 g-color-white g-mb-10">
+					<h2 class="landing-block-node-title landing-semantic-subtitle-medium js-animation fadeInDown text-uppercase g-line-height-1_1 g-font-weight-700 h1 g-color-white g-mb-10">
 						Need to do calculations?</h2>
-					<div class="landing-block-node-text landing-semantic-text-medium js-animation fadeIn g-line-height-1_2 g-font-size-18 g-color-white">
+					<div class="landing-block-node-text landing-semantic-text-medium js-animation fadeIn g-line-height-1_2 g-color-white">
 						<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
 							laudantium, totam rem aperiam, eaque ipsa quae ab illo.</p>
 					</div>

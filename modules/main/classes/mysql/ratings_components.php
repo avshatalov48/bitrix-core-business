@@ -1,5 +1,7 @@
-<?
+<?php
+
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/ratings_components.php");
+
 IncludeModuleLangFile(__FILE__);
 
 class CRatingsComponentsMain extends CAllRatingsComponentsMain

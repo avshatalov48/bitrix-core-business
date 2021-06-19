@@ -295,14 +295,9 @@ class Monitoring
 
 		$data = \rrd_graph( "/dev/null", $arOpts);
 
-		if(isset($item["DATA_FUNC"]))
+		if(isset($item["DATA_FUNC"]) && is_callable($item["DATA_FUNC"]))
 		{
-			$func = create_function('$data', $item["DATA_FUNC"]);
-
-			if(is_callable($func))
-			{
-				$result = $func($data);
-			}
+			$result = $item["DATA_FUNC"]($data);
 		}
 		else
 		{
@@ -463,17 +458,24 @@ class Monitoring
 						"PRINT:vin:%1.2lf",
 						"PRINT:vout:%1.2lf"
 					),
-					"DATA_FUNC" => '
-					$result = false;
-					if(isset($data["calcpr"][0]) && isset($data["calcpr"][1]))
-					{
-						$result = \Bitrix\Scale\Monitoring::formatSize((int)$data["calcpr"][0]/600).
-							"&nbsp;/&nbsp;".
-							\Bitrix\Scale\Monitoring::formatSize((int)$data["calcpr"][1]/600)."&nbsp;'.Helper::nbsp(Loc::getMessage("SCALE_MONITORING_NET_SEC")).'";
-					}
-					return $result;'
+					"DATA_FUNC" => '\Bitrix\Scale\Monitoring::formatNetParamsValue'
 				);
 			}
+		}
+
+		return $result;
+	}
+
+	protected static function formatNetParamsValue(array $data)
+	{
+		$result = false;
+
+		if(isset($data['calcpr'][0], $data['calcpr'][1]))
+		{
+			$result = static::formatSize((int)$data['calcpr'][0]/600) .
+				'&nbsp;/&nbsp;' .
+				static::formatSize((int)$data['calcpr'][1]/600).'&nbsp;' .
+				Helper::nbsp(Loc::getMessage('SCALE_MONITORING_NET_SEC'));
 		}
 
 		return $result;
@@ -515,15 +517,7 @@ class Monitoring
 								"PRINT:vr:%1.2lf",
 								"PRINT:vw:%1.2lf"
 							),
-							"DATA_FUNC" => '
-								$result = false;
-								if(isset($data["calcpr"][0]) && isset($data["calcpr"][1]))
-								{
-									$result = \Bitrix\Scale\Monitoring::formatSize((int)$data["calcpr"][0]/600).
-										"&nbsp;/&nbsp;".
-										\Bitrix\Scale\Monitoring::formatSize((int)$data["calcpr"][1]/600)."&nbsp;'.Loc::getMessage("SCALE_MONITORING_NET_SEC").'";
-								}
-								return $result;'
+							"DATA_FUNC" => '\Bitrix\Scale\Monitoring::formatHddsUtilizationValue'
 						),
 						array(
 							"RRD" => $hostname."-diskstats_utilization-".$dev."-util-g.rrd",
@@ -534,6 +528,21 @@ class Monitoring
 					)
 				);
 			}
+		}
+
+		return $result;
+	}
+
+	protected static function formatHddsUtilizationValue(array $data)
+	{
+		$result = false;
+		
+		if(isset($data['calcpr'][0], $data['calcpr'][1]))
+		{
+			$result = static::formatSize((int)$data['calcpr'][0]/600) .
+				'&nbsp;/&nbsp;' .
+				static::formatSize((int)$data['calcpr'][1]/600) .
+				'&nbsp;'.Loc::getMessage('SCALE_MONITORING_NET_SEC');
 		}
 
 		return $result;

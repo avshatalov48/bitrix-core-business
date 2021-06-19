@@ -143,6 +143,50 @@ BX.RenderParts.getNodeTask = function(entity)
 	);
 };
 
+BX.RenderParts.getNodePost = function(entity)
+{
+	return (
+		!this.mobile
+		&& !this.publicSection
+		&& entity.LINK.length > 0
+		&& BX.type.isNotEmptyObject(entity.VISIBILITY)
+		&& entity.VISIBILITY.available === true
+
+			? BX.create('a', {
+				attrs: {
+					href: entity.LINK,
+					target: '_blank'
+				},
+				text: entity.NAME
+			})
+			: BX.create('span', {
+				text: entity.NAME
+			})
+	);
+};
+
+BX.RenderParts.getNodeCalendarEvent = function(entity)
+{
+	return (
+		!this.mobile
+		&& !this.publicSection
+		&& entity.LINK.length > 0
+		&& BX.type.isNotEmptyObject(entity.VISIBILITY)
+		&& entity.VISIBILITY.available === true
+
+			? BX.create('a', {
+				attrs: {
+					href: entity.LINK,
+					target: '_blank'
+				},
+				text: entity.NAME
+			})
+			: BX.create('span', {
+				text: entity.NAME
+			})
+	);
+};
+
 BX.RenderParts.getNodeUA = function()
 {
 	return BX.create('span', {

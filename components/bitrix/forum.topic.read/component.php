@@ -818,7 +818,7 @@ if ($arParams["SET_DESCRIPTION"] != "N")
 			}
 		}
 
-		if (($description != '') && ($arParams["CACHE_TIME"] > 0))
+		if ($description !== '' && $arParams["CACHE_TIME"] > 0 && $arParams["TID"] > 0)
 		{
 			$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
 			CForumCacheManager::SetTag($cache_path, "forum_topic_".$arParams['TID']);

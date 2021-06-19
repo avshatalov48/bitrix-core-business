@@ -10,6 +10,7 @@ return [
 	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_27_3_ONE_COL_FULL_TITLE_AND_TEXT_2_NAME_NEW'),
 		'section' => ['title'],
+		'type' => 'null',
 	],
 	'cards' => [],
 	'nodes' => [

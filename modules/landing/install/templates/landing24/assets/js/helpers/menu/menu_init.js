@@ -6,7 +6,8 @@
 	{
 		initNavbarNavHandler(event);
 		initScrollNavHandler(event);
-		initModalAlertHandler(event);
+		initNavbarModalHandler(event);
+		initNavbarSliderHandler(event);
 		initMenuMultilevelHandler(event);
 		initCollapseToggler(event);
 	});
@@ -55,7 +56,7 @@
 		}
 	}
 
-	function initModalAlertHandler(event)
+	function initNavbarModalHandler(event)
 	{
 		var navbarModal = event.block.querySelector(event.makeRelativeSelector('.navbar.u-navbar-modal'));
 		if (navbarModal && BX.Landing.getMode() === "edit")
@@ -64,12 +65,27 @@
 				{
 					children: [
 						BX.create("div", {
-							props: {className: "g-landing-alert-v3"},
+							props: {className: "g-landing-alert-v3 " + (navbarModal.dataset.modalAlertClasses || '')},
 							html: BX.message("LANDING_NAVBAR_MODAL_ALERT"),
 						})
 					]
 				}
 			);
+		}
+	}
+
+	function initNavbarSliderHandler(event)
+	{
+		if (BX.Landing.getMode() !== "edit")
+		{
+			var navbarSlider = event.block.querySelector(event.makeRelativeSelector('.navbar.u-navbar-slider'));
+			var toggler = event.block.querySelector(event.makeRelativeSelector('.navbar-toggler'));
+			if (navbarSlider && toggler)
+			{
+				toggler.addEventListener('click', function () {
+					document.body.classList.toggle('g-overflow-hidden');
+				})
+			}
 		}
 	}
 
@@ -202,17 +218,20 @@
 	 */
 	function addActive(node)
 	{
-		node.classList.add('active');
-		BX.adjust(node,
-			{
-				children: [
-					BX.create("span", {
-						props: {className: "sr-only"},
-						text: '(current)'
-					})
-				]
-			}
-		);
+		if(node)
+		{
+			node.classList.add('active');
+			BX.adjust(node,
+				{
+					children: [
+						BX.create("span", {
+							props: {className: "sr-only"},
+							text: '(current)'
+						}),
+					]
+				}
+			);
+		}
 	}
 
 	/**

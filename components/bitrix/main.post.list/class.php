@@ -1291,11 +1291,13 @@ HTML;
 			}
 
 			$JSResult += array(
+				'warningCode' => ($arParams["WARNING_CODE"] ?? ''),
+				'warningMessage' => ($arParams["~WARNING_MESSAGE"] ?? ''),
 				'errorMessage' => (isset($arParams["~ERROR_MESSAGE"]) ? $arParams["~ERROR_MESSAGE"] : (isset($arParams["ERROR_MESSAGE"]) ? $arParams["ERROR_MESSAGE"] : '')),
 				'okMessage' => (isset($arParams["~OK_MESSAGE"]) ? $arParams["~OK_MESSAGE"] : (isset($arParams["OK_MESSAGE"]) ? $arParams["OK_MESSAGE"] : '')),
 				'status' => "success",
 			);
-			if ($mode == "RECORDS")
+			if ($mode === "RECORDS")
 			{
 				$JSResult["messageList"] = $records;
 			}

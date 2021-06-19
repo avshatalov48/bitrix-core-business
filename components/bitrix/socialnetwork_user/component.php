@@ -17,6 +17,9 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
+$folderWorkgroups = COption::GetOptionString('socialnetwork', 'workgroups_page', false, SITE_ID);
+$folderWorkgroups = ($folderWorkgroups ?: SITE_DIR . 'workgroups/');
+
 $arDefaultUrlTemplates404 = array(
 	"index" => "index.php",
 
@@ -30,7 +33,11 @@ $arDefaultUrlTemplates404 = array(
 	"user_friends_delete" => "user/#user_id#/friends/delete/",
 	"user_groups" => "user/#user_id#/groups/",
 	"user_groups_add" => "user/#user_id#/groups/add/",
+	"user_leave_group" => "{$folderWorkgroups}group/#group_id#/user_leave/",
+	"user_request_group" => "{$folderWorkgroups}group/#group_id#/user_request/",
 	"group_create" => "user/#user_id#/groups/create/",
+	"group_edit" => "{$folderWorkgroups}group/#group_id#/edit/",
+	"group_delete" => "{$folderWorkgroups}group/#group_id#/delete/",
 	"group_copy" => "user/#user_id#/groups/create/copy/",
 	"group_import" => "user/#user_id#/groups/create/import/",
 	"user_profile_edit" => "user/#user_id#/edit/",
@@ -210,6 +217,11 @@ if($diskEnabled)
 	$arDefaultUrlTemplates404["user_external_link_list"] = "user/#user_id#/disk/external";
 	$arDefaultUrlTemplates404["user_disk_help"] = "user/#user_id#/disk/help";
 	$arDefaultUrlTemplates404["user_disk_volume"] = "user/#user_id#/disk/volume/#ACTION#";
+
+	if (\Bitrix\Main\Config\Option::get('disk', 'documents_enabled', false) === 'Y')
+	{
+		$arDefaultUrlTemplates404["user_disk_documents"] = "user/#user_id#/disk/documents/";
+	}
 }
 
 if ($bExtranetEnabled)
@@ -234,7 +246,11 @@ $arDefaultUrlTemplatesN404 = array(
 	"user_friends_delete" => "page=user_friends_delete&user_id=#user_id#",
 	"user_groups" => "page=user_groups&user_id=#user_id#",
 	"user_groups_add" => "page=user_groups_add&user_id=#user_id#",
+	"user_leave_group" => "{$folderWorkgroups}group/#group_id#/user_leave/",
+	"user_request_group" => "{$folderWorkgroups}group/#group_id#/user_request/",
 	"group_create" => "page=group_create&user_id=#user_id#",
+	"group_edit" => "{$folderWorkgroups}group/#group_id#/edit/",
+	"group_delete" => "{$folderWorkgroups}group/#group_id#/delete/",
 	"group_copy" => "page=group_copy&user_id=#user_id#",
 	"group_import" => "page=group_import&user_id=#user_id#",
 	"user_profile_edit" => "page=user_profile_edit&user_id=#user_id#",
@@ -387,9 +403,6 @@ if (!array_key_exists("ALLOW_GROUP_CREATE_REDIRECT_REQUEST", $arParams))
 {
 	$arParams["ALLOW_GROUP_CREATE_REDIRECT_REQUEST"] = "Y";
 }
-
-$folderWorkgroups = COption::GetOptionString("socialnetwork", "workgroups_page", false, SITE_ID);
-$folderWorkgroups = ($folderWorkgroups ? $folderWorkgroups : SITE_DIR."workgroups/");
 
 if (
 	$arParams["ALLOW_GROUP_CREATE_REDIRECT_REQUEST"] != "N" 
@@ -915,6 +928,7 @@ if(
 	$componentPage === 'user_disk_file' ||
 	$componentPage === 'user_disk_file_history' ||
 	$componentPage === 'user_disk_volume' ||
+	$componentPage === 'user_disk_documents' ||
 	$componentPage === 'user_trashcan_list' ||
 	$componentPage === 'user_trashcan_file_view' ||
 	$componentPage === 'user_external_link_list'
@@ -1038,7 +1052,7 @@ if (
 				}
 				else
 				{
-					$rsUser = CUser::GetList(($by="id"), ($order="asc"), array("ID" => $arResult["VARIABLES"]["user_id"]), array("SELECT" => array("UF_DEPARTMENT"), "FIELDS" => array("ID")));
+					$rsUser = CUser::GetList("id", "asc", array("ID" => $arResult["VARIABLES"]["user_id"]), array("SELECT" => array("UF_DEPARTMENT"), "FIELDS" => array("ID")));
 					if ($arUser = $rsUser->Fetch())
 					{
 						$bIsUserExtranet = (
@@ -1330,7 +1344,18 @@ if (
 	$arUser = $rsUser->fetch();
 	if (!$arUser)
 	{
-		ShowError(GetMessage("SONET_NO_USER"));
+		$APPLICATION->IncludeComponent(
+			'bitrix:ui.sidepanel.wrapper',
+			'',
+			[
+				'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.entity.error',
+				'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+				'POPUP_COMPONENT_PARAMS' => [
+					'ENTITY' => 'USER',
+				],
+			]
+		);
+
 		return;
 	}
 
@@ -1384,7 +1409,18 @@ if (
 
 		if (!$bAccessFound)
 		{
-			ShowError(GetMessage("SONET_ACCESS_DENIED"));
+			$APPLICATION->IncludeComponent(
+				'bitrix:ui.sidepanel.wrapper',
+				'',
+				[
+					'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.entity.error',
+					'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+					'POPUP_COMPONENT_PARAMS' => [
+						'ENTITY' => 'USER',
+					],
+				]
+			);
+
 			return;
 		}
 	}
@@ -1404,15 +1440,29 @@ Bitrix\Main\UrlPreview\Router::setRouteHandler(
 if(\Bitrix\Main\ModuleManager::isModuleInstalled('tasks'))
 {
 	Bitrix\Main\UrlPreview\Router::setRouteHandler(
-			$arParams['SEF_FOLDER'].$arUrlTemplates['user_tasks_task'],
-			'tasks',
-			'\Bitrix\Tasks\Ui\Preview\Task',
-			array(
-					'taskId' => '$task_id',
-					'userId' => '$user_id',
-					'action' => '$action',
-					'PATH_TO_USER_PROFILE' => $arParams['SEF_FOLDER'].$arUrlTemplates['user'],
-			)
+		$arParams['SEF_FOLDER'] . $arUrlTemplates['user_tasks_task'],
+		'tasks',
+		'\Bitrix\Tasks\Ui\Preview\Task',
+		[
+			'taskId' => '$task_id',
+			'userId' => '$user_id',
+			'action' => '$action',
+			'PATH_TO_USER_PROFILE' => $arParams['SEF_FOLDER'] . $arUrlTemplates['user'],
+		]
+	);
+}
+
+if(\Bitrix\Main\ModuleManager::isModuleInstalled('calendar'))
+{
+	Bitrix\Main\UrlPreview\Router::setRouteHandler(
+		$arParams['SEF_FOLDER'] . $arUrlTemplates['user_calendar'],
+		'calendar',
+		'\Bitrix\Calendar\Ui\Preview\Event',
+		[
+			'userId' => '$user_id',
+			'PATH_TO_USER_PROFILE' => $arParams['SEF_FOLDER'] . $arUrlTemplates['user'],
+			'eventId' => '$EVENT_ID',
+		]
 	);
 }
 

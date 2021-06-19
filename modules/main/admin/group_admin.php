@@ -114,7 +114,7 @@ if(($arID = $lAdmin->GroupAction()) && $USER->CanDoOperation('edit_groups'))
 	if($_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
-		$rsData = CGroup::GetList($by, $order, Array());
+		$rsData = CGroup::GetList();
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -172,6 +172,8 @@ $lAdmin->AddHeaders(array(
 $showUserCount = in_array("USERS", $lAdmin->GetVisibleHeaderColumns());
 
 // инициализация списка - выборка данных
+global $by, $order;
+
 $rsData = CGroup::GetList($by, $order, $arFilter, ($showUserCount? "Y" : "N"));
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();

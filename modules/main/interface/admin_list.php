@@ -71,16 +71,6 @@ class CAdminList
 		$this->initMode();
 	}
 
-	/**
-	 * @deprecated
-	 * @param string $table_id
-	 * @param CAdminSorting|bool $sort
-	 */
-	public function CAdminList($table_id, $sort = false)
-	{
-		self::__construct($table_id, $sort);
-	}
-
 	public function getFilter()
 	{
 		return $this->filter;
@@ -1276,15 +1266,6 @@ class CAdminListRow
 		$this->table_id = $table_id;
 
 		$this->isPublicMode = (defined("PUBLIC_MODE") && PUBLIC_MODE == 1);
-	}
-
-	/** @deprecated
-	* @param array &$aHeaders
-	* @param string $table_id
-	*/
-	public function CAdminListRow(&$aHeaders, $table_id)
-	{
-		self::__construct($aHeaders, $table_id);
 	}
 
 	function SetFeatures($aFeatures)

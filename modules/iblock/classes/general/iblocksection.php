@@ -1173,6 +1173,10 @@ class CAllIBlockSection
 		$err_mess = "FILE: ".__FILE__."<br>LINE: ";
 		global $DB, $APPLICATION, $USER;
 		$ID = (int)$ID;
+		if ($ID <= 0)
+		{
+			return false;
+		}
 
 		$APPLICATION->ResetException();
 		foreach (GetModuleEvents("iblock", "OnBeforeIBlockSectionDelete", true) as $arEvent)
@@ -2031,7 +2035,7 @@ class CAllIBlockSection
 	///////////////////////////////////////////////////////////////////
 	// GetSectionElementsCount($ID, $arFilter=Array())
 	///////////////////////////////////////////////////////////////////
-	function GetSectionElementsCount($ID, $arFilter=Array())
+	public static function GetSectionElementsCount($ID, $arFilter=Array())
 	{
 		global $DB;
 
@@ -2257,7 +2261,7 @@ class CAllIBlockSection
 		return $strResult;
 	}
 
-	function GetCount($arFilter=Array())
+	public static function GetCount($arFilter=Array())
 	{
 		global $DB, $USER;
 
@@ -2294,7 +2298,7 @@ class CAllIBlockSection
 		return (int)$res_cnt["C"];
 	}
 
-	function UserTypeRightsCheck($entity_id)
+	public static function UserTypeRightsCheck($entity_id)
 	{
 		if(preg_match("/^IBLOCK_(\d+)_SECTION$/", $entity_id, $match))
 		{

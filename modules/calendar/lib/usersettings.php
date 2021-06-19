@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Calendar;
 use Bitrix\Main;
+use \Bitrix\Main\Web\Json;
+
 
 class UserSettings
 {
@@ -19,7 +21,21 @@ class UserSettings
 			'syncTasks' => 'N',
 			'showCompletedTasks' => 'N',
 			'lastUsedSection' => false,
-			'sendFromEmail' => false
+			'sendFromEmail' => false,
+			'defaultSections' => [],
+			'syncPeriodPast' => 3,
+			'syncPeriodFuture' => 12,
+			'defaultReminders' => [
+				'fullDay' => [
+					'type' => 'daybefore',
+					'before' => 0,
+           			'time' => 480,
+				],
+				'withTime' => [
+					'type' => 'min',
+					'count' => 15
+				]
+			],
 		];
 
 	public static function set($settings = [], $userId = false)
@@ -36,10 +52,22 @@ class UserSettings
 		elseif(is_array($settings))
 		{
 			$curSet = self::get($userId);
-			foreach($settings as $key => $val)
+			foreach($settings as $optionName => $value)
 			{
-				if (isset(self::$settings[$key]))
-					$curSet[$key] = $val;
+				if (isset(self::$settings[$optionName]))
+				{
+					if (
+						($optionName === 'defaultSections' || $optionName === 'defaultReminders')
+						&& is_array($value)
+					)
+					{
+						$curSet[$optionName] = Json::encode($value);
+					}
+					else
+					{
+						$curSet[$optionName] = $value;
+					}
+				}
 			}
 			\CUserOptions::setOption("calendar", "user_settings", $curSet, false, $userId);
 		}
@@ -61,7 +89,17 @@ class UserSettings
 			{
 				foreach($settings as $optionName => $value)
 				{
-					$resSettings[$optionName] = $value;
+					if (
+						($optionName === 'defaultSections' || $optionName === 'defaultReminders')
+						&& !is_array($value)
+					)
+					{
+						$resSettings[$optionName] = Json::decode($value);
+					}
+					else
+					{
+						$resSettings[$optionName] = $value;
+					}
 				}
 			}
 
@@ -73,6 +111,7 @@ class UserSettings
 			{
 				$resSettings['denyBusyInvitation'] = !!$settings['denyBusyInvitation'];
 			}
+
 			if (isset($settings['showDeclined']))
 			{
 				$resSettings['showDeclined'] = !!$settings['showDeclined'];
@@ -124,7 +163,9 @@ class UserSettings
 	public static function getTrackingUsers($userId = false, $params = [])
 	{
 		if (!$userId)
+		{
 			$userId = \CCalendar::getUserId();
+		}
 
 		$res = [];
 		$str = \CUserOptions::getOption("calendar", "superpose_tracking_users", false, $userId);
@@ -144,7 +185,7 @@ class UserSettings
 			}
 		}
 
-		if ($params && isset($params['userList']))
+		if (isset($params['userList']))
 		{
 			$params['userList'] = array_unique($params['userList']);
 			$diff = array_diff($params['userList'], $res);
@@ -171,16 +212,24 @@ class UserSettings
 
 		return $trackedUsers;
 	}
+
 	public static function setTrackingUsers($userId = false, $value = [])
 	{
 		if (!$userId)
+		{
 			$userId = \CCalendar::getUserId();
+		}
 
 		if (!is_array($value))
+		{
 			$value = [];
+		}
+		array_walk($value, 'intval');
+		$value = array_unique($value);
 
 		\CUserOptions::setOption("calendar", "superpose_tracking_users", serialize($value), false, $userId);
 	}
+
 	public static function getTrackingGroups($userId = false, $params = [])
 	{
 		$res = [];
@@ -189,7 +238,7 @@ class UserSettings
 		if ($str !== false && CheckSerializedData($str))
 		{
 			$ids = unserialize($str, ['allowed_classes' => false]);
-			if (is_array($ids) && count($ids) > 0)
+			if (is_array($ids))
 			{
 				foreach($ids as $id)
 				{
@@ -276,6 +325,11 @@ class UserSettings
 		}
 
 		\CUserOptions::setOption("calendar", "section_customization", serialize($sectionCustomization), false, $userId);
+
+		\Bitrix\Calendar\Util::addPullEvent(
+			'change_section_customization',
+			$userId, []
+		);
 	}
 
 

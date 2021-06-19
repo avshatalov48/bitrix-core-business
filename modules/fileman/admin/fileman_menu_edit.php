@@ -22,7 +22,7 @@ $menufilename = "";
 $io = CBXVirtualIo::GetInstance();
 
 $path = $io->CombinePath("/", $path);
-$dbSitesList = CSite::GetList($b = "lendir", $o = "desc");
+$dbSitesList = CSite::GetList("lendir", "desc");
 $multiSite = false;
 $docRoot = $dbSitesList->Fetch();
 $docRoot = $docRoot['DOC_ROOT'];

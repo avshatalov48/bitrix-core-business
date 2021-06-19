@@ -500,7 +500,7 @@ if ((int)$ORDER_ID <= 0)
 		if ($arUserLogin = $dbUserLogin->Fetch())
 			$errorMessage .= GetMessage("STOF_ERROR_REG_UNIQUE_LOGIN")."<br>";
 
-		$rsUsers = CUser::GetList(($by="id"), ($order="desc"), array("EMAIL" => $payerEMail));
+		$rsUsers = CUser::GetList("id", "desc", array("EMAIL" => $payerEMail));
 		$arUser = $rsUsers->Fetch();
 		if (count($arUser) > 1)
 			$errorMessage .= GetMessage("STOF_ERROR_REG_UNIQUE_EMAIL")."<br>";

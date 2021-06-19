@@ -1,10 +1,12 @@
-<?
+<?php
+
 ##############################################
 # Bitrix Site Manager Forum                  #
 # Copyright (c) 2002-2009 Bitrix             #
 # http://www.bitrixsoft.com                  #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
+
 IncludeModuleLangFile(__FILE__);
 
 class CForumEventLog
@@ -48,7 +50,7 @@ class CForumEventLog
 		CEventLog::Log("NOTICE", $type, "forum", $id, $description);
 	}
 
-	function GetAuditTypes()
+	public static function GetAuditTypes()
 	{
 		return array(
 			"FORUM_MESSAGE_APPROVE" => "[FORUM_MESSAGE_APPROVE] ".GetMessage("FORUM_MESSAGE_APPROVE"),
@@ -77,13 +79,13 @@ class CForumEventLog
 
 class CEventForum
 {
-	function MakeForumObject()
+	public static function MakeForumObject()
 	{
 		$obj = new CEventForum;
 		return $obj;
 	}
 
-	function GetFilter()
+	public static function GetFilter()
 	{
 		$arFilter = array();
 		if (CModule::IncludeModule('forum'))
@@ -96,7 +98,7 @@ class CEventForum
 		return  $arFilter;
 	}
 
-	function GetAuditTypes()
+	public static function GetAuditTypes()
 	{
 		AddEventHandler("main", "GetAuditTypesForum", array("CForumEventLog", "GetAuditTypes"));
 		foreach(GetModuleEvents("main", "GetAuditTypesForum", true) as $arEvent)
@@ -106,11 +108,11 @@ class CEventForum
 		return $AuditTypes;
 	}
 
-	function GetEventInfo($row, $arParams)
+	public static function GetEventInfo($row, $arParams)
 	{
 		if (CModule::IncludeModule('forum'))
 		{
-			$DESCRIPTION = unserialize($row['DESCRIPTION']);
+			$DESCRIPTION = unserialize($row['DESCRIPTION'], ['allowed_classes' => false]);
 			$site_id = ($row['SITE_ID'] == "s1") ? "" : "site_".$row['SITE_ID']."/";
 	// messages
 			if(mb_strpos($row['AUDIT_TYPE_ID'], "MESSAGE"))
@@ -208,7 +210,7 @@ class CEventForum
 				);
 	}
 
-	function GetFilterSQL($var)
+	public static function GetFilterSQL($var)
 	{
 		if (is_array($var))
 			foreach($var as $key => $val)
@@ -216,4 +218,3 @@ class CEventForum
 		return $ar;
 	}
 }
-?>

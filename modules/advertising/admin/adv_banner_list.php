@@ -15,9 +15,11 @@
  * @global $order
  */
 
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/prolog.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/include.php");
+Loader::includeModule('advertising');
 
 $isDemo = CAdvContract::IsDemo();
 $isManager = CAdvContract::IsManager();
@@ -138,7 +140,7 @@ if(($arID = $lAdmin->GroupAction()))
 	if($_REQUEST['action_target']=='selected')
 	{
 		$arID = array();
-		$rsData = CAdvBanner::GetList($by, $order, $arFilter);
+		$rsData = CAdvBanner::GetList('', '', $arFilter);
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -186,7 +188,9 @@ if(($arID = $lAdmin->GroupAction()))
 	}
 }
 
-$rsBanners = CAdvBanner::GetList($by, $order, $arFilter, $is_filtered);
+global $by, $order;
+
+$rsBanners = CAdvBanner::GetList($by, $order, $arFilter);
 
 $rsData = new CAdminResult($rsBanners, $sTableID);
 $rsData->NavStart();
@@ -224,14 +228,14 @@ $canAddbanner = false;// баннер может быть удален, отредактирован, добавлен
 $arrContractSite = array();
 
 $type_id = array();
-$rsTypies = CAdvType::GetList($v1, $v2, array(), $v3);
+$rsTypies = CAdvType::GetList();
 while ($arType = $rsTypies->Fetch())
 {
 	$type_id[$arType["SID"]] = htmlspecialcharsbx($arType["NAME"]);
 }
 
 $contract_id = array();
-$rsContract = CAdvContract::GetList($v1, $v2, array(), $v3);
+$rsContract = CAdvContract::GetList();
 while ($arContract = $rsContract->Fetch())
 {
 	$contract_id[$arContract["ID"]] = $arContract["NAME"];
@@ -241,7 +245,7 @@ while ($arContract = $rsContract->Fetch())
 $arrStatus = CAdvBanner::GetStatusList();
 
 $arrSites = array();
-$rs = CSite::GetList($b="sort", $o="asc");
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 	$arrSites[$ar["ID"]] = $ar;
 
@@ -407,7 +411,7 @@ $aContext = array(
 );
 
 $AllowedAddBanner = false;
-$rsContract = CAdvContract::GetList($v1="s_sort", $v2="desc", array(), $v3);
+$rsContract = CAdvContract::GetList("s_sort", "desc");
 while ($arContract = $rsContract->Fetch())
 {
 	if (is_array($arrPERM[$arContract["ID"]]) && in_array("ADD", $arrPERM[$arContract["ID"]]))
@@ -497,7 +501,7 @@ $oFilter->Begin();
 	<td><?
 	$ref = array();
 	$ref_id = array();
-	$rs = CSite::GetList($v1="sort", $v2="asc");
+	$rs = CSite::GetList();
 	while ($ar = $rs->Fetch())
 	{
 		$ref[] = "[".$ar["ID"]."] ".$ar["NAME"];
@@ -535,7 +539,7 @@ $oFilter->Begin();
 	<td><?
 		$contract_ref_id = array();
 		$contract_ref = array();
-		$rsContract = CAdvContract::GetList($v1="s_sort", $v2="desc", array(), $v3);
+		$rsContract = CAdvContract::GetList("s_sort", "desc");
 		while ($arContract = $rsContract->Fetch())
 		{
 			$contract_ref_id[] = $arContract["ID"];
@@ -555,7 +559,7 @@ $oFilter->Begin();
 		<?
 		$ref_id = array();
 		$ref = array();
-		$rsType = CAdvType::GetList($v1="s_sort", $v2="asc", array(), $v3);
+		$rsType = CAdvType::GetList();
 		while ($arType = $rsType->Fetch())
 		{
 			$ref_id[] = $arType["SID"];

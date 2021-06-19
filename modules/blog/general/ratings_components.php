@@ -1,10 +1,11 @@
-<?
+<?php
+
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/blog/general/ratings_components.php");
 
 class CAllRatingsComponentsBlog
 {
 	// return configs of component-rating
-	function OnGetRatingConfigs()
+	public static function OnGetRatingConfigs()
 	{
 		$arConfigs = array(
 			"MODULE_ID" => "BLOG",
@@ -105,7 +106,7 @@ class CAllRatingsComponentsBlog
 	}
 			
 	// return support object
-	function OnGetRatingObject()
+	public static function OnGetRatingObject()
 	{
 		$arRatingConfigs = CRatingsComponentsBlog::OnGetRatingConfigs();
 		foreach ($arRatingConfigs["COMPONENT"] as $SupportType => $value)
@@ -115,7 +116,7 @@ class CAllRatingsComponentsBlog
 	}
 	
 	// check the value of the component-rating which relate to the module
-	function OnAfterAddRating($ID, $arFields)
+	public static function OnAfterAddRating($ID, $arFields)
 	{
 		$arFields['CONFIGS']['BLOG'] = CRatingsComponentsBlog::__CheckFields($arFields['ENTITY_ID'], $arFields['CONFIGS']['BLOG']);
 		
@@ -123,7 +124,7 @@ class CAllRatingsComponentsBlog
 	}
 	
 	// check the value of the component-rating which relate to the module
-	function OnAfterUpdateRating($ID, $arFields)
+	public static function OnAfterUpdateRating($ID, $arFields)
 	{
 		$arFields['CONFIGS']['BLOG'] = CRatingsComponentsBlog::__CheckFields($arFields['ENTITY_ID'], $arFields['CONFIGS']['BLOG']);
 		
@@ -133,7 +134,7 @@ class CAllRatingsComponentsBlog
 	// Utilities
 	
 	// check input values, if value does not validate, set the default value
-	function __CheckFields($entityId, $arConfigs)
+	public static function __CheckFields($entityId, $arConfigs)
 	{
 		$arDefaultConfig = CRatingsComponentsBlog::__AssembleConfigDefault($entityId);
 		if ($entityId == "USER") {
@@ -185,7 +186,7 @@ class CAllRatingsComponentsBlog
 	}
 	
 	// collect the default and regular expressions for the fields component-rating
-	function __AssembleConfigDefault($objectType = null) 
+	public static function __AssembleConfigDefault($objectType = null)
 	{
 		$arConfigs = array();
 		$arRatingConfigs = CRatingsComponentsBlog::OnGetRatingConfigs();
@@ -209,7 +210,7 @@ class CAllRatingsComponentsBlog
 		return $arConfigs;
 	}	
 	
-	function OnGetRatingContentOwner($arParams)
+	public static function OnGetRatingContentOwner($arParams)
 	{
 		if ($arParams['ENTITY_TYPE_ID'] == 'BLOG_POST')
 		{
@@ -224,5 +225,3 @@ class CAllRatingsComponentsBlog
 		return false;
 	}
 }
-
-?>

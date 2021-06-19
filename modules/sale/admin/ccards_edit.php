@@ -193,10 +193,10 @@ $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
 if (!CSaleUserCards::CheckPassword())
-	echo CAdminMessage::ShowMessage(Array("DETAILS"=>GetMessage("SCE_NO_VALID_PASSWORD"), "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SCE_ATTENTION")));
+	CAdminMessage::ShowMessage(Array("DETAILS"=>GetMessage("SCE_NO_VALID_PASSWORD"), "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SCE_ATTENTION")));
 ?>
 <?if($errorMessage <> '')
-	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SCE_ERROR"), "HTML"=>true));?>
+	CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SCE_ERROR"), "HTML"=>true));?>
 
 
 <form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="fccards_edit">

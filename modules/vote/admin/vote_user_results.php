@@ -192,13 +192,12 @@ $tabControl->End();
 		<p>
 		<table cellspacing="0" cellpadding="10" class="tablebody" width="100%">
 			<?
-			while (list($key,$arQuestion)=each($arQuestions)):
+			foreach ($arQuestions as $key => $arQuestion):
 				$QUESTION_ID = $arQuestion["ID"];
 
 				if (!array_key_exists($QUESTION_ID, $arAnswers))
 					continue;
 
-				reset($arAnswers[$QUESTION_ID]);
 				$show_multiselect = "N";
 				$show_dropdown = "N";
 			?>
@@ -210,7 +209,7 @@ $tabControl->End();
 							<td valign="center" width="100%"><font class="text"><b><?=$arQuestion["QUESTION"]?></b></font></td>
 						</tr>
 						<? 
-						while (list($key,$arAnswer)=each($arAnswers[$QUESTION_ID])) : 
+						foreach ($arAnswers[$QUESTION_ID] as $key => $arAnswer):
 						?>
 						<tr>
 							<td colspan=2><?
@@ -267,11 +266,11 @@ $tabControl->End();
 							endswitch;
 							?></td>
 						</tr>
-						<? endwhile; ?>
+						<? endforeach; ?>
 					</table>
 				</td>
 			</tr>
-			<?endwhile?>
+			<?endforeach;?>
 		</table></td>
 	</tr>
 </table>

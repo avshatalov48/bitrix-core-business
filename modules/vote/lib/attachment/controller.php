@@ -337,8 +337,8 @@ class Controller extends \Bitrix\Vote\Base\Controller
 				}
 
 				$dbRes = \CUser::getList(
-					($by = "ID"),
-					($order = "ASC"),
+					"ID",
+					"ASC",
 					array("ID" => implode("|", $userIds)),
 					array(
 						"FIELDS" => array("ID", "NAME", "LAST_NAME", "SECOND_NAME", "LOGIN", "PERSONAL_PHOTO") +

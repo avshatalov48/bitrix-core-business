@@ -1,7 +1,8 @@
-<?
+<?php
+
 class CAllSocNetSmile
 {
-	function PrintSmilesList($num_cols, $strLang = False, $strPath2Icons = False, $cacheTime = False)
+	public static function PrintSmilesList($num_cols, $strLang = False, $strPath2Icons = False, $cacheTime = False)
 	{
 		$res_str = "";
 		$arSmile = array();
@@ -72,7 +73,7 @@ class CAllSocNetSmile
 	}
 
 	//---------------> User insert, update, delete
-	function CheckFields($ACTION, &$arFields)
+	public static function CheckFields($ACTION, &$arFields)
 	{
 		if ((is_set($arFields, "SMILE_TYPE") || $ACTION=="ADD") && $arFields["SMILE_TYPE"]!="I" && $arFields["SMILE_TYPE"]!="S") return False;
 		if ((is_set($arFields, "IMAGE") || $ACTION=="ADD") && $arFields["IMAGE"] == '') return False;
@@ -87,7 +88,7 @@ class CAllSocNetSmile
 				if (!is_set($arFields["LANG"][$i], "NAME") || $arFields["LANG"][$i]["NAME"] == '') return false;
 			}
 
-			$db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"), array("ACTIVE" => "Y"));
+			$db_lang = CLangAdmin::GetList("sort", "asc", array("ACTIVE" => "Y"));
 			while ($arLang = $db_lang->Fetch())
 			{
 				$bFound = False;
@@ -103,7 +104,7 @@ class CAllSocNetSmile
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB, $CACHE_MANAGER;
 		$ID = intval($ID);
@@ -134,7 +135,7 @@ class CAllSocNetSmile
 		return False;
 	}
 
-	function GetByIDEx($ID, $strLang)
+	public static function GetByIDEx($ID, $strLang)
 	{
 		global $DB;
 
@@ -173,4 +174,3 @@ class CAllSocNetSmile
 		return False;
 	}
 }
-?>

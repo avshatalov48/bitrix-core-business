@@ -89,30 +89,6 @@ abstract class EntityPropertyValue extends CollectableEntity
 			}
 		}
 
-		$filter = [
-			'=ENTITY_TYPE' => static::getEntityType()
-		];
-
-		if ($entity->getPersonTypeId() > 0)
-		{
-			$filter['=PERSON_TYPE_ID'] = $entity->getPersonTypeId();
-		}
-
-		$relatedFilter = self::constructRelatedEntitiesFilter($entity);
-
-		if (!empty($relatedFilter))
-		{
-			if (!empty($propertyValuesMap))
-			{
-				$relatedFilter = [
-					$relatedFilter,
-					['=ID' => array_keys($propertyValuesMap)],
-					'LOGIC' => 'OR'
-				];
-			}
-			$filter[] = $relatedFilter;
-		}
-
 		/** @var EntityProperty $propertyClassName */
 		$propertyClassName = static::getPropertyClassName();
 
@@ -145,11 +121,11 @@ abstract class EntityPropertyValue extends CollectableEntity
 				'SETTINGS',
 				'ENTITY_TYPE'
 			],
-			'filter' => $filter,
-			'order' => ['SORT' => 'ASC']
+			'filter' => static::constructPropertyFilter($entity),
+			'runtime' => static::getRelationRuntimeFields(),
+			'order' => ['SORT' => 'ASC'],
 		];
 
-		$getListParams['runtime'] = self::getRelationRuntimeFields();
 		$dbRes = $propertyClassName::getList($getListParams);
 		$properties = [];
 		$propRelation = [];
@@ -182,18 +158,63 @@ abstract class EntityPropertyValue extends CollectableEntity
 	}
 
 	/**
-	 * @param Entity $order
+	 * @return bool
+	 */
+	public function needDeleteOnRefresh() : bool
+	{
+		$property = $this->getPropertyObject();
+
+		return $property ? !empty($property->getRelations()) : false;
+	}
+
+	protected static function constructPropertyFilter(Entity $entity) : array
+	{
+		$filter = [
+			'=ENTITY_TYPE' => static::getEntityType()
+		];
+
+		if ($entity->getPersonTypeId() > 0)
+		{
+			$filter['=PERSON_TYPE_ID'] = $entity->getPersonTypeId();
+		}
+
+		$subFilter = [
+			'LOGIC' => 'OR',
+			static::constructPropertyRelatedEntitiesFilter($entity)
+		];
+
+		if ($entity->getId() > 0)
+		{
+			$dbRes = static::getList([
+				'select' => ['ORDER_PROPS_ID'],
+				'filter' => [
+					'=ENTITY_ID' => $entity->getId(),
+					'=ENTITY_TYPE' => static::getEntityType()
+				]
+			]);
+
+			while ($row = $dbRes->fetch())
+			{
+				$subFilter['@ID'][] = $row['ORDER_PROPS_ID'];
+			}
+		}
+
+		$filter[] = $subFilter;
+
+		return $filter;
+	}
+
+	/**
+	 * @param Entity $entity
 	 * @return array
 	 */
-	private static function constructRelatedEntitiesFilter(Entity $order): array
+	protected static function constructPropertyRelatedEntitiesFilter(Entity $entity): array
 	{
 		$result = [];
 
-		/** @var  Order $order */
-
 		$psFilter = ['=RELATION_PS.ENTITY_ID' => null];
 
-		if ($paySystemList = static::extractPaySystemIdList($order))
+		if ($paySystemList = static::extractPaySystemIdList($entity))
 		{
 			$psFilter['LOGIC'] = 'OR';
 			$psFilter['@RELATION_PS.ENTITY_ID'] = $paySystemList;
@@ -202,7 +223,7 @@ abstract class EntityPropertyValue extends CollectableEntity
 		$result[] = $psFilter;
 		$dlvFilter = ['=RELATION_DLV.ENTITY_ID' => null];
 
-		if ($deliveryList = static::extractDeliveryIdList($order))
+		if ($deliveryList = static::extractDeliveryIdList($entity))
 		{
 			$dlvFilter['LOGIC'] = 'OR';
 			$dlvFilter['@RELATION_DLV.ENTITY_ID'] = $deliveryList;
@@ -212,7 +233,7 @@ abstract class EntityPropertyValue extends CollectableEntity
 		return $result;
 	}
 
-	private static function getRelationRuntimeFields(): array
+	protected static function getRelationRuntimeFields(): array
 	{
 		return [
 			new ReferenceField(
@@ -323,6 +344,7 @@ abstract class EntityPropertyValue extends CollectableEntity
 				'CODE' => $value['CODE'],
 			];
 		}
+
 
 		$propertyClassName = static::getPropertyClassName();
 

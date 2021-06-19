@@ -7,9 +7,9 @@
 			<div class="landing-block-node-block-top col-md-6 col-lg-6 d-flex align-items-center text-center g-pa-50 js-animation fadeInRight">
 				<div class="w-100">
 					<div class="g-mb-25">
-						<h4 class="landing-block-node-subtitle landing-semantic-subtitle-medium-primary g-font-weight-700 g-font-size-20 g-color-primary g-mb-25">
+						<h4 class="landing-block-node-subtitle landing-semantic-subtitle-medium-primary g-font-weight-700 g-color-primary g-mb-25">
 							About Spa</h4>
-						<h2 class="landing-block-node-title landing-semantic-title-medium text-uppercase g-font-weight-700 g-font-size-22 mb-0">
+						<h2 class="landing-block-node-title landing-semantic-title-medium text-uppercase g-font-weight-700 mb-0">
 							Perfect place for your
 							relaxation</h2>
 					</div>

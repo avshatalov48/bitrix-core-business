@@ -21,10 +21,10 @@ return [
 	'js' => './dist/livefeed.bundle.js',
 	'lang_additional' => $langAdditional,
 	'rel' => [
-		'main.core.events',
 		'main.popup',
-		'main.core',
 		'ui.buttons',
+		'main.core',
+		'main.core.events',
 	],
 	'skip_core' => false,
 ];

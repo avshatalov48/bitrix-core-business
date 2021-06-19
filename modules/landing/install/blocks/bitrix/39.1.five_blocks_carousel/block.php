@@ -33,15 +33,15 @@
 			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
-					<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small text-uppercase g-letter-spacing-1 g-color-gray-dark-v5 g-mb-15">
+					<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small text-uppercase g-letter-spacing-1 g-mb-15">
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-font-size-16 g-mb-10">
+					<h6 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
-					</h3>
-					<div class="text-uppercase g-font-size-12">
-						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-color-gray-dark-v5 g-color-primary--hover g-text-underline--none--hover"
+					</h6>
+					<div class="text-uppercase">
+						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-text-underline--none--hover"
 						   href="#">12 Reviews</a>
 					</div>
 				</header>
@@ -52,26 +52,26 @@
 				<!-- End Article Image -->
 
 				<!-- Article Footer -->
-				<footer class="d-table w-100">
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-brd-right g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon1 u-line-icon-pro icon-hotel-restaurant-022"></i>
+				<footer class="d-flex w-100">
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon1 g-color-inherit u-line-icon-pro icon-hotel-restaurant-022"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text1 g-font-size-12 g-valign-middle d-inline">4</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text1">4</div>
 					</div>
 					
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-brd-right g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon2 u-line-icon-pro icon-hotel-restaurant-158"></i>
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon2 g-color-inherit u-line-icon-pro icon-hotel-restaurant-158"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text2 g-font-size-12 g-valign-middle d-inline">2</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text2">2</div>
 					</div>
 					
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon3 u-line-icon-pro icon-real-estate-017"></i>
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon3 g-color-inherit u-line-icon-pro icon-real-estate-017"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text3 g-font-size-12 g-valign-middle d-inline">130 sqft</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text3">130 sqft</div>
 					</div>
 				</footer>
 				<!-- End Article Footer -->
@@ -84,15 +84,15 @@
 			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
-					<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small text-uppercase g-letter-spacing-1 g-color-gray-dark-v5 g-mb-15">
+					<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small text-uppercase g-letter-spacing-1 g-mb-15">
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-font-size-16 g-mb-10">
+					<h6 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
-					</h3>
-					<div class="text-uppercase g-font-size-12">
-						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-color-gray-dark-v5 g-color-primary--hover g-text-underline--none--hover"
+					</h6>
+					<div class="text-uppercase">
+						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-text-underline--none--hover"
 						   href="#">12 Reviews</a>
 					</div>
 				</header>
@@ -103,24 +103,24 @@
 				<!-- End Article Image -->
 
 				<!-- Article Footer -->
-				<footer class="d-table w-100">
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-brd-right g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon1 u-line-icon-pro icon-hotel-restaurant-022"></i>
+				<footer class="d-flex w-100">
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon1 g-color-inherit u-line-icon-pro icon-hotel-restaurant-022"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text1 g-font-size-12 g-valign-middle d-inline">4</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text1">4</div>
 					</div>
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-brd-right g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon2 u-line-icon-pro icon-hotel-restaurant-158"></i>
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon2 g-color-inherit u-line-icon-pro icon-hotel-restaurant-158"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text2 g-font-size-12 g-valign-middle d-inline">2</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text2">2</div>
 					</div>
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon3 u-line-icon-pro icon-real-estate-017"></i>
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon3 g-color-inherit u-line-icon-pro icon-real-estate-017"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text3 g-font-size-12 g-valign-middle d-inline">130 sqft</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text3">130 sqft</div>
 					</div>
 				</footer>
 				<!-- End Article Footer -->
@@ -133,15 +133,15 @@
 			<article class="landing-block-node-card-bg d-flex flex-column landing-semantic-subtitle-image-small js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
-					<div class="landing-block-node-card-subtitle text-uppercase g-letter-spacing-1 g-color-gray-dark-v5 g-mb-15">
+					<div class="landing-block-node-card-subtitle text-uppercase g-letter-spacing-1 g-mb-15">
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-font-size-16 g-mb-10">
+					<h6 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
-					</h3>
-					<div class="text-uppercase g-font-size-12">
-						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-color-gray-dark-v5 g-color-primary--hover g-text-underline--none--hover"
+					</h6>
+					<div class="text-uppercase">
+						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-text-underline--none--hover"
 						   href="#">12 Reviews</a>
 					</div>
 				</header>
@@ -152,24 +152,24 @@
 				<!-- End Article Image -->
 
 				<!-- Article Footer -->
-				<footer class="d-table w-100">
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-brd-right g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon1 u-line-icon-pro icon-hotel-restaurant-022"></i>
+				<footer class="d-flex w-100">
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon1 g-color-inherit u-line-icon-pro icon-hotel-restaurant-022"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text1 g-font-size-12 g-valign-middle d-inline">4</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text1">4</div>
 					</div>
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-brd-right g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon2 u-line-icon-pro icon-hotel-restaurant-158"></i>
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon2 g-color-inherit u-line-icon-pro icon-hotel-restaurant-158"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text2 g-font-size-12 g-valign-middle d-inline">2</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text2">2</div>
 					</div>
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon3 u-line-icon-pro icon-real-estate-017"></i>
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon3 g-color-inherit u-line-icon-pro icon-real-estate-017"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text3 g-font-size-12 g-valign-middle d-inline">130 sqft</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text3">130 sqft</div>
 					</div>
 				</footer>
 				<!-- End Article Footer -->
@@ -182,15 +182,15 @@
 			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
-					<div class="landing-block-node-card-subtitle text-uppercase landing-semantic-subtitle-image-small g-letter-spacing-1 g-color-gray-dark-v5 g-mb-15">
+					<div class="landing-block-node-card-subtitle text-uppercase landing-semantic-subtitle-image-small g-letter-spacing-1 g-mb-15">
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-font-size-16 g-mb-10">
+					<h6 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
-					</h3>
-					<div class="text-uppercase g-font-size-12">
-						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-color-gray-dark-v5 g-color-primary--hover g-text-underline--none--hover"
+					</h6>
+					<div class="text-uppercase">
+						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-text-underline--none--hover"
 						   href="#">12 Reviews</a>
 					</div>
 				</header>
@@ -201,24 +201,24 @@
 				<!-- End Article Image -->
 
 				<!-- Article Footer -->
-				<footer class="d-table w-100">
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-brd-right g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon1 u-line-icon-pro icon-hotel-restaurant-022"></i>
+				<footer class="d-flex w-100">
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon1 g-color-inherit u-line-icon-pro icon-hotel-restaurant-022"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text1 g-font-size-12 g-valign-middle d-inline">4</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text1">4</div>
 					</div>
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-brd-right g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon2 u-line-icon-pro icon-hotel-restaurant-158"></i>
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon2 g-color-inherit u-line-icon-pro icon-hotel-restaurant-158"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text2 g-font-size-12 g-valign-middle d-inline">2</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text2">2</div>
 					</div>
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon3 u-line-icon-pro icon-real-estate-017"></i>
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon3 g-color-inherit u-line-icon-pro icon-real-estate-017"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text3 g-font-size-12 g-valign-middle d-inline">130 sqft</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text3">130 sqft</div>
 					</div>
 				</footer>
 				<!-- End Article Footer -->
@@ -231,15 +231,15 @@
 			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
-					<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small text-uppercase g-letter-spacing-1 g-color-gray-dark-v5 g-mb-15">
+					<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small text-uppercase g-letter-spacing-1 g-mb-15">
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-font-size-16 g-mb-10">
+					<h6 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
-					</h3>
-					<div class="text-uppercase g-font-size-12">
-						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-color-gray-dark-v5 g-color-primary--hover g-text-underline--none--hover"
+					</h6>
+					<div class="text-uppercase">
+						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-text-underline--none--hover"
 						   href="#">12 Reviews</a>
 					</div>
 				</header>
@@ -250,24 +250,24 @@
 				<!-- End Article Image -->
 
 				<!-- Article Footer -->
-				<footer class="d-table w-100">
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-brd-right g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon1 u-line-icon-pro icon-hotel-restaurant-022"></i>
+				<footer class="d-flex w-100">
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon1 g-color-inherit u-line-icon-pro icon-hotel-restaurant-022"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text1 g-font-size-12 g-valign-middle d-inline">4</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text1">4</div>
 					</div>
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-brd-right g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon2 u-line-icon-pro icon-hotel-restaurant-158"></i>
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon2 g-color-inherit u-line-icon-pro icon-hotel-restaurant-158"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text2 g-font-size-12 g-valign-middle d-inline">2</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text2">2</div>
 					</div>
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon3 u-line-icon-pro icon-real-estate-017"></i>
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon3 g-color-inherit u-line-icon-pro icon-real-estate-017"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text3 g-font-size-12 g-valign-middle d-inline">130 sqft</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text3">130 sqft</div>
 					</div>
 				</footer>
 				<!-- End Article Footer -->
@@ -280,15 +280,15 @@
 			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
-					<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small text-uppercase g-letter-spacing-1 g-color-gray-dark-v5 g-mb-15">
+					<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small text-uppercase g-letter-spacing-1 g-mb-15">
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-font-size-16 g-mb-10">
+					<h6 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
-					</h3>
-					<div class="text-uppercase g-font-size-12">
-						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-color-gray-dark-v5 g-color-primary--hover g-text-underline--none--hover"
+					</h6>
+					<div class="text-uppercase">
+						<a class="landing-block-node-card-link landing-semantic-link-image-small g-font-size-10 g-text-underline--none--hover"
 						   href="#">12 Reviews</a>
 					</div>
 				</header>
@@ -299,24 +299,24 @@
 				<!-- End Article Image -->
 
 				<!-- Article Footer -->
-				<footer class="d-table w-100">
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-brd-right g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon1 u-line-icon-pro icon-hotel-restaurant-022"></i>
+				<footer class="d-flex w-100">
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon1 g-color-inherit u-line-icon-pro icon-hotel-restaurant-022"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text1 g-font-size-12 g-valign-middle d-inline">4</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text1">4</div>
 					</div>
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-brd-right g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon2 u-line-icon-pro icon-hotel-restaurant-158"></i>
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon2 g-color-inherit u-line-icon-pro icon-hotel-restaurant-158"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text2 g-font-size-12 g-valign-middle d-inline">2</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text2">2</div>
 					</div>
-					<div class="landing-block-node-card-texticon-container g-color-gray-dark-v5 d-table-cell g-px-10 g-pt-15 g-pb-10">
-						<div class="landing-block-node-card-icon-container g-mr-5 g-font-size-18 d-inline-block g-valign-middle">
-							<i class="landing-block-node-card-icon3 u-line-icon-pro icon-real-estate-017"></i>
+					<div class="landing-block-node-card-texticon-container g-flex-centered flex-grow-1 g-font-size-12 g-color-gray-dark-v5 g-brd-between-cols g-brd-gray-light-v3 g-px-10 g-pt-15 g-pb-10">
+						<div class="landing-block-node-card-icon-container g-font-size-1_5em g-mr-5">
+							<i class="landing-block-node-card-icon3 g-color-inherit u-line-icon-pro icon-real-estate-017"></i>
 						</div>
-						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text3 g-font-size-12 g-valign-middle d-inline">130 sqft</div>
+						<div class="landing-block-node-card-icon-text landing-block-node-card-icon-text3">130 sqft</div>
 					</div>
 				</footer>
 				<!-- End Article Footer -->

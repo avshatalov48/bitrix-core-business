@@ -4573,6 +4573,11 @@
 			this.initFileControl();
 		}
 
+		if (this.targetInput.getAttribute('data-select-mode') === 'replace')
+		{
+			this.replaceOnWrite = true;
+		}
+
 		this.selectCallback = function(item)
 		{
 			me.onFieldSelect(item.getCustomData().get('property'));
@@ -4963,19 +4968,46 @@
 			{
 				return;
 			}
-			if (this.replaceOnWrite)
+
+			var inputType = this.targetInput.tagName.toLowerCase();
+
+			if (inputType === 'select')
 			{
-				this.targetInput.value = field['Expression'];
-				this.targetInput.selectionEnd = this.targetInput.value.length;
+				var expressionOption = this.targetInput.querySelector('[data-role="expression"]');
+				if (!expressionOption)
+				{
+					expressionOption = this.targetInput.appendChild(BX.create('option', {attrs: {'data-role': 'expression'}}));
+				}
+				expressionOption.setAttribute('value', field['Expression']);
+				expressionOption.textContent = field['Expression'];
+
+				expressionOption.selected = true;
+			}
+			else if (inputType === 'label')
+			{
+				this.targetInput.textContent = field['Expression'];
+				var hiddenInput = document.getElementById(this.targetInput.getAttribute('for'));
+				if (hiddenInput)
+				{
+					hiddenInput.value = field['Expression'];
+				}
 			}
 			else
 			{
-				var beforePart = this.targetInput.value.substr(0, this.targetInput.selectionEnd),
-					middlePart = field['Expression'],
-					afterPart = this.targetInput.value.substr(this.targetInput.selectionEnd);
+				if (this.replaceOnWrite)
+				{
+					this.targetInput.value = field['Expression'];
+					this.targetInput.selectionEnd = this.targetInput.value.length;
+				}
+				else
+				{
+					var beforePart = this.targetInput.value.substr(0, this.targetInput.selectionEnd),
+						middlePart = field['Expression'],
+						afterPart = this.targetInput.value.substr(this.targetInput.selectionEnd);
 
-				this.targetInput.value = beforePart + middlePart + afterPart;
-				this.targetInput.selectionEnd = beforePart.length + middlePart.length;
+					this.targetInput.value = beforePart + middlePart + afterPart;
+					this.targetInput.selectionEnd = beforePart.length + middlePart.length;
+				}
 			}
 
 			BX.fireEvent(this.targetInput, 'change');
@@ -5239,6 +5271,7 @@
 		{
 			me.onFieldSelect(item.getCustomData().get('property'));
 		}
+		this.appendPropertyMods = true;
 	};
 
 	BX.extend(InlineSelectorHtml, InlineSelector);

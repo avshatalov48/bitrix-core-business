@@ -1,6 +1,6 @@
 "use strict";
 import {EventEmitter, BaseEvent} from 'main.core.events';
-import {Util} from "calendar.util";
+import {Util} from 'calendar.util';
 import {Type, Dom, Tag} from 'main.core';
 
 export class Selector extends EventEmitter
@@ -23,6 +23,7 @@ export class Selector extends EventEmitter
 		this.getPosDateMap = params.getPosDateMap;
 		this.getTimelineWidth = params.getTimelineWidth;
 		this.getScaleInfo = params.getScaleInfo;
+		this.solidStatus = params.solidStatus;
 
 		this.useAnimation = params.useAnimation !== false;
 		this.DOM.timelineWrap = params.timelineWrap;
@@ -348,13 +349,13 @@ export class Selector extends EventEmitter
 
 	checkStatus(selectorPos, checkPosition)
 	{
-		// if (this.config.useSolidBlueSelector)
-		// {
-		// 	Dom.removeClass(this.DOM.wrap, 'calendar-planner-timeline-selector-warning');
-		// 	Dom.removeClass(this.mainContWrap, 'calendar-planner-selector-warning');
-		// 	Dom.addClass(this.DOM.wrap, 'solid');
-		// }
-		// else
+		if (this.solidStatus)
+		{
+			Dom.removeClass(this.DOM.wrap, 'calendar-planner-timeline-selector-warning');
+			Dom.removeClass(this.mainContWrap, 'calendar-planner-selector-warning');
+			Dom.addClass(this.DOM.wrap, 'solid');
+		}
+		else
 		{
 			if (!selectorPos)
 			{

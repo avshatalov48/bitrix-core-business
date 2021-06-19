@@ -18,7 +18,6 @@ $MESS['LANDING_SIDEBAR_BUTTON_OTHER'] = 'Другие настройки';
 
 
 $MESS['LANDING_FORM_SETTINGS_PRESET_CATEGORY_CRM'] = 'Работа с CRM';
-$MESS['LANDING_FORM_SETTINGS_PRESET_CATEGORY_PRODUCTS'] = 'Работа с товарами';
 $MESS['LANDING_FORM_SETTINGS_PRESET_CATEGORY_SOCIAL'] = 'Синхронизация с социальными сетями';
 $MESS['LANDING_FORM_SETTINGS_PRESET_CATEGORY_CRM_AUTOMATION'] = 'Автозаполнение полей';
 
@@ -43,12 +42,6 @@ $MESS['LANDING_FORM_SETTINGS_PRESET_CALLBACK_FAILURE_TEXT'] = 'Не удалос
 $MESS['LANDING_FORM_SETTINGS_PRESET_EXPERT'] = 'Экспертный режим';
 $MESS['LANDING_FORM_SETTINGS_PRESET_EXPERT_DESCRIPTION'] = 'Все возможности для индивидуальной настройки';
 
-$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCTS_SMALL'] = 'Товары с картинками';
-$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCTS_SMALL_DESCRIPTION'] = 'Форма с маленьким превью товара';
-
-$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCTS_BIG'] = 'Товары с картинками';
-$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCTS_BIG_DESCRIPTION'] = 'Форма с большим превью товара';
-
 $MESS['LANDING_FORM_SETTINGS_PRESET_VK'] = 'VK Сбор заявок';
 $MESS['LANDING_FORM_SETTINGS_PRESET_VK_DESCRIPTION'] = 'Собирайте заявки из социальной сети VK';
 
@@ -58,9 +51,23 @@ $MESS['LANDING_FORM_SETTINGS_PRESET_FB_DESCRIPTION'] = 'Собирайте за�
 $MESS['LANDING_FORM_SETTINGS_PRESET_PERSONALIZATION'] = 'Персонализированная';
 $MESS['LANDING_FORM_SETTINGS_PRESET_PERSONALIZATION_DESCRIPTION'] = 'Форма с заполненными контактами клиентов';
 
+$MESS['LANDING_FORM_SETTINGS_PRESET_CATEGORY_PRODUCTS_2'] = 'Продажа';
+
+$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_1'] = 'Товары без картинок';
+$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_1_DESCRIPTION'] = 'Товар, не требующий визуализации. Клиент выбирает по названию';
+
+$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_2'] = 'Товары с оплатой';
+$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_2_DESCRIPTION'] = 'Товар без визуализации. Клиент сразу оплачивает покупку';
+
+$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_3'] = 'Товары с картинками';
+$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_3_DESCRIPTION'] = 'Товар с картинкой. Название - главный критерий выбора';
+
+$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_4'] = 'Визуальные товары';
+$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_4_DESCRIPTION'] = 'Максимальная визуализация товара. Большие картинки';
+
 $MESS['LANDING_HEADER_AND_BUTTONS_TITLE'] = 'Заголовок и кнопка';
 $MESS['LANDING_HEADER_AND_BUTTONS_MESSAGE_HEADER'] = 'Сделайте форму персональной';
-$MESS['LANDING_HEADER_AND_BUTTONS_MESSAGE_DESCRIPTION'] = 'Вы можете использовать переменные в текстовых значениях. Выбирайте переменные в меню, справа от поля.';
+$MESS['LANDING_HEADER_AND_BUTTONS_MESSAGE_DESCRIPTION_2'] = 'Используйте переменные в тексте, чтобы персонализировать форму. Переменные заменяются на данные из CRM автоматически, когда вы отправляете ссылку на форму в письме или смс. Переменные можно выбрать в меню, справа от поля.';
 
 $MESS['LANDING_HEADER_AND_BUTTONS_HEADERS_FORM_TITLE'] = 'Блок заголовка';
 $MESS['LANDING_HEADER_AND_BUTTONS_HEADERS_FORM_HEADER_FIELD_TITLE'] = 'Заголовок';
@@ -80,15 +87,15 @@ $MESS['LANDING_HEADER_AND_BUTTONS_VARIABLE_LAST_NAME'] = 'Фамилия';
 $MESS['LANDING_HEADER_AND_BUTTONS_VARIABLE_DATE'] = 'Дата и время';
 
 $MESS['LANDING_SPAM_PROTECTION_TITLE'] = 'Защита от спама';
-$MESS['LANDING_SPAM_PROTECTION_TABS_TITLE'] = 'Выберите вариант использования модуля reCAPTCHA v3';
-$MESS['LANDING_SPAM_PROTECTION_KEYS_FORM_TITLE'] = 'Введите ключи reCAPTCHA v3';
+$MESS['LANDING_SPAM_PROTECTION_TABS_TITLE'] = 'Выберите вариант использования модуля reCAPTCHA v2';
+$MESS['LANDING_SPAM_PROTECTION_KEYS_FORM_TITLE'] = 'Введите ключи reCAPTCHA v2';
 $MESS['LANDING_SPAM_PROTECTION_RECAPTCHA_KEY_FIELD_TITLE'] = 'Ключ';
 $MESS['LANDING_SPAM_PROTECTION_RECAPTCHA_SECRET_KEY_FIELD_TITLE'] = 'Секретный ключ';
 
 $MESS['LANDING_SPAM_PROTECTION_TAB_HIDDEN'] = 'Невидимая';
 $MESS['LANDING_SPAM_PROTECTION_TAB_DISABLED'] = 'Не использовать';
 $MESS['LANDING_SPAM_PROTECTION_KEYS_FORM_HELP_TEXT'] = 'Как получить ключи?';
-$MESS['LANDING_SPAM_PROTECTION_KEYS_FORM_HELP_HREF'] = 'https://www.google.com/recaptcha/intro/v3.html';
+$MESS['LANDING_SPAM_PROTECTION_KEYS_FORM_HELP_HREF'] = 'https://www.google.com/recaptcha/about/';
 $MESS['LANDING_SPAM_PROTECTION_CUSTOM_KEYS_CHECKBOX_LABEL'] = 'Указать свои настройки reCAPTCHA';
 
 $MESS['LANDING_AGREEMENTS_TITLE'] = 'Соглашения';
@@ -106,7 +113,7 @@ $MESS['LANDING_FORM_SETTINGS_ANALYTICS_TABLE_ID_COLUMN_TITLE'] = 'Идентиф
 
 $MESS['LANDING_FORM_SETTINGS_FIELDS_TITLE'] = 'Поля';
 $MESS['LANDING_FORM_SETTINGS_FIELDS_MESSAGE_TITLE'] = 'Автозаполнение полей увеличит конверсию!';
-$MESS['LANDING_FORM_SETTINGS_FIELDS_MESSAGE_DESCRIPTION'] = 'Знакомым клиентам больше не нужно повторно вводить имя, телефон, e-mail и другие данные. Фукнция «Узнать клиента» заполнит поля формы автоматически.';
+$MESS['LANDING_FORM_SETTINGS_FIELDS_MESSAGE_DESCRIPTION'] = 'Знакомым клиентам больше не нужно повторно вводить имя, телефон, e-mail и другие данные. Функция «Узнать клиента» заполнит поля формы автоматически.';
 
 $MESS['LANDING_FIELDS_RULES_TITLE'] = 'Правила показа полей';
 $MESS['LANDING_FIELDS_ADD_NEW_RULE_LINK_LABEL'] = 'Добавить новое правило';
@@ -202,6 +209,10 @@ $MESS['LANDING_FORM_SETTINGS_CRM_TYPE_1'] = 'Лид';
 $MESS['LANDING_FORM_SETTINGS_CRM_TYPE_2'] = 'Клиент';
 $MESS['LANDING_FORM_SETTINGS_CRM_TYPE_3'] = 'Сделка +&nbsp;клиент';
 $MESS['LANDING_FORM_SETTINGS_CRM_TYPE_4'] = 'Предложение +&nbsp;клиент';
+$MESS['LANDING_FORM_SETTINGS_CRM_TYPE_5'] = 'Смарт-процесс';
+$MESS['LANDING_FORM_SETTINGS_CRM_SMART_ENTITY_LIST'] = 'Смарт-процесс';
+$MESS['LANDING_FORM_SETTINGS_SMART_STAGES_FIELD_TITLE'] = 'Направление';
+
 $MESS['LANDING_FORM_SETTINGS_CRM_DUPLICATES_ENABLED'] = 'Использовать активную сделку, не создавая новую';
 
 $MESS['LANDING_FORM_SETTINGS_EXPERT_MODE'] = 'Экспертная настройка';
@@ -262,3 +273,7 @@ $MESS['LANDING_SYNCHRONIZATION_POPUP_OK_BUTTON_LABEL'] = 'Продолжить';
 $MESS['LANDING_CRM_ACCESS_ERROR_MESSAGE'] = 'Недостаточно прав на редактирование CRM-формы. Отправьте запрос на доступ администратору портала.';
 $MESS['LANDING_CRM_FORM_USER'] = 'Ответственный';
 $MESS['LANDING_CRM_FORM_LANGUAGE'] = 'Язык';
+
+$MESS['LANDING_CRM_FORM_INTEGRATION_SEO_NOT_INSTALLED_HEADER'] = 'Модуль SEO не установлен';
+$MESS['LANDING_CRM_FORM_INTEGRATION_SEO_NOT_INSTALLED_FB_TEXT'] = 'Для корректной интеграции с «Facebook Lead Ads» необходимо установить модуль SEO';
+$MESS['LANDING_CRM_FORM_INTEGRATION_SEO_NOT_INSTALLED_VK_TEXT'] = 'Для корректной интеграции с «ВКонтакте» необходимо установить модуль SEO';

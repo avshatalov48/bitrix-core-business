@@ -50,7 +50,8 @@ class _CLangDBResult extends CDBResult
 						$CACHE_MANAGER->Set("b_lang_domain", $arLangDomain);
 					}
 					$res["DOMAINS"] = "";
-					if(is_array($arLangDomain["LID"][$res["LID"]]))
+					if(isset($arLangDomain["LID"][$res["LID"]]) && is_array($arLangDomain["LID"][$res["LID"]]))
+					{
 						foreach($arLangDomain["LID"][$res["LID"]] as $ar_res)
 						{
 							$domain = $ar_res["DOMAIN"];
@@ -60,6 +61,7 @@ class _CLangDBResult extends CDBResult
 							$res["DOMAINS"] .= $domain."\r\n";
 
 						}
+					}
 				}
 				$res["DOMAINS"] = trim($res["DOMAINS"]);
 				$arCache[$res["LID"]] = $res["DOMAINS"];

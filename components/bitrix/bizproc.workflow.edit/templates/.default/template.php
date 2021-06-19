@@ -6,7 +6,7 @@ $isAdminSection = (isset($arParams['IS_ADMIN_SECTION']));
 use Bitrix\Main\Page\Asset;
 
 \Bitrix\Main\Loader::includeModule('rest');
-CUtil::InitJSCore(['window', 'ajax', 'bp_selector', 'clipboard', 'marketplace']);
+CUtil::InitJSCore(['window', 'ajax', 'bp_selector', 'clipboard', 'marketplace', 'bp_field_type']);
 \Bitrix\Main\UI\Extension::load(['ui.hint']);
 
 if ($isAdminSection)

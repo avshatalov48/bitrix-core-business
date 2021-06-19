@@ -4,7 +4,6 @@ namespace Sale\Handlers\Delivery\YandexTaxi\Internals;
 
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Sale\Delivery\Internals\Analytics\OrderProviders\IOrderProvider;
-use Bitrix\Sale\Delivery\Internals\Analytics\OrderProviders\Order;
 
 /**
  * Class OrderAnalyticsProvider
@@ -49,17 +48,17 @@ final class OrderAnalyticsProvider implements IOrderProvider
 				$isSuccessful = ($claim['EXTERNAL_RESOLUTION'] === ClaimsTable::EXTERNAL_STATUS_SUCCESS);
 			}
 
-			$order = (new Order())
-				->setId($claim['EXTERNAL_ID'])
-				->setCreatedAt($claim['CREATED_AT']->getTimestamp())
-				->setStatus($claim['EXTERNAL_STATUS'])
-				->setIsSuccessful($isSuccessful);
+			$order = [
+				'id' => $claim['EXTERNAL_ID'],
+				'is_successful' => $isSuccessful ? 'Y' : 'N',
+				'status' => $claim['EXTERNAL_STATUS'],
+				'created_at' => $claim['CREATED_AT']->getTimestamp(),
+			];
 
 			if ($claim['EXTERNAL_FINAL_PRICE'] && $claim['EXTERNAL_CURRENCY'])
 			{
-				$order
-					->setAmount($claim['EXTERNAL_FINAL_PRICE'])
-					->setCurrency($claim['EXTERNAL_CURRENCY']);
+				$order['amount'] = $claim['EXTERNAL_FINAL_PRICE'];
+				$order['currency'] = $claim['EXTERNAL_CURRENCY'];
 			}
 
 			$result[] = $order;

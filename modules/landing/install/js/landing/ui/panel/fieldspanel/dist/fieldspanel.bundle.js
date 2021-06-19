@@ -58,7 +58,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            categoryId = _ref2[0],
 	            category = _ref2[1];
 
-	        if (categoryId !== 'CATALOG' && categoryId !== 'ACTIVITY') {
+	        if (categoryId !== 'CATALOG' && categoryId !== 'ACTIVITY' && categoryId !== 'INVOICE') {
 	          if (main_core.Type.isPlainObject(options) && main_core.Type.isBoolean(options.isLeadEnabled) && !options.isLeadEnabled && categoryId === 'LEAD') {
 	            return;
 	          }
@@ -111,14 +111,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        this.disabledFields = options.disabledFields;
 	      }
 
-	      if (options.isLeadEnabled === false) {
-	        var leadButton = this.sidebarButtons.get('LEAD');
-
-	        if (leadButton) {
-	          main_core.Dom.hide(leadButton.layout);
-	        }
-	      }
-
 	      this.loadPromise.then(function () {
 	        if (main_core.Type.isArray(options.allowedTypes)) {
 	          _this2.originalCrmFields = _this2.getCrmFields();
@@ -142,6 +134,26 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          }, {});
 
 	          _this2.setCrmFields(preparedCrmFields);
+	        }
+
+	        _this2.sidebarButtons.forEach(function (button) {
+	          main_core.Dom.show(button.layout);
+	        });
+
+	        if (options.isLeadEnabled === false) {
+	          var leadButton = _this2.sidebarButtons.get('LEAD');
+
+	          if (leadButton) {
+	            main_core.Dom.hide(leadButton.layout);
+	          }
+	        }
+
+	        if (main_core.Type.isArrayFilled(options.allowedCategories)) {
+	          _this2.sidebarButtons.forEach(function (button) {
+	            if (!options.allowedCategories.includes(button.id)) {
+	              main_core.Dom.hide(button.layout);
+	            }
+	          });
 	        }
 
 	        if (_this2.sidebarButtons.length > 0) {

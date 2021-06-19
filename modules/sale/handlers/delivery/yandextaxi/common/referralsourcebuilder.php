@@ -34,6 +34,11 @@ final class ReferralSourceBuilder
 			return 'api_1c-bitrix_kz';
 		}
 
+		if ($region === 'by')
+		{
+			return 'api_1c-bitrix_by';
+		}
+
 		return 'api_1c-bitrix';
 	}
 }

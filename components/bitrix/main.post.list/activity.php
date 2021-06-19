@@ -55,7 +55,7 @@ if ( check_bitrix_sessid() &&
 	$_SESSION["UC_ACTIVITY"]["TIME"] = time();
 	$_SESSION["UC_ACTIVITY"]["ENTITY_XML_ID"] = $_REQUEST["ENTITY_XML_ID"];
 
-	$dbUser = CUser::GetList(($sort_by = Array('ID'=>'desc')), ($dummy=''), Array("ID" => $USER->GetId()),
+	$dbUser = CUser::GetList(Array('ID'=>'desc'), '', Array("ID" => $USER->GetId()),
 		Array("FIELDS" => Array("ID", "LAST_NAME", "NAME", "SECOND_NAME", "LOGIN", "PERSONAL_PHOTO", "PERSONAL_GENDER")));
 	$arUser = array();
 	if($dbUser && ($arUser = $dbUser->GetNext()) && (intval($arUser["PERSONAL_PHOTO"]) > 0))

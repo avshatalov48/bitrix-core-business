@@ -49,7 +49,7 @@ return array(
 			),
 			'.landing-block-node-element-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_9_ONE_COL_FIX_TEXTS_BLOCKS_SLIDER_STYLE_LANDINGBLOCKNODEELEMENTTITLE'),
-				'type' => array('typo', 'animation'),
+				'type' => ['typo', 'animation', 'heading'],
 			),
 			'.landing-block-node-element-text' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_9_ONE_COL_FIX_TEXTS_BLOCKS_SLIDER_STYLE_LANDINGBLOCKNODEELEMENTTEXT'),

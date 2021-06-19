@@ -1,4 +1,4 @@
-(function (exports,ui_vue_directives_lazyload,main_polyfill_intersectionobserver,ui_vue) {
+(function (exports,ui_vue_directives_lazyload,main_polyfill_intersectionobserver,ui_vue,main_core_events) {
 	'use strict';
 
 	/**
@@ -7,7 +7,7 @@
 	 *
 	 * @package bitrix
 	 * @subpackage ui
-	 * @copyright 2001-2019 Bitrix
+	 * @copyright 2001-2021 Bitrix
 	 */
 
 	var _State = Object.freeze({
@@ -17,7 +17,7 @@
 	  none: 'none'
 	});
 
-	ui_vue.Vue.component('bx-socialvideo', {
+	ui_vue.BitrixVue.component('bx-socialvideo', {
 	  props: {
 	    id: {
 	      default: 0
@@ -61,37 +61,23 @@
 	    };
 	  },
 	  created: function created() {
-	    this.registeredId = 0;
-
 	    if (!this.preview) {
 	      this.previewLoaded = true;
 	      this.preload = 'metadata';
 	    }
 
-	    this.registerPlayer(this.id);
-	    this.$root.$on('ui:socialvideo:play', this.onPlay);
-	    ui_vue.Vue.event.$on('ui:socialvideo:play', this.onPlay);
-	    this.$root.$on('ui:socialvideo:stop', this.onStop);
-	    ui_vue.Vue.event.$on('ui:socialvideo:stop', this.onStop);
-	    this.$root.$on('ui:socialvideo:pause', this.onPause);
-	    ui_vue.Vue.event.$on('ui:socialvideo:pause', this.onPause);
+	    this.$Bitrix.eventEmitter.subscribe('ui:socialvideo:unmute', this.onUnmute);
 	  },
 	  mounted: function mounted() {
 	    this.getObserver().observe(this.$refs.body);
 	  },
 	  beforeDestroy: function beforeDestroy() {
-	    this.unregisterPlayer();
-	    this.$root.$off('ui:socialvideo:play', this.onPlay);
-	    ui_vue.Vue.event.$off('ui:socialvideo:play', this.onPlay);
-	    this.$root.$off('ui:socialvideo:stop', this.onStop);
-	    ui_vue.Vue.event.$off('ui:socialvideo:stop', this.onStop);
-	    this.$root.$off('ui:socialvideo:pause', this.onPause);
-	    ui_vue.Vue.event.$off('ui:socialvideo:pause', this.onPause);
+	    this.$Bitrix.eventEmitter.unsubscribe('ui:socialvideo:unmute', this.onUnmute);
 	    this.getObserver().unobserve(this.$refs.body);
 	  },
 	  watch: {
 	    id: function id(value) {
-	      this.registerPlayer(value);
+	      this.registeredId = value;
 	    }
 	  },
 	  methods: {
@@ -207,6 +193,12 @@
 
 	      this.muteFlag = false;
 	      this.source().muted = false;
+
+	      if (this.id > 0) {
+	        this.$Bitrix.eventEmitter.emit('ui:socialvideo:unmute', {
+	          initiator: this.id
+	        });
+	      }
 	    },
 	    setProgress: function setProgress(percent) {
 	      this.progress = percent;
@@ -227,59 +219,14 @@
 
 	      return (hour > 0 ? hour + ':' : '') + (hour > 0 ? minute.toString().padStart(2, "0") + ':' : minute + ':') + second.toString().padStart(2, "0");
 	    },
-	    registerPlayer: function registerPlayer(id) {
-	      if (id <= 0) {
-	        return false;
-	      }
+	    onUnmute: function onUnmute(event) {
+	      event = event.getData();
 
-	      if (typeof this.$root.$uiSocialVideoId === 'undefined') {
-	        this.$root.$uiSocialVideoId = [];
-	      }
-
-	      this.unregisterPlayer();
-	      this.$root.$uiSocialVideoId = babelHelpers.toConsumableArray(new Set([].concat(babelHelpers.toConsumableArray(this.$root.$uiSocialVideoId), [id]))).sort(function (a, b) {
-	        if (a > b) return 1;else if (a < b) return -1;else return 0;
-	      });
-	      this.registeredId = id;
-	      return true;
-	    },
-	    unregisterPlayer: function unregisterPlayer() {
-	      var _this = this;
-
-	      if (!this.registeredId) {
-	        return true;
-	      }
-
-	      this.$root.$uiSocialVideoId = this.$root.$uiSocialVideoId.filter(function (id) {
-	        return id !== _this.registeredId;
-	      });
-	      this.registeredId = 0;
-	      return true;
-	    },
-	    onPlay: function onPlay(event) {
-	      if (event.id !== this.id) {
-	        return false;
-	      }
-
-	      if (event.start) {
-	        this.stop();
-	      }
-
-	      this.play();
-	    },
-	    onStop: function onStop(event) {
 	      if (event.initiator === this.id) {
 	        return false;
 	      }
 
-	      this.stop();
-	    },
-	    onPause: function onPause(event) {
-	      if (event.initiator === this.id) {
-	        return false;
-	      }
-
-	      this.pause();
+	      this.mute();
 	    },
 	    source: function source() {
 	      return this.$refs.source;
@@ -365,22 +312,22 @@
 	      }
 	    },
 	    getObserver: function getObserver() {
-	      var _this2 = this;
+	      var _this = this;
 
 	      if (this.observer) {
 	        return this.observer;
 	      }
 
 	      this.observer = new IntersectionObserver(function (entries, observer) {
-	        if (_this2.autoPlayDisabled) {
+	        if (_this.autoPlayDisabled) {
 	          return false;
 	        }
 
 	        entries.forEach(function (entry) {
 	          if (entry.isIntersecting) {
-	            _this2.play();
+	            _this.play();
 	          } else {
-	            _this2.pause();
+	            _this.pause();
 	          }
 	        });
 	      }, {
@@ -428,5 +375,5 @@
 	  template: "\n\t\t<div :class=\"['ui-vue-socialvideo', containerClass, {\n\t\t\t\t'ui-vue-socialvideo-mobile': isMobile,\n\t\t\t}]\" :style=\"containerStyle\" @click=\"click\">\n\t\t\t<transition name=\"ui-vue-socialvideo-animation-fade\">\n\t\t\t\t<div v-if=\"showStartButton && showControls\" class=\"ui-vue-socialvideo-button-start\">\n\t\t\t\t\t<span class=\"ui-vue-socialvideo-button-start-icon\"></span>\n\t\t\t\t</div>\n\t\t\t</transition>\n\t\t\t<transition name=\"ui-vue-socialvideo-animation-fade\">\n\t\t\t\t<div v-if=\"showInterface && showControls\" class=\"ui-vue-socialvideo-overlay-container\">\n\t\t\t\t\t<div class=\"ui-vue-socialvideo-controls-container\" @click=\"clickToButton\">\n\t\t\t\t\t\t<button :class=\"['ui-vue-socialvideo-control', {\n\t\t\t\t\t\t\t'ui-vue-socialvideo-control-loader': loading,\n\t\t\t\t\t\t\t'ui-vue-socialvideo-control-play': !loading && state !== State.play,\n\t\t\t\t\t\t\t'ui-vue-socialvideo-control-pause': !loading && state === State.play,\n\t\t\t\t\t\t}]\"></button>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-vue-socialvideo-info-container\" @click=\"clickToMute\">\n\t\t\t\t\t\t<span class=\"ui-vue-socialvideo-time-current\">{{labelTime}}</span>\n\t\t\t\t\t\t<span :class=\"['ui-vue-socialvideo-sound', {\n\t\t\t\t\t\t\t'ui-vue-socialvideo-sound-on': state !== State.none && !muteFlag,\n\t\t\t\t\t\t\t'ui-vue-socialvideo-sound-off': state !== State.none && muteFlag\n\t\t\t\t\t\t}]\"></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</transition>\n\t\t\t<div v-if=\"!preview\" class=\"ui-vue-socialvideo-background\" :style=\"{position: (src? 'absolute': 'relative')}\"></div>\n\t\t\t<div class=\"ui-vue-socialvideo-container\" ref=\"body\">\n\t\t\t\t<img \n\t\t\t\t\tv-bx-lazyload=\"{callback: lazyLoadCallback}\"\n\t\t\t\t\tdata-lazyload-dont-hide\n\t\t\t\t\tv-if=\"preview\"\n\t\t\t\t\tclass=\"ui-vue-socialvideo-image-source\"\n\t\t\t\t\t:data-lazyload-src=\"preview\"\n\t\t\t\t\t:style=\"{position: (src? 'absolute': 'relative'), ...elementStyle}\"\n\t\t\t\t/>\n\t\t\t\t<video \n\t\t\t\t\tv-if=\"src\" :src=\"src\" \n\t\t\t\t\tclass=\"ui-vue-socialvideo-source\" \n\t\t\t\t\tref=\"source\"\n\t\t\t\t\t:preload=\"preload\" \n\t\t\t\t\tplaysinline\n\t\t\t\t\tloop \n\t\t\t\t\tmuted\n\t\t\t\t\t:style=\"{opacity: (loaded? 1: 0), ...elementStyle}\"\n\t\t\t\t\t@abort=\"videoEventRouter('abort', $event)\"\n\t\t\t\t\t@error=\"videoEventRouter('error', $event)\"\n\t\t\t\t\t@suspend=\"videoEventRouter('suspend', $event)\"\n\t\t\t\t\t@canplay=\"videoEventRouter('canplay', $event)\"\n\t\t\t\t\t@canplaythrough=\"videoEventRouter('canplaythrough', $event)\"\n\t\t\t\t\t@durationchange=\"videoEventRouter('durationchange', $event)\"\n\t\t\t\t\t@loadeddata=\"videoEventRouter('loadeddata', $event)\"\n\t\t\t\t\t@loadedmetadata=\"videoEventRouter('loadedmetadata', $event)\"\n\t\t\t\t\t@volumechange=\"videoEventRouter('volumechange', $event)\"\n\t\t\t\t\t@timeupdate=\"videoEventRouter('timeupdate', $event)\"\n\t\t\t\t\t@play=\"videoEventRouter('play', $event)\"\n\t\t\t\t\t@playing=\"videoEventRouter('playing', $event)\"\n\t\t\t\t\t@pause=\"videoEventRouter('pause', $event)\"\n\t\t\t\t></video>\n\t\t\t</div>\n\t\t</div>\t\n\t"
 	});
 
-}((this.window = this.window || {}),window,BX,BX));
+}((this.window = this.window || {}),window,BX,BX,BX.Event));
 //# sourceMappingURL=socialvideo.bundle.js.map

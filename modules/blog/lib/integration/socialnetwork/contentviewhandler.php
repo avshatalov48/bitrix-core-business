@@ -15,7 +15,7 @@ final class ContentViewHandler
 	const CONTENT_TYPE_ID_POST = 'BLOG_POST';
 	const CONTENT_TYPE_ID_COMMENT = 'BLOG_COMMENT';
 
-	final static function getContentTypeIdList()
+	final public static function getContentTypeIdList()
 	{
 		return array(
 			self::CONTENT_TYPE_ID_POST,

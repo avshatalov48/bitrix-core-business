@@ -199,8 +199,8 @@ export class DateTimeControl extends EventEmitter
 			toDate: this.DOM.toDate.value,
 			fromTime: this.DOM.fromTime.value,
 			toTime: this.DOM.toTime.value,
-			timezoneFrom: this.DOM.fromTz ? this.DOM.fromTz.value : this.value.timezoneFrom || this.value.timezoneName || null,
-			timezoneTo: this.DOM.toTz ? this.DOM.toTz.value : this.value.timezoneTo || this.value.timezoneName || null
+			timezoneFrom: this.DOM.fromTz ? this.DOM.fromTz.value : (this.value.timezoneFrom || this.value.timezoneName || null),
+			timezoneTo: this.DOM.toTz ? this.DOM.toTz.value : (this.value.timezoneTo || this.value.timezoneName || null)
 		};
 
 		value.from = Util.parseDate(value.fromDate);

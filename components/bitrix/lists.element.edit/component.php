@@ -86,6 +86,18 @@ elseif(
 	return;
 }
 
+$copy_id = intval($_REQUEST["copy_id"]);
+
+if (
+	$copy_id > 0
+	&& $lists_perm < CListPermissions::CAN_READ
+	&& !CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $copy_id, "element_read")
+)
+{
+	ShowError(GetMessage("CC_BLEE_ACCESS_DENIED"));
+	return;
+}
+
 $arParams["CAN_EDIT"] =	(
 	!$arResult["IS_SOCNET_GROUP_CLOSED"]
 	&& (

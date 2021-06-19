@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 $GLOBALS["BLOG"] = Array();
@@ -23,7 +24,7 @@ class CAllBlog
 		return False;
 	}
 
-	function CanUserCreateBlog($userID = 0)
+	public static function CanUserCreateBlog($userID = 0)
 	{
 		global $APPLICATION;
 		$userID = intval($userID);
@@ -43,7 +44,7 @@ class CAllBlog
 //		return True;
 	}
 
-	function CanUserViewBlogs($arUserGroups = array())
+	public static function CanUserViewBlogs($arUserGroups = array())
 	{
 		/*
 		$blogModulePermissions = $GLOBALS["APPLICATION"]->GetGroupRight("blog");
@@ -74,7 +75,7 @@ class CAllBlog
 		return False;
 	}
 
-	function GetBlogUserPostPerms($ID, $userID = 0)
+	public static function GetBlogUserPostPerms($ID, $userID = 0)
 	{
 		global $APPLICATION;
 		$ID = intval($ID);
@@ -108,7 +109,7 @@ class CAllBlog
 		return $arAvailPerms[0];
 	}
 
-	function GetBlogUserCommentPerms($ID, $userID)
+	public static function GetBlogUserCommentPerms($ID, $userID)
 	{
 		global $APPLICATION;
 		$ID = intval($ID);
@@ -141,7 +142,7 @@ class CAllBlog
 	}
 
 	/*************** ADD, UPDATE, DELETE *****************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $APPLICATION, $DB;
 
@@ -339,7 +340,7 @@ class CAllBlog
 		return $bSuccess;
 	}
 
-	function SetBlogPerms($ID, $arPerms = array(), $permsType = BLOG_PERMS_POST)
+	public static function SetBlogPerms($ID, $arPerms = array(), $permsType = BLOG_PERMS_POST)
 	{
 		$ID = intval($ID);
 		$permsType = (($permsType == BLOG_PERMS_COMMENT) ? BLOG_PERMS_COMMENT : BLOG_PERMS_POST);
@@ -678,7 +679,12 @@ class CAllBlog
 						{
 							if ($arFields[$key]["TYPE"] == "int")
 							{
-								array_walk($vals, create_function("&\$item", "\$item=IntVal(\$item);"));
+								array_walk(
+									$vals,
+									function (&$item) {
+										$item = (int)$item;
+									}
+								);
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
@@ -689,7 +695,12 @@ class CAllBlog
 							}
 							elseif ($arFields[$key]["TYPE"] == "double")
 							{
-								array_walk($vals, create_function("&\$item", "\$item=DoubleVal(\$item);"));
+								array_walk(
+									$vals,
+									function (&$item) {
+										$item = (float)$item;
+									}
+								);
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
@@ -700,7 +711,12 @@ class CAllBlog
 							}
 							elseif ($arFields[$key]["TYPE"] == "string" || $arFields[$key]["TYPE"] == "char")
 							{
-								array_walk($vals, create_function("&\$item", "\$item=\"'\".\$GLOBALS[\"DB\"]->ForSql(\$item).\"'\";"));
+								array_walk(
+									$vals,
+									function (&$item) {
+										$item = "'".$GLOBALS["DB"]->ForSql($item)."'";
+									}
+								);
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
@@ -711,7 +727,12 @@ class CAllBlog
 							}
 							elseif ($arFields[$key]["TYPE"] == "datetime")
 							{
-								array_walk($vals, create_function("&\$item", "\$item=\"'\".\$GLOBALS[\"DB\"]->CharToDateFunction(\$GLOBALS[\"DB\"]->ForSql(\$item), \"FULL\").\"'\";"));
+								array_walk(
+									$vals,
+									function (&$item) {
+										$item = $GLOBALS["DB"]->CharToDateFunction($item, "FULL");
+									}
+								);
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
@@ -722,7 +743,12 @@ class CAllBlog
 							}
 							elseif ($arFields[$key]["TYPE"] == "date")
 							{
-								array_walk($vals, create_function("&\$item", "\$item=\"'\".\$GLOBALS[\"DB\"]->CharToDateFunction(\$GLOBALS[\"DB\"]->ForSql(\$item), \"SHORT\").\"'\";"));
+								array_walk(
+									$vals,
+									function (&$item) {
+										$item = $GLOBALS["DB"]->CharToDateFunction($item, "SHORT");
+									}
+								);
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
@@ -1108,7 +1134,7 @@ class CAllBlog
 		return False;
 	}
 
-	function BuildRSS($ID, $type = "RSS .92", $numPosts = 10, $blogTemplate="", $postTemplate="", $userTemplate="", $bSoNet = false, $arParams = Array())
+	public static function BuildRSS($ID, $type = "RSS .92", $numPosts = 10, $blogTemplate="", $postTemplate="", $userTemplate="", $bSoNet = false, $arParams = Array())
 	{
 		global $USER;
 
@@ -1134,7 +1160,7 @@ class CAllBlog
 				$serverName = "";
 				$charset = "";
 				$language = "";
-				$dbSite = CSite::GetList($b = "sort", $o = "asc", array("LID" => SITE_ID));
+				$dbSite = CSite::GetList("sort", "asc", array("LID" => SITE_ID));
 				if ($arSite = $dbSite->Fetch())
 				{
 					$serverName = $arSite["SERVER_NAME"];
@@ -1461,7 +1487,7 @@ class CAllBlog
 		return $result;
 	}
 
-	function IsFriend($ID, $userID)
+	public static function IsFriend($ID, $userID)
 	{
 		global $DB;
 
@@ -1480,7 +1506,7 @@ class CAllBlog
 		return ($cnt > 0);
 	}
 	
-	function BuildRSSAll($GroupId = 0, $type = "RSS .92", $numPosts = 10, $siteID = SITE_ID, $postTemplate="", $userTemplate="", $arAvBlog = Array(), $arPathTemplates = Array(), $arGroupID = Array(), $bUserSocNet = "N")
+	public static function BuildRSSAll($GroupId = 0, $type = "RSS .92", $numPosts = 10, $siteID = SITE_ID, $postTemplate="", $userTemplate="", $arAvBlog = Array(), $arPathTemplates = Array(), $arGroupID = Array(), $bUserSocNet = "N")
 	{
 		global $USER;
 
@@ -1509,7 +1535,7 @@ class CAllBlog
 		$serverName = "";
 		$charset = "";
 		$language = "";
-		$dbSite = CSite::GetList($b = "sort", $o = "asc", array("LID" => SITE_ID));
+		$dbSite = CSite::GetList("sort", "asc", array("LID" => SITE_ID));
 		if ($arSite = $dbSite->Fetch())
 		{
 			$serverName = $arSite["SERVER_NAME"];
@@ -1753,7 +1779,7 @@ class CAllBlog
 		return $DB->Query("DELETE FROM b_blog_socnet WHERE BLOG_ID = ".$ID."", true);
 	}
 	
-	function GetSocnetReadByBlog($ID)
+	public static function GetSocnetReadByBlog($ID)
 	{
 		global $DB;
 		$ID = intval($ID);
@@ -1839,7 +1865,7 @@ class CAllBlog
 		}
 	}
 	
-	function GetWritableSocnetBlogs($user_id = 0, $type = "U", $site_id = SITE_ID)
+	public static function GetWritableSocnetBlogs($user_id = 0, $type = "U", $site_id = SITE_ID)
 	{
 		if(CModule::IncludeModule("socialnetwork"))
 		{
@@ -1881,4 +1907,3 @@ class CAllBlog
 
 	}
 }
-?>

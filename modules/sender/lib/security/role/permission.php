@@ -4,9 +4,8 @@ namespace Bitrix\Sender\Security\Role;
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Sender\Security\User;
-
 use Bitrix\Sender\Internals\Model;
+use Bitrix\Sender\Security\User;
 
 Loc::loadMessages(__FILE__);
 
@@ -18,15 +17,18 @@ class Permission
 	const ENTITY_SEGMENT = 'SEGMENT';
 	const ENTITY_BLACKLIST = 'BLACKLIST';
 	const ENTITY_SETTINGS = 'SETTINGS';
-
+	
 	const ACTION_VIEW = 'VIEW';
 	const ACTION_MODIFY = 'MODIFY';
-
+	
 	const PERMISSION_NONE = '';
 	const PERMISSION_SELF = 'A';
 	const PERMISSION_DEPARTMENT = 'D';
 	const PERMISSION_ANY = 'X';
-
+	
+	private static $cache = [];
+	
+	
 	/**
 	 * Returns permission code according to the user's Permission.
 	 *
@@ -48,7 +50,7 @@ class Permission
 
 	}
 	*/
-
+	
 	/**
 	 * Returns true if user can perform specified action on the entity.
 	 *
@@ -62,30 +64,29 @@ class Permission
 	public static function check(array $permissions, $entityCode, $actionCode, $minPerm = null)
 	{
 		$map = self::getMap();
-		if(!isset($map[$entityCode][$actionCode]))
+		if (!isset($map[$entityCode][$actionCode]))
 		{
 			throw new ArgumentException('Unknown entity or action code.');
 		}
-
+		
 		if (!isset($permissions[$entityCode][$actionCode]))
 		{
 			return false;
 		}
-
+		
 		$perm = $permissions[$entityCode][$actionCode];
 		$minPerm = $minPerm ?: self::PERMISSION_NONE;
-
-
+		
+		
 		if ($minPerm === self::PERMISSION_NONE)
 		{
 			return $perm > $minPerm;
-		}
-		else
+		} else
 		{
 			return $perm >= $minPerm;
 		}
 	}
-
+	
 	/**
 	 * Get permissions by user ID.
 	 *
@@ -95,39 +96,44 @@ class Permission
 	 */
 	public static function getByUserId($userId)
 	{
-		$user = User::get($userId);
-		if($user->isPortalAdmin() || $user->isAdmin())
+		if (!isset(static::$cache[$userId]))
 		{
-			return self::getAdminPermissions();
-		}
-
-		//everybody else's permissions are defined by their role
-		$result = [];
-		$userAccessCodes = \CAccess::getUserCodesArray($user->getId());
-
-		if(!is_array($userAccessCodes) || count($userAccessCodes) === 0)
-		{
-			return [];
-		}
-
-		$list = Model\Role\PermissionTable::getList(array(
-			'filter' => array(
-				'=ROLE_ACCESS.ACCESS_CODE' => $userAccessCodes
-			)
-		));
-
-		foreach ($list as $row)
-		{
-			if (   !isset($result[$row['ENTITY']][$row['ACTION']])
-				|| $result[$row['ENTITY']][$row['ACTION']] < $row['PERMISSION'])
+			$user = User::get($userId);
+			if ($user->isPortalAdmin() || $user->isAdmin())
 			{
-				$result[$row['ENTITY']][$row['ACTION']] = $row['PERMISSION'];
+				return self::getAdminPermissions();
 			}
+			
+			//everybody else's permissions are defined by their role
+			$result = [];
+			$userAccessCodes = \CAccess::getUserCodesArray($user->getId());
+			
+			if (!is_array($userAccessCodes) || count($userAccessCodes) === 0)
+			{
+				return [];
+			}
+			
+			$list = Model\Role\PermissionTable::getList(array(
+				'filter' => array(
+					'=ROLE_ACCESS.ACCESS_CODE' => $userAccessCodes
+				)
+			));
+			
+			foreach ($list as $row)
+			{
+				if (!isset($result[$row['ENTITY']][$row['ACTION']])
+					|| $result[$row['ENTITY']][$row['ACTION']] < $row['PERMISSION'])
+				{
+					$result[$row['ENTITY']][$row['ACTION']] = $row['PERMISSION'];
+				}
+			}
+			
+			static::$cache[$userId] = $result;
 		}
-
-		return $result;
+		
+		return static::$cache[$userId];
 	}
-
+	
 	/**
 	 * Returns Permission map.
 	 *
@@ -194,7 +200,7 @@ class Permission
 			],
 		];
 	}
-
+	
 	/**
 	 * Returns normalized permission array.
 	 *
@@ -205,25 +211,24 @@ class Permission
 	{
 		$map = self::getMap();
 		$result = [];
-
+		
 		foreach ($map as $entity => $actions)
 		{
 			foreach ($actions as $action => $permission)
 			{
-				if(isset($source[$entity][$action]))
+				if (isset($source[$entity][$action]))
 				{
 					$result[$entity][$action] = $source[$entity][$action];
-				}
-				else
+				} else
 				{
 					$result[$entity][$action] = self::PERMISSION_NONE;
 				}
 			}
 		}
-
+		
 		return $result;
 	}
-
+	
 	/**
 	 * Returns name of the entity by its code.
 	 *
@@ -232,9 +237,9 @@ class Permission
 	 */
 	public static function getEntityName($entity)
 	{
-		return Loc::getMessage('SENDER_SECURITY_ROLE_ENTITY_'.$entity);
+		return Loc::getMessage('SENDER_SECURITY_ROLE_ENTITY_' . $entity);
 	}
-
+	
 	/**
 	 * Returns name of the action by its code.
 	 *
@@ -243,9 +248,9 @@ class Permission
 	 */
 	public static function getActionName($action)
 	{
-		return Loc::getMessage('SENDER_SECURITY_ROLE_ACTION_'.$action);
+		return Loc::getMessage('SENDER_SECURITY_ROLE_ACTION_' . $action);
 	}
-
+	
 	/**
 	 * Returns name of the permission by its code.
 	 *
@@ -274,7 +279,7 @@ class Permission
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Returns maximum available permissions.
 	 *
@@ -284,21 +289,21 @@ class Permission
 	{
 		$result = array();
 		$permissionMap = self::getMap();
-
+		
 		foreach ($permissionMap as $entity => $actions)
 		{
 			foreach ($actions as $action => $permissions)
 			{
 				foreach ($permissions as $permission)
 				{
-					if(!isset($result[$entity][$action]) || $result[$entity][$action] < $permission)
+					if (!isset($result[$entity][$action]) || $result[$entity][$action] < $permission)
 					{
 						$result[$entity][$action] = $permission;
 					}
 				}
 			}
 		}
-
+		
 		return $result;
 	}
 }

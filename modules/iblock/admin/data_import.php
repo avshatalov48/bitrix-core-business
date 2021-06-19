@@ -474,6 +474,21 @@ class CAssocData extends CCSVData
 /////////////////////////////////////////////////////////////////////
 if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && check_bitrix_sessid())
 {
+	$fieldList = [
+		'fields_type',
+		'fields_type',
+		'delimiter_r',
+		'delimiter_r',
+		'first_names_f',
+		'first_names_f',
+		'PATH2IMAGE_FILES',
+		'IMAGE_RESIZE',
+		'PATH2PROP_FILES',
+		'outFileAction',
+		'inFileAction',
+		'max_execution_time',
+	];
+
 	//*****************************************************************//
 	if ($STEP > 1)
 	{
@@ -524,9 +539,13 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 
 		if ($strError == '')
 		{
-			if ($CUR_FILE_POS > 0 && is_set($_SESSION, $CUR_LOAD_SESS_ID) && is_set($_SESSION[$CUR_LOAD_SESS_ID], "LOAD_SCHEME"))
+			if ($CUR_FILE_POS > 0 && isset($_SESSION[$CUR_LOAD_SESS_ID]["LOAD_SCHEME"]) && is_array($_SESSION[$CUR_LOAD_SESS_ID]["LOAD_SCHEME"]))
 			{
-				parse_str($_SESSION[$CUR_LOAD_SESS_ID]["LOAD_SCHEME"]);
+				foreach ($_SESSION[$CUR_LOAD_SESS_ID]["LOAD_SCHEME"] as $fieldName => $value)
+				{
+					$GLOBALS[$fieldName] = $value;
+				}
+
 				$STEP = 4;
 			}
 		}
@@ -1039,23 +1058,24 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 				$_SESSION[$CUR_LOAD_SESS_ID]["killed_lines"] = $killed_lines;
 				$_SESSION[$CUR_LOAD_SESS_ID]["arIBlockProperty"] = $arIBlockProperty;
 				$_SESSION[$CUR_LOAD_SESS_ID]["bThereIsGroups"] = $bThereIsGroups;
-				$paramsStr = "fields_type=".urlencode($fields_type);
-				$paramsStr.= "&first_names_r=".urlencode($first_names_r);
-				$paramsStr.= "&delimiter_r=".urlencode($delimiter_r);
-				$paramsStr.= "&delimiter_other_r=".urlencode($delimiter_other_r);
-				$paramsStr.= "&first_names_f=".urlencode($first_names_f);
-				$paramsStr.= "&metki_f=".urlencode($metki_f);
+				$_SESSION[$CUR_LOAD_SESS_ID]["NUM_FIELDS"] = $NUM_FIELDS;
+				$loadScheme = [];
+				foreach ($fieldList as $fieldName)
+				{
+					if (isset($GLOBALS[$fieldName]))
+					{
+						$loadScheme[$fieldName] = $GLOBALS[$fieldName];
+					}
+				}
 				for ($i = 0; $i < $NUM_FIELDS; $i++)
 				{
-					$paramsStr.= "&field_".$i."=".urlencode(${"field_".$i});
+					$fieldName = 'field_' . $i;
+					if (isset($GLOBALS[$fieldName]))
+					{
+						$loadScheme[$fieldName] = $GLOBALS[$fieldName];
+					}
 				}
-				$paramsStr.= "&PATH2IMAGE_FILES=".urlencode($PATH2IMAGE_FILES);
-				$paramsStr.= "&IMAGE_RESIZE=".urlencode($IMAGE_RESIZE);
-				$paramsStr.= "&PATH2PROP_FILES=".urlencode($PATH2PROP_FILES);
-				$paramsStr.= "&outFileAction=".urlencode($outFileAction);
-				$paramsStr.= "&inFileAction=".urlencode($inFileAction);
-				$paramsStr.= "&max_execution_time=".urlencode($max_execution_time);
-				$_SESSION[$CUR_LOAD_SESS_ID]["LOAD_SCHEME"] = $paramsStr;
+				$_SESSION[$CUR_LOAD_SESS_ID]["LOAD_SCHEME"] = $loadScheme;
 				$curFilePos = $csvFile->GetPos();
 			}
 		}

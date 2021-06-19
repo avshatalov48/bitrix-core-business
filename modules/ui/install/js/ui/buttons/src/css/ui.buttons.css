@@ -31,12 +31,12 @@
 	--ui-btn-text-shadow-hover: none;
 	--ui-btn-text-shadow-active: none;
 	--ui-btn-margin-left: 12px;
+	--ui-btn-radius: 2px;
 	/**/
 	--ui-btn-clock-white: url(/bitrix/js/ui/buttons/src/css/images/ui-loader-clock-white.min.svg?v=1.2);
 	--ui-btn-clock-black: url(/bitrix/js/ui/buttons/src/css/images/ui-loader-clock-black.min.svg?v=1.2);
 	--ui-btn-wait-white: url(/bitrix/js/ui/buttons/src/css/images/ui-loader-wait-white.min.svg?v=1.2);
 	--ui-btn-wait-black: url(/bitrix/js/ui/buttons/src/css/images/ui-loader-wait-black.min.svg?v=1.2);
-
 }
 
 /*endregion*/
@@ -52,8 +52,8 @@
 .ui-btn-menu {
 	box-sizing: border-box;
 	margin: 0;
-	height: var(--ui-btn-height);
 	outline: none;
+	height: var(--ui-btn-height);
 	border: var(--ui-btn-border);
 	border-color: var(--ui-btn-border-color);
 	background-color: var(--ui-btn-background);
@@ -96,13 +96,9 @@
 	vertical-align: middle;
 }
 
-.ui-btn {
-	border-radius: 2px;
-}
+.ui-btn { border-radius: var(--ui-btn-radius) }
 
-.ui-btn-min {
-	min-width: var(--ui-btn-min-width);
-}
+.ui-btn-min { min-width: var(--ui-btn-min-width); }
 
 .ui-btn-double,
 .ui-btn-split {
@@ -113,14 +109,14 @@
 	-webkit-box-align: stretch;
 	-ms-flex-align: stretch;
 	align-items: stretch;
-	padding-right: 30px;
+	padding-right: var(--ui-btn-height);
 	border-radius: 3px;
 }
 
 .ui-btn-main {
 	padding-right: var(--ui-btn-padding-right);
 	border-right: none !important;
-	border-radius: 2px 0 0 2px;
+	border-radius: var(--ui-btn-radius) 0 0 var(--ui-btn-radius);
 	max-width: 100%;
 }
 
@@ -130,9 +126,9 @@
 	top: 0;
 	right: 0;
 	bottom: 0;
-	width: 30px;
+	width: var(--ui-btn-height);
 	border-left: none !important;
-	border-radius: 0 2px 2px 0;
+	border-radius: 0 var(--ui-btn-radius) var(--ui-btn-radius) 0;
 }
 
 .ui-btn:hover,
@@ -282,27 +278,27 @@ a.ui-btn-double:focus,
 .ui-btn-double.ui-btn-lg,
 .ui-btn-split.ui-btn-lg { padding-right: 33px; }
 
-.ui-btn-lg.ui-btn { border-radius: 3px; }
+.ui-btn-lg.ui-btn:not(.ui-btn-round) { --ui-btn-radius: 3px; }
 
-.ui-btn-lg .ui-btn-main { border-radius: 3px 0 0 3px; }
+.ui-btn-lg:not(.ui-btn-round) .ui-btn-main { --ui-btn-radius: 3px; }
 
 .ui-btn-lg.ui-btn-double,
 .ui-btn-lg.ui-btn-split { padding-right: 34px; }
 
 .ui-btn-lg .ui-btn-extra,
-.ui-btn-lg .ui-btn-menu {
-	width: 34px;
-	border-radius: 0 3px 3px 0;
-}
+.ui-btn-lg .ui-btn-menu { width: 34px; }
+
+.ui-btn-lg:not(.ui-btn-round) .ui-btn-extra,
+.ui-btn-lg:not(.ui-btn-round) .ui-btn-menu { --ui-btn-radius: 3px; }
 
 .ui-btn-sm.ui-btn-double,
 .ui-btn-sm.ui-btn-split { padding-right: 28px; }
 
 .ui-btn-sm .ui-btn-extra,
-.ui-btn-sm .ui-btn-menu {
-	width: 28px;
-	border-radius: 0 3px 3px 0;
-}
+.ui-btn-sm .ui-btn-menu { width: 28px; }
+
+.ui-btn-sm:not(.ui-btn-round) .ui-btn-extra,
+.ui-btn-sm:not(.ui-btn-round) .ui-btn-menu { --ui-btn-radius: 3px; }
 
 .ui-btn-lg .ui-btn-extra:before,
 .ui-btn-lg .ui-btn-menu:before { margin-top: -3px; }
@@ -495,7 +491,6 @@ a.ui-btn-double:focus,
 /*endregion*/
 
 /*region Button Color*/
-
 /*region Link button*/
 .ui-btn-link.ui-btn {
 	padding-right: 0;
@@ -507,7 +502,6 @@ a.ui-btn-double:focus,
 /*endregion*/
 
 /*region Light-border button*/
-
 /*region Fix for Themes*/
 .bitrix24-light-theme .ui-btn-themes.ui-btn-link {
 	--ui-btn-color: #ebebeb;
@@ -550,7 +544,6 @@ a.ui-btn-double:focus,
 
 .bitrix24-dark-theme .ui-btn-themes.ui-btn-light-border { --ui-btn-border-color: rgba(0, 0, 0, .06); }
 
-
 /*endregion*/
 
 /*endregion*/
@@ -560,8 +553,7 @@ a.ui-btn-double:focus,
 /*endregion*/
 
 /*region Others*/
-
-.ui-btn-round { border-radius: calc(var(--ui-btn-height) / 2) !important; }
+.ui-btn-round { --ui-btn-radius: calc(var(--ui-btn-height) / 2); }
 
 .ui-btn-no-caps,
 .ui-btn-no-caps .ui-btn-main {

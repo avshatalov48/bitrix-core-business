@@ -271,7 +271,7 @@ $arResult["CURRENT_PAGE"] = $APPLICATION->GetCurPage();
 $arResult['AJAX_URL'] = $componentPath."/ajax.php";
 
 $sitesCount = 0;
-$rsSites = CSite::GetList($by = "sort", $order = "asc", Array());
+$rsSites = CSite::GetList();
 while($arSite = $rsSites->GetNext())
 	if(COption::GetOptionString("sale", "SHOP_SITE_".$arSite["ID"], ""))
 		$sitesCount++;

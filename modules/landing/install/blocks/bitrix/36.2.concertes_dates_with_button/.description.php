@@ -67,7 +67,7 @@ return array(
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_36.2.CONCERTES_DATES_WITH_BUTTON_NODES_LANDINGBLOCKNODECARDTITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-card-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_36.2.CONCERTES_DATES_WITH_BUTTON_NODES_LANDINGBLOCKNODECARDTEXT'),

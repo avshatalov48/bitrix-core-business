@@ -12,7 +12,7 @@ class CPGalleryInterface
 		$userAliasesCache = array(),
 		$arPassFormShowed = array();
 
-	function CPGalleryInterface($main_params = array(), $additional_params = array())
+	public function __construct($main_params = array(), $additional_params = array())
 	{
 		// check id iblock
 		if (intval($main_params["IBlockID"]) <= 0)

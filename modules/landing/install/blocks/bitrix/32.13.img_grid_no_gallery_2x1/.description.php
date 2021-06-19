@@ -18,12 +18,14 @@ return array(
 		'.landing-block-node-img-small' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_32_13-IMG2'),
 			'type' => 'img',
+			'useInDesigner' => false,
 			'dimensions' => array('width' => 370),
 			'allowInlineEdit' => false,
 		),
 		'.landing-block-node-img-big' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_32_13-IMG1'),
 			'type' => 'img',
+			'useInDesigner' => false,
 			'dimensions' => array('width' => 710),
 			'allowInlineEdit' => false,
 		),

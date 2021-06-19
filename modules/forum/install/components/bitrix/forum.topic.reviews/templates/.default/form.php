@@ -1,4 +1,5 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /**
  * Bitrix vars
  *
@@ -8,64 +9,74 @@
  * @var CUser $USER
  */
 $tabIndex = 1;
-?><? if ($arParams['SHOW_MINIMIZED'] == "Y")
-{
-	?>
-	<div class="reviews-collapse reviews-minimized" style='position:relative; float:none;'>
-		<a class="reviews-collapse-link" id="sw<?=$arParams["FORM_ID"]?>" onclick="BX.onCustomEvent(BX('<?=$arParams["FORM_ID"]?>'), 'onTransverse')" href="javascript:void(0);"><?=$arParams['MINIMIZED_EXPAND_TEXT']?></a>
-	</div>
-	<?
-}
 ?>
-
-<a name="review_anchor"></a>
-<?
-if (!empty($arResult["ERROR_MESSAGE"])):
-	$arResult["ERROR_MESSAGE"] = preg_replace(array("/<br(.*?)><br(.*?)>/is", "/<br(.*?)>$/is"), array("<br />", ""), $arResult["ERROR_MESSAGE"]);
-	?>
-	<div class="reviews-note-box reviews-note-error">
-		<div class="reviews-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "reviews-note-error");?></div>
-	</div>
-<?
-endif;
-?>
-<div class="reviews-reply-form" <?=(($arParams['SHOW_MINIMIZED'] == "Y") ? 'style="display:none;"' : '' )?>>
-<form name="<?=$arParams["FORM_ID"] ?>" id="<?=$arParams["FORM_ID"]?>" action="<?=POST_FORM_ACTION_URI?>#postform"<?
-?> method="POST" enctype="multipart/form-data" class="reviews-form">
-<script type="text/javascript">
-	BX.ready(function(){
-		BX.Forum.Init({
-			id : <?=CUtil::PhpToJSObject(array_keys($arResult["MESSAGES"]))?>,
-			form : BX('<?=$arParams["FORM_ID"]?>'),
-			preorder : '<?=$arParams["PREORDER"]?>',
-			pageNumber : <?=intval($arResult['PAGE_NUMBER']);?>,
-			pageCount : <?=intval($arResult['PAGE_COUNT']);?>,
-			bVarsFromForm : '<?=$arParams["bVarsFromForm"]?>',
-			ajaxPost : '<?=$arParams["AJAX_POST"]?>',
-			lheId : 'REVIEW_TEXT'
-		});
-		<? if ($arParams['SHOW_MINIMIZED'] == "Y")
+<div class="reviews-reply-form" <?=(empty($arResult["ERROR_MESSAGE"]) ? ' style="display: none;"' : '')?>>
+<div data-bx-role="preview">
+		<?php
+		if (!empty($arResult["MESSAGE_VIEW"]))
 		{
 		?>
-		BX.addCustomEvent(BX('<?=$arParams["FORM_ID"]?>'), 'onBeforeHide', function() {
-			var link = BX('sw<?=$arParams["FORM_ID"]?>');
-			if (link) {
-				link.innerHTML = BX.message('MINIMIZED_EXPAND_TEXT');
-				BX.removeClass(BX.addClass(link.parentNode, "reviews-expanded"), "reviews-minimized");
-			}
-		});
-		BX.addCustomEvent(BX('<?=$arParams["FORM_ID"]?>'), 'onBeforeShow', function() {
-			var link = BX('sw<?=$arParams["FORM_ID"]?>');
-			if (link) {
-				link.innerHTML = BX.message('MINIMIZED_MINIMIZE_TEXT');
-				BX.removeClass(BX.addClass(link.parentNode, "reviews-minimized"), "reviews-expanded");
-			}
-		});
-		<?
-		}
-		?>
-	});
-</script>
+		<div class="reviews-preview">
+			<a name="review_anchor"></a>
+			<div class="reviews-header-box">
+				<div class="reviews-header-title"><a name="postform"><span><?=GetMessage("F_PREVIEW")?></span></a></div>
+			</div>
+			<div class="reviews-info-box reviews-post-preview">
+				<div class="reviews-info-box-inner">
+					<div class="reviews-post-entry">
+						<div class="reviews-post-text"><?=$arResult["MESSAGE_VIEW"]["POST_MESSAGE_TEXT"]?></div>
+						<?php
+						if (!empty($arResult["REVIEW_FILES"])):
+							?>
+							<div class="reviews-post-attachments">
+								<label><?=GetMessage("F_ATTACH_FILES")?></label>
+								<?php
+								foreach ($arResult["REVIEW_FILES"] as $arFile):
+									?>
+									<div class="reviews-post-attachment">
+										<?php $GLOBALS["APPLICATION"]->IncludeComponent(
+											"bitrix:forum.interface", "show_file",
+											Array(
+												"FILE" => $arFile,
+												"WIDTH" => $arResult["PARSER"]->image_params["width"],
+												"HEIGHT" => $arResult["PARSER"]->image_params["height"],
+												"CONVERT" => "N",
+												"FAMILY" => "FORUM",
+												"SINGLE" => "Y",
+												"RETURN" => "N",
+												"SHOW_LINK" => "Y"),
+											null,
+											array("HIDE_ICONS" => "Y"));
+										?></div>
+								<?php
+								endforeach;
+								?>
+							</div>
+						<?php
+						endif;
+						?>
+					</div>
+				</div>
+			</div>
+			<div class="reviews-br"></div>
+	</div><?php
+	}
+?>
+</div>
+<div data-bx-role="error"><?php
+if (!empty($arResult["ERROR_MESSAGE"]))
+{
+	$arResult["ERROR_MESSAGE"] = preg_replace(array("/<br(.*?)><br(.*?)>/is", "/<br(.*?)>$/is"), array("<br />", ""), $arResult["ERROR_MESSAGE"]);
+	?>
+		<div data-bx-role="error-message" class="reviews-note-box reviews-note-error">
+			<div class="reviews-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "reviews-note-error");?></div>
+		</div>
+	<?php
+}
+?></div>
+<form name="<?=$arParams["FORM_ID"] ?>" id="<?=$arParams["FORM_ID"]?>" <?php
+	?>action="<?=POST_FORM_ACTION_URI?>#postform" method="POST" enctype="multipart/form-data" class="reviews-form">
+	<?=bitrix_sessid_post()?>
 	<input type="hidden" name="index" value="<?=htmlspecialcharsbx($arParams["form_index"])?>" />
 	<input type="hidden" name="back_page" value="<?=$arResult["CURRENT_PAGE"]?>" />
 	<input type="hidden" name="ELEMENT_ID" value="<?=$arParams["ELEMENT_ID"]?>" />
@@ -73,7 +84,6 @@ endif;
 	<input type="hidden" name="save_product_review" value="Y" />
 	<input type="hidden" name="preview_comment" value="N" />
 	<input type="hidden" name="AJAX_POST" value="<?=$arParams["AJAX_POST"]?>" />
-	<?=bitrix_sessid_post()?>
 	<?
 	if ($arParams['AUTOSAVE'])
 		$arParams['AUTOSAVE']->Init();
@@ -106,21 +116,21 @@ endif;
 		<div class="reviews-reply-header"><span><?=$arParams["MESSAGE_TITLE"]?></span><span class="reviews-required-field">*</span></div>
 		<div class="reviews-reply-field reviews-reply-field-text">
 			<?
+
 			$APPLICATION->IncludeComponent(
 				"bitrix:main.post.form",
 				"",
 				Array(
 					"FORM_ID" => $arParams["FORM_ID"],
-					"SHOW_MORE" => "Y",
 					"PARSER" => forumTextParser::GetEditorToolbar(array("forum" => $arResult["FORUM"])),
 
 					"LHE" => array(
-						'id' => 'REVIEW_TEXT',
-						'bSetDefaultCodeView' => ($arParams['EDITOR_CODE_DEFAULT'] === "Y"),
+						'id' => 'lhe'.$arParams["FORM_ID"],
 						'bResizable' => true,
 						'bAutoResize' => true,
 						"documentCSS" => "body {color:#434343; font-size: 14px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 20px;}",
-						'setFocusAfterShow' => false
+						'setFocusAfterShow' => false,
+						'lazyLoad' => empty($arResult["ERROR_MESSAGE"]),
 					),
 
 					"ADDITIONAL" => array(),
@@ -152,65 +162,52 @@ endif;
 					<input type="text" size="30" name="captcha_word" tabindex="<?=$tabIndex++;?>" autocomplete="off" />
 				</div>
 				<div class="reviews-reply-field-captcha-image">
-					<img src="/bitrix/tools/captcha.php?captcha_code=<?=$arResult["CAPTCHA_CODE"]?>" alt="<?=GetMessage("F_CAPTCHA_TITLE")?>" />
+					<img name="captcha_image" src="/bitrix/tools/captcha.php?captcha_code=<?=$arResult["CAPTCHA_CODE"]?>" alt="<?=GetMessage("F_CAPTCHA_TITLE")?>" />
 				</div>
 			</div>
 		<?
 		endif;
 		/* ATTACH FILES */
-		if ($arResult["SHOW_PANEL_ATTACH_IMG"] == "Y"):
-			?>
-			<div class="reviews-reply-field reviews-reply-field-upload">
-				<?
-				$iCount = 0;
-				if (!empty($arResult["REVIEW_FILES"])):
-					foreach ($arResult["REVIEW_FILES"] as $key => $val):
-						$iCount++;
-						$sFileSize = CFile::FormatSize(intval($val["FILE_SIZE"]));
-						?>
-						<div class="reviews-uploaded-file">
-							<input type="hidden" name="FILES[<?=$key?>]" value="<?=$key?>" />
-							<input type="checkbox" name="FILES_TO_UPLOAD[<?=$key?>]" id="FILES_TO_UPLOAD_<?=$key?>" value="<?=$key?>" checked="checked" />
-							<label for="FILES_TO_UPLOAD_<?=$key?>"><?=$val["ORIGINAL_NAME"]?> (<?=$val["CONTENT_TYPE"]?>) <?=$sFileSize?>
-								( <a href="/bitrix/components/bitrix/forum.interface/show_file.php?action=download&amp;fid=<?=$key?>"><?=GetMessage("F_DOWNLOAD")?></a> )
-							</label>
-						</div>
-					<?
-					endforeach;
-				endif;
-				if ($iCount < $arParams["FILES_COUNT"]):
-					$sFileSize = CFile::FormatSize(intval(COption::GetOptionString("forum", "file_max_size", 5242880)));
-					?>
-					<div class="reviews-upload-info" style="display:none;" id="upload_files_info_<?=$arParams["form_index"]?>">
-						<?
-						if ($arParams["FORUM"]["ALLOW_UPLOAD"] == "F"):
+		if ($arResult["SHOW_PANEL_ATTACH_IMG"] == "Y")
+		{
+			?><div class="reviews-reply-field reviews-reply-field-upload">
+				<input type="checkbox" data-bx-role="attach-visibility" id="attaches-<?=$arParams["form_index"]?>">
+				<div data-bx-role="attach-form">
+					<div class="reviews-upload-info"><?php
+						$acceptExtensions = "";
+						if ($arParams["FORUM"]["ALLOW_UPLOAD"] == "F")
+						{
+							$acceptExtensions = $arParams["FORUM"]["ALLOW_UPLOAD_EXT"];
 							?>
-							<span><?=str_replace("#EXTENSION#", $arParams["FORUM"]["ALLOW_UPLOAD_EXT"], GetMessage("F_FILE_EXTENSION"))?></span>
-						<?
-						endif;
+							<div><?=str_replace(
+								"#EXTENSION#",
+								$arParams["FORUM"]["ALLOW_UPLOAD_EXT"], GetMessage("F_FILE_EXTENSION"))?>
+							</div>
+							<?php
+						}
 						?>
-						<span><?=str_replace("#SIZE#", $sFileSize, GetMessage("F_FILE_SIZE"))?></span>
-					</div>
-					<?
-
-					for ($ii = $iCount; $ii < $arParams["FILES_COUNT"]; $ii++):
-						?>
-
-						<div class="reviews-upload-file" style="display:none;" id="upload_files_<?=$ii?>_<?=$arParams["form_index"]?>">
-							<input name="FILE_NEW_<?=$ii?>" type="file" value="" size="30" />
+						<div><?=GetMessage(
+								"F_FILE_SIZE",
+								["#SIZE#" => CFile::FormatSize(COption::GetOptionString("forum", "file_max_size", 5242880))])?>
 						</div>
-					<?
-					endfor;
+					</div><?php
+					$ii = 0;
+					while (($ii++) < $arParams["FILES_COUNT"])
+					{
+						?>
+						<div class="reviews-upload-file">
+							<input name="FILE_NEW_<?=$ii?>" type="file" accept="<?=htmlspecialcharsbx($acceptExtensions)?>" size="30" />
+						</div>
+						<?php
+					}
 					?>
-					<a class="forum-upload-file-attach" href="javascript:void(0);" onclick="AttachFile('<?=$iCount?>', '<?=($ii - $iCount)?>', '<?=$arParams["form_index"]?>', this); return false;">
-						<span><?=($arResult["FORUM"]["ALLOW_UPLOAD"]=="Y") ? GetMessage("F_LOAD_IMAGE") : GetMessage("F_LOAD_FILE") ?></span>
-					</a>
-				<?
-				endif;
-				?>
-			</div>
-		<?
-		endif;
+				</div>
+				<label for="attaches-<?=$arParams["form_index"]?>" class="forum-upload-file-attach">
+					<?=($arResult["FORUM"]["ALLOW_UPLOAD"] == "Y" ? GetMessage("F_LOAD_IMAGE")
+						: GetMessage("F_LOAD_FILE"))?>
+				</label>
+			</div><?php
+		}
 		?>
 		<div class="reviews-reply-field reviews-reply-field-settings">
 			<?
@@ -235,18 +232,21 @@ endif;
 			endif;
 			?>
 		</div>
-		<?
-
-		?>
 		<div class="reviews-reply-buttons">
-			<input name="send_button" type="submit" value="<?=GetMessage("OPINIONS_SEND")?>" tabindex="<?=$tabIndex++;?>" <?
-			?>onclick="this.form.preview_comment.value = 'N';" />
-			<input name="view_button" type="submit" value="<?=GetMessage("OPINIONS_PREVIEW")?>" tabindex="<?=$tabIndex++;?>" <?
-			?>onclick="this.form.preview_comment.value = 'VIEW';" />
+			<input type="submit" tabindex="<?=$tabIndex++;?>" value="<?=GetMessage("OPINIONS_SEND")?>">
 		</div>
-
 	</div>
 </form>
+<script type="text/javascript">
+	BX.ready(function(){
+		BX.Forum.Reviews.Form.create({
+			formId: '<?=$arParams["FORM_ID"]?>',
+			editorId: 'lhe<?=$arParams["FORM_ID"]?>',
+			formNode: BX('<?=$arParams["FORM_ID"]?>'),
+			useAjax : <?=($arParams["AJAX_POST"] === 'Y' ? 'true' : 'false')?>,
+		});
+	});
+</script>
 </div>
 <?
 if ($arParams['AUTOSAVE'])
@@ -254,4 +254,3 @@ if ($arParams['AUTOSAVE'])
 		"formID" => CUtil::JSEscape($arParams["FORM_ID"]),
 		"controlID" => "REVIEW_TEXT"
 	));
-?>

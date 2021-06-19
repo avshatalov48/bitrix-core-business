@@ -4,14 +4,15 @@
  *
  * @package bitrix
  * @subpackage ui
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2021 Bitrix
  */
 
 import "./socialvideo.css";
 import 'ui.vue.directives.lazyload';
 import 'main.polyfill.intersectionobserver';
 
-import {Vue} from 'ui.vue';
+import {BitrixVue} from 'ui.vue';
+import {BaseEvent} from "main.core.events";
 
 const State = Object.freeze({
 	play: 'play',
@@ -20,7 +21,7 @@ const State = Object.freeze({
 	none: 'none',
 });
 
-Vue.component('bx-socialvideo',
+BitrixVue.component('bx-socialvideo',
 {
 	props:
 	{
@@ -52,22 +53,13 @@ Vue.component('bx-socialvideo',
 	},
 	created()
 	{
-		this.registeredId = 0;
-
 		if (!this.preview)
 		{
 			this.previewLoaded = true;
 			this.preload = 'metadata';
 		}
 
-		this.registerPlayer(this.id);
-
-		this.$root.$on('ui:socialvideo:play', this.onPlay);
-		Vue.event.$on('ui:socialvideo:play', this.onPlay);
-		this.$root.$on('ui:socialvideo:stop', this.onStop);
-		Vue.event.$on('ui:socialvideo:stop', this.onStop);
-		this.$root.$on('ui:socialvideo:pause', this.onPause);
-		Vue.event.$on('ui:socialvideo:pause', this.onPause);
+		this.$Bitrix.eventEmitter.subscribe('ui:socialvideo:unmute', this.onUnmute);
 	},
 	mounted()
 	{
@@ -75,14 +67,7 @@ Vue.component('bx-socialvideo',
 	},
 	beforeDestroy()
 	{
-		this.unregisterPlayer();
-
-		this.$root.$off('ui:socialvideo:play', this.onPlay);
-		Vue.event.$off('ui:socialvideo:play', this.onPlay);
-		this.$root.$off('ui:socialvideo:stop', this.onStop);
-		Vue.event.$off('ui:socialvideo:stop', this.onStop);
-		this.$root.$off('ui:socialvideo:pause', this.onPause);
-		Vue.event.$off('ui:socialvideo:pause', this.onPause);
+		this.$Bitrix.eventEmitter.unsubscribe('ui:socialvideo:unmute', this.onUnmute);
 
 		this.getObserver().unobserve(this.$refs.body);
 	},
@@ -90,7 +75,7 @@ Vue.component('bx-socialvideo',
 	{
 		id(value)
 		{
-			this.registerPlayer(value);
+			this.registeredId = value;
 		},
 	},
 	methods:
@@ -243,6 +228,11 @@ Vue.component('bx-socialvideo',
 
 			this.muteFlag = false;
 			this.source().muted = false;
+
+			if (this.id > 0)
+			{
+				this.$Bitrix.eventEmitter.emit('ui:socialvideo:unmute', {initiator: this.id});
+			}
 		},
 		setProgress(percent, pixel = -1)
 		{
@@ -268,77 +258,16 @@ Vue.component('bx-socialvideo',
 					+ (hour > 0? minute.toString().padStart(2, "0")+':': minute+':')
 					+ second.toString().padStart(2, "0")
 		},
-		registerPlayer(id)
+		onUnmute(event: BaseEvent)
 		{
-			if (id <= 0)
-			{
-				return false;
-			}
+			event = event.getData();
 
-			if (typeof this.$root.$uiSocialVideoId === 'undefined')
-			{
-				this.$root.$uiSocialVideoId = [];
-			}
-
-			this.unregisterPlayer();
-
-			this.$root.$uiSocialVideoId = [...new Set([...this.$root.$uiSocialVideoId, id])].sort((a, b) => {
-				if (a > b)
-					return 1;
-				else if (a < b)
-					return -1;
-				else
-					return 0;
-			});
-
-			this.registeredId = id;
-
-			return true;
-		},
-		unregisterPlayer()
-		{
-			if (!this.registeredId)
-			{
-				return true;
-			}
-
-			this.$root.$uiSocialVideoId = this.$root.$uiSocialVideoId.filter(id => id !== this.registeredId);
-
-			this.registeredId = 0;
-
-			return true;
-		},
-		onPlay(event)
-		{
-			if (event.id !== this.id)
-			{
-				return false;
-			}
-
-			if (event.start)
-			{
-				this.stop();
-			}
-
-			this.play();
-		},
-		onStop(event)
-		{
 			if (event.initiator === this.id)
 			{
 				return false;
 			}
 
-			this.stop();
-		},
-		onPause(event)
-		{
-			if (event.initiator === this.id)
-			{
-				return false;
-			}
-
-			this.pause();
+			this.mute();
 		},
 		source()
 		{

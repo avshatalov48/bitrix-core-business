@@ -8,6 +8,8 @@
  */
 
 import {VuexBuilderModel} from 'ui.vue.vuex';
+import {Type} from 'main.core';
+import {ChatTypes, MessageStatus, RecentSection as Section, TemplateTypes} from "im.const";
 
 export class RecentModel extends VuexBuilderModel
 {
@@ -20,21 +22,18 @@ export class RecentModel extends VuexBuilderModel
 	{
 		return {
 			host: this.getVariable('host', location.protocol+'//'+location.host),
-			collection: {
-				pinned: [],
-				general: []
-			}
+			collection: []
 		}
 	}
 
-	getElementState(params = {})
+	getElementState(): RecentItem
 	{
 		return {
 			id: 0,
 			templateId: '',
-			template: 'item',
-			chatType: 'chat',
-			sectionCode: 'general',
+			template: TemplateTypes.item,
+			chatType: ChatTypes.chat,
+			sectionCode: Section.general,
 			avatar: '',
 			color: '#048bd0',
 			title: '',
@@ -42,7 +41,9 @@ export class RecentModel extends VuexBuilderModel
 			message: {
 				id: 0,
 				text: '',
-				date: new Date()
+				date: new Date(),
+				senderId: 0,
+				status: MessageStatus.received
 			},
 			counter: 0,
 			pinned: false,
@@ -54,9 +55,20 @@ export class RecentModel extends VuexBuilderModel
 	getGetters()
 	{
 		return {
-			get: state => dialogId =>
+			get: state => (dialogId: string): {index: number, element: RecentItem} | boolean =>
 			{
-				return this.findItem(state.collection, dialogId);
+				if (Type.isNumber(dialogId))
+				{
+					dialogId = dialogId.toString();
+				}
+
+				let currentItem = this.findItem(dialogId);
+				if (currentItem)
+				{
+					return currentItem;
+				}
+
+				return false;
 			}
 		};
 	}
@@ -66,203 +78,144 @@ export class RecentModel extends VuexBuilderModel
 		return {
 			set: (store, payload) =>
 			{
-				let result = {};
+				let result = [];
 
-				if (payload.pinned instanceof Array)
+				if (payload instanceof Array)
 				{
-					result.pinned = payload.pinned.map(
-						recentItem => this.prepareItem(recentItem, { host: store.state.host, sectionCode: 'pinned' })
-					);
-				}
-				else if (typeof payload.pinned !== 'undefined')
-				{
-					let pinned = [];
-					pinned.push(this.prepareItem(payload.pinned, { host: store.state.host, sectionCode: 'pinned' }));
-
-					result.pinned = pinned;
-				}
-
-				if (payload.general instanceof Array)
-				{
-					result.general = payload.general.map(
+					result = payload.map(
 						recentItem => this.prepareItem(recentItem, { host: store.state.host })
 					);
 				}
-				else if (typeof payload.general !== 'undefined')
-				{
-					let general = [];
-					general.push(this.prepareItem(payload.general, { host: store.state.host }));
 
-					result.general = general;
-				}
-
-				store.commit('set', result);
-			},
-
-			updatePlaceholders: (store, payload) =>
-			{
-				if (!(payload.items instanceof Array))
+				if (result.length === 0)
 				{
 					return false;
 				}
 
-				payload.items = payload.items.map(element => this.prepareItem(element));
-
-				payload.items.forEach((element, index) => {
-					let placeholderId = 'placeholder' + (payload.firstMessage + index);
-					let existingPlaceholder = this.findItem(
-						store.state.collection,
-						placeholderId,
-						'templateId'
-					);
-
-					let existingItem = this.findItem(store.state.collection, element.id);
-
-					if (existingItem.element)
+				result.forEach(element => {
+					const existingItem = this.findItem(element.id);
+					if (existingItem)
 					{
 						store.commit('update', {
 							index: existingItem.index,
-							fields: Object.assign({}, element),
-							section: 'general'
+							fields: element
 						});
+					}
+					else
+					{
+						store.commit('add', {
+							fields: element
+						});
+					}
+				});
+				store.state.collection.sort(this.sortListByMessageDate);
+			},
 
+			addPlaceholders: (store, payload: []) =>
+			{
+				payload.forEach(element => {
+					store.commit('addPlaceholder', {
+						fields: element
+					});
+				});
+			},
+
+			updatePlaceholders: (store, payload: {items: [], firstMessage: number}) =>
+			{
+				payload.items = payload.items.map(element => this.prepareItem(element));
+
+				payload.items.forEach((element, index) => {
+					const placeholderId = 'placeholder' + (payload.firstMessage + index);
+					const existingPlaceholder = this.findItem(placeholderId, 'templateId');
+
+					const existingItem = this.findItem(element.id);
+					if (existingItem)
+					{
+						store.commit('update', {
+							index: existingItem.index,
+							fields: element
+						});
 						store.commit('delete', {
 							index: existingPlaceholder.index,
-							section: 'general'
 						});
 					}
 					else
 					{
 						store.commit('update', {
 							index: existingPlaceholder.index,
-							fields: Object.assign({}, element),
-							section: 'general'
+							fields: element
 						});
 					}
 				});
 			},
 
-			update: (store, payload) =>
+			update: (store, payload: {id: string | number, fields: Object}) =>
 			{
-				if (
-					typeof payload !== 'object' ||
-					payload instanceof Array ||
-					!payload.id ||
-					!payload.fields
-				)
-				{
-					return false;
-				}
-
 				if (typeof payload.id === 'string' && !payload.id.startsWith('chat') && payload.id !== 'notify')
 				{
 					payload.id = parseInt(payload.id);
 				}
 
-				let existingItem = this.findItem(store.state.collection, payload.id);
-
-				if (!existingItem.element)
+				const existingItem = this.findItem(payload.id);
+				if (!existingItem)
 				{
 					return false;
 				}
 
 				store.commit('update', {
 					index: existingItem.index,
-					fields: Object.assign({}, this.validate(payload.fields)),
-					section: existingItem.element.sectionCode
+					fields: payload.fields
 				});
+				store.state.collection.sort(this.sortListByMessageDate);
 			},
 
-			pin: (store, payload) =>
+			pin: (store, payload: {id: string | number, action: boolean}) =>
 			{
-				if (
-					typeof payload !== 'object' ||
-					payload instanceof Array ||
-					!payload.id ||
-					typeof payload.action !== 'boolean'
-				)
-				{
-					return false;
-				}
-
 				if (typeof payload.id === 'string' && !payload.id.startsWith('chat') && payload.id !== 'notify')
 				{
 					payload.id = parseInt(payload.id);
 				}
 
-				let existingItem = this.findItem(store.state.collection, payload.id, undefined, payload.action? 'general': 'pinned');
 
-				if (!existingItem.element)
-				{
-					return true;
-				}
+				let existingItem = this.findItem(payload.id);
 
-				if (payload.action)
-				{
-					store.state.collection.pinned.push(
-						Object.assign({}, existingItem.element, {
-							sectionCode: 'pinned',
-							pinned: true
-						})
-					);
-					store.state.collection.pinned.sort(this.sortListByMessageDate);
-
-					store.commit('delete', {
-						index: existingItem.index,
-						section: 'general'
-					});
-				}
-				else
-				{
-					store.state.collection.general.push(
-						Object.assign({}, existingItem.element, {
-							sectionCode: 'general',
-							pinned: false
-						})
-					);
-					store.state.collection.general.sort(this.sortListByMessageDate);
-
-					store.commit('delete', {
-						index: existingItem.index,
-						section: 'pinned'
-					});
-				}
-			},
-
-			clearPlaceholders: (store, payload) =>
-			{
-				store.state.collection.general = store.state.collection.general.filter(element => {
-					return !element.id.toString().startsWith('placeholder');
-				});
-			},
-
-			delete: (store, payload) =>
-			{
-				if (
-					typeof payload !== 'object' ||
-					payload instanceof Array ||
-					!payload.id
-				)
+				if (!existingItem)
 				{
 					return false;
 				}
 
+				store.commit('update', {
+					index: existingItem.index,
+					fields: Object.assign({}, existingItem.element, {
+						pinned: payload.action
+					})
+				});
+
+				store.state.collection.sort(this.sortListByMessageDate);
+			},
+
+			clearPlaceholders: (store) =>
+			{
+				store.commit('clearPlaceholders');
+			},
+
+			delete: (store, payload: {id: string | number}) =>
+			{
 				if (typeof payload.id === 'string' && !payload.id.startsWith('chat') && payload.id !== 'notify')
 				{
 					payload.id = parseInt(payload.id);
 				}
 
-				let existingItem = this.findItem(store.state.collection, payload.id);
-
-				if (!existingItem.element)
+				const existingItem = this.findItem(payload.id);
+				if (!existingItem)
 				{
 					return false;
 				}
 
 				store.commit('delete', {
-					index: existingItem.index,
-					section: existingItem.element.sectionCode
+					index: existingItem.index
 				});
+				store.state.collection.sort(this.sortListByMessageDate);
 			}
 		}
 	}
@@ -270,137 +223,94 @@ export class RecentModel extends VuexBuilderModel
 	getMutations()
 	{
 		return {
-			set: (state, payload) => {
-				if (payload.general instanceof Array)
-				{
-					payload.general.forEach(element => {
-						let {index, alreadyExists} = this.initCollection(state, element, 'general');
-
-						if (alreadyExists)
-						{
-							state.collection.general[index] = Object.assign(
-								{},
-								state.collection.general[index],
-								element
-							);
-						}
-					});
-				}
-				if (payload.pinned instanceof Array)
-				{
-					payload.pinned.forEach(element => {
-						let {index, alreadyExists} = this.initCollection(state, element, 'pinned');
-						if (alreadyExists)
-						{
-							state.collection.pinned[index] = Object.assign(
-								{},
-								state.collection.pinned[index],
-								element
-							);
-						}
-					});
-				}
-			},
-
-			update: (state, payload) => {
-				if (
-					!payload ||
-					payload instanceof Array ||
-					typeof payload.fields !== 'object' ||
-					typeof payload.index !== 'number' ||
-					typeof payload.section !== 'string'
-				)
-				{
-					return false;
-				}
-
-				state.collection[payload.section][payload.index] = Object.assign(
+			add: (state, payload: {fields: Object}) => {
+				state.collection.push(Object.assign(
 					{},
-					state.collection[payload.section][payload.index],
+					this.getElementState(),
 					payload.fields
-				);
-
-				state.collection[payload.section].sort(this.sortListByMessageDate);
+				));
 			},
 
-			delete: (state, payload) => {
-				if (
-					!payload ||
-					payload instanceof Array ||
-					typeof payload.index !== 'number' ||
-					typeof payload.section !== 'string'
-				)
-				{
-					return false;
-				}
+			update: (state, payload: {index: number, fields: Object}) => {
+				state.collection.splice(payload.index, 1, Object.assign(
+					{},
+					state.collection[payload.index],
+					payload.fields
+				));
+			},
 
-				state.collection[payload.section].splice(payload.index, 1);
+			delete: (state, payload: {index: number}) => {
+				state.collection.splice(payload.index, 1);
+			},
+
+			addPlaceholder: (state, payload: {fields: Object}) => {
+				state.collection.push(Object.assign(
+					{},
+					this.getElementState(),
+					payload.fields
+				));
+			},
+
+			clearPlaceholders: (state) => {
+				state.collection = state.collection.filter(element => {
+					return !element.id.toString().startsWith('placeholder');
+				});
 			}
 		}
 	}
 
-	initCollection(state, payload, section)
-	{
-		let existingItem = this.findItem(state.collection, payload.id, undefined, section);
-
-		if (existingItem.element)
-		{
-			return {index: existingItem.index, alreadyExists: true};
-		}
-
-		let newLength = state.collection[section].push(Object.assign(
-			{},
-			this.getElementState(),
-			payload
-		));
-
-		return {index: newLength - 1, alreadyExists: false};
-	}
-
-	validate(fields, options = {})
+	validate(fields: rawRecentItem, options = {}): RecentItem
 	{
 		const result = {};
 
-		if (typeof fields.id === "number" || typeof fields.id === "string")
+		if (Type.isNumber(fields.id))
+		{
+			result.id = fields.id.toString();
+		}
+		if (Type.isStringFilled(fields.id))
 		{
 			result.id = fields.id;
 		}
 
-		if (typeof fields.templateId === 'string')
+		if (Type.isString(fields.templateId))
 		{
 			result.templateId = fields.templateId;
 		}
 
-		if (typeof fields.template === 'string')
+		if (Type.isString(fields.template))
 		{
 			result.template = fields.template;
 		}
 
-		if (typeof fields.type === "string")
+		if (Type.isString(fields.type))
 		{
-			if (fields.type === 'chat')
+			if (fields.type === ChatTypes.chat)
 			{
-				if (fields.chat.type === 'open')
+				if (fields.chat.type === ChatTypes.open)
 				{
-					result.chatType = 'open';
+					result.chatType = ChatTypes.open;
 				}
-				else if (fields.chat.type === 'chat')
+				else if (fields.chat.type === ChatTypes.chat)
 				{
-					result.chatType = 'chat';
+					result.chatType = ChatTypes.chat;
 				}
 			}
-			else if (fields.type === 'user')
+			else if (fields.type === ChatTypes.user)
 			{
-				result.chatType = 'user';
+				result.chatType = ChatTypes.user;
 			}
-			else if (fields.type === 'notification')
+			else if (fields.type === ChatTypes.notification)
 			{
-				result.chatType = 'notification';
+				result.chatType = ChatTypes.notification;
 				fields.title = 'Notifications';
+			}
+			else
+			{
+				result.chatType = ChatTypes.chat;
 			}
 		}
 
-		if (typeof fields.avatar === 'string')
+		if (Type.isString(fields.avatar))
 		{
 			let avatar;
 
@@ -423,40 +333,63 @@ export class RecentModel extends VuexBuilderModel
 			}
 		}
 
-		if (typeof fields.color === 'string')
+		if (Type.isString(fields.color))
 		{
 			result.color = fields.color;
 		}
 
-		if (typeof fields.title === "string")
+		if (Type.isString(fields.title))
 		{
 			result.title = fields.title;
 		}
 
-		if (
-			typeof fields.message === "object" &&
-			!(fields.message instanceof Array) &&
-			fields.message !== null)
+		if (Type.isPlainObject(fields.message))
 		{
-			result.message = fields.message;
+			const message = {};
+			if (Type.isNumber(fields.message.id))
+			{
+				message.id = fields.message.id;
+			}
+			if (Type.isString(fields.message.text))
+			{
+				message.text = fields.message.text;
+			}
+			if (Type.isDate(fields.message.date) || Type.isString(fields.message.date))
+			{
+				message.date = fields.message.date;
+			}
+			if (Type.isNumber(fields.message.author_id))
+			{
+				message.senderId = fields.message.author_id;
+			}
+			if (Type.isNumber(fields.message.senderId))
+			{
+				message.senderId = fields.message.senderId;
+			}
+			if (Type.isStringFilled(fields.message.status))
+			{
+				message.status = fields.message.status;
+			}
+
+			result.message = message;
 		}
 
-		if (typeof fields.counter === 'number')
+		if (Type.isNumber(fields.counter))
 		{
 			result.counter = fields.counter;
 		}
 
-		if (typeof fields.pinned === 'boolean')
+		if (Type.isBoolean(fields.pinned))
 		{
 			result.pinned = fields.pinned;
 		}
 
-		if (typeof fields.chatId === 'number')
+		if (Type.isNumber(fields.chatId))
 		{
 			result.chatId = fields.chatId;
 		}
 
-		if (typeof fields.userId === 'number')
+		if (Type.isNumber(fields.userId))
 		{
 			result.userId = fields.userId;
 		}
@@ -464,7 +397,7 @@ export class RecentModel extends VuexBuilderModel
 		return result;
 	}
 
-	sortListByMessageDate(a, b)
+	sortListByMessageDate(a: RecentItem, b: RecentItem)
 	{
 		if (a.message && b.message)
 		{
@@ -482,26 +415,80 @@ export class RecentModel extends VuexBuilderModel
 		return Object.assign({}, this.getElementState(), result, options);
 	}
 
-	findItem(store, value, key = 'id', section = 'general')
+	findItem(value, key = 'id'): {index: number, element: RecentItem} | boolean
 	{
 		let result = {};
-		if (typeof store[section] === undefined)
+
+		if (key === 'id' && Type.isNumber(value))
 		{
-			return result;
+			value = value.toString();
 		}
 
-		let elementIndex = store[section].findIndex((element, index) => {
+		let elementIndex = this.store.state.recent.collection.findIndex((element, index) => {
 			return element[key] === value;
 		});
 
 		if (elementIndex !== -1)
 		{
 			result.index = elementIndex;
-			result.element = store[section][elementIndex];
+			result.element = this.store.state.recent.collection[elementIndex];
 
 			return result;
 		}
 
-		return result;
+		return false;
 	}
+}
+
+//raw input object for validation
+type rawRecentItem = {
+	id?: number | string,
+	templateId?: string,
+	template?: TemplateTypes.item | TemplateTypes.placeholder,
+	type?: ChatTypes.chat | ChatTypes.user | ChatTypes.notification,
+	chat?: {
+		type?: string
+	},
+	avatar?: string,
+	color?: string,
+	title?: string,
+	message?: RawRecentItemMessage,
+	counter?: number,
+	pinned?: boolean,
+	chatId?: number,
+	userId?: number
+}
+
+type RawRecentItemMessage = {
+	id?: number,
+	text?: string,
+	date?: Date,
+	senderId?: number,
+	author_id?: number, //senderId alias
+	status?: MessageStatus.received | MessageStatus.delivered
+}
+
+//item in collection
+type RecentItem = {
+	id?: number,
+	templateId?: string,
+	template?: TemplateTypes.item | TemplateTypes.placeholder,
+	chatType?: ChatTypes.chat | ChatTypes.open | ChatTypes.user | ChatTypes.notification,
+	sectionCode?: Section.general | Section.pinned,
+	avatar?: string,
+	color?: string,
+	title?: string,
+	message?: RecentItemMessage,
+	counter?: number,
+	pinned?: boolean,
+	chatId?: number,
+	userId?: number
+}
+
+type RecentItemMessage = {
+	id?: number,
+	text?: string,
+	date?: Date | string,
+	senderId?: number,
+	status?: MessageStatus.received | MessageStatus.delivered
 }

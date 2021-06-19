@@ -182,7 +182,7 @@ class OrderPropsTable extends DataManager
 		];
 	}
 
-	public function validateEntityType()
+	public static function validateEntityType()
 	{
 		return [
 			new EnumValidator(),

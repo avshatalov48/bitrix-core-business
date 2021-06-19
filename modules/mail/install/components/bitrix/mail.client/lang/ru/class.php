@@ -100,11 +100,11 @@ $MESS["MAIL_MESSAGE_LIST_COLUMN_BIND"] = "Обработано";
 
 $MESS['MAIL_MESSAGE_LIST_BTN_VIEW'] = "Открыть";
 $MESS['MAIL_MESSAGE_LIST_BTN_MOVE'] = "Переместить в папку";
+$MESS['MAIL_MESSAGE_LIST_BTN_DELETE_IMMEDIATELY'] = "Удалить безвозвратно";
 $MESS['MAIL_MESSAGE_LIST_BTN_DELETE'] = "Удалить";
 $MESS['MAIL_MESSAGE_LIST_BTN_SPAM'] = "Это спам";
 $MESS['MAIL_MESSAGE_LIST_BTN_NOT_SPAM'] = "Не спам";
 $MESS['MAIL_MESSAGE_LIST_BTN_SEEN'] = "Прочитано";
-$MESS['MAIL_MESSAGE_LIST_BTN_SEEN_ALL'] = "Все прочитано";
 $MESS['MAIL_MESSAGE_LIST_BTN_UNSEEN'] = "Не прочитано";
 $MESS['MAIL_MESSAGE_LIST_COLUMN_BIND_TASKS_TASK'] = "Задача";
 $MESS['MAIL_MESSAGE_LIST_COLUMN_BIND_CRM_ACTIVITY'] = "CRM";
@@ -114,9 +114,7 @@ $MESS['MAIL_MESSAGE_LIST_COLUMN_BIND_IM'] = "Чат";
 $MESS['MAIL_MESSAGE_LIST_COLUMN_BIND_EVENT'] = "Событие";
 
 $MESS['MAIL_MESSAGE_LIST_COUNTERS_TITLE'] = "Письма";
-$MESS['MAIL_MESSAGE_LIST_COUNTERS_EMPTY'] = "Нет писем, требующих реакции";
 $MESS['MAIL_MESSAGE_LIST_COUNTERS_UNSEEN'] = "не прочитано";
-$MESS['MAIL_MESSAGE_LIST_COUNTERS_UNBIND'] = "не обработано";
 
 $MESS['MAIL_MESSAGE_LIST_LINK'] = "Перейти в почту";
 
@@ -145,7 +143,6 @@ $MESS['MAIL_MESSAGE_LIST_CONFIRM_DELETE'] = "Письма будут безво�
 $MESS['MAIL_MESSAGE_LIST_CONFIRM_TITLE'] = "Подтвердите действие";
 $MESS['MAIL_MESSAGE_LIST_CONFIRM_DELETE_BTN'] = "Удалить";
 $MESS['MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN'] = "Отменить";
-$MESS['MAIL_MESSAGE_LIST_CONFIRM_READ_ALL'] = "Вы действительно хотите отметить прочитанными все письма в папке?";
 $MESS['MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM'] = "Письмо сохранено в CRM";
 $MESS['MAIL_MESSAGE_LIST_NOTIFY_ADD_TO_CRM_ERROR'] = "Ошибка сохранения письма в CRM";
 $MESS['MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM'] = "Письмо исключено из CRM";
@@ -185,3 +182,4 @@ $MESS["MAIL_NEW_MESSAGE_TITLE"] = "Новое письмо";
 $MESS["MAIL_MODULE_NOT_INSTALLED"] = "Модуль mail не установлен.";
 
 $MESS["INTERFACE_MAIL_CHECK_ALL"] = "Отметить все/снять отметку у всех";
+$MESS["MAIL_READ_ALL_BUTTON"] = "Прочитать всё";

@@ -8,6 +8,7 @@ use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\UpdateResult;
 use Bitrix\Main\Text\Encoding;
+use CCalendarEvent;
 
 class SenderRequestInvitation extends SenderInvitation
 {
@@ -47,14 +48,32 @@ class SenderRequestInvitation extends SenderInvitation
 			'EMAIL_TO' => $this->context->getReceiver()->getEmail(),
 			'MESSAGE_SUBJECT' => $this->getSubjectMessage(),
 			'MESSAGE_PHP' => $this->getBodyMessage(),
-			'DATE_FROM' => $this->getDateForTemplate(),
+			'CONFIRM_CODE' => 'TRUE',
 			'NAME' => $this->event['NAME'],
-			'DESCRIPTION' => $this->event['DESCRIPTION'],
-			'ATTENDEES' => $this->getAttendeesListForTemplate(),
-			'ORGANIZER' => $this->context->getAddresser()->getFullNameWithEmail(),
-			'LOCATION' => $this->event['TEXT_LOCATION'],
-			'FILES_LINK' =>$this->getFilesLink(),
 			'METHOD' => self::METHOD,
+			'DETAIL_LINK' => Helper::getDetailLink(
+				$this->getEventId(),
+				$this->getEventOwnerId(),
+				$this->getEventDateCreateTimestamp()
+			),
+			'DECISION_YES_LINK' => Helper::getPubEventLinkWithParameters(
+				$this->getEventId(),
+				$this->getEventOwnerId(),
+				$this->getEventDateCreateTimestamp(),
+				self::DECISION_YES
+			),
+			'DECISION_NO_LINK' => Helper::getPubEventLinkWithParameters(
+				$this->getEventId(),
+				$this->getEventOwnerId(),
+				$this->getEventDateCreateTimestamp(),
+				self::DECISION_NO
+			),
+			'DATE_FROM' => $this->event['DATE_FROM'],
+			'DATE_TO' => $this->event['DATE_TO'],
+			'TZ_FROM' => $this->event['TZ_FROM'],
+			'TZ_TO' => $this->event['TZ_TO'],
+			'FULL_DAY' => $this->event['SKIP_TIME'] ? 'Y' : 'N',
+			'RRULE' => $this->getRRuleString()
 		];
 	}
 
@@ -84,12 +103,29 @@ class SenderRequestInvitation extends SenderInvitation
 			$this->getEventId(),
 			[
 				'DAV_XML_ID' => $this->getUId(),
-				'MEETING_STATUS' => 'Q',
+//				'MEETING_STATUS' => 'Q',
 			]
 		);
 
-		return ($result instanceof UpdateResult)
-			? $result->isSuccess()
-			: false;
+		return ($result instanceof UpdateResult) && $result->isSuccess();
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getRRuleString(): string
+	{
+		$rrule = CCalendarEvent::ParseRRULE($this->event['RRULE']);
+		if (is_array($rrule))
+		{
+			return Helper::getIcalTemplateRRule(
+				$rrule,
+				[
+					'DATE_FROM' => $this->event['DATE_FROM'],
+				]
+			);
+		}
+
+		return '';
 	}
 }

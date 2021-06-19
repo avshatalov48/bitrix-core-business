@@ -81,7 +81,7 @@ class CSearchTitle extends CAllSearchTitle
 			";
 
 			$r = $DB->Query($strSql);
-			parent::CDBResult($r);
+			parent::__construct($r);
 			return true;
 		}
 		else

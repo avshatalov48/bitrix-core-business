@@ -1,15 +1,12 @@
-<?
+<?php
 
-use \Bitrix\Calendar\Sync\GoogleApiSync;
-use \Bitrix\Calendar\Sync\GoogleApiPush;
-use \Bitrix\Calendar\PushTable;
+use Bitrix\Calendar\Sync\GoogleApiSync;
+use Bitrix\Calendar\Sync\GoogleApiPush;
+use Bitrix\Calendar\PushTable;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Main\Loader;
-use \Bitrix\Main\Type;
-use Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\Config\Option;
-use \Bitrix\Main\Context;
-use Bitrix\Calendar\Sync;
+use Bitrix\Main\Type;
+use Bitrix\Main\Config\Option;
 use Bitrix\Calendar\Internals;
 
 class CCalendarSync
@@ -18,7 +15,6 @@ class CCalendarSync
 	public static $doNotSendToGoogle = false;
 	private static $mobileBannerDisplay;
 	const MINIMAL_LIMIT = 1;
-
 
 	public static function doSync()
 	{
@@ -1031,7 +1027,7 @@ class CCalendarSync
 			$strValue = "";
 			foreach($emailList as $email)
 			{
-				$strValue .= ",'".CDatabase::ForSql($email)."'";
+				$strValue .= ",'".$DB->ForSql($email)."'";
 			}
 			$strValue = trim($strValue, ', ');
 
@@ -1060,7 +1056,7 @@ class CCalendarSync
 						if(!in_array(mb_strtolower($email), $checkedEmails) && mb_strtolower(mb_substr($email, mb_strlen($email) - $exchangeMailboxStrlen)) == mb_strtolower($exchangeMailbox))
 						{
 							$value = mb_substr($email, 0, mb_strlen($email) - $exchangeMailboxStrlen);
-							$strLogins .= ",'".CDatabase::ForSql($value)."'";
+							$strLogins .= ",'".$DB->ForSql($value)."'";
 						}
 					}
 					$strLogins = trim($strLogins, ', ');
@@ -1113,7 +1109,7 @@ class CCalendarSync
 		return true;
 	}
 
-	private function GetPassDates($id, $exDates)
+	private static function GetPassDates($id, $exDates)
 	{
 		$excludeDates = [];
 		$parameters = array (
@@ -1456,7 +1452,7 @@ class CCalendarSync
 		return null;
 	}
 
-	public function GetUserSyncInfo($userId)
+	public static function GetUserSyncInfo($userId)
 	{
 		require_once ($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/dav/classes/mysql/connection.php');
 		require_once ($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/dav/classes/general/dav.php');
@@ -1855,4 +1851,3 @@ class CCalendarSync
 		return (!is_null($lastResult) && preg_match("/^\[(2\d\d|0)\][a-z0-9 _]*/i", $lastResult));
 	}
 }
-?>

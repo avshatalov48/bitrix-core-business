@@ -767,7 +767,7 @@ if(is_array($arUserOptions))
 
 			if($arResult["ALL_GADGETS"][$gadget_id])
 			{
-				$arGadgetParams = $gadgetUserSettings["SETTINGS"];
+				$arGadgetParams = $gadgetUserSettings["SETTINGS"] ?? [];
 
 				$arGadget = $arResult["ALL_GADGETS"][$gadget_id];
 				foreach($arParams as $id=>$p)
@@ -817,7 +817,7 @@ if(is_array($arUserOptions))
 				$arGadget["CONTENT"] = BXGadget::GetGadgetContent($arGadget, $arParams);
 				$arResult["GADGETS"][$gadgetUserSettings["COLUMN"]][$gadgetUserSettings["ROW"]] = $arGadget;
 
-				if($arGadget["FORCE_REDIRECT"])
+				if(isset($arGadget["FORCE_REDIRECT"]) && $arGadget["FORCE_REDIRECT"])
 				{
 					$bForceRedirect = true;
 				}

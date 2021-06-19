@@ -1,14 +1,15 @@
-<?
+<?php
+
 class CAllFormStatus
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "form";
 		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
 		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CAllFormStatus<br>File: ".__FILE__;
 	}
 
-	function GetPermissionList($STATUS_ID, &$arPERMISSION_VIEW, &$arPERMISSION_MOVE, &$arPERMISSION_EDIT, &$arPERMISSION_DELETE)
+	public static function GetPermissionList($STATUS_ID, &$arPERMISSION_VIEW, &$arPERMISSION_MOVE, &$arPERMISSION_EDIT, &$arPERMISSION_DELETE)
 	{
 		$err_mess = (CAllFormStatus::err_mess())."<br>Function: GetPermissionList<br>Line: ";
 		global $DB, $strError;
@@ -34,12 +35,12 @@ class CAllFormStatus
 
 	}
 
-	function GetMaxPermissions()
+	public static function GetMaxPermissions()
 	{
 		return array("VIEW","MOVE","EDIT","DELETE");
 	}
 
-	function GetPermissions($STATUS_ID)
+	public static function GetPermissions($STATUS_ID)
 	{
 		$err_mess = (CAllFormStatus::err_mess())."<br>Function: GetPermissions<br>Line: ";
 
@@ -79,7 +80,7 @@ class CAllFormStatus
 		return $arReturn;
 	}
 
-	function GetNextSort($WEB_FORM_ID)
+	public static function GetNextSort($WEB_FORM_ID)
 	{
 		$err_mess = (CAllFormStatus::err_mess())."<br>Function: GetNextSort<br>Line: ";
 		global $DB, $strError;
@@ -90,7 +91,7 @@ class CAllFormStatus
 		return intval($zr["MAX_SORT"])+100;
 	}
 
-	function GetDefault($WEB_FORM_ID)
+	public static function GetDefault($WEB_FORM_ID)
 	{
 		$err_mess = (CAllFormStatus::err_mess())."<br>Function: GetDefault<br>Line: ";
 		global $DB, $USER, $strError;
@@ -101,7 +102,7 @@ class CAllFormStatus
 		return intval($zr["ID"]);
 	}
 
-	function CheckFields($arFields, $STATUS_ID, $CHECK_RIGHTS="Y")
+	public static function CheckFields($arFields, $STATUS_ID, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAllFormStatus::err_mess())."<br>Function: CheckFields<br>Line: ";
 		global $DB, $strError, $APPLICATION, $USER;
@@ -132,7 +133,7 @@ class CAllFormStatus
 		if ($str <> '') return false; else return true;
 	}
 
-	function Set($arFields, $STATUS_ID=false, $CHECK_RIGHTS="Y")
+	public static function Set($arFields, $STATUS_ID=false, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAllFormStatus::err_mess())."<br>Function: Set<br>Line: ";
 		global $DB, $USER, $strError, $APPLICATION;
@@ -284,7 +285,7 @@ class CAllFormStatus
 		return false;
 	}
 
-	function Delete($ID, $CHECK_RIGHTS="Y")
+	public static function Delete($ID, $CHECK_RIGHTS="Y")
 	{
 		global $DB, $APPLICATION, $strError;
 		$ID = intval($ID);
@@ -320,7 +321,7 @@ class CAllFormStatus
 		return false;
 	}
 
-	function Copy($ID, $CHECK_RIGHTS="Y", $NEW_FORM_ID=false)
+	public static function Copy($ID, $CHECK_RIGHTS="Y", $NEW_FORM_ID=false)
 	{
 		global $DB, $APPLICATION, $strError;
 		$err_mess = (CAllFormStatus::err_mess())."<br>Function: Copy<br>Line: ";
@@ -375,7 +376,7 @@ class CAllFormStatus
 		return false;
 	}
 
-	function SetMailTemplate($WEB_FORM_ID, $STATUS_ID, $ADD_NEW_TEMPLATE="Y", $old_SID="", $bReturnFullInfo = false)
+	public static function SetMailTemplate($WEB_FORM_ID, $STATUS_ID, $ADD_NEW_TEMPLATE="Y", $old_SID="", $bReturnFullInfo = false)
 	{
 		global $DB, $MESS, $strError;
 		$err_mess = (CAllForm::err_mess())."<br>Function: SetMailTemplate<br>Line: ";
@@ -397,7 +398,7 @@ class CAllFormStatus
 				if ($MAIL_EVENT_TYPE <> '')
 					$et->Delete($MAIL_EVENT_TYPE);
 
-				$z = CLanguage::GetList($v1, $v2);
+				$z = CLanguage::GetList();
 				$OLD_MESS = $MESS;
 				$MESS = array();
 				while ($arLang = $z->Fetch())
@@ -429,7 +430,7 @@ class CAllFormStatus
 				// create new event type for old templates
 				if ($old_MAIL_EVENT_TYPE <> '' && $old_MAIL_EVENT_TYPE!=$MAIL_EVENT_TYPE)
 				{
-					$e = $em->GetList($by="id",$order="desc",array("EVENT_NAME"=>$old_MAIL_EVENT_TYPE));
+					$e = $em->GetList("id", "desc", array("EVENT_NAME"=>$old_MAIL_EVENT_TYPE));
 					while ($er=$e->Fetch())
 					{
 						$em->Update($er["ID"],array("EVENT_NAME"=>$MAIL_EVENT_TYPE));
@@ -440,7 +441,7 @@ class CAllFormStatus
 
 				if ($ADD_NEW_TEMPLATE=="Y")
 				{
-					$z = CSite::GetList($v1, $v2);
+					$z = CSite::GetList();
 					while ($arSite = $z->Fetch()) $arrSiteLang[$arSite["ID"]] = $arSite["LANGUAGE_ID"];
 
 					$arrFormSite = CForm::GetSiteArray($WEB_FORM_ID);
@@ -484,7 +485,7 @@ class CAllFormStatus
 		return $arrReturn;
 	}
 
-	function GetMailTemplateArray($STATUS_ID)
+	public static function GetMailTemplateArray($STATUS_ID)
 	{
 		$err_mess = (CAllFormStatus::err_mess())."<br>Function: GetMailTemplateArray<br>Line: ";
 
@@ -508,7 +509,7 @@ WHERE
 		return $arrRes;
 	}
 
-	function GetTemplateList($STATUS_ID)
+	public static function GetTemplateList($STATUS_ID)
 	{
 		$err_mess = (CAllForm::err_mess())."<br>Function: GetTemplateList<br>Line: ";
 		global $DB, $strError;
@@ -544,7 +545,7 @@ WHERE
 				"SITE_ID"		=> $arrSITE,
 				"EVENT_NAME"	=> $MAIL_EVENT_TYPE
 				);
-			$e = CEventMessage::GetList($by="id", $order="asc", $arFilter);
+			$e = CEventMessage::GetList("id", "asc", $arFilter);
 			while ($er=$e->Fetch())
 			{
 				if (!in_array($er["ID"], $arReferenceId))

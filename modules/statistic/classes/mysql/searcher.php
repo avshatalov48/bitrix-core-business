@@ -26,7 +26,7 @@ class CSearcher extends CAllSearcher
 		return $strSql;
 	}
 
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered, $LIMIT=false)
+	public static function GetList($by = 's_today_hits', $order = 'desc', $arFilter = [], &$is_filtered = false, $LIMIT = false)
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -74,11 +74,11 @@ class CSearcher extends CAllSearcher
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -137,15 +137,14 @@ class CSearcher extends CAllSearcher
 			$strSqlOrder = "ORDER BY TODAY_HITS desc, YESTERDAY_HITS desc, B_YESTERDAY_HITS desc, TOTAL_HITS desc, PERIOD_HITS";
 		else
 		{
-			$by = "s_today_hits";
 			$strSqlOrder = "ORDER BY TODAY_HITS desc, YESTERDAY_HITS desc, B_YESTERDAY_HITS desc, TOTAL_HITS desc, PERIOD_HITS";
 		}
 
-		if ($order!="asc")
+		if ($order != "asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
+
 		$limit_sql = "LIMIT ".intval(COption::GetOptionString('statistic','RECORDS_LIMIT'));
 		if (intval($LIMIT)>0)
 			$limit_sql = "LIMIT ".intval($LIMIT);
@@ -205,7 +204,7 @@ class CSearcher extends CAllSearcher
 		return $res;
 	}
 
-	public static function GetDynamicList($SEARCHER_ID, &$by, &$order, &$arMaxMin, $arFilter=Array())
+	public static function GetDynamicList($SEARCHER_ID, $by = 's_date', $order = 'desc', &$arMaxMin = [], $arFilter = [])
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -223,11 +222,11 @@ class CSearcher extends CAllSearcher
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "DATE1":
@@ -248,14 +247,14 @@ class CSearcher extends CAllSearcher
 		if ($by == "s_date") $strSqlOrder = "ORDER BY D.DATE_STAT";
 		else
 		{
-			$by = "s_date";
 			$strSqlOrder = "ORDER BY D.DATE_STAT";
 		}
+
 		if ($order!="asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
+
 		$strSql =	"
 			SELECT
 				".$DB->DateToCharFunction("D.DATE_STAT","SHORT")."		DATE_STAT,

@@ -188,33 +188,6 @@ function OnLoad()
 		else if (href.indexOf("://") !== -1 || href.substr(0, 'www.'.length) == 'www.' || href.indexOf("&goto=") !== -1)
 		{
 			tip = "t2";
-			// Fix link in statistic
-			if(href.substr(0, '/bitrix/redirect.php'.length) == '/bitrix/redirect.php')
-			{
-				BX("bx_fixstat").checked = true;
-				ChangeFixStat();
-				var sParams = href.substring('/bitrix/redirect.php'.length);
-
-				var __ExtrParam = function (p, s)
-				{
-					var pos = s.indexOf(p + '=');
-					if(pos < 0)
-						return '';
-					var pos2 = s.indexOf('&', pos + p.length+1);
-					if(pos2 < 0)
-						s = s.substring(pos + p.length + 1);
-					else
-						s = s.substr(pos+p.length+1, pos2 - pos - 1 - p.length);
-					return unescape(s);
-				};
-
-				BX("event1").value = __ExtrParam('event1', sParams);
-				BX("event2").value = __ExtrParam('event2', sParams);
-				BX("event3").value = __ExtrParam('event3', sParams);
-
-				href = __ExtrParam('goto', sParams);
-			}
-
 			if (href.substr(0, 'www.'.length) == 'www.')
 				href = "http://" + href;
 
@@ -299,8 +272,6 @@ function OnSave()
 			if (BX("bx_url_type").value && href.indexOf('://') == -1)
 				href = BX("bx_url_type").value + href;
 
-			if(BX("bx_fixstat").checked)
-				href = '/bitrix/redirect.php?event1=' + escape(BX("event1").value) + '&event2=' + escape(BX("event2").value) + '&event3=' + escape(BX("event3").value) + '&goto=' + escape(href);
 			break;
 		case 't3':
 			href = BX('bx_url_3').value;
@@ -427,14 +398,6 @@ function ChangeLinkType()
 	window.oBXEditorDialog.adjustSizeEx();
 }
 
-function ChangeFixStat()
-{
-	var bFix = BX("bx_fixstat").checked;
-	BX("bx_fixstat_div").style.display = bFix ? 'block' : 'none';
-	BX("event1").disabled = BX("event2").disabled = BX("event3").disabled = !bFix;
-	window.oBXEditorDialog.adjustSizeEx();
-}
-
 function SetUrl(filename, path, site)
 {
 	var
@@ -511,18 +474,6 @@ function SetUrl(filename, path, site)
 				<option value=""></option>
 			</select>
 			<input type="text" size="25" value="" id="bx_url_2">
-		</td>
-	</tr>
-
-	<tr class="bx-link-t2">
-		<td style="text-align: right; vertical-align: top;"><input type="checkbox" id="bx_fixstat" value="" onclick="ChangeFixStat();"></td>
-		<td>
-			<label for="bx_fixstat" style="display: block; margin-top: 3px;"><?= GetMessage("FILEMAN_ED_LINK_STAT")?></label>
-			<div id="bx_fixstat_div" style="margin: 8px 5px; display: none;">
-				<label for="event1">Event1:</label> <input type="event1" id="event1" size="10" value=""><br/>
-				<label for="event2">Event2:</label> <input type="event2" id="event2" size="10" value=""><br/>
-				<label for="event3">Event3:</label> <input type="event3" id="event3" size="10" value=""><br/>
-			</div>
 		</td>
 	</tr>
 

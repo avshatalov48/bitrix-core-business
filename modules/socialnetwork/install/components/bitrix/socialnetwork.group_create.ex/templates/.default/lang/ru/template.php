@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SONET_GCE_T_SUBTITLE"] = "Параметры группы";
 $MESS["SONET_GCE_T_NAME2"] = "Введите название группы";
 $MESS["SONET_GCE_T_NAME2_PROJECT"] = "Введите название проекта";
@@ -124,4 +124,4 @@ $MESS["SONET_GCE_T_CHANGE_SCRUM_OWNER"] = "Назначить владельца
 $MESS["SONET_GCE_T_CHANGE_SCRUM_OWNER_MORE"] = "Сменить";
 $MESS["SONET_GCE_T_SCRUM_PAGE_TITLE"] = "Создать SCRUM проект";
 $MESS["SONET_GCE_T_SCRUM_TASK_RESPONSIBLE"] = "Ответственный по умолчанию";
-?>
+$MESS["SONET_GCE_T_THEME"] = "Тема оформления";

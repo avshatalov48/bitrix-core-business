@@ -2453,35 +2453,52 @@ class CUserTypeManager
 				? $checkRequired : ($requiredFieldMap && isset($requiredFieldMap[$FIELD_NAME]));
 
 			//common Check for all fields
-			if($enableRequiredFieldCheck && ((isset($ID) && $ID <= 0) || array_key_exists($FIELD_NAME, $arFields)))
+			$isSingleValue = ($arUserField["MULTIPLE"] === "N");
+			if (
+				$enableRequiredFieldCheck
+				&& (
+					(isset($ID) && $ID <= 0)
+					|| array_key_exists($FIELD_NAME, $arFields)
+				)
+			)
 			{
 				$EDIT_FORM_LABEL = $arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
 
-				if($arUserField["USER_TYPE"]["BASE_TYPE"] == "file")
+				if($arUserField["USER_TYPE"]["BASE_TYPE"] === "file")
 				{
-					$bWasInput = false;
+					$isNewFilePresent = false;
+					$files = [];
 					if(is_array($arUserField["VALUE"]))
-						$arDBFiles = array_flip($arUserField["VALUE"]);
+					{
+						$files = array_flip($arUserField["VALUE"]);
+					}
 					elseif($arUserField["VALUE"] > 0)
-						$arDBFiles = array($arUserField["VALUE"] => 0);
+					{
+						$files = [$arUserField["VALUE"] => 0];
+					}
 					elseif(is_numeric($arFields[$FIELD_NAME]))
-						$arDBFiles = array($arFields[$FIELD_NAME] => 0);
-					else
-						$arDBFiles = array();
+					{
+						$files = [$arFields[$FIELD_NAME] => 0];
+					}
 
-					if($arUserField["MULTIPLE"] == "N")
+					if ($isSingleValue)
 					{
 						$value = $arFields[$FIELD_NAME];
 						if(is_array($value) && array_key_exists("tmp_name", $value))
 						{
 							if(array_key_exists("del", $value) && $value["del"])
-								unset($arDBFiles[$value["old_id"]]);
+							{
+								unset($files[$value["old_id"]]);
+							}
 							elseif(array_key_exists("size", $value) && $value["size"] > 0)
-								$bWasInput = true;
+							{
+								$isNewFilePresent = true;
+							}
 						}
 						elseif($value > 0)
 						{
-							$bWasInput = true;
+							$isNewFilePresent = true;
+							$files[$value] = $value;
 						}
 					}
 					else
@@ -2493,24 +2510,29 @@ class CUserTypeManager
 								if(is_array($value) && array_key_exists("tmp_name", $value))
 								{
 									if(array_key_exists("del", $value) && $value["del"])
-										unset($arDBFiles[$value["old_id"]]);
+									{
+										unset($files[$value["old_id"]]);
+									}
 									elseif(array_key_exists("size", $value) && $value["size"] > 0)
-										$bWasInput = true;
+									{
+										$isNewFilePresent = true;
+									}
 								}
 								elseif($value > 0)
 								{
-									$bWasInput = true;
+									$isNewFilePresent = true;
+									$files[$value] = $value;
 								}
 							}
 						}
 					}
 
-					if(!$bWasInput && empty($arDBFiles))
+					if(!$isNewFilePresent && empty($files))
 					{
 						$aMsg[] = array("id" => $FIELD_NAME, "text" => str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
 					}
 				}
-				elseif($arUserField["MULTIPLE"] == "N")
+				elseif ($isSingleValue)
 				{
 					if((string)$arFields[$FIELD_NAME] === '')
 					{
@@ -2550,7 +2572,7 @@ class CUserTypeManager
 				$CLASS_NAME = $arUserField["USER_TYPE"]["CLASS_NAME"];
 				if(array_key_exists($FIELD_NAME, $arFields)	&& is_callable(array($CLASS_NAME, "checkfields")))
 				{
-					if($arUserField["MULTIPLE"] == "N")
+					if($isSingleValue)
 					{
 						if (!($arFields[$FIELD_NAME] instanceof SqlExpression))
 						{
@@ -2630,29 +2652,43 @@ class CUserTypeManager
 				if(array_key_exists($FIELD_NAME, $arFields) && is_callable(array($CLASS_NAME, "checkfields")))
 				{
 					// check required values
-					if($arUserField["MANDATORY"] == "Y")
+					if($arUserField["MANDATORY"] === "Y")
 					{
-						if($arUserField["USER_TYPE"]["BASE_TYPE"] == "file")
+						if($arUserField["USER_TYPE"]["BASE_TYPE"] === "file")
 						{
-							$bWasInput = false;
+							$isNewFilePresent = false;
+							$files = [];
 							if(is_array($arUserField["VALUE"]))
-								$arDBFiles = array_flip($arUserField["VALUE"]);
+							{
+								$files = array_flip($arUserField["VALUE"]);
+							}
 							elseif($arUserField["VALUE"] > 0)
-								$arDBFiles = array($arUserField["VALUE"] => 0);
+							{
+								$files = array($arUserField["VALUE"] => 0);
+							}
 							elseif(is_numeric($arFields[$FIELD_NAME]))
-								$arDBFiles = array($arFields[$FIELD_NAME] => 0);
-							else
-								$arDBFiles = array();
+							{
+								$files = array($arFields[$FIELD_NAME] => 0);
+							}
 
-							if($arUserField["MULTIPLE"] == "N")
+							if($arUserField["MULTIPLE"] === "N")
 							{
 								$value = $arFields[$FIELD_NAME];
 								if(is_array($value) && array_key_exists("tmp_name", $value))
 								{
 									if(array_key_exists("del", $value) && $value["del"])
-										unset($arDBFiles[$value["old_id"]]);
+									{
+										unset($files[$value["old_id"]]);
+									}
 									elseif(array_key_exists("size", $value) && $value["size"] > 0)
-										$bWasInput = true;
+									{
+										$isNewFilePresent = true;
+									}
+								}
+								elseif ($value > 0)
+								{
+									$isNewFilePresent = true;
+									$files[$value] = $value;
 								}
 							}
 							else
@@ -2664,15 +2700,24 @@ class CUserTypeManager
 										if(is_array($value) && array_key_exists("tmp_name", $value))
 										{
 											if(array_key_exists("del", $value) && $value["del"])
-												unset($arDBFiles[$value["old_id"]]);
+											{
+												unset($files[$value["old_id"]]);
+											}
 											elseif(array_key_exists("size", $value) && $value["size"] > 0)
-												$bWasInput = true;
+											{
+												$isNewFilePresent = true;
+											}
+										}
+										elseif ($value > 0)
+										{
+											$isNewFilePresent = true;
+											$files[$value] = $value;
 										}
 									}
 								}
 							}
 
-							if(!$bWasInput && empty($arDBFiles))
+							if(!$isNewFilePresent && empty($files))
 							{
 								$aMsg[] = array("id" => $FIELD_NAME, "text" => str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
 							}
@@ -3126,15 +3171,12 @@ class CUserTypeManager
 			}
 		}
 
-		if (isset($arUserField['SETTINGS']['DEFAULT_VALUE']))
-		{
-			$ufHandlerClass = $arUserField['USER_TYPE']['CLASS_NAME'];
+		$ufHandlerClass = $arUserField['USER_TYPE']['CLASS_NAME'];
 
-			if (is_subclass_of($ufHandlerClass, BaseType::class))
-			{
-				$defaultValue = $ufHandlerClass::getDefaultValue($arUserField);
-				$field->configureDefaultValue($defaultValue);
-			}
+		if (is_subclass_of($ufHandlerClass, BaseType::class))
+		{
+			$defaultValue = $ufHandlerClass::getDefaultValue($arUserField);
+			$field->configureDefaultValue($defaultValue);
 		}
 
 		return $field;
@@ -3581,7 +3623,7 @@ class CUserFieldEnum
 		return true;
 	}
 
-	function GetList($aSort = array(), $aFilter = array())
+	public static function GetList($aSort = array(), $aFilter = array())
 	{
 		global $DB, $CACHE_MANAGER;
 

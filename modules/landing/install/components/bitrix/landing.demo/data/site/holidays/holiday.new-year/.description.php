@@ -8,8 +8,6 @@ use \Bitrix\Main\Localization\Loc;
 
 Loc::loadLanguageFile(__FILE__);
 
-$buttons = \Bitrix\Landing\Hook\Page\B24button::getButtons();
-$buttons = array_keys($buttons);
 
 return array(
 	'name' => Loc::getMessage("LANDING_DEMO___NEWYEAR-TITLE"),

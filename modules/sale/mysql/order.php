@@ -1,9 +1,10 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/order.php");
 
 class CSaleOrder extends CAllSaleOrder
 {
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB, $USER_FIELD_MANAGER, $CACHE_MANAGER, $APPLICATION;
 
@@ -133,7 +134,7 @@ class CSaleOrder extends CAllSaleOrder
 		return $ID;
 	}
 
-	function Update($ID, $arFields, $bDateUpdate = true)
+	public static function Update($ID, $arFields, $bDateUpdate = true)
 	{
 		global $DB, $USER_FIELD_MANAGER, $CACHE_MANAGER, $APPLICATION;
 
@@ -274,7 +275,7 @@ class CSaleOrder extends CAllSaleOrder
 		return $ID;
 	}
 
-	function PrepareGetListArray($key, &$arFields, &$arPropIDsTmp)
+	public static function PrepareGetListArray($key, &$arFields, &$arPropIDsTmp)
 	{
 		$propIDTmp = false;
 		if (mb_strpos($key, "PROPERTY_ID_") === 0)
@@ -919,7 +920,7 @@ class CSaleOrder extends CAllSaleOrder
 		return $dbRes;
 	}
 
-	function GetLockStatus($ID, &$lockedBY, &$dateLock)
+	public static function GetLockStatus($ID, &$lockedBY, &$dateLock)
 	{
 		global $DB;
 
@@ -953,7 +954,7 @@ class CSaleOrder extends CAllSaleOrder
 	 * @param array $arOrderOld old order fields
 	 * @return bool true
 	 */
-	public function AddOrderHistory($OldFields, $NewFields)
+	public static function AddOrderHistory($OldFields, $NewFields)
 	{
 		global $DB, $USER;
 

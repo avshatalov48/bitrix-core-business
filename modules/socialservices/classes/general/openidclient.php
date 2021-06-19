@@ -1,17 +1,18 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class COpenIDClient
 {
 	var $_trust_providers = array();
 
-	function SetTrustProviders($t)
+	public function SetTrustProviders($t)
 	{
 		if (is_array($t))
 			$this->_trust_providers = array_filter($t);
 	}
 
-	function CheckTrustProviders($url)
+	public function CheckTrustProviders($url)
 	{
 		if (count($this->_trust_providers) <= 0)
 			return true;
@@ -24,7 +25,7 @@ class COpenIDClient
 		return false;
 	}
 
-	function GetOpenIDServerTags($url)
+	public function GetOpenIDServerTags($url)
 	{
 		if ($str = @CHTTP::sGet($url, true))
 		{
@@ -50,7 +51,7 @@ class COpenIDClient
 		return false;
 	}
 
-	function GetRedirectUrl($identity, $return_to=false)
+	public function GetRedirectUrl($identity, $return_to=false)
 	{
 		if ($identity == '')
 		{
@@ -101,7 +102,7 @@ class COpenIDClient
 		return false;
 	}
 
-	function Validate()
+	public function Validate()
 	{
 		if(CSocServAuthManager::CheckUniqueKey())
 		{
@@ -143,7 +144,7 @@ class COpenIDClient
 		return false;
 	}
 
-	function CleanParam($state=false)
+	public static function CleanParam($state=false)
 	{
 		$arKillParams = array("check_key");
 		foreach (array_keys($_GET) as $k)
@@ -155,7 +156,7 @@ class COpenIDClient
 		LocalRedirect($redirect_url, true);
 	}
 
-	function Authorize()
+	public function Authorize()
 	{
 		global $APPLICATION, $USER;
 		$errorCode = 1;
@@ -322,8 +323,7 @@ class COpenIDClient
 		return false;
 	}
 
-	/*public static*/
-	function GetOpenIDAuthStep($request_var='OPENID_IDENTITY')
+	public static function GetOpenIDAuthStep($request_var='OPENID_IDENTITY')
 	{
 		if (array_key_exists('openid_mode', $_GET) && $_GET['openid_mode'] == 'id_res')
 			return 2;
@@ -332,4 +332,3 @@ class COpenIDClient
 		return 0;
 	}
 }
-?>

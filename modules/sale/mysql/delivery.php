@@ -1,10 +1,10 @@
-<?
+<?php
 
 /** @deprecated */
 class CSaleDelivery extends CAllSaleDelivery
 {
 	/** @deprecated  */
-	function PrepareCurrency4Where($val, $key, $operation, $negative, $field, &$arField, &$arFilter)
+	public static function PrepareCurrency4Where($val, $key, $operation, $negative, $field, &$arField, &$arFilter)
 	{
 		$val = DoubleVal($val);
 
@@ -19,7 +19,7 @@ class CSaleDelivery extends CAllSaleDelivery
 
 		$strSqlSearch = "";
 
-		$dbCurrency = CCurrency::GetList(($by = "sort"), ($order = "asc"));
+		$dbCurrency = CCurrency::GetList("sort", "asc");
 		while ($arCurrency = $dbCurrency->Fetch())
 		{
 			$val1 = roundEx(CCurrencyRates::ConvertCurrency($val, $baseSiteCurrency, $arCurrency["CURRENCY"]), SALE_VALUE_PRECISION);
@@ -37,10 +37,9 @@ class CSaleDelivery extends CAllSaleDelivery
 	}
 
 	/** @deprecated */
-	function PrepareLocation4Where($val, $key, $operation, $negative, $field, &$arField, &$arFilter)
+	public static function PrepareLocation4Where($val, $key, $operation, $negative, $field, &$arField, &$arFilter)
 	{
 		return "(D2L.LOCATION_ID = ".intval($val)." AND D2L.LOCATION_TYPE = 'L' ".
 			" OR L2LG.LOCATION_ID = ".intval($val)." AND D2L.LOCATION_TYPE = 'G') ";
 	}
 }
-?>

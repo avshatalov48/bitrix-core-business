@@ -620,6 +620,7 @@ export class Presets
 		if (
 			field.TYPE === this.parent.types.CUSTOM_ENTITY
 			|| field.TYPE === this.parent.types.DEST_SELECTOR
+			|| field.TYPE === this.parent.types.ENTITY_SELECTOR
 		)
 		{
 			if (BX.type.isPlainObject(field.VALUES))
@@ -951,6 +952,11 @@ export class Presets
 
 			case this.parent.types.DEST_SELECTOR: {
 				control = this.parent.getFields().createDestSelector(fieldData);
+				break;
+			}
+
+			case this.parent.types.ENTITY_SELECTOR: {
+				control = this.parent.getFields().createEntitySelector(fieldData);
 				break;
 			}
 

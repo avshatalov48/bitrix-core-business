@@ -1,69 +1,122 @@
-;(function ()
+;(function()
 {
 	"use strict";
 
-
-	// todo: check count of video? f.e. if <5 - not need lazy?
-
-	BX.addCustomEvent(window, "BX.Landing.Block:init", function (event)
+	BX.addCustomEvent(window, "BX.Landing.Block:init", function(event)
 	{
-		var videos = [].slice.call(event.block.querySelectorAll("[data-source]"));
+		initBlock([].slice.call(event.block.querySelectorAll("[data-source]")));
+	});
+
+	BX.addCustomEvent("BX.Landing.Block:Node:update", function(event)
+	{
+		initBlock([].slice.call(event.block.querySelectorAll("[data-source]")));
+	});
+
+	function initBlock(videos)
+	{
 		if (videos.length)
 		{
-			videos.forEach(function (element)
+			videos.forEach(function(video)
 			{
-				// todo: check api load
-				if (BX.Landing.Utils.Matchers.youtube.test(element.dataset.source))
+				var video = resetPlayerPreview(video);
+
+				if (BX.Landing.Utils.Matchers.youtube.test(video.dataset.source))
 				{
-					var src = element.src ? element.src : element.dataset.src;
+					var src = video.src ? video.src : video.dataset.src;
 					// autoplay load immediately
 					if (src.indexOf('autoplay=1') !== -1)
 					{
-						loadPlayerObj(element, {autoplay: 1, mute: 1})
+						loadPlayerYT(video, {autoplay: 1, mute: 1})
 					}
 					// div-preview
-					else if(element.tagName !== 'IFRAME')
+					else if (video.tagName !== 'IFRAME')
 					{
-						BX.bind(element, 'click', onPreviewClick);
+						BX.bind(video, 'click', onYTPreviewClick);
 					}
 					// old format
 					else
 					{
-						loadPlayerObj(element);
+						loadPlayerYT(video);
 					}
 				}
-				else if (element.tagName !== 'IFRAME')
+				else if (
+					BX.Landing.Utils.Matchers.vimeo.test(video.dataset.source)
+					|| BX.Landing.Utils.Matchers.vine.test(video.dataset.source)
+					|| BX.Landing.Utils.Matchers.facebookVideos.test(video.dataset.source)
+				)
 				{
-					loadPlayerFrame(element);
+					loadPlayerFrame(video);
+				}
+				else
+				{
+					showError(video)
 				}
 			});
 		}
-	});
+	}
 
-	// todo: update handler, update preview if not load, update video if play
-	// todo: compare new source and data-source
-	// BX.addCustomEvent(window, "BX.Landing.Block:Node:update", function(event) {
-	// 	var videos = [].slice.call(event.block.querySelectorAll("[data-source]"));
-	// 	if (videos.length)
-	// 	{
-	// 		BX.addClass(event.node, ['g-brd-red','g-brd-around']);
-	// 	}
-	// });
-
-	function onPreviewClick(event)
+	function showError(node)
 	{
-		var playerPreview = event.target;
-		loadPlayerObj(playerPreview, {autoplay: 1});
+		node.classList.remove('g-video-preview');
+		node.classList.add('g-video-preview-error');
+		node.innerHTML = '<div class="g-landing-alert-v2">' +
+			'<div class="g-landing-alert-title">' +
+			BX.message('LANDING_VIDEO_ALERT_WRONG_SOURCE') +
+			'</div>' +
+			'<div class="g-landing-alert-text">' +
+			BX.message('LANDING_VIDEO_ALERT_WRONG_SOURCE_TEXT') +
+			'</div>' +
+			'</div>';
+	}
+
+	function resetPlayerPreview(playerPreview)
+	{
+		// convert to div
+		if (playerPreview.tagName === 'IFRAME')
+		{
+			var clearPlayerPreview = BX.create('div', {
+				props: {
+					className: playerPreview.className
+				},
+				style: {
+					backgroundImage: 'url('+ playerPreview.dataset.preview +')'
+				},
+				dataset: {
+					src: playerPreview.dataset.src,
+					source: playerPreview.dataset.source
+				}
+			});
+
+			BX.insertBefore(clearPlayerPreview, playerPreview);
+			BX.remove(playerPreview);
+			return clearPlayerPreview;
+		}
+
+		// clear events
+		BX.unbind(playerPreview, 'click', onYTPreviewClick);
+
+		// clear errors
+		playerPreview.classList.add('g-video-preview');
+		playerPreview.classList.remove('g-video-preview-error');
+		playerPreview.innerHTML = '';
+
+		return playerPreview;
 	}
 
 	var scheduledPlayers = [];
+
+	function onYTPreviewClick(event)
+	{
+		var playerPreview = event.target;
+		loadPlayerYT(playerPreview, {autoplay: 1});
+	}
 
 	/**
 	 *
 	 * @param {Element} playerPreview
 	 * @param {Object} additionalParams
 	 */
-	function loadPlayerObj(playerPreview, additionalParams)
+	function loadPlayerYT(playerPreview, additionalParams)
 	{
 		if (typeof YT === "undefined" || typeof YT.Player === "undefined")
 		{
@@ -72,10 +125,11 @@
 				scheduledPlayers.push(playerPreview);
 			}
 
-			window.onYouTubeIframeAPIReady = function ()
+			window.onYouTubeIframeAPIReady = function()
 			{
-				scheduledPlayers.forEach(function(item){
-					loadPlayerObj(item, additionalParams)
+				scheduledPlayers.forEach(function(item)
+				{
+					loadPlayerYT(item, additionalParams)
 				});
 			};
 		}
@@ -117,17 +171,18 @@
 				allow: "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
 			},
 			dataset: {
-				source: playerPreview.dataset.source,
+				src: playerPreview.dataset.src,
+				source: playerPreview.dataset.source
 			},
 			events: {
-				load: function ()
+				load: function()
 				{
 					BX.remove(playerPreview);
-				},
+				}
 			}
 		});
 		// todo: add loader img for iframe
-		playerPreview.parentElement.insertBefore(playerFrame, playerPreview);
+		BX.insertBefore(playerFrame, playerPreview);
 		return playerFrame;
 	}
 })();

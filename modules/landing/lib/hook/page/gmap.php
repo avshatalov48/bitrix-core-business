@@ -1,13 +1,16 @@
 <?php
 namespace Bitrix\Landing\Hook\Page;
 
-use \Bitrix\Landing\Field;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\Page\Asset;
+use Bitrix\Landing\Field;
+use Bitrix\Landing\Help;
+use Bitrix\Landing\Hook\Page;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Page\Asset;
+use Bitrix\Main\Text\HtmlFilter;
 
 Loc::loadMessages(__FILE__);
 
-class GMap extends \Bitrix\Landing\Hook\Page
+class GMap extends Page
 {
 	/**
 	 * Map of the field.
@@ -15,21 +18,21 @@ class GMap extends \Bitrix\Landing\Hook\Page
 	 */
 	protected function getMap()
 	{
-		$helpUrl = \Bitrix\Landing\Help::getHelpUrl('GMAP_EDIT');
-		return array(
-			'USE' => new Field\Checkbox('USE', array(
-				'title' => Loc::getMessage('LANDING_HOOK_MAPCODE_USE')
-			)),
-			'CODE' => new Field\Text('CODE', array(
+		$helpUrl = Help::getHelpUrl('GMAP_EDIT');
+		return [
+			'USE' => new Field\Checkbox('USE', [
+				'title' => Loc::getMessage('LANDING_HOOK_MAPCODE_USE'),
+			]),
+			'CODE' => new Field\Text('CODE', [
 				'title' => Loc::getMessage('LANDING_HOOK_MAPCODE'),
 				'placeholder' => Loc::getMessage('LANDING_HOOK_MAPCODE_PLACEHOLDER'),
 				'help' => $helpUrl
-							? '<a href="' . $helpUrl . '" target="_blank">' .
-						  			Loc::getMessage('LANDING_HOOK_MAPCODE_HELP') .
-						  		'</a>'
-							: ''
-			))
-		);
+					? '<a href="' . $helpUrl . '" target="_blank">'
+						. Loc::getMessage('LANDING_HOOK_MAPCODE_HELP')
+						. '</a>'
+					: '',
+			]),
+		];
 	}
 
 	/**
@@ -47,13 +50,13 @@ class GMap extends \Bitrix\Landing\Hook\Page
 		{
 			return false;
 		}
-		else
-		{
-			return \CJSCore::isExtensionLoaded('landing_google_maps_new') ||
-				$this->fields['USE']->getValue() == 'Y';
-		}
+
+		return
+			$this->fields['USE']->getValue() === 'Y'
+			&& !empty($this->fields['CODE']->getValue())
+		;
 	}
-	
+
 	/**
 	 * Exec hook.
 	 * @return void
@@ -65,12 +68,9 @@ class GMap extends \Bitrix\Landing\Hook\Page
 			return;
 		}
 
-		$code = '';
-		if ($this->fields['USE']->getValue() == 'Y')
-		{
-			$code = \htmlspecialcharsbx(trim($this->fields['CODE']));
-		}
-		Asset::getInstance()->addString(
+		$code = HtmlFilter::encode(trim($this->fields['CODE']));
+		$assets = Asset::getInstance();
+		$assets->addString(
 			"<script defer>
 				(function(){
 					'use strict';
@@ -79,8 +79,10 @@ class GMap extends \Bitrix\Landing\Hook\Page
 				})();
 			</script>"
 		);
-		Asset::getInstance()->addString(
-			'<script defer src="https://maps.googleapis.com/maps/api/js?key=' . $code . '&callback=onGoogleMapApiLoaded"></script>'
+		$assets->addString(
+			'<script defer src="https://maps.googleapis.com/maps/api/js?key='
+			. $code
+			. '&callback=onGoogleMapApiLoaded"></script>'
 		);
 	}
 }

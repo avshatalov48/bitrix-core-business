@@ -1,6 +1,6 @@
 import {Vue} from 'ui.vue';
 import {VuexBuilder} from 'ui.vue.vuex';
-import {Type, Text, Tag, ajax} from 'main.core';
+import {Type, Text, Tag, ajax, Extension} from 'main.core';
 import 'ui.notification';
 
 import {ProductList} from './models/product-list';
@@ -9,51 +9,16 @@ import './templates/form';
 import './component.css';
 import {EventEmitter} from "main.core.events";
 import {CurrencyCore} from "currency.currency-core";
-
-export class ProductFormElementPosition
-{
-	static TOP: string = 'TOP';
-	static BOTTOM: string = 'BOTTOM';
-}
+import type {FormOption} from "./types/form-option";
+import {FormElementPosition} from "./types/form-element-position";
+import {DiscountType} from "catalog.product-calculator";
 
 export class ProductForm
 {
-	constructor(options = {
-		basket: [],
-		measures: [],
-		iblockId: null,
-		basePriceId: null,
-		taxList: [],
-		currencySymbol: null,
-		singleProductMode: false,
-		showResults: false,
-		currency: '',
-		pricePrecision: 2,
-		taxIncluded: 'N',
-		showDiscountBlock: 'Y',
-		showTaxBlock: 'Y',
-		newItemPosition: ProductFormElementPosition.TOP,
-		buttonsPosition: ProductFormElementPosition.TOP,
-		urlBuilderContext: 'SHOP',
-	})
+	constructor(options: FormOption = {})
 	{
-		options.taxIncluded = options.taxIncluded || 'N';
-		options.showTaxBlock = 'N';
-		options.urlBuilderContext = options.urlBuilderContext || 'SHOP';
-
-		CurrencyCore.loadCurrencyFormat();
-
-		this.options = options;
+		this.options = this.prepareOptions(options);
 		this.editable = true;
-
-		if(Type.isBoolean(options.isCatalogAvailable))
-		{
-			this.isCatalogAvailable = options.isCatalogAvailable;
-		}
-		else
-		{
-			this.isCatalogAvailable = false;
-		}
 
 		this.wrapper = Tag.render`<div class=""></div>`;
 
@@ -61,13 +26,14 @@ export class ProductForm
 		{
 			return;
 		}
+
 		ProductForm.initStore()
 			.then((result) => this.initTemplate(result))
 			.catch((error) => ProductForm.showError(error))
 		;
 	}
 
-	static initStore()
+	static initStore(): VuexBuilder
 	{
 		const builder = new VuexBuilder();
 
@@ -77,12 +43,56 @@ export class ProductForm
 			.build();
 	}
 
-	layout()
+	prepareOptions(options: FormOption = {}): FormOption
+	{
+		const settingsCollection = Extension.getSettings('catalog.product-form');
+		const defaultOptions: FormOption = {
+			basket: [],
+			measures: [],
+			iblockId: null,
+			basePriceId: settingsCollection.get('basePriceId'),
+			taxList: [],
+			singleProductMode: false,
+			showResults: true,
+			enableEmptyProductError: true,
+			pricePrecision: 2,
+			currency: settingsCollection.get('currency'),
+			currencySymbol: settingsCollection.get('currencySymbol'),
+			taxIncluded: settingsCollection.get('taxIncluded'),
+			showDiscountBlock: settingsCollection.get('showDiscountBlock'),
+			showTaxBlock: settingsCollection.get('showTaxBlock'),
+			allowedDiscountTypes: [DiscountType.PERCENTAGE, DiscountType.MONETARY],
+			newItemPosition: FormElementPosition.TOP,
+			buttonsPosition: FormElementPosition.TOP,
+			urlBuilderContext: 'SHOP',
+			hideUnselectedProperties: false,
+		};
+
+		options = {...defaultOptions, ...options};
+		options.showTaxBlock = 'N';
+
+		options.defaultDiscountType = '';
+		if (Type.isArray(options.allowedDiscountTypes))
+		{
+			if (options.allowedDiscountTypes.includes(DiscountType.PERCENTAGE))
+			{
+				options.defaultDiscountType = DiscountType.PERCENTAGE;
+			}
+			else if (options.allowedDiscountTypes.includes(DiscountType.MONETARY))
+			{
+				options.defaultDiscountType = DiscountType.MONETARY;
+			}
+		}
+
+		return options;
+	}
+
+	layout(): HTMLElement
 	{
 		return this.wrapper;
 	}
 
-	initTemplate(result)
+	initTemplate(result): Promise
 	{
 		return new Promise((resolve) =>
 		{
@@ -106,15 +116,20 @@ export class ProductForm
 				template: `<${config.templateName} :options="options"/>`,
 			});
 
-			this.setData({
-				currency: this.options.currency,
-			});
+			if (Type.isStringFilled(this.options.currency))
+			{
+				this.setData({
+					currency: this.options.currency
+				});
+				CurrencyCore.loadCurrencyFormat(this.options.currency);
+			}
 
 			if (this.options.basket.length > 0)
 			{
-				this.setData({
-					basket: this.options.basket,
-				});
+				this.setData(
+					{basket: this.options.basket,},
+					{newItemPosition: FormElementPosition.BOTTOM}
+				);
 
 				if (Type.isObject(this.options.totals))
 				{
@@ -122,17 +137,19 @@ export class ProductForm
 				}
 				else
 				{
-					this.store.commit('productList/calculateTotal');
+					this.store.dispatch('productList/calculateTotal');
 				}
 			}
 			else
 			{
-				this.addProduct();
+				const newItem = this.store.getters['productList/getBaseProduct']();
+				newItem.fields.discountType = this.options.defaultDiscountType;
+				this.addProduct(newItem);
 			}
 		});
 	}
 
-	addProduct(item = {})
+	addProduct(item = {}): void
 	{
 		this.store.dispatch('productList/addItem', {
 			item,
@@ -143,14 +160,14 @@ export class ProductForm
 			});
 	}
 
-	#onBasketChange()
+	#onBasketChange(): void
 	{
 		EventEmitter.emit(this, 'ProductForm:onBasketChange', {
 			basket: this.store.getters['productList/getBasket']()
 		});
 	}
 
-	changeProduct(product)
+	changeProduct(product): void
 	{
 		this.store.dispatch('productList/changeItem', {
 			index: product.index,
@@ -160,7 +177,7 @@ export class ProductForm
 		});
 	}
 
-	removeProduct(product)
+	removeProduct(product): void
 	{
 		this.store.dispatch('productList/removeItem', {
 			index: product.index
@@ -169,15 +186,40 @@ export class ProductForm
 		});
 	}
 
-	setData(data)
+	setData(data, option = {}): void
 	{
 		if (Type.isObject(data.basket))
 		{
-			data.basket.forEach((fields, index) => {
-				if (Type.isObject(fields))
+			const formBasket = this.store.getters['productList/getBasket']();
+			data.basket.forEach((fields) => {
+				if (!Type.isObject(fields))
 				{
-					index = fields.innerId || index;
-					this.store.dispatch('productList/changeItem', {index, fields});
+					return;
+				}
+				const itemPosition = option.newItemPosition || this.options.newItemPosition;
+
+				const innerId = fields.selectorId;
+				if (Type.isNil(innerId))
+				{
+					this.store.dispatch('productList/addItem', {
+						item: fields,
+						position: itemPosition
+					});
+
+					return;
+				}
+
+				const basketIndex = formBasket.findIndex(item => item.selectorId === innerId);
+				if (basketIndex === -1)
+				{
+					this.store.dispatch('productList/addItem', {
+						item: fields,
+						position: itemPosition
+					});
+				}
+				else
+				{
+					this.store.dispatch('productList/changeItem', {basketIndex, fields});
 				}
 			});
 		}
@@ -203,7 +245,7 @@ export class ProductForm
 		}
 	}
 
-	changeFormOption(optionName, value)
+	changeFormOption(optionName, value): void
 	{
 		value = (value === 'Y') ? 'Y' : 'N';
 		this.options[optionName] = value;
@@ -239,17 +281,17 @@ export class ProductForm
 		);
 	}
 
-	getTotal()
+	getTotal(): void
 	{
 		this.store.dispatch('productList/getTotal');
 	}
 
-	setEditable(value)
+	setEditable(value): void
 	{
 		this.editable = value;
 	}
 
-	static showError(error)
+	static showError(error): void
 	{
 		console.error(error);
 	}

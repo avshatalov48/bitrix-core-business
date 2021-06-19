@@ -209,7 +209,7 @@ if ($id > 0 && !$bReadOnly)
 {
 	$aMenu[] = ["SEPARATOR" => "Y"];
 
-	if (!Catalog\Config\State::isAllowedNewStore())
+	if (Catalog\Config\State::isAllowedNewStore())
 	{
 		$addUrl = $selfFolderUrl."cat_store_edit.php?lang=".LANGUAGE_ID;
 		$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
@@ -249,7 +249,7 @@ $context = new CAdminContextMenu($aMenu);
 $context->Show();
 $arSitesShop = array();
 $arSitesTmp = array();
-$rsSites = CSite::GetList($_REQUEST["by"] = "id", $_REQUEST["order"] = "asc", Array("ACTIVE" => "Y"));
+$rsSites = CSite::GetList("id", "asc", Array("ACTIVE" => "Y"));
 while($arSite = $rsSites->GetNext())
 {
 	$site = COption::GetOptionString("sale", "SHOP_SITE_".$arSite["ID"], "");

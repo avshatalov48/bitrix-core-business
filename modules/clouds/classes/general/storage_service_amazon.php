@@ -96,7 +96,7 @@ class CCloudStorageService_AmazonS3 extends CCloudStorageService_S3
 		if($bVarsFromForm)
 			$arSettings = $_POST["SETTINGS"][$this->GetID()];
 		else
-			$arSettings = unserialize($arBucket["SETTINGS"]);
+			$arSettings = unserialize($arBucket["SETTINGS"], ['allowed_classes' => false]);
 
 		if(!is_array($arSettings))
 			$arSettings = array("ACCESS_KEY" => "", "SECRET_KEY" => "");

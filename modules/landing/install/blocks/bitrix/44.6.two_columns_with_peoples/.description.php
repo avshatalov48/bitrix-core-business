@@ -43,7 +43,7 @@ return array(
 		),
 		'.landing-block-node-card-name' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.6.TWO_COLUMNS_WITH_PEOPLES_NODES_LANDINGBLOCKNODECARDNAME'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-card-post' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.6.TWO_COLUMNS_WITH_PEOPLES_NODES_LANDINGBLOCKNODECARDPOST'),

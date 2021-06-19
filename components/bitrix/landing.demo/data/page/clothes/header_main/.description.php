@@ -42,7 +42,7 @@ return array(
 				],
 				'.landing-block-node-card-link' => array(
 					0 => [
-						'href' => 'tel:+74952128506',
+						'href' => 'tel:74952128506',
 						'text' => '+7 (495) 212 85 06',
 					],
 

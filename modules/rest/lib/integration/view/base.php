@@ -10,6 +10,7 @@ use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\Result;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Rest\Integration\Externalizer;
 
 abstract class Base
 {
@@ -712,14 +713,6 @@ abstract class Base
 	}
 	// endregion
 
-	//region convert keys to camel case
-	final public function convertKeysToCamelCase($fields)
-	{
-		return Converter::toJson()
-			->process($fields);
-	}
-	// endregion
-
 	//region check fields
 	final public function checkFieldsAdd($fields)
 	{
@@ -785,7 +778,7 @@ abstract class Base
 			elseif($info['IS_REQUIRED'] == 'Y' || in_array($name, $addRequiredFields))
 			{
 				if(!isset($fields[$name]))
-					$r->addError(new Error($this->convertKeysToCamelCase($name)));
+					$r->addError(new Error(Externalizer::convertKeysToCamelCase($name)));
 			}
 		}
 

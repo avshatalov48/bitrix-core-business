@@ -41,6 +41,7 @@ class UIFormComponent extends \CBitrixComponent
 		$this->initialize();
 		$this->emitOnUIFormInitializeEvent();
 		$this->includeComponentTemplate();
+		return $this->arResult;
 	}
 
 	protected function getConfiguration(): UI\Form\EntityEditorConfiguration
@@ -250,8 +251,9 @@ class UIFormComponent extends \CBitrixComponent
 			{
 				$defaultConfig[$section['name']] = $section;
 			}
-		}
 
+			$config = $this->getFilteredConfig($config, $this->buildConfigMap($defaultConfig));
+		}
 		if (!empty($defaultConfig) && $isForceDefaultSectionName)
 		{
 			foreach ($config as $key => $section)
@@ -263,9 +265,129 @@ class UIFormComponent extends \CBitrixComponent
 			}
 		}
 
+		if (!empty($defaultConfig))
+		{
+			foreach ($defaultConfig as $defaultConfigKey => $defaultConfigSection)
+			{
+				if (!(isset($defaultConfigSection['forceInclude']) && $defaultConfigSection['forceInclude'] === true))
+				{
+					continue;
+				}
+
+				$isIncluded = false;
+				$configSections = $this->getConfigSections($config);
+				foreach ($configSections as $key => $section)
+				{
+					if ($section['name'] === $defaultConfigSection['name'])
+					{
+						$isIncluded = true;
+						break;
+					}
+				}
+
+				if ($isIncluded)
+				{
+					continue;
+				}
+
+				$this->addConfigSection($config, $defaultConfigSection);
+			}
+		}
+
 		return [$config, $defaultConfig];
 	}
 
+	/**
+	 * @param array $config
+	 * @return array
+	 */
+	private function getConfigSections(array $config): array
+	{
+		if (isset($config[0]) && $config[0]['type'] === self::COLUMN_TYPE)
+		{
+			return isset($config[0]['elements']) && is_array($config[0]['elements']) ? $config[0]['elements'] : [];
+		}
+
+		return $config;
+	}
+
+	/**
+	 * @param array $config
+	 * @param array $section
+	 */
+	private function addConfigSection(array &$config, array $section): void
+	{
+		if (isset($config[0]) && $config[0]['type'] === self::COLUMN_TYPE)
+		{
+			$config[0]['elements'][] = $section;
+		}
+		else
+		{
+			$config[] = $section;
+		}
+	}
+
+	/**
+	 * @param array $configItems
+	 * @param string|null $parent
+	 * @return array
+	 */
+	private function buildConfigMap(array $configItems, ?string $parent = null)
+	{
+		$result = [];
+
+		foreach ($configItems as $configItem)
+		{
+			$key = $this->getConfigKey($configItem, $parent);
+
+			$result[$key] = true;
+
+			if (isset($configItem['elements']) && is_array($configItem['elements']))
+			{
+				$result = array_merge($result, $this->buildConfigMap($configItem['elements'], $key));
+			}
+		}
+
+		return $result;
+	}
+
+	private function getFilteredConfig(array $configItems, array $defaultConfigMap, ?string $parent = null)
+	{
+		$result = [];
+
+		foreach ($configItems as $configItem)
+		{
+			$key = $this->getConfigKey($configItem, $parent);
+
+			$onlyDefault = (isset($configItem['data']['onlyDefault']) && $configItem['data']['onlyDefault'] === 'Y');
+			if ($onlyDefault && !isset($defaultConfigMap[$key]))
+			{
+				continue;
+			}
+
+			$resultItem = $configItem;
+
+			if (isset($configItem['elements']) && is_array($configItem['elements']))
+			{
+				$resultItem['elements'] = $this->getFilteredConfig($configItem['elements'], $defaultConfigMap, $key);
+			}
+
+			$result[] = $resultItem;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param array $configItem
+	 * @param string|null $parent
+	 * @return string
+	 */
+	private function getConfigKey(array $configItem, ?string $parent = null)
+	{
+		return (is_null($parent) || $parent === self::COLUMN_DEFAULT ? '' : $parent . '.') . $configItem['name'];
+	}
+	
 	protected function getFieldsInfo(array $entityFields, array $entityData): array
 	{
 		$availableFields = [];
@@ -521,7 +643,6 @@ class UIFormComponent extends \CBitrixComponent
 		}
 
 		[$config, $defaultConfig] = $this->processParamsConfig($config, $this->arResult['FORCE_DEFAULT_SECTION_NAME'], $this->arResult['ENTITY_CONFIG']);
-
 		$fieldsInfo = $this->getFieldsInfo($this->arResult['ENTITY_FIELDS'], $this->arResult['ENTITY_DATA']);
 
 		$config = $this->initializeConfigWithColumns($config);
@@ -540,10 +661,7 @@ class UIFormComponent extends \CBitrixComponent
 	{
 		$languages = [];
 
-		$by = '';
-		$order = '';
-		$dbResultLangs = \CLanguage::GetList($by, $order);
-		unset($by, $order);
+		$dbResultLangs = \CLanguage::GetList();
 
 		while($lang = $dbResultLangs->Fetch())
 		{

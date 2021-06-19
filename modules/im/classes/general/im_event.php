@@ -21,13 +21,6 @@ class CIMEvent
 		while ($row = $result->fetch())
 		{
 			IM\Model\ChatTable::update($row['ID'], Array('AVATAR' => ''));
-
-			$obCache = new CPHPCache();
-			$arRel = CIMChat::GetRelationById($row['ID']);
-			foreach ($arRel as $rel)
-			{
-				$obCache->CleanDir('/bx/imc/recent'.CIMMessenger::GetCachePath($rel['USER_ID']));
-			}
 		}
 	}
 
@@ -85,7 +78,7 @@ class CIMEvent
 		{
 			$ratingNotifyTag .= "|".$arParams['REACTION'];
 		}
-		$ratingMentionNotifyTag = "RATING_MENTION|".($arParams['VALUE'] >= 0?"":"DL|").$arParams['ENTITY_TYPE_ID']."|".$arParams['ENTITY_ID'];
+		$ratingMentionNotifyTag = 'RATING_MENTION|' . ($arParams['VALUE'] >= 0 ? '' : 'DL|') . $arParams['ENTITY_TYPE_ID'] . '|' . $arParams['ENTITY_ID'];
 
 		$contentId = Livefeed\Provider::getContentId(array(
 			"RATING_TYPE_ID" => $arParams['ENTITY_TYPE_ID'],
@@ -192,7 +185,7 @@ class CIMEvent
 						$arSites = array();
 						$extranet_site_id = CExtranet::GetExtranetSiteID();
 						$intranet_site_id = CSite::GetDefSite();
-						$dbSite = CSite::GetList($by="sort", $order="desc", array("ACTIVE" => "Y"));
+						$dbSite = CSite::GetList("sort", "desc", array("ACTIVE" => "Y"));
 						while($arSite = $dbSite->Fetch())
 						{
 							$arSites[$arSite["ID"]] = array(
@@ -916,26 +909,6 @@ class CIMEvent
 
 		$strSQL = "DELETE FROM b_im_recent WHERE ITEM_TYPE = '".IM_MESSAGE_PRIVATE."' and ITEM_ID = ".$ID;
 		$DB->Query($strSQL, true, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-		$obCache = new CPHPCache();
-		if (IsModuleInstalled('bitrix24'))
-		{
-			$relationList = IM\Model\RecentTable::getList(array(
-				"select" => array("USER_ID"),
-				"filter" => array(
-					"=ITEM_TYPE" => IM_MESSAGE_PRIVATE,
-					"=ITEM_ID" => $ID,
-				),
-			));
-			while ($relation = $relationList->fetch())
-			{
-				$obCache->CleanDir('/bx/imc/recent'.CIMMessenger::GetCachePath($relation['USER_ID']));
-			}
-		}
-		else
-		{
-			$obCache->CleanDir('/bx/imc/recent');
-		}
 
 		if ($isRecentExists && CModule::IncludeModule('pull'))
 		{

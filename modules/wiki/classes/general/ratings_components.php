@@ -1,9 +1,9 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 
 class CRatingsComponentsWiki
 {
-	function OnAddRatingVote($id, $arParams)
+	public static function OnAddRatingVote($id, $arParams)
 	{
 		if ($arParams['ENTITY_TYPE_ID'] == 'IBLOCK_ELEMENT')
 		{
@@ -15,12 +15,12 @@ class CRatingsComponentsWiki
 		return false;
 	}
 
-	function OnCancelRatingVote($id, $arParams)
+	public static function OnCancelRatingVote($id, $arParams)
 	{
 		return CRatingsComponentsWiki::OnAddRatingVote($id, $arParams);
 	}
 	
-	function BeforeIndex($arParams)
+	public static function BeforeIndex($arParams)
 	{
 		if (
 			$arParams['PARAM1'] == 'wiki' 
@@ -34,4 +34,3 @@ class CRatingsComponentsWiki
 		}
 	}
 }
-?>

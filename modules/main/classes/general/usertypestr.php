@@ -12,7 +12,7 @@ class CUserTypeString extends TypeBase
 {
 	const USER_TYPE_ID = StringType::USER_TYPE_ID;
 
-	function getUserTypeDescription()
+	public static function getUserTypeDescription()
 	{
 		return StringType::getUserTypeDescription();
 	}
@@ -52,7 +52,7 @@ class CUserTypeString extends TypeBase
 		return StringType::renderFilter($userField, $additionalParameters);
 	}
 
-	function getDbColumnType()
+	public static function getDbColumnType()
 	{
 		return StringType::getDbColumnType();
 	}

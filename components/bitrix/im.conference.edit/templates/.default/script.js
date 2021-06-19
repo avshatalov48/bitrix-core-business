@@ -18,9 +18,11 @@
 	    }
 
 	    this.chatUsers = params.chatUsers;
+	    this.presenters = params.presenters;
 	    this.publicLink = params.publicLink;
 	    this.chatId = params.chatId;
 	    this.invitation = params.invitation;
+	    this.broadcastingEnabled = params.broadcastingEnabled || false;
 	    this.formContainer = document.getElementById("im-conference-create-fields");
 	    this.init();
 	  }
@@ -44,14 +46,16 @@
 	            mode: _this.mode,
 	            chatHost: _this.chatHost,
 	            chatUsers: _this.chatUsers,
+	            presenters: _this.presenters,
 	            publicLink: _this.publicLink,
 	            chatId: _this.chatId,
 	            invitation: _this.invitation,
 	            gridId: _this.gridId,
-	            pathToList: _this.pathToList
+	            pathToList: _this.pathToList,
+	            broadcastingEnabled: _this.broadcastingEnabled
 	          };
 	        },
-	        template: "\n\t\t\t\t<bx-im-component-conference-edit\n\t\t\t\t\t:conferenceId=\"conferenceId\"\n\t\t\t\t\t:fieldsData=\"fieldsData\"\n\t\t\t\t\t:mode=\"mode\"\n\t\t\t\t\t:chatHost=\"chatHost\"\n\t\t\t\t\t:chatUsers=\"chatUsers\"\n\t\t\t\t\t:publicLink=\"publicLink\"\n\t\t\t\t\t:chatId=\"chatId\"\n\t\t\t\t\t:invitationText=\"invitation\"\n\t\t\t\t\t:gridId=\"gridId\"\n\t\t\t\t\t:pathToList=\"pathToList\"\n\t\t\t\t/>\n\t\t\t"
+	        template: "\n\t\t\t\t<bx-im-component-conference-edit\n\t\t\t\t\t:conferenceId=\"conferenceId\"\n\t\t\t\t\t:fieldsData=\"fieldsData\"\n\t\t\t\t\t:mode=\"mode\"\n\t\t\t\t\t:chatHost=\"chatHost\"\n\t\t\t\t\t:chatUsers=\"chatUsers\"\n\t\t\t\t\t:presenters=\"presenters\"\n\t\t\t\t\t:publicLink=\"publicLink\"\n\t\t\t\t\t:chatId=\"chatId\"\n\t\t\t\t\t:invitationText=\"invitation\"\n\t\t\t\t\t:gridId=\"gridId\"\n\t\t\t\t\t:pathToList=\"pathToList\"\n\t\t\t\t\t:broadcastingEnabled=\"broadcastingEnabled\"\n\t\t\t\t/>\n\t\t\t"
 	      });
 	    }
 	  }]);

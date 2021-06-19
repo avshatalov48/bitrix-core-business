@@ -247,7 +247,7 @@ class ListsElementEditAjaxController extends Controller
 			if($right['TASK_ID'] == $idRight && $res === 0)
 			{
 				$userId = mb_substr($right['GROUP_CODE'], 1);
-				$users = CUser::GetList($by="id", $order="asc",
+				$users = CUser::GetList("id", "asc",
 					array('ID' => $userId),
 					array('FIELDS' => array('ID', 'PERSONAL_PHOTO', 'NAME', 'LAST_NAME'))
 				);
@@ -267,7 +267,7 @@ class ListsElementEditAjaxController extends Controller
 				$listUser[$userId]['name'] = CUser::FormatName($nameTemplate, $user, false);
 			}
 		}
-		$users = CUser::getList(($b = 'ID'), ($o = 'ASC'),
+		$users = CUser::getList('ID', 'ASC',
 			array('GROUPS_ID' => 1, 'ACTIVE' => 'Y'),
 			array('FIELDS' => array('ID', 'PERSONAL_PHOTO', 'NAME', 'LAST_NAME'))
 		);

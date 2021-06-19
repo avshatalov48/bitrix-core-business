@@ -1414,7 +1414,7 @@ class Otp
 	public static function getMandatoryRights()
 	{
 		$targetRights = Option::get('security', 'otp_mandatory_rights');
-		$targetRights = unserialize($targetRights);
+		$targetRights = unserialize($targetRights, ['allowed_classes' => false]);
 		if (!is_array($targetRights))
 			$targetRights = array();
 

@@ -127,7 +127,7 @@ $lAdmin->AddHeaders(array(
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
 $arSites = array();
-$dbSiteList = CSite::GetList(($b = "sort"), ($o = "asc"));
+$dbSiteList = CSite::GetList();
 while ($arSite = $dbSiteList->Fetch())
 	$arSites[$arSite["LID"]] = "[".$arSite["LID"]."]&nbsp;".$arSite["NAME"];
 

@@ -181,7 +181,7 @@ foreach ($slaGroupList as $slaId => $groups)
 $groupIds = array_unique($groupIds);
 
 $slaGroupNames = array();
-$res = CGroup::getList($_by=null, $_order=null, array('ID' => join('|', $groupIds)));
+$res = CGroup::getList('', '', array('ID' => join('|', $groupIds)));
 while ($arRes = $res->Fetch())
 {
 	$slaGroupNames[$arRes['ID']] = $arRes['NAME'];
@@ -193,7 +193,7 @@ $slaResponsibles = array_unique($slaResponsibles);
 
 if ($slaResponsibles)
 {
-	$res = CUser::getList($_by=null, $_order=null, array('ID' => join('|', $slaResponsibles)));
+	$res = CUser::getList('', '', array('ID' => join('|', $slaResponsibles)));
 	while ($arRes = $res->Fetch())
 	{
 		$slaResponsiblesInfo[$arRes['ID']] = array(
@@ -392,7 +392,7 @@ require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_adm
 	<td><?
 	$ref = array(GetMessage("SUP_ALL"));
 	$ref_id = array("ALL");
-	$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+	$rs = CSite::GetList();
 	while ($ar = $rs->Fetch()) 
 	{
 		$ref[] = "[".$ar["ID"]."] ".$ar["NAME"];

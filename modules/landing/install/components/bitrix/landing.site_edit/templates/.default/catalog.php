@@ -202,7 +202,12 @@ else
 					}
 				endif;?>
 				<?if (isset($hooks['SETTINGS']) && isset($pageFields['SETTINGS_AGREEMENT_ID'])):
-					$agreementId = $pageFields['SETTINGS_AGREEMENT_ID']->getValue();
+					$agreementId = $pageFields['SETTINGS_AGREEMENT_ID']->getValue() ?: 0;
+					$agreementUseField = $pageFields['SETTINGS_AGREEMENT_USE'];
+					if(!$agreementUseField->getValue())
+					{
+						$agreementUseField->setValue($agreementId ? 'Y' : 'N');
+					}
 					?>
 					<tr class="landing-form-title-catalog">
 						<td colspan="2">
@@ -215,19 +220,25 @@ else
 						</td>
 						<td class="ui-form-right-cell">
 							<div class="ui-checkbox-hidden-input landing-form-page-userconsent">
-								<input type="checkbox" id="checkbox-userconsent-use" class="ui-checkbox"<?= $agreementId ? ' checked="checked"' : '';?>>
+								<?php
+								$agreementUseField->viewForm([
+									'id' => 'settings_'.mb_strtolower('SETTINGS_AGREEMENT_USE'),
+									'class' => 'ui-checkbox',
+									'name_format' => 'fields[ADDITIONAL_FIELDS][SETTINGS_AGREEMENT_USE]'
+								]);
+								?>
 								<div class="ui-checkbox-hidden-input-inner">
-									<label class="ui-checkbox-label" for="checkbox-userconsent-use">
+									<label class="ui-checkbox-label" for="settings_settings_agreement_use">
 										<?= Loc::getMessage('LANDING_TPL_HOOK_SETT_HEADER_USERCONSENT_USE');?>
 									</label>
 									<div class="landing-form-wrapper">
 										<?$APPLICATION->IncludeComponent(
 											'bitrix:landing.userconsent.selector',
 											'',
-											array(
+											[
 												'ID' => $agreementId,
 												'INPUT_NAME' => 'fields[ADDITIONAL_FIELDS][SETTINGS_AGREEMENT_ID]'
-											)
+											]
 										);?>
 									</div>
 								</div>

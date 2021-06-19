@@ -205,6 +205,7 @@ class Sender
 		if ($this->status != PostingTable::STATUS_PART)
 		{
 			$this->resultCode = static::RESULT_ERROR;
+			$this->threadStrategy->updateStatus(PostingThreadTable::STATUS_NEW);
 			static::unlock($this->postingId, $threadId);
 			return;
 		}
@@ -244,12 +245,15 @@ class Sender
 		}
 
 		// update status of posting
-		$status = self::updateActualStatus($this->postingId, $this->isPrevented());
+		$status = self::updateActualStatus(
+			$this->postingId,
+			$this->isPrevented(),
+			$this->threadStrategy->hasUnprocessedThreads()
+		);
 
 		if ($threadId < $this->threadStrategy->lastThreadId())
 		{
 			$this->resultCode = static::RESULT_CONTINUE;
-
 			return;
 		}
 
@@ -412,7 +416,7 @@ class Sender
 	 *
 	 * @return string
 	 */
-	public static function updateActualStatus($postingId, $isPrevented = false)
+	public static function updateActualStatus($postingId, $isPrevented = false, $awaitThread = false)
 	{
 		//set status and delivered and error emails
 		$statusList     = PostingTable::getRecipientCountByStatus($postingId);
@@ -422,7 +426,7 @@ class Sender
 		{
 			$status = PostingTable::STATUS_ABORT;
 		}
-		elseif (!$hasStatusNone)
+		elseif (!$hasStatusNone && !$awaitThread)
 		{
 			$status = $hasStatusError ? PostingTable::STATUS_SENT_WITH_ERRORS : PostingTable::STATUS_SENT;
 		}

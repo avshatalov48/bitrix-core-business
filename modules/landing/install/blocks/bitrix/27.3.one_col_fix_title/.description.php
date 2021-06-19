@@ -9,7 +9,7 @@ use \Bitrix\Main\Localization\Loc;
 return [
 	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_27_3_ONE_COL_FIX_TITLE_AND_TEXT_2_NAME_NEW'),
-		'section' => ['title'],
+		'section' => ['title', 'recommended'],
 	],
 	'cards' => [],
 	'nodes' => [
@@ -25,7 +25,7 @@ return [
 		'nodes' => [
 			'.landing-block-node-title' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_27_3_ONE_COL_FIX_TITLE_AND_TEXT_2_STYLE_LANDINGBLOCKNODETITLE'),
-				'type' => ['typo', 'container'],
+				'type' => ['typo', 'container', 'heading'],
 			],
 		],
 	],

@@ -1,8 +1,8 @@
-<?
+<?php
 
 class CAllTest
 {
-	function CheckFields(&$arFields, $ID = false)
+	public function CheckFields(&$arFields, $ID = false)
 	{
 		global $DB;
 		$arMsg = array();
@@ -97,8 +97,7 @@ class CAllTest
 		return true;
 	}
 
-
-	function Add($arFields)
+	public function Add($arFields)
 	{
 		global $DB;
 
@@ -119,8 +118,7 @@ class CAllTest
 		return false;
 	}
 
-
-	function Update($ID, $arFields)
+	public function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -151,8 +149,7 @@ class CAllTest
 		return false;
 	}
 
-
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -211,7 +208,7 @@ class CAllTest
 	}
 
 
-	function GetFilter($arFilter)
+	public static function GetFilter($arFilter)
 	{
 		if (!is_array($arFilter))
 			$arFilter = Array();
@@ -260,13 +257,13 @@ class CAllTest
 	}
 
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		return CTest::GetList($arOrder=Array(), $arFilter=Array("ID" => $ID));
 	}
 
 
-	function GetCount($arFilter = Array())
+	public static function GetCount($arFilter = Array())
 	{
 		global $DB, $USER, $APPLICATION;
 
@@ -303,7 +300,7 @@ class CAllTest
 	}
 
 
-	function isPrevPassed($ID, $SCORE)
+	public static function isPrevPassed($ID, $SCORE)
 	{
 		global $DB, $USER;
 		$ID = intval($ID);
@@ -327,7 +324,7 @@ class CAllTest
 	}
 
 
-	function GetStats($ID)
+	public static function GetStats($ID)
 	{
 		global $DB;
 

@@ -1,6 +1,6 @@
 <?
 $isIntranet = file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/intranet/");
-$langs = CLanguage::GetList(($b=""), ($o=""));
+$langs = CLanguage::GetList();
 while ($lang = $langs->Fetch())
 {
 	$lid = $lang["LID"];
@@ -40,7 +40,7 @@ while ($lang = $langs->Fetch())
 
 	
 	$arSites = array();
-	$sites = CSite::GetList(($b=""), ($o=""), Array("LANGUAGE_ID"=>$lid));
+	$sites = CSite::GetList('', '', Array("LANGUAGE_ID"=>$lid));
 	while ($site = $sites->Fetch())
 		$arSites[] = $site["LID"];
 

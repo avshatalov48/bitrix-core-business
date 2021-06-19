@@ -8,6 +8,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Landing;
 use Bitrix\Landing\Hook\Page\B24button;
+use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Socialservices\ApClient;
 use Bitrix\Crm\UI\Webpack\Button;
 
@@ -190,6 +191,8 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 			$classList = 'landing-b24-widget-button-social-item ' . implode(' ', $widget['classList']) . ' ';
 			$classList = trim(str_replace(['ui-icon ', 'connector-icon-45 '], '', $classList));
 			$this->arParams['WIDGETS'][$key]['classList'] = $classList;
+			$this->arParams['WIDGETS'][$key]['title'] =
+				HtmlFilter::encode(strip_tags($this->arParams['WIDGETS'][$key]['title']));
 		}
 	}
 }

@@ -38,7 +38,7 @@ return array(
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_08_5_TITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_08_5_TEXT'),
@@ -58,8 +58,7 @@ return array(
 		),
 		'.landing-block-line' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_08_5_LINE'),
-			'type' => array(
-				'text-align', 'color', 'margin-bottom'),
+			'type' => array('text-align', 'color', 'margin-bottom'),
 		),
 	),
 );

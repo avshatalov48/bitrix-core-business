@@ -9,6 +9,8 @@ use Bitrix\Main\UI\Filter\Options;
 use Bitrix\Report\VisualConstructor\AnalyticBoard;
 use Bitrix\Report\VisualConstructor\Entity\Dashboard;
 use Bitrix\Report\VisualConstructor\Internal\Engine\Response\Component;
+use Bitrix\Report\VisualConstructor\Internal\Manager\AnalyticBoardBatchManager;
+use Bitrix\Report\VisualConstructor\Internal\Manager\AnalyticBoardManager;
 use Bitrix\Report\VisualConstructor\RuntimeProvider\AnalyticBoardProvider;
 
 /**
@@ -103,6 +105,38 @@ class Analytics extends Base
 			}
 			$analyticBoard->resetToDefault();;
 		}
+
+		$additionalParams = [
+			'pageTitle' => $analyticBoard->getTitle(),
+			'pageControlsParams' => $analyticBoard->getButtonsContent()
+
+		];
+
+		return new Component(
+			$analyticBoard->getDisplayComponentName(),
+			$analyticBoard->getDisplayComponentTemplate(),
+			$analyticBoard->getDisplayComponentParams(),
+			$additionalParams
+		);
+	}
+
+	public function toggleBoardOptionAction($boardKey, CurrentUser $currentUser, string $optionName)
+	{
+		$analyticBoardProvider = new AnalyticBoardProvider();
+		$analyticBoardProvider->addFilter('boardKey', $boardKey);
+		$analyticBoard = $analyticBoardProvider->execute()->getFirstResult();
+		if (!$analyticBoard)
+		{
+			$this->addError(new Error('Analytic board with this key does not exist'));
+			return false;
+		}
+
+		$analyticBoard->toggleOption($optionName);
+
+		AnalyticBoardManager::getInstance()->clearCache();
+		AnalyticBoardBatchManager::getInstance()->clearCache();
+
+		$analyticBoard = $analyticBoardProvider->execute()->getFirstResult();
 
 		$additionalParams = [
 			'pageTitle' => $analyticBoard->getTitle(),

@@ -1,4 +1,4 @@
-<section class="landing-block g-pt-15 g-pb-15">
+<section class="landing-block g-pt-30 g-pb-30">
 	<div class="container">
 		<div class="row">
 			<div class="col-lg-6">
@@ -6,8 +6,8 @@
 				<article class="row align-items-stretch text-center mx-0">
 					<!--Article Content-->
 					<div class="landing-block-node-block col-sm-6 u-ns-bg-v1-bottom u-ns-bg-bottom u-ns-bg-v1-right--md g-bg-black g-pl-30 g-pr-30 g-pb-45 g-pt-45">
-						<h3 class="landing-block-node-title landing-semantic-subtitle-image-medium js-animation flipInX text-uppercase g-font-size-20 g-color-white g-mb-25">Become a
-							<span style="font-weight: bold;" class="landing-block-node-title-add d-block g-color-primary">Volunteer</span></h3>
+						<h4 class="landing-block-node-title landing-semantic-subtitle-image-medium js-animation flipInX text-uppercase g-color-white g-mb-25">Become a
+							<span style="font-weight: bold;" class="landing-block-node-title-add d-block g-color-primary">Volunteer</span></h4>
 						<div class="landing-block-node-text landing-semantic-text-medium g-color-gray-dark-v5 js-animation fadeIn g-mb-25"><p>Praesent pulvinar gravida efficitur. Aenean
 								bibendum purus eu nisi pulvinar
 								venenatis vitae non velit.</p></div>
@@ -36,8 +36,8 @@
 
 					<!--Article Content-->
 					<div class="landing-block-node-block col-sm-6 u-ns-bg-v1-top u-ns-bg-v1-left--md g-bg-black g-pl-30 g-pr-30 g-pb-45 g-pt-45">
-						<h3 class="landing-block-node-title landing-semantic-subtitle-image-medium js-animation flipInX text-uppercase g-font-size-20 g-color-white g-mb-25">Make a
-							<span style="font-weight: bold;" class="landing-block-node-title-add d-block g-color-primary">Donation</span></h3>
+						<h4 class="landing-block-node-title landing-semantic-subtitle-image-medium js-animation flipInX text-uppercase g-color-white g-mb-25">Make a
+							<span style="font-weight: bold;" class="landing-block-node-title-add d-block g-color-primary">Donation</span></h4>
 						<div class="landing-block-node-text landing-semantic-text-medium g-color-gray-dark-v5 js-animation fadeIn g-mb-25"><p>Praesent pulvinar gravida efficitur. Aenean
 								bibendum purus eu nisi pulvinar
 								venenatis vitae non velit.</p></div>

@@ -297,7 +297,7 @@ if(($arID = $lAdmin->GroupAction()) && /*$FORM_RIGHT>="W"*/ $F_RIGHT >= 20 && ch
 	if($_REQUEST['action_target']=='selected')
 	{
 			$arID = Array();
-			$result = CFormResult::GetList($WEB_FORM_ID, $r_by, $r_order, $arFilter, $r_is_filtered);
+			$result = CFormResult::GetList($WEB_FORM_ID, '', '', $arFilter);
 			while($arRes = $result->Fetch())
 			{
 				$arID[] = $arRes['ID'];
@@ -337,7 +337,9 @@ if(($arID = $lAdmin->GroupAction()) && /*$FORM_RIGHT>="W"*/ $F_RIGHT >= 20 && ch
 
 //////////////////////////////////////////////////////////////////////
 // initialize list
-$result = CFormResult::GetList($WEB_FORM_ID, $by, $order, $arFilter, $is_filtered);
+global $by, $order;
+
+$result = CFormResult::GetList($WEB_FORM_ID, $by, $order, $arFilter);
 $result = new CAdminResult($result, $sTableID);
 $result->NavStart();
 
@@ -379,7 +381,7 @@ else
 
 	$arFilter['ACTIVE'] = 'Y';
 
-	$rsFields = CFormField::GetList($WEB_FORM_ID, "ALL", ($v1="s_c_sort"), ($v2="asc"), $arFilter, $v3);
+	$rsFields = CFormField::GetList($WEB_FORM_ID, "ALL", "s_c_sort", "asc", $arFilter);
 	while ($arField = $rsFields->Fetch())
 	{
 		if ($arField['RESULTS_TABLE_TITLE'] <> '')
@@ -399,10 +401,7 @@ else
 	while ($ar=$obj->Fetch())
 		$arValues[$ar['REFERENCE_ID']]=$ar['REFERENCE'];
 	$fullStatusList = [];
-	$statusBy = 's_id';
-	$statusOrder = 'asc';
-	$statusFiltered = false;
-	$iterator = CFormStatus::GetList($WEB_FORM_ID, $statusBy, $statusOrder, [], $statusFiltered);
+	$iterator = CFormStatus::GetList($WEB_FORM_ID, 's_id');
 	while ($row = $iterator->Fetch())
 	{
 		$fullStatusList[$row['ID']] = htmlspecialcharsbx('['.$row['ID'].'] '.$row['TITLE']);
@@ -529,7 +528,7 @@ else
 			}
 		}
 
-		$arrRESULT_PERMISSION = CFormResult::GetPermissions($f_ID, $v);
+		$arrRESULT_PERMISSION = CFormResult::GetPermissions($f_ID);
 
 		$arActions = Array();
 		if ($F_RIGHT>=20 || ($F_RIGHT>=15 && $USER_ID==$f_USER_ID))
@@ -642,8 +641,7 @@ else
 
 	foreach ($arrFORM_FILTER as $key => $arrFILTER)
 	{
-		reset($arrFILTER);
-		list($key, $arrF) = each($arrFILTER);
+		$arrF = current($arrFILTER);
 
 		if ($arrF["FILTER_TITLE"] <> '')
 			$arFieldsTitle[] = htmlspecialcharsbx($arrF["FILTER_TITLE"]);

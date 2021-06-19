@@ -7,6 +7,7 @@ use Bitrix\Main\DB\MssqlConnection;
 use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Entity\Validator\RegExp;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\ORM\EntityError;
 use Bitrix\Main\ORM\Event;
@@ -24,16 +25,13 @@ use Bitrix\Main\Text\StringHelper;
 /**
  * @deprecated
  */
-abstract class TypeDataManager extends \Bitrix\Main\ORM\Data\DataManager
+abstract class TypeDataManager extends DataManager
 {
 	protected static $temporaryStorage;
 
 	public static function getMap(): array
 	{
-		$sqlHelper = Application::getConnection()->getSqlHelper();
-
-		/** @noinspection PhpMethodParametersCountMismatchInspection */
-		$fieldsMap = [
+		return [
 			(new IntegerField('ID'))
 				->configurePrimary()
 				->configureAutocomplete(),
@@ -51,10 +49,7 @@ abstract class TypeDataManager extends \Bitrix\Main\ORM\Data\DataManager
 				->configureSize(64)
 				->configureFormat('/^[a-z0-9_]+$/')
 				->addValidator([get_called_class(), 'validateTableExisting']),
-			(new ExpressionField('FIELDS_COUNT', '(SELECT COUNT(ID) FROM b_user_field WHERE b_user_field.ENTITY_ID = '.$sqlHelper->getConcatFunction("'".static::getFactory()->getUserFieldEntityPrefix()."'", $sqlHelper->castToChar('%s')).')', 'ID'))
 		];
-
-		return $fieldsMap;
 	}
 
 	public static function getFactory(): TypeFactory

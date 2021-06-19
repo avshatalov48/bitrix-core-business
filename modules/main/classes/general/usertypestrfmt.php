@@ -8,7 +8,7 @@ class CUserTypeStringFormatted extends \CUserTypeString
 {
 	const USER_TYPE_ID = StringFormattedType::USER_TYPE_ID;
 
-	function getUserTypeDescription()
+	public static function getUserTypeDescription()
 	{
 		return StringFormattedType::getUserTypeDescription();
 	}

@@ -7,7 +7,7 @@ Loc::loadMessages(__FILE__);
 
 /**
  * Class MessageParamTable
- * 
+ *
  * Fields:
  * <ul>
  * <li> ID int mandatory
@@ -60,10 +60,14 @@ class MessageParamTable extends Entity\DataManager
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateParamValue'),
 				'title' => Loc::getMessage('MESSAGE_PARAM_ENTITY_PARAM_VALUE_FIELD'),
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'PARAM_JSON' => array(
 				'data_type' => 'text',
 				'title' => Loc::getMessage('MESSAGE_PARAM_ENTITY_PARAM_JSON_FIELD'),
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'MESSAGE' => array(
 				'data_type' => 'Bitrix\Im\Model\MessageTable',
@@ -95,5 +99,3 @@ class MessageParamTable extends Entity\DataManager
 		);
 	}
 }
-
-class_alias("Bitrix\\Im\\Model\\MessageParamTable", "Bitrix\\Im\\MessageParamTable", false);

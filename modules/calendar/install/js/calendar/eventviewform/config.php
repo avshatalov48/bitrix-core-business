@@ -17,6 +17,8 @@ return [
 		'calendar.entry',
 		'calendar.controls',
 		'main.core.events',
+		'calendar.planner',
+		'intranet.control-button',
 	],
 	'skip_core' => false,
 	'lang' => '/bitrix/modules/calendar/classes/general/calendar_js.php'

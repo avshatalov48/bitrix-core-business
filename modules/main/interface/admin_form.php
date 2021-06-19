@@ -55,12 +55,6 @@ class CAdminForm extends CAdminTabControl
 		ob_start();
 	}
 
-	/** @deprecated */
-	public function CAdminForm($name, $tabs, $bCanExpand = true, $bDenyAutosave = false)
-	{
-		self::__construct($name, $tabs, $bCanExpand, $bDenyAutosave);
-	}
-
 	function SetSelectedTab()
 	{
 		parent::SetSelectedTab();

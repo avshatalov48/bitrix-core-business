@@ -13,7 +13,7 @@ while ($ar = $db->Fetch())
 }
 
 $arGroups = array();
-$db = CGroup::GetList($by = "c_sort", $order = "asc", array("ACTIVE" => "Y"));
+$db = CGroup::GetList("c_sort", "asc", array("ACTIVE" => "Y"));
 while ($ar = $db->Fetch())
 	$arGroups[$ar["ID"]] = $ar["NAME"];
 
@@ -111,7 +111,7 @@ $arComponentParameters = array(
 			"VALUES" => $arGroups,
 			"REFRESH" => "N",
 		),
-		"AJAX_MODE" => array(),
+		"AJAX_MODE" => array()
 	),
 );
 ?>

@@ -12,7 +12,7 @@
 
 	<div class="u-bg-overlay__inner g-absolute-centered w-100 g-width-80x--md">
 		<div class="landing-block-node-text-container js-animation fadeIn container text-center">
-			<h2 class="landing-block-node-subtitle landing-semantic-subtitle-image-medium text-uppercase u-heading-v3__title g-letter-spacing-1 g-font-weight-700 g-font-size-18 g-color-white g-brd-3 g-brd-primary g-pb-5 g-mb-20">
+			<h2 class="landing-block-node-subtitle landing-semantic-subtitle-image-medium text-uppercase g-letter-spacing-1 g-font-weight-700 g-font-size-18 g-color-white g-brd-primary g-pb-5 g-mb-20 u-heading-v2-8-3--bottom">
 				Fitness program for all</h2>
 			<h3 class="landing-block-node-title landing-semantic-title-image-medium text-uppercase g-line-height-1_4 g-letter-spacing-5 g-font-weight-700 g-font-size-40 g-color-white g-mb-20">
 				Easy to be perfect</h3>

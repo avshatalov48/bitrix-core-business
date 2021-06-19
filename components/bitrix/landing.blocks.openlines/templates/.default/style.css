@@ -20,6 +20,13 @@
 	font-size: 16px;
 	width: 100%;
 }
+.landing-b24-widget-button-social-item * {
+	color: white;
+	margin: 0;
+	padding: 0;
+	font-size: inherit;
+	font-weight: inherit;
+}
 
 .landing-b24-widget-button-social-item:hover
 {
@@ -32,7 +39,8 @@
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-livechat.svg);
 }
 
-.landing-b24-widget-button-social-item.ui-icon-service-whatsapp, .landing-b24-widget-button-social-item[class*="ui-icon-service-wz_whatsapp"] {
+.landing-b24-widget-button-social-item.ui-icon-service-whatsapp,
+.landing-b24-widget-button-social-item[class*="ui-icon-service-"][class*="whatsapp"] {
 	background-color: #01e675;
 	/*background-size: 30px;*/
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-whatsapp.svg);
@@ -137,4 +145,11 @@
 }
 .landing-b24-widget-button-social-item.ui-icon-service-light-office365 {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-office365.svg);
+}
+.landing-b24-widget-button-social-item.ui-icon-service-ok {
+	background-color: #ee8208;
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ok.svg);
+}
+.landing-b24-widget-button-social-item.ui-icon-service-light-ok {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ok.svg);
 }

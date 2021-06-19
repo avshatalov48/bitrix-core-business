@@ -580,11 +580,12 @@ if ($arResult["DO_NOT_CACHE"] || $this->StartResultCache($arParams["CACHE_TIME"]
 				if ((int)($message["SERVICE_TYPE"]) > 0)
 				{
 					if ($serviceProvider = Forum\Comments\Service\Manager::find([
-						"SERVICE_TYPE" => (int)$message["SERVICE_TYPE"],
+						"SERVICE_TYPE" => (int)$message["SERVICE_TYPE"]
 					]))
 					{
 						$message["~POST_MESSAGE_TEXT"] = $serviceProvider->getText($res["~SERVICE_DATA"] ?? $res["~POST_MESSAGE"], [
-							'mobile' => !$this->isWeb()
+							'mobile' => !$this->isWeb(),
+							'suffix' => $auxSuffix
 						]);
 						$message["AUX"] = $serviceProvider->getType();
 						$message["AUX_LIVE_PARAMS"] = [];

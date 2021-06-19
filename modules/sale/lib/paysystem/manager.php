@@ -84,7 +84,7 @@ final class Manager
 	 */
 	public static function getById($id)
 	{
-		if ($id <= 0)
+		if ((int)$id <= 0)
 			return false;
 
 		$params = array(
@@ -114,19 +114,20 @@ final class Manager
 	/**
 	 * @param $primary
 	 * @param array $data
-	 * @return \Bitrix\Main\Entity\UpdateResult
+	 * @return \Bitrix\Main\ORM\Data\UpdateResult
 	 * @throws \Exception
 	 */
-	public static function update($primary, array $data)
+	public static function update($primary, array $data): \Bitrix\Main\ORM\Data\UpdateResult
 	{
 		return PaySystemActionTable::update($primary, $data);
 	}
 
 	/**
 	 * @param array $data
-	 * @return \Bitrix\Main\Entity\AddResult
+	 * @return \Bitrix\Main\ORM\Data\AddResult
+	 * @throws \Exception
 	 */
-	public static function add(array $data)
+	public static function add(array $data): \Bitrix\Main\ORM\Data\AddResult
 	{
 		return PaySystemActionTable::add($data);
 	}
@@ -288,6 +289,38 @@ final class Manager
 		$data = $dbRes->fetch();
 
 		return $data['IS_CASH'];
+	}
+
+	/**
+	 * @param Order $order
+	 * @param float|null $sum
+	 * @param int $mode
+	 * @return array
+	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\NotImplementedException
+	 * @throws \Bitrix\Main\NotSupportedException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function getListWithRestrictionsByOrder(Order $order, float $sum = null, int $mode = Restrictions\Manager::MODE_CLIENT): array
+	{
+		/** @var Order $orderClone */
+		$orderClone = $order->createClone();
+
+		$orderPrice = $orderClone->getPrice();
+		$paymentSum = $orderPrice;
+		if ($sum && $sum >= 0 && $sum <= $orderPrice)
+		{
+			$paymentSum = $sum;
+		}
+
+		$paymentCollection = $orderClone->getPaymentCollection();
+		$payment = $paymentCollection->createItem();
+		$payment->setFields([
+			'SUM' => $paymentSum,
+		]);
+
+		return self::getListWithRestrictions($payment, $mode);
 	}
 
 	/**
@@ -614,7 +647,7 @@ final class Manager
 	 */
 	public static function getObjectById($id)
 	{
-		if ($id <= 0)
+		if ((int)$id <= 0)
 			return null;
 
 		$data = Manager::getById($id);
@@ -698,8 +731,8 @@ final class Manager
 
 	/**
 	 * @param $primary
-	 * @return \Bitrix\Main\Entity\DeleteResult
-	 * @throws \Bitrix\Main\ArgumentException
+	 * @return \Bitrix\Main\Entity\DeleteResult|\Bitrix\Main\ORM\Data\DeleteResult
+	 * @throws ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
@@ -734,7 +767,22 @@ final class Manager
 
 		BusinessValue::delete(Service::PAY_SYSTEM_PREFIX.$primary);
 
-		return PaySystemActionTable::delete($primary);
+		$service = Manager::getObjectById($primary);
+
+		$deleteResult = PaySystemActionTable::delete($primary);
+		if ($deleteResult->isSuccess())
+		{
+			if ($service && $service->isSupportPrintCheck())
+			{
+				$onDeletePaySystemResult = Cashbox\EventHandler::onDeletePaySystem($service);
+				if (!$onDeletePaySystemResult->isSuccess())
+				{
+					$deleteResult->addErrors($onDeletePaySystemResult->getErrors());
+				}
+			}
+		}
+
+		return $deleteResult;
 	}
 
 	/**

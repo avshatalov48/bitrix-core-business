@@ -48,15 +48,18 @@ final class TasksTask extends Provider
 			return;
 		}
 
-		if (isset($cache[$taskId]))
+		$checkAccess = ($this->getOption('checkAccess') !== false);
+		$cacheKey = $taskId . '_' . ($checkAccess ? 'Y' : 'N');
+
+		if (isset($cache[$cacheKey]))
 		{
-			$task = $cache[$taskId];
+			$task = $cache[$cacheKey];
 		}
 		elseif (Loader::includeModule('tasks'))
 		{
-			$res = self::$tasksTaskClass::getByID($taskId, true);
+			$res = self::$tasksTaskClass::getByID($taskId, $checkAccess);
 			$task = $res->fetch();
-			$cache[$taskId] = $task;
+			$cache[$cacheKey] = $task;
 		}
 
 		if (empty($task))

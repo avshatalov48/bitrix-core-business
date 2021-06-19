@@ -39,7 +39,7 @@ class RecurrenceRulePropertyType extends PropertyType
 			$this->addParameter(Parameter::getInstance('INTERVAL', $this->rrule->interval));
 		}
 
-		if ($this->rrule->day)
+		if ($this->rrule->day && is_array($this->rrule->day))
 		{
 			$this->addParameter(Parameter::getInstance('BYDAY', implode(',', $this->rrule->day), true));
 		}

@@ -118,7 +118,7 @@ class CForumAdminMessages extends \CBitrixComponent
 	protected function prepareParams()
 	{
 		$this->arParams["SITES"] = [];
-		if ($dbRes = \CSite::GetList($by1 = "sort", $order1 = "asc"))
+		if ($dbRes = \CSite::GetList())
 		{
 			while ($res = $dbRes->GetNext())
 			{

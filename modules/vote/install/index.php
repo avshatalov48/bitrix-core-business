@@ -17,7 +17,7 @@ Class vote extends CModule
 	var $MODULE_GROUP_RIGHTS = "Y";
 	var $errors;
 
-	function vote()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -166,7 +166,7 @@ Class vote extends CModule
 
 		if($GLOBALS["install_public"] == "Y" && !empty($GLOBALS["public_dir"]))
 		{
-			$sites = CLang::GetList($by, $order, Array("ACTIVE"=>"Y"));
+			$sites = CLang::GetList('', '', Array("ACTIVE"=>"Y"));
 			while($site = $sites->Fetch())
 			{
 				if(file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/public/".$site["LANGUAGE_ID"]))

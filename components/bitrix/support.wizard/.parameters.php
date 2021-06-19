@@ -219,7 +219,7 @@ if ($arCurrentValues['SECTIONS_TO_CATEGORIES']=='Y')
 	if (is_array($arSelectedSections) && count($arSelectedSections)>0)
 	{
 		$arCategories = array();
-		$rs = CTicketDictionary::GetList($by,$order,array("TYPE"=>"C"),$is_filtered);
+		$rs = CTicketDictionary::GetList('', '', array("TYPE"=>"C"));
 		while($f = $rs->GetNext())
 			$arCategories[$f['ID']] = $f['NAME'];
 	

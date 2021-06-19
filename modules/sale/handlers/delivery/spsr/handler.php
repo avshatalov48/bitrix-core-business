@@ -852,6 +852,7 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 		);
 	}
 
+	/** @inheritDoc */
 	public static function isHandlerCompatible()
 	{
 		if(!parent::isHandlerCompatible())
@@ -859,17 +860,9 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 			return false;
 		}
 
-		$lang = '';
-
-		if(Loader::includeModule('bitrix24'))
-		{
-			$lang = \CBitrix24::getLicensePrefix();
-		}
-		elseif (Loader::includeModule('intranet'))
-		{
-			$lang = \CIntranetUtils::getPortalZone();
-		}
-
-		return $lang !== 'ua';
+		return in_array(
+			\Bitrix\Sale\Delivery\Helper::getPortalZone(),
+			['ru', 'kz', 'by']
+		);
 	}
 }

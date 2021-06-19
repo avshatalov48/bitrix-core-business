@@ -55,7 +55,22 @@ class CMainAdmin
 			}
 		}
 		$arrTemplate = array_values($arrTemplate);
-		usort($arrTemplate, create_function('$v1,$v2','if ($v1>$v2) return 1; elseif ($v1<$v2) return -1;'));
+
+		usort(
+			$arrTemplate,
+			function ($v1, $v2) {
+				if ($v1 > $v2)
+				{
+					return 1;
+				}
+				elseif ($v1 < $v2)
+				{
+					return -1;
+				}
+				return 0;
+			}
+		);
+
 		return $arrTemplate;
 	}
 }
@@ -110,15 +125,19 @@ class CTemplates
 				{
 					$arTemplateTemp[$sep_id] = $val_sep;
 					reset($arTemplate);
-					while(list($k, $val) = each($arTemplate))
+					while(list($k, $val) = current($arTemplate))
 					{
+						next($arTemplate);
+
 						if($val===false)
 							continue;
 
 						if($k==$sep_id)
 						{
-							while(list($k, $val) = each ($arTemplate))
+							while(list($k, $val) = current($arTemplate))
 							{
+								next($arTemplate);
+
 								if($val === false)
 									continue;
 								if($val["SEPARATOR"]=="Y")

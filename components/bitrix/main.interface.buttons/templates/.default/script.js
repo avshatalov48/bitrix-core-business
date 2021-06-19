@@ -84,6 +84,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		this.moreButton = null;
 		this.messages = null;
 		this.licenseParams = null;
+		this.ajaxSettings = null;
 		this.isSubmenuShown = false;
 		this.isSubmenuShownOnDragStart = false;
 		this.isSettingsEnabled = true;
@@ -181,10 +182,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				this.visibleControlMoreButton();
 			}
 
-			if ('ajaxSettings' in params)
-			{
-				this.ajaxSettings = params.ajaxSettings;
-			}
+			this.initSaving(params.ajaxSettings);
 
 			this.moreButton = this.getMoreButton();
 
@@ -306,7 +304,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				});
 
 				expandedParentIds = JSON.stringify(expandedParentIds);
-				BX.userOptions.save('ui', this.listContainer.id, 'expanded_lists', expandedParentIds);
+				this.saveOptions('expanded_lists', expandedParentIds);
 			}
 			else
 			{
@@ -329,7 +327,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				}.bind(this), 200);
 
 				expandedParentIds = JSON.stringify(expandedParentIds);
-				BX.userOptions.save('ui', this.listContainer.id, 'expanded_lists', expandedParentIds);
+				this.saveOptions('expanded_lists', expandedParentIds);
 			}
 
 			setTimeout(function() {
@@ -563,7 +561,6 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		{
 			BX.bind(window, 'scroll', BX.delegate(this._onScroll, this));
 		},
-
 
 		/**
 		 * Gets active element
@@ -850,7 +847,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 			if (this.lastHomeLink !== firstPageLink)
 			{
-				BX.userOptions.save('ui', this.listContainer.id, 'firstPageLink', firstPageLink);
+				this.saveOptions('firstPageLink', firstPageLink);
 				BX.onCustomEvent('BX.Main.InterfaceButtons:onFirstItemChange', [firstPageLink, firstVisibleItem]);
 			}
 
@@ -2189,6 +2186,78 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			return settings;
 		},
 
+		initSaving: function(ajaxSettings)
+		{
+			this.sendOptions = this.sendOptions.bind(this);
+			this.optionsToSave = [];
+			this.debouncedSendOptions = BX.debounce(this.sendOptions, 5000);
+			if (BX.type.isPlainObject(ajaxSettings))
+			{
+				this.ajaxSettings = {
+					componentName: ajaxSettings.componentName,
+					signedParams: ajaxSettings.signedParams,
+				};
+			}
+		},
+
+		/**
+		 * Sends settings to the server
+		 * @private
+		 * @method sendSettings
+		 * @return {undefined}
+		 */
+		sendOptions: function()
+		{
+			if (this.optionsToSave.length <= 0)
+			{
+				return;
+			}
+
+			var dataToSend = {};
+			this.optionsToSave.forEach(function(item){
+				dataToSend[item.name] = item.value;
+			});
+			this.optionsToSave = [];
+			window.removeEventListener("beforeunload", this.sendOptions);
+			BX.removeCustomEvent("SidePanel.Slider:onClose", this.sendOptions);
+			BX.ajax.runComponentAction(
+				this.ajaxSettings.componentName,
+				'save',
+				{
+					mode: 'class',
+					signedParameters: this.ajaxSettings.signedParams,
+					data: {
+						options: dataToSend
+					}
+				}
+			);
+		},
+
+		/**
+		 * Collects settings into storage and then sends
+		 * @private
+		 * @method saveOptions
+		 * @return {undefined}
+		 * @param name
+		 * @param value
+		 */
+		saveOptions: function(name, value)
+		{
+			if (this.ajaxSettings)
+			{
+				if (this.optionsToSave.length <= 0)
+				{
+					window.addEventListener("beforeunload", this.sendOptions);
+					BX.addCustomEvent("SidePanel.Slider:onClose", this.sendOptions);
+				}
+				this.optionsToSave.push({'name': name, 'value': value});
+				this.debouncedSendOptions();
+			}
+			else if (this.listContainer.id)
+			{
+				BX.userOptions.save('ui', this.listContainer.id, name, value);
+			}
+		},
 
 		/**
 		 * Saves current component settings
@@ -2200,7 +2269,6 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		{
 			var settings = this.getCurrentSettings();
 			var paramName = 'settings';
-			var containerId;
 
 			if (!BX.type.isPlainObject(settings))
 			{
@@ -2211,10 +2279,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			{
 				if ('id' in this.listContainer)
 				{
-					containerId = this.listContainer.id;
-
-					settings = JSON.stringify(settings);
-					BX.userOptions.save('ui', containerId, paramName, settings);
+					this.saveOptions(paramName, JSON.stringify(settings));
 					this.setHome();
 				}
 			}
@@ -2255,9 +2320,8 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 										}
 										else
 										{
-											var paramName = 'settings';
-											BX.userOptions.save('ui', this.listContainer.id, paramName, JSON.stringify({}));
-											BX.userOptions.save('ui', this.listContainer.id, 'firstPageLink', '');
+											this.saveOptions('settings', JSON.stringify({}));
+											this.saveOptions('firstPageLink', '');
 											window.location.reload();
 										}
 									}.bind(this));

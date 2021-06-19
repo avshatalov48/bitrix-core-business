@@ -214,9 +214,10 @@ this.BX = this.BX || {};
 	      this.accountId = null;
 	      this.pageId = null;
 
-	      this._helper.showBlockMain();
+	      if (this.clientSelector.selected) {
+	        this._helper.showBlockMain();
+	      }
 
-	      this.loadSettings();
 	      this.clientSelector.setSelected(item);
 	    }
 	  }]);
@@ -516,6 +517,7 @@ this.BX = this.BX || {};
 	    this.iBlockId = options.iBlockId;
 	    this.basePriceId = options.basePriceId;
 	    this.storeExists = options.storeExists;
+	    this.isCloud = options.isCloud || false;
 	    this.clientId = options.clientId;
 	    this.accountId = options.accountId;
 	    this.baseCurrency = options.baseCurrency;
@@ -631,11 +633,13 @@ this.BX = this.BX || {};
 	        componentName: this.componentName,
 	        uiNodes: this.uiNodes
 	      });
+	      this.profileConfigured = false;
 
 	      if (!this.clientId && !this.provider.PROFILE) {
 	        // use first client by default
 	        for (var i = 0; i < this.provider.CLIENTS.length; i++) {
 	          this.seoAccount.setProfile(this.provider.CLIENTS[i]);
+	          this.profileConfigured = true;
 	          break;
 	        }
 	      }
@@ -646,7 +650,9 @@ this.BX = this.BX || {};
 	        this.activateStage(this._STAGES.accountSelected);
 	      }
 
-	      this.seoAccount.setProfile(this.provider.PROFILE);
+	      if (!this.profileConfigured) {
+	        this.seoAccount.setProfile(this.provider.PROFILE);
+	      }
 
 	      this.seoAccount._helper.showBlockByAuth();
 	    }
@@ -1128,16 +1134,19 @@ this.BX = this.BX || {};
 	        this.storeBlockShow(false);
 	        this.openSlider(this.pageConfigurationUrl, {
 	          sessid: BX.bitrix_sessid(),
-	          targetUrl: this.uiNodes.form.targetUrl.value || ''
+	          targetUrl: this.uiNodes.form.targetUrl.value || '',
+	          cacheable: false
 	        }, this.onTargetPageSelected);
 	      }
 	    }
 	  }, {
 	    key: "openSlider",
 	    value: function openSlider(url, params, callback) {
+	      var _params$cacheable;
+
 	      var sliderOptions = {
 	        width: 990,
-	        cacheable: true,
+	        cacheable: (_params$cacheable = params.cacheable) !== null && _params$cacheable !== void 0 ? _params$cacheable : true,
 	        allowChangeHistory: false,
 	        requestMethod: 'post',
 	        requestParams: params
@@ -1146,13 +1155,6 @@ this.BX = this.BX || {};
 	      BX.removeAllCustomEvents(window, eventName, callback.bind(this));
 	      BX.addCustomEvent(window, eventName, callback.bind(this));
 	      BX.SidePanel.Instance.open(url, sliderOptions);
-	    }
-	  }, {
-	    key: "openProductSelector",
-	    value: function openProductSelector() {
-	      this.openSlider(this.productSelectornUrl, {
-	        sessid: BX.bitrix_sessid()
-	      }, this.onTargetPageSelected);
 	    }
 	  }, {
 	    key: "showAudienceExpertModeForm",
@@ -1363,15 +1365,18 @@ this.BX = this.BX || {};
 	        dialogOptions: {
 	          id: 'seo-ads-regions',
 	          context: 'SEO_ADS_REGIONS',
-	          searchOptions: {
-	            allowCreateItem: false
-	          },
-	          recentTabOptions: {
+	          tabs: [{
+	            id: 'custom-region-tab',
+	            visible: true,
+	            title: main_core.Loc.getMessage('SEO_AD_BUILDER_REGION'),
 	            stub: true,
 	            stubOptions: {
 	              title: main_core.Loc.getMessage('UI_TAG_SELECTOR_START_INPUT'),
 	              arrow: true
 	            }
+	          }],
+	          searchOptions: {
+	            allowCreateItem: false
 	          },
 	          events: {
 	            'Item:onSelect': function ItemOnSelect(event) {
@@ -1391,6 +1396,7 @@ this.BX = this.BX || {};
 	        }
 	      });
 	      selector.renderTo(document.getElementById('seo-ads-regions'));
+	      selector.getDialog().getRecentTab().setVisible(false);
 	      var selectorOptions = {
 	        iblockId: this.iBlockId,
 	        basePriceId: this.basePriceId,
@@ -1401,7 +1407,7 @@ this.BX = this.BX || {};
 	        }
 	      };
 	      this.productSelector = new catalog_productSelector.ProductSelector('facebook-product-selector', selectorOptions);
-	      main_core_events.EventEmitter.subscribe('ProductSelector:onChange', this.productSelectedEvent.bind(this));
+	      main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.productSelectedEvent.bind(this));
 	    }
 	  }, {
 	    key: "productSelectedEvent",
@@ -1422,8 +1428,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "toCreateStoreSlider",
 	    value: function toCreateStoreSlider() {
-	      this.openTargetPageSlider();
-	      return;
+	      if (!this.isCloud) {
+	        this.openTargetPageSlider();
+	        return;
+	      }
+
 	      var sliderOptions = {
 	        width: 990,
 	        cacheable: true,

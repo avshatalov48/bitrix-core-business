@@ -18,6 +18,7 @@ $MESS['LANDING_TPL_ACTION_DELETE_KNOWLEDGE'] = 'Удалить базу знан
 $MESS['LANDING_TPL_ACTION_UNDELETE'] = 'Восстановить сайт';
 $MESS['LANDING_TPL_ACTION_UNDELETE_KNOWLEDGE'] = 'Восстановить базу знаний';
 $MESS['LANDING_TPL_ACTION_ADD'] = 'Новый сайт';
+$MESS['LANDING_TPL_ACTION_ADD_PERSONAL_STORE'] = 'CRM + Интернет-магазин';
 $MESS['LANDING_TPL_ACTION_ADD_PAGE'] = 'Новый сайт';
 $MESS['LANDING_TPL_ACTION_ADD_STORE'] = 'Новый магазин';
 $MESS['LANDING_TPL_ACTION_ADD_KNOWLEDGE'] = 'Новая база знаний';

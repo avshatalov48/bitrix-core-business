@@ -147,11 +147,11 @@ class CAllAdv
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "DATE1":
@@ -235,11 +235,10 @@ class CAllAdv
 		}
 
 		$color = "";
-		reset($arrLegend);
 		$summa = 0;
 		$max = 0;
 		$total = sizeof($arrLegend);
-		while (list($key, $arr) = each($arrLegend))
+		foreach ($arrLegend as $key => $arr)
 		{
 			$color = GetNextRGB($color, $total);
 			$arr["CLR"] = $color;
@@ -249,8 +248,6 @@ class CAllAdv
 			if ($arrSum[$key]>$max) $max = $arrSum[$key];
 		}
 
-		reset($arrDays);
-		reset($arrLegend);
 		$is_filtered = (IsFiltered($strSqlSearch));
 		return $arrDays;
 	}
@@ -318,10 +315,8 @@ class CAllAdv
 	{
 		$arFilter = array("DATE1"=>$date1, "DATE2"=>$date2);
 		$d=0;
-		$by="";
-		$order="";
 		$arMaxMin=array();
-		$z = CAdv::GetDynamicList($ADV_ID, $by, $order, $arMaxMin, $arFilter);
+		$z = CAdv::GetDynamicList($ADV_ID, '', '', $arMaxMin, $arFilter);
 		while ($zr=$z->Fetch()) $d++;
 		return $d;
 	}

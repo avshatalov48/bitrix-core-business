@@ -1,5 +1,5 @@
 import {Dom, Event, Loc, Type} from 'main.core';
-import {Util} from "calendar.util";
+import {Util} from 'calendar.util';
 
 export class MeetingStatusControl extends Event.EventEmitter
 {
@@ -34,18 +34,6 @@ export class MeetingStatusControl extends Event.EventEmitter
 
 	create()
 	{
-		// this.DOM.selectorButton = this.DOM.wrap.appendChild(Dom.create("button", {
-		// 	props: {className: "webform-small-button webform-small-button-transparent webform-small-button-dropdown"},
-		// 	events: {click: this.showPopup.bind(this)}
-		// }));
-		//
-		// this.DOM.selectorButtonText = this.DOM.selectorButton.appendChild(Dom.create("button", {
-		// 	props: {className: "webform-small-button-text"}
-		// }));
-		// this.DOM.selectorButtonIcon = this.DOM.selectorButton.appendChild(Dom.create("button", {
-		// 	props: {className: "webform-small-button-icon"}
-		// }));
-
 		this.acceptBtn = new BX.UI.Button({
 			text: Loc.getMessage('EC_VIEW_DESIDE_BUT_Y'),
 			className: 'ui-btn ui-btn-primary',
@@ -59,18 +47,6 @@ export class MeetingStatusControl extends Event.EventEmitter
 			events: {click: this.decline.bind(this)}
 		});
 		this.declineBtn.renderTo(this.DOM.wrap);
-
-		// this.DOM.buttonY = this.DOM.wrap.appendChild(Dom.create("button", {
-		// 	props: {className: "webform-small-button webform-small-button-accept"},
-		// 	events: {click: this.accept.bind(this)},
-		// 	html: Loc.getMessage('EC_VIEW_DESIDE_BUT_Y')
-		// }));
-		//
-		// this.DOM.buttonN = this.DOM.wrap.appendChild(Dom.create("button", {
-		// 	props: {className: "webform-small-button webform-small-button-transparent"},
-		// 	events: {click: this.decline.bind(this)},
-		// 	html: Loc.getMessage('EC_VIEW_DESIDE_BUT_N')
-		// }));
 	}
 
 	updateStatus()
@@ -124,7 +100,5 @@ export class MeetingStatusControl extends Event.EventEmitter
 		{
 			this.emit('onSetStatus', new Event.BaseEvent({data: {status: value}}));
 		}
-
-		this.updateStatus();
 	}
 }

@@ -199,7 +199,7 @@ try
 				}
 
 				$state = true;
-				$rQuestions = CVoteQuestion::GetList($copyVote->getId(), $by, $order, array(), $is_filtered);
+				$rQuestions = CVoteQuestion::GetList($copyVote->getId());
 				while ($arQuestion = $rQuestions->Fetch())
 				{
 					$state = $state && (CVoteQuestion::Copy($arQuestion["ID"], $newID) !== false);

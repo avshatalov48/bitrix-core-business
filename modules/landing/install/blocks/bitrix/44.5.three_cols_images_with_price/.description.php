@@ -38,6 +38,7 @@ return array(
 		'.landing-block-node-card-bgimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.5.THREE_COLS_IMAGES_WITH_PRICE_NODES_LANDINGBLOCKNODECARDBGIMG'),
 			'type' => 'img',
+			'useInDesigner' => false,
 			'dimensions' => array('width' => 540),
 		),
 	),

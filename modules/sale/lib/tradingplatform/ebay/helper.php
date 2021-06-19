@@ -84,11 +84,11 @@ class Helper
 	 */
 	public static function installEvents()
 	{
-		$dbEvent = \CEventMessage::GetList($b="ID", $order="ASC", Array("EVENT_NAME" => "SALE_EBAY_ERROR"));
+		$dbEvent = \CEventMessage::GetList("id", "asc", Array("EVENT_NAME" => "SALE_EBAY_ERROR"));
 
 		if(!($dbEvent->Fetch()))
 		{
-			$langs = \CLanguage::GetList(($b=""), ($o=""));
+			$langs = \CLanguage::GetList();
 			while($lang = $langs->Fetch())
 			{
 				$lid = $lang["LID"];
@@ -106,7 +106,7 @@ class Helper
 				));
 
 				$arSites = array();
-				$sites = \CSite::GetList(($b=""), ($o=""), Array("LANGUAGE_ID"=>$lid));
+				$sites = \CSite::GetList('', '', Array("LANGUAGE_ID"=>$lid));
 				while ($site = $sites->Fetch())
 					$arSites[] = $site["LID"];
 

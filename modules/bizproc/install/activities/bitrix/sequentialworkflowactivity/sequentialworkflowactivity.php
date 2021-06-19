@@ -94,7 +94,10 @@ class CBPSequentialWorkflowActivity
 
 			/** @var CBPTrackingService $trackingService */
 			$trackingService = $this->workflow->GetService("TrackingService");
-			$trackingService->setCompletedByWorkflow($this->workflow->GetInstanceId());
+			if ($trackingService::shouldClearCompletedTracksOnly())
+			{
+				$trackingService->setCompletedByWorkflow($this->workflow->GetInstanceId());
+			}
 		}
 
 		/**

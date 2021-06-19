@@ -50,7 +50,7 @@ return array(
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_56.1.TITLE_LEFT_WITH_COLUMNS_RIGHT_NODE_TITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		),
 	),
 );

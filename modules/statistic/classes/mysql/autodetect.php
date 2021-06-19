@@ -2,7 +2,7 @@
 
 class CAutoDetect
 {
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetList($by = 's_counter', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -20,11 +20,11 @@ class CAutoDetect
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "LAST":
@@ -52,13 +52,12 @@ class CAutoDetect
 			$strSqlOrder = "ORDER BY COUNTER";
 		else
 		{
-			$by = "s_counter";
 			$strSqlOrder = "ORDER BY COUNTER";
 		}
-		if ($order!="asc")
+
+		if ($order != "asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
@@ -92,7 +91,7 @@ class CAutoDetect
 		";
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch) || $strSqlSearch_h <> '');
+
 		return $res;
 	}
 }

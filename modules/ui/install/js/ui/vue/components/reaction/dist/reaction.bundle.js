@@ -19,7 +19,7 @@
 	  angry: 'angry'
 	});
 	var ReactionOrder = ['like', 'kiss', 'laugh', 'wonder', 'cry', 'angry'];
-	ui_vue.Vue.component('bx-reaction', {
+	ui_vue.BitrixVue.component('bx-reaction', {
 	  /**
 	   * @emits 'set' {values: object}
 	   * @emits 'list' {action: string, type: string}

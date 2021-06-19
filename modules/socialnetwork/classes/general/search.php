@@ -36,12 +36,7 @@ class CSocNetSearch
 		PATH_TO_USER_FILES_ELEMENT
 		PATH_TO_USER_FILES
 	*/
-	function __construct($user_id, $group_id, $arParams)
-	{
-		$this->CSocNetSearch($user_id, $group_id, $arParams);
-	}
-
-	function CSocNetSearch($user_id, $group_id, $arParams)
+	public function __construct($user_id, $group_id, $arParams)
 	{
 		$this->_user_id = intval($user_id);
 		$this->_group_id = intval($group_id);
@@ -219,7 +214,7 @@ class CSocNetSearch
 		return $arResult;
 	}
 
-	function OnSearchReindex($NS = Array(), $oCallback = NULL, $callback_method = "")
+	public static function OnSearchReindex($NS = Array(), $oCallback = NULL, $callback_method = "")
 	{
 		global $DB;
 		$arResult = array();
@@ -308,7 +303,7 @@ class CSocNetSearch
 		return $arResult;
 	}
 
-	function OnSearchPrepareFilter($strSearchContentAlias, $field, $val)
+	public static function OnSearchPrepareFilter($strSearchContentAlias, $field, $val)
 	{
 		global $CACHE_MANAGER;
 
@@ -320,7 +315,7 @@ class CSocNetSearch
 		}
 	}
 
-	function OnSearchCheckPermissions($FIELD)
+	public static function OnSearchCheckPermissions($FIELD)
 	{
 		global $USER;
 
@@ -747,7 +742,7 @@ class CSocNetSearch
 		return $arFields;
 	}
 
-	function BeforeIndexLast($arFields)
+	public static function BeforeIndexLast($arFields)
 	{
 		if(
 			$arFields["MODULE_ID"] == "blog"
@@ -978,7 +973,7 @@ class CSocNetSearch
 		}
 	}
 
-	function IBlockElementDelete($zr)
+	public static function IBlockElementDelete($zr)
 	{
 		if(CModule::IncludeModule("search"))
 		{
@@ -1093,7 +1088,7 @@ class CSocNetSearch
 	}
 
 
-	function OnBeforeIndexUpdate($ID, $arFields)
+	public static function OnBeforeIndexUpdate($ID, $arFields)
 	{
 		if (
 			isset($arFields["PARAMS"])
@@ -1104,7 +1099,7 @@ class CSocNetSearch
 		}
 	}
 
-	function OnAfterIndexAdd($ID, $arFields)
+	public static function OnAfterIndexAdd($ID, $arFields)
 	{
 		if (
 			isset($arFields["PARAMS"])

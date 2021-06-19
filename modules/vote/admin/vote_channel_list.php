@@ -87,7 +87,7 @@ if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT=="W" && check_bitrix_sessid()
 		if($_REQUEST['action_target']=='selected')
 		{
 				$arID = Array();
-				$rsData = CVoteChannel::GetList($by, $order, $arFilter, $is_filtered);
+				$rsData = CVoteChannel::GetList('', '', $arFilter);
 				while($arRes = $rsData->Fetch())
 						$arID[] = $arRes['ID'];
 		}
@@ -120,7 +120,7 @@ if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT=="W" && check_bitrix_sessid()
 				}
 		}
 }
-$rsData = CVoteChannel::GetList($by, $order, $arFilter, $is_filtered);
+$rsData = CVoteChannel::GetList('', '', $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 
@@ -251,7 +251,7 @@ $oFilter->Begin();
 	<td><?
 	$ref = array();
 	$ref_id = array();
-	$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+	$rs = CSite::GetList();
 	while ($ar = $rs->Fetch())
 	{
 		$ref[] = "[".$ar["ID"]."] ".$ar["NAME"];

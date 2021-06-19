@@ -3,16 +3,9 @@ import {Base} from './base';
 
 export class Product extends Base
 {
-	TYPE = 'product';
-
 	isSaveable(): boolean
 	{
 		return this.getConfig('saveProductFields', false);
-	}
-
-	getType(): string
-	{
-		return Product.TYPE;
 	}
 
 	isEnableFileSaving(): boolean

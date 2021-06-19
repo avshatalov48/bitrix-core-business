@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CSupportEMail
 {
-	function OnGetFilterList()
+	public static function OnGetFilterList()
 	{
 		return Array(
 			"ID"					=>	"support",
@@ -15,7 +16,7 @@ class CSupportEMail
 			);
 	}
 
-	function PrepareVars()
+	public static function PrepareVars()
 	{
 		return
 			'W_SUPPORT_CATEGORY='.urlencode($_REQUEST["W_SUPPORT_CATEGORY"]).
@@ -27,7 +28,7 @@ class CSupportEMail
 			'&W_SUPPORT_USER_FIND='.urlencode($_REQUEST["W_SUPPORT_USER_FIND"]);
 	}
 
-	function EMailMessageCheck($arFields, $ACTION_VARS)
+	public static function EMailMessageCheck($arFields, $ACTION_VARS)
 	{
 		$arActionVars = explode("&", $ACTION_VARS);
 		$countAr = count($arActionVars);
@@ -40,7 +41,7 @@ class CSupportEMail
 		return true;
 	}
 
-	function EMailMessageAdd($arMessageFields, $ACTION_VARS)
+	public static function EMailMessageAdd($arMessageFields, $ACTION_VARS)
 	{
 		$arActionVars = explode("&", $ACTION_VARS);
 		$countAr = count($arActionVars);
@@ -150,8 +151,7 @@ class CSupportEMail
 
 		if($W_SUPPORT_USER_FIND=="Y")
 		{
-			$o = "LAST_LOGIN"; $b = "DESC";
-			$res = CUser::GetList($o, $b, Array("ACTIVE" => "Y", "=EMAIL"=>$message_email_addr));
+			$res = CUser::GetList("LAST_LOGIN", "DESC", Array("ACTIVE" => "Y", "=EMAIL"=>$message_email_addr));
 			if(($arr = $res->Fetch()) && mb_strtolower(CMailUtil::ExtractMailAddress($arr["EMAIL"])) == $message_email_addr)
 			{
 				$AUTHOR_USER_ID = $arr["ID"];
@@ -226,5 +226,3 @@ class CSupportEMail
 		}
 	}
 }
-
-?>

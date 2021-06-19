@@ -285,13 +285,13 @@ if (is_array($arResult["ActiveFeatures"]) && count($arResult["ActiveFeatures"]) 
 			if (!isset($arUsersTmp[$row['USER_ID']]))
 			{
 				$arUserInfo = array();
-				$rsUser = CUser::GetList(($by=""), ($ord=""),
+				$rsUser = CUser::GetList("", "",
 					array("ID_EQUAL_EXACT" => intval($row['USER_ID'])),
 					array("FIELDS" => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL', 'PERSONAL_PHOTO', 'EXTERNAL_AUTH_ID'))
 				);
 				if($arUser = $rsUser->GetNext())
 				{
-					if (in_array($arUser["EXTERNAL_AUTH_ID"], array("bot", "email", "__controller", "replica", "imconnector")))
+					if (in_array($arUser["EXTERNAL_AUTH_ID"], \Bitrix\Main\UserTable::getExternalUserTypes()))
 					{
 						continue;
 					}

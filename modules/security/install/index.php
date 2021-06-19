@@ -12,7 +12,7 @@ Class security extends CModule
 	var $MODULE_CSS;
 	var $MODULE_GROUP_RIGHTS = "Y";
 
-	function security()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 

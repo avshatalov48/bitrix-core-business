@@ -289,6 +289,36 @@ class LandingLandingsComponent extends LandingBaseComponent
 	}
 
 	/**
+	 * Returns array of landing ids with 'delete' locked.
+	 * @param array $ids Landing ids.
+	 * @return array
+	 */
+	protected function getDeleteLocked(array $ids): array
+	{
+		$statuses = [];
+
+		if ($ids)
+		{
+			$res = \Bitrix\Landing\Lock::getList([
+				'select' => [
+					'LANDING_ID' => 'ENTITY_ID'
+				],
+				'filter' => [
+					'ENTITY_ID' => $ids,
+					'=ENTITY_TYPE' => \Bitrix\Landing\Lock::ENTITY_TYPE_LANDING,
+					'=LOCK_TYPE' => \Bitrix\Landing\Lock::LOCK_TYPE_DELETE
+				]
+			]);
+			while ($row = $res->fetch())
+			{
+				$statuses[] = $row['LANDING_ID'];
+			}
+		}
+
+		return $statuses;
+	}
+
+	/**
 	 * Base executable method.
 	 * @return void
 	 */
@@ -432,6 +462,9 @@ class LandingLandingsComponent extends LandingBaseComponent
 				'navigation' => $this::COUNT_PER_PAGE
 			));
 			$this->arResult['NAVIGATION'] = $this->getLastNavigation();
+			$this->arResult['DELETE_LOCKED'] = $this->getDeleteLocked(
+				array_keys($this->arResult['LANDINGS'])
+			);
 
 			// base data
 			$unActive = [];

@@ -119,7 +119,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["Update"] <> '' && check_bitr
 		$FINAL_INDICATION = 0;
 	}
 
-	$MIN_TIME_BETWEEN_ATTEMPTS = $MIN_TIME_BETWEEN_ATTEMPTS_D * 60 * 24 + $MIN_TIME_BETWEEN_ATTEMPTS_H * 60 + $MIN_TIME_BETWEEN_ATTEMPTS_M;
+	$MIN_TIME_BETWEEN_ATTEMPTS =
+		(int)$MIN_TIME_BETWEEN_ATTEMPTS_D * 60 * 24
+		+ (int)$MIN_TIME_BETWEEN_ATTEMPTS_H * 60
+		+ (int)$MIN_TIME_BETWEEN_ATTEMPTS_M
+	;
 
 	$NEXT_QUESTION_ON_ERROR = ($SHOW_ERRORS == "Y" && $NEXT_QUESTION_ON_ERROR == "N" && $PASSAGE_TYPE == "2") ? "N" : "Y";
 
@@ -327,7 +331,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["Update"] <> '' && check_bitr
 					.GetFilterParams("filter_", false));
 			}
 		}
-		LocalRedirect("/bitrix/admin/learn_test_edit.php?lang=" . LANG 
+		LocalRedirect("/bitrix/admin/learn_test_edit.php?lang=" . LANG
 			. "&COURSE_ID=" . $COURSE_ID
 			. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] + 0)
 			. '&LESSON_PATH=' . urlencode($_GET['LESSON_PATH'])
@@ -444,7 +448,7 @@ $aContext = array(
 	array(
 		"ICON"  => "btn_list",
 		"TEXT"  => GetMessage("MAIN_ADMIN_MENU_LIST"),
-		"LINK"  => "learn_test_admin.php?lang=" . LANG 
+		"LINK"  => "learn_test_admin.php?lang=" . LANG
 			. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] + 0)
 			. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'])
 			. "&COURSE_ID=" . $COURSE_ID
@@ -459,8 +463,8 @@ if ($ID > 0)
 	$aContext[] = 	array(
 		"ICON" => "btn_new",
 		"TEXT"=>GetMessage("MAIN_ADMIN_MENU_CREATE"),
-		"LINK"=>"learn_test_edit.php?lang=" . LANG 
-			. "&COURSE_ID=" . $COURSE_ID 
+		"LINK"=>"learn_test_edit.php?lang=" . LANG
+			. "&COURSE_ID=" . $COURSE_ID
 			. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] + 0)
 			. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'])
 			. GetFilterParams("filter_"),
@@ -479,7 +483,7 @@ if ($ID > 0)
 		"ICON" => "btn_delete",
 		"TEXT"=>GetMessage("MAIN_ADMIN_MENU_DELETE"),
 		"LINK"	=> "javascript:if(confirm('".GetMessage("LEARNING_CONFIRM_DEL_MESSAGE")."'))window.location='learn_test_admin.php?lang=".LANG
-			. "&COURSE_ID=" . $COURSE_ID . "&action=delete&ID=" . $ID . "&" . bitrix_sessid_get() . urlencode(GetFilterParams("filter_", false)) 
+			. "&COURSE_ID=" . $COURSE_ID . "&action=delete&ID=" . $ID . "&" . bitrix_sessid_get() . urlencode(GetFilterParams("filter_", false))
 			. '&return_url=' . urlencode(urlencode($returnUrl)) . "';",
 	);
 
@@ -590,9 +594,9 @@ $context->Show();
 								$htmlSelected = ' ';
 
 							?>
-							<option value="<?php echo $arSubLesson['LESSON_ID']; ?>" 
-								<?php echo $htmlSelected; ?>><?php 
-								echo str_repeat('&nbsp;.&nbsp;', $arSubLesson['#DEPTH_IN_TREE']) 
+							<option value="<?php echo $arSubLesson['LESSON_ID']; ?>"
+								<?php echo $htmlSelected; ?>><?php
+								echo str_repeat('&nbsp;.&nbsp;', $arSubLesson['#DEPTH_IN_TREE'])
 									. htmlspecialcharsbx($arSubLesson['NAME']);
 							?></option>
 							<?php
@@ -618,9 +622,9 @@ $context->Show();
 								$htmlSelected = ' ';
 
 							?>
-							<option value="<?php echo $arSubLesson['LESSON_ID']; ?>" 
-								<?php echo $htmlSelected; ?>><?php 
-								echo str_repeat('&nbsp;.&nbsp;', $arSubLesson['#DEPTH_IN_TREE']) 
+							<option value="<?php echo $arSubLesson['LESSON_ID']; ?>"
+								<?php echo $htmlSelected; ?>><?php
+								echo str_repeat('&nbsp;.&nbsp;', $arSubLesson['#DEPTH_IN_TREE'])
 									. htmlspecialcharsbx($arSubLesson['NAME']);
 							?></option>
 							<?php
@@ -629,7 +633,7 @@ $context->Show();
 					</select>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td colspan="2"><input type="radio" name="QUESTIONS_FROM" id="QUESTIONS_FROM_A2" value="A"<?if($str_QUESTIONS_FROM=="A" && intval($str_QUESTIONS_AMOUNT)!=0)echo " checked"?> onclick="OnChangeAnswer('A');"><label for="QUESTIONS_FROM_A2"><input type="text" name="QUESTIONS_AMOUNT_A" onclick="return false;" size="2" value="<?echo ($str_QUESTIONS_FROM=="A" && $str_QUESTIONS_AMOUNT!=0? $str_QUESTIONS_AMOUNT : "")?>">&nbsp;<? echo GetMessage("LEARNING_QUESTIONS_FROM_COURSE")?></label></td>
 			</tr>
@@ -779,7 +783,7 @@ $context->Show();
 	</tr>
 <?php $tabControl->EndCustomField("PASSAGE_TYPE");?>
 <?php $tabControl->BeginCustomField("PREVIOUS_TEST", GetMessage("LEARNING_PREVIOUS_TEST_ID"), false);
-	
+
 	$PREVIOUS_TEST_COURSE_ID = null;
 	$t = CTest::GetList(array(), array("ACTIVE" => "Y", 'ID' => $str_PREVIOUS_TEST_ID));
 	if ($arData = $t->Fetch())
@@ -1104,7 +1108,7 @@ $tabControl->Buttons(
 		. "&COURSE_ID=" . $COURSE_ID
 		. GetFilterParams("find_", false)));
 
-$tabControl->arParams["FORM_ACTION"] = $APPLICATION->GetCurPage() . "?lang=" . LANG 
+$tabControl->arParams["FORM_ACTION"] = $APPLICATION->GetCurPage() . "?lang=" . LANG
 	. "&COURSE_ID=" . $COURSE_ID
 	. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] + 0)
 	. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'])

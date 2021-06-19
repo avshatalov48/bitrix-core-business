@@ -13,6 +13,7 @@ export type AdBuilderOptions = {
 	postListUrl: string,
 	basePriceId: string,
 	iBlockId: string,
+	isCloud: boolean,
 	storeExists: boolean,
 	crmAudienceUrl: string
 }

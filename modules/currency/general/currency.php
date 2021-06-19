@@ -1,8 +1,9 @@
-<?
-use Bitrix\Main,
-	Bitrix\Main\ModuleManager,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Currency;
+<?php
+
+use Bitrix\Main;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Currency;
 
 Loc::loadMessages(__FILE__);
 
@@ -19,7 +20,7 @@ class CAllCurrency
 		return CCurrency::GetByID($currency);
 	}
 
-	public function CheckFields($ACTION, &$arFields, $strCurrencyID = false)
+	public static function CheckFields($ACTION, &$arFields, $strCurrencyID = false)
 	{
 		global $APPLICATION, $DB, $USER;
 
@@ -446,19 +447,24 @@ class CAllCurrency
 	 * @deprecated deprecated since currency 16.5.0
 	 * @see \Bitrix\Currency\CurrencyTable::getList
 	 *
-	 * @param string &$by
-	 * @param string &$order
+	 * @param string $by
+	 * @param string $order
 	 * @param string $lang
 	 * @return CDBResult
 	 */
-	public static function GetList(&$by, &$order, $lang = LANGUAGE_ID)
+	public static function GetList($by = 'sort', $order = 'asc', $lang = LANGUAGE_ID)
 	{
 		global $CACHE_MANAGER;
 
-		if (defined("CURRENCY_SKIP_CACHE") && CURRENCY_SKIP_CACHE
-			|| mb_strtolower($by) == "name"
-			|| mb_strtolower($by) == "currency"
-			|| mb_strtolower($order) == "desc")
+		$by = strtolower($by);
+		$order = strtolower($order);
+
+		if (
+			defined("CURRENCY_SKIP_CACHE") && CURRENCY_SKIP_CACHE
+			|| $by == "name"
+			|| $by == "currency"
+			|| $order == "desc"
+		)
 		{
 			/** @noinspection PhpDeprecationInspection */
 			$dbCurrencyList = static::__GetList($by, $order, $lang);
@@ -497,25 +503,23 @@ class CAllCurrency
 	 * @deprecated deprecated since currency 16.5.0
 	 * @see \Bitrix\Currency\CurrencyTable::getList
 	 *
-	 * @param string &$by
-	 * @param string &$order
+	 * @param string $by
+	 * @param string $order
 	 * @param string $lang
 	 * @return CDBResult
 	 */
-	public static function __GetList(&$by, &$order, $lang = LANGUAGE_ID)
+	public static function __GetList($by = 'sort', $order = 'asc', $lang = LANGUAGE_ID)
 	{
-		$lang = mb_substr((string)$lang, 0, 2);
-		$normalBy = mb_strtolower($by);
+		$lang = substr((string)$lang, 0, 2);
+		$normalBy = strtolower($by);
 		if ($normalBy != 'currency' && $normalBy != 'name')
 		{
 			$normalBy = 'sort';
-			$by = 'sort';
 		}
-		$normalOrder = mb_strtoupper($order);
+		$normalOrder = strtoupper($order);
 		if ($normalOrder != 'DESC')
 		{
 			$normalOrder = 'ASC';
-			$order = 'asc';
 		}
 		switch($normalBy)
 		{
@@ -689,5 +693,4 @@ class CAllCurrency
 
 class CCurrency extends CAllCurrency
 {
-
 }

@@ -69,7 +69,7 @@ class CSession
 		return $ar;
 	}
 
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -88,11 +88,11 @@ class CSession
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -227,13 +227,12 @@ class CSession
 		elseif ($by == "s_url_to")			$strSqlOrder = "ORDER BY S.URL_TO ";
 		else
 		{
-			$by = "s_id";
 			$strSqlOrder = "ORDER BY S.ID";
 		}
+
 		if ($order!="asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
@@ -286,7 +285,7 @@ class CSession
 			";
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 

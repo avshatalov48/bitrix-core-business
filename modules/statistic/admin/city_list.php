@@ -16,7 +16,7 @@ $err_mess = "File: ".__FILE__."<br>Line: ";
 			GET | POST handlers
 ****************************************************************************/
 $arrCOUNTRY = array();
-$rs = CCountry::GetList($v1="s_name", $v2="asc", array(), $v);
+$rs = CCountry::GetList();
 while ($ar = $rs->Fetch())
 	$arrCOUNTRY[$ar["ID"]] = $ar["NAME"]." [".$ar["ID"]."]";
 

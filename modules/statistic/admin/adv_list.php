@@ -25,7 +25,7 @@ if ($base_currency <> '')
 		$base_currency = GetStatisticBaseCurrency();
 		$view_currency = ($find_currency <> '' && $find_currency!="NOT_REF") ? $find_currency : $base_currency;
 		$arrCurrency = array();
-		$rsCur = CCurrency::GetList(($v1="sort"), ($v2="asc"));
+		$rsCur = CCurrency::GetList("sort", "asc");
 		$arrRefID = array();
 		$arrRef = array();
 		while ($arCur = $rsCur->Fetch())
@@ -131,7 +131,7 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT>="W")
 	if($_REQUEST['action_target'] == "selected")
 	{
 		$cData = new CAdv;
-		$rsData = $cData->GetList($by2, $order2, $arFilter, $is_filtered2);
+		$rsData = $cData->GetList('', '', $arFilter, $is_filtered2);
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -167,9 +167,10 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT>="W")
 	}
 }
 
+global $by, $order;
 
 $cData = new CAdv;
-$rsData = $cData->GetList($by, $order, $arFilter, $is_filtered, "", $arrGROUP_DAYS, $v);
+$rsData = $cData->GetList($by, $order, $arFilter, $is_filtered, "", $arrGROUP_DAYS);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("STAT_ADV_PAGES")));
@@ -502,7 +503,7 @@ while($arRes = $rsData->NavNext(true, "f_")):
 	elseif($show_events=="event2") $arF["GROUP"] = "event2";
 	if ($group_by=="")
 	{
-		$events = CAdv::GetEventList($f_ID,($by2="s_def"),($order2="desc"), $arF, $v1);
+		$events = CAdv::GetEventList($f_ID, "s_def", "desc", $arF);
 	}
 	else
 	{

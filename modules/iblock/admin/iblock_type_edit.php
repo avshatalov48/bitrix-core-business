@@ -11,7 +11,7 @@ if($back_url=='')
 	$back_url = '/bitrix/admin/iblock_type_admin.php?lang='.$lang;
 
 $arIBTLang = Array();
-$l = CLanguage::GetList($lby="sort", $lorder="asc");
+$l = CLanguage::GetList();
 while($ar = $l->GetNext())
 	$arIBTLang[]=$ar;
 

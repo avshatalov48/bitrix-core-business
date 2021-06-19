@@ -53,8 +53,9 @@ class IblockInfo
 	public function canHaveSku(): bool
 	{
 		return (
-			$this->getCatalogType() === \CAllCatalogSku::TYPE_OFFERS
-			|| $this->getCatalogType() === \CAllCatalogSku::TYPE_FULL
+			$this->getCatalogType() === \CCatalogSku::TYPE_OFFERS
+			|| $this->getCatalogType() === \CCatalogSku::TYPE_FULL
+			|| $this->getCatalogType() === \CCatalogSku::TYPE_PRODUCT
 		);
 	}
 

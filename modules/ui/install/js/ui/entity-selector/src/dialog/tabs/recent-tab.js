@@ -22,6 +22,8 @@ export default class RecentTab extends Tab
 		const defaults = {
 			title: Loc.getMessage('UI_SELECTOR_RECENT_TAB_TITLE'),
 			itemOrder: { sort: 'asc' },
+			visible: !dialog.isDropdownMode(),
+			stub: !dialog.isDropdownMode(),
 			icon: {
 				//default: '/bitrix/js/ui/entity-selector/src/css/images/recent-tab-icon.svg',
 				//selected: '/bitrix/js/ui/entity-selector/src/css/images/recent-tab-icon-selected.svg'

@@ -32,7 +32,7 @@ if ($saleModulePermissions != "W")
 
 $arSites = array("" => GetMessage("GD_ORDERS_P_SITE_ID_ALL"));
 
-$dbSite = CSite::GetList($by1="sort", $order1="desc", array('ACTIVE' => 'Y'));
+$dbSite = CSite::GetList("sort", "desc", array('ACTIVE' => 'Y'));
 while($arSite = $dbSite->GetNext())
 {
 	if ($saleModulePermissions != "W")

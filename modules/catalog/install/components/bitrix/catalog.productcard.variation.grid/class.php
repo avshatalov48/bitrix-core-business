@@ -111,10 +111,12 @@ class CatalogProductVariationGridComponent
 						$copyProduct = $productRepository->getEntityById($copyProductId);
 						if ($copyProduct)
 						{
+							$copyItemMap = [];
 							$copySkuCollection = $copyProduct->getSkuCollection();
 							foreach ($copySkuCollection as $copyItem)
 							{
 								$sku = $skuCollection->create();
+								$copyItemMap[$sku->getHash()] = $copyItem->getId();
 								$fields = $copyItem->getFields();
 								unset($fields['ID'], $fields['IBLOCK_ID'], $fields['PREVIEW_PICTURE'], $fields['DETAIL_PICTURE']);
 								$sku->setFields($fields);
@@ -122,14 +124,7 @@ class CatalogProductVariationGridComponent
 								$propertyValues = [];
 								foreach ($copyItem->getPropertyCollection() as $property)
 								{
-									if ($property->isFileType())
-									{
-										$propertyValues[$property->getId()] = [];
-									}
-									else
-									{
-										$propertyValues[$property->getId()] = $property->getPropertyValueCollection()->toArray();
-									}
+									$propertyValues[$property->getId()] = $property->getPropertyValueCollection()->toArray();
 								}
 								$sku->getPropertyCollection()->setValues($propertyValues);
 
@@ -140,6 +135,11 @@ class CatalogProductVariationGridComponent
 								{
 									$sku->getMeasureRatioCollection()->setDefault($measureRatio->getRatio());
 								}
+							}
+
+							if (!empty($copyItemMap))
+							{
+								$this->arResult['COPY_ITEM_MAP'] = $copyItemMap;
 							}
 						}
 					}

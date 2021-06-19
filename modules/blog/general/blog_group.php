@@ -1,11 +1,13 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
+
 $GLOBALS["BLOG_GROUP"] = Array();
 
 class CAllBlogGroup
 {
 	/*************** ADD, UPDATE, DELETE *****************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && $arFields["NAME"] == '')
 		{
@@ -40,7 +42,7 @@ class CAllBlogGroup
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -89,4 +91,3 @@ class CAllBlogGroup
 	}
 
 }
-?>

@@ -90,12 +90,10 @@ class SectionType extends ElementType
 
 		if(self::$iblockIncluded && (int)$userField['SETTINGS']['IBLOCK_ID'])
 		{
-			$sectionEnum = new CIBlockSectionEnum();
-			$section = $sectionEnum->getTreeList(
+			$section = CIBlockSectionEnum::getTreeList(
 				(int)$userField['SETTINGS']['IBLOCK_ID'],
 				$userField['SETTINGS']['ACTIVE_FILTER']
 			);
-			unset($sectionEnum);
 		}
 		return $section;
 	}
@@ -144,8 +142,7 @@ class SectionType extends ElementType
 			];
 		}
 
-		$sectionEnum = new CIBlockSectionEnum();
-		$sectionEnumList = $sectionEnum::getTreeList(
+		$sectionEnumList = CIBlockSectionEnum::getTreeList(
 			(int)$userField['SETTINGS']['IBLOCK_ID'],
 			$userField['SETTINGS']['ACTIVE_FILTER']
 		);

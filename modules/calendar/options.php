@@ -21,7 +21,7 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 CUtil::InitJSCore(array('ajax', 'window', 'popup', 'access'));
 
 $arTypes = CCalendarType::GetList();
-$dbSites = CSite::GetList($by = 'sort', $order = 'asc', array('ACTIVE' => 'Y'));
+$dbSites = CSite::GetList('sort', 'asc', array('ACTIVE' => 'Y'));
 $sites = array();
 $default_site = '';
 while ($arRes = $dbSites->GetNext())

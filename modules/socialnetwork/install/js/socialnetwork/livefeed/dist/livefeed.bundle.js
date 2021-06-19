@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core_events,main_popup,main_core,ui_buttons) {
+(function (exports,main_popup,ui_buttons,main_core,main_core_events) {
 	'use strict';
 
 	var Utils = /*#__PURE__*/function () {
@@ -68,7 +68,10 @@ this.BX = this.BX || {};
 	    this.panelInitialized = false;
 	    this.postsInitialized = false;
 	    this.handlePostClick = this.handlePostClick.bind(this);
-	    this.init();
+	    this.options = {};
+	    /* for detail page without pinned panel */
+
+	    this.initPosts();
 	  }
 
 	  babelHelpers.createClass(PinnedPanel, [{
@@ -80,17 +83,10 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "init",
 	    value: function init() {
-	      var _this = this;
-
-	      this.options = {};
+	      /* for list page in composite mode */
 	      this.initPanel();
 	      this.initPosts();
 	      this.initEvents();
-	      main_core_events.EventEmitter.subscribe('onFrameDataProcessed', function () {
-	        _this.initPanel();
-
-	        _this.initPosts();
-	      });
 	    }
 	  }, {
 	    key: "setOptions",
@@ -105,7 +101,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "initPanel",
 	    value: function initPanel() {
-	      var _this2 = this;
+	      var _this = this;
 
 	      if (this.panelInitialized) {
 	        return;
@@ -120,7 +116,7 @@ this.BX = this.BX || {};
 	      this.panelInitialized = true;
 	      this.adjustCollapsedPostsPanel();
 	      main_core.Event.bind(this.getCollapsedPanelNode(), 'click', function () {
-	        var pinnedPanelNode = _this2.getPanelNode();
+	        var pinnedPanelNode = _this.getPanelNode();
 
 	        if (!pinnedPanelNode) {
 	          return;
@@ -135,14 +131,14 @@ this.BX = this.BX || {};
 	          pinnedPanelNode.style = '';
 	        }, 550);
 
-	        _this2.hideCollapsedPanel();
+	        _this.hideCollapsedPanel();
 	      });
 	      main_core.Event.bind(pinnedPanelNode, 'click', function (event) {
 	        var likeClicked = event.target.classList.contains('feed-inform-ilike') || event.target.closest('.feed-inform-ilike') !== null;
 	        var followClicked = event.target.classList.contains('feed-inform-follow') || event.target.closest('.feed-inform-follow') !== null;
 	        var menuClicked = event.target.classList.contains('feed-post-more-link') || event.target.closest('.feed-post-more-link') !== null || event.target.classList.contains('feed-post-right-top-menu');
 	        var contentViewClicked = event.target.classList.contains('feed-inform-contentview') || event.target.closest('.feed-inform-contentview') !== null;
-	        var pinClicked = event.target.classList.contains("".concat(_this2.class.pin)) || event.target.closest(".".concat(_this2.class.pin)) !== null;
+	        var pinClicked = event.target.classList.contains("".concat(_this.class.pin)) || event.target.closest(".".concat(_this.class.pin)) !== null;
 	        var collapseClicked = event.target.classList.contains('feed-post-pinned-link-collapse');
 	        var commentsClicked = event.target.classList.contains('feed-inform-comments-pinned') || event.target.closest('.feed-inform-comments-pinned') !== null;
 	        var postNode = null;
@@ -157,9 +153,9 @@ this.BX = this.BX || {};
 	          return;
 	        }
 
-	        if (postNode.classList.contains("".concat(_this2.class.postPinned))) {
+	        if (postNode.classList.contains("".concat(_this.class.postPinned))) {
 	          if (!likeClicked && !followClicked && !menuClicked && !contentViewClicked && !pinClicked) {
-	            postNode.classList.remove("".concat(_this2.class.postPinned));
+	            postNode.classList.remove("".concat(_this.class.postPinned));
 	            var menuId = postNode.getAttribute('data-menu-id');
 
 	            if (menuId) {
@@ -179,7 +175,7 @@ this.BX = this.BX || {};
 	          }
 
 	          if (commentsClicked) {
-	            var anchorNode = postNode.querySelector(".".concat(_this2.class.postComments, " a[name=comments]"));
+	            var anchorNode = postNode.querySelector(".".concat(_this.class.postComments, " a[name=comments]"));
 
 	            if (anchorNode) {
 	              var position = main_core.Dom.getPosition(anchorNode);
@@ -190,7 +186,7 @@ this.BX = this.BX || {};
 	          event.stopPropagation();
 	          event.preventDefault();
 	        } else if (collapseClicked) {
-	          postNode.classList.add("".concat(_this2.class.postPinned));
+	          postNode.classList.add("".concat(_this.class.postPinned));
 	          event.stopPropagation();
 	          event.preventDefault();
 	        }
@@ -199,7 +195,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "initPosts",
 	    value: function initPosts() {
-	      var _this3 = this;
+	      var _this2 = this;
 
 	      if (this.postsInitialized) {
 	        return;
@@ -212,8 +208,8 @@ this.BX = this.BX || {};
 	      }
 
 	      Array.from(postList).forEach(function (post) {
-	        main_core.Event.unbind(post, 'click', _this3.handlePostClick);
-	        main_core.Event.bind(post, 'click', _this3.handlePostClick);
+	        main_core.Event.unbind(post, 'click', _this2.handlePostClick);
+	        main_core.Event.bind(post, 'click', _this2.handlePostClick);
 	      });
 	    }
 	  }, {
@@ -245,7 +241,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "initEvents",
 	    value: function initEvents() {
-	      var _this4 = this;
+	      var _this3 = this;
 
 	      main_core_events.EventEmitter.subscribe('OnUCCommentWasRead', function (event) {
 	        var _event$getData = event.getData(),
@@ -254,17 +250,18 @@ this.BX = this.BX || {};
 	            id = _event$getData2[1],
 	            options = _event$getData2[2];
 
-	        var _this4$getCommentsDat = _this4.getCommentsData(xmlId),
-	            oldValue = _this4$getCommentsDat.oldValue,
-	            newValue = _this4$getCommentsDat.newValue;
+	        var _this3$getCommentsDat = _this3.getCommentsData(xmlId),
+	            oldValue = _this3$getCommentsDat.oldValue,
+	            newValue = _this3$getCommentsDat.newValue;
 
 	        if (!!options.new) {
-	          _this4.setCommentsData(xmlId, {
+	          _this3.setCommentsData(xmlId, {
 	            newValue: main_core.Type.isInteger(newValue) ? newValue - 1 : 0,
 	            oldValue: main_core.Type.isInteger(oldValue) ? oldValue + 1 : 1
 	          });
 	        }
 	      });
+	      main_core_events.EventEmitter.incrementMaxListeners('OnUCCommentWasPulled');
 	      main_core_events.EventEmitter.subscribe('OnUCCommentWasPulled', function (event) {
 	        var _event$getData3 = event.getData(),
 	            _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 3),
@@ -276,11 +273,11 @@ this.BX = this.BX || {};
 	            xmlId = _id[0],
 	            commentId = _id[1];
 
-	        var _this4$getCommentsDat2 = _this4.getCommentsData(xmlId),
-	            newValue = _this4$getCommentsDat2.newValue,
-	            oldValue = _this4$getCommentsDat2.oldValue,
-	            allValue = _this4$getCommentsDat2.allValue,
-	            follow = _this4$getCommentsDat2.follow;
+	        var _this3$getCommentsDat2 = _this3.getCommentsData(xmlId),
+	            newValue = _this3$getCommentsDat2.newValue,
+	            oldValue = _this3$getCommentsDat2.oldValue,
+	            allValue = _this3$getCommentsDat2.allValue,
+	            follow = _this3$getCommentsDat2.follow;
 
 	        var commentsData = {
 	          allValue: main_core.Type.isInteger(allValue) ? allValue + 1 : 1
@@ -292,7 +289,7 @@ this.BX = this.BX || {};
 	          commentsData.oldValue = main_core.Type.isInteger(oldValue) ? oldValue + 1 : 1;
 	        }
 
-	        _this4.setCommentsData(xmlId, commentsData);
+	        _this3.setCommentsData(xmlId, commentsData);
 	      });
 	      main_core_events.EventEmitter.subscribe('OnUCommentWasDeleted', function (event) {
 	        var _event$getData5 = event.getData(),
@@ -301,11 +298,11 @@ this.BX = this.BX || {};
 	            id = _event$getData6[1],
 	            data = _event$getData6[2];
 
-	        var _this4$getCommentsDat3 = _this4.getCommentsData(xmlId),
-	            oldValue = _this4$getCommentsDat3.oldValue,
-	            allValue = _this4$getCommentsDat3.allValue;
+	        var _this3$getCommentsDat3 = _this3.getCommentsData(xmlId),
+	            oldValue = _this3$getCommentsDat3.oldValue,
+	            allValue = _this3$getCommentsDat3.allValue;
 
-	        _this4.setCommentsData(xmlId, {
+	        _this3.setCommentsData(xmlId, {
 	          allValue: main_core.Type.isInteger(allValue) ? allValue - 1 : 0,
 	          oldValue: main_core.Type.isInteger(oldValue) ? oldValue - 1 : 0
 	        });
@@ -314,7 +311,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "changePinned",
 	    value: function changePinned(params) {
-	      var _this5 = this;
+	      var _this4 = this;
 
 	      var logId = params.logId ? parseInt(params.logId) : 0;
 	      var event = params.event ? params.event : null;
@@ -331,11 +328,11 @@ this.BX = this.BX || {};
 	      }
 
 	      return new Promise(function (resolve, reject) {
-	        if (!!_this5.getOption('pinBlocked') || !node || !newState) {
+	        if (!!_this4.getOption('pinBlocked') || !node || !newState) {
 	          return resolve();
 	        }
 
-	        _this5.setPostState({
+	        _this4.setPostState({
 	          node: node,
 	          state: newState
 	        });
@@ -351,14 +348,14 @@ this.BX = this.BX || {};
 	          }
 	        }).then(function (response) {
 	          if (!response.data.success) {
-	            _this5.setPostState({
+	            _this4.setPostState({
 	              node: node,
 	              state: newState === 'Y' ? 'N' : 'Y'
 	            });
 
 	            return resolve();
 	          } else {
-	            _this5.movePost({
+	            _this4.movePost({
 	              node: node,
 	              state: newState
 	            }).then(function () {
@@ -366,7 +363,7 @@ this.BX = this.BX || {};
 	            });
 	          }
 	        }, function (response) {
-	          _this5.setPostState({
+	          _this4.setPostState({
 	            node: node,
 	            state: newState === 'Y' ? 'N' : 'Y'
 	          });
@@ -436,7 +433,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "movePost",
 	    value: function movePost(params) {
-	      var _this6 = this;
+	      var _this5 = this;
 
 	      var state = params.state ? params.state : null;
 	      var node = params.node ? params.node : null;
@@ -457,24 +454,24 @@ this.BX = this.BX || {};
 	          return resolve();
 	        }
 
-	        var pinnedPanelNode = _this6.getPanelNode();
+	        var pinnedPanelNode = _this5.getPanelNode();
 
 	        if (!pinnedPanelNode) {
 	          return resolve();
 	        }
 
-	        var postToMove = post.parentNode.classList.contains("".concat(_this6.class.post)) ? post.parentNode : post;
+	        var postToMove = post.parentNode.classList.contains("".concat(_this5.class.post)) ? post.parentNode : post;
 
 	        if (state === 'Y') {
 	          var originalPostHeight = postToMove.offsetHeight;
 	          postToMove.setAttribute('bx-data-height', originalPostHeight);
 
-	          _this6.getPinnedData({
+	          _this5.getPinnedData({
 	            logId: logId
 	          }).then(function (data) {
 	            var pinnedPanelTitleNode = post.querySelector('.feed-post-pinned-title');
 	            var pinnedPanelDescriptionNode = post.querySelector('.feed-post-pinned-desc');
-	            var pinnedPanelPinNode = post.querySelector(".".concat(_this6.class.pin));
+	            var pinnedPanelPinNode = post.querySelector(".".concat(_this5.class.pin));
 
 	            if (pinnedPanelTitleNode) {
 	              pinnedPanelTitleNode.innerHTML = data.TITLE;
@@ -488,16 +485,16 @@ this.BX = this.BX || {};
 	              pinnedPanelPinNode.title = main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PIN_TITLE_Y');
 	            }
 
-	            post.classList.add("".concat(_this6.class.postPinnedHide));
+	            post.classList.add("".concat(_this5.class.postPinnedHide));
 
-	            var cancelPinnedPanel = _this6.getCancelPinnedPanel({
+	            var cancelPinnedPanel = _this5.getCancelPinnedPanel({
 	              logId: logId
 	            });
 
 	            var anchor = postToMove.nextSibling;
 	            anchor.parentNode.insertBefore(cancelPinnedPanel, anchor);
 
-	            _this6.centerCancelPinnedPanelElements({
+	            _this5.centerCancelPinnedPanelElements({
 	              cancelPinnedPanel: cancelPinnedPanel
 	            });
 
@@ -514,17 +511,17 @@ this.BX = this.BX || {};
 	              opacity: 0
 	            });
 
-	            var panelNode = _this6.getPanelNode();
+	            var panelNode = _this5.getPanelNode();
 
 	            if (panelNode) {
-	              _this6.setOptions({
+	              _this5.setOptions({
 	                panelHeight: panelNode.offsetHeight
 	              });
 	            } // list.post::hide.start, cancelPanel::show.start
 
 
 	            setTimeout(function () {
-	              postToMove.classList.add("".concat(_this6.class.postHide));
+	              postToMove.classList.add("".concat(_this5.class.postHide));
 	              Utils.setStyle(cancelPinnedPanel, {
 	                height: '53px'
 	              });
@@ -533,33 +530,33 @@ this.BX = this.BX || {};
 	                opacity: 0
 	              });
 
-	              _this6.setOptions({
+	              _this5.setOptions({
 	                pinBlocked: true
 	              });
 	            }, 100); // list.post::hide.end
 
 	            main_core.Event.unbindAll(postToMove, 'transitionend');
 	            main_core.Event.bind(postToMove, 'transitionend', function (event) {
-	              if (!_this6.checkTransitionProperty(event, 'height')) {
+	              if (!_this5.checkTransitionProperty(event, 'height')) {
 	                return;
 	              }
 
 	              main_core.Event.unbindAll(postToMove, 'transitionend');
-	              var panelPostsNode = pinnedPanelNode.querySelector(".".concat(_this6.class.panelPosts));
+	              var panelPostsNode = pinnedPanelNode.querySelector(".".concat(_this5.class.panelPosts));
 	              panelPostsNode.insertBefore(postToMove, panelPostsNode.firstChild);
 
-	              _this6.adjustCollapsedPostsPanel();
+	              _this5.adjustCollapsedPostsPanel();
 
-	              postToMove.classList.remove("".concat(_this6.class.postHide));
-	              post.classList.remove("".concat(_this6.class.postPinnedHide));
+	              postToMove.classList.remove("".concat(_this5.class.postHide));
+	              post.classList.remove("".concat(_this5.class.postPinnedHide));
 
-	              _this6.adjustPanel();
+	              _this5.adjustPanel();
 
-	              _this6.showCollapsedPostsPanel(); // pinnedPanel.post::show.start
+	              _this5.showCollapsedPostsPanel(); // pinnedPanel.post::show.start
 
 
 	              setTimeout(function () {
-	                post.classList.add("".concat(_this6.class.postPinned));
+	                post.classList.add("".concat(_this5.class.postPinned));
 	                Utils.setStyle(postToMove, {
 	                  position: '',
 	                  width: '',
@@ -568,12 +565,12 @@ this.BX = this.BX || {};
 	                  opacity: 1
 	                });
 
-	                _this6.setOptions({
+	                _this5.setOptions({
 	                  pinBlocked: false
 	                });
 
 	                setTimeout(function () {
-	                  postToMove.classList.remove("".concat(_this6.class.postHide));
+	                  postToMove.classList.remove("".concat(_this5.class.postHide));
 	                  Utils.setStyle(postToMove, {
 	                    position: '',
 	                    width: '',
@@ -592,7 +589,7 @@ this.BX = this.BX || {};
 	          Utils.setStyle(postToMove, {
 	            transition: ''
 	          });
-	          var cancelPinnedPanel = document.querySelector(".".concat(_this6.class.cancelPanel, "[bx-data-log-id=\"").concat(logId, "\"]"));
+	          var cancelPinnedPanel = document.querySelector(".".concat(_this5.class.cancelPanel, "[bx-data-log-id=\"").concat(logId, "\"]"));
 
 	          if (main_core.Type.isDomNode(cancelPinnedPanel)) {
 	            Utils.setStyle(postToMove, {
@@ -600,8 +597,8 @@ this.BX = this.BX || {};
 	            }); // pinnedPanel.post::hide.start, cancelPanel::show.start
 
 	            requestAnimationFrame(function () {
-	              postToMove.classList.add("".concat(_this6.class.postExpanding));
-	              cancelPinnedPanel.classList.add("".concat(_this6.class.postExpanding));
+	              postToMove.classList.add("".concat(_this5.class.postExpanding));
+	              cancelPinnedPanel.classList.add("".concat(_this5.class.postExpanding));
 	              Utils.setStyle(postToMove, {
 	                opacity: 0,
 	                height: 0
@@ -611,25 +608,25 @@ this.BX = this.BX || {};
 	                height: 0
 	              });
 	            });
-	            var collapsed = pinnedPanelNode.classList.contains("".concat(_this6.class.panelCollapsed));
+	            var collapsed = pinnedPanelNode.classList.contains("".concat(_this5.class.panelCollapsed));
 
 	            if (collapsed) {
 	              cancelPinnedPanel.parentNode.insertBefore(postToMove, cancelPinnedPanel.nextSibling);
 
-	              _this6.adjustCollapsedPostsPanel();
+	              _this5.adjustCollapsedPostsPanel();
 
-	              _this6.adjustPanel();
+	              _this5.adjustPanel();
 	            }
 
-	            var showCollapsed = _this6.getCollapsedPanelNode().classList.contains("".concat(_this6.class.collapsedPanelShow));
+	            var showCollapsed = _this5.getCollapsedPanelNode().classList.contains("".concat(_this5.class.collapsedPanelShow));
 
 	            if (showCollapsed) {
-	              _this6.hideCollapsedPostsPanel(); // cancelPanel::show.end
+	              _this5.hideCollapsedPostsPanel(); // cancelPanel::show.end
 
 
 	              main_core.Event.unbindAll(cancelPinnedPanel, 'transitionend');
 	              main_core.Event.bind(cancelPinnedPanel, 'transitionend', function (event) {
-	                if (!_this6.checkTransitionProperty(event, 'height')) {
+	                if (!_this5.checkTransitionProperty(event, 'height')) {
 	                  return;
 	                }
 
@@ -638,7 +635,7 @@ this.BX = this.BX || {};
 	                  display: 'block'
 	                });
 
-	                _this6.animateCancel({
+	                _this5.animateCancel({
 	                  post: post,
 	                  postToMove: postToMove,
 	                  cancelPinnedPanel: cancelPinnedPanel,
@@ -650,19 +647,19 @@ this.BX = this.BX || {};
 
 	            main_core.Event.unbindAll(postToMove, 'transitionend');
 	            main_core.Event.bind(postToMove, 'transitionend', function (event) {
-	              if (!_this6.checkTransitionProperty(event, 'opacity')) {
+	              if (!_this5.checkTransitionProperty(event, 'opacity')) {
 	                return;
 	              }
 
 	              if (!collapsed) {
 	                cancelPinnedPanel.parentNode.insertBefore(postToMove, cancelPinnedPanel.nextSibling);
 
-	                _this6.adjustCollapsedPostsPanel();
+	                _this5.adjustCollapsedPostsPanel();
 
-	                _this6.adjustPanel();
+	                _this5.adjustPanel();
 	              }
 
-	              _this6.animateCancel({
+	              _this5.animateCancel({
 	                post: post,
 	                postToMove: postToMove,
 	                cancelPinnedPanel: cancelPinnedPanel,
@@ -670,10 +667,10 @@ this.BX = this.BX || {};
 	              });
 	            });
 	          } else {
-	            post.classList.remove("".concat(_this6.class.postPinned));
+	            post.classList.remove("".concat(_this5.class.postPinned));
 	            pinnedPanelNode.parentNode.insertBefore(postToMove, pinnedPanelNode.nextSibling);
 
-	            _this6.adjustPanel();
+	            _this5.adjustPanel();
 
 	            var _originalPostHeight = postToMove.scrollHeight;
 	            postToMove.setAttribute('bx-data-height', _originalPostHeight);
@@ -691,7 +688,7 @@ this.BX = this.BX || {};
 
 	            main_core.Event.unbindAll(postToMove, 'transitionend');
 	            main_core.Event.bind(postToMove, 'transitionend', function (event) {
-	              if (!_this6.checkTransitionProperty(event, 'height')) {
+	              if (!_this5.checkTransitionProperty(event, 'height')) {
 	                return;
 	              }
 
@@ -708,7 +705,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "animateCancel",
 	    value: function animateCancel(_ref) {
-	      var _this7 = this;
+	      var _this6 = this;
 
 	      var post = _ref.post,
 	          postToMove = _ref.postToMove,
@@ -731,11 +728,11 @@ this.BX = this.BX || {};
 
 	      main_core.Event.unbindAll(postToMove, 'transitionend');
 	      main_core.Event.bind(postToMove, 'transitionend', function (event) {
-	        if (!_this7.checkTransitionProperty(event, 'height')) {
+	        if (!_this6.checkTransitionProperty(event, 'height')) {
 	          return;
 	        }
 
-	        post.classList.remove("".concat(_this7.class.postPinnedHide));
+	        post.classList.remove("".concat(_this6.class.postPinnedHide));
 	        Utils.setStyle(postToMove, {
 	          marginBottom: '',
 	          height: ''
@@ -744,14 +741,14 @@ this.BX = this.BX || {};
 	          marginBottom: '',
 	          height: ''
 	        });
-	        postToMove.classList.remove("".concat(_this7.class.postExpanding));
-	        cancelPinnedPanel.classList.remove("".concat(_this7.class.postExpanding));
+	        postToMove.classList.remove("".concat(_this6.class.postExpanding));
+	        cancelPinnedPanel.classList.remove("".concat(_this6.class.postExpanding));
 	      });
 	    }
 	  }, {
 	    key: "getCancelPinnedPanel",
 	    value: function getCancelPinnedPanel(params) {
-	      var _this8 = this;
+	      var _this7 = this;
 
 	      var logId = params.logId ? parseInt(params.logId) : 0;
 
@@ -764,7 +761,7 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isDomNode(cancelPinnedPanel)) {
 	        cancelPinnedPanel = main_core.Tag.render(_templateObject(), this.class.cancelPanel, logId, this.class.cancelPanelLabel, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_TITLE'), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_DESCRIPTION'), this.class.cancelPanelButton, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_BUTTON'));
 	        main_core.Event.bind(cancelPinnedPanel.querySelector(".".concat(this.class.cancelPanelButton)), 'click', function () {
-	          _this8.changePinned({
+	          _this7.changePinned({
 	            logId: logId,
 	            newState: 'N'
 	          }).then(function () {
@@ -806,7 +803,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "hidePinnedItems",
 	    value: function hidePinnedItems() {
-	      var _this9 = this;
+	      var _this8 = this;
 
 	      var pinnedPanelNode = this.getPanelNode();
 
@@ -838,7 +835,7 @@ this.BX = this.BX || {};
 
 	        main_core.Event.unbindAll(item, 'transitionend');
 	        main_core.Event.bind(item, 'transitionend', function (event) {
-	          if (!_this9.checkTransitionProperty(event, 'transform')) {
+	          if (!_this8.checkTransitionProperty(event, 'transform')) {
 	            return;
 	          }
 
@@ -858,7 +855,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "showPinnedItems",
 	    value: function showPinnedItems() {
-	      var _this10 = this;
+	      var _this9 = this;
 
 	      var pinnedPanelNode = this.getPanelNode();
 
@@ -884,7 +881,7 @@ this.BX = this.BX || {};
 
 	        main_core.Event.unbindAll(item, 'transitionend');
 	        main_core.Event.bind(item, 'transitionend', function (event) {
-	          if (!_this10.checkTransitionProperty(event, 'transform')) {
+	          if (!_this9.checkTransitionProperty(event, 'transform')) {
 	            return;
 	          }
 
@@ -909,11 +906,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "animateCollapsedPanel",
 	    value: function animateCollapsedPanel() {
-	      var _this11 = this;
+	      var _this10 = this;
 
 	      // collapsedPanel::hide.start
 	      requestAnimationFrame(function () {
-	        var collapsedPanel = _this11.getCollapsedPanelNode();
+	        var collapsedPanel = _this10.getCollapsedPanelNode();
 
 	        Utils.setStyle(collapsedPanel, {
 	          position: 'absolute',
@@ -921,8 +918,8 @@ this.BX = this.BX || {};
 	          width: '100%',
 	          opacity: 0
 	        });
-	        collapsedPanel.classList.remove("".concat(_this11.class.collapsedPanelHide));
-	        collapsedPanel.classList.add("".concat(_this11.class.collapsedPanelShow)); // collapsedPanel::show.start
+	        collapsedPanel.classList.remove("".concat(_this10.class.collapsedPanelHide));
+	        collapsedPanel.classList.add("".concat(_this10.class.collapsedPanelShow)); // collapsedPanel::show.start
 
 	        requestAnimationFrame(function () {
 	          Utils.setStyle(collapsedPanel, {
@@ -935,7 +932,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "adjustCollapsedPostsPanel",
 	    value: function adjustCollapsedPostsPanel() {
-	      var _this12 = this;
+	      var _this11 = this;
 
 	      var postsCounter = this.getPostsCount();
 	      var postsCounterNode = this.getCollapsedPanelNode().querySelector(".".concat(this.class.collapsedPanelCounterPostsValue));
@@ -950,7 +947,7 @@ this.BX = this.BX || {};
 
 	      if (commentsCounterNode && commentsCounterValueNode && panelNode) {
 	        var newCommentCounter = Array.from(panelNode.querySelectorAll(".".concat(this.class.collapsedPanelCounterCommentsValueNewValue))).reduce(function (acc, node) {
-	          return acc + (node.closest(".".concat(_this12.class.postUnfollowed)) ? 0 : parseInt(node.innerHTML));
+	          return acc + (node.closest(".".concat(_this11.class.postUnfollowed)) ? 0 : parseInt(node.innerHTML));
 	        }, 0);
 	        commentsCounterValueNode.innerHTML = newCommentCounter;
 
@@ -964,7 +961,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "adjustPanel",
 	    value: function adjustPanel() {
-	      var _this13 = this;
+	      var _this12 = this;
 
 	      var panelNode = this.getPanelNode();
 
@@ -973,10 +970,10 @@ this.BX = this.BX || {};
 	      }
 
 	      setTimeout(function () {
-	        if (_this13.getPostsCount() > 0) {
-	          panelNode.classList.add("".concat(_this13.class.panelNonEmpty));
+	        if (_this12.getPostsCount() > 0) {
+	          panelNode.classList.add("".concat(_this12.class.panelNonEmpty));
 	        } else {
-	          panelNode.classList.remove("".concat(_this13.class.panelNonEmpty));
+	          panelNode.classList.remove("".concat(_this12.class.panelNonEmpty));
 	        }
 	      }, 0);
 	    }
@@ -1235,16 +1232,331 @@ this.BX = this.BX || {};
 	  return Post;
 	}();
 
+	var Informer = /*#__PURE__*/function () {
+	  function Informer() {
+	    babelHelpers.classCallCheck(this, Informer);
+	    this.container = null;
+	    this.wrap = null;
+	    this.plus = null;
+	    this.value = null;
+	    this.currentSiteId = null;
+	    this.currentCounterType = null;
+	    this.counterDecrementStack = 0;
+	    this.counterValue = 0;
+	    this.lockCounterAnimation = null;
+	    this.class = {
+	      informerFixed: 'feed-new-message-informer-fixed',
+	      informerAnimation: 'feed-new-message-informer-anim',
+	      informerFixedAnimation: 'feed-new-message-informer-fix-anim',
+	      counterText: 'feed-new-message-inf-text',
+	      counterContainer: 'feed-new-message-inf-text-counter',
+	      reloadContainer: 'feed-new-message-inf-text-reload',
+	      icon: 'feed-new-message-icon',
+	      iconRotating: 'new-message-balloon-icon-rotating',
+	      plusHidden: 'feed-new-message-informer-counter-plus-hidden'
+	    };
+	  }
+
+	  babelHelpers.createClass(Informer, [{
+	    key: "init",
+	    value: function init() {
+	      this.initNodes();
+	      this.initEvents();
+	    }
+	  }, {
+	    key: "initNodes",
+	    value: function initNodes() {
+	      this.currentCounterType = main_core.Loc.getMessage('sonetLCounterType') ? main_core.Loc.getMessage('sonetLCounterType') : '**';
+	      this.currentSiteId = main_core.Loc.getMessage('SITE_ID');
+	      this.container = document.getElementById('sonet_log_counter_2_container');
+
+	      if (this.container) {
+	        this.container.addEventListener('click', this.showReloadAnimation.bind(this));
+	      }
+
+	      this.wrap = document.getElementById('sonet_log_counter_2_wrap');
+	      this.plus = document.getElementById('sonet_log_counter_2_plus');
+	      this.value = document.getElementById('sonet_log_counter_2');
+	    }
+	  }, {
+	    key: "initEvents",
+	    value: function initEvents() {
+	      var _this = this;
+
+	      main_core_events.EventEmitter.subscribe('onGoUp', function (event) {
+	        _this.unfixWrap();
+	      });
+	      main_core_events.EventEmitter.subscribe('onPullEvent-main', function (event) {
+	        var _event$getData = event.getData(),
+	            _event$getData2 = babelHelpers.slicedToArray(_event$getData, 2),
+	            command = _event$getData2[0],
+	            params = _event$getData2[1];
+
+	        if (command !== 'user_counter' || !params[_this.currentSiteId] || !params[_this.currentSiteId][_this.currentCounterType]) {
+	          return;
+	        }
+
+	        _this.changeCounter(main_core.Runtime.clone(params[_this.currentSiteId][_this.currentCounterType]));
+	      });
+	      main_core_events.EventEmitter.subscribe('onImUpdateCounter', function (event) {
+	        var _event$getData3 = event.getData(),
+	            _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
+	            arCount = _event$getData4[0];
+
+	        if (!main_core.Type.isObjectLike(arCount) || main_core.Type.isUndefined(arCount[_this.currentCounterType])) {
+	          return;
+	        }
+
+	        _this.changeCounter(arCount[_this.currentCounterType]);
+	      });
+	      main_core_events.EventEmitter.subscribe('OnUCCommentWasRead', function (event) {
+	        var _event$getData5 = event.getData(),
+	            _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 3),
+	            xmlId = _event$getData6[0],
+	            id = _event$getData6[1],
+	            options = _event$getData6[2];
+
+	        if (!main_core.Type.isObjectLike(options) || !options.live || !options.new) {
+	          return;
+	        }
+
+	        main_core_events.EventEmitter.emit('onCounterDecrement', new main_core_events.BaseEvent({
+	          compatData: [1]
+	        }));
+
+	        _this.decrementCounter(1);
+	      });
+	    }
+	  }, {
+	    key: "changeCounter",
+	    value: function changeCounter(count) {
+	      this.counterValue = parseInt(count);
+
+	      if (this.counterValue <= 0) {
+	        this.decrementStack = 0;
+	      }
+
+	      var valueToShow = this.counterValue - this.counterDecrementStack;
+	      this.changeAnimate({
+	        show: valueToShow > 0,
+	        counter: valueToShow,
+	        zeroCounterFromDb: valueToShow <= 0
+	      });
+	    }
+	  }, {
+	    key: "changeAnimate",
+	    value: function changeAnimate(params) {
+	      var _this2 = this;
+
+	      var show = !!params.show;
+	      var counterValue = parseInt(params.counter);
+	      var zeroCounterFromDb = !!params.zeroCounterFromDb;
+
+	      if (!this.container) {
+	        return;
+	      }
+
+	      var counterTextNode = this.container.querySelector("span.".concat(this.class.counterText));
+	      var reloadNode = this.container.querySelector("span.".concat(this.class.reloadContainer));
+
+	      if (this.lockCounterAnimation) {
+	        setTimeout(function () {
+	          _this2.changeAnimate({
+	            show: show,
+	            counter: counterValue
+	          });
+	        }, 200);
+	        return false;
+	      }
+
+	      if (show) {
+	        if (this.value) {
+	          this.value.innerHTML = counterValue;
+	        }
+
+	        this.showWrapAnimation();
+
+	        if (this.plus && reloadNode && reloadNode.style.display !== 'none' && counterTextNode) {
+	          reloadNode.style.display = 'none';
+	          counterTextNode.style.display = 'inline-block';
+	          this.plus.classList.remove("".concat(this.class.plusHidden));
+	        }
+	      } else if (this.wrap) {
+	        if (zeroCounterFromDb && this.wrap.classList.contains("".concat(this.class.informerAnimation))) {
+	          if (counterTextNode && reloadNode) {
+	            counterTextNode.style.display = 'none';
+	            reloadNode.style.display = 'inline-block';
+	            this.hideReloadAnimation();
+	          }
+	        } else {
+	          setTimeout(function () {
+	            _this2.hideWrapAnimation();
+	          }, 400);
+	        }
+	      }
+	    }
+	  }, {
+	    key: "showWrapAnimation",
+	    value: function showWrapAnimation() {
+	      if (!this.wrap) {
+	        return;
+	      }
+
+	      this.wrap.style.visibility = 'visible';
+	      this.wrap.classList.add("".concat(this.class.informerAnimation));
+	    }
+	  }, {
+	    key: "hideWrapAnimation",
+	    value: function hideWrapAnimation() {
+	      if (!this.wrap) {
+	        return;
+	      }
+
+	      this.wrap.classList.remove("".concat(this.class.informerAnimation));
+	      this.wrap.style.visibility = 'hidden';
+	    }
+	  }, {
+	    key: "showReloadAnimation",
+	    value: function showReloadAnimation() {
+	      if (!this.container) {
+	        return;
+	      }
+
+	      var counterWaiterNode = this.container.querySelector("span.".concat(this.class.icon));
+
+	      if (counterWaiterNode) {
+	        counterWaiterNode.classList.add(this.class.iconRotating);
+	      }
+	    }
+	  }, {
+	    key: "hideReloadAnimation",
+	    value: function hideReloadAnimation() {
+	      if (!this.container) {
+	        return;
+	      }
+
+	      var counterNodeWaiter = this.container.querySelector("span.".concat(this.class.icon));
+
+	      if (counterNodeWaiter) {
+	        counterNodeWaiter.classList.remove(this.class.iconRotating);
+	      }
+	    }
+	  }, {
+	    key: "onFeedScroll",
+	    value: function onFeedScroll() {
+	      if (!this.container || !this.wrap) {
+	        return;
+	      }
+
+	      var top = this.wrap.parentNode.getBoundingClientRect().top;
+	      var counterRect = this.container.getBoundingClientRect();
+
+	      if (top <= 0) {
+	        if (!this.wrap.classList.contains("".concat(this.class.informerFixed))) {
+	          this.container.style.left = "".concat(counterRect.left + counterRect.width / 2, "px");
+	        }
+
+	        this.fixWrap();
+	      } else {
+	        this.unfixWrap();
+	        this.container.style.left = 'auto';
+	      }
+	    }
+	  }, {
+	    key: "fixWrap",
+	    value: function fixWrap() {
+	      if (!this.wrap) {
+	        return;
+	      }
+
+	      this.wrap.classList.add("".concat(this.class.informerFixed), "".concat(this.class.informerFixedAnimation));
+	    }
+	  }, {
+	    key: "unfixWrap",
+	    value: function unfixWrap() {
+	      if (!this.wrap) {
+	        return;
+	      }
+
+	      this.wrap.classList.remove("".concat(this.class.informerFixed), "".concat(this.class.informerFixedAnimation));
+	    }
+	  }, {
+	    key: "recover",
+	    value: function recover() {
+	      if (!this.container) {
+	        return;
+	      }
+
+	      var counterContainerNode = this.container.querySelector("span.".concat(this.class.counterContainer));
+
+	      if (!counterContainerNode) {
+	        return;
+	      }
+
+	      counterContainerNode.style.display = 'inline-block';
+	      this.hideReloadNode();
+
+	      if (this.plus) {
+	        this.plus.classList.add("".concat(this.class.plusHidden));
+	      }
+	    }
+	  }, {
+	    key: "hideReloadNode",
+	    value: function hideReloadNode() {
+	      if (!this.container) {
+	        return;
+	      }
+
+	      var reloadContainerNode = this.container.querySelector("span.".concat(this.class.reloadContainer));
+
+	      if (!reloadContainerNode) {
+	        return;
+	      }
+
+	      reloadContainerNode.style.display = 'none';
+	    }
+	  }, {
+	    key: "decrementCounter",
+	    value: function decrementCounter(value) {
+	      this.counterDecrementStack += parseInt(value);
+
+	      if (!this.value) {
+	        return;
+	      }
+
+	      var counterValue = this.counterValue - this.counterDecrementStack;
+
+	      if (counterValue > 0) {
+	        this.value.innerHTML = counterValue;
+	      } else {
+	        this.changeAnimate({
+	          show: false,
+	          counter: 0
+	        });
+	      }
+	    }
+	  }]);
+	  return Informer;
+	}();
+
 	var Feed = /*#__PURE__*/function () {
 	  function Feed() {
 	    babelHelpers.classCallCheck(this, Feed);
-	    this.init();
 	    this.entryData = {};
+	    this.feedInitialized = false;
 	  }
 
 	  babelHelpers.createClass(Feed, [{
 	    key: "init",
-	    value: function init() {}
+	    value: function init() {
+	      if (this.feedInitialized) {
+	        return;
+	      }
+
+	      exports.PinnedPanelInstance.init();
+	      exports.InformerInstance.init();
+	      this.feedInitialized = true;
+	    }
 	  }, {
 	    key: "changeFollow",
 	    value: function changeFollow(params) {
@@ -1426,11 +1738,13 @@ this.BX = this.BX || {};
 	exports.FeedInstance = null;
 	exports.PinnedPanelInstance = null;
 	exports.PostInstance = null;
+	exports.InformerInstance = null;
 	main_core.Event.ready(function () {
 	  exports.FeedInstance = new Feed();
 	  exports.PinnedPanelInstance = new PinnedPanel();
 	  exports.PostInstance = new Post();
+	  exports.InformerInstance = new Informer();
 	});
 
-}((this.BX.Livefeed = this.BX.Livefeed || {}),BX.Event,BX.Main,BX,BX.UI));
+}((this.BX.Livefeed = this.BX.Livefeed || {}),BX.Main,BX.UI,BX,BX.Event));
 //# sourceMappingURL=livefeed.bundle.js.map

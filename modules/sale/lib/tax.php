@@ -176,7 +176,7 @@ class Tax
 
 		/** @var \CSaleTax $className */
 		$className = static::getTaxClassName();
-		$className::calculateTax($fields, array(), $errors = array());
+		$className::calculateTax($fields, array());
 
 		if (!$order->isUsedVat() && is_array($fields['TAX_LIST']))
 		{
@@ -301,7 +301,7 @@ class Tax
 
 			/** @var \CSaleTax $className */
 			$className = static::getTaxClassName();
-			$className::calculateDeliveryTax($fields, $options, $errors = array());
+			$className::calculateDeliveryTax($fields, $options);
 		}
 
 
@@ -462,7 +462,7 @@ class Tax
 
 		/** @var \CSaleTax $className */
 		$className = static::getTaxClassName();
-		$className::DoSaveOrderTax($order->getId(), $this->getTaxList(), $errors = array());
+		$className::DoSaveOrderTax($order->getId(), $this->getTaxList(), $errors);
 
 		if (!empty($errors) && is_array($errors))
 		{

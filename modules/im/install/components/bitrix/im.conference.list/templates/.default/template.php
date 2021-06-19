@@ -80,14 +80,19 @@ else
 {
 ?>
 	<div class="im-conference-list-empty-wrap">
-		<div class="im-conference-list-empty-title">
-			<?= Loc::getMessage(
-				'CONFERENCE_LIST_EMPTY_TITLE',
-				['#HD#' => '<span class="im-conference-list-empty-title-hd">' . Loc::getMessage('CONFERENCE_LIST_EMPTY_TITLE_HD') . '</span>']
-			) ?>
-		</div>
-		<div>
-			<button class="im-conference-list-empty-button ui-btn ui-btn-md ui-btn-success"><?= Loc::getMessage('CONFERENCE_LIST_EMPTY_BUTTON_CREATE') ?></button>
+		<div class="im-conference-list-empty-title-wrap">
+			<div class="im-conference-list-empty-title">
+				<?= Loc::getMessage(
+					'CONFERENCE_LIST_EMPTY_TITLE_NEW',
+					[
+						'#HD#' => '<span class="im-conference-list-empty-title-hd">' . Loc::getMessage('CONFERENCE_LIST_EMPTY_TITLE_HD') . '</span>',
+						'#LIMIT#' => $arResult['USER_LIMIT']
+					]
+				) ?>
+			</div>
+			<div class="im-conference-list-empty-button-wrap">
+				<button class="im-conference-list-empty-button ui-btn ui-btn-md ui-btn-success"><?= Loc::getMessage('CONFERENCE_LIST_EMPTY_BUTTON_CREATE') ?></button>
+			</div>
 		</div>
 		<div class="im-conference-list-empty-image"></div>
 	</div>

@@ -5,9 +5,9 @@
 			<div class="container g-pos-rel g-z-index-1 g-mt-50--md">
 				<div class="row align-items-center">
 					<div class="landing-block-node-container js-animation fadeInLeft col-sm-10 col-lg-8">
-						<h1 class="landing-block-node-title landing-semantic-title-image-medium g-color-white g-font-size-50 g-mb-30 g-mb-50--sm">
+						<h2 class="landing-block-node-title landing-semantic-title-image-medium g-color-white g-font-size-50 g-mb-30 g-mb-50--sm">
 							Company24 Responsive
-							Template</h1>
+							Template</h2>
 
 						<div class="row">
 							<div class="landing-block-node-card col-md-6 col-lg-6 g-mb-10 g-mb-30--md">

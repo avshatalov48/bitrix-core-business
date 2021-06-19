@@ -55,7 +55,7 @@ function getSiteTitle($siteId)
 
 	if($rsSites === '')
 	{
-		$rsSites = CSite::GetList($b="id", $o="asc", Array("ACTIVE" => "Y"));
+		$rsSites = CSite::GetList("id", "asc", Array("ACTIVE" => "Y"));
 		while($arSite = $rsSites->GetNext())
 			$arSitesShop[] = array("ID" => $arSite["ID"], "NAME" => $arSite["NAME"]);
 	}
@@ -77,7 +77,7 @@ $oSort = new CAdminUiSorting($sTableID, "SORT", "ASC");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $listSite = array();
-$sitesQueryObject = CSite::getList($bySite = "sort", $orderSite = "asc", array("ACTIVE" => "Y"));
+$sitesQueryObject = CSite::getList("sort", "asc", array("ACTIVE" => "Y"));
 while ($site = $sitesQueryObject->fetch())
 {
 	$listSite[$site["LID"]] = $site["NAME"]." [".$site["LID"]."]";
@@ -585,11 +585,9 @@ if($arSelectFieldsMap['USER_ID'] || $arSelectFieldsMap['MODIFIED_BY'])
 {
 	if(!empty($arUserID))
 	{
-		$byUser = 'ID';
-		$byOrder = 'ASC';
 		$rsUsers = CUser::GetList(
-			$byUser,
-			$byOrder,
+			'ID',
+			'ASC',
 			array('ID' => implode(' | ', array_keys($arUserID))),
 			array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL'))
 		);

@@ -84,8 +84,8 @@
 
 .landing-ui-card-library-list {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-	grid-template-rows: auto auto auto;
+	grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+	grid-template-rows: auto auto;
 	grid-column-gap: 20px;
 	grid-row-gap: 20px;
 	padding: 20px 0;
@@ -97,7 +97,7 @@
 }
 
 .landing-ui-card-library-list .landing-ui-card-image-preview-container {
-	height: 104px;
+	height: 166px;
 }
 
 .landing-ui-card-library-list .landing-ui-card-image-preview-credit {

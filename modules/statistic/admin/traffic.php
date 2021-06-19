@@ -52,7 +52,7 @@ $oSort = new CAdminSorting($sTableID);
 $lAdmin = new CAdminList($sTableID, $oSort);
 
 $ref = $ref_id = array();
-$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 {
 	$ref[] = "[".$ar["ID"]."] ".$ar["NAME"];
@@ -192,7 +192,7 @@ $lAdmin->EndPrologContent();
 
 if($graph_type=="date")
 {
-	$rsData = CTraffic::GetDailyList($by, $order, $arMaxMin, $arFilter, $is_filtered);
+	$rsData = CTraffic::GetDailyList('', '', $arMaxMin, $arFilter);
 }
 else
 {

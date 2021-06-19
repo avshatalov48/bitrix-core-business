@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["interface_grid_act"] = "Actions";
 $MESS["interface_grid_actions"] = "Action Column";
 $MESS["interface_grid_actions_list"] = "- actions -";
@@ -10,7 +10,7 @@ $MESS["interface_grid_cancel_settings"] = "Cancel";
 $MESS["interface_grid_cancel_title"] = "Quit editing mode";
 $MESS["interface_grid_check"] = "Mark for editing";
 $MESS["interface_grid_check_all"] = "Check All / Uncheck All";
-$MESS["interface_grid_checked"] = "Checked:";
+$MESS["interface_grid_checked"] = "Selected:";
 $MESS["interface_grid_colors"] = "Color Theme";
 $MESS["interface_grid_colors_title"] = "Select List Color Theme";
 $MESS["interface_grid_columns"] = "List Columns";
@@ -24,6 +24,7 @@ $MESS["interface_grid_common_default_apply"] = "Replace preferences of all users
 $MESS["interface_grid_confirm_apply"] = "Confirm";
 $MESS["interface_grid_confirm_cancel"] = "Cancel";
 $MESS["interface_grid_confirm_for_all_message"] = "Action will be applied to all items including those existing on other pages";
+$MESS["interface_grid_confirm_for_all_message_v2"] = "Action will be applied to all items selected by the filter, including items on other pages";
 $MESS["interface_grid_confirm_message"] = "Confirm action for selected items";
 $MESS["interface_grid_date"] = "Select Date in Calendar";
 $MESS["interface_grid_dblclick"] = "Double-click - ";
@@ -134,4 +135,3 @@ $MESS["interface_grid_views_setup"] = "Edit List...";
 $MESS["interface_grid_views_setup_title"] = "Configure Current List View";
 $MESS["interface_grid_views_title"] = "Manage Views";
 $MESS["interface_grid_yes"] = "Yes";
-?>

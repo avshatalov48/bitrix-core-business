@@ -9,7 +9,7 @@ class CUserTypeHlblock extends CUserTypeEnum
 	const DISPLAY_LIST = 'LIST';
 	const DISPLAY_CHECKBOX = 'CHECKBOX';
 
-	function GetUserTypeDescription()
+	public static function GetUserTypeDescription()
 	{
 		return array(
 			"USER_TYPE_ID" => self::USER_TYPE_ID,
@@ -19,7 +19,7 @@ class CUserTypeHlblock extends CUserTypeEnum
 		);
 	}
 
-	function GetDBColumnType($arUserField)
+	public static function GetDBColumnType($arUserField)
 	{
 		global $DB;
 		switch($DB->type)
@@ -174,7 +174,7 @@ class CUserTypeHlblock extends CUserTypeEnum
 		return $aMsg;
 	}
 
-	function GetList($arUserField)
+	public static function GetList($arUserField)
 	{
 		$rs = false;
 

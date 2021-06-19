@@ -98,7 +98,8 @@ export class DialogApplication
 					dialogId: this.getDialogId()
 				};
 			},
-			template: `<bx-im-application-dialog :userId="userId" :dialogId="dialogId"/>`,
+			// language=Vue
+			template: `<bx-im-application-dialog :userId="userId" :initialDialogId="dialogId"/>`,
 		})
 		.then(vue => {
 			this.template = vue;

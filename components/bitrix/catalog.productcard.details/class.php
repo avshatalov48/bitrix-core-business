@@ -8,6 +8,7 @@ use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\IoC\Dependency;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Catalog\v2\Product\BaseProduct;
+use Bitrix\Catalog\v2\Sku\BaseSku;
 use Bitrix\Currency\Integration\IblockMoneyProperty;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Iblock\Model\PropertyFeature;
@@ -20,6 +21,7 @@ use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -38,6 +40,8 @@ class CatalogProductDetailsComponent
 	private $form;
 	/** @var \Bitrix\Catalog\v2\Product\BaseProduct */
 	private $product;
+	/** @var \Bitrix\Catalog\v2\Product\BaseProduct */
+	private $copyProduct;
 
 	public function __construct($component = null)
 	{
@@ -64,6 +68,7 @@ class CatalogProductDetailsComponent
 			'PRODUCT_ID',
 			'IBLOCK_ID',
 			'PATH_TO',
+			'COPY_PRODUCT_ID',
 		];
 	}
 
@@ -216,29 +221,20 @@ class CatalogProductDetailsComponent
 		$copyProductId = (int)($this->arParams['COPY_PRODUCT_ID'] ?? 0);
 		if ($copyProductId > 0)
 		{
-			/** @var BaseProduct $copyProduct */
-			$copyProduct = $this->loadProduct($copyProductId);
-			if ($copyProduct)
+			$this->copyProduct = $this->loadProduct($copyProductId);
+			if ($this->copyProduct)
 			{
-				$fields = $copyProduct->getFields();
+				$fields = $this->copyProduct->getFields();
 				unset($fields['ID'], $fields['IBLOCK_ID'], $fields['PREVIEW_PICTURE'], $fields['DETAIL_PICTURE']);
 				$product->setFields($fields);
 				$product->getSectionCollection()->setValues(
-					$copyProduct->getSectionCollection()->getValues()
-				)
-				;
+					$this->copyProduct->getSectionCollection()->getValues()
+				);
 
 				$propertyValues = [];
-				foreach ($copyProduct->getPropertyCollection() as $property)
+				foreach ($this->copyProduct->getPropertyCollection() as $property)
 				{
-					if ($property->isFileType())
-					{
-						$propertyValues[$property->getId()] = [];
-					}
-					else
-					{
-						$propertyValues[$property->getId()] = $property->getPropertyValueCollection()->toArray();
-					}
+					$propertyValues[$property->getId()] = $property->getPropertyValueCollection()->toArray();
 				}
 				$product->getPropertyCollection()->setValues($propertyValues);
 			}
@@ -255,25 +251,30 @@ class CatalogProductDetailsComponent
 		return $product;
 	}
 
-	protected function loadProduct($productId)
+	protected function loadProduct($productId): ?BaseProduct
 	{
 		$product = null;
 
-		$productRepository = ServiceContainer::getProductRepository($this->getIblockId());
+		$repositoryFacade = ServiceContainer::getRepositoryFacade();
+		$variation = $repositoryFacade->loadVariation($productId);
 
-		if ($productRepository)
+		if ($variation === null)
 		{
-			$product = $productRepository->getEntityById($productId);
+			Toolbar::deleteFavoriteStar();
+
+			global $APPLICATION;
+			$APPLICATION->IncludeComponent(
+				"bitrix:catalog.notfounderror",
+				"",
+				[
+					'ERROR_MESSAGE' => Loc::getMessage('CPD_NOT_FOUND_ERROR_TITLE'),
+				]
+			);
+
+			return null;
 		}
 
-		if ($product === null)
-		{
-			$this->errorCollection[] = new \Bitrix\Main\Error(sprintf(
-				'Product {%s} not found.', $productId
-			));
-		}
-
-		return $product;
+		return $variation->getParent();
 	}
 
 	protected function getProduct(): ?BaseProduct
@@ -436,15 +437,24 @@ class CatalogProductDetailsComponent
 
 		$prefixLength = mb_strlen(BaseForm::GRID_FIELD_PREFIX);
 
+		$oldProductName = isset($fields['NAME']) ? $this->product->getName() : null;
 		foreach ($skuFields as $id => $sku)
 		{
 			foreach ($sku as $name => $value)
 			{
 				if (mb_strpos($name, BaseForm::GRID_FIELD_PREFIX) === 0)
 				{
-					$originalName = mb_substr($name, $prefixLength);
-					$skuFields[$id][$originalName] = $value;
 					unset($skuFields[$id][$name]);
+					$originalName = mb_substr($name, $prefixLength);
+
+					// It is necessary that the unchanged default name of variation does not remove new one,
+					// which will be setted in BaseProduct::setField
+					if ($originalName === 'NAME' && $oldProductName === $value)
+					{
+						continue;
+					}
+
+					$skuFields[$id][$originalName] = $value;
 				}
 			}
 		}
@@ -488,6 +498,7 @@ class CatalogProductDetailsComponent
 	{
 		$propertyFields = [];
 		$prefixLength = mb_strlen(BaseForm::PROPERTY_FIELD_PREFIX);
+		$propertyCollection = $this->product->getPropertyCollection();
 
 		foreach ($fields as $name => $field)
 		{
@@ -496,6 +507,20 @@ class CatalogProductDetailsComponent
 				&& mb_substr($name, -7) !== '_custom'
 			)
 			{
+				$index = mb_substr($name, $prefixLength);
+
+				$property = $propertyCollection->findById((int)$index);
+				if ($property === null)
+				{
+					$property = $propertyCollection->findByCode($index);
+				}
+
+				$propertyType = null;
+				if ($property !== null)
+				{
+					$propertyType = $property->getPropertyType();
+				}
+
 				// grid file properties
 				if (!empty($fields[$name.'_custom']['isFile']))
 				{
@@ -504,11 +529,15 @@ class CatalogProductDetailsComponent
 					unset($fields[$name.'_custom']);
 				}
 				// editor file properties
-				elseif (isset($fields[$name.'_descr']) || isset($fields[$name.'_del']))
+				elseif ($propertyType === PropertyTable::TYPE_FILE)
 				{
 					$descriptions = $fields[$name.'_descr'] ?? [];
 					$deleted = $fields[$name.'_del'] ?? [];
 					$field = $this->prepareFilePropertyFromEditor($fields[$name], $descriptions, $deleted);
+					if (empty($field))
+					{
+						$field = '';
+					}
 					unset($fields[$name.'_descr']);
 				}
 				elseif (Loader::includeModule('currency'))
@@ -526,7 +555,6 @@ class CatalogProductDetailsComponent
 					}
 				}
 
-				$index = mb_substr($name, $prefixLength);
 				$propertyFields[$index] = $field;
 
 				unset($fields[$name]);
@@ -673,20 +701,36 @@ class CatalogProductDetailsComponent
 	private function prepareFilePropertyFromGrid($propertyFields)
 	{
 		$fileProp = [];
+		$counter = 0;
 
 		foreach ($propertyFields as $key => $value)
 		{
+			$description = $propertyFields[$key.'_descr'] ?? null;
+
 			if (is_array($value))
 			{
-				$description = $propertyFields[$key.'_descr'] ?? null;
 				$fileProp[] = \CIBlock::makeFilePropArray($value, false, $description);
 			}
-			elseif (is_numeric($value) && isset($propertyFields[$key.'_descr']))
+			elseif (is_numeric($value))
 			{
-				$fileProp[] = [
-					'VALUE' => $value,
-					'DESCRIPTION' => $propertyFields[$key.'_descr'],
-				];
+				if ($this->product->isNew())
+				{
+					$fileArray = CIBlock::makeFileArray(
+						$value,
+						false,
+						$description,
+						['allow_file_id' => true]
+					);
+					$fileArray['COPY_FILE'] = 'Y';
+					$fileProp['n'.$counter++] = $fileArray;
+				}
+				elseif ($description !== null)
+				{
+					$fileProp[] = [
+						'VALUE' => $value,
+						'DESCRIPTION' => $description,
+					];
+				}
 			}
 		}
 
@@ -708,12 +752,39 @@ class CatalogProductDetailsComponent
 			$propertyFields = [$propertyFields];
 		}
 
+		if (!is_array($propertyFields))
+		{
+			$propertyFields = [$propertyFields];
+		}
+
 		if ($deleted)
 		{
 			foreach ($deleted as $key => $value)
 			{
-				unset($propertyFields[$key], $descriptions[$key]);
+				if ($value === 'Y')
+				{
+					unset($propertyFields[$key], $descriptions[$key]);
+				}
+				else
+				{
+					$propertyValueKey = array_search($value, $propertyFields, true);
+					if ($propertyValueKey !== false)
+					{
+						unset($propertyFields[$propertyValueKey]);
+					}
+
+					$propertyDescriptionKey = array_search($value, $descriptions, true);
+					if ($propertyDescriptionKey !== false)
+					{
+						unset($descriptions[$propertyDescriptionKey]);
+					}
+				}
 			}
+		}
+
+		if (empty($propertyFields))
+		{
+			return null;
 		}
 
 		foreach ($propertyFields as $key => $value)
@@ -788,195 +859,247 @@ class CatalogProductDetailsComponent
 
 		$this->prepareFileFields($fields);
 
-		if (empty($fields))
+		if (
+			empty($fields)
+			|| !$this->checkModules()
+			|| !$this->checkPermissions()
+			|| !$this->checkRequiredParameters()
+		)
 		{
 			return null;
 		}
 
-		if ($this->checkModules() && $this->checkPermissions() && $this->checkRequiredParameters())
+		$product = $this->getProduct();
+
+		if ($product === null)
 		{
-			$product = $this->getProduct();
+			return null;
+		}
 
-			if ($product)
+		$isSkuProduct = $this->parseIsSkuProduct($fields, $product);
+		if (!$isSkuProduct && $product->isNew())
+		{
+			$product->setType(ProductTable::TYPE_PRODUCT);
+		}
+
+		$skuFields = $this->parseSkuFields($fields);
+		$propertyFields = $this->parsePropertyFields($fields);
+		$this->checkCompatiblePictureFields($product, $propertyFields);
+		$sectionFields = $this->parseSectionFields($fields);
+
+		$convertedSku = null;
+		if ($isSkuProduct && $product->isSimple())
+		{
+			$convertedSku = $this->convertSimpleProductToSku($product);
+		}
+
+		$this->prepareDescriptionFields($fields);
+		$this->preparePictureFields($fields);
+
+		if (
+			(!isset($fields['CODE']) || $fields['CODE'] === '')
+			&& $product->isNew()
+		)
+		{
+			$this->prepareProductCode($fields);
+		}
+
+		$product->setFields($fields);
+
+		if ($sectionFields !== null)
+		{
+			$product->getSectionCollection()->setValues($sectionFields);
+		}
+
+		if (!empty($propertyFields))
+		{
+			$product->getPropertyCollection()->setValues($propertyFields);
+		}
+
+		$notifyAboutNewVariation = false;
+
+		if (!empty($skuFields))
+		{
+			$skuFields = array_reverse($skuFields, true);
+
+			foreach ($skuFields as $skuId => $skuField)
 			{
-				$isSkuProduct = $this->parseIsSkuProduct($fields, $product);
-				$skuFields = $this->parseSkuFields($fields);
-				$propertyFields = $this->parsePropertyFields($fields);
-				$this->checkCompatiblePictureFields($product, $propertyFields);
-				$sectionFields = $this->parseSectionFields($fields);
+				$sku = null;
 
-				$convertedSku = null;
-
-				if ($isSkuProduct && $product->isSimple())
+				if (is_numeric($skuId))
 				{
-					/** @var \Bitrix\Catalog\v2\Converter\ProductConverter $converter */
-					$converter = ServiceContainer::get(Dependency::PRODUCT_CONVERTER);
-					$result = $converter->convert($product, $converter::SKU_PRODUCT);
-					if ($result->isSuccess())
+					$skuId = (int)$skuId;
+
+					// probably simple sku came with product id
+					if ($convertedSku)
 					{
-						$convertedSku = $result->getData()['CONVERTED_SKU'] ?? null;
+						$sku = $convertedSku;
+					}
+					else
+					{
+						/** @var \Bitrix\Catalog\v2\Sku\BaseSku $sku */
+						$sku = $product->getSkuCollection()->findById($skuId);
 					}
 				}
-
-				if (!empty($fields))
+				elseif ($product->isNew() && $product->isSimple())
 				{
-					$this->prepareDescriptionFields($fields);
-					$this->preparePictureFields($fields);
-
-					if (
-						(!isset($fields['CODE']) || $fields['CODE'] === '')
-						&& $product->isNew()
-					)
-					{
-						$this->prepareProductCode($fields);
-					}
-
-					$product->setFields($fields);
+					$sku = $product->getSkuCollection()->getIterator()[0] ?? null;
 				}
 
-				if ($sectionFields !== null)
+				if ($sku === null)
 				{
-					$product->getSectionCollection()->setValues($sectionFields);
+					$notifyAboutNewVariation = true;
+
+					$sku = $this->createSkuItem($product, (int)$skuField['COPY_SKU_ID']);
 				}
 
-				if (!empty($propertyFields))
-				{
-					$product->getPropertyCollection()->setValues($propertyFields);
-				}
-
-				$notifyAboutNewVariation = false;
-
-				if (!empty($skuFields))
-				{
-					if (!$isSkuProduct && $product->isNew())
-					{
-						$product->setType(ProductTable::TYPE_PRODUCT);
-					}
-
-					// to save new variations in exactly same grid order
-					$skuFields = array_reverse($skuFields, true);
-
-					foreach ($skuFields as $skuId => $skuField)
-					{
-						$sku = null;
-
-						if (is_numeric($skuId))
-						{
-							$skuId = (int)$skuId;
-
-							// probably simple sku came with product id
-							if ($convertedSku)
-							{
-								$sku = $convertedSku;
-							}
-							else
-							{
-								/** @var \Bitrix\Catalog\v2\Sku\BaseSku $sku */
-								$sku = $product->getSkuCollection()->findById($skuId);
-							}
-						}
-						elseif ($product->isNew() && $product->isSimple())
-						{
-							$sku = $product->getSkuCollection()->getIterator()[0] ?? null;
-						}
-
-						if ($sku === null)
-						{
-							$sku = $product->getSkuCollection()
-								->create()
-								->setActive(true)
-							;
-							$notifyAboutNewVariation = true;
-						}
-
-						if ($sku === null)
-						{
-							continue;
-						}
-
-						$this->prepareSkuPictureFields($skuField);
-						$skuPropertyFields = $this->parsePropertyFields($skuField);
-						$this->checkCompatiblePictureFields($sku, $skuPropertyFields);
-						$skuPriceFields = $this->parsePriceFields($skuField);
-						$skuMeasureRatioField = $this->parseMeasureRatioFields($skuField);
-
-						if (!empty($skuField))
-						{
-							if (isset($skuField['NAME']) && $skuField['NAME'] === '')
-							{
-								$skuField['NAME'] = $product->getName();
-							}
-
-							if (isset($skuField['PURCHASING_PRICE']) && $skuField['PURCHASING_PRICE'] === '')
-							{
-								$skuField['PURCHASING_PRICE'] = null;
-							}
-
-							$sku->setFields($skuField);
-						}
-
-						if (!empty($skuPropertyFields))
-						{
-							// fix: two MORE_PHOTO fields overwrite each other (editor and grid)
-							if (
-								isset($propertyFields[BaseForm::MORE_PHOTO], $skuPropertyFields[BaseForm::MORE_PHOTO])
-								&& $product->isSimple()
-							)
-							{
-								$skuPropertyFields[BaseForm::MORE_PHOTO] = array_merge(
-									$propertyFields[BaseForm::MORE_PHOTO],
-									$skuPropertyFields[BaseForm::MORE_PHOTO]
-								);
-							}
-
-							$sku->getPropertyCollection()->setValues($skuPropertyFields);
-						}
-
-						if (!empty($skuPriceFields))
-						{
-							$sku->getPriceCollection()->setValues($skuPriceFields);
-						}
-
-						if (!empty($skuMeasureRatioField))
-						{
-							$sku->getMeasureRatioCollection()->setDefault($skuMeasureRatioField);
-						}
-					}
-				}
-
-				global $DB;
-				$DB->StartTransaction();
-
-				$result = $product->save();
-
-				if ($result->isSuccess())
-				{
-					$DB->Commit();
-
-					$redirect = !$this->hasProductId();
-					$this->setProductId($product->getId());
-
-					$response = [
-						'ENTITY_ID' => $product->getId(),
-						'ENTITY_DATA' => $this->getForm()->getValues(false),
-						'NOTIFY_ABOUT_NEW_VARIATION' => $redirect ? false : $notifyAboutNewVariation,
-						'IS_SIMPLE_PRODUCT' => $product->isSimple(),
-					];
-
-					if ($redirect)
-					{
-						$response['REDIRECT_URL'] = $this->getProductDetailUrl();
-					}
-
-					return $response;
-				}
-
-				$DB->Rollback();
-				$this->errorCollection->add($result->getErrors());
+				$this->fillSku($sku, $skuField);
 			}
 		}
 
-		return null;
+		return $this->saveInternal($product, $notifyAboutNewVariation);
+	}
+
+	private function convertSimpleProductToSku(BaseProduct $product): ?BaseSku
+	{
+		/** @var \Bitrix\Catalog\v2\Converter\ProductConverter $converter */
+		$converter = ServiceContainer::get(Dependency::PRODUCT_CONVERTER);
+		$result = $converter->convert($product, $converter::SKU_PRODUCT);
+		if (!$result->isSuccess())
+		{
+			return null;
+		}
+
+		return $result->getData()['CONVERTED_SKU'] ?? null;
+	}
+
+	private function fillSku(BaseSku $sku, array $fields = []): void
+	{
+		$product = $sku->getParent();
+		$this->prepareSkuPictureFields($fields);
+		$skuPropertyFields = $this->parsePropertyFields($fields);
+		$this->checkCompatiblePictureFields($sku, $skuPropertyFields);
+		$skuPriceFields = $this->parsePriceFields($fields);
+		$skuMeasureRatioField = $this->parseMeasureRatioFields($fields);
+
+		if (!empty($fields))
+		{
+			if (isset($fields['NAME']) && $fields['NAME'] === '' && $product)
+			{
+				$fields['NAME'] = $product->getName();
+			}
+
+			if (isset($fields['PURCHASING_PRICE']) && $fields['PURCHASING_PRICE'] === '')
+			{
+				$fields['PURCHASING_PRICE'] = null;
+			}
+
+			$sku->setFields($fields);
+		}
+
+		if (!empty($skuPropertyFields))
+		{
+			// fix: two MORE_PHOTO fields overwrite each other (editor and grid)
+			if (
+				isset($propertyFields[BaseForm::MORE_PHOTO], $skuPropertyFields[BaseForm::MORE_PHOTO])
+				&& $product
+				&& $product->isSimple()
+			)
+			{
+				$skuPropertyFields[BaseForm::MORE_PHOTO] = array_merge(
+					$propertyFields[BaseForm::MORE_PHOTO],
+					$skuPropertyFields[BaseForm::MORE_PHOTO]
+				);
+			}
+
+			$sku->getPropertyCollection()->setValues($skuPropertyFields);
+		}
+
+		if (!empty($skuPriceFields))
+		{
+			$sku->getPriceCollection()->setValues($skuPriceFields);
+		}
+
+		if (!empty($skuMeasureRatioField))
+		{
+			$sku->getMeasureRatioCollection()->setDefault($skuMeasureRatioField);
+		}
+	}
+
+	private function createSkuItem(BaseProduct $product, int $copySkuId = null): BaseSku
+	{
+		/** @var BaseSku $sku */
+		$sku = $product->getSkuCollection()
+			->create()
+			->setActive(true)
+		;
+
+		if ($this->copyProduct && $copySkuId > 0)
+		{
+			$copySku = $this->copyProduct->getSkuCollection()->findById($copySkuId);
+			if ($copySku)
+			{
+				$fields = $copySku->getFields();
+				unset($fields['ID'], $fields['IBLOCK_ID'], $fields['PREVIEW_PICTURE'], $fields['DETAIL_PICTURE']);
+				$sku->setFields($fields);
+
+				$propertyValues = [];
+				foreach ($copySku->getPropertyCollection() as $property)
+				{
+					$propertyValues[$property->getId()] = $property->getPropertyValueCollection()->toArray();
+				}
+
+				if (!empty($propertyValues))
+				{
+					$sku->getPropertyCollection()->setValues($propertyValues);
+				}
+
+				$sku->getPriceCollection()->setValues($copySku->getPriceCollection()->getValues());
+
+				$measureRatio = $copySku->getMeasureRatioCollection()->findDefault();
+				if ($measureRatio)
+				{
+					$sku->getMeasureRatioCollection()->setDefault($measureRatio->getRatio());
+				}
+			}
+		}
+
+		return $sku;
+	}
+
+	private function saveInternal(BaseProduct $product, bool $notifyAboutNewVariation = false): ?array
+	{
+		global $DB;
+		$DB->StartTransaction();
+
+		$result = $product->save();
+
+		if (!$result->isSuccess())
+		{
+			$DB->Rollback();
+			$this->errorCollection->add($result->getErrors());
+
+			return null;
+		}
+
+		$DB->Commit();
+
+		$redirect = !$this->hasProductId();
+		$this->setProductId($product->getId());
+
+		$response = [
+			'ENTITY_ID' => $product->getId(),
+			'ENTITY_DATA' => $this->getForm()->getValues(false),
+			'NOTIFY_ABOUT_NEW_VARIATION' => $redirect ? false : $notifyAboutNewVariation,
+			'IS_SIMPLE_PRODUCT' => $product->isSimple(),
+		];
+
+		if ($redirect)
+		{
+			$response['REDIRECT_URL'] = $this->getProductDetailUrl();
+		}
+
+		return $response;
 	}
 
 	public function refreshLinkedPropertiesAction(array $sectionIds = []): ?array

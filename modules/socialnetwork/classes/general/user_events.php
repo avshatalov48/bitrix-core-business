@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSocNetUserEvents
@@ -6,7 +7,7 @@ class CAllSocNetUserEvents
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $DB, $arSocNetUserEvents;
 
@@ -63,7 +64,7 @@ class CAllSocNetUserEvents
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -95,7 +96,7 @@ class CAllSocNetUserEvents
 		return $bSuccess;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -131,7 +132,7 @@ class CAllSocNetUserEvents
 	/***************************************/
 	/**********  DATA SELECTION  ***********/
 	/***************************************/
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -152,7 +153,7 @@ class CAllSocNetUserEvents
 	/***************************************/
 	/**********  COMMON METHODS  ***********/
 	/***************************************/
-	function GetEventSite($userID, $event, $defSiteID)
+	public static function GetEventSite($userID, $event, $defSiteID)
 	{
 		global $arSocNetUserEvents;
 
@@ -182,4 +183,3 @@ class CAllSocNetUserEvents
 		return $arUserEvents[$event];
 	}
 }
-?>

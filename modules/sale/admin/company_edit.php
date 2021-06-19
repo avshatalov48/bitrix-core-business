@@ -249,10 +249,8 @@ if ($id > 0)
 	}
 }
 
-$b = "c_sort";
-$o = "asc";
 $userGroupList = array();
-$resGroups = CGroup::GetList($b, $o, array("ANONYMOUS" => "N"));
+$resGroups = CGroup::GetList("c_sort", "asc", array("ANONYMOUS" => "N"));
 while ($groupData = $resGroups->Fetch())
 {
 	$groupData["ID"] = (int)$groupData["ID"];
@@ -290,10 +288,8 @@ if ($id > 0)
 	}
 }
 
-$b = "c_sort";
-$o = "asc";
 $userGroupList = array();
-$resGroups = CGroup::GetList($b, $o, array("ANONYMOUS" => "N"));
+$resGroups = CGroup::GetList("c_sort", "asc", array("ANONYMOUS" => "N"));
 while ($groupData = $resGroups->Fetch())
 {
 	$groupData["ID"] = (int)$groupData["ID"];

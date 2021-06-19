@@ -8,18 +8,15 @@ use \Bitrix\Main\Localization\Loc;
 
 Loc::loadLanguageFile(__FILE__);
 
-$buttons = \Bitrix\Landing\Hook\Page\B24button::getButtons();
-$buttons = array_keys($buttons);
 
 return array(
 	'code' => 'clothes',
-	'name' => Loc::getMessage('LANDING_DEMO_STORE_CLOTHES-SITE--NAME'),
+	'name' => Loc::getMessage('LANDING_DEMO_STORE_CLOTHES-SITE--NAME_NEW'),
 	'description' => Loc::getMessage('LANDING_DEMO_STORE_CLOTHES-SITE--DESC'),
 	'type' => 'store',
 	'sort' => 40,
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
-			'B24BUTTON_CODE' => $buttons[0],
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'ltr',
 			'UP_SHOW' => 'Y',

@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/iblock/general/ratings_components.php");
 
 class CRatingsComponentsIBlock
 {	
-	function OnGetRatingContentOwner($arParams)
+	public static function OnGetRatingContentOwner($arParams)
 	{
 		if ($arParams['ENTITY_TYPE_ID'] == 'IBLOCK_ELEMENT')
 		{
@@ -25,5 +26,3 @@ class CRatingsComponentsIBlock
 		return false;
 	}
 }
-
-?>

@@ -419,7 +419,7 @@ if ($arResult["FatalErrorMessage"] == '')
 	{
 		$arResult["AvailableUserGroups"] = array();
 
-		$dbRes = CGroup::GetList($by = "c_sort", $order = "asc");
+		$dbRes = CGroup::GetList();
 		while ($arRes = $dbRes->Fetch())
 		{
 			if ($arRes["ID"] <> 1)

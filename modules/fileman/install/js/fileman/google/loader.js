@@ -48,11 +48,25 @@
 		else if(!this.initProgress)
 		{
 			this.initProgress = true;
-
-			BX.loadScript(location.protocol + '//maps.google.com/maps/api/js?key=' + BX.util.urlencode(this.apiKey) + '&libraries=places&language=' + BX.message('LANGUAGE_ID'), BX.delegate(this.resolveInit, this));
+			var lang = this.getGoogleLang(BX.message('LANGUAGE_ID'));
+			BX.loadScript(location.protocol + '//maps.google.com/maps/api/js?key=' + BX.util.urlencode(this.apiKey) + '&libraries=places&language=' + lang, BX.delegate(this.resolveInit, this));
 		}
 
 		return this;
+	};
+
+	BX.Fileman.Google.Loader.prototype.getGoogleLang = function(bitrixLang)
+	{
+		var langMap = {
+			'br': 'pt-BR',	// Portuguese (Brazil)
+			'la': 'es', 		// Spanish
+			'sc': 'zh-CN', 	// Chinese (Simplified)
+			'tc': 'zh-TW', 	// Chinese (Traditional)
+			'vn': 'vi', 		// Vietnamese
+			'ua': 'uk'			// Ukraine
+		};
+
+		return typeof langMap[bitrixLang] !== 'undefined' ? langMap[bitrixLang] : bitrixLang;
 	};
 
 	BX.Fileman.Google.Loader.prototype.resolveInit = function()

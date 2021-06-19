@@ -9,7 +9,7 @@ use \Bitrix\Main\Localization\Loc;
 return array(
 	'parent' => 'clothes',
 	'code' => 'clothes/mainpage',
-	'name' => Loc::getMessage('LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TITLE'),
+	'name' => Loc::getMessage('LANDING_DEMO_STORE_CLOTHES-MAINPAGE--TITLE_NEW'),
 	'description' => Loc::getMessage('LANDING_DEMO_STORE_CLOTHES-MAINPAGE--DESC'),
 	'type' => 'store',
 	'version' => 2,

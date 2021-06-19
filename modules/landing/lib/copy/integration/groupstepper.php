@@ -176,10 +176,15 @@ class GroupStepper extends Stepper
 
 	private function updateBlockIds(array $pageMapIds, array $blockMapIds): void
 	{
+		ksort($pageMapIds);
+		ksort($blockMapIds);
+
+		Landing\Landing::setEditMode();
+
 		foreach ($pageMapIds as $pageId => $copiedPageId)
 		{
-			$landingMapIds['#landing'.$pageId] = '#landing'.$copiedPageId;
-			unset($landingMapIds[$pageId]);
+			$pageMapIds['#landing'.$pageId] = '#landing'.$copiedPageId;
+			unset($pageMapIds[$pageId]);
 		}
 		foreach ($blockMapIds as $blockId => $copiedBlockId)
 		{
@@ -321,7 +326,7 @@ class GroupStepper extends Stepper
 	protected function getOptionData($optionName)
 	{
 		$option = Option::get(static::$moduleId, $optionName);
-		$option = ($option !== "" ? unserialize($option) : []);
+		$option = ($option !== "" ? unserialize($option, ['allowed_classes' => false]) : []);
 		return (is_array($option) ? $option : []);
 	}
 

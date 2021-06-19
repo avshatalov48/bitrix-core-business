@@ -18,8 +18,20 @@
 	margin-bottom: 5px;
 }
 
-.bx-im-message-content a {color:#1d54a2; text-decoration:underline;}
-.bx-im-message-content a:hover {text-decoration:none;}
+.bx-im-message-content a {
+	font-size: 14px;
+	line-height: 19px;
+	color:#1d54a2;
+	text-decoration:underline;
+}
+
+.bx-im-message-content a:hover {
+	text-decoration:none;
+}
+
+.bx-im-dialog-dark-background .bx-im-message-type-system .bx-im-message-content a {
+	color:#85b0ec;
+}
 
 .bx-im-message-type-opponent .bx-im-message-content {
 	border: 0;
@@ -32,6 +44,10 @@
 	-webkit-box-shadow: none;
 	        box-shadow: none;
 	color: #717171;
+}
+
+.bx-im-dialog-dark-background .bx-im-message-type-system .bx-im-message-content {
+	color: #bfbfbf;
 }
 
 .bx-im-message-status-unread .bx-im-message-content {
@@ -71,18 +87,16 @@
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-align: baseline;
-	    -ms-flex-align: baseline;
-	        align-items: baseline;
 }
 
 .bx-im-message-extranet-icon {
 	width: 12px;
-	height: 12px;
+	height: 13px;
 	margin-right: 3px;
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2227%22%20height%3D%2227%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M13.633.073c-7.18%200-13%205.82-13%2013%200%207.179%205.82%2013%2013%2013s13-5.82%2013-13-5.82-13-13-13zM4.92%2020.525c-.033.029-.179.14-.36.273a11.858%2011.858%200%2001-2.843-7.725c0-.555.04-1.104.113-1.646.68.882%201.427%202.073%201.684%202.43.419.583.885%201.156%201.292%201.748.685.997%201.4%202.362%201.037%203.602-.157.532-.506.965-.923%201.318zm13.728-9.65c.412%201.617%201.501%202.358%203.266%202.224.837-.063.783%202.176.249%203.1-.661%201.145-.49%202.504-1.115%203.647-.394.72-1.064%201.254-1.593%201.869-.663.77-1.407%201.514-2.512%201.419-.728-.063-1.031-.87-1.174-1.446-.235-.952-.435-2.403-.6-4.353-.685-1.48-1.801-1.995-3.35-1.543-2.322.678-2.795-1.122-2.86-2.833-.158-4.22%203.392-4.666%203.803-4.592.59.106%202.32.404%202.754.643%201.472.813%202.98-.307%202.86-.9-.117-.593-3.775-1.445-5.072-1.537-1.296-.093-1.416.368-1.772-.023-.287-.315-.022-.816.18-1.081%201.43-1.886%203.817-2.342%205.835-3.324.031-.016.078-.124.133-.284a11.88%2011.88%200%20014.38%202.786%2011.881%2011.881%200%20012.915%204.757c-.43.254.427-.087-1.824.436-1.5.35-3.001.694-4.503%201.036z%22%20fill%3D%22%23D79125%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E');
 	background-repeat: no-repeat;
-	background-size: cover;
+	background-size: contain;
+	margin-top: 3px;
 }
 
 .bx-im-message-content-name {
@@ -199,6 +213,11 @@
 	border-bottom: 1px dotted #1d54a2;
 }
 
+.bx-im-dialog-dark-background .bx-im-message-type-system .bx-im-mention {
+	color: #85b0ec;
+	border-bottom-color: #85b0ec;
+}
+
 .bx-im-smile-like {
 	display: inline-block;
 	height: 20px;
@@ -233,14 +252,6 @@
 .bx-im-message-content-fit .bx-im-message-content-reaction {
 	margin-right: 16px;
 	margin-top: -9px;
-}
-
-.bx-im-dialog-dark-background .bx-im-message-type-system .bx-im-message-content {
-	color: #949494;
-}
-
-.bx-im-dialog-dark-background .bx-im-dialog-status {
-	color: #949494;
 }
 
 /*

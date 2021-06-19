@@ -1,6 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
-$rsSite = CSite::GetList($by="sort", $order="asc", $arFilter=array("ACTIVE" => "Y"));
+$rsSite = CSite::GetList("sort", "asc", $arFilter=array("ACTIVE" => "Y"));
 $arSites = array("*all*" => GetMessage("SITE_SELECTOR_SITES_ALL"));
 while ($arSite = $rsSite->GetNext())
 {

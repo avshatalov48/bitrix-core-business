@@ -419,7 +419,8 @@ if(is_array($arResult["Structure"])):
 
 function socnet_show_section(&$arStructure, &$arResult, $CUR_LEVEL = 1)
 {
-	while(list($key, $department) = each($arStructure)):
+	while(list($key, $department) = current($arStructure)):
+		next($arStructure);
 		if($department["DEPTH_LEVEL"]==$CUR_LEVEL):
 			?>
 			<div class="socnet-user-section">
@@ -435,13 +436,8 @@ function socnet_show_section(&$arStructure, &$arResult, $CUR_LEVEL = 1)
 			<div style="display:none;" id="dep_<?=$department["ID"]?>_block" class="socnet-user-contact-block">
 				<?
 				$bExit = false;
-				if(list($key, $subdepartment) = each($arStructure))
+				if(list($key, $subdepartment) = current($arStructure))
 				{
-					if ($key != (count($arStructure)-1))
-						prev($arStructure);
-					else
-						end($arStructure);
-
 					if($subdepartment["DEPTH_LEVEL"] > $department["DEPTH_LEVEL"])
 						socnet_show_section($arStructure, $arResult, $CUR_LEVEL+1);
 					if($subdepartment["DEPTH_LEVEL"] < $department["DEPTH_LEVEL"])

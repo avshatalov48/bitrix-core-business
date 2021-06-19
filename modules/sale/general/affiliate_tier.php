@@ -1,11 +1,12 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 $GLOBALS["SALE_AFFILIATE_TIER"] = Array();
 
 class CAllSaleAffiliateTier
 {
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "SITE_ID") || $ACTION=="ADD") && $arFields["SITE_ID"] == '')
 		{
@@ -46,7 +47,7 @@ class CAllSaleAffiliateTier
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -59,7 +60,7 @@ class CAllSaleAffiliateTier
 		return $DB->Query("DELETE FROM b_sale_affiliate_tier WHERE ID = ".$ID." ", true);
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -96,7 +97,7 @@ class CAllSaleAffiliateTier
 		return $ID;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -126,4 +127,3 @@ class CAllSaleAffiliateTier
 		return false;
 	}
 }
-?>

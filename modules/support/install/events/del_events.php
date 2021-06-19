@@ -27,7 +27,7 @@ $arEventNames = array(
 	'TICKET_OVERDUE_REMINDER',
 	'TICKET_GENERATE_SUPERCOUPON',
 );
-$rs = CEventMessage::GetList($v1, $v2, array('EVENT_NAME' => implode('|', $arEventNames)));
+$rs = CEventMessage::GetList('', '', array('EVENT_NAME' => implode('|', $arEventNames)));
 while ($arEventMessage = $rs->Fetch())
 {
 	CEventMessage::Delete($arEventMessage['ID']);

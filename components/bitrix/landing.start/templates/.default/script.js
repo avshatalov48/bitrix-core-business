@@ -51,11 +51,18 @@
 		{
 			return;
 		}
+		if (typeof BX.Landing.Metrika === 'undefined')
+		{
+			return;
+		}
+
+		var metrika = new BX.Landing.Metrika(true);
 		for (var i = 0, c = querySelector.length; i < c; i++)
 		{
 			BX.bind(querySelector[i], 'click', function(e)
 			{
-				BX.Landing.Utils.AnalyticLabel(
+				metrika.sendLabel(
+					null,
 					BX.data(this, 'metrika24'),
 					BX.data(this, 'metrika24value')
 				);

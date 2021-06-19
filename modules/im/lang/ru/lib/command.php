@@ -8,6 +8,7 @@ $MESS["COMMAND_DEF_QUOTE_TITLE"] = "Текст будет отображен в 
 $MESS["COMMAND_DEF_QUOTE_PARAMS"] = "текст";
 $MESS["COMMAND_DEF_RENAME_TITLE"] = "Изменение заголовка чата";
 $MESS["COMMAND_DEF_RENAME_PARAMS"] = "новый заголовок";
+$MESS["COMMAND_DEF_DIALOGID_TITLE"] = "Получить идентификатор чата для внешних интеграций (dialogId)";
 $MESS["COMMAND_DEF_WD_TITLE"] = "Включение режима отладки видео-звонков";
 $MESS["COMMAND_DEF_STTS_TITLE"] = "Включение режима отслеживания статуса \"Онлайн\"";
 $MESS["COMMAND_DEF_SPTS_TITLE"] = "Отключение режима отслеживания статуса \"Онлайн\"";

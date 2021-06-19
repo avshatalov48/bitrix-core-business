@@ -15,6 +15,7 @@ return [
 		'.landing-block-img' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_32_15_IMG'),
 			'type' => 'img',
+			'useInDesigner' => false,
 			'dimensions' => ['width' => 1110],
 		],
 		'.landing-block-title' => [
@@ -37,7 +38,7 @@ return [
 			],
 			'.landing-block-img' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_32_15_IMG'),
-				'type' => ['background-overlay', 'height-vh']
+				'type' => ['background-overlay', 'height-vh', 'background-size']
 			],
 			'.landing-block-text-container' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_32_15_ELEMENTS'),

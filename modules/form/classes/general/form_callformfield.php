@@ -1,14 +1,15 @@
-<?
+<?php
+
 class CAllFormField
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "form";
 		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
 		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CAllFormField<br>File: ".__FILE__;
 	}
 
-	function GetList($WEB_FORM_ID, $get_fields, &$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetList($WEB_FORM_ID, $get_fields, $by = 's_sort', $order = 'asc', $arFilter = [])
 	{
 		$err_mess = (CAllFormField::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $strError;
@@ -43,7 +44,7 @@ class CAllFormField
 				if (is_array($val) && empty($val))
 					continue;
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys));
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -80,19 +81,18 @@ class CAllFormField
 		elseif ($by == "s_field_type")			$strSqlOrder = "ORDER BY F.FIELD_TYPE";
 		else
 		{
-				$by = "s_sort";
 				$strSqlOrder = "ORDER BY F.C_SORT";
 		}
+
 		if ($order!="desc")
 		{
 			$strSqlOrder .= " asc ";
-			$order="asc";
 		}
 		else
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
+
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 		$strSql = "
 			SELECT
@@ -108,11 +108,11 @@ class CAllFormField
 			$strSqlOrder
 			";
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		$err_mess = (CAllFormField::err_mess())."<br>Function: GetByID<br>Line: ";
 		global $DB;
@@ -129,7 +129,7 @@ class CAllFormField
 		return $res;
 	}
 
-	function GetBySID($SID, $FORM_ID = false)
+	public static function GetBySID($SID, $FORM_ID = false)
 	{
 		$FORM_ID = intval($FORM_ID);
 
@@ -151,7 +151,7 @@ class CAllFormField
 		return $res;
 	}
 
-	function GetNextSort($WEB_FORM_ID)
+	public static function GetNextSort($WEB_FORM_ID)
 	{
 		global $DB;
 		$err_mess = (CAllFormField::err_mess())."<br>Function: GetNextSort<br>Line: ";
@@ -162,7 +162,7 @@ class CAllFormField
 		return (intval($zr["MAX_SORT"])+100);
 	}
 
-	function Copy($ID, $CHECK_RIGHTS="Y", $NEW_FORM_ID=false)
+	public static function Copy($ID, $CHECK_RIGHTS="Y", $NEW_FORM_ID=false)
 	{
 		global $DB, $strError;
 		$err_mess = (CAllFormField::err_mess())."<br>Function: Copy<br>Line: ";
@@ -252,11 +252,11 @@ class CAllFormField
 				{
 					if ($arField["ADDITIONAL"]!="Y")
 					{
-						$rsAnswer = CFormAnswer::GetList($ID, $by='ID', $order='ASC', array(), $is_filtered);
+						$rsAnswer = CFormAnswer::GetList($ID, 'ID', 'ASC');
 						while ($arAnswer = $rsAnswer->Fetch())
 							CFormAnswer::Copy($arAnswer["ID"], $NEW_ID);
 
-						$dbValidators = CFormValidator::GetList($ID, array(), $by='C_SORT', $order='ASC');
+						$dbValidators = CFormValidator::GetList($ID);
 						while ($arVal = $dbValidators->Fetch())
 						{
 							CFormValidator::Set($arField['FORM_ID'], $NEW_ID, $arVal['NAME'], $arVal['PARAMS'], $arVal['C_SORT']);
@@ -271,7 +271,7 @@ class CAllFormField
 		return false;
 	}
 
-	function Delete($ID, $CHECK_RIGHTS="Y")
+	public static function Delete($ID, $CHECK_RIGHTS="Y")
 	{
 		global $DB, $strError;
 		$err_mess = (CAllFormField::err_mess())."<br>Function: Delete<br>Line: ";
@@ -308,7 +308,7 @@ class CAllFormField
 		return false;
 	}
 
-	function Reset($ID, $CHECK_RIGHTS="Y")
+	public static function Reset($ID, $CHECK_RIGHTS="Y")
 	{
 		global $DB, $strError;
 		$err_mess = (CAllFormField::err_mess())."<br>Function: Reset<br>Line: ";
@@ -332,7 +332,7 @@ class CAllFormField
 		return false;
 	}
 
-	function GetFilterTypeList(&$arrUSER, &$arrANSWER_TEXT, &$arrANSWER_VALUE, &$arrFIELD)
+	public static function GetFilterTypeList(&$arrUSER, &$arrANSWER_TEXT, &$arrANSWER_VALUE, &$arrFIELD)
 	{
 		$arrUSER = array(
 			"reference_id" => array(
@@ -392,7 +392,7 @@ class CAllFormField
 			);
 	}
 
-	function GetTypeList()
+	public static function GetTypeList()
 	{
 		$arr = array(
 			"reference_id" => array(
@@ -408,7 +408,7 @@ class CAllFormField
 		return $arr;
 	}
 
-	function GetFilterList($WEB_FORM_ID, $arFilter=Array())
+	public static function GetFilterList($WEB_FORM_ID, $arFilter=Array())
 	{
 		$err_mess = (CAllFormField::err_mess())."<br>Function: GetFilterList<br>Line: ";
 		global $DB;
@@ -475,7 +475,7 @@ class CAllFormField
 		return $res;
 	}
 
-	function CheckFields(&$arFields, $FIELD_ID, $CHECK_RIGHTS="Y")
+	public static function CheckFields(&$arFields, $FIELD_ID, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAllFormField::err_mess())."<br>Function: CheckFields<br>Line: ";
 		global $DB, $strError;
@@ -540,7 +540,7 @@ class CAllFormField
 		if ($str <> '') return false; else return true;
 	}
 
-	function Set($arFields, $FIELD_ID=false, $CHECK_RIGHTS="Y", $UPDATE_FILTER="Y")
+	public static function Set($arFields, $FIELD_ID=false, $CHECK_RIGHTS="Y", $UPDATE_FILTER="Y")
 	{
 		$err_mess = (CAllFormField::err_mess())."<br>Function: Set<br>Line: ";
 		global $DB;
@@ -624,7 +624,7 @@ class CAllFormField
 					if (is_array($arANSWER) && count($arANSWER)>0)
 					{
 						$arrAnswers = array();
-						$rs = CFormAnswer::GetList($FIELD_ID, $by='ID', $order='ASC', array(), $is_filtered);
+						$rs = CFormAnswer::GetList($FIELD_ID, 'ID', 'ASC');
 						while($ar = $rs->Fetch())
 							$arrAnswers[] = $ar["ID"];
 

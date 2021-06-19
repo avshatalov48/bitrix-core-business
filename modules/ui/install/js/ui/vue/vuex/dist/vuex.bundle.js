@@ -430,7 +430,7 @@
 	      return {};
 	    }
 	    /**
-	     * Get mutations
+	     * Get actions
 	     *
 	    	 * @override
 	     *
@@ -475,7 +475,7 @@
 	     * Set external variable.
 	     *
 	     * @param variables {Object}
-	     * @returns {VuexBuilder}
+	     * @returns {VuexBuilderModel}
 	     */
 
 	  }, {
@@ -552,7 +552,7 @@
 	     * @param active {boolean}
 	     * @param config {{name: String, siteId: String, userId: Number, type: VuexBuilder.DatabaseType}}
 	     *
-	     * @returns {VuexBuilder}
+	     * @returns {VuexBuilderModel}
 	     */
 
 	  }, {
@@ -603,7 +603,7 @@
 	      return this;
 	    }
 	    /**
-	     * @returns {VuexBuilder}
+	     * @returns {VuexBuilderModel}
 	     * @deprecated
 	     */
 
@@ -1276,6 +1276,17 @@
 	    key: "clearModelState",
 	    value: function clearModelState() {
 	      var callback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+	      if (!this.builded) {
+	        return new Promise(function (resolve, reject) {
+	          console.error('BX.VuexBuilder.clearModelState: you cannot use the method until builder is built.');
+
+	          if (typeof callback !== 'function') {
+	            reject('BUILDER_NOT_BUILD');
+	          }
+	        });
+	      }
+
 	      var results = [];
 	      this.models.forEach(function (model) {
 	        results.push(model.clearState());
@@ -1299,6 +1310,13 @@
 	  }, {
 	    key: "clearDatabase",
 	    value: function clearDatabase() {
+	      if (!this.builded) {
+	        return new Promise(function (resolve, reject) {
+	          console.error('BX.VuexBuilder.clearModelState: you cannot use the method until builder is built.');
+	          reject('BUILDER_NOT_BUILD');
+	        });
+	      }
+
 	      this.models.forEach(function (model) {
 	        return model.clearDatabase();
 	      });

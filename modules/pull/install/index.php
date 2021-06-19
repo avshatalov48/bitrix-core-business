@@ -12,7 +12,7 @@ class pull extends CModule
 	var $MODULE_DESCRIPTION;
 	var $MODULE_GROUP_RIGHTS = "Y";
 
-	function pull()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 

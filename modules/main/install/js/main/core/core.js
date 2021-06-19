@@ -10930,8 +10930,6 @@
 	var EventEmitter = /*#__PURE__*/function () {
 	  /** @private */
 	  function EventEmitter() {
-	    var _this = this;
-
 	    babelHelpers.classCallCheck(this, EventEmitter);
 	    this[targetProperty] = null;
 	    this[namespaceProperty] = null;
@@ -10949,11 +10947,6 @@
 	      }
 
 	    this[targetProperty] = target;
-	    setTimeout(function () {
-	      if (_this.getEventNamespace() === null) {
-	        console.warn('The instance of BX.Event.EventEmitter is supposed to have an event namespace. ' + 'Use emitter.setEventNamespace() to make events more unique.');
-	      }
-	    }, 500);
 	  }
 	  /**
 	   * Makes a target observable
@@ -11005,7 +10998,7 @@
 	  }, {
 	    key: "subscribeFromOptions",
 	    value: function subscribeFromOptions(options, aliases, compatMode) {
-	      var _this2 = this;
+	      var _this = this;
 
 	      if (!Type.isPlainObject(options)) {
 	        return;
@@ -11023,11 +11016,11 @@
 
 	        if (aliases[eventName]) {
 	          var actualName = aliases[eventName].eventName;
-	          EventEmitter.subscribe(_this2, actualName, listener, {
+	          EventEmitter.subscribe(_this, actualName, listener, {
 	            compatMode: compatMode !== false
 	          });
 	        } else {
-	          EventEmitter.subscribe(_this2, eventName, listener, {
+	          EventEmitter.subscribe(_this, eventName, listener, {
 	            compatMode: compatMode === true
 	          });
 	        }
@@ -11111,6 +11104,10 @@
 	     * @return {this}
 	     */
 	    value: function emit(eventName, event) {
+	      if (this.getEventNamespace() === null) {
+	        console.warn('The instance of BX.Event.EventEmitter is supposed to have an event namespace. ' + 'Use emitter.setEventNamespace() to make events more unique.');
+	      }
+
 	      EventEmitter.emit(this, eventName, event);
 	      return this;
 	    }
@@ -11138,6 +11135,10 @@
 	     * @return {Promise<Array>}
 	     */
 	    value: function emitAsync(eventName, event) {
+	      if (this.getEventNamespace() === null) {
+	        console.warn('The instance of BX.Event.EventEmitter is supposed to have an event namespace. ' + 'Use emitter.setEventNamespace() to make events more unique.');
+	      }
+
 	      return EventEmitter.emitAsync(this, eventName, event);
 	    }
 	    /**
@@ -11384,7 +11385,7 @@
 	  }, {
 	    key: "subscribeOnce",
 	    value: function subscribeOnce(target, eventName, listener) {
-	      var _this3 = this;
+	      var _this2 = this;
 
 	      if (Type.isString(target)) {
 	        listener = eventName;
@@ -11419,7 +11420,7 @@
 	        console.error("You cannot subscribe the same \"".concat(fullEventName, "\" event listener twice."));
 	      } else {
 	        var once = function once() {
-	          _this3.unsubscribe(target, eventName, once);
+	          _this2.unsubscribe(target, eventName, once);
 
 	          onceListeners.delete(listener);
 	          listener.apply(void 0, arguments);
@@ -11883,7 +11884,7 @@
 	  }, {
 	    key: "mergeEventAliases",
 	    value: function mergeEventAliases(aliases) {
-	      var _this4 = this;
+	      var _this3 = this;
 
 	      var globalEvents = eventStore.get(this.GLOBAL_TARGET);
 
@@ -11893,9 +11894,9 @@
 
 	      Object.keys(aliases).forEach(function (alias) {
 	        var options = aliases[alias];
-	        alias = _this4.normalizeEventName(alias);
+	        alias = _this3.normalizeEventName(alias);
 
-	        var fullEventName = _this4.makeFullEventName(options.namespace, options.eventName);
+	        var fullEventName = _this3.makeFullEventName(options.namespace, options.eventName);
 
 	        var aliasListeners = globalEvents.eventsMap.get(alias);
 
@@ -14816,7 +14817,7 @@
 	  }, {
 	    key: "getComponent",
 	    value: function getComponent(element) {
-	      var parentNode = _classStaticPrivateMethodGet(this, ZIndexManager, _getParentNode).call(this, element);
+	      var parentNode = _classStaticPrivateMethodGet(this, ZIndexManager, _getParentNode).call(this, element, true);
 
 	      if (!parentNode) {
 	        return null;
@@ -14843,11 +14844,19 @@
 	}();
 
 	var _getParentNode = function _getParentNode(element) {
+	  var suppressWarnings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
 	  if (!Type.isElementNode(element)) {
-	    console.error('ZIndexManager: The argument \'element\' must be a DOM element.', element);
+	    if (!suppressWarnings) {
+	      console.error('ZIndexManager: The argument \'element\' must be a DOM element.', element);
+	    }
+
 	    return null;
 	  } else if (!Type.isElementNode(element.parentNode)) {
-	    console.error('ZIndexManager: The \'element\' doesn\'t have a parent node.', element);
+	    if (!suppressWarnings) {
+	      console.error('ZIndexManager: The \'element\' doesn\'t have a parent node.', element);
+	    }
+
 	    return null;
 	  }
 
@@ -18595,6 +18604,12 @@
 
 	BX.CHint = function(params)
 	{
+		if (BX.CHint.cssLoaded === false)
+		{
+			BX.load(['/bitrix/js/main/core/css/core_hint.css']);
+			BX.CHint.cssLoaded = true;
+		}
+
 		this.PARENT = BX(params.parent);
 
 		this.HINT = params.hint;
@@ -18628,6 +18643,8 @@
 			BX.bind(this.PARENT, 'mouseout', BX.proxy(this.Hide, this));
 		}
 	};
+
+	BX.CHint.cssLoaded = false;
 
 	BX.CHint.openHints = new Set();
 
@@ -18788,12 +18805,12 @@
 	{
 		this.DIV = document.body.appendChild(BX.create('DIV', {
 			props: {className: 'bx-panel-tooltip'},
-			style: {display: 'none'},
+			style: {
+				display: 'none',
+				position: 'absolute',
+				visibility: 'hidden'
+			},
 			children: [
-				BX.create('DIV', {
-					props: {className: 'bx-panel-tooltip-top-border'},
-					html: '<div class="bx-panel-tooltip-corner bx-panel-tooltip-left-corner"></div><div class="bx-panel-tooltip-border"></div><div class="bx-panel-tooltip-corner bx-panel-tooltip-right-corner"></div>'
-				}),
 				(this.CONTENT = BX.create('DIV', {
 					props: {className: 'bx-panel-tooltip-content'},
 					children: [
@@ -18804,12 +18821,7 @@
 							]
 						})
 					]
-				})),
-
-				BX.create('DIV', {
-					props: {className: 'bx-panel-tooltip-bottom-border'},
-					html: '<div class="bx-panel-tooltip-corner bx-panel-tooltip-left-corner"></div><div class="bx-panel-tooltip-border"></div><div class="bx-panel-tooltip-corner bx-panel-tooltip-right-corner"></div>'
-				})
+				}))
 			]
 		}));
 
@@ -19689,6 +19701,16 @@ BX.ajax = function(config)
 			BX.localStorage.set('ajax-' + config.lsId, 'BXAJAXWAIT', config.lsTimeout);
 		}
 
+		if (BX.Type.isFunction(config.onprogress))
+		{
+			BX.bind(config.xhr, 'progress', config.onprogress);
+		}
+
+		if (BX.Type.isFunction(config.onprogressupload) && config.xhr.upload)
+		{
+			BX.bind(config.xhr.upload, 'progress', config.onprogressupload);
+		}
+
 		config.xhr.open(config.method, config.url, config.async);
 
 		if (!config.skipBxHeader && !BX.ajax.isCrossDomain(config.url))
@@ -19704,11 +19726,6 @@ BX.ajax = function(config)
 		{
 			for (i = 0; i < config.headers.length; i++)
 				config.xhr.setRequestHeader(config.headers[i].name, config.headers[i].value);
-		}
-
-		if(!!config.onprogress)
-		{
-			BX.bind(config.xhr, 'progress', config.onprogress);
 		}
 
 		var bRequestCompleted = false;
@@ -20224,16 +20241,6 @@ BX.ajax.promise = function(config)
 			data: data
 		});
 	};
-	config.onprogress = function(data)
-	{
-		if (data.position == 0 && data.totalSize == 0)
-		{
-			result.reject({
-				reason: 'progress',
-				data: data
-			});
-		}
-	};
 
 	var xhr = BX.ajax(config);
 	if (xhr)
@@ -20388,6 +20395,13 @@ var prepareAjaxConfig = function(config)
 {
 	config = BX.type.isPlainObject(config) ? config : {};
 
+	config.headers = config.headers || [];
+	config.headers.push({name: 'X-Bitrix-Csrf-Token', value: BX.bitrix_sessid()});
+	if (BX.message.SITE_ID)
+	{
+		config.headers.push({name: 'X-Bitrix-Site-Id', value: BX.message.SITE_ID});
+	}
+
 	if (typeof config.json !== 'undefined')
 	{
 		if (!BX.type.isPlainObject(config.json))
@@ -20395,39 +20409,21 @@ var prepareAjaxConfig = function(config)
 			throw new Error('Wrong `config.json`, plain object expected.')
 		}
 
-		config.headers = config.headers || [];
 		config.headers.push({name: 'Content-Type', value: 'application/json'});
-		config.headers.push({name: 'X-Bitrix-Csrf-Token', value: BX.bitrix_sessid()});
-		if (BX.message.SITE_ID)
-		{
-			config.headers.push({name: 'X-Bitrix-Site-Id', value: BX.message.SITE_ID});
-		}
-
 		config.data = config.json;
 		config.preparePost = false;
 	}
 	else if (config.data instanceof FormData)
 	{
 		config.preparePost = false;
-
-		config.data.append('sessid', BX.bitrix_sessid());
-		if (BX.message.SITE_ID)
-		{
-			config.data.append('SITE_ID', BX.message.SITE_ID);
-		}
 		if (typeof config.signedParameters !== 'undefined')
 		{
 			config.data.append('signedParameters', config.signedParameters);
 		}
 	}
-	else
+	else if (BX.type.isPlainObject(config.data) || BX.Type.isNil(config.data))
 	{
 		config.data = BX.type.isPlainObject(config.data) ? config.data : {};
-		if (BX.message.SITE_ID)
-		{
-			config.data.SITE_ID = BX.message.SITE_ID;
-		}
-		config.data.sessid = BX.bitrix_sessid();
 		if (typeof config.signedParameters !== 'undefined')
 		{
 			config.data.signedParameters = config.signedParameters;
@@ -20475,7 +20471,12 @@ var buildAjaxPromiseToRestoreCsrf = function(config, withoutRestoringCsrf)
 				if (error.code === 'invalid_csrf' && error.customData.csrf)
 				{
 					BX.message({'bitrix_sessid': error.customData.csrf});
-					originalConfig.data.sessid = BX.bitrix_sessid();
+
+					originalConfig.headers = originalConfig.headers || [];
+					originalConfig.headers = originalConfig.headers.filter(function(header) {
+						return header && header.name !== 'X-Bitrix-Csrf-Token';
+					});
+					originalConfig.headers.push({name: 'X-Bitrix-Csrf-Token', value: BX.bitrix_sessid()});
 
 					csrfProblem = true;
 				}
@@ -20589,7 +20590,9 @@ BX.ajax.runAction = function(action, config)
 		timeout: config.timeout,
 		preparePost: config.preparePost,
 		headers: config.headers,
-		onrequeststart: config.onrequeststart
+		onrequeststart: config.onrequeststart,
+		onprogress: config.onprogress,
+		onprogressupload: config.onprogressupload
 	});
 };
 
@@ -20627,7 +20630,9 @@ BX.ajax.runComponentAction = function (component, action, config)
 		timeout: config.timeout,
 		preparePost: config.preparePost,
 		headers: config.headers,
-		onrequeststart: (config.onrequeststart ? config.onrequeststart : null)
+		onrequeststart: (config.onrequeststart ? config.onrequeststart : null),
+		onprogress: config.onprogress,
+		onprogressupload: config.onprogressupload
 	});
 };
 

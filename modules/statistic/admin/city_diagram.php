@@ -18,8 +18,7 @@ $arF = array(
 $arrDays = CCity::GetGraphArray($arF, $arrLegend, $diagram_type.$find_data_type, 20);
 
 $arr = array();
-reset($arrLegend);
-while(list($keyL, $arrL) = each($arrLegend))
+foreach ($arrLegend as $keyL => $arrL)
 {
 	if ($arrL[$diagram_type.$find_data_type] > 0)
 		$arr[] = array("COLOR"=> $arrL["COLOR"], "COUNTER" => intval($arrL[$diagram_type.$find_data_type]));

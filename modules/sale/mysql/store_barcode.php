@@ -1,9 +1,10 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/store_barcode.php");
 
 class CSaleStoreBarcode extends CAllSaleStoreBarcode
 {
-	public function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -55,7 +56,7 @@ class CSaleStoreBarcode extends CAllSaleStoreBarcode
 		return $ID;
 	}
 
-	function Update($ID, $arFields, $bDateUpdate = true)
+	public static function Update($ID, $arFields, $bDateUpdate = true)
 	{
 		global $DB;
 
@@ -93,7 +94,7 @@ class CSaleStoreBarcode extends CAllSaleStoreBarcode
 		return $ID;
 	}
 
-	function GetList($arOrder = Array("ID"=>"DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = Array("ID"=>"DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 

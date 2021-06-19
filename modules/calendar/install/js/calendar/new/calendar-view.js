@@ -35,7 +35,7 @@
 			this.setTitle('');
 		},
 
-		refresh: function()
+		redraw: function()
 		{
 			this.displayEntries();
 		},
@@ -154,21 +154,22 @@
 						params.closeCallback();
 					}
 				}, this), 300);
-				return;
 			}
-
-			BX.Calendar.EntryManager.openCompactEditForm({
-				type: this.calendar.util.type,
-				ownerId: this.calendar.util.ownerId,
-				sections: this.calendar.sectionController.sections,
-				trackingUserList: this.calendar.util.getSuperposedTrackedUsers(),
-				entryTime: params.entryTime || null,
-				closeCallback: params.closeCallback,
-				userSettings: this.calendar.util.config.userSettings,
-				locationFeatureEnabled: this.calendar.util.isRichLocationEnabled(),
-				locationList: this.calendar.util.getLocationList(),
-				iblockMeetingRoomList: this.calendar.util.getMeetingRoomList(),
-			});
+			else
+			{
+				BX.Calendar.EntryManager.openCompactEditForm({
+					type: this.calendar.util.type,
+					ownerId: this.calendar.util.ownerId,
+					sections: this.calendar.sectionManager.getSectionListForEdit(),
+					trackingUserList: this.calendar.util.getSuperposedTrackedUsers(),
+					entryTime: params.entryTime || null,
+					closeCallback: params.closeCallback,
+					userSettings: this.calendar.util.config.userSettings,
+					locationFeatureEnabled: this.calendar.util.isRichLocationEnabled(),
+					locationList: BX.Calendar.Controls.Location.getLocationList(),
+					iblockMeetingRoomList: this.calendar.util.getMeetingRoomList(),
+				});
+			}
 		},
 
 		showCompactViewForm : function(params)
@@ -177,11 +178,11 @@
 				entry: params.entry,
 				type: this.calendar.util.type,
 				ownerId: this.calendar.util.ownerId,
-				sections: this.calendar.sectionController.sections,
+				sections: this.calendar.sectionManager.getSections(),
 				trackingUserList: this.calendar.util.getSuperposedTrackedUsers(),
 				userSettings: this.calendar.util.config.userSettings,
 				locationFeatureEnabled: this.calendar.util.isRichLocationEnabled(),
-				locationList: this.calendar.util.getLocationList(),
+				locationList: BX.Calendar.Controls.Location.getLocationList(),
 				iblockMeetingRoomList: this.calendar.util.getMeetingRoomList()
 			});
 		},
@@ -196,12 +197,6 @@
 			if (!params || !params.entry)
 			{
 				params = {};
-			}
-
-			if (this.simpleEntryPopup && this.simpleEntryPopup.isShown())
-			{
-				params.entry = this.simpleEntryPopup.getEntry();
-				this.simpleEntryPopup.close();
 			}
 
 			BX.Calendar.EntryManager.openEditSlider({

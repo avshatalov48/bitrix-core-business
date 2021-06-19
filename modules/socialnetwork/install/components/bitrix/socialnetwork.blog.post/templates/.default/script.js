@@ -1072,58 +1072,56 @@ window.showSharing = function(postId, userId)
 		return;
 	}
 
-	var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
-	if (!BX.type.isNotEmptyObject(selectorInstance))
+	if(!window["postDest" + postId])
 	{
 		return;
 	}
 
-	var
-		selectedItems = {},
-		undeletableItems = [],
-		val = null
-	;
-	if(window["postDest" + postId])
+	var tagNodeId = 'entity-selector-' + selectorId;
+	var inputNodeId = 'entity-selector-data-' + selectorId;
+
+	BX.clean(tagNodeId);
+
+	var entitySelector = new SBPEntitySelector({
+		id: selectorId + postId,
+		context: 'BLOG_POST',
+		tagNodeId: tagNodeId,
+		inputNodeId: inputNodeId,
+		preselectedItems: window["postDest" + postId],
+		allowSearchEmailUsers: window.oSBPostManager && !!window.oSBPostManager.allowSearchEmailUsers,
+		allowToAll: window.oSBPostManager && !!window.oSBPostManager.allowToAll
+	});
+
+	if (document.getElementById(inputNodeId))
 	{
-		for (var i = 0; i < window["postDest" + postId].length; i++)
-		{
-			val = window["postDest" + postId][i];
-			selectedItems[val.id] = val.type;
-			undeletableItems.push(val.id);
-		}
-
-		BX.onCustomEvent("BX.Main.SelectorV2:reInitDialog", [ {
-			selectorId: selectorId,
-			selectedItems: selectedItems,
-			undeletableItems: undeletableItems
-		} ]);
-
-		var destForm = BX('destination-sharing');
-
-		if (BX('blg-post-destcont-'+postId))
-		{
-			BX('blg-post-destcont-'+postId).appendChild(destForm);
-		}
-
-		destForm.style.height = 0;
-		destForm.style.opacity = 0;
-		destForm.style.overflow = 'hidden';
-		destForm.style.display = 'inline-block';
-
-		(new BX.easing({
-			duration : 500,
-			start : { opacity : 0, height : 0},
-			finish : { opacity: 100, height : destForm.scrollHeight-40},
-			transition : BX.easing.makeEaseOut(BX.easing.transitions.quad),
-			step : function(state){
-				destForm.style.height = state.height + "px";
-				destForm.style.opacity = state.opacity / 100;
-			},
-			complete : function(){
-				destForm.style.cssText = '';
-			}
-		})).animate();
+		document.getElementById(inputNodeId).value = JSON.stringify(window["postDest" + postId]);
 	}
+
+	var destForm = BX('destination-sharing');
+
+	if (BX('blg-post-destcont-'+postId))
+	{
+		BX('blg-post-destcont-'+postId).appendChild(destForm);
+	}
+
+	destForm.style.height = 0;
+	destForm.style.opacity = 0;
+	destForm.style.overflow = 'hidden';
+	destForm.style.display = 'inline-block';
+
+	(new BX.easing({
+		duration : 500,
+		start : { opacity : 0, height : 0},
+		finish : { opacity: 100, height : destForm.scrollHeight-40},
+		transition : BX.easing.makeEaseOut(BX.easing.transitions.quad),
+		step : function(state){
+			destForm.style.height = state.height + "px";
+			destForm.style.opacity = state.opacity / 100;
+		},
+		complete : function(){
+			destForm.style.cssText = '';
+		}
+	})).animate();
 };
 
 window.closeSharing = function()
@@ -1197,7 +1195,7 @@ window.sharingPost = function()
 			case 'hidden':
 				if (multiple)
 				{
-					if (typeof s[name] == 'undefined')
+					if (typeof s[name] === 'undefined')
 					{
 						s[name] = (key ? {} : []);
 					}
@@ -1423,6 +1421,7 @@ window.hideRenderedSharingNodes = function(newNodes)
 		this.readOnly = 'N';
 		this.pathToUser = '';
 		this.pathToPost = '';
+		this.allowToAll = false;
 	};
 
 	BX.SBPostManager.prototype.init = function(params) {
@@ -1431,6 +1430,7 @@ window.hideRenderedSharingNodes = function(newNodes)
 		this.readOnly = (BX.type.isNotEmptyString(params.readOnly) && params.readOnly == 'Y' ? 'Y' : 'N');
 		this.pathToUser = (BX.type.isNotEmptyString(params.pathToUser) ? params.pathToUser : '');
 		this.pathToPost = (BX.type.isNotEmptyString(params.pathToPost) ? params.pathToPost : '');
+		this.allowToAll = (BX.type.isBoolean(params.allowToAll) ? params.allowToAll : false);
 	};
 
 	BX.SBPostManager.prototype.clickTag = function(tagValue)
@@ -1457,3 +1457,127 @@ if (typeof oSBPostManager == 'undefined')
 	window.oSBPostManager = oSBPostManager;
 }
 
+(function() {
+
+	SBPEntitySelector = function(params)
+	{
+		this.selector = null;
+		this.inputNode = null;
+
+		if (!BX.type.isNotEmptyString(params.id))
+		{
+			return null;
+		}
+
+		this.init(params);
+	};
+
+	SBPEntitySelector.prototype.init = function(params)
+	{
+		if (!BX.type.isPlainObject(params))
+		{
+			params = {};
+		}
+
+		if (
+			!BX.type.isNotEmptyString(params.id)
+			|| !BX.type.isNotEmptyString(params.tagNodeId)
+			|| !BX(params.tagNodeId)
+		)
+		{
+			return null;
+		}
+
+		if (
+			BX.type.isNotEmptyString(params.inputNodeId)
+			&& BX(params.inputNodeId)
+		)
+		{
+			this.inputNode = BX(params.inputNodeId);
+		}
+
+		var preselectedItems = (BX.type.isArray(params.preselectedItems) ? params.preselectedItems : []);
+
+		this.selector = new BX.UI.EntitySelector.TagSelector({
+			id: params.id,
+			dialogOptions: {
+				id: params.id,
+				context: (BX.type.isNotEmptyString(params.context) ? params.context : null),
+
+				preselectedItems: preselectedItems,
+				undeselectedItems: preselectedItems,
+
+				events: {
+					'Item:onSelect': function() {
+						this.recalcValue(this.selector.getDialog().getSelectedItems());
+					}.bind(this),
+					'Item:onDeselect': function() {
+						this.recalcValue(this.selector.getDialog().getSelectedItems());
+					}.bind(this)
+				},
+				entities: [
+					{
+						id: 'meta-user',
+						options: {
+							'all-users': {
+								allowView: (
+									BX.type.isBoolean(params.allowToAll)
+									&& params.allowToAll
+								)
+							}
+						}
+					},
+					{
+						id: 'user',
+						options: {
+							emailUsers: (BX.type.isBoolean(params.allowSearchEmailUsers) ? params.allowSearchEmailUsers : false),
+							myEmailUsers: true
+						}
+					},
+					{
+						id: 'project',
+						options: {
+							features: {
+								blog:  [ 'premoderate_post', 'moderate_post', 'write_post', 'full_post' ]
+							}
+						}
+					},
+					{
+						id: 'department',
+						options: {
+							selectMode: 'usersAndDepartments',
+							allowFlatDepartments: false,
+						}
+					}
+				]
+			},
+			addButtonCaption: BX.message('BX_FPD_SHARE_LINK_1'),
+			addButtonCaptionMore: BX.message('BX_FPD_SHARE_LINK_2')
+		});
+
+		this.selector.renderTo(document.getElementById(params.tagNodeId));
+
+		return this.selector;
+	};
+
+	SBPEntitySelector.prototype.recalcValue = function(selectedItems)
+	{
+		if (
+			!BX.type.isArray(selectedItems)
+			|| !this.inputNode
+		)
+		{
+			return;
+		}
+
+		var result = [];
+
+		selectedItems.forEach(function(item) {
+			result.push([ item.entityId, item.id ]);
+		});
+
+		this.inputNode.value = JSON.stringify(result);
+	};
+
+	window.SBPEntitySelector = SBPEntitySelector;
+})();

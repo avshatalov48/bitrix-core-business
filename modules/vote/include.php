@@ -117,7 +117,7 @@ function VoteVoteEditFromArray($CHANNEL_ID, $VOTE_ID = false, $arFields = array(
 				"text" => GetMessage("VOTE_CHANNEL_ID_ERR"));
 		else:
 			$arVote = $res;
-			$db_res = CVoteQuestion::GetList($arVote["ID"], $by = "s_id", $order = "asc", array(), $is_filtered);
+			$db_res = CVoteQuestion::GetList($arVote["ID"], "s_id");
 			if ($db_res && $res = $db_res->Fetch()):
 				do { $arQuestions[$res["ID"]] = $res + array("ANSWERS" => array()); } while ($res = $db_res->Fetch());
 			endif;

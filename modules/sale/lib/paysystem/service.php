@@ -2,24 +2,20 @@
 
 namespace Bitrix\Sale\PaySystem;
 
-use Bitrix\Crm\EntityRequisite;
-use Bitrix\Crm\Requisite\EntityLink;
 use Bitrix\Main\Entity\EntityError;
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\NotSupportedException;
 use Bitrix\Main\Request;
 use Bitrix\Main\SystemException;
-use Bitrix\Main\Type\DateTime;
-use Bitrix\Sale\BusinessValue;
+use Bitrix\Sale;
 use Bitrix\Sale\Order;
 use Bitrix\Sale\Payment;
-use Bitrix\Sale\PriceMaths;
 use Bitrix\Sale\Registry;
 use Bitrix\Sale\Result;
 use Bitrix\Sale\ResultError;
+use Bitrix\Sale\Cashbox;
 
 Loc::loadMessages(__FILE__);
 
@@ -29,12 +25,15 @@ Loc::loadMessages(__FILE__);
  */
 class Service
 {
-	const EVENT_ON_BEFORE_PAYMENT_PAID = 'OnSalePsServiceProcessRequestBeforePaid';
-	const EVENT_INITIATE_PAY_SUCCESS = 'onSalePsInitiatePaySuccess';
-	const EVENT_INITIATE_PAY_ERROR = 'onSalePsInitiatePayError';
-	const PAY_SYSTEM_PREFIX = 'PAYSYSTEM_';
+	public const EVENT_ON_BEFORE_PAYMENT_PAID = 'OnSalePsServiceProcessRequestBeforePaid';
 
-	/** @var ServiceHandler|IHold|IPartialHold|IRefund|IPrePayable|ICheckable|IPayable|IPdf|IDocumentGeneratePdf|IRecurring $handler */
+	public const EVENT_BEFORE_ON_INITIATE_PAY = 'onSalePsBeforeInitiatePay';
+	public const EVENT_INITIATE_PAY_SUCCESS = 'onSalePsInitiatePaySuccess';
+	public const EVENT_INITIATE_PAY_ERROR = 'onSalePsInitiatePayError';
+
+	public const PAY_SYSTEM_PREFIX = 'PAYSYSTEM_';
+
+	/** @var ServiceHandler|IHold|IPartialHold|IRefund|IPrePayable|ICheckable|IPayable|IPdf|IDocumentGeneratePdf|IRecurring|Sale\PaySystem\Cashbox\ISupportPrintCheck $handler */
 	private $handler = null;
 
 	/** @var array */
@@ -68,14 +67,20 @@ class Service
 	 * @param int $mode
 	 * @return ServiceResult
 	 * @throws NotSupportedException
+	 * @throws SystemException
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ArgumentNullException
 	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 * @throws \Bitrix\Main\ArgumentTypeException
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\NotImplementedException
 	 * @throws \Bitrix\Main\ObjectException
+	 * @throws \Bitrix\Main\ObjectPropertyException
 	 */
 	public function initiatePay(Payment $payment, Request $request = null, $mode = BaseServiceHandler::STREAM)
 	{
+		$this->callEventOnBeforeInitiatePay($payment);
+
 		$this->handler->setInitiateMode($mode);
 		$initResult = $this->handler->initiatePay($payment, $request);
 
@@ -85,16 +90,13 @@ class Service
 			$setResult = $payment->setFields($psData);
 			if ($setResult->isSuccess())
 			{
-				/** @var \Bitrix\Sale\PaymentCollection $paymentCollection */
-				$paymentCollection = $payment->getCollection();
-				if ($paymentCollection)
+				$order = $payment->getCollection()->getOrder();
+				if ($order)
 				{
-					$order = $paymentCollection->getOrder();
-					if ($order)
+					$saveResult = $order->save();
+					if (!$saveResult->isSuccess())
 					{
-						$saveResult = $order->save();
-						if (!$saveResult->isSuccess())
-							$initResult->addErrors($saveResult->getErrors());
+						$initResult->addErrors($saveResult->getErrors());
 					}
 				}
 			}
@@ -106,33 +108,68 @@ class Service
 
 		if ($initResult->isSuccess())
 		{
-			$event = new Event('sale', self::EVENT_INITIATE_PAY_SUCCESS, ['payment' => $payment]);
-			$event->send();
+			$this->callEventOnInitiatePaySuccess($payment);
 		}
 		else
 		{
 			$error = implode("\n", $initResult->getErrorMessages());
 			Logger::addError(get_class($this->handler).". InitiatePay: ".$error);
 
-			$event = new Event('sale', self::EVENT_INITIATE_PAY_ERROR,
-				[
-					'payment' => $payment,
-					'errors' => $initResult->getErrorMessages(),
-				]
-			);
-			$event->send();
+			$this->callEventOnInitiatePayError($payment, $initResult);
 		}
 
 		return $initResult;
 	}
 
+	private function callEventOnBeforeInitiatePay(Payment $payment)
+	{
+		$event = new Event(
+			'sale',
+			self::EVENT_BEFORE_ON_INITIATE_PAY,
+			[
+				'payment' => $payment,
+				'service' => $this
+			]
+		);
+
+		$event->send();
+	}
+
+	private function callEventOnInitiatePaySuccess(Payment $payment)
+	{
+		$event = new Event(
+			'sale',
+			self::EVENT_INITIATE_PAY_SUCCESS,
+			[
+				'payment' => $payment
+			]
+		);
+
+		$event->send();
+	}
+
+	private function callEventOnInitiatePayError(Payment $payment, ServiceResult $result)
+	{
+		$event = new Event(
+			'sale',
+			self::EVENT_INITIATE_PAY_ERROR,
+			[
+				'payment' => $payment,
+				'errors' => $result->getErrorMessages(),
+			]
+		);
+
+		$event->send();
+	}
 	/**
 	 * @return bool
 	 */
 	public function isRefundable()
 	{
 		if ($this->handler instanceof IRefundExtended)
+		{
 			return $this->handler->isRefundableExtended();
+		}
 
 		return $this->handler instanceof IRefund;
 	}
@@ -423,7 +460,43 @@ class Service
 	 */
 	public function isCash()
 	{
-		return $this->fields['IS_CASH'] == 'Y';
+		return $this->fields['IS_CASH'] === 'Y';
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function canPrintCheck(): bool
+	{
+		return $this->fields['CAN_PRINT_CHECK'] === 'Y';
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return bool
+	 */
+	public function canPrintCheckSelf(Payment $payment): bool
+	{
+		$service = $payment->getPaySystem();
+		if (!$this->isSupportPrintCheck() || !$this->canPrintCheck())
+		{
+			return false;
+		}
+
+		/** @var Cashbox\CashboxPaySystem $cashboxClass */
+		$cashboxClass = $this->getCashboxClass();
+
+		$paySystemParams = $service->getParamsBusValue($payment);
+		$paySystemCodeForKkm = $cashboxClass::getPaySystemCodeForKkm();
+
+		return (bool)Cashbox\Manager::getList([
+			'select' => ['ID'],
+			'filter' => [
+				'=ACTIVE' => 'Y',
+				'=HANDLER' => $cashboxClass,
+				'=KKM_ID' => $paySystemParams[$paySystemCodeForKkm],
+			],
+		])->fetch();
 	}
 
 	/**
@@ -857,5 +930,41 @@ class Service
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Returns true if handler extends ISupportPrintCheck interface
+	 *
+	 * @return bool
+	 */
+	public function isSupportPrintCheck(): bool
+	{
+		return $this->handler instanceof Sale\PaySystem\Cashbox\ISupportPrintCheck;
+	}
+
+	/**
+	 * Returns class name of cashbox for pay system
+	 *
+	 * @return string
+	 * @throws NotSupportedException
+	 */
+	public function getCashboxClass(): string
+	{
+		if ($this->isSupportPrintCheck())
+		{
+			$cashboxClassName = $this->handler::getCashboxClass();
+			if (!Cashbox\Manager::isPaySystemCashbox($cashboxClassName))
+			{
+				throw new NotSupportedException(
+					'Cashbox is not extended class '.Cashbox\CashboxPaySystem::class
+				);
+			}
+
+			return $cashboxClassName;
+		}
+
+		throw new NotSupportedException(
+			'Handler is not implemented interface '.Sale\PaySystem\Cashbox\ISupportPrintCheck::class
+		);
 	}
 }

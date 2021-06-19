@@ -1,21 +1,23 @@
-<?
+<?php
+
 #############################################
 # Bitrix Site Manager Forum					#
 # Copyright (c) 2002-2009 Bitrix			#
 # http://www.bitrixsoft.com					#
 # mailto:admin@bitrixsoft.com				#
 #############################################
-IncludeModuleLangFile(__FILE__); 
+
+IncludeModuleLangFile(__FILE__);
 
 class CAllVoteAnswer
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "vote";
 		return "<br>Module: ".$module_id."<br>Class: CAllVoteAnswer<br>File: ".__FILE__;
 	}
 	
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $APPLICATION;
 		$aMsg = array();
@@ -122,7 +124,7 @@ class CAllVoteAnswer
 		return $ID;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 		$arBinds = array();
@@ -217,7 +219,7 @@ class CAllVoteAnswer
 		{
 			if(empty($val) || $val === "NOT_REF")
 				continue;
-			$key = mb_strtoupper($key);
+			$key = strtoupper($key);
 			switch($key)
 			{
 				case "ID":
@@ -375,7 +377,7 @@ class CAllVoteAnswer
 		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
-	function GetGroupAnswers($ANSWER_ID)
+	public static function GetGroupAnswers($ANSWER_ID)
 	{
 		$err_mess = (self::err_mess())."<br>Function: GetGroupAnswers<br>Line: ";
 		global $DB;

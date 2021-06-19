@@ -449,6 +449,12 @@
 	        var index = 1;
 	        var rows = Array.from(this.container.querySelectorAll('[data-role="main-user-field-enum-row"]'));
 	        rows.forEach(function (row) {
+	          var input = row.querySelector('[data-role="main-user-field-enum-value"]');
+
+	          if (!input) {
+	            return;
+	          }
+
 	          var def = 'N';
 
 	          if (selectedDefaultIndex === index) {
@@ -458,7 +464,7 @@
 	          sort += sortStep;
 	          var id = main_core.Text.toInteger(row.dataset['id']);
 	          list.push({
-	            value: row.querySelector('[data-role="main-user-field-enum-value"]').value,
+	            value: input.value,
 	            def: def,
 	            sort: sort,
 	            id: id
@@ -735,7 +741,13 @@
 	        var rows = Array.from(this.container.querySelectorAll('[data-role="main-user-field-enum-row"]'));
 	        rows.forEach(function (row) {
 	          var id = main_core.Text.toInteger(row.dataset['id']);
-	          var value = row.querySelector('[data-role="main-user-field-enum-value"]').value;
+	          var input = row.querySelector('[data-role="main-user-field-enum-value"]');
+
+	          if (!input) {
+	            return;
+	          }
+
+	          var value = input.value;
 	          var selected = id > 0 && id === selectedId || value === selectedValue;
 
 	          if (value.length > 0) {

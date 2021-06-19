@@ -793,38 +793,18 @@ class Property extends Controller
 
 	protected function validateRelations()
 	{
-		$hasRelations = false;
 		$relationsSettings = $this->getRelationSettings();
 
 		foreach ($relationsSettings as $name => $input)
 		{
 			if (($value = $this->property['RELATIONS'][$name]) && $value != array(''))
 			{
-				$hasRelations = true;
 				if ($error = Manager::getError($input, $value))
 					$errors [] = $input['LABEL'].': '.implode(', ', $error);
 			}
 			else
 			{
 				$relations[$name] = array();
-			}
-		}
-
-		if ($hasRelations)
-		{
-			if ($this->property['IS_LOCATION4TAX'] === 'Y')
-			{
-				$this->errors[] = Loc::getMessage('ERROR_LOCATION4TAX_RELATION_NOT_ALLOWED');
-			}
-
-			if ($this->property['IS_EMAIL'] === 'Y')
-			{
-				$this->errors[] = Loc::getMessage('ERROR_EMAIL_RELATION_NOT_ALLOWED');
-			}
-
-			if ($this->property['IS_PROFILE_NAME'] === 'Y')
-			{
-				$this->errors[] = Loc::getMessage('ERROR_PROFILE_NAME_RELATION_NOT_ALLOWED');
 			}
 		}
 	}

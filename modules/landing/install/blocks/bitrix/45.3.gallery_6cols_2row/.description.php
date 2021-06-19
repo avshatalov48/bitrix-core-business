@@ -24,6 +24,7 @@ return [
 			'type' => 'img',
 			'allowInlineEdit' => false,
 			'dimensions' => ['maxWidth' => 1350, 'maxHeight' => 900],
+			'disableLink' => true,
 		],
 	],
 	'style' => [

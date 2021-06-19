@@ -1435,37 +1435,23 @@ abstract class OrderBase extends Internals\Entity
 	{
 		$result = new Result();
 
-		/** @var BasketBase $basket */
-		$basket = $this->getBasket();
-
-		/** @var Result $r */
-		$r = $basket->save();
+		$r = $this->getBasket()->save();
 		if (!$r->isSuccess())
 		{
 			$result->addWarnings($r->getErrors());
 		}
 
-		/** @var Tax $tax */
-		$tax = $this->getTax();
-
-		/** @var Result $r */
-		$r = $tax->save();
+		$r = $this->getTax()->save();
 		if (!$r->isSuccess())
 		{
 			$result->addWarnings($r->getErrors());
 		}
 
-		/** @var PropertyValueCollectionBase $propertyCollection */
-		$propertyCollection = $this->getPropertyCollection();
-
-		/** @var Result $r */
-		$r = $propertyCollection->save();
+		$r = $this->getPropertyCollection()->save();
 		if (!$r->isSuccess())
 		{
 			$result->addWarnings($r->getErrors());
 		}
-
-
 
 		return $result;
 	}

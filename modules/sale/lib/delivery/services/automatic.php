@@ -2,7 +2,6 @@
 
 namespace Bitrix\Sale\Delivery\Services;
 
-use Bitrix\Main\IO\File;
 use Bitrix\Sale\Order;
 use Bitrix\Main\Loader;
 use Bitrix\Sale\Result;
@@ -82,6 +81,7 @@ class Automatic extends Base
 		static $jsData = array();
 
 		$initedHandlers = self::getRegisteredHandlers("SID");
+
 		sortByColumn($initedHandlers, array(mb_strtoupper("NAME") => SORT_ASC));
 
 		if($handlers === null)
@@ -90,8 +90,15 @@ class Automatic extends Base
 
 			foreach($initedHandlers as $handler)
 			{
-				if(isset($handler["DEPRECATED"]) && $handler["DEPRECATED"] = "Y")
+				if (isset($handler["DEPRECATED"]) && $handler["DEPRECATED"] = "Y")
+				{
 					continue;
+				}
+
+				if (!self::isAutomaticHandlerCompatible($handler))
+				{
+					continue;
+				}
 					
 				$handlers[$handler["SID"]] = $handler["NAME"]." [".$handler["SID"]."]";
 				$jsData[$handler["SID"]] = array(
@@ -474,6 +481,7 @@ class Automatic extends Base
 		foreach(GetModuleEvents("sale", "onSaleDeliveryHandlersBuildList", true) as $arHandler)
 		{
 			$initParams = ExecuteModuleEventEx($arHandler);
+
 
 			if($indexBy <> '' && isset($initParams[$indexBy]))
 				$arHandlersList[$indexBy][$initParams[$indexBy]] = $initParams;
@@ -1053,6 +1061,25 @@ class Automatic extends Base
 
 			if(!is_array($result))
 				throw new SystemException('GET_ADD_INFO_SHIPMENT_VIEW return value must be array!');
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Checks is automatic handler compatible
+	 *
+	 * @param mixed $handler Old automatic handler.
+	 * @return bool
+	 */
+	protected static function isAutomaticHandlerCompatible($handler): bool
+	{
+		$result = true;
+
+		if (isset($handler["IS_HANDLER_COMPATIBLE"])
+			&& is_callable($handler["IS_HANDLER_COMPATIBLE"]))
+		{
+			$result = call_user_func($handler["IS_HANDLER_COMPATIBLE"]);
 		}
 
 		return $result;

@@ -203,6 +203,7 @@ return [
 		'landing.backend',
 		'ui.alerts',
 		'landing.pageobject',
+		'landing.designerblock',
 		'landing.imagecompressor',
 		'landing.imageeditor',
 		'landing.imageuploader',

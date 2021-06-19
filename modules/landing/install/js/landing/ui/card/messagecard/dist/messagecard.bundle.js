@@ -4,6 +4,26 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,main_core,landing_ui_card_basecard,landing_loc) {
 	'use strict';
 
+	function _templateObject8() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-link ui-link-secondary ui-link-dashed landing-ui-card-read-more-link\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"]);
+
+	  _templateObject8 = function _templateObject8() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject7() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"ui-link ui-link-secondary ui-link-dashed landing-ui-card-read-more-link\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t"]);
+
+	  _templateObject7 = function _templateObject7() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
 	function _templateObject6() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-link ui-link-secondary ui-link-dashed landing-ui-card-message-close-link\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"]);
 
@@ -15,7 +35,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}
 
 	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-message-actions\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-message-actions\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
 
 	  _templateObject5 = function _templateObject5() {
 	    return data;
@@ -92,7 +112,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Dom.append(_this.getCloseButton(), _this.getLayout());
 	    }
 
-	    if (_this.options.hideActions !== true) {
+	    if (_this.options.hideActions !== true || _this.options.more) {
 	      main_core.Dom.append(_this.getActionsContainer(), _this.getLayout());
 	    }
 
@@ -168,7 +188,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this6 = this;
 
 	      return this.cache.remember('actionsContainer', function () {
-	        return main_core.Tag.render(_templateObject5(), _this6.getCloseLink());
+	        return main_core.Tag.render(_templateObject5(), _this6.options.closeable !== false ? _this6.getCloseLink() : '', _this6.options.more ? _this6.getReedMoreLink() : '');
 	      });
 	    }
 	  }, {
@@ -178,6 +198,19 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	      return this.cache.remember('closeLink', function () {
 	        return main_core.Tag.render(_templateObject6(), _this7.onCloseClick, landing_loc.Loc.getMessage('LANDING_MESSAGE_CARD_HIDE'));
+	      });
+	    }
+	  }, {
+	    key: "getReedMoreLink",
+	    value: function getReedMoreLink() {
+	      var _this8 = this;
+
+	      return this.cache.remember('readMoreButton', function () {
+	        if (main_core.Type.isStringFilled(_this8.options.more)) {
+	          return main_core.Tag.render(_templateObject7(), main_core.Text.encode(_this8.options.more), landing_loc.Loc.getMessage('LANDING_MESSAGE_CARD_READ_MORE'));
+	        }
+
+	        return main_core.Tag.render(_templateObject8(), _this8.options.more, landing_loc.Loc.getMessage('LANDING_MESSAGE_CARD_READ_MORE'));
 	      });
 	    }
 	  }, {

@@ -604,13 +604,7 @@ final class ClaimBuilder
 	 */
 	private function getPropertyValueObject(Shipment $shipment, string $propertyCode)
 	{
-		$order = $shipment->getOrder();
-		if (!$order)
-		{
-			return null;
-		}
-
-		$propertyValueCollection = $order->getPropertyCollection();
+		$propertyValueCollection = $shipment->getPropertyCollection();
 
 		/** @var \Bitrix\Sale\PropertyValue $propertyValue */
 		foreach ($propertyValueCollection as $propertyValue)

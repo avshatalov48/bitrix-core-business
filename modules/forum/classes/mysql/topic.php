@@ -355,7 +355,7 @@ class CForumTopic extends CAllForumTopic
 						"	FROM b_forum_perms FPP \n".
 						"	WHERE FPP.GROUP_ID IN (".$DB->ForSql($val).") AND FPP.PERMISSION > 'A' \n".
 						"	GROUP BY FPP.FORUM_ID) FPP ON (FPP.FORUM_ID = FT.FORUM_ID) ";
-					$arSqlSelect[] = "FPP.PERMISSION AS PERMISSION";
+					$arSqlSelect["PERMISSION"] = "FPP.PERMISSION";
 				break;
 				case "RENEW":
 					$val = (is_array($val) ? $val : array("USER_ID" => $val));

@@ -210,7 +210,7 @@ class translate extends \CModule
 	 * @see \CPerfomanceSchema::Init
 	 * @return array
 	 */
-	function OnGetTableSchema()
+	public static function OnGetTableSchema()
 	{
 		return array(
 			'translate' => array(

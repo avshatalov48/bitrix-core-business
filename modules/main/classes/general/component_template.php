@@ -525,6 +525,7 @@ class CBitrixComponentTemplate
 
 		$defSiteTemplate = ($siteTemplate == ".default");
 		$parentTemplatePath = '';
+		$parentRelativePath = '';
 		if($parentComponent && $parentComponent->GetTemplate())
 		{
 			$parentRelativePath = $parentComponent->GetRelativePath();

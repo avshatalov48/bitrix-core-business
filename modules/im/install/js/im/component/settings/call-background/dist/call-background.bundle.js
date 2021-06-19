@@ -130,7 +130,7 @@ this.BX = this.BX || {};
 	      return this.item.state.status + ' ' + this.item.state.progress;
 	    },
 	    localize: function localize() {
-	      return ui_vue.Vue.getFilteredPhrases('BX_IM_COMPONENT_SETTINGS_CALL_BG_', this.$root.$bitrixMessages);
+	      return ui_vue.BitrixVue.getFilteredPhrases('BX_IM_COMPONENT_SETTINGS_CALL_BG_', this);
 	    }
 	  },
 	  watch: {
@@ -151,7 +151,7 @@ this.BX = this.BX || {};
 	  blur: 'call_blur_background',
 	  image: 'call_background'
 	});
-	ui_vue.Vue.component('bx-im-component-settings-call-background', {
+	ui_vue.BitrixVue.component('bx-im-component-settings-call-background', {
 	  props: {
 	    isDesktop: {
 	      type: Boolean,
@@ -268,29 +268,20 @@ this.BX = this.BX || {};
 	    this.uploader.subscribe('onFileMaxSizeExceeded', function (event) {
 	      var eventData = event.getData();
 	      var file = eventData.file;
-	      var localize = main_core.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_FILE_SIZE_EXCEEDED');
-
-	      if (localize) {
-	        BX.UI.Notification.Center.notify({
-	          content: localize.replace('#LIMIT#', 100).replace('#FILE_NAME#', file.name),
-	          autoHideDelay: 5000
-	        });
-	      }
+	      BX.UI.Notification.Center.notify({
+	        content: main_core.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_FILE_SIZE_EXCEEDED').replace('#LIMIT#', 100).replace('#FILE_NAME#', file.name),
+	        autoHideDelay: 5000
+	      });
 	    });
 	    this.uploader.subscribe('onSelectFile', function (event) {
 	      var eventData = event.getData();
 	      var file = eventData.file;
 
 	      if (!_this2.isAllowedType(file.type) || !eventData.previewData) {
-	        var localize = main_core.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_UNSUPPORTED_FILE');
-
-	        if (localize) {
-	          BX.UI.Notification.Center.notify({
-	            content: localize.replace('#FILE_NAME#', file.name),
-	            autoHideDelay: 5000
-	          });
-	        }
-
+	        BX.UI.Notification.Center.notify({
+	          content: main_core.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_UNSUPPORTED_FILE').replace('#FILE_NAME#', file.name),
+	          autoHideDelay: 5000
+	        });
 	        return false;
 	      }
 
@@ -420,9 +411,6 @@ this.BX = this.BX || {};
 	      }
 
 	      return '.png, .jpg, .jpeg, .avi, .mp4';
-	    },
-	    localize: function localize() {
-	      return ui_vue.Vue.getFilteredPhrases('BX_IM_COMPONENT_SETTINGS_CALL_BG_', this.$root.$bitrixMessages);
 	    }
 	  },
 	  methods: {
@@ -516,7 +504,7 @@ this.BX = this.BX || {};
 	      return ['image/png', 'image/jpeg', 'video/avi', 'video/mp4', 'video/quicktime'].includes(type);
 	    }
 	  },
-	  template: "\n\t\t<div class=\"bx-im-settings-video-background-dialog\">\n\t\t\t<div class=\"bx-im-settings-video-background-dialog-inner\" :style=\"containerSize\">\n\t\t\t\t<div class=\"bx-im-settings-video-background-dialog-container\">\n\t\t\t\t\t<div class=\"bx-im-settings-video-background-upload-input\"><input type=\"file\" :accept=\"uploadTypes\" ref=\"uploadInput\"/></div>\n\t\t\t\t\t<template v-if=\"loading\">\n\t\t\t\t\t\t<div class=\"bx-im-settings-video-background-dialog-loader\">\n\t\t\t\t\t\t\t<svg class=\"bx-desktop-loader-circular\" viewBox=\"25 25 50 50\">\n\t\t\t\t\t\t\t\t<circle class=\"bx-desktop-loader-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</template>\n\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t<div class=\"bx-im-settings-video-background-dialog-content\">\n\t\t\t\t\t\t<template v-for=\"(element in actions\">\n\t\t\t\t\t\t\t<div :key=\"element.id\" @click=\"select(element)\" :class=\"['bx-im-settings-video-background-dialog-item', 'bx-im-settings-video-background-dialog-action', 'bx-im-settings-video-background-dialog-action-'+element.id, {'bx-im-settings-video-background-dialog-item-selected': selected === element.id }]\">\n\t\t\t\t\t\t\t\t<div class=\"bx-im-settings-video-background-dialog-action-title\">{{element.title}}</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t<template v-for=\"(item in backgrounds\">\n\t\t\t\t\t\t\t<bx-im-component-settings-call-background-item \n\t\t\t\t\t\t\t\t:key=\"item.id\" \n\t\t\t\t\t\t\t\t:item=\"item\" \n\t\t\t\t\t\t\t\t:selected=\"selected === item.id\" \n\t\t\t\t\t\t\t\t@select=\"select(item)\" \n\t\t\t\t\t\t\t\t@cancel=\"remove(item)\"\n\t\t\t\t\t\t\t\t@remove=\"remove(item)\"\n\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</template>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"ui-btn-container ui-btn-container-center\">\n\t\t\t\t<button :class=\"['ui-btn', 'ui-btn-success', {'ui-btn-wait ui-btn-disabled': loading}]\" @click=\"save\">{{localize.BX_IM_COMPONENT_SETTINGS_CALL_BG_SAVE}}</button>\n\t\t\t\t<button class=\"ui-btn ui-btn-link\" @click=\"cancel\">{{localize.BX_IM_COMPONENT_SETTINGS_CALL_BG_CANCEL}}</button>\n\t\t\t</div>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div class=\"bx-im-settings-video-background-dialog\">\n\t\t\t<div class=\"bx-im-settings-video-background-dialog-inner\" :style=\"containerSize\">\n\t\t\t\t<div class=\"bx-im-settings-video-background-dialog-container\">\n\t\t\t\t\t<div class=\"bx-im-settings-video-background-upload-input\"><input type=\"file\" :accept=\"uploadTypes\" ref=\"uploadInput\"/></div>\n\t\t\t\t\t<template v-if=\"loading\">\n\t\t\t\t\t\t<div class=\"bx-im-settings-video-background-dialog-loader\">\n\t\t\t\t\t\t\t<svg class=\"bx-desktop-loader-circular\" viewBox=\"25 25 50 50\">\n\t\t\t\t\t\t\t\t<circle class=\"bx-desktop-loader-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</template>\n\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t<div class=\"bx-im-settings-video-background-dialog-content\">\n\t\t\t\t\t\t<template v-for=\"(element in actions\">\n\t\t\t\t\t\t\t<div :key=\"element.id\" @click=\"select(element)\" :class=\"['bx-im-settings-video-background-dialog-item', 'bx-im-settings-video-background-dialog-action', 'bx-im-settings-video-background-dialog-action-'+element.id, {'bx-im-settings-video-background-dialog-item-selected': selected === element.id }]\">\n\t\t\t\t\t\t\t\t<div class=\"bx-im-settings-video-background-dialog-action-title\">{{element.title}}</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t<template v-for=\"(item in backgrounds\">\n\t\t\t\t\t\t\t<bx-im-component-settings-call-background-item \n\t\t\t\t\t\t\t\t:key=\"item.id\" \n\t\t\t\t\t\t\t\t:item=\"item\" \n\t\t\t\t\t\t\t\t:selected=\"selected === item.id\" \n\t\t\t\t\t\t\t\t@select=\"select(item)\" \n\t\t\t\t\t\t\t\t@cancel=\"remove(item)\"\n\t\t\t\t\t\t\t\t@remove=\"remove(item)\"\n\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</template>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"ui-btn-container ui-btn-container-center\">\n\t\t\t\t<button :class=\"['ui-btn', 'ui-btn-success', {'ui-btn-wait ui-btn-disabled': loading}]\" @click=\"save\">{{$Bitrix.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_SAVE')}}</button>\n\t\t\t\t<button class=\"ui-btn ui-btn-link\" @click=\"cancel\">{{$Bitrix.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_CANCEL')}}</button>\n\t\t\t</div>\n\t\t</div>\n\t"
 	});
 
 }((this.BX.Messenger = this.BX.Messenger || {}),BX,BX.Messenger.Lib,BX.Messenger.Lib,BX,BX,BX,BX.ProgressBarJs,BX.Messenger.Const));

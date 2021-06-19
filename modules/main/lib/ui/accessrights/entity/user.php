@@ -90,11 +90,9 @@ class User extends EntityBase
 		{
 			return false;
 		}
-		$o = 'ID';
-		$b = '';
 		$queryUser = \CUser::getList(
-			$o,
-			$b,
+			'ID',
+			'ASC',
 			array(
 				'ID_EQUAL_EXACT' => $this->id,
 			),

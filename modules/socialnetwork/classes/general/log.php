@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSocNetLog
@@ -6,7 +7,7 @@ class CAllSocNetLog
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		static $arSiteWorkgroupsPage;
 
@@ -14,7 +15,7 @@ class CAllSocNetLog
 
 		if (!$arSiteWorkgroupsPage && IsModuleInstalled("extranet") && $arFields["ENTITY_TYPE"] == SONET_ENTITY_GROUP)
 		{
-			$rsSite = CSite::GetList($by="sort", $order="desc", Array("ACTIVE" => "Y"));
+			$rsSite = CSite::GetList("sort", "desc", Array("ACTIVE" => "Y"));
 			while($arSite = $rsSite->Fetch())
 			{
 				$arSiteWorkgroupsPage[$arSite["ID"]] = COption::GetOptionString("socialnetwork", "workgroups_page", $arSite["DIR"]."workgroups/", $arSite["ID"]);
@@ -220,7 +221,7 @@ class CAllSocNetLog
 		return False;
 	}
 
-	function MakeTitle($titleTemplate, $title, $url = "", $bHtml = true)
+	public static function MakeTitle($titleTemplate, $title, $url = "", $bHtml = true)
 	{
 		if ($url <> '')
 			$title = ($bHtml ? "<a href=\"".$url."\">".$title."</a>" : $title." [".$url."]");
@@ -241,7 +242,7 @@ class CAllSocNetLog
 	/***************************************/
 	/**********  SEND EVENTS  **************/
 	/***************************************/
-	function __InitUserTmp($userID)
+	public static function __InitUserTmp($userID)
 	{
 		$title = "";
 
@@ -252,7 +253,7 @@ class CAllSocNetLog
 		return $title;
 	}
 
-	function __InitUsersTmp($message, $titleTemplate1, $titleTemplate2)
+	public static function __InitUsersTmp($message, $titleTemplate1, $titleTemplate2)
 	{
 		$arUsersID = explode(",", $message);
 
@@ -278,7 +279,7 @@ class CAllSocNetLog
 		return Str_Replace("#TITLE#", $title, (($count > 1) ? $titleTemplate2 : $titleTemplate1));
 	}
 
-	function __InitGroupTmp($groupID)
+	public static function __InitGroupTmp($groupID)
 	{
 		$title = "";
 
@@ -289,7 +290,7 @@ class CAllSocNetLog
 		return $title;
 	}
 
-	function __InitGroupsTmp($message, $titleTemplate1, $titleTemplate2)
+	public static function __InitGroupsTmp($message, $titleTemplate1, $titleTemplate2)
 	{
 		$arGroupsID = explode(",", $message);
 
@@ -315,7 +316,7 @@ class CAllSocNetLog
 		return Str_Replace("#TITLE#", $title, (($count > 1) ? $titleTemplate2 : $titleTemplate1));
 	}
 
-	function SendEventAgent($ID, $mailTemplate = "SONET_NEW_EVENT", $tmp_id = false)
+	public static function SendEventAgent($ID, $mailTemplate = "SONET_NEW_EVENT", $tmp_id = false)
 	{
 		if (CSocNetLog::SendEvent($ID, $mailTemplate, $tmp_id, true))
 			return "";
@@ -437,7 +438,7 @@ class CAllSocNetLog
 			if (CModule::IncludeModule("extranet"))
 			{
 				$arSites = array();
-				$dbSite = CSite::GetList($by="sort", $order="desc", array("ACTIVE" => "Y"));
+				$dbSite = CSite::GetList("sort", "desc", array("ACTIVE" => "Y"));
 				while($arSite = $dbSite->Fetch())
 				{
 					$arSites[$arSite["ID"]] = array(
@@ -849,7 +850,7 @@ class CAllSocNetLog
 		}
 	}
 
-	function CounterDecrement($log_id, $event_id = false, $type = CSocNetLogCounter::TYPE_LOG_ENTRY, $bForAllAccess = false)
+	public static function CounterDecrement($log_id, $event_id = false, $type = CSocNetLogCounter::TYPE_LOG_ENTRY, $bForAllAccess = false)
 	{
 		if (intval($log_id) <= 0)
 			return false;
@@ -881,12 +882,12 @@ class CAllSocNetLog
 		}
 	}
 
-	function ClearOldAgent()
+	public static function ClearOldAgent()
 	{
 		return "";
 	}
 
-	function GetSign($url, $userID = false, $site_id = false)
+	public static function GetSign($url, $userID = false, $site_id = false)
 	{
 		if (!$url || trim($url) == '')
 			return false;
@@ -903,12 +904,12 @@ class CAllSocNetLog
 		}
 	}
 
-	function CheckSign($sign, $userId)
+	public static function CheckSign($sign, $userId)
 	{
 		return (md5($userId."||".CSocNetLog::GetUniqLogID()) == $sign);
 	}
 
-	function OnSocNetLogFormatEvent($arEvent, $arParams)
+	public static function OnSocNetLogFormatEvent($arEvent, $arParams)
 	{
 		if ($arEvent["EVENT_ID"] == "system" || $arEvent["EVENT_ID"] == "system_friends" || $arEvent["EVENT_ID"] == "system_groups")
 		{
@@ -979,7 +980,7 @@ class CAllSocNetLog
 		return $arEvent;
 	}
 
-	function InitUserTmp($userID, $arParams, $bCurrentUserIsAdmin = "unknown", $bRSS = false)
+	public static function InitUserTmp($userID, $arParams, $bCurrentUserIsAdmin = "unknown", $bRSS = false)
 	{
 		$title = "";
 		$message = "";
@@ -1023,7 +1024,7 @@ class CAllSocNetLog
 		return array($title, $message);
 	}
 
-	function InitUsersTmp($message, $titleTemplate1, $titleTemplate2, $arParams, $bCurrentUserIsAdmin = "unknown", $bRSS = false)
+	public static function InitUsersTmp($message, $titleTemplate1, $titleTemplate2, $arParams, $bCurrentUserIsAdmin = "unknown", $bRSS = false)
 	{
 		$arUsersID = explode(",", $message);
 
@@ -1060,7 +1061,7 @@ class CAllSocNetLog
 		return array(Str_Replace("#TITLE#", $title, (($count > 1) ? $titleTemplate2 : $titleTemplate1)), $message);
 	}
 
-	function InitGroupTmp($groupID, $arParams, $bRSS = false)
+	public static function InitGroupTmp($groupID, $arParams, $bRSS = false)
 	{
 		$title = "";
 		$message = "";
@@ -1087,7 +1088,7 @@ class CAllSocNetLog
 		return array($title, $message);
 	}
 
-	function InitGroupsTmp($message, $titleTemplate1, $titleTemplate2, $arParams, $bRSS = false)
+	public static function InitGroupsTmp($message, $titleTemplate1, $titleTemplate2, $arParams, $bRSS = false)
 	{
 		$arGroupsID = explode(",", $message);
 
@@ -1121,17 +1122,17 @@ class CAllSocNetLog
 		return array(Str_Replace("#TITLE#", $title, (($count > 1) ? $titleTemplate2 : $titleTemplate1)), $message);
 	}
 
-	function ShowGroup($arEntityDesc, $strEntityURL, $arParams)
+	public static function ShowGroup($arEntityDesc, $strEntityURL, $arParams)
 	{
 		return CSocNetLogTools::ShowGroup($arEntityDesc, $strEntityURL, $arParams);
 	}
 
-	function ShowUser($arEntityDesc, $strEntityURL, $arParams)
+	public static function ShowUser($arEntityDesc, $strEntityURL, $arParams)
 	{
 		return CSocNetLogTools::ShowUser($arEntityDesc, $strEntityURL, $arParams);
 	}
 
-	static function FormatEvent_FillTooltip($arFields, $arParams)
+	public static function FormatEvent_FillTooltip($arFields, $arParams)
 	{
 		return CSocNetLogTools::FormatEvent_FillTooltip($arFields, $arParams);
 	}
@@ -1141,72 +1142,72 @@ class CAllSocNetLog
 		return CSocNetLogTools::FormatEvent_CreateAvatar($arFields, $arParams, $source);
 	}
 
-	static function FormatEvent_IsMessageShort($message, $short_message = false)
+	public static function FormatEvent_IsMessageShort($message, $short_message = false)
 	{
 		return CSocNetLogTools::FormatEvent_IsMessageShort($message, $short_message);
 	}
 
-	function FormatEvent_BlogPostComment($arFields, $arParams, $bMail = false)
+	public static function FormatEvent_BlogPostComment($arFields, $arParams, $bMail = false)
 	{
 		return CSocNetLogTools::FormatEvent_Blog($arFields, $arParams, $bMail);
 	}
 
-	function FormatEvent_Forum($arFields, $arParams, $bMail = false)
+	public static function FormatEvent_Forum($arFields, $arParams, $bMail = false)
 	{
 		return CSocNetLogTools::FormatEvent_Forum($arFields, $arParams, $bMail);
 	}
 
-	function FormatEvent_Photo($arFields, $arParams, $bMail = false)
+	public static function FormatEvent_Photo($arFields, $arParams, $bMail = false)
 	{
 		return CSocNetLogTools::FormatEvent_Photo($arFields, $arParams, $bMail);
 	}
 
-	function FormatEvent_Files($arFields, $arParams, $bMail = false)
+	public static function FormatEvent_Files($arFields, $arParams, $bMail = false)
 	{
 		return CSocNetLogTools::FormatEvent_Files($arFields, $arParams, $bMail);
 	}
 
-	function FormatEvent_Task($arFields, $arParams, $bMail = false)
+	public static function FormatEvent_Task($arFields, $arParams, $bMail = false)
 	{
 		return CSocNetLogTools::FormatEvent_Task($arFields, $arParams, $bMail);
 	}
 
-	function FormatEvent_SystemGroups($arFields, $arParams, $bMail = false)
+	public static function FormatEvent_SystemGroups($arFields, $arParams, $bMail = false)
 	{
 		return CSocNetLogTools::FormatEvent_SystemGroups($arFields, $arParams, $bMail);
 	}
 
-	function FormatEvent_SystemFriends($arFields, $arParams, $bMail = false)
+	public static function FormatEvent_SystemFriends($arFields, $arParams, $bMail = false)
 	{
 		return CSocNetLogTools::FormatEvent_SystemFriends($arFields, $arParams, $bMail);
 	}
 
-	function FormatEvent_System($arFields, $arParams, $bMail = false)
+	public static function FormatEvent_System($arFields, $arParams, $bMail = false)
 	{
 		return CSocNetLogTools::FormatEvent_System($arFields, $arParams, $bMail);
 	}
 
-	function FormatEvent_Microblog($arFields, $arParams, $bMail = false)
+	public static function FormatEvent_Microblog($arFields, $arParams, $bMail = false)
 	{
 		return CSocNetLogTools::FormatEvent_Microblog($arFields, $arParams, $bMail);
 	}
 
-	function SetCacheLastLogID($id)
+	public static function SetCacheLastLogID($id)
 	{
 		CSocNetLogTools::SetCacheLastLogID("log", $id);
 	}
 
-	function GetCacheLastLogID()
+	public static function GetCacheLastLogID()
 	{
 		return CSocNetLogTools::GetCacheLastLogID("log");
 	}
 
-	function SetUserCache($user_id, $max_id, $max_viewed_id, $count)
+	public static function SetUserCache($user_id, $max_id, $max_viewed_id, $count)
 	{
 		CSocNetLogTools::SetUserCache("log", $user_id, $max_id, $max_viewed_id, $count);
 	}
 
-	function GetUserCache($user_id)
+	public static function GetUserCache($user_id)
 	{
 		return CSocNetLogTools::GetUserCache("log", $user_id);
 	}
@@ -1218,7 +1219,7 @@ class CAllSocNetLog
 		return $DB->Query($strSql);
 	}
 	
-	function GetSimpleOrQuery($val, $key, $strOperation, $strNegative, $OrFields, &$arFields, &$arFilter)
+	public static function GetSimpleOrQuery($val, $key, $strOperation, $strNegative, $OrFields, &$arFields, &$arFilter)
 	{
 		global $DB;
 
@@ -1243,4 +1244,3 @@ class CAllSocNetLog
 			return false;
 	}
 }
-?>

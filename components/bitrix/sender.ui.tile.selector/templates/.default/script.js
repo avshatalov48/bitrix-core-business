@@ -294,7 +294,7 @@
 			return null;
 		}
 
-		template = template.innerHTML;
+		template = template.textContent;
 		var style = '';
 		if (color)
 		{
@@ -306,11 +306,10 @@
 		}
 		template = Helper.replace(template, {
 			'id': BX.util.htmlspecialchars(id + ''),
-			'name': BX.util.htmlspecialchars(name),
+			'name': name,
 			'data': BX.util.htmlspecialchars(JSON.stringify(data)),
 			'style': style
 		});
-
 
 		var node = document.createElement('div');
 		node.innerHTML = template;

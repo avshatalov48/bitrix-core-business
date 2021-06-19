@@ -46,6 +46,10 @@ if(typeof BX.UI.EntityModel === "undefined")
 		{
 			return BX.prop.getInteger(this._data, "ID", 0);
 		},
+		hasField: function(name)
+		{
+			return this._data.hasOwnProperty(name);
+		},
 		getField: function(name, defaultValue)
 		{
 			if(defaultValue === undefined)

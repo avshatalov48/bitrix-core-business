@@ -5,9 +5,11 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Request;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web;
 use Bitrix\Sale\PaySystem;
 use Bitrix\Sale\Payment;
 use Bitrix\Sale\PriceMaths;
+use Bitrix\Sale\Cashbox;
 
 Loc::loadMessages(__FILE__);
 
@@ -15,8 +17,10 @@ Loc::loadMessages(__FILE__);
  * Class RoboxchangeHandler
  * @package Sale\Handlers\PaySystem
  */
-class RoboxchangeHandler extends PaySystem\ServiceHandler
+class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\Cashbox\ISupportPrintCheck
 {
+	use PaySystem\Cashbox\CheckTrait;
+
 	public const TEMPLATE_TYPE_CHECKOUT = 'checkout';
 	public const TEMPLATE_TYPE_IFRAME = 'iframe';
 
@@ -33,10 +37,26 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 	 */
 	public function initiatePay(Payment $payment, Request $request = null)
 	{
+		$receipt = null;
+		if ($this->service->canPrintCheckSelf($payment))
+		{
+			$receiptResult = $this->getReceipt($payment);
+			if (!$receiptResult->isSuccess())
+			{
+				$result = new PaySystem\ServiceResult();
+				$result->addErrors($receiptResult->getErrors());
+				return $result;
+			}
+
+			$receipt = self::encode($receiptResult->getData());
+
+			PaySystem\Logger::addDebugInfo(__CLASS__.": receipt = {$receipt}");
+		}
+
 		$params = [
 			'URL' => $this->getUrl($payment, 'pay'),
 			'PS_MODE' => $this->service->getField('PS_MODE'),
-			'SIGNATURE_VALUE' => $this->getSignatureValue($payment),
+			'SIGNATURE_VALUE' => $this->getSignatureValue($payment, $receipt),
 			'BX_PAYSYSTEM_CODE' => $payment->getPaymentSystemId(),
 			'ROBOXCHANGE_ORDERDESCR' => $this->getOrderDescription($payment),
 			'PAYMENT_ID' => $this->getBusinessValue($payment, 'PAYMENT_ID'),
@@ -44,6 +64,7 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 			'CURRENCY' => $payment->getField('CURRENCY'),
 			'OUT_SUM_CURRENCY' => $this->getOutSumCurrency($payment),
 			'ADDITIONAL_USER_FIELDS' => $this->getAdditionalUserFields($payment),
+			'RECEIPT' => $receipt,
 		];
 		$this->setExtraParams($params);
 
@@ -71,9 +92,10 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 
 	/**
 	 * @param Payment $payment
+	 * @param string|null $receipt
 	 * @return string
 	 */
-	private function getSignatureValue(Payment $payment): string
+	private function getSignatureValue(Payment $payment, string $receipt = null): string
 	{
 		$passwordCode = 'ROBOXCHANGE_SHOPPASSWORD';
 		if ($this->isTestMode($payment))
@@ -88,6 +110,11 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 			(float)$payment->getSum(),
 			$this->getBusinessValue($payment, 'PAYMENT_ID'),
 		];
+
+		if ($receipt)
+		{
+			$signaturePartList[] = $receipt;
+		}
 
 		if ($outSumCurrency = $this->getOutSumCurrency($payment))
 		{
@@ -165,9 +192,8 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 		$signaturePartList = [
 			$request->get('OutSum'),
 			$request->get('InvId'),
+			$shopPassword2,
 		];
-
-		$signaturePartList[] = $shopPassword2;
 
 		foreach ($this->getAdditionalUserFields($payment) as $fieldName => $fieldValue)
 		{
@@ -195,8 +221,8 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 	{
 		return [
 			'pay' => [
-				self::ACTIVE_URL => 'https://auth.robokassa.ru/Merchant/Index.aspx'
-			]
+				self::ACTIVE_URL => 'https://auth.robokassa.ru/Merchant/Index.aspx',
+			],
 		];
 	}
 
@@ -341,5 +367,48 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 			'apple_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_APPLEPAY_MODE'),
 			'samsung_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_SAMSUNGPAY_MODE'),
 		];
+	}
+
+	private function getReceipt(Payment $payment): PaySystem\ServiceResult
+	{
+		$result = new PaySystem\ServiceResult();
+
+		$checkQueryResult = $this->buildCheckQuery($payment);
+		if ($checkQueryResult->isSuccess())
+		{
+			$receiptData = $checkQueryResult->getData();
+			if (!empty($receiptData['items']) && !empty($receiptData['sno']))
+			{
+				$result->setData([
+					'sno' => $receiptData['sno'],
+					'items' => $receiptData['items'],
+				]);
+			}
+			else
+			{
+				$result->addError(PaySystem\Error::create(Loc::getMessage('SALE_HPS_ROBOXCHANGE_ERROR_EMPTY_RECEIPT')));
+			}
+		}
+		else
+		{
+			$result->addErrors($checkQueryResult->getErrors());
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param array $data
+	 * @return mixed
+	 * @throws \Bitrix\Main\ArgumentException
+	 */
+	private static function encode(array $data)
+	{
+		return Web\Json::encode($data, JSON_UNESCAPED_UNICODE);
+	}
+
+	public static function getCashboxClass(): string
+	{
+		return '\\'.Cashbox\CashboxRobokassa::class;
 	}
 }

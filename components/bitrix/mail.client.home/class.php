@@ -35,7 +35,9 @@ class CMailClientHomeComponent extends CBitrixComponent
 		{
 			$redirect = \CComponentEngine::makePathFromTemplate(
 				$this->arParams['PATH_TO_MAIL_MSG_LIST'],
-				array('id' => $mailbox['ID'])
+				array('id' => $mailbox['ID'],
+					  'start_sync_with_showing_stepper' =>false,
+					)
 			);
 		}
 		else

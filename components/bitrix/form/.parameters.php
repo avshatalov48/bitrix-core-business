@@ -6,7 +6,7 @@ if (!CModule::IncludeModule("form")) return;
 $arStartPage = array("list" => GetMessage("COMP_FORM_VALUES_LIST"), "new" => GetMessage("COMP_FORM_VALUES_NEW"));
 
 $arrForms = array();
-$rsForm = CForm::GetList($by='s_sort', $order='asc', !empty($_REQUEST["site"]) ? array("SITE" => $_REQUEST["site"]) : array(), $v3);
+$rsForm = CForm::GetList('s_sort', 'asc', !empty($_REQUEST["site"]) ? array("SITE" => $_REQUEST["site"]) : array());
 while ($arForm = $rsForm->Fetch())
 {
 	$arrForms[$arForm["ID"]] = "[".$arForm["ID"]."] ".$arForm["NAME"];
@@ -15,7 +15,7 @@ while ($arForm = $rsForm->Fetch())
 if (intval($arCurrentValues["WEB_FORM_ID"]) > 0)
 {
 	$show_list = true;
-	$rsFieldList = CFormField::GetList(intval($arCurrentValues["WEB_FORM_ID"]), "ALL", $by="s_sort", $order="asc", array(), $is_filtered);
+	$rsFieldList = CFormField::GetList(intval($arCurrentValues["WEB_FORM_ID"]), "ALL");
 	$arFieldList = array();
 	while ($arField = $rsFieldList->GetNext())
 	{
@@ -183,6 +183,16 @@ $arComponentParameters = array(
 		"CHAIN_ITEM_LINK" => array(
 			"NAME" => GetMessage("COMP_FORM_PARAMS_CHAIN_ITEM_LINK"),
 			"TYPE" => "STRING",
+			"DEFAULT" => "",
+			"PARENT" => "ADDITIONAL_SETTINGS",
+		),
+
+		"NAME_TEMPLATE" => array(
+			"TYPE" => "LIST",
+			"NAME" => GetMessage("COMP_FORM_PARAMS_NAME_TEMPLATE"),
+			"VALUES" => CComponentUtil::GetDefaultNameTemplates(),
+			"MULTIPLE" => "N",
+			"ADDITIONAL_VALUES" => "Y",
 			"DEFAULT" => "",
 			"PARENT" => "ADDITIONAL_SETTINGS",
 		),

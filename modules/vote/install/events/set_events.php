@@ -1,5 +1,5 @@
 <?
-$langs = CLanguage::GetList(($b=""), ($o=""));
+$langs = CLanguage::GetList();
 while($lang = $langs->Fetch())
 {
 	$db_events = CEventType::GetList(array("EVENT_NAME" => "VOTE_FOR", "LID" => $lang["LID"]));
@@ -14,7 +14,7 @@ while($lang = $langs->Fetch())
 			"DESCRIPTION" => GetMessage("VOTE_FOR_DESC")));
 
 		$arSites = array();
-		$sites = CSite::GetList(($b=""), ($o=""), Array("LANGUAGE_ID"=>$lang["LID"]));
+		$sites = CSite::GetList('', '', Array("LANGUAGE_ID"=>$lang["LID"]));
 		while ($site = $sites->Fetch())
 			$arSites[] = $site["LID"];
 

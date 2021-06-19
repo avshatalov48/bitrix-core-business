@@ -140,7 +140,7 @@ IncludeModuleLangFile(__FILE__);
 
 if (class_exists("forum")) return;
 
-Class forum extends CModule
+class forum extends CModule
 {
 	var $MODULE_ID = "forum";
 	var $MODULE_VERSION;
@@ -246,8 +246,7 @@ Class forum extends CModule
 			if (($GLOBALS["DB"]->TableExists("b_forum_dictionary") || $GLOBALS["DB"]->TableExists("B_FORUM_DICTIONARY")) && 
 				($GLOBALS["DB"]->TableExists("b_forum_filter") || $GLOBALS["DB"]->TableExists("B_FORUM_FILTER")))
 			{
-				$by = "LID"; $order = "DESC";
-				$sites = CLanguage::GetList($by, $order, Array());
+				$sites = CLanguage::GetList('lid', 'desc');
 				while($site = $sites->Fetch())
 				{
 					if (!in_array($site["LID"], array("ru", "en", "de")))
@@ -287,7 +286,7 @@ Class forum extends CModule
 			}
 		}
 		COption::SetOptionString("forum", "FILTER", "N");
-		$this->InstallUserFields();
+		static::InstallUserFields();
 
 		return true;
 	}
@@ -305,7 +304,7 @@ Class forum extends CModule
 
 		if(array_key_exists("savedata", $arParams) && $arParams["savedata"] != "Y")
 		{
-			$this->UnInstallUserFields();
+			static::UnInstallUserFields();
 			$db_res = $DB->Query("SELECT ID FROM b_file WHERE MODULE_ID = 'forum'");
 			while($res = $db_res->Fetch())
 				CFile::Delete($res["ID"]);
@@ -367,10 +366,8 @@ Class forum extends CModule
 		$eventManager->unregisterEventHandler('socialnetwork', 'onLogCommentIndexGetContent', 'forum', '\Bitrix\Forum\Integration\Socialnetwork\LogComment', 'onIndexGetContent');
 		$eventManager->unregisterEventHandler('socialnetwork', 'onContentViewed', 'forum', '\Bitrix\Forum\Integration\Socialnetwork\ContentViewHandler', 'onContentViewed');
 
-		CAgent::RemoveAgent("CForumTopic::CleanUp();","forum");
-		CAgent::RemoveAgent("CForumStat::CleanUp();","forum");
-		CAgent::RemoveAgent("CForumFiles::CleanUp();","forum");
-		UnRegisterModule("forum");
+		CAgent::RemoveModuleAgents('forum');
+		UnRegisterModule('forum');
 
 		return true;
 	}
@@ -423,7 +420,7 @@ Class forum extends CModule
 		return true;
 	}
 
-	function InstallUserFields($id = "all")
+	public static function InstallUserFields($id = "all")
 	{
 		global $APPLICATION;
 
@@ -538,7 +535,7 @@ Class forum extends CModule
 		return $errors;
 	}
 
-	function UnInstallUserFields()
+	public static function UnInstallUserFields()
 	{
 		$arFields = array("ENTITY_ID" => "FORUM_MESSAGE");
 		$rsData = CUserTypeEntity::GetList(array("ID" => "ASC"), $arFields);
@@ -549,7 +546,6 @@ Class forum extends CModule
 				$ent->Delete($arRes['ID']);
 			} while ($arRes = $rsData->Fetch());
 		}
-		return;
 	}
 
 	function DoInstall()

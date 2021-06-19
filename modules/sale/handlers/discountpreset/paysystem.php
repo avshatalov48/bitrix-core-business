@@ -17,6 +17,7 @@ use Bitrix\Sale\Helpers\Admin\OrderEdit;
 use Bitrix\Sale\Internals;
 use Bitrix\Sale\Helpers\Admin\Blocks;
 use Bitrix\Sale\Order;
+use Bitrix\Sale;
 
 
 Loc::loadMessages(__FILE__);
@@ -58,7 +59,7 @@ class PaySystem extends BasePreset
 
 	protected function getPaymentSystems()
 	{
-		$dbRes = Internals\PaySystemActionTable::getList(array(
+		$dbRes = Sale\PaySystem\Manager::getList(array(
 			'select' => array(
 				'ID',
 				'NAME',

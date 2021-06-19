@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSaleUserCards
 {
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && intval($arFields["USER_ID"]) <= 0)
 		{
@@ -110,7 +111,7 @@ class CAllSaleUserCards
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -121,7 +122,7 @@ class CAllSaleUserCards
 		return $DB->Query("DELETE FROM b_sale_user_cards WHERE ID = ".$ID." ", true);
 	}
 
-	function OnUserDelete($UserID)
+	public static function OnUserDelete($UserID)
 	{
 		global $DB;
 		$UserID = intval($UserID);
@@ -129,7 +130,7 @@ class CAllSaleUserCards
 		return $DB->Query("DELETE FROM b_sale_user_cards WHERE USER_ID = ".$UserID." ", true);
 	}
 
-	function CheckPassword()
+	public static function CheckPassword()
 	{
 		$strFileName = COption::GetOptionString("sale", "sale_data_file", "");
 
@@ -146,7 +147,7 @@ class CAllSaleUserCards
 		return True;
 	}
 
-	function CryptData($data, $type)
+	public static function CryptData($data, $type)
 	{
 		$type = ToUpper($type);
 		if ($type != "D")
@@ -256,7 +257,7 @@ class CAllSaleUserCards
 		return $res_data;
 	}
 
-	function IdentifyCardType($ccNum)
+	public static function IdentifyCardType($ccNum)
 	{
 		//*CARD TYPES            *PREFIX           *WIDTH
 		$ccNum = preg_replace('/[^0-9]+/', '', $ccNum);
@@ -287,7 +288,7 @@ class CAllSaleUserCards
 			return "N";
 	}
 
-	function WithdrawByID($sum, $currency, $ID, $orderID = 0)
+	public static function WithdrawByID($sum, $currency, $ID, $orderID = 0)
 	{
 		$sum = DoubleVal($sum);
 		if ($sum <= 0)
@@ -322,7 +323,7 @@ class CAllSaleUserCards
 		return CSaleUserCards::Withdraw($sum, $currency, $arUserCard, $orderID);
 	}
 
-	function Withdraw($sum, $currency, $arUserCard, $orderID = 0)
+	public static function Withdraw($sum, $currency, $arUserCard, $orderID = 0)
 	{
 		$sum = str_replace(",", ".", $sum);
 		$sum = roundEx(DoubleVal($sum), SALE_VALUE_PRECISION);
@@ -478,4 +479,3 @@ class CAllSaleUserCards
 		return False;
 	}
 }
-?>

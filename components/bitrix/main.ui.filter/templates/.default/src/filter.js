@@ -1,5 +1,3 @@
-import {Type} from "main.core";
-
 ;(function() {
 	'use strict';
 
@@ -18,6 +16,7 @@ import {Type} from "main.core";
 	 * @param types.MULTI_SELECT
 	 * @param types.NUMBER
 	 * @param types.DEST_SELECTOR
+	 * @param types.ENTITY_SELECTOR
 	 * @param types.CUSTOM_ENTITY
 	 * @param types.CHECKBOX
 	 * @param types.CUSTOM
@@ -371,7 +370,9 @@ import {Type} from "main.core";
 						break;
 					}
 
-					case this.types.CUSTOM_ENTITY : {
+					case this.types.DEST_SELECTOR:
+					case this.types.ENTITY_SELECTOR:
+					case this.types.CUSTOM_ENTITY: {
 						if (BX.type.isPlainObject(current.VALUES))
 						{
 							result[current.NAME] = current.VALUES._value;
@@ -691,20 +692,11 @@ import {Type} from "main.core";
 							};
 						}
 
-						if (field.TYPE === this.types.DEST_SELECTOR)
-						{
-							if (typeof dataFields[current + '_label'] !== 'undefined')
-							{
-								field.VALUES._label = dataFields[current + '_label'];
-							}
-
-							if (typeof dataFields[current] !== 'undefined')
-							{
-								field.VALUES._value = dataFields[current];
-							}
-						}
-
-						if (field.TYPE === this.types.CUSTOM_ENTITY)
+						if (
+							field.TYPE === this.types.DEST_SELECTOR
+							|| field.TYPE === this.types.ENTITY_SELECTOR
+							|| field.TYPE === this.types.CUSTOM_ENTITY
+						)
 						{
 							if (typeof dataFields[current + '_label'] !== 'undefined')
 							{
@@ -900,7 +892,7 @@ import {Type} from "main.core";
 						FIND: data['data'].hasOwnProperty('fields')
 							&& data['data']['fields'].hasOwnProperty('FIND')
 							&& !!data['data']['fields']['FIND'] ? "Y" : "N",
-						ROWS: Type.isObject(data['data']['additional'])
+						ROWS: BX.Type.isObject(data['data']['additional'])
 							&& Object.keys(data['data']['additional']).length == 0 ? "N" : "Y",
 						...analyticsLabel
 					}
@@ -1824,18 +1816,15 @@ import {Type} from "main.core";
 							break;
 						}
 
-						case this.types.DEST_SELECTOR : {
+						case this.types.DEST_SELECTOR:
+						case this.types.CUSTOM_ENTITY:
+						case this.types.ENTITY_SELECTOR: {
 							this.prepareControlCustomEntityValue(values, name, current);
 							break;
 						}
 
 						case this.types.CUSTOM : {
 							this.prepareControlCustomValue(values, name, current);
-							break;
-						}
-
-						case this.types.CUSTOM_ENTITY : {
-							this.prepareControlCustomEntityValue(values, name, current);
 							break;
 						}
 
@@ -2273,6 +2262,44 @@ import {Type} from "main.core";
 			return presetId;
 		},
 
+		isAppliedUserFilter: function()
+		{
+			const presetOptions = this.getPreset().getCurrentPresetData();
+			if (BX.Type.isPlainObject(presetOptions))
+			{
+				const hasFields = (
+					BX.Type.isArrayFilled(presetOptions.FIELDS)
+					&& presetOptions.FIELDS.some((field) => {
+						return !this.getPreset().isEmptyField(field);
+					})
+				);
+
+				const hasAdditional = (
+					BX.Type.isArrayFilled(presetOptions.ADDITIONAL)
+					&& presetOptions.ADDITIONAL.some((field) => {
+						return !this.getPreset().isEmptyField(field);
+					})
+				);
+
+				return (
+					(
+						!presetOptions.IS_PINNED
+						&& (
+							hasFields
+							|| hasAdditional
+						)
+					)
+					|| (
+						presetOptions.IS_PINNED
+						&& BX.Type.isArrayFilled(presetOptions.ADDITIONAL)
+					)
+					|| BX.Type.isStringFilled(this.getSearch().getSearchString())
+				);
+			}
+
+			return false;
+		},
+
 		/**
 		 * Applies filter
 		 * @param {?Boolean} [clear] - is need reset filter
@@ -2288,6 +2315,15 @@ import {Type} from "main.core";
 			var Search = this.getSearch();
 			var applyParams = {autoResolve: !this.grid};
 			var self = this;
+
+			if (this.isAppliedUserFilter())
+			{
+				BX.Dom.addClass(this.getSearch().container, 'main-ui-filter-search--active');
+			}
+			else
+			{
+				BX.Dom.removeClass(this.getSearch().container, 'main-ui-filter-search--active');
+			}
 
 			this.clearGet();
 			this.showGridAnimation();
@@ -2417,15 +2453,9 @@ import {Type} from "main.core";
 						break;
 					}
 
-					case this.types.DEST_SELECTOR : {
-						controlData.VALUES = {
-							'_label': '',
-							'_value': ''
-						};
-						break;
-					}
-
-					case this.types.CUSTOM_ENTITY : {
+					case this.types.DEST_SELECTOR:
+					case this.types.ENTITY_SELECTOR:
+					case this.types.CUSTOM_ENTITY: {
 						controlData.VALUES = {
 							'_label': '',
 							'_value': ''
@@ -2510,6 +2540,8 @@ import {Type} from "main.core";
 			var configCloseDelay = this.settings.get('FILTER_CLOSE_DELAY');
 			var closeDelay;
 
+			BX.Dom.removeClass(this.getSearch().container, 'main-ui-filter-search--showed');
+
 			setTimeout(BX.delegate(function() {
 
 				if (!this.isIe())
@@ -2554,6 +2586,8 @@ import {Type} from "main.core";
 
 			if (!popup.isShown())
 			{
+				BX.Dom.addClass(this.getSearch().container, 'main-ui-filter-search--showed');
+
 				this.isOpened = true;
 				var showDelay = this.settings.get('FILTER_SHOW_DELAY');
 
@@ -2795,9 +2829,9 @@ import {Type} from "main.core";
 
 					if (defPreset.ID !== 'default_filter')
 					{
-						this.addSidebarItem(defPreset.ID, defPreset.TITLE, defPreset.PINNED);
+						this.addSidebarItem(defPreset.ID, defPreset.TITLE, defPreset.IS_PINNED);
 
-						if (defPreset.PINNED)
+						if (defPreset.IS_PINNED)
 						{
 							applyPresetId = defPreset.ID;
 						}
@@ -2901,13 +2935,11 @@ import {Type} from "main.core";
 						}
 					}
 
-					if (current.TYPE === this.types.DEST_SELECTOR)
-					{
-						result[current.NAME + '_label'] = current.VALUES._label;
-						result[current.NAME + '_value'] = current.VALUES._value;
-					}
-
-					if (current.TYPE === this.types.CUSTOM_ENTITY)
+					if (
+						current.TYPE === this.types.DEST_SELECTOR
+						|| current.TYPE === this.types.ENTITY_SELECTOR
+						|| current.TYPE === this.types.CUSTOM_ENTITY
+					)
 					{
 						result[current.NAME + '_label'] = current.VALUES._label;
 						result[current.NAME + '_value'] = current.VALUES._value;

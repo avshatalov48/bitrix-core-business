@@ -345,8 +345,12 @@ class Copyright
 			(new static("js-md5"))
 				->setProductUrl("https://github.com/emn178/js-md5")
 				->setCopyright("copyright Chen, Yi-Cyuan 2014-2017")
-				->setLicence(static::LICENCE_MIT)
-				->setLicenceUrl("https://github.com/emn178/js-md5/blob/master/LICENSE.txt"),
+				->setLicence(static::LICENCE_MIT),
+
+			(new static("js-sha1"))
+				->setProductUrl("https://github.com/emn178/js-sha1")
+				->setCopyright("copyright Chen, Yi-Cyuan 2014-2017")
+				->setLicence(static::LICENCE_MIT),
 
 			(new static("IntersectionObserver"))
 				->setProductUrl("https://github.com/w3c/IntersectionObserver/")
@@ -509,7 +513,7 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 
 			(new static("jQuery Easing v1.3"))
 				->setProductUrl("http://gsgd.co.uk/sandbox/jquery/easing/")
-				->setCopyright("Copyright © 2008 George McGinley Smith")
+				->setCopyright("Copyright (c) 2008 George McGinley Smith")
 				->setLicence(static::LICENCE_BSD3),
 
 			(new static("The Final Countdown for jQuery v2.2.0"))
@@ -527,8 +531,7 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 			(new static("FancyBox v3.2.5"))
 				->setProductUrl("http://fancyapps.com/fancybox/")
 				->setCopyright("Copyright 2017 fancyApps")
-				->setLicence("Licensed GPLv3 for open source use or fancyBox Commercial License for commercial use")
-				->setLicenceUrl("http://fancyapps.com/fancybox/#license"),
+				->setLicence(static::LICENCE_COMMERCIAL)
 
 			(new static("Simple Line Icons"))
 				->setProductUrl("https://simplelineicons.github.io/")
@@ -566,14 +569,34 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setProductUrl("https://vuejs.org")
 				->setLicence(static::LICENCE_MIT),
 
-			(new static("Vue-router v3.4.8"))
-				->setCopyright("Copyright 2020, Evan You")
+			(new static("Vue-router v3.5.1"))
+				->setCopyright("Copyright 2021, Evan You")
 				->setProductUrl("https://router.vuejs.org/")
 				->setLicence(static::LICENCE_MIT),
 
-			(new static("Vuex v3.5.1"))
-				->setCopyright("Copyright 2020, Evan You")
+			(new static("Vuex v3.6.2"))
+				->setCopyright("Copyright 2021, Evan You")
 				->setProductUrl("https://vuex.vuejs.org/")
+				->setLicence(static::LICENCE_MIT),
+
+			(new static("Portal Vue v2.1.7"))
+				->setCopyright("Copyright 2019, Thorsten Lunborg")
+				->setProductUrl("https://portal-vue.linusb.org/")
+				->setLicence(static::LICENCE_MIT),
+
+			(new static("Vue.js v3.0.5"))
+				->setCopyright("Copyright 2014-2021, Evan You")
+				->setProductUrl("https://v3.vuejs.org/")
+				->setLicence(static::LICENCE_MIT),
+
+			(new static("Vue-router v4.0.3"))
+				->setCopyright("Copyright 2021, Eduardo San Martin Morote")
+				->setProductUrl("https://next.router.vuejs.org/")
+				->setLicence(static::LICENCE_MIT),
+
+			(new static("Vuex v4.0.0"))
+				->setCopyright("Copyright 2021, Evan You")
+				->setProductUrl("https://next.vuex.vuejs.org/")
 				->setLicence(static::LICENCE_MIT),
 
 			(new static("Jssor Slider"))
@@ -620,6 +643,11 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setCopyright("Copyright (c) 2010-2019, Vladimir Agafonkin. Copyright (c) 2010-2011, CloudMade")
 				->setProductUrl('https://github.com/Leaflet/Leaflet')
 				->setLicence(static::LICENCE_BSD2),
+
+			(new static("Lodash"))
+				->setCopyright("Copyright OpenJS Foundation and other contributors <https://openjsf.org/>")
+				->setProductUrl('https://lodash.com/')
+				->setLicence(static::LICENCE_MIT),
 		];
 	}
 }

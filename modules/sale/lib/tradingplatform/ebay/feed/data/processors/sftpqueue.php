@@ -48,7 +48,7 @@ class SftpQueue extends DataProcessor
 		if(isset($params["TIMER"]))
 			$this->timer = $params["TIMER"];
 
-		$this->fileNameSalt = mktime();
+		$this->fileNameSalt = time();
 		$this->remotePath = "/store/".$this->feedType;
 		$this->path = \Bitrix\Sale\TradingPlatform\Ebay\Helper::getSftpPath()."/".$this->feedType;
 	}

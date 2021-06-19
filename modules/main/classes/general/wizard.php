@@ -726,12 +726,6 @@ class CWizardStep
 		$this->autoSubmit = false;
 	}
 
-	/** @deprecated */
-	public function CWizardStep()
-	{
-		self::__construct();
-	}
-
 	//Step initialization
 	function InitStep()
 	{

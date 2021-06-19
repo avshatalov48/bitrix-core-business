@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TITLE"] = "Предупреждение";
 $MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT"] = "Ваш запрос на вступление в группу отправлен. После того, как руководство группы одобрит запрос, она появится в списке ваших групп и проектов.";
 $MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT_PROJECT"] = "Ваш запрос на вступление в проект отправлен. После того, как руководство проекта одобрит запрос, он появится в списке ваших групп и проектов.";
@@ -28,4 +28,4 @@ $MESS["SONET_EXT_COMMON_GROUP_MENU_EXIT_PROJECT"] = "Покинуть проек
 $MESS["SONET_EXT_COMMON_WAIT"] = "Пожалуйста, подождите&hellip;";
 $MESS["SONET_EXT_COMMON_GROUP_MENU_COPY"] = "Копировать группу";
 $MESS["SONET_EXT_COMMON_GROUP_MENU_COPY_PROJECT"] = "Копировать проект";
-?>
+$MESS["SONET_EXT_COMMON_GROUP_MENU_THEME_DIALOG"] = "Темы оформления";

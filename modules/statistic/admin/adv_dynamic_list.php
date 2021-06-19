@@ -59,6 +59,8 @@ else
 {
 	$EVENTS_VIEW = $ar["EVENTS_VIEW"];
 
+	global $by, $order;
+
 	$rsData = CAdv::GetDynamicList($find_adv_id, $by, $order, $arMaxMin, $arFilter);
 	$rsData = new CAdminResult($rsData, $sTableID);
 	$rsData->NavStart();
@@ -96,7 +98,7 @@ else
 		$arF["DATE1_PERIOD"] = $f_DATE_STAT;
 		$arF["DATE2_PERIOD"] = $f_DATE_STAT;
 		$arF["COUNTER_ADV_DYNAMIC_LIST"] = "1";
-		$events = CAdv::GetEventList($find_adv_id,($by2="s_def"),($order2="desc"), $arF, $is_filtered);
+		$events = CAdv::GetEventList($find_adv_id, "s_def", "desc", $arF);
 
 		$sum = 0;
 		$sum_back = 0;
@@ -131,7 +133,7 @@ else
 		"DATE1_PERIOD"	=> $arFilter["DATE1"],
 		"DATE2_PERIOD"	=> $arFilter["DATE2"]
 		);
-	$a = CAdv::GetList($by3, $order3, $arF, $is_filtered, "", $arrGROUP_DAYS, $v);
+	$a = CAdv::GetList('', '', $arF, $is_filtered, "", $arrGROUP_DAYS);
 	$ar = $a->GetNext();
 
 

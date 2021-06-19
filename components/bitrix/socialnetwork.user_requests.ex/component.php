@@ -417,6 +417,11 @@ else
 
 			$arResult["RequestsIn"] = array();
 
+			$arTmpResult = [
+				'RequestsIn' => [],
+				'RequestsOut' => [],
+			];
+
 			$dbUserRequests = CSocNetUserRelations::GetList(
 				array("DATE_UPDATE" => "ASC"),
 				array(

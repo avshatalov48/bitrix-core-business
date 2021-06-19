@@ -7,6 +7,7 @@ if(typeof(BX.UI.Form) === "undefined")
 		this._id = "";
 		this._settings = null;
 		this._elementNode = null;
+		this._formData = null;
 	};
 	BX.UI.Form.prototype =
 	{
@@ -15,9 +16,10 @@ if(typeof(BX.UI.Form) === "undefined")
 			this._id = BX.type.isNotEmptyString(id) ? id : "";
 			this._settings = BX.type.isPlainObject(setting) ? setting : {};
 			this._elementNode = BX.prop.getElementNode(this._settings, "elementNode", null);
-			if(!this._elementNode)
+			this._formData = BX.prop.getObject(this._settings, "formData", null);
+			if(!this._elementNode && !this._formData)
 			{
-				throw "BX.UI.Form: Could not find 'elementNode' parameter in settings.";
+				throw "BX.UI.Form: Could not find 'elementNode' or 'formData' parameter in settings.";
 			}
 
 			this.doInitialize();
@@ -105,7 +107,20 @@ if(typeof(BX.UI.AjaxForm) === "undefined")
 	};
 	BX.UI.AjaxForm.prototype.doSubmit = function(options)
 	{
-		BX.ajax.submitAjax( this._elementNode, this._config);
+		if (!this._elementNode)
+		{
+			var config = BX.clone(this._config);
+			if (!config.data)
+			{
+				config.data = {};
+			}
+			config.data = BX.merge(config.data, this._formData);
+			BX.ajax(config);
+		}
+		else
+		{
+			BX.ajax.submitAjax(this._elementNode, this._config);
+		}
 	};
 	BX.UI.AjaxForm.create = function(id, settings)
 	{
@@ -148,7 +163,7 @@ if(typeof(BX.UI.ComponentAjax) === "undefined")
 		{
 			var dataElementParent = (parent !== '') ? parent + '[' + dataElement + ']' : dataElement;
 
-			if (BX.type.isPlainObject(data[dataElement]))
+			if (BX.type.isPlainObject(data[dataElement]) || BX.type.isArray(data[dataElement]))
 			{
 				this._prepareFormData(data[dataElement], formData, dataElementParent);
 			}
@@ -157,7 +172,7 @@ if(typeof(BX.UI.ComponentAjax) === "undefined")
 				formData.append(dataElementParent, data[dataElement]);
 			}
 		}
-	}
+	};
 	BX.UI.ComponentAjax.prototype.makeFormData = function(data)
 	{
 		var formData = new FormData();
@@ -168,7 +183,10 @@ if(typeof(BX.UI.ComponentAjax) === "undefined")
 	};
 	BX.UI.ComponentAjax.prototype.doSubmit = function(options)
 	{
-		var formData = BX.ajax.prepareForm(this._elementNode);
+		var formData = this._elementNode
+			? BX.ajax.prepareForm(this._elementNode)
+			: {data : BX.clone(this._formData), filesCount : 0}
+		;
 
 		if (BX.type.isPlainObject(options.data))
 		{

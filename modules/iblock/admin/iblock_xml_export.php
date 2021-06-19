@@ -163,7 +163,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Export"]=="Y")
 						else
 						{
 							$obExport->EndExportCatalog();
-							$obExport->ExportProductSets();
+							//$obExport->ExportProductSets();
 							$obExport->EndExport();
 							$NS["STEP"]++;
 						}

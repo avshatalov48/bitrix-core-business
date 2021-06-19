@@ -100,12 +100,17 @@ $MESS["LANDING_LINKS_PANEL_MY_SITES__KNOWLEDGE"] = "Все базы знаний
 $MESS["LANDING_LINKS_BUTTON_LANDINGS"] = "Страницу сайта";
 $MESS["LANDING_LINKS_BUTTON_LANDINGS__KNOWLEDGE"] = "Страницу базы знаний";
 $MESS["LANDING_LINKS_BUTTON_BLOCKS"] = "Блок для перехода";
+$MESS["LANDING_LINKS_BUTTON_FORMS"] = "CRM-форму";
+$MESS["LANDING_LINKS_BUTTON_PHONES"] = "Телефон";
 $MESS["LANDING_LINKS_LANDINGS_TITLE"] = "Страницы сайта";
 $MESS["LANDING_LINKS_LANDINGS_TITLE__KNOWLEDGE"] = "Базы знаний и страницы";
 $MESS["LANDING_LINKS_BLOCKS_TITLE"] = "Переход к блоку";
+$MESS["LANDING_LINKS_CRM_FORMS_TITLE"] = "CRM-формы";
+$MESS["LANDING_LINKS_CRM_PHONES_TITLE"] = "Телефоны";
 $MESS["LANDING_BLOCKS_LIST_FEEDBACK_BUTTON"] = "Обратная связь";
 $MESS["LANDING_BLOCKS_LIST_NEW_LABEL"] = "Новый";
 $MESS["LANDING_BLOCKS_ACTIONS_FEEDBACK_BUTTON"] = "Оставить замечание";
+$MESS["LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK"] = "Суперблок";
 $MESS["LANDING_PANEL_FEEDBACK_TITLE"] = "Обратная связь";
 $MESS["LANDING_IMAGE_LIBRARY_PANEL_TITLE"] = "Вставить изображение";
 $MESS["LANDING_IMAGE_UNSPLASH_DESCRIPTION"] = "<a href=\"https://unsplash.com/\" rel=\"nofollow\" target=\"_blank\">Unsplash</a> - это сайт для поиска изображений. Перед использованием найденных фото или картинок для вашего сайта, рекомендуем ознакомиться с <a href=\"https://unsplash.com/terms\" rel=\"nofollow\" target=\"_blank\">лицензией и правилами</a> сервиса. ";
@@ -385,6 +390,10 @@ $MESS['LANDING_LINK_NEW_PAGE_SAVE_BUTTON_LABEL'] = 'Создать';
 $MESS['LANDING_EMBED_FIELD_DESCRIPTION'] = 'Пример: https://www.youtube.com/watch?v=q4d8g9Dn3ww';
 $MESS['LANDING_EMBED_FIELD_PLACEHOLDER'] = 'Ссылка на видео';
 $MESS['LANDING_EMBED_ERROR_TEXT'] = 'Укажите ссылку на страницу с видео. Код и другие способы вставки не поддерживаются.';
+$MESS['LANDING_EMBED_ERROR_WRONG_SOURCE_TEXT'] = 'Некорректная ссылка. Допускаются только полные или короткие ссылки на видео с сервисов Youtube, Facebook, Vimeo или Vine.';
 
 $MESS['LANDING_SHOW_FORM_EDITOR'] = 'Настроить форму';
+
+$MESS['LANDING_DESIGN_BLOCK_REPO_BUTTON'] = 'Добавить элемент';
+$MESS['LANDING_DESIGN_BLOCK_REPO_TITLE'] = 'Добавить элемент';
 

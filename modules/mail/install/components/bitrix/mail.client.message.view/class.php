@@ -577,8 +577,11 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 
 		$icalComponent = ICalMailManager::parseRequest($message['OPTIONS']['iCal']);
 
-		if ($icalComponent->getMethod() === \Bitrix\Calendar\ICal\Parser\Dictionary::METHOD['request']
-			&& $icalComponent->hasOneEvent())
+		if (
+			$icalComponent instanceof \Bitrix\Calendar\ICal\Parser\Calendar
+			&& $icalComponent->getMethod() === \Bitrix\Calendar\ICal\Parser\Dictionary::METHOD['request']
+			&& $icalComponent->hasOneEvent()
+		)
 		{
 			$this->arResult['iCalEvent'] = $icalComponent->getEvent();
 		}

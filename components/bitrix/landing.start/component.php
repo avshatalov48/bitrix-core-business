@@ -63,6 +63,7 @@ if (!\Bitrix\Landing\Site\Type::isEnabled($arParams['TYPE']))
 );
 
 // check rights
+\Bitrix\Landing\Role::checkRequiredRoles();
 if (Loader::includeModule('bitrix24'))
 {
 	if (
@@ -84,11 +85,12 @@ if (!Rights::hasAdditionalRight(Rights::ADDITIONAL_RIGHTS['menu24'], null, true)
 	return;
 }
 
-// preset paths and sef
+// preset paths and sef (.parameters.php)
 $defaultUrlTemplates404 = array(
 	'sites' => '',
 	'site_show' => 'site/#site_show#/',
 	'site_edit' => 'site/edit/#site_edit#/',
+	'site_master' => 'site/master/#site_edit#/',
 	'site_domain' => 'site/domain/#site_edit#/',
 	'site_domain_switch' => 'site/domain_switch/#site_edit#/',
 	'site_cookies' => 'site/cookies/#site_edit#/',
@@ -100,30 +102,13 @@ $defaultUrlTemplates404 = array(
 	'notes' => 'notes/',
 	'role_edit' => 'role/edit/#role_edit#/'
 );
-$defaultVariableAliases = array(
-	'site_show' => 'site_show',
-	'site_edit' => 'site_edit',
-	'landing_edit' => 'landing_edit',
-	'landing_view' => 'landing_view',
-	'domain_edit' => 'domain_edit',
-	'domains' => 'domains',
-	'role_edit' => 'role_edit',
-	'roles' => 'roles',
-	'notes' => 'notes'
-);
-$varToTpl = array(
-	'domains' => 'domains',
-	'landing_edit' => 'landing_edit',
-	'landing_view' => 'landing_view',
-	'site_show' => 'site_show',
-	'site_edit' => 'site_edit',
-	'domain_edit' => 'domain_edit',
-	'role_edit' => 'role_edit'
-);
-$utlTpls = array(
+$urlTpls = array(
+	'site_master' => 'site_master',
+	'site_master' => 'site_master',
 	'sites' => array(),
 	'site_show' => array('site_show'),
 	'site_edit' => array('site_edit'),
+	'site_master' => array('site_edit'),
 	'site_domain' => array('site_edit'),
 	'site_domain_switch' => array('site_edit'),
 	'site_cookies' => array('site_edit'),
@@ -142,6 +127,7 @@ $componentPage = '';
 $curPage = '';
 $request = Application::getInstance()->getContext()->getRequest();
 $uriString = $request->getRequestUri();
+$uriPage = $request->getRequestedPage();
 $landingTypes = \Bitrix\Landing\Site::getTypes();
 
 // template vars
@@ -179,114 +165,79 @@ if (!isset($arParams['SHOW_MENU']))
 // sef / not sef modes
 if ($arParams['SEF_MODE'] == 'Y')
 {
-	$defaultVariableAliases404 = array();
-	$componentVariables = array();
-
-	$urlTemplates = \CComponentEngine::MakeComponentUrlTemplates(
+	$defaultVariableAliases404 = [];
+	$componentVariables = [];
+	// resolve variables, values and template page
+	$urlTemplates = \CComponentEngine::makeComponentUrlTemplates(
 		$defaultUrlTemplates404,
 		$arParams['SEF_URL_TEMPLATES']
 	);
-	$variableAliases = \CComponentEngine::MakeComponentVariableAliases(
+	$variableAliases = \CComponentEngine::makeComponentVariableAliases(
 		$defaultVariableAliases404,
 		$arParams['VARIABLE_ALIASES']
 	);
-	$componentPage = \CComponentEngine::ParseComponentPath(
+	$componentPage = \CComponentEngine::parseComponentPath(
 		$arParams['SEF_FOLDER'],
 		$urlTemplates,
 		$variables
 	);
-
-	\CComponentEngine::InitComponentVariables(
+	\CComponentEngine::initComponentVariables(
 		$componentPage,
 		$componentVariables,
 		$variableAliases,
 		$variables
 	);
-
 	// build urls by rules
-	foreach ($utlTpls as $code => $var)
+	foreach ($urlTpls as $code => $var)
 	{
 		$arParams['PAGE_URL_'.mb_strtoupper($code)] = $arParams['SEF_FOLDER'] . $urlTemplates[$code];
 	}
 }
 else
 {
-	$componentVariables = array();
-	foreach ($defaultVariableAliases as $var)
+	// default variable aliases
+	$defaultVariableAliases = [
+		'page' => 'page'
+	];
+	foreach ($urlTpls as $key => $vars)
 	{
-		$componentVariables[] = isset($arParams['VARIABLE_ALIASES'][$var])
-								? $arParams['VARIABLE_ALIASES'][$var]
-								: $var;
+		foreach ($vars as $var)
+		{
+			$defaultVariableAliases[$var] = $var;
+		}
 	}
-
-	$variableAliases = \CComponentEngine::MakeComponentVariableAliases(
+	// resolve variables and values
+	$variableAliases = \CComponentEngine::makeComponentVariableAliases(
 		$defaultVariableAliases,
 		$arParams['VARIABLE_ALIASES']
 	);
-
-	\CComponentEngine::InitComponentVariables(
+	\CComponentEngine::initComponentVariables(
 		false,
-		$componentVariables,
+		$defaultVariableAliases,
 		$variableAliases,
 		$variables
 	);
-
-	foreach ($varToTpl as $var => $tpl)
+	// resolve template page
+	if (isset($variables['page']) && isset($urlTpls[$variables['page']]))
 	{
-		if (isset($variables[$var]))
+		$componentPage = $variables['page'];
+		if (!$defaultUrlTemplates404[$componentPage])
 		{
-			$componentPage = $tpl;
-			break;
-		}
-	}
-
-	// vars for clear from url
-	$deleteUrl = array();
-	foreach ($utlTpls as $code => $var)
-	{
-		if (empty($var))
-		{
-			$deleteUrl[] = isset($arParams['VARIABLE_ALIASES'][$code])
-							? $arParams['VARIABLE_ALIASES'][$code]
-							: $code;
-		}
-		else
-		{
-			foreach ($var as $v)
-			{
-				$deleteUrl[] = isset($arParams['VARIABLE_ALIASES'][$v])
-								? $arParams['VARIABLE_ALIASES'][$v]
-								: $v;
-			}
+			$componentPage = '';
 		}
 	}
 	// build urls by rules
-	foreach ($utlTpls as $code => $var)
+	foreach ($urlTpls as $code => $vars)
 	{
-		$paramCode = 'PAGE_URL_'.mb_strtoupper($code);
-		$uri = new Uri($uriString);
-		$uri->deleteParams($deleteUrl);
-		if (empty($var))
+		$paramCode = 'PAGE_URL_' . mb_strtoupper($code);
+		$uri = new Uri($uriPage);
+		$uri->addParams(['page' => $code]);
+
+		foreach ($vars as $var)
 		{
-			if (isset($arParams['VARIABLE_ALIASES'][$code]))
+			if (isset($defaultVariableAliases[$var]))
 			{
-				$code = $arParams['VARIABLE_ALIASES'][$code];
-			}
-			$uri->addParams(array(
-				$code => 'Y'
-			));
-		}
-		else
-		{
-			foreach ($var as $v)
-			{
-				if (isset($arParams['VARIABLE_ALIASES'][$v]))
-				{
-					$v = $arParams['VARIABLE_ALIASES'][$v];
-				}
-				$uri->addParams(array(
-					$v => '#' . $v . '#'
-				));
+				$uri->addParams([$var => '#' . $var . '#']);
 			}
 		}
 		$arParams[$paramCode] = urldecode($uri->getUri());

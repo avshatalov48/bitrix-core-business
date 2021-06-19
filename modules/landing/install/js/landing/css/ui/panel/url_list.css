@@ -28,3 +28,32 @@
 .landing-ui-panel-url-list .landing-ui-panel-content-body {
 	height: 100%;
 }
+
+.landing-ui-card-form-preview {
+	display: flex;
+	padding: 12px 15px 12px 9px;
+	margin: 0;
+	-webkit-transition: color 0.2s linear;
+	-o-transition: color 0.2s linear;
+	transition: color 0.2s linear;
+	cursor: pointer;
+}
+
+.landing-ui-card-form-preview:hover {
+	background-color: #f6f8f9;
+}
+
+.landing-ui-card-form-preview .landing-ui-card-header {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525c68;
+	font-size: 16px;
+}
+
+.landing-ui-card-form-preview--callback::after {
+	content: '';
+	width: 19px;
+	height: 24px;
+	background-image: url("data:image/svg+xml,%3Csvg width='19' height='24' viewBox='0 0 26 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21.6546 22.8512L17.564 20.2495C16.9982 19.8924 16.2293 19.9816 15.7726 20.4676L13.7451 22.5569C12.098 21.7134 10.9534 20.9013 9.73771 19.4428C8.41705 17.879 7.88308 16.4815 7.41852 14.8316L9.77252 13.259C10.3417 12.9032 10.575 12.1586 10.3115 11.5392L8.49553 7.09295C8.16379 6.30641 7.23888 5.988 6.49621 6.3869L4.23132 7.84375C3.55705 8.19952 3.00675 9.13332 2.98463 9.87785C2.96867 10.6466 2.98533 11.6451 3.08073 12.3329C3.60741 15.4444 4.71319 18.685 7.14344 21.6023C9.57269 24.5198 12.397 26.2401 15.3654 27.3328C16.0364 27.5848 17.0044 27.7604 17.774 27.8812C18.5436 28.0021 19.4755 27.7475 19.9501 27.125L21.9717 24.9313C22.5404 24.2613 22.3761 23.3017 21.6546 22.8512Z' fill='%23525c68'%3E%3C/path%3E%3C/svg%3E");
+	align-self: center;
+	margin-left: auto;
+}

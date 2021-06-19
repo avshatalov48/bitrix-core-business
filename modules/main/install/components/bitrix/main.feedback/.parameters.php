@@ -7,7 +7,7 @@ if($site !== false)
 	$arFilter["LID"] = $site;
 
 $arEvent = Array();
-$dbType = CEventMessage::GetList($by="ID", $order="DESC", $arFilter);
+$dbType = CEventMessage::GetList("id", "desc", $arFilter);
 while($arType = $dbType->GetNext())
 	$arEvent[$arType["ID"]] = "[".$arType["ID"]."] ".$arType["SUBJECT"];
 

@@ -47,6 +47,9 @@ $getTileLayout = function (array $tile = [])
 		<div class="ui-tile-list-name">
 			<span data-role="tile/item/name" class="ui-tile-list-name-text" style="<?=$color?>"><?=$name?></span>
 		</div>
+		<? if ($tile['badgeNew']): ?>
+		<div class="ui-tile-badge ui-tile-badge--new"><?=Loc::getMessage('UI_TILE_LIST_NEW')?></div>
+		<? endif ?>
 		<? if ($tile['comingSoon']): ?>
 		<div class="ui-tile-list-label">
 			<span class="ui-tile-list-label-text"><?=Loc::getMessage('UI_TILE_LIST_COMMING_SOON')?></span>

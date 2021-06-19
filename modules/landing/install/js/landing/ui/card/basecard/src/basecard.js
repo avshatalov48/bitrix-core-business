@@ -34,6 +34,11 @@ export class BaseCard extends EventEmitter
 			Dom.addClass(this.layout, this.options.className);
 		}
 
+		if (Type.isObject(this.options.attrs))
+		{
+			Dom.adjust(this.layout, {attrs: this.options.attrs});
+		}
+
 		Event.bind(this.layout, 'click', this.onClick);
 	}
 

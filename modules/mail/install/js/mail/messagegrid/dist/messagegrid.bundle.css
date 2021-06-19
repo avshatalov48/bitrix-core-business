@@ -1,0 +1,82 @@
+.mail-grid-disable .main-grid-panel-control-container:not([id*="actallrows_"]) {
+	opacity: .5;
+	cursor: default;
+	pointer-events: none;
+}
+
+.mail-grid-disable .main-grid-buttons.apply {
+	background: none;
+	color: #535c69;
+}
+
+.mail-grid-disable.main-grid-settings-window-actions-item-button {
+	opacity: .6;
+	pointer-events: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.mail-grid-disable .ui-action-panel{
+	opacity: 0;
+}
+
+.mail-msg-list-grid-empty {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	-webkit-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	text-align: center;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+	padding: 30px;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+}
+
+.mail-msg-list-grid-empty-inner {
+	max-width: 330px;
+}
+
+.mail-msg-list-grid-empty-title {
+	font: 31px/36px "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333;
+	margin-bottom: 10px;
+}
+
+.mail-message-grid-filling-bar
+{
+	width: 100% !important;
+	-webkit-transition-property: width;
+	-o-transition-property: width;
+	transition-property: width;
+	-webkit-transition: 10s !important;
+	-o-transition: 10s !important;
+	transition: 10s !important;
+}
+
+.mail-message-grid-bar
+{
+	background-color: #9dcf00 !important;
+	width: 0;
+	-webkit-transition-property: width;
+	-o-transition-property: width;
+	transition-property: width;
+	-webkit-transition: 10s !important;
+	-o-transition: 10s !important;
+	transition: 10s !important;
+}
+
+.mail-msg-list-grid-empty-text {
+	font: 16px/22px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525C69;
+	margin: 0;
+}

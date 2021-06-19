@@ -27,9 +27,7 @@ $separatorList = CCurrencyLang::GetSeparatorTypes(true);
 
 $langList = array();
 $langID = array();
-$by = "sort";
-$order = "asc";
-$langIterator = CLangAdmin::GetList($by, $order);
+$langIterator = CLangAdmin::GetList();
 while ($oneLang = $langIterator->Fetch())
 {
 	$langID[] = $oneLang['LID'];
@@ -140,9 +138,7 @@ if ($ID != '')
 	}
 	else
 	{
-		$by = 'currency';
-		$order = 'asc';
-		$langIterator = CCurrencyLang::GetList($by, $order, $ID);
+		$langIterator = CCurrencyLang::GetList('currency', 'asc', $ID);
 		while ($language = $langIterator->Fetch())
 		{
 			$language['THOUSANDS_SEP'] = (string)$language['THOUSANDS_SEP'];

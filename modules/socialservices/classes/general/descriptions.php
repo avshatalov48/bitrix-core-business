@@ -3,7 +3,7 @@ IncludeModuleLangFile(__FILE__);
 
 class CSocServDescription
 {
-	public function GetDescription()
+	public static function GetDescription()
 	{
 		$tw_disabled = !function_exists("hash_hmac");
 

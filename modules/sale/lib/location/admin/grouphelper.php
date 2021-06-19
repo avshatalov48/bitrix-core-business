@@ -24,7 +24,7 @@ class GroupHelper extends NameHelper
 	* 
 	* @return string Entity class name
 	*/
-	public function getEntityRoadMap()
+	public static function getEntityRoadMap()
 	{
 		return array(
 			'main' => array(

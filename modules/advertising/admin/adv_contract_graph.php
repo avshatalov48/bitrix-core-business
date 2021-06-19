@@ -8,9 +8,11 @@
 ##############################################
 */
 
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/prolog.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/include.php");
+Loader::includeModule('advertising');
 
 $isAdmin = CAdvContract::IsAdmin();
 $isDemo = CAdvContract::IsDemo();
@@ -28,7 +30,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 						Обработка GET | POST
 ****************************************************************************/
 $strError = '';
-$rsContracts = CAdvContract::GetList($v1="s_sort", $v2="desc", array(), $v3);
+$rsContracts = CAdvContract::GetList("s_sort", "desc");
 $contract_ref_id = array();
 $contract_ref = array();
 $j=0;
@@ -47,13 +49,13 @@ $FilterArr = Array(
 	"find_contract_summa",
 	"find_what_show"
 	);
-	
+
 $sTableID = "adv_contract_list";
 $oSort = new CAdminSorting($sTableID);
 $lAdmin = new CAdminList($sTableID, $oSort);
 
 $lAdmin->InitFilter($FilterArr);
-	
+
 $man = false;
 if (!isset($_SESSION["SESS_ADMIN"]["AD_STAT_CONTRACT_GRAPH"]) || empty($_SESSION["SESS_ADMIN"]["AD_STAT_CONTRACT_GRAPH"]))
 //if(strlen($find_date1)<=0 && strlen($find_date2)<=0 && !is_array($find_contract_id) && strlen($find_contract_summa)<=0 && !is_array($find_what_show))
@@ -63,10 +65,10 @@ if (!isset($_SESSION["SESS_ADMIN"]["AD_STAT_CONTRACT_GRAPH"]) || empty($_SESSION
 	$find_what_show = Array("ctr");
 	$man = true;
 }
-	
+
 if ($set_filter <> '' || $man)
-	InitFilterEx($FilterArr,"AD_STAT_CONTRACT_GRAPH","set",true); 
-else 
+	InitFilterEx($FilterArr,"AD_STAT_CONTRACT_GRAPH","set",true);
+else
 	InitFilterEx($FilterArr,"AD_STAT_CONTRACT_GRAPH","get",true);
 if ($del_filter <> '') DelFilterEx($FilterArr,"AD_STAT_LIST",true);
 
@@ -86,8 +88,8 @@ if (empty($find_contract_summa))
 if (empty($find_what_show))
 {
 	$find_what_show = array("visitor", "show", "click", "ctr");
-}	
-	
+}
+
 $arFilter = Array(
 	"DATE_1"			=> $find_date1,
 	"DATE_2"			=> $find_date2,
@@ -100,7 +102,7 @@ if (count($find_contract_id) < 2)
 {
 	$find_contract_summa = 'Y';
 }
-	
+
 $arrDays = CAdvBanner::GetDynamicList($arFilter, $arrLegend, $is_filtered);
 $arShow = $find_what_show;
 $filter_selected = 0;
@@ -163,7 +165,7 @@ $arHeaders[]=
 $lAdmin->AddHeaders($arHeaders);
 while($arRes = $rsData->NavNext(true, "f_"))
 {
-	$row =& $lAdmin->AddRow($f_DATE, $arRes);	
+	$row =& $lAdmin->AddRow($f_DATE, $arRes);
 	$row->AddViewField("DATE", $f_DATE_STAT);
 	$row->AddViewField("VISITORS", $f_VISITOR_COUNT);
 	$row->AddViewField("CTR", $f_CTR==0?'0':$f_CTR);
@@ -171,7 +173,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	if ($find_contract_summa=="N"){
 		$row->AddViewField("CONTRACT_ID", $f_CONTRACT_ID);
 		$row->AddViewField("CONTRACT_NAME", $f_CONTRACT_NAME);
-	}	
+	}
 }
 
 $arFooter = array();
@@ -227,9 +229,7 @@ else :
 			</tr>
 			<?endif;?>
 			<?
-			reset($arrLegend);
-
-			while(list($keyL, $arrS) = each($arrLegend)) :
+			foreach ($arrLegend as $keyL => $arrS):
 			?>
 			<tr valign="center">
 				<?if (in_array("visitor", $arShow)):?>
@@ -258,7 +258,7 @@ else :
 				<?
 				}
 			?></tr><?
-			endwhile;
+			endforeach;
 			?>
 		</table>
 		</td>
@@ -280,7 +280,7 @@ $FilterFields = Array(
 		GetMessage("AD_F_WHAT_TO_SHOW"),
 	);
 $FilterFields[] = GetMessage("AD_F_CONTRACTS");
-	
+
 $filter = new CAdminFilter(
 	$sTableID."_filter_id",
 	$FilterFields

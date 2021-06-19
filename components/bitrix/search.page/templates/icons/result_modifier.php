@@ -258,7 +258,7 @@ if(CModule::IncludeModule('intranet'))
 	{
 		if($arItem["MODULE_ID"] ===  "intranet" && mb_substr($arItem["ITEM_ID"], 0, 1) === "U")
 		{
-			$rsUser = CUser::GetList(($by = ''), ($ord = ''), array("ID_EQUAL_EXACT" => mb_substr($arItem["ITEM_ID"], 1), ), array('SELECT' => array('UF_*')));
+			$rsUser = CUser::GetList('', '', array("ID_EQUAL_EXACT" => mb_substr($arItem["ITEM_ID"], 1), ), array('SELECT' => array('UF_*')));
 			$arUser = $rsUser->Fetch();
 			if($arUser)
 			{

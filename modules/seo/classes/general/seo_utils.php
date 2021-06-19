@@ -54,7 +54,7 @@ class CSeoUtils
 				)
 			);
 
-			$defaultDomain = CBXPunycode::ToASCII(Bitrix\Main\Config\Option::getRealValue('main', 'server_name'), $e = null);
+			$defaultDomain = CBXPunycode::ToASCII(Bitrix\Main\Config\Option::getRealValue('main', 'server_name'), $e);
 
 			$bCurrentHostFound = false;
 			while($arSite = $dbSites->fetch())

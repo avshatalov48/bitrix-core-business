@@ -1,5 +1,6 @@
 <?php
 namespace Bitrix\Forum\Internals;
+use \Bitrix\Main;
 trait EntityFabric
 {
 	protected static $repo = [];
@@ -17,7 +18,14 @@ trait EntityFabric
 		$id = intval($id);
 		if (!array_key_exists($id, self::$repo[__CLASS__]))
 		{
-			self::$repo[__CLASS__][$id] = new static($id);
+			try
+			{
+				self::$repo[__CLASS__][$id] = new static($id);
+			}
+			catch (Main\ObjectNotFoundException $exception)
+			{
+				return null;
+			}
 		}
 		return self::$repo[__CLASS__][$id];
 	}

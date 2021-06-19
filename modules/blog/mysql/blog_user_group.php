@@ -1,10 +1,11 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/general/blog_user_group.php");
 
 class CBlogUserGroup extends CAllBlogUserGroup
 {
 	/*************** ADD, UPDATE, DELETE *****************/
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -48,7 +49,7 @@ class CBlogUserGroup extends CAllBlogUserGroup
 		return False;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -96,7 +97,7 @@ class CBlogUserGroup extends CAllBlogUserGroup
 	}
 
 	//*************** SELECT *********************/
-	function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -193,4 +194,3 @@ class CBlogUserGroup extends CAllBlogUserGroup
 		return $dbRes;
 	}
 }
-?>

@@ -1,9 +1,10 @@
-<?
+<?php
+
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/blog/general/ratings_components.php");
 
 class CRatingsComponentsBlog extends CAllRatingsComponentsBlog
 {
-	function CalcPost($arConfigs)
+	public static function CalcPost($arConfigs)
 	{
 		global $DB;
 
@@ -36,7 +37,7 @@ class CRatingsComponentsBlog extends CAllRatingsComponentsBlog
 		return true;
 	}
 
-	function CalcComment($arConfigs)
+	public static function CalcComment($arConfigs)
 	{
 		global $DB;
 
@@ -69,7 +70,7 @@ class CRatingsComponentsBlog extends CAllRatingsComponentsBlog
 		return true;
 	}
 
-	function CalcActivity($arConfigs)
+	public static function CalcActivity($arConfigs)
 	{
 		global $DB;
 
@@ -145,4 +146,3 @@ class CRatingsComponentsBlog extends CAllRatingsComponentsBlog
 		return true;
 	}
 }
-?>

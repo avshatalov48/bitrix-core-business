@@ -9,7 +9,10 @@
 	BX.Landing.SliderHelper.ACTION_REMOVE_SLIDE = 'remove_slide';
 	BX.Landing.SliderHelper.ACTION_UPDATE = 'update';
 
+	BX.Landing.SliderHelper.CAROUSEL_CLASS = 'js-carousel';
 	BX.Landing.SliderHelper.ACTIVE_CLASS = 'slick-initialized';
+
+	BX.Landing.SliderHelper.editorEnableFlag = false;
 
 	/**
 	 * Check activity and init slider if needed
@@ -117,7 +120,7 @@
 	 */
 	BX.Landing.SliderHelper.makeCarouselRelativeSelector = function (event, carouselClass)
 	{
-		carouselClass = carouselClass || "js-carousel";
+		carouselClass = carouselClass || BX.Landing.SliderHelper.CAROUSEL_CLASS;
 		var carouselSelectors = [];
 
 		if (event.block)
@@ -342,5 +345,15 @@
 		{
 			$(carouselNode).slick('slickGoTo', currSlideNumber, true);
 		}
+	}
+
+	BX.Landing.SliderHelper.setEditorEnable = function(value)
+	{
+		BX.Landing.SliderHelper.editorEnableFlag = !!value;
+	}
+
+	BX.Landing.SliderHelper.isEditorEnable = function()
+	{
+		return !!BX.Landing.SliderHelper.editorEnableFlag;
 	}
 })();

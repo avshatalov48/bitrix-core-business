@@ -129,5 +129,3 @@ class StatusTable extends Entity\DataManager
 		);
 	}
 }
-
-class_alias("Bitrix\\Im\\Model\\StatusTable", "Bitrix\\Im\\StatusTable", false);

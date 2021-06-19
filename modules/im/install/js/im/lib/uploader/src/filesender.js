@@ -19,6 +19,7 @@ export class FileSender
 		this.generateUniqueName = task.generateUniqueName;
 		this.chunkSizeInBytes = task.chunkSize;
 		this.previewBlob = task.previewBlob || null;
+		this.requestToDelete = false;
 
 		this.listener('onStartUpload', {
 			id: this.taskId,
@@ -110,6 +111,7 @@ export class FileSender
 	deleteContent(): void
 	{
 		this.status = Uploader.STATUSES.CANCELLED;
+		this.requestToDelete = true;
 
 		if (!this.token)
 		{
@@ -142,7 +144,7 @@ export class FileSender
 			headers: headers
 		})
 			.then(response => response.json())
-			.then(result => console.log())
+			.then(result => console.log(result))
 			.catch(err => console.error(err))
 	}
 
@@ -151,6 +153,11 @@ export class FileSender
 		if (!this.token)
 		{
 			console.error('Empty token.')
+			return;
+		}
+
+		if (this.requestToDelete)
+		{
 			return;
 		}
 
@@ -201,6 +208,7 @@ export class FileSender
 				}
 				else
 				{
+					this.calculateProgress();
 					this.status = Uploader.STATUSES.DONE;
 					this.listener('onComplete', {id: this.taskId, result: result});
 				}

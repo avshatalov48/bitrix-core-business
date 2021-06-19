@@ -187,15 +187,16 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 	/**
 	 * Deletes messages.
 	 * @param string[] $ids
+	 * @param boolean $deleteImmediately
 	 */
-	public function deleteAction($ids)
+	public function deleteAction($ids, $deleteImmediately = false)
 	{
 		$result = $this->getIds($ids);
 		if ($result->isSuccess())
 		{
 			$data = $result->getData();
 			$mailMarkerManager = new MailsFoldersManager($data['mailboxId'], $data['messagesIds']);
-			$result = $mailMarkerManager->deleteMails();
+			$result = $mailMarkerManager->deleteMails($deleteImmediately);
 			if (!$result->isSuccess())
 			{
 				$errors = $result->getErrors();
@@ -992,55 +993,61 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 
 	public function icalAction()
 	{
-		return false;
-//		$request = Context::getCurrent()->getRequest();
-//
-//		$messageId = (int)$request->getPost("messageId");
-//		$action = (string)$request->getPost("action");
-//
-//		if (!$messageId || !$action)
-//		{
-//			$this->addError(new Error(Loc::getMessage('MAIL_CLIENT_FORM_ERROR')));
-//
-//			return false;
-//		}
-//
-//		$message = MailMessageTable::getList([
-//			'runtime' => [
-//				new Main\Entity\ReferenceField(
-//					'MAILBOX',
-//					'Bitrix\Mail\MailboxTable',
-//					[
-//						'=this.MAILBOX_ID' => 'ref.ID',
-//					],
-//					[
-//						'join_type' => 'INNER',
-//					]
-//				),
-//			],
-//			'select'  => [
-//				'ID',
-//				'FIELD_FROM',
-//				'FIELD_TO',
-//				'OPTIONS',
-//				'USER_ID' => 'MAILBOX.USER_ID',
-//			],
-//			'filter'  => [
-//				'=ID' => $messageId,
-//			],
-//		])->fetch();
-//
-//		if (empty($message['OPTIONS']['iCal']))
-//		{
-//			return false;
-//		}
-//
-//		$icalComponent = ICalMailManager::parseRequest($message['OPTIONS']['iCal']);
-//
-//		if ($icalComponent->getMethod() === \Bitrix\Calendar\ICal\Parser\Dictionary::METHOD['request']
-//			&& $icalComponent->hasOneEvent()
-//		)
-//		{
+//		return false;
+		$request = Context::getCurrent()->getRequest();
+
+		$messageId = (int)$request->getPost("messageId");
+		$action = (string)$request->getPost("action");
+
+		if (!$messageId || !$action)
+		{
+			$this->addError(new Error(Loc::getMessage('MAIL_CLIENT_FORM_ERROR')));
+
+			return false;
+		}
+
+		$message = MailMessageTable::getList([
+			'runtime' => [
+				new Main\Entity\ReferenceField(
+					'MAILBOX',
+					'Bitrix\Mail\MailboxTable',
+					[
+						'=this.MAILBOX_ID' => 'ref.ID',
+					],
+					[
+						'join_type' => 'INNER',
+					]
+				),
+			],
+			'select'  => [
+				'ID',
+				'FIELD_FROM',
+				'FIELD_TO',
+				'OPTIONS',
+				'USER_ID' => 'MAILBOX.USER_ID',
+			],
+			'filter'  => [
+				'=ID' => $messageId,
+			],
+		])->fetch();
+
+		if (empty($message['OPTIONS']['iCal']))
+		{
+			return false;
+		}
+
+		$icalComponent = ICalMailManager::parseRequest($message['OPTIONS']['iCal']);
+
+		if ($icalComponent instanceof \Bitrix\Calendar\ICal\Parser\Calendar
+			&& $icalComponent->getMethod() === \Bitrix\Calendar\ICal\Parser\Dictionary::METHOD['request']
+			&& $icalComponent->hasOneEvent()
+		)
+		{
+			\Bitrix\Calendar\ICal\MailInvitation\IncomingInvitationRequestHandler::createInstance()
+				->setDecision($action)
+				->setIcalComponent($icalComponent)
+				->setUserId((int)$message['USER_ID'])
+				->handle();
 //			ICalMailManager::manageRequest([
 //				'event'  => $icalComponent->getEvent(),
 //				'userId' => $message['USER_ID'],
@@ -1048,10 +1055,10 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 //				'emailTo'  => $message['FIELD_TO'],
 //				'answer' => $action
 //			]);
-//
-//			return true;
-//		}
-//
-//		return false;
+
+			return true;
+		}
+
+		return false;
 	}
 }

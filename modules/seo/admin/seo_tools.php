@@ -142,7 +142,7 @@ if (isset($_REQUEST['loadtab']))
 		$arSearcherHits = array();
 		if (count($arSearchers) > 0)
 		{
-			$dbRes = CSearcher::GetList($by = 's_name', $order = "asc", array('ID' => implode('|', $arSearchers)), $is_filtered = null);
+			$dbRes = CSearcher::GetList('s_name', 'asc', array('ID' => implode('|', $arSearchers)));
 			$arSearchers = array();
 			while ($arRes = $dbRes->Fetch())
 			{
@@ -177,7 +177,7 @@ if (isset($_REQUEST['loadtab']))
 
 				$last_ts = strtotime('-'.COption::GetOptionInt('statistic', 'SEARCHER_HIT_DAYS', 3).' days');
 				$total = 0;
-				$dbRes = CSearcherHit::GetList($by = 's_searcher_id', $order="asc", $arFilter, $is_filtered);
+				$dbRes = CSearcherHit::GetList('s_searcher_id', 'asc', $arFilter);
 				while ($arRes = $dbRes->Fetch())
 				{
 					$ts = MakeTimeStamp($arRes['DATE_HIT']);
@@ -288,7 +288,7 @@ if (isset($_REQUEST['loadtab']))
 					'GROUP' => 'P'
 				);
 
-				$dbRes = CPhrase::GetList($by = 's_quantity', $order = 'desc', $arFilter, $is_filtered, $total, $group_by, $max);
+				$dbRes = CPhrase::GetList('s_quantity', 'desc', $arFilter, null, $total);
 				$dbRes->NavStart(20, false, 0);
 
 				$arWords = array();
@@ -308,7 +308,7 @@ if (isset($_REQUEST['loadtab']))
 				{
 					$arFilter['PHRASE'] = '"'.$phrase.'"';
 					$arFilter['PHRASE_EXACT_MATCH'] = 'Y';
-					$dbRes = CPhrase::GetList($by = 's_quantity', $order = 'desc', $arFilter, $is_filtered, $total1, $group_by, $max);
+					$dbRes = CPhrase::GetList('s_quantity', 'desc', $arFilter);
 					$dbRes->NavStart(50, false, 0);
 					while ($arRes = $dbRes->Fetch())
 					{
@@ -397,7 +397,7 @@ if (isset($_REQUEST['loadtab']))
 			);
 			
 
-			$dbRes = CReferer::GetList($by = 's_quantity', $order = 'desc', $arFilter, $is_filtered, $total, $group_by, $max);
+			$dbRes = CReferer::GetList('s_quantity', 'desc', $arFilter, null, $total);
 			$dbRes->NavStart(20, false, 0);
 
 			$arReferers = array();
@@ -424,7 +424,7 @@ if (isset($_REQUEST['loadtab']))
 			{
 				$arFilter['FROM_DOMAIN'] = $key;
 				$arFilter['FROM_DOMAIN_EXACT_MATCH'] = 'Y';
-				$dbRes = CReferer::GetList($by = 's_quantity', $order = 'desc', $arFilter, $is_filtered, $total, $group_by, $max);
+				$dbRes = CReferer::GetList('s_quantity', 'desc', $arFilter, null, $total);
 				$dbRes->NavStart(50, false, 0);
 				while ($arRes = $dbRes->Fetch())
 				{
@@ -727,48 +727,34 @@ foreach(GetModuleEvents("seo", "OnSeoCountersGetList", true) as $arEvent)
 /*************************************/
 $tabControl->BeginNextTab();
 
+
 if ($propertyCode = COption::GetOptionString('seo', 'property_internal_keywords', 'keywords_inner')):
-	$arInnerKeywords = CSeoKeywords::GetByURL($back_url, $site);
-	
-	if (count($arInnerKeywords) <= 0)
+
+	$savedKeywords = CSeoKeywords::GetByURL($back_url, $site);
+	if (empty($savedKeywords))
 	{
-		$arInnerKeywords = $arGlobalProperties[$propertyCode] ? $arGlobalProperties[$propertyCode] : $arDirProperties[$propertyCode];
-		
-		if (count($arInnerKeywords) >= 0)
-		{
-			CSeoKeywords::Add(array(
-				'URL' => $back_url,
-				'SITE_ID' => $site,
-				'KEYWORDS' => $arInnerKeywords,
-			));
-		}
+		$keywords = $arGlobalProperties[$propertyCode] ?: $arDirProperties[$propertyCode];
+		$keywords = explode(',', $keywords);
+		CSeoKeywords::Add([
+			'URL' => $back_url,
+			'SITE_ID' => $site,
+			'KEYWORDS' => $keywords,
+		]);
 	}
 	else
 	{
-		$k = '';
-		foreach ($arInnerKeywords as $key => $value)
+		$keywords = [];
+		foreach ($savedKeywords as $key => $value)
 		{
-			$k .= ($k == '' ? '' : ',') . $value['KEYWORDS'];
+			$keywords = array_merge($keywords, explode(',', $value['KEYWORDS']));
 		}
-		$arInnerKeywords = $k;
 	}
-	if ($arInnerKeywords <> '')
-	{
-		$arInnerKeywords = explode(',', $arInnerKeywords);
-	}
-	else
-	{
-		$arInnerKeywords = array();
-	}
+	TrimArr($keywords, true);
 ?>
 <tr id="bx_keywords_stats_loading_notify"><td align="center"><?echo BeginNote(),GetMessage('SEO_TOOLS_LOADING'),EndNote();?></td></tr>
 <tr id="bx_keywords_stats" style="display: none;">
 	<td colspan="2">
-<?
-		foreach ($arInnerKeywords as $k => $v) $arInnerKeywords[$k] = trim($v);
-		TrimArr($arInnerKeywords);
-?>
-		<div><input type="text" id="internal_keywords" rows="5" name="internal_keywords" style="width: 80%;" value="<?echo htmlspecialcharsEx(implode(', ', $arInnerKeywords))?>" /><button onclick="BXCallUpdateKeywordsStats(document.getElementById('internal_keywords').value); return false;" title="<?echo GetMessage('SEO_TOOLS_INTERNAL_KEYWORDS_RELOAD_TITLE')?>"><?echo GetMessage('SEO_TOOLS_INTERNAL_KEYWORDS_RELOAD')?></button></div>
+		<div><input type="text" id="internal_keywords" rows="5" name="internal_keywords" style="width: 80%;" value="<?echo htmlspecialcharsEx(implode(', ', $keywords))?>" /><button onclick="BXCallUpdateKeywordsStats(document.getElementById('internal_keywords').value); return false;" title="<?echo GetMessage('SEO_TOOLS_INTERNAL_KEYWORDS_RELOAD_TITLE')?>"><?echo GetMessage('SEO_TOOLS_INTERNAL_KEYWORDS_RELOAD')?></button></div>
 		<br />
 		<table width="100%" class="bx-seo-words-table" id="bx_seo_words_table">
 			<thead>
@@ -1073,7 +1059,7 @@ window.BXCallPageStats = function()
 {
 	BX.showWait();
 
-	var keywords = '<?echo CUtil::JSEscape(implode(', ', $arInnerKeywords));?>';
+	var keywords = '<?echo CUtil::JSEscape(implode(', ', $keywords));?>';
 
 	BX.ajax({
 		url: '/bitrix/tools/seo_page_parser.php?lang=<?=LANGUAGE_ID?>&first=Y&site=<?=$site?>&url=<?echo CUtil::JSEScape(urlencode($back_url))?>&callback=set_stats&sessid=' + BX.bitrix_sessid(),

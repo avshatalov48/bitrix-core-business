@@ -50,7 +50,7 @@ class BizprocAutomationComponent extends \CBitrixComponent
 
 	protected function getDocumentCategoryId()
 	{
-		return isset($this->arParams['DOCUMENT_CATEGORY_ID']) ? (int)$this->arParams['DOCUMENT_CATEGORY_ID'] : 0;
+		return isset($this->arParams['DOCUMENT_CATEGORY_ID']) ? (int)$this->arParams['DOCUMENT_CATEGORY_ID'] : null;
 	}
 
 	protected function isApiMode()
@@ -292,7 +292,8 @@ class BizprocAutomationComponent extends \CBitrixComponent
 				$canRead = CBPDocument::CanUserOperateDocument(
 					CBPCanUserOperateOperation::ReadDocument,
 					$GLOBALS["USER"]->GetID(),
-					[$documentType[0], $documentType[1], $documentId]
+					[$documentType[0], $documentType[1], $documentId],
+					['DocumentCategoryId' => $documentCategoryId]
 				);
 			}
 			else
@@ -300,7 +301,8 @@ class BizprocAutomationComponent extends \CBitrixComponent
 				$canRead = CBPDocument::CanUserOperateDocumentType(
 					CBPCanUserOperateOperation::ReadDocument,
 					$GLOBALS["USER"]->GetID(),
-					$documentType
+					$documentType,
+					['DocumentCategoryId' => $documentCategoryId]
 				);
 			}
 

@@ -1,9 +1,10 @@
 import {Type, Dom, Event, Runtime, Tag, Loc, Text} from 'main.core';
-import {Util} from "calendar.util";
+import {Util} from 'calendar.util';
 import {EventEmitter, BaseEvent} from 'main.core.events';
 import {Planner} from "calendar.planner";
 import {Popup, MenuManager} from 'main.popup';
 import {Dialog as EntitySelectorDialog} from 'ui.entity-selector';
+import { ControlButton } from 'intranet.control-button';
 
 export class UserPlannerSelector extends EventEmitter
 {
@@ -36,7 +37,7 @@ export class UserPlannerSelector extends EventEmitter
 			attendeesList: params.outerWrap.querySelector('.calendar-attendees-list'),
 			userSelectorWrap: params.outerWrap.querySelector('.calendar-user-selector-wrap'),
 			plannerOuterWrap: params.plannerOuterWrap,
-			chatLink: params.outerWrap.querySelector('.calendar-create-chat-link'),
+			videocallWrap: params.outerWrap.querySelector('.calendar-videocall-wrap'),
 			hideGuestsWrap: params.hideGuestsWrap,
 			hideGuestsIcon: params.hideGuestsWrap.querySelector('.calendar-hide-members-icon-hidden')
 		};
@@ -112,11 +113,6 @@ export class UserPlannerSelector extends EventEmitter
 			Event.bind(this.DOM.moreLink, 'click', this.showMoreAttendeesPopup.bind(this));
 		}
 
-		if (this.DOM.chatLink)
-		{
-			Event.bind(this.DOM.chatLink, 'click', ()=>{this.emit('onOpenChat');});
-		}
-
 		this.planner = new Planner({
 			wrap: this.DOM.plannerOuterWrap,
 			minWidth: UserPlannerSelector.PLANNER_WIDTH,
@@ -141,20 +137,16 @@ export class UserPlannerSelector extends EventEmitter
 		}
 	}
 
-	setValue({attendeesEntityList, attendees, location, notify, hideGuests, viewMode, entryId})
+	setValue({attendeesEntityList, attendees, location, notify, hideGuests, viewMode, entry})
 	{
 		this.attendeesEntityList = Type.isArray(attendeesEntityList) ? attendeesEntityList : [];
 		this.attendeesPreselectedItems = this.attendeesEntityList.map((item) => {return [item.entityId, item.id]});
 
-		this.entryId = entryId;
+		this.entry = entry;
+		this.entryId = this.entry.id;
 		if (this.attendeesEntityList.length > 1 && !viewMode)
 		{
 			this.showPlanner();
-		}
-
-		if (this.DOM.chatLink)
-		{
-			this.DOM.chatLink.style.display = 'none';
 		}
 
 		this.setEntityList(this.attendeesEntityList);
@@ -164,18 +156,37 @@ export class UserPlannerSelector extends EventEmitter
 		if (Type.isArray(attendees))
 		{
 			this.displayAttendees(attendees);
-
-			if (window.location.host === 'cp.bitrix.ru'
-				&& this.DOM.chatLink
-				&& viewMode
-				&& attendees.length > 1
-				&& attendees.find((user)=>{return user.STATUS !== 'N' && parseInt(user.ID) === parseInt(this.userId);})
-			)
-			{
-				this.DOM.chatLink.style.display = '';
-			}
 		}
 		this.refreshPlanner();
+
+
+		if (BX?.Intranet?.ControlButton
+			&& this.DOM.videocallWrap
+			&& this.entryId
+			&& this.entry.getCurrentStatus() !== false
+		)
+		{
+			Dom.clean(this.DOM.videocallWrap);
+			Dom.removeClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
+
+			this.intranetControllButton = new ControlButton({
+				container: this.DOM.videocallWrap,
+				entityType: 'calendar_event',
+				entityId: this.entryId,
+				mainItem: 'chat',
+				entityData: {
+					dateFrom: Util.formatDate(this.entry.from),
+					parentId: this.entry.parentId
+				},
+				analyticsLabel: {
+					formType: 'compact'
+				}
+			});
+		}
+		else if(this.DOM.videocallWrap)
+		{
+			Dom.addClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
+		}
 
 		this.setHideGuestsValue(hideGuests);
 	}
@@ -592,12 +603,18 @@ export class UserPlannerSelector extends EventEmitter
 			|| !!this.getEntityList().find((item) => {return item.entityType === 'email';});
 	}
 
-	destroySelector()
+	destroy()
 	{
-		if (this.userSelectorDialog)
+		if (this.userSelectorDialog && this.userSelectorDialog.destroy)
 		{
 			this.userSelectorDialog.destroy();
 		 	this.userSelectorDialog = null;
+		}
+
+		if (this.intranetControllButton && this.intranetControllButton.destroy)
+		{
+			this.intranetControllButton.destroy();
+			this.intranetControllButton = null;
 		}
 	}
 

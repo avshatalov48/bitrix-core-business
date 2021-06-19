@@ -216,7 +216,7 @@ window.close();
 		return $res;
 	}
 
-	public function TwitterUserId($userId)
+	public static function TwitterUserId($userId)
 	{
 		$dbSocservUser = \Bitrix\Socialservices\UserTable::getList([
 			'filter' => ['=USER_ID' => intval($userId), "=EXTERNAL_AUTH_ID" => self::ID],

@@ -317,6 +317,7 @@ class Extension
 		$skipCoreJS = isset($option['skip_core_js']) && $option['skip_core_js'] === true;
 		$withDependency = !(isset($option['with_dependency']) && $option['with_dependency'] === false);
 		$skipExtensions = isset($option['skip_extensions'])? $option['skip_extensions']: [];
+		$getResolvedExtensionList = isset($option['get_resolved_extension_list']) && $option['get_resolved_extension_list'] === true;
 
 		\CJSCore::init();
 
@@ -402,6 +403,11 @@ class Extension
 			'options' => [],
 			'settings' => [],
 		];
+
+		if ($getResolvedExtensionList)
+		{
+			$result['resolved_extension'] = array_diff($alreadyResolved, $skipExtensions);
+		}
 
 		$options = array_keys($result);
 		foreach ($extensions as $extension)

@@ -1,8 +1,9 @@
 <?php
 namespace Bitrix\Landing\Components\LandingEdit;
 
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Landing\Restriction;
+use Bitrix\Landing\Field;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Landing\Restriction;
 
 class Template
 {
@@ -176,6 +177,27 @@ class Template
 		}
 	}
 
+	public function showField(string $code, Field $field, array $additional = [])
+	{
+		$isHidden = $additional['hidden'] ?: false;
+		// todo: add hits
+		?>
+		<div class="ui-control-wrap"<?= $isHidden ? ' hidden' : '' ?>>
+			<div class="ui-form-control-label"><?= $field->getLabel();?></div>
+			<div class="ui-form-control-field">
+				<?php
+				$field->viewForm([
+					'id' => 'field-' . strtolower($code),
+					'additional' => 'readonly',
+					'class' => self::getCssByType($field->getType()) . ' ui-field-' . strtolower($code),
+					'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]',
+				]);
+				?>
+			</div>
+		</div>
+		<?php
+	}
+
 	/**
 	 * Display picture.
 	 * @param \Bitrix\Landing\Field $field Picture field for display.
@@ -266,7 +288,7 @@ class Template
 	 * @param $type
 	 * @return string
 	 */
-	public function getCssByType($type)
+	public static function getCssByType($type)
 	{
 		$css = '';
 

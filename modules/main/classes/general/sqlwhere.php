@@ -49,50 +49,60 @@ class CAllSQLWhere
 		"*%" => "FTL", // partial full text match based on LIKE
 	);
 
-	function _Upper($field)
+	public function _Upper($field)
 	{
 		return "UPPER(".$field.")";
 	}
-	function _Empty($field)
+
+	public function _Empty($field)
 	{
 		return "(".$field." IS NULL)";
 	}
-	function _NotEmpty($field)
+
+	public function _NotEmpty($field)
 	{
 		return "(".$field." IS NOT NULL)";
 	}
-	function _StringEQ($field, $sql_value)
+
+	public function _StringEQ($field, $sql_value)
 	{
 		return $field." = '".$sql_value."'";
 	}
-	function _StringNotEQ($field, $sql_value)
+
+	public function _StringNotEQ($field, $sql_value)
 	{
 		return "(".$field." IS NULL OR ".$field." <> '".$sql_value."')";
 	}
-	function _StringIN($field, $sql_values)
+
+	public function _StringIN($field, $sql_values)
 	{
 		return $field." in ('".implode("', '", $sql_values)."')";
 	}
-	function _StringNotIN($field, $sql_values)
+
+	public function _StringNotIN($field, $sql_values)
 	{
 		return "(".$field." IS NULL OR ".$field." not in ('".implode("', '", $sql_values)."'))";
 	}
-	function _ExprEQ($field, $val)
+
+	public function _ExprEQ($field, $val)
 	{
 		return $field." = ".$val->compile();
 	}
-	function _ExprNotEQ($field, $val)
+
+	public function _ExprNotEQ($field, $val)
 	{
 		return "(".$field." IS NULL OR ".$field." <> ".$val->compile().")";
 	}
-	function _NumberIN($field, $sql_values)
+
+	public function _NumberIN($field, $sql_values)
 	{
 		$result = $field." in (".implode(", ", $sql_values).")";
 		if (in_array(0, $sql_values, true))
 			$result .= " or ".$field." IS NULL";
 		return $result;
 	}
-	function _NumberNotIN($field, $sql_values)
+
+	public function _NumberNotIN($field, $sql_values)
 	{
 		$result = $field." not in (".implode(", ", $sql_values).")";
 		if (in_array(0, $sql_values, true))
@@ -180,7 +190,7 @@ class CAllSQLWhere
 		return '';
 	}
 
-	function AddFields($arFields)
+	public function AddFields($arFields)
 	{
 		if(is_array($arFields))
 		{
@@ -193,8 +203,8 @@ class CAllSQLWhere
 					$ar["TABLE_ALIAS"] = $arField["TABLE_ALIAS"];
 					$ar["FIELD_NAME"] = $arField["FIELD_NAME"];
 					$ar["FIELD_TYPE"] = $arField["FIELD_TYPE"];
-					$ar["USER_TYPE_ID"] = $arField["USER_TYPE_ID"];
-					$ar["MULTIPLE"] = isset($arField["MULTIPLE"])? $arField["MULTIPLE"]: "N";
+					$ar["USER_TYPE_ID"] = $arField["USER_TYPE_ID"] ?? '';
+					$ar["MULTIPLE"] = $arField["MULTIPLE"] ?? "N";
 					$ar["JOIN"] = $arField["JOIN"];
 					if(isset($arField["LEFT_JOIN"]))
 						$ar["LEFT_JOIN"] = $arField["LEFT_JOIN"];
@@ -206,7 +216,7 @@ class CAllSQLWhere
 		}
 	}
 
-	function SetFields($arFields)
+	public function SetFields($arFields)
 	{
 		$this->fields = array();
 		$this->AddFields($arFields);
@@ -239,7 +249,7 @@ class CAllSQLWhere
 		return $all_operations[$code];
 	}
 
-	function GetQuery($arFilter)
+	public function GetQuery($arFilter)
 	{
 		$this->l_joins = array();
 		$this->c_joins = array();
@@ -251,7 +261,7 @@ class CAllSQLWhere
 		return $this->GetQueryEx($arFilter, $this->l_joins);
 	}
 
-	function GetQueryEx($arFilter, &$arJoins, $level=0)
+	public function GetQueryEx($arFilter, &$arJoins, $level=0)
 	{
 		if(!is_array($arFilter))
 			return "";
@@ -398,7 +408,7 @@ class CAllSQLWhere
 			return "";
 	}
 
-	function GetJoins()
+	public function GetJoins()
 	{
 		$result = array();
 
@@ -416,7 +426,7 @@ class CAllSQLWhere
 		return implode("\n", $result);
 	}
 
-	public static function ForLIKE($str)
+	public function ForLIKE($str)
 	{
 		global $DB;
 		static $search  = array( "!",  "_",  "%");
@@ -424,7 +434,7 @@ class CAllSQLWhere
 		return str_replace($search, $replace, $DB->ForSQL($str));
 	}
 
-	function addIntFilter(&$result, $isMultiple, $FIELD_NAME, $operation, $value)
+	public function addIntFilter(&$result, $isMultiple, $FIELD_NAME, $operation, $value)
 	{
 		if (is_array($value))
 			$FIELD_VALUE = array_map("intval", $value);
@@ -544,7 +554,7 @@ class CAllSQLWhere
 		}
 	}
 
-	function addFloatFilter(&$result, $isMultiple, $FIELD_NAME, $operation, $value)
+	public function addFloatFilter(&$result, $isMultiple, $FIELD_NAME, $operation, $value)
 	{
 		if (is_array($value))
 		{
@@ -672,7 +682,7 @@ class CAllSQLWhere
 		}
 	}
 
-	function addStringFilter(&$result, $isMultiple, $FIELD_NAME, $operation, $value)
+	public function addStringFilter(&$result, $isMultiple, $FIELD_NAME, $operation, $value)
 	{
 		global $DB;
 
@@ -930,7 +940,7 @@ class CAllSQLWhere
 		}
 	}
 
-	function addDateFilter(&$result, $isMultiple, $FIELD_NAME, $operation, $value, $format)
+	public function addDateFilter(&$result, $isMultiple, $FIELD_NAME, $operation, $value, $format)
 	{
 		global $DB;
 

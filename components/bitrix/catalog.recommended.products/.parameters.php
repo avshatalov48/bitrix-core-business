@@ -450,9 +450,7 @@ if (Loader::includeModule('currency'))
 	if (isset($arCurrentValues['CONVERT_CURRENCY']) && 'Y' == $arCurrentValues['CONVERT_CURRENCY'])
 	{
 		$arCurrencyList = array();
-		$by = 'SORT';
-		$order = 'ASC';
-		$rsCurrencies = CCurrency::GetList($by, $order);
+		$rsCurrencies = CCurrency::GetList('sort', 'asc');
 		while ($arCurrency = $rsCurrencies->Fetch())
 		{
 			$arCurrencyList[$arCurrency['CURRENCY']] = $arCurrency['CURRENCY'];

@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/log.php");
 
 use Bitrix\Socialnetwork\Item\LogIndex;
@@ -12,7 +13,7 @@ class CSocNetLog extends CAllSocNetLog
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function Add($arFields, $bSendEvent = true)
+	public static function Add($arFields, $bSendEvent = true)
 	{
 		global $DB, $USER_FIELD_MANAGER;
 
@@ -134,7 +135,7 @@ class CSocNetLog extends CAllSocNetLog
 		return $ID;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB, $CACHE_MANAGER, $APPLICATION, $USER_FIELD_MANAGER;
 
@@ -269,7 +270,7 @@ class CSocNetLog extends CAllSocNetLog
 		return $ID;
 	}
 
-	function ClearOld($days = 90)
+	public static function ClearOld($days = 90)
 	{
 		global $DB;
 
@@ -287,7 +288,7 @@ class CSocNetLog extends CAllSocNetLog
 	/***************************************/
 	/**********  DATA SELECTION  ***********/
 	/***************************************/
-	function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array(), $arParams = array())
+	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array(), $arParams = array())
 	{
 		global $DB, $USER, $USER_FIELD_MANAGER;
 
@@ -418,7 +419,7 @@ class CSocNetLog extends CAllSocNetLog
 				foreach($arFilter as $key => $value)
 				{
 					if (
-						strpos($key, "PINNED_USER_ID") !== false
+						mb_strpos($key, "PINNED_USER_ID") !== false
 						&& $value
 					)
 					{
@@ -1138,7 +1139,7 @@ class CSocNetLog extends CAllSocNetLog
 		return $dbRes;
 	}
 
-	function DeleteSystemEventsByGroupID($group_id = false)
+	public static function DeleteSystemEventsByGroupID($group_id = false)
 	{
 		global $DB;
 
@@ -1154,7 +1155,7 @@ class CSocNetLog extends CAllSocNetLog
 		return $DB->Query("DELETE FROM b_sonet_log WHERE ENTITY_TYPE = '".SONET_ENTITY_USER."' AND EVENT_ID = 'system_groups' AND MESSAGE = '".$group_id."'", true);
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB, $APPLICATION, $USER_FIELD_MANAGER, $CACHE_MANAGER;
 
@@ -1245,7 +1246,7 @@ class CSocNetLog extends CAllSocNetLog
 		return $bSuccess;
 	}
 
-	function DeleteNoDemand($userID)
+	public static function DeleteNoDemand($userID)
 	{
 		global $DB;
 
@@ -1268,11 +1269,9 @@ class CSocNetLog extends CAllSocNetLog
 		return true;
 	}
 
-	function OnBlogDelete($blog_id)
+	public static function OnBlogDelete($blog_id)
 	{
 		global $DB;
 		return $DB->Query("DELETE SL FROM b_sonet_log SL INNER JOIN b_blog_post BP ON SL.SOURCE_ID = BP.ID AND BP.BLOG_ID = ".intval($blog_id)." WHERE SL.EVENT_ID = 'blog_post_micro' OR SL.EVENT_ID = 'blog_post'", true);
 	}
 }
-
-?>

@@ -1,7 +1,10 @@
-<?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/classes/general/filter_dictionary.php");
+<?php
+
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/classes/general/filter_dictionary.php");
+
 class CFilterDictionary extends CAllFilterDictionary
 {
-	function GetList($arOrder = array("ID"=>"ASC"), $arFilter = array(), $bCount = false)
+	public static function GetList($arOrder = array("ID"=>"ASC"), $arFilter = array(), $bCount = false)
 	{
 		global $DB;
 		$arSqlSearch = array();
@@ -81,9 +84,10 @@ class CFilterDictionary extends CAllFilterDictionary
 		return $db_res;
 	}
 }
+
 class CFilterLetter extends CAllFilterLetter
 {
-	function GetList($arOrder = array("ID"=>"ASC"), $arFilter = array(), $bCount = false)
+	public static function GetList($arOrder = array("ID"=>"ASC"), $arFilter = array(), $bCount = false)
 	{
 		global $DB;
 		$arSqlSearch = array();
@@ -174,9 +178,10 @@ class CFilterLetter extends CAllFilterLetter
 		return $db_res;
 	}
 }
+
 class CFilterUnquotableWords extends CAllFilterUnquotableWords
 {
-	function GetList($arOrder = array("ID"=>"ASC"), $arFilter = array(), $bCount = false)
+	public static function GetList($arOrder = array("ID"=>"ASC"), $arFilter = array(), $bCount = false)
 	{
 		global $DB;
 		$arSqlSearch = array();
@@ -273,4 +278,3 @@ class CFilterUnquotableWords extends CAllFilterUnquotableWords
 		return $db_res;
 	}
 }
-?>

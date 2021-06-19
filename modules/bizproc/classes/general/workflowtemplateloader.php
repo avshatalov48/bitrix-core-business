@@ -431,16 +431,13 @@ class CAllBPWorkflowTemplateLoader
 		);
 
 		$type = "CBP".$arWorkflowTemplate[0]["Type"];
-		$bStateMachine = false;
-		while ($type <> '')
-		{
-			if ($type == "CBPStateMachineWorkflowActivity")
-			{
-				$bStateMachine = true;
-				break;
-			}
-			$type = get_parent_class($type);
-		}
+		$bStateMachine = (
+			$type === CBPStateMachineWorkflowActivity::class
+			|| (
+				class_exists($type)
+				&& is_subclass_of($type, CBPStateMachineWorkflowActivity::class)
+			)
+		);
 
 		if ($bStateMachine)
 		{
@@ -1146,7 +1143,7 @@ class CBPWorkflowTemplateResult extends CDBResult
 	public function __construct($res, $useGZipCompression)
 	{
 		$this->useGZipCompression = $useGZipCompression;
-		parent::CDBResult($res);
+		parent::__construct($res);
 	}
 
 	private function GetFromSerializedForm($value)

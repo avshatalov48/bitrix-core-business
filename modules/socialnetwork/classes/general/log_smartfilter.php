@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CAllSocNetLogSmartFilter
 {
 	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
@@ -33,7 +34,7 @@ class CAllSocNetLogSmartFilter
 		return $dbRes;
 	}
 
-	function DeleteEx($user_id)
+	public static function DeleteEx($user_id)
 	{
 		global $DB;
 		
@@ -104,4 +105,3 @@ class CAllSocNetLogSmartFilter
 		return $default_value;
 	}
 }
-?>

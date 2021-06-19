@@ -270,7 +270,7 @@ $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 $arSubjects = array();
 $arSubjectsBySite = array();
 
-$dbSitesList = CSite::GetList(($b = "sort"), ($o = "asc"));
+$dbSitesList = CSite::GetList();
 while ($arSite = $dbSitesList->Fetch())
 {
 	$dbSubjectsList = CSocNetGroupSubject::GetList(

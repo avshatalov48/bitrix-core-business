@@ -1,9 +1,9 @@
 <?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CSupportTimetable
 {
-
 	static $fieldsTypes = array(
 		"ID" =>					array("TYPE" => CSupportTableFields::VT_NUMBER,	"DEF_VAL" => 0,		"AUTO_CALCULATED" => true),
 		"NAME" =>				array("TYPE" => CSupportTableFields::VT_STRING,	"DEF_VAL" => "", 	"MAX_STR_LEN" => 255),
@@ -22,15 +22,14 @@ class CSupportTimetable
 	const TABLE = "b_ticket_timetable";
 	const TABLE_SHEDULE = "b_ticket_sla_shedule";
 	
-	
-	static function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "support";
 		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/" . $module_id . "/install/version.php");
 		return "<br>Module: " . $module_id . " <br>Class: CSupportTimetable<br>File: " . __FILE__;
 	}
 	
-	function Set($arFields, $arFieldsShedule) //$arFields, $arFieldsShedule = array(0 => array("ID" => 1 ...), 1 => array("ID" => 3 ...) ...)
+	public static function Set($arFields, $arFieldsShedule) //$arFields, $arFieldsShedule = array(0 => array("ID" => 1 ...), 1 => array("ID" => 3 ...) ...)
 	{
 		global $DB, $APPLICATION;
 		$err_mess = (self::err_mess())."<br>Function: Set<br>Line: ";
@@ -147,7 +146,7 @@ class CSupportTimetable
 	}
 
 	// get Timetable list
-	function GetList($arSort = null, $arFilter = null)
+	public static function GetList($arSort = null, $arFilter = null)
 	{
 		$err_mess = (self::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $USER, $APPLICATION;
@@ -224,7 +223,7 @@ class CSupportTimetable
 		return $rs;
 	}
 	
-	function GetSheduleByID($id, $needObj = false)
+	public static function GetSheduleByID($id, $needObj = false)
 	{
 		global $DB;
 		$err_mess = (self::err_mess())."<br>Function: Set<br>Line: ";
@@ -255,7 +254,7 @@ class CSupportTimetable
 	}
 	
 	// delete Timetable
-	function Delete($id, $checkRights=true)
+	public static function Delete($id, $checkRights=true)
 	{
 		$err_mess = (self::err_mess())."<br>Function: Delete<br>Line: ";
 		global $DB, $USER, $APPLICATION;
@@ -299,7 +298,4 @@ class CSupportTimetable
 		
 		return false;
 	}
-
-
 }
-?>

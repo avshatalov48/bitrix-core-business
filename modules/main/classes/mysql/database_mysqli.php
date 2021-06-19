@@ -14,7 +14,7 @@ class CDatabase extends CDatabaseMysql
 	/** @var mysqli */
 	var $db_Conn;
 
-	function ConnectInternal()
+	protected function ConnectInternal()
 	{
 		$dbHost = $this->DBHost;
 		$dbPort = null;
@@ -59,49 +59,31 @@ class CDatabase extends CDatabaseMysql
 		mysqli_close($resource);
 	}
 
-	function LastID()
+	public function LastID()
 	{
 		$this->DoConnect();
 		return mysqli_insert_id($this->db_Conn);
 	}
 
-	function ForSql($strValue, $iMaxLength = 0)
+	public function ForSql($strValue, $iMaxLength = 0)
 	{
 		if ($iMaxLength > 0)
 			$strValue = mb_substr($strValue, 0, $iMaxLength);
 
-		if (!isset($this) || !is_object($this) || !$this->db_Conn)
-		{
-			global $DB;
-			$DB->DoConnect();
-			return mysqli_real_escape_string($DB->db_Conn, $strValue);
-		}
-		else
-		{
-			$this->DoConnect();
-			return mysqli_real_escape_string($this->db_Conn, $strValue);
-		}
+		$this->DoConnect();
+		return mysqli_real_escape_string($this->db_Conn, $strValue);
 	}
 
-	function ForSqlLike($strValue, $iMaxLength = 0)
+	public function ForSqlLike($strValue, $iMaxLength = 0)
 	{
 		if ($iMaxLength > 0)
 			$strValue = mb_substr($strValue, 0, $iMaxLength);
 
-		if(!isset($this) || !is_object($this) || !$this->db_Conn)
-		{
-			global $DB;
-			$DB->DoConnect();
-			return mysqli_real_escape_string($DB->db_Conn, str_replace("\\", "\\\\", $strValue));
-		}
-		else
-		{
-			$this->DoConnect();
-			return mysqli_real_escape_string($this->db_Conn, str_replace("\\", "\\\\", $strValue));
-		}
+		$this->DoConnect();
+		return mysqli_real_escape_string($this->db_Conn, str_replace("\\", "\\\\", $strValue));
 	}
 
-	function GetTableFields($table)
+	public function GetTableFields($table)
 	{
 		if(!isset($this->column_cache[$table]))
 		{
@@ -167,15 +149,13 @@ class CDBResult extends CDBResultMysql
 		parent::__construct($res);
 	}
 
-	/** @deprecated */
-	public function CDBResult($res = null)
-	{
-		self::__construct($res);
-	}
-
 	protected function FetchRow()
 	{
-		return mysqli_fetch_assoc($this->result);
+		if (is_object($this->result))
+		{
+			return mysqli_fetch_assoc($this->result);
+		}
+		return false;
 	}
 
 	function SelectedRowsCount()

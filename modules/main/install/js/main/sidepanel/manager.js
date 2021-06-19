@@ -23,6 +23,8 @@
  * @property {number} [customRightBoundary]
  * @property {number} [customTopBoundary]
  * @property {object} [label]
+ * @property {boolean} [newWindowLabel]
+ * @property {boolean} [copyLinkLabel]
  * @property {?object.<string, function>} [events]
  */
 
@@ -978,6 +980,7 @@ BX.SidePanel.Manager.prototype =
 
 			this.getTopSlider().hideOrDarkenCloseBtn();
 			this.getTopSlider().hidePrintBtn();
+			this.getTopSlider().hideExtraLabels();
 		}
 		else
 		{
@@ -1128,6 +1131,7 @@ BX.SidePanel.Manager.prototype =
 			this.getTopSlider().showOrLightenCloseBtn();
 			this.getTopSlider().unhideOverlay();
 			this.getTopSlider().hideShadow();
+			this.getTopSlider().showExtraLabels();
 
 			if (this.getTopSlider().isPrintable())
 			{

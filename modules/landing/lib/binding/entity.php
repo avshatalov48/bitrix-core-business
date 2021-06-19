@@ -43,7 +43,7 @@ abstract class Entity
 	 * Clears binding places cache.
 	 * @return void
 	 */
-	private function clearCache(): void
+	private static function clearCache(): void
 	{
 		if (defined('BX_COMP_MANAGED_CACHE'))
 		{
@@ -290,9 +290,9 @@ abstract class Entity
 	/**
 	 * Bind site for current entity.
 	 * @param int $siteId Site id.
-	 * @return void
+	 * @return bool
 	 */
-	public function bindSite($siteId)
+	public function bindSite(int $siteId): bool
 	{
 		$siteId = intval($siteId);
 
@@ -302,14 +302,16 @@ abstract class Entity
 		{
 			$this->addSiteRights($siteId);
 		}
+
+		return $success;
 	}
 
 	/**
 	 * Unbind site for current entity.
 	 * @param int $siteId Site id.
-	 * @return void
+	 * @return bool
 	 */
-	public function unbindSite($siteId)
+	public function unbindSite(int $siteId): bool
 	{
 		$siteId = intval($siteId);
 
@@ -319,14 +321,16 @@ abstract class Entity
 		{
 			$this->removeSiteRights($siteId);
 		}
+
+		return $success;
 	}
 
 	/**
 	 * Bind landing for current entity.
 	 * @param int $landingId Landing id.
-	 * @return void
+	 * @return bool
 	 */
-	public function bindLanding($landingId)
+	public function bindLanding(int $landingId): bool
 	{
 		$landingId = intval($landingId);
 
@@ -336,14 +340,16 @@ abstract class Entity
 		{
 			$this->addLandingRights($landingId);
 		}
+
+		return $success;
 	}
 
 	/**
 	 * Unbind landing for current entity.
 	 * @param int $landingId Landing id.
-	 * @return void
+	 * @return bool
 	 */
-	public function unbindLanding($landingId)
+	public function unbindLanding(int $landingId): bool
 	{
 		$landingId = intval($landingId);
 
@@ -352,6 +358,34 @@ abstract class Entity
 		if ($success && method_exists($this, 'removeLandingRights'))
 		{
 			$this->removeLandingRights($landingId);
+		}
+
+		return $success;
+	}
+
+	/**
+	 * Call when site was changed (title, url, or 'delete' flag).
+	 * @param int $siteId Site id.
+	 * @return void
+	 */
+	public static function onSiteChange(int $siteId): void
+	{
+		if (defined('BX_COMP_MANAGED_CACHE'))
+		{
+			$res = BindingTable::getList([
+				'select' => [
+					'ID'
+				],
+				'filter' => [
+					'ENTITY_ID' => $siteId,
+					'=ENTITY_TYPE' => self::ENTITY_TYPE_SITE
+				],
+				'limit' => 1
+			]);
+			if ($res->fetch())
+			{
+				self::clearCache();
+			}
 		}
 	}
 }

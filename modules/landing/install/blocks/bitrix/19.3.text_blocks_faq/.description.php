@@ -54,7 +54,7 @@ return array(
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_19.3.TEXT_BLOCKS_FAQ_NODES_LANDINGBLOCKNODETITLE'),
-			'type' => array('typo', 'animation'),
+			'type' => ['typo', 'animation', 'heading'],
 		),
 		'.landing-block-node-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_19.3.TEXT_BLOCKS_FAQ_NODES_LANDINGBLOCKNODETEXT'),
@@ -62,7 +62,7 @@ return array(
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_19.3.TEXT_BLOCKS_FAQ_NODES_LANDINGBLOCKNODECARD_TITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-card-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_19.3.TEXT_BLOCKS_FAQ_NODES_LANDINGBLOCKNODECARD_TEXT'),

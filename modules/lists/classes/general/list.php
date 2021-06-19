@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CList
@@ -143,7 +144,7 @@ class CList
 		$urlCache[$this->iblock_id] = array("URL" => $url);
 	}
 
-	function OnGetDocumentAdminPage($arElement)
+	public static function OnGetDocumentAdminPage($arElement)
 	{
 		$url = self::getUrlByIblockId($arElement["IBLOCK_ID"]);
 		if ($url != "")
@@ -157,7 +158,7 @@ class CList
 		return "";
 	}
 
-	function OnSearchGetURL($arFields)
+	public static function OnSearchGetURL($arFields)
 	{
 
 		if (
@@ -183,7 +184,7 @@ class CList
 		return $arFields["URL"];
 	}
 
-	function getUrlByIblockId($IBLOCK_ID)
+	public static function getUrlByIblockId($IBLOCK_ID)
 	{
 		global $DB;
 		static $cache = array();
@@ -201,4 +202,3 @@ class CList
 			return "";
 	}
 }
-?>

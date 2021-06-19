@@ -33,7 +33,7 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 		if($bVarsFromForm)
 			$arSettings = $_POST["SETTINGS"][$this->GetID()];
 		else
-			$arSettings = unserialize($arBucket["SETTINGS"]);
+			$arSettings = unserialize($arBucket["SETTINGS"], ['allowed_classes' => false]);
 
 		if(!is_array($arSettings))
 			$arSettings = array("PROJECT_ID" => "", "ACCESS_KEY" => "", "SECRET_KEY" => "");
@@ -583,7 +583,7 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 			)
 		);
 	}
-	
+
 	function UploadPartNo($arBucket, &$NS, $data, $part_no)
 	{
 		global $APPLICATION;

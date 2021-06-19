@@ -49,7 +49,7 @@ else
 $arFilter["DATE1_PERIOD"]=$find_date1_period;
 $arFilter["DATE2_PERIOD"]=$find_date2_period;
 
-$adv = CAdv::GetList($by2, $order2, $arFilter, $is_filtered, "", $arrGROUP_DAYS, $v);
+$adv = CAdv::GetList('', '', $arFilter, $is_filtered, "", $arrGROUP_DAYS);
 
 $now_date = GetTime(time());
 $yesterday_date = GetTime(time()-86400);
@@ -157,7 +157,7 @@ if($find!="" && $find_type=="event2") $arF["EVENT2"] = $find;
 
 if ($GROUP=="N")
 {
-	$events = CAdv::GetEventList($f_ID,$by,$order, $arF, $v1);
+	$events = CAdv::GetEventList($f_ID, '', '', $arF);
 }
 elseif ($GROUP=="Y")
 {

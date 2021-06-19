@@ -15,7 +15,7 @@
 	  button: 'BUTTON'
 	});
 
-	ui_vue.Vue.component('bx-im-view-element-keyboard', {
+	ui_vue.BitrixVue.component('bx-im-view-element-keyboard', {
 	  /*
 	   * @emits 'click' {action: string, params: Object}
 	   */
@@ -158,7 +158,7 @@
 	      return _ButtonType;
 	    }
 	  },
-	  template: "\n\t\t<div :class=\"['bx-im-element-keyboard', {'bx-im-element-keyboard-mobile': isMobile}]\">\n\t\t\t<template v-for=\"(button, index) in localButtons\">\n\t\t\t\t<div v-if=\"button.TYPE === ButtonType.newline\" class=\"bx-im-element-keyboard-button-separator\"></div>\n\t\t\t\t<span v-else-if=\"button.TYPE === ButtonType.button\" :class=\"[\n\t\t\t\t\t'bx-im-element-keyboard-button', \n\t\t\t\t\t'bx-im-element-keyboard-button-'+button.DISPLAY.toLowerCase(), \n\t\t\t\t\t{\n\t\t\t\t\t\t'bx-im-element-keyboard-button-disabled': isBlocked || button.DISABLED === 'Y',\n\t\t\t\t\t\t'bx-im-element-keyboard-button-progress': button.WAIT === 'Y',\n\t\t\t\t\t}\n\t\t\t\t]\" @click=\"click(button)\">\n\t\t\t\t\t<span class=\"bx-im-element-keyboard-button-text bx-im-element-keyboard-button-text\" :style=\"getStyles(button)\">{{button.TEXT}}</span>\n\t\t\t\t</span>\n\t\t\t</template>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div :class=\"['bx-im-element-keyboard', {'bx-im-element-keyboard-mobile': isMobile}]\">\n\t\t\t<template v-for=\"(button, index) in localButtons\">\n\t\t\t\t<div v-if=\"button.TYPE === ButtonType.newline\" class=\"bx-im-element-keyboard-button-separator\"></div>\n\t\t\t\t<span v-else-if=\"button.TYPE === ButtonType.button\" :class=\"[\n\t\t\t\t\t'bx-im-element-keyboard-button', \n\t\t\t\t\t'bx-im-element-keyboard-button-'+button.DISPLAY.toLowerCase(), \n\t\t\t\t\t{\n\t\t\t\t\t\t'bx-im-element-keyboard-button-disabled': isBlocked || button.DISABLED === 'Y',\n\t\t\t\t\t\t'bx-im-element-keyboard-button-progress': button.WAIT === 'Y',\n\t\t\t\t\t}\n\t\t\t\t]\" @click=\"click(button)\">\n\t\t\t\t\t<span class=\"bx-im-element-keyboard-button-text\" :style=\"getStyles(button)\">{{button.TEXT}}</span>\n\t\t\t\t</span>\n\t\t\t</template>\n\t\t</div>\n\t"
 	});
 
 }((this.window = this.window || {}),BX,BX.Messenger.Lib,BX.Messenger.Lib));

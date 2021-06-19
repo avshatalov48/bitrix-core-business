@@ -493,14 +493,14 @@ if ($arResult["ShowResults"])
 			"NAV_PARAMS" => $arNavParams,
 		);
 		if ($arParams["ALLOW_RATING_SORT"] == 'Y')
-			$by="RATING_".$arParams["RATING_ID"];
+			$by = "RATING_".$arParams["RATING_ID"];
 
 		if ($arParams["SHOW_RATING"] == 'Y')
 			$arListParam["SELECT"][]="RATING_".$arParams["RATING_ID"];
 
 		$dbUsers = CUser::GetList(
 			$by,
-			$order="desc",
+			"desc",
 			$arFilter,
 			$arListParam
 		);

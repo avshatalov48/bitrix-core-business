@@ -14,7 +14,7 @@ $ID = intval($ID);
 $message = false;
 $arSysLangs = array();
 $arSysLangNames = array();
-$db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"));
+$db_lang = CLangAdmin::GetList();
 $langCount = 0;
 while ($arLang = $db_lang->Fetch())
 {

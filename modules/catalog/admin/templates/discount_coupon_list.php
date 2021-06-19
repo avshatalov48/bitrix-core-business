@@ -342,11 +342,9 @@ if (!(false == B_ADMIN_SUBCOUPONS_LIST && $bCopy))
 	{
 		if (!empty($arUserID))
 		{
-			$byUser = 'ID';
-			$byOrder = 'ASC';
 			$rsUsers = CUser::GetList(
-				$byUser,
-				$byOrder,
+				'ID',
+				'ASC',
 				array('ID' => implode(' | ', array_keys($arUserID))),
 				array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL'))
 			);

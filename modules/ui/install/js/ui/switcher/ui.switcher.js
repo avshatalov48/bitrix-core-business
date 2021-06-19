@@ -242,6 +242,7 @@
 	};
 	
 	namespace.Switcher = Switcher;
+	namespace.Switcher.initByClassName();
 	BX.ready(function () {
 		namespace.Switcher.initByClassName();
 	});

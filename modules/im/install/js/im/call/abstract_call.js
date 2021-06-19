@@ -29,6 +29,7 @@
 		this.parentId = params.parentId || null;
 		this.direction = params.direction;
 		this.type = BX.prop.getInteger(params, "type", BX.Call.Type.Instant); // @see {BX.Call.Type}
+		this.state = BX.prop.getString(params, "state", BX.Call.State.Idle);
 
 		this.ready = false;
 		this.userId = BX.Call.Engine.getInstance().getCurrentUserId();
@@ -46,6 +47,8 @@
 		this.microphoneId = params.microphoneId || '';
 
 		this.muted = params.muted === true;
+
+		this.wasConnected = false;
 
 		this.logToken = params.logToken || '';
 		if(BX.CallEngine.getLogService() && this.logToken)
@@ -75,7 +78,7 @@
 				}
 				else if (this instanceof BX.Call.VoximplantCall)
 				{
-					return BX.Call.VoximplantCall;
+					return BX.Call.Provider.Voximplant;
 				}
 				else
 				{
@@ -227,6 +230,7 @@
 			this.logger = null;
 		}
 
+		this.state = BX.Call.State.Finished;
 		this.runCallback(BX.Call.Event.onDestroy);
 	}
 })();

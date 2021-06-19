@@ -1,0 +1,396 @@
+.personal-order-detail-container {
+	background-color: #fff;
+	padding-top: 20px;
+}
+
+.personal-order-detail-header {
+	margin-bottom: 24px;
+}
+
+.personal-order-detail-header-title {
+	font-style: normal;
+	font-weight: 500;
+	font-size: 17px;
+	line-height: 25px;
+	color: #121212;
+}
+
+.personal-order-detail-header-info {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.personal-order-detail-header-order-id {
+	font-style: normal;
+	font-weight: normal;
+	font-size: 13px;
+	line-height: 17px;
+	text-align: right;
+	color: #121212;
+	opacity: 0.4;
+}
+
+/**/
+.personal-order-detail-info-payment,
+.personal-order-detail-info-customer,
+.personal-order-detail-info-products,
+.personal-order-detail-info-shipment {
+	position: relative;
+	padding-left: 24px;
+	margin-bottom: 16px;
+}
+
+.personal-order-detail-info-payment-title,
+.personal-order-detail-info-customer-title,
+.personal-order-detail-info-products-title,
+.personal-order-detail-info-shipment-title {
+	font-style: normal;
+	font-weight: 500;
+	font-size: 13px;
+	line-height: 17px;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	color: #121212;
+	opacity: .4;
+	margin: 0;
+	margin-left: -20px;
+	padding: 0;
+	padding-left: 20px;
+	position: relative;
+}
+
+.personal-order-detail-info-payment-title::after,
+.personal-order-detail-info-customer-title::after,
+.personal-order-detail-info-products-title::after,
+.personal-order-detail-info-shipment-title::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 15px;
+	height: 15px;
+}
+
+.personal-order-detail-info-payment-title::after {
+	background: no-repeat center url("data:image/svg+xml,%3Csvg width='15' height='13' viewBox='0 0 15 13' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg opacity='0.4'%3E%3Cpath d='M3.20778 7.00307H5.94529V9.74057H3.20778V7.00307Z' fill='%23121212'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M2.28262 0.085083C1.22988 0.085083 0.376465 0.938498 0.376465 1.99124V10.4801C0.376465 11.5328 1.22988 12.3863 2.28262 12.3863L13.0133 12.3863C14.0661 12.3863 14.9195 11.5328 14.9195 10.4801V1.99124C14.9195 0.9385 14.0661 0.085083 13.0133 0.085083H2.28262ZM2.68128 1.50918C2.15491 1.50918 1.7282 1.93589 1.7282 2.46226V3.5997L13.5678 3.59971V2.46226C13.5678 1.93589 13.1411 1.50918 12.6147 1.50918L2.68128 1.50918ZM13.5678 5.79635L1.7282 5.79634V10.0091C1.7282 10.5355 2.15491 10.9622 2.68128 10.9622L12.6147 10.9622C13.1411 10.9622 13.5678 10.5355 13.5678 10.0091V5.79635Z' fill='%23121212'/%3E%3C/g%3E%3C/svg%3E%0A");
+}
+
+.personal-order-detail-info-shipment-title::after {
+	background: no-repeat center url("data:image/svg+xml,%3Csvg width='12' height='15' viewBox='0 0 12 15' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='0.4' fill-rule='evenodd' clip-rule='evenodd' d='M5.63203 0.162842C2.60516 0.162842 0.172852 2.5942 0.172852 5.62202C0.172852 8.81786 3.41635 12.7229 4.90315 14.5999C5.27984 15.0754 5.98054 15.0721 6.35386 14.5939C7.83743 12.6935 11.0912 8.72746 11.0912 5.62202C11.0912 2.5942 8.65889 0.162842 5.63203 0.162842ZM5.63203 8.10268C4.24282 8.10268 3.15041 7.01123 3.15041 5.62106C3.15041 4.23185 4.24186 3.13945 5.63203 3.13945C7.02124 3.13945 8.11364 4.2309 8.11364 5.62106C8.11364 7.0112 7.02126 8.10268 5.63203 8.10268Z' fill='%23121212'/%3E%3C/svg%3E%0A");
+}
+
+.personal-order-detail-info-payment-description,
+.personal-order-detail-info-customer-description,
+.personal-order-detail-info-products-description,
+.personal-order-detail-info-shipment-description {
+	font-style: normal;
+	font-weight: normal;
+	font-size: 14px;
+	line-height: 17px;
+	color: #121212;
+	margin: 3px 0;
+}
+
+.personal-order-detail-info-shipment-description-btn-container,
+.personal-order-detail-info-payment-description-btn-container {
+	padding-top: 7px;
+	position: relative;
+	margin-left: -1px;
+}
+
+/*status*/
+
+.personal-order-detail-paid-btn,
+.personal-order-detail-paid-done,
+.personal-order-detail-paid-status-alert,
+.personal-order-detail-paid-status-success,
+.personal-order-detail-paid-status-restricted,
+.personal-order-detail-order-done,
+.personal-order-detail-order-btn-pay,
+.personal-order-detail-order-btn-track,
+.personal-order-detail-order-btn-reorder,
+.personal-order-detail-order-status-success,
+.personal-order-detail-order-status-canceled,
+.personal-order-detail-order-change-payment,
+.personal-order-detail-shipment-status-alert,
+.personal-order-detail-shipment-status-success {
+	min-height: 27px;
+	border-radius: 13.5px;
+	padding: 2px 14px;
+	font-style: normal;
+	font-weight: 500;
+	font-size: 14px;
+	line-height: 21px;
+	box-sizing: border-box;
+	text-decoration: none;
+	transition: 170ms ease all;
+	letter-spacing: -0.5px;
+	vertical-align: baseline;
+	color: #121212;
+	background: #fff;
+	border: 1px solid #a0a0a0;
+	display: inline-block;
+	text-align: center;
+}
+
+.personal-order-detail-shipment-status-success {
+	color: #fff;
+	background: #6cb70e;
+	border-color: #6cb70e;
+}
+
+.personal-order-detail-paid-status-success {
+	color: #4e8a02;
+	background: #dbf0c0;
+	border-color: #dbf0c0;
+}
+
+.personal-order-detail-paid-status-alert,
+.personal-order-detail-shipment-status-alert {
+	color: #fff;
+	background: #4e4e4e;
+	border-color: #4e4e4e;
+}
+
+.personal-order-detail-order-status-success {
+	color: #5c5c5c;
+	background: #e8e8e8;
+	border-color: #e8e8e8;
+}
+
+.personal-order-detail-paid-done,
+.personal-order-detail-order-done,
+.personal-order-detail-paid-status-restricted {
+	color: #5c5c5c;
+	background: #e8e8e8;
+	border-color: #e8e8e8;
+}
+
+.personal-order-detail-order-status-canceled {
+	color: #fff;
+	background: #a7a7a7;
+	border-color: #a7a7a7;
+}
+
+.personal-order-detail-paid-btn,
+.personal-order-detail-order-btn-pay,
+.personal-order-detail-order-change-payment,
+.personal-order-detail-order-btn-reorder,
+.personal-order-detail-order-btn-track {
+	cursor: pointer;
+	min-width: 75px;
+}
+
+.personal-order-detail-paid-btn:hover,
+.personal-order-detail-order-btn-pay:hover,
+.personal-order-detail-order-change-payment:hover,
+.personal-order-detail-order-btn-reorder:hover,
+.personal-order-detail-order-btn-track:hover {
+	background-color: #e8e8e8;
+	color: #000;
+	text-decoration: none;
+}
+
+.personal-order-detail-paid-btn,
+.personal-order-detail-order-btn-reorder,
+.personal-order-detail-order-btn-track {
+	display: inline-flex;
+	align-items: center;
+	padding-right: 10px;
+}
+
+.personal-order-detail-paid-btn::after,
+.personal-order-detail-order-btn-track::after {
+	content: '';
+	background: no-repeat center url("data:image/svg+xml,%3Csvg width='7' height='12' viewBox='0 0 7 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0.714355 1.5141L4.49501 5.20849L5.1742 5.84773L4.49501 6.48735L0.714355 10.1817L1.63965 11.0859L6.99992 5.84796L1.63965 0.609985L0.714355 1.5141Z' fill='%23555'/%3E%3C/svg%3E%0A");
+	display: inline-block;
+	height: 12px;
+	width: 7px;
+	margin-left: 7px;
+	opacity: .5;
+}
+
+.personal-order-detail-order-btn-reorder::after {
+	content: '';
+	background: no-repeat center url("data:image/svg+xml,%3Csvg width='13' height='12' viewBox='0 0 13 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7.60532 0.0447998V4.52782L9.50877 2.62437C10.228 3.39337 10.6682 4.42651 10.6682 5.56248C10.6682 7.93858 8.74201 9.86479 6.3659 9.86479C3.9898 9.86479 2.06359 7.93858 2.06359 5.56248C2.06359 4.38949 2.533 3.32615 3.29423 2.55005C2.97887 2.2522 2.63683 1.91076 2.24819 1.49323L2.17204 1.41596C1.11866 2.4813 0.468262 3.94595 0.468262 5.5625C0.468262 8.81969 3.10874 11.4602 6.36593 11.4602C9.62312 11.4602 12.2636 8.81969 12.2636 5.5625C12.2636 3.98597 11.645 2.55392 10.6373 1.49583L12.0883 0.0448002L7.60532 0.0447998Z' fill='%23555'/%3E%3C/svg%3E%0A");
+	display: inline-block;
+	height: 12px;
+	width: 13px;
+	margin-left: 7px;
+	opacity: .5;
+}
+
+/**/
+.personal-order-detail-products-total-item-list {
+	border-top: 1px solid rgba(18, 18, 18, 0.1);
+}
+
+.personal-order-detail-products-item,
+.personal-order-detail-products-total-item,
+.personal-order-detail-products-discount-item,
+.personal-order-detail-products-total-item-summary {
+	display: flex;
+	align-items: center;
+	padding: 0;
+	border-bottom: 1px solid rgba(18, 18, 18, 0.1);
+}
+
+.personal-order-detail-products-total-item,
+.personal-order-detail-products-discount-item,
+.personal-order-detail-products-total-item-summary {
+	text-align: right;
+	min-height: 43px;
+}
+
+
+.personal-order-detail-products-item-image-link {
+	display: block;
+	width: 42px;
+	padding: 8px 0;
+}
+
+.personal-order-detail-products-item-image {
+	max-width: 100%;
+	height: auto;
+}
+
+.personal-order-detail-products-item-name,
+.personal-order-detail-products-item-summary-name {
+	padding-left: 10px;
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	line-height: 14px;
+}
+
+.personal-order-detail-products-discount-item .personal-order-detail-products-item-name {
+	color: #569b00;
+}
+
+.personal-order-detail-products-total-item .personal-order-detail-products-item-name,
+.personal-order-detail-products-discount-item .personal-order-detail-products-item-name,
+.personal-order-detail-products-total-item-summary .personal-order-detail-products-item-summary-name {
+	justify-content: flex-end;
+}
+
+.personal-order-detail-products-item-summary-name {
+	font-style: normal;
+	font-weight: normal;
+	font-size: 20px;
+	line-height: 17px;
+	text-align: right;
+	color: #121212;
+}
+
+.personal-order-detail-products-item-name-link {
+	font-style: normal;
+	font-weight: normal;
+	font-size: 12px;
+	line-height: 14px;
+	color: #777;
+}
+
+.personal-order-detail-products-item-quantity {}
+
+.personal-order-detail-products-item-quantity strong {
+	font-style: normal;
+	font-weight: normal;
+	font-size: 15px;
+	line-height: 17px;
+	text-align: center;
+	color: #121212;
+}
+
+.personal-order-detail-products-item-quantity span {
+	font-style: normal;
+	font-weight: normal;
+	font-size: 12px;
+	line-height: 14px;
+	text-align: center;
+	color: #000;
+	opacity: 0.5;
+}
+
+.personal-order-detail-products-item-price-container {
+	min-width: 116px;
+	position: relative;
+	padding-left: 10px;
+}
+
+.personal-order-detail-products-item-price-current {
+	font-style: normal;
+	font-weight: 500;
+	font-size: 15px;
+	line-height: 17px;
+	text-align: right;
+	color: #121212;
+}
+
+.personal-order-detail-products-discount-item .personal-order-detail-products-item-price-current {
+	font-style: normal;
+	font-weight: 500;
+	font-size: 18px;
+	line-height: 19px;
+	text-align: right;
+	color: #fff;
+	background: #6cb70e;
+	border-radius: 4px;
+	padding: 3px;
+	display: inline-block;
+}
+
+.personal-order-detail-products-item-price-summary {
+	font-style: normal;
+	font-weight: 500;
+	font-size: 22px;
+	line-height: 26px;
+	text-align: right;
+	color: #121212;
+	padding: 15px 0 12px;
+}
+
+.personal-order-detail-products-item-price-discount-container + .personal-order-detail-products-item-price-current {
+	padding: 15px 0;
+}
+
+.personal-order-detail-products-item-price-discount-container {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	position: absolute;
+	right: 0;
+	top: 2px;
+}
+
+.personal-order-detail-products-item-price-base {
+	font-style: normal;
+	font-weight: 500;
+	font-size: 11px;
+	line-height: 13px;
+	text-decoration-line: line-through;
+	color: #121212;
+	opacity: 0.5;
+	padding-right: 2px;
+}
+
+.personal-order-detail-products-item-price-discount {
+	font-style: normal;
+	font-weight: 500;
+	font-size: 11px;
+	line-height: 15px;
+	text-align: center;
+	text-transform: uppercase;
+	color: #fff;
+	padding: 0 3px;
+	background: #6cb70e;
+	border-radius: 4px;
+}
+
+/**/
+
+.personal-order-detail-footer-btn-container {
+	padding: 27px 0;
+}

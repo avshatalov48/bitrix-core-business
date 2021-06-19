@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CListsParameters
 {
-	function GetPathTemplateMenuItems($menuType, $action_function, $menuID, $inputID = "")
+	public static function GetPathTemplateMenuItems($menuType, $action_function, $menuID, $inputID = "")
 	{
 		$arResult = array();
 
@@ -43,7 +44,7 @@ class CListsParameters
 		return $arResult;
 	}
 
-	function GetPathTemplateParam($menuType, $ID, $parameterName, $defaultValue = "", $parentID = "URL_TEMPLATES")
+	public static function GetPathTemplateParam($menuType, $ID, $parameterName, $defaultValue = "", $parentID = "URL_TEMPLATES")
 	{
 		if($menuType == "LISTS")
 			return array(
@@ -68,5 +69,3 @@ class CListsParameters
 			);
 	}
 }
-
-?>

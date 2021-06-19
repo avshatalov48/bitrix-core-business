@@ -22,7 +22,7 @@ class ICalMailManager
 
 	public static function handleReply(Calendar $icalComponent): bool
 	{
-		return IncomingInvitationReplyHandler::createInstance($icalComponent)
+		return IncomingInvitationReplyHandler::fromComponent($icalComponent)
 			->handle()
 			->isSuccess();
 	}
@@ -31,7 +31,7 @@ class ICalMailManager
 	 * @param string $content
 	 * @return Calendar
 	 */
-	public static function parseRequest(string $content): Calendar
+	public static function parseRequest(string $content): ?Calendar
 	{
 		return InboxManager::createInstance($content)
 			->parseContent()

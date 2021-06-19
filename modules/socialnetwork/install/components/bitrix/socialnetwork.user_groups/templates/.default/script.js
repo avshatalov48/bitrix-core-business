@@ -65,6 +65,7 @@ BitrixSUG.prototype.init = function(params)
 			if (
 				BX.type.isNotEmptyString(eventData.code)
 				&& eventData.code == 'afterEdit'
+				&& !window.top.BX.SidePanel.Instance.getPreviousSlider(event.getSender())
 			)
 			{
 				BX.SocialnetworkUICommon.reload();
@@ -79,15 +80,35 @@ BitrixSUG.prototype.sendRequest = function(params)
 		typeof params == 'undefined'
 		|| typeof params.groupId == 'undefined'
 		|| parseInt(params.groupId) <= 0
+		|| !BX.type.isNotEmptyString(params.action)
 	)
 	{
 		return false;
 	}
 
-	if (
-		typeof params.action == 'undefined'
-		|| !BX.util.in_array(params.action, ['REQUEST', 'FAVORITES'])
-	)
+	if (params.action === 'FAVORITES')
+	{
+		BX.ajax.runAction('socialnetwork.api.workgroup.setFavorites', {
+			data: {
+				params: {
+					groupId: params.groupId,
+					value: (BX.type.isNotEmptyString(params.value) ? params.value : 'Y'),
+					getAdditionalResultData: true,
+				}
+			},
+			analyticsLabel: {
+				b24statAction: (params.value === 'Y' ? 'removeFavSonetGroup' : 'addFavSonetGroup'),
+			}
+		}).then(function(response) {
+			params.callback_success(response.data);
+		}.bind(this)).catch(function(response) {
+			params.callback_failure(response.errors[0].message);
+		}.bind(this));
+
+		return false;
+	}
+
+	if (params.action !== 'REQUEST')
 	{
 		return false;
 	}
@@ -95,13 +116,6 @@ BitrixSUG.prototype.sendRequest = function(params)
 	var requestParams = {};
 
 	var actionUrl = '/bitrix/components/bitrix/socialnetwork.user_groups/ajax.php';
-	if (params.action == 'FAVORITES')
-	{
-		requestParams.value = (typeof params.value != 'undefined' ? params.value : 'Y');
-		actionUrl = BX.util.add_url_param(actionUrl, {
-			b24statAction: (requestParams.value == 'N' ? 'removeFavSonetGroup' : 'addFavSonetGroup')
-		});
-	}
 
 	BX.ajax({
 		url: actionUrl,

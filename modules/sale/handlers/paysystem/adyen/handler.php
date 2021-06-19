@@ -205,9 +205,10 @@ class AdyenHandler
 		if ($notificationItem)
 		{
 			$secretKey = $this->getBusinessValue($payment, "ADYEN_HMAC_KEY");
-			if ($secretKey
-				&& isset($notificationItem["additionalData"]["hmacSignature"])
-				&& !$this->isSignatureCorrect($notificationItem, $secretKey)
+			if (
+				empty($secretKey)
+				|| empty($notificationItem["additionalData"]["hmacSignature"])
+				|| !$this->isSignatureCorrect($notificationItem, $secretKey)
 			)
 			{
 				$result->addError(new Main\Error(Loc::getMessage("SALE_HPS_ADYEN_ERROR_CHECK_SUM")));
@@ -269,15 +270,16 @@ class AdyenHandler
 	{
 		$data = $this->getDataToSign($notificationItem);
 
-		$result = hash_hmac("sha256", $data, pack("H*", $secretKey), true);
-		if ($result === false)
+		$calculatedHmacSignature = hash_hmac("sha256", $data, pack("H*", $secretKey), true);
+		if ($calculatedHmacSignature === false)
 		{
 			return false;
 		}
 
-		$result = base64_encode($result);
+		$calculatedHmacSignature = base64_encode($calculatedHmacSignature);
 
-		return $result === $notificationItem["additionalData"]["hmacSignature"];
+		$requestHmacSignature = $notificationItem["additionalData"]["hmacSignature"] ?? '';
+		return $calculatedHmacSignature === $requestHmacSignature;
 	}
 
 	/**

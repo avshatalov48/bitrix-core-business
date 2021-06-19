@@ -62,7 +62,7 @@ class CCalendarType
 						{
 							$strXml = "";
 							foreach($val as $xmlId)
-								$strXml .= ",'".CDatabase::ForSql($xmlId)."'";
+								$strXml .= ",'".$DB->ForSql($xmlId)."'";
 							$arSqlSearch[] = "CT.XML_ID in (".trim($strXml, ", ").")";
 						}
 						else

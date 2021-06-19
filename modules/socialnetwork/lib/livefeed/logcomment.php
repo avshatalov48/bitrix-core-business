@@ -36,16 +36,16 @@ final class LogComment extends Provider
 		{
 			$logId = false;
 
-			$res = LogCommentTable::getList(array(
-				'filter' => array(
+			$res = LogCommentTable::getList([
+				'filter' => [
 					'=ID' => $commentId,
 					'@EVENT_ID' => $this->getEventId(),
-				),
-				'select' => array('LOG_ID', 'MESSAGE', 'SHARE_DEST')
-			));
+				],
+				'select' => [ 'LOG_ID', 'MESSAGE', 'SHARE_DEST', 'EVENT_ID' ]
+			]);
 			if ($logComentFields = $res->fetch())
 			{
-				$logId = intval($logComentFields['LOG_ID']);
+				$logId = (int)$logComentFields['LOG_ID'];
 				$message = $logComentFields['MESSAGE'];
 			}
 
@@ -72,11 +72,8 @@ final class LogComment extends Provider
 					$this->setSourceDescription($logComentFields['MESSAGE']);
 
 					$title = htmlspecialcharsback($logComentFields['MESSAGE']);
-					$title = preg_replace(
-						"/\[USER\s*=\s*([^\]]*)\](.+?)\[\/USER\]/is".BX_UTF_PCRE_MODIFIER,
-						"\\2",
-						$title
-					);
+					$title = \Bitrix\Socialnetwork\Helper\Mention::clear($title);
+
 					$CBXSanitizer = new \CBXSanitizer;
 					$CBXSanitizer->delAllTags();
 					$title = preg_replace(array("/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER), " ", $CBXSanitizer->sanitizeHtml($title));
@@ -180,14 +177,14 @@ final class LogComment extends Provider
 
 	public function add($params = array())
 	{
-		global $USER, $DB;
+		global $USER;
 
 		static $parser = null;
 
 		$authorId = (
 			isset($params['AUTHOR_ID'])
-			&& intval($params['AUTHOR_ID']) > 0
-				? intval($params['AUTHOR_ID'])
+			&& (int)$params['AUTHOR_ID'] > 0
+				? (int)$params['AUTHOR_ID']
 				: $USER->getId()
 		);
 
@@ -203,6 +200,7 @@ final class LogComment extends Provider
 			return false;
 		}
 
+		$module = ($params['MODULE'] ?? 'tasks');
 		$logId = $this->getLogId();
 
 		if (!$logId)
@@ -254,11 +252,11 @@ final class LogComment extends Provider
 			"EVENT_ID" => $commentEventId,
 			"MESSAGE" => $message,
 			"TEXT_MESSAGE" => $parser->convert4mail($message),
-			"MODULE_ID" => "tasks",
+			"MODULE_ID" => $module,
 			"LOG_ID" => $logId,
 			"RATING_TYPE_ID" => "LOG_COMMENT",
 			"USER_ID" => $authorId,
-			"=LOG_DATE" => $DB->currentTimeFunction(),
+			"=LOG_DATE" => \CDatabase::currentTimeFunction(),
 		);
 
 		if (!empty($params['SHARE_DEST']))
@@ -273,7 +271,10 @@ final class LogComment extends Provider
 			));
 		}
 
-		return $sonetCommentId;
+		return [
+			'sonetCommentId' => $sonetCommentId,
+			'sourceCommentId' => $sonetCommentId
+		];
 	}
 
 }

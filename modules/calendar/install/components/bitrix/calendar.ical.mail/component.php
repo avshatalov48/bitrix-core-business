@@ -8,8 +8,11 @@ $arResult['ORGANIZER'] = $arParams['PARAMS']['ORGANIZER'];
 $arResult['DESCRIPTION'] = htmlspecialcharsback($arParams['PARAMS']['DESCRIPTION']);
 $arResult['FILES'] = $arParams['PARAMS']['FILES_LINK'];
 $arResult['CHANGE_FIELDS'] = explode(';', $arParams['PARAMS']['CHANGE_FIELDS']);
+$arResult['DETAIL_LINK'] = $arParams['PARAMS']['DETAIL_LINK'];
+$arResult['DECISION_YES_LINK'] = $arParams['PARAMS']['DECISION_YES_LINK'];
+$arResult['DECISION_NO_LINK'] = $arParams['PARAMS']['DECISION_NO_LINK'];
 
-$ex = in_array(["DATE_FROM", "RRULE"], $arResult['CHANGE_FIELDS']);
+$ex = in_array(["DATE_FROM", "RRULE"], $arResult['CHANGE_FIELDS'], true);
 
 switch ($arParams['PARAMS']['METHOD'])
 {
@@ -17,7 +20,6 @@ switch ($arParams['PARAMS']['METHOD'])
 		$arResult['TITLE'] = GetMessage("EC_CALENDAR_ICAL_MAIL_METHOD_REQUEST");
 		break;
 	case 'edit':
-//		$arResult['TITLE'] = GetMessage("EC_CALENDAR_ICAL_MAIL_METHOD_EDIT");
 		$arResult['TITLE'] = $arParams['PARAMS']['TITLE'];
 		break;
 	case 'cancel':

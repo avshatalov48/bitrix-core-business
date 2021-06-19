@@ -76,6 +76,8 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			: in_array(LANGUAGE_ID, ['ru', 'kz', 'by'])
 		;
 
+		$imapServiceStructure = [];
+
 		while ($service = $res->fetch())
 		{
 			if(!$isRuZone && in_array($service['NAME'],$mailServicesOnlyForTheRuZone))
@@ -83,7 +85,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				continue;
 			}
 
-			$this->arParams['SERVICES'][$service['ID']] = array(
+			$serviceFinal = [
 				'id'         => $service['ID'],
 				'type'       => $service['SERVICE_TYPE'],
 				'name'       => $service['NAME'],
@@ -95,7 +97,14 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				'token'      => $service['TOKEN'],
 				'flags'      => $service['FLAGS'],
 				'sort'       => $service['SORT']
-			);
+			];
+
+			if($serviceFinal['name'] === 'other')
+			{
+				$imapServiceStructure = $serviceFinal;
+			}
+
+			$this->arParams['SERVICES'][] = $serviceFinal;
 		}
 
 		$this->includeComponentTemplate();

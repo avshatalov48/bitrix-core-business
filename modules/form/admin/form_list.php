@@ -94,7 +94,7 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && check_bitrix_sessid()
 	if($_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
-		$rsData = CForm::GetList($by, $order, $arFilter, $is_filtered);
+		$rsData = CForm::GetList('', '', $arFilter);
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -121,7 +121,9 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && check_bitrix_sessid()
 }
 //////////////////////////////////////////////////////////////////////
 // list initialization - get data
-$rsData = CForm::GetList($by, $order, $arFilter, $is_filtered);
+global $by, $order;
+
+$rsData = CForm::GetList($by, $order, $arFilter);
 $arData = array();
 while ($arForm = $rsData->Fetch())
 {
@@ -284,7 +286,7 @@ $oFilter->Begin();
 	<td><?
 	$ref = array();
 	$ref_id = array();
-	$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+	$rs = CSite::GetList();
 	while ($ar = $rs->Fetch())
 	{
 		$ref[] = "[".$ar["ID"]."] ".$ar["NAME"];

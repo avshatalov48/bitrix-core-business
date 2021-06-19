@@ -7,28 +7,27 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 Loc::loadLanguageFile(__FILE__);
 
-return array(
+return [
 	'name' => Loc::getMessage('LANDING_DEMO_8MARCH3_TITLE'),
 	'description' => Loc::getMessage('LANDING_DEMO_8MARCH3_DESCRIPTION'),
-	'fields' => array(
-		'ADDITIONAL_FIELDS' => array(
+	'fields' => [
+		'ADDITIONAL_FIELDS' => [
 			'THEME_CODE' => 'wedding',
-
-		    'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/holidays/holiday.8march3/preview.jpg',
+			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/holidays/holiday.8march3/preview.jpg',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_8MARCH3_TITLE'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_8MARCH3_DESCRIPTION'),
 			'METAMAIN_TITLE' => Loc::getMessage('LANDING_DEMO_8MARCH3_TITLE'),
 			'METAMAIN_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_8MARCH3_DESCRIPTION'),
-		)
-	),
+		]
+	],
 	'available' => true,
-	'active' => \LandingSiteDemoComponent::checkActive(array(
-		'ONLY_IN' => array('ru', 'kz', 'by', 'ua'),
-		'EXCEPT' => array()
-	)),
-	'items' => array (
+	'active' => \LandingSiteDemoComponent::checkActive([
+		'ONLY_IN' => ['ru', 'kz', 'by', 'ua'],
+		'EXCEPT' => []
+	]),
+	'items' => [
 		'0.menu_12_gym' =>
-			array (
+			[
 				'CODE' => '0.menu_12_gym',
 				'SORT' => '-100',
 				'CONTENT' => '<header class="landing-block landing-block-menu u-header u-header--sticky u-header--float g-z-index-9999">
@@ -81,9 +80,9 @@ return array(
 		</nav>
 	</div>
 </header>',
-			),
+			],
 		'01.big_with_text_blocks' =>
-			array (
+			[
 				'CODE' => '01.big_with_text_blocks',
 				'SORT' => '500',
 				'CONTENT' => '<section class="landing-block">
@@ -95,7 +94,7 @@ return array(
 			<!-- Promo Block -->
 			<div class="landing-block-node-card-img g-flex-centered g-min-height-100vh g-min-height-500--md g-bg-cover g-bg-pos-center g-bg-img-hero g-bg-black-opacity-0_5--after" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/1900x1265/img5.jpg\');" data-fileid="-1">
 				<div class="container text-center g-max-width-800 g-z-index-1 js-animation landing-block-node-container fadeInLeftBig g-mx-0">
-					<h2 class="landing-block-node-card-title g-font-weight-700 g-color-white g-mb-20 g-text-transform-none g-font-size-86"><span style="font-style: italic;">Happy woman day!<br /></span></h2>
+					<h2 class="landing-block-node-card-title g-font-weight-700 g-color-white g-mb-20 g-text-transform-none g-font-size-85"><span style="font-style: italic;">Happy woman day!<br /></span></h2>
 					<div class="landing-block-node-card-text g-max-width-645 g-color-white-opacity-0_9 mx-auto g-mb-35 g-text-transform-none"><p>Best perfume and cosmetics in out store!</p></div>
 					<div class="landing-block-node-card-button-container">
 						<a class="landing-block-node-card-button btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-rounded-50 g-py-15" href="#" tabindex="-1" target="_self">view more</a>
@@ -111,9 +110,9 @@ return array(
 
 	</div>
 </section>',
-			),
+			],
 		'21.3.two_cols_big_bgimg_title_text_button' =>
-			array (
+			[
 				'CODE' => '21.3.two_cols_big_bgimg_title_text_button',
 				'SORT' => '2500',
 				'CONTENT' => '<section class="landing-block container-fluid px-0">
@@ -139,22 +138,22 @@ return array(
 
         </div>
     </section>',
-			),
+			],
 		'04.1.one_col_fix_with_title' =>
-			array (
+			[
 				'CODE' => '04.1.one_col_fix_with_title',
 				'SORT' => '3000',
 				'CONTENT' => '<section class="landing-block landing-block-container g-pt-50 g-pb-0 js-animation fadeInUp">
         <div class="container">
             <div class="landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-primary">
-                <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">what we offer</h4>
+                <h6 class="landing-block-node-subtitle g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">what we offer</h6>
                 <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-text-transform-none g-font-size-65"><span style="font-style: italic;">Gifts for any choice!</span></h2>
             </div>
         </div>
     </section>',
-			),
+			],
 		'06.1features_3_cols' =>
-			array (
+			[
 				'CODE' => '06.1features_3_cols',
 				'SORT' => '3500',
 				'CONTENT' => '<section class="landing-block g-py-80 g-pt-0 g-pb-80">
@@ -171,8 +170,8 @@ return array(
 					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
 					  <i class="landing-block-node-element-icon icon-medical-022 u-line-icon-pro"></i>
                 	</span>
-                        <h3 class="landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10 text-center g-letter-spacing-2">perfume</h3>
-                        <div class="landing-block-node-element-text g-color-gray-dark-v4 text-center"><p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget nisi facilisis.</p></div>
+                        <h5 class="landing-block-node-element-title text-uppercase g-mb-10 text-center g-letter-spacing-2">perfume</h5>
+                        <div class="landing-block-node-element-text text-center"><p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget nisi facilisis.</p></div>
 
                         <div class="landing-block-node-separator d-inline-block g-width-40 g-brd-bottom g-brd-2 g-brd-primary g-my-15"></div>
 
@@ -187,8 +186,8 @@ return array(
 					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
 					  <i class="landing-block-node-element-icon icon-media-119 u-line-icon-pro"></i>
                 	</span>
-                        <h3 class="landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10 text-center g-letter-spacing-2">make up</h3>
-                        <div class="landing-block-node-element-text g-color-gray-dark-v4 text-center"><p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget nisi facilisis.</p></div>
+                        <h5 class="landing-block-node-element-title text-uppercase g-mb-10 text-center g-letter-spacing-2">make up</h5>
+                        <div class="landing-block-node-element-text text-center"><p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget nisi facilisis.</p></div>
 
                         <div class="landing-block-node-separator d-inline-block g-width-40 g-brd-bottom g-brd-2 g-brd-primary g-my-15"></div>
 
@@ -201,8 +200,8 @@ return array(
 					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
 					  <i class="landing-block-node-element-icon icon-science-100 u-line-icon-pro"></i>
 					</span>
-                        <h3 class="landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10 text-center g-letter-spacing-2">nail art</h3>
-                        <div class="landing-block-node-element-text g-color-gray-dark-v4 text-center"><p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget nisi facilisis.</p></div>
+                        <h5 class="landing-block-node-element-title text-uppercase g-mb-10 text-center g-letter-spacing-2">nail art</h5>
+                        <div class="landing-block-node-element-text text-center"><p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget nisi facilisis.</p></div>
 
                         <div class="landing-block-node-separator d-inline-block g-width-40 g-brd-bottom g-brd-2 g-brd-primary g-my-15"></div>
 
@@ -215,9 +214,9 @@ return array(
             <!-- End Icon Blocks -->
         </div>
     </section>',
-			),
+			],
 		'31.2.two_cols_img_text' =>
-			array (
+			[
 				'CODE' => '31.2.two_cols_img_text',
 				'SORT' => '5000',
 				'CONTENT' => '<section class="landing-block g-theme-photography-bg-gray-dark-v4">
@@ -235,9 +234,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'09.1.two_cols_fix_text_and_image_slider' =>
-			array (
+			[
 				'CODE' => '09.1.two_cols_fix_text_and_image_slider',
 				'SORT' => '6000',
 				'CONTENT' => '<section class="landing-block g-pt-115 g-pt-80 g-pb-80">
@@ -246,7 +245,7 @@ return array(
 
                 <div class="col-lg-4 g-mb-40 g-mb-0--lg landing-block-node-text-container js-animation fadeInLeft">
                     <div class="landing-block-node-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
-                        <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">new items</h4>
+                        <h6 class="landing-block-node-subtitle g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">new items</h4>
                         <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-text-transform-none g-font-size-60"><span style="font-style: italic;">Don&amp;#039;t miss!</span></h2>
                     </div>
 
@@ -358,9 +357,9 @@ return array(
             </div>
         </div>
     </section>',
-			),
+			],
 		'21.1.four_cols_big_bgimg_title_text_button' =>
-			array (
+			[
 				'CODE' => '21.1.four_cols_big_bgimg_title_text_button',
 				'SORT' => '7000',
 				'CONTENT' => '<section class="landing-block container-fluid px-0">
@@ -426,9 +425,9 @@ return array(
                     </div>
                 </div></div>
     </section>',
-			),
+			],
 		'27.one_col_fix_title_and_text_2' =>
-			array (
+			[
 				'CODE' => '27.one_col_fix_title_and_text_2',
 				'SORT' => '7500',
 				'CONTENT' => '<section class="landing-block g-pt-50 g-pb-2 js-animation fadeInUp">
@@ -441,9 +440,9 @@ return array(
         </div>
 
     </section>',
-			),
+			],
 		'28.3.team' =>
-			array (
+			[
 				'CODE' => '28.3.team',
 				'SORT' => '8000',
 				'CONTENT' => '<section class="landing-block g-py-30 g-pb-80--md">
@@ -469,8 +468,8 @@ return array(
 
 					<!-- Figure Info -->
 					<em class="landing-block-node-employee-post d-block g-font-style-normal g-font-weight-700 g-color-primary g-mb-5 g-text-transform-none g-font-size-14 g-font-size-11--md"><span style="font-weight: 400;">Praesent malesuada facilisis maximus.</span></em>
-					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">Helen</h4>
-					<p class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0"></p>
+					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-mb-7">Helen</h4>
+					<p class="landing-block-node-employee-subtitle g-font-size-13 mb-0"></p>
 					<!-- End Figure Info-->
 				</div>
 			</div>
@@ -493,8 +492,8 @@ return array(
 
 					<!-- Figure Info -->
 					<em class="landing-block-node-employee-post d-block g-font-style-normal g-font-weight-700 g-color-primary g-mb-5 g-text-transform-none g-font-size-14 g-font-size-11--md"><span style="font-weight: 400;">Praesent malesuada facilisis maximus.</span></em>
-					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">Victoria</h4>
-					<p class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0"></p>
+					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-mb-7">Victoria</h4>
+					<p class="landing-block-node-employee-subtitle g-font-size-13 mb-0"></p>
 					<!-- End Figure Info-->
 				</div>
 			</div>
@@ -517,8 +516,8 @@ return array(
 
 					<!-- Figure Info -->
 					<em class="landing-block-node-employee-post d-block g-font-style-normal g-font-weight-700 g-color-primary g-mb-5 g-text-transform-none g-font-size-14 g-font-size-11--md"><span style="font-weight: 400;">Praesent malesuada facilisis maximus.</span></em>
-					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">Angela</h4>
-					<p class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0"></p>
+					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-mb-7">Angela</h4>
+					<p class="landing-block-node-employee-subtitle g-font-size-13 mb-0"></p>
 					<!-- End Figure Info-->
 				</div>
 			</div>
@@ -541,8 +540,8 @@ return array(
 
 					<!-- Figure Info -->
 					<em class="landing-block-node-employee-post d-block g-font-style-normal g-font-weight-700 g-color-primary g-mb-5 g-text-transform-none g-font-size-14 g-font-size-11--md"><span style="font-weight: 400;">Praesent malesuada facilisis maximus.</span></em>
-					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">Maria</h4>
-					<p class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0"></p>
+					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-mb-7">Maria</h4>
+					<p class="landing-block-node-employee-subtitle g-font-size-13 mb-0"></p>
 					<!-- End Figure Info-->
 				</div>
 			</div>
@@ -550,9 +549,9 @@ return array(
 		<!-- End Team Block -->
 	</div>
 </section>',
-			),
+			],
 		'04.7.one_col_fix_with_title_and_text_2' =>
-			array (
+			[
 				'CODE' => '04.7.one_col_fix_with_title_and_text_2',
 				'SORT' => '8500',
 				'CONTENT' => '<section class="landing-block g-bg-gray-light-v5 g-py-20 js-animation fadeInUp">
@@ -561,19 +560,19 @@ return array(
 
             <div class="landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary">
                 <h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-primary g-mb-15"></h4>
-                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-color-black g-mb-minus-10 g-text-transform-none g-font-size-60"><span style="font-style: italic;">Contact us</span></h2>
+                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-mb-minus-10 g-text-transform-none g-font-size-60"><span style="font-style: italic;">Contact us</span></h2>
             </div>
 
-			<div class="landing-block-node-text g-color-gray-dark-v5 g-font-size-14 g-color-black"><p><span style="color: rgb(33, 33, 33);">Praesent ut ante congue, volutpat urna at, lacinia quam. Nulla non massa eget ante gravida tincidunt non eu quam. Proin in varius leo placerat mi vulputate suscipit</span></p></div>
+			<div class="landing-block-node-text g-font-size-14"><p><span style="color: rgb(33, 33, 33);">Praesent ut ante congue, volutpat urna at, lacinia quam. Nulla non massa eget ante gravida tincidunt non eu quam. Proin in varius leo placerat mi vulputate suscipit</span></p></div>
         </div>
 
     </section>',
-			),
+			],
 		'33.13.form_2_light_no_text' =>
-			array (
+			[
 				'CODE' => '33.13.form_2_light_no_text',
 				'SORT' => '9000',
-				'CONTENT' => '<section class="g-pos-rel landing-block g-color-gray-dark-v1 g-pt-100 g-pb-100">
+				'CONTENT' => '<section class="g-pos-rel landing-block text-center g-pt-100 g-pb-100">
 
 	<div class="container">
 
@@ -589,9 +588,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'35.1.footer_light' =>
-			array (
+			[
 				'CODE' => '35.1.footer_light',
 				'SORT' => '10000',
 				'CONTENT' => '<section class="g-pt-60 g-pb-60">
@@ -600,36 +599,36 @@ return array(
 			<div class="col-sm-12 col-md-6 col-lg-6 g-mb-25 g-mb-0--lg">
 				<h2 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-16 g-mb-20">Contact
 					us</h2>
-				<div class="landing-block-node-text g-color-gray-dark-v2 g-mb-20">
+				<div class="landing-block-node-text g-mb-20">
 					<p>Lorem ipsum dolor sit amet, consectetur
 						adipiscing</p></div>
 
 				<address class="g-mb-20">
 					<div class="landing-block-card-contact d-flex g-pos-rel g-mb-7" data-card-preset="text">
-						<div class="landing-block-node-card-contact-icon-container g-color-gray-dark-v2 text-left g-width-20">
+						<div class="landing-block-node-card-contact-icon-container text-left g-width-20">
 							<i class="landing-block-node-card-contact-icon fa fa-home"></i>
 						</div>
-						<div class="landing-block-node-card-contact-text g-color-gray-dark-v2">
+						<div class="landing-block-node-card-contact-text">
 							Address: <span style="font-weight: bold;">In sed lectus tincidunt</span>
 						</div>
 					</div>
 
 					<div class="landing-block-card-contact d-flex g-pos-rel g-mb-7" data-card-preset="text">
-						<div class="landing-block-node-card-contact-icon-container g-color-gray-dark-v2 text-left g-width-20">
+						<div class="landing-block-node-card-contact-icon-container text-left g-width-20">
 							<i class="landing-block-node-card-contact-icon fa fa-phone"></i>
 						</div>
-						<div class="landing-block-node-card-contact-text g-color-gray-dark-v2">
+						<div class="landing-block-node-card-contact-text">
 							Phone Number: <span style="font-weight: bold;"><a
 										href="tel:485552566112">+48 555 2566 112</a></span>
 						</div>
 					</div>
 
 					<div class="landing-block-card-contact d-flex g-pos-rel g-mb-7" data-card-preset="link">
-						<div class="landing-block-node-card-contact-icon-container g-color-gray-dark-v2 text-left g-width-20">
+						<div class="landing-block-node-card-contact-icon-container text-left g-width-20">
 							<i class="landing-block-node-card-contact-icon fa fa-envelope"></i>
 						</div>
 						<div>
-							<div class="landing-block-node-card-contact-text g-color-gray-dark-v2">
+							<div class="landing-block-node-card-contact-text">
 								Email: <span style="font-weight: bold;"><a
 											href="mailto:info@company24.com">info@company24.com</a></span>
 							</div>
@@ -645,17 +644,17 @@ return array(
 					Categories</h2>
 				<ul class="landing-block-card-list1 list-unstyled g-mb-30">
 					<li class="landing-block-card-list1-item g-mb-10">
-						<a class="landing-block-node-list-item g-color-gray-dark-v5" href="#">Proin vitae est lorem</a>
+						<a class="landing-block-node-list-item" href="#">Proin vitae est lorem</a>
 					</li>
 					<li class="landing-block-card-list1-item g-mb-10">
-						<a class="landing-block-node-list-item g-color-gray-dark-v5" href="#">Aenean imperdiet nisi</a>
+						<a class="landing-block-node-list-item" href="#">Aenean imperdiet nisi</a>
 					</li>
 					<li class="landing-block-card-list1-item g-mb-10">
-						<a class="landing-block-node-list-item g-color-gray-dark-v5" href="#">Praesent pulvinar
+						<a class="landing-block-node-list-item" href="#">Praesent pulvinar
 							gravida</a>
 					</li>
 					<li class="landing-block-card-list1-item g-mb-10">
-						<a class="landing-block-node-list-item g-color-gray-dark-v5" href="#">Integer commodo est</a>
+						<a class="landing-block-node-list-item" href="#">Integer commodo est</a>
 					</li>
 				</ul>
 			</div>
@@ -665,17 +664,17 @@ return array(
 					Support</h2>
 				<ul class="landing-block-card-list2 list-unstyled g-mb-30">
 					<li class="landing-block-card-list2-item g-mb-10">
-						<a class="landing-block-node-list-item g-color-gray-dark-v5" href="#">Vivamus egestas sapien</a>
+						<a class="landing-block-node-list-item" href="#">Vivamus egestas sapien</a>
 					</li>
 					<li class="landing-block-card-list2-item g-mb-10">
-						<a class="landing-block-node-list-item g-color-gray-dark-v5" href="#">Sed convallis nec enim</a>
+						<a class="landing-block-node-list-item" href="#">Sed convallis nec enim</a>
 					</li>
 					<li class="landing-block-card-list2-item g-mb-10">
-						<a class="landing-block-node-list-item g-color-gray-dark-v5" href="#">Pellentesque a tristique
+						<a class="landing-block-node-list-item" href="#">Pellentesque a tristique
 							risus</a>
 					</li>
 					<li class="landing-block-card-list2-item g-mb-10">
-						<a class="landing-block-node-list-item g-color-gray-dark-v5" href="#">Nunc vitae libero
+						<a class="landing-block-node-list-item" href="#">Nunc vitae libero
 							lacus</a>
 					</li>
 				</ul>
@@ -686,19 +685,19 @@ return array(
 					Link</h2>
 				<ul class="landing-block-card-list3 list-unstyled g-mb-30">
 					<li class="landing-block-card-list3-item g-mb-10">
-						<a class="landing-block-node-list-item g-color-gray-dark-v5" href="#">Pellentesque a tristique
+						<a class="landing-block-node-list-item" href="#">Pellentesque a tristique
 							risus</a>
 					</li>
 					<li class="landing-block-card-list3-item g-mb-10">
-						<a class="landing-block-node-list-item g-color-gray-dark-v5" href="#">Nunc vitae libero
+						<a class="landing-block-node-list-item" href="#">Nunc vitae libero
 							lacus</a>
 					</li>
 					<li class="landing-block-card-list3-item g-mb-10">
-						<a class="landing-block-node-list-item g-color-gray-dark-v5" href="#">Praesent pulvinar
+						<a class="landing-block-node-list-item" href="#">Praesent pulvinar
 							gravida</a>
 					</li>
 					<li class="landing-block-card-list3-item g-mb-10">
-						<a class="landing-block-node-list-item g-color-gray-dark-v5" href="#">Integer commodo est</a>
+						<a class="landing-block-node-list-item" href="#">Integer commodo est</a>
 					</li>
 				</ul>
 			</div>
@@ -706,6 +705,6 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
-	),
-);
+			],
+	],
+];

@@ -229,7 +229,7 @@ this.BX = this.BX || {};
 	      } else if (fieldStorage.isDiscountPercentage()) {
 	        fieldStorage.setField('DISCOUNT_RATE', value);
 	        this.updateResultPrices(fieldStorage);
-	        fieldStorage.setField('DISCOUNT_SUM', fieldStorage.getPriceNetto() - fieldStorage.getPriceExclusive());
+	        fieldStorage.setField('DISCOUNT_SUM', this.roundPrice(fieldStorage.getPriceNetto() - fieldStorage.getPriceExclusive()));
 	      } else if (fieldStorage.isDiscountMonetary()) {
 	        fieldStorage.setField('DISCOUNT_SUM', value);
 	        this.updateResultPrices(fieldStorage);

@@ -249,7 +249,7 @@ class CCity
 	function __construct($dbRecord = "")
 	{
 		if($dbRecord <> '')
-			$arDBRecord = unserialize($dbRecord);
+			$arDBRecord = unserialize($dbRecord, ['allowed_classes' => false]);
 		else
 			$arDBRecord = false;
 
@@ -534,11 +534,11 @@ class CCity
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "COUNTRY_ID":

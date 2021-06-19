@@ -67,7 +67,7 @@ if (!$arTest = $rsTest->GetNext())
 }
 else
 {
-	// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour 
+	// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour
 	// can be changed in future without any notifications.
 	if (isset($arTest['DESCRIPTION']))
 	{
@@ -99,7 +99,7 @@ else
 	if ($arTest["PREVIOUS_TEST_ID"] > 0 && $arTest["PREVIOUS_TEST_SCORE"] > 0)
 	{
 		$rsPrevTest = CTest::GetList(
-			array(), 
+			array(),
 			array(
 				"ID" => $arTest["PREVIOUS_TEST_ID"],
 				'CHECK_PERMISSIONS' => 'N'
@@ -122,14 +122,14 @@ if ($USER->GetID())
 }
 $oAccess = CLearnAccess::GetInstance($USER->GetID());
 $isRelativelyHighAccessLevel = $oAccess->IsBaseAccess(
-	CLearnAccess::OP_LESSON_CREATE 
-	| CLearnAccess::OP_LESSON_READ 
-	| CLearnAccess::OP_LESSON_WRITE 
+	CLearnAccess::OP_LESSON_CREATE
+	| CLearnAccess::OP_LESSON_READ
+	| CLearnAccess::OP_LESSON_WRITE
 	| CLearnAccess::OP_LESSON_REMOVE);
 $bCheckPerm = (!$isRelativelyHighAccessLevel && !$USER->IsAdmin());
-if ($bCheckPerm 
-	&& $arTest["PREVIOUS_TEST_ID"] > 0 
-	&& $arTest["PREVIOUS_TEST_SCORE"] > 0 
+if ($bCheckPerm
+	&& $arTest["PREVIOUS_TEST_ID"] > 0
+	&& $arTest["PREVIOUS_TEST_SCORE"] > 0
 	&& !CTest::isPrevPassed($arTest["PREVIOUS_TEST_ID"], $arTest["PREVIOUS_TEST_SCORE"]))
 {
 	if ($arTest["PREVIOUS_TEST_LINK"])
@@ -172,7 +172,14 @@ $arResult = Array(
 		"END_PAGE" => 0,
 	),
 	"PAGE_TEMPLATE" => $pageTemplate,
-	"GRADEBOOK_URL" => CComponentEngine::MakePathFromTemplate($arParams["GRADEBOOK_TEMPLATE"], Array("FOR_TEST_ID" => $arParams["TEST_ID"],"COURSE_ID" => $arTest["COURSE_ID"])),
+	"GRADEBOOK_URL" => CComponentEngine::MakePathFromTemplate(
+		$arParams["GRADEBOOK_TEMPLATE"],
+		[
+			"FOR_TEST_ID" => $arParams["TEST_ID"],
+			"TEST_ID" => $arParams["TEST_ID"],
+			"COURSE_ID" => $arTest["COURSE_ID"]
+		]
+	),
 	"PREVIOUS_PAGE" => "",
 	"NEXT_PAGE" => "",
 	"ACTION_PAGE" => "",
@@ -350,7 +357,7 @@ if (!sizeof($errors))
 					$rsQuestion = CLQuestion::GetByID($arTestResult["QUESTION_ID"]);
 					if ($arQuestion = $rsQuestion->GetNext())
 					{
-						// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour 
+						// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour
 						// can be changed in future without any notifications.
 						if (isset($arQuestion['DESCRIPTION']))
 						{
@@ -643,7 +650,7 @@ if (!sizeof($errors))
 				);
 			$arResult["QUESTION"] = $rsQuestion->GetNext();
 
-			// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour 
+			// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour
 			// can be changed in future without any notifications.
 			if (isset($arResult["QUESTION"]['DESCRIPTION']))
 			{
@@ -674,7 +681,7 @@ if (!sizeof($errors))
 	$arResult["SAFE_REDIRECT_PAGE"] = htmlspecialcharsbx($arResult["REDIRECT_PAGE"]);
 }
 $linkedLessonId = CCourse::CourseGetLinkedLesson($arResult['TEST']['COURSE_ID']);
-$bCanEdit = ($linkedLessonId !== false) 
+$bCanEdit = ($linkedLessonId !== false)
 	&& (CLearnAccessMacroses::CanUserEditLesson(array('lesson_id' => $linkedLessonId)) || $USER->IsAdmin());
 if ($bCanEdit)
 {

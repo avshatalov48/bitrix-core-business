@@ -17,6 +17,7 @@ export class LayoutForm
 
 		for (let i = 0; i < this.nodes.length; i++) {
 			Event.bind(this.nodes[i], "click", this.onClick.bind(this));
+			this.nodes[i].querySelector('.ui-ctl-element[type="checkbox"]').style.pointerEvents = 'none';
 			this.checkInitialBlockVisibility(this.nodes[i]);
 		}
 	}

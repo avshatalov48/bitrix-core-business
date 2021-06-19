@@ -1,4 +1,4 @@
-<section class="landing-block g-pt-40 g-pb-40">
+<section class="landing-block g-pt-30 g-pb-30">
 	<div class="container px-0">
 		<!-- Row -->
 		<div class="row landing-block-inner no-gutters">
@@ -12,7 +12,7 @@
 						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_2 g-font-weight-700 g-color-white g-mb-25">
 							Exterior
 							<br> Design</h3>
-						<div class="landing-block-node-card-text landing-semantic-text-image-small g-font-size-13 g-color-white-opacity-0_5 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small g-color-white-opacity-0_5 g-mb-30">
 							<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget
 								dolor. Aenean massa. Omom sociis natoque penatibus.</p>
 						</div>
@@ -24,7 +24,6 @@
 					</div>
 				</div>
 			</div>
-
 			<div class="landing-block-node-card js-animation animation-none col-md-6 col-lg-3">
 				<div class="landing-block-node-card-bgimg g-bg-img-hero h-100"
 					 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1024x683/img2.jpg);">
@@ -35,7 +34,7 @@
 						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_2 g-font-weight-700 g-color-white g-mb-25">
 							Interior
 							<br> Design</h3>
-						<div class="landing-block-node-card-text landing-semantic-text-image-small g-font-size-13 g-color-white-opacity-0_5 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small g-color-white-opacity-0_5 g-mb-30">
 							<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget
 								dolor. Aenean massa. Omom sociis natoque penatibus.</p>
 						</div>
@@ -47,7 +46,6 @@
 					</div>
 				</div>
 			</div>
-
 			<div class="landing-block-node-card js-animation animation-none col-md-6 col-lg-3">
 				<div class="landing-block-node-card-bgimg g-bg-img-hero h-100"
 					 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1024x683/img3.jpg);">
@@ -58,7 +56,7 @@
 						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_2 g-font-weight-700 g-color-white g-mb-25">
 							Project
 							<br> Documentation</h3>
-						<div class="landing-block-node-card-text landing-semantic-text-image-small g-font-size-13 g-color-white-opacity-0_5 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small g-color-white-opacity-0_5 g-mb-30">
 							<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget
 								dolor. Aenean massa. Omom sociis natoque penatibus.</p>
 						</div>
@@ -70,7 +68,6 @@
 					</div>
 				</div>
 			</div>
-
 			<div class="landing-block-node-card js-animation animation-none col-md-6 col-lg-3">
 				<div class="landing-block-node-card-bgimg g-bg-img-hero h-100"
 					 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1024x683/img4.jpg);">
@@ -81,7 +78,7 @@
 						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_2 g-font-weight-700 g-color-white g-mb-25">
 							Choice of
 							<br> Land</h3>
-						<div class="landing-block-node-card-text landing-semantic-text-image-small g-font-size-13 g-color-white-opacity-0_5 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small g-color-white-opacity-0_5 g-mb-30">
 							<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget
 								dolor. Aenean massa. Omom sociis natoque penatibus.</p>
 						</div>

@@ -103,7 +103,7 @@ function CheckFields() // fields check
 			"ID_EXACT_MATCH" => "Y",
 			"ID" => $STATUS_ID,
 		);
-		$rsStatuses = CWorkflowStatus::GetList($by = "s_c_sort", $strOrder, $arFilter, $is_filtered, array("ID"));
+		$rsStatuses = CWorkflowStatus::GetList("s_c_sort", "asc", $arFilter, null, array("ID"));
 		if (!$rsStatuses->Fetch())
 		{
 			$arMsg[] = array(
@@ -333,6 +333,7 @@ if (
 				$path = GetDirPath($FILENAME);
 				$pathto = Rel2Abs($path, $fname);
 				$ext = GetFileExtension($pathto);
+				$io = CBXVirtualIo::GetInstance();
 				if (!$USER->IsAdmin() && in_array($ext, $arExt))
 				{
 					$message = new CAdminMessage(array(
@@ -349,7 +350,7 @@ if (
 						"TYPE" => "ERROR",
 					));
 				}
-				elseif (!CBXVirtualIoFileSystem::ValidatePathString($pathto))
+				elseif (!$io->ValidatePathString($pathto))
 				{
 					$message = new CAdminMessage(array(
 						"MESSAGE" => GetMessage("FLOW_ERROR"),

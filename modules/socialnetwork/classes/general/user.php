@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSocNetUser
@@ -326,8 +327,8 @@ class CAllSocNetUser
 			$arFilter = array("ID_EQUAL_EXACT" => $userID);
 
 			$dbUsers = CUser::GetList(
-				($by = "LAST_NAME"),
-				($order = "asc"),
+				"LAST_NAME",
+				"asc",
 				$arFilter,
 				array(
 					"NAV_PARAMS" => false,
@@ -366,7 +367,7 @@ class CAllSocNetUser
 					"ACTIVE" => "Y",
 					"EMAIL" => $email,
 				);
-				$dbUsers = CUser::GetList(($by="id"), ($order="asc"), $arFilter);
+				$dbUsers = CUser::GetList("id", "asc", $arFilter);
 			}
 			else
 			{
@@ -502,25 +503,25 @@ class CAllSocNetUser
 
 		if (
 			!is_array($arUser)
-			&& intval($arUser) > 0
+			&& (int)$arUser > 0
 		)
 		{
-			$dbUser = CUser::GetByID(intval($arUser));
-			$arUser = $dbUser->Fetch();
+			$dbUser = \CUser::getById((int)$arUser);
+			$arUser = $dbUser->fetch();
 		}
 
 		if (
 			!is_array($arUser)
 			|| !isset($arUser["ID"])
-			|| intval($arUser["ID"]) <= 0
+			|| (int)$arUser["ID"] <= 0
 		)
 		{
 			return false;
 		}
 
 		if (
-			$currentUserId == $USER->GetId()
-			&& self::IsCurrentUserModuleAdmin()
+			(int)$currentUserId === (int)$USER->GetId()
+			&& self::isCurrentUserModuleAdmin()
 		)
 		{
 			return true;
@@ -537,7 +538,7 @@ class CAllSocNetUser
 			if (IsModuleInstalled($arEvent["TO_MODULE_ID"]))
 			{
 				$bFound = true;
-				if (ExecuteModuleEventEx($arEvent, Array($currentUserId, $arUser, $siteId, $arContext, false)) === true)
+				if (ExecuteModuleEventEx($arEvent, [ $currentUserId, $arUser, $siteId, $arContext, false ]) === true)
 				{
 					return true;
 				}
@@ -555,15 +556,15 @@ class CAllSocNetUser
 		}
 
 		if (
-			intval($currentUserId) <= 0
+			(int)$currentUserId <= 0
 			|| !isset($arContext)
 			|| !isset($arContext["ENTITY_TYPE"])
 			|| !in_array($arContext["ENTITY_TYPE"], array("LOG_ENTRY"))
 			|| !isset($arContext["ENTITY_ID"])
-			|| intval($arContext["ENTITY_ID"]) <= 0
+			|| (int)$arContext["ENTITY_ID"] <= 0
 			|| !is_array($arUser)
 			|| !isset($arUser["ID"])
-			|| intval($arUser["ID"]) <= 0
+			|| (int)$arUser["ID"] <= 0
 		)
 		{
 			return false;
@@ -730,4 +731,3 @@ class CAllSocNetUser
 		return false;
 	}
 }
-?>

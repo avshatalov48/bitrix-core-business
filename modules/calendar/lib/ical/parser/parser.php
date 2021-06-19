@@ -55,13 +55,13 @@ class Parser
 	 */
 	private function getLinesGenerator(): ?Generator
 	{
-		$tmp = explode("\n", $this->content);
+		$tmp = explode("\r\n", $this->content);
 
 		for ($i = 0, $length = count($tmp); $i < $length; $i++)
 		{
 			$line = rtrim($tmp[$i]);
 
-			while (isset($tmp[$i + 1]) && mb_strlen($tmp[$i + 1]) > 0 && ($tmp[$i + 1]{0} === ' ' || $tmp[$i + 1]{0} === "\t" ))
+			while (isset($tmp[$i + 1]) && mb_strlen($tmp[$i + 1]) > 0 && ($tmp[$i + 1][0] === ' ' || $tmp[$i + 1][0] === "\t" ))
 			{
 				$line .= rtrim(mb_substr($tmp[++$i],1));
 			}
@@ -123,11 +123,14 @@ class Parser
 	}
 
 	/**
-	 * @return Calendar
+	 * @return Calendar|null
 	 */
-	public function getComponent(): Calendar
+	public function getCalendarComponent(): ?Calendar
 	{
-		return $this->component;
+		return ($this->component instanceof Calendar)
+			? $this->component
+			: null
+		;
 	}
 
 //	private static function _ValidUtf8( $data ) {

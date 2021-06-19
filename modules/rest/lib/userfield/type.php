@@ -18,7 +18,7 @@ class Type extends TypeBase
 {
 	const USER_TYPE_ID = 'rest';
 
-	function getDBColumnType()
+	public static function getDBColumnType()
 	{
 		return "text";
 	}

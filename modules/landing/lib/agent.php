@@ -202,9 +202,14 @@ class Agent
 		return __CLASS__ . '::' . __FUNCTION__ . '();';
 	}
 
+	/**
+	 * Tmp agent for rebuild form's blocks.
+	 * @param int $lastLid Last item id.
+	 * @return string
+	 */
 	public static function repairFormUrls(int $lastLid = 0): string
 	{
-		if(Loader::includeModule('crm'))
+		if (Loader::includeModule('crm'))
 		{
 			$formQuery = WebForm\Internals\LandingTable::query()
 				->addSelect('FORM_ID')
@@ -215,7 +220,7 @@ class Agent
 				->exec()
 			;
 			$lastLid = 0;
-			while($form = $formQuery->fetch())
+			while ($form = $formQuery->fetch())
 			{
 				$blocksQuery = BlockTable::query()
 					->addSelect('ID')
@@ -230,7 +235,7 @@ class Agent
 				$lastLid = (int)$form['LANDING_ID'];
 			}
 
-			if($lastLid > 0)
+			if ($lastLid > 0)
 			{
 				return __CLASS__ . '::' . __FUNCTION__ . '(' . $lastLid . ');';
 			}

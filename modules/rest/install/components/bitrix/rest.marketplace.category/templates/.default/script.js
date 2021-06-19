@@ -486,7 +486,7 @@ BX.Rest.Marketplace.TileGrid.Item.prototype =
 
 		this.layout.desc = BX.create('div', {
 			props: {
-				className: 'mp-item-developer'
+				className: 'mp-item-developer' + (this.hasSecondDesc() ? '' : ' mp-item-developer-full')
 			},
 			text: this.shortDesc ? this.shortDesc : this.developer
 		});
@@ -494,29 +494,37 @@ BX.Rest.Marketplace.TileGrid.Item.prototype =
 		return this.layout.desc;
 	},
 
+	hasSecondDesc: function()
+	{
+		return BX.type.isString(this.secondaryDesc) && this.secondaryDesc !== '';
+	},
+
 	getSecondaryDesc: function()
 	{
 		if(this.layout.secondaryDesc)
 			return this.layout.secondaryDesc;
 
-		this.layout.secondaryDesc = BX.create('div', {
-			props: {
-				className: 'mp-item-desc-box'
-			},
-			children: [
-				BX.create('div', {
-					props: {
-						className: 'mp-item-desc'
-					},
-					text: this.secondaryDesc
-				}),
-				BX.create('div', {
-					props: {
-						className: 'mp-item-desc-icon'
-					}
-				})
-			]
-		});
+		if (this.hasSecondDesc())
+		{
+			this.layout.secondaryDesc = BX.create('div', {
+				props: {
+					className: 'mp-item-desc-box'
+				},
+				children: [
+					BX.create('div', {
+						props: {
+							className: 'mp-item-desc'
+						},
+						text: this.secondaryDesc
+					}),
+					BX.create('div', {
+						props: {
+							className: 'mp-item-desc-icon'
+						}
+					})
+				]
+			});
+		}
 
 		return this.layout.secondaryDesc;
 	},

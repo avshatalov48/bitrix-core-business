@@ -45,10 +45,6 @@ Vue.cloneComponent('bx-im-view-element-file-video', 'bx-im-view-element-file',
 			return Utils.browser.isSafari() || Utils.platform.isBitrixMobile();
 		},
 
-		localize()
-		{
-			return Vue.getFilteredPhrases('IM_MESSENGER_ELEMENT_FILE_', this.$root.$bitrixMessages);
-		},
 		styleBoxSizes()
 		{
 			if (parseInt(this.styleVideoSizes.height) <= 280)

@@ -1,11 +1,13 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
+
 $GLOBALS["BLOG_TRACKBACK"] = Array();
 
 class CAllBlogTrackback
 {
 	/*************** ADD, UPDATE, DELETE *****************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $DB;
 
@@ -76,7 +78,7 @@ class CAllBlogTrackback
 	}
 
 	//*************** SELECT *********************/
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -104,9 +106,8 @@ class CAllBlogTrackback
 		return False;
 	}
 
-
 	//*************** SEND / RECEIVE PINGS *********************/
-	function SendPing($postID, $arPingUrls = array())
+	public static function SendPing($postID, $arPingUrls = array())
 	{
 		$postID = intval($postID);
 
@@ -125,7 +126,7 @@ class CAllBlogTrackback
 
 			$serverName = "";
 			$charset = "";
-			$dbSite = CSite::GetList(($b = "sort"), ($o = "asc"), array("LID" => $arGroup["SITE_ID"]));
+			$dbSite = CSite::GetList("sort", "asc", array("LID" => $arGroup["SITE_ID"]));
 			if ($arSite = $dbSite->Fetch())
 			{
 				$serverName = $arSite["SERVER_NAME"];
@@ -186,7 +187,7 @@ class CAllBlogTrackback
 		}
 	}
 
-	function GetPing($blogUrl, $postID, $arParams = array())
+	public static function GetPing($blogUrl, $postID, $arParams = array())
 	{
 		global $DB;
 
@@ -245,7 +246,7 @@ class CAllBlogTrackback
 			$serverCharset = "";
 			$arGroup = CBlogGroup::GetByID($arBlog["GROUP_ID"]);
 
-			$dbSite = CSite::GetList(($b = "sort"), ($o = "asc"), array("LID" => $arGroup["SITE_ID"]));
+			$dbSite = CSite::GetList("sort", "asc", array("LID" => $arGroup["SITE_ID"]));
 			if ($arSite = $dbSite->Fetch())
 				$serverCharset = $arSite["CHARSET"];
 
@@ -308,7 +309,7 @@ class CAllBlogTrackback
 		return $bSuccess;
 	}
 
-	function SendPingResponce($error = 0, $text = "")
+	public static function SendPingResponce($error = 0, $text = "")
 	{
 		header("Content-type: text/xml; charset=".LANG_CHARSET);
 		echo "<"."?xml version=\"1.0\" encoding=\"".SITE_CHARSET."\"?".">\n";
@@ -318,4 +319,3 @@ class CAllBlogTrackback
 		echo "</response>";
 	}
 }
-?>

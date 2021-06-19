@@ -180,7 +180,7 @@ class CLQuestion
 	}
 
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB, $USER_FIELD_MANAGER;
 
@@ -239,13 +239,13 @@ class CLQuestion
 	}
 
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		return CLQuestion::GetList($arOrder=Array(), $arFilter=Array("ID" => $ID));
 	}
 
 
-	function GetFilter($arFilter)
+	public static function GetFilter($arFilter)
 	{
 		global $DBType;
 
@@ -335,7 +335,7 @@ class CLQuestion
 	}
 
 
-	function GetList($arOrder = array(), $arFilter = array(), $bHz = false, $arNavParams = array(), $arSelect = array())
+	public static function GetList($arOrder = array(), $arFilter = array(), $bHz = false, $arNavParams = array(), $arSelect = array())
 	{
 		global $DB, $USER, $USER_FIELD_MANAGER;
 
@@ -442,7 +442,7 @@ class CLQuestion
 	}
 
 
-	function GetCount($arFilter=Array())
+	public static function GetCount($arFilter=Array())
 	{
 		global $DB;
 

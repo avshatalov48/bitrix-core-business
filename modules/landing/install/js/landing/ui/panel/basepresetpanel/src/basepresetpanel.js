@@ -73,12 +73,16 @@ export class BasePresetPanel extends Content
 	getSaveButton(): BaseButton
 	{
 		return this.cache.remember('saveButton', () => {
-			return new BaseButton('save_settings', {
+			const button = new BaseButton('save_settings', {
 				text: Loc.getMessage('BLOCK_SAVE'),
 				onClick: this.onSaveClick,
-				className: 'landing-ui-button-content-save',
+				className: 'ui-btn ui-btn-success',
 				attrs: {title: Loc.getMessage('LANDING_TITLE_OF_SLIDER_SAVE')},
 			});
+
+			Dom.removeClass(button.layout, 'landing-ui-button');
+
+			return button;
 		});
 	}
 

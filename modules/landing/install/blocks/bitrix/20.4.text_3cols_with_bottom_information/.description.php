@@ -9,12 +9,12 @@ use \Bitrix\Main\Localization\Loc;
 return [
 	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_20_4_NAME'),
-		'section' => array('columns', 'text_image', 'news'),
+		'section' => ['columns', 'text_image', 'news'],
 	],
 	'cards' => [
 		'.landing-block-card' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_CARD'),
-			'label' => array('.landing-block-node-img', '.landing-block-node-title'),
+			'label' => ['.landing-block-node-img', '.landing-block-node-title'],
 		],
 	],
 	'nodes' => [
@@ -42,17 +42,17 @@ return [
 		'.landing-block-node-author-img' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_AUTHORIMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 40, 'height' => 40),
+			'dimensions' => ['width' => 40, 'height' => 40],
 		],
 	],
 	'style' => [
 		'.landing-block-card' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_CARD'),
-			'type' => array('columns', 'animation', 'margin-bottom'),
+			'type' => ['columns', 'animation', 'margin-bottom'],
 		],
 		'.landing-block-card-block' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_CARD_BLOCK'),
-			'type' => array('background-color', 'background-gradient'),
+			'type' => ['background-color', 'background-gradient'],
 		],
 		'.landing-block-inner' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_BLOCK'),
@@ -60,7 +60,7 @@ return [
 		],
 		'.landing-block-node-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_TITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'margin-top', 'heading'],
 		],
 		'.landing-block-node-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_TEXT'),
@@ -68,7 +68,7 @@ return [
 		],
 		'.landing-block-node-date' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_DATE'),
-			'type' => array('background-color', 'typo'),
+			'type' => ['background-color', 'typo'],
 		],
 		'.landing-block-node-author' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_AUTHOR'),
@@ -76,11 +76,15 @@ return [
 		],
 		'.landing-block-bottom-block' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_BOTTOM_BLOCK'),
-			'type' => array('border-color'),
+			'type' => ['border-color'],
 		],
 		'.landing-block-node-author-img' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_AUTHORIMG'),
 			'type' => 'border-radius',
+		],
+		'.landing-block-node-container' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_20_4_ELEMENT'),
+			'type' => ['container', 'padding-top', 'padding-bottom'],
 		],
 	],
 ];

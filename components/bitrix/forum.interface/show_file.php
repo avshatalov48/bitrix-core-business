@@ -161,7 +161,7 @@ elseif (intval($arResult["FILE"]["MESSAGE_ID"]) > 0)
 				$arForumSites = CForumNew::GetSites($arResult["FORUM"]["ID"]);
 				if (count($arForumSites) > 0)
 				{
-					list($key, $val) = each($arForumSites);
+					$key = key($arForumSites);
 					if ($key <> '')
 						$site_id_tmp = $key;
 					else

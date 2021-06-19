@@ -40,7 +40,7 @@ class CSelectSiteWizardStep extends CWizardStep
 					return;
 				}
 				$bError = false;
-				$rsSites = CSite::GetList($by="sort", $order="desc", array());
+				$rsSites = CSite::GetList("sort", "desc");
 				while($arSite = $rsSites->Fetch())
 				{
 					if (trim($arSite["DIR"], "/") == trim($siteFolder, "/"))
@@ -63,7 +63,7 @@ class CSelectSiteWizardStep extends CWizardStep
 			}
 			elseif ($siteID <> '')
 			{
-				$db_res = CSite::GetList($by="sort", $order="desc", array("LID" => $siteID));
+				$db_res = CSite::GetList("sort", "desc", array("LID" => $siteID));
 				if (!($db_res && $res = $db_res->Fetch()))
 					$this->SetError(GetMessage("wiz_site_id_not_exists_error"));
 				return;
@@ -82,7 +82,7 @@ class CSelectSiteWizardStep extends CWizardStep
 
 		$arSites = array();
 		$arSitesSelect = array();
-		$db_res = CSite::GetList($by="sort", $order="desc", array("ACTIVE" => "Y"));
+		$db_res = CSite::GetList("sort", "desc", array("ACTIVE" => "Y"));
 		if ($db_res && $res = $db_res->GetNext())
 		{
 			do
@@ -551,7 +551,7 @@ class CDataInstallWizardStep extends CWizardStep
 		$site_id = $wizard->GetVar("siteID");
 		if($site_id!="")
 		{
-			$db_res = CSite::GetList($by="sort", $order="desc", array("LID" => $site_id));
+			$db_res = CSite::GetList('sort', 'desc', array("LID" => $site_id));
 			if($db_res)
 				$res = $db_res->Fetch();
 		}
@@ -748,7 +748,7 @@ class CDataInstallWizardStep extends CWizardStep
 		define("WIZARD_REINSTALL_DATA", false);
 		define("WIZARD_FIRST_INSTAL", COption::GetOptionString("main", "wizard_first".mb_substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID")));
 
-		$dbUsers = CGroup::GetList($by="id", $order="asc", Array("ACTIVE" => "Y"));
+		$dbUsers = CGroup::GetList('id', 'asc', Array("ACTIVE" => "Y"));
 		while($arUser = $dbUsers->Fetch())
 			define("WIZARD_".$arUser["STRING_ID"]."_GROUP", $arUser["ID"]);
 

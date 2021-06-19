@@ -10,7 +10,7 @@
                      data-arrow-right-classes="fa fa-arrow-right g-right-0 g-mr-30--md g-right-30x g-right-0--md">
                     <div class="landing-block-card-slider-element js-slide">
                         <div class="container text-center g-max-width-700 g-pb-70 g-pb-0--lg">
-                            <h2 class="landing-block-node-element-title landing-semantic-title-image-medium js-animation fadeIn text-uppercase g-font-weight-700 g-font-size-26 g-color-white g-mb-40">Welder</h2>
+                            <h2 class="landing-block-node-element-title landing-semantic-title-image-medium js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-40">Welder</h2>
                             <div class="landing-block-node-element-text landing-semantic-text-image-medium js-animation fadeIn g-color-white-opacity-0_8">
 								<p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati
 									cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi.</p>
@@ -25,7 +25,7 @@
 
                     <div class="landing-block-card-slider-element js-slide">
                         <div class="container text-center g-max-width-700 g-pb-70 g-pb-0--lg">
-                            <h2 class="landing-block-node-element-title landing-semantic-title-image-medium js-animation fadeIn text-uppercase g-font-weight-700 g-font-size-26 g-color-white g-mb-40">Mollitia</h2>
+                            <h2 class="landing-block-node-element-title landing-semantic-title-image-medium js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-40">Mollitia</h2>
                             <div class="landing-block-node-element-text landing-semantic-text-image-medium js-animation fadeIn g-color-white-opacity-0_8">
 								<p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati
 									cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi.</p>
@@ -40,7 +40,7 @@
 
                     <div class="landing-block-card-slider-element js-slide">
                         <div class="container text-center g-max-width-700 g-pb-70 g-pb-0--lg">
-                            <h2 class="landing-block-node-element-title landing-semantic-title-image-medium js-animation fadeIn text-uppercase g-font-weight-700 g-font-size-26 g-color-white g-mb-40">Cupiditate</h2>
+                            <h2 class="landing-block-node-element-title landing-semantic-title-image-medium js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-40">Cupiditate</h2>
                             <div class="landing-block-node-element-text landing-semantic-text-image-medium js-animation fadeIn g-color-white-opacity-0_8">
 								<p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati
 									cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi.</p>

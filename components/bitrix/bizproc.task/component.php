@@ -199,7 +199,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["action"] == "doTask" && chec
 if (intval($arState["STARTED_BY"]) > 0)
 {
 	$arResult["TASK"]['STARTED_BY'] = $arState["STARTED_BY"];
-	$iterator = CUser::GetList($by="id", $order="asc",
+	$iterator = CUser::GetList("id", "asc",
 		array('ID' =>$arResult["TASK"]['STARTED_BY']),
 		array('FIELDS' => array('PERSONAL_PHOTO'))
 	);

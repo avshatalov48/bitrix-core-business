@@ -77,6 +77,21 @@ export class BaseForm extends EventEmitter
 		{
 			Dom.append(this.getHeaderCheckbox(), this.header);
 		}
+
+		if (this.options.hidden === true)
+		{
+			this.hide();
+		}
+	}
+
+	show()
+	{
+		Dom.attr(this.getLayout(), 'hidden', null);
+	}
+
+	hide()
+	{
+		Dom.attr(this.getLayout(), 'hidden', true);
 	}
 
 	static createLayout(): HTMLDivElement

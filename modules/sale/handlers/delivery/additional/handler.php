@@ -1042,4 +1042,18 @@ class AdditionalHandler extends Base
 
 		return parent::prepareFieldsForSaving($fields);
 	}
+
+	/** @inheritDoc */
+	public static function isHandlerCompatible()
+	{
+		if(!parent::isHandlerCompatible())
+		{
+			return false;
+		}
+
+		return in_array(
+			\Bitrix\Sale\Delivery\Helper::getPortalZone(),
+			['ru', 'kz', 'by']
+		);
+	}
 }

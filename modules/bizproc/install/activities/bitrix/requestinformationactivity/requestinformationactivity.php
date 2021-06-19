@@ -336,6 +336,7 @@ class CBPRequestInformationActivity
 		$runtime = CBPRuntime::GetRuntime();
 		$runtime->StartRuntime();
 		$documentService = $runtime->GetService("DocumentService");
+		$isMobile = defined('BX_MOBILE');
 
 		if ($arTask["PARAMETERS"] && is_array($arTask["PARAMETERS"]) && count($arTask["PARAMETERS"]) > 0
 			&& $arTask["PARAMETERS"]["REQUEST"] && is_array($arTask["PARAMETERS"]["REQUEST"]) && count($arTask["PARAMETERS"]["REQUEST"]) > 0)
@@ -345,36 +346,57 @@ class CBPRequestInformationActivity
 				if ($parameter["Name"] == '')
 					continue;
 
-				$form .=
-					sprintf(
-						'<tr><td valign="top" width="30%%" align="right" class="bizproc-field-name">%s%s</td><td valign="top" width="70%%" class="bizproc-field-value">',
-						$parameter["Required"]
-							? sprintf(
-								'<span class="required">*</span><span class="adm-required-field">%s:</span>',
-								htmlspecialcharsbx($parameter["Title"])
-							) : htmlspecialcharsbx($parameter["Title"]).":",
-						$parameter["Description"] ?
-							sprintf(
-								'<br/><span class="bizproc-field-description">%s</span>',
-								htmlspecialcharsbx($parameter["Description"])
-							) : ''
-					);
+				$nameHtml = $parameter['Required']
+					? sprintf(
+						'<span class="required">*</span><span class="adm-required-field">%s:</span>',
+						htmlspecialcharsbx($parameter['Title'])
+					)
+					: htmlspecialcharsbx($parameter['Title']) . ':'
+				;
+
+				$descriptionHtml = $parameter['Description']
+					? sprintf(
+						'<br/><span class="bizproc-field-description">%s</span>',
+						htmlspecialcharsbx($parameter['Description'])
+					)
+					: ''
+				;
 
 				if ($arRequest === null)
-					$realValue = $parameter["Default"];
+					$realValue = $parameter['Default'];
 				else
-					$realValue = $arRequest[static::CONTROLS_PREFIX.$parameter["Name"]];
+					$realValue = $arRequest[static::CONTROLS_PREFIX.$parameter['Name']];
 
-				$form .= $documentService->GetFieldInputControl(
-					$arTask["PARAMETERS"]["DOCUMENT_TYPE"],
+				$controlHtml = $documentService->GetFieldInputControl(
+					$arTask['PARAMETERS']['DOCUMENT_TYPE'],
 					$parameter,
-					array("task_form1", static::CONTROLS_PREFIX.$parameter["Name"]),
+					['task_form1', static::CONTROLS_PREFIX.$parameter['Name']],
 					$realValue,
 					false,
 					true
 				);
 
-				$form .= '</td></tr>';
+				$rowHtml = '
+					<tr>
+						<td valign="top" width="30%%" align="right" class="bizproc-field-name">%s%s</td>
+						<td valign="top" width="70%%" class="bizproc-field-value">%s</td>
+					</tr>
+				';
+
+				if ($isMobile)
+				{
+					$rowHtml = '
+						<tr>
+							<td valign="top" colspan="2" class="bizproc-field-name">%s%s</td>
+						</tr>
+						<tr>
+							<td valign="top" colspan="2" class="bizproc-field-value">%s</td>
+						</tr>
+					';
+				}
+
+
+				$form .= sprintf($rowHtml, $nameHtml, $descriptionHtml, $controlHtml);
 			}
 		}
 
@@ -387,14 +409,35 @@ class CBPRequestInformationActivity
 			}
 
 			$commentText = $arRequest ? $arRequest['task_comment'] : '';
-			$form .=
-				'<tr><td valign="top" width="30%" align="right" class="bizproc-field-name">'
-					.($arTask["PARAMETERS"]["CommentLabelMessage"] <> '' ? $arTask["PARAMETERS"]["CommentLabelMessage"] : GetMessage("BPRIA_ACT_COMMENT"))
-					.$required
-				.':</td>'.
-				'<td valign="top" width="70%" class="bizproc-field-value">'.
-				'<textarea rows="3" cols="50" name="task_comment">'.htmlspecialcharsbx($commentText).'</textarea>'.
-				'</td></tr>';
+			$rowHtml = '
+				<tr>
+					<td valign="top" width="30%%" align="right" class="bizproc-field-name">%s%s:</td>
+					<td valign="top" width="70%%" class="bizproc-field-value">
+						<textarea rows="3" cols="50" name="task_comment">%s</textarea>
+					</td>
+				</tr>
+			';
+
+			if ($isMobile)
+			{
+				$rowHtml = '
+					<tr>
+						<td valign="top" colspan="2" class="bizproc-field-name">%s%s:</td>
+					</tr>
+					<tr>
+						<td valign="top" colspan="2" class="bizproc-field-value">
+							<textarea rows="3" cols="50" name="task_comment">%s</textarea>
+						</td>
+					</tr>
+				';
+			}
+
+			$form .= sprintf(
+				$rowHtml,
+				$arTask["PARAMETERS"]["CommentLabelMessage"]  ?: GetMessage("BPRIA_ACT_COMMENT"),
+				$required,
+				htmlspecialcharsbx($commentText)
+			);
 		}
 
 		$buttons = '<input type="submit" name="approve" value="'.($arTask["PARAMETERS"]["TaskButtonMessage"] <> '' ? $arTask["PARAMETERS"]["TaskButtonMessage"] : GetMessage("BPRIA_ACT_BUTTON1")).'"/>';

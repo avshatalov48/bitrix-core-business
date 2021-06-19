@@ -11,12 +11,12 @@ import './message.css';
 import 'im.view.message.body';
 
 import {DialoguesModel, MessagesModel} from 'im.model';
-import {Vue} from "ui.vue";
+import {BitrixVue} from "ui.vue";
 import {MessageType} from "im.const";
 import {Utils} from "im.lib.utils";
 import {Animation} from "im.lib.animation";
 
-Vue.component('bx-im-view-message',
+BitrixVue.component('bx-im-view-message',
 {
 	/**
 	 * @emits 'clickByUserName' {user: object, event: MouseEvent}
@@ -49,10 +49,6 @@ Vue.component('bx-im-view-message',
 		referenceContentClassName: { default: ''},
 		referenceContentBodyClassName: { default: ''},
 		referenceContentNameClassName: { default: ''},
-		dialog: {
-			type: Object,
-			default: DialoguesModel.create().getElementState
-		},
 		message: {
 			type: Object,
 			default: MessagesModel.create().getElementState
@@ -392,6 +388,12 @@ Vue.component('bx-im-view-message',
 	{
 		MessageType: () => MessageType,
 
+		dialog()
+		{
+			const dialog = this.$store.getters['dialogues/get'](this.dialogId);
+
+			return dialog? dialog: this.$store.getters['dialogues/getBlank']();
+		},
 		type()
 		{
 			if (this.message.system || this.message.authorId == 0)
@@ -406,17 +408,6 @@ Vue.component('bx-im-view-message',
 			{
 				return MessageType.opponent;
 			}
-		},
-
-		localize()
-		{
-			let localize = Vue.getFilteredPhrases('IM_MESSENGER_MESSAGE_', this.$root.$bitrixMessages);
-
-			return Object.freeze(
-				Object.assign({}, localize, {
-					'IM_MESSENGER_MESSAGE_MENU_TITLE': localize.IM_MESSENGER_MESSAGE_MENU_TITLE.replace('#SHORTCUT#', Utils.platform.isMac()? 'CMD':'CTRL')
-				})
-			);
 		},
 
 		userData()
@@ -491,13 +482,10 @@ Vue.component('bx-im-view-message',
 				<div class="bx-im-message-box">
 					<component :is="componentBodyId"
 						:userId="userId" 
+						:message="message"
 						:dialogId="dialogId"
 						:chatId="chatId"
 						:messageType="type"
-						:dialog="dialog"
-						:message="message"
-						:user="userData"
-						:files="filesData"
 						:showAvatar="showAvatar"
 						:showName="showName"
 						:enableReactions="enableReactions"
@@ -508,7 +496,8 @@ Vue.component('bx-im-view-message',
 						@clickByKeyboardButton="clickByKeyboardButton"
 						@clickByChatTeaser="clickByChatTeaser"
 						@setReaction="setMessageReaction"
-						@openReactionList="openMessageReactionList"
+						@openReactionList="openMessageReactionList"	
+						
 					/>
 				</div>
 				<div class="bx-im-message-box-status">
@@ -517,13 +506,13 @@ Vue.component('bx-im-view-message',
 					</template>
 					<transition name="bx-im-message-status-retry">
 						<template v-if="!message.sending && message.error && message.retry">
-							<div class="bx-im-message-status-retry" :title="localize.IM_MESSENGER_MESSAGE_RETRY_TITLE" @click="clickByMessageRetry({message: message, event: $event})">
+							<div class="bx-im-message-status-retry" :title="$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_RETRY_TITLE')" @click="clickByMessageRetry({message: message, event: $event})">
 								<span class="bx-im-message-retry-icon"></span>
 							</div>
 						</template>
 					</transition>
 					<template v-if="showMenu && !message.sending && !message.error">
-						<div class="bx-im-message-status-menu" :title="localize.IM_MESSENGER_MESSAGE_MENU_TITLE" @click="clickByMessageMenu({message: message, event: $event})">
+						<div class="bx-im-message-status-menu" :title="$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_MENU_TITLE')" @click="clickByMessageMenu({message: message, event: $event})">
 							<span class="bx-im-message-menu-icon"></span>
 						</div>
 					</template> 
@@ -555,12 +544,11 @@ Vue.component('bx-im-view-message',
 				</template>
 				<div class="bx-im-message-box">
 					<component :is="componentBodyId"
+						:message="message"
 						:userId="userId" 
 						:dialogId="dialogId"
 						:chatId="chatId"
 						:messageType="type"
-						:message="message"
-						:user="userData"
 						:files="filesData"
 						:showAvatar="showAvatar"
 						:showName="showName"
@@ -573,9 +561,9 @@ Vue.component('bx-im-view-message',
 						@clickByChatTeaser="clickByChatTeaser"
 						@setReaction="setMessageReaction"
 						@openReactionList="openMessageReactionList"
-					/>
+					/>	
 				</div>
-				<div v-if="showMenu"  class="bx-im-message-menu" :title="localize.IM_MESSENGER_MESSAGE_MENU_TITLE" @click="clickByMessageMenu({message: message, event: $event})">
+				<div v-if="showMenu"  class="bx-im-message-menu" :title="$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_MENU_TITLE')" @click="clickByMessageMenu({message: message, event: $event})">
 					<span class="bx-im-message-menu-icon"></span>
 				</div>	
 				<template v-if="dragIconShowRight">

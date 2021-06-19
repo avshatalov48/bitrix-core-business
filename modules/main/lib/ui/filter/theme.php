@@ -12,6 +12,7 @@ class Theme
 	const DEFAULT_FILTER = "DEFAULT";
 	const BORDER = "BORDER";
 	const ROUNDED = "ROUNDED";
+	const LIGHT = "LIGHT";
 
 
 	/**

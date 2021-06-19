@@ -1,10 +1,11 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/general/blog_image.php");
 
 class CBlogImage extends CAllBlogImage
 {
 	/*************** ADD, UPDATE, DELETE *****************/
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -77,8 +78,7 @@ class CBlogImage extends CAllBlogImage
 		return False;
 	}
 
-
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -119,7 +119,7 @@ class CBlogImage extends CAllBlogImage
 	}
 
 	//*************** SELECT *********************/
-	function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -217,4 +217,3 @@ class CBlogImage extends CAllBlogImage
 		return $dbRes;
 	}
 }
-?>

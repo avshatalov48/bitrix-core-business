@@ -19,7 +19,7 @@
 
 					<div class="col-sm-6 col-lg-4">
 						<div class="g-px-0 g-px-30--md g-px-50--lg">
-							<h3 class="landing-block-node-person-name landing-semantic-subtitle-medium h4 mb-1">David Case</h3>
+							<h4 class="landing-block-node-person-name landing-semantic-subtitle-medium mb-1">David Case</h4>
 							<div class="landing-block-node-person-post">
 								<span class="landing-semantic-subtitle-small d-block mb-4">Web Developer</span>
 							</div>
@@ -43,7 +43,7 @@
 
 					<div class="col-sm-6 col-lg-4">
 						<div class="g-px-0 g-px-30--md g-px-50--lg">
-							<h3 class="landing-block-node-person-name landing-semantic-subtitle-medium h4 mb-1">Jessica Lisbon</h3>
+							<h4 class="landing-block-node-person-name landing-semantic-subtitle-medium mb-1">Jessica Lisbon</h4>
 							<div class="landing-block-node-person-post">
 								<span class="landing-semantic-subtitle-small d-block mb-4">Support Manager</span>
 							</div>
@@ -67,7 +67,7 @@
 
 					<div class="col-sm-6 col-lg-4">
 						<div class="g-px-0 g-px-30--md g-px-50--lg">
-							<h3 class="landing-block-node-person-name landing-semantic-subtitle-medium h4 mb-1">Monica Gaudy</h3>
+							<h4 class="landing-block-node-person-name landing-semantic-subtitle-medium mb-1">Monica Gaudy</h4>
 							<div class="landing-block-node-person-post">
 								<span class="landing-semantic-subtitle-small d-block mb-4">Sales Manager</span>
 							</div>
@@ -91,7 +91,7 @@
 
 					<div class="col-sm-6 col-lg-4">
 						<div class="g-px-0 g-px-30--md g-px-50--lg">
-							<h3 class="landing-block-node-person-name landing-semantic-subtitle-medium h4 mb-1">Tina Krueger</h3>
+							<h4 class="landing-block-node-person-name landing-semantic-subtitle-medium mb-1">Tina Krueger</h4>
 							<div class="landing-semantic-subtitle-small landing-block-node-person-post">
 								<span class="d-block mb-4">Lead Designer</span>
 							</div>
@@ -115,7 +115,7 @@
 
 					<div class="col-sm-6 col-lg-4">
 						<div class="g-px-0 g-px-30--md g-px-50--lg">
-							<h3 class="landing-block-node-person-name landing-semantic-subtitle-medium h4 mb-1">John Watson</h3>
+							<h4 class="landing-block-node-person-name landing-semantic-subtitle-medium mb-1">John Watson</h4>
 							<div class="landing-semantic-subtitle-small landing-block-node-person-post">
 								<span class="d-block mb-4">Marketing Manager</span>
 							</div>
@@ -139,7 +139,7 @@
 
 					<div class="col-sm-6 col-lg-4">
 						<div class="g-px-0 g-px-30--md g-px-50--lg">
-							<h3 class="landing-block-node-person-name landing-semantic-subtitle-medium h4 mb-1">Maria Olsson</h3>
+							<h4 class="landing-block-node-person-name landing-semantic-subtitle-medium mb-1">Maria Olsson</h4>
 							<div class="landing-semantic-subtitle-small landing-block-node-person-post">
 								<span class="d-block mb-4">Technical Director</span>
 							</div>

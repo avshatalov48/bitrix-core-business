@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Main\Loader;
 
 class CBlogSearch 
@@ -841,7 +842,8 @@ class CBlogSearch
 
 		return $arResult;
 	}
-	function Trace($method, $varname, $var)
+
+	public static function Trace($method, $varname, $var)
 	{
 		//return;
 		ob_start();print_r($var);$m=ob_get_contents();ob_end_clean();
@@ -849,7 +851,7 @@ class CBlogSearch
 		fwrite($f, time().$m);fclose($f);
 	}
 
-	function SetSoNetFeatureIndexSearch($ID, $arFields)
+	public static function SetSoNetFeatureIndexSearch($ID, $arFields)
 	{
 		if(CModule::IncludeModule("socialnetwork"))
 		{
@@ -1045,5 +1047,3 @@ class CBlogSearch
 		}
 	}
 }
-
-?>

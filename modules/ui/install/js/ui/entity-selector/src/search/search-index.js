@@ -55,15 +55,21 @@ export default class SearchIndex
 			{
 				if (field.getName() === 'title')
 				{
-					index.addIndex(this.createIndex(field, item.getTitle()));
+					const textNode = item.getTitleNode();
+					const stripTags = textNode !== null && textNode.getType() === 'html';
+					index.addIndex(this.createIndex(field, item.getTitle(), stripTags));
 				}
 				else if (field.getName() === 'subtitle')
 				{
-					index.addIndex(this.createIndex(field, item.getSubtitle()));
+					const textNode = item.getSubtitleNode();
+					const stripTags = textNode !== null && textNode.getType() === 'html';
+					index.addIndex(this.createIndex(field, item.getSubtitle(), stripTags));
 				}
 				else if (field.getName() === 'supertitle')
 				{
-					index.addIndex(this.createIndex(field, item.getSupertitle()));
+					const textNode = item.getSupertitleNode();
+					const stripTags = textNode !== null && textNode.getType() === 'html';
+					index.addIndex(this.createIndex(field, item.getSupertitle(), stripTags));
 				}
 			}
 			else
@@ -79,11 +85,17 @@ export default class SearchIndex
 		return index;
 	}
 
-	static createIndex(field: SearchField, text: string): SearchFieldIndex
+	static createIndex(field: SearchField, text: string, stripTags = false): SearchFieldIndex
 	{
 		if (!Type.isStringFilled(text))
 		{
 			return null;
+		}
+
+		if (stripTags)
+		{
+			text = text.replace(/<\/?[^>]+>/g, (match) => ' '.repeat(match.length));
+			text = text.replace(/&(?:#\d+|#x[\da-fA-F]+|[0-9a-zA-Z]+);/g, (match) => ' '.repeat(match.length));
 		}
 
 		let index: SearchFieldIndex = null;

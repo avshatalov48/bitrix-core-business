@@ -14,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"] <> '' && check_bitrix
 	}
 	else
 	{
-		$dbSite = \CSite::GetList($by="sort", $order="desc", array("DEFAULT"=>"Y"));
+		$dbSite = \CSite::GetList("sort", "desc", array("DEFAULT"=>"Y"));
 		if ($arSite = $dbSite->Fetch())
 		{
 			$siteID = $arSite["LID"];

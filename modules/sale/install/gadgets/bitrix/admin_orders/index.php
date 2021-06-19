@@ -11,10 +11,10 @@ global $USER;
 
 $saleModulePermissions = $GLOBALS["APPLICATION"]->GetGroupRight("sale");
 
-if (intval($arGadgetParams["ITEMS_COUNT"]) <= 0 || intval($arGadgetParams["ITEMS_COUNT"]) > 40)
+if (!isset($arGadgetParams) || !isset($arGadgetParams["ITEMS_COUNT"]) || intval($arGadgetParams["ITEMS_COUNT"]) <= 0 || intval($arGadgetParams["ITEMS_COUNT"]) > 40)
 	$arGadgetParams["ITEMS_COUNT"] = 10;
 
-if ($arGadgetParams["SITE_ID"] <> '')
+if (isset($arGadgetParams["SITE_ID"]) && $arGadgetParams["SITE_ID"] <> '')
 {
 	$arGadgetParams["SITE_CURRENCY"] = Sale\Internals\SiteCurrencyTable::getSiteCurrency($arGadgetParams["SITE_ID"]);
 	if ($arGadgetParams["TITLE_STD"] == '')
@@ -25,7 +25,9 @@ if ($arGadgetParams["SITE_ID"] <> '')
 	}
 }
 else
+{
 	$arGadgetParams["SITE_CURRENCY"] = Currency\CurrencyManager::getBaseCurrency();
+}
 
 $arGadgetParams["RND_STRING"] = randString(8);
 
@@ -74,7 +76,7 @@ if ($saleModulePermissions != "W")
 }
 else
 {
-	if ($arGadgetParams["SITE_ID"] <> '')
+	if (isset($arGadgetParams["SITE_ID"]) && $arGadgetParams["SITE_ID"] <> '')
 	{
 		$arFilterLID = array("=LID" => $arGadgetParams["SITE_ID"]);
 	}
@@ -208,7 +210,7 @@ foreach($arDatePeriods as $key => $arPeriod)
 		$arOrderStats[$key]["PRICE_".$status_code] = 0;
 	}
 	$obCache = new CPHPCache;
-	$cache_id = $key."_".md5(serialize($arPeriod))."_".md5(serialize($arFilterLID))."_".md5(serialize($arFilterPerms))."_".md5(serialize($arGadgetParams["ORDERS_STATUS_1"]));
+	$cache_id = $key."_".md5(serialize($arPeriod))."_".md5(serialize($arFilterLID))."_".md5(serialize($arFilterPerms))."_".md5(serialize($arGadgetParams["ORDERS_STATUS_1"] ?? []));
 	if($obCache->InitCache($arPeriod["CACHE_TIME"], $cache_id, "/"))
 	{
 		$vars = $obCache->GetVars();
@@ -223,7 +225,8 @@ foreach($arDatePeriods as $key => $arPeriod)
 		foreach($arStatus1 as $status_code => $arStatus)
 		{
 			if (
-				!is_array($arGadgetParams["ORDERS_STATUS_1"])
+				!isset($arGadgetParams["ORDERS_STATUS_1"])
+				|| !is_array($arGadgetParams["ORDERS_STATUS_1"])
 				|| in_array($status_code, $arGadgetParams["ORDERS_STATUS_1"])
 			)
 			{
@@ -395,7 +398,8 @@ $tabControl = new CAdminViewTabControl("saleTabControl_".$arGadgetParams["RND_ST
 								<th>&nbsp;</th><?
 								foreach($arStatus1 as $status_code => $arStatus)
 									if (
-										!is_array($arGadgetParams["ORDERS_STATUS_1"])
+										!isset($arGadgetParams["ORDERS_STATUS_1"])
+										|| !is_array($arGadgetParams["ORDERS_STATUS_1"])
 										|| in_array($status_code, $arGadgetParams["ORDERS_STATUS_1"])
 									)
 									{
@@ -406,7 +410,8 @@ $tabControl = new CAdminViewTabControl("saleTabControl_".$arGadgetParams["RND_ST
 								<td><?=GetMessage("GD_ORDERS_TODAY")?></td><?
 								foreach($arStatus1 as $status_code => $arStatus)
 									if (
-										!is_array($arGadgetParams["ORDERS_STATUS_1"])
+										!isset($arGadgetParams["ORDERS_STATUS_1"])
+										|| !is_array($arGadgetParams["ORDERS_STATUS_1"])
 										|| in_array($status_code, $arGadgetParams["ORDERS_STATUS_1"])
 									)
 									{
@@ -430,7 +435,8 @@ $tabControl = new CAdminViewTabControl("saleTabControl_".$arGadgetParams["RND_ST
 								<td><?=GetMessage("GD_ORDERS_YESTERDAY")?></td><?
 								foreach($arStatus1 as $status_code => $arStatus)
 									if (
-										!is_array($arGadgetParams["ORDERS_STATUS_1"])
+										!isset($arGadgetParams["ORDERS_STATUS_1"])
+										|| !is_array($arGadgetParams["ORDERS_STATUS_1"])
 										|| in_array($status_code, $arGadgetParams["ORDERS_STATUS_1"])
 									)
 									{
@@ -454,7 +460,8 @@ $tabControl = new CAdminViewTabControl("saleTabControl_".$arGadgetParams["RND_ST
 								<td><?=GetMessage("GD_ORDERS_BEFOREYESTERDAY")?></td><?
 								foreach($arStatus1 as $status_code => $arStatus)
 									if (
-										!is_array($arGadgetParams["ORDERS_STATUS_1"])
+										!isset($arGadgetParams["ORDERS_STATUS_1"])
+										|| !is_array($arGadgetParams["ORDERS_STATUS_1"])
 										|| in_array($status_code, $arGadgetParams["ORDERS_STATUS_1"])
 									)
 									{
@@ -478,7 +485,8 @@ $tabControl = new CAdminViewTabControl("saleTabControl_".$arGadgetParams["RND_ST
 								<td><?=GetMessage("GD_ORDERS_THISWEEK")?></td><?
 								foreach($arStatus1 as $status_code => $arStatus)
 									if (
-										!is_array($arGadgetParams["ORDERS_STATUS_1"])
+										!isset($arGadgetParams["ORDERS_STATUS_1"])
+										|| !is_array($arGadgetParams["ORDERS_STATUS_1"])
 										|| in_array($status_code, $arGadgetParams["ORDERS_STATUS_1"])
 									)
 									{
@@ -502,7 +510,8 @@ $tabControl = new CAdminViewTabControl("saleTabControl_".$arGadgetParams["RND_ST
 								<td><?=GetMessage("GD_ORDERS_LASTWEEK")?></td><?
 								foreach($arStatus1 as $status_code => $arStatus)
 									if (
-										!is_array($arGadgetParams["ORDERS_STATUS_1"])
+										!isset($arGadgetParams["ORDERS_STATUS_1"])
+										|| !is_array($arGadgetParams["ORDERS_STATUS_1"])
 										|| in_array($status_code, $arGadgetParams["ORDERS_STATUS_1"])
 									)
 									{
@@ -526,7 +535,8 @@ $tabControl = new CAdminViewTabControl("saleTabControl_".$arGadgetParams["RND_ST
 								<td><?=GetMessage("GD_ORDERS_BEFORELASTWEEK")?></td><?
 								foreach($arStatus1 as $status_code => $arStatus)
 									if (
-										!is_array($arGadgetParams["ORDERS_STATUS_1"])
+										!isset($arGadgetParams["ORDERS_STATUS_1"])
+										|| !is_array($arGadgetParams["ORDERS_STATUS_1"])
 										|| in_array($status_code, $arGadgetParams["ORDERS_STATUS_1"])
 									)
 									{
@@ -550,7 +560,8 @@ $tabControl = new CAdminViewTabControl("saleTabControl_".$arGadgetParams["RND_ST
 								<td><?=GetMessage("GD_ORDERS_THISMONTH")?></td><?
 								foreach($arStatus1 as $status_code => $arStatus)
 									if (
-										!is_array($arGadgetParams["ORDERS_STATUS_1"])
+										!isset($arGadgetParams["ORDERS_STATUS_1"])
+										|| !is_array($arGadgetParams["ORDERS_STATUS_1"])
 										|| in_array($status_code, $arGadgetParams["ORDERS_STATUS_1"])
 									)
 									{
@@ -574,7 +585,8 @@ $tabControl = new CAdminViewTabControl("saleTabControl_".$arGadgetParams["RND_ST
 								<td><?=GetMessage("GD_ORDERS_LASTMONTH")?></td><?
 								foreach($arStatus1 as $status_code => $arStatus)
 									if (
-										!is_array($arGadgetParams["ORDERS_STATUS_1"])
+										!isset($arGadgetParams["ORDERS_STATUS_1"])
+										|| !is_array($arGadgetParams["ORDERS_STATUS_1"])
 										|| in_array($status_code, $arGadgetParams["ORDERS_STATUS_1"])
 									)
 									{
@@ -598,7 +610,8 @@ $tabControl = new CAdminViewTabControl("saleTabControl_".$arGadgetParams["RND_ST
 								<td><?=GetMessage("GD_ORDERS_BEFORELASTMONTH")?></td><?
 								foreach($arStatus1 as $status_code => $arStatus)
 									if (
-										!is_array($arGadgetParams["ORDERS_STATUS_1"])
+										!isset($arGadgetParams["ORDERS_STATUS_1"])
+										|| !is_array($arGadgetParams["ORDERS_STATUS_1"])
 										|| in_array($status_code, $arGadgetParams["ORDERS_STATUS_1"])
 									)
 									{

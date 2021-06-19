@@ -8,8 +8,6 @@ use \Bitrix\Main\Localization\Loc;
 
 Loc::loadLanguageFile(__FILE__);
 
-$buttons = \Bitrix\Landing\Hook\Page\B24button::getButtons();
-$buttons = array_keys($buttons);
 
 return array(
 	'code' => 'store-chats-light',
@@ -24,9 +22,9 @@ return array(
 	'show_in_list' => 'Y',
 	'type' => 'store',
 	'sort' => 10,
+	'lock_delete' => true,
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
-			'B24BUTTON_CODE' => $buttons[0],
 			'VIEW_USE' => 'Y',
 			'VIEW_TYPE' => 'mobile',
 			'UP_SHOW' => 'Y',
@@ -49,6 +47,7 @@ return array(
 	),
 	'syspages' => array(
 		'order' => 'store-chats-light/order',
+		'feedback' => 'store-chats-light/cutaway',
 	),
 	'items' => array(
 		0 => 'store-chats-light/mainpage',

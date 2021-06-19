@@ -795,13 +795,6 @@ class CAllForumTopic
 
 	public static function CleanUp($period = 168)
 	{
-		global $DB;
-		$period = intval($period)*3600;
-		$date = $DB->CharToDateFunction($DB->ForSql(Date(CDatabase::DateFormatToPHP(CLang::GetDateFormat("FULL", LANG)), time()-$period)), "FULL") ;
-		$strSQL = "DELETE FROM b_forum_user_topic
-					WHERE (LAST_VISIT
-					< ".$date.")";
-		$DB->Query($strSQL, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		return "CForumTopic::CleanUp();";
 	}
 
@@ -849,8 +842,8 @@ class CAllForumTopic
 			{
 				$GLOBALS["DB"]->Query("UPDATE b_forum_message SET NEW_TOPIC = (CASE WHEN ID=".intval($res["ABS_FIRST_MESSAGE_ID"])." THEN 'Y' ELSE 'N' END) WHERE TOPIC_ID=".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-				CForumMessage::Reindex($res["ABS_FIRST_MESSAGE_ID"], ($messFirst = array()));
-				CForumMessage::Reindex($res["FIRST_MESSAGE_ID"], ($mess = array()));
+				CForumMessage::Reindex($res["ABS_FIRST_MESSAGE_ID"]);
+				CForumMessage::Reindex($res["FIRST_MESSAGE_ID"]);
 			}
 
 			$arFields = array(
@@ -1019,11 +1012,11 @@ class _CTopicDBResult extends CDBResult
 	private $noFilter = false;
 	private static $icons;
 
-	function _CTopicDBResult($res, $params = array())
+	public function __construct($res, $params = array())
 	{
 		$this->sNameTemplate = (!empty($params["sNameTemplate"]) ? $params["sNameTemplate"] : '');
 		$this->noFilter = (array_key_exists('NoFilter', $params) && $params['NoFilter'] === true);
-		parent::CDBResult($res);
+		parent::__construct($res);
 	}
 	protected static function getIcon($iconTyping)
 	{
@@ -1053,7 +1046,7 @@ class _CTopicDBResult extends CDBResult
 				{
 					if (!empty($res["HTML"]))
 					{
-						$arr = unserialize($res["HTML"]);
+						$arr = unserialize($res["HTML"], ["allowed_classes" => false]);
 						if (is_array($arr) && is_set($arr, "TITLE"))
 						{
 							foreach ($arr as $key => $val)
@@ -1065,7 +1058,7 @@ class _CTopicDBResult extends CDBResult
 					}
 					if (!empty($res["F_HTML"]))
 					{
-						$arr = unserialize($res["F_HTML"]);
+						$arr = unserialize($res["F_HTML"], ["allowed_classes" => false]);
 						if (is_array($arr))
 						{
 							foreach ($arr as $key => $val)

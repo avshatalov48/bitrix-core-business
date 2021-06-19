@@ -201,9 +201,9 @@ export const FieldPlanner =
 						initUserSelector()
 						{
 							this.userSelector = new TagSelector({
-								id: 'tag-selector',
+								id: 'user-tag-selector',
 								dialogOptions: {
-									id: 'tag-selector',
+									id: 'user-tag-selector',
 									preselectedItems: this.userListForSelector,
 									undeselectedItems: [['user', this.chatHost.ID]],
 									events: {

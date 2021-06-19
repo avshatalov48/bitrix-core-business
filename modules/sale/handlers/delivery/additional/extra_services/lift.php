@@ -17,7 +17,7 @@ class Lift extends Base
 		$this->params["TYPE"] = "STRING";
 	}
 
-	public function getClassTitle()
+	public static function getClassTitle()
 	{
 		return Loc::getMessage('SALE_DLVRS_ADD_ESL_TITLE');
 	}

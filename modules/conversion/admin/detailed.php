@@ -34,7 +34,8 @@ $rateName = $_GET['rate'] ?: $userOptions['rate'];
 
 if (! $rateType = $rateTypes[$rateName])
 {
-	list ($rateName, $rateType) = each($rateTypes);
+	$rateName = key($rateTypes);
+	$rateType = current($rateTypes);
 }
 
 // SITES
@@ -58,7 +59,8 @@ $site = $_GET['site'] ?: $userOptions['site'];
 
 if (! $siteName = $sites[$site])
 {
-	list ($site, $siteName) = each($sites);
+	$site = key($sites);
+	$siteName = current($sites);
 }
 
 // ATTRIBUTES
@@ -72,7 +74,8 @@ $attributeName = $_GET['split']; // different split in $userOptions from summary
 
 if (! $attributeType = $attributeTypes[$attributeName])
 {
-	list ($attributeName, $attributeType) = each($attributeTypes);
+	$attributeName = key($attributeTypes);
+	$attributeType = current($attributeTypes);
 }
 
 $attributeGroupTypes = AttributeGroupManager::getTypes();

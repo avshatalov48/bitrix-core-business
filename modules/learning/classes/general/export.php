@@ -19,7 +19,7 @@ class CCoursePackage
 	private $replacingResId;
 
 	// 2012-04-18 Checked/modified for compatibility with new data model
-	function CCoursePackage($COURSE_ID)
+	public function __construct($COURSE_ID)
 	{
 		global $DB;
 		$this->ID = intval($COURSE_ID);

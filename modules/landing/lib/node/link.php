@@ -59,6 +59,13 @@ class Link extends \Bitrix\Landing\Node
 	 */
 	public static function saveNode(\Bitrix\Landing\Block $block, $selector, array $data)
 	{
+		$manifest = $block->getManifest();
+		$globalSkipContent = false;
+		if ($manifest['nodes'][$selector]['skipContent'] ?? false)
+		{
+			$globalSkipContent = true;
+		}
+
 		$doc = $block->getDom();
 		$resultList = $doc->querySelectorAll($selector);
 		$isIframe = self::isFrame();
@@ -70,7 +77,7 @@ class Link extends \Bitrix\Landing\Node
 			$query = (isset($value['query']) && is_string($value['query'])) ? trim($value['query']) : '';
 			$target = (isset($value['target']) && is_string($value['target'])) ? trim(mb_strtolower($value['target'])) : '';
 			$attrs = isset($value['attrs']) ? (array)$value['attrs'] : array();
-			$skipContent = isset($value['skipContent']) ? (boolean)$value['skipContent'] : false;
+			$skipContent = $globalSkipContent || (isset($value['skipContent']) ? (boolean)$value['skipContent'] : false);
 
 			if ($query)
 			{

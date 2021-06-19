@@ -1,4 +1,4 @@
-<?
+<?php
 
 require_once __DIR__."/../general/order_tax.php";
 
@@ -136,4 +136,3 @@ class CSaleOrderTax extends CAllSaleOrderTax
 		return $ID;
 	}
 }
-?>

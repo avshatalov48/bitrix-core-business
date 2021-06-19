@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CSaleMobileOrderUtils
@@ -33,7 +34,7 @@ class CSaleMobileOrderUtils
 		return $userCache[$userId];
 	}
 
-	function getMobileReports()
+	public static function getMobileReports()
 	{
 		define('COLUMNS_COUNT_FOR_SIMPLE_TEMPLATE', 3);
 		define('PATH_TO_MOBILE_REPORTS', '/bitrix/admin/mobile/sale_reports_view.php');
@@ -88,7 +89,7 @@ class CSaleMobileOrderUtils
 
 	//	RegisterModuleDependences("mobileapp", "OnBeforeAdminMobileMenuBuild",
 	//								"sale", "CSaleMobileOrderUtils", "buildSaleAdminMobileMenu");
-	function buildSaleAdminMobileMenu()
+	public static function buildSaleAdminMobileMenu()
 	{
 		$items = array(
 			array(
@@ -144,7 +145,7 @@ class CSaleMobileOrderUtils
 		return true;
 	}
 
-	function makeDetailClassFromOrder($arOrder)
+	public static function makeDetailClassFromOrder($arOrder)
 	{
 		$saleModulePermissions = $GLOBALS["APPLICATION"]->GetGroupRight("sale");
 
@@ -377,7 +378,7 @@ class CSaleMobileOrderUtils
 		return $mad->getHtml();
 	}
 
-	function getOrderInfoDetail($orderId)
+	public static function getOrderInfoDetail($orderId)
 	{
 		if(!$orderId)
 			return false;
@@ -438,7 +439,7 @@ class CSaleMobileOrderUtils
 		return $arOrder;
 	}
 
-	private function getOrderProps($arOrder)
+	private static function getOrderProps($arOrder)
 	{
 		$dbRes = \Bitrix\Sale\Internals\OrderPropsValueTable::getList(array(
 			'filter' => array('ORDER_ID' => $arOrder["ID"]),
@@ -490,7 +491,7 @@ class CSaleMobileOrderUtils
 		if($arCurrCache === false)
 		{
 			$arCurrCache = array();
-			$dbCurr = CCurrency::GetList(($by="sort"), ($order="asc"));
+			$dbCurr = CCurrency::GetList("sort", "asc");
 
 			while($arCurr = $dbCurr->Fetch())
 				$arCurrCache[$arCurr["CURRENCY"]] = $arCurr["FULL_NAME"];
@@ -553,7 +554,7 @@ class CSaleMobileOrderUtils
 		if($arSiteCache === false)
 		{
 			$arSiteCache = array();
-			$dbSite = CSite::GetList($by = "sort", $order = "asc", Array());
+			$dbSite = CSite::GetList();
 
 			while($arSite = $dbSite->Fetch())
 				$arSiteCache[$arSite["LID"]] = $arSite["NAME"];
@@ -621,7 +622,7 @@ class CSaleMobileOrderUtils
 		return $arStatusNames;
 	}
 
-	function getDateTime($strDate)
+	public static function getDateTime($strDate)
 	{
 		return FormatDateFromDB(
 			$strDate,
@@ -633,7 +634,7 @@ class CSaleMobileOrderUtils
 	 * @param string $strDate
 	 * @return string
 	 */
-	static function getDate($strDate)
+	public static function getDate($strDate)
 	{
 		return FormatDateFromDB(
 			$strDate,
@@ -641,7 +642,7 @@ class CSaleMobileOrderUtils
 		);
 	}
 
-	function getPreparedTemplate($template, $arFields)
+	public static function getPreparedTemplate($template, $arFields)
 	{
 		$retStr = $template;
 
@@ -719,7 +720,7 @@ class CSaleMobileOrderPull
 
 class CSaleMobileOrderFilter
 {
-	public function adaptFields($arFields)
+	public static function adaptFields($arFields)
 	{
 		foreach ($arFields as $fieldId => $fieldValue)
 		{
@@ -781,12 +782,12 @@ class CSaleMobileOrderFilter
 		return $arFields;
 	}
 
-	private function parseOrderId($strOrderId)
+	private static function parseOrderId($strOrderId)
 	{
 		return $arResult;
 	}
 
-	public function addLastTimeToDate($strDate)
+	public static function addLastTimeToDate($strDate)
 	{
 		$retStrDateTime = '';
 
@@ -808,7 +809,7 @@ class CSaleMobileOrderFilter
 		return $retStrDateTime;
 	}
 
-	public function setFieldsValues($arFields, $customFilter)
+	public static function setFieldsValues($arFields, $customFilter)
 	{
 		if(!is_array($arFields) || !is_array($customFilter))
 			return false;
@@ -819,7 +820,7 @@ class CSaleMobileOrderFilter
 		return $arFields;
 	}
 
-	public function buildFieldsParams()
+	public static function buildFieldsParams()
 	{
 		return array(
 			"ORDER_ID" => array(
@@ -1133,4 +1134,3 @@ class CSaleMobileOrderPush
 		return $result;
 	}
 }
-?>

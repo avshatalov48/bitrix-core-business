@@ -1,15 +1,17 @@
-<?
+<?php
+
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/rating_rules.php");
+
 IncludeModuleLangFile(__FILE__);
 
 class CRatingRulesMain extends CAllRatingRulesMain
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		return "<br>Class: CRatingRulesMain<br>File: ".__FILE__;
 	}
 
-	function voteCheck($arConfigs)
+	public static function voteCheck($arConfigs)
 	{
 		global $DB;
 			
@@ -164,4 +166,3 @@ class CRatingRulesMain extends CAllRatingRulesMain
 		return true;
 	}
 }
-?>

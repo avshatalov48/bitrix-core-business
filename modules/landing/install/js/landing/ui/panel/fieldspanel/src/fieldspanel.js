@@ -75,7 +75,11 @@ export class FieldsPanel extends Content
 
 				Object.entries(this.getCrmFields())
 					.forEach(([categoryId, category]) => {
-						if (categoryId !== 'CATALOG' && categoryId !== 'ACTIVITY')
+						if (
+							categoryId !== 'CATALOG'
+							&& categoryId !== 'ACTIVITY'
+							&& categoryId !== 'INVOICE'
+						)
 						{
 							if (
 								Type.isPlainObject(options)
@@ -131,15 +135,6 @@ export class FieldsPanel extends Content
 			this.disabledFields = options.disabledFields;
 		}
 
-		if (options.isLeadEnabled === false)
-		{
-			const leadButton = this.sidebarButtons.get('LEAD');
-			if (leadButton)
-			{
-				Dom.hide(leadButton.layout);
-			}
-		}
-
 		this.loadPromise
 			.then(() => {
 				if (Type.isArray(options.allowedTypes))
@@ -164,6 +159,29 @@ export class FieldsPanel extends Content
 						}, {});
 
 					this.setCrmFields(preparedCrmFields);
+				}
+
+				this.sidebarButtons.forEach((button) => {
+					Dom.show(button.layout);
+				});
+
+				if (options.isLeadEnabled === false)
+				{
+					const leadButton = this.sidebarButtons.get('LEAD');
+					if (leadButton)
+					{
+						Dom.hide(leadButton.layout);
+					}
+				}
+
+				if (Type.isArrayFilled(options.allowedCategories))
+				{
+					this.sidebarButtons.forEach((button) => {
+						if (!options.allowedCategories.includes(button.id))
+						{
+							Dom.hide(button.layout);
+						}
+					});
 				}
 
 				if (this.sidebarButtons.length > 0)

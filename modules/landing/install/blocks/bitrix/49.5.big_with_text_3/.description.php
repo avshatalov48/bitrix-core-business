@@ -47,7 +47,7 @@ return array(
 			),
 			'.landing-block-node-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_49_5--LANDINGBLOCKNODETITLE'),
-				'type' => 'typo',
+				'type' => ['typo', 'heading'],
 			),
 			'.landing-block-node-text' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_49_5--LANDINGBLOCKNODETEXT'),

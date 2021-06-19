@@ -176,9 +176,8 @@ final class VoteUserType
 			$settings["CHANNEL_ID"] = intval($settings["CHANNEL_ID"]);
 			if ($settings["CHANNEL_ID"] <= 0 && \Bitrix\Main\Loader::includeModule("vote"))
 			{
-				$isFiltered = "";
-				$dbRes = \CVoteChannel::GetList($by = "ID", $order = "ASC",
-					array("SYMBOLIC_NAME" => $settings["CHANNEL_SYMBOLIC_NAME"], "SYMBOLIC_NAME_EXACT_MATCH" => "Y"), $isFiltered);
+				$dbRes = \CVoteChannel::GetList('', '',
+					array("SYMBOLIC_NAME" => $settings["CHANNEL_SYMBOLIC_NAME"], "SYMBOLIC_NAME_EXACT_MATCH" => "Y"));
 				if (!($dbRes && ($channel = $dbRes->fetch()) && !!$channel))
 				{
 					$res = array(
@@ -192,11 +191,10 @@ final class VoteUserType
 						"SITE" => array(),
 						"GROUP_ID" => array()
 					);
-					$by = "sort"; $order = "asc";
-					$dbRes = \CSite::GetList($by, $order);
+					$dbRes = \CSite::GetList();
 					while ($site = $dbRes->getNext())
 						$res["SITE"][] = $site["ID"];
-					$dbRes = \CGroup::GetList($by = "sort", $order = "asc", Array("ADMIN" => "N"));
+					$dbRes = \CGroup::GetList("sort", "asc", Array("ADMIN" => "N"));
 					while ($group = $dbRes->getNext())
 						$res["GROUP_ID"][$group["ID"]] = ($group["ID"] == 2 ? 1 : 4);
 					$res["GROUP_ID"] = (is_array($settings["GROUP_ID"]) ? array_intersect_key($settings["GROUP_ID"], $res["GROUP_ID"]) : $res["GROUP_ID"]);
@@ -254,7 +252,7 @@ final class VoteUserType
 			$entity["NOTIFY"] = $userField["SETTINGS"]["NOTIFY"];
 		}
 		$value = (!empty($value) ? intval($value) : "add");
-		$dbRes = \CVoteChannel::GetList($by = "", $order = "", array("ACTIVE" => "Y"), $isFiltered);
+		$dbRes = \CVoteChannel::GetList("", "", array("ACTIVE" => "Y"));
 		$voteChannels = array("reference" => array(Loc::getMessage("V_NEW_CHANNEL")), "reference_id" => array("add"));
 		if ($dbRes && $res = $dbRes->fetch())
 		{
@@ -297,7 +295,7 @@ final class VoteUserType
 				?>id="CHANNEL_USE_CAPTCHA" <?if ($entity["CHANNEL_USE_CAPTCHA"] == "Y"): ?> checked <? endif;
 				?>value="Y" /> <label for="CHANNEL_USE_CAPTCHA"><?=Loc::getMessage("V_CHANNEL_ID_USE_CAPTCHA")?></label></td>
 		</tr><?
-		$dbRes = \CGroup::GetList($by = "sort", $order = "asc", Array("ADMIN" => "N"));
+		$dbRes = \CGroup::GetList("sort", "asc", Array("ADMIN" => "N"));
 		while ($group = $dbRes->getNext())
 		{
 			if($varsFromForm)

@@ -35,6 +35,4 @@ class RatingVote
 
 		return false;
 	}
-
 }
-?>

@@ -1160,7 +1160,7 @@ if (
 					$bIsUserExtranet = false;
 				else
 				{
-					$rsUser = CUser::GetList(($by="id"), ($order="asc"), array("ID" => $arResult["VARIABLES"]["user_id"]), array("SELECT" => array("UF_DEPARTMENT"), "FIELDS" => array("ID")));
+					$rsUser = CUser::GetList("id", "asc", array("ID" => $arResult["VARIABLES"]["user_id"]), array("SELECT" => array("UF_DEPARTMENT"), "FIELDS" => array("ID")));
 					if ($arUser = $rsUser->Fetch())
 						$bIsUserExtranet = (
 							(

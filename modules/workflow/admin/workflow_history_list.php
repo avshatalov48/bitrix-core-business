@@ -88,7 +88,7 @@ if ($arID = $lAdmin->GroupAction())
 {
 	if ($_REQUEST['action_target'] == 'selected')
 	{
-		$rsData = CWorkflow::GetList($by, $order, $arFilter, $is_filtered);
+		$rsData = CWorkflow::GetList('', '', $arFilter);
 		while ($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -162,7 +162,9 @@ $arHeaders = array(
 );
 $lAdmin->AddHeaders($arHeaders);
 
-$rsData = CWorkflow::GetHistoryList($by, $order, $arFilter, $is_filtered);
+global $by, $order;
+
+$rsData = CWorkflow::GetHistoryList($by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart(50);
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("FLOW_PAGES")));

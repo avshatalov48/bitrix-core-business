@@ -52,7 +52,7 @@ define(
 
 class CDeliveryRUSSIANPOST
 {
-	function Init()
+	public static function Init()
 	{
 		if (\Bitrix\Main\Loader::includeModule('currency') && $arCurrency = CCurrency::GetByID('RUR'))
 		{
@@ -106,7 +106,7 @@ class CDeliveryRUSSIANPOST
 		);
 	}
 
-	function GetConfig()
+	public static function GetConfig()
 	{
 		$arConfig = array(
 			"CONFIG_GROUPS" => array(
@@ -135,14 +135,14 @@ class CDeliveryRUSSIANPOST
 		return $arConfig;
 	}
 
-	function GetSettings($strSettings)
+	public static function GetSettings($strSettings)
 	{
 		return array(
 			"category" => intval($strSettings)
 		);
 	}
 
-	function SetSettings($arSettings)
+	public static function SetSettings($arSettings)
 	{
 		if(!isset($arSettings["category"]))
 			$arSettings["category"] = DELIVERY_RUSSIANPOST_CATEGORY_DEFAULT;
@@ -150,7 +150,7 @@ class CDeliveryRUSSIANPOST
 		return intval($arSettings["category"]);
 	}
 
-	function __GetLocation($location, $bGetZIP = false)
+	public static function __GetLocation($location, $bGetZIP = false)
 	{
 		$arLocation = CSaleHelper::getLocationByIdHitCached($location);
 
@@ -172,7 +172,7 @@ class CDeliveryRUSSIANPOST
 		return $arLocation;
 	}
 
-	function __GetCountry($arLocation)
+	public static function __GetCountry($arLocation)
 	{
 		static $arRUSSIANPOSTCountryList;
 
@@ -198,7 +198,7 @@ class CDeliveryRUSSIANPOST
 		}
 	}
 
-	function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
+	public static function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
 	{
 		if ($STEP >= 3)
 		{
@@ -415,7 +415,7 @@ class CDeliveryRUSSIANPOST
 		}
 	}
 
-	function Compability($arOrder, $arConfig)
+	public static function Compability($arOrder, $arConfig)
 	{
 		$arLocationFrom = CSaleHelper::getLocationByIdHitCached($arOrder["LOCATION_FROM"]);
 
@@ -444,7 +444,7 @@ class CDeliveryRUSSIANPOST
 		}
 	}
 
-	function __IsRussian($arLocation)
+	public static function __IsRussian($arLocation)
 	{
 		return
 			(ToUpper($arLocation["COUNTRY_NAME_ORIG"]) == "РОССИЯ"
@@ -463,7 +463,7 @@ class CDeliveryRUSSIANPOST
 		);
 	}
 
-	function __Write2Log($data)
+	public static function __Write2Log($data)
 	{
 		if (defined('DELIVERY_RUSSIANPOST_WRITE_LOG') && DELIVERY_RUSSIANPOST_WRITE_LOG === 1)
 		{
@@ -521,7 +521,7 @@ class CDeliveryRUSSIANPOST
 		return $result;
 	}
 
-	public function getAdminMessage()
+	public static function getAdminMessage()
 	{
 		return array(
 			'MESSAGE' => GetMessage(

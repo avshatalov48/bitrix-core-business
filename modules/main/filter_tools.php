@@ -55,7 +55,7 @@ function InitFilterEx($arName, $varName, $action="set", $session=true, $FilterLo
 			if(isset($$bdays) || isset($FILTER[$bdays]))
 			{
 				$FILTER[$bdays] = $$bdays;
-				if ($$bdays <> '' && $$bdays!="NOT_REF")
+				if ((string)$$bdays <> '' && $$bdays!="NOT_REF")
 					$$name = GetTime(time()-86400*intval($FILTER[$bdays]));
 			}
 
@@ -69,7 +69,7 @@ function InitFilterEx($arName, $varName, $action="set", $session=true, $FilterLo
 			if(isset($$direction) || isset($FILTER[$direction]))
 				$$direction = $FILTER[$direction];
 
-			if (isset($FILTER[$bdays]) && $FILTER[$bdays] <> '' && $FILTER[$bdays]!="NOT_REF")
+			if (isset($FILTER[$bdays]) && (string)$FILTER[$bdays] <> '' && $FILTER[$bdays]!="NOT_REF")
 			{
 				$$bdays = $FILTER[$bdays];
 				$$name = GetTime(time()-86400*intval($FILTER[$bdays]));
@@ -171,7 +171,7 @@ function GetFilterHiddens($var = "filter_", $button = array("filter" => "Y", "se
 					$res .= '<input type="hidden" name="'.htmlspecialcharsbx($var_name).'[]" value="'.htmlspecialcharsbx($v).'">';
 				}
 			}
-			elseif ($value <> '' && $value!="NOT_REF")
+			elseif ((string)$value <> '' && $value!="NOT_REF")
 			{
 				$res .= '<input type="hidden" name="'.htmlspecialcharsbx($var_name).'" value="'.htmlspecialcharsbx($value).'">';
 			}
@@ -227,7 +227,7 @@ function GetFilterParams($var="filter_", $bDoHtmlEncode=true, $button = array("f
 				foreach($value as $v)
 					$res .= "&".urlencode($var_name)."[]=".urlencode($v);
 			}
-			elseif($value <> '' && $value!="NOT_REF")
+			elseif((string)$value <> '' && $value!="NOT_REF")
 			{
 				$res .= "&".urlencode($var_name)."=".urlencode($value);
 			}
@@ -270,7 +270,7 @@ function GetFilterStr($arr, $button="set_filter")
 				}
 			}
 		}
-		elseif ($value <> '' && $value!="NOT_REF")
+		elseif ((string)$value <> '' && $value!="NOT_REF")
 		{
 			$str .= "&".urlencode($var)."=".urlencode($value);
 		}
@@ -300,7 +300,7 @@ function GetUrlFromArray($arr)
 				$str .= "&".$key.urlencode("[]")."=".urlencode($a);
 			}
 		}
-		elseif($value <> '' && $value!="NOT_REF")
+		elseif((string)$value <> '' && $value!="NOT_REF")
 		{
 			$str .= "&".$key."=".urlencode($value);
 		}

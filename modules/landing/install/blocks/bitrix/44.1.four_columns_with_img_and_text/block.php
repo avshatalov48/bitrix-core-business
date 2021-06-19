@@ -13,16 +13,17 @@
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pointer-events-none--parent-hover g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-px-30 g-pointer-events-all">
-							<h4 class="landing-block-node-card-title landing-semantic-subtitle-big h3 text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
+							<h3 class="landing-block-node-card-title landing-semantic-subtitle-big text-uppercase g-line-height-1 g-font-weight-700
+							info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3 g-mb-20">
 								<span style="font-weight: bold;" class="landing-semantic-subtitle-big g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">Small</span><br>
 								Objects
-							</h4>
+							</h3>
 							<div class="landing-block-node-card-text-unhover landing-semantic-text-medium info-v3-3__category g-font-size-11 text-uppercase">
 								Shipping & package
 							</div>
 
 							<div class="info-v3-3__content g-opacity-0_7">
-								<div class="landing-block-node-card-text landing-semantic-text-small g-color-white--parent-hover mb-0 text-uppercase g-font-size-11">
+								<div class="landing-block-node-card-text landing-semantic-text-small g-color-white--parent-hover mb-0">
 									Maecenas tempus, tellus eget condimentum rhoncus.
 								</div>
 							</div>
@@ -44,16 +45,17 @@
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pointer-events-none--parent-hover g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-px-30 g-pointer-events-all">
-							<h4 class="landing-block-node-card-title landing-semantic-subtitle-big h3 text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
+							<h3 class="landing-block-node-card-title landing-semantic-subtitle-big text-uppercase g-line-height-1 g-font-weight-700
+							info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3 g-mb-20">
 								<span style="font-weight: bold;" class="landing-semantic-subtitle-big g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">Medium</span><br>
 								Objects
-							</h4>
+							</h3>
 							<div class="landing-block-node-card-text-unhover landing-semantic-text-medium info-v3-3__category g-font-size-11 text-uppercase">
 								Shipping & package
 							</div>
 
 							<div class="info-v3-3__content g-opacity-0_7">
-								<div class="landing-block-node-card-text landing-semantic-text-small g-color-white--parent-hover mb-0 text-uppercase g-font-size-11">
+								<div class="landing-block-node-card-text landing-semantic-text-small g-color-white--parent-hover mb-0">
 									Maecenas tempus, tellus eget condimentum rhoncus.
 								</div>
 							</div>
@@ -75,16 +77,17 @@
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pointer-events-none--parent-hover g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-px-30 g-pointer-events-all">
-							<h4 class="landing-block-node-card-title landing-semantic-subtitle-big h3 text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
+							<h3 class="landing-block-node-card-title landing-semantic-subtitle-big text-uppercase g-line-height-1 g-font-weight-700
+							info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3 g-mb-20">
 								<span style="font-weight: bold;" class="landing-semantic-subtitle-big g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">Large</span><br>
 								Objects
-							</h4>
+							</h3>
 							<div class="landing-block-node-card-text-unhover landing-semantic-text-medium info-v3-3__category g-font-size-11 text-uppercase">
 								Shipping & package
 							</div>
 
 							<div class="info-v3-3__content g-opacity-0_7">
-								<div class="landing-block-node-card-text landing-semantic-text-small g-color-white--parent-hover mb-0 text-uppercase g-font-size-11">
+								<div class="landing-block-node-card-text landing-semantic-text-small g-color-white--parent-hover mb-0">
 									Maecenas tempus, tellus eget condimentum rhoncus.
 								</div>
 							</div>
@@ -106,16 +109,17 @@
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pointer-events-none--parent-hover g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-px-30 g-pointer-events-all">
-							<h4 class="landing-block-node-card-title landing-semantic-subtitle-big h3 text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
+							<h3 class="landing-block-node-card-title landing-semantic-subtitle-big text-uppercase g-line-height-1 g-font-weight-700
+							info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3 g-mb-20">
 								<span style="font-weight: bold;" class="landing-semantic-subtitle-big g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">XXXXL</span><br>
 								Objects
-							</h4>
+							</h3>
 							<div class="landing-block-node-card-text-unhover landing-semantic-text-medium info-v3-3__category g-font-size-11 text-uppercase">
 								Shipping & package
 							</div>
 
 							<div class="info-v3-3__content g-opacity-0_7">
-								<div class="landing-block-node-card-text landing-semantic-text-small g-color-white--parent-hover mb-0 text-uppercase g-font-size-11">
+								<div class="landing-block-node-card-text landing-semantic-text-small g-color-white--parent-hover mb-0">
 									Maecenas tempus, tellus eget condimentum rhoncus.
 								</div>
 							</div>

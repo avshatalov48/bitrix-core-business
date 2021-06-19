@@ -25,21 +25,23 @@ class LogFollow
 	 * @param array $params
 	 * @return true|false
 	 */
-	public static function checkDestinationsFollowStatus($params = array())
+	public static function checkDestinationsFollowStatus($params = [])
 	{
-		$logId = (isset($params['logId']) ? intval($params['logId']) : 0);
+		$logId = (isset($params['logId']) ? (int)$params['logId'] : 0);
 		if ($logId <= 0)
 		{
 			return false;
 		}
 
-		$destUserIdList = array();
-		$res = LogRightTable::getList(array(
-			'filter' => array(
+		$key = 'L' . $logId;
+
+		$destUserIdList = [];
+		$res = LogRightTable::getList([
+			'filter' => [
 				'LOG_ID' => $logId
-			),
-			'select' => array('GROUP_CODE')
-		));
+			],
+			'select' => [ 'GROUP_CODE' ]
+		]);
 		while ($logRight = $res->fetch())
 		{
 			if (preg_match('/^U(\d+)$/', $logRight['GROUP_CODE'], $matches))
@@ -49,26 +51,26 @@ class LogFollow
 		}
 
 		$defaultFollowValue = false;
-		$userFollowValue = array();
+		$userFollowValue = [];
 
 		if (!empty($destUserIdList))
 		{
-			$defaultFollowValue = LogFollowTable::getDefaultValue(array(
+			$defaultFollowValue = LogFollowTable::getDefaultValue([
 				'USER_ID' => false
-			));
+			]);
 
-			$res = LogFollowTable::getList(array(
-				'filter' => array(
-					'CODE' => array('**', 'L'.$logId),
+			$res = LogFollowTable::getList([
+				'filter' => [
+					'=CODE' => [ '**', $key ],
 					'@USER_ID' => $destUserIdList
-				),
-				'select' => array('CODE', 'TYPE', 'USER_ID')
-			));
+				],
+				'select' => [ 'CODE', 'TYPE', 'USER_ID' ]
+			]);
 			while($logFollow = $res->fetch())
 			{
 				if (!isset($userFollowValue[$logFollow['USER_ID']]))
 				{
-					$userFollowValue[$logFollow['USER_ID']] = array();
+					$userFollowValue[$logFollow['USER_ID']] = [];
 				}
 				$userFollowValue[$logFollow['USER_ID']][$logFollow['CODE']] = $logFollow['TYPE'];
 			}
@@ -76,29 +78,29 @@ class LogFollow
 
 		foreach($destUserIdList as $destUserId)
 		{
-			$subscribeTypeList = array();
+			$subscribeTypeList = [];
 
 			if (
 				(
 					!isset($userFollowValue[$destUserId])
-					&& $defaultFollowValue == 'N'
+					&& $defaultFollowValue === 'N'
 				)
 				|| (
 					isset($userFollowValue[$destUserId])
-					&& !isset($userFollowValue[$destUserId]['L'.$logId]) // && isset($userFollowValue[$destUserId]['**'])
-					&& $userFollowValue[$destUserId]['**'] == 'N'
+					&& !isset($userFollowValue[$destUserId][$key]) // && isset($userFollowValue[$destUserId]['**'])
+					&& $userFollowValue[$destUserId]['**'] === 'N'
 				)
 			)
 			{
 				$subscribeTypeList[] = 'FOLLOW';
 			}
 
-			\Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe(array(
+			\Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe([
 				'logId' => $logId,
 				'userId' => $destUserId,
 				'typeList' => $subscribeTypeList,
 				'followDate' => 'CURRENT'
-			));
+			]);
 
 		}
 

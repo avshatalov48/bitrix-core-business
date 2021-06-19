@@ -302,7 +302,7 @@ else
 			$arFilter["ACTIVE"] = "Y";
 		}
 
-		$dbUser = CUser::GetList(($by="id"), ($order="asc"), $arFilter, $arListParams);
+		$dbUser = CUser::GetList("id", "asc", $arFilter, $arListParams);
 		$arResult["User"] = $dbUser->GetNext();
 	}
 	else

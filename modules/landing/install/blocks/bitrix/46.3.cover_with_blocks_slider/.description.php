@@ -57,7 +57,7 @@ return array(
 			),
 			'.landing-block-node-card-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_46.3.COVER_WITH_BLOCKS_SLIDER_NODES_LANDINGBLOCKNODECARDTITLE'),
-				'type' => array('typo', 'animation'),
+				'type' => ['typo', 'animation', 'heading'],
 			),
 			'.landing-block-node-card-subtitle' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_46.3.COVER_WITH_BLOCKS_SLIDER_NODES_LANDINGBLOCKNODECARDSUBTITLE'),

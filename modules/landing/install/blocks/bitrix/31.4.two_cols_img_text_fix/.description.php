@@ -6,47 +6,51 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
-return array(
-	'block' => array(
+return [
+	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_31.4.TWO_COLS_TEXT_IMG_FIX_NAME'),
-		'section' => array('text_image'),
-	),
-	'cards' => array(),
-	'nodes' => array(
-		'.landing-block-node-title' => array(
+		'section' => ['text_image', 'recommended'],
+	],
+	'cards' => [],
+	'nodes' => [
+		'.landing-block-node-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_31.4.TWO_COLS_TEXT_IMG_FIX_NODES_LANDINGBLOCKNODETITLE'),
 			'type' => 'text',
-		),
-		'.landing-block-node-text' => array(
+		],
+		'.landing-block-node-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_31.4.TWO_COLS_TEXT_IMG_FIX_NODES_LANDINGBLOCKNODETEXT'),
 			'type' => 'text',
-		),
-		'.landing-block-node-img' => array(
+		],
+		'.landing-block-node-img' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_31.4.TWO_COLS_TEXT_IMG_FIX_NODES_LANDINGBLOCKNODEIMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 540),
-		),
-	),
-	'style' => array(
-		'.landing-block-node-text-container' => array(
+			'dimensions' => ['width' => 540],
+		],
+	],
+	'style' => [
+		'.landing-block-node-text-container' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_31.4.TWO_COLS_TEXT_IMG_FIX_NODES_LANDINGBLOCKNODETEXT'),
-			'type' => array('animation'),
-		),
-		'.landing-block-node-title' => array(
+			'type' => ['animation'],
+		],
+		'.landing-block-node-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_31.4.TWO_COLS_TEXT_IMG_FIX_NODES_LANDINGBLOCKNODETITLE'),
-			'type' => array('typo'),
-		),
-		'.landing-block-node-text' => array(
+			'type' => ['typo', 'heading'],
+		],
+		'.landing-block-node-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_31.4.TWO_COLS_TEXT_IMG_FIX_NODES_LANDINGBLOCKNODETEXT'),
-			'type' => array('typo'),
-		),
-		'.landing-block-node-img' => array(
+			'type' => ['typo'],
+		],
+		'.landing-block-node-img' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_31.4.TWO_COLS_TEXT_IMG_FIX_NODES_LANDINGBLOCKNODEIMG'),
 			'type' => 'animation',
-		),
-		'.landing-block-node-block' => array(
+		],
+		'.landing-block-node-block' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_31.4.TWO_COLS_TEXT_IMG_FIX_NODES_LANDINGBLOCKNODEBLOCK'),
 			'type' => 'align-items',
-		),
-	),
-);
+		],
+		'.landing-block-node-container' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_31.4.TWO_COLS_TEXT_IMG_FIX_NODES_LANDINGBLOCKNODE_ELEMENT'),
+			'type' => ['container', 'padding-top', 'padding-bottom'],
+		],
+	],
+];

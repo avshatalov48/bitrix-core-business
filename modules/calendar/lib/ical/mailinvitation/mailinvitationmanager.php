@@ -9,6 +9,7 @@ use Bitrix\Calendar\ICal\Builder\Attendee;
 use Bitrix\Calendar\ICal\Builder\AttendeesCollection;
 use Bitrix\Calendar\ICal\Builder\AttachCollection;
 use Bitrix\Main\LoaderException;
+use Bitrix\Main\Localization\Loc;
 use CAgent;
 use CCalendarNotify;
 
@@ -27,9 +28,8 @@ class MailInvitationManager
 	 */
 	public static function manageSendingInvitation($serializedSenders): void
 	{
+		$serializedSenders = str_replace("\'", "'", $serializedSenders);
 		$sendersCollection = self::unserializeMailSendersBatch($serializedSenders);
-		$unsuccessfulSent = [];
-		$failSent = [];
 
 		if (!is_iterable($sendersCollection))
 		{
@@ -37,10 +37,13 @@ class MailInvitationManager
 		}
 		else
 		{
+			$unsuccessfulSent = [];
+			$failSent = [];
 			foreach ($sendersCollection as $sender)
 			{
 				if ($sender instanceof SenderInvitation)
 				{
+					self::setLanguageId();
 					$sender->incrementCounterInvitations();
 					$currentSender = clone $sender;
 
@@ -58,16 +61,16 @@ class MailInvitationManager
 					}
 				}
 			}
-		}
 
-		if (count($unsuccessfulSent) > 0)
-		{
-			self::createAgentSent($unsuccessfulSent);
-		}
+			if (count($unsuccessfulSent) > 0)
+			{
+				self::createAgentSent($unsuccessfulSent);
+			}
 
-		if (count($failSent) > 0)
-		{
-			self::sentFailSentNotify($failSent);
+			if (count($failSent) > 0)
+			{
+				self::sentFailSentNotify($failSent);
+			}
 		}
 	}
 
@@ -92,9 +95,10 @@ class MailInvitationManager
 	 */
 	public static function createAgentSent(array $sendersCollection): void
 	{
+		$serializedData = str_replace("'", "\'", serialize($sendersCollection));
 //		$nextAgentDate = DateTime::createFromTimestamp(strtotime('now') + 10)->format(Date::convertFormatToPhp(FORMAT_DATETIME));
 		CAgent::addAgent(
-			"\\Bitrix\\Calendar\\ICal\\MailInvitation\\MailInvitationManager::manageSendingInvitation('" . serialize($sendersCollection) . "');",
+			"\\Bitrix\\Calendar\\ICal\\MailInvitation\\MailInvitationManager::manageSendingInvitation('" . $serializedData . "');",
 			"calendar",
 			"N",
 			0,
@@ -141,5 +145,19 @@ class MailInvitationManager
 			SenderCancelInvitation::class,
 			Context::class
 		]]);
+	}
+
+	/**
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	private static function setLanguageId(): void
+	{
+		$siteDb = \Bitrix\Main\SiteTable::getById(SITE_ID);
+		if ($site = $siteDb->fetchObject())
+		{
+			Loc::setCurrentLang($site->getLanguageId());
+		}
 	}
 }

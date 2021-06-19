@@ -16,7 +16,7 @@ class CUserTypeBoolean extends TypeBase
 	const DISPLAY_RADIO = BooleanType::DISPLAY_RADIO;
 	const DISPLAY_CHECKBOX = BooleanType::DISPLAY_CHECKBOX;
 
-	function GetUserTypeDescription()
+	public static function GetUserTypeDescription()
 	{
 		return BooleanType::getUserTypeDescription();
 	}
@@ -72,7 +72,7 @@ class CUserTypeBoolean extends TypeBase
 		return BooleanType::getLabels($userField);
 	}
 
-	function getDbColumnType($userField)
+	public static function getDbColumnType($userField)
 	{
 		return BooleanType::getDbColumnType();
 	}

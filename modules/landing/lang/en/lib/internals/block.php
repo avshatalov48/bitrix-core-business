@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_TABLE_FIELD_ACCESS"] = "Block access permissions";
 $MESS["LANDING_TABLE_FIELD_ACTIVE"] = "Active";
 $MESS["LANDING_TABLE_FIELD_ANCHOR"] = "Anchor";
@@ -9,6 +9,7 @@ $MESS["LANDING_TABLE_FIELD_CREATED_BY_ID"] = "Created by user ID";
 $MESS["LANDING_TABLE_FIELD_DATE_CREATE"] = "Created on";
 $MESS["LANDING_TABLE_FIELD_DATE_MODIFY"] = "Modified on";
 $MESS["LANDING_TABLE_FIELD_DELETED"] = "Deleted or not";
+$MESS["LANDING_TABLE_FIELD_DESIGNED"] = "Block was modified by user";
 $MESS["LANDING_TABLE_FIELD_INITIATOR_APP_CODE"] = "Parent application code";
 $MESS["LANDING_TABLE_FIELD_LID"] = "Landing ID";
 $MESS["LANDING_TABLE_FIELD_MODIFIED_BY_ID"] = "Modified by user ID";
@@ -17,4 +18,4 @@ $MESS["LANDING_TABLE_FIELD_PUBLIC"] = "Public";
 $MESS["LANDING_TABLE_FIELD_SEARCH_CONTENT"] = "Contents of the block for search";
 $MESS["LANDING_TABLE_FIELD_SORT"] = "Sort";
 $MESS["LANDING_TABLE_FIELD_SOURCE_PARAMS"] = "Dynamic source parameters";
-?>
+$MESS["LANDING_TABLE_FIELD_XML_ID"] = "External ID";

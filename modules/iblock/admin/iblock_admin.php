@@ -42,7 +42,7 @@ $arFilter = array(
 );
 
 /* Prepare data for new filter */
-$queryObject = CLang::getList($b = "sort", $o = "asc", array("VISIBLE" => "Y"));
+$queryObject = CLang::getList("sort", "asc", array("VISIBLE" => "Y"));
 $listLang = array();
 while($lang = $queryObject->getNext())
 	$listLang[$lang["LID"]] = $lang["NAME"];

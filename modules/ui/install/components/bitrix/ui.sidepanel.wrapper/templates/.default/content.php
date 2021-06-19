@@ -1,5 +1,9 @@
 <?php
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+
+if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /** @var $this \CBitrixComponentTemplate */
 /** @var \CAllMain $APPLICATION */
@@ -16,10 +20,13 @@ elseif (!empty($arParams['~CONTENT']))
 }
 else
 {
-	$APPLICATION->IncludeComponent(
-		$arParams['POPUP_COMPONENT_NAME'],
-		$arParams['POPUP_COMPONENT_TEMPLATE_NAME'],
-		$arParams['POPUP_COMPONENT_PARAMS'],
-		$arParams['POPUP_COMPONENT_PARENT']
-	);
+	foreach ($arResult['SLIDER_COMPONENT_NAME_LIST'] as $key => $componentName)
+	{
+		$APPLICATION->IncludeComponent(
+			$componentName,
+			$arResult['SLIDER_COMPONENT_TEMPLATE_LIST'][$key],
+			$arResult['SLIDER_COMPONENT_PARAMS_LIST'][$key],
+			$arParams['POPUP_COMPONENT_PARENT']
+		);
+	}
 }

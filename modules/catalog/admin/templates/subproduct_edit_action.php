@@ -462,8 +462,8 @@ if ($USER->CanDoOperation('catalog_price'))
 						$arAvailContentGroups = explode(",", $availContentGroups);
 
 					$dbGroups = CGroup::GetList(
-						($b = "c_sort"),
-						($o = "asc"),
+						"c_sort",
+						"asc",
 						array("ANONYMOUS" => "N")
 					);
 					while ($arGroup = $dbGroups->Fetch())

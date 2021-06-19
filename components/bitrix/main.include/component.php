@@ -12,11 +12,11 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /************************************************************************************************************/
 
 //$arParams["EDIT_MODE"] = in_array($arParams["EDIT_MODE"], array("php", "html", "text")) ? $arParams["EDIT_MODE"] : "html";
-$arParams["EDIT_TEMPLATE"] = $arParams["EDIT_TEMPLATE"] <> '' ? $arParams["EDIT_TEMPLATE"] : $arParams["AREA_FILE_SHOW"]."_inc.php";
+$arParams["EDIT_TEMPLATE"] = ($arParams["EDIT_TEMPLATE"] ?? '') <> '' ? $arParams["EDIT_TEMPLATE"] : $arParams["AREA_FILE_SHOW"]."_inc.php";
 
 // check params values
 $bHasPath = ($arParams["AREA_FILE_SHOW"] == 'file');
-$sRealFilePath = $_SERVER["REAL_FILE_PATH"];
+$sRealFilePath = ($_SERVER["REAL_FILE_PATH"] ?? '');
 
 $io = CBXVirtualIo::GetInstance();
 

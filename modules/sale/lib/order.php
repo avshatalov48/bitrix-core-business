@@ -534,12 +534,6 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 
 			$discount = $this->getDiscount();
 			$discount->setCalculateShipments($shipment);
-
-			$r = $shipment->setField('PRICE_DELIVERY', $value);
-			if (!$r->isSuccess())
-			{
-				$result->addErrors($r->getErrors());
-			}
 		}
 		elseif ($name == "PRICE_DELIVERY")
 		{
@@ -599,6 +593,29 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 		}
 
 		return $result;
+	}
+
+	public function onTradeBindingCollectionModify($action, TradeBindingEntity $entity, $name = null, $oldValue = null, $value = null)
+	{
+		if ($action === EventActions::ADD)
+		{
+			if (
+				$entity->getId() === 0
+				&& $entity->getField('TRADING_PLATFORM_ID') > 0
+			)
+			{
+				$this->propertyCollection = $this->loadPropertyCollection();
+			}
+		}
+		elseif ($action === EventActions::UPDATE)
+		{
+			if ($name === 'TRADING_PLATFORM_ID')
+			{
+				$this->propertyCollection = $this->loadPropertyCollection();
+			}
+		}
+
+		return new Result();
 	}
 
 	/**
@@ -963,7 +980,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 		}
 		elseif ($action === EventActions::ADD)
 		{
-			if ((int)$payment->getId() === 0)
+			if ($payment->getId() === 0)
 			{
 				$this->getPropertyCollection()->refreshRelated();
 			}
@@ -2116,15 +2133,12 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentNullException
 	 */
-	public function getDeliveryIdList()
+	public function getDeliveryIdList() : array
 	{
-		$result = array();
-
-		/** @var ShipmentCollection $collection */
-		$collection = $this->getShipmentCollection();
+		$result = [];
 
 		/** @var Shipment $shipment */
-		foreach ($collection->getNotSystemItems() as $shipment)
+		foreach ($this->getShipmentCollection()->getNotSystemItems() as $shipment)
 		{
 			if ($shipment->getDeliveryId() > 0)
 			{
@@ -2137,19 +2151,13 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 
 	/**
 	 * @return array
-	 * @throws Main\ObjectNotFoundException
 	 */
-	public function getPaySystemIdList()
+	public function getPaySystemIdList() : array
 	{
-		$result = array();
-		/** @var PaymentCollection $paymentCollection */
-		if (!$paymentCollection = $this->getPaymentCollection())
-		{
-			throw new Main\ObjectNotFoundException('Entity "PaymentCollection" not found');
-		}
+		$result = [];
 
 		/** @var Payment $payment */
-		foreach ($paymentCollection as $payment)
+		foreach ($this->getPaymentCollection() as $payment)
 		{
 			if ($payment->getPaymentSystemId() > 0)
 			{
@@ -2192,11 +2200,13 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 	{
 		$result = parent::saveEntities();
 
-		/** @var PaymentCollection $paymentCollection */
-		$paymentCollection = $this->getPaymentCollection();
+		$r = $this->getShipmentCollection()->save();
+		if (!$r->isSuccess())
+		{
+			$result->addWarnings($r->getErrors());
+		}
 
-		/** @var Result $r */
-		$r = $paymentCollection->save();
+		$r = $this->getPaymentCollection()->save();
 		if (!$r->isSuccess())
 		{
 			$result->addWarnings($r->getErrors());
@@ -2205,21 +2215,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 		// user budget
 		Internals\UserBudgetPool::onUserBudgetSave($this->getUserId());
 
-		/** @var ShipmentCollection $shipmentCollection */
-		$shipmentCollection = $this->getShipmentCollection();
-
-		/** @var Result $r */
-		$r = $shipmentCollection->save();
-		if (!$r->isSuccess())
-		{
-			$result->addWarnings($r->getErrors());
-		}
-
-		/** @var TradeBindingCollection $tradeBindingCollection */
-		$tradeBindingCollection = $this->getTradeBindingCollection();
-
-		/** @var Result $r */
-		$r = $tradeBindingCollection->save();
+		$r = $this->getTradeBindingCollection()->save();
 		if (!$r->isSuccess())
 		{
 			$result->addWarnings($r->getErrors());

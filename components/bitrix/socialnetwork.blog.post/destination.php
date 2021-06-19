@@ -13,9 +13,11 @@
 
 $arResult["SELECTOR_VERSION"] = (!empty($arParams["SELECTOR_VERSION"]) ? intval($arParams["SELECTOR_VERSION"]) : 1);
 
-$user_id = intval($USER->GetID());
+$user_id = (int)$USER->GetID();
 
-$arResult["FEED_DESTINATION"] = array();
+$arResult["FEED_DESTINATION"] = [];
+
+$bAllowToAll = \Bitrix\Socialnetwork\ComponentHelper::getAllowToAllDestination();
 
 if ($arResult["SELECTOR_VERSION"] < 2)
 {
@@ -87,8 +89,6 @@ if ($arResult["SELECTOR_VERSION"] < 2)
 
 	$arResult["FEED_DESTINATION"]['SELECTED'] = Array();
 
-	$bAllowToAll = \Bitrix\Socialnetwork\ComponentHelper::getAllowToAllDestination();
-
 	if ($arResult["bExtranetUser"])
 	{
 		if(!empty($arResult["FEED_DESTINATION"]['LAST']['SONETGROUPS']))
@@ -146,6 +146,7 @@ if ($arResult["SELECTOR_VERSION"] < 2)
 	$arResult["FEED_DESTINATION"]['DEPARTMENT_RELATION_HEAD'] = $arStructure['department_relation_head'];
 
 	$arResult["FEED_DESTINATION"]["USERS_VACATION"] = Bitrix\Socialnetwork\Integration\Intranet\Absence\User::getDayVacationList();
-	$arResult["FEED_DESTINATION"]["DENY_TOALL"] = !$bAllowToAll;
 }
+
+$arResult["FEED_DESTINATION"]["DENY_TOALL"] = !$bAllowToAll;
 ?>

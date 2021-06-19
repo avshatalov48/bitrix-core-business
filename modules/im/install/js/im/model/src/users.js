@@ -112,6 +112,27 @@ export class UsersModel extends VuexBuilderModel
 			getBlank: state => params =>
 			{
 				return this.getElementState(params);
+			},
+			getList: state => (userList) => {
+				const result = [];
+
+				if (!Array.isArray(userList))
+				{
+					return null;
+				}
+
+				userList.forEach(id => {
+					if (state.collection[id])
+					{
+						result.push(state.collection[id]);
+					}
+					else
+					{
+						result.push(this.getElementState({id}));
+					}
+				});
+
+				return result;
 			}
 		}
 	}
@@ -187,7 +208,7 @@ export class UsersModel extends VuexBuilderModel
 				{
 					this.initCollection(state, {id: element.id});
 
-					state.collection[element.id] = element;
+					state.collection[element.id] = Object.assign(state.collection[element.id], element);
 
 					let status = Utils.user.getOnlineStatus(element);
 					if (status.isOnline)

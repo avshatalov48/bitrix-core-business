@@ -149,8 +149,8 @@ if ($_REQUEST["post_id"] > 0 && !empty($_REQUEST["name"]) && !empty($_REQUEST["v
 					}
 
 					$res = CUser::GetList(
-						($by = "ID"),
-						($order = "ASC"),
+						"ID",
+						"ASC",
 						array("ID" => implode("|", $arUserId)),
 						$arSelect
 					);

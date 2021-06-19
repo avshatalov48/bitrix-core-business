@@ -83,7 +83,7 @@ function CheckFilter()
 
 $arSites = array();
 $ref = $ref_id = array();
-$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 {
 	$ref[] = $ar["ID"];
@@ -229,7 +229,9 @@ else
 		$GLOBALS["lAdmin"]->AddFilterError(GetMessage("STAT_FILTER_ERROR").": ".$e->GetString());
 }
 
-$rsData = CGuest::GetList($by, $order, $arFilter, $is_filtered);
+global $by, $order;
+
+$rsData = CGuest::GetList($by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 

@@ -506,8 +506,8 @@ class CBPApproveActivity
 		if (count($ar) > 0)
 		{
 			$dbUsers = CUser::GetList(
-				($b = ""),
-				($o = ""),
+				"",
+				"",
 				array("ID" => implode('|', $ar)),
 				array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'TITLE'))
 			);

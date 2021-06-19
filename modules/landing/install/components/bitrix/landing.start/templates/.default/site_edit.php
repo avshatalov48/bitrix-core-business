@@ -4,7 +4,12 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
-$request = \bitrix\Main\HttpContext::getCurrent()->getRequest();
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var \CMain $APPLICATION */
+/** @var \CBitrixComponent $component */
+
+$request = \Bitrix\Main\HttpContext::getCurrent()->getRequest();
 
 $arParams['PAGE_URL_SITE_EDIT'] = str_replace(
 	'#site_edit#',
@@ -48,6 +53,18 @@ if ($arParams['TYPE'] != 'STORE')
 			'PAGE_URL_BACK' => $arParams['PAGE_URL_SITE_EDIT'],
 			'DISABLE_REDIRECT' => $notRedirectToEdit,
 			'DONT_LEAVE_FRAME' => $arParams['EDIT_DONT_LEAVE_FRAME']
+		),
+		$component
+	);?>
+
+<?elseif ($request->get('super') == 'Y'):?>
+
+	<?$APPLICATION->IncludeComponent(
+		'bitrix:landing.site_master',
+		'teaser',
+		array(
+			'GET_DATA' => 'N',
+			'PAGE_URL_SITE_MASTER' => $arParams['PAGE_URL_SITE_MASTER']
 		),
 		$component
 	);?>

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BLOG_BUTTON_SEND"] = "Отправить";
 $MESS["BLOG_BUTTON_PUBLISH"] = "Опубликовать";
 $MESS["BLOG_BUTTON_CANCEL"] = "Отменить";
@@ -39,4 +39,4 @@ $MESS["IMPORTANT_FOR_TWO_DAYS"] = "два дня";
 $MESS["IMPORTANT_FOR_WEEK"] = "неделю";
 $MESS["IMPORTANT_FOR_MONTH"] = "месяц";
 $MESS["IMPORTANT_FOR_CUSTOM"] = "до точной даты";
-?>
+$MESS["BLOG_POST_EDIT_T_GRAT_ERROR_NO_EMPLOYEES"] = "Не выбрано ни одного сотрудника для награждения.";

@@ -19,7 +19,7 @@ elseif(isset($_POST["YANDEX_MARKET_OFF"]))
 
 $siteList = array();
 $defaultSite = "";
-$rsSites = CSite::GetList($by = "sort", $order = "asc", Array());
+$rsSites = CSite::GetList();
 
 while($arRes = $rsSites->Fetch())
 {

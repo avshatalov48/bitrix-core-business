@@ -12,3 +12,30 @@ export const ConferenceFieldState = Object.freeze({
 	edit: 'edit',
 	create: 'create'
 });
+
+export const ConferenceStateType = Object.freeze({
+	preparation: 'preparation',
+	call: 'call'
+});
+
+export const ConferenceErrorCode = Object.freeze({
+	userLimitReached: 'userLimitReached',
+	detectIntranetUser: 'detectIntranetUser',
+	bitrix24only: 'bitrix24only',
+	kickedFromCall: 'kickedFromCall',
+	unsupportedBrowser: 'unsupportedBrowser',
+	missingMicrophone: 'missingMicrophone',
+	unsafeConnection: 'unsafeConnection',
+	wrongAlias: 'wrongAlias',
+	notStarted: 'notStarted',
+	finished: 'finished',
+	userLeftCall: 'userLeftCall',
+	noSignalFromCamera: 'noSignalFromCamera'
+});
+
+export const ConferenceRightPanelMode = Object.freeze({
+	hidden: 'hidden',
+	chat: 'chat',
+	users: 'users',
+	split: 'split'
+});

@@ -45,12 +45,6 @@ if ($arParams["DOCUMENT_ID"] == '')
 		"text" => GetMessage("BPATT_NO_DOCUMENT_TYPE"));
 $documentType = array($arParams["MODULE_ID"], $arParams["ENTITY"], $arParams["DOCUMENT_ID"]);
 $arParams["USER_GROUPS"] = $GLOBALS["USER"]->GetUserGroupArray();
-if (method_exists($arParams["DOCUMENT_TYPE"][1], "GetUserGroups"))
-{
-	$arParams["USER_GROUPS"] = call_user_func_array(
-		array($arParams["ENTITY"], "GetUserGroups"), 
-		array($documentType, $arParams["DOCUMENT_ID"], $GLOBALS["USER"]->GetID()));
-}
 
 if (empty($arError))
 {

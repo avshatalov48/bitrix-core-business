@@ -27,6 +27,9 @@ class ConferenceTable extends Main\Entity\DataManager
 			new Entity\TextField('INVITATION'),
 			new Entity\DatetimeField('CONFERENCE_START'),
 			new Entity\DatetimeField('CONFERENCE_END'),
+			new Entity\StringField('IS_BROADCAST', array(
+				'default_value' => 'N'
+			)),
 			new Entity\ReferenceField(
 				'ALIAS',
 				'Bitrix\Im\Model\AliasTable',

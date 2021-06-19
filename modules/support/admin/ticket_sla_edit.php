@@ -83,8 +83,11 @@ $message = false;
 if (($save <> '' || $apply <> '') && $bAdmin=="Y" && $_SERVER["REQUEST_METHOD"]=="POST" && check_bitrix_sessid())
 {
 	$arFields = array("arSITES"=>Array(), "arGROUPS"=>Array(), "arMARKS"=>Array(), "arCATEGORIES"=>Array(), "arCRITICALITIES"=>Array());
-	reset($_POST);
-	while(list($key, $value) = each($_POST)) $arFields[$key] = $value;
+
+	foreach ($_POST as $key => $value)
+	{
+		$arFields[$key] = $value;
+	}
 
 	/*
 	for($i=0; $i<=6; $i++)
@@ -153,16 +156,16 @@ if (($save <> '' || $apply <> '') && $bAdmin=="Y" && $_SERVER["REQUEST_METHOD"]=
 }
 
 $arrSites = array();
-$rs = CSite::GetList(($by="sort"), ($order="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch()) 
 	$arrSites[$ar["ID"]] = $ar;
 
 $arCategory = $arMark = $arCriticality = array();
-$rs = CTicketDictionary::GetList($v3="s_dropdown", $v4, array("TYPE" => "C"), $v5);
+$rs = CTicketDictionary::GetList("s_dropdown", '', array("TYPE" => "C"));
 while($ar = $rs->Fetch()) $arCategory[] = $ar;
-$rs = CTicketDictionary::GetList($v3="s_dropdown", $v4, array("TYPE" => "K"), $v5);
+$rs = CTicketDictionary::GetList("s_dropdown", '', array("TYPE" => "K"));
 while($ar = $rs->Fetch()) $arCriticality[] = $ar;
-$rs = CTicketDictionary::GetList($v3="s_dropdown", $v4, array("TYPE" => "M"), $v5);
+$rs = CTicketDictionary::GetList("s_dropdown", '', array("TYPE" => "M"));
 while($ar = $rs->Fetch()) $arMark[] = $ar;
 
 $rs = CTicketSLA::GetByID($ID);
@@ -268,8 +271,7 @@ var arCriticality = Array();
 var arMark = Array();
 var arCategory = Array();
 <?
-reset($arrSites);
-while(list($sid, $arrS) = each($arrSites)):
+foreach ($arrSites as $sid => $arrS):
 	
 	$rs = CTicketDictionary::GetDropDown("C", $sid);
 	$arr = array(); while($ar = $rs->Fetch()) $arr[] = $ar;
@@ -304,7 +306,7 @@ while(list($sid, $arrS) = each($arrSites)):
 			<?
 	endif;
 
-endwhile;
+endforeach;
 ?>
 
 function OnSiteClick()
@@ -433,8 +435,7 @@ function OnSiteClick()
 					<div class="adm-list-label"><label for="all_sites">(<?=GetMessage("SUP_ALL_CURRENT_FUTURE")?>)</label></div>
 				</div>
 			<?
-			reset($arrSites);
-			while(list($sid, $arrS) = each($arrSites)):
+			foreach ($arrSites as $sid => $arrS):
 				$checked = ((is_array($arSITES) && in_array($sid, $arSITES)) || ($ID<=0 && $def_site_id==$sid)) ? "checked" : "";
 				/*<?=$disabled?>*/
 				?>
@@ -443,7 +444,7 @@ function OnSiteClick()
 					<div class="adm-list-label"><label for="<?=htmlspecialcharsbx($sid)?>"><?echo '[<a title="'.GetMessage("MAIN_ADMIN_MENU_EDIT").'" href="/bitrix/admin/site_edit.php?LID='.htmlspecialcharsbx($sid).'&lang='.LANGUAGE_ID.'">'.htmlspecialcharsex($sid).'</a>]&nbsp;'.htmlspecialcharsex($arrS["NAME"])?></label></div>
 				</div>
 				<?
-			endwhile;
+			endforeach;
 			?></div>
 		</td>
 	</tr>
@@ -555,7 +556,7 @@ function OnSiteClick()
 		<td align="right" valign="top" width="40%"><?=GetMessage("SUP_USER_GROUPS")?>:</td>
 		<td width="60%">
 			<div class="adm-list"><?
-			$rs = CGroup::GetList($v1="sort", $v2="asc", array());
+			$rs = CGroup::GetList("sort", "asc");
 			$idR = 0;
 			while($ar = $rs->Fetch()):
 				$arRoles = $APPLICATION->GetUserRoles("support", array(intval($ar["ID"])), "Y", "N");

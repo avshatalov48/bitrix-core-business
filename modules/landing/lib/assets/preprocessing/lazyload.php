@@ -38,7 +38,7 @@ class Lazyload
 
 	protected function parse(): void
 	{
-		if(!$this->content)
+		if(!$this->content || !$this->manifest['nodes'])
 		{
 			return;
 		}

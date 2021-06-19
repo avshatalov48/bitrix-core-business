@@ -14,7 +14,8 @@ type BaseFormOptions = {
 		state: boolean,
 		help?: string,
 	},
-	fields: Array<BaseField>
+	fields: Array<BaseField>,
+	hidden?: boolean,
 };
 
 export default BaseFormOptions;

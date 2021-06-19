@@ -483,10 +483,10 @@ class Demos
 			{
 				$row['DATE_MODIFY'] = (string) $row['DATE_MODIFY'];
 			}
-			$row['MANIFEST'] = unserialize($row['MANIFEST']);
+			$row['MANIFEST'] = unserialize($row['MANIFEST'], ['allowed_classes' => false]);
 			if ($row['LANG'])
 			{
-				$row['LANG'] = unserialize($row['LANG']);
+				$row['LANG'] = unserialize($row['LANG'], ['allowed_classes' => false]);
 			}
 			$data[] = $row;
 		}

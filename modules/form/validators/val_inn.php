@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CFormValidatorINN
 {
-	function GetDescription()
+	public static function GetDescription()
 	{
 		return array(
 			"NAME" => "INN", // validator string ID
@@ -16,7 +17,7 @@ class CFormValidatorINN
 		);
 	}
 
-	function GetSettings()
+	public static function GetSettings()
 	{
 		return array(
 			"TYPE" => array(
@@ -32,7 +33,7 @@ class CFormValidatorINN
 		);
 	}
 
-	function ToDB($arParams)
+	public static function ToDB($arParams)
 	{
 		$arPar = array(
 			"TYPE" => $arParams["TYPE"] == "phys" || $arParams["TYPE"] == "jur"? $arParams["TYPE"] : "both"
@@ -41,12 +42,12 @@ class CFormValidatorINN
 		return serialize($arPar);
 	}
 
-	function FromDB($strParams)
+	public static function FromDB($strParams)
 	{
-		return unserialize($strParams);
+		return unserialize($strParams, ['allowed_classes' => false]);
 	}
 
-	function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
+	public static function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
 	{
 		global $APPLICATION;
 
@@ -107,7 +108,7 @@ class CFormValidatorINN
 		return true;
 	}
 
-	function __checkINN($value)
+	public static function __checkINN($value)
 	{
 		$arCheck = array(41,37,31,29,23,19,17,13,7,5,3);
 
@@ -151,4 +152,3 @@ class CFormValidatorINN
 }
 
 AddEventHandler("form", "onFormValidatorBuildList", array("CFormValidatorINN", "GetDescription"));
-?>

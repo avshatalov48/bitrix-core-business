@@ -5,10 +5,10 @@ use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Grid\Options as GridOptions;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Filter\Options as FilterOptions;
+use Bitrix\Sender\Access\ActionDictionary;
 use Bitrix\Sender\Connector;
 use Bitrix\Sender\Posting\SegmentDataBuilder;
 use Bitrix\Sender\Recipient;
-use Bitrix\Sender\Security;
 use Bitrix\Sender\UI\PageNavigation;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
@@ -23,7 +23,7 @@ if (!Bitrix\Main\Loader::includeModule('sender'))
 }
 Loc::loadMessages(__FILE__);
 
-class SenderConnectorResultListComponent extends CBitrixComponent
+class SenderConnectorResultListComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 {
 	/** @var ErrorCollection $errors */
 	protected $errors;
@@ -43,12 +43,6 @@ class SenderConnectorResultListComponent extends CBitrixComponent
 		$this->arParams['GRID_ID'] = isset($this->arParams['GRID_ID']) ? $this->arParams['GRID_ID'] : 'SENDER_CONTACT_LIST_GRID';
 		$this->arParams['FILTER_ID'] = isset($this->arParams['FILTER_ID']) ? $this->arParams['FILTER_ID'] : $this->arParams['GRID_ID'] . '_FILTER';
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] === 'Y' : true;
-
-		$this->arParams['CAN_VIEW'] = isset($this->arParams['CAN_VIEW'])
-			?
-			$this->arParams['CAN_VIEW']
-			:
-			Security\Access::getInstance()->canViewSegments();
 
 		if (!isset($this->arParams['ENDPOINT']))
 		{
@@ -80,12 +74,6 @@ class SenderConnectorResultListComponent extends CBitrixComponent
 		{
 			/**@var CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_CONTACT_LIST_TITLE1'));
-		}
-
-		if (!$this->arParams['CAN_VIEW'])
-		{
-			Security\AccessChecker::addError($this->errors);
-			return false;
 		}
 
 		$this->arResult['ERRORS'] = array();
@@ -314,30 +302,20 @@ class SenderConnectorResultListComponent extends CBitrixComponent
 			ShowError($error);
 		}
 	}
-
+	
 	public function executeComponent()
 	{
-		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Bitrix\Main\Loader::includeModule('sender'))
-		{
-			$this->errors->setError(new Error('Module `sender` is not installed.'));
-			$this->printErrors();
-			return;
-		}
-
-		$this->initParams();
-		if (!$this->checkRequiredParams())
-		{
-			$this->printErrors();
-			return;
-		}
-
-		if (!$this->prepareResult())
-		{
-			$this->printErrors();
-			return;
-		}
-
-		$this->includeComponentTemplate();
+		parent::executeComponent();
+		parent::prepareResultAndTemplate();
+	}
+	
+	public function getEditAction()
+	{
+		return ActionDictionary::ACTION_SEGMENT_CLIENT_VIEW;
+	}
+	
+	public function getViewAction()
+	{
+		return ActionDictionary::ACTION_SEGMENT_CLIENT_VIEW;
 	}
 }

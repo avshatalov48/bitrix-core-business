@@ -144,10 +144,10 @@ create table b_forum_message (
 );
 create table b_forum_file (
 	ID int(18) not null auto_increment,
-	FORUM_ID int(18) null REFERENCES B_FORUM(ID),
+	FORUM_ID int(18) null,
 	TOPIC_ID int(20) null,
 	MESSAGE_ID int(20) null,
-	FILE_ID int(18) not null REFERENCES B_FILE(ID),
+	FILE_ID int(18) not null REFERENCES b_file(ID),
 	USER_ID int(18) null,
 	TIMESTAMP_X timestamp not null,
 	HITS int(18) null,

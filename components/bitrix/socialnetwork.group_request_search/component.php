@@ -209,7 +209,7 @@ else
 						if (is_array($arUserIDs) && count($arUserIDs) > 0)
 						{
 							$strUserIDs = implode("|", $arUserIDs);
-							$rsUser = CUser::GetList(($by="id"), ($order="asc"), array("ACTIVE"=>"Y", "ID"=>$strUserIDs));
+							$rsUser = CUser::GetList("id", "asc", array("ACTIVE"=>"Y", "ID"=>$strUserIDs));
 							while($arUser = $rsUser->GetNext())
 							{
 								$arUsersFull[] = array("ID" => $arUser["ID"], "NAME_FORMATTED"=> CSocNetUser::FormatNameEx(
@@ -447,7 +447,7 @@ else
 							if (CModule::IncludeModule('extranet') && !CExtranet::IsExtranetSite())
 								$arFilter["!UF_DEPARTMENT"] = false;
 
-							$rsUser = CUser::GetList(($by="id"), ($order="asc"), $arFilter);
+							$rsUser = CUser::GetList("id", "asc", $arFilter);
 							$bFound = false;
 							while ($arUser = $rsUser->GetNext())
 							{

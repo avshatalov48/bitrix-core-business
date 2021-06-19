@@ -47,6 +47,10 @@ Loc::loadMessages(__FILE__);
 			params.IncCurrLabel = "<?= CUtil::JSEscape($params['PS_MODE']) ?>";
 		<?php endif; ?>
 
+		<?php if ($params['RECEIPT']):?>
+			params.Receipt = "<?= CUtil::JSEscape($params['RECEIPT']) ?>";
+		<?php endif; ?>
+
 		var email = "<?= CUtil::JSEscape($params['BUYER_PERSON_EMAIL']) ?>";
 		if (email)
 		{

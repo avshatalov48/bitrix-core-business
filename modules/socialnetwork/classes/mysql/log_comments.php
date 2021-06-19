@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/log_comments.php");
 
 use Bitrix\Socialnetwork\Item\LogIndex;
@@ -12,7 +13,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function Add($arFields, $bSetSource = false, $bSendEvent = true, $bSetLogUpDate = true)
+	public static function Add($arFields, $bSetSource = false, $bSendEvent = true, $bSetLogUpDate = true)
 	{
 		global $DB, $APPLICATION, $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
@@ -883,11 +884,10 @@ class CSocNetLogComments extends CAllSocNetLogComments
 		return $dbRes;
 	}
 
-	function OnBlogDelete($blog_id)
+	public static function OnBlogDelete($blog_id)
 	{
 		global $DB;
 
 		return $DB->Query("DELETE SLC FROM b_sonet_log_comment SLC INNER JOIN b_blog_comment BC ON SLC.SOURCE_ID = BC.ID AND BC.BLOG_ID = ".intval($blog_id)." WHERE SLC.EVENT_ID = 'blog_comment_micro' OR SLC.EVENT_ID = 'blog_comment'", true);
 	}
 }
-?>

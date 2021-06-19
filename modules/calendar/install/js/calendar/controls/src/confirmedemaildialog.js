@@ -21,7 +21,7 @@ export class ConfirmedEmailDialog extends EventEmitter
 	show()
 	{
 		this.DOM.content = Tag.render`<div>
-			<div class="calendar-confirm-email-text">${Loc.getMessage('EC_CONFIRMED_EMAIL_TEXT')}</div>
+			<div class="calendar-confirm-email-text">${Loc.getMessage('EC_CONFIRMED_EMAIL_TEXT_1')}</div>
 			<div class="calendar-confirm-email-text"><a class="calendar-confirm-email-help-link" href="javascript:void(0);">${Loc.getMessage('EC_CONFIRMED_EMAIL_HELP_LINK')}</a></div>
 			<div class="calendar-field-block">
 				<select class="calendar-field calendar-field-select ui-btn ui-btn ui-btn-light-border ui-btn-clock"></select>

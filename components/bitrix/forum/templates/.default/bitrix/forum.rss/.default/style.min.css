@@ -1,0 +1,7 @@
+.forum-rss-rss1,.forum-rss-rss2,.forum-rss-atom{background-repeat:no-repeat;width:80px !important;height:15px !important;display:block;margin:0 0 0 2px;padding:0;overflow:hidden;border:0;text-decoration:none;float:right;}
+.forum-rss-rss1{
+	background-image: url(images/rss1.gif);  }
+.forum-rss-rss2{
+	background-image: url(images/rss2.gif);  }
+.forum-rss-atom{
+	background-image: url(images/atom.gif); }

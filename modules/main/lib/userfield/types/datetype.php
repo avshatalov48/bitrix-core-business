@@ -108,15 +108,16 @@ class DateType extends BaseType
 	public static function checkFields(array $userField, $value): array
 	{
 		$msg = [];
-		if(is_string($value) && $value !== '' && !CheckDateTime($value, FORMAT_DATE))
+		if(is_string($value) && $value !== '' && !Type\Date::isCorrect($value))
 		{
 			$msg[] = [
 				'id' => $userField['FIELD_NAME'],
 				'text' => Loc::getMessage('USER_TYPE_D_ERROR',
 					[
 						'#FIELD_NAME#' => HtmlFilter::encode(
-							$userField['EDIT_FORM_LABEL'] <> ''
-                                ? $userField['EDIT_FORM_LABEL'] : $userField['FIELD_NAME']
+							$userField['EDIT_FORM_LABEL'] !== ''
+								? $userField['EDIT_FORM_LABEL']
+								: $userField['FIELD_NAME']
 						),
 					]
 				),

@@ -70,7 +70,7 @@ export class CalendarViewSettingsSlider
 			'</div></div></div></div>' +
 			'<div class="resource-booking-slider-workarea"><div class="resource-booking-slider-content"><div id="' + this.id + '_content" class="resource-booking-settings"></div></div></div></div>';
 
-		promise.fulfill(BX.util.trim(html));
+		promise.fulfill(html);
 		setTimeout(this.initControls.bind(this), 100);
 
 		return promise;

@@ -1,12 +1,12 @@
 <?php
-$MESS["EPILOG_ADMIN_COPY_1c_bitrix"] = "Copyright &copy; 2002-2020 Bitrix24";
+$MESS["EPILOG_ADMIN_COPY_1c_bitrix"] = "Copyright &copy; 2002-2021 Bitrix24";
 $MESS["EPILOG_ADMIN_COPY_1c_bitrix_eduportal"] = " ";
 $MESS["EPILOG_ADMIN_COPY_1c_bitrix_gosportal"] = " ";
 $MESS["EPILOG_ADMIN_COPY_1c_bitrix_gossite"] = " ";
-$MESS["EPILOG_ADMIN_COPY_1c_bitrix_portal"] = "Copyright &copy; 2002-2020 Bitrix24";
-$MESS["EPILOG_ADMIN_COPY_bitrix"] = "Copyright &copy; 2002-2020 Bitrix24";
-$MESS["EPILOG_ADMIN_COPY_bitrix_portal"] = "Copyright &copy; 2002-2020 Bitrix24";
-$MESS["EPILOG_ADMIN_COPY_ua_bitrix_portal"] = "Copyright &copy; 2002-2020 Bitrix24";
+$MESS["EPILOG_ADMIN_COPY_1c_bitrix_portal"] = "Copyright &copy; 2002-2021 Bitrix24";
+$MESS["EPILOG_ADMIN_COPY_bitrix"] = "Copyright &copy; 2002-2021 Bitrix24";
+$MESS["EPILOG_ADMIN_COPY_bitrix_portal"] = "Copyright &copy; 2002-2021 Bitrix24";
+$MESS["EPILOG_ADMIN_COPY_ua_bitrix_portal"] = "Copyright &copy; 2002-2021 Bitrix24";
 $MESS["EPILOG_ADMIN_SM_1c_bitrix"] = "Bitrix Site Manager";
 $MESS["EPILOG_ADMIN_SM_1c_bitrix_eduportal"] = "1C-Bitrix Education Portal";
 $MESS["EPILOG_ADMIN_SM_1c_bitrix_gosportal"] = "1C-Bitrix Government Portal";

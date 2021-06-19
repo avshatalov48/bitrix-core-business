@@ -288,12 +288,19 @@ class CWizardUtil
 					if (!is_writable($filePath."/".$file))
 						continue;
 
+					$size = filesize($filePath."/".$file);
+
+					if($size == 0)
+					{
+						continue;
+					}
+
 					@chmod($filePath."/".$file, BX_FILE_PERMISSIONS);
 
 					if (!$handleFile = @fopen($filePath."/".$file, "rb"))
 						continue;
 
-					$content = @fread($handleFile, filesize($filePath."/".$file));
+					$content = @fread($handleFile, $size);
 					@fclose($handleFile);
 
 					if (!($handleFile = @fopen($filePath."/".$file, "wb")))

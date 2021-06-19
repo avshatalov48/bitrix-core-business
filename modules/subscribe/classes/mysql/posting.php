@@ -39,10 +39,10 @@ class CPosting extends CPostingGeneral
 		{
 			foreach($arFilter as $key=>$val)
 			{
-				if (!is_array($val) && ($val == '' || $val=="NOT_REF"))
+				if (!is_array($val) && ((string)$val == '' || $val=="NOT_REF"))
 					continue;
 
-				switch(mb_strtoupper($key))
+				switch(strtoupper($key))
 				{
 					case "MSG_CHARSET":
 						$arSqlSearch[] = "P.MSG_CHARSET = '".$DB->ForSql($val)."'";

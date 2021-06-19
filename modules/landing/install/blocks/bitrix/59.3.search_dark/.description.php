@@ -9,6 +9,7 @@ use \Bitrix\Main\Localization\Loc;
 return [
 	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_59_3_NAME2'),
+		'dynamic' => false,
 		'section' => array('sidebar', 'other'),
 		'type' => ['knowledge', 'group'],
 		'subtype' => 'search',

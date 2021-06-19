@@ -2,11 +2,8 @@
 
 namespace Bitrix\Sale\TradingPlatform\Landing;
 
-use Bitrix\Main\ArgumentException;
-use Bitrix\Main\Event;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\DB;
+use Bitrix\Main;
 use Bitrix\Sale;
 
 Loc::loadMessages(__FILE__);
@@ -17,14 +14,29 @@ Loc::loadMessages(__FILE__);
  */
 class Landing extends Sale\TradingPlatform\Platform
 {
-	const TRADING_PLATFORM_CODE = 'landing';
-	const CODE_DELIMITER = '_';
+	public const TRADING_PLATFORM_CODE = 'landing';
+	public const CODE_DELIMITER = '_';
+
+	public const LANDING_STORE_CLOTHES = 'clothes';
+	public const LANDING_STORE_INSTAGRAM = 'instagram';
+	public const LANDING_STORE_CHATS = 'chats';
+	public const LANDING_STORE_MINI_ONE_ELEMENT = 'mini-one-element';
+	public const LANDING_STORE_MINI_CATALOG = 'mini-catalog';
+	public const LANDING_STORE_STORE_V3 = 'store_v3';
+
+	protected static $stores = [
+		self::LANDING_STORE_CLOTHES,
+		self::LANDING_STORE_INSTAGRAM,
+		self::LANDING_STORE_CHATS,
+		self::LANDING_STORE_MINI_ONE_ELEMENT,
+		self::LANDING_STORE_MINI_CATALOG,
+		self::LANDING_STORE_STORE_V3,
+	];
 
 	protected $site = [];
 
 	/**
 	 * @return bool|int
-	 * @throws \Exception
 	 */
 	public function install()
 	{
@@ -97,11 +109,9 @@ class Landing extends Sale\TradingPlatform\Platform
 	}
 
 	/**
-	 * @param Event $event
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @return void
+	 * @param Main\Event $event
 	 */
-	public static function onLandingSiteAdd(Event $event)
+	public static function onLandingSiteAdd(Main\Event $event)
 	{
 		$fields = $event->getParameter('fields');
 		if ($fields['TYPE'] !== 'STORE')
@@ -117,15 +127,31 @@ class Landing extends Sale\TradingPlatform\Platform
 		}
 	}
 
+	public static function onLandingSiteUpdate(Main\Event $event)
+	{
+		$fields = $event->getParameter('fields');
+		if ($fields['TYPE'] !== 'STORE')
+		{
+			return;
+		}
+
+		$primary = $event->getParameter('primary');
+		$landing = Landing::getInstanceByCode(static::getCodeBySiteId($primary['ID']));
+		if ($landing->isInstalled())
+		{
+			Sale\TradingPlatformTable::update(
+				$landing->getId(),
+				[
+					'NAME' => Loc::getMessage('SALE_LANDING_NAME', ['#NAME#' => $fields['TITLE']]),
+				]
+			);
+		}
+	}
+
 	/**
-	 * @param Event $event
-	 * @throws ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 * @return void
+	 * @param Main\Event $event
 	 */
-	public static function onLandingSiteDelete(Event $event)
+	public static function onLandingSiteDelete(Main\Event $event)
 	{
 		$primary = $event->getParameter('primary');
 
@@ -156,11 +182,9 @@ class Landing extends Sale\TradingPlatform\Platform
 	}
 
 	/**
-	 * @param Event $event
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @return void
+	 * @param Main\Event $event
 	 */
-	public static function onLandingBeforeSiteRecycle(Event $event)
+	public static function onLandingBeforeSiteRecycle(Main\Event $event)
 	{
 		$id = $event->getParameter('id');
 		$delete = $event->getParameter('delete');
@@ -182,7 +206,7 @@ class Landing extends Sale\TradingPlatform\Platform
 		}
 
 		$landing = Landing::getInstanceByCode(static::getCodeBySiteId($id));
-		if ($landing)
+		if (!$landing || !$landing->isInstalled())
 		{
 			return;
 		}
@@ -207,12 +231,11 @@ class Landing extends Sale\TradingPlatform\Platform
 	}
 
 	/**
-	 * @return array|false
-	 * @throws \Bitrix\Main\LoaderException
+	 * @return array
 	 */
 	public function getInfo()
 	{
-		if (!Loader::includeModule('landing'))
+		if (!Main\Loader::includeModule('landing'))
 		{
 			return [];
 		}
@@ -222,18 +245,19 @@ class Landing extends Sale\TradingPlatform\Platform
 			return $this->site;
 		}
 
-		/** @var DB\Result $dbRes */
+		/** @var Main\DB\Result $dbRes */
 		$dbRes = \Bitrix\Landing\Site::getList([
 			'filter' => [
 				'=ID' => $this->getSiteId(),
-				'CHECK_PERMISSIONS' => 'N'
+				'CHECK_PERMISSIONS' => 'N',
+				'=DELETED' => ['Y', 'N'],
 			]
 		]);
 
 		if ($data = $dbRes->fetch())
 		{
 			$this->site = $data;
-			$this->site['PUBLIC_URL'] = \Bitrix\Landing\Site::getPublicUrl($this->getCode());
+			$this->site['PUBLIC_URL'] = \Bitrix\Landing\Site::getPublicUrl($this->getSiteId());
 		}
 
 		return $this->site;
@@ -247,25 +271,12 @@ class Landing extends Sale\TradingPlatform\Platform
 			return parent::getAnalyticCode();
 		}
 
-		if (mb_strpos($data['XML_ID'], 'clothes') !== false)
+		foreach (static::$stores as $store)
 		{
-			return 'clothes';
-		}
-		elseif (mb_strpos($data['XML_ID'], 'instagram') !== false)
-		{
-			return 'instagram';
-		}
-		elseif (mb_strpos($data['XML_ID'], 'chats') !== false)
-		{
-			return 'chats';
-		}
-		elseif (mb_strpos($data['XML_ID'], 'mini-one-element') !== false)
-		{
-			return 'mini-one-element';
-		}
-		elseif (mb_strpos($data['XML_ID'], 'mini-catalog') !== false)
-		{
-			return 'mini-catalog';
+			if (mb_strpos($data['XML_ID'], $store) !== false)
+			{
+				return $store;
+			}
 		}
 
 		return $data['XML_ID'];
@@ -275,37 +286,64 @@ class Landing extends Sale\TradingPlatform\Platform
 	 * @param $type
 	 * @param Sale\Order $order
 	 * @return string
-	 * @throws ArgumentException
-	 * @throws \Bitrix\Main\LoaderException
+	 * @throws Main\ArgumentException
 	 */
 	public function getExternalLink($type, Sale\Order $order)
 	{
 		if ($type === static::LINK_TYPE_PUBLIC_DETAIL_ORDER)
 		{
-			if (Loader::includeModule('landing'))
-			{
-				$url = \Bitrix\Landing\Syspage::getSpecialPage(
-					$this->getSiteId(),
-					'personal',
-					['SECTION' => 'orders', 'ID' => $order->getId()]
-				);
-
-				return $url;
-			}
-
-			return '';
+			return $this->getLandingSysPageUrl(
+				'personal',
+				[
+					'SECTION' => 'orders',
+					'ID' => $order->getId()
+				]
+			);
 		}
 
-		throw new ArgumentException("Unsupported link type: {$type}");
+		if ($type === static::LINK_TYPE_PUBLIC_FEEDBACK)
+		{
+			return $this->getLandingSysPageUrl('feedback');
+		}
+
+		throw new Main\ArgumentException("Unsupported link type: {$type}");
 	}
 
 	/**
-	 * @return mixed
-	 * @throws \Bitrix\Main\LoaderException
+	 * @param string $type
+	 * @param array $additional
+	 * @return string
+	 */
+	private function getLandingSysPageUrl(string $type, array $additional = []): string
+	{
+		if (!Main\Loader::includeModule('landing'))
+		{
+			return '';
+		}
+
+		return \Bitrix\Landing\Syspage::getSpecialPage($this->getSiteId(), $type, $additional);
+	}
+
+	/**
+	 * @return string
 	 */
 	public function getRealName()
 	{
-		return $this->getInfo()['TITLE'];
+		return (string)$this->getInfo()['TITLE'];
 	}
 
+	/**
+	 * @param string $type
+	 * @return bool
+	 */
+	public function isOfType(string $type): bool
+	{
+		$info = $this->getInfo();
+		if (!isset($info['XML_ID']))
+		{
+			return false;
+		}
+
+		return mb_strpos($info['XML_ID'], $type) !== false;
+	}
 }

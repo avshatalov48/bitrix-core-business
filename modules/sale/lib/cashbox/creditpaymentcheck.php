@@ -61,17 +61,22 @@ class CreditPaymentCheck extends Check
 		$result = parent::extractDataInternal();
 
 		unset($result['DELIVERY']);
-		$result['PRODUCTS'] = array(
-			array(
+		$result['PRODUCTS'] = [
+			[
 				'NAME' => Main\Localization\Loc::getMessage('SALE_CASHBOX_CREDIT_PAYMENT_ITEM_NAME'),
 				'QUANTITY' => 1,
 				'PRICE' => $result['TOTAL_SUM'],
 				'SUM' => $result['TOTAL_SUM'],
 				'BASE_PRICE' => $result['TOTAL_SUM'],
 				'PAYMENT_OBJECT' => static::PAYMENT_OBJECT_PAYMENT,
-			)
-		);
+			]
+		];
 
 		return $result;
+	}
+
+	protected function needPrintMarkingCode($basketItem) : bool
+	{
+		return false;
 	}
 }

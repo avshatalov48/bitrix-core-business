@@ -14,7 +14,7 @@ $GLOBALS["APPLICATION"]->SetAdditionalCSS("/bitrix/js/socialservices/css/ss.css"
 
 $arSites = array();
 $arSiteList = array('');
-$dbSites = CSite::GetList($b = "sort", $o = "asc", array("ACTIVE" => "Y"));
+$dbSites = CSite::GetList("sort", "asc", array("ACTIVE" => "Y"));
 while ($arSite = $dbSites->Fetch())
 {
 	$arSites[] = $arSite;
@@ -322,8 +322,8 @@ foreach($arSiteList as $site):
 						<input type="checkbox" name="AUTH_SERVICES<?=$suffix?>[<?=htmlspecialcharsbx($id)?>]"
 							id="AUTH_SERVICES<?=$suffix?><?=htmlspecialcharsbx($id)?>"
 							value="Y"
-							<?if($service["__active"] == true) echo " checked"?>
-							<?if($service["DISABLED"] == true) echo " disabled"?>>
+							<?if(isset($service["__active"]) && $service["__active"] == true) echo " checked"?>
+							<?if(isset($service["DISABLED"]) && $service["DISABLED"] == true) echo " disabled"?>>
 					</td>
 					<td><div class="bx-ss-icon <?=htmlspecialcharsbx($service["ICON"])?>"></div></td>
 					<td><label for="AUTH_SERVICES<?=$suffix?><?=htmlspecialcharsbx($id)?>"><?=htmlspecialcharsbx($service["NAME"])?></label></td>
@@ -367,7 +367,7 @@ endforeach; //foreach($arSiteList as $site)
 $tabControl->BeginNextTab();
 
 $groups = array();
-$z = CGroup::GetList(($v1=""), ($v2=""), array("ACTIVE"=>"Y"/*, "ADMIN"=>"N", "ANONYMOUS"=>"N"*/));
+$z = CGroup::GetList('', '', array("ACTIVE"=>"Y"/*, "ADMIN"=>"N", "ANONYMOUS"=>"N"*/));
 while($zr = $z->Fetch())
 {
 	$ar = array();

@@ -5,7 +5,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'css' => 'css/core.css',
 	'js' => 'core.js',
 	'lang' => BX_ROOT.'/modules/main/js_core.php',
 	'rel' => [],

@@ -11,7 +11,7 @@ IncludeModuleLangFile(__FILE__);
 
 $arSites = array();
 $ref = $ref_id = array();
-$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 {
 	$ref[] = $ar["ID"];
@@ -20,7 +20,7 @@ while ($ar = $rs->Fetch())
 }
 $arSiteDropdown = array("reference" => $ref, "reference_id" => $ref_id);
 
-$rs = CAdv::GetList($v1="", $v2="", Array(), $v3, "", $v4, $v5);
+$rs = CAdv::GetList();
 while ($ar = $rs->Fetch())
 {
 	$arrADV[$ar["ID"]] = $ar["REFERER1"]." / ".$ar["REFERER2"]." [".$ar["ID"]."]";
@@ -154,7 +154,7 @@ $arFilter = Array(
 	"SECTION_EXACT_MATCH"		=> $find_section_exact_match,
 );
 
-$rsPages = CPage::GetList($find_diagram_type, $by, $order, $arFilter, $is_filtered);
+$rsPages = CPage::GetList($find_diagram_type, $by, $order, $arFilter);
 
 switch ($find_diagram_type)
 {

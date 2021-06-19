@@ -17,13 +17,15 @@ $this->addExternalJs($this->GetFolder() . '/template.js');
 ?><!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?=LANGUAGE_ID ?>" lang="<?=LANGUAGE_ID ?>">
 <head>
-	<script type="text/javascript">
-		// Prevent loading page without header and footer
-		if(window === window.top)
-		{
-			window.location = "<?=\CUtil::JSEscape($APPLICATION->GetCurPageParam('', ['IFRAME'])); ?>";
-		}
-	</script>
+    <?php if ($arParams['PREVENT_LOADING_WITHOUT_IFRAME']): ?>
+        <script type="text/javascript">
+            // Prevent loading page without header and footer
+            if(window === window.top)
+            {
+                window.location = "<?=\CUtil::JSEscape($APPLICATION->GetCurPageParam('', ['IFRAME'])); ?>";
+            }
+        </script>
+    <?php endif ?>
 	<?$APPLICATION->ShowHead();?>
 	<title><?$APPLICATION->ShowTitle()?></title>
 	<?if ($arParams['EDITABLE_TITLE_SELECTOR']):?>
@@ -35,9 +37,27 @@ $this->addExternalJs($this->GetFolder() . '/template.js');
 	<?endif;?>
 
 	<?
-	if ($arResult["SHOW_BITRIX24_THEME"] == "Y")
+	if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 	{
-		$themePicker = new ThemePicker(SITE_TEMPLATE_ID, false, $arParams["POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID"]);
+		$themePickerEntityType = 'USER';
+		$themePickerEntityId = 0;
+
+		if (isset($arParams['POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE']))
+		{
+			$themePickerEntityType = $arParams['POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE'];
+		}
+		if (isset($arParams['POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID']))
+		{
+			$themePickerEntityId = (int)$arParams['POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID'];
+		}
+
+		$themePickerParams = [];
+		if (isset($arParams['POPUP_COMPONENT_BITRIX24_THEME_BEHAVIOUR']))
+		{
+			$themePickerParams['behaviour'] = (string)$arParams['POPUP_COMPONENT_BITRIX24_THEME_BEHAVIOUR'];
+		}
+
+		$themePicker = new ThemePicker(SITE_TEMPLATE_ID, false, $arParams['POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID'], $themePickerEntityType, $themePickerEntityId, $themePickerParams);
 		$themePicker->showHeadAssets();
 	}
 	?>
@@ -112,7 +132,10 @@ if ($arResult["SHOW_BITRIX24_THEME"] == "Y")
 		}
 		else
 		{
-			$APPLICATION->IncludeComponent("bitrix:ui.toolbar", '', []);
+			$APPLICATION->IncludeComponent('bitrix:ui.toolbar', '', [
+				'FAVORITES_TITLE_TEMPLATE' => (!empty($arParams['UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE']) ? $arParams['UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE'] : ''),
+				'FAVORITES_URL' => (!empty($arParams['UI_TOOLBAR_FAVORITES_URL']) ? $arParams['UI_TOOLBAR_FAVORITES_URL'] : ''),
+			]);
 		}
 		?>
 		<div class="ui-side-panel-wrap-below"><?$APPLICATION->ShowViewContent("below_pagetitle")?></div>

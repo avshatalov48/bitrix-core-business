@@ -1,4 +1,5 @@
-<?
+<?php
+
 #############################################
 # Bitrix Site Manager Forum					#
 # Copyright (c) 2002-2009 Bitrix			#
@@ -8,21 +9,21 @@
 
 class CAllVoteEvent
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "vote";
 		return "<br>Module: ".$module_id."<br>Class: CAllVoteEvent<br>File: ".__FILE__;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		$ID = intval($ID);
 		if ($ID<=0) return;
-		$res = CVoteEvent::GetList($by, $order, array("ID" => $ID), $is_filtered, "Y");
+		$res = CVoteEvent::GetList('', '', array("ID" => $ID), null, "Y");
 		return $res;
 	}
 
-	function GetAnswer($EVENT_ID, $ANSWER_ID)
+	public static function GetAnswer($EVENT_ID, $ANSWER_ID)
 	{
 		$err_mess = (self::err_mess())."<br>Function: GetAnswer<br>Line: ";
 		global $DB;
@@ -55,17 +56,16 @@ class CAllVoteEvent
 		return \Bitrix\Vote\Event::deleteEvent($eventId);
 	}
 
-	function SetValid($eventId, $valid)
+	public static function SetValid($eventId, $valid)
 	{
 		return \Bitrix\Vote\Event::setValid($eventId, $valid);
 	}
 
-	function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered, $get_user="N")
+	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [], $is_filtered = null, $get_user = "N")
 	{
 		$err_mess = (self::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB;
 		$arSqlSearch = Array();
-		$strSqlSearch = "";
 		if (is_array($arFilter))
 		{
 			$filter_keys = array_keys($arFilter);
@@ -81,11 +81,11 @@ class CAllVoteEvent
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -141,14 +141,14 @@ class CAllVoteEvent
 		elseif ($by == "s_ip")				$strSqlOrder = "ORDER BY E.IP";
 		else 
 		{
-			$by = "s_id";
 			$strSqlOrder = "ORDER BY E.ID";
 		}
-		if ($order!="asc")
+
+		if ($order != "asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
+
 		if ($get_user=="Y")
 		{
 			$select = " ,
@@ -179,8 +179,7 @@ class CAllVoteEvent
 			$strSqlOrder
 			";
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 }
-?>

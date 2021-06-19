@@ -106,7 +106,7 @@ if($REQUEST_METHOD=="POST" && is_array($files) && count($files)>0 && $saveperm <
 	$arPermissions=Array();
 	$arNotSetPerm=Array();
 
-	$db_groups = CGroup::GetList($order="sort", $by="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
+	$db_groups = CGroup::GetList("sort", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 	while($arGroup = $db_groups->Fetch())
 	{
 		if(isset($arSubordGroups) && !in_array($arGroup['ID'],$arSubordGroups))
@@ -293,7 +293,7 @@ $tabControl->Begin();
 	}
 
 	//for each groups
-	$db_groups = CGroup::GetList($order="sort", $by="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
+	$db_groups = CGroup::GetList("sort", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 	while($db_groups->ExtractFields("g_")):
 		if($g_ANONYMOUS=="Y")
 			$anonym = $g_NAME;
@@ -321,10 +321,22 @@ $tabControl->Begin();
 		$arTask = Array();
 		for($i = 0; $i < $filesCount; $i++)
 		{
-			if($path=="" && $arFiles[$i]=="")
-				$perm = $CUR_PERM["/"][$g_ID];
+			$perm = '';
+			$permPath = ($path === "" && $arFiles[$i] === "") ? "/" : $arFiles[$i];
+
+			if (isset($CUR_PERM[$permPath][$g_ID]))
+			{
+				$perm = $CUR_PERM[$permPath][$g_ID];
+			}
 			else
-				$perm = $CUR_PERM[$arFiles[$i]][$g_ID];
+			{
+				$groupId = 'G' . $g_ID;
+
+				if (isset($CUR_PERM[$permPath][$groupId]))
+				{
+					$perm = $CUR_PERM[$permPath][$groupId];
+				}
+			}
 
 			//echo "!".$perm."!";
 

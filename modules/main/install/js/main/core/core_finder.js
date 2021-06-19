@@ -482,7 +482,7 @@ BX.Finder.checkInitFinderDb = function(obDestination, name, version, entities, o
 				{
 					entitiesToInit.push(this.entity);
 				}
-				else
+				else if (BX.message('USER_ID'))
 				{
 					BX.Finder.loadAll({
 						ob: obDestination,

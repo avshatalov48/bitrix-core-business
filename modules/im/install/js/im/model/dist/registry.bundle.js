@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
-(function (exports,ui_vue,im_const,im_lib_utils,ui_vue_vuex) {
+(function (exports,im_lib_logger,main_core_events,im_const,ui_vue,ui_vue_vuex,im_lib_utils,main_core) {
 	'use strict';
 
 	/**
@@ -284,18 +284,18 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
-	var CallApplicationModel = /*#__PURE__*/function (_VuexBuilderModel) {
-	  babelHelpers.inherits(CallApplicationModel, _VuexBuilderModel);
+	var ConferenceModel = /*#__PURE__*/function (_VuexBuilderModel) {
+	  babelHelpers.inherits(ConferenceModel, _VuexBuilderModel);
 
-	  function CallApplicationModel() {
-	    babelHelpers.classCallCheck(this, CallApplicationModel);
-	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(CallApplicationModel).apply(this, arguments));
+	  function ConferenceModel() {
+	    babelHelpers.classCallCheck(this, ConferenceModel);
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ConferenceModel).apply(this, arguments));
 	  }
 
-	  babelHelpers.createClass(CallApplicationModel, [{
+	  babelHelpers.createClass(ConferenceModel, [{
 	    key: "getName",
 	    value: function getName() {
-	      return 'callApplication';
+	      return 'conference';
 	    }
 	  }, {
 	    key: "getState",
@@ -306,20 +306,100 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          passChecked: true,
 	          showChat: false,
 	          userCount: 0,
+	          messageCount: 0,
 	          userInCallCount: 0,
-	          state: im_const.CallStateType.preparation,
+	          state: im_const.ConferenceStateType.preparation,
+	          callEnded: false,
 	          showSmiles: false,
 	          error: '',
 	          conferenceTitle: '',
 	          alias: '',
+	          permissionsRequested: false,
 	          conferenceStarted: null,
 	          conferenceStartDate: null,
 	          joinWithVideo: null,
-	          userReadyToJoin: false
+	          userReadyToJoin: false,
+	          isBroadcast: false,
+	          users: [],
+	          usersInCall: [],
+	          presenters: [],
+	          rightPanelMode: im_const.ConferenceRightPanelMode.hidden
 	        },
 	        user: {
 	          id: -1,
 	          hash: ''
+	        }
+	      };
+	    }
+	  }, {
+	    key: "getActions",
+	    value: function getActions() {
+	      return {
+	        showChat: function showChat(store, payload) {
+	          if (typeof payload.newState !== 'boolean') {
+	            return false;
+	          }
+
+	          store.commit('showChat', payload);
+	        },
+	        changeRightPanelMode: function changeRightPanelMode(store, payload) {
+	          if (!im_const.ConferenceRightPanelMode[payload.mode]) {
+	            return false;
+	          }
+
+	          store.commit('changeRightPanelMode', payload);
+	        },
+	        setPermissionsRequested: function setPermissionsRequested(store, payload) {
+	          store.commit('setPermissionsRequested', payload);
+	        },
+	        setPresenters: function setPresenters(store, payload) {
+	          if (!Array.isArray(payload.presenters)) {
+	            payload.presenters = [payload.presenters];
+	          }
+
+	          store.commit('setPresenters', payload);
+	        },
+	        setUsers: function setUsers(store, payload) {
+	          if (!Array.isArray(payload.users)) {
+	            payload.users = [payload.users];
+	          }
+
+	          store.commit('setUsers', payload);
+	        },
+	        removeUsers: function removeUsers(store, payload) {
+	          if (!Array.isArray(payload.users)) {
+	            payload.users = [payload.users];
+	          }
+
+	          store.commit('removeUsers', payload);
+	        },
+	        setUsersInCall: function setUsersInCall(store, payload) {
+	          if (!Array.isArray(payload.users)) {
+	            payload.users = [payload.users];
+	          }
+
+	          store.commit('setUsersInCall', payload);
+	        },
+	        removeUsersInCall: function removeUsersInCall(store, payload) {
+	          if (!Array.isArray(payload.users)) {
+	            payload.users = [payload.users];
+	          }
+
+	          store.commit('removeUsersInCall', payload);
+	        },
+	        setConferenceTitle: function setConferenceTitle(store, payload) {
+	          if (typeof payload.conferenceTitle !== 'string') {
+	            return false;
+	          }
+
+	          store.commit('setConferenceTitle', payload);
+	        },
+	        setBroadcastMode: function setBroadcastMode(store, payload) {
+	          if (typeof payload.broadcastMode !== 'boolean') {
+	            return false;
+	          }
+
+	          store.commit('setBroadcastMode', payload);
 	        }
 	      };
 	    }
@@ -338,12 +418,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            state.common.passChecked = payload.passChecked;
 	          }
 
-	          if (typeof payload.showChat === 'boolean') {
-	            state.common.showChat = payload.showChat;
-	          }
-
 	          if (typeof payload.userCount === 'number' || typeof payload.userCount === 'string') {
 	            state.common.userCount = parseInt(payload.userCount);
+	          }
+
+	          if (typeof payload.messageCount === 'number' || typeof payload.messageCount === 'string') {
+	            state.common.messageCount = parseInt(payload.messageCount);
 	          }
 
 	          if (typeof payload.userInCallCount === 'number' || typeof payload.userInCallCount === 'string') {
@@ -352,6 +432,14 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	          if (typeof payload.componentError === 'string') {
 	            state.common.componentError = payload.componentError;
+	          }
+
+	          if (typeof payload.isBroadcast === 'boolean') {
+	            state.common.isBroadcast = payload.isBroadcast;
+	          }
+
+	          if (Array.isArray(payload.presenters)) {
+	            state.common.presenters = payload.presenters;
 	          }
 	        },
 	        user: function user(state, payload) {
@@ -369,14 +457,27 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            _this.saveState(state);
 	          }
 	        },
+	        showChat: function showChat(state, _ref) {
+	          var newState = _ref.newState;
+	          state.common.showChat = newState;
+	        },
+	        changeRightPanelMode: function changeRightPanelMode(state, _ref2) {
+	          var mode = _ref2.mode;
+	          state.common.rightPanelMode = mode;
+	        },
+	        setPermissionsRequested: function setPermissionsRequested(state, payload) {
+	          state.common.permissionsRequested = true;
+	        },
 	        startCall: function startCall(state, payload) {
-	          state.common.state = im_const.CallStateType.call;
+	          state.common.state = im_const.ConferenceStateType.call;
+	          state.common.callEnded = false;
 	        },
 	        endCall: function endCall(state, payload) {
-	          state.common.state = im_const.CallStateType.preparation;
+	          state.common.state = im_const.ConferenceStateType.preparation;
+	          state.common.callEnded = true;
 	        },
 	        returnToPreparation: function returnToPreparation(state, payload) {
-	          state.common.state = im_const.CallStateType.preparation;
+	          state.common.state = im_const.ConferenceStateType.preparation;
 	        },
 	        toggleSmiles: function toggleSmiles(state, payload) {
 	          state.common.showSmiles = !state.common.showSmiles;
@@ -387,9 +488,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          }
 	        },
 	        setConferenceTitle: function setConferenceTitle(state, payload) {
-	          if (typeof payload.conferenceTitle === 'string') {
-	            state.common.conferenceTitle = payload.conferenceTitle;
-	          }
+	          state.common.conferenceTitle = payload.conferenceTitle;
+	        },
+	        setBroadcastMode: function setBroadcastMode(state, payload) {
+	          state.common.isBroadcast = payload.broadcastMode;
 	        },
 	        setAlias: function setAlias(state, payload) {
 	          if (typeof payload.alias === 'string') {
@@ -413,6 +515,47 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        },
 	        setUserReadyToJoin: function setUserReadyToJoin(state, payload) {
 	          state.common.userReadyToJoin = true;
+	        },
+	        setPresenters: function setPresenters(state, payload) {
+	          if (payload.replace) {
+	            state.common.presenters = payload.presenters;
+	          } else {
+	            payload.presenters.forEach(function (presenter) {
+	              presenter = parseInt(presenter);
+
+	              if (!state.common.presenters.includes(presenter)) {
+	                state.common.presenters.push(presenter);
+	              }
+	            });
+	          }
+	        },
+	        setUsers: function setUsers(state, payload) {
+	          payload.users.forEach(function (user) {
+	            user = parseInt(user);
+
+	            if (!state.common.users.includes(user)) {
+	              state.common.users.push(user);
+	            }
+	          });
+	        },
+	        removeUsers: function removeUsers(state, payload) {
+	          state.common.users = state.common.users.filter(function (user) {
+	            return !payload.users.includes(parseInt(user));
+	          });
+	        },
+	        setUsersInCall: function setUsersInCall(state, payload) {
+	          payload.users.forEach(function (user) {
+	            user = parseInt(user);
+
+	            if (!state.common.usersInCall.includes(user)) {
+	              state.common.usersInCall.push(user);
+	            }
+	          });
+	        },
+	        removeUsersInCall: function removeUsersInCall(state, payload) {
+	          state.common.usersInCall = state.common.usersInCall.filter(function (user) {
+	            return !payload.users.includes(parseInt(user));
+	          });
 	        }
 	      };
 	    }
@@ -425,6 +568,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          state: null,
 	          showSmiles: null,
 	          userCount: null,
+	          messageCount: null,
 	          userInCallCount: null,
 	          error: null,
 	          conferenceTitle: null,
@@ -432,12 +576,15 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          conferenceStarted: null,
 	          conferenceStartDate: null,
 	          joinWithVideo: null,
-	          userReadyToJoin: null
+	          userReadyToJoin: null,
+	          rightPanelMode: null,
+	          presenters: null,
+	          users: null
 	        }
 	      };
 	    }
 	  }]);
-	  return CallApplicationModel;
+	  return ConferenceModel;
 	}(ui_vue_vuex.VuexBuilderModel);
 
 	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
@@ -484,6 +631,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      return {
 	        templateId: 0,
 	        templateType: 'message',
+	        placeholderType: 0,
 	        id: 0,
 	        chatId: 0,
 	        authorId: 0,
@@ -679,6 +827,47 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            insertType: im_const.MutationType.set,
 	            data: payload
 	          });
+	          return 'set is done';
+	        },
+	        addPlaceholders: function addPlaceholders(store, payload) {
+	          if (payload.placeholders instanceof Array) {
+	            payload.placeholders = payload.placeholders.map(function (message) {
+	              return _this2.prepareMessage(message, {
+	                host: store.state.host
+	              });
+	            });
+	          } else {
+	            return false;
+	          }
+
+	          var insertType = payload.requestMode === 'history' ? im_const.MutationType.setBefore : im_const.MutationType.setAfter;
+
+	          if (insertType === im_const.MutationType.setBefore) {
+	            payload.placeholders = payload.placeholders.reverse();
+	          }
+
+	          store.commit('set', {
+	            insertType: insertType,
+	            data: payload.placeholders
+	          });
+	          return payload.placeholders[0].id;
+	        },
+	        clearPlaceholders: function clearPlaceholders(store, payload) {
+	          store.commit('clearPlaceholders', payload);
+	        },
+	        updatePlaceholders: function updatePlaceholders(store, payload) {
+	          if (payload.data instanceof Array) {
+	            payload.data = payload.data.map(function (message) {
+	              return _this2.prepareMessage(message, {
+	                host: store.state.host
+	              });
+	            });
+	          } else {
+	            return false;
+	          }
+
+	          store.commit('updatePlaceholders', payload);
+	          return true;
 	        },
 	        setAfter: function setAfter(store, payload) {
 	          if (payload instanceof Array) {
@@ -724,6 +913,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          store.commit('initCollection', {
 	            chatId: payload.chatId
 	          });
+
+	          if (!store.state.collection[payload.chatId]) {
+	            return false;
+	          }
+
 	          var index = store.state.collection[payload.chatId].findIndex(function (el) {
 	            return el.id === payload.id;
 	          });
@@ -779,9 +973,17 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        },
 	        clear: function clear(store, payload) {
 	          payload.chatId = parseInt(payload.chatId);
-	          store.commit('clear', {
-	            chatId: payload.chatId
-	          });
+
+	          if (payload.keepPlaceholders) {
+	            store.commit('clearMessages', {
+	              chatId: payload.chatId
+	            });
+	          } else {
+	            store.commit('clear', {
+	              chatId: payload.chatId
+	            });
+	          }
+
 	          return true;
 	        },
 	        applyMutationType: function applyMutationType(store, payload) {
@@ -865,22 +1067,55 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            chatId: payload.chatId
 	          });
 
-	          _this3.setMutationType(state, {
-	            chatId: payload.chatId,
-	            initialType: im_const.MutationType.add
-	          });
-
 	          state.collection[payload.chatId].push(payload);
 	          state.saveMessageList[payload.chatId].push(payload.id);
 	          state.created += 1;
+	          state.collection[payload.chatId].sort(function (a, b) {
+	            return a.id - b.id;
+	          });
+
+	          _this3.saveState(state, payload.chatId);
+
+	          im_lib_logger.Logger.warn('Messages model: saving state after add');
+	        },
+	        clearPlaceholders: function clearPlaceholders(state, payload) {
+	          if (!state.collection[payload.chatId]) {
+	            return false;
+	          }
+
+	          state.collection[payload.chatId] = state.collection[payload.chatId].filter(function (element) {
+	            return !element.id.toString().startsWith('placeholder');
+	          });
+	        },
+	        updatePlaceholders: function updatePlaceholders(state, payload) {
+	          var firstPlaceholderId = "placeholder".concat(payload.firstMessage);
+	          var firstPlaceholderIndex = state.collection[payload.chatId].findIndex(function (message) {
+	            return message.id === firstPlaceholderId;
+	          }); // Logger.warn('firstPlaceholderIndex', firstPlaceholderIndex);
+
+	          if (firstPlaceholderIndex >= 0) {
+	            var _state$collection$pay;
+
+	            // Logger.warn('before delete', state.collection[payload.chatId].length, [...state.collection[payload.chatId]]);
+	            state.collection[payload.chatId].splice(firstPlaceholderIndex, payload.amount); // Logger.warn('after delete', state.collection[payload.chatId].length, [...state.collection[payload.chatId]]);
+
+	            (_state$collection$pay = state.collection[payload.chatId]).splice.apply(_state$collection$pay, [firstPlaceholderIndex, 0].concat(babelHelpers.toConsumableArray(payload.data))); // Logger.warn('after add', state.collection[payload.chatId].length, [...state.collection[payload.chatId]]);
+
+	          }
+
+	          state.collection[payload.chatId].sort(function (a, b) {
+	            return a.id - b.id;
+	          });
+	          im_lib_logger.Logger.warn('Messages model: saving state after updating placeholders');
 
 	          _this3.saveState(state, payload.chatId);
 	        },
 	        set: function set(state, payload) {
+	          im_lib_logger.Logger.warn('Messages model: set mutation', payload);
 	          var chats = [];
 	          var chatsSave = [];
-	          var mutationType = {};
-	          mutationType.initialType = payload.insertType;
+	          var isPush = false;
+	          var initialType = payload.insertType;
 
 	          if (payload.insertType === im_const.MutationType.set) {
 	            (function () {
@@ -901,6 +1136,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	                  chatId: chatId
 	                });
 
+	                im_lib_logger.Logger.warn('Messages model: messages before adding from request - ', state.collection[chatId].length);
+
 	                if (state.saveMessageList[chatId].length > elements[chatId].length || elements[chatId].length < im_const.StorageLimit.messages) {
 	                  state.collection[chatId] = state.collection[chatId].filter(function (element) {
 	                    return elements[chatId].includes(element.id);
@@ -910,7 +1147,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	                  });
 	                }
 
+	                im_lib_logger.Logger.warn('Messages model: cache length', state.saveMessageList[chatId].length);
+
 	                var intersection = _this3.manageCacheBeforeSet(babelHelpers.toConsumableArray(state.saveMessageList[chatId].reverse()), elements[chatId]);
+
+	                im_lib_logger.Logger.warn('Messages model: set intersection with cache', intersection);
 
 	                if (intersection.type === IntersectionType.none) {
 	                  if (intersection.foundElements.length > 0) {
@@ -922,37 +1163,21 @@ this.BX.Messenger = this.BX.Messenger || {};
 	                    });
 	                  }
 
+	                  im_lib_logger.Logger.warn('Messages model: no intersection - removing cache');
 	                  _this3.removeIntersectionCacheElements = state.collection[chatId].map(function (element) {
 	                    return element.id;
 	                  });
-	                  clearTimeout(_this3.removeIntersectionCacheTimeout);
-	                  _this3.removeIntersectionCacheTimeout = setTimeout(function () {
-	                    state.collection[chatId] = state.collection[chatId].filter(function (element) {
-	                      return !_this3.removeIntersectionCacheElements.includes(element.id);
-	                    });
-	                    state.saveMessageList[chatId] = state.saveMessageList[chatId].filter(function (id) {
-	                      return !_this3.removeIntersectionCacheElements.includes(id);
-	                    });
-	                    _this3.removeIntersectionCacheElements = [];
-	                  }, 1000);
-	                } else {
-	                  if (intersection.type === IntersectionType.foundReverse) {
-	                    payload.insertType = im_const.MutationType.setBefore;
-	                    payload.data = payload.data.reverse();
-	                  }
-	                }
-
-	                if (intersection.foundElements.length > 0) {
-	                  if (intersection.type === IntersectionType.found && intersection.noneElements[0]) {
-	                    mutationType.scrollStickToTop = false;
-	                    mutationType.scrollMessageId = intersection.foundElements[intersection.foundElements.length - 1];
-	                  } else {
-	                    mutationType.scrollStickToTop = false;
-	                    mutationType.scrollMessageId = 0;
-	                  }
-	                } else if (intersection.type === IntersectionType.none) {
-	                  mutationType.scrollStickToTop = false;
-	                  mutationType.scrollMessageId = payload.data[0].id;
+	                  state.collection[chatId] = state.collection[chatId].filter(function (element) {
+	                    return !_this3.removeIntersectionCacheElements.includes(element.id);
+	                  });
+	                  state.saveMessageList[chatId] = state.saveMessageList[chatId].filter(function (id) {
+	                    return !_this3.removeIntersectionCacheElements.includes(id);
+	                  });
+	                  _this3.removeIntersectionCacheElements = [];
+	                } else if (intersection.type === IntersectionType.foundReverse) {
+	                  im_lib_logger.Logger.warn('Messages model: found reverse intersection');
+	                  payload.insertType = im_const.MutationType.setBefore;
+	                  payload.data = payload.data.reverse();
 	                }
 	              };
 
@@ -964,7 +1189,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            })();
 	          }
 
-	          mutationType.appliedType = payload.insertType;
+	          im_lib_logger.Logger.warn('Messages model: adding messages to model', payload.data);
 
 	          var _iterator = _createForOfIteratorHelper(payload.data),
 	              _step;
@@ -1007,40 +1232,34 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          }
 
 	          chats = babelHelpers.toConsumableArray(new Set(chats));
-	          chatsSave = babelHelpers.toConsumableArray(new Set(chatsSave)); // check array for correct order of messages
-
-	          if (mutationType.initialType === im_const.MutationType.set) {
-	            chats.forEach(function (chatId) {
-	              var lastElementId = 0;
-	              var needApplySort = false;
-
-	              for (var i = 0; i < state.collection[chatId].length; i++) {
-	                var element = state.collection[chatId][i];
-
-	                if (element.id < lastElementId) {
-	                  needApplySort = true;
-	                  break;
-	                }
-
-	                lastElementId = element.id;
-	              }
-
-	              if (needApplySort) {
-	                state.collection[chatId].sort(function (a, b) {
-	                  return a.id - b.id;
-	                });
-	              }
-	            });
-	          }
-
+	          chatsSave = babelHelpers.toConsumableArray(new Set(chatsSave));
+	          isPush = payload.data.every(function (element) {
+	            return element.push === true;
+	          });
+	          im_lib_logger.Logger.warn('Is it fake push message?', isPush);
 	          chats.forEach(function (chatId) {
-	            _this3.setMutationType(state, babelHelpers.objectSpread({
-	              chatId: chatId
-	            }, mutationType));
+	            state.collection[chatId].sort(function (a, b) {
+	              return a.id - b.id;
+	            });
+
+	            if (!isPush) {
+	              //send event that messages are ready and we can start reading etc
+	              im_lib_logger.Logger.warn('setting messagesSet = true for chatId = ', chatId);
+	              setTimeout(function () {
+	                main_core_events.EventEmitter.emit(im_const.EventType.dialog.messagesSet, {
+	                  chatId: chatId
+	                });
+	                main_core_events.EventEmitter.emit(im_const.EventType.dialog.readVisibleMessages, {
+	                  chatId: chatId
+	                });
+	              }, 100);
+	            }
 	          });
 
-	          if (mutationType.initialType !== im_const.MutationType.setBefore) {
+	          if (initialType !== im_const.MutationType.setBefore) {
 	            chatsSave.forEach(function (chatId) {
+	              im_lib_logger.Logger.warn('Messages model: saving state after set');
+
 	              _this3.saveState(state, chatId);
 	            });
 	          }
@@ -1066,6 +1285,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            state.collection[payload.chatId][index] = Object.assign(state.collection[payload.chatId][index], payload.fields);
 
 	            if (isSaveState) {
+	              im_lib_logger.Logger.warn('Messages model: saving state after update');
+
 	              _this3.saveState(state, payload.chatId);
 	            }
 	          }
@@ -1073,11 +1294,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        delete: function _delete(state, payload) {
 	          _this3.initCollection(state, {
 	            chatId: payload.chatId
-	          });
-
-	          _this3.setMutationType(state, {
-	            chatId: payload.chatId,
-	            initialType: im_const.MutationType.delete
 	          });
 
 	          state.collection[payload.chatId] = state.collection[payload.chatId].filter(function (element) {
@@ -1093,6 +1309,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	                var id = _step2.value;
 
 	                if (state.saveMessageList[payload.chatId].includes(id)) {
+	                  im_lib_logger.Logger.warn('Messages model: saving state after delete');
+
 	                  _this3.saveState(state, payload.chatId);
 
 	                  break;
@@ -1110,12 +1328,17 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            chatId: payload.chatId
 	          });
 
-	          _this3.setMutationType(state, {
-	            chatId: payload.chatId,
-	            initialType: 'clear'
+	          state.collection[payload.chatId] = [];
+	          state.saveMessageList[payload.chatId] = [];
+	        },
+	        clearMessages: function clearMessages(state, payload) {
+	          _this3.initCollection(state, {
+	            chatId: payload.chatId
 	          });
 
-	          state.collection[payload.chatId] = [];
+	          state.collection[payload.chatId] = state.collection[payload.chatId].filter(function (element) {
+	            return element.id.toString().startsWith('placeholder');
+	          });
 	          state.saveMessageList[payload.chatId] = [];
 	        },
 	        applyMutationType: function applyMutationType(state, payload) {
@@ -1151,6 +1374,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          }
 
 	          if (saveNeeded) {
+	            im_lib_logger.Logger.warn('Messages model: saving state after reading');
+
 	            _this3.saveState(state, payload.chatId);
 	          }
 	        },
@@ -1174,6 +1399,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          }
 
 	          if (saveNeeded) {
+	            im_lib_logger.Logger.warn('Messages model: saving state after unreading');
+
 	            _this3.saveState(state, payload.chatId);
 
 	            _this3.updateSubordinateStates();
@@ -1193,38 +1420,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      }
 
 	      ui_vue.Vue.set(state.collection, payload.chatId, payload.messages ? [].concat(payload.messages) : []);
-	      ui_vue.Vue.set(state.mutationType, payload.chatId, {
-	        applied: false,
-	        initialType: im_const.MutationType.none,
-	        appliedType: im_const.MutationType.none,
-	        scrollStickToTop: 0,
-	        scrollMessageId: 0
-	      });
 	      ui_vue.Vue.set(state.saveMessageList, payload.chatId, []);
 	      ui_vue.Vue.set(state.saveFileList, payload.chatId, []);
 	      ui_vue.Vue.set(state.saveUserList, payload.chatId, []);
-	      return true;
-	    }
-	  }, {
-	    key: "setMutationType",
-	    value: function setMutationType(state, payload) {
-	      var mutationType = {
-	        applied: false,
-	        initialType: im_const.MutationType.none,
-	        appliedType: im_const.MutationType.none,
-	        scrollStickToTop: false,
-	        scrollMessageId: 0
-	      };
-
-	      if (payload.initialType && !payload.appliedType) {
-	        payload.appliedType = payload.initialType;
-	      }
-
-	      if (typeof state.mutationType[payload.chatId] === 'undefined') {
-	        ui_vue.Vue.set(state.mutationType, payload.chatId, mutationType);
-	      }
-
-	      state.mutationType[payload.chatId] = babelHelpers.objectSpread({}, mutationType, payload);
 	      return true;
 	    }
 	  }, {
@@ -1240,6 +1438,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    key: "manageCacheBeforeSet",
 	    value: function manageCacheBeforeSet(cache, elements) {
 	      var recursive = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+	      im_lib_logger.Logger.warn('manageCacheBeforeSet', cache, elements);
 	      var result = {
 	        type: IntersectionType.empty,
 	        foundElements: [],
@@ -1314,12 +1513,18 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        saveUserList.push(parseInt(dialog.dialogId));
 	      }
 
+	      var readCounter = 0;
+
 	      for (var index = state.collection[chatId].length - 1; index >= 0; index--) {
 	        if (state.collection[chatId][index].id.toString().startsWith('temporary')) {
 	          continue;
 	        }
 
-	        if (count >= im_const.StorageLimit.messages && !state.collection[chatId][index].unread) {
+	        if (!state.collection[chatId][index].unread) {
+	          readCounter++;
+	        }
+
+	        if (count >= im_const.StorageLimit.messages && readCounter === 50) {
 	          break;
 	        }
 
@@ -1380,9 +1585,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          state.collection[_chatId].filter(function (element) {
 	            return state.saveMessageList[_chatId].includes(element.id);
 	          }).forEach(function (element) {
-	            return storedState.collection[_chatId].push(element);
+	            if (element.templateType !== 'placeholder') {
+	              storedState.collection[_chatId].push(element);
+	            }
 	          });
 
+	          im_lib_logger.Logger.warn('Cache after updating', storedState.collection[_chatId]);
 	          storedState.saveMessageList[_chatId] = state.saveMessageList[_chatId];
 	          storedState.saveFileList[_chatId] = state.saveFileList[_chatId];
 	          storedState.saveUserList[_chatId] = state.saveUserList[_chatId];
@@ -1411,7 +1619,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      if (typeof fields.id === "number") {
 	        result.id = fields.id;
 	      } else if (typeof fields.id === "string") {
-	        if (fields.id.startsWith('temporary')) {
+	        if (fields.id.startsWith('temporary') || fields.id.startsWith('placeholder')) {
 	          result.id = fields.id;
 	        } else {
 	          result.id = parseInt(fields.id);
@@ -1426,6 +1634,14 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        } else {
 	          result.templateId = parseInt(fields.templateId);
 	        }
+	      }
+
+	      if (typeof fields.templateType === "string") {
+	        result.templateType = fields.templateType;
+	      }
+
+	      if (typeof fields.placeholderType === "number") {
+	        result.placeholderType = fields.placeholderType;
 	      }
 
 	      if (typeof fields.chat_id !== 'undefined') {
@@ -1951,11 +2167,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        chatId: 0,
 	        counter: 0,
 	        userCounter: 0,
+	        messageCount: 0,
 	        unreadId: 0,
-	        unreadLastId: 0,
+	        lastMessageId: 0,
 	        managerList: [],
 	        readedList: [],
 	        writingList: [],
+	        muteList: [],
 	        textareaMessage: "",
 	        quoteId: 0,
 	        editId: 0,
@@ -2187,6 +2405,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          return false;
 	        },
 	        increaseCounter: function increaseCounter(store, payload) {
+	          var _store$rootState$appl;
+
 	          if (typeof store.state.collection[payload.dialogId] === 'undefined' || store.state.collection[payload.dialogId].init === false) {
 	            return true;
 	          }
@@ -2203,18 +2423,16 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            increasedCounter = 100;
 	          }
 
-	          var fields = {
-	            counter: increasedCounter
-	          };
-
-	          if (typeof payload.unreadLastId !== 'undefined') {
-	            fields.unreadLastId = payload.unreadLastId;
-	          }
-
+	          var userId = (_store$rootState$appl = store.rootState.application) === null || _store$rootState$appl === void 0 ? void 0 : _store$rootState$appl.common.userId;
+	          var dialogMuted = userId && store.state.collection[payload.dialogId].muteList.includes(userId);
 	          store.commit('update', {
 	            actionName: 'increaseCounter',
 	            dialogId: payload.dialogId,
-	            fields: fields
+	            dialogMuted: dialogMuted,
+	            fields: {
+	              counter: increasedCounter,
+	              previousCounter: counter
+	            }
 	          });
 	          return false;
 	        },
@@ -2238,21 +2456,43 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          var unreadId = payload.unreadId > store.state.collection[payload.dialogId].unreadId ? payload.unreadId : store.state.collection[payload.dialogId].unreadId;
 
 	          if (store.state.collection[payload.dialogId].unreadId !== unreadId || store.state.collection[payload.dialogId].counter !== decreasedCounter) {
+	            var _store$rootState$appl2;
+
+	            var previousCounter = store.state.collection[payload.dialogId].counter;
+
 	            if (decreasedCounter === 0) {
 	              unreadId = 0;
 	            }
 
+	            var userId = (_store$rootState$appl2 = store.rootState.application) === null || _store$rootState$appl2 === void 0 ? void 0 : _store$rootState$appl2.common.userId;
+	            var dialogMuted = userId && store.state.collection[payload.dialogId].muteList.includes(userId);
 	            store.commit('update', {
 	              actionName: 'decreaseCounter',
 	              dialogId: payload.dialogId,
+	              dialogMuted: dialogMuted,
 	              fields: {
 	                counter: decreasedCounter,
+	                previousCounter: previousCounter,
 	                unreadId: unreadId
 	              }
 	            });
 	          }
 
 	          return false;
+	        },
+	        increaseMessageCounter: function increaseMessageCounter(store, payload) {
+	          if (typeof store.state.collection[payload.dialogId] === 'undefined' || store.state.collection[payload.dialogId].init === false) {
+	            return true;
+	          }
+
+	          var currentCounter = store.state.collection[payload.dialogId].messageCount;
+	          store.commit('update', {
+	            actionName: 'increaseMessageCount',
+	            dialogId: payload.dialogId,
+	            fields: {
+	              messageCount: currentCounter + payload.count
+	            }
+	          });
 	        },
 	        saveDialog: function saveDialog(store, payload) {
 	          if (typeof store.state.collection[payload.dialogId] === 'undefined' || store.state.collection[payload.dialogId].init === false) {
@@ -2429,6 +2669,14 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        result.userCounter = parseInt(fields.userCounter);
 	      }
 
+	      if (typeof fields.message_count === "number" || typeof fields.message_count === "string") {
+	        result.messageCount = parseInt(fields.message_count);
+	      }
+
+	      if (typeof fields.messageCount === "number" || typeof fields.messageCount === "string") {
+	        result.messageCount = parseInt(fields.messageCount);
+	      }
+
 	      if (typeof fields.unread_id !== 'undefined') {
 	        fields.unreadId = fields.unread_id;
 	      }
@@ -2437,12 +2685,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        result.unreadId = parseInt(fields.unreadId);
 	      }
 
-	      if (typeof fields.unread_last_id !== 'undefined') {
-	        fields.unreadLastId = fields.unread_last_id;
+	      if (typeof fields.last_message_id !== 'undefined') {
+	        fields.lastMessageId = fields.last_message_id;
 	      }
 
-	      if (typeof fields.unreadLastId === "number" || typeof fields.unreadLastId === "string") {
-	        result.unreadLastId = parseInt(fields.unreadLastId);
+	      if (typeof fields.lastMessageId === "number" || typeof fields.lastMessageId === "string") {
+	        result.lastMessageId = parseInt(fields.lastMessageId);
 	      }
 
 	      if (typeof fields.readed_list !== 'undefined') {
@@ -2534,6 +2782,16 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	            if (userId > 0) {
 	              result.muteList.push(userId);
+	            }
+	          });
+	        } else if (babelHelpers.typeof(fields.muteList) === 'object') {
+	          Object.entries(fields.muteList).forEach(function (entry) {
+	            if (entry[1] === true) {
+	              var userId = parseInt(entry[0]);
+
+	              if (userId > 0) {
+	                result.muteList.push(userId);
+	              }
 	            }
 	          });
 	        }
@@ -2793,6 +3051,26 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          return function (params) {
 	            return _this.getElementState(params);
 	          };
+	        },
+	        getList: function getList(state) {
+	          return function (userList) {
+	            var result = [];
+
+	            if (!Array.isArray(userList)) {
+	              return null;
+	            }
+
+	            userList.forEach(function (id) {
+	              if (state.collection[id]) {
+	                result.push(state.collection[id]);
+	              } else {
+	                result.push(_this.getElementState({
+	                  id: id
+	                }));
+	              }
+	            });
+	            return result;
+	          };
 	        }
 	      };
 	    }
@@ -2866,7 +3144,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	                id: element.id
 	              });
 
-	              state.collection[element.id] = element;
+	              state.collection[element.id] = Object.assign(state.collection[element.id], element);
 	              var status = im_lib_utils.Utils.user.getOnlineStatus(element);
 
 	              if (status.isOnline) {
@@ -4108,10 +4386,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    value: function getState() {
 	      return {
 	        host: this.getVariable('host', location.protocol + '//' + location.host),
-	        collection: {
-	          pinned: [],
-	          general: []
-	        }
+	        collection: []
 	      };
 	    }
 	  }, {
@@ -4120,9 +4395,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      return {
 	        id: 0,
 	        templateId: '',
-	        template: 'item',
-	        chatType: 'chat',
-	        sectionCode: 'general',
+	        template: im_const.TemplateTypes.item,
+	        chatType: im_const.ChatTypes.chat,
+	        sectionCode: im_const.RecentSection.general,
 	        avatar: '',
 	        color: '#048bd0',
 	        title: '',
@@ -4133,7 +4408,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        message: {
 	          id: 0,
 	          text: '',
-	          date: new Date()
+	          date: new Date(),
+	          senderId: 0,
+	          status: im_const.MessageStatus.received
 	        },
 	        counter: 0,
 	        pinned: false,
@@ -4149,7 +4426,17 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      return {
 	        get: function get(state) {
 	          return function (dialogId) {
-	            return _this.findItem(state.collection, dialogId);
+	            if (main_core.Type.isNumber(dialogId)) {
+	              dialogId = dialogId.toString();
+	            }
+
+	            var currentItem = _this.findItem(dialogId);
+
+	            if (currentItem) {
+	              return currentItem;
+	            }
+
+	            return false;
 	          };
 	        }
 	      };
@@ -4161,156 +4448,124 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	      return {
 	        set: function set(store, payload) {
-	          var result = {};
+	          var result = [];
 
-	          if (payload.pinned instanceof Array) {
-	            result.pinned = payload.pinned.map(function (recentItem) {
-	              return _this2.prepareItem(recentItem, {
-	                host: store.state.host,
-	                sectionCode: 'pinned'
-	              });
-	            });
-	          } else if (typeof payload.pinned !== 'undefined') {
-	            var pinned = [];
-	            pinned.push(_this2.prepareItem(payload.pinned, {
-	              host: store.state.host,
-	              sectionCode: 'pinned'
-	            }));
-	            result.pinned = pinned;
-	          }
-
-	          if (payload.general instanceof Array) {
-	            result.general = payload.general.map(function (recentItem) {
+	          if (payload instanceof Array) {
+	            result = payload.map(function (recentItem) {
 	              return _this2.prepareItem(recentItem, {
 	                host: store.state.host
 	              });
 	            });
-	          } else if (typeof payload.general !== 'undefined') {
-	            var general = [];
-	            general.push(_this2.prepareItem(payload.general, {
-	              host: store.state.host
-	            }));
-	            result.general = general;
 	          }
 
-	          store.commit('set', result);
-	        },
-	        updatePlaceholders: function updatePlaceholders(store, payload) {
-	          if (!(payload.items instanceof Array)) {
+	          if (result.length === 0) {
 	            return false;
 	          }
 
+	          result.forEach(function (element) {
+	            var existingItem = _this2.findItem(element.id);
+
+	            if (existingItem) {
+	              store.commit('update', {
+	                index: existingItem.index,
+	                fields: element
+	              });
+	            } else {
+	              store.commit('add', {
+	                fields: element
+	              });
+	            }
+	          });
+	          store.state.collection.sort(_this2.sortListByMessageDate);
+	        },
+	        addPlaceholders: function addPlaceholders(store, payload) {
+	          payload.forEach(function (element) {
+	            store.commit('addPlaceholder', {
+	              fields: element
+	            });
+	          });
+	        },
+	        updatePlaceholders: function updatePlaceholders(store, payload) {
 	          payload.items = payload.items.map(function (element) {
 	            return _this2.prepareItem(element);
 	          });
 	          payload.items.forEach(function (element, index) {
 	            var placeholderId = 'placeholder' + (payload.firstMessage + index);
 
-	            var existingPlaceholder = _this2.findItem(store.state.collection, placeholderId, 'templateId');
+	            var existingPlaceholder = _this2.findItem(placeholderId, 'templateId');
 
-	            var existingItem = _this2.findItem(store.state.collection, element.id);
+	            var existingItem = _this2.findItem(element.id);
 
-	            if (existingItem.element) {
+	            if (existingItem) {
 	              store.commit('update', {
 	                index: existingItem.index,
-	                fields: Object.assign({}, element),
-	                section: 'general'
+	                fields: element
 	              });
 	              store.commit('delete', {
-	                index: existingPlaceholder.index,
-	                section: 'general'
+	                index: existingPlaceholder.index
 	              });
 	            } else {
 	              store.commit('update', {
 	                index: existingPlaceholder.index,
-	                fields: Object.assign({}, element),
-	                section: 'general'
+	                fields: element
 	              });
 	            }
 	          });
 	        },
 	        update: function update(store, payload) {
-	          if (babelHelpers.typeof(payload) !== 'object' || payload instanceof Array || !payload.id || !payload.fields) {
-	            return false;
-	          }
-
 	          if (typeof payload.id === 'string' && !payload.id.startsWith('chat') && payload.id !== 'notify') {
 	            payload.id = parseInt(payload.id);
 	          }
 
-	          var existingItem = _this2.findItem(store.state.collection, payload.id);
+	          var existingItem = _this2.findItem(payload.id);
 
-	          if (!existingItem.element) {
+	          if (!existingItem) {
 	            return false;
 	          }
 
 	          store.commit('update', {
 	            index: existingItem.index,
-	            fields: Object.assign({}, _this2.validate(payload.fields)),
-	            section: existingItem.element.sectionCode
+	            fields: payload.fields
 	          });
+	          store.state.collection.sort(_this2.sortListByMessageDate);
 	        },
 	        pin: function pin(store, payload) {
-	          if (babelHelpers.typeof(payload) !== 'object' || payload instanceof Array || !payload.id || typeof payload.action !== 'boolean') {
-	            return false;
-	          }
-
 	          if (typeof payload.id === 'string' && !payload.id.startsWith('chat') && payload.id !== 'notify') {
 	            payload.id = parseInt(payload.id);
 	          }
 
-	          var existingItem = _this2.findItem(store.state.collection, payload.id, undefined, payload.action ? 'general' : 'pinned');
+	          var existingItem = _this2.findItem(payload.id);
 
-	          if (!existingItem.element) {
-	            return true;
+	          if (!existingItem) {
+	            return false;
 	          }
 
-	          if (payload.action) {
-	            store.state.collection.pinned.push(Object.assign({}, existingItem.element, {
-	              sectionCode: 'pinned',
-	              pinned: true
-	            }));
-	            store.state.collection.pinned.sort(_this2.sortListByMessageDate);
-	            store.commit('delete', {
-	              index: existingItem.index,
-	              section: 'general'
-	            });
-	          } else {
-	            store.state.collection.general.push(Object.assign({}, existingItem.element, {
-	              sectionCode: 'general',
-	              pinned: false
-	            }));
-	            store.state.collection.general.sort(_this2.sortListByMessageDate);
-	            store.commit('delete', {
-	              index: existingItem.index,
-	              section: 'pinned'
-	            });
-	          }
-	        },
-	        clearPlaceholders: function clearPlaceholders(store, payload) {
-	          store.state.collection.general = store.state.collection.general.filter(function (element) {
-	            return !element.id.toString().startsWith('placeholder');
+	          store.commit('update', {
+	            index: existingItem.index,
+	            fields: Object.assign({}, existingItem.element, {
+	              pinned: payload.action
+	            })
 	          });
+	          store.state.collection.sort(_this2.sortListByMessageDate);
+	        },
+	        clearPlaceholders: function clearPlaceholders(store) {
+	          store.commit('clearPlaceholders');
 	        },
 	        delete: function _delete(store, payload) {
-	          if (babelHelpers.typeof(payload) !== 'object' || payload instanceof Array || !payload.id) {
-	            return false;
-	          }
-
 	          if (typeof payload.id === 'string' && !payload.id.startsWith('chat') && payload.id !== 'notify') {
 	            payload.id = parseInt(payload.id);
 	          }
 
-	          var existingItem = _this2.findItem(store.state.collection, payload.id);
+	          var existingItem = _this2.findItem(payload.id);
 
-	          if (!existingItem.element) {
+	          if (!existingItem) {
 	            return false;
 	          }
 
 	          store.commit('delete', {
-	            index: existingItem.index,
-	            section: existingItem.element.sectionCode
+	            index: existingItem.index
 	          });
+	          store.state.collection.sort(_this2.sortListByMessageDate);
 	        }
 	      };
 	    }
@@ -4320,64 +4575,23 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      var _this3 = this;
 
 	      return {
-	        set: function set(state, payload) {
-	          if (payload.general instanceof Array) {
-	            payload.general.forEach(function (element) {
-	              var _this3$initCollection = _this3.initCollection(state, element, 'general'),
-	                  index = _this3$initCollection.index,
-	                  alreadyExists = _this3$initCollection.alreadyExists;
-
-	              if (alreadyExists) {
-	                state.collection.general[index] = Object.assign({}, state.collection.general[index], element);
-	              }
-	            });
-	          }
-
-	          if (payload.pinned instanceof Array) {
-	            payload.pinned.forEach(function (element) {
-	              var _this3$initCollection2 = _this3.initCollection(state, element, 'pinned'),
-	                  index = _this3$initCollection2.index,
-	                  alreadyExists = _this3$initCollection2.alreadyExists;
-
-	              if (alreadyExists) {
-	                state.collection.pinned[index] = Object.assign({}, state.collection.pinned[index], element);
-	              }
-	            });
-	          }
+	        add: function add(state, payload) {
+	          state.collection.push(Object.assign({}, _this3.getElementState(), payload.fields));
 	        },
 	        update: function update(state, payload) {
-	          if (!payload || payload instanceof Array || babelHelpers.typeof(payload.fields) !== 'object' || typeof payload.index !== 'number' || typeof payload.section !== 'string') {
-	            return false;
-	          }
-
-	          state.collection[payload.section][payload.index] = Object.assign({}, state.collection[payload.section][payload.index], payload.fields);
-	          state.collection[payload.section].sort(_this3.sortListByMessageDate);
+	          state.collection.splice(payload.index, 1, Object.assign({}, state.collection[payload.index], payload.fields));
 	        },
 	        delete: function _delete(state, payload) {
-	          if (!payload || payload instanceof Array || typeof payload.index !== 'number' || typeof payload.section !== 'string') {
-	            return false;
-	          }
-
-	          state.collection[payload.section].splice(payload.index, 1);
+	          state.collection.splice(payload.index, 1);
+	        },
+	        addPlaceholder: function addPlaceholder(state, payload) {
+	          state.collection.push(Object.assign({}, _this3.getElementState(), payload.fields));
+	        },
+	        clearPlaceholders: function clearPlaceholders(state) {
+	          state.collection = state.collection.filter(function (element) {
+	            return !element.id.toString().startsWith('placeholder');
+	          });
 	        }
-	      };
-	    }
-	  }, {
-	    key: "initCollection",
-	    value: function initCollection(state, payload, section) {
-	      var existingItem = this.findItem(state.collection, payload.id, undefined, section);
-
-	      if (existingItem.element) {
-	        return {
-	          index: existingItem.index,
-	          alreadyExists: true
-	        };
-	      }
-
-	      var newLength = state.collection[section].push(Object.assign({}, this.getElementState(), payload));
-	      return {
-	        index: newLength - 1,
-	        alreadyExists: false
 	      };
 	    }
 	  }, {
@@ -4386,34 +4600,40 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	      var result = {};
 
-	      if (typeof fields.id === "number" || typeof fields.id === "string") {
+	      if (main_core.Type.isNumber(fields.id)) {
+	        result.id = fields.id.toString();
+	      }
+
+	      if (main_core.Type.isStringFilled(fields.id)) {
 	        result.id = fields.id;
 	      }
 
-	      if (typeof fields.templateId === 'string') {
+	      if (main_core.Type.isString(fields.templateId)) {
 	        result.templateId = fields.templateId;
 	      }
 
-	      if (typeof fields.template === 'string') {
+	      if (main_core.Type.isString(fields.template)) {
 	        result.template = fields.template;
 	      }
 
-	      if (typeof fields.type === "string") {
-	        if (fields.type === 'chat') {
-	          if (fields.chat.type === 'open') {
-	            result.chatType = 'open';
-	          } else if (fields.chat.type === 'chat') {
-	            result.chatType = 'chat';
+	      if (main_core.Type.isString(fields.type)) {
+	        if (fields.type === im_const.ChatTypes.chat) {
+	          if (fields.chat.type === im_const.ChatTypes.open) {
+	            result.chatType = im_const.ChatTypes.open;
+	          } else if (fields.chat.type === im_const.ChatTypes.chat) {
+	            result.chatType = im_const.ChatTypes.chat;
 	          }
-	        } else if (fields.type === 'user') {
-	          result.chatType = 'user';
-	        } else if (fields.type === 'notification') {
-	          result.chatType = 'notification';
+	        } else if (fields.type === im_const.ChatTypes.user) {
+	          result.chatType = im_const.ChatTypes.user;
+	        } else if (fields.type === im_const.ChatTypes.notification) {
+	          result.chatType = im_const.ChatTypes.notification;
 	          fields.title = 'Notifications';
+	        } else {
+	          result.chatType = im_const.ChatTypes.chat;
 	        }
 	      }
 
-	      if (typeof fields.avatar === 'string') {
+	      if (main_core.Type.isString(fields.avatar)) {
 	        var avatar;
 
 	        if (!fields.avatar || fields.avatar.endsWith('/js/im/images/blank.gif')) {
@@ -4429,31 +4649,57 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 	      }
 
-	      if (typeof fields.color === 'string') {
+	      if (main_core.Type.isString(fields.color)) {
 	        result.color = fields.color;
 	      }
 
-	      if (typeof fields.title === "string") {
+	      if (main_core.Type.isString(fields.title)) {
 	        result.title = fields.title;
 	      }
 
-	      if (babelHelpers.typeof(fields.message) === "object" && !(fields.message instanceof Array) && fields.message !== null) {
-	        result.message = fields.message;
+	      if (main_core.Type.isPlainObject(fields.message)) {
+	        var message = {};
+
+	        if (main_core.Type.isNumber(fields.message.id)) {
+	          message.id = fields.message.id;
+	        }
+
+	        if (main_core.Type.isString(fields.message.text)) {
+	          message.text = fields.message.text;
+	        }
+
+	        if (main_core.Type.isDate(fields.message.date) || main_core.Type.isString(fields.message.date)) {
+	          message.date = fields.message.date;
+	        }
+
+	        if (main_core.Type.isNumber(fields.message.author_id)) {
+	          message.senderId = fields.message.author_id;
+	        }
+
+	        if (main_core.Type.isNumber(fields.message.senderId)) {
+	          message.senderId = fields.message.senderId;
+	        }
+
+	        if (main_core.Type.isStringFilled(fields.message.status)) {
+	          message.status = fields.message.status;
+	        }
+
+	        result.message = message;
 	      }
 
-	      if (typeof fields.counter === 'number') {
+	      if (main_core.Type.isNumber(fields.counter)) {
 	        result.counter = fields.counter;
 	      }
 
-	      if (typeof fields.pinned === 'boolean') {
+	      if (main_core.Type.isBoolean(fields.pinned)) {
 	        result.pinned = fields.pinned;
 	      }
 
-	      if (typeof fields.chatId === 'number') {
+	      if (main_core.Type.isNumber(fields.chatId)) {
 	        result.chatId = fields.chatId;
 	      }
 
-	      if (typeof fields.userId === 'number') {
+	      if (main_core.Type.isNumber(fields.userId)) {
 	        result.userId = fields.userId;
 	      }
 
@@ -4477,38 +4723,753 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    }
 	  }, {
 	    key: "findItem",
-	    value: function findItem(store, value) {
-	      var key = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'id';
-	      var section = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'general';
+	    value: function findItem(value) {
+	      var key = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'id';
 	      var result = {};
 
-	      if (babelHelpers.typeof(store[section]) === undefined) {
-	        return result;
+	      if (key === 'id' && main_core.Type.isNumber(value)) {
+	        value = value.toString();
 	      }
 
-	      var elementIndex = store[section].findIndex(function (element, index) {
+	      var elementIndex = this.store.state.recent.collection.findIndex(function (element, index) {
 	        return element[key] === value;
 	      });
 
 	      if (elementIndex !== -1) {
 	        result.index = elementIndex;
-	        result.element = store[section][elementIndex];
+	        result.element = this.store.state.recent.collection[elementIndex];
 	        return result;
+	      }
+
+	      return false;
+	    }
+	  }]);
+	  return RecentModel;
+	}(ui_vue_vuex.VuexBuilderModel); //raw input object for validation
+
+	function _createForOfIteratorHelper$4(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$4(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+
+	function _unsupportedIterableToArray$4(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$4(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$4(o, minLen); }
+
+	function _arrayLikeToArray$4(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+	var NotificationsModel = /*#__PURE__*/function (_VuexBuilderModel) {
+	  babelHelpers.inherits(NotificationsModel, _VuexBuilderModel);
+
+	  function NotificationsModel() {
+	    babelHelpers.classCallCheck(this, NotificationsModel);
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(NotificationsModel).apply(this, arguments));
+	  }
+
+	  babelHelpers.createClass(NotificationsModel, [{
+	    key: "getName",
+	    value: function getName() {
+	      return 'notifications';
+	    }
+	  }, {
+	    key: "getState",
+	    value: function getState() {
+	      return {
+	        collection: [],
+	        searchCollection: [],
+	        chat_id: 0,
+	        total: 0,
+	        host: this.getVariable('host', location.protocol + '//' + location.host),
+	        unreadCounter: 0,
+	        schema: []
+	      };
+	    }
+	  }, {
+	    key: "getElementState",
+	    value: function getElementState() {
+	      return {
+	        id: 0,
+	        authorId: 0,
+	        date: new Date(),
+	        text: '',
+	        sectionCode: 'notification',
+	        textConverted: '',
+	        unread: false,
+	        template: 'item',
+	        templateId: 0,
+	        display: true,
+	        settingName: 'im|default',
+	        type: 0
+	      };
+	    }
+	  }, {
+	    key: "getGetters",
+	    value: function getGetters() {
+	      var _this = this;
+
+	      return {
+	        get: function get(state) {
+	          return function () {
+	            return state.collection;
+	          };
+	        },
+	        getById: function getById(state) {
+	          return function (notificationId) {
+	            if (main_core.Type.isString(notificationId)) {
+	              notificationId = parseInt(notificationId);
+	            }
+
+	            var existingItem = _this.findItemInArr(state.collection, notificationId);
+
+	            if (!existingItem.element) {
+	              return false;
+	            }
+
+	            return existingItem.element;
+	          };
+	        },
+	        getSearchItemById: function getSearchItemById(state) {
+	          return function (notificationId) {
+	            if (main_core.Type.isString(notificationId)) {
+	              notificationId = parseInt(notificationId);
+	            }
+
+	            var existingItem = _this.findItemInArr(state.searchCollection, notificationId);
+
+	            if (!existingItem.element) {
+	              return false;
+	            }
+
+	            return existingItem.element;
+	          };
+	        },
+	        getBlank: function getBlank(state) {
+	          return function (params) {
+	            return _this.getElementState();
+	          };
+	        }
+	      };
+	    }
+	  }, {
+	    key: "getActions",
+	    value: function getActions() {
+	      var _this2 = this;
+
+	      return {
+	        set: function set(store, payload) {
+	          var result = {
+	            notification: []
+	          };
+
+	          if (payload.notification instanceof Array) {
+	            result.notification = payload.notification.map(function (notification) {
+	              return _this2.prepareNotification(notification, {
+	                host: store.state.host
+	              });
+	            });
+	          }
+
+	          if (main_core.Type.isNumber(payload.total) || main_core.Type.isString(payload.total)) {
+	            result.total = parseInt(payload.total);
+	          }
+
+	          store.commit('set', result);
+	        },
+	        setSearchResults: function setSearchResults(store, payload) {
+	          var result = {
+	            notification: []
+	          };
+
+	          if (!(payload.notification instanceof Array)) {
+	            return false;
+	          } // we don't need validation for the local results
+
+
+	          if (payload.type === 'local') {
+	            result.notification = payload.notification;
+	          } else {
+	            result.notification = payload.notification.map(function (notification) {
+	              return _this2.prepareNotification(notification, {
+	                host: store.state.host
+	              });
+	            });
+	          }
+
+	          store.commit('setSearchResults', {
+	            data: result
+	          });
+	        },
+	        deleteSearchResults: function deleteSearchResults(store, payload) {
+	          store.commit('deleteSearchResults');
+	        },
+	        setCounter: function setCounter(store, payload) {
+	          if (main_core.Type.isNumber(payload.unreadTotal) || main_core.Type.isString(payload.unreadTotal)) {
+	            var unreadCounter = parseInt(payload.unreadTotal);
+	            store.commit('setCounter', unreadCounter);
+	          }
+	        },
+	        setTotal: function setTotal(store, payload) {
+	          if (main_core.Type.isNumber(payload.total) || main_core.Type.isString(payload.total)) {
+	            store.commit('setTotal', payload.total);
+	          }
+	        },
+	        add: function add(store, payload) {
+	          var addItem = _this2.prepareNotification(payload.data, {
+	            host: store.state.host
+	          });
+
+	          addItem.unread = true;
+
+	          var existingItem = _this2.findItemInArr(store.state.collection, addItem.id);
+
+	          if (!existingItem.element) {
+	            store.commit('add', {
+	              data: addItem
+	            });
+	            store.commit('setTotal', store.state.total + 1);
+	          } else {
+	            store.commit('update', {
+	              index: existingItem.index,
+	              fields: Object.assign({}, payload.fields)
+	            });
+	          }
+	        },
+	        updatePlaceholders: function updatePlaceholders(store, payload) {
+	          if (payload.items instanceof Array) {
+	            payload.items = payload.items.map(function (notification) {
+	              return _this2.prepareNotification(notification);
+	            });
+	          } else {
+	            return false;
+	          }
+
+	          store.commit('updatePlaceholders', payload);
+	          return true;
+	        },
+	        clearPlaceholders: function clearPlaceholders(store, payload) {
+	          store.commit('clearPlaceholders', payload);
+	        },
+	        update: function update(store, payload) {
+	          var existingItem = _this2.findItemInArr(store.state.collection, payload.id);
+
+	          if (existingItem.element) {
+	            store.commit('update', {
+	              index: existingItem.index,
+	              fields: Object.assign({}, payload.fields)
+	            });
+	          }
+
+	          if (payload.searchMode) {
+	            var existingItemInSearchCollection = _this2.findItemInArr(store.state.searchCollection, payload.id);
+
+	            if (existingItemInSearchCollection.element) {
+	              store.commit('update', {
+	                searchCollection: true,
+	                index: existingItemInSearchCollection.index,
+	                fields: Object.assign({}, payload.fields)
+	              });
+	            }
+	          }
+	        },
+	        read: function read(store, payload) {
+	          var _iterator = _createForOfIteratorHelper$4(payload.ids),
+	              _step;
+
+	          try {
+	            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	              var notificationId = _step.value;
+
+	              var existingItem = _this2.findItemInArr(store.state.collection, notificationId);
+
+	              if (!existingItem.element) {
+	                return false;
+	              }
+
+	              store.commit('read', {
+	                index: existingItem.index,
+	                action: !payload.action
+	              });
+	            }
+	          } catch (err) {
+	            _iterator.e(err);
+	          } finally {
+	            _iterator.f();
+	          }
+	        },
+	        readAll: function readAll(store, payload) {
+	          store.commit('readAll');
+	        },
+	        delete: function _delete(store, payload) {
+	          var existingItem = _this2.findItemInArr(store.state.collection, payload.id);
+
+	          if (existingItem.element) {
+	            store.commit('delete', {
+	              searchCollection: false,
+	              index: existingItem.index
+	            });
+	            store.commit('setTotal', store.state.total - 1);
+	          }
+
+	          if (payload.searchMode) {
+	            var existingItemInSearchCollection = _this2.findItemInArr(store.state.searchCollection, payload.id);
+
+	            if (existingItemInSearchCollection.element) {
+	              store.commit('delete', {
+	                searchCollection: true,
+	                index: existingItemInSearchCollection.index
+	              });
+	            }
+	          }
+	        },
+	        deleteAll: function deleteAll(store, payload) {
+	          store.commit('deleteAll');
+	        },
+	        setSchema: function setSchema(store, payload) {
+	          store.commit('setSchema', {
+	            data: payload.data
+	          });
+	        }
+	      };
+	    }
+	  }, {
+	    key: "getMutations",
+	    value: function getMutations() {
+	      var _this3 = this;
+
+	      return {
+	        set: function set(state, payload) {
+	          state.total = payload.hasOwnProperty('total') ? payload.total : state.total;
+
+	          if (!payload.hasOwnProperty('notification') || !main_core.Type.isArray(payload.notification)) {
+	            return;
+	          }
+
+	          var _iterator2 = _createForOfIteratorHelper$4(payload.notification),
+	              _step2;
+
+	          try {
+	            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+	              var element = _step2.value;
+
+	              var existingItem = _this3.findItemInArr(state.collection, element.id);
+
+	              if (!existingItem.element) {
+	                state.collection.push(element);
+	              } else {
+	                state.collection[existingItem.index] = Object.assign(state.collection[existingItem.index], element);
+	              }
+	            }
+	          } catch (err) {
+	            _iterator2.e(err);
+	          } finally {
+	            _iterator2.f();
+	          }
+
+	          state.collection.sort(_this3.sortByType);
+	        },
+	        setSearchResults: function setSearchResults(state, payload) {
+	          var _iterator3 = _createForOfIteratorHelper$4(payload.data.notification),
+	              _step3;
+
+	          try {
+	            for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+	              var element = _step3.value;
+
+	              var existingItem = _this3.findItemInArr(state.searchCollection, element.id);
+
+	              if (!existingItem.element) {
+	                state.searchCollection.push(element);
+	              } else {
+	                state.searchCollection[existingItem.index] = Object.assign(state.searchCollection[existingItem.index], element);
+	              }
+	            }
+	          } catch (err) {
+	            _iterator3.e(err);
+	          } finally {
+	            _iterator3.f();
+	          }
+	        },
+	        deleteAll: function deleteAll(state, payload) {
+	          state.collection = [];
+	        },
+	        deleteSearchResults: function deleteSearchResults(state, payload) {
+	          state.searchCollection = [];
+	        },
+	        add: function add(state, payload) {
+	          var firstNotificationIndex = null;
+
+	          if (payload.data.sectionCode === 'confirm') {
+	            //new confirms should always add to the beginning of the collection
+	            state.collection.unshift(payload.data);
+	          } else //if (payload.data.sectionCode === 'notification')
+	            {
+	              for (var index = 0; state.collection.length > index; index++) {
+	                if (state.collection[index].sectionCode === 'notification') {
+	                  firstNotificationIndex = index;
+	                  break;
+	                }
+	              } //if we didn't find any simple notification and its index, then add new one to the end.
+
+
+	              if (firstNotificationIndex === null) {
+	                state.collection.push(payload.data);
+	              } else //otherwise, put it right before first simple notification.
+	                {
+	                  state.collection.splice(firstNotificationIndex, 0, payload.data);
+	                }
+	            }
+	        },
+	        update: function update(state, payload) {
+	          var collectionName = payload.searchCollection ? 'searchCollection' : 'collection';
+	          ui_vue.Vue.set(state[collectionName], payload.index, Object.assign({}, state[collectionName][payload.index], payload.fields));
+	        },
+	        delete: function _delete(state, payload) {
+	          var collectionName = payload.searchCollection ? 'searchCollection' : 'collection';
+	          state[collectionName].splice(payload.index, 1);
+	        },
+	        read: function read(state, payload) {
+	          state.collection[payload.index].unread = payload.action;
+	        },
+	        readAll: function readAll(state, payload) {
+	          for (var index = 0; state.collection.length > index; index++) {
+	            if (state.collection[index].sectionCode === 'notification') {
+	              state.collection[index].unread = false;
+	            }
+	          }
+	        },
+	        updatePlaceholders: function updatePlaceholders(state, payload) {
+	          var collectionName = payload.searchCollection ? 'searchCollection' : 'collection';
+	          payload.items.forEach(function (element, index) {
+	            var placeholderId = "placeholder".concat(payload.firstItem + index);
+	            var existingPlaceholderIndex = state[collectionName].findIndex(function (notification) {
+	              return notification.id === placeholderId;
+	            });
+	            var existingMessageIndex = state[collectionName].findIndex(function (notification) {
+	              return notification.id === element.id;
+	            });
+
+	            if (existingMessageIndex >= 0) {
+	              state[collectionName][existingMessageIndex] = Object.assign(state[collectionName][existingMessageIndex], element);
+	              state[collectionName].splice(existingPlaceholderIndex, 1);
+	            } else {
+	              state[collectionName].splice(existingPlaceholderIndex, 1, Object.assign({}, element));
+	            }
+	          });
+	        },
+	        clearPlaceholders: function clearPlaceholders(state, payload) {
+	          state.collection = state.collection.filter(function (element) {
+	            return !element.id.toString().startsWith('placeholder');
+	          });
+	          state.searchCollection = state.searchCollection.filter(function (element) {
+	            return !element.id.toString().startsWith('placeholder');
+	          });
+	        },
+	        setCounter: function setCounter(state, payload) {
+	          state.unreadCounter = payload;
+	        },
+	        setTotal: function setTotal(state, payload) {
+	          state.total = payload;
+	        },
+	        setSchema: function setSchema(state, payload) {
+	          state.schema = payload.data;
+	        }
+	      };
+	    }
+	    /* region Validation */
+
+	  }, {
+	    key: "validate",
+	    value: function validate(fields, options) {
+	      var result = {};
+
+	      if (main_core.Type.isString(fields.id) || main_core.Type.isNumber(fields.id)) {
+	        result.id = fields.id;
+	      }
+
+	      if (!main_core.Type.isNil(fields.date)) {
+	        result.date = im_lib_utils.Utils.date.cast(fields.date);
+	      } // previous P&P format
+
+
+	      if (main_core.Type.isString(fields.textOriginal) || main_core.Type.isNumber(fields.textOriginal)) {
+	        result.text = fields.textOriginal.toString();
+
+	        if (main_core.Type.isString(fields.text) || main_core.Type.isNumber(fields.text)) {
+	          result.textConverted = this.convertToHtml({
+	            text: fields.text.toString()
+	          });
+	        }
+	      } else // modern format
+	        {
+	          if (!main_core.Type.isNil(fields.text_converted)) {
+	            fields.textConverted = fields.text_converted;
+	          }
+
+	          if (main_core.Type.isString(fields.textConverted) || main_core.Type.isNumber(fields.textConverted)) {
+	            result.textConverted = fields.textConverted.toString();
+	          }
+
+	          if (main_core.Type.isString(fields.text) || main_core.Type.isNumber(fields.text)) {
+	            result.text = fields.text.toString();
+	            var isConverted = !main_core.Type.isNil(result.textConverted);
+	            result.textConverted = this.convertToHtml({
+	              text: isConverted ? result.textConverted : result.text
+	            });
+	          }
+	        }
+
+	      if (main_core.Type.isNumber(fields.author_id)) {
+	        if (fields.system === true || fields.system === 'Y') {
+	          result.authorId = 0;
+	        } else {
+	          result.authorId = fields.author_id;
+	        }
+	      }
+
+	      if (main_core.Type.isNumber(fields.userId)) {
+	        result.authorId = fields.userId;
+	      }
+
+	      if (main_core.Type.isObjectLike(fields.params)) {
+	        var params = this.validateParams(fields.params);
+
+	        if (params) {
+	          result.params = params;
+	        }
+	      }
+
+	      if (!main_core.Type.isNil(fields.notify_buttons)) {
+	        result.notifyButtons = JSON.parse(fields.notify_buttons);
+	      } //p&p format
+
+
+	      if (!main_core.Type.isNil(fields.buttons)) {
+	        result.notifyButtons = fields.buttons.map(function (button) {
+	          return {
+	            COMMAND: 'notifyConfirm',
+	            COMMAND_PARAMS: "".concat(result.id, "|").concat(button.VALUE),
+	            TEXT: "".concat(button.TITLE),
+	            TYPE: 'BUTTON',
+	            DISPLAY: 'LINE',
+	            BG_COLOR: button.VALUE === 'Y' ? '#8bc84b' : '#ef4b57',
+	            TEXT_COLOR: '#fff'
+	          };
+	        });
+	      }
+
+	      if (fields.notify_type === 1 || fields.type === 1) {
+	        result.sectionCode = 'confirm';
+	      }
+
+	      if (main_core.Type.isNumber(fields.notify_type)) {
+	        result.type = fields.notify_type;
+	      }
+
+	      if (!main_core.Type.isNil(fields.notify_read)) {
+	        result.unread = fields.notify_read === 'N';
+	      } //p&p format
+
+
+	      if (!main_core.Type.isNil(fields.read)) {
+	        result.unread = fields.read === 'N'; //?
+	      }
+
+	      if (main_core.Type.isString(fields.templateId)) {
+	        result.templateId = fields.templateId;
+	      }
+
+	      if (main_core.Type.isString(fields.template)) {
+	        result.template = fields.template;
+	      }
+
+	      if (main_core.Type.isString(fields.setting_name)) {
+	        result.settingName = fields.setting_name;
 	      }
 
 	      return result;
 	    }
+	  }, {
+	    key: "validateParams",
+	    value: function validateParams(params) {
+	      var result = {};
+
+	      try {
+	        for (var field in params) {
+	          if (!params.hasOwnProperty(field)) {
+	            continue;
+	          }
+
+	          if (field === 'COMPONENT_ID') {
+	            if (main_core.Type.isString(params[field]) && BX.Vue.isComponent(params[field])) {
+	              result[field] = params[field];
+	            }
+	          } else if (field === 'LIKE') {
+	            if (params[field] instanceof Array) {
+	              result['REACTION'] = {
+	                like: params[field].map(function (element) {
+	                  return parseInt(element);
+	                })
+	              };
+	            }
+	          } else if (field === 'CHAT_LAST_DATE') {
+	            result[field] = im_lib_utils.Utils.date.cast(params[field]);
+	          } else if (field === 'AVATAR') {
+	            if (params[field]) {
+	              result[field] = params[field].startsWith('http') ? params[field] : options.host + params[field];
+	            }
+	          } else if (field === 'NAME') {
+	            if (params[field]) {
+	              result[field] = params[field];
+	            }
+	          } else {
+	            result[field] = params[field];
+	          }
+	        }
+	      } catch (e) {}
+
+	      var hasResultElements = false;
+
+	      for (var _field in result) {
+	        if (!result.hasOwnProperty(_field)) {
+	          continue;
+	        }
+
+	        hasResultElements = true;
+	        break;
+	      }
+
+	      return hasResultElements ? result : null;
+	    }
+	    /* endregion Validation */
+
+	    /* region Internal helpers */
+
+	  }, {
+	    key: "prepareNotification",
+	    value: function prepareNotification(notification) {
+	      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+	      var result = this.validate(Object.assign({}, notification));
+	      return Object.assign({}, this.getElementState(), result, options);
+	    }
+	  }, {
+	    key: "findItemInArr",
+	    value: function findItemInArr(arr, value) {
+	      var key = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'id';
+	      var result = {};
+	      var elementIndex = arr.findIndex(function (element, index) {
+	        return element[key] === value;
+	      });
+
+	      if (elementIndex !== -1) {
+	        result.index = elementIndex;
+	        result.element = arr[elementIndex];
+	      }
+
+	      return result;
+	    }
+	  }, {
+	    key: "sortByType",
+	    value: function sortByType(a, b) {
+	      if (a.sectionCode === 'confirm' && b.sectionCode !== 'confirm') {
+	        return -1;
+	      } else if (a.sectionCode !== 'confirm' && b.sectionCode === 'confirm') {
+	        return 1;
+	      } else {
+	        return 0;
+	      }
+	    }
+	    /* endregion Internal helpers */
+
+	    /* region Text utils */
+
+	  }, {
+	    key: "convertToHtml",
+	    value: function convertToHtml() {
+	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      var _params$text = params.text,
+	          text = _params$text === void 0 ? '' : _params$text;
+	      text = text.trim();
+	      text = text.replace(/\n/gi, '<br />');
+	      text = text.replace(/\t/gi, '&nbsp;&nbsp;&nbsp;&nbsp;');
+	      text = NotificationsModel.decodeBbCode({
+	        text: text
+	      });
+
+	      if (im_lib_utils.Utils.platform.isBitrixDesktop()) {
+	        text = text.replace(/<a(.*?)>(.*?)<\/a>/ig, function (whole, anchor, text) {
+	          return '<a' + anchor.replace('target="_self"', 'target="_blank"') + ' class="bx-im-notifications-item-link">' + text + '</a>';
+	        });
+	      }
+
+	      return text;
+	    }
+	  }], [{
+	    key: "decodeBbCode",
+	    value: function decodeBbCode() {
+	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      var text = params.text;
+	      text = text.replace(/\[url=([^\]]+)\](.*?)\[\/url\]/ig, function (whole, link, text) {
+	        var tag = document.createElement('a');
+	        tag.href = im_lib_utils.Utils.text.htmlspecialcharsback(link);
+	        tag.target = '_blank';
+	        tag.text = im_lib_utils.Utils.text.htmlspecialcharsback(text);
+	        var allowList = ['http:', 'https:', 'ftp:', 'file:', 'tel:', 'callto:', 'mailto:', 'skype:', 'viber:'];
+
+	        if (allowList.indexOf(tag.protocol) <= -1) {
+	          return whole;
+	        }
+
+	        return tag.outerHTML;
+	      });
+	      text = text.replace(/\[LIKE\]/ig, '<span class="bx-smile bx-im-smile-like"></span>');
+	      text = text.replace(/\[DISLIKE\]/ig, '<span class="bx-smile bx-im-smile-dislike"></span>');
+	      text = text.replace(/\[RATING\=([1-5]{1})\]/ig, function (whole, rating) {
+	        // todo: refactor legacy call
+	        return BX.MessengerCommon.linesVoteHeadNodes(0, rating, false).outerHTML;
+	      });
+	      text = text.replace(/\[BR\]/ig, '<br/>');
+	      text = text.replace(/\[([buis])\](.*?)\[(\/[buis])\]/ig, function (whole, open, inner, close) {
+	        return '<' + open + '>' + inner + '<' + close + '>';
+	      });
+	      text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, function (whole, openlines, chatId, inner) {
+	        chatId = parseInt(chatId);
+
+	        if (chatId <= 0) {
+	          return inner;
+	        }
+
+	        if (openlines) {
+	          return '<span class="bx-im-mention" data-type="OPENLINES" data-value="' + chatId + '">' + inner + '</span>';
+	        } else {
+	          return '<span class="bx-im-mention" data-type="CHAT" data-value="' + chatId + '">' + inner + '</span>';
+	        }
+	      });
+	      text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, function (whole, userId, text) {
+	        var html = '';
+	        userId = parseInt(userId);
+
+	        if (userId > 0 && typeof BXIM != 'undefined') {
+	          html = "<span class=\"bx-im-mention ".concat(userId === +BXIM.userId ? 'bx-messenger-ajax-self' : '', "\" data-type=\"USER\" data-value=\"").concat(userId, "\">").concat(text, "</span>");
+	        } else {
+	          html = text;
+	        }
+
+	        return html;
+	      });
+	      text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, function (whole, historyId, text) {
+	        return text;
+	      });
+	      return text;
+	    }
+	    /* endregion Text utils */
+
 	  }]);
-	  return RecentModel;
+	  return NotificationsModel;
 	}(ui_vue_vuex.VuexBuilderModel);
 
 	exports.ApplicationModel = ApplicationModel;
-	exports.CallApplicationModel = CallApplicationModel;
+	exports.ConferenceModel = ConferenceModel;
 	exports.MessagesModel = MessagesModel;
 	exports.DialoguesModel = DialoguesModel;
 	exports.UsersModel = UsersModel;
 	exports.FilesModel = FilesModel;
 	exports.RecentModel = RecentModel;
+	exports.NotificationsModel = NotificationsModel;
 
-}((this.BX.Messenger.Model = this.BX.Messenger.Model || {}),BX,BX.Messenger.Const,BX.Messenger.Lib,BX));
+}((this.BX.Messenger.Model = this.BX.Messenger.Model || {}),BX.Messenger.Lib,BX.Event,BX.Messenger.Const,BX,BX,BX.Messenger.Lib,BX));
 //# sourceMappingURL=registry.bundle.js.map

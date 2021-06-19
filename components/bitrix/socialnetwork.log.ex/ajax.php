@@ -1,4 +1,5 @@
-<?
+<?php
+
 define("NO_KEEP_STATISTIC", true);
 define("BX_STATISTIC_BUFFER_USED", false);
 define("NO_LANG_FILES", true);
@@ -27,6 +28,7 @@ $ls_arr = isset($_REQUEST["ls_arr"])? $_REQUEST["ls_arr"]: "";
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\Helper\ServiceComment;
 use Bitrix\Socialnetwork\Livefeed;
 
 global $USER;
@@ -138,23 +140,25 @@ if(CModule::IncludeModule("socialnetwork"))
 		{
 			if (in_array($_REQUEST['ENTITY_TYPE'], array('BLOG_POST', 'BLOG_COMMENT')))
 			{
-				\Bitrix\Socialnetwork\ComponentHelper::processBlogCreateTask(array(
-					'TASK_ID' => intval($_REQUEST['TASK_ID']),
-					'SOURCE_ENTITY_TYPE' => preg_replace("/[^a-z0-9_]/i", "", $_REQUEST['ENTITY_TYPE']),
-					'SOURCE_ENTITY_ID' => intval($_REQUEST['ENTITY_ID']),
+				ServiceComment::processBlogCreateEntity([
+					'ENTITY_TYPE' => \Bitrix\Socialnetwork\CommentAux\CreateEntity::ENTITY_TYPE_TASK,
+					'ENTITY_ID' => (int)$_REQUEST['TASK_ID'],
+					'SOURCE_ENTITY_TYPE' => preg_replace("/[^a-z0-9_]/i", '', $_REQUEST['ENTITY_TYPE']),
+					'SOURCE_ENTITY_ID' => (int)$_REQUEST['ENTITY_ID'],
 					'LIVE' => 'Y'
-				));
+				]);
 			}
 			else
 			{
-				\Bitrix\Socialnetwork\ComponentHelper::processLogEntryCreateTask(array(
-					'LOG_ID' => (!empty($_REQUEST['LOG_ID']) ? intval($_REQUEST['LOG_ID']) : false),
-					'TASK_ID' => intval($_REQUEST['TASK_ID']),
-					'POST_ENTITY_TYPE' => preg_replace("/[^a-z0-9_]/i", "", $_REQUEST['POST_ENTITY_TYPE']),
-					'SOURCE_ENTITY_TYPE' => preg_replace("/[^a-z0-9_]/i", "", $_REQUEST['ENTITY_TYPE']),
-					'SOURCE_ENTITY_ID' => intval($_REQUEST['ENTITY_ID']),
-					'LIVE' => 'Y'
-				));
+				\Bitrix\Socialnetwork\Helper\ServiceComment::processLogEntryCreateEntity([
+					'LOG_ID' => (!empty($_REQUEST['LOG_ID']) ? (int)$_REQUEST['LOG_ID'] : false),
+					'ENTITY_TYPE' => \Bitrix\Socialnetwork\CommentAux\CreateEntity::ENTITY_TYPE_TASK,
+					'ENTITY_ID' => (int)$_REQUEST['TASK_ID'],
+					'POST_ENTITY_TYPE' => preg_replace("/[^a-z0-9_]/i", '', $_REQUEST['POST_ENTITY_TYPE']),
+					'SOURCE_ENTITY_TYPE' => preg_replace("/[^a-z0-9_]/i", '', $_REQUEST['ENTITY_TYPE']),
+					'SOURCE_ENTITY_ID' => (int)$_REQUEST['ENTITY_ID'],
+					'LIVE' => 'Y',
+				]);
 			}
 		}
 	}
@@ -853,4 +857,3 @@ if(CModule::IncludeModule("socialnetwork"))
 
 define('PUBLIC_AJAX_MODE', true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
-?>

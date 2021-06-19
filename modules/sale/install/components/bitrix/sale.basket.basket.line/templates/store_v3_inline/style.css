@@ -1,0 +1,23 @@
+.catalog-cart-counter-menu {
+    background: #6cb70e;
+    color: #fff;
+    text-align: center;
+    line-height: 25px;
+    min-width: 25px;
+    height: 25px;
+    position: relative;
+    top: -12px;
+    right: 10px;
+    border-radius: 50%;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 14px;
+    -webkit-animation-name: bounceIn;
+    animation-name: bounceIn;
+    -webkit-animation-duration: .75s;
+    animation-duration: .75s;
+    -webkit-animation-fill-mode: backwards;
+    animation-fill-mode: backwards;
+    -webkit-animation-delay: 500ms;
+    animation-delay: 500ms;
+}

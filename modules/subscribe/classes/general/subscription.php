@@ -17,10 +17,10 @@ class CSubscriptionGeneral
 			{
 				if(!is_array($val))
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
-				switch(mb_strtoupper($key))
+				switch(strtoupper($key))
 				{
 					case "ID":
 						$arSqlSearch[] = GetFilterQuery("S.ID", $val, "N");

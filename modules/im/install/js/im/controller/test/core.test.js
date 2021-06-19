@@ -1,7 +1,7 @@
 import 'im.test';
 
 import { Controller } from "im.controller";
-import { VuexBuilder } from "ui.vue.vuex";
+import { VuexBuilder, VuexVendor } from "ui.vue.vuex";
 import {
 	CallApplicationModel,
 	RecentModel,
@@ -12,9 +12,7 @@ import {
 	FilesModel
 } from "im.model";
 import { ApplicationController } from "../../controller/src/application";
-import { RecentController } from "../../controller/src/recent";
 import { Utils } from "im.lib.utils";
-import { VuexVendor } from "ui.vue.vuex";
 import { VueVendor } from "ui.vue";
 import { CoreRestHandler } from "im.provider.rest";
 
@@ -343,15 +341,6 @@ describe('Core controller', function() {
 					assert.equal(controller.application.controller, controller);
 				});
 		});
-
-		it('should initialize recent controller', function() {
-			return controller.prepareParams({})
-				.then(() => controller.initController())
-				.then(() => {
-					assert.equal(controller.recent instanceof RecentController, true);
-					assert.equal(controller.recent.controller, controller);
-				});
-		});
 	});
 
 	describe('initLocalStorage', function() {
@@ -580,11 +569,11 @@ describe('Core controller', function() {
 							assert.equal(result.$options.beforeCreate.length, 2);
 							assert.equal(result.$options.destroyed.length, 1);
 							assert.equal(result.$store, controller.store);
-							assert.equal(typeof result.$bitrixApplication !== 'undefined', true);
-							assert.equal(typeof result.$bitrixController !== 'undefined', true);
+							//assert.equal(typeof result.$bitrixApplication !== 'undefined', true);
+							//assert.equal(typeof result.$bitrixController !== 'undefined', true);
 							//assert.equal(typeof result.$bitrixRestClient !== 'undefined', true);
 							//assert.equal(typeof result.$bitrixPullClient !== 'undefined', true);
-							assert.equal(typeof result.$bitrixMessages !== 'undefined', true);
+							//assert.equal(typeof result.$bitrixMessages !== 'undefined', true);
 						});
 				});
 		});

@@ -1,12 +1,13 @@
-<?
-use \Bitrix\Sale\Internals\PaySystemActionTable;
+<?php
+use Bitrix\Sale\PaySystem;
+use Bitrix\Sale\Internals\PaySystemActionTable;
 
 IncludeModuleLangFile(__FILE__);
 
 /** @deprecated */
 class CAllSalePaySystem
 {
-	static function DoProcessOrder(&$arOrder, $paySystemId, &$arErrors)
+	public static function DoProcessOrder(&$arOrder, $paySystemId, &$arErrors)
 	{
 		if (intval($paySystemId) > 0)
 		{
@@ -78,7 +79,7 @@ class CAllSalePaySystem
 		return $arResult;
 	}
 
-	function GetByID($id, $personTypeId = 0)
+	public static function GetByID($id, $personTypeId = 0)
 	{
 		$id = (int)$id;
 		$personTypeId = (int)$personTypeId;
@@ -87,14 +88,14 @@ class CAllSalePaySystem
 		{
 			$select = array_merge(array('ID', 'NAME', 'DESCRIPTION', 'ACTIVE', 'SORT'), self::getAliases());
 
-			$dbRes = \Bitrix\Sale\Internals\PaySystemActionTable::getList(array(
+			$dbRes = PaySystem\Manager::getList(array(
 				'select' => $select,
 				'filter' => array('ID' => $id)
 			));
 		}
 		else
 		{
-			$dbRes = \Bitrix\Sale\Internals\PaySystemActionTable::getById($id);
+			$dbRes = PaySystemActionTable::getById($id);
 		}
 
 		if ($result = $dbRes->fetch())
@@ -132,7 +133,7 @@ class CAllSalePaySystem
 		return $aliases;
 	}
 
-	function CheckFields($ACTION, &$arFields)
+	public static function CheckFields($ACTION, &$arFields)
 	{
 		global $DB, $USER;
 
@@ -150,7 +151,7 @@ class CAllSalePaySystem
 		return True;
 	}
 
-	function Update($id, $arFields)
+	public static function Update($id, $arFields)
 	{
 		if (isset($arFields['LID']))
 			unset($arFields['LID']);
@@ -166,25 +167,25 @@ class CAllSalePaySystem
 		return CSalePaySystemAction::Update($id, $arFields);
 	}
 
-	function Delete($id)
+	public static function Delete($id)
 	{
 		$id = (int)$id;
 
-		$dbRes = \Bitrix\Sale\Internals\PaySystemActionTable::getById($id);
+		$dbRes = PaySystemActionTable::getById($id);
 		if (!$dbRes->fetch())
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGPS_ORDERS_TO_PAYSYSTEM"), "ERROR_ORDERS_TO_PAYSYSTEM");
 			return false;
 		}
 
-		$dbRes = \Bitrix\Sale\Internals\PaySystemActionTable::delete($id);
+		$dbRes = PaySystem\Manager::delete($id);
 
 		return $dbRes->isSuccess();
 	}
 
 	public static function getNewIdsFromOld($ids, $personTypeId = null)
 	{
-		$dbRes = PaySystemActionTable::getList(array(
+		$dbRes = PaySystem\Manager::getList(array(
 			'select' => array('ID'),
 			'filter' => array('PAY_SYSTEM_ID' => $ids)
 		));
@@ -289,7 +290,7 @@ class CAllSalePaySystem
 			foreach ($arGroupBy as $key => $value)
 				$groupBy[$key] = self::getAlias($value);
 		}
-		$dbRes = PaySystemActionTable::getList(
+		$dbRes = PaySystem\Manager::getList(
 			array(
 				'select' => $select,
 				'filter' => $filter,
@@ -407,4 +408,3 @@ class CAllSalePaySystem
 		return CSalePaySystemAction::add($arFields);
 	}
 }
-?>

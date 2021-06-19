@@ -373,6 +373,19 @@ final class Binder
 				$parameter
 			);
 		}
+		elseif ($parameter->getType() instanceof \ReflectionNamedType)
+		{
+			/** @var \ReflectionNamedType $reflectionType */
+			$reflectionType = $parameter->getType();
+			$declarationChecker = new TypeDeclarationChecker($reflectionType, $value);
+			if (!$declarationChecker->isSatisfied())
+			{
+				throw new BinderArgumentException(
+					"Invalid value {{$value}} to match with parameter {{$parameter->getName()}}. Should be value of type {$reflectionType->getName()}.",
+					$parameter
+				);
+			}
+		}
 
 		if ($parameter->isArray())
 		{

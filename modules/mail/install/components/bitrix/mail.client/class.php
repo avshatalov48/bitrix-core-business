@@ -2,6 +2,7 @@
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main;
+\Bitrix\Main\UI\Extension::load('mail.messagegrid');
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
@@ -15,7 +16,7 @@ class CMailClientComponent extends CBitrixComponent
 		if (!Main\Loader::includeModule('mail'))
 		{
 			ShowError(Loc::getMessage('MAIL_MODULE_NOT_INSTALLED'));
-			return;
+			die();
 		}
 
 		global $USER, $APPLICATION;
@@ -55,7 +56,7 @@ class CMailClientComponent extends CBitrixComponent
 				'signatures'  => 'signatures',
 				'signature'   => 'signature/#id#',
 				'msg_view'    => 'message/#id#',
-				'msg_list'    => 'list/#id#',
+				'msg_list'    => 'list/#id#/#start_sync_with_showing_stepper#',
 				'config_dirs' => 'config/dirs',
                 'addressbook' => 'addressbook',
 			);
@@ -70,7 +71,7 @@ class CMailClientComponent extends CBitrixComponent
 				'signatures'  => 'page=signatures',
 				'signature'   => 'page=signature&id=#id#',
 				'msg_view'    => 'page=msg_view&id=#id#',
-				'msg_list'    => 'page=msg_list&id=#id#',
+				'msg_list'    => 'page=msg_list&id=#id#&start_sync_with_showing_stepper=#start_sync_with_showing_stepper#',
 				'config_dirs' => 'page=config_dirs',
                 'addressbook' => 'page=addressbook',
 			);

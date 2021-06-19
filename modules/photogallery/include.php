@@ -154,6 +154,8 @@ function PhotoDateFormat($format="", $timestamp="")
 
 function PhotoFormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="DD.MM.YYYY HH:MI:SS")
 {
+	global $DB;
+
 	$strDate = trim($strDate);
 
 	$new_format = str_replace("MI","I", $new_format);
@@ -167,7 +169,7 @@ function PhotoFormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="D
 	for($i=0; $i<$bound; $i++)
 	{
 		if(preg_match("/[^0-9]/", $arDate[$i], $matches))
-			$r = CDatabase::ForSql($arDate[$i], 4);
+			$r = $DB->ForSql($arDate[$i], 4);
 		else
 			$r = intval($arDate[$i]);
 

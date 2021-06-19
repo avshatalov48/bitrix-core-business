@@ -88,7 +88,7 @@ class CIMMessageParam
 					{
 						if(is_array($v2))
 						{
-							$value = \Bitrix\Main\Web\Json::encode($v2);
+							$value = \Bitrix\Im\Common::jsonEncode($v2);
 							if($value <> '' && mb_strlen($value) < 60000)
 							{
 								$key = md5($name.$value);
@@ -442,7 +442,13 @@ class CIMMessageParam
 
 			if ($ar["PARAM_JSON"] <> '')
 			{
-				$value = \Bitrix\Main\Web\Json::decode($ar["PARAM_JSON"]);
+				try
+				{
+					$value = \Bitrix\Main\Web\Json::decode($ar["PARAM_JSON"]);
+				}
+				catch (\Bitrix\Main\SystemException $e)
+				{
+				}
 			}
 			else
 			{
@@ -558,7 +564,7 @@ class CIMMessageParam
 					$arValues[$key] = $arDefault[$key];
 				}
 			}
-			else if ($key == 'CHAT_USER' || $key == 'DATE_TS' || $key == 'FILE_ID' || $key == 'LIKE'  || $key == 'FAVORITE' || $key == 'KEYBOARD_ACTION' || $key == 'URL_ID' || $key == 'LINK_ACTIVE')
+			else if ($key == 'CHAT_USER' || $key == 'DATE_TS' || $key == 'FILE_ID' || $key == 'LIKE'  || $key == 'FAVORITE' || $key == 'KEYBOARD_ACTION' || $key == 'URL_ID' || $key == 'LINK_ACTIVE' || $key == 'USERS')
 			{
 				if (is_array($value) && !empty($value))
 				{
@@ -749,6 +755,7 @@ class CIMMessageParam
 			'CRM_FORM_VALUE' => '',
 			'IMOL_DATE_CLOSE_VOTE' => '',
 			'IMOL_TIME_LIMIT_VOTE' => '',
+			'USERS' => [],
 		];
 
 		return $arDefault;
@@ -1329,7 +1336,7 @@ class CIMMessageParamAttach
 
 	public function GetJSON()
 	{
-		$result = \Bitrix\Main\Web\Json::encode($this->result);
+		$result = \Bitrix\Im\Common::jsonEncode($this->result);
 		return mb_strlen($result) < 60000? $result: "";
 	}
 

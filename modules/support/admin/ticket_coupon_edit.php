@@ -155,7 +155,8 @@ $tabControl = new CAdminTabControl('tabControl', $aTabs);
 </tr>
 <?
 $arr = Array("reference" => array(), "reference_id" => array());
-$rs = CTicketSLA::GetList($a = array('NAME' => 'ASC'), array(), $__is_f);
+$a = array('NAME' => 'ASC');
+$rs = CTicketSLA::GetList($a, array(), $__is_f);
 while ($arSla = $rs->GetNext())
 {
 	$arr['reference'][] = htmlspecialcharsback($arSla['NAME']) . ' ['.$arSla['ID'].']';

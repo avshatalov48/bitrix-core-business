@@ -20,7 +20,7 @@ $canEditPHP = $USER->CanDoOperation('edit_php');
 if($canEditPHP)
 	\Bitrix\Main\Application::getInstance()->getKernelSession()["SHOW_SQL_STAT"] = ($DB->ShowSqlStat? "Y": "N");
 
-if(!defined('PUBLIC_AJAX_MODE') && ($_REQUEST["mode"] != 'excel'))
+if(!defined('PUBLIC_AJAX_MODE') && (($_REQUEST["mode"] ?? '') != 'excel'))
 {
 	$bShowTime = isset(\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_SHOW_TIME_EXEC"]) && (\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_SHOW_TIME_EXEC"] == 'Y');
 	$bShowStat = ($DB->ShowSqlStat && ($canEditPHP || \Bitrix\Main\Application::getInstance()->getKernelSession()["SHOW_SQL_STAT"]=="Y"));
@@ -45,7 +45,7 @@ $buffer = $APPLICATION->EndBufferContentMan();
 //used in debug_info.php
 $main_exec_time = round(microtime(true) - START_EXEC_TIME, 4);
 
-if(!defined('PUBLIC_AJAX_MODE') && ($_REQUEST["mode"] != 'excel'))
+if(!defined('PUBLIC_AJAX_MODE') && (($_REQUEST["mode"] ?? '') != 'excel'))
 {
 	if($bShowTime || $bShowStat || $bShowCacheStat)
 	{

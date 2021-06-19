@@ -9,7 +9,7 @@ IncludeModuleLangFile(__FILE__);
 
 class CAllVoteChannel
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "vote";
 		return "<br>Module: ".$module_id."<br>Class: CAllVoteChannel<br>File: ".__FILE__;
@@ -63,7 +63,7 @@ class CAllVoteChannel
 					"ACTIVE" => "Y",
 					"SID" => $arFields["SYMBOLIC_NAME"],
 					"SID_EXACT_MATCH" => "Y");
-				$db_res = CVoteChannel::GetList($v1, $v2, $arFilter, $v3);
+				$db_res = CVoteChannel::GetList('', '', $arFilter);
 				if ($db_res && ($res = $db_res->Fetch()))
 				{
 					$aMsg[] = array(
@@ -140,7 +140,7 @@ class CAllVoteChannel
 		return $ID;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 		if (!self::CheckFields("UPDATE", $arFields, $ID))
@@ -177,7 +177,7 @@ class CAllVoteChannel
 		return $ID;
 	}
 
-	function SetAccessPermissions($ID, $arGroups)
+	public static function SetAccessPermissions($ID, $arGroups)
 	{
 		global $DB;
 		$ID = intval($ID);
@@ -186,7 +186,7 @@ class CAllVoteChannel
 		if ($ID <= 0 || empty($arGroups))
 			return false;
 
-		$db_res = CGroup::GetList($by = "ID", $order = "ASC");
+		$db_res = CGroup::GetList("ID", "ASC");
 		if ($db_res && $res = $db_res->Fetch())
 		{
 			do
@@ -214,7 +214,7 @@ class CAllVoteChannel
 		return true;
 	}
 
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = (CVoteChannel::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB;
@@ -231,11 +231,11 @@ class CAllVoteChannel
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -281,13 +281,12 @@ class CAllVoteChannel
 		elseif ($by == "s_votes")			$strSqlOrder = "ORDER BY VOTES";
 		else
 		{
-			$by = "s_id";
 			$strSqlOrder = "ORDER BY C.ID";
 		}
-		if ($order!="asc")
+
+		if ($order != "asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
@@ -303,8 +302,6 @@ class CAllVoteChannel
 			GROUP BY C.ID) CC
 		INNER JOIN b_vote_channel C ON (C.ID = CC.ID)
 		".$strSqlOrder;
-
-		$is_filtered = IsFiltered($strSqlSearch);
 
 		if (VOTE_CACHE_TIME===false || mb_strpos($_SERVER['REQUEST_URI'], '/bitrix/admin/') !== false)
 		{
@@ -336,7 +333,7 @@ class CAllVoteChannel
 		}
 	}
 
-	function GetSiteArray($CHANNEL_ID)
+	public static function GetSiteArray($CHANNEL_ID)
 	{
 		$err_mess = (CAllVoteChannel::err_mess())."<br>Function: GetSiteArray<br>Line: ";
 		global $DB;
@@ -375,7 +372,7 @@ class CAllVoteChannel
 
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 		$err_mess = (CAllVoteChannel::err_mess())."<br>Function: Delete<br>Line: ";
@@ -403,16 +400,16 @@ class CAllVoteChannel
 		return $res;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		$ID = intval($ID);
 		if ($ID <= 0)
 			return false;
-		$res = CVoteChannel::GetList($by, $order, array("ID" => $ID), $is_filtered);
+		$res = CVoteChannel::GetList('', '', array("ID" => $ID));
 		return $res;
 	}
 
-	function GetArrayGroupPermission($channel_id)
+	public static function GetArrayGroupPermission($channel_id)
 	{
 		global $DB;
 
@@ -492,14 +489,8 @@ class CVoteDiagramType
 {
 	var $arType = Array();
 
-	function CVoteDiagramType($directCall=true)
+	public function __construct()
 	{
-		if ($directCall)
-		{
-			trigger_error("CVoteDiagramType is singleton!", E_USER_ERROR);
-			return;
-		}
-
 		$this->arType = Array(
 			VOTE_DEFAULT_DIAGRAM_TYPE => GetMessage("VOTE_DIAGRAM_TYPE_HISTOGRAM"),
 			"circle" => GetMessage("VOTE_DIAGRAM_TYPE_CIRCLE")
@@ -510,7 +501,7 @@ class CVoteDiagramType
 	{
 		static $instance;
 		if (!is_object($instance))
-			$instance = new CVoteDiagramType(false);
+			$instance = new CVoteDiagramType();
 
 		return $instance;
 	}

@@ -438,7 +438,7 @@ class CatalogSectionComponent extends ElementList
 			}
 		}
 	}
-	
+
 	protected function initMetaData()
 	{
 		global $APPLICATION;

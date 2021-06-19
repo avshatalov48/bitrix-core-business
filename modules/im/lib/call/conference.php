@@ -4,22 +4,20 @@ namespace Bitrix\Im\Call;
 
 use Bitrix\Im\Alias;
 use Bitrix\Im\Chat;
-use Bitrix\Im\ChatTable;
 use Bitrix\Im\Common;
 use Bitrix\Im\Model\AliasTable;
-use Bitrix\Im\RelationTable;
+use Bitrix\Im\Model\ConferenceUserRoleTable;
+use Bitrix\Im\Model\RelationTable;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\DB\ArrayResult;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ORM\Fields\Relations\OneToMany;
 use Bitrix\Main\Result;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Im\Model\ConferenceTable;
 use CBitrix24;
-use CIMChat;
-use CUser;
 
 class Conference
 {
@@ -35,6 +33,11 @@ class Conference
 	public const STATE_FINISHED = "finished";
 
 	public const ALIAS_TYPE = 'VIDEOCONF';
+	public const BROADCAST_MODE = 'BROADCAST';
+
+	public const PRESENTERS_LIMIT = 4;
+	public const BROADCAST_USER_LIMIT = 500;
+	public const ROLE_PRESENTER = 'presenter';
 
 	protected $id;
 	protected $alias;
@@ -47,6 +50,8 @@ class Conference
 	protected $hostName;
 	protected $hostId;
 	protected $users;
+	protected $broadcastMode;
+	protected $speakers;
 
 	protected function __construct()
 	{
@@ -120,6 +125,91 @@ class Conference
 		}, $users);
 	}
 
+	public function getUserLimit(): int
+	{
+		if ($this->isBroadcast())
+		{
+			return self::BROADCAST_USER_LIMIT;
+		}
+		else if (Call::isCallServerEnabled())
+		{
+			return Call::getMaxCallServerParticipants();
+		}
+		else
+		{
+			 return (int)Option::get('im', 'turn_server_max_users');
+		}
+	}
+
+	public function isBroadcast(): bool
+	{
+		return $this->broadcastMode;
+	}
+
+	public function getPresentersList(): array
+	{
+		$result = [];
+
+		$presenters = \Bitrix\Im\Model\ConferenceUserRoleTable::getList(
+			[
+				'select' => ['USER_ID'],
+				'filter' => [
+					'=CONFERENCE_ID' => $this->getId(),
+					'=ROLE' => self::ROLE_PRESENTER
+				]
+			]
+		)->fetchAll();
+
+		foreach ($presenters as $presenter)
+		{
+			$result[] = (int)$presenter['USER_ID'];
+		}
+
+		return $result;
+	}
+
+	public function getPresentersInfo(): array
+	{
+		$result = [];
+		$presenters = $this->getPresentersList();
+
+		foreach ($presenters as $presenter)
+		{
+			$presenterInfo =  \Bitrix\Im\User::getInstance($presenter)->getArray();
+			$result[] = array_change_key_case($presenterInfo, CASE_LOWER);
+		}
+
+		return $result;
+	}
+
+	public function isPresenter(int $userId): bool
+	{
+		$presenters = $this->getPresentersList();
+
+		return in_array($userId, $presenters, true);
+	}
+
+	public function makePresenter(int $userId): \Bitrix\Main\ORM\Data\AddResult
+	{
+		return \Bitrix\Im\Model\ConferenceUserRoleTable::add(
+			[
+				'CONFERENCE_ID' => $this->getId(),
+				'USER_ID' => $userId,
+				'ROLE' => self::ROLE_PRESENTER
+			]
+		);
+	}
+
+	public function deletePresenter(int $userId): \Bitrix\Main\ORM\Data\DeleteResult
+	{
+		return \Bitrix\Im\Model\ConferenceUserRoleTable::delete(
+			[
+				'CONFERENCE_ID' => $this->getId(),
+				'USER_ID' => $userId
+			]
+		);
+	}
+
 	public function isActive(): bool
 	{
 		//TODO
@@ -164,7 +254,7 @@ class Conference
 		}
 		else
 		{
-			$user = new CUser();
+			$user = new \CUser();
 			$arGroups = $user::GetUserGroup($userId);
 			$isAdmin = in_array(1, $arGroups, true);
 		}
@@ -181,7 +271,7 @@ class Conference
 		}
 		else
 		{
-			$user = new CUser();
+			$user = new \CUser();
 			$arGroups = $user::GetUserGroup($userId);
 			$isAdmin = in_array(1, $arGroups, true);
 		}
@@ -212,6 +302,19 @@ class Conference
 		if (isset($fields['VIDEOCONF']['INVITATION']) && $fields['VIDEOCONF']['INVITATION'] !== $this->getInvitation())
 		{
 			$result['VIDEOCONF']['INVITATION'] = $fields['VIDEOCONF']['INVITATION'];
+		}
+
+		$newBroadcastMode = isset($fields['VIDEOCONF']['PRESENTERS']) && count($fields['VIDEOCONF']['PRESENTERS']) > 0;
+		if ($this->isBroadcast() !== $newBroadcastMode)
+		{
+			$result['VIDEOCONF']['IS_BROADCAST'] = $newBroadcastMode === true ? 'Y' : 'N';
+		}
+
+		if ($newBroadcastMode)
+		{
+			$currentPresenters = $this->getPresentersList();
+			$result['NEW_PRESENTERS'] = array_diff($fields['VIDEOCONF']['PRESENTERS'], $currentPresenters);
+			$result['DELETED_PRESENTERS'] = array_diff($currentPresenters, $fields['VIDEOCONF']['PRESENTERS']);
 		}
 
 		if (isset($fields['USERS']))
@@ -251,7 +354,7 @@ class Conference
 		$updateData['ID'] = $fields['ID'];
 
 		global $USER;
-		$chat = new CIMChat($USER->GetID());
+		$chat = new \CIMChat($USER->GetID());
 
 		//Chat update
 		if ($updateData['TITLE'])
@@ -269,6 +372,21 @@ class Conference
 		//Adding users
 		if (isset($updateData['NEW_USERS']))
 		{
+			//check user count
+			$userLimit = $this->getUserLimit();
+
+			$currentUserCount = \CIMChat::getUserCount($this->chatId);
+			$newUserCount = $currentUserCount + count($updateData['NEW_USERS']);
+			if (isset($updateData['DELETED_USERS']))
+			{
+				$newUserCount -= count($updateData['DELETED_USERS']);
+			}
+
+			if ($newUserCount > $userLimit)
+			{
+				return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_MAX_USERS')));
+			}
+
 			foreach ($updateData['NEW_USERS'] as $newUser)
 			{
 				$addingResult = $chat->AddUser($this->getChatId(), $newUser);
@@ -297,12 +415,70 @@ class Conference
 		//Conference update
 		if (isset($updateData['VIDEOCONF']))
 		{
+			if (isset($updateData['VIDEOCONF']['IS_BROADCAST']))
+			{
+				\CIMChat::SetChatParams($this->getChatId(), [
+					'ENTITY_DATA_1' => $updateData['VIDEOCONF']['IS_BROADCAST'] === 'Y'? self::BROADCAST_MODE: ''
+				]);
+			}
+
 			$updateResult = ConferenceTable::update($updateData['ID'], $updateData['VIDEOCONF']);
 
 			if (!$updateResult->isSuccess())
 			{
 				return $result->addErrors($updateResult->getErrors());
 			}
+		}
+
+		//update presenters
+		if (isset($updateData['NEW_PRESENTERS']) && !empty($updateData['NEW_PRESENTERS']))
+		{
+			$setManagers = [];
+			foreach ($updateData['NEW_PRESENTERS'] as $newPresenter)
+			{
+				$this->makePresenter($newPresenter);
+				$setManagers[$newPresenter] = true;
+			}
+			$chat->SetManagers($this->getChatId(), $setManagers, false);
+		}
+
+		if (isset($updateData['DELETED_PRESENTERS']) && !empty($updateData['DELETED_PRESENTERS']))
+		{
+			$removeManagers = [];
+			foreach ($updateData['DELETED_PRESENTERS'] as $deletedPresenter)
+			{
+				$this->deletePresenter($deletedPresenter);
+				$removeManagers[$deletedPresenter] = false;
+			}
+			$chat->SetManagers($this->getChatId(), $removeManagers, false);
+		}
+
+		// delete presenters if we change mode to normal
+		if (isset($updateData['VIDEOCONF']['IS_BROADCAST']) && $updateData['VIDEOCONF']['IS_BROADCAST'] === 'N')
+		{
+			$presentersList = $this->getPresentersList();
+			foreach ($presentersList as $presenter)
+			{
+				$this->deletePresenter($presenter);
+			}
+		}
+
+		// send pull
+		$isPullNeeded = isset($updateData['VIDEOCONF']['IS_BROADCAST']) || isset($updateData['NEW_PRESENTERS']) || isset($updateData['DELETED_PRESENTERS']);
+		if ($isPullNeeded && Loader::includeModule("pull"))
+		{
+			$relations = \CIMChat::GetRelationById($this->getChatId());
+			$pushMessage = [
+				'module_id' => 'im',
+				'command' => 'conferenceUpdate',
+				'params' => [
+					'chatId' => $this->getChatId(),
+					'isBroadcast' => isset($updateData['VIDEOCONF']['IS_BROADCAST']) ? $updateData['VIDEOCONF']['IS_BROADCAST'] === 'Y' : '',
+					'presenters' => $this->getPresentersList()
+				],
+				'extra' => \Bitrix\Im\Common::getPullExtra()
+			];
+			\Bitrix\Pull\Event::add(array_keys($relations), $pushMessage);
 		}
 
 		return $result;
@@ -313,12 +489,29 @@ class Conference
 		$result = new Result();
 
 		//hide chat
-		CIMChat::hide($this->getChatId());
+		\CIMChat::hide($this->getChatId());
 
 		//delete relations
 		RelationTable::deleteBatch(
 			['=CHAT_ID' => $this->getChatId()]
 		);
+
+		//delete roles
+		$presenters = $this->getPresentersList();
+		foreach ($presenters as $presenter)
+		{
+			$deleteRolesResult = ConferenceUserRoleTable::delete(
+				[
+					'CONFERENCE_ID' => $this->getId(),
+					'USER_ID' => $presenter
+				]
+			);
+
+			if (!$deleteRolesResult->isSuccess())
+			{
+				return $result->addErrors($deleteRolesResult->getErrors());
+			}
+		}
 
 		//delete conference
 		$deleteConferenceResult = ConferenceTable::delete($this->getId());
@@ -351,10 +544,10 @@ class Conference
 		}
 
 		if (
-			isset($fields['PASSWORD'], $fields['PASSWORD_NEEDED']) &&
-			$fields['PASSWORD_NEEDED'] === true &&
-			is_string($fields['PASSWORD']) &&
-			$fields['PASSWORD'] !== ''
+			isset($fields['PASSWORD'], $fields['PASSWORD_NEEDED'])
+			&& $fields['PASSWORD_NEEDED'] === true
+			&& is_string($fields['PASSWORD'])
+			&& $fields['PASSWORD'] !== ''
 		)
 		{
 			$fields['PASSWORD'] = trim($fields['PASSWORD']);
@@ -392,6 +585,31 @@ class Conference
 			}
 		}
 
+		if (isset($fields['BROADCAST_MODE']) && is_bool($fields['BROADCAST_MODE']) && $fields['BROADCAST_MODE'] === true)
+		{
+			if (count($fields['PRESENTERS']) === 0)
+			{
+				return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_NO_PRESENTERS')));
+			}
+
+			if (count($fields['PRESENTERS']) > self::PRESENTERS_LIMIT)
+			{
+				return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_TOO_MANY_PRESENTERS')));
+			}
+
+			$validatedFields['VIDEOCONF']['IS_BROADCAST'] = 'Y';
+			$validatedFields['VIDEOCONF']['PRESENTERS'] = [];
+			foreach ($fields['PRESENTERS'] as $userId)
+			{
+				$validatedFields['USERS'][] = (int)$userId;
+				$validatedFields['VIDEOCONF']['PRESENTERS'][] = (int)$userId;
+			}
+		}
+		else
+		{
+			$validatedFields['VIDEOCONF']['IS_BROADCAST'] = 'N';
+		}
+
 		if (isset($fields['ALIAS_DATA']))
 		{
 			$validatedFields['VIDEOCONF']['ALIAS_DATA'] = $fields['ALIAS_DATA'];
@@ -414,9 +632,20 @@ class Conference
 
 		$addData = $validationResult->getData()['FIELDS'];
 		$addData['ENTITY_TYPE'] = static::ALIAS_TYPE;
+		$addData['ENTITY_DATA_1'] = $addData['VIDEOCONF']['IS_BROADCAST'] === 'Y'? static::BROADCAST_MODE: '';
 
 		$currentUser = \Bitrix\Im\User::getInstance();
-		$chat = new CIMChat($currentUser->getId());
+
+		$addData['MANAGERS'] = [];
+		if ($addData['VIDEOCONF']['IS_BROADCAST'] === 'Y')
+		{
+			foreach ($addData['VIDEOCONF']['PRESENTERS'] as $presenter)
+			{
+				$addData['MANAGERS'][$presenter] = true;
+			}
+		}
+
+		$chat = new \CIMChat($currentUser->getId());
 		$chatId = $chat->Add($addData);
 
 		if (!$chatId)
@@ -479,6 +708,7 @@ class Conference
 		$instance->chatName = $fields['CHAT_NAME'];
 		$instance->hostName = $fields['HOST_NAME']." ".$fields['HOST_LAST_NAME'];
 		$instance->hostId = $fields['HOST'];
+		$instance->broadcastMode = $fields['IS_BROADCAST'] === 'Y';
 
 		$instance->users = $instance->getUsers();
 
@@ -513,6 +743,7 @@ class Conference
 			'CONFERENCE_START',
 			'PASSWORD',
 			'INVITATION',
+			'IS_BROADCAST',
 			'ALIAS_PRIMARY' => 'ALIAS.ID',
 			'ALIAS_CODE' => 'ALIAS.ALIAS',
 			'CHAT_ID' => 'ALIAS.ENTITY_ID',

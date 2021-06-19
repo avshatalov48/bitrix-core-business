@@ -1,4 +1,4 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 
 class CSocNetForumComments
@@ -414,4 +414,3 @@ class CSocNetForumComments
 		}
 	}
 }
-?>

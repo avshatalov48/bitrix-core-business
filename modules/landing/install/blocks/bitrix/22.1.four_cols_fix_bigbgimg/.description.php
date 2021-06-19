@@ -61,7 +61,7 @@ return array(
 			),
 			'.landing-block-node-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_STYLE_LANDINGBLOCKNODETITLE'),
-				'type' => 'typo',
+				'type' => ['typo', 'heading'],
 			),
 			'.landing-block-node-img-container' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODEIMG'),

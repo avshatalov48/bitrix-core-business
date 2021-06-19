@@ -9,7 +9,6 @@ $MESS["EC_VIEW_REMINDER_ADD"] = "Erinnern";
 $MESS["EC_VIEW_SECTION"] = "Kalender";
 $MESS["EC_VIEW_SLIDER_ATTENDEES"] = "Teilnehmer";
 $MESS["EC_VIEW_SLIDER_CANCEL_BUTTON"] = "Abbrechen";
-$MESS["EC_VIEW_SLIDER_CHAT_LINK"] = "Chat mit Teilnehmern";
 $MESS["EC_VIEW_SLIDER_COMMENTS"] = "Kommentare";
 $MESS["EC_VIEW_SLIDER_COPY_LINK"] = "Link zum Termin in den Zwischenspeicher ablegen";
 $MESS["EC_VIEW_SLIDER_DEL"] = "Löschen";

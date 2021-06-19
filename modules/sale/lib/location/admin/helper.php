@@ -27,7 +27,7 @@ abstract class Helper
 	#### Entity settings
 	#####################################
 
-	abstract public function getEntityRoadMap();
+	abstract public static function getEntityRoadMap();
 
 	public static function getEntityRoadCode()
 	{

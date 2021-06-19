@@ -49,7 +49,6 @@ $domainProtocol = '';
 $row = $arResult['LANDING'];
 $meta = $arResult['META'];
 $hooks = $arResult['HOOKS'];
-$hooksSite = $arResult['HOOKS_SITE'];
 $domains = $arResult['DOMAINS'];
 $tplRefs = $arResult['TEMPLATES_REF'];
 $sites = $arResult['SITES'];
@@ -58,6 +57,7 @@ $formEditor = $arResult['SPECIAL_TYPE'] == Site\Type::PSEUDO_SCOPE_CODE_FORMS;
 $siteCurrent = isset($sites[$row['SITE_ID']['CURRENT']])
 				? $sites[$row['SITE_ID']['CURRENT']]
 				: null;
+$isSMN = $siteCurrent['TYPE'] == 'SMN';
 const COLORPICKER_COLOR = '#f25a8f';
 const COLORPICKER_COLOR_RGB = 'rgb(52, 188, 242)';
 
@@ -222,7 +222,7 @@ if ($arParams['SUCCESS_SAVE'])
 								}
 								?>
 							</span>
-							<input type="<?= $isIndex ? 'hidden' : 'text';?>" name="fields[CODE]" value="<?= \htmlspecialcharsbx($row['CODE']['CURRENT'])?>" class="ui-input" />
+							<input type="<?= $isIndex ? 'hidden' : 'text';?>" name="fields[CODE]" value="<?= $row['CODE']['CURRENT'];?>" class="ui-input" />
 							<?= $isIndex ? '' : '<span class="landing-form-site-name-label">/</span>';?>
 							<?php if ($isIndex):?>
 								<div class="ui-form-field-description">
@@ -533,7 +533,7 @@ if ($arParams['SUCCESS_SAVE'])
 								<?php if (isset($hooks['CSSBLOCK'])):?>
 									<span class="landing-additional-alt-promo-text" data-landing-additional-option="css"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_CSS');?></span>
 								<?php endif;?>
-								<?php if (!$isIntranet && !$formEditor && ModuleManager::isModuleInstalled('bitrix24')):?>
+								<?php if (!$isIntranet && !$formEditor && !$isSMN):?>
 								<span class="landing-additional-alt-promo-text" data-landing-additional-option="sitemap"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_SITEMAP');?></span>
 								<?php endif;?>
 							</span>
@@ -705,28 +705,13 @@ if ($arParams['SUCCESS_SAVE'])
 										?>
 									</div>
 									<?php endif;?>
-									<?php if (isset($pageFields['BACKGROUND_COLOR'])):
-										$value = \htmlspecialcharsbx(trim($pageFields['BACKGROUND_COLOR']->getValue()));
-										?>
-									<script type="text/javascript">
-										BX.ready(function() {
-											new BX.Landing.ColorPicker(BX('landing-form-colorpicker'));
-										});
-									</script>
-									<div class="ui-control-wrap">
-										<div class="ui-form-control-label"><?= $pageFields['BACKGROUND_COLOR']->getLabel();?></div>
-										<div class="ui-colorpicker<?if ($value){?> ui-colorpicker-selected<?}?>" id="landing-form-colorpicker" >
-											<span class="ui-colorpicker-color ui-colorpicker-color-js"<?if ($value){?> style="background-color: <?= $value?>;"<?}?>></span>
-											<?php
-											$pageFields['BACKGROUND_COLOR']->viewForm(array(
-												'additional' => 'readonly',
-												'class' => 'ui-input ui-input-color landing-colorpicker-inp-js',
-												'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
-											));
-											?>
-											<span class="ui-colorpicker-clear ui-colorpicker-clear"></span>
-										</div>
-									</div>
+									<?php if (isset($pageFields['BACKGROUND_COLOR'])): ?>
+										<script type="text/javascript">
+											BX.ready(function() {
+												new BX.Landing.ColorPicker(BX('field-background_color'));
+											});
+										</script>
+										<?php $template->showField('BACKGROUND_COLOR', $pageFields['BACKGROUND_COLOR']); ?>
 									<?php endif;?>
 								</div>
 							</div>
@@ -877,7 +862,7 @@ if ($arParams['SUCCESS_SAVE'])
 					<script type="text/javascript">
 						BX.ready(function()
 						{
-							new BX.Landing.Metrika();
+							new BX.Landing.ExternalMetrika();
 						});
 					</script>
 				</tr>
@@ -1022,7 +1007,7 @@ if ($arParams['SUCCESS_SAVE'])
 						</td>
 					</tr>
 				<?php endif;?>
-				<?php if (!$isIntranet && !$formEditor && ModuleManager::isModuleInstalled('bitrix24')):?>
+				<?php if (!$isIntranet && !$formEditor && !$isSMN):?>
 				<tr class="landing-form-hidden-row" data-landing-additional-detail="sitemap">
 					<td class="ui-form-label"><?= $row['SITEMAP']['TITLE']?></td>
 					<td class="ui-form-right-cell ui-form-field-wrap-align-m">

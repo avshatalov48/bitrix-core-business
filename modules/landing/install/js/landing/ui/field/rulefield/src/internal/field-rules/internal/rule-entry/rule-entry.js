@@ -8,7 +8,6 @@ import {Draggable} from 'ui.draganddrop.draggable';
 import {PageObject} from 'landing.pageobject';
 import {TextField} from 'landing.ui.field.textfield';
 import {FieldElement} from '../../../field-element/field-element';
-import {listValueSettingsItems} from './internal/value-settings-items';
 import type {RuleEntryOptions} from '../../../../types/rule-field-options';
 
 import './css/style.css';
@@ -76,43 +75,53 @@ export class RuleEntry extends EventEmitter
 		});
 	}
 
-	// eslint-disable-next-line class-methods-use-this
-	renderSeparator(): HTMLDivElement
+	getOperatorField(): BX.Landing.UI.Field.Dropdown
 	{
-		return Tag.render`
-			<div class="value-settings-item-separator"></div>
-		`;
+		return this.cache.remember('operatorField', () => {
+			const {condition} = this.options.dictionary.deps;
+			return new BX.Landing.UI.Field.Radio({
+				selector: 'operator',
+				value: [this.state.condition.operator],
+				items: condition.operations
+					.filter((item) => {
+						return (
+							!Type.isArrayFilled(item.fieldTypes)
+							|| item.fieldTypes.includes(this.options.condition.field.type)
+						);
+					})
+					.map((item) => {
+						return {name: item.name, value: item.id};
+					}),
+				onChange: this.onOperatorChange.bind(this),
+			});
+		});
 	}
 
-	renderOperatorRadioButton({label, value, id, checked = false}): HTMLDivElement
+	getOperatorLabel(operator: string): string
 	{
-		const onChanage = () => {
-			if (value === 'equal')
-			{
-				this.getOperatorLabelLayout().textContent = Loc.getMessage('LANDING_RULE_FIELD_CONDITION_VALUE_EQUALS');
-				this.state.condition.operator = '=';
-			}
-			else
-			{
-				this.getOperatorLabelLayout().textContent = Loc.getMessage('LANDING_RULE_FIELD_CONDITION_VALUE_NOT_EQUALS');
-				this.state.condition.operator = '!=';
-			}
+		const operatorField = this.getOperatorField();
+		return operatorField.items.reduce((acc, item) => {
+			return String(item.value) === String(operator) ? item.name : acc;
+		}, '');
+	}
 
-			this.emit('onChange');
-		};
+	onOperatorChange()
+	{
+		const operatorField = this.getOperatorField();
+		const [value] = operatorField.getValue();
 
-		return Tag.render`
-			<div class="value-settings-item">
-				<input 
-					type="radio" 
-					id="operator_${id}_${value}" 
-					name="operator_${id}_${this.options.condition.field.id}"
-					onchange="${onChanage}"
-					${checked ? 'checked' : ''}
-				>
-				<label for="operator_${id}_${value}">${label}</label>
-			</div>
-		`;
+		this.getOperatorLabelLayout().textContent = this.getOperatorLabel(value);
+		this.state.condition.operator = value;
+		this.emit('onChange');
+	}
+
+	getSeparator(): HTMLDivElement
+	{
+		return this.cache.remember('separator', () => {
+			return Tag.render`
+				<div class="value-settings-item-separator"></div>
+			`;
+		});
 	}
 
 	renderValueRadioButton({label, value, id, checked}): HTMLDivElement
@@ -143,7 +152,6 @@ export class RuleEntry extends EventEmitter
 		return this.cache.remember('valueSettingsPopup', () => {
 			const rootWindow = PageObject.getRootWindow();
 			const popupContent = Tag.render`<div class="value-settings-popup"></div>`;
-
 			const random = Text.getRandom();
 
 			if (
@@ -153,14 +161,11 @@ export class RuleEntry extends EventEmitter
 				|| this.options.condition.field.type === 'bool'
 			)
 			{
-				listValueSettingsItems.forEach((item, index) => {
-					Dom.append(
-						this.renderOperatorRadioButton({...item, id: random, checked: index === 0}),
-						popupContent,
-					);
-				});
+				const operatorField = this.getOperatorField();
+				operatorField.setValue(this.options.condition.operator);
+				Dom.append(operatorField.getLayout(), popupContent);
 
-				Dom.append(this.renderSeparator(), popupContent);
+				Dom.append(this.getSeparator(), popupContent);
 
 				const valueItems = (() => {
 					if (this.options.condition.field.type === 'bool')
@@ -175,7 +180,7 @@ export class RuleEntry extends EventEmitter
 				})();
 
 				valueItems.forEach((item) => {
-					const checked = this.options.condition.field.value === item.value;
+					const checked = String(this.options.condition.value) === String(item.value);
 					Dom.append(
 						Dom.append(
 							this.renderValueRadioButton({...item, id: random, checked}),
@@ -187,14 +192,11 @@ export class RuleEntry extends EventEmitter
 			}
 			else
 			{
-				listValueSettingsItems.forEach((item, index) => {
-					Dom.append(
-						this.renderOperatorRadioButton({...item, id: random, checked: index === 0}),
-						popupContent,
-					);
-				});
+				const operatorField = this.getOperatorField();
+				operatorField.setValue(this.options.condition.operator);
+				Dom.append(operatorField.getLayout(), popupContent);
 
-				Dom.append(this.renderSeparator(), popupContent);
+				Dom.append(this.getSeparator(), popupContent);
 
 				const inputField = new TextField({
 					textOnly: true,
@@ -246,7 +248,7 @@ export class RuleEntry extends EventEmitter
 		return this.cache.remember('operatorLayout', () => {
 			return Tag.render`
 				<div class="landing-ui-rule-entry-condition-value-operator">
-					${Loc.getMessage(`LANDING_RULE_FIELD_CONDITION_VALUE_${this.options.condition.operator === '=' ? 'EQUALS' : 'NOT_EQUALS'}`)}
+					${this.getOperatorLabel(this.options.condition.operator)}
 				</div>
 			`;
 		});
@@ -257,7 +259,7 @@ export class RuleEntry extends EventEmitter
 		if (Type.isArray(this.options.condition.field.items))
 		{
 			const valueItem = this.options.condition.field.items.find((item) => {
-				return item.value === this.options.condition.value;
+				return String(item.value) === String(this.options.condition.value);
 			});
 
 			if (valueItem && Type.isString(valueItem.label))
@@ -367,6 +369,7 @@ export class RuleEntry extends EventEmitter
 						return (
 							field.type !== 'page'
 							&& field.type !== 'layout'
+							&& field.id !== this.options.condition.field.id
 						);
 					})
 					.map((item) => {

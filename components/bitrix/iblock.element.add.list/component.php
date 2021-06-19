@@ -105,10 +105,7 @@ if (CModule::IncludeModule("iblock"))
 
 			if ($bWorkflowIncluded)
 			{
-				$by = "c_sort";
-				$order = "asc";
-				$is_filtered = false;
-				$rsWFStatus = CWorkflowStatus::GetList($by, $order, array("ACTIVE" => "Y"), $is_filtered);
+				$rsWFStatus = CWorkflowStatus::GetList("c_sort", "asc", array("ACTIVE" => "Y"));
 				$arResult["WF_STATUS"] = array();
 				while ($arStatus = $rsWFStatus->GetNext())
 				{

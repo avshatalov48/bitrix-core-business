@@ -107,13 +107,12 @@ if($strError == '' && (
 	$_REQUEST["table_id"]==$sTableID_tab3
 	))
 {
-	$adv = CAdv::GetList($by2, $order2, $arFilter, $is_filtered, "", $arrGROUP_DAYS, $v);
+	$adv = CAdv::GetList('', '', $arFilter, $is_filtered, "", $arrGROUP_DAYS);
 	$adv->NavStart(1);
 	$ar = $adv->NavNext(true, "f_");
 	if($ar && $GROUP=="Y")
 	{
 		// init period data
-		reset($arrREF_ID_2);
 		foreach($arrREF_ID_2 as $key)
 			${"f_".$key} = $arrGROUP_DAYS[${"f_".mb_strtoupper($find_type)}][$key];
 	}
@@ -177,7 +176,7 @@ function create_event_list(&$lAdmin, $show_money=false, $get_total_events=false)
 
 	if ($GROUP=="N")
 	{
-		$events = CAdv::GetEventList($adv_id,$by,$order, $arF, $v1);
+		$events = CAdv::GetEventList($adv_id, '', '', $arF);
 	}
 	else
 	{

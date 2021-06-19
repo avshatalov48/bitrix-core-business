@@ -1,10 +1,11 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/auxiliary.php");
 
 class CSaleAuxiliary extends CAllSaleAuxiliary
 {
 	//********** SELECT **************//
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -26,7 +27,7 @@ class CSaleAuxiliary extends CAllSaleAuxiliary
 		return false;
 	}
 
-	function GetByParams($userID, $itemMD5)
+	public static function GetByParams($userID, $itemMD5)
 	{
 		global $DB;
 
@@ -55,7 +56,7 @@ class CSaleAuxiliary extends CAllSaleAuxiliary
 		return false;
 	}
 
-	function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -153,8 +154,7 @@ class CSaleAuxiliary extends CAllSaleAuxiliary
 		return $dbRes;
 	}
 
-
-	function DeleteByTime($periodLength, $periodType)
+	public static function DeleteByTime($periodLength, $periodType)
 	{
 		global $DB;
 
@@ -191,7 +191,7 @@ class CSaleAuxiliary extends CAllSaleAuxiliary
 		return $DB->Query("DELETE FROM b_sale_auxiliary WHERE DATE_INSERT < '".Date("Y-m-d H:i:s", $deleteVal)."' ", true);
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -228,7 +228,7 @@ class CSaleAuxiliary extends CAllSaleAuxiliary
 		return $ID;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -263,4 +263,3 @@ class CSaleAuxiliary extends CAllSaleAuxiliary
 		return $ID;
 	}
 }
-?>

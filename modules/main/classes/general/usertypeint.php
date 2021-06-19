@@ -16,7 +16,7 @@ class CUserTypeInteger extends TypeBase
 {
 	const USER_TYPE_ID = IntegerType::USER_TYPE_ID;
 
-	function getUserTypeDescription()
+	public static function getUserTypeDescription()
 	{
 		return IntegerType::getUserTypeDescription();
 	}
@@ -56,7 +56,7 @@ class CUserTypeInteger extends TypeBase
 		return IntegerType::renderEdit($userField, $additionalParameters);
 	}
 
-	function getDbColumnType($userField)
+	public static function getDbColumnType($userField)
 	{
 		return IntegerType::getDbColumnType();
 	}

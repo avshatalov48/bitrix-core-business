@@ -57,21 +57,21 @@
 					<ul class="list-inline mb-0 landing-block-node-menu-list-social d-lg-flex flex-wrap justify-content-end col-lg-2 g-px-0">
 						<li class="landing-block-card-social list-inline-item g-ma-3"
 							data-card-preset="facebook">
-							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-bg-primary--hover g-color-white--hover g-font-size-14"
 							   href="https://facebook.com">
 								<i class="landing-block-card-social-icon fa fa-facebook"></i>
 							</a>
 						</li>
 						<li class="landing-block-card-social list-inline-item g-ma-3"
 							data-card-preset="instagram">
-							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-bg-primary--hover g-color-white--hover g-font-size-14"
 							   href="https://instagram.com">
 								<i class="landing-block-card-social-icon fa fa-instagram"></i>
 							</a>
 						</li>
 						<li class="landing-block-card-social list-inline-item g-ma-3"
 							data-card-preset="twitter">
-							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-bg-primary--hover g-color-white--hover g-font-size-14"
 							   href="https://twitter.com">
 								<i class="landing-block-card-social-icon fa fa-twitter"></i>
 							</a>

@@ -49,7 +49,7 @@ LearningJSRightsAccess.prototype.InsertRights = function(obSelected)
 				providerString = providerName + ' ';
 			}
 
-			providerString = providerString +obSelected[provider][id].name;
+			providerString = providerString + BX.Text.encode(obSelected[provider][id].name);
 
 			row.cells[0].innerHTML = '<div style="padding-top:8px;"><span class="access-delete" style="position:relative; top:1px; margin-right:3px;"  onclick="LearningJSRightsAccess.DeleteRow(this, \''+id+'\', \''+this.variable_name+'\')">&nbsp;</span>'
 				+ providerString + ':&nbsp;' + '<input type="hidden" name="' + this.variable_name + '[][GROUP_CODE]" value="' + id + '"></div>';

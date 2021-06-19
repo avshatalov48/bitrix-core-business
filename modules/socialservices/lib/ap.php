@@ -94,7 +94,8 @@ class ApTable extends Main\Entity\DataManager
 	{
 		$dbRes = static::getList(array(
 			'order' => array('ID' => 'DESC'),
-			'limit' => 1
+			'limit' => 1,
+			'cache' => ['ttl' => 3600],
 		));
 
 		return $dbRes->fetch();

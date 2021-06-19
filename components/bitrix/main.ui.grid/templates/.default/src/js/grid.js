@@ -132,6 +132,7 @@
 			this.userOptions = new BX.Grid.UserOptions(this, userOptions, userOptionsActions, userOptionsHandlerUrl);
 			this.gridSettings = new BX.Grid.SettingsWindow(this);
 			this.messages = new BX.Grid.Message(this, messageTypes);
+			this.cache = new BX.Cache.MemoryCache();
 
 			if (this.getParam('ALLOW_PIN_HEADER'))
 			{
@@ -731,78 +732,79 @@
 
 		adjustEmptyTable: function(rows)
 		{
-			requestAnimationFrame(function() {
-				function adjustEmptyBlockPosition(event) {
-					var target = event.currentTarget;
-					BX.Grid.Utils.requestAnimationFrame(function() {
-						BX.style(emptyBlock, 'transform', 'translate3d(' + BX.scrollLeft(target) + 'px, 0px, 0');
-					});
+			function adjustEmptyBlockPosition(event) {
+				var target = event.currentTarget;
+				BX.style(emptyBlock, 'transform', 'translate3d(' + BX.scrollLeft(target) + 'px, 0px, 0');
+			}
+
+			var filteredRows = rows.filter(function(row) {
+				return (
+					BX.Dom.attr(row, 'data-id') !== 'template_0'
+					&& !BX.Dom.hasClass(row, 'main-grid-hide')
+				);
+			});
+
+			if (
+				!BX.hasClass(document.documentElement, 'bx-ie')
+				&& filteredRows.length === 1
+				&& BX.hasClass(filteredRows[0], this.settings.get('classEmptyRows'))
+			)
+			{
+				var gridRect = BX.pos(this.getContainer());
+				var scrollBottom = BX.scrollTop(window) + BX.height(window);
+				var diff = gridRect.bottom - scrollBottom;
+				var panelsHeight = BX.height(this.getPanels());
+				var emptyBlock = this.getEmptyBlock();
+				var containerWidth = BX.width(this.getContainer());
+
+				if (containerWidth)
+				{
+					BX.width(emptyBlock, containerWidth);
 				}
 
-				var filteredRows = rows.filter(function(row) {
-					return BX.Dom.attr(row, 'data-id') !== 'template_0';
-				});
+				BX.style(emptyBlock, 'transform', 'translate3d(' + BX.scrollLeft(this.getScrollContainer()) + 'px, 0px, 0');
 
-				if (!BX.hasClass(document.documentElement, 'bx-ie') &&
-					BX.type.isArray(rows) && filteredRows.length === 1 &&
-					BX.hasClass(rows[0], this.settings.get('classEmptyRows')))
+				BX.unbind(this.getScrollContainer(), 'scroll', adjustEmptyBlockPosition);
+				BX.bind(this.getScrollContainer(), 'scroll', adjustEmptyBlockPosition);
+
+				var parent = this.getContainer();
+				var paddingOffset = 0;
+
+				while (parent = parent.parentElement)
 				{
-					var gridRect = BX.pos(this.getContainer());
-					var scrollBottom = BX.scrollTop(window) + BX.height(window);
-					var diff = gridRect.bottom - scrollBottom;
-					var panelsHeight = BX.height(this.getPanels());
-					var emptyBlock = this.getEmptyBlock();
-					var containerWidth = BX.width(this.getContainer());
+					var parentPaddingTop = parseFloat(BX.style(parent, "padding-top"));
+					var parentPaddingBottom = parseFloat(BX.style(parent, "padding-bottom"));
 
-					if (containerWidth)
+					if (!isNaN(parentPaddingTop))
 					{
-						BX.width(emptyBlock, containerWidth);
+						paddingOffset += parentPaddingTop;
 					}
 
-					BX.style(emptyBlock, 'transform', 'translate3d(' + BX.scrollLeft(this.getScrollContainer()) + 'px, 0px, 0');
-
-					BX.unbind(this.getScrollContainer(), 'scroll', adjustEmptyBlockPosition);
-					BX.bind(this.getScrollContainer(), 'scroll', adjustEmptyBlockPosition);
-
-					var parent = this.getContainer();
-					var paddingOffset = 0;
-
-					while (parent = parent.parentElement)
+					if (!isNaN(parentPaddingBottom))
 					{
-						var parentPaddingTop = parseFloat(BX.style(parent, "padding-top"));
-						var parentPaddingBottom = parseFloat(BX.style(parent, "padding-bottom"));
-
-						if (!isNaN(parentPaddingTop))
-						{
-							paddingOffset += parentPaddingTop;
-						}
-
-						if (!isNaN(parentPaddingBottom))
-						{
-							paddingOffset += parentPaddingBottom;
-						}
+						paddingOffset += parentPaddingBottom;
 					}
+				}
 
-					if (diff > 0)
-					{
-						BX.style(this.getTable(), 'min-height', (gridRect.height - diff - panelsHeight - paddingOffset) + 'px');
-					}
-					else
-					{
-						BX.style(this.getTable(), 'min-height', (gridRect.height + Math.abs(diff) - panelsHeight - paddingOffset) + 'px');
-					}
+				if (diff > 0)
+				{
+					BX.style(this.getTable(), 'min-height', (gridRect.height - diff - panelsHeight - paddingOffset) + 'px');
 				}
 				else
 				{
-					BX.style(this.getTable(), 'min-height', '');
-
-					// Chrome hack for 0116845 bug. @todo refactoring
-					BX.style(this.getTable(), 'height', '1px');
-					requestAnimationFrame(function() {
-						BX.style(this.getTable(), 'height', '1px');
-					}.bind(this));
+					BX.style(this.getTable(), 'min-height', (gridRect.height + Math.abs(diff) - panelsHeight - paddingOffset) + 'px');
 				}
-			}.bind(this));
+			}
+			else
+			{
+				BX.style(this.getTable(), 'min-height', '');
+
+				// Chrome hack for 0116845 bug. @todo refactoring
+				BX.style(this.getTable(), 'height', '1px');
+				requestAnimationFrame(function() {
+					BX.style(this.getTable(), 'height', '1px');
+				}.bind(this));
+			}
 		},
 
 		reloadTable: function(method, data, callback, url)
@@ -828,6 +830,7 @@
 			}
 
 			this.getData().request(url, method, data, '', function() {
+				BX.onCustomEvent(window, 'BX.Main.Grid:onBeforeReload', [self]);
 				self.getRows().reset();
 				bodyRows = this.getBodyRows();
 				self.getUpdater().updateHeadRows(this.getHeadRows());
@@ -1697,7 +1700,7 @@
 		{
 			if (this.getRows().isSelected())
 			{
-				BX.onCustomEvent(window, 'Grid::thereSelectedRows', []);
+				BX.onCustomEvent(window, 'Grid::thereSelectedRows', [this]);
 				this.enableActionsPanel();
 			}
 			else
@@ -2230,11 +2233,11 @@
 			if (stub)
 			{
 				BX.Dom.attr(stub, 'hidden', true);
+				BX.Dom.style(this.getTable(), 'min-height', null);
 			}
 		},
 
 		/**
-		 * @private
 		 * @return {BX.Grid.Row}
 		 */
 		getTemplateRow: function()
@@ -2410,6 +2413,15 @@
 
 					this.editableRows = [];
 				});
+		},
+
+		getRealtime(): BX.Grid.Realtime
+		{
+			return this.cache.remember('realtime', () => {
+				return new BX.Grid.Realtime({
+					grid: this,
+				});
+			});
 		},
 	};
 })();

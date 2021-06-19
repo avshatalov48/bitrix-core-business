@@ -2,20 +2,22 @@ import {Vue} from 'ui.vue';
 import {Text, Type} from 'main.core';
 import {VuexBuilderModel} from 'ui.vue.vuex';
 import {DiscountType, FieldScheme} from "catalog.product-calculator";
-import {ProductFormElementPosition} from "../product-form";
+import {FormElementPosition} from "../types/form-element-position";
 import {CurrencyCore} from "currency.currency-core";
+import type {FormScheme} from "../types/form-scheme";
+import type {BasketItem} from "../types/basket-item";
 
 export class ProductList extends VuexBuilderModel
 {
 	/**
 	 * @inheritDoc
 	 */
-	getName()
+	getName(): string
 	{
 		return 'productList';
 	}
 
-	getState()
+	getState(): FormScheme
 	{
 		return {
 			currency: '',
@@ -30,7 +32,7 @@ export class ProductList extends VuexBuilderModel
 		}
 	}
 
-	static getBaseProduct()
+	static getBaseProduct(): BasketItem
 	{
 		const random = Text.getRandom();
 		return {
@@ -59,8 +61,10 @@ export class ProductList extends VuexBuilderModel
 				measureName: '',
 				measureRatio: 1,
 				isCustomPrice: 'N',
+				additionalFields: [],
+				properties: [],
 			},
-			calculatedFields: FieldScheme,
+			calculatedFields: [],
 			showDiscount: 'N',
 			showTax: 'N',
 			skuTree: [],
@@ -76,17 +80,17 @@ export class ProductList extends VuexBuilderModel
 	getActions()
 	{
 		return {
-			resetBasket ({ commit })
+			resetBasket ({commit})
 			{
 				commit('clearBasket');
-				commit('addItem');
+				commit('addItem', {});
 			},
-			removeItem({ commit, state }, payload)
+			removeItem({dispatch, commit, state}, payload)
 			{
 				commit('deleteItem', payload);
 				if (state.basket.length === 0)
 				{
-					commit('addItem');
+					commit('addItem', {});
 				}
 				else
 				{
@@ -97,38 +101,62 @@ export class ProductList extends VuexBuilderModel
 						});
 					});
 				}
-				commit('calculateTotal');
+				dispatch('calculateTotal');
 			},
-			changeItem: ({ commit }, payload) =>
+			changeItem: ({dispatch, commit}, payload) =>
 			{
 				commit('updateItem', payload);
-				commit('calculateTotal');
+				dispatch('calculateTotal');
 			},
-			setCurrency: ({ commit }, payload) =>
+			setCurrency: ({commit}, payload) =>
 			{
 				const currency = payload || '';
 				commit('setCurrency', currency);
 			},
-			addItem: ({ commit }, payload) =>
+			addItem: ({dispatch, commit}, payload) =>
 			{
 				const item = payload.item || {fields: {}};
 				commit('addItem', {
 					item,
-					position: payload.position || ProductFormElementPosition.TOP
+					position: payload.position || FormElementPosition.TOP
 				});
-				commit('calculateTotal');
+				dispatch('calculateTotal');
 			},
+			calculateTotal: ({commit, state}) =>
+			{
+				const total = {
+					sum: 0,
+					taxSum: 0,
+					discount: 0,
+					result: 0,
+				};
+
+				state.basket.forEach((item) => {
+					const basePrice = Text.toNumber(item.fields.basePrice || 0);
+					const quantity = Text.toNumber(item.fields.quantity || 0);
+					const discount = Text.toNumber(item.fields.discount || 0);
+					const taxSum = Text.toNumber(item.fields.taxSum || 0);
+					total.sum += basePrice * quantity;
+					total.result += Text.toNumber(item.sum);
+					total.discount += discount * quantity;
+					total.taxSum += taxSum * quantity;
+				});
+
+				total.discount = (total.discount > total.sum) ? total.sum : total.discount;
+
+				commit('setTotal', total)
+			}
 		}
 	}
 
 	getGetters()
 	{
 		return {
-			getBasket: state => () =>
+			getBasket: state => (): Array<BasketItem> =>
 			{
 				return state.basket;
 			},
-			getBaseProduct: () => () =>
+			getBaseProduct: () => (): BasketItem =>
 			{
 				return ProductList.getBaseProduct();
 			},
@@ -143,7 +171,7 @@ export class ProductList extends VuexBuilderModel
 				let item = ProductList.getBaseProduct();
 
 				item = Object.assign(item, payload.item);
-				if (payload.position === ProductFormElementPosition.BOTTOM)
+				if (payload.position === FormElementPosition.BOTTOM)
 				{
 					state.basket.push(item);
 				}
@@ -191,45 +219,23 @@ export class ProductList extends VuexBuilderModel
 			{
 				state.currency = payload;
 			},
-			calculateTotal: (state) =>
-			{
-				const total = {
-					sum: 0,
-					taxSum: 0,
-					discount: 0,
-					result: 0,
-				};
-
-				state.basket.forEach((item, i) => {
-					const basePrice = Text.toNumber(item.fields.basePrice || 0);
-					const quantity = Text.toNumber(item.fields.quantity || 0);
-					const discount = Text.toNumber(item.fields.discount || 0);
-					const taxSum = Text.toNumber(item.fields.taxSum || 0);
-					total.sum += basePrice * quantity;
-					total.result += Text.toNumber(item.sum);
-					total.discount += discount * quantity;
-					total.taxSum += taxSum * quantity;
-				});
-
-				total.discount = (total.discount > total.sum) ? total.sum : total.discount;
-
-				if (Type.isStringFilled(state.currency))
-				{
-					for (const key in total)
-					{
-						state.total[key] = CurrencyCore.currencyFormat(total[key], state.currency)
-					}
-				}
-				else
-				{
-					state.total = total;
-				}
-			},
 			setTotal: (state, payload) =>
 			{
+				const formattedTotal = payload;
+				if (Type.isStringFilled(state.currency))
+				{
+					for (const key in payload)
+					{
+						if (payload.hasOwnProperty(key))
+						{
+							formattedTotal[key] = CurrencyCore.currencyFormat(payload[key], state.currency)
+						}
+					}
+				}
+
 				state.total = Object.assign(
 					state.total,
-					payload
+					formattedTotal
 				);
 			},
 		}

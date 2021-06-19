@@ -22,7 +22,7 @@ abstract class NameEntity extends Entity\DataManager
 		return 'LANGUAGE_ID';
 	}
 
-	abstract public function getReferenceFieldName();
+	abstract public static function getReferenceFieldName();
 
 	/**
 	 * Add translations for $primaryOwner

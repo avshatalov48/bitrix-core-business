@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Mail\Helper\MailContact;
 use Bitrix\Main\Application;
@@ -1108,6 +1108,7 @@ class CMailHeader
 		else
 			$str = quoted_printable_decode(str_replace("_", " ", $str));
 
+		$str = \Bitrix\Main\Text\Emoji::encode($str);
 		$str = CMailUtil::ConvertCharset($str, $encoding, $charset);
 
 		return $str;
@@ -1451,7 +1452,7 @@ class CAllMailMessage
 		return $dbr;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		return CMailMessage::GetList(Array(), Array("=ID"=>$ID));
 	}
@@ -1506,6 +1507,7 @@ class CAllMailMessage
 		{
 			if (preg_match('/plain|html|text/', $content_type) && !preg_match('/x-vcard|csv/', $content_type))
 			{
+				$body = \Bitrix\Main\Text\Emoji::encode($body);
 				$body = CMailUtil::convertCharset($body, $header->charset, $charset);
 			}
 		}
@@ -1695,7 +1697,7 @@ class CAllMailMessage
 		//isolates the positioning of the element
 		$messageHtml = preg_replace('%((?:^|\s)position(?:^|\s)?:(?:^|\s)?)(absolute|fixed|inherit)%', '$1relative', $messageHtml);
 		//remove media queries
-		$messageHtml = preg_replace('%@media\b[^{]*({((?:[^{}]+|(?1))*)})%msi', '$2', $messageHtml);
+		$messageHtml = preg_replace('%@media\b[^{]*({((?:[^{}]+|(?1))*)})%msi', '', $messageHtml);
 		//remove loading fonts
 		$messageHtml = preg_replace('%@font-face\b[^{]*({(?>[^{}]++|(?1))*})%msi', '', $messageHtml);
 		$messageHtml = static::isolateStylesInTheBody($messageHtml);
@@ -1981,7 +1983,17 @@ class CAllMailMessage
 					}
 				);
 
-				\CMailFilter::filter($arFields, 'R');
+				$arFieldsForFilter = $arFields;
+
+				foreach (['BODY','BODY_BB','BODY_HTML','SUBJECT'] as $key)
+				{
+					if(!empty($arFieldsForFilter[$key]))
+					{
+						$arFieldsForFilter[$key] = \Bitrix\Main\Text\Emoji::decode($arFieldsForFilter[$key]);
+					}
+				}
+				
+				\CMailFilter::filter($arFieldsForFilter, 'R');
 
 				\Bitrix\Main\EventManager::getInstance()->removeEventHandler('mail', 'onBeforeUserFieldSave', $eventKey);
 
@@ -3818,7 +3830,7 @@ class CMailFilterCondition
 		return CMailFilterCondition::GetList(Array(), Array("ID"=>$ID));
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 		$ID = intval($ID);
@@ -3927,7 +3939,7 @@ class CMailLog
 		return $DB->Query($strSql, true);
 	}
 
-	function GetList($arOrder=Array(), $arFilter=Array())
+	public static function GetList($arOrder=Array(), $arFilter=Array())
 	{
 		global $DB;
 		$strSql =
@@ -4096,4 +4108,3 @@ class _CMailLogDBRes  extends CDBResult
 		return false;
 	}
 }
-?>

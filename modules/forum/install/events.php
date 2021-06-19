@@ -12,12 +12,12 @@ function UET($EVENT_NAME, $NAME, $LID, $DESCRIPTION)
 }
 
 $em = new CEventMessage;
-$langs = CLanguage::GetList(($b=""), ($o=""));
+$langs = CLanguage::GetList();
 while ($lang = $langs->Fetch())
 {
 	IncludeModuleLangFile(__FILE__, $lang["LID"]);
 	$arSites = array();
-	$sites = CLang::GetList($by, $order, Array("LANGUAGE_ID"=>$lang["LID"]));
+	$sites = CLang::GetList('', '', Array("LANGUAGE_ID"=>$lang["LID"]));
 	while ($site = $sites->Fetch())
 	{
 		$arSites[] = $site["LID"];
@@ -160,11 +160,11 @@ while ($lang = $langs->Fetch())
 
 $arEventsType = array("FORUM_NEW_MESSAGE_MAIL");
 $OLD_MESS = $MESS;
-$langs = CLanguage::GetList(($b=""), ($o=""));
+$langs = CLanguage::GetList();
 while ($lang = $langs->Fetch())
 {
 	$arSites = array();
-	$sites = CLang::GetList($by, $order, Array("LANGUAGE_ID"=>$lang["LID"]));
+	$sites = CLang::GetList('', '', Array("LANGUAGE_ID"=>$lang["LID"]));
 	while ($site = $sites->Fetch())
 		$arSites[] = $site["LID"];
 

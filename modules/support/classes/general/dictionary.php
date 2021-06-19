@@ -1,29 +1,29 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllTicketDictionary
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "support";
 		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
 		return "<br>Module: ".$module_id." <br>Class: CAllTicketDictionary<br>File: ".__FILE__;
 	}
 
-	function GetDefault($type, $siteID=SITE_ID)
+	public static function GetDefault($type, $siteID=SITE_ID)
 	{
 		if ($siteID=="all")
 		{
 			$siteID = "";
 		}
 		$arFilter = array("DEFAULT" => "Y", "TYPE" => $type, "SITE" => $siteID);
-		$v2 = $v3 = null;
-		$rs = CTicketDictionary::GetList(($v1="s_dropdown"), $v2, $arFilter, $v3);
+		$rs = CTicketDictionary::GetList("s_dropdown", '', $arFilter);
 		$ar = $rs->Fetch();
 		return $ar["ID"];
 	}
 
-	function GetNextSort($typeID)
+	public static function GetNextSort($typeID)
 	{
 		global $DB;
 		$err_mess = (CAllTicketDictionary::err_mess())."<br>Function: GetNextSort<br>Line: ";
@@ -33,7 +33,7 @@ class CAllTicketDictionary
 		return intval($zr["MAX_SORT"])+100;
 	}
 
-	function GetDropDown($type="C", $siteID=false, $sla_id=false)
+	public static function GetDropDown($type="C", $siteID=false, $sla_id=false)
 	{
 		$err_mess = (CAllTicketDictionary::err_mess())."<br>Function: GetDropDown<br>Line: ";
 		global $DB;
@@ -42,8 +42,7 @@ class CAllTicketDictionary
 			$siteID = "";
 		}
 		$arFilter = array("TYPE" => $type, "SITE" => $siteID);
-		$v2 = $v3 = null;
-		$rs = CTicketDictionary::GetList(($v1="s_dropdown"), $v2, $arFilter, $v3);
+		$rs = CTicketDictionary::GetList("s_dropdown", '', $arFilter);
 		
 		$oldFunctionality = COption::GetOptionString( "support", "SUPPORT_OLD_FUNCTIONALITY", "Y" );
 		if( intval($sla_id) <= 0 || $oldFunctionality != "Y" || ( $type != "C" && $type!="K" && $type!="M" ) ) return $rs;
@@ -65,8 +64,7 @@ class CAllTicketDictionary
 		return $rs;
 	}
 
-
-	function GetDropDownArray($siteID = false, $SLA_ID = false, $arUnsetType = Array("F"))
+	public static function GetDropDownArray($siteID = false, $SLA_ID = false, $arUnsetType = Array("F"))
 	{
 		//M, C, K, S, SR, D, F
 		global $DB;
@@ -78,8 +76,7 @@ class CAllTicketDictionary
 		$arFilter = Array("SITE" => $siteID);
 
 		$arReturn = Array();
-		$v2 = $v3 = null;
-		$rs = CTicketDictionary::GetList(($v1="s_dropdown"), $v2, $arFilter, $v3);
+		$rs = CTicketDictionary::GetList("s_dropdown", '', $arFilter);
 		while ($ar = $rs->Fetch())
 		{
 			if (in_array($ar["C_TYPE"], $arUnsetType))
@@ -129,7 +126,7 @@ class CAllTicketDictionary
 	}
 
 	// get array of languages related to contract
-	function GetSiteArray($DICTIONARY_ID)
+	public static function GetSiteArray($DICTIONARY_ID)
 	{
 		$err_mess = (CAllTicketDictionary::err_mess())."<br>Function: GetSiteArray<br>Line: ";
 		global $DB;
@@ -150,7 +147,7 @@ class CAllTicketDictionary
 		return $arrRes;
 	}
 
-	function GetSiteArrayForAllDictionaries()
+	public static function GetSiteArrayForAllDictionaries()
 	{
 		static $GetSiteArrayForAllDictCache;
 		if(is_array($GetSiteArrayForAllDictCache))
@@ -176,7 +173,7 @@ class CAllTicketDictionary
 		return $GetSiteArrayForAllDictCache;
 	}
 
-	function GetTypeList()
+	public static function GetTypeList()
 	{
 		$arr = array(
 			"reference"=>array(
@@ -200,14 +197,14 @@ class CAllTicketDictionary
 		return $arr;
 	}
 
-	function GetTypeNameByID($id)
+	public static function GetTypeNameByID($id)
 	{
 		$arr = CTicketDictionary::GetTypeList();
 		$KEY = array_search($id, $arr["reference_id"]);
 		return $arr["reference"][$KEY];
 	}
 
-	function GetByID($id)
+	public static function GetByID($id)
 	{
 		$err_mess = (CAllTicketDictionary::err_mess())."<br>Function: GetByID<br>Line: ";
 		global $DB;
@@ -216,21 +213,18 @@ class CAllTicketDictionary
 		{
 			return;
 		}
-		$by = $order = $is_filtered = null;
-		$res = CTicketDictionary::GetList($by, $order, array("ID" => $id), $is_filtered);
+		$res = CTicketDictionary::GetList('', '', array("ID" => $id));
 		return $res;
 	}
 
-	function GetBySID($sid, $type, $siteID=SITE_ID)
+	public static function GetBySID($sid, $type, $siteID=SITE_ID)
 	{
 		$err_mess = (CAllTicketDictionary::err_mess())."<br>Function: GetBySID<br>Line: ";
-		global $DB;
-		$v1 = $v2 = $v3 = null;
-		$rs = CTicketDictionary::GetList($v1, $v2, array("SITE_ID"=>$siteID, "TYPE"=>$type, "SID"=>$sid), $v3);
+		$rs = CTicketDictionary::GetList('', '', array("SITE_ID"=>$siteID, "TYPE"=>$type, "SID"=>$sid));
 		return $rs;
 	}
 
-	function Delete($id, $CHECK_RIGHTS="Y")
+	public static function Delete($id, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAllTicketDictionary::err_mess())."<br>Function: Delete<br>Line: ";
 		global $DB, $APPLICATION;
@@ -255,7 +249,7 @@ class CAllTicketDictionary
 		}
 	}
 
-	function CheckFields($arFields, $id = false)
+	public static function CheckFields($arFields, $id = false)
 	{
 		$arMsg = Array();
 
@@ -292,8 +286,7 @@ class CAllTicketDictionary
 				$arFilter['ID'] = '~'.intval($id);
 			}
 
-			$v1 = $v2 = $v3 = null;
-			$z = CTicketDictionary::GetList($v1, $v2, $arFilter, $v3);
+			$z = CTicketDictionary::GetList('', '', $arFilter);
 			if ($zr = $z->Fetch())
 			{
 				$arMsg[] = array(
@@ -320,7 +313,7 @@ class CAllTicketDictionary
 		return true;
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 		$DB->StartTransaction();
@@ -345,7 +338,7 @@ class CAllTicketDictionary
 		return false;
 	}
 
-	function Update($id, $arFields)
+	public static function Update($id, $arFields)
 	{
 		global $DB;
 		$DB->StartTransaction();
@@ -372,7 +365,7 @@ class CAllTicketDictionary
 		return false;
 	}
 
-	function __CleanDefault(&$arFields)
+	public static function __CleanDefault(&$arFields)
 	{
 		if (
 				array_key_exists('SET_AS_DEFAULT', $arFields) && $arFields['SET_AS_DEFAULT'] == 'Y' &&
@@ -384,8 +377,7 @@ class CAllTicketDictionary
 				'TYPE'	=> $arFields['C_TYPE'],
 				'SITE'	=> $arFields['arrSITE']
 				);
-			$v1 = $v2 = $v3 = null;
-			$z = CTicketDictionary::GetList($v1, $v2, $arFilter, $v3);
+			$z = CTicketDictionary::GetList('', '', $arFilter);
 			while ($zr = $z->Fetch())
 			{
 				$DB->Update('b_ticket_dictionary', array('SET_AS_DEFAULT' => "'N'"), 'WHERE ID=' . $zr['ID'], '', false, false, false);
@@ -397,7 +389,7 @@ class CAllTicketDictionary
 		}
 	}
 
-	function __SetSites($id, $arFields)
+	public static function __SetSites($id, $arFields)
 	{
 		global $DB;
 		if (!array_key_exists('arrSITE', $arFields))
@@ -416,5 +408,3 @@ class CAllTicketDictionary
 		}
 	}
 }
-
-?>

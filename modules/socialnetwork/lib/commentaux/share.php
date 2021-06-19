@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\CommentAux;
 
 use Bitrix\Socialnetwork\ComponentHelper;
@@ -11,20 +12,20 @@ Loc::loadMessages(__FILE__);
 
 final class Share extends Base
 {
-	const TYPE = 'SHARE';
-	const POST_TEXT = 'commentAuxShare';
+	public const TYPE = 'SHARE';
+	public const POST_TEXT = 'commentAuxShare';
 
-	public function getParamsFromFields($fields = array())
+	public function getParamsFromFields($fields = []): array
 	{
-		$params = array();
+		$params = [];
 
 		if (!empty($fields['SHARE_DEST']))
 		{
 			$params['mention'] = $shareDestValue = false;
-			$valuesList = explode("|", $fields["SHARE_DEST"]);
-			foreach($valuesList as $value)
+			$valuesList = explode('|', $fields['SHARE_DEST']);
+			foreach ($valuesList as $value)
 			{
-				if ($value != 'mention')
+				if ($value !== 'mention')
 				{
 					$shareDestValue = $value;
 				}
@@ -39,7 +40,7 @@ final class Share extends Base
 				$destinationList = explode(',', $shareDestValue);
 				if (!empty($destinationList))
 				{
-					foreach($destinationList as $key => $value)
+					foreach ($destinationList as $key => $value)
 					{
 						$destinationList[$key] = trim($value);
 					}
@@ -59,7 +60,7 @@ final class Share extends Base
 		)
 		{
 			$params['pathEntityType'] = $fields['PATH_ENTITY_TYPE'];
-			$params['pathEntityId'] = intval($fields['PATH_ENTITY_ID']);
+			$params['pathEntityId'] = (int)$fields['PATH_ENTITY_ID'];
 		}
 
 		return $params;
@@ -79,199 +80,210 @@ final class Share extends Base
 		$result = '';
 		$params = $this->params;
 		$options = $this->options;
-		$newRightsNameList = array();
+		$newRightsNameList = [];
 
 		if (
-			!empty($params['destinationList'])
-			&& is_array($params['destinationList'])
+			empty($params['destinationList'])
+			|| !is_array($params['destinationList'])
 		)
 		{
-			$currentUserExtranet = (
-				(!isset($options['bPublicPage']) || !$options['bPublicPage'])
-				&& ComponentHelper::isCurrentUserExtranet()
+			return $result;
+		}
+
+		$currentUserExtranet = (
+			(!isset($options['bPublicPage']) || !$options['bPublicPage'])
+			&& ComponentHelper::isCurrentUserExtranet()
+		);
+		if (
+			$availableUsersList === null
+			&& Loader::includeModule('extranet')
+		)
+		{
+			$availableUsersList = ($currentUserExtranet ? \CExtranet::getMyGroupsUsers(SITE_ID) : []);
+		}
+
+		foreach ($params['destinationList'] as $destinationCode)
+		{
+			$hiddenDestination = (
+				isset($params['hiddenDestinationList'])
+				&& is_array($params['hiddenDestinationList'])
+				&& in_array($destinationCode, $params['hiddenDestinationList'])
 			);
+
 			if (
-				$availableUsersList === null
-				&& Loader::includeModule('extranet')
+				!$hiddenDestination
+				|| (
+					isset($params['mention'])
+					&& $params['mention']
+				)
 			)
 			{
-				$availableUsersList = ($currentUserExtranet ? \CExtranet::getMyGroupsUsers(SITE_ID) : array());
-			}
-
-			foreach($params['destinationList'] as $destinationCode)
-			{
-				$hiddenDestination = (
-					isset($params['hiddenDestinationList'])
-					&& is_array($params['hiddenDestinationList'])
-					&& in_array($destinationCode, $params['hiddenDestinationList'])
-				);
-
-				if(
-					!$hiddenDestination
-					|| (
-						isset($params['mention'])
-						&& $params['mention']
-					)
-				)
+				if (preg_match('/^(SG|U||UA|DR)(\d*)$/', $destinationCode, $matches))
 				{
-					if (preg_match('/^(SG|U||UA|DR)(\d*)$/', $destinationCode, $matches))
+					$entityType = $matches[1];
+					$entityId = (isset($matches[2]) ? $matches[2] : false);
+					$hiddenEntity = $renderParts = false;
+
+					switch($entityType)
 					{
-						$entityType = $matches[1];
-						$entityId = (isset($matches[2]) ? $matches[2] : false);
-						$hiddenEntity = $renderParts = false;
-
-						switch($entityType)
-						{
-							case 'SG':
-								$renderParts = new Livefeed\RenderParts\SonetGroup($options);
-								break;
-							case 'U':
-							case 'UA':
-								if (
-									$currentUserExtranet
-									&& $entityType == 'U'
-									&& !in_array($entityId, $availableUsersList)
-									&& (
-										!isset($params['mention'])
-										|| !$params['mention']
-									)
+						case 'SG':
+							$renderParts = new Livefeed\RenderParts\SonetGroup($options);
+							break;
+						case 'U':
+						case 'UA':
+							if (
+								$currentUserExtranet
+								&& $entityType === 'U'
+								&& (
+									!isset($params['mention'])
+									|| !$params['mention']
 								)
-								{
-									$hiddenEntity = true;
-								}
-								else
-								{
-									$renderParts = new Livefeed\RenderParts\User(array_merge($options, array('skipLink' => $hiddenDestination)));
-								}
-								break;
-							case 'DR':
-								$renderParts = new Livefeed\RenderParts\Department($options);
-								break;
-							default:
-								$renderParts = false;
-						}
+								&& !in_array($entityId, $availableUsersList)
+							)
+							{
+								$hiddenEntity = true;
+							}
+							else
+							{
+								$renderParts = new Livefeed\RenderParts\User(array_merge($options, [ 'skipLink' => $hiddenDestination ]));
+							}
+							break;
+						case 'DR':
+							$renderParts = new Livefeed\RenderParts\Department($options);
+							break;
+						default:
+							$renderParts = false;
+					}
 
-						$entityDataFormatted = ($renderParts ? $renderParts->getData(intval($entityId)) : false);
+					$entityDataFormatted = ($renderParts ? $renderParts->getData((int)$entityId) : false);
 
-						if (
-							$entityDataFormatted
-							&& isset($entityDataFormatted['name'])
-							&& $entityDataFormatted['name'] <> ''
-						)
-						{
-							$newRightsNameList[] = (
-								isset($entityDataFormatted['link'])
-								&& $entityDataFormatted['link'] <> ''
-								&& (!isset($options['bPublicPage']) || !$options['bPublicPage'])
-								&& (!isset($options['mail']) || !$options['mail'])
-									? (
-										$entityType == "U"
-										&& intval($entityId) > 0
-											? "[USER=".$entityId."]".htmlspecialcharsback($entityDataFormatted['name'])."[/USER]"
-											: "[URL=".$entityDataFormatted['link']."]".htmlspecialcharsback($entityDataFormatted['name'])."[/URL]"
-									)
-									: htmlspecialcharsback($entityDataFormatted['name'])
-							);
-						}
-						elseif ($hiddenEntity)
-						{
-							$newRightsNameList[] = Loc::getMessage("SONET_COMMENTAUX_SHARE_HIDDEN");
-						}
+					if (
+						$entityDataFormatted
+						&& isset($entityDataFormatted['name'])
+						&& $entityDataFormatted['name'] <> ''
+					)
+					{
+						$newRightsNameList[] = (
+							isset($entityDataFormatted['link'])
+							&& $entityDataFormatted['link'] <> ''
+							&& (!isset($options['bPublicPage']) || !$options['bPublicPage'])
+							&& (!isset($options['mail']) || !$options['mail'])
+								? (
+									$entityType === 'U'
+									&& (int)$entityId > 0
+										? '[USER=' . $entityId . ']' . htmlspecialcharsback($entityDataFormatted['name']) . '[/USER]'
+										: '[URL=' . $entityDataFormatted['link'] . ']' . htmlspecialcharsback($entityDataFormatted['name']) . '[/URL]'
+								)
+								: htmlspecialcharsback($entityDataFormatted['name'])
+						);
+					}
+					elseif ($hiddenEntity)
+					{
+						$newRightsNameList[] = Loc::getMessage('SONET_COMMENTAUX_SHARE_HIDDEN');
 					}
 				}
-				else
-				{
-					$newRightsNameList[] = Loc::getMessage("SONET_COMMENTAUX_SHARE_HIDDEN");
-				}
 			}
-
-			if (!empty($newRightsNameList))
+			else
 			{
-				$result .= Loc::getMessage(count($params['destinationList']) > 1 ? "SONET_COMMENTAUX_SHARE_TEXT_1" : "SONET_COMMENTAUX_SHARE_TEXT", array(
-					"#SHARE_LIST#" => implode(", ", $newRightsNameList)
-				));
-
-				if ($parser === null)
-				{
-					$parser = new \CTextParser();
-					$parser->allow = array("HTML" => "N", "ANCHOR" => "Y", "USER" => "Y");
-				}
-
-				if (
-					!empty($params['pathEntityType'])
-					&& !empty($params['pathEntityId'])
-				)
-				{
-					$parser->pathToUserEntityType = $params['pathEntityType'];
-					$parser->pathToUserEntityId = intval($params['pathEntityId']);
-				}
-				else
-				{
-					$parser->pathToUserEntityType = false;
-					$parser->pathToUserEntityId = false;
-				}
-
-				$result = $parser->convertText($result);
+				$newRightsNameList[] = Loc::getMessage('SONET_COMMENTAUX_SHARE_HIDDEN');
 			}
 		}
+
+		if (empty($newRightsNameList))
+		{
+			return $result;
+		}
+
+		$result .= Loc::getMessage(count($params['destinationList']) > 1 ? 'SONET_COMMENTAUX_SHARE_TEXT_1' : 'SONET_COMMENTAUX_SHARE_TEXT', [
+			'#SHARE_LIST#' => implode(', ', $newRightsNameList)
+		]);
+
+		if ($parser === null)
+		{
+			$parser = new \CTextParser();
+			$parser->allow = [
+				'HTML' => 'N',
+				'ANCHOR' => 'Y',
+				'USER' => 'Y'
+			];
+		}
+
+		if (
+			!empty($params['pathEntityType'])
+			&& !empty($params['pathEntityId'])
+		)
+		{
+			$parser->pathToUserEntityType = $params['pathEntityType'];
+			$parser->pathToUserEntityId = (int)$params['pathEntityId'];
+		}
+		else
+		{
+			$parser->pathToUserEntityType = false;
+			$parser->pathToUserEntityId = false;
+		}
+
+		$result = $parser->convertText($result);
 
 		return $result;
 	}
 
-	public function sendRatingNotification($fields = array(), $ratingVoteParams = array())
+	public function sendRatingNotification($fields = [], $ratingVoteParams = [])
 	{
 		$userId = (
 			is_array($ratingVoteParams)
 			&& isset($ratingVoteParams['OWNER_ID'])
-				? intval($ratingVoteParams['OWNER_ID'])
+				? (int)$ratingVoteParams['OWNER_ID']
 				: 0
 		);
 
 		if (
 			$userId > 0
 			&& is_array($fields)
-			&& isset($fields["SHARE_DEST"])
+			&& isset($fields['SHARE_DEST'])
 			&& Loader::includeModule('im')
 		)
 		{
-			$dest = explode(",", $fields["SHARE_DEST"]);
+			$dest = explode('|', $fields['SHARE_DEST']);
+			$dest = array_values(array_filter($dest, function ($item) { return ($item !== 'mention'); }));
+			$dest = explode(',', $dest[0]);
 
 			if (!empty($dest))
 			{
-				$this->setParams(array(
+				$this->setParams([
 					'destinationList' => $dest,
-					'hiddenDestinationList' => array()
-				));
+					'hiddenDestinationList' => []
+				]);
 
 				$followValue = \CSocNetLogFollow::getExactValueByRating(
 					$userId,
-					'BLOG_COMMENT',
+					((!empty($fields['BLOG_ID'])) ? 'BLOG_COMMENT' : 'LOG_COMMENT'),
 					$fields['ID']
 				);
 
-				if ($followValue != "N")
+				if ($followValue !== 'N')
 				{
-					$ratingVoteParams['ENTITY_LINK'] = $this->getRatingCommentLink(array(
+					$ratingVoteParams['ENTITY_LINK'] = $this->getRatingCommentLink([
 						'commentId' => $fields['ID'],
 						'commentAuthorId' => $ratingVoteParams['OWNER_ID'],
 						'ratingEntityTypeId' => $ratingVoteParams['ENTITY_TYPE_ID'],
 						'ratingEntityId' => $ratingVoteParams['ENTITY_ID']
-					));
+					]);
 
-					$ratingVoteParams["ENTITY_PARAM"] = 'COMMENT';
-					$ratingVoteParams["ENTITY_MESSAGE"] = $this->getText();
+					$ratingVoteParams['ENTITY_PARAM'] = 'COMMENT';
+					$ratingVoteParams['ENTITY_MESSAGE'] = $this->getText();
+					$ratingVoteParams['ENTITY_TITLE'] = $ratingVoteParams['ENTITY_MESSAGE'];
 
-					$messageFields = array(
-						"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
-						"TO_USER_ID" => $userId,
-						"FROM_USER_ID" => intval($ratingVoteParams['USER_ID']),
-						"NOTIFY_TYPE" => IM_NOTIFY_FROM,
-						"NOTIFY_MODULE" => "main",
-						"NOTIFY_EVENT" => "rating_vote",
-						"NOTIFY_TAG" => "RATING|".($ratingVoteParams['VALUE'] >= 0 ? "" : "DL|")."BLOG_COMMENT|".$fields['ID'],
-						"NOTIFY_MESSAGE" => \CIMEvent::getMessageRatingVote($ratingVoteParams),
-						"NOTIFY_MESSAGE_OUT" => \CIMEvent::getMessageRatingVote($ratingVoteParams, true)
-					);
+					$messageFields = [
+						'MESSAGE_TYPE' => IM_MESSAGE_SYSTEM,
+						'TO_USER_ID' => $userId,
+						'FROM_USER_ID' => (int)$ratingVoteParams['USER_ID'],
+						'NOTIFY_TYPE' => IM_NOTIFY_FROM,
+						'NOTIFY_MODULE' => 'main',
+						'NOTIFY_EVENT' => 'rating_vote',
+						'NOTIFY_TAG' => 'RATING|' . ($ratingVoteParams['VALUE'] >= 0 ? '' : 'DL|') . (!empty($fields['BLOG_ID']) ? 'BLOG_COMMENT|' : 'LOG_COMMENT|') . $fields['ID'],
+						'NOTIFY_MESSAGE' => \CIMEvent::getMessageRatingVote($ratingVoteParams),
+						'NOTIFY_MESSAGE_OUT' => \CIMEvent::getMessageRatingVote($ratingVoteParams, true)
+					];
 
 					\CIMNotify::add($messageFields);
 				}
@@ -283,22 +295,22 @@ final class Share extends Base
 	{
 		$result = false;
 
-		if (!empty($fields["SHARE_DEST"]))
+		if (!empty($fields['SHARE_DEST']))
 		{
 			if (ComponentHelper::isCurrentUserExtranet())
 			{
 				$result = true;
 			}
 			elseif (
-				!empty($params["POST_DATA"])
-				&& !empty($params["POST_DATA"]["SPERM_HIDDEN"])
+				!empty($params['POST_DATA'])
+				&& !empty($params['POST_DATA']['SPERM_HIDDEN'])
 			)
 			{
 				$shareDestValue = false;
-				$valuesList = explode("|", $fields["SHARE_DEST"]);
-				foreach($valuesList as $value)
+				$valuesList = explode('|', $fields['SHARE_DEST']);
+				foreach ($valuesList as $value)
 				{
-					if ($value != 'mention')
+					if ($value !== 'mention')
 					{
 						$shareDestValue = $value;
 						break;
@@ -307,12 +319,12 @@ final class Share extends Base
 
 				if ($shareDestValue)
 				{
-					$dest = explode(",", $shareDestValue);
-					if(!empty($dest))
+					$dest = explode(',', $shareDestValue);
+					if (!empty($dest))
 					{
-						foreach($dest as $destId)
+						foreach ($dest as $destId)
 						{
-							if(in_array($destId, $params["POST_DATA"]["SPERM_HIDDEN"]))
+							if (in_array($destId, $params['POST_DATA']['SPERM_HIDDEN']))
 							{
 								$result = true;
 								break;

@@ -46,7 +46,8 @@ class Settings extends \Bitrix\Landing\Hook\Page
 		'USE_ENHANCED_ECOMMERCE' => 'Y',
 		'DATA_LAYER_NAME' => 'dataLayer',
 		'BRAND_PROPERTY' => 'BRAND_REF',
-		'CART_POSITION' => 'BL'
+		'CART_POSITION' => 'BL',
+		'AGREEMENT_ID' => 0,
 	);
 
 	/**
@@ -61,8 +62,8 @@ class Settings extends \Bitrix\Landing\Hook\Page
 		{
 			$defValues = self::$defValues;
 			if (
-				!$defValues['CURRENCY_ID'] &&
-				Loader::includeModule('currency')
+				!$defValues['CURRENCY_ID']
+				&& Loader::includeModule('currency')
 			)
 			{
 				$defValues['CURRENCY_ID'] = CurrencyManager::getBaseCurrency();
@@ -315,6 +316,9 @@ class Settings extends \Bitrix\Landing\Hook\Page
 			}
 		}
 
+		$fields['AGREEMENT_USE'] = self::getFieldByType(
+			'CHECKBOX', 'AGREEMENT_USE'
+		);
 		$fields['AGREEMENT_ID'] = self::getFieldByType(
 			null, 'AGREEMENT_ID'
 		);
@@ -408,10 +412,21 @@ class Settings extends \Bitrix\Landing\Hook\Page
 				'crm', 'default_product_catalog_id'
 			);
 		}
-		if (isset($hooks['SETTINGS']['AGREEMENT_ID']))
+
+		// agreement
+		if(isset($hooks['SETTINGS']['AGREEMENT_USE']))
 		{
-			$settings[$id]['AGREEMENT_ID'] = $hooks['SETTINGS']['AGREEMENT_ID'];
+			$settings[$id]['AGREEMENT_USE'] = $hooks['SETTINGS']['AGREEMENT_USE'];
+			if($hooks['SETTINGS']['AGREEMENT_USE'] === 'N')
+			{
+				$settings[$id]['AGREEMENT_ID'] = 0;
+			}
 		}
+		else
+		{
+			$settings[$id]['AGREEMENT_USE'] = $settings[$id]['AGREEMENT_ID'] ? 'Y' : 'N';
+		}
+
 		if (isset($hooks['SETTINGS']['CART_POSITION']))
 		{
 			$settings[$id]['CART_POSITION'] = $hooks['SETTINGS']['CART_POSITION'];

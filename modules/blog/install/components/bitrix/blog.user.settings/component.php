@@ -114,7 +114,7 @@ if ($arParams["BLOG_URL"] <> '')
 										}
 									}
 
-									$dbSearchUser = CUser::GetList(($b = "LOGIN"), ($o = "ASC"), array("LOGIN_EQUAL" => $friend));
+									$dbSearchUser = CUser::GetList("LOGIN", "ASC", array("LOGIN_EQUAL" => $friend));
 									if(($arSearchUser = $dbSearchUser->Fetch()) && !in_array($arSearchUser["ID"], $arUserID))
 									{
 										$arUserID[] = $arSearchUser["ID"];

@@ -170,6 +170,7 @@ $arParams['UF'] = $UF;
 				</div>
 			</div>
 			<div id="<?= $id?>_sidebar_inner" class="calendar-slider-sidebar-inner">
+				<div class="calendar-slider-sidebar-videocall" style="display: none;"></div>
 				<div class="calendar-slider-sidebar-layout calendar-slider-sidebar-user">
 					<div class="calendar-slider-sidebar-layout-top calendar-slider-sidebar-user-top calendar-slider-sidebar-border-bottom">
 						<div class="calendar-slider-sidebar-left-side">
@@ -347,82 +348,8 @@ $arParams['UF'] = $UF;
 
 						<!--region planner-->
 						<div class="calendar-slider-detail-timeline hidden" id="<?=$id?>_view_planner_wrap">
-							<? if (count($codes) > 0):?>
 							<div class="calendar-view-planner-wrap">
-								<?
-								$fromTs = CCalendar::Timestamp($event['DATE_FROM']);
-								$toTs = CCalendar::Timestamp($event['DATE_TO']);
-								if ($event['DT_SKIP_TIME'] !== "Y")
-								{
-									$fromTs -= $event['~USER_OFFSET_FROM'];
-									$toTs -= $event['~USER_OFFSET_TO'];
-								}
-								$event['DATE_FROM'] = CCalendar::Date($fromTs, $event['DT_SKIP_TIME'] != 'Y');
-								$event['DATE_TO'] = CCalendar::Date($toTs, $event['DT_SKIP_TIME'] != 'Y');
-
-								if ($event['DT_SKIP_TIME'] == 'Y')
-								{
-									$loadedFrom = CCalendar::Date($fromTs - CCalendar::DAY_LENGTH * 5, false);
-									$loadedTo = CCalendar::Date($toTs + CCalendar::DAY_LENGTH * 10, false);
-								}
-								else
-								{
-									$loadedFrom = CCalendar::Date($fromTs - CCalendar::DAY_LENGTH * 2, false);
-									$loadedTo = CCalendar::Date($toTs + CCalendar::DAY_LENGTH * 5, false);
-								}
-
-								$updatePlannerParams = CCalendarPlanner::PrepareData(array(
-									'user_id' => CCalendar::GetCurUserId(),
-									'host_id' => $meetingHost['ID'],
-									'entries' => false,
-									'codes' => $codes,
-									'date_from' => $loadedFrom,
-									'date_to' => $loadedTo,
-									'location' => $event['LOCATION'],
-									'roomEventId' => 0
-								));
-
-								CCalendarPlanner::Init(
-									array(
-										'id' => $id.'_view_slider_planner',
-										'readonly' => true,
-										'useSolidBlueSelector' => true,
-										'scaleLimitOffsetLeft' => 2,
-										'scaleLimitOffsetRight' => 2,
-										'maxTimelineSize' => 30
-									),
-									array(
-										'show' => true,
-										'config' => array(
-											'scaleDateFrom' => $loadedFrom,
-											'scaleDateTo' => $loadedTo,
-											'changeFromFullDay' => array(
-												'scaleType' => '1hour',
-												'timelineCellWidth' => 40,
-											),
-											'entriesListWidth' => 200,
-											'width' => 1300
-										),
-										'focusSelector' => true,
-										'selector' => array(
-											'focus' => true,
-											'from' => $event['DATE_FROM'],
-											'to' => $event['DATE_TO'],
-											'fullDay' => $event['DT_SKIP_TIME'] == 'Y',
-											'RRULE' => false,
-											'animation' => false,
-											'updateScaleLimits' => true
-										),
-										'loadedDataFrom' => $loadedFrom,
-										'loadedDataTo' => $loadedTo,
-										'data' => array(
-											'entries' => $updatePlannerParams['entries'],
-											'accessibility' => $updatePlannerParams['accessibility']
-										)
-									)
-								);?>
 							</div>
-							<? endif;?>
 						</div>
 						<!--endregion-->
 
@@ -484,10 +411,6 @@ $arParams['UF'] = $UF;
 									<button id="<?=$id?>_but_edit" class="ui-btn ui-btn-light-border"><?= Loc::getMessage('EC_VIEW_SLIDER_EDIT')?></button>
 									<button id="<?=$id?>_but_del" class="ui-btn ui-btn-light-border"><?= Loc::getMessage('EC_VIEW_SLIDER_DEL')?></button>
 								<?endif;?>
-
-
-								<button id="<?=$id?>_but_chat" class="ui-btn ui-btn-light-border" style="display: none;"><?= Loc::getMessage('EC_VIEW_SLIDER_CHAT_LINK')?></button>
-
 						</div>
 					</div>
 				</div>

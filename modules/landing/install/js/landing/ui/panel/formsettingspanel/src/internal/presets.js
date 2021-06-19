@@ -3,12 +3,15 @@ import {Preset} from 'landing.ui.panel.basepresetpanel';
 import siteIcon from '../images/icons/integration.svg';
 import widgetAutoShowIcon from '../images/icons/autoshow.svg';
 import callbackIcon from '../images/icons/revertcall.svg';
-import productWithTextIcon from '../images/icons/producttext.svg';
-import productWithImageIcon from '../images/icons/productimage.svg';
 import vkIcon from '../images/icons/vk.svg';
 import facebookIcon from '../images/icons/facebook.svg';
 import crmFormIcon from '../images/icons/crm.svg';
 import serviceIcon from '../images/icons/service.svg';
+import product1Icon from '../images/icons/products1.svg';
+import product2Icon from '../images/icons/products2.svg';
+import product3Icon from '../images/icons/products3.svg';
+import product4Icon from '../images/icons/products4.svg';
+import smartIcon from '../images/icons/smart.svg';
 
 const presets = [
 	new Preset({
@@ -193,32 +196,157 @@ const presets = [
 	}),
 
 	new Preset({
-		id: 'products_small',
+		id: 'products1',
 		category: 'products',
-		title: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCTS_SMALL'),
-		description: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCTS_SMALL_DESCRIPTION'),
-		icon: productWithTextIcon,
+		title: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCT_1'),
+		description: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCT_1_DESCRIPTION'),
+		icon: product1Icon,
 		items: [
-			'analytics',
+			'fields',
+			'agreements',
+			'crm',
 			'embed',
 			'other',
 		],
-		disabled: true,
-		soon: true,
+		options: {
+			templateId: 'products1',
+			name: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCT_1'),
+			agreements: {
+				use: true,
+			},
+			data: {
+				title: '',
+				desc: '',
+				fields: [
+					{name: 'LEAD_NAME'},
+					{name: 'LEAD_PHONE'},
+					{name: 'LEAD_EMAIL'},
+					{type: 'product', bigPic: false},
+				],
+				agreements: [{checked: true}],
+				dependencies: [],
+				recaptcha: {use: false},
+			},
+			captcha: {key: '', secret: ''},
+			document: {
+				scheme: 1,
+			},
+		},
 	}),
 	new Preset({
-		id: 'products_big',
+		id: 'products2',
 		category: 'products',
-		title: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCTS_BIG'),
-		description: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCTS_BIG_DESCRIPTION'),
-		icon: productWithImageIcon,
+		title: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCT_2'),
+		description: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCT_2_DESCRIPTION'),
+		icon: product2Icon,
 		items: [
-			'identify',
-			'button_and_header',
+			'fields',
+			'agreements',
+			'crm',
+			'embed',
 			'other',
 		],
-		disabled: true,
-		soon: true,
+		options: {
+			templateId: 'products2',
+			name: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCT_2'),
+			agreements: {
+				use: true,
+			},
+			data: {
+				title: '',
+				desc: '',
+				fields: [
+					{name: 'LEAD_NAME'},
+					{name: 'LEAD_PHONE'},
+					{name: 'LEAD_EMAIL'},
+					{type: 'product', bigPic: false},
+				],
+				agreements: [{checked: true}],
+				dependencies: [],
+				recaptcha: {use: false},
+			},
+			captcha: {key: '', secret: ''},
+			document: {
+				scheme: 8,
+			},
+			payment: {use: true},
+		},
+	}),
+	new Preset({
+		id: 'products3',
+		category: 'products',
+		title: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCT_3'),
+		description: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCT_3_DESCRIPTION'),
+		icon: product3Icon,
+		items: [
+			'fields',
+			'agreements',
+			'crm',
+			'embed',
+			'other',
+		],
+		options: {
+			templateId: 'products3',
+			name: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCT_3'),
+			agreements: {
+				use: true,
+			},
+			data: {
+				title: '',
+				desc: '',
+				fields: [
+					{name: 'LEAD_NAME'},
+					{name: 'LEAD_PHONE'},
+					{name: 'LEAD_EMAIL'},
+					{type: 'product', bigPic: false},
+				],
+				agreements: [{checked: true}],
+				dependencies: [],
+				recaptcha: {use: false},
+			},
+			captcha: {key: '', secret: ''},
+			document: {
+				scheme: 1,
+			},
+		},
+	}),
+	new Preset({
+		id: 'products4',
+		category: 'products',
+		title: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCT_4'),
+		description: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCT_4_DESCRIPTION'),
+		icon: product4Icon,
+		items: [
+			'fields',
+			'agreements',
+			'crm',
+			'embed',
+			'other',
+		],
+		options: {
+			templateId: 'products4',
+			name: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_PRODUCT_4'),
+			agreements: {
+				use: true,
+			},
+			data: {
+				title: '',
+				desc: '',
+				fields: [
+					{name: 'LEAD_NAME'},
+					{name: 'LEAD_PHONE'},
+					{name: 'LEAD_EMAIL'},
+					{type: 'product', bigPic: true},
+				],
+				agreements: [{checked: true}],
+				dependencies: [],
+				recaptcha: {use: false},
+			},
+			captcha: {key: '', secret: ''},
+			document: {
+				scheme: 1,
+			},
+		},
 	}),
 
 	new Preset({

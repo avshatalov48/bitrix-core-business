@@ -202,7 +202,7 @@ $arResult["PAY_SYSTEM"] = Array();
 while ($arPaySysActions = $dbPaySysActions->GetNext())
 	$arResult["PAY_SYSTEM"][] = $arPaySysActions;
 
-$dbCurrency = CCurrency::GetList(($by="sort"), ($order="asc"));
+$dbCurrency = CCurrency::GetList('sort', 'asc');
 $arResult["CURRENCY_INFO"] = Array();
 while ($arCurrency = $dbCurrency->GetNext())
 	$arResult["CURRENCY_INFO"][] = $arCurrency;

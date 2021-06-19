@@ -231,17 +231,25 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 				foreach (GetModuleEvents('forum', 'OnCommentsInit', true) as $arEvent)
 					ExecuteModuleEventEx($arEvent, array(&$this));
 
-				if (($this->arParams["CHECK_ACTIONS"] != "N"
-					&& !$this->checkPreview()
-					&& $this->checkActions() === false) || $this->checkActionComponentAction() === false)
+				if (
+					(
+						$this->arParams["CHECK_ACTIONS"] != "N"
+						&& !$this->checkPreview()
+						&& $this->checkActions() === false
+					)
+					||
+					$this->checkActionComponentAction() === false
+				)
 				{
 					foreach (GetModuleEvents('forum', 'OnCommentError', true) as $arEvent)
 						ExecuteModuleEventEx($arEvent, array(&$this));
 				}
 
 				$this->arResult['UNREAD_MID'] = $this->feed->getUserUnreadMessageId();
-				$this->feed->setUserAsRead();
-
+				if (!isset($this->arParams['SKIP_USER_READ']) || $this->arParams['SKIP_USER_READ'] !== 'Y')
+				{
+					$this->feed->setUserAsRead();
+				}
 				if ($this->arParams['SET_LAST_VISIT'] == "Y")
 				{
 					$this->feed->setUserLocation();

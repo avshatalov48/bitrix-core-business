@@ -105,6 +105,16 @@ abstract class Connection extends Data\Connection
 	}
 
 	/**
+	 * Returns database password.
+	 *
+	 * @return string
+	 */
+	public function getPassword()
+	{
+		return $this->password;
+	}
+
+	/**
 	 * Returns database name.
 	 *
 	 * @return string
@@ -112,19 +122,6 @@ abstract class Connection extends Data\Connection
 	public function getDatabase()
 	{
 		return $this->database;
-	}
-
-	/**
-	 * Sets the connection resource directly.
-	 *
-	 * @param resource &$connection Database depended connection resource.
-	 *
-	 * @return void
-	 */
-	public function setConnectionResourceNoDemand(&$connection)
-	{
-		$this->resource = &$connection;
-		$this->isConnected = true;
 	}
 
 	/**
@@ -217,7 +214,7 @@ abstract class Connection extends Data\Connection
 	{
 		$this->isConnected = false;
 
-		if (($this->options & self::DEFERRED) == 0)
+		if (!$this->isDeferred())
 		{
 			parent::connect();
 		}
@@ -230,10 +227,28 @@ abstract class Connection extends Data\Connection
 	 */
 	public function disconnect()
 	{
-		if (($this->options & self::PERSISTENT) == 0)
+		if (!$this->isPersistent())
 		{
 			parent::disconnect();
 		}
+	}
+
+	/**
+	 * Returns true if the connection is deferred.
+	 * @return bool
+	 */
+	public function isDeferred()
+	{
+		return (($this->options & self::DEFERRED) !== 0);
+	}
+
+	/**
+	 * Returns true if the connection is persistent.
+	 * @return bool
+	 */
+	public function isPersistent()
+	{
+		return (($this->options & self::PERSISTENT) !== 0);
 	}
 
 	/*********************************************************

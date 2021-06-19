@@ -3055,4 +3055,3 @@ class CSocNetGroupSubjectRestProxy
 		}
 	}
 }
-?>

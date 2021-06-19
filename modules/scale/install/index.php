@@ -17,7 +17,7 @@ class scale extends CModule
 
 	var $errors = false;
 
-	function scale()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 		include(__DIR__.'/version.php');
@@ -36,8 +36,8 @@ class scale extends CModule
 
 	function UnInstallDB()
 	{
-			UnRegisterModuleDependences("main", "OnEventLogGetAuditTypes", "scale", "\\Bitrix\\Scale\\Logger", 'onEventLogGetAuditTypes');
-		$result = \Bitrix\Main\ModuleManager::unRegisterModule("scale");
+		UnRegisterModuleDependences("main", "OnEventLogGetAuditTypes", "scale", "\\Bitrix\\Scale\\Logger", 'onEventLogGetAuditTypes');
+		\Bitrix\Main\ModuleManager::unRegisterModule("scale");
 		return true;
 	}
 

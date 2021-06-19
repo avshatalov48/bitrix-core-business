@@ -64,7 +64,7 @@ class LandingSiteDomainComponent extends LandingBaseComponent
 		{
 			return false;
 		}
-		$registrator = \Bitrix\Landing\Domain\Register::getInstance();
+		$registrator = Register::getInstance();
 		if ($registrator->registrationDomain($param, ['CNAME' => $this->arResult['CNAME']]))
 		{
 			$result = $this->actionSavePrivate($param);
@@ -166,25 +166,9 @@ class LandingSiteDomainComponent extends LandingBaseComponent
 	 */
 	protected function getPostFix(): string
 	{
-		$zone = Manager::getZone();
-		$postfix = '.bitrix24.site';
-
-		if ($this->arParams['TYPE'] == 'STORE')
-		{
-			$postfix = ($zone == 'by')
-				? '.bitrix24shop.by'
-				: '.bitrix24.shop';
-		}
-		else if ($zone == 'by')
-		{
-			$postfix = '.bitrix24site.by';
-		}
-		else if ($zone == 'ua')
-		{
-			$postfix = '.bitrix24site.ua';
-		}
-
-		return $postfix;
+		return Domain::getBitrix24Postfix(
+			$this->arParams['TYPE']
+		);
 	}
 
 	/**

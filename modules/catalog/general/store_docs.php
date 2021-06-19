@@ -1,9 +1,9 @@
 <?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllCatalogDocs
 {
-
 	static $types = array(
 		"A" => "CCatalogArrivalDocs",
 		"M" => "CCatalogMovingDocs",
@@ -101,7 +101,7 @@ class CAllCatalogDocs
 	 * @param $arFields
 	 * @return bool
 	 */
-	protected function checkFields($action, &$arFields)
+	protected static function checkFields($action, &$arFields)
 	{
 		global $DB;
 		global $APPLICATION;
@@ -124,14 +124,13 @@ class CAllCatalogDocs
 		{
 			$arFields['~DATE_STATUS'] = $DB->GetNowFunction();
 		}
-		if(isset($arFields["DATE_DOCUMENT"]) && (!CDataBase::IsDate($arFields["DATE_DOCUMENT"])))
+		if(isset($arFields["DATE_DOCUMENT"]) && (!$DB->IsDate($arFields["DATE_DOCUMENT"])))
 		{
 			unset($arFields["DATE_DOCUMENT"]);
 			$arFields['~DATE_DOCUMENT'] = $DB->GetNowFunction();
 		}
 		return true;
 	}
-
 
 	/**
 	 * @param $documentId

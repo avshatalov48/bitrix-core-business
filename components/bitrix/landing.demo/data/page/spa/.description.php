@@ -7,11 +7,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 Loc::loadLanguageFile(__FILE__);
 
-return array(
+return [
 	'name' => Loc::getMessage('LANDING_DEMO_SPA_TITLE'),
 	'description' => Loc::getMessage('LANDING_DEMO_SPA_DESCRIPTION'),
-	'fields' => array(
-		'ADDITIONAL_FIELDS' => array(
+	'fields' => [
+		'ADDITIONAL_FIELDS' => [
 			'THEME_CODE' => 'spa',
 
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/spa/preview.jpg',
@@ -19,11 +19,11 @@ return array(
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_SPA_DESCRIPTION'),
 			'METAMAIN_TITLE' => Loc::getMessage('LANDING_DEMO_SPA_TITLE'),
 			'METAMAIN_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_SPA_DESCRIPTION')
-		)
-	),
-	'items' => array (
+		]
+	],
+	'items' => [
 		'0.menu_18_spa' =>
-			array (
+			[
 				'CODE' => '0.menu_18_spa',
 				'SORT' => '-100',
 				'CONTENT' => '<header class="landing-block landing-block-menu u-header u-header--sticky u-header--float g-z-index-9999">
@@ -85,9 +85,9 @@ return array(
 		</nav>
 	</div>
 </header>',
-			),
+			],
 		'01.big_with_text_3' =>
-			array (
+			[
 				'CODE' => '01.big_with_text_3',
 				'SORT' => '500',
 				'CONTENT' => '<section class="landing-block landing-block-node-img u-bg-overlay g-flex-centered g-min-height-70vh g-bg-img-hero g-bg-black-opacity-0_5--after g-py-80" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/2100x1416/img1.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb">
@@ -100,9 +100,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'43.1.big_tiles_with_slider' =>
-			array (
+			[
 				'CODE' => '43.1.big_tiles_with_slider',
 				'SORT' => '1000',
 				'CONTENT' => '<section class="landing-block">
@@ -137,7 +137,7 @@ return array(
 			</div>
 
 			<div class="col-md-6 landing-block-node-block-bottom js-animation fadeInLeft">
-				<div class="js-carousel" data-infinite="true" data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-55 g-font-size-12 g-color-gray-dark-v5 g-bg-white g-mt-minus-10" data-arrow-left-classes="fa fa-chevron-left g-left-0" data-arrow-right-classes="fa fa-chevron-right g-right-0">
+				<div class="js-carousel" data-infinite="true" data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-55 g-font-size-12 g-bg-white g-mt-minus-10" data-arrow-left-classes="fa fa-chevron-left g-left-0" data-arrow-right-classes="fa fa-chevron-right g-right-0">
 					<div class="landing-block-node-card js-slide d-flex align-items-center g-max-height-300 g-max-height-625--lg">
 						<img class="landing-block-node-card-img w-100 img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1200x781/img3.jpg" alt="" />
 					</div>
@@ -154,9 +154,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'43.2.three_tiles_with_img_zoom' =>
-			array (
+			[
 				'CODE' => '43.2.three_tiles_with_img_zoom',
 				'SORT' => '1500',
 				'CONTENT' => '<section class="landing-block g-pt-80 g-pb-80">
@@ -236,9 +236,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'04.7.one_col_fix_with_title_and_text_2' =>
-			array (
+			[
 				'CODE' => '04.7.one_col_fix_with_title_and_text_2',
 				'SORT' => '2000',
 				'CONTENT' => '<section class="landing-block g-bg-gray-light-v5 g-py-20 js-animation fadeInUp animated g-pt-60 g-pb-20">
@@ -247,16 +247,16 @@ return array(
 
             <div class="landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary">
                 <h4 class="landing-block-node-subtitle g-font-weight-700 g-color-primary g-mb-15 g-text-transform-none g-line-height-1 g-font-size-20">Best Offers</h4>
-                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-color-black g-mb-minus-10 g-font-size-22">IT IS YOUR TIME TO RELAX</h2>
+                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-mb-minus-10 g-font-size-22">IT IS YOUR TIME TO RELAX</h2>
             </div>
 
-			<div class="landing-block-node-text g-color-gray-dark-v5"><p>Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo.</p></div>
+			<div class="landing-block-node-text"><p>Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo.</p></div>
         </div>
 
     </section>',
-			),
+			],
 		'20.1.two_cols_fix_img_title_text' =>
-			array (
+			[
 				'CODE' => '20.1.two_cols_fix_img_title_text',
 				'SORT' => '2500',
 				'CONTENT' => '<section class="landing-block g-bg-gray-light-v5 g-pt-20 g-pb-20">
@@ -266,23 +266,23 @@ return array(
                 <div class="landing-block-card landing-block-node-block col-md-6 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeIn animated ">
                     <img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x350/img1.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-                    <h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-black g-mb-20 text-center g-font-size-14">WINE FUSCE DOLOR LIBERO, EFFICITUR ET LOBORTIS AT, <p>FAUCIBUS NEC NUNC</p></h3>
-                    <div class="landing-block-node-text text-center g-font-size-14 g-color-gray-dark-v5"><p>Cras sit amet varius velit. Maecenas porta condimentum<br /><span style="font-weight: bold;color: rgb(175, 180, 43);">$25</span></p></div>
+                    <h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 text-center g-font-size-14">WINE FUSCE DOLOR LIBERO, EFFICITUR ET LOBORTIS AT, <p>FAUCIBUS NEC NUNC</p></h3>
+                    <div class="landing-block-node-text text-center g-font-size-14"><p>Cras sit amet varius velit. Maecenas porta condimentum<br /><span style="font-weight: bold;color: rgb(175, 180, 43);">$25</span></p></div>
                 </div>
 
                 <div class="landing-block-card landing-block-node-block col-md-6 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeIn animated ">
                     <img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x350/img2.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-                    <h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-black g-mb-20 text-center g-font-size-14">WINE FUSCE DOLOR LIBERO, EFFICITUR ET LOBORTIS AT, <p>FAUCIBUS NEC NUNC</p></h3>
-                    <div class="landing-block-node-text text-center g-font-size-14 g-color-gray-dark-v5"><p>Cras sit amet varius velit. Maecenas porta condimentum<br /><span style="font-weight: bold;">$25</span></p></div>
+                    <h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 text-center g-font-size-14">WINE FUSCE DOLOR LIBERO, EFFICITUR ET LOBORTIS AT, <p>FAUCIBUS NEC NUNC</p></h3>
+                    <div class="landing-block-node-text text-center g-font-size-14"><p>Cras sit amet varius velit. Maecenas porta condimentum<br /><span style="font-weight: bold;">$25</span></p></div>
                 </div>
 
             </div>
         </div>
     </section>',
-			),
+			],
 		'20.3.four_cols_fix_img_title_text' =>
-			array (
+			[
 				'CODE' => '20.3.four_cols_fix_img_title_text',
 				'SORT' => '3000',
 				'CONTENT' => '<section class="landing-block g-bg-gray-light-v5 g-pt-20 g-pb-60">
@@ -292,45 +292,45 @@ return array(
 			<div class="landing-block-card landing-block-node-block col-md-3 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeInUp animated ">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x652/img1.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-black g-mb-20 g-font-size-14 text-center">VESTIBULUM SEMPER, URNAEU <p>VULPUTATE EGESTAS</p></h3>
-				<div class="landing-block-node-text g-font-size-14 g-color-gray-dark-v5 text-center"><p>Proin sollicitudin turpis in massa<br /><span style="font-weight: bold;">$70</span></p></div>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14 text-center">VESTIBULUM SEMPER, URNAEU <p>VULPUTATE EGESTAS</p></h3>
+				<div class="landing-block-node-text g-font-size-14 text-center"><p>Proin sollicitudin turpis in massa<br /><span style="font-weight: bold;">$70</span></p></div>
 			</div>
 
 			<div class="landing-block-card landing-block-node-block col-md-3 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeInUp animated ">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x652/img2.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-black g-mb-20 g-font-size-14 text-center">VESTIBULUM SEMPER, URNAEU <p>VULPUTATE EGESTAS</p></h3>
-				<div class="landing-block-node-text g-font-size-14 g-color-gray-dark-v5 text-center"><p>Proin sollicitudin turpis in massa<br /><span style="font-weight: bold;">$70</span></p></div>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14 text-center">VESTIBULUM SEMPER, URNAEU <p>VULPUTATE EGESTAS</p></h3>
+				<div class="landing-block-node-text g-font-size-14 text-center"><p>Proin sollicitudin turpis in massa<br /><span style="font-weight: bold;">$70</span></p></div>
 			</div>
 
 			<div class="landing-block-card landing-block-node-block col-md-3 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeInUp animated ">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x652/img3.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-black g-mb-20 g-font-size-14 text-center">VESTIBULUM SEMPER, URNAEU <p>VULPUTATE EGESTAS</p></h3>
-				<div class="landing-block-node-text g-font-size-14 g-color-gray-dark-v5 text-center"><p>Proin sollicitudin turpis in massa<br /><span style="font-weight: bold;">$70</span></p></div>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14 text-center">VESTIBULUM SEMPER, URNAEU <p>VULPUTATE EGESTAS</p></h3>
+				<div class="landing-block-node-text g-font-size-14 text-center"><p>Proin sollicitudin turpis in massa<br /><span style="font-weight: bold;">$70</span></p></div>
 			</div>
 
 			<div class="landing-block-card landing-block-node-block col-md-3 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeInUp animated ">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x652/img4.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-black g-mb-20 g-font-size-14 text-center">VESTIBULUM SEMPER, URNAEU <p>VULPUTATE EGESTAS</p></h3>
-				<div class="landing-block-node-text g-font-size-14 g-color-gray-dark-v5 text-center"><p>Proin sollicitudin turpis in massa<br /><span style="font-weight: bold;">$70</span><br /></p></div>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14 text-center">VESTIBULUM SEMPER, URNAEU <p>VULPUTATE EGESTAS</p></h3>
+				<div class="landing-block-node-text g-font-size-14 text-center"><p>Proin sollicitudin turpis in massa<br /><span style="font-weight: bold;">$70</span><br /></p></div>
 			</div>
 
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'31.1.two_cols_text_img' =>
-			array (
+			[
 				'CODE' => '31.1.two_cols_text_img',
 				'SORT' => '3500',
 				'CONTENT' => '<section class="landing-block g-bg-main">
 	<div>
 		<div class="row mx-0">
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-25 g-color-black g-font-size-22 js-animation fadeInUp animated">BODY CARE</h3>
-				<div class="landing-block-node-text g-mb-30 g-color-gray-dark-v5 js-animation fadeInUp animated"><p>Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus. In varius blandit condimentum. Pellentesque rutrum mauris ornare libero.</p></div>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-25 g-font-size-22 js-animation fadeInUp animated">BODY CARE</h3>
+				<div class="landing-block-node-text g-mb-30 js-animation fadeInUp animated"><p>Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus. In varius blandit condimentum. Pellentesque rutrum mauris ornare libero.</p></div>
 				<div class="landing-block-node-button-container">
 					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m js-animation fadeInUp animated g-rounded-1 g-btn-primary" href="#" tabindex="0" target="_self">VIEW MORE</a>
 				</div>
@@ -340,9 +340,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'31.2.two_cols_img_text' =>
-			array (
+			[
 				'CODE' => '31.2.two_cols_img_text',
 				'SORT' => '4000',
 				'CONTENT' => '<section class="landing-block g-bg-main">
@@ -351,8 +351,8 @@ return array(
 			<div class="landing-block-node-img col-md-6 g-min-height-360 g-bg-img-hero g-px-0 g-bg-size-cover" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/800x457/img2.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb"></div>
 			
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-25 g-color-black g-font-size-22 js-animation fadeInUp animated">Face care</h3>
-				<div class="landing-block-node-text g-mb-30 g-color-gray-light-v1 js-animation fadeInUp animated"><p>Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus. In varius blandit condimentum. Pellentesque rutrum mauris ornare libero.</p></div>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-25 g-font-size-22 js-animation fadeInUp animated">Face care</h3>
+				<div class="landing-block-node-text g-mb-30 js-animation fadeInUp animated"><p>Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus. In varius blandit condimentum. Pellentesque rutrum mauris ornare libero.</p></div>
 				<div class="landing-block-node-button-container">
 					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m js-animation fadeInUp animated rounded-0 g-btn-primary" href="#" tabindex="0" target="_self">VIEW MORE</a>
 				</div>
@@ -360,17 +360,17 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'31.1.two_cols_text_img@2' =>
-			array (
+			[
 				'CODE' => '31.1.two_cols_text_img',
 				'SORT' => '4500',
 				'CONTENT' => '<section class="landing-block g-bg-main">
 	<div>
 		<div class="row mx-0">
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-25 g-color-black g-font-size-22 js-animation fadeInUp animated">FOOT CARE</h3>
-				<div class="landing-block-node-text g-mb-30 g-color-gray-dark-v5 js-animation fadeInUp animated"><p>Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus. In varius blandit condimentum. Pellentesque rutrum mauris ornare libero.</p></div>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-25 g-font-size-22 js-animation fadeInUp animated">FOOT CARE</h3>
+				<div class="landing-block-node-text g-mb-30 js-animation fadeInUp animated"><p>Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus. In varius blandit condimentum. Pellentesque rutrum mauris ornare libero.</p></div>
 				<div class="landing-block-node-button-container">
 					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m js-animation fadeInUp animated rounded-0 g-btn-primary" href="#" tabindex="0" target="_self">VIEW MORE</a>
 				</div>
@@ -380,9 +380,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'31.2.two_cols_img_text@2' =>
-			array (
+			[
 				'CODE' => '31.2.two_cols_img_text',
 				'SORT' => '5000',
 				'CONTENT' => '<section class="landing-block g-bg-main">
@@ -391,8 +391,8 @@ return array(
 			<div class="landing-block-node-img col-md-6 g-min-height-300 g-bg-img-hero g-px-0 g-bg-size-cover" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/800x457/img4.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb"></div>
 			
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-25 g-color-black g-font-size-22 js-animation fadeInUp animated">NAILS CARE</h3>
-				<div class="landing-block-node-text g-mb-30 g-color-gray-dark-v5 js-animation fadeInUp animated"><p>Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus. In varius blandit condimentum. Pellentesque rutrum mauris ornare libero.</p></div>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-25 g-font-size-22 js-animation fadeInUp animated">NAILS CARE</h3>
+				<div class="landing-block-node-text g-mb-30 js-animation fadeInUp animated"><p>Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus. In varius blandit condimentum. Pellentesque rutrum mauris ornare libero.</p></div>
 				<div class="landing-block-node-button-container">
 					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m js-animation fadeInUp animated g-btn-primary rounded-0" href="#" tabindex="0" target="_self">VIEW MORE</a>
 				</div>
@@ -400,22 +400,22 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'04.1.one_col_fix_with_title' =>
-			array (
+			[
 				'CODE' => '04.1.one_col_fix_with_title',
 				'SORT' => '5500',
 				'CONTENT' => '<section class="landing-block g-bg-primary js-animation fadeInUp animated g-pt-60 g-pb-20">
         <div class="container">
             <div class="landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-white">
-                <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-letter-spacing-1 g-mb-20 g-text-transform-none g-font-size-20 g-color-white-opacity-0_7">Some Advices</h4>
+                <h6 class="landing-block-node-subtitle g-font-weight-800 g-letter-spacing-1 g-mb-20 g-text-transform-none g-font-size-20 g-color-white-opacity-0_7">Some Advices</h6>
                 <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-color-white g-font-size-22">WE CARE ABOUT OUR CLIENTS</h2>
             </div>
         </div>
     </section>',
-			),
+			],
 		'20.3.four_cols_fix_img_title_text@2' =>
-			array (
+			[
 				'CODE' => '20.3.four_cols_fix_img_title_text',
 				'SORT' => '6000',
 				'CONTENT' => '<section class="landing-block g-bg-primary g-pt-20 g-pb-60">
@@ -425,50 +425,50 @@ return array(
 			<div class="landing-block-card landing-block-node-block col-md-3 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeInUp animated  g-bg-main">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x333/img1.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14 text-center g-color-black">FACE CARE</h3>
-				<div class="landing-block-node-text g-font-size-14 text-center g-color-gray-dark-v5"><p>Morbi ex urna, porttitor vel consequat non, rhoncus nec nibh efficitur est ut justo viverra dapibus aliquet iaculis</p></div>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14 text-center">FACE CARE</h3>
+				<div class="landing-block-node-text g-font-size-14 text-center"><p>Morbi ex urna, porttitor vel consequat non, rhoncus nec nibh efficitur est ut justo viverra dapibus aliquet iaculis</p></div>
 			</div>
 
 			<div class="landing-block-card landing-block-node-block col-md-3 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeInUp animated  g-bg-main">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x333/img2.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14 text-center g-color-black">FOOT CARE</h3>
-				<div class="landing-block-node-text g-font-size-14 text-center g-color-gray-dark-v5"><p>Morbi ex urna, porttitor vel consequat non, rhoncus nec nibh efficitur est ut justo viverra dapibus aliquet iaculis</p></div>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14 text-center">FOOT CARE</h3>
+				<div class="landing-block-node-text g-font-size-14 text-center"><p>Morbi ex urna, porttitor vel consequat non, rhoncus nec nibh efficitur est ut justo viverra dapibus aliquet iaculis</p></div>
 			</div>
 
 			<div class="landing-block-card landing-block-node-block col-md-3 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeInUp animated  g-bg-main">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x333/img3.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14 text-center g-color-black">HANDS CARE</h3>
-				<div class="landing-block-node-text g-font-size-14 text-center g-color-gray-dark-v5"><p>Morbi ex urna, porttitor vel consequat non, rhoncus nec nibh efficitur est ut justo viverra dapibus aliquet iaculis</p></div>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14 text-center">HANDS CARE</h3>
+				<div class="landing-block-node-text g-font-size-14 text-center"><p>Morbi ex urna, porttitor vel consequat non, rhoncus nec nibh efficitur est ut justo viverra dapibus aliquet iaculis</p></div>
 			</div>
 
 			<div class="landing-block-card landing-block-node-block col-md-3 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeInUp animated  g-bg-main">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x333/img4.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14 text-center g-color-black">BODY CARE</h3>
-				<div class="landing-block-node-text g-font-size-14 text-center g-color-gray-dark-v5"><p>Morbi ex urna, porttitor vel consequat non, rhoncus nec nibh efficitur est ut justo viverra dapibus aliquet iaculis</p></div>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14 text-center">BODY CARE</h3>
+				<div class="landing-block-node-text g-font-size-14 text-center"><p>Morbi ex urna, porttitor vel consequat non, rhoncus nec nibh efficitur est ut justo viverra dapibus aliquet iaculis</p></div>
 			</div>
 
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'04.1.one_col_fix_with_title@2' =>
-			array (
+			[
 				'CODE' => '04.1.one_col_fix_with_title',
 				'SORT' => '6500',
 				'CONTENT' => '<section class="landing-block g-bg-main js-animation fadeInUp animated g-pt-60 g-pb-20">
         <div class="container">
             <div class="landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-primary">
-                <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-letter-spacing-1 g-color-primary g-mb-20 g-text-transform-none g-font-size-18">Our gallery</h4>
+                <h6 class="landing-block-node-subtitle g-font-weight-800 g-letter-spacing-1 g-color-primary g-mb-20 g-text-transform-none g-font-size-18">Our gallery</h6>
                 <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-font-size-22">You will see how we care about out clients</h2>
             </div>
         </div>
     </section>',
-			),
+			],
 		'32.6.img_grid_4cols_1_no_gutters' =>
-			array (
+			[
 				'CODE' => '32.6.img_grid_4cols_1_no_gutters',
 				'SORT' => '7000',
 				'CONTENT' => '<section class="landing-block g-pt-0 g-pb-0">
@@ -510,9 +510,9 @@ return array(
 	</div>
 
 </section>',
-			),
+			],
 		'32.6.img_grid_4cols_1_no_gutters@2' =>
-			array (
+			[
 				'CODE' => '32.6.img_grid_4cols_1_no_gutters',
 				'SORT' => '7500',
 				'CONTENT' => '<section class="landing-block g-pt-0 g-pb-0">
@@ -554,22 +554,22 @@ return array(
 	</div>
 
 </section>',
-			),
+			],
 		'04.1.one_col_fix_with_title@3' =>
-			array (
+			[
 				'CODE' => '04.1.one_col_fix_with_title',
 				'SORT' => '8000',
 				'CONTENT' => '<section class="landing-block js-animation fadeInUp animated g-bg-main g-pt-60 g-pb-20">
         <div class="container">
             <div class="landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-primary">
-                <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-letter-spacing-1 g-color-primary g-mb-20 g-text-transform-none g-font-size-18">Our products</h4>
+                <h6 class="landing-block-node-subtitle g-font-weight-800 g-letter-spacing-1 g-color-primary g-mb-20 g-text-transform-none g-font-size-18">Our products</h6>
                 <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-font-size-22">WE CARE ABOUT OUR CLIENTS</h2>
             </div>
         </div>
     </section>',
-			),
+			],
 		'42.1.rest_menu' =>
-			array (
+			[
 				'CODE' => '42.1.rest_menu',
 				'SORT' => '8500',
 				'CONTENT' => '<section class="landing-block g-pt-20 g-bg-main g-pb-60">
@@ -586,7 +586,7 @@ return array(
 							<!-- Article Content -->
 							<div class="media-body align-self-center g-pl-10">
 								<div class="d-flex justify-content-between u-heading-v1-4 g-bg-main g-brd-gray-light-v4 g-mb-8">
-									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0">CORATA</h3>
+									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-font-weight-700 g-font-size-13 text-uppercase mb-0">CORATA</h3>
 
 									<div class="align-self-center g-pos-rel g-bg-main g-pl-15">
 										<div class="landing-block-node-card-price g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12">$50</div>
@@ -608,7 +608,7 @@ return array(
 							<!-- Article Content -->
 							<div class="media-body align-self-center g-pl-10">
 								<div class="d-flex justify-content-between u-heading-v1-4 g-bg-main g-brd-gray-light-v4 g-mb-8">
-									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0">MORBI</h3>
+									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-font-weight-700 g-font-size-13 text-uppercase mb-0">MORBI</h3>
 
 									<div class="align-self-center g-pos-rel g-bg-main g-pl-15">
 										<div class="landing-block-node-card-price g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12">$50</div>
@@ -630,7 +630,7 @@ return array(
 							<!-- Article Content -->
 							<div class="media-body align-self-center g-pl-10">
 								<div class="d-flex justify-content-between u-heading-v1-4 g-bg-main g-brd-gray-light-v4 g-mb-8">
-									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0">PROIN<br /></h3>
+									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-font-weight-700 g-font-size-13 text-uppercase mb-0">PROIN<br /></h3>
 
 									<div class="align-self-center g-pos-rel g-bg-main g-pl-15">
 										<div class="landing-block-node-card-price g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12">$50</div>
@@ -652,7 +652,7 @@ return array(
 							<!-- Article Content -->
 							<div class="media-body align-self-center g-pl-10">
 								<div class="d-flex justify-content-between u-heading-v1-4 g-bg-main g-brd-gray-light-v4 g-mb-8">
-									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0">ALIQUIM</h3>
+									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-font-weight-700 g-font-size-13 text-uppercase mb-0">ALIQUIM</h3>
 
 									<div class="align-self-center g-pos-rel g-bg-main g-pl-15">
 										<div class="landing-block-node-card-price g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12">$50</div>
@@ -671,22 +671,22 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'04.1.one_col_fix_with_title@4' =>
-			array (
+			[
 				'CODE' => '04.1.one_col_fix_with_title',
 				'SORT' => '9000',
 				'CONTENT' => '<section class="landing-block js-animation fadeInUp animated g-pt-60 g-pb-20 g-bg-main">
         <div class="container">
             <div class="landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-primary">
-                <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-letter-spacing-1 g-color-primary g-mb-20 g-text-transform-none g-font-size-20">Contact us</h4>
+                <h6 class="landing-block-node-subtitle g-font-weight-800 g-letter-spacing-1 g-color-primary g-mb-20 g-text-transform-none g-font-size-20">Contact us</h6>
                 <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-font-size-22">GET IN TOUCH</h2>
             </div>
         </div>
     </section>',
-			),
+			],
 		'33.12.form_2_light_right_text' =>
-			array (
+			[
 				'CODE' => '33.12.form_2_light_right_text',
 				'SORT' => '9500',
 				'CONTENT' => '<section class="g-pos-rel landing-block g-pt-20 g-pb-60">
@@ -705,10 +705,10 @@ return array(
 
 			<div class="col-md-6 order-1 order-md-2">
 				<div class="text-center g-overflow-hidden">
-					<h3 class="landing-block-node-main-title landing-semantic-title-medium h3 text-uppercase g-font-weight-700 g-mb-20 g-color-black">
+					<h3 class="landing-block-node-main-title landing-semantic-title-medium text-uppercase g-font-weight-700 g-mb-20">
 						Contact Us</h3>
 
-					<div class="landing-block-node-text landing-semantic-text-medium g-line-height-1_5 text-left g-mb-40 g-color-gray-dark-v5">
+					<div class="landing-block-node-text landing-semantic-text-medium g-line-height-1_5 text-left g-mb-40">
 						<p>
 							Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor.
 							Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum,
@@ -723,9 +723,9 @@ return array(
 								<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 									<i class="landing-block-card-contact-icon icon-anchor"></i>
 								</span>
-								<span class="landing-block-card-contact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
+								<span class="landing-block-card-contact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
 									Address</span>
-								<span class="landing-block-card-contact-text landing-semantic-text-medium g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
+								<span class="landing-block-card-contact-text landing-semantic-text-medium g-font-weight-700 g-font-size-11">
 									Sit amet adipiscing
 								</span>
 							</div>
@@ -735,9 +735,9 @@ return array(
 								<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 									<i class="landing-block-card-contact-icon fa fa-clock-o"></i>
 								</span>
-								<span class="landing-block-card-contact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
+								<span class="landing-block-card-contact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
 									Opening time</span>
-								<span class="landing-block-card-contact-text landing-semantic-text-medium g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
+								<span class="landing-block-card-contact-text landing-semantic-text-medium g-font-weight-700 g-font-size-11">
 									Mon-Sat: 08.00 -18.00
 								</span>
 							</div>
@@ -748,10 +748,10 @@ return array(
 									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 										<i class="landing-block-card-linkcontact-icon icon-call-in"></i>
 									</span>
-									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
+									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
 										Phone number
 									</span>
-									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
+									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
 										#PHONE1#
 									</span>
 								</a>
@@ -763,10 +763,10 @@ return array(
 									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 										<i class="landing-block-card-linkcontact-icon icon-line icon-envelope-letter"></i>
 									</span>
-									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
+									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
 										Email
 									</span>
-									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
+									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
 										#EMAIL1#
 									</span>
 								</a>
@@ -778,20 +778,20 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'17.copyright' =>
-			array (
+			[
 				'CODE' => '17.copyright',
 				'SORT' => '10000',
 				'CONTENT' => '<section class="landing-block js-animation animation-none">
-	<div class="text-center g-color-gray-dark-v3 g-pa-10">
+	<div class="text-center g-pa-10">
 		<div class="g-width-600 mx-auto">
 			<div class="landing-block-node-text g-font-size-12  js-animation animation-none">
-				<p>&copy; 2018 All rights reserved.</p>
+				<p>&copy; 2021 All rights reserved.</p>
 			</div>
 		</div>
 	</div>
 </section>',
-			),
-	)
-);
+			],
+	]
+];

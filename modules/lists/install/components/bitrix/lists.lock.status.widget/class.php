@@ -76,7 +76,7 @@ class ListsLockStatusWidget extends CBitrixComponent
 		$lockedBy = (int) $lockedBy;
 		if ($lockedBy > 0)
 		{
-			$queryObject = CUser::getList(($by="ID"), ($order="ASC"), ["ID_EQUAL_EXACT" => $lockedBy]);
+			$queryObject = CUser::getList("ID", "ASC", ["ID_EQUAL_EXACT" => $lockedBy]);
 			if ($user = $queryObject->getNext())
 			{
 				$lockedUserName = rtrim($user["NAME"]." ".$user["LAST_NAME"]);

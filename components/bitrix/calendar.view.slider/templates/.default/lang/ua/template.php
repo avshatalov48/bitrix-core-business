@@ -9,7 +9,6 @@ $MESS["EC_VIEW_REMINDER_ADD"] = "нагадати";
 $MESS["EC_VIEW_SECTION"] = "Календар";
 $MESS["EC_VIEW_SLIDER_ATTENDEES"] = "Учасники";
 $MESS["EC_VIEW_SLIDER_CANCEL_BUTTON"] = "Скасувати";
-$MESS["EC_VIEW_SLIDER_CHAT_LINK"] = "Чат з учасниками";
 $MESS["EC_VIEW_SLIDER_COMMENTS"] = "Коментарі";
 $MESS["EC_VIEW_SLIDER_COPY_LINK"] = "Скопіювати посилання на подію у буфер обміну";
 $MESS["EC_VIEW_SLIDER_DEL"] = "Видалити";

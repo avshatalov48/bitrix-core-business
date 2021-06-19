@@ -75,7 +75,7 @@ class CBPGetUserActivity
 		}
 
 		$dbUsers = CUser::GetList(
-			($sortBy = 'id'), ($sortOrder = 'asc'),
+			'id', 'asc',
 			array(
 				'ID' => implode(' | ', $users),
 				'ACTIVE' => 'Y'

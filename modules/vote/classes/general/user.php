@@ -1,4 +1,5 @@
-<?
+<?php
+
 ##############################################
 # Bitrix Site Manager Forum                  #
 # Copyright (c) 2002-2009 Bitrix             #
@@ -8,18 +9,18 @@
 
 class CAllVoteUser
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "vote";
 		return "<br>Module: ".$module_id."<br>Class: CAllVoteUser<br>File: ".__FILE__;
 	}
 
-	function OnUserLogin()
+	public static function OnUserLogin()
 	{
 		$_SESSION["VOTE"] = array("VOTES" => array());
 	}
 
-	function Delete($USER_ID)
+	public static function Delete($USER_ID)
 	{
 		$err_mess = (CAllVoteUser::err_mess())."<br>Function: Delete<br>Line: ";
 		global $DB;
@@ -30,7 +31,7 @@ class CAllVoteUser
 		return $res;
 	}
 
-	function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = (CAllVoteUser::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB;
@@ -49,11 +50,11 @@ class CAllVoteUser
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -120,13 +121,12 @@ class CAllVoteUser
 		elseif ($by == "s_ip")				$strSqlOrder = "ORDER BY U.LAST_IP";
 		else 
 		{
-			$by = "s_id";
 			$strSqlOrder = "ORDER BY U.ID";
 		}
-		if ($order!="asc")
+
+		if ($order != "asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
@@ -147,8 +147,7 @@ class CAllVoteUser
 		LEFT JOIN b_user BUSER ON (U.AUTH_USER_ID = BUSER.ID)
 		".$strSqlOrder;
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 }
-?>

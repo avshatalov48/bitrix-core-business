@@ -95,7 +95,7 @@ export class TaxForPriceStrategy
 
 			fieldStorage.setField(
 				'DISCOUNT_SUM',
-				fieldStorage.getPriceNetto() - fieldStorage.getPriceExclusive()
+				this.roundPrice(fieldStorage.getPriceNetto() - fieldStorage.getPriceExclusive())
 			);
 		}
 		else if (fieldStorage.isDiscountMonetary())

@@ -261,7 +261,7 @@ class Search
 			return $paths;
 		}
 
-		$sites = \CLang::getList($by = "ID", $order = "ASC", Array("TYPE" => "C"));
+		$sites = \CLang::getList("ID", "ASC", Array("TYPE" => "C"));
 		while ($site = $sites->fetch())
 		{
 			foreach (["C", "H", "L"] as $entityCode)

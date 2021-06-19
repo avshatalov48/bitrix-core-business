@@ -22,7 +22,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 					'FILTER_NAME' => 'arrFilter',
 					'CACHE_TYPE' => 'A',
 					'CACHE_TIME' => '36000000',
-					'CACHE_GROUPS' => 'N',
+					'CACHE_GROUPS' => 'Y',
 					'SAVE_IN_SESSION' => 'N',
 					'FILTER_VIEW_MODE' => 'VERTICAL',
 					'XML_EXPORT' => 'Y',

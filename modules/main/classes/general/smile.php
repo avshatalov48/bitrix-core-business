@@ -643,7 +643,7 @@ class CSmile
 		if (file_exists($sUnpackDir.'install.csv'))
 		{
 			$arLang = Array();
-			$db_res = CLanguage::GetList($b="sort", $o="asc");
+			$db_res = CLanguage::GetList();
 			while ($res = $db_res->Fetch())
 			{
 				if (file_exists($sUnpackDir.'install_lang_'. $res["LID"].'.csv'))
@@ -980,7 +980,7 @@ class CSmileGallery
 
 		$arLang = Array();
 		$arLang2 = Array();
-		$langs = CLanguage::GetList($b="", $o="");
+		$langs = CLanguage::GetList();
 		while($language = $langs->Fetch())
 		{
 			$lid = $language["LID"];
@@ -1033,7 +1033,7 @@ class CSmileGallery
 		$arLang = Array();
 		$arLang2 = Array();
 		$arLang3 = Array();
-		$langs = CLanguage::GetList($b="", $o="");
+		$langs = CLanguage::GetList();
 		while($language = $langs->Fetch())
 		{
 			$lid = $language["LID"];

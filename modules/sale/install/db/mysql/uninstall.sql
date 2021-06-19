@@ -140,3 +140,4 @@ drop table if exists b_sale_delivery_rest_handler;
 drop table if exists b_sale_local_delivery_requests;
 drop table if exists b_sale_cashbox_rest_handler;
 drop table if exists b_sale_cashbox_check_correction;
+drop table if exists b_sale_order_payment_basket;

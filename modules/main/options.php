@@ -23,7 +23,7 @@ $mid = $_REQUEST["mid"];
 
 $arGROUPS = array();
 $groups = array();
-$z = CGroup::GetList(($v1=""), ($v2=""), array("ACTIVE"=>"Y", "ADMIN"=>"N", "ANONYMOUS"=>"N"));
+$z = CGroup::GetList('', '', array("ACTIVE"=>"Y", "ADMIN"=>"N", "ANONYMOUS"=>"N"));
 while($zr = $z->Fetch())
 {
 	$ar = array();

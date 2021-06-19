@@ -163,14 +163,13 @@ abstract class CommonSenderComponent extends CBitrixComponent
 			$this->printErrors();
 			exit;
 		}
+		static::initParams();
 
 		if (!$this->checkRequiredParams())
 		{
 			$this->printErrors();
 			exit;
 		}
-
-		static::initParams();
 	}
 
 	/**

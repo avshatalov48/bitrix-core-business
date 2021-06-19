@@ -41,6 +41,6 @@ class CSiteMap extends CAllSiteMap
 			$strSql .= "LIMIT ".intval($limit);
 		}
 		$r = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		parent::CDBResult($r->result);
+		parent::__construct($r->result);
 	}
 }

@@ -93,7 +93,12 @@ export class LiveFieldController extends EventEmitter
 			result = false;
 		}
 
-		if (result && !this.dateControl.getValue())
+		if (result
+			&& (
+				!this.dateControl.getValue()
+				|| this.statusControl.isErrorSet()
+			)
+		)
 		{
 			this.dateControl.showWarning();
 			result = false;
@@ -243,7 +248,7 @@ export class LiveFieldController extends EventEmitter
 
 		this.DOM.valueInputs = [];
 
-		if (Type.isDate(dateFrom))
+		if (Type.isDate(dateFrom) && !this.statusControl.isErrorSet())
 		{
 			let resources = this.getSelectedResources();
 			if (Type.isArray(resources))
@@ -281,6 +286,7 @@ export class LiveFieldController extends EventEmitter
 
 		if (!entries.length)
 		{
+			allValuesValue.push('empty');
 			this.DOM.valueInputs.push(this.DOM.inputsWrap.appendChild(
 				Tag.render`
 					<input 

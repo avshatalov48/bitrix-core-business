@@ -34,7 +34,7 @@ return array(
 	'style' => array(
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_7_TWO_COLS_FIX_IMG_TEXT_BUTTON_STYLE_LANDINGBLOCKTITLE'),
-			'type' => array('typo', 'animation'),
+			'type' => ['typo', 'animation', 'heading'],
 		),
 		'.landing-block-node-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_7_TWO_COLS_FIX_IMG_TEXT_BUTTON_STYLE_LANDINGBLOCKTEXT'),

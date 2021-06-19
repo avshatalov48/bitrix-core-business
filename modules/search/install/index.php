@@ -12,7 +12,7 @@ Class search extends CModule
 
 	var $errors;
 
-	function search()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -195,9 +195,7 @@ Class search extends CModule
 
 		if(array_key_exists("public_dir", $arParams) && mb_strlen($arParams["public_dir"]))
 		{
-			$by = "sort";
-			$order = "asc";
-			$rsSite = CSite::GetList($by, $order);
+			$rsSite = CSite::GetList();
 			while ($site = $rsSite->Fetch())
 			{
 				$source = $_SERVER['DOCUMENT_ROOT']."/bitrix/modules/search/install/public/";

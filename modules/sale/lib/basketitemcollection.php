@@ -122,6 +122,27 @@ abstract class BasketItemCollection extends Internals\EntityCollection
 	}
 
 	/**
+	 * @param $xmlId
+	 * @return BasketItemBase|null
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 */
+	public function getItemByXmlId($xmlId)
+	{
+		/** @var BasketItemBase $basketItem */
+		foreach ($this->collection as $basketItem)
+		{
+			$basketItem = $basketItem->findItemByXmlId($xmlId);
+			if ($basketItem != null)
+			{
+				return $basketItem;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * @param $id
 	 * @return BasketItemBase|null
 	 * @throws \Bitrix\Main\ArgumentNullException

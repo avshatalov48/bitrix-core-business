@@ -25,7 +25,7 @@ return array(
 	'style' => array(
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LNDNG_BLCK_35_10_HEADER_TITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-text' => array(
 			'name' => Loc::getMessage('LNDNG_BLCK_35_10_HEADER_SLOGAN'),

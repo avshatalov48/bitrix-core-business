@@ -247,7 +247,7 @@ class UserTable extends Main\Entity\DataManager
 	}
 }
 
-class User {
+class User implements \ArrayAccess {
 	use Internals\EntityFabric;
 	use Internals\EntityBaseMethods;
 	/** @var int */
@@ -337,24 +337,31 @@ class User {
 
 		$connection = Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
-
-		$merge = $helper->prepareMerge(
-			'b_forum_user',
-			array('USER_ID'),
-			array(
-				'SHOW_NAME' => ($this->data['SHOW_NAME'] === 'N' ? 'N' : 'Y'),
-				'ALLOW_POST' => ($this->data['ALLOW_POST'] === 'N' ? 'N' : 'Y'),
-				'USER_ID' => $this->getId(),
-				'DATE_REG' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction()),
-				'LAST_VISIT' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
-			),
-			array(
-				'LAST_VISIT' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
-			)
-		);
-		if ($merge[0] != '')
+		$tableName = UserTable::getTableName();
+		$update = $helper->prepareUpdate($tableName, ['LAST_VISIT' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())]);
+		$where = $helper->prepareAssignment($tableName, 'USER_ID', $this->getId());
+		$sql = 'UPDATE '.$helper->quote($tableName).' SET '.$update[0].' WHERE '.$where;
+		$connection->queryExecute($sql, $update[1]);
+		if ($connection->getAffectedRowsCount() <= 0)
 		{
-			$connection->query($merge[0]);
+			$merge = $helper->prepareMerge(
+				'b_forum_user',
+				array('USER_ID'),
+				array(
+					'SHOW_NAME' => ($this->data['SHOW_NAME'] === 'N' ? 'N' : 'Y'),
+					'ALLOW_POST' => ($this->data['ALLOW_POST'] === 'N' ? 'N' : 'Y'),
+					'USER_ID' => $this->getId(),
+					'DATE_REG' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction()),
+					'LAST_VISIT' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
+				),
+				array(
+					'LAST_VISIT' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
+				)
+			);
+			if ($merge[0] != '')
+			{
+				$connection->query($merge[0]);
+			}
 		}
 
 		unset($GLOBALS['FORUM_CACHE']['USER']);
@@ -420,11 +427,16 @@ class User {
 		return ($this->getId() <= 0);
 	}
 
+	public function isAuthorized()
+	{
+		return ($this->getId() > 0);
+	}
+
 	public function edit(array $fields)
 	{
 		$result = new Result();
 
-		if ($this->isGuest())
+		if (!$this->isAuthorized())
 		{
 			return $result;
 		}
@@ -455,7 +467,7 @@ class User {
 	{
 		$result = new Result();
 
-		if ($this->isGuest())
+		if (!$this->isAuthorized())
 		{
 			return $result;
 		}
@@ -485,7 +497,7 @@ class User {
 
 	public function incrementStatistic(array $message)
 	{
-		if ($this->isGuest() || $message["APPROVED"] != "Y")
+		if (!$this->isAuthorized() || $message["APPROVED"] != "Y")
 		{
 			return;
 		}
@@ -529,7 +541,7 @@ class User {
 			->where('TOPIC_ID', $topic->getId())
 			->setOrder(['ID' => 'ASC'])
 			->setLimit(1);
-		if (!$this->isGuest())
+		if ($this->isAuthorized())
 		{
 			$query
 				->registerRuntimeField(
@@ -592,6 +604,7 @@ class User {
 								->whereNull('USER_TOPIC.LAST_VISIT')
 								->whereNull('USER_FORUM.LAST_VISIT')
 								->whereNull('USER_FORUM_0.LAST_VISIT')
+								->whereNotNull('ID')
 						)
 				);
 		}
@@ -605,7 +618,11 @@ class User {
 			);
 			if ($lastVisit > 0)
 			{
-				$query->whereColumn('POST_DATE', '>', DateTime::createFromTimestamp($lastVisit));
+				$query->where('POST_DATE', '>', DateTime::createFromTimestamp($lastVisit));
+			}
+			else
+			{
+				return null;
 			}
 		}
 		if ($res = $query->fetch())
@@ -637,7 +654,7 @@ class User {
 
 		$topic->incrementViews();
 
-		if (!$this->isGuest())
+		if ($this->isAuthorized())
 		{
 			$connection = Main\Application::getConnection();
 			$helper = $connection->getSqlHelper();
@@ -646,20 +663,25 @@ class User {
 				'USER_ID' => $this->getId(),
 				'TOPIC_ID' => $topic->getId()
 			];
+
 			$fields = [
 				'FORUM_ID' => $topic->getForumId(),
 				'LAST_VISIT' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
 			];
 
-			$merge = $helper->prepareMerge(
-				'b_forum_user_topic',
-				array_keys($primaryFields),
-				$primaryFields + $fields,
-				$fields
-			);
-			if ($merge[0] != '')
+			$result = UserTopicTable::update($primaryFields, $fields);
+			if ($result->getAffectedRowsCount() <= 0)
 			{
-				$connection->query($merge[0]);
+				$merge = $helper->prepareMerge(
+					'b_forum_user_topic',
+					array_keys($primaryFields),
+					$primaryFields + $fields,
+					$fields
+				);
+				if ($merge[0] != '')
+				{
+					$connection->query($merge[0]);
+				}
 			}
 		}
 		else
@@ -682,7 +704,7 @@ class User {
 	{
 		$result = new Result();
 
-		if ($this->isGuest())
+		if (!$this->isAuthorized())
 		{
 			return $result;
 		}
@@ -781,7 +803,7 @@ class User {
 		{
 			return true;
 		}
-		if ($this->isGuest())
+		if (!$this->isAuthorized())
 		{
 			return false;
 		}
@@ -802,7 +824,7 @@ class User {
 		{
 			return true;
 		}
-		if ($this->isGuest())
+		if (!$this->isAuthorized())
 		{
 			return false;
 		}
@@ -836,13 +858,23 @@ class User {
 		return $this->canEditForum($forum);
 	}
 
+	public function canReadForum(Forum $forum)
+	{
+		return $this->getPermissionOnForum($forum->getId()) >= Permission::CAN_READ;
+	}
+
+	public function canReadTopic(Topic $topic)
+	{
+		return $this->getPermissionOnForum($topic->getForumId()) >= Permission::CAN_READ;
+	}
+
 	public static function isUserAdmin(array $groups)
 	{
 		global $APPLICATION;
 		return (in_array(1, $groups) || $APPLICATION->GetGroupRight("forum", $groups) >= "W");
 	}
 
-	private function saveInSession($name, $value)
+	private function saveInSession(string $name, $value)
 	{
 		if (method_exists(Main\Application::getInstance(), 'getKernelSession'))
 		{
@@ -855,7 +887,7 @@ class User {
 		$forumSession = is_array($forumSession) ? $forumSession : [];
 		if (is_array($value) && array_key_exists($name, $forumSession) && is_array($forumSession[$name]))
 		{
-			$forumSession[$name] = array_merge($forumSession[$name], $value);
+			$forumSession[$name] = $value + $forumSession[$name];
 		}
 		else
 		{
@@ -872,7 +904,7 @@ class User {
 		return $forumSession[$name];
 	}
 
-	private function getFromSession($name)
+	private function getFromSession(string $name)
 	{
 		if (method_exists(Main\Application::getInstance(), 'getKernelSession'))
 		{
@@ -882,7 +914,7 @@ class User {
 		{
 			$forumSession = $_SESSION['FORUM'];
 		}
-		if (array_key_exists($name, $forumSession))
+		if (is_array($forumSession) && array_key_exists($name, $forumSession))
 		{
 			return $forumSession[$name];
 		}

@@ -79,7 +79,7 @@
 
 		if (!this.buttonIds.length)
 		{
-			return;
+			return
 		}
 
 		this.buttonIds.forEach(function(buttonId) {
@@ -237,6 +237,183 @@
 					button.setIcon(null);
 				}
 			}
-		}
+		},
 	};
+
+	BX.UI.Toolbar.Star = function()
+	{
+		this.initialized = false;
+		this.currentPageInMenu = false;
+		this.starContNode = null;
+
+		BX.ready(function() {
+			this.init();
+		}.bind(this));
+		BX.addCustomEvent('onFrameDataProcessed', function() {
+			this.init();
+		}.bind(this));
+	}
+
+	BX.UI.Toolbar.Star.prototype =
+	{
+		init: function()
+		{
+			this.starContNode = document.getElementById('uiToolbarStar');
+			if (!this.starContNode)
+			{
+				return false;
+			}
+
+			if (this.initialized)
+			{
+				return false;
+			}
+			this.initialized = true;
+
+			var currentFullPath = this.starContNode.getAttribute('data-bx-url');
+			if (!BX.type.isNotEmptyString(currentFullPath))
+			{
+				currentFullPath = document.location.pathname + document.location.search;
+			}
+			currentFullPath = BX.Uri.removeParam(currentFullPath, [ 'IFRAME', 'IFRAME_TYPE' ]);
+
+			top.BX.addCustomEvent('BX.Bitrix24.LeftMenuClass:onSendMenuItemData', function(params) {
+				this.processMenuItemData(params);
+			}.bind(this));
+
+			top.BX.addCustomEvent('BX.Bitrix24.LeftMenuClass:onStandardItemChangedSuccess', function(params) {
+				this.onStandardItemChangedSuccess(params);
+			}.bind(this));
+
+			top.BX.onCustomEvent('UI.Toolbar:onRequestMenuItemData', [{
+				currentFullPath: currentFullPath,
+				context: window,
+			}]);
+
+			return true;
+		},
+
+		processMenuItemData: function(params)
+		{
+			if (
+				params.context
+				&& params.context !== window
+			)
+			{
+				return;
+			}
+
+			this.currentPageInMenu = params.currentPageInMenu;
+			if (BX.type.isNotEmptyObject(params.currentPageInMenu))
+			{
+				BX.addClass(this.starContNode, 'ui-toolbar-star-active');
+			}
+			this.starContNode.title = BX.message(this.starContNode.classList.contains('ui-toolbar-star-active') ? 'UI_TOOLBAR_DELETE_PAGE_FROM_LEFT_MENU' : 'UI_TOOLBAR_ADD_PAGE_TO_LEFT_MENU');
+
+			//default page
+			if (
+				BX.type.isDomNode(this.currentPageInMenu)
+				&& this.currentPageInMenu.getAttribute('data-type') === 'default')
+			{
+				this.starContNode.title = BX.message('UI_TOOLBAR_STAR_TITLE_DEFAULT_PAGE');
+				BX.bind(this.starContNode, 'click', function ()
+				{
+					this.showMessage(BX.message('UI_TOOLBAR_STAR_TITLE_DEFAULT_PAGE_DELETE_ERROR'));
+				}.bind(this));
+
+				return true;
+			}
+
+			//any page
+			BX.bind(this.starContNode, 'click', function ()
+			{
+				var pageTitle = document.getElementById('pagetitle').innerText;
+				var pageTitleTemplate = this.starContNode.getAttribute('data-bx-title-template');
+				if (BX.type.isNotEmptyString(pageTitleTemplate))
+				{
+					pageTitle = pageTitleTemplate.replace(/#page_title#/i, pageTitle);
+				}
+
+				var pageLink = this.starContNode.getAttribute('data-bx-url');
+				if (!BX.type.isNotEmptyString(pageLink))
+				{
+					pageLink = document.location.pathname + document.location.search;
+				}
+				pageLink = BX.Uri.removeParam(pageLink, [ 'IFRAME', 'IFRAME_TYPE' ])
+
+				top.BX.onCustomEvent('UI.Toolbar:onStarClick', [{
+					isActive: BX.hasClass(this.starContNode, 'ui-toolbar-star-active'),
+					context: window,
+					pageTitle: pageTitle,
+					pageLink: pageLink,
+				}]);
+			}.bind(this));
+		},
+
+		onStandardItemChangedSuccess: function(params)
+		{
+			if (
+				!BX.type.isBoolean(params.isActive)
+				|| !this.starContNode
+			)
+			{
+				return;
+			}
+
+			if (
+				params.context
+				&& params.context !== window
+			)
+			{
+				return;
+			}
+
+			if (params.isActive)
+			{
+				this.showMessage(BX.message('UI_TOOLBAR_ITEM_WAS_ADDED_TO_LEFT'));
+				this.starContNode.title = BX.message('UI_TOOLBAR_DELETE_PAGE_FROM_LEFT_MENU');
+				BX.addClass(this.starContNode, 'ui-toolbar-star-active');
+			}
+			else
+			{
+				this.showMessage(BX.message('UI_TOOLBAR_ITEM_WAS_DELETED_FROM_LEFT'));
+				this.starContNode.title = BX.message('UI_TOOLBAR_ADD_PAGE_TO_LEFT_MENU');
+				BX.removeClass(this.starContNode, 'ui-toolbar-star-active');
+			}
+		},
+
+		showMessage: function (message)
+		{
+			var popup = BX.PopupWindowManager.create('left-menu-message', this.starContNode, {
+				content: message,
+				darkMode: true,
+				offsetTop: 2,
+				offsetLeft: 0,
+				angle: true,
+				events: {
+					onPopupClose: function ()
+					{
+						if (popup)
+						{
+							popup.destroy();
+							popup = null;
+						}
+					}
+				},
+				autoHide: true
+			});
+
+			popup.show();
+
+			setTimeout(function ()
+			{
+				if (popup)
+				{
+					popup.destroy();
+					popup = null;
+				}
+			}, 3000);
+		},
+	};
+
 })();

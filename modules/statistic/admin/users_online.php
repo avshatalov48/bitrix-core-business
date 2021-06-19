@@ -22,9 +22,7 @@ if (!in_array($delay, $arDelay))
 
 $arSites = array();
 $ref = $ref_id = array();
-$v1 = "sort";
-$v2 = "asc";
-$rs = CSite::GetList($v1, $v2);
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 {
 	$ref[] = $ar["ID"];

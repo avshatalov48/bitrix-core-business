@@ -20,6 +20,7 @@ use Bitrix\Sale\Delivery\Services\Taxi\CreationExternalRequestResult;
 use Bitrix\Sale\Delivery\Services\Taxi\StatusDictionary;
 use Bitrix\Sale\Delivery\Services\Taxi\Taxi;
 use Bitrix\Sale\Shipment;
+use Bitrix\Voximplant\Security\Helper;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Api;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Claim;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Tariffs\Repository;
@@ -246,7 +247,13 @@ final class YandextaxiHandler extends Taxi implements ICrmActivityProvider, ICrm
 			->setBindings($this->crmBindingsMaker->makeByShipment($shipment, 'OWNER'))
 			->setFields(
 				array_merge(
-					['STATUS' => StatusDictionary::INITIAL],
+					[
+						'STATUS' => StatusDictionary::INITIAL,
+						'CAN_USE_TELEPHONY' => (
+							Loader::includeModule('voximplant')
+							&& Helper::canCurrentUserPerformCalls()
+						),
+					],
 					$this->makeCrmEntitySharedFields($shipment)
 				)
 			);
@@ -286,11 +293,13 @@ final class YandextaxiHandler extends Taxi implements ICrmActivityProvider, ICrm
 			'DELIVERY_PRICE' => $this->extractor->getDeliveryPriceFormatted($shipment),
 		];
 
-		$expectedDeliveryPriceFormatted = $this->extractor->getExpectedDeliveryPriceFormatted($shipment);
-
-		if (!is_null($expectedDeliveryPriceFormatted))
+		$calcPrice = $shipment->calculateDelivery();
+		if($calcPrice->isSuccess())
 		{
-			$result['EXPECTED_PRICE_DELIVERY'] = $expectedDeliveryPriceFormatted;
+			$result['EXPECTED_PRICE_DELIVERY'] = SaleFormatCurrency(
+				$calcPrice->getPrice(),
+				$shipment->getOrder()->getCurrency()
+			);
 		}
 
 		return $result;
@@ -396,7 +405,7 @@ final class YandextaxiHandler extends Taxi implements ICrmActivityProvider, ICrm
 		 */
 		$isAvailableInCurrentRegion = in_array(
 			ServiceContainer::getRegionFinder()->getCurrentRegion(),
-			['ru', 'kz']
+			['ru', 'kz', 'by']
 		);
 
 		/**

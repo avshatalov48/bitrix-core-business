@@ -305,8 +305,8 @@ class ListExportExcelComponent extends CBitrixComponent
 				{
 					$userId = array();
 					$userQuery = CUser::GetList(
-						$by = "ID",
-						$order = "ASC",
+						"ID",
+						"ASC",
 						array("NAME" => $value),
 						array("FIELDS" => array("ID"))
 					);

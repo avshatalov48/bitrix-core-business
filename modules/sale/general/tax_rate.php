@@ -1,7 +1,7 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
-use Bitrix\Sale\Location;
 use Bitrix\Sale\Location\Admin\LocationHelper as Helper;
 use Bitrix\Main\DB;
 
@@ -9,7 +9,7 @@ class CAllSaleTaxRate
 {
 	const CONN_ENTITY_NAME = 'Bitrix\Sale\Tax\RateLocation';
 
-	function CheckFields($ACTION, &$arFields)
+	public static function CheckFields($ACTION, &$arFields)
 	{
 		global $DB;
 
@@ -72,7 +72,7 @@ class CAllSaleTaxRate
 		return true;
 	}
 
-	function SetTaxRateLocation($ID, $arFields, $arOptions = array())
+	public static function SetTaxRateLocation($ID, $arFields, $arOptions = array())
 	{
 		if(CSaleLocation::isLocationProMigrated())
 		{
@@ -105,7 +105,7 @@ class CAllSaleTaxRate
 		}
 	}
 
-	function Update($ID, $arFields, $arOptions = array())
+	public static function Update($ID, $arFields, $arOptions = array())
 	{
 		global $DB;
 		$ID = intval($ID);
@@ -124,7 +124,7 @@ class CAllSaleTaxRate
 		return $ID;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 		$ID = intval($ID);
@@ -134,7 +134,7 @@ class CAllSaleTaxRate
 		return $DB->Query("DELETE FROM b_sale_tax_rate WHERE ID = ".$ID, true);
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -160,7 +160,7 @@ class CAllSaleTaxRate
 	 * 
 	 * 
 	 */
-	function GetLocationList($arFilter=Array())
+	public static function GetLocationList($arFilter=Array())
 	{
 		if(CSaleLocation::isLocationProMigrated())
 		{
@@ -233,4 +233,3 @@ class CAllSaleTaxRate
 		}
 	}
 }
-?>

@@ -55,11 +55,7 @@ class SenderLetterTimeComponent extends CommonSenderComponent
 
 		$this->arParams['IS_OUTSIDE'] = isset($this->arParams['IS_OUTSIDE']) ? (bool) $this->arParams['IS_OUTSIDE'] : $this->request->get('isOutside') === 'Y';
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
-		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT'])
-			?
-			$this->arParams['CAN_EDIT']
-			:
-			Security\Access::getInstance()->canModifyLetters();
+
 		$this->arParams['CAN_VIEW'] = isset($this->arParams['CAN_VIEW'])
 			?
 			$this->arParams['CAN_VIEW']
@@ -86,7 +82,7 @@ class SenderLetterTimeComponent extends CommonSenderComponent
 			$this->letter->set('UPDATED_BY', $userId);
 		}
 		$method = $this->letter->getMethod();
-		if ($method->canChange())
+		if ($method->canChange() && $this->accessController->check(ActionDictionary::ACTION_MAILING_PAUSE_START_STOP))
 		{
 			switch ($code)
 			{
@@ -184,12 +180,19 @@ class SenderLetterTimeComponent extends CommonSenderComponent
 			$this->arParams['ID'],
 			$this->arParams['MESSAGE_CODE_LIST']
 		);
+
 		if (!$this->letter)
 		{
 			Security\AccessChecker::addError($this->errors, Security\AccessChecker::ERR_CODE_NOT_FOUND);
 			return false;
 		}
 
+
+		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT'])
+			?
+			$this->arParams['CAN_EDIT']
+			:
+			Security\Access::getInstance()->canStopStartPause(get_class($this->letter));
 
 		if (!$this->letter->getId())
 		{

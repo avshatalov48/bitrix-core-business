@@ -130,7 +130,7 @@ class ContextMenu
 
 	public function getJson()
 	{
-		$result = \Bitrix\Main\Web\Json::encode($this->items);
+		$result = \Bitrix\Im\Common::jsonEncode($this->items);
 		return mb_strlen($result) < 60000? $result: "";
 	}
 }

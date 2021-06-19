@@ -439,7 +439,7 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 				}
 			}
 
-			$arResult['PRODUCT_PRICE_ID'] = $arPrice['PRICE']['ID'];
+			$arResult['PRODUCT_PRICE_ID'] = $arPrice['RESULT_PRICE']['ID'];
 			$arResult['NOTES'] = $arPrice['PRICE']['CATALOG_GROUP_NAME'];
 			$arResult['VAT_RATE'] = $arPrice['PRICE']['VAT_RATE'];
 			$arResult['DISCOUNT_NAME'] = null;
@@ -718,7 +718,7 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 			$arPrice['RESULT_PRICE'] = CCatalogDiscount::calculateDiscountList($arPrice['PRICE'], $arParams['CURRENCY'], $arDiscountList, true);
 
 		$arResult = array(
-			'PRODUCT_PRICE_ID' => $arPrice['PRICE']['ID'],
+			'PRODUCT_PRICE_ID' => $arPrice['RESULT_PRICE']['ID'],
 //			"AVAILABLE_QUANTITY" => $arCatalogProduct["QUANTITY"],
 			'PRICE_TYPE_ID' => $arPrice['RESULT_PRICE']['PRICE_TYPE_ID'],
 			'BASE_PRICE' => $arPrice['RESULT_PRICE']['BASE_PRICE'],

@@ -63,7 +63,7 @@ return array(
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_43.1.BIG_TILES_WITH_SLIDER_NODES_LANDINGBLOCKNODETITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-subtitle' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_43.1.BIG_TILES_WITH_SLIDER_NODES_LANDINGBLOCKNODESUBTITLE'),

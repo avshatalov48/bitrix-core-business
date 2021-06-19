@@ -18,7 +18,7 @@ class Enum extends Base
 		$this->params["OPTIONS"] = array();
 	}
 
-	public function getClassTitle()
+	public static function getClassTitle()
 	{
 		return Loc::getMessage("DELIVERY_EXTRA_SERVICE_ENUM_TITLE");
 	}
@@ -73,7 +73,7 @@ class Enum extends Base
 			}
 		}
 
-		$i = strval(mktime());
+		$i = strval(time());
 		$result .= self::getValueHtml($name, $i, "", "", $currency)."<br><br>".
 			'<input type="button" value="'.Loc::getMessage("DELIVERY_EXTRA_SERVICE_ENUM_ADD").
 				'" onclick=\'var d=new Date(); '.
@@ -165,4 +165,13 @@ class Enum extends Base
 		return "BX.onCustomEvent('onDeliveryExtraServiceValueChange', [{'id' : '".$id."', 'value': this.value, 'price': ".$this->getJSPrice($prices)."}]);";
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public function getDisplayValue(): ?string
+	{
+		return isset($this->params['PRICES'][$this->value])
+			? (string)$this->params['PRICES'][$this->value]['TITLE']
+			: null;
+	}
 }

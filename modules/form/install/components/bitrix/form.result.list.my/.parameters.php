@@ -5,9 +5,7 @@ if (!CModule::IncludeModule('form'))
 	return;
 
 $arForms = array();
-$dbRes = CForm::GetList(
-	$by = 's_sort', $order = 'asc', array('ACTIVE' => 'Y'), $is_filtered
-);
+$dbRes = CForm::GetList('s_sort', 'asc', array('ACTIVE' => 'Y'));
 while ($arRes = $dbRes->Fetch())
 {
 	$arForms[$arRes['ID']] = '['.$arRes['SID'].'] '.$arRes['NAME'];

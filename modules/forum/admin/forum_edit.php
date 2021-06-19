@@ -28,7 +28,7 @@ $arFields = array();
 $message = false;
 $ID = intval($_REQUEST["ID"]);
 $arSites = array();
-$db_res = CSite::GetList($by = "sort", $order = "asc");
+$db_res = CSite::GetList();
 while ($res = $db_res->GetNext())
 	$arSites[$res["LID"]] = $res;
 $arGroups = CForumGroup::GetByLang(LANGUAGE_ID);
@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $forumPermissions >= "W" && $_REQUES
 			"ALLOW_SIGNATURE" => ($_REQUEST["ALLOW_SIGNATURE"] == "Y" ? "Y" : "N")
 		);
 		
-		$db_res = CSite::GetList($lby="sort", $lorder="asc");
+		$db_res = CSite::GetList();
 		while ($res = $db_res->Fetch())
 		{
 			if ($_REQUEST["SITE"][$res["LID"]] == "Y")
@@ -613,7 +613,7 @@ $tabControl->BeginNextTab();
 
 	$arPerm = ($ID > 0 ? $arForum["GROUP_ID"] : array());
 
-	$db_res = CGroup::GetList($by = "sort", $order = "asc", Array("ADMIN"=>"N"));
+	$db_res = CGroup::GetList("sort", "asc", Array("ADMIN"=>"N"));
 	while ($res = $db_res->GetNext())
 	{
 		$strSelected = $arForum["GROUP_ID"][$res["ID"]];

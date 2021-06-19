@@ -43,7 +43,7 @@ return array(
 	'style' => array(
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_31_7_TITLE'),
-			'type' => array('typo', 'margin-bottom'),
+			'type' => ['typo', 'margin-bottom', 'heading'],
 		),
 		'.landing-block-node-read-more' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_31_7_READMORE'),

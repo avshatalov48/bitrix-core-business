@@ -209,7 +209,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td class="adm-detail-valign-top"><?echo GetMessage("imp_add_gr")?></td>
 		<td><select name="USER_GROUP_ID[]" multiple size=10><?
-		$groups = CGroup::GetList(($by1="sort"), ($order1="asc"), Array("ACTIVE"=>"Y"));
+		$groups = CGroup::GetList("sort", "asc", Array("ACTIVE"=>"Y"));
 		while(($gr = $groups->Fetch())):
 		?><OPTION VALUE="<?echo $gr["ID"]?>"<?if(in_array($gr["ID"], $USER_GROUP_ID)) echo " SELECTED"?>><?echo htmlspecialcharsbx($gr["NAME"])." [".$gr["ID"]."]"?></OPTION><?
 		endwhile;

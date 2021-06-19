@@ -258,6 +258,8 @@ class CForumFormat
 	
 	public static function FormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="DD.MM.YYYY HH:MI:SS")
 	{
+		global $DB;
+
 		$strDate = trim($strDate);
 
 		$new_format = str_replace("MI","I", $new_format);
@@ -271,7 +273,7 @@ class CForumFormat
 		{
 			//if ($intval) $r = IntVal($arDate[$i]); else
 			if (preg_match("/^[0-9]/", $arDate[$i]))
-				$r = CDatabase::ForSql($arDate[$i], 4);
+				$r = $DB->ForSql($arDate[$i], 4);
 			else
 				$r = intval($arDate[$i]);
 

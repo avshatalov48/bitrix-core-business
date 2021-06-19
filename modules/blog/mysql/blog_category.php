@@ -1,10 +1,11 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/general/blog_category.php");
 
 class CBlogCategory extends CAllBlogCategory
 {
 	/*************** ADD, UPDATE, DELETE *****************/
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -48,7 +49,7 @@ class CBlogCategory extends CAllBlogCategory
 		return False;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -93,7 +94,7 @@ class CBlogCategory extends CAllBlogCategory
 	}
 
 	//*************** SELECT *********************/
-	function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -188,4 +189,3 @@ class CBlogCategory extends CAllBlogCategory
 		return $dbRes;
 	}
 }
-?>

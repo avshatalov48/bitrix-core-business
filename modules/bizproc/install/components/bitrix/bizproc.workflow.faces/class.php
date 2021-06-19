@@ -32,7 +32,7 @@ class BizprocWorkflowFaces extends \CBitrixComponent
 	{
 		if ($workflowState['STARTED_BY'])
 		{
-			$iterator = CUser::GetList($by="id", $order="asc",
+			$iterator = CUser::GetList("id", "asc",
 				array('ID' => $workflowState['STARTED_BY']),
 				array('FIELDS' => array('ID', 'PERSONAL_PHOTO', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'TITLE'))
 			);

@@ -364,8 +364,14 @@ function DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle, $bgC
 
 	$max_len=0;
 
-	$bUseTTFY = is_array($arrTTF_FONT["Y"]) && function_exists("ImageTTFText");
-	$bUseTTFX = is_array($arrTTF_FONT["X"]) && function_exists("ImageTTFText");
+	$bUseTTFY = false;
+	$bUseTTFX = false;
+
+	if(is_array($arrTTF_FONT) && function_exists("ImageTTFText"))
+	{
+		$bUseTTFY = is_array($arrTTF_FONT["Y"] ?? null);
+		$bUseTTFX = is_array($arrTTF_FONT["X"] ?? null);
+	}
 
 	$ttf_font_y = "";
 	$ttf_size_y = $ttf_shift_y = $ttf_base_y = 0;
@@ -402,7 +408,7 @@ function DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle, $bgC
 
 	ImageFill($ImageHandle, 0, 0, $colorFFFFFF);
 
-	$bForBarDiagram = is_array($arrTTF_FONT) && ($arrTTF_FONT["type"] == "bar");
+	$bForBarDiagram = is_array($arrTTF_FONT) && (($arrTTF_FONT["type"] ?? '') == "bar");
 	if($bForBarDiagram)
 	{
 		$arResult["XBUCKETS"] = array();

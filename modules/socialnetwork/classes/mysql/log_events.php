@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/log_events.php");
 
 class CSocNetLogEvents extends CAllSocNetLogEvents
@@ -6,7 +7,7 @@ class CSocNetLogEvents extends CAllSocNetLogEvents
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -32,8 +33,7 @@ class CSocNetLogEvents extends CAllSocNetLogEvents
 		return $ID;
 	}
 
-	
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -71,7 +71,7 @@ class CSocNetLogEvents extends CAllSocNetLogEvents
 	/***************************************/
 	/**********  DATA SELECTION  ***********/
 	/***************************************/
-	function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array(), $arParams = array())
+	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array(), $arParams = array())
 	{
 		global $DB;
 
@@ -233,7 +233,7 @@ class CSocNetLogEvents extends CAllSocNetLogEvents
 		return $dbRes;
 	}
 
-	function GetUserLogEvents($userID, $arFilter = array())
+	public static function GetUserLogEvents($userID, $arFilter = array())
 	{
 		global $DB;
 
@@ -327,4 +327,3 @@ class CSocNetLogEvents extends CAllSocNetLogEvents
 		return $dbRes;
 	}
 }
-?>

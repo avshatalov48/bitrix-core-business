@@ -598,7 +598,7 @@ $search_is_ok = IsModuleInstalled('search')
 
 if(CModule::IncludeModule('advertising') && COption::GetOptionString('advertising', 'DONT_FIX_BANNER_SHOWS')!=="Y")
 {
-	$rsBanners = CAdvBanner::GetList($by, $order, array("FIX_SHOW" => "Y"), $is_filtered, "N");
+	$rsBanners = CAdvBanner::GetList('', '', array("FIX_SHOW" => "Y"), null, "N");
 	if($rsBanners->Fetch())
 		$adv_banners_fix_shows = true;
 	else

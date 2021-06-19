@@ -544,8 +544,15 @@ abstract class Process
 
 		for($i = $step; $i <= $step + $this->getCurrStageStepSize(); $i++)
 		{
-			list($code, $elem) = each($from);
-			if(!isset($code)) break;
+			$code = key($from);
+
+			if(!isset($code))
+			{
+				break;
+			}
+
+			$elem = current($from);
+			next($from);
 
 			$hadSmth = true;
 			$block[$code] = $elem;

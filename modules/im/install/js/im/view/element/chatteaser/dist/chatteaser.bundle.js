@@ -9,7 +9,7 @@
 	 * @subpackage im
 	 * @copyright 2001-2019 Bitrix
 	 */
-	ui_vue.Vue.component('bx-im-view-element-chat-teaser', {
+	ui_vue.BitrixVue.component('bx-im-view-element-chat-teaser', {
 	  /*
 	   * @emits 'click' {}
 	   */
@@ -25,17 +25,14 @@
 	    }
 	  },
 	  computed: {
-	    localize: function localize() {
-	      return ui_vue.Vue.getFilteredPhrases('IM_MESSENGER_COMMENT_', this.$root.$bitrixMessages);
-	    },
 	    formattedDate: function formattedDate() {
-	      return im_lib_utils.Utils.date.format(this.messageLastDate, null, this.$root.$bitrixMessages);
+	      return im_lib_utils.Utils.date.format(this.messageLastDate, null, this.$Bitrix.Loc.getMessages());
 	    },
 	    formattedCounter: function formattedCounter() {
-	      return this.messageCounter + ' ' + im_lib_utils.Utils.text.getLocalizeForNumber('IM_MESSENGER_COMMENT', this.messageCounter, this.languageId, this.$root.$bitrixMessages);
+	      return this.messageCounter + ' ' + im_lib_utils.Utils.text.getLocalizeForNumber('IM_MESSENGER_COMMENT', this.messageCounter, this.languageId, this.$Bitrix.Loc.getMessages());
 	    }
 	  },
-	  template: "\n\t\t<div class=\"bx-im-element-chat-teaser\" @click=\"$emit('click', $event)\">\n\t\t\t<span class=\"bx-im-element-chat-teaser-join\">{{localize.IM_MESSENGER_COMMENT_OPEN}}</span>\n\t\t\t<span class=\"bx-im-element-chat-teaser-comment\">\n\t\t\t\t<span class=\"bx-im-element-chat-teaser-counter\">{{formattedCounter}}</span>, {{formattedDate}}\n\t\t\t</span>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div class=\"bx-im-element-chat-teaser\" @click=\"$emit('click', $event)\">\n\t\t\t<span class=\"bx-im-element-chat-teaser-join\">{{$Bitrix.Loc.getMessage('IM_MESSENGER_COMMENT_OPEN')}}</span>\n\t\t\t<span class=\"bx-im-element-chat-teaser-comment\">\n\t\t\t\t<span class=\"bx-im-element-chat-teaser-counter\">{{formattedCounter}}</span>, {{formattedDate}}\n\t\t\t</span>\n\t\t</div>\n\t"
 	});
 
 }((this.window = this.window || {}),BX,BX.Messenger.Lib));

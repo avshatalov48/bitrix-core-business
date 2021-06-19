@@ -6,31 +6,31 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
-return array(
-	'block' => array(
+return [
+	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_27_6_ONE_COL_FIX_TEXT_HEADINGS_NAME_NEW'),
-		'section' => array('text'),
-	),
-	'cards' => array(),
-	'nodes' => array(
-		'.landing-block-node-text' => array(
+		'section' => ['text'],
+	],
+	'cards' => [],
+	'nodes' => [
+		'.landing-block-node-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_27_6_ONE_COL_FIX_TEXT_HEADINGS_NODES_LANDINGBLOCKNODE_TEXT'),
 			'type' => 'text',
-		),
-	),
-	'style' => array(
-		'block' => array(
-			'type' => array('block-default', 'animation'),
-		),
-		'nodes' => array(
-			'.landing-block-node-text' => array(
+		],
+	],
+	'style' => [
+		'block' => [
+			'type' => ['block-default', 'animation'],
+		],
+		'nodes' => [
+			'.landing-block-node-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_27_6_ONE_COL_FIX_TEXT_HEADINGS_NODES_LANDINGBLOCKNODE_TEXT'),
-				'type' => array('typo'),
-			),
-			'.landing-block-node-text-container' => array(
+				'type' => ['container', 'typo', 'padding-left', 'padding-right'],
+			],
+			'.landing-block-node-text-container' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_27_6_ONE_COL_FIX_TEXT_HEADINGS_NODES_LANDINGBLOCKNODE_TEXT'),
-				'type' => array('border-color'),
-			),
-		),
-	),
-);
+				'type' => ['container', 'text-align', 'border-color', 'heading'],
+			],
+		],
+	],
+];

@@ -77,12 +77,20 @@ class PrepaymentCheck extends Check
 			$result['PRODUCTS'][$i]['PAYMENT_OBJECT'] = static::PAYMENT_OBJECT_PAYMENT;
 		}
 
-		foreach ($result['DELIVERY'] as $i => $item)
+		if (!empty($result['DELIVERY']) && \is_array($result['DELIVERY']))
 		{
-			$result['DELIVERY'][$i]['PAYMENT_OBJECT'] = static::PAYMENT_OBJECT_PAYMENT;
+			foreach ($result['DELIVERY'] as $i => $item)
+			{
+				$result['DELIVERY'][$i]['PAYMENT_OBJECT'] = static::PAYMENT_OBJECT_PAYMENT;
+			}
 		}
 
 		return $result;
+	}
+
+	protected function needPrintMarkingCode($basketItem) : bool
+	{
+		return false;
 	}
 
 	/**
@@ -103,8 +111,8 @@ class PrepaymentCheck extends Check
 
 		$rate = $paymentSum / $order->getPrice();
 
-		$countProductPositions = count($result['PRODUCTS']);
-		$countDeliveryPositions = count($result['DELIVERY']);
+		$countProductPositions = \count($result['PRODUCTS']);
+		$countDeliveryPositions = $result['DELIVERY'] ? \count($result['DELIVERY']) : 0;
 
 		if ($countDeliveryPositions === 0)
 		{

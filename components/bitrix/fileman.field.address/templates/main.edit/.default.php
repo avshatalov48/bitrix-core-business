@@ -1,6 +1,9 @@
 <?php
 
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Fileman\UserField\Types\AddressType;
 use Bitrix\Main\Text\HtmlFilter;
@@ -13,20 +16,20 @@ use Bitrix\Main\Text\HtmlFilter;
 $component = $this->getComponent();
 $userField = $arResult['userField'];
 $additionalParameters = $arResult['additionalParameters'];
-?>
 
-<?php
+$randString = $this->randString();
+if ($component->isAjaxRequest())
+{
+	$randString .= time();
+}
+
 if($arResult['canUseMap'])
 {
-	$controlId = HtmlFilter::encode($userField['FIELD_NAME']);
+	$controlId = HtmlFilter::encode($userField['FIELD_NAME']) . '_' . $randString;
+	$nodeId = $controlId . '_result';
 	?>
-	<div id="<?= $controlId ?>">
-	</div>
-	<span
-		style="display: none;"
-		id="<?= $controlId ?>_result"
-	>
-	</span>
+	<div id="<?= $controlId ?>"></div>
+	<span style="display: none;" id="<?= $nodeId ?>"></span>
 
 	<script>
 		BX.ready(function ()
@@ -36,8 +39,8 @@ if($arResult['canUseMap'])
 					'controlId' => $controlId,
 					'value' => $arResult['value'],
 					'isMultiple' => ($userField['MULTIPLE'] === 'Y' ? 'true' : 'false'),
-					'nodeJs' => \CUtil::JSEscape($userField['FIELD_NAME']) . '_result',
-					'fieldNameJs' => \CUtil::JSEscape($arResult['fieldName'])
+					'nodeJs' => $nodeId,
+					'fieldNameJs' => $arResult['fieldName']
 				])?>
 			);
 		});
@@ -91,4 +94,3 @@ else
 	</span>
 	<?php
 }
-?>

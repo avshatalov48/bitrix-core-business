@@ -33,7 +33,10 @@ final class Debugger
 
 	public function logConfiguration(array $config): void
 	{
-		$this->addHeader('Conf', "{$config['mode']}:{$config['handlers']['general']['type']}");
+		$mode = $config['mode'] ?? 'unknown';
+		$type = $config['handlers']['general']['type'] ?? 'unknown';
+
+		$this->addHeader('Conf', "{$mode}:{$type}");
 	}
 
 	public function detectFirstUsage(): void

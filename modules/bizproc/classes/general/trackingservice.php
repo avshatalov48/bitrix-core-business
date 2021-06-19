@@ -132,13 +132,18 @@ class CBPAllTrackingService
 	public static function parseStringParameter($string, $documentType = null)
 	{
 		if (!$documentType)
-			$documentType = array('','','');
+		{
+			$documentType = ['', '', ''];
+		}
+
 		return preg_replace_callback(
 			CBPActivity::ValueInlinePattern,
-			create_function(
-				'$matches',
-				'return CBPAllTrackingService::parseStringParameterMatches($matches, array("'.$documentType[0].'", "'.$documentType[1].'", "'.$documentType[2].'"));'
-			),
+			function ($matches) use ($documentType) {
+				return CBPAllTrackingService::parseStringParameterMatches(
+					$matches,
+					[$documentType[0], $documentType[1], $documentType[2]]
+				);
+			},
 			$string
 		);
 	}
@@ -434,7 +439,7 @@ class CBPAllTrackingService
 		return $limit;
 	}
 
-	private static function shouldClearCompletedTracksOnly(): bool
+	public static function shouldClearCompletedTracksOnly(): bool
 	{
 		if (Main\ModuleManager::isModuleInstalled('bitrix24'))
 		{

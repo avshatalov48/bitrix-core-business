@@ -117,7 +117,7 @@ if ($_REQUEST["detail_list_edit"] == "Y" && !empty($_REQUEST["ACTION"]) && !empt
 			   			$arError[] = array(
 			   				"id" => "drop error",
 			   				"text" => PhotoShowError(array("code" => "NOT_DELETED", "title" => $sError, "DATA" => $arRes)));
-			   			continue;
+			   			break;
 					}
 
 					$iFileSize += intval($arRes["REAL_PICTURE"]["FILE_SIZE"]);

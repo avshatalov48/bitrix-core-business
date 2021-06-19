@@ -4,10 +4,10 @@
 
 $templateGeneral = GetMessage("SALE_MAIL_EVENT_TEMPLATE");
 
-$dbEvent = CEventMessage::GetList($b="ID", $order="ASC", Array("EVENT_NAME" => "SALE_NEW_ORDER"));
+$dbEvent = CEventMessage::GetList('', '', Array("EVENT_NAME" => "SALE_NEW_ORDER"));
 if(!($dbEvent->Fetch()))
 {
-	$langs = CLanguage::GetList(($b=""), ($o=""));
+	$langs = CLanguage::GetList();
 	while($lang = $langs->Fetch())
 	{
 		$lid = $lang["LID"];
@@ -118,7 +118,7 @@ if(!($dbEvent->Fetch()))
 		));
 
 		$arSites = array();
-		$sites = CSite::GetList(($b=""), ($o=""), Array("LANGUAGE_ID"=>$lid));
+		$sites = CSite::GetList('', '', Array("LANGUAGE_ID"=>$lid));
 		while ($site = $sites->Fetch())
 			$arSites[] = $site["LID"];
 
@@ -242,8 +242,8 @@ if(!($dbEvent->Fetch()))
 			if(count($arSites) > 0)
 			{
 				$dbEventMessage = $eventMessage->GetList(
-						($b = ""),
-						($o = ""),
+						'',
+						'',
 						array(
 								"EVENT_NAME" => "SALE_STATUS_CHANGED_".$ID,
 								"SITE_ID" => $arSites

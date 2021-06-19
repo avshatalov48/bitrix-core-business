@@ -118,7 +118,7 @@ function CheckIBlockTypeID($strIBlockTypeID,$strNewIBlockTypeID,$strNeedAdd)
 					'IN_RSS' => 'N',
 					'SORT' => 500,
 				);
-				$rsLanguages = CLanguage::GetList($by="sort", $order="desc",array('ACTIVE' => 'Y'));
+				$rsLanguages = CLanguage::GetList("sort", "desc", array('ACTIVE' => 'Y'));
 				while ($arLanguage = $rsLanguages->Fetch())
 				{
 					$arFields['LANG'][$arLanguage['LID']]['NAME'] = $strNewIBlockTypeID;
@@ -1817,9 +1817,7 @@ $tabControl->BeginNextTab();
 		if ('O' == $str_CATALOG_TYPE)
 		{
 			?><div class="adm-list"><?
-			$by="sort";
-			$order="asc";
-			$l = CLang::GetList($by, $order);
+			$l = CLang::GetList();
 			$arLidValue = $str_LID;
 			if(!is_array($arLidValue))
 				$arLidValue = array($arLidValue);
@@ -4835,7 +4833,7 @@ if(CIBlockRights::UserHasRightTo($ID, $ID, "iblock_rights_edit"))
 			<td colspan="2"><?echo GetMessage("IB_E_GROUP_ACCESS_TITLE")?></td>
 		</tr>
 		<?
-		$groups = CGroup::GetList($by="sort", $order="asc", Array("ID"=>"~2"));
+		$groups = CGroup::GetList("sort", "asc", Array("ID"=>"~2"));
 		while($r = $groups->GetNext()):
 			if($bVarsFromForm)
 				$strSelected = $GROUP[$r["ID"]];

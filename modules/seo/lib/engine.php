@@ -71,7 +71,7 @@ class Engine
 
 	public function getAuthSettings()
 	{
-		return $this->engineSettings['AUTH'];
+		return ($this->engineSettings['AUTH'] ?? false);
 	}
 
 	public function clearAuthSettings()

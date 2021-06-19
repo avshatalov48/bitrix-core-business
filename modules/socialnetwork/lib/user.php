@@ -18,6 +18,8 @@ class User
 
 	public static function getModuleAdminList($siteIdList)
 	{
+		global $DB;
+
 		$cacheKey = serialize($siteIdList);
 		if (!array_key_exists($cacheKey, self::$moduleAdminListCache))
 		{
@@ -43,8 +45,8 @@ class User
 
 				$sql = "SELECT 
 					UG.USER_ID U_ID, 
-					MAX(".\CDatabase::datetimeToTimestampFunction("UG.DATE_ACTIVE_FROM").") UG_DATE_FROM_TS, 
-					MAX(".\CDatabase::datetimeToTimestampFunction("UG.DATE_ACTIVE_TO").") UG_DATE_TO_TS
+					MAX(".$DB->datetimeToTimestampFunction("UG.DATE_ACTIVE_FROM").") UG_DATE_FROM_TS, 
+					MAX(".$DB->datetimeToTimestampFunction("UG.DATE_ACTIVE_TO").") UG_DATE_TO_TS
 					FROM 
 						b_user_group UG 
 					WHERE
@@ -88,8 +90,8 @@ class User
 				$sql = "SELECT 
 					UG.USER_ID U_ID, 
 					G.ID G_ID, 
-					MAX(".\CDatabase::datetimeToTimestampFunction("UG.DATE_ACTIVE_FROM").") UG_DATE_FROM_TS, 
-					MAX(".\CDatabase::datetimeToTimestampFunction("UG.DATE_ACTIVE_TO").") UG_DATE_TO_TS, 
+					MAX(".$DB->datetimeToTimestampFunction("UG.DATE_ACTIVE_FROM").") UG_DATE_FROM_TS, 
+					MAX(".$DB->datetimeToTimestampFunction("UG.DATE_ACTIVE_TO").") UG_DATE_TO_TS, 
 					MAX(MG.G_ACCESS) G_ACCESS 
 					FROM 
 						b_user_group UG, 

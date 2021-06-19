@@ -44,6 +44,7 @@
 
 	var pullEvents = {
 		ping: 'Call::ping',
+		answer: 'Call::answer',
 		negotiationNeeded: 'Call::negotiationNeeded',
 		connectionOffer: 'Call::connectionOffer',
 		connectionAnswer: 'Call::connectionAnswer',
@@ -52,6 +53,8 @@
 		voiceStopped: 'Call::voiceStopped',
 		recordState: 'Call::recordState',
 		microphoneState: 'Call::microphoneState',
+		cameraState: 'Call::cameraState',
+		videoPaused: 'Call::videoPaused',
 		hangup: 'Call::hangup',
 		userInviteTimeout: 'Call::userInviteTimeout'
 	};
@@ -183,9 +186,18 @@
 		}
 
 		this.videoEnabled = videoEnabled;
-		if(this.ready)
+		var hasVideoTracks = this.localStreams['main'] && this.localStreams['main'].getVideoTracks().length > 0;
+		if(this.ready && hasVideoTracks !== this.videoEnabled)
 		{
-			this.replaceLocalMediaStream();
+			this.replaceLocalMediaStream().then(function()
+			{
+				var hasVideoTracks = this.localStreams['main'] && this.localStreams['main'].getVideoTracks().length > 0;
+				if (this.videoEnabled && !hasVideoTracks)
+				{
+					this.videoEnabled = false;
+				}
+				this.signaling.sendCameraState(this.users, this.videoEnabled);
+			}.bind(this));
 		}
 	};
 
@@ -281,12 +293,6 @@
 		this.signaling.sendRecordState(users, this.recordState);
 	};
 
-	BX.Call.PlainCall.prototype.setVideoQuality = function(videoQuality)
-	{
-		//todo: implement
-	};
-
-
 	BX.Call.PlainCall.prototype.stopSendingStream = function(tag)
 	{
 		//todo: implement
@@ -328,6 +334,8 @@
 
 		}).then(function(response)
 		{
+			self.state = BX.Call.State.Connected;
+
 			self.runCallback(BX.Call.Event.onJoin, {
 				local: true
 			});
@@ -356,8 +364,6 @@
 
 	BX.Call.PlainCall.prototype.scheduleRepeatInvite = function()
 	{
-		//todo: restore invite repeating
-		return;
 		clearTimeout(this.reinviteTimeout);
 		this.reinviteTimeout = setTimeout(this.repeatInviteUsers.bind(this), reinvitePeriod)
 	};
@@ -384,7 +390,8 @@
 		}
 		this.signaling.inviteUsers({
 			userIds: usersToRepeatInvite,
-			video: this.videoEnabled ? 'Y' : 'N'
+			video: this.videoEnabled ? 'Y' : 'N',
+			isRepeated: 'Y',
 		}).then(function()
 		{
 			this.scheduleRepeatInvite();
@@ -531,7 +538,7 @@
 				});
 				if(tag === 'main')
 				{
-					//self.attachVoiceDetection();
+					self.attachVoiceDetection();
 					if(self.muted)
 					{
 						var audioTracks = stream.getAudioTracks();
@@ -645,10 +652,11 @@
 		})
 	};
 
-	BX.Call.PlainCall.prototype.startScreenSharing = function()
+	BX.Call.PlainCall.prototype.startScreenSharing = function(changeSource)
 	{
 		var self = this;
-		if(this.localStreams["screen"])
+		changeSource = !!changeSource;
+		if(this.localStreams["screen"] && !changeSource)
 		{
 			return;
 		}
@@ -720,6 +728,10 @@
 
 	BX.Call.PlainCall.prototype.onLocalVoiceStarted = function()
 	{
+		this.runCallback(BX.Call.Event.onUserVoiceStarted, {
+			userId: this.userId,
+			local: true
+		});
 		this.signaling.sendVoiceStarted({
 			userId: this.users
 		});
@@ -727,6 +739,10 @@
 
 	BX.Call.PlainCall.prototype.onLocalVoiceStopped = function()
 	{
+		this.runCallback(BX.Call.Event.onUserVoiceStopped, {
+			userId: this.userId,
+			local: true
+		});
 		this.signaling.sendVoiceStopped({
 			userId: this.users
 		});
@@ -764,6 +780,8 @@
 			self.getLocalMediaStream("main", true).then(
 				function()
 				{
+					self.state = BX.Call.State.Connected;
+
 					self.runCallback(BX.Call.Event.onJoin, {
 						local: true
 					});
@@ -823,6 +841,7 @@
 		this.log("Hangup received \n" + tempError.stack);
 
 		this.ready = false;
+		this.state = BX.Call.State.Proceeding;
 
 		return new Promise(function (resolve, reject)
 		{
@@ -859,31 +878,34 @@
 
 	BX.Call.PlainCall.prototype.replaceLocalMediaStream = function(tag)
 	{
-		var self = this;
 		tag = tag || "main";
-
 		if(this.localStreams[tag])
 		{
 			BX.webrtc.stopMediaStream(this.localStreams[tag]);
 			this.localStreams[tag] = null;
 		}
 
-		this.getLocalMediaStream(tag).then(function()
+		return new Promise(function(resolve, reject)
 		{
-			if(self.ready)
+			this.getLocalMediaStream(tag).then(function()
 			{
-				for(var userId in self.peers)
+				if(this.ready)
 				{
-					if(self.peers[userId].isReady())
+					for(var userId in this.peers)
 					{
-						self.peers[userId].replaceMediaStream(tag);
+						if(this.peers[userId].isReady())
+						{
+							this.peers[userId].replaceMediaStream(tag);
+						}
 					}
 				}
-			}
-		}).catch(function(e)
-		{
-			console.error('Could not get access to hardware; don\'t really know what to do. error:', e);
-		}.bind(this));
+				resolve();
+			}.bind(this)).catch(function(e)
+			{
+				console.error('Could not get access to hardware; don\'t really know what to do. error:', e);
+				reject(e);
+			}.bind(this));
+		}.bind(this))
 	};
 
 	BX.Call.PlainCall.prototype.sendAllStreams = function(userId)
@@ -1059,12 +1081,15 @@
 			'Call::voiceStarted': this.__onPullEventVoiceStarted.bind(this),
 			'Call::voiceStopped': this.__onPullEventVoiceStopped.bind(this),
 			'Call::microphoneState': this.__onPullEventMicrophoneState.bind(this),
+			'Call::cameraState': this.__onPullEventCameraState.bind(this),
+			'Call::videoPaused': this.__onPullEventVideoPaused.bind(this),
 			'Call::recordState': this.__onPullEventRecordState.bind(this),
 			'Call::usersJoined': this.__onPullEventUsersJoined.bind(this),
 			'Call::usersInvited': this.__onPullEventUsersInvited.bind(this),
 			'Call::userInviteTimeout': this.__onPullEventUserInviteTimeout.bind(this),
 			'Call::associatedEntityReplaced': this.__onPullEventAssociatedEntityReplaced.bind(this),
-			'Call::finish': this.__onPullEventFinish.bind(this)
+			'Call::finish': this.__onPullEventFinish.bind(this),
+			'Call::repeatAnswer': this.__onPullEventRepeatAnswer.bind(this)
 		};
 
 		if(handlers[command])
@@ -1186,7 +1211,7 @@
 
 		if(!this.isAnyoneParticipating())
 		{
-			this.destroy();
+			this.hangup();
 		}
 	};
 
@@ -1309,6 +1334,22 @@
 		})
 	};
 
+	BX.Call.PlainCall.prototype.__onPullEventCameraState = function(params)
+	{
+		this.runCallback(BX.Call.Event.onUserCameraState, {
+			userId: params.senderId,
+			cameraState: params.cameraState
+		})
+	};
+
+	BX.Call.PlainCall.prototype.__onPullEventVideoPaused = function(params)
+	{
+		this.runCallback(BX.Call.Event.onUserVideoPaused, {
+			userId: params.senderId,
+			videoPaused: params.videoPaused
+		})
+	};
+
 	BX.Call.PlainCall.prototype.__onPullEventRecordState = function(params)
 	{
 		this.runCallback(BX.Call.Event.onUserRecordState, {
@@ -1330,6 +1371,14 @@
 		this.destroy();
 	};
 
+	BX.Call.PlainCall.prototype.__onPullEventRepeatAnswer = function()
+	{
+		if (this.ready)
+		{
+			this.signaling.sendAnswer({userId: this.userId}, true);
+		}
+	};
+
 	BX.Call.PlainCall.prototype.__onPeerStateChanged = function(e)
 	{
 		this.runCallback(BX.Call.Event.onUserStateChanged, e);
@@ -1349,6 +1398,8 @@
 		else if(e.state == BX.Call.UserState.Connected)
 		{
 			this.signaling.sendMicrophoneState(e.userId, !this.muted);
+			this.signaling.sendCameraState(e.userId, this.videoEnabled);
+			this.wasConnected = true;
 		}
 	};
 
@@ -1388,6 +1439,10 @@
 
 	BX.Call.PlainCall.prototype.destroy = function ()
 	{
+		var tempError = new Error();
+		tempError.name = "Call stack:";
+		this.log("Call destroy \n" + tempError.stack);
+
 		// stop sending media streams
 		for(var userId in this.peers)
 		{
@@ -1404,6 +1459,12 @@
 				BX.webrtc.stopMediaStream(this.localStreams[tag]);
 				this.localStreams[tag] = null;
 			}
+		}
+
+		if (this.voiceDetection)
+		{
+			this.voiceDetection.destroy();
+			this.voiceDetection = null;
 		}
 
 		// remove all event listeners
@@ -1431,9 +1492,16 @@
 		return this.__runRestAction(ajaxActions.invite, data);
 	};
 
-	BX.Call.PlainCall.Signaling.prototype.sendAnswer = function(data)
+	BX.Call.PlainCall.Signaling.prototype.sendAnswer = function(data, repeated)
 	{
-		return this.__runRestAction(ajaxActions.answer, data);
+		if (repeated && BX.CallEngine.getPullClient().isPublishingSupported())
+		{
+			return this.__sendPullEvent(pullEvents.answer, data);
+		}
+		else
+		{
+			return this.__runRestAction(ajaxActions.answer, data);
+		}
 	};
 
 	BX.Call.PlainCall.Signaling.prototype.sendConnectionOffer = function(data)
@@ -1507,6 +1575,17 @@
 			return this.__sendPullEvent(pullEvents.microphoneState, {
 				userId: users,
 				microphoneState: microphoneState
+			}, 0);
+		}
+	};
+
+	BX.Call.PlainCall.Signaling.prototype.sendCameraState = function(users, cameraState)
+	{
+		if(BX.CallEngine.getPullClient().isPublishingSupported())
+		{
+			return this.__sendPullEvent(pullEvents.cameraState, {
+				userId: users,
+				cameraState: cameraState
 			}, 0);
 		}
 	};

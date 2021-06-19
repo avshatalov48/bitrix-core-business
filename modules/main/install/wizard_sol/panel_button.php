@@ -23,7 +23,7 @@ class CWizardSolPanel
 		{
 			if($_REQUEST['add_new_site_sol']=='sol' && check_bitrix_sessid())
 			{
-				$dbrSites = CSite::GetList($by, $ord);
+				$dbrSites = CSite::GetList();
 				$arSitesID = Array();
 				$arSitesPath = Array();
 				$siteCnt = 0;
@@ -131,7 +131,7 @@ class CWizardSolPanel
 
 			$protocol = (CMain::IsHTTPS()? 'https://' : 'http://');
 			$arSites = array();	
-			$dbrSites = CSite::GetList($by, $ord, Array("ACTIVE"=>"Y"));
+			$dbrSites = CSite::GetList('', '', Array("ACTIVE"=>"Y"));
 			while($arSite = $dbrSites->GetNext())
 			{
 				$url = $arSite["DIR"];

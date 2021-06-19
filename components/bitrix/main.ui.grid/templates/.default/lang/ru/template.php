@@ -119,6 +119,7 @@ $MESS["interface_grid_confirm_apply"] = "Подтвердить";
 $MESS["interface_grid_confirm_cancel"] = "Отменить";
 $MESS["interface_grid_confirm_message"] = "Подтвердите действие для отмеченных элементов";
 $MESS["interface_grid_confirm_for_all_message"] = "Действие будет применено для всех элементов, в том числе и на других страницах";
+$MESS["interface_grid_confirm_for_all_message_v2"] = "Действие будет применено для всех выбранных по фильтру элементов, в том числе и на других страницах";
 $MESS["interface_grid_filter_no_data"] = "Ничего не найдено";
 $MESS["interface_grid_restore_to_default"] = "По умолчанию";
 $MESS["interface_grid_apply_settings"] = "Применить";

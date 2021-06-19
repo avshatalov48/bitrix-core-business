@@ -96,6 +96,8 @@ class Landing
 				'old_id' => $block->getId(),
 				'access' => $block->getAccess(),
 				'anchor' => $block->getLocalAnchor(),
+				'designed' => $block->isDesigned(),
+				'full_content' => $block->isDesigned() ? $block->getContent() : null,
 				'repo_block' => $repoBlock,
 				'cards' => $exportBlock['cards'],
 				'nodes' => $exportBlock['nodes'],

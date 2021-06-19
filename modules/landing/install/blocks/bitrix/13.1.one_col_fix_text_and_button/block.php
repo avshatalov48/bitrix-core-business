@@ -1,5 +1,5 @@
-<section class="landing-block text-center g-pt-20 g-pb-20">
-	<div class="container g-max-width-800">
+<section class="landing-block text-center g-pt-30 g-pb-30">
+	<div class="landing-block-node-container container g-max-width-container">
 
 		<div class="landing-block-node-text landing-semantic-text-medium">
 			<p>Sed eget aliquet nisl. Proin laoreet accumsan nisl non vestibulum. Donec molestie, lorem nec sollicitudin elementum

@@ -12,16 +12,16 @@ CModule::IncludeModule("forum");
 if ($_SERVER["REQUEST_METHOD"] == "GET" && $FORUM_RIGHT > "R" && $_REQUEST["RestoreDefaults"] <> '' && check_bitrix_sessid())
 {
 	COption::RemoveOption("forum");
-	$z = CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
+	$z = CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 	while($zr = $z->Fetch())
 		$APPLICATION->DelGroupRight($module_id, array($zr["ID"]));
 }
 
 $arLangs = array();
 $arNameStatusesDefault = array();
-$arNameStatuses = @unserialize(COption::GetOptionString("forum", "statuses_name"));
+$arNameStatuses = @unserialize(COption::GetOptionString("forum", "statuses_name"), ["allowed_classes" => false]);
 
-$db_res = CLanguage::GetList(($b="sort"), ($o="asc"));
+$db_res = CLanguage::GetList();
 if ($db_res && $res = $db_res->Fetch())
 {
 	do 
@@ -374,7 +374,7 @@ $tabControl->BeginNextTab();
 			$Dict['W']["reference"][] = GetMessage("DICTIONARY_NONE");
 			$Dict['T']["reference_id"][] = "";
 			$Dict['T']["reference"][] = GetMessage("DICTIONARY_NONE");
-			$l = CLanguage::GetList($lby="sort", $lorder="asc");
+			$l = CLanguage::GetList();
 			while($ar = $l->ExtractFields("l_"))
 			{
 				?><tr class="adm-detail-required-field">

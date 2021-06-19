@@ -1,5 +1,5 @@
 import {Tag, Loc, Dom, Event, Type} from 'main.core';
-import {Util} from "calendar.util";
+import {Util} from 'calendar.util';
 import {MenuManager} from 'main.popup';
 import {EventEmitter, BaseEvent} from 'main.core.events';
 

@@ -510,7 +510,7 @@ class CTicket extends CAllTicket
 				$arFILES = $arFields["FILES"];
 				if (is_array($arFILES) && count($arFILES)>0)
 				{
-					while (list($key, $arFILE) = each($arFILES))
+					foreach ($arFILES as $arFILE)
 					{
 						if ($arFILE["name"] <> '')
 						{
@@ -632,7 +632,7 @@ class CTicket extends CAllTicket
 		return false;
 	}
 
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$isFiltered, $checkRights="Y", $getUserName="Y", $getExtraNames="Y", $siteID=false, $arParams = Array() )
+	public static function GetList($by = 's_default', $order = 'desc', $arFilter = [], $isFiltered = null, $checkRights = "Y", $getUserName = "Y", $getExtraNames = "Y", $siteID = false, $arParams = [])
 	{
 		$err_mess = (CTicket::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $USER, $USER_FIELD_MANAGER;
@@ -707,7 +707,7 @@ class CTicket extends CAllTicket
 				if ((is_array($val) && count($val)<=0) || (!is_array($val) && ((string) $val == '' || $val==='NOT_REF')))
 					continue;
 				$matchValueSet = (in_array($key."_EXACT_MATCH", $filterKeys)) ? true : false;
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -1129,17 +1129,16 @@ class CTicket extends CAllTicket
 		}
 		elseif( $s = $obUserFieldsSql->GetOrder($by) )
 		{
-			$strSqlOrder = "ORDER BY ".mb_strtoupper($s);
+			$strSqlOrder = "ORDER BY ".strtoupper($s);
 		}
 		else
 		{
-			$by = "s_default";
 			$strSqlOrder = "ORDER BY IS_SUPER_TICKET DESC, T.IS_OVERDUE DESC, T.IS_NOTIFIED DESC, T.LAST_MESSAGE_DATE";
 		}
+
 		if ($order!="asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 
 		$arSqlSearch[] = $obUserFieldsSql->GetFilter();
@@ -1380,7 +1379,6 @@ class CTicket extends CAllTicket
 			$res->SetUserFields( $USER_FIELD_MANAGER->GetUserFields("SUPPORT") );
 		}
 
-		$isFiltered = (IsFiltered($strSqlSearch));
 		return $res;
 	}
 
@@ -1451,22 +1449,17 @@ class CTicket extends CAllTicket
 		return $res;
 	}*/
 
-	public static function GetMessageList(&$by, &$order, $arFilter=Array(), &$isFiltered, $checkRights="Y", $getUserName="Y")
+	public static function GetMessageList($by = 's_number', $order = 'asc', $arFilter = [], $isFiltered = null, $checkRights = "Y", $getUserName = "Y")
 	{
 		$err_mess = (CTicket::err_mess())."<br>Function: GetMessageList<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 
-		$bAdmin = "N";
-		$bSupportTeam = "N";
-		$bSupportClient = "N";
-		$bDemo = "N";
 		if ($checkRights=="Y")
 		{
 			$bAdmin = (CTicket::IsAdmin()) ? "Y" : "N";
 			$bSupportTeam = (CTicket::IsSupportTeam()) ? "Y" : "N";
 			$bSupportClient = (CTicket::IsSupportClient()) ? "Y" : "N";
 			$bDemo = (CTicket::IsDemo()) ? "Y" : "N";
-			$uid = intval($USER->GetID());
 		}
 		else
 		{
@@ -1474,12 +1467,10 @@ class CTicket extends CAllTicket
 			$bSupportTeam = "Y";
 			$bSupportClient = "Y";
 			$bDemo = "Y";
-			$uid = 0;
 		}
 		if ($bAdmin!="Y" && $bSupportTeam!="Y" && $bSupportClient!="Y" && $bDemo!="Y") return false;
 
 		$arSqlSearch = Array();
-		$strSqlSearch = "";
 		if (is_array($arFilter))
 		{
 			$filterKeys = array_keys($arFilter);
@@ -1491,7 +1482,7 @@ class CTicket extends CAllTicket
 				if ((is_array($val) && count($val)<=0) || (!is_array($val) && ((string) $val == '' || $val==='NOT_REF')))
 					continue;
 				$matchValueSet = (in_array($key."_EXACT_MATCH", $filterKeys)) ? true : false;
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -1556,18 +1547,16 @@ class CTicket extends CAllTicket
 		elseif ($by == "s_number")	$strSqlOrder = "ORDER BY M.C_NUMBER";
 		else
 		{
-			$by = "s_number";
 			$strSqlOrder = "ORDER BY M.C_NUMBER";
 		}
+
 		if ($order=="desc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 		else
 		{
 			$strSqlOrder .= " asc ";
-			$order="asc";
 		}
 
 		$strSql = "
@@ -1592,12 +1581,11 @@ class CTicket extends CAllTicket
 		return $res;
 	}
 
-	public static function GetDynamicList(&$by, &$order, $arFilter=Array())
+	public static function GetDynamicList($by = 's_date_create', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = (CTicket::err_mess())."<br>Function: GetDynamicList<br>Line: ";
 		global $DB;
 		$arSqlSearch = Array();
-		$strSqlSearch = "";
 		if (is_array($arFilter))
 		{
 			$filterKeys = array_keys($arFilter);
@@ -1609,7 +1597,7 @@ class CTicket extends CAllTicket
 				if ((is_array($val) && count($val)<=0) || (!is_array($val) && ((string) $val == '' || $val==='NOT_REF')))
 					continue;
 				$matchValueSet = (in_array($key."_EXACT_MATCH", $filterKeys)) ? true : false;
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "DATE_CREATE_1":
@@ -1670,14 +1658,14 @@ class CTicket extends CAllTicket
 		if ($by == "s_date_create") $strSqlOrder = "ORDER BY T.DATE_CREATE";
 		else
 		{
-			$by = "s_date_create";
 			$strSqlOrder = "ORDER BY T.DATE_CREATE";
 		}
+
 		if ($order!="asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
+
 		$strSql = "
 			SELECT
 				count(T.ID)							ALL_TICKETS,
@@ -1701,12 +1689,11 @@ class CTicket extends CAllTicket
 		return $res;
 	}
 
-	public static function GetMessageDynamicList(&$by, &$order, $arFilter=Array())
+	public static function GetMessageDynamicList($by = 's_date_create', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = (CTicket::err_mess())."<br>Function: GetMessageDynamicList<br>Line: ";
 		global $DB;
 		$arSqlSearch = Array();
-		$strSqlSearch = "";
 		if (is_array($arFilter))
 		{
 			$filterKeys = array_keys($arFilter);
@@ -1718,7 +1705,7 @@ class CTicket extends CAllTicket
 				if ((is_array($val) && count($val)<=0) || (!is_array($val) && ((string) $val == '' || $val==='NOT_REF')))
 					continue;
 				$matchValueSet = (in_array($key."_EXACT_MATCH", $filterKeys)) ? true : false;
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "SITE":
@@ -1790,14 +1777,14 @@ class CTicket extends CAllTicket
 		if ($by == "s_date_create") $strSqlOrder = "ORDER BY M.DATE_CREATE";
 		else
 		{
-			$by = "s_date_create";
 			$strSqlOrder = "ORDER BY M.DATE_CREATE";
 		}
+
 		if ($order!="asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
+
 		$strSql = "
 			SELECT
 				count(M.ID)								COUNTER,

@@ -1,7 +1,12 @@
 ;(function(){
 	if (window["LHEPostForm"])
 		return;
-var repo = { controller : {}, handler : {}, form : {}};
+var repo = {
+	controller : {},
+	handler : {},
+	form : {},
+	selector : {}
+};
 BX.addCustomEvent(window, "BFileDLoadFormControllerWasBound", function(obj) { repo.controller[obj.id] = true;});
 BX.addCustomEvent(window, "WDLoadFormControllerInit", function(obj) { repo.controller[obj.CID] = obj; });
 BX.addCustomEvent(window, "WDLoadFormControllerWasBound", function(obj) { repo.controller[obj.CID] = true; });
@@ -667,28 +672,25 @@ diskController.prototype = {
 	{
 		if (this.handler && this.handler.values)
 		{
-			var res, files, ii, form = BX(this.manager.formID);
+			var res;
 			while ((res = this.handler.values.pop()) && res)
 			{
 				BX.remove(res);
 			}
 			if (this.handler.params && this.handler.params.controlName)
 			{
-				files = BX.findChildren(form, {
-					tagName : "INPUT",
-					attribute : {
-						name : this.handler.params.controlName
-					}
-				}, true);
-			}
-			if (files)
-			{
-				for (ii = 0; ii < files.length; ii++)
+				var node = (BX(this.manager.formID) || this.handler.controller);
+				if (node)
 				{
-					BX.remove(files[ii]);
+					node.querySelectorAll('input[name="' + this.handler.params.controlName + '"]')
+						.forEach(function(inputFile) {
+							inputFile.parentNode.removeChild(inputFile);
+						}
+					);
 				}
 			}
 		}
+		this.values = {};
 	},
 	reinit : function(text, data)
 	{
@@ -2420,7 +2422,9 @@ window.onKeyDownHandler = function(e, editor, formID)
 	var keyCode = e.keyCode;
 
 	if (!window['BXfpdStopMent' + formID])
+	{
 		return true;
+	}
 
 	var selectorId = window.MPFgetSelectorId('bx-mention-' + formID + '-id');
 
@@ -2451,22 +2455,38 @@ window.onKeyDownHandler = function(e, editor, formID)
 	}
 
 	if (
-		BX.util.in_array(keyCode, [107, 187])
+		BX.util.in_array(keyCode, [ 107, 187 ])
 		|| (
 			(e.shiftKey || e.modifiers > 3)
-			&& BX.util.in_array(keyCode, [50, 43, 61])
+			&& BX.util.in_array(keyCode, [ 50, 43, 61 ])
 		)
 		|| (
 			e.altKey
-			&& BX.util.in_array(keyCode, [76])
+			&& BX.util.in_array(keyCode, [ 76 ])
 		) /* German @ == Alt + L*/
+		|| (
+			e.altKey
+			&& e.ctrlKey
+			&& BX.util.in_array(keyCode, [ 81 ])
+			&& e.key === '@'
+		) /* Win LA Spanish @ == Ctrl + Alt + Q */
+		|| (
+			e.altKey
+			&& BX.util.in_array(keyCode, [ 71, 81 ])
+			&& e.key === '@'
+		) /* MacOS ES Spanish @ == Alt + G, MacOS LA Spanish @ = Alt + Q */
+		|| (
+			e.altKey
+			&& BX.util.in_array(keyCode, [ 50 ])
+			&& e.key === '@'
+		) /* MacOS PT Portugal @ == Alt + 2 */
 		|| (
 			typeof e.getModifierState === 'function'
 			&& !!e.getModifierState('AltGraph')
-			&& BX.util.in_array(keyCode, [81, 50])
+			&& BX.util.in_array(keyCode, [ 81, 50 ])
 			&& typeof e.key !== 'undefined'
 			&& e.key === '@'
-		) /* German @ == AltGr + Q, Spanish @ == AltGr + 2 */
+		) /* Win German @ == AltGr + Q, Win Spanish @ == AltGr + 2 */
 	)
 	{
 		setTimeout(function()
@@ -2969,131 +2989,57 @@ window.MPFMentionInit = function(formId, params)
 			if (
 				BX.type.isNotEmptyObject(params)
 				&& BX.type.isNotEmptyObject(params.data)
-				&& BX.type.isNotEmptyObject(params.data['DEST_CODES[]'])
+				&& BX.type.isNotEmptyString(params.data.DEST_DATA)
 				&& BX.type.isNotEmptyString(params.formId)
 				&& params.formId == formId
-				&& BX.UI.SelectorManager
+				&& BX.UI.EntitySelector
 			)
 			{
-				var selectorId = window.MPFgetSelectorId(params.formId);
+				var destData = JSON.parse(params.data.DEST_DATA);
+				if (!Array.isArray(destData))
+				{
+					return;
+				}
 
-				var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
+				var selectorInstance = BX.UI.EntitySelector.Dialog.getById('oPostFormLHE_blogPostForm');
 				if (!BX.type.isNotEmptyObject(selectorInstance))
 				{
 					return;
 				}
 
-				var
-					val = null,
-					email = null,
-					selectedItems = {},
-					invitedUsers = [],
-					found = false;
-
-				for (var i = 0; i < params.data['DEST_CODES[]'].length; i++)
-				{
-					val = params.data['DEST_CODES[]'][i];
-
-					if (val == 'UA')
-					{
-						selectedItems[val] = 'groups';
-					}
-
-					found = val.match(/^U(\d+)$/i);
-					if (found)
-					{
-						selectedItems[val] = 'users';
-						continue;
-					}
-
-					found = val.match(/^SG(\d+)$/i);
-					if (found)
-					{
-						selectedItems[val] = 'sonetgroups';
-						continue;
-					}
-
-					found = val.match(/^DR(\d+)$/i);
-					if (found)
-					{
-						selectedItems[val] = 'departments';
-						continue
-					}
-
-					found = val.match(/^UE(.+)$/i);
-					if (
-						found
-						&& BX.SocialnetworkUISelector
-					)
-					{
-						email = found[1];
-						invitedUsers.push({
-							selectorId: selectorId,
-							name: (BX.type.isNotEmptyString(params.data['INVITED_USER_NAME[' + email + ']']) ? params.data['INVITED_USER_NAME[' + email + ']'] : ''),
-							lastName: (BX.type.isNotEmptyString(params.data['INVITED_USER_LAST_NAME[' + email + ']']) ? params.data['INVITED_USER_LAST_NAME[' + email + ']'] : ''),
-							email: email,
-							createCrmContact: (BX.type.isNotEmptyString(params.data['INVITED_USER_CREATE_CRM_CONTACT[' + email + ']']) ? params.data['INVITED_USER_CREATE_CRM_CONTACT[' + email + ']'] : '')
-						});
-					}
-				}
-
-				selectorInstance.itemsSelected = selectedItems;
-
-				BX.addCustomEvent(window, 'BX.Main.SelectorV2:afterInitDialog', function(params) {
-					if (
-						params.id == selectorId
-						&& BX.SocialnetworkUISelector
-					)
-					{
-						for (var i = 0; i < invitedUsers.length; i++)
-						{
-							BX.SocialnetworkUISelector.inviteEmailAddUser(invitedUsers[i]);
-						}
-					}
-				});
+				selectorInstance.preselectedItems = destData;
+				selectorInstance.setPreselectedItems(destData);
 			}
 		});
 
 		BX.addCustomEvent(window, "onMentionAdd", function(item) {
 
-			var selectorId = window.MPFgetSelectorId(formId);
-
-			var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
+			var selectorInstance = BX.UI.EntitySelector.Dialog.getById('oPostFormLHE_blogPostForm');
 			if (!BX.type.isNotEmptyObject(selectorInstance))
 			{
 				return;
 			}
 
-			var componentSelector = BX.Main.selectorManagerV2.getById(selectorInstance.id);
-
-			if (
-				BX.type.isNotEmptyObject(componentSelector)
-				&& BX.type.isBoolean(componentSelector.initialized)
-			)
+			var entityType = 'employee';
+			if (item.isExtranet === 'Y')
 			{
-				if (componentSelector.initialized)
-				{
-					if (!BX.type.isNotEmptyObject(selectorInstance.entities.USERS.items[item.id]))
-					{
-						selectorInstance.entities.USERS.items[item.id] = item;
-					}
-
-					selectorInstance.setOption('focusInputOnSelectItem', 'N');
-
-					if (!BX.type.isNotEmptyString(selectorInstance.itemsSelected[item.id]))
-					{
-						selectorInstance.selectItem({
-							itemId: item.id,
-							entityType: 'USERS'
-						});
-					}
-				}
-				else
-				{
-					selectorInstance.itemsSelected[item.id] = 'users';
-					componentSelector.initDialog();
-				}
+				entityType = 'extranet';
 			}
+			else if (item.isEmail === 'Y')
+			{
+				entityType = 'email';
+			}
+
+			selectorInstance.addItem({
+				avatar: item.avatar,
+				customData: {
+					email: item.email
+				},
+				entityId: 'user',
+				entityType: entityType,
+				id: item.entityId,
+				title: item.name
+			}).select();
 		});
 	}
 
@@ -3306,5 +3252,139 @@ window.BXfpdOnDialogClose = function (params)
 		}
 	}, 100);
 };
+
+
+	MPFEntitySelector = function(params)
+	{
+		this.selector = null;
+		this.inputNode = null;
+		this.messages = {};
+
+		if (!BX.type.isNotEmptyString(params.id))
+		{
+			return null;
+		}
+
+		if (repo.selector[params.id])
+		{
+			return repo.selector[params.id];
+		}
+
+		repo.selector[params.id] = this.init(params);
+	};
+
+	MPFEntitySelector.prototype.init = function(params)
+	{
+		if (!BX.type.isPlainObject(params))
+		{
+			params = {};
+		}
+
+		if (
+			!BX.type.isNotEmptyString(params.id)
+			|| !BX.type.isNotEmptyString(params.tagNodeId)
+			|| !BX(params.tagNodeId)
+		)
+		{
+			return null;
+		}
+
+		if (
+			BX.type.isNotEmptyString(params.inputNodeId)
+			&& BX(params.inputNodeId)
+		)
+		{
+			this.inputNode = BX(params.inputNodeId);
+		}
+
+		if (BX.type.isNotEmptyObject(params.messages))
+		{
+			this.messages = params.messages;
+		}
+
+		this.selector = new BX.UI.EntitySelector.TagSelector({
+
+			id: params.id,
+			dialogOptions: {
+				id: params.id,
+				context: (BX.type.isNotEmptyString(params.context) ? params.context : null),
+
+				preselectedItems: (BX.type.isArray(params.preselectedItems) ? params.preselectedItems : []),
+
+				events: {
+					'Item:onSelect': function() {
+						this.recalcValue(this.selector.getDialog().getSelectedItems());
+					}.bind(this),
+					'Item:onDeselect': function() {
+						this.recalcValue(this.selector.getDialog().getSelectedItems());
+					}.bind(this)
+				},
+				entities: [
+					{
+						id: 'meta-user',
+						options: {
+							'all-users': {
+								title: this.messages.allUsersTitle,
+								allowView: (
+									BX.type.isBoolean(params.allowToAll)
+									&& params.allowToAll
+								)
+							}
+						}
+					},
+					{
+						id: 'user',
+						options: {
+							emailUsers: (BX.type.isBoolean(params.allowSearchEmailUsers) ? params.allowSearchEmailUsers : false),
+							inviteGuestLink: (BX.type.isBoolean(params.allowSearchEmailUsers) ? params.allowSearchEmailUsers : false),
+							myEmailUsers: true
+						}
+					},
+					{
+						id: 'project',
+						options: {
+							features: {
+								blog:  [ 'premoderate_post', 'moderate_post', 'write_post', 'full_post' ]
+							}
+						}
+					},
+					{
+						id: 'department',
+						options: {
+							selectMode: 'usersAndDepartments',
+							allowFlatDepartments: false,
+						}
+					}
+				]
+			},
+			addButtonCaption: BX.message('BX_FPD_LINK_1'),
+			addButtonCaptionMore: BX.message('BX_FPD_LINK_2')
+		});
+
+		this.selector.renderTo(document.getElementById(params.tagNodeId));
+
+		return this.selector;
+	};
+
+	MPFEntitySelector.prototype.recalcValue = function(selectedItems)
+	{
+		if (
+			!BX.type.isArray(selectedItems)
+			|| !this.inputNode
+		)
+		{
+			return;
+		}
+
+		var result = [];
+
+		selectedItems.forEach(function(item) {
+			result.push([ item.entityId, item.id ]);
+		});
+
+		this.inputNode.value = JSON.stringify(result);
+	};
+
+	window.MPFEntitySelector = MPFEntitySelector;
 
 })();

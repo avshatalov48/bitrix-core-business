@@ -194,9 +194,9 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 
 			if($_REQUEST['saveuserparams']=='Y')
 			{
-				$d = is_array($_POST['USER_PARAMS']) ? serialize($_POST['USER_PARAMS']) : null;
+				$d = is_array($_POST['USER_PARAMS']) ? $_POST['USER_PARAMS'] : null;
 				$maxLength = 16777215;//pow(2, 24) - 1; //mysql mediumtext column length
-				if (!$d || \Bitrix\Main\Text\BinaryString::getLength($d) > $maxLength)
+				if (!$d || strlen(serialize($d)) > $maxLength)
 				{
 				?><!--SUCCESS--><script>
 					alert('<?=GetMessageJS("BIZPROC_USER_PARAMS_SAVE_ERROR")?>');
@@ -409,14 +409,16 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 
 		$this->arResult["ID"] = $ID;
 
-		$defUserParamsStr = serialize(['groups' => []]);
-		$userParamsStr = CUserOptions::GetOption('~bizprocdesigner', 'activity_settings', $defUserParamsStr);
-		if (empty($userParamsStr) || !CheckSerializedData($userParamsStr))
+		$userParamsStr = CUserOptions::GetOption('~bizprocdesigner', 'activity_settings');
+		if (is_array($userParamsStr))
 		{
-			$userParamsStr = $defUserParamsStr;
+			$userParams = $userParamsStr;
+		}
+		elseif ($userParamsStr && CheckSerializedData($userParamsStr))
+		{
+			$userParams = unserialize($userParamsStr, ['allowed_classes' => false]);
 		}
 
-		$userParams = unserialize($userParamsStr, ['allowed_classes' => false]);
 		if (empty($userParams) || !is_array($userParams))
 		{
 			$userParams = ['SNIPPETS' => []];

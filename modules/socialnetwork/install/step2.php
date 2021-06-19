@@ -23,7 +23,7 @@ if ($ex = $APPLICATION->GetException())
 }
 
 global $public_installed;
-$dbSites = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+$dbSites = CSite::GetList('', '', Array("ACTIVE" => "Y"));
 while ($site = $dbSites->fetch())
 { 
 	$arSite[] = Array(

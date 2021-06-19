@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Socialnetwork\UserToGroupTable;
@@ -14,7 +15,7 @@ class CAllSocNetUserToGroup
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $APPLICATION, $DB, $arSocNetAllowedRolesForUserInGroup, $arSocNetAllowedInitiatedByType;
 
@@ -395,7 +396,7 @@ class CAllSocNetUserToGroup
 	/***************************************/
 	/**********  SEND EVENTS  **************/
 	/***************************************/
-	function SendEvent($userGroupID, $mailTemplate = "SONET_INVITE_GROUP")
+	public static function SendEvent($userGroupID, $mailTemplate = "SONET_INVITE_GROUP")
 	{
 		$userGroupID = intval($userGroupID);
 		if ($userGroupID <= 0)
@@ -461,8 +462,8 @@ class CAllSocNetUserToGroup
 		if (intval($arRelation["INITIATED_BY_USER_ID"]) > 0):
 
 			$dbUserInitiated = CUser::GetList(
-				($by="id"),
-				($order="desc"),
+				"id",
+				"desc",
 				array("ID" => $arRelation["INITIATED_BY_USER_ID"])
 			);
 
@@ -2528,7 +2529,7 @@ class CAllSocNetUserToGroup
 			$CACHE_MANAGER->Set("socnet_cg_".$userID, true);
 	}
 
-	function SpeedFileExists($userID)
+	public static function SpeedFileExists($userID)
 	{
 		global $CACHE_MANAGER;
 
@@ -2540,7 +2541,7 @@ class CAllSocNetUserToGroup
 	}
 
 	/* Module IM callback */
-	function OnBeforeConfirmNotify($module, $tag, $value, $arParams)
+	public static function OnBeforeConfirmNotify($module, $tag, $value, $arParams)
 	{
 		global $USER;
 
@@ -2864,6 +2865,4 @@ class CAllSocNetUserToGroup
 
 		CIMNotify::add($arMessageFields);
 	}
-
 }
-?>

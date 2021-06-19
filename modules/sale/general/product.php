@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Iblock;
 use Bitrix\Main;
 use Bitrix\Catalog;
@@ -10,7 +11,7 @@ class CALLSaleProduct
 {
 	public static $arProductIblockInfoCache = array();
 
-	static function GetProductSkuProps($ID, $IBLOCK_ID = '', $getExt = false)
+	public static function GetProductSkuProps($ID, $IBLOCK_ID = '', $getExt = false)
 	{
 		$getExt = ($getExt === true);
 		$arSkuProps = array();
@@ -102,7 +103,6 @@ class CALLSaleProduct
 		return $arSkuProps;
 	}
 
-
 	/**
 	 * get sku for product.
 	 *
@@ -114,7 +114,7 @@ class CALLSaleProduct
 	 * @param array $arProduct				Iblock list.
 	 * @return array|false
 	 */
-	function GetProductSku($USER_ID, $LID, $PRODUCT_ID, $PRODUCT_NAME = '', $CURRENCY = '', $arProduct = array())
+	public static function GetProductSku($USER_ID, $LID, $PRODUCT_ID, $PRODUCT_NAME = '', $CURRENCY = '', $arProduct = array())
 	{
 		$USER_ID = (int)$USER_ID;
 
@@ -395,7 +395,7 @@ class CALLSaleProduct
 	}
 
 	/** @deprecated */
-	function RefreshProductList()
+	public static function RefreshProductList()
 	{
 		$liveTime = (int)Main\Config\Option::get('sale', 'p2p_del_exp', 10);
 		\Bitrix\Sale\Product2ProductTable::refreshProductStatistic($liveTime);
@@ -413,7 +413,7 @@ class CALLSaleProduct
 	 * @param int $cntProductDefault				Max count.
 	 * @return array
 	 */
-	function GetRecommendetProduct($USER_ID, $LID, $arFilterRecomendet = array(), $recomMore = 'N', $cntProductDefault = 2)
+	public static function GetRecommendetProduct($USER_ID, $LID, $arFilterRecomendet = array(), $recomMore = 'N', $cntProductDefault = 2)
 	{
 		$arRecomendetResult = array();
 
@@ -558,7 +558,7 @@ class CAllSaleViewedProduct
 	* @param array $arFields - parameters for update
 	* @return true false
 	*/
-	public function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -601,7 +601,7 @@ class CAllSaleViewedProduct
 	* @param
 	* @return true false
 	*/
-	public function ClearViewed()
+	public static function ClearViewed()
 	{
 		CSaleViewedProduct::_ClearViewed();
 

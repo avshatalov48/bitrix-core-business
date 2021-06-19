@@ -1,8 +1,8 @@
 <?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/contractor.php");
 
-class CCatalogContractor
-	extends CAllCatalogContractor
+class CCatalogContractor extends CAllCatalogContractor
 {
 	/** Add new store in table b_catalog_contractor,
 	* @static

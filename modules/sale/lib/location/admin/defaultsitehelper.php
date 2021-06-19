@@ -26,7 +26,7 @@ class DefaultSiteHelper extends Helper
 	* Function returns class name for an attached entity
 	* @return string Entity class name
 	*/
-	public function getEntityRoadMap()
+	public static function getEntityRoadMap()
 	{
 		return array(
 			'main' => array(

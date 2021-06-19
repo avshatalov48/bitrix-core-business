@@ -121,18 +121,15 @@ class Date extends Base
 
 		$className = static::generateControlClassName($fieldType, $field);
 		$renderResult = '';
+		$isPublicControl = $renderMode & FieldType::RENDER_MODE_PUBLIC;
 
-		if ($renderMode & FieldType::RENDER_MODE_PUBLIC && $allowSelection)
+		if ($isPublicControl && $allowSelection)
 		{
-			$selectorAttributes = '';
-			if ($allowSelection)
-			{
-				$selectorAttributes = sprintf(
-					'data-role="inline-selector-target" data-selector-type="%s" data-property="%s" ',
-					htmlspecialcharsbx($fieldType->getType()),
-					htmlspecialcharsbx(Main\Web\Json::encode($fieldType->getProperty()))
-				);
-			}
+			$selectorAttributes = sprintf(
+				'data-role="inline-selector-target" data-selector-type="%s" data-property="%s" ',
+				htmlspecialcharsbx($fieldType->getType()),
+				htmlspecialcharsbx(Main\Web\Json::encode($fieldType->getProperty()))
+			);
 
 			$renderResult = sprintf(
 				'<input name="%s" type="text" class="%s" value="%s" placeholder="%s" %s/>',
@@ -154,14 +151,18 @@ class Date extends Base
 		else
 		{
 			\CJSCore::Init(['popup', 'date']);
-			$renderResult = '<input type="text" name="'.htmlspecialcharsbx($name)
-				.'" value="'.htmlspecialcharsbx($value).'" class="'.htmlspecialcharsbx($className).'"/>'
-				.'<img src="/bitrix/js/main/core/images/calendar-icon.gif" alt="calendar" class="calendar-icon" '
-				.'onclick="BX.calendar({node:this, field: this.previousSibling, bTime: '
-				.(static::getType() == FieldType::DATETIME ? 'true' : 'false')
-				.', bHideTime: '.(static::getType() == FieldType::DATETIME ? 'false' : 'true').'});" '
-				.'onmouseover="BX.addClass(this, \'calendar-icon-hover\');" '
-				.'onmouseout="BX.removeClass(this, \'calendar-icon-hover\');" border="0"/>';
+			$renderResult = sprintf(
+				'<input type="text" name="%s" value="%s" class="%s"/>'
+						. '<img src="/bitrix/js/main/core/images/calendar-icon.gif" alt="calendar" class="calendar-icon" '
+						. 'onclick="BX.calendar({node:this, field: this.previousSibling, bTime: %s, bHideTime: %s});" '
+						. 'onmouseover="BX.addClass(this, \'calendar-icon-hover\');" '
+						. 'onmouseout="BX.removeClass(this, \'calendar-icon-hover\');" border="0"/>',
+				htmlspecialcharsbx($name),
+				htmlspecialcharsbx($value),
+				$isPublicControl ? htmlspecialcharsbx($className) : '',
+				static::getType() == FieldType::DATETIME ? 'true' : 'false',
+				static::getType() == FieldType::DATETIME ? 'false' : 'true'
+			);
 
 			$tzName = 'tz_'.$name;
 			$zones = self::getZones();
@@ -175,6 +176,10 @@ class Date extends Base
 			if ($fieldType->isMultiple())
 			{
 				$tzClassName .= ' bizproc-type-control-date-lc-multiple';
+			}
+			if (!$isPublicControl)
+			{
+				$tzClassName = '';
 			}
 
 			$renderResult .= '<select name="'.htmlspecialcharsbx($tzName).'" class="'.$tzClassName.'">';

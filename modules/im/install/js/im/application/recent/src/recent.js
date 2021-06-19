@@ -10,8 +10,7 @@ import {Core} from "im.application.core";
 import {VueVendorV2} from "ui.vue";
 
 // vue components
-import './recent.css';
-import './component/bx-messenger-recent';
+import 'im.component.recent';
 
 export class RecentApplication
 {
@@ -72,16 +71,6 @@ export class RecentApplication
 	{
 		this.inited = true;
 		this.initPromise.resolve(this);
-
-		return this.requestData();
-	}
-
-	requestData()
-	{
-		this.controller.recent.drawPlaceholders();
-		this.controller.recent.getRecentData();
-
-		return new Promise((resolve, reject) => resolve());
 	}
 
 	ready()

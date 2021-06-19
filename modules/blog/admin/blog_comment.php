@@ -238,7 +238,7 @@ $dbResultList->NavStart();
 
 $lAdmin->NavText($dbResultList->GetNavPrint(GetMessage("BLB_GROUP_NAV")));
 $arServerName = Array();
-$dbSite = CSite::GetList($b = "SORT", $o = "ASC");
+$dbSite = CSite::GetList();
 while($arSite = $dbSite->Fetch())
 {
 	$serverName = $arSite["SERVER_NAME"];
@@ -466,7 +466,7 @@ $oFilter->Begin();
 			<select name="filter_blog_group_site_id">
 				<option value=""><?= GetMessage("BLB_F_ALL") ?></option>
 				<?
-				$dbSitesList = CLang::GetList(($b1="sort"), ($o1="asc"));
+				$dbSitesList = CLang::GetList();
 				while ($arSitesList = $dbSitesList->GetNext())
 				{
 					?><option value="<?= ($arSitesList["LID"])?>"<?if ($arSitesList["LID"] == $filter_blog_group_site_id) echo " selected";?>>[<?= ($arSitesList["LID"]) ?>]&nbsp;<?= ($arSitesList["NAME"]) ?></option><?

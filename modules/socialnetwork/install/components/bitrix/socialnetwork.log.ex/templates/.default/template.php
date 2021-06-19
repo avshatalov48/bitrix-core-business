@@ -228,6 +228,12 @@ if (
 			});
 
 			BX.ready(function(){
+
+				if (BX.Livefeed && BX.Livefeed.FeedInstance) { BX.Livefeed.FeedInstance.init(); }
+				BX.addCustomEvent('onFrameDataProcessed', function() {
+					if (BX.Livefeed && BX.Livefeed.FeedInstance) { BX.Livefeed.FeedInstance.init(); }
+				});
+
 				oLF.initOnce({
 					crmEntityTypeName: '<?=(!empty($arResult['CRM_ENTITY_TYPE_NAME']) ? CUtil::JSEscape($arResult['CRM_ENTITY_TYPE_NAME']) : '')?>',
 					crmEntityId: <?=(!empty($arResult['CRM_ENTITY_ID']) ? intval($arResult['CRM_ENTITY_ID']) : 0)?>,
@@ -310,46 +316,6 @@ if (
 					?>
 					BX.onCustomEvent(window, 'onSonetLogCounterClear', [BX.message('sonetLCounterType')]);
 					<?
-					if ($arResult['PAGE_MODE'] === 'first')
-					{
-						?>
-						BX.addCustomEvent("onGoUp", function() {
-							var counter_wrap = BX('sonet_log_counter_2_wrap');
-							if (counter_wrap)
-							{
-								BX.removeClass(counter_wrap, 'feed-new-message-informer-fixed');
-								BX.removeClass(counter_wrap, 'feed-new-message-informer-fix-anim');
-							}
-						});
-
-						BX.addCustomEvent("onPullEvent-main", BX.delegate(function(command,params){
-							if (
-								command == 'user_counter'
-								&& params[BX.message('SITE_ID')]
-								&& params[BX.message('SITE_ID')][BX.message('sonetLCounterType')]
-							)
-							{
-								oLF.counter.changeCounter(BX.clone(params[BX.message('SITE_ID')][BX.message('sonetLCounterType')]));
-							}
-						}, this));
-
-						BX.addCustomEvent(window, "onImUpdateCounter", BX.proxy(function(arCount) {
-							oLF.counter.changeCounterArray(arCount);
-						}, this));
-
-					BX.addCustomEvent("OnUCCommentWasRead", function(xmlId, id, options) {
-						if (
-							BX.type.isPlainObject(options)
-							&& options.live
-							&& options.new
-						)
-						{
-							BX.onCustomEvent("onCounterDecrement", [1]);
-							oLF.counter.decrement(1);
-						}
-						});
-						<?
-					}
 				}
 
 				if ($arResult['PAGE_MODE'] === 'first')
@@ -403,19 +369,10 @@ if (
 			}
 		}
 		?>
-
 		BX.ready(function()
 		{
 			oLF.arMoreButtonID = [];
-
 			BX.bind(BX('sonet_log_counter_2_container'), 'click', oLF.clearContainerExternalNew);
-			BX.bind(BX('sonet_log_counter_2_container'), 'click', __logOnAjaxInsertToNode);
-
-			if (BX('sonet_log_more_container'))
-			{
-				BX.bind(BX('sonet_log_more_container'), 'click', oLF.clearContainerExternalMore);
-				BX.bind(BX('sonet_log_more_container'), 'click', __logOnAjaxInsertToNode);
-			}
 
 			if (BX('sonet_log_comment_text'))
 			{

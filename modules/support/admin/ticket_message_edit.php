@@ -34,7 +34,7 @@ function CheckFields() // проверка на наличие обязательных полей
 	if ($max_size>0 && is_array($arrFILES) && count($arrFILES)>0)
 	{
 		$i = 0;
-		while (list($key, $arFILE) = each($arrFILES))
+		foreach ($arrFILES as $key => $arFILE)
 		{
 			$i++;
 			if (intval($arFILE["size"])>$max_size) 
@@ -70,7 +70,7 @@ if ($arTicket = $rsTicket->Fetch())
 {
 	CTicket::UpdateOnline($ID, $USER->GetID());
 
-	if ($rsFiles = CTicket::GetFileList($v1="s_id", $v2="asc", array("MESSAGE_ID" => $ID))) :
+	if ($rsFiles = CTicket::GetFileList("s_id", "asc", array("MESSAGE_ID" => $ID))) :
 		while ($arFile = $rsFiles->Fetch()) :
 			$name = $arFile["ORIGINAL_NAME"];
 			if ($arFile["EXTENSION_SUFFIX"] <> '') :
@@ -103,7 +103,7 @@ if ($arTicket = $rsTicket->Fetch())
 
 		if (is_array($_FILES) && count($_FILES)>0)
 		{
-			while (list($key, $arF) = each($_FILES))
+			foreach ($_FILES as $key => $arF)
 			{
 				if ($arF["name"] <> '')
 				{
@@ -168,7 +168,7 @@ if ($arTicket = $rsTicket->Fetch())
 	else
 	{
 		$arFiles = array();
-		if ($rsFiles = CTicket::GetFileList($v1="s_id", $v2="asc", array("MESSAGE_ID" => $ID))) :
+		if ($rsFiles = CTicket::GetFileList("s_id", "asc", array("MESSAGE_ID" => $ID))) :
 			while ($arFile = $rsFiles->Fetch()) :
 				$name = $arFile["ORIGINAL_NAME"];
 				if ($arFile["EXTENSION_SUFFIX"] <> '') :

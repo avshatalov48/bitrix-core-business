@@ -38,7 +38,7 @@ window.BlogBFileDialog = function(arParams)
 	if (!!BX.FileUploadAgent) {
 		this.agent = new BX.FileUploadAgent(arParams);
 		BX.addCustomEvent(this, 'ShowUploadedFile', BX.delegate(this.ShowUploadedFile, this));
-		BX.addCustomEvent(this, 'StopUpload', BX.delegate(this.StopUpload, this));
+		BX.addCustomEvent(this, 'StopUpload', this.StopUpload.bind(this));
 		BX.onCustomEvent(BX(this.controller.parentNode), "BFileDLoadFormControllerInit", [this]);
 	} else {
 		BX.debug('/bitrix/components/bitrix/main.file.input/templates/drag_n_drop/script.js: BX.FileUploadAgent is not defined.' +
@@ -184,23 +184,34 @@ window.BlogBFileDialog.prototype.LoadDialogs = function(dialogs)
 window.BlogBFileDialog.prototype.StopUpload = function(agent, parent)
 {
 	this.agent = agent;
-	id = false;
-	mID = parent.id.match(new RegExp(this.doc_prefix + '(\\d+)'));
-	if (!!mID) {
-		id = mID[1];
+	var id = 0;
+	var regExp = new RegExp(this.doc_prefix + '(\\d+)');
+	if (regExp.test(parent.id))
+	{
+		var buf = parent.id.match(regExp);
+		id = buf[1];
 	}
-
 	if (this.controller && this.controller.parentNode)
+	{
 		BX.onCustomEvent(this.controller.parentNode, 'OnFileUploadRemove', [id, this]);
+	}
 
 	var data = {
 		fileID : id,
 		sessid : BX.bitrix_sessid(),
 		cid : this.CID,
 		controlID : this.controlID,
-		mfi_mode : "delete"
+		mfi_mode : "delete",
 	};
-	BX.ajax.post(this.uploadFileUrl, data);
+
+	BX.ajax({
+		'method': 'POST',
+		'dataType': 'html',
+		'url': this.uploadFileUrl,
+		'processData': false,
+		'data': BX.ajax.prepareData(data),
+		'onsuccess': function() {}
+	});
 }
 
 window.BlogBFileDialogDispatcher = function(controller)

@@ -87,7 +87,10 @@ if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $c
 	$Vars = $cache->GetVars();
 	foreach($Vars["arResult"] as $k=>$v)
 		$arResult[$k] = $v;
-	CBitrixComponentTemplate::ApplyCachedData($Vars["templateCachedData"]);
+
+	$template = new CBitrixComponentTemplate();
+	$template->ApplyCachedData($Vars["templateCachedData"]);
+
 	$cache->Output();
 }
 else
@@ -293,7 +296,7 @@ else
 
 		if(!empty($arUsrTmp))
 		{
-			$dbUser = CUser::GetList($b = "ID", $o = "DESC", array("ID" => implode(' | ', $arUsrTmp)), array("FIELDS" => array("ID", "LOGIN", "NAME", "LAST_NAME", "SECOND_NAME", "PERSONAL_PHOTO")));
+			$dbUser = CUser::GetList("ID", "DESC", array("ID" => implode(' | ', $arUsrTmp)), array("FIELDS" => array("ID", "LOGIN", "NAME", "LAST_NAME", "SECOND_NAME", "PERSONAL_PHOTO")));
 			while($arUser = $dbUser->GetNext())
 			{
 				$urlToAuthor = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arUser["ID"]));

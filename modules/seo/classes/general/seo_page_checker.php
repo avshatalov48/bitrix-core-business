@@ -32,7 +32,7 @@ class CSeoPageChecker
 	var $errorString = '';
 	var $bSearch = false;
 
-	function CSeoPageChecker($site, $url, $get = true, $check_errors = true)
+	public function __construct($site, $url, $get = true, $check_errors = true)
 	{
 		global $APPLICATION;
 
@@ -57,7 +57,7 @@ class CSeoPageChecker
 			if ($this->__server_name <> '')
 			{
 				$this->__url = (CMain::IsHTTPS() ? "https://" : "http://")
-					.CBXPunycode::ToASCII($this->__server_name, $e = null)
+					.CBXPunycode::ToASCII($this->__server_name, $e)
 					.$url;
 
 				if(!$get || $this->GetHTTPData())
@@ -304,18 +304,18 @@ class CSeoPageChecker
 			foreach(GetModuleEvents('seo', 'onPageCheck', true) as $arEvent)
 			{
 				if (!ExecuteModuleEventEx($arEvent, array(
-					'QUERY' => array(
+					array(
 						'URL' => $this->__url,
 						'LANG' => $this->__lang,
 						'SERVER_NAME' => $this->__server_name,
 						'SITE' => $this->__site,
 					),
-					'DATA' => array(
+					array(
 						'HEADERS' => $this->__result_headers,
 						'BODY' => $this->__result_data,
 					),
-					'META' => $this->__result_meta,
-					'INDEX' => $this->__index,
+					$this->__result_meta,
+					$this->__index,
 				)) && ($ex = $GLOBALS['APPLICATION']->GetException()))
 				{
 					$this->__result_errors[] = array(
@@ -443,7 +443,7 @@ class CSeoPageChecker
 		{
 			$arDomainNames = array($_SERVER['SERVER_NAME']);
 
-			$dbRes = CSite::GetList($by = 'sort', $order = 'asc', array('ACTIVE' => 'Y'));
+			$dbRes = CSite::GetList('sort', 'asc', array('ACTIVE' => 'Y'));
 			while ($arSite = $dbRes->Fetch())
 			{
 				if ($arSite['DOMAINS'])

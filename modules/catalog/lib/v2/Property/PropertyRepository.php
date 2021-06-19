@@ -91,7 +91,12 @@ class PropertyRepository implements PropertyRepositoryContract
 				{
 					if (is_numeric($id))
 					{
-						$props[$property->getId()][$id] = \CAllIBlock::makeFilePropArray($prop);
+						$props[$property->getId()][$id] = \CIBlock::makeFilePropArray(
+							$prop,
+							$prop['VALUE'] === '',
+							$prop['DESCRIPTION'],
+							['allow_file_id' => true]
+						);
 					}
 				}
 
@@ -102,7 +107,7 @@ class PropertyRepository implements PropertyRepositoryContract
 						continue;
 					}
 
-					$fieldsToDelete = \CAllIBlock::makeFilePropArray($removed->getFields(), true);
+					$fieldsToDelete = \CIBlock::makeFilePropArray($removed->getFields(), true);
 					$props[$property->getId()][$removed->getId()] = $fieldsToDelete;
 				}
 			}

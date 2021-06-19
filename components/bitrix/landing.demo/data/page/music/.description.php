@@ -8,11 +8,11 @@ use \Bitrix\Main\Localization\Loc;
 
 Loc::loadLanguageFile(__FILE__);
 
-return array(
+return [
 	'name' => Loc::getMessage('LANDING_DEMO_TITLE'),
 	'description' => Loc::getMessage('LANDING_DEMO_DESCRIPTION'),
-	'fields' => array(
-		'ADDITIONAL_FIELDS' => array(
+	'fields' => [
+		'ADDITIONAL_FIELDS' => [
 			'THEME_CODE' => 'music',
 
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/music/preview.jpg',
@@ -20,11 +20,11 @@ return array(
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_DESCRIPTION'),
 			'METAMAIN_TITLE' => Loc::getMessage('LANDING_DEMO_TITLE'),
 			'METAMAIN_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_DESCRIPTION'),
-		),
-	),
-	'items' => array (
+		],
+	],
+	'items' => [
 		'0.menu_14_music' =>
-			array (
+			[
 				'CODE' => '0.menu_14_music',
 				'SORT' => '-100',
 				'CONTENT' => '
@@ -89,9 +89,9 @@ return array(
 		</nav>
 	</div>
 </header>',
-			),
+			],
 		'46.4.cover_with_slider_bgimg_right_buttons' =>
-			array (
+			[
 				'CODE' => '46.4.cover_with_slider_bgimg_right_buttons',
 				'SORT' => '500',
 				'CONTENT' => '<section class="landing-block">
@@ -131,9 +131,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'04.7.one_col_fix_with_title_and_text_2' =>
-			array (
+			[
 				'CODE' => '04.7.one_col_fix_with_title_and_text_2',
 				'SORT' => '1000',
 				'CONTENT' => '<section class="landing-block g-pb-20 g-pt-60 g-bg-gray-light-v5 js-animation fadeInUp animated">
@@ -142,16 +142,16 @@ return array(
 
             <div class="landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary">
                 <h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-primary g-mb-15"> </h4>
-                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-font-size-40 g-color-black g-mb-minus-10">BEST MUSIC ALBUMS</h2>
+                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-font-size-40 g-mb-minus-10">BEST MUSIC ALBUMS</h2>
             </div>
 
-			<div class="landing-block-node-text g-color-gray-dark-v5"><p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros, fringilla porttitor lorem eros vel odio.</p></div>
+			<div class="landing-block-node-text"><p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros, fringilla porttitor lorem eros vel odio.</p></div>
         </div>
 
     </section>',
-			),
+			],
 		'30.2.three_cols_fix_img_and_links' =>
-			array (
+			[
 				'CODE' => '30.2.three_cols_fix_img_and_links',
 				'SORT' => '1500',
 				'CONTENT' => '<section class="landing-block g-bg-gray-light-v5 g-pt-30 g-pb-20">
@@ -161,27 +161,31 @@ return array(
 
                 <div class="landing-block-card col-sm-6 col-md-4 js-animation fadeIn">
                     <article class="u-shadow-v28 g-bg-white">
+                    <div class="landing-block-node-img-container">
                         <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/370x233/img1.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-                        <div class="g-pos-rel">
-                            <!-- SVG Background -->
-                            <svg class="g-pos-abs g-left-0 g-right-0" version="1.1" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px" viewbox="20 -20 300 100" style="top: -70%;">
-                                <path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729
-              c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z" opacity="0.4" fill="#f0f1f3" />
-                                <path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729
-              c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z" opacity="0.4" fill="#f0f1f3" />
-                                <path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716
-              H42.401L43.415,98.342z" opacity="0" fill="#fff" />
-                                <path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428
-              c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z" fill="#fff" />
-                            </svg>
-                            <!-- End SVG Background -->
-
+                        <div class="landing-block-node-svg-container g-pointer-events-none g-pos-rel">
+							<svg class="g-hidden-col-1 g-hidden-col-2 g-hidden-col-3--md g-pos-abs g-left-0 g-right-0 g-bottom-0"
+								 version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
+								 xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px"
+								 viewBox="20 -20 300 100">
+								<path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729 c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729 c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716 H42.401L43.415,98.342z"
+									  opacity="0" fill="#fff"/>
+								<path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428 c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z"
+									  fill="#fff"/>
+							</svg>
+						</div>
+					</div>
+					<div class="g-pos-rel">
                             <div class="g-pos-rel g-z-index-1 g-pa-30">
                                 <h3 class="h5 mb-3">
-                                    <a class="landing-block-node-link u-link-v5 g-color-main g-color-primary--hover" href="#" target="_self">RADIO MUSIC SOCIETY</a>
+                                    <a class="landing-block-node-link u-link-v5 g-color-primary--hover" href="#" target="_self">RADIO MUSIC SOCIETY</a>
                                 </h3>
-                                <a class="landing-block-node-link-more u-link-v5 g-color-text g-color-primary--hover g-font-weight-500" href="#" target="_self">LEARN MORE</a>
+                                <a class="landing-block-node-link-more u-link-v5 g-color-primary--hover g-font-weight-500" href="#" target="_self">LEARN MORE</a>
                             </div>
                         </div>
                     </article>
@@ -189,27 +193,31 @@ return array(
 
                 <div class="landing-block-card col-sm-6 col-md-4 js-animation fadeIn">
                     <article class="u-shadow-v28 g-bg-white">
+                    <div class="landing-block-node-img-container">
                         <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/370x233/img2.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-                        <div class="g-pos-rel">
-                            <!-- SVG Background -->
-                            <svg class="g-pos-abs g-left-0 g-right-0" version="1.1" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px" viewbox="20 -20 300 100" style="top: -70%;">
-                                <path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729
-              c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z" opacity="0.4" fill="#f0f1f3" />
-                                <path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729
-              c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z" opacity="0.4" fill="#f0f1f3" />
-                                <path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716
-              H42.401L43.415,98.342z" opacity="0" fill="#fff" />
-                                <path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428
-              c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z" fill="#fff" />
-                            </svg>
-                            <!-- End SVG Background -->
-
+                        <div class="landing-block-node-svg-container g-pointer-events-none g-pos-rel">
+							<svg class="g-hidden-col-1 g-hidden-col-2 g-hidden-col-3--md g-pos-abs g-left-0 g-right-0 g-bottom-0"
+								 version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
+								 xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px"
+								 viewBox="20 -20 300 100">
+								<path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729 c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729 c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716 H42.401L43.415,98.342z"
+									  opacity="0" fill="#fff"/>
+								<path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428 c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z"
+									  fill="#fff"/>
+							</svg>
+						</div>
+					</div>
+					<div class="g-pos-rel">
                             <div class="g-pos-rel g-z-index-1 g-pa-30">
                                 <h3 class="h5 mb-3">
-                                    <a class="landing-block-node-link u-link-v5 g-color-main g-color-primary--hover" href="#" target="_self">GIRLS</a>
+                                    <a class="landing-block-node-link u-link-v5 g-color-primary--hover" href="#" target="_self">GIRLS</a>
                                 </h3>
-                                <a class="landing-block-node-link-more u-link-v5 g-color-text g-color-primary--hover g-font-weight-500" href="#" target="_self">LEARN MORE</a>
+                                <a class="landing-block-node-link-more u-link-v5 g-color-primary--hover g-font-weight-500" href="#" target="_self">LEARN MORE</a>
                             </div>
                         </div>
                     </article>
@@ -218,27 +226,31 @@ return array(
 
 				<div class="landing-block-card col-sm-6 col-md-4 js-animation fadeIn">
 					<article class="u-shadow-v28 g-bg-white">
+					<div class="landing-block-node-img-container">
 						<img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/370x233/img3.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-						<div class="g-pos-rel">
-							<!-- SVG Background -->
-							<svg class="g-pos-abs g-left-0 g-right-0" version="1.1" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px" viewbox="20 -20 300 100" style="top: -70%;">
-								<path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729
-              c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z" opacity="0.4" fill="#f0f1f3" />
-								<path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729
-              c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z" opacity="0.4" fill="#f0f1f3" />
-								<path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716
-              H42.401L43.415,98.342z" opacity="0" fill="#fff" />
-								<path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428
-              c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z" fill="#fff" />
+						<div class="landing-block-node-svg-container g-pointer-events-none g-pos-rel">
+							<svg class="g-hidden-col-1 g-hidden-col-2 g-hidden-col-3--md g-pos-abs g-left-0 g-right-0 g-bottom-0"
+								 version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
+								 xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px"
+								 viewBox="20 -20 300 100">
+								<path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729 c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729 c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716 H42.401L43.415,98.342z"
+									  opacity="0" fill="#fff"/>
+								<path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428 c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z"
+									  fill="#fff"/>
 							</svg>
-							<!-- End SVG Background -->
-
+						</div>
+					</div>
+					<div class="g-pos-rel">
 							<div class="g-pos-rel g-z-index-1 g-pa-30">
 								<h3 class="h5 mb-3">
-									<a class="landing-block-node-link u-link-v5 g-color-main g-color-primary--hover" href="#" target="_self">BREAK THROUGH THE SILENCE</a>
+									<a class="landing-block-node-link u-link-v5 g-color-primary--hover" href="#" target="_self">BREAK THROUGH THE SILENCE</a>
 								</h3>
-								<a class="landing-block-node-link-more u-link-v5 g-color-text g-color-primary--hover g-font-weight-500" href="#" target="_self">LEARN MORE</a>
+								<a class="landing-block-node-link-more u-link-v5 g-color-primary--hover g-font-weight-500" href="#" target="_self">LEARN MORE</a>
 							</div>
 						</div>
 					</article>
@@ -248,9 +260,9 @@ return array(
         </div>
 
     </section>',
-			),
+			],
 		'46.5.cover_with_date_countdown' =>
-			array (
+			[
 				'CODE' => '46.5.cover_with_date_countdown',
 				'SORT' => '2000',
 				'CONTENT' => '<section class="landing-block landing-block-node-bgimg u-bg-overlay g-bg-img-hero g-bg-attachment-fixed g-bg-black-opacity-0_6--after g-pt-100 g-pb-100" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1400x588/img1.jpg);">
@@ -287,7 +299,7 @@ return array(
 					</div>
 
 					<div class="d-inline-block g-bg-white-opacity-0_05 g-brd-around g-brd-white-opacity-0_3 g-pa-15-20-10 g-mx-15 g-mb-30">
-						<div class="landing-block-node-date-value g-line-height-1 g-font-size-40 g-font-weight-700 g-mb-2">2018</div>
+						<div class="landing-block-node-date-value g-line-height-1 g-font-size-40 g-font-weight-700 g-mb-2">2021</div>
 						<div class="landing-block-node-date-text text-uppercase text-center g-color-white-opacity-0_7 g-font-size-12">Year</div>
 					</div>
 					
@@ -298,9 +310,9 @@ return array(
 		
 	</div>
 </section>',
-			),
+			],
 		'04.7.one_col_fix_with_title_and_text_2@2' =>
-			array (
+			[
 				'CODE' => '04.7.one_col_fix_with_title_and_text_2',
 				'SORT' => '2500',
 				'CONTENT' => '<section class="landing-block g-pb-20 g-pt-60 g-bg-gray-light-v5 js-animation fadeInUp animated">
@@ -309,16 +321,16 @@ return array(
 
             <div class="landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary">
                 <h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-primary g-mb-15"> </h4>
-                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-font-size-40 g-color-black g-mb-minus-10">TOUR DATES</h2>
+                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-font-size-40 g-mb-minus-10">TOUR DATES</h2>
             </div>
 
-			<div class="landing-block-node-text g-color-gray-dark-v5"><p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros, fringilla porttitor lorem eros vel odio.</p></div>
+			<div class="landing-block-node-text"><p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros, fringilla porttitor lorem eros vel odio.</p></div>
         </div>
 
     </section>',
-			),
+			],
 		'36.2.concertes_dates_with_button' =>
-			array (
+			[
 				'CODE' => '36.2.concertes_dates_with_button',
 				'SORT' => '3000',
 				'CONTENT' => '<section class="landing-block g-bg-gray-light-v5 g-pt-100 g-pb-100">
@@ -327,7 +339,7 @@ return array(
 		<article class="landing-block-node-card js-animation fadeInUp d-flex align-items-center text-md-left text-center w-100 g-bg-white g-mb-1 flex-column flex-md-row">
 			<!-- Date -->
 			<div class="text-center g-valign-middle g-width-125--md g-py-10 g-px-20 flex-shrink-0">
-				<div class="landing-block-node-card-date-value g-font-weight-700 g-font-size-40 g-line-height-1 g-color-black">27</div>
+				<div class="landing-block-node-card-date-value g-font-weight-700 g-font-size-40 g-line-height-1">27</div>
 				<div class="landing-block-node-card-date-text">Jun, 2015</div>
 			</div>
 			<!-- End Date -->
@@ -340,16 +352,16 @@ return array(
 
 			<!-- Article Content -->
 			<div class="g-valign-middle g-py-15 g-px-20 g-max-width-570">
-				<h4 class="landing-block-node-card-title g-color-gray-dark-v2 h6 text-uppercase g-font-weight-700">
+				<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700">
 					Nam Enim Eros Rhoncus
-				</h4>
+				</h6>
 				<div class="landing-block-node-card-text">8 Rue de Montpensier 75001, Paris, France, 18:00</div>
 			</div>
 			<!-- End Article Content -->
 
 			<!-- Price -->
 			<div class="g-valign-middle g-py-5 g-px-20 ml-auto ml-md-auto">
-				<div class="landing-block-node-card-price g-font-weight-700 g-color-gray-dark-v2">$15</div>
+				<div class="landing-block-node-card-price g-font-weight-700">$15</div>
 
 				<div class="landing-block-node-card-price-text text-uppercase g-font-size-11">Per Ticket</div>
 			</div>
@@ -370,7 +382,7 @@ return array(
 		<article class="landing-block-node-card js-animation fadeInUp d-flex align-items-center text-md-left text-center w-100 g-bg-white g-mb-1 flex-column flex-md-row">
 			<!-- Date -->
 			<div class="text-center g-valign-middle g-width-125--md g-py-10 g-px-20 flex-shrink-0">
-				<div class="landing-block-node-card-date-value g-font-weight-700 g-font-size-40 g-line-height-1 g-color-black">01</div>
+				<div class="landing-block-node-card-date-value g-font-weight-700 g-font-size-40 g-line-height-1">01</div>
 				<div class="landing-block-node-card-date-text">Aug, 2015</div>
 			</div>
 			<!-- End Date -->
@@ -383,16 +395,16 @@ return array(
 
 			<!-- Article Content -->
 			<div class="g-valign-middle g-py-15 g-px-20 g-max-width-570">
-				<h4 class="landing-block-node-card-title g-color-gray-dark-v2 h6 text-uppercase g-font-weight-700">
+				<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700">
 					Nulla lobortis arcu ex
-				</h4>
+				</h6>
 				<div class="landing-block-node-card-text">8 Rue de Montpensier 75001, Paris, France, 18:00</div>
 			</div>
 			<!-- End Article Content -->
 
 			<!-- Price -->
 			<div class="g-valign-middle g-py-5 g-px-20 ml-auto ml-md-auto">
-				<div class="landing-block-node-card-price g-font-weight-700 g-color-gray-dark-v2">$15</div>
+				<div class="landing-block-node-card-price g-font-weight-700">$15</div>
 
 				<div class="landing-block-node-card-price-text text-uppercase g-font-size-11">Per Ticket</div>
 			</div>
@@ -413,7 +425,7 @@ return array(
 		<article class="landing-block-node-card js-animation fadeInUp d-flex align-items-center text-md-left text-center w-100 g-bg-white g-mb-1 flex-column flex-md-row">
 			<!-- Date -->
 			<div class="text-center g-valign-middle g-width-125--md g-py-10 g-px-20 flex-shrink-0">
-				<div class="landing-block-node-card-date-value g-font-weight-700 g-font-size-40 g-line-height-1 g-color-black">05</div>
+				<div class="landing-block-node-card-date-value g-font-weight-700 g-font-size-40 g-line-height-1">05</div>
 				<div class="landing-block-node-card-date-text">Oct, 2015</div>
 			</div>
 			<!-- End Date -->
@@ -426,16 +438,16 @@ return array(
 
 			<!-- Article Content -->
 			<div class="g-valign-middle g-py-15 g-px-20 g-max-width-570">
-				<h4 class="landing-block-node-card-title g-color-gray-dark-v2 h6 text-uppercase g-font-weight-700">
+				<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700">
 					Etiam varius sit amet est a varius
-				</h4>
+				</h6>
 				<div class="landing-block-node-card-text">8 Rue de Montpensier 75001, Paris, France, 18:00</div>
 			</div>
 			<!-- End Article Content -->
 
 			<!-- Price -->
 			<div class="g-valign-middle g-py-5 g-px-20 ml-auto ml-md-auto">
-				<div class="landing-block-node-card-price g-font-weight-700 g-color-gray-dark-v2">$20</div>
+				<div class="landing-block-node-card-price g-font-weight-700">$20</div>
 
 				<div class="landing-block-node-card-price-text text-uppercase g-font-size-11">Per Ticket</div>
 			</div>
@@ -456,7 +468,7 @@ return array(
 		<article class="landing-block-node-card js-animation fadeInUp d-flex align-items-center text-md-left text-center w-100 g-bg-white g-mb-1 flex-column flex-md-row">
 			<!-- Date -->
 			<div class="text-center g-valign-middle g-width-125--md g-py-10 g-px-20 flex-shrink-0">
-				<div class="landing-block-node-card-date-value g-font-weight-700 g-font-size-40 g-line-height-1 g-color-black">22</div>
+				<div class="landing-block-node-card-date-value g-font-weight-700 g-font-size-40 g-line-height-1">22</div>
 				<div class="landing-block-node-card-date-text">Nov, 2015</div>
 			</div>
 			<!-- End Date -->
@@ -469,16 +481,16 @@ return array(
 
 			<!-- Article Content -->
 			<div class="g-valign-middle g-py-15 g-px-20 g-max-width-570">
-				<h4 class="landing-block-node-card-title g-color-gray-dark-v2 h6 text-uppercase g-font-weight-700">
+				<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700">
 					Aliquam dignissim non nisi in tristique
-				</h4>
+				</h6>
 				<div class="landing-block-node-card-text">8 Rue de Montpensier 75001, Paris, France, 18:00</div>
 			</div>
 			<!-- End Article Content -->
 
 			<!-- Price -->
 			<div class="g-valign-middle g-py-5 g-px-20 ml-auto ml-md-auto">
-				<div class="landing-block-node-card-price g-font-weight-700 g-color-gray-dark-v2">$15</div>
+				<div class="landing-block-node-card-price g-font-weight-700">$15</div>
 
 				<div class="landing-block-node-card-price-text text-uppercase g-font-size-11">Per Ticket</div>
 			</div>
@@ -497,9 +509,9 @@ return array(
 	</div>
 </section>
 ',
-			),
+			],
 		'48.slider_with_video_on_bgimg' =>
-			array (
+			[
 				'CODE' => '48.slider_with_video_on_bgimg',
 				'SORT' => '3500',
 				'CONTENT' => '<section class="landing-block landing-block-node-bgimg u-bg-overlay g-bg-img-hero g-bg-attachment-fixed g-bg-black-opacity-0_6--after g-pt-100 js-animation slideInRight" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1900x645/img1.jpg);">
@@ -508,9 +520,9 @@ return array(
 
 		<div class="landing-block-node-card js-slide g-py-20">
 			<div class="container text-center g-max-width-570">
-				<div class="landing-block-node-card-button-container">
-					<a class="landing-block-node-card-button u-icon-v2 g-text-underline--none--hover u-block-hover--scale g-overflow-inherit g-bg-primary--hover rounded-circle g-cursor-pointer g-brd-around g-brd-5 g-brd-primary mb-3" href="//www.youtube.com/watch?v=q4d8g9Dn3ww" target="_popup" data-url="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=1&amp;controls=1&amp;loop=0&amp;rel=0&amp;start=0&amp;html5=1&amp;v=q4d8g9Dn3ww">
-						<img class="landing-block-node-card-icon d-block g-relative-centered--y mr-auto g-ml-18 g-height-14" src="https://cdn.bitrix24.site/bitrix/images/landing/play.png" />
+				<div class="landing-block-node-card-button-container mb-3">
+					<a class="landing-block-node-card-button m-auto u-icon-v2 g-text-underline--none--hover u-block-hover--scale g-overflow-inherit g-bg-primary--hover rounded-circle g-cursor-pointer g-brd-around g-brd-5 g-brd-primary" href="//www.youtube.com/watch?v=q4d8g9Dn3ww" target="_popup" data-url="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=1&amp;controls=1&amp;loop=0&amp;rel=0&amp;start=0&amp;html5=1&amp;v=q4d8g9Dn3ww">
+						<img class="landing-block-node-card-icon d-block g-ml-4 g-height-14" src="https://cdn.bitrix24.site/bitrix/images/landing/play.png" />
 					</a>
 				</div>
 				
@@ -529,9 +541,9 @@ return array(
 		</div>
 	<div class="landing-block-node-card js-slide g-py-20">
 			<div class="container text-center g-max-width-570">
-				<div class="landing-block-node-card-button-container">
-					<a class="landing-block-node-card-button u-icon-v2 g-text-underline--none--hover u-block-hover--scale g-overflow-inherit g-bg-primary--hover rounded-circle g-cursor-pointer g-brd-around g-brd-5 g-brd-primary mb-3" href="//www.youtube.com/watch?v=q4d8g9Dn3ww" target="_popup" data-url="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=1&amp;controls=1&amp;loop=0&amp;rel=0&amp;start=0&amp;html5=1&amp;v=q4d8g9Dn3ww">
-						<img class="landing-block-node-card-icon d-block g-relative-centered--y mr-auto g-ml-18 g-height-14" src="https://cdn.bitrix24.site/bitrix/images/landing/play.png" />
+				<div class="landing-block-node-card-button-container mb-3">
+					<a class="landing-block-node-card-button m-auto u-icon-v2 g-text-underline--none--hover u-block-hover--scale g-overflow-inherit g-bg-primary--hover rounded-circle g-cursor-pointer g-brd-around g-brd-5 g-brd-primary" href="//www.youtube.com/watch?v=q4d8g9Dn3ww" target="_popup" data-url="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=1&amp;controls=1&amp;loop=0&amp;rel=0&amp;start=0&amp;html5=1&amp;v=q4d8g9Dn3ww">
+						<img class="landing-block-node-card-icon d-block g-ml-4 g-height-14" src="https://cdn.bitrix24.site/bitrix/images/landing/play.png" />
 					</a>
 				</div>
 				
@@ -549,9 +561,9 @@ return array(
 			</div>
 		</div></div>
 </section>',
-			),
+			],
 		'04.7.one_col_fix_with_title_and_text_2@3' =>
-			array (
+			[
 				'CODE' => '04.7.one_col_fix_with_title_and_text_2',
 				'SORT' => '4000',
 				'CONTENT' => '<section class="landing-block g-pb-20 g-pt-60 g-bg-main js-animation fadeInUp animated">
@@ -560,16 +572,16 @@ return array(
 
             <div class="landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary">
                 <h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-primary g-mb-15"> </h4>
-                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-font-size-40 g-color-black g-mb-minus-10">OUR MEDIA GALLERY</h2>
+                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-font-size-40 g-mb-minus-10">OUR MEDIA GALLERY</h2>
             </div>
 
-			<div class="landing-block-node-text g-color-gray-dark-v5"><p>Etiam varius sit amet est a varius. Nullam pharetra non diam non mollis. Pellentesque congue quam ipsum, non tempor arcu egestas non. Nullam placerat ante volutpat est scelerisque consequat.<br /></p></div>
+			<div class="landing-block-node-text"><p>Etiam varius sit amet est a varius. Nullam pharetra non diam non mollis. Pellentesque congue quam ipsum, non tempor arcu egestas non. Nullam placerat ante volutpat est scelerisque consequat.<br /></p></div>
         </div>
 
     </section>',
-			),
+			],
 		'45.3.gallery_6cols_2row' =>
-			array (
+			[
 				'CODE' => '45.3.gallery_6cols_2row',
 				'SORT' => '4500',
 				'CONTENT' => '<section class="g-py-100 g-bg-main">
@@ -665,9 +677,9 @@ return array(
 	</div>
 
 </section>',
-			),
+			],
 		'43.5.cover_with_feedback_2' =>
-			array (
+			[
 				'CODE' => '43.5.cover_with_feedback_2',
 				'SORT' => '5000',
 				'CONTENT' => '<section
@@ -717,9 +729,9 @@ return array(
 	</div>
 </section>
 ',
-			),
+			],
 		'04.7.one_col_fix_with_title_and_text_2@4' =>
-			array (
+			[
 				'CODE' => '04.7.one_col_fix_with_title_and_text_2',
 				'SORT' => '5500',
 				'CONTENT' => '<section class="landing-block g-bg-gray-light-v5 g-pt-60 js-animation fadeInUp animated g-pb-20">
@@ -728,16 +740,16 @@ return array(
 
             <div class="landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary">
                 <h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-primary g-mb-15"> </h4>
-                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-font-size-40 g-color-black g-mb-minus-10">LATEST POSTS</h2>
+                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-font-size-40 g-mb-minus-10">LATEST POSTS</h2>
             </div>
 
-			<div class="landing-block-node-text g-color-gray-dark-v5"><p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros, fringilla porttitor lorem eros vel odio.</p></div>
+			<div class="landing-block-node-text"><p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros, fringilla porttitor lorem eros vel odio.</p></div>
         </div>
 
     </section>',
-			),
+			],
 		'37.3.two_cols_blocks_carousel' =>
-			array (
+			[
 				'CODE' => '37.3.two_cols_blocks_carousel',
 				'SORT' => '6000',
 				'CONTENT' => '<section class="landing-block g-pt-40 g-pb-40 g-bg-gray-light-v5">
@@ -764,12 +776,12 @@ return array(
 				<article class="landing-block-node-card-bgimg clearfix g-bg-size-cover g-pos-rel g-width-100x--after" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/870x428/img1.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb">
 					<!-- Article Content -->
 					<div class="landing-block-node-card-text-bg float-right g-color-gray-light-v1 g-bg-black-opacity-0_7 g-width-50x--sm g-pa-30 g-height-100x d-flex flex-column">
-						<h4 class="landing-block-node-card-title text-uppercase g-font-weight-700 h6 g-color-white g-mb-15 js-animation fadeInLeft">Nunc vehicula diam non tempor lacinia</h4>
+						<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white g-mb-15 js-animation fadeInLeft">Nunc vehicula diam non tempor lacinia</h6>
 						<div class="landing-block-node-card-text g-mb-45 js-animation fadeInRight"><p>Morbi et convallis metus, in congue mi. Nam placerat augue nec justo luctus, id lobortis augue tempor. In feugiat ipsum a quam lacinia eleifend sem dapibus a. </p></div>
 
 						<div class="clearfix text-uppercase g-color-white g-font-size-11 g-mb-35">
 							<div class="float-right landing-block-node-card-label-right"> </div>
-							<div class="landing-block-node-card-label-left g-color-primary">April 27, 2018</div>
+							<div class="landing-block-node-card-label-left g-color-primary">April 27, 2021</div>
 						</div>
 
 						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle text-uppercase g-btn-primary g-color-white rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0" href="#" target="_self">read more</a>
@@ -784,12 +796,12 @@ return array(
 				<article class="landing-block-node-card-bgimg clearfix g-bg-size-cover g-pos-rel g-width-100x--after" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/870x428/img2.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb">
 					<!-- Article Content -->
 					<div class="landing-block-node-card-text-bg float-right g-color-gray-light-v1 g-bg-black-opacity-0_7 g-width-50x--sm g-pa-30 g-height-100x d-flex flex-column">
-						<h4 class="landing-block-node-card-title text-uppercase g-font-weight-700 h6 g-color-white g-mb-15 js-animation fadeInLeft">MAURIS TELLUS MAGNA, PRETIUM</h4>
+						<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white g-mb-15 js-animation fadeInLeft">MAURIS TELLUS MAGNA, PRETIUM</h6>
 						<div class="landing-block-node-card-text g-mb-45 js-animation fadeInRight"><p>Morbi et convallis metus, in congue mi. Nam placerat augue nec justo luctus, id lobortis augue tempor. In feugiat ipsum a quam lacinia eleifend sem dapibus a.<br /></p></div>
 
 						<div class="clearfix text-uppercase g-color-white g-font-size-11 g-mb-35">
 							<div class="float-right landing-block-node-card-label-right"> </div>
-							<div class="landing-block-node-card-label-left g-color-primary">APRIL 27, 2018</div>
+							<div class="landing-block-node-card-label-left g-color-primary">APRIL 27, 2021</div>
 						</div>
 
 						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle text-uppercase g-btn-primary g-color-white rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0" href="#" target="_self">read more</a>
@@ -804,12 +816,12 @@ return array(
 				<article class="landing-block-node-card-bgimg clearfix g-bg-size-cover g-pos-rel g-width-100x--after" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/870x428/img3.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb">
 					<!-- Article Content -->
 					<div class="landing-block-node-card-text-bg float-right g-color-gray-light-v1 g-bg-black-opacity-0_7 g-width-50x--sm g-pa-30 g-height-100x d-flex flex-column">
-						<h4 class="landing-block-node-card-title text-uppercase g-font-weight-700 h6 g-color-white g-mb-15 js-animation fadeInLeft">CRAS VOLUTPAT SED LEO UT TEMPOR</h4>
+						<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white g-mb-15 js-animation fadeInLeft">CRAS VOLUTPAT SED LEO UT TEMPOR</h6>
 						<div class="landing-block-node-card-text g-mb-45 js-animation fadeInRight"><p>Morbi et convallis metus, in congue mi. Nam placerat augue nec justo luctus, id lobortis augue tempor. In feugiat ipsum a quam lacinia eleifend sem dapibus a. </p></div>
 
 						<div class="clearfix text-uppercase g-color-white g-font-size-11 g-mb-35">
 							<div class="float-right landing-block-node-card-label-right"> </div>
-							<div class="landing-block-node-card-label-left g-color-primary">APRIL 27, 2018</div>
+							<div class="landing-block-node-card-label-left g-color-primary">APRIL 27, 2021</div>
 						</div>
 
 						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle text-uppercase g-btn-primary g-color-white rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0" href="#" target="_self">read more</a>
@@ -824,9 +836,9 @@ return array(
 		<!-- End Carousel -->
 	</div>
 </section>',
-			),
+			],
 		'33.3.form_1_transparent_black_no_text' =>
-			array (
+			[
 				'CODE' => '33.3.form_1_transparent_black_no_text',
 				'SORT' => '6500',
 				'CONTENT' => '<section class="landing-block landing-block-node-bgimg landing-semantic-color-overlay g-bg-primary-dark-v1 g-pos-rel g-pt-120 g-pb-120 g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_7--after" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1900x1155/img1.jpg);">
@@ -846,9 +858,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'35.2.footer_dark' =>
-			array (
+			[
 				'CODE' => '35.2.footer_dark',
 				'SORT' => '7000',
 				'CONTENT' => '<section class="g-pt-60 g-pb-60 g-bg-black">
@@ -954,9 +966,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'17.1.copyright_with_social' =>
-			array (
+			[
 				'CODE' => '17.1.copyright_with_social',
 				'SORT' => '7500',
 				'CONTENT' => '<section class="landing-block g-brd-top g-brd-gray-dark-v2 g-bg-black js-animation animation-none">
@@ -964,7 +976,7 @@ return array(
 		<div class="row">
 			<div class="col-md-6 d-flex align-items-center g-mb-15 g-mb-0--md w-100 mb-0">
 				<div class="landing-block-node-text mr-1 js-animation animation-none">
-					&copy; 2018 All rights reserved.
+					&copy; 2021 All rights reserved.
 				</div>
 			</div>
 
@@ -1005,6 +1017,6 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
-	),
-);
+			],
+	],
+];

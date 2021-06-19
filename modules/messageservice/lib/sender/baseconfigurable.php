@@ -41,26 +41,6 @@ abstract class BaseConfigurable extends Base
 	}
 
 	/**
-	 * Get default From.
-	 * @return null|string
-	 */
-	public function getDefaultFrom()
-	{
-		$fromList = $this->getFromList();
-		$from = isset($fromList[0]) ? $fromList[0]['id'] : null;
-		//Try to find alphanumeric from
-		foreach ($fromList as $item)
-		{
-			if (!preg_match('#^[0-9]+$#', $item['id']))
-			{
-				$from = $item['id'];
-				break;
-			}
-		}
-		return $from;
-	}
-
-	/**
 	 * Set default From.
 	 * @param string $from From.
 	 * @return $this

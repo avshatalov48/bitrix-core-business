@@ -1,6 +1,7 @@
-<?
+<?php
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text;
+use Bitrix\Main;
 
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
@@ -10,7 +11,9 @@ Loc::loadMessages(__FILE__);
 
 
 
-class CMainInterfaceButtons extends CBitrixComponent
+class CMainInterfaceButtons
+	extends CBitrixComponent
+	implements Main\Engine\Contract\Controllerable, Main\Errorable
 {
 	/**
 	 * First argument for CUserOptions::GetOption
@@ -18,8 +21,8 @@ class CMainInterfaceButtons extends CBitrixComponent
 	 * @var string
 	 */
 	protected $userOptionsCategory = "ui";
-
 	/**
+
 	 * @var int
 	 */
 	protected $maxCounterSize = 99;
@@ -50,28 +53,34 @@ class CMainInterfaceButtons extends CBitrixComponent
 	 */
 	protected $defaultMoreItemClass = "main-buttons-item-more-default";
 
-
 	/**
-	 * Checks required component params
-	 * @return boolean
+	 * @var Main\ErrorCollection
 	 */
-	protected function checkRequiredParams()
+	protected $errorCollection;
+
+	protected const EDIT_MODE_PERSONAL = 'PERSONAL';
+	protected const EDIT_MODE_COMMON = 'COMMON';
+	protected const EDIT_MODE_DISABLE = 'DISABLE';
+
+	public function onPrepareComponentParams($arParams)
 	{
-		$result = true;
+		$this->errorCollection = new Main\ErrorCollection();
 
-		if (empty($this->arParams["ID"]))
+		if (empty($arParams["ID"]))
 		{
-			ShowError(Loc::getMessage("MIB_ID_NOT_SET"));
-			$result = false;
+			$this->errorCollection->setError(new Main\Error(Loc::getMessage("MIB_ID_NOT_SET"), "unknown"));
+		}
+		else
+		{
+			$arParams["ID"] = $this->prepareContainerId($arParams["ID"]);
+			$arParams["EDIT_MODE"] = $this->prepareSaveMode(
+				array_key_exists("EDIT_MODE", $arParams) ? $arParams["EDIT_MODE"] : null,
+				$arParams["DISABLE_SETTINGS"]
+			);
+			$arParams["DISABLE_SETTINGS"] = $this->prepareDisableSettings($arParams["EDIT_MODE"]);
 		}
 
-		if (!is_array($this->arParams["ITEMS"]) || empty($this->arParams["ITEMS"]))
-		{
-			//ShowError(Loc::getMessage("MIB_ITEMS_NOT_FOUND"));
-			$result = false;
-		}
-
-		return $result;
+		return $arParams;
 	}
 
 
@@ -92,7 +101,6 @@ class CMainInterfaceButtons extends CBitrixComponent
 	 */
 	protected function prepareParams()
 	{
-		$this->arParams["ID"] = $this->prepareContainerId($this->arParams["ID"]);
 		$this->arParams["CLASS_ITEM_ACTIVE"] = $this->prepareItemClass($this->arParams["CLASS_ITEM_ACTIVE"]);
 		$this->arParams["CLASS_ITEM"] = $this->prepareItemClass($this->arParams["CLASS_ITEM"]);
 		$this->arParams["CLASS_ITEM_LINK"] = $this->prepareItemClass($this->arParams["CLASS_ITEM_LINK"]);
@@ -101,16 +109,36 @@ class CMainInterfaceButtons extends CBitrixComponent
 		$this->arParams["CLASS_ITEM_COUNTER"] = $this->prepareItemClass($this->arParams["CLASS_ITEM_COUNTER"]);
 		$this->arParams["ITEMS"] = $this->prepareItems($this->arParams["ITEMS"]);
 		$this->arParams["MORE_BUTTON"] = $this->prepareMoreItem($this->arParams["MORE_BUTTON"]);
-		$this->arParams["DISABLE_SETTINGS"] = $this->prepareDisableSettings($this->arParams["DISABLE_SETTINGS"]);
 
 		return $this;
 	}
 
-	protected function prepareDisableSettings($settings = false)
+	protected function prepareDisableSettings(string $mode): bool
 	{
-		return is_bool($settings) ? $settings : false;
+		return $mode === self::EDIT_MODE_DISABLE;
 	}
 
+	protected function prepareSaveMode($mode = null, $disableSettings = false): string
+	{
+		$result = self::EDIT_MODE_PERSONAL;
+		if (is_string($mode))
+		{
+			$mode = mb_strtoupper($mode);
+			if (in_array($mode, [self::EDIT_MODE_COMMON, self::EDIT_MODE_DISABLE]))
+			{
+				$result = $mode;
+			}
+		}
+		else if (is_bool($mode))
+		{
+			$result = $mode === false ? self::EDIT_MODE_DISABLE : self::EDIT_MODE_PERSONAL;
+		}
+		else if ($disableSettings === true)
+		{
+			$result = self::EDIT_MODE_DISABLE;
+		}
+		return $result;
+	}
 
 	/**
 	 * Gets user options as is
@@ -540,12 +568,16 @@ class CMainInterfaceButtons extends CBitrixComponent
 
 			if ($items[$key]['HAS_CHILD'] === true)
 			{
-				$items[$key]['EXPANDED'] = true;
 				if (array_key_exists($item['DATA_ID'], $this->expandedLists)
-					&& $this->expandedLists[$item['DATA_ID']] == 'N')
+					&& $this->expandedLists[$item['DATA_ID']] == 'Y')
+				{
+					$items[$key]['EXPANDED'] = true;
+				}
+				else
 				{
 					$items[$key]['EXPANDED'] = false;
 				}
+
 				$items[$key]['CHILD_ITEMS'] = [];
 				foreach ($childItems as $currentItem)
 				{
@@ -593,7 +625,7 @@ class CMainInterfaceButtons extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		if ($this->checkRequiredParams())
+		if ($this->errorCollection->isEmpty())
 		{
 			if ($this->filterItems())
 			{
@@ -603,8 +635,48 @@ class CMainInterfaceButtons extends CBitrixComponent
 				$this->setStyles();
 				$this->includeComponentTemplate();
 			}
-
 		}
 	}
 
+	public function configureActions()
+	{
+		return [];
+	}
+
+	public function getErrors()
+	{
+		return $this->errorCollection->toArray();
+	}
+
+	public function getErrorByCode($code)
+	{
+		return $this->errorCollection->getErrorByCode($code);
+	}
+
+	protected function listKeysSignedParameters()
+	{
+		return [
+			'ID',
+			'EDIT_MODE',
+			'DISABLE_SETTINGS',
+		];
+	}
+
+	public function saveAction(array $options)
+	{
+		if ($this->errorCollection->isEmpty()
+			&& ($this->arParams['EDIT_MODE'] !== self::EDIT_MODE_DISABLE)
+		)
+		{
+			$value = array_merge(
+				CUserOptions::GetOption($this->userOptionsCategory, $this->arParams['ID'], []),
+				$options
+			);
+			CUserOptions::SetOption(
+				$this->userOptionsCategory,
+				$this->arParams['ID'],
+				$value,
+				$this->arParams['EDIT_MODE'] === self::EDIT_MODE_COMMON);
+		}
+	}
 }

@@ -39,7 +39,7 @@ return array(
 		'nodes' => array(
 			'.landing-block-node-card-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_50.1.NEW_YEAR_STYLE_LANDINGBLOCKNODECARDTITLE'),
-				'type' => array('typo', 'animation'),
+				'type' => ['typo', 'animation', 'heading'],
 			),
 			'.landing-block-node-card-text' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_50.1.NEW_YEAR_STYLE_LANDINGBLOCKNODECARDTEXT'),

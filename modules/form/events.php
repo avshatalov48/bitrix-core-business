@@ -1,7 +1,8 @@
-<?
+<?php
+
 class CFormEventHandlers
 {
-	function sendOnAfterResultStatusChange($WEB_FORM_ID, $RESULT_ID, $NEW_STATUS_ID = false, $CHECK_RIGHTS = 'Y')
+	public static function sendOnAfterResultStatusChange($WEB_FORM_ID, $RESULT_ID, $NEW_STATUS_ID = false, $CHECK_RIGHTS = 'Y')
 	{
 		$NEW_STATUS_ID = intval($NEW_STATUS_ID);
 	
@@ -46,7 +47,7 @@ class CFormEventHandlers
 			"RS_STATUS_NAME"		=> $arStatus["TITLE"],
 		);
 		
-		$dbRes = CEventMessage::GetList($by="id", $order="asc", array(
+		$dbRes = CEventMessage::GetList("id", "asc", array(
 			'ID' => $arTemplates,
 			"ACTIVE"		=> "Y",
 			"EVENT_NAME"	=> $arStatus["MAIL_EVENT_TYPE"]
@@ -56,4 +57,3 @@ class CFormEventHandlers
 			CEvent::Send($arTemplate["EVENT_NAME"], $arTemplate["SITE_ID"], $arEventFields, "Y", $arTemplate["ID"]);
 	}
 }
-?>

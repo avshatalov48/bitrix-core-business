@@ -49,6 +49,7 @@ create table if not exists b_landing_block
     ACTIVE char(1) not null default 'Y',
     PUBLIC char(1) not null default 'Y',
     DELETED char(1) not null default 'N',
+    DESIGNED char(1) not null default 'N',
     ACCESS char(1) not null default 'X',
     SOURCE_PARAMS mediumtext default null,
     CONTENT mediumtext not null,
@@ -62,7 +63,7 @@ create table if not exists b_landing_block
     INDEX IX_B_BLOCK_LID (LID),
     INDEX IX_B_BLOCK_CODE (CODE),
     INDEX IX_B_BLOCK_ACTIVE (ACTIVE),
-    INDEX IX_B_BLOCK_PUBLIC (PUBLIC),
+    INDEX IX_B_BLOCK_PUBLIC (PUBLIC, DATE_CREATE),
     INDEX IX_B_BLOCK_DELETED (DELETED)
 );
 
@@ -387,4 +388,30 @@ create table if not exists b_landing_cookies_agreement
 	DATE_MODIFY timestamp not null,
 	PRIMARY KEY(ID),
 	INDEX IX_B_SITE (SITE_ID, CODE)
+);
+
+create table if not exists b_landing_designer_repo
+(
+	ID int(18) not null auto_increment,
+	XML_ID varchar(255) not null,
+	TITLE varchar(255) default null,
+	SORT int(18) default 100,
+	HTML text not null,
+	MANIFEST text not null,
+	CREATED_BY_ID int(18) not null,
+	MODIFIED_BY_ID int(18) not null,
+	DATE_CREATE timestamp null,
+	DATE_MODIFY timestamp not null,
+	PRIMARY KEY(ID),
+	INDEX IX_B_XML_ID (XML_ID)
+);
+
+create table if not exists b_landing_entity_lock (
+    ID int(18) not null auto_increment,
+    ENTITY_ID int(18) not null,
+    ENTITY_TYPE char(1) not null,
+    LOCK_TYPE char(1) not null,
+    INDEX IX_ENTITY (ENTITY_ID, ENTITY_TYPE),
+    INDEX IX_TYPE (LOCK_TYPE),
+    PRIMARY KEY (ID)
 );

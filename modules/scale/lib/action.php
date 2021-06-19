@@ -103,8 +103,15 @@ class Action
 			$serverParams["hostname"] = $this->serverHostname;
 
 			if(is_array($serverParams))
+			{
 				foreach ($serverParams as $key => $paramValue)
-					$retStr = str_replace('##SERVER_PARAMS:'.$key.'##', $paramValue, $retStr);
+				{
+					if(is_string($paramValue))
+					{
+						$retStr = str_replace('##SERVER_PARAMS:' . $key . '##', $paramValue, $retStr);
+					}
+				}
+			}
 		}
 
 		if(!empty($inputParams))
@@ -115,13 +122,8 @@ class Action
 		{
 			foreach($this->actionParams["CODE_PARAMS"] as $paramId => $paramCode)
 			{
-				$func = create_function("", $paramCode);
-
-				if(is_callable($func))
-				{
-					$res = $func();
-					$retStr = str_replace('##CODE_PARAMS:'.$paramId.'##', $res, $retStr);
-				}
+				$res = eval($paramCode);
+				$retStr = str_replace('##CODE_PARAMS:'.$paramId.'##', $res, $retStr);
 			}
 		}
 

@@ -157,7 +157,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$result = CLQuestion::GetByID($arRes['QUESTION_ID']);
 	$arData = $result->Fetch();
 	if ($arData['QUESTION_TYPE'] === 'T')
-		$arRes['RESPONSE_TEXT'] = $arRes['RESPONSE'];
+		$arRes['RESPONSE_TEXT'] = htmlspecialcharsbx($arRes['RESPONSE']);
 	elseif ( ! empty($arRes['RESPONSE']) )
 	{
 		$arResponseIDs = explode(',', $arRes['RESPONSE']);

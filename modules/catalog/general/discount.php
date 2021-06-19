@@ -1,16 +1,17 @@
-<?
-use Bitrix\Main,
-	Bitrix\Main\Loader,
-	Bitrix\Main\ModuleManager,
-	Bitrix\Main\Config\Option,
-	Bitrix\Main\Localization\LanguageTable,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock,
-	Bitrix\Catalog,
-	Bitrix\Catalog\Product\Price,
-	Bitrix\Sale\DiscountCouponsManager,
-	Bitrix\Sale\Discount\Context,
-	Bitrix\Sale;
+<?php
+
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Localization\LanguageTable;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock;
+use Bitrix\Catalog;
+use Bitrix\Catalog\Product\Price;
+use Bitrix\Sale\DiscountCouponsManager;
+use Bitrix\Sale\Discount\Context;
+use Bitrix\Sale;
 
 Loc::loadMessages(__FILE__);
 
@@ -199,7 +200,7 @@ class CAllCatalogDiscount
 		self::$getPercentFromBasePrice = $useBasePrice;
 	}
 
-	public function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		/** @global CMain $APPLICATION */
 		global $APPLICATION, $DB, $USER;
@@ -581,7 +582,7 @@ class CAllCatalogDiscount
 		return $boolResult;
 	}
 
-	public function Add($arFields)
+	public static function Add($arFields)
 	{
 		foreach (GetModuleEvents("catalog", "OnBeforeDiscountAdd", true) as $arEvent)
 		{
@@ -692,7 +693,7 @@ class CAllCatalogDiscount
 		return $ID;
 	}
 
-	public function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		$ID = (int)$ID;
 		if ($ID <= 0)
@@ -992,7 +993,7 @@ class CAllCatalogDiscount
 	 * @param int $ID
 	 * @return void
 	 */
-	public function GenerateDataFile($ID)
+	public static function GenerateDataFile($ID)
 	{
 	}
 
@@ -1003,7 +1004,7 @@ class CAllCatalogDiscount
 	 * @param bool|string $strDataFileName
 	 * @return void
 	 */
-	public function ClearFile($ID, $strDataFileName = false)
+	public static function ClearFile($ID, $strDataFileName = false)
 	{
 	}
 
@@ -3426,7 +3427,7 @@ class CAllCatalogDiscount
 		}
 	}
 
-	protected function __CheckOneEntity(&$arFields, $strEntityID)
+	protected static function __CheckOneEntity(&$arFields, $strEntityID)
 	{
 		$boolResult = false;
 		$strEntityID = trim(strval($strEntityID));
@@ -3472,7 +3473,7 @@ class CAllCatalogDiscount
 		return $boolResult;
 	}
 
-	protected function __ArrayMultiple($arOrder, &$arResult, $arTuple, $arTemp = array())
+	protected static function __ArrayMultiple($arOrder, &$arResult, $arTuple, $arTemp = array())
 	{
 		if (empty($arTuple))
 		{
@@ -3517,7 +3518,7 @@ class CAllCatalogDiscount
 		return eval('return '.$strUnpack.';');
 	}
 
-	protected function __ConvertOldConditions($strAction, &$arFields)
+	protected static function __ConvertOldConditions($strAction, &$arFields)
 	{
 		$strAction = ToUpper($strAction);
 		if (!is_set($arFields, 'CONDITIONS'))
@@ -3571,7 +3572,7 @@ class CAllCatalogDiscount
 		}
 	}
 
-	protected function __ConvertOldOneEntity(&$arFields, $strEntityID)
+	protected static function __ConvertOldOneEntity(&$arFields, $strEntityID)
 	{
 		$arResult = false;
 		if (!empty($strEntityID))
@@ -3598,7 +3599,7 @@ class CAllCatalogDiscount
 		return $arResult;
 	}
 
-	protected function __AddOldOneEntity(&$arConditions, $strCondID, $arEntityValues, $boolOneEntity)
+	protected static function __AddOldOneEntity(&$arConditions, $strCondID, $arEntityValues, $boolOneEntity)
 	{
 		if (!empty($strCondID))
 		{
@@ -3657,7 +3658,7 @@ class CAllCatalogDiscount
 		}
 	}
 
-	protected function __GetConditionValues(&$arFields)
+	protected static function __GetConditionValues(&$arFields)
 	{
 		$arResult = false;
 		if (isset($arFields['CONDITIONS']) && !empty($arFields['CONDITIONS']))
@@ -3688,7 +3689,7 @@ class CAllCatalogDiscount
 		return $arResult;
 	}
 
-	protected function __GetOldOneEntity(&$arFields, &$arCondList, $strEntityID, $strCondID)
+	protected static function __GetOldOneEntity(&$arFields, &$arCondList, $strEntityID, $strCondID)
 	{
 		if (is_array($arCondList) && !empty($arCondList))
 		{
@@ -3713,7 +3714,7 @@ class CAllCatalogDiscount
 		}
 	}
 
-	protected function __UpdateOldOneEntity($intID, &$arFields, $arParams, $boolUpdate)
+	protected static function __UpdateOldOneEntity($intID, &$arFields, $arParams, $boolUpdate)
 	{
 		global $DB;
 

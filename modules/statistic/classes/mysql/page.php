@@ -2,7 +2,7 @@
 
 class CPage
 {
-	public static function GetDynamicList($URL, &$by, &$order, $arFilter=Array())
+	public static function GetDynamicList($URL, $by = 's_date', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -48,11 +48,11 @@ class CPage
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "DATE1":
@@ -78,14 +78,12 @@ class CPage
 			$strSqlOrder = "ORDER BY D.DATE_STAT";
 		else
 		{
-			$by = "s_date";
 			$strSqlOrder = "ORDER BY D.DATE_STAT";
 		}
 
 		if ($order != "asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order = "desc";
 		}
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
@@ -112,7 +110,7 @@ class CPage
 		return $res;
 	}
 
-	public static function GetList($COUNTER_TYPE, &$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetList($COUNTER_TYPE, $by = 's_counter', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -158,11 +156,11 @@ class CPage
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "DATE1":
@@ -213,14 +211,12 @@ class CPage
 			$strSqlOrder = "ORDER BY COUNTER";
 		else
 		{
-			$by = "s_counter";
 			$strSqlOrder = "ORDER BY COUNTER desc, V.URL";
 		}
 
 		if ($order!="asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 
 		$strSql = "
@@ -246,7 +242,7 @@ class CPage
 			";
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch) || $strSqlSearch_h <> '');
+
 		return $res;
 	}
 }

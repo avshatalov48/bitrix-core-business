@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CFormValidatorDateEx
 {
-	function GetDescription()
+	public static function GetDescription()
 	{
 		return array(
 			"NAME" => "date_ext", // unique validator string ID
@@ -16,7 +17,7 @@ class CFormValidatorDateEx
 		);
 	}
 
-	function GetSettings()
+	public static function GetSettings()
 	{
 		return array(
 			"DATE_FROM" => array(
@@ -33,7 +34,7 @@ class CFormValidatorDateEx
 		);
 	}
 
-	function ToDB($arParams)
+	public static function ToDB($arParams)
 	{
 		if ($arParams["DATE_FROM"] <> '') $arParams["DATE_FROM"] = MakeTimeStamp($arParams["DATE_FROM"]);
 		if ($arParams["DATE_TO"] <> '') $arParams["DATE_TO"] = MakeTimeStamp($arParams["DATE_TO"]);
@@ -48,16 +49,16 @@ class CFormValidatorDateEx
 		return serialize($arParams);
 	}
 
-	function FromDB($strParams)
+	public static function FromDB($strParams)
 	{
-		$arParams = unserialize($strParams);
+		$arParams = unserialize($strParams, ['allowed_classes' => false]);
 		if ($arParams["DATE_FROM"] <> '') $arParams["DATE_FROM"] = ConvertTimeStamp($arParams["DATE_FROM"], "SHORT");
 		if ($arParams["DATE_TO"] <> '') $arParams["DATE_TO"] = ConvertTimeStamp($arParams["DATE_TO"], "SHORT");
 
 		return $arParams;
 	}
 
-	function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
+	public static function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
 	{
 		global $APPLICATION;
 
@@ -83,4 +84,3 @@ class CFormValidatorDateEx
 }
 
 AddEventHandler("form", "onFormValidatorBuildList", array("CFormValidatorDateEx", "GetDescription"));
-?>

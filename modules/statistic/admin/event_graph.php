@@ -37,8 +37,7 @@ $arF = array(
 	"SUMMA"		=> $find_summa
 	);
 $arrDays = CStatEventType::GetGraphArray($arF, $arrLegend);
-reset($arrDays);
-while (list($keyD,$arD) = each($arrDays))
+foreach ($arrDays as $keyD => $arD)
 {
 	$date = mktime(0,0,0,$arD["M"],$arD["D"],$arD["Y"]);
 	$date_tmp = 0;
@@ -49,8 +48,7 @@ while (list($keyD,$arD) = each($arrDays))
 		while ($date_tmp<$date)
 		{
 			$arrX[] = $date_tmp;
-			reset($arrLegend);
-			while(list($keyL, $arrL) = each($arrLegend))
+			foreach ($arrLegend as $keyL => $arrL)
 			{
 				$arrY_data[$keyL][] = 0;
 				$arrY[] = 0;
@@ -59,8 +57,7 @@ while (list($keyD,$arD) = each($arrDays))
 		}
 	}
 	$arrX[] = $date;
-	reset($arrLegend);
-	while(list($keyL, $arrL) = each($arrLegend))
+	foreach ($arrLegend as $keyL => $arrL)
 	{
 		if ($arrL["COUNTER_TYPE"]=="DETAIL")
 		{
@@ -95,8 +92,7 @@ DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle);
 			Plot
 *******************************************************/
 
-reset($arrLegend);
-while(list($keyL, $arrL) = each($arrLegend))
+foreach ($arrLegend as $keyL => $arrL)
 {
 	if ($keyL <> '')
 	{

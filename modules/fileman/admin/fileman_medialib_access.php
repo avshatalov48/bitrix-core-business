@@ -31,9 +31,10 @@ $ctRes = CMedialib::GetCollectionTree(array('CheckAccessFunk' => '__CanDoAccess'
 $curColId = isset($col_id, $ctRes['Collections'][$col_id]) ? intval($col_id) : 0;
 //Fetch groups
 $arGroups = array();
-$db_groups = CGroup::GetList($order="sort", $by="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
+$db_groups = CGroup::GetList("sort", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 while($arRes = $db_groups->Fetch())
 	$arGroups[] = $arRes;
+$i = 0;
 
 if($REQUEST_METHOD=="POST" && $saveperm <> '' && check_bitrix_sessid()) // TODO: access
 {
@@ -76,10 +77,9 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $tabControl->Begin();
 ?>
 <?$tabControl->BeginNextTab();?>
-
 <tr>
 	<td colspan="2">
-		<?= GetMessage('ML_SELECT_COLLECTION')?>: <select name="col_id" id="item_cols_sel_<?=$i?>" onchange="colsOnChange(this);">
+		<?= GetMessage('ML_SELECT_COLLECTION')?>: <select name="col_id" id="item_cols_sel_<?=(int)$i?>" onchange="colsOnChange(this);">
 		<option value="0"><?= GetMessage('ML_ACCESS_FOR_ALL')?></option>
 		<?= CMedialib::_BuildCollectionsSelectOptions($ctRes['Collections'], $ctRes['arColTree'], 0, $curColId)?></select>
 	</td>

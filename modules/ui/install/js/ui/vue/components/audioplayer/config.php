@@ -15,6 +15,7 @@ return [
 		'main.polyfill.core',
 		'main.polyfill.intersectionobserver',
 		'ui.vue',
+		'main.core.events',
 	],
 	'skip_core' => true,
 ];

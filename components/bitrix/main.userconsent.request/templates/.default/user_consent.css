@@ -14,13 +14,15 @@
 }
 
 .main-user-consent-request-popup-cont {
-	min-height: 290px; /* loader magic */
+	min-height: 290px;
 	position: absolute;
 	top: 50%;
 	left: 50%;
 	margin: 0 auto;
 	padding: 20px;
 	min-width: 320px;
+	width: 100%;
+	max-width: 600px;
 	background: #fff;
 	text-align: center;
 	-webkit-transform: translate(-50%, -50%);
@@ -104,7 +106,6 @@
 	border: 1px solid #999;
 	overflow: auto;
 	padding: 8px;
-	width: 600px;
 	text-align: left;
 	color: rgb(84, 84, 84);
 }
@@ -207,5 +208,11 @@
 	}
 	.main-user-consent-request-popup-link a {
 		max-width: 200px;
+	}
+}
+
+@media (max-width: 768px) {
+	.main-user-consent-request-popup-cont {
+		height: 100%;
 	}
 }

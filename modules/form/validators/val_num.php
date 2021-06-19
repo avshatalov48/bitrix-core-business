@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CFormValidatorNumber
 {
-	function GetDescription()
+	public static function GetDescription()
 	{
 		return array(
 			"NAME" => "number", // validator string ID
@@ -13,7 +14,7 @@ class CFormValidatorNumber
 		);
 	}
 
-	function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
+	public static function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
 	{
 		global $APPLICATION;
 

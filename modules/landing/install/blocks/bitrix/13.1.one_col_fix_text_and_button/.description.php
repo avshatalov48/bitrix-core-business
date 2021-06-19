@@ -6,34 +6,38 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
-return array(
-	'block' => array(
+return [
+	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_6_ONE_COL_FIX_TEXT_AND_BUTTON_NAME'),
-		'section' => array('tiles', 'recommended'),
-	),
-	'cards' => array(),
-	'nodes' => array(
-		'.landing-block-node-text' => array(
+		'section' => ['tiles'],
+	],
+	'cards' => [],
+	'nodes' => [
+		'.landing-block-node-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_6_ONE_COL_FIX_TEXT_AND_BUTTON_NODES_LANDINGBLOCKNODETEXT'),
 			'type' => 'text',
-		),
-		'.landing-block-node-button' => array(
+		],
+		'.landing-block-node-button' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_6_ONE_COL_FIX_TEXT_AND_BUTTON_NODES_LANDINGBLOCKNODEBUTTON'),
 			'type' => 'link',
-		),
-	),
-	'style' => array(
-		'.landing-block-node-text' => array(
+		],
+	],
+	'style' => [
+		'.landing-block-node-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_6_ONE_COL_FIX_TEXT_AND_BUTTON_STYLE_LANDINGBLOCKNODETEXT'),
 			'type' => 'typo',
-		),
-		'.landing-block-node-button' => array(
+		],
+		'.landing-block-node-button' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_6_ONE_COL_FIX_TEXT_AND_BUTTON_NODES_LANDINGBLOCKNODEBUTTON'),
 			'type' => 'button',
-		),
-		'.landing-block-node-button-container' => array(
+		],
+		'.landing-block-node-button-container' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_6_ONE_COL_FIX_TEXT_AND_BUTTON_NODES_LANDINGBLOCKNODEBUTTON'),
 			'type' => 'text-align',
-		),
-	),
-);
+		],
+		'.landing-block-node-container' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_6_ONE_COL_FIX_TEXT_AND_BUTTON_CONTAINER'),
+			'type' => ['container'],
+		],
+	],
+];

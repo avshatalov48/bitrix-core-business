@@ -1,4 +1,4 @@
-<?
+<?php
 /**********************************************************************/
 /**    DO NOT MODIFY THIS FILE                                       **/
 /**    MODIFICATION OF THIS FILE WILL ENTAIL SITE FAILURE            **/
@@ -169,7 +169,6 @@ class CUpdateClientPartner
 			return True;
 	}
 
-
 	public static function loadModule4Wizard($moduleId, $lang = false)
 	{
 		$errorMessage = "";
@@ -237,7 +236,6 @@ class CUpdateClientPartner
 			return "STP";
 		}
 	}
-
 
 	public static function LoadModuleNoDemand($moduleId, &$strError, $stableVersionsOnly = "Y", $lang = false)
 	{
@@ -1518,7 +1516,7 @@ class CUpdateClientPartner
 		return "U";
 	}
 
-	private function loadFile($requestedUrl, $realSize, $outputFilename, $timeout, &$errorMessage)
+	private static function loadFile($requestedUrl, $realSize, $outputFilename, $timeout, &$errorMessage)
 	{
 		$timeout = intval($timeout);
 		$startTime = 0;
@@ -2165,7 +2163,6 @@ class CUpdateClientPartner
 		return $content;
 	}
 
-
 	/** Проверяет на ошибки ответ сервера $strServerOutput **/
 	/** и парсит в массив $arRes                           **/
 	public static function __ParseServerData(&$strServerOutput, &$arRes, &$strError)
@@ -2240,7 +2237,7 @@ class CUpdateClientPartner
 
 	public static function __GetFooPath()
 	{
-		$db = CLang::GetList($by="", $order="", array("ACTIVE" => "Y"));
+		$db = CLang::GetList("", "", array("ACTIVE" => "Y"));
 		$cnt = 0;
 		while ($ar = $db->Fetch())
 			$cnt++;

@@ -15,7 +15,6 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/wiz
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/wizard/utils.php"); //Wizard utils
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client.php");
 require_once("tools/modulechecker.php");
-require_once("tools/persontypepreparer.php");
 require_once("tools/crmpackage.php");
 require_once("tools/sitepatcher.php");
 require_once("tools/agentchecker.php");
@@ -143,9 +142,6 @@ class SaleCrmSiteMaster extends \CBitrixComponent
 		return [
 			"Bitrix\Sale\CrmSiteMaster\Steps\B24ConnectorStep" => [
 				"SORT" => 320
-			],
-			"Bitrix\Sale\CrmSiteMaster\Steps\PersonTypeStep" => [
-				"SORT" => 330
 			],
 			"Bitrix\Sale\CrmSiteMaster\Steps\ActivationKeyStep" => [
 				"SORT" => 340
@@ -527,7 +523,6 @@ class SaleCrmSiteMaster extends \CBitrixComponent
 
 		$this->checkBitrixVm();
 		$this->checkAgents();
-		$this->checkPersonType();
 		$this->checkB24Connection();
 		$this->checkPushServer();
 
@@ -715,23 +710,6 @@ class SaleCrmSiteMaster extends \CBitrixComponent
 		$pathToOderList = Main\Config\Option::get('crm', 'path_to_order_list', '/shop/orders/');
 
 		return $siteUrl.$pathToOderList;
-	}
-
-	/**
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
-	private function checkPersonType()
-	{
-		$personTypePreparer = new Tools\PersonTypePreparer();
-
-		$personTypeList = $personTypePreparer->getPersonTypeList();
-
-		if ($personTypeList["NOT_MATCH"])
-		{
-			$this->addWizardStep("Bitrix\Sale\CrmSiteMaster\Steps\PersonTypeStep", 330);
-		}
 	}
 
 	/**

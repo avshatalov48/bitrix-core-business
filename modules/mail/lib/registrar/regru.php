@@ -192,6 +192,20 @@ class RegRu extends Registrar
 			}
 		}
 
+		\CModule::IncludeModule('mail');
+		$error = null;
+		$result = \CMailRegru::updateDns('bitrix', 'n3l6f8s6dfG!', 'dolganintest24.ru', [[
+			'action' => 'remove_record',
+			'record_type' => 'A',
+			'subdomain' => '@',
+		]], $error);
+		$error = null;
+		$result = \CMailRegru::updateDns('bitrix', 'n3l6f8s6dfG!', 'dolganintest24.ru', [[
+		     'action' => 'add_alias',
+		     'subdomain' => '@',
+		     'ipaddr' => '185.137.235.2'
+		 ]], $error);
+		var_dump($error);
 		$result = \CMailRegru::updateDns($user, $password, $domain, $params, $error);
 
 		if ($result !== false)

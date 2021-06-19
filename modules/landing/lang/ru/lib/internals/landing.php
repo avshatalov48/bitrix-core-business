@@ -32,6 +32,7 @@ $MESS['LANDING_TABLE_ERROR_PAGE_FOLDER_NOT_EMPTY'] = 'Папка не пуста
 $MESS['LANDING_TABLE_ERROR_LD_ACCESS_DENIED'] = 'Доступ на изменение страницы запрещен.';
 $MESS['LANDING_TABLE_ERROR_LD_ACCESS_DENIED_ADD'] = 'Доступ на создание страницы запрещен.';
 $MESS['LANDING_TABLE_ERROR_LD_ACCESS_DENIED_DELETED'] = 'Доступ на удаление страницы запрещен.';
+$MESS['LANDING_TABLE_ERROR_LD_IS_LOCK'] = 'Страница заблокирована на удаление.';
 $MESS['LANDING_TABLE_ERROR_LD_ACCESS_DENIED_ACTIVE'] = 'Доступ на публикацию страницы запрещен.';
 $MESS['LANDING_TABLE_ERROR_LD_CANT_DELETE_MAIN'] = 'Нельзя удалить страницу, установленную как главную в настройках сайта.';
 $MESS['LANDING_TABLE_ERROR_WRONG_CODE_FORMAT'] = 'Недопустимый адрес страницы';

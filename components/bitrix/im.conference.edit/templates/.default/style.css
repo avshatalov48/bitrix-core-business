@@ -104,6 +104,11 @@
 	margin-bottom: 20px;
 }
 
+.im-conference-create-delimiter-small {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
 .im-conference-create-invitation-title {
 	margin-bottom: 20px;
 	font-size: 14px;
@@ -199,8 +204,19 @@
 	box-sizing: border-box;
 }
 
-.im-conference-create-password-section {
+.im-conference-create-password-section,
+.im-conference-create-broadcast-section {
 	flex-direction: column;
+}
+
+.im-conference-create-broadcast-section-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.im-conference-create-broadcast-section-title .im-conference-create-label {
+    margin-bottom: 0;
 }
 
 .im-conference-create-field-inline {
@@ -216,8 +232,13 @@
 	margin-bottom: 0;
 }
 
-#im-conference-create-field-password-checkbox {
+#im-conference-create-field-password-checkbox,
+#im-conference-create-field-broadcast-checkbox{
 	margin: 0 7px 0 0;
+}
+
+.im-conference-create-label-broadcast {
+    margin-top: 12px;
 }
 
 .im-conference-create-planner-block {

@@ -60,13 +60,11 @@ class CPerfomanceKeeper
 				$perfmonErrors = array();
 				if (COption::GetOptionString("perfmon", "warning_log") === "Y")
 					set_error_handler("perfmonErrorHandler");
-
-				register_shutdown_function(array("CPerfomanceKeeper", "writeToDatabase"));
 			}
 		}
 	}
 
-	function setDebugModeOn()
+	public static function setDebugModeOn()
 	{
 		global $DB, $APPLICATION;
 
@@ -80,7 +78,7 @@ class CPerfomanceKeeper
 		$APPLICATION->ShowIncludeStat = true;
 	}
 
-	function restoreDebugMode()
+	public static function restoreDebugMode()
 	{
 		global $DB, $APPLICATION;
 
@@ -112,10 +110,11 @@ class CPerfomanceKeeper
 		if (defined("PERFMON_STARTED"))
 		{
 			self::restoreDebugMode();
+			CPerfomanceKeeper::writeToDatabase();
 		}
 	}
 
-	function writeToDatabase()
+	public static function writeToDatabase()
 	{
 		$START_EXEC_CURRENT_TIME = microtime();
 
@@ -349,7 +348,7 @@ class CPerfomanceKeeper
 		}
 	}
 
-	function removeQueries(&$arQueryDebug, &$arIncludeDebug, $slow_sql_time, $preserveComponents = false)
+	public static function removeQueries(&$arQueryDebug, &$arIncludeDebug, $slow_sql_time, $preserveComponents = false)
 	{
 		if (is_array($arQueryDebug))
 		{
@@ -391,7 +390,7 @@ class CPerfomanceKeeper
 		}
 	}
 
-	function countQueries(&$query_count, &$query_time, $arQueryDebug, $arIncludeDebug)
+	public static function countQueries(&$query_count, &$query_time, $arQueryDebug, $arIncludeDebug)
 	{
 		$query_count = 0;
 		$query_time = 0.0;
@@ -418,7 +417,7 @@ class CPerfomanceKeeper
 		}
 	}
 
-	function countComponents(&$comps_count, &$comps_time, $arIncludeDebug)
+	public static function countComponents(&$comps_count, &$comps_time, $arIncludeDebug)
 	{
 		$comps_count = 0;
 		$comps_time = 0.0;
@@ -433,7 +432,7 @@ class CPerfomanceKeeper
 		}
 	}
 
-	function removeCaches($large_cache_size, &$arCacheDebug, &$arIncludeDebug)
+	public static function removeCaches($large_cache_size, &$arCacheDebug, &$arIncludeDebug)
 	{
 		if (is_array($arCacheDebug))
 		{
@@ -480,7 +479,7 @@ class CPerfomanceKeeper
 		}
 	}
 
-	function countCache($arCacheDebug, &$cache_count)
+	public static function countCache($arCacheDebug, &$cache_count)
 	{
 		if (is_array($arCacheDebug))
 		{
@@ -489,7 +488,7 @@ class CPerfomanceKeeper
 		}
 	}
 
-	function findCaller($trace, &$module_id, &$comp_id)
+	public static function findCaller($trace, &$module_id, &$comp_id)
 	{
 		$module_id = false;
 		$comp_id = false;
@@ -526,7 +525,7 @@ class CPerfomanceKeeper
 		}
 	}
 
-	function saveQueries($HIT_ID, $COMP_ID, $arQueryDebug, &$NN)
+	public static function saveQueries($HIT_ID, $COMP_ID, $arQueryDebug, &$NN)
 	{
 		global $DB;
 
@@ -565,7 +564,7 @@ class CPerfomanceKeeper
 		}
 	}
 
-	function saveCaches($HIT_ID, $COMP_ID, $arCacheDebug, &$NN)
+	public static function saveCaches($HIT_ID, $COMP_ID, $arCacheDebug, &$NN)
 	{
 		global $DB;
 

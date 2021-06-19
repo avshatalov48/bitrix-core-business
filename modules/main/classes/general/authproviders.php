@@ -98,31 +98,6 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		}
 	}
 
-	/**
-	 * @todo Remove later.
-	 * @param $USER_ID
-	 */
-	public static function OnUserLogin($USER_ID)
-	{
-		global $USER;
-
-		$arGroups = $USER->GetUserGroupArray();
-
-		$arCodes = array();
-		$res = CAccess::GetUserCodes($USER_ID, array("PROVIDER_ID" => self::ID));
-		while($arCode = $res->Fetch())
-		{
-			$arCodes[] = substr($arCode["ACCESS_CODE"], 1);
-		}
-
-		sort($arCodes);
-
-		if($arCodes <> $arGroups)
-		{
-			CAccess::RecalculateForUser($USER_ID, self::ID);
-		}
-	}
-
 	public function AjaxRequest()
 	{
 		global $USER;
@@ -137,9 +112,7 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		
 		$search = urldecode($_REQUEST['search']);
 		
-		$by = "sort";
-		$order = "";
-		$dbRes = CGroup::GetList($by, $order, array("ANONYMOUS"=>"N", "NAME"=>$search));
+		$dbRes = CGroup::GetList('sort', 'asc', array("ANONYMOUS"=>"N", "NAME"=>$search));
 		$dbRes->NavStart(13);
 		while ($arGroup = $dbRes->NavNext(false))
 		{
@@ -171,9 +144,7 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		
 		$arLRU = CAccess::GetLastRecentlyUsed($this->id);
 
-		$by = "sort";
-		$order = "";
-		$res = CGroup::GetList($by, $order, array("ANONYMOUS"=>"N"));
+		$res = CGroup::GetList('sort', 'asc', array("ANONYMOUS"=>"N"));
 		while($arGroup = $res->Fetch())
 		{
 			$arItem = array(
@@ -218,9 +189,7 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		if(!empty($aID))
 		{
 			$arResult = array();
-			$by = "id";
-			$order = "";
-			$res = CGroup::GetList($by, $order, array("ANONYMOUS"=>"N", "ID"=>implode("|", $aID)));
+			$res = CGroup::GetList('id', 'asc', array("ANONYMOUS"=>"N", "ID"=>implode("|", $aID)));
 			while($arGroup = $res->Fetch())
 			{
 				$arResult["G".$arGroup["ID"]] = array("provider" => GetMessage("authprov_group_prov"), "name"=>$arGroup["NAME"]);
@@ -284,9 +253,7 @@ class CUserAuthProvider extends CAuthProvider implements IProviderInterface
 		}
 
 		//be careful with field list because of CUser::FormatName()
-		$by = 'last_name';
-		$order = 'asc';
-		$dbRes = CUser::GetList($by, $order,
+		$dbRes = CUser::GetList('last_name', 'asc',
 			$arFilter,
 			array(
 				"FIELDS" => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL'),
@@ -329,9 +296,7 @@ class CUserAuthProvider extends CAuthProvider implements IProviderInterface
 			$nameFormat = CSite::GetNameFormat(false);
 
 			//be careful with field list because of CUser::FormatName()
-			$by = "LAST_NAME";
-			$order = "asc";
-			$res = CUser::GetList($by, $order,
+			$res = CUser::GetList("LAST_NAME", "asc",
 				array("ID" => implode("|", $arLRU)),
 				array("FIELDS" => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL'))
 			);
@@ -378,9 +343,7 @@ class CUserAuthProvider extends CAuthProvider implements IProviderInterface
 
 			$arResult = array();
 			//be careful with field list because of CUser::FormatName()
-			$by = "id";
-			$order = "";
-			$res = CUser::GetList($by, $order,
+			$res = CUser::GetList('id', 'asc',
 				array("ID" => implode("|", $aID)),
 				array("FIELDS" => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL'))
 			);
@@ -395,17 +358,6 @@ class CUserAuthProvider extends CAuthProvider implements IProviderInterface
 			return $arResult;
 		}
 		return false;
-	}
-
-	public static function OnUserLogin($USER_ID)
-	{
-		$res = CAccess::GetUserCodes($USER_ID, array("PROVIDER_ID" => self::ID));
-		$arCode = $res->Fetch();
-
-		if(!$arCode)
-		{
-			CAccess::RecalculateForUser($USER_ID, self::ID);
-		}
 	}
 }
 

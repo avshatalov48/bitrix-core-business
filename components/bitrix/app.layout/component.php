@@ -312,6 +312,23 @@ if(
 					&& $arResult['AUTH']['error_description'] == 'Subscription has been ended'
 				)
 				{
+					if (\Bitrix\Main\Loader::includeModule('ui'))
+					{
+						$code = Access::getHelperCode(
+							Access::ACTION_OPEN,
+							Access::ENTITY_TYPE_APP,
+							$arResult['APP_ID']
+						);
+						if ($code !== '')
+						{
+							$arResult['HELPER_DATA']['TEMPLATE_URL'] = \Bitrix\UI\InfoHelper::getUrl();
+							$arResult['HELPER_DATA']['URL'] = str_replace(
+								'/code/',
+								'/' . $code . '/',
+								$arResult['HELPER_DATA']['TEMPLATE_URL']
+							);
+						}
+					}
 					$arResult['PAYMENT_TYPE'] = \Bitrix\Rest\AppTable::STATUS_SUBSCRIPTION;
 					$componentPage = 'payment';
 					$this->IncludeComponentTemplate($componentPage);
@@ -535,19 +552,18 @@ if(
 		}
 
 		$componentPage = '';
-		if(
+		if (
 			$arResult['APP_STATUS']['PAYMENT_EXPIRED'] === 'Y'
-			||
-			(
-				$arResult['APP_STATUS']['STATUS'] === \Bitrix\Rest\AppTable::STATUS_SUBSCRIPTION
-				&& !\Bitrix\Rest\Marketplace\Client::isSubscriptionAvailable()
+			&& (
+				$arResult['APP_STATUS']['STATUS'] === \Bitrix\Rest\AppTable::STATUS_TRIAL
+				|| $arResult['APP_STATUS']['STATUS'] === \Bitrix\Rest\AppTable::STATUS_PAID
 			)
+			&& \Bitrix\Rest\Marketplace\Client::isSubscriptionAvailable()
 		)
 		{
 			$componentPage = 'payment';
 		}
-
-		if (
+		elseif (
 			!Access::isAvailable($arApp['CODE'])
 			|| (Access::needCheckCount() && !Access::isAvailableCount(Access::ENTITY_TYPE_APP, $arApp['CODE']))
 		)
@@ -567,6 +583,34 @@ if(
 					);
 				}
 			}
+		}
+		elseif (
+			$arResult['APP_STATUS']['PAYMENT_EXPIRED'] === 'Y'
+			||
+			(
+				$arResult['APP_STATUS']['STATUS'] === \Bitrix\Rest\AppTable::STATUS_SUBSCRIPTION
+				&& !\Bitrix\Rest\Marketplace\Client::isSubscriptionAvailable()
+			)
+		)
+		{
+			if (\Bitrix\Main\Loader::includeModule('ui'))
+			{
+				$code = Access::getHelperCode(
+					Access::ACTION_OPEN,
+					Access::ENTITY_TYPE_APP,
+					$arResult['APP_ID']
+				);
+				if ($code !== '')
+				{
+					$arResult['HELPER_DATA']['TEMPLATE_URL'] = \Bitrix\UI\InfoHelper::getUrl();
+					$arResult['HELPER_DATA']['URL'] = str_replace(
+						'/code/',
+						'/' . $code . '/',
+						$arResult['HELPER_DATA']['TEMPLATE_URL']
+					);
+				}
+			}
+			$componentPage = 'payment';
 		}
 
 		$this->IncludeComponentTemplate($componentPage);

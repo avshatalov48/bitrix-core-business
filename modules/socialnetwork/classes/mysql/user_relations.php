@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/user_relations.php");
 
 class CSocNetUserRelations extends CAllSocNetUserRelations
@@ -6,7 +7,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -64,7 +65,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 		return $ID;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -360,7 +361,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 		return $dbRes;
 	}
 
-	function GetListBirthday($userID, $number = 5, $online_interval = 120)
+	public static function GetListBirthday($userID, $number = 5, $online_interval = 120)
 	{
 		global $DB;
 
@@ -393,7 +394,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 		return $DB->Query($strSql);
 	}
 
-	function GetRelationsTop($userID, $number = 100)
+	public static function GetRelationsTop($userID, $number = 100)
 	{
 		global $DB;
 
@@ -413,4 +414,3 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 		return $DB->Query($strSql);
 	}
 }
-?>

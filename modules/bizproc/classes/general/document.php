@@ -860,36 +860,6 @@ class CBPDocument
 
 		if (mode == "only_users")
 		{
-			if (BX.getClass('BX.Bizproc.UserSelector') && BX.Bizproc.UserSelector.canUse())
-			{
-				var controlNode = BX(id);
-				if (controlNode.__userSelector)
-				{
-					controlNode.__userSelector.onBindClick();
-					return;
-				}
-
-				BX.Bizproc.UserSelector.loadData(function()
-				{
-					controlNode.__userSelector = new BX.Bizproc.UserSelector({
-						bindTo: controlNode,
-						addCallback: function(user)
-						{
-							var prefix = '';
-							if (controlNode.value.length > 0 && !/;\s*$/.test(controlNode.value))
-							{
-								prefix = '; ';
-							}
-
-							controlNode.value += prefix + user['name'] + ' ['+user['id']+']; ';
-						}
-					});
-					controlNode.__userSelector.onBindClick();
-				});
-				controlNode.__userSelector = true;
-				return;
-			}
-
 			BX.WindowManager.setStartZIndex(1150);
 			(new BX.CDialog({
 				'content_url': contentUrl,

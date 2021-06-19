@@ -372,6 +372,63 @@ class Manager
 	/**
 	 * @param int $shipmentId
 	 * @param int $deliveryId
+	 * @param string $currency
+	 * @return Base[]
+	 * @throws SystemException
+	 */
+	public static function getObjectsForShipment(int $shipmentId, int $deliveryId, string $currency): array
+	{
+		$result = [];
+
+		$extraServiceValuesList = ShipmentExtraServiceTable::getList(
+			[
+				'filter' => [
+					'=SHIPMENT_ID' => $shipmentId,
+					'!=ID' => self::getStoresValueId($deliveryId)
+				],
+				'select' => [
+					'*',
+					'EXTRA_SERVICE',
+				]
+			]
+		);
+
+		while ($extraServiceValue = $extraServiceValuesList->fetchObject())
+		{
+			$extraService = $extraServiceValue->getExtraService();
+
+			$className = $extraService->getClassName();
+
+			/** @var Base $extraServiceValue */
+			$extraServiceInstance = new $className(
+				$extraService->getId(),
+				[
+					'NAME' => $extraService->getName(),
+					'PARAMS' => $extraService->getParams()
+				],
+				$currency,
+				$extraServiceValue->getValue()
+			);
+
+			if (!$extraServiceInstance instanceof Base)
+			{
+				throw new SystemException(
+					sprintf(
+						'Object is not of expected type: %s',
+						Base::class
+					)
+				);
+			}
+
+			$result[$extraServiceValue['EXTRA_SERVICE_ID']] = $extraServiceInstance;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param int $shipmentId
+	 * @param int $deliveryId
 	 * @return int
 	 */
 	public static function getStoreIdForShipment($shipmentId, $deliveryId)

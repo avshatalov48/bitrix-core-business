@@ -8,6 +8,8 @@ import "../css/icalpopup.css"
 
 export default class IcalSyncPopup
 {
+	LINK_LENGTH = 112;
+
 	constructor(options)
 	{
 		this.link = this.getIcalLink(options);
@@ -92,7 +94,9 @@ export default class IcalSyncPopup
 	{
 		return Tag.render`
 				<div class="calendar-ical-popup-link-block">
-					<a class="ui-link ui-link-primary " target="_blank" href="${BX.util.htmlspecialchars(this.link)}">${BX.util.htmlspecialchars(this.link)}</a>
+					<a class="ui-link ui-link-primary " target="_blank" href="${BX.util.htmlspecialchars(this.link)}">
+						${BX.util.htmlspecialchars(this.getShortenLink(this.link))}
+					</a>
 				</div>
 			`;
 	}
@@ -117,5 +121,10 @@ export default class IcalSyncPopup
 		window.BX.clipboard.copy(this.link);
 		event.preventDefault();
 		event.stopPropagation();
+	}
+
+	getShortenLink(link)
+	{
+		return link.length < this.LINK_LENGTH ? link : link.substr(0, 105) + '...' + link.slice(-7);
 	}
 }

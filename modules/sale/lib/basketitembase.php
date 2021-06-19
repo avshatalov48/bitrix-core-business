@@ -48,6 +48,22 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	}
 
 	/**
+	 * @param $xmlId
+	 * @return $this|null
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 */
+	public function findItemByXmlId($xmlId)
+	{
+		if ((string)$this->getField('XML_ID') === (string)$xmlId)
+		{
+			return $this;
+		}
+
+		return null;
+	}
+
+	/**
 	 * @return string|void
 	 */
 	public static function getRegistryEntity()
@@ -708,13 +724,28 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 			{
 				if ($deltaQuantity > 0)
 				{
-					$mess = Localization\Loc::getMessage(
-						'SALE_BASKET_AVAILABLE_FOR_PURCHASE_QUANTITY',
-						[
-							'#PRODUCT_NAME#' => $this->getField('NAME'),
-							'#AVAILABLE_QUANTITY#' => $availableQuantity
-						]
-					);
+					$canAddCount = $availableQuantity - $oldValue;
+					if ($canAddCount > 0)
+					{
+						$mess = Localization\Loc::getMessage(
+							'SALE_BASKET_AVAILABLE_FOR_ADDING_QUANTITY_IS_LESS',
+							[
+								'#PRODUCT_NAME#' => $this->getField('NAME'),
+								'#QUANTITY#' => $oldValue,
+								'#ADD#' => $canAddCount,
+							]
+						);
+					}
+					else
+					{
+						$mess = Localization\Loc::getMessage(
+							'SALE_BASKET_AVAILABLE_FOR_ADDING_QUANTITY_IS_ZERO',
+							[
+								'#PRODUCT_NAME#' => $this->getField('NAME'),
+								'#QUANTITY#' => $oldValue,
+							]
+						);
+					}
 				}
 				else
 				{
@@ -806,7 +837,10 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 				$result->addWarnings($r->getWarnings());
 			}
 
-			if (($name === 'BASE_PRICE') || ($name === 'DISCOUNT_PRICE'))
+			if (
+				$name === 'BASE_PRICE'
+				|| $name === 'DISCOUNT_PRICE'
+			)
 			{
 				if (!$this->isCustomPrice())
 				{
@@ -936,7 +970,7 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	 */
 	public function getProductId()
 	{
-		return $this->getField('PRODUCT_ID');
+		return (int)$this->getField('PRODUCT_ID');
 	}
 
 	/**

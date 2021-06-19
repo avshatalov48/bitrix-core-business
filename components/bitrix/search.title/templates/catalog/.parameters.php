@@ -79,7 +79,7 @@ if (CModule::IncludeModule('catalog') && CModule::IncludeModule('currency'))
 	if (isset($arCurrentValues['CONVERT_CURRENCY']) && 'Y' == $arCurrentValues['CONVERT_CURRENCY'])
 	{
 		$arCurrencyList = array();
-		$rsCurrencies = CCurrency::GetList(($by = 'SORT'), ($order = 'ASC'));
+		$rsCurrencies = CCurrency::GetList('SORT', 'ASC');
 		while ($arCurrency = $rsCurrencies->Fetch())
 		{
 			$arCurrencyList[$arCurrency['CURRENCY']] = $arCurrency['CURRENCY'];

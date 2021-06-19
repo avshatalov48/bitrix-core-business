@@ -1,4 +1,5 @@
 import { Type, Dom, Reflection, Event, Tag, Text, userOptions, Loc } from 'main.core';
+import {EventEmitter} from 'main.core.events';
 
 import {Step} from './step.js';
 
@@ -45,9 +46,11 @@ export class Guide extends Event.EventEmitter
 			counterItems: []
 		};
 		this.buttons = options.buttons || "";
+		this.onEvents = options.onEvents || false;
 		this.currentStepIndex = 0;
 		this.targetPos = null;
 		this.clickOnBackBtn = false;
+		this.helper = BX.Helper;
 
 		this.finalStep = options.finalStep || false;
 		this.finalText = options.finalText || "";
@@ -152,9 +155,26 @@ export class Guide extends Event.EventEmitter
 	 */
 	close()
 	{
+		if (this.currentStepIndex === this.steps.length && this.onEvents)
+			return;
+
+		this.closeStep();
+
 		this.emit(this.constructor.getFullEventName("onFinish"), { guide: this});
 
 		this.getPopup().destroy();
+
+		if (this.getCursor())
+		{
+			Dom.remove(this.getCursor());
+			this.layout.cursor = null;
+		}
+
+		if (this.onEvents)
+		{
+			this.increaseCurrentStepIndex();
+		}
+
 		Dom.remove(this.layout.overlay);
 		Dom.removeClass(document.body, "ui-tour-body-overflow");
 
@@ -176,6 +196,7 @@ export class Guide extends Event.EventEmitter
 		this.layout.counter = null;
 		this.layout.currentCounter = null;
 		this.layout.counterItems = [];
+		this.popup = null;
 	}
 
 	/**
@@ -183,28 +204,7 @@ export class Guide extends Event.EventEmitter
 	 */
 	showStep()
 	{
-		let currentStep = this.getCurrentStep();
-		currentStep.emit(currentStep.constructor.getFullEventName("onShow"), {
-			step : currentStep,
-			guide: this
-		});
-
-		if (currentStep.getTarget())
-		{
-			let close = this.close.bind(this);
-			Event.bind(currentStep.getTarget(), 'click', close);
-
-			this.subscribe("UI.Tour.Guide:onFinish", () => {
-				Event.unbind(currentStep.getTarget(), 'click', close);
-			});
-
-			const targetPos = currentStep.getTarget().getBoundingClientRect();
-			const targetPosWindow = Dom.getPosition(currentStep.getTarget());
-			if (!this.isTargetVisible(targetPos))
-			{
-				this.scrollToTarget(targetPosWindow);
-			}
-		}
+		this.adjustEvents();
 
 		Dom.removeClass(this.popup.getPopupContainer(), "popup-window-ui-tour-opacity");
 
@@ -219,17 +219,94 @@ export class Guide extends Event.EventEmitter
 
 		this.setOverlayElementForm();
 
-		this.setCoords(this.getCurrentStep().getTarget());
+		if(this.getCurrentStep())
+		{
+			this.setCoords(this.getCurrentStep().getTarget());
+		}
 		this.setPopupData();
 	}
 
+	/**
+	 * @public
+	 */
+	showNextStep()
+	{
+		if (this.currentStepIndex === this.steps.length)
+		{
+			return;
+		}
+
+		if (this.getCurrentStep().getCursorMode())
+		{
+			this.showCursor();
+		}
+		else
+		{
+			const popup = this.getPopup();
+			popup.show();
+
+			if (popup.getPopupContainer())
+			{
+				Dom.removeClass(popup.getPopupContainer(), "popup-window-ui-tour-opacity");
+			}
+
+			if(this.getCurrentStep())
+			{
+				this.setCoords(this.getCurrentStep().getTarget());
+			}
+			this.setPopupData();
+		}
+
+		this.adjustEvents();
+
+		if (this.getCurrentStep() && this.getCurrentStep().getTarget())
+		{
+			Dom.addClass(this.getCurrentStep().getTarget(), 'ui-tour-selector');
+		}
+	}
+	/**
+	 * @private
+	 */
+	adjustEvents()
+	{
+		let currentStep = this.getCurrentStep();
+		currentStep.emit(currentStep.constructor.getFullEventName("onShow"), {
+			step : currentStep,
+			guide: this
+		});
+
+		if (currentStep.getTarget())
+		{
+			let close = this.close.bind(this);
+			const clickEvent = (e) => {
+				if (e.isTrusted) {
+					close();
+				}
+				EventEmitter.emit('UI.Tour.Guide:clickTarget', this);
+				Event.unbind(currentStep.getTarget(), 'click', clickEvent);
+			};
+
+			Event.bind(currentStep.getTarget(), 'click', clickEvent);
+
+			this.subscribe('UI.Tour.Guide:onFinish', () => {
+				Event.unbind(currentStep.getTarget(), 'click', close);
+			});
+
+			const targetPos = currentStep.getTarget().getBoundingClientRect();
+			const targetPosWindow = Dom.getPosition(currentStep.getTarget());
+			if (!this.isTargetVisible(targetPos))
+			{
+				this.scrollToTarget(targetPosWindow);
+			}
+		}
+	}
 	/**
 	 * @private
 	 */
 	closeStep()
 	{
 		const currentStep = this.getCurrentStep();
-		if(currentStep)
+		if (currentStep)
 		{
 			currentStep.emit(currentStep.constructor.getFullEventName("onClose"), {
 				step : currentStep,
@@ -246,7 +323,9 @@ export class Guide extends Event.EventEmitter
 
 	setPopupPosition()
 	{
-		if (!this.getCurrentStep().getTarget() || this.targetPos === null)
+		if (!this.getCurrentStep().getTarget()
+			|| this.targetPos === null
+			|| this.getCurrentStep().getPosition() === 'center')
 		{
 			this.getPopup().setBindElement(null);
 			this.getPopup().setOffset({ offsetLeft: 0, offsetTop: 0});
@@ -309,7 +388,10 @@ export class Guide extends Event.EventEmitter
 
 			if (this.getCurrentStep().getRounded())
 			{
-				offsetTop = - (this.layout.element.getAttribute("r") - this.targetPos.height / 2 + 10);
+				if (!this.onEvents)
+				{
+					offsetTop = - (this.layout.element.getAttribute("r") - this.targetPos.height / 2 + 10);
+				}
 				angleOffset = 0;
 				offsetLeft = this.targetPos.width / 2;
 			}
@@ -322,12 +404,31 @@ export class Guide extends Event.EventEmitter
 			else
 			{
 				offsetLeft = 25;
-				offsetTop = - (this.layout.element.getAttribute("height") / 2 - this.targetPos.height / 2 + 10);
+
+				if (!this.onEvents)
+				{
+					offsetTop = - (this.layout.element.getAttribute("height") / 2 - this.targetPos.height / 2 + 10);
+				}
+
 				angleOffset = 0;
 			}
 		}
 
-		this.getPopup().setBindElement(this.getCurrentStep().getTarget());
+		if(this.onEvents)
+		{
+			offsetTop = 0;
+			offsetLeft = -50;
+			angleOffset = 120;
+		}
+		
+		// console.log("this.target", this.getCurrentStep().getTarget());
+
+		let bindElement = this.getCurrentStep().getTarget();
+
+		if(this.getCurrentStep().getPosition() === 'center')
+			bindElement = window;
+
+		this.getPopup().setBindElement(bindElement);
 		this.getPopup().setOffset({offsetLeft: offsetLeft, offsetTop: -offsetTop});
 		this.getPopup().setAngle({position: anglePosition, offset: angleOffset});
 		this.getPopup().adjustPosition(bindOptions);
@@ -381,7 +482,7 @@ export class Guide extends Event.EventEmitter
 
 	handleResizeWindow()
 	{
-		if (this.layout.element)
+		if (this.layout.element && this.getCurrentStep())
 		{
 			this.setCoords(this.getCurrentStep().getTarget());
 		}
@@ -396,25 +497,32 @@ export class Guide extends Event.EventEmitter
 	{
 		if (!node)
 		{
-			this.layout.element.style.display = "none";
+			if(this.layout.element)
+			{
+				this.layout.element.style.display = "none";
+			}
 			return;
 		}
 
-		this.layout.element.style.display = "block";
 		this.targetPos = node.getBoundingClientRect();
 
-		if (this.getCurrentStep().getRounded())
+		if (this.layout.element)
 		{
-			this.layout.element.setAttribute('cx', this.targetPos.left + this.targetPos.width / 2);
-			this.layout.element.setAttribute('cy', this.targetPos.top + this.targetPos.height / 2);
-			this.layout.element.setAttribute('r', this.targetPos.width / 2 + this.getAreaPadding());
-		}
-		else
-		{
-			this.layout.element.setAttribute('x', this.targetPos.left - this.getAreaPadding());
-			this.layout.element.setAttribute('y', this.targetPos.top - this.getAreaPadding());
-			this.layout.element.setAttribute('width', this.targetPos.width + this.getAreaPadding()*2);
-			this.layout.element.setAttribute('height', this.targetPos.height + this.getAreaPadding()*2);
+			this.layout.element.style.display = "block";
+
+			if (this.getCurrentStep().getRounded())
+			{
+				this.layout.element.setAttribute('cx', this.targetPos.left + this.targetPos.width / 2);
+				this.layout.element.setAttribute('cy', this.targetPos.top + this.targetPos.height / 2);
+				this.layout.element.setAttribute('r', this.targetPos.width / 2 + this.getAreaPadding());
+			}
+			else
+			{
+				this.layout.element.setAttribute('x', this.targetPos.left - this.getAreaPadding());
+				this.layout.element.setAttribute('y', this.targetPos.top - this.getAreaPadding());
+				this.layout.element.setAttribute('width', this.targetPos.width + this.getAreaPadding()*2);
+				this.layout.element.setAttribute('height', this.targetPos.height + this.getAreaPadding()*2);
+			}
 		}
 	}
 
@@ -436,12 +544,11 @@ export class Guide extends Event.EventEmitter
 	{
 		this.currentStepIndex++;
 
-		if (this.currentStepIndex + 1 === this.steps.length && !this.finalStep)
+		if (this.currentStepIndex + 1 === this.steps.length && !this.finalStep && !this.onEvents)
 		{
 			setTimeout(function() {
 				this.layout.nextBtn.textContent = Loc.getMessage("JS_UI_TOUR_BUTTON_CLOSE");
 			}.bind(this), 200);
-
 		}
 	}
 
@@ -470,16 +577,42 @@ export class Guide extends Event.EventEmitter
 	 */
 	getPopup()
 	{
-		if (this.popup === null)
+		if (!this.popup)
 		{
+			let bindElement = window;
+
+			if(this.getCurrentStep())
+				bindElement = this.getCurrentStep().getTarget();
+
+			let className = 'popup-window-ui-tour popup-window-ui-tour-opacity';
+			this.onEvents
+				? className = className + ' popup-window-ui-tour-animate'
+				: null;
+
+			let buttons = [];
+
+			if(this.getCurrentStep().getButtons().length > 0)
+			{
+				this.getCurrentStep().getButtons().forEach((item)=> {
+					buttons.push(new BX.PopupWindowButton({
+						text: item.text,
+						className: 'ui-btn ui-btn-sm ui-btn-primary ui-btn-round',
+						events: {
+							click: Type.isFunction(item.event) ? item.event : null
+						}
+					}))
+				})
+			}
+
 			this.popup = new BX.PopupWindow({
 				content: this.getContent(),
-				bindElement: this.getCurrentStep().getTarget(),
-				className: 'popup-window-ui-tour popup-window-ui-tour-opacity',
+				bindElement: bindElement,
+				className: className,
+				autoHide: true,
 				offsetTop: 15,
 				offsetLeft: 30,
-				maxWidth: 420,
-				minWidth: 420,
+				maxWidth: this.onEvents ? 280 : 420,
+				minWidth: this.onEvents ? 280 : 420,
 				closeIcon: true,
 				bindOptions: {
 					forceTop: true,
@@ -487,10 +620,14 @@ export class Guide extends Event.EventEmitter
 					forceBindPosition: true
 				},
 				events: {
-					onPopupClose : () => {
+					onPopupClose : (popup) => {
+						if(popup.destroyed === false && this.onEvents)
+							EventEmitter.emit('UI.Tour.Guide:onPopupClose', this);
+
 						this.close();
 					}
-				}
+				},
+				buttons: buttons
 			});
 		}
 
@@ -504,19 +641,25 @@ export class Guide extends Event.EventEmitter
 	{
 		if (!this.layout.content)
 		{
+			let linkNode = '';
+			if(this.getCurrentStep().getLink() || this.getCurrentStep().getArticle())
+			{
+				linkNode = this.getLink();
+			}
 			this.layout.content = Tag.render`
-				<div class="ui-tour-popup ${this.simpleMode ? 'ui-tour-popup-simple' : ''}" >
+				<div class="ui-tour-popup ${this.simpleMode ? 'ui-tour-popup-simple' : ''} ${this.onEvents ? 'ui-tour-popup-events' : ''}" >
 					${this.getTitle()}
 					<div class="ui-tour-popup-content">
 						${this.getText()}
-						${this.getLink()}
+						${linkNode}
 					</div>
+					${linkNode}
 					<div class="ui-tour-popup-footer">
 						<div class="ui-tour-popup-index">
-							${this.getCounterItems()}
-							${this.getCurrentCounter()}
+							${this.onEvents ? '' : this.getCounterItems()}
+							${this.onEvents ? '' : this.getCurrentCounter()}
 						</div>
-						${this.getBtnContainer()}
+							${this.onEvents ? '' : this.getBtnContainer()}
 					</div>
 				</div>
 			`;
@@ -585,7 +728,21 @@ export class Guide extends Event.EventEmitter
 	handleClickLink()
 	{
 		event.preventDefault();
-		BX.Helper.show("redirect=detail&code=" + this.getCurrentStep().getArticle());
+
+		if(!this.helper)
+			this.helper = BX.Helper;
+
+		this.helper.show("redirect=detail&code=" + this.getCurrentStep().getArticle());
+
+		if(this.onEvent)
+		{
+			if(this.helper.isOpen())
+				this.getPopup().setAutoHide(false);
+
+			EventEmitter.subscribe(this.helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
+				this.getPopup().setAutoHide(true);
+			});
+		}
 	}
 
 	/**
@@ -623,7 +780,7 @@ export class Guide extends Event.EventEmitter
 	 */
 	getLink()
 	{
-		if (this.layout.link === null)
+		if (!this.layout.link)
 		{
 			this.layout.link = Tag.render`
 				<a target="_blank" href="" class="ui-tour-popup-link">
@@ -818,7 +975,7 @@ export class Guide extends Event.EventEmitter
 		this.popup = new BX.PopupWindow({
 			content: this.getFinalContent(),
 			className: 'popup-window-ui-tour-final',
-			offsetTop: 15,
+			offsetTop: this.onEvents ? 0 : 15,
 			offsetLeft: 35,
 			maxWidth: 430,
 			minWidth: 300
@@ -909,5 +1066,64 @@ export class Guide extends Event.EventEmitter
 	static getFullEventName(shortName)
 	{
 		return "UI.Tour.Guide:" + shortName;
+	}
+
+	showCursor()
+	{
+		this.setCursorPos();
+
+		setTimeout(function() {
+			this.animateCursor();
+		}.bind(this), 1000);
+	}
+
+	getCursor()
+	{
+		if (!this.layout.cursor)
+		{
+			this.layout.cursor = Tag.render`
+				<div class="ui-tour-cursor"></div>
+			`;
+			Event.bind(this.layout.cursor, 'transitionend', function() {
+				this.getCurrentStep().initTargetEvent();
+			}.bind(this));
+			Dom.append(this.layout.cursor, document.body);
+		}
+
+		return this.layout.cursor;
+	}
+
+	setCursorPos()
+	{
+		const targetPos = this.getCurrentStep().getTargetPos();
+
+		let left = targetPos.left + targetPos.width / 2;
+
+		if (left < 0)
+		{
+			left = 0;
+		}
+
+		this.cursorPaddingTop = 30;
+		let top = targetPos.bottom + this.cursorPaddingTop;
+
+		if (top < 0)
+		{
+			top = 0;
+		}
+
+		Dom.adjust(this.getCursor(), {
+			style: {
+				top: top + 'px',
+				left: left + 'px'
+			}
+		});
+
+	}
+
+	animateCursor()
+	{
+		const adjustment = this.cursorPaddingTop + this.getCurrentStep().getTargetPos().height / 2;
+		this.layout.cursor.style.transform = 'translateY(-' + adjustment + 'px)';
 	}
 }

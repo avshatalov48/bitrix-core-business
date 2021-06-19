@@ -822,15 +822,22 @@ ML_MESS.Save = '<?= GetMessageJS('ML_SAVE')?>';
 		return $arResCol;
 	}
 
-	public static function DelCollection($id, $arIds = array())
+	public static function DelCollection($id, $arIds = [])
 	{
 		if (!CMedialib::CanDoOperation('medialib_del_collection', $id))
-			return false;
-
-		for($i = 0, $l = count($arIds); $i < $l; $i++)
 		{
-			if (CMedialib::CanDoOperation('medialib_del_collection', $arIds[$i]))
-				CMedialibCollection::Delete($arIds[$i], false);
+			return false;
+		}
+
+		if (is_array($arIds))
+		{
+			for($i = 0, $l = count($arIds); $i < $l; $i++)
+			{
+				if (CMedialib::CanDoOperation('medialib_del_collection', $arIds[$i]))
+				{
+					CMedialibCollection::Delete($arIds[$i], false);
+				}
+			}
 		}
 
 		return CMedialibCollection::Delete($id);
@@ -1119,14 +1126,16 @@ ML_MESS.Save = '<?= GetMessageJS('ML_SAVE')?>';
 	{
 		global $DB;
 
-		if (count($Params['Cols']) > 0) // Del collections
+		if (is_array($Params['Cols']) && count($Params['Cols']) > 0) // Del collections
 		{
 			$strCols = "0";
 			for($i = 0, $l = count($Params['Cols']); $i < $l; $i++)
 			{
 				$colId = $Params['Cols'][$i];
 				if (CMedialib::CanDoOperation('medialib_del_collection', $colId)) // Access
+				{
 					$strCols .= ",".intval($colId);
+				}
 			}
 
 			if ($strCols != "0")
@@ -1139,16 +1148,20 @@ ML_MESS.Save = '<?= GetMessageJS('ML_SAVE')?>';
 			}
 		}
 
-		if (count($Params['Items']) > 0) // Del items
+		if (is_array($Params['Items']) && count($Params['Items']) > 0) // Del items
 		{
 			foreach($Params['Items'] as $colId => $arItems)
 			{
 				if (!CMedialib::CanDoOperation('medialib_del_item', $colId)) // Access
+				{
 					return false;
+				}
 
 				$strItems = "0";
 				for($i = 0, $l = count($arItems); $i < $l; $i++)
+				{
 					$strItems .= ",".intval($arItems[$i]);
+				}
 
 				$strSql = "DELETE FROM b_medialib_collection_item WHERE ITEM_ID IN (".$strItems.") AND COLLECTION_ID=".intval($colId);
 				$z = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);

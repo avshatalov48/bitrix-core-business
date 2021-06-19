@@ -50,9 +50,6 @@ export class BusyUsersDialog extends EventEmitter
 			// 		text: Loc.getMessage('EC_BUSY_USERS_CLOSE'),
 			// 		className: "popup-window-button-link-cancel",
 			// 		events: {click : () => {
-			// 			// if (this.simpleEntryPopup)
-			// 			// 	this.simpleEntryPopup.close();
-			// 			//
 			// 			// if (this.calendar.editSlider)
 			// 			// 	this.calendar.editSlider.close();
 			//

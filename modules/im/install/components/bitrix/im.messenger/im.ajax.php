@@ -265,13 +265,13 @@ elseif (
 	|| $_POST['IM_UPDATE_STATE_LIGHT'] == 'Y'
 )
 {
+	$arResult['LAST_UPDATE'] = (new \Bitrix\Main\Type\DateTime())->format(DateTimeInterface::RFC3339);
+
 	$arResult["REVISION"] = \Bitrix\Im\Revision::getWeb();
 	$arResult["MOBILE_REVISION"] = \Bitrix\Im\Revision::getMobile();
 	$arResult["DISK_REVISION"] = COption::GetOptionString("disk", "disk_revision_api", -1);
 
 	$arResult['SERVER_TIME'] = time();
-
-	$bOpenMessenger = isset($_POST['OPEN_MESSENGER']) && intval($_POST['OPEN_MESSENGER']) == 1? true: false;
 
 	// Online
 	$arOnline = CIMStatus::GetList();
@@ -293,18 +293,70 @@ elseif (
 		}
 	}
 
+	$arResult["INTRANET_USTAT_ONLINE_DATA"] = [];
+	if (
+		$_POST["IS_DESKTOP"] !== "Y"
+		&& CModule::IncludeModule("intranet")
+	)
+	{
+		$ustatOnline = new \Bitrix\Intranet\Component\UstatOnline;
+		if (!$ustatOnline->isFullAnimationMode())
+		{
+			$arResult["INTRANET_USTAT_ONLINE_DATA"] = $ustatOnline->getCurrentOnlineUserData();
+		}
+	}
+
+	$counters = \Bitrix\Im\Counter::get(null, ['JSON' => 'Y']);
+	$counters['type']['mail'] = (int)$arResult["MAIL_COUNTER"];
+
+	$isOperator = $_POST["IS_OPERATOR"] === 'Y';
+
+	$recent = [];
+	if (isset($_POST['RECENT_LAST_UPDATE']) && $_POST['RECENT_LAST_UPDATE'] !== 'N')
+	{
+		try
+		{
+			$lastUpdate = new \Bitrix\Main\Type\DateTime($_POST['RECENT_LAST_UPDATE'], DateTimeInterface::RFC3339);
+			$recent = \Bitrix\Im\Recent::get(null, [
+				'LAST_UPDATE' => $lastUpdate,
+				'SKIP_NOTIFICATION' => 'Y',
+				'SKIP_OPENLINES' => ($isOperator? 'Y': 'N'),
+				'JSON' => 'Y'
+			]);
+		}
+		catch (Exception $e){}
+	}
+
+	$linesList = [];
+	if (isset($_POST['LINES_LAST_UPDATE']) && $_POST['LINES_LAST_UPDATE'] !== 'N')
+	{
+		try
+		{
+			$lastUpdate = new \Bitrix\Main\Type\DateTime($_POST['LINES_LAST_UPDATE'], DateTimeInterface::RFC3339);
+			$linesList = \Bitrix\Im\Recent::get(null, [
+				'LAST_UPDATE' => $lastUpdate,
+				'ONLY_OPENLINES' => 'Y',
+				'JSON' => 'Y'
+			]);
+		}
+		catch (Exception $e){}
+	}
+
 	$arSend = [
 		'REVISION' => $arResult["REVISION"],
 		'MOBILE_REVISION' => $arResult["MOBILE_REVISION"],
 		'DISK_REVISION' => $arResult["DISK_REVISION"],
-		'RECENT' => \Bitrix\Im\Recent::get(null, ['JSON' => 'Y']),
-		'ONLINE' => !empty($arOnline)? $arOnline['users']: array(),
+		'RECENT' => $recent,
+		'LINES_LIST' => $linesList,
 		'COUNTERS' => $arResult["COUNTERS"],
-		'NOTIFY_COUNTER' => (int)\Bitrix\Im\Counter::getNotifyCounter(),
-		'MAIL_COUNTER' => (int)$arResult["MAIL_COUNTER"],
-		'SERVER_TIME' => time(),
+		'CHAT_COUNTERS' => $counters,
+		'NOTIFY_LAST_ID' => (new \Bitrix\Im\Notify())->getLastId(),
+		'ONLINE' => !empty($arOnline)? $arOnline['users']: array(),
 		'XMPP_STATUS' => CIMMessenger::CheckXmppStatusOnline()? 'Y':'N',
 		'DESKTOP_STATUS' => CIMMessenger::CheckDesktopStatusOnline()? 'Y':'N',
+		'INTRANET_USTAT_ONLINE_DATA' => $arResult["INTRANET_USTAT_ONLINE_DATA"],
+		'SERVER_TIME' => time(),
+		'LAST_UPDATE' => $arResult['LAST_UPDATE'],
 		'ERROR' => ""
 	];
 	echo \Bitrix\Im\Common::objectEncode($arSend, true);
@@ -695,10 +747,12 @@ else if ($_POST['IM_LOAD_LAST_MESSAGE'] == 'Y')
 	else
 	{
 		$networkUserId = 0;
-		if (mb_substr($_POST['USER_ID'], 0, 12) == 'networkLines' && CModule::IncludeModule('imopenlines'))
+		if (
+			mb_substr($_POST['USER_ID'], 0, 12) == 'networkLines'
+			&& CModule::IncludeModule('imbot')
+		)
 		{
-			$network = new \Bitrix\ImOpenLines\Network();
-			$userId = $network->join(mb_substr($_POST['USER_ID'], 12));
+			$userId = \Bitrix\ImBot\Bot\Network::join(mb_substr($_POST['USER_ID'], 12));
 			if ($userId > 0)
 			{
 				$networkUserId = $_POST['USER_ID'];

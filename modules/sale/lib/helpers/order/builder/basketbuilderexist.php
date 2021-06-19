@@ -54,7 +54,7 @@ class BasketBuilderExist implements IBasketBuilderDelegate
 		if ($basketCode != $productData["BASKET_CODE"])
 			$productData["BASKET_CODE"] = $item->getBasketCode();
 
-		if(isset($productData["OFFER_ID"]) || intval($productData["OFFER_ID"]) >= 0)
+		if(isset($productData["OFFER_ID"]) && intval($productData["OFFER_ID"]) > 0)
 			$productData["PRODUCT_ID"] = $productData["OFFER_ID"];
 
 		$itemFields = array_intersect_key($productData, array_flip($item::getAvailableFields()));

@@ -13,6 +13,15 @@ class User
 
 	const INVITE_MAX_USER_NOTIFY = 50;
 
+	public static function canInvite(): bool
+	{
+		if (!\Bitrix\Main\ModuleManager::isModuleInstalled('intranet'))
+		{
+			return false;
+		}
+
+		return \Bitrix\Intranet\Invitation::canListDelete();
+	}
 	public static function onInviteLinkCopied(\Bitrix\Main\Event $event): bool
 	{
 		if (!\Bitrix\Main\ModuleManager::isModuleInstalled('intranet'))
@@ -50,14 +59,20 @@ class User
 			'filter' => [
 				'=ID' => $users
 			],
-			'select' => ['ID', 'USER_TYPE']
+			'select' => ['ID', 'USER_TYPE', 'EMAIL']
 
 		]);
 		while ($row = $result->fetch())
 		{
 			if ($row['USER_TYPE'] === 'employee')
 			{
-				$userForSend[] = $row['ID'];
+				$userForSend[] = [
+					'ID' => $row['ID'],
+					'INVITED' => [
+						'originator_id' => $originatorId,
+						'can_resend' => !empty($row['EMAIL'])
+					]
+				];
 			}
 		}
 
@@ -66,10 +81,10 @@ class User
 			return false;
 		}
 
-		self::sendInviteEvent($userForSend, ['originator_id' => $originatorId]);
+		self::sendInviteEvent($userForSend);
 
-		$userForSend = array_map(function($userId) {
-			return self::getUserBlock($userId);
+		$userForSend = array_map(function($user) {
+			return self::getUserBlock($user['ID']);
 		}, $userForSend);
 
 		return self::sendMessageToGeneralChat($originatorId, [
@@ -97,7 +112,29 @@ class User
 			return false;
 		}
 
-		self::sendInviteEvent($users, ['originator_id' => $originatorId]);
+		$userForSend = [];
+		$result = \Bitrix\Intranet\UserTable::getList([
+			'filter' => [
+				'=ID' => $users
+			],
+			'select' => ['ID', 'USER_TYPE', 'EMAIL']
+
+		]);
+		while ($row = $result->fetch())
+		{
+			if ($row['USER_TYPE'] === 'employee')
+			{
+				$userForSend[] = [
+					'ID' => $row['ID'],
+					'INVITED' => [
+						'originator_id' => $originatorId,
+						'can_resend' => !empty($row['EMAIL'])
+					]
+				];
+			}
+		}
+
+		self::sendInviteEvent($userForSend);
 
 		$users = array_map(function($userId) {
 			return self::getUserBlock($userId);
@@ -136,7 +173,7 @@ class User
 		$originatorGender = 'M';
 		if ($originatorId > 0)
 		{
-			$dbUser = \CUser::GetList(($sort_by = false), ($dummy=''), ['ID' => $originatorId], array('FIELDS' => ['PERSONAL_GENDER']));
+			$dbUser = \CUser::GetList('', '', ['ID_EQUAL_EXACT' => $originatorId], array('FIELDS' => ['PERSONAL_GENDER']));
 			if ($user = $dbUser->Fetch())
 			{
 				$originatorGender = $user["PERSONAL_GENDER"] == 'F'? 'F': 'M';
@@ -212,10 +249,13 @@ class User
 
 		\CIMContactList::SetRecent(Array('ENTITY_ID' => $userId));
 
-		$userCount = \CAllUser::GetActiveUsersCount();
+		$userCount = \Bitrix\Main\UserTable::getActiveUsersCount();
 		if ($userCount > self::INVITE_MAX_USER_NOTIFY)
 		{
-			self::sendInviteEvent([$userId], false);
+			self::sendInviteEvent([
+				'ID' => $userId,
+				'INVITED' => false
+			]);
 
 			if (!\CIMChat::GetGeneralChatAutoMessageStatus(\CIMChat::GENERAL_MESSAGE_TYPE_JOIN))
 			{
@@ -223,9 +263,17 @@ class User
 			}
 
 			return self::sendMessageToGeneralChat($userId, [
-				'MESSAGE' => Loc::getMessage('IM_INT_USR_JOIN_GENERAL_2')
+				"MESSAGE" => Loc::getMessage('IM_INT_USR_JOIN_GENERAL_2'),
+				"PARAMS" => [
+					"CODE" => 'USER_JOIN_GENERAL',
+				]
 			]);
 		}
+
+		self::sendInviteEvent([
+			'ID' => $userId,
+			'INVITED' => false
+		]);
 
 		$orm = \Bitrix\Main\UserTable::getList([
 			'select' => ['ID'],
@@ -238,7 +286,15 @@ class User
 		while($row = $orm->fetch())
 		{
 			if ($row['ID'] == $userId)
+			{
 				continue;
+			}
+
+			$viewCommonUsers = (bool)\CIMSettings::GetSetting(\CIMSettings::SETTINGS, 'viewCommonUsers', $row['ID']);
+			if (!$viewCommonUsers)
+			{
+				continue;
+			}
 
 			\CIMMessage::Add([
 				"TO_USER_ID" => $row['ID'],
@@ -246,13 +302,16 @@ class User
 				"MESSAGE" => Loc::getMessage('IM_INT_USR_JOIN_2'),
 				"SYSTEM" => 'Y',
 				"RECENT_SKIP_AUTHOR" => 'Y',
+				"PARAMS" => [
+					"CODE" => 'USER_JOIN',
+				],
 			]);
 		}
 
 		return true;
 	}
 
-	private static function sendInviteEvent(array $users, $invited): bool
+	private static function sendInviteEvent(array $users): bool
 	{
 		if (!\Bitrix\Main\Loader::includeModule('pull'))
 		{
@@ -265,17 +324,16 @@ class User
 		}
 
 		$onlineUsers = \Bitrix\Im\Helper::getOnlineIntranetUsers();
-
-		foreach ($users as $userId)
+		foreach ($users as $user)
 		{
 			\Bitrix\Pull\Event::add($onlineUsers, [
 				'module_id' => 'im',
 				'command' => 'userInvite',
 				'expiry' => 3600,
 				'params' => [
-					'userId' => $userId,
-					'invited' => $invited,
-					'user' => \Bitrix\Im\User::getInstance($userId)->getFields()
+					'userId' => $user['ID'],
+					'invited' => $user['INVITED'],
+					'user' => \Bitrix\Im\User::getInstance($user['ID'])->getFields()
 				],
 				'extra' => \Bitrix\Im\Common::getPullExtra()
 			]);

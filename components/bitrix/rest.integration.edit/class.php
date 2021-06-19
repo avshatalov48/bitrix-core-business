@@ -289,8 +289,8 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 		else
 		{
 			$dbSites = \CSite::getList(
-				$by = 'sort',
-				$order = 'asc',
+				'sort',
+				'asc',
 				[
 					'DEFAULT' => 'Y',
 					'ACTIVE' => 'Y'

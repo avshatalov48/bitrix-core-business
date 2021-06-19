@@ -62,9 +62,8 @@ else
 // assets
 \CJSCore::init([
 	'color_picker', 'landing_master', 'action_dialog',
-	'access', 'sidepanel'
+	'access', 'sidepanel', 'landing.metrika', 'ui.buttons'
 ]);
-\Bitrix\Main\UI\Extension::load('ui.buttons');
 Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.css');
 Asset::getInstance()->addJS('/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.js');
 
@@ -269,16 +268,31 @@ if ($arParams['SUCCESS_SAVE'])
 					</td>
 				</tr>
 				<tr>
-					<td class="ui-form-label"><?= $pageFields['B24BUTTON_COLOR']->getLabel();?></td>
-					<td class="ui-form-right-cell">
-						<div class="landing-form-flex-box">
-							<?php
-							$pageFields['B24BUTTON_COLOR']->viewForm(array(
-								'class' => 'ui-select',
-								'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
-							));
-							?>
-						</div>
+					<td class="ui-form-label ui-form-label-align-top"><?= $pageFields['B24BUTTON_COLOR']->getLabel();?></td>
+					<td class="ui-form-right-cell ui-form-right-cell-b24button">
+						<?php if (isset($pageFields['B24BUTTON_COLOR'])): ?>
+							<script type="text/javascript">
+								BX.ready(function() {
+									new BX.Landing.B24ButtonColor(
+										BX('field-b24button_color'),
+										BX('field-b24button_color_value')
+									);
+								});
+							</script>
+							<?php $template->showField('B24BUTTON_COLOR', $pageFields['B24BUTTON_COLOR']); ?>
+						<?php endif;?>
+						<?php if (isset($pageFields['B24BUTTON_COLOR_VALUE'])): ?>
+							<script type="text/javascript">
+								BX.ready(function() {
+									new BX.Landing.ColorPicker(BX('field-b24button_color_value'));
+								});
+							</script>
+							<?php $template->showField(
+								'B24BUTTON_COLOR_VALUE',
+								$pageFields['B24BUTTON_COLOR_VALUE'],
+								['hidden' => true]
+							); ?>
+						<?php endif;?>
 					</td>
 				</tr>
 				<?php
@@ -593,28 +607,13 @@ if ($arParams['SUCCESS_SAVE'])
 										?>
 									</div>
 									<?php endif;?>
-									<?php if (isset($pageFields['BACKGROUND_COLOR'])):
-										$value = \htmlspecialcharsbx(trim($pageFields['BACKGROUND_COLOR']->getValue()));
-										?>
-									<script type="text/javascript">
-										BX.ready(function() {
-											new BX.Landing.ColorPicker(BX('landing-form-colorpicker'));
-										});
-									</script>
-									<div class="ui-control-wrap">
-										<div class="ui-form-control-label"><?= $pageFields['BACKGROUND_COLOR']->getLabel();?></div>
-										<div class="ui-colorpicker<?if ($value){?> ui-colorpicker-selected<?}?>" id="landing-form-colorpicker" >
-											<span class="ui-colorpicker-color ui-colorpicker-color-js"<?if ($value){?> style="background-color: <?= $value?>;"<?}?>></span>
-											<?php
-											$pageFields['BACKGROUND_COLOR']->viewForm(array(
-												'additional' => 'readonly',
-												'class' => 'ui-input ui-input-color landing-colorpicker-inp-js',
-												'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
-											));
-											?>
-											<span class="ui-colorpicker-clear ui-colorpicker-clear"></span>
-										</div>
-									</div>
+									<?php if (isset($pageFields['BACKGROUND_COLOR'])): ?>
+										<script type="text/javascript">
+											BX.ready(function() {
+												new BX.Landing.ColorPicker(BX('field-background_color'));
+											});
+										</script>
+										<?php $template->showField('BACKGROUND_COLOR', $pageFields['BACKGROUND_COLOR']); ?>
 									<?php endif;?>
 								</div>
 							</div>
@@ -752,6 +751,14 @@ if ($arParams['SUCCESS_SAVE'])
 							}
 							?>
 							<input type="hidden" name="fields[TPL_REF]" value="<?= $saveRefs;?>" id="layout-tplrefs"/>
+							<?php
+                            if (isset($hooks['LAYOUT'])):
+	                            $pageFields = $hooks['LAYOUT']->getPageFields();
+	                            if(isset($pageFields['BREAKPOINT'])): ?>
+                                    <input type="hidden" name="fields[ADDITIONAL_FIELDS][LAYOUT_BREAKPOINT]" id="layout-breakpoint" />
+                                <?php endif; ?>
+                            <?php endif; ?>
+
 							<input type="checkbox" class="ui-checkbox" id="layout-tplrefs-check" style="display: none;" checked="checked" />
 							<div class="ui-checkbox-hidden-input-inner landing-form-page-layout">
 								<div class="landing-form-wrapper">
@@ -1325,7 +1332,7 @@ if ($arParams['SUCCESS_SAVE'])
 		new BX.Landing.Custom404();
 		new BX.Landing.Custom503();
 		new BX.Landing.Copyright();
-		new BX.Landing.Metrika();
+		new BX.Landing.ExternalMetrika();
 		<?php if (isset($hooks['COOKIES'])):?>
 		new BX.Landing.Cookies();
 		<?php endif;?>

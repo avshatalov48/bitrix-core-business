@@ -15,8 +15,8 @@ final class HealerEarlySessionStart
 			session_write_close();
 
 			$exception = new SystemException(
-				'Attention! There is session_start before Bitrix Kernel' .
-				'to continue correctly session will be closed. Highly recommended avoid usage session before Bitrix Kernel.'
+				'Attention! The session_start function was called before the Bitrix Kernel was started. ' .
+				'The session will be closed to avoid errors. It\'s strongly recommended to avoid session usage before initializing the Bitrix Kernel.'
 			);
 			trigger_error($exception->getMessage(), E_USER_DEPRECATED);
 			$application = \Bitrix\Main\Application::getInstance();

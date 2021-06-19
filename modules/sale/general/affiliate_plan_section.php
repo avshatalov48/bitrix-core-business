@@ -1,11 +1,12 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 $GLOBALS["SALE_AFFILIATE_PLAN_SECTION"] = Array();
 
 class CAllSaleAffiliatePlanSection
 {
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "PLAN_ID") || $ACTION=="ADD") && intval($arFields["PLAN_ID"]) <= 0)
 		{
@@ -88,7 +89,7 @@ class CAllSaleAffiliatePlanSection
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -101,7 +102,7 @@ class CAllSaleAffiliatePlanSection
 		return $DB->Query("DELETE FROM b_sale_affiliate_plan_section WHERE ID = ".$ID." ", true);
 	}
 
-	function DeleteByPlan($planID, $arSectionIDs)
+	public static function DeleteByPlan($planID, $arSectionIDs)
 	{
 		global $DB;
 
@@ -119,7 +120,7 @@ class CAllSaleAffiliatePlanSection
 		return $DB->Query("DELETE FROM b_sale_affiliate_plan_section WHERE PLAN_ID = ".$planID." AND ID NOT IN (".$strSectionIDs.")", true);
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -156,7 +157,7 @@ class CAllSaleAffiliatePlanSection
 		return $ID;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -186,4 +187,3 @@ class CAllSaleAffiliatePlanSection
 		return false;
 	}
 }
-?>

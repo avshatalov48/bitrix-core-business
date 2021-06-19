@@ -7,6 +7,11 @@ $useMarket = \Bitrix\Main\Loader::includeModule('rest');
 if ($useMarket)
 {
 	CJSCore::Init(['marketplace', 'applayout']);
+	$marketImportUrl = \Bitrix\Rest\Marketplace\Url::getConfigurationImportManifestUrl($arParams['PLACEMENT']);
+	$marketExportUrl = \Bitrix\Rest\Marketplace\Url::getConfigurationExportElementUrl(
+		$arParams['PLACEMENT'],
+		$arParams['DOCUMENT_TYPE'][2]
+	);
 }
 
 global $APPLICATION;
@@ -16,8 +21,11 @@ global $APPLICATION;
 <div class="ui-btn-container">
 	<div class="ui-btn-split">
 		<?if ($useMarket):?>
-		<button class="ui-btn ui-btn-light-border" onclick="BX.Bizproc.Script.Market.Instance.showForPlacement('<?=htmlspecialcharsbx(CUtil::JSEscape($arParams['PLACEMENT']))?>')">
-			<?= GetMessage('BIZPROC_SCRIPT_LIST_TITLE_MARKETPLACE') ?>
+		<a class="ui-btn ui-btn-light-border" href="<?= htmlspecialcharsbx($marketImportUrl) ?>">
+			<?= GetMessage('BIZPROC_SCRIPT_LIST_TITLE_MARKETPLACE_IMPORT') ?>
+		</a>
+		<button class="ui-btn ui-btn-light-border" data-url="<?= htmlspecialcharsbx($marketExportUrl) ?>" id="bp_export_scenario">
+			<?= GetMessage('BIZPROC_SCRIPT_LIST_TITLE_MARKETPLACE_EXPORT') ?>
 		</button>
 		<?endif;?>
 		<button class="ui-btn ui-btn-icon-add ui-btn-primary" id="bp_add_scenario">
@@ -70,6 +78,7 @@ $APPLICATION->IncludeComponent(
 		BX.Bizproc.ScriptListComponent.Instance = new BX.Bizproc.ScriptListComponent({
 			gridId: gridId,
 			createScriptButton: document.getElementById('bp_add_scenario'),
+			exportScriptButton: document.getElementById('bp_export_scenario'),
 			documentType: '<?= CUtil::JSEscape($arParams['~DOCUMENT_TYPE_SIGNED']) ?>'
 		});
 

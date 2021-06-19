@@ -4,7 +4,7 @@ IncludeModuleLangFile(__FILE__);
 
 class CUserTypeWiki extends CUserTypeString
 {
-    function GetUserTypeDescription()
+    public static function GetUserTypeDescription()
 	{
 		return array(
 			'USER_TYPE_ID' => 'wiki',

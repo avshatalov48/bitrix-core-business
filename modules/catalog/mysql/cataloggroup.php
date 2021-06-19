@@ -48,20 +48,7 @@ class CCatalogGroup extends CAllCatalogGroup
 
 		if ($arFields["BASE"] == "Y")
 		{
-			$strUpdate = "BASE = 'N', TIMESTAMP_X = ".$DB->GetNowFunction();
-			if (array_key_exists('MODIFIED_BY', $arFields))
-			{
-				$strUpdate .= ", MODIFIED_BY = ".$arFields["MODIFIED_BY"];
-			}
-			$strSql = "UPDATE b_catalog_group SET ".$strUpdate." WHERE BASE = 'Y'";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-			self::$arBaseGroupCache = array();
-			if (defined('CATALOG_GLOBAL_VARS') && 'Y' == CATALOG_GLOBAL_VARS)
-			{
-				/** @global array $CATALOG_BASE_GROUP */
-				global $CATALOG_BASE_GROUP;
-				$CATALOG_BASE_GROUP = self::$arBaseGroupCache;
-			}
+			self::clearBaseGroupFlag(null, $arFields);
 		}
 
 		$arInsert = $DB->PrepareInsert("b_catalog_group", $arFields);
@@ -140,20 +127,7 @@ class CCatalogGroup extends CAllCatalogGroup
 		{
 			if (isset($arFields["BASE"]) && $arFields["BASE"] == "Y")
 			{
-				$strBaseUpdate = "BASE = 'N', TIMESTAMP_X = ".$DB->GetNowFunction();
-				if (array_key_exists('MODIFIED_BY', $arFields))
-				{
-					$strBaseUpdate .= ", MODIFIED_BY = ".$arFields["MODIFIED_BY"];
-				}
-				$strSql = "UPDATE b_catalog_group SET ".$strBaseUpdate." WHERE ID != ".$ID." AND BASE = 'Y'";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-				self::$arBaseGroupCache = array();
-				if (defined('CATALOG_GLOBAL_VARS') && 'Y' == CATALOG_GLOBAL_VARS)
-				{
-					/** @global array $CATALOG_BASE_GROUP */
-					global $CATALOG_BASE_GROUP;
-					$CATALOG_BASE_GROUP = self::$arBaseGroupCache;
-				}
+				self::clearBaseGroupFlag($ID, $arFields);
 			}
 
 			$strSql = "UPDATE b_catalog_group SET ".$strUpdate." WHERE ID = ".$ID;
@@ -558,5 +532,33 @@ class CCatalogGroup extends CAllCatalogGroup
 			$strSql .= " ORDER BY ".$arSqls["ORDERBY"];
 
 		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+	}
+
+	protected static function clearBaseGroupFlag(?int $id, array $fields): void
+	{
+		global $DB;
+
+		$data = [
+			'BASE' => 'N',
+			'~TIMESTAMP_X' => $DB->GetNowFunction(),
+		];
+		if (isset($fields['MODIFIED_BY']))
+		{
+			$data['MODIFIED_BY'] = $fields['MODIFIED_BY'];
+		}
+
+		$parsedData = $DB->PrepareUpdate('b_catalog_group', $data);
+
+		$query = 'UPDATE b_catalog_group SET '.$parsedData.' WHERE ';
+		$query .= $id !== null ? 'ID !='.$id.' and BASE = \'Y\'' : 'BASE = \'Y\'';
+		$DB->Query($query, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+
+		self::$arBaseGroupCache = [];
+		if (defined('CATALOG_GLOBAL_VARS') && 'Y' == CATALOG_GLOBAL_VARS)
+		{
+			/** @global array $CATALOG_BASE_GROUP */
+			global $CATALOG_BASE_GROUP;
+			$CATALOG_BASE_GROUP = self::$arBaseGroupCache;
+		}
 	}
 }

@@ -61,7 +61,10 @@ if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $c
 	$Vars = $cache->GetVars();
 	foreach($Vars["arResult"] as $k=>$v)
 		$arResult[$k] = $v;
-	CBitrixComponentTemplate::ApplyCachedData($Vars["templateCachedData"]);	
+
+	$template = new CBitrixComponentTemplate();
+	$template->ApplyCachedData($Vars["templateCachedData"]);
+
 	$cache->Output();
 }
 else
@@ -97,7 +100,27 @@ else
 
 	if(!empty($arBlogs))
 	{
-		uasort($arBlogs, create_function('$a, $b', 'if($a["VIEWS"] == $b["VIEWS"]) { if($a["NUM_COMMENTS"] < $b["NUM_COMMENTS"]) return 1; elseif($a["NUM_COMMENTS"] > $b["NUM_COMMENTS"]) return -1; else return 0;} return ($a["VIEWS"] < $b["VIEWS"])? 1 : -1;'));
+		uasort(
+			$arBlogs,
+			function ($a, $b) {
+				if($a["VIEWS"] == $b["VIEWS"])
+				{
+					if($a["NUM_COMMENTS"] < $b["NUM_COMMENTS"])
+					{
+						return 1;
+					}
+					elseif($a["NUM_COMMENTS"] > $b["NUM_COMMENTS"])
+					{
+						return -1;
+					}
+					else
+					{
+						return 0;
+					}
+				}
+				return ($a["VIEWS"] < $b["VIEWS"] ? 1 : -1);
+			}
+		);
 
 		$i = 0;
 		foreach($arBlogs as $blogID => $info)

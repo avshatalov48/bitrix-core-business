@@ -39,8 +39,10 @@ export const RestMethod = Object.freeze({
 	imRecentGet: 'im.recent.get',
 	imRecentList: 'im.recent.list',
 
-	imCallGetCallLimits: 'im.call.getCallLimits'
+	imCallGetCallLimits: 'im.call.getCallLimits',
 
+	imNotifyGet: 'im.notify.get',
+	imNotifySchemaGet: 'im.notify.schema.get',
 });
 
 export const RestMethodHandler = Object.freeze({
@@ -65,5 +67,8 @@ export const RestMethodHandler = Object.freeze({
 	imRecentGet: 'im.recent.get',
 	imRecentList: 'im.recent.list',
 
-	imCallGetCallLimits: 'im.call.getCallLimits'
+	imCallGetCallLimits: 'im.call.getCallLimits',
+
+	imNotifyGet: 'im.notify.get',
+	imNotifySchemaGet: 'im.notify.schema.get',
 });

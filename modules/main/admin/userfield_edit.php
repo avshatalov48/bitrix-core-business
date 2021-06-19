@@ -469,7 +469,7 @@ $tabControl->BeginNextTab();
 					<td align="center" width="200"><?echo GetMessage("USER_TYPE_HELP_MESSAGE");?></td>
 				</tr>
 				<?
-				$rsLanguage = CLanguage::GetList($by, $order, array());
+				$rsLanguage = CLanguage::GetList();
 				while($arLanguage = $rsLanguage->Fetch()):
 					$htmlLID = htmlspecialcharsbx($arLanguage["LID"]);
 				?>

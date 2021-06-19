@@ -9,7 +9,7 @@ class CSocServLiveID extends CSocServAuth
 		return array(
 			array("liveid_appid", GetMessage("MAIN_OPTION_AUTH_LIVEID_APPLID"), "", Array("text", 40), $liveid_disabled),
 			array("liveid_secret", GetMessage("MAIN_OPTION_AUTH_LIVEID_SECRET"), "", Array("text", 40), $liveid_disabled),
-			array("note"=>GetMessage('MAIN_OPTION_COMMENT1')),
+			array("note"=>GetMessage('MAIN_OPTION_COMMENT2')),
 		);
 	}
 

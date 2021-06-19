@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSaleOrderPropsGroup
 {
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -21,7 +22,7 @@ class CAllSaleOrderPropsGroup
 		return False;
 	}
 
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $DB, $USER;
 
@@ -51,7 +52,7 @@ class CAllSaleOrderPropsGroup
 		return True;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -67,7 +68,7 @@ class CAllSaleOrderPropsGroup
 		return $ID;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -86,4 +87,3 @@ class CAllSaleOrderPropsGroup
 		return $DB->Query("DELETE FROM b_sale_order_props_group WHERE ID = ".$ID."", true);
 	}
 }
-?>

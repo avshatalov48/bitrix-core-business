@@ -79,7 +79,7 @@ if (CModule::IncludeModule("socialnetwork"))
 		}
 
 		//online status
-		$db = CUser::GetList($by, $order, array("LAST_ACTIVITY"=>120));
+		$db = CUser::GetList('', '', array("LAST_ACTIVITY"=>120));
 		while($dba = $db->Fetch())
 			if($dba['ID'] <> $currUserId)
 				echo "+".$dba['ID']."\r\n";

@@ -16,9 +16,9 @@ use Bitrix\Sale\TradeBindingEntity;
 /*
  * Error code notation x(category1) xxx(category2) xxx(code category) xxxxx(code) - 2 000 403 00010
  * category1:
- * Intrnalizer - 100
- * Controller - 200
- * Externalazer - 300
+ * Intrnalizer - 1
+ * Controller - 2
+ * Externalazer - 3
  * */
 class Controller extends Engine\Controller
 {
@@ -119,7 +119,7 @@ class Controller extends Engine\Controller
 		$settings = $settings === null? $this->getSettingsContainerDefault():$settings;
 
 		return ($this->isCrmModuleInstalled() && Loader::includeModule('crm'))
-			? new \Bitrix\Crm\Order\OrderBuilderRest($settings)
+			? new \Bitrix\Crm\Order\Builder\OrderBuilderRest($settings)
 			: new \Bitrix\Sale\Helpers\Order\Builder\OrderBuilderRest($settings);
 	}
 

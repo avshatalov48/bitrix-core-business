@@ -285,7 +285,7 @@ $oFilter->Begin();
 			var arLang = new Array();
 			var arCurr = new Array();
 			<?
-			$db_extras = CLang::GetList(($b="name"), ($o="asc"));
+			$db_extras = CLang::GetList("name", "asc");
 			$i = 0;
 			while ($extras = $db_extras->Fetch())
 			{

@@ -353,8 +353,8 @@ while($db_res = $rsData->NavNext(true, "a_"))
 		case "IBLOCK_EDIT":
 		case "IBLOCK_DELETE":
 			$elementLink = CIBlock::GetAdminElementListLink($a_ITEM_ID, array('filter_section'=>-1));
-			parse_str($elementLink);
-			if (empty($type))
+			parse_str($elementLink, $elementInfo);
+			if (empty($elementInfo["type"]))
 			{
 				$a_ITEM_ID = GetMessage("MAIN_EVENTLOG_IBLOCK_DELETE");
 			}
@@ -477,9 +477,7 @@ $oFilter->Begin();
 </tr>
 <?
 $arSiteDropdown = array("reference" => array(), "reference_id" => array());
-$v1 = "sort";
-$v2 = "asc";
-$rs = CSite::GetList($v1, $v2);
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 {
 	$arSiteDropdown["reference_id"][] = $ar["ID"];

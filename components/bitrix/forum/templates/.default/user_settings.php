@@ -20,7 +20,7 @@ if (check_bitrix_sessid() && $GLOBALS["USER"]->IsAuthorized())
 {
 	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 	$arData = CUserOptions::GetOption("forum", "default_template", "");
-	$arData = (CheckSerializedData($arData) ? @unserialize($arData) : array());
+	$arData = (CheckSerializedData($arData) ? @unserialize($arData, ["allowed_classes" => false]) : array());
 	if (!is_array($arData))
 		$arData = array();
 	if ($_REQUEST["save"] == "smiles_position")

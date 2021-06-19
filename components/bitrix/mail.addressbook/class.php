@@ -97,23 +97,23 @@ class AddressBookComponent extends CBitrixComponent implements Controllerable
 	{
 		$this->arResult['COLUMNS'] = [
 			[
-				'id' => 'EMAIL',
-				'name' => Loc::getMessage('MAIL_ADDRESSBOOK_LIST_COLUMN_EMAIL'),
-				'sort' => 'EMAIL',
-				'default' => true,
-				'editable' => false
-			],
-			[
 				'id' => 'NAME',
 				'name' => Loc::getMessage('MAIL_ADDRESSBOOK_LIST_COLUMN_NAME'),
 				'sort' => 'NAME',
 				'default' => true,
 				'editable' => false
 			],
+			[
+				'id' => 'EMAIL',
+				'name' => Loc::getMessage('MAIL_ADDRESSBOOK_LIST_COLUMN_EMAIL'),
+				'sort' => 'EMAIL',
+				'default' => true,
+				'editable' => false
+			],
 		];
 	}
 
-	private function setRows()
+	private function setRows($gridSorting)
 	{
 		$pageNavigationObject = new PageNavigation("page");
 		$pageNavigationObject->allowAllRecords(true)->setPageSize($this->getRowsCount())->initFromUri();
@@ -123,7 +123,7 @@ class AddressBookComponent extends CBitrixComponent implements Controllerable
 				'offset' => $pageNavigationObject->getOffset(),
 				'limit' => $pageNavigationObject->getLimit(),
 				'filter' => $this->getDataFilter(),
-				'order' => ["ID" => "desc"],
+				'order' => $gridSorting,
 				'select' => ['ID', 'NAME', 'EMAIL'],
 				'count_total' => true,
 			]
@@ -164,7 +164,14 @@ class AddressBookComponent extends CBitrixComponent implements Controllerable
 
 		$this->processGridRequests($this->arResult['GRID_ID']);
 		$this->setColumns();
-		$this->setRows();
+
+		$gridOptions = new \Bitrix\Main\Grid\Options($this->arResult['GRID_ID']);
+		$gridSorting = $gridOptions->getSorting(
+			["sort" => ["NAME" => "ASC"]]
+		);
+		$this->arResult['SORT'] = $gridSorting['sort'];
+
+		$this->setRows($this->arResult['SORT']);
 		$this->includeComponentTemplate();
 	}
 

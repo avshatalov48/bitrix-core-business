@@ -16,7 +16,12 @@ class CatalogItemComponent extends CBitrixComponent
 			$params += $params['PARAMS'];
 			unset($params['PARAMS']);
 		}
-		
+
+		if (isset($params['CUSTOM_SITE_ID']))
+		{
+			$this->setSiteId($params['CUSTOM_SITE_ID']);
+		}
+
 		return $params;
 	}
 

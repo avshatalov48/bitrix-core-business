@@ -23,13 +23,13 @@ class CSOAPResponse extends CSOAPEnvelope
 	/// Contains the DOM document for the current SOAP response
 	var $DOMDocument = false;
 
-	function CSOAPResponse( $name="", $namespace="" )
+	public function __construct( $name="", $namespace="" )
 	{
 		$this->Name = $name;
 		$this->Namespace = $namespace;
 
 		// call the parents constructor
-		$this->CSOAPEnvelope();
+		parent::__construct();
 	}
 
 	//	Decodes the SOAP response stream
@@ -134,14 +134,16 @@ class CSOAPResponse extends CSOAPEnvelope
 		$returnValue = false;
 
 		$attr = $node->getAttribute("type");
-		if ($attr and strlen($attr))
+		if ($attr and mb_strlen($attr))
 		{
 			return new CSOAPFault("Server Error", "Server supports only document/literal binding.");
 		}
 
 		$rootDataName = $this->Name;
-		if (strlen(trim($complexDataTypeName)))
+		if(trim($complexDataTypeName) <> '')
+		{
 			$rootDataName = trim($complexDataTypeName);
+		}
 
 		if (!$rootDataName or !isset($this->typensVars[$rootDataName]))
 		{
@@ -442,9 +444,9 @@ class CSOAPResponse extends CSOAPEnvelope
 	{
 		$missingxml = false;
 		//$start = strpos( $data, "<"."?xml" );
-		$start = strpos( $data, "\r\n\r\n" );
+		$start = mb_strpos($data, "\r\n\r\n");
 		if ($start === false) return null;
-		$data = substr( $data, $start, strlen( $data ) - $start );
+		$data = mb_substr($data, $start, mb_strlen($data) - $start);
 		return $data;
 	}
 

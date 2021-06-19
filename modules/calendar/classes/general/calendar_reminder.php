@@ -37,7 +37,7 @@ class CCalendarReminder
 			if ($events && is_array($events[0]))
 			{
 				$event = $events[0];
-			}
+		}
 
 			if ($event && $event['MEETING_STATUS'] !== 'N')
 			{
@@ -85,7 +85,7 @@ class CCalendarReminder
 
 				if (CCalendarEvent::CheckRecurcion($event))
 				{
-					CCalendarReminder::UpdateReminders([
+					CCalendarReminder::updateReminders([
 						'id' => $eventId,
 						'arFields' => $event,
 						'userId' => $userId,
@@ -174,12 +174,12 @@ class CCalendarReminder
 		}
 	}
 
-	public static function UpdateReminders($params = [])
+	public static function updateReminders($params = [])
 	{
-		$eventId = intval($params['id']);
+		$eventId = (int)$params['id'];
 		$entryFields = $params['arFields'];
 		$reminders = $params['reminders'];
-		$userId = $params['userId'];
+		$userId = (int)$params['userId'];
 
 		if (!isset($reminders))
 		{
@@ -205,76 +205,98 @@ class CCalendarReminder
 		// 1. clean reminders
 		self::RemoveAgent($agentParams);
 
-		// 2. Set new reminders
-		if(CCalendarEvent::CheckRecurcion($entryFields))
+		// Prevent dublication of reminders for non-user's calendar context (mantis:0128287)
+		if (!$entryFields['IS_MEETING'] || $entryFields['CAL_TYPE'] === 'user')
 		{
-			$entryList = CCalendarEvent::GetList([
-				'arFilter' => [
-					"ID" => $eventId,
-					"DELETED" => "N",
-					"FROM_LIMIT" => CCalendar::Date(time() - 3600, false),
-					"TO_LIMIT" => CCalendar::GetMaxDate()
-				],
-				'userId' => $userId,
-				'parseRecursion' => true,
-				'maxInstanceCount' => 4,
-				'preciseLimits' => true,
-				'fetchAttendees' => true,
-				'checkPermissions' => false,
-				'setDefaultLimit' => false
-			]);
-
-			if (is_array($entryList))
+			// 2. Set new reminders
+			if (CCalendarEvent::CheckRecurcion($entryFields))
 			{
-				$index = 0;
-				foreach($entryList as $entry)
+				$entryList = CCalendarEvent::GetList(
+					[
+						'arFilter' => [
+							"ID" => $eventId,
+							"DELETED" => "N",
+							"FROM_LIMIT" => CCalendar::Date(time() - 3600, false),
+							"TO_LIMIT" => CCalendar::GetMaxDate()
+						],
+						'userId' => $userId,
+						'parseRecursion' => true,
+						'maxInstanceCount' => 4,
+						'preciseLimits' => true,
+						'fetchAttendees' => true,
+						'checkPermissions' => false,
+						'setDefaultLimit' => false
+					]
+				);
+
+				if (is_array($entryList))
 				{
-					$eventTimestamp = CCalendar::Timestamp($entry['DATE_FROM'], false, true);
-					$eventTimestamp = $eventTimestamp - CCalendar::GetTimezoneOffset($entry["TZ_FROM"], $eventTimestamp) + date("Z", $eventTimestamp);
-
-					// List of added timestamps of reminders to avoid duplication
-					$addedIndex = [];
-					foreach($reminders as $reminder)
+					$index = 0;
+					foreach ($entryList as $entry)
 					{
-						$reminderTimestamp = self::getReminderTimestamp($eventTimestamp, $reminder, $entryFields['TZ_FROM']);
+						$eventTimestamp = CCalendar::Timestamp($entry['DATE_FROM'], false, true);
+						$eventTimestamp = $eventTimestamp - CCalendar::GetTimezoneOffset(
+								$entry["TZ_FROM"],
+								$eventTimestamp
+							) + date("Z", $eventTimestamp);
 
-						$limitTime = isset($params['updateRecursive']) && $params['updateRecursive']
-							? time() + self::REMINDER_NEXT_DELAY
-							: time() - self::REMINDER_INACCURACY;
-
-						if (!is_null($reminderTimestamp)
-							&& !in_array($reminderTimestamp, $addedIndex)
-							&& $reminderTimestamp >= $limitTime)
+						// List of added timestamps of reminders to avoid duplication
+						$addedIndex = [];
+						foreach ($reminders as $reminder)
 						{
-							$agentParams['index'] = $index++;
-							if($reminder['type'] === self::TYPE_SPECIFIC_DATETIME)
+							$reminderTimestamp = self::getReminderTimestamp(
+								$eventTimestamp,
+								$reminder,
+								$entryFields['TZ_FROM']
+							);
+
+							$limitTime = isset($params['updateRecursive']) && $params['updateRecursive']
+								? time() + self::REMINDER_NEXT_DELAY
+								: time() - self::REMINDER_INACCURACY;
+
+							if (
+								!is_null($reminderTimestamp)
+								&& !in_array($reminderTimestamp, $addedIndex)
+								&& $reminderTimestamp >= $limitTime
+							)
 							{
-								unset($agentParams['index']);
+								$agentParams['index'] = $index++;
+								if ($reminder['type'] === self::TYPE_SPECIFIC_DATETIME)
+								{
+									unset($agentParams['index']);
+								}
+								self::AddAgent(\CCalendar::Date($reminderTimestamp), $agentParams);
+								$addedIndex[] = $reminderTimestamp;
 							}
-							self::AddAgent(\CCalendar::Date($reminderTimestamp), $agentParams);
-							$addedIndex[] = $reminderTimestamp;
 						}
 					}
 				}
 			}
-		}
-		else
-		{
-			// Start of the event in server timezone
-			$eventTimestamp = $entryFields['DATE_FROM_TS_UTC'] + date("Z", $entryFields['DATE_FROM_TS_UTC']);
-			$index = 0;
-			// List of added timestamps of reminders to avoid duplication
-			$addedIndex = [];
-			foreach($reminders as $reminder)
+			else
 			{
-				$reminderTimestamp = self::getReminderTimestamp($eventTimestamp, $reminder, $entryFields['TZ_FROM']);
-				if (!is_null($reminderTimestamp)
-					&& !in_array($reminderTimestamp, $addedIndex)
-					&& $reminderTimestamp >= time() + self::REMINDER_INACCURACY)
+				// Start of the event in server timezone
+				$eventTimestamp = $entryFields['DATE_FROM_TS_UTC'] + date("Z", $entryFields['DATE_FROM_TS_UTC']);
+				$index = 0;
+				// List of added timestamps of reminders to avoid duplication
+				$addedIndex = [];
+				foreach ($reminders as $reminder)
 				{
-					$agentParams['index'] = $index++;
-					self::AddAgent(\CCalendar::Date($reminderTimestamp), $agentParams);
-					$addedIndex[] = $reminderTimestamp;
+					$reminderTimestamp = self::getReminderTimestamp(
+						$eventTimestamp,
+						$reminder,
+						$entryFields['TZ_FROM']
+					);
+
+					if (
+						!is_null($reminderTimestamp)
+						&& !in_array($reminderTimestamp, $addedIndex)
+						&& $reminderTimestamp >= time() + self::REMINDER_INACCURACY
+					)
+					{
+						$agentParams['index'] = $index++;
+						self::AddAgent(\CCalendar::Date($reminderTimestamp), $agentParams);
+						$addedIndex[] = $reminderTimestamp;
+					}
 				}
 			}
 		}

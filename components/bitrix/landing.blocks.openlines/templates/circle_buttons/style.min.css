@@ -1,0 +1,72 @@
+:root{--ui-icon-size-xs:26px;--ui-icon-size-sm:31px;--ui-icon-size-md:39px;--ui-icon-size-lg:47px;--ui-icon-size:39px}.openlines-style-circle.landing-b24-widget-button-social-item{padding:0;margin-bottom:0;background-position:center !important;background-repeat:no-repeat;background-size:var(--ui-icon-size-md) !important;background-color:#454545 !important;border-radius:50px;width:46px;height:46px;filter:invert(100%)}.openlines-style-circle.landing-b24-widget-button-social-item:not(:last-child){margin-right:15px}.openlines-style-circle.landing-b24-widget-button-social-item:hover{color:white;text-decoration:none;opacity:.85;}
+
+.openlines-style-circle.landing-b24-widget-button-social-item.b24-widget-button-openline_livechat {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-livechat.svg); }
+
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-whatsapp, .test01 .landing-b24-widget-button-social-item[class*="ui-icon-service-wz_whatsapp"] {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-whatsapp.svg); }
+
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-avito {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-avito.svg); }
+
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-viber {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-viber.svg); }
+
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-fb-messenger {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-fb-messenger.svg); }
+
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-telegram {
+	background: url(/bitrix/js/ui/icons/service/images/ui-service-telegram.svg); }
+
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-wechat {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-wechat.svg); }
+
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-skype {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-skype.svg); }
+
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-bitrix24 {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-bitrix24.svg); }
+
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-ya,
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-yandex {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-apple {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-apple.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-light-apple {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-apple.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-vk,
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-vkontakte {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-vk.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-light-vk,
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-light-vkontakte {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-vk.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-fb,
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-facebook {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-fb.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-light-fb,
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-light-facebook {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-fb.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-fb-comments {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-fb-comments.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-light-fb-comments {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-fb-comments.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-instagram-fb {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-instagram-fb.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-light-instagram-fb {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-instagram-fb.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-instagram {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-instagram.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-light-instagram {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-instagram.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-slack {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-slack.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-light-slack {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-slack.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-office365 {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-office365.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-light-office365 {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-office365.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-ok {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ok.svg); }
+.openlines-style-circle.landing-b24-widget-button-social-item.ui-icon-service-light-ok {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ok.svg);}

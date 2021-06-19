@@ -1,9 +1,10 @@
 <?php
 namespace Bitrix\Forum;
 
+use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Entity;
+use Bitrix\Main\Entity\ReferenceField;
 use \Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ORM\Event;
 use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\DatetimeField;
 use Bitrix\Main\ORM\Fields\EnumField;
@@ -178,31 +179,41 @@ class ForumTable extends \Bitrix\Main\Entity\DataManager
 	 * Returns main data
 	 * @return array|null
 	 */
-	public static function getMainData(int $forumId)
+	public static function getMainData(int $forumId, ?string $siteId = null): ?array
 	{
-		if (!array_key_exists($forumId, self::$cache))
+		$cacheKey = implode('_', ([$forumId] + ($siteId === null ? [] : [$siteId])));
+		if (!array_key_exists($cacheKey, self::$cache))
 		{
-			self::$cache[$forumId] = ForumTable::getList([
-				"select" => [
-					"ID", "FORUM_GROUP_ID", "NAME", "DESCRIPTION", "SORT", "ACTIVE",
-					"ALLOW_HTML", "ALLOW_ANCHOR", "ALLOW_BIU", "ALLOW_IMG", "ALLOW_VIDEO",
-					"ALLOW_LIST", "ALLOW_QUOTE", "ALLOW_CODE", "ALLOW_FONT", "ALLOW_SMILES",
-					"ALLOW_TABLE", "ALLOW_ALIGN", "ALLOW_UPLOAD", "ALLOW_UPLOAD_EXT",
-					"ALLOW_MOVE_TOPIC", "ALLOW_TOPIC_TITLED", "ALLOW_NL2BR", "ALLOW_SIGNATURE",
-					"ASK_GUEST_EMAIL", "USE_CAPTCHA" ,"INDEXATION", "DEDUPLICATION",
-					"MODERATION", "ORDER_BY", "ORDER_DIRECTION",
-					"EVENT1", "EVENT2", "EVENT3", "XML_ID"
-				],
-				"filter" => [
-					"ID" => $forumId
-				],
-				"cache" => [
-					"ttl" => 84600
-				]
-			])->fetch();
+			$q = ForumTable::query()
+			->setSelect([
+				'ID', 'FORUM_GROUP_ID', 'NAME', 'DESCRIPTION', 'SORT', 'ACTIVE',
+				'ALLOW_HTML', 'ALLOW_ANCHOR', 'ALLOW_BIU', 'ALLOW_IMG', 'ALLOW_VIDEO',
+				'ALLOW_LIST', 'ALLOW_QUOTE', 'ALLOW_CODE', 'ALLOW_FONT', 'ALLOW_SMILES',
+				'ALLOW_TABLE', 'ALLOW_ALIGN', 'ALLOW_UPLOAD', 'ALLOW_UPLOAD_EXT',
+				'ALLOW_MOVE_TOPIC', 'ALLOW_TOPIC_TITLED', 'ALLOW_NL2BR', 'ALLOW_SIGNATURE',
+				'ASK_GUEST_EMAIL', 'USE_CAPTCHA' ,'INDEXATION', 'DEDUPLICATION',
+				'MODERATION', 'ORDER_BY', 'ORDER_DIRECTION',
+				'EVENT1', 'EVENT2', 'EVENT3', 'XML_ID'])
+			->where('ID', $forumId)
+			->setCacheTtl(84600);
+			if ($siteId !== null)
+			{
+				$q->registerRuntimeField(
+					'',
+					new ReferenceField('SITE',
+						ForumSiteTable::getEntity(),
+						[
+							'=ref.FORUM_ID' => 'this.ID',
+							'=ref.SITE_ID' => new SqlExpression('?s', $siteId)
+						]
+					)
+				)
+					->addSelect('SITE.PATH2FORUM_MESSAGE', 'PATH2FORUM_MESSAGE');
+			}
+			self::$cache[$cacheKey] = $q->fetch() ?: null;
 		}
 		self::bindOldKernelEvents();
-		return self::$cache[$forumId];
+		return self::$cache[$cacheKey];
 	}
 
 	public static function onBeforeUpdate(\Bitrix\Main\ORM\Event $event)

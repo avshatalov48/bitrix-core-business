@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/event_user_view.php");
 
 class CSocNetEventUserView extends CAllSocNetEventUserView
@@ -6,7 +7,7 @@ class CSocNetEventUserView extends CAllSocNetEventUserView
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -29,8 +30,7 @@ class CSocNetEventUserView extends CAllSocNetEventUserView
 	/***************************************/
 	/**********  DATA SELECTION  ***********/
 	/***************************************/
-
-	function GetList($arOrder = Array("ENTITY_ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = Array("ENTITY_ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -125,6 +125,4 @@ class CSocNetEventUserView extends CAllSocNetEventUserView
 
 		return $dbRes;
 	}
-	
 }
-?>

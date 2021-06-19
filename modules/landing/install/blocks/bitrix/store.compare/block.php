@@ -29,7 +29,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 				'NAME' => 'CATALOG_COMPARE_LIST',
 				'CACHE_TYPE' => 'A',
 				'CACHE_TIME' => '36000000',
-				'CACHE_GROUPS' => 'N',
+				'CACHE_GROUPS' => 'Y',
 				'PRICE_VAT_SHOW_VALUE' => 'Y',
 				'ELEMENT_SORT_FIELD' => 'sort',
 				'ELEMENT_SORT_ORDER' => 'asc',

@@ -726,19 +726,22 @@ class Rights
 			}
 			else
 			{
-				$filter[] = [
-					'LOGIC' => 'OR',
-					[
-						'!RIGHTS.TASK_ID' => $tasks[Rights::ACCESS_TYPES['denied']],
-						'RIGHTS.USER_ACCESS.USER_ID' => $uid
-					],
-					[
-						'=RIGHTS.TASK_ID' => null,
-						'!RIGHTS_COMMON.TASK_ID' => $tasks[Rights::ACCESS_TYPES['denied']],
-						'RIGHTS_COMMON.USER_ACCESS.USER_ID' => $uid
-					],
-					$additionalFilterOr
-				];
+				if ($additionalFilterOr)
+				{
+					$filter[] = [
+						'LOGIC' => 'OR',
+						[
+							'!RIGHTS.TASK_ID' => $tasks[Rights::ACCESS_TYPES['denied']],
+							'RIGHTS.USER_ACCESS.USER_ID' => $uid
+						],
+						$additionalFilterOr
+					];
+				}
+				else
+				{
+					$filter['RIGHTS.USER_ACCESS.USER_ID'] = $uid;
+					$filter['!RIGHTS.TASK_ID'] = $tasks[Rights::ACCESS_TYPES['denied']];
+				}
 			}
 		}
 
@@ -817,7 +820,7 @@ class Rights
 		{
 			// gets current from option
 			$option = Manager::getOption('access_codes_' . $code, '');
-			$option = unserialize($option);
+			$option = unserialize($option, ['allowed_classes' => false]);
 			if (isset($option[0]))
 			{
 				$right[0] = $option[0];
@@ -893,7 +896,7 @@ class Rights
 		}
 
 		$option = Manager::getOption('access_codes_' . $code, '');
-		$option = unserialize($option);
+		$option = unserialize($option, ['allowed_classes' => false]);
 		$accessCodes = isset($option[0]) ? (array)$option[0] : [];
 		$codesNames  = $access->getNames($accessCodes);
 
@@ -1046,7 +1049,7 @@ class Rights
 			if (!isset($options[$code]))
 			{
 				$options[$code] = Manager::getOption('access_codes_' . $code, '');
-				$options[$code] = unserialize($options[$code]);
+				$options[$code] = unserialize($options[$code], ['allowed_classes' => false]);
 			}
 			$option = $options[$code];
 
@@ -1082,6 +1085,16 @@ class Rights
 
 			if ($accessCodes)
 			{
+				static $accessCodesStatic = [];
+
+				sort($accessCodes);
+				$accessCodesStr = implode('|', $accessCodes);
+
+				if (array_key_exists($accessCodesStr, $accessCodesStatic))
+				{
+					return $accessCodesStatic[$accessCodesStr];
+				}
+
 				$res = UserAccessTable::getList([
 					'select' => [
 						'USER_ID'
@@ -1091,8 +1104,8 @@ class Rights
 						'USER_ID' => self::getContextUserId()
 					]
 				]);
-
-				return (boolean)$res->fetch();
+				$accessCodesStatic[$accessCodesStr] = (boolean)$res->fetch();
+				return $accessCodesStatic[$accessCodesStr];
 			}
 
 			return false;

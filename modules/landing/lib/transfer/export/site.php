@@ -235,7 +235,7 @@ class Site
 		}
 		else
 		{
-			$next = unserialize(htmlspecialcharsback($next));
+			$next = unserialize(htmlspecialcharsback($next), ['allowed_classes' => false]);
 		}
 
 		$defaultReturn = [

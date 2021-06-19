@@ -463,8 +463,6 @@ class CIMHistory
 					IM\Model\MessageTable::delete($messageInfo['ID']);
 				}
 			}
-			$obCache = new CPHPCache();
-			$obCache->CleanDir('/bx/imc/recent'.CIMMessenger::GetCachePath($this->user_id));
 		}
 
 		return true;
@@ -500,9 +498,6 @@ class CIMHistory
 		{
 			$strSql = "UPDATE b_im_relation SET START_ID = ".intval($arRes['MAX_ID']).", LAST_ID = ".(intval($arRes['MAX_ID'])-1)." WHERE ID = ".intval($arRes['R1_ID']);
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-			$obCache = new CPHPCache();
-			$obCache->CleanDir('/bx/imc/recent'.CIMMessenger::GetCachePath($this->user_id));
 		}
 
 		return true;

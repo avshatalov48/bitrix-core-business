@@ -1,3 +1,7 @@
+.side-panel-content-container.bx-messenger-dark {
+	overflow: hidden!important;
+}
+
 .bx-messenger-dark .im-desktop {
 	background-color: #313131 !important;
 	border-bottom: none;
@@ -131,7 +135,12 @@
 .bx-messenger-dark .bx-messenger-panel-title {
 	text-shadow: none;
 }
-
+.bx-messenger-dark .bx-messenger-panel-title-link {
+	color: #cecece;
+}
+.bx-messenger-dark .bx-messenger-panel-title-link:hover {
+	color: #fff;
+}
 .bx-messenger-dark .bx-messenger-panel-chat-user {
 	color: #bdc3c7;
 }
@@ -242,7 +251,13 @@
 	background: #3d3d3d !important;
 	-webkit-box-shadow: none;
 	box-shadow: none;
+	box-sizing: content-box;
+}
+.popup-window-dark.bx-messenger-mark {
 	border: 1px solid #676767;
+}
+.bx-messenger-dark.bx-desktop-appearance {
+	box-sizing: content-box;
 }
 .popup-window-dark .im-messenger-image-uploader-preview-box {
 	background-color: #313131;
@@ -273,6 +288,12 @@
 .bx-messenger-dark.bx-messenger-mark #bx-messenger-popup-newchat .popup-window-content {
 	background-color: #3D3D3D !important;
 }
+
+.bx-messenger-dark .bx-messenger-popup-menu-item-custom .bx-messenger-popup-menu-item-left,
+.popup-window-dark .bx-messenger-popup-menu-item-custom .bx-messenger-popup-menu-item-left {
+	border-left-color: #ffe000;
+}
+
 .bx-messenger-dark .bx-messenger-popup-menu-item-text,
 .popup-window-dark .bx-messenger-popup-menu-item-text {
 	color: #fff;
@@ -288,12 +309,13 @@
 }
 
 .bx-messenger-dark .bx-messenger-content-item-system .bx-messenger-content-item-content {
-	background-color: #505050;
-	opacity: 0.75;
+	background-color: transparent;
+    opacity: 0.75;
+    border-color: #7b7979;
 }
 
 .bx-messenger-dark .bx-messenger-cl-status {
-	opacity: 0.8;
+	/*opacity: 0.8;*/
 }
 
 .bx-messenger-dark #bx-call-popup-invite .bx-messenger-popup-newchat-caption,
@@ -421,24 +443,19 @@
 }
 
 .bx-messenger-dark .bx-desktop-tab-counter-digit {
-	background-color: #888b8c;
-	color: #ecf0f1;
-	border-width: 1px;
+	background-color: #94979B;
+    color: #3D3D3D;
+    font-weight: bold;
+	border-color: #3D3D3D;
 }
-
-.bx-messenger-dark .bx-desktop-tab-counter {
-	background-color: #ecf0f1;
+.bx-messenger-dark .bx-desktop-tab-active .bx-desktop-tab-counter-digit,
+.bx-messenger-dark .bx-desktop-tab:hover .bx-desktop-tab-counter-digit {
+	color: #3D3D3D;
 }
 
 .popup-window-dark .bx-messenger-content-item-notify .bx-messenger-content-item-text-center,
 .bx-messenger-dark .bx-messenger-content-item-notify .bx-messenger-content-item-text-center {
 	padding: 4px 6px !important;
-}
-
-
-.popup-window-dark .bx-messenger-panel-title .bx-messenger-panel-title-link,
-.bx-messenger-dark .bx-messenger-panel-title .bx-messenger-panel-title-link {
-	color: rgba(255, 255, 255, 0.8)  !important;
 }
 
 .popup-window-dark .bx-messenger-content-item-like,
@@ -456,7 +473,12 @@
 .bx-messenger-dark.bx-messenger-mark .bx-messenger-panel-title,
 .popup-window-dark.bx-messenger-mark .bx-messenger-panel-title {
 	text-shadow: none;
-	color: #ffffff;
+	color: #cecece;
+}
+
+.bx-messenger-dark .bx-messenger-chat-extranet,
+.popup-window-dark .bx-messenger-chat-extranet {
+	color: #ff9b00;
 }
 
 .bx-messenger-dark .bx-messenger-panel-basket,
@@ -529,6 +551,12 @@
 
 .bx-messenger-dark .bx-messenger-textarea-file-popup-arrow {
 	display: none;
+}
+
+.bx-messenger-dark .bx-messenger-cl-count {
+	color: #f1f1f1;
+    font-weight: bold;
+	border-color: #3D3D3D;
 }
 
 .bx-messenger-dark .bx-messenger-cl-status-support24 .bx-messenger-cl-user-title,
@@ -675,26 +703,19 @@
 	border-bottom-color: #505152;
 }
 
-.bx-messenger-dark .bx-messenger-box-create .bx-messenger-panel {
-	height: auto;
-}
-
 .bx-messenger-dark .bx-messenger-birthday-icon {
 	width: 17px;
 	height: 20px;
 	background: url(./../images/im-sprite-v37.png) -46px -164px no-repeat;
 }
 
-.bx-messenger-dark .bx-messenger-panel-avatar-status {
-	height: 17px;
-	width: 17px;
-	margin-left: -13px;
-	margin-top : 21px;
+.bx-messenger-dark .bx-messenger-panel-avatar-img,
+.bx-messenger-dark .bx-messenger-cl-avatar-img {
+	background-color: transparent;
 }
 
-.bx-messenger-dark .bx-messenger-cl-status {
-	height: 15px;
-	width : 15px;
+.bx-messenger-dark .bx-messenger-cl-item-user-invited .bx-messenger-cl-avatar-img-default {
+	background-color: #00c8fb;
 }
 
 .bx-messenger-dark .bx-messenger-textarea-icons>div:not(.bx-messenger-textarea-icon-box) {
@@ -702,6 +723,9 @@
 }
 .bx-messenger-dark .bx-messenger-textarea-file div {
 	filter: brightness(.5);
+}
+.bx-messenger-dark .bx-messenger-textarea-file .bx-messenger-menu-hr {
+	display: none;
 }
 
 .bx-messenger-dark .bx-messenger-textarea-file:hover,
@@ -718,11 +742,6 @@
 .bx-messenger-dark .bx-messenger-textarea-file {
 	background: url(./../images/im-sprite-v37.png) no-repeat scroll 5px -520px;
 	height: 31px;
-}
-
-.popup-window-dark .bx-notifier-popup-avatar-owner .bx-notifier-popup-avatar-status-icon,
-.bx-messenger-dark .bx-notifier-popup-avatar-owner .bx-notifier-popup-avatar-status-icon {
-	background-position: -58px -305px;
 }
 
 .popup-window-dark .bx-notifier-popup-avatar-status-icon,
@@ -1079,17 +1098,15 @@
 	border-top: none;
 }
 
+.bx-messenger-dark .bx-messenger-cl-item-pinned:after,
+.bx-messenger-dark .bx-messenger-cl-item-message-status-received:before,
+.bx-messenger-dark .bx-messenger-cl-item-message-status-delivered:before
+{
+    opacity: .4;
+}
+
 .bx-messenger-dark .bx-messenger-chatlist-group-add {
 	background-color: #3a3a3a;
-}
-
-.bx-messenger-dark .bx-messenger-recent-wrap .bx-messenger-cl-count {
-	margin-top: 6px;
-}
-
-.bx-messenger-dark .bx-messenger-cl-item-pinned:before {
-	right: 5px;
-	margin-top: 17px;
 }
 
 .popup-window-dark .bx-notifier-content-load-block-img,
@@ -1167,6 +1184,13 @@
 	color: #ffffff;
 }
 
+.bx-messenger-dark .bx-messenger-settings-header,
+.popup-window-dark .bx-messenger-settings-header {
+	background-color: #4a4a4a;
+	color: #ffffff;
+}
+
+
 .side-panel-content-container.bx-messenger-dark {
 	background-color: #313131;
 }
@@ -1202,6 +1226,26 @@
 .bx-messenger-dark .bx-messenger-settings-notify-type,
 .popup-window-dark .bx-messenger-settings-notify-type {
 	background-color: #4a4a4a !important;
+}
+
+.bx-messenger-dark .bx-messenger-settings-hotkeys,
+.bx-messenger-dark .bx-messenger-settings-hotkeys td,
+.bx-messenger-dark .bx-messenger-settings-hotkeys th,
+.bx-messenger-dark .bx-messenger-settings-hotkeys tr,
+.bx-messenger-dark .bx-messenger-settings-hotkeys table,
+.popup-window-dark .bx-messenger-settings-hotkeys,
+.popup-window-dark .bx-messenger-settings-hotkeys td,
+.popup-window-dark .bx-messenger-settings-hotkeys th,
+.popup-window-dark .bx-messenger-settings-hotkeys tr,
+.popup-window-dark .bx-messenger-settings-hotkeys table {
+	border-color: #4a4a4a !important;
+	background: transparent !important;
+}
+
+.bx-messenger-dark td.bx-messenger-settings-hotkeys-separator,
+.popup-window-dark td.bx-messenger-settings-hotkeys-separator {
+	background-color: #4a4a4a !important;
+	color: #fff !important;
 }
 
 .bx-messenger-dark .disk-desktop-popup-wrapper {
@@ -1333,14 +1377,6 @@
 	background-color: #4c4c4c;
 }
 
-.bx-messenger-dark .bx-messenger-user-extranet {
-	background: url(./../images/im-sprite-v37.png) no-repeat scroll -178px -962px;
-}
-
-.bx-messenger-dark .bx-messenger-chat-extranet:before{
-	background: url(./../images/im-sprite-v37.png) no-repeat scroll -178px -962px;
-}
-
 .bx-messenger-dark .bx-messenger-file-download-link {
 	margin-right: 11px;
 	border-radius: 5px;
@@ -1454,6 +1490,13 @@
 	box-shadow: none;
 }
 
+.bx-messenger-dark .bx-messenger-box-create .bx-messenger-panel-wrap {
+	background-color: #313131;
+	margin: 0 -15px 0 -11px;
+	padding: 0 15px 0 11px;
+	border-bottom: none;
+}
+
 .bx-messenger-dark .bx-messenger-panel-wrap {
 	border-bottom: none;
 }
@@ -1523,4 +1566,23 @@
 .bx-messenger-dark .bx-messenger-input-search-create:hover {
 	background-color: #585858;
 	border: 1px solid #e5e8eb;
+}
+
+.bx-messenger-dark .bx-messenger-box-topline-button {
+	border-color: #545454;
+	background: #2d2d2d;
+	color: #c6c6c6;
+}
+
+.bx-messenger-dark .bx-messenger-box-topline-close {
+	filter: brightness(.4);
+}
+
+.bx-messenger-dark .bx-messenger-box-topline-show {
+	border-bottom-color: #545454;
+}
+
+.bx-messenger-dark .bx-messenger-box-topline {
+	color: #c2c2c2;
+	background-color: #303030;
 }

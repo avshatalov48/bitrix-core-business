@@ -301,7 +301,7 @@ else
 				<select size="5" multiple name="REPORT_ID[]">
 					<?
 					$arSysLangs = array();
-					$db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"), array("ACTIVE" => "Y"));
+					$db_lang = CLangAdmin::GetList("sort", "asc", array("ACTIVE" => "Y"));
 					while ($arLang = $db_lang->Fetch())
 						$arSysLangs[] = $arLang["LID"];
 

@@ -74,7 +74,7 @@ if ($arParams["HTML_SIZE"] !== null)
 		if ($arParams["HTML_SIZE"]["height"] > 0)
 			$style[] = 'max-height:'.$arParams["HTML_SIZE"]["height"].'px;';
 		if (!empty($style))
-			$props = 'style="'.implode($style, "").'"';
+			$props = 'style="'.implode("", $style).'"';
 	}
 
 }

@@ -87,6 +87,11 @@ class ProductForm extends BaseForm
 		);
 	}
 
+	protected function getHiddenPropertyCodes(): array
+	{
+		return [self::MORE_PHOTO];
+	}
+
 	protected function getPropertiesConfigElements(): array
 	{
 		return array_merge(

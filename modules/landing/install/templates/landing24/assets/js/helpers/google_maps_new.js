@@ -8,6 +8,7 @@
 	{
 		if (event.block.querySelector("[data-map]"))
 		{
+			onBeforeInit(event);
 			if (BX.Landing.Provider.Map.GoogleMap.isApiLoaded())
 			{
 				initGmapBlock(event);
@@ -31,6 +32,7 @@
 
 	function initGmapBlock(event)
 	{
+		onApiLoaded(event);
 		if (BX.Landing.getMode() === "edit")
 		{
 			event.forceInit();
@@ -46,6 +48,22 @@
 				labels: BX.Landing.Utils.data(container, "data-map-labels") || [],
 				mapOptions: BX.Landing.Utils.data(container, "data-map")
 			});
+		}
+	}
+
+	function onBeforeInit(event)
+	{
+		if (BX.Landing.getMode() !== 'edit')
+		{
+			BX.hide(event.block);
+		}
+	}
+
+	function onApiLoaded(event)
+	{
+		if (BX.Landing.getMode() !== 'edit')
+		{
+			BX.show(event.block);
 		}
 	}
 

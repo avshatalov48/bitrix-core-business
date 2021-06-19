@@ -5,12 +5,12 @@
 
 			<div class="landing-block-card js-animation fadeIn col-md-4 col-lg-4 g-mb-20 g-mb-0--md">
 				<div class="landing-block-node-title-container g-mb-20">
-					<h2 class="landing-block-node-subtitle landing-semantic-subtitle-image-small h6 text-uppercase u-heading-v8__title g-font-weight-700 g-color-white mb-0 g-font-size-11 g-color-white-opacity-0_8 p-0 g-mb-7">
+					<h6 class="landing-block-node-subtitle landing-semantic-subtitle-image-small text-uppercase u-heading-v8__title g-font-weight-700 g-color-white mb-0 g-color-white-opacity-0_8 p-0 g-mb-7">
 						Building
-					</h2>
-					<h2 class="landing-block-node-title landing-semantic-subtitle-image-medium h6 text-uppercase u-heading-v8__title g-font-weight-700 g-color-white mb-0">
+					</h6>
+					<h5 class="landing-block-node-title landing-semantic-subtitle-image-medium text-uppercase u-heading-v8__title g-font-weight-700 g-color-white mb-0">
 						Excepteur sint occaecat cupidatat
-					</h2>
+					</h5>
 				</div>
 				<div class="landing-block-node-img-container">
 					<img class="landing-block-node-img img-fluid g-mb-20 flex-shrink-0"
@@ -30,12 +30,12 @@
 
 			<div class="landing-block-card js-animation fadeIn col-md-4 col-lg-4 g-mb-20 g-mb-0--md">
 				<div class="landing-block-node-title-container g-mb-20">
-					<h2 class="landing-block-node-subtitle landing-semantic-subtitle-image-small h6 text-uppercase u-heading-v8__title g-font-weight-700 g-color-white mb-0 g-font-size-11 g-color-white-opacity-0_8 p-0 g-mb-7">
+					<h6 class="landing-block-node-subtitle landing-semantic-subtitle-image-small text-uppercase u-heading-v8__title g-font-weight-700 g-color-white mb-0 g-color-white-opacity-0_8 p-0 g-mb-7">
 						Building
-					</h2>
-					<h2 class="landing-block-node-title landing-semantic-subtitle-image-medium h6 text-uppercase u-heading-v8__title g-font-weight-700 g-color-white mb-0">
+					</h6>
+					<h5 class="landing-block-node-title landing-semantic-subtitle-image-medium text-uppercase u-heading-v8__title g-font-weight-700 g-color-white mb-0">
 						Excepteur sint occaecat cupidatat
-					</h2>
+					</h5>
 				</div>
 				<div class="landing-block-node-img-container">
 					<img class="landing-block-node-img img-fluid g-mb-20 flex-shrink-0"
@@ -55,12 +55,12 @@
 
 			<div class="landing-block-card js-animation fadeIn col-md-4 col-lg-4 g-mb-20 g-mb-0--md">
 				<div class="landing-block-node-title-container g-mb-20">
-					<h2 class="landing-block-node-subtitle landing-semantic-subtitle-image-small h6 text-uppercase u-heading-v8__title g-font-weight-700 g-color-white mb-0 g-font-size-11 g-color-white-opacity-0_8 p-0 g-mb-7">
+					<h6 class="landing-block-node-subtitle landing-semantic-subtitle-image-small text-uppercase u-heading-v8__title g-font-weight-700 g-color-white mb-0 g-color-white-opacity-0_8 p-0 g-mb-7">
 						Building
-					</h2>
-					<h2 class="landing-block-node-title landing-semantic-subtitle-image-medium h6 text-uppercase u-heading-v8__title g-font-weight-700 g-color-white mb-0">
+					</h6>
+					<h5 class="landing-block-node-title landing-semantic-subtitle-image-medium text-uppercase u-heading-v8__title g-font-weight-700 g-color-white mb-0">
 						Excepteur sint occaecat cupidatat
-					</h2>
+					</h5>
 				</div>
 				<div class="landing-block-node-img-container">
 					<img class="landing-block-node-img img-fluid g-mb-20 flex-shrink-0"

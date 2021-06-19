@@ -49,7 +49,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_adm
 
 if ($find_adv_str <> '') :
 	echo "<h2>".GetMessage("STAT_ADV_LIST")."</h2><p>";
-	$rsAdv = CAdv::GetList($v1="s_dropdown",$v2="asc", Array("ID" => $str), $v3, "", $v4, $v5);
+	$rsAdv = CAdv::GetList("s_dropdown", "asc", Array("ID" => $str));
 	while ($arAdv = $rsAdv->GetNext()) :
 		echo "[".$arAdv["ID"]."]&nbsp;".$arAdv["REFERER1"]."&nbsp;/&nbsp;".$arAdv["REFERER2"]."<br>";
 	endwhile;

@@ -385,7 +385,7 @@ $tabControl->BeginNextTab();
 if($bVarsFromForm)
 	$arRules = CCloudStorageBucket::ConvertPOST($_POST);
 elseif(isset($arRes["FILE_RULES"]))
-	$arRules = unserialize($arRes["FILE_RULES"]);
+	$arRules = unserialize($arRes["FILE_RULES"], ['allowed_classes' => false]);
 else
 	$arRules = array();
 

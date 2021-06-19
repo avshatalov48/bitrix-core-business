@@ -109,7 +109,7 @@ if (\Bitrix\Main\Context::getCurrent()->getRequest()->isAjaxRequest())
 				tileSize: '<?= $arParams['TILE_SIZE']?>',
 				container: document.getElementById('<?= $arParams['GRID_ID'] ?>_tile_grid_container'),
 				items: <?= \Bitrix\Main\Web\Json::encode($arResult['TILE_GRID_ITEMS']) ?>,
-				checkBoxing: true,
+				checkBoxing: <?= $arParams["SHOW_ROW_CHECKBOXES"] ? 'true' : 'false' ?>,
 				itemType: '<?= CUtil::JSEscape($arParams['JS_CLASS_TILE_GRID_ITEM']) ?>',
 				userOptions: <?=\Bitrix\Main\Web\Json::encode($arResult['OPTIONS'])?>,
 				userOptionsActions: <?=\Bitrix\Main\Web\Json::encode($arResult['OPTIONS_ACTIONS'])?>,

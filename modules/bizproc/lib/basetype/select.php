@@ -2,6 +2,7 @@
 
 namespace Bitrix\Bizproc\BaseType;
 
+use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Bizproc\FieldType;
 
@@ -129,7 +130,7 @@ class Select extends Base
 		$typeValue = [];
 		if (!is_array($value))
 		{
-			$value = (array) $value;
+			$value = (array)$value;
 		}
 
 		if (\CBPHelper::isAssociativeArray($value))
@@ -156,11 +157,31 @@ class Select extends Base
 		}
 
 		$className = static::generateControlClassName($fieldType, $field);
+		$selectorAttributes = '';
 
-		$renderResult = '<select id="'.htmlspecialcharsbx(static::generateControlId($field))
-			.'" class="'.htmlspecialcharsbx($className)
-			.'" name="'.htmlspecialcharsbx(static::generateControlName($field))
-			.($fieldType->isMultiple() ? '[]' : '').'"'.($fieldType->isMultiple() ? ' size="5" multiple' : '').'>';
+		$isPublicControl = $renderMode & FieldType::RENDER_MODE_PUBLIC;
+
+		if ($allowSelection && $isPublicControl)
+		{
+			$selectorAttributes = sprintf(
+				'data-role="inline-selector-target" data-property="%s" ',
+				htmlspecialcharsbx(Main\Web\Json::encode($fieldType->getProperty()))
+			);
+		}
+
+		if ($fieldType->isMultiple())
+		{
+			$selectorAttributes .= 'size="5" multiple ';
+		}
+
+		$renderResult = sprintf(
+			'<select id="%s" class="%s" name="%s%s" %s>',
+			htmlspecialcharsbx(static::generateControlId($field)),
+			($isPublicControl ? htmlspecialcharsbx($className) : ''),
+			htmlspecialcharsbx(static::generateControlName($field)),
+			$fieldType->isMultiple() ? '[]' : '',
+			$selectorAttributes
+		);
 
 		if (!$fieldType->isMultiple())
 		{
@@ -168,7 +189,7 @@ class Select extends Base
 		}
 
 		$settings = static::getFieldSettings($fieldType);
-		$groups = $settings['Groups'] ? $settings['Groups'] : null;
+		$groups = $settings['Groups'] ?: null;
 
 		if(is_array($groups) && !empty($groups))
 		{
@@ -218,9 +239,18 @@ class Select extends Base
 			}
 		}
 
+		if ($allowSelection && $selectorValue && $isPublicControl)
+		{
+			$renderResult .= sprintf(
+				'<option value="%s" selected data-role="expression">%s</option>',
+				htmlspecialcharsbx($selectorValue),
+				htmlspecialcharsbx($selectorValue)
+			);
+		}
+
 		$renderResult .= '</select>';
 
-		if ($allowSelection)
+		if ($allowSelection && !$isPublicControl)
 		{
 			$renderResult .= static::renderControlSelector($field, $selectorValue, true, '', $fieldType);
 		}

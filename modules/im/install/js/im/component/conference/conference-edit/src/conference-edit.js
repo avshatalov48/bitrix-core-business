@@ -1,5 +1,5 @@
 import {Reflection, Text, Dom, ajax as Ajax} from "main.core";
-import {Vue} from "ui.vue";
+import {BitrixVue} from "ui.vue";
 import {ConferenceFieldState} from "im.const";
 import {Logger} from "im.lib.logger";
 import {Clipboard} from "im.lib.clipboard";
@@ -8,12 +8,14 @@ import {FieldTitle} from "./fields/title";
 import {FieldPassword} from "./fields/password";
 import {FieldInvitation} from "./fields/invitation";
 import {FieldPlanner} from "./fields/planner";
+import {FieldBroadcast} from "./fields/broadcast";
 
 const FieldTypes = [
 	FieldTitle,
 	FieldPassword,
 	FieldInvitation,
-	FieldPlanner
+	FieldPlanner,
+	FieldBroadcast
 ];
 
 const FieldComponents = {};
@@ -21,7 +23,7 @@ FieldTypes.forEach(fieldType => {
 	FieldComponents[fieldType.name] = fieldType.component;
 });
 
-Vue.component('bx-im-component-conference-edit',
+BitrixVue.component('bx-im-component-conference-edit',
 {
 	props:
 	{
@@ -30,11 +32,13 @@ Vue.component('bx-im-component-conference-edit',
 		mode: { type: String, default: ConferenceFieldState.create },
 		chatHost: { type: Object, default: {} },
 		chatUsers: { type: Array, default: [] },
+		presenters: { type: Array, default: [] },
 		publicLink: { type: String, default: '' },
 		chatId: { type: Number, default: 0 },
 		invitationText: { type: String, default: '' },
 		gridId: { type: String, default: '' },
-		pathToList: { type: String, default: '' }
+		pathToList: { type: String, default: '' },
+		broadcastingEnabled: { type: Boolean, default: false }
 	},
 	data: function()
 	{
@@ -42,7 +46,8 @@ Vue.component('bx-im-component-conference-edit',
 			fieldsMode: {
 				'title': this.mode,
 				'password': this.mode,
-				'planner': this.mode
+				'planner': this.mode,
+				'broadcast': this.mode
 			},
 			fields: {},
 			initialValues: {},
@@ -65,6 +70,14 @@ Vue.component('bx-im-component-conference-edit',
 				initialValue: false
 			},
 			selectedUsers: {
+				currentValue: [],
+				initialValue: []
+			},
+			broadcastMode: {
+				currentValue: false,
+				initialValue: false
+			},
+			selectedPresenters: {
 				currentValue: [],
 				initialValue: []
 			},
@@ -96,10 +109,16 @@ Vue.component('bx-im-component-conference-edit',
 		{
 			this.title.initialValue = this.fieldsData['TITLE'];
 			this.password.initialValue = this.fieldsData['PASSWORD'];
+			this.broadcastMode.currentValue = this.fieldsData['BROADCAST'];
 			this.invitation.value = this.invitationText;
 			this.passwordNeeded.currentValue = !!this.fieldsData['PASSWORD'];
+			this.publicLink = Text.encode(this.publicLink);
 
 			this.selectedUsers.currentValue = [...this.chatUsers];
+			if (this.fieldsData['BROADCAST'])
+			{
+				this.selectedPresenters.currentValue = [...this.presenters]
+			}
 		}
 		else if (this.isFormCreateMode)
 		{
@@ -108,17 +127,22 @@ Vue.component('bx-im-component-conference-edit',
 			this.title.initialValue = '';
 			this.password.initialValue = '';
 			this.passwordNeeded.currentValue = false;
+			this.broadcastMode.currentValue = false;
 
-			this.selectedUsers.currentValue.push({
+			const currentUser = {
 				id: this.chatHost.ID,
 				title: this.chatHost.FULL_NAME,
 				avatar: this.chatHost.AVATAR
-			});
+			};
+			this.selectedUsers.currentValue.push(currentUser);
+			this.selectedPresenters.currentValue.push(currentUser);
 		}
 		this.title.currentValue = this.title.initialValue;
 		this.password.currentValue = this.password.initialValue;
 		this.passwordNeeded.initialValue = this.passwordNeeded.currentValue;
+		this.broadcastMode.initialValue = this.broadcastMode.currentValue;
 		this.selectedUsers.initialValue = [...this.selectedUsers.currentValue];
+		this.selectedPresenters.initialValue = [...this.selectedPresenters.currentValue];
 
 		this.setDefaultDateAndTime();
 		this.setDefaultDuration();
@@ -154,12 +178,16 @@ Vue.component('bx-im-component-conference-edit',
 		},
 		isPasswordCheckboxEdited()
 		{
-			return this.passwordNeeded.currentValue !== this.passwordNeeded.initialValue
+			return this.passwordNeeded.currentValue !== this.passwordNeeded.initialValue;
+		},
+		isBroadcastEdited()
+		{
+			return this.fieldsMode['broadcast'] === ConferenceFieldState.edit;
 		},
 		isEditing()
 		{
 			return this.isFormViewMode
-				&& (this.isTitleEdited || this.isPasswordEdited || this.invitation.edited || this.isPasswordCheckboxEdited || this.isPlannerEdited);
+				&& (this.isTitleEdited || this.isPasswordEdited || this.invitation.edited || this.isPasswordCheckboxEdited || this.isPlannerEdited || this.isBroadcastEdited);
 		},
 		conferenceLink()
 		{
@@ -234,6 +262,10 @@ Vue.component('bx-im-component-conference-edit',
 				this.$root.$emit('focus', 'password');
 			}
 		},
+		onBroadcastModeChange()
+		{
+			this.broadcastMode.currentValue = !this.broadcastMode.currentValue;
+		},
 		onInvitationUpdate(newValue)
 		{
 			this.invitation.value = newValue;
@@ -265,6 +297,32 @@ Vue.component('bx-im-component-conference-edit',
 				this.selectedUsers.currentValue.splice(index, 1);
 			}
 		},
+		onPresenterSelect(event)
+		{
+			const index = this.selectedPresenters.currentValue.findIndex((user) => {
+				return user.id === event.data.item.id;
+			});
+
+			if (index === -1)
+			{
+				this.selectedPresenters.currentValue.push({
+					id: event.data.item.id,
+					title: event.data.item.title,
+					avatar: event.data.item.avatar,
+				});
+			}
+		},
+		onPresenterDeselect(event)
+		{
+			const index = this.selectedPresenters.currentValue.findIndex((user) => {
+				return user.id === event.data.item.id;
+			});
+
+			if (index > -1)
+			{
+				this.selectedPresenters.currentValue.splice(index, 1);
+			}
+		},
 		onDateChange(newDate)
 		{
 			this.selectedDate.currentValue = BX.formatDate(newDate, BX.message('FORMAT_DATE'));
@@ -291,8 +349,11 @@ Vue.component('bx-im-component-conference-edit',
 			this.title.currentValue = this.title.initialValue;
 			this.password.currentValue = this.password.initialValue;
 			this.passwordNeeded.currentValue = this.passwordNeeded.initialValue;
+			this.broadcastMode.currentValue = this.broadcastMode.initialValue;
 			this.selectedUsers.currentValue = [...this.selectedUsers.initialValue];
 			this.$root.$emit('updateUserSelector');
+			this.selectedPresenters.currentValue = [...this.selectedPresenters.initialValue];
+			this.$root.$emit('updatePresenterSelector');
 			this.selectedDate.currentValue = this.selectedDate.initialValue;
 			this.selectedTime.currentValue = this.selectedTime.initialValue;
 			this.selectedDuration.currentValue = this.selectedDuration.initialValue;
@@ -305,11 +366,11 @@ Vue.component('bx-im-component-conference-edit',
 			let link = '';
 			if (this.isFormCreateMode && this.linkGenerated)
 			{
-				link = this.aliasData['LINK'];
+				link = Text.decode(this.aliasData['LINK']);
 			}
 			else if (this.isFormViewMode)
 			{
-				link = this.publicLink;
+				link = Text.decode(this.publicLink);
 			}
 
 			let title = this.localize['BX_IM_COMPONENT_CONFERENCE_DEFAULT_TITLE'];
@@ -361,6 +422,8 @@ Vue.component('bx-im-component-conference-edit',
 			fieldsToSubmit['id'] = this.conferenceId;
 			fieldsToSubmit['invitation'] = Text.decode(this.invitation.value);
 			fieldsToSubmit['users'] = this.selectedUsers.currentValue.map(user => user.id);
+			fieldsToSubmit['broadcast_mode'] = this.broadcastMode.currentValue;
+			fieldsToSubmit['presenters'] = this.selectedPresenters.currentValue.map(user => user.id);
 
 			this.clearErrors();
 
@@ -396,7 +459,12 @@ Vue.component('bx-im-component-conference-edit',
 		onFailedSubmit(response)
 		{
 			this.isSubmitting = false;
-			this.addError(response["errors"][0].message);
+			let errorMessage = response["errors"][0].message;
+			if (response["errors"][0].code === 'NETWORK_ERROR')
+			{
+				errorMessage = this.localize['BX_IM_COMPONENT_CONFERENCE_NETWORK_ERROR'];
+			}
+			this.addError(errorMessage);
 		},
 		/* endregion 04. Form handling */
 
@@ -433,6 +501,7 @@ Vue.component('bx-im-component-conference-edit',
 			})
 			.then((response) => {
 				this.aliasData = response.data['ALIAS_DATA'];
+				this.aliasData['LINK'] = Text.encode(this.aliasData['LINK']);
 				this.title.defaultValue = response.data['DEFAULT_TITLE'];
 				this.linkGenerated = true;
 			})
@@ -541,6 +610,19 @@ Vue.component('bx-im-component-conference-edit',
 					@passwordNeededChange="onPasswordNeededChange"
 					@switchToEdit="switchToEdit"
 				/>
+<!--				<div v-if="isFormCreateMode" class="im-conference-create-delimiter im-conference-create-delimiter-small"></div>-->
+				<template v-if="broadcastingEnabled">
+					<conference-field-broadcast
+						:mode="fieldsMode['broadcast']"
+						:broadcastMode="broadcastMode.currentValue"
+						:selectedPresenters="selectedPresenters.currentValue"
+						:chatHost="chatHost"
+						@broadcastModeChange="onBroadcastModeChange"
+						@switchToEdit="switchToEdit"
+						@presenterSelect="onPresenterSelect"
+						@presenterDeselect="onPresenterDeselect"
+					/>
+				</template>
 				<!-- Action buttons -->
 				<template v-if="!isFormCreateMode">
 					<div class="im-conference-create-section im-conference-create-actions">

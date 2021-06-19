@@ -9,7 +9,7 @@
 	</div>
 
 	<div class="landing-block-node-container container g-max-width-800 js-animation fadeInDown container text-center u-bg-overlay__inner g-mx-1">
-		<h2 class="landing-block-node-title text-uppercase landing-semantic-title-image-medium g-line-height-1 g-font-weight-700 g-font-size-30 g-color-white g-mb-20">
+		<h2 class="landing-block-node-title text-uppercase landing-semantic-title-image-medium g-line-height-1 g-font-weight-700 g-color-white g-mb-20">
 			High quality solutions</h2>
 
 		<div class="landing-block-node-text landing-semantic-text-image-medium g-color-white-opacity-0_7 g-mb-35" data-auto-font-scale>

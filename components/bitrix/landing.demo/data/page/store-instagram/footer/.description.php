@@ -37,7 +37,7 @@ return array(
 			'nodes' => array(
 				'.landing-block-node-text' => array(
 					0 => '
-				<p>&copy 2018 All rights reserved.</p>
+				<p>&copy 2021 All rights reserved.</p>
 			',
 				),
 			),

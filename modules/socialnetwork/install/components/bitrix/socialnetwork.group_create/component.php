@@ -263,7 +263,7 @@ else
 						$errorMessage .= $e->GetString();
 					else
 					{
-						$rsSite = CSite::GetList($by="sort", $order="desc", Array("ACTIVE" => "Y"));
+						$rsSite = CSite::GetList("sort", "desc", Array("ACTIVE" => "Y"));
 						while($arSite = $rsSite->Fetch())
 							BXClearCache(true, "/".$arSite["ID"]."/bitrix/search.tags.cloud/");
 					}

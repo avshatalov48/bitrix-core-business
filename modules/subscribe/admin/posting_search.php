@@ -79,7 +79,7 @@ $tabControl->BeginNextTab();
 			if(!is_array($GROUP_ID))
 				$GROUP_ID = array();
 			$aGroup = array();
-			$group = CGroup::GetList(($by="sort"), ($order="asc"));
+			$group = CGroup::GetList();
 			while($ar = $group->GetNext()):
 				$aGroup[] = $ar["ID"];
 			?>
@@ -126,7 +126,7 @@ if(is_array($GROUP_ID) && count($GROUP_ID)>0)
 	if(!in_array(2, $GROUP_ID))
 		$arFilter["GROUP_MULTI"] = $GROUP_ID;
 
-	$user = CUser::GetList(($b="id"), ($o="asc"), $arFilter);
+	$user = CUser::GetList("id", "asc", $arFilter);
 	while($user_arr = $user->Fetch())
 		if($user_arr["EMAIL"] <> '')
 			$aEmail[$user_arr["EMAIL"]] = 1;

@@ -1,66 +1,109 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+use Bitrix\Main\Localization\Loc;
+
+/** @var CBitrixComponentTemplate $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CDatabase $DB */
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
+
 IncludeAJAX();
-return;
-$bIsMine = ($arResult["GALLERY"]["CREATED_BY"] == $USER->GetID() && $USER->IsAuthorized());
-$arParams["GALLERY_AVATAR_SIZE"] = intval(intval($arParams["GALLERY_AVATAR_SIZE"]) > 0 ?  $arParams["GALLERY_AVATAR_SIZE"] : 50);
-/* MY TOP PANEL */
-if ($GLOBALS["USER"]->IsAuthorized() && !empty($arResult["GALLERY"])):
-?><div class="photo-user photo-user-my"><?
-	?><div class="photo-controls photo-action">
-	<a href="<?=($bIsMine ? $arResult["MY_GALLERY"]["LINK"]["VIEW"] : $arResult["GALLERY"]["LINK"]["VIEW"])?>" class="photo-action gallery-view" title="<?=
-		($bIsMine ? GetMessage("P_PHOTO_MY_TITLE") : GetMessage("P_PHOTO_TITLE"))?>"><?=
-		($bIsMine ? GetMessage("P_PHOTO_MY") : GetMessage("P_PHOTO"))?>
-	</a> 
-	<?
-if ($arParams["PERMISSION"] >= "W"):
-	if ($bIsMine && (count($arResult["MY_GALLERIES"]) > 1 || $arResult["I"]["ACTIONS"]["CREATE_GALLERY"] == "Y")):
-	?>
-	<a href="<?=$arResult["LINK"]["GALLERIES"]?>"  class="photo-action gallery-view-list" title="<?=GetMessage("P_GALLERIES_MY_TITLE")?>"><?=
-		GetMessage("P_GALLERIES_MY")?></a> 
-	<?
-	else:
-	?>
-	<a href="<?=$arResult["GALLERY"]["LINK"]["EDIT"]?>"  class="photo-action gallery-edit" title="<?=
-		($bIsMine ? GetMessage("P_GALLERY_MY_TITLE") : GetMessage("P_GALLERY_TITLE"))?>"><?=
-		($bIsMine ? GetMessage("P_GALLERY_MY") : GetMessage("P_GALLERY"))?>
-	</a> 
-	<?
-	endif;
-	?><a href="<?=($bIsMine ? $arResult["MY_GALLERY"]["LINK"]["UPLOAD"] : $arResult["GALLERY"]["LINK"]["UPLOAD"])?>" class="photo-action photo-upload"><?=GetMessage("P_UPLOAD")?></a><?
-endif;	
-	?></div>
-</div>
-<div class="empty-clear"></div>
-<?
 
-elseif (!$GLOBALS["USER"]->IsAuthorized()):
-?><div class="photo-controls photo-action"><?
-	?><a href="<?=htmlspecialcharsbx($APPLICATION->GetCurPageParam("auth=yes&backurl=".$arResult["backurl_encode"], 
-		array("login", "logout", "register", "forgot_password", "change_password", BX_AJAX_PARAM_ID)));
-		?>" class="photo-action authorize" title="<?=GetMessage("P_LOGIN_TITLE")?>"><?=GetMessage("P_LOGIN")?></a><?
-?></div>
-<div class="empty-clear"></div>
-<?
-endif;
+if ($arParams['PARENT_FATAL_ERROR'] === 'Y')
+{
+	if (!empty($arParams['PARENT_ERROR_MESSAGE']))
+	{
+		ShowError($arParams['PARENT_ERROR_MESSAGE']);
+	}
+	else
+	{
+		ShowNote($arParams['PARENT_NOTE_MESSAGE'], 'notetext-simple');
+	}
+}
 
-if (!empty($arResult["GALLERY"])):
-?><div class="photo-user <?=($arResult["GALLERY"]["CREATED_BY"] == $GLOBALS["USER"]->GetId() ? " photo-user-my" : "")?>">
-<table cellpadding="0" cellspacing="0" border="0" width="100%" class="gallery-table-header"><tr>
-	<td width="0%" class="picture"><div class="photo-gallery-avatar" <?
-		?>style="width:<?=$arParams["GALLERY_AVATAR_SIZE"]?>px; height:<?=$arParams["GALLERY_AVATAR_SIZE"]?>px;<?
-	if (!empty($arResult["GALLERY"]["PICTURE"])):
-			?>background-image:url(<?=$arResult["GALLERY"]["PICTURE"]["SRC"]?>);<?
-	endif;
-		?>"></div>
-	</td>
-	<td width="<?=($arParams["GALLERY_SIZE"] > 0 ? "70" : "100")?>%" align="left" class="data">
-		<div class="photo-gallery-name"><?=$arResult["GALLERY"]["NAME"]?></div><?
-	if (!empty($arResult["GALLERY"]["DESCRIPTION"])):?>
-		<div class="photo-gallery-description"><?=$arResult["GALLERY"]["DESCRIPTION"]?></div><?
-	endif;
-	?>
-	</td>
-</tr></table>
-</div><?
-endif;
-?>
+if ($arParams['PARENT_FATAL_ERROR'] !== 'Y' && $arParams['SHOW_CONTROLS'] === 'Y')
+{
+	?><noindex>
+	<div class="photo-top-controls">
+		<a rel="nofollow" href="<?= htmlspecialcharsbx($arResult['GALLERY']['LINK']['NEW']) ?>" onclick="EditAlbum('<?= CUtil::JSEscape($arResult['GALLERY']['LINK']['NEW']) ?>'); return false;"><?= Loc::getMessage('P_ADD_ALBUM') ?></a>
+		<a rel="nofollow" href="<?= htmlspecialcharsbx($arResult['GALLERY']['LINK']['UPLOAD']) ?>" target="_top"><?= Loc::getMessage('P_UPLOAD') ?></a>
+	</div>
+	</noindex>
+	<?php
+}
+
+if ($arParams['PARENT_FATAL_ERROR'] !== 'Y' && $arParams['PARENT_PAGE'] === 'group_photo_section' )
+{
+	$result = $APPLICATION->IncludeComponent(
+		'bitrix:photogallery.section',
+		'',
+		$arParams['PARENT_PARAMS_SECTION'],
+		false,
+		[ 'HIDE_ICONS' => 'Y' ]
+	);
+
+	if ($result && (int)$result["ELEMENTS_CNT"] > 0)
+	{
+		// DETAIL LIST
+		?>
+		<div class="photo-info-box photo-info-box-photo-list">
+			<div class="photo-info-box-inner">
+				<?
+				$componentResult = $APPLICATION->IncludeComponent(
+					'bitrix:photogallery.detail.list.ex',
+					'',
+					$arParams['PARENT_PARAMS_DETAIL_LIST'],
+					false,
+					[ 'HIDE_ICONS' => 'Y' ]
+				);?>
+			</div>
+		</div>
+		<?
+
+		if (empty($componentResult))
+		{
+			?>
+			<style>
+				div.photo-page-section div.photo-info-box-photo-list { display: none; }
+			</style>
+			<?
+		}
+	}
+
+	if ($result && (int)$result["SECTIONS_CNT"] > 0)
+	{
+		?>
+		<div class="photo-info-box photo-info-box-section-list">
+			<div class="photo-info-box-inner">
+				<div class="photo-header-big">
+					<div class="photo-header-inner"><?= Loc::getMessage("P_ALBUMS") ?></div>
+				</div>
+				<?
+				$componentResult = $APPLICATION->IncludeComponent(
+					'bitrix:photogallery.section.list',
+					'',
+					$arParams['PARENT_PARAMS_SECTION_LIST'],
+					false,
+					[ 'HIDE_ICONS' => 'Y' ]
+				);
+				?>
+			</div>
+		</div>
+		<?
+		if (empty($componentResult["SECTIONS"]))
+		{
+			?>
+			<style>
+				div.photo-page-section div.photo-info-box-section-list { display: none; }
+			</style>
+			<?
+		}
+	}
+}

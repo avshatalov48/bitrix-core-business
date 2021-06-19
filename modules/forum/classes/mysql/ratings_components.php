@@ -1,11 +1,13 @@
-<?
+<?php
+
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/forum/classes/general/ratings_components.php");
+
 IncludeModuleLangFile(__FILE__);
 
 class CRatingsComponentsForum extends CAllRatingsComponentsForum
 {
 	// Calc function
-	function CalcUserVoteForumPost($arConfigs)
+	public static function CalcUserVoteForumPost($arConfigs)
 	{
 		global $DB;
 
@@ -39,7 +41,7 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 		return true;
 	}
 
-	function CalcUserVoteForumTopic($arConfigs)
+	public static function CalcUserVoteForumTopic($arConfigs)
 	{
 		global $DB;
 
@@ -72,7 +74,7 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 		return true;
 	}
 
-	function CalcUserRatingForumActivity($arConfigs)
+	public static function CalcUserRatingForumActivity($arConfigs)
 	{
 		global $DB;
 
@@ -147,7 +149,7 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 	}
 
 	// Exception function
-	function ExceptionUserRatingForumActivity()
+	public static function ExceptionUserRatingForumActivity()
 	{
 		global $DB;
 		$bIndex1 = $DB->IndexExists("b_forum_topic", array("START_DATE", "USER_START_ID"));
@@ -168,4 +170,3 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 			return false;
 	}
 }
-?>

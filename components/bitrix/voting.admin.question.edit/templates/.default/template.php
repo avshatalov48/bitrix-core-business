@@ -239,7 +239,7 @@ $context = new CAdminContextMenu($aMenu);
 $context->Show();
 if (!empty($arResult["ERROR"]))
 {
-	echo (new CAdminMessage(implode($arResult["ERROR"], "<br />")))->Show();
+	echo (new CAdminMessage(implode("<br />", $arResult["ERROR"])))->Show();
 }
 $arQuestion = $arResult["QUESTION"];
 ?>

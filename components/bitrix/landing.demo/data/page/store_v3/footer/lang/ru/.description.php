@@ -1,0 +1,5 @@
+<?php
+$MESS['LANDING_DEMO_STORE_FOOTER_NAME'] = 'Подвал';
+$MESS['LANDING_DEMO_STORE_FOOTER_TEXT1'] = 'Контакты';
+$MESS['LANDING_DEMO_STORE_FOOTER_TEXT2'] = 'Доставка и оплата';
+$MESS['LANDING_DEMO_STORE_FOOTER_TEXT3'] = 'Позвонить';

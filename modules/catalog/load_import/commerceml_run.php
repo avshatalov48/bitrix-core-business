@@ -30,7 +30,7 @@ class XMLNode
 	var $name;
 	var $r;
 
-	function XMLNode(&$parent, $attributes, $name)
+	public function __construct(&$parent, $attributes, $name)
 	{
 		$this->r=rand();
 		$this->parent=$parent;
@@ -450,9 +450,7 @@ if ('' === $strImportErrorMessage)
 	$dbSite = CSite::GetByID($SITE_ID);
 	if (!$dbSite->Fetch())
 	{
-		$by = 'sort';
-		$order = 'asc';
-		$dbSite = CSite::GetList($by, $sort);
+		$dbSite = CSite::GetList();
 		$arSite = $dbSite->Fetch();
 		$SITE_ID = $arSite['ID'];
 	}

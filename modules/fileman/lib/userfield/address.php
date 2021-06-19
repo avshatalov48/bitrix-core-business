@@ -17,7 +17,7 @@ class Address extends \Bitrix\Main\UserField\TypeBase
 
 	protected static $restrictionCount = null;
 
-	function getUserTypeDescription()
+	public static function getUserTypeDescription()
 	{
 		return AddressType::getUserTypeDescription();
 	}
@@ -57,7 +57,7 @@ class Address extends \Bitrix\Main\UserField\TypeBase
 		return AddressType::prepareSettings($userField);
 	}
 
-	function getDbColumnType($userField)
+	public static function getDbColumnType($userField)
 	{
 		return AddressType::getDbColumnType();
 	}

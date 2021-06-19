@@ -6,99 +6,99 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
-return array(
-	'block' => array(
+return [
+	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NAME'),
-		'section' => array('feedback'),
+		'section' => ['feedback'],
 		'type' => ['page', 'store', 'smn'],
-	),
-	'cards' => array(
-		'.landing-block-node-card' => array(
+	],
+	'cards' => [
+		'.landing-block-node-card' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_CARDS_LANDINGBLOCKNODECARD'),
-			'label' => array('.landing-block-node-card-photo', '.landing-block-node-card-name'),
-		),
-	),
-	'nodes' => array(
-		'.landing-block-node-bgimg' => array(
+			'label' => ['.landing-block-node-card-photo', '.landing-block-node-card-name'],
+		],
+	],
+	'nodes' => [
+		'.landing-block-node-bgimg' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODEBGIMG'),
 			'type' => 'img',
 			'allowInlineEdit' => false,
-			'dimensions' => array('width' => 1920, 'height' => 1080),
-		),
-		'.landing-block-node-title' => array(
+			'dimensions' => ['width' => 1920, 'height' => 1080],
+		],
+		'.landing-block-node-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODETITLE'),
 			'type' => 'text',
-		),
-		'.landing-block-node-text' => array(
+		],
+		'.landing-block-node-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODETEXT'),
 			'type' => 'text',
-		),
-		'.landing-block-node-card-photo' => array(
+		],
+		'.landing-block-node-card-photo' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODECARDPHOTO'),
 			'type' => 'img',
-			'dimensions' => array('width' => 240, 'height' => 240),
-		),
-		'.landing-block-node-card-text' => array(
+			'dimensions' => ['width' => 240, 'height' => 240],
+		],
+		'.landing-block-node-card-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODECARDTEXT'),
 			'type' => 'text',
-		),
-		'.landing-block-node-card-name' => array(
+		],
+		'.landing-block-node-card-name' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODECARDNAME'),
 			'type' => 'text',
-		),
-	),
-	'style' => array(
-		'block' => array(
-			'type' => array('block-default-wo-background'),
-		),
-		'nodes' => array(
-			'.landing-block-node-title' => array(
+		],
+	],
+	'style' => [
+		'block' => [
+			'type' => ['block-default-wo-background'],
+		],
+		'nodes' => [
+			'.landing-block-node-title' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODETITLE'),
-				'type' => 'typo',
-			),
-			'.landing-block-node-text' => array(
+				'type' => ['typo', 'heading'],
+			],
+			'.landing-block-node-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODETEXT'),
 				'type' => 'typo',
-			),
-			'.landing-block-node-card-text' => array(
+			],
+			'.landing-block-node-card-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODECARDTEXT'),
 				'type' => 'typo',
-			),
-			'.landing-block-node-card-name' => array(
+			],
+			'.landing-block-node-card-name' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODECARDNAME'),
 				'type' => 'typo',
-			),
-			'.landing-block-node-bgimg' => array(
+			],
+			'.landing-block-node-bgimg' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODEBGIMG'),
-				'type' => array('background-overlay', 'background-attachment'),
-			),
-			'.landing-block-node-header' => array(
+				'type' => ['background-overlay', 'background-attachment'],
+			],
+			'.landing-block-node-header' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODEHEADER'),
-				'type' => array('border-color', 'animation'),
-			),
-			'.landing-block-node-card-container' => array(
+				'type' => ['border-color', 'animation', 'heading'],
+			],
+			'.landing-block-node-card-container' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_CARDS_LANDINGBLOCKNODECARD'),
 				'type' => 'animation',
-			),
-			'.landing-block-node-card-photo' => array(
+			],
+			'.landing-block-node-card-photo' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODECARDPHOTO'),
 				'type' => 'border-radius',
-			),
-			'.landing-block-img-container' => array(
+			],
+			'.landing-block-img-container' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODECARDPHOTO'),
 				'type' => 'align-self',
-			),
-			'.landing-block-node-card' => array(
+			],
+			'.landing-block-node-card' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_CARD'),
 				'type' => 'align-self',
-			),
-			'.landing-block-text-container' => array(
+			],
+			'.landing-block-text-container' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODECARDTEXT'),
 				'type' => 'align-self',
-			),
-		),
-	),
-	'assets' => array(
-		'ext' => array('landing_carousel'),
-	),
-);
+			],
+		],
+	],
+	'assets' => [
+		'ext' => ['landing_carousel'],
+	],
+];

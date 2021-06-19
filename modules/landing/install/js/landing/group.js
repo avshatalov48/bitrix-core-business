@@ -32,13 +32,16 @@
 	BX.Landing.Group.prototype = {
 		onClick: function(event)
 		{
-			event.preventDefault();
-			event.stopPropagation();
-			event.stopImmediatePropagation();
+			if (!BX.Landing.UI.Panel.StylePanel.getInstance().isShown())
+			{
+				event.preventDefault();
+				event.stopPropagation();
+				event.stopImmediatePropagation();
 
-			this.callback(this);
+				this.callback(this);
 
-			return false;
+				return false;
+			}
 		}
 	};
 

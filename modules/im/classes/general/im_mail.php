@@ -123,8 +123,8 @@ class CIMMail
 				"SENDER_SECOND_NAME" => $arNotify["FROM_USER_SECOND_NAME"], // legacy
 				"EMAIL_TO" => $arNotify["TO_USER_EMAIL"],
 				"TITLE" => trim($arNotify["NOTIFY_TITLE"]),
-				"MESSAGE" => CTextParser::convert4mail(str_replace("#BR#", "\n", strip_tags($arNotify["MESSAGE_OUT"]))),
-				"MESSAGE_50" => $CTP->html_cut(str_replace(array("<br>","<br/>","<br />", "#BR#"), Array(" ", " ", " ", " "), nl2br(CTextParser::convert4mail(strip_tags($arNotify["MESSAGE_OUT"])))), 50),
+				"MESSAGE" => $CTP->convert4mail(str_replace("#BR#", "\n", strip_tags($arNotify["MESSAGE_OUT"]))),
+				"MESSAGE_50" => $CTP->html_cut(str_replace(array("<br>","<br/>","<br />", "#BR#"), Array(" ", " ", " ", " "), nl2br($CTP->convert4mail(strip_tags($arNotify["MESSAGE_OUT"])))), 50),
 			);
 
 			if ($arFields['TITLE'] <> '')
@@ -158,6 +158,8 @@ class CIMMail
 		$arToUser = Array();
 		$arFromUser = Array();
 		$arDialog = Array();
+		$parser = new CTextParser();
+
 		foreach($arUnsendMessage as $id => $arMessage)
 		{
 			if (!isset($arMark[$arMessage["TO_USER_ID"]][$arMessage["CHAT_ID"]]) || $arMark[$arMessage["TO_USER_ID"]][$arMessage["CHAT_ID"]] < $arMessage["ID"])
@@ -248,7 +250,7 @@ class CIMMail
 
 			$arDialog[$arMessage["TO_USER_ID"]][$arMessage["FROM_USER_ID"]][] = Array(
 				'DATE_CREATE' => FormatDate("FULL", $arMessage["DATE_CREATE"]),
-				'MESSAGE' => CTextParser::convert4mail(str_replace("#BR#", "\n", strip_tags($arMessage["MESSAGE_OUT"])))
+				'MESSAGE' => $parser->convert4mail(str_replace("#BR#", "\n", strip_tags($arMessage["MESSAGE_OUT"])))
 			);
 		}
 
@@ -364,7 +366,7 @@ class CIMMail
 		if (!CUserOptions::GetOption('global', 'davex_mailbox'))
 		{
 			$arUser = CUser::GetList(
-				$by = 'ID', $order = 'ASC',
+				'ID', 'ASC',
 				array('ID_EQUAL_EXACT' => $USER->GetID()),
 				array('SELECT' => array('UF_BXDAVEX_MAILBOX'), 'FIELDS' => array('ID'))
 			)->Fetch();

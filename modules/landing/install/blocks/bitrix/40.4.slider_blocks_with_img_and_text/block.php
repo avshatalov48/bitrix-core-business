@@ -1,9 +1,9 @@
 <section class="landing-block landing-semantic-background-color g-bg-primary g-pt-90 g-pb-90">
 	<div class="container text-center g-max-width-750 g-mb-65">
 		<div class="text-uppercase g-line-height-1_3 g-mb-20">
-			<h4 class="landing-block-node-subtitle landing-semantic-text-medium g-font-weight-700 g-font-size-11 g-color-white g-mb-15">07. How it
-				works</h4>
-			<h2 class="landing-block-node-title landing-semantic-title-medium js-animation fadeInLeft g-line-height-1_3 g-font-size-36 g-color-white mb-0">One time used &mdash;
+			<h6 class="landing-block-node-subtitle landing-semantic-text-medium g-font-weight-700 g-color-white g-mb-15">07. How it
+				works</h6>
+			<h2 class="landing-block-node-title landing-semantic-title-medium js-animation fadeInLeft g-line-height-1_3 h1 g-color-white mb-0">One time used &mdash;
 				<span style="font-weight: bold;">use forever</span>
 			</h2>
 		</div>
@@ -30,8 +30,8 @@
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/mockups/mockup6.png" alt="">
 					</div>
 
-					<h4 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-font-weight-700 g-color-white g-mb-15">
-						User Manual</h4>
+					<h6 class="landing-block-node-card-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-color-white g-mb-15">
+						User Manual</h6>
 					<div class="landing-block-node-card-text landing-semantic-text-medium js-animation fadeInLeft g-color-white-opacity-0_8 g-mb-30">
 						<p>Sed feugiat porttitor nunc, non
 							dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem.</p>
@@ -52,8 +52,8 @@
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/mockups/mockup6.png" alt="">
 					</div>
 
-					<h4 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-font-weight-700 g-color-white g-mb-15">
-						Made with love</h4>
+					<h6 class="landing-block-node-card-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-color-white g-mb-15">
+						Made with love</h6>
 					<div class="landing-block-node-card-text landing-semantic-text-medium js-animation fadeInLeft g-color-white-opacity-0_8 g-mb-30">
 						<p>Sed feugiat porttitor nunc, non
 							dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel
@@ -77,8 +77,8 @@
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/mockups/mockup6.png" alt="">
 					</div>
 
-					<h4 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-font-weight-700 g-color-white g-mb-15">
-						Usability and progresion</h4>
+					<h6 class="landing-block-node-card-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-color-white g-mb-15">
+						Usability and progresion</h6>
 					<div class="landing-block-node-card-text landing-semantic-text-medium js-animation fadeInLeft g-color-white-opacity-0_8 g-mb-30">
 						<p>Sed feugiat porttitor nunc, non
 							dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel

@@ -12,7 +12,7 @@ Loc::loadMessages(__FILE__);
  */
 class CUserTypeIBlockSection extends CUserTypeEnum
 {
-	function getUserTypeDescription()
+	public static function getUserTypeDescription()
 	{
 		if(self::isIblockIncluded())
 		{
@@ -198,7 +198,7 @@ class CUserTypeIBlockSection extends CUserTypeEnum
 		return [];
 	}
 
-	function getList($userField)
+	public static function getList($userField)
 	{
 		if(self::isIblockIncluded())
 		{
@@ -235,7 +235,7 @@ class CUserTypeIBlockSection extends CUserTypeEnum
 
 class CIBlockSectionEnum extends CDBResult
 {
-	function getTreeList($iblockId, $activeFilter='N')
+	public static function getTreeList($iblockId, $activeFilter='N')
 	{
 		$result = false;
 

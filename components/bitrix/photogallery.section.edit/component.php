@@ -748,7 +748,7 @@ if (empty($arUserFields) || empty($arUserFields["UF_DATE"]))
 			"MULTIPLE" => "N",
 			"MANDATORY" => "N");
 		$arFieldName = array();
-		$rsLanguage = CLanguage::GetList($by, $order, array());
+		$rsLanguage = CLanguage::GetList();
 		while($arLanguage = $rsLanguage->Fetch()):
 			$arFieldName[$arLanguage["LID"]] = GetMessage("IBLOCK_DATE");
 			$arFieldName[$arLanguage["LID"]] = (empty($arFieldName[$arLanguage["LID"]]) ? "Date" : $arFieldName[$arLanguage["LID"]]);
@@ -773,7 +773,7 @@ if (empty($arUserFields) || empty($arUserFields["UF_PASSWORD"]))
 			"MULTIPLE" => "N",
 			"MANDATORY" => "N");
 		$arFieldName = array();
-		$rsLanguage = CLanguage::GetList($by, $order, array());
+		$rsLanguage = CLanguage::GetList();
 		while($arLanguage = $rsLanguage->Fetch()):
 			$arFieldName[$arLanguage["LID"]] = GetMessage("IBLOCK_PASSWORD");
 			$arFieldName[$arLanguage["LID"]] = (empty($arFieldName[$arLanguage["LID"]]) ? "Password" : $arFieldName[$arLanguage["LID"]]);

@@ -1045,7 +1045,7 @@ class ShipmentCollection
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ObjectNotFoundException
 	 */
-	private function isAllowAutoEdit(BasketItem $basketItem)
+	protected function isAllowAutoEdit(BasketItem $basketItem)
 	{
 		if ($this->count() === 1
 			||
@@ -1502,7 +1502,7 @@ class ShipmentCollection
 	 *
 	 * @return Result
 	 */
-	public function updateReservedFlag(ShipmentCollection $collection)
+	public static function updateReservedFlag(ShipmentCollection $collection)
 	{
 		$result = new Result();
 		/** @var Shipment $shipment */

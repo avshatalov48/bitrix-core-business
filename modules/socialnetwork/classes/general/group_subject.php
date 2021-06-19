@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSocNetGroupSubject
@@ -191,4 +192,3 @@ class CAllSocNetGroupSubject
 		return $DB->Query($strSql);
 	}
 }
-?>

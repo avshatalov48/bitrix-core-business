@@ -46,7 +46,7 @@ return array(
 		),
 		'.landing-block-node-element-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_4_FEATURES_3_COLS_STYLE_LANDINGBLOCKNODEELEMENTTITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-element-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_4_FEATURES_3_COLS_STYLE_LANDINGBLOCKNODEELEMENTTEXT'),

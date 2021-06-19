@@ -12,6 +12,7 @@ return [
 		'ui.vue',
 		'im.lib.logger',
 		'im.lib.clipboard',
+		'ui.vue.components.hint',
 	],
 	'skip_core' => false,
 ];

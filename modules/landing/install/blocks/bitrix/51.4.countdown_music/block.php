@@ -1,14 +1,14 @@
 <section class="landing-block landing-block-node-img u-bg-overlay g-flex-centered g-bg-attachment-fixed g-bg-img-hero g-bg-black-opacity-0_4--after g-pt-100 g-pb-30"
 		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1400x588/img1.jpg);">
 	<div class="landing-block-node-container container u-bg-overlay__inner">
-		<div class="landing-block-node-title-container container g-max-width-800 text-center g-mb-35 g-mb-65--sm u-heading-v2-2--bottom g-brd-primary">
-			<h2 class="landing-block-node-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-color-white g-mb-0">
+		<div class="container g-max-width-800 text-center g-mb-35 g-mb-65--sm">
+			<h2 class="landing-block-node-title text-uppercase g-line-height-1 g-font-weight-700 h1 g-color-white g-mb-0 u-heading-v2-8-3--bottom g-brd-primary">
 				Upcoming events</h2>
 		</div>
 
 		<div class="landing-block-node-card-container">
 			<div class="landing-block-node-card row g-mb-50 js-countdown u-countdown"
-				 data-end-date="1618214400000"
+				 data-end-date="1649750400000"
 				 data-days-format="%D"
 				 data-hours-format="%H"
 				 data-minutes-format="%M"
@@ -16,9 +16,9 @@
 				 data-days-expired-classes="u-countdown--days-expiried"
 			>
 				<div class="landing-block-node-text-container col-md-4 col-lg-4 ml-lg-auto">
-					<h3 class="landing-block-node-text-title text-uppercase g-font-weight-700 g-font-size-26 g-color-white g-mb-5">
+					<h3 class="landing-block-node-text-title text-uppercase g-font-weight-700 g-color-white g-mb-5">
 						Nam enim eros rhoncus</h3>
-					<p class="landing-block-node-text g-font-size-13 g-color-white g-mb-60 g-mb-0--md" data-auto-font-scale>8 Rue de
+					<p class="landing-block-node-text g-color-white g-mb-60 g-mb-0--md" data-auto-font-scale>8 Rue de
 						Montpensier 75001, Paris, France, 18:00</p>
 				</div>
 

@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSaleOrderPropsVariant
 {
-	function GetByValue($PropID, $Value)
+	public static function GetByValue($PropID, $Value)
 	{
 		$PropID = intval($PropID);
 		$db_res = CSaleOrderPropsVariant::GetList(($by="SORT"), ($order="ASC"), Array("ORDER_PROPS_ID"=>$PropID, "VALUE"=>$Value));
@@ -14,7 +15,7 @@ class CAllSaleOrderPropsVariant
 		return False;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -32,7 +33,7 @@ class CAllSaleOrderPropsVariant
 		return False;
 	}
 
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $DB, $USER;
 
@@ -64,7 +65,7 @@ class CAllSaleOrderPropsVariant
 		return True;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -81,18 +82,17 @@ class CAllSaleOrderPropsVariant
 		return $ID;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 		$ID = intval($ID);
 		return $DB->Query("DELETE FROM b_sale_order_props_variant WHERE ID = ".$ID."", true);
 	}
 
-	function DeleteAll($ID)
+	public static function DeleteAll($ID)
 	{
 		global $DB;
 		$ID = intval($ID);
 		return $DB->Query("DELETE FROM b_sale_order_props_variant WHERE ORDER_PROPS_ID = ".$ID."", true);
 	}
 }
-?>

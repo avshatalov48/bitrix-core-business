@@ -574,7 +574,7 @@ class CSupportTimetableCache
 		return date("H:i", mktime($h, $m, 0, 1, 1, 2000));
 	}
 	
-	static function ToCache($arFilter = array(), $RSD = true, $arFromGetEndDate = null)
+	public static function ToCache($arFilter = array(), $RSD = true, $arFromGetEndDate = null)
 	{
 		/*
 		$arFilter(

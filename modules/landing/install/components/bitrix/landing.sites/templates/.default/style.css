@@ -601,6 +601,19 @@ a.landing-item-link:hover {
 	transform: rotate(90deg);
 }
 
+.landing-item-add-icon--new-store {
+	width: 94px;
+	height: 96px;
+	border-radius: 0;
+	background: url(image/landing-sites-icon-new-store.svg) center no-repeat;
+	background-color: transparent !important;
+}
+
+.landing-item-add-icon--new-store:after,
+.landing-item-add-icon--new-store:before {
+	content: none;
+}
+
 .landing-item-add-new:hover .landing-item-add-icon:before,
 .landing-item-add-new:hover .landing-item-add-icon:after {
 	background-color: #b0b8c0;
@@ -653,6 +666,10 @@ a.landing-item-link:hover {
 
 .bitrix24-light-theme .landing-item-text {
 	color: #fff;
+}
+
+.landing-item-add-icon--new-store + .landing-item-text {
+	margin-top: 6px;
 }
 
 .bitrix24-light-theme .landing-navigation .navigation,

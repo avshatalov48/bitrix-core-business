@@ -12,4 +12,6 @@ export default class LabelColor
 	static LIGHT = 'ui-label-light';
 	static TAG_SECONDARY = 'ui-label-tag-secondary';
 	static TAG_LIGHT = 'ui-label-tag-light';
+	static LIGHT_BLUE = 'ui-label-lightblue';
+	static LIGHT_GREEN = 'ui-label-lightgreen';
 }

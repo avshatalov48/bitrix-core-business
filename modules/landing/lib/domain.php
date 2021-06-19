@@ -47,9 +47,9 @@ class Domain extends \Bitrix\Landing\Internals\BaseTable
 	}
 
 	/**
-	 * Gets Bitrix24 sub domain name.
+	 * Returns Bitrix24 sub domain name from full domain name.
 	 * @param string $domainName Full domain name.
-	 * @return string Null, if $domainName is't sub domain of B24.
+	 * @return string Null, if $domainName isn't sub domain of B24.
 	 */
 	public static function getBitrix24Subdomain($domainName)
 	{
@@ -60,6 +60,35 @@ class Domain extends \Bitrix\Landing\Internals\BaseTable
 		}
 
 		return null;
+	}
+
+	/**
+	 * Returns postfix for bitrix24.site.
+	 * @param string $type Site type.
+	 * @return string
+	 */
+	public static function getBitrix24Postfix(string $type): string
+	{
+		$zone = Manager::getZone();
+		$postfix = '.bitrix24.site';
+		$type = mb_strtoupper($type);
+
+		if ($type == 'STORE')
+		{
+			$postfix = ($zone == 'by')
+				? '.bitrix24shop.by'
+				: '.bitrix24.shop';
+		}
+		else if ($zone == 'by')
+		{
+			$postfix = '.bitrix24site.by';
+		}
+		else if ($zone == 'ua')
+		{
+			$postfix = '.bitrix24site.ua';
+		}
+
+		return $postfix;
 	}
 
 	/**

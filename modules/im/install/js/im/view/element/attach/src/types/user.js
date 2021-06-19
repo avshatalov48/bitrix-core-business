@@ -10,7 +10,7 @@
  */
 
 import "./user.css";
-import {Utils} from "im.lib.utils";
+import { AttachLinks } from "../mixin/attachLinks";
 
 export const AttachTypeUser =
 {
@@ -18,6 +18,9 @@ export const AttachTypeUser =
 	name: 'bx-im-view-element-attach-user',
 	component:
 	{
+		mixins: [
+			AttachLinks
+		],
 		props:
 		{
 			config: {type: Object, default: {}},
@@ -25,20 +28,6 @@ export const AttachTypeUser =
 		},
 		methods:
 		{
-			openLink(element)
-			{
-				if (element.LINK)
-				{
-					Utils.platform.openNewPage(element.LINK);
-				}
-				else
-				{
-					// element.NETWORK_ID
-					// element.USER_ID
-					// element.CHAT_ID
-					// TODO exec openDialog with params
-				}
-			},
 			getAvatarType(element)
 			{
 				if (element.AVATAR)
@@ -60,10 +49,11 @@ export const AttachTypeUser =
 				return 'bx-im-element-attach-type-user-avatar-type-'+avatarType;
 			}
 		},
+		//language=Vue
 		template: `
 			<div class="bx-im-element-attach-type-user">
 				<template v-for="(element, index) in config.USER">
-					<div class="bx-im-element-attach-type-user-body" @click="openLink(element)">
+					<div class="bx-im-element-attach-type-user-body">
 						<div class="bx-im-element-attach-type-user-avatar">
 							<div :class="['bx-im-element-attach-type-user-avatar-type', getAvatarType(element)]" :style="{backgroundColor: element.AVATAR? '': color}">
 								<img v-if="element.AVATAR" 
@@ -73,7 +63,18 @@ export const AttachTypeUser =
 								/>
 							</div>
 						</div>
-						<div class="bx-im-element-attach-type-user-name">{{element.NAME}}</div>
+						<a
+							v-if="element.LINK"
+							:href="element.LINK" 
+							class="bx-im-element-attach-type-user-name"
+							target="_blank"
+							@click="openLink({element: element, event: $event})"
+						>
+							{{element.NAME}}
+						</a>
+						<span v-else @click.prevent="openLink({element: element, event: $event})">
+							{{element.NAME}}
+						</span>
 					</div>
 				</template>
 			</div>

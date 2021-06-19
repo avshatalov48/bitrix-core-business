@@ -607,7 +607,7 @@ class CAllWorkflow
 					"GROUP_ID" => $arGroups,
 					"PERMISSION_TYPE_1" => 1,
 				);
-				$rsStatuses = CWorkflowStatus::GetList($by = "s_c_sort", $strOrder, $arFilter, $is_filtered, array("ID"));
+				$rsStatuses = CWorkflowStatus::GetList("s_c_sort", "asc", $arFilter, null, array("ID"));
 				if(!$rsStatuses->Fetch())
 					return "";
 			}
@@ -930,11 +930,13 @@ class CAllWorkflow
 		$err_mess = (CAllWorkflow::err_mess())."<br>Function: GetFileContent<br>Line: ";
 		global $DB, $APPLICATION, $USER;
 		$did = intval($did);
+		$io = CBXVirtualIo::GetInstance();
+
 		// check if executable
 		if (
 			$USER->IsAdmin()
 			|| (
-				CBXVirtualIoFileSystem::ValidatePathString($fname)
+				$io->ValidatePathString($fname)
 				&& !HasScriptExtension($fname)
 			)
 		)

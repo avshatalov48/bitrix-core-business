@@ -175,7 +175,7 @@ class CSearchItem extends CDBResult
 			$site_id = $r["SITE_ID"];
 			if (!isset($arSite[$site_id]))
 			{
-				$rsSite = CSite::GetList($b, $o, array("ID" => $site_id));
+				$rsSite = CSite::GetList('', '', array("ID" => $site_id));
 				$arSite[$site_id] = $rsSite->Fetch();
 			}
 			$r["DIR"] = $arSite[$site_id]["DIR"];

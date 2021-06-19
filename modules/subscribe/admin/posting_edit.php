@@ -422,7 +422,7 @@ $tabControl->BeginNextTab();
 			}
 			if(!is_array($GROUP_ID))
 				$GROUP_ID = array();
-			$group = CGroup::GetList(($by="sort"), ($order="asc"));
+			$group = CGroup::GetList();
 			while($ar = $group->GetNext()):
 			?>
 				<div class="adm-list-item">

@@ -12,7 +12,7 @@ Class perfmon extends CModule
 	var $MODULE_CSS;
 	var $MODULE_GROUP_RIGHTS = "Y";
 
-	function perfmon()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 

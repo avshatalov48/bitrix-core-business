@@ -3,6 +3,7 @@
 namespace Bitrix\MobileApp\Janative\Entity;
 
 use Bitrix\Main\IO\File;
+use Bitrix\Main\SystemException;
 use Bitrix\MobileApp\Janative\Manager;
 use Bitrix\MobileApp\Janative\Utils;
 
@@ -18,13 +19,13 @@ class Extension extends Base
 	public function __construct($identifier)
 	{
 		$this->path = Manager::getExtensionPath($identifier);
-		$this->baseFileName = "extension";
+		$this->baseFileName = 'extension';
 		$desc = Utils::extractEntityDescription($identifier);
-		$this->name = $desc["name"];
-		$this->namespace = $desc["namespace"];
+		$this->name = $desc['name'];
+		$this->namespace = $desc['namespace'];
 		if (!$this->path)
 		{
-			throw new \Exception("Extension '{$desc["fullname"]}' doesn't exists");
+			throw new SystemException("Extension '{$desc['fullname']}' doesn't exists");
 		}
 	}
 
@@ -33,10 +34,10 @@ class Extension extends Base
 	 * @return string
 	 * @throws \Bitrix\Main\IO\FileNotFoundException
 	 */
-	public function getContent()
-	{
-		$content = "";
-		$extensionFile = new File($this->path . "/extension.js");
+	public function getContent(): string
+    {
+		$content = '';
+		$extensionFile = new File($this->path . '/extension.js');
 		if ($extensionFile->isExists() && $extensionContent = $extensionFile->getContents())
 		{
 			$localizationPhrases = $this->getLangDefinitionExpression();
@@ -50,9 +51,9 @@ class Extension extends Base
 		return $content;
 	}
 
-	public function getIncludeExpression($callbackName = "onExtensionsLoaded")
+	public function getIncludeExpression($callbackName = 'onExtensionsLoaded'): string
 	{
-		$relativePath = $this->getPath() . "extension.js";
+		$relativePath = $this->getPath() . 'extension.js';
 		$localizationPhrases = $this->getLangDefinitionExpression();
 		$content = "\n//extension '{$this->name}'\n";
 		$content .= "{$localizationPhrases}\n";
@@ -70,8 +71,8 @@ class Extension extends Base
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function getResolvedDependencyList($name, &$list = [], &$alreadyResolved = [])
-	{
+	public static function getResolvedDependencyList($name, &$list = [], &$alreadyResolved = []): array
+    {
 		$baseExtension = new Extension($name);
 		$depsList = $baseExtension->getDependencyList();
 		$alreadyResolved[] = $name;
@@ -106,8 +107,8 @@ class Extension extends Base
 	 * @return array
 	 * @throws \Exception
 	 */
-	protected function resolveDependencies()
-	{
+	protected function resolveDependencies(): array
+    {
 		return self::getResolvedDependencyList($this->name);
 	}
 }

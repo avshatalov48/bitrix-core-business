@@ -1,4 +1,10 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
 /**
  * Bitrix vars
  * @global CUser $USER
@@ -9,20 +15,23 @@
  * @var CBitrixComponent $component
  */
 
-use \Bitrix\Main\UI;
-use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 
-UI\Extension::load("ui.buttons");
+UI\Extension::load([
+	'ui.entity-selector',
+	'ui.buttons'
+]);
 
 include_once($_SERVER["DOCUMENT_ROOT"].$templateFolder."/functions.php");
 include_once($_SERVER["DOCUMENT_ROOT"].$templateFolder."/message.php");
 include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/file.php");
 include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/urlpreview.php");
-$array = (((!empty($arParams["DESTINATION"]) || in_array("MentionUser", $arParams["BUTTONS"])) && IsModuleInstalled("socialnetwork")) ?
+$array = (((!empty($arParams["DESTINATION"]) || in_array("MentionUser", $arParams["BUTTONS"])) && ModuleManager::isModuleInstalled('socialnetwork')) ?
 	array('socnetlogdest') : array());
 $array[] = "fx";
 CUtil::InitJSCore($array);
-\Bitrix\Main\UI\Extension::load("ui.selector");
 
 $arButtonsHTML = array();
 
@@ -159,64 +168,43 @@ foreach($arParams["BUTTONS"] as $val)
 		?></div>
 	</div>
 	<?=$arParams["~HTML_AFTER_TEXTAREA"]?><?
-	if($arParams["DESTINATION_SHOW"] == "Y" || !empty($arParams["TAGS"]))
+	if($arParams["DESTINATION_SHOW"] === "Y" || !empty($arParams["TAGS"]))
 	{
 		?><ol class="feed-add-post-strings-blocks"><?
 	}
 
-	if($arParams["DESTINATION_SHOW"] == "Y")
+	if($arParams["DESTINATION_SHOW"] === "Y")
 	{
 		?><li class="feed-add-post-destination-block">
+			<input type="hidden" id="entity-selector-data-<?=htmlspecialcharsbx($arParams["divId"])?>" name="DEST_DATA" value="<?=htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($arResult['DESTINATION']['ENTITIES_PRESELECTED']))?>" />
 			<div class="feed-add-post-destination-title"><?=GetMessage("MPF_DESTINATION")?></div>
+			<div id="entity-selector-<?=htmlspecialcharsbx($arParams["divId"])?>"></div>
+			<script>
+				BX.ready(function()
+				{
+					new MPFEntitySelector({
+						id: '<?=CUtil::JSescape($arParams["divId"])?>',
+						context: '<?=CUtil::JSescape(
+								!empty($arParams['SELECTOR_CONTEXT'])
+									? $arParams['SELECTOR_CONTEXT']
+									: (
+										!empty($arParams['DEST_CONTEXT'])
+											? $arParams['DEST_CONTEXT']
+											: 'BLOG_POST'
+									)
+						)?>',
+						tagNodeId: 'entity-selector-<?=CUtil::JSescape($arParams["divId"])?>',
+						inputNodeId: 'entity-selector-data-<?=CUtil::JSescape($arParams["divId"])?>',
+						preselectedItems: <?=CUtil::PhpToJSObject($arResult['DESTINATION']['ENTITIES_PRESELECTED'])?>,
+						allowSearchEmailUsers: <?=($arResult['ALLOW_EMAIL_INVITATION'] ? 'true' : 'false')?>,
+						allowToAll: <?=($arResult['ALLOW_TO_ALL'] ? 'true' : 'false')?>,
+						messages: {
+							allUsersTitle: '<?= CUtil::JSescape(ModuleManager::isModuleInstalled('intranet') ? Loc::getMessage('MPF_DESTINATION_3') : Loc::getMessage('MPF_DESTINATION_4')) ?>',
+						},
+					});
+				});
+			</script>
 			<?
-			$APPLICATION->IncludeComponent(
-				"bitrix:main.user.selector",
-				"",
-				[
-					"ID" => (!empty($arParams["DEST_SELECTOR_ID"]) ? $arParams["DEST_SELECTOR_ID"] : randString(6)),
-					"LIST" => $arParams["DESTINATION"]["SELECTED"],
-					"LAZYLOAD" => "Y",
-					"INPUT_NAME" => 'DEST_CODES[]',
-					"USE_SYMBOLIC_ID" => true,
-					"BUTTON_SELECT_CAPTION" => (
-							!empty($arParams['MPF_DESTINATION_1'])
-								? $arParams['MPF_DESTINATION_1']
-								: Loc::getMessage("MPF_DESTINATION_1")
-					),
-					"BUTTON_SELECT_CAPTION_MORE" => Loc::getMessage("MPF_DESTINATION_2"),
-					"API_VERSION" => 3,
-					"SELECTOR_OPTIONS" => array(
-						'lazyLoad' => 'Y',
-						'context' => (
-							!empty($arParams['SELECTOR_CONTEXT'])
-								? $arParams['SELECTOR_CONTEXT']
-								: (
-									!empty($arParams['DEST_CONTEXT'])
-										? $arParams['DEST_CONTEXT']
-										: 'BLOG_POST'
-								)
-						),
-						'contextCode' => '',
-						'enableSonetgroups' => 'Y',
-						'departmentSelectDisable' => 'N',
-						'showVacations' => 'Y',
-						'useClientDatabase' => ($arParams["DESTINATION_USE_CLIENT_DATABASE"] != "N" ? 'Y' : 'N'),
-						'allowSearchEmailUsers' => ($arResult["ALLOW_EMAIL_INVITATION"] ? 'Y' : 'N'),
-						'allowSearchCrmEmailUsers' => ($arResult["ALLOW_CRM_EMAILS"] ? 'Y' : 'N'),
-						'allowEmailInvitation' => (!$arResult["bExtranetUser"] && $arResult["ALLOW_EMAIL_INVITATION"] ? 'Y' : 'N'),
-						'allowAddCrmContact' => (
-							!$arResult["bExtranetUser"]
-							&& $arResult["ALLOW_EMAIL_INVITATION"]
-							&& \Bitrix\Main\Loader::includeModule('crm')
-							&& \CCrmContact::checkCreatePermission()
-								? 'Y'
-								: 'N'
-						),
-						'enableAll' => 'Y',
-						'sonetGroupsFeature' => 'blog'
-					)
-				]
-			);
 		?></li><?
 
 		echo $APPLICATION->GetViewContent("mpl_input_additional");
@@ -250,7 +238,7 @@ foreach($arParams["BUTTONS"] as $val)
 				<input type="hidden" name="<?=$arParams["TAGS"]["NAME"]?>" id="post-tags-hidden-<?=$arParams["FORM_ID"]?>" value="<?=$tagsInput?>,">
 			</div>
 		<div id="post-tags-popup-content-<?=$arParams["FORM_ID"]?>" style="display:none;">
-		<?if($arParams["TAGS"]["USE_SEARCH"] == "Y" && IsModuleInstalled("search"))
+		<?if($arParams["TAGS"]["USE_SEARCH"] == "Y" && ModuleManager::isModuleInstalled('search'))
 		{
 			$APPLICATION->IncludeComponent(
 				"bitrix:search.tags.input",

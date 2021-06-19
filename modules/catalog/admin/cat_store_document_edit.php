@@ -14,7 +14,7 @@ $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl."cat_store_document_list.php?lang=".LANGUAGE_ID;
 $listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
 
-if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_store')))
+if (!$USER->CanDoOperation('catalog_store'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 Loader::includeModule('catalog');
 $bReadOnly = !$USER->CanDoOperation('catalog_store');

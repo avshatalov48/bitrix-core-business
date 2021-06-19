@@ -16,7 +16,7 @@ $arError = $arSmileSet = $arFields = $arLang = array();
 
 /* LANGS */
 $arLangTitle = array("reference_id" => array(), "reference" => array());
-$db_res = CLanguage::GetList($b="sort", $o="asc");
+$db_res = CLanguage::GetList();
 while ($res = $db_res->GetNext(true, false))
 {
 	$arLang[$res["LID"]] = $res;

@@ -80,7 +80,7 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin && check_bitrix_sessid())
 			case "clean":
 				$DB->StartTransaction();
 				$ID = array("EVENT_NAME" => $ID);
-				$db_res = CEventMessage::GetList($by, $order, $ID);
+				$db_res = CEventMessage::GetList('', '', $ID);
 				if ($db_res && ($res = $db_res->Fetch()))
 				{
 					do 
@@ -105,7 +105,7 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin && check_bitrix_sessid())
 	}
 }
 $arLID = array();
-$db_res = CLanguage::GetList($by_="sort", $order_="asc");
+$db_res = CLanguage::GetList();
 if ($db_res && $res = $db_res->GetNext())
 {
 	do 

@@ -6,7 +6,9 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Blog\Item\Permissions;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Web\Json;
 use Bitrix\Socialnetwork\ComponentHelper;
+use Bitrix\Main\ArgumentException;
 
 class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 {
@@ -193,14 +195,15 @@ class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 	public function shareAction(array $params = [])
 	{
 		$postId = (isset($params['postId']) ? (int)$params['postId'] : 0);
-		$destCodesList = (isset($params['DEST_CODES']) ? $params['DEST_CODES'] : []);
-		$invitedUserName = (isset($params['INVITED_USER_NAME']) ? $params['INVITED_USER_NAME'] : []);
-		$invitedUserLastName = (isset($params['INVITED_USER_LAST_NAME']) ? $params['INVITED_USER_LAST_NAME'] : []);
-		$invitedUserCrmEntity = (isset($params['INVITED_USER_CRM_ENTITY']) ? $params['INVITED_USER_CRM_ENTITY'] : []);
-		$invitedUserCreateCrmContact = (isset($params['INVITED_USER_CREATE_CRM_CONTACT']) ? $params['INVITED_USER_CREATE_CRM_CONTACT'] : []);
+		$destCodesList = ($params['DEST_CODES'] ?? []);
+		$destData = ($params['DEST_DATA'] ?? []);
+		$invitedUserName = ($params['INVITED_USER_NAME'] ?? []);
+		$invitedUserLastName = ($params['INVITED_USER_LAST_NAME'] ?? []);
+		$invitedUserCrmEntity = ($params['INVITED_USER_CRM_ENTITY'] ?? []);
+		$invitedUserCreateCrmContact = ($params['INVITED_USER_CREATE_CRM_CONTACT'] ?? []);
 		$readOnly = (isset($params['readOnly']) && $params['readOnly'] === 'Y');
-		$pathToUser = (isset($params['pathToUser']) ? $params['pathToUser'] : '');
-		$pathToPost = (isset($params['pathToPost']) ? $params['pathToPost'] : '');
+		$pathToUser = ($params['pathToUser'] ?? '');
+		$pathToPost = ($params['pathToPost'] ?? '');
 		$currentUserId = $this->getCurrentUser()->getId();
 
 		$data = [
@@ -272,6 +275,22 @@ class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 			'SG' => [],
 			'DR' => []
 		];
+
+		if (!empty($destData))
+		{
+			try
+			{
+				$entitites = Json::decode($destData);
+				if (!empty($entitites))
+				{
+					$destCodesList = \Bitrix\Main\UI\EntitySelector\Converter::convertToFinderCodes($entitites);
+				}
+			}
+			catch(ArgumentException $e)
+			{
+			}
+		}
+
 		foreach($destCodesList as $destCode)
 		{
 			if ($destCode === 'UA')
@@ -319,7 +338,7 @@ class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 					{
 						if ($type === 'SG')
 						{
-							$sonetGroupId = intval(str_replace("SG", "", $code));
+							$sonetGroupId = (int)str_replace("SG", "", $code);
 
 							$canPublish = (
 								$currentAdmin
@@ -388,14 +407,36 @@ class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 	{
 		global $APPLICATION;
 
+		$warnings = [];
+
 		try
 		{
-			$postId = \Bitrix\Socialnetwork\Item\Helper::addBlogPost($params, $this->getScope());
+			$postId = \Bitrix\Socialnetwork\Item\Helper::addBlogPost($params, $this->getScope(), $resultFields);
 			if ($postId <= 0)
 			{
+				if (
+					is_array($resultFields)
+					&& !empty($resultFields['ERROR_MESSAGE_PUBLIC'])
+				)
+				{
+					$this->addError(new Error($resultFields['ERROR_MESSAGE_PUBLIC'], 0, [
+						'public' => 'Y'
+					]));
+					return null;
+				}
+
 				$e = $APPLICATION->getException();
 				throw new \Exception($e ? $e->getString() : 'Cannot add blog post');
 			}
+
+			if (
+				is_array($resultFields)
+				&& !empty($resultFields['WARNING_MESSAGE_PUBLIC'])
+			)
+			{
+				$warnings[] = $resultFields['WARNING_MESSAGE_PUBLIC'];
+			}
+
 		}
 		catch (\Exception $e)
 		{
@@ -404,7 +445,8 @@ class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 		}
 
 		return [
-			'id' => $postId
+			'id' => $postId,
+			'warnings' => $warnings
 		];
 	}
 
@@ -415,9 +457,20 @@ class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 		try
 		{
 			$params['POST_ID'] = $id;
-			$postId = \Bitrix\Socialnetwork\Item\Helper::updateBlogPost($params, $this->getScope());
+			$postId = \Bitrix\Socialnetwork\Item\Helper::updateBlogPost($params, $this->getScope(), $resultFields);
 			if ($postId <= 0)
 			{
+				if (
+					is_array($resultFields)
+					&& !empty($resultFields['ERROR_MESSAGE_PUBLIC'])
+				)
+				{
+					$this->addError(new Error($resultFields['ERROR_MESSAGE_PUBLIC'], 0, [
+						'public' => 'Y'
+					]));
+					return null;
+				}
+
 				$e = $APPLICATION->getException();
 				throw new \Exception($e ? $e->getString() : 'Cannot update blog post');
 			}

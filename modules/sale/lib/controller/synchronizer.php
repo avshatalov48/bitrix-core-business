@@ -113,7 +113,7 @@ class Synchronizer extends Engine\Controller
 		foreach(\Bitrix\Sale\Delivery\Services\Manager::getActiveList() as $row)
 			$internal['DELIVERY_SYSTEMS'][$row['ID']] = $row;
 
-		$r = \CSite::GetList($by,$order);
+		$r = \CSite::GetList();
 		while ($row = $r->fetch())
 			$internal['SITES'][$row['ID']] = $row;
 

@@ -1,5 +1,7 @@
 <?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/classes/general/keepstatistic.php");
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllStatistics extends CKeepStatistics
@@ -321,7 +323,7 @@ class CAllStatistics extends CKeepStatistics
 		return " $FIELD_NAME = $date ";
 	}
 
-	function CleanUpStatistics_1()
+	public static function CleanUpStatistics_1()
 	{
 		__SetNoKeepStatistics();
 		if ($_SESSION["SESS_NO_AGENT_STATISTIC"]!="Y" && !defined("NO_AGENT_STATISTIC"))
@@ -345,7 +347,7 @@ class CAllStatistics extends CKeepStatistics
 		return "CStatistics::CleanUpStatistics_1();";
 	}
 
-	function CleanUpStatistics_2()
+	public static function CleanUpStatistics_2()
 	{
 		__SetNoKeepStatistics();
 		if ($_SESSION["SESS_NO_AGENT_STATISTIC"]!="Y" && !defined("NO_AGENT_STATISTIC"))
@@ -359,7 +361,7 @@ class CAllStatistics extends CKeepStatistics
 	///////////////////////////////////////////////////////////////////
 	// This is deprecated and unused method to handle internal search
 	///////////////////////////////////////////////////////////////////
-	function OnSearch($search_phrase)
+	public static function OnSearch($search_phrase)
 	{
 		$DB = CDatabase::GetModuleConnection('statistic');
 		if(intval($_SESSION["SESS_SEARCHER_ID"]) > 0)
@@ -765,7 +767,7 @@ class CAllStatistics extends CKeepStatistics
 			}
 			else
 			{
-				list(,$value) = each($arrADV);
+				$value = reset($arrADV);
 				$_SESSION["SESS_ADV_ID"] = intval($value);
 				$_SESSION["referer1"] = $ref1;
 				$_SESSION["referer2"] = $ref2;
@@ -1160,9 +1162,9 @@ class CAllStatistics extends CKeepStatistics
 					"b_stat_page"			=> "DATE_STAT",
 					"b_stat_country_day"	=> "DATE_STAT",
 					"b_stat_path"			=> "DATE_STAT"
-					);
-				reset($arrTables);
-				while (list($table_name, $date_name) = each($arrTables))
+				);
+
+				foreach ($arrTables as $table_name => $date_name)
 				{
 					CStatistics::CleanUpTableByDate($cleanup_date, $table_name, $date_name);
 				}

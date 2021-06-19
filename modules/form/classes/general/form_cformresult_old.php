@@ -1,13 +1,18 @@
-<?
+<?php
+
 class CFormResult_old
 {
-	function GetDataByIDForWeb($RESULT_ID, $GET_ADDITIONAL="N")
-	{ return CFormResult::GetDataByIDForHTML($RESULT_ID, $GET_ADDITIONAL); }
+	public static function GetDataByIDForWeb($RESULT_ID, $GET_ADDITIONAL="N")
+	{
+		return CFormResult::GetDataByIDForHTML($RESULT_ID, $GET_ADDITIONAL);
+	}
 
-	function GetMaxPermissions()
-	{ return CFormStatus::GetMaxPermissions(); }
+	public static function GetMaxPermissions()
+	{
+		return CFormStatus::GetMaxPermissions();
+	}
 
-	function Edit($RESULT_ID, $arrVALUES, $TEMPLATE="", $EDIT_ADDITIONAL="N", $EDIT_STATUS="N")
+	public static function Edit($RESULT_ID, $arrVALUES, $TEMPLATE="", $EDIT_ADDITIONAL="N", $EDIT_STATUS="N")
 	{
 		global $DB, $MESS, $APPLICATION, $USER, $arrFIELDS, $arrRESULT_PERMISSION;
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: Edit<br>Line: ";
@@ -23,7 +28,7 @@ class CFormResult_old
 			$F_RIGHT = intval(CForm::GetPermission($WEB_FORM_ID));
 			if ($F_RIGHT>=20 || ($F_RIGHT>=15 && $arrResult["USER_ID"]==$USER->GetID()))
 			{
-				$arrRESULT_PERMISSION = CFormResult::GetPermissions($RESULT_ID, $v);
+				$arrRESULT_PERMISSION = CFormResult::GetPermissions($RESULT_ID);
 				if (in_array("EDIT",$arrRESULT_PERMISSION))
 				{
 					if (trim($TEMPLATE) <> '') $template = $TEMPLATE;
@@ -73,7 +78,7 @@ class CFormResult_old
 		}
 	}
 
-	function Show($RESULT_ID, $TEMPLATE="", $TEMPLATE_TYPE="show", $SHOW_ADDITIONAL="N", $SHOW_ANSWER_VALUE="Y", $SHOW_STATUS="N")
+	public static function Show($RESULT_ID, $TEMPLATE="", $TEMPLATE_TYPE="show", $SHOW_ADDITIONAL="N", $SHOW_ANSWER_VALUE="Y", $SHOW_STATUS="N")
 	{
 		global $DB, $MESS, $APPLICATION, $USER, $arrRESULT_PERMISSION, $arrFIELDS;
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: Show<br>Line: ";
@@ -90,7 +95,7 @@ class CFormResult_old
 			$F_RIGHT = CForm::GetPermission($WEB_FORM_ID);
 			if (intval($F_RIGHT)>=20 || ($F_RIGHT>=15 && $zr["USER_ID"]==$USER->GetID()))
 			{
-				$arrRESULT_PERMISSION = CFormResult::GetPermissions($RESULT_ID, $v);
+				$arrRESULT_PERMISSION = CFormResult::GetPermissions($RESULT_ID);
 				if (in_array("VIEW",$arrRESULT_PERMISSION))
 				{
 					if (trim($TEMPLATE) <> '') $template = $TEMPLATE;

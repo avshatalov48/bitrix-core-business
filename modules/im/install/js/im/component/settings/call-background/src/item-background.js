@@ -7,7 +7,7 @@
  * @copyright 2001-2021 Bitrix
  */
 
-import {Vue} from 'ui.vue';
+import {BitrixVue} from 'ui.vue';
 import {Uploader} from "ui.progressbarjs.uploader";
 import {FileStatus} from "im.const";
 
@@ -166,7 +166,7 @@ export const CallBackgroundItem =
 		},
 		localize()
 		{
-			return Vue.getFilteredPhrases('BX_IM_COMPONENT_SETTINGS_CALL_BG_', this.$root.$bitrixMessages);
+			return BitrixVue.getFilteredPhrases('BX_IM_COMPONENT_SETTINGS_CALL_BG_', this);
 		},
 	},
 	watch:

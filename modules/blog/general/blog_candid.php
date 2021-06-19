@@ -1,11 +1,13 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
+
 $GLOBALS["BLOG_CANDIDATE"] = Array();
 
 class CAllBlogCandidate
 {
 	/*************** ADD, UPDATE, DELETE *****************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "BLOG_ID") || $ACTION=="ADD") && intval($arFields["BLOG_ID"]) <= 0)
 		{
@@ -40,7 +42,7 @@ class CAllBlogCandidate
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -52,7 +54,7 @@ class CAllBlogCandidate
 	}
 
 	//*************** SELECT *********************/
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -78,6 +80,4 @@ class CAllBlogCandidate
 
 		return False;
 	}
-
 }
-?>

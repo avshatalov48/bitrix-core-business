@@ -101,7 +101,7 @@ if($WORKFLOW_RIGHT=="W" && $arID = $lAdmin->GroupAction())
 {
 	if($_REQUEST['action_target']=='selected')
 	{
-		$rsData = CWorkflowStatus::GetList($by, $order, $arFilter, $is_filtered);
+		$rsData = CWorkflowStatus::GetList('', '', $arFilter);
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -159,7 +159,9 @@ if($WORKFLOW_RIGHT=="W" && $arID = $lAdmin->GroupAction())
 	}
 }
 
-$rsData = CWorkflowStatus::GetList($by, $order, $arFilter, $is_filtered);
+global $by, $order;
+
+$rsData = CWorkflowStatus::GetList($by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart(50);
 

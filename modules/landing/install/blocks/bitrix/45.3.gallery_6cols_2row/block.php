@@ -1,5 +1,4 @@
-<section class="g-pt-100 g-pb-100">
-
+<section class="g-pt-30 g-pb-30">
 	<div class="container">
 		<div>
 			<div class="js-carousel js-gallery-cards row g-line-height-0 g-pb-40"
@@ -46,7 +45,6 @@
 							 data-fancybox="gallery">
 					</div>
 				</div>
-
 				<div class="landing-block-node-card col-12 col-md-3 col-lg-2 js-animation fadeIn js-slide g-pb-15 g-pa-15--sm">
 					<div class="g-parent g-pos-rel g-brd-around g-brd-gray-light-v5 g-overflow-hidden">
 						<img class="landing-block-node-card-img img-fluid g-grayscale-100x g-grayscale-0--parent-hover g-transform-scale-0_85--parent-hover g-transition-0_2 g-transition--ease-in w-100"
@@ -54,7 +52,6 @@
 							 data-fancybox="gallery">
 					</div>
 				</div>
-
 				<div class="landing-block-node-card col-12 col-md-3 col-lg-2 js-animation fadeIn js-slide g-pb-15 g-pa-15--sm">
 					<div class="g-parent g-pos-rel g-brd-around g-brd-gray-light-v5 g-overflow-hidden">
 						<img class="landing-block-node-card-img img-fluid g-grayscale-100x g-grayscale-0--parent-hover g-transform-scale-0_85--parent-hover g-transition-0_2 g-transition--ease-in w-100"
@@ -62,7 +59,6 @@
 							 data-fancybox="gallery">
 					</div>
 				</div>
-
 				<div class="landing-block-node-card col-12 col-md-3 col-lg-2 js-animation fadeIn js-slide g-pb-15 g-pa-15--sm">
 					<div class="g-parent g-pos-rel g-brd-around g-brd-gray-light-v5 g-overflow-hidden">
 						<img class="landing-block-node-card-img img-fluid g-grayscale-100x g-grayscale-0--parent-hover g-transform-scale-0_85--parent-hover g-transition-0_2 g-transition--ease-in w-100"
@@ -70,7 +66,6 @@
 							 data-fancybox="gallery">
 					</div>
 				</div>
-
 				<div class="landing-block-node-card col-12 col-md-3 col-lg-2 js-animation fadeIn js-slide g-pb-15 g-pa-15--sm">
 					<div class="g-parent g-pos-rel g-brd-around g-brd-gray-light-v5 g-overflow-hidden">
 						<img class="landing-block-node-card-img img-fluid g-grayscale-100x g-grayscale-0--parent-hover g-transform-scale-0_85--parent-hover g-transition-0_2 g-transition--ease-in w-100"
@@ -78,7 +73,6 @@
 							 data-fancybox="gallery">
 					</div>
 				</div>
-
 				<div class="landing-block-node-card col-12 col-md-3 col-lg-2 js-animation fadeIn js-slide g-pb-15 g-pa-15--sm">
 					<div class="g-parent g-pos-rel g-brd-around g-brd-gray-light-v5 g-overflow-hidden">
 						<img class="landing-block-node-card-img img-fluid g-grayscale-100x g-grayscale-0--parent-hover g-transform-scale-0_85--parent-hover g-transition-0_2 g-transition--ease-in w-100"
@@ -86,7 +80,6 @@
 							 data-fancybox="gallery">
 					</div>
 				</div>
-
 				<div class="landing-block-node-card col-12 col-md-3 col-lg-2 js-animation fadeIn js-slide g-pb-15 g-pa-15--sm">
 					<div class="g-parent g-pos-rel g-brd-around g-brd-gray-light-v5 g-overflow-hidden">
 						<img class="landing-block-node-card-img img-fluid g-grayscale-100x g-grayscale-0--parent-hover g-transform-scale-0_85--parent-hover g-transition-0_2 g-transition--ease-in w-100"
@@ -94,7 +87,6 @@
 							 data-fancybox="gallery">
 					</div>
 				</div>
-
 				<div class="landing-block-node-card col-12 col-md-3 col-lg-2 js-animation fadeIn js-slide g-pb-15 g-pa-15--sm">
 					<div class="g-parent g-pos-rel g-brd-around g-brd-gray-light-v5 g-overflow-hidden">
 						<img class="landing-block-node-card-img img-fluid g-grayscale-100x g-grayscale-0--parent-hover g-transform-scale-0_85--parent-hover g-transition-0_2 g-transition--ease-in w-100"
@@ -102,7 +94,6 @@
 							 data-fancybox="gallery">
 					</div>
 				</div>
-
 				<div class="landing-block-node-card col-12 col-md-3 col-lg-2 js-animation fadeIn js-slide g-pb-15 g-pa-15--sm">
 					<div class="g-parent g-pos-rel g-brd-around g-brd-gray-light-v5 g-overflow-hidden">
 						<img class="landing-block-node-card-img img-fluid g-grayscale-100x g-grayscale-0--parent-hover g-transform-scale-0_85--parent-hover g-transition-0_2 g-transition--ease-in w-100"
@@ -110,7 +101,6 @@
 							 data-fancybox="gallery">
 					</div>
 				</div>
-
 				<div class="landing-block-node-card col-12 col-md-3 col-lg-2 js-animation fadeIn js-slide g-pb-15 g-pa-15--sm">
 					<div class="g-parent g-pos-rel g-brd-around g-brd-gray-light-v5 g-overflow-hidden">
 						<img class="landing-block-node-card-img img-fluid g-grayscale-100x g-grayscale-0--parent-hover g-transform-scale-0_85--parent-hover g-transition-0_2 g-transition--ease-in w-100"
@@ -118,7 +108,6 @@
 							 data-fancybox="gallery">
 					</div>
 				</div>
-
 				<div class="landing-block-node-card col-12 col-md-3 col-lg-2 js-animation fadeIn js-slide g-pb-15 g-pa-15--sm">
 					<div class="g-parent g-pos-rel g-brd-around g-brd-gray-light-v5 g-overflow-hidden">
 						<img class="landing-block-node-card-img img-fluid g-grayscale-100x g-grayscale-0--parent-hover g-transform-scale-0_85--parent-hover g-transition-0_2 g-transition--ease-in w-100"
@@ -126,7 +115,6 @@
 							 data-fancybox="gallery">
 					</div>
 				</div>
-
 				<div class="landing-block-node-card col-12 col-md-3 col-lg-2 js-animation fadeIn js-slide g-pb-15 g-pa-15--sm">
 					<div class="g-parent g-pos-rel g-brd-around g-brd-gray-light-v5 g-overflow-hidden">
 						<img class="landing-block-node-card-img img-fluid g-grayscale-100x g-grayscale-0--parent-hover g-transform-scale-0_85--parent-hover g-transition-0_2 g-transition--ease-in w-100"
@@ -134,7 +122,6 @@
 							 data-fancybox="gallery">
 					</div>
 				</div>
-
 				<div class="landing-block-node-card col-12 col-md-3 col-lg-2 js-animation fadeIn js-slide g-pb-15 g-pa-15--sm">
 					<div class="g-parent g-pos-rel g-brd-around g-brd-gray-light-v5 g-overflow-hidden">
 						<img class="landing-block-node-card-img img-fluid g-grayscale-100x g-grayscale-0--parent-hover g-transform-scale-0_85--parent-hover g-transition-0_2 g-transition--ease-in w-100"
@@ -142,7 +129,6 @@
 							 data-fancybox="gallery">
 					</div>
 				</div>
-
 				<div class="landing-block-node-card col-12 col-md-3 col-lg-2 js-animation fadeIn js-slide g-pb-15 g-pa-15--sm">
 					<div class="g-parent g-pos-rel g-brd-around g-brd-gray-light-v5 g-overflow-hidden">
 						<img class="landing-block-node-card-img img-fluid g-grayscale-100x g-grayscale-0--parent-hover g-transform-scale-0_85--parent-hover g-transition-0_2 g-transition--ease-in w-100"
@@ -153,5 +139,4 @@
 			</div>
 		</div>
 	</div>
-
 </section>

@@ -7,11 +7,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 Loc::loadLanguageFile(__FILE__);
 
-return array(
+return [
 	'name' => Loc::getMessage('LANDING_DEMO_CHARITY_TITLE'),
 	'description' => Loc::getMessage('LANDING_DEMO_CHARITY_DESCRIPTION'),
-	'fields' => array(
-		'ADDITIONAL_FIELDS' => array(
+	'fields' => [
+		'ADDITIONAL_FIELDS' => [
 			'THEME_CODE' => 'charity',
 
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/charity/preview.jpg',
@@ -19,11 +19,11 @@ return array(
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_CHARITY_DESCRIPTION'),
 			'METAMAIN_TITLE' => Loc::getMessage('LANDING_DEMO_CHARITY_TITLE'),
 			'METAMAIN_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_CHARITY_DESCRIPTION')
-		)
-	),
-	'items' => array (
+		]
+	],
+	'items' => [
 		'0.menu_06_charity' =>
-			array (
+			[
 				'CODE' => '0.menu_06_charity',
 				'SORT' => '-100',
 				'CONTENT' => '<header class="landing-block landing-block-menu u-header u-header--sticky u-header--float">
@@ -84,9 +84,9 @@ return array(
 		</nav>
 	</div>
 </header>',
-			),
+			],
 		'01.big_with_text_blocks_2' =>
-			array (
+			[
 				'CODE' => '01.big_with_text_blocks_2',
 				'SORT' => '500',
 				'CONTENT' => '<section class="landing-block">
@@ -100,7 +100,7 @@ return array(
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img3.jpg);">
 				<div class="landing-block-card-container u-bg-overlay__inner w-100 d-flex justify-content-center g-py-40">
 					<div class="container g-mr-0 g-ml-0 g-pl-0 g-pr-0">
-						<h2 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation slideInUp h2 text-uppercase g-line-height-1_2 g-letter-spacing-1 g-font-size-65 g-color-white g-mb-40">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation slideInUp text-uppercase g-line-height-1_2 g-letter-spacing-1 g-font-size-65 g-color-white g-mb-40">
 							For some,
 							<br> <span style="font-weight: bold;">food is a luxury</span></h2>
 
@@ -135,7 +135,7 @@ return array(
 							   class="landing-block-node-card-link landing-block-node-card-link1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-py-20--md g-mr-10">
 								Donate now</a>
 							<a href="#"
-							   class="landing-block-node-card-link landing-block-node-card-link1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-py-20--md g-mr-10">Learn
+							   class="landing-block-node-card-link landing-block-node-card-link2 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-py-20--md g-mr-10">Learn
 								more</a>
 						</div>
 					</div>
@@ -148,7 +148,7 @@ return array(
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img4.jpg);">
 				<div class="landing-block-card-container u-bg-overlay__inner w-100 d-flex justify-content-center g-py-40">
 					<div class="container g-mr-0 g-ml-0 g-pl-0 g-pr-0">
-						<h2 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation slideInUp h2 text-uppercase g-line-height-1_2 g-letter-spacing-1 g-font-size-65 g-color-white g-mb-40">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation slideInUp text-uppercase g-line-height-1_2 g-letter-spacing-1 g-font-size-65 g-color-white g-mb-40">
 							For some,
 							<br><span style="font-weight: bold;">support is a necessity</span></h2>
 
@@ -183,7 +183,7 @@ return array(
 							   class="landing-block-node-card-link landing-block-node-card-link1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-py-20--md g-mr-10">
 								Donate now</a>
 							<a href="#"
-							   class="landing-block-node-card-link landing-block-node-card-link1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-py-20--md g-mr-10">Learn
+							   class="landing-block-node-card-link landing-block-node-card-link2 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-py-20--md g-mr-10">Learn
 								more</a>
 						</div>
 					</div>
@@ -192,9 +192,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'27.one_col_fix_title_and_text_2' =>
-			array (
+			[
 				'CODE' => '27.one_col_fix_title_and_text_2',
 				'SORT' => '1000',
 				'CONTENT' => '<section class="landing-block g-pt-65 g-pb-20 js-animation fadeInUp">
@@ -207,9 +207,9 @@ return array(
         </div>
 
     </section>',
-			),
+			],
 		'37.1.two_img_with_text_blocks' =>
-			array (
+			[
 				'CODE' => '37.1.two_img_with_text_blocks',
 				'SORT' => '1500',
 				'CONTENT' => '<section class="landing-block g-py-15 g-pt-0 g-pb-65">
@@ -264,9 +264,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'27.one_col_fix_title_and_text_2@2' =>
-			array (
+			[
 				'CODE' => '27.one_col_fix_title_and_text_2',
 				'SORT' => '2000',
 				'CONTENT' => '<section class="landing-block g-bg-gray-light-v5 g-pt-65 g-pb-20 js-animation fadeInUp">
@@ -279,9 +279,9 @@ return array(
         </div>
 
     </section>',
-			),
+			],
 		'30.2.three_cols_fix_img_and_links' =>
-			array (
+			[
 				'CODE' => '30.2.three_cols_fix_img_and_links',
 				'SORT' => '2500',
 				'CONTENT' => '<section class="landing-block g-bg-gray-light-v5 g-pt-30 g-pb-20">
@@ -291,27 +291,31 @@ return array(
 
                 <div class="landing-block-card col-sm-6 col-md-4 js-animation fadeIn">
                     <article class="u-shadow-v28 g-bg-white">
+                    <div class="landing-block-node-img-container">
                         <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x496/img8.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-                        <div class="g-pos-rel">
-                            <!-- SVG Background -->
-                            <svg class="g-hidden-col-1 g-hidden-col-2 g-pos-abs g-left-0 g-right-0" version="1.1" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px" viewbox="20 -20 300 100" style="top: -70%;">
-                                <path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729
-              c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z" opacity="0.4" fill="#f0f1f3" />
-                                <path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729
-              c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z" opacity="0.4" fill="#f0f1f3" />
-                                <path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716
-              H42.401L43.415,98.342z" opacity="0" fill="#fff" />
-                                <path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428
-              c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z" fill="#fff" />
-                            </svg>
-                            <!-- End SVG Background -->
-
+                        <div class="landing-block-node-svg-container g-pointer-events-none g-pos-rel">
+							<svg class="g-hidden-col-1 g-hidden-col-2 g-hidden-col-3--md g-pos-abs g-left-0 g-right-0 g-bottom-0"
+								 version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
+								 xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px"
+								 viewBox="20 -20 300 100">
+								<path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729 c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729 c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716 H42.401L43.415,98.342z"
+									  opacity="0" fill="#fff"/>
+								<path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428 c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z"
+									  fill="#fff"/>
+							</svg>
+						</div>
+					</div>
+					<div class="g-pos-rel">
                             <div class="g-pos-rel g-z-index-1 g-pa-30">
                                 <h3 class="h5 mb-3">
-                                    <a class="landing-block-node-link u-link-v5 g-color-main g-color-primary--hover" href="#" target="_self">Aenean bibendum purus eu nisi pulvinar venenatis vitae</a>
+                                    <a class="landing-block-node-link u-link-v5 g-color-primary--hover" href="#" target="_self">Aenean bibendum purus eu nisi pulvinar venenatis vitae</a>
                                 </h3>
-                                <a class="landing-block-node-link-more u-link-v5 g-color-text g-color-primary--hover g-font-weight-500" href="#" target="_self">DONATE NOW</a>
+                                <a class="landing-block-node-link-more u-link-v5 g-color-primary--hover g-font-weight-500" href="#" target="_self">DONATE NOW</a>
                             </div>
                         </div>
                     </article>
@@ -319,27 +323,31 @@ return array(
 
                 <div class="landing-block-card col-sm-6 col-md-4 js-animation fadeIn">
                     <article class="u-shadow-v28 g-bg-white">
+                    <div class="landing-block-node-img-container">
                         <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x496/img6.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-                        <div class="g-pos-rel">
-                            <!-- SVG Background -->
-                            <svg class="g-hidden-col-1 g-hidden-col-2 g-pos-abs g-left-0 g-right-0" version="1.1" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px" viewbox="20 -20 300 100" style="top: -70%;">
-                                <path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729
-              c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z" opacity="0.4" fill="#f0f1f3" />
-                                <path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729
-              c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z" opacity="0.4" fill="#f0f1f3" />
-                                <path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716
-              H42.401L43.415,98.342z" opacity="0" fill="#fff" />
-                                <path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428
-              c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z" fill="#fff" />
-                            </svg>
-                            <!-- End SVG Background -->
-
+                        <div class="landing-block-node-svg-container g-pointer-events-none g-pos-rel">
+							<svg class="g-hidden-col-1 g-hidden-col-2 g-hidden-col-3--md g-pos-abs g-left-0 g-right-0 g-bottom-0"
+								 version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
+								 xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px"
+								 viewBox="20 -20 300 100">
+								<path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729 c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729 c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716 H42.401L43.415,98.342z"
+									  opacity="0" fill="#fff"/>
+								<path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428 c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z"
+									  fill="#fff"/>
+							</svg>
+						</div>
+					</div>
+					<div class="g-pos-rel">
                             <div class="g-pos-rel g-z-index-1 g-pa-30">
                                 <h3 class="h5 mb-3">
-                                    <a class="landing-block-node-link u-link-v5 g-color-main g-color-primary--hover" href="#" target="_self">Aenean bibendum purus eu nisi pulvinar venenatis vitae</a>
+                                    <a class="landing-block-node-link u-link-v5 g-color-primary--hover" href="#" target="_self">Aenean bibendum purus eu nisi pulvinar venenatis vitae</a>
                                 </h3>
-                                <a class="landing-block-node-link-more u-link-v5 g-color-text g-color-primary--hover g-font-weight-500" href="#" target="_self">DONATE NOW</a>
+                                <a class="landing-block-node-link-more u-link-v5 g-color-primary--hover g-font-weight-500" href="#" target="_self">DONATE NOW</a>
                             </div>
                         </div>
                     </article>
@@ -348,27 +356,31 @@ return array(
 
 				<div class="landing-block-card col-sm-6 col-md-4 js-animation fadeIn">
 					<article class="u-shadow-v28 g-bg-white">
+					<div class="landing-block-node-img-container">
 						<img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x496/img7.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-						<div class="g-pos-rel">
-							<!-- SVG Background -->
-							<svg class="g-hidden-col-1 g-hidden-col-2 g-pos-abs g-left-0 g-right-0" version="1.1" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px" viewbox="20 -20 300 100" style="top: -70%;">
-								<path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729
-              c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z" opacity="0.4" fill="#f0f1f3" />
-								<path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729
-              c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z" opacity="0.4" fill="#f0f1f3" />
-								<path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716
-              H42.401L43.415,98.342z" opacity="0" fill="#fff" />
-								<path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428
-              c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z" fill="#fff" />
+						<div class="landing-block-node-svg-container g-pointer-events-none g-pos-rel">
+							<svg class="g-hidden-col-1 g-hidden-col-2 g-hidden-col-3--md g-pos-abs g-left-0 g-right-0 g-bottom-0"
+								 version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
+								 xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px"
+								 viewBox="20 -20 300 100">
+								<path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729 c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729 c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716 H42.401L43.415,98.342z"
+									  opacity="0" fill="#fff"/>
+								<path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428 c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z"
+									  fill="#fff"/>
 							</svg>
-							<!-- End SVG Background -->
-
+						</div>
+					</div>
+					<div class="g-pos-rel">
 							<div class="g-pos-rel g-z-index-1 g-pa-30">
 								<h3 class="h5 mb-3">
-									<a class="landing-block-node-link u-link-v5 g-color-main g-color-primary--hover" href="#" target="_self">Aenean bibendum purus eu nisi pulvinar venenatis vitae</a>
+									<a class="landing-block-node-link u-link-v5 g-color-primary--hover" href="#" target="_self">Aenean bibendum purus eu nisi pulvinar venenatis vitae</a>
 								</h3>
-								<a class="landing-block-node-link-more u-link-v5 g-color-text g-color-primary--hover g-font-weight-500" href="#" target="_self">DONATE NOW</a>
+								<a class="landing-block-node-link-more u-link-v5 g-color-primary--hover g-font-weight-500" href="#" target="_self">DONATE NOW</a>
 							</div>
 						</div>
 					</article>
@@ -378,9 +390,9 @@ return array(
         </div>
 
     </section>',
-			),
+			],
 		'38.1.text_with_bgimg_img_and_text_blocks' =>
-			array (
+			[
 				'CODE' => '38.1.text_with_bgimg_img_and_text_blocks',
 				'SORT' => '3000',
 				'CONTENT' => '<section class="landing-block landing-block-node-bgimg u-bg-overlay g-bg-black-opacity-0_7--after g-bg-img-hero g-py-100" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1400x773/img1.jpg);">
@@ -397,14 +409,14 @@ return array(
 
 						<!-- Article Content -->
 						<div class="g-py-40 g-px-35">
-							<h3 class="landing-block-node-leftblock-subtitle h6 text-uppercase g-font-weight-700 g-mb-15">
+							<h6 class="landing-block-node-leftblock-subtitle text-uppercase g-font-weight-700 g-mb-15">
 								In total we collected
-							</h3>
-							<h3 class="landing-block-node-leftblock-title d-block g-color-black g-line-height-1_2 g-letter-spacing-minus-2 g-font-size-46">
+							</h6>
+							<h3 class="landing-block-node-leftblock-title d-block g-line-height-1_2 g-letter-spacing-minus-2 g-font-size-46">
 								$8 789 576.00
 							</h3>
 							<div class="landing-block-node-leftblock-text">
-								<p class="g-color-black-opacity-0_5 g-mb-35">Runc ullamcorper, justo a iaculis
+								<p class="g-mb-35">Runc ullamcorper, justo a iaculis
 									elementum,
 									enim orci viverra eros, fringilla porttitor lorem eros vel odio gravida sollicitudin
 									tortor.</p>
@@ -422,7 +434,7 @@ return array(
 					<div class="g-color-white g-mb-45">
 						<h4 class="landing-block-node-subtitle text-uppercase g-font-weight-700 g-font-size-26 g-color-primary mb-0">
 							We make the world better</h4>
-						<h2 class="landing-block-node-title display-5 text-uppercase g-color-white g-font-weight-700 g-font-size-46 g-mb-30">
+						<h2 class="landing-block-node-title text-uppercase g-color-white g-font-weight-700 g-font-size-46 g-mb-30">
 							Let\'s do this together</h2>
 						<div class="landing-block-node-text">
 							<p class="mb-0">Aenean bibendum purus eu nisi pulvinar venenatis vitae non velit. Sed et
@@ -444,8 +456,8 @@ return array(
 								</div>
 
 								<div class="media-body align-self-center">
-									<h3 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-color-white mb-0">
-										Education</h3>
+									<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white mb-0">
+										Education</h6>
 								</div>
 							</div>
 
@@ -468,8 +480,8 @@ return array(
 								</div>
 
 								<div class="media-body align-self-center">
-									<h3 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-color-white mb-0">
-										Health</h3>
+									<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white mb-0">
+										Health</h6>
 								</div>
 							</div>
 
@@ -499,9 +511,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'27.one_col_fix_title_and_text_2@3' =>
-			array (
+			[
 				'CODE' => '27.one_col_fix_title_and_text_2',
 				'SORT' => '3500',
 				'CONTENT' => '<section class="landing-block g-bg-gray-light-v5 g-pt-65 g-pb-20 js-animation fadeInUp">
@@ -514,9 +526,9 @@ return array(
         </div>
 
     </section>',
-			),
+			],
 		'37.3.two_cols_blocks_carousel' =>
-			array (
+			[
 				'CODE' => '37.3.two_cols_blocks_carousel',
 				'SORT' => '4000',
 				'CONTENT' => '<section class="landing-block g-pt-40 g-pb-40 g-bg-gray-light-v5">
@@ -543,8 +555,8 @@ return array(
 				<article class="landing-block-node-card-bgimg clearfix g-bg-size-cover g-pos-rel g-width-100x--after" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/800x496/img4.jpg\');">
 					<!-- Article Content -->
 					<div class="landing-block-node-card-text-bg float-right g-color-gray-light-v1 g-bg-black-opacity-0_7 g-width-50x--sm g-pa-30 g-height-100x d-flex flex-column">
-						<h4 class="landing-block-node-card-title text-uppercase g-font-weight-700 h6 g-color-white g-mb-15 js-animation fadeInLeft">
-							Education Project</h4>
+						<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white g-mb-15 js-animation fadeInLeft">
+							Education Project</h6>
 						<div class="landing-block-node-card-text g-mb-45 js-animation fadeInRight">
 							<p>Mauris molestie ullamcorper nisl eget hendrerit. Sed faucibus suscipit justo,
 								eu dignissim tellus pretium et.
@@ -574,8 +586,8 @@ return array(
 				<article class="landing-block-node-card-bgimg clearfix g-bg-size-cover g-pos-rel g-width-100x--after" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/800x496/img5.jpg\');">
 					<!-- Article Content -->
 					<div class="landing-block-node-card-text-bg float-right g-color-gray-light-v1 g-bg-black-opacity-0_7 g-width-50x--sm g-pa-30 g-height-100x d-flex flex-column">
-						<h4 class="landing-block-node-card-title text-uppercase g-font-weight-700 h6 g-color-white g-mb-15 js-animation fadeInLeft">
-							Water Project</h4>
+						<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white g-mb-15 js-animation fadeInLeft">
+							Water Project</h6>
 						<div class="landing-block-node-card-text g-mb-45 js-animation fadeInRight">
 							<p>Mauris molestie ullamcorper nisl eget hendrerit. Sed faucibus suscipit justo,
 								eu dignissim tellus pretium et.
@@ -605,8 +617,8 @@ return array(
 				<article class="landing-block-node-card-bgimg clearfix g-bg-size-cover g-pos-rel g-width-100x--after" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/800x496/img6.jpg\');">
 					<!-- Article Content -->
 					<div class="landing-block-node-card-text-bg float-right g-color-gray-light-v1 g-bg-black-opacity-0_7 g-width-50x--sm g-pa-30 g-height-100x d-flex flex-column">
-						<h4 class="landing-block-node-card-title text-uppercase g-font-weight-700 h6 g-color-white g-mb-15 js-animation fadeInLeft">
-							Education Project</h4>
+						<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white g-mb-15 js-animation fadeInLeft">
+							Education Project</h6>
 						<div class="landing-block-node-card-text g-mb-45 js-animation fadeInRight">
 							<p>Mauris molestie ullamcorper nisl eget hendrerit. Sed faucibus suscipit justo,
 								eu dignissim tellus pretium et.
@@ -636,8 +648,8 @@ return array(
 				<article class="landing-block-node-card-bgimg clearfix g-bg-size-cover g-pos-rel g-width-100x--after" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/800x496/img7.jpg\');">
 					<!-- Article Content -->
 					<div class="landing-block-node-card-text-bg float-right g-color-gray-light-v1 g-bg-black-opacity-0_7 g-width-50x--sm g-pa-30 g-height-100x d-flex flex-column">
-						<h4 class="landing-block-node-card-title text-uppercase g-font-weight-700 h6 g-color-white g-mb-15 js-animation fadeInLeft">
-							Water Project</h4>
+						<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white g-mb-15 js-animation fadeInLeft">
+							Water Project</h6>
 						<div class="landing-block-node-card-text g-mb-45 js-animation fadeInRight">
 							<p>Mauris molestie ullamcorper nisl eget hendrerit. Sed faucibus suscipit justo,
 								eu dignissim tellus pretium et.
@@ -665,9 +677,9 @@ return array(
 		<!-- End Carousel -->
 	</div>
 </section>',
-			),
+			],
 		'40.3.text_blocks_carousel_with_bgimg' =>
-			array (
+			[
 				'CODE' => '40.3.text_blocks_carousel_with_bgimg',
 				'SORT' => '4500',
 				'CONTENT' => '<section
@@ -676,9 +688,9 @@ return array(
 	<div class="u-bg-overlay__inner">
 		<div class="container g-max-width-780 text-center g-mb-60">
 			<div class="text-center u-heading-v8-1 g-mb-35">
-				<h2 class="landing-block-node-title h3 text-uppercase u-heading-v8__title g-font-weight-700 g-font-size-26 g-color-white mb-0">
+				<h3 class="landing-block-node-title text-uppercase u-heading-v8__title g-font-weight-700 g-font-size-26 g-color-white mb-0">
 					Success
-					<span style="font-weight: bold;" class="g-color-primary">stories</span></h2>
+					<span style="font-weight: bold;" class="g-color-primary">stories</span></h3>
 			</div>
 
 			<div class="landing-block-node-text mb-0 g-color-white">
@@ -742,9 +754,9 @@ return array(
 	</div>
 </section>
 ',
-			),
+			],
 		'27.one_col_fix_title_and_text_2@4' =>
-			array (
+			[
 				'CODE' => '27.one_col_fix_title_and_text_2',
 				'SORT' => '5000',
 				'CONTENT' => '<section class="landing-block g-bg-gray-light-v5 g-pt-65 g-pb-20 js-animation fadeInUp">
@@ -757,9 +769,9 @@ return array(
         </div>
 
     </section>',
-			),
+			],
 		'20.3.four_cols_fix_img_title_text' =>
-			array (
+			[
 				'CODE' => '20.3.four_cols_fix_img_title_text',
 				'SORT' => '5500',
 				'CONTENT' => '<section class="landing-block g-pt-10 g-pb-20 g-bg-gray-light-v5">
@@ -769,37 +781,37 @@ return array(
 			<div class="landing-block-card landing-block-node-block col-md-3 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeInUp">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img1.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-color-black g-mb-20 g-line-height-0">MARK SPENCER</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-mb-20 g-line-height-0">MARK SPENCER</h3>
 				<div class="landing-block-node-text"><p>molestie ullamcorper<br /><span style="font-weight: bold;">$11 250 000</span></p></div>
 			</div>
 
 			<div class="landing-block-card landing-block-node-block col-md-3 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeInUp">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img9.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-color-black g-mb-20 g-line-height-0">REBECCA KENTON</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-mb-20 g-line-height-0">REBECCA KENTON</h3>
 				<div class="landing-block-node-text"><p>molestie ullamcorper<br /><span style="font-weight: bold;">$690 000</span></p></div>
 			</div>
 
 			<div class="landing-block-card landing-block-node-block col-md-3 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeInUp">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img2.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-color-black g-mb-20 g-line-height-0">DAVID CASE</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-mb-20 g-line-height-0">DAVID CASE</h3>
 				<div class="landing-block-node-text"><p>molestie ullamcorper<br /><span style="font-weight: bold;">$420 000</span></p></div>
 			</div>
 
 			<div class="landing-block-card landing-block-node-block col-md-3 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeInUp">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img10.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-color-black g-mb-20 g-line-height-0">MONICA GRAY</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-mb-20 g-line-height-0">MONICA GRAY</h3>
 				<div class="landing-block-node-text"><p>molestie ullamcorper<br /><span style="font-weight: bold;">$1 250 000</span></p></div>
 			</div>
 
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'13.2.one_col_fix_button' =>
-			array (
+			[
 				'CODE' => '13.2.one_col_fix_button',
 				'SORT' => '6000',
 				'CONTENT' => '<section class="landing-block text-center g-py-20 g-bg-gray-light-v5 g-pb-60">
@@ -807,9 +819,9 @@ return array(
 				<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-btn-primary rounded-0 g-color-black-opacity-0_9" href="#" g-font-weight-700="" target="_self">BECOME A DONATOR</a>
         </div>
     </section>',
-			),
+			],
 		'27.one_col_fix_title_and_text_2@5' =>
-			array (
+			[
 				'CODE' => '27.one_col_fix_title_and_text_2',
 				'SORT' => '6500',
 				'CONTENT' => '<section class="landing-block g-pt-65 g-pb-20 js-animation fadeInUp">
@@ -822,9 +834,9 @@ return array(
         </div>
 
     </section>',
-			),
+			],
 		'20.2.three_cols_fix_img_title_text' =>
-			array (
+			[
 				'CODE' => '20.2.three_cols_fix_img_title_text',
 				'SORT' => '7000',
 				'CONTENT' => '<section class="landing-block g-pt-10 g-pb-20">
@@ -834,30 +846,30 @@ return array(
 			<div class="landing-block-card landing-block-node-block col-md-4 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeIn">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x450/img1.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-black g-mb-20 g-font-size-14">Mauris tellus magna, pretium</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14">Mauris tellus magna, pretium</h3>
 				<div class="landing-block-node-text"><p>Integer vitae dolor eleifend, congue neque id, elementum mauris. Nullam molestie pretium velit, ut iaculis mauris hendrerit sedeget nibh commodo.</p></div>
 			</div>
 
 			<div class="landing-block-card landing-block-node-block col-md-4 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeIn">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x450/img2.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-black g-mb-20 g-font-size-14">Mauris tellus magna, pretium</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14">Mauris tellus magna, pretium</h3>
 				<div class="landing-block-node-text"><p>Integer vitae dolor eleifend, congue neque id, elementum mauris. Nullam molestie pretium velit, ut iaculis mauris hendrerit sedeget nibh commodo.</p></div>
 			</div>
 
 			<div class="landing-block-card landing-block-node-block col-md-4 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeIn">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x450/img3.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-black g-mb-20 g-font-size-14">Mauris tellus magna, pretium</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-14">Mauris tellus magna, pretium</h3>
 				<div class="landing-block-node-text"><p>Integer vitae dolor eleifend, congue neque id, elementum mauris. Nullam molestie pretium velit, ut iaculis mauris hendrerit sedeget nibh commodo.</p></div>
 			</div>
 
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'13.2.one_col_fix_button@2' =>
-			array (
+			[
 				'CODE' => '13.2.one_col_fix_button',
 				'SORT' => '7500',
 				'CONTENT' => '<section class="landing-block text-center g-py-20 g-pb-60">
@@ -865,9 +877,9 @@ return array(
 				<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-btn-primary rounded-0 g-color-black" href="#" g-font-weight-700="" target="_self">VIEW ALL POSTS</a>
         </div>
     </section>',
-			),
+			],
 		'35.2.footer_dark' =>
-			array (
+			[
 				'CODE' => '35.2.footer_dark',
 				'SORT' => '8000',
 				'CONTENT' => '<section class="g-pt-60 g-pb-60 g-bg-gray-dark-v1 g-pb-0">
@@ -876,15 +888,8 @@ return array(
 			<div class="col-sm-12 col-md-6 col-lg-6 g-mb-25 g-mb-0--lg">
 				<h2 class="landing-block-node-title text-uppercase g-color-white g-font-weight-700 g-font-size-16 g-mb-20">TEXT WIDGET</h2>
 				<p class="landing-block-node-text g-mb-20 g-color-gray-dark-v5">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae est lorem. Aenean imperdiet nisi a dolor condimentum, id ullamcorper lacus vestibulum. Praesent pulvinar gravida. Aenean lobortis ante ac porttitor eleifend.</p>
-
 				<address class="g-color-gray-light-v1 g-mb-20">
-				
-
-				
-
-				
 				</address>
-
 			</div>
 
 
@@ -945,9 +950,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'17.1.copyright_with_social' =>
-			array (
+			[
 				'CODE' => '17.1.copyright_with_social',
 				'SORT' => '8500',
 				'CONTENT' => '<section class="landing-block g-brd-top g-brd-gray-dark-v2 g-bg-black js-animation animation-none">
@@ -955,7 +960,7 @@ return array(
 		<div class="row">
 			<div class="col-md-6 d-flex align-items-center g-mb-15 g-mb-0--md w-100 mb-0">
 				<div class="landing-block-node-text mr-1 g-color-white js-animation animation-none">
-					&copy; 2018 All rights reserved.
+					&copy; 2021 All rights reserved.
 				</div>
 			</div>
 
@@ -996,6 +1001,6 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
-	)
-);
+			],
+	]
+];

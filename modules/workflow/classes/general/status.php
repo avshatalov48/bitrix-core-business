@@ -11,7 +11,7 @@ class CWorkflowStatus
 	}
 
 	//Despite this function is not documented it should be version compatible
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered, $arSelect=Array())
+	public static function GetList($by = 's_c_sort', $order = 'asc', $arFilter = [], $is_filtered = null, $arSelect = [])
 	{
 		$err_mess = (CWorkflowStatus::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB;
@@ -58,13 +58,13 @@ class CWorkflowStatus
 		}
 		else
 		{
-			$by = "s_c_sort";
 			$strSqlOrder = "ORDER BY S.C_SORT";
 			$arSelect[] = "C_SORT";
 		}
 
-		if($order!="desc")
-			$order="asc";
+		if($order != "desc")
+			$order = "asc";
+
 		$strSqlOrder .= " $order ";
 
 		$arSelectFields = array(
@@ -126,11 +126,11 @@ class CWorkflowStatus
 				}
 				else
 				{
-					if($val == '' || "$val"=="NOT_REF") continue;
+					if((string)$val == '' || "$val"=="NOT_REF") continue;
 				}
 
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				$predicate = "";
 				switch($key)
 				{
@@ -232,20 +232,20 @@ class CWorkflowStatus
 			";
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = $strSqlSearch <> '';
+
 		return $res;
 	}
 
 	public static function GetByID($ID)
 	{
-		return CWorkflowStatus::GetList($b, $o, array("ID" => $ID, "ID_EXACT_MATCH" => "Y"), $is_filtered);
+		return CWorkflowStatus::GetList('', '', array("ID" => $ID, "ID_EXACT_MATCH" => "Y"));
 	}
 
 	public static function GetDropDownList($SHOW_ALL="N", $strOrder = "desc", $arFilter = array())
 	{
 		global $USER;
 
-		if(mb_strtolower($strOrder) != "asc")
+		if(strtolower($strOrder) != "asc")
 			$strOrder = "desc";
 		else
 			$strOrder = "asc";
@@ -260,7 +260,7 @@ class CWorkflowStatus
 			$arFilter["PERMISSION_TYPE_1"] = 1;
 		}
 
-		return CWorkflowStatus::GetList($by = "s_c_sort", $strOrder, $arFilter, $is_filtered, array("REFERENCE_ID", "REFERENCE", "IS_FINAL", "C_SORT"));
+		return CWorkflowStatus::GetList("s_c_sort", $strOrder, $arFilter, null, array("REFERENCE_ID", "REFERENCE", "IS_FINAL", "C_SORT"));
 	}
 
 	public static function GetNextSort()

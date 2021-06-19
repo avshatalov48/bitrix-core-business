@@ -1224,6 +1224,7 @@ class CAllCatalogProduct
 		$arResult = array(
 			'PRICE' => $minimalPrice['RAW_PRICE'],
 			'RESULT_PRICE' => array(
+				'ID' => $minimalPrice['RAW_PRICE']['ID'],
 				'PRICE_TYPE_ID' => $minimalPrice['RAW_PRICE']['CATALOG_GROUP_ID'],
 				'BASE_PRICE' => $minimalPrice['BASE_PRICE'],
 				'DISCOUNT_PRICE' => $minimalPrice['PRICE'],
@@ -1709,6 +1710,7 @@ class CAllCatalogProduct
 			$productResult = array(
 				'PRICE' => $minimalPrice[$basketCode]['RAW_PRICE'],
 				'RESULT_PRICE' => array(
+					'ID' => $minimalPrice[$basketCode]['RAW_PRICE']['ID'],
 					'PRICE_TYPE_ID' => $minimalPrice[$basketCode]['RAW_PRICE']['CATALOG_GROUP_ID'],
 					'BASE_PRICE' => $minimalPrice[$basketCode]['BASE_PRICE'],
 					'DISCOUNT_PRICE' => $minimalPrice[$basketCode]['PRICE'],
@@ -2136,6 +2138,14 @@ class CAllCatalogProduct
 		{
 			if (isset($userResult['PRICE']['CATALOG_GROUP_ID']))
 				$userResult['RESULT_PRICE']['PRICE_TYPE_ID'] = $userResult['PRICE']['CATALOG_GROUP_ID'];
+		}
+
+		if (!isset($userResult['RESULT_PRICE']['ID']))
+		{
+			if (isset($userResult['PRICE']['ID']))
+			{
+				$userResult['RESULT_PRICE']['ID'] = $userResult['PRICE']['ID'];
+			}
 		}
 
 		$componentResultMode = Catalog\Product\Price\Calculation::isComponentResultMode();

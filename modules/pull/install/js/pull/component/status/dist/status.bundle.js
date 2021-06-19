@@ -9,7 +9,7 @@
 	 * @subpackage pull
 	 * @copyright 2001-2019 Bitrix
 	 */
-	ui_vue.Vue.component('bx-pull-component-status', {
+	ui_vue.BitrixVue.component('bx-pull-component-status', {
 	  /**
 	   * @emits 'reconnect' {} - work only with props.canReconnect = true
 	   */
@@ -33,28 +33,24 @@
 
 	    this.pullUnSubscribe = function () {};
 
-	    if (typeof this.$root.$bitrixPullClient !== 'undefined') {
-	      if (this.$root.$bitrixPullClient) {
-	        this.subscribe(this.$root.$bitrixPullClient);
-	      } else {
-	        this.$root.$on('onBitrixPullClientInited', function () {
-	          _this.subscribe(_this.$root.$bitrixPullClient);
-	        });
-	      }
-	    } else if (typeof BX.PULL !== 'undefined') {
-	      this.subscribe(BX.PULL);
+	    if (this.$Bitrix.PullClient.get()) {
+	      this.subscribe();
 	    }
 
+	    this.$Bitrix.eventEmitter.subscribe(ui_vue.BitrixVue.events.pullClientChange, function () {
+	      return _this.subscribe();
+	    });
 	    window.component = this;
 	  },
 	  beforeDestroy: function beforeDestroy() {
 	    this.pullUnSubscribe();
 	  },
 	  methods: {
-	    subscribe: function subscribe(client) {
+	    subscribe: function subscribe() {
 	      var _this2 = this;
 
-	      this.pullUnSubscribe = client.subscribe({
+	      this.pullUnSubscribe();
+	      this.pullUnSubscribe = this.$Bitrix.PullClient.get().subscribe({
 	        type: pull_client.PullClient.SubscriptionType.Status,
 	        callback: function callback(event) {
 	          return _this2.statusChange(event.status);
@@ -165,7 +161,7 @@
 	      };
 	    },
 	    localize: function localize() {
-	      return ui_vue.Vue.getFilteredPhrases('BX_PULL_STATUS_', this.$root.$bitrixMessages);
+	      return ui_vue.BitrixVue.getFilteredPhrases('BX_PULL_STATUS_', this);
 	    }
 	  },
 	  template: "\n\t\t<div v-if=\"!isMobile()\" :class=\"['bx-pull-status', connectionClass]\">\n\t\t\t<div class=\"bx-pull-status-wrap\">\n\t\t\t\t<span class=\"bx-pull-status-text\">{{connectionText}}</span>\n\t\t\t\t<span class=\"bx-pull-status-button\" @click=\"reconnect\">\n\t\t\t\t\t<span class=\"bx-pull-status-button-title\">{{button.title}}</span>\n\t\t\t\t\t<span class=\"bx-pull-status-button-key\" v-html=\"button.key\"></span>\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t</div>\n\t"

@@ -42,3 +42,11 @@
 .landing-ui-panel-image .landing-ui-panel-content-footer {
 	display: none;
 }
+
+.landing-ui-panel-image .landing-ui-card-library .landing-ui-card-library-description {
+	padding-right: 70px;
+}
+
+.landing-ui-panel-image .main-ui-loader {
+	position: absolute;
+}

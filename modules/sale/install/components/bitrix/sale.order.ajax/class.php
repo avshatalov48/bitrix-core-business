@@ -2818,9 +2818,22 @@ class SaleOrderAjax extends \CBitrixComponent
 
 			$this->arElementId[] = $arBasketItem["PRODUCT_ID"];
 			$arBasketItem["SUM_NUM"] = $basketItem->getPrice() * $basketItem->getQuantity();
-			$arBasketItem["SUM"] = SaleFormatCurrency($basketItem->getPrice() * $basketItem->getQuantity(), $this->order->getCurrency());
+			$arBasketItem["SUM"] = SaleFormatCurrency(
+				$arBasketItem["SUM_NUM"],
+				$this->order->getCurrency()
+			);
+
 			$arBasketItem["SUM_BASE"] = $basketItem->getBasePrice() * $basketItem->getQuantity();
-			$arBasketItem["SUM_BASE_FORMATED"] = SaleFormatCurrency($basketItem->getBasePrice() * $basketItem->getQuantity(), $this->order->getCurrency());
+			$arBasketItem["SUM_BASE_FORMATED"] = SaleFormatCurrency(
+				$arBasketItem["SUM_BASE"],
+				$this->order->getCurrency()
+			);
+
+			$arBasketItem["SUM_DISCOUNT_DIFF"] = $arBasketItem["SUM_BASE"] - $arBasketItem["SUM_NUM"];
+			$arBasketItem["SUM_DISCOUNT_DIFF_FORMATED"] = SaleFormatCurrency(
+				$arBasketItem["SUM_DISCOUNT_DIFF"],
+				$this->order->getCurrency()
+			);
 
 			$arResult["BASKET_ITEMS"][] = $arBasketItem;
 		}
@@ -3338,7 +3351,7 @@ class SaleOrderAjax extends \CBitrixComponent
 			if ($property['UTIL'] == 'Y')
 				continue;
 
-			if (isset($property['RELATION']))
+			if (!empty($property['RELATION']))
 			{
 				if (!empty($this->arResult['PERSON_TYPE'][$property['PERSON_TYPE_ID']]))
 				{
@@ -3440,6 +3453,8 @@ class SaleOrderAjax extends \CBitrixComponent
 
 		$basket = $this->calculateBasket;
 
+		$arResult['BASKET_POSITIONS'] = $basket->count();
+
 		$arResult['ORDER_PRICE'] = $basket->getPrice();
 		$arResult['ORDER_PRICE_FORMATED'] = SaleFormatCurrency($arResult['ORDER_PRICE'], $this->order->getCurrency());
 
@@ -3448,6 +3463,9 @@ class SaleOrderAjax extends \CBitrixComponent
 
 		$arResult['PRICE_WITHOUT_DISCOUNT_VALUE'] = $basket->getBasePrice();
 		$arResult['PRICE_WITHOUT_DISCOUNT'] = SaleFormatCurrency($arResult['PRICE_WITHOUT_DISCOUNT_VALUE'], $this->order->getCurrency());
+
+		$arResult['BASKET_PRICE_DISCOUNT_DIFF_VALUE'] = $basket->getBasePrice() - $basket->getPrice();
+		$arResult['BASKET_PRICE_DISCOUNT_DIFF'] = SaleFormatCurrency($arResult['BASKET_PRICE_DISCOUNT_DIFF_VALUE'], $this->order->getCurrency());
 
 		$arResult['DISCOUNT_PRICE'] = Sale\PriceMaths::roundPrecision(
 			$this->order->getDiscountPrice() + ($arResult['PRICE_WITHOUT_DISCOUNT_VALUE'] - $arResult['ORDER_PRICE'])
@@ -5060,8 +5078,11 @@ class SaleOrderAjax extends \CBitrixComponent
 		$result['CURRENT_BUDGET_FORMATED'] = $arResult["CURRENT_BUDGET_FORMATED"];
 
 		$result['TOTAL'] = [
+			'BASKET_POSITIONS' => $arResult["BASKET_POSITIONS"],
 			'PRICE_WITHOUT_DISCOUNT_VALUE' => $arResult["PRICE_WITHOUT_DISCOUNT_VALUE"],
 			'PRICE_WITHOUT_DISCOUNT' => $arResult["PRICE_WITHOUT_DISCOUNT"],
+			'BASKET_PRICE_DISCOUNT_DIFF_VALUE' => $arResult["BASKET_PRICE_DISCOUNT_DIFF_VALUE"],
+			'BASKET_PRICE_DISCOUNT_DIFF' => $arResult["BASKET_PRICE_DISCOUNT_DIFF"],
 			'PAYED_FROM_ACCOUNT_FORMATED' => $arResult["PAYED_FROM_ACCOUNT_FORMATED"],
 			'ORDER_TOTAL_PRICE' => $arResult["ORDER_TOTAL_PRICE"],
 			'ORDER_TOTAL_PRICE_FORMATED' => $arResult["ORDER_TOTAL_PRICE_FORMATED"],

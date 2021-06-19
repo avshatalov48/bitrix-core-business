@@ -1,4 +1,4 @@
-<?
+<?php
 /*
 ##############################################
 # Bitrix: SiteManager                        #
@@ -56,13 +56,13 @@ while ($arStatusList = $dbStatusList->GetNext())
 }
 
 $arCurrency = Array();
-$dbCur = CCurrency::GetList(($b="sort"), ($order1="asc"), LANGUAGE_ID);
+$dbCur = CCurrency::GetList("sort", "asc", LANGUAGE_ID);
 while($arCur = $dbCur->GetNext())
 {
 	$arCurrency[$arCur["CURRENCY"]] = $arCur["FULL_NAME"];
 }
 
-$dbSite = CSite::GetList($by="sort", $order="desc", Array("ACTIVE" => "Y"));
+$dbSite = CSite::GetList("sort", "desc", Array("ACTIVE" => "Y"));
 while($arSites = $dbSite->GetNext())
 {
 	$arSite[$arSites["LID"]] = $arSites["NAME"];
@@ -580,7 +580,7 @@ if($arFind["mode"] == "count")
 	$i = 4;
 	foreach($arStatus as $k => $v)
 	{
-		if($arFind["find_status_".$k] == "Y")
+		if(($arFind["find_status_".$k] ?? '') == "Y")
 		{
 			Graf($arX, $arStatusY[$k], $ImageHandle, $MinX, $MaxX, $MinY, $MaxY, $arColor[$i], "N");
 		}
@@ -593,21 +593,21 @@ else
 	$i = 0;
 	foreach($arCurrency as $k1 => $v)
 	{
-		if($arFind["find_all_".$k1] == "Y")
+		if(($arFind["find_all_".$k1] ?? '') == "Y")
 			Graf($arX, $arPriceY[$k1], $ImageHandle, $MinX, $MaxX, $MinY, $MaxY, $arColor[$i], "N");
 		$i++;
-		if($arFind["find_payed_".$k1] == "Y")
+		if(($arFind["find_payed_".$k1] ?? '') == "Y")
 			Graf($arX, $arPayedY[$k1], $ImageHandle, $MinX, $MaxX, $MinY, $MaxY, $arColor[$i], "N");
 		$i++;
-		if($arFind["find_allow_delivery_".$k1] == "Y")
+		if(($arFind["find_allow_delivery_".$k1] ?? '') == "Y")
 			Graf($arX, $arDelivY[$k1], $ImageHandle, $MinX, $MaxX, $MinY, $MaxY, $arColor[$i], "N");
 		$i++;
-		if($arFind["find_canceled_".$k1] == "Y")
+		if(($arFind["find_canceled_".$k1] ?? '') == "Y")
 			Graf($arX, $arCancelY[$k1], $ImageHandle, $MinX, $MaxX, $MinY, $MaxY, $arColor[$i], "N");
 		$i++;
 		foreach($arStatus as $k2 => $v2)
 		{
-			if($arFind["find_status_".$k2."_".$k1] == "Y")
+			if(($arFind["find_status_".$k2."_".$k1] ?? '') == "Y")
 				Graf($arX, $arStatusY[$k2][$k1], $ImageHandle, $MinX, $MaxX, $MinY, $MaxY, $arColor[$i], "N");
 			$i++;
 		}
@@ -620,4 +620,3 @@ else
 *******************************************************/
 
 ShowImageHeader($ImageHandle);
-?>

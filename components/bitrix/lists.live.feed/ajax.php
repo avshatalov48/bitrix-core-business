@@ -394,7 +394,7 @@ class LiveFeedAjaxController extends Controller
 			if($right['TASK_ID'] == $idRight && $res === 0)
 			{
 				$userId = mb_substr($right['GROUP_CODE'], 1);
-				$users = CUser::GetList($by="id", $order="asc",
+				$users = CUser::GetList("id", "asc",
 					array('ID' => $userId),
 					array('FIELDS' => array('ID', 'PERSONAL_PHOTO', 'NAME', 'LAST_NAME'))
 				);
@@ -414,7 +414,7 @@ class LiveFeedAjaxController extends Controller
 				$listUser[$userId]['name'] = CUser::FormatName($nameTemplate, $user, false);
 			}
 		}
-		$users = CUser::getList(($b = 'ID'), ($o = 'ASC'),
+		$users = CUser::getList('ID', 'ASC',
 			array('GROUPS_ID' => 1, 'ACTIVE' => 'Y'),
 			array('FIELDS' => array('ID', 'PERSONAL_PHOTO', 'NAME', 'LAST_NAME'))
 		);
@@ -650,7 +650,7 @@ class LiveFeedAjaxController extends Controller
 				if(!in_array(1, $userGroups))
 				{
 					$userQuery = CUser::getList(
-						$by = 'ID', $order = 'ASC',
+						'ID', 'ASC',
 						array('ID' => $userId),
 						array('FIELDS' => array('ID' ,'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'TITLE', 'EMAIL')
 						)

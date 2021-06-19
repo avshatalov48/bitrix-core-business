@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CSocNetLogFollow
@@ -557,7 +558,7 @@ class CSocNetLogFollow
 		return $default_follow;
 	}
 
-	function OnBlogPostMentionNotifyIm($ID, $arMessageFields)
+	public static function OnBlogPostMentionNotifyIm($ID, $arMessageFields)
 	{
 		$res = false;
 
@@ -629,7 +630,7 @@ class CSocNetLogFollow
 		}
 	}
 
-	function OnBeforeConfirmNotify($module, $tag, $value, $arParams)
+	public static function OnBeforeConfirmNotify($module, $tag, $value, $arParams)
 	{
 		global $USER;
 
@@ -652,4 +653,3 @@ class CSocNetLogFollow
 		return null;
 	}
 }
-?>

@@ -206,6 +206,11 @@ class VariationForm extends BaseForm
 		return parent::getFieldValue($field);
 	}
 
+	protected function getHiddenPropertyCodes(): array
+	{
+		return [self::MORE_PHOTO];
+	}
+
 	protected function getPriceFieldValue(array $field)
 	{
 		if ($field['priceTypeId'] === 'PURCHASING_PRICE')

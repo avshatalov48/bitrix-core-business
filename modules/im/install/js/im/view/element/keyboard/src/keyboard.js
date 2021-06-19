@@ -8,7 +8,7 @@
  */
 
 import './keyboard.css';
-import {Vue} from 'ui.vue';
+import {BitrixVue} from 'ui.vue';
 import {Utils} from "im.lib.utils";
 import {Logger} from "im.lib.logger";
 
@@ -17,7 +17,7 @@ const ButtonType = Object.freeze({
 	button: 'BUTTON'
 });
 
-Vue.component('bx-im-view-element-keyboard',
+BitrixVue.component('bx-im-view-element-keyboard',
 {
 	/*
 	 * @emits 'click' {action: string, params: Object}
@@ -195,7 +195,7 @@ Vue.component('bx-im-view-element-keyboard',
 						'bx-im-element-keyboard-button-progress': button.WAIT === 'Y',
 					}
 				]" @click="click(button)">
-					<span class="bx-im-element-keyboard-button-text bx-im-element-keyboard-button-text" :style="getStyles(button)">{{button.TEXT}}</span>
+					<span class="bx-im-element-keyboard-button-text" :style="getStyles(button)">{{button.TEXT}}</span>
 				</span>
 			</template>
 		</div>

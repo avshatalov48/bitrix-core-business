@@ -73,7 +73,7 @@ class CCalendarConvert
 			CCalendarConvert::SetOption('__convert_doc_roots', array());
 		}
 
-		$dbSites = CSite::GetList($by = 'sort', $order = 'asc', array('ACTIVE' => 'Y'));
+		$dbSites = CSite::GetList('sort', 'asc', array('ACTIVE' => 'Y'));
 		$arSites = array();
 		$default_site = '';
 		$arDocRoots = CCalendarConvert::GetOption('__convert_doc_roots', serialize(array()));
@@ -418,7 +418,7 @@ class CCalendarConvert
 				"MANDATORY" => "N",
 			);
 			$arFieldName = array();
-			$rsLanguage = CLanguage::GetList($by, $order, array());
+			$rsLanguage = CLanguage::GetList();
 			while($arLanguage = $rsLanguage->Fetch())
 				$arFieldName[$arLanguage["LID"]] = $arProps[$i][1];
 			$arFields["EDIT_FORM_LABEL"] = $arFieldName;

@@ -73,7 +73,9 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 	foreach ($ids as $id)
 	{
 		if ((int)$id <= 0)
+		{
 			continue;
+		}
 
 		switch ($_REQUEST['action'])
 		{
@@ -85,6 +87,21 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 				}
 
 				$service = Cashbox\Manager::getObjectById($id);
+
+				if (Cashbox\Manager::isPaySystemCashbox($service->getField('HANDLER')))
+				{
+					$lAdmin->AddGroupError(
+						GetMessage(
+							"SPSAN_ERROR_DELETE_CASHBOX_PAYSYSTEM",
+							[
+								"#CASHBOX_NAME#" => $service::getName(),
+							]
+						),
+						$id
+					);
+
+					continue 2;
+				}
 
 				$result = Cashbox\Manager::delete($id);
 				if (!$result->isSuccess())
@@ -103,6 +120,23 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 
 			case "activate":
 			case "deactivate":
+
+				$service = Cashbox\Manager::getObjectById($id);
+
+				if (Cashbox\Manager::isPaySystemCashbox($service->getField('HANDLER')))
+				{
+					$lAdmin->AddGroupError(
+						GetMessage(
+							"SPSAN_ERROR_ACTIVE_CASHBOX_PAYSYSTEM",
+							[
+								"#CASHBOX_NAME#" => $service::getName(),
+							]
+						),
+						$id
+					);
+
+					continue 2;
+				}
 
 				$arFields = array(
 					"ACTIVE" => ($_REQUEST['action'] == 'activate') ? 'Y' : 'N'
@@ -186,7 +220,12 @@ while ($cashbox = $dbResultList->Fetch())
 			"DEFAULT" => true,
 		),
 	);
-	if ($saleModulePermissions >= "W")
+
+
+	if (
+		$saleModulePermissions >= "W"
+		&& !Cashbox\Manager::isPaySystemCashbox($cashbox['HANDLER'])
+	)
 	{
 		$arActions[] = array("SEPARATOR" => true);
 		$arActions[] = array(
@@ -361,6 +400,48 @@ else
 			echo $note;
 		}
 	}
+
+	if (Cashbox\Manager::isEnabledPaySystemPrint())
+	{
+		$cashboxPaySystem = [];
+		$cashboxNoPaySystem = [];
+
+		foreach ($cashboxList as $cashbox)
+		{
+			if ($cashbox['ACTIVE'] === 'N')
+			{
+				continue;
+			}
+
+			if (!class_exists($cashbox['HANDLER']))
+			{
+				continue;
+			}
+
+			if (Cashbox\Manager::isPaySystemCashbox($cashbox['HANDLER']))
+			{
+				$cashboxPaySystem[] = htmlspecialcharsbx($cashbox['NAME']);
+			}
+			else
+			{
+				$cashboxNoPaySystem[] = htmlspecialcharsbx($cashbox['NAME']);
+			}
+		}
+
+		if ($cashboxPaySystem && $cashboxNoPaySystem)
+		{
+			$note = BeginNote();
+			$note .= Loc::getMessage(
+				'SALE_CASHBOX_MODE_CONFLICT',
+				array(
+					'#CASHBOX_PAYSYSTEM#' => implode(', ', $cashboxPaySystem),
+				)
+			);
+			$note .= EndNote();
+			echo $note;
+		}
+	}
+
 	$lAdmin->DisplayFilter($filterFields);
 	$lAdmin->DisplayList();
 }

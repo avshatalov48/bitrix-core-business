@@ -9,8 +9,10 @@ return [
 	'js' => 'dist/controls.bundle.js',
 	'rel' => [
 		'ui.icons.b24',
+		'calendar.entry',
 		'calendar.planner',
 		'ui.entity-selector',
+		'intranet.control-button',
 		'main.core',
 		'main.core.events',
 		'main.popup',

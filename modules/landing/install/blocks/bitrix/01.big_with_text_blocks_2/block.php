@@ -9,7 +9,7 @@
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img3.jpg);">
 				<div class="landing-block-card-container u-bg-overlay__inner w-100 d-flex justify-content-center g-py-40">
 					<div class="container g-mr-0 g-ml-0 g-pl-0 g-pr-0">
-						<h2 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation slideInUp h2 text-uppercase g-line-height-1_2 g-letter-spacing-1 g-font-size-65 g-color-white g-mb-40">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation slideInUp text-uppercase g-line-height-1_2 g-letter-spacing-1 g-font-size-65 g-color-white g-mb-40">
 							For some,
 							<br> <span style="font-weight: bold;">food is a luxury</span></h2>
 
@@ -44,7 +44,7 @@
 							   class="landing-block-node-card-link landing-block-node-card-link1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-py-20--md g-mr-10">
 								Donate now</a>
 							<a href="#"
-							   class="landing-block-node-card-link landing-block-node-card-link1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-py-20--md g-mr-10">Learn
+							   class="landing-block-node-card-link landing-block-node-card-link2 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-py-20--md g-mr-10">Learn
 								more</a>
 						</div>
 					</div>
@@ -57,7 +57,7 @@
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img4.jpg);">
 				<div class="landing-block-card-container u-bg-overlay__inner w-100 d-flex justify-content-center g-py-40">
 					<div class="container g-mr-0 g-ml-0 g-pl-0 g-pr-0">
-						<h2 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation slideInUp h2 text-uppercase g-line-height-1_2 g-letter-spacing-1 g-font-size-65 g-color-white g-mb-40">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation slideInUp text-uppercase g-line-height-1_2 g-letter-spacing-1 g-font-size-65 g-color-white g-mb-40">
 							For some,
 							<br><span style="font-weight: bold;">support is a necessity</span></h2>
 
@@ -92,7 +92,7 @@
 							   class="landing-block-node-card-link landing-block-node-card-link1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-py-20--md g-mr-10">
 								Donate now</a>
 							<a href="#"
-							   class="landing-block-node-card-link landing-block-node-card-link1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-py-20--md g-mr-10">Learn
+							   class="landing-block-node-card-link landing-block-node-card-link2 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-py-20--md g-mr-10">Learn
 								more</a>
 						</div>
 					</div>

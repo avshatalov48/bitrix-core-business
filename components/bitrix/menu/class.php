@@ -33,10 +33,10 @@ class CBitrixMenuComponent extends CBitrixComponent
 				""
 			;
 
-			if($this->arParams["MENU_CACHE_USE_GROUPS"] === "Y")
+			if(($this->arParams["MENU_CACHE_USE_GROUPS"] ?? '') === "Y")
 				$strCacheID .= ":".$USER->GetGroups();
 
-			if($this->arParams["MENU_CACHE_USE_USERS"] === "Y")
+			if(($this->arParams["MENU_CACHE_USE_USERS"] ?? '') === "Y")
 				$strCacheID .= ":".$USER->GetID();
 
 			if(is_array($this->arParams["MENU_CACHE_GET_VARS"]))

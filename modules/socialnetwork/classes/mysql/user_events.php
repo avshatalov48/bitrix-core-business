@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/user_events.php");
 
 class CSocNetUserEvents extends CAllSocNetUserEvents
@@ -6,7 +7,7 @@ class CSocNetUserEvents extends CAllSocNetUserEvents
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -32,11 +33,10 @@ class CSocNetUserEvents extends CAllSocNetUserEvents
 		return $ID;
 	}
 
-	
 	/***************************************/
 	/**********  DATA SELECTION  ***********/
 	/***************************************/
-	function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -135,4 +135,3 @@ class CSocNetUserEvents extends CAllSocNetUserEvents
 		return $dbRes;
 	}
 }
-?>

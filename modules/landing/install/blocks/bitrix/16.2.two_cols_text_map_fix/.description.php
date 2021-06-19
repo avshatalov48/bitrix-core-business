@@ -38,7 +38,7 @@ return array(
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_16_2_TWO_COLS_TEXT_MAP_FIX--LANDINGBLOCKNODETITLE'),
-			'type' => array('typo'),
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_16_2_TWO_COLS_TEXT_MAP_FIX--LANDINGBLOCKNODETEXT'),

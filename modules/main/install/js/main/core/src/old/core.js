@@ -3341,6 +3341,12 @@
 
 	BX.CHint = function(params)
 	{
+		if (BX.CHint.cssLoaded === false)
+		{
+			BX.load(['/bitrix/js/main/core/css/core_hint.css']);
+			BX.CHint.cssLoaded = true;
+		}
+
 		this.PARENT = BX(params.parent);
 
 		this.HINT = params.hint;
@@ -3374,6 +3380,8 @@
 			BX.bind(this.PARENT, 'mouseout', BX.proxy(this.Hide, this));
 		}
 	};
+
+	BX.CHint.cssLoaded = false;
 
 	BX.CHint.openHints = new Set();
 
@@ -3534,12 +3542,12 @@
 	{
 		this.DIV = document.body.appendChild(BX.create('DIV', {
 			props: {className: 'bx-panel-tooltip'},
-			style: {display: 'none'},
+			style: {
+				display: 'none',
+				position: 'absolute',
+				visibility: 'hidden'
+			},
 			children: [
-				BX.create('DIV', {
-					props: {className: 'bx-panel-tooltip-top-border'},
-					html: '<div class="bx-panel-tooltip-corner bx-panel-tooltip-left-corner"></div><div class="bx-panel-tooltip-border"></div><div class="bx-panel-tooltip-corner bx-panel-tooltip-right-corner"></div>'
-				}),
 				(this.CONTENT = BX.create('DIV', {
 					props: {className: 'bx-panel-tooltip-content'},
 					children: [
@@ -3550,12 +3558,7 @@
 							]
 						})
 					]
-				})),
-
-				BX.create('DIV', {
-					props: {className: 'bx-panel-tooltip-bottom-border'},
-					html: '<div class="bx-panel-tooltip-corner bx-panel-tooltip-left-corner"></div><div class="bx-panel-tooltip-border"></div><div class="bx-panel-tooltip-corner bx-panel-tooltip-right-corner"></div>'
-				})
+				}))
 			]
 		}));
 

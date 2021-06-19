@@ -117,10 +117,38 @@ abstract class EntityObject implements ArrayAccess
 			// we have custom default values
 			foreach ($setDefaultValues as $fieldName => $defaultValue)
 			{
-				$this->set($fieldName, $defaultValue);
+				$field = $this->entity->getField($fieldName);
+
+				if ($field instanceof Reference)
+				{
+					if (is_array($defaultValue))
+					{
+						$defaultValue = $field->getRefEntity()->createObject($defaultValue);
+					}
+
+					$this->set($fieldName, $defaultValue);
+				}
+				elseif (($field instanceof OneToMany || $field instanceof ManyToMany)
+					&& is_array($defaultValue))
+				{
+					foreach ($defaultValue as $subValue)
+					{
+						if (is_array($subValue))
+						{
+							$subValue = $field->getRefEntity()->createObject($subValue);
+						}
+
+						$this->addTo($fieldName, $subValue);
+					}
+				}
+				else
+				{
+					$this->set($fieldName, $defaultValue);
+				}
 			}
 		}
 
+		// set map default values
 		if ($setDefaultValues || is_array($setDefaultValues))
 		{
 			foreach ($this->entity->getScalarFields() as $fieldName => $field)
@@ -285,6 +313,9 @@ abstract class EntityObject implements ArrayAccess
 			foreach ($result->getPrimary() as $primaryName => $primaryValue)
 			{
 				$this->sysSetActual($primaryName, $primaryValue);
+
+				// db value has priority in case of custom value for autocomplete
+				$this->sysSetValue($primaryName, $primaryValue);
 			}
 
 			// on primary gain event

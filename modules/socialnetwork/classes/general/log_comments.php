@@ -1,11 +1,11 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Socialnetwork\Item\LogIndex;
 use Bitrix\Socialnetwork\LogTable;
 use Bitrix\Socialnetwork\LogCommentTable;
 use Bitrix\Socialnetwork\LogIndexTable;
-use Bitrix\Socialnetwork\LogRightTable;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Socialnetwork\LogTagTable;
 
@@ -14,7 +14,7 @@ class CAllSocNetLogComments
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		static $arSiteWorkgroupsPage;
 
@@ -26,7 +26,7 @@ class CAllSocNetLogComments
 			&& $arFields["ENTITY_TYPE"] == SONET_ENTITY_GROUP
 		)
 		{
-			$rsSite = CSite::GetList($by="sort", $order="desc", Array("ACTIVE" => "Y"));
+			$rsSite = CSite::GetList("sort", "desc", Array("ACTIVE" => "Y"));
 			while($arSite = $rsSite->Fetch())
 			{
 				$arSiteWorkgroupsPage[$arSite["ID"]] = COption::GetOptionString("socialnetwork", "workgroups_page", $arSite["DIR"]."workgroups/", $arSite["ID"]);
@@ -300,7 +300,7 @@ class CAllSocNetLogComments
 	/**********  SEND EVENTS  **************/
 	/***************************************/
 
-	function SendEvent($ID, $mailTemplate = "SONET_NEW_EVENT", $bTransport = false)
+	public static function SendEvent($ID, $mailTemplate = "SONET_NEW_EVENT", $bTransport = false)
 	{
 		global $DB;
 
@@ -391,7 +391,7 @@ class CAllSocNetLogComments
 				if ($arLogComment["ENTITY_TYPE"] == SONET_ENTITY_GROUP)
 				{
 					$arSites = array();
-					$dbSite = CSite::GetList($by="sort", $order="desc", array("ACTIVE" => "Y"));
+					$dbSite = CSite::GetList("sort", "desc", array("ACTIVE" => "Y"));
 					while($arSite = $dbSite->Fetch())
 					{
 						$arSites[$arSite["ID"]] = array(
@@ -752,7 +752,7 @@ class CAllSocNetLogComments
 		return $arSource;
 	}
 
-	function SendMentionNotification($arCommentFields)
+	public static function SendMentionNotification($arCommentFields)
 	{
 		if (!CModule::IncludeModule("im"))
 		{
@@ -791,11 +791,10 @@ class CAllSocNetLogComments
 				"NOTIFY_TAG" => (!empty($arTitleRes["NOTIFY_TAG"]) ? $arTitleRes["NOTIFY_TAG"] : "LOG_COMMENT|COMMENT_MENTION|".$arCommentFields["ID"])
 			);
 
-			preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, $arCommentFields["MESSAGE"], $arMention);
+			$arMention = \Bitrix\Socialnetwork\Helper\Mention::getUserIds($arCommentFields['MESSAGE']);
 
 			if(!empty($arMention))
 			{
-				$arMention = $arMention[1];
 				$arExcludeUsers = array($arCommentFields["USER_ID"]);
 
 				if (!empty($arCommentFields["LOG_ID"]))
@@ -939,7 +938,7 @@ class CAllSocNetLogComments
 		}
 	}
 
-	function OnSendMentionGetEntityFields_Forum($arCommentFields)
+	public static function OnSendMentionGetEntityFields_Forum($arCommentFields)
 	{
 		if ($arCommentFields["EVENT_ID"] != "forum")
 		{
@@ -960,7 +959,7 @@ class CAllSocNetLogComments
 		if ($arLog = $dbLog->Fetch())
 		{
 			$genderSuffix = "";
-			$dbUsers = CUser::GetList(($by="ID"), ($order="desc"), array("ID" => $arCommentFields["USER_ID"]), array("PERSONAL_GENDER", "LOGIN", "NAME", "LAST_NAME", "SECOND_NAME"));
+			$dbUsers = CUser::GetList("ID", "desc", array("ID" => $arCommentFields["USER_ID"]), array("PERSONAL_GENDER", "LOGIN", "NAME", "LAST_NAME", "SECOND_NAME"));
 			if ($arUser = $dbUsers->Fetch())
 			{
 				$genderSuffix = $arUser["PERSONAL_GENDER"];
@@ -1002,4 +1001,3 @@ class CAllSocNetLogComments
 		return $res;
 	}
 }
-?>

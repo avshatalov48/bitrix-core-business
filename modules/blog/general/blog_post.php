@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Blog\Integration;
@@ -16,7 +17,7 @@ class CAllBlogPost
 	
 	const UF_NAME = 'UF_BLOG_POST_DOC';
 
-	function CanUserEditPost($ID, $userID)
+	public static function CanUserEditPost($ID, $userID)
 	{
 		global $APPLICATION;
 		$ID = intval($ID);
@@ -334,7 +335,7 @@ class CAllBlogPost
 		return True;
 	}
 
-	function SetPostPerms($ID, $arPerms = array(), $permsType = BLOG_PERMS_POST)
+	public static function SetPostPerms($ID, $arPerms = array(), $permsType = BLOG_PERMS_POST)
 	{
 		global $DB;
 
@@ -819,11 +820,6 @@ class CAllBlogPost
 				$socnetPerms = \Bitrix\Socialnetwork\ComponentHelper::getBlogPostSocNetPerms(array(
 					'postId' => $arPost["ID"],
 					'authorId' => $arPost["AUTHOR_ID"]
-				));
-
-				\Bitrix\Main\FinderDestTable::merge(array(
-					"CONTEXT" => "blog_post",
-					"CODE" => \Bitrix\Main\FinderDestTable::convertRights($socnetPerms, array("U".$arPost["AUTHOR_ID"]))
 				));
 
 				$postFields = $post->getFields();
@@ -1637,8 +1633,8 @@ class CAllBlogPost
 			) // check for email authorization users
 			{
 				$rsUsers = CUser::GetList(
-					($by="ID"),
-					($order="asc"),
+					"ID",
+					"asc",
 					array(
 						"ID" => $userId
 					),
@@ -1737,15 +1733,57 @@ class CAllBlogPost
 							$perms = BLOG_PERMS_FULL;
 						break;
 					}
-					if(in_array("G2", $p))
+					if(
+						in_array("G2", $p)
+						|| ($userId > 0 && in_array("AU", $p))
+					)
 					{
-						$perms = BLOG_PERMS_WRITE;
-						break;
-					}
-					if($userId > 0 && in_array("AU", $p))
-					{
-						$perms = BLOG_PERMS_WRITE;
-						break;
+						if (!\Bitrix\Main\ModuleManager::isModuleInstalled('intranet'))
+						{
+							$perms = BLOG_PERMS_WRITE;
+						}
+						else
+						{
+							$currentUserType = self::getCurrentUserType($userId);
+
+							if ($currentUserType === 'employee')
+							{
+								$perms = BLOG_PERMS_WRITE;
+							}
+							elseif (
+								$currentUserType === 'extranet'
+								&& Loader::includeModule('extranet')
+								&& ($extranetSiteId = CExtranet::getExtranetSiteId())
+							)
+							{
+								$res = \Bitrix\Socialnetwork\LogTable::getList([
+									'filter' => [
+										'=SOURCE_ID' => $postId,
+										'@EVENT_ID' => (new \Bitrix\Socialnetwork\Livefeed\BlogPost)->getEventId(),
+									],
+									'select' => [ 'ID' ],
+								]);
+								if ($logFields = $res->fetch())
+								{
+									$res = \Bitrix\Socialnetwork\LogSiteTable::getList([
+										'filter' => [
+											'=LOG_ID' => $logFields['ID'],
+											'=SITE_ID' => $extranetSiteId,
+										],
+										'select' => [ 'LOG_ID' ],
+									]);
+									if ($res->fetch())
+									{
+										$perms = BLOG_PERMS_WRITE;
+									}
+								}
+							}
+						}
+
+						if ($perms === BLOG_PERMS_WRITE)
+						{
+							break;
+						}
 					}
 					if($t == "SG")
 					{
@@ -1804,7 +1842,13 @@ class CAllBlogPost
 					}
 				}
 
-				if ($bOpenedSGFound)
+				if (
+					$bOpenedSGFound
+					&& (
+						!\Bitrix\Main\ModuleManager::isModuleInstalled('intranet')
+						|| self::getCurrentUserType($userId) === 'employee'
+					)
+				)
 				{
 					$perms = BLOG_PERMS_READ;
 				}
@@ -1883,6 +1927,35 @@ class CAllBlogPost
 		static::$arSocNetPostPermsCache[$cId] = $perms;
 
 		return $perms;
+	}
+
+	private static function getCurrentUserType($userId)
+	{
+		static $currentUserType = null;
+
+		if ($userId <= 0)
+		{
+			return null;
+		}
+
+		if (
+			$currentUserType === null
+			&& Loader::includeModule('intranet')
+		)
+		{
+			$res = \Bitrix\Intranet\UserTable::getList([
+				'filter' => [
+					'ID' => $userId,
+				],
+				'select' => [ 'ID', 'USER_TYPE' ],
+			]);
+			if ($userFields = $res->fetch())
+			{
+				$currentUserType = $userFields['USER_TYPE'];
+			}
+		}
+
+		return $currentUserType;
 	}
 
 	public static function NotifyIm($arParams)
@@ -3402,4 +3475,3 @@ class CAllBlogPost
 	}
 
 }
-?>

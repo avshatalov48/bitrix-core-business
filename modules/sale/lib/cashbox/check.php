@@ -3,9 +3,11 @@
 namespace Bitrix\Sale\Cashbox;
 
 use Bitrix\Main;
+use Bitrix\Sale\Basket;
 use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\Cashbox\Internals\CheckRelatedEntitiesTable;
 use Bitrix\Sale\Order;
+use Bitrix\Sale\PayableBasketItem;
 use Bitrix\Sale\Payment;
 use Bitrix\Sale\PriceMaths;
 use Bitrix\Sale\Registry;
@@ -265,7 +267,8 @@ abstract class Check extends AbstractCheck
 						'price' => $product['PRICE'],
 						'sum' => $product['SUM'],
 						'quantity' => $product['QUANTITY'],
-						'vat' => $product['VAT'],
+						'vat' => $product['VAT'] ?? 0,
+						'vat_sum' => $product['VAT_SUM'] ?? 0,
 						'payment_object' => $product['PAYMENT_OBJECT'],
 						'properties' => $product['PROPERTIES'],
 					];
@@ -318,6 +321,7 @@ abstract class Check extends AbstractCheck
 						'sum' => $delivery['SUM'],
 						'quantity' => $delivery['QUANTITY'],
 						'vat' => $delivery['VAT'],
+						'vat_sum' => $delivery['VAT_SUM'],
 						'payment_object' => $delivery['PAYMENT_OBJECT'],
 					];
 
@@ -383,8 +387,6 @@ abstract class Check extends AbstractCheck
 			if ($order === null)
 			{
 				$order = CheckManager::getOrder($entity);
-				$discounts = $order->getDiscount();
-				$shopPrices = $discounts->getShowPrices();
 				$result['ORDER'] = $order;
 			}
 
@@ -401,6 +403,36 @@ abstract class Check extends AbstractCheck
 				);
 
 				$totalSum += $entity->getSum();
+
+				if ($this->isShipmentExists())
+				{
+					continue;
+				}
+
+				/** @var PayableBasketItem $payableItem */
+				foreach ($entity->getPayableItemCollection()->getBasketItems() as $payableItem)
+				{
+					/** @var BasketItem $basketItem */
+					$basketItem = $payableItem->getEntityObject();
+
+					$item = $this->extractDataFromBasketItem($basketItem);
+
+					$item['SUM'] = PriceMaths::roundPrecision($basketItem->getPriceWithVat() * $payableItem->getQuantity());
+					$item['QUANTITY'] = (float)$payableItem->getQuantity();
+
+					$result['PRODUCTS'][] = $item;
+				}
+
+				foreach ($entity->getPayableItemCollection()->getShipments() as $payableItem)
+				{
+					$item = $this->extractDataFromShipment($payableItem->getEntityObject());
+					if ($item)
+					{
+						$item['QUANTITY'] = (float)$payableItem->getQuantity();
+
+						$result['DELIVERY'][] = $item;
+					}
+				}
 			}
 			elseif ($entity instanceof Shipment)
 			{
@@ -411,55 +443,10 @@ abstract class Check extends AbstractCheck
 				foreach ($sellableItems as $shipmentItem)
 				{
 					$basketItem = $shipmentItem->getBasketItem();
-					$basketCode = $basketItem->getBasketCode();
-					if (!empty($shopPrices['BASKET'][$basketCode]))
-					{
-						$basketItem->setFieldNoDemand('BASE_PRICE', $shopPrices['BASKET'][$basketCode]['SHOW_BASE_PRICE']);
-						$basketItem->setFieldNoDemand('PRICE', $shopPrices['BASKET'][$basketCode]['SHOW_PRICE']);
-						$basketItem->setFieldNoDemand('DISCOUNT_PRICE', $shopPrices['BASKET'][$basketCode]['SHOW_DISCOUNT']);
-					}
-					unset($basketCode);
 
-					$item = array(
-						'ENTITY' => $basketItem,
-						'PRODUCT_ID' => $basketItem->getProductId(),
-						'NAME' => $basketItem->getField('NAME'),
-						'BASE_PRICE' => $basketItem->getBasePriceWithVat(),
-						'PRICE' => $basketItem->getPriceWithVat(),
-						'SUM' => PriceMaths::roundPrecision($basketItem->getPriceWithVat() * $shipmentItem->getQuantity()),
-						'QUANTITY' => (float)$shipmentItem->getQuantity(),
-						'VAT' => $this->getProductVatId($basketItem),
-						'PAYMENT_OBJECT' => static::PAYMENT_OBJECT_COMMODITY
-					);
+					$item = $this->extractDataFromBasketItem($basketItem);
 
-					if ($order)
-					{
-						$siteId = $order->getSiteId();
-						$propertiesCodes = ['ARTNUMBER'];
-						$itemProperties = self::getCatalogPropertiesForItem($basketItem->getProductId(), $propertiesCodes, $siteId);
-						$item['PROPERTIES'] = $itemProperties;
-					}
-					else
-					{
-						$item['PROPERTIES'] = [];
-					}
-
-					if ($basketItem->isCustomPrice())
-					{
-						$item['BASE_PRICE'] = $basketItem->getPriceWithVat();
-					}
-					else
-					{
-						if ((float)$basketItem->getDiscountPrice() != 0)
-						{
-							$item['DISCOUNT'] = array(
-								'PRICE' => (float)$basketItem->getDiscountPrice(),
-								'TYPE' => 'C',
-							);
-						}
-					}
-
-					if ($basketItem->isSupportedMarkingCode())
+					if ($this->needPrintMarkingCode($basketItem))
 					{
 						$item['QUANTITY'] = 1;
 						$item['SUM'] = $basketItem->getPriceWithVat();
@@ -489,44 +476,22 @@ abstract class Check extends AbstractCheck
 					}
 					else
 					{
+						$item['SUM'] = PriceMaths::roundPrecision($basketItem->getPriceWithVat() * $shipmentItem->getQuantity());
+						$item['QUANTITY'] = (float)$shipmentItem->getQuantity();
+
 						$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
 						if (isset($shipmentItemStoreCollection[0]))
 						{
 							$item['BARCODE'] = $shipmentItemStoreCollection[0]->getField('BARCODE');
 						}
+
 						$result['PRODUCTS'][] = $item;
 					}
 				}
 
-				$priceDelivery = (float)$entity->getPrice();
-				if ($priceDelivery > 0)
+				$item = $this->extractDataFromShipment($entity);
+				if ($item)
 				{
-					$item = array(
-						'ENTITY' => $entity,
-						'NAME' => Main\Localization\Loc::getMessage('SALE_CASHBOX_CHECK_DELIVERY'),
-						'BASE_PRICE' => (float)$entity->getField('BASE_PRICE_DELIVERY'),
-						'PRICE' => (float)$entity->getPrice(),
-						'SUM' => (float)$entity->getPrice(),
-						'QUANTITY' => 1,
-						'VAT' => $this->getDeliveryVatId($entity),
-						'PAYMENT_OBJECT' => static::PAYMENT_OBJECT_SERVICE
-					);
-
-					if ($entity->isCustomPrice())
-					{
-						$item['BASE_PRICE'] = $entity->getPrice();
-					}
-					else
-					{
-						if ((float)$entity->getField('DISCOUNT_PRICE') != 0)
-						{
-							$item['DISCOUNT'] = array(
-								'PRICE' => $entity->getField('DISCOUNT_PRICE'),
-								'TYPE' => 'C',
-							);
-						}
-					}
-
 					$result['DELIVERY'][] = $item;
 				}
 			}
@@ -562,6 +527,138 @@ abstract class Check extends AbstractCheck
 		return $result;
 	}
 
+	protected function needPrintMarkingCode($basketItem) : bool
+	{
+		return $basketItem->isSupportedMarkingCode();
+	}
+
+	private function isShipmentExists(): bool
+	{
+		foreach ($this->getEntities() as $entity)
+		{
+			if ($entity instanceof Shipment)
+			{
+				return true;
+			}
+		}
+
+		foreach ($this->getRelatedEntities() as $relatedEntities)
+		{
+			foreach ($relatedEntities as $entity)
+			{
+				if ($entity instanceof Shipment)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private function extractDataFromShipment(Shipment $shipment) : array
+	{
+		$priceDelivery = (float)$shipment->getPrice();
+		if ($priceDelivery > 0)
+		{
+			$data = [
+				'ENTITY' => $shipment,
+				'NAME' => Main\Localization\Loc::getMessage('SALE_CASHBOX_CHECK_DELIVERY'),
+				'BASE_PRICE' => (float)$shipment->getField('BASE_PRICE_DELIVERY'),
+				'PRICE' => (float)$shipment->getPrice(),
+				'SUM' => (float)$shipment->getPrice(),
+				'QUANTITY' => 1,
+				'VAT' => $this->getDeliveryVatId($shipment),
+				'PAYMENT_OBJECT' => static::PAYMENT_OBJECT_SERVICE
+			];
+
+			if ($shipment->isCustomPrice())
+			{
+				$data['BASE_PRICE'] = $shipment->getPrice();
+			}
+			else
+			{
+				if ((float)$shipment->getField('DISCOUNT_PRICE') != 0)
+				{
+					$data['DISCOUNT'] = array(
+						'PRICE' => $shipment->getField('DISCOUNT_PRICE'),
+						'TYPE' => 'C',
+					);
+				}
+			}
+
+			return $data;
+		}
+
+		return [];
+	}
+
+	private function extractDataFromBasketItem(BasketItem $basketItem) : array
+	{
+		static $shopPrices = [];
+
+		$order = $basketItem->getBasket()->getOrder();
+
+		if ($order)
+		{
+			$discounts = $order->getDiscount();
+			if (!$shopPrices)
+			{
+				$shopPrices = $discounts->getShowPrices();
+			}
+		}
+
+		$basketCode = $basketItem->getBasketCode();
+		if (!empty($shopPrices['BASKET'][$basketCode]))
+		{
+			$basketItem->setFieldNoDemand('BASE_PRICE', $shopPrices['BASKET'][$basketCode]['SHOW_BASE_PRICE']);
+			$basketItem->setFieldNoDemand('PRICE', $shopPrices['BASKET'][$basketCode]['SHOW_PRICE']);
+			$basketItem->setFieldNoDemand('DISCOUNT_PRICE', $shopPrices['BASKET'][$basketCode]['SHOW_DISCOUNT']);
+		}
+		unset($basketCode);
+
+		$data = [
+			'ENTITY' => $basketItem,
+			'PRODUCT_ID' => $basketItem->getProductId(),
+			'NAME' => $basketItem->getField('NAME'),
+			'BASE_PRICE' => $basketItem->getBasePriceWithVat(),
+			'PRICE' => $basketItem->getPriceWithVat(),
+			'SUM' => $basketItem->getFinalPrice(),
+			'QUANTITY' => (float)$basketItem->getQuantity(),
+			'VAT' => $this->getProductVatId($basketItem),
+			'PAYMENT_OBJECT' => static::PAYMENT_OBJECT_COMMODITY
+		];
+
+		if ($order)
+		{
+			$siteId = $order->getSiteId();
+			$propertiesCodes = ['ARTNUMBER'];
+			$itemProperties = self::getCatalogPropertiesForItem($basketItem->getProductId(), $propertiesCodes, $siteId);
+			$data['PROPERTIES'] = $itemProperties;
+		}
+		else
+		{
+			$data['PROPERTIES'] = [];
+		}
+
+		if ($basketItem->isCustomPrice())
+		{
+			$data['BASE_PRICE'] = $basketItem->getPriceWithVat();
+		}
+		else
+		{
+			if ((float)$basketItem->getDiscountPrice() != 0)
+			{
+				$data['DISCOUNT'] = [
+					'PRICE' => (float)$basketItem->getDiscountPrice(),
+					'TYPE' => 'C',
+				];
+			}
+		}
+
+		return $data;
+	}
+
 	/**
 	 * @param $itemId
 	 * @param $itemPropertiesCodes
@@ -580,7 +677,7 @@ abstract class Check extends AbstractCheck
 
 		$result = [];
 		$catalogData = Admin\Product::getData([$itemId], $siteId, $propertiesFieldNames);
-		foreach ($catalogData as $id => $item)
+		foreach ($catalogData as $item)
 		{
 			foreach ($itemPropertiesCodes as $propertyCode)
 			{
@@ -872,19 +969,27 @@ abstract class Check extends AbstractCheck
 		$eps = 0.00001;
 
 		$productSum = 0;
-		foreach ($data['PRODUCTS'] as $item)
-			$productSum += $item['SUM'];
+		if (!empty($data['PRODUCTS']))
+		{
+			foreach ($data['PRODUCTS'] as $item)
+				$productSum += $item['SUM'];
+		}
 
-		if (isset($data['DELIVERY']))
+		if (!empty($data['DELIVERY']))
 		{
 			foreach ($data['DELIVERY'] as $delivery)
+			{
 				$productSum += $delivery['PRICE'];
+			}
 		}
 
 		$paymentSum = 0;
-		foreach ($data['PAYMENTS'] as $payment)
+		if (!empty($data['PAYMENTS']))
 		{
-			$paymentSum += $payment['SUM'];
+			foreach ($data['PAYMENTS'] as $payment)
+			{
+				$paymentSum += $payment['SUM'];
+			}
 		}
 
 		return abs($productSum - $paymentSum) < $eps;

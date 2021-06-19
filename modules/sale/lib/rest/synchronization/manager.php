@@ -78,7 +78,7 @@ class Manager
 		$result = new Result();
 
 		$siteId='';
-		$r = \CSite::GetList($by,$order);
+		$r = \CSite::GetList();
 		while ($row = $r->fetch())
 			if($row['ID']==$this->getDefaultSiteId())
 				$siteId=$row['ID'];

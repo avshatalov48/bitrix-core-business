@@ -667,15 +667,16 @@ class Imap
 	/**
 	 * Returns unseen messages count
 	 *
-	 * @param string $mailbox Mailbox name.
+	 * @param string $dirPath dir path.
 	 * @param string &$error Error message.
+	 *
 	 * @return int|false
 	 */
-	public function getUnseen($mailbox, &$error)
+	public function getUnseen($dirPath, &$error)
 	{
 		$error = null;
 
-		if (!$this->select($mailbox, $error))
+		if (!$this->select($dirPath, $error))
 		{
 			return false;
 		}

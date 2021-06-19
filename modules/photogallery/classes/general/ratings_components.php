@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/photogallery/general/ratings_components.php");
 
 class CRatingsComponentsPhotogallery
 {
-	function BeforeIndex($arParams)
+	public static function BeforeIndex($arParams)
 	{
 		if (($arParams['MODULE_ID'] == 'iblock' || $arParams['MODULE_ID'] == 'socialnetwork') && $arParams['PARAM1'] == 'photos' && intval($arParams['PARAM2']) > 0 && intval($arParams['ITEM_ID']) > 0)
 		{
@@ -14,5 +15,3 @@ class CRatingsComponentsPhotogallery
 		}
 	}
 }
-
-?>

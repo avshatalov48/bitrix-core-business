@@ -75,6 +75,10 @@ class BlockTable extends Entity\DataManager
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_DELETED'),
 				'default_value' => 'N'
 			)),
+			'DESIGNED' => new Entity\StringField('DESIGNED', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_DESIGNED'),
+				'default_value' => 'N'
+			)),
 			'ACCESS' => new Entity\StringField('ACCESS', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_ACCESS'),
 				'default_value' => 'X'

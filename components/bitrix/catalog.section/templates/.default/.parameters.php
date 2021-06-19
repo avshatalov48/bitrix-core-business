@@ -470,7 +470,7 @@ if ($boolCatalog)
 			);
 		}
 	}
-	
+
 	$arTemplateParameters['ADD_TO_BASKET_ACTION'] = array(
 		'PARENT' => 'BASKET',
 		'NAME' => GetMessage('CP_BCS_TPL_ADD_TO_BASKET_ACTION'),
@@ -505,21 +505,26 @@ $arTemplateParameters['LAZY_LOAD'] = array(
 	'DEFAULT' => 'N'
 );
 
-if (isset($arCurrentValues['LAZY_LOAD']) && $arCurrentValues['LAZY_LOAD'] === 'Y')
-{
-	$arTemplateParameters['MESS_BTN_LAZY_LOAD'] = array(
-		'PARENT' => 'PAGER_SETTINGS',
-		'NAME' => GetMessage('CP_BCS_TPL_MESS_BTN_LAZY_LOAD'),
-		'TYPE' => 'TEXT',
-		'DEFAULT' => GetMessage('CP_BCS_TPL_MESS_BTN_LAZY_LOAD_DEFAULT')
-	);
-}
+$arTemplateParameters['MESS_BTN_LAZY_LOAD'] = array(
+	'PARENT' => 'PAGER_SETTINGS',
+	'NAME' => GetMessage('CP_BCS_TPL_MESS_BTN_LAZY_LOAD'),
+	'TYPE' => 'TEXT',
+	'DEFAULT' => GetMessage('CP_BCS_TPL_MESS_BTN_LAZY_LOAD_DEFAULT'),
+	'HIDDEN' => (isset($arCurrentValues['LAZY_LOAD']) && $arCurrentValues['LAZY_LOAD'] === 'Y' ? 'N' : 'Y')
+);
 
 $arTemplateParameters['LOAD_ON_SCROLL'] = array(
 	'PARENT' => 'PAGER_SETTINGS',
 	'NAME' => GetMessage('CP_BCS_TPL_LOAD_ON_SCROLL'),
 	'TYPE' => 'CHECKBOX',
-	'DEFAULT' => 'N'
+	'DEFAULT' => 'N',
+	'HIDDEN' => (
+		(isset($arCurrentValues['LAZY_LOAD']) && $arCurrentValues['LAZY_LOAD'] === 'Y')
+		|| (isset($arCurrentValues['DISPLAY_TOP_PAGER']) && $arCurrentValues['DISPLAY_TOP_PAGER'] === 'Y')
+		|| (!isset($arCurrentValues['DISPLAY_BOTTOM_PAGER']) || $arCurrentValues['DISPLAY_BOTTOM_PAGER'] !== 'N')
+		? 'N'
+		: 'Y'
+	)
 );
 
 $arTemplateParameters['MESS_BTN_ADD_TO_BASKET'] = array(

@@ -87,7 +87,10 @@ if(empty($arParams["GROUP_ID"]) || (!empty($arParams["GROUP_ID"]) && in_array($a
 			$Vars = $cache->GetVars();
 			foreach($Vars["arResult"] as $k=>$v)
 				$arResult[$k] = $v;
-			CBitrixComponentTemplate::ApplyCachedData($Vars["templateCachedData"]);	
+
+			$template = new CBitrixComponentTemplate();
+			$template->ApplyCachedData($Vars["templateCachedData"]);
+
 			$cache->Output();
 		}
 		else

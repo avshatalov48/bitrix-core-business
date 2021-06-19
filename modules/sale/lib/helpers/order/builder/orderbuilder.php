@@ -1,21 +1,19 @@
 <?
 namespace Bitrix\Sale\Helpers\Order\Builder;
 
-use Bitrix\Sale\Property;
-use Bitrix\Sale\PropertyValue;
+use Bitrix\Main;
+use Bitrix\Sale\PropertyValueCollection;
+use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\Shipment;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ObjectException;
-use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\Order;
 use Bitrix\Sale\Helpers\Admin\Blocks\OrderBuyer;
 use Bitrix\Sale\Payment;
-use Bitrix\Sale\PaySystem\Manager;
-use Bitrix\Sale\Services\PaySystem;
+use Bitrix\Sale\PaySystem;
 use Bitrix\Main\Type\Date;
-use Bitrix\Main\Type\DateTime;
 use Bitrix\Sale\Registry;
 use \Bitrix\Sale\Delivery;
 use Bitrix\Sale\Result;
@@ -63,6 +61,10 @@ abstract class OrderBuilder
 		$this->registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
 	}
 
+	/**
+	 * @param $data
+	 * @throws BuildingException
+	 */
 	public function build($data)
 	{
 		$this->initFields($data)
@@ -70,12 +72,13 @@ abstract class OrderBuilder
 			->createOrder()
 			->setDiscounts() //?
 			->setFields()
+			->buildTradeBindings()
 			->setProperties()
 			->setUser()
+			->buildProfile()
 			->buildBasket()
 			->buildPayments()
 			->buildShipments()
-			->buildTradeBindings()
 			->setDiscounts() //?
 			->finalActions();
 	}
@@ -141,7 +144,7 @@ abstract class OrderBuilder
 
 	protected function getSettableShipmentFields()
 	{
-		return Shipment::getAvailableFields();
+		return array_merge(['PROPERTIES'], Shipment::getAvailableFields());
 	}
 
 	protected function getSettablePaymentFields()
@@ -207,9 +210,45 @@ abstract class OrderBuilder
 			$this->settingsContainer->getItemValue('propsFiles')
 		);
 
-		if(!$res->isSuccess())
+		if (!$res->isSuccess())
 		{
-			$this->getErrorsContainer()->addErrors($res->getErrors());
+			foreach ($res->getErrors() as $error)
+			{
+				$this->getErrorsContainer()->addError(
+					new Main\Error($error->getMessage(), $error->getCode(), 'PROPERTIES')
+				);
+			}
+		}
+
+		/** @var \Bitrix\Sale\PropertyValue $propValue */
+		foreach ($propCollection as $propValue)
+		{
+			if ($propValue->isUtil())
+			{
+				continue;
+			}
+
+			$res = $propValue->verify();
+			if (!$res->isSuccess())
+			{
+				foreach ($res->getErrors() as $error)
+				{
+					$this->getErrorsContainer()->addError(
+						new Main\Error($error->getMessage(), $propValue->getPropertyId(), 'PROPERTIES')
+					);
+				}
+			}
+
+			$res = $propValue->checkRequiredValue($propValue->getPropertyId(), $propValue->getValue());
+			if (!$res->isSuccess())
+			{
+				foreach ($res->getErrors() as $error)
+				{
+					$this->getErrorsContainer()->addError(
+						new Main\Error($error->getMessage(), $propValue->getPropertyId(), 'PROPERTIES')
+					);
+				}
+			}
 		}
 
 		return $this;
@@ -218,6 +257,34 @@ abstract class OrderBuilder
 	public function setUser()
 	{
 		$this->delegate->setUser();
+		return $this;
+	}
+
+	public function buildProfile()
+	{
+		if (empty($this->formData["PROPERTIES"]) || empty($this->formData["USER_ID"]))
+		{
+			return $this;
+		}
+
+		$profileId = $this->formData["USER_PROFILE"]["ID"] ?? 0;
+		$profileName = $this->formData["USER_PROFILE"]["NAME"] ?? '';
+
+		$errors = [];
+		\CSaleOrderUserProps::DoSaveUserProfile(
+			$this->getUserId(),
+			$profileId,
+			$profileName,
+			$this->order->getPersonTypeId(),
+			$this->formData["PROPERTIES"],
+			$errors
+		);
+
+		foreach ($errors as $error)
+		{
+			$this->errorsContainer->addError(new Main\Error($error['TEXT'], $error['CODE'], 'PROFILE'));
+		}
+
 		return $this;
 	}
 
@@ -309,9 +376,18 @@ abstract class OrderBuilder
 
 	public function buildShipments()
 	{
-		$orderPropsCountBefore = count($this->order->getPropertyCollection());
+		$isEmptyShipmentData = empty($this->formData["SHIPMENT"]) || !is_array($this->formData["SHIPMENT"]);
+		if ($isEmptyShipmentData)
+		{
+			$this->formData["SHIPMENT"] = [];
+		}
 
-		if(!isset($this->formData["SHIPMENT"]) || !is_array($this->formData["SHIPMENT"]))
+		if ($isEmptyShipmentData && !$this->getSettingsContainer()->getItemValue('createDefaultShipmentIfNeed'))
+		{
+			return $this;
+		}
+
+		if($isEmptyShipmentData && $this->getOrder()->isNew())
 		{
 			$this->createEmptyShipment();
 			return $this;
@@ -379,14 +455,14 @@ abstract class OrderBuilder
 			{
 				$products = array();
 				$basket = $this->order->getBasket();
-				
+
 				if($basket)
 				{
 					$basketItems = $basket->getBasketItems();
 					foreach($basketItems as $product)
 					{
 						$systemShipmentItem = $systemShipmentItemCollection->getItemByBasketCode($product->getBasketCode());
-						
+
 						if($product->isBundleChild() || !$systemShipmentItem || $systemShipmentItem->getQuantity() <= 0)
 							continue;
 
@@ -518,6 +594,74 @@ abstract class OrderBuilder
 				$this->errorsContainer->addErrors($setFieldsResult->getErrors());
 			}
 
+			// region Properties
+			if (isset($item['PROPERTIES']) && is_array($item['PROPERTIES']))
+			{
+				/** @var PropertyValueCollection $propCollection */
+				$propCollection = $shipment->getPropertyCollection();
+				$res = $propCollection->setValuesFromPost($item, []);
+
+				if (!$res->isSuccess())
+				{
+					foreach ($res->getErrors() as $error)
+					{
+						$this->getErrorsContainer()->addError(
+							new Main\Error($error->getMessage(), $error->getCode(), 'SHIPMENT_PROPERTIES')
+						);
+					}
+				}
+
+				/** @var \Bitrix\Sale\PropertyValue $propValue */
+				foreach ($propCollection as $propValue)
+				{
+					if ($propValue->isUtil())
+					{
+						continue;
+					}
+
+					$property = $propValue->getProperty();
+					$relatedDeliveryIds = (isset($property['RELATION']) && is_array($property['RELATION']))
+						? array_column(
+							array_filter($property['RELATION'], function ($item) {
+								return $item['ENTITY_TYPE'] === 'D';
+							}),
+							'ENTITY_ID'
+						)
+						: [];
+
+					if (
+						!empty($relatedDeliveryIds)
+						&& !in_array($shipment->getField('DELIVERY_ID'), $relatedDeliveryIds)
+					)
+					{
+						continue;
+					}
+
+					$res = $propValue->verify();
+					if (!$res->isSuccess())
+					{
+						foreach ($res->getErrors() as $error)
+						{
+							$this->getErrorsContainer()->addError(
+								new Main\Error($error->getMessage(), $propValue->getPropertyId(), 'SHIPMENT_PROPERTIES')
+							);
+						}
+					}
+
+					$res = $propValue->checkRequiredValue($propValue->getPropertyId(), $propValue->getValue());
+					if (!$res->isSuccess())
+					{
+						foreach ($res->getErrors() as $error)
+						{
+							$this->getErrorsContainer()->addError(
+								new Main\Error($error->getMessage(), $propValue->getPropertyId(), 'SHIPMENT_PROPERTIES')
+							);
+						}
+					}
+				}
+			}
+			// endregion
+
 			$shipment->setStoreId((int)$storeId);
 
 			if($item['DEDUCTED'] == 'N' && $products !== null)
@@ -534,7 +678,6 @@ abstract class OrderBuilder
 				'CUSTOM_PRICE_DELIVERY' => $item['CUSTOM_PRICE_DELIVERY'] === 'Y' ? 'Y' : 'N',
 				'ALLOW_DELIVERY' => $item['ALLOW_DELIVERY'],
 				'PRICE_DELIVERY' => (float)str_replace(',', '.', $item['PRICE_DELIVERY']),
-				'EXPECTED_PRICE_DELIVERY' => isset($item['EXPECTED_PRICE_DELIVERY']) ? (float)$item['EXPECTED_PRICE_DELIVERY'] : null,
 			);
 
 			if(isset($item['BASE_PRICE_DELIVERY']))
@@ -555,11 +698,6 @@ abstract class OrderBuilder
 				}
 			}
 		}
-
-		/**
-		 * Set properties again and recalculate delivery in case we've got new properties available
-		 */
-		$this->delegate->recalculateDeliveryPrice($orderPropsCountBefore, $this->order);
 
 		return $this;
 	}
@@ -934,8 +1072,13 @@ abstract class OrderBuilder
 
 	protected function createEmptyPayment()
 	{
-		$payments = $this->order->getPaymentCollection();
-		return $payments->createItem();
+		$innerPaySystem = PaySystem\Manager::getObjectById(PaySystem\Manager::getInnerPaySystemId());
+
+		$paymentCollection = $this->order->getPaymentCollection();
+		$payment = $paymentCollection->createItem($innerPaySystem);
+		$payment->setField('SUM', $this->order->getPrice());
+
+		return $payment;
 	}
 
 	protected function removePayments()
@@ -974,11 +1117,38 @@ abstract class OrderBuilder
 		return true;
 	}
 
+	/**
+	 * @return bool
+	 */
+	protected function isEmptyPaymentData(): bool
+	{
+		return empty($this->formData["PAYMENT"]) || !is_array($this->formData["PAYMENT"]);
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function needCreateDefaultPayment(): bool
+	{
+		return $this->getSettingsContainer()->getItemValue('createDefaultPaymentIfNeed');
+	}
+
 	public function buildPayments()
 	{
 		global $USER;
 
-		if(!isset($this->formData["PAYMENT"]) || !is_array($this->formData["PAYMENT"]))
+		$isEmptyPaymentData = $this->isEmptyPaymentData();
+		if ($isEmptyPaymentData)
+		{
+			$this->formData['PAYMENT'] = [];
+		}
+
+		if (!$this->needCreateDefaultPayment())
+		{
+			return $this;
+		}
+
+		if($isEmptyPaymentData && $this->getOrder()->isNew())
 		{
 			$this->createEmptyPayment();
 			return $this;
@@ -997,6 +1167,7 @@ abstract class OrderBuilder
 			$paymentId = intval($paymentData['ID']);
 			$isNew = ($paymentId <= 0);
 			$hasError = false;
+			$products = $paymentData['PRODUCT'] ?? [];
 
 			$settablePaymentFields = $this->getSettablePaymentFields();
 
@@ -1029,7 +1200,7 @@ abstract class OrderBuilder
 
 			if((int)$paymentData['PAY_SYSTEM_ID'] > 0)
 			{
-				$psService = Manager::getObjectById((int)$paymentData['PAY_SYSTEM_ID']);
+				$psService = PaySystem\Manager::getObjectById((int)$paymentData['PAY_SYSTEM_ID']);
 			}
 
 			$paymentData['COMPANY_ID'] = (isset($paymentData['COMPANY_ID']) && intval($paymentData['COMPANY_ID']) > 0) ? intval($paymentData['COMPANY_ID']) : 0;
@@ -1121,6 +1292,11 @@ abstract class OrderBuilder
 					$this->errorsContainer->addErrors($setResult->getErrors());
 				}
 
+				if ($products)
+				{
+					$this->buildPayableItems($paymentItem, $products);
+				}
+
 				if($isReturn && $paymentData['IS_RETURN'])
 				{
 					$setResult = $paymentItem->setReturn($paymentData['IS_RETURN']);
@@ -1144,6 +1320,65 @@ abstract class OrderBuilder
 		}
 
 		return $this;
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @param array $payableItems
+	 * @return Result
+	 * @throws ArgumentNullException
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ArgumentTypeException
+	 * @throws Main\NotImplementedException
+	 * @throws Main\SystemException
+	 */
+	public function buildPayableItems(Payment $payment, array $payableItems): Result
+	{
+		$result = new Result();
+
+		$basket = $this->order->getBasket();
+		$payableItemCollection = $payment->getPayableItemCollection();
+
+		foreach ($payableItems as $item)
+		{
+			$payableItem = null;
+
+			if (isset($item['BASKET_CODE']))
+			{
+				/** @var BasketItem $basketItem */
+				$basketItem = $basket->getItemByBasketCode($item['BASKET_CODE']);
+				if ($basketItem)
+				{
+					$payableItem = $payableItemCollection->createItemByBasketItem($basketItem);
+				}
+			}
+			elseif (isset($item['DELIVERY_ID']))
+			{
+				/** @var Shipment $shipment */
+				foreach ($this->order->getShipmentCollection()->getNotSystemItems() as $shipment)
+				{
+					if (
+						$shipment->getId() === 0
+						&& (int)$item['DELIVERY_ID'] === $shipment->getDeliveryId()
+					)
+					{
+						$payableItem = $payableItemCollection->createItemByShipment($shipment);
+					}
+				}
+			}
+
+			if ($payableItem === null)
+			{
+				continue;
+			}
+
+			$quantity = floatval(str_replace(',', '.', $item['QUANTITY']));
+
+			$payableItem->setField('QUANTITY', $quantity);
+		}
+
+		return $result;
 	}
 
 	public function buildTradeBindings()
@@ -1329,8 +1564,10 @@ abstract class OrderBuilder
 
 	public function getUserId()
 	{
-		if(intval($this->formData["USER_ID"]) > 0)
-			return intval($this->formData["USER_ID"]);
+		if((int)$this->formData["USER_ID"] > 0)
+		{
+			return (int)$this->formData["USER_ID"];
+		}
 
 		$userId = 0;
 
@@ -1348,39 +1585,136 @@ abstract class OrderBuilder
 			}
 		}
 
+		if ($userId > 0 && empty($this->formData["USER_ID"]))
+		{
+			$this->formData["USER_ID"] = $userId;
+		}
+
 		return $userId;
 	}
 
+	/**
+	 * @return false|int|mixed|string|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\NotImplementedException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	protected function createUserFromFormData()
 	{
-		$errors = array();
+		$errors = [];
 		$orderProps = $this->order->getPropertyCollection();
 
-		if($email = $orderProps->getUserEmail())
-			$email = $email->getValue();
-
-		if($name = $orderProps->getPayerName())
-			$name = $name->getValue();
-
-		if($phone = $orderProps->getPhone())
-			$phone = $phone->getValue();
-
-		$userId = \CSaleUser::DoAutoRegisterUser(
-			$email,
-			$name,
-			$this->formData["SITE_ID"],
-			$errors,
-			array('PERSONAL_PHONE' => $phone)
-		);
-
-		if(!empty($errors))
+		if ($email = $orderProps->getUserEmail())
 		{
-			foreach($errors as $val)
+			$email = $email->getValue();
+		}
+
+		if ($name = $orderProps->getPayerName())
+		{
+			$name = $name->getValue();
+		}
+
+		if ($phone = $orderProps->getPhone())
+		{
+			$phone = $phone->getValue();
+		}
+
+		if ($this->getSettingsContainer()->getItemValue('searchExistingUserOnCreating'))
+		{
+			$userId = $this->searchExistingUser($email, $phone);
+		}
+
+		if (!isset($userId))
+		{
+			$userId = $this->searchExistingUser($email, $phone);
+		}
+
+		if (!isset($userId))
+		{
+			$userId = \CSaleUser::DoAutoRegisterUser(
+				$email,
+				$name,
+				$this->formData['SITE_ID'],
+				$errors,
+				[
+					'PERSONAL_PHONE' => $phone,
+					'PHONE_NUMBER' => $phone,
+				]
+			);
+
+			if (!empty($errors))
 			{
-				$this->errorsContainer->addError(new Error($val["TEXT"]));
+				foreach ($errors as $val)
+				{
+					$this->errorsContainer->addError(new Error($val['TEXT'], 0, 'USER'));
+				}
+			}
+			else
+			{
+				// ToDo remove it? when to authorize buyer?
+				global $USER;
+				$USER->Authorize($userId);
 			}
 		}
 
 		return $userId;
+	}
+
+	/**
+	 * @param $email
+	 * @param $phone
+	 * @return int|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	private function searchExistingUser($email, $phone): ?int
+	{
+		$existingUserId = null;
+
+		if (!empty($email))
+		{
+			$res = Main\UserTable::getRow([
+				'filter' => [
+					'=ACTIVE' => 'Y',
+					'=EMAIL' => $email,
+				],
+				'select' => ['ID'],
+			]);
+			if (isset($res['ID']))
+			{
+				$existingUserId = (int)$res['ID'];
+			}
+		}
+
+		if (!$existingUserId && !empty($phone))
+		{
+			$normalizedPhone = NormalizePhone($phone);
+			$normalizedPhoneForRegistration = Main\UserPhoneAuthTable::normalizePhoneNumber($phone);
+
+			if (!empty($normalizedPhone))
+			{
+				$res = Main\UserTable::getRow([
+					'filter' => [
+						'ACTIVE' => 'Y',
+						[
+							'LOGIC' => 'OR',
+							'=PHONE_AUTH.PHONE_NUMBER' => $normalizedPhoneForRegistration,
+							'=PERSONAL_PHONE' => $normalizedPhone,
+							'=PERSONAL_MOBILE' => $normalizedPhone,
+						],
+					],
+					'select' => ['ID'],
+				]);
+				if (isset($res['ID']))
+				{
+					$existingUserId = (int)$res['ID'];
+				}
+			}
+		}
+
+		return $existingUserId;
 	}
 }

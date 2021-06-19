@@ -63,13 +63,6 @@
 	}
 
 	Util.prototype = {
-		getEventPath: function(entry)
-		{
-			var url = this.config.path;
-			url += (url.indexOf('?') === -1 ? '?' : '&') + 'EVENT_ID=' + entry.id + '&EVENT_DATE=' + this.formatDate(entry.from);
-			return url;
-		},
-
 		getWeekDays: function()
 		{
 			return this.config.weekDays;
@@ -730,16 +723,6 @@
 			return this.config.meetingRooms || [];
 		},
 
-		getLocationList: function()
-		{
-			return this.additionalParams.locationList || [];
-		},
-
-		setLocationList: function(locationList)
-		{
-			this.additionalParams.locationList = locationList;
-		},
-
 		mergeSocnetDestinationConfig: function(socnetDestination)
 		{
 			if (socnetDestination.USERS)
@@ -872,7 +855,10 @@
 			var taskId, accessTasks = this.getSectionAccessTasks();
 			for(taskId in accessTasks)
 			{
-				if (accessTasks.hasOwnProperty(taskId) && accessTasks[taskId].name == 'calendar_view')
+				if (
+					accessTasks.hasOwnProperty(taskId)
+					&& accessTasks[taskId].name === 'calendar_view'
+				)
 				{
 					break;
 				}
@@ -1002,7 +988,7 @@
 
 			if (value.type == 'calendar')
 			{
-				var locationList = this.calendar.util.getLocationList();
+				var locationList = BX.Calendar.Controls.Location.getLocationList();
 
 				for (i = 0; i < locationList.length; i++)
 				{

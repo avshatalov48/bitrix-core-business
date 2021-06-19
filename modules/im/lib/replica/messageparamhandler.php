@@ -174,7 +174,7 @@ if (Loader::includeModule('replica'))
 			{
 				$like = $message['PARAMS']['LIKE'];
 
-				$result = \Bitrix\IM\Model\ChatTable::getList(Array(
+				$result = \Bitrix\Im\Model\ChatTable::getList(Array(
 					'filter'=>Array(
 						'=ID' => $message['CHAT_ID']
 					)

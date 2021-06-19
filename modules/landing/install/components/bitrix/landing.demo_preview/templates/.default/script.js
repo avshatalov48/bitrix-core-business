@@ -339,10 +339,10 @@
 			{
 				result[data(this.siteGroupPalette, "data-name")] = data(this.getActiveSiteGroupItem(), "data-value");
 			}
-			result[data(this.themesPalete, "data-name")] = data(this.getActiveColorNode(), "data-value");
+			result[data(this.themesPalete, "data-name")] = this.getActiveColorNode().dataset.value;
 			if (this.themesSiteCustomColorNode)
 			{
-				result[data(this.themesSiteCustomColorNode, "data-name")] = data(this.getActiveColorNode(), "data-value");
+				result[data(this.themesSiteCustomColorNode, "data-name")] = this.getActiveColorNode().dataset.value;
 			}
 			result[data(this.title, "data-name")] = this.title.value;
 			result[data(this.description, "data-name")] = this.description.value;
@@ -423,6 +423,7 @@
 			}
 			this.ajaxParams = this.getValue();
 			this.ajaxParams['start'] = 'Y';
+			this.ajaxParams['showcaseId'] = 'clothes';
 		},
 
 		/**

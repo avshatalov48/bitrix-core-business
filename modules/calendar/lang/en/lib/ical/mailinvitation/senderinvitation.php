@@ -1,0 +1,5 @@
+<?php
+$MESS["EC_CALENDAR_DECISION_TITLE_YES"] = "Attend";
+$MESS["EC_CALENDAR_DECISION_TITLE_NO"] = "Decline";
+$MESS["EC_CALENDAR_CHANGE_DECISION_TITLE"] = "Change decision";
+$MESS["EC_CALENDAR_BITRIX24_SLOGAN"] = "Your company. United.";

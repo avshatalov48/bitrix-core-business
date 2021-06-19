@@ -10,7 +10,7 @@
 import "./reaction.css";
 import "./icons.css";
 
-import {Vue} from 'ui.vue';
+import {BitrixVue} from 'ui.vue';
 
 const ReactionType = Object.freeze({
 	none: 'none',
@@ -24,7 +24,7 @@ const ReactionType = Object.freeze({
 
 const ReactionOrder = ['like', 'kiss', 'laugh', 'wonder', 'cry', 'angry'];
 
-Vue.component('bx-reaction',
+BitrixVue.component('bx-reaction',
 {
 	/**
 	 * @emits 'set' {values: object}

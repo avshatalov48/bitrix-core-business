@@ -515,7 +515,8 @@ $tabControl->BeginNextTab();
 <?
 foreach($arSite['DOMAINS'] as $domain):
 	$hd = Converter::getHtmlConverter()->encode($domain);
-	$hdc = Converter::getHtmlConverter()->encode(CBXPunycode::ToUnicode($domain, $e = null));
+	$e = [];
+	$hdc = Converter::getHtmlConverter()->encode(CBXPunycode::ToUnicode($domain, $e));
 ?>
 	<option value="<?=$hd?>"<?=$domain == $arSitemap['SETTINGS']['DOMAIN'] ? ' selected="selected"' : ''?>><?=$hdc?></option>
 <?

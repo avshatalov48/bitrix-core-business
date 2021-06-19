@@ -40,10 +40,10 @@
 						</div>
 
 						<div class="media-body g-color-white">
-							<h3 class="landing-block-node-card-title landing-semantic-text-image-medium text-uppercase g-font-weight-700 g-font-size-18 g-mb-10">
+							<h3 class="landing-block-node-card-title landing-semantic-text-image-medium text-uppercase g-font-weight-700 g-mb-10">
 								Aliquam erat volutpat
 							</h3>
-							<div class="landing-block-node-card-text landing-semantic-text-image-small g-font-size-16 g-color-white-opacity-0_7 mb-0">
+							<div class="landing-block-node-card-text landing-semantic-text-image-small g-color-white-opacity-0_7 mb-0">
 								<p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum
 									turpis eget nisi facilisis lobortis.
 								</p>
@@ -68,10 +68,10 @@
 						</div>
 
 						<div class="media-body g-color-white">
-							<h3 class="landing-block-node-card-title landing-semantic-text-image-medium text-uppercase g-font-weight-700 g-font-size-18 g-mb-10">
+							<h3 class="landing-block-node-card-title landing-semantic-text-image-medium text-uppercase g-font-weight-700 g-mb-10">
 								Aliquam erat volutpat
 							</h3>
-							<div class="landing-block-node-card-text landing-semantic-text-image-small g-font-size-16 g-color-white-opacity-0_7 mb-0">
+							<div class="landing-block-node-card-text landing-semantic-text-image-small g-color-white-opacity-0_7 mb-0">
 								<p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum
 									turpis eget nisi facilisis lobortis.
 								</p>
@@ -95,10 +95,10 @@
 							04.06
 						</div>
 						<div class="media-body g-color-white">
-							<h3 class="landing-block-node-card-title landing-semantic-text-image-medium text-uppercase g-font-weight-700 g-font-size-18 g-mb-10">
+							<h3 class="landing-block-node-card-title landing-semantic-text-image-medium text-uppercase g-font-weight-700 g-mb-10">
 								Aliquam erat volutpat
 							</h3>
-							<div class="landing-block-node-card-text landing-semantic-text-image-small g-font-size-16 g-color-white-opacity-0_7 mb-0">
+							<div class="landing-block-node-card-text landing-semantic-text-image-small g-color-white-opacity-0_7 mb-0">
 								<p>Fusce dolor libero, efficitur et lobortis at,
 									faucibus nec nunc. Proin fermentum turpis eget nisi facilisis lobortis.
 								</p>
@@ -122,10 +122,10 @@
 							02.05
 						</div>
 						<div class="media-body g-color-white">
-							<h3 class="landing-block-node-card-title landing-semantic-text-image-medium text-uppercase g-font-weight-700 g-font-size-18 g-mb-10">
+							<h3 class="landing-block-node-card-title landing-semantic-text-image-medium text-uppercase g-font-weight-700 g-mb-10">
 								Aliquam erat volutpat
 							</h3>
-							<div class="landing-block-node-card-text landing-semantic-text-image-small g-font-size-16 g-color-white-opacity-0_7 mb-0">
+							<div class="landing-block-node-card-text landing-semantic-text-image-small g-color-white-opacity-0_7 mb-0">
 								<p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum
 									turpis eget nisi facilisis lobortis.
 								</p>

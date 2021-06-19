@@ -1,0 +1,6 @@
+<?php
+$MESS["CHECKOUT_VIEW_EMPTY_CART_CLICK_HERE"] = "Click here";
+$MESS["CHECKOUT_VIEW_EMPTY_CART_DESCRIPTION"] = "Document and icon";
+$MESS["CHECKOUT_VIEW_EMPTY_CART_IS_EMPTY"] = "Your cart is empty";
+$MESS["CHECKOUT_VIEW_EMPTY_CART_START"] = "Start shopping";
+$MESS["CHECKOUT_VIEW_EMPTY_CART_TO_BE_CONTINUED"] = "to continue shopping";

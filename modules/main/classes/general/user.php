@@ -348,7 +348,7 @@ class CAllUser extends CDBResult
 		return $res;
 	}
 
-	public static function GetList(&$by, &$order, $arFilter=Array(), $arParams=Array())
+	public static function GetList($by = '', $order = '', $arFilter = [], $arParams = [])
 	{
 		/** @global CUserTypeManager $USER_FIELD_MANAGER */
 		global $DB, $USER_FIELD_MANAGER;
@@ -357,13 +357,11 @@ class CAllUser extends CDBResult
 
 		if (is_array($by))
 		{
-			$bSingleBy = false;
 			$arOrder = $by;
 		}
 		else
 		{
-			$bSingleBy = true;
-			$arOrder = array($by=>$order);
+			$arOrder = [$by => $order];
 		}
 
 		static $obUserFieldsSql;
@@ -666,11 +664,9 @@ class CAllUser extends CDBResult
 		foreach ($arOrder as $field => $dir)
 		{
 			$field = strtoupper($field);
-			if(strtolower($dir) <> "asc")
+			if(strtolower($dir) != "asc")
 			{
 				$dir = "desc";
-				if ($bSingleBy)
-					$order = "desc";
 			}
 
 			if($field == "CURRENT_BIRTHDAY")
@@ -707,8 +703,6 @@ class CAllUser extends CDBResult
 				{
 					$field = "TIMESTAMP_X";
 					$arSqlOrder[$field] = "U.".$field." ".$dir;
-					if ($bSingleBy)
-						$by = strtolower($field);
 				}
 			}
 			elseif ($field == 'FULL_NAME')
@@ -1232,7 +1226,7 @@ class CAllUser extends CDBResult
 		return "CUser::CleanUpHitAuthAgent();";
 	}
 
-	protected function UpdateSessionData($id, $applicationId = null)
+	protected function UpdateSessionData($id, $applicationId = null, $onlyActive = true)
 	{
 		global $DB, $APPLICATION;
 
@@ -1244,6 +1238,12 @@ class CAllUser extends CDBResult
 			"SELECT U.* ".
 			"FROM b_user U  ".
 			"WHERE U.ID='".intval($id)."' ";
+
+		if ($onlyActive)
+		{
+			$strSql .= " AND U.ACTIVE = 'Y' AND U.BLOCKED <> 'Y' ";
+		}
+
 		$result = $DB->Query($strSql);
 
 		if($arUser = $result->Fetch())
@@ -1301,11 +1301,11 @@ class CAllUser extends CDBResult
 	 * @param string|null $applicationId An application password ID.
 	 * @return bool
 	 */
-	public function Authorize($id, $bSave = false, $bUpdate = true, $applicationId = null)
+	public function Authorize($id, $bSave = false, $bUpdate = true, $applicationId = null, $onlyActive = true)
 	{
 		global $DB;
 
-		$arUser = $this->UpdateSessionData($id, $applicationId);
+		$arUser = $this->UpdateSessionData($id, $applicationId, $onlyActive);
 
 		if($arUser !== false)
 		{
@@ -1887,8 +1887,6 @@ class CAllUser extends CDBResult
 			{
 				// additional check for the current user
 
-				$by = "id";
-				$order = "asc";
 				$select = ["LAST_LOGIN"];
 
 				$intranet = Main\ModuleManager::isModuleInstalled("intranet");
@@ -1900,7 +1898,7 @@ class CAllUser extends CDBResult
 				// last_login in server time
 				CTimeZone::Disable();
 
-				$query = static::GetList($by, $order,
+				$query = static::GetList('id', 'asc',
 					["ID_EQUAL_EXACT" => intval($user_id)],
 					["SELECT" => $select]
 				);
@@ -3321,8 +3319,7 @@ class CAllUser extends CDBResult
 					}
 					if($ID == false || $arFields["EMAIL"] <> $oldEmail)
 					{
-						$b = $o = "";
-						$res = static::GetList($b, $o,
+						$res = static::GetList('', '',
 							array(
 								"=EMAIL" => $arFields["EMAIL"],
 								"EXTERNAL_AUTH_ID" => $arFields["EXTERNAL_AUTH_ID"]
@@ -3412,9 +3409,7 @@ class CAllUser extends CDBResult
 		}
 		else
 		{
-			$by = "id";
-			$order = "asc";
-			$rs = static::GetList($by, $order, array("ID_EQUAL_EXACT"=>intval($ID)), array("SELECT"=>array("UF_*")));
+			$rs = static::GetList('id', 'asc', array("ID_EQUAL_EXACT"=>intval($ID)), array("SELECT"=>array("UF_*")));
 			if($userID > 0 && $ID == $userID)
 			{
 				self::$CURRENT_USER = array($rs->Fetch());
@@ -3427,9 +3422,7 @@ class CAllUser extends CDBResult
 
 	public static function GetByLogin($LOGIN)
 	{
-		$by = "id";
-		$order = "asc";
-		$rs = static::GetList($by, $order, array("LOGIN_EQUAL_EXACT"=>$LOGIN), array("SELECT"=>array("UF_*")));
+		$rs = static::GetList('id', 'asc', array("LOGIN_EQUAL_EXACT"=>$LOGIN), array("SELECT"=>array("UF_*")));
 		return $rs;
 	}
 
@@ -3775,7 +3768,7 @@ class CAllUser extends CDBResult
 
 		foreach (GetModuleEvents("main", "OnAfterSetUserGroup", true) as $arEvent)
 		{
-			ExecuteModuleEventEx($arEvent, array("USER_ID"=>$USER_ID, "GROUPS"=>$inserted));
+			ExecuteModuleEventEx($arEvent, array($USER_ID, $inserted));
 		}
 
 		if($aPrevGroups <> $inserted)
@@ -4975,13 +4968,13 @@ class CAllUser extends CDBResult
 		else
 			$ID = '';
 
-		$NAME_SHORT = ($arUser['NAME'] <> ''? mb_substr($arUser['NAME'], 0, 1).'.' : '');
-		$LAST_NAME_SHORT = ($arUser['LAST_NAME'] <> ''? mb_substr($arUser['LAST_NAME'], 0, 1).'.' : '');
-		$SECOND_NAME_SHORT = ($arUser['SECOND_NAME'] <> ''? mb_substr($arUser['SECOND_NAME'], 0, 1).'.' : '');
+		$NAME_SHORT = (($arUser['NAME'] ?? '') <> ''? mb_substr($arUser['NAME'], 0, 1).'.' : '');
+		$LAST_NAME_SHORT = (($arUser['LAST_NAME'] ?? '') <> ''? mb_substr($arUser['LAST_NAME'], 0, 1).'.' : '');
+		$SECOND_NAME_SHORT = (($arUser['SECOND_NAME'] ?? '') <> ''? mb_substr($arUser['SECOND_NAME'], 0, 1).'.' : '');
 
 		$res = str_replace(
 			array('#TITLE#', '#NAME#', '#LAST_NAME#', '#SECOND_NAME#', '#NAME_SHORT#', '#LAST_NAME_SHORT#', '#SECOND_NAME_SHORT#', '#EMAIL#', '#ID#'),
-			array($arUser['TITLE'], $arUser['NAME'], $arUser['LAST_NAME'], $arUser['SECOND_NAME'], $NAME_SHORT, $LAST_NAME_SHORT, $SECOND_NAME_SHORT, $arUser['EMAIL'], $ID),
+			array(($arUser['TITLE'] ?? ''), ($arUser['NAME'] ?? ''), ($arUser['LAST_NAME'] ?? ''), ($arUser['SECOND_NAME'] ?? ''), $NAME_SHORT, $LAST_NAME_SHORT, $SECOND_NAME_SHORT, ($arUser['EMAIL'] ?? ''), $ID),
 			$NAME_TEMPLATE
 		);
 

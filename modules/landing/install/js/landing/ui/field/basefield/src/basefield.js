@@ -1,5 +1,7 @@
 import {Type, Event, Tag, Text, Dom, Runtime, Cache} from 'main.core';
 import {EventEmitter} from 'main.core.events';
+import {fetchEventsFromOptions} from 'landing.ui.component.internal';
+
 import './css/style.css';
 
 /**
@@ -32,6 +34,7 @@ export class BaseField extends EventEmitter
 	{
 		super(options);
 		this.setEventNamespace('BX.Landing.UI.Field');
+		this.subscribeFromOptions(fetchEventsFromOptions(options));
 
 		this.data = {...options};
 		this.options = this.data;

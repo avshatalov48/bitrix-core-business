@@ -535,6 +535,10 @@
 	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%228%22%20height%3D%228%22%20viewBox%3D%220%200%208%208%22%3E%3Cpolygon%20fill%3D%22%23C7CDD3%22%20points%3D%225.437%204%207.94%206.503%206.503%207.94%204%205.437%201.437%208%200%206.563%202.563%204%20.06%201.497%201.497%20.06%204%202.563%206.563%200%208%201.437%22%20/%3E%3C/svg%3E') center no-repeat;
 }
 
+.catalog-product-form-container > div:first-child .catalog-pf-product-item .catalog-pf-product-item--remove{
+	top: 22px;
+}
+
 .catalog-pf-product-item--remove:hover {
 	opacity: .7;
 }
@@ -920,6 +924,10 @@
 
 .catalog-pf-result-padding {
 	padding-top: 14px;
+}
+
+.catalog-pf-result-padding-bottom {
+	padding-bottom: 14px;
 }
 
 .catalog-pf-text--border {

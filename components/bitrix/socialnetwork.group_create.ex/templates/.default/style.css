@@ -1206,3 +1206,32 @@ a.sonet-invitation-dash-link:hover{ color: #696969; border-color: #696969; text-
 }
 .social-group-create-options-add-dept-hint.visible {display: block;}
 
+.social-group-create-theme-cont {
+	margin: 0 0 11px 10px;
+}
+
+
+.social-group-create-theme-cont-inner {
+	margin: 0 0 3px -5px;
+	align-items: center;
+	display: flex;
+}
+
+.social-group-create-theme-preview-image {
+	display: inline-block;
+	margin-right: 10px;
+	cursor: pointer;
+}
+
+.social-group-create-theme-title {
+	border-bottom: 1px dashed rgba(130,139,149,.5);
+	color: #828B95;
+	text-decoration: none;
+	transition: border-bottom .3s;
+	line-height: 16px;
+}
+
+.social-group-create-theme-title:hover {
+	border-bottom: 1px dashed transparent;
+	color: #828B95;
+}

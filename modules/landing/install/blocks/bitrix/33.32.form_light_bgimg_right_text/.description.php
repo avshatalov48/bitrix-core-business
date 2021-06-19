@@ -45,7 +45,7 @@ return array(
 		'nodes' => array(
 			'.landing-block-node-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_33.32.FORM_LIGHT_BGIMG_RIGHT_TEXT_NODES_LANDINGBLOCKNODETITLE'),
-				'type' => array('typo', 'animation'),
+				'type' => ['typo', 'animation', 'heading'],
 			),
 			'.landing-block-node-subtitle' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_33.32.FORM_LIGHT_BGIMG_RIGHT_TEXT_NODES_LANDINGBLOCKNODESUBTITLE'),

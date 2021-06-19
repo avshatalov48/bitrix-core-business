@@ -1,5 +1,7 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
+
 $GLOBALS["LEARNING_SITE_PATH"] = Array();
 
 // 2012-04-16 Checked/modified for compatibility with new data model
@@ -7,7 +9,7 @@ class CAllSitePath
 {
 	/*************** ADD, UPDATE, DELETE *****************/
 	// 2012-04-16 Checked/modified for compatibility with new data model
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		/*
 		if ((is_set($arFields, "TYPE") || $ACTION=="ADD") && strlen($arFields["TYPE"]) <= 0)
@@ -45,9 +47,8 @@ class CAllSitePath
 		return True;
 	}
 
-
 	// 2012-04-16 Checked/modified for compatibility with new data model
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -64,7 +65,7 @@ class CAllSitePath
 
 	//*************** SELECT *********************/
 	// 2012-04-16 Checked/modified for compatibility with new data model
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -92,9 +93,8 @@ class CAllSitePath
 		return False;
 	}
 
-
 	// 2012-04-16 Checked/modified for compatibility with new data model
-	function GetBySiteID($siteID)
+	public static function GetBySiteID($siteID)
 	{
 		global $DB;
 
@@ -126,9 +126,8 @@ class CAllSitePath
 		return False;
 	}
 
-
 	// 2012-04-16 Checked/modified for compatibility with new data model
-	function DeleteBySiteID($siteID)
+	public static function DeleteBySiteID($siteID)
 	{
 		global $DB;
 
@@ -149,9 +148,8 @@ class CAllSitePath
 		return $result;
 	}
 
-
 	// 2012-04-16 Checked/modified for compatibility with new data model
-	function GetFilterOperation($key)
+	public static function GetFilterOperation($key)
 	{
 		$strNegative = "N";
 		if (mb_substr($key, 0, 1) == "!")
@@ -210,9 +208,8 @@ class CAllSitePath
 		return array("FIELD" => $key, "NEGATIVE" => $strNegative, "OPERATION" => $strOperation, "OR_NULL" => $strOrNull);
 	}
 
-
 	// 2012-04-16 Checked/modified for compatibility with new data model
-	function PrepareSql(&$arFields, $arOrder, $arFilter, $arGroupBy, $arSelectFields, $obUserFieldsSql = false)
+	public static function PrepareSql(&$arFields, $arOrder, $arFilter, $arGroupBy, $arSelectFields, $obUserFieldsSql = false)
 	{
 		global $DB;
 

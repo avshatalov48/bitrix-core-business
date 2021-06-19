@@ -29,6 +29,7 @@ if (\Bitrix\Main\Loader::includeModule('intranet'))
 	});
 	new BX.Report.Analytics.Config.Controls({
 		boardId: <?=CUtil::PhpToJSObject($arResult['BOARD_ID'])?>,
-		configurationButton: BX('analytic_board_configuration_button')
+		boardOptions: <?= \Bitrix\Main\Web\Json::encode($arResult['BOARD_OPTIONS'])?>,
+		configurationButton: BX('analytic_board_configuration_button'),
 	});
 </script>

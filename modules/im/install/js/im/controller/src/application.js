@@ -22,7 +22,7 @@ export class ApplicationController
 
 		this._prepareFilesBeforeSave = params => { return params };
 
-		this.defaultMessageLimit = 20;
+		this.defaultMessageLimit = 50;
 		this.requestMessageLimit = this.getDefaultMessageLimit();
 
 		this.messageLastReadId = {};
@@ -192,7 +192,7 @@ export class ApplicationController
 			return true;
 		}
 
-		if (dialog.unreadLastId <= 0)
+		if (dialog.lastMessageId <= 0)
 		{
 			return true;
 		}
@@ -214,7 +214,7 @@ export class ApplicationController
 			}
 		}
 
-		return lastElementId >= dialog.unreadLastId;
+		return lastElementId >= dialog.lastMessageId;
 	}
 
 	prepareFilesBeforeSave(files)

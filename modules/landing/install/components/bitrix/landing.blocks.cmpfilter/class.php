@@ -5,7 +5,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Main\Loader;
-use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Crm;
 
 Loc::loadMessages(__FILE__);
 
@@ -43,7 +45,7 @@ class LandingUtilsCmpFilterComponent extends \CBitrixComponent
 	 * @param string $q Query string.
 	 * @return array
 	 */
-	protected static function search($q)
+	protected static function search($q): array
 	{
 		$filter = array();
 		$q = trim($q);
@@ -95,10 +97,56 @@ class LandingUtilsCmpFilterComponent extends \CBitrixComponent
 		}
 		else
 		{
-			$filter['*SEARCHABLE_CONTENT'] = $q;
+			$filter = self::getContentFilter($q);
 		}
 
 		return $filter;
+	}
+
+	/**
+	 * Generate filter for bitrix24 catalog.
+	 *
+	 * @internal
+	 *
+	 * @param string $query
+	 * @return array
+	 */
+	protected static function getContentFilter(string $query): array
+	{
+		if (
+			ModuleManager::isModuleInstalled('bitrix24')
+			&& Loader::includeModule('crm')
+			&& Loader::includeModule('catalog')
+		)
+		{
+			$catalogId = Crm\Product\Catalog::getDefaultId();
+			if (!empty($catalogId))
+			{
+				$catalog = \CCatalogSku::GetInfoByProductIBlock($catalogId);
+				if (!empty($catalog))
+				{
+					return [
+						[
+							'LOGIC' => 'OR',
+							'*SEARCHABLE_CONTENT' => $query,
+							'=SUBQUERY' => [
+								'FIELD' => 'PROPERTY_'.$catalog['SKU_PROPERTY_ID'],
+								'FILTER' => [
+									'CHECK_PERMISSIONS' => 'Y',
+									'MIN_PERMISSION' => 'R',
+									'ACTIVE' => 'Y',
+									'ACTIVE_DATE' => 'Y',
+									'IBLOCK_ID' => $catalog['IBLOCK_ID'],
+									'*SEARCHABLE_CONTENT' => $query,
+								]
+							],
+						]
+					];
+				}
+			}
+		}
+
+		return ['*SEARCHABLE_CONTENT' => $query];
 	}
 
 	/**

@@ -3,6 +3,10 @@
 	margin-bottom: 11px;
 }
 
+.catalog-product-grid .catalog-product-field-inner {
+	width: calc(100% - 30px)
+}
+
 .catalog-product-grid .main-grid-editor-text,
 .catalog-product-grid .main-grid-editor-textarea,
 .catalog-product-grid .main-dropdown {
@@ -18,6 +22,6 @@
 	background-color: #fffefc !important;
 }
 
-.catalog-product-grid .catalog-product-field-inner {
-	width: calc(100% - 30px)
+.catalog-product-grid .ui-image-input-img-add {
+	right: 0;
 }

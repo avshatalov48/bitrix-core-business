@@ -137,6 +137,7 @@
 					item.style.width = x+'px';
 					item.style.minWidth = x+'px';
 					item.style.maxWidth = x+'px';
+					BX.Dom.style(item.firstElementChild, 'width', x+'px');
 				});
 
 				// Resize false columns
@@ -171,6 +172,12 @@
 		_onDragEnd: function()
 		{
 			this.saveSizes();
+			const cell = BX.findParent(jsDD.current_node, {className: this.parent.settings.get('classHeadCell')});
+			const overlay = cell.querySelector('.main-grid-cell-overlay');
+			if (overlay)
+			{
+				BX.Dom.remove(overlay);
+			}
 		},
 
 		getColumnSizes: function()

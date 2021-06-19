@@ -323,11 +323,14 @@ else
 			<?
 			function ShowSelectPerms($type, $id, $def, $arr)
 			{
-
 				$res = "<select name='perms_".$type."[".$id."]'>";
-				while(list(,$key)=each($arr))
+				foreach ($arr as $key)
+				{
 					if ($id > 1 || ($type=='p' && $key <= BLOG_PERMS_READ) || ($type=='c' && $key <= BLOG_PERMS_WRITE))
+					{
 						$res.= "<option value='$key'".($key==$def?' selected':'').">".$GLOBALS["AR_BLOG_PERMS"][$key]."</option>";
+					}
+				}
 				$res.= "</select>";
 				return $res;
 			}

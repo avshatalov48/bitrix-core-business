@@ -30,3 +30,19 @@ export const DialogReferenceClassName = Object.freeze({
 	listItemBody: 'bx-im-dialog-list-item-content-reference',
 	listUnreadLoader: 'bx-im-dialog-list-unread-loader-reference',
 });
+
+export const DialogTemplateType = Object.freeze({
+	message: 'message',
+	delimiter: 'delimiter',
+	group: 'group',
+	historyLoader: 'historyLoader',
+	unreadLoader: 'unreadLoader',
+	button: 'button',
+	placeholder: 'placeholder'
+});
+
+export const DialogState = Object.freeze({
+	loading: 'loading',
+	empty: 'empty',
+	show: 'show'
+});

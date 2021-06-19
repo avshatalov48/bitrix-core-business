@@ -285,7 +285,7 @@ $oFilter = new CAdminFilter(
 	<td><select name="find_lid">
 		<option value=""<?echo ($find_lid == "" ? ' selected' : '') ?>><?echo GetMessage("MAIN_ALL")?></option>
 		<?
-		$dbSites = CSite::GetList($b="NAME", $o="asc");
+		$dbSites = CSite::GetList("NAME", "asc");
 		while ($arSites = $dbSites->Fetch())
 		{
 			?><option value="<?echo htmlspecialcharsbx($arSites["ID"]) ?>"<?echo ($find_lid == $arSites["ID"] ? ' selected' : '') ?>>(<?echo htmlspecialcharsbx($arSites["ID"]) ?>) <?echo htmlspecialcharsbx($arSites["NAME"]) ?></option><?

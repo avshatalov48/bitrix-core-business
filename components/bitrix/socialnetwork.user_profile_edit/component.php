@@ -162,8 +162,8 @@ else
 		if($USER->CanDoOperation('edit_all_users'))
 		{
 			$dbGroup = CGroup::GetList(
-				($by="c_sort"), 
-				($order="asc"), 
+				"c_sort",
+				"asc",
 				array("ACTIVE" => "Y")
 			);
 			while($arGroup = $dbGroup->Fetch())
@@ -181,8 +181,8 @@ else
 			)
 			{
 				$dbGroup = CGroup::GetList(
-					($by="c_sort"), 
-					($order="asc"), 
+					"c_sort",
+					"asc",
 					array(
 						"ID" => implode(" | ", $arGroupsCanEditID), 
 						"ACTIVE" => "Y"

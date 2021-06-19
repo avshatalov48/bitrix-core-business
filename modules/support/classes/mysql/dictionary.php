@@ -1,21 +1,21 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/support/classes/general/dictionary.php");
 
 class CTicketDictionary extends CAllTicketDictionary
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "support";
 		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
 		return "<br>Module: ".$module_id." <br>Class: CTicketDictionary<br>File: ".__FILE__;
 	}
 
-	function GetList(&$by, &$order, $arFilter=Array(), &$isFiltered)
+	public static function GetList($by = 's_c_sort', $order = 'asc', $arFilter = [])
 	{
 		$err_mess = (CTicketDictionary::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB;
 		$arSqlSearch = Array();
-		$strSqlSearch = "";
 		$leftJoinSite = "";
 		$leftJoinUser = "";
 		if (is_array($arFilter))
@@ -29,7 +29,7 @@ class CTicketDictionary extends CAllTicketDictionary
 				if ((is_array($val) && count($val)<=0) || (!is_array($val) && ((string) $val == '' || $val==='NOT_REF')))
 					continue;
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filterKeys)) ? true : false;
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -109,19 +109,18 @@ class CTicketDictionary extends CAllTicketDictionary
 		}
 		else
 		{
-			$by = "s_c_sort";
 			$strSqlOrder = "D.C_SORT";
 		}
-		if ($order!="desc")
+
+		if ($order == "desc")
 		{
-			$strSqlOrder .= " asc ";
-			$order="asc";
+			$strSqlOrder .= " desc ";
 		}
 		else
 		{
-			$strSqlOrder .= " desc ";
-			$order="desc";
+			$strSqlOrder .= " asc ";
 		}
+
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 		$strSql = "
 			SELECT
@@ -151,9 +150,7 @@ class CTicketDictionary extends CAllTicketDictionary
 			$strSqlOrder
 			";
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$isFiltered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 }
-
-?>

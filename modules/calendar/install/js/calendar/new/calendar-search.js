@@ -183,13 +183,18 @@
 			}
 			this.calendar.getView().displayResult(entries);
 
-			if (BX.type.isPlainObject(response.counters))
+			this.setCountersValue(response.counters);
+		},
+
+		setCountersValue: function(counters)
+		{
+			if (BX.type.isPlainObject(counters))
 			{
-				for (i = 0; i < this.counters.length; i++)
+				for (var i = 0; i < this.counters.length; i++)
 				{
-					if (response.counters[this.counters[i].id] !== undefined)
+					if (counters[this.counters[i].id] !== undefined)
 					{
-						this.counters[i].value = response.counters[this.counters[i].id] || 0;
+						this.counters[i].value = counters[this.counters[i].id] || 0;
 					}
 				}
 				this.updateCounters();

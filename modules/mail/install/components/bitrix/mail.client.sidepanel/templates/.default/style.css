@@ -21,13 +21,18 @@
 	margin: 21px 21px 21px 0px;
 	white-space: nowrap;
 	text-overflow: ellipsis;
+	min-width:0;
 }
 
 .mail-msg-sidepanel-title-text {
-    display: inline-block;
-    max-width: 700px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+	display: inline-block;
+	max-width: 700px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.mail-msg-from-title:hover {
+	color: #535c69;
 }
 
 .mail-msg-sidepanel-title-below {

@@ -140,6 +140,10 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 					{
 						$this->arResult['THEME_CURRENT'] = $this->arResult['TEMPLATE']['DATA']['fields']['ADDITIONAL_FIELDS']['THEME_CODE'];
 					}
+					if (isset($this->arResult['TEMPLATE']['DATA']['fields']['ADDITIONAL_FIELDS']['THEME_COLOR']))
+					{
+						$this->arResult['THEME_CURRENT'] = $this->arResult['TEMPLATE']['DATA']['fields']['ADDITIONAL_FIELDS']['THEME_COLOR'];
+					}
 				}
 
 				$this->checkColorExists($this->arResult['THEME_CURRENT']);
@@ -240,11 +244,21 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 
 	/**
 	 * If try to using unknown color - set default from pallete
-	 * @param $color
+	 * @param $color - attention: color is the theme code!
 	 */
 	private function checkColorExists(&$color)
 	{
-		if (!isset($this->arResult['COLORS'][$color]))
+		$isExist = false;
+		foreach ($this->arResult['COLORS'] as $code => $codeInfo)
+		{
+			if ($codeInfo['color'] === $color)
+			{
+				$color = $code;
+				$isExist = true;
+			}
+		}
+
+		if (!isset($this->arResult['COLORS'][$color]) && !$isExist)
 		{
 			$color = array_shift(array_keys($this->arResult['COLORS']));
 		}

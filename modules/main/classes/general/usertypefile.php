@@ -15,12 +15,12 @@ class CUserTypeFile extends Main\UserField\TypeBase
 {
 	const USER_TYPE_ID = FileType::USER_TYPE_ID;
 
-	function getUserTypeDescription()
+	public static function getUserTypeDescription()
 	{
 		return FileType::getUserTypeDescription();
 	}
 
-	function getDbColumnType($arUserField)
+	public static function getDbColumnType($arUserField)
 	{
 		return FileType::getDbColumnType();
 	}

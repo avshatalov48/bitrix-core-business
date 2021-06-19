@@ -1,5 +1,5 @@
 /**
- * Hint Vue directive
+ * Hint Vue component
  *
  * @package bitrix
  * @subpackage ui

@@ -12,6 +12,7 @@
 import "./grid.css";
 import {Utils} from "im.lib.utils";
 import {MessagesModel} from "im.model";
+import { AttachLinks } from "../mixin/attachLinks";
 
 export const AttachTypeGrid =
 {
@@ -19,6 +20,9 @@ export const AttachTypeGrid =
 	name: 'bx-im-view-element-attach-grid',
 	component:
 	{
+		mixins: [
+			AttachLinks
+		],
 		props:
 		{
 			config: {type: Object, default: {}},
@@ -37,20 +41,6 @@ export const AttachTypeGrid =
 		},
 		methods:
 		{
-			openLink(element)
-			{
-				if (element.LINK)
-				{
-					Utils.platform.openNewPage(element.LINK);
-				}
-				else
-				{
-					// element.NETWORK_ID
-					// element.USER_ID
-					// element.CHAT_ID
-					// TODO exec openDialog with params
-				}
-			},
 			getWidth(element)
 			{
 				if (this.type !== 'row')
@@ -79,7 +69,7 @@ export const AttachTypeGrid =
 				}
 
 				let text = Utils.text.htmlspecialchars(element.VALUE);
-				
+
 				text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, (whole, userId, userName) => {
 					const user = this.$store.getters['users/get'](userId);
 					userName = user? Utils.text.htmlspecialchars(user.name): userName;
@@ -96,6 +86,7 @@ export const AttachTypeGrid =
 				return this.config.GRID[0].DISPLAY.toLowerCase();
 			},
 		},
+		//language=Vue
 		template: `
 			<div class="bx-im-element-attach-type-grid">
 				<template v-if="type === 'block'">
@@ -103,7 +94,11 @@ export const AttachTypeGrid =
 						<div class="bx-im-element-attach-type-grid-display bx-im-element-attach-type-display-block" :style="{width: getWidth(element)}">
 							<div class="bx-im-element-attach-type-grid-element-name">{{element.NAME}}</div>
 							<template v-if="element.LINK">
-								<div class="bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link" @click="openLink(element)" v-html="getValue(element)"></div>
+								<div 
+									class="bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link"
+								>
+									<a :href="element.LINK" target="_blank" @click="openLink({element: element, event: $event})" v-html="getValue(element)"></a>
+								</div>
 							</template>
 							<template v-else>
 								<div class="bx-im-element-attach-type-grid-element-value" v-html="getValue(element)"></div>
@@ -116,7 +111,12 @@ export const AttachTypeGrid =
 						<div class="bx-im-element-attach-type-grid-display bx-im-element-attach-type-display-card" :style="{width: getWidth(element)}">
 							<div class="bx-im-element-attach-type-grid-element-name">{{element.NAME}}</div>
 							<template v-if="element.LINK">
-								<div class="bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link" @click="openLink(element)" :style="{color: element.COLOR? element.COLOR: ''}" v-html="getValue(element)"></div>
+								<div 
+									class="bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link"
+									:style="{color: element.COLOR? element.COLOR: ''}"
+								>
+									<a :href="element.LINK" target="_blank" @click="openLink({element: element, event: $event})" v-html="getValue(element)"></a>
+								</div>
 							</template>
 							<template v-else>
 								<div class="bx-im-element-attach-type-grid-element-value" :style="{color: element.COLOR? element.COLOR: ''}" v-html="getValue(element)"></div>
@@ -135,7 +135,13 @@ export const AttachTypeGrid =
 										</template>
 										<template v-if="element.VALUE">
 											<template v-if="element.LINK">
-												<td class="bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link" @click="openLink(element)" :colspan="element.NAME? 1: 2" :style="{color: element.COLOR? element.COLOR: ''}" v-html="getValue(element)"></td>
+												<td 
+													class="bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link"
+													:colspan="element.NAME? 1: 2" 
+													:style="{color: element.COLOR? element.COLOR: ''}"
+												>
+													<a :href="element.LINK" target="_blank" @click="openLink({element: element, event: $event})" v-html="getValue(element)"></a>
+												</td>
 											</template>
 											<template v-else>
 												<td class="bx-im-element-attach-type-grid-element-value" :colspan="element.NAME? 1: 2" :style="{color: element.COLOR? element.COLOR: ''}" v-html="getValue(element)"></td>

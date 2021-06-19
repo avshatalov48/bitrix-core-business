@@ -35,7 +35,7 @@ return array(
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_49_3_TWO_COLS_TEXT_VIDEO_FIX--LANDINGBLOCKNODETITLE'),
-			'type' => array('typo'),
+			'type' => array('typo', 'heading'),
 		),
 		'.landing-block-node-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_49_3_TWO_COLS_TEXT_VIDEO_FIX--LANDINGBLOCKNODETEXT'),

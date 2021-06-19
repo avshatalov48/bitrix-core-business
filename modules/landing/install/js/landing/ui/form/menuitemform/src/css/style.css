@@ -16,6 +16,10 @@
 	user-select: none;
 }
 
+.landing-ui-form-menuitem .landing-ui-form-header-left {
+	max-width: calc(100% - 40px);
+}
+
 .landing-ui-form-menuitem .landing-ui-form-header-left,
 .landing-ui-form-menuitem .landing-ui-form-header-right {
 	height: 60px;
@@ -24,7 +28,7 @@
 }
 
 .landing-ui-form-menuitem .landing-ui-form-header-title {
-	max-width: 350px;
+	max-width: 100%;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -32,7 +36,7 @@
 
 .landing-ui-form-menuitem .landing-ui-form-header-drag-button {
 	height: 100%;
-	width: 20px;
+	min-width: 20px;
 	cursor: grab;
 	margin-left: -2px;
 	margin-right: 2px;

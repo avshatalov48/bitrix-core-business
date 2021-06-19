@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import {ajax, Loc, Tag} from "main.core";
+import {ajax, Loc, Tag, Dom} from "main.core";
 import StatusBlock from "../controls/statusblock"
 import {EventEmitter} from "main.core.events";
 
@@ -57,17 +57,18 @@ export class InterfaceTemplate extends EventEmitter
 
 	getContentInfoHeader()
 	{
-		const statusBlock = StatusBlock.createInstance({
+		this.statusBlock = StatusBlock.createInstance({
 			status: "not_connected",
 			connections: [this.connection],
 			withStatusLabel: false,
 			popupWithUpdateButton: this.popupWithUpdateButton,
 			popupId: 'calendar-interfaceTemplate-status',
-		})
+		});
+
 		return Tag.render`
 			<div class="calendar-sync-header">
 				<span class="calendar-sync-header-text">${this.getHeaderTitle()}</span>
-				${statusBlock.getContent()}
+				${this.statusBlock.getContent()}
 			</div>
 		`;
 	}
@@ -81,17 +82,18 @@ export class InterfaceTemplate extends EventEmitter
 
 	getContentActiveHeader()
 	{
-		const statusBlock = StatusBlock.createInstance({
+		this.statusBlock = StatusBlock.createInstance({
 			status: this.connection.getStatus(),
 			connections: [this.connection],
 			withStatusLabel: false,
 			popupWithUpdateButton: this.popupWithUpdateButton,
 			popupId: 'calendar-interfaceTemplate-status',
-		})
+		});
+
 		return Tag.render`
 			<div class="calendar-sync-header">
 				<span class="calendar-sync-header-text">${this.getHeaderTitle()}</span>
-				${statusBlock.getContent()}
+				${this.statusBlock.getContent()}
 			</div>
 		`;
 	}
@@ -179,11 +181,6 @@ export class InterfaceTemplate extends EventEmitter
 		this.provider = provider;
 	}
 
-	setConnection(connection)
-	{
-		this.connection = connection;
-	}
-
 	sendRequestRemoveConnection(id)
 	{
 		BX.ajax.runAction('calendar.api.calendarajax.removeConnection', {
@@ -204,5 +201,14 @@ export class InterfaceTemplate extends EventEmitter
 		}).then(response => {
 			this.emit('reDrawCalendarGrid', {});
 		})
+	}
+
+	refresh(connection)
+	{
+		this.connection = connection;
+		this.statusBlock
+			.setStatus(this.connection.getStatus())
+			.setConnections([this.connection]);
+		Dom.replace(document.getElementById('status-info-block'), this.statusBlock.getContent());
 	}
 }

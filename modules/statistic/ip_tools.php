@@ -61,7 +61,7 @@ function i2c_create_db(
 			$arr=fgetcsv($fp,1000,",");
 			if (is_array($arr) && $file_type=="maxmind.com" && !isset($beginIpNum))
 			{
-				while(list($key,$value)=each($arr))
+				foreach ($arr as $key => $value)
 				{
 					$value = trim($value);
 					if ($value=="beginIpNum" || $value=="endIpNum" || $value=="countryCode") ${$value} = $key;

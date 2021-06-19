@@ -51,7 +51,10 @@ if($arParams["BLOG_URL"] <> '')
 	if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 	{
 		$Vars = $cache->GetVars();
-		CBitrixComponentTemplate::ApplyCachedData($Vars["templateCachedData"]);	
+
+		$template = new CBitrixComponentTemplate();
+		$template->ApplyCachedData($Vars["templateCachedData"]);
+
 		$arResult = $Vars["arResult"];
 		$cache->Output();
 	}

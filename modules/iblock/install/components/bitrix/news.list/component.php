@@ -317,6 +317,10 @@ if($this->startResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 			"IBLOCK_LID" => SITE_ID,
 			"ID" => $arResult["ELEMENTS"]
 		);
+		if (isset($arrFilter['SHOW_NEW']))
+		{
+			$elementFilter['SHOW_NEW'] = $arrFilter['SHOW_NEW'];
+		}
 
 		$obParser = new CTextParser;
 		$iterator = CIBlockElement::GetList(array(), $elementFilter, false, false, $arSelect);

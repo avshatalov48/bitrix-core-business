@@ -1,5 +1,5 @@
-<?
-$catalog_default_option = array(
+<?php
+$catalog_default_option = [
 	'export_default_path' => '/bitrix/catalog_export/',
 	'default_catalog_1c' => '',
 	'deactivate_1c_no_price' => 'N',
@@ -73,5 +73,5 @@ $catalog_default_option = array(
 	'subscribe_repeated_notify' => 'Y',
 	'enable_processing_deprecated_events' => 'N',
 	'landing_product_limit' => 0,
-	'product_card_slider_enabled' => 'N'
-);
+	'product_card_slider_enabled' => 'N',
+];

@@ -158,7 +158,7 @@ class CCloudStorageUpload
 				return false;
 			}
 
-			$arUploadInfo = unserialize($ar["NEXT_STEP"]);
+			$arUploadInfo = unserialize($ar["NEXT_STEP"], ['allowed_classes' => false]);
 			$bSuccess = $obBucket->GetService()->UploadPart(
 				$obBucket->GetBucketArray(),
 				$arUploadInfo,
@@ -206,7 +206,7 @@ class CCloudStorageUpload
 				return false;
 			}
 
-			$arUploadInfo = unserialize($ar["NEXT_STEP"]);
+			$arUploadInfo = unserialize($ar["NEXT_STEP"], ['allowed_classes' => false]);
 			$bSuccess = $obBucket->GetService()->UploadPartNo(
 				$obBucket->GetBucketArray(),
 				$arUploadInfo,
@@ -240,7 +240,7 @@ class CCloudStorageUpload
 			if(!$obBucket->Init())
 				return false;
 
-			$arUploadInfo = unserialize($ar["NEXT_STEP"]);
+			$arUploadInfo = unserialize($ar["NEXT_STEP"], ['allowed_classes' => false]);
 			$bSuccess = $obBucket->GetService()->CompleteMultipartUpload(
 				$obBucket->GetBucketArray(),
 				$arUploadInfo
@@ -260,7 +260,7 @@ class CCloudStorageUpload
 					ExecuteModuleEventEx($arEvent, array($obBucket, array("size" => $ar["FILE_SIZE"]), $this->_filePath));
 				}
 			}
-			
+
 			return $bSuccess;
 		}
 
@@ -402,7 +402,7 @@ class CCloudStorageUpload
 			$obBucket = new CCloudStorageBucket(intval($arBucket["BUCKET_ID"]));
 			if ($obBucket->Init())
 			{
-				$arUploadInfo = unserialize($arBucket["NEXT_STEP"]);
+				$arUploadInfo = unserialize($arBucket["NEXT_STEP"], ['allowed_classes' => false]);
 				$service = $obBucket->GetService();
 				$service->CancelMultipartUpload($obBucket->GetBucketArray(), $arUploadInfo);
 			}

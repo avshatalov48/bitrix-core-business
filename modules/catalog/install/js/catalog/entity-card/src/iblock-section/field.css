@@ -13,7 +13,7 @@
 .catalog-entity-editor-content-block-field-iblock-section.ui-entity-editor-content-block .ui-tile-selector-item > span {
 	white-space: nowrap;
 	max-width: 200px;
-	display: inline-block;
+	display: block;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }

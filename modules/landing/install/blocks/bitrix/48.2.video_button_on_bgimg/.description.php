@@ -18,6 +18,7 @@ return array(
 		'.landing-block-node-bgimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_48.2.VIDEO_BUTTON_ON_BGIMG_NODES_LANDINGBLOCKNODEBGIMG'),
 			'type' => 'img',
+			'useInDesigner' => false,
 			'dimensions' => array('width' => 1920, 'height' => 1080),
 		),
 		'.landing-block-node-text' => array(

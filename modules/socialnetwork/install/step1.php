@@ -22,7 +22,7 @@
 	$arSites= Array();
 	$arSiteTabs = array();
 
-	$dbSites = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+	$dbSites = CSite::GetList('', '', Array("ACTIVE" => "Y"));
 	while ($site = $dbSites->Fetch())
 	{
 		$arSites[] = Array("SITE_ID" => $site["LID"], "NAME" => $site["NAME"], "DIR" => $site["DIR"]);

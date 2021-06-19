@@ -11,7 +11,7 @@
 ********************************************************************/
 class CDatabase extends CDatabaseMysql
 {
-	function ConnectInternal()
+	protected function ConnectInternal()
 	{
 		if (DBPersistent && !$this->bNodeConnection)
 			$this->db_Conn = @mysql_pconnect($this->DBHost, $this->DBLogin, $this->DBPassword);
@@ -61,49 +61,31 @@ class CDatabase extends CDatabaseMysql
 		mysql_close($resource);
 	}
 
-	function LastID()
+	public function LastID()
 	{
 		$this->DoConnect();
 		return mysql_insert_id($this->db_Conn);
 	}
 
-	function ForSql($strValue, $iMaxLength = 0)
+	public function ForSql($strValue, $iMaxLength = 0)
 	{
 		if ($iMaxLength > 0)
 			$strValue = mb_substr($strValue, 0, $iMaxLength);
 
-		if (!isset($this) || !is_object($this) || !$this->db_Conn)
-		{
-			global $DB;
-			$DB->DoConnect();
-			return mysql_real_escape_string($strValue, $DB->db_Conn);
-		}
-		else
-		{
-			$this->DoConnect();
-			return mysql_real_escape_string($strValue, $this->db_Conn);
-		}
+		$this->DoConnect();
+		return mysql_real_escape_string($strValue, $this->db_Conn);
 	}
 
-	function ForSqlLike($strValue, $iMaxLength = 0)
+	public function ForSqlLike($strValue, $iMaxLength = 0)
 	{
 		if ($iMaxLength > 0)
 			$strValue = mb_substr($strValue, 0, $iMaxLength);
 
-		if(!isset($this) || !is_object($this) || !$this->db_Conn)
-		{
-			global $DB;
-			$DB->DoConnect();
-			return mysql_real_escape_string(str_replace("\\", "\\\\", $strValue), $DB->db_Conn);
-		}
-		else
-		{
-			$this->DoConnect();
-			return mysql_real_escape_string(str_replace("\\", "\\\\", $strValue), $this->db_Conn);
-		}
+		$this->DoConnect();
+		return mysql_real_escape_string(str_replace("\\", "\\\\", $strValue), $this->db_Conn);
 	}
 
-	function GetTableFields($table)
+	public function GetTableFields($table)
 	{
 		if(!array_key_exists($table, $this->column_cache))
 		{
@@ -139,15 +121,13 @@ class CDBResult extends CDBResultMysql
 		parent::__construct($res);
 	}
 
-	/** @deprecated */
-	public function CDBResult($res = null)
-	{
-		self::__construct($res);
-	}
-
 	protected function FetchRow()
 	{
-		return mysql_fetch_array($this->result, MYSQL_ASSOC);
+		if (is_resource($this->result))
+		{
+			return mysql_fetch_array($this->result, MYSQL_ASSOC);
+		}
+		return false;
 	}
 
 	function SelectedRowsCount()

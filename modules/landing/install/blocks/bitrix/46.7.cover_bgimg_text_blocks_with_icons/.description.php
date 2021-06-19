@@ -52,7 +52,7 @@ return array(
 			),
 			'.landing-block-node-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_46.7.COVER_BGIMG_TEXT_BLOCKS_WITH_ICONS_NODES_LANDINGBLOCKNODETITLE'),
-				'type' => 'typo',
+				'type' => ['typo', 'heading'],
 			),
 			'.landing-block-node-card-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_46.7.COVER_BGIMG_TEXT_BLOCKS_WITH_ICONS_NODES_LANDINGBLOCKNODECARDTITLE2'),

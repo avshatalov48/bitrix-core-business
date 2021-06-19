@@ -711,7 +711,18 @@ this.BX = this.BX || {};
 	    _this.name = 'ServiceSelector';
 	    _this.data = params.data;
 	    _this.serviceList = [];
-	    _this.allServiceList = params.serviceList || [];
+	    _this.allServiceList = [];
+
+	    if (main_core.Type.isArray(params.serviceList)) {
+	      params.serviceList.forEach(function (service) {
+	        if (main_core.Type.isString(name)) {
+	          service.name = service.name.trim();
+	        }
+
+	        _this.allServiceList.push(service);
+	      });
+	    }
+
 	    _this.values = [];
 	    _this.changeValueCallback = main_core.Type.isFunction(params.changeValueCallback) ? params.changeValueCallback : null;
 
@@ -2587,6 +2598,11 @@ this.BX = this.BX || {};
 	        text: message
 	      });
 	    }
+	  }, {
+	    key: "isErrorSet",
+	    value: function isErrorSet() {
+	      return this.shown && main_core.Dom.hasClass(this.DOM.wrap, 'calendar-resbook-webform-block-result-error');
+	    }
 	  }]);
 	  return StatusInformer;
 	}();
@@ -2737,7 +2753,7 @@ this.BX = this.BX || {};
 	        result = false;
 	      }
 
-	      if (result && !this.dateControl.getValue()) {
+	      if (result && (!this.dateControl.getValue() || this.statusControl.isErrorSet())) {
 	        this.dateControl.showWarning();
 	        result = false;
 	      }
@@ -2859,7 +2875,7 @@ this.BX = this.BX || {};
 	      main_core.Dom.clean(this.DOM.inputsWrap);
 	      this.DOM.valueInputs = [];
 
-	      if (main_core.Type.isDate(dateFrom)) {
+	      if (main_core.Type.isDate(dateFrom) && !this.statusControl.isErrorSet()) {
 	        var resources = this.getSelectedResources();
 
 	        if (main_core.Type.isArray(resources)) {
@@ -2889,6 +2905,7 @@ this.BX = this.BX || {};
 	      }
 
 	      if (!entries.length) {
+	        allValuesValue.push('empty');
 	        this.DOM.valueInputs.push(this.DOM.inputsWrap.appendChild(main_core.Tag.render(_templateObject5$2(), main_core.Text.encode(this.inputName))));
 	      }
 

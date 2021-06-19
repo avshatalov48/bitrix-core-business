@@ -211,6 +211,16 @@ if(typeof BX.UI.EntityEditorToolPanel === "undefined")
 	};
 	BX.UI.EntityEditorToolPanel.prototype.addError = function(error)
 	{
+		if (BX.Type.isStringFilled(error))
+		{
+			error = error
+				.replace(/(<br(( *)\/)?>)/gi, '<br>')
+				.split('<br>')
+				.map(function(line) {
+					return BX.Text.encode(line);
+				})
+				.join('<br>');
+		}
 		this._errorContainer.appendChild(
 			BX.create("DIV",
 				{

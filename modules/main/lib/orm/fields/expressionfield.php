@@ -146,18 +146,18 @@ class ExpressionField extends Field implements IReadable
 	{
 		parent::setEntity($entity);
 
+		$parameters = $this->initialParameters;
+		unset($parameters['expression']);
+
 		if ($this->valueType !== null)
 		{
 			/** @var ScalarField $valueField */
-			$valueField = new $this->valueType($this->name);
+			$valueField = new $this->valueType($this->name, $parameters);
 			$this->valueField = $this->entity->initializeField($this->name, $valueField);
 		}
 		else
 		{
 			// deprecated - old format with parameters and data_type
-			$parameters = $this->initialParameters;
-
-			unset($parameters['expression']);
 			$this->valueField = $this->entity->initializeField($this->name, $parameters);
 			$this->valueType = get_class($this->valueField);
 		}

@@ -728,13 +728,28 @@ class CAdminUiList extends CAdminList
 		foreach(GetModuleEvents("main", "OnAdminListDisplay", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(&$this));
 
-		$errorMessage = "";
+		$errorMessages = [];
 		foreach ($this->arFilterErrors as $error)
-			$errorMessage .= " ".$error;
+		{
+			$errorMessages[] = [
+				'TYPE' => Bitrix\Main\Grid\MessageType::ERROR,
+				'TEXT' => $error,
+			];
+		}
 		foreach ($this->arUpdateErrors as $arError)
-			$errorMessage .= " ".$arError[0];
+		{
+			$errorMessages[] = [
+				'TYPE' => Bitrix\Main\Grid\MessageType::ERROR,
+				'TEXT' => $arError[0],
+			];
+		}
 		foreach ($this->arGroupErrors as $arError)
-			$errorMessage .= " ".$arError[0];
+		{
+			$errorMessages[] = [
+				'TYPE' => Bitrix\Main\Grid\MessageType::ERROR,
+				'TEXT' => $arError[0],
+			];
+		}
 
 		if (Context::isValidateRequest())
 		{
@@ -746,11 +761,9 @@ class CAdminUiList extends CAdminList
 			}
 			global $APPLICATION;
 			$APPLICATION->RestartBuffer();
-			if ($errorMessage)
+			if (!empty($errorMessages))
 			{
-				$adminAjaxHelper->sendJsonResponse(array("messages" => array(
-					array("TYPE" => Bitrix\Main\Grid\MessageType::ERROR, "TEXT" => $errorMessage)))
-				);
+				$adminAjaxHelper->sendJsonResponse(["messages" => $errorMessages]);
 			}
 			else
 			{
@@ -758,7 +771,7 @@ class CAdminUiList extends CAdminList
 			}
 		}
 
-		if (Context::isShowpageRequest() && $errorMessage !== '')
+		if (Context::isShowpageRequest() && !empty($errorMessages))
 		{
 			global $adminAjaxHelper;
 			if (!is_object($adminAjaxHelper))
@@ -769,9 +782,7 @@ class CAdminUiList extends CAdminList
 			global $APPLICATION;
 			$APPLICATION->RestartBuffer();
 
-			$adminAjaxHelper->sendJsonResponse(array("messages" => array(
-				array("TYPE" => Bitrix\Main\Grid\MessageType::ERROR, "TEXT" => $errorMessage)))
-			);
+			$adminAjaxHelper->sendJsonResponse(["messages" => $errorMessages]);
 		}
 
 		global $APPLICATION;
@@ -1012,14 +1023,9 @@ class CAdminUiList extends CAdminList
 			$gridParameters["COLUMNS"][] = $header;
 		}
 
-		if ($errorMessage <> "")
+		if (!empty($errorMessages))
 		{
-			$gridParameters["MESSAGES"] = array(
-				array(
-					"TYPE" => Bitrix\Main\Grid\MessageType::ERROR,
-					"TEXT" => $errorMessage
-				)
-			);
+			$gridParameters["MESSAGES"] = $errorMessages;
 		}
 
 		$APPLICATION->includeComponent(
@@ -1103,7 +1109,7 @@ class CAdminUiList extends CAdminList
 				);
 				break;
 			case "html":
-				$editable = array("TYPE" => Types::CUSTOM, "HTML" => $field["edit"]["value"]);
+				$editable = array("TYPE" => Types::CUSTOM);
 				break;
 			case "money":
 				$editable = array(
@@ -1846,10 +1852,9 @@ class CAdminUiResult extends CAdminResult
 		);
 	}
 
-	public function GetNavSize($tableId = false, $nPageSize = 20, $listUrl = '')
+	public static function GetNavSize($table_id = false, $nPageSize = 20, $listUrl = '')
 	{
-		$tableId = $tableId ? $tableId : $this->table_id;
-		$gridOptions = new Bitrix\Main\Grid\Options($tableId);
+		$gridOptions = new Bitrix\Main\Grid\Options($table_id);
 		$navParams = $gridOptions->getNavParams();
 		return $navParams["nPageSize"];
 	}
@@ -1894,6 +1899,10 @@ class CAdminUiContextMenu extends CAdminContextMenu
 			><?php
 				$this->showBaseButton();
 			?></div><?php
+			if (!$this->isShownFilterContext)
+			{
+				?><div class="pagetitle-container pagetitle-flexible-space"></div><?php
+			}
 			$APPLICATION->AddViewContent("inside_pagetitle", ob_get_clean());
 
 			ob_start();
@@ -1912,8 +1921,11 @@ class CAdminUiContextMenu extends CAdminContextMenu
 		else
 		{
 			?><div class="adm-toolbar-panel-container">
-				<div class="adm-toolbar-panel-flexible-space"><?php $this->showBaseButton(); ?></div>
-				<div class="adm-toolbar-panel-align-right"><?php $this->showActionButton(); ?></div>
+				<div class="adm-toolbar-panel-flexible-space"></div>
+				<div class="adm-toolbar-panel-align-right"><?php
+					$this->showActionButton();
+					$this->showBaseButton();
+				?></div>
 			</div><?php
 		}
 	}

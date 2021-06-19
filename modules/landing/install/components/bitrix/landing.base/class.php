@@ -153,6 +153,21 @@ class LandingBaseComponent extends \CBitrixComponent
 		$id = 'landing-feedback-' . $id;
 
 		$data = [
+			'landing-feedback-designblock' => [
+				'ID' => 'landing-feedback-designblock',
+				'VIEW_TARGET' => null,
+				'FORMS' => [
+					['zones' => ['br'], 'id' => '317','lang' => 'br', 'sec' => '3uon92'],
+					['zones' => ['es'], 'id' => '315','lang' => 'la', 'sec' => 'd3jam4'],
+					['zones' => ['de'], 'id' => '319','lang' => 'de', 'sec' => 'pr1z8q'],
+					['zones' => ['ua'], 'id' => '321','lang' => 'ua', 'sec' => 'm6etjp'],
+					['zones' => ['ru', 'by', 'kz'], 'id' => '311','lang' => 'ru', 'sec' => 'b8sbcz'],
+					['zones' => ['en'], 'id' => '313','lang' => 'en', 'sec' => '9hdvqb']
+				],
+				'PRESETS' => [
+					'from_domain' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME']
+				]
+			],
 			'landing-feedback-demo' => [
 				'ID' => 'landing-feedback-demo',
 				'VIEW_TARGET' => null,
@@ -430,6 +445,25 @@ class LandingBaseComponent extends \CBitrixComponent
 	}
 
 	/**
+	 * Redirects to the url in according with frame mode.
+	 * @param string $url Url to redirect.
+	 * @return void
+	 */
+	protected function frameRedirect(string $url): void
+	{
+		if ($this->request('IFRAME') == 'Y')
+		{
+			$uri = new \Bitrix\Main\Web\Uri($url);
+			$uri->addParams([
+				'IFRAME' => 'Y',
+				'IFRAME_TYPE' => 'SIDE_SLIDER'
+			]);
+			$url = $uri->getUri();
+		}
+		\localRedirect($url);
+	}
+
+	/**
 	 * Get some var from request.
 	 * @param string $var Code of var.
 	 * @return mixed
@@ -499,17 +533,7 @@ class LandingBaseComponent extends \CBitrixComponent
 			/** @var Entity\DataManager $class */
 			$res = $class::getList(array(
 				'select' => array_merge(array(
-					'*',
-
-					'CREATED_BY_LOGIN' => 'CREATED_BY.LOGIN',
-					'CREATED_BY_NAME' => 'CREATED_BY.NAME',
-					'CREATED_BY_SECOND_NAME' => 'CREATED_BY.SECOND_NAME',
-					'CREATED_BY_LAST_NAME' => 'CREATED_BY.LAST_NAME',
-
-					'MODIFIED_BY_LOGIN' => 'MODIFIED_BY.LOGIN',
-					'MODIFIED_BY_NAME' => 'MODIFIED_BY.NAME',
-					'MODIFIED_BY_SECOND_NAME' => 'MODIFIED_BY.SECOND_NAME',
-					'MODIFIED_BY_LAST_NAME' => 'MODIFIED_BY.LAST_NAME'
+					'*'
 				), isset($params['select'])
 							? $params['select']
 							: array()),
@@ -731,7 +755,7 @@ class LandingBaseComponent extends \CBitrixComponent
 	}
 
 	/**
-	 * Get URI without some external params.
+	 * Get URI within/without some external params.
 	 * @param array $add Additional params for adding.
 	 * @param array $remove Additional params for deleting.
 	 * @return string
@@ -750,6 +774,38 @@ class LandingBaseComponent extends \CBitrixComponent
 		}
 
 		return $curUri->getUri();
+	}
+
+	/**
+	 * Adds new params / removes old params from $pageUri.
+	 * @param string $pageUri Page uri.
+	 * @param array $add Additional params for adding.
+	 * @param array $remove Additional params for deleting.
+	 * @return string
+	 */
+	public function getPageParam(string $pageUri, array $add = [], array $remove = []): string
+	{
+		$curUri = new \Bitrix\Main\Web\Uri($pageUri);
+
+		if ($add)
+		{
+			$curUri->addParams($add);
+		}
+		if ($remove)
+		{
+			$curUri->deleteParams($remove);
+		}
+
+		return $curUri->getUri();
+	}
+
+	/**
+	 * Returns relative path of current component template.
+	 * @return string
+	 */
+	public function getComponentTemplate(): string
+	{
+		return $this->__template->__folder;
 	}
 
 	/**

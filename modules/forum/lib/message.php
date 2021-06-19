@@ -784,7 +784,14 @@ class Message extends Internals\Entity
 		{
 			unset($data[$field]);
 		}
-		$dbResult = MessageTable::add($data);
+
+		$authContext = new \Bitrix\Main\Authentication\Context();
+		$authContext->setUserId($fields['AUTHOR_ID']);
+
+		$dbResult = MessageTable::add([
+			"fields" => $data,
+			"auth_context" => $authContext
+		]);
 
 		if (!$dbResult->isSuccess())
 		{

@@ -10,8 +10,6 @@ global $DB, $APPLICATION, $MESS, $DBType;
 	)
 );
 
-
-
 if (!defined('SEO_COUNTERS_DEFAULT'))
 {
 	if (COption::GetOptionString('main', 'vendor', '') == '1c_bitrix')
@@ -34,7 +32,7 @@ IncludeModuleLangFile(__FILE__);
 
 class CSeoEventHandlers
 {
-	function SeoOnPanelCreate()
+	public static function SeoOnPanelCreate()
 	{
 		global $APPLICATION, $USER;
 

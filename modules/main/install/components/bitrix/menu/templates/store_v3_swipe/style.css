@@ -1,0 +1,137 @@
+.menu-main {
+	display: block;
+	padding-left: 16px;
+	padding-top: 5px;
+	margin: 5px 0 35px;
+	width: 100%;
+	list-style: none;
+}
+
+.menu-swipe-btn {
+	width: 26px;
+	height: 26px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.menu-swipe-overlay {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	min-height: 100vh;
+	pointer-events: none;
+	z-index: 190;
+	background: rgba(0, 0, 0, 0.5);
+	transition: opacity 170ms ease;
+	opacity: 0;
+}
+
+.menu-swipe-container.opened .menu-swipe-overlay {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.menu-swipe-container.opened {}
+
+.menu-swipe-items-container {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	min-height: 100vh;
+	box-sizing: border-box;
+	z-index: 195;
+	width: 0;
+	transition: width 170ms ease;
+	max-width: 275px;
+}
+
+.menu-swipe-container.opened .menu-swipe-items-container {
+	width: calc(100% - 100px);
+}
+
+.menu-swipe-items-scroll-block {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	min-height: 100vh;
+	box-sizing: border-box;
+	overflow-y: auto;
+	background-color: #f3f3f3;
+}
+
+.menu-swipe-items {
+	display: block;
+	padding: 0;
+	margin: 0;
+}
+
+.menu-swipe-item {
+	display: block;
+	padding: 0 0 0 17px;
+	margin: 0;
+}
+
+.menu-swipe-item-link {
+	padding: 0 17px 0 0;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	position: relative;
+	min-height: 40px;
+	text-decoration: none !important;
+	vertical-align: middle;
+}
+
+.menu-swipe-item-text {
+	font-style: normal;
+	font-weight: normal;
+	font-size: 16px;
+	line-height: 21px;
+	color: #121212;
+	opacity: 0.6;
+}
+
+.menu-swipe-item:active,
+.menu-swipe-item:hover,
+.menu-swipe-item.selected .menu-swipe-item-text { opacity: 1; }
+
+.menu-swipe-item-angle {
+	display: block;
+	transform: rotate(-45deg);
+	border-bottom: 1px solid;
+	border-right: 1px solid;
+	color: #121212;
+	opacity: 0.6;
+	width: 7px;
+	height: 7px;
+}
+
+.menu-swipe-close-btn {
+	position: absolute;
+	right: calc(0 - 19px - 38px);
+	background: rgba(255, 255, 255, 0.2);
+	border: 1px solid rgba(255, 255, 255, 0.4);
+	box-sizing: border-box;
+	border-radius: 50%;
+	top:15px;
+	width: 38px;
+	height: 38px;
+	align-items: center;
+	justify-content: center;
+	transition: right 170ms ease;
+	opacity: 0;
+	display: none;
+}
+
+.menu-swipe-container.opened .menu-swipe-close-btn {
+	right: calc(100% + 19px);
+	opacity: 1;
+	display: flex;
+}

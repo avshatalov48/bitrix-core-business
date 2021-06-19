@@ -11,7 +11,7 @@
 
 import "./link.css";
 import {AttachTypeImage} from "./image";
-import {Utils} from "im.lib.utils";
+import { AttachLinks } from "../mixin/attachLinks";
 
 export const AttachTypeLink =
 {
@@ -19,6 +19,9 @@ export const AttachTypeLink =
 	name: 'bx-im-view-element-attach-link',
 	component:
 	{
+		mixins: [
+			AttachLinks
+		],
 		props:
 		{
 			config: {type: Object, default: {}},
@@ -39,20 +42,6 @@ export const AttachTypeLink =
 			{
 				return element.NAME? element.NAME: element.LINK;
 			},
-			openLink(element)
-			{
-				if (element.LINK)
-				{
-					Utils.platform.openNewPage(element.LINK);
-				}
-				else
-				{
-					// element.NETWORK_ID
-					// element.USER_ID
-					// element.CHAT_ID
-					// TODO exec openDialog with params
-				}
-			}
 		},
 		computed:
 		{
@@ -65,15 +54,35 @@ export const AttachTypeLink =
 		{
 			[AttachTypeImage.name]: AttachTypeImage.component
 		},
+		//language=Vue
 		template: `
 			<div class="bx-im-element-attach-type-link">
 				<template v-for="(element, index) in config.LINK">
 					<div class="bx-im-element-attach-type-link-element" :key="index">
-						<div v-if="element.PREVIEW" class="bx-im-element-attach-type-link-image" @click="openLink(element)">
+						<a 
+							v-if="element.LINK"
+							:href="element.LINK"
+							target="_blank"
+							class="bx-im-element-attach-type-link-name" 
+							@click="openLink({element: element, event: $event})"
+						>
+							{{getLinkName(element)}}
+						</a>
+						<span 
+							v-else
+							class="bx-im-element-attach-type-ajax-link"
+							@click="openLink({element: element, event: $event})"
+						>
+							{{getLinkName(element)}}
+						</span>
+						<div v-if="element.DESC" class="bx-im-element-attach-type-link-desc">{{element.DESC}}</div>
+						<div 
+							v-if="element.PREVIEW" 
+							class="bx-im-element-attach-type-link-image"
+							@click="openLink({element: element, event: $event})"
+						>
 							<component :is="imageComponentName" :config="getImageConfig(element)" :color="color"/>
 						</div>
-						<div class="bx-im-element-attach-type-link-name" @click="openLink(element)">{{getLinkName(element)}}</div>
-						<div v-if="element.DESC" class="bx-im-element-attach-type-link-desc">{{element.DESC}}</div>
 					</div>
 				</template>
 			</div>

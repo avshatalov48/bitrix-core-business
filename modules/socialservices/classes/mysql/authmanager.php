@@ -1,12 +1,12 @@
 <?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/classes/general/authmanager.php");
 
 /**
  * Class CSocServAuthDB
  * @deprecated Use \Bitrix\Socialservices\UserTable
  */
-class CSocServAuthDB
-	extends CSocServAuth
+class CSocServAuthDB extends CSocServAuth
 {
 	public static function Add($arFields)
 	{
@@ -169,7 +169,7 @@ class CSocServAuthDB
 
 class CSocServMessage extends CSocServAllMessage
 {
-	function CleanUp()
+	public static function CleanUp()
 	{
 		global $DB;
 
@@ -179,7 +179,7 @@ class CSocServMessage extends CSocServAllMessage
 		return "CSocServMessage::CleanUp();";
 	}
 
-	static function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 		if (!self::CheckFields('ADD',$arFields))
@@ -204,7 +204,7 @@ class CSocServMessage extends CSocServAllMessage
 		return $lastId;
 	}
 
-	function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 		if (count($arSelectFields) <= 0)

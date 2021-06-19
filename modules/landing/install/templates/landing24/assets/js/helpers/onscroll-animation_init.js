@@ -18,6 +18,11 @@
 	var onCustomEvent = BX.Landing.Utils.onCustomEvent;
 
 	onCustomEvent("BX.Landing.Block:init", function(event) {
+		if (BX.hasClass(event.block, 'landing-designer-block-mode'))
+		{
+			return ;
+		}
+
 		var allObservableElements = slice(event.block.querySelectorAll('.js-animation'));
 
 		allObservableElements.forEach(function(element) {

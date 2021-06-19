@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 /***********************************************************************/
@@ -8,7 +9,7 @@ $GLOBALS["SALE_RECURRING"] = Array();
 
 class CAllSaleRecurring
 {
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && intval($arFields["USER_ID"]) <= 0)
 		{
@@ -65,7 +66,7 @@ class CAllSaleRecurring
 		return True;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -85,7 +86,7 @@ class CAllSaleRecurring
 		return $ID;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -98,7 +99,7 @@ class CAllSaleRecurring
 		return $DB->Query("DELETE FROM b_sale_recurring WHERE ID = ".$ID." ", true);
 	}
 
-	function ExecuteCallbackFunction($callbackFunc = "", $module = "", $productID = 0)
+	public static function ExecuteCallbackFunction($callbackFunc = "", $module = "", $productID = 0)
 	{
 		$callbackFunc = trim($callbackFunc);
 		$module = trim($module);
@@ -122,7 +123,7 @@ class CAllSaleRecurring
 		return $result;
 	}
 
-	function CheckRecurring()
+	public static function CheckRecurring()
 	{
 		if (defined("SALE_PROC_REC_NUM"))
 			$processRecords = SALE_PROC_REC_NUM;
@@ -150,7 +151,7 @@ class CAllSaleRecurring
 		}
 	}
 
-	function NextPayment($ID)
+	public static function NextPayment($ID)
 	{
 		global $DB;
 		global $USER;
@@ -708,7 +709,7 @@ class CAllSaleRecurring
 		return $res;
 	}
 
-	function CancelRecurring($ID, $val, $description = "")
+	public static function CancelRecurring($ID, $val, $description = "")
 	{
 		global $DB, $USER;
 
@@ -775,7 +776,7 @@ class CAllSaleRecurring
 		return $res;
 	}
 
-	function AgentCheckRecurring()
+	public static function AgentCheckRecurring()
 	{
 		$bTmpUser = False;
 		if (!isset($GLOBALS["USER"]) || !is_object($GLOBALS["USER"]))
@@ -800,7 +801,7 @@ class CAllSaleRecurring
 		return "CSaleRecurring::AgentCheckRecurring();";
 	}
 
-	function OnCurrencyDelete($Currency)
+	public static function OnCurrencyDelete($Currency)
 	{
 		global $DB;
 		if ($Currency == '') return false;
@@ -808,7 +809,7 @@ class CAllSaleRecurring
 		return $DB->Query("DELETE FROM b_sale_recurring WHERE CURRENCY = '".$DB->ForSql($ID)."' ", true);
 	}
 
-	function OnUserDelete($UserID)
+	public static function OnUserDelete($UserID)
 	{
 		global $DB;
 		$UserID = intval($UserID);
@@ -816,5 +817,3 @@ class CAllSaleRecurring
 		return $DB->Query("DELETE FROM b_sale_recurring WHERE USER_ID = ".$UserID." ", true);
 	}
 }
-
-?>

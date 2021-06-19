@@ -139,7 +139,7 @@ class CSecuritySystemInformation
 	{
 		$converter = CBXPunycode::GetConverter();
 		$result = array();
-		$dbSites = CSite::GetList($b = 'sort', $o = 'asc', array('ACTIVE' => 'Y'));
+		$dbSites = CSite::GetList('sort', 'asc', array('ACTIVE' => 'Y'));
 		while ($arSite = $dbSites->Fetch())
 		{
 			$result[] = array(

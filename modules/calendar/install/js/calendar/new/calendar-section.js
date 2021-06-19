@@ -371,7 +371,13 @@
 
 			for (i = 0; i < this.sections.length; i++)
 			{
-				if (this.sections[i].canDo('view_time'))
+				if (this.sections[i].canDo('view_time')
+					&& (
+						this.sections[i].belongsToView()
+						|| this.sections[i].isSuperposed()
+						|| this.sections[i].isPseudo()
+					)
+				)
 				{
 					if (this.sections[i].isShown())
 					{
@@ -504,7 +510,7 @@
 						}
 						else
 						{
-							BX.Calendar.CalendarSectionManager.setNewEntrySectionId(this.calendar.sectionController.getCurrentSection().id);
+							BX.Calendar.SectionManager.setNewEntrySectionId(this.calendar.sectionController.getCurrentSection().id);
 							this.calendar.reload();
 						}
 					}.bind(this),

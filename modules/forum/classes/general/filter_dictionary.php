@@ -1,15 +1,17 @@
-<?
+<?php
+
 ##############################################
 # Bitrix Site Manager Forum                  #
 # Copyright (c) 2002-2009 Bitrix             #
 # http://www.bitrixsoft.com                  #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllFilterDictionary
 {
-	function CheckFields($arFields = array(), $ACTION = "ADD")
+	public static function CheckFields($arFields = array(), $ACTION = "ADD")
 	{
 		global $APPLICATION, $DB;
 		$strError = "";
@@ -23,7 +25,8 @@ class CAllFilterDictionary
 		$APPLICATION->ThrowException($strError);
 		return false;
 	}
-	function Add($arFields)
+
+	public static function Add($arFields)
 	{
 		global $DB;
 		$arFields["TITLE"] = trim($arFields["TITLE"]);
@@ -34,7 +37,8 @@ class CAllFilterDictionary
 			return $DB->Add("b_forum_dictionary", $arFields);
 		return false;
 	}
-	function Update($ID, $arFields)
+
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 		$ID = intval($ID);
@@ -54,7 +58,8 @@ class CAllFilterDictionary
 		}
 		return false;
 	}
-	function Delete($ID)
+
+	public static function Delete($ID)
 	{
 		global $DB, $USER;
 
@@ -77,7 +82,7 @@ class CAllFilterDictionary
 		return $res;
 	}
 
-	function GetFilterOperation($key)
+	public static function GetFilterOperation($key)
 	{
 		$strNegative = "N";
 		if (mb_substr($key, 0, 1) == "!")
@@ -126,7 +131,7 @@ class CAllFilterDictionary
 
 class CAllFilterLetter
 {
-	function CheckFields($arFields = array())
+	public static function CheckFields($arFields = array())
 	{
 		global $APPLICATION, $DB;
 		$strError = "";
@@ -141,7 +146,7 @@ class CAllFilterLetter
 		return false;
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB, $APPLICATION;
 		$arFields["LETTER"] = trim($arFields["LETTER"]);
@@ -159,7 +164,7 @@ class CAllFilterLetter
 		return false;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB, $APPLICATION;
 		$ID = intval($ID);
@@ -203,14 +208,14 @@ class CAllFilterLetter
 		return false;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB, $USER;
 		$ID = intval($ID);
 		return $DB->Query("DELETE FROM b_forum_letter WHERE ID=".$ID);
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		$res = array();
 		$res = CFilterLetter::GetList(array(), array("ID"=>$ID));
@@ -223,7 +228,7 @@ class CAllFilterLetter
 
 class CAllFilterUnquotableWords
 {
-	function CheckPattern($sPattern, &$sError)
+	public static function CheckPattern($sPattern, &$sError)
 	{
 		$arError = array();
 		$sDelimiter = mb_substr($sPattern, 0, 1);
@@ -253,7 +258,7 @@ class CAllFilterUnquotableWords
 		return false;
 	}
 
-	function CheckFields($action = "INSERT", $ID = false, $arFields = array())
+	public static function CheckFields($action = "INSERT", $ID = false, $arFields = array())
 	{
 		global $APPLICATION, $DB;
 		$arError = array();
@@ -305,7 +310,7 @@ class CAllFilterUnquotableWords
 		return false;
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 		if(CACHED_b_forum_filter !== false)
@@ -326,7 +331,7 @@ class CAllFilterUnquotableWords
 		return false;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 		$ID = intval($ID);
@@ -371,7 +376,7 @@ class CAllFilterUnquotableWords
 		return false;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB, $USER;
 		$ID = intval($ID);
@@ -380,14 +385,14 @@ class CAllFilterUnquotableWords
 		return $DB->Query("DELETE FROM b_forum_filter WHERE ID=".$ID);
 	}
 
-	function GetById($ID)
+	public static function GetById($ID)
 	{
 		$ID = intval($ID);
 		$res = CFilterUnquotableWords::GetList(array(), array("ID"=>$ID));
 		return $res->Fetch();
 	}
 
-	function GetFilterOperation($key)
+	public static function GetFilterOperation($key)
 	{
 		$strNegative = "N";
 		if (mb_substr($key, 0, 1) == "!")
@@ -433,7 +438,7 @@ class CAllFilterUnquotableWords
 		return array("FIELD"=>$key, "NEGATIVE"=>$strNegative, "OPERATION"=>$strOperation);
 	}
 
-	function GenPattern($ID=false, $DICTIONARY_ID_T=0)
+	public static function GenPattern($ID=false, $DICTIONARY_ID_T=0)
 	{
 		$DICTIONARY_ID_T = intval($DICTIONARY_ID_T);
 		if (!$DICTIONARY_ID_T)
@@ -450,7 +455,7 @@ class CAllFilterUnquotableWords
 		return false;
 	}
 
-	function GenPatternAll($DICTIONARY_ID_W=0, $DICTIONARY_ID_T=0)
+	public static function GenPatternAll($DICTIONARY_ID_W=0, $DICTIONARY_ID_T=0)
 	{
 		$DICTIONARY_ID_W = intval($DICTIONARY_ID_W);
 		$DICTIONARY_ID_T = intval($DICTIONARY_ID_T);
@@ -472,7 +477,7 @@ class CAllFilterUnquotableWords
 		return false;
 	}
 
-	function CreatePattern($pattern="", $DICTIONARY_ID=0)
+	public static function CreatePattern($pattern="", $DICTIONARY_ID=0)
 	{
 		$res = "";
 		$NotWord = "\s.,;:!?\#\-\*\|\[\]\(\)";
@@ -569,13 +574,12 @@ class CAllFilterUnquotableWords
 		return $res;
 	}
 
-
-	function FilterPerm()
+	public static function FilterPerm()
 	{
 		return CForumUser::IsAdmin();
 	}
 
-	function Filter($message)
+	public static function Filter($message)
 	{
 		global $USER, $DB, $CACHE_MANAGER, $APPLICATION;
 		static $arFilterPattern = array();
@@ -627,4 +631,3 @@ class CAllFilterUnquotableWords
 		return trim($message);
 	}
 }
-?>

@@ -12,8 +12,8 @@ Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/socialnetwork/i
 return array(
 	'js' => '/bitrix/js/socialnetwork/common/socialnetwork.common.js',
 	'css' => '/bitrix/js/socialnetwork/common/socialnetwork.common.css',
-	'rel' => array('popup'),
-	'lang_additional' => array(
+	'rel' => [ 'popup', 'intranet_theme_picker' ],
+	'lang_additional' => [
 		'USER_SONET_ADMIN' => (\CSocNetUser::isCurrentUserModuleAdmin() ? 'Y' : 'N'),
 		'USER_TO_GROUP_ROLE_OWNER' => UserToGroupTable::ROLE_OWNER,
 		'USER_TO_GROUP_ROLE_MODERATOR' => UserToGroupTable::ROLE_MODERATOR,
@@ -21,5 +21,5 @@ return array(
 		'USER_TO_GROUP_ROLE_REQUEST' => UserToGroupTable::ROLE_REQUEST,
 		'USER_TO_GROUP_INITIATED_BY_USER' => UserToGroupTable::INITIATED_BY_USER,
 		'USER_TO_GROUP_INITIATED_BY_GROUP' => UserToGroupTable::INITIATED_BY_GROUP
-	),
+	],
 );

@@ -19,7 +19,6 @@ $arParams["NAV_TEMPLATE"] = ($arParams["NAV_TEMPLATE"] <> '' ? $arParams["NAV_TE
 
 $arResult["~q"] = trim($_REQUEST["q"]);
 $arResult["~tags"] = trim($_REQUEST["tags"]);
-$arResult["~where"] = trim($_REQUEST["where"]);
 $arResult["~how"] = trim($_REQUEST["how"]);
 $arResult["~course"] = trim($_REQUEST["course"]);
 $arResult["q"] = htmlspecialcharsbx($arResult["~q"]);
@@ -41,16 +40,12 @@ $arFilter = array(
 	"CHECK_DATES"	=> "Y",
 	"TAGS" => $arResult["~tags"],
 );
-if($arResult["~where"] <> '' && in_array($arResult["~where"], array_keys($arResult["WHERE"]))) {
-	$arFilter["%ITEM_ID"]	= $arResult["~where"];
-}
-/*
-TODO: now, no course_id in PARAM1, it must be added firstly to search index, and after - uncomment it.
+
 if ($arParams["COURSE_ID"])
 {
-	$arFilter["PARAM1"] = "C".$arParams["COURSE_ID"];
+	$arFilter["PARAM2"] = "C".$arParams["COURSE_ID"];
 }
-*/
+
 if($arResult["~how"]=="d")
 	$aSort=array("DATE_CHANGE"=>"DESC", "CUSTOM_RANK"=>"DESC", "RANK"=>"DESC");
 else

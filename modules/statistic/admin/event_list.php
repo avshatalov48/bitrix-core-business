@@ -14,7 +14,7 @@ $lAdmin = new CAdminList($sTableID, $oSort);
 
 $arSites = array();
 $ref = $ref_id = array();
-$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 {
 	$ref[] = $ar["ID"];
@@ -40,7 +40,7 @@ if ($base_currency <> '')
 		$base_currency = GetStatisticBaseCurrency();
 		$view_currency = ($find_currency <> '' && $find_currency!="NOT_REF") ? $find_currency : $base_currency;
 		$arrCurrency = array();
-		$rsCur = CCurrency::GetList(($v1="sort"), ($v2="asc"));
+		$rsCur = CCurrency::GetList("sort", "asc");
 		$arrRefID = array();
 		$arrRef = array();
 		while ($arCur = $rsCur->Fetch())
@@ -135,7 +135,7 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT=="W")
 	if($_REQUEST['action_target'] == "selected")
 	{
 		$cData = new CStatEvent;
-		$rsData = $cData->GetList($by2, $order2, $arFilter, $is_filtered);
+		$rsData = $cData->GetList('', '', $arFilter);
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -162,7 +162,10 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT=="W")
 }
 
 $cData = new CStatEvent;
-$rsData = $cData->GetList($by, $order, $arFilter, $is_filtered);
+
+global $by, $order;
+
+$rsData = $cData->GetList($by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("STAT_EVENT_PAGES")));
@@ -339,7 +342,7 @@ endwhile;
 //Totals
 $arTotalFilter = $arFilter;
 $arTotalFilter["GROUP"]="total";
-$rsTotalData = $cData->GetList($by2, $order2, $arTotalFilter, $is_filtered2);
+$rsTotalData = $cData->GetList('', '', $arTotalFilter);
 $arTotal = $rsTotalData->Fetch();
 
 $arTotal["COUNTER"] = intval($arTotal["COUNTER"]);

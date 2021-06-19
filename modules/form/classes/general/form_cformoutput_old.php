@@ -75,7 +75,7 @@ class CFormOutput_old
 					{
 						if ($this->isAccessFormResult($arrResult))
 						{
-							$this->arrRESULT_PERMISSION = CFormResult::GetPermissions($this->RESULT_ID, $v);
+							$this->arrRESULT_PERMISSION = CFormResult::GetPermissions($this->RESULT_ID);
 
 							// check result rights
 							if (

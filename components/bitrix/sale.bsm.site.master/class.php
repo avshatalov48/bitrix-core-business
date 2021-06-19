@@ -17,7 +17,6 @@ require_once("tools/modulechecker.php");
 require_once("tools/bitrixvmchecker.php");
 require_once("tools/agentchecker.php");
 require_once("tools/pushchecker.php");
-require_once("tools/persontypepreparer.php");
 require_once("tools/sitepatcher.php");
 
 /**

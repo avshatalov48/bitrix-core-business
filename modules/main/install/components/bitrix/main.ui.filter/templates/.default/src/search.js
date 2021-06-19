@@ -226,8 +226,6 @@
 				{
 					this.lastPromise = Filter.getPreset().applyPinnedPreset();
 				}
-
-
 			}
 
 			if (squares.length > 1)
@@ -689,6 +687,15 @@
 					this.hideClearButton();
 					this.adjustPlaceholder();
 				}
+			}
+
+			if (this.parent.isAppliedUserFilter())
+			{
+				BX.Dom.addClass(this.container, 'main-ui-filter-search--active');
+			}
+			else
+			{
+				BX.Dom.removeClass(this.container, 'main-ui-filter-search--active');
 			}
 		},
 
@@ -1180,7 +1187,8 @@
 					}
 
 					case this.parent.types.CUSTOM_ENTITY :
-					case this.parent.types.DEST_SELECTOR : {
+					case this.parent.types.DEST_SELECTOR :
+					case this.parent.types.ENTITY_SELECTOR : {
 						if (current.MULTIPLE)
 						{
 							var label = !!current.VALUES._label ? current.VALUES._label : [];

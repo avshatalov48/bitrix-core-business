@@ -93,7 +93,10 @@ class AppConfiguration
 				'VERSION' => 1,
 				'ACTIVE' => 'Y',
 				'PLACEMENT' => [$code],
-				'USES' => [$code],
+				'USES' => [
+					$code,
+					'app',
+				],
 				'DISABLE_CLEAR_FULL' => 'Y',
 				'DISABLE_NEED_START_BTN' => 'Y',
 				'COLOR' => '#ff799c',
@@ -246,7 +249,7 @@ class AppConfiguration
 						$structure = new Configuration\Structure($context);
 						$structure->setArchiveName(\CUtil::translit(
 							trim($row['TITLE']),
-							LANGUAGE_ID,
+							'ru',
 							[
 								'replace_space' => '_',
 								'replace_other' => '_'

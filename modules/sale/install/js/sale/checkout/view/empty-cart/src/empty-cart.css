@@ -1,0 +1,18 @@
+.checkout-clear-page {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.checkout-clear-page-image-container {
+	margin-bottom: 57px;
+}
+
+.checkout-clear-page-description {
+	font: 23px/25px "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	text-align: center;
+	color: #A0A0A0;
+	margin-bottom: 57px;
+}

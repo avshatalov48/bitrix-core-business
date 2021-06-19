@@ -4,8 +4,7 @@
 	flex-direction: row;
 	position: relative;
 	width: 266px;
-	height: 95px;
-	padding: 10px;
+	padding: 14px 10px;
 	box-sizing: border-box;
 	border-radius: 1px;
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .09);
@@ -70,11 +69,9 @@
 	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-sarif, serif;
 	font-size: 14px;
 	color: #333333;
-	line-height: 32px;
+	line-height: 17px;
+	margin-bottom: 10px;
 	max-width: 99%;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
 }
 
 .landing-ui-panel-preset-text-description {

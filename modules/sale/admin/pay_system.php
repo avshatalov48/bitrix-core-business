@@ -74,7 +74,7 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 	if ($request->get('action_target')=='selected')
 	{
 		$ids = array();
-		$dbRes = \Bitrix\Sale\Internals\PaySystemActionTable::getList(
+		$dbRes = \Bitrix\Sale\PaySystem\Manager::getList(
 			array(
 				'select' => array('ID'),
 				'filter' => $filter,
@@ -119,7 +119,7 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 					"ACTIVE" => (($_REQUEST['action'] == 'activate') ? 'Y' : 'N')
 				);
 
-				$result = \Bitrix\Sale\Internals\PaySystemActionTable::update($id, $arFields);
+				$result = \Bitrix\Sale\PaySystem\Manager::update($id, $arFields);
 				if (!$result->isSuccess())
 				{
 					if ($result->getErrorMessages())
@@ -152,7 +152,7 @@ global $by, $order;
 if (isset($by) && ToUpper($by) != 'LID' && ToUpper($by) != 'CURRENCY')
 	$params['order'] = array(ToUpper($by) => ToUpper($order));
 
-$dbRes = \Bitrix\Sale\Internals\PaySystemActionTable::getList($params);
+$dbRes = \Bitrix\Sale\PaySystem\Manager::getList($params);
 
 $result = array();
 

@@ -89,8 +89,8 @@ if ((!empty($_REQUEST["ID"]) || !empty($_REQUEST["answer_id"])) && check_bitrix_
 				$bExtranetInstalled = true;
 			}
 			$db_res = CUser::GetList(
-				($by = "ID"),
-				($order = "ASC"),
+				"ID",
+				"ASC",
 				array("ID" => implode("|", $_REQUEST["ID"])),
 				$arSelect
 			);

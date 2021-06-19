@@ -1,7 +1,8 @@
-<?
+<?php
+
 class WizardServices
 {
-	function PatchHtaccess($path)
+	public static function PatchHtaccess($path)
 	{
 		if (mb_strtoupper(mb_substr(PHP_OS, 0, 3)) === "WIN")
 		{
@@ -34,7 +35,7 @@ class WizardServices
 		}
 	}
 
-	function GetTemplates($relativePath)
+	public static function GetTemplates($relativePath)
 	{
 		$absolutePath = $_SERVER["DOCUMENT_ROOT"].$relativePath;
 		$absolutePath = str_replace("\\", "/", $absolutePath);
@@ -84,11 +85,13 @@ class WizardServices
 
 		closedir($handle);
 
-		uasort($arWizardTemplates, create_function('$a, $b', 'return strcmp($a["SORT"], $b["SORT"]);'));
+		uasort($arWizardTemplates, function ($a, $b) {
+			return strcmp($a["SORT"], $b["SORT"]);
+		});
 		return $arWizardTemplates;
 	}
 
-	function GetTemplatesPath($path)
+	public static function GetTemplatesPath($path)
 	{
 		$templatesPath = $path."/templates";
 
@@ -98,7 +101,7 @@ class WizardServices
 		return $templatesPath;
 	}
 
-	function GetServices($wizardPath, $serviceFolder = "", $arFilter = Array())
+	public static function GetServices($wizardPath, $serviceFolder = "", $arFilter = Array())
 	{
 		$arServices = Array();
 
@@ -155,7 +158,7 @@ class WizardServices
 		return $arServices;
 	}
 
-	function IncludeServiceLang($relativePath, $lang = false, $bReturnArray = false)
+	public static function IncludeServiceLang($relativePath, $lang = false, $bReturnArray = false)
 	{
 		if($lang === false)
 			$lang = LANGUAGE_ID;
@@ -196,11 +199,11 @@ class WizardServices
 		return $arMessages;
 	}
 
-	function GetCurrentSiteID($selectedSiteID = null)
+	public static function GetCurrentSiteID($selectedSiteID = null)
 	{
 		if ($selectedSiteID <> '')
 		{
-			$obSite = CSite::GetList($by = "def", $order = "desc", Array("LID" => $selectedSiteID));
+			$obSite = CSite::GetList("def", "desc", Array("LID" => $selectedSiteID));
 			if (!$arSite = $obSite->Fetch())
 				$selectedSiteID = null;
 		}
@@ -211,7 +214,7 @@ class WizardServices
 			$currentSiteID = SITE_ID;
 			if (defined("ADMIN_SECTION"))
 			{
-				$obSite = CSite::GetList($by = "def", $order = "desc", Array("ACTIVE" => "Y"));
+				$obSite = CSite::GetList("def", "desc", Array("ACTIVE" => "Y"));
 				if ($arSite = $obSite->Fetch())
 					$currentSiteID = $arSite["LID"];
 			}
@@ -219,7 +222,7 @@ class WizardServices
 		return $currentSiteID;
 	}
 
-	function GetThemes($relativePath)
+	public static function GetThemes($relativePath)
 	{
 		$arThemes = Array();
 
@@ -285,11 +288,13 @@ class WizardServices
 			@closedir($handle);
 		}
 
-		uasort($arThemes, create_function('$a, $b', 'return strcmp($a["SORT"], $b["SORT"]);'));
+		uasort($arThemes, function ($a, $b) {
+			return strcmp($a["SORT"], $b["SORT"]);
+		});
 		return $arThemes;
 	}
 
-	function SetFilePermission($path, $permissions)
+	public static function SetFilePermission($path, $permissions)
 	{
 		$originalPath = $path;
 
@@ -327,7 +332,7 @@ class WizardServices
 		return $GLOBALS["APPLICATION"]->SetFileAccessPermission($originalPath, $arPermisson);
 	}
 
-	function AddMenuItem($menuFile, $menuItem,  $siteID, $pos = -1)
+	public static function AddMenuItem($menuFile, $menuItem,  $siteID, $pos = -1)
 	{
 		if (CModule::IncludeModule('fileman'))
 		{
@@ -357,12 +362,12 @@ class WizardServices
 		}
 	}
 
-	function CopyFile($fileFrom, $fileTo)
+	public static function CopyFile($fileFrom, $fileTo)
 	{
 		CopyDirFiles($_SERVER['DOCUMENT_ROOT'].$fileFrom, $_SERVER['DOCUMENT_ROOT'].$fileTo, false, true);
 	}
 
-	function ImportIBlockFromXML($xmlFile, $iblockCode, $iblockType, $siteID, $permissions = Array())
+	public static function ImportIBlockFromXML($xmlFile, $iblockCode, $iblockType, $siteID, $permissions = Array())
 	{
 		if (!CModule::IncludeModule("iblock"))
 			return false;
@@ -409,11 +414,8 @@ class WizardServices
 	}
 
 
-	function SetIBlockFormSettings($iblockID, $settings)
+	public static function SetIBlockFormSettings($iblockID, $settings)
 	{
-		global $DBType;
-		require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/".mb_strtolower($DBType)."/favorites.php");
-
 		CUserOptions::SetOption(
 			"form",
 			"form_element_".$iblockID,
@@ -422,11 +424,8 @@ class WizardServices
 		);
 	}
 
-	function SetUserOption($category, $option, $settings, $common = false, $userID = false)
+	public static function SetUserOption($category, $option, $settings, $common = false, $userID = false)
 	{
-		global $DBType;
-		require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/".mb_strtolower($DBType)."/favorites.php");
-
 		CUserOptions::SetOption(
 			$category,
 			$option,
@@ -436,7 +435,7 @@ class WizardServices
 		);
 	}
 
-	function CreateSectionProperty($iblockID, $fieldCode, $arFieldName = Array())
+	public static function CreateSectionProperty($iblockID, $fieldCode, $arFieldName = Array())
 	{
 		$entityID = "IBLOCK_".$iblockID."_SECTION";
 
@@ -459,9 +458,8 @@ class WizardServices
 		return $fieldID;
 	}
 
-	function ReplaceMacrosRecursive($filePath, $arReplace)
+	public static function ReplaceMacrosRecursive($filePath, $arReplace)
 	{
 		CWizardUtil::ReplaceMacrosRecursive($filePath, $arReplace);
 	}
 }
-?>

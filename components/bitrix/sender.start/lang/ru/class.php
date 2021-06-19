@@ -1,3 +1,4 @@
 <?
 $MESS["SENDER_START_TITLE"] = "Старт";
+$MESS["SENDER_CRM_MARKETING_TITLE"] = "CRM-маркетинг";
 ?>

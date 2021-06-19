@@ -36,7 +36,7 @@
 		A:link { color: #336699; font-weight: bold; text-decoration: underline; }
 		A:visited { color: #6699cc; font-weight: bold; text-decoration: underline; }
 		A:active { color: #336699; font-weight: bold; text-decoration: underline; }
-		A:hover { color: cc3300; font-weight: bold; text-decoration: underline; }
+		A:hover { color: #cc3300; font-weight: bold; text-decoration: underline; }
 		P { color: #000000; margin-top: 0px; margin-bottom: 12px; font-family: Verdana; }
 		pre { background-color: #e5e5cc; padding: 5px; font-family: Courier New; font-size: x-small; margin-top: -5px; border: 1px #f0f0e0 solid; }
 		td { color: #000000; font-family: Verdana; font-size: .7em; }
@@ -119,7 +119,6 @@ if (in_array("TestComponent", get_class_methods($wsClass)) or
 				$methodDeclared = "";
 				if (isset($params["output"]))
 				{
-					reset($params['output']);
 					if (count($params['output']) > 1)
 					{
 						$first = true;
@@ -134,18 +133,18 @@ if (in_array("TestComponent", get_class_methods($wsClass)) or
 							$methodDeclared .= "&nbsp;&nbsp;&nbsp;&nbsp;";
 							$methodDeclared .= $pname;
 							if (isset($pparam["arrType"])) $methodDeclared .= "[]";
-							$methodDeclared .= ": <i>{$pparam[varType]}</i>";
+							$methodDeclared .= ": <i>{$pparam["varType"]}</i>";
 							//$methodDeclared .= " ";
 						}
 						$methodDeclared .= "<br />}<br />";
 					}
 					else
 					{
-						list($pname, $pparam) = each($params['output']);
-						//foreach ($params["output"] as $pname => $pparam) break;
+						$pname = key($params['output']);
+						$pparam = current($params['output']);
 						$methodDeclared .= $pname;
 						if (isset($pparam["arrType"])) $methodDeclared .= "[]";
-						$methodDeclared .= ": <i>{$pparam[varType]}</i>";
+						$methodDeclared .= ": <i>{$pparam["varType"]}</i>";
 						$methodDeclared .= " ";
 					}
 				}
@@ -164,7 +163,7 @@ if (in_array("TestComponent", get_class_methods($wsClass)) or
 						if (isset($pparam["arrType"])) $methodDeclared .= "[]";
 						$methodDeclared .= ", ";
 					}
-					$methodDeclared = substr($methodDeclared, 0, strlen($methodDeclared) - 2);
+					$methodDeclared = mb_substr($methodDeclared, 0, mb_strlen($methodDeclared) - 2);
 				}
 				$methodDeclared .= ");</a>";
 				//$methodDeclared .= "</u>";

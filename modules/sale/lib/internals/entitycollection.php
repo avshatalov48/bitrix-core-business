@@ -38,6 +38,7 @@ abstract class EntityCollection
 
 	/**
 	 * @throws Main\NotImplementedException
+	 * @return string
 	 */
 	public static function getRegistryType()
 	{

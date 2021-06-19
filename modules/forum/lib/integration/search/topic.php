@@ -18,7 +18,7 @@ class Topic extends \Bitrix\Main\Update\Stepper
 	function execute(array &$option)
 	{
 		$res = Option::get("forum", "search.reindex.topic", "");
-		$res = empty($res) ? [] : unserialize($res);
+		$res = empty($res) ? [] : unserialize($res, ["allowed_classes" => false]);
 		if (empty($res) || !is_array($res) || !\Bitrix\Main\Loader::includeModule("search"))
 		{
 			return self::FINISH_EXECUTION;
@@ -103,7 +103,7 @@ class Topic extends \Bitrix\Main\Update\Stepper
 	{
 		$res = Option::get("forum", "search.reindex.topic", "");
 		if (!empty($res))
-			$res = unserialize($res);
+			$res = unserialize($res, ["allowed_classes" => false]);
 		$res = is_array($res) ? $res : [];
 		$res[$topicId] = [
 			"reindexFirst" => true
@@ -116,7 +116,7 @@ class Topic extends \Bitrix\Main\Update\Stepper
 	{
 		$res = Option::get("forum", "search.reindex.topic", "");
 		if (!empty($res))
-			$res = unserialize($res);
+			$res = unserialize($res, ["allowed_classes" => false]);
 		$res = is_array($res) ? $res : [];
 		$res[$topicId] = [];
 		Option::set("forum", "search.reindex.topic", serialize($res));

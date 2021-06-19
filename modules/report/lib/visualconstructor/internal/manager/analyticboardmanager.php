@@ -58,4 +58,9 @@ class AnalyticBoardManager extends Base
 		}
 		return self::$analyticBoardList;
 	}
+
+	public function clearCache()
+	{
+		self::$analyticBoardList = [];
+	}
 }

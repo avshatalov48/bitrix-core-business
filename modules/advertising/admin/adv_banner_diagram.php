@@ -7,10 +7,11 @@
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
+use Bitrix\Main\Loader;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/prolog.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/include.php");
+Loader::includeModule('advertising');
 
 $isAdmin = CAdvContract::IsAdmin();
 $isDemo = CAdvContract::IsDemo();
@@ -28,13 +29,13 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 							Обработка GET | POST
 ****************************************************************************/
 $strError = '';
-$rsContracts = CAdvContract::GetList($v1="s_sort", $v2="desc", array(), $v3);
+$rsContracts = CAdvContract::GetList("s_sort", "desc");
 $group_ref = array();
 $group_ref_id = array();
 $banner_ref = array();
 $banner_ref_id = array();
 
-$rsBanns = CAdvBanner::GetList($v1="s_dropdown", $v2="desc", array(), $v3);
+$rsBanns = CAdvBanner::GetList("s_dropdown", "desc");
 while ($arBann = $rsBanns->Fetch())
 {
 	$banner_ref_id[] = $arBann["ID"];
@@ -52,7 +53,7 @@ while ($arBann = $rsBanns->Fetch())
 }
 if(empty($banner_ref))
 	$strError = GetMessage("ADV_NO_BANNERS_FOR_DIAGRAM");
-	
+
 $man = false;
 if ((!isset($_SESSION["SESS_ADMIN"]["AD_STAT_BANNER_DIAGRAM"]) || empty($_SESSION["SESS_ADMIN"]["AD_STAT_BANNER_DIAGRAM"])) && $find_date1 == '' && $find_date2 == '' && !is_array($find_banner_id) && !is_array($find_what_show))
 {
@@ -69,9 +70,9 @@ $FilterArr = Array(
 	"find_banner_id",
 	"find_what_show"
 	);
-if ($set_filter <> '' || $man) 
-	InitFilterEx($FilterArr,"AD_STAT_BANNER_DIAGRAM","set",true); 
-else 
+if ($set_filter <> '' || $man)
+	InitFilterEx($FilterArr,"AD_STAT_BANNER_DIAGRAM","set",true);
+else
 	InitFilterEx($FilterArr,"AD_STAT_BANNER_DIAGRAM","get",true);
 if ($del_filter <> '') DelFilterEx($FilterArr,"AD_STAT_LIST",true);
 
@@ -107,7 +108,7 @@ $FilterFields = Array(
 $FilterFields[] = GetMessage("AD_F_BANNERS");
 if (count($group_ref_id)>0)
 	$FilterFields[] = GetMessage("AD_F_GROUPS");
-	
+
 $filter = new CAdminFilter(
 	$sTableID."_filter_id",
 	$FilterFields
@@ -179,15 +180,14 @@ elseif (count($arrLegend)>0) :
 
 	// Диаграммы по баннерам
 	if ($find_banner_summa!="Y" && count($find_banner_id)>1) :
-	
+
 		$diagram_type = "BANNER";
-	
+
 		$sum_ctr = 0;
 		$sum_show = 0;
 		$sum_click = 0;
 		$sum_visitor = 0;
-		reset($arrLegend);
-		while(list($keyL, $arrS) = each($arrLegend))
+		foreach ($arrLegend as $keyL => $arrS)
 		{
 			if ($arrS["COUNTER_TYPE"]=="DETAIL" && $arrS["TYPE"]==$diagram_type)
 			{
@@ -197,9 +197,9 @@ elseif (count($arrLegend)>0) :
 				$sum_visitor += $arrS["VISITOR"];
 			}
 		}
-	
+
 		if ($sum_show>0 || $sum_click>0 || $sum_ctr>0 || $sum_visitor>0) :
-	
+
 			if (!function_exists("ImageCreate")) :
 				echo CAdminMessage::ShowMessage(GetMessage("AD_GD_NOT_INSTALLED")."<br>");
 			else :
@@ -215,12 +215,12 @@ elseif (count($arrLegend)>0) :
 						$aTabs[] = array("DIV"=>"ttttab".$i, "TAB"=>GetMessage("AD_".$counter_type."_DIAGRAM"), "TITLE"=>GetMessage("AD_BANNER_DIAGRAM_TITLE"));
 					}
 				}
-	
+
 				reset($arShow);
 				$viewTabBanner = new CAdminViewTabControl("viewTabBanner", $aTabs);
 				if(count($aTabs)>0)
 					$viewTabBanner->Begin();
-	
+
 				foreach($arShow as $ctype) :
 					$counter_type = mb_strtoupper($ctype);
 					if (${"sum_".mb_strtolower($ctype)}>0):
@@ -228,15 +228,14 @@ elseif (count($arrLegend)>0) :
 					?>
 					<div class="graph">
 					<table cellspacing=0 cellpadding=0 class="graph">
-	
+
 						<tr>
 							<td valign="top"><img class="graph" src="/bitrix/admin/adv_diagram.php?<?=GetFilterParams($FilterArr)?>&diagram_type=<?echo $diagram_type?>&counter_type=<?echo $counter_type?>" width="<?echo $diameter?>" height="<?echo $diameter?>"></td>
 							<td valign="top">
 								<table cellpadding=0 cellspacing=0 border=0 class="legend">
 									<?
 									$i=0;
-									reset($arrLegend);
-									while(list($keyL, $arrS) = each($arrLegend)) :
+									foreach ($arrLegend as $keyL => $arrS) :
 										if ($arrS["COUNTER_TYPE"]=="DETAIL" && $arrS["TYPE"]==$diagram_type):
 											$i++;
 											$counter = $arrS[$counter_type];
@@ -256,7 +255,7 @@ elseif (count($arrLegend)>0) :
 									</tr>
 									<?
 										endif;
-									endwhile;
+									endforeach;
 									?>
 								</table>
 							</td>
@@ -274,16 +273,15 @@ elseif (count($arrLegend)>0) :
 	endif;
 
 	// Диаграммы по группам
-	if ($find_group_summa!="Y" && count($find_group_sid)>1) :
-	
+	if ($find_group_summa!="Y" && isset($find_group_sid) && is_array($find_group_sid) && count($find_group_sid) > 1):
+
 		$diagram_type = "GROUP";
-	
+
 		$sum_ctr = 0;
 		$sum_show = 0;
 		$sum_click = 0;
 		$sum_visitor = 0;
-		reset($arrLegend);
-		while(list($keyL, $arrS) = each($arrLegend))
+		foreach ($arrLegend as $keyL => $arrS)
 		{
 			if ($arrS["COUNTER_TYPE"]=="DETAIL" && $arrS["TYPE"]==$diagram_type)
 			{
@@ -293,9 +291,9 @@ elseif (count($arrLegend)>0) :
 				$sum_visitor += $arrS["VISITOR"];
 			}
 		}
-	
+
 		if ($sum_show>0 || $sum_click>0 || $sum_ctr>0 || $sum_visitor>0) :
-	
+
 			if (!function_exists("ImageCreate")) :
 				echo CAdminMessage::ShowMessage(GetMessage("AD_GD_NOT_INSTALLED")."<br>");
 			else :
@@ -311,12 +309,12 @@ elseif (count($arrLegend)>0) :
 						$aTabs[] = array("DIV"=>"tttab".$i, "TAB"=>GetMessage("AD_".$counter_type."_DIAGRAM"), "TITLE"=>GetMessage("AD_GROUP_DIAGRAM_TITLE"));
 					}
 				}
-	
+
 				reset($arShow);
 				$viewTabGroup = new CAdminViewTabControl("viewTabGroup", $aTabs);
 				if(count($aTabs)>0)
 					$viewTabGroup->Begin();
-	
+
 				foreach($arShow as $ctype) :
 					$counter_type = mb_strtoupper($ctype);
 					if (in_array($ctype, $arShow) && ${"sum_".$ctype}>0):
@@ -330,8 +328,7 @@ elseif (count($arrLegend)>0) :
 									<table cellpadding=0 cellspacing=0 border=0 class="legend">
 										<?
 										$i=0;
-										reset($arrLegend);
-										while(list($keyL, $arrS) = each($arrLegend)) :
+										foreach ($arrLegend as $keyL => $arrS) :
 											if ($arrS["COUNTER_TYPE"]=="DETAIL" && $arrS["TYPE"]==$diagram_type):
 											$i++;
 											$counter = $arrS[$counter_type];
@@ -350,7 +347,7 @@ elseif (count($arrLegend)>0) :
 										</tr>
 										<?
 											endif;
-										endwhile;
+										endforeach;
 										?>
 									</table>
 								</td>

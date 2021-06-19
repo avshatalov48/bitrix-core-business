@@ -96,6 +96,18 @@ a.ui-label:not(.ui-label-fill):hover,
 	--ui-label-background-color-hover: #19d2c8;
 }
 
+.ui-label-lightgreen {
+	--ui-label-background-color: #E4F5C8;
+	--ui-label-background-color-hover: #E4F5C8;
+	--ui-label-color: #589308;
+}
+
+.ui-label-lightblue {
+	--ui-label-background-color: rgba(47, 198, 246, 0.15);
+	--ui-label-background-color-hover: rgba(47, 198, 246, 0.15);
+	--ui-label-color: #1097C2;
+}
+
 .ui-label-light {
 	--ui-label-background-color: rgba(168, 173, 180, 0.24);
 	--ui-label-background-color-hover: rgba(168, 173, 180, 0.91);

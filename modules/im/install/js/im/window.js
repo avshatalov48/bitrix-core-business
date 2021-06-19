@@ -193,6 +193,20 @@
 		{
 			BX.addCustomEvent(window, "onLocalStorageSet", BX.delegate(this.storageSet, this));
 		}
+
+		/*
+		['exit', 'search','mail','account','exit','disk','storage'].forEach(icon => {
+			BX.MessengerWindow.addTab({
+				id: icon,
+				title: icon,
+				target: false,
+				events: {
+					open: () => {}
+				}
+			});
+		});
+		 */
+
 		if (BX.MessengerCommon.isDesktop())
 		{
 			BX.MessengerWindow.addTab({
@@ -380,13 +394,15 @@
 
 	MessengerWindow.prototype.addTab = function (params)
 	{
-		if (!params || !params.id || !params.title)
+		if (!params || !params.id)
 			return false;
 
 		if (!params.order)
 			params.order = 500;
 
-		params.hide = params.hide? true: false;
+		params.title = params.title || '';
+		params.hide = !!params.hide;
+		params.toggleEnable = params.toggleEnable !== false;
 
 		if (parseInt(params.badge) > 0)
 		{
@@ -486,11 +502,6 @@
 			}
 		}
 
-		if (BX.desktop && BX.desktop.apiReady)
-		{
-			BX.desktop.updateTabBadge();
-		}
-
 		return true;
 	}
 
@@ -504,9 +515,20 @@
 		}
 		else
 		{
+			var counterLabel = (params.badge > 99? '99+': params.badge);
+			var counterType = 'digits';
+			if (counterLabel.toString().length === 2)
+			{
+				counterType = 'dozens';
+			}
+			else if (counterLabel.toString().length > 2)
+			{
+				counterType = 'hundreds';
+			}
+
 			this.contentTab.appendChild(
 				BX.create('div', { attrs : { 'data-id' : params.id, id: 'bx-desktop-tab-'+params.id, title: params.title}, props : { className : "bx-desktop-tab bx-desktop-tab-"+params.id+(this.currentTab == params.id? ' bx-desktop-tab-active': '')+(params.hide? ' bx-desktop-tab-hide': '') }, children: [
-					BX.create('span', { props : { className : "bx-desktop-tab-counter" }, html: params.badge > 0? '<span class="bx-desktop-tab-counter-digit">'+(params.badge > 50? '50+': params.badge)+'</span>': ''}),
+					BX.create('span', { props : { className : "bx-desktop-tab-counter" }, html: params.badge > 0? '<span class="bx-desktop-tab-counter-digit" data-counter-type="'+counterType+'" >'+counterLabel+'</span>': ''}),
 					BX.create('div', { props : { className : "bx-desktop-tab-icon bx-desktop-tab-icon-"+params.id }})
 				]})
 			);
@@ -538,7 +560,7 @@
 
 		this.content.innerHTML = '';
 		this.content.appendChild(
-			this.contentBox = BX.create("div", { props : { className : 'bx-desktop-appearance '+(this.BXIM.settings.enableDarkTheme? 'bx-messenger-dark': '')}, style: {minHeight: this.minHeight+'px'}, children: [
+			this.contentBox = BX.create("div", { props : { className : 'bx-desktop-appearance '+(BX.MessengerTheme.isDark()? 'bx-messenger-dark': '')}, style: {minHeight: this.minHeight+'px'}, children: [
 				this.contentMenu = BX.create("div", { props : { className : 'bx-desktop-appearance-menu'}, children: [
 					this.contentAvatar = BX.create("div", { props : { className : 'bx-desktop-appearance-avatar'}}),
 					this.contentTab = BX.create("div", { props : { className : 'bx-desktop-appearance-tab'}})
@@ -614,6 +636,14 @@
 
 			if (fireEvent && !skipFireEvent)
 			{
+				if (
+					this.lastTab === this.currentTab
+					&& !this.tabItems[this.lastTab].toggleEnable
+				)
+				{
+					return false;
+				}
+
 				if (this.tabItems[this.lastTab])
 				{
 					this.tabItems[this.lastTab].events.close();
@@ -667,20 +697,24 @@
 		value = parseInt(value);
 		this.tabItems[tabId].badge = value>0? value: 0;
 
-		if (value > 50)
-			value = '50+';
-
 		if (BX('bx-desktop-tab-'+tabId))
 		{
 			var counter = BX.findChild(BX('bx-desktop-tab-'+tabId), {className : "bx-desktop-tab-counter"}, true);
 			if (counter)
-				counter.innerHTML = value? '<span class="bx-desktop-tab-counter-digit">'+value+'</span>': '';
+			{
+				var counterLabel = (value > 99? '99+': value);
+				var counterType = 'digits';
+				if (counterLabel.toString().length === 2)
+				{
+					counterType = 'dozens';
+				}
+				else if (counterLabel.toString().length > 2)
+				{
+					counterType = 'hundreds';
+				}
+				counter.innerHTML = value? '<span class="bx-desktop-tab-counter-digit"  data-counter-type="'+counterType+'">'+counterLabel+'</span>': '';
+			}
 		}
-
-		//if (BX.desktop && BX.desktop.apiReady)
-		//{
-		//	BX.desktop.updateTabBadge();
-		//}
 	}
 
 	MessengerWindow.prototype.setTabContent = function (tabId, content)
@@ -757,7 +791,7 @@
 		this.contentAvatar.innerHTML = '';
 		this.contentAvatar.appendChild(
 			BX.create('a', { attrs : { href : this.userInfo.profile, title : BX.util.htmlspecialcharsback(this.userInfo.name), target: "_blank", "data-slider-ignore-autobinding": "true" }, props : { className : "bx-desktop-avatar" }, events: events, children: [
-				BX.create('img', { attrs : { src : this.userInfo.avatar, style: (BX.MessengerCommon.isBlankAvatar(this.userInfo.avatar)? 'background-color: '+this.userInfo.color: '')}, props : { className : "bx-desktop-avatar-img bx-desktop-avatar-img-default" }})
+				BX.create('span', { attrs : { style: (BX.MessengerCommon.getAvatarStyle(this.userInfo, true))}, props : { className : "bx-desktop-avatar-img"+(BX.MessengerCommon.isBlankAvatar(this.userInfo.avatar)? ' bx-desktop-avatar-img-default': '') }})
 			]})
 		);
 

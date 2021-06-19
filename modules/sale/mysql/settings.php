@@ -1,9 +1,10 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/settings.php");
 
 class CSaleGroupAccessToSite extends CAllSaleGroupAccessToSite
 {
-	function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB, $USER;
 
@@ -95,7 +96,7 @@ class CSaleGroupAccessToSite extends CAllSaleGroupAccessToSite
 		return $dbRes;
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -117,7 +118,7 @@ class CSaleGroupAccessToSite extends CAllSaleGroupAccessToSite
 
 class CSaleGroupAccessToFlag extends CAllSaleGroupAccessToFlag
 {
-	function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB, $USER;
 
@@ -209,7 +210,7 @@ class CSaleGroupAccessToFlag extends CAllSaleGroupAccessToFlag
 		return $dbRes;
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -228,4 +229,3 @@ class CSaleGroupAccessToFlag extends CAllSaleGroupAccessToFlag
 		return $ID;
 	}
 }
-?>

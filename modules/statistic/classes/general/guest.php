@@ -1,7 +1,7 @@
 <?php
 class CAllGuest
 {
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetList($by = 's_last_date', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -58,11 +58,11 @@ class CAllGuest
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -287,13 +287,12 @@ class CAllGuest
 		elseif ($by == "s_last_city_id")	$strSqlOrder = "ORDER BY G.LAST_CITY_ID";
 		else
 		{
-			$by = "s_last_date";
 			$strSqlOrder = "ORDER BY ".CStatistics::DBFirstDate("G.LAST_DATE");
 		}
+
 		if ($order!="asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 
 		$strSqlGroup = $bGroup? "GROUP BY ".implode(", ", array_keys($arrGroup)): "";
@@ -328,7 +327,7 @@ class CAllGuest
 		";
 
 		$res = $DB->Query(CStatistics::DBTopSql($strSql), false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 

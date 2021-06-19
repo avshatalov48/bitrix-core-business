@@ -27,12 +27,12 @@ export default class StageField extends BaseField
 	{
 		return this.cache.remember('categoriesDropdown', () => {
 			return new BX.Landing.UI.Field.Dropdown({
-				title: Loc.getMessage('LANDING_FORM_SETTINGS_CATEGORIES_FIELD_TITLE'),
+				title: this.options.listTitle || Loc.getMessage('LANDING_FORM_SETTINGS_CATEGORIES_FIELD_TITLE'),
 				content: this.options.value.category,
 				items: this.options.categories.map((category) => {
 					return {
-						name: category.NAME,
-						value: category.ID,
+						name: category.NAME || category.name,
+						value: category.ID || category.id,
 					};
 				}),
 				onChange: this.onCategoryChange.bind(this),
@@ -45,7 +45,7 @@ export default class StageField extends BaseField
 		const currentCategoryId = this.getCategoriesDropdown().getValue();
 
 		return this.options.categories.find((category) => {
-			return String(category.ID) === String(currentCategoryId);
+			return String(category.ID || category.id) === String(currentCategoryId);
 		});
 	}
 
@@ -67,14 +67,14 @@ export default class StageField extends BaseField
 	getStagesDropdown(): BX.Landing.UI.Field.Dropdown
 	{
 		return this.cache.remember('stagesDropdown', () => {
-			const stages = this.getCurrentCategory().STAGES;
+			const stages = this.getCurrentCategory().STAGES || this.getCurrentCategory().stages;
 
 			return new BX.Landing.UI.Field.Dropdown({
-				title: Loc.getMessage('LANDING_FORM_SETTINGS_STAGES_FIELD_TITLE'),
+				title: this.options.listTitle || Loc.getMessage('LANDING_FORM_SETTINGS_STAGES_FIELD_TITLE'),
 				items: stages.map((stage) => {
 					return {
-						name: stage.NAME,
-						value: stage.ID,
+						name: stage.NAME || stage.name,
+						value: stage.ID || stage.id,
 					};
 				}),
 			});

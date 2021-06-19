@@ -625,8 +625,10 @@ class CBitrixComponent
 		if ($parentComponent instanceof cbitrixcomponent)
 			$this->__parent = $parentComponent;
 
-		if ($arParams["CACHE_TYPE"] != "Y" && $arParams["CACHE_TYPE"] != "N")
+		if (!isset($arParams["CACHE_TYPE"]) || ($arParams["CACHE_TYPE"] != "Y" && $arParams["CACHE_TYPE"] != "N"))
+		{
 			$arParams["CACHE_TYPE"] = "A";
+		}
 
 		if($this->classOfComponent)
 		{
@@ -1349,13 +1351,13 @@ class CBitrixComponent
 		if (!is_array($arParams))
 			$arParams = array();
 
-		if (!$arParams['WINDOW'])
+		if (!($arParams['WINDOW'] ?? null))
 			$arParams['WINDOW'] = array(
 				"width" => 780,
 				"height" => 500,
 			);
 
-		if (!$arParams['ICON'] && !$arParams['SRC'] && !$arParams['IMAGE'])
+		if (!($arParams['ICON'] ?? '') && !($arParams['SRC'] ?? '') && !($arParams['IMAGE'] ?? ''))
 			$arParams['ICON'] = 'bx-context-toolbar-edit-icon';
 
 		$arBtn = array(
@@ -1407,7 +1409,7 @@ class CBitrixComponent
 		if (!is_array($arParams))
 			$arParams = array();
 
-		if (!$arParams['ICON'] && !$arParams['SRC'] && !$arParams['IMAGE'])
+		if (!($arParams['ICON'] ?? '') && !($arParams['SRC'] ?? '') && !($arParams['IMAGE'] ?? ''))
 			$arParams['ICON'] = 'bx-context-toolbar-delete-icon';
 
 		if (mb_substr($deleteLink, 0, 11) != 'javascript:')

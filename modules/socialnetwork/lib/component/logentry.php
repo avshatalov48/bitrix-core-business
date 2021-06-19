@@ -211,15 +211,20 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 			}
 
 			$commentsList = $commentSourceIdList = [];
-			while($commentFields = $res->getNext())
+			while ($commentFields = $res->getNext())
 			{
+				if (!empty($commentFields['SHARE_DEST']))
+				{
+					$commentFields['SHARE_DEST'] = htmlspecialcharsback($commentFields['SHARE_DEST']);
+				}
+
 				if (defined('BX_COMP_MANAGED_CACHE'))
 				{
 					$CACHE_MANAGER->registerTag('USER_NAME_'.(int)$commentFields['USER_ID']);
 				}
 
 				$commentFields['UF'] = $usetFieldsMetaData;
-				foreach($usetFieldsMetaData as $fieldName => $userFieldData)
+				foreach ($usetFieldsMetaData as $fieldName => $userFieldData)
 				{
 					if (array_key_exists($fieldName, $commentFields))
 					{

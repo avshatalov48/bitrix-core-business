@@ -720,6 +720,10 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 					"id" => "COUNT_CLICK",
 					"name" => Loc::getMessage('SENDER_LETTER_LIST_COMP_UI_COLUMN_COUNT_CLICK'),
 				];
+				$result[] = [
+					"id" => "COUNT_UNSUB",
+					"name" => Loc::getMessage('SENDER_LETTER_LIST_COMP_UI_COLUMN_COUNT_UNSUB'),
+				];
 			}
 			else
 			{

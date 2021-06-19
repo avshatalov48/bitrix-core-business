@@ -26,8 +26,9 @@ class Text
 			"IMG" => "N",
 			"QUOTE" => "N",
 			"CODE" => "N",
-			"FONT" => "N",
+			"FONT" => $params["FONT"] === "Y" ? "Y": "N",
 			"LIST" => "N",
+			"SPOILER" => "N",
 			"SMILES" => $params['SMILES'] == 'N'? 'N': 'Y',
 			"EMOJI" => "Y",
 			"NL2BR" => "Y",
@@ -50,6 +51,10 @@ class Text
 			$parser->maxAnchorLength = intval($params['LINK_LIMIT'])? $params['LINK_LIMIT']: 55;
 			$parser->maxStringLen = intval($params['TEXT_LIMIT']);
 			$parser->allow = $allowTags;
+			if ($params['LINK_TARGET_SELF'] === 'Y')
+			{
+				$parser->link_target = "_self";
+			}
 
 			self::$parsers[$parseId] = $parser;
 		}

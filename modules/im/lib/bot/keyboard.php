@@ -213,7 +213,7 @@ class Keyboard
 
 	public function getJson()
 	{
-		$result = \Bitrix\Main\Web\Json::encode($this->buttons);
+		$result = \Bitrix\Im\Common::jsonEncode($this->buttons);
 		return mb_strlen($result) < 60000? $result: "";
 	}
 }

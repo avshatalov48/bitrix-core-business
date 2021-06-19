@@ -140,18 +140,6 @@ class CAdminSubList extends CAdminList
 			$this->arHideHeaders = $arHideHeaders;
 	}
 
-	/**
-	 * @deprecated
-	 * @param $table_id
-	 * @param bool $sort
-	 * @param $list_url
-	 * @param bool $arHideHeaders
-	 */
-	public function CAdminSubList($table_id, $sort = false, $list_url, $arHideHeaders = false)
-	{
-		self::__construct($table_id, $sort, $list_url, $arHideHeaders);
-	}
-
 	function GetListUrl($boolFull = false)
 	{
 		$boolFull = ($boolFull === true);
@@ -1054,16 +1042,6 @@ class CAdminSubListRow extends CAdminListRow
 		parent::__construct($aHeaders,$table_id);
 	}
 
-	/**
-	 * @deprecated
-	 * @param $aHeaders
-	 * @param $table_id
-	 */
-	function CAdminSubListRow(&$aHeaders, $table_id)
-	{
-		self::__construct($aHeaders, $table_id);
-	}
-
 	public function Display()
 	{
 		$sDefAction = $sDefTitle = "";
@@ -1287,16 +1265,6 @@ class CAdminSubContextMenu extends CAdminContextMenu
 		parent::__construct($items, $additional_items);
 	}
 
-	/**
-	 * @deprecated
-	 * @param $items
-	 * @param array $additional_items
-	 */
-	function CAdminSubContextMenu($items, $additional_items = array())
-	{
-		self::__construct($items, $additional_items);
-	}
-
 	function Show()
 	{
 		$hkInst = CHotKeys::GetInstance();
@@ -1455,11 +1423,6 @@ class CAdminSubForm extends CAdminForm
 
 		if (is_array($list_url) && !empty($list_url['POST_PARAMS']))
 			$this->__SetListPostParams($list_url['POST_PARAMS'],true);
-	}
-
-	public function CAdminSubForm($name, $tabs, $bCanExpand = true, $bDenyAutosave = false, $list_url = '', $boolShowSettings = false)
-	{
-		self::__construct($name, $tabs, $bCanExpand, $bDenyAutosave, $list_url, $boolShowSettings);
 	}
 
 	function ShowSettings()
@@ -1810,11 +1773,6 @@ class CAdminSubResult extends CAdminResult
 		parent::__construct($res, $table_id);
 	}
 
-	public function CAdminSubResult($res, $table_id, $list_url)
-	{
-		self::__construct($res, $table_id, $list_url);
-	}
-
 	public function NavStart($nPageSize=20, $bShowAll=true, $iNumPage=false)
 	{
 		$navResult = new CAdminSubResult(null, '', '');
@@ -1839,7 +1797,7 @@ class CAdminSubResult extends CAdminResult
 	 * @param string $list_url
 	 * @return int
 	 */
-	public function GetNavSize($table_id=false, $nPageSize=20, $list_url = '')
+	public static function GetNavSize($table_id=false, $nPageSize=20, $list_url = '')
 	{
 		$list_url = (string)$list_url;
 		if ($list_url != '')
@@ -1954,17 +1912,7 @@ class CAdminSubMessage extends CAdminMessage
 		parent::__construct($message,$exception);
 	}
 
-	/**
-	 * @deprecated
-	 * @param $message
-	 * @param bool $exception
-	 */
-	public function CAdminSubMessage($message, $exception=false)
-	{
-		self::__construct($message, $exception);
-	}
-
-	function Show()
+	public function Show()
 	{
 		if (defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1)
 		{
@@ -2027,7 +1975,7 @@ class CAdminSubMessage extends CAdminMessage
 		}
 	}
 
-	function ShowOldStyleError($message)
+	public static function ShowOldStyleError($message)
 	{
 		if(!empty($message))
 		{
@@ -2036,7 +1984,7 @@ class CAdminSubMessage extends CAdminMessage
 		}
 	}
 
-	function ShowMessage($message)
+	public static function ShowMessage($message)
 	{
 		if(!empty($message))
 		{
@@ -2045,7 +1993,7 @@ class CAdminSubMessage extends CAdminMessage
 		}
 	}
 
-	function ShowNote($message)
+	public static function ShowNote($message)
 	{
 		if(!empty($message))
 		{

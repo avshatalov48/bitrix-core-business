@@ -594,7 +594,7 @@ $oFilter->Begin();
 	</td>
 </tr>
 <?
-	$res = CSite::GetList($bySite="sort", $orderSite="asc");
+	$res = CSite::GetList();
 	$siteInfo = array();
 	while ($site = $res->Fetch())
 	{

@@ -2,10 +2,10 @@
 	<div class="landing-block-node-bgimg g-bg-size-cover g-bg-img-hero u-bg-overlay g-bg-black-opacity-0_1--after g-mb-minus-140 d-flex align-items-center justify-content-center g-min-height-50vh g-pt-90 g-pb-120"
 		 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x800/img1.jpg);">
 		<div class="landing-block-node-text-container container text-center u-bg-overlay__inner">
-			<a class="landing-block-node-button u-icon-v3 u-icon-size--xl u-block-hover--scale g-overflow-inherit g-bg-white g-color-gray-dark-v1 g-color-primary--hover g-font-size-20 rounded-circle g-text-underline--none--hover g-cursor-pointer mb-3"
+			<a class="landing-block-node-button m-auto g-mb-14 u-icon-v3 u-icon-size--xl u-block-hover--scale g-overflow-inherit g-bg-white g-color-gray-dark-v1 g-color-primary--hover g-font-size-20 rounded-circle g-text-underline--none--hover g-cursor-pointer"
 			   href="//www.youtube.com/watch?v=q4d8g9Dn3ww" target="_popup"
 			   data-url="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=1&controls=1&loop=0&rel=0&start=0&html5=1&v=q4d8g9Dn3ww">
-				<img class="landing-block-node-card-icon d-block g-height-20 g-left-2 g-relative-centered--y mr-auto g-ml-37"
+				<img class="landing-block-node-card-icon d-block g-height-20 g-ml-8"
 					 src="https://cdn.bitrix24.site/bitrix/images/landing/play-black.png"/>
 			</a>
 			<div class="landing-block-node-text lead d-block g-color-white g-font-size-22">

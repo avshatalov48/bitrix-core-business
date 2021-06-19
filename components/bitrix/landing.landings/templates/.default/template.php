@@ -162,6 +162,7 @@ if ($arParams['TILE_MODE'] == 'view')
 	$uriFolder = null;
 	$areaCode = '';
 	$areaTitle = '';
+	$accessSite = $arResult['ACCESS_SITE'];
 	$urlEdit = str_replace('#landing_edit#', $item['ID'], $arParams['~PAGE_URL_LANDING_EDIT']);
 	$urlView = str_replace('#landing_edit#', $item['ID'], $arParams['~PAGE_URL_LANDING_VIEW']);
 
@@ -200,6 +201,15 @@ if ($arParams['TILE_MODE'] == 'view')
 	{
 		$areaCode = 'main_page';
 		$areaTitle = Loc::getMessage('LANDING_TPL_AREA_MAIN_PAGE');
+		if ($arParams['TYPE'] == 'GROUP')
+		{
+			$accessSite['DELETE'] = 'N';
+		}
+	}
+
+	if (in_array($item['ID'], $arResult['DELETE_LOCKED']))
+	{
+		$accessSite['DELETE'] = 'N';
 	}
 	?>
 	<?if ($uriFolder):?>
@@ -231,10 +241,10 @@ if ($arParams['TILE_MODE'] == 'view')
 							 		isActive: <?= ($item['ACTIVE'] == 'Y') ? 'true' : 'false';?>,
 							 		isDeleted: <?= ($item['DELETED'] == 'Y') ? 'true' : 'false';?>,
 							 		wasModified: <?= ($item['WAS_MODIFIED'] == 'Y') ? 'true' : 'false';?>,
-									isEditDisabled: <?= ($arResult['ACCESS_SITE']['EDIT'] != 'Y') ? 'true' : 'false';?>,
-									isSettingsDisabled: <?= ($arResult['ACCESS_SITE']['SETTINGS'] != 'Y') ? 'true' : 'false';?>,
-									isPublicationDisabled: <?= ($arResult['ACCESS_SITE']['PUBLICATION'] != 'Y') ? 'true' : 'false';?>,
-									isDeleteDisabled: <?= ($arResult['ACCESS_SITE']['DELETE'] != 'Y') ? 'true' : 'false';?>
+									isEditDisabled: <?= ($accessSite['EDIT'] != 'Y') ? 'true' : 'false';?>,
+									isSettingsDisabled: <?= ($accessSite['SETTINGS'] != 'Y') ? 'true' : 'false';?>,
+									isPublicationDisabled: <?= ($accessSite['PUBLICATION'] != 'Y') ? 'true' : 'false';?>,
+									isDeleteDisabled: <?= ($accessSite['DELETE'] != 'Y') ? 'true' : 'false';?>
 								})">
 						<span class="landing-item-folder-dropdown-inner"></span>
 					</div>
@@ -268,10 +278,10 @@ if ($arParams['TILE_MODE'] == 'view')
 							 		isActive: <?= ($item['ACTIVE'] == 'Y') ? 'true' : 'false';?>,
 							 		isDeleted: <?= ($item['DELETED'] == 'Y') ? 'true' : 'false';?>,
 									wasModified: <?= ($item['WAS_MODIFIED'] == 'Y') ? 'true' : 'false';?>,
-									isEditDisabled: <?= ($arResult['ACCESS_SITE']['EDIT'] != 'Y') ? 'true' : 'false';?>,
-									isSettingsDisabled: <?= ($arResult['ACCESS_SITE']['SETTINGS'] != 'Y') ? 'true' : 'false';?>,
-									isPublicationDisabled: <?= ($arResult['ACCESS_SITE']['PUBLICATION'] != 'Y') ? 'true' : 'false';?>,
-									isDeleteDisabled: <?= ($arResult['ACCESS_SITE']['DELETE'] != 'Y') ? 'true' : 'false';?>
+									isEditDisabled: <?= ($accessSite['EDIT'] != 'Y') ? 'true' : 'false';?>,
+									isSettingsDisabled: <?= ($accessSite['SETTINGS'] != 'Y') ? 'true' : 'false';?>,
+									isPublicationDisabled: <?= ($accessSite['PUBLICATION'] != 'Y') ? 'true' : 'false';?>,
+									isDeleteDisabled: <?= ($accessSite['DELETE'] != 'Y') ? 'true' : 'false';?>
 								})">
 						<span class="landing-title-btn-inner"><?= Loc::getMessage('LANDING_TPL_ACTIONS');?></span>
 					</div>

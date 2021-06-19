@@ -30,7 +30,7 @@ return array(
 		'nodes' => array(
 			'.landing-block-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_1_BIG_WITH_TEXT_2_1_STYLE_LANDINGBLOCKTITLE'),
-				'type' => array('typo', 'animation'),
+				'type' => ['typo', 'animation', 'heading'],
 			),
 			'.landing-block-background' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_1_BIG_WITH_TEXT_2_1_BACKGROUND'),

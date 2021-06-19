@@ -240,9 +240,6 @@ class SiteStep extends \CWizardStep
 
 		$this->component->setCrmSiteId($crmSite);
 
-		// set site for person types
-		$this->preparePersonTypes($crmSite);
-
 		if ($this->GetErrors())
 		{
 			return false;
@@ -820,31 +817,6 @@ class SiteStep extends \CWizardStep
 		}
 
 		return $param;
-	}
-
-	/**
-	 * Set site for person types
-	 *
-	 * @param $siteId
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
-	public function preparePersonTypes($siteId)
-	{
-		$personTypePreparer = new Tools\PersonTypePreparer();
-		$personTypeList = $personTypePreparer->getPersonTypeList();
-
-		$result = $personTypePreparer->preparePersonType($siteId, $personTypeList);
-
-		if (!$result)
-		{
-			$errors = $personTypePreparer->getErrors();
-			foreach ($errors as $error)
-			{
-				$this->SetError($error);
-			}
-		}
 	}
 
 	/**

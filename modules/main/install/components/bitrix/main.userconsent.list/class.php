@@ -299,9 +299,7 @@ class MainUserConsentListComponent extends CBitrixComponent
 	{
 		$languages = [];
 
-		$by = "sort";
-		$order = "asc";
-		$queryObject = CLanguage::getList($by, $order, []);
+		$queryObject = CLanguage::getList();
 		while ($language = $queryObject->fetch())
 		{
 			$languages[$language['LANGUAGE_ID']] = $language['LANGUAGE_ID'];

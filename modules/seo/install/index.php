@@ -12,7 +12,7 @@ class seo extends CModule
 	var $MODULE_DESCRIPTION;
 	var $MODULE_GROUP_RIGHTS = "Y";
 
-	function seo()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -110,8 +110,7 @@ class seo extends CModule
 				$arFilter['NAME'] .= '|Yandex';
 
 			$strSearchers = '';
-			$is_filtered = false;
-			$dbRes = CSearcher::GetList($by = 's_id', $order = 'asc', $arFilter, $is_filtered);
+			$dbRes = CSearcher::GetList($by = 's_id', $order = 'asc', $arFilter);
 			while ($arRes = $dbRes->Fetch())
 			{
 				$strSearchers .= ($strSearchers == '' ? '' : ',').$arRes['ID'];

@@ -22,7 +22,7 @@ if ($GLOBALS["install_step"] == 2):
 			<td align="center"><p><b><?=GetMessage("MOD_DEMO_LINK")?></b></p></td>
 		</tr>
 		<?
-		$sites = CSite::GetList($by, $order, Array("ACTIVE"=>"Y"));
+		$sites = CSite::GetList('', '', Array("ACTIVE"=>"Y"));
 		while($site = $sites->GetNext())
 		{
 			?>

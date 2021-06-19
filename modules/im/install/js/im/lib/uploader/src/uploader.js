@@ -33,6 +33,8 @@ export class Uploader extends EventEmitter
 			this.dropNode = options.dropNode || null;
 
 			this.fileMaxSize = options.fileMaxSize || null;
+			this.fileMaxWidth = options.fileMaxWidth || null;
+			this.fileMaxHeight = options.fileMaxHeight || null;
 
 			if (options.sender)
 			{
@@ -41,7 +43,7 @@ export class Uploader extends EventEmitter
 					actionUploadChunk: options.sender.actionUploadChunk,
 					actionCommitFile: options.sender.actionCommitFile,
 					actionRollbackUpload: options.sender.actionRollbackUpload,
-					customHeaders: options.sender.customHeaders || {},
+					customHeaders: options.sender.customHeaders || null,
 				}
 			}
 
@@ -131,12 +133,15 @@ export class Uploader extends EventEmitter
 			return;
 		}
 
-		const task = this.queue.find(queueItem => queueItem.taskId === taskId);
+		this.queue = this.queue.filter(queueItem => {
+			if (queueItem.taskId === taskId)
+			{
+				queueItem.deleteContent();
+				return false;
+			}
 
-		if (task)
-		{
-			task.deleteContent();
-		}
+			return true;
+		});
 	}
 
 	getTask(taskId: string): UploaderResultTask
@@ -336,6 +341,23 @@ export class Uploader extends EventEmitter
 				data['previewData'] = previewData.blob;
 				data['previewDataWidth'] = previewData.width;
 				data['previewDataHeight'] = previewData.height;
+
+				if (this.fileMaxWidth || this.fileMaxHeight)
+				{
+					const isMaxWidthExceeded = (this.fileMaxWidth === null ? false : this.fileMaxWidth < data['previewDataWidth']);
+					const isMaxHeightExceeded = (this.fileMaxHeight === null ? false : this.fileMaxHeight < data['previewDataHeight']);
+					if (isMaxWidthExceeded || isMaxHeightExceeded)
+					{
+						const eventData = {
+							maxWidth: this.fileMaxWidth,
+							maxHeight: this.fileMaxHeight,
+							fileWidth: data['previewDataWidth'],
+							fileHeight: data['previewDataHeight'],
+						};
+						this.emit('onFileMaxResolutionExceeded', eventData);
+						return false;
+					}
+				}
 			}
 			this.emit('onSelectFile', data);
 		}).catch(err => {

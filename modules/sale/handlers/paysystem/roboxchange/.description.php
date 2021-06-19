@@ -5,6 +5,10 @@ use Bitrix\Main\Loader,
 
 Loc::loadMessages(__FILE__);
 
+$description = [
+	'MAIN' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_DESCRIPTION_MAIN'),
+];
+
 PaySystem\Manager::includeHandler('Roboxchange');
 
 $isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_TRUE;

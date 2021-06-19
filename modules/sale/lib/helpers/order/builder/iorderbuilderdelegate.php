@@ -34,10 +34,4 @@ interface IOrderBuilderDelegate
 	 * @return mixed
 	 */
 	public function setShipmentPriceFields(Shipment $shipment, array $fields);
-
-	/**
-	 * @param int $orderPropsCountBefore
-	 * @param Order $order
-	 */
-	public function recalculateDeliveryPrice(int $orderPropsCountBefore, Order $order);
 }

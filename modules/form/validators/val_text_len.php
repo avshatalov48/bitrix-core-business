@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CFormValidatorTextLen
 {
-	function GetDescription()
+	public static function GetDescription()
 	{
 		return array(
 			"NAME" => "text_len", // unique validator string ID
@@ -16,7 +17,7 @@ class CFormValidatorTextLen
 		);
 	}
 
-	function GetSettings()
+	public static function GetSettings()
 	{
 		return array(
 			"LENGTH_FROM" => array(
@@ -33,7 +34,7 @@ class CFormValidatorTextLen
 		);
 	}
 
-	function ToDB($arParams)
+	public static function ToDB($arParams)
 	{
 		$arParams["LENGTH_FROM"] = intval($arParams["LENGTH_FROM"]);
 		$arParams["LENGTH_TO"] = intval($arParams["LENGTH_TO"]);
@@ -48,12 +49,12 @@ class CFormValidatorTextLen
 		return serialize($arParams);
 	}
 
-	function FromDB($strParams)
+	public static function FromDB($strParams)
 	{
-		return unserialize($strParams);
+		return unserialize($strParams, ['allowed_classes' => false]);
 	}
 
-	function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
+	public static function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
 	{
 		global $APPLICATION;
 
@@ -79,4 +80,3 @@ class CFormValidatorTextLen
 }
 
 AddEventHandler("form", "onFormValidatorBuildList", array("CFormValidatorTextLen", "GetDescription"));
-?>

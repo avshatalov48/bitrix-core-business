@@ -303,5 +303,3 @@ class ChatTable extends Entity\DataManager
 		);
 	}
 }
-
-class_alias("Bitrix\\Im\\Model\\ChatTable", "Bitrix\\Im\\ChatTable", false);

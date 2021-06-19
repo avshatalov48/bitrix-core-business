@@ -3,6 +3,7 @@ declare type ajaxConfig = {
     url: string,
     method?: 'POST' | 'GET',
     data?: string | Object,
+    json?: Object,
     dataType?: 'html' | 'json' | 'script',
     timeout?: number,
     async?: boolean,

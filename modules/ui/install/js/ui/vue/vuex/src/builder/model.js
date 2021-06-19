@@ -87,7 +87,7 @@ export class VuexBuilderModel
 	}
 
 	/**
-	 * Get mutations
+	 * Get actions
 	 *
  	 * @override
 	 *
@@ -129,7 +129,7 @@ export class VuexBuilderModel
 	 * Set external variable.
 	 *
 	 * @param variables {Object}
-	 * @returns {VuexBuilder}
+	 * @returns {VuexBuilderModel}
 	 */
 	setVariables(variables = {})
 	{
@@ -207,7 +207,7 @@ export class VuexBuilderModel
 	 * @param active {boolean}
 	 * @param config {{name: String, siteId: String, userId: Number, type: VuexBuilder.DatabaseType}}
 	 *
-	 * @returns {VuexBuilder}
+	 * @returns {VuexBuilderModel}
 	 */
 	useDatabase(active, config = {})
 	{
@@ -266,7 +266,7 @@ export class VuexBuilderModel
 	}
 
 	/**
-	 * @returns {VuexBuilder}
+	 * @returns {VuexBuilderModel}
 	 * @deprecated
 	 */
 	useNamespace(active)

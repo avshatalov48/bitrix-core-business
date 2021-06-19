@@ -127,7 +127,7 @@ class PropertyValueCollection extends BaseCollection
 				['VALUE' => $values],
 			];
 		}
-		elseif (isset($values['VALUE']) || isset($values['DESCRIPTION']))
+		elseif (isset($values['VALUE']) || isset($values['DESCRIPTION']) || isset($values['CUR_PATH']))
 		{
 			$values = [$values];
 		}

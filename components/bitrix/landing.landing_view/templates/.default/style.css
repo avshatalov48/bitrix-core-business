@@ -326,11 +326,19 @@
 }
 
 .landing-editor-loader-container {
+	background: #eef2f4;
 	position: fixed;
 	top: 62px;
 	right: 0;
 	bottom: 0;
 	left: 0;
+	z-index: 5000;
+	transition: 200ms opacity ease;
+}
+
+.landing-editor-loader-container.landing-ui-hide {
+	visibility: visible;
+	opacity: 0;
 }
 
 .landing-ui-view.landing-ui-view-show {

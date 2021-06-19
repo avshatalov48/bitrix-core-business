@@ -62,7 +62,8 @@ $APPLICATION->SetAdditionalCSS('/bitrix/panel/seo/seo.css');
 $engine = new Engine\Yandex();
 
 $siteDomainEnc = Converter::getHtmlConverter()->encode($arDomain['DOMAIN']);
-$siteDomainEncView = Converter::getHtmlConverter()->encode(\CBXPunycode::ToUnicode($arDomain['DOMAIN'], $e = null));
+$e = [];
+$siteDomainEncView = Converter::getHtmlConverter()->encode(\CBXPunycode::ToUnicode($arDomain['DOMAIN'], $e));
 $siteDirEnc = Converter::getHtmlConverter()->encode($arDomain['SITE_DIR']);
 try
 {

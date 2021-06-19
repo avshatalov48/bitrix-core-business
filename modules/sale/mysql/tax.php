@@ -1,10 +1,10 @@
-<?
+<?php
 
 require_once __DIR__."/../general/tax.php";
 
 class CSaleTax extends CAllSaleTax
 {
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -22,4 +22,3 @@ class CSaleTax extends CAllSaleTax
 		return $ID;
 	}
 }
-?>

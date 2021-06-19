@@ -34,7 +34,7 @@ $arFilter = Array(
 	"DATE1"		=> $find_date1,
 	"DATE2"		=> $find_date2
 	);
-$dynamic = CAdv::GetDynamicList($ADV_ID, ($by="s_date"), ($order="asc"), $arMaxMin, $arFilter, $is_filtered);
+$dynamic = CAdv::GetDynamicList($ADV_ID, "s_date", "asc", $arMaxMin, $arFilter);
 while ($arData = $dynamic->Fetch())
 {
 	$date = mktime(0, 0, 0, $arData["MONTH"], $arData["DAY"], $arData["YEAR"]);
@@ -57,7 +57,7 @@ while ($arData = $dynamic->Fetch())
 	$arrX[] = $date;
 	$arF["DATE1_PERIOD"] = GetTime($date);
 	$arF["DATE2_PERIOD"] = GetTime($date);
-	$e = CAdv::GetEventList($ADV_ID, ($by="s_def"), ($order="desc"), $arF, $is_filtered);
+	$e = CAdv::GetEventList($ADV_ID, "s_def", "desc", $arF);
 	while($er = $e->Fetch())
 	{
 		if ($find_show_money=="Y" && $STAT_RIGHT>"M")

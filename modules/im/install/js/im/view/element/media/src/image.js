@@ -41,10 +41,6 @@ Vue.cloneComponent('bx-im-view-element-file-image', 'bx-im-view-element-file',
 	},
 	computed:
 	{
-		localize()
-		{
-			return Vue.getFilteredPhrases('IM_MESSENGER_ELEMENT_FILE_', this.$root.$bitrixMessages);
-		},
 		styleFileSizes()
 		{
 			let sizes = this.getImageSize(this.file.image.width, this.file.image.height, 280);
@@ -76,7 +72,7 @@ Vue.cloneComponent('bx-im-view-element-file-image', 'bx-im-view-element-file',
 			<img v-bx-lazyload
 				class="bx-im-element-file-image-source"
 				:data-lazyload-src="fileSource"
-				:title="localize.IM_MESSENGER_ELEMENT_FILE_SHOW_TITLE.replace('#NAME#', file.name).replace('#SIZE#', fileSize)"
+				:title="$Bitrix.Loc.getMessage('IM_MESSENGER_ELEMENT_FILE_SHOW_TITLE').replace('#NAME#', file.name).replace('#SIZE#', fileSize)"
 				:style="styleFileSizes"
 				:data-viewer="file.viewerAttrs.viewer === null"
 				:data-viewer-type="file.viewerAttrs.viewerType? file.viewerAttrs.viewerType: false"

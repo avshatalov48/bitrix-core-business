@@ -4,6 +4,14 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
+/** @var array $arResult */
+/** @var array $arParams */
+/** @var \CBitrixComponent $component */
+/** @var \CMain $APPLICATION */
+
+$request = \bitrix\Main\HttpContext::getCurrent()->getRequest();
+$designBlockId = $request->get('design_block');
+
 $arParams['PAGE_URL_SITE_SHOW'] = str_replace(
 	'#site_show#',
 	$arResult['VARS']['site_show'],
@@ -34,7 +42,24 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 	}
 }
 ?>
-<?$APPLICATION->IncludeComponent(
+
+<?if ($designBlockId):?>
+
+<?$APPLICATION->includeComponent(
+	'bitrix:landing.landing_designblock',
+	'.default',
+	array(
+		'TYPE' => $arParams['TYPE'],
+		'SITE_ID' => $arResult['VARS']['site_show'],
+		'LANDING_ID' => $arResult['VARS']['landing_edit'],
+		'BLOCK_ID' => $designBlockId
+	),
+	$component
+);?>
+
+<?else:?>
+
+<?$APPLICATION->includeComponent(
 	'bitrix:landing.landing_view',
 	'.default',
 	array(
@@ -55,3 +80,5 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 	),
 	$component
 );?>
+
+<?endif;?>

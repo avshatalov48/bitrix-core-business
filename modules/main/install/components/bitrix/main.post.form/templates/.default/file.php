@@ -57,7 +57,9 @@ if (is_array($arParams["PROPERTIES"]))
 if (empty($arParams["UPLOADS"]))
 	return;
 
-__main_post_form_image_resize(($bNull = null), $arParams["UPLOAD_FILE_PARAMS"]);
+$bNull = null;
+__main_post_form_image_resize($bNull, $arParams["UPLOAD_FILE_PARAMS"]);
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_REQUEST['mfi_mode']) && ($_REQUEST['mfi_mode'] == "upload"))
 {
 	$handlers["main.file.input.upload"] = AddEventHandler('main',  "main.file.input.upload", '__main_post_form_image_resize');

@@ -1,4 +1,4 @@
-;(function ()
+;(function()
 {
 	"use strict";
 
@@ -7,12 +7,13 @@
 	var style = BX.Landing.Utils.style;
 	var addClass = BX.Landing.Utils.addClass;
 	var removeClass = BX.Landing.Utils.removeClass;
+	var onTransitionEnd = BX.Landing.Utils.onTransitionEnd;
 
-	BX.Landing.BlockHeaderEntry = function (node)
+	BX.Landing.BlockHeaderEntry = function(node)
 	{
 		this.headerNode = node;
 		this.wrapperNode = node.parentNode;
-		this.fixMomentNodes = this.headerNode.querySelectorAll(BX.Landing.BlockHeaderEntry.FIX_MOMENT_SELECTOR);
+		this.fixMomentNodes = this.wrapperNode.querySelectorAll(BX.Landing.BlockHeaderEntry.FIX_MOMENT_SELECTOR);
 		this.hiddenSectionsNodes = this.headerNode.querySelectorAll(BX.Landing.BlockHeaderEntry.SECTION_HIDDEN_SELECTOR);
 		this.mode = this.getMode();
 		this.prevState = 0;
@@ -41,26 +42,28 @@
 	BX.Landing.BlockHeaderEntry.MODE_STICKY_RELATIVE = 20;
 	BX.Landing.BlockHeaderEntry.MODE_STATIC = 30;
 
+	BX.Landing.BlockHeaderEntry.IN_FLOW_CLASSES = ['js-header-in-flow'];
+	BX.Landing.BlockHeaderEntry.ON_TOP_CLASSES = ['js-header-on-top'];
 	BX.Landing.BlockHeaderEntry.FIX_MOMENT_CLASSES = ['js-header-fix-moment'];
 	BX.Landing.BlockHeaderEntry.FIX_MOMENT_ADD_DATA = 'header-fix-moment-classes';
 	BX.Landing.BlockHeaderEntry.FIX_MOMENT_REMOVE_DATA = 'header-fix-moment-exclude';
 
-	BX.Landing.BlockHeaderEntry.getHeaderNodeByWrapper = function (wrapper)
+	BX.Landing.BlockHeaderEntry.getHeaderNodeByWrapper = function(wrapper)
 	{
 		return wrapper.querySelector(BX.Landing.BlockHeaderEntry.HEADER_SELECTOR)
 	};
 
 	BX.Landing.BlockHeaderEntry.prototype = {
-		getNodeForObserve: function ()
+		getNodeForObserve: function()
 		{
 			return this.wrapperNode;
 		},
 
-		getMode: function ()
+		getMode: function()
 		{
 			if (BX.hasClass(this.headerNode, BX.Landing.BlockHeaderEntry.STICKY_CLASS))
 			{
-				if(BX.hasClass(this.headerNode, BX.Landing.BlockHeaderEntry.FLOAT_CLASS))
+				if (BX.hasClass(this.headerNode, BX.Landing.BlockHeaderEntry.FLOAT_CLASS))
 				{
 					return BX.Landing.BlockHeaderEntry.MODE_STICKY;
 				}
@@ -75,7 +78,7 @@
 		 * @param {IntersectionObserverEntry} observerEntry
 		 * @returns {number}
 		 */
-		getCurrentState: function (observerEntry)
+		getCurrentState: function(observerEntry)
 		{
 			if (observerEntry.isIntersecting)
 			{
@@ -105,14 +108,13 @@
 			}
 		},
 
-
 		/**
 		 * Check header position, at top or bottom of screen
 		 *
 		 * @param {IntersectionObserverEntry} observerEntry
 		 * @returns {boolean} true if header at the top of screen, false - at bottom
 		 */
-		isOnTop: function (observerEntry)
+		isOnTop: function(observerEntry)
 		{
 			return observerEntry.boundingClientRect.top <= 0;
 		},
@@ -120,7 +122,7 @@
 		/**
 		 * Check direction. >0 if top to bottom, <0 - backwards, 0 - first intersection, no direction
 		 */
-		getDirection: function (currentState)
+		getDirection: function(currentState)
 		{
 			if (this.prevState === null)
 			{
@@ -139,37 +141,31 @@
 		 * Check if menu more then one screen (on mobile, maybe)
 		 * @param {IntersectionObserverEntry} observerEntry
 		 */
-		isOverScreen: function (observerEntry)
+		isOverScreen: function(observerEntry)
 		{
 			return observerEntry.boundingClientRect.height >= observerEntry.rootBounds.height;
 		},
 
-		setInFlow: function ()
+		setInFlow: function()
 		{
-			if (this.mode === BX.Landing.BlockHeaderEntry.MODE_STICKY)
-			{
-				void style(this.headerNode, {
-					position: 'absolute',
-					top: 0,
-					left: 0,
-					right: 0
-				});
-			}
-			else if (this.mode === BX.Landing.BlockHeaderEntry.MODE_STICKY_RELATIVE)
+			if (this.mode === BX.Landing.BlockHeaderEntry.MODE_STICKY_RELATIVE)
 			{
 				void style(this.wrapperNode, {
 					height: 'auto'
 				});
-				void style(this.headerNode, {
-					position: 'relative',
-					top: 0,
-					left: 0,
-					right: 0
-				});
 			}
+			addClass(this.headerNode, BX.Landing.BlockHeaderEntry.IN_FLOW_CLASSES);
+			removeClass(this.headerNode, BX.Landing.BlockHeaderEntry.ON_TOP_CLASSES);
+
+			BX.onCustomEvent('BX.Landing.BlockAssets.Header:onSetInFlow', [{
+				node: this.headerNode,
+				data: {
+					height: this.headerNode.offsetHeight
+				}
+			}]);
 		},
 
-		setOnTop: function ()
+		setOnTop: function()
 		{
 			if (this.mode === BX.Landing.BlockHeaderEntry.MODE_STICKY_RELATIVE)
 			{
@@ -178,18 +174,65 @@
 				});
 			}
 
+			// hide header ...
+			var headerHeight = this.headerNode.offsetHeight + 'px';
 			void style(this.headerNode, {
-				position: 'fixed',
-				top: this.headerOffset + 'px',
-				left: 0,
-				right: 0
+				height: '0px',
+				opacity: '0',
+				overflow: 'hidden'
 			});
+			onTransitionEnd(this.headerNode)
+				.then(function()
+				{
+					addClass(this.headerNode, BX.Landing.BlockHeaderEntry.ON_TOP_CLASSES);
+					removeClass(this.headerNode, BX.Landing.BlockHeaderEntry.IN_FLOW_CLASSES);
+
+					return this.hideSections();
+				}.bind(this))
+				// ... and then show them with transition
+				.then(function()
+				{
+					void style(this.headerNode, {
+						height: headerHeight,
+						opacity: '1',
+						top: this.headerOffset + 'px'
+					});
+					return onTransitionEnd(this.headerNode);
+				}.bind(this))
+				// clean styles and set fix moment behavior
+				.then(function()
+				{
+					void style(this.headerNode, {
+						height: null,
+						opacity: null,
+						overflow: null
+					});
+
+					return Promise.all([
+						this.setFixMoment(),
+						onTransitionEnd(this.headerNode)
+					]);
+				}.bind(this))
+
+				.then(function()
+				{
+					BX.onCustomEvent('BX.Landing.BlockAssets.Header:onSetOnTop', [{
+						node: this.headerNode,
+						data: {
+							height: this.headerNode.offsetHeight
+						}
+					}]);
+				}.bind(this));
 		},
 
-		setFixMoment: function ()
+		setFixMoment: function()
 		{
+			var transitionPromises = [];
+
 			addClass(this.headerNode, BX.Landing.BlockHeaderEntry.FIX_MOMENT_CLASSES);
-			this.fixMomentNodes.forEach(function (node)
+			transitionPromises.push(onTransitionEnd(this.headerNode));
+
+			this.fixMomentNodes.forEach(function(node)
 			{
 				var classesToAdd = BX.data(node, BX.Landing.BlockHeaderEntry.FIX_MOMENT_ADD_DATA);
 				if (classesToAdd !== undefined)
@@ -202,15 +245,35 @@
 				{
 					removeClass(node, classesToRemove.split(' '));
 				}
+
+				transitionPromises.push(onTransitionEnd(node));
 			});
 
-			this.hideSections();
+			return Promise.all(transitionPromises);
 		},
 
-		unsetFixMoment: function ()
+		unsetOnTop: function()
 		{
+			this.unsetFixMoment().then(function(){
+				BX.onCustomEvent('BX.Landing.BlockAssets.Header:onUnsetOnTop', [{
+					node: this.headerNode,
+					data: {
+						height: this.headerNode.offsetHeight
+					}
+				}]);
+			}.bind(this));
+		},
+
+		unsetFixMoment: function()
+		{
+			var transitionPromises = [];
+
 			removeClass(this.headerNode, BX.Landing.BlockHeaderEntry.FIX_MOMENT_CLASSES);
-			this.fixMomentNodes.forEach(function (node)
+			transitionPromises.push(onTransitionEnd(this.headerNode));
+
+			transitionPromises.push(this.showSections());
+
+			this.fixMomentNodes.forEach(function(node)
 			{
 				var classesToRemove = BX.data(node, BX.Landing.BlockHeaderEntry.FIX_MOMENT_ADD_DATA);
 				if (classesToRemove !== undefined)
@@ -223,40 +286,50 @@
 				{
 					addClass(node, classesToAdd.split(' '));
 				}
+
+				transitionPromises.push(onTransitionEnd(node));
 			});
 
-			this.showSections();
+			return Promise.all(transitionPromises);
 		},
 
-		hideSections: function ()
+		hideSections: function()
 		{
-			this.hiddenSectionsNodes.forEach(function (node)
+			var transitionPromises = [];
+			this.hiddenSectionsNodes.forEach(function(node)
 			{
 				node.style.setProperty('height', 0);
 				node.style.setProperty('border', 'none', 'important');
 				node.style.setProperty('overflow', 'hidden');
 				node.style.setProperty('padding', 0, 'important');
+				transitionPromises.push(onTransitionEnd(node));
 			});
+
+			return Promise.all(transitionPromises);
 		},
 
-		showSections: function ()
+		showSections: function()
 		{
-			this.hiddenSectionsNodes.forEach(function (node)
+			var transitionPromises = [];
+			this.hiddenSectionsNodes.forEach(function(node)
 			{
 				node.style.removeProperty('height');
 				node.style.removeProperty('border');
 				node.style.removeProperty('overflow');
 				node.style.removeProperty('padding');
+				transitionPromises.push(onTransitionEnd(node));
 			});
-		},
+
+			return Promise.all(transitionPromises);
+		}
 	};
 
 	/**
 	 * @param {IntersectionObserverEntry[]} entries
 	 */
-	BX.Landing.BlockHeaderEntry.onIntersection = function (entries)
+	BX.Landing.BlockHeaderEntry.onIntersection = function(entries)
 	{
-		entries.forEach(function (entry)
+		entries.forEach(function(entry)
 		{
 			var blockHeaders = BX.Landing.BlockHeaders.getInstance();
 			var currHeaderEntry = blockHeaders.getEntryByIntersectionTarget(entry.target);
@@ -270,30 +343,23 @@
 			var state = currHeaderEntry.getCurrentState(entry);
 			if (state !== currHeaderEntry.prevState)
 			{
-
 				if (state === BX.Landing.BlockHeaderEntry.STATE_IN_FLOW)
 				{
 					currHeaderEntry.setInFlow();
 				}
-				else if (state === BX.Landing.BlockHeaderEntry.STATE_ON_TOP)
-				{
-					currHeaderEntry.setOnTop();
-				}
 				else if (state === BX.Landing.BlockHeaderEntry.STATE_FIX_MOMENT)
 				{
 					// for not relative floating or first init
-					if (currHeaderEntry.prevState < BX.Landing.BlockHeaderEntry.STATE_ON_TOP)
+					if (currHeaderEntry.prevState < BX.Landing.BlockHeaderEntry.STATE_FIX_MOMENT)
 					{
 						currHeaderEntry.setOnTop();
 					}
-
-					currHeaderEntry.setFixMoment();
 				}
 
 				var direction = currHeaderEntry.getDirection(state);
 				if (direction < 0 && state < BX.Landing.BlockHeaderEntry.STATE_FIX_MOMENT)
 				{
-					currHeaderEntry.unsetFixMoment();
+					currHeaderEntry.unsetOnTop();
 				}
 
 				currHeaderEntry.prevState = state;

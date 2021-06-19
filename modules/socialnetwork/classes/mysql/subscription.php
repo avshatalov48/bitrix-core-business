@@ -1,9 +1,10 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/subscription.php");
 
 class CSocNetSubscription extends CAllSocNetSubscription
 {
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -32,7 +33,7 @@ class CSocNetSubscription extends CAllSocNetSubscription
 		return $ID;
 	}
 
-	function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -126,4 +127,3 @@ class CSocNetSubscription extends CAllSocNetSubscription
 		return $dbRes;
 	}
 }
-?>

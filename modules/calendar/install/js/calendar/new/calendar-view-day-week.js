@@ -453,11 +453,17 @@
 		if (params.reloadEntries !== false)
 		{
 			this.entries = this.entryController.getList({
+				showLoader: !!(this.entries && !this.entries.length),
 				startDate: new Date(viewRange.start.getFullYear(), viewRange.start.getMonth(), 1),
 				finishDate: new Date(viewRange.end.getFullYear(), viewRange.end.getMonth() + 1, 1),
 				viewRange: viewRange,
 				finishCallback: BX.proxy(this.displayEntries, this)
 			});
+
+			if (this.entries === false)
+			{
+				return;
+			}
 		}
 
 		this.partsStorage = [];
@@ -2044,7 +2050,8 @@
 			}
 		}
 
-		if (((fromDate - fromDateOrig) / 60000) >= 30)
+		var shiftTimeMinutes = ((fromDate - fromDateOrig) / 60000);
+		if (shiftTimeMinutes >= 30)
 		{
 			this.newEntry.timeFrom.h = fromDateOrig.getHours();
 			this.newEntry.timeFrom.m = fromDateOrig.getMinutes();
@@ -2108,8 +2115,6 @@
 
 			this.createEntryMode = true;
 			this.offtimeTuneBaseZeroPos = BX.pos(this.timeLinesCont).top;
-			this.offtimeBottomBasePos = BX.pos(this.bottomOffHours).bottom - 2;
-
 			this.startMousePos = Math.max(this.offtimeTuneBaseZeroPos + this.gridWrap.scrollTop, this.calendar.util.getMousePos(e).y);
 
 			this.newEntry = this.buildTimelineNewEntryWrap({
@@ -2157,9 +2162,12 @@
 	{
 		if (this.createEntryMode)
 		{
-			var
-				mousePos = this.calendar.util.getMousePos(e).y,
-				height = Math.min(Math.max(mousePos - this.startMousePos, 10), this.offtimeBottomBasePos - parseInt(this.newEntry.entryNode.style.top));
+			var offset = this.collapseOffHours ? 9 : 20;
+			var mousePos = this.calendar.util.getMousePos(e).y;
+			var height = Math.min(
+				Math.max(mousePos - this.startMousePos, 10),
+				parseInt(this.gridRow.style.height) - parseInt(this.newEntry.entryNode.style.top) - offset
+			);
 
 			this.newEntry.entryNode.style.height = height + 'px';
 			this.newEntry.timeTo = this.getTimeByPos(height + this.startMousePos - this.offtimeTuneBaseZeroPos);
@@ -2216,7 +2224,8 @@
 			from = params.dayFrom,
 			timeNode, nameNode,
 			daysCount = 1,
-			section = this.calendar.sectionController.getCurrentSection(),
+			sectionId = BX.Calendar.SectionManager.getNewEntrySectionId(),
+			section = this.calendar.sectionManager.getSection(sectionId),
 			color = section.color;
 
 		entryTime = this.entryController.getTimeForNewEntry(from.date);
@@ -2297,7 +2306,8 @@
 			entryClassName = 'calendar-event-block-wrap',
 			from = params.dayFrom,
 			bgNode,timeLabel, timeNode, nameNode, bindNode,
-			section = this.calendar.sectionController.getCurrentSection(),
+			sectionId = BX.Calendar.SectionManager.getNewEntrySectionId(),
+			section = this.calendar.sectionManager.getSection(sectionId),
 			color = section.color;
 
 		entryTime = this.entryController.getTimeForNewEntry(from.date);

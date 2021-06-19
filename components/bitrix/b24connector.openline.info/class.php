@@ -142,16 +142,10 @@ class CB24ConnectorOpenlineInfoComponent extends \CBitrixComponent
 
 		if ($_SESSION["SESS_COUNTRY_ID"] != "N0")
 		{
-			$param = '';
 			$filter = array(
 				"ID" => $_SESSION["SESS_COUNTRY_ID"]
 			);
-			$res = \CCountry::GetList(
-				($by = "s_name"),
-				($order = "desc"),
-				$filter,
-				$param
-			);
+			$res = \CCountry::GetList("s_name", "desc", $filter);
 			if ($ar = $res->Fetch())
 			{
 				$this->data['SESSION_COUNTRY'] = $ar['REFERENCE'];

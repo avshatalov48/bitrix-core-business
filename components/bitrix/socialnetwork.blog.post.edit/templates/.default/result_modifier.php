@@ -6,6 +6,7 @@
 /** @global CMain $APPLICATION */
 
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\UI\EntitySelector;
 
 if (
 	$arResult["SHOW_FULL_FORM"]
@@ -17,14 +18,14 @@ if (
 {
 	$arResult["PostToShow"]["FEED_DESTINATION_CALENDAR"] = $arResult["PostToShow"]["FEED_DESTINATION"];
 
-	$arResult["DEST_SORT_CALENDAR"] = CSocNetLogDestination::GetDestinationSort(array(
+	$arResult["DEST_SORT_CALENDAR"] = CSocNetLogDestination::GetDestinationSort([
 		"DEST_CONTEXT" => "CALENDAR",
 		"ALLOW_EMAIL_INVITATION" => false
-	));
-	$arResult["PostToShow"]["FEED_DESTINATION_CALENDAR"]['LAST'] = array();
+	]);
+	$arResult["PostToShow"]["FEED_DESTINATION_CALENDAR"]['LAST'] = [];
 	CSocNetLogDestination::fillLastDestination($arResult["DEST_SORT_CALENDAR"], $arResult["PostToShow"]["FEED_DESTINATION_CALENDAR"]['LAST']);
 
-	$arDestUser = array();
+	$arDestUser = [];
 
 	if(!empty($arResult["PostToShow"]["FEED_DESTINATION_CALENDAR"]['LAST']['USERS']))
 	{
@@ -34,7 +35,7 @@ if (
 		}
 	}
 
-	$arResult["PostToShow"]["FEED_DESTINATION_CALENDAR"]['USERS'] = CSocNetLogDestination::GetUsers(Array('id' => $arDestUser));
+	$arResult["PostToShow"]["FEED_DESTINATION_CALENDAR"]['USERS'] = CSocNetLogDestination::GetUsers([ 'id' => $arDestUser ]);
 }
 
 if (
@@ -54,7 +55,7 @@ if (
 	$arParams['PATH_TO_USER_TASKS_PROJECTS_OVERVIEW'] = (!empty($arParams['PATH_TO_USER_TASKS_PROJECTS_OVERVIEW']) ? $arParams['PATH_TO_USER_TASKS_PROJECTS_OVERVIEW'] : $userPage.'user/#user_id#/tasks/projects/');
 	$arParams['PATH_TO_USER_TASKS_TEMPLATES'] = (!empty($arParams['PATH_TO_USER_TASKS_TEMPLATES']) ? $arParams['PATH_TO_USER_TASKS_TEMPLATES'] : $userPage.'user/#user_id#/tasks/templates/');
 	$arParams['PATH_TO_USER_TEMPLATES_TEMPLATE'] = (!empty($arParams['PATH_TO_USER_TEMPLATES_TEMPLATE']) ? $arParams['PATH_TO_USER_TEMPLATES_TEMPLATE'] : $userPage.'user/#user_id#/tasks/templates/template/#action#/#template_id#/');
-	$arParams['TASK_SUBMIT_BACKURL'] = $APPLICATION->GetCurPageParam(isset($arParams["LOG_EXPERT_MODE"]) && $arParams["LOG_EXPERT_MODE"] == 'Y' ? "taskIdCreated=#task_id#" : "", array(
+	$arParams['TASK_SUBMIT_BACKURL'] = $APPLICATION->GetCurPageParam(isset($arParams["LOG_EXPERT_MODE"]) && $arParams["LOG_EXPERT_MODE"] === 'Y' ? "taskIdCreated=#task_id#" : "", [
 		"flt_created_by_id",
 		"flt_group_id",
 		"flt_to_user_id",
@@ -67,16 +68,16 @@ if (
 		"sessid",
 		"bxajaxid",
 		"logajax"
-	));
+	]);
 }
 
 if (
 	isset($_GET["taskIdCreated"])
-	&& intval($_GET["taskIdCreated"]) > 0
+	&& (int)$_GET["taskIdCreated"] > 0
 )
 {
-	$_SESSION["SL_TASK_ID_CREATED"] = intval($_GET["taskIdCreated"]);
-	LocalRedirect($APPLICATION->GetCurPageParam("", array("taskIdCreated", "EVENT_TYPE", "EVENT_TASK_ID", "EVENT_OPTION")));
+	$_SESSION["SL_TASK_ID_CREATED"] = (int)$_GET["taskIdCreated"];
+	LocalRedirect($APPLICATION->GetCurPageParam("", [ "taskIdCreated", "EVENT_TYPE", "EVENT_TASK_ID", "EVENT_OPTION" ]));
 }
 
 $arResult["SHOW_BLOG_FORM_TARGET"] = isset($arParams["SHOW_BLOG_FORM_TARGET"]) && $arParams["SHOW_BLOG_FORM_TARGET"];
@@ -114,7 +115,8 @@ if (is_array($arResult["REMAIN_IMPORTANT_TILL"]))
 $arResult['bVarsFromForm'] = (array_key_exists("POST_MESSAGE", $_REQUEST) || $arResult["ERROR_MESSAGE"] <> '' || $arResult["needShow"]);
 $arResult['tabActive'] = ($arResult['bVarsFromForm'] ? $_REQUEST["changePostFormTab"] : "message");
 
-$arResult['tabs'] = array();
+$arResult['tabs'] = [];
+$gratCurrentUsersList = $arResult['selectedGratitudeEntities'] = [];
 
 if (
 	ModuleManager::isModuleInstalled("intranet")
@@ -122,11 +124,11 @@ if (
 		(
 			is_array($arResult["PostToShow"]["GRATS"])
 			&& !empty($arResult["PostToShow"]["GRATS"])
-			&& (!isset($arParams["PAGE_ID"]) || $arParams["PAGE_ID"] != "user_blog_post_edit_profile")
+			&& (!isset($arParams["PAGE_ID"]) || $arParams["PAGE_ID"] !== "user_blog_post_edit_profile")
 		)
 		|| (
 			isset($arParams["PAGE_ID"])
-			&& $arParams["PAGE_ID"] == "user_blog_post_edit_grat"
+			&& $arParams["PAGE_ID"] === "user_blog_post_edit_grat"
 		)
 	)
 )
@@ -150,10 +152,9 @@ if (
 		&& is_array($arResult["PostToShow"]["GRAT_CURRENT"]["USERS"])
 	)
 	{
-		$arResult['arGratCurrentUsers'] = array();
 		foreach($arResult["PostToShow"]["GRAT_CURRENT"]["USERS"] as $grat_user_id)
 		{
-			$arResult['arGratCurrentUsers']["U".$grat_user_id] = 'users';
+			$gratCurrentUsersList["U".$grat_user_id] = 'users';
 		}
 	}
 	elseif (
@@ -161,8 +162,10 @@ if (
 		&& in_array($arParams["PAGE_ID"], [ 'user_blog_post_edit_grat', 'user_grat' ])
 	)
 	{
-		$arResult['arGratCurrentUsers']["U".(!empty($_REQUEST['gratUserId']) ? intval($_REQUEST['gratUserId']) : $arParams['USER_ID'])] = 'users';
+		$gratCurrentUsersList["U".(!empty($_REQUEST['gratUserId']) ? (int)$_REQUEST['gratUserId'] : $arParams['USER_ID'])] = 'users';
 	}
+
+	$arResult['selectedGratitudeEntities'] = EntitySelector\Converter::sortEntities(EntitySelector\Converter::convertFromFinderCodes(array_keys($gratCurrentUsersList)));
 }
 
 if ($arResult["BLOG_POST_TASKS"])
@@ -202,7 +205,7 @@ if (
 	array_key_exists("UF_BLOG_POST_VOTE", $arResult["POST_PROPERTIES"]["DATA"])
 	&& (
 		!isset($arParams["PAGE_ID"])
-		|| !in_array($arParams["PAGE_ID"], array("user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_blog_post_edit_post"))
+		|| !in_array($arParams["PAGE_ID"], [ "user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_blog_post_edit_post" ])
 	)
 )
 {

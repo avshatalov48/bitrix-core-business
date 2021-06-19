@@ -218,7 +218,7 @@ class Landing
 				$fields['RETURN_CONTENT'] == 'Y'
 			)
 			{
-				$return = BlockCore::getBlockContent($newBlockId, true);
+				$return = BlockCore::getBlockContent($newBlockId, false);
 			}
 			else
 			{
@@ -307,7 +307,10 @@ class Landing
 			{
 				$result->setResult($landing->downBlock($block));
 			}
-			$landing->resortBlocks();
+			if ($landing->getError()->isEmpty())
+			{
+				$landing->resortBlocks();
+			}
 		}
 		$result->setError($landing->getError());
 		return $result;
@@ -417,7 +420,7 @@ class Landing
 			{
 				$result->setResult(array(
 					'result' => $res > 0,
-					'content' => BlockCore::getBlockContent($res, true)
+					'content' => BlockCore::getBlockContent($res, false)
 				));
 			}
 			else

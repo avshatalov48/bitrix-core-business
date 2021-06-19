@@ -108,12 +108,12 @@ class EventHandler
 			$recipient = $eventData['RECIPIENT'];
 			$fields = $eventData['RECIPIENT']['FIELDS'];
 
-			$entityId = $fields['CRM_ENTITY_ID'];
+			$entityId = $fields['CRM_ENTITY_ID'] ?? $recipient['CONTACT_ID'];
 
 			if (!$entityId)
-            {
-                continue;
-            }
+			{
+				continue;
+			}
 
 			$dataToInsert[] = [
 				'RECIPIENT_ID' => $recipient['ID'],
@@ -175,9 +175,9 @@ class EventHandler
 			{
 				$idsToDelete[] = $row['ID'];
 				if (!$letter)
-                {
-                    continue;
-                }
+				{
+					continue;
+				}
 
 				$fields = Json::decode($row['FIELDS']);
 				if (isset($fields['CRM_ENTITY_TYPE_ID']) && $fields['CRM_ENTITY_TYPE_ID'])
@@ -204,7 +204,7 @@ class EventHandler
 
 				if (!$selector)
 				{
-				    continue;
+					continue;
 				}
 
 				if (!$selector->search()->hasEntities())
@@ -222,9 +222,9 @@ class EventHandler
 			}
 
 			if (!empty($batchData))
-            {
-                Timeline\RecipientEntry::createMulti($batchData);
-            }
+			{
+				Timeline\RecipientEntry::createMulti($batchData);
+			}
 
 			TimeLineQueueTable::deleteList(['=ID' => $idsToDelete]);
 		} catch (\Exception $e)

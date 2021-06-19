@@ -171,7 +171,9 @@ class CCalendarWebService extends IWebService
 
 		$change = MakeTimeStamp($event['TIMESTAMP_X']);
 		if ($last_change < $change)
+		{
 			$last_change = $change;
+		}
 
 		$bRecurrent = (isset($event['RRULE']) && $event['RRULE'] != "") ? 1 : 0;
 		$rrule = CCalendarEvent::ParseRRULE($event['RRULE']);
@@ -421,20 +423,25 @@ class CCalendarWebService extends IWebService
 		$arPriorityValues = array_flip($this->arPriorityValues);
 
 		if (!$listName_original = CIntranetUtils::checkGUID($listName))
-			return new CSoapFault('Data error', 'Wrong GUID - '.$listName);
+		{
+			return new CSoapFault('Data error', 'Wrong GUID - ' . $listName);
+		}
 
 		$obResponse = new CXMLCreator('Results');
 
 		$listName = ToUpper(CIntranetUtils::makeGUID($listName_original));
 		$arSections = CCalendarSect::GetList(array('arFilter' => array('XML_ID' => $listName_original)));
 		if (!$arSections || !is_array($arSections[0]))
+		{
 			return new CSoapFault(
 				'List not found',
-				'List with '.$listName.' GUID not found'
+				'List with ' . $listName . ' GUID not found'
 			);
+		}
+
 		$arSection = $arSections[0];
 
-		$bGroup = $arSection['CAL_TYPE'] == 'group';
+		$bGroup = $arSection['CAL_TYPE'] === 'group';
 		$calType = $arSection['CAL_TYPE'];
 		$ownerId = $arSection['OWNER_ID'];
 
@@ -442,9 +449,16 @@ class CCalendarWebService extends IWebService
 		{
 			\Bitrix\Main\Loader::includeModule('socialnetwork');
 			$arGroupTmp = CSocNetGroup::GetByID($arSection['SOCNET_GROUP_ID']);
-			if ($arGroupTmp["CLOSED"] == "Y")
-				if (COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") != "Y")
-					return new CSoapFault('Cannot modify archive group calendar', 'Cannot modify archive group calendar');
+			if ($arGroupTmp["CLOSED"] === "Y")
+			{
+				if (COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") !== "Y")
+				{
+					return new CSoapFault(
+						'Cannot modify archive group calendar',
+						'Cannot modify archive group calendar'
+					);
+				}
+			}
 		}
 
 		$obBatch = $updates->children[0];
@@ -467,13 +481,15 @@ class CCalendarWebService extends IWebService
 			foreach ($obMethod->children as $obField)
 			{
 				$name = $obField->getAttribute('Name');
-				if ($name == 'MetaInfo')
-					$name .= '_'.$obField->getAttribute('Property');
+				if ($name === 'MetaInfo')
+				{
+					$name .= '_' . $obField->getAttribute('Property');
+				}
 
 				$arData[$name] = $obField->content;
 			}
 
-			if ($arData['_command'] == 'Delete')
+			if ($arData['_command'] === 'Delete')
 			{
 				$obRes = new CXMLCreator('Result');
 				$obRes->setAttribute('ID', $obMethod->getAttribute('ID').','.$arData['_command']);
@@ -482,9 +498,13 @@ class CCalendarWebService extends IWebService
 
 				$res = CCalendar::DeleteEvent($arData['ID']);
 				if ($res === true)
+				{
 					$obNode->setData('0x00000000');
+				}
 				else
+				{
 					$obNode->setData('0x81020014');
+				}
 
 				/*
 					0x00000000 - ok
@@ -494,23 +514,27 @@ class CCalendarWebService extends IWebService
 				*/
 				$obResponse->addChild($obRes);
 			}
-			elseif ($arData['_command'] == 'New' || $arData['_command'] == 'Update')
+			elseif ($arData['_command'] === 'New' || $arData['_command'] === 'Update')
 			{
 				$arData['Location'] = trim($arData['Location']);
-				$arData['EventType'] = intval($arData['EventType']);
+				$arData['EventType'] = (int)$arData['EventType'];
 
-				if ($arData['EventType'] == 2)
+				if ((int)$arData['EventType'] === 2)
+				{
 					$arData['EventType'] = 0;
+				}
 
 				if ($arData['EventType'] > 2 /* || ($arData['EventType'] == 1 && !$arData['RecurrenceData'])*/)
+				{
 					return new CSoapFault(
 						'Unsupported event type',
 						'Event type unsupported'
 					);
+				}
 
-				$id = $arData['_command'] == 'New' ? 0 : intval($arData['ID']);
+				$id = $arData['_command'] === 'New' ? 0 : (int)$arData['ID'];
 
-				$arData['fRecurrence'] = intval($arData['fRecurrence']);
+				$arData['fRecurrence'] = (int)$arData['fRecurrence'];
 				$arData['RRULE'] = '';
 
 				if (isset($arData['EventDate']))
@@ -559,7 +583,7 @@ class CCalendarWebService extends IWebService
 					{
 						case 'daily':
 							// hack. we have no "work days" daily recurence
-							if ($obNode->getAttribute('weekday') == 'TRUE')
+							if ($obNode->getAttribute('weekday') === 'TRUE')
 							{
 								$arData['RRULE']['FREQ'] = 'WEEKLY';
 								$arData['RRULE']['BYDAY'] = 'MO,TU,WE,TH,FR';
@@ -617,63 +641,67 @@ class CCalendarWebService extends IWebService
 						break;
 					}
 
-					if ($arData['DT_LENGTH'] == 0 && isset($arData['RRULE']['FREQ']))
+					if ((int)$arData['DT_LENGTH'] === 0 && isset($arData['RRULE']['FREQ']))
+					{
 						$arData['DT_LENGTH'] = 86400;
+					}
 
 					$obWhile = $obRecurRule->children[2];
-					if ($obWhile->name == 'repeatForever')
+					if ($obWhile->name === 'repeatForever')
 					{
 						$arData['RRULE']['UNTIL'] = MakeTimeStamp('');;
 					}
-					elseif ($obWhile->name == 'windowEnd')
+					elseif ($obWhile->name === 'windowEnd')
 					{
 						$toTsUTC = $this->__makeTS($obWhile->textContent());
 						$arData['RRULE']['UNTIL'] = ConvertTimeStamp($toTsUTC, 'FULL');
 					}
-					elseif ($obWhile->name == 'repeatInstances')
+					elseif ($obWhile->name === 'repeatInstances')
 					{
 						$arData['RRULE']['COUNT'] = intval($obWhile->textContent());
 					}
 				}
-				elseif($arData['fRecurrence'] == -1 && $id > 0)
+				elseif(($arData['fRecurrence'] === -1) && ($id > 0))
 				{
 					$arData['RRULE'] = -1;
 				}
 
-				$arFields = array(
+				$arFields = [
 					"ID" => $id,
 					'CAL_TYPE' => $calType,
 					'OWNER_ID' => $ownerId,
 					'CREATED_BY' => $userId,
 					'NAME' => $arData['Title'],
 					'DESCRIPTION' => self::ClearOutlookHtml($arData['Description']),
-					'SECTIONS' => array($arSection['ID']),
+					'SECTIONS' => [$arSection['ID']],
 					'ACCESSIBILITY' => $arStatusValues[$arData['MetaInfo_BusyStatus']],
 					'IMPORTANCE' => $arPriorityValues[$arData['MetaInfo_Priority']],
 					'RRULE' => $arData['RRULE'],
 					'LOCATION' => CCalendar::UnParseTextLocation($arData['Location'])
-				);
+				];
 
 				if ($fromTs && $toTs)
 				{
-					$arFields['DATE_FROM'] = CCalendar::Date($fromTs, $skipTime == 'N');
-					$arFields['DATE_TO'] = CCalendar::Date($toTs, $skipTime == 'N');
+					$arFields['DATE_FROM'] = CCalendar::Date($fromTs, $skipTime === 'N');
+					$arFields['DATE_TO'] = CCalendar::Date($toTs, $skipTime === 'N');
 					$arFields['DT_SKIP_TIME'] = $skipTime;
 				}
 
 				if (isset($arData['DT_LENGTH']) && $arData['DT_LENGTH'] > 0)
+				{
 					$arFields['DT_LENGTH'] = $arData['DT_LENGTH'];
+				}
 
 				$eventId = CCalendar::SaveEvent(
-					array(
+					[
 						'arFields' => $arFields,
 						'fromWebservice' => true
-					)
+					]
 				);
 
-				if ($eventId && intval($eventId) > 0)
+				if ($eventId && ((int)$eventId) > 0)
 				{
-					$eventId = intval($eventId);
+					$eventId = (int)$eventId;
 					$replicationId[$eventId] = $arData['MetaInfo_ReplicationID'];
 
 					$responseRows[$eventId] = new CXMLCreator('Result');
@@ -688,39 +716,45 @@ class CCalendarWebService extends IWebService
 		}
 
 		$userId = (is_object($USER) && $USER->GetID()) ? $USER->GetID() : 1;
-		$fetchMeetings = CCalendar::GetMeetingSection($userId) == $arSection['ID'];
+		$fetchMeetings = (int)CCalendar::GetMeetingSection($userId) === (int)$arSection['ID'];
 		$arEvents = CCalendarEvent::GetList(
-			array(
-				'arFilter' => array(
+			[
+				'arFilter' => [
 					'CAL_TYPE' => $calType,
 					'OWNER_ID' => $ownerId,
 					'SECTION' => $arSection['ID']
-				),
+				],
 				'getUserfields' => false,
 				'parseRecursion' => false,
 				'fetchAttendees' => false,
 				'fetchMeetings' => $fetchMeetings,
 				'userId' => $userId
-			)
+			]
 		);
 
-		foreach ($arEvents as $key => $event)
+		foreach ($arEvents as $event)
 		{
 			if ($responseRows[$event['ID']])
 			{
-				$obRow = $this->__getRow($event, $listName, $last_change = 0);
+				$last_change = 0;
+				$obRow = $this->__getRow($event, $listName, $last_change);
 				$obRow->setAttribute('xmlns:z', "#RowsetSchema");
+
 				if ($replicationId[$event['ID']])
+				{
 					$obRow->setAttribute('MetaInfo_ReplicationID', $replicationId[$event['ID']]);
+				}
 
 				$responseRows[$event['ID']]->addChild($obRow);
 			}
+
 			$obResponse->addChild($responseRows[$event['ID']]);
 		}
-		return array('UpdateListItemsResult' => $obResponse);
+
+		return ['UpdateListItemsResult' => $obResponse];
 	}
 
-	function GetWebServiceDesc()
+	public static function GetWebServiceDesc()
 	{
 		$wsdesc = new CWebServiceDesc();
 		$wsdesc->wsname = "bitrix.webservice.calendar";

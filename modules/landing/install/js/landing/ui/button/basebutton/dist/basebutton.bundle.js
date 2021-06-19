@@ -91,12 +91,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Dom.attr(_this.getLayout(), _this.options.attrs);
 	    }
 
-	    if (main_core.Type.isArray(_this.options.className)) {
-	      _this.options.className.forEach(_this.layout.classList.add, _this.layout.classList);
-	    }
-
-	    if (main_core.Type.isString(_this.options.className) && !!_this.options.className) {
-	      _this.layout.classList.add(_this.options.className);
+	    if (main_core.Type.isArray(_this.options.className) || main_core.Type.isStringFilled(_this.options.className)) {
+	      main_core.Dom.addClass(_this.layout, _this.options.className);
 	    }
 
 	    if (_this.options.active) {

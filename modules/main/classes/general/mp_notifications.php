@@ -13,7 +13,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/adm
 
 class CMpNotifications
 {
-	function OnAdminInformerInsertItemsHandlerMP() {
+	public static function OnAdminInformerInsertItemsHandlerMP() {
 		global $USER;
 		if(LICENSE_KEY == "DEMO")
 		{

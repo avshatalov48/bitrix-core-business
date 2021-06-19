@@ -56,7 +56,8 @@ class RightsTable extends Entity\DataManager
 			'USER_ACCESS' => new Entity\ReferenceField(
 				'USER_ACCESS',
 				'\Bitrix\Main\UserAccessTable',
-				array('=this.ACCESS_CODE' => 'ref.ACCESS_CODE')
+				array('=this.ACCESS_CODE' => 'ref.ACCESS_CODE'),
+				['join_type' => 'INNER']
 			),
 			'TASK_OPERATION' => new Entity\ReferenceField(
 				'TASK_OPERATION',

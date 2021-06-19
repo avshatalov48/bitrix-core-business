@@ -17,4 +17,5 @@
 	word-wrap: break-word;
 	margin-bottom: 28px;
 	font: 14px/17px"Helvetica Neue", Helvetica, Arial, sans-serif;
+	word-break: break-all;
 }

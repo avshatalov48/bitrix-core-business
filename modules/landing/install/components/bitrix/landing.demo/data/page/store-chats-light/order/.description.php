@@ -6,15 +6,16 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
-return array(
+return [
 	'code' => 'store-chats-light/order',
 	'name' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_LIGHT-ORDER-NAME'),
 	'description' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_LIGHT-ORDER-DESC'),
 	'type' => 'store',
 	'version' => 3,
-	'fields' => array(
+	'lock_delete' => true,
+	'fields' => [
 		'RULE' => NULL,
-		'ADDITIONAL_FIELDS' => array(
+		'ADDITIONAL_FIELDS' => [
 			'B24BUTTON_CODE' => 'N',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_LIGHT-ORDER-RICH_NAME'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_LIGHT-ORDER-RICH_DESC'),
@@ -22,23 +23,24 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '3corporate',
-		),
-	),
-	'layout' => array(
+		],
+	],
+	'layout' => [
 		'code' => 'empty',
-	),
+	],
 
-	
-	'items' => array(
-		'0' => array(
+
+	'items' => [
+		'0' => [
 			'code' => 'store.salescenter.order.details',
-			'nodes' => array(
-				'bitrix:salescenter.order.details' => array(
+			'access' => 'W',
+			'nodes' => [
+				'bitrix:salescenter.order.details' => [
 					'TEMPLATE_MODE' => 'lightmode',
 					'SHOW_HEADER' => 'Y',
-				)
-			),
-		),
+				]
+			],
+		],
 		'1' => [
 			'code' => '61.1.phone_w_btn_rght',
 			'access' => 'X',
@@ -56,18 +58,17 @@ return array(
 				],
 			],
 		],
-		'2' => array(
+		'2' => [
 			'code' => '26.separator',
-			'nodes' => array(
-			),
-			'style' => array(
-				'#wrapper' => array(
+			'nodes' => [],
+			'style' => [
+				'#wrapper' => [
 					0 => 'landing-block g-bg-transparent g-pt-15 g-pb-10',
-				),
-				'.landing-block-line' => array(
+				],
+				'.landing-block-line' => [
 					0 => 'landing-block-line g-brd-transparent my-0',
-				),
-			),
-		),
-	),
-);
+				],
+			],
+		],
+	],
+];

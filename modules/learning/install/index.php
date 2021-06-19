@@ -92,7 +92,7 @@ Class learning extends CModule
 					
 			if ($DB->Query("SELECT 'x' FROM b_learn_site_path WHERE 1=0", true))
 			{
-				$sites = CLang::GetList($by, $order, Array("ACTIVE"=>"Y"));
+				$sites = CLang::GetList('', '', Array("ACTIVE"=>"Y"));
 				while($site = $sites->Fetch())
 				{
 					$path = "/learning/";
@@ -199,7 +199,7 @@ Class learning extends CModule
 		}
 		//copy public scripts
 		$arSITE_ID = Array();
-		$sites = CLang::GetList($by, $order, Array("ACTIVE"=>"Y"));
+		$sites = CLang::GetList('', '', Array("ACTIVE"=>"Y"));
 		while($site = $sites->Fetch())
 		{
 			if($_REQUEST["copy_".$site["LID"]] == "Y" && !empty($_REQUEST["path_".$site["LID"]]))

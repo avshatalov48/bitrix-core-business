@@ -48,6 +48,13 @@
 			var isExternal = button.dataset.isExternal == 'Y';
 			if (isExternal)
 			{
+				var isSliderSupport = button.dataset.isSliderSupport === 'N';
+				if (isSliderSupport)
+				{
+					this.openExternalUrlInNewTab(button.dataset.externalUrl);
+					return;
+				}
+
 				this.openExternalUrl(button.dataset.externalUrl);
 			}
 			else
@@ -58,8 +65,13 @@
 		openExternalUrl: function(url)
 		{
 			BX.SidePanel.Instance.open(url, {
-				cacheable: false
+				cacheable: false,
+				loader: 'report:analytics',
 			});
+		},
+		openExternalUrlInNewTab: function(url)
+		{
+			window.open(url, '_blank');
 		},
 		openBoardWithKey: function (boardKey, urlForHistory)
 		{

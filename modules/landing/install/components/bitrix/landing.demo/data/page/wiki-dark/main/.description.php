@@ -100,7 +100,7 @@ return [
 			'access' => 'X',
 			'style' => [
 				'.landing-block-node-button-container' => [
-					0 => 'landing-block-node-button-container input-group-append g-z-index-4 g-bg-primary-dark-v3 g-bg-primary--hover g-color-white g-color-white--hover g-font-size-15',
+					0 => 'landing-block-node-button-container input-group-append g-z-index-4 g-bg-primary-dark-v3 g-bg-primary--hover g-color-white g-color-white--hover',
 				],
 				'.landing-block-node-input-container' => [
 					0 => 'landing-block-node-input-container form-control g-brd-primary--focus g-px-20 g-height-45 g-theme-bitrix-bg-dark-v2--hover g-color-white--hover g-color-white g-brd-primary g-theme-bitrix-bg-dark-v2',
@@ -157,8 +157,8 @@ return [
 					1 => 'landing-block-text-container g-flex-centered-item--bottom text-left u-bg-overlay__inner g-pl-70 g-pr-70 g-pt-30 g-pb-30',
 					],
 				'.landing-block-card-title' => [
-					0 => 'landing-block-card-title g-font-weight-700 g-ma-0 g-font-size-40 g-line-height-1_4 g-color-white g-brd-bottom g-brd-4 g-brd-white',
-					1 => 'landing-block-card-title g-font-weight-700 g-ma-0 g-font-size-40 g-line-height-1_4 g-color-white g-brd-bottom g-brd-4 g-brd-white',
+					0 => 'landing-block-card-title g-font-weight-700 g-ma-0 g-line-height-1_4 g-color-white g-brd-bottom g-brd-4 g-brd-white',
+					1 => 'landing-block-card-title g-font-weight-700 g-ma-0 g-line-height-1_4 g-color-white g-brd-bottom g-brd-4 g-brd-white',
 					],
 				'.landing-block-card-text' => [
 					0 => 'landing-block-card-text g-color-white g-line-height-1_7 g-pt-10 g-pt-30--md',
@@ -212,13 +212,13 @@ return [
 				],
 			'style' => [
 				'.landing-block-card-title-left' => [
-					0 => 'landing-block-card-title-left g-font-weight-700 g-font-size-40 g-ma-0 g-line-height-1_2 g-color-white g-mb-15',
+					0 => 'landing-block-card-title-left g-font-weight-700 g-ma-0 g-line-height-1_2 g-color-white g-mb-15',
 					],
 				'.landing-block-card-text-left' => [
-					0 => 'landing-block-card-text-left g-font-size-18 g-line-height-1_7 g-pt-10 g-pt-30--md g-px-0 g-color-white',
+					0 => 'landing-block-card-text-left g-line-height-1_7 g-pt-10 g-pt-30--md g-px-0 g-color-white',
 					],
 				'.landing-block-card-title-right' => [
-					0 => 'landing-block-card-title-right g-font-weight-700 g-ma-0 g-font-size-40 g-line-height-1_2 g-color-white g-brd-bottom g-brd-4 g-brd-white',
+					0 => 'landing-block-card-title-right g-font-weight-700 g-ma-0 g-line-height-1_2 g-color-white g-brd-bottom g-brd-4 g-brd-white',
 					],
 				'.landing-block-card-text-right' => [
 					0 => 'landing-block-card-text-right g-color-white g-line-height-1_7 g-pt-10 g-pt-30--md',
@@ -236,7 +236,7 @@ return [
 					0 => 'landing-block-img u-bg-overlay g-flex-centered g-min-height-70vh g-bg-img-hero',
 					],
 				'.landing-block-link' => [
-					0 => 'landing-block-link u-link-v5 g-font-size-18 g-font-weight-700 g-color-primary g-color-primary--hover',
+					0 => 'landing-block-link u-link-v5 g-font-weight-700 g-color-primary g-color-primary--hover',
 					],
 				'.landing-block-link-container' => [
 					0 => 'landing-block-link-container',
@@ -282,16 +282,16 @@ return [
 				],
 			'style' => [
 				'.landing-block-card-title-left' => [
-					0 => 'landing-block-card-title-left g-font-weight-700 g-ma-0 g-font-size-40 g-line-height-1_2 g-color-white g-brd-bottom g-brd-4 g-brd-white',
+					0 => 'landing-block-card-title-left g-font-weight-700 g-ma-0 g-line-height-1_2 g-color-white g-brd-bottom g-brd-4 g-brd-white',
 					],
 				'.landing-block-card-title-right' => [
-					0 => 'landing-block-card-title-right g-font-weight-700 g-font-size-40 g-ma-0 g-line-height-1_2 g-color-white g-mb-15',
+					0 => 'landing-block-card-title-right g-font-weight-700 g-ma-0 g-line-height-1_2 g-color-white g-mb-15',
 					],
 				'.landing-block-card-text-left' => [
 					0 => 'landing-block-card-text-left g-color-white g-line-height-1_7 g-pt-10 g-pt-30--md',
 					],
 				'.landing-block-card-text-right' => [
-					0 => 'landing-block-card-text-right g-flex-centered-item--bottom col-11 g-font-size-18 g-line-height-1_7 g-pt-10 g-pt-30--md g-px-0 g-color-white',
+					0 => 'landing-block-card-text-right g-flex-centered-item--bottom col-11 g-line-height-1_7 g-pt-10 g-pt-30--md g-px-0 g-color-white',
 					],
 				'.landing-block-text-container-right' => [
 					0 => 'landing-block-text-container-right js-animation slideInRight g-px-80--lg align-self-center',
@@ -306,7 +306,7 @@ return [
 					0 => 'landing-block-img u-bg-overlay g-flex-centered g-min-height-70vh g-bg-img-hero',
 					],
 				'.landing-block-link' => [
-					0 => 'landing-block-link u-link-v5 g-font-size-18 g-font-weight-700 g-color-primary--hover g-color-primary',
+					0 => 'landing-block-link u-link-v5 g-font-weight-700 g-color-primary--hover g-color-primary',
 					],
 				'.landing-block-link-container' => [
 					0 => 'landing-block-link-container',

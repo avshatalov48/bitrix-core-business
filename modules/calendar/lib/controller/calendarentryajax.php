@@ -20,10 +20,31 @@ Loc::loadMessages(__FILE__);
  */
 class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 {
+	public function getNearestEventsAction()
+	{
+		$request = $this->getRequest();
+		$calendarType = $request->getPost('type');
+		$ownerId = (int)$request->getPost('ownerId');
+		$futureDaysAmount = (int)$request->getPost('futureDaysAmount');
+		$maxEntryAmount = (int)$request->getPost('maxEntryAmount');
+
+		$entries = \CCalendar::getNearestEventsList([
+				'bCurUserList' => true,
+				'fromLimit' => \CCalendar::Date(time(), false),
+				'toLimit' => \CCalendar::Date(time() + \CCalendar::DAY_LENGTH * $futureDaysAmount, false),
+				'type' => $calendarType,
+				'maxAmount' => $maxEntryAmount
+			]
+		);
+
+		return [
+			'entries' => $entries,
+		];
+	}
+
 	public function loadEntriesAction()
 	{
 		$request = $this->getRequest();
-
 		$finish = false;
 		$monthFrom = intval($request->getPost('month_from'));
 		$yearFrom = intval($request->getPost('year_from'));
@@ -61,7 +82,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 
 			if ($isGoogleApiEnabled)
 			{
-				$dbConnections = CDavConnection::GetList(
+				$dbConnections = \CDavConnection::GetList(
 					[
 						"SYNCHRONIZED" => "ASC"
 					],
@@ -264,9 +285,8 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 	{
 		$request = $this->getRequest();
 		$userId = \CCalendar::getCurUserId();
-		$id = intval($request->getPost('id'));
-
-		$sectionId = intval($request->getPost('section'));
+		$id = (int)$request->getPost('id');
+		$sectionId = (int)$request->getPost('section');
 
 		if (!$id && !\CCalendarSect::CanDo('calendar_add', $sectionId, $userId)
 			||
@@ -275,9 +295,9 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'move_entry_access_denied'));
 		}
 
+		$requestUid = (int)$request->getPost('requestUid');
 		$reload = $request->getPost('recursive') === 'Y';
 		$sendInvitesToDeclined = $request->getPost('sendInvitesAgain') === 'Y';
-
 		$skipTime = $request->getPost('skip_time') === 'Y';
 		$dateFrom = $request->getPost('date_from');
 		$dateTo = $request->getPost('date_to');
@@ -290,7 +310,6 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 
 		if(empty($this->getErrors()))
 		{
-
 			$arFields = [
 				"ID" => $id,
 				"DATE_FROM" => \CCalendar::Date(\CCalendar::Timestamp($dateFrom), !$skipTime),
@@ -387,7 +406,8 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 								\CCalendar::Timestamp($request->getPost('current_date_from')),
 								false
 							),
-							'sendInvitesToDeclined' => $sendInvitesToDeclined
+							'sendInvitesToDeclined' => $sendInvitesToDeclined,
+							'requestUid' => $requestUid
 						]
 					);
 				}
@@ -397,7 +417,8 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 						[
 							'arFields' => $arFields,
 							'silentErrorMode' => false,
-							'sendInvitesToDeclined' => $sendInvitesToDeclined
+							'sendInvitesToDeclined' => $sendInvitesToDeclined,
+							'requestUid' => $requestUid
 						]
 					);
 				}

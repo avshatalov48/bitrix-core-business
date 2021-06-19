@@ -195,8 +195,7 @@ export class IblockProductList
 				let columnCell = productRow.getCellByIndex(index);
 				if (columnCell)
 				{
-					let newCell = Tag.render`${cell.innerHTML}`;
-					let cellHtml = productRow.getContentContainer(newCell).innerHTML;
+					const cellHtml = productRow.getContentContainer(cell).innerHTML;
 					productRow.getContentContainer(columnCell).innerHTML = cellHtml;
 					fields[cellName] = cellHtml;
 				}
@@ -243,6 +242,36 @@ export class IblockProductList
 
 				const productId = this.getProductIdByRowId(rowId);
 				const variationId = this.getCurrentVariationIdByProduct(productId);
+				const newFilesRegExp = new RegExp(/([0-9A-Za-z_]+?(_n\d+)*)\[([A-Za-z_]+)\]/);
+				const rowFields = submitData.FIELDS[rowId];
+				const morePhotoValues = {};
+				if (!Type.isNil(rowFields['MORE_PHOTO_custom']))
+				{
+					for (let key in rowFields['MORE_PHOTO_custom'])
+					{
+						if (!rowFields['MORE_PHOTO_custom'].hasOwnProperty(key))
+						{
+							continue;
+						}
+
+						const inputValue = rowFields['MORE_PHOTO_custom'][key];
+						if (newFilesRegExp.test(inputValue.name))
+						{
+							let fileCounter, fileSetting;
+							[, fileCounter, , fileSetting] = inputValue.name.match(newFilesRegExp);
+							if (fileCounter && fileSetting)
+							{
+								morePhotoValues[fileCounter] = morePhotoValues[fileCounter] || {};
+								morePhotoValues[fileCounter][fileSetting] = inputValue.value;
+							}
+						}
+						else
+						{
+							morePhotoValues[inputValue.name] = inputValue.value;
+						}
+					}
+				}
+				rowFields['MORE_PHOTO'] = morePhotoValues;
 				if (variationId && this.showCatalogWithOffers)
 				{
 					const variationRowId = this.getRowIdByProductId(variationId);
@@ -253,12 +282,12 @@ export class IblockProductList
 
 					for (let fieldName of this.variationFieldNames)
 					{
-						if (!submitData.FIELDS[rowId].hasOwnProperty(fieldName))
+						if (!rowFields.hasOwnProperty(fieldName))
 						{
 							continue;
 						}
 
-						submitData.FIELDS[variationRowId][fieldName] = submitData.FIELDS[rowId][fieldName];
+						submitData.FIELDS[variationRowId][fieldName] = rowFields[fieldName];
 						delete submitData.FIELDS[rowId][fieldName];
 					}
 				}

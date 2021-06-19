@@ -1,3 +1,5 @@
 <?
 $MESS["MAIN_SIDEPANEL_CLOSE"] = "Close";
 $MESS["MAIN_SIDEPANEL_PRINT"] = "Print";
+$MESS["MAIN_SIDEPANEL_NEW_WINDOW"] = "Open in a new window";
+$MESS["MAIN_SIDEPANEL_COPY_LINK"] = "Copy link";

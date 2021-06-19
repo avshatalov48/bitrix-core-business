@@ -462,7 +462,7 @@ function SelAll()
 		foreach($gr_res as $gr=>$perm)
 			if($perm>"R")
 				$res[] = $gr;
-			$res = CUser::GetList($byx="NAME", $orderx="ASC", Array("GROUP_MULTI"=>$res));
+			$res = CUser::GetList("NAME", "ASC", Array("GROUP_MULTI"=>$res));
 		?><select name="find_section_modified_by">
 		<option value=""><?echo GetMessage("IBLOCK_ALL")?></option><?
 		while($arr = $res->Fetch())
@@ -482,7 +482,7 @@ function SelAll()
 		foreach($gr_res as $gr=>$perm)
 			if($perm>"R")
 				$res[] = $gr;
-		$res = CUser::GetList($byx="NAME", $orderx="ASC", Array("GROUP_MULTI"=>$res));
+		$res = CUser::GetList("NAME", "ASC", Array("GROUP_MULTI"=>$res));
 		?><select name="find_section_created_by">
 		<option value=""><?echo GetMessage("IBLOCK_ALL")?></option><?
 		while($arr = $res->Fetch())

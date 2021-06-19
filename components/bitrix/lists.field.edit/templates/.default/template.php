@@ -366,7 +366,7 @@ elseif(preg_match("/^(G|G:)/", $arResult["FORM_DATA"]["TYPE"]))
 {
 	$LINK = $arResult["FORM_DATA"]["LINK_IBLOCK_ID"];
 	if($LINK <= 0)
-		list($LINK,) = each($arResult["LINK_IBLOCKS"]);
+		$LINK = key($arResult["LINK_IBLOCKS"]);
 
 	$items = array("" => GetMessage("CT_BLFE_NO_VALUE"));
 	if ($LINK > 0)

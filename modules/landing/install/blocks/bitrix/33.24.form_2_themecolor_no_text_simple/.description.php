@@ -6,21 +6,26 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
-return array(
-	'block' => array(
+return [
+	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.10'),
-		'section' => array('sidebar'),
+		'section' => ['sidebar'],
 		'dynamic' => false,
 		'subtype' => 'form',
-	),
-	'nodes' => array(),
-	'style' => array(
+	],
+	'nodes' => [],
+	'style' => [
 		'block' => [
 			'type' => ['block-default', 'block-border'],
 		],
-		'nodes' => [],
-	),
-	'assets' => array(
-		'ext' => array('landing_form'),
-	),
-);
+		'nodes' => [
+			'.landing-block-node-form-container' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33_10_CONTAINER'),
+				'type' => ['row-align'],
+			],
+		],
+	],
+	'assets' => [
+		'ext' => ['landing_form'],
+	],
+];

@@ -450,14 +450,14 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 	{
 		return
 			($connector->getCode() === 'crm_lead'
-			 && !$this->accessController->check(ActionDictionary::ACTION_SEGMENT_LEAD_EDIT))
+				&& !$this->accessController->check(ActionDictionary::ACTION_SEGMENT_LEAD_EDIT))
 			||
 			($connector->getCode() === 'crm_client'
-			 && !$this->accessController->check(ActionDictionary::ACTION_SEGMENT_CLIENT_EDIT)
+				&& !$this->accessController->check(ActionDictionary::ACTION_SEGMENT_CLIENT_EDIT)
 			)
 			||
 			($connector->getCode() === 'contact_list'
-			 && !$this->accessController->check(ActionDictionary::ACTION_SEGMENT_CLIENT_PERSONAL_EDIT)
+				&& !$this->accessController->check(ActionDictionary::ACTION_SEGMENT_CLIENT_PERSONAL_EDIT)
 			);
 
 	}

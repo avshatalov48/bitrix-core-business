@@ -228,6 +228,18 @@ export class VuexBuilder
 
 	clearModelState(callback = null)
 	{
+		if (!this.builded)
+		{
+			return new Promise((resolve, reject) =>
+			{
+				console.error('BX.VuexBuilder.clearModelState: you cannot use the method until builder is built.');
+				if (typeof callback !== 'function')
+				{
+					reject('BUILDER_NOT_BUILD');
+				}
+			});
+		}
+
 		var results = [];
 
 		this.models.forEach(model => {
@@ -256,6 +268,15 @@ export class VuexBuilder
 
 	clearDatabase()
 	{
+		if (!this.builded)
+		{
+			return new Promise((resolve, reject) =>
+			{
+				console.error('BX.VuexBuilder.clearModelState: you cannot use the method until builder is built.');
+				reject('BUILDER_NOT_BUILD');
+			});
+		}
+
 		this.models.forEach(model => model.clearDatabase());
 
 		return new Promise((resolve, reject) => resolve(true));

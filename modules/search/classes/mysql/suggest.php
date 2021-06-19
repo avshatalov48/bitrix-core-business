@@ -5,12 +5,7 @@ class CSearchSuggest
 	var $_filter_md5 = "";
 	var $_phrase = "";
 
-	function __construct($strFilterMD5 = "", $phrase = "")
-	{
-		return $this->CSearchSuggest($strFilterMD5, $phrase);
-	}
-
-	function CSearchSuggest($strFilterMD5 = "", $phrase = "")
+	public function __construct($strFilterMD5 = "", $phrase = "")
 	{
 		$strFilterMD5 = mb_strtolower($strFilterMD5);
 		if (preg_match("/^[0-9a-f]{32}$/", $strFilterMD5))
@@ -154,7 +149,7 @@ class CSearchSuggest
 		}
 	}
 
-	function CleanUpAgent()
+	public static function CleanUpAgent()
 	{
 		$DB = CDatabase::GetModuleConnection('search');
 		$cleanup_days = COption::GetOptionInt("search", "suggest_save_days");

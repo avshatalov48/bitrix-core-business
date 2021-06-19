@@ -153,7 +153,7 @@ class Sharing
 		$userData = array();
 
 		$userId = intval($userId);
-		$users = \CUser::getList($by='id', $order='asc',
+		$users = \CUser::getList('id', 'asc',
 			array('ID' => $userId),
 			array('FIELDS' => array('ID', 'PERSONAL_PHOTO', 'NAME', 'LAST_NAME'))
 		);

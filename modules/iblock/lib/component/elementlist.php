@@ -190,6 +190,8 @@ abstract class ElementList extends Base
 
 		$this->getSpecificIblockParams($params);
 
+		$params['CALCULATE_SKU_MIN_PRICE'] = (isset($params['CALCULATE_SKU_MIN_PRICE']) && $params['CALCULATE_SKU_MIN_PRICE'] === 'Y');
+
 		return $params;
 	}
 
@@ -291,7 +293,7 @@ abstract class ElementList extends Base
 	protected function getPaginationParams(&$params)
 	{
 		$params['DISPLAY_TOP_PAGER'] = isset($params['DISPLAY_TOP_PAGER']) && $params['DISPLAY_TOP_PAGER'] === 'Y';
-		$params['DISPLAY_BOTTOM_PAGER'] = $params['DISPLAY_BOTTOM_PAGER'] !== 'N';
+		$params['DISPLAY_BOTTOM_PAGER'] = !isset($params['DISPLAY_BOTTOM_PAGER']) || $params['DISPLAY_BOTTOM_PAGER'] !== 'N';
 		$params['LAZY_LOAD'] = isset($params['LAZY_LOAD']) && $params['LAZY_LOAD'] === 'Y' ? 'Y' : 'N';
 
 		if ($params['DISPLAY_TOP_PAGER'] || $params['DISPLAY_BOTTOM_PAGER'] || $params['LAZY_LOAD'] === 'Y')
@@ -309,6 +311,17 @@ abstract class ElementList extends Base
 		else
 		{
 			$this->setPaginationMode(false);
+			$params['PAGER_SHOW_ALWAYS'] = false;
+			$params['PAGER_SHOW_ALL'] = false;
+			$params['LOAD_ON_SCROLL'] = 'N';
+		}
+		if ($params['LAZY_LOAD'] === 'Y' && $params['LOAD_ON_SCROLL'] === 'Y')
+		{
+			$params['DEFERRED_LOAD'] = isset($params['DEFERRED_LOAD']) && $params['DEFERRED_LOAD'] === 'Y' ? 'Y' : 'N';
+		}
+		else
+		{
+			$params['DEFERRED_LOAD'] = 'N';
 		}
 	}
 
@@ -588,6 +601,31 @@ abstract class ElementList extends Base
 				'OFFERS_CART_PROPERTIES' => $offersCartProperties,
 				'OFFERS_TREE_PROPS' => $offersTreeProperties
 			)
+		);
+	}
+
+	/**
+	 * Returns list of product ids which will be showed on first hit.
+	 * @return array
+	 */
+	protected function getProductIds()
+	{
+		if ($this->isEmptyStartLoad())
+		{
+			return [];
+		}
+		return parent::getProductIds();
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isEmptyStartLoad(): bool
+	{
+		return (
+			$this->arParams['LAZY_LOAD'] === 'Y'
+			&& $this->arParams['LOAD_ON_SCROLL'] === 'Y'
+			&& $this->arParams['DEFERRED_LOAD'] === 'Y'
 		);
 	}
 
@@ -2170,17 +2208,18 @@ abstract class ElementList extends Base
 					$this->editTemplateOfferProps($item);
 					$this->editTemplateJsOffers($item);
 				}
-				else
+
+				if ($this->arParams['CALCULATE_SKU_MIN_PRICE'] || $this->arParams['PRODUCT_DISPLAY_MODE'] !== 'Y')
 				{
-					$strBaseCurrency = '';
+					$baseCurrency = '';
 					if ($this->arResult['MODULES']['catalog'] && !isset($this->arResult['CONVERT_CURRENCY']['CURRENCY_ID']))
 					{
-						$strBaseCurrency = Currency\CurrencyManager::getBaseCurrency();
+						$baseCurrency = Currency\CurrencyManager::getBaseCurrency();
 					}
 
 					$currency = isset($this->arResult['CONVERT_CURRENCY']['CURRENCY_ID'])
 						? $this->arResult['CONVERT_CURRENCY']['CURRENCY_ID']
-						: $strBaseCurrency;
+						: $baseCurrency;
 
 					$item['ITEM_START_PRICE'] = null;
 					$item['ITEM_START_PRICE_SELECTED'] = null;
@@ -2214,7 +2253,7 @@ abstract class ElementList extends Base
 						}
 						unset($priceScale, $currentPrice);
 					}
-					unset($offer);
+					unset($index);
 
 					if ($minPriceIndex !== null)
 					{
@@ -2242,7 +2281,7 @@ abstract class ElementList extends Base
 					}
 					unset($minPriceIndex, $minPrice);
 
-					unset($strBaseCurrency, $currency);
+					unset($baseCurrency, $currency);
 				}
 			}
 
@@ -2408,7 +2447,7 @@ abstract class ElementList extends Base
 			);
 			unset($ratioSelectedIndex);
 
-			if (isset($offer['MORE_PHOTO_COUNT']) && $offer['MORE_PHOTO_COUNT'] > 1)
+			if (isset($offer['MORE_PHOTO_COUNT']) && $offer['MORE_PHOTO_COUNT'] > 0)
 			{
 				$oneRow['MORE_PHOTO'] = $offer['MORE_PHOTO'];
 				$oneRow['MORE_PHOTO_COUNT'] = $offer['MORE_PHOTO_COUNT'];

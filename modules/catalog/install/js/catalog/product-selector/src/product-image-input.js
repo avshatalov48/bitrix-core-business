@@ -1,10 +1,12 @@
-import {Runtime, Tag, Text, Type} from 'main.core';
+import {Reflection, Runtime, Tag, Text, Type} from 'main.core';
 import './component.css';
 import {BaseEvent, EventEmitter} from "main.core.events";
 import {ProductSelector} from 'catalog.product-selector';
 
 export class ProductImageInput
 {
+	onUploaderIsInitedHandler = this.handleOnUploaderIsInited.bind(this);
+
 	constructor(id, options = {})
 	{
 		this.id = id || Text.getRandom();
@@ -31,11 +33,11 @@ export class ProductImageInput
 		this.uploaderFieldMap = {};
 		if (this.isEnabledLiveSaving())
 		{
-			EventEmitter.subscribe('onUploaderIsInited', this.onUploaderIsInitedHandler.bind(this))
+			EventEmitter.subscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
 		}
 	}
 
-	onUploaderIsInitedHandler(event)
+	handleOnUploaderIsInited(event)
 	{
 		const [id, uploader] = event.getCompatData();
 		if (!this.isViewMode() && Type.isStringFilled(this.id) && this.id === id)
@@ -44,6 +46,26 @@ export class ProductImageInput
 			EventEmitter.subscribe(uploader, 'onFileIsDeleted', this.onFileDelete.bind(this));
 			EventEmitter.subscribe(uploader, 'onFileIsUploaded', this.onFileUpload.bind(this));
 			EventEmitter.subscribe(uploader, 'onQueueIsChanged', this.onQueueIsChanged.bind(this));
+		}
+	}
+
+	unsubscribeEvents()
+	{
+		if (this.isEnabledLiveSaving())
+		{
+			EventEmitter.unsubscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
+		}
+	}
+
+	unsubscribeImageInputEvents()
+	{
+		if (Reflection.getClass('BX.UI.ImageInput'))
+		{
+			const imageInput = BX.UI.ImageInput.getById(this.getId());
+			if (imageInput)
+			{
+				imageInput.unsubscribeEvents();
+			}
 		}
 	}
 

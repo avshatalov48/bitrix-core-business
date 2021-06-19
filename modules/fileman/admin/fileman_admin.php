@@ -448,8 +448,10 @@ else // Displaying search result
 			"TYPE" => $bIsDir ? "D" : "F"
 		);
 
-		if (count($arPerm[1]) > 0)
+		if (is_array($arPerm[1]) && count($arPerm[1]) > 0)
+		{
 			$arEl["PERMISSION_EX"] = $arPerm[1];
+		}
 
 		$arDirContent[] = $arEl;
 	}
@@ -503,7 +505,7 @@ if(!$bSearch && $path <> '' && ($logical != "Y" || rtrim($arSite["DIR"], "/") !=
 {
 	$row =& $lAdmin->AddRow(".", array("NAME" => GetMessage("FILEMAN_UP")));
 
-	$dbSitesList = CSite::GetList($b = "lendir", $o = "desc");
+	$dbSitesList = CSite::GetList("lendir", "desc");
 	while ($arSite = $dbSitesList->GetNext())
 	{
 		if ($arSite['DOC_ROOT'] == CSite::GetSiteDocRoot($site) || $arSite['DOC_ROOT'] == '')

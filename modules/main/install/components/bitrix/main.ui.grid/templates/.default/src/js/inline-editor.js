@@ -16,6 +16,7 @@ import {EventEmitter} from "main.core.events";
 	{
 		this.parent = null;
 		this.types = null;
+		this.isDropdownChangeEventSubscribed = false;
 		this.init(parent, types);
 	};
 
@@ -142,6 +143,7 @@ import {EventEmitter} from "main.core.events";
 			const fieldChildren = [];
 
 			const priceObject = value.PRICE || {};
+			priceObject.PLACEHOLDER = editObject.PLACEHOLDER || '';
 			fieldChildren.push(this.createMoneyPrice(priceObject));
 
 			if ((BX.type.isArray(editObject.CURRENCY_LIST) && editObject.CURRENCY_LIST.length > 0))
@@ -158,7 +160,7 @@ import {EventEmitter} from "main.core.events";
 			{
 				for (let fieldName in value.HIDDEN)
 				{
-					if (BX.type.isNotEmptyString(fieldName))
+					if (value.HIDDEN.hasOwnProperty(fieldName) && BX.type.isNotEmptyString(fieldName))
 					{
 						const hidden = this.createInput({
 							NAME: fieldName,
@@ -188,7 +190,7 @@ import {EventEmitter} from "main.core.events";
 		createMoneyPrice: function(priceObject)
 		{
 			priceObject.TYPE = this.types.NUMBER;
-			priceObject.PLACEHOLDER = "0";
+
 			const priceInput = this.createInput(priceObject);
 			priceInput.classList.add('main-grid-editor-money-price');
 			Event.bind(priceInput, 'change', (event) => {
@@ -204,6 +206,7 @@ import {EventEmitter} from "main.core.events";
 
 				EventEmitter.emit('Grid.MoneyField::change', eventData);
 			});
+
 			return priceInput;
 		},
 
@@ -219,29 +222,33 @@ import {EventEmitter} from "main.core.events";
 				currencyBlock.dataset.disabled = true;
 			}
 
-			EventEmitter.subscribe('Dropdown::change', (event) => {
-				const [controlId] = event.getData();
-				if (!BX.type.isNotEmptyString(controlId))
-				{
-					return;
-				}
+			if (!this.isDropdownChangeEventSubscribed)
+			{
+				this.isDropdownChangeEventSubscribed = true;
+				EventEmitter.subscribe('Dropdown::change', (event) => {
+					const [controlId] = event.getData();
+					if (!BX.type.isNotEmptyString(controlId))
+					{
+						return;
+					}
 
-				const dropdownObject = BX.Main.dropdownManager.getById(controlId);
-				if (dropdownObject.dropdown && dropdownObject.dropdown.classList.contains('main-grid-editor-money-currency'))
-				{
-					const fieldNode = dropdownObject.dropdown.parentNode;
-					const priceField = fieldNode.querySelector('.main-grid-editor-money-price')
-					const eventData = {
-						field: fieldNode,
-						values: {
-							price: priceField.value || '',
-							currency: dropdownObject.dropdown.dataset.value || '',
-						}
-					};
+					const dropdownObject = BX.Main.dropdownManager.getById(controlId);
+					if (dropdownObject.dropdown && dropdownObject.dropdown.classList.contains('main-grid-editor-money-currency'))
+					{
+						const fieldNode = dropdownObject.dropdown.parentNode;
+						const priceField = fieldNode.querySelector('.main-grid-editor-money-price')
+						const eventData = {
+							field: fieldNode,
+							values: {
+								price: priceField.value || '',
+								currency: dropdownObject.dropdown.dataset.value || '',
+							}
+						};
 
-					EventEmitter.emit('Grid.MoneyField::change', eventData);
-				}
-			});
+						EventEmitter.emit('Grid.MoneyField::change', eventData);
+					}
+				});
+			}
 
 			return currencyBlock;
 		},

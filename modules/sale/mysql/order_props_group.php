@@ -1,9 +1,10 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/order_props_group.php");
 
 class CSaleOrderPropsGroup extends CAllSaleOrderPropsGroup
 {
-	function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -112,7 +113,7 @@ class CSaleOrderPropsGroup extends CAllSaleOrderPropsGroup
 		return $dbRes;
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -131,4 +132,3 @@ class CSaleOrderPropsGroup extends CAllSaleOrderPropsGroup
 		return $ID;
 	}
 }
-?>

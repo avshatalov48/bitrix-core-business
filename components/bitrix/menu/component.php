@@ -37,14 +37,14 @@ $arParams["USE_EXT"] = (isset($arParams["USE_EXT"]) && $arParams["USE_EXT"] == "
 $arParams["DELAY"] = (isset($arParams["DELAY"]) && $arParams["DELAY"] == "Y" ? "Y" : "N");
 
 //Allow multiple highlightning of current item in menu
-$arParams["ALLOW_MULTI_SELECT"] = ($arParams["ALLOW_MULTI_SELECT"] == "Y");
+$arParams["ALLOW_MULTI_SELECT"] = (($arParams["ALLOW_MULTI_SELECT"] ?? '') == "Y");
 
 //Find current menu item in RecalcMenu(). Cach ID depends on this parameter too
 $arParams["CACHE_SELECTED_ITEMS"] = ($arParams["CACHE_SELECTED_ITEMS"] <> "N" && $arParams["CACHE_SELECTED_ITEMS"] !== false);
 
 $curDir = $APPLICATION->GetCurDir();
 
-if($this->startResultCache(false, false, ($arParams["MENU_CACHE_USE_USERS"] === "Y"? $this->getGenerationCachePath($USER->GetID()): false)))
+if($this->startResultCache(false, false, (($arParams["MENU_CACHE_USE_USERS"] ?? '') === "Y"? $this->getGenerationCachePath($USER->GetID()): false)))
 {
 	if(defined("BX_COMP_MANAGED_CACHE"))
 		$CACHE_MANAGER->registerTag("bitrix:menu");

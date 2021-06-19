@@ -968,7 +968,7 @@ if ($boolLocked)
 {
 	$strLockUser = $intLockUserID;
 	$strLockUserInfo = $intLockUserID;
-	$rsUsers = CUser::GetList(($by2 = 'ID'),($order2 = 'ASC'), array('ID' => $intLockUserID), array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME')));
+	$rsUsers = CUser::GetList('ID', 'ASC', array('ID' => $intLockUserID), array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME')));
 	if ($arOneUser = $rsUsers->Fetch())
 	{
 		$strLockUser = CUser::FormatName($strNameFormat, $arOneUser);
@@ -1490,7 +1490,7 @@ else
 				$tabControl->EndCustomField("DATE_UPDATE", '');
 
 				$arSitesShop = array();
-				$rsSites = CSite::GetList($by="id", $order="asc", Array("ACTIVE" => "Y"));
+				$rsSites = CSite::GetList("id", "asc", Array("ACTIVE" => "Y"));
 				while ($arSite = $rsSites->Fetch())
 				{
 					$site = COption::GetOptionString("sale", "SHOP_SITE_".$arSite["ID"], "");

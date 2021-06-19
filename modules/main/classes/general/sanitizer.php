@@ -624,7 +624,16 @@
 					}
 
 					if ($this->bHtmlSpecChars)
-						$seg[$i]['value'] = htmlspecialchars($seg[$i]['value'], ENT_QUOTES, LANG_CHARSET, $this->bDoubleEncode);
+					{
+						$entQuotes =$openTagsStack[0] !== 'style' ? ENT_QUOTES : ENT_NOQUOTES;
+
+						$seg[$i]['value'] = htmlspecialchars(
+							$seg[$i]['value'],
+							$entQuotes,
+							LANG_CHARSET,
+							$this->bDoubleEncode
+						);
+					}
 				}
 				elseif($seg[$i]['segType'] == 'tag')
 				{
@@ -818,7 +827,7 @@
 
 			foreach($seg as $segt)
 			{
-				if($segt['action'] != self::ACTION_DEL && !$flagDeleteContent)
+				if(($segt['action'] ?? '') != self::ACTION_DEL && !$flagDeleteContent)
 				{
 					if($segt['segType'] == 'text')
 					{

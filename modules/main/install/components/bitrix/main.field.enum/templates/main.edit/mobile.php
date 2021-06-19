@@ -51,9 +51,8 @@ $nodes = [$arResult['userField']['~id']];
 >
 	<?php
 	if(
-		is_array($arResult['userField']['VALUE'])
-		&&
-		!count($arResult['userField']['VALUE'])
+		empty($arResult['currentValue']['VALUE'])
+		|| (is_array($arResult['userField']['VALUE']) && !count($arResult['userField']['VALUE']))
 	)
 	{
 		print EnumType::getEmptyCaption($arResult['userField']);

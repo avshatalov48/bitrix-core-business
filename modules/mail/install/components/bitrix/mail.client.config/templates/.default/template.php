@@ -27,11 +27,11 @@ if (!$arResult['CAN_CONNECT_NEW_MAILBOX'])
 		</div>
 		<div class="mail-add-services">
 			<div class="mail-add-list">
-				<? foreach ($arParams['SERVICES'] as $id => $settings): ?>
+				<? foreach ($arParams['SERVICES'] as $settings): ?>
 					<? if ($settings['type'] != 'imap') continue; ?>
 					<a class="mail-add-item"
 						<? if ($arResult['CAN_CONNECT_NEW_MAILBOX']): ?>
-							href="<?=htmlspecialcharsbx(\CHTTP::urlAddParams($newPath, array('id' => $id))) ?>"
+							href="<?=htmlspecialcharsbx(\CHTTP::urlAddParams($newPath, array('id' => $settings['id']))) ?>"
 						<? else: ?>
 							onclick="showLicenseInfoPopup('limit')"
 						<? endif ?>>
@@ -79,7 +79,7 @@ if (!$arResult['CAN_CONNECT_NEW_MAILBOX'])
 				else
 				{
 					window.location.href = BX.util.add_url_param(
-						'<?=\CUtil::jsEscape($arParams['PATH_TO_MAIL_MSG_LIST']) ?>'.replace('#id#', event.data.id),
+						'<?=\CUtil::jsEscape($arParams['PATH_TO_MAIL_MSG_LIST']) ?>'.replace('#id#', event.data.id).replace('#start_sync_with_showing_stepper#', true),
 						urlParams
 					);
 				}

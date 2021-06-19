@@ -299,6 +299,9 @@ JSCODE;
 			$APPLICATION->AddHeadString(Mobile::getInstance()->getViewPort());
 		}
 
+		\Bitrix\Main\UI\Extension::load([
+			'mobile.ajax'
+		]);
 	}
 
 	/**

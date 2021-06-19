@@ -13,7 +13,7 @@ Class photogallery extends CModule
 	var $MODULE_CSS;
 	var $MODULE_GROUP_RIGHTS = "N";
 
-	function photogallery()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 

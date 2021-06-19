@@ -12,7 +12,7 @@ while($arr = $rsCatalog->Fetch())
 }
 
 $arUGroupsEx = Array();
-$dbUGroups = CGroup::GetList($by = "c_sort", $order = "asc");
+$dbUGroups = CGroup::GetList();
 while($arUGroups = $dbUGroups -> Fetch())
 {
 	$arUGroupsEx[$arUGroups["ID"]] = $arUGroups["NAME"];

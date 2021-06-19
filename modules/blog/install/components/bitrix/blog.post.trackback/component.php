@@ -75,7 +75,10 @@ if(COption::GetOptionString("blog","enable_trackback", "Y") == "Y")
 						$Vars = $cache->GetVars();
 						foreach($Vars["arResult"] as $k=>$v)
 							$arResult[$k] = $v;
-						CBitrixComponentTemplate::ApplyCachedData($Vars["templateCachedData"]);	
+
+						$template = new CBitrixComponentTemplate();
+						$template->ApplyCachedData($Vars["templateCachedData"]);
+
 						$cache->Output();
 					}
 					else
@@ -95,7 +98,7 @@ if(COption::GetOptionString("blog","enable_trackback", "Y") == "Y")
 						}
 
 						$serverName = "";
-						$dbSite = CSite::GetList(($b = "sort"), ($o = "asc"), array("LID" => SITE_ID));
+						$dbSite = CSite::GetList("sort", "asc", array("LID" => SITE_ID));
 						if ($arSite = $dbSite->Fetch())
 							$serverName = $arSite["SERVER_NAME"];
 

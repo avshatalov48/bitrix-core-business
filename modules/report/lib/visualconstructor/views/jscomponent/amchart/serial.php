@@ -118,7 +118,7 @@ abstract class Serial extends Base
 				$graph = array(
 					"bullet" => "round",
 					//"labelText" => "[[value]]",
-					"title" => $data['config']['reportTitle'],
+					"title" => htmlspecialcharsbx($data['config']['reportTitle']),
 					"fillColors" => $data['config']['reportColor'],
 					"lineColor" => $data['config']['reportColor'],
 					"valueField" => 'value_' . $reportCount,
@@ -132,7 +132,7 @@ abstract class Serial extends Base
 				}
 				else
 				{
-					$graph["balloonText"] = $data["config"]["reportTitle"] . " [[value]]";
+					$graph["balloonText"] = htmlspecialcharsbx($data["config"]["reportTitle"]) . " [[value]]";
 				}
 				$result['graphs'][] = $graph;
 			}

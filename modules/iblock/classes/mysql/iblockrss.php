@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CIBlockRSS extends CAllIBlockRSS
 {
 	public static function GetCache($cacheKey)
@@ -21,7 +22,7 @@ class CIBlockRSS extends CAllIBlockRSS
 			"VALUES(".$IBLOCK_ID.", '".$DB->ForSql($NODE, 50)."', '".$DB->ForSql($NODE_VALUE, 255)."')");
 	}
 
-	function UpdateCache($cacheKey, $CACHE, $HOURS_CACHE, $bCACHED)
+	public static function UpdateCache($cacheKey, $CACHE, $HOURS_CACHE, $bCACHED)
 	{
 		global $DB;
 
@@ -47,7 +48,7 @@ class CIBlockRSS extends CAllIBlockRSS
 		$db_res = $DB->Query("DELETE from b_iblock_cache WHERE CACHE_DATE < NOW()");
 	}
 
-	function GetRSSText($arIBLOCK, $LIMIT_NUM = false, $LIMIT_DAY = false, $yandex = false)
+	public static function GetRSSText($arIBLOCK, $LIMIT_NUM = false, $LIMIT_DAY = false, $yandex = false)
 	{
 		global $DB;
 
@@ -62,9 +63,7 @@ class CIBlockRSS extends CAllIBlockRSS
 
 		if ($serverName == '' && !isset($arIBLOCK["SERVER_NAME"]))
 		{
-			$b="sort";
-			$o="asc";
-			$dbSite = CSite::GetList($b, $o, array("LID" => $arIBLOCK["LID"]));
+			$dbSite = CSite::GetList('', '', array("LID" => $arIBLOCK["LID"]));
 			if ($arSite = $dbSite->Fetch())
 				$serverName = $arSite["SERVER_NAME"];
 		}

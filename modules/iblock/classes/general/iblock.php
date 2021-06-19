@@ -1129,6 +1129,10 @@ class CAllIBlock
 		global $USER_FIELD_MANAGER;
 
 		$ID = (int)$ID;
+		if ($ID <= 0)
+		{
+			return false;
+		}
 
 		$APPLICATION->ResetException();
 		foreach(GetModuleEvents("iblock", "OnBeforeIBlockDelete", true) as $arEvent)

@@ -17,7 +17,8 @@ use Bitrix\Main\EventManager;
  */
 abstract class Platform
 {
-	const LINK_TYPE_PUBLIC_DETAIL_ORDER = 'PUBLIC_DETAIL_ORDER';
+	public const LINK_TYPE_PUBLIC_DETAIL_ORDER = 'PUBLIC_DETAIL_ORDER';
+	public const LINK_TYPE_PUBLIC_FEEDBACK = 'PUBLIC_FEEDBACK';
 
 	protected $logger;
 	protected $logLevel = Logger::LOG_LEVEL_ERROR;
@@ -363,6 +364,15 @@ abstract class Platform
 	public function getInfo()
 	{
 		return [];
+	}
+
+	/**
+	 * @param string $storeType
+	 * @return bool
+	 */
+	public function isOfType(string $type): bool
+	{
+		return false;
 	}
 
 	/**

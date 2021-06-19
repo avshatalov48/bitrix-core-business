@@ -15,7 +15,7 @@ return [
 
 						<a href="mailto:info@company24.com"
 						   class="landing-block-node-card-contactlink-link g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start g-text-decoration-none--hover">
-							<span class="landing-block-node-card-icon-container text-left text-md-center text-lg-left w-auto g-width-100x--md g-width-auto--lg g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-valign-top g-color-primary g-mr-10 g-mr-0--md g-mr-10--lg">
+							<span class="landing-block-node-card-icon-container text-md-center text-lg-left w-auto g-width-100x--md g-width-auto--lg g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-valign-top g-color-primary g-mr-10 g-mr-0--md g-mr-10--lg">
 								<i class="landing-block-node-card-contactlink-icon icon icon-envelope"></i>
 							</span>
 							<span class="landing-block-node-card-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">
@@ -49,7 +49,7 @@ return [
 			<div class="landing-block-node-card col-md g-mb-10 g-mb-0--md g-brd-right--md g-brd-gray-light-v4"
 						 data-card-preset="contact-text">
 						<div class="g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start">
-							<div class="landing-block-node-card-icon-container text-left text-md-center text-lg-left w-auto g-width-100x--md g-width-auto--lg g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-valign-top g-color-primary g-mr-10 g-mr-0--md g-mr-10--lg">
+							<div class="landing-block-node-card-icon-container text-md-center text-lg-left w-auto g-width-100x--md g-width-auto--lg g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-valign-top g-color-primary g-mr-10 g-mr-0--md g-mr-10--lg">
 								<i class="landing-block-node-card-icon icon icon-clock"></i>
 							</div>
 							<div class="landing-block-node-card-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">

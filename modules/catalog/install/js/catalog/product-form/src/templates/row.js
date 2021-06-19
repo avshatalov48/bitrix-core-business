@@ -52,7 +52,7 @@ Vue.component(config.templateProductRowName,
 
 			const pricePrecision = this.options.pricePrecision || 2;
 			this.calculator = new ProductCalculator(calculatorFields, {
-				currencyId: this.options.currencyId,
+				currencyId: this.options.currency,
 				pricePrecision: pricePrecision,
 				commonPrecision: pricePrecision,
 			});
@@ -94,11 +94,7 @@ Vue.component(config.templateProductRowName,
 		mounted()
 		{
 			this.productSelector = new ProductSelector(this.selectorId, this.prepareSelectorParams());
-
-			if (!Type.isObject(this.basketItem.image))
-			{
-				this.initEmptyImageInputScripts();
-			}
+			this.productSelector.renderTo(this.$refs.selectorWrapper);
 		},
 		updated()
 		{
@@ -130,24 +126,29 @@ Vue.component(config.templateProductRowName,
 						skuTree: this.getDefaultSkuTree(),
 						fileInputId: '',
 						morePhotoValues: [],
-						fileInput: "<div class='ui-image-input-container ui-image-input-img--disabled'>" +
-							"<div class='adm-fileinput-wrapper '>" +
-								"<div class='adm-fileinput-area mode-pict adm-fileinput-drag-area'></div>" +
-							"</div>" +
-						"</div>",
+						fileInput: '',
 						imageValues: [],
 						config: {
 							DETAIL_PATH: this.basketItem.detailUrl || '',
 							ENABLE_SEARCH: true,
 							ENABLE_INPUT_DETAIL_LINK: true,
 							ENABLE_IMAGE_CHANGE_SAVING: true,
+							ENABLE_EMPTY_PRODUCT_ERROR: this.options.enableEmptyProductError,
 							ROW_ID: this.selectorId,
 							ENABLE_SKU_SELECTION: this.editable,
+							HIDE_UNSELECTED_ITEMS: this.options.hideUnselectedProperties,
 							URL_BUILDER_CONTEXT: this.options.urlBuilderContext
 						},
 						mode: this.editable ? ProductSelector.MODE_EDIT : ProductSelector.MODE_VIEW,
+						isSimpleModel:
+							this.getField('name', '') !== ''
+							&& this.getField('productId') <= 0
+							&& this.getField('skuId') <= 0
+						,
 						fields: {
-							NAME: this.getField('name') || ''
+							NAME: this.getField('name') || '',
+							PRICE: this.getField('basePrice') || 0,
+							CURRENCY: this.options.currency,
 						},
 					};
 
@@ -175,24 +176,6 @@ Vue.component(config.templateProductRowName,
 				getField(name, defaultValue = null)
 				{
 					return this.basketItem.fields[name] || defaultValue;
-				},
-				initEmptyImageInputScripts(): void
-				{
-					if (!this.productSelector)
-					{
-						return;
-					}
-
-					BX.ajax.runAction(
-						"catalog.productSelector.getEmptyInputImage",
-						{ json: { iblockId: this.options.iblockId } }
-					).then((response) => {
-						const imageData = response.data;
-						this.productSelector.getFileInput().setId(imageData.id);
-						this.productSelector.getFileInput().setInputHtml(imageData.input);
-
-						this.productSelector.layoutImage();
-					});
 				},
 				getCalculator(): ProductCalculator
 				{
@@ -258,6 +241,21 @@ Vue.component(config.templateProductRowName,
 						productFields.isCustomPrice = fields.CUSTOMIZED;
 					}
 
+					if (!Type.isNil(fields.MEASURE_CODE))
+					{
+						productFields.measureCode = fields.MEASURE_CODE;
+					}
+
+					if (!Type.isNil(fields.MEASURE_NAME))
+					{
+						productFields.measureName = fields.MEASURE_NAME;
+					}
+
+					if (!Type.isNil(fields.PROPERTIES))
+					{
+						productFields.properties = fields.PROPERTIES;
+					}
+
 					this.changeRowData(map);
 					this.changeProduct(productFields);
 				},
@@ -290,6 +288,11 @@ Vue.component(config.templateProductRowName,
 							ID: data.fields.ID,
 							PRODUCT_ID: data.fields.PRODUCT_ID,
 							SKU_ID: data.fields.SKU_ID,
+							PROPERTIES: data.fields.PROPERTIES,
+							URL_BUILDER_CONTEXT: this.options.urlBuilderContext,
+							CUSTOMIZED: Type.isNil(data.fields.PRICE) ? 'Y' : 'N',
+							MEASURE_CODE: data.fields.MEASURE_CODE,
+							MEASURE_NAME: data.fields.MEASURE_NAME,
 						};
 
 						fields = Object.assign(
@@ -533,8 +536,17 @@ Vue.component(config.templateProductRowName,
 					if(type === 'discount')
 					{
 						array = [];
-						array[DiscountType.PERCENTAGE] = '%';
-						array[DiscountType.MONETARY] = this.currencySymbol;
+						if (Type.isArray(this.options.allowedDiscountTypes))
+						{
+							if (this.options.allowedDiscountTypes.includes(DiscountType.PERCENTAGE))
+							{
+								array[DiscountType.PERCENTAGE] = '%';
+							}
+							if (this.options.allowedDiscountTypes.includes(DiscountType.MONETARY))
+							{
+								array[DiscountType.MONETARY] = this.currencySymbol;
+							}
+						}
 					}
 
 					if(array)
@@ -561,12 +573,15 @@ Vue.component(config.templateProductRowName,
 						}
 					}
 
-					this.popupMenu = new Menu({
-						bindElement: target,
-						items: menuItems
-					});
+					if (menuItems.length > 0)
+					{
+						this.popupMenu = new Menu({
+							bindElement: target,
+							items: menuItems
+						});
 
-					this.popupMenu.show();
+						this.popupMenu.show();
+					}
 				},
 				showProductTooltip(e)
 				{
@@ -642,6 +657,20 @@ Vue.component(config.templateProductRowName,
 							|| (!this.editable && this.showBasePrice)
 						);
 				},
+				showRemoveIcon()
+				{
+					if (!this.editable)
+					{
+						return false;
+					}
+
+					if (this.countItems > 1)
+					{
+						return true;
+					}
+
+					return this.basketItem.offerId !== null;
+				},
 				showTaxSelector()
 				{
 					return this.basketItem.showTax === 'Y';
@@ -683,7 +712,7 @@ Vue.component(config.templateProductRowName,
 			},
 		template: `
 		<div class="catalog-pf-product-item" v-bind:class="{ 'catalog-pf-product-item--borderless': !editable && basketItemIndex === 0 }">
-			<div class="catalog-pf-product-item--remove" @click="removeItem" v-if="countItems > 1 && editable"></div>
+			<div class="catalog-pf-product-item--remove" @click="removeItem" v-if="showRemoveIcon"></div>
 			<div class="catalog-pf-product-item--num">
 				<div class="catalog-pf-product-index">{{basketItemIndex + 1}}</div>
 			</div>
@@ -691,7 +720,7 @@ Vue.component(config.templateProductRowName,
 				<div class="catalog-pf-product-item-section">
 					<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_NAME}}</div>
 				</div>
-				<div class="catalog-pf-product-item-section" :id="selectorId"></div>
+				<div class="catalog-pf-product-item-section" :id="selectorId" ref="selectorWrapper"></div>
 			</div>
 			<div class="catalog-pf-product-item--right">
 				<div class="catalog-pf-product-item-section">

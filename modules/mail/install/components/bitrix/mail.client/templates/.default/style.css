@@ -1,4 +1,3 @@
-
 .pagetitle-mail-view .pagetitle-below {
 	display: -webkit-box;
 	display: -ms-flexbox;
@@ -21,7 +20,6 @@
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 	overflow: hidden;
-	width: 100%;
 	display: flex;
 	margin-bottom: 5px;
 }
@@ -49,7 +47,6 @@
 	-ms-flex-preferred-size: inherit;
 	flex-basis: inherit;
 	display: inline-block;
-	margin: 0 10px 0 0;
 	height: 20px;
 	color: #2067b0;
 	text-decoration: none;
@@ -69,12 +66,14 @@
 }
 
 .mail-msg-counter-number {
+	color: white;
+	background-color: #f34829;
     display: inline-block;
     padding: 0 7px;
     height: 16px;
     -webkit-border-radius: 30px;
     border-radius: 30px;
-    border: 1px solid rgba(168,173,180,.52);
+    border: 1px solid #f34829;
     font: bold 11px/16px 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     vertical-align: middle;
     -webkit-transition: .2s;

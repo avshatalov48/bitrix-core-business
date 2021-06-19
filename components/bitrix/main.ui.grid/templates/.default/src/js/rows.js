@@ -254,13 +254,9 @@
 		 */
 		getById: function(id)
 		{
-			id = id.toString();
-			var rows = this.getBodyChild();
-			var row = rows.filter(function(current) {
-				return current.getId() === id;
-			});
-
-			return row.length === 1 ? row[0] : null;
+			return this.getBodyChild().find(function(current) {
+				return String(current.getId()) === String(id);
+			}) || null;
 		},
 
 

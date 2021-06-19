@@ -305,11 +305,6 @@ function _RunTimer()
 {
 	var current_moment = new Date();
 
-	// if (current_moment.getMilliseconds() > 500)
-		// BX.addClass(document.body, 'bx-timer-semicolon-off');
-	// else
-		// BX.removeClass(document.body, 'bx-timer-semicolon-off');
-
 	for (var i=0,len=last_index;i<len;i++)
 	{
 		if (timers[i] && timers[i].callback)

@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CAllIBlockRSS
 {
 	public static function GetRSSNodes()
@@ -29,7 +30,7 @@ class CAllIBlockRSS
 		return $arCurNodesRSS;
 	}
 
-	function GetNewsEx($SITE, $PORT, $PATH, $QUERY_STR, $bOutChannel = False)
+	public static function GetNewsEx($SITE, $PORT, $PATH, $QUERY_STR, $bOutChannel = False)
 	{
 		global $APPLICATION;
 
@@ -129,7 +130,7 @@ class CAllIBlockRSS
 		}
 	}
 
-	function GetNews($ID, $LANG, $TYPE, $SITE, $PORT, $PATH, $LIMIT = 0)
+	public static function GetNews($ID, $LANG, $TYPE, $SITE, $PORT, $PATH, $LIMIT = 0)
 	{
 		if (intval($ID)>0)
 		{
@@ -146,7 +147,7 @@ class CAllIBlockRSS
 		return CIBlockRSS::GetNewsEx($SITE, $PORT, $PATH, "ID=".$ID."&LANG=".$LANG."&TYPE=".$TYPE."&LIMIT=".$LIMIT);
 	}
 
-	function FormatArray(&$arRes, $bOutChannel=false)
+	public static function FormatArray(&$arRes, $bOutChannel=false)
 	{
 		if (!$bOutChannel)
 		{
@@ -291,7 +292,7 @@ class CAllIBlockRSS
 		return $arResult;
 	}
 
-	function XMLDate2Dec($date_XML, $dateFormat = "DD.MM.YYYY")
+	public static function XMLDate2Dec($date_XML, $dateFormat = "DD.MM.YYYY")
 	{
 		static $MonthChar2Num = Array("","jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec");
 
@@ -303,7 +304,7 @@ class CAllIBlockRSS
 		return  date(CDatabase::DateFormatToPHP($dateFormat), $timestamp);
 	}
 
-	function ExtractProperties($str, &$arProps, &$arItem)
+	public static function ExtractProperties($str, &$arProps, &$arItem)
 	{
 		reset($arProps);
 		foreach ($arProps as $key => $val)
@@ -314,7 +315,7 @@ class CAllIBlockRSS
 		return $str;
 	}
 
-	function GetRSS($ID, $LANG, $TYPE, $LIMIT_NUM = false, $LIMIT_DAY = false, $yandex = false)
+	public static function GetRSS($ID, $LANG, $TYPE, $LIMIT_NUM = false, $LIMIT_DAY = false, $yandex = false)
 	{
 		echo "<"."?xml version=\"1.0\" encoding=\"".LANG_CHARSET."\"?".">\n";
 		echo "<rss version=\"2.0\"";

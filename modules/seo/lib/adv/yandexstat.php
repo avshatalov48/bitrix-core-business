@@ -173,7 +173,6 @@ class YandexStatTable extends Entity\DataManager
 		return $result;
 	}
 
-
 	public static function loadBannerStat($bannerId, $dateStart, $dateFinish)
 	{
 		$directEngine = new YandexDirect();
@@ -231,7 +230,7 @@ class YandexStatTable extends Entity\DataManager
 		return false;
 	}
 
-	protected function loadStat(YandexDirect $directEngine, $campaignXmlId, $dateStart, $dateFinish, $skipCurrency = false)
+	protected static function loadStat(YandexDirect $directEngine, $campaignXmlId, $dateStart, $dateFinish, $skipCurrency = false)
 	{
 		$dateStart = new Date($dateStart);
 		$dateFinish = new Date($dateFinish);
@@ -285,7 +284,7 @@ class YandexStatTable extends Entity\DataManager
 		return $result;
 	}
 
-	protected function processStatsResult($campaignId, array $result, YandexDirect $directEngine)
+	protected static function processStatsResult($campaignId, array $result, YandexDirect $directEngine)
 	{
 		if($result['Stat'])
 		{

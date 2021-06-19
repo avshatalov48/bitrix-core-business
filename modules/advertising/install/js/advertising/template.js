@@ -1279,11 +1279,12 @@ BXBannerTemplate.prototype =
         BXColorPicker.prototype.Create = function ()
         {
             var _this = this;
-            this.zIndex += BX.WindowManager ? BX.WindowManager.GetZIndex() : 0;
             window['bx_colpic_keypress_' + this.fid] = function(e){_this.OnKeyPress(e);};
             window['bx_colpic_click_' + this.fid] = function(e){_this.OnDocumentClick(e);};
 
-            this.pColCont = document.body.appendChild(BX.create("DIV", {props: {className: "bx-colpic-cont"}, style: {zIndex: this.zIndex}}));
+            this.pColCont = document.body.appendChild(BX.create("DIV", {props: {className: "bx-colpic-cont"} }));
+
+            BX.ZIndexManager.register(this.pColCont);
 
             var arColors = [
                 '#FF0000', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#FF00FF', '#FFFFFF', '#EBEBEB', '#E1E1E1', '#D7D7D7', '#CCCCCC', '#C2C2C2', '#B7B7B7', '#ACACAC', '#A0A0A0', '#959595',

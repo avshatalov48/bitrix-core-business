@@ -1,5 +1,5 @@
 import {Type, Dom} from 'main.core';
-import {Util} from "calendar.util";
+import {Util} from 'calendar.util';
 
 export class UserSelector
 {

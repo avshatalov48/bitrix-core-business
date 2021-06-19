@@ -1,4 +1,9 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true){
+	die();
+};
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -11,9 +16,13 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UI;
 
-UI\Extension::load("ui.buttons");
-UI\Extension::load("ui.alerts");
-UI\Extension::load("socialnetwork.common");
+UI\Extension::load([
+	'ui.buttons',
+	'ui.alerts',
+	'ui.icons.b24',
+	'socialnetwork.common',
+	'intranet_theme_picker',
+]);
 
 if ($arResult["NEED_AUTH"] == "Y")
 {
@@ -71,7 +80,7 @@ else
 
 			if (
 				$arResult["IS_IFRAME"]
-				&& $arResult["CALLBACK"] == "EDIT"
+				&& $arResult["CALLBACK"] === "EDIT"
 			)
 			{
 				// this situation is impossible now but this code may be needed in the future
@@ -119,11 +128,13 @@ else
 					BX.BXGCE.types = <?=CUtil::phpToJSObject($arResult['Types'])?>;
 					BX.BXGCE.arUserSelector = [];
 					BX.BXGCE.init({
-						preset: '<?=(!empty($arResult["preset"]) ? \CUtil::jsEscape($arResult["preset"]) : '')?>',
-						groupId: <?=intval($arParams["GROUP_ID"])?>,
-						isScrumProject: '<?=$arResult["isScrumProject"]?>',
-						config: <?=CUtil::phpToJSObject($arResult['ClientConfig'])?>,
-						avatarUploaderId: '<?=$arResult['AVATAR_UPLOADER_CID']?>'
+						preset: '<?= (!empty($arResult["preset"]) ? \CUtil::jsEscape($arResult["preset"]) : '') ?>',
+						groupId: <?= (int)$arParams["GROUP_ID"] ?>,
+						isScrumProject: '<?= $arResult['isScrumProject'] ? 'Y' : 'N'; ?>',
+						config: <?= CUtil::phpToJSObject($arResult['ClientConfig']) ?>,
+						avatarUploaderId: '<?= $arResult['AVATAR_UPLOADER_CID'] ?>',
+						themePickerData: <?= CUtil::phpToJSObject($arResult['themePickerData']) ?>,
+						projectOptions: <?= CUtil::phpToJSObject($arParams['PROJECT_OPTIONS']) ?>
 					});
 
 					if (BX("USERS_employee_section_extranet"))
@@ -182,12 +193,12 @@ else
 									"typesList" => $arResult["Types"],
 									"fields" => $arResult["POST"]
 								));
-								foreach($arResult["TypeRowList"] as $rowCode)
+								foreach ($arResult['TypeRowList'] as $rowCode)
 								{
 									?><div class="social-group-create-inner">
 										<div class="social-group-create-title"><?=$arResult["TypeRowNameList"][$rowCode]?></div>
 										<div class="social-group-tile-container"><?
-											foreach($arResult[$rowCode] as $code => $type)
+											foreach ($arResult[$rowCode] as $code => $type)
 											{
 												$selected = ($typeCode == $code);
 												?><div class="social-group-tile-item" bx-type="<?=htmlspecialcharsbx($code)?>">
@@ -246,7 +257,7 @@ else
 					}
 
 					?><div class="social-group-create-options"><?
-						if (!array_key_exists("TAB", $arResult) || $arResult["TAB"] == "edit")
+						if (!array_key_exists("TAB", $arResult) || $arResult["TAB"] === "edit")
 						{
 							?><div class="social-group-create-options-item social-group-create-options-item-upload">
 								<div class="social-group-create-options-item-column-left">
@@ -271,9 +282,43 @@ else
 								</div>
 							</div><?
 
-							if ($arResult["intranetInstalled"])
+							if ($arResult['intranetInstalled'])
 							{
-								?><div id="IS_PROJECT_block" class="<?=($arResult["POST"]["PROJECT"] == "Y" ? " sgcp-switch-project" : "")?>">
+								if ($arResult['showThemePicker'])
+								{
+									?><div id="GROUP_THEME_container" class="social-group-create-options-item social-group-create-options-item-upload">
+										<div class="social-group-create-options-item-column-left">
+											<div class="social-group-create-options-item-name"><?= Loc::getMessage('SONET_GCE_T_THEME') ?></div>
+										</div>
+										<div class="social-group-create-options-item-column-right">
+											<div class="social-group-create-options-item-column-one"><?php
+
+												$classList = [
+													'social-group-create-link-upload',
+													'social-group-create-options-item-upload'
+												];
+												if (!empty($arResult['themePickerData']))
+												{
+													$classList[] = 'social-group-create-link-upload-set';
+												}
+
+												?><div id="GROUP_THEME_ID_block" class="<?= implode(' ', $classList) ?>">
+													<div class="social-group-create-theme-cont">
+														<div class="social-group-create-theme-cont-inner">
+															<div class="ui-icon social-group-create-theme-preview-image">
+																<i style="background-size: cover;" bx-group-edit-theme-node="image"></i>
+															</div>
+															<a href="" target="_blank" class="social-group-create-theme-title" bx-group-edit-theme-node="title"></a>
+															<input type="hidden" bx-group-edit-theme-node="id" name="GROUP_THEME_ID" />
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div><?php
+								}
+
+								?><div id="IS_PROJECT_block" class="<?=($arResult["POST"]["PROJECT"] === "Y" ? " sgcp-switch-project" : "")?>">
 									<div class="social-group-create-options-item sgcp-flex-project">
 										<div class="social-group-create-options-item-column-left">
 											<div class="social-group-create-options-item-name"><?= GetMessage("SONET_GCE_T_PARAMS_PROJECT_DATE") ?></div>
@@ -826,20 +871,27 @@ else
 																?><input type="hidden" name="<?=htmlspecialcharsbx($feature)?>_active"  value="<?=($arFeature["Active"] ? 'Y' : 'N')?>">
 																<input type="hidden" name="<?=htmlspecialcharsbx($feature)?>_name" value="<?=($customTitle ? $featureTitle : '')?>"><?
 															}
-															elseif (
-																isset($arParams['PROJECT_OPTIONS']['features'])
-																&& is_array($arParams['PROJECT_OPTIONS']['features'])
-																&& isset($arParams['PROJECT_OPTIONS']['features'][$feature])
-															)
-															{
-																?><input type="hidden" name="<?=htmlspecialcharsbx($feature)?>_active"  value="<?=($arParams['PROJECT_OPTIONS']['features'][$feature] ? 'Y' : 'N')?>">
-																<input type="hidden" name="<?=htmlspecialcharsbx($feature)?>_name" value="<?=($customTitle ? $featureTitle : '')?>"><?
-															}
 															else
 															{
+																$setByOptions = (
+																	isset($arParams['PROJECT_OPTIONS']['features'])
+																	&& is_array($arParams['PROJECT_OPTIONS']['features'])
+																	&& isset($arParams['PROJECT_OPTIONS']['features'][$feature])
+																);
+																$disabled = $setByOptions;
+																$checked = (
+																	$setByOptions
+																		? $arParams['PROJECT_OPTIONS']['features'][$feature] !== false && $arParams['PROJECT_OPTIONS']['features'][$feature] !== 'false'
+																		: $arFeature['Active']
+																);
+
 																?><div class="social-group-create-form-field-list-item<?=($customTitle ? ' custom-value' : '')?>">
-																	<input name="<?=htmlspecialcharsbx($feature)?>_active" type="checkbox" class="social-group-create-form-field-list-input" value="Y" <?=($arFeature["Active"] ? 'checked' : '')?>>
-																	<span class="social-group-create-form-field-list-name"><label class="social-group-create-form-field-list-label"><?=htmlspecialcharsex($featureTitleOriginal)?></label></span>
+																	<input name="<?=htmlspecialcharsbx($feature)?>_active" type="checkbox" class="social-group-create-form-field-list-input" value="Y" <?= ($checked ? 'checked' : '') ?> <?= ($disabled ? 'disabled' : '') ?>><?php
+																	if ($disabled)
+																	{
+																		?><input name="<?= htmlspecialcharsbx($feature) ?>_active" type="hidden" value="<?= ($checked ? 'Y' : '')?>" ><?php
+																	}
+																	?><span class="social-group-create-form-field-list-name"><label class="social-group-create-form-field-list-label"><?= htmlspecialcharsex($featureTitleOriginal) ?></label></span>
 																	<input type="text" name="<?=htmlspecialcharsbx($feature)?>_name" class="social-group-create-form-field-input-text" value="<?=($customTitle ? $featureTitle : '')?>">
 																	<span class="social-group-create-form-pencil"></span>
 																	<span class="social-group-create-form-field-cancel"></span>
@@ -1076,10 +1128,22 @@ else
 															}
 															else
 															{
+																$setByOptions = isset($arParams['PROJECT_OPTIONS']['extranet']);
+																$disabled = $setByOptions;
+																$checked = (
+																	$setByOptions
+																		? $arParams['PROJECT_OPTIONS']['extranet'] === true || $arParams['PROJECT_OPTIONS']['extranet'] === 'true'
+																		: $arResult["POST"]['IS_EXTRANET_GROUP'] === 'Y'
+																);
+
 																?><div class="social-group-create-form-field-list-item">
-																	<label class="social-group-create-form-field-list-label<?=($arResult["POST"]["PROJECT"] == "Y" ? ' sgcp-switch-project' : '')?>" id="GROUP_EXTRANET_LABEL_block">
-																		<input type="checkbox" id="IS_EXTRANET_GROUP" name="IS_EXTRANET_GROUP" class="social-group-create-form-field-list-input" value="Y"<?=($arResult["POST"]["IS_EXTRANET_GROUP"] == "Y" ? " checked" : "")?>>
-																		<span class="social-group-create-form-field-list-name sgcp-inlineblock-nonproject" title="<?=Loc::getMessage("SONET_GCE_T_IS_EXTRANET_GROUP2_HINT")?>"><?=Loc::getMessage("SONET_GCE_T_IS_EXTRANET_GROUP2") ?></span>
+																	<label class="social-group-create-form-field-list-label<?=($arResult["POST"]["PROJECT"] == "Y" ? ' sgcp-switch-project' : '')?>" id="GROUP_EXTRANET_LABEL_block" <?= ($disabled ? 'style="pointer-events: none"' : '') ?>>
+																		<input type="checkbox" id="IS_EXTRANET_GROUP" name="IS_EXTRANET_GROUP" class="social-group-create-form-field-list-input" value="Y" <?= ($checked ? 'checked' : '') ?> <?= ($disabled ? 'disabled' : '') ?>><?php
+																		if ($disabled)
+																		{
+																			?><input type="hidden" name="IS_EXTRANET_GROUP" value="<?= ($checked ? 'Y' : '')?>"><?php
+																		}
+																		?><span class="social-group-create-form-field-list-name sgcp-inlineblock-nonproject" title="<?=Loc::getMessage("SONET_GCE_T_IS_EXTRANET_GROUP2_HINT")?>"><?=Loc::getMessage("SONET_GCE_T_IS_EXTRANET_GROUP2") ?></span>
 																		<span class="social-group-create-form-field-list-name sgcp-inlineblock-project" title="<?=Loc::getMessage("SONET_GCE_T_IS_EXTRANET_GROUP2_HINT_PROJECT")?>"><?=Loc::getMessage("SONET_GCE_T_IS_EXTRANET_GROUP2_PROJECT") ?></span>
 																	</label>
 																</div><?
@@ -1094,10 +1158,22 @@ else
 															}
 															else
 															{
+																$setByOptions = isset($arParams['PROJECT_OPTIONS']['project']);
+																$disabled = $setByOptions;
+																$checked = (
+																	$setByOptions
+																		? $arParams['PROJECT_OPTIONS']['project'] === true || $arParams['PROJECT_OPTIONS']['project'] === 'true'
+																		: $arResult['POST']['PROJECT'] === 'Y'
+																);
+																
 																?><div class="social-group-create-form-field-list-item">
-																	<label class="social-group-create-form-field-list-label">
-																		<input type="checkbox" id="GROUP_PROJECT" name="GROUP_PROJECT" value="Y" class="social-group-create-form-field-list-input" onclick="BXSwitchProject(this.checked)" <?= ($arResult["POST"]["PROJECT"] == "Y") ? " checked" : ""?>>
-																		<span class="social-group-create-form-field-list-name"><?=Loc::getMessage("SONET_GCE_T_PARAMS_PROJECT") ?></span>
+																	<label class="social-group-create-form-field-list-label" <?= ($disabled ? 'style="pointer-events: none"' : '') ?>>
+																		<input type="checkbox" id="GROUP_PROJECT" name="GROUP_PROJECT" value="Y" class="social-group-create-form-field-list-input" onclick="BXSwitchProject(this.checked)" <?= ($checked ? 'checked' : '') ?> <?= ($disabled ? 'disabled' : '') ?>><?php
+																		if ($disabled)
+																		{
+																			?><input type="hidden" name="GROUP_PROJECT" value="<?= ($checked ? 'Y' : '')?>"><?php
+																		}
+																		?><span class="social-group-create-form-field-list-name"><?=Loc::getMessage("SONET_GCE_T_PARAMS_PROJECT") ?></span>
 																	</label>
 																</div><?
 															}
@@ -1111,11 +1187,23 @@ else
 															}
 															else
 															{
+																$setByOptions = isset($arParams['PROJECT_OPTIONS']['landing']);
+																$disabled = $setByOptions;
+																$checked = (
+																	$setByOptions
+																		? $arParams['PROJECT_OPTIONS']['landing'] === true || $arParams['PROJECT_OPTIONS']['landing'] === 'true'
+																		: $arResult['POST']['LANDING'] === 'Y'
+																);
+
 																?><div class="social-group-create-form-field-list-item">
-																<label class="social-group-create-form-field-list-label">
-																	<input type="checkbox" id="GROUP_LANDING" name="GROUP_LANDING" value="Y" class="social-group-create-form-field-list-input" <?= ($arResult["POST"]["LANDING"] == "Y") ? " checked" : ""?>>
-																	<span class="social-group-create-form-field-list-name"><?=Loc::getMessage("SONET_GCE_T_PARAMS_LANDING") ?></span>
-																</label>
+																	<label class="social-group-create-form-field-list-label" <?= ($disabled ? 'style="pointer-events: none"' : '') ?>>
+																		<input type="checkbox" id="GROUP_LANDING" name="GROUP_LANDING" value="Y" class="social-group-create-form-field-list-input" <?= ($checked ? 'checked' : '') ?> <?= ($disabled ? 'disabled' : '') ?>><?php
+																		if ($disabled)
+																		{
+																			?><input type="hidden" name="GROUP_LANDING" value="<?= ($checked ? 'Y' : '')?>"><?php
+																		}
+																		?><span class="social-group-create-form-field-list-name"><?=Loc::getMessage("SONET_GCE_T_PARAMS_LANDING") ?></span>
+																	</label>
 																</div><?
 															}
 														}

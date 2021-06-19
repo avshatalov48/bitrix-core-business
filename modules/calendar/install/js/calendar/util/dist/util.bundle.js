@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core,ui_notification,main_popup) {
+(function (exports,main_core,ui_notification,main_popup,pull_client) {
 	'use strict';
 
 	(function (window) {
@@ -1095,7 +1095,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getDefaultColorList",
 	    value: function getDefaultColorList() {
-	      return ['#86B100', '#0092CC', '#00AFC7', '#DA9100', '#00B38C', '#DE2B24', '#BD7AC9', '#838FA0', '#AB7917', '#E97090'];
+	      return ['#86b100', '#0092cc', '#00afc7', '#da9100', '#00b38c', '#de2b24', '#bd7ac9', '#838fa0', '#ab7917', '#e97090'];
 	    }
 	  }, {
 	    key: "findTargetNode",
@@ -1232,12 +1232,15 @@ this.BX = this.BX || {};
 	    value: function showFieldError(message, wrap, options) {
 	      if (main_core.Type.isDomNode(wrap) && main_core.Type.isString(message) && message !== '') {
 	        main_core.Dom.remove(wrap.querySelector('.ui-alert'));
-	        var alert = new BX.UI.Alert({
+
+	        var _alert = new BX.UI.Alert({
 	          color: BX.UI.Alert.Color.DANGER,
 	          icon: BX.UI.Alert.Icon.DANGER,
 	          text: message
 	        });
-	        var alertWrap = alert.getContainer();
+
+	        var alertWrap = _alert.getContainer();
+
 	        wrap.appendChild(alertWrap);
 	      }
 	    }
@@ -1347,7 +1350,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getUserSettings",
 	    value: function getUserSettings() {
-	      return Util.userSettings || {};
+	      return main_core.Type.isObjectLike(Util.userSettings) ? Util.userSettings : {};
 	    }
 	  }, {
 	    key: "setCalendarContext",
@@ -1416,11 +1419,134 @@ this.BX = this.BX || {};
 	      if (!parseInt(timezoneOffset) || fullDay === true) return date;
 	      return new Date(date.getTime() - parseInt(timezoneOffset) * 1000);
 	    }
+	  }, {
+	    key: "randomInt",
+	    value: function randomInt(min, max) {
+	      return Math.round(min - 0.5 + Math.random() * (max - min + 1));
+	    }
+	  }, {
+	    key: "getRandomColor",
+	    value: function getRandomColor() {
+	      var defaultColors = Util.getDefaultColorList();
+	      return defaultColors[Util.randomInt(0, defaultColors.length - 1)];
+	    }
+	  }, {
+	    key: "setAccessNames",
+	    value: function setAccessNames() {
+	      var accessNames = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      Util.accessNames = {};
+
+	      for (var code in accessNames) {
+	        if (accessNames.hasOwnProperty(code)) {
+	          Util.setAccessName(code, accessNames[code]);
+	        }
+	      }
+	    }
+	  }, {
+	    key: "getAccessName",
+	    value: function getAccessName(code) {
+	      return Util.accessNames[code] || code;
+	    }
+	  }, {
+	    key: "setAccessName",
+	    value: function setAccessName(code, name) {
+	      Util.accessNames[code] = name;
+	    }
+	  }, {
+	    key: "getRandomInt",
+	    value: function getRandomInt() {
+	      var numCount = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 6;
+	      return Math.round(Math.random() * Math.pow(10, numCount));
+	    }
+	  }, {
+	    key: "displayError",
+	    value: function displayError(errors, reloadPage) {
+	      if (main_core.Type.isArray(errors)) {
+	        var errorMessage = '';
+
+	        for (var i = 0; i < errors.length; i++) {
+	          errorMessage += errors[i].message + "\n";
+	        }
+
+	        errors = errorMessage;
+	      }
+
+	      setTimeout(function () {
+	        alert(errors || '[Bitrix Calendar] Request error');
+
+	        if (reloadPage) {
+	          location.reload();
+	        }
+	      }, 200);
+	    }
+	  }, {
+	    key: "convertEntityToAccessCode",
+	    value: function convertEntityToAccessCode(entity) {
+	      if (main_core.Type.isObjectLike(entity)) {
+	        if (entity.entityId === 'meta-user' && entity.id === 'all-users') {
+	          return 'UA';
+	        } else if (entity.entityId === 'user') {
+	          return 'U' + entity.id;
+	        } else if (entity.entityId === 'project') {
+	          return 'SG' + entity.id;
+	        } else if (entity.entityId === 'department') {
+	          return 'DR' + entity.id;
+	        }
+	      }
+	    }
+	  }, {
+	    key: "extendPlannerWatches",
+	    value: function extendPlannerWatches(_ref) {
+	      var entries = _ref.entries,
+	          userId = _ref.userId;
+	      entries.forEach(function (entry) {
+	        if (entry.type === 'user' && parseInt(entry.id) !== parseInt(userId)) {
+	          var tag = Util.PLANNER_PULL_TAG.replace('#USER_ID#', entry.id);
+
+	          if (!Util.PLANNER_WATCH_LIST.includes(tag)) {
+	            pull_client.PULL.extendWatch(tag);
+	            Util.PLANNER_WATCH_LIST.push(tag);
+	          }
+	        }
+	      });
+	    }
+	  }, {
+	    key: "clearPlannerWatches",
+	    value: function clearPlannerWatches() {
+	      Util.PLANNER_WATCH_LIST.forEach(function (tag) {
+	        pull_client.PULL.clearWatch(tag);
+	      });
+	      Util.PLANNER_WATCH_LIST = [];
+	    }
+	  }, {
+	    key: "registerRequestId",
+	    value: function registerRequestId() {
+	      var requestUid = BX.Calendar.Util.getRandomInt(8);
+	      Util.REQUEST_ID_LIST.push(requestUid);
+	      return requestUid;
+	    }
+	  }, {
+	    key: "unregisterRequestId",
+	    value: function unregisterRequestId(requestUid) {
+	      Util.REQUEST_ID_LIST = Util.REQUEST_ID_LIST.filter(function (uid) {
+	        return uid !== requestUid;
+	      });
+	    }
+	  }, {
+	    key: "checkRequestId",
+	    value: function checkRequestId(requestUid) {
+	      requestUid = parseInt(requestUid);
+	      return !main_core.Type.isInteger(requestUid) || !Util.REQUEST_ID_LIST.includes(requestUid);
+	    }
 	  }]);
 	  return Util;
 	}();
+	babelHelpers.defineProperty(Util, "PLANNER_PULL_TAG", 'calendar-planner-#USER_ID#');
+	babelHelpers.defineProperty(Util, "PLANNER_WATCH_LIST", []);
+	babelHelpers.defineProperty(Util, "REQUEST_ID_LIST", []);
+	babelHelpers.defineProperty(Util, "accessNames", {});
 
 	exports.Util = Util;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX,BX.Main));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX,BX.Main,BX));
 //# sourceMappingURL=util.bundle.js.map

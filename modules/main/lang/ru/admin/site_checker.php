@@ -382,11 +382,11 @@ $MESS["SC_HELP_CHECK_SOCKET_SSL"] = "Шифрованное подключени
 
 Если работа с порталом идет через HTTPS соединение и используется самоподписанный сертификат, могут возникнуть проблемы при работе с внешним ПО, например, при подключении сетевых дисков по протоколу WebDav и интеграции с MS Outlook.
 ";
-$MESS["SC_HELP_CHECK_PULL_STREAM"] = "Для полноценной работы чата необходима настройка модуля <a href=\"https://dev.1c-bitrix.ru/learning/course/?COURSE_ID=48&LESSON_ID=9379\" target=_blank>Bitrix NodeJS RTC</a> или <a href=\"http://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=41&LESSON_ID=2033\">Push and Pull</a>.
+$MESS["SC_HELP_CHECK_PULL_STREAM"] = "Сервер очередей Push and Pull служит для мгновенного взаимодействия между собой многих инструментов продуктов Битрикс24 и 1С-Битрикс: Управление сайтом. Он используется в Задачах, Календарях, ленте Новостей, Группах, RPA, мобильном приложении Битрикс24, Чатах, Генераторе документов, Телефонии, Центре продаж и в других сервисах.
 
-Модуль обеспечивает мгновенную доставку сообщений в веб-мессенджер, мобильное приложение, а также моментальное обновление живой ленты.
+Для полноценной работы системы необходима настройка модуля <a href=\"http://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=41&LESSON_ID=2033\">Push and Pull</a> и Push server.
 
-<a href=\"http://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=37\">Виртуальная машина &quot;1С-Битрикс&quot;</a> с версии 4.2 имеет встроенную поддержку push&amp;pull.
+<a href=\"http://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=37\">Виртуальная машина &quot;1С-Битрикс&quot;</a> с версии 4.2 имеет встроенную поддержку Push server.
 ";
 $MESS["SC_HELP_CHECK_PULL_COMMENTS"] = "Для того чтобы комментарии в живой ленте были видны всем пользователям сразу после добавления, необходима настройка модуля <a href=\"http://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=41&LESSON_ID=2033\">Push and Pull</a>.
 
@@ -423,7 +423,7 @@ $MESS["SC_HELP_CHECK_ACCESS_MOBILE"] = "Для работы мобильного
 
 Тест использует специальный сервер checker.internal.bitrix24.com, который пытается осуществить подключение к порталу, используя адрес портала из браузера. При этом никакие пользовательские данные не передаются на наш сервер.
 
-Для работы мгновенных сообщений необходима также возможность подключения к порту чтения сообщений модуля Nginx push-stream-module. Порт подключения берется из настроек модуля <a href=\"http://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=41&LESSON_ID=2033\">Push and Pull</a>.";
+Для работы мгновенных сообщений необходима также возможность подключения к порту чтения сообщений Push server. Порт подключения берется из настроек модуля <a href=\"http://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=41&LESSON_ID=2033\">Push and Pull</a>.";
 $MESS["SC_HELP_CHECK_FAST_DOWNLOAD"] = "Быстрая отдача файлов использует внутреннюю переадресацию <a href=\"http://wiki.nginx.org/X-accel\">Nginx</a>. В этом случае осуществляется проверка доступа к файлу средствами PHP, о отдача - через Nginx. 
 
 Ресурсы PHP освобождаются для обработки следующего запроса. Это существенно повышает производительность портала в целом и скорость отдачи файлов через Битрикс.Диск, работу с библиотекой документов, отдачу приложенных файлов из живой ленты.
@@ -455,7 +455,8 @@ $MESS["MAIN_SC_TEST_SSL_WARN"] = "Безопасное подключение н
 $MESS["MAIN_SC_SSL_NOT_VALID"] = "Сервер имеет невалидный SSL сертификат, возможны проблемы в интеграции с внешними приложениями";
 $MESS["MAIN_SC_PATH_PUB"] = "Путь для публикации сообщений в настройках модуля Push and Pull некорректен";
 $MESS["MAIN_SC_PATH_SUB"] = "Путь для чтения сообщений в настройках модуля Push and Pull некорректен";
-$MESS["MAIN_SC_STREAM_DISABLED"] = "Выключена опция nginx-push-stream-module в настройках модуля Push and Pull. ";
+$MESS["MAIN_SC_STREAM_DISABLED_2"] = "Не настроен Push server в настройках модуля Push and Pull.";
+$MESS["MAIN_SC_PULL_UNSUPPORTED_VERSION"] = "В настройках модуля Push and Pull указана версия Push server, которая объявлена устаревшей. Вам необходимо перейти на новую версию Push server. <a href=\"http://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=41&LESSON_ID=2033\">Подробнее.</a> ";
 $MESS["MAIN_SC_PULL_NOT_REGISTERED"] = "Ошибка регистрации на Push сервере, предоставленном 1С-Битрикс";
 $MESS["MAIN_NO_PULL"] = "Модуль Push and Pull не установлен. ";
 $MESS["MAIN_NO_PULL_MODULE"] = "Модуль Push and Pull не установлен. PUSH уведомления не будут приходить на мобильные устройства.";
@@ -525,7 +526,7 @@ $MESS["MAIN_SC_ALL_FUNCS_TESTED"] = "Все функции портала про
 $MESS["MAIN_SC_FUNC_WORKS_FINE"] = "Функция работает правильно";
 $MESS["MAIN_SC_FUNC_WORKS_PARTIAL"] = "Функция работает частично неправильно, желательно устранить ошибки";
 $MESS["MAIN_SC_FUNC_WORKS_WRONG"] = "Функция работает неправильно, требуется устранить ошибки";
-$MESS["MAIN_SC_TEST_CHAT"] = "Бизнес-чат в реальном времени";
+$MESS["MAIN_SC_TEST_PUSH_SERVER"] = "Сервер очередей Push and Pull";
 $MESS["MAIN_SC_TEST_COMMENTS"] = "Живые комментарии в ленте сообщений";
 $MESS["MAIN_SC_TEST_VIDEO"] = "Видеозвонки";
 $MESS["MAIN_SC_TEST_MOBILE"] = "Мобильное приложение Битрикс24";
@@ -555,10 +556,11 @@ $MESS["MAIN_SC_OPTION_SWITCHED_OFF"] = "Выключена опция испол
 $MESS["MAIN_SC_NTLM_SUCCESS"] = "Авторизация NTLM работает, текущий пользователь: ";
 $MESS["MAIN_SC_NO_NTLM"] = "Текущее подключение не использует NTLM авторизацию";
 $MESS["MAIN_SC_NO_PUSH_STREAM_CONNECTION"] = "Не удалось подключиться к модулю nginx-push-stream отправки мгновенных сообщений";
-$MESS["MAIN_SC_NO_SUB_CONNECTION"] = "Не удалось подключиться к модулю nginx-push-stream чтения мгновенных сообщений";
+$MESS["MAIN_SC_NO_PUSH_STREAM_CONNECTION_2"] = "Не удалось подключиться к Push server для отправки мгновенных сообщений";
+$MESS["MAIN_SC_NO_SUB_CONNECTION_2"] = "Не удалось подключиться к Push server для чтения мгновенных сообщений";
 $MESS["MAIN_SC_PUSH_INCORRECT"] = "Модуль #MODULE# работает некорректно";
-$MESS["MAIN_SC_NO_PUSH_STREAM"] = "Не настроен модуль nginx push-stream, который необходим для отображения комментариев в живой ленте в реальном режиме времени";
-$MESS["MAIN_SC_NO_PUSH_STREAM_VIDEO"] = "Не настроен модуль nginx push-stream, который необходим для осуществления видеозвонков";
+$MESS["MAIN_SC_NO_PUSH_STREAM_2"] = "Не настроен Push server в модуле Push and Pull, который необходим для отображения комментариев в живой ленте в реальном режиме времени";
+$MESS["MAIN_SC_NO_PUSH_STREAM_VIDEO_2"] = "Не настроен Push server в модуле Push and Pull, который необходим для осуществления видеозвонков";
 $MESS["MAIN_SC_NO_EXTERNAL_ACCESS_MOB"] = "Функция недоступна из-за невозможности подключиться к порталу снаружи из мобильного приложения";
 $MESS["MAIN_SC_NO_EXTERNAL_ACCESS_"] = "Функция недоступна из-за невозможности подключиться к порталу снаружи";
 $MESS["MAIN_SC_NO_EXTRANET_CONNECT"] = "Экстранет не работает корректно т.к. портал не доступен из Интернета";
@@ -570,7 +572,7 @@ $MESS["MAIN_SC_UNKNOWN_ANSWER"] = "Неизвестный ответ от сер
 $MESS["MAIN_SC_WARN_EXPAND_SESSION"] = "При наличии модуля мгновенных сообщений необходимо выключить продление сессии при активности в <a href='/bitrix/admin/settings.php?mid=main' target=_blank>настройках</a> главного модуля для снижения нагрузки на сервер.";
 $MESS["MAIN_SC_NO_EXTERNAL_CONNECT_WARN"] = "Внешнее подключение к порталу не удалось, мобильное приложение работать не будет";
 $MESS["MAIN_SC_EXTERNAL_ANSWER_INCORRECT"] = "Внешнее подключение к порталу удалось, но север вернул некорректный статус ответа";
-$MESS["MAIN_SC_NO_PULL_EXTERNAL"] = "Внешнее подключение к порталу есть, но нет доступа к порту чтения сообщений модуля nginx-push-stream, мгновенные сообщения в мобильном приложении работать не будут.";
+$MESS["MAIN_SC_NO_PULL_EXTERNAL_2"] = "Внешнее подключение к порталу есть, но нет доступа к порту чтения сообщений у Push server, мгновенные сообщения в мобильном приложении работать не будут.";
 $MESS["MAIN_CATDOC_WARN"] = "Ошибочная версия catdoc: #VERSION#<br>
 Подробности: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=679877<br>
 Установите более раннюю версию catdoc или новую версию с исправлением.";

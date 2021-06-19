@@ -1,6 +1,12 @@
 this.BX = this.BX || {};
-(function (exports,ui_notification,currency,ui_layoutForm,ui_forms,ui_buttons,catalog_productSelector,ui_common,ui_alerts,catalog_productCalculator,ui_vue_vuex,main_popup,main_core,ui_vue,main_core_events,currency_currencyCore) {
+(function (exports,ui_notification,currency,ui_layoutForm,ui_forms,ui_buttons,catalog_productSelector,ui_common,ui_alerts,ui_vue_vuex,main_popup,main_core,ui_vue,main_core_events,currency_currencyCore,catalog_productCalculator) {
 	'use strict';
+
+	var FormElementPosition = function FormElementPosition() {
+	  babelHelpers.classCallCheck(this, FormElementPosition);
+	};
+	babelHelpers.defineProperty(FormElementPosition, "TOP", 'TOP');
+	babelHelpers.defineProperty(FormElementPosition, "BOTTOM", 'BOTTOM');
 
 	var ProductList = /*#__PURE__*/function (_VuexBuilderModel) {
 	  babelHelpers.inherits(ProductList, _VuexBuilderModel);
@@ -41,15 +47,16 @@ this.BX = this.BX || {};
 	        resetBasket: function resetBasket(_ref) {
 	          var commit = _ref.commit;
 	          commit('clearBasket');
-	          commit('addItem');
+	          commit('addItem', {});
 	        },
 	        removeItem: function removeItem(_ref2, payload) {
-	          var commit = _ref2.commit,
+	          var dispatch = _ref2.dispatch,
+	              commit = _ref2.commit,
 	              state = _ref2.state;
 	          commit('deleteItem', payload);
 
 	          if (state.basket.length === 0) {
-	            commit('addItem');
+	            commit('addItem', {});
 	          } else {
 	            state.basket.forEach(function (item, i) {
 	              commit('updateItem', {
@@ -61,12 +68,13 @@ this.BX = this.BX || {};
 	            });
 	          }
 
-	          commit('calculateTotal');
+	          dispatch('calculateTotal');
 	        },
 	        changeItem: function changeItem(_ref3, payload) {
-	          var commit = _ref3.commit;
+	          var dispatch = _ref3.dispatch,
+	              commit = _ref3.commit;
 	          commit('updateItem', payload);
-	          commit('calculateTotal');
+	          dispatch('calculateTotal');
 	        },
 	        setCurrency: function setCurrency(_ref4, payload) {
 	          var commit = _ref4.commit;
@@ -74,15 +82,38 @@ this.BX = this.BX || {};
 	          commit('setCurrency', currency$$1);
 	        },
 	        addItem: function addItem(_ref5, payload) {
-	          var commit = _ref5.commit;
+	          var dispatch = _ref5.dispatch,
+	              commit = _ref5.commit;
 	          var item = payload.item || {
 	            fields: {}
 	          };
 	          commit('addItem', {
 	            item: item,
-	            position: payload.position || ProductFormElementPosition.TOP
+	            position: payload.position || FormElementPosition.TOP
 	          });
-	          commit('calculateTotal');
+	          dispatch('calculateTotal');
+	        },
+	        calculateTotal: function calculateTotal(_ref6) {
+	          var commit = _ref6.commit,
+	              state = _ref6.state;
+	          var total = {
+	            sum: 0,
+	            taxSum: 0,
+	            discount: 0,
+	            result: 0
+	          };
+	          state.basket.forEach(function (item) {
+	            var basePrice = main_core.Text.toNumber(item.fields.basePrice || 0);
+	            var quantity = main_core.Text.toNumber(item.fields.quantity || 0);
+	            var discount = main_core.Text.toNumber(item.fields.discount || 0);
+	            var taxSum = main_core.Text.toNumber(item.fields.taxSum || 0);
+	            total.sum += basePrice * quantity;
+	            total.result += main_core.Text.toNumber(item.sum);
+	            total.discount += discount * quantity;
+	            total.taxSum += taxSum * quantity;
+	          });
+	          total.discount = total.discount > total.sum ? total.sum : total.discount;
+	          commit('setTotal', total);
 	        }
 	      };
 	    }
@@ -110,7 +141,7 @@ this.BX = this.BX || {};
 	          var item = ProductList.getBaseProduct();
 	          item = Object.assign(item, payload.item);
 
-	          if (payload.position === ProductFormElementPosition.BOTTOM) {
+	          if (payload.position === FormElementPosition.BOTTOM) {
 	            state.basket.push(item);
 	          } else {
 	            state.basket.unshift(item);
@@ -145,35 +176,18 @@ this.BX = this.BX || {};
 	        setCurrency: function setCurrency(state, payload) {
 	          state.currency = payload;
 	        },
-	        calculateTotal: function calculateTotal(state) {
-	          var total = {
-	            sum: 0,
-	            taxSum: 0,
-	            discount: 0,
-	            result: 0
-	          };
-	          state.basket.forEach(function (item, i) {
-	            var basePrice = main_core.Text.toNumber(item.fields.basePrice || 0);
-	            var quantity = main_core.Text.toNumber(item.fields.quantity || 0);
-	            var discount = main_core.Text.toNumber(item.fields.discount || 0);
-	            var taxSum = main_core.Text.toNumber(item.fields.taxSum || 0);
-	            total.sum += basePrice * quantity;
-	            total.result += main_core.Text.toNumber(item.sum);
-	            total.discount += discount * quantity;
-	            total.taxSum += taxSum * quantity;
-	          });
-	          total.discount = total.discount > total.sum ? total.sum : total.discount;
+	        setTotal: function setTotal(state, payload) {
+	          var formattedTotal = payload;
 
 	          if (main_core.Type.isStringFilled(state.currency)) {
-	            for (var key in total) {
-	              state.total[key] = currency_currencyCore.CurrencyCore.currencyFormat(total[key], state.currency);
+	            for (var key in payload) {
+	              if (payload.hasOwnProperty(key)) {
+	                formattedTotal[key] = currency_currencyCore.CurrencyCore.currencyFormat(payload[key], state.currency);
+	              }
 	            }
-	          } else {
-	            state.total = total;
 	          }
-	        },
-	        setTotal: function setTotal(state, payload) {
-	          state.total = Object.assign(state.total, payload);
+
+	          state.total = Object.assign(state.total, formattedTotal);
 	        }
 	      };
 	    }
@@ -206,9 +220,11 @@ this.BX = this.BX || {};
 	          measureCode: 0,
 	          measureName: '',
 	          measureRatio: 1,
-	          isCustomPrice: 'N'
+	          isCustomPrice: 'N',
+	          additionalFields: [],
+	          properties: []
 	        },
-	        calculatedFields: catalog_productCalculator.FieldScheme,
+	        calculatedFields: [],
 	        showDiscount: 'N',
 	        showTax: 'N',
 	        skuTree: [],
@@ -272,7 +288,7 @@ this.BX = this.BX || {};
 	    };
 	    var pricePrecision = this.options.pricePrecision || 2;
 	    this.calculator = new catalog_productCalculator.ProductCalculator(calculatorFields, {
-	      currencyId: this.options.currencyId,
+	      currencyId: this.options.currency,
 	      pricePrecision: pricePrecision,
 	      commonPrecision: pricePrecision
 	    });
@@ -307,10 +323,7 @@ this.BX = this.BX || {};
 	  },
 	  mounted: function mounted() {
 	    this.productSelector = new catalog_productSelector.ProductSelector(this.selectorId, this.prepareSelectorParams());
-
-	    if (!main_core.Type.isObject(this.basketItem.image)) {
-	      this.initEmptyImageInputScripts();
-	    }
+	    this.productSelector.renderTo(this.$refs.selectorWrapper);
 	  },
 	  updated: function updated() {
 	    if (main_core.Type.isObject(this.basketItem.calculatedFields)) {
@@ -337,20 +350,25 @@ this.BX = this.BX || {};
 	        skuTree: this.getDefaultSkuTree(),
 	        fileInputId: '',
 	        morePhotoValues: [],
-	        fileInput: "<div class='ui-image-input-container ui-image-input-img--disabled'>" + "<div class='adm-fileinput-wrapper '>" + "<div class='adm-fileinput-area mode-pict adm-fileinput-drag-area'></div>" + "</div>" + "</div>",
+	        fileInput: '',
 	        imageValues: [],
 	        config: {
 	          DETAIL_PATH: this.basketItem.detailUrl || '',
 	          ENABLE_SEARCH: true,
 	          ENABLE_INPUT_DETAIL_LINK: true,
 	          ENABLE_IMAGE_CHANGE_SAVING: true,
+	          ENABLE_EMPTY_PRODUCT_ERROR: this.options.enableEmptyProductError,
 	          ROW_ID: this.selectorId,
 	          ENABLE_SKU_SELECTION: this.editable,
+	          HIDE_UNSELECTED_ITEMS: this.options.hideUnselectedProperties,
 	          URL_BUILDER_CONTEXT: this.options.urlBuilderContext
 	        },
 	        mode: this.editable ? catalog_productSelector.ProductSelector.MODE_EDIT : catalog_productSelector.ProductSelector.MODE_VIEW,
+	        isSimpleModel: this.getField('name', '') !== '' && this.getField('productId') <= 0 && this.getField('skuId') <= 0,
 	        fields: {
-	          NAME: this.getField('name') || ''
+	          NAME: this.getField('name') || '',
+	          PRICE: this.getField('basePrice') || 0,
+	          CURRENCY: this.options.currency
 	        }
 	      };
 	      var formImage = this.basketItem.image;
@@ -376,27 +394,6 @@ this.BX = this.BX || {};
 	    getField: function getField(name) {
 	      var defaultValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      return this.basketItem.fields[name] || defaultValue;
-	    },
-	    initEmptyImageInputScripts: function initEmptyImageInputScripts() {
-	      var _this2 = this;
-
-	      if (!this.productSelector) {
-	        return;
-	      }
-
-	      BX.ajax.runAction("catalog.productSelector.getEmptyInputImage", {
-	        json: {
-	          iblockId: this.options.iblockId
-	        }
-	      }).then(function (response) {
-	        var imageData = response.data;
-
-	        _this2.productSelector.getFileInput().setId(imageData.id);
-
-	        _this2.productSelector.getFileInput().setInputHtml(imageData.input);
-
-	        _this2.productSelector.layoutImage();
-	      });
 	    },
 	    getCalculator: function getCalculator() {
 	      return this.calculator;
@@ -458,6 +455,18 @@ this.BX = this.BX || {};
 	        productFields.isCustomPrice = fields.CUSTOMIZED;
 	      }
 
+	      if (!main_core.Type.isNil(fields.MEASURE_CODE)) {
+	        productFields.measureCode = fields.MEASURE_CODE;
+	      }
+
+	      if (!main_core.Type.isNil(fields.MEASURE_NAME)) {
+	        productFields.measureName = fields.MEASURE_NAME;
+	      }
+
+	      if (!main_core.Type.isNil(fields.PROPERTIES)) {
+	        productFields.properties = fields.PROPERTIES;
+	      }
+
 	      this.changeRowData(map);
 	      this.changeProduct(productFields);
 	    },
@@ -485,7 +494,12 @@ this.BX = this.BX || {};
 	          NAME: data.fields.NAME,
 	          ID: data.fields.ID,
 	          PRODUCT_ID: data.fields.PRODUCT_ID,
-	          SKU_ID: data.fields.SKU_ID
+	          SKU_ID: data.fields.SKU_ID,
+	          PROPERTIES: data.fields.PROPERTIES,
+	          URL_BUILDER_CONTEXT: this.options.urlBuilderContext,
+	          CUSTOMIZED: main_core.Type.isNil(data.fields.PRICE) ? 'Y' : 'N',
+	          MEASURE_CODE: data.fields.MEASURE_CODE,
+	          MEASURE_NAME: data.fields.MEASURE_NAME
 	        };
 	        fields = Object.assign(this.getCalculator().calculatePrice(basePrice), fields);
 	        this.getCalculator().setFields(fields);
@@ -508,7 +522,7 @@ this.BX = this.BX || {};
 	      }
 	    },
 	    toggleDiscount: function toggleDiscount(value) {
-	      var _this3 = this;
+	      var _this2 = this;
 
 	      if (!this.editable) {
 	        return;
@@ -518,7 +532,7 @@ this.BX = this.BX || {};
 	        showDiscount: value
 	      });
 	      value === 'Y' ? setTimeout(function () {
-	        return _this3.$refs.discountInput.focus();
+	        return _this2.$refs.discountInput.focus();
 	      }) : null;
 	    },
 	    toggleTax: function toggleTax(value) {
@@ -667,7 +681,7 @@ this.BX = this.BX || {};
 	      }
 	    },
 	    showPopupMenu: function showPopupMenu(target, array, type) {
-	      var _this4 = this;
+	      var _this3 = this;
 
 	      if (!this.editable) {
 	        return;
@@ -677,28 +691,36 @@ this.BX = this.BX || {};
 
 	      var setItem = function setItem(ev, param) {
 	        if (type === 'tax') {
-	          _this4.changeTax(main_core.Text.toNumber(param.options.item));
+	          _this3.changeTax(main_core.Text.toNumber(param.options.item));
 	        } else if (type === 'measures') {
-	          var productFields = _this4.basketItem.fields;
+	          var productFields = _this3.basketItem.fields;
 	          productFields['measureCode'] = param.options.item.CODE;
 	          productFields['measureName'] = param.options.item.SYMBOL;
 
-	          _this4.changeProduct(productFields);
+	          _this3.changeProduct(productFields);
 	        } else {
 	          target.innerHTML = ev.target.innerHTML;
 
 	          if (type === 'discount') {
-	            _this4.changeDiscountType(param.options.type);
+	            _this3.changeDiscountType(param.options.type);
 	          }
 	        }
 
-	        _this4.popupMenu.close();
+	        _this3.popupMenu.close();
 	      };
 
 	      if (type === 'discount') {
 	        array = [];
-	        array[catalog_productCalculator.DiscountType.PERCENTAGE] = '%';
-	        array[catalog_productCalculator.DiscountType.MONETARY] = this.currencySymbol;
+
+	        if (main_core.Type.isArray(this.options.allowedDiscountTypes)) {
+	          if (this.options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.PERCENTAGE)) {
+	            array[catalog_productCalculator.DiscountType.PERCENTAGE] = '%';
+	          }
+
+	          if (this.options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.MONETARY)) {
+	            array[catalog_productCalculator.DiscountType.MONETARY] = this.currencySymbol;
+	          }
+	        }
 	      }
 
 	      if (array) {
@@ -722,11 +744,13 @@ this.BX = this.BX || {};
 	        }
 	      }
 
-	      this.popupMenu = new main_popup.Menu({
-	        bindElement: target,
-	        items: menuItems
-	      });
-	      this.popupMenu.show();
+	      if (menuItems.length > 0) {
+	        this.popupMenu = new main_popup.Menu({
+	          bindElement: target,
+	          items: menuItems
+	        });
+	        this.popupMenu.show();
+	      }
 	    },
 	    showProductTooltip: function showProductTooltip(e) {
 	      if (!this.productTooltip) {
@@ -779,6 +803,17 @@ this.BX = this.BX || {};
 	    showTaxBlock: function showTaxBlock() {
 	      return this.options.showTaxBlock === 'Y' && this.getTaxList.length > 0 && (this.editable || !this.editable && this.showBasePrice);
 	    },
+	    showRemoveIcon: function showRemoveIcon() {
+	      if (!this.editable) {
+	        return false;
+	      }
+
+	      if (this.countItems > 1) {
+	        return true;
+	      }
+
+	      return this.basketItem.offerId !== null;
+	    },
 	    showTaxSelector: function showTaxSelector() {
 	      return this.basketItem.showTax === 'Y';
 	    },
@@ -807,7 +842,7 @@ this.BX = this.BX || {};
 	      return this.basketItem.errors.includes('SALE_BASKET_ITEM_WRONG_PRICE');
 	    }
 	  },
-	  template: "\n\t\t<div class=\"catalog-pf-product-item\" v-bind:class=\"{ 'catalog-pf-product-item--borderless': !editable && basketItemIndex === 0 }\">\n\t\t\t<div class=\"catalog-pf-product-item--remove\" @click=\"removeItem\" v-if=\"countItems > 1 && editable\"></div>\n\t\t\t<div class=\"catalog-pf-product-item--num\">\n\t\t\t\t<div class=\"catalog-pf-product-index\">{{basketItemIndex + 1}}</div>\n\t\t\t</div>\n\t\t\t<div class=\"catalog-pf-product-item--left\">\n\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-pf-product-label\">{{localize.CATALOG_FORM_NAME}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"catalog-pf-product-item-section\" :id=\"selectorId\"></div>\n\t\t\t</div>\n\t\t\t<div class=\"catalog-pf-product-item--right\">\n\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-pf-product-label\" style=\"width: 94px\">{{localize.CATALOG_FORM_PRICE}}</div>\n\t\t\t\t\t<div class=\"catalog-pf-product-label\" style=\"width: 72px\">{{localize.CATALOG_FORM_QUANTITY}}</div>\n\t\t\t\t\t<div class=\"catalog-pf-product-label\" style=\"width: 94px\">{{localize.CATALOG_FORM_RESULT}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-pf-product-control\" style=\"width: 94px\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-wrapper\">\n\t\t\t\t\t\t\t<input \ttype=\"text\" class=\"catalog-pf-product-input catalog-pf-product-input--align-right\"\n\t\t\t\t\t\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t\t\t\t\t\t:value=\"basketItem.fields.basePrice\"\n\t\t\t\t\t\t\t\t\t@input=\"onInputPrice\"\n\t\t\t\t\t\t\t\t\t:disabled=\"!editable\">\n\t\t\t\t\t\t\t<div class=\"catalog-pf-product-input-info\" v-html=\"currencySymbol\"></div>\n\t\t\t\t\t\t</div>\t\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"catalog-pf-product-control\" style=\"width: 72px\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-wrapper\">\n\t\t\t\t\t\t\t<input \ttype=\"text\" class=\"catalog-pf-product-input\"\n\t\t\t\t\t\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t\t\t\t\t\t:value=\"basketItem.fields.quantity\"\n\t\t\t\t\t\t\t\t\t@input=\"onInputQuantity\"\n\t\t\t\t\t\t\t\t\t:disabled=\"!editable\">\n\t\t\t\t\t\t\t<div \tclass=\"catalog-pf-product-input-info catalog-pf-product-input-info--action\" \n\t\t\t\t\t\t\t\t\t@click=\"showPopupMenu($event.target, options.measures, 'measures')\"><span>{{ getMeasureName }}</span></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"catalog-pf-product-control\" style=\"width: 94px\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-wrapper\">\n\t\t\t\t\t\t\t<input disabled type=\"text\" class=\"catalog-pf-product-input catalog-pf-product-input--disabled catalog-pf-product-input--gray catalog-pf-product-input--align-right\" :value=\"basketItem.sum\">\n\t\t\t\t\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input--disabled catalog-pf-product-input--gray\" v-html=\"currencySymbol\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showDiscountBlock\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div v-if=\"showDiscount\" class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide\" @click=\"toggleDiscount('N')\">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>\n\t\t\t\t\t<div v-else class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show\" @click=\"toggleDiscount('Y')\">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showDiscount\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--left\">\n\t\t\t\t\t\t<input class=\"catalog-pf-product-input catalog-pf-product-input--align-right catalog-pf-product-input--right\"\n\t\t\t\t\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t\t\t\t\tref=\"discountInput\" \n\t\t\t\t\t\t\t\t:value=\"getDiscountInputValue\"\n\t\t\t\t\t\t\t\t@input=\"onInputDiscount\"\n\t\t\t\t\t\t\t\tplaceholder=\"0\"\n\t\t\t\t\t\t\t\t:disabled=\"!editable\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input-info--action\" \n\t\t\t\t\t\t\t@click=\"showPopupMenu($event.target, null, 'discount')\">\n\t\t\t\t\t\t\t<span v-html=\"getDiscountSymbol\"></span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t\n\t\t\t\t<div v-if=\"showTaxBlock\" class=\"catalog-pf-product-item-section catalog-pf-product-item-section--dashed\">\n\t\t\t\t\t<div v-if=\"showTaxSelector\" class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide\" @click=\"toggleTax('N')\">{{localize.CATALOG_FORM_TAX_TITLE}}</div>\n\t\t\t\t\t<div v-else class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show\" @click=\"toggleTax('Y')\">{{localize.CATALOG_FORM_TAX_TITLE}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showTaxSelector && showTaxBlock\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass=\"catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--right\"\n\t\t\t\t\t\t@click=\"showPopupMenu($event.target, getTaxList, 'tax')\"\n\t\t\t\t\t>\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input\">{{basketItem.fields.tax}}%</div>\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input-info--dropdown\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"catalog-pf-product-item-section catalog-pf-product-item-section--dashed\"></div>\n\t\t\t</div>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div class=\"catalog-pf-product-item\" v-bind:class=\"{ 'catalog-pf-product-item--borderless': !editable && basketItemIndex === 0 }\">\n\t\t\t<div class=\"catalog-pf-product-item--remove\" @click=\"removeItem\" v-if=\"showRemoveIcon\"></div>\n\t\t\t<div class=\"catalog-pf-product-item--num\">\n\t\t\t\t<div class=\"catalog-pf-product-index\">{{basketItemIndex + 1}}</div>\n\t\t\t</div>\n\t\t\t<div class=\"catalog-pf-product-item--left\">\n\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-pf-product-label\">{{localize.CATALOG_FORM_NAME}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"catalog-pf-product-item-section\" :id=\"selectorId\" ref=\"selectorWrapper\"></div>\n\t\t\t</div>\n\t\t\t<div class=\"catalog-pf-product-item--right\">\n\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-pf-product-label\" style=\"width: 94px\">{{localize.CATALOG_FORM_PRICE}}</div>\n\t\t\t\t\t<div class=\"catalog-pf-product-label\" style=\"width: 72px\">{{localize.CATALOG_FORM_QUANTITY}}</div>\n\t\t\t\t\t<div class=\"catalog-pf-product-label\" style=\"width: 94px\">{{localize.CATALOG_FORM_RESULT}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-pf-product-control\" style=\"width: 94px\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-wrapper\">\n\t\t\t\t\t\t\t<input \ttype=\"text\" class=\"catalog-pf-product-input catalog-pf-product-input--align-right\"\n\t\t\t\t\t\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t\t\t\t\t\t:value=\"basketItem.fields.basePrice\"\n\t\t\t\t\t\t\t\t\t@input=\"onInputPrice\"\n\t\t\t\t\t\t\t\t\t:disabled=\"!editable\">\n\t\t\t\t\t\t\t<div class=\"catalog-pf-product-input-info\" v-html=\"currencySymbol\"></div>\n\t\t\t\t\t\t</div>\t\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"catalog-pf-product-control\" style=\"width: 72px\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-wrapper\">\n\t\t\t\t\t\t\t<input \ttype=\"text\" class=\"catalog-pf-product-input\"\n\t\t\t\t\t\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t\t\t\t\t\t:value=\"basketItem.fields.quantity\"\n\t\t\t\t\t\t\t\t\t@input=\"onInputQuantity\"\n\t\t\t\t\t\t\t\t\t:disabled=\"!editable\">\n\t\t\t\t\t\t\t<div \tclass=\"catalog-pf-product-input-info catalog-pf-product-input-info--action\" \n\t\t\t\t\t\t\t\t\t@click=\"showPopupMenu($event.target, options.measures, 'measures')\"><span>{{ getMeasureName }}</span></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"catalog-pf-product-control\" style=\"width: 94px\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-wrapper\">\n\t\t\t\t\t\t\t<input disabled type=\"text\" class=\"catalog-pf-product-input catalog-pf-product-input--disabled catalog-pf-product-input--gray catalog-pf-product-input--align-right\" :value=\"basketItem.sum\">\n\t\t\t\t\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input--disabled catalog-pf-product-input--gray\" v-html=\"currencySymbol\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showDiscountBlock\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div v-if=\"showDiscount\" class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide\" @click=\"toggleDiscount('N')\">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>\n\t\t\t\t\t<div v-else class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show\" @click=\"toggleDiscount('Y')\">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showDiscount\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--left\">\n\t\t\t\t\t\t<input class=\"catalog-pf-product-input catalog-pf-product-input--align-right catalog-pf-product-input--right\"\n\t\t\t\t\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t\t\t\t\tref=\"discountInput\" \n\t\t\t\t\t\t\t\t:value=\"getDiscountInputValue\"\n\t\t\t\t\t\t\t\t@input=\"onInputDiscount\"\n\t\t\t\t\t\t\t\tplaceholder=\"0\"\n\t\t\t\t\t\t\t\t:disabled=\"!editable\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input-info--action\" \n\t\t\t\t\t\t\t@click=\"showPopupMenu($event.target, null, 'discount')\">\n\t\t\t\t\t\t\t<span v-html=\"getDiscountSymbol\"></span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t\n\t\t\t\t<div v-if=\"showTaxBlock\" class=\"catalog-pf-product-item-section catalog-pf-product-item-section--dashed\">\n\t\t\t\t\t<div v-if=\"showTaxSelector\" class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide\" @click=\"toggleTax('N')\">{{localize.CATALOG_FORM_TAX_TITLE}}</div>\n\t\t\t\t\t<div v-else class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show\" @click=\"toggleTax('Y')\">{{localize.CATALOG_FORM_TAX_TITLE}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showTaxSelector && showTaxBlock\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass=\"catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--right\"\n\t\t\t\t\t\t@click=\"showPopupMenu($event.target, getTaxList, 'tax')\"\n\t\t\t\t\t>\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input\">{{basketItem.fields.tax}}%</div>\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input-info--dropdown\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"catalog-pf-product-item-section catalog-pf-product-item-section--dashed\"></div>\n\t\t\t</div>\n\t\t</div>\n\t"
 	});
 
 	function _templateObject3() {
@@ -910,7 +945,9 @@ this.BX = this.BX || {};
 	          productId: productData.productId,
 	          skuId: productData.skuId,
 	          offerId: productData.skuId > 0 ? productData.skuId : productData.productId,
-	          module: 'catalog'
+	          module: 'catalog',
+	          isCustomPrice: main_core.Type.isNil(productData.fields.PRICE) ? 'Y' : 'N',
+	          discountType: this.options.defaultDiscountType
 	        });
 	        delete productData.fields;
 	        newItem = Object.assign(newItem, productData);
@@ -974,13 +1011,13 @@ this.BX = this.BX || {};
 	        autoHide: true,
 	        closeByEsc: true,
 	        closeIcon: true,
-	        titleBar: main_core.Loc.getMessage('SALESCENTER_PRODUCT_BLOCK_PROD_EXIST_DLG_TITLE'),
+	        titleBar: main_core.Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_TITLE'),
 	        draggable: true,
 	        resizable: false,
 	        lightShadow: true,
 	        cacheable: false,
 	        overlay: true,
-	        content: main_core.Loc.getMessage('SALESCENTER_PRODUCT_BLOCK_PROD_EXIST_DLG_TEXT').replace('#NAME#', params.name),
+	        content: main_core.Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_TEXT').replace('#NAME#', params.name),
 	        buttons: this.getButtons(params)
 	      });
 	      this.popup.show();
@@ -991,7 +1028,7 @@ this.BX = this.BX || {};
 	      var buttons = [];
 	      var params = product;
 	      buttons.push(new BX.UI.SaveButton({
-	        text: main_core.Loc.getMessage('SALESCENTER_PRODUCT_BLOCK_PROD_EXIST_DLG_OK'),
+	        text: main_core.Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_OK'),
 	        onclick: function onclick() {
 	          var productId = parseInt(params.id);
 
@@ -1010,7 +1047,7 @@ this.BX = this.BX || {};
 	        }
 	      }));
 	      buttons.push(new BX.UI.CancelButton({
-	        text: main_core.Loc.getMessage('SALESCENTER_PRODUCT_BLOCK_PROD_EXIST_DLG_NO'),
+	        text: main_core.Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_NO'),
 	        onclick: function onclick() {
 	          _this4.popup.destroy();
 	        }
@@ -1161,23 +1198,26 @@ this.BX = this.BX || {};
 	      return this.options.showResults !== false;
 	    },
 	    showButtonsTop: function showButtonsTop() {
-	      return this.options.singleProductMode !== true && this.editable && this.options.buttonsPosition !== ProductFormElementPosition.BOTTOM;
+	      return this.options.singleProductMode !== true && this.editable && this.options.buttonsPosition !== FormElementPosition.BOTTOM;
 	    },
 	    showButtonsBottom: function showButtonsBottom() {
-	      return this.options.singleProductMode !== true && this.editable && this.options.buttonsPosition === ProductFormElementPosition.BOTTOM;
+	      return this.options.singleProductMode !== true && this.editable && this.options.buttonsPosition === FormElementPosition.BOTTOM;
 	    },
 	    showResultBlock: function showResultBlock() {
 	      return this.showResults || this.enableAddButtons;
 	    },
 	    countItems: function countItems() {
 	      return this.productList.basket.length;
+	    },
+	    totalResultLabel: function totalResultLabel() {
+	      return this.options.hasOwnProperty('totalResultLabel') && this.options.totalResultLabel ? this.options.totalResultLabel : this.localize.CATALOG_FORM_TOTAL_RESULT;
 	    }
 	  }, ui_vue_vuex.Vuex.mapState({
 	    productList: function productList(state) {
 	      return state.productList;
 	    }
 	  })),
-	  template: "\n\t<div class=\"catalog-product-form-container\">\n\t\t<".concat(config.templateProductAddName, "\n\t\t\t:options=\"options\" \n\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t@addItem=\"addItem\"\n\t\t\t@changeRowData=\"changeRowData\"\n\t\t\t@changeProduct=\"changeProduct\" \n\t\t\tv-if=\"showButtonsTop\"\n\t\t/>\n\t\t<div v-for=\"(item, index) in productList.basket\" :key=\"item.selectorId\">\n\t\t\t<").concat(config.templateProductRowName, " \n\t\t\t\t:basketItem=\"item\" \n\t\t\t\t:basketItemIndex=\"index\"  \n\t\t\t\t:countItems=\"countItems\"\n\t\t\t\t:options=\"options\"\n\t\t\t\t:editable=\"editable\"\n\t\t\t\t@changeProduct=\"changeProduct\" \n\t\t\t\t@changeRowData=\"changeRowData\" \n\t\t\t\t@removeItem=\"removeItem\" \n\t\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t/>\n\t\t</div>\n\t\t<").concat(config.templateProductAddName, "\n\t\t\t:options=\"options\" \n\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t@addItem=\"addItem\"\n\t\t\t@changeRowData=\"changeRowData\"\n\t\t\t@changeProduct=\"changeProduct\" \n\t\t\tv-if=\"showButtonsBottom\"\n\t\t/>\n\t\t<div class=\"catalog-pf-result-line\"></div>\n\t\t<div class=\"catalog-pf-result-wrapper\" v-if=\"showResultBlock\">\n\t\t\t<table class=\"catalog-pf-result\" v-if=\"showResultBlock\">\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td>\n\t\t\t\t\t\t<span class=\"catalog-pf-text\">{{localize.CATALOG_FORM_PRODUCTS_PRICE}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td>\n\t\t\t\t\t\t<span v-html=\"productList.total.sum\"\n\t\t\t\t\t\t\t:class=\"productList.total.result !== productList.total.sum ? 'catalog-pf-text catalog-pf-text--line-through' : 'catalog-pf-text'\"\n\t\t\t\t\t\t></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td>\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--discount\">{{localize.CATALOG_FORM_TOTAL_DISCOUNT}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td>\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--discount\" v-html=\"productList.total.discount\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults && showTaxResult\">\n\t\t\t\t\t<td class=\"catalog-pf-tax\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--tax\">{{localize.CATALOG_FORM_TAX_TITLE}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td class=\"catalog-pf-tax\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--tax\" v-html=\"productList.total.taxSum\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td class=\"catalog-pf-result-padding\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--total catalog-pf-text--border\">{{localize.CATALOG_FORM_TOTAL_RESULT}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td class=\"catalog-pf-result-padding\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--total\" v-html=\"productList.total.result\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol catalog-pf-symbol--total\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t</table>\n\t\t</div>\n\t</div>\n")
+	  template: "\n\t<div class=\"catalog-product-form-container\">\n\t\t<".concat(config.templateProductAddName, "\n\t\t\t:options=\"options\" \n\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t@addItem=\"addItem\"\n\t\t\t@changeRowData=\"changeRowData\"\n\t\t\t@changeProduct=\"changeProduct\" \n\t\t\tv-if=\"showButtonsTop\"\n\t\t/>\n\t\t<div v-for=\"(item, index) in productList.basket\" :key=\"item.selectorId\">\n\t\t\t<").concat(config.templateProductRowName, " \n\t\t\t\t:basketItem=\"item\" \n\t\t\t\t:basketItemIndex=\"index\"  \n\t\t\t\t:countItems=\"countItems\"\n\t\t\t\t:options=\"options\"\n\t\t\t\t:editable=\"editable\"\n\t\t\t\t@changeProduct=\"changeProduct\" \n\t\t\t\t@changeRowData=\"changeRowData\" \n\t\t\t\t@removeItem=\"removeItem\" \n\t\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t/>\n\t\t</div>\n\t\t<").concat(config.templateProductAddName, "\n\t\t\t:options=\"options\" \n\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t@addItem=\"addItem\"\n\t\t\t@changeRowData=\"changeRowData\"\n\t\t\t@changeProduct=\"changeProduct\" \n\t\t\tv-if=\"showButtonsBottom\"\n\t\t/>\n\t\t<div class=\"catalog-pf-result-line\"></div>\n\t\t<div class=\"catalog-pf-result-wrapper\" v-if=\"showResultBlock\">\n\t\t\t<table class=\"catalog-pf-result\" v-if=\"showResultBlock\">\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td>\n\t\t\t\t\t\t<span class=\"catalog-pf-text\">{{localize.CATALOG_FORM_PRODUCTS_PRICE}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td>\n\t\t\t\t\t\t<span v-html=\"productList.total.sum\"\n\t\t\t\t\t\t\t:class=\"productList.total.result !== productList.total.sum ? 'catalog-pf-text catalog-pf-text--line-through' : 'catalog-pf-text'\"\n\t\t\t\t\t\t></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td class=\"catalog-pf-result-padding-bottom\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--discount\">{{localize.CATALOG_FORM_TOTAL_DISCOUNT}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td class=\"catalog-pf-result-padding-bottom\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--discount\" v-html=\"productList.total.discount\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults && showTaxResult\">\n\t\t\t\t\t<td class=\"catalog-pf-tax\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--tax\">{{localize.CATALOG_FORM_TAX_TITLE}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td class=\"catalog-pf-tax\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--tax\" v-html=\"productList.total.taxSum\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td class=\"catalog-pf-result-padding\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--total catalog-pf-text--border\">{{totalResultLabel}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td class=\"catalog-pf-result-padding\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--total\" v-html=\"productList.total.result\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol catalog-pf-symbol--total\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t</table>\n\t\t</div>\n\t</div>\n")
 	});
 
 	function _templateObject$1() {
@@ -1191,11 +1231,6 @@ this.BX = this.BX || {};
 	}
 
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-	var ProductFormElementPosition = function ProductFormElementPosition() {
-	  babelHelpers.classCallCheck(this, ProductFormElementPosition);
-	};
-	babelHelpers.defineProperty(ProductFormElementPosition, "TOP", 'TOP');
-	babelHelpers.defineProperty(ProductFormElementPosition, "BOTTOM", 'BOTTOM');
 
 	var _onBasketChange = new WeakSet();
 
@@ -1203,41 +1238,13 @@ this.BX = this.BX || {};
 	  function ProductForm() {
 	    var _this = this;
 
-	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-	      basket: [],
-	      measures: [],
-	      iblockId: null,
-	      basePriceId: null,
-	      taxList: [],
-	      currencySymbol: null,
-	      singleProductMode: false,
-	      showResults: false,
-	      currency: '',
-	      pricePrecision: 2,
-	      taxIncluded: 'N',
-	      showDiscountBlock: 'Y',
-	      showTaxBlock: 'Y',
-	      newItemPosition: ProductFormElementPosition.TOP,
-	      buttonsPosition: ProductFormElementPosition.TOP,
-	      urlBuilderContext: 'SHOP'
-	    };
+	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ProductForm);
 
 	    _onBasketChange.add(this);
 
-	    options.taxIncluded = options.taxIncluded || 'N';
-	    options.showTaxBlock = 'N';
-	    options.urlBuilderContext = options.urlBuilderContext || 'SHOP';
-	    currency_currencyCore.CurrencyCore.loadCurrencyFormat();
-	    this.options = options;
+	    this.options = this.prepareOptions(options);
 	    this.editable = true;
-
-	    if (main_core.Type.isBoolean(options.isCatalogAvailable)) {
-	      this.isCatalogAvailable = options.isCatalogAvailable;
-	    } else {
-	      this.isCatalogAvailable = false;
-	    }
-
 	    this.wrapper = main_core.Tag.render(_templateObject$1());
 
 	    if (main_core.Text.toNumber(options.iblockId) <= 0) {
@@ -1252,6 +1259,46 @@ this.BX = this.BX || {};
 	  }
 
 	  babelHelpers.createClass(ProductForm, [{
+	    key: "prepareOptions",
+	    value: function prepareOptions() {
+	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      var settingsCollection = main_core.Extension.getSettings('catalog.product-form');
+	      var defaultOptions = {
+	        basket: [],
+	        measures: [],
+	        iblockId: null,
+	        basePriceId: settingsCollection.get('basePriceId'),
+	        taxList: [],
+	        singleProductMode: false,
+	        showResults: true,
+	        enableEmptyProductError: true,
+	        pricePrecision: 2,
+	        currency: settingsCollection.get('currency'),
+	        currencySymbol: settingsCollection.get('currencySymbol'),
+	        taxIncluded: settingsCollection.get('taxIncluded'),
+	        showDiscountBlock: settingsCollection.get('showDiscountBlock'),
+	        showTaxBlock: settingsCollection.get('showTaxBlock'),
+	        allowedDiscountTypes: [catalog_productCalculator.DiscountType.PERCENTAGE, catalog_productCalculator.DiscountType.MONETARY],
+	        newItemPosition: FormElementPosition.TOP,
+	        buttonsPosition: FormElementPosition.TOP,
+	        urlBuilderContext: 'SHOP',
+	        hideUnselectedProperties: false
+	      };
+	      options = babelHelpers.objectSpread({}, defaultOptions, options);
+	      options.showTaxBlock = 'N';
+	      options.defaultDiscountType = '';
+
+	      if (main_core.Type.isArray(options.allowedDiscountTypes)) {
+	        if (options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.PERCENTAGE)) {
+	          options.defaultDiscountType = catalog_productCalculator.DiscountType.PERCENTAGE;
+	        } else if (options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.MONETARY)) {
+	          options.defaultDiscountType = catalog_productCalculator.DiscountType.MONETARY;
+	        }
+	      }
+
+	      return options;
+	    }
+	  }, {
 	    key: "layout",
 	    value: function layout() {
 	      return this.wrapper;
@@ -1279,22 +1326,32 @@ this.BX = this.BX || {};
 	          template: "<".concat(config.templateName, " :options=\"options\"/>")
 	        });
 
-	        _this2.setData({
-	          currency: _this2.options.currency
-	        });
+	        if (main_core.Type.isStringFilled(_this2.options.currency)) {
+	          _this2.setData({
+	            currency: _this2.options.currency
+	          });
+
+	          currency_currencyCore.CurrencyCore.loadCurrencyFormat(_this2.options.currency);
+	        }
 
 	        if (_this2.options.basket.length > 0) {
 	          _this2.setData({
 	            basket: _this2.options.basket
+	          }, {
+	            newItemPosition: FormElementPosition.BOTTOM
 	          });
 
 	          if (main_core.Type.isObject(_this2.options.totals)) {
 	            _this2.store.commit('productList/setTotal', _this2.options.totals);
 	          } else {
-	            _this2.store.commit('productList/calculateTotal');
+	            _this2.store.dispatch('productList/calculateTotal');
 	          }
 	        } else {
-	          _this2.addProduct();
+	          var newItem = _this2.store.getters['productList/getBaseProduct']();
+
+	          newItem.fields.discountType = _this2.options.defaultDiscountType;
+
+	          _this2.addProduct(newItem);
 	        }
 	      });
 	    }
@@ -1339,13 +1396,39 @@ this.BX = this.BX || {};
 	    value: function setData(data) {
 	      var _this6 = this;
 
-	      if (main_core.Type.isObject(data.basket)) {
-	        data.basket.forEach(function (fields, index) {
-	          if (main_core.Type.isObject(fields)) {
-	            index = fields.innerId || index;
+	      var option = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
+	      if (main_core.Type.isObject(data.basket)) {
+	        var formBasket = this.store.getters['productList/getBasket']();
+	        data.basket.forEach(function (fields) {
+	          if (!main_core.Type.isObject(fields)) {
+	            return;
+	          }
+
+	          var itemPosition = option.newItemPosition || _this6.options.newItemPosition;
+	          var innerId = fields.selectorId;
+
+	          if (main_core.Type.isNil(innerId)) {
+	            _this6.store.dispatch('productList/addItem', {
+	              item: fields,
+	              position: itemPosition
+	            });
+
+	            return;
+	          }
+
+	          var basketIndex = formBasket.findIndex(function (item) {
+	            return item.selectorId === innerId;
+	          });
+
+	          if (basketIndex === -1) {
+	            _this6.store.dispatch('productList/addItem', {
+	              item: fields,
+	              position: itemPosition
+	            });
+	          } else {
 	            _this6.store.dispatch('productList/changeItem', {
-	              index: index,
+	              basketIndex: basketIndex,
 	              fields: fields
 	            });
 	          }
@@ -1429,8 +1512,7 @@ this.BX = this.BX || {};
 	  });
 	};
 
-	exports.ProductFormElementPosition = ProductFormElementPosition;
 	exports.ProductForm = ProductForm;
 
-}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX,BX.UI,BX,BX.UI,BX.Catalog,BX,BX.UI,BX.Catalog,BX,BX.Main,BX,BX,BX.Event,BX.Currency));
+}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX,BX.UI,BX,BX.UI,BX.Catalog,BX,BX.UI,BX,BX.Main,BX,BX,BX.Event,BX.Currency,BX.Catalog));
 //# sourceMappingURL=product-form.bundle.js.map

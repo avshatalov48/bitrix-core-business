@@ -71,7 +71,9 @@ class CAllSocNetLogCounter
 			$arUserIdToIncrement = array();
 		}
 
-		if (intval($entityId) <= 0)
+		$intranetInstalled = \Bitrix\Main\ModuleManager::isModuleInstalled('intranet');
+
+		if ((int)$entityId <= 0)
 		{
 			return false;
 		}
@@ -238,80 +240,112 @@ class CAllSocNetLogCounter
 				: ""
 		);
 
+		$logRightFilterValue = [];
+
 		if (!empty($arUserIdToIncrement))
 		{
 			$userWhere = "AND U.ID IN (".implode(",", $arUserIdToIncrement).")";
 		}
 		else
 		{
-			$userWhere = (
-				!$bGroupCounters
-				&& !IsModuleInstalled("intranet")
-					? (
-						COption::GetOptionString("socialnetwork", "sonet_log_smart_filter", "N") == "Y"
-							? "
-								AND (
-									0=1
-									OR (
-										(
-											SLSF.USER_ID IS NULL
-											OR SLSF.TYPE = 'Y'
-										)
-										".(!$bForAllAccess ? "AND (UA.ACCESS_CODE = SLR.GROUP_CODE)" : "")."
-										AND (
-											SLR.GROUP_CODE LIKE 'SG%'
-											OR SLR.GROUP_CODE = ".$DB->Concat("'U'", ($DB->type == "MSSQL" ? "CAST(U.ID as varchar(17))" : "U.ID"))."
-										)
-									)
-									OR (
-										SLSF.TYPE <> 'Y'
-										AND (
-											SLR.GROUP_CODE IN ('AU', 'G2')
-											".(!$bForAllAccess ? "OR (UA.ACCESS_CODE = SLR.GROUP_CODE)" : "")."
-										)
-									)
-								)
-								"
-							: "
-								AND (
-									0=1
-									OR (
-										(
-											SLSF.USER_ID IS NULL
-											OR SLSF.TYPE <> 'Y'
-										)
-										AND (
-											SLR.GROUP_CODE IN ('AU', 'G2')
-											".($bForAllAccess ? "" : " OR (UA.ACCESS_CODE = SLR.GROUP_CODE)")."
-										)
-									)
-									OR (
-										SLSF.TYPE = 'Y'
-										".($bForAllAccess ? "" : "AND (UA.ACCESS_CODE = SLR.GROUP_CODE)")."
-										AND (
-											SLR.GROUP_CODE LIKE 'SG%'
-											OR SLR.GROUP_CODE = ".$DB->Concat("'U'", ($DB->type == "MSSQL" ? "CAST(U.ID as varchar(17))" : "U.ID"))."
-										)
-									)
-								)
-							"
-					)
-					: "
+			if (!$bGroupCounters && !$intranetInstalled)
+			{
+				if (\Bitrix\Main\Config\Option::get('socialnetwork', 'sonet_log_smart_filter', 'N') === 'Y')
+				{
+					$userWhere = "
 						AND (
 							0=1
-							".(
-								$IsForAllAccessOnly != "N" || $bForAllAccess
-									? "OR (SLR.GROUP_CODE IN ('AU', 'G2'))"
-									: ""
-								)."
-										".(
-								!$bForAllAccess && $IsForAllAccessOnly != "Y"
-									? " OR (UA.ACCESS_CODE = SLR.GROUP_CODE) "
-									: ""
-								)."
+							OR (
+								(
+									SLSF.USER_ID IS NULL
+									OR SLSF.TYPE = 'Y'
+								)
+								" . (!$bForAllAccess ? ' AND (UA.ACCESS_CODE = SLR.GROUP_CODE)' : '') . "
+								AND (
+									SLR.GROUP_CODE LIKE 'SG%'
+									OR SLR.GROUP_CODE = " . $DB->Concat("'U'", 'U.ID') . "
+								)
 							)
-						"
-			);
+							OR (
+								SLSF.TYPE <> 'Y'
+								AND (
+									SLR.GROUP_CODE IN ('AU', 'G2')
+									" . (!$bForAllAccess ? ' OR (UA.ACCESS_CODE = SLR.GROUP_CODE)' : '') . "
+								)
+							)
+						)
+					";
+				}
+				else
+				{
+					$userWhere = "
+						AND (
+							0=1
+							OR (
+								(
+									SLSF.USER_ID IS NULL
+									OR SLSF.TYPE <> 'Y'
+								)
+								AND (
+									SLR.GROUP_CODE IN ('AU', 'G2')
+									" . ($bForAllAccess ? '' : ' OR (UA.ACCESS_CODE = SLR.GROUP_CODE)') . "
+								)
+							)
+							OR (
+								SLSF.TYPE = 'Y'
+								" . ($bForAllAccess ? '' : ' AND (UA.ACCESS_CODE = SLR.GROUP_CODE)') . "
+								AND (
+									SLR.GROUP_CODE LIKE 'SG%'
+									OR SLR.GROUP_CODE = " . $DB->Concat("'U'", 'U.ID') . "
+								)
+							)
+						)
+					";
+				}
+			}
+			else
+			{
+				$userLogRightsIntersectCondition = '';
+				if (!$bForAllAccess && $IsForAllAccessOnly !== 'Y')
+				{
+					if (!$bGroupCounters)
+					{
+						$res = \Bitrix\Socialnetwork\LogRightTable::getList([
+							'filter' => [
+								'=LOG_ID' => $logId
+							],
+							'select' => [ 'GROUP_CODE' ],
+						]);
+						while ($logRightFields = $res->fetch())
+						{
+							if (in_array($logRightFields['GROUP_CODE'], [ 'AU', 'G2' ]))
+							{
+								continue;
+							}
+
+							$logRightFilterValue[] = $logRightFields['GROUP_CODE'];
+						}
+					}
+
+					$userLogRightsIntersectCondition = (
+						!empty($logRightFilterValue)
+							? ' OR UA.ACCESS_CODE IN (' . implode(', ', array_map(static function($item) use ($DB) { return "'" . $DB->forSql($item) . "'"; }, $logRightFilterValue)) . ') '
+							: ' OR (UA.ACCESS_CODE = SLR.GROUP_CODE) '
+						);
+				}
+
+				$userWhere = "
+					AND (
+						0=1
+						" . (
+							$IsForAllAccessOnly !== 'N' || $bForAllAccess
+								? "OR (SLR.GROUP_CODE IN ('AU', 'G2'))"
+								: ''
+						) . "
+						" . $userLogRightsIntersectCondition . "
+					)
+				";
+			}
 		}
 
 		$strSQL = "
@@ -329,13 +363,13 @@ class CAllSocNetLogCounter
 				".($bGroupCounters ? "INNER JOIN b_sonet_log_right SLR0 ON SLR0.LOG_ID = SLR.LOG_ID ": "")."
 				".(
 					!$bForAllAccess
-						? "INNER JOIN b_user_access UA ON UA.USER_ID = U.ID"
-						: ""
+						? 'INNER JOIN b_user_access UA ON UA.USER_ID = U.ID' . ($logRightFilterValue ? ' AND (UA.ACCESS_CODE = SLR.GROUP_CODE)' : '')
+						: ''
 				)."
 				LEFT JOIN b_sonet_log_site SLS ON SLS.LOG_ID = SLR.LOG_ID
 				".($followJoin <> '' ? $followJoin : "")."
 				".($viewJoin <> '' ? $viewJoin : "")."
-				".(!$bGroupCounters && !IsModuleInstalled("intranet") ? "LEFT JOIN b_sonet_log_smartfilter SLSF ON SLSF.USER_ID = U.ID " : "")."
+				".(!$bGroupCounters && !$intranetInstalled ? "LEFT JOIN b_sonet_log_smartfilter SLSF ON SLSF.USER_ID = U.ID " : "")."
 
 			WHERE
 				U.ACTIVE = 'Y'

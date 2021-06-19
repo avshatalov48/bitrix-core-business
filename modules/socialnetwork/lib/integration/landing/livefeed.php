@@ -553,12 +553,7 @@ class Livefeed extends Landing\Source\DataLoader
 
 				$imgPattern = '/\[IMG\s+WIDTH\s*=\s*\d+\s+HEIGHT\s*=\s*\d+\s*\](.+?)\[\/IMG\]/is'.BX_UTF_PCRE_MODIFIER;
 				$videoPattern = '/\[VIDEO[^\]]*](.+?)\[\/VIDEO\]/is'.BX_UTF_PCRE_MODIFIER;
-
-				$detailText = preg_replace(
-					'/\[USER\s*=\s*([^\]]*)\](.+?)\[\/USER\]/is'.BX_UTF_PCRE_MODIFIER,
-					'\\2',
-					$row["DETAIL_TEXT"]
-				);
+				$detailText = \Bitrix\Socialnetwork\Helper\Mention::clear($row['DETAIL_TEXT']);
 
 				if (
 					preg_match_all($imgPattern, $detailText, $matches)

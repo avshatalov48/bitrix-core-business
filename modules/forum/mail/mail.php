@@ -1,4 +1,5 @@
-<?
+<?php
+
 /*
 При добавлении сообщения в форум мы должны отправить всем подписанным пользователям рабочей группы сообщение следующего шаблона:
 Reply-To: email@рабочей.группы
@@ -24,11 +25,12 @@ Subject: [RE:] Топик сообщения
 	- Добавляем сообщение в тему, автори из from, дата пропарсенный текст из тела
 	- Храним: идентификатор в XML_ID, (?)ссылку на оригинал сообщения, (?)на какие сообщения ответ
 */
+
 IncludeModuleLangFile(__FILE__);
 
 class CForumEMail
 {
-	function GetForumFilters($FID, $SOCNET_GROUP_ID = false)
+	public static function GetForumFilters($FID, $SOCNET_GROUP_ID = false)
 	{
 		global $DB;
 		$strSql = 'SELECT *
@@ -40,7 +42,7 @@ class CForumEMail
 		return $dbr->Fetch();
 	}
 
-	function GetMailFilters($MAIL_FILTER_ID)
+	public static function GetMailFilters($MAIL_FILTER_ID)
 	{
 		global $DB;
 		$strSql = 'SELECT fe.*, f.MODERATION
@@ -50,7 +52,7 @@ class CForumEMail
 		return $dbr;
 	}
 
-	function Set($arFields)
+	public static function Set($arFields)
 	{
 		global $DB;
 
@@ -114,7 +116,7 @@ class CForumEMail
 		return $ID;
 	}
 
-	function OnGetSocNetFilterList()
+	public static function OnGetSocNetFilterList()
 	{
 		return Array(
 			"ID"					=>	"forumsocnet",
@@ -126,7 +128,7 @@ class CForumEMail
 			);
 	}
 
-	function SocnetPrepareVars()
+	public static function SocnetPrepareVars()
 	{
 		return '';
 	}
@@ -231,7 +233,7 @@ class CForumEMail
 		return $logID;
 	}
 
-	function SocnetEMailMessageCheck(&$arMessageFields, $ACTION_VARS)
+	public static function SocnetEMailMessageCheck(&$arMessageFields, $ACTION_VARS)
 	{
 		$arEmails = CMailUtil::ExtractAllMailAddresses($arMessageFields["FIELD_TO"].",".$arMessageFields["FIELD_CC"].",".$arMessageFields["FIELD_BCC"]);
 		$dbMbx = CMailBox::GetById($arMessageFields["MAIL_FILTER"]["MAILBOX_ID"]);
@@ -258,7 +260,7 @@ class CForumEMail
 		return false;
 	}
 
-	function SocnetEMailMessageAdd($arMessageFields, $ACTION_VARS)
+	public static function SocnetEMailMessageAdd($arMessageFields, $ACTION_VARS)
 	{
 		if(!is_array($arMessageFields["FORUM_EMAIL_FILTER"]))
 			return false;
@@ -278,8 +280,7 @@ class CForumEMail
 		$message_email = ($arMessageFields["FIELD_REPLY_TO"] <> '') ? $arMessageFields["FIELD_REPLY_TO"] : $arMessageFields["FIELD_FROM"];
 		$message_email_addr = mb_strtolower(CMailUtil::ExtractMailAddress($message_email));
 
-		$o = "LAST_LOGIN"; $b = "DESC";
-		$res = CUser::GetList($o, $b, Array("ACTIVE" => "Y", "EMAIL"=>$message_email_addr));
+		$res = CUser::GetList("LAST_LOGIN", "DESC", Array("ACTIVE" => "Y", "EMAIL"=>$message_email_addr));
 		if(($arUser = $res->Fetch()) && mb_strtolower(CMailUtil::ExtractMailAddress($arUser["EMAIL"])) == $message_email_addr)
 			$AUTHOR_USER_ID = $arUser["ID"];
 		elseif($arParams["NOT_MEMBER_POST"]=="Y")
@@ -642,7 +643,8 @@ class CForumEMail
 			}
 		}
 	}
-	function GetLangMessage($ID, $lang)
+
+	public static function GetLangMessage($ID, $lang)
 	{
 		$MESS = Array();
 		if(file_exists($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/forum/lang/'.$lang.'/mail/mail.php'))
@@ -653,5 +655,3 @@ class CForumEMail
 		return $MESS[$ID];
 	}
 }
-
-?>

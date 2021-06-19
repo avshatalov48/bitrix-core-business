@@ -6,7 +6,7 @@ $oEventType = $ET->GetList(
 );
 if(!$oEventType->Fetch())
 {
-	$oLang = CLanguage::GetList(($b=""), ($o=""));
+	$oLang = CLanguage::GetList();
 	while ($arLang = $oLang->Fetch())
 	{
 		IncludeModuleLangFile(__FILE__, $arLang["LID"]);
@@ -27,7 +27,7 @@ if(!$oEventType->Fetch())
 		);
 
 		$arSites = array();
-		$oSite = CLang::GetList($by="", $order="", Array("LANGUAGE_ID" => $arLang["LID"]));
+		$oSite = CLang::GetList("", "", Array("LANGUAGE_ID" => $arLang["LID"]));
 		while ($arSite = $oSite->Fetch())
 			$arSites[] = $arSite["LID"];
 
@@ -54,7 +54,7 @@ $oEventType = $ET->GetList(
 );
 if(!$oEventType->Fetch())
 {
-	$oLang = CLanguage::GetList(($b=""), ($o=""));
+	$oLang = CLanguage::GetList();
 	while ($arLang = $oLang->Fetch())
 	{
 		IncludeModuleLangFile(__FILE__, $arLang["LID"]);
@@ -74,7 +74,7 @@ if(!$oEventType->Fetch())
 		));
 
 		$arSites = array();
-		$oSite = CLang::GetList($by="", $order="", Array("LANGUAGE_ID" => $arLang["LID"]));
+		$oSite = CLang::GetList("", "", Array("LANGUAGE_ID" => $arLang["LID"]));
 		while ($arSite = $oSite->Fetch())
 			$arSites[] = $arSite["LID"];
 

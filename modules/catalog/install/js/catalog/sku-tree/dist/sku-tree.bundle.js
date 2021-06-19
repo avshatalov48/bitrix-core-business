@@ -3,8 +3,28 @@ this.BX.Catalog = this.BX.Catalog || {};
 (function (exports,main_core,catalog_skuTree,main_core_events) {
 	'use strict';
 
-	function _templateObject5() {
+	function _templateObject7() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"product-item-scu-list ui-ctl-spacing-right\"></div>"]);
+
+	  _templateObject7 = function _templateObject7() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject6() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"product-item-detail-info-container\">\n\t\t\t\t<div class=\"product-item-detail-info-container-title\">", "</div>\n\t\t\t\t<div class=\"product-item-scu-container\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
+
+	  _templateObject6 = function _templateObject6() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject5() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label \tclass=\"ui-ctl ui-ctl-radio-selector\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\tdata-property-id=\"", "\"\n\t\t\t\t\tdata-property-value=\"", "\">\n\t\t\t\t<input type=\"radio\"\n\t\t\t\t\tdisabled=\"", "\"\n\t\t\t\t\tname=\"property-", "-", "-", "\"\n\t\t\t\t\tclass=\"ui-ctl-element\">\n\t\t\t\t<span class=\"ui-ctl-inner\">\n\t\t\t\t\t<span class=\"ui-ctl-label-text\">", "</span>\n\t\t\t\t</span>\n\t\t\t</label>\n\t\t"]);
 
 	  _templateObject5 = function _templateObject5() {
 	    return data;
@@ -14,7 +34,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	}
 
 	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"product-item-detail-info-container\">\n\t\t\t\t<div class=\"product-item-detail-info-container-title\">", "</div>\n\t\t\t\t<div class=\"product-item-scu-container\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label \tclass=\"ui-ctl ui-ctl-radio-selector\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\tdata-property-id=\"", "\"\n\t\t\t\t\tdata-property-value=\"", "\">\n\t\t\t\t<input type=\"radio\"\n\t\t\t\t\tdisabled=\"", "\"\n\t\t\t\t\tname=\"property-", "-", "-", "\"\n\t\t\t\t\tclass=\"ui-ctl-element\">\n\t\t\t\t<span class=\"ui-ctl-inner\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</label>\n\t\t"]);
 
 	  _templateObject4 = function _templateObject4() {
 	    return data;
@@ -24,7 +44,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	}
 
 	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label \tclass=\"ui-ctl ui-ctl-radio-selector\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\tdata-property-id=\"", "\"\n\t\t\t\t\tdata-property-value=\"", "\">\n\t\t\t\t<input type=\"radio\"\n\t\t\t\t\tdisabled=\"", "\"\n\t\t\t\t\tname=\"property-", "-", "-", "\"\n\t\t\t\t\tclass=\"ui-ctl-element\">\n\t\t\t\t<span class=\"ui-ctl-inner\">\n\t\t\t\t\t<span class=\"ui-ctl-label-text\">", "</span>\n\t\t\t\t</span>\n\t\t\t</label>\n\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-ctl-label-text\">-</span>"]);
 
 	  _templateObject3 = function _templateObject3() {
 	    return data;
@@ -34,7 +54,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	}
 
 	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label \tclass=\"ui-ctl ui-ctl-radio-selector\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\tdata-property-id=\"", "\"\n\t\t\t\t\tdata-property-value=\"", "\">\n\t\t\t\t<input type=\"radio\"\n\t\t\t\t\tdisabled=\"", "\"\n\t\t\t\t\tname=\"property-", "-", "-", "\"\n\t\t\t\t\tclass=\"ui-ctl-element\">\n\t\t\t\t<span class=\"ui-ctl-inner\">\n\t\t\t\t\t<span class=\"ui-ctl-label-img\" style=\"", "\"></span>\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</label>\n\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-ctl-label-img\" style=\"", "\"></span>"]);
 
 	  _templateObject2 = function _templateObject2() {
 	    return data;
@@ -67,6 +87,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    this.offers = options.offers || [];
 	    this.existingValues = options.existingValues || [];
 	    this.nodeDescriptions = [];
+	    this.hideUnselected = options.hideUnselected;
 	  }
 
 	  babelHelpers.createClass(SkuProperty, [{
@@ -94,24 +115,24 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        nameNode = main_core.Tag.render(_templateObject(), propertyName);
 	      }
 
-	      var style;
+	      var iconNode = '';
 
 	      if (propertyValue.PICT && propertyValue.PICT.SRC) {
-	        style = "background-image: url('" + propertyValue.PICT.SRC + "');";
+	        var style = "background-image: url('" + propertyValue.PICT.SRC + "');";
+	        iconNode = main_core.Tag.render(_templateObject2(), style);
 	      } else if (nameNode) {
-	        style = "display: none;";
 	        nameNode.style.paddingLeft = '0';
 	      } else {
-	        style = "background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2215%22%20height%3D%2215%22%3E%3Cpath%20fill%3D%22%23A8ADB4%22%20fill-rule%3D%22evenodd%22%20d%3D%22M1.765%200h11.47C14.21%200%2015%20.79%2015%201.765v11.47C15%2014.21%2014.21%2015%2013.235%2015H1.765C.79%2015%200%2014.21%200%2013.235V1.765C0%20.79.79%200%201.765%200zm0%2013.235h11.47v-.882l-3.058-3.53-1.53%201.765-3.824-4.412-3.058%203.53v3.53zm9.264-7.94a1.324%201.324%200%20100-2.648%201.324%201.324%200%20000%202.647z%22%20opacity%3D%22.761%22/%3E%3C/svg%3E) no-repeat center;";
+	        nameNode = main_core.Tag.render(_templateObject3());
 	      }
 
-	      return main_core.Tag.render(_templateObject2(), this.skuSelectHandler, propertyName, this.getId(), propertyValue.ID, !this.parent.isSelectable(), this.getSelectedSkuId(), this.getId(), uniqueId, style, nameNode);
+	      return main_core.Tag.render(_templateObject4(), this.skuSelectHandler, propertyName, this.getId(), propertyValue.ID, !this.parent.isSelectable(), this.getSelectedSkuId(), this.getId(), uniqueId, iconNode, nameNode);
 	    }
 	  }, {
 	    key: "renderTextSku",
 	    value: function renderTextSku(propertyValue, uniqueId) {
 	      var propertyName = main_core.Type.isStringFilled(propertyValue.NAME) ? main_core.Text.encode(propertyValue.NAME) : '-';
-	      return main_core.Tag.render(_templateObject3(), this.skuSelectHandler, propertyName, this.getId(), propertyValue.ID, !this.parent.isSelectable(), this.getSelectedSkuId(), this.getId(), uniqueId, propertyName);
+	      return main_core.Tag.render(_templateObject5(), this.skuSelectHandler, propertyName, this.getId(), propertyValue.ID, !this.parent.isSelectable(), this.getSelectedSkuId(), this.getId(), uniqueId, propertyName);
 	    }
 	  }, {
 	    key: "layout",
@@ -122,14 +143,14 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      this.skuList = this.renderProperties();
 	      this.toggleSkuPropertyValues();
-	      return main_core.Tag.render(_templateObject4(), main_core.Text.encode(this.property.NAME), this.skuList);
+	      return main_core.Tag.render(_templateObject6(), main_core.Text.encode(this.property.NAME), this.skuList);
 	    }
 	  }, {
 	    key: "renderProperties",
 	    value: function renderProperties() {
 	      var _this = this;
 
-	      var skuList = main_core.Tag.render(_templateObject5());
+	      var skuList = main_core.Tag.render(_templateObject7());
 	      this.property.VALUES.forEach(function (propertyValue) {
 	        var propertyValueId = propertyValue.ID;
 	        var node;
@@ -155,6 +176,8 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "toggleSkuPropertyValues",
 	    value: function toggleSkuPropertyValues() {
+	      var _this2 = this;
+
 	      var selectedSkuProperty = this.parent.getSelectedSkuProperty(this.getId());
 	      var activeSkuProperties = this.parent.getActiveSkuProperties(this.getId());
 	      this.nodeDescriptions.forEach(function (item) {
@@ -169,13 +192,13 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          main_core.Dom.removeClass(item.node, 'selected');
 	        }
 
-	        if (activeSkuProperties.includes(id)) {
+	        if (_this2.hideUnselected && selectedSkuProperty !== id || !activeSkuProperties.includes(id)) {
 	          main_core.Dom.style(item.node, {
-	            display: null
+	            display: 'none'
 	          });
 	        } else {
 	          main_core.Dom.style(item.node, {
-	            display: 'none'
+	            display: null
 	          });
 	        }
 	      });
@@ -233,6 +256,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	    _this.skuTree = options.skuTree || {};
 	    _this.selectable = options.selectable !== false;
+	    _this.hideUnselected = options.hideUnselected === true;
 
 	    if (_this.hasSku()) {
 	      _this.selectedValues = _this.skuTree.SELECTED_VALUES || babelHelpers.objectSpread({}, _this.skuTree.OFFERS[0].TREE);
@@ -416,7 +440,8 @@ this.BX.Catalog = this.BX.Catalog || {};
 	              parent: this,
 	              property: this.skuTree.OFFERS_PROP[i],
 	              existingValues: this.skuTree.EXISTING_VALUES[i],
-	              offers: this.skuTree.OFFERS
+	              offers: this.skuTree.OFFERS,
+	              hideUnselected: this.hideUnselected
 	            });
 	            container.appendChild(skuProperty.layout());
 	            this.skuProperties.push(skuProperty);

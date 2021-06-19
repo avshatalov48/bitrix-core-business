@@ -144,7 +144,12 @@ class CallUser
 
 	public function save()
 	{
-		CallUserTable::merge([
+		CallUserTable::merge($this->toArray());
+	}
+
+	public function toArray()
+	{
+		return [
 			'USER_ID' => $this->userId,
 			'CALL_ID' => $this->callId,
 			'STATE' => $this->state,
@@ -153,7 +158,7 @@ class CallUser
 			'IS_MOBILE' => is_bool($this->isMobile) ? $this->isMobile : null,
 			'SHARED_SCREEN' => is_bool($this->sharedScreen) ? $this->sharedScreen : null,
 			'RECORDED' => is_bool($this->recorded) ? $this->recorded : null
-		]);
+		];
 	}
 
 	public function update(array $fields)

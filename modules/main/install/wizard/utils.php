@@ -35,7 +35,7 @@ class BXInstallServices
 		$p = $_SERVER["DOCUMENT_ROOT"]."/index.php";
 		if (defined("WIZARD_DEFAULT_SITE_ID"))
 		{
-			$rsSite = CSite::GetList($by="sort", $order="asc", array("ID" => WIZARD_DEFAULT_SITE_ID));
+			$rsSite = CSite::GetList("sort", "asc", array("ID" => WIZARD_DEFAULT_SITE_ID));
 			$arSite = $rsSite->GetNext();
 			$p = CSite::GetSiteDocRoot($arSite["LID"]).$arSite["DIR"]."/index.php";
 		}
@@ -253,7 +253,7 @@ class BXInstallServices
 				return false;
 
 			@copy($path_from, $path_to);
-			if(is_file($path_to))
+			if(is_file($path_to) && defined("BX_FILE_PERMISSIONS"))
 				@chmod($path_to, BX_FILE_PERMISSIONS);
 
 			return true;
@@ -280,7 +280,10 @@ class BXInstallServices
 						continue;
 
 					@copy($path_from."/".$file, $path_to."/".$file);
-					@chmod($path_to."/".$file, BX_FILE_PERMISSIONS);
+					if(defined("BX_FILE_PERMISSIONS"))
+					{
+						@chmod($path_to."/".$file, BX_FILE_PERMISSIONS);
+					}
 				}
 			}
 			@closedir($handle);
@@ -549,8 +552,6 @@ class BXInstallServices
 		if (!file_exists($dbconnPath))
 			return false;
 
-		define("DELAY_DB_CONNECT", false); //For check connection in $DB->Connect
-		global $DBType, $DBHost, $DBLogin, $DBPassword, $DBName, $DBDebug;
 		@include($dbconnPath);
 
 		return defined("SHORT_INSTALL");

@@ -26,7 +26,7 @@ class CSocialnetworkBlogPostPreview extends \CBitrixComponent
 
 	protected function prepareParams()
 	{
-		$this->arParams["AVATAR_SIZE"] = $this->arParams["AVATAR_SIZE"] ?: 40;
+		$this->arParams["AVATAR_SIZE"] = $this->arParams["AVATAR_SIZE"] ?: 100;
 		CSocNetLogComponent::processDateTimeFormatParams($this->arParams);
 	}
 
@@ -59,10 +59,15 @@ class CSocialnetworkBlogPostPreview extends \CBitrixComponent
 			$this->arResult["arUser"] = $user->GetByID($this->arResult['POST']['AUTHOR'])->Fetch();
 			$this->arResult["arUser"]["PERSONAL_PHOTO_file"] = CFile::GetFileArray($this->arResult["arUser"]["PERSONAL_PHOTO"]);
 			$this->arResult["arUser"]["PERSONAL_PHOTO_resized"] = CFile::ResizeImageGet(
-					$this->arResult["arUser"]["PERSONAL_PHOTO_file"],
-					array("width" => $this->arParams["AVATAR_SIZE"], "height" => $this->arParams["AVATAR_SIZE"]),
+					$this->arResult['arUser']['PERSONAL_PHOTO_file'],
+					[
+						'width' => $this->arParams['AVATAR_SIZE'],
+						'height' => $this->arParams['AVATAR_SIZE'],
+					],
 					BX_RESIZE_IMAGE_EXACT,
-					false
+					false,
+					false,
+					true
 			);
 
 			$this->arResult['POST']['AUTHOR_FORMATTED_NAME'] = \CUser::FormatName(

@@ -20,7 +20,7 @@ $err_mess = "File: ".__FILE__."<br>Line: ";
 define("HELP_FILE", "vote_channel_list.php");
 
 $arrSites = array();
-$rs = CSite::GetList(($by="sort"), ($order="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch()) $arrSites[$ar["ID"]] = $ar;
 
 $aTabs = array(
@@ -190,7 +190,7 @@ $tabControl->BeginNextTab();
 		<td>
 			<div class="adm-list">
 			<?
-		while(list($sid, $arrS) = each($arrSites)):
+		foreach ($arrSites as $sid => $arrS):
 			$checked = (is_array($res["SITE"]) && in_array($sid, $res["SITE"]) ? "checked" : "");
 			?>
 			<div class="adm-list-item">
@@ -198,7 +198,7 @@ $tabControl->BeginNextTab();
 				<div class="adm-list-label"><label for="<?=htmlspecialcharsbx($sid)?>"><?echo '[<a title="'.GetMessage("VOTE_SITE_EDIT").'" href="/bitrix/admin/site_edit.php?LID='.htmlspecialcharsbx($sid).'&lang='.LANGUAGE_ID.'">'.htmlspecialcharsbx($sid).'</a>]&nbsp;'.htmlspecialcharsex($arrS["NAME"])?></label></div>
 			</div>
 			<?
-		endwhile;
+		endforeach;
 		?></div></td>
 	</tr>
 	<tr class="adm-detail-required-field">
@@ -215,7 +215,7 @@ $tabControl->BeginNextTab();
 //********************
 $tabControl->BeginNextTab();
 
-	$db_res = CGroup::GetList($by = "sort", $order = "asc", Array("ADMIN" => "N"));
+	$db_res = CGroup::GetList("sort", "asc", Array("ADMIN" => "N"));
 	while ($group = $db_res->GetNext())
 	{
 		$perm = (!empty($res["GROUP_ID"]) ?

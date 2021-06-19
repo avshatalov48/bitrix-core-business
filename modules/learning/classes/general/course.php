@@ -292,7 +292,7 @@ class CCourse
 	}
 
 
-	public function IsCertificatesExists($courseId)
+	public static function IsCertificatesExists($courseId)
 	{
 		// Check certificates (if exists => forbid removing course)
 		$certificate = CCertification::GetList(Array(), Array("COURSE_ID" => $courseId, 'CHECK_PERMISSIONS' => 'N'));
@@ -304,7 +304,7 @@ class CCourse
 
 
 	// 2012-04-17 Checked/modified for compatibility with new data model
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		return CCourse::GetList(Array(),Array("ID" => $ID));
 	}
@@ -320,7 +320,7 @@ class CCourse
 
 
 	// 2012-04-17 Checked/modified for compatibility with new data model
-	function GetSite($COURSE_ID)
+	public static function GetSite($COURSE_ID)
 	{
 		global $DB;
 		$strSql = "SELECT L.*, CS.* FROM b_learn_course_site CS, b_lang L WHERE L.LID=CS.SITE_ID AND CS.COURSE_ID=".intval($COURSE_ID);
@@ -329,7 +329,7 @@ class CCourse
 	}
 
 
-	function GetSiteId($COURSE_ID)
+	public static function GetSiteId($COURSE_ID)
 	{
 		global $DB;
 		$strSql = "SELECT SITE_ID FROM b_learn_course_site WHERE COURSE_ID=" . ((int) $COURSE_ID);
@@ -399,7 +399,7 @@ class CCourse
 
 
 	// 2012-04-18 Checked/modified for compatibility with new data model
-	function GetCourseContent(
+	public static function GetCourseContent(
 		$COURSE_ID, 
 		$arAddSelectFileds = array("DETAIL_TEXT", "DETAIL_TEXT_TYPE", "DETAIL_PICTURE"), 
 		$arSelectFields = array()
@@ -444,7 +444,7 @@ class CCourse
 	// Handlers:
 
 	// 2012-04-17 Checked/modified for compatibility with new data model
-	function OnGroupDelete($GROUP_ID)
+	public static function OnGroupDelete($GROUP_ID)
 	{
 		global $DB;
 
@@ -458,7 +458,7 @@ class CCourse
 
 
 	// 2012-04-17 Checked/modified for compatibility with new data model
-	function OnBeforeLangDelete($lang)
+	public static function OnBeforeLangDelete($lang)
 	{
 		global $APPLICATION;
 		$r = CCourse::GetList(array(), array("SITE_ID"=>$lang));
@@ -477,14 +477,14 @@ class CCourse
 
 
 	// 2012-04-17 Checked/modified for compatibility with new data model
-	function OnUserDelete($user_id)
+	public static function OnUserDelete($user_id)
 	{
 		return CStudent::Delete($user_id);
 	}
 
 
 	// 2012-04-17 Checked/modified for compatibility with new data model
-	function TimeToStr($seconds)
+	public static function TimeToStr($seconds)
 	{
 		$str = "";
 
@@ -520,13 +520,13 @@ class CCourse
 
 
 	// provided compatibility to new data model at 04.05.2012
-	function OnSearchReindex($nextStep = [], $callbackObject = null, $callbackMethod = "")
+	public static function OnSearchReindex($nextStep = [], $callbackObject = null, $callbackMethod = "")
 	{
 		return Bitrix\Learning\Integration\Search::handleReindex($nextStep, $callbackObject, $callbackMethod);
 	}
 
 
-	function _Upper($str)
+	public static function _Upper($str)
 	{
 		return $str;
 	}

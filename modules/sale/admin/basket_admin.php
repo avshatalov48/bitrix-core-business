@@ -46,9 +46,7 @@ $lAdmin = new CAdminUiList($sTableID, $oSort);
 $siteName = Array();
 $serverName = Array();
 $listSite = array();
-$b = "sort";
-$o = "asc";
-$dbSite = CSite::GetList($b, $o, array());
+$dbSite = CSite::GetList();
 while ($arSite = $dbSite->Fetch())
 {
 	$serverName[$arSite["LID"]] = $arSite["SERVER_NAME"];

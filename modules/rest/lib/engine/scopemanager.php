@@ -144,7 +144,7 @@ class ScopeManager
 		return $result;
 	}
 
-	public function getMethodInfo(string $method) : array
+	public function getMethodInfo(?string $method) : array
 	{
 		if (!$this->methodInfoList[$method])
 		{

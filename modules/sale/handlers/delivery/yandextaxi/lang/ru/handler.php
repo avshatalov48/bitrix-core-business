@@ -37,6 +37,7 @@ $MESS["SALE_YANDEX_TAXI_ORDER_CREATE_ERROR"] = "Ошибка при попытк
 $MESS["SALE_YANDEX_TAXI_ORDER_PERSIST_ERROR"] = "Заказ был успешно создан в службе Яндекс Go, но возникли проблемы при сохранении заказа в локальную базу данных";
 $MESS['SALE_YANDEX_TAXI_ACTIVITY_NAME'] = 'Доставка Яндекс Go';
 $MESS["SALE_YANDEX_TAXI_PARCEL_ON_ITS_WAY_SMS"] = "Курьер уже в пути! Надеемся, вам все понравится!";
+$MESS["SALE_YANDEX_TAXI_YOUR_ORDER_IS_ON_ITS_WAY"] = "Ваш заказ уже в пути.";
 $MESS["SALE_YANDEX_TAXI_TRACKING_URL"] = "Ссылка для отслеживания заказа";
 $MESS["SALE_YANDEX_TAXI_DEAL_NOT_FOUND"] = "Отсутствует связь сделки с заказом";
 $MESS["SALE_YANDEX_TAXI_CLIENT_FULL_NAME_NOT_SPECIFIED"] = "Не заполнено ФИО клиента";

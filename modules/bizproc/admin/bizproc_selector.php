@@ -452,9 +452,15 @@ $renderSelect = function($arReturns, $open = true, $title = null) use ($arFilter
 				<option value="" style="background-color: #eeeeff"><?echo GetMessage("BIZPROC_SEL_USERS_TAB_USERS")?></option>
 				<?
 				global $DB;
-				$cnt = max(2000, count($arUsers));
+				$cnt = min(2000, count($arUsers));
 				$mcnt = 500;
 				$i = 0;
+				$externalTypes = ['replica', 'email', 'imconnector', 'bot'];
+				if (method_exists(\Bitrix\Main\UserTable::class, 'getExternalUserTypes'))
+				{
+					$externalTypes = \Bitrix\Main\UserTable::getExternalUserTypes();
+				}
+
 				while ($i < $cnt)
 				{
 					$str = "SELECT ID, LOGIN, NAME, LAST_NAME, SECOND_NAME, EMAIL FROM b_user WHERE ID IN (0";
@@ -462,7 +468,7 @@ $renderSelect = function($arReturns, $open = true, $title = null) use ($arFilter
 					for ($j = $i; $j < $cnt1; $j++)
 						$str .= ", ".intval($arUsers[$j]);
 					$i += $mcnt;
-					$str .= ") AND ACTIVE='Y' AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID NOT IN ('replica', 'email', 'imconnector', 'bot')) ORDER BY LAST_NAME, EMAIL, ID";
+					$str .= ") AND ACTIVE='Y' AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID NOT IN ('" . implode('\', \'', $externalTypes) . "')) ORDER BY LAST_NAME, EMAIL, ID";
 					$dbuser = $DB->Query($str);
 					while($user = $dbuser->fetch())
 					{
@@ -510,9 +516,13 @@ function BPSVInsert(v, isUser)
 	}
 	else
 	{
-		<?if ($selectorMode == 'employee'):?>
-		v = BX.util.trim(v.replace(';', ''));
-		<?endif;?>
+		var selectorMode = '<?= CUtil::JSEscape($selectorMode) ?>';
+
+		if (selectorMode === 'employee')
+		{
+			v = BX.util.trim(v.replace(';', ''));
+		}
+
 		var tdocument = top.document;
 		var toField = tdocument.getElementById('<?=AddSlashes(htmlspecialcharsbx($_POST["fieldName"]))?>');
 
@@ -526,7 +536,12 @@ function BPSVInsert(v, isUser)
 		}
 
 		toField.focus();
-		if(tdocument.selection && tdocument.selection.createRange)
+
+		if (selectorMode === 'replace')
+		{
+			toField.value = v;
+		}
+		else if(tdocument.selection && tdocument.selection.createRange)
 		{
 			var range = tdocument.selection.createRange();
 			if(range.text.length>0)

@@ -45,6 +45,10 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_5_IMG'),
 			'type' => ['background-size'],
 		],
+		'.landing-block-node-container' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_40_5_ELEMENT'),
+			'type' => ['container', 'padding-top', 'padding-bottom'],
+		],
 	],
 	'assets' => [
 		'ext' => ['landing_carousel'],

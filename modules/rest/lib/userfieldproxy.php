@@ -1090,7 +1090,7 @@ abstract class UserFieldProxy
 
 		self::$langs = array();
 		$entity = new \CLanguage();
-		$dbResult = $entity->GetList($by = '', $order = '');
+		$dbResult = $entity->GetList();
 		while($lang = $dbResult->Fetch())
 		{
 			self::$langs[$lang['LID']] = array('LID' => $lang['LID'], 'NAME' => $lang['NAME']);

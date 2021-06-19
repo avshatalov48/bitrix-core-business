@@ -368,6 +368,15 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 			$fields['ACTIVE_TO'] = false;
 		}
 
+		if (!array_key_exists('MODIFIED_BY', $fields))
+		{
+			global $USER;
+			if (isset($USER) && $USER instanceof \CUser)
+			{
+				$fields['MODIFIED_BY'] = $USER->getID();
+			}
+		}
+
 		return array_intersect_key($fields, ElementTable::getMap());
 	}
 

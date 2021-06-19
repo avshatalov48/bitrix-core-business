@@ -55,7 +55,7 @@ function OnChangeSite()
 				<table border="0" cellspacing="1" cellpadding="1">
 				<?
 				$i = 0;
-				$sites = CSite::GetList($by, $order, Array("ACTIVE"=>"Y"));
+				$sites = CSite::GetList('', '', Array("ACTIVE"=>"Y"));
 				while($site = $sites->Fetch()):$i++;?>
 					<tr>
 						<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>

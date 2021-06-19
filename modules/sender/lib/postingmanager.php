@@ -169,8 +169,9 @@ class PostingManager
 				}
 
 				$uri        = new \Bitrix\Main\Web\Uri($url);
-				$fixedUrl = $uri->deleteParams($deleteParameters, true)
+				$fixedUrl = $uri->deleteParams($deleteParameters, false)
 								->getUri();
+
 				$fixedUrl   = urldecode($fixedUrl);
 
 				if(mb_strpos($fixedUrl, 'pub/mail/unsubscribe.php') === false)

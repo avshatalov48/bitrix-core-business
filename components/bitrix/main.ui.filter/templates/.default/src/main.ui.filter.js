@@ -12,6 +12,7 @@ import './blocks/sidebar-item';
 
 import './utils';
 import './destination-selector';
+import './entity-selector';
 import './field-controller';
 import './main-ui-control-custom-entity';
 import './search';

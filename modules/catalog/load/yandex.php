@@ -160,9 +160,7 @@ while ($arCatalog_list = $db_catalog_list->Fetch())
 		$cnt++;
 		if (!array_key_exists($arAcc['LID'], $arSiteServers))
 		{
-			$b="sort";
-			$o="asc";
-			$rsSite = CSite::GetList($b, $o, array("LID" => $arAcc["LID"]));
+			$rsSite = CSite::GetList('', '', array("LID" => $arAcc["LID"]));
 			if($arSite = $rsSite->Fetch())
 				$arAcc["SERVER_NAME"] = $arSite["SERVER_NAME"];
 			if($arAcc["SERVER_NAME"] == '' && defined("SITE_SERVER_NAME"))

@@ -103,7 +103,7 @@ class SenderConnectorBuyer extends \Bitrix\Sender\Connector
 	public function getForm()
 	{
 		$siteInput = '<select name="'.$this->getFieldName('LID').'">';
-		$siteDb = \CSite::GetList($by="sort", $order="asc", array("ACTIVE" => "Y"));
+		$siteDb = \CSite::GetList("sort", "asc", array("ACTIVE" => "Y"));
 		while ($site = $siteDb->Fetch())
 		{
 			$inputSelected = ($site['LID'] == $this->getFieldValue('LID') ? 'selected' : '');

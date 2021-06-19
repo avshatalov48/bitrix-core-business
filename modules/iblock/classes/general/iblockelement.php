@@ -109,7 +109,7 @@ class CAllIBlockElement
 		$this->bWF_SetMove = false;
 	}
 
-	function WF_Restore($ID)
+	public static function WF_Restore($ID)
 	{
 		$obElement = new CIBlockElement;
 		$rsElement = $obElement->GetByID($ID);
@@ -163,7 +163,7 @@ class CAllIBlockElement
 	///////////////////////////////////////////////////////////////////
 	// Clear history
 	///////////////////////////////////////////////////////////////////
-	function WF_CleanUpHistory()
+	public static function WF_CleanUpHistory()
 	{
 		if (CModule::IncludeModule("workflow"))
 		{
@@ -430,7 +430,7 @@ class CAllIBlockElement
 	///////////////////////////////////////////////////////////////////
 	// Clears the last or old records in history using parameters from workflow module
 	///////////////////////////////////////////////////////////////////
-	function WF_CleanUpHistoryCopies($ELEMENT_ID=false, $HISTORY_COPIES=false)
+	public static function WF_CleanUpHistoryCopies($ELEMENT_ID=false, $HISTORY_COPIES=false)
 	{
 		if(CModule::IncludeModule("workflow"))
 		{
@@ -682,6 +682,21 @@ class CAllIBlockElement
 			{
 				$arFilter[mb_substr($key, 0, $p)."PROPERTY"][mb_substr($key, $p + 9)] = $val;
 				unset($arFilter[$key]);
+			}
+			else
+			{
+				$p = strpos($key, 'SUBQUERY');
+				if ($p !== false && $p <4)
+				{
+					if (!empty($val) && is_array($val))
+					{
+						$arFilter[substr($key, 0, $p).'ID'] = static::SubQuery(
+							$val['FIELD'],
+							$val['FILTER']
+						);
+					}
+					unset($arFilter[$key]);
+				}
 			}
 		}
 
@@ -3093,6 +3108,7 @@ class CAllIBlockElement
 
 			if(
 				$arDef["FROM_DETAIL"] === "Y"
+				&& isset($arFields["DETAIL_PICTURE"])
 				&& is_array($arFields["DETAIL_PICTURE"])
 				&& $arFields["DETAIL_PICTURE"]["size"] > 0
 				&& (
@@ -3116,7 +3132,7 @@ class CAllIBlockElement
 			}
 
 			if(
-				array_key_exists("PREVIEW_PICTURE", $arFields)
+				isset($arFields["PREVIEW_PICTURE"])
 				&& is_array($arFields["PREVIEW_PICTURE"])
 				&& $arDef["SCALE"] === "Y"
 			)
@@ -3135,7 +3151,7 @@ class CAllIBlockElement
 			}
 
 			if(
-				array_key_exists("PREVIEW_PICTURE", $arFields)
+				isset($arFields["PREVIEW_PICTURE"])
 				&& is_array($arFields["PREVIEW_PICTURE"])
 				&& $arDef["USE_WATERMARK_FILE"] === "Y"
 			)
@@ -3166,7 +3182,7 @@ class CAllIBlockElement
 			}
 
 			if(
-				array_key_exists("PREVIEW_PICTURE", $arFields)
+				isset($arFields["PREVIEW_PICTURE"])
 				&& is_array($arFields["PREVIEW_PICTURE"])
 				&& $arDef["USE_WATERMARK_TEXT"] === "Y"
 			)
@@ -3200,7 +3216,7 @@ class CAllIBlockElement
 			$arDef = $arIBlock["FIELDS"]["DETAIL_PICTURE"]["DEFAULT_VALUE"];
 
 			if(
-				array_key_exists("DETAIL_PICTURE", $arFields)
+				isset($arFields["DETAIL_PICTURE"])
 				&& is_array($arFields["DETAIL_PICTURE"])
 				&& $arDef["SCALE"] === "Y"
 			)
@@ -3219,7 +3235,7 @@ class CAllIBlockElement
 			}
 
 			if(
-				array_key_exists("DETAIL_PICTURE", $arFields)
+				isset($arFields["DETAIL_PICTURE"])
 				&& is_array($arFields["DETAIL_PICTURE"])
 				&& $arDef["USE_WATERMARK_FILE"] === "Y"
 			)
@@ -3250,7 +3266,7 @@ class CAllIBlockElement
 			}
 
 			if(
-				array_key_exists("DETAIL_PICTURE", $arFields)
+				isset($arFields["DETAIL_PICTURE"])
 				&& is_array($arFields["DETAIL_PICTURE"])
 				&& $arDef["USE_WATERMARK_TEXT"] === "Y"
 			)
@@ -3360,6 +3376,7 @@ class CAllIBlockElement
 				$arFields["WF_NEW"] = "";
 		}
 
+		$arFields["NAME"] = (string)$arFields["NAME"];
 		$arFields["SEARCHABLE_CONTENT"] = false;
 		if ($this->searchIncluded)
 		{
@@ -3608,7 +3625,7 @@ class CAllIBlockElement
 		return $Result;
 	}
 
-	function DeleteFile($FILE_ID, $ELEMENT_ID, $TYPE = false, $PARENT_ID = -1, $IBLOCK_ID = false, $bCheckOnly = false)
+	public static function DeleteFile($FILE_ID, $ELEMENT_ID, $TYPE = false, $PARENT_ID = -1, $IBLOCK_ID = false, $bCheckOnly = false)
 	{
 		global $DB;
 
@@ -3797,16 +3814,17 @@ class CAllIBlockElement
 		global $DB, $APPLICATION, $USER;
 		$USER_ID = is_object($USER)? (int)$USER->GetID() : 0;
 		$ID = (int)$ID;
+		if ($ID <= 0)
+		{
+			return false;
+		}
 
 		$APPLICATION->ResetException();
 		foreach (GetModuleEvents("iblock", "OnBeforeIBlockElementDelete", true) as $arEvent)
 		{
 			if(ExecuteModuleEventEx($arEvent, array($ID))===false)
 			{
-				if (is_object($USER) && $USER->IsAdmin())
-					$err = GetMessage("MAIN_BEFORE_DEL_ERR").' '.$arEvent['TO_NAME'];
-				else
-					$err = "";
+				$err = "";
 				$err_id = false;
 				if($ex = $APPLICATION->GetException())
 				{
@@ -4619,7 +4637,7 @@ class CAllIBlockElement
 	 * @param mixed $PROPERTY_VALUE
 	 * @return bool
 	 */
-	function SetPropertyValueCode($ELEMENT_ID, $PROPERTY_CODE, $PROPERTY_VALUE)
+	public static function SetPropertyValueCode($ELEMENT_ID, $PROPERTY_CODE, $PROPERTY_VALUE)
 	{
 		$IBLOCK_ID = CIBlockElement::GetIBlockByID($ELEMENT_ID);
 		if (!$IBLOCK_ID)
@@ -4845,7 +4863,7 @@ class CAllIBlockElement
 	//////////////////////////////////////////////////////////////////////////
 	//
 	//////////////////////////////////////////////////////////////////////////
-	function SetElementSection($ID, $arSections, $bNew = false, $bRightsIBlock = 0, $sectionId = null)
+	public static function SetElementSection($ID, $arSections, $bNew = false, $bRightsIBlock = 0, $sectionId = null)
 	{
 		global $DB;
 		$ID = intval($ID);
@@ -6146,7 +6164,7 @@ class CAllIBlockElement
 			return 1;
 	}
 
-	function DeletePropertySQL($property, $iblock_element_id)
+	public static function DeletePropertySQL($property, $iblock_element_id)
 	{
 		global $DB;
 
@@ -6984,7 +7002,7 @@ class CAllIBlockElement
 		return $strResult;
 	}
 
-	protected function __GetDescriptionUpdateSql($iblock_id, $property_id, $description = false)
+	protected static function __GetDescriptionUpdateSql($iblock_id, $property_id, $description = false)
 	{
 		global $DB;
 		$tableFields = $DB->GetTableFields("b_iblock_element_prop_s".$iblock_id);

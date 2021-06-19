@@ -373,9 +373,7 @@ do{ //one iteration loop
 		{
 			if($locked_by > 0)
 			{
-				$by="ID";
-				$order="ASC";
-				$rsUser = CUser::GetList($by, $order, array("ID_EQUAL_EXACT" => $locked_by));
+				$rsUser = CUser::GetList('ID', 'ASC', array("ID_EQUAL_EXACT" => $locked_by));
 				if($arUser = $rsUser->GetNext())
 					$locked_by = rtrim("[".$arUser["ID"]."] (".$arUser["LOGIN"].") ".$arUser["NAME"]." ".$arUser["LAST_NAME"]);
 			}

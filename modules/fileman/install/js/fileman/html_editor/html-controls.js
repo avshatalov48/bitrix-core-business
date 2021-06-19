@@ -4330,26 +4330,6 @@ function __run()
 				BX.toggleClass(pTableWrap, 'bxhtmled-dialog-tbl-collapsed');
 			};
 
-			if (this.editor.config.useLinkStat !== false)
-			{
-				// Use statistics
-				r = addRow(pTableWrap, false, true);
-				this.pStatCont = r.row;
-				this.pStat = r.leftCell.appendChild(BX.create('INPUT', {props: {type: 'checkbox', id: this.id + '-stat'}}));
-				r.rightCell.appendChild(BX.create('LABEL', {text: BX.message('BXEdLinkStat')})).setAttribute('for', this.id + '-stat');
-				var
-					wrap,
-					statInfoCont = r.rightCell.appendChild(BX.create('DIV', {props: {className: 'bxhtmled-stat-wrap'}}));
-				wrap = statInfoCont.appendChild(BX.create('DIV', {html: '<label for="event1">' + BX.message('BXEdLinkStatEv1') + ':</label> '}));
-				this.pStatEvent1 = wrap.appendChild(BX.create('INPUT', {props: {type: 'text',  id: "event1"}, style: {minWidth: '50px'}}));
-				wrap = statInfoCont.appendChild(BX.create('DIV', {html: '<label for="event2">' + BX.message('BXEdLinkStatEv2') + ':</label> '}));
-				this.pStatEvent2 = wrap.appendChild(BX.create('INPUT', {props: {type: 'text',  id: "event2"}, style: {minWidth: '50px'}}));
-				wrap = statInfoCont.appendChild(BX.create('DIV', {html: '<label for="event3">' + BX.message('BXEdLinkStatEv3') + ':</label> '}));
-				this.pStatEvent3 = wrap.appendChild(BX.create('INPUT', {props: {type: 'text',  id: "event3"}, style: {minWidth: '50px'}}));
-				BX.addClass(r.leftCell,'bxhtmled-left-c-top');
-				BX.bind(this.pStat, 'click', BX.delegate(this.CheckShowStatParams, this));
-			}
-
 			// Link title
 			r = addRow(pTableWrap, {label: BX.message('BXEdLinkTitle') + ':', id: this.id + '-title'}, true);
 			this.pTitle = r.rightCell.appendChild(BX.create('INPUT', {props: {type: 'text', id: this.id + '-title'}}));
@@ -4415,17 +4395,12 @@ function __run()
 		this.pHrefAnchCont.style.display = 'none';
 		this.pHrefEmailCont.style.display = 'none';
 
-		if (this.pStatCont)
-			this.pStatCont.style.display = 'none';
-
 		if (type == 'internal')
 		{
 			this.pHrefIntCont.style.display = '';
 		}
 		else if (type == 'external')
 		{
-			if (this.pStatCont)
-				this.pStatCont.style.display = '';
 			this.pHrefExtCont.style.display = '';
 		}
 		else if (type == 'anchor')
@@ -4439,18 +4414,6 @@ function __run()
 
 		this.editor.config.linkDialogType = type;
 		this.editor.SaveOption('link_dialog_type', this.editor.config.linkDialogType);
-	};
-
-	LinkDialog.prototype.CheckShowStatParams = function()
-	{
-		if (this.pStat && this.pStat.checked)
-		{
-			BX.removeClass(this.pStatCont, 'bxhtmled-link-stat-hide');
-		}
-		else
-		{
-			BX.addClass(this.pStatCont, 'bxhtmled-link-stat-hide');
-		}
 	};
 
 	LinkDialog.prototype.CheckNoindex = function()
@@ -4470,14 +4433,6 @@ function __run()
 	LinkDialog.prototype.SetValues = function(values)
 	{
 		this.pHrefAnchor.value = '';
-
-		if (!this.editor.bbCode && this.pStat)
-		{
-			this.pStatEvent1.value =
-			this.pStatEvent2.value =
-			this.pStatEvent3.value = '';
-			this.pStat.checked = false;
-		}
 
 		if (!values)
 		{
@@ -4512,39 +4467,6 @@ function __run()
 				else if (href.indexOf("://") !== -1 || href.substr(0, 'www.'.length) == 'www.' || href.indexOf("&goto=") !== -1)
 				{
 					values.type = 'external';
-
-					// Fix link in statistic
-					if (this.pStat && href.substr(0, '/bitrix/redirect.php'.length) == '/bitrix/redirect.php')
-					{
-						this.pStat.checked = true;
-						this.CheckShowStatParams();
-						var sParams = href.substring('/bitrix/redirect.php'.length);
-						function __ExtrParam(p, s)
-						{
-							var pos = s.indexOf(p + '=');
-							if (pos < 0)
-							{
-								return '';
-							}
-
-							var pos2 = s.indexOf('&', pos + p.length+1);
-							if (pos2 < 0)
-							{
-								s = s.substring(pos + p.length + 1);
-							}
-							else
-							{
-								s = s.substr(pos+p.length+1, pos2 - pos - 1 - p.length);
-							}
-							return unescape(s);
-						}
-
-						this.pStatEvent1.value = __ExtrParam('event1', sParams);
-						this.pStatEvent2.value = __ExtrParam('event2', sParams);
-						this.pStatEvent3.value = __ExtrParam('event3', sParams);
-
-						href = __ExtrParam('goto', sParams);
-					}
 
 					if (href.substr(0, 'www.'.length) == 'www.')
 						href = "http://" + href;
@@ -4649,7 +4571,6 @@ function __run()
 
 		if (!this.editor.bbCode)
 		{
-			this.CheckShowStatParams();
 			this.CheckNoindex();
 
 			if (!this.oClass)
@@ -4707,11 +4628,6 @@ function __run()
 			if (this.pHrefType.value && value.href.indexOf('://') == -1)
 			{
 				value.href = this.pHrefType.value + value.href;
-			}
-
-			if(this.pStat && this.pStat.checked)
-			{
-				value.href = '/bitrix/redirect.php?event1=' + escape(this.pStatEvent1.value) + '&event2=' + escape(this.pStatEvent2.value) + '&event3=' + escape(this.pStatEvent3.value) + '&goto=' + escape(value.href);
 			}
 		}
 		else if (type == 'anchor')

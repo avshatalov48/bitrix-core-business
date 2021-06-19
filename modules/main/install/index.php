@@ -20,7 +20,7 @@ class main extends CModule
 	var $MODULE_DESCRIPTION;
 	var $MODULE_CSS;
 
-	function main()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -43,8 +43,7 @@ class main extends CModule
 
 	function InstallDB()
 	{
-		/** @global string $DBType */
-		global $DB, $DBType, $DBHost, $DBLogin, $DBPassword, $DBName, $APPLICATION;
+		global $DB, $DBHost, $DBLogin, $DBPassword, $DBName, $APPLICATION;
 
 		if (!is_object($APPLICATION))
 			$APPLICATION = new CMain;
@@ -67,10 +66,10 @@ class main extends CModule
 		if ($success)
 			return true;
 
-		if ($DBType == "mysql" && defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
+		if (defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
 			$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 
-		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/".$DBType."/install.sql");
+		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/mysql/install.sql");
 		if ($errors !== false)
 		{
 			$APPLICATION->ThrowException(implode("", $errors));
@@ -132,8 +131,6 @@ class main extends CModule
 		RegisterModuleDependences('main', 'OnBeforeGroupUpdate', 'main', 'CGroupAuthProvider', 'OnBeforeGroupUpdate');
 		RegisterModuleDependences('main', 'OnBeforeGroupDelete', 'main', 'CGroupAuthProvider', 'OnBeforeGroupDelete');
 		RegisterModuleDependences('main', 'OnAfterSetUserGroup', 'main', 'CGroupAuthProvider', 'OnAfterSetUserGroup');
-		RegisterModuleDependences('main', 'OnUserLogin', 'main', 'CGroupAuthProvider', 'OnUserLogin');
-		RegisterModuleDependences('main', 'OnUserLogin', 'main', 'CUserAuthProvider', 'OnUserLogin');
 		RegisterModuleDependences("main", "OnEventLogGetAuditTypes", "main", "CEventMain", "GetAuditTypes");
 		RegisterModuleDependences("main", "OnEventLogGetAuditHandlers", "main", "CEventMain", "MakeMainObject");
 		RegisterModuleDependences("perfmon", "OnGetTableSchema", "main", "CTableSchema", "OnGetTableSchema");
@@ -1429,13 +1426,9 @@ class main extends CModule
 
 	private static function InstallSmiles()
 	{
-		/** @global string $DBType */
-		global $DBType;
-
 		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/virtual_io.php");
 		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/virtual_file.php");
 		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/file.php");
-		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/".$DBType."/file.php");
 		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/archive.php");
 		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/csv_data.php");
 		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/file_temp.php");
@@ -1452,7 +1445,7 @@ class main extends CModule
 	function InstallEvents()
 	{
 		$arEventTypes = array();
-		$langs = CLanguage::GetList($b="", $o="");
+		$langs = CLanguage::GetList();
 		while($language = $langs->Fetch())
 		{
 			$lid = $language["LID"];

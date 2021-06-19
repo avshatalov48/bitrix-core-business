@@ -46,7 +46,7 @@ if ($arParams["UID"] > 0)
 	$db_user = CUser::GetByID($arParams["UID"]);
 	if ($db_user && ($ar_user = $db_user->Fetch()))
 	{
-		while (list($key, $val) = each($ar_user))
+		foreach ($ar_user as $key => $val)
 		{
 			if (is_string($val))
 			{
@@ -59,7 +59,7 @@ if ($arParams["UID"] > 0)
 		$ar_forum_user = CForumUser::GetByUSER_ID($arParams["UID"]);
 		if ($ar_forum_user)
 		{
-			while (list($key, $val) = each($ar_forum_user))
+			foreach ($ar_forum_user as $key => $val)
 			{
 				${"str_FORUM_".$key} = htmlspecialcharsbx($val);
 				$arResult["str_FORUM_".$key] = htmlspecialcharsbx($val);

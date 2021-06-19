@@ -1,6 +1,6 @@
 .landing-ui-panel-block-card-action {
-	width: 69px;
-	height: 24px;
+	/*width: 69px;*/
+	height: 22px;
 	line-height: 19px;
 	top: 5px;
 	right: 4px;
@@ -17,7 +17,7 @@
 }
 
 .landing-ui-panel-block-card-action .landing-ui-button-card-action {
-	height: 24px;
+	height: 22px;
 	padding-left: 14px;
 	padding-right: 14px;
 	border-top: 1px rgba(82, 92, 105, .80) solid;

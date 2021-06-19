@@ -52,7 +52,7 @@ class CSaleStatus
 		return StatusTable::getList($filter)->fetch();
 	}
 
-	static function GetLangByID($statusId, $languageId = LANGUAGE_ID)
+	public static function GetLangByID($statusId, $languageId = LANGUAGE_ID)
 	{
 		return StatusLangTable::getList(array(
 			'select' => array('*'),
@@ -69,7 +69,7 @@ class CSaleStatus
 	 * @param array $arSelectFields
 	 * @return CDBResult|int
 	 */
-	static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		if (!is_array($arOrder) && !is_array($arFilter))
 		{
@@ -124,7 +124,7 @@ class CSaleStatus
 	/*
 	 * For modern api see: Bitrix\Sale\OrderStatus and Bitrix\Sale\DeliveryStatus
 	 */
-	static function GetPermissionsList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetPermissionsList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		$query = new Compatible\OrderQuery(StatusGroupTaskTable::getEntity());
 
@@ -146,7 +146,7 @@ class CSaleStatus
 
 	private static $statusFields, $langFields, $taskFields;
 
-	function CheckFields($ACTION, &$arFields, $statusId = '')
+	public static function CheckFields($ACTION, &$arFields, $statusId = '')
 	{
 		if ((is_set($arFields, "SORT") || $ACTION=="ADD") && intval($arFields["SORT"])<= 0)
 			$arFields["SORT"] = 100;
@@ -225,7 +225,7 @@ class CSaleStatus
 				) + array_intersect_key($row, self::$taskFields));
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		if (! self::CheckFields('ADD', $arFields))
 			return false;
@@ -253,7 +253,7 @@ class CSaleStatus
 		return $statusId;
 	}
 
-	function Update($statusId, $arFields)
+	public static function Update($statusId, $arFields)
 	{
 		if (! self::CheckFields('UPDATE', $arFields, $statusId))
 			return false;
@@ -285,7 +285,7 @@ class CSaleStatus
 		return $statusId;
 	}
 
-	function Delete($statusId)
+	public static function Delete($statusId)
 	{
 		if (! $statusId)
 			return false;
@@ -323,7 +323,7 @@ class CSaleStatus
 		return StatusTable::delete($statusId)->isSuccess();
 	}
 
-	function CreateMailTemplate($ID)
+	public static function CreateMailTemplate($ID)
 	{
 		$ID = trim($ID);
 
@@ -338,10 +338,7 @@ class CSaleStatus
 			$eventType->Delete("SALE_STATUS_CHANGED_".$ID);
 		}
 		
-		$b = '';
-		$o = '';
-
-		$dbSiteList = CSite::GetList($b, $o);
+		$dbSiteList = CSite::GetList();
 		while ($arSiteList = $dbSiteList->Fetch())
 		{
 			\Bitrix\Main\Localization\Loc::loadLanguageFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/status.php", $arSiteList["LANGUAGE_ID"]);
@@ -388,8 +385,8 @@ class CSaleStatus
 			}
 
 			$dbEventMessage = $eventMessage->GetList(
-				$b,
-				$o,
+				'',
+				'',
 				array(
 					"EVENT_NAME" => "SALE_STATUS_CHANGED_".$ID,
 					"SITE_ID" => $arSiteList["LID"]

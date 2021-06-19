@@ -462,3 +462,27 @@
 .main-grid-cell-overlay {
 	z-index: -1;
 }
+
+.main-grid-delete-button {
+	position: relative;
+	top: -3px;
+	display: inline-block;
+	width: 26px;
+	height: 26px;
+	background: url(/bitrix/js/ui/buttons/icons/images/ui-remove-black.svg) no-repeat;
+	opacity: .3;
+	cursor: pointer;
+	transition: opacity 200ms ease;
+}
+
+.main-grid-delete-button::before {
+	position: absolute;
+	top: -10px;
+	right: -10px;
+	bottom: -10px;
+	left: -10px;
+	display: block;
+	content: '';
+}
+
+.main-grid-delete-button:hover { opacity: .7; }

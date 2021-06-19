@@ -11,7 +11,9 @@ class Dictionary
 		'Q' => 'NEEDS-ACTION',
 		'accepted' => 'ACCEPTED',
 		'Y' => 'ACCEPTED',
+		'H' => 'ACCEPTED',
 		'declined' => 'DECLINED',
+		'N' => 'DECLINED',
 		'tentative' => 'TENTATIVE',
 		'delegated' => 'DELEGATED',
 	];
@@ -26,6 +28,8 @@ class Dictionary
 	public const TRANSPARENT =[
 		'free' => 'TRANSPARENT',
 		'busy' => 'OPAQUE',
+		'absent' => 'OPAQUE',
+		'quest' => 'OPAQUE',
 	];
 
 	public const EVENT_STATUS = [

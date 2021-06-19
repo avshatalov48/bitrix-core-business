@@ -12,7 +12,7 @@ Class workflow extends CModule
 	var $MODULE_CSS;
 	var $MODULE_GROUP_RIGHTS = "Y";
 
-	function workflow()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 

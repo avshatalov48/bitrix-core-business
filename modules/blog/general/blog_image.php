@@ -1,5 +1,7 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
+
 $GLOBALS["BLOG_IMAGE"] = Array();
 
 class CAllBlogImage
@@ -7,7 +9,7 @@ class CAllBlogImage
 	const NOT_ATTACHED_IMAGES_LIFETIME = 86400; //one day
 	
 	/*************** ADD, UPDATE, DELETE *****************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $APPLICATION;
 
@@ -58,7 +60,7 @@ class CAllBlogImage
 		return True;
 	}
 
-	function ImageFixSize($aFile)
+	public static function ImageFixSize($aFile)
 	{
 		$file = $aFile['tmp_name'];
 		preg_match("#/([a-z]+)#is", $aFile['type'], $regs);
@@ -194,7 +196,7 @@ class CAllBlogImage
 		self::ImageCreateHandler($bNull, $arParams);
 	}
 
-	static function ImageResizeHandler(&$arCustomFile, $arParams = null)
+	public static function ImageResizeHandler(&$arCustomFile, $arParams = null)
 	{
 //		static for save values from arParams to next method call
 		static $arResizeParams = array();
@@ -228,7 +230,7 @@ class CAllBlogImage
 		}
 	}
 	
-	static function ImageCreateHandler(&$arCustomFile, $arParams = null)
+	public static function ImageCreateHandler(&$arCustomFile, $arParams = null)
 	{
 //		static for save values from arParams to next method call
 		static $arCreateParams = array();
@@ -266,4 +268,3 @@ class CAllBlogImage
 		}
 	}
 }
-?>

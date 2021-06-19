@@ -239,15 +239,28 @@ class Landing
 		}
 
 		// add block to the landing
+		$blockFields = [
+			'PUBLIC' => 'N',
+			'SORT' => $sort,
+			'ANCHOR' => isset($block['anchor'])
+				? $block['anchor']
+				: ''
+		];
+		if ($block['full_content'] ?? null)
+		{
+			$blockFields['CONTENT'] = str_replace(
+				['<?', '?>'],
+				['< ?', '? >'],
+				$block['full_content']
+			);
+		}
+		if ($block['designed'] ?? null)
+		{
+			$blockFields['DESIGNED'] = 'Y';
+		}
 		$blockId = $landing->addBlock(
 			$block['code'],
-			[
-				'PUBLIC' => 'N',
-				'SORT' => $sort,
-				'ANCHOR' => isset($block['anchor'])
-					? $block['anchor']
-					: ''
-			]
+			$blockFields
 		);
 		if ($blockId)
 		{

@@ -1,4 +1,4 @@
-<section class="landing-block g-pt-40 g-pb-40">
+<section class="landing-block g-pt-30 g-pb-30">
 	<div class="landing-block-node-timeline-container u-timeline-v3-2-wrap container">
 		<div class="">
 			<div class="landing-block-node-card js-animation fadeInUp u-timeline-v3-2 d-block text-center text-md-left g-parent u-link-v5 g-pt-25 g-pb-25 g-pl-10 g-pr-10"
@@ -6,7 +6,6 @@
 				<div class="u-timeline-v3-2__icon g-absolute-centered--y g-z-index-3 g-line-height-0 g-width-16 g-height-16 g-ml-minus-8">
 					<i class="landing-block-node-card-time-dot d-inline-block g-width-16 g-height-16 g-bg-white g-brd-5 g-brd-style-solid g-brd-gray-light-v4 g-rounded-50"></i>
 				</div>
-
 				<div class="row mx-0">
 					<div class="col-md-5 order-2 order-md-1 d-flex align-items-center align-content-start flex-wrap flex-lg-nowrap px-0">
 						<div class="landing-block-node-card-time-line u-heading-v1-4 order-2 order-lg-1 g-brd-gray-light-v2 w-100 g-mb-0 g-mt-20--md g-mt-0--lg g-mx-10--md g-mx-0--lg">
@@ -23,13 +22,13 @@
 
 					<div class="col-md-7 order-1 landing-block-node-card-inner d-flex order-md-2 px-0 g-mb-15 g-mb-0--md d-block d-md-flex">
 						<div class="align-self-center g-width-100x">
-							<h4 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-5">
+							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-color-primary g-mb-5">
 								Intro
-								to UI/UX Design</h4>
-							<h3 class="landing-block-node-card-title landing-semantic-title-small text-uppercase g-font-weight-700 g-font-size-23 g-mb-10">
+								to UI/UX Design</h6>
+							<h3 class="landing-block-node-card-title landing-semantic-title-small text-uppercase g-font-weight-700 g-mb-10">
 								John Doe,
 								Dribbble</h3>
-							<div class="landing-block-node-card-text landing-semantic-text-medium g-color-gray-dark-v5 mb-0"><p>Lorem ipsum
+							<div class="landing-block-node-card-text landing-semantic-text-medium mb-0"><p>Lorem ipsum
 									dolor
 									sit amet, consectetur adipiscing
 									elit. Vestibulum ut scelerisque odio, a viverra arcu. Nulla ut suscipit
@@ -64,12 +63,12 @@
 
 					<div class="col-md-7 order-1 landing-block-node-card-inner d-flex order-md-2 px-0 g-mb-15 g-mb-0--md d-block d-md-flex">
 						<div class="align-self-center g-width-100x">
-							<h4 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-5">
-								Design Trands of 2020</h4>
-							<h3 class="landing-block-node-card-title landing-semantic-title-small text-uppercase g-font-weight-700 g-font-size-23 g-mb-10">
+							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-color-primary g-mb-5">
+								Design Trands of 2021</h6>
+							<h3 class="landing-block-node-card-title landing-semantic-title-small text-uppercase g-font-weight-700 g-mb-10">
 								Kate Watson,
 								Airbnb</h3>
-							<div class="landing-block-node-card-text landing-semantic-text-medium g-color-gray-dark-v5 mb-0"><p>Lorem ipsum
+							<div class="landing-block-node-card-text landing-semantic-text-medium mb-0"><p>Lorem ipsum
 									dolor
 									sit amet, consectetur adipiscing
 									elit. Vestibulum ut scelerisque odio, a viverra arcu. Nulla ut suscipit
@@ -104,12 +103,12 @@
 
 					<div class="col-md-7 order-1 landing-block-node-card-inner d-flex order-md-2 px-0 g-mb-15 g-mb-0--md d-block d-md-flex">
 						<div class="align-self-center g-width-100x">
-							<h4 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-5">
-								Digital Marketing</h4>
-							<h3 class="landing-block-node-card-title landing-semantic-title-small text-uppercase g-font-weight-700 g-font-size-23 g-mb-10">
+							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-color-primary g-mb-5">
+								Digital Marketing</h6>
+							<h3 class="landing-block-node-card-title landing-semantic-title-small text-uppercase g-font-weight-700 g-mb-10">
 								Sara Woodman,
 								Google</h3>
-							<div class="landing-block-node-card-text landing-semantic-text-medium g-color-gray-dark-v5 mb-0"><p>Lorem ipsum
+							<div class="landing-block-node-card-text landing-semantic-text-medium mb-0"><p>Lorem ipsum
 									dolor
 									sit amet, consectetur adipiscing
 									elit. Vestibulum ut scelerisque odio, a viverra arcu. Nulla ut suscipit
@@ -144,12 +143,12 @@
 
 					<div class="col-md-7 order-1 landing-block-node-card-inner d-flex order-md-2 px-0 g-mb-15 g-mb-0--md d-block d-md-flex">
 						<div class="align-self-center g-width-100x">
-							<h4 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-5">
-								Photoshop vs Sketch</h4>
-							<h3 class="landing-block-node-card-title landing-semantic-title-small text-uppercase g-font-weight-700 g-font-size-23 g-mb-10">
+							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-color-primary g-mb-5">
+								Photoshop vs Sketch</h6>
+							<h3 class="landing-block-node-card-title landing-semantic-title-small text-uppercase g-font-weight-700 g-mb-10">
 								Mark Rayman,
 								Invision</h3>
-							<div class="landing-block-node-card-text landing-semantic-text-medium g-color-gray-dark-v5 mb-0"><p>Lorem ipsum
+							<div class="landing-block-node-card-text landing-semantic-text-medium mb-0"><p>Lorem ipsum
 									dolor
 									sit amet, consectetur adipiscing
 									elit. Vestibulum ut scelerisque odio, a viverra arcu. Nulla ut suscipit

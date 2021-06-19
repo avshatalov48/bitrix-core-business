@@ -16,7 +16,7 @@ class RcAction
 		return [
 			MessageBase::CODE_RC_LEAD => ActionDictionary::ACTION_RC_EDIT,
 			MessageBase::CODE_RC_DEAL => ActionDictionary::ACTION_RC_EDIT,
-			MessageBase::CODE_TOLOKA => ActionDictionary::ACTION_RC_EDIT,
+			MessageBase::CODE_TOLOKA => ActionDictionary::ACTION_RC_VIEW,
 		];
 	}
 }

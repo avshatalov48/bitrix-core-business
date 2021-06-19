@@ -20,8 +20,13 @@ return [
 		'ui.vue',
 		'im.lib.logger',
 		'im.lib.utils',
+		'im.component.recent',
 		'im.component.dialog',
+		'im.component.textarea',
 		'pull.component.status',
+		'im.const',
+		'im.mixin',
+		'main.core.events',
 	],
 	'skip_core' => true,
 ];

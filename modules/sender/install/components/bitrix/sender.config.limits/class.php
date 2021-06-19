@@ -76,7 +76,7 @@ class SenderConfigLimitsComponent extends Bitrix\Sender\Internals\CommonSenderCo
 				$initialLimit = $initialLimit ?: 1;
 
 				$percentage = $isCountLimiter ? ceil(($current / $initialLimit) * 100) : 0;
-				$percentage = $percentage > 100 ? 100 : 0;
+				$percentage = $percentage > 100 ? 100 : $percentage;
 
 				$limits[] = array(
 					'NAME' => $isCountLimiter ? $limiter->getName() : null,

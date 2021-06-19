@@ -11,10 +11,12 @@ if (!\Bitrix\Main\Loader::includeModule('socialnetwork'))
 }
 
 return [
+	'css' => './css/slider.css',
 	'js' => '/bitrix/js/socialnetwork/slider/socialnetwork.slider.js',
 	'lang_additional' => [
 		'SONET_SLIDER_USER_SEF' => ComponentHelper::getUserSEFUrl(),
 		'SONET_SLIDER_GROUP_SEF' => ComponentHelper::getWorkgroupSEFUrl(),
+		'SONET_SLIDER_SITE_TEMPLATE_ID' => SITE_TEMPLATE_ID,
 	],
 	'rel' => [ 'sidepanel', 'socialnetwork.common' ]
 ];

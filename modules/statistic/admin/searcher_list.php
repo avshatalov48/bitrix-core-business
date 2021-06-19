@@ -75,12 +75,34 @@ function CheckFilter()
 	if ($str <> '') return false; else return true;
 }
 
+if (CheckFilter())
+{
+	$arFilter = Array(
+		"ID"				=> $find_id,
+		"ID_EXACT_MATCH"		=> $find_id_exact_match,
+		"ACTIVE"			=> $find_active,
+		"SAVE_STATISTIC"	=> $find_save_statistic,
+		"HITS1"				=> $find_hits1,
+		"HITS2"				=> $find_hits2,
+		"DATE1"				=> $find_date1,
+		"DATE2"				=> $find_date2,
+		"DATE1_PERIOD"		=> $find_date1_period,
+		"DATE2_PERIOD"		=> $find_date2_period,
+		"NAME"				=> $find_name,
+		"NAME_EXACT_MATCH"	=> $find_name_exact_match,
+		"USER_AGENT"		=> $find_user_agent,
+		"USER_AGENT_EXACT_MATCH"	=> $find_user_agent_exact_match,
+		"DIAGRAM_DEFAULT"	=> $find_diagram_default
+		);
+}
+else $lAdmin->AddFilterError($strError);
+
 if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT=="W" && check_bitrix_sessid())
 {
 	if($_REQUEST['action_target']=="selected")
 	{
 		$arID = Array();
-		$rsData = CSearcher::GetList($by, $order, $arFilter, $is_filtered);
+		$rsData = CSearcher::GetList('', '', $arFilter);
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -104,29 +126,9 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT=="W" && check_bitrix_sessid()
 	}
 }
 
-if (CheckFilter())
-{
-	$arFilter = Array(
-		"ID"				=> $find_id,
-		"ID_EXACT_MATCH"		=> $find_id_exact_match,
-		"ACTIVE"			=> $find_active,
-		"SAVE_STATISTIC"	=> $find_save_statistic,
-		"HITS1"				=> $find_hits1,
-		"HITS2"				=> $find_hits2,
-		"DATE1"				=> $find_date1,
-		"DATE2"				=> $find_date2,
-		"DATE1_PERIOD"		=> $find_date1_period,
-		"DATE2_PERIOD"		=> $find_date2_period,
-		"NAME"				=> $find_name,
-		"NAME_EXACT_MATCH"	=> $find_name_exact_match,
-		"USER_AGENT"		=> $find_user_agent,
-		"USER_AGENT_EXACT_MATCH"	=> $find_user_agent_exact_match,
-		"DIAGRAM_DEFAULT"	=> $find_diagram_default
-		);
-}
-else $lAdmin->AddFilterError($strError);
+global $by, $order;
 
-$rsData = CSearcher::GetList($by, $order, $arFilter, $is_filtered);
+$rsData = CSearcher::GetList($by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 

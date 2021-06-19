@@ -30,7 +30,7 @@ $width = 400;
 $height = 300;
 
 $arFields = Array();
-if ($arGadgetParams["SITE_ID"] <> '')
+if (isset($arGadgetParams["SITE_ID"]) && $arGadgetParams["SITE_ID"] <> '')
 	$arFields["find_lid"] = $arGadgetParams["SITE_ID"];
 if(empty($arGadgetParams["ORDERS_STATUS"]))
 	$arGadgetParams["ORDERS_STATUS"] = Array("CREATED", "PAID");
@@ -64,17 +64,17 @@ $arFields["set_filter"] = "Y";
 $arFields["LANG"] = LANGUAGE_ID;
 $arFields["rand"] = randString(4);
 
-if($arGadgetParams["PERIOD"] == "WEEK")
-{
-	$arFields["filter_date_from"] = ConvertTimeStamp(AddToTimeStamp(Array("DD" => -7)));
-	$arFields["filter_by"] = "day";
-	$arFields["cache_time"] = 60*60*4;
-}
-elseif($arGadgetParams["PERIOD"] == '' || $arGadgetParams["PERIOD"] == "MONTH")
+if(!isset($arGadgetParams["PERIOD"]) || $arGadgetParams["PERIOD"] == '' || $arGadgetParams["PERIOD"] == "MONTH")
 {
 	$arFields["filter_date_from"] = ConvertTimeStamp(AddToTimeStamp(Array("MM" => -1)));
 	$arFields["filter_by"] = "week";
 	$arFields["cache_time"] = 60*60*12;
+}
+elseif($arGadgetParams["PERIOD"] == "WEEK")
+{
+	$arFields["filter_date_from"] = ConvertTimeStamp(AddToTimeStamp(Array("DD" => -7)));
+	$arFields["filter_by"] = "day";
+	$arFields["cache_time"] = 60*60*4;
 }
 elseif($arGadgetParams["PERIOD"] == "QUATER")
 {
@@ -88,7 +88,7 @@ elseif($arGadgetParams["PERIOD"] == "YEAR")
 	$arFields["filter_by"] = "month";
 	$arFields["cache_time"] = 60*60*24;
 }
-if($_REQUEST["clear_cache"] == "Y")
+if(isset($_REQUEST["clear_cache"]) && $_REQUEST["clear_cache"] == "Y")
 	$arFields["clear_cache"] = "Y";
 
 $imgUrl = "/bitrix/admin/sale_stat_graph.php?";
@@ -161,13 +161,13 @@ $tabControl = new CAdminViewTabControl("saleGraphTabControl_".$arGadgetParams["R
 									<td nowrap=""><img src="/bitrix/images/1.gif" width="3" height="1"><?=GetMessage("GD_ORDERS_L_PAYED")?></td>
 								</tr>
 								<?endif;?>
-								<?if($arFields["find_allow_delivery"] == "Y"):?>
+								<?if(isset($arFields["find_allow_delivery"]) && $arFields["find_allow_delivery"] == "Y"):?>
 								<tr>
 									<td valign="center"><img src="/bitrix/admin/sale_graph_legend.php?color=0000FF" width="45" height="2" style="margin-bottom: 4px;"></td>
 									<td nowrap=""><img src="/bitrix/images/1.gif" width="3" height="1"><?=GetMessage("GD_ORDERS_L_AD")?></td>
 								</tr>
 								<?endif;?>
-								<?if($arFields["find_canceled"] == "Y"):?>
+								<?if(isset($arFields["find_canceled"]) && $arFields["find_canceled"] == "Y"):?>
 								<tr>
 									<td valign="center"><img src="/bitrix/admin/sale_graph_legend.php?color=FF0000" width="45" height="2" style="margin-bottom: 4px;"></td>
 									<td nowrap=""><img src="/bitrix/images/1.gif" width="3" height="1"><?=GetMessage("GD_ORDERS_L_CANCELED")?></td>
@@ -205,13 +205,13 @@ $tabControl = new CAdminViewTabControl("saleGraphTabControl_".$arGadgetParams["R
 									<td nowrap=""><img src="/bitrix/images/1.gif" width="3" height="1"><?=GetMessage("GD_ORDERS_L2_PAYED")?></td>
 								</tr>
 								<?endif;?>
-								<?if($arFields["find_allow_delivery"] == "Y"):?>
+								<?if(isset($arFields["find_allow_delivery"]) && $arFields["find_allow_delivery"] == "Y"):?>
 								<tr>
 									<td valign="center"><img src="/bitrix/admin/sale_graph_legend.php?color=0000FF" width="45" height="2" style="margin-bottom: 4px;"></td>
 									<td nowrap=""><img src="/bitrix/images/1.gif" width="3" height="1"><?=GetMessage("GD_ORDERS_L2_AD")?></td>
 								</tr>
 								<?endif;?>
-								<?if($arFields["find_canceled"] == "Y"):?>
+								<?if(isset($arFields["find_canceled"]) && $arFields["find_canceled"] == "Y"):?>
 								<tr>
 									<td valign="center"><img src="/bitrix/admin/sale_graph_legend.php?color=FF0000" width="45" height="2" style="margin-bottom: 4px;"></td>
 									<td nowrap=""><img src="/bitrix/images/1.gif" width="3" height="1"><?=GetMessage("GD_ORDERS_L2_CANCELED")?></td>

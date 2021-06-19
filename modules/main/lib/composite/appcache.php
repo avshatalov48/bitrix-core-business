@@ -221,7 +221,7 @@ JS;
 	 * Gets file path for getting of manifest content
 	 * @return string
 	 */
-	public function getManifestCheckFile()
+	public static function getManifestCheckFile()
 	{
 		$checkFile = self::MANIFEST_CHECK_FILE;
 		if(self::$customCheckFile != null && self::$customCheckFile <> '')
@@ -558,7 +558,7 @@ JS;
 		return true;
 	}
 
-	public function readManifestCache($manifestId)
+	public static function readManifestCache($manifestId)
 	{
 		$cache = new \CPHPCache();
 
@@ -592,7 +592,7 @@ JS;
 	}
 
 
-	private function getManifestID($pageURI, $arParams)
+	private static function getManifestID($pageURI, $arParams)
 	{
 		$id = $pageURI;
 		if (count($arParams) > 0)

@@ -20,7 +20,6 @@ class BasketBuilderNew implements IBasketBuilderDelegate
 
 		$basket = $basketClass::create($this->builder->getOrder()->getSiteId());
 		$res = $this->builder->getOrder()->setBasket($basket);
-
 		if(!$res->isSuccess())
 		{
 			$this->builder->getErrorsContainer()->addErrors($res->getErrors());

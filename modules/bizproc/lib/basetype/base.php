@@ -1,11 +1,10 @@
 <?php
+
 namespace Bitrix\Bizproc\BaseType;
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Bizproc\FieldType;
-
-Loc::loadMessages(__FILE__);
 
 /**
  * Class Base
@@ -13,6 +12,14 @@ Loc::loadMessages(__FILE__);
  */
 class Base
 {
+	/**
+	 * Gets the name of the field type.
+	 * @return string
+	 */
+	public static function getName(): string
+	{
+		return static::getType();
+	}
 
 	/**
 	 * @return string
@@ -22,13 +29,13 @@ class Base
 		return FieldType::STRING;
 	}
 
-	/** @var array $formats	 */
-	protected static $formats = array(
-		'printable' => 	array(
-			'callable' =>'formatValuePrintable',
+	/** @var array $formats */
+	protected static $formats = [
+		'printable' => [
+			'callable' => 'formatValuePrintable',
 			'separator' => ', ',
-		)
-	);
+		],
+	];
 
 	/**
 	 * @param string $format
@@ -43,11 +50,12 @@ class Base
 			$callable = $formats[$format]['callable'];
 			if (is_string($callable))
 			{
-				$callable = array(get_called_class(), $callable);
+				$callable = [get_called_class(), $callable];
 			}
 
 			return $callable;
 		}
+
 		return null;
 	}
 
@@ -64,20 +72,23 @@ class Base
 		{
 			$separator = $formats[$format]['separator'];
 		}
+
 		return $separator;
 	}
 
 	/**
 	 * @param string $name Format name.
 	 * @param array $options Format options.
-	 * @throws Main\ArgumentException
 	 * @return void
+	 * @throws Main\ArgumentException
 	 */
 	public static function addFormat($name, array $options)
 	{
 		$name = mb_strtolower($name);
 		if (empty($options['callable']))
+		{
 			throw new Main\ArgumentException('Callable property in format options is not set.');
+		}
 
 		static::$formats[$name] = $options;
 	}
@@ -111,7 +122,7 @@ class Base
 	 */
 	public static function formatValueMultiple(FieldType $fieldType, $value, $format = 'printable')
 	{
-		$value = (array) $value;
+		$value = (array)$value;
 
 		foreach ($value as $k => $v)
 		{
@@ -136,6 +147,7 @@ class Base
 		{
 			return call_user_func($callable, $fieldType, $value);
 		}
+
 		//return original value if format not found
 		return $value;
 	}
@@ -158,7 +170,7 @@ class Base
 	 */
 	public static function convertValueMultiple(FieldType $fieldType, $value, $toTypeClass)
 	{
-		$value = (array) $value;
+		$value = (array)$value;
 		foreach ($value as $k => $v)
 		{
 			$value[$k] = static::convertValueSingle($fieldType, $v, $toTypeClass);
@@ -185,7 +197,7 @@ class Base
 		if ($result !== null)
 			$fieldType->setTypeClass($toTypeClass);
 
-		return $result !== null? $result : $value;
+		return $result !== null ? $result : $value;
 	}
 
 	/**
@@ -216,12 +228,12 @@ class Base
 	 */
 	public static function getConversionMap()
 	{
-		return array(
+		return [
 			//to
-			array(),
+			[],
 			//from
-			array()
-		);
+			[],
+		];
 	}
 
 	/**
@@ -234,12 +246,13 @@ class Base
 	{
 		if (\CBPHelper::isEmptyValue($baseValue))
 		{
-			return (array) $appendValue;
+			return (array)$appendValue;
 		}
 
 		if (!is_array($appendValue))
 		{
 			$baseValue[] = $appendValue;
+
 			return $baseValue;
 		}
 
@@ -257,7 +270,7 @@ class Base
 	/**
 	 * @var array
 	 */
-	protected static $errors = array();
+	protected static $errors = [];
 
 	/**
 	 * @param mixed $error Error description.
@@ -289,7 +302,7 @@ class Base
 	 */
 	protected static function cleanErrors()
 	{
-		static::$errors = array();
+		static::$errors = [];
 	}
 
 	/**
@@ -298,12 +311,13 @@ class Base
 	 */
 	protected static function generateControlId(array $field)
 	{
-		$id = 'id_'.$field['Field'];
+		$id = 'id_' . $field['Field'];
 		$index = isset($field['Index']) ? $field['Index'] : null;
 		if ($index !== null)
 		{
-			$id .= '__n'.$index.'_';
+			$id .= '__n' . $index . '_';
 		}
+
 		return $id;
 	}
 
@@ -320,22 +334,23 @@ class Base
 			//new multiple name style
 			$name .= '[]';
 		}
+
 		return $name;
 	}
 
 	protected static function generateControlClassName(FieldType $fieldType, array $field)
 	{
 		$prefix = 'bizproc-type-control';
-		$classes = array($prefix);
-		$classes[] = $prefix.'-'.static::getType();
+		$classes = [$prefix];
+		$classes[] = $prefix . '-' . static::getType();
 
 		if ($fieldType->isMultiple())
 		{
-			$classes[] = $prefix.'-multiple';
+			$classes[] = $prefix . '-multiple';
 		}
 		if ($fieldType->isRequired())
 		{
-			$classes[] = $prefix.'-required';
+			$classes[] = $prefix . '-required';
 		}
 
 		return implode(' ', $classes);
@@ -348,18 +363,20 @@ class Base
 	 */
 	protected static function wrapCloneableControls(array $controls, $wrapperId)
 	{
-		$wrapperId = (string) $wrapperId;
+		$wrapperId = (string)$wrapperId;
 		$renderResult = '<table width="100%" border="0" cellpadding="2" cellspacing="2" id="BizprocCloneable_'
-			.htmlspecialcharsbx($wrapperId).'">';
+			. htmlspecialcharsbx($wrapperId) . '">';
 
 		foreach ($controls as $control)
 		{
-			$renderResult .= '<tr><td>'.$control.'</td></tr>';
+			$renderResult .= '<tr><td>' . $control . '</td></tr>';
 		}
 		$renderResult .= '</table>';
-		$renderResult .= '<input type="button" value="'.Loc::getMessage('BPDT_BASE_ADD')
-			.'" onclick="BX.Bizproc.cloneTypeControl(\'BizprocCloneable_'
-			.htmlspecialcharsbx($wrapperId).'\')"/><br />';
+		$renderResult .= sprintf(
+			'<input type="button" value="%s" onclick="BX.Bizproc.cloneTypeControl(\'BizprocCloneable_%s\')"/><br />',
+			Loc::getMessage('BPDT_BASE_ADD'),
+			htmlspecialcharsbx($wrapperId)
+		);
 
 		return $renderResult;
 	}
@@ -385,6 +402,7 @@ class Base
 					</a>
 				</div>
 HTML;
+
 		return $renderResult;
 	}
 
@@ -403,7 +421,7 @@ HTML;
 		$controlId = static::generateControlId($field);
 		$className = static::generateControlClassName($fieldType, $field);
 
-		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		if ($renderMode&FieldType::RENDER_MODE_PUBLIC)
 		{
 			$selectorAttributes = '';
 			if ($allowSelection)
@@ -440,7 +458,7 @@ HTML;
 	 */
 	public static function canRenderControl($renderMode)
 	{
-		if ($renderMode & FieldType::RENDER_MODE_MOBILE)
+		if ($renderMode&FieldType::RENDER_MODE_MOBILE)
 		{
 			return false;
 		}
@@ -487,20 +505,28 @@ HTML;
 	public static function renderControlMultiple(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
 		$selectorValue = null;
-		$typeValue = array();
+		$typeValue = [];
 		if (!is_array($value) || is_array($value) && \CBPHelper::isAssociativeArray($value))
-			$value = array($value);
+		{
+			$value = [$value];
+		}
 
 		foreach ($value as $v)
 		{
 			if (\CBPActivity::isExpression($v))
+			{
 				$selectorValue = $v;
+			}
 			else
+			{
 				$typeValue[] = $v;
+			}
 		}
 		// need to show at least one control
 		if (empty($typeValue))
+		{
 			$typeValue[] = null;
+		}
 
 		$controls = [];
 
@@ -517,7 +543,7 @@ HTML;
 			);
 		}
 
-		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		if ($renderMode&FieldType::RENDER_MODE_PUBLIC)
 		{
 			$renderResult = static::renderPublicMultipleWrapper($fieldType, $field, $controls);
 		}
@@ -552,19 +578,19 @@ HTML;
 		{
 			if ($showInput !== 'combine')
 			{
-				$controlId = $controlId.'_text';
-				$name = static::generateControlName($field).'_text';
+				$controlId = $controlId . '_text';
+				$name = static::generateControlName($field) . '_text';
 			}
 
 			$cols = 70;
 			$rows = max((static::getType() === FieldType::TEXT ? 5 : 1), min(5, ceil(mb_strlen((string)$value)) / $cols));
 			$html = '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 2px 0"><tr><td valign="top"><textarea ';
-			$html .= 'rows="'.$rows.'" ';
-			$html .= 'cols="'.$cols.'" ';
-			$html .= 'name="'.htmlspecialcharsbx($name).'" ';
-			$html .= 'id="'.htmlspecialcharsbx($controlId).'" ';
+			$html .= 'rows="' . $rows . '" ';
+			$html .= 'cols="' . $cols . '" ';
+			$html .= 'name="' . htmlspecialcharsbx($name) . '" ';
+			$html .= 'id="' . htmlspecialcharsbx($controlId) . '" ';
 			$html .= 'style="width: 100%"';
-			$html .= '>'.htmlspecialcharsbx((string)$value);
+			$html .= '>' . htmlspecialcharsbx((string)$value);
 			$html .= '</textarea></td>';
 			$html .= '<td valign="top" style="padding-left:4px" width="30">';
 		}
@@ -581,19 +607,22 @@ HTML;
 	protected static function renderControlSelectorButton($controlId, FieldType $fieldType, $selectorMode = '')
 	{
 		$baseType = $fieldType ? $fieldType->getBaseType() : null;
-		$selectorProps = Main\Web\Json::encode(array(
+		$selectorProps = Main\Web\Json::encode([
 			'controlId' => $controlId,
 			'baseType' => $baseType,
 			'type' => $fieldType ? $fieldType->getType() : null,
 			'documentType' => $fieldType ? $fieldType->getDocumentType() : null,
 			'documentId' => $fieldType ? $fieldType->getDocumentId() : null,
-		));
+		]);
 
-		return '<input type="button" value="..." onclick="BPAShowSelector(\''
-			.\CUtil::jsEscape(htmlspecialcharsbx($controlId)).'\', \''.\CUtil::jsEscape(htmlspecialcharsbx($baseType)).'\', '
-			.($selectorMode ? '\''.\CUtil::jsEscape(htmlspecialcharsbx($selectorMode)).'\'' : 'null').', null, '
-			.htmlspecialcharsbx(Main\Web\Json::encode($fieldType ? $fieldType->getDocumentType() : null)).');"'
-			.' data-role="bp-selector-button" data-bp-selector-props="'.htmlspecialcharsbx($selectorProps).'">';
+		return sprintf(
+			'<input type="button" value="..." onclick="BPAShowSelector(\'%s\', \'%s\', %s, null, %s);" data-role="bp-selector-button" data-bp-selector-props="%s">',
+			\CUtil::jsEscape(htmlspecialcharsbx($controlId)),
+			\CUtil::jsEscape(htmlspecialcharsbx($baseType)),
+			$selectorMode ? '\'' . \CUtil::jsEscape(htmlspecialcharsbx($selectorMode)) . '\'' : 'null',
+			htmlspecialcharsbx(Main\Web\Json::encode($fieldType ? $fieldType->getDocumentType() : null)),
+			htmlspecialcharsbx($selectorProps)
+		);
 	}
 
 	/**
@@ -621,7 +650,9 @@ HTML;
 		if (is_array($value) && !\CBPHelper::isAssociativeArray($value))
 		{
 			if ($fieldIndex !== null)
+			{
 				$value = isset($value[$fieldIndex]) ? $value[$fieldIndex] : null;
+			}
 			else
 			{
 				reset($value);
@@ -644,11 +675,12 @@ HTML;
 		$result = static::extractValue($fieldType, $field, $request);
 		if ($result === null || $result === '')
 		{
-			$nameText = $field['Field'].'_text';
+			$nameText = $field['Field'] . '_text';
 			$text = isset($request[$nameText]) ? $request[$nameText] : null;
 			if (\CBPActivity::isExpression($text))
 				$result = $text;
 		}
+
 		return $result;
 	}
 
@@ -663,10 +695,12 @@ HTML;
 		static::cleanErrors();
 
 		$name = $field['Field'];
-		$value = isset($request[$name]) ? $request[$name] : array();
+		$value = isset($request[$name]) ? $request[$name] : [];
 
 		if (!is_array($value) || is_array($value) && \CBPHelper::isAssociativeArray($value))
-			$value = array($value);
+		{
+			$value = [$value];
+		}
 
 		foreach ($value as $k => $v)
 		{
@@ -677,14 +711,18 @@ HTML;
 				unset($value[$k]);
 			}
 			else
+			{
 				$value[$k] = $result;
+			}
 		}
 
 		//append selector value
-		$nameText = $field['Field'].'_text';
+		$nameText = $field['Field'] . '_text';
 		$text = isset($request[$nameText]) ? $request[$nameText] : null;
 		if (\CBPActivity::isExpression($text))
+		{
 			$value[] = $text;
+		}
 
 		return array_values($value);
 	}
@@ -707,7 +745,9 @@ HTML;
 	public static function clearValueMultiple(FieldType $fieldType, $value)
 	{
 		if (!is_array($value) || is_array($value) && \CBPHelper::isAssociativeArray($value))
-			$value = array($value);
+		{
+			$value = [$value];
+		}
 
 		foreach ($value as $v)
 		{
@@ -766,8 +806,9 @@ HTML;
 	{
 		if (is_object($value) && method_exists($value, '__toString'))
 		{
-			return (string) $value;
+			return (string)$value;
 		}
+
 		return $value;
 	}
 
@@ -792,13 +833,14 @@ HTML;
 	{
 		if (!is_array($value) || \CBPHelper::isAssociativeArray($value))
 		{
-			$value = array($value);
+			$value = [$value];
 		}
 
 		foreach ($value as $k => $v)
 		{
 			$value[$k] = static::externalizeValue($fieldType, $context, $v);
 		}
+
 		return $value;
 	}
 

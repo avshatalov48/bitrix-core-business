@@ -162,10 +162,24 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Dom.append(_this.getHeaderCheckbox(), _this.header);
 	    }
 
+	    if (_this.options.hidden === true) {
+	      _this.hide();
+	    }
+
 	    return _this;
 	  }
 
 	  babelHelpers.createClass(BaseForm, [{
+	    key: "show",
+	    value: function show() {
+	      main_core.Dom.attr(this.getLayout(), 'hidden', null);
+	    }
+	  }, {
+	    key: "hide",
+	    value: function hide() {
+	      main_core.Dom.attr(this.getLayout(), 'hidden', true);
+	    }
+	  }, {
 	    key: "getLayout",
 	    value: function getLayout() {
 	      return this.layout;

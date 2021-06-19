@@ -253,7 +253,7 @@ class Button extends BaseButton
 	/**
 	 * @param bool $flag
 	 *
-	 * @return BaseButton
+	 * @return $this
 	 */
 	public function setDisabled($flag = true)
 	{

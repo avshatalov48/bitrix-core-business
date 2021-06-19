@@ -47,8 +47,10 @@ class PinnedPanel
 		this.panelInitialized = false;
 		this.postsInitialized = false;
 		this.handlePostClick = this.handlePostClick.bind(this);
+		this.options = {};
 
-		this.init();
+		/* for detail page without pinned panel */
+		this.initPosts();
 	}
 
 	resetFlags()
@@ -59,15 +61,11 @@ class PinnedPanel
 
 	init()
 	{
-		this.options = {};
-
+		/* for list page in composite mode */
 		this.initPanel();
+
 		this.initPosts();
 		this.initEvents();
-		EventEmitter.subscribe('onFrameDataProcessed', () => {
-			this.initPanel();
-			this.initPosts();
-		});
 	}
 
 	setOptions(options)
@@ -264,6 +262,7 @@ class PinnedPanel
 			}
 		});
 
+		EventEmitter.incrementMaxListeners('OnUCCommentWasPulled');
 		EventEmitter.subscribe('OnUCCommentWasPulled', (event: BaseEvent) =>
 		{
 			const [ id, data, params ] = event.getData();

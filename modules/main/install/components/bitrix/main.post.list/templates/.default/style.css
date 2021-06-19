@@ -411,6 +411,9 @@ a.feed-time.feed-com-time:hover {
 	color: #3a3d42;
 	text-decoration: none;
 }
+.feed-new-like:hover .bx-ilike-text.bx-ilike-text-unavailable {
+	color: #828B95;
+}
 
 .feed-com-informers-bottom .ilike-light {
 	padding-right: 10px;

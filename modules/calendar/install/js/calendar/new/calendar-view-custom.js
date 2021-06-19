@@ -207,7 +207,7 @@
 		var entry = this.getEntryByParams(params);
 		if (entry)
 		{
-			this.calendar.entryController.deleteEntry(entry);
+			this.calendar.entryManager.deleteEntry(entry);
 		}
 		callback();
 	};

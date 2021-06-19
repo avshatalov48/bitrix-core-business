@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Main;
 use Bitrix\Sale;
 
@@ -6,7 +7,7 @@ IncludeModuleLangFile(__FILE__);
 
 class CSaleLang
 {
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		try
 		{
@@ -18,7 +19,7 @@ class CSaleLang
 		}
 	}
 
-	function Update($siteId, $arFields)
+	public static function Update($siteId, $arFields)
 	{
 		if ($siteId == $arFields["LID"])
 		{
@@ -29,7 +30,7 @@ class CSaleLang
 			die("h3jg53jh2g3jh6g");
 	}
 
-	function Delete($siteId)
+	public static function Delete($siteId)
 	{
 		return Bitrix\Sale\Internals\SiteCurrencyTable::delete($siteId)->isSuccess();
 	}
@@ -89,10 +90,9 @@ class CSaleLang
 	}
 }
 
-
 class CAllSaleGroupAccessToSite
 {
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "GROUP_ID") || $ACTION=="ADD") && intval($arFields["GROUP_ID"])<=0)
 		{
@@ -109,7 +109,7 @@ class CAllSaleGroupAccessToSite
 		return True;
 	}
 
-	function Update($ID, &$arFields)
+	public static function Update($ID, &$arFields)
 	{
 		global $DB;
 
@@ -130,7 +130,7 @@ class CAllSaleGroupAccessToSite
 		return True;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -148,7 +148,7 @@ class CAllSaleGroupAccessToSite
 		return False;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -162,7 +162,7 @@ class CAllSaleGroupAccessToSite
 		return $DB->Query("DELETE FROM b_sale_site2group WHERE ID = ".$ID." ", true);
 	}
 
-	function DeleteBySite($SITE_ID)
+	public static function DeleteBySite($SITE_ID)
 	{
 		global $DB;
 
@@ -176,7 +176,7 @@ class CAllSaleGroupAccessToSite
 		return $DB->Query("DELETE FROM b_sale_site2group WHERE SITE_ID = '".$DB->ForSql($SITE_ID, 2)."' ", true);
 	}
 
-	function DeleteByGroup($GROUP_ID)
+	public static function DeleteByGroup($GROUP_ID)
 	{
 		global $DB;
 
@@ -191,10 +191,9 @@ class CAllSaleGroupAccessToSite
 	}
 }
 
-
 class CAllSaleGroupAccessToFlag
 {
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "GROUP_ID") || $ACTION=="ADD") && intval($arFields["GROUP_ID"])<=0)
 		{
@@ -211,7 +210,7 @@ class CAllSaleGroupAccessToFlag
 		return True;
 	}
 
-	function Update($ID, &$arFields)
+	public static function Update($ID, &$arFields)
 	{
 		global $DB;
 
@@ -232,7 +231,7 @@ class CAllSaleGroupAccessToFlag
 		return True;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -250,7 +249,7 @@ class CAllSaleGroupAccessToFlag
 		return False;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -264,7 +263,7 @@ class CAllSaleGroupAccessToFlag
 		return $DB->Query("DELETE FROM b_sale_order_flags2group WHERE ID = ".$ID." ", true);
 	}
 
-	function DeleteByGroup($GROUP_ID)
+	public static function DeleteByGroup($GROUP_ID)
 	{
 		global $DB;
 
@@ -278,7 +277,7 @@ class CAllSaleGroupAccessToFlag
 		return $DB->Query("DELETE FROM b_sale_order_flags2group WHERE GROUP_ID = ".$GROUP_ID." ", true);
 	}
 
-	function DeleteByFlag($ORDER_FLAG)
+	public static function DeleteByFlag($ORDER_FLAG)
 	{
 		global $DB;
 

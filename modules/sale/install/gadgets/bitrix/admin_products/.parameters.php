@@ -6,7 +6,7 @@ if(!CModule::IncludeModule("sale"))
 
 $arSites = array("" => GetMessage("GD_PRD_P_SITE_ID_ALL"));
 
-$dbSite = CSite::GetList($by1="sort", $order1="desc", Array("ACTIVE" => "Y"));
+$dbSite = CSite::GetList("sort", "desc", Array("ACTIVE" => "Y"));
 while($arSite = $dbSite->GetNext())
 	$arSites[$arSite["LID"]] = "[".$arSite["LID"]."] ".$arSite["NAME"];
 

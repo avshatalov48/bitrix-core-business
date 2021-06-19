@@ -19,7 +19,7 @@ class CDeliveryKazPost
 	private static $TARIF_DEFAULT = 1;
 	private static $TARIF_DESCR = 2;
 
-	function Init()
+	public static function Init()
 	{
 		self::$TARIFS = array(
 							"BASE" => array(
@@ -64,7 +64,7 @@ class CDeliveryKazPost
 		);
 	}
 
-	function GetConfig()
+	public static function GetConfig()
 	{
 		$arConfig = array(
 			'CONFIG_GROUPS' => array(
@@ -114,12 +114,12 @@ class CDeliveryKazPost
 		return $arConfig;
 	}
 
-	function GetSettings($strSettings)
+	public static function GetSettings($strSettings)
 	{
 		return unserialize($strSettings, ['allowed_classes' => false]);
 	}
 
-	function SetSettings($arSettings)
+	public static function SetSettings($arSettings)
 	{
 		foreach ($arSettings as $key => $value)
 		{
@@ -132,7 +132,7 @@ class CDeliveryKazPost
 		return serialize($arSettings);
 	}
 
-	function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
+	public static function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
 	{
 		$arPacks = CSaleDeliveryHelper::getBoxesFromConfig($profile, $arConfig);
 
@@ -168,7 +168,7 @@ class CDeliveryKazPost
 		return $arResult;
 	}
 
-	function Compability($arOrder, $arConfig)
+	public static function Compability($arOrder, $arConfig)
 	{
 		$result = array();
 

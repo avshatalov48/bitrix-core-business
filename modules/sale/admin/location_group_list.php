@@ -35,10 +35,8 @@ try
 
 	// get entity fields for columns & filter
 
-	$bySite = "sort";
-	$orderSite = "asc";
 	$langObject = new \CLanguage();
-	$langQueryObject = $langObject->getList($bySite, $orderSite, array());
+	$langQueryObject = $langObject->getList();
 	$quickSearchLangId = "EN";
 	while($lang = $langQueryObject->fetch())
 	{

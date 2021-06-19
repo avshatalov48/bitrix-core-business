@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CKeepStatistics
 {
 	static $HIT_ID = 0;
@@ -653,9 +654,6 @@ class CKeepStatistics
 										$var = trim($var);
 										$phrase = $arr[$var];
 
-										if (get_magic_quotes_gpc())
-											$phrase = stripslashes($phrase);
-
 										if($bIsUTF8)
 										{
 											$phrase_temp = trim($APPLICATION->ConvertCharset($phrase, "utf-8", LANG_CHARSET));
@@ -1108,7 +1106,7 @@ echo '<html>
 					$z = CStatistics::GetSessionDataByMD5(get_guest_md5());
 					if($zr = $z->Fetch())
 					{
-						$arrSESSION_DATA = unserialize($zr["SESSION_DATA"]);
+						$arrSESSION_DATA = unserialize($zr["SESSION_DATA"], ['allowed_classes' => false]);
 						if(is_array($arrSESSION_DATA))
 						{
 							foreach($arrSESSION_DATA as $key => $value)
@@ -1728,4 +1726,3 @@ echo '<html>
 		return $REFERER_LIST_ID;
 	}
 }
-?>

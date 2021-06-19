@@ -86,7 +86,7 @@ class Chat extends \Bitrix\Landing\Internals\BaseTable
 				$result = parent::add($fields);
 				if ($result->isSuccess())
 				{
-					\Bitrix\Im\ChatTable::update($chatId, [
+					\CIMChat::SetChatParams($chatId, [
 						'ENTITY_ID' => $result->getId()
 					]);
 				}

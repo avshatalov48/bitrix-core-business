@@ -4,3 +4,4 @@ $MESS["CPD_ERROR_EMPTY_DIRECTORY_ITEMS"] = "Добавьте элементы д
 $MESS["CPD_ERROR_ADD_HIGHLOAD_BLOCK"] = "Не удалось создать справочник с таким названием";
 $MESS["CPD_NEW_PRODUCT_TITLE"] = "Новый товар";
 $MESS["CPD_NEW_LIST_ELEMENT_EMPTY_NAME"] = "Новый элемент";
+$MESS["CPD_NOT_FOUND_ERROR_TITLE"] = "Товар не найден или удален";

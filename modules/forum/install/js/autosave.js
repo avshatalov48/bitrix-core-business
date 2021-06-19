@@ -5,10 +5,10 @@ window.ForumFormAutosave = function (params) {
 	var form = BX(formID);
 	if (!form) return;
 
-	var controlID = params.controlID || "POST_MESSAGE";
-	var	iconClass = params.iconClass  || "postFormAutosave";
-	var	actionClass = params.actionClass || "postFormAutorestore";
-	var	actionText = params.actionText || BX.message('AUTOSAVE_R');
+	var controlID = params.controlID || 'POST_MESSAGE';
+	var iconClass = params.iconClass  || 'postFormAutosave';
+	var actionClass = params.actionClass || 'postFormAutorestore';
+	var actionText = params.actionText || BX.message('AUTOSAVE_R');
 	var recoverMessage = params.recoverMessage || '';
 	var recoverNotify = null;
 
@@ -29,32 +29,39 @@ window.ForumFormAutosave = function (params) {
 	else
 		form.insertBefore(auto_lnk, form.children[0]);
 
-	var bindLHEEvents = function(_ob)
+	var bindLHEEvents = function(_ob, scope)
 	{
+		var initFunc = _ob.Init.bind(_ob);
 		if (window.oLHE)
 		{
 			window.oLHE.fAutosave = _ob;
-			BX.bind(window.oLHE.pEditorDocument, 'keydown', BX.proxy(_ob.Init, _ob));
-			BX.bind(window.oLHE.pTextarea, 'keydown', BX.proxy(_ob.Init, _ob));
-			BX.addCustomEvent(window.oLHE, 'OnChangeView', function(){
-				if (!!this.fAutosave && this.sEditorMode == 'html'){
-					BX.bind(this.pEditorDocument, 'keydown', BX.proxy(_ob.Init, _ob));
+			BX.bind(window.oLHE.pEditorDocument, 'keydown', initFunc);
+			BX.bind(window.oLHE.pTextarea, 'keydown', initFunc);
+			BX.addCustomEvent(window.oLHE, 'OnChangeView', function() {
+				if (this.sEditorMode === 'html')
+				{
+					BX.bind(this.pEditorDocument, 'keydown', initFunc);
 				}
 			});
 		}
-		else if (window["LHEPostForm"] && window["LHEPostForm"]["getEditor"])
+		else if (window.LHEPostForm
+			&& window.LHEPostForm.getEditor
+			&& window.LHEPostForm.getEditor(controlID))
 		{
-			var editor = LHEPostForm.getEditor('POST_MESSAGE');
+			var editor = window.LHEPostForm.getEditor(controlID);
 			editor.fAutosave = _ob;
-			BX.addCustomEvent(editor, 'OnContentChanged', BX.proxy(_ob.Init, _ob));
+			BX.addCustomEvent(editor, 'OnContentChanged', initFunc);
+		}
+		else if (scope < 10)
+		{
+			setTimeout(bindLHEEvents, 500, _ob, (scope + 1))
 		}
 	};
 
 	BX.addCustomEvent(form, 'onAutoSavePrepare', function (ob, h) {
 		ob.DISABLE_STANDARD_NOTIFY = true;
-		BX.bind(auto_lnk, 'click', BX.proxy(ob.Save, ob));
-		_ob=ob;
-		setTimeout(function() { bindLHEEvents(_ob) },1500);
+		BX.bind(auto_lnk, 'click', ob.Save.bind(ob));
+		setTimeout(bindLHEEvents,500, ob, 0);
 	});
 
 	BX.addCustomEvent(form, 'onAutoSave', function(ob, form_data) {
@@ -65,7 +72,7 @@ window.ForumFormAutosave = function (params) {
 		if (! window.oLHE) return;
 
 		form_data[controlID+'_type'] = window.oLHE.sEditorMode;
-		var text = "";
+		var text = '';
 		if (window.oLHE.sEditorMode == 'code')
 			text = window.oLHE.GetCodeEditorContent();
 		else
@@ -92,7 +99,7 @@ window.ForumFormAutosave = function (params) {
 
 	BX.addCustomEvent(form, 'onAutoSaveRestoreFound', function(ob, data) {
 		if (BX.util.trim(data[controlID]).length < 1) return;
-		else if (form.children[1].className == "forum-notify-bar") return;
+		else if (form.children[1].className == 'forum-notify-bar') return;
 
 		_ob = ob;
 

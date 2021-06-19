@@ -51,7 +51,7 @@ if(
 	{
 		COption::SetOptionString("security", "redirect_action", $_POST["redirect_action"]);
 		COption::RemoveOption("security", "redirect_message_warning");
-		$l = CLanguage::GetList($lby="sort", $lorder="asc");
+		$l = CLanguage::GetList();
 		while($ar = $l->Fetch())
 		{
 			$mess = trim($_POST["redirect_message_warning_".$ar["LID"]]);
@@ -237,7 +237,7 @@ while($ar = $rs->Fetch())
 		<table style="margin-left:24px">
 		<?
 		$disabled = COption::GetOptionString("security", "redirect_action") == "force_url";
-		$l = CLanguage::GetList($lby="sort", $lorder="asc");
+		$l = CLanguage::GetList();
 		$arLangs = array();
 		while($ar = $l->GetNext()):?>
 			<tr class="adm-detail-valign-top">

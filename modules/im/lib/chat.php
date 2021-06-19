@@ -78,7 +78,7 @@ class Chat
 				else if (!is_int($key) && isset($map[$key]))
 				{
 					$value = (string)$value;
-					$selectFields .= "R.{$key} `{$connection->getSqlHelper()->forSql($value)}`, ";
+					$selectFields .= "R.{$key} '{$connection->getSqlHelper()->forSql($value)}', ";
 					unset($map[$value]);
 				}
 			}
@@ -98,8 +98,37 @@ class Chat
 				$selectFields .= "U.{$key} USER_DATA_{$key}, ";
 			}
 		}
+		$skipUsers = false;
+		$skipUserInactiveSql = '';
+		if ($params['SKIP_INACTIVE_USER'] === 'Y')
+		{
+			$skipUsers = true;
+			$skipUserInactiveSql = "AND U.ACTIVE = 'Y'";
+		}
 
-		$skipConnectorRelation = $params['SKIP_CONNECTOR'] == 'Y';
+		$skipUserTypes = $params['SKIP_USER_TYPES'] ?? [];
+		if ($params['SKIP_CONNECTOR'] === 'Y')
+		{
+			$skipUserTypes[] = 'imconnector';
+		}
+
+		$skipUserTypesSql = '';
+		if (!empty($skipUserTypes))
+		{
+			$skipUsers = true;
+			if (count($skipUserTypes) === 1)
+			{
+				$skipUserTypesSql = "AND (U.EXTERNAL_AUTH_ID != '".$connection->getSqlHelper()->forSql($skipUserTypes[0])."' OR U.EXTERNAL_AUTH_ID IS NULL)";
+			}
+			else
+			{
+				$skipUserTypes = array_map(function($type) use ($connection) {
+					return $connection->getSqlHelper()->forSql($type);
+				}, $skipUserTypes);
+
+				$skipUserTypesSql = "AND (U.EXTERNAL_AUTH_ID NOT IN ('".implode("','", $skipUserTypes)."') OR U.EXTERNAL_AUTH_ID IS NULL)";
+			}
+		}
 
 		$whereFields = '';
 		if (isset($params['FILTER']))
@@ -159,24 +188,39 @@ class Chat
 				$query = \Bitrix\Main\Application::getInstance()->getConnection()->query("
 					SELECT ID FROM b_im_message M WHERE M.CHAT_ID = {$chatId} ORDER BY ID DESC LIMIT 100
 				");
+				$messageCounter = 0;
 				while ($row = $query->fetch())
 				{
 					if (!$customMaxId)
 					{
 						$customMaxId = $row['ID'];
 					}
-					$counters[$row['ID']] = count($counters);
+					$counters[$row['ID']] = $messageCounter++;
 					$customMinId = $row['ID'];
 				}
 			}
 		}
 
+		$limit = '';
+		if (isset($params['LIMIT']))
+		{
+			$limit = 'LIMIT '.(int)$params['LIMIT'];
+		}
+
+		$offset = '';
+		if (isset($params['OFFSET']))
+		{
+			$offset = 'OFFSET '.(int)$params['OFFSET'];
+		}
+
 		$sql = "
 			SELECT {$selectFields} {$sqlSelectCounter}
 			FROM b_im_relation R
-			".($withUserFields && !$skipConnectorRelation? "LEFT JOIN b_user U ON R.USER_ID = U.ID": "")."
-			".($skipConnectorRelation? "INNER JOIN b_user U ON R.USER_ID = U.ID AND (EXTERNAL_AUTH_ID != 'imconnector' OR EXTERNAL_AUTH_ID IS NULL)": "")."
-			WHERE R.CHAT_ID = {$chatId} {$whereFields}
+			".($withUserFields && !$skipUsers? "LEFT JOIN b_user U ON R.USER_ID = U.ID": "")."
+			".($skipUsers? "INNER JOIN b_user U ON R.USER_ID = U.ID {$skipUserInactiveSql} {$skipUserTypesSql}": "")."
+			WHERE R.CHAT_ID = {$chatId} {$whereFields} 
+			ORDER BY R.ID ASC
+			{$limit} {$offset}
 		";
 		$relations = array();
 		$query = \Bitrix\Main\Application::getInstance()->getConnection()->query($sql);
@@ -199,10 +243,10 @@ class Chat
 			}
 			else
 			{
-				$row['COUNTER'] = $row['COUNTER'] > 99? 100: intval($row['COUNTER']);
+				$row['COUNTER'] = $row['COUNTER'] > 99? 100: (int)$row['COUNTER'];
 			}
 
-			$row['PREVIOUS_COUNTER'] = intval($row['PREVIOUS_COUNTER']);
+			$row['PREVIOUS_COUNTER'] = (int)$row['PREVIOUS_COUNTER'];
 
 			if ($skipUnmodifiedRecords && $row['COUNTER'] == $row['PREVIOUS_COUNTER'])
 			{
@@ -241,7 +285,7 @@ class Chat
 		$action = $action === true? 'Y': 'N';
 
 		$relation = self::getRelation($chatId, Array(
-			'SELECT' => Array('ID', 'NOTIFY_BLOCK'),
+			'SELECT' => Array('ID', 'MESSAGE_TYPE', 'NOTIFY_BLOCK', 'COUNTER'),
 			'FILTER' => Array(
 				'USER_ID' => $userId
 			),
@@ -259,15 +303,30 @@ class Chat
 		\Bitrix\Im\Model\RelationTable::update($relation[$userId]['ID'], array('NOTIFY_BLOCK' => $action));
 
 		Recent::clearCache($userId);
+		Counter::clearCache($userId);
 
 		if (\Bitrix\Main\Loader::includeModule('pull'))
 		{
+			$element = \Bitrix\Im\Model\RecentTable::getList([
+				'select' => ['USER_ID', 'ITEM_TYPE', 'ITEM_ID', 'UNREAD'],
+				'filter' => [
+					'=USER_ID' => $userId,
+					'=ITEM_TYPE' => $relation[$userId]['MESSAGE_TYPE'],
+					'=ITEM_ID' => $chatId
+				]
+			])->fetch();
+
+			$counter = $relation[$userId]['COUNTER'];
+
 			\Bitrix\Pull\Event::add($userId, Array(
 				'module_id' => 'im',
 				'command' => 'chatMuteNotify',
 				'params' => Array(
 					'dialogId' => 'chat'.$chatId,
-					'mute' => $action == 'Y'
+					'muted' => $action == 'Y',
+					'mute' => $action == 'Y', // TODO remove this later
+					'counter' => $counter,
+					'lines' => $element['ITEM_TYPE'] === self::TYPE_OPEN_LINE,
 				),
 				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
@@ -350,6 +409,7 @@ class Chat
 				'CHAT_ENTITY_ID' => 'ENTITY_ID',
 				'RELATION_USER_ID' => 'RELATION.USER_ID',
 				'RELATION_START_ID' => 'RELATION.START_ID',
+				'RELATION_UNREAD_ID' => 'RELATION.UNREAD_ID',
 				'RELATION_LAST_ID' => 'RELATION.LAST_ID',
 				'RELATION_STATUS' => 'RELATION.STATUS',
 				'RELATION_COUNTER' => 'RELATION.COUNTER'
@@ -394,11 +454,17 @@ class Chat
 		if (
 			!isset($options['LAST_ID']) && !isset($options['FIRST_ID'])
 			&& $chatData['RELATION_STATUS'] != \Bitrix\Im\Chat::STATUS_READ
-			&& $chatData['RELATION_COUNTER'] > $limit
 		)
 		{
-			$startFromUnread = true;
-			$options['FIRST_ID'] = $chatData['RELATION_LAST_ID'];
+			if ($chatData['RELATION_COUNTER'] > $limit)
+			{
+				$startFromUnread = true;
+				$options['FIRST_ID'] = $chatData['RELATION_LAST_ID'];
+			}
+			else
+			{
+				$limit += $chatData['RELATION_COUNTER'];
+			}
 		}
 
 		if (isset($options['FIRST_ID']))
@@ -540,6 +606,11 @@ class Chat
 		if ($startFromUnread)
 		{
 			$result['MESSAGES'] = array_reverse($result['MESSAGES']);
+			$additionalMessages = self::getMessages($chatId, $userId, [
+				'LIMIT' => $limit,
+				'LAST_ID' => $chatData['RELATION_UNREAD_ID']
+			]);
+			$result['MESSAGES'] = array_merge($result['MESSAGES'], $additionalMessages['MESSAGES']);
 		}
 
 		if ($options['JSON'])
@@ -584,29 +655,36 @@ class Chat
 		return $result;
 	}
 
-	public static function getUsers($chatId, $options = [])
+	public static function getUsers($chatId, $options = []): array
 	{
-		$users = [];
-		$externalTypes = \Bitrix\Main\UserTable::getExternalUserTypes();
+		$params = [
+			'SELECT' => ['ID', 'USER_ID'],
+			'SKIP_INACTIVE_USER' => 'Y'
+		];
 
-		$relations = self::getRelation($chatId, ['SELECT' => ['ID', 'USER_ID']]);
+		$skipExternal = isset($options['SKIP_EXTERNAL']) || isset($options['SKIP_EXTERNAL_EXCEPT_TYPES']);
+		if ($skipExternal)
+		{
+			$exceptType = $options['SKIP_EXTERNAL_EXCEPT_TYPES'] ?? [];
+			$params['SKIP_USER_TYPES'] = Common::getExternalAuthId($exceptType);
+		}
+
+		if (isset($options['LIMIT']))
+		{
+			$params['LIMIT'] = $options['LIMIT'];
+		}
+		if (isset($options['OFFSET']))
+		{
+			$params['OFFSET'] = $options['OFFSET'];
+		}
+
+		$users = [];
+		$relations = self::getRelation($chatId, $params);
 		foreach ($relations as $user)
 		{
-			$instance = \Bitrix\Im\User::getInstance($user['USER_ID']);
-			if (!$instance->isExists() || !$instance->isActive())
-			{
-				continue;
-			}
-
-			if (
-				$options['SKIP_EXTERNAL'] &&
-				in_array($instance->getExternalAuthId(), $externalTypes, true)
-			)
-			{
-				continue;
-			}
-
-			$users[] = $instance->getArray(Array('JSON' => $options['JSON'] === 'Y'? 'Y': 'N'));
+			$users[] = \Bitrix\Im\User::getInstance($user['USER_ID'])->getArray([
+				'JSON' => $options['JSON'] === 'Y'? 'Y': 'N'
+			]);
 		}
 
 		return $users;
@@ -761,9 +839,10 @@ class Chat
 			}
 
 			$counter = (int)$row['RELATION_COUNTER'];
+			$startCounter = (int)$row['RELATION_START_COUNTER'];
 			$userCounter = (int)$row['USER_COUNT'];
 			$unreadId = (int)$row['RELATION_UNREAD_ID'];
-			$unreadLastId = (int)$row['LAST_MESSAGE_ID'];
+			$lastMessageId = (int)$row['LAST_MESSAGE_ID'];
 
 			$publicOption = '';
 			if ($row['ALIAS_NAME'])
@@ -784,8 +863,9 @@ class Chat
 				'TYPE' => $chatType,
 				'COUNTER' => $counter,
 				'USER_COUNTER' => $userCounter,
+				'MESSAGE_COUNT' => (int)$row['MESSAGE_COUNT'] - $startCounter,
 				'UNREAD_ID' => $unreadId,
-				'UNREAD_LAST_ID' => $unreadLastId,
+				'LAST_MESSAGE_ID' => $lastMessageId,
 				'DISK_FOLDER_ID' => (int)$row['DISK_FOLDER_ID'],
 				'ENTITY_TYPE' => (string)$row['ENTITY_TYPE'],
 				'ENTITY_ID' => (string)$row['ENTITY_ID'],
@@ -922,6 +1002,7 @@ class Chat
 				'RELATION_USER_ID' => 'RELATION.USER_ID',
 				'RELATION_NOTIFY_BLOCK' => 'RELATION.NOTIFY_BLOCK',
 				'RELATION_COUNTER' => 'RELATION.COUNTER',
+				'RELATION_START_COUNTER' => 'RELATION.START_COUNTER',
 				'RELATION_LAST_ID' => 'RELATION.LAST_ID',
 				'RELATION_STATUS' => 'RELATION.STATUS',
 				'RELATION_UNREAD_ID' => 'RELATION.UNREAD_ID',
@@ -949,7 +1030,7 @@ class Chat
 			return false;
 		}
 
-		$result = RelationTable::getList(
+		$result = \Bitrix\Im\Model\RelationTable::getList(
 			[
 				'select' => ["ID"],
 				'filter' => [

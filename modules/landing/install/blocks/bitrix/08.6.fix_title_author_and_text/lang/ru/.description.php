@@ -8,3 +8,4 @@ $MESS['LANDING_BLOCK_8_6_BLOCK_BOTTOM'] = 'Нижняя часть блока';
 $MESS['LANDING_BLOCK_8_6_CARD'] = 'Карточка';
 $MESS['LANDING_BLOCK_8_6_BOTTOM_STRIP'] = 'Нижняя полоса';
 $MESS['LANDING_BLOCK_8_6_BORDER'] = 'Рамка';
+$MESS['LANDING_BLOCK_8_6_ELEMENT'] = 'Набор элементов';

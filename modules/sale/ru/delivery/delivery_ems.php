@@ -17,7 +17,7 @@ define('DELIVERY_EMS_WRITE_LOG', 0); // flag 'write to log'. use CDeliveryEMS::_
 
 class CDeliveryEMS
 {
-	function Init()
+	public static function Init()
 	{
 		if (\Bitrix\Main\Loader::includeModule('currency') && $arCurrency = CCurrency::GetByID('RUR'))
 		{
@@ -61,7 +61,7 @@ class CDeliveryEMS
 		);
 	}
 
-	function GetConfig()
+	public static function GetConfig()
 	{
 		$arConfig = array(
 			"CONFIG_GROUPS" => array(
@@ -85,19 +85,19 @@ class CDeliveryEMS
 		return $arConfig;
 	}
 
-	function GetSettings($strSettings)
+	public static function GetSettings($strSettings)
 	{
 		return array(
 			"category" => $strSettings == 'doc' ? 'doc' : 'att'
 		);
 	}
 
-	function SetSettings($arSettings)
+	public static function SetSettings($arSettings)
 	{
 		return ($arSettings["category"] == 'doc' ? 'doc' : 'att');
 	}
 
-	function ConvertCharsetArray($arData, $charset_from, $charset_to)
+	public static function ConvertCharsetArray($arData, $charset_from, $charset_to)
 	{
 		if (!is_array($arData))
 			return $GLOBALS['APPLICATION']->ConvertCharset($arData, $charset_from, $charset_to);
@@ -110,7 +110,7 @@ class CDeliveryEMS
 		return $arData;
 	}
 
-	function JsObjectToPhp($data)
+	public static function JsObjectToPhp($data)
 	{
 		$data = $GLOBALS['APPLICATION']->ConvertCharset($data, LANG_CHARSET, 'utf-8');
 
@@ -125,7 +125,7 @@ class CDeliveryEMS
 		return $arResult;
 	}
 
-	function __EMSQuery($method, $arParams = array())
+	public static function __EMSQuery($method, $arParams = array())
 	{
 		$arQuery = array('method='.$method);
 
@@ -157,7 +157,7 @@ class CDeliveryEMS
 		return $arResult;
 	}
 
-	function __GetLocation($location)
+	public static function __GetLocation($location)
 	{
 		$arLocation = CSaleHelper::getLocationByIdHitCached($location);
 		$arLocation["IS_RUSSIAN"] = CDeliveryEMS::__IsRussian($arLocation) ? "Y" : "N";
@@ -292,7 +292,7 @@ class CDeliveryEMS
 		return $arLocation;
 	}
 
-	function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
+	public static function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
 	{
 		//echo '<pre style="text-align: left;">'; print_r($arOrder); print_r($arConfig); echo '</pre>';
 
@@ -530,7 +530,7 @@ class CDeliveryEMS
 		);
 	}
 
-	function Compability($arOrder, $arConfig)
+	public static function Compability($arOrder, $arConfig)
 	{
 		//It will work never.
 		return array();
@@ -546,7 +546,7 @@ class CDeliveryEMS
 			return array();
 	}
 
-	function __IsRussian($arLocation)
+	public static function __IsRussian($arLocation)
 	{
 		return
 			(ToUpper($arLocation["COUNTRY_NAME_ORIG"]) == "РОССИЯ"
@@ -565,7 +565,7 @@ class CDeliveryEMS
 		);
 	}
 
-	function __Write2Log($data)
+	public static function __Write2Log($data)
 	{
 		if (defined('DELIVERY_EMS_WRITE_LOG') && DELIVERY_EMS_WRITE_LOG === 1)
 		{

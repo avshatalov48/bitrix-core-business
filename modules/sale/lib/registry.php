@@ -20,6 +20,9 @@ final class Registry
 	const ENTITY_ORDER = 'ORDER';
 	const ENTITY_PAYMENT = 'PAYMENT';
 	const ENTITY_PAYMENT_COLLECTION = 'PAYMENT_COLLECTION';
+	const ENTITY_PAYABLE_BASKET_ITEM = 'PAYABLE_BASKET_ITEM';
+	const ENTITY_PAYABLE_SHIPMENT = 'PAYABLE_SHIPMENT';
+	const ENTITY_PAYABLE_ITEM_COLLECTION = 'PAYABLE_ITEM_COLLECTION';
 	const ENTITY_SHIPMENT_COLLECTION = 'SHIPMENT_COLLECTION';
 	const ENTITY_PROPERTY_VALUE = 'PROPERTY_VALUE';
 	const ENTITY_SHIPMENT_PROPERTY_VALUE = 'SHIPMENT_PROPERTY_VALUE';
@@ -58,6 +61,9 @@ final class Registry
 			Registry::ENTITY_ORDER => '\Bitrix\Sale\Order',
 			Registry::ENTITY_PAYMENT => '\Bitrix\Sale\Payment',
 			Registry::ENTITY_PAYMENT_COLLECTION => '\Bitrix\Sale\PaymentCollection',
+			Registry::ENTITY_PAYABLE_BASKET_ITEM => '\Bitrix\Sale\PayableBasketItem',
+			Registry::ENTITY_PAYABLE_SHIPMENT => '\Bitrix\Sale\PayableShipmentItem',
+			Registry::ENTITY_PAYABLE_ITEM_COLLECTION => '\Bitrix\Sale\PayableItemCollection',
 			Registry::ENTITY_SHIPMENT => '\Bitrix\Sale\Shipment',
 			Registry::ENTITY_SHIPMENT_COLLECTION => '\Bitrix\Sale\ShipmentCollection',
 			Registry::ENTITY_SHIPMENT_ITEM => '\Bitrix\Sale\ShipmentItem',
@@ -93,6 +99,9 @@ final class Registry
 			Registry::ENTITY_ORDER => '\Bitrix\Sale\Archive\Order',
 			Registry::ENTITY_PAYMENT => '\Bitrix\Sale\Payment',
 			Registry::ENTITY_PAYMENT_COLLECTION => '\Bitrix\Sale\PaymentCollection',
+			Registry::ENTITY_PAYABLE_BASKET_ITEM => '\Bitrix\Sale\PayableBasketItem',
+			Registry::ENTITY_PAYABLE_SHIPMENT => '\Bitrix\Sale\PayableShipmentItem',
+			Registry::ENTITY_PAYABLE_ITEM_COLLECTION => '\Bitrix\Sale\PayableItemCollection',
 			Registry::ENTITY_SHIPMENT => '\Bitrix\Sale\Shipment',
 			Registry::ENTITY_SHIPMENT_COLLECTION => '\Bitrix\Sale\ShipmentCollection',
 			Registry::ENTITY_SHIPMENT_ITEM => '\Bitrix\Sale\ShipmentItem',
@@ -226,12 +235,6 @@ final class Registry
 			return static::$registryMap[$this->type][$code];
 		}
 
-		// Let's try to give the default values
-		if (isset(static::$registryMap[self::REGISTRY_TYPE_ORDER][$code]))
-		{
-			return static::$registryMap[self::REGISTRY_TYPE_ORDER][$code];
-		}
-
 		throw new Main\SystemException(
 			Main\Localization\Loc::getMessage(
 				'SALE_REGISTRY_CODE_VALUE_NO_EXISTS',
@@ -328,6 +331,15 @@ final class Registry
 	public function getPaymentCollectionClassName()
 	{
 		return $this->get(static::ENTITY_PAYMENT_COLLECTION);
+	}
+
+	/**
+	 * @return mixed
+	 * @throws Main\SystemException
+	 */
+	public function getPayableItemCollectionClassName()
+	{
+		return $this->get(static::ENTITY_PAYABLE_ITEM_COLLECTION);
 	}
 
 	/**

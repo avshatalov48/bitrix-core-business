@@ -29,15 +29,7 @@ class CPHPCache
 
 	public function Clean($uniq_str, $initdir = false, $basedir = "cache")
 	{
-		if(isset($this) && is_object($this) && ($this instanceof CPHPCache))
-		{
-			return $this->cache->clean($uniq_str, $initdir, $basedir);
-		}
-		else
-		{
-			$obCache = new CPHPCache();
-			return $obCache->Clean($uniq_str, $initdir, $basedir);
-		}
+		return $this->cache->clean($uniq_str, $initdir, $basedir);
 	}
 
 	public function CleanDir($initdir = false, $basedir = "cache")

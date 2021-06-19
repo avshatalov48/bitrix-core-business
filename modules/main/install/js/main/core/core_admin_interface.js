@@ -2527,7 +2527,10 @@ BX.adminUiList.prototype.onShowTotalCount = function(event)
 
 BX.adminUiList.prototype.onMessage = function(SidePanelEvent)
 {
-	if (!(SidePanelEvent instanceof BX.SidePanel.MessageEvent))
+	if (
+		!(SidePanelEvent instanceof BX.SidePanel.MessageEvent)
+		&& !(SidePanelEvent instanceof top.BX.SidePanel.MessageEvent)
+	)
 	{
 		return;
 	}
@@ -2567,7 +2570,17 @@ BX.adminUiList.prototype.onMessage = function(SidePanelEvent)
 BX.adminUiList.prototype.onReloadGrid = function()
 {
 	var reloadParams = { apply_filter: 'Y'};
-	var gridObject = top.BX.Main.gridManager.getById(this.gridId);
+	var gridObject;
+
+	if (BX.Reflection.getClass('top.BX.Main.gridManager.getById'))
+	{
+		gridObject = top.BX.Main.gridManager.getById(this.gridId);
+	}
+	else if (BX.Reflection.getClass('BX.Main.gridManager.getById'))
+	{
+		gridObject = BX.Main.gridManager.getById(this.gridId);
+	}
+
 	if (gridObject && gridObject.hasOwnProperty('instance'))
 	{
 		gridObject.instance.reloadTable('POST', reloadParams, false, this.gridUrl);

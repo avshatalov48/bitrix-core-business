@@ -12,7 +12,7 @@ class CUserTypeDateTime extends TypeBase
 {
 	const USER_TYPE_ID = DateTimeType::USER_TYPE_ID;
 
-	function getUserTypeDescription()
+	public static function getUserTypeDescription()
 	{
 		return DateTimeType::getUserTypeDescription();
 	}
@@ -52,7 +52,7 @@ class CUserTypeDateTime extends TypeBase
 		return DateTimeType::renderFilter($userField, $additionalParameters);
 	}
 
-	function getDBColumnType($userField)
+	public static function getDBColumnType($userField)
 	{
 		return DateTimeType::getDbColumnType();
 	}

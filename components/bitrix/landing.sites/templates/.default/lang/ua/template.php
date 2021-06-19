@@ -4,6 +4,7 @@ $MESS["LANDING_TPL_ACTION_ADD"] = "Новий сайт";
 $MESS["LANDING_TPL_ACTION_ADDPAGE"] = "Створити сторінку";
 $MESS["LANDING_TPL_ACTION_ADD_KNOWLEDGE"] = "Нова база знань";
 $MESS["LANDING_TPL_ACTION_ADD_PAGE"] = "Новий сайт";
+$MESS["LANDING_TPL_ACTION_ADD_PERSONAL_STORE"] = "CRM + Інтернет-магазин";
 $MESS["LANDING_TPL_ACTION_ADD_STORE"] = "Новий магазин";
 $MESS["LANDING_TPL_ACTION_COPY"] = "Копіювати сайт";
 $MESS["LANDING_TPL_ACTION_COPYLINK"] = "Копіювати посилання";

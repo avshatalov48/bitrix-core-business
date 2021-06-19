@@ -27,6 +27,13 @@ class Landing extends \CModule
 
 	public $docRoot = '';
 	public $eventsData = [
+		'crm' => [
+			'onAfterCrmCompanyAdd' => ['\Bitrix\Landing\Connector\Crm', 'onAfterCompanyChange'],
+			'onAfterCrmCompanyUpdate' => ['\Bitrix\Landing\Connector\Crm', 'onAfterCompanyChange']
+		],
+		'iblock' => [
+			'onAfterIBlockSectionDelete' => ['\Bitrix\Landing\Connector\Iblock', 'onAfterIBlockSectionDelete']
+		],
 		'intranet' => [
 			'onBuildBindingMenu' => ['\Bitrix\Landing\Connector\Intranet', 'onBuildBindingMenu']
 		],

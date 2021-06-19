@@ -13,6 +13,7 @@ use Bitrix\Main\ErrorableImplementation;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -144,6 +145,24 @@ class CatalogProductVariationDetailsComponent
 		}
 	}
 
+	private function prepareFileFields(&$fields): void
+	{
+		$files = $_FILES['data'];
+		if (!empty($files))
+		{
+			CFile::ConvertFilesToPost($files, $fields);
+			foreach ($fields as $key => $field)
+			{
+				if (is_array($field) && array_key_exists('FILE', $field))
+				{
+					$fields[$key] = [
+						$fields[$key],
+					];
+				}
+			}
+		}
+	}
+
 	private function parsePropertyFields(&$fields): array
 	{
 		$propertyFields = [];
@@ -169,6 +188,10 @@ class CatalogProductVariationDetailsComponent
 					$descriptions = $fields[$name.'_descr'] ?? [];
 					$deleted = $fields[$name.'_del'] ?? [];
 					$field = $this->prepareFilePropertyFromEditor($fields[$name], $descriptions, $deleted);
+					if (empty($field))
+					{
+						$field = '';
+					}
 					unset($fields[$name.'_descr']);
 				}
 				elseif (Loader::includeModule('currency'))
@@ -196,7 +219,7 @@ class CatalogProductVariationDetailsComponent
 		return $propertyFields;
 	}
 
-	private function prepareFilePropertyFromEditor($propertyFields, $descriptions, $deleted): array
+	private function prepareFilePropertyFromEditor($propertyFields, $descriptions, $deleted): ?array
 	{
 		if ($deleted !== null && !is_array($deleted))
 		{
@@ -211,12 +234,39 @@ class CatalogProductVariationDetailsComponent
 			$propertyFields = [$propertyFields];
 		}
 
+		if (!is_array($propertyFields))
+		{
+			$propertyFields = [$propertyFields];
+		}
+
 		if ($deleted)
 		{
 			foreach ($deleted as $key => $value)
 			{
-				unset($propertyFields[$key], $descriptions[$key]);
+				if ($value === 'Y')
+				{
+					unset($propertyFields[$key], $descriptions[$key]);
+				}
+				else
+				{
+					$propertyValueKey = array_search($value, $propertyFields, true);
+					if ($propertyValueKey !== false)
+					{
+						unset($propertyFields[$propertyValueKey]);
+					}
+
+					$propertyDescriptionKey = array_search($value, $descriptions, true);
+					if ($propertyDescriptionKey !== false)
+					{
+						unset($descriptions[$propertyDescriptionKey]);
+					}
+				}
 			}
+		}
+
+		if (empty($propertyFields))
+		{
+			return null;
 		}
 
 		foreach ($propertyFields as $key => $value)
@@ -375,6 +425,8 @@ class CatalogProductVariationDetailsComponent
 	public function saveAction()
 	{
 		$fields = $this->request->get('data') ?: [];
+
+		$this->prepareFileFields($fields);
 
 		if (empty($fields))
 		{
@@ -607,10 +659,16 @@ class CatalogProductVariationDetailsComponent
 
 		if ($variation === null)
 		{
-			$this->errorCollection[] = new \Bitrix\Main\Error(sprintf(
-				'Variation {%s} for product {%s} not found.',
-				$this->getVariationId(), $this->getProductId()
-			));
+			Toolbar::deleteFavoriteStar();
+
+			global $APPLICATION;
+			$APPLICATION->IncludeComponent(
+				"bitrix:catalog.notfounderror",
+				'',
+				[
+					'ERROR_MESSAGE' => Loc::getMessage('CPVD_NOT_FOUND_ERROR_TITLE'),
+				]
+			);
 		}
 
 		return $variation;

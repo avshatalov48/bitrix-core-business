@@ -852,8 +852,8 @@ else
 										"SHOW_COMMENTS" => "Y",
 										"MAX_VOTE" => $arParams["PHOTO_MAX_VOTE"],
 										"VOTE_NAMES" => isset($arParams["PHOTO_VOTE_NAMES"])? $arParams["PHOTO_VOTE_NAMES"]: Array(),
-										"DISPLAY_AS_RATING" => $arParams["SHOW_RATING"] == "Y"? "rating_main": isset($arParams["PHOTO_DISPLAY_AS_RATING"])? $arParams["PHOTO_DISPLAY_AS_RATING"]: "rating",
-										"RATING_MAIN_TYPE" => $arParams["SHOW_RATING"] == "Y"? $arParams["RATING_TYPE"]: "",
+										"DISPLAY_AS_RATING" => ($arParams["SHOW_RATING"] == "Y" ? "rating_main" : (isset($arParams["PHOTO_DISPLAY_AS_RATING"])? $arParams["PHOTO_DISPLAY_AS_RATING"]: "rating")),
+										"RATING_MAIN_TYPE" => ($arParams["SHOW_RATING"] == "Y" ? $arParams["RATING_TYPE"] : ""),
 
 										"BEHAVIOUR" => "SIMPLE",
 										"SET_TITLE" => "N",
@@ -1620,6 +1620,7 @@ else
 								&& CPullOptions::GetNginxStatus())
 							{
 								?>
+								BX.Event.EventEmitter.incrementMaxListeners('OnUCCommentWasPulled');
 								BX.addCustomEvent(window, "OnUCCommentWasPulled", function(id) { if (id && id[0] == '<?=$arEvent["COMMENTS_PARAMS"]["ENTITY_XML_ID"]?>') { BX.show(BX('feed_comments_block_<?=$arEvent["EVENT"]["ID"]?>')); } });
 								<?
 							}

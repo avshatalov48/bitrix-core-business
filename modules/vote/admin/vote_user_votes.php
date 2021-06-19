@@ -133,7 +133,7 @@ if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT=="W" && check_bitrix_sessid()
 		if($_REQUEST['action_target']=='selected')
 		{
 				$arID = Array();
-				$rsData = CVoteEvent::GetList($by, $order, $arFilter, $is_filtered);
+				$rsData = CVoteEvent::GetList('', '', $arFilter);
 				while($arRes = $rsData->Fetch())
 						$arID[] = $arRes['ID'];
 		}
@@ -161,7 +161,9 @@ if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT=="W" && check_bitrix_sessid()
 
 
 /************** Initial list - Get data ****************************/
-$rsData = CVoteEvent::GetList($by, $order, $arFilter, $is_filtered);
+global $by, $order;
+
+$rsData = CVoteEvent::GetList($by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 

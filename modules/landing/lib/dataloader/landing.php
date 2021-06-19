@@ -269,20 +269,18 @@ class Landing extends \Bitrix\Landing\Source\DataLoader
 			{
 				$item['IMAGE'] = [
 					'src' => $metaData[$id]['IMAGE'],
-					'alt' => isset($item['TITLE'])
-						? $item['TITLE']
-						: ''
+					'alt' => $item['TITLE'] ?? ''
 				];
 			}
 			if ($needPreviewText)
 			{
 				if (isset($searchContent[$id]))
 				{
-					$item['DESCRIPTION'] = $searchContent[$id];
+					$item['DESCRIPTION'] = \htmlspecialcharsbx($searchContent[$id]);
 				}
 				else if (isset($metaData[$id]['DESCRIPTION']))
 				{
-					$item['DESCRIPTION'] = $metaData[$id]['DESCRIPTION'];
+					$item['DESCRIPTION'] = \htmlspecialcharsbx($metaData[$id]['DESCRIPTION']);
 				}
 			}
 			if ($needLink)
@@ -296,7 +294,6 @@ class Landing extends \Bitrix\Landing\Source\DataLoader
 				];
 			}
 		}
-		unset($item);
 
 		return array_values($result);
 	}

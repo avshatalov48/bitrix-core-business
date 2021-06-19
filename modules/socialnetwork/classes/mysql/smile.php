@@ -1,9 +1,10 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/smile.php");
 
 class CSocNetSmile extends CAllSocNetSmile
 {
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB, $CACHE_MANAGER;
 
@@ -32,7 +33,7 @@ class CSocNetSmile extends CAllSocNetSmile
 		return $ID;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB, $CACHE_MANAGER;
 		$ID = intval($ID);
@@ -170,4 +171,3 @@ class CSocNetSmile extends CAllSocNetSmile
 		return $dbRes;
 	}
 }
-?>

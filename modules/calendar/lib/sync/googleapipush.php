@@ -25,7 +25,7 @@ final class GoogleApiPush
 	{
 		global $DB;
 		$result =  $DB->query("SELECT * FROM b_calendar_push WHERE " .
-			\CDatabaseMysql::dateFormatToDB(FORMAT_DATETIME, 'EXPIRES') .
+			$DB->dateFormatToDB(FORMAT_DATETIME, 'EXPIRES') .
 			" <= '" .
 			\Bitrix\Main\Type\DateTime::createFromTimestamp(strtotime('+1 day')) .
 			"' ORDER BY EXPIRES ASC LIMIT " . self::RENEW_LIMIT);

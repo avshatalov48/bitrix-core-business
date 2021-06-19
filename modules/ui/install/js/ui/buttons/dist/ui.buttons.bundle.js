@@ -695,6 +695,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonIcon, "BACK", 'ui-btn-icon-back');
 	babelHelpers.defineProperty(ButtonIcon, "REMOVE", 'ui-btn-icon-remove');
 	babelHelpers.defineProperty(ButtonIcon, "DOWNLOAD", 'ui-btn-icon-download');
+	babelHelpers.defineProperty(ButtonIcon, "DOTS", 'ui-btn-icon-ui-btn-icon-dots');
 	babelHelpers.defineProperty(ButtonIcon, "DONE", 'ui-btn-icon-done');
 	babelHelpers.defineProperty(ButtonIcon, "DISK", 'ui-btn-icon-disk');
 	babelHelpers.defineProperty(ButtonIcon, "LOCK", 'ui-btn-icon-lock');
@@ -708,6 +709,17 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonIcon, "ANGLE_DOWN", 'ui-btn-icon-angle-down');
 	babelHelpers.defineProperty(ButtonIcon, "EYE_OPENED", 'ui-btn-icon-eye-opened');
 	babelHelpers.defineProperty(ButtonIcon, "EYE_CLOSED", 'ui-btn-icon-eye-closed');
+	babelHelpers.defineProperty(ButtonIcon, "ALERT", 'ui-btn-icon-alert');
+	babelHelpers.defineProperty(ButtonIcon, "FAIL", 'ui-btn-icon-fail');
+	babelHelpers.defineProperty(ButtonIcon, "SUCCESS", 'ui-btn-icon-success');
+	babelHelpers.defineProperty(ButtonIcon, "PLAN", 'ui-btn-icon-plan');
+	babelHelpers.defineProperty(ButtonIcon, "TARIFF", 'ui-btn-icon-tariff');
+	babelHelpers.defineProperty(ButtonIcon, "BATTERY", 'ui-btn-icon-battery');
+	babelHelpers.defineProperty(ButtonIcon, "NO_BATTERY", 'ui-btn-icon-no-battery');
+	babelHelpers.defineProperty(ButtonIcon, "HALF_BATTERY", 'ui-btn-icon-half-battery');
+	babelHelpers.defineProperty(ButtonIcon, "LOW_BATTERY", 'ui-btn-icon-low-battery');
+	babelHelpers.defineProperty(ButtonIcon, "CRIT_BATTERY", 'ui-btn-icon-crit-battery');
+	babelHelpers.defineProperty(ButtonIcon, "DEMO", 'ui-btn-icon-demo');
 
 	/**
 	 * @namespace {BX.UI}

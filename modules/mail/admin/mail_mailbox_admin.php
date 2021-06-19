@@ -324,9 +324,7 @@ require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_af
 			<option value=""><?echo GetMessage("MAIL_MBOX_ADM_FILT_ANY")?></option>
 			<?
 			ClearVars("l_");
-			$b = "sort";
-			$o = "asc";
-			$l = CLang::GetList($b, $o, Array("VISIBLE"=>"Y"));
+			$l = CLang::GetList('', '', Array("VISIBLE"=>"Y"));
 			while($l->ExtractFields("l_")):
 				?><option value="<?echo $l_LID?>"<?if($find_lid==$l_LID)echo " selected"?>><?echo $l_NAME?></option><?
 			endwhile;

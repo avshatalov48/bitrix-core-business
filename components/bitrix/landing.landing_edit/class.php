@@ -240,7 +240,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 			$this->successSavePage = $this->arParams['PAGE_URL_LANDINGS'];
 
 			$this->arResult['TEMPLATES'] = $this->getTemplates();
-			$this->arResult['LANDING'] = $this->getRow();
+			$this->arResult['LANDING'] = $landing = $this->getRow();
 			$this->arResult['SPECIAL_TYPE'] = $this->getSpecialTypeSite(
 				$this->arParams['SITE_ID']
 			);
@@ -323,11 +323,15 @@ class LandingEditComponent extends LandingBaseFormComponent
 		// callback for update landing
 		$tplRef = $this->request('TPL_REF');
 		Landing::callback('OnAfterUpdate',
-			function(\Bitrix\Main\Event $event) use ($tplRef)
+			function(\Bitrix\Main\Event $event) use ($tplRef, $landing)
 			{
 				static $updated = false;
 
 				if ($updated)
+				{
+					return;
+				}
+				if ($landing['ACTIVE']['STORED'] !== 'Y')
 				{
 					return;
 				}

@@ -7,8 +7,8 @@ use \Bitrix\Forum;
 class User
 {
 	protected $id = 0;
-	protected $groups = array(2);
-	protected $forumUser;
+	protected $groups = [2];
+	protected $forumUser = null;
 
 	public function __construct($id)
 	{
@@ -48,7 +48,7 @@ class User
 
 	public function getParam(string $key)
 	{
-		if (array_key_exists($key, $this->forumUser))
+		if ($this->forumUser instanceof Forum\User)
 		{
 			return $this->forumUser[$key];
 		}
@@ -85,17 +85,27 @@ class User
 
 	public function getUnreadMessageId($topicId = 0)
 	{
-		return $this->forumUser->getUnreadMessageId($topicId);
+		if ($this->forumUser instanceof Forum\User)
+		{
+			return $this->forumUser->getUnreadMessageId($topicId);
+		}
+		return null;
 	}
 
 	public function readTopic($topicId = 0)
 	{
-		$this->forumUser->readTopic($topicId);
-		$this->forumUser->setLastVisit();
+		if ($this->forumUser instanceof Forum\User)
+		{
+			$this->forumUser->readTopic($topicId);
+			$this->forumUser->setLastVisit();
+		}
 	}
 
 	public function setLocation(int $forumId = 0, int $topicId = 0)
 	{
-		$this->forumUser->setLocation($forumId, $topicId);
+		if ($this->forumUser instanceof Forum\User)
+		{
+			$this->forumUser->setLocation($forumId, $topicId);
+		}
 	}
 }

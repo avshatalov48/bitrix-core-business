@@ -16,8 +16,7 @@ class CAllGradeBook
 		return ( (int) $row['LINKED_LESSON_ID'] );
 	}
 
-
-	function CheckFields(&$arFields, $ID = false)
+	public static function CheckFields(&$arFields, $ID = false)
 	{
 		global $DB, $APPLICATION;
 
@@ -68,8 +67,7 @@ class CAllGradeBook
 		return true;
 	}
 
-
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -85,8 +83,7 @@ class CAllGradeBook
 		return false;
 	}
 
-
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -111,8 +108,7 @@ class CAllGradeBook
 		return false;
 	}
 
-
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -139,8 +135,7 @@ class CAllGradeBook
 		return true;
 	}
 
-
-	function GetFilter($arFilter)
+	public static function GetFilter($arFilter)
 	{
 		if (!is_array($arFilter))
 			$arFilter = Array();
@@ -188,14 +183,12 @@ class CAllGradeBook
 		return $arSqlSearch;
 	}
 
-
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		return CGradeBook::GetList(Array(), Array("ID"=>$ID));
 	}
 
-
-	function RecountAttempts($STUDENT_ID,$TEST_ID)
+	public static function RecountAttempts($STUDENT_ID,$TEST_ID)
 	{
 		global $DB;
 
@@ -249,8 +242,7 @@ class CAllGradeBook
 		return true;
 	}
 
-
-	function GetExtraAttempts($STUDENT_ID, $TEST_ID)
+	public static function GetExtraAttempts($STUDENT_ID, $TEST_ID)
 	{
 		global $DB;
 
@@ -269,8 +261,7 @@ class CAllGradeBook
 		}
 	}
 
-
-	function AddExtraAttempts($STUDENT_ID, $TEST_ID, $COUNT = 1)
+	public static function AddExtraAttempts($STUDENT_ID, $TEST_ID, $COUNT = 1)
 	{
 		global $DB;
 
@@ -300,7 +291,6 @@ class CAllGradeBook
 				return false;
 		}
 	}
-
 
 	public static function GetList($arOrder = array(), $arFilter = array(), $arNavParams = array())
 	{
@@ -417,7 +407,6 @@ class CAllGradeBook
 
 		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
-
 
 	/**
 	 * This function is for internal use only.

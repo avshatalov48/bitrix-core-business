@@ -106,7 +106,7 @@ if(!empty($arUser))
 	}
 	else
 	{
-		$dbGroups = CGroup::GetList(($b = 'c_sort'), ($o = 'asc'), array('ANONYMOUS' => 'N'));
+		$dbGroups = CGroup::GetList('c_sort', 'asc', array('ANONYMOUS' => 'N'));
 		while ($arGroup = $dbGroups->Fetch())
 		{
 			$userGroupList[] = $arGroup;
@@ -152,7 +152,7 @@ if(!empty($arUser))
 
 	//ALL SITES
 	$arSites = array();
-	$rsSites = CSite::GetList($oby="id", $oorder="asc", array());
+	$rsSites = CSite::GetList("id", "asc");
 	while ($arSite = $rsSites->Fetch())
 		$arSites[$arSite["ID"]] = $arSite;
 }
@@ -1931,7 +1931,7 @@ if(!empty($arUser))
 		{
 			$listUserId = array_keys($listUserData);
 			$listUsers = implode(' | ', $listUserId);
-			$userQuery = CUser::getList($byUser = 'ID', $orderUser = 'ASC',
+			$userQuery = CUser::getList('ID', 'ASC',
 				array('ID' => $listUsers) ,
 				array('FIELDS' => array('ID' ,'LOGIN', 'NAME', 'LAST_NAME')));
 			while($user = $userQuery->fetch())
@@ -1974,7 +1974,7 @@ if(!empty($arUser))
 	$arSiteMenu = array();
 	$arSitesShop = array();
 	$arSitesTmp = array();
-	$rsSites = CSite::GetList($b="id", $o="asc", Array("ACTIVE" => "Y"));
+	$rsSites = CSite::GetList("id", "asc", Array("ACTIVE" => "Y"));
 	while ($arSite = $rsSites->Fetch())
 	{
 		$site = COption::GetOptionString("sale", "SHOP_SITE_".$arSite["ID"], "");

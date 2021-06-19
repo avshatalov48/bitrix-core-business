@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CFormValidatorDateAge
 {
-	function GetDescription()
+	public static function GetDescription()
 	{
 		return array(
 			"NAME" => "date_age", // unique validator string ID
@@ -16,7 +17,7 @@ class CFormValidatorDateAge
 		);
 	}
 
-	function GetSettings()
+	public static function GetSettings()
 	{
 		return array(
 			"AGE_FROM" => array(
@@ -33,7 +34,7 @@ class CFormValidatorDateAge
 		);
 	}
 
-		function ToDB($arParams)
+	public static function ToDB($arParams)
 	{
 		$arParams["AGE_FROM"] = intval($arParams["AGE_FROM"]);
 		$arParams["AGE_TO"] = intval($arParams["AGE_TO"]);
@@ -48,12 +49,12 @@ class CFormValidatorDateAge
 		return serialize($arParams);
 	}
 
-	function FromDB($strParams)
+	public static function FromDB($strParams)
 	{
-		return unserialize($strParams);
+		return unserialize($strParams, ['allowed_classes' => false]);
 	}
 
-	function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
+	public static function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
 	{
 		global $APPLICATION;
 
@@ -86,4 +87,3 @@ class CFormValidatorDateAge
 }
 
 AddEventHandler("form", "onFormValidatorBuildList", array("CFormValidatorDateAge", "GetDescription"));
-?>

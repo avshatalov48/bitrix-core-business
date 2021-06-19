@@ -137,7 +137,7 @@ if(!$USER->CanDoOperation('view_all_users'))
 }
 
 // инициализация списка - выборка данных
-$rsData = CUser::GetList($by, $order, $arFilter, array(
+$rsData = CUser::GetList('', '', $arFilter, array(
 	"NAV_PARAMS"=> array("nPageSize"=>CAdminResult::GetNavSize($sTableID)),
 ));
 $rsData = new CAdminResult($rsData, $sTableID);

@@ -40,7 +40,7 @@ final class BusinessValue
 	 * @param mixed $providerInstance
 	 * @return mixed
 	 */
-		public static function get($codeKey, $consumerKey = null, $personTypeId = null, $providerInstance = null)
+	public static function get($codeKey, $consumerKey = null, $personTypeId = null, $providerInstance = null)
 	{
 		$value = null;
 
@@ -71,23 +71,7 @@ final class BusinessValue
 
 		if ($mapping['PROVIDER_KEY'] && $mapping['PROVIDER_VALUE'])
 		{
-			switch ($mapping['PROVIDER_KEY'])
-			{
-				case 'VALUE':
-				case 'INPUT':
-					$value = $mapping['PROVIDER_VALUE'];
-					break;
-
-				default:
-					if (($providers = self::getProviders())
-						&& ($provider = $providers[$mapping['PROVIDER_KEY']])
-						&& is_array($provider)
-						&& is_callable($provider['GET_INSTANCE_VALUE'])
-						&& ($v = call_user_func($provider['GET_INSTANCE_VALUE'], $providerInstance, $mapping['PROVIDER_VALUE'], $personTypeId)))
-					{
-						$value = $v;
-					}
-			}
+			$value = self::getValueFromMapping($mapping, $providerInstance, $personTypeId);
 		}
 
 		return $value;
@@ -689,6 +673,67 @@ final class BusinessValue
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param string $consumerName
+	 * @param string $code
+	 * @return string[]
+	 */
+	public static function getValuesByCode(string $consumerName, string $code)
+	{
+		$result = [];
+
+		$consumerCodePersonMapping = self::getConsumerCodePersonMapping();
+		if (isset($consumerCodePersonMapping[''][$code]))
+		{
+			$consumerValues = $consumerCodePersonMapping[''][$code];
+			foreach ($consumerValues as $values)
+			{
+				if ($values['PROVIDER_KEY'] && $values['PROVIDER_VALUE'])
+				{
+					$result[] = self::getValueFromMapping($values);
+				}
+			}
+		}
+
+		$consumerValues = $consumerCodePersonMapping[$consumerName][$code] ?? [];
+		foreach ($consumerValues as $values)
+		{
+			if ($values['PROVIDER_KEY'] && $values['PROVIDER_VALUE'])
+			{
+				$result[] = self::getValueFromMapping($values);
+			}
+		}
+
+		return array_unique($result);
+	}
+
+	private static function getValueFromMapping(array $mapping, $providerInstance = null, $personTypeId = null)
+	{
+		$value = null;
+
+		switch ($mapping['PROVIDER_KEY'])
+		{
+			case 'VALUE':
+			case 'INPUT':
+				$value = $mapping['PROVIDER_VALUE'];
+				break;
+
+			default:
+				if (
+					($providers = self::getProviders())
+					&& ($provider = $providers[$mapping['PROVIDER_KEY']])
+					&& \is_array($provider)
+					&& \is_callable($provider['GET_INSTANCE_VALUE'])
+					&& ($v = \call_user_func($provider['GET_INSTANCE_VALUE'], $providerInstance, $mapping['PROVIDER_VALUE'], $personTypeId))
+				)
+				{
+					$value = $v;
+				}
+		}
+
+		return $value;
 	}
 
 	// DEPRECATED API //////////////////////////////////////////////////////////////////////////////////////////////////

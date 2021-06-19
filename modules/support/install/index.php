@@ -15,7 +15,7 @@ class support extends CModule
 	var $MODULE_GROUP_RIGHTS = "Y";
 	var $SHOW_SUPER_ADMIN_GROUP_RIGHTS = "Y";
 
-	function support()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -177,7 +177,7 @@ class support extends CModule
 		{
 			$bReWriteAdditionalFiles = $arParams['public_rewrite'] == 'Y';
 			
-			$rsSite = CSite::GetList(($by='sort'),($order='asc'));
+			$rsSite = CSite::GetList();
 			while ($arSite = $rsSite->Fetch())
 			{
 				CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/public/all/', $arSite['ABS_DOC_ROOT'].$arSite['DIR'].$arParams['public_dir'], $bReWriteAdditionalFiles, true);

@@ -30,8 +30,8 @@ class ManagedCache
 		static $type = null;
 		if ($type === null)
 		{
-			$cm = Main\Application::getInstance()->getConnectionPool();
-			$type = $cm->getDefaultConnectionType();
+			$type = Main\Application::getInstance()->getConnection()->getType();
+			$type = strtoupper($type);
 		}
 		return $type;
 	}

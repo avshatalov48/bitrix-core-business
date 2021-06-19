@@ -13,7 +13,7 @@ Class report extends CModule
 	var $MODULE_CSS;
 	var $errors;
 
-	function report()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 

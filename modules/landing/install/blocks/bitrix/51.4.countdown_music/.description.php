@@ -6,104 +6,100 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
-return array(
-	'block' => array(
+return [
+	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--NAME'),
-		'section' => array('countdowns', 'cover'),
+		'section' => ['countdowns', 'cover'],
 		'dynamic' => false,
 		'version' => '18.5.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
 		'type' => ['page', 'store', 'smn'],
-	),
-	'cards' => array(
-		'.landing-block-node-card' => array(
+	],
+	'cards' => [
+		'.landing-block-node-card' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--EVENT'),
-			'additional' => array(
-				'attrs' => array(
-					array(
+			'label' => '.landing-block-node-text-title',
+			'group_label' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--EVENTS'),
+			'additional' => [
+				'attrs' => [
+					[
 						'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--DATE'),
 						'time' => true,
 						'type' => 'date',
 						'format' => 'ms',
 						'attribute' => 'data-end-date',
-					),
-					//						"placeholder" => "2018/08/25 19:19:19",
-					//			"value" => "default_value",
-				),
-			),
-		),
-	),
-	'nodes' => array(
-		'.landing-block-node-img' => array(
+					],
+				],
+			],
+		],
+	],
+	'nodes' => [
+		'.landing-block-node-img' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--IMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 1920, 'height' => 1080),
-		),
-		'.landing-block-node-title' => array(
+			'dimensions' => ['width' => 1920, 'height' => 1080],
+		],
+		'.landing-block-node-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--TITLE'),
 			'type' => 'text',
-		),
-		'.landing-block-node-text-title' => array(
+		],
+		'.landing-block-node-text-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--TITLE'),
 			'type' => 'text',
-		),
-		'.landing-block-node-text' => array(
+		],
+		'.landing-block-node-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--TEXT'),
 			'type' => 'text',
-		),
+		],
 		
-		'.landing-block-node-number-text-days' => array(
+		'.landing-block-node-number-text-days' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--NUMBER_TEXT'),
 			'type' => 'text',
-		),
-		'.landing-block-node-number-text-hours' => array(
+		],
+		'.landing-block-node-number-text-hours' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--NUMBER_TEXT'),
 			'type' => 'text',
-		),
-		'.landing-block-node-number-text-minutes' => array(
+		],
+		'.landing-block-node-number-text-minutes' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--NUMBER_TEXT'),
 			'type' => 'text',
-		),
-		'.landing-block-node-number-text-seconds' => array(
+		],
+		'.landing-block-node-number-text-seconds' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--NUMBER_TEXT'),
 			'type' => 'text',
-		),
-	),
-	'style' => array(
-		'block' => array(
-			'type' => array('block-default-background-overlay'),
-		),
-		'nodes' => array(
-			'.landing-block-node-title-container' => array(
+		],
+	],
+	'style' => [
+		'block' => [
+			'type' => ['block-default-background-overlay'],
+		],
+		'nodes' => [
+			'.landing-block-node-title' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--TITLE'),
-				'type' => 'border-color',
-			),
-			'.landing-block-node-title' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--TITLE'),
-				'type' => 'typo',
-			),
-			'.landing-block-node-text-title' => array(
+				'type' => ['typo', 'heading'],
+			],
+			'.landing-block-node-text-title' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--TITLE'),
 				'type' => 'typo',
-			),
-			'.landing-block-node-text' => array(
+			],
+			'.landing-block-node-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--TEXT'),
 				'type' => 'typo',
-			),
-			'.landing-block-node-number-number' => array(
+			],
+			'.landing-block-node-number-number' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--NUMBER_NUMBER'),
-				'type' => array('color', 'font-family'),
-			),
-			'.landing-block-node-number-text' => array(
+				'type' => ['color', 'font-family'],
+			],
+			'.landing-block-node-number-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--NUMBER_TEXT'),
-				'type' => array('color', 'font-family'),
-			),
-			'.landing-block-node-number' => array(
+				'type' => ['color', 'font-family'],
+			],
+			'.landing-block-node-number' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--NUMBER_NUMBER'),
-				'type' => array('bg', 'border-color'),
-			),
-		),
-	),
-	'assets' => array(
-		'ext' => array('landing_countdown'),
-	),
-);
+				'type' => ['bg', 'border-color'],
+			],
+		],
+	],
+	'assets' => [
+		'ext' => ['landing_countdown'],
+	],
+];

@@ -940,17 +940,27 @@ HIBSELECT;
 				$item['IMAGE'] = $data['UF_FILE'];
 			}
 
-			if ($settings['MULTIPLE'] !== 'Y' && $hasImages)
+			if ($hasImages)
 			{
 				$image = \CFile::GetFileArray($data['UF_FILE']) ?: null;
 				$item['IMAGE_SRC'] = $image['SRC'];
 				if ($image)
 				{
-					$item['NAME'] = "<span class=\"catalog-list-dictionary-select-icon\" style=\"background-image:url('{$image['SRC']}');\"></span> ".htmlspecialcharsbx($item['NAME']);
+					if ($settings['MULTIPLE'] === 'Y')
+					{
+						$item['HTML'] = "<span class=\"catalog-multi-list-dictionary-select-icon\" style=\"background-image:url('{$image['SRC']}');\"></span> ".htmlspecialcharsbx($item['NAME']);
+					}
+					else
+					{
+						$item['NAME'] = "<span class=\"catalog-list-dictionary-select-icon\" style=\"background-image:url('{$image['SRC']}');\"></span> ".htmlspecialcharsbx($item['NAME']);
+					}
 				}
 				else
 				{
-					$item['NAME'] = htmlspecialcharsbx($item['NAME']);
+					if ($settings['MULTIPLE'] !== 'Y')
+					{
+						$item['NAME'] = htmlspecialcharsbx($item['NAME']);
+					}
 				}
 			}
 

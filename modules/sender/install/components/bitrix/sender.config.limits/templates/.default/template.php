@@ -148,7 +148,7 @@ $containerId = 'sender-start-container';
 			<span class="sender-config-limits-info">
 						<?=(htmlspecialcharsbx($item['HELP_CAPTION']) ?:
 							Loc::getMessage('SENDER_TRACK_MAIL_HELP', array(
-								'%link_start%' => '<a href="https://helpdesk.bitrix24.ru/open/13170876" target="_blank" class="sender-config-limits-setup-link">',
+								'%link_start%' => '<a href="javascript:BX.Helper.show(\'redirect=detail&code=13170876\')" class="sender-config-limits-setup-link">',
 								'%link_end%' => '</a>'
 							))
 						)?>

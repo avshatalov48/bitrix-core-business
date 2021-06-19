@@ -7,10 +7,10 @@
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
-
+use Bitrix\Main\Loader;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/include.php");
+Loader::includeModule('advertising');
 
 $isDemo = CAdvContract::IsDemo();
 $isManager = CAdvContract::IsManager();
@@ -39,8 +39,7 @@ $arFilter = Array(
 $arrDays = CAdvBanner::GetDynamicList($arFilter, $arrLegend, $is_filtered);
 
 $arr = array();
-reset($arrLegend);
-while(list($keyL, $arrS) = each($arrLegend)) 
+foreach ($arrLegend as $keyL => $arrS)
 {
 	if ($arrS["COUNTER_TYPE"]=="DETAIL" && $arrS["TYPE"]==$diagram_type)
 	{

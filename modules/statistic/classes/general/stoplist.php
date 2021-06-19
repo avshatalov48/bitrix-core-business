@@ -9,14 +9,11 @@ class CAllStopList
 		if($STOPLIST_ID <= 0)
 			return false;
 
-		$by = '';
-		$order = '';
 		$arFilter = array(
 			"ID" => $STOPLIST_ID,
 			"ID_EXACT_MATCH" => "Y",
 		);
-		$is_filtered = '';
-		$rs = CStopList::GetList($by, $order, $arFilter, $is_filtered);
+		$rs = CStopList::GetList('', '', $arFilter);
 
 		return $rs;
 	}

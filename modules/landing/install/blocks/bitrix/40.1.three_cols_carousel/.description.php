@@ -43,6 +43,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_40.1.THREE_COLS_CAROUSEL_NODES_LANDINGBLOCKNODECARDIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 610, 'height' => 1000),
+			'useInDesigner' => false,
 		),
 	),
 	'style' => array(
@@ -56,7 +57,7 @@ return array(
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_40.1.THREE_COLS_CAROUSEL_STYLE_LANDINGBLOCKNODECARDTITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-card-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_40.1.THREE_COLS_CAROUSEL_STYLE_LANDINGBLOCKNODECARDTEXT'),

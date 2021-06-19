@@ -1,4 +1,5 @@
 <?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CSecurityIPRule
@@ -6,7 +7,7 @@ class CSecurityIPRule
 	static $bActive = null;
 	public $LAST_ERROR = "";
 
-	function Add($arFields)
+	public function Add($arFields)
 	{
 		global $DB, $CACHE_MANAGER;
 
@@ -99,7 +100,7 @@ class CSecurityIPRule
 		return $res;
 	}
 
-	function Update($ID, $arFields)
+	public function Update($ID, $arFields)
 	{
 		global $DB, $CACHE_MANAGER;
 		$ID = intval($ID);
@@ -402,7 +403,7 @@ class CSecurityIPRule
 		}
 	}
 
-	function CheckFields(&$arFields, $ID)
+	public function CheckFields(&$arFields, $ID)
 	{
 		global $APPLICATION;
 
@@ -568,7 +569,7 @@ class CSecurityIPRule
 		return $res;
 	}
 
-	function DeleteRuleExclFiles($files)
+	public static function DeleteRuleExclFiles($files)
 	{
 		global $DB;
 		if (!is_array($files))
@@ -578,7 +579,7 @@ class CSecurityIPRule
 				$DB->Query("DELETE FROM b_sec_iprule_excl_mask WHERE RULE_MASK = '".$DB->ForSQL($file)."'", false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
-	function AddRuleExclFiles($files)
+	public static function AddRuleExclFiles($files)
 	{
 		if (empty($files))
 			return;
@@ -615,7 +616,7 @@ class CSecurityIPRule
 		}
 	}
 
-	function GetRuleExclFiles($files)
+	public static function GetRuleExclFiles($files)
 	{
 		global $DB;
 		$res=array();
@@ -1258,7 +1259,7 @@ class CSecurityIPRule
 		return true;
 	}
 
-	function CleanUpAgent()
+	public static function CleanUpAgent()
 	{
 		$agentName = "CSecurityIPRule::CleanUpAgent();";
 		$cleanupDays = 2;

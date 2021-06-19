@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/location.php");
 
 use Bitrix\Sale\Location;
@@ -494,9 +495,7 @@ class CSaleLocation extends CAllSaleLocation
 
 		$ID = intval($DB->LastID());
 
-		$b = "sort";
-		$o = "asc";
-		$db_lang = CLangAdmin::GetList($b, $o, array("ACTIVE" => "Y"));
+		$db_lang = CLangAdmin::GetList('sort', 'asc', array("ACTIVE" => "Y"));
 		while ($arLang = $db_lang->Fetch())
 		{
 			if ($arFields[$arLang['LID']])
@@ -542,9 +541,7 @@ class CSaleLocation extends CAllSaleLocation
 
 		$ID = intval($DB->LastID());
 
-		$b = "sort";
-		$o = "asc";
-		$db_lang = CLangAdmin::GetList($b, $o, array("ACTIVE" => "Y"));
+		$db_lang = CLangAdmin::GetList('sort', 'asc', array("ACTIVE" => "Y"));
 		while ($arLang = $db_lang->Fetch())
 		{
 			if ($arFields[$arLang["LID"]])
@@ -590,9 +587,7 @@ class CSaleLocation extends CAllSaleLocation
 
 		$ID = intval($DB->LastID());
 
-		$b = "sort";
-		$o = "asc";
-		$db_lang = CLangAdmin::GetList($b, $o, array("ACTIVE" => "Y"));
+		$db_lang = CLangAdmin::GetList('sort', 'asc', array("ACTIVE" => "Y"));
 		while ($arLang = $db_lang->Fetch())
 		{
 			if ($arFields[$arLang["LID"]])

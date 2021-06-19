@@ -97,7 +97,10 @@ if ($arParams["BLOG_URL"] <> '')
 		$Vars = $cache->GetVars();
 		foreach($Vars["arResult"] as $k=>$v)
 			$arResult[$k] = $v;
-		CBitrixComponentTemplate::ApplyCachedData($Vars["templateCachedData"]);	
+
+		$template = new CBitrixComponentTemplate();
+		$template->ApplyCachedData($Vars["templateCachedData"]);
+
 		$cache->Output();
 	}
 	else

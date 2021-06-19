@@ -4,7 +4,7 @@
 
 		<div class="landing-block-node-date-container g-mb-40 g-mb-70--md">
 			<div class="landing-block-node-date mx-auto js-countdown u-countdown text-center"
-				 data-end-date="1618214400000"
+				 data-end-date="1649750400000"
 				 data-days-format="%D"
 				 data-hours-format="%H"
 				 data-minutes-format="%M"
@@ -52,7 +52,7 @@
 		</div>
 
 		<h2 class="landing-block-node-title text-center text-uppercase g-font-weight-700 g-font-size-60 g-color-white g-mb-30 g-mb-70--md">
-			UI & UX Design 2020</h2>
+			UI & UX Design 2021</h2>
 
 		<div class="row">
 			<div class="col-sm-6 col-md-5 text-center text-md-left g-mb-30 g-mb-0--md">
@@ -65,7 +65,7 @@
 						<div class="landing-block-node-date-title g-mb-5 g-font-size-14 g-color-white-opacity-0_5">
 							<span style="font-weight: bold;">When</span></div>
 						<h3 class="landing-block-node-date-text h3 text-uppercase g-font-size-15 g-color-white mb-0">
-							18:30, 12 Jul, 2020
+							13:00, 12 April, 2022
 						</h3>
 					</div>
 				</div>
@@ -80,7 +80,7 @@
 					<div class="media-body text-uppercase">
 						<div class="landing-block-node-place-title g-mb-5 g-font-size-14 g-color-white-opacity-0_5">
 							<span style="font-weight: bold;">Where</span></div>
-						<h3 class="landing-block-node-place-text h3 text-uppercase g-font-size-15 g-color-white mb-0">
+						<h3 class="landing-block-node-place-text text-uppercase g-font-size-15 g-color-white mb-0">
 							Concert Hall, Los Angeles, USA
 						</h3>
 					</div>

@@ -183,7 +183,7 @@ foreach ($ar as $key => $value)
 	$arDependentModule[] = $value['MODULE_ID'];
 
 
-$dbSites = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+$dbSites = CSite::GetList('', '', Array("ACTIVE" => "Y"));
 $arSites = array();
 $aSubTabs = array();
 while ($site = $dbSites->Fetch())

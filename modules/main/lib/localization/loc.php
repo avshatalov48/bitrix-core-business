@@ -46,7 +46,7 @@ final class Loc
 			self::loadLazy($code, $language);
 		}
 
-		$s = self::$messages[$language][$code];
+		$s = self::$messages[$language][$code] ?? null;
 
 		if($replace !== null && is_array($replace))
 		{

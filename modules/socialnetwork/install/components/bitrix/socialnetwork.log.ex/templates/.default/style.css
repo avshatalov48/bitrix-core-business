@@ -2009,6 +2009,10 @@ span.feed-add-post-destination-new:hover {
 	text-decoration: none;
 }
 
+.feed-inform-ilike a.bx-ilike-text.bx-ilike-text-unavailable:hover {
+	color: #828B95;
+}
+
 a.feed-post-more-link {
 	/*margin: 5px 0 0 0;*/
 	transition: color .3s, border-bottom .3s;
@@ -2371,16 +2375,16 @@ a.feed-post-more-link:hover {
 	top: 1px;
 }
 
-.feed-post-block-pinned .feed-post-informers .feed-inform-item.feed-post-time-wrap,
-.feed-post-block-pinned.feed-post-block-short .feed-post-informers .feed-post-time-wrap,
-.feed-post-block-pinned.feed-post-block-separator .feed-post-informers .feed-post-time-wrap,
-.feed-post-block-pinned.feed-post-block.feed-post-block-grat .feed-post-informers .feed-post-time-wrap,
-.feed-post-block-pinned.feed-post-block.feed-post-block-vote .feed-post-informers .feed-post-time-wrap {
+.feed-pinned-panel .feed-post-block-pinned .feed-post-informers .feed-inform-item.feed-post-time-wrap,
+.feed-pinned-panel .feed-post-block-pinned.feed-post-block-short .feed-post-informers .feed-post-time-wrap,
+.feed-pinned-panel .feed-post-block-pinned.feed-post-block-separator .feed-post-informers .feed-post-time-wrap,
+.feed-pinned-panel .feed-post-block-pinned.feed-post-block.feed-post-block-grat .feed-post-informers .feed-post-time-wrap,
+.feed-pinned-panel .feed-post-block-pinned.feed-post-block.feed-post-block-vote .feed-post-informers .feed-post-time-wrap {
 	top: 2px;
 }
 
-.feed-post-block-short .feed-post-informers .feed-post-time-wrap,
-.feed-post-block-separator .feed-post-informers .feed-post-time-wrap,
+.feed-post-block-short:not(.feed-imp-post) .feed-post-informers .feed-post-time-wrap,
+.feed-post-block-separator:not(.feed-imp-post) .feed-post-informers .feed-post-time-wrap,
 .feed-post-block.feed-post-block-grat .feed-post-informers .feed-post-time-wrap,
 .feed-post-block.feed-post-block-vote .feed-post-informers .feed-post-time-wrap {
 	top: 15px;
@@ -2980,6 +2984,10 @@ a.feed-post-more-link:hover {
 	font-weight: bold;
 }
 
+.feed-post-block-new .feed-post-block-colored + .urlpreview {
+	margin-top: 17px;
+}
+
 .feed-post-info-block {
 	background: -moz-linear-gradient(center top, #f9fbfb, #f2f6f6) repeat 0 0;
 	border: 1px solid #bcd0d5;
@@ -3550,12 +3558,6 @@ a.popup-window-content-row-text {
 
 .feed-post-text div.blog-post-quote, .feed-post-text div.blog-post-code {
 	padding: 0.6em 0;
-}
-
-.feed-post-text div.blog-post-quote span, .feed-post-text div.blog-post-code span {
-	color: #7d7d7d;
-	display: none;
-	padding-left: 0.6em;
 }
 
 textarea#sonet_log_comment_text {

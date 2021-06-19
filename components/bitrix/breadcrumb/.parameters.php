@@ -2,7 +2,7 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 $arSites = Array("-" => "");
-$rsSites = CSite::GetList($by="sort", $order="desc");
+$rsSites = CSite::GetList("sort", "desc");
 while ($arSite = $rsSites->GetNext())
 	$arSites[$arSite["ID"]] = "[".$arSite["ID"]."] ".$arSite["NAME"];
 

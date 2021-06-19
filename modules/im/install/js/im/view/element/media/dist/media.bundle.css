@@ -138,9 +138,9 @@
 }
 
 .bx-im-element-file-video-safari {
-	-webkit-transform: rotate(0.000001deg);
-	    -ms-transform: rotate(0.000001deg);
-	        transform: rotate(0.000001deg); /* fix safari video bug */
+	-webkit-transform: rotate(0.001deg);
+	    -ms-transform: rotate(0.001deg);
+	        transform: rotate(0.001deg); /* fix safari video bug */
 }
 
 .bx-im-element-file-video .ui-vue-socialvideo-timers-container {

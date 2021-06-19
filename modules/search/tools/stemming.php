@@ -7,7 +7,7 @@ function stemming_init($sLang="ru")
 	if($arStemFunc === false)
 	{
 		$arStemFunc = array();
-		$rsLanguages = CLanguage::GetList(($b=""), ($o=""));
+		$rsLanguages = CLanguage::GetList();
 		while($arLanguage = $rsLanguages->Fetch())
 			stemming_init($arLanguage["LID"]);
 	}

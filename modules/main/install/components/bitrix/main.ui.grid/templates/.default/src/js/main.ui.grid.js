@@ -26,6 +26,10 @@ import './settings-window';
 import './settings-window-column';
 import './useroptions';
 import './utils';
+import './realtime';
+import './cell-actions';
+import './cell-action-state';
+import './counters';
 
 import './grid';
 import '../css/style.css';

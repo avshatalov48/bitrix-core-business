@@ -1,9 +1,10 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/affiliate_plan_section.php");
 
 class CSaleAffiliatePlanSection extends CAllSaleAffiliatePlanSection
 {
-	function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -113,7 +114,7 @@ class CSaleAffiliatePlanSection extends CAllSaleAffiliatePlanSection
 		return $dbRes;
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -153,4 +154,3 @@ class CSaleAffiliatePlanSection extends CAllSaleAffiliatePlanSection
 		return $ID;
 	}
 }
-?>

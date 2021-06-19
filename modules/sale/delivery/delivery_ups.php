@@ -12,7 +12,7 @@ define('DELIVERY_UPS_EXPORT_PHP_FILE', 'ups/export.php');
 
 class CDeliveryUPS
 {
-	function Init()
+	public static function Init()
 	{
 		if (\Bitrix\Main\Loader::includeModule('currency') && $arCurrency = CCurrency::GetByID('RUR'))
 		{
@@ -62,7 +62,7 @@ class CDeliveryUPS
 		);
 	}
 
-	function GetConfig()
+	public static function GetConfig()
 	{
 		$arConfig = array(
 			"CONFIG_GROUPS" => array(
@@ -88,7 +88,7 @@ class CDeliveryUPS
 		return $arConfig;
 	}
 
-	function GetSettings($strSettings)
+	public static function GetSettings($strSettings)
 	{
 		list($zones_path, $export_path) = explode(";", $strSettings);
 
@@ -98,12 +98,12 @@ class CDeliveryUPS
 		);
 	}
 
-	function SetSettings($arSettings)
+	public static function SetSettings($arSettings)
 	{
 		return $arSettings["zones_csv"].";".$arSettings["export_csv"];
 	}
 
-	function __parseZonesFile($file)
+	public static function __parseZonesFile($file)
 	{
 		$arResult = array();
 
@@ -144,7 +144,7 @@ class CDeliveryUPS
 		return $arResult;
 	}
 
-	function __parseExportFile($file)
+	public static function __parseExportFile($file)
 	{
 		$arResult = array();
 
@@ -260,7 +260,7 @@ class CDeliveryUPS
 		return $arFinalResult;
 	}
 
-	function __GetZones($file)
+	public static function __GetZones($file)
 	{
 		static $arUPSZones;
 
@@ -275,7 +275,7 @@ class CDeliveryUPS
 		return $arUPSZones;
 	}
 
-	function __GetExport($file)
+	public static function __GetExport($file)
 	{
 		static $arUPSExport;
 
@@ -291,7 +291,7 @@ class CDeliveryUPS
 	}
 
 
-	function __GetLocation(&$arLocation, $arConfig)
+	public static function __GetLocation(&$arLocation, $arConfig)
 	{
 		$zones_file = $arConfig["zones_csv"]["VALUE"];
 		$arZones = CDeliveryUPS::__GetZones($zones_file);
@@ -314,7 +314,7 @@ class CDeliveryUPS
 	}
 
 
-	function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
+	public static function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
 	{
 		$arOrder["WEIGHT"] = CSaleMeasure::Convert($arOrder["WEIGHT"], "G", "KG");
 
@@ -335,7 +335,8 @@ class CDeliveryUPS
 		reset($arPriceTable);
 		do
 		{
-			list($key, $arZoneTable) = each($arPriceTable[$profile]);
+			$key = key($arPriceTable[$profile]);
+			next($arPriceTable[$profile]);
 		}
 		while ($key && (doubleval($arOrder["WEIGHT"]) > doubleval($key)));
 
@@ -350,7 +351,7 @@ class CDeliveryUPS
 	}
 
 
-	function Compability($arOrder, $arConfig)
+	public static function Compability($arOrder, $arConfig)
 	{
 		if (intval($arOrder["LOCATION_FROM"]) <= 0) 
 			return array();

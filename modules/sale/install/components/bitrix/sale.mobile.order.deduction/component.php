@@ -57,7 +57,7 @@ else
 
 $bXmlId = COption::GetOptionString("sale", "show_order_product_xml_id", "N");
 
-$rsSites = CSite::GetList($by="id", $order="asc", array("ACTIVE" => "Y", "DEF" => "Y"));
+$rsSites = CSite::GetList("id", "asc", array("ACTIVE" => "Y", "DEF" => "Y"));
 $arSite = $rsSites->Fetch();
 $LID = $arSite["ID"];
 

@@ -35,6 +35,10 @@
 				name: item.user.name,
 				link: addUtm(item.user.links.html)
 			},
+			dimensions: {
+				width: item.width,
+				height: item.height
+			},
 			onClick: unsplash.onPictureChange.bind(unsplash, item)
 		}
 	}

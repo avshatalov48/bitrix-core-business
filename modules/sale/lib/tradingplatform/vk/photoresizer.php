@@ -21,6 +21,7 @@ class PhotoResizer
 	const RESIZE_UP_CROP = 20;
 	const RESIZE_DOWN = 30;
 	const RESIZE_DOWN_CROP = 40;
+
 	/**
 	 * Return picture URL by picture src
 	 *
@@ -28,7 +29,7 @@ class PhotoResizer
 	 * @param string $domain - old param. May be empty
 	 * @return string
 	 */
-	protected function buildPictureUrl($src, $domain = '')
+	protected static function buildPictureUrl($src, $domain = '')
 	{
 		if ($domain == '')
 		{
@@ -67,8 +68,7 @@ class PhotoResizer
 		
 		return $strFile;
 	}
-	
-	
+
 	public static function sortPhotoArray($photos, $type)
 	{
 		$sortedPhotos = array();
@@ -114,8 +114,7 @@ class PhotoResizer
 		
 		return $sortedPhotos;
 	}
-	
-	
+
 	/**
 	 * Check photo sizes by type of converter
 	 *
@@ -204,8 +203,7 @@ class PhotoResizer
 		
 		return $result;
 	}
-	
-	
+
 	/**
 	 * Check sizes and filesize of one photo.
 	 * Return only check passed photos
@@ -214,7 +212,7 @@ class PhotoResizer
 	 * @param $sizesLimits
 	 * @return mixed
 	 */
-	private function checkPhoto($photoId, $sizesLimits)
+	private static function checkPhoto($photoId, $sizesLimits)
 	{
 		$photoParams = \CFile::GetFileArray($photoId);
 //		check bad files
@@ -728,8 +726,7 @@ class PhotoResizer
 		
 		return false;
 	}
-	
-	
+
 	/**
 	 * Overwrite system ScaleImage. Need for increase images
 	 *

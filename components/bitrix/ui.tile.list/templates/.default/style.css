@@ -243,3 +243,24 @@
 	white-space: nowrap;
 	font: 8px/14px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
 }
+
+.ui-tile-badge {
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: flex;
+	align-items: center;
+	padding: 0 8px;
+	height: 14px;
+	border-radius: 12px;
+	font: 8px/14px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+	box-shadow: 0 1px 2px 0 rgba(0,0,0,.14);
+}
+
+.ui-tile-badge--new {
+	top: -4px;
+	left: 10px;
+	background-color: #2fc6f6;
+	color: #fff
+}

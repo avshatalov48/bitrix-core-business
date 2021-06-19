@@ -2,8 +2,12 @@
 
 namespace Bitrix\Catalog\Controller;
 
+use Bitrix\Currency\CurrencyManager;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\ActionFilter;
+use Bitrix\Main\Error;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Response;
 
 class ProductForm extends Engine\Controller
 {
@@ -18,7 +22,7 @@ class ProductForm extends Engine\Controller
 		);
 	}
 
-	public function setConfigAction($configName, $value): ?array
+	public function setConfigAction($configName, $value): void
 	{
 		if ($configName === 'showTaxBlock' || $configName === 'showDiscountBlock')
 		{

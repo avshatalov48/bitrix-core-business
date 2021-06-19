@@ -98,7 +98,7 @@ if (CModule::IncludeModule("form"))
 			{
 				if ($arResult["F_RIGHT"]>=20 || ($arResult["F_RIGHT"]>=15 && $USER->GetID()==$arResultData["USER_ID"]))
 				{
-					$arResult["arrRESULT_PERMISSION"] = CFormResult::GetPermissions($arParams["RESULT_ID"], $v);
+					$arResult["arrRESULT_PERMISSION"] = CFormResult::GetPermissions($arParams["RESULT_ID"]);
 
 					// check result rights
 					if (!in_array("VIEW",$arResult["arrRESULT_PERMISSION"]))

@@ -19,7 +19,7 @@ endif;
 $componentPage = "index";
 $arResult = array();
 
-$arParams["SHOW_FORUM_USERS"] = ($arParams["SHOW_FORUM_USERS"] == "N" ? "N" : "Y");
+$arParams["SHOW_FORUM_USERS"] = ($arParams["SHOW_FORUM_USERS"] == "Y" ? "Y" : "N");
 
 $arDefaultUrlTemplates404 = array(
 	"active" => "topic/new/",
@@ -217,7 +217,7 @@ $bFounded = false;
 if (in_array($componentPage, array("message", "message_small"))):
 	$componentPage = "read";
 	$bFounded = true;
-elseif (($componentPage == 'user_list') && ($arParams['SHOW_FORUM_USERS'] !== 'Y')):
+elseif ($componentPage == 'user_list' && $arParams['SHOW_FORUM_USERS'] !== 'Y'):
 	$componentPage = "index";
 	$bFounded = true;
 elseif (in_array($componentPage, array("forums"))):

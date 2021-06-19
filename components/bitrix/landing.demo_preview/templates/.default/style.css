@@ -294,6 +294,9 @@ body {
 .landing-template-preview-title {
 	display: flex;
 	align-items: center;
+	font: 26px/26px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	margin: 0;
+	word-wrap: break-word;
 }
 
 .landing-template-preview-edit-textarea {
@@ -331,4 +334,11 @@ body {
 
 .main-color-picker-preview {
 	background: #f25a8f;
+}
+
+.template-landing24  {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	font-weight: normal;
+	-moz-osx-font-smoothing: grayscale
 }

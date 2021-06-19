@@ -35,7 +35,7 @@ final class NodeAttributes extends Stepper
 	{
 //		saved in option
 		$this->status = Option::get('landing', self::OPTION_STATUS_NAME, '');
-		$this->status = ($this->status !== '' ? @unserialize($this->status) : array());
+		$this->status = ($this->status !== '' ? @unserialize($this->status, ['allowed_classes' => false]) : array());
 		$this->status = (is_array($this->status) ? $this->status : array());
 
 //		or default
@@ -48,7 +48,7 @@ final class NodeAttributes extends Stepper
 			{
 				if (mb_strpos($key, self::OPTION_NAME) === 0 && $key != self::OPTION_STATUS_NAME)
 				{
-					$option = ($option !== '' ? @unserialize($option) : array());
+					$option = ($option !== '' ? @unserialize($option, ['allowed_classes' => false]) : array());
 					
 					if(!isset($option['BLOCKS']))
 					{
@@ -202,7 +202,7 @@ final class NodeAttributes extends Stepper
 	private function collectBlocks()
 	{
 		$this->dataToUpdate = Option::get(self::$moduleId, $this->getOptionName());
-		$this->dataToUpdate = ($this->dataToUpdate !== '' ? @unserialize($this->dataToUpdate) : array());
+		$this->dataToUpdate = ($this->dataToUpdate !== '' ? @unserialize($this->dataToUpdate, ['allowed_classes' => false]) : array());
 		$this->codesToStep = array_unique(array_keys($this->dataToUpdate['BLOCKS']));
 		$this->codesToStep = array_slice($this->codesToStep, 0, self::STEP_PORTION);
 

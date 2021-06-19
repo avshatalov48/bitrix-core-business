@@ -2,7 +2,7 @@
 
 class CTestResult
 {
-	function CheckFields(&$arFields, $ID = false)
+	public function CheckFields(&$arFields, $ID = false)
 	{
 		global $DB, $APPLICATION;
 
@@ -64,8 +64,7 @@ class CTestResult
 		return true;
 	}
 
-
-	function Add($arFields)
+	public function Add($arFields)
 	{
 		global $DB;
 
@@ -81,8 +80,7 @@ class CTestResult
 		return false;
 	}
 
-
-	function AddResponse($TEST_RESULT_ID, $RESPONSE)
+	public static function AddResponse($TEST_RESULT_ID, $RESPONSE)
 	{
 		global $DB;
 
@@ -161,8 +159,7 @@ class CTestResult
 		}
 	}
 
-
-	function Update($ID, $arFields)
+	public function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -188,8 +185,7 @@ class CTestResult
 		return false;
 	}
 
-
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -204,8 +200,7 @@ class CTestResult
 		return true;
 	}
 
-
-	function GetList($arOrder=array(), $arFilter=array(), $arNavParams = array())
+	public static function GetList($arOrder=array(), $arFilter=array(), $arNavParams = array())
 	{
 		global $DB, $USER, $APPLICATION;
 
@@ -309,14 +304,12 @@ class CTestResult
 		return $res;
 	}
 
-
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		return CTestResult::GetList(Array(), Array("ID"=>$ID));
 	}
 
-
-	function GetFilter($arFilter)
+	public static function GetFilter($arFilter)
 	{
 		if (!is_array($arFilter))
 			$arFilter = Array();
@@ -358,8 +351,7 @@ class CTestResult
 		return $arSqlSearch;
 	}
 
-
-	function OnTestResultChange($TEST_RESULT_ID)
+	public static function OnTestResultChange($TEST_RESULT_ID)
 	{
 		global $DB;
 
@@ -397,8 +389,7 @@ class CTestResult
 		return CTestAttempt::OnAttemptChange($arAttemptResult["ATTEMPT_ID"]);
 	}
 
-
-	function GetProgress($ATTEMPT_ID)
+	public static function GetProgress($ATTEMPT_ID)
 	{
 		global $DB;
 		$ATTEMPT_ID = intval($ATTEMPT_ID);
@@ -418,8 +409,7 @@ class CTestResult
 		return $res;
 	}
 
-
-	function GetCount($ATTEMPT_ID)
+	public static function GetCount($ATTEMPT_ID)
 	{
 		global $DB;
 
@@ -441,8 +431,7 @@ class CTestResult
 		*/
 	}
 
-
-	function GetPercent($ATTEMPT_ID)
+	public static function GetPercent($ATTEMPT_ID)
 	{
 		global $DB;
 
@@ -461,8 +450,7 @@ class CTestResult
 		return ( (int) (floor($arStat["PCNT"] + 0.00001) + 0.00001) );
 	}
 
-
-	function GetCorrectCount($ATTEMPT_ID)
+	public static function GetCorrectCount($ATTEMPT_ID)
 	{
 		global $DB;
 

@@ -492,3 +492,8 @@
 	background-repeat: no-repeat;
 	padding-left: 20px;
 }
+
+.landing-ui-field-checkbox[data-selector="operator"] {
+	padding-left: 5px;
+	margin-bottom: 0;
+}

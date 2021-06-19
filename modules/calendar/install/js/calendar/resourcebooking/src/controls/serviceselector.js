@@ -10,7 +10,18 @@ export class ServiceSelector extends ViewControlAbstract
 		this.name = 'ServiceSelector';
 		this.data = params.data;
 		this.serviceList = [];
-		this.allServiceList = params.serviceList || [];
+
+		this.allServiceList = [];
+		if (Type.isArray(params.serviceList))
+		{
+			params.serviceList.forEach((service) => {
+				if (Type.isString(name))
+				{
+					service.name = service.name.trim();
+				}
+				this.allServiceList.push(service);
+			})
+		}
 		this.values = [];
 		this.changeValueCallback = Type.isFunction(params.changeValueCallback) ? params.changeValueCallback : null;
 		if (params.selectedValue)

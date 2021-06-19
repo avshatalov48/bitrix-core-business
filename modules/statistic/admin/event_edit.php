@@ -52,7 +52,7 @@ if ($base_currency <> '')
 		$currency_module = "Y";
 		$arrRefID = array();
 		$arrRef = array();
-		$rsCur = CCurrency::GetList(($by="sort"), ($order="asc"));
+		$rsCur = CCurrency::GetList("sort", "asc");
 		$strJavaCurArray = "
 			var arrCur = new Array();
 			";
@@ -110,6 +110,7 @@ if ($Load!="" && $tabControl_active_tab=="load_csv_tab" && $REQUEST_METHOD=="POS
 		}
 		if ($fp=fopen($OUTPUT_CSV_FILE,"rb"))
 		{
+			$arParams = array();
 			$total_rows = 0;
 			while ($arrCSV = fgetcsv($fp, 1000, ","))
 			{
@@ -125,7 +126,7 @@ if ($Load!="" && $tabControl_active_tab=="load_csv_tab" && $REQUEST_METHOD=="POS
 			@fclose($fp);
 			if ($preview=="Y")
 			{
-				$_SESSION["SESS_NUMS"] = intval(count($arParams));
+				$_SESSION["SESS_NUMS"] = count($arParams);
 				@unlink($OUTPUT_CSV_FILE);
 			}
 			else

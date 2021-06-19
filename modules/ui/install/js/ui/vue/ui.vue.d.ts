@@ -33,7 +33,7 @@ declare module 'ui.vue'
 		isCustom(): boolean;
 	}
 	class $BitrixLoc {
-		getMessage(name: string, defaultValue?:any): any;
+		getMessage(name: string): string;
 		getMessages(): object;
 		setMessage(id: string | {[key: string]: string}, value?: string): void;
 	}
@@ -49,7 +49,7 @@ declare module 'ui.vue'
 		function isLocal(name: string): boolean;
 		function isMutable(name: string): boolean;
 		function directive(name: string, definition: object): boolean;
-		function getFilteredPhrases(phrasePrefix: string|Array<string>, phrases: object|null): ReadonlyArray<any>;
+		function getFilteredPhrases(phrasePrefix: string|Array<string>, phrases?: object|null): ReadonlyArray<any>;
 		function testNode(object: object, params: object): boolean;
 		const events: EventsList;
 	}
@@ -64,7 +64,7 @@ declare module 'ui.vue'
 		directive(name: string, definition: object): VueCreateAppResult;
 		use(plugin: Object|Function): VueCreateAppResult;
 		mixin(mixin: object): VueCreateAppResult;
-		mount(element: Element|string): VueCreateAppResult;
+		mount(element: Element|string): object;
 	}
 
 	interface BitrixVueComponentOptions {

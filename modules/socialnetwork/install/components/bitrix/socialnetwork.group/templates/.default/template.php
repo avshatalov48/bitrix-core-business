@@ -6,9 +6,19 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-if($arResult["FatalError"] <> '')
+if ($arResult['FatalError'] <> '')
 {
-	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
+	$APPLICATION->IncludeComponent(
+		'bitrix:ui.sidepanel.wrapper',
+		'',
+		[
+			'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.entity.error',
+			'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+			'POPUP_COMPONENT_PARAMS' => [
+				'ENTITY' => 'SONET_GROUP',
+			],
+		]
+	);
 }
 else
 {

@@ -273,7 +273,12 @@ class CAllBlogUser
 
 			if (count($arGroups) > 0)
 			{
-				array_walk($arGroups, create_function("&\$item", "\$item=IntVal(\$item);"));
+				array_walk(
+					$arGroups,
+					function (&$item) {
+						$item = (int)$item;
+					}
+				);
 
 				$dbUserGroups = CBlogUserGroup::GetList(
 					array(),
@@ -656,8 +661,8 @@ class CAllBlogUser
 			}
 
 			$dbUser = CUser::GetList(
-				($sort_by = Array('ID'=>'desc')),
-				($dummy=''),
+				Array('ID' => 'desc'),
+				'',
 				Array("ID" => $id),
 				$arSelect
 			);
@@ -776,8 +781,8 @@ class CAllBlogUser
 			}
 
 			$dbUser = CUser::GetList(
-				($sort_by = Array('ID'=>'desc')),
-				($dummy=''),
+				Array('ID' => 'desc'),
+				'',
 				Array("ID" => implode(" | ", $arIdToGet)),
 				$arSelectParams
 			);

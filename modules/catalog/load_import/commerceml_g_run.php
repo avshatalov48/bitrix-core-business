@@ -68,9 +68,7 @@ function cmlStartElement($parser, $name, $attrs)
 		$dbSite = CSite::GetByID($SITE_ID);
 		if (!$dbSite->Fetch())
 		{
-			$by = 'sort';
-			$order = 'asc';
-			$dbSite = CSite::GetList($by, $order);
+			$dbSite = CSite::GetList();
 			$arSite = $dbSite->Fetch();
 			$SITE_ID = $arSite['ID'];
 		}

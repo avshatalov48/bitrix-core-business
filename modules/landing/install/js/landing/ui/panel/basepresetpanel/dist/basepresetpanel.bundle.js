@@ -396,14 +396,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('saveButton', function () {
-	        return new landing_ui_button_basebutton.BaseButton('save_settings', {
+	        var button = new landing_ui_button_basebutton.BaseButton('save_settings', {
 	          text: landing_loc.Loc.getMessage('BLOCK_SAVE'),
 	          onClick: _this3.onSaveClick,
-	          className: 'landing-ui-button-content-save',
+	          className: 'ui-btn ui-btn-success',
 	          attrs: {
 	            title: landing_loc.Loc.getMessage('LANDING_TITLE_OF_SLIDER_SAVE')
 	          }
 	        });
+	        main_core.Dom.removeClass(button.layout, 'landing-ui-button');
+	        return button;
 	      });
 	    } // eslint-disable-next-line
 

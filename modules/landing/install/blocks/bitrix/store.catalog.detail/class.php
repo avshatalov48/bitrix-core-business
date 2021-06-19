@@ -111,7 +111,8 @@ class StoreCatalogDetailBlock extends \Bitrix\Landing\LandingBlock
 				),
 				'filter' => array(
 					'IBLOCK_ID' => $this->params['IBLOCK_ID']
-				)
+				),
+				'limit' => 1
 			));
 			if ($row = $res->fetch())
 			{
@@ -183,6 +184,15 @@ class StoreCatalogDetailBlock extends \Bitrix\Landing\LandingBlock
 	 */
 	public function beforeView(\Bitrix\Landing\Block $block)
 	{
+		if (!defined('LANDING_TMP_CATALOG_SHOWED'))
+		{
+			define('LANDING_TMP_CATALOG_SHOWED', true);
+			$this->params['FIRST_TIME'] = true;
+		}
+		else
+		{
+			$this->params['FIRST_TIME'] = false;
+		}
 		$this->params['ACTION_VARIABLE'] = 'action_' . $block->getId();
 	}
 }

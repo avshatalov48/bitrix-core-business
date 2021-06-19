@@ -16,7 +16,6 @@
 		{
 			var form = new BX.Landing.EmbedFormEntry(formNode);
 			this.forms.push(form);
-			form.init();
 		},
 
 		remove: function(formNode)
@@ -68,45 +67,109 @@
 	BX.Landing.EmbedFormEntry.ATTR_USE_STYLE_STR = 'data-b24form-use-style';
 	BX.Landing.EmbedFormEntry.ATTR_DESIGN = 'b24formDesign';
 	BX.Landing.EmbedFormEntry.ATTR_IS_CONNECTOR = 'b24formConnector';
+	BX.Landing.EmbedFormEntry.FORM_ID_MATCHER = /^#crmFormInline(\d+)$/i;
+	BX.Landing.EmbedFormEntry.PRIMARY_OPACITY_MATCHER = /--primary([\da-fA-F]{2})/;
 
 	BX.Landing.EmbedFormEntry.prototype = {
 		init: function()
 		{
-			var formParams = this.node.dataset.b24form;
+			// todo: add loader
+
+			// check ERRORS
+			var formParams = this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_FORM_ID];
 			if(!formParams)
 			{
 				this.showNoFormsMessage();
 				return;
 			}
 			formParams = formParams.split('|');
-			if (formParams.length !== 3)
+			if(
+				formParams.length !== 1
+				&& formParams.length !== 3
+			)
 			{
 				this.showNoFormsMessage();
 				return;
 			}
-			this.id = formParams[0];
-			this.sec = formParams[1];
-			this.url = formParams[2];
+
+			// LOAD by two variant - full params on with ajax load by marker
 			this.useStyle = (this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_USE_STYLE] === 'Y');
 			this.design = this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_DESIGN]
 				? JSON.parse(this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_DESIGN])
 				: {};
-			this.primaryOpacityMatcher = new RegExp("--primary([\\da-fA-F]{2})");
 
-			this.load();
+			if(formParams.length === 1)
+			{
+				// can't ajax load params in public
+				if(BX.Landing.getMode() === 'view')
+				{
+					return;
+				}
+
+				var idMarker = formParams[0].match(BX.Landing.EmbedFormEntry.FORM_ID_MATCHER);
+				if(idMarker && idMarker.length === 2)
+				{
+					this.loadParamsById(idMarker[1])
+						.then(this.load.bind(this))
+						.catch(this.showNoFormsMessage.bind(this));
+				}
+				else
+				{
+					this.showNoFormsMessage();
+				}
+			}
+			else if (formParams.length === 3)
+			{
+				this.id = formParams[0];
+				this.sec = formParams[1];
+				this.url = formParams[2];
+				this.load();
+			}
+		},
+
+		loadParamsById: function(formId)
+		{
+			if(!BX.Landing.EmbedForms.formsData)
+			{
+				BX.Landing.EmbedForms.formsData = BX.Landing.Backend.getInstance().action(
+					"Form::getById",
+					{formId: formId}
+				);
+			}
+			return BX.Landing.EmbedForms.formsData
+				.then(function(result) {
+					if (Object.keys(result).length > 0)
+					{
+						this.id = result.ID;
+						this.sec = result.SECURITY_CODE;
+						this.url = result.URL;
+					}
+					else
+					{
+						return Promise.reject();
+					}
+				}.bind(this));
 		},
 
 		showNoFormsMessage: function()
 		{
-			var errorText =
-				(
-					this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_IS_CONNECTOR]
-					&& this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_IS_CONNECTOR] === 'Y'
-				)
-				? BX.message('LANDING_BLOCK_WEBFORM_NO_FORM_BUS_NEW')
-				: BX.message('LANDING_BLOCK_WEBFORM_NO_FORM_CP')
-			;
-			this.node.innerHTML = this.createErrorMessage(BX.message('LANDING_BLOCK_WEBFORM_NO_FORM'), errorText);
+			if(BX.Landing.getMode() !== 'view')
+			{
+				var error = BX.message('LANDING_BLOCK_WEBFORM_NO_FORM');
+				var desc =
+					(
+						this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_IS_CONNECTOR]
+						&& this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_IS_CONNECTOR] === 'Y'
+					)
+						? BX.message('LANDING_BLOCK_WEBFORM_NO_FORM_BUS_NEW')
+						: BX.message('LANDING_BLOCK_WEBFORM_NO_FORM_CP')
+				;
+				this.node.innerHTML = this.createErrorMessage(BX.message('LANDING_BLOCK_WEBFORM_NO_FORM'), desc);
+				BX.onCustomEvent('BX.Landing.BlockAssets.Form:addScript', [{
+					node: this.node,
+					error: error
+				}]);
+			}
 		},
 
 		createErrorMessage: function (title, message)
@@ -137,6 +200,11 @@
 
 		load: function()
 		{
+			BX.onCustomEvent('BX.Landing.BlockAssets.Form:addScript', [{
+				success: true,
+				node: this.node,
+				script: this.url
+			}]);
 			this.node.innerHTML = '';	//clear "no form" alert
 			this.loadScript();
 		},
@@ -200,8 +268,11 @@
 			for (var property in design.color)
 			{
 				if (
-					design.color[property] === '--primary'
-					|| design.color[property].match(this.primaryOpacityMatcher) !== null
+					design.color.hasOwnProperty(property)
+					&& (
+						design.color[property] === '--primary'
+						|| design.color[property].match(BX.Landing.EmbedFormEntry.PRIMARY_OPACITY_MATCHER) !== null
+					)
 				)
 				{
 					design.color[property] = design.color[property].replace('--primary', primaryColor);

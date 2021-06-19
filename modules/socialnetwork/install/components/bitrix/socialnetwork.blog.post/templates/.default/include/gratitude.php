@@ -17,6 +17,11 @@ if (!empty($arResult['GRATITUDE']))
 		'feed-info-block'
 	];
 
+	if ($gratUsersCount === 1)
+	{
+		$classNameList[] = 'feed-grat-block-one';
+	}
+
 	if ($gratUsersCount <= 2)
 	{
 		$classNameList[] = 'feed-grat-block-large';

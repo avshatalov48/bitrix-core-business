@@ -11,6 +11,7 @@
 
 import "./image.css";
 import {Utils} from "im.lib.utils";
+import 'ui.vue.directives.lazyload';
 
 export const AttachTypeImage =
 {

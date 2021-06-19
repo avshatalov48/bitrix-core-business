@@ -163,10 +163,12 @@ export default class SyncPanel
 
 	showWebGridContent(items)
 	{
+		const wrapper = this.getWebContentWrapper();
+		Dom.clean(wrapper);
 		const grid = new BX.TileGrid.Grid({
 			id: 'calendar_sync',
 			items: items,
-			container: this.getWebContentWrapper(),
+			container: wrapper,
 			sizeRatio: "55%",
 			itemMinWidth: 180,
 			tileMargin: 7,
@@ -179,10 +181,12 @@ export default class SyncPanel
 
 	showMobileGridContent(items)
 	{
+		const wrapper = this.getMobileContentWrapper();
+		Dom.clean(wrapper);
 		const grid = new BX.TileGrid.Grid({
 			id: 'calendar_sync',
 			items:  items,
-			container:  this.getMobileContentWrapper(),
+			container: wrapper,
 			sizeRatio:  "55%",
 			itemMinWidth:  180,
 			tileMargin:  7,

@@ -13,7 +13,7 @@ use Bitrix\Seo\Retargeting\IService;
  *
  * @package Bitrix\Seo\Marketing
  */
-class Service implements IService, IMultiClientService
+class Service implements IService, IMultiClientService, IInternalService
 {
 	const GROUP         = 'marketing';
 	const TYPE_FACEBOOK = 'facebook';
@@ -238,5 +238,36 @@ class Service implements IService, IMultiClientService
 	public static function canUseMultipleClients()
 	{
 		return Option::get('seo', 'use_multiple_clients', true);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getTypeByEngine(string $engineCode): ?string
+	{
+		foreach (static::getTypes() as $type)
+		{
+			if($engineCode === static::getEngineCode($type))
+			{
+				return $type;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function canUseAsInternal(): bool
+	{
+		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getMethodPrefix(): string
+	{
+		return 'marketing';
 	}
 }

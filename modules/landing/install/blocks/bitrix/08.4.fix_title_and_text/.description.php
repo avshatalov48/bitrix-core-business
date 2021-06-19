@@ -28,19 +28,15 @@ return [
 		'nodes' => [
 			'.landing-block-node-container' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_8_4-CONTAINER'),
-				'type' => ['container', 'animation'],
+				'type' => ['text-align', 'container', 'animation'],
 			],
 			'.landing-block-node-title' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_8_4-TITLE'),
-				'type' => ['typo'],
+				'type' => ['typo', 'heading'],
 			],
 			'.landing-block-node-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_8_4-TEXT'),
 				'type' => ['typo'],
-			],
-			'.landing-block-node-header' => [
-				'name' => Loc::getMessage('LANDING_BLOCK_8_4-TITLE'),
-				'type' => ['border-color', 'margin-bottom'],
 			],
 		],
 	],

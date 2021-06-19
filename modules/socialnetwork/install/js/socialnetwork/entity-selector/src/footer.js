@@ -20,38 +20,61 @@ export default class Footer extends DefaultFooter
 		return this.cache.remember('content', () => {
 			const inviteEmployeeLink = this.getOption('inviteEmployeeLink');
 			const inviteGuestLink = this.getOption('inviteGuestLink');
+			const createProjectLink = this.getOption('createProjectLink');
 
-			if (inviteEmployeeLink && inviteGuestLink)
+			const complexPhrases = {
+				'111': 'SOCNET_ENTITY_SELECTOR_EMPLOYEE_OR_PROJECT_OR_GUEST',
+				'110': 'SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE_OR_GUEST',
+				'101': 'SOCNET_ENTITY_SELECTOR_EMPLOYEE_OR_PROJECT',
+				'011': 'SOCNET_ENTITY_SELECTOR_PROJECT_OR_GUEST',
+			};
+
+			const complexCode =
+				Number(Boolean(inviteEmployeeLink)).toString() +
+				Number(Boolean(inviteGuestLink)).toString() +
+				Number(Boolean(createProjectLink)).toString()
+			;
+
+			const complexPhrase = complexPhrases[complexCode] ? complexPhrases[complexCode] : null;
+			if (complexPhrase)
 			{
-				const phrase =
-					Tag.render`<div>${Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE_OR_GUEST')}</div>`
-				;
-
+				const phrase = Tag.render`<div>${Loc.getMessage(complexPhrase)}</div>`;
 				const employee = phrase.querySelector('employee');
 				const guest = phrase.querySelector('guest');
+				const project = phrase.querySelector('project');
 				const spans = Array.from(phrase.querySelectorAll('span'));
 
-				phrase.replaceChild(
-					Tag.render`
-						<span 
-							class="ui-selector-footer-link ui-selector-footer-link-add" 
-							onclick="${this.handleInviteEmployeeClick.bind(this)}">${
-							employee.innerHTML
-						}</span>
-					`,
-					employee
-				);
+				const firstTag = Array.from(phrase.children).find(element => {
+					return [employee, guest, project].includes(element);
+				});
 
-				const guestLink = Tag.render`
-					<span 
-						class="ui-selector-footer-link" 
-						onclick="${this.handleInviteGuestClick.bind(this)}">${
-						guest.innerHTML
-					}</span>
-				`;
+				const hideIcon = employee && guest && project;
 
-				phrase.replaceChild(guestLink, guest);
-				this.createHint(guestLink);
+				if (employee)
+				{
+					const showIcon = !hideIcon && firstTag === employee;
+					phrase.replaceChild(
+						this.createInviteEmployeeLink(employee.innerHTML, showIcon),
+						employee
+					);
+				}
+
+				if (guest)
+				{
+					const showIcon = !hideIcon && firstTag === guest;
+					const guestLink = this.createInviteGuestLink(guest.innerHTML, showIcon);
+					phrase.replaceChild(guestLink, guest);
+					this.createHint(guestLink);
+				}
+
+				if (project)
+				{
+					const showIcon = !hideIcon && firstTag === project;
+					phrase.replaceChild(
+						this.createProjectLink(project.innerHTML, showIcon),
+						project
+					);
+				}
 
 				spans.forEach(span => {
 					phrase.replaceChild(
@@ -70,30 +93,52 @@ export default class Footer extends DefaultFooter
 			}
 			else if (inviteEmployeeLink)
 			{
-				return Tag.render`
-					<span 
-						class="ui-selector-footer-link ui-selector-footer-link-add" 
-						onclick="${this.handleInviteEmployeeClick.bind(this)}">${
-						Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE')
-					}</span>
-				`;
+				return this.createInviteEmployeeLink(Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE'), true);
 			}
 			else if (inviteGuestLink)
 			{
-				const guestLink = Tag.render`
-					<span class="ui-selector-footer-link ui-selector-footer-link-add" 
-						onclick="${this.handleInviteGuestClick.bind(this)}">${
-						Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_GUEST')
-					}</span>
-				`;
+				const guestLink =
+					this.createInviteGuestLink(Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_GUEST'), true)
+				;
 
 				this.createHint(guestLink);
 
 				return guestLink;
 			}
+			else if (createProjectLink)
+			{
+				return this.createProjectLink(Loc.getMessage('SOCNET_ENTITY_SELECTOR_CREATE_PROJECT'), true);
+			}
 
 			return null;
 		});
+	}
+
+	createInviteEmployeeLink(text: string, icon: boolean): string
+	{
+		const className = `ui-selector-footer-link${icon ? ' ui-selector-footer-link-add' : ''}`;
+
+		return Tag.render`
+			<span class="${className}" onclick="${this.handleInviteEmployeeClick.bind(this)}">${text}</span>
+		`;
+	}
+
+	createInviteGuestLink(text: string, icon: boolean): string
+	{
+		const className = `ui-selector-footer-link${icon ? ' ui-selector-footer-link-add' : ''}`;
+
+		return Tag.render`
+			<span class="${className}" onclick="${this.handleInviteGuestClick.bind(this)}">${text}</span>
+		`;
+	}
+
+	createProjectLink(text: string, icon: boolean): string
+	{
+		const className = `ui-selector-footer-link${icon ? ' ui-selector-footer-link-add' : ''}`;
+
+		return Tag.render`
+			<span class="${className}" onclick="${this.handleCreateProjectClick.bind(this)}">${text}</span>
+		`;
 	}
 
 	createHint(link: HTMLElement): void
@@ -170,6 +215,33 @@ export default class Footer extends DefaultFooter
 		}
 	}
 
+	handleCreateProjectClick(): void
+	{
+		const createProjectLink = this.getOption('createProjectLink');
+
+		if (Type.isStringFilled(createProjectLink))
+		{
+			const entity = this.getDialog().getEntity('project');
+			const projectOptions = entity.getOptions() || {};
+
+			BX.SidePanel.Instance.open(
+				createProjectLink,
+				{
+					allowChangeHistory: false,
+					cacheable: false,
+					requestMethod: 'post',
+					requestParams: {
+						PROJECT_OPTIONS: projectOptions,
+						refresh: 'N'
+					},
+					data: {
+						entitySelectorId: this.getDialog().getId()
+					}
+				}
+			);
+		}
+	}
+
 	bindEvents(): void
 	{
 		this.getDialog().subscribe('onDestroy', this.handleDialogDestroy);
@@ -205,6 +277,12 @@ export default class Footer extends DefaultFooter
 			const { users } = messageEvent.getData();
 			this.addUsers(users);
 		}
+
+		if (messageEvent.getEventId() === 'BX.Socialnetwork.Workgroup:onAdd')
+		{
+			const { projects } = messageEvent.getData();
+			this.addProjects(projects);
+		}
 	}
 
 	addUsers(users: Array): void
@@ -217,7 +295,7 @@ export default class Footer extends DefaultFooter
 		let tab = this.getDialog().getRecentTab() || this.getDialog().getTab('invited-users');
 		if (!tab)
 		{
-			tab = this.getDialog().addTab(this.createTab());
+			tab = this.getDialog().addTab(this.createInvitedUsersTab());
 		}
 
 		users.forEach(user => {
@@ -239,7 +317,36 @@ export default class Footer extends DefaultFooter
 		this.getDialog().selectTab(tab.getId());
 	}
 
-	createTab(): TabOptions
+	addProjects(projects: Array): void
+	{
+		if (!Type.isArrayFilled(projects))
+		{
+			return;
+		}
+
+		const tab = this.getDialog().getRecentTab() || this.getDialog().getTab('projects');
+		const tabId = tab ? tab.getId() : null;
+
+		projects.forEach(project => {
+			if (!Type.isPlainObject(project))
+			{
+				return;
+			}
+
+			const item = this.getDialog().addItem(
+				Object.assign({}, project, { tabs: tabId, sort: 2 })
+			);
+
+			if (item)
+			{
+				item.select();
+			}
+		});
+
+		this.getDialog().selectTab(tabId);
+	}
+
+	createInvitedUsersTab(): TabOptions
 	{
 		const icon =
 			'data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2223%22%20height%3D%2223%22%20' +

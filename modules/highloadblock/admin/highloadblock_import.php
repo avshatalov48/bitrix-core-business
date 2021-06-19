@@ -239,7 +239,7 @@ if (
 
 	// get langs
 	$langs = array();
-	$res = \CLanguage::GetList($lby='sort', $lorder='asc');
+	$res = \CLanguage::GetList();
 	while($row = $res->getNext())
 	{
 		$langs[$row['LID']] = $row;

@@ -11,7 +11,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @global CMain $APPLICATION */
 
 use Bitrix\Main\Loader,
-	Bitrix\Main,
+	Bitrix\Main\Localization\Loc,
 	Bitrix\Iblock;
 
 /*************************************************************************
@@ -61,6 +61,8 @@ $arParams["CACHE_FILTER"] = isset($arParams["CACHE_FILTER"]) && $arParams["CACHE
 if(!$arParams["CACHE_FILTER"] && !empty($arrFilter))
 	$arParams["CACHE_TIME"] = 0;
 
+$arParams['SHOW_TITLE'] = ($arParams['SHOW_TITLE'] ?? 'N') === 'Y';
+
 $arResult["SECTIONS"]=array();
 
 /*************************************************************************
@@ -71,7 +73,7 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 	if(!Loader::includeModule("iblock"))
 	{
 		$this->abortResultCache();
-		ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+		ShowError(Loc::getMessage("IBLOCK_MODULE_NOT_INSTALLED"));
 		return;
 	}
 
@@ -83,6 +85,16 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 	{
 		$this->abortResultCache();
 		return;
+	}
+
+	$countTitleSuffix = '_ELEMENT';
+	if (Loader::includeModule('catalog'))
+	{
+		$catalog = CCatalogSku::GetInfoByIBlock($arParams['IBLOCK_ID']);
+		if (!empty($catalog))
+		{
+			$countTitleSuffix = '_PRODUCT';
+		}
 	}
 
 	$arFilter = array(
@@ -233,6 +245,41 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 		}
 		$arResult["SECTION"]["~ELEMENT_CNT"] = CIBlockElement::GetList(array(), $elementFilter, array());
 		$arResult["SECTION"]["ELEMENT_CNT"] = $arResult["SECTION"]["~ELEMENT_CNT"];
+
+		if (!empty($arResult["SECTION"]["ELEMENT_CNT"]))
+		{
+			$count = (int)$arResult["SECTION"]["ELEMENT_CNT"];
+			$val = ($count < 100 ? $count : $count % 100);
+			$dec = $val % 10;
+
+			if ($val == 0)
+			{
+				$messageId = 'CP_BCSL_MESS_COUNT_ZERO';
+			}
+			elseif ($val == 1)
+			{
+				$messageId = 'CP_BCSL_MESS_COUNT_ONE';
+			}
+			elseif ($val >= 10 && $val <= 20)
+			{
+				$messageId = 'CP_BCSL_MESS_COUNT_TEN';
+			}
+			elseif ($dec == 1)
+			{
+				$messageId = 'CP_BCSL_MESS_COUNT_MOD_ONE';
+			}
+			elseif (2 <= $dec && $dec <= 4)
+			{
+				$messageId = 'CP_BCSL_MESS_COUNT_MOD_TWO';
+			}
+			else
+			{
+				$messageId = 'CP_BCSL_MESS_COUNT_OTHER';
+			}
+			$messageId .= $countTitleSuffix;
+
+			$arResult["SECTION"]['ELEMENT_CNT_TITLE'] = Loc::getMessage($messageId, ['#VALUE#' => $count]);
+		}
 	}
 
 	//ORDER BY
@@ -287,6 +334,7 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 
 		$arSection["~ELEMENT_CNT"] = null;
 		$arSection["ELEMENT_CNT"] = null;
+		$arSection['ELEMENT_CNT_TITLE'] = '';
 
 		$arResult["SECTIONS"][]=$arSection;
 	}
@@ -316,6 +364,40 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 			}
 			$arSection["~ELEMENT_CNT"] = CIBlockElement::GetList(array(), $elementFilter, array());
 			$arSection["ELEMENT_CNT"] = $arSection["~ELEMENT_CNT"];
+			if (!empty($arSection["ELEMENT_CNT"]))
+			{
+				$count = (int)$arSection["ELEMENT_CNT"];
+				$val = ($count < 100 ? $count : $count % 100);
+				$dec = $val % 10;
+
+				if ($val == 0)
+				{
+					$messageId = 'CP_BCSL_MESS_COUNT_ZERO';
+				}
+				elseif ($val == 1)
+				{
+					$messageId = 'CP_BCSL_MESS_COUNT_ONE';
+				}
+				elseif ($val >= 10 && $val <= 20)
+				{
+					$messageId = 'CP_BCSL_MESS_COUNT_TEN';
+				}
+				elseif ($dec == 1)
+				{
+					$messageId = 'CP_BCSL_MESS_COUNT_MOD_ONE';
+				}
+				elseif (2 <= $dec && $dec <= 4)
+				{
+					$messageId = 'CP_BCSL_MESS_COUNT_MOD_TWO';
+				}
+				else
+				{
+					$messageId = 'CP_BCSL_MESS_COUNT_OTHER';
+				}
+				$messageId .= $countTitleSuffix;
+
+				$arSection['ELEMENT_CNT_TITLE'] = Loc::getMessage($messageId, ['#VALUE#' => $count]);
+			}
 		}
 	}
 	unset($arSection);

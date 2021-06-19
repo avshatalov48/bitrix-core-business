@@ -638,7 +638,7 @@ if (CModule::IncludeModule("intranet"))
 
 			/* Access to Reserve Meeting */
 			$arUserGroups = array();
-			$dbGroups = CGroup::GetList($b = "NAME", $o = "ASC", array("ACTIVE" => "Y"));
+			$dbGroups = CGroup::GetList("NAME", "ASC", array("ACTIVE" => "Y"));
 			while ($arGroup = $dbGroups->GetNext())
 				$arUserGroups[$arGroup["ID"]] = "[".$arGroup["ID"]."] ".$arGroup["NAME"];
 
@@ -684,7 +684,7 @@ if (CModule::IncludeModule("intranet"))
 
 			/* Access to Reserve Video-Meeting */
 			$arUserGroups = array();
-			$dbGroups = CGroup::GetList($b = "NAME", $o = "ASC", array("ACTIVE" => "Y"));
+			$dbGroups = CGroup::GetList("NAME", "ASC", array("ACTIVE" => "Y"));
 			while ($arGroup = $dbGroups->GetNext())
 				$arUserGroups[$arGroup["ID"]] = "[".$arGroup["ID"]."] ".$arGroup["NAME"];
 
@@ -798,7 +798,7 @@ if(CModule::IncludeModule("iblock"))
 	}
 
 	$arUGroupsEx = Array();
-	$dbUGroups = CGroup::GetList($by = "c_sort", $order = "asc");
+	$dbUGroups = CGroup::GetList();
 	while($arUGroups = $dbUGroups -> Fetch())
 	{
 		$arUGroupsEx[$arUGroups["ID"]] = $arUGroups["NAME"];
@@ -1157,7 +1157,7 @@ if (CModule::IncludeModule("forum"))
 
 		if ($arCurrentValues["SHOW_VOTE"] == "Y" && CModule::IncludeModule("vote"))
 		{
-			$rVoteChannels = CAllVoteChannel::GetList($by, $order, array('ACTIVE' => 'Y'), $is_filtered);
+			$rVoteChannels = CAllVoteChannel::GetList('', '', array('ACTIVE' => 'Y'));
 			if ($rVoteChannels)
 			{
 				\Bitrix\Main\Localization\Loc::loadLanguageFile($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/components/bitrix/voting.current/.parameters.php");

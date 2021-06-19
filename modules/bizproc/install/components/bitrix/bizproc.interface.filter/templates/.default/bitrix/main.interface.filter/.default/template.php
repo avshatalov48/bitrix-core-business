@@ -332,8 +332,8 @@ if(!function_exists('__BizprocInterfaceFilterRenderField'))
 				if ($userID > 0)
 				{
 					$dbUser = CUser::GetList(
-						($by = 'id'),
-						($order = 'asc'),
+						'id',
+						'asc',
 						array('ID'=> $userID),
 						array(
 							'FIELDS'=> array(

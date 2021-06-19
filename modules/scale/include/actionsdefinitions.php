@@ -158,7 +158,7 @@ $actionsDefinitions = array(
 		"PAGE_REFRESH" => "Y",
 		"CONDITION" => array(
 			"COMMAND" => "sudo -u root /opt/webdir/bin/bx-monitor -o json",
-			"PARAMS" => array( "monitor:monitoring_status", "===", "'disable'")
+			"PARAMS" => array( "monitor:monitoring_status", "===", "disable")
 		)
 	),
 
@@ -169,7 +169,7 @@ $actionsDefinitions = array(
 		"PAGE_REFRESH" => "Y",
 		"CONDITION" => array(
 			"COMMAND" => "sudo -u root /opt/webdir/bin/bx-monitor -o json",
-			"PARAMS" => array( "monitor:monitoring_status", "===", "'enable'")
+			"PARAMS" => array( "monitor:monitoring_status", "===", "enable")
 		)
 	),
 

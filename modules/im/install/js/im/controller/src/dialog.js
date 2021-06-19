@@ -167,7 +167,7 @@ export class ApplicationController
 			return true;
 		}
 
-		if (dialog.unreadLastId <= 0)
+		if (dialog.lastMessageId <= 0)
 		{
 			return true;
 		}
@@ -189,7 +189,7 @@ export class ApplicationController
 			}
 		}
 
-		return lastElementId >= dialog.unreadLastId;
+		return lastElementId >= dialog.lastMessageId;
 	}
 
 	prepareFilesBeforeSave(files)

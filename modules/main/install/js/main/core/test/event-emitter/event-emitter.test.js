@@ -154,6 +154,7 @@ describe('EventEmitter', () => {
 	describe('emit', () => {
 		it('Should call all event listeners', () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const event = 'test:event';
 			const listener1 = sinon.stub();
 			const listener2 = sinon.stub();
@@ -172,6 +173,7 @@ describe('EventEmitter', () => {
 
 		it('Should not call listener if was unsubscribe by a previous sibling listener', () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const eventName = 'event:sibling';
 
 			let result = '';
@@ -197,12 +199,14 @@ describe('EventEmitter', () => {
 			const listener5 = () => { result += "5"; };
 
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const eventName = 'event:sequence';
+			const globalEventName = `Test.Namespace:${eventName}`;
 
 			emitter.subscribe(eventName, listener1);
-			EventEmitter.subscribe(EventEmitter.GLOBAL_TARGET, eventName, listener2);
+			EventEmitter.subscribe(EventEmitter.GLOBAL_TARGET, globalEventName, listener2);
 			emitter.subscribe(eventName, listener3);
-			EventEmitter.subscribe(EventEmitter.GLOBAL_TARGET, eventName, listener4);
+			EventEmitter.subscribe(EventEmitter.GLOBAL_TARGET, globalEventName, listener4);
 			emitter.subscribe(eventName, listener5);
 
 			emitter.emit(eventName);
@@ -212,6 +216,7 @@ describe('EventEmitter', () => {
 
 		it('Should call event listeners after each emit call', () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const event = 'test:event';
 			const listener1 = sinon.stub();
 			const listener2 = sinon.stub();
@@ -244,6 +249,7 @@ describe('EventEmitter', () => {
 
 		it('Should not call deleted listeners', () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const event = 'test:event';
 			const listener1 = sinon.stub();
 			const listener2 = sinon.stub();
@@ -269,12 +275,14 @@ describe('EventEmitter', () => {
 
 		it('Should call listener with valid Event object anyway', async () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const eventName = "test:event";
+			const globalEventName = `Test.Namespace:${eventName}`.toLowerCase();
 
 			await new Promise((resolve) => {
 				emitter.subscribe(eventName, (event) => {
 					assert(event instanceof BaseEvent);
-					assert(event.type === eventName);
+					assert(event.type === globalEventName);
 					assert(event.hasOwnProperty("data"));
 					assert(event.defaultPrevented === false);
 					assert(event.immediatePropagationStopped === false);
@@ -289,6 +297,7 @@ describe('EventEmitter', () => {
 
 		it('Should assign props to data if passed plain object', async () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const eventName = "Test:event";
 
 			await new Promise((resolve) => {
@@ -303,6 +312,7 @@ describe('EventEmitter', () => {
 
 		it('Should add event value to data.event.value if passed not event object and not plain object', async () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const eventName = "Test:event";
 
 			await new Promise((resolve) => {
@@ -372,6 +382,7 @@ describe('EventEmitter', () => {
 
 		it('Should set defaultPrevented = true called .preventDefault() in listener', async () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 
 			emitter.subscribe('test4', (event) => {
 				event.preventDefault();
@@ -407,6 +418,7 @@ describe('EventEmitter', () => {
 	describe('emitAsync', () => {
 		it('Should emit event and return promise', () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const resultPromise = emitter.emitAsync('test');
 
 			assert.ok(resultPromise instanceof Promise);
@@ -414,6 +426,7 @@ describe('EventEmitter', () => {
 
 		it('Should resolve returned promise with values that returned from listeners', () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 
 			emitter.subscribe('test', () => {
 				return 'result-1';
@@ -438,6 +451,7 @@ describe('EventEmitter', () => {
 
 		it('Promise should be resolved, when resolved all promises returned from listeners', () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 
 			emitter.subscribe('test', () => {
 				return new Promise((resolve) => {
@@ -474,6 +488,7 @@ describe('EventEmitter', () => {
 
 		it('Should reject returned promise if listener throw error', () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 
 			emitter.subscribe('test', () => {
 				return Promise.reject(new Error());
@@ -573,6 +588,7 @@ describe('EventEmitter', () => {
 	describe('subscribeOnce', () => {
 		it('Should call listener only once', () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const event = 'test:event';
 			const listener = sinon.stub();
 
@@ -587,6 +603,7 @@ describe('EventEmitter', () => {
 
 		it('Should add only unique listeners', () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const event = 'test:event';
 			const listener = sinon.stub();
 
@@ -607,6 +624,7 @@ describe('EventEmitter', () => {
 	describe('setMaxListeners', () => {
 		it('Should set max allowed listeners count', () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const maxListenersCount = 3;
 
 			emitter.setMaxListeners(maxListenersCount);
@@ -619,6 +637,7 @@ describe('EventEmitter', () => {
 
 		it('Should set max listeners count for the event', () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const eventName = "MyEventMaxListeners";
 			const maxListenersCount = 3;
 
@@ -631,7 +650,7 @@ describe('EventEmitter', () => {
 			assert(EventEmitter.getMaxListeners({}, eventName) === EventEmitter.DEFAULT_MAX_LISTENERS);
 		});
 
-		it('Should print warnings if the limit exceeded', () => {
+		it('Should print warnings if the limit exceeded', (done) => {
 			const obj = {};
 			const eventName = "limit-subscribers";
 			const eventName2 = "limit-subscribers2";
@@ -658,7 +677,11 @@ describe('EventEmitter', () => {
 
 			EventEmitter.emit(obj, eventName2);
 
+			setTimeout(function() {
+				done();
+			}, 1000);
 		});
+
 		it('Should sets max listeners for global target', () => {
 			const obj = {};
 
@@ -810,6 +833,7 @@ describe('EventEmitter', () => {
 
 		it('Should add global event listener', () => {
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const eventName = 'test:event';
 			const listener = sinon.stub();
 
@@ -954,7 +978,9 @@ describe('EventEmitter', () => {
 		it('Should emit params for old handlers', (done) => {
 
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('TestNamespace');
 			const eventName = 'onMyPopupClose';
+			const globalEventName = `TestNamespace:${eventName}`;
 			const listener = (a, b, c) => {
 
 				assert.equal(a, 1);
@@ -964,7 +990,7 @@ describe('EventEmitter', () => {
 				done();
 			};
 
-			BX.addCustomEvent(emitter, eventName, listener);
+			BX.addCustomEvent(emitter, globalEventName, listener);
 
 			const event = new BaseEvent();
 			event.setCompatData([1, emitter, "string"]);
@@ -975,13 +1001,16 @@ describe('EventEmitter', () => {
 		it('Should emit an event for new handlers', (done) => {
 
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('TestNamespace');
 			const eventName = 'onMyPopupClose2';
+			const globalEventName = `TestNamespace:${eventName}`;
+
 			const listener = function(event) {
 				assert.equal(event.getData(), 2);
 				done();
 			};
 
-			BX.addCustomEvent(emitter, eventName, listener);
+			BX.addCustomEvent(emitter, globalEventName, listener);
 
 			emitter.emit(eventName, 2);
 		});
@@ -1010,6 +1039,7 @@ describe('EventEmitter', () => {
 		it('Should stop invoke the rest listeners', () => {
 
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 			const eventName = 'event:stop-propagation';
 			const listener1 = sinon.stub();
 			const listener2 = (event) => {
@@ -1252,7 +1282,12 @@ describe('EventEmitter', () => {
 			EventEmitter.subscribe('MyCompany.MyModule.MyClass:onOpen', listener2);
 			EventEmitter.subscribe(emitter, 'MyCompany.MyModule.MyClass:onOpen', listener3);
 
+			const consoleWarn = sinon.spy(console, 'warn');
+
 			emitter.emit(eventName);
+
+			assert(consoleWarn.callCount === 1);
+			consoleWarn.restore();
 
 			assert(listener1.callCount === 1);
 			assert(listener2.callCount === 1);
@@ -1876,6 +1911,7 @@ describe('EventEmitter', () => {
 			};
 
 			const emitter = new EventEmitter();
+			emitter.setEventNamespace('Test.Namespace');
 
 			emitter.subscribe('onClose', listener1);
 			emitter.subscribe('onClose', listener2);

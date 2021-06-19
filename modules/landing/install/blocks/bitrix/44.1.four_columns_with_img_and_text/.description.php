@@ -38,6 +38,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.1.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 248),
+			'useInDesigner' => false,
 		),
 	),
 	'style' => array(
@@ -47,7 +48,7 @@ return array(
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.1.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDTITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-card-subtitle' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.1.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDSUBTITLE'),

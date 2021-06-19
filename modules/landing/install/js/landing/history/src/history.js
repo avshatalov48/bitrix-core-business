@@ -25,8 +25,11 @@ import addBlock from './action/add-block';
 import removeBlock from './action/remove-block';
 import addCard from './action/add-card';
 import removeCard from './action/remove-card';
+import addNode from './action/add-node';
+import removeNode from './action/remove-node';
 import editStyle from './action/edit-style';
 import updateBlockState from './action/update-block-state';
+import updateContent from './action/update-content';
 
 /**
  * Implements interface for works with landing history
@@ -69,6 +72,9 @@ export class History
 		removeCard,
 		editStyle,
 		updateBlockState,
+		addNode,
+		removeNode,
+		updateContent
 	};
 
 	static getInstance(): History

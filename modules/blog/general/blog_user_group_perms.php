@@ -1,11 +1,13 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
+
 $GLOBALS["BLOG_USER_GROUP_PERMS"] = Array();
 
 class CAllBlogUserGroupPerms
 {
 	/*************** ADD, UPDATE, DELETE *****************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "BLOG_ID") || $ACTION=="ADD") && intval($arFields["BLOG_ID"]) <= 0)
 		{
@@ -64,7 +66,7 @@ class CAllBlogUserGroupPerms
 		return True;
 	}
 
-	function __AutoSetPerms($ID)
+	public static function __AutoSetPerms($ID)
 	{
 		$ID = intval($ID);
 
@@ -152,7 +154,7 @@ class CAllBlogUserGroupPerms
 	}
 
 	//*************** SELECT *********************/
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -180,4 +182,3 @@ class CAllBlogUserGroupPerms
 		return False;
 	}
 }
-?>

@@ -1,4 +1,5 @@
-<?
+<?php
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
@@ -15,6 +16,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
 use Bitrix\Socialnetwork\ComponentHelper;
+use Bitrix\Socialnetwork\Helper\Mention;
 
 global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
@@ -29,6 +31,9 @@ if (!Loader::includeModule("socialnetwork"))
 {
 	return false;
 }
+
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+$frameMode = ($request->getQuery('IFRAME') === 'Y');
 
 $feature = "blog";
 $arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
@@ -173,6 +178,7 @@ if($arParams["POST_VAR"] == '')
 	$arParams["POST_VAR"] = "id";
 
 $applicationCurPage = $APPLICATION->GetCurPage();
+
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
 if($arParams["PATH_TO_BLOG"] == '')
 	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($applicationCurPage."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
@@ -485,8 +491,8 @@ if(
 			if ($arGrat["ID"])
 			{
 				$dbUsers = CUser::GetList(
-					($sort_by = Array('last_name'=>'asc', 'IS_ONLINE'=>'desc')),
-					($dummy=''),
+					Array('last_name'=>'asc', 'IS_ONLINE'=>'desc'),
+					'',
 					array(
 						"ID" => implode("|", $arGrat["USERS"]),
 						array(
@@ -596,13 +602,6 @@ if (intval($_GET["delete_blog_post_id"]) > 0 && $_GET["ajax_blog_post_delete"] =
 	return true;
 }
 
-/*if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_REQUEST['mfi_mode']) && ($_REQUEST['mfi_mode'] == "upload"))
-{
-	CBlogImage::AddImageResizeHandler(array(
-		'width' => $arParams["IMAGE_MAX_WIDTH"],
-		'height' => $arParams["IMAGE_MAX_HEIGHT"]
-	));
-}*/
 $isPostBeingEdited = $arParams["ID"] > 0;
 if ($isPostBeingEdited)
 {
@@ -796,67 +795,12 @@ if (
 	}
 	else
 	{
-		$mapping = [
-			'DEST_CODES' => 'SPERM',
-			'GRAT_DEST_CODES' => 'GRAT',
-			'EVENT_DEST_CODES' => 'EVENT_PERM'
-		];
-
-		foreach($mapping as $from => $to)
-		{
-			if (isset($_POST[$from]))
-			{
-				$_POST[$to] = [
-					'UA' => [],
-					'U' => [],
-					'UE' => [],
-					'SG' => [],
-					'DR' => []
-				];
-				if ($from == 'DEST_CODES')
-				{
-					$_POST[$to]['UP'] = [];
-				}
-
-				foreach($_POST[$from] as $destCode)
-				{
-					if ($destCode == 'UA')
-					{
-						$_POST[$to]['UA'][] = 'UA';
-					}
-					elseif (preg_match('/^UE(.+)$/i', $destCode, $matches))
-					{
-						$_POST[$to]['UE'][] = $matches[1];
-					}
-					elseif (preg_match('/^U(\d+)$/i', $destCode, $matches))
-					{
-						$_POST[$to]['U'][] = 'U'.$matches[1];
-					}
-					elseif (
-						$from == 'DEST_CODES'
-						&& preg_match('/^UP(\d+)$/i', $destCode, $matches)
-						&& $arResult["perms"] = BLOG_PERMS_FULL
-					)
-					{
-						$_POST[$to]['UP'][] = 'UP'.$matches[1];
-					}
-					elseif (preg_match('/^SG(\d+)$/i', $destCode, $matches))
-					{
-						$_POST[$to]['SG'][] = 'SG'.$matches[1];
-					}
-					elseif (preg_match('/^DR(\d+)$/i', $destCode, $matches))
-					{
-						$_POST[$to]['DR'][] = 'DR'.$matches[1];
-					}
-				}
-				unset($_POST[$from]);
-			}
-		}
+		$this->convertRequestData();
 
 		// Save calendar event from Socialnetwork live feed form
 		if (
-			$_POST["save"] == "Y"
-			&& $_POST["changePostFormTab"] == "calendar"
+			$_POST["save"] === "Y"
+			&& $_POST["changePostFormTab"] === "calendar"
 			&& check_bitrix_sessid()
 		)
 		{
@@ -879,12 +823,12 @@ if (
 			}
 
 			$rrule = $_POST['EVENT_RRULE'];
-			if ($_POST['rrule_endson'] == 'never')
+			if ($_POST['rrule_endson'] === 'never')
 			{
 				unset($rrule['COUNT']);
 				unset($rrule['UNTIL']);
 			}
-			elseif ($_POST['rrule_endson'] == 'count')
+			elseif ($_POST['rrule_endson'] === 'count')
 			{
 				unset($rrule['UNTIL']);
 			}
@@ -1343,8 +1287,7 @@ if (
 							$USER_FIELD_MANAGER->EditFormAddFields("BLOG_POST", $arFields);
 						}
 
-						preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, $_POST["POST_MESSAGE"], $arMention);
-						$mentionList = (!empty($arMention) ? $arMention[1] : array());
+						$mentionList = Mention::getUserIds($_POST['POST_MESSAGE']);
 
 						$APPLICATION->ResetException();
 						$bAdd = false;
@@ -1549,9 +1492,7 @@ if (
 								$arFields["UF_BLOG_POST_URL_PRV"] = $urlPreviewValue;
 							}
 
-							preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, $arOldPost["DETAIL_TEXT"], $arMentionOld);
-							$mentionListOld = (!empty($arMentionOld) ? $arMentionOld[1] : array());
-
+							$mentionListOld = Mention::getUserIds($arOldPost['DETAIL_TEXT']);
 							$socnetRightsOld = CBlogPost::GetSocnetPerms($arParams["ID"]);
 
 							unset($arFields["DATE_PUBLISH"]);
@@ -1975,19 +1916,21 @@ if (
 						$arParams["ID"] = $newID;
 						if(!empty($_POST["SPERM"]["SG"]))
 						{
-							foreach($_POST["SPERM"]["SG"] as $v)
+							foreach ($_POST["SPERM"]["SG"] as $v)
 							{
 								$group_id_tmp = mb_substr($v, 2);
-								if(intval($group_id_tmp) > 0)
-									CSocNetGroup::SetLastActivity(intval($group_id_tmp));
+								if ((int)$group_id_tmp > 0)
+								{
+									CSocNetGroup::SetLastActivity((int)$group_id_tmp);
+								}
 							}
 						}
 
-						if (in_array($arParams["PAGE_ID"], array("user_blog_post_edit_profile", "user_blog_post_edit_grat")))
+						if (in_array($arParams['PAGE_ID'], [ 'user_blog_post_edit_profile', 'user_blog_post_edit_grat' ]))
 						{
 							$redirectUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST_EDIT_PROFILE"], array("post_id"=>$newID, "user_id" => $arBlog["OWNER_ID"])).'?IFRAME=Y';
 						}
-						elseif (in_array($arParams['PAGE_ID'], array('user_blog_post_edit_post')))
+						elseif ($arParams['PAGE_ID'] === 'user_blog_post_edit_post')
 						{
 							$redirectUrl = \CComponentEngine::makePathFromTemplate(
 								$arParams['PATH_TO_POST_EDIT_POST'],
@@ -1995,15 +1938,17 @@ if (
 									'post_id' => $newID,
 									'user_id' => $arBlog['OWNER_ID']
 								)
-							) . '?IFRAME=Y';
+							) . '?IFRAME=Y&successPostId=' . $newID;
 						}
 						elseif ($_POST["apply"] == '')
 						{
-							if($arFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_DRAFT || $_POST["draft"] <> '')
+							if (
+								$arFields["PUBLISH_STATUS"] === BLOG_PUBLISH_STATUS_DRAFT
+								|| $_POST["draft"] <> '')
 							{
 								$redirectUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_DRAFT"], array("user_id" => $arBlog["OWNER_ID"]));
 							}
-							elseif($arFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_READY)
+							elseif ($arFields["PUBLISH_STATUS"] === BLOG_PUBLISH_STATUS_READY)
 							{
 								$redirectUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST_EDIT"], array("post_id"=>$newID, "user_id" => $arBlog["OWNER_ID"]))."?moder=y";
 							}
@@ -2036,7 +1981,7 @@ if (
 						}
 
 						$uri = new Bitrix\Main\Web\Uri($redirectUrl);
-						$uri->deleteParams(array("b24statAction", "b24statTab", "b24statAddEmailUserCrmContact"));
+						$uri->deleteParams([ 'b24statAction', 'b24statTab', 'b24statAddEmailUserCrmContact' ]);
 						$redirectUrl = $uri->getUri();
 
 						LocalRedirect($redirectUrl);
@@ -2206,8 +2151,8 @@ if (
 					if (count($arUsersFromPOST) > 0)
 					{
 						$dbUsers = CUser::GetList(
-							($sort_by = Array('last_name'=>'asc', 'IS_ONLINE'=>'desc')),
-							($dummy=''),
+							Array('last_name'=>'asc', 'IS_ONLINE'=>'desc'),
+							'',
 							array(
 								"ID" => implode("|", $arUsersFromPOST),
 								array(
@@ -2510,7 +2455,35 @@ if (
 
 		if (empty($arResult["PostToShow"]["SPERM"]))
 		{
-			if ($arResult["bExtranetUser"])
+			$requestDestData = $request->get('destTo');
+			if (!empty($requestDestData))
+			{
+				if (!is_array($requestDestData))
+				{
+					$requestDestData = [ $requestDestData ];
+				}
+
+				foreach ($requestDestData as $dest)
+				{
+					if (preg_match('/^U(\d+)$/', $dest, $matches))
+					{
+						$arResult['PostToShow']['FEED_DESTINATION']['SELECTED'][$dest] = 'users';
+					}
+					elseif (preg_match('/^SG(\d+)$/', $dest, $matches))
+					{
+						$arResult['PostToShow']['FEED_DESTINATION']['SELECTED'][$dest] = 'sonetgroups';
+					}
+					elseif (preg_match('/^DR(\d+)$/', $dest, $matches))
+					{
+						$arResult['PostToShow']['FEED_DESTINATION']['SELECTED'][$dest] = 'department';
+					}
+					elseif ($dest === 'UA')
+					{
+						$arResult['PostToShow']['FEED_DESTINATION']['SELECTED'][$dest] = 'groups';
+					}
+				}
+			}
+			elseif ($arResult['bExtranetUser'])
 			{
 				if(!empty($arResult["PostToShow"]["FEED_DESTINATION"]['LAST']['SONETGROUPS']))
 				{

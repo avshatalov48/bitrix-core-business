@@ -13,7 +13,7 @@
                             </div>
                         </div>
 
-                        <h3 class="landing-block-node-title landing-semantic-subtitle-medium h5 text-uppercase g-color-gray-light-v2 g-mb-10">Step 1. Analisys</h3>
+                        <h5 class="landing-block-node-title landing-semantic-subtitle-medium text-uppercase g-color-gray-light-v2 g-mb-10">Step 1. Analisys</h5>
                         <div class="landing-block-node-text landing-semantic-text-medium g-color-gray-light-v2">
 							<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>
@@ -31,7 +31,7 @@
                             </div>
                         </div>
 
-                        <h3 class="landing-block-node-title landing-semantic-subtitle-medium h5 text-uppercase g-color-gray-light-v2 g-mb-10">Step 2. Creative concept</h3>
+                        <h5 class="landing-block-node-title landing-semantic-subtitle-medium text-uppercase g-color-gray-light-v2 g-mb-10">Step 2. Creative concept</h5>
                         <div class="landing-block-node-text landing-semantic-text-medium g-color-gray-light-v2">
 							<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>

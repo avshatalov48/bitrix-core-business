@@ -7,13 +7,19 @@ this.BX = this.BX || {};
 	 */
 
 	var Metrika = /*#__PURE__*/function () {
-	  function Metrika() {
+	  function Metrika(light) {
 	    babelHelpers.classCallCheck(this, Metrika);
+	    this.sendedLabel = [];
+
+	    if (light === true) {
+	      return;
+	    }
+
 	    this.formSelector = '.bitrix24forms';
 	    this.widgetBlockItemSelector = '.landing-b24-widget-button-social-item';
 	    this.formBlocks = babelHelpers.toConsumableArray(document.querySelectorAll(this.formSelector));
+	    this.siteType = this.getSiteType();
 	    this.formsLoaded = [];
-	    this.sendedLabel = [];
 	    this.widgetOpened = false;
 	    this.widgetBlockHover = false;
 
@@ -25,12 +31,28 @@ this.BX = this.BX || {};
 	    this.detectAnchor();
 	  }
 	  /**
-	   * Is any form exists into the page.
-	   * @return {boolean}
+	   * Returns site type.
+	   * @return {string|null}
 	   */
 
 
 	  babelHelpers.createClass(Metrika, [{
+	    key: "getSiteType",
+	    value: function getSiteType() {
+	      var metaSiteType = document.querySelector('meta[property="Bitrix24SiteType"]');
+
+	      if (metaSiteType) {
+	        return metaSiteType.getAttribute('content');
+	      }
+
+	      return null;
+	    }
+	    /**
+	     * Is any form exists into the page.
+	     * @return {boolean}
+	     */
+
+	  }, {
 	    key: "isFormsExists",
 	    value: function isFormsExists() {
 	      return this.formBlocks.length > 0;
@@ -46,6 +68,10 @@ this.BX = this.BX || {};
 
 	      babelHelpers.toConsumableArray(document.querySelectorAll('a')).map(function (node) {
 	        var href = main_core.Dom.attr(node, 'href');
+
+	        if (href) {
+	          href = href.toString();
+	        }
 
 	        if (href && href.indexOf(':')) {
 	          var hrefPref = href.split(':')[0];
@@ -74,7 +100,7 @@ this.BX = this.BX || {};
 	        main_core.Event.bind(node, 'mouseout', function () {
 	          _this2.widgetBlockHover = false;
 	        });
-	        main_core.Event.bind(node, 'click', function (event) {
+	        main_core.Event.bind(node, 'click', function () {
 	          babelHelpers.toConsumableArray(node.classList).map(function (className) {
 	            if (className.indexOf('ui-icon-service-') === 0) {
 	              var ol = className.substr('ui-icon-service-'.length);
@@ -134,17 +160,26 @@ this.BX = this.BX || {};
 	            var formData = dataAttr.split('|');
 
 	            if (!_this3.formsLoaded.includes(formData[0] + '|' + formData[1])) {
-	              _this3.sendLabel(null, 'formFailLoad', formData[0] + '|' + formData[1]);
+	              _this3.sendLabel(null, 'formFailLoad', formData[1] ? formData[0] + '|' + formData[1] : formData[0]);
 	            }
 	          }
 	        });
 	      }, 5000);
 	    }
 	    /**
+	     * Clears already sent labels.
+	     */
+
+	  }, {
+	    key: "clearSendedLabel",
+	    value: function clearSendedLabel() {
+	      this.sendedLabel = [];
+	    }
+	    /**
 	     * Send label to the portal.
-	     * @param {string} portalUrl
+	     * @param {string|null} portalUrl
 	     * @param {string} label
-	     * @param {string} value
+	     * @param {string|null} value
 	     */
 
 	  }, {
@@ -154,9 +189,13 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
+	      if (value && value.substr(0, 1) === '#') {
+	        value = value.substr(1);
+	      }
+
 	      this.sendedLabel.push(label + value);
 	      BX.ajax({
-	        url: (portalUrl ? portalUrl : '') + '/bitrix/images/landing/analytics/pixel.gif?action=' + label + (value ? '&value=' + value : '') + '&time=' + new Date().getTime()
+	        url: (portalUrl ? portalUrl : '') + '/bitrix/images/landing/analytics/pixel.gif?action=' + label + (value ? '&value=' + value : '') + (this.siteType ? '&siteType=' + this.siteType : '') + '&time=' + new Date().getTime()
 	      });
 	    }
 	  }]);

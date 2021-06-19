@@ -14,7 +14,7 @@ import 'im.view.element.keyboard';
 import 'im.view.element.chatteaser';
 import 'ui.vue.components.reaction';
 
-import {Vue} from "ui.vue";
+import {BitrixVue} from "ui.vue";
 import {Vuex} from "ui.vue.vuex";
 import {DialoguesModel, FilesModel, MessagesModel, UsersModel} from 'im.model';
 import {DialogType, MessageType} from "im.const";
@@ -33,7 +33,7 @@ const ContentType = Object.freeze({
 	richLink: 'richLink',
 });
 
-Vue.component('bx-im-view-message-body',
+BitrixVue.component('bx-im-view-message-body',
 {
 	/**
 	 * @emits 'clickByUserName' {user: object, event: MouseEvent}
@@ -52,18 +52,6 @@ Vue.component('bx-im-view-message-body',
 		message: {
 			type: Object,
 			default: MessagesModel.create().getElementState
-		},
-		user: {
-			type: Object,
-			default: UsersModel.create().getElementState
-		},
-		dialog: {
-			type: Object,
-			default: DialoguesModel.create().getElementState
-		},
-		files: {
-			type: Object,
-			default: {}
 		},
 		enableReactions: { default: true },
 		showName: { default: true },
@@ -113,7 +101,7 @@ Vue.component('bx-im-view-message-body',
 
 			let dateFormat = Utils.date.getFormatType(
 				BX.Messenger.Const.DateFormat.message,
-				this.$root.$bitrixMessages
+				this.$Bitrix.Loc.getMessages()
 			);
 
 			this.cacheFormatDate[id] = this._getDateFormat().format(dateFormat, date);
@@ -128,10 +116,7 @@ Vue.component('bx-im-view-message-body',
 			}
 
 			this.dateFormatFunction = Object.create(BX.Main.Date);
-			if (this.$root.$bitrixMessages)
-			{
-				this.dateFormatFunction._getMessage = (phrase) => this.$root.$bitrixMessages[phrase];
-			}
+			this.dateFormatFunction._getMessage = (phrase) => this.$Bitrix.Loc.getMessage(phrase);
 
 			return this.dateFormatFunction;
 		},
@@ -229,11 +214,6 @@ Vue.component('bx-im-view-message-body',
 			return ContentType.default;
 		},
 
-		localize()
-		{
-			return Vue.getFilteredPhrases('IM_MESSENGER_MESSAGE_', this.$root.$bitrixMessages);
-		},
-
 		formattedDate()
 		{
 			return this.formatDate(this.message.date);
@@ -243,7 +223,7 @@ Vue.component('bx-im-view-message-body',
 		{
 			if (this.isDeleted)
 			{
-				return this.localize.IM_MESSENGER_MESSAGE_DELETED;
+				return this.$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_DELETED');
 			}
 
 			let message = this.message.textConverted;
@@ -281,7 +261,16 @@ Vue.component('bx-im-view-message-body',
 		{
 			return this.dialog.type !== DialogType.private? this.dialog.color: this.user.color;
 		},
+		dialog()
+		{
+			const dialog = this.$store.getters['dialogues/get'](this.dialogId);
 
+			return dialog? dialog: this.$store.getters['dialogues/getBlank']();
+		},
+		user()
+		{
+			return this.$store.getters['users/get'](this.message.authorId, true);
+		},
 		filesData()
 		{
 			let files = [];

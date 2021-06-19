@@ -26,7 +26,7 @@ $buffer = $APPLICATION->EndBufferContentMan();
 //used in debug_info.php
 $main_exec_time = round((getmicrotime()-START_EXEC_TIME), 4);
 
-if(!defined("ADMIN_AJAX_MODE") && ($_REQUEST["mode"] != 'excel'))
+if(!defined("ADMIN_AJAX_MODE") && (($_REQUEST["mode"] ?? '') != 'excel'))
 {
 	//it's possible the method doesn't exist on update
 	$session = null;

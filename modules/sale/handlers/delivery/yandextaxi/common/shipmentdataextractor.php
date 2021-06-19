@@ -28,7 +28,7 @@ final class ShipmentDataExtractor
 	public function getAddressFrom(Shipment $shipment): ?Address
 	{
 		return $this->getAddress(
-			$shipment->getOrder()->getPropertyCollection()->getItemByOrderPropertyCode(
+			$shipment->getPropertyCollection()->getItemByOrderPropertyCode(
 				OrderPropsDictionary::ADDRESS_FROM_PROPERTY_CODE
 			)
 		);
@@ -46,7 +46,7 @@ final class ShipmentDataExtractor
 	public function getAddressTo(Shipment $shipment): ?Address
 	{
 		return $this->getAddress(
-			$shipment->getOrder()->getPropertyCollection()->getItemByOrderPropertyCode(
+			$shipment->getPropertyCollection()->getItemByOrderPropertyCode(
 				OrderPropsDictionary::ADDRESS_TO_PROPERTY_CODE
 			)
 		);
@@ -96,33 +96,6 @@ final class ShipmentDataExtractor
 			$shipment->getField('PRICE_DELIVERY'),
 			$shipment->getOrder()->getCurrency()
 		);
-	}
-
-	/**
-	 * @param Shipment $shipment
-	 * @return float|null
-	 */
-	public function getExpectedDeliveryPrice(Shipment $shipment): ?float
-	{
-		$expectedPriceDelivery = $shipment->getField('EXPECTED_PRICE_DELIVERY');
-
-		return is_null($expectedPriceDelivery) ? $expectedPriceDelivery : (float)$expectedPriceDelivery;
-	}
-
-	/**
-	 * @param Shipment $shipment
-	 * @return bool|mixed|string|string[]|null
-	 */
-	public function getExpectedDeliveryPriceFormatted(Shipment $shipment)
-	{
-		$expectedDeliveryPrice = $this->getExpectedDeliveryPrice($shipment);
-
-		if (is_null($expectedDeliveryPrice))
-		{
-			return null;
-		}
-
-		return SaleFormatCurrency($expectedDeliveryPrice, $shipment->getOrder()->getCurrency());
 	}
 
 	/**
@@ -222,8 +195,8 @@ final class ShipmentDataExtractor
 		}
 
 		$responsibleUser = \CUser::GetList(
-			($by = 'id'),
-			($order = 'asc'),
+			'id',
+			'asc',
 			['ID' => $responsibleUserId]
 		)->fetch();
 
@@ -272,8 +245,8 @@ final class ShipmentDataExtractor
 		return Address\Converter\StringConverter::convertToString(
 			$address,
 			FormatService::getInstance()->findDefault(LANGUAGE_ID),
-			'template',
-			'html'
+			\Bitrix\Location\Entity\Address\Converter\StringConverter::STRATEGY_TYPE_TEMPLATE_COMMA,
+			\Bitrix\Location\Entity\Address\Converter\StringConverter::CONTENT_TYPE_TEXT
 		);
 	}
 }

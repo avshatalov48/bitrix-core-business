@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
-(function (exports,ui_vue_vuex,im_const,im_lib_logger) {
+(function (exports,ui_vue_vuex,im_const,im_lib_logger,main_core_events) {
 	'use strict';
 
 	/**
@@ -94,22 +94,30 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    key: "handleImDialogMessagesGetSuccess",
 	    value: function handleImDialogMessagesGetSuccess(data) {
 	      this.store.dispatch('users/set', data.users);
-	      this.store.dispatch('files/setBefore', this.controller.application.prepareFilesBeforeSave(data.files));
-	      this.store.dispatch('messages/setBefore', data.messages);
+	      this.store.dispatch('files/setBefore', this.controller.application.prepareFilesBeforeSave(data.files)); // this.store.dispatch('messages/setBefore', data.messages);
 	    }
 	  }, {
 	    key: "handleImDialogMessagesGetInitSuccess",
 	    value: function handleImDialogMessagesGetInitSuccess(data) {
 	      this.store.dispatch('users/set', data.users);
-	      this.store.dispatch('files/set', this.controller.application.prepareFilesBeforeSave(data.files));
-	      this.store.dispatch('messages/set', data.messages.reverse());
+	      this.store.dispatch('files/set', this.controller.application.prepareFilesBeforeSave(data.files)); //handling messagesSet for empty chat
+
+	      if (data.messages.length === 0 && data.chat_id) {
+	        im_lib_logger.Logger.warn('setting messagesSet for empty chat', data.chat_id);
+	        setTimeout(function () {
+	          main_core_events.EventEmitter.emit(im_const.EventType.dialog.messagesSet, {
+	            chatId: data.chat_id
+	          });
+	        }, 100);
+	      } else {
+	        this.store.dispatch('messages/set', data.messages.reverse());
+	      }
 	    }
 	  }, {
 	    key: "handleImDialogMessagesGetUnreadSuccess",
 	    value: function handleImDialogMessagesGetUnreadSuccess(data) {
 	      this.store.dispatch('users/set', data.users);
-	      this.store.dispatch('files/set', this.controller.application.prepareFilesBeforeSave(data.files));
-	      this.store.dispatch('messages/setAfter', data.messages);
+	      this.store.dispatch('files/set', this.controller.application.prepareFilesBeforeSave(data.files)); // this.store.dispatch('messages/setAfter', data.messages);
 	    }
 	  }, {
 	    key: "handleImDiskFolderGetSuccess",
@@ -191,10 +199,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	      im_lib_logger.Logger.warn('Provider.Rest.handleImRecentGetSuccess', result);
 	      var users = [];
 	      var dialogues = [];
-	      var recent = {
-	        general: [],
-	        pinned: []
-	      };
+	      var recent = [];
 	      result.items.forEach(function (item) {
 	        var userId = 0;
 	        var chatId = 0;
@@ -215,34 +220,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	          }));
 	        }
 
-	        recent.general.push(babelHelpers.objectSpread({}, item, {
-	          avatar: item.avatar.url,
-	          color: item.avatar.color,
-	          userId: userId,
-	          chatId: chatId
-	        }));
-	      });
-	      result.pinned.forEach(function (item) {
-	        var userId = 0;
-	        var chatId = 0;
-
-	        if (item.user && item.user.id > 0) {
-	          userId = item.user.id;
-	          users.push(item.user);
-	        }
-
-	        if (item.chat) {
-	          chatId = item.chat.id;
-	          dialogues.push(Object.assign(item.chat, {
-	            dialogId: item.id
-	          }));
-	        } else {
-	          dialogues.push(Object.assign({}, {
-	            dialogId: item.id
-	          }));
-	        }
-
-	        recent.pinned.push(babelHelpers.objectSpread({}, item, {
+	        recent.push(babelHelpers.objectSpread({}, item, {
 	          avatar: item.avatar.url,
 	          color: item.avatar.color,
 	          userId: userId,
@@ -307,29 +285,20 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    }
 	  }, {
 	    key: "handleImDialogMessagesGetInitSuccess",
-	    value: function handleImDialogMessagesGetInitSuccess() {
-	      this.controller.application.emit(im_const.EventType.dialog.sendReadMessages);
+	    value: function handleImDialogMessagesGetInitSuccess(data) {// EventEmitter.emit(EventType.dialog.readVisibleMessages, {chatId: this.controller.application.getChatId()});
 	    }
 	  }, {
 	    key: "handleImMessageAddSuccess",
 	    value: function handleImMessageAddSuccess(messageId, message) {
-	      this.application.messagesQueue = this.context.messagesQueue.filter(function (el) {
-	        return el.id !== message.id;
-	      });
+	      console.warn('im.message.add success in dialog handler'); // this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
 	    }
 	  }, {
 	    key: "handleImMessageAddError",
-	    value: function handleImMessageAddError(error, message) {
-	      this.application.messagesQueue = this.context.messagesQueue.filter(function (el) {
-	        return el.id !== message.id;
-	      });
+	    value: function handleImMessageAddError(error, message) {// this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
 	    }
 	  }, {
 	    key: "handleImDiskFileCommitSuccess",
-	    value: function handleImDiskFileCommitSuccess(result, message) {
-	      this.application.messagesQueue = this.context.messagesQueue.filter(function (el) {
-	        return el.id !== message.id;
-	      });
+	    value: function handleImDiskFileCommitSuccess(result, message) {// this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
 	    }
 	  }]);
 	  return DialogRestHandler;
@@ -348,5 +317,5 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	exports.CoreRestHandler = CoreRestHandler;
 	exports.DialogRestHandler = DialogRestHandler;
 
-}((this.BX.Messenger.Provider.Rest = this.BX.Messenger.Provider.Rest || {}),BX,BX.Messenger.Const,BX.Messenger.Lib));
+}((this.BX.Messenger.Provider.Rest = this.BX.Messenger.Provider.Rest || {}),BX,BX.Messenger.Const,BX.Messenger.Lib,BX.Event));
 //# sourceMappingURL=registry.bundle.js.map

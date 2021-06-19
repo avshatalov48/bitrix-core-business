@@ -47,7 +47,7 @@ return array(
 			),
 			'.landing-block-node-card-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_34.4_NODES_LANDINGBLOCKNODECARDTITLE'),
-				'type' => 'typo',
+				'type' => ['typo', 'heading'],
 			),
 			'.landing-block-node-card-icon-container' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_34.4_NODES_LANDINGBLOCKNODECARDICON'),

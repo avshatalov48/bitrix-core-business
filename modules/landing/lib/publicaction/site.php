@@ -91,8 +91,9 @@ class Site
 		$params = $result->sanitizeKeys($params);
 		$getPublicUrl = false;
 		$getPreviewPicture = false;
+		$mobileHit = $initiator === 'mobile';
 
-		if ($initiator == 'mobile')
+		if ($mobileHit)
 		{
 			\Bitrix\Landing\Connector\Mobile::forceMobile();
 		}
@@ -215,7 +216,7 @@ class Site
 		// gets public url for sites
 		if ($getPublicUrl)
 		{
-			$urls = SiteCore::getPublicUrl(array_keys($data));
+			$urls = SiteCore::getPublicUrl(array_keys($data), true, !$mobileHit);
 			foreach ($urls as $siteId => $url)
 			{
 				$data[$siteId]['PUBLIC_URL'] = $url;
@@ -601,5 +602,171 @@ class Site
 		\Bitrix\Landing\Site\Type::setScope($type);
 
 		return new PublicActionResult();
+	}
+
+	/**
+	 * Binds or unbinds site with specific menu or Group.
+	 * @param int $id Site id.
+	 * @param \Bitrix\Landing\Binding\Entity $binding Binding instance.
+	 * @param bool $bind Bind or unbind to menu (true or false).
+	 * @return PublicActionResult
+	 */
+	protected static function binding(int $id, \Bitrix\Landing\Binding\Entity $binding, bool $bind): PublicActionResult
+	{
+		$result = new PublicActionResult();
+
+		if (Rights::hasAccessForSite($id, Rights::ACCESS_TYPES['read']))
+		{
+			if ($bind)
+			{
+				$result->setResult($binding->bindSite($id));
+			}
+			else
+			{
+				$result->setResult($binding->unbindSite($id));
+			}
+		}
+		else
+		{
+			$result->setResult(false);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Binds site with specific menu.
+	 * @param int $id Site id.
+	 * @param string $menuCode Menu code.
+	 * @return PublicActionResult
+	 */
+	public static function bindingToMenu(int $id, string $menuCode): PublicActionResult
+	{
+		\Bitrix\Landing\Site\Type::setScope('KNOWLEDGE');
+		$binding = new \Bitrix\Landing\Binding\Menu($menuCode);
+		return self::binding($id, $binding, true);
+	}
+
+	/**
+	 * Unbinds site with specific menu.
+	 * @param int $id Site id.
+	 * @param string $menuCode Menu code.
+	 * @return PublicActionResult
+	 */
+	public static function unbindingFromMenu(int $id, string $menuCode): PublicActionResult
+	{
+		\Bitrix\Landing\Site\Type::setScope('KNOWLEDGE');
+		$binding = new \Bitrix\Landing\Binding\Menu($menuCode);
+		return self::binding($id, $binding, false);
+	}
+
+	/**
+	 * Binds site with specific socialnetwork group.
+	 * @param int $id Site id.
+	 * @param int $groupId Group id.
+	 * @return PublicActionResult
+	 */
+	public static function bindingToGroup(int $id, int $groupId): PublicActionResult
+	{
+		\Bitrix\Landing\Site\Type::setScope('KNOWLEDGE');
+
+		if (
+			\Bitrix\landing\Connector\SocialNetwork::userInGroup($groupId) &&
+			!\Bitrix\landing\Binding\Group::getList($groupId)
+		)
+		{
+			$binding = new \Bitrix\Landing\Binding\Group($groupId);
+			$result = self::binding($id, $binding, true);
+			if ($result->getResult())
+			{
+				Rights::setGlobalOff();
+				\Bitrix\Landing\Site::update($id, [
+					'TYPE' => 'GROUP'
+				]);
+				Rights::setGlobalOn();
+			}
+			return $result;
+		}
+
+		$result = new PublicActionResult();
+		$result->setResult(false);
+		return $result;
+	}
+
+	/**
+	 * Unbinds site with specific socialnetwork group.
+	 * @param int $id Site id.
+	 * @param int $groupId Group id.
+	 * @return PublicActionResult
+	 */
+	public static function unbindingFromGroup(int $id, int $groupId): PublicActionResult
+	{
+		\Bitrix\Landing\Site\Type::setScope('GROUP');
+
+		if (\Bitrix\landing\Connector\SocialNetwork::userInGroup($groupId))
+		{
+			$binding = new \Bitrix\Landing\Binding\Group($groupId);
+			$result = self::binding($id, $binding, false);
+			if ($result->getResult())
+			{
+				Rights::setGlobalOff();
+				\Bitrix\Landing\Site::update($id, [
+					'TYPE' => 'KNOWLEDGE'
+				]);
+				Rights::setGlobalOn();
+			}
+			return $result;
+		}
+
+		$result = new PublicActionResult();
+		$result->setResult(false);
+		return $result;
+	}
+
+	/**
+	 * Removes empty binding.
+	 * @param array $bindings Bindings array.
+	 * @return array
+	 */
+	protected static function removeEmptyBindings(array $bindings): array
+	{
+		// if PUBLIC_URL is empty user don't have read access
+		foreach ($bindings as $i => $binding)
+		{
+			if (!$binding['PUBLIC_URL'])
+			{
+				unset($bindings[$i]);
+			}
+		}
+
+		return array_values($bindings);
+	}
+
+	/**
+	 * Returns exists bindings.
+	 * @param string|null $menuCode Menu code (only for this menu).
+	 * @return PublicActionResult
+	 */
+	public static function getMenuBindings(?string $menuCode = null): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		\Bitrix\Landing\Site\Type::setScope('KNOWLEDGE');
+		$bindings = \Bitrix\Landing\Binding\Menu::getList($menuCode);
+		$result->setResult(self::removeEmptyBindings($bindings));
+		return $result;
+	}
+
+	/**
+	 * Returns exists bindings.
+	 * @param int|null $groupId Group id (only for this group).
+	 * @return PublicActionResult
+	 */
+	public static function getGroupBindings(?int $groupId = null): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		\Bitrix\Landing\Site\Type::setScope('GROUP');
+		$bindings = \Bitrix\Landing\Binding\Group::getList($groupId);
+		$result->setResult(self::removeEmptyBindings($bindings));
+		return $result;
 	}
 }

@@ -121,6 +121,7 @@
 				zIndex: 9999,
 				width: 310,
 				angle: true,
+				cacheable: false,
 				content: this.getConfirmDialogContent(),
 				buttons: [
 					new BX.PopupWindowCustomButton({
@@ -224,6 +225,7 @@
 				angle: {
 					position: 'bottom'
 				},
+				cacheable: false,
 				content: BX.create('div', {
 					attrs: {
 						className: 'report-preview-block-miniature-name-wrapper'

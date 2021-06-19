@@ -15,7 +15,7 @@ class CUserTypeDate extends TypeBase
 {
 	const USER_TYPE_ID = DateType::USER_TYPE_ID;
 
-	function getUserTypeDescription()
+	public static function getUserTypeDescription()
 	{
 		return DateType::getUserTypeDescription();
 	}
@@ -55,7 +55,7 @@ class CUserTypeDate extends TypeBase
 		return DateType::renderFilter($userField, $additionalParameters);
 	}
 
-	function getDbColumnType()
+	public static function getDbColumnType()
 	{
 		return DateType::getDbColumnType();
 	}

@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Bizproc\Script;
 
 use Bitrix\Bizproc\Script\Entity\EO_ScriptQueue;
@@ -33,7 +34,10 @@ class Manager
 					'MODULE_ID', 'ENTITY', 'DOCUMENT_TYPE', 'NAME', 'DESCRIPTION',
 				],
 				'filter' => $filter,
-				'order' => ['SORT' => 'ASC', 'NAME' => 'ASC']
+				'order' => [
+					'SORT' => 'ASC',
+					'NAME' => 'ASC'
+				],
 			]
 		)->fetchAll();
 
@@ -80,7 +84,7 @@ class Manager
 
 	public static function createScript(array $documentType)
 	{
-		$fields =  [
+		$fields = [
 			'ID' => 0,
 			'MODULE_ID' => $documentType[0],
 			'ENTITY' => $documentType[1],
@@ -100,6 +104,7 @@ class Manager
 		{
 			$result = new Main\Result();
 			$result->addError(new Main\Error('Script not found'));
+
 			return $result;
 		}
 
@@ -182,12 +187,13 @@ class Manager
 		self::saveTemplateConfigs($template->getId(), $templateFields, $extractParameters);
 
 		$result->setData(['ID' => $template->getId()]);
+
 		return $result;
 	}
 
 	private static function addScriptRecord(array $documentType, array $scriptFields, int $userId)
 	{
-		$addFields =  [
+		$addFields = [
 			'MODULE_ID' => $documentType[0],
 			'ENTITY' => $documentType[1],
 			'DOCUMENT_TYPE' => $documentType[2],
@@ -267,6 +273,7 @@ class Manager
 		if (!$script)
 		{
 			$result->addError(new Main\Error('Script not found'));
+
 			return $result;
 		}
 
@@ -294,6 +301,7 @@ class Manager
 		if (!$script)
 		{
 			$result->addError(new Main\Error('Script not found'));
+
 			return $result;
 		}
 
@@ -312,6 +320,7 @@ class Manager
 		if (!$script)
 		{
 			$result->addError(new Main\Error('Script not found'));
+
 			return $result;
 		}
 
@@ -336,18 +345,21 @@ class Manager
 	public static function canUserStartScript(int $scriptId, int $userId): bool
 	{
 		$user = new \CBPWorkflowTemplateUser($userId);
+
 		return $user->isAdmin();
 	}
 
 	public static function canUserEditScript(int $scriptId, int $userId): bool
 	{
 		$user = new \CBPWorkflowTemplateUser($userId);
+
 		return $user->isAdmin();
 	}
 
 	public static function canUserCreateScript(array $documentType, int $userId): bool
 	{
 		$user = new \CBPWorkflowTemplateUser($userId);
+
 		return $user->isAdmin();
 	}
 
@@ -373,9 +385,9 @@ class Manager
 		$roboPackage = new RoboPackage();
 		$packageData = $roboPackage->makePackageData($script->getWorkflowTemplate());
 		$exportData['WORKFLOW_TEMPLATE'] = [
-			'PARAMETERS'      => $packageData['PARAMETERS'],
-			'CONSTANTS'       => $packageData['CONSTANTS'],
-			'ROBOTS'          => $packageData['ROBOTS'],
+			'PARAMETERS' => $packageData['PARAMETERS'],
+			'CONSTANTS' => $packageData['CONSTANTS'],
+			'ROBOTS' => $packageData['ROBOTS'],
 			'DOCUMENT_FIELDS' => $packageData['DOCUMENT_FIELDS'],
 			'REQUIRED_APPLICATIONS' => $packageData['REQUIRED_APPLICATIONS'],
 		];
@@ -387,16 +399,18 @@ class Manager
 	{
 		$documentType = [$data['MODULE_ID'], $data['ENTITY'], $data['DOCUMENT_TYPE']];
 		$templateFields = $data['WORKFLOW_TEMPLATE'];
+		$templateFields['DOCUMENT_TYPE'] = $documentType;
 		$templateFields['NAME'] = $data['NAME'];
+		$templateFields['DESCRIPTION'] = $data['DESCRIPTION'];
 
-		$result = self::addWorkflowTemplate($documentType, $templateFields, $userId, false);
+		$result = self::importWorkflowTemplate($templateFields, $userId);
 
 		if (!$result->isSuccess())
 		{
 			return $result;
 		}
 
-		return self::addScriptRecord(
+		$result = self::addScriptRecord(
 			$documentType,
 			[
 				'WORKFLOW_TEMPLATE_ID' => $result->getData()['ID'],
@@ -407,9 +421,43 @@ class Manager
 			],
 			$userId
 		);
+
+		if ($result->isSuccess())
+		{
+			self::clearMenuCache();
+		}
+
+		return $result;
 	}
 
-	private function clearMenuCache(): void
+	private static function importWorkflowTemplate(array $data, int $userId)
+	{
+		$roboPackage = new RoboPackage();
+		$result = $roboPackage->unpack($data);
+
+		if ($result->isSuccess())
+		{
+			$tpl = $result->getTpl();
+			$tpl->setUserId($userId);
+			$tpl->setDocumentStatus('SCRIPT');
+			$tpl->setAutoExecute(\CBPDocumentEventType::Script);
+
+			$saveResult = $tpl->save();
+
+			if ($saveResult->isSuccess())
+			{
+				$result->setData(['ID' => $saveResult->getId()]);
+			}
+			else
+			{
+				$result->addErrors($saveResult->getErrors());
+			}
+		}
+
+		return $result;
+	}
+
+	private static function clearMenuCache(): void
 	{
 		if (defined('BX_COMP_MANAGED_CACHE'))
 		{

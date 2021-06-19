@@ -2,6 +2,7 @@ import {HeaderCard} from 'landing.ui.card.headercard';
 import {Loc} from 'landing.loc';
 import {ContentWrapper} from 'landing.ui.panel.basepresetpanel';
 import {MessageCard} from 'landing.ui.card.messagecard';
+import {Reflection} from 'main.core';
 
 import messageIcon from './images/icon.svg';
 
@@ -22,7 +23,13 @@ export default class Identify extends ContentWrapper
 			icon: messageIcon,
 			angle: false,
 			closeable: false,
-			hideActions: true,
+			more: () => {
+				const helper = Reflection.getClass('top.BX.Helper');
+				if (helper)
+				{
+					BX.Helper.show('redirect=detail&code=12802786');
+				}
+			},
 		});
 
 		this.addItem(header);

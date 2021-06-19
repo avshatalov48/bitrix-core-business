@@ -1,17 +1,35 @@
 <?php
 namespace Bitrix\Landing\Connector;
 
+use \Bitrix\Landing\Internals\HookDataTable;
+
 class Iblock
 {
 	/**
 	 * Gets element's url in site context.
-	 * @param int $siteId
-	 * @param int $elementId
+	 * @param int|string $siteId Site id (or template code used to create site).
+	 * @param int $elementId Element id.
 	 * @return string
 	 */
-	public static function getElementUrl($siteId, $elementId)
+	public static function getElementUrl($siteId, $elementId): string
 	{
 		$url = '';
+
+		\Bitrix\Landing\Rights::setGlobalOff();
+
+		if (is_string($siteId))
+		{
+			$res = \Bitrix\Landing\Site::getList([
+				'select' => ['ID'],
+				'filter' => ['=TPL_CODE' => $siteId],
+				'order' => ['ID' => 'desc']
+			]);
+			if ($row = $res->fetch())
+			{
+				$siteId = $row['ID'];
+			}
+		}
+
 		$syspages = \Bitrix\Landing\Syspage::get($siteId);
 		if (isset($syspages['catalog']))
 		{
@@ -39,6 +57,34 @@ class Iblock
 			}
 		}
 
+		\Bitrix\Landing\Rights::setGlobalOn();
+
 		return $url;
+	}
+
+	/**
+	 * Callback on after delete iblock's section.
+	 * @param array $section Section's data.
+	 * @return void
+	 */
+	public static function onAfterIBlockSectionDelete(array $section): void
+	{
+		if ($section['ID'] ?? null)
+		{
+			$res = HookDataTable::getList([
+				'select' => [
+					'ID'
+				],
+				'filter' => [
+					'=HOOK' => 'SETTINGS',
+					'=CODE' => 'SECTION_ID',
+					'=VALUE' => $section['ID']
+				]
+			]);
+			while ($row = $res->fetch())
+			{
+				HookDataTable::delete($row['ID'])->isSuccess();
+			}
+		}
 	}
 }

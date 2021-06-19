@@ -146,7 +146,7 @@ if($templateID === false)
 $edit_groups = explode(",", COption::GetOptionString('fileman', 'default_edit_groups', ''));
 $arGroupList = array();
 $arEditGroups = array();
-$gr = CGroup::GetList(($v1="sort"), ($v2="asc"), array("ACTIVE"=>"Y", "ADMIN"=>"N", "ANONYMOUS"=>"N"));
+$gr = CGroup::GetList("sort", "asc", array("ACTIVE"=>"Y", "ADMIN"=>"N", "ANONYMOUS"=>"N"));
 while($group = $gr->Fetch())
 {
 	$arGroupList[$group["ID"]] = $group;

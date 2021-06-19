@@ -294,7 +294,7 @@ class Manager
 
 	protected static $initialized;
 
-	protected function initialize()
+	protected static function initialize()
 	{
 		static::$initialized = true;
 

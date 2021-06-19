@@ -8,11 +8,12 @@
 
 	var Events = {
 		onBackToCallClick: "FloatingScreenshare::onBackToCallClick",
-		onStopSharingClick: "FloatingScreenshare::onStopSharingClick"
+		onStopSharingClick: "FloatingScreenshare::onStopSharingClick",
+		onChangeScreenClick: "FloatingScreenshare::onChangeScreenClick"
 	};
 
-	var POPUP_WIDTH = 260;
-	var POPUP_HEIGHT = 67;
+	var POPUP_WIDTH = 291;
+	var POPUP_HEIGHT = 81;
 	var POPUP_OFFSET_X = 80;
 	var POPUP_OFFSET_Y = 80;
 
@@ -29,6 +30,7 @@
 		}
 
 		this.desktop = config.desktop || BX.desktop;
+		this.darkMode = config.darkMode || false;
 
 		this.window = null;
 		this.sharedWindowX = null;
@@ -44,10 +46,12 @@
 		this.callbacks = {
 			onBackToCallClick: BX.type.isFunction(config.onBackToCallClick) ? config.onBackToCallClick : BX.DoNothing,
 			onStopSharingClick: BX.type.isFunction(config.onStopSharingClick) ? config.onStopSharingClick : BX.DoNothing,
+			onChangeScreenClick: BX.type.isFunction(config.onChangeScreenClick) ? config.onChangeScreenClick : BX.DoNothing,
 		};
 
 		this._onBackToCallClickHandler = this._onBackToCallClick.bind(this);
 		this._onStopSharingClickHandler = this._onStopSharingClick.bind(this);
+		this._onChangeScreenClickHandler = this._onChangeScreenClick.bind(this);
 		this.bindEventHandlers();
 	};
 
@@ -57,6 +61,7 @@
 			{
 				this.desktop.addCustomEvent(Events.onBackToCallClick, this._onBackToCallClickHandler);
 				this.desktop.addCustomEvent(Events.onStopSharingClick, this._onStopSharingClickHandler);
+				this.desktop.addCustomEvent(Events.onChangeScreenClick, this._onChangeScreenClickHandler);
 			},
 
 			saveExistingScreens: function() {
@@ -94,7 +99,13 @@
 
 			_onStopSharingClick: function()
 			{
+				this.close();
 				this.callbacks.onStopSharingClick();
+			},
+
+			_onChangeScreenClick: function()
+			{
+				this.callbacks.onChangeScreenClick();
 			},
 
 			setSharingData: function(data)
@@ -152,7 +163,8 @@
 						sharedWindowY: this.sharedWindowY,
 						sharedWindowWidth: this.sharedWindowWidth,
 						sharedWindowHeight: this.sharedWindowHeight,
-						screenToUse: this.screenToUse
+						screenToUse: this.screenToUse,
+						darkMode: this.darkMode
 					};
 
 					this.window = BXDesktopSystem.ExecuteCommand(
@@ -197,6 +209,7 @@
 
 				this.desktop.removeCustomEvents(Events.onBackToCallClick);
 				this.desktop.removeCustomEvents(Events.onStopSharingClick);
+				this.desktop.removeCustomEvents(Events.onChangeScreenClick);
 			}
 		};
 
@@ -209,6 +222,7 @@
 		this.sharedWindowHeight = config.sharedWindowHeight || 0;
 		this.sharedWindowWidth = config.sharedWindowWidth || 0;
 		this.screenToUse = config.screenToUse || null;
+		this.darkMode = config.darkMode || false;
 
 		this.elements = {
 			container: null
@@ -231,7 +245,7 @@
 			}
 
 			this.elements.container = BX.create("div", {
-				props: {className: 'bx-messenger-call-floating-screenshare-wrap'},
+				props: {className: 'bx-messenger-call-floating-screenshare-wrap' + (this.darkMode ? ' dark-mode' : '')},
 				children: [
 					BX.create("div", {
 						props: {className: 'bx-messenger-call-floating-screenshare-top'},
@@ -264,6 +278,21 @@
 								}
 							}),
 							BX.create("div", {
+								props: {className: 'bx-messenger-call-floating-screenshare-bottom-center'},
+								children: [
+									BX.create("div", {
+										props: {className: 'bx-messenger-call-floating-screenshare-change-screen-icon'}
+									}),
+									BX.create("div", {
+										props: {className: 'bx-messenger-call-floating-screenshare-change-screen-text'},
+										text: BX.message('IM_M_CALL_SCREENSHARE_CHANGE_SCREEN')
+									})
+								],
+								events: {
+									click: this.onChangeScreenClick.bind(this)
+								}
+							}),
+							BX.create("div", {
 								props: {className: 'bx-messenger-call-floating-screenshare-bottom-right'},
 								children: [
 									BX.create("div", {
@@ -292,6 +321,11 @@
 			this.dispatchEvent(Events.onBackToCallClick, []);
 		},
 
+		onChangeScreenClick: function()
+		{
+			this.dispatchEvent(Events.onChangeScreenClick, []);
+		},
+
 		onStopSharingClick: function()
 		{
 			this.dispatchEvent(Events.onStopSharingClick, []);
@@ -304,9 +338,12 @@
 				return;
 			}
 
+			var blockOffset = 22;
+			var popupPadding = 22;
 			var leftBlockWidth = document.querySelector('.bx-messenger-call-floating-screenshare-bottom-left').scrollWidth;
+			var centerBlockWidth = document.querySelector('.bx-messenger-call-floating-screenshare-bottom-center').scrollWidth;
 			var rightBlockWidth = document.querySelector('.bx-messenger-call-floating-screenshare-bottom-right').scrollWidth;
-			var fullWidth = leftBlockWidth + rightBlockWidth;
+			var fullWidth = leftBlockWidth + centerBlockWidth + rightBlockWidth + (2*blockOffset) + (2*popupPadding);
 			if (fullWidth > POPUP_WIDTH)
 			{
 				width = fullWidth;

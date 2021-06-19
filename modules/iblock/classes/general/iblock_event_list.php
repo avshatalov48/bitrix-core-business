@@ -1,15 +1,16 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CEventIBlock
 {
-	function MakeIBlockObject()
+	public static function MakeIBlockObject()
 	{
 		$obj = new CEventIBlock;
 		return $obj;
 	}
 
-	function GetFilter()
+	public static function GetFilter()
 	{
 		$arFilter = array();
 		$res = CIBlock::GetList(
@@ -40,7 +41,8 @@ class CEventIBlock
 
 		return  $arFilter;
 	}
-	function GetAuditTypes()
+
+	public static function GetAuditTypes()
 	{
 		$AuditTypes = [];
 		AddEventHandler('main', 'GetAuditTypesIblock', ['CIBlock', 'GetAuditTypes']);
@@ -52,7 +54,7 @@ class CEventIBlock
 		return $AuditTypes;
 	}
 
-	function GetEventInfo($row, $arParams, $arUser, $arResult)
+	public static function GetEventInfo($row, $arParams, $arUser, $arResult)
 	{
 		$DESCRIPTION = unserialize($row['DESCRIPTION'], ['allowed_classes' => false]);
 
@@ -148,7 +150,7 @@ class CEventIBlock
 		);
 	}
 
-	function GetFilterSQL($var)
+	public static function GetFilterSQL($var)
 	{
 		if (is_array($var))
 			foreach($var as $key => $val)
@@ -163,5 +165,3 @@ class CEventIBlock
 		return $ar;
 	}
 }
-
-?>

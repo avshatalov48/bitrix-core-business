@@ -451,7 +451,7 @@ if (IsModuleInstalled("vote"))
 		{
 			$arVoteChannels = array();
 			CModule::IncludeModule("vote");
-			$db_res = CVoteChannel::GetList($by = "", $order = "", array("ACTIVE" => "Y"), $is_filtered);
+			$db_res = CVoteChannel::GetList("", "", array("ACTIVE" => "Y"));
 			if ($db_res && $res = $db_res->Fetch())
 			{
 				do 
@@ -475,7 +475,7 @@ if (IsModuleInstalled("vote"))
 			{
 				$arPermissions = CVoteChannel::GetArrayGroupPermission($voteId);
 				$arUGroupsEx = array();
-				$db_res = CGroup::GetList($by = "c_sort", $order = "asc");
+				$db_res = CGroup::GetList();
 				while($res = $db_res -> Fetch())
 				{
 					if ((isset($arPermissions[$res["ID"]]) && intval($arPermissions[$res["ID"]]) >= 2) || intval($res["ID"]) == 1):

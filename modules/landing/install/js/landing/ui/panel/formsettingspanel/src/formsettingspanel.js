@@ -168,8 +168,30 @@ export class FormSettingsPanel extends BasePresetPanel
 		Dom.show(this.getPresetField().getLayout());
 	}
 
-	load(): Promise<any>
+	load(options = {}): Promise<any>
 	{
+		if (options.showWithOptions)
+		{
+			const editorData = Env.getInstance().getOptions().formEditorData;
+
+			this.setCrmFields(editorData.crmFields);
+			this.setCrmCompanies(editorData.crmCompanies);
+			this.setCrmCategories(editorData.crmCategories);
+			this.setAgreements(editorData.agreements);
+
+			const currentOptions = Runtime.clone(editorData.formOptions);
+			if (currentOptions.agreements.use !== true)
+			{
+				currentOptions.agreements.use = true;
+				currentOptions.data.agreements = [];
+			}
+
+			this.setFormOptions(currentOptions);
+			this.setFormDictionary(editorData.dictionary);
+
+			return Promise.resolve();
+		}
+
 		const crmData = Backend.getInstance()
 			.batch('Form::getCrmFields', {
 				crmFields: {
@@ -253,6 +275,7 @@ export class FormSettingsPanel extends BasePresetPanel
 			instanceId: number,
 			state?: 'presets',
 			formOptions?: ?{[key: string]: any},
+			showWithOptions: true,
 		} = {
 			formOptions: {},
 		},
@@ -274,7 +297,7 @@ export class FormSettingsPanel extends BasePresetPanel
 
 		this.showLoader();
 
-		this.load()
+		this.load(options)
 			.then(() => {
 				this.hideLoader();
 
@@ -291,7 +314,12 @@ export class FormSettingsPanel extends BasePresetPanel
 							if (Type.isArrayFilled(preset.options.options.data.fields))
 							{
 								preset.options.options.data.fields = preset.options.options.data.fields.map((field) => {
-									return {...field, name: field.name.replace(/^LEAD_/, 'CONTACT_')};
+									const preparedField = {...field};
+									if (Type.isStringFilled(field.name))
+									{
+										preparedField.name = field.name.replace(/^LEAD_/, 'CONTACT_');
+									}
+									return preparedField;
 								});
 							}
 
@@ -646,11 +674,29 @@ export class FormSettingsPanel extends BasePresetPanel
 		});
 	}
 
+	getDefaultValuesVariables(): Array<{name: string, value: string}>
+	{
+		return this.cache.remember('personalizationVariables', () => {
+			const {properties} = this.getFormDictionary();
+			if (Type.isPlainObject(properties) && Type.isArrayFilled(properties.list))
+			{
+				return properties.list.map((item) => {
+					return {name: item.name, value: item.id};
+				});
+			}
+
+			return [];
+		});
+	}
+
 	getContent(id: string): ContentWrapper
 	{
 		const crmForm = this.getCrmForm();
-		crmForm.sent = false;
-		crmForm.error = false;
+		if (crmForm)
+		{
+			crmForm.sent = false;
+			crmForm.error = false;
+		}
 
 		if (id === 'button_and_header')
 		{
@@ -699,6 +745,7 @@ export class FormSettingsPanel extends BasePresetPanel
 			return new FieldsContent({
 				crmFields: this.getCrmFields(),
 				formOptions: this.getFormOptions(),
+				dictionary: this.getFormDictionary(),
 				isLeadEnabled: this.isLeadEnabled(),
 				values: {
 					fields: this.getFormOptions().data.fields,
@@ -711,6 +758,7 @@ export class FormSettingsPanel extends BasePresetPanel
 			return new FieldsRulesContent({
 				fields: this.getFormOptions().data.fields,
 				values: this.getFormOptions().data.dependencies,
+				dictionary: this.getFormDictionary(),
 			});
 		}
 
@@ -759,10 +807,12 @@ export class FormSettingsPanel extends BasePresetPanel
 				companies: this.getCrmCompanies(),
 				categories: this.getCrmCategories(),
 				isLeadEnabled: this.isLeadEnabled(),
+				formDictionary: this.getFormDictionary(),
 				values: {
 					scheme: this.getFormOptions().document.scheme,
 					duplicatesEnabled: this.getFormOptions().document.deal.duplicatesEnabled || 'Y',
 					category: this.getFormOptions().document.deal.category,
+					dynamicCategory: this.getFormOptions().document.dynamic.category,
 					payment: this.getFormOptions().payment.use,
 					duplicateMode: this.getFormOptions().document.duplicateMode,
 				},
@@ -776,7 +826,7 @@ export class FormSettingsPanel extends BasePresetPanel
 				formOptions: this.getFormOptions(),
 				dictionary: this.getFormDictionary(),
 				isLeadEnabled: this.isLeadEnabled(),
-				personalizationVariables: this.getPersonalizationVariables(),
+				personalizationVariables: this.getDefaultValuesVariables(),
 				values: {
 					fields: this.getFormOptions().presetFields,
 				},
@@ -985,21 +1035,26 @@ export class FormSettingsPanel extends BasePresetPanel
 
 	onSaveClick()
 	{
+		Dom.addClass(this.getSaveButton().layout, 'ui-btn-wait');
+
 		this.getNotSynchronizedFields()
 			.then((result) => {
-				if (Type.isArrayFilled(result.sync.errors))
+				if (Type.isPlainObject(result.sync))
 				{
-					this.showSynchronizationErrorPopup(result.sync.errors);
-					return false;
-				}
+					if (Type.isArrayFilled(result.sync.errors))
+					{
+						this.showSynchronizationErrorPopup(result.sync.errors);
+						return false;
+					}
 
-				if (Type.isArrayFilled(result.sync.fields))
-				{
-					const fieldLabels = result.sync.fields.map((field) => {
-						return field.label;
-					});
+					if (Type.isArrayFilled(result.sync.fields))
+					{
+						const fieldLabels = result.sync.fields.map((field) => {
+							return field.label;
+						});
 
-					return this.showSynchronizationPopup(fieldLabels);
+						return this.showSynchronizationPopup(fieldLabels);
+					}
 				}
 
 				return true;
@@ -1024,18 +1079,23 @@ export class FormSettingsPanel extends BasePresetPanel
 						return currentOptions;
 					})();
 
-					void this.hide();
 					void FormClient.getInstance()
 						.saveOptions(options)
 						.then((result) => {
 							this.setFormOptions(result);
 							FormClient.getInstance().resetCache(result.id);
+							Dom.removeClass(this.getSaveButton().layout, 'ui-btn-wait');
+							void this.hide();
 						});
 
 					if (this.useBlockDesign() && this.isCrmFormPage())
 					{
 						this.disableUseBlockDesign();
 					}
+				}
+				else
+				{
+					Dom.removeClass(this.getSaveButton().layout, 'ui-btn-wait');
 				}
 			});
 	}

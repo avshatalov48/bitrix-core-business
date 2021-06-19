@@ -65,7 +65,8 @@
 		onQualityGraded: 'phoneCallViewOnQualityGraded',
 		onDialpadButtonClicked: 'phoneCallViewOnDialpadButtonClicked',
 		onCommentShown: 'phoneCallViewOnCommentShown',
-		onSaveComment: 'phoneCallViewOnSaveComment'
+		onSaveComment: 'phoneCallViewOnSaveComment',
+		onSetAutoClose: 'phoneCallViewOnSetAutoClose',
 	};
 
 	var defaults = {
@@ -2416,39 +2417,45 @@
 	BX.PhoneCallView.prototype._onMakeCallButtonClick = function(e)
 	{
 		var event = {};
-		var self = this;
 		if(this.callListId > 0)
 		{
 			this.callingEntity = this.currentEntity;
 
-			if(this.currentEntity.phones.length == 0)
+			if(this.currentEntity.phones.length === 0)
 			{
 				// show keypad and dial entered number
 				this.keypad = new Keypad({
 					bindElement: this.elements.buttons.call ? this.elements.buttons.call : null,
 					onClose: function()
 					{
-						self.keypad.destroy();
-						self.keypad = null;
-					},
+						this.keypad.destroy();
+						this.keypad = null;
+					}.bind(this),
 					onDial: function(e)
 					{
-						self.keypad.close();
-						self.phoneNumber = e.phoneNumber;
-						self.createTitle().then(self.setTitle.bind(this));
+						this.keypad.close();
+						this.phoneNumber = e.phoneNumber;
+						this.createTitle().then(function(title)
+						{
+							this.setTitle(title)
+						}.bind(this));
 
 						event = {
 							phoneNumber: e.phoneNumber,
-							crmEntityType: self.crmEntityType,
-							crmEntityId: self.crmEntityId,
-							callListId: self.callListId
+							crmEntityType: this.crmEntityType,
+							crmEntityId: this.crmEntityId,
+							callListId: this.callListId
 						};
 
-						if(self.isDesktop() && self.slave)
+						if(this.isDesktop() && this.slave)
+						{
 							BX.desktop.onCustomEvent(desktopEvents.onCallListMakeCall, [event]);
+						}
 						else
-							self.callbacks.callListMakeCall(event);
-					}
+						{
+							this.callbacks.callListMakeCall(event);
+						}
+					}.bind(this)
 				});
 				this.keypad.show();
 			}
@@ -2460,9 +2467,13 @@
 				event.crmEntityId = this.crmEntityId;
 				event.callListId = this.callListId;
 				if(this.isDesktop() && this.slave)
+				{
 					BX.desktop.onCustomEvent(desktopEvents.onCallListMakeCall, [event]);
+				}
 				else
+				{
 					this.callbacks.callListMakeCall(event);
+				}
 			}
 			else
 			{
@@ -2470,23 +2481,26 @@
 				this.showNumberSelectMenu({
 					bindElement: this.elements.buttons.call ? this.elements.buttons.call : null,
 					phoneNumbers: this.currentEntity.phones,
-					onSelect: function(e){
-						self.closeNumberSelectMenu();
-						self.phoneNumber = e.phoneNumber;
-						self.createTitle().then(self.setTitle.bind(self));
+					onSelect: function(e)
+					{
+						this.closeNumberSelectMenu();
+						this.phoneNumber = e.phoneNumber;
+						this.createTitle().then(function(title){
+							this.setTitle(title)
+						}.bind(this));
 
 						event = {
 							phoneNumber: e.phoneNumber,
-							crmEntityType: self.crmEntityType,
-							crmEntityId: self.crmEntityId,
-							callListId: self.callListId
+							crmEntityType: this.crmEntityType,
+							crmEntityId: this.crmEntityId,
+							callListId: this.callListId
 						};
 
-						if(self.isDesktop() && self.slave)
+						if(this.isDesktop() && this.slave)
 							BX.desktop.onCustomEvent(desktopEvents.onCallListMakeCall, [event]);
 						else
-							self.callbacks.callListMakeCall(event);
-					}
+							this.callbacks.callListMakeCall(event);
+					}.bind(this)
 				});
 			}
 		}
@@ -3170,6 +3184,7 @@
 		BX.desktop.addCustomEvent(desktopEvents.onDialpadButtonClicked, function(grade){self.callbacks.dialpadButtonClicked(grade)});
 		BX.desktop.addCustomEvent(desktopEvents.onCommentShown, function(commentShown){self.commentShown = commentShown});
 		BX.desktop.addCustomEvent(desktopEvents.onSaveComment, function(comment){self.comment = comment; self.saveComment();});
+		BX.desktop.addCustomEvent(desktopEvents.onSetAutoClose, function(autoClose){self.autoClose = autoClose;});
 
 	};
 
@@ -3306,12 +3321,20 @@
 	BX.PhoneCallView.prototype.disableAutoClose = function()
 	{
 		this.allowAutoClose = false;
+		if(this.isDesktop() && this.slave)
+		{
+			BX.desktop.onCustomEvent(desktopEvents.onSetAutoClose, [this.allowAutoClose]);
+		}
 		this.renderButtons();
 	};
 
 	BX.PhoneCallView.prototype.enableAutoClose = function()
 	{
 		this.allowAutoClose = true;
+		if(this.isDesktop() && this.slave)
+		{
+			BX.desktop.onCustomEvent(desktopEvents.onSetAutoClose, [this.allowAutoClose]);
+		}
 		this.renderButtons();
 	};
 

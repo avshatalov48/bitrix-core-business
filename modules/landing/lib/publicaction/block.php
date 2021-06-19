@@ -5,6 +5,7 @@ use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\File;
 use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Hook;
+use \Bitrix\Landing\Assets;
 use \Bitrix\Landing\Block as BlockCore;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Landing\PublicActionResult;
@@ -660,9 +661,10 @@ class Block
 	 * @param int $lid Landing id.
 	 * @param int $block Block id.
 	 * @param string $content Block content.
+	 * @param bool $designed Block was designed.
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function updateContent($lid, $block, $content)
+	public static function updateContent($lid, $block, $content, $designed = false)
 	{
 		$result = new PublicActionResult();
 		$error = new \Bitrix\Landing\Error;
@@ -679,8 +681,36 @@ class Block
 			$blocks = $landing->getBlocks();
 			if (isset($blocks[$block]))
 			{
+				// remove extra files
+				$newContent = Manager::sanitize($content, $bad);
+				$filesBeforeSave = File::getFilesFromBlockContent(
+					$block,
+					$blocks[$block]->getContent()
+				);
+				$filesAfterSave = File::getFilesFromBlockContent(
+					$block,
+					$newContent
+				);
+				$filesRest = array_intersect($filesBeforeSave, $filesAfterSave);
+				$filesDelete = [];
+				foreach ($filesBeforeSave as $fileId)
+				{
+					if (!in_array($fileId, $filesRest))
+					{
+						$filesDelete[] = $fileId;
+					}
+				}
+				if ($filesDelete)
+				{
+					File::deleteFromBlock($block, $filesDelete);
+				}
+				// update content
 				$blocks[$block]->saveContent(
-					Manager::sanitize($content, $bad)
+					$newContent,
+					Utils::isTrue($designed)
+				);
+				Assets\PreProcessing::blockUpdateNodeProcessing(
+					$blocks[$block]
 				);
 				$result->setResult(
 					$blocks[$block]->save()

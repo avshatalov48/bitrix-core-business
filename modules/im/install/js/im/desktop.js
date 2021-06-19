@@ -41,6 +41,16 @@
 		this.inited = false;
 		this.sizeInited = false;
 
+		BXDesktopSystem.LogInfo = function()
+		{
+			for (var _len = arguments.length, params = new Array(_len), _key = 0; _key < _len; _key++) {
+				params[_key] = arguments[_key];
+			}
+
+			var context = BX.Messenger.Lib.Logger;
+			context.desktop.apply(context, params);
+		};
+
 		/* sizes */
 
 		this.minWidth = 515;
@@ -54,27 +64,24 @@
 			this.logout(terminate, reason, true);
 		}, this));
 
+		// desktop hotkeys
 		BX.bind(window, "keydown", BX.delegate(function(e) {
+			// CMD+R / CTRL+R
 			if (e.keyCode == 82 && (e.ctrlKey == true || e.metaKey == true))
 			{
-				if (e.shiftKey == true && typeof(BXIM) != 'undefined')
-				{
-					BXIM.setLocalConfig('global_msz_v2', false);
-
-					BX.desktop.apiReady = false;
-					console.log('NOTICE: User use /windowReload + /clearWindowSize');
-				}
-				else
+				if (typeof(BXIM) === 'undefined' || !BXIM.callController.hasActiveCall())
 				{
 					console.log('NOTICE: User use /windowReload');
+					this.windowReload();
 				}
-				this.windowReload();
 			}
+			// CMD+SHIFT+D / CTRL+SHIFT+D
 			else if (e.keyCode == 68 && (e.ctrlKey == true || e.metaKey == true) && e.shiftKey == true)
 			{
 				this.openDeveloperTools();
 				console.log('NOTICE: User use /openDeveloperTools');
 			}
+			// CMD+SHIFT+L / CTRL+SHIFT+L
 			else if (e.keyCode == 76 && (e.ctrlKey == true || e.metaKey == true) && e.shiftKey == true)
 			{
 				this.openLogsFolder();
@@ -122,7 +129,6 @@
 			this.setWindowResizable(true);
 			this.setWindowMinSize({ Width: BX.MessengerWindow.minWidth, Height: BX.MessengerWindow.minHeight });
 		}
-
 
 		BX.addCustomEvent("onMessengerWindowInit", BX.delegate(function() {
 			this.userInfo = BX.MessengerWindow.getUserInfo();

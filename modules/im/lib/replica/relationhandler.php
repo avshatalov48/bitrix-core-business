@@ -119,7 +119,7 @@ if (Loader::includeModule('replica'))
 				{
 					if (\Bitrix\Main\Loader::includeModule('pull'))
 					{
-						$relationList = \Bitrix\IM\Model\RelationTable::getList(array(
+						$relationList = \Bitrix\Im\Model\RelationTable::getList(array(
 							"select" => array("ID", "USER_ID"),
 							"filter" => array(
 								"=CHAT_ID" => $newRecord["CHAT_ID"],

@@ -14,6 +14,7 @@ export class SkuTree extends EventEmitter
 
 		this.skuTree = options.skuTree || {};
 		this.selectable = (options.selectable !== false);
+		this.hideUnselected = (options.hideUnselected === true);
 
 		if (this.hasSku())
 		{
@@ -183,7 +184,8 @@ export class SkuTree extends EventEmitter
 						parent: this,
 						property: this.skuTree.OFFERS_PROP[i],
 						existingValues: this.skuTree.EXISTING_VALUES[i],
-						offers: this.skuTree.OFFERS
+						offers: this.skuTree.OFFERS,
+						hideUnselected: this.hideUnselected,
 					});
 					container.appendChild(skuProperty.layout());
 					this.skuProperties.push(skuProperty);

@@ -17,7 +17,7 @@ class CSOAPHeader
 {
 	var $Headers = array ();
 
-	function CSOAPHeader() 
+	public function __construct()
 	{
 
 	}
@@ -30,7 +30,7 @@ class CSOAPHeader
 
 class CSOAPBody 
 {
-	function CSOAPBody() 
+	public function __construct()
 	{
 
 	}
@@ -41,7 +41,7 @@ class CSOAPEnvelope
 	var $Header;
 	var $Body;
 
-	function CSOAPEnvelope() 
+	public function __construct()
 	{
 		$this->Header = new CSOAPHeader();
 		$this->Body = new CSOAPBody();
@@ -53,7 +53,7 @@ class CSOAPParameter
     var $Name;
     var $Value;
     
-    function CSOAPParameter( $name, $value)
+    public function __construct( $name, $value)
     {
         $this->Name = $name;
         $this->Value = $value;
@@ -85,7 +85,7 @@ class CSOAPFault
 	var $FaultString;
 	var $detail;
 	
-	function CSOAPFault($faultCode = "", $faultString = "", $detail = '') {
+	public function __construct($faultCode = "", $faultString = "", $detail = '') {
 		$this->FaultCode = $faultCode;
 		$this->FaultString = $faultString;
 		$this->detail = $detail;

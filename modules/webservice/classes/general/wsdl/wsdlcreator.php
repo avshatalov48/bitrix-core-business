@@ -25,7 +25,7 @@ class CWSDLCreator
 	var $targetNamespace;
 	var $classes = array();
 
-	function CWSDLCreator($serviceName, $serviceUrl = "", $targetNamespace = "")
+	public function __construct($serviceName, $serviceUrl = "", $targetNamespace = "")
 	{
 		global $APPLICATION;
 
@@ -423,7 +423,7 @@ class CWSDLCreator
 		header("Content-Type: application/force-download");
 		header("Content-Disposition: attachment; filename=".$this->name.".wsdl");
 		header("Accept-Ranges: bytes");
-		header("Content-Length: " . (defined('BX_UTF') && BX_UTF == 1 && function_exists('mb_strlen') ? mb_strlen($this->WSDL, 'latin1') : strlen($this->WSDL)) );
+		header("Content-Length: " . (defined('BX_UTF') && BX_UTF == 1 && function_exists('mb_strlen')? mb_strlen($this->WSDL, 'latin1') : mb_strlen($this->WSDL)) );
 		$this->printWSDL();
 		die();
 	}

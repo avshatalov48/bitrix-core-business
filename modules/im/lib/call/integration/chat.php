@@ -6,6 +6,7 @@ use Bitrix\Im\Call\Call;
 use Bitrix\Im\Call\CallUser;
 use Bitrix\Im\Common;
 use Bitrix\Im\Dialog;
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UserTable;
 
@@ -123,8 +124,8 @@ class Chat extends AbstractEntity
 		{
 			return false;
 		}
-		else if (
-			\CIMSettings::GetPrivacy(\CIMSettings::PRIVACY_CALL, $this->entityId) == \CIMSettings::PRIVACY_RESULT_CONTACT
+		if (
+			\CIMSettings::GetPrivacy(\CIMSettings::PRIVACY_CALL, $this->entityId) === \CIMSettings::PRIVACY_RESULT_CONTACT
 			&& \CModule::IncludeModule('socialnetwork')
 			&& \CSocNetUser::IsFriendsAllowed()
 			&& !\CSocNetUserRelations::IsFriends($this->entityId, $this->userId)
@@ -149,11 +150,11 @@ class Chat extends AbstractEntity
 			return false;
 		}
 
-		if($this->chatFields['message_type'] == IM_MESSAGE_PRIVATE && count($this->chatUsers) == 2)
+		if($this->chatFields['message_type'] === IM_MESSAGE_PRIVATE && count($this->chatUsers) === 2)
 		{
 			return \Bitrix\Im\User::getInstance($this->getEntityId($currentUserId))->getFullName();
 		}
-		else if($this->chatFields['message_type'] != IM_MESSAGE_PRIVATE)
+		if($this->chatFields['message_type'] !== IM_MESSAGE_PRIVATE)
 		{
 			return $this->chatFields['name'];
 		}
@@ -168,14 +169,16 @@ class Chat extends AbstractEntity
 			return false;
 		}
 
-		if($this->chatFields['message_type'] == IM_MESSAGE_PRIVATE && count($this->chatUsers) == 2)
+		if($this->chatFields['message_type'] === IM_MESSAGE_PRIVATE && count($this->chatUsers) === 2)
 		{
 			return \Bitrix\Im\User::getInstance($this->getEntityId($currentUserId))->getAvatarHr();
 		}
-		else if($this->chatFields['message_type'] != IM_MESSAGE_PRIVATE)
+		if($this->chatFields['message_type'] !== IM_MESSAGE_PRIVATE)
 		{
 			return $this->chatFields['avatar'];
 		}
+
+		return false;
 	}
 
 	public function getAvatarColor($currentUserId)
@@ -185,16 +188,22 @@ class Chat extends AbstractEntity
 			return false;
 		}
 
-		if($this->chatFields['message_type'] == IM_MESSAGE_PRIVATE && count($this->chatUsers) == 2)
+		if($this->chatFields['message_type'] === IM_MESSAGE_PRIVATE && count($this->chatUsers) === 2)
 		{
 			return \Bitrix\Im\User::getInstance($this->getEntityId($currentUserId))->getColor();
 		}
-		else if($this->chatFields['message_type'] != IM_MESSAGE_PRIVATE)
+		if($this->chatFields['message_type'] !== IM_MESSAGE_PRIVATE)
 		{
 			return $this->chatFields['color'];
 		}
+
+		return false;
 	}
 
+	public function isPrivateChat() : bool
+	{
+		return $this->chatFields && $this->chatFields['message_type'] === IM_MESSAGE_PRIVATE;
+	}
 
 	public function onUserAdd($userId)
 	{
@@ -232,7 +241,7 @@ class Chat extends AbstractEntity
 		$initiator = \Bitrix\Im\User::getInstance($initiatorId);
 		if($state === Call::STATE_INVITING && $prevState === Call::STATE_NEW)
 		{
-			static::sendMessage(Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_STARTED", [
+			$this->sendMessageDeferred(Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_STARTED", [
 				"#ID#" => '[B]'.$this->call->getId().'[/B]'
 			]), self::MUTE_MESSAGE);
 		}
@@ -272,8 +281,20 @@ class Chat extends AbstractEntity
 				}
 			}
 
-			$this->sendMessage($message, $mute);
+			$this->sendMessageDeferred($message, $mute);
 		}
+	}
+
+	public function sendMessageDeferred($message, $muted = false)
+	{
+		Application::getInstance()->addBackgroundJob([$this, 'sendMessage'], [$message, $muted]);
+	}
+
+	public function isBroadcast()
+	{
+		return $this->chatFields['entity_type'] === \Bitrix\Im\Alias::ENTITY_TYPE_VIDEOCONF
+			&& $this->chatFields['entity_data_1'] === 'BROADCAST'
+		;
 	}
 
 	public function sendMessage($message, $muted = false)
@@ -296,6 +317,7 @@ class Chat extends AbstractEntity
 		{
 			$currentUserId = $this->userId;
 		}
+
 		return [
 			'type' => $this->getEntityType(),
 			'id' => $this->getEntityId($currentUserId),
@@ -303,7 +325,12 @@ class Chat extends AbstractEntity
 			'avatar' => $this->getAvatar($currentUserId),
 			'avatarColor' => $this->getAvatarColor($currentUserId),
 			'advanced' => [
-				'chatType' => $this->chatFields['type']
+				'chatType' => $this->chatFields['type'],
+				'entityType' => $this->chatFields['entity_type'],
+				'entityId' => $this->chatFields['entity_id'],
+				'entityData1' => $this->chatFields['entity_data_1'],
+				'entityData2' => $this->chatFields['entity_data_2'],
+				'entityData3' => $this->chatFields['entity_data_3']
 			]
 		];
 	}

@@ -1,10 +1,30 @@
 .main-kanban {
+	--white: rgba(255,255,255,1);
+	--white_alpha_15: rgba(255,255,255,.15);
+	--white_alpha_30: rgba(255,255,255,.3);
+	--white_alpha_40: rgba(255,255,255,.4);
+	--white_alpha_50: rgba(255,255,255,.5);
+	--white_alpha_60: rgba(255,255,255,.6);
+	--white_alpha_70: rgba(255,255,255,.7);
+	--white_alpha_80: rgba(255,255,255,.8);
+	--green: rgba(187,237,33,1);
+	--red: rgba(229,73,89,1);
+	--graphite: rgba(82,92,105,1);
+	--graphite_alpha_08: rgba(82,92,105,.08);
+	--graphite_alpha_15: rgba(82,92,105,.15);
+	--graphite_alpha_30: rgba(82,92,105,.3);
+	--graphite_alpha_40: rgba(82,92,105,.4);
+	--graphite_alpha_50: rgba(82,92,105,.5);
+	--graphite_alpha_60: rgba(82,92,105,.6);
+	--graphite_alpha_70: rgba(82,92,105,.7);
+	--graphite_alpha_80: rgba(82,92,105,.8);
+
 	max-width: 100%;
 	clear: both;
 	display: block;
 	font-family: "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
 	height: 100%;
-	overflow: hidden;
+	/*overflow: hidden;*/
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 	position: relative;
@@ -19,33 +39,48 @@
 	flex: 1;
 	position: relative;
 	z-index: 9;
-	overflow-x: hidden;
+	/*overflow-x: hidden;*/
+	/*overflow-x: hidden;*/
 }
 
-.main-kanban-inner:before,
-.main-kanban-inner:after {
-	content: '';
+.main-kanban-inner-shadow {
 	position: absolute;
+	overflow: hidden;
 	width: 10px;
-	-webkit-border-radius: 80%;
-	border-radius: 80%;
-	left: -10px;
+	left: 0;
 	top: 0;
 	bottom: 0;
 	z-index: 9;
 	opacity: 0;
-	box-shadow: 0 0 10px rgba(0,0,0,.2);
 	transition: .2s;
+	pointer-events: none;
 }
 
-.main-kanban-inner:after {
+.main-kanban-inner-shadow-right {
+	left: auto;
+	right: 0;
+}
+
+.main-kanban-left-ear-shown .main-kanban-inner-shadow-left,
+.main-kanban-right-ear-shown .main-kanban-inner-shadow-right {
+	opacity: 1;
+}
+
+.main-kanban-inner-shadow:after {
+	content: '';
+	position: absolute;
+	top: 10px;
+	width: 10px;
+	left: -10px;
+	bottom: 10px;
+	-webkit-border-radius: 80%;
+	border-radius: 80%;
+	box-shadow: 0 0 10px rgba(0,0,0,.2);
+}
+
+.main-kanban-inner-shadow-right:after {
 	left: auto;
 	right: -10px;
-}
-
-.main-kanban-left-ear-shown .main-kanban-inner:before,
-.main-kanban-right-ear-shown .main-kanban-inner:after {
-	opacity: 1;
 }
 
 .main-kanban-fixed {
@@ -62,6 +97,8 @@
 	-ms-flex: 1;
 	flex: 1;
 	position: relative;
+	margin-top: -8px;
+	padding-top: 8px;
 	z-index: 1;
 	-ms-overflow-y: hidden;
 	overflow: auto;
@@ -183,6 +220,38 @@
 
 .main-kanban-column:first-child:before {
 	left: 0;
+}
+
+.main-kanban-column.--animate-slide-left {
+	animation: main-kanban-column--animate-slide-left .4s ease-out forwards;
+}
+
+@keyframes main-kanban-column--animate-slide-left {
+	0% {
+		opacity: 0;
+		transform: translateX(-100%);
+		z-index: -9;
+	}
+	100% {
+		opacity: 1;
+		transform: translateX(0);
+		z-index: -9;
+	}
+}
+
+.main-kanban-column.--animate-slide-left:before {
+	opacity: 0;
+	animation: main-kanban-column--animate-slide-left-before .2s linear forwards;
+	animation-delay: .5s;
+}
+
+@keyframes main-kanban-column--animate-slide-left-before {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
 }
 
 .main-kanban-column-draggable {
@@ -325,7 +394,8 @@
 	z-index: 9;
 }
 
-.main-kanban-column:hover .main-kanban-column-title-add-column {
+.main-kanban-column:hover .main-kanban-column-title-add-column,
+.main-kanban-column:last-of-type .main-kanban-column-title-add-column {
 	opacity: .7;
 }
 
@@ -334,30 +404,93 @@
 	right: 10px;
 }
 
-.main-kanban-column-title-add-column:before {
+.main-kanban-column-title-add-column-before,
+.main-kanban-column-title-add-column-after {
 	content: '';
 	position: absolute;
 	width: 18px;
 	height: 18px;
 	left: 0;
 	top: 50%;
-	background: #fff url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%2380868E%22%20fill-rule%3D%22evenodd%22%20d%3D%22M109%2C16%20L109%2C12%20L107%2C12%20L107%2C16%20L103%2C16%20L103%2C18%20L107%2C18%20L107%2C22%20L109%2C22%20L109%2C18%20L113%2C18%20L113%2C16%20L109%2C16%20Z%22%20transform%3D%22translate%28-103%20-12%29%22%20opacity%3D%22.543%22/%3E%0A%3C/svg%3E') center center no-repeat;
-	background-size: 10px 10px;
+	background: #fff;
 	box-shadow: 0 1px 2px 0 rgba(0,0,0,0.15);
 	-webkit-border-radius: 100%;
 	border-radius: 100%;
 	-webkit-transition: .1s;
 	transition: .1s;
-	-webkit-transform: translateY(-50%);
-	transform: translateY(-50%);
+	-webkit-transform: translateY(-50%) scale(1, 1);
+	transform: translateY(-50%) scale(1, 1);
 }
 
-.main-kanban-column-title-add-column:hover {
+.main-kanban-column-title-add-column-after {
+	content: '';
+	opacity: .5;
+	box-shadow: none;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%2380868E%22%20fill-rule%3D%22evenodd%22%20d%3D%22M109%2C16%20L109%2C12%20L107%2C12%20L107%2C16%20L103%2C16%20L103%2C18%20L107%2C18%20L107%2C22%20L109%2C22%20L109%2C18%20L113%2C18%20L113%2C16%20L109%2C16%20Z%22%20transform%3D%22translate%28-103%20-12%29%22/%3E%0A%3C/svg%3E') center center no-repeat;
+	background-size: 10px 10px;
+}
+
+.main-kanban-column-title-add-column:hover .main-kanban-column-title-add-column-after {
 	opacity: 1;
 }
 
-.main-kanban-column-title-add-column:hover:before {
-	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%2380868E%22%20fill-rule%3D%22evenodd%22%20d%3D%22M109%2C16%20L109%2C12%20L107%2C12%20L107%2C16%20L103%2C16%20L103%2C18%20L107%2C18%20L107%2C22%20L109%2C22%20L109%2C18%20L113%2C18%20L113%2C16%20L109%2C16%20Z%22%20transform%3D%22translate%28-103%20-12%29%22/%3E%0A%3C/svg%3E');
+.main-kanban-column-title-add-column.--pulse .main-kanban-column-title-add-column-before {
+	animation: main-kanban-column-title-add-column--bg-round 1.5s linear infinite;
+}
+
+.main-kanban-column-title-add-column.--pulse .main-kanban-column-title-add-column-after {
+	animation: main-kanban-column-title-add-column--bg-plus 1.5s linear infinite;
+}
+
+@keyframes main-kanban-column-title-add-column--bg-round {
+	0% {
+		transform: translateY(-50%) scale(1, 1);
+		opacity: .5;
+	}
+	10% {
+		transform: translateY(-50%) scale(1, 1);
+		opacity: .5;
+	}
+	50% {
+		transform: translateY(-50%) scale(1.15, 1.15);
+		opacity: 1;
+	}
+	90% {
+		transform: translateY(-50%) scale(1, 1);
+		opacity: .5;
+	}
+	100% {
+		transform: translateY(-50%) scale(1, 1);
+		opacity: .5;
+	}
+}
+
+@keyframes main-kanban-column-title-add-column--bg-plus {
+	0% {
+		opacity: .5;
+	}
+	10% {
+		opacity: .5;
+	}
+	50% {
+		opacity: 1;
+	}
+	90% {
+		opacity: .5;
+	}
+	100% {
+		opacity: .5;
+	}
+}
+
+.main-kanban-column-title-add-column:hover .main-kanban-column-title-add-column-before,
+.main-kanban-column-title-add-column:hover .main-kanban-column-title-add-column-after {
+	animation: none !important;
+	opacity: 1;
+}
+
+.main-kanban-column-title-add-column:hover .main-kanban-column-title-add-column-before {
+	transform: translateY(-50%) scale(1.25, 1.25);
 }
 
 .main-kanban-column:hover .main-kanban-column-title:hover .main-kanban-column-title-add-column {
@@ -397,10 +530,7 @@
 
 .main-kanban-column-title-info {
 	opacity: 1;
-	transform: scale3d(1,1,1) translateY(0);
-	-webkit-transform: scale3d(1,1,1) translateY(0);
-	transition: .4s;
-	-webkit-transition: .4s;
+	transition: .2s;
 	z-index: 99;
 }
 
@@ -409,22 +539,16 @@
 	position: relative;
 	opacity: 0;
 	margin: 0 0 0 4px;
-	transform: scale3d(.8,.8,.8) translateY(-27px);
-	-webkit-transform: scale3d(.8,.8,.8) translateY(-27px);
-	-webkit-transition: .4s;
-	transition: .4s;
+	transform: translateY(-32px);
+	transition: .2s;
 }
 
 .main-kanban-column-edit-mode .main-kanban-column-title-info {
 	opacity: 0;
-	transform: scale3d(.8,.8,.8) translateY(-5px);
-	-webkit-transform: scale3d(.8,.8,.8) translateY(-5px);
 }
 
 .main-kanban-column-edit-mode .main-kanban-column-title-block-edit {
 	opacity: 1;
-	transform: scale3d(1,1,1) translateY(-32px);
-	-webkit-transform: scale3d(1,1,1) translateY(-32px);
 	z-index: 99;
 }
 
@@ -589,6 +713,26 @@
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
+}
+
+.main-kanban-aha-mode .main-kanban-column-title.--animate-complete {
+	animation: main-kanban-column-title--animate-complete 1.4s ease-out forwards;
+}
+
+@keyframes main-kanban-column-title--animate-complete {
+	0% {
+		transform: translateY(0);
+	}
+	20% {
+		transform: translateY(-8px);
+	}
+
+	60% {
+		transform: translateY(-8px);
+	}
+	100% {
+		transform: translateY(0);
+	}
 }
 
 .main-kanban-column:last-child .main-kanban-column-title {
@@ -778,39 +922,124 @@
 }
 
 .main-kanban-column-subtitle-box {
-	min-height: 20px;
+	min-height: 35px;
 	padding-top: 5px;
 }
 
 .main-kanban-column-add-item-button {
-	display: block;
-	overflow: hidden;
-	height: 20px;
-	margin: 0 30px;
-	position: relative;
+	display: flex;
+	width: calc(100% - 8px);
+	align-items: center;
+	justify-content: center;
+	white-space: nowrap;
+	line-height: normal;
+	height: 30px;
+	margin: 0 7px 0 3px;
 	cursor: pointer;
+	background-color: transparent;
+	transition: .2s;
+}
+
+.main-kanban-column-add-item-button.--pulse {
+	animation: kanban-column-add-item-button--pulse 3s infinite forwards;
+}
+
+.bitrix24-light-theme .main-kanban-column-add-item-button.--pulse {
+	animation: kanban-column-add-item-button--pulse-white 3s infinite forwards;
+}
+
+@keyframes kanban-column-add-item-button--pulse {
+	0% {
+		background-color: var(--graphite_alpha_15);
+	}
+	35% {
+		background-color: var(--graphite_alpha_15);
+	}
+	45% {
+		background-color: var(--graphite_alpha_08);
+	}
+	55% {
+		background-color: var(--graphite_alpha_15);
+	}
+	65% {
+		background-color: var(--graphite_alpha_08);
+	}
+	75% {
+		background-color: var(--graphite_alpha_15);
+	}
+	100% {
+		background-color: var(--graphite_alpha_15);
+	}
+}
+
+@keyframes kanban-column-add-item-button--pulse-white {
+	0% {
+		background-color: var(--white_alpha_30);
+	}
+	35% {
+		background-color: var(--white_alpha_30);
+	}
+	45% {
+		background-color: var(--white_alpha_15);
+	}
+	55% {
+		background-color: var(--white_alpha_30);
+	}
+	65% {
+		background-color: var(--white_alpha_15);
+	}
+	75% {
+		background-color: var(--white_alpha_30);
+	}
+	100% {
+		background-color: var(--white_alpha_30);
+	}
+}
+
+
+.main-kanban-column:hover .main-kanban-column-add-item-button,
+.main-kanban-column-add-item-button.--hover,
+.main-kanban-column-add-item-button:hover {
+	background-color: var(--graphite_alpha_08);
+}
+
+.bitrix24-light-theme .main-kanban-column:hover .main-kanban-column-add-item-button,
+.bitrix24-light-theme .main-kanban-column-add-item-button.--hover,
+.bitrix24-light-theme .main-kanban-column-add-item-button:hover {
+	background-color: var(--white_alpha_15);
 }
 
 .main-kanban-column-add-item-button:before {
 	content: '';
-	position: absolute;
+	display: inline-block;
+	vertical-align: middle;
 	width: 18px;
 	height: 18px;
-	left: 50%;
-	top: 50%;
-	background: transparent url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%2380868e%22%20fill-rule%3D%22evenodd%22%20d%3D%22M109%2C16%20L109%2C12%20L107%2C12%20L107%2C16%20L103%2C16%20L103%2C18%20L107%2C18%20L107%2C22%20L109%2C22%20L109%2C18%20L113%2C18%20L113%2C16%20L109%2C16%20Z%22%20transform%3D%22translate%28-103%20-12%29%22%20opacity%3D%22.543%22/%3E%0A%3C/svg%3E') center center no-repeat;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M109%2C16%20L109%2C12%20L107%2C12%20L107%2C16%20L103%2C16%20L103%2C18%20L107%2C18%20L107%2C22%20L109%2C22%20L109%2C18%20L113%2C18%20L113%2C16%20L109%2C16%20Z%22%20transform%3D%22translate%28-103%20-12%29%22%20opacity%3D%221%22/%3E%0A%3C/svg%3E') center center no-repeat;
 	background-size: 10px 10px;
 	-webkit-border-radius: 100%;
 	border-radius: 100%;
-	-webkit-transition: .2s;
-	transition: .2s;
-	-webkit-transform: translate(-50%,-50%);
-	transform: translate(-50%,-50%);
 }
 
-.main-kanban-column-add-item-button:hover:before {
-	background: #2fc6f6 url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M109%2C16%20L109%2C12%20L107%2C12%20L107%2C16%20L103%2C16%20L103%2C18%20L107%2C18%20L107%2C22%20L109%2C22%20L109%2C18%20L113%2C18%20L113%2C16%20L109%2C16%20Z%22%20transform%3D%22translate%28-103%20-12%29%22/%3E%0A%3C/svg%3E') center center no-repeat;
-	background-size: 10px 10px;
+.main-kanban-column-add-item-button-text {
+	display: inline-block;
+	overflow: hidden;
+	width: 0;
+	vertical-align: middle;
+	font-family: "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 13px;
+	color: var(--graphite);
+	transition: .3s;
+}
+
+.main-kanban-column:hover .main-kanban-column-add-item-button-text,
+.main-kanban-column-add-item-button.--hover .main-kanban-column-add-item-button-text,
+.main-kanban-column-add-item-button:hover .main-kanban-column-add-item-button-text {
+	width: 105px;
+}
+
+.bitrix24-light-theme .main-kanban-column-add-item-button-text {
+	color: var(--white);
 }
 
 .main-kanban-column-subtitle-total {
@@ -827,6 +1056,121 @@
 	box-sizing: border-box;
 }
 
+.main-kanban-item-aha-cursor {
+	position: absolute;
+	bottom: 15px;
+	right: 10px;
+	width: 20px;
+	height: 20px;
+	z-index: 9;
+}
+
+.main-kanban-item-aha-cursor-round {
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	top: 50%;
+	left: 50%;
+	margin: -8px 0 0 -8px;
+	background: #2fc6f6;
+	border-radius: 100%;
+	opacity: 0;
+	animation: main-kanban-item-aha-cursor-round 2.5s infinite cubic-bezier(0.36, 0.6, 0.54, 0.85) forwards;
+	animation-delay: 2s;
+}
+
+@keyframes main-kanban-item-aha-cursor-round {
+	0% {
+		opacity: 0;
+		transform: translateX(0) rotate(0deg);
+	}
+	5% {
+		opacity: 0;
+		transform: translateX(0) rotate(0deg);
+	}
+	15% {
+		opacity: 1;
+		transform: translateX(0) rotate(0deg);
+	}
+	20% {
+		transform: translateX(0) rotate(0deg);
+	}
+	50% {
+		transform: translateX(30px) rotate(0deg);
+	}
+	80% {
+		transform: translateX(0) rotate(0deg);
+	}
+	85% {
+		opacity: 1;
+		transform: translateX(0) rotate(0deg);
+	}
+	95% {
+		opacity: 0;
+		transform: translateX(0) rotate(0deg);
+	}
+	100% {
+		opacity: 0;
+		transform: translateX(0) rotate(0deg);
+	}
+}
+
+.main-kanban-item-aha-cursor:before {
+	content: '';
+	position: absolute;
+	top: 1px;
+	left: 0;
+	width: 35px;
+	height: 35px;
+	background: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20width%3D%2254%22%20height%3D%2261%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22c%22%20x1%3D%2250%25%22%20x2%3D%2250%25%22%20y1%3D%220%25%22%20y2%3D%2298.338%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23FFF%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23F5FCFF%22%2F%3E%3C%2FlinearGradient%3E%3Cfilter%20id%3D%22a%22%20width%3D%22131.9%25%22%20height%3D%22127.6%25%22%20x%3D%22-15.9%25%22%20y%3D%22-9.8%25%22%20filterUnits%3D%22objectBoundingBox%22%3E%3CfeOffset%20dy%3D%222%22%20in%3D%22SourceAlpha%22%20result%3D%22shadowOffsetOuter1%22%2F%3E%3CfeGaussianBlur%20in%3D%22shadowOffsetOuter1%22%20result%3D%22shadowBlurOuter1%22%20stdDeviation%3D%222%22%2F%3E%3CfeColorMatrix%20in%3D%22shadowBlurOuter1%22%20values%3D%220%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.10598264%200%22%2F%3E%3C%2Ffilter%3E%3Cpath%20id%3D%22b%22%20d%3D%22M17.432%200c2.534.007%204.715%201.766%204.867%204.192l.008.216.019%201.445.028%202.013.026%201.524.026%201.299.01.4.024.994.093-.033a6.108%206.108%200%20011.642-.32l.304-.012.128-.002c2.263-.012%203.927.92%204.855%202.643l.108.21.028.059.08-.038a5.092%205.092%200%20011.776-.473l.254-.01h.12c2.298.035%203.955%201.017%204.81%202.788l.099.217.007.017.048-.015a6.64%206.64%200%20011.645-.304l.337-.01h.146c2.597.039%204.938%202.31%204.96%205.152.014%202.08.018%203.502.011%205.062l-.001.363-.026%203.68c-.007%201.21-.008%202.27-.003%203.492l.003.626.015%201.972c.035%203.821-1.735%207.263-4.663%209.95-2.379%202.184-5.386%203.672-7.393%203.697-.332.004-.636.006-.967.008h-.343l-6.322-.025c-.75-.001-1.44%200-2.127.003l-.517.003-1.238.01c-2.583.028-4.602-1.313-6.758-4.03l-.232-.297-.218-.287c-.785-1.048-3.914-5.797-4.975-7.28l-.102-.142-.207-.282a41.358%2041.358%200%2000-1.235-1.589c-.262-.32-.4-.487-.705-.826l-.141-.157-1.592-1.737C1.933%2031.742.88%2030.307.314%2028.576c-.674-2.056-.275-4.02%201.313-5.73%201.69-1.82%203.958-2.021%206.373-.701%201.231.673%202.547%201.754%203.963%203.246l.304.326.049.052-.012-7.37c-.008-5.915-.005-9.934.007-12.067v-.189l.014-1.265C12.379%202.07%2014.712-.006%2017.432%200z%22%2F%3E%3C%2Fdefs%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%20transform%3D%22translate%284.5%203.018%29%22%3E%3Cuse%20fill%3D%22%23000%22%20fill-rule%3D%22nonzero%22%20filter%3D%22url%28%23a%29%22%20xlink%3Ahref%3D%22%23b%22%2F%3E%3Cpath%20fill%3D%22url%28%23c%29%22%20stroke%3D%22%23979797%22%20d%3D%22M18.088%2048.691l-3.39-2.718-5.489-7.884-5.427-6.877-1.921-5.795%201.921-2.17%202.519-.469%203.674%202.639%203.671%203.654V4.244L15.759%201.7h3.099l2.172%201.29.392%2011.395%202.249-1.046%203.55%201.046%201.495%201.436h4.739l1.734%201.255.586%201.691%202.029-.509h2.146l1.875%201.606v1.567l.461%2017.254-1.382%204.523-5.129%204.605-5.086%201.456z%22%2F%3E%3Cpath%20fill%3D%22%23333%22%20fill-rule%3D%22nonzero%22%20d%3D%22M17.432%200c2.608.007%204.844%201.87%204.875%204.408l.019%201.445.028%202.013.026%201.524c.011.609.023%201.176.035%201.7l.025.993.093-.033a6.286%206.286%200%20011.946-.332l.128-.002c2.354-.012%204.06.996%204.963%202.853l.028.059.08-.038c.677-.31%201.353-.475%202.03-.483h.12c2.39.036%204.086%201.097%204.909%203.005l.007.017.048-.015a6.643%206.643%200%20011.982-.315h.146c2.597.04%204.938%202.312%204.96%205.153.015%202.24.018%203.717.01%205.425l-.026%203.68c-.008%201.411-.009%202.618%200%204.118l.015%201.972c.035%203.821-1.735%207.263-4.663%209.95-2.379%202.184-5.386%203.672-7.393%203.697-.442.005-.835.008-1.31.009l-6.322-.026c-.938-.002-1.78%200-2.644.006l-1.238.01c-2.675.029-4.745-1.41-6.99-4.327l-.218-.287c-.812-1.084-4.132-6.129-5.077-7.422l-.207-.282a41.358%2041.358%200%2000-1.235-1.589%2020.62%2020.62%200%2000-.846-.983l-1.592-1.737C1.933%2031.742.88%2030.307.314%2028.576c-.674-2.056-.275-4.02%201.313-5.73%201.69-1.82%203.958-2.021%206.373-.701%201.32.721%202.735%201.91%204.267%203.572l.049.052-.012-7.37c-.008-6.094-.005-10.176.008-12.256l.013-1.265C12.379%202.07%2014.712-.006%2017.432%200zm-.008%202.99l-.072.001c-1.115.032-2.017.858-2.038%201.944-.018.976-.026%204.049-.024%209.21v1.333l.025%2014.448c.003%201.434-1.819%202.05-2.686.908-2.392-3.151-4.438-5.177-6.064-6.065-1.284-.702-2.055-.634-2.747.111-.836.9-1.003%201.726-.663%202.765.407%201.24%201.358%202.506%203.445%204.775l.915.996c.623.68.846.93%201.104%201.24l.498.608c.442.55.88%201.123%201.322%201.73%201.006%201.377%204.312%206.4%205.055%207.392l.095.127c1.769%202.33%203.144%203.307%204.688%203.29%201.66-.017%203.055-.02%204.895-.013l3.962.02c.718.003%201.231.004%201.688.002l.964-.008c1.168-.015%203.525-1.18%205.408-2.91%202.347-2.154%203.722-4.826%203.695-7.72a374.031%20374.031%200%2001-.017-5.712l.02-2.765c.013-1.875.016-3.272.007-5.18l-.01-1.543c-.009-1.19-1.017-2.17-2.014-2.184a3.718%203.718%200%2000-1.606.338v5.674a1.495%201.495%200%2001-2.988.064l-.001-.064v-6.049c0-.062.003-.124.01-.184a2.281%202.281%200%2001-.02-.137c-.187-1.665-.883-2.31-2.488-2.335-.42-.007-.946.19-1.57.63l-.001%205.638a1.495%201.495%200%2001-2.989.065l-.001-.065v-6.048c0-.073.005-.145.015-.215-.26-1.738-1.013-2.404-2.613-2.395-1.212.006-1.794.395-2.108%201.095l.009-.019.001%209.11a1.495%201.495%200%2001-2.989.065l-.001-.064v-10.06c0-.07.005-.138.014-.204a49.409%2049.409%200%2001-.036-.686l-.024-.582c-.029-.786-.055-1.78-.08-2.953l-.034-1.87-.02-1.27-.037-2.823c-.01-.78-.817-1.453-1.894-1.456z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E) no-repeat center;
+	background-size: contain;
+	z-index: 9;
+	animation: main-kanban-item-aha-cursor 2.5s infinite cubic-bezier(0.36, 0.6, 0.54, 0.85) forwards;
+	animation-delay: 2s;
+	transform: translateX(0) rotate(-30deg) scale(1);
+}
+
+@keyframes main-kanban-item-aha-cursor {
+	0% {
+		transform: translateX(0) rotate(-30deg) scale(1);
+	}
+	5% {
+		transform: translateX(0) rotate(-30deg) scale(1);
+	}
+	15% {
+		transform: translateX(0) rotate(-30deg) scale(.88);
+	}
+	20% {
+		transform: translateX(0) rotate(-30deg) scale(.88);
+	}
+	50% {
+		transform: translateX(30px) rotate(-30deg) scale(.88);
+	}
+	80% {
+		transform: translateX(0) rotate(-30deg) scale(.88);
+	}
+	85% {
+		transform: translateX(0) rotate(-30deg) scale(.88);
+	}
+	95% {
+		transform: translateX(0) rotate(-30deg) scale(1);
+	}
+	100% {
+		transform: translateX(0) rotate(-30deg) scale(1);
+	}
+}
+
+.main-kanban-item-aha-cursor-round:before {
+	content: '';
+	position: absolute;
+	top: -4px;
+	right: -4px;
+	bottom: -4px;
+	left: -4px;
+	border: 2px solid #2fc6f6;
+	border-radius: 100%;
+}
+
 .main-kanban-item {
 	display: block;
 	position: relative;
@@ -834,29 +1178,119 @@
 	margin: 0 1px 0 -1px;
 }
 
+.main-kanban-item-aha {
+	height: 106px;
+	opacity: 1;
+	position: absolute;
+	top: 0;
+	left: 5px;
+	right: 4px;
+	background: var(--graphite_alpha_08);
+	border: 1px dashed var(--graphite_alpha_30);
+	border-radius: 3px;
+}
+
+.bitrix24-light-theme .main-kanban-item-aha {
+	background: var(--white_alpha_15);
+	border: 1px dashed var(--white_alpha_70);
+}
+
+.main-kanban {
+	--main-kanban-item-aha: translate(-8px, -2px) scale(.8) rotate(-15deg);
+}
+
+.main-kanban-item-aha:before {
+	content: '';
+	position: absolute;
+	width: 56px;
+	height: 36px;
+	top: 50%;
+	left: 50%;
+	margin: -28px 0 0 -18px;
+	opacity: .7;
+	background: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='31' viewBox='0 0 56 31'%3E%3Cpath fill='%23525C69' d='M43.0324462,14.4725932 C46.193524,17.5294261 48.744023,20.8045494 50.737802,24.0810239 C51.4365373,25.2292897 52.0160771,26.2965068 52.4831105,27.2556718 L52.7101225,27.7328788 L52.8992985,28.1518066 L52.8992985,28.1518066 L52.9267598,28.2171693 L54.3055649,21.5796977 C54.3492073,21.3694011 54.5190177,21.2175908 54.7195503,21.1869056 L54.8070955,21.1813533 L54.896733,21.1917283 C55.137072,21.2416054 55.3010206,21.4562732 55.2952338,21.6932589 L55.2847024,21.7828964 L53.6477135,29.6709257 C53.5949468,29.9251884 53.3588855,30.0918733 53.1093498,30.0670368 L53.0259051,30.051522 L44.9149654,27.8890371 C44.648656,27.8160032 44.4919753,27.5409111 44.5650092,27.2746018 C44.6299283,27.0378824 44.8544982,26.8877831 45.0906387,26.9086443 L45.1794445,26.9246457 L52.0697598,28.7571693 L51.983403,28.5532234 L51.8023982,28.1524461 L51.5840277,27.6934503 L51.5840277,27.6934503 C51.1303124,26.7616373 50.5656218,25.7217649 49.8835344,24.6008573 C47.9321057,21.3939792 45.4337004,18.18575 42.337292,15.1914538 C32.4694031,5.64898442 18.9441199,0.400394742 1.18098965,1.69010929 C0.905572272,1.71010631 0.666091583,1.50304721 0.646094556,1.22762984 C0.626097529,0.952212462 0.833156632,0.712731773 1.10857401,0.692734746 C19.1639302,-0.618197236 32.9654597,4.73759191 43.0324462,14.4725932 Z'/%3E%3C/svg%3E%0A") center no-repeat;
+	transform: var(--main-kanban-item-aha);
+	animation: main-kanban-item-aha-before 2s infinite ease-in-out forwards;
+	animation-delay: 1s;
+}
+
+.bitrix24-light-theme .main-kanban-item-aha:before {
+	background-image: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='31' viewBox='0 0 56 31'%3E%3Cpath fill='%23FFF' d='M43.0324462,14.4725932 C46.193524,17.5294261 48.744023,20.8045494 50.737802,24.0810239 C51.4365373,25.2292897 52.0160771,26.2965068 52.4831105,27.2556718 L52.7101225,27.7328788 L52.8992985,28.1518066 L52.8992985,28.1518066 L52.9267598,28.2171693 L54.3055649,21.5796977 C54.3492073,21.3694011 54.5190177,21.2175908 54.7195503,21.1869056 L54.8070955,21.1813533 L54.896733,21.1917283 C55.137072,21.2416054 55.3010206,21.4562732 55.2952338,21.6932589 L55.2847024,21.7828964 L53.6477135,29.6709257 C53.5949468,29.9251884 53.3588855,30.0918733 53.1093498,30.0670368 L53.0259051,30.051522 L44.9149654,27.8890371 C44.648656,27.8160032 44.4919753,27.5409111 44.5650092,27.2746018 C44.6299283,27.0378824 44.8544982,26.8877831 45.0906387,26.9086443 L45.1794445,26.9246457 L52.0697598,28.7571693 L51.983403,28.5532234 L51.8023982,28.1524461 L51.5840277,27.6934503 L51.5840277,27.6934503 C51.1303124,26.7616373 50.5656218,25.7217649 49.8835344,24.6008573 C47.9321057,21.3939792 45.4337004,18.18575 42.337292,15.1914538 C32.4694031,5.64898442 18.9441199,0.400394742 1.18098965,1.69010929 C0.905572272,1.71010631 0.666091583,1.50304721 0.646094556,1.22762984 C0.626097529,0.952212462 0.833156632,0.712731773 1.10857401,0.692734746 C19.1639302,-0.618197236 32.9654597,4.73759191 43.0324462,14.4725932 Z'/%3E%3C/svg%3E%0A");
+}
+
+@keyframes main-kanban-item-aha-before {
+	0% {
+		opacity: .7;
+		transform: var(--main-kanban-item-aha);
+	}
+	10% {
+		opacity: .7;
+		transform: var(--main-kanban-item-aha);
+	}
+	50% {
+		opacity: 1;
+		transform: translate(0,0) scale(1) rotate(3deg);
+	}
+	90% {
+		opacity: .7;
+		transform: var(--main-kanban-item-aha);
+	}
+	100% {
+		opacity: .7;
+		transform: var(--main-kanban-item-aha);
+	}
+}
+
+.main-kanban-item.--aha-drag .main-kanban-item-wrapper {
+	animation: main-kanban-item--aha-drag 2.5s infinite cubic-bezier(0.36, 0.6, 0.54, 0.85) forwards;
+	animation-delay: 2s;
+}
+
+@keyframes main-kanban-item--aha-drag {
+	0% {
+		transform: translateX(0) rotate(0deg);
+	}
+	5% {
+		transform: translateX(0) rotate(0deg);
+	}
+	15% {
+		transform: translateX(0) rotate(4deg);
+	}
+	20% {
+		transform: translateX(0) rotate(4deg);
+	}
+	50% {
+		transform: translateX(30px) rotate(4deg);
+	}
+	80% {
+		transform: translateX(0) rotate(4deg);
+	}
+	85% {
+		transform: translateX(0) rotate(4deg);
+	}
+	95% {
+		transform: translateX(0) rotate(0deg);
+	}
+	100% {
+		transform: translateX(0) rotate(0deg);
+	}
+}
+
+.main-kanban-aha .main-kanban-item,
+.main-kanban-column-aha .main-kanban-item{
+	opacity: .25;
+	transition: .8s;
+	pointer-events: none;
+}
+
+.main-kanban-aha .ui-tour-selector.main-kanban-item,
+.main-kanban-column-aha .ui-tour-selector.main-kanban-item {
+	opacity: 1;
+	pointer-events: auto;
+}
+
 .main-kanban-item:hover {
 	z-index: 9;
-}
-
-.main-kanban-item-wrapper-added {
-	-webkit-animation: showItem 2s forwards;
-	animation: showItem 2s forwards;
-}
-
-@keyframes showItem {
-	0% { opacity: 1 }
-	25% { opacity: .3 }
-	50% { opacity: 1 }
-	75% { opacity: .3 }
-	100% { opacity: 1 }
-}
-
-@-webkit-keyframes showItem {
-	0% { opacity: 1 }
-	25% { opacity: .3 }
-	50% { opacity: 1 }
-	75% { opacity: .3 }
-	100% { opacity: 1 }
 }
 
 .main-kanban-item-default {
@@ -864,6 +1298,108 @@
 	border: 1px solid #dfe0e3;
 	padding: 10px;
 	border-radius: 2px;
+}
+
+.main-kanban-item-wrapper {
+	position: relative;
+	background: #fff;
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
+	font-family: 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	-moz-user-select: -moz-none;
+	-moz-user-select: none;
+	user-select: none;
+	-webkit-user-select: text;
+}
+
+.main-kanban-item-wrapper:hover {
+	-ms-transform: translateY(-1px);
+	transform: translateY(-1px);
+}
+
+.main-kanban-aha-mode .main-kanban-item-new .main-kanban-item-wrapper {
+	opacity: 0;
+	transform: translateY(-10px);
+	animation: animate-main-kanban-item-new .8s linear forwards;
+	background: #fdf6e3;
+}
+
+@keyframes animate-main-kanban-item-new {
+	0% {
+		opacity: 0;
+		background: #fdf6e3;
+		transform: translateY(-10px);
+	}
+	20% {
+		opacity: 1;
+		transform: translateY(-10px);
+	}
+	70% {
+		opacity: 1;
+		transform: translateY(-10px);
+	}
+	100% {
+		opacity: 1;
+		background: #fff;
+		transform: translateY(0px);
+	}
+}
+
+.main-kanban-item-wrapper:before {
+	content: '';
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(119,222,255,.35);
+	z-index: 9;
+	pointer-events: none;
+}
+
+.main-kanban-item-selected .main-kanban-item-wrapper:before {
+	display: block;
+}
+
+.main-kanban-item-checkbox {
+	position: absolute;
+	width: 18px;
+	height: 18px;
+	background: #fff;
+	border: 1px solid rgba(130,139,149,.67);
+	border-radius: 2px;
+	top: 9px;
+	right: 10px;
+	pointer-events: none;
+	opacity: 0;
+	transition: .05s;
+	z-index: 9;
+}
+
+.main-kanban-item-checkbox:before {
+	content: ' ';
+	position: absolute;
+	width: 11px;
+	height: 9px;
+	top: 5px;
+	left: 4px;
+	transition: .1s;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2211px%22%20height%3D%229px%22%20viewBox%3D%220%200%2011%209%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%3E%3Cg%20transform%3D%22translate%28-429.000000%2C%20-293.000000%29%22%20fill%3D%22%23fff%22%3E%3Cg%20transform%3D%22translate%28235.000000%2C%20274.000000%29%22%3E%3Cpolygon%20points%3D%22195.763786%2021.7055734%20198.039772%2023.9815596%20203.025463%2019%20204.789249%2020.763786%20199.807689%2025.7453457%20198.039772%2027.5091317%20196.275986%2025.7453457%20194%2023.4693595%22%3E%3C/polygon%3E%3C/g%3E%3C/g%3E%3C/svg%3E') center center no-repeat;
+}
+
+.main-kanban-multiselect-mode .main-kanban-item-checkbox {
+	opacity: 1;
+}
+
+.main-kanban-item-selected .main-kanban-item-checkbox {
+	border-color: #2687E8;
+	background: #2687E8;
+	transition: .1s;
+}
+
+.main-kanban-item-selected > * {
+	pointer-events: none;
 }
 
 .main-kanban-item-disabled .main-kanban-item-wrapper {
@@ -889,43 +1425,39 @@
 	transform: rotate(4deg) translate(-30px, -20px);
 }
 
-.main-kanban-item-drag-multi {
-	transform: translate(-20px, -20px);
-	position: absolute;
-	z-index: 999999;
-}
-
-.main-kanban-item-drag-multi .main-kanban-item {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	z-index: 99;
-	pointer-events: none;
-}
-
-.main-kanban-item-drag-multi .main-kanban-item:nth-child(2) {
-	transform: rotate(4deg) translate(2px, 0px);
-	z-index: 9;
-}
-
-.main-kanban-item-drag-multi .main-kanban-item:nth-child(3) {
-	transform: rotate(8deg) translate(6px, 0px);
-	z-index: 1;
-}
-
-.main-kanban-item-drag-multi .main-kanban-item-wrapper {
-	box-shadow: 0 0 3px rgba(0,0,0,.2);
-}
-
 .main-kanban-item-draft {
+	position: relative;
 	height: 92px;
 	border: 1px solid #65d2f6;
-	padding: 7px 12px;
+	padding: 7px 12px 25px 12px;
 	box-sizing: border-box;
 	background: #fff;
 	-webkit-border-radius: 2px;
 	border-radius: 2px;
+}
+
+.main-kanban-item-draft-info {
+	position: absolute;
+	bottom: 5px;
+	left: 12px;
+	right: 12px;
+	font-family: "OpenSans-Italic", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: var(--graphite_alpha_60);
+	font-size: 13px;
+}
+
+.main-kanban-item-draft-info span {
+	display: inline-block;
+}
+
+.main-kanban-item-draft-info span:before {
+	content: '';
+	display: inline-block;
+	vertical-align: top;
+	width: 12px;
+	height: 9px;
+	margin: 5px 1px 0 1px;
+	background: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='9' viewBox='0 0 12 9'%3E%3Cpath fill='%239AA0A8' fill-rule='evenodd' d='M7.89560765,-2.84217094e-14 L11.0291329,3.13352523 L7.86010193,6.30255618 L7.875,3.679 L3.15593627,3.67946698 C2.13895927,3.67946698 1.30536727,4.4646315 1.22828363,5.46183719 L1.22246653,5.61293671 C1.22246653,6.68076256 2.08811042,7.54640645 3.15593627,7.54640645 L3.15593627,7.54640645 L3.784,7.546 L3.784,8.668 L3.09857968,8.6686511 C1.38728138,8.6686511 -1.48894595e-14,7.28136972 -1.50990331e-14,5.57007142 C-1.53086067e-14,3.85877311 1.38728138,2.47149173 3.09857968,2.47149173 L7.881,2.471 L7.89560765,-2.84217094e-14 Z' transform='rotate(-180 5.515 4.334)'/%3E%3C/svg%3E%0A") center no-repeat;
 }
 
 .main-kanban-item-draft-textarea {
@@ -1071,10 +1603,6 @@
 		opacity: 0;
 		transform: translateY(30px);
 	}
-}
-
-.main-kanban-dropzone-active {
-
 }
 
 .main-kanban-dropzone-title {
@@ -1303,7 +1831,7 @@
 }
 
 .main-kanban-no-data-mode {
-	overflow: hidden;
+	/*overflow: hidden;*/
 }
 
 .main-kanban-no-data-mode .main-kanban-no-data {
@@ -1376,7 +1904,7 @@
 }
 
 .main-kanban-faded .main-kanban-grid {
-	opacity: 0.5;
+	opacity: .5;
 	pointer-events: none;
 }
 
@@ -1384,9 +1912,6 @@
 .main-kanban-faded .main-kanban-ear-left,
 .main-kanban-faded .main-kanban-ear-right {
 	display: none;
-}
-	animation: dash 1.5s ease-in-out infinite;
-	stroke-linecap: round;
 }
 
 .main-kanban-faded .main-kanban-grid {
@@ -1398,4 +1923,33 @@
 .main-kanban-faded .main-kanban-ear-left,
 .main-kanban-faded .main-kanban-ear-right {
 	display: none;
+}
+
+.main-kanban-item-drag-multi {
+	transform: translate(-20px, -20px);
+	position: absolute;
+	z-index: 999999;
+}
+
+.main-kanban-item-drag-multi .main-kanban-item {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 99;
+	pointer-events: none;
+}
+
+.main-kanban-item-drag-multi .main-kanban-item:nth-child(2) {
+	transform: rotate(4deg) translate(2px, 0px);
+	z-index: 9;
+}
+
+.main-kanban-item-drag-multi .main-kanban-item:nth-child(3) {
+	transform: rotate(8deg) translate(6px, 0px);
+	z-index: 1;
+}
+
+.main-kanban-item-drag-multi .main-kanban-item-wrapper {
+	box-shadow: 0 0 3px rgba(0,0,0,.2);
+	background: #fff;
 }

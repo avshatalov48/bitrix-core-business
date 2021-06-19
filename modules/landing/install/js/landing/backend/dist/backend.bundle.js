@@ -94,16 +94,18 @@ this.BX = this.BX || {};
 
 	        return response.result;
 	      }).catch(function (err) {
-	        if (requestBody.action !== 'Block::getById') {
-	          var error = main_core.Type.isString(err) ? {
-	            type: 'error'
-	          } : err;
-	          err.action = requestBody.action; // eslint-disable-next-line
+	        if (requestBody.action !== 'Landing::downBlock' && requestBody.action !== 'Landing::upBlock') {
+	          if (requestBody.action !== 'Block::getById') {
+	            var error = main_core.Type.isString(err) ? {
+	              type: 'error'
+	            } : err;
+	            err.action = requestBody.action; // eslint-disable-next-line
 
-	          BX.Landing.ErrorManager.getInstance().add(error);
+	            BX.Landing.ErrorManager.getInstance().add(error);
+	          }
+
+	          return Promise.reject(err);
 	        }
-
-	        return Promise.reject(err);
 	      });
 	    }
 	  }, {
@@ -132,16 +134,18 @@ this.BX = this.BX || {};
 	        BX.Landing.UI.Panel.StatusPanel.getInstance().update();
 	        return response;
 	      }).catch(function (err) {
-	        if (requestBody.action !== 'Block::getById') {
-	          var error = main_core.Type.isString(err) ? {
-	            type: 'error'
-	          } : err;
-	          error.action = requestBody.action; // eslint-disable-next-line
+	        if (requestBody.action !== 'Landing::downBlock' && requestBody.action !== 'Landing::upBlock') {
+	          if (requestBody.action !== 'Block::getById') {
+	            var error = main_core.Type.isString(err) ? {
+	              type: 'error'
+	            } : err;
+	            error.action = requestBody.action; // eslint-disable-next-line
 
-	          BX.Landing.ErrorManager.getInstance().add(error);
+	            BX.Landing.ErrorManager.getInstance().add(error);
+	          }
+
+	          return Promise.reject(err);
 	        }
-
-	        return Promise.reject(err);
 	      });
 	    }
 	  }, {

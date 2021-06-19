@@ -1,5 +1,5 @@
 import {BaseField} from 'landing.ui.field.basefield';
-import {Dom, Tag, Type, Event} from 'main.core';
+import {Dom, Tag, Type, Event, Text} from 'main.core';
 import {Loc} from 'landing.loc';
 
 import './css/style.css';
@@ -70,7 +70,7 @@ export class ActionPagesField extends BaseField
 					</div>
 					<div class="${classPrefix}-icon"></div>
 					<div class="${classPrefix}-text" onclick="${onEditorClick}" oninput="${options.onInput}">
-						${options.text}
+						${Text.encode(options.text)}
 					</div>
 					<div class="${classPrefix}-footer">
 						<span class="${classPrefix}-footer-edit" onclick="${onEditClick}">

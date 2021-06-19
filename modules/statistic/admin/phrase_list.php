@@ -34,7 +34,7 @@ $err_mess = "File: ".__FILE__."<br>Line: ";
 
 $arSites = array();
 $ref = $ref_id = array();
-$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 {
 	$ref[] = $ar["ID"];
@@ -108,8 +108,9 @@ $arFilter = array_merge($arFilter, array_convert_name_2_value($arrExactMatch));
 
 //////////////////////////////////////////////////////////////////////
 // list init
+global $by, $order;
 
-$rsData = CPhrase::GetList($by, $order, $arFilter, $is_filtered, $total, $grby, $max);
+$rsData = CPhrase::GetList($by, $order, $arFilter, null, $total, $grby, $max);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 

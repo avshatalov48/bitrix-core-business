@@ -5,7 +5,7 @@ class CSOAPCodec
 	var $outputVars = array();
 	var $typensVars = array();
 
-    function CSOAPCodec()
+    public function __construct()
     {
     }
 
@@ -49,8 +49,8 @@ class CSOAPCodec
 
 	function _validateClassType($classType, $value)
 	{
-		$phpClassType = strtolower($classType);
-		$phpValue = strtolower(get_class($value));
+		$phpClassType = mb_strtolower($classType);
+		$phpValue = mb_strtolower(get_class($value));
 		if ($phpClassType != $phpValue)
 		{
 			CSOAPServer::ShowSOAPFault("_errorTypeValidation(): Type validation for func. failed: {$classType} != ".get_class($value));
@@ -153,7 +153,7 @@ class CSOAPCodec
             {
 				$node = new CXMLCreator( $name );
                 //$node->setAttribute( "type", BX_SOAP_XSD_PREFIX . ":int" );
-                $node->setData( intval( $value ) );
+                $node->setData( intval($value) );
                 return $node;
             } break;
 

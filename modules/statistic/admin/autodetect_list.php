@@ -41,7 +41,7 @@ function checkIfSearcher($mask)
 		FROM
 			b_stat_searcher
 		WHERE
-			upper('".$statDB->ForSql($mask, 255)."') like ".$statDB->Concat("'%'",USER_AGENT,"'%'")."
+			upper('".$statDB->ForSql($mask, 255)."') like ".$statDB->Concat("'%'","USER_AGENT","'%'")."
 		and USER_AGENT is not null
 		and ".$statDB->Length("USER_AGENT").">0
 	";
@@ -104,14 +104,6 @@ if($STAT_RIGHT >= "W" && check_bitrix_sessid())
 	}
 	elseif ($arID = $lAdmin->GroupAction())
 	{
-		if($_REQUEST['action_target']=='selected')
-		{
-			$cData = new CPosting;
-			$rsData = $cData->GetList(array($by=>$order), $arFilter);
-			while($arRes = $rsData->Fetch())
-				$arID[] = $arRes['ID'];
-		}
-
 		foreach($arID as $ID)
 		{
 			if($ID == '')
@@ -158,10 +150,9 @@ $arFilter = array(
 	"COUNTER2" => $find_counter2,
 );
 $arFilter = array_merge($arFilter, array_convert_name_2_value($arrExactMatch));
-$first = getmicrotime();
-$etime = round((getmicrotime()-$first),5);
 
-$rsData = CAutoDetect::GetList($by, $order, $arFilter, $is_filtered);
+$rsData = CAutoDetect::GetList('', '', $arFilter);
+
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("STAT_USER_AGENT_PAGES")));

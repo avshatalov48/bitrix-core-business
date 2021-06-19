@@ -1,5 +1,6 @@
 import {Dom, Loc} from 'main.core';
-import {EventEmitter, BaseEvent} from 'main.core.events';
+import { EntryManager } from 'calendar.entry';
+import { EventEmitter, BaseEvent} from 'main.core.events';
 
 export class ConfirmStatusDialog extends EventEmitter
 {
@@ -41,22 +42,20 @@ export class ConfirmStatusDialog extends EventEmitter
 		content.appendChild(new BX.PopupWindowButton({
 			text: Loc.getMessage('EC_DECLINE_ONLY_THIS'),
 			events: {
-				click : function()
-				{
+				click : () => {
+					this.onDeclineHandler();
 					this.emit('onDecline', new BaseEvent({data: {recursionMode: 'this'}}));
-					this.close();
-				}.bind(this)
+				}
 			}
 		}).buttonNode);
 
 		content.appendChild(new BX.PopupWindowButton({
 			text: Loc.getMessage('EC_DECLINE_NEXT'),
 			events: {
-				click : function()
-				{
+				click : () => {
+					this.onDeclineHandler();
 					this.emit('onDecline', new BaseEvent({data: {recursionMode: 'next'}}));
-					this.close();
-				}.bind(this)
+				}
 			}
 		}).buttonNode);
 
@@ -64,11 +63,10 @@ export class ConfirmStatusDialog extends EventEmitter
 			{
 				text: Loc.getMessage('EC_DECLINE_ALL'),
 				events: {
-					click : function()
-					{
+					click : () => {
+						this.onDeclineHandler();
 						this.emit('onDecline', new BaseEvent({data: {recursionMode: 'all'}}));
-						this.close();
-					}.bind(this)
+					}
 				}
 			}).buttonNode);
 
@@ -80,6 +78,17 @@ export class ConfirmStatusDialog extends EventEmitter
 		if (this.dialog)
 		{
 			this.dialog.close();
+		}
+	}
+
+	onDeclineHandler()
+	{
+		this.close();
+		const compactForm = EntryManager.getCompactViewForm();
+		if (compactForm
+			&& compactForm.isShown())
+		{
+			compactForm.close();
 		}
 	}
 }

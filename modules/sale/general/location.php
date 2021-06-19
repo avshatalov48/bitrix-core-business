@@ -1,4 +1,5 @@
-<?
+<?php
+
 /**
  * The entire class was marked as deprecated.
  * It will be removed from future releases. Do not rely on this code.
@@ -995,7 +996,7 @@ class CAllSaleLocation
 		return True;
 	}
 
-	function UpdateCountry($ID, $arFields)
+	public static function UpdateCountry($ID, $arFields)
 	{
 		global $DB;
 
@@ -1042,7 +1043,7 @@ class CAllSaleLocation
 			$strSql = "UPDATE b_sale_location_country SET ".$strUpdate." WHERE ID = ".$ID."";
 			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-			$db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"), array("ACTIVE" => "Y"));
+			$db_lang = CLangAdmin::GetList("sort", "asc", array("ACTIVE" => "Y"));
 			while ($arLang = $db_lang->Fetch())
 			{
 				if ($arCntLang = CSaleLocation::GetCountryLangByID($ID, $arLang["LID"]))
@@ -1283,7 +1284,7 @@ class CAllSaleLocation
 			$strSql = "UPDATE b_sale_location_region SET ".$strUpdate." WHERE ID = ".$ID."";
 			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-			$db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"), array("ACTIVE" => "Y"));
+			$db_lang = CLangAdmin::GetList("sort", "asc", array("ACTIVE" => "Y"));
 			while ($arLang = $db_lang->Fetch())
 			{
 				if ($arCntLang = CSaleLocation::GetRegionLangByID($ID, $arLang["LID"]))
@@ -1533,7 +1534,7 @@ class CAllSaleLocation
 			$strSql = "UPDATE b_sale_location_city SET ".$strUpdate." WHERE ID = ".$ID."";
 			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-			$db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"), array("ACTIVE" => "Y"));
+			$db_lang = CLangAdmin::GetList("sort", "asc", array("ACTIVE" => "Y"));
 			while ($arLang = $db_lang->Fetch())
 			{
 				if ($arCntLang = CSaleLocation::GetCityLangByID($ID, $arLang["LID"]))
@@ -3327,4 +3328,3 @@ WHERE ".$strWhere;
 		return $loc2Update;
 	}
 }
-?>

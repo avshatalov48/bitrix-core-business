@@ -103,7 +103,7 @@ class Hook
 			}
 			if (mb_strpos($row['VALUE'], 'serialized#') === 0)
 			{
-				$row['VALUE'] = unserialize(mb_substr($row['VALUE'], 11));
+				$row['VALUE'] = unserialize(mb_substr($row['VALUE'], 11), ['allowed_classes' => false]);
 			}
 			$data[$row['HOOK']][$row['CODE']] = $asIs ? $row : $row['VALUE'];
 		}

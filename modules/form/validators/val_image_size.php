@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CFormValidatorImageSize
 {
-	function GetDescription()
+	public static function GetDescription()
 	{
 		return array(
 			"NAME" => "image_size", // unique validator string ID
@@ -16,7 +17,7 @@ class CFormValidatorImageSize
 		);
 	}
 
-	function GetSettings()
+	public static function GetSettings()
 	{
 		return array(
 			"WIDTH_FROM" => array(
@@ -45,7 +46,7 @@ class CFormValidatorImageSize
 		);
 	}
 
-	function ToDB($arParams)
+	public static function ToDB($arParams)
 	{
 		$arParams["WIDTH_FROM"] = intval($arParams["WIDTH_FROM"]);
 		$arParams["WIDTH_TO"] = intval($arParams["WIDTH_TO"]);
@@ -70,12 +71,12 @@ class CFormValidatorImageSize
 		return serialize($arParams);
 	}
 
-	function FromDB($strParams)
+	public static function FromDB($strParams)
 	{
-		return unserialize($strParams);
+		return unserialize($strParams, ['allowed_classes' => false]);
 	}
 
-	function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
+	public static function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
 	{
 		global $APPLICATION;
 
@@ -125,4 +126,3 @@ class CFormValidatorImageSize
 }
 
 AddEventHandler("form", "onFormValidatorBuildList", array("CFormValidatorImageSize", "GetDescription"));
-?>

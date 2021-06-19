@@ -31,10 +31,8 @@ $strError = "";
 $bVarsFromForm = false;
 $message = null;
 $arLangs = array();
-$by = "sort";
-$order = "asc";
 
-$db_res = CLanguage::GetList($by, $order);
+$db_res = CLanguage::GetList();
 if ($db_res && $res = $db_res->GetNext())
 {
 	do 

@@ -128,7 +128,8 @@ class CTopPanel
 		$encCurrentDirPath = urlencode($currentDirPath);
 		$encCurrentFilePath = urlencode($currentFilePath);
 		$encRequestUri = urlencode($_SERVER["REQUEST_URI"]);
-		$encSiteTemplateId = urlencode(SITE_TEMPLATE_ID);
+		$siteTemplateId = (defined('SITE_TEMPLATE_ID') ? SITE_TEMPLATE_ID : '.default');
+		$encSiteTemplateId = urlencode($siteTemplateId);
 
 		$documentRoot = CSite::GetSiteDocRoot(SITE_ID);
 		$filemanExists = IsModuleInstalled("fileman");
@@ -142,9 +143,9 @@ class CTopPanel
 		{
 			require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/admin_tools.php");
 			//create page from new template
-			$arActPageTemplates = CPageTemplate::GetList(array(SITE_TEMPLATE_ID));
+			$arActPageTemplates = CPageTemplate::GetList(array($siteTemplateId));
 			//create page from old template
-			$arPageTemplates = GetFileTemplates(SITE_ID, array(SITE_TEMPLATE_ID));
+			$arPageTemplates = GetFileTemplates(SITE_ID, array($siteTemplateId));
 		}
 
 		// CREATE PAGE button and submenu
@@ -700,7 +701,9 @@ class CTopPanel
 
 			if ($USER->CanDoOperation("edit_php"))
 			{
-				$filePath = SITE_TEMPLATE_PATH."/styles.css";
+				$siteTemplatePath = (defined('SITE_TEMPLATE_PATH') ? SITE_TEMPLATE_PATH : '/bitrix/templates/.default');
+
+				$filePath = $siteTemplatePath."/styles.css";
 
 				if (file_exists($_SERVER['DOCUMENT_ROOT'].$filePath))
 				{
@@ -726,7 +729,7 @@ class CTopPanel
 					$bUseSubmenu = true;
 				}
 
-				$filePath = SITE_TEMPLATE_PATH."/template_styles.css";
+				$filePath = $siteTemplatePath."/template_styles.css";
 
 				if (file_exists($_SERVER['DOCUMENT_ROOT'].$filePath))
 				{
@@ -1101,7 +1104,7 @@ class CTopPanel
 		$href = $APPLICATION->GetCurPage();
 		$hrefEnc = htmlspecialcharsbx($href);
 
-		$toggleModeDynamic = $aUserOptGlobal['panel_dynamic_mode'] == 'Y';
+		$toggleModeDynamic = ($aUserOptGlobal['panel_dynamic_mode'] ?? '') == 'Y';
 		$toggleMode = $toggleModeDynamic && !$toggleModeSet
 			? $aUserOpt['edit'] == 'on'
 			: $APPLICATION->GetShowIncludeAreas() == 'Y';
@@ -1120,7 +1123,7 @@ class CTopPanel
 	<div id="bx-panel-error">'.GetMessage("top_panel_browser").'</div><![endif]-->
 	<script type="text/javascript">BX.admin.dynamic_mode='.($toggleModeDynamic ? 'true' : 'false').'; BX.admin.dynamic_mode_show_borders = '.($toggleMode ? 'true' : 'false').';</script>
 	<div style="display:none; overflow:hidden;" id="bx-panel-back"></div>
-	<div id="bx-panel"'.($aUserOpt["collapsed"] == "on" ? ' class="bx-panel-folded"':'').'>
+	<div id="bx-panel"'.(($aUserOpt["collapsed"] ?? '') == "on" ? ' class="bx-panel-folded"':'').'>
 		<div id="bx-panel-top">
 			<div id="bx-panel-top-gutter"></div>
 			<div id="bx-panel-tabs">
@@ -1257,10 +1260,10 @@ class CTopPanel
 			'DIV' => 'bx-panel-menu',
 			'ACTIVE_CLASS' => 'bx-pressed',
 			'MENU_URL' => '/bitrix/admin/get_start_menu.php?lang='.LANGUAGE_ID.'&back_url_pub='.urlencode($back_url).'&'.bitrix_sessid_get(),
-			'MENU_PRELOAD' => ($aUserOptGlobal["start_menu_preload"] == 'Y')
+			'MENU_PRELOAD' => (($aUserOptGlobal["start_menu_preload"] ?? '') == 'Y')
 		);
 
-		$result .= '<script type="text/javascript">BX.message({MENU_ENABLE_TOOLTIP: '.($aUserOptGlobal['start_menu_title'] <> 'N' ? 'true' : 'false').'}); new BX.COpener('.CUtil::PhpToJsObject($arStartMenuParams).');</script>';
+		$result .= '<script type="text/javascript">BX.message({MENU_ENABLE_TOOLTIP: '.(($aUserOptGlobal['start_menu_title'] ?? '') <> 'N' ? 'true' : 'false').'}); new BX.COpener('.CUtil::PhpToJsObject($arStartMenuParams).');</script>';
 
 		$hkInstance = CHotKeys::getInstance();
 
@@ -1313,7 +1316,7 @@ class CTopPanel
 		$toggleCaptionOff = '<span id="bx-panel-toggle-caption-mode-off">'.GetMessage("top_panel_off").'</span>';
 		$toggleCaptions = $toggleMode ? $toggleCaptionOn.$toggleCaptionOff : $toggleCaptionOff.$toggleCaptionOn;
 		$toogle = '<a href="'.$toggleModeLink.'" id="bx-panel-toggle" class="bx-panel-toggle'.($toggleMode ? '-on' : '-off').'"'.($toggleModeDynamic ? '' : ' '.CTopPanel::AddAttrHint(GetMessage("top_panel_edit_mode_new_tooltip_title"), GetMessage('top_panel_toggle_tooltip').$hkInstance->GetTitle("bx-panel-small-toggle",true))).'><span id="bx-panel-switcher-gutter-left"></span><span id="bx-panel-toggle-indicator"><span id="bx-panel-toggle-icon"></span><span id="bx-panel-toggle-icon-overlay"></span></span><span class="bx-panel-break"></span><span id="bx-panel-toggle-caption">'.GetMessage("top_panel_edit_mode_new").'</span><span class="bx-panel-break"></span><span id="bx-panel-toggle-caption-mode">'.$toggleCaptions.'</span><span id="bx-panel-switcher-gutter-right"></span></a>';
-		if ($aUserOpt["collapsed"] == "on")
+		if (($aUserOpt["collapsed"] ?? '') == "on")
 			$result .= $toogle;
 
 		$result .= '<a href="" id="bx-panel-expander" '.CTopPanel::AddAttrHint(GetMessage("top_panel_expand_tooltip_title"), GetMessage("top_panel_expand_tooltip").$hkInstance->GetTitle("bx-panel-expander",true)).'><span id="bx-panel-expander-text">'.GetMessage("top_panel_expand").'</span><span id="bx-panel-expander-arrow"></span></a>';
@@ -1323,7 +1326,7 @@ class CTopPanel
 			$result .= '<a id="bx-panel-hotkeys" href="javascript:void(0)" onclick="BXHotKeys.ShowSettings();" '.CTopPanel::AddAttrHint(GetMessage("HK_PANEL_TITLE").$hkInstance->GetTitle("bx-panel-hotkeys",true)).'></a>';
 		}
 
-		$result .= '<a href="javascript:void(0)" id="bx-panel-pin"'.($aUserOpt['fix'] == 'on' ? ' class="bx-panel-pin-fixed"' : '').' '.CTopPanel::AddAttrHint(GetMessage('top_panel_pin_tooltip')).'></a>';
+		$result .= '<a href="javascript:void(0)" id="bx-panel-pin"'.(($aUserOpt['fix'] ?? '') == 'on' ? ' class="bx-panel-pin-fixed"' : '').' '.CTopPanel::AddAttrHint(GetMessage('top_panel_pin_tooltip')).'></a>';
 
 		$Execs = $hkInstance->GetCodeByClassName("bx-panel-logout",GetMessage('top_panel_logout_tooltip'));
 		$result .= $hkInstance->PrintJSExecs($Execs);
@@ -1341,7 +1344,7 @@ class CTopPanel
 		/* BUTTONS */
 		$result .= '<div id="bx-panel-site-toolbar"><div id="bx-panel-buttons-gutter"></div><div id="bx-panel-switcher">';
 
-		if ($aUserOpt["collapsed"] != "on")
+		if (($aUserOpt["collapsed"] ?? '') != "on")
 			$result .= $toogle;
 
 		$result .= '<a href="" id="bx-panel-hider" '.CTopPanel::AddAttrHint(GetMessage("top_panel_collapse_tooltip_title"), GetMessage("top_panel_collapse_tooltip").$hkInstance->GetTitle("bx-panel-expander",true)).'>'.GetMessage("top_panel_collapse").'<span id="bx-panel-hider-arrow"></span></a>';
@@ -1381,7 +1384,7 @@ class CTopPanel
 			if (array_key_exists("RESORT_MENU", $arButton) && $arButton["RESORT_MENU"] === true && is_array($arButton['MENU']) && !empty($arButton['MENU']))
 				sortByColumn($arButton['MENU'], "SORT", '', PHP_INT_MAX/*nulls last*/);
 
-			$bHasMenu = is_array($arButton['MENU']) && count($arButton['MENU']) > 0;
+			$bHasMenu = is_array(($arButton['MENU'] ?? null)) && count($arButton['MENU']) > 0;
 
 			if ($bHasMenu && !$bHasAction)
 			{
@@ -1523,8 +1526,8 @@ class CTopPanel
 
 		$result .= '<script type="text/javascript">
 		BX.admin.panel.state = {
-			fixed: '.($aUserOpt["fix"] == "on" ? 'true' : 'false').',
-			collapsed: '.($aUserOpt["collapsed"] == "on" ? 'true' : 'false').'
+			fixed: '.(($aUserOpt["fix"] ?? '') == "on" ? 'true' : 'false').',
+			collapsed: '.(($aUserOpt["collapsed"] ?? '') == "on" ? 'true' : 'false').'
 		};
 		BX.admin.moreButton.init({ buttonTitle : "'.GetMessageJS("top_panel_more_button_title").'"});
 		</script>';

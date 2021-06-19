@@ -120,7 +120,7 @@ if ($arResult["MODE"] != "AJAX") // old filter
 if (
 	(
 		$USER->IsAuthorized()
-		|| $arParams["AUTH"] == "Y" 
+		|| $arParams["AUTH"] == "Y"
 		|| $arParams["SUBSCRIBE_ONLY"] != "Y"
 	)
 )
@@ -212,6 +212,7 @@ if ($_REQUEST["flt_created_by_string"] <> '')
 }
 else
 {
+	$user_id_tmp = 0;
 	if (
 		!empty($_REQUEST["CREATED_BY_CODE"])
 		&& !empty($_REQUEST["CREATED_BY_CODE"]["U"])
@@ -317,6 +318,7 @@ foreach($arResult["PresetFilters"] as $presetFilter)
 	}
 }
 
+$preset_filter_top_id = '';
 if ($_REQUEST["preset_filter_top_id"] == "clearall")
 {
 	$preset_filter_top_id = false;
@@ -339,6 +341,7 @@ else
 	$arResult["PresetFilterTopActive"] = false;
 }
 
+$preset_filter_id = '';
 if ($_REQUEST["preset_filter_id"] == "clearall")
 {
 	$preset_filter_id = false;

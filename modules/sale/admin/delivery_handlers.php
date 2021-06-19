@@ -210,7 +210,7 @@ $location_diff = COption::GetOptionString('sale', 'ADDRESS_different_set', 'N');
 if ($location_diff == "Y")
 {
 	$siteList = array();
-	$rsSites = CSite::GetList($by="sort", $order="asc", Array());
+	$rsSites = CSite::GetList();
 	while($arRes = $rsSites->Fetch())
 	{
 		$arRes["ID"];

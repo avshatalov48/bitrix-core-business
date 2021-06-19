@@ -58,7 +58,7 @@ if($arResult["PERMISSION"] > "R"):
 		$allGD[] = Array(
 			'ID' => $gd["ID"],
 			'TEXT' =>
-				'<div style="text-align: left;">'.($gd['ICON1']?'<img src="'.($gd['ICON']).'" align="left">':'').
+				'<div style="text-align: left;">'.(isset($gd['ICON1']) && $gd['ICON1'] ? '<img src="'.($gd['ICON']).'" align="left">' : '').
 				'<b>'.(htmlspecialcharsbx($gd['NAME'])).'</b><br>'.(htmlspecialcharsbx($gd['DESCRIPTION'])).'</div>',
 			);
 	}
@@ -193,8 +193,8 @@ endif;
 			$bChangable = true;
 			if (
 				(
-					!$GLOBALS["USER"]->IsAdmin() 
-					|| $arGadget["TOTALLY_FIXED"]
+					!$GLOBALS["USER"]->IsAdmin()
+					|| (isset($arGadget["TOTALLY_FIXED"]) && $arGadget["TOTALLY_FIXED"])
 				)
 				&& array_key_exists("GADGETS_FIXED", $arParams) 
 				&& is_array($arParams["GADGETS_FIXED"]) 
@@ -206,7 +206,7 @@ endif;
 				$bChangable = false;
 			}
 
-			if ($arGadget["COLOURFUL"])
+			if ($arGadget["COLOURFUL"] ?? false)
 			{
 				?><div class="bx-gadgets-colourful bx-gadgets<?=($arGadget["TITLE_ICON_CLASS"] <> '' ? " ".$arGadget["TITLE_ICON_CLASS"] : "")?>" id="t<?=$arGadget["ID"]?>">
 					<div class="bx-gadgets-content">
@@ -221,13 +221,13 @@ endif;
 			}
 			else
 			{
-				?><div class="bx-gadgets<?=($arGadget["TITLE_ICON_CLASS"] <> '' ? " ".$arGadget["TITLE_ICON_CLASS"] : "")?>" id="t<?=$arGadget["ID"]?>">
+				?><div class="bx-gadgets<?=(($arGadget["TITLE_ICON_CLASS"] ?? '') <> '' ? " ".$arGadget["TITLE_ICON_CLASS"] : "")?>" id="t<?=$arGadget["ID"]?>">
 					<div class="bx-gadgets-top-wrap" onmousedown="return getGadgetHolder('<?=AddSlashes($arResult["ID"])?>').DragStart('<?=$arGadget["ID"]?>', event)">
 						<div class="bx-gadgets-top-center">
 							<div class="bx-gadgets-top-title"><?=$arGadget["TITLE"]?></div>
 							<div class="bx-gadgets-top-button"><?
 								if ($bChangable):
-									?><a class="bx-gadgets-config<?=($arGadget["NOPARAMS"]?' bx-gadgets-noparams':'')?>" href="javascript:void(0)" onclick="return getAdminGadgetHolder('<?=AddSlashes($arResult["ID"])?>').ShowSettings('<?=$arGadget["ID"]?>', '<?=CUtil::JSEscape($arGadget["TITLE"])?>');" title="<?=GetMessage("CMDESKTOP_TDEF_SETTINGS")?>"></a>
+									?><a class="bx-gadgets-config<?=(($arGadget["NOPARAMS"] ?? false) ? ' bx-gadgets-noparams' : '')?>" href="javascript:void(0)" onclick="return getAdminGadgetHolder('<?=AddSlashes($arResult["ID"])?>').ShowSettings('<?=$arGadget["ID"]?>', '<?=CUtil::JSEscape($arGadget["TITLE"])?>');" title="<?=GetMessage("CMDESKTOP_TDEF_SETTINGS")?>"></a>
 									<a class="bx-gadgets-config-close" href="javascript:void(0)" onclick="return getGadgetHolder('<?=AddSlashes($arResult["ID"])?>').Delete('<?=$arGadget["ID"]?>');" title="<?=GetMessage("CMDESKTOP_TDEF_DELETE")?>"></a><?
 								endif;
 							?></div>

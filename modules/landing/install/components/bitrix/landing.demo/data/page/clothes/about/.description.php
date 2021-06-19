@@ -183,7 +183,7 @@ return array(
 					0 => 'landing-block-node-card-text g-color-white-opacity-0_6 mb-0',
 				),
 				'.landing-block-node-card-icon-container' => array(
-					0 => 'landing-block-node-card-icon-container u-icon-v1 u-icon-size--lg g-color-white-opacity-0_7 g-mb-15',
+					0 => 'landing-block-node-card-icon-container m-auto u-icon-v1 u-icon-size--lg g-color-white-opacity-0_7 g-mb-15',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block g-pb-70 g-bg-primary g-pt-35',

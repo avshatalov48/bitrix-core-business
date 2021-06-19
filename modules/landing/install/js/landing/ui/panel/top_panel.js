@@ -64,12 +64,12 @@
 		var sitesCount = parseInt(BX.Landing.Main.getInstance().options.sites_count);
 		var pagesCount = parseInt(BX.Landing.Main.getInstance().options.pages_count);
 
-		if (sitesCount > 1)
+		if (sitesCount > 1 && this.siteButton)
 		{
 			bind(this.siteButton, "click", this.onSiteButtonClick);
 		}
 
-		if (pagesCount > 1)
+		if (pagesCount > 1 && this.pageButton)
 		{
 			bind(this.pageButton, "click", this.onPageButtonClick);
 		}
@@ -441,7 +441,7 @@
 						makeSelectablePopupMenu(this.pageMenu);
 
 						landings.forEach(function(landing) {
-							if (!landing.FOLDER_ID && !landing.IS_AREA)
+							if ((landing.FOLDER_ID === null || parseInt(landing.FOLDER_ID) === 0) && !landing.IS_AREA)
 							{
 								this.pageMenu.addMenuItem({
 									id: landing.ID,

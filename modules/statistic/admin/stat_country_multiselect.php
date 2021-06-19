@@ -48,7 +48,7 @@ $arFilter = Array(
 );
 
 $cData = new CCountry;
-$rsData = $cData->GetList($by, $order, $arFilter, $is_filtered);
+$rsData = $cData->GetList('', '', $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("STAT_COUNTRY_MSEL_PAGES")));

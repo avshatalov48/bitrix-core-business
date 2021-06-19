@@ -218,9 +218,13 @@ class FileType extends BaseType
 					\CFile::Delete($value['old_id']);
 				}
 				$value['MODULE_ID'] = 'main';
-				$id = \CFile::SaveFile($value, 'uf');
 
-				return $id;
+				if (!empty($value['name']))
+				{
+					return \CFile::SaveFile($value, 'uf');
+				}
+
+				return false;
 			}
 		}
 		// new mechanism - mail.file.input

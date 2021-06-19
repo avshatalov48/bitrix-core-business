@@ -291,7 +291,8 @@ class SitemapFile
 	public function removeEntry($url)
 	{
 		$fileName = $this->partFile;
-		$url = $this->settings['PROTOCOL'] . '://' . \CBXPunycode::toASCII($this->settings['DOMAIN'], $e = NULL) . $url;
+		$e = [];
+		$url = $this->settings['PROTOCOL'] . '://' . \CBXPunycode::toASCII($this->settings['DOMAIN'], $e) . $url;
 		$pattern = sprintf(self::ENTRY_TPL_SEARCH, $url);
 
 		while($this->isExists())
@@ -341,8 +342,9 @@ class SitemapFile
 	{
 		if($f->isExists() && !$f->isSystem())
 		{
+			$e = [];
 			$this->addEntry(array(
-				'XML_LOC' => $this->settings['PROTOCOL'].'://'.\CBXPunycode::toASCII($this->settings['DOMAIN'], $e = null).$this->getFileUrl($f),
+				'XML_LOC' => $this->settings['PROTOCOL'].'://'.\CBXPunycode::toASCII($this->settings['DOMAIN'], $e).$this->getFileUrl($f),
 				'XML_LASTMOD' => date('c', $f->getModificationTime()),
 			));
 		}
@@ -358,8 +360,9 @@ class SitemapFile
 	 */
 	public function addIBlockEntry($url, $modifiedDate)
 	{
+		$e = [];
 		$this->addEntry(array(
-			'XML_LOC' => $this->settings['PROTOCOL'].'://'.\CBXPunycode::toASCII($this->settings['DOMAIN'], $e = null).$url,
+			'XML_LOC' => $this->settings['PROTOCOL'].'://'.\CBXPunycode::toASCII($this->settings['DOMAIN'], $e).$url,
 			'XML_LASTMOD' => date('c', $modifiedDate - \CTimeZone::getOffset()),
 		));
 	}
@@ -376,8 +379,9 @@ class SitemapFile
 	{
 		if($this->isExists())
 		{
+			$e = [];
 			$this->appendEntry(array(
-				'XML_LOC' => $this->settings['PROTOCOL'].'://'.\CBXPunycode::toASCII($this->settings['DOMAIN'], $e = null).$url,
+				'XML_LOC' => $this->settings['PROTOCOL'].'://'.\CBXPunycode::toASCII($this->settings['DOMAIN'], $e).$url,
 				'XML_LASTMOD' => date('c', $modifiedDate - \CTimeZone::getOffset()),
 			));
 		}
@@ -417,7 +421,8 @@ class SitemapFile
 	 */
 	public function getUrl()
 	{
-		return $this->settings['PROTOCOL'].'://'.\CBXPunycode::toASCII($this->settings['DOMAIN'], $e = null).$this->getFileUrl($this);
+		$e = [];
+		return $this->settings['PROTOCOL'].'://'.\CBXPunycode::toASCII($this->settings['DOMAIN'], $e).$this->getFileUrl($this);
 	}
 
 	/**

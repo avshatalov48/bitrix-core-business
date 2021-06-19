@@ -7,12 +7,12 @@
 						<h6 class="landing-block-node-address-subtitle landing-semantic-link-image-medium d-inline-block g-theme-travel-bg-black-v1 g-font-weight-700 g-color-white g-px-15 g-py-10 g-mb-20">
 							Contact Us
 						</h6>
-						<h2 class="landing-block-node-address-title landing-semantic-title-medium text-uppercase u-heading-v8__title g-font-weight-700 g-font-size-40 mb-0">
+						<h2 class="landing-block-node-address-title landing-semantic-title-medium text-uppercase u-heading-v8__title g-font-weight-700 h1 mb-0 g-brd-white">
 							<font color="#ffffff">Get in</font> touch
 						</h2>
 					</div>
 
-					<div class="landing-block-node-address-text landing-semantic-text-medium g-line-height-1_3 g-font-size-16 g-color-white-opacity-0_8 g-mb-45">
+					<div class="landing-block-node-address-text landing-semantic-text-medium g-line-height-1_3 g-color-white-opacity-0_8 g-mb-45">
 						<p>Aliquam dapibus quis sapien id pharetra. Vivamus iaculis est vitae libero tempus, in sollicitudin est consectetur porttitor iaculis pretium</p>
 					</div>
 

@@ -87,7 +87,7 @@
 				targetContainer: this.viewElement,
 				zIndex: this.zIndex,
 				lightShadow : true,
-				darkMode: BXIM.settings.enableDarkTheme,
+				darkMode: BX.MessengerTheme.isDark(),
 				autoHide: true,
 				closeByEsc: true,
 				content: this.elements.root,

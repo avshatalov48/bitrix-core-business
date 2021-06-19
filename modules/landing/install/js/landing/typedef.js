@@ -2,6 +2,8 @@
  * @typedef {object} blockOptions
  * @property {number|string} id
  * @property {boolean} active
+ * @property {boolean} php
+ * @property {boolean} designed
  * @property {blockManifest} manifest
  * @property {string} access
  * @property {number} siteId

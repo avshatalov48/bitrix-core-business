@@ -164,7 +164,7 @@ class CSecurityAntiVirus
 						$SITE_ID = $arInfo["SITE_ID"];
 						if($arInfo["INFO"] <> '')
 						{
-							$arEvent = unserialize(base64_decode($arInfo["INFO"]));
+							$arEvent = unserialize(base64_decode($arInfo["INFO"]), ['allowed_classes' => false]);
 							if(is_array($arEvent))
 							{
 								$DB->Add("b_event_log", $arEvent, array("DESCRIPTION"));
@@ -353,7 +353,7 @@ class CSecurityAntiVirus
 
 		if(preg_match('/(TasksUsers|IntranetUsers).arEmployees/',$this->body))
 			return 35;
-	
+
 		if(preg_match('/window\.location\s*=\s*[\'"]\/bitrix\/admin\/iblock_bizproc_workflow_edit.php/', $this->body))
 			return 36;
 
@@ -371,13 +371,13 @@ class CSecurityAntiVirus
 
 		if(preg_match('/var\s+formSettingsDialogCRM_(LEAD|DEAL|COMPANY|CONTACT)_SHOW/', $this->body))
 			return 38;
-		
+
 		if(preg_match('/parent\.(FILE_UPLOADER_CALLBACK)/', $this->body))
 			return 39;
-		
+
 		if(preg_match('/bxForm_CRM/', $this->body))
 			return 40;
-		
+
 		if(preg_match('/\$\(([\'"])[^\'"]*[\'"]\)/', $this->body))
 			return 41;
 

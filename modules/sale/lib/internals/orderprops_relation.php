@@ -36,8 +36,8 @@ class OrderPropsRelationTable extends Main\Entity\DataManager
 			),
 			'ENTITY_TYPE' => array(
 				'primary' => true,
-				'data_type' => 'boolean',
-				'values' => array('P', 'D'),
+				'data_type' => 'string',
+				'values' => array('P', 'D', 'L'),
 			),
 
 			'lPROPERTY' => array(

@@ -78,7 +78,8 @@ while($arSite = $dbSites->fetch(Converter::getHtmlConverter()))
 	$row =& $lAdmin->AddRow($arSite['DOMAIN'], $arSite);
 
 	$siteDomainEnc = Converter::getHtmlConverter()->encode($arSite['DOMAIN']);
-	$siteDomainEncView = Converter::getHtmlConverter()->encode(\CBXPunycode::ToUnicode($arSite['DOMAIN'], $e = null));
+	$e = [];
+	$siteDomainEncView = Converter::getHtmlConverter()->encode(\CBXPunycode::ToUnicode($arSite['DOMAIN'], $e));
 
 	$siteDirEnc = Converter::getHtmlConverter()->encode($arSite['SITE_DIR']);
 

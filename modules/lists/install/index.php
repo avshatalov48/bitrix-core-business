@@ -14,7 +14,7 @@ Class lists extends CModule
 
 	var $errors = false;
 
-	function lists()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -131,7 +131,7 @@ Class lists extends CModule
 		$arLanguages = array();
 		if (!empty($arTypes))
 		{
-			$rsLanguage = CLanguage::GetList($by, $order, array());
+			$rsLanguage = CLanguage::GetList();
 			while ($arLanguage = $rsLanguage->Fetch())
 			{
 				$arLanguages[] = $arLanguage["LID"];
@@ -330,7 +330,7 @@ Class lists extends CModule
 		}
 	}
 
-	function OnGetTableSchema()
+	public static function OnGetTableSchema()
 	{
 		return array(
 			"iblock" => array(

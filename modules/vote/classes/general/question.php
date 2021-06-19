@@ -1,21 +1,23 @@
-<?
+<?php
+
 #############################################
 # Bitrix Site Manager Forum					#
 # Copyright (c) 2002-2009 Bitrix			#
 # http://www.bitrixsoft.com					#
 # mailto:admin@bitrixsoft.com				#
 #############################################
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllVoteQuestion
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "vote";
 		return "<br>Module: ".$module_id."<br>Class: CAllVoteQuestion<br>File: ".__FILE__;
 	}
 
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		$aMsg = array();
 		$ID = intval($ID);
@@ -100,7 +102,7 @@ class CAllVoteQuestion
 		return true;
 	}
 
-	function Add($arFields, $strUploadDir = false)
+	public static function Add($arFields, $strUploadDir = false)
 	{
 		global $DB;
 		$strUploadDir = ($strUploadDir === false ? "vote" : $strUploadDir);
@@ -218,7 +220,7 @@ class CAllVoteQuestion
 		return $newQuestionID;
 	}
 
-	function GetNextSort($VOTE_ID)
+	public static function GetNextSort($VOTE_ID)
 	{
 		global $DB;
 		$err_mess = (CAllVoteQuestion::err_mess())."<br>Function: GetNextSort<br>Line: ";
@@ -241,7 +243,7 @@ class CAllVoteQuestion
 
 		if (!array_key_exists($ID, $GLOBALS["VOTE_CACHE"]["QUESTION"]))
 		{
-			$db_res = CVoteQuestion::GetList(0, $by, $order, array("ID" => $ID), $is_filtered);
+			$db_res = CVoteQuestion::GetList(0, '', '', array("ID" => $ID));
 			if ($db_res) $res = $db_res->Fetch();
 			$GLOBALS["VOTE_CACHE"]["QUESTION"][$ID] = $res;
 		}
@@ -250,7 +252,7 @@ class CAllVoteQuestion
 		return $db_res;
 	}
 
-	public static function GetList($VOTE_ID, &$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetList($VOTE_ID, $by = 's_c_sort', $order = 'asc', $arFilter = [])
 	{
 		global $DB;
 		$err_mess = (CAllVoteQuestion::err_mess())."<br>Function: GetList<br>Line: ";
@@ -267,7 +269,7 @@ class CAllVoteQuestion
 			$key_res = VoteGetFilterOperation($key);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
-			$key = mb_strtoupper($key_res["FIELD"]);
+			$key = strtoupper($key_res["FIELD"]);
 
 			switch($key)
 			{
@@ -290,15 +292,16 @@ class CAllVoteQuestion
 			$arSqlSearch[] = "Q.VOTE_ID = ".$VOTE_ID;
 
 		// Order
-		$by1 = mb_strtoupper(mb_strpos($by, "s_") === 0? mb_substr($by, 2) : $by);
+		$by = strtoupper(strpos($by, "s_") === 0? substr($by, 2) : $by);
 		$order = ($order != "desc" ? "asc" : "desc");
-		$order1 = mb_strtoupper($order);
-		if (in_array($by1, array("ID", "TIMESTAMP_X", "ACTIVE", "DIAGRAM", "C_SORT", "REQUIRED"))):
-			$strSqlOrder = "Q.".$by1." ".$order1;
-		else:
-			$by = "s_c_sort";
-			$strSqlOrder = "Q.C_SORT ".$order1;
-		endif;
+		if (in_array($by, array("ID", "TIMESTAMP_X", "ACTIVE", "DIAGRAM", "C_SORT", "REQUIRED")))
+		{
+			$strSqlOrder = "Q.".$by." ".$order;
+		}
+		else
+		{
+			$strSqlOrder = "Q.C_SORT ".$order;
+		}
 
 		// Sql
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
@@ -309,11 +312,11 @@ class CAllVoteQuestion
 			WHERE ".$strSqlSearch."
 			ORDER BY ".$strSqlOrder;
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 
-	function GetListEx($arOrder = array("ID" => "ASC"), $arFilter=array())
+	public static function GetListEx($arOrder = array("ID" => "ASC"), $arFilter=array())
 	{
 		global $DB;
 
@@ -512,4 +515,3 @@ class CAllVoteQuestion
 		return $ID;
 	}
 }
-?>

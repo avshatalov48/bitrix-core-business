@@ -76,7 +76,7 @@ if(($arID = $lAdmin->GroupAction()))
 	if($_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
-		$rsData = CIBlockElement::WF_GetHistoryList($ELEMENT_ID, $by, $order, $arFilter, $is_filtered);
+		$rsData = CIBlockElement::WF_GetHistoryList($ELEMENT_ID, '', '', $arFilter);
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -144,7 +144,9 @@ if(($arID = $lAdmin->GroupAction()))
 }
 
 // dataset
-$rsData = CIBlockElement::WF_GetHistoryList($ELEMENT_ID, $by, $order, $arFilter, $is_filtered);
+global $by, $order;
+
+$rsData = CIBlockElement::WF_GetHistoryList($ELEMENT_ID, $by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 

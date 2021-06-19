@@ -118,7 +118,7 @@ abstract class MysqlCommonConnection extends Connection
 
 			$sqlFields[] = $this->getSqlHelper()->quote($realColumnName)
 				. ' ' . $this->getSqlHelper()->getColumnTypeByField($field)
-				. ' NOT NULL' // null for oracle if is not primary
+				. ($field->isNullable() ? '' : ' NOT NULL') // null for oracle if is not primary
 				. (in_array($columnName, $autoincrement, true) ? ' AUTO_INCREMENT' : '')
 			;
 		}
@@ -290,7 +290,6 @@ abstract class MysqlCommonConnection extends Connection
 	 * Storage engine read from .settings.php file. It is 'engine' key of the 'default' from the 'connections'.
 	 *
 	 * @return void
-	 * @throws \Bitrix\Main\Db\SqlQueryException
 	 */
 	public function setStorageEngine()
 	{
@@ -312,7 +311,6 @@ abstract class MysqlCommonConnection extends Connection
 	 * Returns max packet length to send to or receive from the database server.
 	 *
 	 * @return int
-	 * @throws \Bitrix\Main\Db\SqlQueryException
 	 */
 	public function getMaxAllowedPacket()
 	{

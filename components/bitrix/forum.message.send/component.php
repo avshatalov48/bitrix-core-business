@@ -77,8 +77,10 @@ $arResult["profile_view"] = $arResult["URL"]["RECIPIENT"];
 $res = CForumUser::GetByUSER_ID($arParams["UID"]);
 if ($res)
 {
-	while (list($key, $val) = each($res))
+	foreach ($res as $key => $val)
+	{
 		$userRec[$key] = htmlspecialcharsbx($val);
+	}
 }
 $userRec["FULL_NAME"] = CForumUser::GetFormattedNameByUserID($arParams["UID"], $arParams["NAME_TEMPLATE"], $userRec);
 
@@ -90,8 +92,10 @@ if ($USER->IsAuthorized())
 	$db_res = CForumUser::GetByUSER_ID($USER->GetID());
 	if ($db_res)
 	{
-		while (list($key, $val) = each($db_res))
+		foreach ($db_res as $key => $val)
+		{
 			$userSend[$key] = htmlspecialcharsbx($val);
+		}
 	}
 	$userSend["FULL_NAME"] = CForumUser::GetFormattedNameByUserID($USER->GetID(), $arParams["NAME_TEMPLATE"], $userSend);
 	$userSend["E-MAIL"] = ($arParams["TYPE"]=="ICQ") ? $userSend["PERSONAL_ICQ"] : $USER->GetEmail();

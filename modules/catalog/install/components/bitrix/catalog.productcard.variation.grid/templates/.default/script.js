@@ -1,6 +1,16 @@
 (function (exports,main_core,main_core_events,main_popup,ui_dialogs_messagebox) {
 	'use strict';
 
+	function _templateObject2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"main-grid-delete-button\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></span>\n\t\t\t"]);
+
+	  _templateObject2 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
 	function _templateObject() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<li data-role=\"createItem\"\n\t\t\t\t\t\t class=\"catalog-productcard-popup-select-item catalog-productcard-popup-select-item-new\"\n\t\t\t\t\t\t onclick=\"BX.Catalog.VariationGrid.firePropertyModification(", ")\">\n\t\t\t\t\t\t<label class=\"catalog-productcard-popup-select-label\">\n\t\t\t\t\t\t\t<span class=\"catalog-productcard-popup-select-add\"></span>\n\t\t\t\t\t\t\t<span class=\"catalog-productcard-popup-select-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</label>\n\t\t\t\t\t</li>"]);
 
@@ -27,6 +37,11 @@
 	    this.modifyPropertyLink = settings.modifyPropertyLink;
 	    this.gridEditData = settings.gridEditData;
 	    this.canHaveSku = settings.canHaveSku || false;
+
+	    if (settings.copyItemsMap) {
+	      this.getGrid().arParams.COPY_ITEMS_MAP = settings.copyItemsMap;
+	    }
+
 	    var isGridReload = settings.isGridReload || false;
 
 	    if (!isGridReload) {
@@ -45,6 +60,8 @@
 	    if (this.isNew) {
 	      this.enableEdit();
 	      this.prepareNewNodes();
+	      this.getGrid().updateCounterSelected();
+	      this.getGrid().disableCheckAllCheckboxes();
 	    } else {
 	      this.bindInlineEdit();
 	    }
@@ -57,14 +74,14 @@
 	  babelHelpers.createClass(VariationGrid, [{
 	    key: "subscribeCustomEvents",
 	    value: function subscribeCustomEvents() {
-	      this.onSubmitEntityEditorAjaxHandler = this.onSubmitEntityEditorAjax.bind(this);
-	      main_core_events.EventEmitter.subscribeOnce('BX.UI.EntityEditorAjax:onSubmit', this.onSubmitEntityEditorAjaxHandler);
 	      this.onGridUpdatedHandler = this.onGridUpdated.bind(this);
 	      main_core_events.EventEmitter.subscribe('Grid::updated', this.onGridUpdatedHandler);
 	      this.onPropertySaveHandler = this.onPropertySave.bind(this);
 	      main_core_events.EventEmitter.subscribe('SidePanel.Slider:onMessage', this.onPropertySaveHandler);
 	      this.onAllRowsSelectHandler = this.enableEdit.bind(this);
 	      main_core_events.EventEmitter.subscribe('Grid::allRowsSelected', this.onAllRowsSelectHandler);
+	      this.onAllRowsUnselectHandler = this.disableEdit.bind(this);
+	      main_core_events.EventEmitter.subscribe('Grid::allRowsUnselected', this.onAllRowsUnselectHandler);
 	      this.showPropertySettingsSliderHandler = this.showPropertySettingsSlider.bind(this);
 	      main_core_events.EventEmitter.subscribe('VariationGrid::propertyModify', this.showPropertySettingsSliderHandler);
 	      this.onPrepareDropDownItemsHandler = this.onPrepareDropDownItems.bind(this);
@@ -73,6 +90,11 @@
 	  }, {
 	    key: "unsubscribeCustomEvents",
 	    value: function unsubscribeCustomEvents() {
+	      if (this.onGridUpdatedHandler) {
+	        main_core_events.EventEmitter.unsubscribe('Grid::updated', this.onGridUpdatedHandler);
+	        this.onGridUpdatedHandler = null;
+	      }
+
 	      if (this.onPropertySaveHandler) {
 	        main_core_events.EventEmitter.unsubscribe('SidePanel.Slider:onMessage', this.onPropertySaveHandler);
 	        this.onPropertySaveHandler = null;
@@ -91,6 +113,11 @@
 	      if (this.onAllRowsSelectHandler) {
 	        main_core_events.EventEmitter.unsubscribe('Grid::allRowsSelected', this.onAllRowsSelectHandler);
 	        this.onAllRowsSelectHandler = null;
+	      }
+
+	      if (this.onAllRowsUnselectHandler) {
+	        main_core_events.EventEmitter.unsubscribe('Grid::allRowsUnselected', this.onAllRowsUnselectHandler);
+	        this.onAllRowsUnselectHandler = null;
 	      }
 	    }
 	  }, {
@@ -125,11 +152,6 @@
 	          menu.close();
 	        }
 	      });
-	    }
-	  }, {
-	    key: "onSubmitEntityEditorAjax",
-	    value: function onSubmitEntityEditorAjax(event) {
-	      main_core_events.EventEmitter.emit(this.getGrid().getSettingsWindow().getPopup(), 'onDestroy');
 	    }
 	  }, {
 	    key: "onPrepareDropDownItems",
@@ -216,10 +238,34 @@
 	      return this.grid;
 	    }
 	  }, {
+	    key: "emitEditedRowsEvent",
+	    value: function emitEditedRowsEvent() {
+	      if (this.getGrid().getRows().isSelected()) {
+	        main_core_events.EventEmitter.emit('Grid::thereEditedRows', []);
+	      } else {
+	        main_core_events.EventEmitter.emit('Grid::noEditedRows', []);
+	      }
+	    }
+	  }, {
+	    key: "disableEdit",
+	    value: function disableEdit() {
+	      if (this.isNew) {
+	        return;
+	      }
+
+	      this.getGrid().getRows().getRows().forEach(function (current) {
+	        if (!main_core.Dom.hasClass(current.getNode(), 'main-grid-row-new')) {
+	          current.editCancel();
+	          current.unselect();
+	        }
+	      });
+	      this.emitEditedRowsEvent();
+	    }
+	  }, {
 	    key: "enableEdit",
 	    value: function enableEdit() {
 	      this.getGrid().getRows().selectAll();
-	      this.getGrid().editSelected();
+	      this.getGrid().getRows().editSelected();
 	    }
 	  }, {
 	    key: "prepareNewNodes",
@@ -234,7 +280,18 @@
 	        _this2.addSkuListCreationItem(newNode);
 
 	        _this2.modifyCustomSkuProperties(newNode);
+
+	        _this2.disableCheckbox(row);
 	      });
+	    }
+	  }, {
+	    key: "disableCheckbox",
+	    value: function disableCheckbox(row) {
+	      var checkbox = row.getCheckbox();
+
+	      if (main_core.Type.isDomNode(checkbox)) {
+	        checkbox.setAttribute('disabled', 'disabled');
+	      }
 	    }
 	  }, {
 	    key: "markNodeAsNew",
@@ -310,12 +367,7 @@
 	      }
 
 	      if (changed) {
-	        if (this.getGrid().getRows().isSelected()) {
-	          main_core_events.EventEmitter.emit('Grid::thereEditedRows', []);
-	        } else {
-	          main_core_events.EventEmitter.emit('Grid::noEditedRows', []);
-	        }
-
+	        this.emitEditedRowsEvent();
 	        this.getGrid().adjustRows();
 	        this.getGrid().updateCounterSelected();
 	        this.getGrid().updateCounterDisplayed();
@@ -388,12 +440,7 @@
 	      var originalTemplate = this.redefineTemplateEditData();
 	      var grid = this.getGrid();
 	      var newRow = grid.prependRowEditor();
-	      var checkbox = newRow.getCheckbox();
-
-	      if (main_core.Type.isDomNode(checkbox)) {
-	        checkbox.setAttribute('disabled', 'disabled');
-	      }
-
+	      this.disableCheckbox(newRow);
 	      var newNode = newRow.getNode();
 	      grid.getRows().reset();
 
@@ -404,6 +451,7 @@
 	        this.markNodeAsNew(newNode);
 	        this.modifyCustomSkuProperties(newNode);
 	        this.addSkuListCreationItem(newNode);
+	        this.setDeleteButton(newNode);
 	        newRow.makeCountable();
 	      }
 
@@ -415,6 +463,45 @@
 	      grid.adjustRows();
 	      grid.updateCounterDisplayed();
 	      grid.updateCounterSelected();
+	      this.updateCounterTotal();
+	    }
+	  }, {
+	    key: "updateCounterTotal",
+	    value: function updateCounterTotal() {
+	      var grid = this.getGrid();
+	      var counterTotalTextContainer = grid.getCounterTotal().querySelector('.main-grid-panel-content-text');
+	      counterTotalTextContainer.textContent = grid.getRows().getCountDisplayed();
+	    }
+	  }, {
+	    key: "setDeleteButton",
+	    value: function setDeleteButton(row) {
+	      var _row$dataset;
+
+	      var actionCellContentContainer = row.querySelector('.main-grid-cell-action .main-grid-cell-content');
+	      var rowId = row === null || row === void 0 ? void 0 : (_row$dataset = row.dataset) === null || _row$dataset === void 0 ? void 0 : _row$dataset.id;
+
+	      if (rowId) {
+	        var deleteButton = main_core.Tag.render(_templateObject2(), this.removeNewRowFromGrid.bind(this, rowId));
+	        main_core.Dom.append(deleteButton, actionCellContentContainer);
+	      }
+	    }
+	  }, {
+	    key: "removeNewRowFromGrid",
+	    value: function removeNewRowFromGrid(rowId) {
+	      if (!main_core.Type.isStringFilled(rowId)) {
+	        return;
+	      }
+
+	      var gridRow = this.getGrid().getRows().getById(rowId);
+
+	      if (gridRow) {
+	        main_core.Dom.remove(gridRow.getNode());
+	        this.getGrid().getRows().reset();
+	        this.getGrid().updateCounterDisplayed();
+	        this.getGrid().updateCounterSelected();
+	        this.updateCounterTotal();
+	        this.emitEditedRowsEvent();
+	      }
 	    }
 	  }, {
 	    key: "removeRowFromGrid",

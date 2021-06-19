@@ -14,7 +14,7 @@ interface IOrderProvider
 	/**
 	 * @param DateTime $dateFrom
 	 * @param DateTime $dateTo
-	 * @return Order[]
+	 * @return array
 	 */
 	public function provideOrders(DateTime $dateFrom, DateTime $dateTo): array;
 }

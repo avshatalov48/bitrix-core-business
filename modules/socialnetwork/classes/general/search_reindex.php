@@ -40,12 +40,7 @@ class CSocNetSearchReindex extends CSocNetSearch
 		FILES_USER_IBLOCK_ID
 		PATH_TO_USER_FILES_ELEMENT
 	*/
-	function __construct($user_id=0, $group_id=0, $arParams=array())
-	{
-		$this->CSocNetSearchReindex($user_id, $group_id, $arParams);
-	}
-
-	function CSocNetSearchReindex($user_id=0, $group_id=0, $arParams=array())
+	public function __construct($user_id=0, $group_id=0, $arParams=array())
 	{
 		$this->_user_id = intval($user_id);
 		$this->_group_id = intval($group_id);
@@ -684,12 +679,11 @@ class CSocNetSearchReindex extends CSocNetSearch
 			return array("step" => $next_step, "last_id" => 0);
 	}
 
-	function OnBeforeFullReindexClear()
+	public static function OnBeforeFullReindexClear()
 	{
 	}
 
-	function OnBeforeIndexDelete($strWhere)
+	public static function OnBeforeIndexDelete($strWhere)
 	{
 	}
 }
-?>

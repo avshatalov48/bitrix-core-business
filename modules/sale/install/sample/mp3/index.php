@@ -219,7 +219,7 @@ function OnSelectAll(fl)
 		</td>
 	</tr>
 <?
-while (list($fileName, $fileDate) = each($arMP3Files))
+foreach ($arMP3Files as $fileName => $fileDate)
 {
 	$arMP3Tags = ReadMP3Tags($mp3Path2Original.$fileName);
 	$bCanAccess = False;

@@ -135,4 +135,9 @@ export class StatusInformer
 		Dom.addClass(this.DOM.wrap, 'calendar-resbook-webform-block-result-error');
 		Dom.adjust(this.DOM.statusWrap, {text: message});
 	}
+
+	isErrorSet()
+	{
+		return this.shown && Dom.hasClass(this.DOM.wrap, 'calendar-resbook-webform-block-result-error');
+	}
 }

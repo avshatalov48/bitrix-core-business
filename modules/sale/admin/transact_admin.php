@@ -143,7 +143,7 @@ if (in_array("DESCR", $arVisibleColumns))
 
 	if(!empty($arTrUsers))
 	{
-		$dbUser = CUser::GetList($by = "ID", $or = "ASC", array("ID" => implode(' || ', array_keys($arTrUsers))), array("FIELDS" => array("ID", "LOGIN", "NAME", "LAST_NAME")));
+		$dbUser = CUser::GetList("ID", "ASC", array("ID" => implode(' || ', array_keys($arTrUsers))), array("FIELDS" => array("ID", "LOGIN", "NAME", "LAST_NAME")));
 		while($arUser = $dbUser->Fetch())
 		{
 			$LOCAL_TRANS_USER_CACHE[$arUser["ID"]] = htmlspecialcharsEx($arUser["NAME"].(($arUser["NAME"] == '' || $arUser["LAST_NAME"] == '') ? "" : " ").$arUser["LAST_NAME"]." (".$arUser["LOGIN"].")");

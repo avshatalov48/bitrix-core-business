@@ -33,7 +33,7 @@ if (!function_exists('MULChangeOnlineStatus'))
 		{
 			$arUserListIDUnique = array_unique($arUserListID);
 			$strUserListID = implode("|", $arUserListIDUnique);
-			$rsUser = CUser::GetList(($by="id"), ($order="desc"), array("ID" => $strUserListID));
+			$rsUser = CUser::GetList("id", "desc", array("ID" => $strUserListID));
 
 			$arUserListOnlineHTML_ID = array();
 			while($arUser = $rsUser->Fetch())

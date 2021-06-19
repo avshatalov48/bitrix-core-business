@@ -2,6 +2,8 @@
 namespace Bitrix\Report\VisualConstructor;
 
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\SystemException;
+use Bitrix\Main\UI\Extension;
 use Bitrix\Report\VisualConstructor\Helper\Filter;
 
 /**
@@ -22,19 +24,30 @@ class AnalyticBoard
 	private $stepperIds = [];
 	private $limited = false;
 	private $limitComponentParams = [];
-private $isExternal = false;
+	private $isExternal = false;
 	private $externalUrl = "";
-	public function __construct($boardId = '')
+	private $isSliderSupport = true;
+	private $options;
+	private $setOptionsCallback;
+
+	public function __construct(string $boardId = '', array $options = [])
 	{
+		$this->options = $options;
+
 		if ($boardId)
 		{
 			$this->setBoardKey($boardId);
 
-			$configurationButton = new BoardComponentButton('bitrix:report.analytics.config.control', '', [
-				'BOARD_ID' => $this->getBoardKey()
-			]);
+			$configurationButton = new BoardComponentButton(
+				'bitrix:report.analytics.config.control',
+				'',
+				[
+					'BOARD_ID' => $this->getBoardKey(),
+					'BOARD_OPTIONS' => $this->getOptions(),
+				]
+			);
 			$this->addButton($configurationButton);
-			$this->addButton(new BoardButton(' '));
+			//$this->addButton(new BoardButton(' '));
 		}
 	}
 
@@ -320,6 +333,22 @@ private $isExternal = false;
 		$this->externalUrl = $externalUrl;
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function isSliderSupport(): bool
+	{
+		return $this->isSliderSupport;
+	}
+
+	/**
+	 * @param bool $isSliderSupport
+	 */
+	public function setSliderSupport(bool $isSliderSupport): void
+	{
+		$this->isSliderSupport = $isSliderSupport;
+	}
+
 	public function getDisplayComponentName()
 	{
 		if ($this->isDisabled())
@@ -387,5 +416,40 @@ private $isExternal = false;
 	public function setGroup($group): void
 	{
 		$this->group = $group;
+	}
+
+	public function toggleOption(string $optionName)
+	{
+		$found = false;
+		foreach ($this->options as $optionFields)
+		{
+			if ($optionFields['NAME'] === $optionName)
+			{
+				$found = true;
+				break;
+			}
+		}
+
+		if (!$found)
+		{
+			throw new SystemException("Unknown option {$optionName} for the board {$this->boardKey}");
+		}
+
+		if (!is_callable($this->setOptionsCallback))
+		{
+			throw new SystemException("setOptionsCallback is not callable for the board {$this->boardKey}");
+		}
+
+		call_user_func($this->setOptionsCallback, $optionName, !$optionFields['VALUE']);
+	}
+
+	public function registerSetOptionsCallback(callable $cb)
+	{
+		$this->setOptionsCallback = $cb;
+	}
+
+	public function getOptions() : array
+	{
+		return $this->options;
 	}
 }

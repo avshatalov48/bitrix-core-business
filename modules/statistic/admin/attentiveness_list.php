@@ -15,7 +15,7 @@ if($find_diagram_type!="ACTIVITY")
 	$find_diagram_type="DURATION";
 
 $ref = $ref_id = array();
-$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 {
 	$ref[] = "[".$ar["ID"]."] ".$ar["NAME"];
@@ -62,7 +62,7 @@ $arrTime = array("AM_1", "AM_1_3", "AM_3_6", "AM_6_9", "AM_9_12", "AM_12_15", "A
 $arrHits = array("AH_1", "AH_2_5", "AH_6_9", "AH_10_13", "AH_14_17", "AH_18_21", "AH_22_25", "AH_26_29", "AH_30_33", "AH_34");
 
 $days = $hits_sum = $time_sum = 0;
-$rs = CTraffic::GetDailyList(($by="s_date"), ($order="asc"), $arMaxMin, $arFilter, $is_filtered);
+$rs = CTraffic::GetDailyList("s_date", "asc", $arMaxMin, $arFilter);
 while ($ar = $rs->Fetch())
 {
 	$days++;

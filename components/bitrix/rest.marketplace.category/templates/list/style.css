@@ -167,6 +167,10 @@
 	font: 10px/15px "OpenSans-SemiBold", sans-serif;
 }
 
+.mp-item-developer-full {
+	max-height: 45px;
+}
+
 .mp-item-controls {
 	position: absolute;
 	right: 0;

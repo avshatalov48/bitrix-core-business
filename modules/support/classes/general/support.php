@@ -206,7 +206,7 @@ class CAllTicket
 		$right = COption::GetOptionString("support", "GROUP_DEFAULT_RIGHT", "D");
 		if ($right == $role)
 		{
-			$res = CGroup::GetList($v1="dropdown", $v2="asc", array("ACTIVE" => "Y"));
+			$res = CGroup::GetList("dropdown", "asc", array("ACTIVE" => "Y"));
 			while ($ar = $res->Fetch())
 			{
 				if (!in_array($ar["ID"],$arGroups) && !in_array($ar["ID"],$arBadGroups))
@@ -249,7 +249,7 @@ class CAllTicket
 		$arGroups = CTicket::GetGroupsByRole($role);
 		if (is_array($arGroups) && count($arGroups)>0)
 		{
-			$rsUser = CUser::GetList($v1="id", $v2="desc", array("ACTIVE" => "Y", "GROUPS_ID" => $arGroups));
+			$rsUser = CUser::GetList("id", "desc", array("ACTIVE" => "Y", "GROUPS_ID" => $arGroups));
 			while ($arUser = $rsUser->Fetch()) $arEmail[$arUser["EMAIL"]] = $arUser["EMAIL"];
 		}
 		return array_unique($arEmail);
@@ -283,7 +283,7 @@ class CAllTicket
 		}
 		if(count($sg) > 0)
 		{
-			$cU = CUser::GetList($v1="id", $v2="asc", array("ACTIVE" => "Y", "GROUPS_ID" => $sg));
+			$cU = CUser::GetList("id", "asc", array("ACTIVE" => "Y", "GROUPS_ID" => $sg));
 			while($arU = $cU->Fetch())
 			{
 				$arUser[] = intval($arU["ID"]);
@@ -676,7 +676,7 @@ class CAllTicket
 		// If the message that we want to separate, there are attached files, copy them
 		if (isset($arParam['SPLIT_ATTACH_FILE']))
 		{
-			$res = CTicket::GetMessageList($by='ID', $order='ASC', array('TICKET_ID'=>$arParam['SPLIT_TICKET_ID']), $is_filtered = false);
+			$res = CTicket::GetMessageList('ID', 'ASC', array('TICKET_ID'=>$arParam['SPLIT_TICKET_ID']));
 			$MESSAGE = $res->Fetch();
 			foreach($arParam['SPLIT_ATTACH_FILE'] as $key => $iAttachFile)
 			{
@@ -819,8 +819,7 @@ class CAllTicket
 			$exactly = ($exactly=="Y" && $bAdmin=="Y") ? "Y" : "N";
 
 			$arFilter = array("TICKET_ID" => $ticketID, "TICKET_ID_EXACT_MATCH" => "Y", "IS_LOG" => "N");
-			$a = $b = $c = null;
-			if ($rsMessages = CTicket::GetMessageList($a, $b, $arFilter, $c, $checkRights))
+			if ($rsMessages = CTicket::GetMessageList('', '', $arFilter, null, $checkRights))
 			{
 				// помечаем исходное сообщение
 				if ($arMessage = $rsMessages->Fetch())
@@ -854,8 +853,7 @@ class CAllTicket
 		if ($bAdmin=="Y" || $bSupportTeam=="Y")
 		{
 			$arFilter = array("TICKET_ID" => $ticketID, "TICKET_ID_EXACT_MATCH" => "Y");
-			$a = $b = $c = null;
-			if ($rsMessages = CTicket::GetMessageList($a, $b, $arFilter, $c, $checkRights))
+			if ($rsMessages = CTicket::GetMessageList('', '', $arFilter, null, $checkRights))
 			{
 				// снимаем отметку о спаме только у первого сообщения
 				if ($arMessage = $rsMessages->Fetch())
@@ -1292,7 +1290,7 @@ class CAllTicket
 		$DB->Update("b_ticket",$arFields,"WHERE ID='".$ticketID."'",$err_mess.__LINE__);
 	}
 
-	public static function GetFileList(&$by, &$order, $arFilter=array(), $checkRights = 'N')
+	public static function GetFileList($by = 's_id', $order = 'asc', $arFilter = [], $checkRights = 'N')
 	{
 		$err_mess = (CAllTicket::err_mess())."<br>Function: GetFileList<br>Line: ";
 		global $DB, $USER;
@@ -1309,7 +1307,7 @@ class CAllTicket
 				if ((is_array($val) && count($val)<=0) || (!is_array($val) && ((string) $val == '' || $val==='NOT_REF')))
 					continue;
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "LINK_ID":
@@ -1332,18 +1330,16 @@ class CAllTicket
 		elseif ($by == "s_message_id")	$strSqlOrder = "ORDER BY MF.MESSAGE_ID";
 		else
 		{
-			$by = "s_id";
 			$strSqlOrder = "ORDER BY MF.ID";
 		}
+
 		if ($order=="desc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 		else
 		{
 			$strSqlOrder .= " asc ";
-			$order="asc";
 		}
 
 		$messageJoin = '';
@@ -1441,14 +1437,12 @@ class CAllTicket
 
 	public static function GetMessageByID($id, $checkRights="Y", $get_user_name="Y")
 	{
-		$by = $order = $is_filtered = null;
-		return CTicket::GetMessageList($by, $order, array("ID" => $id, "ID_EXACT_MATCH" => "Y"), $is_filtered, $checkRights, $get_user_name);
+		return CTicket::GetMessageList('', '', array("ID" => $id, "ID_EXACT_MATCH" => "Y"), null, $checkRights, $get_user_name);
 	}
 
 	public static function GetByID($id, $lang=LANG, $checkRights="Y", $get_user_name="Y", $get_extra_names="Y", $arParams = Array())
 	{
-		$by = $order = $is_filtered = null;
-		return CTicket::GetList($by, $order, array("ID" => $id, "ID_EXACT_MATCH" => "Y"), $is_filtered, $checkRights, $get_user_name, $get_extra_names, $lang, $arParams);
+		return CTicket::GetList('', '', array("ID" => $id, "ID_EXACT_MATCH" => "Y"), null, $checkRights, $get_user_name, $get_extra_names, $lang, $arParams);
 	}
 
 	public static function getMaxId()
@@ -2898,22 +2892,18 @@ class CAllTicket
 	public static function GetFUA($site_id)
 	{
 		$err_mess = (CAllTicket::err_mess())."<br>Function: GetFUA<br>Line: ";
-		global $DB;
 		if ($site_id=="all") $site_id = "";
 		$arFilter = array("TYPE" => "F", "SITE" => $site_id);
-		$v2 = $v3 = null;
-		$rs = CTicketDictionary::GetList(($v1="s_dropdown"), $v2, $arFilter, $v3);
+		$rs = CTicketDictionary::GetList("s_dropdown", '', $arFilter);
 		return $rs;
 	}
 
 	public static function GetRefBookValues($type, $site_id=false)
 	{
 		$err_mess = (CAllTicket::err_mess())."<br>Function: GetRefBookValues<br>Line: ";
-		global $DB;
 		if ($site_id=="all") $site_id = "";
 		$arFilter = array("TYPE" => $type, "SITE" => $site_id);
-		$v2 = $v3 = null;
-		$rs = CTicketDictionary::GetList(($v1="s_dropdown"), $v2, $arFilter, $v3);
+		$rs = CTicketDictionary::GetList("s_dropdown", '', $arFilter);
 		return $rs;
 	}
 
@@ -2921,8 +2911,7 @@ class CAllTicket
 	{
 		$arFilter["TICKET_ID"] = $ticketID;
 		$arFilter["TICKET_ID_EXACT_MATCH"] = "Y";
-		$by = $order = $is_filtered = null;
-		return CTicket::GetMessageList($by, $order, $arFilter, $is_filtered, $checkRights, "Y");
+		return CTicket::GetMessageList('', '', $arFilter, null, $checkRights, "Y");
 	}
 
 	public static function GetResponsible()
@@ -3008,10 +2997,7 @@ class CAllTicket
 			if($isActive)
 			{
 				$strGuests = implode("|", $arGuestIDsU);
-				$f = "ID";
-				$o = "asc";
-				$isf = null;
-				$rs = CGuest::GetList($f, $o, array( "ID" => $strGuests), $isf);
+				$rs = CGuest::GetList("ID", "asc", array( "ID" => $strGuests));
 				while($ar = $rs->Fetch())
 				{
 					$arGuestUserIDs[] = intval($ar["LAST_USER_ID"]);
@@ -3031,9 +3017,7 @@ class CAllTicket
 		{
 			$arRespUserIDs = array_unique(array_merge($arUserIDs, $arGuestUserIDs));
 			$strUsers = implode("|", $arRespUserIDs);
-			$f = "ID";
-			$o = "asc";
-			$rs = CUser::GetList($f, $o, array( "ID" => $strUsers), array("FIELDS"=>array("NAME", "SECOND_NAME","LAST_NAME","LOGIN","ID","EMAIL")));
+			$rs = CUser::GetList('id', 'asc', array( "ID" => $strUsers), array("FIELDS"=>array("NAME", "SECOND_NAME","LAST_NAME","LOGIN","ID","EMAIL")));
 			while($ar = $rs->Fetch())
 			{
 				$arResUsers[intval($ar["ID"])] = $ar;

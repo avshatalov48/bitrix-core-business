@@ -18,8 +18,12 @@
 	function itemAdapter(item, google)
 	{
 		return {
-			image: item.image.thumbnailLink,
+			image: item.link,
 			credit: {},
+			dimensions: {
+				width: item.image.width,
+				height: item.image.height
+			},
 			onClick: google.onPictureChange.bind(google, item.link)
 		}
 	}
@@ -50,6 +54,7 @@
 		BX.Landing.UI.Card.Library.apply(this, arguments);
 		this.page = 1;
 		this.query = "";
+		this.loader = new BX.Loader({target: this.body, offset: {top: '12%'}});
 		this.client = BX.Landing.Client.Google.getInstance();
 		this.onSearchWithDebounce = BX.debounce(this.onSearchWithDebounce, 1000, this);
 		this.showPopular();

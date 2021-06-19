@@ -26,16 +26,18 @@
 	padding-left: 19px;
 }
 
-.landing-ui-button-action[data-id="content"] {
+.landing-ui-button-action[data-id="content"],
+.landing-ui-button-action[data-id="style"] {
    border-right: none;
 }
 
+.landing-ui-button-action[data-id="designblock"],
 .landing-ui-button-action[data-id="style"] {
 	border-left: none;
 }
 
 
-.landing-ui-button-action[data-id="style"],
+.landing-ui-button-action[data-id="designblock"],
 .landing-ui-button-action[data-id="remove"] {
 	padding-right: 19px;
 	border-top-right-radius: 20px;
@@ -50,11 +52,11 @@
 	display: none!important;
 }
 
-.landing-ui-button-action[data-id="style"].landing-ui-no-rounded {
-	border-right: 1px rgba(0,0,0,.1) solid;
+.landing-ui-button-action[data-id="designblock"].landing-ui-no-rounded {
+	border-right: none;
 }
 
-.landing-ui-button-action[data-id="style"] + .landing-ui-button-action[data-id="actions"] {
+.landing-ui-button-action[data-id="designblock"] + .landing-ui-button-action[data-id="actions"] {
 	border-top-right-radius: 20px;
 	border-bottom-right-radius: 20px;
 	padding-right: 29px;
@@ -66,6 +68,7 @@
 	background: url("/bitrix/images/landing/false-button.svg") center center no-repeat;
 	position: relative;
 	top: 1px;
+	left: -1px;
 	width: 51px;
 	height: 37px;
 	border: none;
@@ -109,6 +112,8 @@
 .landing-ui-button-action[data-id="actions"]::after,
 .landing-ui-button-action[data-id="content"]::after,
 .landing-ui-button-action[data-id="content"]::before,
+.landing-ui-button-action[data-id="designblock"].landing-ui-no-rounded::after,
+.landing-ui-button-action[data-id="style"]::after,
 .landing-ui-button-action[data-id="remove"]::after,
 .landing-ui-button-card-action:first-child::after {
 	content: '';

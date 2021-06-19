@@ -6,6 +6,21 @@ BX.namespace("BX.Kanban");
 
 BX.Kanban.Utils = {
 
+	/**
+	 *
+	 * @param {number} code
+	 */
+	getKeyDownName: function(code)
+	{
+		switch(code)
+		{
+			case 27:
+				return 'Escape';
+			default:
+				return false;
+		}
+	},
+
 	isValidId: function(id)
 	{
 		return BX.type.isNumber(id) || BX.type.isNotEmptyString(id);

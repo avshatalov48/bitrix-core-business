@@ -63,7 +63,7 @@ if($arResult["SERVER_NAME"] == '' && defined("SITE_SERVER_NAME"))
 
 if($arResult["SERVER_NAME"] == '' && defined("SITE_SERVER_NAME"))
 {
-	$rsSite = CSite::GetList(($b="sort"), ($o="asc"), array("LID" => SITE_ID));
+	$rsSite = CSite::GetList("sort", "asc", array("LID" => SITE_ID));
 	if($arSite = $rsSite->Fetch())
 		$arResult["SERVER_NAME"] = $arSite["SERVER_NAME"];
 }

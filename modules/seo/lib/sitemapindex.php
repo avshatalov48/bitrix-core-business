@@ -30,9 +30,10 @@ class SitemapIndex
 		{
 			if(!$file->isSystem() && $file->isExists())
 			{
+				$e = [];
 				$str .= sprintf(
 					self::ENTRY_TPL,
-					Converter::getXmlConverter()->encode($this->settings['PROTOCOL'].'://'.\CBXPunycode::toASCII($this->settings['DOMAIN'], $e = null).$this->getFileUrl($file)),
+					Converter::getXmlConverter()->encode($this->settings['PROTOCOL'].'://'.\CBXPunycode::toASCII($this->settings['DOMAIN'], $e).$this->getFileUrl($file)),
 					date('c', $file->getModificationTime())
 				);
 			}
@@ -47,7 +48,8 @@ class SitemapIndex
 	{
 		if($this->isExists() && $file->isExists())
 		{
-			$fileUrlEnc = Converter::getXmlConverter()->encode($this->settings['PROTOCOL'].'://'.\CBXPunycode::toASCII($this->settings['DOMAIN'], $e = null).$this->getFileUrl($file));
+			$e = [];
+			$fileUrlEnc = Converter::getXmlConverter()->encode($this->settings['PROTOCOL'].'://'.\CBXPunycode::toASCII($this->settings['DOMAIN'], $e).$this->getFileUrl($file));
 
 			$contents = $this->getContents();
 

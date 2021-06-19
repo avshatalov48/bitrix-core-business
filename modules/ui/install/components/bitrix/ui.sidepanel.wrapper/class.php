@@ -1,5 +1,9 @@
-<?
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
 use \Bitrix\Main\Loader;
 
@@ -18,7 +22,7 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 	{
 		return
 			$this->request->get('IFRAME') === 'Y' ||
-			isset($this->arParams['IFRAME_MODE']) && $this->arParams['IFRAME_MODE'] === true
+			(isset($this->arParams['IFRAME_MODE']) && $this->arParams['IFRAME_MODE'] === true)
 			;
 	}
 
@@ -33,7 +37,8 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 		{
 			$this->arParams['POPUP_COMPONENT_PARAMS'] = [];
 		}
-		$this->arParams['POPUP_COMPONENT_PARAMS']['IFRAME'] = true;
+
+		$this->processSliderComponents();
 
 		if (empty($this->arParams['EDITABLE_TITLE_DEFAULT']))
 		{
@@ -46,6 +51,10 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 		if (!isset($this->arParams['POPUP_COMPONENT_PARENT']))
 		{
 			$this->arParams['POPUP_COMPONENT_PARENT'] = false;
+		}
+		if (!isset($this->arParams['PREVENT_LOADING_WITHOUT_IFRAME']))
+		{
+			$this->arParams['PREVENT_LOADING_WITHOUT_IFRAME'] = true;
 		}
 		if (!isset($this->arParams['POPUP_COMPONENT_USE_BITRIX24_THEME']))
 		{
@@ -156,6 +165,52 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 		elseif (!$this->arParams['PAGE_MODE'])
 		{
 			$this->includeComponentTemplate('loader');
+		}
+	}
+
+	protected function processSliderComponents()
+	{
+		$this->arResult['SLIDER_COMPONENT_NAME_LIST'] = [];
+		$this->arResult['SLIDER_COMPONENT_TEMPLATE_LIST'] = [];
+		$this->arResult['SLIDER_COMPONENT_PARAMS_LIST'] = [];
+
+		if (is_array($this->arParams['POPUP_COMPONENT_NAME']))
+		{
+			$this->arResult['SLIDER_COMPONENT_NAME_LIST'] = array_values($this->arParams['POPUP_COMPONENT_NAME']);
+
+			if (is_array($this->arParams['POPUP_COMPONENT_TEMPLATE_NAME']))
+			{
+				$this->arParams['POPUP_COMPONENT_TEMPLATE_NAME'] = array_values($this->arParams['POPUP_COMPONENT_TEMPLATE_NAME']);
+			}
+
+			$defaultTemplateValue = (!is_array($this->arParams['POPUP_COMPONENT_TEMPLATE_NAME']) ? $this->arParams['POPUP_COMPONENT_TEMPLATE_NAME'] : '');
+
+			foreach ($this->arResult['SLIDER_COMPONENT_NAME_LIST'] as $key => $value)
+			{
+				$this->arResult['SLIDER_COMPONENT_TEMPLATE_LIST'][$key] = (
+					is_array($this->arParams['POPUP_COMPONENT_TEMPLATE_NAME'])
+					&& isset($this->arParams['POPUP_COMPONENT_TEMPLATE_NAME'][$key])
+						? $this->arParams['POPUP_COMPONENT_TEMPLATE_NAME'][$key]
+						: $defaultTemplateValue
+				);
+				$this->arResult['SLIDER_COMPONENT_PARAMS_LIST'][$key] = (
+					is_array($this->arParams['POPUP_COMPONENT_PARAMS'])
+					&& isset($this->arParams['POPUP_COMPONENT_PARAMS'][$key])
+					&& is_array($this->arParams['POPUP_COMPONENT_PARAMS'][$key])
+						? $this->arParams['POPUP_COMPONENT_PARAMS'][$key]
+						: []
+				);
+
+				$this->arResult['SLIDER_COMPONENT_PARAMS_LIST'][$key]['IFRAME'] = true;
+			}
+		}
+		else
+		{
+			$this->arResult['SLIDER_COMPONENT_NAME_LIST'][] = $this->arParams['POPUP_COMPONENT_NAME'];
+			$this->arResult['SLIDER_COMPONENT_TEMPLATE_LIST'][] = $this->arParams['POPUP_COMPONENT_TEMPLATE_NAME'];
+
+			$this->arParams['POPUP_COMPONENT_PARAMS']['IFRAME'] = true;
+			$this->arResult['SLIDER_COMPONENT_PARAMS_LIST'][] = $this->arParams['POPUP_COMPONENT_PARAMS'];
 		}
 	}
 }

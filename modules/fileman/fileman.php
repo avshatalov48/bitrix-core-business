@@ -1,4 +1,5 @@
-<?
+<?php
+
 /*
 ##############################################
 # Bitrix: SiteManager                        #
@@ -183,17 +184,18 @@ class CFileMan
 		{
 			$useHotKeys = COption::GetOptionString('fileman', "stickers_use_hotkeys", "Y") == "Y";
 			$arMenu = array();
+
 			if (CSticker::CanDoOperation('sticker_new'))
 			{
-				$arMenu[] = array(
+				$arMenu[] = [
 					"TEXT" => GetMessage("FMST_PANEL_STICKER_ADD").($useHotKeys ? ' (Ctrl+Shift+S)' : ''),
 					"TITLE" => GetMessage("FMST_PANEL_STICKER_ADD_TITLE"),
 					"ICON" => "",
 					"ACTION" => CSticker::GetScriptStr('add'),
 					"DEFAULT" => true,
-					"HK_ID"=>"FMST_PANEL_STICKER_ADD",
-				);
-				$arMenu[] = array("SEPARATOR" => true);
+					"HK_ID" => "FMST_PANEL_STICKER_ADD",
+				];
+				$arMenu[] = ["SEPARATOR" => true];
 			}
 
 			$curPageCount = CSticker::GetCurPageCount();

@@ -140,7 +140,7 @@ class CSaleDiscountConvert
 		$strStatus = (1 < $intCount ? 'N' : 'Y');
 
 		$arBaseCurrencies = array();
-		$rsSites = CSite::GetList($b="id", $o="asc");
+		$rsSites = CSite::GetList("id", "asc");
 		while ($arSite = $rsSites->Fetch())
 		{
 			$arBaseCurrencies[$arSite['ID']] = CSaleLang::GetLangCurrency($arSite['ID']);

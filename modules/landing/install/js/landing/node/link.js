@@ -228,7 +228,9 @@
 			{
 				var allowedTypes = [
 					BX.Landing.UI.Field.LinkURL.TYPE_BLOCK,
-					BX.Landing.UI.Field.LinkURL.TYPE_PAGE
+					BX.Landing.UI.Field.LinkURL.TYPE_PAGE,
+					BX.Landing.UI.Field.LinkURL.TYPE_CRM_FORM,
+					BX.Landing.UI.Field.LinkURL.TYPE_CRM_PHONE
 				];
 
 				if (BX.Landing.Main.getInstance().options.params.type === BX.Landing.Main.TYPE_STORE)

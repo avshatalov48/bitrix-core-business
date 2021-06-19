@@ -1,5 +1,5 @@
 <?php
-$MESS["SENDER_SEGMENT_CREATED"] = "Segment wurde erfolgreich erstellt. Sie können auf Speichern klicken, sobald Sie Bedingungen auswählen (für ein dynamisches Segment), oder sobald Ladeprozess gestartet wird (für ein statisches Segment). Das Segment wird weiterhin mit Daten gefüllt.";
+$MESS["SENDER_SEGMENT_CREATED"] = "Segment wurde gespeichert, aber momentan ist es leer. Wählen Sie erforderliche Filter aus oder laden Sie Ihre eigene Adressenliste hoch, dann klicken Sie auf Speichern.";
 $MESS["SENDER_SEGMENT_EDIT_BUTTON_SELECT_CONTACT"] = "Empfängerliste auswählen";
 $MESS["SENDER_SEGMENT_EDIT_CONTACT_SEARCHER_TITLE"] = "Statische Empfängerliste";
 $MESS["SENDER_SEGMENT_EDIT_TMPL_BTN_ADD"] = "Filter hinzufügen";

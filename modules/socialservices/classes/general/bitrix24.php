@@ -146,7 +146,7 @@ class CSocServBitrixOAuth extends CSocServAuth
 		die();
 	}
 
-	public function gadgetAuthorize()
+	public static function gadgetAuthorize()
 	{
 		global $APPLICATION;
 		$APPLICATION->RestartBuffer();

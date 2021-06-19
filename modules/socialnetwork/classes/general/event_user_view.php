@@ -1,10 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSocNetEventUserView
 {
-
-	function SetUser($entityID, $feature = false, $permX = false, $bSetFeatures = false)
+	public static function SetUser($entityID, $feature = false, $permX = false, $bSetFeatures = false)
 	{
 		global $APPLICATION, $DB;
 
@@ -203,7 +203,7 @@ class CAllSocNetEventUserView
 		return true;
 	}
 	
-	function SetGroup($entityID, $bSetFeatures = false)
+	public static function SetGroup($entityID, $bSetFeatures = false)
 	{
 		global $APPLICATION, $DB;
 
@@ -307,7 +307,7 @@ class CAllSocNetEventUserView
 		return true;
 	}
 
-	function SetFeature($entityType, $entityID, $feature, $op = false, $permX = false, $bCheckEmpty = false)
+	public static function SetFeature($entityType, $entityID, $feature, $op = false, $permX = false, $bCheckEmpty = false)
 	{
 		global $APPLICATION, $DB, $arSocNetAllowedEntityTypes;
 
@@ -684,7 +684,7 @@ class CAllSocNetEventUserView
 		return true;
 	}
 
-	function Entity2UserAdd($entityType, $entityID, $userID, $role)
+	public static function Entity2UserAdd($entityType, $entityID, $userID, $role)
 	{
 		global $APPLICATION, $DB, $arSocNetAllowedEntityTypes;
 
@@ -822,7 +822,7 @@ class CAllSocNetEventUserView
 			CSocNetEventUserView::SetUser($entityID, false, false, true);
 	}
 
-	function CheckFields($ACTION, &$arFields)
+	public static function CheckFields($ACTION, &$arFields)
 	{
 		global $DB;
 
@@ -870,7 +870,7 @@ class CAllSocNetEventUserView
 		return True;
 	}
 
-	function Delete($entityType, $entityID, $feature = false, $event = false)	
+	public static function Delete($entityType, $entityID, $feature = false, $event = false)
 	{
 		global $DB;
 
@@ -976,7 +976,7 @@ class CAllSocNetEventUserView
 		return $bSuccess;
 	}
 
-	function IsEntityEmpty($entityType, $entityID)
+	public static function IsEntityEmpty($entityType, $entityID)
 	{
 		global $arSocNetAllowedEntityTypes;
 
@@ -1001,7 +1001,7 @@ class CAllSocNetEventUserView
 			return true;	
 	}
 	
-	function CheckPermissions($table, $user_id)
+	public static function CheckPermissions($table, $user_id)
 	{
 		if ($user_id === false)
 			$strUser = " AND EUV.USER_ANONYMOUS = 'Y' AND EUV.USER_ID = 0";
@@ -1017,7 +1017,7 @@ class CAllSocNetEventUserView
 						AND EUV.EVENT_ID = ".$table.".EVENT_ID ".$strUser;
 	}
 	
-	function CheckPermissionsByEvent($entity_type, $entity_id, $event_id, $user_id)
+	public static function CheckPermissionsByEvent($entity_type, $entity_id, $event_id, $user_id)
 	{
 		global $DB;
 
@@ -1053,4 +1053,3 @@ class CAllSocNetEventUserView
 
 	}	
 }
-?>

@@ -7,6 +7,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Delivery\Restrictions;
 use Bitrix\Sale\Delivery\Services;
 use Bitrix\Sale\Services\PaySystem\Restrictions\Manager;
+use Bitrix\Sale\PaySystem;
 
 Loc::loadMessages(__FILE__);
 
@@ -763,7 +764,7 @@ class DeliveryPaySystemTable extends \Bitrix\Main\Entity\DataManager
 				),
 				'select' => array('*', 'PARENT_CLASS_NAME' => 'PARENT.CLASS_NAME')
 			));
-			
+
 			while($dsrv = $res->fetch())
 			{
 				$obj = Services\Manager::createObject($dsrv);
@@ -777,7 +778,7 @@ class DeliveryPaySystemTable extends \Bitrix\Main\Entity\DataManager
 		}
 		else
 		{
-			$dbRes = PaySystemActionTable::getList(array(
+			$dbRes = PaySystem\Manager::getList(array(
 				'filter' => array("ACTIVE" =>  "Y"),
 				'select' => array("ID")
 			));

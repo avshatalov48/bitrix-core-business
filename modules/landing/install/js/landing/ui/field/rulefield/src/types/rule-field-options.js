@@ -1,3 +1,4 @@
+import {Dictionary} from 'crm.form';
 
 export interface FormField
 {
@@ -20,6 +21,7 @@ export interface RuleEntryOptions
 		operator: '=' | '!=',
 	},
 	expression: Array<ExpressionEntry>,
+	dictionary: Dictionary,
 }
 
 export interface FieldRulesOptions extends RuleEntryOptions
@@ -30,5 +32,6 @@ export interface FieldRulesOptions extends RuleEntryOptions
 export interface RuleFieldOptions
 {
 	fields: Array<FormField>,
-	rules: Array<FieldRules>
+	rules: Array<FieldRules>,
+	dictionary: Dictionary,
 }

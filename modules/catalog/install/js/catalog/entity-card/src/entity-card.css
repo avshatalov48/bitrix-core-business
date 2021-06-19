@@ -256,3 +256,7 @@ img.catalog-image {
 	z-index: 120;
 	background-color: rgba(0, 0, 0, .2);
 }
+
+.catalog-entity-wrap .ui-entity-editor-column-content {
+	width: 40%;
+}

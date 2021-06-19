@@ -535,7 +535,9 @@ if (
 }
 
 $currentValues = false;
-if (1 != preg_match('/^n\d+$/',$str_PROPERTY_ID))
+$parsedValues = [];
+$isNewProperty = preg_match('/^n\d+$/',$str_PROPERTY_ID, $parsedValues) === 1;
+if (!$isNewProperty)
 {
 	$str_PROPERTY_IDCheck = (int)$str_PROPERTY_ID;
 	if (0 == $intIBlockID || ($str_PROPERTY_IDCheck.'|' != $str_PROPERTY_ID.'|') || 0 >= $str_PROPERTY_IDCheck)
@@ -675,8 +677,10 @@ elseif(!$bReload && $isPost && (isset($_POST["save"]) || isset($_POST["apply"]))
 			'=IBLOCK_ID' => $arFields["IBLOCK_ID"],
 			'=CODE' => $arFields['CODE']
 		);
-		if ($str_PROPERTY_ID > 0)
+		if (!$isNewProperty)
+		{
 			$propertyFilter['!=ID'] = $str_PROPERTY_ID;
+		}
 		$existProperty = Iblock\PropertyTable::getList(array(
 			'select' => array('ID'),
 			'filter' => $propertyFilter
@@ -695,7 +699,7 @@ elseif(!$bReload && $isPost && (isset($_POST["save"]) || isset($_POST["apply"]))
 	if ($strWarning == '')
 	{
 		$ibp = new CIBlockProperty;
-		if ($str_PROPERTY_ID > 0)
+		if (!$isNewProperty)
 		{
 			$res = $ibp->Update($str_PROPERTY_ID, $arFields, true);
 		}
@@ -1163,7 +1167,7 @@ $aMenu = array(
 	),
 );
 
-if($str_PROPERTY_ID > 0)
+if((int)$str_PROPERTY_ID > 0)
 {
 	$aMenu[] = array("SEPARATOR"=>"Y");
 	$aMenu[] = array(

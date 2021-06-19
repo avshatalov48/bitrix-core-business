@@ -663,9 +663,7 @@ if (isset($arCurrentValues['USE_COMMENTS']) && $arCurrentValues['USE_COMMENTS'] 
 	}
 
 	$boolRus = false;
-	$langBy = 'id';
-	$langOrder = 'asc';
-	$rsLangs = CLanguage::GetList($langBy, $langOrder, array('ID' => 'ru','ACTIVE' => 'Y'));
+	$rsLangs = CLanguage::GetList('id', 'asc', array('ID' => 'ru','ACTIVE' => 'Y'));
 	if ($arLang = $rsLangs->Fetch())
 	{
 		$boolRus = true;

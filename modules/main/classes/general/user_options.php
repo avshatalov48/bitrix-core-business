@@ -125,7 +125,7 @@ class CUserOptions
 					WHERE (USER_ID = {$user_id} OR (USER_ID = 0 AND COMMON = 'Y'))
 						AND CATEGORY = '{$DB->ForSql($category)}'
 				";
-
+	
 				$res = $DB->Query($sql);
 				while ($option = $res->Fetch())
 				{

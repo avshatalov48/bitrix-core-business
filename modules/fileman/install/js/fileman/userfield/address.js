@@ -702,7 +702,7 @@
 			}
 		});
 
-		this.point.setContent(this.infoWindowContent);
+		// this.point.setContent(this.infoWindowContent);
 
 		if(!this.hoverMode)
 		{

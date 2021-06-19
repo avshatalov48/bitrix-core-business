@@ -47,7 +47,7 @@ if ($request->isPost() && $request->getPost("edit_vote_options") === "Y")
 		if ($request->getPost("restore") !== null)
 		{
 			COption::RemoveOption($module_id);
-			$z = CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
+			$z = CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 			while($zr = $z->Fetch())
 				$APPLICATION->DelGroupRight($module_id, array($zr["ID"]));
 		}

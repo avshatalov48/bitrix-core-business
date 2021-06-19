@@ -9,24 +9,6 @@
 	BX.Landing.Utils = function() {};
 
 	/**
-	 * Sent analytic label to the backend.
-	 * @param {string} label
-	 * @param {string} value
-	 */
-	BX.Landing.Utils.AnalyticLabel = function(label, value)
-	{
-		if (typeof value === 'undefined')
-		{
-			value = null;
-		}
-		BX.ajax({url:
-			'/bitrix/images/landing/analytics/pixel.gif?action=' + label +
-			(value ? '&value=' + value : '') +
-			'&time=' + (new Date().getTime())
-		});
-	};
-
-	/**
 	 * Shows element
 	 * @param {Element|HTMLElement} element
 	 * @return {Promise}

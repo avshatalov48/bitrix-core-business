@@ -25,6 +25,9 @@ final class RegionCoordinatesMapper
 			case 'kz':
 				$result = [71.430411, 51.128207];
 				break;
+			case 'by':
+				$result = [27.559665, 53.902194];
+				break;
 		}
 
 		return $result;

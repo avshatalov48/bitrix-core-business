@@ -24,7 +24,7 @@
 					</p>
 				</div>
 
-				<h3 class="landing-block-node-title landing-semantic-subtitle-medium h4 g-color-white mb-4">Contact Info</h3>
+				<h4 class="landing-block-node-title landing-semantic-subtitle-medium g-color-white mb-4">Contact Info</h4>
 
 				<div class="landing-block-node-card-contact-container">
 					<!-- Icon Block -->

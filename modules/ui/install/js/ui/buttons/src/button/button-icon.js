@@ -26,6 +26,7 @@ export default class ButtonIcon
 	static BACK = 'ui-btn-icon-back';
 	static REMOVE = 'ui-btn-icon-remove';
 	static DOWNLOAD = 'ui-btn-icon-download';
+	static DOTS = 'ui-btn-icon-ui-btn-icon-dots';
 	static DONE = 'ui-btn-icon-done';
 	static DISK = 'ui-btn-icon-disk';
 	static LOCK = 'ui-btn-icon-lock';
@@ -39,4 +40,15 @@ export default class ButtonIcon
 	static ANGLE_DOWN = 'ui-btn-icon-angle-down';
 	static EYE_OPENED = 'ui-btn-icon-eye-opened';
 	static EYE_CLOSED = 'ui-btn-icon-eye-closed';
+	static ALERT = 'ui-btn-icon-alert';
+	static FAIL = 'ui-btn-icon-fail';
+	static SUCCESS = 'ui-btn-icon-success';
+	static PLAN = 'ui-btn-icon-plan';
+	static TARIFF = 'ui-btn-icon-tariff';
+	static BATTERY = 'ui-btn-icon-battery';
+	static NO_BATTERY = 'ui-btn-icon-no-battery';
+	static HALF_BATTERY = 'ui-btn-icon-half-battery';
+	static LOW_BATTERY = 'ui-btn-icon-low-battery';
+	static CRIT_BATTERY = 'ui-btn-icon-crit-battery';
+	static DEMO = 'ui-btn-icon-demo';
 }

@@ -1,9 +1,10 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/log_favorites.php");
 
 class CSocNetLogFavorites extends CAllSocNetLogFavorites
 {
-	function Add($user_id, $log_id, array $params = array('TRIGGER_EVENT' => true))
+	public static function Add($user_id, $log_id, array $params = array('TRIGGER_EVENT' => true))
 	{
 		global $DB;
 
@@ -35,4 +36,3 @@ class CSocNetLogFavorites extends CAllSocNetLogFavorites
 		return false;
 	}
 }
-?>

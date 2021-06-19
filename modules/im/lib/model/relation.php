@@ -127,6 +127,10 @@ class RelationTable extends Entity\DataManager
 				'data_type' => 'integer',
 				'default_value' => 0,
 			),
+			'START_COUNTER' => array(
+				'data_type' => 'integer',
+				'default_value' => 0,
+			),
 			'CHAT' => array(
 				'data_type' => 'Bitrix\Im\Model\ChatTable',
 				'reference' => array('=this.CHAT_ID' => 'ref.ID'),
@@ -210,5 +214,3 @@ class RelationTable extends Entity\DataManager
 		return $connection->getAffectedRowsCount();
 	}
 }
-
-class_alias("Bitrix\\Im\\Model\\RelationTable", "Bitrix\\Im\\RelationTable", false);

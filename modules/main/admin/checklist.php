@@ -957,7 +957,7 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 	else
 	{
 		$allowedDomains = array($_SERVER['HTTP_HOST']);
-		$langs = CLang::GetList($by, $order, Array());
+		$langs = CLang::GetList('', '', Array());
 		while ($arLang = $langs->Fetch())
 		{
 			$domains = trim($arLang['DOMAINS']);

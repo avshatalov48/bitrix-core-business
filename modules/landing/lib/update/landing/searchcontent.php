@@ -33,7 +33,7 @@ class SearchContent extends Stepper
 	{
 		$lastId = Option::get('landing', self::OPTION_CODE, 0);
 		$scopes = Option::get('landing', self::OPTION_CODE_SCOPES, '');
-		$scopes = unserialize($scopes);
+		$scopes = unserialize($scopes, ['allowed_classes' => false]);
 		$finished = true;
 
 		\Bitrix\Landing\Rights::setGlobalOff();

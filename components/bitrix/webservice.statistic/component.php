@@ -62,7 +62,7 @@ class CStatisticWS extends IWebService
 
 		$arResult = array();
 
-		$dbAdv = CAdv::GetList($a_by, $a_order, array("DATE1_PERIOD" => "", "DATE2_PERIOD" => ""), $is_filtered, "", $arrGROUP_DAYS, $v);
+		$dbAdv = CAdv::GetList('', '', array("DATE1_PERIOD" => "", "DATE2_PERIOD" => ""), $is_filtered, "", $arrGROUP_DAYS, $v);
 		$i = 0;
 		while ($arAdv = $dbAdv->Fetch())
 		{
@@ -89,9 +89,7 @@ class CStatisticWS extends IWebService
 
 		$arResult = array();
 
-		$e_by = "s_stat";
-		$e_order = "desc";
-		$dbAdv = CStatEventType::GetList($e_by, $e_order, array("DATE1_PERIOD" => "", "DATE2_PERIOD" => ""), $is_filtered);
+		$dbAdv = CStatEventType::GetList("s_stat", "desc", array("DATE1_PERIOD" => "", "DATE2_PERIOD" => ""), $is_filtered);
 		$i = 0;
 		while ($arAdv = $dbAdv->Fetch())
 		{
@@ -145,7 +143,7 @@ class CStatisticWS extends IWebService
 
 		$arResult = array();
 
-		$dbAdv = CTraffic::GetRefererList($by, $order, array(), $is_filtered, false);
+		$dbAdv = CTraffic::GetRefererList('', '', array(), $is_filtered, false);
 		$i = 0;
 		while ($arAdv = $dbAdv->Fetch())
 		{
@@ -172,9 +170,7 @@ class CStatisticWS extends IWebService
 
 		$arResult = array();
 
-		$f_by = "s_stat";
-		$f_order = "desc";
-		$dbAdv = CSearcher::GetList($f_by, $f_order, array("DATE1_PERIOD" => "", "DATE2_PERIOD" => ""), $is_filtered);
+		$dbAdv = CSearcher::GetList("s_stat", "desc", array("DATE1_PERIOD" => "", "DATE2_PERIOD" => ""));
 		$i = 0;
 		while ($arAdv = $dbAdv->Fetch())
 		{
@@ -207,13 +203,13 @@ class CStatisticWS extends IWebService
 		$server_name = COption::GetOptionString("main", "server_name", $GLOBALS["SERVER_NAME"]);
 		$protocol = (CMain::IsHTTPS() ? "https" : "http");
 
-		if (strlen($site_id) > 0)
+		if ($site_id <> '')
 		{
 			$rsSites = CSite::GetByID($arFields["SITE_ID"]);
 			if ($arSite = $rsSites->Fetch())
 			{
 				$arFilter = array("SITE_ID" => $site_id);
-				if (strlen($arSite["SERVER_NAME"]) > 0)
+				if ($arSite["SERVER_NAME"] <> '')
 					$server_name = $arSite["SERVER_NAME"];
 			}
 		}
@@ -320,7 +316,7 @@ class CStatisticWS extends IWebService
 		return $arResult;
 	}
 
-	function GetWebServiceDesc()
+	public static function GetWebServiceDesc()
 	{
 		$wsdesc = new CWebServiceDesc();
 		$wsdesc->wsname = "bitrix.webservice.statistic";

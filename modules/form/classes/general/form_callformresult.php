@@ -1,18 +1,19 @@
-<?
+<?php
+
 /***************************************
 		Web-form result
 ***************************************/
 
 class CAllFormResult extends CFormResult_old
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "form";
 		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
 		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CAllFormResult<br>File: ".__FILE__;
 	}
 
-	function GetFileByAnswerID($RESULT_ID, $ANSWER_ID)
+	public static function GetFileByAnswerID($RESULT_ID, $ANSWER_ID)
 	{
 		global $DB, $strError;
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: GetFileByAnswerID<br>Line: ";
@@ -37,7 +38,7 @@ class CAllFormResult extends CFormResult_old
 	}
 
 	// return file data by file hash
-	function GetFileByHash($RESULT_ID, $HASH)
+	public static function GetFileByHash($RESULT_ID, $HASH)
 	{
 		global $DB, $APPLICATION, $strError, $USER;
 
@@ -85,7 +86,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	}
 
 	// create new event
-	function SetEvent($RESULT_ID, $IN_EVENT1=false, $IN_EVENT2=false, $IN_EVENT3=false, $money="", $currency="", $goto="", $chargeback="N")
+	public static function SetEvent($RESULT_ID, $IN_EVENT1=false, $IN_EVENT2=false, $IN_EVENT3=false, $money="", $currency="", $goto="", $chargeback="N")
 	{
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: SetEvent<br>Line: ";
 		global $DB, $strError;
@@ -133,7 +134,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	}
 
 	//returns data for questions and answers array
-	function GetDataByID($RESULT_ID, $arrFIELD_SID, &$arrRES, &$arrANSWER)
+	public static function GetDataByID($RESULT_ID, $arrFIELD_SID, &$arrRES, &$arrANSWER)
 	{
 		global $DB, $strError;
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: GetDataByID<br>Line: ";
@@ -181,7 +182,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	}
 
 	// return array of result values for component
-	function GetDataByIDForHTML($RESULT_ID, $GET_ADDITIONAL="N")
+	public static function GetDataByIDForHTML($RESULT_ID, $GET_ADDITIONAL="N")
 	{
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: GetDataByIDForHTML<br>Line: ";
 		global $DB, $strError;
@@ -300,7 +301,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	}
 
 	// add new form result
-	function Add($WEB_FORM_ID, $arrVALUES=false, $CHECK_RIGHTS="Y", $USER_ID=false)
+	public static function Add($WEB_FORM_ID, $arrVALUES=false, $CHECK_RIGHTS="Y", $USER_ID=false)
 	{
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: Add<br>Line: ";
 		global $DB, $USER, $strError, $APPLICATION;
@@ -374,7 +375,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 								if (intval($arForm["RESTRICT_USER"]) > 0)
 								{
-									$rsFormResult = CFormResult::GetList($WEB_FORM_ID, $by="s_timestamp", $order="desc", $arFilter, $is_filtered, "N", intval($arForm["RESTRICT_USER"]));
+									$rsFormResult = CFormResult::GetList($WEB_FORM_ID, "s_timestamp", "desc", $arFilter, null, "N", intval($arForm["RESTRICT_USER"]));
 									$num = 0;
 									while ($row = $rsFormResult->Fetch())
 									{
@@ -396,7 +397,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 									));
 
 									CTimeZone::Disable();
-									$rsFormResult = CFormResult::GetList($WEB_FORM_ID, $by="s_timestamp", $order="desc", $arFilter, $is_filtered, "N", 1);
+									$rsFormResult = CFormResult::GetList($WEB_FORM_ID, "s_timestamp", "desc", $arFilter, null, "N", 1);
 									CTimeZone::Enable();
 
 									if ($rsFormResult->Fetch())
@@ -725,7 +726,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	}
 
 	// update result
-	function Update($RESULT_ID, $arrVALUES=false, $UPDATE_ADDITIONAL="N", $CHECK_RIGHTS="Y")
+	public static function Update($RESULT_ID, $arrVALUES=false, $UPDATE_ADDITIONAL="N", $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: Update<br>Line: ";
 		global $DB, $USER, $strError, $APPLICATION;
@@ -748,7 +749,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 				if ($F_RIGHT>=20 || ($F_RIGHT>=15 && $arrResult["USER_ID"]==$USER->GetID()))
 				{
 					// check result rights (its status rights)
-					$arrRESULT_PERMISSION = ($CHECK_RIGHTS!="Y") ? CFormStatus::GetMaxPermissions() : CFormResult::GetPermissions($RESULT_ID, $v);
+					$arrRESULT_PERMISSION = ($CHECK_RIGHTS!="Y") ? CFormStatus::GetMaxPermissions() : CFormResult::GetPermissions($RESULT_ID);
 
 					// if  rights're correct
 					if (in_array("EDIT", $arrRESULT_PERMISSION))
@@ -1213,7 +1214,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	}
 
 	// set question or field value in existed result
-	function SetField($RESULT_ID, $FIELD_SID, $VALUE=false)
+	public static function SetField($RESULT_ID, $FIELD_SID, $VALUE=false)
 	{
 		global $DB, $strError;
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: SetField<br>Line: ";
@@ -1505,7 +1506,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	}
 
 	// delete result
-	function Delete($RESULT_ID, $CHECK_RIGHTS="Y")
+	public static function Delete($RESULT_ID, $CHECK_RIGHTS="Y")
 	{
 //		echo $RESULT_ID; exit();
 		global $DB, $USER, $APPLICATION, $strError;
@@ -1534,7 +1535,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 				// rights check by status
 				if ($CHECK_RIGHTS == 'Y')
 				{
-					$arrRESULT_PERMISSION = CFormResult::GetPermissions($RESULT_ID, $v);
+					$arrRESULT_PERMISSION = CFormResult::GetPermissions($RESULT_ID);
 					$RIGHT_OK = in_array("DELETE", $arrRESULT_PERMISSION) ? 'Y' : 'N';
 				}
 
@@ -1570,7 +1571,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	}
 
 	// clear result
-	function Reset($RESULT_ID, $DELETE_FILES=true, $DELETE_ADDITIONAL="N", $arrException=array())
+	public static function Reset($RESULT_ID, $DELETE_FILES=true, $DELETE_ADDITIONAL="N", $arrException=array())
 	{
 		global $DB, $strError;
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: Reset<br>Line: ";
@@ -1629,7 +1630,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	}
 
 	// update result status
-	function SetStatus($RESULT_ID, $NEW_STATUS_ID, $CHECK_RIGHTS="Y")
+	public static function SetStatus($RESULT_ID, $NEW_STATUS_ID, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: SetStatus<br>Line: ";
 		global $DB, $USER, $strError, $APPLICATION;
@@ -1662,7 +1663,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 				if ($F_RIGHT>=20 || ($F_RIGHT>=15 && $USER->GetID()==$zr["USER_ID"]))
 				{
 					// result rights
-					$arrRESULT_PERMISSION = CFormResult::GetPermissions($RESULT_ID, $v);
+					$arrRESULT_PERMISSION = CFormResult::GetPermissions($RESULT_ID);
 
 					// new status rights
 					$arrNEW_STATUS_PERMISSION = CFormStatus::GetPermissions($NEW_STATUS_ID);
@@ -1711,7 +1712,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	}
 
 	//send form event notification;
-	function Mail($RESULT_ID, $TEMPLATE_ID = false)
+	public static function Mail($RESULT_ID, $TEMPLATE_ID = false)
 	{
 		global $APPLICATION, $DB, $MESS, $strError;
 
@@ -1734,7 +1735,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 				if (!defined('SITE_ID') || !in_array(SITE_ID, $arrFormSites))
 					return true;
 
-				$rs = CSite::GetList(($by="sort"), ($order="asc"), array('ID' => implode('|', $arrFormSites)));
+				$rs = CSite::GetList("sort", "asc", array('ID' => implode('|', $arrFormSites)));
 				$arrSites = array();
 				while ($ar = $rs->Fetch())
 				{
@@ -1746,11 +1747,11 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 				$arrFormTemplates = (is_array($arrFormTemplates)) ? $arrFormTemplates : array();
 
 				$arrTemplates = array();
-				$rs = CEventMessage::GetList($by="id", $order="asc", array(
+				$rs = CEventMessage::GetList("id", "asc", array(
 					"ACTIVE"		=> "Y",
 					"SITE_ID"		=> SITE_ID,
 					"EVENT_NAME"	=> $arrFORM["MAIL_EVENT_TYPE"]
-					));
+				));
 
 				while ($ar = $rs->Fetch())
 				{
@@ -1804,7 +1805,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 						"RS_STAT_GUEST_ID"		=> $arrRES["STAT_GUEST_ID"],
 						"RS_STAT_SESSION_ID"	=> $arrRES["STAT_SESSION_ID"]
 						);
-					$w = CFormField::GetList($arrFORM["ID"], "ALL", $by, $order, array(), $is_filtered);
+					$w = CFormField::GetList($arrFORM["ID"], "ALL");
 					while ($wr=$w->Fetch())
 					{
 						$answer = "";
@@ -2048,7 +2049,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 		return false;
 	}
 
-	function GetCount($WEB_FORM_ID)
+	public static function GetCount($WEB_FORM_ID)
 	{
 		global $DB, $USER, $strError;
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: GetCount<br>Line: ";
@@ -2059,7 +2060,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	}
 
 	// prepare array of parameters for result filter
-	function PrepareFilter($WEB_FORM_ID, $arFilter)
+	public static function PrepareFilter($WEB_FORM_ID, $arFilter)
 	{
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: PrepareFilter<br>Line: ";
 		global $DB, $strError;
@@ -2111,9 +2112,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 		return $arrFilterReturn;
 	}
 
-	function SetCRMFlag($RESULT_ID, $flag_value)
+	public static function SetCRMFlag($RESULT_ID, $flag_value)
 	{
 		return $GLOBALS['DB']->Query("UPDATE b_form_result SET SENT_TO_CRM='".($flag_value == 'N' ? 'N' : 'Y')."' WHERE ID='".intval($RESULT_ID)."'");
 	}
 }
-?>

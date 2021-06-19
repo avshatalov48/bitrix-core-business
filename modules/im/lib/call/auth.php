@@ -27,6 +27,7 @@ class Auth
 	const METHODS_WITH_AUTH = [
 		'mobile.browser.const.get',
 		'im.user.get',
+		'im.dialog.users.list',
 
 		// pull
 		'server.time',

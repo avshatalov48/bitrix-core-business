@@ -10,6 +10,7 @@
 import {BaseRestHandler} from "./base.rest";
 import {EventType} from "im.const";
 import {Logger} from "im.lib.logger";
+import {EventEmitter} from 'main.core.events';
 
 export class DialogRestHandler extends BaseRestHandler
 {
@@ -46,23 +47,24 @@ export class DialogRestHandler extends BaseRestHandler
 		}
 	}
 
-	handleImDialogMessagesGetInitSuccess()
+	handleImDialogMessagesGetInitSuccess(data)
 	{
-		this.controller.application.emit(EventType.dialog.sendReadMessages);
+		// EventEmitter.emit(EventType.dialog.readVisibleMessages, {chatId: this.controller.application.getChatId()});
 	}
 
 	handleImMessageAddSuccess(messageId, message)
 	{
-		this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
+		console.warn('im.message.add success in dialog handler');
+		// this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
 	}
 
 	handleImMessageAddError(error, message)
 	{
-		this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
+		// this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
 	}
 
 	handleImDiskFileCommitSuccess(result, message)
 	{
-		this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
+		// this.application.messagesQueue = this.context.messagesQueue.filter(el => el.id !== message.id);
 	}
 }

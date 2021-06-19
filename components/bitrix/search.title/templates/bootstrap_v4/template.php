@@ -11,6 +11,7 @@
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 $this->setFrameMode(true);
+\Bitrix\Main\UI\Extension::load('ui.bootstrap4');
 
 $INPUT_ID = trim($arParams["~INPUT_ID"]);
 if($INPUT_ID == '')

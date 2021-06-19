@@ -4550,7 +4550,7 @@ if (Main\Loader::includeModule('sale'))
 			{
 				if (!$priceData)
 					continue;
-				$priceResultList[$basketCode]['PRODUCT_PRICE_ID'] = $priceData['PRICE']['ID'];
+				$priceResultList[$basketCode]['PRODUCT_PRICE_ID'] = $priceData['RESULT_PRICE']['ID'];
 				$priceResultList[$basketCode]['NOTES'] = $priceData['PRICE']['CATALOG_GROUP_NAME'];
 				$priceResultList[$basketCode]['DISCOUNT_NAME'] = null;
 				$priceResultList[$basketCode]['DISCOUNT_COUPON'] = null;

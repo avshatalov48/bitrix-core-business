@@ -52,10 +52,10 @@
 						</h2>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30" data-auto-font-scale>
 							<p>Curabitur eget tortor sed urna
-								faucibus iaculis id et nulla.</p>
+								faucibus iaculis id et nulla sed fringilla quam.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-bg-transparent--hover rounded-0 g-py-15"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-15"
 							   href="#">Learn More</a>
 						</div>
 					</header>
@@ -85,10 +85,10 @@
 						</h2>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30" data-auto-font-scale>
 							<p>Curabitur eget tortor sed urna
-								faucibus iaculis id et nulla.</p>
+								faucibus iaculis id et nulla sed fringilla quam.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-bg-transparent--hover rounded-0 g-py-15"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-15"
 							   href="#">Learn More</a>
 						</div>
 					</header>
@@ -118,10 +118,10 @@
 						</h2>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30" data-auto-font-scale>
 							<p>Curabitur eget tortor sed urna
-								faucibus iaculis id et nulla.</p>
+								faucibus iaculis id et nulla sed fringilla quam.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-bg-transparent--hover rounded-0 g-py-15"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-15"
 							   href="#">Learn More</a>
 						</div>
 					</header>
@@ -151,10 +151,10 @@
 						</h2>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30" data-auto-font-scale>
 							<p>Curabitur eget tortor sed urna
-								faucibus iaculis id et nulla.</p>
+								faucibus iaculis id et nulla sed fringilla quam.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-bg-transparent--hover rounded-0 g-py-15"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-15"
 							   href="#">Learn More</a>
 						</div>
 					</header>
@@ -184,10 +184,10 @@
 						</h2>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30" data-auto-font-scale>
 							<p>Curabitur eget tortor sed urna
-								faucibus iaculis id et nulla.</p>
+								faucibus iaculis id et nulla sed fringilla quam.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-bg-transparent--hover rounded-0 g-py-15"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-15"
 							   href="#">Learn More</a>
 						</div>
 					</header>

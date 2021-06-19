@@ -16,7 +16,7 @@ return [
 		'calendar.controls',
 		'calendar.util',
 		'calendar.entry',
-		'calendar.calendarsection',
+		'calendar.sectionmanager',
 		'main.core.events',
 		'calendar.planner',
 		'ui.entity-selector',

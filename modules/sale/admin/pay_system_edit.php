@@ -3,7 +3,6 @@ use Bitrix\Sale;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Application;
-use Bitrix\Sale\Internals\PaySystemActionTable;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Sale\Helpers\Admin\BusinessValueControl;
 use Bitrix\Sale\Services\PaySystem\Restrictions;
@@ -70,6 +69,7 @@ $request = $context->getRequest();
 $server = $context->getServer();
 $documentRoot = Application::getDocumentRoot();
 $paySystem = array();
+$isPrintCheck = false;
 
 $psDescription = '';
 $description = '';
@@ -96,6 +96,30 @@ if ($id > 0 && $request->getRequestMethod() !== 'POST')
 		"ICON" => "sale",
 		"TITLE" => GetMessage("SPS_PAY_SYSTEM_RESTRICTION_DESC"),
 	);
+
+	$service = PaySystem\Manager::getObjectById($id);
+	if ($service->isSupportPrintCheck())
+	{
+		/** @var Sale\Cashbox\CashboxPaySystem $cashboxClass */
+		$cashboxClass = $service->getCashboxClass();
+		$cashboxCode = mb_strtoupper($cashboxClass::getCode());
+		$fiscalizationTab = Loc::getMessage('SPS_FISCALIZATION_TAB_'.$cashboxCode);
+		$fiscalizationTabTitle = Loc::getMessage('SPS_FISCALIZATION_TAB_TITLE_'.$cashboxCode);
+
+		if (!$fiscalizationTab)
+		{
+			$fiscalizationTab = Loc::getMessage('SPS_FISCALIZATION_TAB');
+			$fiscalizationTabTitle = Loc::getMessage('SPS_FISCALIZATION_TAB_TITLE');
+		}
+
+		$isPrintCheck = true;
+		$aTabs[] = array(
+			"DIV" => "cashbox_edit",
+			"TAB" => $fiscalizationTab,
+			"ICON" => "sale",
+			"TITLE" => $fiscalizationTabTitle,
+		);
+	}
 }
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
@@ -318,14 +342,14 @@ if ($server->getRequestMethod() == "POST"
 
 		if ($id > 0)
 		{
-			$result = PaySystemActionTable::update($id, $fields);
+			$result = PaySystem\Manager::update($id, $fields);
 
 			if (!$result->isSuccess())
 				$errorMessage .= join(',', $result->getErrorMessages()).".<br>";
 		}
 		else
 		{
-			$result = PaySystemActionTable::add($fields);
+			$result = PaySystem\Manager::add($fields);
 			if (!$result->isSuccess())
 			{
 				$errorMessage .= join(',', $result->getErrorMessages());
@@ -340,7 +364,7 @@ if ($server->getRequestMethod() == "POST"
 						'PAY_SYSTEM_ID' => $id
 					);
 
-					$result = PaySystemActionTable::update($id, $fields);
+					$result = PaySystem\Manager::update($id, $fields);
 					if (!$result->isSuccess())
 						$errorMessage .= join(',', $result->getErrorMessages());
 
@@ -358,6 +382,18 @@ if ($server->getRequestMethod() == "POST"
 						if (!$saveResult->isSuccess())
 							$errorMessage .= Loc::getMessage('SALE_PSE_ERROR_RSRT_CURRENCY_SAVE');
 					}
+				}
+			}
+		}
+
+		if ($errorMessage === '')
+		{
+			if ($request->get('CASHBOX'))
+			{
+				$service = PaySystem\Manager::getObjectById($id);
+				if ($service->isSupportPrintCheck())
+				{
+					require_once $documentRoot."/bitrix/modules/sale/admin/pay_system_cashbox_edit.php";
 				}
 			}
 		}
@@ -442,12 +478,20 @@ require_once($documentRoot."/bitrix/modules/sale/prolog.php");
 $APPLICATION->SetTitle(($id > 0) ? Loc::getMessage("SALE_EDIT_RECORD", array("#ID#" => $id)) : Loc::getMessage("SALE_NEW_RECORD"));
 
 $restrictionsHtml = '';
-
 if ($id > 0 && $request->getRequestMethod() !== 'POST')
 {
 	ob_start();
 	require_once($documentRoot."/bitrix/modules/sale/admin/pay_system_restrictions_list.php");
 	$restrictionsHtml = ob_get_contents();
+	ob_end_clean();
+}
+
+$paySystemCashbox = '';
+if ($isPrintCheck)
+{
+	ob_start();
+	require_once $documentRoot."/bitrix/modules/sale/admin/pay_system_cashbox_edit.php";
+	$paySystemCashbox = ob_get_contents();
 	ob_end_clean();
 }
 
@@ -1090,6 +1134,13 @@ if ($restrictionsHtml !== ''):?>
 		<tr><td id="sale-paysystem-restriction-container"><?=$restrictionsHtml?></td></tr>
 	<?$tabControl->EndTab();
 endif;
+
+if ($paySystemCashbox !== '')
+{
+	$tabControl->BeginNextTab();
+	echo $paySystemCashbox;
+	$tabControl->EndTab();
+}
 
 $tabControl->Buttons(array("disabled" => ($saleModulePermissions < "W"), "back_url" => $listUrl));
 $tabControl->End();

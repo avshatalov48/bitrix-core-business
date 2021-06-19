@@ -72,7 +72,7 @@
 		{
 			var d = new Date();
 
-			return d.getFullYear() + "-" + this.lpad(d.getMonth(), 2, '0') + "-" + this.lpad(d.getDate(), 2, '0') + " " + this.lpad(d.getHours(), 2, '0') + ":" + this.lpad(d.getMinutes(), 2, '0') + ":" + this.lpad(d.getSeconds(), 2, '0') + "." + d.getMilliseconds();
+			return d.getFullYear() + "-" + this.lpad(d.getMonth() + 1, 2, '0') + "-" + this.lpad(d.getDate(), 2, '0') + " " + this.lpad(d.getHours(), 2, '0') + ":" + this.lpad(d.getMinutes(), 2, '0') + ":" + this.lpad(d.getSeconds(), 2, '0') + "." + d.getMilliseconds();
 		},
 
 		getTimeForLog: function()
@@ -290,14 +290,16 @@
 			return trackSettings.width >= 1280;
 		},
 
-		findBestElementSize: function(width, height, userCount)
+		findBestElementSize: function(width, height, userCount, minWidth, minHeight)
 		{
+			minWidth = minWidth || 0;
+			minHeight = minHeight || 0;
 			var bestFilledArea = 0;
 
 			for (var i = 1; i <= userCount; i++)
 			{
 				var area = this.getFilledArea(width, height, userCount, i);
-				if(area.area > bestFilledArea)
+				if(area.area > bestFilledArea && area.elementWidth > minWidth && area.elementHeight > minHeight)
 				{
 					bestFilledArea = area.area;
 					var bestWidth = area.elementWidth;
@@ -308,14 +310,19 @@
 					break;
 				}
 			}
-			return {width: bestWidth, height: bestHeight}
+			if (bestFilledArea === 0)
+			{
+				bestWidth = minWidth;
+				bestHeight = minHeight
+			}
+			return {width: bestWidth, height: bestHeight};
 		},
 
 		getFilledArea: function(width, height, userCount, rowCount)
 		{
 			var columnCount = Math.ceil(userCount / rowCount);
-			var maxElementWidth = width / columnCount;
-			var maxElementHeight = height / rowCount;
+			var maxElementWidth = Math.floor(width / columnCount);
+			var maxElementHeight = Math.floor(height / rowCount);
 
 			var ratio = maxElementHeight / maxElementWidth;
 			var neededRatio = 9 / 16;
@@ -326,12 +333,12 @@
 			if(ratio < neededRatio)
 			{
 				expectedElementHeight = maxElementHeight;
-				expectedElementWidth = maxElementWidth * (ratio / neededRatio);
+				expectedElementWidth = Math.floor(maxElementWidth * (ratio / neededRatio));
 			}
 			else
 			{
 				expectedElementWidth = maxElementWidth;
-				expectedElementHeight = maxElementHeight * (neededRatio / ratio);
+				expectedElementHeight = Math.floor(maxElementHeight * (neededRatio / ratio));
 			}
 
 			//console.log(expectedElementWidth + 'x' + expectedElementHeight)
@@ -432,7 +439,46 @@
 
 			sdpLines[videoLineIndex] = sortVideoLine(sdpLines[videoLineIndex], codecRtpMaps, options);
 			return sdpLines.join("\n");
-		}
+		},
+
+		sendTelemetryEvent: function(options)
+		{
+			var url = (document.location.protocol == "https:" ? "https://" : "http://") + "bitrix.info/bx_stat";
+			var req =  new XMLHttpRequest();
+			req.open("POST", url, true);
+			req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			req.withCredentials = true;
+			options.op = "call";
+			options.d = document.location.host;
+			var query = BX.util.buildQueryString(options);
+			req.send(query);
+		},
+
+		isDesktop: function()
+		{
+			return typeof(BXDesktopSystem) != "undefined" || typeof(BXDesktopWindow) != "undefined";
+		},
+
+		getBrowserForStatistics: function ()
+		{
+			if (BX.browser.IsOpera())
+			{
+				return 'opera';
+			}
+			if (BX.browser.IsChrome())
+			{
+				return 'chrome';
+			}
+			if (BX.browser.IsFirefox())
+			{
+				return 'firefox';
+			}
+			if (BX.browser.IsSafari())
+			{
+				return 'safari';
+			}
+			return 'other';
+		},
 	};
 
 	function sortVideoLine(videoLine, rtpMaps, options)

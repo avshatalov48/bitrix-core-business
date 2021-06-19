@@ -1,4 +1,10 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -10,7 +16,7 @@ $pageId = "group_requests";
 include("util_group_menu.php");
 include("util_group_profile.php");
 
-$componentParameters = array(
+$componentParameters = [
 	"MODE" => "IN",
 	"PATH_TO_USER" => $arParams["PATH_TO_USER"],
 	"PATH_TO_GROUP" => $arResult["PATH_TO_GROUP"],
@@ -33,25 +39,17 @@ $componentParameters = array(
 	"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 	"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 	"CACHE_TIME" => $arParams["CACHE_TIME"]
-);
+];
 
-if ($_REQUEST['IFRAME'] == 'Y')
-{
-	$APPLICATION->IncludeComponent(
-		"bitrix:socialnetwork.pageslider.wrapper",
-		"",
-		array(
-			'POPUP_COMPONENT_NAME' => "bitrix:socialnetwork.group_requests.ex",
-			"POPUP_COMPONENT_TEMPLATE_NAME" => "",
-			"POPUP_COMPONENT_PARAMS" => $componentParameters,
-		)
-	);
-}
-else
-{
-	$APPLICATION->IncludeComponent(
-		"bitrix:socialnetwork.group_requests.ex",
-		"",
-		$componentParameters
-	);
-}
+$APPLICATION->IncludeComponent(
+	"bitrix:ui.sidepanel.wrapper",
+	"",
+	array(
+		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.group_requests.ex',
+		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+		'POPUP_COMPONENT_PARAMS' => $componentParameters,
+		'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
+		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE' => 'SONET_GROUP',
+		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $arResult['VARIABLES']['group_id'],
+	)
+);

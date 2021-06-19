@@ -79,10 +79,23 @@ class ImComponentConferenceEdit extends CBitrixComponent
 			$this->arResult['CHAT_ID'] = $this->conference->getChatId();
 			$this->arResult['FIELDS_DATA'] = [
 				'TITLE' => $this->conference->getChatName(),
-				'PASSWORD' => $this->conference->getPassword()
+				'PASSWORD' => $this->conference->getPassword(),
+				'BROADCAST' => $this->conference->isBroadcast()
 			];
 			$this->arResult['INVITATION'] = $this->conference->getInvitation();
 			$this->arResult['MODE'] = self::VIEW_MODE;
+
+			if ($this->conference->isBroadcast())
+			{
+				$presenters = $this->conference->getPresentersInfo();
+				$this->arResult['PRESENTERS'] = array_map(function($user){
+					return [
+						'id' => $user['id'],
+						'title' => $user['name'],
+						'avatar' => $user['avatar']
+					];
+				}, $presenters);
+			}
 		}
 		else
 		{

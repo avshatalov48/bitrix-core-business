@@ -11,18 +11,17 @@ import {PullClient, PULL as Pull} from "pull.client";
 import {RestClient, rest as Rest} from "rest.client";
 
 // ui
-import {Vue} from "ui.vue";
+import {BitrixVue} from "ui.vue";
 import {VuexBuilder} from "ui.vue.vuex";
 
 // messenger files
-import {ApplicationModel, MessagesModel, DialoguesModel, UsersModel, FilesModel, RecentModel} from 'im.model';
+import {ApplicationModel, MessagesModel, DialoguesModel, UsersModel, FilesModel, RecentModel, NotificationsModel} from 'im.model';
 import {DeviceType, DeviceOrientation} from 'im.const';
 import {Utils} from "im.lib.utils";
 import {ImBasePullHandler} from "im.provider.pull";
 import {CoreRestHandler} from "im.provider.rest";
 
 import {ApplicationController} from "./application";
-import {RecentController} from "./recent";
 import {Logger} from "im.lib.logger";
 
 export class Controller
@@ -53,8 +52,8 @@ export class Controller
 			.then(() => this.initPullClient())
 			.then(() => this.initEnvironment())
 			.then(() => this.initComplete())
-			.catch(() => {
-				Logger.log('error initializing core controller');
+			.catch(error => {
+				Logger.error('error initializing core controller', error);
 			})
 		;
 	}
@@ -225,9 +224,6 @@ export class Controller
 		this.application = new ApplicationController();
 		this.application.setCoreController(this);
 
-		this.recent = new RecentController();
-		this.recent.setCoreController(this);
-
 		return new Promise((resolve, reject) => resolve());
 	}
 
@@ -247,7 +243,7 @@ export class Controller
 			},
 			dialog: {
 				messageLimit: this.application.getDefaultMessageLimit(),
-				enableReadMessages: false, // TODO: remove
+				enableReadMessages: true,
 			},
 			device: {
 				type: Utils.device.isMobile()? DeviceType.mobile: DeviceType.desktop,
@@ -262,6 +258,7 @@ export class Controller
 			.addModel(FilesModel.create().useDatabase(this.vuexBuilder.database).setVariables({host: this.getHost(), default: {name: 'File is deleted'}}))
 			.addModel(UsersModel.create().useDatabase(this.vuexBuilder.database).setVariables({host: this.getHost(), default: {name: 'Anonymous'}}))
 			.addModel(RecentModel.create().useDatabase(false).setVariables({host: this.getHost()}))
+			.addModel(NotificationsModel.create().useDatabase(false).setVariables({host: this.getHost()}))
 		;
 
 		this.vuexAdditionalModel.forEach(model => {
@@ -417,8 +414,6 @@ export class Controller
 	createVue(application, config = {})
 	{
 		const controller = this;
-		const restClient = this.restClient;
-		const pullClient = this.pullClient || null;
 
 		let beforeCreateFunction = () => {};
 		if (config.beforeCreate)
@@ -432,26 +427,38 @@ export class Controller
 			destroyedFunction = config.destroyed;
 		}
 
+		let createdFunction = () => {};
+		if (config.created)
+		{
+			createdFunction = config.created;
+		}
+
 		let initConfig = {
 			store: this.store,
 			beforeCreate()
 			{
-				this.$bitrixApplication = application;
-				this.$bitrixController = controller;
-				this.$bitrixRestClient = restClient;
-				this.$bitrixPullClient = pullClient;
-				this.$bitrixMessages = controller.localize;
+				this.$bitrix.Data.set('controller', controller);
+
+				this.$bitrix.Application.set(application);
+				this.$bitrix.Loc.setMessage(controller.localize);
+
+				if (controller.restClient)
+				{
+					this.$bitrix.RestClient.set(controller.restClient);
+				}
+				if (controller.pullClient)
+				{
+					this.$bitrix.PullClient.set(controller.pullClient);
+				}
 
 				beforeCreateFunction.bind(this)();
 			},
+			created()
+			{
+				createdFunction.bind(this)();
+			},
 			destroyed()
 			{
-				this.$bitrixApplication = null;
-				this.$bitrixController = null;
-				this.$bitrixRestClient = null;
-				this.$bitrixPullClient = null;
-				this.$bitrixMessages = null;
-
 				destroyedFunction.bind(this)();
 			}
 		};
@@ -471,19 +478,18 @@ export class Controller
 			initConfig.computed = config.computed;
 		}
 
-		if (config.created)
-		{
-			initConfig.created = config.created;
-		}
-
 		if (config.data)
 		{
 			initConfig.data = config.data;
 		}
 
+		const initConfigCreatedFunction = initConfig.created;
 		return new Promise((resolve, reject) => {
-			initConfig.created = function() { resolve(this); };
-			Vue.create(initConfig);
+			initConfig.created = function() {
+				initConfigCreatedFunction.bind(this)();
+				resolve(this);
+			};
+			BitrixVue.createApp(initConfig);
 		});
 	}
 

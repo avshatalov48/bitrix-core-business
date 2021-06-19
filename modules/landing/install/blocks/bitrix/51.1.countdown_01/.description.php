@@ -27,7 +27,7 @@ return array(
 	'style' => array(
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_1_COUNTDOWN_01--TITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-number-number' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_1_COUNTDOWN_01--NUMBER_NUMBER'),

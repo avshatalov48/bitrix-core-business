@@ -411,10 +411,15 @@
 	background: url("images/sprite_mpf_5.png") no-repeat 9px -17px;
 	cursor: pointer;
 	height: 25px;
-	opacity: 0.7;
-	right: 2px;
+	opacity: 0.5;
+	right: 7px;
 	width: 25px;
 	position: absolute;
+	transition: opacity .2s linear;
+}
+
+.feed-add-close-icon {
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%228%22%20height%3D%228%22%3E%3Cpath%20fill%3D%22%23828b95%22%20fill-rule%3D%22evenodd%22%20d%3D%22M5.437%204L7.94%206.503%206.503%207.94%204%205.437%201.437%208%200%206.563%202.563%204%20.06%201.497%201.497.06%204%202.563%206.563%200%208%201.437z%22/%3E%3C/svg%3E) no-repeat center;
 }
 
 .feed-add-close-icon:hover {
@@ -424,7 +429,7 @@
 .feed-add-post-form-but-wrap {
 	background-color: #fff;
 	border-bottom: 1px solid #f0f1f2;
-	padding: 0 7px 5px 16px;
+	padding: 0 7px 11px 21px;
 	position: relative;
 }
 
@@ -440,15 +445,18 @@
 .feed-add-post-form-but-wrap:empty{
 	display: none;
 }
+
 .feed-add-post-form-but {
-	background: url("images/sprite_mpf_5.png?1") no-repeat;
+	background-repeat: no-repeat;
+	background-position: center !important;
 	cursor: pointer;
 	display: inline-block;
 	margin-right: 15px;
 	height: 25px;
-	opacity: 0.35;
+	opacity: 0.5;
 	width: 25px;
 	position: relative;
+	transition: opacity .2s linear;
 }
 
 .feed-add-post-form-but:hover {
@@ -456,7 +464,7 @@
 }
 
 .feed-add-file {
-	background-position: -137px -17px;
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2217%22%20height%3D%2213%22%3E%3Cpath%20fill%3D%22%23828B95%22%20fill-rule%3D%22evenodd%22%20d%3D%22M7.74%202v2H2.1a.1.1%200%2000-.1.1v6.8a.1.1%200%2000.1.1l6.084.001a4.01%204.01%200%20002.408%202L.9%2013a.9.9%200%2001-.9-.9V2.9A.9.9%200%2001.9%202h6.84zm3.772-2c1.572%200%202.498.877%202.498%202.652v4.995c0%20.177-.087.291-.26.344h-1.511c-.172-.05-.258-.165-.258-.344V2.502c0-.361-.086-.606-.469-.606-.382%200-.535.135-.535.606v5.475c0%20.83-.089%202.145%202.221%202.145%201.594%200%201.815-1.244%201.83-2.05l.001-5.569c0-.138.11-.25.245-.25h1.47c.135%200%20.245.112.245.25v5.474c0%202.736-1.221%204.03-3.79%204.03-3.223%200-4.199-1.67-4.199-4.03V2.652C9%20.877%209.94%200%2011.512%200zM6%206.887l1.74%201.839v.442c0%20.285.03.563.087.832H3l3-3.113z%22%20opacity%3D%221%22/%3E%3C/svg%3E);
 }
 
 .feed-add-link {
@@ -472,11 +480,11 @@
 }
 
 .feed-add-mention {
-	background-position: -90px 3px;
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2214%22%20height%3D%2214%22%3E%3Cpath%20fill%3D%22%23828B95%22%20fill-rule%3D%22evenodd%22%20d%3D%22M12.71%2011.252c0-.598-.786-1.28-2.334-1.679A5.273%205.273%200%20018.9%208.905c-.1-.057-.085-.579-.085-.579l-.498-.075c0-.043-.043-.669-.043-.669.596-.2.535-1.375.535-1.375.379.209.626-.722.626-.722.448-1.292-.223-1.214-.223-1.214a8.086%208.086%200%20000-2.38C8.912-.727%204.419-.016%204.952.839%203.64.599%203.94%203.569%203.94%203.569l.285.77c-.56.36-.171.796-.152%201.298.028.741.484.588.484.588.028%201.223.635%201.383.635%201.383.114.768.043.637.043.637l-.54.065c.007.175-.007.35-.043.521-.635.281-.771.446-1.402.721-1.22.532-2.544%201.222-2.78%202.153C.234%2012.635.147%2014%20.147%2014h12.99l-.427-2.748z%22%20opacity%3D%221%22/%3E%3C/svg%3E);
 }
 
 .feed-add-tag {
-	background-position: -138px 4px;
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2211%22%20height%3D%2213%22%3E%3Cpath%20fill%3D%22%23828B95%22%20fill-rule%3D%22evenodd%22%20d%3D%22M4%200v3h3V0h2v3h2v2H9v3h2v2H9v3H7v-3H4v3H2v-3H0V8h2V5H0V3h2V0h2zm3%208V5H4v3h3z%22%20opacity%3D%221%22/%3E%3C/svg%3E);
 }
 
 .feed-add-important {
@@ -511,13 +519,12 @@
 
 .feed-add-post-form-but-cnt .bxhtmled-top-bar-btn,
 .feed-add-post-form-but-cnt .bxhtmled-top-bar-btn-active,
-.feed-add-post-form-but-cnt .bxhtmled-top-bar-btn-disabled
-{
-	background-image: url("images/sprite_mpf_5.png") !important;
+.feed-add-post-form-but-cnt .bxhtmled-top-bar-btn-disabled {
+	background-position: center !important;
 	background-repeat: no-repeat !important;
 	display: inline-block;
 	margin: 0 15px 0 0 !important;
-	opacity: 0.35;
+	opacity: 0.5;
 	filter: alpha(opacity=50);
 	width: 25px;
 	height: 25px;
@@ -525,10 +532,11 @@
 	border-width: 0 !important;
 	-webkit-box-shadow: none !important;
 	box-shadow: none !important;
+	transition: opacity .2s linear;
 }
 
 .feed-add-post-form-but-cnt .bxhtmled-top-bar-btn:hover {
-	opacity: .7;
+	opacity: .8;
 }
 
 .feed-add-post-form-but-cnt .bxhtmled-top-bar-btn-disabled {
@@ -548,15 +556,15 @@
 }
 
 .feed-add-post-form-but-cnt .bxhtmled-button-link {
-	background-position: -13px 3px !important;
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2220%22%20height%3D%2220%22%3E%3Cg%20fill%3D%22%23828B95%22%20fill-rule%3D%22evenodd%22%20opacity%3D%221%22%20transform%3D%22scale%28-1%201%29%20rotate%2845%20-7.266%20-15.99%29%22%3E%3Crect%20width%3D%228.266%22%20height%3D%222.386%22%20x%3D%225.16%22%20y%3D%223.05%22%20rx%3D%221%22%20transform%3D%22matrix%28-1%200%200%201%2018.586%200%29%22/%3E%3Cpath%20d%3D%22M5.455%202.72H3.594c-.863%200-1.563.676-1.563%201.509%200%20.833.7%201.508%201.563%201.508h1.861c.863%200%201.563-.675%201.563-1.508s-.7-1.509-1.563-1.509zM5.361.727c1.96%200%203.549%201.568%203.549%203.502%200%201.934-1.589%203.502-3.549%203.502H3.688C1.728%207.73.139%206.163.139%204.229.139%202.295%201.728.727%203.688.727H5.36zm9.505%202.063h-1.837c-.852%200-1.543.644-1.543%201.439%200%20.794.69%201.439%201.543%201.439h1.837c.851%200%201.542-.645%201.542-1.44%200-.794-.69-1.438-1.542-1.438zM14.805.727c2.01%200%203.638%201.568%203.638%203.502%200%201.934-1.629%203.502-3.638%203.502h-1.716c-2.009%200-3.638-1.568-3.638-3.502%200-1.934%201.63-3.502%203.638-3.502h1.716z%22/%3E%3C/g%3E%3C/svg%3E) !important;
 }
 
 .feed-add-post-form-but-cnt .bxhtmled-button-video {
-	background-position: -62px 3px !important;
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2216%22%20height%3D%2213%22%3E%3Cg%20fill%3D%22%23828B95%22%20fill-rule%3D%22evenodd%22%20opacity%3D%221%22%3E%3Cpath%20d%3D%22M11%203a2%202%200%20012%202v6a2%202%200%2001-2%202H2a2%202%200%2001-2-2V5a2%202%200%20012-2h9zm0%202H2v6h9V5zM15%205h1v6h-1z%22/%3E%3Cpath%20d%3D%22M12%206.857L15%205v6l-3-1.857zM8%200a2%202%200%20012%202v2H8V2H2V0h6zM4%207h2v2H4zM7%207h2v2H7z%22/%3E%3C/g%3E%3C/svg%3E) !important;
 }
 
 .feed-add-post-form-but-cnt .bxhtmled-button-quote {
-	background-position: -11px -693px !important;
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2212%22%3E%3Cpath%20fill%3D%22%23828B95%22%20fill-rule%3D%22evenodd%22%20d%3D%22M1.3%200h2.42a1.3%201.3%200%20011.3%201.3v3.726c0%20.775-.084%201.883-.251%202.567a5.552%205.552%200%2001-.775%201.801c-.349.517-.794.93-1.336%201.24-.51.29-1.098.445-1.766.463-.044%200-.132.062-.132-.118V9.394c0-.226.1-.234.149-.236.372-.023.684-.131.936-.325.284-.22.516-.51.697-.872.18-.361.303-.768.368-1.22.064-.452.096-1.276.096-1.715H1.3a1.3%201.3%200%2001-1.3-1.3V1.3A1.3%201.3%200%20011.3%200zm6.004%200h2.42a1.3%201.3%200%20011.3%201.3v3.726c0%20.775-.083%201.883-.251%202.567a5.552%205.552%200%2001-.775%201.801c-.348.517-.794.93-1.336%201.24-.509.29-1.098.445-1.766.463-.044%200-.132.062-.132-.118V9.394c0-.226.1-.234.149-.236.373-.023.685-.131.936-.325.284-.22.516-.51.697-.872.18-.361.303-.768.368-1.22.064-.452.097-1.276.097-1.715H7.304a1.3%201.3%200%2001-1.3-1.3V1.3a1.3%201.3%200%20011.3-1.3z%22%20opacity%3D%221%22/%3E%3C/svg%3E) !important;
 }
 
 .feed-add-post-form-but-more {
@@ -603,37 +611,30 @@
 
 .feed-add-post-form-editor-btn,
 .feed-add-post-form-title-btn {
-	background: url(images/sprite_mpf_5.png) no-repeat 100px;
+	background-repeat: no-repeat;
+	background-position: center;
 	cursor: pointer;
 	display: inline-block;
 	height: 25px;
 	vertical-align: top;
 	width: 25px;
+	opacity: .5;
+	transition: opacity .2s linear;
 }
 
 .feed-add-post-form-editor-btn {
-	background-position: -57px -772px;
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2212%22%3E%3Cpath%20fill%3D%22%23828B95%22%20fill-rule%3D%22evenodd%22%20d%3D%22M3.947%206.938H7.46L5.751%202.024h-.038L3.947%206.938zM4.432%200h2.642l4.383%2011.72H9.056l-.998-2.917h-4.63l-1.07%202.916H0L4.432%200z%22%20opacity%3D%221%22/%3E%3C/svg%3E);
 }
 
 .feed-add-post-form-title-btn {
-	background-position: -97px -747px;
-	margin-right: 4px;
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2215%22%20height%3D%2212%22%3E%3Cpath%20fill%3D%22%23828B95%22%20fill-rule%3D%22evenodd%22%20d%3D%22M14%200a1%201%200%20011%201v10a1%201%200%2001-1%201H1a1%201%200%2001-1-1V1a1%201%200%20011-1h13zm-1%206H2v4h11V6zm0-4H2v2h11V2z%22/%3E%3C/svg%3E);
+	margin-right: 12px;
 }
 
-.feed-add-post-form-editor-btn:hover {
-	background-position: -29px -772px;
-}
-
-.feed-add-post-form-title-btn:hover {
-	background-position: -63px -747px;
-}
-
-.feed-add-post-form-btn-active.feed-add-post-form-editor-btn {
-	background-position: -29px -772px;
-}
-
+.feed-add-post-form-editor-btn:hover, .feed-add-post-form-title-btn:hover,
+.feed-add-post-form-btn-active.feed-add-post-form-editor-btn,
 .feed-add-post-form-btn-active.feed-add-post-form-title-btn {
-	background-position: -63px -747px;
+	opacity: 1;
 }
 
 .feed-add-post-strings-blocks {
@@ -655,7 +656,11 @@
 .feed-add-post-strings-blocks li:first-child {
 	border-top: none;
 	margin: 0;
-	padding-top: 6px;
+	padding: 6px 23px 12px 19px;
+}
+
+.feed-buttons-block {
+	padding-left: 23px;
 }
 
 .feed-add-post-destination-block {
@@ -665,7 +670,7 @@
 
 .feed-add-post-destination-title,
 .feed-add-post-tags-title {
-	color: #000;
+	color: #525c69;
 	float: left;
 	font-size: 14px;
 	min-width: 55px;
@@ -673,7 +678,7 @@
 }
 
 .feed-add-post-destination-block .feed-add-post-destination-title {
-	margin-top: 15px;
+	margin-top: 11px;
 }
 
 .feed-add-post-dest-source {

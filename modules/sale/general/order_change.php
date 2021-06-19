@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSaleOrderChange
 {
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "ORDER_ID") || $ACTION=="ADD") && (int)$arFields["ORDER_ID"] === 0)
 		{
@@ -26,7 +27,7 @@ class CAllSaleOrderChange
 		return true;
 	}
 
-	public function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -47,7 +48,7 @@ class CAllSaleOrderChange
 		return False;
 	}
 
-	public function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -64,7 +65,7 @@ class CAllSaleOrderChange
 	 *
 	 * @return bool|CDBResult
 	 */
-	public function deleteByOrderId($id)
+	public static function deleteByOrderId($id)
 	{
 		global $DB;
 
@@ -292,7 +293,7 @@ class CAllSaleOrderChange
 	 * @param string $data - serialized data saved in the database for the record of this type
 	 * @return array with keys: NAME - record name, INFO - full description (string)
 	 */
-	public function GetRecordDescription($type, $data)
+	public static function GetRecordDescription($type, $data)
 	{
 		foreach (CSaleOrderChangeFormat::$operationTypes as $typeCode => $arInfo)
 		{
@@ -1426,6 +1427,7 @@ class CSaleOrderChangeFormat
 			"INFO" => $info
 		);
 	}
+
 	public static function FormatOrderDeliveryRequestSent($data)
 	{
 		if(is_array($data) && $data["RESULT"] == "OK")
@@ -1452,7 +1454,6 @@ class CSaleOrderChangeFormat
 			"INFO" => $reqDescription,
 		);
 	}
-
 
 	public static function FormatPaymentPaid($data)
 	{
@@ -1499,7 +1500,6 @@ class CSaleOrderChangeFormat
 		);
 	}
 
-
 	public static function FormatShipmentItemBasketAdded($data)
 	{
 		$info = GetMessage("SOC_SHIPMENT_ITEM_BASKET_ADDED_INFO");
@@ -1532,7 +1532,6 @@ class CSaleOrderChangeFormat
 			"INFO" => $info,
 		);
 	}
-
 
 	public static function FormatShipmentCanceled($data)
 	{
@@ -1896,7 +1895,6 @@ class CSaleOrderChangeFormat
 
 		return $text;
 	}
-
 
 	public static function FormatMarkerSuccess($data)
 	{

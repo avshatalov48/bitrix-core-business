@@ -187,7 +187,7 @@ if ($find_graph_type!="date")
 }
 else
 {
-	$rsDays = CTraffic::GetDailyList(($by="s_date"), ($order="asc"), $v1, $arFilter, $v2);
+	$rsDays = CTraffic::GetDailyList("s_date", "asc", $v1, $arFilter);
 	while($arData = $rsDays->Fetch())
 	{
 		$date = mktime(0, 0, 0, $arData["MONTH"], $arData["DAY"], $arData["YEAR"]);

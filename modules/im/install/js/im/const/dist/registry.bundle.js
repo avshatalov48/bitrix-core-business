@@ -57,7 +57,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	});
 	var StorageLimit = Object.freeze({
 	  dialogues: 50,
-	  messages: 20
+	  messages: 100
 	});
 
 	/**
@@ -92,7 +92,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  mobileBrowserConstGet: 'mobile.browser.const.get',
 	  imRecentGet: 'im.recent.get',
 	  imRecentList: 'im.recent.list',
-	  imCallGetCallLimits: 'im.call.getCallLimits'
+	  imCallGetCallLimits: 'im.call.getCallLimits',
+	  imNotifyGet: 'im.notify.get',
+	  imNotifySchemaGet: 'im.notify.schema.get'
 	});
 	var RestMethodHandler = Object.freeze({
 	  imChatGet: 'im.chat.get',
@@ -109,7 +111,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  mobileBrowserConstGet: 'mobile.browser.const.get',
 	  imRecentGet: 'im.recent.get',
 	  imRecentList: 'im.recent.list',
-	  imCallGetCallLimits: 'im.call.getCallLimits'
+	  imCallGetCallLimits: 'im.call.getCallLimits',
+	  imNotifyGet: 'im.notify.get',
+	  imNotifySchemaGet: 'im.notify.schema.get'
 	});
 
 	/**
@@ -122,15 +126,50 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 */
 	var EventType = Object.freeze({
 	  dialog: {
-	    scrollToBottom: 'EventType.dialog.scrollToBottom',
-	    requestHistoryResult: 'EventType.dialog.requestHistoryResult',
-	    requestUnreadResult: 'EventType.dialog.requestUnreadResult',
-	    sendReadMessages: 'EventType.dialog.sendReadMessages'
+	    newMessage: 'EventType.dialog.newMessage',
+	    scrollOnStart: 'IM.Dialog:scrollOnStart',
+	    scrollToBottom: 'IM.Dialog:scrollToBottom',
+	    readVisibleMessages: 'IM.Dialog.readVisibleMessages',
+	    requestUnread: 'IM.Dialog.requestUnread',
+	    readMessage: 'IM.Dialog:readMessage',
+	    quoteMessage: 'IM.Dialog:quoteMessage',
+	    clickOnCommand: 'IM.Dialog:clickOnCommand',
+	    clickOnMention: 'IM.Dialog:clickOnMention',
+	    clickOnUserName: 'IM.Dialog:clickOnUserName',
+	    clickOnMessageMenu: 'IM.Dialog:clickOnMessageMenu',
+	    clickOnMessageRetry: 'IM.Dialog:clickOnMessageRetry',
+	    clickOnUploadCancel: 'IM.Dialog:clickOnUploadCancel',
+	    clickOnReadList: 'IM.Dialog:clickOnReadList',
+	    setMessageReaction: 'IM.Dialog:setMessageReaction',
+	    openMessageReactionList: 'IM.Dialog:openMessageReactionList',
+	    clickOnKeyboardButton: 'IM.Dialog:clickOnKeyboardButton',
+	    clickOnChatTeaser: 'IM.Dialog:clickOnChatTeaser',
+	    clickOnDialog: 'IM.Dialog:clickOnDialog',
+	    quotePanelClose: 'IM.Dialog:quotePanelClose',
+	    beforeMobileKeyboard: 'IM.Dialog:beforeMobileKeyboard',
+	    messagesSet: 'IM.Dialog:messagesSet'
 	  },
 	  textarea: {
-	    insertText: 'EventType.textarea.insertText',
-	    focus: 'EventType.textarea.focus',
-	    blur: 'EventType.textarea.blur'
+	    focus: 'IM.Textarea:focus',
+	    setFocus: 'IM.Textarea:setFocus',
+	    blur: 'IM.Textarea:blur',
+	    setBlur: 'IM.Textarea:setBlur',
+	    keyUp: 'IM.Textarea:keyUp',
+	    edit: 'IM.Textarea:edit',
+	    insertText: 'IM.Textarea:insertText',
+	    sendMessage: 'IM.Textarea:sendMessage',
+	    fileSelected: 'IM.Textarea:fileSelected',
+	    startWriting: 'IM.Textarea:startWriting',
+	    appButtonClick: 'IM.Textarea:appButtonClick'
+	  },
+	  conference: {
+	    setPasswordFocus: 'IM.Conference:setPasswordFocus',
+	    hideSmiles: 'IM.Conference:hideSmiles',
+	    requestPermissions: 'IM.Conference:requestPermissions',
+	    waitForStart: 'IM.Conference:waitForStart'
+	  },
+	  notification: {
+	    updateState: 'IM.Notifications:restoreConnection'
 	  }
 	});
 
@@ -162,6 +201,20 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  listItemName: 'bx-im-dialog-list-item-name-reference',
 	  listItemBody: 'bx-im-dialog-list-item-content-reference',
 	  listUnreadLoader: 'bx-im-dialog-list-unread-loader-reference'
+	});
+	var DialogTemplateType = Object.freeze({
+	  message: 'message',
+	  delimiter: 'delimiter',
+	  group: 'group',
+	  historyLoader: 'historyLoader',
+	  unreadLoader: 'unreadLoader',
+	  button: 'button',
+	  placeholder: 'placeholder'
+	});
+	var DialogState = Object.freeze({
+	  loading: 'loading',
+	  empty: 'empty',
+	  show: 'show'
 	});
 
 	/**
@@ -201,38 +254,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	/**
 	 * Bitrix Messenger
-	 * Call constants
-	 *
-	 * @package bitrix
-	 * @subpackage im
-	 * @copyright 2001-2020 Bitrix
-	 */
-	var CallLimit = Object.freeze({
-	  userLimitForHd: 5
-	});
-	var CallStateType = Object.freeze({
-	  preparation: 'preparation',
-	  call: 'call'
-	});
-	var CallErrorCode = Object.freeze({
-	  noSignalFromCamera: 'noSignalFromCamera'
-	});
-	var CallApplicationErrorCode = Object.freeze({
-	  userLimitReached: 'userLimitReached',
-	  detectIntranetUser: 'detectIntranetUser',
-	  bitrix24only: 'bitrix24only',
-	  kickedFromCall: 'kickedFromCall',
-	  unsupportedBrowser: 'unsupportedBrowser',
-	  missingMicrophone: 'missingMicrophone',
-	  unsafeConnection: 'unsafeConnection',
-	  wrongAlias: 'wrongAlias',
-	  notStarted: 'notStarted',
-	  finished: 'finished',
-	  userLeftCall: 'userLeftCall'
-	});
-
-	/**
-	 * Bitrix Messenger
 	 * Conference constants
 	 *
 	 * @package bitrix
@@ -244,6 +265,57 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  edit: 'edit',
 	  create: 'create'
 	});
+	var ConferenceStateType = Object.freeze({
+	  preparation: 'preparation',
+	  call: 'call'
+	});
+	var ConferenceErrorCode = Object.freeze({
+	  userLimitReached: 'userLimitReached',
+	  detectIntranetUser: 'detectIntranetUser',
+	  bitrix24only: 'bitrix24only',
+	  kickedFromCall: 'kickedFromCall',
+	  unsupportedBrowser: 'unsupportedBrowser',
+	  missingMicrophone: 'missingMicrophone',
+	  unsafeConnection: 'unsafeConnection',
+	  wrongAlias: 'wrongAlias',
+	  notStarted: 'notStarted',
+	  finished: 'finished',
+	  userLeftCall: 'userLeftCall',
+	  noSignalFromCamera: 'noSignalFromCamera'
+	});
+	var ConferenceRightPanelMode = Object.freeze({
+	  hidden: 'hidden',
+	  chat: 'chat',
+	  users: 'users',
+	  split: 'split'
+	});
+
+	/**
+	 * Bitrix Messenger
+	 * Recent list constants
+	 *
+	 * @package bitrix
+	 * @subpackage im
+	 * @copyright 2001-2020 Bitrix
+	 */
+	var ChatTypes = {
+	  chat: 'chat',
+	  open: 'open',
+	  user: 'user',
+	  notification: 'notification'
+	};
+	var TemplateTypes = {
+	  item: 'item',
+	  placeholder: 'placeholder'
+	};
+	var RecentSection = {
+	  general: 'general',
+	  pinned: 'pinned'
+	};
+	var MessageStatus = {
+	  received: 'received',
+	  delivered: 'delivered'
+	};
 
 	exports.DateFormat = DateFormat;
 	exports.DeviceType = DeviceType;
@@ -256,14 +328,19 @@ this.BX.Messenger = this.BX.Messenger || {};
 	exports.DialogType = DialogType;
 	exports.DialogCrmType = DialogCrmType;
 	exports.DialogReferenceClassName = DialogReferenceClassName;
+	exports.DialogTemplateType = DialogTemplateType;
+	exports.DialogState = DialogState;
 	exports.FileStatus = FileStatus;
 	exports.FileType = FileType;
 	exports.MessageType = MessageType;
-	exports.CallStateType = CallStateType;
-	exports.CallLimit = CallLimit;
-	exports.CallErrorCode = CallErrorCode;
-	exports.CallApplicationErrorCode = CallApplicationErrorCode;
 	exports.ConferenceFieldState = ConferenceFieldState;
+	exports.ConferenceStateType = ConferenceStateType;
+	exports.ConferenceErrorCode = ConferenceErrorCode;
+	exports.ConferenceRightPanelMode = ConferenceRightPanelMode;
+	exports.ChatTypes = ChatTypes;
+	exports.TemplateTypes = TemplateTypes;
+	exports.RecentSection = RecentSection;
+	exports.MessageStatus = MessageStatus;
 
 }((this.BX.Messenger.Const = this.BX.Messenger.Const || {})));
 //# sourceMappingURL=registry.bundle.js.map

@@ -28,7 +28,7 @@ while ($taxData = $taxQueryObject->NavNext(false))
 	$listTax[$taxData["ID"]] = $taxData["NAME"]." (".$taxData["LID"].")";
 }
 $listSites = array();
-$sitesQueryObject = CSite::GetList($bySite = "sort", $orderSite = "asc", array("ACTIVE" => "Y"));
+$sitesQueryObject = CSite::GetList("sort", "asc", array("ACTIVE" => "Y"));
 while ($site = $sitesQueryObject->fetch())
 {
 	$listSites[$site["LID"]] = "[".$site["LID"]."] ".$site["NAME"];

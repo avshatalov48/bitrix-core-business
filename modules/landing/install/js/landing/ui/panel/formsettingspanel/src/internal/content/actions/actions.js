@@ -195,16 +195,17 @@ export default class ActionsContent extends ContentWrapper
 	getValue(): {[p: string]: any}
 	{
 		const actionPagesValue = this.getActionPages().getValue();
+		const useRedirect = this.getTypeButtons().getValue() === 'type2';
 
 		return {
 			result: {
 				success: {
 					text: actionPagesValue.success,
-					url: Text.decode(this.getSuccessLinkField().getValue()),
+					url: useRedirect ? Text.decode(this.getSuccessLinkField().getValue()) : '',
 				},
 				failure: {
 					text: actionPagesValue.failure,
-					url: Text.decode(this.getFailureLinkField().getValue()),
+					url: useRedirect ? Text.decode(this.getFailureLinkField().getValue()) : '',
 				},
 				redirectDelay: this.getDelayField().getValue(),
 			},

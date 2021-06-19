@@ -9,14 +9,6 @@
 	<tr>
 	<td><?=GetMessage("LEARNING_MAIN_SEARCH_SEARCH")?></td>
 	<td><input type="text" name="q" size="20" value="<?=$arResult["q"]?>"></td>
-	<td>
-		<select name="where">
-		<option value=""><?=GetMessage("SEARCH_ALL")?></option>
-		<?php foreach($arResult["WHERE"] as $k => $v):?>
-			<option value="<?=$k?>"<?=$k==$arResult["where"]?" selected":""?>><?=$v?></option>
-		<?php endforeach?>
-		</select>
-	</td>
 	<td><input type="submit" value="<?=GetMessage("SEARCH_GO")?>"></td>
 	</tr>
 </table>

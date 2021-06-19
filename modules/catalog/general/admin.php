@@ -22,6 +22,7 @@ class CCatalogAdmin
 	protected static $catalogExportExec = false;
 	protected static $catalogImportEdit = false;
 	protected static $catalogImportExec = false;
+	protected static $adminMenuExists;
 
 	public static function get_other_elements_menu($IBLOCK_TYPE_ID, $IBLOCK_ID, $arSection, &$more_url)
 	{
@@ -50,6 +51,11 @@ class CCatalogAdmin
 
 	public static function get_sections_menu($IBLOCK_TYPE_ID, $IBLOCK_ID, $DEPTH_LEVEL, $SECTION_ID, $arSectionsChain = false)
 	{
+		if (self::$adminMenuExists === null)
+		{
+			self::$adminMenuExists = isset($adminMenu) && $adminMenu instanceof CAdminMenu;
+		}
+
 		if (isset($_REQUEST["public_menu"]))
 		{
 			return [];
@@ -175,7 +181,7 @@ class CCatalogAdmin
 				{
 					$arSectionTmp["items"] = CCatalogAdmin::get_sections_menu($IBLOCK_TYPE_ID, $IBLOCK_ID, $DEPTH_LEVEL + 1, $arSection["ID"], $arSectionsChain);
 				}
-				elseif (method_exists($adminMenu, "IsSectionActive"))
+				elseif (self::$adminMenuExists)
 				{
 
 					if ($adminMenu->IsSectionActive("menu_catalog_category_".$IBLOCK_ID."/".$arSection["ID"]))
@@ -492,6 +498,8 @@ class CCatalogAdmin
 
 	public static function OnBuildSaleMenu(/** @noinspection PhpUnusedParameterInspection */&$arGlobalMenu, &$arModuleMenu)
 	{
+		global $adminMenu;
+
 		if (defined('BX_CATALOG_UNINSTALLED'))
 			return;
 
@@ -516,6 +524,9 @@ class CCatalogAdmin
 		self::$catalogExportExec = $USER->CanDoOperation('catalog_export_exec');
 		self::$catalogImportEdit = $USER->CanDoOperation('catalog_import_edit');
 		self::$catalogImportExec = $USER->CanDoOperation('catalog_import_exec');
+
+		self::$adminMenuExists = isset($adminMenu) && $adminMenu instanceof CAdminMenu;
+
 		static::OnBuildSaleMenuItem($arModuleMenu);
 	}
 
@@ -751,7 +762,7 @@ class CCatalogAdmin
 		if (self::$catalogRead || self::$catalogStore)
 		{
 			$arResult = array();
-			if (Catalog\Config\State::isUsedInventoryManagement())
+			if (self::$catalogStore && Catalog\Config\State::isUsedInventoryManagement())
 			{
 				$arResult[] = array(
 					"text" => Loc::getMessage("CM_STORE_DOCS"),
@@ -822,38 +833,46 @@ class CCatalogAdmin
 	{
 		global $adminMenu;
 
-		if (empty($strItemID))
-			return array();
-
 		$arProfileList = array();
 
-		if ((self::$catalogRead || self::$catalogExportEdit || self::$catalogExportExec) && method_exists($adminMenu, "IsSectionActive"))
+		if (empty($strItemID))
 		{
-			if ($adminMenu->IsSectionActive($strItemID))
+			return $arProfileList;
+		}
+		if (!(self::$catalogRead || self::$catalogExportEdit || self::$catalogExportExec))
+		{
+			return $arProfileList;
+		}
+
+		if (!self::$adminMenuExists)
+		{
+			return $arProfileList;
+		}
+
+		if ($adminMenu->IsSectionActive($strItemID))
+		{
+			$rsProfiles = CCatalogExport::GetList(array("NAME"=>"ASC", "ID"=>"ASC"), array("IN_MENU"=>"Y"));
+			while ($arProfile = $rsProfiles->Fetch())
 			{
-				$rsProfiles = CCatalogExport::GetList(array("NAME"=>"ASC", "ID"=>"ASC"), array("IN_MENU"=>"Y"));
-				while ($arProfile = $rsProfiles->Fetch())
+				$arProfile['NAME'] = (string)$arProfile['NAME'];
+				$strName = ($arProfile["NAME"] != '' ? $arProfile["NAME"] : $arProfile["FILE_NAME"]);
+				if ($arProfile['DEFAULT_PROFILE'] == 'Y')
 				{
-					$arProfile['NAME'] = (string)$arProfile['NAME'];
-					$strName = ($arProfile["NAME"] != '' ? $arProfile["NAME"] : $arProfile["FILE_NAME"]);
-					if ($arProfile['DEFAULT_PROFILE'] == 'Y')
-					{
-						$arProfileList[] = array(
-							"text" => htmlspecialcharsbx($strName),
-							"url" => "cat_exec_exp.php?lang=".LANGUAGE_ID."&ACT_FILE=".$arProfile["FILE_NAME"]."&ACTION=EXPORT&PROFILE_ID=".$arProfile["ID"]."&".bitrix_sessid_get(),
-							"title" => Loc::getMessage("CAM_EXPORT_DESCR_EXPORT")." &quot;".htmlspecialcharsbx($strName)."&quot;",
-							"readonly" => !self::$catalogExportExec,
-						);
-					}
-					else
-					{
-						$arProfileList[] = array(
-							"text" => htmlspecialcharsbx($strName),
-							"url" => "cat_export_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".$arProfile["FILE_NAME"]."&ACTION=EXPORT_EDIT&PROFILE_ID=".$arProfile["ID"]."&".bitrix_sessid_get(),
-							"title"=>Loc::getMessage("CAM_EXPORT_DESCR_EDIT")." &quot;".htmlspecialcharsbx($strName)."&quot;",
-							"readonly" => !self::$catalogExportEdit,
-						);
-					}
+					$arProfileList[] = array(
+						"text" => htmlspecialcharsbx($strName),
+						"url" => "cat_exec_exp.php?lang=".LANGUAGE_ID."&ACT_FILE=".$arProfile["FILE_NAME"]."&ACTION=EXPORT&PROFILE_ID=".$arProfile["ID"]."&".bitrix_sessid_get(),
+						"title" => Loc::getMessage("CAM_EXPORT_DESCR_EXPORT")." &quot;".htmlspecialcharsbx($strName)."&quot;",
+						"readonly" => !self::$catalogExportExec,
+					);
+				}
+				else
+				{
+					$arProfileList[] = array(
+						"text" => htmlspecialcharsbx($strName),
+						"url" => "cat_export_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".$arProfile["FILE_NAME"]."&ACTION=EXPORT_EDIT&PROFILE_ID=".$arProfile["ID"]."&".bitrix_sessid_get(),
+						"title"=>Loc::getMessage("CAM_EXPORT_DESCR_EDIT")." &quot;".htmlspecialcharsbx($strName)."&quot;",
+						"readonly" => !self::$catalogExportEdit,
+					);
 				}
 			}
 		}
@@ -864,38 +883,47 @@ class CCatalogAdmin
 	{
 		global $adminMenu;
 
-		if (empty($strItemID))
-			return array();
-
 		$arProfileList = array();
 
-		if ((self::$catalogRead || self::$catalogImportEdit || self::$catalogImportExec) && method_exists($adminMenu, "IsSectionActive"))
+		if (empty($strItemID))
 		{
-			if ($adminMenu->IsSectionActive($strItemID))
+			return $arProfileList;
+		}
+
+		if (!(self::$catalogRead || self::$catalogImportEdit || self::$catalogImportExec))
+		{
+			return $arProfileList;
+		}
+
+		if (!self::$adminMenuExists)
+		{
+			return $arProfileList;
+		}
+
+		if ($adminMenu->IsSectionActive($strItemID))
+		{
+			$rsProfiles = CCatalogImport::GetList(array("NAME"=>"ASC", "ID"=>"ASC"), array("IN_MENU"=>"Y"));
+			while ($arProfile = $rsProfiles->Fetch())
 			{
-				$rsProfiles = CCatalogImport::GetList(array("NAME"=>"ASC", "ID"=>"ASC"), array("IN_MENU"=>"Y"));
-				while ($arProfile = $rsProfiles->Fetch())
+				$arProfile["NAME"] = (string)$arProfile["NAME"];
+				$strName = ($arProfile["NAME"] != '' ? $arProfile["NAME"] : $arProfile["FILE_NAME"]);
+				if ($arProfile['DEFAULT_PROFILE'] == 'Y')
 				{
-					$arProfile["NAME"] = (string)$arProfile["NAME"];
-					$strName = ($arProfile["NAME"] != '' ? $arProfile["NAME"] : $arProfile["FILE_NAME"]);
-					if ($arProfile['DEFAULT_PROFILE'] == 'Y')
-					{
-						$arProfileList[] = array(
-							"text" => htmlspecialcharsbx($strName),
-							"url" => "cat_exec_imp.php?lang=".LANGUAGE_ID."&ACT_FILE=".$arProfile["FILE_NAME"]."&ACTION=IMPORT&PROFILE_ID=".$arProfile["ID"]."&".bitrix_sessid_get(),
-							"title" => Loc::getMessage("CAM_IMPORT_DESCR_IMPORT")." &quot;".htmlspecialcharsbx($strName)."&quot;",
-							"readonly" => !self::$catalogImportExec,
-						);
-					}
-					else
-					{
-						$arProfileList[] = array(
-							"text" => htmlspecialcharsbx($strName),
-							"url" => "cat_import_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".$arProfile["FILE_NAME"]."&ACTION=IMPORT_EDIT&PROFILE_ID=".$arProfile["ID"]."&".bitrix_sessid_get(),
-							"title" => Loc::getMessage("CAM_IMPORT_DESCR_EDIT")." &quot;".htmlspecialcharsbx($strName)."&quot;",
-							"readonly" => !self::$catalogImportEdit,
-						);
-					}
+					$arProfileList[] = array(
+						"text" => htmlspecialcharsbx($strName),
+						"url" => "cat_exec_imp.php?lang=".LANGUAGE_ID."&ACT_FILE=".$arProfile["FILE_NAME"]."&ACTION=IMPORT&PROFILE_ID=".$arProfile["ID"]."&".bitrix_sessid_get(),
+						"title" => Loc::getMessage("CAM_IMPORT_DESCR_IMPORT")." &quot;".htmlspecialcharsbx($strName)."&quot;",
+						"readonly" => !self::$catalogImportExec,
+					);
+				}
+				else
+				{
+					$arProfileList[] = array(
+						"text" => htmlspecialcharsbx($strName),
+						"url" => "cat_import_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".$arProfile["FILE_NAME"]."&ACTION=IMPORT_EDIT&PROFILE_ID=".$arProfile["ID"]."&".bitrix_sessid_get(),
+						"title" => Loc::getMessage("CAM_IMPORT_DESCR_EDIT")." &quot;".htmlspecialcharsbx($strName)."&quot;",
+						"readonly" => !self::$catalogImportEdit,
+					);
 				}
 			}
 		}

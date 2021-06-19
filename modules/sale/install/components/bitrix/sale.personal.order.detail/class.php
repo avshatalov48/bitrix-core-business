@@ -548,6 +548,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 
 			$basketValues['FORMATED_SUM'] = SaleFormatCurrency($basketValues["PRICE"] * $basketValues['QUANTITY'], $basketValues["CURRENCY"]);
 			$basketValues['FORMATED_BASE_SUM'] = SaleFormatCurrency($basketValues["BASE_PRICE"] * $basketValues['QUANTITY'], $basketValues["CURRENCY"]);
+			$basketValues['FORMATED_DISCOUNT_SUM'] = SaleFormatCurrency($basketValues["BASE_PRICE"] * $basketValues['QUANTITY'] - $basketValues["PRICE"] * $basketValues['QUANTITY'], $basketValues["CURRENCY"]);
 
 			$basket[$basketValues['ID']] = $basketValues;
 		}
@@ -1804,6 +1805,12 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 
 		$arResult["PRODUCT_SUM_FORMATED"] = SaleFormatCurrency($arResult["PRODUCT_SUM"], $arResult["CURRENCY"]);
 		$arResult["BASE_PRODUCT_SUM_FORMATED"] = SaleFormatCurrency($arResult["BASE_PRODUCT_SUM"], $arResult["CURRENCY"]);
+		$arResult["PRODUCT_SUM_DISCOUNT_FORMATED"] = '';
+		$discountSum = $arResult["BASE_PRODUCT_SUM"] - $arResult["PRODUCT_SUM"];
+		if ($discountSum > 0)
+		{
+			$arResult["PRODUCT_SUM_DISCOUNT_FORMATED"] = SaleFormatCurrency($discountSum, $arResult["CURRENCY"]);
+		}
 
 		$arResult["PRICE_DELIVERY_FORMATED"] = SaleFormatCurrency($arResult['PRICE_DELIVERY'], $arResult["CURRENCY"]);
 		foreach ($arResult['PAYMENT'] as &$payment)

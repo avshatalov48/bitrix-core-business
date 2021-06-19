@@ -80,7 +80,7 @@ foreach ($arVariableConditionCount as $i)
 	<tr id="id_tr_variable_condition_value_<?= $i ?>" style="<?if ($hidden) echo 'display:none'?>">
 		<td align="right" width="40%" class="adm-detail-content-cell-l"><?= GetMessage("BPFC_PD_VALUE") ?>:</td>
 		<td width="60%" id="id_td_variable_condition_value_<?= $i ?>" class="adm-detail-content-cell-r">
-			<input type="text" name="variable_condition_value_<?= $i ?>" value="<?= htmlspecialcharsbx((string)$arCurrentValues["variable_condition_value_".$i]) ?>">
+			<input type="text" name="variable_condition_value_<?= $i ?>" value="...">
 		</td>
 	</tr>
 	<?

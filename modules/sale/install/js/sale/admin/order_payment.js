@@ -74,6 +74,7 @@ BX.Sale.Admin.OrderPayment = function(params)
 						if (result.ERROR && result.ERROR.length > 0)
 						{
 							alert(result.ERROR);
+							location.reload();
 						}
 						else
 						{
@@ -1078,7 +1079,7 @@ BX.Sale.Admin.OrderPayment.prototype.showCreateCheckWindow = function(paymentId)
 								{
 									BX.Sale.Admin.OrderEditPage.showDialog(saveResult.ERROR);
 								}
-								else 
+								else
 								{
 									BX('PAYMENT_CHECK_LIST_ID_' + paymentId).innerHTML = saveResult.CHECK_LIST_HTML;
 									if (BX('PAYMENT_CHECK_LIST_ID_SHORT_VIEW' + paymentId) !== undefined && BX('PAYMENT_CHECK_LIST_ID_SHORT_VIEW' + paymentId) !== null)
@@ -1111,7 +1112,7 @@ BX.Sale.Admin.OrderPayment.prototype.onCheckEntityChoose = function (currentElem
 	var paymentType = BX(currentElement.id+"_type");
 	if (paymentType)
 		paymentType.disabled = !checked;
-	
+
 	if (!multiSelect)
 	{
 		var parent = BX.findParent(currentElement, {tag : 'table'});
@@ -1122,7 +1123,7 @@ BX.Sale.Admin.OrderPayment.prototype.onCheckEntityChoose = function (currentElem
 			{
 				if (inputs[i].id === currentElement.id)
 					continue;
-				
+
 				inputs[i].disabled = checked;
 			}
 		}

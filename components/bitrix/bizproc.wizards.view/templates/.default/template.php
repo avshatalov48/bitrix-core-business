@@ -93,7 +93,6 @@ else
 	$gridOptions = new CGridOptions($arResultGrid["GRID_ID"]);
 	$arSort = $gridOptions->GetSorting(array("sort" => array("id" => "desc"), "vars" => array("by" => "by", "order" => "order")));
 	$arNav = $gridOptions->GetNavParams(array("nPageSize" => 20));
-	$arSortArg = each($arSort["sort"]);
 
 	$dbTrack = CBPTrackingService::GetList(
 		$arSort["sort"],

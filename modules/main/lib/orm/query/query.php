@@ -1154,6 +1154,12 @@ class Query
 						&& fnmatch($localDefinition, $field->getName())
 					)
 					{
+						// skip private fields
+						if ($field instanceof ScalarField && $field->isPrivate())
+						{
+							continue;
+						}
+
 						// skip uf utm single
 						if (
 							substr($field->getName(), 0, 3) == 'UF_' && substr($field->getName(), -7) == '_SINGLE'
@@ -1255,6 +1261,12 @@ class Query
 					// except for references and expressions
 					if ($exp_field instanceof ScalarField)
 					{
+						// skip private fields
+						if ($exp_field->isPrivate())
+						{
+							continue;
+						}
+
 						$exp_chain = clone $chain;
 						$exp_chain->addElement(new ChainElement(
 							$exp_field

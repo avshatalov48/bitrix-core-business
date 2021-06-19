@@ -2,12 +2,12 @@
 		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1332x806/img1.jpg);">
 	<div class="landing-block-node-container container g-max-width-800 u-bg-overlay__inner">
 		<div class="text-center g-mb-35 g-mb-60--sm">
-			<h2 class="landing-block-node-title g-font-size-22 g-color-white">Upcoming event</h2>
+			<h2 class="landing-block-node-title g-color-white">Upcoming event</h2>
 		</div>
 
 		<div class="row">
 			<div class="landing-block-node-date mx-auto js-countdown u-countdown text-center"
-				 data-end-date="1618214400000"
+				 data-end-date="1649750400000"
 				 data-days-format="%D"
 				 data-hours-format="%H"
 				 data-minutes-format="%M"

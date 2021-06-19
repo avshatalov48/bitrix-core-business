@@ -16,7 +16,7 @@ class Checkbox extends Base
 		$this->params["TYPE"] = "Y/N";
 	}
 
-	public function getClassTitle()
+	public static function getClassTitle()
 	{
 		return Loc::getMessage("DELIVERY_EXTRA_SERVICE_CHECKBOX_TITLE");
 	}
@@ -59,4 +59,21 @@ class Checkbox extends Base
 		return "BX.onCustomEvent('onDeliveryExtraServiceValueChange', [{'id' : '".$id."', 'value': this.checked, 'price': this.checked ? '".$price."' : '0'}]);";
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public function getDisplayValue(): ?string
+	{
+		if ($this->value === 'Y')
+		{
+			return Loc::getMessage('DELIVERY_EXTRA_SERVICE_CHECKBOX_YES');
+		}
+
+		if ($this->value === 'N')
+		{
+			return Loc::getMessage('DELIVERY_EXTRA_SERVICE_CHECKBOX_NO');
+		}
+
+		return null;
+	}
 }

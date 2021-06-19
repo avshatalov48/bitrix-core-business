@@ -393,7 +393,7 @@ $tabControl->BeginNextTab();
 					<td><?echo GetMessage("PERFMON_IDETAIL_F_ROWS");?></td>
 					<td><?echo GetMessage("PERFMON_IDETAIL_F_EXTRA");?></td>
 				</tr>
-				<?foreach(unserialize($arSuggest["SQL_EXPLAIN"]) as $arRes):?>
+				<?foreach(unserialize($arSuggest["SQL_EXPLAIN"], ['allowed_classes' => false]) as $arRes):?>
 					<tr>
 						<td><?echo htmlspecialcharsEx($arRes["select_type"]);?></td>
 						<td><?echo htmlspecialcharsEx($arRes["table"]);?></td>

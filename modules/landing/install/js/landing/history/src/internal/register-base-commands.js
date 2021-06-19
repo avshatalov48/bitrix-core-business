@@ -9,8 +9,11 @@ import addBlock from '../action/add-block';
 import removeBlock from '../action/remove-block';
 import addCard from '../action/add-card';
 import removeCard from '../action/remove-card';
+import addNode from '../action/add-node';
+import removeNode from '../action/remove-node';
 import editStyle from '../action/edit-style';
 import updateBlockState from '../action/update-block-state';
+import updateContent from '../action/update-content';
 
 import Command from '../history-command';
 import {UNDO, REDO} from './constants';
@@ -122,9 +125,33 @@ export default function registerBaseCommands(history: History)
 
 	history.registerCommand(
 		new Command({
+			id: 'addNode',
+			undo: removeNode.bind(null, UNDO),
+			redo: addNode.bind(null, REDO),
+		}),
+	);
+
+	history.registerCommand(
+		new Command({
+			id: 'removeNode',
+			undo: addNode.bind(null, UNDO),
+			redo: removeNode.bind(null, REDO),
+		}),
+	);
+
+	history.registerCommand(
+		new Command({
 			id: 'updateBlockState',
 			undo: updateBlockState.bind(null, UNDO),
 			redo: updateBlockState.bind(null, REDO),
+		}),
+	);
+
+	history.registerCommand(
+		new Command({
+			id: 'updateContent',
+			undo: updateContent.bind(null, UNDO),
+			redo: updateContent.bind(null, REDO),
 		}),
 	);
 

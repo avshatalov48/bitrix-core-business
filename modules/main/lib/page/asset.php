@@ -523,9 +523,9 @@ class Asset
 					'NAME' => $targetName,
 					'PARENT_NAME' => $targetName,
 					'UNIQUE' => $targetInfo['UNIQUE'],
-					'PREFIX' => $targetInfo['PREFIX'],
+					'PREFIX' => ($targetInfo['PREFIX'] ?? ''),
 					'MODE' => $targetInfo['MODE'],
-					'MODULE_NAME' => $targetInfo['MODULE_NAME'],
+					'MODULE_NAME' => ($targetInfo['MODULE_NAME'] ?? ''),
 				];
 
 				if (!empty($targetInfo[$key]))
@@ -535,10 +535,10 @@ class Asset
 						$res[$key][] = [
 							'NAME' => $subSetName,
 							'PARENT_NAME' => $targetName,
-							'UNIQUE' => $val['UNIQUE'],
-							'PREFIX' => $val['PREFIX'],
-							'MODE' => $val['MODE'],
-							'MODULE_NAME' => $val['MODULE_NAME'],
+							'UNIQUE' => ($val['UNIQUE'] ?? ''),
+							'PREFIX' => ($val['PREFIX'] ?? ''),
+							'MODE' => ($val['MODE'] ?? 0),
+							'MODULE_NAME' => ($val['MODULE_NAME'] ?? ''),
 						];
 					}
 				}
@@ -1278,7 +1278,8 @@ class Asset
 					continue;
 				}
 
-				if ($moduleInfo = $this->isKernelCSS($cssInfo['PATH']))
+				$moduleInfo = $this->isKernelCSS($cssInfo['PATH']);
+				if ($moduleInfo)
 				{
 					$cssInfo['TARGET'] = 'KERNEL';
 					if ($this->sliceKernel() && $this->optimizeCss())
@@ -1597,7 +1598,7 @@ class Asset
 				else
 				{
 					$this->assetList['CSS'][$setInfo['PARENT_NAME']][$setInfo['NAME']] = $optimizedAsset['FILES'];
-					$this->assetList['SOURCE_CSS'][$setInfo['PARENT_NAME']][$setInfo['NAME']] = $optimizedAsset['SOURCE_FILES'];
+					$this->assetList['SOURCE_CSS'][$setInfo['PARENT_NAME']][$setInfo['NAME']] = ($optimizedAsset['SOURCE_FILES'] ?? []);
 					$this->targetList[$setInfo['PARENT_NAME']]['CSS_RES'][$setInfo['NAME']][] = $resCss;
 				}
 			}
@@ -1716,7 +1717,7 @@ class Asset
 				}
 				$optAsset = $this->optimizeAsset($listAsset, $setInfo['UNIQUE'], $setInfo['PREFIX'], $setInfo['NAME'], 'js', $data);
 				$this->assetList['JS'][$setInfo['PARENT_NAME']][$setInfo['NAME']] = $optAsset['FILES'];
-				$this->assetList['SOURCE_JS'][$setInfo['PARENT_NAME']][$setInfo['NAME']] = $optAsset['SOURCE_FILES'];
+				$this->assetList['SOURCE_JS'][$setInfo['PARENT_NAME']][$setInfo['NAME']] = ($optAsset['SOURCE_FILES'] ?? []);
 				$this->targetList[$setInfo['PARENT_NAME']]['JS_RES'][$setInfo['NAME']][] = $optAsset['RESULT'].$resJs;
 			}
 			unset($optAsset, $resJs, $listAsset);

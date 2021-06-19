@@ -336,6 +336,14 @@ if (typeof BX.UI.EntityEditorController === 'undefined')
 			}
 		},
 
+		onReload: function()
+		{
+			if (!this._isChanged)
+			{
+				this.onAfterSave();
+			}
+		},
+
 		onBeforeSaveControl: function(data)
 		{
 			return this.onBeforeSaveControl(data);

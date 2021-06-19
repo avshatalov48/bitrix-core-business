@@ -15,7 +15,7 @@ if (!function_exists("__wd_check_uf_use_bp_property"))
 				"MANDATORY" => "N", 
 				"SETTINGS" => array("DEFAULT_VALUE" => "Y"));
 			$arFieldName = array();
-			$rsLanguage = CLanguage::GetList($by, $order, array());
+			$rsLanguage = CLanguage::GetList();
 			while($arLanguage = $rsLanguage->Fetch()):
 //				GetMessage("SONET_UF_USE_BP");
 				$dir = str_replace(array("\\", "//"), "/", dirname(__FILE__)); 

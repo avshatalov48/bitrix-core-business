@@ -8,10 +8,10 @@
  */
 
 import "./status.css";
-import {Vue} from "ui.vue";
+import {BitrixVue} from "ui.vue";
 import {PullClient} from "pull.client";
 
-Vue.component('bx-pull-component-status',
+BitrixVue.component('bx-pull-component-status',
 {
 	/**
 	 * @emits 'reconnect' {} - work only with props.canReconnect = true
@@ -36,23 +36,11 @@ Vue.component('bx-pull-component-status',
 
 		this.pullUnSubscribe = () => {};
 
-		if (typeof this.$root.$bitrixPullClient !== 'undefined')
+		if (this.$Bitrix.PullClient.get())
 		{
-			if (this.$root.$bitrixPullClient)
-			{
-				this.subscribe(this.$root.$bitrixPullClient);
-			}
-			else
-			{
-				this.$root.$on('onBitrixPullClientInited', () => {
-					this.subscribe(this.$root.$bitrixPullClient);
-				});
-			}
+			this.subscribe();
 		}
-		else if (typeof BX.PULL !== 'undefined')
-		{
-			this.subscribe(BX.PULL);
-		}
+		this.$Bitrix.eventEmitter.subscribe(BitrixVue.events.pullClientChange, () => this.subscribe());
 
 		window.component = this;
 	},
@@ -62,9 +50,10 @@ Vue.component('bx-pull-component-status',
 	},
 	methods:
 	{
-		subscribe(client)
+		subscribe()
 		{
-			this.pullUnSubscribe = client.subscribe({
+			this.pullUnSubscribe();
+			this.pullUnSubscribe = this.$Bitrix.PullClient.get().subscribe({
 				type: PullClient.SubscriptionType.Status,
 				callback: event => this.statusChange(event.status)
 			});
@@ -207,7 +196,7 @@ Vue.component('bx-pull-component-status',
 		},
 		localize()
 		{
-			return Vue.getFilteredPhrases('BX_PULL_STATUS_', this.$root.$bitrixMessages);
+			return BitrixVue.getFilteredPhrases('BX_PULL_STATUS_', this);
 		}
 	},
 	template: `

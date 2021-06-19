@@ -27,6 +27,7 @@ export class FieldRules extends EventEmitter
 		const entry = new RuleEntry({
 			...ruleOptions,
 			fieldsList: this.options.fields,
+			dictionary: this.options.dictionary,
 		});
 		this.entries.push(entry);
 		entry.subscribe('onChange', this.onEntryChange);

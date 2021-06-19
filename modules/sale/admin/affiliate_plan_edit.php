@@ -354,7 +354,7 @@ $tabControl->BeginNextTab();
 				<option value="P"<?= ($str_BASE_RATE_TYPE_CMN == "P") ? " selected" : "" ?>>%</option>
 				<?
 				$arCurrencies = array();
-				$dbCurrencyList = CCurrency::GetList(($b = "currency"), ($o = "asc"));
+				$dbCurrencyList = CCurrency::GetList("currency", "asc");
 				while ($arCurrency = $dbCurrencyList->Fetch())
 					$arCurrencies[$arCurrency["CURRENCY"]] = "[".$arCurrency["CURRENCY"]."]&nbsp;".htmlspecialcharsEx($arCurrency["FULL_NAME"]);
 

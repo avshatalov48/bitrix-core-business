@@ -250,7 +250,9 @@ abstract class BasketBuilder
 				/** @var \Bitrix\Sale\BasketPropertiesCollection $property */
 				$property = $item->getPropertyCollection();
 				if(!$property->isPropertyAlreadyExists($productData["PROPS"]))
+				{
 					$property->setProperty($productData["PROPS"]);
+				}
 			}
 		}
 
@@ -302,6 +304,12 @@ abstract class BasketBuilder
 			}
 
 			$item->setField("NAME", $productData["NAME"]);
+
+			if ($productData['CUSTOM_PRICE'] === 'Y')
+			{
+				$item->markFieldCustom('PRICE');
+			}
+
 			$res = $item->setField("QUANTITY", $productData["QUANTITY"]);
 
 			if(!$res->isSuccess())
@@ -683,7 +691,7 @@ abstract class BasketBuilder
 		return $item;
 	}
 
-	public function getCatalogMeasures()
+	public static function getCatalogMeasures()
 	{
 		static $result = null;
 		$catalogIncluded = null;

@@ -117,7 +117,7 @@ class FinderDestTable extends Main\UI\EntitySelector\EntityUsageTable
 			return;
 		}
 
-		foreach (static::getCompatEntities() as $entityId => $entity)
+		foreach (Main\UI\EntitySelector\Converter::getCompatEntities() as $entityId => $entity)
 		{
 			if (preg_match('/'.$entity['pattern'].'/i', $data['CODE'], $matches))
 			{

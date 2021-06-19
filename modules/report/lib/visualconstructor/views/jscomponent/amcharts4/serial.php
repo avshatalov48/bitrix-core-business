@@ -119,7 +119,7 @@ abstract class Serial extends Base
 							"valueUrl" => "targetUrl_1",
 						],
 						"width" => "85%",
-						"tooltipText" => $data["config"]["reportTitle"]." {valueY}",
+						"tooltipText" => htmlspecialcharsbx($data["config"]["reportTitle"]) . " {valueY}",
 					],
 
 					"tooltip" => [

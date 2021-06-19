@@ -3,19 +3,47 @@ this.BX = this.BX || {};
 	'use strict';
 
 	var SliderLoader = /*#__PURE__*/function () {
-	  function SliderLoader(eventId) {
+	  function SliderLoader(entryId) {
 	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    babelHelpers.classCallCheck(this, SliderLoader);
-	    this.extensionName = main_core.Type.isString(eventId) && (eventId === 'NEW' || eventId.substr(0, 4) === 'EDIT') ? 'EventEditForm' : 'EventViewForm';
-	    this.entryId = main_core.Type.isString(eventId) && eventId.substr(0, 4) === 'EDIT' ? parseInt(eventId.substr(4)) : parseInt(eventId);
-	    this.entry = options.entry || null;
-	    this.formDataValue = options.formDataValue || null;
-	    this.entryDateFrom = main_core.Type.isDate(options.entryDateFrom) ? options.entryDateFrom : null;
-	    this.timezoneOffset = options.timezoneOffset;
-	    this.type = options.type;
-	    this.ownerId = options.ownerId;
-	    this.userId = options.userId;
-	    this.sliderId = "calendar:slider-" + Math.random();
+	    this.extensionName = main_core.Type.isString(entryId) && (entryId === 'NEW' || entryId.substr(0, 4) === 'EDIT') || !parseInt(entryId) ? 'EventEditForm' : 'EventViewForm';
+	    this.sliderId = options.sliderId || "calendar:slider-" + Math.random();
+	    entryId = main_core.Type.isString(entryId) && entryId.substr(0, 4) === 'EDIT' ? parseInt(entryId.substr(4)) : parseInt(entryId);
+	    this.extensionParams = {
+	      entryId: entryId,
+	      entry: options.entry || null,
+	      type: options.type || null,
+	      ownerId: parseInt(options.ownerId) || null,
+	      userId: parseInt(options.userId) || null
+	    };
+
+	    if (parseInt(options.organizerId)) {
+	      this.extensionParams.organizerId = parseInt(options.organizerId);
+	    }
+
+	    if (main_core.Type.isArray(options.participantsEntityList)) {
+	      this.extensionParams.participantsEntityList = options.participantsEntityList;
+	    }
+
+	    if (options.formDataValue) {
+	      this.extensionParams.formDataValue = options.formDataValue;
+	    }
+
+	    if (main_core.Type.isDate(options.entryDateFrom)) {
+	      this.extensionParams.entryDateFrom = options.entryDateFrom;
+	    }
+
+	    if (options.timezoneOffset) {
+	      this.extensionParams.timezoneOffset = options.timezoneOffset;
+	    }
+
+	    if (main_core.Type.isString(options.entryName)) {
+	      this.extensionParams.entryName = options.entryName;
+	    }
+
+	    if (main_core.Type.isString(options.entryDescription)) {
+	      this.extensionParams.entryDescription = options.entryDescription;
+	    }
 	  }
 
 	  babelHelpers.createClass(SliderLoader, [{
@@ -39,16 +67,7 @@ this.BX = this.BX || {};
 
 	        main_core.Runtime.loadExtension(extensionName).then(function (exports) {
 	          if (exports && exports[_this.extensionName]) {
-	            var calendarForm = new exports[_this.extensionName]({
-	              entryId: _this.entryId,
-	              entry: _this.entry,
-	              entryDateFrom: _this.entryDateFrom,
-	              timezoneOffset: _this.timezoneOffset,
-	              type: _this.type,
-	              ownerId: _this.ownerId,
-	              userId: _this.userId,
-	              formDataValue: _this.formDataValue
-	            });
+	            var calendarForm = new exports[_this.extensionName](_this.extensionParams);
 
 	            if (babelHelpers.typeof(calendarForm.initInSlider)) {
 	              calendarForm.initInSlider(slider, resolve);

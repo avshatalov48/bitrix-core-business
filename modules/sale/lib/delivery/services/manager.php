@@ -566,11 +566,11 @@ class Manager
 
 		self::$handlers = array_keys($result);
 
-		/**
-		 * @var \Bitrix\Sale\Delivery\Services\Base $handler
-		 */
-		foreach(self::$handlers as $idx => $handler)
+		for($idx = count(self::$handlers) - 1; $idx >= 0; $idx--)
 		{
+			/** @var \Bitrix\Sale\Delivery\Services\Base $handler */
+			$handler = self::$handlers[$idx];
+
 			if(!$handler::isHandlerCompatible())
 			{
 				unset(self::$handlers[$idx]);

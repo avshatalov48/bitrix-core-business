@@ -202,7 +202,7 @@ Loc::loadMessages(__FILE__);
 				</td>
 			</tr>
 
-			<?if(in_array(LANGUAGE_ID, array('ru', 'ua'))):?>
+			<?if(LANGUAGE_ID === 'ru'):?>
 				<tr class="bx-ui-load-remote">
 					<td>
 						<label for="loc-i-additional-yamarket"><?=Loc::getMessage('SALE_SLI_EXTRA_EXTERNAL_YAMARKET')?></label>

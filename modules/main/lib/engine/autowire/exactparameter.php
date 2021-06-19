@@ -32,57 +32,34 @@ class ExactParameter extends Parameter
 		return true;
 	}
 
-	public function captureData(\ReflectionParameter $parameter, array $sourceParameters)
+	public function constructValue(\ReflectionParameter $parameter, Result $captureResult)
 	{
-		if (!$this->needToMapExternalData())
-		{
-			return new Result();
-		}
-
-		$result = new Result();
-		$capturedParameters = [];
-		foreach ($this->fetchParametersToMapExternalNamesFromClosure() as $externalParameter)
-		{
-			$value = $this->findParameterInSourceList($externalParameter->getName(), $sourceParameters, $status);
-			if ($status === Binder::STATUS_NOT_FOUND)
-			{
-				if ($externalParameter->isDefaultValueAvailable())
-				{
-					$value = $externalParameter->getDefaultValue();
-				}
-				else
-				{
-					$result->addError(new Error("Could not find value for {{$externalParameter->getName()}}"));
-					break;
-				}
-			}
-
-			$capturedParameters[] = $value;
-		}
-		$result->setData($capturedParameters);
-
-		return $result;
+		return call_user_func_array($this->getConstructor(), $captureResult->getData());
 	}
 
-	/**
-	 * @return \ReflectionParameter[]
-	 * @throws \ReflectionException
-	 */
-	private function fetchParametersToMapExternalNamesFromClosure()
+	public function captureData(\ReflectionParameter $parameter, array $sourceParameters)
 	{
-		$params = [];
-		$reflectionFunction = new \ReflectionFunction($this->getConstructor());
-		foreach ($reflectionFunction->getParameters() as $i => $reflectionParameter)
-		{
-			if ($i === 0)
-			{
-				continue;
-			}
+		$result = new Result();
 
-			$params[] = $reflectionParameter;
+		if (!$this->needToMapExternalData())
+		{
+			return $result;
 		}
 
-		return $params;
+		$binder = Binder::buildForFunction($this->getConstructor());
+		array_unshift($sourceParameters, ['className' => $parameter->getClass()->getName()]);
+		$binder->setSourcesParametersToMap($sourceParameters);
+		try
+		{
+			$capturedParameters = $binder->getArgs();
+			$result->setData($capturedParameters);
+		}
+		catch (BinderArgumentException $e)
+		{
+			$result->addError(new Error($e->getMessage()));
+		}
+
+		return $result;
 	}
 
 	public function match(\ReflectionParameter $parameter)

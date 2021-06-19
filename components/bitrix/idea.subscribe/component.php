@@ -122,10 +122,8 @@ if($arResult["USER_ID"]>0)
 
 	if(!empty($arBlogPostId))
 	{
-		$arSortArgument = each($arResult["GRID"]["SORT"]);
-
 		$oIdeaPost = CBlogPost::GetList(
-			array($arSortArgument["key"] => $arSortArgument["value"]),
+			array(key($arResult["GRID"]["SORT"]) => current($arResult["GRID"]["SORT"])),
 			array("ID" => $arBlogPostId),
 			false,
 			false,

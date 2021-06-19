@@ -74,7 +74,7 @@ class Speed extends \Bitrix\Landing\Hook\Page
 			&& ($hookData = $this->fields[$field]->getValue())
 		)
 		{
-			$mergedData = array_unique(array_merge(unserialize($hookData), $data));
+			$mergedData = array_unique(array_merge(unserialize($hookData, ['allowed_classes' => false]), $data));
 		}
 		else
 		{

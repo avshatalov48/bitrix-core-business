@@ -82,7 +82,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $Update <> '' && $LEARNING_RIGHT == "W"
 	"L" - Lesson,
 	*/
 	$affectedRows = 0;
-	$dbSites = CSite::GetList(($b = ""), ($o = ""), array("ACTIVE" => "Y"));
+	$dbSites = CSite::GetList('', '', array("ACTIVE" => "Y"));
 	while ($arSite = $dbSites->Fetch())
 	{
 		//BXClearCache(True, "/".$arSite["LID"]."/blog/");
@@ -171,7 +171,7 @@ $tabControl->BeginNextTab();
 	while ($arPath = $dbPaths->Fetch())
 		$arPaths[$arPath["SITE_ID"]][$arPath["TYPE"]] = $arPath["PATH"];
 
-	$dbSites = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+	$dbSites = CSite::GetList('', '', Array("ACTIVE" => "Y"));
 	while ($arSite = $dbSites->Fetch())
 	{
 		?>

@@ -20,14 +20,17 @@ $arFilter = Array(
 	"SITE_ID"	=> $find_site_id
 	);
 
-$rs = CTraffic::GetDailyList(($by="s_date"), ($order="asc"), $arMaxMin, $arFilter, $is_filtered);
+$rs = CTraffic::GetDailyList("s_date", "asc", $arMaxMin, $arFilter);
 while ($ar = $rs->Fetch())
 {
 	foreach($arrM as $key) $arSum[$key] = intval($arSum[$key]) + intval($ar[$key]);
 }
 
 $arr = array();
-while (list($key, $value)=each($arSum))	$arr[] = array("COLOR"=> $arrColor[$key], "COUNTER" => $value);
+foreach ($arSum as $key => $value)
+{
+	$arr[] = array("COLOR"=> $arrColor[$key], "COUNTER" => $value);
+}
 
 // image init
 $ImageHendle = CreateImageHandle($diameter, $diameter);

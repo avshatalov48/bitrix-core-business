@@ -8,7 +8,7 @@ $module_id = "sale";
 $CAT_RIGHT = $APPLICATION->GetGroupRight($module_id);
 if ($CAT_RIGHT >= "R") :
 
-$rsSite = CSite::GetList($by="sort", $order="asc", $arFilter=array("ACTIVE" => "Y"));
+$rsSite = CSite::GetList("sort", "asc", $arFilter=array("ACTIVE" => "Y"));
 $arSites = array("" => GetMessage("SALE_1C_ALL_SITES"));
 while ($arSite = $rsSite->GetNext())
 {
@@ -23,7 +23,7 @@ while ($arStatus = $dbStatus->Fetch())
 }
 
 $arUGroupsEx = Array();
-$dbUGroups = CGroup::GetList($by = "c_sort", $order = "asc");
+$dbUGroups = CGroup::GetList();
 while($arUGroups = $dbUGroups -> Fetch())
 {
 	$arUGroupsEx[$arUGroups["ID"]] = $arUGroups["NAME"];

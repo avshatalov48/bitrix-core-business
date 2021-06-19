@@ -1,4 +1,4 @@
-<?
+<?php
 
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/rating_rule.php");
 
@@ -310,8 +310,8 @@ class CRatingRule
 			for ($i=0; $i<count($filter_keys); $i++)
 			{
 				$val = $arFilter[$filter_keys[$i]];
-				if ($val == '' || $val=="NOT_REF") continue;
-				switch(mb_strtoupper($filter_keys[$i]))
+				if ((string)$val == '' || $val=="NOT_REF") continue;
+				switch(strtoupper($filter_keys[$i]))
 				{
 					case "RULE_ID":
 						$arSqlSearch[] = GetFilterQuery("RULE_ID", $val, "N");
@@ -460,7 +460,7 @@ class CRatingRule
 		return true;
 	}
 
-	function err_mess()
+	public static function err_mess()
 	{
 		return "<br>Class: CRatingRule<br>File: ".__FILE__;
 	}

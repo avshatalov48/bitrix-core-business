@@ -10,7 +10,7 @@ class CForumTabControl
 
 	var $customTabber;
 
-	function CForumTabControl($name, $tabs, $bCanExpand=true)
+	public function __construct($name, $tabs, $bCanExpand=true)
 	{
 		//array(array("DIV"=>"", "TAB"=>"", "ICON"=>, "TITLE"=>"", "ONSELECT"=>"javascript"), ...)
 		$this->tabs = $tabs;

@@ -2,8 +2,8 @@
 
 		<div class="container text-center g-width-780 g-color-gray-light-v2 g-mb-20">
 			<div class="landing-block-node-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
-				<h4 class="landing-block-node-subtitle landing-semantic-subtitle-medium-primary h6 g-font-weight-700 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">Work process</h4>
-				<h2 class="landing-block-node-title landing-semantic-title-medium h1 u-heading-v2__title g-line-height-1_3 g-font-weight-700 g-font-size-40 g-color-white g-mb-minus-10">Step by step</h2>
+				<h6 class="landing-block-node-subtitle landing-semantic-subtitle-medium-primary g-font-weight-700 g-letter-spacing-1 g-color-primary g-mb-20">Work process</h6>
+				<h2 class="landing-block-node-title landing-semantic-title-medium h1 u-heading-v2__title g-line-height-1_3 g-font-weight-700 g-color-white">Step by step</h2>
 			</div>
 		</div>
 		
@@ -21,7 +21,7 @@
                             </div>
                         </div>
 
-                        <h3 class="landing-block-node-element-title landing-semantic-subtitle-medium h5 text-uppercase g-color-gray-light-v2 g-mb-10">Step 1. Analisys</h3>
+                        <h5 class="landing-block-node-element-title landing-semantic-subtitle-medium text-uppercase g-color-gray-light-v2 g-mb-10">Step 1. Analisys</h5>
                         <div class="landing-block-node-element-text landing-semantic-text-medium g-color-gray-light-v2">
 							<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>
@@ -39,7 +39,7 @@
                             </div>
                         </div>
 
-                        <h3 class="landing-block-node-element-title landing-semantic-subtitle-medium h5 text-uppercase g-color-gray-light-v2 g-mb-10">Step 2. Creative concept</h3>
+                        <h5 class="landing-block-node-element-title landing-semantic-subtitle-medium text-uppercase g-color-gray-light-v2 g-mb-10">Step 2. Creative concept</h5>
                         <div class="landing-block-node-element-text landing-semantic-text-medium g-color-gray-light-v2">
 							<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>

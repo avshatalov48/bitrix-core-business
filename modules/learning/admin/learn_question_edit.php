@@ -922,8 +922,9 @@ function CustomizeEditor()
 					{
 						return $tmp;
 					}
-					elseif (list($key, $val) = each($arNewIDs))
+					elseif ($val = current($arNewIDs))
 					{
+						next($arNewIDs);
 						global $str_ANSWER_ID, $str_ANSWER_CORRECT, $str_ANSWER_ANSWER, $str_ANSWER_SORT;
 
 						$str_ANSWER_ID = $val;
@@ -954,7 +955,7 @@ function CustomizeEditor()
 				}
 				?>
 					<tr>
-						<td align="center" width="40" style="text-align:center;"><?echo ($str_ANSWER_ID>0? $str_ANSWER_ID:"")?></td>
+						<td align="center" width="40" style="text-align:center;"><?echo ((int)$str_ANSWER_ID>0? $str_ANSWER_ID:"")?></td>
 						<?php if ($str_QUESTION_TYPE != "R"):?>
 							<td align="center" width="40" style="text-align:center;">
 							<?if ($str_QUESTION_TYPE == "M"):?>

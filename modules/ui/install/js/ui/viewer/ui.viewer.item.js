@@ -23,6 +23,7 @@
 		this.transformationPromise = null;
 		this.transformationTimeoutId = null;
 		this.viewerGroupBy = null;
+		this.isSeparate = false;
 		this.transformationTimeout = options.transformationTimeout || 22000;
 		this.layout = {
 			container: null
@@ -53,6 +54,7 @@
 			this.title = node.dataset.title || node.title || node.alt;
 			this.src = node.dataset.src;
 			this.viewerGroupBy = node.dataset.viewerGroupBy;
+			this.isSeparate = node.dataset.viewerSeparateItem || false;
 			this.nakedActions = node.dataset.actions? JSON.parse(node.dataset.actions) : undefined;
 		},
 
@@ -66,6 +68,11 @@
 
 		applyReloadOptions: function (options)
 		{},
+
+		isSeparateItem: function ()
+		{
+			return this.isSeparate;
+		},
 
 		isPullConnected: function()
 		{

@@ -489,18 +489,14 @@ if ($bVarsFromForm)
 
 <?
 $arSiteList = array();
-$by = 'sort';
-$order = 'asc';
-$rsSites = CSite::GetList($by, $order);
+$rsSites = CSite::GetList();
 while ($arSite = $rsSites->Fetch())
 {
 	$arSiteList[$arSite['LID']] = '('.$arSite['LID'].') '.$arSite['NAME'];
 }
 
 $arCurrencyList = array();
-$by2 = 'sort';
-$order2 = 'asc';
-$rsCurrencies = CCurrency::GetList($by2, $order2);
+$rsCurrencies = CCurrency::GetList('sort', 'asc');
 while ($arCurrency = $rsCurrencies->Fetch())
 {
 	$arCurrencyList[$arCurrency['CURRENCY']] = $arCurrency['CURRENCY'];
@@ -690,7 +686,7 @@ $tabControl->BeginCustomField('GROUP_IDS',GetMessage('BT_CAT_DISC_SAVE_EDIT_FIEL
 	<tr id="tr_GROUP_IDS" class="adm-detail-required-field">
 		<td valign="top" width="40%"><? echo $tabControl->GetCustomLabelHTML(); ?>:</td>
 		<td width="60%" align="left"><select name="GROUP_IDS[]" multiple size="8"><?
-		$rsUserGroups = CGroup::GetList(($by = 'c_sort'),($order="asc"),array(),"N");
+		$rsUserGroups = CGroup::GetList();
 		while ($arUserGroup = $rsUserGroups->Fetch())
 		{
 			if (2 != $arUserGroup['ID'])

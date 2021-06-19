@@ -425,8 +425,9 @@
 	position: relative;
 }
 
-.ui-input-color {
+.ui-colorpicker input.ui-input {
 	padding-left: 45px;
+	width: 179px;
 }
 
 .ui-colorpicker-color {
@@ -450,7 +451,7 @@
 	display: none;
 	height: 39px;
 	position: absolute;
-	right: 0;
+	left: 149px;
 	top: 0;
 	width: 30px;
 }
@@ -757,7 +758,8 @@
 }
 
 .ui-checkbox-hidden-input-layout .ui-checkbox:checked  + .landing-form-page-layout {
-	 height: 538px;
+	/*todo: hardcode!*/
+	 height: 670px;
 }
 
 .ui-checkbox-hidden-input-layout .ui-checkbox:checked  + .landing-form-page-layout-short {
@@ -1030,4 +1032,11 @@
 
 .ui-form-right-cell .tariff-lock {
 	margin-left: 4px;
+}
+
+/*b24 widget section*/
+.ui-form-right-cell.ui-form-right-cell-b24button
+{
+	padding-bottom: 11px;
+	padding-top: 31px;
 }

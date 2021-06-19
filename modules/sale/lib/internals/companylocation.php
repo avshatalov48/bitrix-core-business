@@ -15,7 +15,7 @@ final class CompanyLocationTable extends Sale\Location\Connector
 		return 'b_sale_company2location';
 	}
 
-	public function getLinkField()
+	public static function getLinkField()
 	{
 		return 'COMPANY_ID';
 	}
@@ -25,7 +25,7 @@ final class CompanyLocationTable extends Sale\Location\Connector
 		return 'LOCATION_CODE';
 	}
 
-	public function getTargetEntityName()
+	public static function getTargetEntityName()
 	{
 		return '\Bitrix\Sale\Internals\CompanyTable';
 	}

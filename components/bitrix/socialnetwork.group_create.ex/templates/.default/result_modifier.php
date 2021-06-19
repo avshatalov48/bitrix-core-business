@@ -1,4 +1,10 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -10,11 +16,13 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
-$arResult['TypesProject'] = $arResult['TypesNonProject'] = [];
+$arResult['TypesProject'] = [];
+$arResult['TypesNonProject'] = [];
+$arResult['TypesAll'] = [];
 
-$arResult['ClientConfig'] = array(
-	'refresh' => (empty($_GET["refresh"]) || $_GET["refresh"] != 'N' ? 'Y' : 'N')
-);
+$arResult['ClientConfig'] = [
+	'refresh' => (empty($_REQUEST['refresh']) || $_REQUEST['refresh'] !== 'N' ? 'Y' : 'N')
+];
 
 if (
 	is_array($arResult['Types'])
@@ -23,7 +31,9 @@ if (
 {
 	foreach($arResult['Types'] as $code => $type)
 	{
-		if ($type['PROJECT'] == 'Y')
+		$arResult['TypesAll'][$code] = $type;
+
+		if ($type['PROJECT'] === 'Y')
 		{
 			$arResult['TypesProject'][$code] = $type;
 		}
@@ -44,7 +54,7 @@ if (
 {
 	foreach($arResult["GROUP_PROPERTIES"] as $key => $userField)
 	{
-		if ($userField["MANDATORY"] == "Y")
+		if ($userField['MANDATORY'] === 'Y')
 		{
 			$arResult["GROUP_PROPERTIES_MANDATORY"][$key] = $userField;
 		}
@@ -55,17 +65,14 @@ if (
 	}
 }
 
-$arResult["TypeRowNameList"] = array(
-	"Project" => Loc::getMessage('SONET_GCE_T_TYPE_SUBTITLE_PROJECT'),
-	"NonProject" => Loc::getMessage('SONET_GCE_T_TYPE_SUBTITLE_GROUP')
-);
+$arResult['TypeRowNameList'] = [
+	'TypesProject' => Loc::getMessage('SONET_GCE_T_TYPE_SUBTITLE_PROJECT'),
+	'TypesNonProject' => Loc::getMessage('SONET_GCE_T_TYPE_SUBTITLE_GROUP'),
+	'TypesAll' => '',
+];
 
-$arResult["TypeRowList"] = (
-	!empty($arParams["FIRST_ROW"])
-	&& $arParams["FIRST_ROW"] == "project"
-		? array("TypesProject", "TypesNonProject")
-		: array("TypesNonProject", "TypesProject")
-);
+//$arResult['TypeRowList'] = [ 'TypesProject', 'TypesNonProject' ];
+$arResult['TypeRowList'] = [ 'TypesAll' ];
 
 $arResult['AVATAR_UPLOADER_CID'] = 'GROUP_IMAGE_ID';
 
@@ -86,15 +93,13 @@ if (
 
 if ($arParams["GROUP_ID"] > 0)
 {
-	$arResult["typeCode"] = \Bitrix\Socialnetwork\Item\Workgroup::getTypeCodeByParams(array(
+	$arResult['typeCode'] = \Bitrix\Socialnetwork\Item\Workgroup::getTypeCodeByParams([
 		'typesList' => $arResult['Types'],
 		'fields' => [
-			'VISIBLE' => (isset($arResult["POST"]['VISIBLE']) && $arResult["POST"]['VISIBLE'] == 'Y' ? 'Y' : 'N'),
-			'OPENED' => (isset($arResult["POST"]['OPENED']) && $arResult["POST"]['OPENED'] == 'Y' ? 'Y' : 'N'),
-			'PROJECT' => (isset($arResult["POST"]['PROJECT']) && $arResult["POST"]['PROJECT'] == 'Y' ? 'Y' : 'N'),
-			'EXTERNAL' => (isset($arResult["POST"]["IS_EXTRANET_GROUP"]) && $arResult["POST"]["IS_EXTRANET_GROUP"] == 'Y' ? 'Y' : 'N')
+			'VISIBLE' => (isset($arResult['POST']['VISIBLE']) && $arResult['POST']['VISIBLE'] === 'Y' ? 'Y' : 'N'),
+			'OPENED' => (isset($arResult['POST']['OPENED']) && $arResult['POST']['OPENED'] === 'Y' ? 'Y' : 'N'),
+			'PROJECT' => (isset($arResult['POST']['PROJECT']) && $arResult['POST']['PROJECT'] === 'Y' ? 'Y' : 'N'),
+			'EXTERNAL' => (isset($arResult['POST']['IS_EXTRANET_GROUP']) && $arResult['POST']['IS_EXTRANET_GROUP'] === 'Y' ? 'Y' : 'N')
 		]
-	));
+	]);
 }
-
-?>

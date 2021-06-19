@@ -17,7 +17,7 @@ export default class SplitButton extends Button
 	constructor(options: SplitButtonOptions)
 	{
 		options = Type.isPlainObject(options) ? options : {};
-		delete options.round;
+		// delete options.round;
 
 		if (Type.isStringFilled(options.link))
 		{

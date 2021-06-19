@@ -73,14 +73,12 @@ export class BaseButton extends EventEmitter
 			Dom.attr(this.getLayout(), this.options.attrs);
 		}
 
-		if (Type.isArray(this.options.className))
+		if (
+			Type.isArray(this.options.className)
+			|| Type.isStringFilled(this.options.className)
+		)
 		{
-			this.options.className.forEach(this.layout.classList.add, this.layout.classList);
-		}
-
-		if (Type.isString(this.options.className) && !!this.options.className)
-		{
-			this.layout.classList.add(this.options.className);
+			Dom.addClass(this.layout, this.options.className);
 		}
 
 		if (this.options.active)

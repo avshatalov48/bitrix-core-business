@@ -56,4 +56,9 @@ class AnalyticBoardBatchManager extends Base
 		}
 		return self::$analyticBoardBatchList;
 	}
+
+	public function clearCache()
+	{
+		self::$analyticBoardBatchList = [];
+	}
 }

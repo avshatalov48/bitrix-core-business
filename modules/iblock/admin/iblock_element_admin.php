@@ -4,6 +4,8 @@
 /** @global CUser $USER */
 
 use Bitrix\Catalog;
+use Bitrix\Catalog\Component\ImageInput;
+use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Crm\Order\Import\Instagram;
 use Bitrix\Currency;
 use Bitrix\Iblock;
@@ -21,7 +23,7 @@ $bBizproc = Loader::includeModule("bizproc");
 $bWorkflow = Loader::includeModule("workflow");
 $bFileman = Loader::includeModule("fileman");
 $bExcel = isset($_REQUEST["mode"]) && ($_REQUEST["mode"] == "excel");
-$dsc_cookie_name = (string)Main\Config\Option::get('main', 'cookie_name', 'BITRIX_SM')."_DSC";
+$dsc_cookie_name = Main\Config\Option::get('main', 'cookie_name', 'BITRIX_SM')."_DSC";
 
 /** @global CAdminPage $adminPage */
 global $adminPage;
@@ -43,7 +45,7 @@ $maxImageSize = array(
 	"H" => $listImageSize,
 );
 unset($listImageSize);
-$useCalendarTime = (string)Main\Config\Option::get('iblock', 'list_full_date_edit') == 'Y';
+$useCalendarTime = Main\Config\Option::get('iblock', 'list_full_date_edit') == 'Y';
 
 if (isset($_REQUEST['mode']) && ($_REQUEST['mode']=='list' || $_REQUEST['mode']=='frame'))
 	CFile::DisableJSFunction(true);
@@ -79,6 +81,7 @@ if($bBadBlock)
 	die();
 }
 
+$request = Main\Context::getCurrent()->getRequest();
 $urlBuilder = Iblock\Url\AdminPage\BuilderManager::getInstance()->getBuilder();
 if ($urlBuilder === null)
 {
@@ -89,7 +92,7 @@ if ($urlBuilder === null)
 	die();
 }
 $urlBuilder->setIblockId($IBLOCK_ID);
-$urlBuilder->setUrlParams(array());
+$urlBuilder->setUrlParams([]);
 
 $pageConfig = array(
 	'IBLOCK_EDIT' => false,
@@ -103,10 +106,13 @@ $pageConfig = array(
 	'NAVCHAIN_ROOT' => false,
 	'ALLOW_EXTERNAL_LINK' => true,
 
-	'ALLOW_USER_EDIT' => true
+	'ALLOW_USER_EDIT' => true,
+
+	'SLIDER_CRM' => false,
 );
 switch ($urlBuilder->getId())
 {
+	case 'SHOP':
 	case 'CRM':
 		$pageConfig['LIST_ID_PREFIX'] = 'tbl_product_admin_';
 		$pageConfig['CHECK_NEW_CARD'] = true;
@@ -115,15 +121,7 @@ switch ($urlBuilder->getId())
 		$pageConfig['CATALOG'] = true;
 		$pageConfig['ALLOW_EXTERNAL_LINK'] = false;
 		$pageConfig['ALLOW_USER_EDIT'] = false;
-		break;
-	case 'SHOP':
-		$pageConfig['LIST_ID_PREFIX'] = 'tbl_product_admin_';
-		$pageConfig['CHECK_NEW_CARD'] = true;
-		$pageConfig['SHOW_NAVCHAIN'] = false;
-		$pageConfig['CONTEXT_PATH'] = '/shop/settings/cat_product_admin.php'; // TODO: temporary hack
-		$pageConfig['CATALOG'] = true;
-		$pageConfig['ALLOW_EXTERNAL_LINK'] = false;
-		$pageConfig['ALLOW_USER_EDIT'] = false;
+		$pageConfig['SLIDER_CRM'] = $urlBuilder->isSliderMode();
 		break;
 	case 'CATALOG':
 		$pageConfig['LIST_ID_PREFIX'] = 'tbl_product_admin_';
@@ -184,7 +182,7 @@ if ($useElementTranslit)
 		"delete_repeat_replace" => ($elementTranslit['TRANS_EAT'] == 'Y')
 	);
 }
-$changeUserByActive = (string)Main\Config\Option::get('iblock', 'change_user_by_group_active_modify') === 'Y';
+$changeUserByActive = Main\Config\Option::get('iblock', 'change_user_by_group_active_modify') === 'Y';
 
 define("MODULE_ID", "iblock");
 define("ENTITY", "CIBlockDocument");
@@ -215,7 +213,7 @@ $newProductCard = false;
 if ($bCatalog)
 {
 	$useStoreControl = Catalog\Config\State::isUsedInventoryManagement();
-	$strSaveWithoutPrice = (string)Main\Config\Option::get('catalog','save_product_without_price');
+	$strSaveWithoutPrice = Main\Config\Option::get('catalog','save_product_without_price');
 	$boolCatalogRead = $USER->CanDoOperation('catalog_read');
 	$boolCatalogPrice = $USER->CanDoOperation('catalog_price');
 	$boolCatalogPurchasInfo = $USER->CanDoOperation('catalog_purchas_info');
@@ -227,7 +225,7 @@ if ($bCatalog)
 	}
 	else
 	{
-		$productLimits = Catalog\Config\State::getExceedingProductLimit($arIBlock['ID']);
+		$productLimits = Catalog\Config\State::getExceedingProductLimit((int)$arIBlock['ID']);
 		if (CCatalogSKU::TYPE_PRODUCT == $arCatalog['CATALOG_TYPE'] || CCatalogSKU::TYPE_FULL == $arCatalog['CATALOG_TYPE'])
 		{
 			if (CIBlockRights::UserHasRightTo($arCatalog['IBLOCK_ID'], $arCatalog['IBLOCK_ID'], "iblock_admin_display"))
@@ -394,7 +392,7 @@ $filterFields = array(
 		"filterable" => ""
 	)
 );
-if ($arIBTYPE["SECTIONS"] == "Y")
+if ($arIBTYPE["SECTIONS"] == "Y" && !$pageConfig['SLIDER_CRM'])
 {
 	$filterFields[] = array(
 		"id" => "SECTION_ID",
@@ -596,7 +594,6 @@ if ($boolSKU)
 		$propertySKUManager->AddFilter($sTableID, $arSubQuery);
 	}
 }
-
 if (!is_null($arFilter["SECTION_ID"]))
 {
 	$find_section_section = intval($arFilter["SECTION_ID"]);
@@ -626,14 +623,29 @@ if ($boolSKU && 1 < sizeof($arSubQuery))
 	$arFilter["ID"] = CIBlockElement::SubQuery("PROPERTY_".$arCatalog["SKU_PROPERTY_ID"], $arSubQuery);
 }
 
-if ($find_section_section === '' || $find_section_section === null || (int)$find_section_section < 0)
+$emptySectionId =
+	$find_section_section === ''
+	|| $find_section_section === null
+	|| (int)$find_section_section < 0
+;
+
+if ($pageConfig['SLIDER_CRM'])
 {
-	unset($arFilter["SECTION_ID"]);
-	if (isset($arFilter["INCLUDE_SUBSECTIONS"]))
-		unset($arFilter["INCLUDE_SUBSECTIONS"]);
+	if (!$emptySectionId)
+	{
+		$arFilter['SECTION_ID'] = $find_section_section;
+		$arFilter['INCLUDE_SUBSECTIONS'] = 'Y';
+	}
+}
+else
+{
+	if ($emptySectionId)
+	{
+		unset($arFilter['SECTION_ID']);
+		unset($arFilter['INCLUDE_SUBSECTIONS']);
+	}
 }
 
-$request = Main\Context::getCurrent()->getRequest();
 $selectedSkuId = null;
 $isChangeVariationRequest = $request->get('grid_action') === 'changeVariation';
 if ($isChangeVariationRequest)
@@ -669,6 +681,7 @@ if ($pageConfig['USE_NEW_CARD'])
 {
 	$defaultHeaders = [
 		'CATALOG_PRODUCT',
+		'MORE_PHOTO',
 		'SECTIONS',
 		'CATALOG_QUANTITY',
 		'CATALOG_MEASURE',
@@ -890,25 +903,35 @@ foreach ($arProps as $arFProps)
 	$editable = true;
 	$preventDefault = true;
 
-	if ($arFProps["PROPERTY_TYPE"] === "F" && $arFProps["MULTIPLE"] === "Y")
+	if (
+		$arFProps['PROPERTY_TYPE'] === 'F'
+		&& $arFProps['MULTIPLE'] === 'Y'
+		&& $arFProps['CODE'] !== 'MORE_PHOTO'
+	)
 	{
 		$editable = false;
 		$preventDefault = false;
-		if ($arFProps["CODE"] === 'MORE_PHOTO')
-		{
-			$moreProtoPropertyId = $arFProps['ID'];
-		}
+	}
+
+	$columnSort = null;
+	$headerId = 'PROPERTY_' . $arFProps['ID'];
+	if ($arFProps['CODE'] === 'MORE_PHOTO')
+	{
+		$moreProtoPropertyId = $arFProps['ID'];
+		$headerId = 'MORE_PHOTO';
+		$columnSort = 200;
 	}
 
 	$arHeader[] = [
-		"id" => "PROPERTY_".$arFProps['ID'],
-		"content" => $arFProps['NAME'],
-		"title" => "",
-		"align" => ($arFProps["PROPERTY_TYPE"]=='N'? "right": "left"),
-		"sort" => ($arFProps["MULTIPLE"]!='Y'? "PROPERTY_".$arFProps['ID']: ""),
-		"default" => isset($defaultHeaders["PROPERTY_".$arFProps['ID']]),
-		"editable" => $editable,
-		"prevent_default" => $preventDefault,
+		'id' => $headerId,
+		'content' => $arFProps['NAME'],
+		'title' => '',
+		'align' => ($arFProps['PROPERTY_TYPE'] === 'N'? 'right': 'left'),
+		"sort" => ($arFProps['MULTIPLE'] !== 'Y' && $arFProps['CODE'] !== 'MORE_PHOTO' ? 'PROPERTY_' . $arFProps['ID']: ''),
+		'default' => isset($defaultHeaders[$headerId]),
+		'editable' => $editable,
+		'prevent_default' => $preventDefault,
+		'column_sort' => $columnSort,
 	];
 }
 unset($arFProps);
@@ -1333,6 +1356,8 @@ if($lAdmin->EditAction())
 			if(!$arRes)
 				continue;
 
+			$elementIblockID = $arRes['IBLOCK_ID'];
+
 			$WF_ID = $ID;
 			if($bWorkFlow)
 			{
@@ -1363,14 +1388,14 @@ if($lAdmin->EditAction())
 
 			if($bWorkFlow)
 			{
-				if (!CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $ID, "element_edit"))
+				if (!CIBlockElementRights::UserHasRightTo($elementIblockID, $ID, "element_edit"))
 				{
 					$lAdmin->AddGroupError(GetMessage("IBEL_A_UPDERR_ACCESS", array("#ID#" => $ID)), $ID);
 					continue;
 				}
 
 				// handle workflow status access permissions
-				if (CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $ID, "element_edit_any_wf_status"))
+				if (CIBlockElementRights::UserHasRightTo($elementIblockID, $ID, "element_edit_any_wf_status"))
 					$STATUS_PERMISSION = true;
 				elseif ($arFields["WF_STATUS_ID"] > 0)
 					$STATUS_PERMISSION = CIBlockElement::WF_GetStatusPermission($arFields["WF_STATUS_ID"]) >= 1;
@@ -1391,7 +1416,7 @@ if($lAdmin->EditAction())
 					$currentUser['ID'],
 					$ID,
 					array(
-						"IBlockId" => $IBLOCK_ID,
+						"IBlockId" => $elementIblockID,
 						'IBlockRightsMode' => $arIBlock['RIGHTS_MODE'],
 						'UserGroups' => $currentUser['GROUPS']
 					)
@@ -1402,7 +1427,7 @@ if($lAdmin->EditAction())
 					continue;
 				}
 			}
-			elseif(!CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $ID, "element_edit"))
+			elseif(!CIBlockElementRights::UserHasRightTo($elementIblockID, $ID, "element_edit"))
 			{
 				$lAdmin->AddGroupError(GetMessage("IBEL_A_UPDERR_ACCESS", array("#ID#" => $ID)), $ID);
 				continue;
@@ -1441,7 +1466,10 @@ if($lAdmin->EditAction())
 						{
 							$v = [];
 							$pvObjectQuery = CIBlockElement::getPropertyValues(
-								$IBLOCK_ID, ["ID" => $ID], true, ["ID" => $prop_id]
+								$elementIblockID,
+								['ID' => $ID],
+								true,
+								['ID' => $prop_id]
 							);
 							$propertyValues = $pvObjectQuery->fetch();
 							if (
@@ -1473,33 +1501,52 @@ if($lAdmin->EditAction())
 			{
 				if (isset($arFields['MORE_PHOTO']) && is_array($arFields['MORE_PHOTO']))
 				{
-					$arFields["PROPERTY_VALUES"][$moreProtoPropertyId] = [];
-					$bFieldProps[$moreProtoPropertyId] = true;
 					foreach ($arFields['MORE_PHOTO'] as $key => $value)
 					{
-						$description = $arFields['MORE_PHOTO'][$key.'_descr'] ?? '';
-						$deleted = ($arFields['MORE_PHOTO'][$key.'_del'] ?? 'N') === 'Y';
-
-						if (is_array($value))
+						if ($key === 'DETAIL_PICTURE' || $key === 'PREVIEW_PICTURE')
 						{
-							$arFields["PROPERTY_VALUES"][$moreProtoPropertyId][] = \CIBlock::makeFilePropArray(
+							$value = is_array($value) ? $value : (int)$value;
+							$arFields[$key] = \CIBlock::makeFileArray(
 								$value,
-								$deleted,
-								$description
+								($arFields['MORE_PHOTO'][$key.'_del'] ?? 'N') === 'Y',
+								$arFields['MORE_PHOTO'][$key . '_descr'] ?? '',
+								['allow_file_id' => true]
 							);
 						}
-						elseif ((int)$value > 0)
+						else
 						{
-							$valueId = str_replace('PROPERTY_'.$moreProtoPropertyId.'_', '', $key);
-							$arFields["PROPERTY_VALUES"][$moreProtoPropertyId][$valueId] = \CIBlock::makeFilePropArray(
-								$value,
-								$deleted,
-								$description
-							);
+							[$type, $propertyId, $valueId, $additionalInfo] = explode('_', $key);
+							if ($type === 'PROPERTY' && $additionalInfo === null)
+							{
+								$bFieldProps[$propertyId] = true;
+								$arFields['PROPERTY_VALUES'][$propertyId] = $arFields['PROPERTY_VALUES'][$propertyId] ?? [];
+								$pureKey = $type . '_' . $propertyId . '_' . $valueId;
+								$description = $arFields['MORE_PHOTO'][$pureKey .'_descr'] ?? '';
+								$deleted = ($arFields['MORE_PHOTO'][$pureKey .'_del'] ?? 'N') === 'Y';
+
+								if (is_array($value))
+								{
+									$newValueId = (int)$valueId > 0 ? $valueId : null;
+									$arFields['PROPERTY_VALUES'][$propertyId][$newValueId] = \CIBlock::makeFilePropArray(
+										$value,
+										$deleted,
+										$description
+									);
+								}
+								elseif ((int)$value > 0)
+								{
+									$arFields['PROPERTY_VALUES'][$propertyId][$valueId] = \CIBlock::makeFilePropArray(
+										(int)$value,
+										$deleted,
+										$description,
+										['allow_file_id' => true]
+									);
+								}
+							}
 						}
 					}
 
-					unset($arFields["MORE_PHOTO"]);
+					unset($arFields['MORE_PHOTO']);
 				}
 			}
 
@@ -1508,7 +1555,13 @@ if($lAdmin->EditAction())
 				//We have to read properties from database in order not to delete its values
 				if(!$bWorkFlow)
 				{
-					$dbPropV = CIBlockElement::GetProperty($IBLOCK_ID, $ID, "sort", "asc", array("ACTIVE"=>"Y"));
+					$dbPropV = CIBlockElement::GetProperty(
+						$elementIblockID,
+						$ID,
+						'sort',
+						'asc',
+						['ACTIVE' => 'Y']
+					);
 					while($arPropV = $dbPropV->Fetch())
 					{
 						if(!array_key_exists($arPropV["ID"], $bFieldProps) && $arPropV["PROPERTY_TYPE"] != "F")
@@ -1560,7 +1613,7 @@ if($lAdmin->EditAction())
 			}
 			else
 			{
-				$ipropValues = new \Bitrix\Iblock\InheritedProperty\ElementValues($IBLOCK_ID, $ID);
+				$ipropValues = new \Bitrix\Iblock\InheritedProperty\ElementValues($elementIblockID, $ID);
 				$ipropValues->clearValues();
 				$DB->Commit();
 			}
@@ -1569,7 +1622,7 @@ if($lAdmin->EditAction())
 			{
 				if(
 					$boolCatalogPrice
-					&& CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $ID, "element_edit_price")
+					&& CIBlockElementRights::UserHasRightTo($elementIblockID, $ID, "element_edit_price")
 				)
 				{
 					$arCatalogProduct = array();
@@ -2327,6 +2380,11 @@ foreach ($priceTypeList as $priceType)
 	$skuFields[] = 'CATALOG_GROUP_'.$priceType['ID'];
 }
 
+if ($moreProtoPropertyId !== null)
+{
+	$skuFields[] = 'MORE_PHOTO';
+}
+
 $productSkuTree = [];
 $selectedSkuMap = [];
 
@@ -2451,8 +2509,15 @@ foreach (array_keys($rawRows) as $rowId)
 {
 	$arRes = $rawRows[$rowId];
 	unset($rawRows[$rowId]);
-
-	$itemId = $arRes['ID'];
+	if (!isset($arRes['ID']))
+	{
+		continue;
+	}
+	$itemId = (int)$arRes['ID'];
+	if ($itemId <= 0)
+	{
+		continue;
+	}
 
 	$arRes_orig = $arRes;
 	// in workflow mode show latest changes
@@ -2608,11 +2673,48 @@ foreach (array_keys($rawRows) as $rowId)
 		unset($rsProperties);
 	}
 
+	if ($bCatalog && isset($arSelectedFieldsMap['MORE_PHOTO']))
+	{
+		$skuId = $selectedSkuMap[$itemId] ?? $itemId;
+		$repositoryFacade = ServiceContainer::getRepositoryFacade();
+		if ($repositoryFacade)
+		{
+			if ($isUsedNewProductField)
+			{
+				$entity = $repositoryFacade->loadVariation($skuId);
+			}
+			else
+			{
+				$entity = $repositoryFacade->loadProduct($itemId);
+			}
+
+			if ($entity)
+			{
+				$imageInput = new ImageInput($entity);
+				$field = $imageInput->getFormattedField();
+				$row->AddViewField('MORE_PHOTO', $field['preview']);
+				if (!$bReadOnly)
+				{
+					$row->AddEditField('MORE_PHOTO', $field['input']);
+				}
+			}
+		}
+	}
+
 	foreach($arSelectedProps as $aProp)
 	{
 		$arViewHTML = array();
 		$arEditHTML = array();
 		$arUserType = $aProp['PROPERTY_USER_TYPE'];
+
+		if (
+			$aProp['CODE'] === 'MORE_PHOTO'
+			&& $aProp['PROPERTY_TYPE'] === 'F'
+			&& !$bExcel
+		)
+		{
+			continue;
+		}
 
 		$last_property_id = false;
 		foreach($arProperties[$aProp["ID"]] as $valueId => $prop)
@@ -3129,6 +3231,7 @@ foreach (array_keys($rawRows) as $rowId)
 		$row->AddViewField("BIZPROC", $str);
 	}
 }
+unset($row);
 
 $boolIBlockElementAdd = CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, $find_section_section, "section_element_bind");
 $iblockElementAdd = $boolIBlockElementAdd;
@@ -3151,7 +3254,7 @@ $quantityTraceStatus = array();
 $canBuyZeroStatus = array();
 if ($bCatalog && !empty($arRows))
 {
-	$defaultQuantityTrace = ((string)Main\Config\Option::get("catalog", "default_quantity_trace") == 'Y'
+	$defaultQuantityTrace = (Main\Config\Option::get("catalog", "default_quantity_trace") == 'Y'
 		? GetMessage("IBEL_YES_VALUE")
 		: GetMessage("IBEL_NO_VALUE")
 	);
@@ -3160,7 +3263,7 @@ if ($bCatalog && !empty($arRows))
 		Catalog\ProductTable::STATUS_YES => GetMessage("IBEL_YES_VALUE"),
 		Catalog\ProductTable::STATUS_NO => GetMessage("IBEL_NO_VALUE"),
 	);
-	$defaultCanBuyZero = ((string)Main\Config\Option::get('catalog', 'default_can_buy_zero') == 'Y'
+	$defaultCanBuyZero = (Main\Config\Option::get('catalog', 'default_can_buy_zero') == 'Y'
 		? GetMessage("IBEL_YES_VALUE")
 		: GetMessage("IBEL_NO_VALUE")
 	);
@@ -3472,8 +3575,7 @@ if ($arIBTYPE['SECTIONS'] == 'Y' && isset($arSelectedFieldsMap['SECTIONS']) && !
 				[],
 				['IBLOCK_ID' => $IBLOCK_ID, 'ID' => $pageIds, 'CHECK_PERMISSIONS' => 'Y', 'MIN_PERMISSION' => 'S'],
 				false,
-				['ID', 'IBLOCK_ID', 'NAME', 'LEFT_MARGIN'],
-				false
+				['ID', 'IBLOCK_ID', 'NAME', 'LEFT_MARGIN']
 			);
 			while ($row = $iterator->Fetch())
 			{
@@ -3849,10 +3951,7 @@ foreach($arRows as $idRow => $row)
 		}
 		else
 		{
-			$measureTitle = (isset($measureList[$row->arRes['CATALOG_MEASURE']])
-				? $measureList[$row->arRes['CATALOG_MEASURE']]
-				: $measureList[0]
-			);
+			$measureTitle = $measureList[$row->arRes['CATALOG_MEASURE']] ?? $measureList[0];
 			$row->AddViewField('CATALOG_MEASURE', $measureTitle);
 			unset($measureTitle);
 		}
@@ -3963,7 +4062,7 @@ foreach($arRows as $idRow => $row)
 					"ICON" => "history",
 					"TEXT" => GetMessage("IBEL_A_HIST"),
 					"TITLE" => GetMessage("IBLOCK_HISTORY_ALT"),
-					"ACTION" => $lAdmin->ActionRedirect('iblock_history_list.php?ELEMENT_ID='.$row->arRes['orig']['ID'].$sThisSectionUrl),
+					"ACTION" => $lAdmin->ActionRedirect('iblock_history_list.php?ELEMENT_ID='.$row->arRes['orig']['ID'].'&'.$sThisSectionUrl),
 					"ONCLICK" => "",
 				);
 			}
@@ -4230,6 +4329,7 @@ foreach($arRows as $idRow => $row)
 					'GRID_ID' => $sTableID,
 					'ROW_ID' => $idRow,
 					'PRODUCT_FIELDS' => $productFields,
+					'ENABLE_IMAGE_INPUT' => false,
 					'SKU_TREE' => $productSkuTree[$idRow] ?? null,
 				]
 			);
@@ -4250,6 +4350,7 @@ foreach($arRows as $idRow => $row)
 	if(!empty($arActions))
 		$row->AddActions($arActions);
 }
+unset($row);
 
 $lAdmin->AddFooter(
 	array(
@@ -4457,7 +4558,7 @@ if($bBizproc && IsModuleInstalled("bizprocdesigner"))
 
 $lAdmin->setContextSettings(array("pagePath" => $pageConfig['CONTEXT_PATH']));
 $contextConfig = array();
-$excelExport = ((string)Main\Config\Option::get("iblock", "excel_export_rights") == "Y"
+$excelExport = (Main\Config\Option::get("iblock", "excel_export_rights") == "Y"
 	? CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "iblock_export")
 	: true
 );
@@ -4475,13 +4576,22 @@ $lAdmin->SetContextMenu($aContext, $additional, $contextConfig);
 $lAdmin->CheckListMode();
 
 if ($pageConfig['CATALOG'])
-	$APPLICATION->SetTitle(GetMessage("IBEL_LIST_TITLE", array("#IBLOCK_NAME#" => htmlspecialcharsex($arIBlock["NAME"]))));
+	$APPLICATION->SetTitle(GetMessage("IBEL_LIST_TITLE", array("#IBLOCK_NAME#" => $arIBlock["NAME"])));
 else
 	$APPLICATION->SetTitle($arIBlock["NAME"]);
 
 Main\Page\Asset::getInstance()->addJs('/bitrix/js/iblock/iblock_edit.js');
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
+if ($urlBuilder->isSliderMode())
+{
+	if((!isset($_REQUEST["mode"]) || $_REQUEST["mode"]=='list' || $_REQUEST["mode"]=='frame'))
+	{
+		?><style>
+	body { background: none repeat 0 0 transparent; }
+</style><?php
+	}
+}
 //We need javascript not in excel mode
 if((!isset($_REQUEST["mode"]) || $_REQUEST["mode"]=='list' || $_REQUEST["mode"]=='frame') && $bCatalog && $bCurrency)
 {
@@ -4683,5 +4793,7 @@ if ($bCatalog && !$isChangeVariationRequest && Catalog\Config\Feature::isCommonP
 	</script>
 	<?php
 }
+
+unset($urlBuilder);
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

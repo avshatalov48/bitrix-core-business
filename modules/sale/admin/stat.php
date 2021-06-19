@@ -26,7 +26,7 @@ $oSort = new CAdminSorting($sTableID, "DATE", "desc");
 $lAdmin = new CAdminList($sTableID, $oSort);
 
 $arSite = array();
-$dbSite = CSite::GetList($by1="sort", $order1="desc", Array("ACTIVE" => "Y"));
+$dbSite = CSite::GetList("sort", "desc", Array("ACTIVE" => "Y"));
 while($arSites = $dbSite->GetNext())
 {
 	$arSite[$arSites["LID"]] = $arSites["NAME"];
@@ -375,7 +375,7 @@ while ($arStatusList = $dbStatusList->GetNext())
 }
 
 $arCurrency = Array();
-$dbCur = CCurrency::GetList(($b="name"), ($order1="asc"), LANGUAGE_ID);
+$dbCur = CCurrency::GetList("name", "asc", LANGUAGE_ID);
 while($arCur = $dbCur->GetNext())
 {
 	$arCurrency[$arCur["CURRENCY"]] = $arCur["FULL_NAME"];

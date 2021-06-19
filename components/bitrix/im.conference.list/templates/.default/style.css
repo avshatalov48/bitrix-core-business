@@ -28,12 +28,18 @@
 	justify-content: start;
 	align-items: center;
 	width: 500px;
+    max-height: 100%;
 	/*height: 450px;*/
+}
+
+.im-conference-list-empty-title-wrap {
+    margin-top: 15px;
+    flex: 0 0 auto;
 }
 
 .im-conference-list-empty-title {
 	text-align: center;
-	margin-bottom: 40px;
+	margin-bottom: 30px;
 	font: 26px/26px "OpenSans-Light", Helvetica, Arial, sans-serif;
 }
 
@@ -46,6 +52,12 @@
 	padding: 0 11px;
 }
 
+.im-conference-list-empty-button-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .im-conference-list-empty-image {
 	width: 600px;
 	height: 300px;
@@ -53,6 +65,7 @@
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-position: center;
+    flex: 0 1 auto;
 }
 
 .no-paddings .workarea-content-paddings {

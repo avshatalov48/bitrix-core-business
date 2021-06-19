@@ -15,6 +15,11 @@ html {
   box-sizing: inherit;
 }
 
+:root {
+  --bs-gutter-x: 30px;
+  --bs-gutter-y: 0;
+}
+
 .container {
   width: 100%;
   padding-right: 15px;
@@ -58,10 +63,13 @@ html {
 .row {
   display: -ms-flexbox;
   display: flex;
+  -ms-flex: 1 0 100%;
+      flex: 1 0 100%;
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
-  margin-right: -15px;
-  margin-left: -15px;
+  margin-top: calc(var(--bs-gutter-y) * -1);
+  margin-right: calc(var(--bs-gutter-x) / -2);
+  margin-left: calc(var(--bs-gutter-x) / -2);
 }
 
 .no-gutters {
@@ -83,8 +91,8 @@ html {
 .col-xl-auto {
   position: relative;
   width: 100%;
-  padding-right: 15px;
-  padding-left: 15px;
+  padding-right: calc(var(--bs-gutter-x) / 2);
+  padding-left: calc(var(--bs-gutter-x) / 2);
 }
 
 .col {

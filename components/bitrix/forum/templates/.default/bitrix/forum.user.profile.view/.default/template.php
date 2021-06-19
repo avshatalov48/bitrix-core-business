@@ -10,7 +10,7 @@ $arParams["SHOW_MAIL"] = (($arParams["SEND_MAIL"] <= "A" || ($arParams["SEND_MAI
 /************** User options **************************************/
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 $arUserOptions = CUserOptions::GetOption("forum", "profile", "", $arParams["UID"]);
-$arUserOptions = (CheckSerializedData($arUserOptions) ? @unserialize($arUserOptions) : array());
+$arUserOptions = (CheckSerializedData($arUserOptions) ? @unserialize($arUserOptions, ["allowed_classes" => false]) : array());
 
 $arUserOptions = (is_array($arUserOptions) ? $arUserOptions : array());
 if (!is_array($arUserOptions["hide"])):

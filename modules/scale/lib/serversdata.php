@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Scale;
 
 /**
@@ -98,7 +99,7 @@ class ServersData
 		return $result;
 	}
 
-	public function getDbList($hostname)
+	public static function getDbList($hostname)
 	{
 		if($hostname == '')
 			throw new \Bitrix\Main\ArgumentNullException("hostname");
@@ -178,7 +179,7 @@ class ServersData
 	 * @return bool|string - Version of bitrix environment.
 	 * @throws \Bitrix\Main\ArgumentNullException
 	 */
-	public function getBxEnvVer($hostname)
+	public static function getBxEnvVer($hostname)
 	{
 		if($hostname == '')
 			throw new \Bitrix\Main\ArgumentNullException("hostname");

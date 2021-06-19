@@ -92,40 +92,6 @@ this.BX.UI = this.BX.UI || {};
 	  return ItemNodeComparator;
 	}();
 
-	var Highlighter = /*#__PURE__*/function () {
-	  function Highlighter() {
-	    babelHelpers.classCallCheck(this, Highlighter);
-	  }
-
-	  babelHelpers.createClass(Highlighter, null, [{
-	    key: "mark",
-	    value: function mark(text, matches) {
-	      if (!main_core.Type.isStringFilled(text) || !matches || matches.count() === 0) {
-	        return text;
-	      }
-
-	      var result = '';
-	      var offset = 0;
-	      matches.forEach(function (match) {
-	        if (offset > match.getStartIndex()) {
-	          return;
-	        } // console.log(match.getStartIndex(), match.getEndIndex(), match.getQueryWord());
-
-
-	        result += main_core.Text.encode(text.substring(offset, match.getStartIndex()));
-	        result += '<span class="ui-selector-highlight-mark">';
-	        result += main_core.Text.encode(text.substring(match.getStartIndex(), match.getEndIndex()));
-	        result += '</span>';
-	        offset = match.getEndIndex();
-	      });
-	      result += main_core.Text.encode(text.substring(offset)); // console.log(result);
-
-	      return result;
-	    }
-	  }]);
-	  return Highlighter;
-	}();
-
 	var TextNodeType = /*#__PURE__*/function () {
 	  function TextNodeType() {
 	    babelHelpers.classCallCheck(this, TextNodeType);
@@ -213,6 +179,52 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }]);
 	  return TextNode;
+	}();
+
+	var Highlighter = /*#__PURE__*/function () {
+	  function Highlighter() {
+	    babelHelpers.classCallCheck(this, Highlighter);
+	  }
+
+	  babelHelpers.createClass(Highlighter, null, [{
+	    key: "mark",
+	    value: function mark(text, matches) {
+	      var encode = true;
+
+	      if (text instanceof TextNode) {
+	        if (text.getType() === 'html') {
+	          encode = false;
+	        }
+
+	        text = text.getText();
+	      }
+
+	      if (!main_core.Type.isStringFilled(text) || !matches || matches.count() === 0) {
+	        return text;
+	      }
+
+	      var result = '';
+	      var offset = 0;
+	      var chunk = '';
+	      matches.forEach(function (match) {
+	        if (offset > match.getStartIndex()) {
+	          return;
+	        }
+
+	        chunk = text.substring(offset, match.getStartIndex());
+	        result += encode ? main_core.Text.encode(chunk) : chunk;
+	        result += '<span class="ui-selector-highlight-mark">';
+	        chunk = text.substring(match.getStartIndex(), match.getEndIndex());
+	        result += encode ? main_core.Text.encode(chunk) : chunk;
+	        result += '</span>';
+	        offset = match.getEndIndex();
+	      });
+	      chunk = text.substring(offset);
+	      result += encode ? main_core.Text.encode(chunk) : chunk;
+	      return result;
+	    }
+	  }]);
+	  return Highlighter;
 	}();
 
 	var ItemBadge = /*#__PURE__*/function () {
@@ -1661,11 +1673,11 @@ this.BX.UI = this.BX.UI || {};
 
 	          _this17.getSubtitleContainer().innerHTML = Highlighter.mark(text, matchField.getMatches());
 	        } else if (field.getName() === 'title') {
-	          _this17.getTitleContainer().innerHTML = Highlighter.mark(_this17.getItem().getTitle(), matchField.getMatches());
+	          _this17.getTitleContainer().innerHTML = Highlighter.mark(_this17.getItem().getTitleNode(), matchField.getMatches());
 	        } else if (field.getName() === 'subtitle') {
-	          _this17.getSubtitleContainer().innerHTML = Highlighter.mark(_this17.getItem().getSubtitle(), matchField.getMatches());
+	          _this17.getSubtitleContainer().innerHTML = Highlighter.mark(_this17.getItem().getSubtitleNode(), matchField.getMatches());
 	        } else if (field.getName() === 'supertitle') {
-	          _this17.getSupertitleContainer().innerHTML = Highlighter.mark(_this17.getItem().getSupertitle(), matchField.getMatches());
+	          _this17.getSupertitleContainer().innerHTML = Highlighter.mark(_this17.getItem().getSupertitleNode(), matchField.getMatches());
 	        }
 	      });
 	    }
@@ -1729,7 +1741,9 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      } else {
 	        if (this.getItem().isSelected()) {
-	          this.getItem().deselect();
+	          if (this.getItem().isDeselectable()) {
+	            this.getItem().deselect();
+	          }
 
 	          if (this.getDialog().shouldHideOnDeselect()) {
 	            this.getDialog().hide();
@@ -2015,11 +2029,21 @@ this.BX.UI = this.BX.UI || {};
 
 	        if (field.isSystem()) {
 	          if (field.getName() === 'title') {
-	            index.addIndex(_this.createIndex(field, item.getTitle()));
+	            var textNode = item.getTitleNode();
+	            var stripTags = textNode !== null && textNode.getType() === 'html';
+	            index.addIndex(_this.createIndex(field, item.getTitle(), stripTags));
 	          } else if (field.getName() === 'subtitle') {
-	            index.addIndex(_this.createIndex(field, item.getSubtitle()));
+	            var _textNode = item.getSubtitleNode();
+
+	            var _stripTags = _textNode !== null && _textNode.getType() === 'html';
+
+	            index.addIndex(_this.createIndex(field, item.getSubtitle(), _stripTags));
 	          } else if (field.getName() === 'supertitle') {
-	            index.addIndex(_this.createIndex(field, item.getSupertitle()));
+	            var _textNode2 = item.getSupertitleNode();
+
+	            var _stripTags2 = _textNode2 !== null && _textNode2.getType() === 'html';
+
+	            index.addIndex(_this.createIndex(field, item.getSupertitle(), _stripTags2));
 	          }
 	        } else {
 	          var customData = item.getCustomData().get(field.getName());
@@ -2034,8 +2058,19 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "createIndex",
 	    value: function createIndex(field, text) {
+	      var stripTags = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
 	      if (!main_core.Type.isStringFilled(text)) {
 	        return null;
+	      }
+
+	      if (stripTags) {
+	        text = text.replace(/<\/?[^>]+>/g, function (match) {
+	          return ' '.repeat(match.length);
+	        });
+	        text = text.replace(/&(?:#\d+|#x[\da-fA-F]+|[0-9a-zA-Z]+);/g, function (match) {
+	          return ' '.repeat(match.length);
+	        });
 	      }
 
 	      var index = null;
@@ -2997,7 +3032,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "deselect",
 	    value: function deselect() {
-	      if (!this.selected || !this.isDeselectable()) {
+	      if (!this.selected) {
 	        return;
 	      }
 
@@ -5692,6 +5727,8 @@ this.BX.UI = this.BX.UI || {};
 	      itemOrder: {
 	        sort: 'asc'
 	      },
+	      visible: !dialog.isDropdownMode(),
+	      stub: !dialog.isDropdownMode(),
 	      icon: {
 	        //default: '/bitrix/js/ui/entity-selector/src/css/images/recent-tab-icon.svg',
 	        //selected: '/bitrix/js/ui/entity-selector/src/css/images/recent-tab-icon-selected.svg'
@@ -6617,6 +6654,7 @@ this.BX.UI = this.BX.UI || {};
 	    _this.context = main_core.Type.isStringFilled(options.context) ? options.context : null;
 	    _this.clearUnavailableItems = options.clearUnavailableItems === true;
 	    _this.compactView = options.compactView === true;
+	    _this.dropdownMode = main_core.Type.isBoolean(options.dropdownMode) ? options.dropdownMode : false;
 
 	    if (main_core.Type.isArray(options.entities)) {
 	      options.entities.forEach(function (entity) {
@@ -6681,8 +6719,6 @@ this.BX.UI = this.BX.UI || {};
 	    _this.addTab(_this.recentTab);
 
 	    _this.addTab(_this.searchTab);
-
-	    _this.setDropdownMode(options.dropdownMode);
 
 	    _this.setPreselectedItems(options.preselectedItems);
 
@@ -7621,14 +7657,6 @@ this.BX.UI = this.BX.UI || {};
 	      return this.dropdownMode;
 	    }
 	  }, {
-	    key: "setDropdownMode",
-	    value: function setDropdownMode(flag) {
-	      if (main_core.Type.isBoolean(flag)) {
-	        this.dropdownMode = flag;
-	        this.getRecentTab().setVisible(!flag);
-	      }
-	    }
-	  }, {
 	    key: "setPreselectedItems",
 	    value: function setPreselectedItems(itemIds) {
 	      this.preselectedItems = this.validateItemIds(itemIds);
@@ -7989,8 +8017,12 @@ this.BX.UI = this.BX.UI || {};
 	            _this12.getTagSelector().unlock();
 	          }
 
-	          if (_this12.isRendered() && !_this12.getActiveTab()) {
-	            _this12.selectFirstTab();
+	          if (_this12.isRendered()) {
+	            if (_this12.isDropdownMode() && _this12.getActiveTab() === _this12.getRecentTab()) {
+	              _this12.selectFirstTab();
+	            } else if (!_this12.getActiveTab()) {
+	              _this12.selectFirstTab();
+	            }
 	          }
 
 	          _this12.focusSearch();
@@ -8199,6 +8231,10 @@ this.BX.UI = this.BX.UI || {};
 
 	      if (!this.isMultiple()) {
 	        this.deselectAll();
+
+	        if (this.getSelectedItems().length > 0) {
+	          console.error('EntitySelector: some items are still selected.', this.getSelectedItems());
+	        }
 	      }
 
 	      if (this.getTagSelector() && (this.isMultiple() || this.isTagSelectorOutside())) {

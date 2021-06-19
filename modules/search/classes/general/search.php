@@ -264,7 +264,7 @@ class CAllSearch extends CDBResult
 
 			$r = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
-		parent::CDBResult($r);
+		parent::__construct($r);
 	}
 
 	function SetOptions($arOptions)
@@ -293,7 +293,7 @@ class CAllSearch extends CDBResult
 		return md5($perm.$sql.$this->strTags);
 	}
 
-	function chr($a)
+	public static function chr($a)
 	{
 		return chr($a[1]);
 	}
@@ -703,9 +703,7 @@ class CAllSearch extends CDBResult
 			$site_id = $r["SITE_ID"];
 			if (!isset($arSite[$site_id]))
 			{
-				$b = "sort";
-				$o = "asc";
-				$rsSite = CSite::GetList($b, $o, array("ID" => $site_id));
+				$rsSite = CSite::GetList('', '', array("ID" => $site_id));
 				$arSite[$site_id] = $rsSite->Fetch();
 			}
 			$r["DIR"] = $arSite[$site_id]["DIR"];
@@ -863,7 +861,7 @@ class CAllSearch extends CDBResult
 		if (!is_array($SEARCH_CACHED_GROUPS))
 		{
 			$SEARCH_CACHED_GROUPS = Array();
-			$db_groups = CGroup::GetList($order = "ID", $by = "ASC");
+			$db_groups = CGroup::GetList('id', 'asc');
 			while ($g = $db_groups->Fetch())
 			{
 				$group_id = intval($g["ID"]);
@@ -982,7 +980,7 @@ class CAllSearch extends CDBResult
 			$arFilter = Array("ACTIVE" => "Y");
 			if ($NS["SITE_ID"] != "")
 				$arFilter["ID"] = $NS["SITE_ID"];
-			$r = CSite::GetList($by = "sort", $order = "asc", $arFilter);
+			$r = CSite::GetList('', '', $arFilter);
 			while ($arR = $r->Fetch())
 			{
 				$path = rtrim($arR["DIR"], "/");
@@ -1228,7 +1226,7 @@ class CAllSearch extends CDBResult
 				return 0;
 
 			reset($arFields["SITE_ID"]);
-			list($arFields["LID"], $url) = each($arFields["SITE_ID"]);
+			$arFields["LID"] = current($arFields["SITE_ID"]);
 
 			$arSites = array();
 			foreach ($arFields["SITE_ID"] as $site => $url)
@@ -1547,7 +1545,7 @@ class CAllSearch extends CDBResult
 			return 0;
 
 		$file_site = "";
-		$rsSites = CSite::GetList($by = "lendir", $order = "desc");
+		$rsSites = CSite::GetList("lendir", "desc");
 		while ($arSite = $rsSites->Fetch())
 		{
 			$site_path = preg_replace("#[\\\\\\/]+#", "/", $arSite["ABS_DOC_ROOT"]."/".$arSite["DIR"]."/");

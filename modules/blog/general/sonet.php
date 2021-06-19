@@ -1,7 +1,8 @@
-<?
+<?php
+
 class CBlogSoNetPost
 {
-	function CanUserDeletePost($ID, $userID, $blogOwnerID, $groupOwnerID)
+	public static function CanUserDeletePost($ID, $userID, $blogOwnerID, $groupOwnerID)
 	{
 		$ID = intval($ID);
 		$userID = intval($userID);
@@ -64,7 +65,7 @@ class CBlogSoNetPost
 		return False;
 	}
 	
-	function OnGroupDelete($ID)
+	public static function OnGroupDelete($ID)
 	{
 		$ID = intval($ID);
 		if($ID <= 0)
@@ -82,4 +83,3 @@ class CBlogSoNetPost
 		\Bitrix\Blog\PostSocnetRightsTable::deleteByEntity('OSG'.$ID.'_L');
 	}
 }
-?>

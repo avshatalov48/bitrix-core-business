@@ -22,7 +22,11 @@
 
 	BX.addCustomEvent("BX.Landing.Block:Node:update", BX.debounce(function (event)
 	{
-		BX.Landing.SliderHelper.init(event, BX.Landing.SliderHelper.ACTION_UPDATE);
+		if(!BX.Landing.SliderHelper.isEditorEnable())
+		{
+			// todo: lazy reinit if now editor enable?
+			BX.Landing.SliderHelper.init(event, BX.Landing.SliderHelper.ACTION_UPDATE);
+		}
 	}, 300));
 
 	/**
@@ -96,32 +100,33 @@
 		}
 	}, 1000));
 
-	// stop ALL SLIDERS if editing
-	BX.addCustomEvent("BX.Landing.Editor:enable", function (event)
+	/**
+	 * Check if current editor in slider-block. If true - stor ALL sliders
+	 */
+	BX.addCustomEvent("BX.Landing.Editor:enable", function (target)
 	{
-		try
+		var parentBlock = BX.findParent(target, {class:'block-wrapper'});
+		if(parentBlock)
 		{
-			$(".js-carousel").slick('slickPause');
-		}
-		catch (e)
-		{
-		}
-	});
-
-	// play ALL SLIDERS if editing end
-	BX.addCustomEvent("BX.Landing.Editor:disable", function (event)
-	{
-		try
-		{
-			$(".js-carousel").slick('slickPlay');
-		}
-		catch (e)
-		{
+			if(parentBlock.querySelector('.' + BX.Landing.SliderHelper.CAROUSEL_CLASS))
+			{
+				BX.Landing.SliderHelper.setEditorEnable(true);
+				$(".js-carousel").slick('slickPause');
+			}
 		}
 	});
 
 	/**
-	 * set correct slider width after lazyload image
+	 * Start ALL sliders. Always
+	 */
+	BX.addCustomEvent("BX.Landing.Editor:disable", function ()
+	{
+		BX.Landing.SliderHelper.setEditorEnable(false);
+		$(".js-carousel").slick('slickPlay');
+	});
+
+	/**
+	 * Set correct slider width after lazyload image
 	 */
 	BX.addCustomEvent("BX.Landing.Lazyload:loadImage", function (event)
 	{

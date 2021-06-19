@@ -223,7 +223,7 @@ class CIMCall
 			if (!$arConfig['CALL_TO_GROUP'] && CModule::IncludeModule('pull') && CPullOptions::GetPushStatus())
 			{
 				$arSelect = Array("ID", "LAST_NAME", "NAME", "LOGIN", "SECOND_NAME");
-				$dbUsers = CUser::GetList(($sort_by = false), ($dummy=''), array('ID' => $USER->GetID()), array('FIELDS' => $arSelect));
+				$dbUsers = CUser::GetList('', '', array('ID_EQUAL_EXACT' => $USER->GetID()), array('FIELDS' => $arSelect));
 				if ($arUser = $dbUsers->GetNext(true, false))
 				{
 					$sName = \Bitrix\Im\User::formatFullNameFromDatabase($arUser);
@@ -705,7 +705,7 @@ class CIMCall
 		if ($userId > 0 && $getUserData)
 		{
 			$arSelect = Array("ID", "LAST_NAME", "NAME", "LOGIN", "SECOND_NAME", "PERSONAL_GENDER");
-			$dbUsers = CUser::GetList(($sort_by = false), ($dummy=''), array('ID' => $userId), array('FIELDS' => $arSelect));
+			$dbUsers = CUser::GetList('', '', array('ID_EQUAL_EXACT' => $userId), array('FIELDS' => $arSelect));
 			if ($arUser = $dbUsers->Fetch())
 				$message = GetMessage($messageId.($addGenderToMessageId? ($arUser["PERSONAL_GENDER"] == 'F'? 'F': 'M'): ''), Array('#USER_NAME#' => \Bitrix\Im\User::formatFullNameFromDatabase($arUser)));
 		}
@@ -739,7 +739,7 @@ class CIMCall
 				$userSelectId = intval($getUserData);
 
 			$arSelect = Array("ID", "LAST_NAME", "NAME", "LOGIN", "SECOND_NAME", "PERSONAL_GENDER");
-			$dbUsers = CUser::GetList(($sort_by = false), ($dummy=''), array('ID' => $userSelectId), array('FIELDS' => $arSelect));
+			$dbUsers = CUser::GetList('', '', array('ID_EQUAL_EXACT' => $userSelectId), array('FIELDS' => $arSelect));
 			if ($arUser = $dbUsers->Fetch())
 				$message = GetMessage($messageId.($addGenderToMessageId? ($arUser["PERSONAL_GENDER"] == 'F'? 'F': 'M'): ''), Array('#USER_NAME#' => \Bitrix\Im\User::formatFullNameFromDatabase($arUser)));
 		}

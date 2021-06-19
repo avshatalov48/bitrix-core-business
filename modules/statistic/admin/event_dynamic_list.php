@@ -32,6 +32,8 @@ $arFilter = Array(
 	"DATE2"		=> $find_date2,
 );
 
+global $by, $order;
+
 $cData = new CStatEventType;
 $rsData = $cData->GetDynamicList($find_event_id, $by, $order, $arMaxMin, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
@@ -80,7 +82,7 @@ $arF = Array(
 	"DATE1_PERIOD"	=> $mindate,
 	"DATE2_PERIOD"	=> $maxdate
 	);
-$rsEventType = CStatEventType::GetList($by2, $order2, $arF, $is_filtered);
+$rsEventType = CStatEventType::GetList('', '', $arF);
 $arEventType = $rsEventType->Fetch();
 
 $arFooter = array();

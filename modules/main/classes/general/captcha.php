@@ -1069,7 +1069,7 @@ class CCaptcha
 	}
 
 
-	function Add($arFields)
+	public function Add($arFields)
 	{
 		global $DB;
 

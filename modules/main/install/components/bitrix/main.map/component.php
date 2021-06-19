@@ -207,7 +207,7 @@ $additionalCacheID = $USER->GetGroups();
 
 if ($this->StartResultCache(false, $additionalCacheID))
 {
-	$sl = CLang::GetList($dummy1="", $dummy2="");
+	$sl = CLang::GetList();
 	while ($slr = $sl->Fetch())
 	{
 		if ($slr["LID"] == LANG)

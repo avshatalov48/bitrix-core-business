@@ -25,7 +25,7 @@ class Helper
 		{
 			$cache = new \CPHPCache();
 
-			if ($cache->initCache(30*24*3600, 'abtest_active_'.SITE_ID, '/abtest'))
+			if ($cache->initCache(30*24*3600, 'abtest_active_'.SITE_ID, 'abtest/'))
 			{
 				$abtest = $cache->getVars();
 			}
@@ -34,10 +34,11 @@ class Helper
 				$abtest = ABTestTable::getList(array(
 					'order' => array('SORT' => 'ASC'),
 					'filter' => array(
-						'SITE_ID'      => SITE_ID,
-						'ACTIVE'       => 'Y',
+						'=SITE_ID'      => SITE_ID,
+						'=ACTIVE'       => 'Y',
 						'<=START_DATE' => new Type\DateTime()
-					)
+					),
+					'limit' => 1
 				))->fetch() ?: null;
 
 				$cache->startDataCache();

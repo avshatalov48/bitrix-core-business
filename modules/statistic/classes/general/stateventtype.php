@@ -46,11 +46,11 @@ class CAllStatEventType
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "EVENT_ID":
@@ -155,11 +155,9 @@ class CAllStatEventType
 
 	public static function DynamicDays($EVENT_ID, $date1="", $date2="")
 	{
-		$by = "";
-		$order = "";
 		$arMaxMin = array();
 		$arFilter = array("DATE1"=>$date1, "DATE2"=>$date2);
-		$z = CStatEventType::GetDynamicList($EVENT_ID, $by, $order, $arMaxMin, $arFilter);
+		$z = CStatEventType::GetDynamicList($EVENT_ID, '', '', $arMaxMin, $arFilter);
 		$d = 0;
 		while($zr = $z->Fetch())
 			if(intval($zr["COUNTER"]) > 0)

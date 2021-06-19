@@ -51,6 +51,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_adm
 	<tr>
 		<td valign="top" nowrap><?echo GetMessage("STAT_TIME")?></td>
 		<td valign="top" nowrap>&nbsp;<?
+			$f_FSESSION_TIME = intval($f_FSESSION_TIME);
 			$hours = intval($f_FSESSION_TIME/3600);
 			if ($hours>0) :
 				echo $hours."&nbsp;".GetMessage("STAT_HOUR")."&nbsp;";
@@ -102,6 +103,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_adm
 	<tr>
 		<td valign="top" nowrap><?echo GetMessage("STAT_TIME")?></td>
 		<td valign="top" nowrap>&nbsp;<?
+			$f_LSESSION_TIME = intval($f_LSESSION_TIME);
 			$hours = intval($f_LSESSION_TIME/3600);
 			if ($hours>0) :
 				echo $hours."&nbsp;".GetMessage("STAT_HOUR")."&nbsp;";

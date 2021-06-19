@@ -308,7 +308,7 @@ function ".$sFromName."_SetDate()
 ";
 		global $$sname;
 		$value = $$sname;
-		if ($value <> '' && $value!="NOT_REF")
+		if ((string)$value <> '' && $value!="NOT_REF")
 			$ds = "disabled";
 
 		?><script type="text/javascript">
@@ -411,8 +411,8 @@ function CheckDateTime($datetime, $format=false)
 				$hour = 0;
 		}
 	}
-	$min   = intval($ar["MI"]);
-	$sec   = intval($ar["SS"]);
+	$min   = intval($ar["MI"] ?? 0);
+	$sec   = intval($ar["SS"] ?? 0);
 
 	if (!checkdate($month, $day, $year))
 		return false;
@@ -520,8 +520,8 @@ function MakeTimeStamp($datetime, $format=false)
 				$hour = 0;
 		}
 	}
-	$min   = intval($ar["MI"]);
-	$sec   = intval($ar["SS"]);
+	$min = intval($ar["MI"] ?? 0);
+	$sec = intval($ar["SS"] ?? 0);
 
 	if(!checkdate($month, $day, $year))
 		return false;
@@ -553,21 +553,24 @@ function ParseDateTime($datetime, $format=false)
 			$arrResult = array();
 			foreach($fm_args[0] as $i => $v)
 			{
-				if (is_numeric($dt_args[0][$i]))
+				if (isset($dt_args[0][$i]))
 				{
-					$arrResult[$v] = sprintf("%0".mb_strlen($v)."d", intval($dt_args[0][$i]));
-				}
-				elseif(($dt_args[0][$i] == "am" || $dt_args[0][$i] == "pm") && array_search("T", $fm_args[0]) !== false)
-				{
-					$arrResult["T"] = $dt_args[0][$i];
-				}
-				elseif(($dt_args[0][$i] == "AM" || $dt_args[0][$i] == "PM") && array_search("TT", $fm_args[0]) !== false)
-				{
-					$arrResult["TT"] = $dt_args[0][$i];
-				}
-				elseif(isset($dt_args[0][$i]))
-				{
-					$arrResult[$v] = $dt_args[0][$i];
+					if (is_numeric($dt_args[0][$i]))
+					{
+						$arrResult[$v] = sprintf("%0".mb_strlen($v)."d", intval($dt_args[0][$i]));
+					}
+					elseif(($dt_args[0][$i] == "am" || $dt_args[0][$i] == "pm") && array_search("T", $fm_args[0]) !== false)
+					{
+						$arrResult["T"] = $dt_args[0][$i];
+					}
+					elseif(($dt_args[0][$i] == "AM" || $dt_args[0][$i] == "PM") && array_search("TT", $fm_args[0]) !== false)
+					{
+						$arrResult["TT"] = $dt_args[0][$i];
+					}
+					else
+					{
+						$arrResult[$v] = $dt_args[0][$i];
+					}
 				}
 			}
 			return $arrResult;
@@ -1606,30 +1609,47 @@ function ParseDate($strDate, $format="dmy")
  */
 function MkDateTime($strDT, $format="d.m.Y H:i:s")
 {
-	$arr = array("d.m.Y","d.m.Y H:i","d.m.Y H:i:s");
-	if (!(in_array($format,$arr)))
+	static $arr = ["d.m.Y", "d.m.Y H:i", "d.m.Y H:i:s"];
+
+	if (!(in_array($format, $arr)))
+	{
 		return false;
+	}
 
 	$strDT = preg_replace("/[\n\r\t ]+/", " ", $strDT);
-	list($date,$time) = explode(" ",$strDT);
-	$date  = trim($date);
-	$time  = trim($time);
-	list($day,$month,$year) = explode(".",$date);
-	list($hour,$min,$sec)   = explode(":",$time);
-	$day   = intval($day);
-	$month = intval($month);
-	$year  = intval($year);
-	$hour  = intval($hour);
-	$min   = intval($min);
-	$sec   = intval($sec);
-	if (!checkdate($month,$day,$year))
-		return false;
-	if ($hour>24 || $hour<0 || $min<0 || $min>59 || $sec<0 || $sec>59)
-		return false;
 
-	$ts = mktime($hour,$min,$sec,$month,$day,$year);
-	if($ts <= 0)
+	$dateTime = explode(" ", $strDT);
+
+	$date  = trim($dateTime[0] ?? '');
+	$time  = trim($dateTime[1] ?? '');
+
+	$dayMonthYear = explode(".", $date);
+
+	$day = intval($dayMonthYear[0] ?? 0);
+	$month = intval($dayMonthYear[1] ?? 0);
+	$year = intval($dayMonthYear[2] ?? 0);
+
+	$hourMinSec = explode(":", $time);
+
+	$hour = intval($hourMinSec[0] ?? 0);
+	$min = intval($hourMinSec[1] ?? 0);
+	$sec = intval($hourMinSec[2] ?? 0);
+
+	if (!checkdate($month, $day, $year))
+	{
 		return false;
+	}
+	if ($hour > 24 || $hour < 0 || $min < 0 || $min > 59 || $sec < 0 || $sec > 59)
+	{
+		return false;
+	}
+
+	$ts = mktime($hour, $min, $sec, $month, $day, $year);
+
+	if($ts <= 0)
+	{
+		return false;
+	}
 
 	return $ts;
 }
@@ -2175,11 +2195,11 @@ function TxtToHTML(
 	// chr(3).E-Mail.chr(3) => <a href="mailto:E-Mail">E-Mail</a>
 	if($bMakeUrls)
 	{
-		$script = $arUrlEvent["SCRIPT"];
+		$script = ($arUrlEvent["SCRIPT"] ?? '');
 		$helper = new CConvertorsPregReplaceHelper("");
 		$helper->setLinkClass($link_class);
 		$helper->setLinkTarget($link_target);
-		$helper->setEvents($arUrlEvent["EVENT1"], $arUrlEvent["EVENT2"], $arUrlEvent["EVENT3"]);
+		$helper->setEvents(($arUrlEvent["EVENT1"] ?? ''), ($arUrlEvent["EVENT2"] ?? ''), ($arUrlEvent["EVENT3"] ?? ''));
 		if($script <> '')
 		{
 			$helper->setScript($script);
@@ -2322,13 +2342,13 @@ function HTMLToTxt($str, $strSiteUrl="", $aDelete=array(), $maxlen=70)
 	if($maxlen > 0)
 		$str = preg_replace("#(^|[\\r\\n])([^\\n\\r]{".intval($maxlen)."}[^ \\r\\n]*[\\] ])([^\\r])#", "\\1\\2\r\n\\3", $str);
 
-	$str = str_replace(chr(1), " ",$str);
+	$str = str_replace(chr(1), " ", $str);
 	return trim($str);
 }
 
 function FormatText($strText, $strTextType="text")
 {
-	if(mb_strtolower($strTextType) == "html")
+	if(strtolower($strTextType) == "html")
 		return $strText;
 
 	return TxtToHtml($strText);
@@ -2338,14 +2358,16 @@ function htmlspecialcharsEx($str)
 {
 	static $search =  array("&amp;",     "&lt;",     "&gt;",     "&quot;",     "&#34;",     "&#x22;",     "&#39;",     "&#x27;",     "<",    ">",    "\"");
 	static $replace = array("&amp;amp;", "&amp;lt;", "&amp;gt;", "&amp;quot;", "&amp;#34;", "&amp;#x22;", "&amp;#39;", "&amp;#x27;", "&lt;", "&gt;", "&quot;");
-	return str_replace($search, $replace, $str);
+
+	return Text\StringHelper::str_replace($search, $replace, $str);
 }
 
 function htmlspecialcharsback($str)
 {
 	static $search =  array("&lt;", "&gt;", "&quot;", "&apos;", "&amp;");
 	static $replace = array("<",    ">",    "\"",     "'",      "&");
-	return str_replace($search, $replace, $str);
+
+	return Text\StringHelper::str_replace($search, $replace, $str);
 }
 
 function htmlspecialcharsbx($string, $flags = ENT_COMPAT, $doubleEncode = true)
@@ -3588,18 +3610,7 @@ function UnQuoteArr(&$arr, $syb = false, $preserve_nulls = false)
 	static $params = null;
 	if (!isset($params))
 	{
-		if (get_magic_quotes_gpc())
-		{
-			//Magic quotes sybase works only when magic_quotes_gpc is turned on
-			if (ini_get_bool("magic_quotes_sybase"))
-				$params = array("type" => "syb");
-			else
-				$params = array("type" => "gpc");
-		}
-		else
-		{
-			$params = array("type" => "nulls");
-		}
+		$params = array("type" => "nulls");
 	}
 
 	if ($preserve_nulls != false && $params["type"] == "nulls")
@@ -5697,9 +5708,9 @@ class CHTTP
 			$params = array();
 			foreach($add_params as $name => $value)
 			{
-				if($options["skip_empty"] && !mb_strlen($value))
+				if(($options["skip_empty"] ?? false) && (string)$value == '')
 					continue;
-				if($options["encode"])
+				if(($options["encode"] ?? false))
 					$params[] = urlencode($name).'='.urlencode($value);
 				else
 					$params[] = $name.'='.$value;
@@ -5732,7 +5743,7 @@ class CHTTP
 		$url_parts = explode("?", $url, 2);
 		if(count($url_parts) == 2 && $url_parts[1] <> '')
 		{
-			if($options["delete_system_params"])
+			if(($options["delete_system_params"] ?? false))
 				$delete_params = array_merge($delete_params, \Bitrix\Main\HttpRequest::getSystemParameters());
 
 			$params_pairs = explode("&", $url_parts[1]);

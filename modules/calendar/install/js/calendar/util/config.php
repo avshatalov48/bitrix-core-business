@@ -11,6 +11,7 @@ return [
 		'main.core',
 		'ui.notification',
 		'main.popup',
+		'pull.client',
 	],
 	'skip_core' => false,
 ];

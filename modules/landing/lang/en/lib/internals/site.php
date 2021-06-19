@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_CONTROLLER_ERROR_BADLICENSE"] = "Your license might have expired, or the license key is invalid.";
 $MESS["LANDING_CONTROLLER_ERROR_BADRESPONSE"] = "Unknown license server response.";
 $MESS["LANDING_TABLE_ERROR_ACCESS_DENIED"] = "Site edit access was denied.";
@@ -11,6 +11,7 @@ $MESS["LANDING_TABLE_ERROR_DOMAIN_EXIST_TRASH"] = "This domain already exists bu
 $MESS["LANDING_TABLE_ERROR_DOMAIN_IS_INCORRECT2"] = "The site address is incorrect. Only the following characters are possible: \"a-z\", \"0-9\", \"-\", \".\".";
 $MESS["LANDING_TABLE_ERROR_DOMAIN_NOT_EXIST"] = "Domain does not exist.";
 $MESS["LANDING_TABLE_ERROR_SITE_CODE_IS_NOT_UNIQUE2"] = "The site symbolic code is not unique on this domain.";
+$MESS["LANDING_TABLE_ERROR_SITE_IS_LOCK"] = "Site cannot be deleted";
 $MESS["LANDING_TABLE_ERROR_SITE_IS_NOT_EMPTY"] = "The site contains pages.";
 $MESS["LANDING_TABLE_ERROR_SITE_SLASH_IS_NOT_ALLOWED"] = "The site URL must not include a slash character.";
 $MESS["LANDING_TABLE_FIELD_CREATED_BY_ID"] = "Created by user ID";
@@ -33,4 +34,3 @@ $MESS["LANDING_TABLE_FIELD_TPL_CODE"] = "Site template ID";
 $MESS["LANDING_TABLE_FIELD_TPL_ID"] = "Template";
 $MESS["LANDING_TABLE_FIELD_TYPE"] = "Type";
 $MESS["LANDING_TABLE_FIELD_XML_ID"] = "External ID";
-?>

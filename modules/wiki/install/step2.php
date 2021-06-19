@@ -7,7 +7,7 @@
 	$strWarning = "";
 	$bVarsFromForm = false;
 	$arUGroupsEx = Array();
-	$dbUGroups = CGroup::GetList($by = "c_sort", $order = "asc");
+	$dbUGroups = CGroup::GetList();
 	while($arUGroups = $dbUGroups -> Fetch())
 	{
 		if ($arUGroups["ANONYMOUS"] == "Y")
@@ -21,7 +21,7 @@
 		{
 			$arIBTLang = array();
 			$arLang = array();
-			$l = CLanguage::GetList($lby="sort", $lorder="asc");
+			$l = CLanguage::GetList();
 			while($ar = $l->ExtractFields("l_"))
 				$arIBTLang[]=$ar;
 
@@ -74,7 +74,7 @@
 
 			$ib = new CIBlock;
 
-			$db_sites = CSite::GetList($lby="sort", $lorder="asc");
+			$db_sites = CSite::GetList();
 			while ($ar_sites = $db_sites->Fetch())
 			{
 				if ($ar_sites["ACTIVE"] == "Y")
@@ -113,7 +113,7 @@
 			"GROUP_ID" => array(1 => "Y", 2 => 'E', 3 => 'M'),
 			"SITES" => array()
 		);
-		$db_res = CSite::GetList($lby="sort", $lorder="asc");
+		$db_res = CSite::GetList();
 		while ($res = $db_res->Fetch()):
 			if (IsModuleInstalled("intranet"))
 		    	$arFields["SITES"][$res["LID"]] = "/community/forum/forum#FORUM_ID#/topic#TOPIC_ID#/";
@@ -138,7 +138,7 @@
 				{
 					$arIBTLang = array();
 					$arLang = array();
-					$l = CLanguage::GetList($lby="sort", $lorder="asc");
+					$l = CLanguage::GetList();
 					while($ar = $l->ExtractFields("l_"))
 						$arIBTLang[]=$ar;
 
@@ -196,7 +196,7 @@
 
 				$ib = new CIBlock;
 
-				$db_sites = CSite::GetList($lby="sort", $lorder="asc");
+				$db_sites = CSite::GetList();
 				while ($ar_sites = $db_sites->Fetch())
 				{
 					if ($ar_sites["ACTIVE"] == "Y")
@@ -239,7 +239,7 @@
 				"GROUP_ID" => array(1 => "Y", 2 => "E", 3 => "M"),
 				"SITES" => array()
 			);
-			$db_res = CSite::GetList($lby="sort", $lorder="asc");
+			$db_res = CSite::GetList();
 			while ($res = $db_res->Fetch()):
 				if (IsModuleInstalled("intranet"))
 			    	$arFields["SITES"][$res["LID"]] = "/community/forum/forum#FORUM_ID#/topic#TOPIC_ID#/";

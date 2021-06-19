@@ -1,10 +1,11 @@
 <?php
+
 use Bitrix\Main\Localization\Loc;
 Loc::loadMessages(__FILE__);
 
 class CAllCatalogContractor
 {
-	protected function checkFields($action, &$arFields)
+	protected static function checkFields($action, &$arFields)
 	{
 		$personType = intval($arFields["PERSON_TYPE"]);
 
@@ -24,7 +25,7 @@ class CAllCatalogContractor
 		return true;
 	}
 
-	static function update($id, $arFields)
+	public static function update($id, $arFields)
 	{
 		global $DB;
 		$id = intval($id);
@@ -50,7 +51,7 @@ class CAllCatalogContractor
 		return $id;
 	}
 
-	static function delete($id)
+	public static function delete($id)
 	{
 		global $DB;
 		$id = intval($id);

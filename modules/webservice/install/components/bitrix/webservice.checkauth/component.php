@@ -38,7 +38,7 @@ class CCheckAuthWS extends IWebService
 
 	}
 
-	function GetWebServiceDesc()
+	public static function GetWebServiceDesc()
 	{
 		$wsdesc = new CWebServiceDesc();
 		$wsdesc->wsname = "bitrix.webservice.checkauth";

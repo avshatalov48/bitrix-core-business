@@ -66,7 +66,7 @@
 
 				if (isString(item.content))
 				{
-					text = BX.util.htmlspecialchars(item.content);
+					text = (item.isHtmlContent) ? item.content : BX.util.htmlspecialchars(item.content);
 				}
 
 				if (BX.type.isArray(item.content))

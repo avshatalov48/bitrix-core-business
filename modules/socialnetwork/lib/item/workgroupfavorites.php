@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -21,42 +22,40 @@ class WorkgroupFavorites
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function set($params)
+	public static function set(array $params = [])
 	{
 		global $USER;
 
-		$groupId = (isset($params["GROUP_ID"]) ? intval($params["GROUP_ID"]) : false);
-		$userId = (isset($params["USER_ID"]) ? intval($params["USER_ID"]) : $USER->getId());
-		$value = (isset($params["VALUE"]) && in_array($params["VALUE"], array('Y', 'N')) ? $params["VALUE"] : false);
+		$groupId = (int)($params['GROUP_ID'] ?? 0);
+		$userId = (int)($params['USER_ID'] ?? $USER->getId());
+		$value = (isset($params['VALUE']) && in_array($params['VALUE'], [ 'Y', 'N' ]) ? $params['VALUE'] : false);
 
 		if (
-			intval($groupId) <= 0
-			|| intval($userId) <= 0
+			$groupId <= 0
+			|| $userId <= 0
 			|| !$value
 		)
 		{
 			throw new SystemException(Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUPFAVORITES_ERROR_NO_DATA'));
 		}
 
-		if (!($group = \CSocNetGroup::getByID($groupId, true)))
+		if (!(\CSocNetGroup::getById($groupId, true)))
 		{
 			throw new SystemException(Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUPFAVORITES_ERROR_NO_ACCESS'));
 		}
 
-		if ($value == 'Y')
+		if ($value === 'Y')
 		{
-			return WorkgroupFavoritesTable::set(array(
+			return WorkgroupFavoritesTable::set([
 				'GROUP_ID' => $groupId,
-				'USER_ID' => $userId
-			));
+				'USER_ID' => $userId,
+			]);
 		}
-		else
-		{
-			return self::delete(array(
-				'GROUP_ID' => $groupId,
-				'USER_ID' => $userId
-			));
-		}
+
+		return self::delete([
+			'GROUP_ID' => $groupId,
+			'USER_ID' => $userId,
+		]);
 	}
 
 	/**

@@ -364,6 +364,18 @@
 					{
 						this.showError(comment, data['errorMessage']);
 					}
+					else if (data['warningCode'] && data['warningCode'] === 'COMMENT_DUPLICATED')
+					{
+						var container = repo["list"][data.messageId[0]].getCommentNode(data.messageId[1]);
+						if (container)
+						{
+							this.showError(comment, data['warningMessage']);
+						}
+						else
+						{
+							BX.onCustomEvent(window, 'OnUCAfterRecordAdd', [comment.id[0], data, comment]);
+						}
+					}
 					else
 					{
 						BX.onCustomEvent(window, 'OnUCAfterRecordAdd', [comment.id[0], data, comment]);
@@ -475,9 +487,10 @@
 			&& e.target
 			&& e.target.tagName
 			&& (
-				e.target.tagName.toUpperCase() == 'A'
+				e.target.tagName.toUpperCase() === 'A'
+				|| e.target.tagName.toUpperCase() === 'VIDEO'
 				|| (
-					e.target.tagName.toUpperCase() == 'IMG'
+					e.target.tagName.toUpperCase() === 'IMG'
 					&& (BX.type.isNotEmptyString(e.target.getAttribute('data-bx-image'))) // inline or attached image
 				)
 			)

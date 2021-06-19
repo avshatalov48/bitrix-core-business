@@ -126,7 +126,7 @@ $lAdmin->AddGroupActionTable(
 
 $arDDMenu = array();
 
-$dbRes = CLang::GetList(($b="sort"), ($o="asc"));
+$dbRes = CLang::GetList();
 while(($arRes = $dbRes->Fetch()))
 {
 	$arDDMenu[] = array(

@@ -1,0 +1,279 @@
+.personal-order-item-container {
+	padding: 12px 1px 20px;
+	background-color: #fff;
+	margin-bottom: 4px;
+}
+
+.personal-order-item-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.personal-order-item-title {
+	font-style: normal;
+	font-weight: 500;
+	font-size: 17px;
+	line-height: 25px;
+	color: #121212;
+	mix-blend-mode: normal;
+	margin: 0;
+	letter-spacing: -0.3px;
+}
+
+.personal-order-item-order-cost {
+	font-style: normal;
+	font-weight: normal;
+	font-size: 13px;
+	line-height: 17px;
+	text-align: right;
+	text-transform: capitalize;
+	color: #121212;
+	opacity: 0.4;
+	letter-spacing: -0.5px;
+}
+
+.personal-order-item-content {
+	margin-bottom: 5px;
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+}
+
+.personal-order-item-status-container {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.personal-order-item-paid-btn,
+.personal-order-item-paid-done,
+.personal-order-item-paid-status-alert,
+.personal-order-item-paid-status-success,
+.personal-order-item-paid-status-restricted,
+.personal-order-item-order-done,
+.personal-order-item-order-btn-pay,
+.personal-order-item-order-btn-track,
+.personal-order-item-order-btn-reorder,
+.personal-order-item-order-status-success,
+.personal-order-item-order-status-canceled,
+.personal-order-item-order-change-payment,
+.personal-order-item-shipment-status-alert,
+.personal-order-item-shipment-status-success {
+	min-height: 27px;
+	border-radius: 13.5px;
+	padding: 2px 14px;
+	font-style: normal;
+	font-weight: 500;
+	font-size: 14px;
+	line-height: 21px;
+	margin-bottom: 8px;
+	box-sizing: border-box;
+	text-decoration: none;
+	transition: 170ms ease all;
+	letter-spacing: -0.5px;
+	vertical-align: baseline;
+	color: #121212;
+	background: #fff;
+	border: 1px solid #a0a0a0;
+	display: inline-block;
+}
+
+.personal-order-item-shipment-status-success {
+	color: #fff;
+	background: #6cb70e;
+	border-color: #6cb70e;
+}
+
+.personal-order-item-paid-status-success {
+	color: #4e8a02;
+	background: #dbf0c0;
+	border-color: #dbf0c0;
+}
+
+.personal-order-item-paid-status-alert,
+.personal-order-item-shipment-status-alert {
+	color: #fff;
+	background: #4e4e4e;
+	border-color: #4e4e4e;
+}
+
+.personal-order-item-order-status-success {
+	color: #5c5c5c;
+	background: #e8e8e8;
+	border-color: #e8e8e8;
+}
+
+.personal-order-item-paid-done,
+.personal-order-item-order-done,
+.personal-order-item-paid-status-restricted {
+	color: #5c5c5c;
+	background: #e8e8e8;
+	border-color: #e8e8e8;
+}
+
+.personal-order-item-order-status-canceled {
+	color: #fff;
+	background: #a7a7a7;
+	border-color: #a7a7a7;
+}
+
+.personal-order-item-paid-btn,
+.personal-order-item-order-btn-pay,
+.personal-order-item-order-change-payment,
+.personal-order-item-order-btn-reorder,
+.personal-order-item-order-btn-track {
+
+}
+
+.personal-order-item-paid-btn:hover,
+.personal-order-item-order-btn-pay:hover,
+.personal-order-item-order-change-payment:hover,
+.personal-order-item-order-btn-reorder:hover,
+.personal-order-item-order-btn-track:hover {
+	background-color: #e8e8e8;
+	color: #000;
+	text-decoration: none;
+}
+
+.personal-order-item-paid-btn,
+.personal-order-item-order-btn-reorder,
+.personal-order-item-order-btn-track {
+	display: inline-flex;
+	align-items: center;
+	padding-right: 10px;
+}
+
+.personal-order-item-paid-btn::after,
+.personal-order-item-order-btn-track::after {
+	content: '';
+	background: no-repeat center url("data:image/svg+xml,%3Csvg width='7' height='12' viewBox='0 0 7 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0.714355 1.5141L4.49501 5.20849L5.1742 5.84773L4.49501 6.48735L0.714355 10.1817L1.63965 11.0859L6.99992 5.84796L1.63965 0.609985L0.714355 1.5141Z' fill='%23555'/%3E%3C/svg%3E%0A");
+	display: inline-block;
+	height: 12px;
+	width: 7px;
+	margin-left: 7px;
+	opacity: .5;
+}
+
+.personal-order-item-order-btn-reorder::after {
+	content: '';
+	background: no-repeat center url("data:image/svg+xml,%3Csvg width='13' height='12' viewBox='0 0 13 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7.60532 0.0447998V4.52782L9.50877 2.62437C10.228 3.39337 10.6682 4.42651 10.6682 5.56248C10.6682 7.93858 8.74201 9.86479 6.3659 9.86479C3.9898 9.86479 2.06359 7.93858 2.06359 5.56248C2.06359 4.38949 2.533 3.32615 3.29423 2.55005C2.97887 2.2522 2.63683 1.91076 2.24819 1.49323L2.17204 1.41596C1.11866 2.4813 0.468262 3.94595 0.468262 5.5625C0.468262 8.81969 3.10874 11.4602 6.36593 11.4602C9.62312 11.4602 12.2636 8.81969 12.2636 5.5625C12.2636 3.98597 11.645 2.55392 10.6373 1.49583L12.0883 0.0448002L7.60532 0.0447998Z' fill='%23555'/%3E%3C/svg%3E%0A");
+	display: inline-block;
+	height: 12px;
+	width: 13px;
+	margin-left: 7px;
+	opacity: .5;
+}
+
+/**/
+.personal-order-item-product-container {}
+
+.personal-order-item-product-image,
+.personal-order-item-product-image-list {
+	width: 54px;
+	position: relative;
+}
+
+.personal-order-item-product-image-list::after,
+.personal-order-item-product-image-list::before {
+	content: '';
+	background: #fff;
+	border: 1px solid rgba(18, 18, 18, 0.2);
+	box-sizing: border-box;
+	display: block;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
+.personal-order-item-product-image-list::after {
+	transform: rotate(6.97deg);
+	z-index: 20;
+}
+
+.personal-order-item-product-image-list::before {
+	transform: rotate(15deg);
+	z-index: 15;
+}
+
+
+.personal-order-item-product-pict {
+	max-width: 54px;
+	height: auto;
+	position: relative;
+	z-index: 25;
+}
+
+/**/
+
+.personal-order-item-additional-info {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 13px;
+	line-height: 17px;
+	text-transform: capitalize;
+	color: #a0a0a0;
+	letter-spacing: -0.3px;
+}
+
+.personal-order-item-additional-info-more-block {
+	padding-left: 20px;
+	white-space: nowrap;
+}
+
+.personal-order-item-additional-info-more-link {
+	display: inline-flex;
+	align-items: center;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 13px;
+	line-height: 17px;
+	text-transform: capitalize;
+	color: #121212;
+	opacity: 0.5;
+}
+
+.personal-order-item-additional-info-more-link:hover {
+
+}
+
+.personal-order-item-additional-info-more-link::after {
+	content: '';
+	background: no-repeat center url("data:image/svg+xml,%3Csvg width='7' height='12' viewBox='0 0 7 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0.714355 1.5141L4.49501 5.20849L5.1742 5.84773L4.49501 6.48735L0.714355 10.1817L1.63965 11.0859L6.99992 5.84796L1.63965 0.609985L0.714355 1.5141Z' fill='%23555'/%3E%3C/svg%3E%0A");
+	display: inline-block;
+	height: 12px;
+	width: 7px;
+	margin-left: 7px;
+	opacity: .5;
+}
+
+/**/
+.personal-order-item-loader-btn-container {
+	padding: 31px 36px;
+	background-color: #fff;
+}
+
+.personal-order-item-loader-btn {
+	background-color: #fff;
+	font-style: normal;
+	font-weight: 500;
+	font-size: 17px;
+	line-height: 20px;
+	text-align: center;
+	color: #121212;
+	opacity: 0.5;
+	min-height: 48px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	max-width: 300px;
+	border-radius: 24px;
+	border: 1px solid #121212;
+}

@@ -15,6 +15,7 @@ class Util
 {
 	public const USER_SELECTOR_CONTEXT = "CALENDAR";
 	public const LIMIT_NUMBER_BANNER_IMPRESSIONS = 3;
+	public const DATETIME_PHP_FORMAT = 'Y-m-d H:i:sP';
 
 	private static $userAccessCodes = array();
 
@@ -58,12 +59,8 @@ class Util
 	public static function getTimestamp($date, $round = true, $getTime = true)
 	{
 		$timestamp = MakeTimeStamp($date, \CSite::getDateFormat($getTime ? "FULL" : "SHORT"));
-		// Get rid of seconds
-		if ($round)
-		{
-			$timestamp = round($timestamp / 60) * 60;
-		}
-		return $timestamp;
+
+		return $round ? (round($timestamp / 60) * 60) : $timestamp;
 	}
 
 	/**
@@ -384,6 +381,28 @@ class Util
 		return in_array($accountType, ['caldav_google_oauth', 'google_api_oauth']);
 	}
 
+	/**
+	 * @param int $eventId
+	 * @return array|null
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public static function getEventById(int $eventId): ?array
+	{
+		$eventDb = Internals\EventTable::getList([
+			'filter' => [
+				'=ID' => $eventId,
+			],
+		]);
+
+		if ($event = $eventDb->fetch())
+		{
+			return $event;
+		}
+
+		return null;
+	}
 
 	/**
 	 * @param string $command
@@ -395,6 +414,42 @@ class Util
 	{
 		if (Loader::includeModule("pull"))
 		{
+			if (in_array($command, [
+				'edit_event',
+				'delete_event',
+				'set_meeting_status',
+			]))
+			{
+				\CPullWatch::AddToStack(
+					'calendar-planner-'.$userId,
+					[
+						'module_id' => 'calendar',
+						'command' => $command,
+						'params' => $params
+					]
+				);
+			}
+
+			if (in_array($command, [
+				'edit_event',
+				'delete_event',
+				'set_meeting_status',
+			])
+				&& isset($params['fields'])
+				&& isset($params['fields']['SECTION_OWNER_ID'])
+				&& (int)$params['fields']['SECTION_OWNER_ID'] !== $userId
+			)
+			{
+				\Bitrix\Pull\Event::add(
+					(int)$params['fields']['SECTION_OWNER_ID'],
+					[
+						'module_id' => 'calendar',
+						'command' => $command,
+						'params' => $params
+					]
+				);
+			}
+
 			return \Bitrix\Pull\Event::add(
 				$userId,
 				[
@@ -408,5 +463,76 @@ class Util
 		{
 			return false;
 		}
+	}
+
+	/**
+	 * @param int $currentUserId
+	 * @param array $userIdList
+	 *
+	 * @return void
+	 */
+	public static function initPlannerPullWatches(int $currentUserId, array $userIdList = []): void
+	{
+		if (Loader::includeModule("pull"))
+		{
+			foreach($userIdList as $userId)
+			{
+				if ((int)$userId !== $currentUserId)
+				{
+					\CPullWatch::Add($currentUserId, 'calendar-planner-'.$userId);
+				}
+			}
+		}
+	}
+
+	public static function getUserFieldsByEventId(int $eventId): array
+	{
+		global $DB;
+		$result = [];
+		$strSql = "SELECT * from b_uts_calendar_event WHERE VALUE_ID=" . $eventId;
+		$ufDb = $DB->query($strSql);
+
+		while ($uf = $ufDb->fetch())
+		{
+			$result[] = [
+				'crm' => unserialize($uf['UF_CRM_CAL_EVENT'], ['allowed_classes' => false]),
+				'webdav' => unserialize($uf['UF_WEBDAV_CAL_EVENT'], ['allowed_classes' => false]),
+			];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @return int
+	 */
+	public static function getServerOffsetUTC(): int
+	{
+		return (new \DateTime())->getOffset();
+	}
+
+	/**
+	 * @param string $tz
+	 * @return int
+	 * @throws \Exception
+	 */
+	public static function getTimezoneOffsetFromServer(string $tz = 'UTC', $date = null): int
+	{
+		if ($date instanceof Date)
+		{
+			$timestamp = $date->format(self::DATETIME_PHP_FORMAT);
+		}
+		elseif ($date === null)
+		{
+			$timestamp = 'now';
+		}
+		else
+		{
+			$timestamp = "@".(int)$date;
+		}
+
+		$date = new \DateTime($timestamp, new \DateTimeZone($tz));
+
+		return $date->getOffset() - self::getServerOffsetUTC();
 	}
 }

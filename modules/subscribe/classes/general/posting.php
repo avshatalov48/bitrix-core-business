@@ -418,7 +418,7 @@ class CPostingGeneral
 		if(count($aPostGrp)>0)
 		{
 			$user = CUser::GetList(
-				($b="id"), ($o="asc"),
+				"id", "asc",
 				array("GROUP_MULTI"=>$aPostGrp, "ACTIVE"=>"Y", "EMAIL"=>$post_arr["EMAIL_FILTER"])
 			);
 			while(($user_arr = $user->Fetch()))

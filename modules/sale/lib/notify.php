@@ -107,8 +107,6 @@ class Notify
 			return $result;
 		}
 
-		$by = $sort = '';
-
 		$separator = "<br/>";
 
 		$eventName = static::EVENT_ORDER_NEW_SEND_EMAIL_EVENT_NAME;
@@ -127,7 +125,7 @@ class Notify
 			$filter['SITE_ID'] = SITE_ID;
 		}
 
-		$res = \CEventMessage::GetList($by, $sort, $filter);
+		$res = \CEventMessage::GetList('', '', $filter);
 		if ($eventMessage = $res->Fetch())
 		{
 			if ($eventMessage['BODY_TYPE'] == 'text')
@@ -421,12 +419,10 @@ class Notify
 
 			if($isSend)
 			{
-				$b = '';
-				$o = '';
 				$eventMessage = new \CEventMessage;
 				$eventMessageRes = $eventMessage->GetList(
-					$b,
-					$o,
+					'',
+					'',
 					array(
 						"EVENT_NAME" => $eventName,
 						"SITE_ID" => $entity->getSiteId(),
@@ -590,12 +586,10 @@ class Notify
 
 			if($isSend)
 			{
-				$b = '';
-				$o = '';
 				$eventMessage = new \CEventMessage;
 				$eventMessageRes = $eventMessage->GetList(
-					$b,
-					$o,
+					'',
+					'',
 					array(
 						"EVENT_NAME" => $statusEventName,
 						"SITE_ID" => $order->getSiteId(),
@@ -740,12 +734,10 @@ class Notify
 
 			if($isSend)
 			{
-				$b = '';
-				$o = '';
 				$eventMessage = new \CEventMessage;
 				$eventMessageRes = $eventMessage->GetList(
-					$b,
-					$o,
+					'',
+					'',
 					array(
 						"EVENT_NAME" => $statusEventName,
 						"SITE_ID" => $entity->getSiteId(),

@@ -85,7 +85,7 @@ class CLAnswer
 	}
 
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -101,13 +101,13 @@ class CLAnswer
 	}
 
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		return CLAnswer::GetList($arOrder=Array(), $arFilter=Array("ID" => $ID));
 	}
 
 
-	function GetFilter($arFilter)
+	public static function GetFilter($arFilter)
 	{
 		if (!is_array($arFilter))
 			$arFilter = Array();
@@ -145,7 +145,7 @@ class CLAnswer
 	}
 
 
-	function GetList($arOrder=Array(), $arFilter=Array())
+	public static function GetList($arOrder=Array(), $arFilter=Array())
 	{
 		global $DB, $USER;
 

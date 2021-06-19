@@ -154,6 +154,9 @@ class Help
 		),
 		'FORM_EDIT' => array(
 			'ru' => '12619286'
+		),
+		'FREE_MESSAGES' => array(
+			'ru' => '13655934'
 		)
 	);
 

@@ -76,9 +76,8 @@ if (count($arrFORM_FILTER)>0) :
 <?
 endif;
 
-while (list($key, $arrFILTER) = each($arrFORM_FILTER)) :
-	reset($arrFILTER);
-	while (list($key, $arrF) = each($arrFILTER)) :
+foreach ($arrFORM_FILTER as $key => $arrFILTER):
+	foreach ($arrFILTER as $key => $arrF):
 
 	$fname = $arrF["SID"];
 
@@ -136,9 +135,9 @@ while (list($key, $arrFILTER) = each($arrFORM_FILTER)) :
 	endif;
 	endif;
 
-	endwhile;
+	endforeach;
 
-endwhile;
+endforeach;
 ?></font></td>
 </tr>
 <tr>

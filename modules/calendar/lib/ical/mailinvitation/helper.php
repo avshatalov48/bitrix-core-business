@@ -9,6 +9,7 @@ use Bitrix\Calendar\ICal\Builder\AttachCollection;
 use Bitrix\Calendar\ICal\Builder\Attendee;
 use Bitrix\Calendar\ICal\Builder\AttendeesCollection;
 use Bitrix\Calendar\ICal\Builder\Dictionary;
+use Bitrix\Calendar\ICal\Parser\ParserPropertyType;
 use Bitrix\Calendar\Util;
 use Bitrix\Disk\Uf\FileUserType;
 use Bitrix\Main\Application;
@@ -22,11 +23,15 @@ use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Main\UserTable;
 use \Bitrix\Disk\AttachedObject;
 
+IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/calendar/classes/general/calendar.php');
+
 class Helper
 {
 	public const ICAL_DATETIME_FORMAT = 'Ymd\THis\Z';
 	public const ICAL_DATETIME_FORMAT_SHORT = 'Ymd\THis';
 	public const ICAL_DATE_FORMAT = 'Ymd';
+	public const END_OF_TIME = "01.01.2038";
+
 	/**
 	 * @param array|null $params
 	 * @return string
@@ -81,68 +86,49 @@ class Helper
 	public static function getIcalTemplateRRule(array $rrule = null, array $params = null): string
 	{
 		$res = '';
-		Loc::loadMessages(
-			$_SERVER['DOCUMENT_ROOT'].'bitrix/modules/calendar/general/classes/calendar.php'
-		);
 
 		switch($rrule['FREQ'])
 		{
 			case 'DAILY':
-				if($rrule['INTERVAL'] == 1)
-					$res = GetMessage('EC_RRULE_EVERY_DAY');
-				else
-					$res = GetMessage('EC_RRULE_EVERY_DAY_1', array('#DAY#' => $rrule['INTERVAL']));
+				$res = (int)$rrule['INTERVAL'] === 1
+					? Loc::getMessage('EC_RRULE_EVERY_DAY')
+					: Loc::getMessage('EC_RRULE_EVERY_DAY_1', ['#DAY#' => $rrule['INTERVAL']])
+				;
 				break;
 			case 'WEEKLY':
-				$daysList = array();
-				foreach($rrule['BYDAY'] as $day)
-					$daysList[] = GetMessage('EC_'.$day);
-				$daysList = implode(', ', $daysList);
-				if($rrule['INTERVAL'] == 1)
-					$res = GetMessage('EC_RRULE_EVERY_WEEK', array('#DAYS_LIST#' => $daysList));
-				else
-					$res = GetMessage('EC_RRULE_EVERY_WEEK_1', array('#WEEK#' => $rrule['INTERVAL'], '#DAYS_LIST#' => $daysList));
+				$daysList = implode(', ', array_map(function($day) {return Loc::getMessage('EC_' . $day);}, $rrule['BYDAY']));
+				$res = (int)$rrule['INTERVAL'] === 1
+					? Loc::getMessage('EC_RRULE_EVERY_WEEK', ['#DAYS_LIST#' => $daysList])
+					: Loc::getMessage('EC_RRULE_EVERY_WEEK_1', ['#WEEK#' => $rrule['INTERVAL'], '#DAYS_LIST#' => $daysList])
+				;
 				break;
 			case 'MONTHLY':
-				if($rrule['INTERVAL'] == 1)
-					$res = GetMessage('EC_RRULE_EVERY_MONTH');
-				else
-					$res = GetMessage('EC_RRULE_EVERY_MONTH_1', array('#MONTH#' => $rrule['INTERVAL']));
+				$res = (int)$rrule['INTERVAL'] === 1
+					? Loc::getMessage('EC_RRULE_EVERY_MONTH')
+					: Loc::getMessage('EC_RRULE_EVERY_MONTH_1', ['#MONTH#' => $rrule['INTERVAL']])
+				;
 				break;
 			case 'YEARLY':
 				$fromTs = \CCalendar::Timestamp($params['DATE_FROM']);
-//					if ($params['FULL_DAY'])
-//					{
-//						$fromTs -= $event['~USER_OFFSET_FROM'];
-//					}
-
-				if($rrule['INTERVAL'] == 1)
-				{
-					$res = GetMessage('EC_RRULE_EVERY_YEAR', [
+				$res = (int)$rrule['INTERVAL'] === 1
+					? Loc::getMessage('EC_RRULE_EVERY_YEAR', [
 						'#DAY#' => FormatDate('j', $fromTs),
 						'#MONTH#' => FormatDate('n', $fromTs)
-					]);
-				}
-				else
-				{
-					$res = GetMessage('EC_RRULE_EVERY_YEAR_1', [
+					])
+					: Loc::getMessage('EC_RRULE_EVERY_YEAR_1', [
 						'#YEAR#' => $rrule['INTERVAL'],
 						'#DAY#' => FormatDate('j', $fromTs),
 						'#MONTH#' => FormatDate('n', $fromTs)
-					]);
-				}
+					])
+				;
 				break;
 		}
-
-//		$from = Util::getDateObject($params['DATE_FROM'], false, $params['TZ_FROM']);
-//		$to = Util::getDateObject($params['DATE_TO'], false, $params['TZ_TO']);
-//		$res .= ' ' . $from->format('H:i'). ' - ' . $to->format('H:i');
 
 		if ($rrule['COUNT'])
 		{
 			$res .= ' ' . Loc::getMessage('EC_RRULE_COUNT', ['#COUNT#' => $rrule['COUNT']]);
 		}
-		elseif ($rrule['UNTIL'])
+		elseif ($rrule['UNTIL'] && self::isNotEndOfTime($rrule['UNTIL']))
 		{
 			$res .= ' ' . Loc::getMessage('EC_RRULE_UNTIL', ['#UNTIL_DATE#' => $rrule['UNTIL']]);
 		}
@@ -204,8 +190,20 @@ class Helper
 			: null;
 	}
 
+	/**
+	 * @param int|null $id
+	 * @return array|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public static function getUserById(?int $id): ?array
 	{
+		if ($id === null)
+		{
+			return null;
+		}
+
 		$user = UserTable::getList([
 			'filter' => [
 				'ID' => $id,
@@ -254,6 +252,9 @@ class Helper
 		return $collection;
 	}
 
+	/**
+	 * @return string
+	 */
 	public static function getSaltForPubLink(): string
 	{
 		if($salt = \COption::GetOptionString('calendar', 'pub_event_salt'))
@@ -266,11 +267,23 @@ class Helper
 		return $salt;
 	}
 
+	/**
+	 * @param int $eventId
+	 * @param int $userId
+	 * @param int $dateCreateTimestamp
+	 * @return string
+	 */
 	public static function getHashForPubEvent(int $eventId, int $userId, int $dateCreateTimestamp): string
 	{
 		return md5($eventId.self::getSaltForPubLink().$dateCreateTimestamp.$userId);
 	}
 
+	/**
+	 * @param int $eventId
+	 * @param int $userId
+	 * @param int $dateCreateTimestamp
+	 * @return string
+	 */
 	public static function getPubEventLink(int $eventId, int $userId, int $dateCreateTimestamp): string
 	{
 		$context = \Bitrix\Main\Application::getInstance()->getContext();
@@ -288,16 +301,29 @@ class Helper
 			$port = $server->getServerPort();
 		}
 
-		$port = in_array($port, [80, 443], true) ? '' : ":{$port}";
+		$port = in_array((int)$port, [80, 443], true) ? '' : ":{$port}";
 
-		return "{$scheme}://{$domain}{$port}/pub/calendar-event/{$eventId}/".self::getHashForPubEvent($eventId, $userId, $dateCreateTimestamp)."";
+		return "{$scheme}://{$domain}{$port}/pub/calendar-event/{$eventId}/".self::getHashForPubEvent($eventId, $userId, $dateCreateTimestamp)."/";
 	}
 
+	/**
+	 * @param int $eventId
+	 * @param int $userId
+	 * @param int $dateCreateTimestamp
+	 * @return string
+	 */
 	public static function getDetailLink(int $eventId, int $userId, int $dateCreateTimestamp): string
 	{
 		return self::getPubEventLink($eventId, $userId, $dateCreateTimestamp);
 	}
 
+	/**
+	 * @param int $eventId
+	 * @param int $userId
+	 * @param int $dateCreateTimestamp
+	 * @param string $decision
+	 * @return string
+	 */
 	public static function getPubEventLinkWithParameters(int $eventId, int $userId, int $dateCreateTimestamp, string $decision): string
 	{
 		return self::getDetailLink($eventId, $userId, $dateCreateTimestamp) . "?decision={$decision}";
@@ -321,11 +347,11 @@ class Helper
 		$UF = $USER_FIELD_MANAGER->GetUserFields("CALENDAR_EVENT", $parentId, LANGUAGE_ID);
 		$attachedFilesIds = $UF['UF_WEBDAV_CAL_EVENT']['VALUE'];
 
-		if (is_array($fields['UF_WEBDAV_CAL_EVENT']) && is_array($attachedFilesIds))
+		if (is_array($fields) && is_array($fields['UF_WEBDAV_CAL_EVENT']) && is_array($attachedFilesIds))
 		{
 			$ufIds = array_unique(array_merge($fields['UF_WEBDAV_CAL_EVENT'], $attachedFilesIds));
 		}
-		elseif(is_array($fields['UF_WEBDAV_CAL_EVENT']))
+		elseif(is_array($fields) && is_array($fields['UF_WEBDAV_CAL_EVENT']))
 		{
 			$ufIds = $fields['UF_WEBDAV_CAL_EVENT'];
 		}
@@ -380,9 +406,9 @@ class Helper
 				$name = $file->getName();
 				$size = $file->getSize();
 				$link = \Bitrix\Disk\Driver::getInstance()->getUrlManager()->getUrlExternalLink([
-					'hash' => $externalLink->getHash(),
-					'action' => 'downloadFile',
-				],
+						'hash' => $externalLink->getHash(),
+						'action' => 'downloadFile',
+					],
 					true
 				);
 
@@ -507,7 +533,7 @@ class Helper
 			$b = "ASC",
 			[
 				"=EMAIL" => $userEmail,
-				"!EXTERNAL_AUTH_ID" => [ "bot", "controller", "replica", "shop", "imconnector", "sale", "saleanonymous" ]
+				"!EXTERNAL_AUTH_ID" => \Bitrix\Main\UserTable::getExternalUserTypes(),
 			],
 			[
 				"FIELDS" => [ "ID", "EXTERNAL_AUTH_ID", "ACTIVE" ]
@@ -608,5 +634,55 @@ class Helper
 	public static function getIcalDateTimeShort(string $dateTime = null, string $tz = 'UTC'): DateTime
 	{
 		return new DateTime($dateTime, self::ICAL_DATETIME_FORMAT_SHORT, Util::prepareTimezone($tz));
+	}
+
+	/**
+	 * @param Date|null $date
+	 * @return string
+	 */
+	public static function getShortMonthName(?Date $date): string
+	{
+		if ($date === null)
+		{
+			return \date('M');
+		}
+
+		$month = Util::checkRuZone()
+			? mb_strtoupper(FormatDate('M', $date->getTimestamp()))
+			: mb_strtoupper($date->format('M'))
+		;
+
+		return is_string($month)
+			? $month
+			: $date->format('M')
+		;
+	}
+
+	/**
+	 * @param $until
+	 * @return bool
+	 * @throws \Bitrix\Main\ObjectException
+	 */
+	protected static function isNotEndOfTime($until): bool
+	{
+		return Util::getDateObject($until)->getTimestamp() !== Util::getDateObject(self::END_OF_TIME)->getTimestamp();
+	}
+
+	/**
+	 * @param ParserPropertyType|null $date
+	 * @return Date|null
+	 * @throws \Bitrix\Main\ObjectException
+	 */
+	public static function getDateByParserProperty(?ParserPropertyType $date): ?Date
+	{
+		if ($date !== null)
+		{
+			return $date->getParameterValueByName('tzid') !== null
+				? self::getIcalDateTime($date->getValue(), $date->getParameterValueByName('tzid'))
+				: self::getIcalDate($date->getValue())
+			;
+		}
+
+		return null;
 	}
 }

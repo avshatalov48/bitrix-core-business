@@ -1,4 +1,4 @@
-import {Cache, Dom, Tag, Type} from 'main.core';
+import {Cache, Dom, Tag, Text, Type} from 'main.core';
 import {BaseCard} from 'landing.ui.card.basecard';
 import {Loc} from 'landing.loc';
 
@@ -18,6 +18,7 @@ export class MessageCard extends BaseCard
 			closeable?: boolean,
 			hideActions?: boolean,
 			restoreState?: boolean,
+			more?: string | () => {},
 		},
 	)
 	{
@@ -45,7 +46,7 @@ export class MessageCard extends BaseCard
 			Dom.append(this.getCloseButton(), this.getLayout());
 		}
 
-		if (this.options.hideActions !== true)
+		if (this.options.hideActions !== true || this.options.more)
 		{
 			Dom.append(this.getActionsContainer(), this.getLayout());
 		}
@@ -122,18 +123,39 @@ export class MessageCard extends BaseCard
 		return this.cache.remember('actionsContainer', () => {
 			return Tag.render`
 				<div class="landing-ui-card-message-actions">
-					${this.getCloseLink()}
+					${this.options.closeable !== false ? this.getCloseLink() : ''}
+					${this.options.more ? this.getReedMoreLink() : ''}
 				</div>
 			`;
 		});
 	}
 
-	getCloseLink(): HTMLDivElement
+	getCloseLink(): HTMLSpanElement
 	{
 		return this.cache.remember('closeLink', () => {
 			return Tag.render`
 				<span class="ui-link ui-link-secondary ui-link-dashed landing-ui-card-message-close-link" onclick="${this.onCloseClick}">
 					${Loc.getMessage('LANDING_MESSAGE_CARD_HIDE')}
+				</span>
+			`;
+		});
+	}
+
+	getReedMoreLink(): HTMLSpanElement
+	{
+		return this.cache.remember('readMoreButton', () => {
+			if (Type.isStringFilled(this.options.more))
+			{
+				return Tag.render`
+					<a href="${Text.encode(this.options.more)}" target="_blank" class="ui-link ui-link-secondary ui-link-dashed landing-ui-card-read-more-link">
+						${Loc.getMessage('LANDING_MESSAGE_CARD_READ_MORE')}
+					</a>
+				`;
+			}
+
+			return Tag.render`
+				<span class="ui-link ui-link-secondary ui-link-dashed landing-ui-card-read-more-link" onclick="${this.options.more}">
+					${Loc.getMessage('LANDING_MESSAGE_CARD_READ_MORE')}
 				</span>
 			`;
 		});

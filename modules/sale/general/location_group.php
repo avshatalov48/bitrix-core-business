@@ -1,4 +1,5 @@
-<?
+<?php
+
 /**
  * The content of this file was marked as deprecated.
  * It will be removed from future releases. Do not rely on this code.
@@ -17,7 +18,7 @@ class CAllSaleLocationGroup
 	const LOCATION_ENTITY_NAME = 	'Bitrix\Sale\Location\Location';
 	const NAME_ENTITY_NAME = 		'Bitrix\Sale\Location\Name\Group';
 
-	function GetLocationList($arFilter=Array())
+	public static function GetLocationList($arFilter=Array())
 	{
 		if(CSaleLocation::isLocationProMigrated())
 		{
@@ -151,7 +152,7 @@ class CAllSaleLocationGroup
 		}
 	}
 
-	function GetGroupLangByID($ID, $strLang = LANGUAGE_ID)
+	public static function GetGroupLangByID($ID, $strLang = LANGUAGE_ID)
 	{
 		global $DB;
 
@@ -170,7 +171,7 @@ class CAllSaleLocationGroup
 		return False;
 	}
 
-	function CheckFields($ACTION, &$arFields)
+	public static function CheckFields($ACTION, &$arFields)
 	{
 		global $DB;
 
@@ -182,7 +183,7 @@ class CAllSaleLocationGroup
 
 		if (is_set($arFields, "LANG"))
 		{
-			$db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"), array("ACTIVE" => "Y"));
+			$db_lang = CLangAdmin::GetList("sort", "asc", array("ACTIVE" => "Y"));
 			while ($arLang = $db_lang->Fetch())
 			{
 				$bFound = False;
@@ -202,7 +203,7 @@ class CAllSaleLocationGroup
 		return True;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -271,7 +272,7 @@ class CAllSaleLocationGroup
 		return $ID;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 		$ID = intval($ID);
@@ -293,11 +294,10 @@ class CAllSaleLocationGroup
 		return $DB->Query("DELETE FROM b_sale_location_group WHERE ID = ".$ID."", true);
 	}
 
-	function OnLangDelete($strLang)
+	public static function OnLangDelete($strLang)
 	{
 		global $DB;
 		$DB->Query("DELETE FROM b_sale_location_group_lang WHERE LID = '".$DB->ForSql($strLang)."'", true);
 		return True;
 	}
 }
-?>

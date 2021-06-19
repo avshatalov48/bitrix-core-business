@@ -1,7 +1,8 @@
-<?
+<?php
+
 class CSaleMeasure
 {
-	function GetList($category = false)
+	public static function GetList($category = false)
 	{
 		static $arMeasurementsTable;
 
@@ -33,7 +34,7 @@ class CSaleMeasure
 		}
 	}
 
-	function Convert($value, $measureFrom, $measureTo = "G")
+	public static function Convert($value, $measureFrom, $measureTo = "G")
 	{
 		if (!is_numeric($value)) 
 			return false;
@@ -47,4 +48,3 @@ class CSaleMeasure
 			return false;
 	}
 }
-?>

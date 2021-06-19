@@ -172,7 +172,10 @@ if($strError)
 {
 	$aMsg=array();
 	$arrErr = explode("<br>",$strError);
-	while (list(,$err)=each($arrErr)) $aMsg[]['text']=$err;
+	foreach ($arrErr as $err)
+	{
+		$aMsg[]['text'] = $err;
+	}
 
 	$e = new CAdminException($aMsg);
 	$GLOBALS["APPLICATION"]->ThrowException($e);
@@ -236,7 +239,7 @@ $tabControl->BeginNextTab();
 					<td><? echo GetMessage("STAT_CHAR_SET")?></td>
 				</tr>
 				<?
-				$rs = CSearcher::GetDomainList($v1="s_id", $v2="asc", array("SEARCHER_ID" => $ID), $v3);
+				$rs = CSearcher::GetDomainList("s_id", "asc", array("SEARCHER_ID" => $ID));
 				$i = 1;
 				while($arDomain = $rs->GetNext()):
 				?>

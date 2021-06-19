@@ -840,7 +840,7 @@
 .product-item-scu-item-text-block:hover,
 .product-item-scu-item-color-block:hover,
 .product-item-scu-item-text-container.selected .product-item-scu-item-text-block,
-.product-item-scu-item-color-container.selected .product-item-scu-item-color-block { outline-color: var(--primary); }
+.product-item-scu-item-color-container.selected .product-item-scu-item-color-block { outline-color: #000; }
 
 /*Description*/
 .product-item-description-container { }

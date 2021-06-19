@@ -20,6 +20,8 @@ export class IconButton extends EventEmitter
 		remove: 'remove',
 		drag: 'drag',
 		edit: 'edit',
+		font: 'font',
+		link: 'link'
 	};
 
 	constructor(options: IconButtonOptions)

@@ -40,6 +40,11 @@
 
 		if (!this.containsImage() && !this.containsHtml())
 		{
+			if (BX.Type.isStringFilled(this.content.text))
+			{
+				this.content.text = this.content.text.replace('&nbsp;', ' ');
+			}
+
 			this.content.text = escapeText(this.content.text);
 		}
 
@@ -414,6 +419,8 @@
 				var type = BX.Landing.Env.getInstance().getType();
 				var value = this.getValue();
 
+				this.targetInput.enable();
+
 				if (type === 'KNOWLEDGE' || type === 'GROUP')
 				{
 					this.targetInput.disable();
@@ -428,6 +435,18 @@
 					else
 					{
 						this.targetInput.setValue('_blank');
+					}
+				}
+				else
+				{
+					if (value.href.startsWith('#crmFormPopup'))
+					{
+						this.targetInput.disable();
+					}
+
+					if (value.href.startsWith('#crmPhone'))
+					{
+						this.targetInput.disable();
 					}
 				}
 			}

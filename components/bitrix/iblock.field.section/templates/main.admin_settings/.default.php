@@ -4,11 +4,10 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 use Bitrix\Iblock\UserField\Types\ElementType;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Text\HtmlFilter;
 
 $name = $arResult['additionalParameters']['NAME'];
-$iblockId = $arResult['iblockId'];
-$value = $arResult['value'];
+$iblockId = (int)$arResult['iblockId'];
+$value = (int)$arResult['value'];
 $activeFilter = $arResult['activeFilter'];
 
 /**
@@ -43,7 +42,7 @@ else
 				type="text"
 				size="6"
 				name="<?= $name ?>[IBLOCK_ID]"
-				value="<?= HtmlFilter::encode($value) ?>"
+				value="<?= $value ?>"
 			>
 		</td>
 	</tr>
@@ -91,7 +90,7 @@ else
 				type="text"
 				size="8"
 				name="<?= $name ?>[DEFAULT_VALUE]"
-				value="<?= HtmlFilter::encode($value) ?>"
+				value="<?= $value ?>"
 			>
 		</td>
 	</tr>

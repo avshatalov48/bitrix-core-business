@@ -60,6 +60,14 @@ if ($arResult["DISABLE_SEARCH"] || !$arParams["CONFIG"]["SEARCH"])
 	$filterSearchClass .= " main-ui-filter-no-search";
 }
 
+if (
+	$arResult["THEME"] === \Bitrix\Main\UI\Filter\Theme::LIGHT
+	&& strlen($arResult["CURRENT_PRESET"]["FIND"]) > 0
+)
+{
+	$filterSearchClass .= " main-ui-filter-search--active";
+}
+
 if ($arResult["COMPACT_STATE"])
 {
 	$filterSearchClass .= " main-ui-filter-compact-state";
@@ -215,7 +223,7 @@ if ($arResult["LIMITS_ENABLED"])
 		BX.Main.filterManager.push(
 			'<?=\CUtil::jSEscape($arParams["FILTER_ID"])?>',
 			new BX.Main.Filter(
-				<?=CUtil::PhpToJSObject($arResult)?>,
+				<?=CUtil::PhpToJSObject($arResult, false, false, true)?>,
 				<?=CUtil::PhpToJSObject($arParams["CONFIG"])?>,
 				<?=CUtil::PhpToJSObject(Type::getList())?>,
 				<?=CUtil::PhpToJSObject(DateType::getList())?>,

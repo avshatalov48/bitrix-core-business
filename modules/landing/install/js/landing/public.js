@@ -25,6 +25,30 @@
 				BX.Landing.EventTracker.getInstance().run();
 			}
 
+			// emulate browser back button
+			var backLinks = [].slice.call(document.querySelectorAll('.js-link-back'));
+			if (backLinks.length > 0)
+			{
+				backLinks.forEach(function(link)
+				{
+					var referrer = document.referrer;
+					if (
+						window.history.length > 1
+						&& referrer !== ""
+						&& referrer.includes(location.hostname)
+					)
+					{
+						link.addEventListener('click', function (event)
+						{
+							event.preventDefault();
+							window.history.back();
+						})
+						link.href = '#';
+					}
+				});
+			}
+
+
 			// pseudo links
 			var pseudoLinks = [].slice.call(document.querySelectorAll("[data-pseudo-url*=\"{\"]"));
 			if (pseudoLinks.length)
@@ -160,6 +184,13 @@
 								});
 								// disable :focus after click
 								event.target.blur();
+								// setHash AFTER scroll
+								var setHash = function(){
+									document.location.hash = link.hash;
+									document.removeEventListener('scroll', setHashWithDebounce)
+								}
+								var setHashWithDebounce = BX.debounce(setHash, 333);
+								document.addEventListener('scroll', setHashWithDebounce);
 							});
 						}
 					}

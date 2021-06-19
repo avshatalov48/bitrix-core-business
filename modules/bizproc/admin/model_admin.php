@@ -419,7 +419,7 @@ $oFilter->Begin();
 			<select name="find_lang">
 				<option value=""><?echo GetMessage("IBLOCK_ALL")?></option>
 			<?
-			$l = CLang::GetList($b="sort", $o="asc", Array("VISIBLE"=>"Y"));
+			$l = CLang::GetList("sort", "asc", Array("VISIBLE"=>"Y"));
 			while($ar = $l->GetNext()):
 				?><option value="<?echo $ar["LID"]?>"<?if($find_lang==$ar["LID"])echo " selected"?>><?echo $ar["NAME"]?></option><?
 			endwhile;

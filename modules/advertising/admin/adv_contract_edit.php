@@ -8,11 +8,12 @@
 ##############################################
 */
 
+use Bitrix\Main\Loader;
+use Bitrix\Main\Text\HtmlFilter;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/prolog.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/include.php");
-
-use Bitrix\Main\Text\HtmlFilter;
+Loader::includeModule('advertising');
 
 ClearVars();
 
@@ -114,10 +115,8 @@ if (($save <> '' || $apply <> '') && check_bitrix_sessid() && $REQUEST_METHOD=="
 	$DB->PrepareFields("b_adv_contract");
 }
 
-$by = "sort";
-$order = "asc";
 $arrSites = array();
-$rs = CSite::GetList($by, $order);
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 {
 	$arrSites[$ar["ID"]] = $ar;
@@ -161,13 +160,20 @@ else
 		$arrTYPE = array_keys($arContractTypes);
 
 		$arrWEEKDAY = CAdvContract::GetWeekdayArray($ID);
-		while (list($key, $value)=each($arrWEEKDAY)) ${"arr".$key} = $value;
+		foreach ($arrWEEKDAY as $key => $value)
+		{
+			${"arr".$key} = $value;
+		}
 		$arrP = CAdvContract::GetContractPermissions($ID);
 		if (is_array($arrP))
 		{
-			while (list($key, $arr) = each($arrP))
-				foreach($arr as $ar) 
+			foreach ($arrP as $key => $arr)
+			{
+				foreach($arr as $ar)
+				{
 					${"arrUSER_".$key}[] = $ar["USER_ID"];
+				}
+			}
 		}
 	}
 }
@@ -408,10 +414,10 @@ $tabControl->BeginNextTab();
 		<td>
 			<table cellspacing=1 cellpadding=0 border=0>
 				<?
-				while (list($key,$status_sid) = each($arrStatus["reference_id"])) :
+				foreach ($arrStatus["reference_id"] as $key => $status_sid) :
 					$count = 0;
 					$arFilter = array("CONTRACT_ID" => $ID, "CONTRACT_EXACT_MATCH" => "Y", "STATUS_SID" => $status_sid);
-					if ($rsBanners = CAdvBanner::GetList($v1, $v2, $arFilter, $v3))
+					if ($rsBanners = CAdvBanner::GetList('', '', $arFilter))
 					{
 						$rsBanners->NavStart();
 						$count = $rsBanners->SelectedRowsCount();
@@ -421,7 +427,7 @@ $tabControl->BeginNextTab();
 					<td width="30%"><?=$arrStatus["reference"][$key]?>:&nbsp;</td>
 					<td><a href="/bitrix/admin/adv_banner_list.php?find_contract_id[]=<?echo $ID?>&find_status_sid[]=<?echo $status_sid?>&set_filter=Y&lang=<?=LANGUAGE_ID?>" title='<?=GetMessage("AD_BANNER_ALT")?>'><?=$count?></a></td>
 				</tr>
-				<? endwhile;?>
+				<? endforeach;?>
 				<tr>
 					<td><b><?=GetMessage("AD_TOTAL")?>&nbsp;</b></td>
 					<td><a href="/bitrix/admin/adv_banner_list.php?find_contract_id[]=<?echo $ID?>&set_filter=Y&lang=<?=LANGUAGE_ID?>" title='<?=GetMessage("AD_BANNER_ALT")?>'><?echo $str_BANNER_COUNT?></a></td>
@@ -437,8 +443,8 @@ $tabControl->BeginNextTab();
 		<td width="60%"><?
 			if ($isEditMode) :?>
 				<div class="adm-list">
-				<?reset($arrSites);
-				while(list($sid, $arrS) = each($arrSites)):
+				<?
+				foreach ($arrSites as $sid => $arrS):
 					$checked = (in_array($sid, $arrSITE)) ? "checked" : "";
 					/*<?=$disabled?>*/
 					?>
@@ -446,7 +452,7 @@ $tabControl->BeginNextTab();
 						<div class="adm-list-control"><input type="checkbox" name="arrSITE[]" value="<?=htmlspecialcharsbx($sid)?>" id="site_<?=htmlspecialcharsbx($sid)?>" <?=$checked?>></div>
 						<div class="adm-list-label"><?echo '[<a href="/bitrix/admin/site_edit.php?LID='.urlencode($sid).'&lang='.LANGUAGE_ID.'" title="'.GetMessage("AD_SITE_ALT").'">'.htmlspecialcharsex($sid).'</a>]&nbsp;<label for="site_'.htmlspecialcharsbx($sid).'">'.htmlspecialcharsex($arrS["NAME"])?></label></div>
 					</div>
-				<?endwhile;?>
+				<?endforeach;?>
 				</div>
 			<?else:
 
@@ -485,7 +491,7 @@ $tabControl->BeginNextTab();
 				</div>
 
 		<?
-		$rsType = CAdvType::GetList($v1="s_sort", $v2="asc", array("ACTIVE" => "Y"), $v3);
+		$rsType = CAdvType::GetList("s_sort", "asc", array("ACTIVE" => "Y"));
 		$i = 0;
 		while ($arType = $rsType->GetNext())
 		{
@@ -618,11 +624,11 @@ $tabControl->BeginNextTab();
 					"SATURDAY"	=> GetMessage("AD_SATURDAY"),
 					"SUNDAY"	=> GetMessage("AD_SUNDAY")
 					);
-				while(list($key,$value)=each($arrWDAY)) :
+				foreach($arrWDAY as $key => $value):
 				?>
 				<td><label for="<?=$key?>"><?=$value?></label><br><input <?=$disabled?> type="checkbox" onclick="OnSelectAll(this.checked, '<?=$key?>', true)" id="<?=$key?>"></td>
 				<?
-				endwhile;
+				endforeach;
 				?>
 				<td>&nbsp;</td>
 			</tr>
@@ -633,16 +639,14 @@ $tabControl->BeginNextTab();
 			<tr>
 				<td><label for="<?=$i?>"><?echo $i."&nbsp;-&nbsp;".($i+1)?></label></td>
 				<?
-				reset($arrWDAY);
-
-				while(list($key,$value)=each($arrWDAY)) :
+				foreach ($arrWDAY as $key => $value):
 					$checked = "";
 					if ($ID<=0 && $strError == '') $checked = "checked";
 					if (is_array(${"arr".$key}) && in_array($i,${"arr".$key})) $checked = "checked";
 					?>
 					<td><input id="arr<?=$key?>_<?=$i?>[]" <?=$disabled?> name="arr<?=$key?>[]" type="checkbox" value="<?=$i?>" <?=$checked?>></td>
 					<?
-				endwhile;
+				endforeach;
 
 				?>
 				<td><input <?=$disabled?> type="checkbox" onclick="OnSelectAll(this.checked, '<?=$i?>', false)" id="<?=$i?>"></td>
@@ -783,8 +787,7 @@ $tabControl->BeginNextTab();
 	<tr valign="top">
 		<td width="40%"><?=GetMessage("AD_VIEW_STATISTICS")?></td>
 		<td width="60%"><?
-		reset($ref_id);
-		while (list($key, $value) = each($ref_id))
+		foreach ($ref_id as $key => $value)
 		{
 			if (is_array($arrUSER_VIEW) && in_array($value, $arrUSER_VIEW))
 				echo $ref[$key]."<br>";
@@ -806,8 +809,7 @@ $tabControl->BeginNextTab();
 	<tr valign="top">
 		<td><?=GetMessage("AD_MANAGE_BANNERS")?></td>
 		<td><?
-		reset($ref_id);
-		while (list($key, $value) = each($ref_id))
+		foreach ($ref_id as $key => $value)
 		{
 			if (is_array($arrUSER_ADD) && in_array($value, $arrUSER_ADD)) echo $ref[$key]."<br>";
 		}
@@ -827,8 +829,7 @@ $tabControl->BeginNextTab();
 	<tr valign="top">
 		<td><?=GetMessage("AD_EDIT_CONTRACT")?></td>
 		<td><?
-		reset($ref_id);
-		while (list($key, $value) = each($ref_id))
+		foreach ($ref_id as $key => $value)
 		{
 			if (is_array($arrUSER_EDIT) && in_array($value, $arrUSER_EDIT)) echo $ref[$key]."<br>";
 		}

@@ -29,4 +29,5 @@ $MESS["PSL_LIST_CHECKED"] = "Отмечено:";
 $MESS["PSL_FILTER_ANY"] = "(любой)";
 $MESS["PSL_FILTER_YES"] = "Да";
 $MESS["PSL_FILTER_NO"] = "Нет";
+$MESS["PSL_ERR_BUILDER_ADSENT"] = "Не найден генератор ссылок.";
 ?>

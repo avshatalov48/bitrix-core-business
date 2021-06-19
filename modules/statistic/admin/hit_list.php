@@ -9,7 +9,7 @@ IncludeModuleLangFile(__FILE__);
 
 $arSites = array();
 $ref = $ref_id = array();
-$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 {
 	$ref[] = $ar["ID"];
@@ -123,7 +123,9 @@ $arFilter = Array(
 	"COOKIE_EXACT_MATCH"		=> $find_cookie_exact_match,
 );
 
-$rsData = CHit::GetList($by, $order, $arFilter, $is_filtered);
+global $by, $order;
+
+$rsData = CHit::GetList($by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 

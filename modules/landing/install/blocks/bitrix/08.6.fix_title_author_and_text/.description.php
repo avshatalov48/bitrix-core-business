@@ -51,7 +51,7 @@ return [
 			],
 			'.landing-block-title' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_8_6_TITLE'),
-				'type' => ['typo'],
+				'type' => ['typo', 'heading'],
 			],
 			'.landing-block-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_8_6_TEXT'),
@@ -81,6 +81,10 @@ return [
 			'.landing-block-img' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_8_6_IMG'),
 				'type' => 'border-radius',
+			],
+			'.landing-block-node-container' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_8_6_ELEMENT'),
+				'type' => ['container'],
 			],
 		],
 	],

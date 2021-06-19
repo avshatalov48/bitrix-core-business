@@ -8,12 +8,11 @@ use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\Image\DetailImage;
 use Bitrix\Catalog\v2\Image\PreviewImage;
+use Bitrix\Catalog\v2\Integration\JS\ProductForm\BasketBuilder;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Catalog\v2\Product\BaseProduct;
 use Bitrix\Catalog\v2\Sku\BaseSku;
 use Bitrix\Iblock\Component\Tools;
-use Bitrix\Iblock\Url\AdminPage\BaseBuilder;
-use Bitrix\Iblock\Url\AdminPage\BuilderManager;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Main\Engine\JsonController;
@@ -186,45 +185,45 @@ class ProductSelector extends JsonController
 
 	private function prepareResponse(BaseSku $sku, array $options = []): ?array
 	{
-		$response = [];
-		$fields = $sku->getFields();
-
-		$keys = ['ID', 'NAME', 'VAT_ID', 'VAT_INCLUDED', 'MEASURE', 'TYPE'];
-		$fields = array_intersect_key($fields, array_flip($keys));
-
-		if (empty($fields['VAT_ID']))
+		$builder = new BasketBuilder();
+		$basketItem = $builder->createItem();
+		$basketItem->setSku($sku);
+		if ($options['priceId'] && (int)$options['priceId'] > 0)
 		{
-			$fields['VAT_ID'] = $sku->getIblockInfo()->getVatId();
- 		}
-
-		if (!empty($fields['MEASURE']))
-		{
-			$fields['MEASURE_CODE'] = $this->getMeasureCodeById($fields['MEASURE']);
+			$basketItem->setPriceGroupId((int)$options['priceId']);
 		}
 
-		$basePrice = [];
-		foreach ($sku->getPriceCollection() as $price)
+		if ($options['urlBuilder'])
 		{
-			if (isset($options['priceId']) && $price->getGroupId() === (int)$options['priceId'])
-			{
-				$fields['PRICE'] = $price->getPrice();
-				$fields['CURRENCY_ID'] = $price->getCurrency();
-				break;
-			}
-
-			if ($price->isPriceBase())
-			{
-				$basePrice['PRICE'] = $price->getPrice();
-				$basePrice['CURRENCY_ID'] = $price->getCurrency();
-			}
+			$basketItem->setDetailUrlManagerType($options['urlBuilder']);
 		}
 
-		if (empty($fields['PRICE']) && empty($fields['CURRENCY_ID']) && !empty($basePrice))
+		$formFields = $basketItem->getFields();
+
+		$price= null;
+		$currency = '';
+		if ($basketItem->getPriceItem() && $basketItem->getPriceItem()->hasPrice())
 		{
-			$fields = array_merge($fields, $basePrice);
+			$price = $basketItem->getPriceItem()->getPrice();
+			$currency = $basketItem->getPriceItem()->getCurrency();
 		}
 
-		$picture = null;
+		$fields = [
+			'TYPE' => $sku->getType(),
+			'ID' => $formFields['skuId'],
+			'SKU_ID' => $formFields['skuId'],
+			'PRODUCT_ID' => $formFields['productId'],
+			'NAME' => $formFields['name'],
+			'MEASURE_CODE' => (string)$formFields['measureCode'],
+			'MEASURE_RATIO' => $formFields['measureRatio'],
+			'MEASURE_NAME' => $formFields['measureName'],
+			'PRICE' => $price,
+			'CURRENCY_ID' => $currency,
+			'PROPERTIES' => $formFields['properties'],
+			'VAT_ID' => $formFields['taxId'],
+			'VAT_INCLUDED' => $formFields['taxIncluded'],
+		];
+
 		$previewImage = $sku->getFrontImageCollection()->getFrontImage();
 		if ($previewImage)
 		{
@@ -236,42 +235,25 @@ class ProductSelector extends JsonController
 			];
 		}
 
-		$variationImageField = new ImageInput($sku);
-		if ($variationImageField->isEmpty())
-		{
-			$productImageField = new ImageInput($sku->getParent());
-			if (!$productImageField->isEmpty())
-			{
-				$response['image'] = $productImageField->getFormattedField();
-				$response['fileType'] = 'product';
-			}
-		}
-
-		if (empty($response['image']))
-		{
-			$response['image'] = $variationImageField->getFormattedField();
-			$response['fileType'] = 'sku';
-		}
+		$formResult = $basketItem->getResult();
+		$response = [
+			'skuId' => $formFields['skuId'],
+			'productId' => $formFields['productId'],
+			'image' => $formResult['image'],
+			'detailUrl' => $formResult['detailUrl'],
+		];
 
 		if (isset($options['resetSku']))
 		{
 			$response['skuTree'] = $this->loadSkuTree($sku);
 		}
-
-		$response['skuId'] = $sku->getId();
-		$response['productId'] = $sku->getParent()->getId();
-
-		$fields['SKU_ID'] = $sku->getId();
-		$fields['PRODUCT_ID'] = $sku->getParent()->getId();
-		$response['fields'] = $fields;
-
-		$builderContext = $options['urlBuilder'] ?? BaseBuilder::TYPE_AUTODETECT;
-		$urlBuilder = BuilderManager::getInstance()->getBuilder($builderContext);
-		if ($urlBuilder)
+		else
 		{
-			$urlBuilder->setIblockId($sku->getParent()->getIblockId());
-			$response['detailUrl'] = $urlBuilder->getElementDetailUrl($sku->getParent()->getId());
+			unset($response['skuTree']);
 		}
+
+		$response['fields'] = $fields;
+		$response['formFields'] = $formFields;
 
 		return $response;
 	}
@@ -309,12 +291,33 @@ class ProductSelector extends JsonController
 			}
 		}
 
-		if (!isset($fields['TYPE']))
-		{
-			$fields['TYPE'] = ProductTable::TYPE_PRODUCT;
-		}
+		$product->setType(ProductTable::TYPE_PRODUCT);
 
 		$product->setFields($fields);
+
+		if (isset($fields['PRICE']) && $fields['PRICE'] >= 0)
+		{
+			$basePrice = [
+				'PRICE' => (float)$fields['PRICE'],
+			];
+
+			if (isset($fields['CURRENCY']))
+			{
+				$basePrice['CURRENCY'] = $fields['CURRENCY'];
+			}
+
+			$sku = $product->getSkuCollection()->getFirst();
+			if ($sku)
+			{
+				$sku
+					->getPriceCollection()
+					->setValues([
+						'BASE' => $basePrice
+					])
+				;
+			}
+		}
+
 		$result = $product->save();
 
 		if (!$result->isSuccess())

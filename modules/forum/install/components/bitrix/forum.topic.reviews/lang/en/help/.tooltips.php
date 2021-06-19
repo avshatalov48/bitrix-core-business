@@ -16,5 +16,4 @@ $MESS["CACHE_TIME_TIP"] = "Cache Lifetime (sec.)";
 $MESS["EDITOR_CODE_DEFAULT_TIP"] = "Default to plain text editor mode";
 $MESS["SHOW_AVATAR_TIP"] = "Show avatars";
 $MESS["SHOW_RATING_TIP"] = "Show rating";
-$MESS["SHOW_MINIMIZED_TIP"] = "Collapse reply form";
 ?>

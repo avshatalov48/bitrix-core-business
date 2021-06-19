@@ -2,6 +2,8 @@
 
 namespace Bitrix\Sale\Delivery;
 
+use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Currency;
@@ -142,5 +144,36 @@ class Helper
 	{
 		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/handlers/delivery/additional/cache.php");
 		\Sale\Handlers\Delivery\Additional\CacheManager::cleanAll();
+	}
+
+	/**
+	 * Returns portal zone
+	 *
+	 * @return string
+	 * @throws \Bitrix\Main\LoaderException
+	 */
+	public static function getPortalZone(): string
+	{
+		static $result = null;
+
+		if ($result === null)
+		{
+			$result = '';
+
+			if (ModuleManager::isModuleInstalled('bitrix24')
+				&& Loader::includeModule('bitrix24')
+			)
+			{
+				$result = \CBitrix24::getLicensePrefix();
+			}
+			elseif (ModuleManager::isModuleInstalled('intranet')
+				&& Loader::includeModule('intranet')
+			)
+			{
+				$result = \CIntranetUtils::getPortalZone();
+			}
+		}
+
+		return (string)$result;
 	}
 }

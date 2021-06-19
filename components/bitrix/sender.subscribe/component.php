@@ -18,9 +18,9 @@ if(!isset($arParams["CACHE_TIME"]))
 if($arParams["CACHE_TYPE"] == "N" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "N"))
 	$arParams["CACHE_TIME"] = 0;
 
-$arParams["SHOW_HIDDEN"] = $arParams["SHOW_HIDDEN"]=="Y";
-$arParams["CONFIRMATION"] = $arParams["CONFIRMATION"]!="N";
-$arParams["USE_PERSONALIZATION"] = $arParams["USE_PERSONALIZATION"]!="N";
+$arParams["SHOW_HIDDEN"] = ($arParams["SHOW_HIDDEN"] ?? '') == "Y";
+$arParams["CONFIRMATION"] = ($arParams["CONFIRMATION"] ?? '') != "N";
+$arParams["USE_PERSONALIZATION"] = ($arParams["USE_PERSONALIZATION"] ?? '') != "N";
 
 $subscr_EMAIL = '';
 $arResult["~FORM_ACTION"] = $APPLICATION->GetCurPageParam('', array('sender_subscription'));
@@ -267,7 +267,7 @@ else
 	$mailingList = $obCache->GetVars();
 }
 
-if($_REQUEST["SENDER_SUBSCRIBE_EMAIL"] <> '')
+if(($_REQUEST["SENDER_SUBSCRIBE_EMAIL"] ?? '') <> '')
 	$arResult["EMAIL"] = htmlspecialcharsbx($_REQUEST["SENDER_SUBSCRIBE_EMAIL"]);
 elseif($arSubscription["EMAIL"] <> '')
 	$arResult["EMAIL"] = htmlspecialcharsbx($arSubscription["EMAIL"]);

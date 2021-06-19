@@ -15,40 +15,29 @@ use Bitrix\Socialnetwork\LogTable;
 
 class Task
 {
-	public static function onTaskUpdateViewed(Event $event)
+	public static function onTaskUpdateViewed(Event $event): EventResult
 	{
-		$result = new EventResult(
-			EventResult::UNDEFINED,
-			[],
-			'socialnetwork'
-		);
+		$result = new EventResult(EventResult::UNDEFINED, [], 'socialnetwork');
 
-		$taskId = intval($event->getParameter('taskId'));
-		$userId = intval($event->getParameter('userId'));
+		$taskId = (int)$event->getParameter('taskId');
+		$userId = (int)$event->getParameter('userId');
 
-		if (
-			$taskId <= 0
-			|| $userId <= 0
-		)
+		if ($taskId <= 0 || $userId <= 0)
 		{
 			return $result;
 		}
 
-		if ($liveFeedEntity = Provider::init([
-			'ENTITY_TYPE' => Provider::DATA_ENTITY_TYPE_TASKS_TASK,
-			'ENTITY_ID' => $taskId
-		]))
+		if (
+			$liveFeedEntity = Provider::init([
+				'ENTITY_TYPE' => Provider::DATA_ENTITY_TYPE_TASKS_TASK,
+				'ENTITY_ID' => $taskId,
+			])
+		)
 		{
-			$liveFeedEntity->setContentView([
-				"userId" => $userId
-			]);
+			$liveFeedEntity->setContentView(['user_id' => $userId]);
 		}
 
-		$result = new EventResult(
-			EventResult::SUCCESS,
-			[],
-			'socialnetwork'
-		);
+		$result = new EventResult(EventResult::SUCCESS, [], 'socialnetwork');
 
 		return $result;
 	}

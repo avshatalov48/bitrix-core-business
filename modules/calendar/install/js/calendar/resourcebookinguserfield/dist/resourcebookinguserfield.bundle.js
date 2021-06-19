@@ -5756,7 +5756,7 @@ this.BX = this.BX || {};
 	    value: function create() {
 	      var promise = new BX.Promise();
 	      var html = '<div class="webform-buttons calendar-form-buttons-fixed">' + '<span id="' + this.id + '_save" class="webform-small-button webform-small-button-blue">' + BX.message('USER_TYPE_RESOURCE_SAVE') + '</span>' + '<span id="' + this.id + '_close" class="webform-button-link">' + BX.message('USER_TYPE_RESOURCE_CLOSE') + '</span>' + '</div>' + '<div class="calendar-slider-calendar-wrap">' + '<div class="calendar-slider-header"><div class="calendar-head-area"><div class="calendar-head-area-inner"><div class="calendar-head-area-title">' + '<span class="calendar-head-area-name">' + BX.message('USER_TYPE_RESOURCE_SETTINGS') + '</span>' + '</div></div></div></div>' + '<div class="resource-booking-slider-workarea"><div class="resource-booking-slider-content"><div id="' + this.id + '_content" class="resource-booking-settings"></div></div></div></div>';
-	      promise.fulfill(BX.util.trim(html));
+	      promise.fulfill(html);
 	      setTimeout(this.initControls.bind(this), 100);
 	      return promise;
 	    }

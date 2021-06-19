@@ -14,17 +14,16 @@ class CAdvContract extends CAdvContract_all
 	}
 
 	// получаем список контрактов
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered, $CHECK_RIGHTS="Y")
+	public static function GetList($by = "s_sort", $order = "desc", $arFilter = [], $is_filtered = null, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAdvContract::err_mess())."<br>Function: GetList<br>Line: ";
-		global $DB, $USER, $APPLICATION, $strError;
+		global $DB, $USER;
 		if ($CHECK_RIGHTS=="Y")
 		{
 			$USER_ID = intval($USER->GetID());
 			$isAdmin = CAdvContract::IsAdmin();
 			$isDemo = CAdvContract::IsDemo();
 			$isManager = CAdvContract::IsManager();
-			$isAdvertiser = CAdvContract::IsAdvertiser();
 		}
 		else
 		{
@@ -32,10 +31,9 @@ class CAdvContract extends CAdvContract_all
 			$isAdmin = true;
 			$isDemo = true;
 			$isManager = true;
-			$isAdvertiser = true;
 		}
 		$arSqlSearch = Array();
-		$strSqlSearch = "";
+
 		$lamp = "
 			if ((
 				(C.DATE_SHOW_FROM<=now() or C.DATE_SHOW_FROM is null or length(C.DATE_SHOW_FROM)<=0) and
@@ -57,10 +55,10 @@ class CAdvContract extends CAdvContract_all
 				{
 					$key = $filter_keys[$i];
 					$val = $arFilter[$filter_keys[$i]];
-					if ($val == '' || "$val"=="NOT_REF") continue;
+					if ((string)$val == '' || "$val"=="NOT_REF") continue;
 					if (is_array($val) && count($val)<=0) continue;
 					$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-					$key = mb_strtoupper($key);
+					$key = strtoupper($key);
 					switch($key)
 					{
 						case "ID":
@@ -165,13 +163,12 @@ class CAdvContract extends CAdvContract_all
 		elseif ($by == "s_max_visitor_count")	$strSqlOrder = "ORDER BY ifnull(C.MAX_VISITOR_COUNT,0)";
 		else
 		{
-			$by = "s_sort";
 			$strSqlOrder = "ORDER BY ifnull(C.SORT,0)";
 		}
-		if ($order!="asc")
+
+		if ($order != "asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
@@ -232,7 +229,7 @@ class CAdvContract extends CAdvContract_all
 				";
 		}
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 }
@@ -294,17 +291,18 @@ class CAdvBanner extends CAdvBanner_all
 		return $BANNER_ID;
 	}
 
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered, $CHECK_RIGHTS="Y")
+	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [], $is_filtered = null, $CHECK_RIGHTS = "Y")
 	{
+		global $DB, $USER;
+
 		$err_mess = (CAdvBanner::err_mess())."<br>Function: GetList<br>Line: ";
-		global $DB, $USER, $APPLICATION;
+
 		if ($CHECK_RIGHTS=="Y")
 		{
 			$USER_ID = intval($USER->GetID());
 			$isAdmin = CAdvContract::IsAdmin();
 			$isDemo = CAdvContract::IsDemo();
 			$isManager = CAdvContract::IsManager();
-			$isAdvertiser = CAdvContract::IsAdvertiser();
 		}
 		else
 		{
@@ -312,11 +310,10 @@ class CAdvBanner extends CAdvBanner_all
 			$isAdmin = true;
 			$isDemo = true;
 			$isManager = true;
-			$isAdvertiser = true;
 		}
-		$arSqlSearch = Array();
-		$strSqlSearch = "";
 
+		$arSqlSearch = Array();
+		$left_join = '';
 
 		$DONT_USE_CONTRACT = COption::GetOptionString("advertising", "DONT_USE_CONTRACT", "N");
 
@@ -370,10 +367,10 @@ class CAdvBanner extends CAdvBanner_all
 				$val = $arFilter[$filter_keys[$i]];
 				if(is_array($val) && count($val)<=0)
 					continue;
-				if($val == '' || $val == "NOT_REF")
+				if((string)$val == '' || $val == "NOT_REF")
 					continue;
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -542,13 +539,11 @@ class CAdvBanner extends CAdvBanner_all
 		else
 		{
 			$strSqlOrder = " ORDER BY B.ID ";
-			$by = "s_id";
 		}
 
-		if ($order!="asc")
+		if ($order != "asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order = "desc";
 		}
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
@@ -611,7 +606,7 @@ class CAdvBanner extends CAdvBanner_all
 				";
 		}
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 
@@ -625,7 +620,6 @@ class CAdvBanner extends CAdvBanner_all
 
 		$strSql = "
 			SELECT
-				B.FIX_CLICK,
 				B.CONTRACT_ID
 			FROM
 				b_adv_banner B
@@ -635,71 +629,67 @@ class CAdvBanner extends CAdvBanner_all
 		$rsBanner = $DB->Query($strSql, false, $err_mess.__LINE__);
 		if ($arBanner = $rsBanner->Fetch())
 		{
-			if ($arBanner["FIX_CLICK"]=="Y")
+			/********************
+				обновим баннер
+			********************/
+
+			// параметры баннера
+			$arFields = Array(
+					"CLICK_COUNT"		=> "CLICK_COUNT + 1",
+					"DATE_LAST_CLICK"	=> $DB->GetNowFunction(),
+					);
+			$rows = $DB->Update("b_adv_banner",$arFields,"WHERE ID = $BANNER_ID",$err_mess.__LINE__);
+			if (intval($rows)>0)
 			{
+				foreach (getModuleEvents('advertising', 'onBannerClick', true) as $arEvent)
+					executeModuleEventEx($arEvent, array($BANNER_ID, $arFields));
 
-				/********************
-					обновим баннер
-				********************/
-
-				// параметры баннера
-				$arFields = Array(
-						"CLICK_COUNT"		=> "CLICK_COUNT + 1",
-						"DATE_LAST_CLICK"	=> $DB->GetNowFunction(),
-						);
-				$rows = $DB->Update("b_adv_banner",$arFields,"WHERE ID = $BANNER_ID",$err_mess.__LINE__);
-				if (intval($rows)>0)
+				// счетчик по дням
+				$strSql = "
+					UPDATE b_adv_banner_2_day SET
+						CLICK_COUNT = CLICK_COUNT + 1
+					WHERE
+						BANNER_ID = $BANNER_ID
+					and	DATE_STAT = ".$DB->GetNowDate()."
+					";
+				$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$rows = $z->AffectedRowsCount();
+				if (intval($rows)<=0)
 				{
-					foreach (getModuleEvents('advertising', 'onBannerClick', true) as $arEvent)
-						executeModuleEventEx($arEvent, array($BANNER_ID, $arFields));
-
-					// счетчик по дням
 					$strSql = "
-						UPDATE b_adv_banner_2_day SET
-							CLICK_COUNT = CLICK_COUNT + 1
+						SELECT
+							'x'
+						FROM
+							b_adv_banner_2_day
 						WHERE
 							BANNER_ID = $BANNER_ID
 						and	DATE_STAT = ".$DB->GetNowDate()."
 						";
-					$z = $DB->Query($strSql, false, $err_mess.__LINE__);
-					$rows = $z->AffectedRowsCount();
-					if (intval($rows)<=0)
+					$w = $DB->Query($strSql, false, $err_mess.__LINE__);
+					if (!$wr=$w->Fetch())
 					{
 						$strSql = "
-							SELECT
-								'x'
-							FROM
-								b_adv_banner_2_day
-							WHERE
-								BANNER_ID = $BANNER_ID
-							and	DATE_STAT = ".$DB->GetNowDate()."
+							INSERT INTO b_adv_banner_2_day (DATE_STAT, BANNER_ID, CLICK_COUNT) VALUES (
+								".$DB->GetNowDate().",
+								$BANNER_ID,
+								1)
 							";
-						$w = $DB->Query($strSql, false, $err_mess.__LINE__);
-						if (!$wr=$w->Fetch())
-						{
-							$strSql = "
-								INSERT INTO b_adv_banner_2_day (DATE_STAT, BANNER_ID, CLICK_COUNT) VALUES (
-									".$DB->GetNowDate().",
-									$BANNER_ID,
-									1)
-								";
-							$DB->Query($strSql, true, $err_mess.__LINE__);
-						}
+						$DB->Query($strSql, true, $err_mess.__LINE__);
 					}
 				}
+			}
 
-				/*************************
-					обновим контракт
-				*************************/
+			/*************************
+				обновим контракт
+			*************************/
 
-				$DONT_USE_CONTRACT = COption::GetOptionString("advertising", "DONT_USE_CONTRACT", "N");
+			$DONT_USE_CONTRACT = COption::GetOptionString("advertising", "DONT_USE_CONTRACT", "N");
 
-				$CONTRACT_ID = intval($arBanner["CONTRACT_ID"]);
-				if ($CONTRACT_ID>0 && $DONT_USE_CONTRACT == "N")
-				{
-					$arFields = Array("CLICK_COUNT" => "CLICK_COUNT + 1");
-					$DB->Update("b_adv_contract",$arFields,"WHERE ID = $CONTRACT_ID",$err_mess.__LINE__);
-				}
+			$CONTRACT_ID = intval($arBanner["CONTRACT_ID"]);
+			if ($CONTRACT_ID>0 && $DONT_USE_CONTRACT == "N")
+			{
+				$arFields = Array("CLICK_COUNT" => "CLICK_COUNT + 1");
+				$DB->Update("b_adv_contract",$arFields,"WHERE ID = $CONTRACT_ID",$err_mess.__LINE__);
 			}
 		}
 	}
@@ -737,7 +727,6 @@ class CAdvBanner extends CAdvBanner_all
 					B.ID					BANNER_ID,
 					B.WEIGHT				BANNER_WEIGHT,
 					B.SHOWS_FOR_VISITOR,
-					B.FIX_CLICK,
 					B.FIX_SHOW,
 					B.KEYWORDS				BANNER_KEYWORDS,
 					".$DB->DateToCharFunction("B.DATE_SHOW_FIRST")."		DATE_SHOW_FIRST,
@@ -865,7 +854,6 @@ class CAdvBanner extends CAdvBanner_all
 					B.ID					BANNER_ID,
 					B.WEIGHT				BANNER_WEIGHT,
 					B.SHOWS_FOR_VISITOR,
-					B.FIX_CLICK,
 					B.FIX_SHOW,
 					B.KEYWORDS				BANNER_KEYWORDS
 				FROM

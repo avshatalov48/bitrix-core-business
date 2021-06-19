@@ -12,13 +12,13 @@ import 'ui.icons';
 
 import {Uploader} from "ui.progressbarjs.uploader";
 
-import {Vue} from 'ui.vue';
+import {BitrixVue} from 'ui.vue';
 import {Vuex} from "ui.vue.vuex";
 import {FilesModel} from 'im.model';
 import {FileType, FileStatus, MessageType} from 'im.const';
 import {Utils} from "im.lib.utils";
 
-Vue.component('bx-im-view-element-file',
+BitrixVue.component('bx-im-view-element-file',
 {
 	/*
 	 * @emits 'uploadCancel' {file: object, event: MouseEvent}
@@ -237,7 +237,7 @@ Vue.component('bx-im-view-element-file',
 		FileStatus: () => FileStatus,
 		localize()
 		{
-			return Vue.getFilteredPhrases('IM_MESSENGER_ELEMENT_FILE_', this.$root.$bitrixMessages);
+			return BitrixVue.getFilteredPhrases('IM_MESSENGER_ELEMENT_FILE_', this);
 		},
 		fileName()
 		{

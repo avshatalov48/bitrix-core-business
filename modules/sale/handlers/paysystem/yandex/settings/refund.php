@@ -11,9 +11,8 @@ global $APPLICATION;
 $application = \Bitrix\Main\Application::getInstance();
 $context = $application->getContext();
 $request = $context->getRequest();
-$shopId = $request->get("shop_id");
+$shopId = (int)$request->get("shop_id");
 $companyName = $request->get("company_name");
-$handler = $request->get("handler");
 $errorMsg = '';
 
 \CUtil::InitJSCore();
@@ -29,7 +28,7 @@ if ($request->get("generate") === 'Y')
 	if ($companyName && !preg_match('/[^a-zA-Z]+/', $companyName))
 	{
 		PaySystem\YandexCert::generate($shopId, $companyName);
-		LocalRedirect($APPLICATION->GetCurPage().'?shop_id='.$shopId."&handler=".$handler.'&lang='.LANG);
+		LocalRedirect($APPLICATION->GetCurPage().'?shop_id='.$shopId.'&handler=yandex&lang='.LANG);
 	}
 	else
 	{
@@ -57,7 +56,7 @@ if (($request->getPost("Update") || $request->getPost("Apply")) && check_bitrix_
 
 	if ($errorMsg === '')
 	{
-		LocalRedirect($APPLICATION->GetCurPage().'?shop_id='.$shopId.'&handler='.$handler.'&lang='.LANG);
+		LocalRedirect($APPLICATION->GetCurPage().'?shop_id='.$shopId.'&handler=yandex&lang='.LANG);
 	}
 }
 
@@ -76,7 +75,7 @@ $tabRControl = new \CAdminTabControl("tabRControl", $personTypeTabs);
 $tabRControl->Begin();?>
 
 <form method="POST" enctype="multipart/form-data"
-	  action="<?=$APPLICATION->GetCurPage()?>?shop_id=<?=$shopId;?>&handler=<?=$handler;?>&lang=<?echo LANG?>"
+	  action="<?=$APPLICATION->GetCurPage()?>?shop_id=<?=$shopId;?>&handler=yandex&lang=<?echo LANG?>"
 	  xmlns="http://www.w3.org/1999/html">
 <?
 	echo bitrix_sessid_post();
@@ -132,7 +131,7 @@ $tabRControl->Begin();?>
 		</tr>
 		<tr>
 			<td class="adm-detail-valign-top adm-detail-content-cell-l"><strong><?=Loc::getMessage("SALE_YANDEX_RETURN_CSR")?></strong>:</td>
-			<td class="adm-detail-content-cell-r"><?=sprintf(Loc::getMessage("SALE_YANDEX_RETURN_CSR_DOWNLOAD"), $APPLICATION->GetCurPage()."?lang=ru&csr=Y&shop_id=".$shopId."&handler=".$handler)?></td>
+			<td class="adm-detail-content-cell-r"><?=sprintf(Loc::getMessage("SALE_YANDEX_RETURN_CSR_DOWNLOAD"), $APPLICATION->GetCurPage()."?lang=ru&csr=Y&shop_id=".$shopId."&handler=yandex")?></td>
 		</tr>
 		<tr>
 			<td class="adm-detail-valign-top adm-detail-content-cell-l"><strong><?=Loc::getMessage("SALE_YANDEX_RETURN_STATEMENT_SIGN")?></strong>:</td>

@@ -43,7 +43,7 @@ return array(
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.4.SLIDER_5_COLS_WITH_PRICES_NODES_LANDINGBLOCKNODECARDTITLE'),
-			'type' => array('typo', 'animation'),
+			'type' => ['typo', 'animation', 'heading'],
 		),
 		'.landing-block-node-card-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.4.SLIDER_5_COLS_WITH_PRICES_NODES_LANDINGBLOCKNODECARDTEXT'),

@@ -301,7 +301,7 @@ class CStoreAssist
 			$curNumOrders = Bitrix\Main\Config\Option::get("storeassist", "num_orders", "");
 			if ($curNumOrders)
 			{
-				$curNumOrders = unserialize($curNumOrders);
+				$curNumOrders = unserialize($curNumOrders, ["allowed_classes" => false]);
 			}
 			$newNumOrders["prevDay"] = (isset($curNumOrders["newDay"])) ? $curNumOrders["newDay"] : 0;
 

@@ -3,8 +3,8 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 $APPLICATION->SetAdditionalCSS('/bitrix/gadgets/bitrix/html_area/styles.css');
 
-$bEdit = ($_REQUEST['gdhtml'] == $id) && ($_REQUEST['edit']=='true') && ($arParams["PERMISSION"] > "R");
-if($_SERVER['REQUEST_METHOD'] == 'POST' && $_REQUEST['gdhtmlform'] == 'Y' && $_REQUEST['gdhtml'] == $id)
+$bEdit = (($_REQUEST['gdhtml'] ?? '') == $id) && (($_REQUEST['edit'] ?? '') == 'true') && ($arParams["PERMISSION"] > "R");
+if($_SERVER['REQUEST_METHOD'] == 'POST' && ($_REQUEST['gdhtmlform'] ?? '') == 'Y' && ($_REQUEST['gdhtml'] ?? '') == $id)
 {
 	$arGadget["USERDATA"] = Array("content"=>$_POST["html_content"]);
 	$arGadget["FORCE_REDIRECT"] = true;

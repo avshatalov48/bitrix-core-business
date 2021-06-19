@@ -1,7 +1,8 @@
-<?
+<?php
+
 class CCountry
 {
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetList($by = 's_name', $order = 'asc', $arFilter = [])
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -17,11 +18,11 @@ class CCountry
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -74,18 +75,16 @@ class CCountry
 		elseif ($by == "s_events")		$strSqlOrder = "ORDER BY C.C_EVENTS ";
 		else
 		{
-			$by = "s_name";
 			$strSqlOrder = "ORDER BY C.NAME";
 		}
-		if ($order=="desc")
+
+		if ($order == "desc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 		else
 		{
 			$strSqlOrder .= " asc ";
-			$order="asc";
 		}
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
@@ -102,7 +101,7 @@ class CCountry
 			";
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 
@@ -124,11 +123,11 @@ class CCountry
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "COUNTRY_ID":
@@ -218,4 +217,3 @@ class CCountry
 		return $arrDays;
 	}
 }
-?>

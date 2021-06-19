@@ -1,5 +1,5 @@
 <?
-$dbLangs = CLanguage::GetList(($b = ""), ($o = ""));
+$dbLangs = CLanguage::GetList();
 while ($arLang = $dbLangs->Fetch())
 {
 	$lid = $arLang["LID"];
@@ -21,7 +21,7 @@ while ($arLang = $dbLangs->Fetch())
 	));
 
 	$arSites = array();
-	$dbSites = CSite::GetList(($b = ""), ($o = ""), Array("LANGUAGE_ID" => $lid));
+	$dbSites = CSite::GetList("", "", Array("LANGUAGE_ID" => $lid));
 	while ($site = $dbSites->Fetch())
 		$arSites[] = $site["LID"];
 

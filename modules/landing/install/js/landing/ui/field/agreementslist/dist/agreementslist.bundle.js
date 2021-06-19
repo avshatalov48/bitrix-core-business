@@ -74,11 +74,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      });
 	    }).then(function (agreements) {
 	      void _this.hideAgreementLoader();
-	      setTimeout(function () {
-	        agreements.forEach(function (agreement) {
-	          _this.addItem(agreement);
-	        });
-	      }, 200);
+	      agreements.forEach(function (agreement) {
+	        _this.addItem(agreement);
+	      });
 	    });
 	    _this.draggable = new ui_draganddrop_draggable.Draggable({
 	      context: window.parent,
@@ -340,13 +338,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "showAgreementLoader",
 	    value: function showAgreementLoader() {
 	      var loader = this.getAgreementLoader();
-	      main_core.Dom.append(loader.layout, this.getListContainer());
-	      return this.getAgreementLoader().show(this.getListContainer());
+	      var container = this.getListContainer();
+	      main_core.Dom.append(loader.layout, container);
+	      return loader.show(container);
 	    }
 	  }, {
 	    key: "hideAgreementLoader",
 	    value: function hideAgreementLoader() {
-	      return this.getAgreementLoader().hide();
+	      var loader = this.getAgreementLoader();
+	      main_core.Dom.remove(loader.layout);
+	      return loader.hide();
 	    }
 	  }, {
 	    key: "onAgreementsMenuItemClick",
@@ -360,13 +361,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        }]
 	      }).then(function (result) {
 	        void _this8.hideAgreementLoader();
-	        setTimeout(function () {
-	          _this8.addItem(result.data.agreements[0]);
 
-	          _this8.emit('onChange', {
-	            skipPrepare: true
-	          });
-	        }, 200);
+	        _this8.addItem(result.data.agreements[0]);
+
+	        _this8.emit('onChange', {
+	          skipPrepare: true
+	        });
 	      });
 	      this.refreshAgreementsMenu();
 	    }

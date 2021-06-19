@@ -9,12 +9,12 @@ $arrVotes = Array();
 $arrQuestions = Array();
 $arDiagramType = Array("-" => GetMessage("VOTE_BY_DEFAULT")) + GetVoteDiagramArray();
 
-$rs = CVoteChannel::GetList($v1, $v2, array(), $v3);
+$rs = CVoteChannel::GetList();
 while ($arChannel=$rs->Fetch()) 
 {
 	$arrChannels[$arChannel["SID"]] = "[".$arChannel["SID"]."] ".$arChannel["TITLE"];	
 
-	$rsVotes = CVote::GetList($v1, $v2, array("CHANNEL_ID" => $arChannel["ID"]), $v3);
+	$rsVotes = CVote::GetList('', '', array("CHANNEL_ID" => $arChannel["ID"]));
 	while ($arVote = $rsVotes->Fetch())
 	{
 		$arrVotes[$arVote["ID"]] = "[".$arVote["ID"]."] (".$arChannel["SID"].") ".TruncateText($arVote["TITLE"],40);
@@ -24,7 +24,7 @@ while ($arChannel=$rs->Fetch())
 
 if (intval($arCurrentValues["VOTE_ID"])>0)
 {
-	$rsQuestions = CVoteQuestion::GetList($arCurrentValues["VOTE_ID"], $vv1, $vv2, array(), $vv3);
+	$rsQuestions = CVoteQuestion::GetList($arCurrentValues["VOTE_ID"]);
 	while ($arQuestion = $rsQuestions->Fetch())
 	{
 		$QUESTION = ($arQuestion["QUESTION_TYPE"]=="html") ? strip_tags($arQuestion["QUESTION"]) : $arQuestion["QUESTION"];

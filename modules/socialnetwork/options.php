@@ -20,7 +20,7 @@ CModule::IncludeModule('socialnetwork');
 if ($REQUEST_METHOD=="GET" && $RestoreDefaults <> '' && $SONET_RIGHT=="W" && check_bitrix_sessid())
 {
 	COption::RemoveOption("socialnetwork");
-	$z = CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
+	$z = CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 	while($zr = $z->Fetch())
 	{
 		$APPLICATION->DelGroupRight($module_id, array($zr["ID"]));
@@ -449,7 +449,7 @@ if (
 		}
 	}
 
-	$dbSites = CSite::GetList(($b = ""), ($o = ""), array("ACTIVE" => "Y"));
+	$dbSites = CSite::GetList('', '', array("ACTIVE" => "Y"));
 
 	$bFriendsDisabledForAllSites = true;
 	$bFriendsEnabledForAnySite = false;
@@ -811,7 +811,7 @@ $arChildTabControlGroupCommon = new CAdminViewTabControl("childTabControlGroupCo
 
 $aSiteTabs = array();
 
-$dbSites = CSite::GetList(($b = ""), ($o = ""), array("ACTIVE" => "Y"));
+$dbSites = CSite::GetList('', '', array("ACTIVE" => "Y"));
 while ($arSite = $dbSites->Fetch())
 {
 	$aSiteTabs[] = array("DIV" => "opt_site_".$arSite["ID"], "TAB" => '['.$arSite["ID"].'] '.htmlspecialcharsbx($arSite["NAME"]), 'TITLE' => GetMessage('SONET_OPTIONS_FOR_SITE').' ['.$arSite["ID"].'] '.htmlspecialcharsbx($arSite["NAME"]));
@@ -855,7 +855,7 @@ $arChildTabControlSite = new CAdminViewTabControl("childTabControlSite", $aSiteT
 $siteList = array(
 	array("ID" => "all", "NAME" => GetMessage("SONET_ALL_SITES"))
 );
-$rsSites = CSite::GetList($by="sort", $order="asc", array("ACTIVE" => "Y"));
+$rsSites = CSite::GetList("sort", "asc", array("ACTIVE" => "Y"));
 $i = 1;
 while($arRes = $rsSites->Fetch())
 {

@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/group_subject.php");
 
 class CSocNetGroupSubject extends CAllSocNetGroupSubject
@@ -6,7 +7,7 @@ class CSocNetGroupSubject extends CAllSocNetGroupSubject
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB, $CACHE_MANAGER;
 
@@ -72,11 +73,10 @@ class CSocNetGroupSubject extends CAllSocNetGroupSubject
 		return $ID;
 	}
 
-	
 	/***************************************/
 	/**********  DATA SELECTION  ***********/
 	/***************************************/
-	function GetList($arOrder = Array("SORT" => "ASC", "ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = Array("SORT" => "ASC", "ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB, $CACHE_MANAGER;
 
@@ -247,4 +247,3 @@ class CSocNetGroupSubject extends CAllSocNetGroupSubject
 		return $dbRes;
 	}
 }
-?>

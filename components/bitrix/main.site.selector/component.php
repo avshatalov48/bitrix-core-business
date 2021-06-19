@@ -42,7 +42,7 @@ else
 			: false
 	);
 
-	$rsSite = CSite::GetList($by="sort", $order="asc", $arFilter=array("ACTIVE" => "Y"));
+	$rsSite = CSite::GetList("sort", "asc", $arFilter=array("ACTIVE" => "Y"));
 	$arResult["SITES"] = array();
 	while ($arSite = $rsSite->GetNext())
 	{

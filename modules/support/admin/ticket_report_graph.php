@@ -160,8 +160,9 @@ else
 		//$message = new CAdminMessage(GetMessage("SUP_FILTER_ERROR"), $e);
 	}
 }
+global $by, $order;
 
-$rsTickets = CTicket::GetList($by, $order, $arFilter, $is_filtered, "Y", "N", "N");
+$rsTickets = CTicket::GetList($by, $order, $arFilter, null, "Y", "N", "N");
 $OPEN_TICKETS = $CLOSE_TICKETS = 0;
 $arrTickets = array();
 $arrTime = array();
@@ -234,9 +235,7 @@ while ($arTicket = $rsTickets->Fetch())
 $arrSupportUser = array();
 $arUsersID = array_unique($arUsersID);
 $strUsers = implode("|", $arUsersID);
-$f = "ID";
-$o = "asc";
-$rs = CUser::GetList($f, $o, array( "ID" => $strUsers), array("FIELDS"=>array("NAME","LAST_NAME","LOGIN","ID")));
+$rs = CUser::GetList('id', 'asc', array( "ID" => $strUsers), array("FIELDS"=>array("NAME","LAST_NAME","LOGIN","ID")));
 while($ar = $rs->Fetch())
 {
 	$arrSupportUser[$ar["ID"]] = $ar;
@@ -352,7 +351,7 @@ else :
 				<?
 				$s = GetFilterParams($FilterArr);
 				$i=0;
-				while (list($key,$counter) = each($arrTime)) :
+				foreach ($arrTime as $key => $counter):
 					$i++;
 					$procent = round(($counter*100)/$CLOSE_TICKETS,2);
 					$color = $arrColor[$key];
@@ -397,7 +396,7 @@ else :
 					<td  nowrap><a href="/bitrix/admin/ticket_list.php?<?=GetFilterParams($FilterArr1)?>&find_close=Y&lang=<?=LANG?>&<?echo $f?>&set_filter=Y"><?=$counter?></a></td>
 					<td nowrap><?echo GetMessage("SUP_DIAGRAM_".$key);?></td>
 				</tr>
-				<?endwhile;?>
+				<?endforeach;?>
 			</table>
 		</td>
 	</tr>
@@ -425,7 +424,7 @@ else :
 				<?
 				$s = GetFilterParams($FilterArr);
 				$i=0;
-				while (list($key,$counter) = each($arrMess)) :
+				foreach ($arrMess as $key => $counter):
 					$i++;
 					$procent = round(($counter*100)/$CLOSE_TICKETS,2);
 					$color = $arrColor[$key];
@@ -447,7 +446,7 @@ else :
 					<td  nowrap><img src="/bitrix/images/1.gif" width="3" height="1"><a href="/bitrix/admin/ticket_list.php?<?=GetFilterParams($FilterArr1)?>&find_close=Y&lang=<?=LANG?>&<?echo $f?>&set_filter=Y"><?=$counter?></a></td>
 					<td nowrap><?echo GetMessage("SUP_DIAGRAM_MESS_".$key);?></td>
 				</tr>
-				<?endwhile;?>
+				<?endforeach;?>
 			</table>
 		</td>
 	</tr>
@@ -473,7 +472,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 	<td><?
 		$ref = array();
 		$ref_id = array();
-		$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+		$rs = CSite::GetList();
 		while ($ar = $rs->Fetch()) 
 		{
 			$ref[] = "[".$ar["ID"]."] ".$ar["NAME"];
@@ -497,7 +496,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 			if (is_array($arrSupportUser) && count($arrSupportUser)>0)
 			{
 				ksort($arrSupportUser);
-				while (list($key, $arUser) = each($arrSupportUser))
+				foreach ($arrSupportUser as $key => $arUser)
 				{
 					if (!in_array($key,$ref_id))
 					{

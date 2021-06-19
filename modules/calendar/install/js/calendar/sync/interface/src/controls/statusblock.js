@@ -20,6 +20,20 @@ export default class StatusBlock
 		return new this(options);
 	}
 
+	setStatus(status)
+	{
+		this.status = status;
+
+		return this;
+	}
+
+	setConnections(connections)
+	{
+		this.connections = connections;
+
+		return this;
+	}
+
 	getContent()
 	{
 		let statusInfoBlock;

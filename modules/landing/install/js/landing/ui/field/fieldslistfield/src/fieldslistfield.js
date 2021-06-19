@@ -1,6 +1,6 @@
 import {BaseField} from 'landing.ui.field.basefield';
 import {Loc} from 'landing.loc';
-import {Dom, Runtime, Tag, Type} from 'main.core';
+import {Dom, Runtime, Tag, Text, Type} from 'main.core';
 import {Draggable} from 'ui.draganddrop.draggable';
 import {FieldsPanel} from 'landing.ui.panel.fieldspanel';
 import {ListItem} from 'landing.ui.component.listitem';
@@ -11,9 +11,11 @@ import {FormSettingsForm} from 'landing.ui.form.formsettingsform';
 import {FormClient} from 'crm.form.client';
 import {ListSettingsField} from 'landing.ui.field.listsettingsfield';
 import {SeparatorPanel} from 'landing.ui.panel.separatorpanel';
-import {ResourcebookingUserfield} from 'calendar.resourcebookinguserfield';
 import {PageObject} from 'landing.pageobject';
+import {Loader} from 'main.loader';
 import type {ListItemOptions} from 'landing.ui.component.listitem';
+import {ProductField} from 'landing.ui.field.productfield';
+import 'calendar.resourcebookinguserfield';
 import 'socnetlogdest';
 
 import './css/style.css';
@@ -27,7 +29,7 @@ export class FieldsListField extends BaseField
 		this.setLayoutClass('landing-ui-field-fields-list');
 
 		this.onSelectFieldButtonClick = this.onSelectFieldButtonClick.bind(this);
-		this.onSelectProductButtonClick = this.onSelectProductButtonClick.bind(this);
+		this.onSelectProductsButtonClick = this.onSelectProductsButtonClick.bind(this);
 		this.onSelectSeparatorButtonClick = this.onSelectSeparatorButtonClick.bind(this);
 		this.onItemRemove = this.onItemRemove.bind(this);
 		this.onItemEdit = this.onItemEdit.bind(this);
@@ -50,6 +52,11 @@ export class FieldsListField extends BaseField
 				},
 			],
 			right: [
+				{
+					id: 'addProducts',
+					text: Loc.getMessage('LANDING_FIELDS_SELECT_PRODUCTS_BUTTON_TITLE'),
+					onClick: this.onSelectProductsButtonClick,
+				},
 				{
 					id: 'selectSeparator',
 					text: Loc.getMessage('LANDING_FIELDS_SELECT_SEPARATOR_BUTTON_TITLE'),
@@ -309,9 +316,22 @@ export class FieldsListField extends BaseField
 		return Promise.resolve(listItem);
 	}
 
+	// eslint-disable-next-line class-methods-use-this
 	createFieldSettingsForm(field)
 	{
 		const fields = [];
+
+		if (field.type === 'product')
+		{
+			fields.push(
+				new ProductField({
+					title: Loc.getMessage('LANDING_FIELDS_LIST_FIELD_PRODUCTS_TITLE2'),
+					selector: 'products',
+					items: field.editing.catalog || [],
+					iblockId: this.options.dictionary.catalog.id,
+				}),
+			);
+		}
 
 		if (field.editing.hasLabel)
 		{
@@ -371,11 +391,35 @@ export class FieldsListField extends BaseField
 			);
 		}
 
-		if (field.type === 'list' && field.editing.items.length > 0)
+		if (field.type === 'product')
+		{
+			fields.push(
+				new BX.Landing.UI.Field.Checkbox({
+					selector: 'bigPic',
+					compact: true,
+					items: [
+						{
+							name: Loc.getMessage('LANDING_FIELDS_LIST_FIELD_PRODUCTS_SHOW_BIG_PICTURE'),
+							value: 'bigPic',
+						},
+					],
+					value: field.bigPic ? ['bigPic'] : [],
+				}),
+			);
+		}
+
+		if (
+			(
+				field.type === 'list'
+				|| field.type === 'radio'
+			)
+			&& field.editing.items.length > 0
+		)
 		{
 			const defaultValueField = new BX.Landing.UI.Field.Dropdown({
 				selector: 'value',
 				title: Loc.getMessage('LANDING_FIELDS_ITEM_FORM_LIST_DEFAULT_VALUE_TITLE'),
+				content: field.value,
 				items: [
 					{
 						value: Loc.getMessage('LANDING_FORM_DEFAULT_VALUE_NOT_SELECTED'),
@@ -414,10 +458,32 @@ export class FieldsListField extends BaseField
 			fields.push(defaultValueField);
 		}
 
+		if (
+			Type.isPlainObject(field.editing)
+			&& Type.isArrayFilled(field.editing.valueTypes)
+		)
+		{
+			fields.push(
+				new BX.Landing.UI.Field.Dropdown({
+					selector: 'valueType',
+					title: Loc.getMessage('LANDING_FIELDS_ITEM_FORM_VALUE_TYPE'),
+					content: field.editing.editable.valueType,
+					items: field.editing.valueTypes.map((item) => {
+						return {name: item.name, value: item.id};
+					}),
+				}),
+			);
+		}
+
 		return new FormSettingsForm({
 			fields,
 			serializeModifier(value) {
 				const modifiedValue = {...value};
+				if (Reflect.has(value, 'label'))
+				{
+					modifiedValue.label = Text.decode(value.label);
+				}
+
 				if (Reflect.has(value, 'required'))
 				{
 					modifiedValue.required = value.required.includes('required');
@@ -428,12 +494,43 @@ export class FieldsListField extends BaseField
 					modifiedValue.multiple = value.multiple.includes('multiple');
 				}
 
+				if (Reflect.has(value, 'bigPic'))
+				{
+					modifiedValue.bigPic = value.bigPic.includes('bigPic');
+				}
+
 				if (Reflect.has(value, 'value') && Type.isArrayFilled(value.items))
 				{
 					modifiedValue.items = modifiedValue.items.map((item) => {
 						item.selected = (value.value === item.value);
 						return item;
 					});
+				}
+
+				if (Reflect.has(value, 'products'))
+				{
+					modifiedValue.items = Runtime.clone(value.products);
+					if (!Type.isPlainObject(modifiedValue.editing))
+					{
+						modifiedValue.editing = {};
+					}
+
+					modifiedValue.editing.catalog = Runtime.clone(value.products);
+				}
+
+				if (Reflect.has(value, 'valueType'))
+				{
+					if (!Type.isPlainObject(modifiedValue.editing))
+					{
+						modifiedValue.editing = {};
+					}
+
+					if (!Type.isPlainObject(modifiedValue.editing.editable))
+					{
+						modifiedValue.editing.editable = {};
+					}
+
+					modifiedValue.editing.editable.valueType = value.valueType;
 				}
 
 				return modifiedValue;
@@ -460,7 +557,10 @@ export class FieldsListField extends BaseField
 				disabledFields: this.items.map((item) => item.options.id),
 			})
 			.then((selectedFields) => {
-				this.onFieldsSelect(selectedFields);
+				if (Type.isArrayFilled(selectedFields))
+				{
+					this.onFieldsSelect(selectedFields);
+				}
 			});
 	}
 
@@ -472,17 +572,20 @@ export class FieldsListField extends BaseField
 			}),
 		};
 
+		void this.showLoader();
+
 		FormClient.getInstance()
 			.prepareOptions(this.options.formOptions, preparingOptions)
 			.then((result) => {
-				const promises = result.data.fields.map((field) => {
-					return this.addItem(field);
-				});
-
-				Promise.all(promises)
-					.then(() => {
-						this.emit('onChange', {skipPrepare: true});
-					});
+				void this.hideLoader();
+				return Promise.all(
+					result.data.fields.map((field) => {
+						return this.addItem(field);
+					}),
+				);
+			})
+			.then(() => {
+				this.emit('onChange', {skipPrepare: true});
 			});
 	}
 
@@ -493,9 +596,34 @@ export class FieldsListField extends BaseField
 		});
 	}
 
-	onSelectProductButtonClick(event: MouseEvent)
+	// eslint-disable-next-line class-methods-use-this
+	onSelectProductsButtonClick(event: MouseEvent)
 	{
 		event.preventDefault();
+
+		const preparingOptions = {
+			fields: [
+				{type: 'product'},
+			],
+		};
+
+		void this.showLoader();
+
+		FormClient
+			.getInstance()
+			.prepareOptions(this.options.formOptions, preparingOptions)
+			.then((result) => {
+				void this.hideLoader();
+
+				const promises = result.data.fields.map((field) => {
+					return this.addItem(field);
+				});
+
+				Promise.all(promises)
+					.then(() => {
+						this.emit('onChange', {skipPrepare: true});
+					});
+			});
 	}
 
 	onSelectSeparatorButtonClick(event: MouseEvent)
@@ -513,10 +641,14 @@ export class FieldsListField extends BaseField
 				{
 					fields.push({...fields[0]});
 				}
+				
+				void this.showLoader();
 
 				FormClient.getInstance()
 					.prepareOptions(this.options.formOptions, {fields})
 					.then((result) => {
+						void this.hideLoader();
+
 						let separatorPromise = Promise.resolve();
 						if (
 							separator.type === 'page'
@@ -532,7 +664,6 @@ export class FieldsListField extends BaseField
 								this.prependItem(result.data.fields[0]),
 								this.insertItemAfterIndex(result.data.fields[1], 1),
 							]);
-
 						}
 						else
 						{
@@ -591,6 +722,7 @@ export class FieldsListField extends BaseField
 				options.fieldController.settingsPopup.subscribeOnce('onClose', () => {
 					options.sourceOptions.booking.settings_data = options.fieldController.getSettings().data;
 
+					// eslint-disable-next-line camelcase
 					const {settings_data} = options.sourceOptions.booking;
 					Object.keys(settings_data).forEach((key) => {
 						if (Type.isArray(settings_data[key].value))
@@ -626,5 +758,34 @@ export class FieldsListField extends BaseField
 
 			this.emit('onChange', {skipPrepare: true});
 		});
+	}
+
+	getLoader(): Loader
+	{
+		return this.cache.remember('loader', () => {
+			return new Loader({
+				size: 50,
+				mode: 'inline',
+				offset: {
+					top: '5px',
+					left: '225px',
+				},
+			});
+		});
+	}
+
+	showLoader(): Promise<any>
+	{
+		const loader = this.getLoader();
+		const container = this.getListContainer();
+		Dom.append(loader.layout, container);
+		return loader.show(container);
+	}
+
+	hideLoader(): Promise<any>
+	{
+		const loader = this.getLoader();
+		Dom.remove(loader.layout);
+		return loader.hide();
 	}
 }

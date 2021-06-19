@@ -64,7 +64,7 @@ return array(
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_11.2.THREE_COLS_FIX_TARIFFS_BLACK_NODES_LANDINGBLOCKNODETITLE'),
-			'type' => array('typo', 'border-color'),
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_11.2.THREE_COLS_FIX_TARIFFS_BLACK_NODES_LANDINGBLOCKNODETEXT'),
@@ -76,7 +76,7 @@ return array(
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_11.2.THREE_COLS_FIX_TARIFFS_BLACK_NODES_LANDINGBLOCKNODECARD_TITLE'),
-			'type' => 'typo',
+			'type' => ['typo'],
 		),
 		'.landing-block-node-card-container' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_11.2.THREE_COLS_FIX_TARIFFS_BLACK_NODES_LANDINGBLOCKNODECARD_CONTAINER'),

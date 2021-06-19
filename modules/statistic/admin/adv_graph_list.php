@@ -19,7 +19,7 @@ $ADV_ID = intval($ADV_ID);
 
 if($context=="tab")
 	$find_events=array();
-$rs = CAdv::GetEventList($ADV_ID, ($by="s_def"),($order="desc"), array(), $v3);
+$rs = CAdv::GetEventList($ADV_ID, "s_def", "desc");
 while ($ar = $rs->Fetch())
 {
 	$arrEVENTS[$ar["ID"]] = $ar["EVENT"]." [".$ar["ID"]."]";
@@ -44,8 +44,7 @@ if($lAdmin->IsDefaultFilter())
 {
 	if (is_array($arrEVENTS))
 	{
-		reset($arrEVENTS);
-		while (list($key,$value)=each($arrEVENTS))
+		foreach ($arrEVENTS as $key => $value)
 		{
 			$i++;
 			if ($i<=5) $find_events[] = $key;
@@ -243,7 +242,7 @@ elseif (!$message)
 		$arF["ID"] = implode(" | ",$find_events);
 		$arF["DATE1_PERIOD"] = $arFilter["DATE1"];
 		$arF["DATE2_PERIOD"] = $arFilter["DATE2"];
-		$events = CAdv::GetEventList($ADV_ID, $by, $order, $arF, $is_filtered);
+		$events = CAdv::GetEventList($ADV_ID, '', '', $arF);
 
 		if ($er = $events->Fetch())
 		{

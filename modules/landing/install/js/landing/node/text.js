@@ -277,7 +277,7 @@
 				if (this.isHeader())
 				{
 					buttons.push(this.getChangeTagButton());
-					this.getChangeTagButton().changeHandler = this.onChangeTag.bind(this);
+					this.getChangeTagButton().onChangeHandler = this.onChangeTag.bind(this);
 				}
 
 				if (!this.manifest.textOnly)

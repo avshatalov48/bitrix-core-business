@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Main,
 	Bitrix\Main\Localization\Loc;
 
@@ -45,11 +46,11 @@ class CAllForm extends CForm_old
 				}
 				else
 				{
-				if( ($val == '') || ($val === "NOT_REF") )
+				if( ((string)$val == '') || ($val === "NOT_REF") )
 					continue;
 				}
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "FIELD_ID":
@@ -91,15 +92,14 @@ class CAllForm extends CForm_old
 			$arrAnswers[$zr["RESULT_ID"]][$zr["FIELD_ID"]][intval($zr["ANSWER_ID"])]=$zr;
 			$arrAnswersSID[$zr["RESULT_ID"]][$zr["SID"]][]=$zr;
 		}
-		$q = CFormField::GetList($WEB_FORM_ID, "", $v1, $v2,
+		$q = CFormField::GetList($WEB_FORM_ID, '', '', '',
 			array(
 				"ID"				=> $arFilter["FIELD_ID"],
 				"VARNAME"			=> $arFilter["FIELD_SID"],
 				"SID"				=> $arFilter["FIELD_SID"],
 				"IN_RESULTS_TABLE"	=> $arFilter["IN_RESULTS_TABLE"],
 				"IN_EXCEL_TABLE"	=> $arFilter["IN_EXCEL_TABLE"],
-				"ACTIVE"			=> "Y"),
-			$is_filtered
+				"ACTIVE"			=> "Y")
 			);
 		while ($qr = $q->Fetch())
 		{
@@ -379,7 +379,7 @@ class CAllForm extends CForm_old
 					"SITE_ID"		=> $arrSITE,
 					"EVENT_NAME"	=> $MAIL_EVENT_TYPE
 					);
-				$e = CEventMessage::GetList($by="id", $order="asc", $arFilter);
+				$e = CEventMessage::GetList("id", "asc", $arFilter);
 				while ($er=$e->Fetch())
 				{
 					if (!in_array($er["ID"], $arReferenceId))
@@ -415,11 +415,11 @@ class CAllForm extends CForm_old
 				}
 				else
 				{
-				if( ($val == '') || ($val === "NOT_REF") )
+				if( ((string)$val == '') || ($val === "NOT_REF") )
 					continue;
 				}
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "FORM_ID":
@@ -887,11 +887,11 @@ class CAllForm extends CForm_old
 		{
 			if (!is_set($arForm, "FORM_TEMPLATE")) $arForm["FORM_TEMPLATE"] = CForm::GetFormTemplateByID($WEB_FORM_ID);
 
-			$u = CFormField::GetList($WEB_FORM_ID, $additional, ($by="s_c_sort"), ($order="asc"), $active == "N" ? array("ACTIVE"=>"Y") : array(), $is_filtered);
+			$u = CFormField::GetList($WEB_FORM_ID, $additional, "s_c_sort", "asc", $active == "N" ? array("ACTIVE"=>"Y") : array());
 			while ($ur=$u->Fetch())
 			{
 				$arQuestions[$ur["SID"]] = $ur;
-				$w = CFormAnswer::GetList($ur["ID"], ($by="s_c_sort"), ($order="asc"), $active == "N" ? array("ACTIVE"=>"Y") : array(), $is_filtered);
+				$w = CFormAnswer::GetList($ur["ID"], "s_c_sort", "asc", ($active == "N" ? array("ACTIVE"=>"Y") : array()));
 				while ($wr=$w->Fetch()) $arAnswers[$ur["SID"]][] = $wr;
 			}
 
@@ -1237,7 +1237,7 @@ class CAllForm extends CForm_old
 						{
 							if ($arQuestion["ADDITIONAL"] == "Y" || is_array($arAnswers[$FIELD_SID]))
 							{
-								$rsValidatorList = CFormValidator::GetList($FIELD_ID, array("TYPE" => $FIELD_TYPE), $by="C_SORT", $order="ASC");
+								$rsValidatorList = CFormValidator::GetList($FIELD_ID, array("TYPE" => $FIELD_TYPE));
 								while ($arValidator = $rsValidatorList->Fetch())
 								{
 									if (!CFormValidator::Execute($arValidator, $arQuestion, $arAnswers[$FIELD_SID], $arAnswerValues))
@@ -1399,8 +1399,7 @@ class CAllForm extends CForm_old
 
 			if (is_array($arrSITE))
 			{
-				reset($arrSITE);
-				list($k, $arFields["FIRST_SITE_ID"]) = each($arrSITE);
+				$arFields["FIRST_SITE_ID"] = current($arrSITE);
 			}
 
 			if (is_set($arFields, "BUTTON"))
@@ -1583,8 +1582,7 @@ class CAllForm extends CForm_old
 					$DB->Query("DELETE FROM b_form_menu WHERE FORM_ID='".$FORM_ID."'", false, $err_mess.__LINE__);
 					if (is_array($arFields["arMENU"]))
 					{
-						reset($arFields["arMENU"]);
-						while(list($lid,$menu)=each($arFields["arMENU"]))
+						foreach ($arFields["arMENU"] as $lid => $menu)
 						{
 							$arFields_i = array(
 								"FORM_ID"	=> $FORM_ID,
@@ -1620,8 +1618,7 @@ class CAllForm extends CForm_old
 					$DB->Query("DELETE FROM b_form_2_group WHERE FORM_ID='".$FORM_ID."'", false, $err_mess.__LINE__);
 					if (is_array($arFields["arGROUP"]))
 					{
-						reset($arFields["arGROUP"]);
-						while(list($group_id,$perm)=each($arFields["arGROUP"]))
+						foreach ($arFields["arGROUP"] as $group_id => $perm)
 						{
 							if (intval($perm)>0)
 							{
@@ -1690,7 +1687,7 @@ class CAllForm extends CForm_old
 			$z = CForm::GetMenuList(array("FORM_ID"=>$ID), "N");
 			while ($zr = $z->Fetch()) $arFields["arMENU"][$zr["LID"]] = $zr["MENU"];
 
-			$w = CGroup::GetList($v1="dropdown", $v2="asc", Array("ADMIN"=>"N"), $v3);
+			$w = CGroup::GetList("dropdown", "asc", Array("ADMIN"=>"N"), $v3);
 			$arGroups = array();
 			while ($wr=$w->Fetch()) $arGroups[] = $wr["ID"];
 			if (is_array($arGroups))
@@ -1710,10 +1707,10 @@ class CAllForm extends CForm_old
 
 			if (intval($NEW_ID)>0)
 			{
-				$rsStatus = CFormStatus::GetList($ID, $by, $order, array(), $is_filtered);
+				$rsStatus = CFormStatus::GetList($ID);
 				while ($arStatus = $rsStatus->Fetch()) CFormStatus::Copy($arStatus["ID"], "N", $NEW_ID);
 
-				$rsField = CFormField::GetList($ID, "ALL", $by, $order, array(), $is_filtered);
+				$rsField = CFormField::GetList($ID, "ALL");
 				while ($arField = $rsField->Fetch())
 				{
 					CFormField::Copy($arField["ID"], "N", $NEW_ID);
@@ -1741,11 +1738,11 @@ class CAllForm extends CForm_old
 				if (file_exists($tmp_filename)) @unlink($tmp_filename);
 
 				// delete form statuses
-				$rsStatuses = CFormStatus::GetList($ID, $by, $order, $arFilter, $is_filtered);
+				$rsStatuses = CFormStatus::GetList($ID, '', '', $arFilter);
 				while ($arStatus = $rsStatuses->Fetch()) CFormStatus::Delete($arStatus["ID"], "N");
 
 				// delete from fields & questions
-				$rsFields = CFormField::GetList($ID, "ALL", $by, $order, array(), $is_filtered);
+				$rsFields = CFormField::GetList($ID, "ALL");
 				while ($arField = $rsFields->Fetch()) CFormField::Delete($arField["ID"], "N");
 
 				// delete form image
@@ -1760,7 +1757,7 @@ class CAllForm extends CForm_old
 				{
 					// delete mail templates
 					$em = new CEventMessage;
-					$e = $em->GetList($by="id",$order="desc",array("EVENT_NAME"=>$qr["MAIL_EVENT_TYPE"], "EVENT_NAME_EXACT_MATCH" => "Y"));
+					$e = $em->GetList("id", "desc", array("EVENT_NAME"=>$qr["MAIL_EVENT_TYPE"], "EVENT_NAME_EXACT_MATCH" => "Y"));
 					while ($er=$e->Fetch()) $em->Delete($er["ID"]);
 
 					// delete mail event type
@@ -1799,7 +1796,7 @@ class CAllForm extends CForm_old
 		$F_RIGHT = ($CHECK_RIGHTS!="Y") ? 30 : CForm::GetPermission($ID);
 		if ($F_RIGHT>=30)
 		{
-			$rsFields = CFormField::GetList($ID, "ALL", $by, $order, array(), $is_filtered);
+			$rsFields = CFormField::GetList($ID, "ALL");
 			while ($arField = $rsFields->Fetch()) CFormField::Reset($arField["ID"], "N");
 
 			$DB->Query("DELETE FROM b_form_result WHERE FORM_ID='$ID'", false, $err_mess.__LINE__);
@@ -1829,7 +1826,7 @@ class CAllForm extends CForm_old
 			if ($MAIL_EVENT_TYPE <> '')
 				$et->Delete($MAIL_EVENT_TYPE);
 
-			$z = CLanguage::GetList($v1, $v2);
+			$z = CLanguage::GetList();
 			$OLD_MESS = $MESS;
 			while ($arLang = $z->Fetch())
 			{
@@ -1849,7 +1846,7 @@ class CAllForm extends CForm_old
 				$str .= "#RS_STAT_SESSION_ID# - ".GetMessage("FORM_L_STAT_SESSION_ID")."\n";
 
 				$strFIELDS = "";
-				$w = CFormField::GetList($WEB_FORM_ID,"ALL", $by, $order, array("ACTIVE" => "Y"), $is_filtered);
+				$w = CFormField::GetList($WEB_FORM_ID, "ALL", '', '', array("ACTIVE" => "Y"));
 				while ($wr=$w->Fetch())
 				{
 					if ($wr["RESULTS_TABLE_TITLE"] <> '')
@@ -1881,7 +1878,7 @@ class CAllForm extends CForm_old
 			}
 			if ($old_MAIL_EVENT_TYPE <> '' && $old_MAIL_EVENT_TYPE!=$MAIL_EVENT_TYPE)
 			{
-				$e = $em->GetList($by="id",$order="desc",array("EVENT_NAME"=>$old_MAIL_EVENT_TYPE));
+				$e = $em->GetList("id", "desc", array("EVENT_NAME"=>$old_MAIL_EVENT_TYPE));
 				while ($er=$e->Fetch())
 				{
 					$em->Update($er["ID"],array("EVENT_NAME"=>$MAIL_EVENT_TYPE));
@@ -1892,7 +1889,7 @@ class CAllForm extends CForm_old
 
 			if ($ADD_NEW_TEMPLATE=="Y")
 			{
-				$z = CSite::GetList($v1, $v2);
+				$z = CSite::GetList();
 				while ($arSite = $z->Fetch()) $arrSiteLang[$arSite["ID"]] = $arSite["LANGUAGE_ID"];
 
 				$arrFormSite = CForm::GetSiteArray($WEB_FORM_ID);

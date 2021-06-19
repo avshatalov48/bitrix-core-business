@@ -337,7 +337,7 @@ class rest extends CModule
 		}
 	}
 
-	function OnGetTableSchema()
+	public static function OnGetTableSchema()
 	{
 		return array(
 			"rest" => array(

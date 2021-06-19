@@ -18,7 +18,7 @@ if (($GLOBALS["DB"]->TableExists("b_forum_dictionary") || $GLOBALS["DB"]->TableE
 }
 
 $arSites= array();
-$db_res = CSite::GetList(($b = ""), ($o = ""), array("ACTIVE" => "Y"));
+$db_res = CSite::GetList("", "", array("ACTIVE" => "Y"));
 if ($db_res && ($res = $db_res->Fetch()))
 {
 	do 

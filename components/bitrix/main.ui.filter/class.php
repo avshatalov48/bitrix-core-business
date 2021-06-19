@@ -345,16 +345,16 @@ class CMainUiFilter extends CBitrixComponent
 		return $result;
 	}
 
-	protected static function prepareCustomEntityValue(Array $field, Array $presetFields = array())
+	protected static function extractValueFromPreset(Array $field, Array $presetFields = []): array
 	{
 		$fieldName = $field["NAME"];
-		$fieldNameLabel = $fieldName."_label";
-		$fieldNameLabelAlias = $fieldName."_name";
-		$fieldNameValue = $fieldName."_value";
-		$result = array(
+		$fieldNameLabel = $fieldName . "_label";
+		$fieldNameLabelAlias = $fieldName . "_name";
+		$fieldNameValue = $fieldName . "_value";
+		$result = [
 			"_label" => "",
-			"_value" => ""
-		);
+			"_value" => "",
+		];
 
 		if (array_key_exists($fieldName, $presetFields))
 		{
@@ -378,9 +378,21 @@ class CMainUiFilter extends CBitrixComponent
 			$result["_label"] = $presetFields[$fieldNameLabelAlias];
 		}
 
-		if (!empty($result["_value"]) && empty($result["_label"]))
+		return $result;
+	}
+
+	protected static function prepareCustomEntityValue(Array $field, Array $presetFields = [])
+	{
+		$result = self::extractValueFromPreset($field, $presetFields);
+
+		return self::replaceEmptyLabelsWithIds($result);
+	}
+
+	protected static function replaceEmptyLabelsWithIds(array $result): array
+	{
+		if (!empty($result['_value']) && empty($result['_label']))
 		{
-			$result["_label"] = "#".$result["_value"];
+			$result['_label'] = '#' . $result['_value'];
 		}
 
 		return $result;
@@ -393,34 +405,7 @@ class CMainUiFilter extends CBitrixComponent
 
 	protected static function prepareDestSelectorValue(Array $field, Array $presetFields = array(), Array $params = array())
 	{
-		$fieldName = $field["NAME"];
-		$fieldNameLabel = $fieldName."_label";
-		$fieldNameLabelAlias = $fieldName."_name";
-		$fieldNameValue = $fieldName."_value";
-		$result = array(
-			"_label" => "",
-			"_value" => ""
-		);
-
-		if (array_key_exists($fieldName, $presetFields))
-		{
-			$result["_value"] = $presetFields[$fieldName];
-		}
-
-		if (empty($result["_value"]) && array_key_exists($fieldNameValue, $presetFields))
-		{
-			$result["_value"] = $presetFields[$fieldNameValue];
-		}
-
-		if (array_key_exists($fieldNameLabel, $presetFields))
-		{
-			$result["_label"] = $presetFields[$fieldNameLabel];
-		}
-
-		if (empty($result["_label"]) && array_key_exists($fieldNameLabelAlias, $presetFields))
-		{
-			$result["_label"] = $presetFields[$fieldNameLabelAlias];
-		}
+		$result = self::extractValueFromPreset($field, $presetFields);
 
 		if (!empty($result["_value"]) && empty($result["_label"]))
 		{
@@ -493,12 +478,29 @@ class CMainUiFilter extends CBitrixComponent
 			}
 		}
 
-		if (!empty($result["_value"]) && empty($result["_label"]))
+		return self::replaceEmptyLabelsWithIds($result);
+	}
+
+	protected static function prepareEntitySelectorValue(Array $field, Array $presetFields = [])
+	{
+		$result = self::extractValueFromPreset($field, $presetFields);
+		if (!empty($result['_label']))
 		{
-			$result["_label"] = "#".$result["_value"];
+			return $result;
+		}
+		$values = $result['_value'];
+		if (empty($values))
+		{
+			return self::replaceEmptyLabelsWithIds($result);
 		}
 
-		return $result;
+		$fieldAdapter = new \Bitrix\Main\Filter\FieldAdapter\EntitySelectorFieldAdapter($field);
+		$result['_label'] =
+			$field['MULTIPLE']
+				? $fieldAdapter->getLabels((array)$values)
+				: $fieldAdapter->getLabel((string)$values);
+
+		return self::replaceEmptyLabelsWithIds($result);
 	}
 
 	protected static function compatibleDateselValue($value = "")
@@ -627,6 +629,12 @@ class CMainUiFilter extends CBitrixComponent
 					case Type::CUSTOM :
 					{
 						$field["_VALUE"] = self::prepareCustomValue($field, $presetFields);
+						break;
+					}
+
+					case Type::ENTITY_SELECTOR:
+					{
+						$field["VALUES"] = self::prepareEntitySelectorValue($field, $presetFields);
 						break;
 					}
 
@@ -904,7 +912,7 @@ class CMainUiFilter extends CBitrixComponent
 					$preset["FIELDS"] = $this->preparePresetFields($rows, $presetFields["fields"]);
 					$preset["IS_DEFAULT"] = true;
 					$preset["FOR_ALL"] = !$presetFields["disallow_for_all"];
-					$preset["PINNED"] = $presetFields["default"] == true;
+					$preset["IS_PINNED"] = $presetFields["default"] == true;
 
 					$presets[] = $preset;
 					$sort++;

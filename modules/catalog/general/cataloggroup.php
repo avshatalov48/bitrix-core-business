@@ -54,18 +54,38 @@ class CAllCatalogGroup
 		if (array_key_exists('DATE_CREATE', $arFields))
 			unset($arFields['DATE_CREATE']);
 		$arFields['~TIMESTAMP_X'] = $strDateFunction;
-		if ($boolUserExist)
+		if (array_key_exists('MODIFIED_BY', $arFields))
 		{
-			if (!array_key_exists('MODIFIED_BY', $arFields) || intval($arFields["MODIFIED_BY"]) <= 0)
-				$arFields["MODIFIED_BY"] = $intUserID;
+			if ($arFields['MODIFIED_BY'] !== false)
+			{
+				$arFields['MODIFIED_BY'] = (int)$arFields['MODIFIED_BY'];
+				if ($arFields['MODIFIED_BY'] <= 0)
+				{
+					unset($arFields['MODIFIED_BY']);
+				}
+			}
+		}
+		if (!isset($arFields['MODIFIED_BY']) && $boolUserExist)
+		{
+			$arFields["MODIFIED_BY"] = $intUserID;
 		}
 		if ('ADD' == $ACTION)
 		{
 			$arFields['~DATE_CREATE'] = $strDateFunction;
-			if ($boolUserExist)
+			if (array_key_exists('CREATED_BY', $arFields))
 			{
-				if (!array_key_exists('CREATED_BY', $arFields) || intval($arFields["CREATED_BY"]) <= 0)
-					$arFields["CREATED_BY"] = $intUserID;
+				if ($arFields['CREATED_BY'] !== false)
+				{
+					$arFields['CREATED_BY'] = (int)$arFields['CREATED_BY'];
+					if ($arFields['CREATED_BY'] <= 0)
+					{
+						unset($arFields['CREATED_BY']);
+					}
+				}
+			}
+			if (!isset($arFields['CREATED_BY']) && $boolUserExist)
+			{
+				$arFields["CREATED_BY"] = $intUserID;
 			}
 		}
 		if ('UPDATE' == $ACTION)
@@ -321,5 +341,15 @@ class CAllCatalogGroup
 			unset($group);
 		}
 		return self::$arBaseGroupCache;
+	}
+
+	/**
+	 * @return int|null
+	 */
+	public static function GetBaseGroupId(): ?int
+	{
+		$baseGroup = self::GetBaseGroup();
+
+		return $baseGroup ? (int)$baseGroup['ID'] : null;
 	}
 }

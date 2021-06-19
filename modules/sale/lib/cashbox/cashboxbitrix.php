@@ -471,7 +471,7 @@ class CashboxBitrix extends Cashbox
 						$key = Check::PARAM_CALCULATION_ATTR;
 						break;
 					default:
-						continue;
+						continue 2;
 				}
 
 				$result[$key] = $value;

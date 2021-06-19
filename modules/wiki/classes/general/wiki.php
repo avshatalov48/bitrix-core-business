@@ -393,7 +393,7 @@ class CWiki
 		}
 
 		$arAddImage = array_diff(array_keys($arCurImagesNew), array_keys($arCurImages));
-		list(, $imgId) = each($arAddImage);
+		$imgId = current($arAddImage);
 		return $imgId;
 	}
 
@@ -659,7 +659,7 @@ class CWiki
 		return isset($arElement['UF_WIKI_INDEX']['VALUE']) ? $arElement['UF_WIKI_INDEX']['VALUE'] : '';
 	}
 
-	function GetCategory($NAME, $IBLOCK_ID)
+	public static function GetCategory($NAME, $IBLOCK_ID)
 	{
 		global $arParams;
 

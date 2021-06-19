@@ -47,12 +47,12 @@ Class CIdeaManagmentInstall
 			$this->arResult["SETTINGS"]["STATUS_ID"][$arStatus["XML_ID"]] = $arStatus["ID"];
 
 		//Lang List
-		$l = CLanguage::GetList($by="sort", $order="asc");
+		$l = CLanguage::GetList();
 		while($r = $l->Fetch())
 			$this->arResult["SETTINGS"]["LANG"][] = $r;
 
 		//Sites List
-		$oSites = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+		$oSites = CSite::GetList("", "", Array("ACTIVE" => "Y"));
 		while ($site = $oSites->Fetch())
 			$this->arResult["SETTINGS"]["SITE"][$site["LID"]] = Array(
 				"LANGUAGE_ID" => $site["LANGUAGE_ID"],
@@ -597,7 +597,7 @@ global $obModule;
 
 //Sites List
 $arSite = array();
-$oSites = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+$oSites = CSite::GetList("", "", Array("ACTIVE" => "Y"));
 while ($site = $oSites->Fetch())
 	$arSite[] = Array(
 		"LANGUAGE_ID" => $site["LANGUAGE_ID"],

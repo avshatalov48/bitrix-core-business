@@ -37,6 +37,11 @@ abstract class CAllDatabase
 	var $obSlave = null;
 
 	/**
+	 * @var Main\DB\Connection
+	 */
+	protected $connection; // d7 connection
+
+	/**
 	 * @var integer
 	 * @deprecated Use \Bitrix\Main\Application::getConnection()->getTracker()->getCounter();
 	 **/
@@ -56,12 +61,12 @@ abstract class CAllDatabase
 	 */
 	public $sqlTracker = null;
 
-	function StartUsingMasterOnly()
+	public function StartUsingMasterOnly()
 	{
 		Main\Application::getInstance()->getConnectionPool()->useMasterOnly(true);
 	}
 
-	function StopUsingMasterOnly()
+	public function StopUsingMasterOnly()
 	{
 		Main\Application::getInstance()->getConnectionPool()->useMasterOnly(false);
 	}
@@ -194,88 +199,102 @@ abstract class CAllDatabase
 		}
 	}
 
-	abstract function Connect($DBHost, $DBName, $DBLogin, $DBPassword);
+	/**
+	 * @deprecated Use D7 connections.
+	 */
+	abstract public function Connect($DBHost, $DBName, $DBLogin, $DBPassword);
 
-	abstract function ConnectInternal();
+	/**
+	 * @deprecated Not used.
+	 */
+	abstract protected function ConnectInternal();
 
-	function DoConnect($connectionName = "")
+	public function DoConnect($connectionName = '')
 	{
-		if($this->bConnected)
+		if ($this->bConnected)
+		{
 			return true;
+		}
 
-		$app = Main\Application::getInstance();
-		if ($app != null)
+		$application = Main\Application::getInstance();
+
+		$found = false;
+
+		// try to get a connection by its name
+		$connection = $application->getConnection($connectionName);
+
+		if ($connection instanceof Main\DB\Connection)
 		{
-			$con = $app->getConnection($connectionName);
-			if (
-				$con
-				&& $con->isConnected()
-				&& ($con instanceof Bitrix\Main\DB\Connection)
-				&& ($this->DBHost == $con->getHost())
-				&& ($this->DBLogin == $con->getLogin())
-				&& ($this->DBName == $con->getDatabase())
-			)
+			// empty connection data, using the default connection
+			if ((string)$this->DBHost === '')
 			{
-				$this->db_Conn = $con->getResource();
-				$this->bConnected = true;
-				$this->sqlTracker = null;
-				$this->cntQuery = 0;
-				$this->timeQuery = 0;
-				$this->arQueryDebug = array();
+				$found = true;
 
-				return true;
+				$this->DBHost = $connection->getHost();
+				$this->DBName = $connection->getDatabase();
+				$this->DBLogin = $connection->getLogin();
+				$this->DBPassword = $connection->getPassword();
 			}
-		}
 
-		if(!$this->ConnectInternal())
-		{
-			return false;
-		}
-
-		$this->bConnected = true;
-		$this->sqlTracker = null;
-		$this->cntQuery = 0;
-		$this->timeQuery = 0;
-		$this->arQueryDebug = array();
-
-		/** @noinspection PhpUnusedLocalVariableInspection */
-		global $DB, $USER, $APPLICATION;
-		if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/after_connect.php"))
-			include($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/after_connect.php");
-
-		if ($app != null)
-		{
-			$con = $app->getConnection($connectionName);
-			if(!$con && $this->bNodeConnection)
+			// or specific connection data
+			if (!$found)
 			{
-				//create a node connection in the new kernel
-				$pool = $app->getConnectionPool();
-				$parameters = array(
-					'host' => $this->DBHost,
-					'database' => $this->DBName,
-					'login' => $this->DBLogin,
-					'password' => $this->DBPassword,
+				$found = (
+					$this->DBHost == $connection->getHost()
+					&& $this->DBName == $connection->getDatabase()
+					&& $this->DBLogin == $connection->getLogin()
 				);
-				$con = $pool->cloneConnection(ConnectionPool::DEFAULT_CONNECTION_NAME, $connectionName, $parameters);
-				$con->setNodeId($this->node_id);
-			}
-			if (
-				$con
-				&& !$con->isConnected()
-				&& ($con instanceof Bitrix\Main\DB\Connection)
-				&& ($this->DBHost == $con->getHost())
-				&& ($this->DBLogin == $con->getLogin())
-				&& ($this->DBName == $con->getDatabase())
-			)
-			{
-				$con->setConnectionResourceNoDemand($this->db_Conn);
 			}
 		}
 
-		return true;
+		// connection not found, adding the new connection to the pool
+		if (!$found)
+		{
+			if ((string)$connectionName === '')
+			{
+				$connectionName = "{$this->DBHost}.{$this->DBName}.{$this->DBLogin}";
+			}
+
+			$parameters = [
+				'host' => $this->DBHost,
+				'database' => $this->DBName,
+				'login' => $this->DBLogin,
+				'password' => $this->DBPassword,
+			];
+
+			$connection = $application->getConnectionPool()->cloneConnection(
+				ConnectionPool::DEFAULT_CONNECTION_NAME,
+				$connectionName,
+				$parameters
+			);
+
+			if ($this->bNodeConnection && ($connection instanceof Main\DB\Connection))
+			{
+				$connection->setNodeId($this->node_id);
+			}
+
+			$found = true;
+		}
+
+		if ($found)
+		{
+			// real connection establishes here
+			$this->db_Conn = $connection->getResource();
+
+			$this->connection = $connection;
+			$this->bConnected = true;
+			$this->sqlTracker = null;
+			$this->cntQuery = 0;
+			$this->timeQuery = 0;
+			$this->arQueryDebug = [];
+
+			return true;
+		}
+
+		return false;
 	}
 
-	function startSqlTracker()
+	public function startSqlTracker()
 	{
 		if (!$this->sqlTracker)
 		{
@@ -285,23 +304,23 @@ abstract class CAllDatabase
 		return $this->sqlTracker;
 	}
 
-	function GetNowFunction()
+	public function GetNowFunction()
 	{
-		return CDatabase::CurrentTimeFunction();
+		return $this->CurrentTimeFunction();
 	}
 
-	function GetNowDate()
+	public function GetNowDate()
 	{
-		return CDatabase::CurrentDateFunction();
+		return $this->CurrentDateFunction();
 	}
 
-	abstract function DateToCharFunction($strFieldName, $strType="FULL");
+	abstract public function DateToCharFunction($strFieldName, $strType="FULL");
 
-	abstract function CharToDateFunction($strValue, $strType="FULL");
+	abstract public function CharToDateFunction($strValue, $strType="FULL");
 
-	abstract function Concat();
+	abstract public function Concat();
 
-	function Substr($str, $from, $length = null)
+	public function Substr($str, $from, $length = null)
 	{
 		// works for mysql and oracle, redefined for mssql
 		$sql = 'SUBSTR('.$str.', '.$from;
@@ -314,11 +333,11 @@ abstract class CAllDatabase
 		return $sql.')';
 	}
 
-	abstract function IsNull($expression, $result);
+	abstract public function IsNull($expression, $result);
 
-	abstract function Length($field);
+	abstract public function Length($field);
 
-	function ToChar($expr, $len=0)
+	public function ToChar($expr, $len=0)
 	{
 		return "CAST(".$expr." AS CHAR".($len > 0? "(".$len.")":"").")";
 	}
@@ -385,37 +404,37 @@ abstract class CAllDatabase
 	 * @param array $arOptions
 	 * @return CDBResult
 	 */
-	abstract function Query($strSql, $bIgnoreErrors=false, $error_position="", $arOptions=array());
+	abstract public function Query($strSql, $bIgnoreErrors=false, $error_position="", $arOptions=array());
 
 	//query with CLOB
-	function QueryBind($strSql, $arBinds, $bIgnoreErrors=false)
+	public function QueryBind($strSql, $arBinds, $bIgnoreErrors=false)
 	{
 		return $this->Query($strSql, $bIgnoreErrors);
 	}
 
-	function QueryLong($strSql, $bIgnoreErrors = false)
+	public function QueryLong($strSql, $bIgnoreErrors = false)
 	{
 		return $this->Query($strSql, $bIgnoreErrors);
 	}
 
-	abstract function ForSql($strValue, $iMaxLength=0);
+	abstract public function ForSql($strValue, $iMaxLength=0);
 
-	abstract function PrepareInsert($strTableName, $arFields);
+	abstract public function PrepareInsert($strTableName, $arFields);
 
-	abstract function PrepareUpdate($strTableName, $arFields);
+	abstract public function PrepareUpdate($strTableName, $arFields);
 
 	/**
 	 * @deprecated Use \Bitrix\Main\DB\Connection::parseSqlBatch()
 	 * @param string $strSql
 	 * @return array
 	 */
-	function ParseSqlBatch($strSql)
+	public function ParseSqlBatch($strSql)
 	{
 		$connection = Main\Application::getInstance()->getConnection();
 		return $connection->parseSqlBatch($strSql);
 	}
 
-	function RunSQLBatch($filepath)
+	public function RunSQLBatch($filepath)
 	{
 		if(!file_exists($filepath) || !is_file($filepath))
 		{
@@ -443,13 +462,13 @@ abstract class CAllDatabase
 		return false;
 	}
 
-	function IsDate($value, $format=false, $lang=false, $format_type="SHORT")
+	public function IsDate($value, $format=false, $lang=false, $format_type="SHORT")
 	{
 		if ($format===false) $format = CLang::GetDateFormat($format_type, $lang);
 		return CheckDateTime($value, $format);
 	}
 
-	function GetErrorMessage()
+	public function GetErrorMessage()
 	{
 		if(is_object($this->obSlave) && $this->obSlave->db_Error <> '')
 			return $this->obSlave->db_Error;
@@ -461,7 +480,7 @@ abstract class CAllDatabase
 			return '';
 	}
 
-	function GetErrorSQL()
+	public function GetErrorSQL()
 	{
 		if(is_object($this->obSlave) && $this->obSlave->db_ErrorSQL <> '')
 			return $this->obSlave->db_ErrorSQL;
@@ -473,7 +492,7 @@ abstract class CAllDatabase
 			return '';
 	}
 
-	function DDL($strSql, $bIgnoreErrors=false, $error_position="", $arOptions=array())
+	public function DDL($strSql, $bIgnoreErrors=false, $error_position="", $arOptions=array())
 	{
 		$res = $this->Query($strSql, $bIgnoreErrors, $error_position, $arOptions);
 
@@ -483,7 +502,7 @@ abstract class CAllDatabase
 		return $res;
 	}
 
-	function addDebugQuery($strSql, $exec_time, $node_id = 0)
+	public function addDebugQuery($strSql, $exec_time, $node_id = 0)
 	{
 		$this->cntQuery++;
 		$this->timeQuery += $exec_time;
@@ -496,7 +515,7 @@ abstract class CAllDatabase
 		;
 	}
 
-	function addDebugTime($index, $exec_time)
+	public function addDebugTime($index, $exec_time)
 	{
 		if ($this->arQueryDebug[$index])
 		{
@@ -1102,9 +1121,16 @@ abstract class CAllDBResult
 	public function InitFromArray($arr)
 	{
 		if(is_array($arr))
+		{
 			reset($arr);
+			$this->nSelectedCount = count($arr);
+		}
+		else
+		{
+			$this->nSelectedCount = false;
+		}
+
 		$this->arResult = $arr;
-		$this->nSelectedCount = count($arr);
 		$this->bFromArray = true;
 	}
 

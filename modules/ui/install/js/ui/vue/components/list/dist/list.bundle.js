@@ -9,7 +9,7 @@
 	 * @subpackage ui
 	 * @copyright 2001-2020 Bitrix
 	 */
-	ui_vue.Vue.component('bx-list-element', {
+	ui_vue.BitrixVue.component('bx-list-element', {
 	  props: ['rawListItem', 'itemTypes'],
 	  computed: {
 	    imageStyle: function imageStyle() {
@@ -45,7 +45,7 @@
 	 * @subpackage ui
 	 * @copyright 2001-2020 Bitrix
 	 */
-	ui_vue.Vue.component('bx-list', {
+	ui_vue.BitrixVue.component('bx-list', {
 	  data: function data() {
 	    return {
 	      generalSectionName: 'general',
@@ -60,9 +60,7 @@
 	      elementComponent: 'bx-list-element'
 	    };
 	  },
-	  created: function created() {
-	    this.initObserver();
-	  },
+	  created: function created() {},
 	  methods: {
 	    /* region 01. Data validation */
 	    validateData: function validateData(listData) {
@@ -204,21 +202,13 @@
 
 	      return counter;
 	    },
-	    initObserver: function initObserver() {
-	      this.observer = new IntersectionObserver(function (entries) {
-	        entries.forEach(function (entry) {
-	          if (entry.isIntersecting && entry.intersectionRatio === 1) ;
-	        });
-	      }, {
-	        threshold: [0, 1]
-	      });
-	    },
 
 	    /* endregion 01. Data validation */
 
 	    /* region 02. Events handling */
 	    onScroll: function onScroll(event) {},
-	    onClick: function onClick(event, id) {}
+	    onClick: function onClick(event, id) {},
+	    onDoubleClick: function onDoubleClick(event) {}
 	    /* endregion 02. Events handling */
 
 	  },
@@ -236,7 +226,7 @@
 	      var _this3 = this;
 
 	      this.sections.forEach(function (section) {
-	        ui_vue.Vue.set(_this3.resultList, section, []);
+	        ui_vue.BitrixVue.set(_this3.resultList, section, []);
 
 	        var listForSection = _this3.list.filter(function (item) {
 	          return item.sectionCode === section;
@@ -247,14 +237,7 @@
 	      return this.resultList;
 	    }
 	  },
-	  directives: {
-	    'bx-list-observer': {
-	      inserted: function inserted(element, bindings, vnode) {
-	        vnode.context.observer.observe(element);
-	      }
-	    }
-	  },
-	  template: "\n\t\t<div :class=\"wrapperStyle\" @scroll=\"onScroll\">\n\t\t\t<template v-for=\"section in sections\">\n\t\t\t\t<div v-if=\"sections.length > 1 && sectionedList[section].length > 0 && showSectionNames\" class=\"bx-vue-list-section\">{{ section }}</div>\n\t\t\t\t<div\n\t\t\t\t\tv-for=\"listItem in sectionedList[section]\"\n\t\t\t\t\t:key=\"listItem.id\"\n\t\t\t\t\t@click=\"onClick($event, listItem.id)\"\n\t\t\t\t\t@click.right=\"onRightClick($event, listItem.id)\"\n\t\t\t\t\tv-bx-list-observer :data-id=\"listItem.id\"\n\t\t\t\t>\n\t\t\t\t\t<component :is=\"elementComponent\" :rawListItem=\"listItem\" :itemTypes=\"itemTypes\" />\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div :class=\"wrapperStyle\" @scroll=\"onScroll\">\n\t\t\t<template v-for=\"section in sections\">\n\t\t\t\t<div v-if=\"sections.length > 1 && sectionedList[section].length > 0 && showSectionNames\" class=\"bx-vue-list-section\">{{ section }}</div>\n\t\t\t\t<div\n\t\t\t\t\tv-for=\"listItem in sectionedList[section]\"\n\t\t\t\t\t:key=\"listItem.id\"\n\t\t\t\t\t@click=\"onClick($event, listItem.id)\"\n\t\t\t\t\t@click.right=\"onRightClick($event, listItem.id)\"\n\t\t\t\t\t:data-id=\"listItem.id\"\n\t\t\t\t>\n\t\t\t\t\t<component :is=\"elementComponent\" :rawListItem=\"listItem\" :itemTypes=\"itemTypes\" @dblclick=\"onDoubleClick\"/>\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t</div>\n\t"
 	});
 
 }((this.window = this.window || {}),BX));

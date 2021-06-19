@@ -186,6 +186,11 @@
           responsive: setResponsive
         });
 
+		  $this.on('breakpoint', function(event, slick, breakpoint)
+		  {
+			  $(slick.$slides).css('height', 'auto');
+		  });
+
         $this.on('beforeChange', function (event, slider, currentSlide, nextSlide) {
           var $pagination = $this.find('.js-pagination');
 

@@ -13,7 +13,8 @@
 	BX.Landing.Block.Node.Embed = function(options)
 	{
 		BX.Landing.Block.Node.apply(this, arguments);
-		this.type = "embed";
+		this.type = 'embed';
+		this.attribute = ['data-src', 'data-source', 'data-preview'];
 		this.onAttributeChangeHandler = options.onAttributeChange || (function() {});
 		this.lastValue = this.getValue();
 	};
@@ -61,6 +62,11 @@
 			{
 				data(this.node, "data-preview", value.preview);
 				this.node.style.backgroundImage = "url(\""+value.preview+"\")";
+			}
+			else
+			{
+				data(this.node, "data-preview", null);
+				this.node.style.backgroundImage = "";
 			}
 
 			if (this.isChanged())

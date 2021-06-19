@@ -35,7 +35,7 @@ while ($mr = $modules->Fetch())
 	$arModules[] = $mr["ID"];
 
 $arSites = array();
-$rsSites = CSite::GetList($by="sort", $order="asc", array("ACTIVE" => "Y"));
+$rsSites = CSite::GetList("sort", "asc", array("ACTIVE" => "Y"));
 while ($arSite = $rsSites->GetNext())
 {
 	$arSites["reference_id"][] = $arSite["ID"];
@@ -470,7 +470,7 @@ $tabControl->BeginNextTab();
 			</script>
 			<?
 			$ind = -1;
-			$dbUsers = CUser::GetList(($b="id"), ($o="asc"), array("ACTIVE" => "Y"));
+			$dbUsers = CUser::GetList("id", "asc", array("ACTIVE" => "Y"));
 			while ($arUsers = $dbUsers->Fetch())
 			{
 				$ind++;
@@ -799,7 +799,7 @@ $tabControl->BeginNextTab();
 			<select id="subordinate_groups" name="subordinate_groups[]" multiple size="6">
 			<?
 			$arSubordinateGroups = CGroup::GetSubordinateGroups($ID);
-			$rsData = CGroup::GetList($by, $order, array("ACTIVE"=>"Y", "ADMIN"=>"N", "ANONYMOUS"=>"N"));
+			$rsData = CGroup::GetList('', '', array("ACTIVE"=>"Y", "ADMIN"=>"N", "ANONYMOUS"=>"N"));
 			while($arRes = $rsData->Fetch())
 			{
 				$arRes['ID'] = intval($arRes['ID']);

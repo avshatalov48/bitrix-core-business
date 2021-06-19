@@ -26,7 +26,7 @@ class BizprocDocumentLists extends \BizprocDocument
 	 * @throws \CBPArgumentOutOfRangeException
 	 * @throws \Exception
 	 */
-	public function getDocument($documentId)
+	public static function getDocument($documentId)
 	{
 		$documentId = intval($documentId);
 		if ($documentId <= 0)
@@ -99,7 +99,7 @@ class BizprocDocumentLists extends \BizprocDocument
 						$property['VALUE'] = array($property['VALUE']);
 
 					$listUsers = implode(' | ', $property['VALUE']);
-					$userQuery = \CUser::getList($by = 'ID', $order = 'ASC',
+					$userQuery = \CUser::getList('ID', 'ASC',
 						array('ID' => $listUsers) ,
 						array('FIELDS' => array('ID' ,'LOGIN', 'NAME', 'LAST_NAME')));
 					while($user = $userQuery->fetch())
@@ -285,7 +285,7 @@ class BizprocDocumentLists extends \BizprocDocument
 	 * @return array
 	 * @throws \CBPArgumentOutOfRangeException
 	 */
-	public function getDocumentFields($documentType)
+	public static function getDocumentFields($documentType)
 	{
 		$iblockId = intval(mb_substr($documentType, mb_strlen("iblock_")));
 		if ($iblockId <= 0)
@@ -504,7 +504,7 @@ class BizprocDocumentLists extends \BizprocDocument
 		return in_array($feature, array(\CBPDocumentService::FEATURE_MARK_MODIFIED_FIELDS));
 	}
 
-	public function getDocumentAdminPage($documentId)
+	public static function getDocumentAdminPage($documentId)
 	{
 		$documentId = intval($documentId);
 		if ($documentId <= 0)

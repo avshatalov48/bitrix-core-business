@@ -422,7 +422,7 @@ function LoadEventsBySteps(
 				$EVENT3		= $arrCSV[1];
 				$DATE_ENTER	= $arrCSV[2];
 				$PARAMETER	= $arrCSV[3];
-				$MONEY		= $arrCSV[4];
+				$MONEY		= floatval($arrCSV[4]);
 				$CURRENCY	= $arrCSV[5];
 				$CHARGEBACK	= $arrCSV[6];
 				$RES_MONEY	= $MONEY;
@@ -566,11 +566,11 @@ function SendDailyStatistics()
 		$bef_yesterday_date = GetTime(time()-172800, "SHORT", $arSite["ID"], true);
 
 		$arComm = CTraffic::GetCommonValues();
-		$adv = CAdv::GetList($a_by, $a_order, array(), $is_filtered, "", $arrGROUP_DAYS, $v);
-		$events = CStatEventType::GetList(($e_by="s_stat"),($e_order="desc"),array(), $is_filtered);
-		$referers = CTraffic::GetRefererList($by, $order, array(), $is_filtered);
+		$adv = CAdv::GetList();
+		$events = CStatEventType::GetList("s_stat", "desc");
+		$referers = CTraffic::GetRefererList();
 		$phrases = CTraffic::GetPhraseList($s_by, $s_order, array(), $is_filtered);
-		$searchers = CSearcher::GetList(($f_by="s_stat"), ($f_order="desc"), array(), $is_filtered);
+		$searchers = CSearcher::GetList("s_stat", "desc");
 
 		$OLD_MESS = $MESS;
 		$MESS = array();
@@ -955,7 +955,8 @@ function AdminListCheckDate(&$lAdmin, $arDates)
 	$DB = CDatabase::GetModuleConnection('statistic');
 
 	$ok1 = false;
-	list($id1, $date1) = each($arDates);
+	$date1 = current($arDates);
+	next($arDates);
 	if($date1 <> '')
 	{
 		if(!CheckDateTime($date1))
@@ -972,7 +973,7 @@ function AdminListCheckDate(&$lAdmin, $arDates)
 	}
 
 	$ok2 = false;
-	list($id2, $date2) = each($arDates);
+	$date2 = current($arDates);
 	if($date2 <> '')
 	{
 		if(!CheckDateTime($date2))

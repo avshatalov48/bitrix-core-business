@@ -123,12 +123,31 @@ class Builder
 				'*',
 				'MESSAGE_TYPE' => 'MAILING_CHAIN.MESSAGE_CODE',
 				'WAITING_RECIPIENT' => 'MAILING_CHAIN.WAITING_RECIPIENT',
+				'MAILING_STATUS' => 'MAILING_CHAIN.STATUS',
 				'MESSAGE_ID' => 'MAILING_CHAIN.MESSAGE_ID'
 			),
 			'filter' => array('ID' => $postingId),
 			'limit' => 1
 		))->fetch();
 		if(!$postingData)
+		{
+			return true;
+		}
+		
+		if ($postingData['MAILING_STATUS'] === Model\LetterTable::STATUS_END)
+		{
+			Model\LetterTable::update($postingData['MAILING_CHAIN_ID'], [
+				'WAITING_RECIPIENT' => 'N'
+			]);
+			
+			return true;
+		}
+
+		$entityProcessed = $this->groupQueueService->isEntityProcessed(Model\GroupQueueTable::TYPE['POSTING'], $postingId);
+		if (
+			$postingData['MAILING_STATUS'] === Model\LetterTable::STATUS_SEND && $postingData['WAITING_RECIPIENT'] === 'N'
+			&& !$entityProcessed
+		)
 		{
 			return true;
 		}
@@ -213,6 +232,11 @@ class Builder
 				$usedGroups[$group['GROUP_ID']] = $group['GROUP_ID'];
 			}
 		}
+		
+		$this->postingData['WAITING_RECIPIENT'] = 'N';
+		Model\LetterTable::update($this->postingData['MAILING_CHAIN_ID'], [
+			'WAITING_RECIPIENT' => $this->postingData['WAITING_RECIPIENT']
+		]);
 
 		return true;
 	}
@@ -239,6 +263,10 @@ class Builder
 				return ($a['INCLUDE'] > $b['INCLUDE']) ? -1 : 1;
 			}
 		);
+		
+		Model\LetterTable::update($this->postingData['MAILING_CHAIN_ID'], [
+			'WAITING_RECIPIENT' => 'N'
+		]);
 
 		foreach ($groups as $group)
 		{
@@ -256,14 +284,10 @@ class Builder
 
 			if ($group['STATUS'] !== GroupTable::STATUS_READY_TO_USE)
 			{
+				SegmentDataBuilder::checkIsSegmentPrepared($group['GROUP_ID']);
 				$this->stopRecipientListBuilding();
 			}
 		}
-
-        $this->postingData['WAITING_RECIPIENT'] = 'N';
-        Model\LetterTable::update($this->postingData['MAILING_CHAIN_ID'], [
-            'WAITING_RECIPIENT' => $this->postingData['WAITING_RECIPIENT']
-        ]);
 
 		return $groups;
 	}
@@ -319,7 +343,7 @@ class Builder
 		RecipientBuilderJob::addEventAgent($this->postingData['ID']);
 
 		Model\LetterTable::update($this->postingData['MAILING_CHAIN_ID'], [
-			'WAITING_RECIPIENT' => 'Y'
+			'WAITING_RECIPIENT' => $this->postingData['MAILING_STATUS'] !== Model\LetterTable::STATUS_END ?  'Y' : 'N'
 		]);
 
 		throw new NotCompletedException();

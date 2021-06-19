@@ -64,10 +64,20 @@
 		buildItemListByNode: function (node)
 		{
 			var promise = new BX.Promise();
-			var nodes = node.dataset.viewerGroupBy?
-				[].slice.call(node.ownerDocument.querySelectorAll("[data-viewer][data-viewer-group-by='" + node.dataset.viewerGroupBy + "']")) :
-				[node]
-			;
+			var nodes = [];
+
+			if (this.isSeparateItem(node))
+			{
+				nodes = [node];
+			}
+			else if(node.dataset.viewerGroupBy)
+			{
+				nodes = [].slice.call(node.ownerDocument.querySelectorAll("[data-viewer][data-viewer-group-by='" + node.dataset.viewerGroupBy + "']"));
+			}
+			else
+			{
+				nodes = [node];
+			}
 
 			this.loadExtensions(this.collectExtensionsForItems(nodes)).then(function (){
 				var items = nodes.map(function(node) {
@@ -78,6 +88,20 @@
 			}.bind(this));
 
 			return promise;
+		},
+
+		/**
+		 * @param {HTMLElement} node
+		 * @return {boolean}
+		 */
+		isSeparateItem: function (node)
+		{
+			return node.dataset.viewerSeparateItem;
+		},
+
+		shouldProcessSeparateMode: function (items)
+		{
+			return items.length === 1 && items[0].isSeparateItem();
 		},
 
 		shouldRunViewer: function (node)
@@ -112,7 +136,10 @@
 
 			var extensions = [];
 			extensionSet.forEach(function (ext) {
-				extensions.push(ext);
+				if (shouldLoadExtensions(ext))
+				{
+					extensions.push(ext);
+				}
 			});
 
 			return extensions;
@@ -161,6 +188,15 @@
 			this.buildItemListByNode(target).then(function(items){
 				if (items.length === 0)
 				{
+					return;
+				}
+
+				if (this.shouldProcessSeparateMode(items))
+				{
+					this.setItems(items).then(function(){
+						this.openSeparate(0);
+					}.bind(this));
+
 					return;
 				}
 
@@ -340,6 +376,15 @@
 					return;
 				}
 
+				if (this.shouldProcessSeparateMode(items))
+				{
+					this.setItems(items).then(function(){
+						this.openSeparate(0);
+					}.bind(this));
+
+					return;
+				}
+
 				this.setItems(items).then(function(){
 					this.open(this.getIndexByNode(node));
 				}.bind(this));
@@ -378,13 +423,19 @@
 		},
 
 		/**
-		 * @deprecated
-		 * Needs to be removed
 		 * @returns {number}
 		 */
 		getZindex: function ()
 		{
-			return 1000;
+			var container = this.getViewerContainer();
+			if (!container.parentNode)
+			{
+				return 0;
+			}
+
+			var component = BX.ZIndexManager.getComponent(container);
+
+			return component.getZIndex();
 		},
 
 		/**
@@ -448,7 +499,10 @@
 
 			var extensions = [];
 			extensionSet.forEach(function (ext) {
-				extensions.push(ext);
+				if (shouldLoadExtensions(ext))
+				{
+					extensions.push(ext);
+				}
 			});
 
 			return extensions;
@@ -651,6 +705,8 @@
 
 			item.afterRender();
 			this.adjustControlsSize(item.getContentWidth());
+
+			BX.onCustomEvent('BX.UI.Viewer.Controller:onAfterShow', [this, item]);
 		},
 
 		adjustControlsSize: function(contentWidth)
@@ -1074,6 +1130,32 @@
 			}
 
 			this.isBodyPaddingAdded = false;
+		},
+
+		openSeparate: function(index)
+		{
+			var item = this.getItemByIndex(index);
+			if (!item)
+			{
+				return;
+			}
+
+			item.load()
+				.then(function (loadedItem) {}.bind(this))
+				.catch(function (reason) {
+					var loadedItem = reason.item;
+
+					console.log('catch viewer');
+
+					BX.onCustomEvent('BX.UI.Viewer.Controller:onItemError', [this, reason, loadedItem]);
+
+					if (this.getCurrentItem() === loadedItem)
+					{
+						this.processError(reason, loadedItem);
+					}
+
+					BX.onCustomEvent('BX.UI.Viewer.Controller:onAfterProcessItemError', [this, reason, loadedItem]);
+				}.bind(this));
 		},
 
 		open: function(index)
@@ -1707,6 +1789,19 @@
 			event.preventDefault();
 		});
 	};
+
+	var shouldLoadExtensions = function(extension) {
+		if (extension === 'disk.viewer.actions' && BX.getClass('BX.Disk.Viewer.Actions'))
+		{
+			return false;
+		}
+		if (extension === 'disk.viewer.document-item' && BX.getClass('BX.Disk.Viewer.DocumentItem'))
+		{
+			return false;
+		}
+
+		return true;
+	}
 
 
 	var instance = null;

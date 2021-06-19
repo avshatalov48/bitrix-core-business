@@ -180,7 +180,7 @@ if ($boolRead || $boolDiscount)
 
 if ($boolRead || $boolStore)
 {
-	if (Catalog\Config\State::isUsedInventoryManagement())
+	if ($boolStore && Catalog\Config\State::isUsedInventoryManagement())
 	{
 		$arSubItems[] = array(
 			"text" => GetMessage("CM_STORE_DOCS"),

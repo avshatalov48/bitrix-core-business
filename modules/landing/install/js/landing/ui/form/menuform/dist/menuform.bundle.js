@@ -125,21 +125,28 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "onAddButtonClick",
 	    value: function onAddButtonClick(event) {
 	      event.preventDefault();
+	      var pageType = landing_env.Env.getInstance().getType();
 	      var content = {
 	        text: landing_loc.Loc.getMessage('LANDING_NEW_PAGE_LABEL'),
-	        target: '_blank'
-	      }; // need create new page from menu only in KB
+	        target: '_blank',
+	        href: ['KNOWLEDGE', 'GROUP'].includes(pageType) ? '#landing0' : ''
+	      };
+	      var allowedTypes = [BX.Landing.UI.Field.LinkURL.TYPE_BLOCK, BX.Landing.UI.Field.LinkURL.TYPE_PAGE, BX.Landing.UI.Field.LinkURL.TYPE_CRM_FORM, BX.Landing.UI.Field.LinkURL.TYPE_CRM_PHONE];
 
-	      content.href = landing_env.Env.getInstance().getType() === 'KNOWLEDGE' || landing_env.Env.getInstance().getType() === 'GROUP' ? '#landing0' : '';
+	      if (pageType === 'STORE') {
+	        allowedTypes.push(BX.Landing.UI.Field.LinkURL.TYPE_CATALOG);
+	      }
+
 	      var field = new BX.Landing.UI.Field.Link({
 	        content: content,
 	        options: {
 	          siteId: landing_env.Env.getInstance().getSiteId(),
 	          landingId: landing_main.Main.getInstance().id,
 	          filter: {
-	            '=TYPE': landing_env.Env.getInstance().getType()
+	            '=TYPE': pageType
 	          }
-	        }
+	        },
+	        allowedTypes: allowedTypes
 	      });
 	      var form = new landing_ui_form_menuitemform.MenuItemForm({
 	        fields: [field]

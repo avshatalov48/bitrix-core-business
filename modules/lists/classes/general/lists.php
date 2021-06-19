@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
 use Bitrix\Disk\Uf\FileUserType;
@@ -20,7 +21,7 @@ class CLists
 
 	private static $featuresCache = array();
 
-	function SetPermission($iblock_type_id, $arGroups)
+	public static function SetPermission($iblock_type_id, $arGroups)
 	{
 		global $DB, $CACHE_MANAGER;
 
@@ -82,7 +83,7 @@ class CLists
 			return $arResult[$iblock_type_id];
 	}
 
-	function GetDefaultSocnetPermission()
+	public static function GetDefaultSocnetPermission()
 	{
 		return array(
 			"A" => "X", //Group owner
@@ -95,7 +96,7 @@ class CLists
 		);
 	}
 
-	function SetSocnetPermission($iblock_id, $arRoles)
+	public static function SetSocnetPermission($iblock_id, $arRoles)
 	{
 		global $DB, $CACHE_MANAGER;
 		$iblock_id = intval($iblock_id);
@@ -176,7 +177,7 @@ class CLists
 		return $arCache[$iblock_id];
 	}
 
-	function GetIBlockPermission($iblock_id, $user_id)
+	public static function GetIBlockPermission($iblock_id, $user_id)
 	{
 		global $USER;
 
@@ -217,7 +218,7 @@ class CLists
 		return $Permission;
 	}
 
-	function GetIBlockTypes($language_id = false)
+	public static function GetIBlockTypes($language_id = false)
 	{
 		global $DB;
 		$res = $DB->Query("
@@ -234,7 +235,7 @@ class CLists
 		return $res;
 	}
 
-	function GetIBlocks($iblock_type_id, $check_permissions, $socnet_group_id = false)
+	public static function GetIBlocks($iblock_type_id, $check_permissions, $socnet_group_id = false)
 	{
 		$arOrder = array(
 			"SORT" => "ASC",
@@ -259,7 +260,7 @@ class CLists
 		return $arResult;
 	}
 
-	function OnIBlockDelete($iblock_id)
+	public static function OnIBlockDelete($iblock_id)
 	{
 		global $DB, $CACHE_MANAGER;
 		$iblock_id = intval($iblock_id);
@@ -281,13 +282,15 @@ class CLists
 		}
 	}
 
-	function OnAfterIBlockDelete($iblock_id)
+	public static function OnAfterIBlockDelete($iblock_id)
 	{
-		if(CModule::includeModule('bizproc') && CBPRuntime::isFeatureEnabled())
+		if (CModule::includeModule('bizproc'))
+		{
 			BizProcDocument::deleteDataIblock($iblock_id);
+		}
 	}
 
-	function IsEnabledSocnet()
+	public static function IsEnabledSocnet()
 	{
 		$bActive = false;
 		foreach (GetModuleEvents("socialnetwork", "OnFillSocNetFeaturesList", true) as $arEvent)
@@ -304,7 +307,7 @@ class CLists
 		return $bActive;
 	}
 
-	function EnableSocnet($bActive = false)
+	public static function EnableSocnet($bActive = false)
 	{
 		if($bActive)
 		{
@@ -328,7 +331,7 @@ class CLists
 		}
 	}
 
-	function OnSharepointCreateProperty($arInputFields)
+	public static function OnSharepointCreateProperty($arInputFields)
 	{
 		global $DB;
 		$iblock_id = intval($arInputFields["IBLOCK_ID"]);
@@ -363,7 +366,7 @@ class CLists
 		}
 	}
 
-	function OnSharepointCheckAccess($iblock_id)
+	public static function OnSharepointCheckAccess($iblock_id)
 	{
 		global $USER;
 		$arIBlock = CIBlock::GetArrayByID($iblock_id);
@@ -448,7 +451,7 @@ class CLists
 		return $code;
 	}
 
-	public function OnAfterIBlockElementDelete($fields)
+	public static function OnAfterIBlockElementDelete($fields)
 	{
 		if(CModule::includeModule('bizproc') && CBPRuntime::isFeatureEnabled())
 		{
@@ -1066,7 +1069,10 @@ class CLists
 			));
 			while($property = $propertyObject->fetch())
 			{
-				$property['USER_TYPE_SETTINGS'] = unserialize($property['USER_TYPE_SETTINGS']);
+				$property['USER_TYPE_SETTINGS'] = unserialize(
+					$property['USER_TYPE_SETTINGS'],
+					['allowed_classes' => false]
+				);
 				if(empty($property['USER_TYPE_SETTINGS']['VISIBLE']))
 					$property['USER_TYPE_SETTINGS']['VISIBLE'] = 'Y';
 				if($property['USER_TYPE_SETTINGS']['VISIBLE'] == 'Y'
@@ -1125,74 +1131,17 @@ class CLists
 
 	public static function OnAfterIBlockPropertyAdd($fields)
 	{
-		if(!empty($fields['USER_TYPE']) && $fields['USER_TYPE'] == 'ECrm')
-		{
-			if(!empty($fields['USER_TYPE_SETTINGS']))
-			{
-				if(!is_array($fields['USER_TYPE_SETTINGS']))
-					$fields['USER_TYPE_SETTINGS'] = unserialize($fields['USER_TYPE_SETTINGS']);
-				if(is_array($fields['USER_TYPE_SETTINGS']))
-				{
-					foreach($fields['USER_TYPE_SETTINGS'] as $entityType => $marker)
-					{
-						if($marker == 'Y')
-						 self::deleteListsCache('/lists/crm/attached/'.mb_strtolower($entityType).'/');
-					}
-				}
-			}
-			else
-			{
-				self::deleteListsCache('/lists/crm/attached/');
-			}
-		}
+		self::deleteCacheToECrmProperty($fields);
 	}
 
 	public static function OnAfterIBlockPropertyUpdate($fields)
 	{
-		if(!empty($fields['USER_TYPE']) && $fields['USER_TYPE'] == 'ECrm')
-		{
-			if(!empty($fields['USER_TYPE_SETTINGS']))
-			{
-				if(!is_array($fields['USER_TYPE_SETTINGS']))
-					$fields['USER_TYPE_SETTINGS'] = unserialize($fields['USER_TYPE_SETTINGS']);
-				if(is_array($fields['USER_TYPE_SETTINGS']))
-				{
-					foreach($fields['USER_TYPE_SETTINGS'] as $entityType => $marker)
-					{
-						if($marker == 'Y')
-							self::deleteListsCache('/lists/crm/attached/'.mb_strtolower($entityType).'/');
-					}
-				}
-			}
-			else
-			{
-				self::deleteListsCache('/lists/crm/attached/');
-			}
-		}
+		self::deleteCacheToECrmProperty($fields);
 	}
 
 	public static function OnAfterIBlockPropertyDelete($fields)
 	{
-		if(!empty($fields['USER_TYPE']) && $fields['USER_TYPE'] == 'ECrm')
-		{
-			if(!empty($fields['USER_TYPE_SETTINGS']))
-			{
-				if(!is_array($fields['USER_TYPE_SETTINGS']))
-					$fields['USER_TYPE_SETTINGS'] = unserialize($fields['USER_TYPE_SETTINGS']);
-				if(is_array($fields['USER_TYPE_SETTINGS']))
-				{
-					foreach($fields['USER_TYPE_SETTINGS'] as $entityType => $marker)
-					{
-						if($marker == 'Y')
-							self::deleteListsCache('/lists/crm/attached/'.mb_strtolower($entityType).'/');
-					}
-				}
-			}
-			else
-			{
-				self::deleteListsCache('/lists/crm/attached/');
-			}
-		}
+		self::deleteCacheToECrmProperty($fields);
 	}
 
 	public static function getChildSection($baseSectionId, array $listSection, array &$listChildSection)
@@ -1263,7 +1212,7 @@ class CLists
 	public static function runRebuildSeachableContent($iblockId)
 	{
 		$rebuildedData = Option::get("lists", "rebuild_seachable_content");
-		$rebuildedData = unserialize($rebuildedData);
+		$rebuildedData = unserialize($rebuildedData, ['allowed_classes' => false]);
 		if(!is_array($rebuildedData))
 			$rebuildedData = array();
 		if(!isset($rebuildedData[$iblockId]))
@@ -1572,7 +1521,7 @@ class CLists
 							{
 								if (is_string($value))
 								{
-									$unserialize = unserialize($value);
+									$unserialize = unserialize($value, ['allowed_classes' => false]);
 									if($unserialize)
 										$value = $unserialize;
 								}
@@ -1867,7 +1816,7 @@ class CLists
 	public static function isEnabledLockFeature($iblockId)
 	{
 		$optionData = Option::get("lists", "iblock_lock_feature");
-		$iblockIdsWithLockFeature = unserialize($optionData);
+		$iblockIdsWithLockFeature = unserialize($optionData, ['allowed_classes' => false]);
 		if (!is_array($iblockIdsWithLockFeature))
 		{
 			$iblockIdsWithLockFeature = [];
@@ -1878,12 +1827,42 @@ class CLists
 	public static function deleteLockFeatureOption(int $iblockId)
 	{
 		$option = Option::get("lists", "iblock_lock_feature");
-		$iblockIdsWithLockFeature = ($option !== "" ? unserialize($option) : []);
+		$iblockIdsWithLockFeature = ($option !== "" ? unserialize($option, ['allowed_classes' => false]) : []);
 		if (isset($iblockIdsWithLockFeature[$iblockId]))
 		{
 			unset($iblockIdsWithLockFeature[$iblockId]);
 			Option::set("lists", "iblock_lock_feature", serialize($iblockIdsWithLockFeature));
 		}
 	}
+
+	private static function deleteCacheToECrmProperty($fields): void
+	{
+		if (!empty($fields['USER_TYPE']) && $fields['USER_TYPE'] == 'ECrm')
+		{
+			if (!empty($fields['USER_TYPE_SETTINGS']))
+			{
+				if (!is_array($fields['USER_TYPE_SETTINGS']))
+				{
+					$fields['USER_TYPE_SETTINGS'] = unserialize(
+						$fields['USER_TYPE_SETTINGS'],
+						['allowed_classes' => false]
+					);
+				}
+				if (is_array($fields['USER_TYPE_SETTINGS']))
+				{
+					foreach ($fields['USER_TYPE_SETTINGS'] as $entityType => $marker)
+					{
+						if ($marker == 'Y')
+						{
+							self::deleteListsCache('/lists/crm/attached/'.mb_strtolower($entityType).'/');
+						}
+					}
+				}
+			}
+			else
+			{
+				self::deleteListsCache('/lists/crm/attached/');
+			}
+		}
+	}
 }
-?>

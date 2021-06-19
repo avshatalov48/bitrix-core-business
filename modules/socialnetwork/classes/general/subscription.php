@@ -1,11 +1,11 @@
-<?
+<?php
 
 use Bitrix\Socialnetwork\Integration;
 use Bitrix\Main\Localization\Loc;
 
 class CAllSocNetSubscription
 {
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $APPLICATION;
 
@@ -48,7 +48,7 @@ class CAllSocNetSubscription
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -582,4 +582,3 @@ class CAllSocNetSubscription
 		return self::set($userId, "SG".$groupId, ($fields['MUTE'] != "Y" ? "Y" : "N"));
 	}
 }
-?>

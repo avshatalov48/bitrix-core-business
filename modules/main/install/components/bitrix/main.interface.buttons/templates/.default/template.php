@@ -2,7 +2,7 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)die();
 use \Bitrix\Main\Localization\Loc;
 
-CJSCore::Init(array('ajax', 'popup'));
+CJSCore::Init(['ajax', 'popup']);
 
 $templateFolder = $this->getFolder();
 $this->addExternalJs($templateFolder."/utils.js");
@@ -207,6 +207,10 @@ $this->addExternalJs($templateFolder."/utils.js");
 		BX.Main.interfaceButtonsManager.init({
 			containerId: '<?=$arResult["ID"]?>',
 			disableSettings: '<?=CUtil::PhpToJSObject($arParams["DISABLE_SETTINGS"])?>',
+			ajaxSettings: {
+				componentName: '<?= $this->getComponent()->getName() ?>',
+				signedParams: '<?= $this->getComponent()->getSignedParameters() ?>',
+			},
 			classes: {
 				itemMore: 'main-buttons-item-more',
 				itemActive: '<?=$arParams["CLASS_ITEM_ACTIVE"]?>'

@@ -133,6 +133,11 @@ class BaseTable
 	{
 		/** @var \Bitrix\Main\ORM\Data\DataManager $class */
 		$class = self::getCallingClass();
+		\Bitrix\Landing\Debug::log(
+			$class,
+			'id: ' . $id . '@' . print_r(\Bitrix\Main\Diag\Helper::getBackTrace(5), true),
+			'LANDING_ENTITY_DELETE'
+		);
 		return $class::delete($id);
 	}
 

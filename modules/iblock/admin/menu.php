@@ -1,4 +1,5 @@
-<?
+<?php
+/** @global CAdminMenu $adminMenu */
 use Bitrix\Main\Loader;
 
 if(!is_object($GLOBALS["USER_FIELD_MANAGER"]))
@@ -85,6 +86,14 @@ function _get_other_elements_menu($arType, $arIBlock, $arSection, &$more_url)
 
 function _get_sections_menu($arType, $arIBlock, $DEPTH_LEVEL, $SECTION_ID, $arSectionsChain = false)
 {
+	global $adminMenu;
+
+	static $adminMenuExists = null;
+	if ($adminMenuExists === null)
+	{
+		$adminMenuExists = isset($adminMenu) && $adminMenu instanceof CAdminMenu;
+	}
+
 	//Determine opened sections
 	if($arSectionsChain === false)
 	{
@@ -181,10 +190,12 @@ function _get_sections_menu($arType, $arIBlock, $DEPTH_LEVEL, $SECTION_ID, $arSe
 		{
 			$arSectionTmp["items"] = _get_sections_menu($arType, $arIBlock, $DEPTH_LEVEL+1, $arSection["ID"], $arSectionsChain);
 		}
-		elseif(method_exists($GLOBALS["adminMenu"], "IsSectionActive"))
+		elseif($adminMenuExists)
 		{
-			if($GLOBALS["adminMenu"]->IsSectionActive("menu_iblock_/".$arType["ID"]."/".$arIBlock["ID"]."/".$arSection["ID"]))
-				$arSectionTmp["items"] = _get_sections_menu($arType, $arIBlock, $DEPTH_LEVEL+1, $arSection["ID"], $arSectionsChain);
+			if ($adminMenu->IsSectionActive("menu_iblock_/".$arType["ID"]."/".$arIBlock["ID"]."/".$arSection["ID"]))
+			{
+				$arSectionTmp["items"] = _get_sections_menu($arType, $arIBlock, $DEPTH_LEVEL + 1, $arSection["ID"], $arSectionsChain);
+			}
 		}
 
 		$arSections[] = $arSectionTmp;
@@ -204,6 +215,12 @@ function _get_iblocks_menu($arType)
 {
 	global $adminMenu;
 
+	static $adminMenuExists = null;
+	if ($adminMenuExists === null)
+	{
+		$adminMenuExists = isset($adminMenu) && $adminMenu instanceof CAdminMenu;
+	}
+
 	$arIBlocks = array();
 	foreach($arType["IBLOCKS"]["S"] as $arIBlock)
 	{
@@ -219,7 +236,7 @@ function _get_iblocks_menu($arType)
 			{
 				$arItems = _get_sections_menu($arType, $arIBlock, 1, 0);
 			}
-			elseif(method_exists($adminMenu, "IsSectionActive"))
+			elseif($adminMenuExists)
 			{
 				if(
 					$adminMenu->IsSectionActive("menu_iblock_/".$arType["ID"])

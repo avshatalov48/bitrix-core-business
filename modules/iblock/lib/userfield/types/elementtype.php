@@ -134,8 +134,7 @@ class ElementType extends EnumType
 
 		if(self::$iblockIncluded && (int)$userField['SETTINGS']['IBLOCK_ID'])
 		{
-			$elementEnum = new CIBlockElementEnum();
-			$elementEnumList = $elementEnum::getTreeList(
+			$elementEnumList = CIBlockElementEnum::getTreeList(
 				(int)$userField['SETTINGS']['IBLOCK_ID'],
 				$userField['SETTINGS']['ACTIVE_FILTER']
 			);

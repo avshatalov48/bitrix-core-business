@@ -8,7 +8,7 @@
  */
 
 import {PullClient} from "pull.client";
-import {CallErrorCode} from "im.const";
+import {ConferenceRightPanelMode as RightPanelMode} from 'im.const';
 
 export class ImCallPullHandler
 {
@@ -50,8 +50,9 @@ export class ImCallPullHandler
 		const users = Object.values(params.users).map(user => {
 			return {...user, lastActivityDate: new Date()};
 		});
-		this.store.commit('callApplication/common', {userCount: params.userCount});
-		this.store.commit('users/set', users);
+		this.store.commit('conference/common', {userCount: params.userCount});
+		this.store.dispatch('users/set', users);
+		this.store.dispatch('conference/setUsers', {users: users.map(user => user.id)});
 	}
 
 	handleChatUserLeave(params)
@@ -61,7 +62,8 @@ export class ImCallPullHandler
 			this.application.kickFromCall();
 		}
 
-		this.store.commit('callApplication/common', {userCount: params.userCount});
+		this.store.commit('conference/common', {userCount: params.userCount});
+		this.store.dispatch('conference/removeUsers', {users: [params.userId]});
 	}
 
 	handleCallUserNameUpdate(params)
@@ -90,11 +92,12 @@ export class ImCallPullHandler
 
 	handleMessageChat(params)
 	{
+		const rightPanelMode = this.store.state.conference.common.rightPanelMode;
 		if (
 			params.chatId === this.application.getChatId() &&
-			!this.store.state.callApplication.common.showChat &&
+			(rightPanelMode !== RightPanelMode.chat && rightPanelMode !== RightPanelMode.split) &&
 			params.message.senderId !== this.controller.getUserId() &&
-			!this.store.state.callApplication.common.error
+			!this.store.state.conference.common.error
 		)
 		{
 			let text = '';
@@ -118,6 +121,34 @@ export class ImCallPullHandler
 			}
 
 			this.application.sendNewMessageNotify(text);
+		}
+	}
+
+	handleChatRename(params)
+	{
+		if (params.chatId !== this.application.getChatId())
+		{
+			return false;
+		}
+
+		this.store.dispatch('conference/setConferenceTitle', {conferenceTitle: params.name});
+	}
+
+	handleConferenceUpdate(params)
+	{
+		if (params.chatId !== this.application.getChatId())
+		{
+			return false;
+		}
+
+		if (params.isBroadcast !== '')
+		{
+			this.store.dispatch('conference/setBroadcastMode', {broadcastMode: params.isBroadcast});
+		}
+
+		if (params.presenters.length > 0)
+		{
+			this.store.dispatch('conference/setPresenters', {presenters: params.presenters, replace: true});
 		}
 	}
 }

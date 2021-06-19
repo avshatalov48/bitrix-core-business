@@ -18,7 +18,7 @@ $arTasks = CSticker::GetTasks();
 
 //Fetch user groups
 $arGroups = array();
-$db_groups = CGroup::GetList($order="sort", $by="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
+$db_groups = CGroup::GetList("sort", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 while($arRes = $db_groups->Fetch())
 	$arGroups[] = $arRes;
 

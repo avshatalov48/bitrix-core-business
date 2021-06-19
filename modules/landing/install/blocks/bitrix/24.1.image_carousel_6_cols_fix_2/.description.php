@@ -37,9 +37,9 @@ return array(
 			'type' => array('block-default-background-overlay', 'animation'),
 		),
 		'nodes' => array(
-			'.landing-block-card-carousel-element' => array(
+			'.landing-block-card-container' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_9_IMAGE_CAROUSEL_6_COLS_FIX_2_CARDS_LANDINGBLOCKCARDCAROUSELELEMENT'),
-				'type' => 'align-items',
+				'type' => ['row-align-column', 'align-items-column'],
 			),
 		),
 	),

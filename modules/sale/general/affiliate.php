@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 $GLOBALS["SALE_AFFILIATE"] = Array();
@@ -9,7 +10,7 @@ $GLOBALS["SALE_CONVERT_CURRENCY_CACHE"] = array();
 
 class CAllSaleAffiliate
 {
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "SITE_ID") || $ACTION=="ADD") && $arFields["SITE_ID"] == '')
 		{
@@ -101,7 +102,7 @@ class CAllSaleAffiliate
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -129,7 +130,7 @@ class CAllSaleAffiliate
 		return $bResult;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -163,7 +164,7 @@ class CAllSaleAffiliate
 		return false;
 	}
 
-	function GetAffiliate($affiliateID = 0)
+	public static function GetAffiliate($affiliateID = 0)
 	{
 		$affiliateID = intval($affiliateID);
 
@@ -198,7 +199,7 @@ class CAllSaleAffiliate
 		return $affiliateID;
 	}
 
-	function Calculate($dateFrom = false, $dateTo = false, $datePlanFrom = false, $datePlanTo = false)
+	public static function Calculate($dateFrom = false, $dateTo = false, $datePlanFrom = false, $datePlanTo = false)
 	{
 		global $DB;
 
@@ -251,7 +252,7 @@ class CAllSaleAffiliate
 
 	}
 
-	function CheckAffiliateFunc($affiliate)
+	public static function CheckAffiliateFunc($affiliate)
 	{
 		if (is_array($affiliate))
 		{
@@ -288,7 +289,7 @@ class CAllSaleAffiliate
 		return $arAffiliate;
 	}
 
-	function SetAffiliatePlan($affiliate, $dateFrom = false, $dateTo = false)
+	public static function SetAffiliatePlan($affiliate, $dateFrom = false, $dateTo = false)
 	{
 		global $DB;
 
@@ -465,7 +466,7 @@ class CAllSaleAffiliate
 			return true;
 	}
 
-	function CalculateAffiliate($affiliate, $dateFrom = false, $dateTo = false, $datePlanFrom = false, $datePlanTo = false)
+	public static function CalculateAffiliate($affiliate, $dateFrom = false, $dateTo = false, $datePlanFrom = false, $datePlanTo = false)
 	{
 		global $DB;
 
@@ -744,7 +745,7 @@ class CAllSaleAffiliate
 		return True;
 	}
 
-	function PayAffiliate($affiliate, $payType, &$paySum)
+	public static function PayAffiliate($affiliate, $payType, &$paySum)
 	{
 		global $DB;
 
@@ -839,7 +840,7 @@ class CAllSaleAffiliate
 		return True;
 	}
 
-	function ClearAffiliateSum($affiliate)
+	public static function ClearAffiliateSum($affiliate)
 	{
 		global $DB;
 
@@ -883,7 +884,7 @@ class CAllSaleAffiliate
 		return True;
 	}
 
-	function OnBeforeUserDelete($UserID)
+	public static function OnBeforeUserDelete($UserID)
 	{
 		global $DB;
 		if (intval($UserID) <= 0)
@@ -901,4 +902,3 @@ class CAllSaleAffiliate
 		return true;
 	}
 }
-?>

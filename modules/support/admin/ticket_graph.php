@@ -45,7 +45,7 @@ $arFilter = Array(
 	"MARK"						=> $find_mark_id,
 	"SOURCE"					=> $find_source_id,
 	);
-$rsTickets = CTicket::GetDynamicList($by="s_date_create", $order="asc", $arFilter);
+$rsTickets = CTicket::GetDynamicList("s_date_create", "asc", $arFilter);
 while ($rsTickets->ExtractFields("f_",false))
 {
 	$date = mktime(0,0,0,$f_CREATE_MONTH,$f_CREATE_DAY,$f_CREATE_YEAR);
@@ -96,7 +96,7 @@ if ($find_mess=="Y" || $find_overdue_mess=="Y")
 		"IS_LOG"			=> "N",
 		"IS_OVERDUE"		=> "N"
 		);
-	$rsMess = CTicket::GetMessageDynamicList($v1="s_date_create", $v2="asc", $arFilter);
+	$rsMess = CTicket::GetMessageDynamicList("s_date_create", "asc", $arFilter);
 	while ($arMess = $rsMess->Fetch())
 	{
 		$date = mktime(0,0,0,$arMess["CREATE_MONTH"], $arMess["CREATE_DAY"], $arMess["CREATE_YEAR"]);

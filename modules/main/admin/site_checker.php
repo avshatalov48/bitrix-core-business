@@ -22,12 +22,13 @@ define('DEBUG_FLAG', str_replace('\\','/',$_SERVER['DOCUMENT_ROOT'] . '/bitrix/s
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/classes/general/site_checker.php');
 
 // NO AUTH TESTS
-if ($_REQUEST['unique_id'])
+if (isset($_REQUEST['unique_id']) && $_REQUEST['unique_id'])
 {
 	if (!file_exists(DEBUG_FLAG) && $_REQUEST['unique_id'] != checker_get_unique_id())
 		die('Permission denied: UNIQUE ID ERROR');
 
-	switch ($_GET['test_type'])
+	$testType = $_GET['test_type'] ?? '';
+	switch ($testType)
 	{
 		case 'socket_test':
 			echo "SUCCESS";
@@ -98,10 +99,10 @@ if ($_REQUEST['unique_id'])
 			$binaryData = '';
 			for($i=40;$i<240;$i++)
 				$binaryData .= chr($i);
-			if ($_REQUEST['big'])
+			if (isset($_REQUEST['big']) && $_REQUEST['big'])
 				$binaryData = str_repeat($binaryData, 21000);
 
-			if ($_REQUEST['raw'])
+			if (isset($_REQUEST['raw']) && $_REQUEST['raw'])
 				$binaryData_received = file_get_contents('php://input');
 			elseif (move_uploaded_file($tmp_name = $_FILES['test_file']['tmp_name'], $image = $dir.'/site_checker.bin'))
 			{
@@ -149,7 +150,7 @@ if ($_REQUEST['unique_id'])
 		break;
 		case 'session_test':
 			session_start();
-			echo $_SESSION['CHECKER_CHECK_SESSION'];
+			echo $_SESSION['CHECKER_CHECK_SESSION'] ?? '';
 			$_SESSION['CHECKER_CHECK_SESSION'] = 'SUCCESS';
 		break;
 		case 'redirect_test':
@@ -170,7 +171,7 @@ if ($_REQUEST['unique_id'])
 					header($_SERVER["SERVER_PROTOCOL"]." ".$status);
 			}
 
-			if ($_REQUEST['done'])
+			if (isset($_REQUEST['done']))
 				echo 'SUCCESS';
 			else
 			{
@@ -190,9 +191,9 @@ if ($_REQUEST['unique_id'])
 		break;
 	}
 
-	if ($fix_mode = intval($_GET['fix_mode']))
+	if (isset($_GET['fix_mode']) && ($fix_mode = intval($_GET['fix_mode'])))
 	{
-		if ($_REQUEST['charset'])
+		if (isset($_REQUEST['charset']) && $_REQUEST['charset'])
 		{
 			define('LANG_CHARSET', preg_replace('#[^a-z0-9\-]#i', '', $_REQUEST['charset']));
 			header('Content-type: text/plain; charset='.LANG_CHARSET);
@@ -247,7 +248,7 @@ if (file_exists(DEBUG_FLAG))
 	define('NOT_CHECK_PERMISSIONS', true);
 }
 
-if($_REQUEST['test_start'])
+if(isset($_REQUEST['test_start']) && $_REQUEST['test_start'])
 {
 	define("NO_KEEP_STATISTIC", true);
 	define("NO_AGENT_CHECK", true);
@@ -490,7 +491,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 			color:#000000;
 			vertical-align: middle;
 		}
-		
+
 		.sc_error {
 			color:#DD0000 !important;
 			vertical-align: middle;
@@ -743,7 +744,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 			}
 			else
 			{
-				try 
+				try
 				{
 					if (result)
 						eval(result);

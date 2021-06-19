@@ -17,12 +17,12 @@ function UET($EVENT_NAME, $NAME, $LID, $DESCRIPTION)
 		);
 }
 
-$langs = CLanguage::GetList(($b=""), ($o=""));
+$langs = CLanguage::GetList();
 while($lang = $langs->Fetch())
 {
 
 	$arSites = array();
-	$sites = CSite::GetList($by, $order, Array("LANGUAGE_ID"=>$lang["LID"]));
+	$sites = CSite::GetList('', '', Array("LANGUAGE_ID"=>$lang["LID"]));
 	while ($site = $sites->Fetch())
 		$arSites[] = $site["LID"];
 

@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Main\Loader;
+
 IncludeModuleLangFile(__FILE__);
 
 $GLOBALS['YANDEX_MAP_PROPERTY'] = array();
@@ -2853,6 +2856,11 @@ class CIBlockPropertyVideo extends CVideoProperty
 {
 	public static function GetUserTypeDescription()
 	{
+		if (Loader::includeModule("bitrix24"))
+		{
+			return [];
+		}
+
 		return array(
 			"PROPERTY_TYPE" => "S",
 			"USER_TYPE" => "video",

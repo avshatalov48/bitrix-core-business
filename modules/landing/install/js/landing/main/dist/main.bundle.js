@@ -113,8 +113,8 @@ this.BX = this.BX || {};
 	    var options = landing_env.Env.getInstance().getOptions();
 	    _this.id = id;
 	    _this.options = Object.freeze(options);
-	    _this.blocksPanel = null;
 	    _this.currentBlock = null;
+	    _this.isDesignBlockModeFlag = _this.options["design_block"] === true;
 	    _this.loadedDeps = {};
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    _this.onSliderFormLoaded = _this.onSliderFormLoaded.bind(babelHelpers.assertThisInitialized(_this));
@@ -123,29 +123,42 @@ this.BX = this.BX || {};
 
 	    _this.adjustEmptyAreas();
 
-	    if (_this.options.blocks) {
-	      if (!_this.blocksPanel) {
-	        _this.blocksPanel = _this.createBlocksPanel();
+	    BX.Landing.UI.Panel.StatusPanel.setLastModified(options.lastModified);
 
-	        _this.onBlocksListCategoryChange(_this.options.default_section);
-
-	        _this.blocksPanel.layout.hidden = true;
-	        main_core.Dom.append(_this.blocksPanel.layout, document.body);
-	      }
-
-	      _this.blocksPanel.content.hidden = false;
+	    if (!_this.isDesignBlockModeFlag) {
+	      BX.Landing.UI.Panel.StatusPanel.getInstance().show();
 	    }
 
-	    BX.Landing.UI.Panel.StatusPanel.setLastModified(options.lastModified);
-	    BX.Landing.UI.Panel.StatusPanel.getInstance().show();
 	    return _this;
 	  }
 
 	  babelHelpers.createClass(Main, [{
+	    key: "isDesignBlockMode",
+	    value: function isDesignBlockMode() {
+	      return this.isDesignBlockModeFlag;
+	    }
+	  }, {
+	    key: "getBlocksPanel",
+	    value: function getBlocksPanel() {
+	      var _this2 = this;
+
+	      return this.cache.remember('blockPanel', function () {
+	        var blocksPanel = _this2.createBlocksPanel();
+
+	        setTimeout(function () {
+	          blocksPanel.sidebarButtons.get(_this2.options.default_section).layout.click();
+	        });
+	        blocksPanel.layout.hidden = true;
+	        blocksPanel.content.hidden = false;
+	        main_core.Dom.append(blocksPanel.layout, document.body);
+	        return blocksPanel;
+	      });
+	    }
+	  }, {
 	    key: "hideBlocksPanel",
 	    value: function hideBlocksPanel() {
-	      if (this.blocksPanel) {
-	        return this.blocksPanel.hide();
+	      if (this.getBlocksPanel()) {
+	        return this.getBlocksPanel().hide();
 	      }
 
 	      return Promise.resolve();
@@ -342,7 +355,7 @@ this.BX = this.BX || {};
 	    value: function showBlocksPanel(block, area, button) {
 	      this.currentBlock = block;
 	      this.currentArea = area;
-	      this.blocksPanel.show();
+	      this.getBlocksPanel().show();
 	      this.disableAddBlockButtons();
 
 	      if (!!area && !!button) {
@@ -387,7 +400,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "createBlocksPanel",
 	    value: function createBlocksPanel() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      var blocks = this.options.blocks;
 	      var categories = Object.keys(blocks);
@@ -397,7 +410,7 @@ this.BX = this.BX || {};
 	        scrollAnimation: true
 	      });
 	      panel.subscribe('onCancel', function () {
-	        _this2.enableAddBlockButtons();
+	        _this3.enableAddBlockButtons();
 	      });
 	      categories.forEach(function (categoryId) {
 	        var hasItems = !isEmpty(blocks[categoryId].items);
@@ -405,7 +418,7 @@ this.BX = this.BX || {};
 	        var isSeparator = blocks[categoryId].separator;
 
 	        if (hasItems && !isPopular || isSeparator) {
-	          panel.appendSidebarButton(_this2.createBlockPanelSidebarButton(categoryId, blocks[categoryId]));
+	          panel.appendSidebarButton(_this3.createBlockPanelSidebarButton(categoryId, blocks[categoryId]));
 	        }
 	      });
 	      panel.appendSidebarButton(new BX.Landing.UI.Button.SidebarButton('feedback_button', {
@@ -423,7 +436,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "showSliderFeedbackForm",
 	    value: function showSliderFeedbackForm() {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
@@ -448,11 +461,11 @@ this.BX = this.BX || {};
 	      data.productType = this.options.productType || 'Undefined';
 
 	      data.typeproduct = function () {
-	        if (_this3.options.params.type === 'GROUP') {
+	        if (_this4.options.params.type === 'GROUP') {
 	          return 'KNOWLEDGE_GROUP';
 	        }
 
-	        return _this3.options.params.type;
+	        return _this4.options.params.type;
 	      }();
 
 	      var form = this.getFeedbackFormOptions();
@@ -606,14 +619,14 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "onBlocksListCategoryChange",
 	    value: function onBlocksListCategoryChange(category) {
-	      var _this4 = this;
+	      var _this5 = this;
 
-	      this.blocksPanel.content.hidden = false;
-	      this.blocksPanel.sidebarButtons.forEach(function (button) {
+	      this.getBlocksPanel().content.hidden = false;
+	      this.getBlocksPanel().sidebarButtons.forEach(function (button) {
 	        var action = button.id === category ? 'add' : 'remove';
 	        button.layout.classList[action]('landing-ui-active');
 	      });
-	      this.blocksPanel.content.innerHTML = '';
+	      this.getBlocksPanel().content.innerHTML = '';
 
 	      if (category === 'last') {
 	        if (!this.lastBlocks) {
@@ -622,22 +635,22 @@ this.BX = this.BX || {};
 
 	        this.lastBlocks = babelHelpers.toConsumableArray(new Set(this.lastBlocks));
 	        this.lastBlocks.forEach(function (blockKey) {
-	          var block = _this4.getBlockFromRepository(blockKey);
+	          var block = _this5.getBlockFromRepository(blockKey);
 
-	          _this4.blocksPanel.appendCard(_this4.createBlockCard(blockKey, block));
+	          _this5.getBlocksPanel().appendCard(_this5.createBlockCard(blockKey, block));
 	        });
 	        return;
 	      }
 
 	      Object.keys(this.options.blocks[category].items).forEach(function (blockKey) {
-	        var block = _this4.options.blocks[category].items[blockKey];
+	        var block = _this5.options.blocks[category].items[blockKey];
 
-	        _this4.blocksPanel.appendCard(_this4.createBlockCard(blockKey, block));
+	        _this5.getBlocksPanel().appendCard(_this5.createBlockCard(blockKey, block));
 	      });
 
-	      if (this.blocksPanel.content.scrollTop) {
+	      if (this.getBlocksPanel().content.scrollTop) {
 	        requestAnimationFrame(function () {
-	          _this4.blocksPanel.content.scrollTop = 0;
+	          _this5.getBlocksPanel().content.scrollTop = 0;
 	        });
 	      }
 	    } // eslint-disable-next-line consistent-return
@@ -705,7 +718,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "onPasteBlock",
 	    value: function onPasteBlock(block) {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      if (window.localStorage.landingBlockId) {
 	        var action = 'Landing::copyBlock';
@@ -729,8 +742,8 @@ this.BX = this.BX || {};
 	        BX.Landing.Backend.getInstance().batch(action, requestBody, {
 	          action: action
 	        }).then(function (res) {
-	          _this5.currentBlock = block;
-	          return _this5.addBlock(res[action].result.content);
+	          _this6.currentBlock = block;
+	          return _this6.addBlock(res[action].result.content);
 	        });
 	      }
 	    }
@@ -797,6 +810,8 @@ this.BX = this.BX || {};
 	          manifest: res.manifest,
 	          access: res.access,
 	          active: main_core.Text.toBoolean(res.active),
+	          php: res.php,
+	          designed: res.designed,
 	          anchor: res.anchor,
 	          dynamicParams: res.dynamicParams
 	        });
@@ -818,7 +833,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "onAddBlock",
 	    value: function onAddBlock(blockCode, restoreId, preventHistory) {
-	      var _this6 = this;
+	      var _this7 = this;
 
 	      var id = main_core.Text.toNumber(restoreId);
 	      this.hideBlocksPanel();
@@ -829,13 +844,13 @@ this.BX = this.BX || {};
 	          }, 500);
 	        });
 	      }).then(function (res) {
-	        var p = _this6.addBlock(res, preventHistory);
+	        var p = _this7.addBlock(res, preventHistory);
 
-	        _this6.adjustEmptyAreas();
+	        _this7.adjustEmptyAreas();
 
-	        void _this6.hideBlockLoader();
+	        void _this7.hideBlockLoader();
 
-	        _this6.enableAddBlockButtons();
+	        _this7.enableAddBlockButtons();
 
 	        return p;
 	      });
@@ -913,7 +928,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "loadBlockDeps",
 	    value: function loadBlockDeps(data) {
-	      var _this7 = this;
+	      var _this8 = this;
 
 	      var ext = BX.processHTML(data.content_ext);
 
@@ -958,7 +973,7 @@ this.BX = this.BX || {};
 	            onLoad();
 	          }
 
-	          _this7.loadedDeps[data.manifest.code] = true;
+	          _this8.loadedDeps[data.manifest.code] = true;
 	        });
 	      } else {
 	        resPromise = Promise.resolve(data);
@@ -998,20 +1013,20 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "loadBlock",
 	    value: function loadBlock(blockCode, restoreId) {
-	      var _this8 = this;
+	      var _this9 = this;
 
 	      return function () {
-	        var lid = _this8.id;
-	        var siteId = _this8.options.site_id;
+	        var lid = _this9.id;
+	        var siteId = _this9.options.site_id;
 
-	        if (_this8.currentBlock) {
-	          lid = _this8.currentBlock.lid;
-	          siteId = _this8.currentBlock.siteId;
+	        if (_this9.currentBlock) {
+	          lid = _this9.currentBlock.lid;
+	          siteId = _this9.currentBlock.siteId;
 	        }
 
-	        if (_this8.currentArea) {
-	          lid = main_core.Dom.attr(_this8.currentArea, 'data-landing');
-	          siteId = main_core.Dom.attr(_this8.currentArea, 'data-site');
+	        if (_this9.currentArea) {
+	          lid = main_core.Dom.attr(_this9.currentArea, 'data-landing');
+	          siteId = main_core.Dom.attr(_this9.currentArea, 'data-site');
 	        }
 
 	        var requestBody = {
@@ -1021,7 +1036,7 @@ this.BX = this.BX || {};
 	        var fields = {
 	          ACTIVE: 'Y',
 	          CODE: blockCode,
-	          AFTER_ID: _this8.currentBlock ? _this8.currentBlock.id : 0,
+	          AFTER_ID: _this9.currentBlock ? _this9.currentBlock.id : 0,
 	          RETURN_CONTENT: 'Y'
 	        };
 

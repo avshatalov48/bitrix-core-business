@@ -5,14 +5,12 @@ import {RadioButtonField} from 'landing.ui.field.radiobuttonfield';
 import {BaseEvent} from 'main.core.events';
 import {FormSettingsForm} from 'landing.ui.form.formsettingsform';
 import {MessageCard} from 'landing.ui.card.messagecard';
-import {Text} from 'main.core';
-import OrderField from './internal/orderfield/orderfield';
+import {Text, Type} from 'main.core';
 import StageField from './internal/stagefield/stagefield';
 
 import messageIcon from './images/message-icon.svg';
 
 import './css/style.css';
-
 
 export default class CrmContent extends ContentWrapper
 {
@@ -23,8 +21,18 @@ export default class CrmContent extends ContentWrapper
 
 		this.addItem(this.getHeader());
 		this.addItem(this.getTypesField());
+		if (this.isDynamicAvailable())
+		{
+			this.addItem(this.getDynamicEntitySettingsForm());
+		}
+
 		this.addItem(this.getExpertSettingsForm());
 		this.addItem(this.getOrderSettingsForm());
+	}
+
+	isDynamicAvailable(): boolean
+	{
+		return Type.isArrayFilled(this.options.formDictionary.document.dynamic);
 	}
 
 	getHeader(): HeaderCard
@@ -77,10 +85,20 @@ export default class CrmContent extends ContentWrapper
 	getOrderSettingsForm(): FormSettingsForm
 	{
 		return this.cache.remember('formSettingsForm', () => {
+			const scheme = this.getSchemeById(this.options.values.scheme);
+			const isOpened = (() => {
+				if (scheme && scheme.dynamic === true)
+				{
+					return String(scheme.id).endsWith('1');
+				}
+
+				return Text.toNumber(this.options.values.scheme) > 4
+			})();
+
 			return new FormSettingsForm({
 				title: Loc.getMessage('LANDING_FORM_SETTINGS_ORDER_HEADER'),
 				toggleable: true,
-				opened: Text.toNumber(this.options.values.scheme) > 4,
+				opened: isOpened,
 				fields: [
 					this.getPaymentField(),
 					new MessageCard({
@@ -132,6 +150,63 @@ export default class CrmContent extends ContentWrapper
 			return new HeaderCard({
 				title: Loc.getMessage('LANDING_FORM_SETTINGS_CRM_TYPE_4').replace('&nbsp;', ' '),
 				level: 2,
+			});
+		});
+	}
+
+	getDynamicHeader(headerText: string): HeaderCard
+	{
+		const header = this.cache.remember('dynamicHeader', () => {
+			return new HeaderCard({
+				title: '',
+				level: 2,
+			});
+		});
+
+		if (Type.isString(headerText))
+		{
+			header.setTitle(headerText);
+		}
+
+		return header;
+	}
+
+	getDynamicEntitiesField(): BX.Landing.UI.Field.Dropdown
+	{
+		return this.cache.remember('dynamicEntitiesField', () => {
+			const currentScheme = this.getSchemeById(this.options.values.scheme);
+
+			return new BX.Landing.UI.Field.Dropdown({
+				selector: 'dynamicScheme',
+				title: Loc.getMessage('LANDING_FORM_SETTINGS_CRM_SMART_ENTITY_LIST'),
+				items: this.options.formDictionary.document.dynamic.map((scheme) => {
+					return {name: scheme.name, value: scheme.id};
+				}),
+				content: currentScheme.mainEntity,
+				onChange: () => {
+					this.onTypeChange(
+						new BaseEvent({
+							data: {
+								item: {
+									id: this.getSelectedSchemeId(),
+								},
+							},
+						}),
+					);
+				},
+			});
+		});
+	}
+
+	getDynamicEntitySettingsForm(): FormSettingsForm
+	{
+		return this.cache.remember('dynamicEntitySettingsForm', () => {
+			return new FormSettingsForm({
+				opened: true,
+				hidden: true,
+				fields: [
+					this.getDynamicEntitiesField(),
+				],
 			});
 		});
 	}
@@ -188,6 +263,15 @@ export default class CrmContent extends ContentWrapper
 				},
 			];
 
+			if (this.isDynamicAvailable())
+			{
+				items.push({
+					id: 'smart',
+					title: Loc.getMessage('LANDING_FORM_SETTINGS_CRM_TYPE_5'),
+					icon: 'landing-ui-crm-entity-type5',
+				});
+			}
+
 			if (this.options.isLeadEnabled)
 			{
 				items.unshift({
@@ -220,6 +304,12 @@ export default class CrmContent extends ContentWrapper
 						return 4;
 					}
 
+					const scheme = this.getSchemeById(this.options.values.scheme);
+					if (Type.isPlainObject(scheme) && scheme.dynamic === true)
+					{
+						return 'smart';
+					}
+
 					return this.options.values.scheme;
 				})(),
 				items,
@@ -235,6 +325,20 @@ export default class CrmContent extends ContentWrapper
 				categories: this.options.categories,
 				value: {
 					category: this.options.values.category,
+				},
+			});
+		});
+	}
+
+	getDynamicCategoriesField(schemeId: string | number)
+	{
+		return this.cache.remember(`dynamicCategories#${schemeId}`, () => {
+			const scheme = this.getDynamicSchemeById(schemeId);
+			return new StageField({
+				listTitle: Loc.getMessage('LANDING_FORM_SETTINGS_SMART_STAGES_FIELD_TITLE'),
+				categories: scheme.categories,
+				value: {
+					category: this.options.values.dynamicCategory,
 				},
 			});
 		});
@@ -257,14 +361,38 @@ export default class CrmContent extends ContentWrapper
 		});
 	}
 
+	getSchemeById(id: number)
+	{
+		return this.options.formDictionary.document.schemes.find((scheme) => {
+			return (
+				(String(scheme.id) === String(id))
+				|| (id === 'smart' && scheme.dynamic)
+			);
+		});
+	}
+
+	 getDynamicSchemeById(id: number)
+	{
+		const {mainEntity} = this.getSchemeById(id);
+		return this.options.formDictionary.document.dynamic.find((scheme) => {
+			return String(scheme.id) === String(mainEntity);
+		});
+	}
+
 	onTypeChange(event: BaseEvent)
 	{
 		const {item} = event.getData();
+		const scheme = this.getSchemeById(item.id);
 
 		this.clear();
 
 		this.addItem(this.getHeader());
 		this.addItem(this.getTypesField());
+		if (this.isDynamicAvailable())
+		{
+			this.addItem(this.getDynamicEntitySettingsForm());
+			this.getDynamicEntitySettingsForm().hide();
+		}
 
 		const expertSettingsForm = this.getExpertSettingsForm();
 		expertSettingsForm.clear();
@@ -295,9 +423,34 @@ export default class CrmContent extends ContentWrapper
 			expertSettingsForm.addField(this.getDuplicatesField());
 		}
 
-		if (Text.toNumber(item.id) > 4 || this.getOrderSettingsForm().isOpened())
+		if (
+			(
+				Text.toNumber(item.id) > 4
+				&& Type.isPlainObject(scheme)
+				&& scheme.dynamic !== true
+			)
+			|| this.getOrderSettingsForm().isOpened()
+		)
 		{
 			this.getOrderSettingsForm().onSwitchChange(true);
+		}
+
+		if (
+			Type.isPlainObject(scheme)
+			&& (String(item.id) === 'smart' || scheme.dynamic === true)
+			&& this.isDynamicAvailable()
+		)
+		{
+			expertSettingsForm.addField(this.getDynamicHeader(scheme.name));
+			expertSettingsForm.addField(this.getDynamicCategoriesField(scheme.id));
+			expertSettingsForm.addField(this.getDuplicatesField());
+
+			if (String(scheme.id).endsWith('1'))
+			{
+				this.getOrderSettingsForm().onSwitchChange(true);
+			}
+
+			this.getDynamicEntitySettingsForm().show();
 		}
 
 		this.addItem(expertSettingsForm);
@@ -309,17 +462,37 @@ export default class CrmContent extends ContentWrapper
 		this.emit('onChange', {...event.getData(), skipPrepare: true});
 	}
 
+	getSelectedSchemeId(): number
+	{
+		const typeId = this.getTypesField().getValue();
+		if (String(typeId) === 'smart')
+		{
+			const entityId = this.getDynamicEntitiesField().getValue();
+			if (this.getOrderSettingsForm().isOpened())
+			{
+				return `${entityId}1`;
+			}
+
+			return `${entityId}0`;
+		}
+
+		return typeId;
+	}
+
 	valueReducer(value: {[p: string]: any}): {[p: string]: any}
 	{
 		const duplicateMode = this.getDuplicatesField().getValue()[0];
 		const reducedValue = {
 			duplicateMode: duplicateMode === 'ALLOW' ? '' : duplicateMode,
-			scheme: this.getTypesField().getValue(),
+			scheme: this.getSelectedSchemeId(),
 			deal: {
 				duplicatesEnabled: Text.toBoolean(this.getDuplicatesEnabledField().getValue()[0]),
 			},
 			payment: {
 				use: this.getPaymentField().getValue().length > 0,
+			},
+			dynamic: {
+				category: null,
 			},
 		};
 
@@ -352,6 +525,12 @@ export default class CrmContent extends ContentWrapper
 		)
 		{
 			reducedValue.deal.category = this.getStagesField().getValue().category;
+		}
+
+		const scheme = this.getSchemeById(reducedValue.scheme);
+		if (Type.isPlainObject(scheme) && scheme.dynamic)
+		{
+			reducedValue.dynamic.category = this.getDynamicCategoriesField(scheme.id).getValue().category;
 		}
 
 		return {

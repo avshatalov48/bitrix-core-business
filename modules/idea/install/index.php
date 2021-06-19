@@ -14,7 +14,7 @@ Class idea extends CModule
 	var $MODULE_CSS;
 		var $errors;
 
-	function idea()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -226,7 +226,7 @@ Class idea extends CModule
 	{
 		//Comment
 		$EM = new CEventMessage;
-		$oEventMessgae = $EM->GetList($by = "", $order = "", array("EVENT_NAME" => "ADD_IDEA_COMMENT"));
+		$oEventMessgae = $EM->GetList('', '', array("EVENT_NAME" => "ADD_IDEA_COMMENT"));
 		while($arEvent = $oEventMessgae->Fetch())
 			$EM->Delete($arEvent["ID"]);
 
@@ -234,7 +234,7 @@ Class idea extends CModule
 		$ET->Delete("ADD_IDEA_COMMENT");
 
 		//Idea
-		$oEventMessgae = $EM->GetList($by = "", $order = "", array("EVENT_NAME" => "ADD_IDEA"));
+		$oEventMessgae = $EM->GetList('', '', array("EVENT_NAME" => "ADD_IDEA"));
 		while($arEvent = $oEventMessgae->Fetch())
 			$EM->Delete($arEvent["ID"]);
 

@@ -50,7 +50,7 @@ export default function offset(history: History, offsetValue: number): Promise<H
 					})
 					.catch(() => {
 						history.commandState = RESOLVED;
-						return history[state === UNDO ? 'undo' : 'redo']();
+						return offset(history, offsetValue);
 					});
 			}
 		}

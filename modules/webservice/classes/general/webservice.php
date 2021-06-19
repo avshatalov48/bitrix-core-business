@@ -51,7 +51,7 @@ class CWebServiceDesc
 class IWebService
 {
 	// May be called by Event to collect CWebServiceDesc on configuring WS.Server
-	function GetWebServiceDesc() {}
+	public static function GetWebServiceDesc() {}
 
 	//function TestComponent() {}
 
@@ -66,13 +66,13 @@ class IWebService
 
 class CWebService
 {
-	function SetComponentContext($arParams)
+	public static function SetComponentContext($arParams)
 	{
 		if (is_array($arParams))
 			$GLOBALS["componentContext"] = $arParams;
 	}
 
-	function GetComponentContext($arParams)
+	public static function GetComponentContext($arParams)
 	{
 		if (is_array($GLOBALS["componentContext"]))
 			return $GLOBALS["componentContext"];
@@ -80,7 +80,7 @@ class CWebService
 		return false;
 	}
 
-	function SOAPServerProcessRequest($wsname)
+	public static function SOAPServerProcessRequest($wsname)
 	{
 		if (!isset($GLOBALS["wsdescs"][$wsname]) or
 			!$GLOBALS["wsdescs"][$wsname] or
@@ -90,7 +90,7 @@ class CWebService
 		return $GLOBALS["wsdescs"][$wsname]->_soapsi->ProcessRequest();
 	}
 
-	function RegisterWebService($className /*IWebService implementor*/)
+	public static function RegisterWebService($className /*IWebService implementor*/)
 	{
 		$ifce =& CWebService::GetInterface($className);
 		if (!is_object($ifce)) return false;
@@ -182,7 +182,7 @@ class CWebService
 		return true;
 	}
 
-	function GetSOAPServerRequest($wsname)
+	public static function GetSOAPServerRequest($wsname)
 	{
 		if (isset($GLOBALS["wsdescs"][$wsname]) and
 			$GLOBALS["wsdescs"][$wsname]->_soapsi)
@@ -192,7 +192,7 @@ class CWebService
 		return false;
 	}
 
-	function GetSOAPServerResponse($wsname)
+	public static function GetSOAPServerResponse($wsname)
 	{
 		if (isset($GLOBALS["wsdescs"][$wsname]))
 		{
@@ -201,7 +201,7 @@ class CWebService
 		return false;
 	}
 
-	function MethodRequireHTTPAuth($class, $method)
+	public static function MethodRequireHTTPAuth($class, $method)
 	{
 		global $USER;
 
@@ -214,7 +214,7 @@ class CWebService
 		return true;
 	}
 
-	function TestComponent($wsname)
+	public static function TestComponent($wsname)
 	{
 		if (isset($GLOBALS["wsdescs"][$wsname]))
 		{
@@ -225,7 +225,7 @@ class CWebService
 		return false;
 	}
 
-	function GetWSDL($wsname)
+	public static function GetWSDL($wsname)
 	{
 		if (!isset($GLOBALS["wsdescs"][$wsname]) or
 			!$GLOBALS["wsdescs"][$wsname] or
@@ -234,21 +234,21 @@ class CWebService
 		return $GLOBALS["wsdescs"][$wsname]->_wsdlci->getWSDL();
 	}
 
-	function GetDefaultEndpoint()
+	public static function GetDefaultEndpoint()
 	{
 		global $APPLICATION;
 		return ($APPLICATION->IsHTTPS() ? "https" : "http")."://".$_SERVER["HTTP_HOST"].
 				$APPLICATION->GetCurPage();
 	}
 
-	function GetDefaultTargetNS()
+	public static function GetDefaultTargetNS()
 	{
 		global $APPLICATION;
 
 		return ($APPLICATION->IsHTTPS() ? "https" : "http")."://".$_SERVER["HTTP_HOST"]."/";
 	}
 
-	function &GetWebServiceDeclaration($className)
+	public static function &GetWebServiceDeclaration($className)
 	{
 		if (isset($GLOBALS["wsdescs"][$className])) return $GLOBALS["wsdescs"][$className];
 		$ifce =& CWebService::GetInterface($className);
@@ -256,7 +256,7 @@ class CWebService
 		return $ifce->GetWebServiceDesc();
 	}
 
-	function &GetInterface($className)
+	public static function &GetInterface($className)
 	{
 		if (isset($GLOBALS["wswraps"][$className])) return $GLOBALS["wswraps"][$className];
 
@@ -266,7 +266,4 @@ class CWebService
 		if (!is_subclass_of($ifce, "IWebService")) return 0;
 		return $ifce;
 	}
-
 }
-
-?>

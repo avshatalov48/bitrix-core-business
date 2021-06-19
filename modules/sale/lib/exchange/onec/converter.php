@@ -274,7 +274,7 @@ abstract class Converter implements IConverter
 
 		if($sites === null)
 		{
-			$res = \CSite::getList($by="sort", $order="desc");
+			$res = \CSite::getList("sort", "desc");
 			while ($site = $res->fetch())
 			{
 				$sites[$site['LID']]=$site['NAME'];

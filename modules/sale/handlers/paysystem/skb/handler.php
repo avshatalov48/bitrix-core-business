@@ -34,20 +34,14 @@ class SkbHandler
 	private const HTTP_CODE_OK = 200;
 	private const HTTP_CODE_LOCKED = 423;
 
+	private const PAYMENT_STATUS_NOT_STARTED = 'NTST';
 	private const PAYMENT_STATUS_ACCEPTED = 'ACWP';
+	private const PAYMENT_STATUS_REJECTED = 'RJCT';
 
 	/**
 	 * @param Payment $payment
 	 * @param Request|null $request
 	 * @return PaySystem\ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\ObjectException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	public function initiatePay(Payment $payment, Request $request = null): PaySystem\ServiceResult
 	{
@@ -85,20 +79,12 @@ class SkbHandler
 	/**
 	 * @param Payment $payment
 	 * @return PaySystem\ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	private function changeUserPassword(Payment $payment): PaySystem\ServiceResult
 	{
 		$result = new PaySystem\ServiceResult();
 
 		$params = [
-			'messageId' => self::getMessageId(),
 			'login' => $this->getBusinessValue($payment, 'SKB_LOGIN'),
 			'password' => $this->getBusinessValue($payment, 'SKB_PASSWORD'),
 			'newPassword' => Main\Security\Random::getString(10, true),
@@ -125,9 +111,6 @@ class SkbHandler
 	 * @param Payment $payment
 	 * @param string $password
 	 * @return PaySystem\ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	private function updatePassword(Payment $payment, string $password): PaySystem\ServiceResult
 	{
@@ -153,14 +136,6 @@ class SkbHandler
 	/**
 	 * @param Payment $payment
 	 * @return PaySystem\ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\ObjectException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	private function createPayment(Payment $payment): PaySystem\ServiceResult
 	{
@@ -174,7 +149,11 @@ class SkbHandler
 			'amount' => (string)($payment->getSum() * 100),
 			'currency' => $payment->getField('CURRENCY'),
 			'paymentPurpose' => $this->getAdditionalInfo($payment),
+			'templateVersion' => '01',
 			'qrcType' => '02',
+			'mediaType' => 'image/png',
+			'width' => 450,
+			'height' => 450,
 		];
 
 		$sendResult = $this->send($payment, 'register', $params);
@@ -203,11 +182,6 @@ class SkbHandler
 	 * @param Payment $payment
 	 * @param Request $request
 	 * @return PaySystem\ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
 	 */
 	public function processRequest(Payment $payment, Request $request): PaySystem\ServiceResult
 	{
@@ -227,73 +201,12 @@ class SkbHandler
 			return $result;
 		}
 
-		$paymentStatusData = $paymentStatusResult->getData();
-		$skbPayment = current($paymentStatusData['payments']);
-		if ($skbPayment['status'] === self::PAYMENT_STATUS_ACCEPTED)
-		{
-			$description = Loc::getMessage('SALE_HPS_SKB_PAYMENT_ID', [
-				'#TX_ID#' => $request->get('txId')
-			]);
-			$sum = $request->get('amount') / 100;
-			$fields = array(
-				'PS_INVOICE_ID' => $skbPayment['qrcId'],
-				'PS_STATUS_CODE' => $skbPayment['status'],
-				'PS_STATUS_DESCRIPTION' => $description,
-				'PS_SUM' => $sum,
-				'PS_STATUS' => 'N',
-				'PS_CURRENCY' => $payment->getField('CURRENCY'),
-				'PS_RESPONSE_DATE' => new Main\Type\DateTime()
-			);
-
-			if ($this->isSumCorrect($payment, $sum))
-			{
-				$fields['PS_STATUS'] = 'Y';
-
-				PaySystem\Logger::addDebugInfo(
-					__CLASS__.': PS_CHANGE_STATUS_PAY='.$this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY')
-				);
-
-				if ($this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY') === 'Y')
-				{
-					$result->setOperationType(PaySystem\ServiceResult::MONEY_COMING);
-				}
-			}
-			else
-			{
-				$error = Loc::getMessage('SALE_HPS_SKB_ERROR_SUM');
-				$fields['PS_STATUS_DESCRIPTION'] .= '. '.$error;
-				$result->addError(new Main\Error($error));
-			}
-
-			$result->setPsData($fields);
-		}
-		else
-		{
-			$result->addError(
-				new Main\Error(
-					Loc::getMessage(
-						'SALE_HPS_SKB_ERROR_STATUS',
-						[
-							'#STATUS#' => $paymentStatusData['payments']['status'],
-						]
-					)
-				)
-			);
-		}
-
-		return $result;
+		return $this->processSkbPaymentStatus($payment, $paymentStatusResult);
 	}
 
 	/**
 	 * @param Payment $payment
 	 * @return PaySystem\ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	private function getSkbPaymentStatus(Payment $payment): PaySystem\ServiceResult
 	{
@@ -325,6 +238,96 @@ class SkbHandler
 		return $result;
 	}
 
+	private function processSkbPaymentStatus(Payment $payment, PaySystem\ServiceResult $paymentStatusResult): PaySystem\ServiceResult
+	{
+		$result = new PaySystem\ServiceResult();
+
+		$paymentStatusData = $paymentStatusResult->getData();
+		$skbPayment = current($paymentStatusData['payments']);
+
+		if (!empty($skbPayment['status']))
+		{
+			$status = $skbPayment['status'];
+			$fields = [
+				'PS_STATUS_CODE' => $status,
+				'PS_SUM' => $payment->getSum(),
+				'PS_CURRENCY' => $payment->getField('CURRENCY'),
+				'PS_RESPONSE_DATE' => new Main\Type\DateTime(),
+				'PS_STATUS' => 'N',
+			];
+
+			$psStatusDescription = Loc::getMessage('SALE_HPS_SKB_STATUS_DESCRIPTION_' . $status);
+			if ($psStatusDescription)
+			{
+				$fields['PS_STATUS_DESCRIPTION'] = $psStatusDescription;
+			}
+
+			$additionalPsStatusDescription = '';
+			if (!empty($skbPayment['trxId']))
+			{
+				$additionalPsStatusDescription = Loc::getMessage('SALE_HPS_SKB_OPERATION_ID_DESCRIPTION', [
+					'#TX_ID#' => $skbPayment['trxId'],
+				]);
+			}
+			elseif (!empty($skbPayment['qrcId']))
+			{
+				$additionalPsStatusDescription = Loc::getMessage('SALE_HPS_SKB_QR_CODE_ID_DESCRIPTION', [
+					'#QR_CODE_ID#' => $skbPayment['qrcId'],
+				]);
+			}
+
+			if ($additionalPsStatusDescription)
+			{
+				$fields['PS_STATUS_DESCRIPTION'] =
+					!empty($fields['PS_STATUS_DESCRIPTION'])
+						? $fields['PS_STATUS_DESCRIPTION'] . ' ' . $additionalPsStatusDescription
+						: $additionalPsStatusDescription
+				;
+			}
+
+			if ($status === self::PAYMENT_STATUS_ACCEPTED)
+			{
+				$fields['PS_STATUS'] = 'Y';
+
+				PaySystem\Logger::addDebugInfo(
+					__CLASS__ . ': PS_CHANGE_STATUS_PAY=' . $this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY')
+				);
+
+				if ($this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY') === 'Y')
+				{
+					$result->setOperationType(PaySystem\ServiceResult::MONEY_COMING);
+				}
+			}
+			elseif ($status === self::PAYMENT_STATUS_NOT_STARTED)
+			{
+				$result->addError(
+					new Main\Error(Loc::getMessage('SALE_HPS_SKB_ERROR_STATUS_NOT_STARTED'))
+				);
+			}
+			elseif ($status === self::PAYMENT_STATUS_REJECTED)
+			{
+				$result->addError(
+					new Main\Error(Loc::getMessage('SALE_HPS_SKB_ERROR_STATUS_REJECTED'))
+				);
+			}
+
+			$result->setPsData($fields);
+
+			if (!$result->isSuccess())
+			{
+				$result->setOperationType(PaySystem\ServiceResult::MONEY_LEAVING);
+			}
+		}
+		else
+		{
+			$result->addError(
+				new Main\Error(Loc::getMessage('SALE_HPS_SKB_ERROR_STATUS_NOT_FOUND'))
+			);
+		}
+
+		return $result;
+	}
+
 	/**
 	 * @param Request $request
 	 * @return mixed
@@ -343,48 +346,27 @@ class SkbHandler
 	}
 
 	/**
-	 * @param Payment $payment
-	 * @param $sum
-	 * @return bool
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
-	 */
-	private function isSumCorrect(Payment $payment, $sum): bool
-	{
-		PaySystem\Logger::addDebugInfo(
-			__CLASS__.': skbSum = '.PriceMaths::roundPrecision($sum).'; paymentSum = '.PriceMaths::roundPrecision($payment->getSum())
-		);
-
-		return PriceMaths::roundPrecision($sum) === PriceMaths::roundPrecision($payment->getSum());
-	}
-
-	/**
 	 * @param Request $request
 	 * @param $secretKey
 	 * @return bool
 	 */
 	protected function isSignCorrect(Request $request, $secretKey): bool
 	{
-		$hash = $request->get('qrcId')
-			.$request->get('timestamp')
-			.$request->get('txId')
-			.$request->get('amount')
-			.$secretKey;
+		$hash = md5(
+			$request->get('qrcId')
+			. $request->get('timestamp')
+			. $request->get('txId')
+			. $request->get('amount')
+			. $secretKey
+		);
 
-		return md5($hash) === $request->get('sign');
+		return $hash === $request->get('sign');
 	}
 
 	/**
 	 * @param Payment $payment
 	 * @param $refundableSum
 	 * @return PaySystem\ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
 	 */
 	public function refund(Payment $payment, $refundableSum): PaySystem\ServiceResult
 	{
@@ -424,13 +406,6 @@ class SkbHandler
 	 * @param Payment $payment
 	 * @param $refundableSum
 	 * @return PaySystem\ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	private function checkRefundTransfer(Payment $payment, $refundableSum): PaySystem\ServiceResult
 	{
@@ -469,13 +444,6 @@ class SkbHandler
 	 * @param Payment $payment
 	 * @param string $corelationId
 	 * @return PaySystem\ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	private function approveRefundTransfer(Payment $payment, string $corelationId): PaySystem\ServiceResult
 	{
@@ -504,13 +472,6 @@ class SkbHandler
 	 * @param $action
 	 * @param array $params
 	 * @return PaySystem\ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	private function send(Payment $payment, $action, array $params = []): PaySystem\ServiceResult
 	{
@@ -553,11 +514,6 @@ class SkbHandler
 	 * @param array $params
 	 * @param array $headers
 	 * @return PaySystem\ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
 	 */
 	private function makeQuery($url, array $params = [], array $headers = []): PaySystem\ServiceResult
 	{
@@ -567,7 +523,7 @@ class SkbHandler
 		$httpClient->setHeaders($headers);
 
 		$postData = static::encode($params);
-		PaySystem\Logger::addDebugInfo(__CLASS__.': request data: '.$postData);
+		PaySystem\Logger::addDebugInfo(__CLASS__ . ': request data: ' . $postData);
 
 		$response = $httpClient->post($url, $postData);
 		if ($response === false)
@@ -581,7 +537,7 @@ class SkbHandler
 			return $result;
 		}
 
-		PaySystem\Logger::addDebugInfo(__CLASS__.': response data: '.Main\Text\Encoding::convertEncoding($response, "UTF-8", LANG_CHARSET));
+		PaySystem\Logger::addDebugInfo(__CLASS__ . ': response data: ' . Main\Text\Encoding::convertEncoding($response, "UTF-8", LANG_CHARSET));
 
 		$httpStatus = $httpClient->getStatus();
 		if ($httpStatus === self::HTTP_CODE_OK)
@@ -622,7 +578,7 @@ class SkbHandler
 			return $result;
 		}
 
-		if (isset($responseData['errCode']) && !in_array($responseData['errCode'], self::RESPONSE_CODE_SUCCESS, true))
+		if (isset($responseData['errCode']) && !\in_array($responseData['errCode'], self::RESPONSE_CODE_SUCCESS, true))
 		{
 			$result->addError(new Main\Error($responseData['errMess'], $responseData['errCode']));
 		}
@@ -648,29 +604,29 @@ class SkbHandler
 	 */
 	protected function getUrlList(): array
 	{
-		$testUrl = 'https://sbp.test-api.skbbank.ru:443/';
-		$activeUrl = 'https://sbp.api.skbbank.ru:443/';
+		$testUrl = 'https://public.test-api.skbbank.ru:443/';
+		$activeUrl = 'https://public.api.skbbank.ru:443/';
 
 		return [
 			'register' => [
-				self::TEST_URL => $testUrl.'qr/register',
-				self::ACTIVE_URL => $activeUrl.'qr/register'
+				self::TEST_URL => $testUrl . 'qr/register',
+				self::ACTIVE_URL => $activeUrl . 'qr/register',
 			],
 			'getPaymentsStatus' => [
-				self::TEST_URL => $testUrl.'qr/getpaymentsstatus',
-				self::ACTIVE_URL => $activeUrl.'qr/getpaymentsstatus'
+				self::TEST_URL => $testUrl . 'qr/getpaymentsstatus',
+				self::ACTIVE_URL => $activeUrl . 'qr/getpaymentsstatus',
 			],
 			'checkRefundTransfer' => [
-				self::TEST_URL => $testUrl.'refund/CheckRefundTransfer',
-				self::ACTIVE_URL => $activeUrl.'refund/CheckRefundTransfer'
+				self::TEST_URL => $testUrl . 'refund/CheckRefundTransfer',
+				self::ACTIVE_URL => $activeUrl . 'refund/CheckRefundTransfer',
 			],
 			'approveRefundTransfer' => [
-				self::TEST_URL => $testUrl.'refund/ApproveRefundTransfer',
-				self::ACTIVE_URL => $activeUrl.'refund/ApproveRefundTransfer'
+				self::TEST_URL => $testUrl . 'refund/ApproveRefundTransfer',
+				self::ACTIVE_URL => $activeUrl . 'refund/ApproveRefundTransfer',
 			],
 			'changeUserPassword' => [
-				self::TEST_URL => $testUrl.'user/changeUserPassword',
-				self::ACTIVE_URL => $activeUrl.'user/changeUserPassword'
+				self::TEST_URL => $testUrl . 'user/changeUserPassword',
+				self::ACTIVE_URL => $activeUrl . 'user/changeUserPassword',
 			],
 		];
 	}
@@ -678,11 +634,6 @@ class SkbHandler
 	/**
 	 * @param Payment $payment
 	 * @return mixed
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	protected function getAdditionalInfo(Payment $payment)
 	{
@@ -720,7 +671,7 @@ class SkbHandler
 	{
 		return base64_encode(
 			$this->getBusinessValue($payment, 'SKB_LOGIN')
-			.':'
+			. ':'
 			. $this->getBusinessValue($payment, 'SKB_PASSWORD')
 		);
 	}
@@ -732,7 +683,7 @@ class SkbHandler
 	private function getHeaders(Payment $payment): array
 	{
 		return [
-			'Authorization' => 'Basic '.$this->getBasicAuthString($payment),
+			'Authorization' => 'Basic ' . $this->getBasicAuthString($payment),
 			'Content-Type' => 'application/json',
 		];
 	}
@@ -770,17 +721,16 @@ class SkbHandler
 	 */
 	public static function getHandlerModeList(): array
 	{
-		return array(
+		return [
 			self::MODE_SKB => Loc::getMessage('SALE_HPS_SKB_MODE_SKB'),
 			self::MODE_DELOBANK => Loc::getMessage('SALE_HPS_SKB_MODE_DELOBANK'),
 			self::MODE_GAZENERGOBANK => Loc::getMessage('SALE_HPS_SKB_MODE_GAZENERGOBANK'),
-		);
+		];
 	}
 
 	/**
 	 * @param array $data
 	 * @return mixed
-	 * @throws Main\ArgumentException
 	 */
 	private static function encode(array $data)
 	{

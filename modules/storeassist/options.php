@@ -12,9 +12,9 @@ if ($STAS_RIGHT >= "R")
 	if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid() && $STAS_RIGHT >= "W")
 	{
 		$errorMessage = "";
-		COption::SetOptionString($module_id, "partner_name", (strlen($_POST["partner_name"]) > 0 ? trim($_POST["partner_name"]) : ""));
+		COption::SetOptionString($module_id, "partner_name", ($_POST["partner_name"] <> '' ? trim($_POST["partner_name"]) : ""));
 
-		if (strlen($_POST["partner_url"])>0)
+		if ($_POST["partner_url"] <> '')
 		{
 			if (!preg_match('/^(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6}'.'((:[0-9]{1,5})?\/.*)?$/i', $_POST["partner_url"]))
 			{

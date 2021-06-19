@@ -218,7 +218,7 @@ class DataInstallStep extends \DataInstallStep
 
 		define("WIZARD_NEW_2011", false);
 
-		$dbGroupUsers = \CGroup::GetList($by="id", $order="asc", Array("ACTIVE" => "Y"));
+		$dbGroupUsers = \CGroup::GetList("id", "asc", Array("ACTIVE" => "Y"));
 		$arGroupsId = Array("ADMIN_SECTION", "SUPPORT", "CREATE_GROUPS", "PERSONNEL_DEPARTMENT", "DIRECTION", "MARKETING_AND_SALES", "RATING_VOTE", "RATING_VOTE_AUTHORITY");
 
 		while ($arGroupUser = $dbGroupUsers->Fetch())

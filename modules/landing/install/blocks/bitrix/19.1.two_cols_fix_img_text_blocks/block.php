@@ -1,4 +1,4 @@
-<section class="landing-block g-pt-20 g-pb-20">
+<section class="landing-block g-pt-30 g-pb-30">
 	<div class="container">
 		<div class="row">
 
@@ -7,7 +7,7 @@
 					<img class="landing-block-node-img img-fluid"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/1000x562/img1.jpg" alt="">
 				</div>
-				<h3 class="landing-block-node-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-font-size-18 g-color-black g-mb-20">
+				<h3 class="landing-block-node-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-mb-20">
 					Building since 1943</h3>
 				<div class="landing-block-node-text">
 					<p class="mb-0 landing-semantic-text-medium">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
@@ -20,11 +20,11 @@
 				<div aria-multiselectable="true">
 					<div class="landing-block-card-accordeon-element js-animation fadeInUp g-brd-none">
 						<div class="card-header u-accordion__header g-bg-transparent g-brd-none rounded-0 p-0">
-							<div class="landing-block-card-accordeon-element-title-link d-block text-uppercase g-pos-rel g-font-weight-700 g-brd-bottom g-brd-primary g-brd-2 g-py-15">
+							<div class="landing-block-card-accordeon-element-title-link d-block text-uppercase g-pos-rel g-brd-bottom g-brd-primary g-brd-2 g-py-15">
 								<span class="landing-block-node-accordeon-element-img-container g-valign-middle g-font-size-23 g-mr-10 g-color-primary">
 									<i class="landing-block-node-accordeon-element-img icon-user"></i>
 								</span>
-								<div class="landing-block-node-accordeon-element-title landing-semantic-subtitle-small g-font-size-12 g-valign-middle d-inline-block">Who we are</div>
+								<h5 class="landing-block-node-accordeon-element-title landing-semantic-subtitle-small g-font-weight-700 g-valign-middle d-inline-block">Who we are</h5>
 							</div>
 						</div>
 
@@ -44,11 +44,11 @@
 
 					<div class="landing-block-card-accordeon-element js-animation fadeInUp g-brd-none">
 						<div class="card-header u-accordion__header g-bg-transparent g-brd-none rounded-0 p-0">
-							<div class="landing-block-card-accordeon-element-title-link d-block text-uppercase g-pos-rel g-font-weight-700 g-brd-bottom g-brd-primary g-brd-2 g-py-15">
+							<div class="landing-block-card-accordeon-element-title-link d-block text-uppercase g-pos-rel g-brd-bottom g-brd-primary g-brd-2 g-py-15">
 								<span class="landing-block-node-accordeon-element-img-container g-valign-middle g-font-size-23 g-mr-10 g-color-primary">
 									<i class="landing-block-node-accordeon-element-img icon-calendar"></i>
 								</span>
-								<div class="landing-block-node-accordeon-element-title landing-semantic-subtitle-small g-font-size-12 g-valign-middle d-inline-block">Our history</div>
+								<h5 class="landing-block-node-accordeon-element-title landing-semantic-subtitle-small g-font-weight-700 g-valign-middle d-inline-block">Our history</h5>
 							</div>
 						</div>
 
@@ -66,12 +66,11 @@
 
 					<div class="landing-block-card-accordeon-element js-animation fadeInUp g-brd-none">
 						<div class="card-header u-accordion__header g-bg-transparent g-brd-none rounded-0 p-0">
-							<div class="landing-block-card-accordeon-element-title-link d-block text-uppercase g-pos-rel g-font-weight-700 g-brd-bottom g-brd-primary g-brd-2 g-py-15">
+							<div class="landing-block-card-accordeon-element-title-link d-block text-uppercase g-pos-rel g-brd-bottom g-brd-primary g-brd-2 g-py-15">
 								<span class="landing-block-node-accordeon-element-img-container g-valign-middle g-font-size-23 g-mr-10 g-color-primary">
 									<i class="landing-block-node-accordeon-element-img icon-settings"></i>
 								</span>
-								<div class="landing-block-node-accordeon-element-title landing-semantic-subtitle-small g-font-size-12 g-valign-middle d-inline-block">Our services
-								</div>
+								<h5 class="landing-block-node-accordeon-element-title landing-semantic-subtitle-small g-font-weight-700 g-valign-middle d-inline-block">Our services</h5>
 							</div>
 						</div>
 
@@ -91,11 +90,11 @@
 
 					<div class="landing-block-card-accordeon-element js-animation fadeInUp g-brd-none">
 						<div class="card-header u-accordion__header g-bg-transparent g-brd-none rounded-0 p-0">
-							<div class="landing-block-card-accordeon-element-title-link d-block text-uppercase g-pos-rel g-font-weight-700 g-brd-bottom g-brd-primary g-brd-2 g-py-15">
+							<div class="landing-block-card-accordeon-element-title-link d-block text-uppercase g-pos-rel g-brd-bottom g-brd-primary g-brd-2 g-py-15">
 								<span class="landing-block-node-accordeon-element-img-container g-valign-middle g-font-size-23 g-mr-10 g-color-primary">
 									<i class="landing-block-node-accordeon-element-img icon-diamond"></i>
 								</span>
-								<div class="landing-block-node-accordeon-element-title landing-semantic-subtitle-small g-font-size-12 g-valign-middle d-inline-block">Our values</div>
+								<h5 class="landing-block-node-accordeon-element-title landing-semantic-subtitle-small g-font-weight-700 g-valign-middle d-inline-block">Our values</h5>
 							</div>
 						</div>
 

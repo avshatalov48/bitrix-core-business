@@ -18,7 +18,7 @@ $oSort = new CAdminUiSorting($sTableID, "ID", "asc");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $listSite = array();
-$sitesQueryObject = CSite::getList($bySite = "sort", $orderSite = "asc", array("ACTIVE" => "Y"));
+$sitesQueryObject = CSite::getList("sort", "asc", array("ACTIVE" => "Y"));
 while ($site = $sitesQueryObject->fetch())
 {
 	$listSite[$site["LID"]] = $site["NAME"]." [".$site["LID"]."]";
@@ -150,7 +150,7 @@ $lAdmin->AddHeaders(array(
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
 $arLangs = array();
-$dbLangsList = CLang::GetList(($b = "sort"), ($o = "asc"));
+$dbLangsList = CLang::GetList();
 while ($arLang = $dbLangsList->Fetch())
 	$arLangs[$arLang["LID"]] = "[".htmlspecialcharsbx($arLang["LID"])."] ".htmlspecialcharsbx($arLang["NAME"]);
 

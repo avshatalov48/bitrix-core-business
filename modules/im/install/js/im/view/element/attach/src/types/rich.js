@@ -11,7 +11,7 @@
 
 import "./rich.css";
 import {AttachTypeImage} from "./image";
-import {Utils} from "im.lib.utils";
+import { AttachLinks } from "../mixin/attachLinks";
 
 export const AttachTypeRich =
 {
@@ -19,6 +19,9 @@ export const AttachTypeRich =
 	name: 'bx-im-view-element-attach-rich',
 	component:
 	{
+		mixins: [
+			AttachLinks
+		],
 		props:
 		{
 			config: {type: Object, default: {}},
@@ -35,20 +38,6 @@ export const AttachTypeRich =
 					HEIGHT: element.HEIGHT,
 				}]};
 			},
-			openLink(element)
-			{
-				if (element.LINK)
-				{
-					Utils.platform.openNewPage(element.LINK);
-				}
-				else
-				{
-					// element.NETWORK_ID
-					// element.USER_ID
-					// element.CHAT_ID
-					// TODO exec openDialog with params
-				}
-			}
 		},
 		computed:
 		{
@@ -61,14 +50,15 @@ export const AttachTypeRich =
 		{
 			[AttachTypeImage.name]: AttachTypeImage.component
 		},
+		//language=Vue
 		template: `
 			<div class="bx-im-element-attach-type-rich">
 				<template v-for="(element, index) in config.RICH_LINK">
 					<div class="bx-im-element-attach-type-rich-element" :key="index">
-						<div v-if="element.PREVIEW" class="bx-im-element-attach-type-rich-image" @click="openLink(element)">
+						<div v-if="element.PREVIEW" class="bx-im-element-attach-type-rich-image" @click="openLink({element: element, event: $event})">
 							<component :is="imageComponentName" :config="getImageConfig(element)" :color="color"/>
 						</div>
-						<div class="bx-im-element-attach-type-rich-name" @click="openLink(element)">{{element.NAME}}</div>
+						<div class="bx-im-element-attach-type-rich-name" @click="openLink({element: element, event: $event})">{{element.NAME}}</div>
 						<div v-if="element.DESC" class="bx-im-element-attach-type-rich-desc">{{element.DESC}}</div>
 					</div>
 				</template>

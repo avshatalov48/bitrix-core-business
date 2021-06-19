@@ -1697,7 +1697,7 @@ class CSaleOrderLoader
         }
         else
         {
-            $r = \Bitrix\Sale\Internals\PaySystemActionTable::getList(array(
+            $r = \Bitrix\Sale\PaySystem\Manager::getList(array(
                 'select' => array('ID'),
                 'filter' => array('!ACTION_FILE' => 'inner', 'ACTIVE'=>'Y'),
                 'order' => array('ID'=>'ASC')
@@ -3821,7 +3821,7 @@ class CSaleOrderLoader
 						)
 							unset($arAgent[$k]);
 					}
-					
+
 					if(intval($arOrder["USER_ID"]) > 0)
 					{
 						$orderFields = array(

@@ -20,7 +20,7 @@ $arFilter = Array(
 if ($find_date1 <> '' || $find_date2 <> '')
 	$period = "Y";
 $by = ($period=="Y") ? "s_period_hits" : "s_total_hits";
-$w = CSearcher::GetList($by, ($order="desc"), $arFilter, $is_filtered);
+$w = CSearcher::GetList($by, "desc", $arFilter);
 while($wr = $w->Fetch())
 {
 	$total++;

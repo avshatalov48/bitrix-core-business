@@ -462,7 +462,7 @@ export default class Item
 
 	deselect(): void
 	{
-		if (!this.selected || !this.isDeselectable())
+		if (!this.selected)
 		{
 			return;
 		}

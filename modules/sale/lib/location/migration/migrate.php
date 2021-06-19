@@ -1283,10 +1283,8 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 		}
 
 		// language list
-		$a = false;
-		$b = false;
 		$lang = new \CLanguage();
-		$res = $lang->GetList($a, $b);
+		$res = $lang->GetList();
 		$this->data['LANG'] = array();
 		while($item = $res->Fetch())
 			$this->data['LANG'][] = $item['LID'];

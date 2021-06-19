@@ -32,7 +32,7 @@ if ($_REQUEST["public_dir"] <> ''):
 		<td align="center"><p><b><?=GetMessage("SEARCH_LINK")?></b></p></td>
 	</tr>
 	<?
-	$sites = CSite::GetList($by, $order, Array("ACTIVE"=>"Y"));
+	$sites = CSite::GetList('', '', Array("ACTIVE"=>"Y"));
 	while($site = $sites->Fetch())
 	{
 		?>

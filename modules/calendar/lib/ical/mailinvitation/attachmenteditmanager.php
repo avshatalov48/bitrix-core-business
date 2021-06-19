@@ -57,7 +57,7 @@ class AttachmentEditManager extends AttachmentManager
 				->setWithTime(!$event['SKIP_TIME'])
 				->setOrganizer($event['ICAL_ORGANIZER'], $this->getOrganizerMailTo())
 				->setDescription($this->prepareDescription($event['DESCRIPTION']))
-				->setTransparent(Dictionary::TRANSPARENT[$event['ACCESSIBILITY']])
+				->setTransparent(Dictionary::TRANSPARENT[$event['ACCESSIBILITY']] ?? Dictionary::TRANSPARENT['busy'])
 				->setRRule($this->prepareRecurrenceRule($event['RRULE']))
 //				->setExdates($this->prepareExDate($event['EXDATE']))
 				->setLocation($event['TEXT_LOCATION'])

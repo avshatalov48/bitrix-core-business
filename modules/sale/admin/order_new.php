@@ -2342,7 +2342,7 @@ if ((!isset($LID) OR $LID == "") AND (defined('BX_PUBLIC_MODE') AND BX_PUBLIC_MO
 {
 	$arSitesShop = array();
 	$arSitesTmp = array();
-	$rsSites = CSite::GetList($by="id", $order="asc", array("ACTIVE" => "Y"));
+	$rsSites = CSite::GetList("id", "asc", array("ACTIVE" => "Y"));
 	while ($arSite = $rsSites->GetNext())
 	{
 		$site = COption::GetOptionString("sale", "SHOP_SITE_".$arSite["ID"], "");
@@ -2468,10 +2468,8 @@ if ($boolLocked)
 {
 	$strLockUser = $intLockUserID;
 	$strLockUserInfo = $intLockUserID;
-	$by2 = 'ID';
-	$order2 = 'ASC';
 	/** @var CDBResult $rsUsers */
-	$rsUsers = CUser::GetList($by2, $order2, array('ID' => $intLockUserID), array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME')));
+	$rsUsers = CUser::GetList('ID',	'ASC', array('ID' => $intLockUserID), array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME')));
 	if ($arOneUser = $rsUsers->Fetch())
 	{
 		$strLockUser = CUser::FormatName($strNameFormat, $arOneUser);
@@ -2659,7 +2657,7 @@ $tabControl->EndEpilogContent();
 
 if (!isset($LID) || $LID == "")
 {
-	$rsSites = CSite::GetList($by="id", $order="asc", array("ACTIVE" => "Y", "DEF" => "Y"));
+	$rsSites = CSite::GetList("id", "asc", array("ACTIVE" => "Y", "DEF" => "Y"));
 	$arSite = $rsSites->Fetch();
 	$LID = $arSite["ID"];
 }
@@ -2785,7 +2783,7 @@ $tabControl->EndCustomField("ORDER_STATUS");
 if ($ID > 0)
 {
 	$arSitesShop = array();
-	$rsSites = CSite::GetList($by="id", $order="asc", array("ACTIVE" => "Y"));
+	$rsSites = CSite::GetList("id", "asc", array("ACTIVE" => "Y"));
 	while ($arSite = $rsSites->GetNext())
 	{
 		$site = COption::GetOptionString("sale", "SHOP_SITE_".$arSite["ID"], "");
@@ -3938,7 +3936,14 @@ $tabControl->BeginCustomField("BASKET_CONTAINER", GetMessage("NEWO_BASKET_CONTAI
 		</script>
 		<?
 		$arCurFormat = CCurrencyLang::GetCurrencyFormat($str_CURRENCY);
+
 		$CURRENCY_FORMAT = trim(str_replace("#", '', $arCurFormat["FORMAT_STRING"]));
+		$CURRENCY_FORMAT = strip_tags(preg_replace(
+			'#<script[^>]*?>.*?</script[^>]*?>#is',
+			'',
+			$CURRENCY_FORMAT
+		));
+
 		$ORDER_TOTAL_PRICE = 0;
 		$ORDER_PRICE_WITH_DISCOUNT = 0;
 		$productCountAll = 0;

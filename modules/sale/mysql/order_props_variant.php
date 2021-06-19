@@ -1,9 +1,10 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/order_props_variant.php");
 
 class CSaleOrderPropsVariant extends CAllSaleOrderPropsVariant
 {
-	function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -115,7 +116,7 @@ class CSaleOrderPropsVariant extends CAllSaleOrderPropsVariant
 		return $dbRes;
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -134,4 +135,3 @@ class CSaleOrderPropsVariant extends CAllSaleOrderPropsVariant
 		return $ID;
 	}
 }
-?>

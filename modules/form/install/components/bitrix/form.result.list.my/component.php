@@ -27,7 +27,7 @@ $arResult['RESULTS'] = array();
 
 if (count($arParams['FORMS']) <= 0)
 {
-	$dbRes = CForm::GetList($by = 'sort', $order = 'asc', array('SITE' => SITE_ID), $is_filtered);
+	$dbRes = CForm::GetList('sort', 'asc', array('SITE' => SITE_ID));
 	while ($arRes = $dbRes->GetNext())
 	{
 		$arParams['FORMS'][] = $arRes['ID'];
@@ -56,7 +56,7 @@ foreach ($arParams['FORMS'] as $FORM_ID)
 		$arResult['FORMS'][$FORM_ID] = $arForm;
 		$arResult['RESULTS'][$FORM_ID] = array();
 
-		$dbRes = CFormResult::GetList($FORM_ID, $by = 's_timestamp', $order = 'desc', array('USER_ID' => $USER->GetID()), $is_filtered, 'Y', $arParams['NUM_RESULTS']);
+		$dbRes = CFormResult::GetList($FORM_ID, 's_timestamp', 'desc', array('USER_ID' => $USER->GetID()), null, 'Y', $arParams['NUM_RESULTS']);
 		$bFirst = true;
 		while ($arRes = $dbRes->GetNext())
 		{
@@ -68,11 +68,10 @@ foreach ($arParams['FORMS'] as $FORM_ID)
 
 			$arValues = CFormResult::GetDataByID($arRes['ID'], array(), $arRes1 = null, $arAnswers = null);
 
-			reset ($arValues);
-			list(, $first_res) = each($arValues);
+			$first_res = current($arValues);
 			$arRes['__TITLE'] = trim($first_res[0]['USER_TEXT'] ? $first_res[0]['USER_TEXT'] : $first_res[0]['MESSAGE']);
 
-			$arRes['__RIGHTS'] = CFormResult::GetPermissions($arRes['ID'], $status);
+			$arRes['__RIGHTS'] = CFormResult::GetPermissions($arRes['ID']);
 
 			if ($arParams['EDIT_URL'] && in_array('EDIT', $arRes['__RIGHTS']))
 				$arRes['__LINK'] = str_replace(array('#FORM_ID#', '#RESULT_ID#'), array($FORM_ID, $arRes['ID']), $arParams['EDIT_URL']);

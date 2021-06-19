@@ -1,0 +1,157 @@
+.bx-messenger-dark .bx-messenger-panel-next-wrapper {
+	border-color: #505152;
+}
+
+.bx-messenger-dark .bx-im-notifications-item {
+	/*border-bottom: 1px solid rgba(82,92,105,.1);*/
+	background-color: #313131;
+}
+
+.bx-messenger-dark .bx-im-notifications-item:before {
+    background-color: rgba(82,92,105,.3);
+}
+
+.bx-messenger-dark .bx-im-notifications-item a {
+	color: #bde0ff;
+}
+
+.bx-messenger-dark .bx-im-notifications-item-unread {
+	background-color: #4c4c4c;
+}
+
+.bx-messenger-dark .bx-im-element-keyboard-button-text {
+	color: #f1f1f1 !important;
+	background: #777777 !important;
+	border: none;
+	border-radius: 3px;
+	padding: 2px 20px;
+}
+
+.bx-messenger-dark .bx-im-notifications-item-bottom-subtitle-text {
+	color: #e6e6e6;
+}
+
+.bx-messenger-dark .bx-im-notifications-item-header-date {
+	color: #b3b3b3;
+}
+
+.bx-messenger-dark .bx-im-notifications-item-header-title-text {
+	color: #bde0ff;
+}
+.bx-messenger-dark .bx-im-notifications-item-header-title-text:hover {
+	color: #bde0ff;
+}
+
+.bx-messenger-dark .bx-im-notifications-item-image-system {
+	background: #77828e url(./../../../../images/im-sprite-v37.png) repeat scroll -120px -1903px;
+}
+
+/*.bx-messenger-dark .bx-im-notifications-item-placeholder-title {*/
+/*	background: #77828e;*/
+/*}*/
+
+/*.bx-messenger-dark .bx-im-notifications-item-placeholder-subtitle {*/
+/*	background: #77828e;*/
+/*}*/
+
+.bx-messenger-dark .bx-im-notifications-item .bx-im-mention {
+	border-bottom: 1px dashed #a6cbff;
+	color: #a6cbff;
+}
+
+.bx-messenger-dark .bx-messenger-input {
+	color: #e6e6e6;
+}
+
+.bx-messenger-dark .bx-im-notifications-item-header-more-users {
+	color: #e6e6e6;
+}
+
+.bx-messenger-dark .bx-im-element-attach-type-user-name {
+	color: #e2e2e2;
+}
+
+.bx-messenger-dark .bx-im-element-attach-type-link-name {
+	color: #bde0ff;
+}
+
+.bx-messenger-dark .bx-im-notifications-item-content-additional {
+	color: #e6e6e6;
+}
+
+.bx-messenger-dark .bx-im-element-attach-type-file-name {
+	color: #a6cbff;
+}
+
+.bx-messenger-dark .bx-im-notifications-item .bx-im-element-attach-type-image-block {
+	border: 1px solid #bde0ff;
+}
+.bx-messenger-dark .bx-im-notifications-item .bx-im-element-attach-type-image-source {
+	background-color: #fff;
+}
+
+.bx-messenger-dark .bx-messenger-ajax-self {
+	background-color: #084b61;
+	border-color: #5ebeea;
+	border-bottom: 1px dashed #a6cbff;
+	color: #dadada;
+}
+
+.bx-messenger-dark .bx-notifier-answer-text-vue {
+	color: #e6e6e6;
+}
+
+.bx-im-notifications-popup-window-dark {
+	background-color: #3d3d3d;
+	box-shadow: none;
+	border: 1px solid #676767;
+}
+
+.bx-im-notifications-popup-window-dark .bx-notifier-item-help-popup {
+	background-color: #686868;
+}
+
+.bx-im-notifications-popup-window-dark .bx-notifier-item-help-popup-img span {
+	background-color: #4a4a4a;
+	color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.bx-im-notifications-popup-window-dark .bx-notifier-popup-avatar {
+	background-color: #4a4a4a;
+	color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.bx-im-notifications-popup-window-dark .bx-messenger-external-data-load {
+	background-color: #3d3d3d;
+}
+
+.bx-im-notifications-popup-window-dark .bx-im-vue-popup-container {
+	background-color: #686868 !important;
+}
+
+.bx-im-notifications-popup-window-dark .bx-messenger-external-data {
+	background-color: #3d3d3d !important;
+}
+
+.bx-im-notifications-popup-window-dark .bx-messenger-panel-title {
+	color: #ffffff;
+	text-shadow: none;
+}
+
+.bx-im-notifications-popup-window-dark .bx-notifier-item-button-white {
+	border: none;
+	border-radius: 3px;
+	color: #f1f1f1;
+	padding: 2px 20px;
+	background: #777777;
+}
+
+.bx-im-notifications-popup-window-dark .bx-messenger-external-data-buttons {
+	border-top: 1px solid #7f8c8d;
+}
+
+.bx-messenger-dark .bx-im-element-attach-type-ajax-link {
+	border-bottom: 1px dashed #a6cbff;
+	color: #a6cbff;
+	cursor: pointer;
+}

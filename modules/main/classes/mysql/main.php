@@ -43,7 +43,7 @@ class CMain extends CAllMain
 			if($lang == '')
 				$lang = COption::GetOptionString("main", "admin_lid", "ru");
 
-			$R = CLanguage::GetList($o, $b, array("LID"=>$lang, "ACTIVE"=>"Y"));
+			$R = CLanguage::GetList('', '', array("LID"=>$lang, "ACTIVE"=>"Y"));
 			if($res = $R->Fetch())
 			{
 				CSite::$MAIN_LANGS_ADMIN_CACHE[$res["LID"]]=$res;
@@ -51,9 +51,7 @@ class CMain extends CAllMain
 			}
 
 			//no lang param - get default
-			$by = "def";
-			$order = "desc";
-			$R = CLanguage::GetList($by, $order, array("ACTIVE"=>"Y"));
+			$R = CLanguage::GetList('def', 'desc', array("ACTIVE"=>"Y"));
 			if($res = $R->Fetch())
 			{
 				CSite::$MAIN_LANGS_ADMIN_CACHE[$res["LID"]]=$res;

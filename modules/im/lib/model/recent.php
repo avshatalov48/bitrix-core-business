@@ -132,5 +132,3 @@ class RecentTable extends Main\Entity\DataManager
 		return new \Bitrix\Main\Type\DateTime();
 	}
 }
-
-class_alias("Bitrix\\Im\\Model\\RecentTable", "Bitrix\\Im\\RecentTable", false);

@@ -135,6 +135,8 @@ $APPLICATION->IncludeComponent(
 		'GRID_ID' => $arResult['GRID_ID'],
 		'COLUMNS' => $arResult['COLUMNS'],
 		'ROWS' => makeRowsForGrid($arResult['ROWS'], $arResult['canEdit']),
+		'SORT' => $arResult['SORT'],
+		'SORT_VARS' => $arResult['SORT_VARS'],
 		'ALLOW_SORT' => true,
 		'ACTION_PANEL' => [
 			'GROUPS' => [

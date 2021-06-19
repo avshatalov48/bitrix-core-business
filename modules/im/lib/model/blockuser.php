@@ -33,6 +33,9 @@ class BlockUserTable extends Entity\DataManager
 				'required' => true,
 				'title' => Loc::getMessage('BLOCK_USER_ENTITY_USER_ID_FIELD'),
 			),
+			'BLOCK_DATE' => array(
+				'data_type' => 'datetime'
+			),
 		);
 	}
 }

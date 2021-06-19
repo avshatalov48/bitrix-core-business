@@ -48,7 +48,7 @@ class CAllFormOutput extends CFormOutput_old
 
 	var $bIsFormValidateErrors = false;
 
-	function CAllFormOutput()
+	public function __construct()
 	{
 		$this->__cache_path = BX_PERSONAL_ROOT."/tmp/form";
 	}
@@ -72,7 +72,7 @@ class CAllFormOutput extends CFormOutput_old
 		{
 			if ($this->isAccessFormResult($arResult['arResultData']))
 			{
-				$this->arrRESULT_PERMISSION = CFormResult::GetPermissions($this->RESULT_ID, $v);
+				$this->arrRESULT_PERMISSION = CFormResult::GetPermissions($this->RESULT_ID);
 				$this->arResult = $arResult['arResultData'];
 			}
 		}
@@ -1068,14 +1068,14 @@ class CAllFormOutput extends CFormOutput_old
 	 *
 	 * @return string
 	 */
-	function ShowRequired()
+	public static function ShowRequired()
 	{
 		return CForm::ShowRequired("Y");
 	}
 
-	function CheckTemplate($FORM_TEMPLATE, &$arrFS)
+	public static function CheckTemplate($FORM_TEMPLATE, &$arrFS)
 	{
-		if (count($arrFS) > 0)
+		if (is_array($arrFS) && !empty($arrFS))
 		{
 			$arFldSIDs = array();
 			$arInactiveFldSIDs = array();
@@ -1116,7 +1116,7 @@ class CAllFormOutput extends CFormOutput_old
 
 			if (!empty($str))
 			{
-				$_GLOBALS["strError"] .= $str;
+				$GLOBALS["strError"] .= $str;
 				return false;
 			}
 			else return true;
@@ -1124,7 +1124,7 @@ class CAllFormOutput extends CFormOutput_old
 		return true;
 	}
 
-	function PrepareFormData($arrFS)
+	public static function PrepareFormData($arrFS)
 	{
 		$out = "";
 		$i = 0;

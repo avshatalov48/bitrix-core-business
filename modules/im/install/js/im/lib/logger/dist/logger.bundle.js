@@ -3,6 +3,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 (function (exports) {
 	'use strict';
 
+	var _types = new WeakMap();
+
+	var _config = new WeakMap();
+
+	var _custom = new WeakMap();
+
 	/**
 	 * Bitrix Messenger
 	 * Logger class
@@ -14,90 +20,222 @@ this.BX.Messenger = this.BX.Messenger || {};
 	var Logger = /*#__PURE__*/function () {
 	  function Logger() {
 	    babelHelpers.classCallCheck(this, Logger);
-	    this.enabled = null;
+
+	    _types.set(this, {
+	      writable: true,
+	      value: {}
+	    });
+
+	    _config.set(this, {
+	      writable: true,
+	      value: {}
+	    });
+
+	    _custom.set(this, {
+	      writable: true,
+	      value: {}
+	    });
+
+	    babelHelpers.classPrivateFieldSet(this, _types, {
+	      desktop: true,
+	      log: false,
+	      info: false,
+	      warn: false,
+	      error: true,
+	      trace: true
+	    });
+	    babelHelpers.classPrivateFieldSet(this, _config, babelHelpers.classPrivateFieldGet(this, _types));
+
+	    this.__load();
 	  }
 
 	  babelHelpers.createClass(Logger, [{
-	    key: "enable",
-	    value: function enable() {
-	      this.enabled = true;
-
-	      if (typeof window.localStorage !== 'undefined') {
-	        try {
-	          window.localStorage.setItem('bx-messenger-logger', 'enable');
-	        } catch (e) {}
-	      }
-
-	      return this.enabled;
-	    }
-	  }, {
-	    key: "disable",
-	    value: function disable() {
-	      this.enabled = false;
-
-	      if (typeof window.localStorage !== 'undefined') {
-	        try {
-	          window.localStorage.removeItem('bx-messenger-logger');
-	        } catch (e) {}
-	      }
-
-	      return this.enabled;
-	    }
-	  }, {
-	    key: "isEnabled",
-	    value: function isEnabled() {
-	      if (typeof BX !== 'undefined' && typeof BX.VueDevTools !== 'undefined') {
-	        return true;
-	      } else if (this.enabled === null) {
-	        if (typeof window.localStorage !== 'undefined') {
-	          try {
-	            this.enabled = window.localStorage.getItem('bx-messenger-logger') === 'enable';
-	          } catch (e) {}
+	    key: "setConfig",
+	    value: function setConfig(types) {
+	      for (var type in types) {
+	        if (types.hasOwnProperty(type) && typeof babelHelpers.classPrivateFieldGet(this, _types)[type] !== 'undefined') {
+	          babelHelpers.classPrivateFieldGet(this, _types)[type] = !!types[type];
+	          babelHelpers.classPrivateFieldGet(this, _config)[type] = !!types[type];
 	        }
 	      }
 
-	      return this.enabled === true;
+	      this.__load();
+	    }
+	  }, {
+	    key: "enable",
+	    value: function enable(type) {
+	      if (typeof babelHelpers.classPrivateFieldGet(this, _types)[type] === 'undefined') {
+	        return false;
+	      }
+
+	      babelHelpers.classPrivateFieldGet(this, _types)[type] = true;
+	      babelHelpers.classPrivateFieldGet(this, _custom)[type] = true;
+
+	      this.__save();
+
+	      return true;
+	    }
+	  }, {
+	    key: "disable",
+	    value: function disable(type) {
+	      if (typeof babelHelpers.classPrivateFieldGet(this, _types)[type] === 'undefined') {
+	        return false;
+	      }
+
+	      babelHelpers.classPrivateFieldGet(this, _types)[type] = false;
+	      babelHelpers.classPrivateFieldGet(this, _custom)[type] = false;
+
+	      this.__save();
+
+	      return true;
+	    }
+	  }, {
+	    key: "isEnabled",
+	    value: function isEnabled(type) {
+	      return babelHelpers.classPrivateFieldGet(this, _types)[type] === true;
+	    }
+	  }, {
+	    key: "desktop",
+	    value: function desktop() {
+	      if (this.isEnabled('desktop')) {
+	        var _console;
+
+	        for (var _len = arguments.length, params = new Array(_len), _key = 0; _key < _len; _key++) {
+	          params[_key] = arguments[_key];
+	        }
+
+	        (_console = console).log.apply(_console, [].concat(babelHelpers.toConsumableArray(this.__getStyles('desktop')), params));
+	      }
 	    }
 	  }, {
 	    key: "log",
 	    value: function log() {
-	      if (this.isEnabled()) {
-	        var _console;
+	      if (this.isEnabled('log')) {
+	        var _console2;
 
-	        (_console = console).log.apply(_console, arguments);
+	        for (var _len2 = arguments.length, params = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+	          params[_key2] = arguments[_key2];
+	        }
+
+	        (_console2 = console).log.apply(_console2, [].concat(babelHelpers.toConsumableArray(this.__getStyles('log')), params));
 	      }
 	    }
 	  }, {
 	    key: "info",
 	    value: function info() {
-	      if (this.isEnabled()) {
-	        var _console2;
+	      if (this.isEnabled('info')) {
+	        var _console3;
 
-	        (_console2 = console).info.apply(_console2, arguments);
+	        for (var _len3 = arguments.length, params = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+	          params[_key3] = arguments[_key3];
+	        }
+
+	        (_console3 = console).info.apply(_console3, [].concat(babelHelpers.toConsumableArray(this.__getStyles('info')), params));
 	      }
 	    }
 	  }, {
 	    key: "warn",
 	    value: function warn() {
-	      if (this.isEnabled()) {
-	        var _console3;
+	      if (this.isEnabled('warn')) {
+	        var _console4;
 
-	        (_console3 = console).warn.apply(_console3, arguments);
+	        for (var _len4 = arguments.length, params = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+	          params[_key4] = arguments[_key4];
+	        }
+
+	        (_console4 = console).warn.apply(_console4, [].concat(babelHelpers.toConsumableArray(this.__getStyles('warn')), params));
 	      }
 	    }
 	  }, {
 	    key: "error",
 	    value: function error() {
-	      var _console4;
+	      if (this.isEnabled('error')) {
+	        var _console5;
 
-	      (_console4 = console).error.apply(_console4, arguments);
+	        for (var _len5 = arguments.length, params = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+	          params[_key5] = arguments[_key5];
+	        }
+
+	        (_console5 = console).error.apply(_console5, [].concat(babelHelpers.toConsumableArray(this.__getStyles('error')), params));
+	      }
 	    }
 	  }, {
 	    key: "trace",
 	    value: function trace() {
-	      var _console5;
+	      if (this.isEnabled('trace')) {
+	        var _console6;
 
-	      (_console5 = console).trace.apply(_console5, arguments);
+	        (_console6 = console).trace.apply(_console6, arguments);
+	      }
+	    }
+	  }, {
+	    key: "__save",
+	    value: function __save() {
+	      if (typeof window.localStorage !== 'undefined') {
+	        try {
+	          var custom = {};
+
+	          for (var type in babelHelpers.classPrivateFieldGet(this, _custom)) {
+	            if (babelHelpers.classPrivateFieldGet(this, _custom).hasOwnProperty(type) && babelHelpers.classPrivateFieldGet(this, _config)[type] !== babelHelpers.classPrivateFieldGet(this, _custom)[type]) {
+	              custom[type] = !!babelHelpers.classPrivateFieldGet(this, _custom)[type];
+	            }
+	          }
+
+	          console.warn(JSON.stringify(custom));
+	          window.localStorage.setItem('bx-messenger-logger', JSON.stringify(custom));
+	        } catch (e) {}
+	      }
+	    }
+	  }, {
+	    key: "__load",
+	    value: function __load() {
+	      if (typeof window.localStorage !== 'undefined') {
+	        try {
+	          var custom = window.localStorage.getItem('bx-messenger-logger');
+
+	          if (typeof custom === 'string') {
+	            babelHelpers.classPrivateFieldSet(this, _custom, JSON.parse(custom));
+	            babelHelpers.classPrivateFieldSet(this, _types, babelHelpers.objectSpread({}, babelHelpers.classPrivateFieldGet(this, _types), babelHelpers.classPrivateFieldGet(this, _custom)));
+	          }
+	        } catch (e) {}
+	      }
+	    }
+	  }, {
+	    key: "__getStyles",
+	    value: function __getStyles() {
+	      var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'all';
+	      var styles = {
+	        'desktop': ["%cDESKTOP", "color: white; font-style: italic; background-color: #29619b; padding: 0 6\px"],
+	        'log': ["%cLOG", "color: #2a323b; font-style: italic; background-color: #ccc; padding: 0 6\px"],
+	        'info': ["%cINFO", "color: #fff; font-style: italic; background-color: #6b7f96; padding: 0 6\px"],
+	        'warn': ["%cWARNING", "color: white; font-style: italic; padding: 0 6\px; border: 1px solid #f0a74f"],
+	        'error': ["%cERROR", "color: white; font-style: italic; padding: 0 6\px; border: 1px solid #8a3232"]
+	      };
+
+	      if (type === 'all') {
+	        return styles;
+	      }
+
+	      if (styles[type]) {
+	        return styles[type];
+	      }
+
+	      return [];
+	    }
+	  }, {
+	    key: "__getRemoveString",
+	    value: function __getRemoveString() {
+	      var styles = this.__getStyles();
+
+	      var result = [];
+
+	      for (var type in styles) {
+	        if (styles.hasOwnProperty(type)) {
+	          result.push(styles[type][1]);
+	        }
+	      }
+
+	      return result;
 	    }
 	  }]);
 	  return Logger;

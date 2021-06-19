@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSaleAffiliateTransact
 {
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "AFFILIATE_ID") || $ACTION=="ADD") && intval($arFields["AFFILIATE_ID"]) <= 0)
 		{
@@ -43,7 +44,7 @@ class CAllSaleAffiliateTransact
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -54,7 +55,7 @@ class CAllSaleAffiliateTransact
 		return $DB->Query("DELETE FROM b_sale_affiliate_transact WHERE ID = ".$ID." ", true);
 	}
 
-	function OnAffiliateDelete($affiliateID)
+	public static function OnAffiliateDelete($affiliateID)
 	{
 		global $DB;
 		$affiliateID = intval($affiliateID);
@@ -62,7 +63,7 @@ class CAllSaleAffiliateTransact
 		return $DB->Query("DELETE FROM b_sale_affiliate_transact WHERE AFFILIATE_ID = ".$affiliateID." ", true);
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -85,7 +86,7 @@ class CAllSaleAffiliateTransact
 		return false;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -120,4 +121,3 @@ class CAllSaleAffiliateTransact
 		return $ID;
 	}
 }
-?>

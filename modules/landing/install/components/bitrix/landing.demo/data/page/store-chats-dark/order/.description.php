@@ -12,6 +12,7 @@ return [
 	'description' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-ORDER-DESC'),
 	'type' => 'store',
 	'version' => 3,
+	'lock_delete' => true,
 	'fields' => [
 		'RULE' => NULL,
 		'ADDITIONAL_FIELDS' => [
@@ -31,6 +32,7 @@ return [
 	'items' => [
 		'0' => [
 			'code' => 'store.salescenter.order.details',
+			'access' => 'W',
 			'nodes' => [
 				'bitrix:salescenter.order.details' => [
 					'TEMPLATE_MODE' => 'darkmode',

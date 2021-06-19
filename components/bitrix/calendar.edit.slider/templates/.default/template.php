@@ -55,11 +55,6 @@ $userId = CCalendar::GetCurUserId();
 $arParams['event'] = $event;
 $arParams['UF'] = $UF;
 
-//if($isSocialnetworkEnabled)
-//{
-//	CSocNetTools::InitGlobalExtranetArrays();
-//	$DESTINATION = CCalendar::GetSocNetDestination(false, $arParams['event']['ATTENDEES_CODES']);
-//}
 ?>
 <div class="webform-buttons calendar-form-buttons-fixed">
 	<div class="calendar-form-footer-container">

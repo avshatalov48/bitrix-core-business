@@ -7,8 +7,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 Loc::loadLanguageFile(__FILE__);
 
-$buttons = \Bitrix\Landing\Hook\Page\B24button::getButtons();
-$buttons = array_keys($buttons);
 
 return array(
 //	'code' => 'holiday.blackfriday',
@@ -23,7 +21,6 @@ return array(
 	'version' => 2,
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
-			'B24BUTTON_CODE' => $buttons[0],
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'UP_SHOW' => 'Y',

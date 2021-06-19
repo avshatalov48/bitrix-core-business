@@ -20,7 +20,7 @@ Class conversion extends CModule
 	var $MODULE_CSS;
 	var $MODULE_GROUP_RIGHTS = 'Y';
 
-	function conversion()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 

@@ -1,8 +1,8 @@
 <?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/store_docs.php");
 
-class CCatalogDocs
-	extends CAllCatalogDocs
+class CCatalogDocs extends CAllCatalogDocs
 {
 	/**
 	* @static

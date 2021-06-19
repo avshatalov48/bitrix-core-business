@@ -17,13 +17,13 @@ class CSOAPRequest extends CSOAPEnvelope
     /// Contains the request parameters
     var $Parameters = array(); 
 	
-    function CSOAPRequest( $name="", $namespace="", $parameters = array() )
+    public function __construct( $name="", $namespace="", $parameters = array() )
     {
         $this->Name = $name;
         $this->Namespace = $namespace;
 
         // call the parents constructor
-        $this->CSOAPEnvelope();
+        parent::__construct();
 
         foreach( $parameters as $name => $value )
         {
@@ -43,7 +43,7 @@ class CSOAPRequest extends CSOAPEnvelope
 	
 	function GetSOAPAction($separator = '/')
 	{			
-		if ($this->Namespace[strlen($this->Namespace)-1] != $separator)
+		if ($this->Namespace[mb_strlen($this->Namespace) - 1] != $separator)
 		{
 			return $this->Namespace . $separator . $this->Name;
 		}

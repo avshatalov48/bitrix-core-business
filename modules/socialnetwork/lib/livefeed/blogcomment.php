@@ -46,7 +46,7 @@ final class BlogComment extends Provider
 				array("ID", "BLOG_ID", "POST_ID", "PARENT_ID", "AUTHOR_ID", "AUTHOR_NAME", "AUTHOR_EMAIL", "AUTHOR_IP", "AUTHOR_IP1", "TITLE", "POST_TEXT", "SHARE_DEST")
 			);
 
-			if ($comment = $res->fetch($commentId))
+			if ($comment = $res->fetch())
 			{
 				$res = \CBlogPost::getList(
 					array(),
@@ -71,11 +71,8 @@ final class BlogComment extends Provider
 					$this->setSourceDescription(htmlspecialcharsback($comment['POST_TEXT']));
 
 					$title = htmlspecialcharsback($comment['POST_TEXT']);
-					$title = preg_replace(
-						"/\[USER\s*=\s*([^\]]*)\](.+?)\[\/USER\]/is".BX_UTF_PCRE_MODIFIER,
-						"\\2",
-						$title
-					);
+					$title = \Bitrix\Socialnetwork\Helper\Mention::clear($title);
+
 					$p = new \blogTextParser();
 					$title = $p->convert($title, false);
 					$title = preg_replace([

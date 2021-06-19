@@ -97,7 +97,8 @@ HTML;
 						'role' => 'report-analytics-menu-item',
 						'report-board-key' => $board->getBoardKey(),
 						'is-external' => $board->isExternal() ? 'Y' : 'N',
-						'external-url' => $board->getExternalUrl()
+						'external-url' => $board->getExternalUrl(),
+						'is-slider-support' => $board->isSliderSupport() ? 'Y' : 'N'
 					]
 				]
 			];

@@ -181,7 +181,7 @@ if($deliveryService && $ID <= 0)
 		{
 			$fields = $embeddedList[$_GET["ES_CODE"]];
 			$fields["CODE"] = $_GET["ES_CODE"];
-			$fields["ID"] = strval(mktime());
+			$fields["ID"] = strval(time());
 
 			if(empty($fields["RIGHTS"]))
 				$fields["RIGHTS"] = "NYY";
@@ -197,7 +197,7 @@ if($deliveryService && $ID <= 0)
 		}
 
 		$fields["CLASS_NAME"] = $_REQUEST["CLASS_NAME"];
-		$fields["ID"] = strval(mktime());
+		$fields["ID"] = strval(time());
 		$fields["RIGHTS"] = "YYY";
 		$fields["ACTIVE"] = "Y";
 	}
@@ -230,15 +230,6 @@ $aMenu = array(
 if ($ID > 0 && $saleModulePermissions >= "W")
 {
 	$aMenu[] = array("SEPARATOR" => "Y");
-
-	$addUrl = $selfFolderUrl."sale_delivery_eservice_edit.php?lang=".LANGUAGE_ID."&DELIVERY_ID=".$DELIVERY_ID;
-	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl).
-		(isset($_REQUEST["back_url"]) ? "&back_url=".urlencode($_REQUEST["back_url"]) : "");
-	$aMenu[] = array(
-		"TEXT" => Loc::getMessage("SALE_ESDE_CREATE_NEW"),
-		"LINK" => $addUrl,
-		"ICON" => "btn_new"
-	);
 
 	if ($fields["RIGHTS"][ExtraServices\Manager::RIGHTS_ADMIN_IDX] == "Y")
 	{

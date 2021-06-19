@@ -106,25 +106,37 @@
 		params = params || {};
 
 		// Get list of entries
+		this.entiesRequested = true;
+
 		this.entries = this.entryController.getList({
 			startDate: this.displayedRange.start,
 			finishDate: this.displayedRange.end,
 			viewRange: this.displayedRange,
 			finishCallback: function(){
-				if (this.entiesRequested === true)
+				//for load entries when displaying schedule mode
+				if (this.entiesRequested !== false)
 				{
 					this.displayEntries(params);
 				}
 				this.entiesRequested = false;
 			}.bind(this)
 		});
-		this.entiesRequested = true;
+
+		if (this.entries === false)
+		{
+			return;
+		}
+
+		if (this.calendar.util.isFilterEnabled()
+			&& !this.calendar.search.isFilterEmpty())
+		{
+			this.calendar.search.applyFilter();
+		}
 
 		// Clean holders
 		BX.cleanNode(this.listWrap);
 
 		this.dateGroupIndex = {};
-
 		this.groups = [];
 		this.groupsDayCodes = [];
 		this.groupsIndex = {};
@@ -141,7 +153,15 @@
 
 		this.streamContentWrap.style.display = '';
 		this.entryParts = [];
-		this.centerLoaderWrap.appendChild(BX.adjust(this.calendar.util.getLoader(), {style: {height: '180px'}}));
+
+		BX.cleanNode(this.centerLoaderWrap);
+		this.centerLoaderWrap.appendChild(
+			BX.adjust(
+				this.calendar.util.getLoader(),
+				{style: {height: '180px'}}
+			)
+		);
+
 		this.attachEntries(
 			this.entries,
 			!!params.animation,
@@ -198,7 +218,13 @@
 	ListView.prototype.attachEntries = function(entries, animation, focusCallback, focusDate)
 	{
 		if (!entries && !entries.length)
+		{
+			if (BX.type.isFunction(focusCallback))
+			{
+				focusCallback();
+			}
 			return;
+		}
 
 		var
 			deltaLength = this.entries.length - entries.length,
@@ -297,6 +323,7 @@
 		{
 			BX.remove(group.emptyWarning);
 		}
+		BX.cleanNode(this.centerLoaderWrap);
 
 		var entryPartUid = this.getUniqueId(part);
 
@@ -349,6 +376,25 @@
 			}
 
 			wrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-content-event-name'}, html: '<span class="calendar-timeline-stream-content-event-color" style="background-color: ' + entry.color + '"></span><span class="calendar-timeline-stream-content-event-name-link">' + BX.util.htmlspecialchars(entry.name) + '</span>' + location}));
+
+			if (
+				(parseInt(this.calendar.util.userId) !== parseInt(entry.data.MEETING_HOST))
+				&& entry.data.MEETING_STATUS === 'Q'
+			)
+			{
+				wrap.appendChild(BX.create(
+					'DIV',
+					{
+						props: {
+							className: 'calendar-timeline-stream-content-event-control',
+						},
+						children: [
+							this.getDecisionButton('Y').getContainer(),
+							this.getDecisionButton('N').getContainer(),
+						],
+					}
+				));
+			}
 
 			attendesNode = wrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-content-event-members'}}));
 
@@ -981,8 +1027,31 @@
 			if (!params)
 				params = {};
 
-			var dayCode, uid;
-			if (params.specialTarget && (uid = params.specialTarget.getAttribute('data-bx-calendar-entry')))
+			var dayCode, uid, decision, entry;
+			if (
+				params.specialTarget
+				&& params.e
+				&& (uid = params.specialTarget.getAttribute('data-bx-calendar-entry'))
+				&& (decision = params.e.target.parentElement.getAttribute('data-bx-decision-button'))
+			)
+			{
+				if (this.resultEntriesIndex && this.resultEntriesIndex[uid] !== undefined)
+				{
+					entry = this.resultEntries[this.resultEntriesIndex[uid]];
+				}
+				else
+				{
+					entry = this.entries[this.entriesIndex[uid]];
+				}
+				if (entry && ['Y', 'N'].includes(decision))
+				{
+					BX.Calendar.EntryManager.setMeetingStatus(entry, decision);
+				}
+			}
+			else if (
+				params.specialTarget
+				&& (uid = params.specialTarget.getAttribute('data-bx-calendar-entry'))
+			)
 			{
 				this.handleEntryClick(
 					{
@@ -1120,6 +1189,19 @@
 			params.entry = this.resultEntries[this.resultEntriesIndex[params.uid]];
 		}
 		View.prototype.handleEntryClick.apply(this, arguments);
+	};
+
+	ListView.prototype.getDecisionButton = function(decision)
+	{
+		return new BX.UI.Button({
+			text: BX.message('EC_DESIDE_BUT_' + decision),
+			round: true,
+			size: BX.UI.Button.Size.EXTRA_SMALL,
+			color: decision === 'Y' ? BX.UI.Button.Color.LIGHT_BORDER : BX.UI.Button.Color.LIGHT,
+			props: {
+				'data-bx-decision-button': decision,
+			},
+		});
 	};
 
 	if (window.BXEventCalendar)

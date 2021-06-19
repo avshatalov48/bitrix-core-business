@@ -23,7 +23,7 @@ if($_REQUEST["table_id"] == "adv"):
 	{
 		die();
 	}
-	$rsAdv = CAdv::GetList($a_by, $a_order, $arFilter, $is_filtered, 10, $arrGROUP_DAYS, $v);
+	$rsAdv = CAdv::GetList('', '', $arFilter, $is_filtered, 10);
 
 	?><table class="bx-gadgets-table">
 	<tbody>
@@ -141,9 +141,7 @@ elseif($_REQUEST["table_id"] == "event"):
 		die();
 	}
 
-	$e_by = "s_stat";
-	$e_order = "desc";
-	$rsEvents = CStatEventType::GetList($e_by, $e_order, $arEVENTF, $is_filtered, 10);
+	$rsEvents = CStatEventType::GetList("s_stat", "desc", [], $is_filtered, 10);
 
 	?><table class="bx-gadgets-table">
 	<tbody>
@@ -254,7 +252,7 @@ elseif($_REQUEST["table_id"] == "event"):
 	</table><?
 
 elseif($_REQUEST["table_id"] == "referer"):
-	$rsReferers = CTraffic::GetRefererList($by, $order, $arFilter, $is_filtered, 10);
+	$rsReferers = CTraffic::GetRefererList('', '', $arFilter, $is_filtered, 10);
 
 	?><table class="bx-gadgets-table">
 	<tbody>

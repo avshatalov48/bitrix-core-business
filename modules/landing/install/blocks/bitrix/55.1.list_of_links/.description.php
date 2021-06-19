@@ -49,6 +49,10 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_55_1-LINK'),
 				'type' => 'typo-link',
 			),
+			'.landing-block-node-link-icon-container' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_55_1-LINK_ICON'),
+				'type' => 'color',
+			),
 		),
 	),
 );

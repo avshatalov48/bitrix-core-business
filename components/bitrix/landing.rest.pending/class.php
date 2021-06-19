@@ -193,10 +193,13 @@ class LandingRestPendingComponent extends \CBitrixComponent
 		{
 			$replace = [];
 			$blockId = intval($this->arParams['~BLOCK_ID']);
-			$data = unserialize(base64_decode($this->arParams['~DATA']));
+			$data = unserialize(base64_decode($this->arParams['~DATA']), ['allowed_classes' => false]);
 			if (isset($this->arParams['~REPLACE']))
 			{
-				$replace = unserialize(base64_decode($this->arParams['~REPLACE']));
+				$replace = unserialize(
+					base64_decode($this->arParams['~REPLACE']),
+					['allowed_classes' => false]
+				);
 				if (!is_array($replace))
 				{
 					$replace = [];

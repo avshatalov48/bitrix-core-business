@@ -15,7 +15,6 @@ return [
 		'main.polyfill.core',
 		'ui.vue.directives.lazyload',
 		'ui.vue',
-		'rest.client',
 		'ui.dexie',
 	],
 	'skip_core' => true,

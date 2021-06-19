@@ -9,8 +9,13 @@
 }
 
 .urlpreview__frame-inner{
-	border-left: 2px solid #6ec2f6;
-	padding-left: 7px;
+	border-left: 4px solid #7ed321;
+	padding: 0 0 4px 7px;
+}
+
+.urlpreview__frame-inner--meeting {
+	border-color: #bd10e0;
+	padding-bottom: 10px;
 }
 
 .urlpreview__container{
@@ -141,27 +146,26 @@
 }
 
 .urlpreview__icon-destination {
-	background: url("images/live_feed_sprite_6.png?3") no-repeat 0 -78px;
+	background: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%229%22%20height%3D%2216%22%3E%3Cpath%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M.16%202.344l4.527%204.527L5.86%208%204.687%209.13.16%2013.657l1.598%201.598L9.012%208%201.758.746z%22%2F%3E%3C%2Fsvg%3E) no-repeat center;
 	display: inline-block;
-	height: 17px;
+	height: 11px;
 	vertical-align: middle;
-	width: 10px;
-}
-
-.urlpreview__time-wrap {
-	display: inline-block;
-}
-.urlpreview__time-wrap > a, .urlpreview__time-wrap > a:hover {
-	color: #555;
-}
-
-.urlpreview__time-wrap:hover {
-	text-decoration: underline;
+	width: 11px;
+	background-size: contain;
+	margin-right: 5px;
 }
 
 .urlpreview__time {
-	background: url("images/live_feed_sprite_6.png?3") no-repeat -146px -230px;
+	display: inline-block;
+	color: #555;
+	background: url("images/live_feed_sprite_6.png?3") no-repeat -146px -228px;
 	font-size: 11px;
 	margin-right: 12px;
 	padding-left: 13px;
+	font-weight: bold;
+}
+
+.urlpreview__time:hover {
+	color: #555;
+	text-decoration: underline;
 }

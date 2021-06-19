@@ -217,6 +217,8 @@
 		this.manifest.attrs = isPlainObject(options.manifest.attrs) ? options.manifest.attrs : {};
 		this.onStyleInputWithDebounce = debounce(this.onStyleInput, 300, this);
 		this.changeTimeout = null;
+		this.php = options.php;
+		this.designed = options.designed;
 		this.access = options.access;
 		this.anchor = options.anchor;
 		this.savedAnchor = options.anchor;
@@ -261,37 +263,25 @@
 		this.initMenu();
 		this.adjustContextSensitivityStyles();
 
-		var specialType = BX.Landing.Env.getInstance().getOptions().specialType;
+		var envOptions = BX.Landing.Env.getInstance().getOptions();
+		var specialType = envOptions.specialType;
 		if (specialType === 'crm_forms')
 		{
-			var formId = this.getBlockFormId();
-			if (BX.Type.isPlainObject(formId))
+			var showOptions = {
+				formId: envOptions.formEditorData.formOptions.id,
+				formOptions: this.getCrmFormOptions(),
+				block: this,
+				showWithOptions: true,
+			};
+			var uri = new BX.Uri(window.top.location.toString());
+			if (BX.Text.toBoolean(uri.getQueryParam('formCreated')))
 			{
-				var showOptions = {
-					formId: formId.id,
-					instanceId: formId.instanceId,
-					formOptions: this.getCrmFormOptions(),
-					block: this,
-				};
-				var uri = new BX.Uri(window.top.location.toString());
-				if (BX.Text.toBoolean(uri.getQueryParam('formCreated')))
-				{
-					showOptions.state = 'presets';
-				}
-
-				var rootWindow = BX.Landing.PageObject.getRootWindow();
-				void Promise.all([
-					rootWindow.BX.Runtime
-						.loadExtension('landing.ui.panel.formsettingspanel'),
-					BX.Runtime
-						.loadExtension('landing.ui.panel.formsettingspanel')
-				])
-				.then(function(result) {
-					void result[1].FormSettingsPanel
-						.getInstance()
-						.show(showOptions);
-				});
+				showOptions.state = 'presets';
 			}
+
+			void BX.Landing.UI.Panel.FormSettingsPanel
+				.getInstance()
+				.show(showOptions);
 		}
 
 		BX.Landing.PageObject.getBlocks().push(this);
@@ -771,6 +761,20 @@
 								});
 							}
 						}.bind(this))(),
+						(function() {
+							if (isPlainObject(this.manifest.style))
+							{
+								return new BX.Main.MenuItem({
+									id: "designblock",
+									text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK"),
+									className: (this.access < ACCESS_W || this.php || this.isCrmFormPage()) ? "landing-ui-disabled" : "",
+									onclick: function() {
+										this.onDesignerBlockClick();
+										this.sidebarActionsMenu.close();
+									}.bind(this)
+								});
+							}
+						}.bind(this))(),
 						new BX.Main.MenuItem({
 							delimiter: true,
 						}),
@@ -992,6 +996,14 @@
 							attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_DESIGN")}
 						})
 					);
+					contentPanel.addButton(
+						new ActionButton("designblock", {
+							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK"),
+							onClick: this.onDesignerBlockClick.bind(this),
+							disabled: this.access < ACCESS_W || this.php || this.isCrmFormPage(),
+							attrs: { title: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK") }
+						})
+					);
 				}
 
 				if (isPlainObject(allPlacements) && (this.manifest.code in allPlacements || allPlacements["*"]))
@@ -1048,7 +1060,7 @@
 						}
 					}
 
-					addClass(contentPanel.buttons.get("style").layout, "landing-ui-no-rounded");
+					addClass(contentPanel.buttons.get("designblock").layout, "landing-ui-no-rounded");
 				}
 
 				if (isPlainObject(this.manifest.style))
@@ -1201,9 +1213,12 @@
 
 				var menuItems = placements.map(function(placement) {
 					return new BX.Main.MenuItem({
-						id: "placement_" + placement.id + "_" + random(),
+						id: "placement_" + (placement.id || random()) + "_" + random(),
 						text: encodeDataValue(placement.title),
-						onclick: this.onPlacementClick.bind(this, placement)
+						disabled: placement.disabled === true,
+						onclick: (typeof placement.onClick === 'function')
+							? placement.onClick
+							: this.onPlacementClick.bind(this, placement)
 					})
 				}, this);
 
@@ -1224,6 +1239,83 @@
 
 			addClass(this.node, "landing-ui-hover");
 			this.blockPlacementsActionsMenu.show();
+		},
+
+		onDesignerBlockClick: function()
+		{
+			// get actual block content before designer edit
+			var oldContent = null;
+			BX.Landing.Backend.getInstance()
+				.action("Block::getContent", {
+					block: this.id,
+					lid: this.lid,
+					siteId: this.siteId,
+					editMode: 1
+				})
+				.then(function(response) {
+					oldContent = response.content;
+				});
+
+			// open slider with designer
+			var envOptions = BX.Landing.Env.getInstance().getOptions();
+			var sliderUrl = envOptions.params.sef_url["design_block"]
+				.replace("__block_id__", this.id)
+				.replace("__site_show__", this.siteId)
+				.replace("__landing_edit__", this.lid)
+				+ "&code=" + this.manifest.code
+				+ "&designed=" + (this.designed ? "Y" : "N");
+			BX.SidePanel.Instance.open(
+				sliderUrl,
+				{
+					cacheable: false,
+					allowChangeHistory: false,
+					requestMethod: "post",
+					customLeftBoundary: 40,
+					events: {
+						onClose: function(event)
+						{
+							// get actual block content after designer edit
+							BX.Landing.Backend.getInstance()
+								.action("Block::getContent", {
+									block: this.id,
+									lid: this.lid,
+									siteId: this.siteId,
+									editMode: 1
+								})
+								.then(function(response) {
+									var newContent = response.content;
+									if (oldContent !== newContent)
+									{
+										BX.Landing.History.getInstance().push(
+											new BX.Landing.History.Entry({
+												block: this.id,
+												selector: "#block" + this.id,
+												command: "updateContent",
+												undo: oldContent,
+												redo: newContent
+											})
+										);
+										void this.reload();
+										// analytic label on close
+										var metrika = new BX.Landing.Metrika(true);
+										metrika.sendLabel(
+											null,
+											"designerBlock",
+											"close" +
+											"&designed=" + (this.designed ? "Y" : "N") +
+											"&code=" + this.manifest.code
+										);
+									}
+								}.bind(this));
+						}.bind(this)
+					}
+				}
+			);
+
+			if (this.blockPlacementsActionsMenu)
+			{
+				this.blockPlacementsActionsMenu.close();
+			}
 		},
 
 		onRestrictedButtonMouseenter: function(event)
@@ -1647,6 +1739,7 @@
 		{
 			var formNode = this.node.querySelector('[data-b24form-use-style]');
 			var useAllowed = BX.Dom.attr(formNode, 'data-b24form-use-style');
+			var primaryMatcher = /--primary([\da-fA-F]{2})/;
 
 			if (BX.Type.isDomNode(formNode) && BX.Text.toBoolean(useAllowed))
 			{
@@ -1655,9 +1748,12 @@
 				{
 					var primaryColor = BX.Dom.style(document.documentElement, '--primary').trim();
 					Object.entries(designOptions.color).forEach(function(entry) {
-						if (entry[1] === '--primary')
+						if (
+							entry[1] === '--primary'
+							|| entry[1].match(primaryMatcher) !== null
+						)
 						{
-							designOptions.color[entry[0]] = primaryColor;
+							designOptions.color[entry[0]] = entry[1].replace('--primary', primaryColor);
 						}
 					});
 
@@ -1693,18 +1789,28 @@
 			)
 			{
 				var rootWindow = BX.Landing.PageObject.getRootWindow();
-				void Promise
-					.all([
-						rootWindow.BX.Runtime
-							.loadExtension('landing.ui.panel.formsettingspanel'),
-						BX.Runtime
-							.loadExtension('landing.ui.panel.formsettingspanel')
-					])
+				void (function() {
+						if (BX.Landing.UI.Panel.FormSettingsPanel)
+						{
+							return Promise.resolve([
+								rootWindow.BX.Landing.UI.Panel,
+								BX.Landing.UI.Panel
+							]);
+						}
+
+						return Promise
+							.all([
+								rootWindow.BX.Runtime
+									.loadExtension('landing.ui.panel.formsettingspanel'),
+								BX.Runtime
+									.loadExtension('landing.ui.panel.formsettingspanel')
+							]);
+					})()
 					.then(function(result) {
 						var FormSettingsPanel = result[1].FormSettingsPanel;
 						if (FormSettingsPanel)
 						{
-							FormSettingsPanel
+							return FormSettingsPanel
 								.getInstance()
 								.show({
 									formId: formId.id,
@@ -2555,6 +2661,21 @@
 			return Promise.resolve(clone(newState));
 		},
 
+		/**
+		 * Updates block's content.
+		 * @param {string} content
+		 */
+		updateContent: function(content)
+		{
+			var updatePromise = BX.Landing.Backend.getInstance().action(
+				"Block::updateContent",
+				{lid: this.lid, block: this.id, content: content.replaceAll(' style="', ' bxstyle="')},
+				{code: this.manifest.code}
+			);
+			var reloadPromise = this.reload();
+			return Promise.all([updatePromise, reloadPromise]);
+		},
+
 		updateBlockState: function(state, preventHistory)
 		{
 			if (
@@ -3237,15 +3358,33 @@
 			var selector = this.makeAbsoluteSelector(field.selector);
 			var value = field.getValue();
 
-			try {
-				value = encodeDataValue(value);
-			} catch(e) {
-				value = field.getValue();
-			}
-
 			requestData[selector] = requestData[selector] || {};
 			requestData[selector]["attrs"] = requestData[selector]["attrs"] || {};
-			requestData[selector]["attrs"][field.attribute] = value;
+			if(BX.Type.isArray(field.attribute))
+			{
+				field.attribute.forEach(function(attr){
+					var attrData = attr.replace('data-', '');
+					var itemValue = value[attrData];
+					if(itemValue !== undefined)
+					{
+						try {
+							itemValue = encodeDataValue(itemValue);
+						} catch(e) {
+							itemValue = field.getValue()[attrData];
+						}
+						requestData[selector]["attrs"][attr] = itemValue;
+					}
+				});
+			}
+			else
+			{
+				try {
+					value = encodeDataValue(value);
+				} catch(e) {
+					value = field.getValue();
+				}
+				requestData[selector]["attrs"][field.attribute] = value;
+			}
 			return requestData;
 		},
 

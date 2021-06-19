@@ -34,7 +34,10 @@ class CBlogPostCommentList extends CBlogPostCommentEdit
 		{
 			$vars = $cache->GetVars();
 			$this->arResult = array_merge($this->arResult, $vars["arResult"]);
-			CBitrixComponentTemplate::ApplyCachedData($vars["templateCachedData"]);
+
+			$template = new CBitrixComponentTemplate();
+			$template->ApplyCachedData($vars["templateCachedData"]);
+
 			$cache->Output();
 		}
 		else

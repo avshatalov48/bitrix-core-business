@@ -1,5 +1,7 @@
-<?
+<?php
+
 use Bitrix\Socialnetwork\ComponentHelper;
+use Bitrix\Socialnetwork\Helper\Mention;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
 
@@ -493,7 +495,6 @@ class CSocNetLogTools
 
 		return $AvatarPath;
 	}
-
 
 	public static function FormatEvent_IsMessageShort($message, $short_message = false)
 	{
@@ -1093,7 +1094,7 @@ class CSocNetLogTools
 		return $arResult;
 	}
 
-	function FormatComment_Microblog($arFields, $arParams, $bMail = false, $arLog = array())
+	public static function FormatComment_Microblog($arFields, $arParams, $bMail = false, $arLog = array())
 	{
 		if (
 			$bMail
@@ -1381,7 +1382,7 @@ class CSocNetLogTools
 		return $arResult;
 	}
 
-	function FormatComment_Forum($arFields, $arParams, $bMail = false, $arLog = array())
+	public static function FormatComment_Forum($arFields, $arParams, $bMail = false, $arLog = array())
 	{
 		if (
 			$bMail
@@ -1757,7 +1758,7 @@ class CSocNetLogTools
 		return $arResult;
 	}
 
-	function FormatEvent_PhotoPhoto($arFields, $arParams, $bMail = false)
+	public static function FormatEvent_PhotoPhoto($arFields, $arParams, $bMail = false)
 	{
 		if (
 			$bMail
@@ -1852,7 +1853,7 @@ class CSocNetLogTools
 		return $arResult;
 	}
 
-	function FormatComment_Photo($arFields, $arParams, $bMail = false, $arLog = array())
+	public static function FormatComment_Photo($arFields, $arParams, $bMail = false, $arLog = array())
 	{
 		if (
 			$bMail
@@ -1944,9 +1945,9 @@ class CSocNetLogTools
 
 				$parserLog->arUserfields = $arFields["UF"];
 				$parserLog->pathToUser = $parserLog->userPath = $arParams["PATH_TO_USER"];
-				$parserLog->bMobile = ($arParams["MOBILE"] == "Y");
+				$parserLog->bMobile = ($arParams["MOBILE"] === "Y");
 				$arResult["EVENT_FORMATTED"]["MESSAGE"] = htmlspecialcharsbx($parserLog->convert(htmlspecialcharsback($arResult["EVENT_FORMATTED"]["MESSAGE"]), $arAllow));
-				$arResult["EVENT_FORMATTED"]["MESSAGE"] = preg_replace("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, "\\2", $arResult["EVENT_FORMATTED"]["MESSAGE"]);
+				$arResult['EVENT_FORMATTED']['MESSAGE'] = Mention::clear($arResult['EVENT_FORMATTED']['MESSAGE']);
 			}
 			else
 			{
@@ -1998,7 +1999,7 @@ class CSocNetLogTools
 		return $arResult;
 	}
 
-	function FormatComment_PhotoAlbum($arFields, $arParams, $bMail = false, $arLog = array())
+	public static function FormatComment_PhotoAlbum($arFields, $arParams, $bMail = false, $arLog = array())
 	{
 
 		$arResult = array(
@@ -2037,7 +2038,7 @@ class CSocNetLogTools
 					"MULTIPLE_BR" => "N",
 					"VIDEO" => "Y", "LOG_VIDEO" => "N",
 					"USERFIELDS" => $arFields["UF"],
-					"USER" => ($arParams["IM"] == "Y" ? "N" : "Y")
+					"USER" => ($arParams["IM"] === "Y" ? "N" : "Y")
 				);
 
 				if (!$parserLog)
@@ -2045,9 +2046,9 @@ class CSocNetLogTools
 
 				$parserLog->arUserfields = $arFields["UF"];
 				$parserLog->pathToUser = $parserLog->userPath = $arParams["PATH_TO_USER"];
-				$parserLog->bMobile = ($arParams["MOBILE"] == "Y");
+				$parserLog->bMobile = ($arParams["MOBILE"] === "Y");
 				$arResult["EVENT_FORMATTED"]["MESSAGE"] = htmlspecialcharsbx($parserLog->convert(htmlspecialcharsback($arResult["EVENT_FORMATTED"]["MESSAGE"]), $arAllow));
-				$arResult["EVENT_FORMATTED"]["MESSAGE"] = preg_replace("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, "\\2", $arResult["EVENT_FORMATTED"]["MESSAGE"]);
+				$arResult['EVENT_FORMATTED']['MESSAGE'] = Mention::clear($arResult['EVENT_FORMATTED']['MESSAGE']);
 			}
 			else
 			{
@@ -2065,7 +2066,9 @@ class CSocNetLogTools
 				);
 
 				if (!$parserLog)
+				{
 					$parserLog = new logTextParser(false, $arParams["PATH_TO_SMILE"]);
+				}
 
 				$arResult["EVENT_FORMATTED"]["MESSAGE"] = htmlspecialcharsbx($parserLog->convert(htmlspecialcharsback($arResult["EVENT_FORMATTED"]["MESSAGE"]), array(), $arAllow));
 			}
@@ -2204,7 +2207,7 @@ class CSocNetLogTools
 		return $arResult;
 	}
 
-	function FormatComment_Files($arFields, $arParams, $bMail = false, $arLog = array())
+	public static function FormatComment_Files($arFields, $arParams, $bMail = false, $arLog = array())
 	{
 		if (
 			$bMail
@@ -2349,7 +2352,7 @@ class CSocNetLogTools
 		return $arResult;
 	}
 
-	function FormatEvent_Task2($arFields, $arParams)
+	public static function FormatEvent_Task2($arFields, $arParams)
 	{
 		if (CModule::IncludeModule('tasks'))
 		{
@@ -2784,8 +2787,8 @@ class CSocNetLogTools
 			if ($bMail)
 			{
 				$dbUser = CUser::GetList(
-					($by="last_name"),
-					($order="asc"),
+					"last_name",
+					"asc",
 					array(
 						"ID" => implode(" | ", $arUsersID)
 					)
@@ -2812,8 +2815,8 @@ class CSocNetLogTools
 			else
 			{
 				$dbUser = CUser::GetList(
-					($by="last_name"),
-					($order="asc"),
+					"last_name",
+					"asc",
 					array(
 						"ID" => implode(" | ", $arUsersID)
 					),
@@ -3010,7 +3013,7 @@ class CSocNetLogTools
 			);
 	}
 
-	function AddComment_Forum($arFields)
+	public static function AddComment_Forum($arFields)
 	{
 		global $USER_FIELD_MANAGER, $USER;
 
@@ -3460,7 +3463,7 @@ class CSocNetLogTools
 		return $arRes;
 	}
 
-	function AddComment_Blog($arFields)
+	public static function AddComment_Blog($arFields)
 	{
 		global $USER, $APPLICATION;
 
@@ -3608,7 +3611,7 @@ class CSocNetLogTools
 		);
 	}
 
-	function AddComment_Microblog($arFields)
+	public static function AddComment_Microblog($arFields)
 	{
 		global $USER, $APPLICATION;
 
@@ -3756,7 +3759,7 @@ class CSocNetLogTools
 		);
 	}
 
-	function AddComment_Files($arFields)
+	public static function AddComment_Files($arFields)
 	{
 		if (!CModule::IncludeModule("forum"))
 			return false;
@@ -4193,27 +4196,27 @@ class CSocNetLogTools
 		)));
 	}
 
-	function OnAfterPhotoUpload($arFields, $arComponentParams, $arComponentResult)
+	public static function OnAfterPhotoUpload($arFields, $arComponentParams, $arComponentResult)
 	{
 		CSocNetLogToolsPhoto::OnAfterPhotoUpload($arFields, $arComponentParams, $arComponentResult);
 	}
 
-	function OnAfterPhotoDrop($arFields, $arComponentParams)
+	public static function OnAfterPhotoDrop($arFields, $arComponentParams)
 	{
 		CSocNetLogToolsPhoto::OnAfterPhotoDrop($arFields, $arComponentParams);
 	}
 
-	function OnBeforeSectionDrop($sectionID, $arComponentParams, $arComponentResult, &$arSectionID, &$arElementID)
+	public static function OnBeforeSectionDrop($sectionID, $arComponentParams, $arComponentResult, &$arSectionID, &$arElementID)
 	{
 		CSocNetLogToolsPhoto::OnBeforeSectionDrop($sectionID, $arComponentParams, $arComponentResult, $arSectionID, $arElementID);
 	}
 
-	function OnAfterSectionDrop($ID, $arFields, $arComponentParams, $arComponentResult)
+	public static function OnAfterSectionDrop($ID, $arFields, $arComponentParams, $arComponentResult)
 	{
 		CSocNetLogToolsPhoto::OnAfterSectionDrop($ID, $arFields, $arComponentParams, $arComponentResult);
 	}
 
-	function OnAfterSectionEdit($arFields, $arComponentParams, $arComponentResult)
+	public static function OnAfterSectionEdit($arFields, $arComponentParams, $arComponentResult)
 	{
 		CSocNetLogToolsPhoto::OnAfterSectionEdit($arFields, $arComponentParams, $arComponentResult);
 	}
@@ -4749,14 +4752,29 @@ class CSocNetLogTools
 						: ''
 				);
 
+				$isEmail = (isset($arUserTmp['EXTERNAL_AUTH_ID']) && $arUserTmp['EXTERNAL_AUTH_ID'] === 'email');
+				$url = str_replace("#user_id#", $arUserTmp["ID"], $arParams["PATH_TO_USER"]);
+				if (
+					$isEmail
+					&& !empty($arParams['LOG_ID'])
+					&& (int)$arParams['LOG_ID'] > 0
+				)
+				{
+					$url = (new \Bitrix\Main\Web\Uri($url))->addParams([
+						'entityType' => 'LOG_ENTRY',
+						'entityId' => (int)$arParams['LOG_ID'],
+					])->getUri();
+				}
+
 				$arDestination[] = [
 					"TYPE" => "U",
 					"ID" => $arUserTmp["ID"],
 					"STYLE" => "users",
 					"TITLE" => CUser::FormatName($arParams["NAME_TEMPLATE"], $arUserTmp, ($arParams["SHOW_LOGIN"] === "Y"), $htmlEncode),
-					"URL" => str_replace("#user_id#", $arUserTmp["ID"], $arParams["PATH_TO_USER"]),
+					'SHORT_TITLE' => trim($htmlEncode ? htmlspecialcharsEx($arUserTmp['NAME']) : $arUserTmp['NAME']),
+					'URL' => $url,
 					"IS_EXTRANET" => (is_array($GLOBALS["arExtranetUserID"]) && in_array($arUserTmp["ID"], $GLOBALS["arExtranetUserID"]) ? "Y" : "N"),
-					"IS_EMAIL" => (isset($arUserTmp["EXTERNAL_AUTH_ID"]) && $arUserTmp["EXTERNAL_AUTH_ID"] === 'email' ? "Y" : "N"),
+					'IS_EMAIL' => ($isEmail ? 'Y' : 'N'),
 					"CRM_ENTITY" => (!empty($arUserTmp["UF_USER_CRM_ENTITY"]) ? $arUserTmp["UF_USER_CRM_ENTITY"] : false),
 					'AVATAR' => $avatarUrl,
 				];
@@ -4819,7 +4837,7 @@ class CSocNetLogTools
 		return $arDestination;
 	}
 
-	function GetDestinationFromRights($arRights, $arParams)
+	public static function GetDestinationFromRights($arRights, $arParams)
 	{
 		if (empty($arRights))
 		{
@@ -4991,7 +5009,7 @@ class CSocNetLogTools
 	{
 		$arSiteData = array();
 
-		$rsSite = CSite::GetList($by="sort", $order="desc", Array("ACTIVE" => "Y"));
+		$rsSite = CSite::GetList("sort", "desc", Array("ACTIVE" => "Y"));
 		while ($arSite = $rsSite->Fetch())
 		{
 			$serverName = htmlspecialcharsEx($arSite["SERVER_NAME"]);
@@ -5013,7 +5031,7 @@ class CSocNetLogTools
 		return $arSiteData;
 	}
 
-	function ShowSourceType($source_type = false, $bMobile = false)
+	public static function ShowSourceType($source_type = false, $bMobile = false)
 	{
 		if (!$source_type)
 			return false;
@@ -5231,22 +5249,22 @@ class CSocNetLogTools
 			return false;
 	}
 
-	function AddComment_Photo($arFields)
+	public static function AddComment_Photo($arFields)
 	{
 		return CSocNetPhotoCommentEvent::AddComment_Photo($arFields);
 	}
 
-	function AddComment_Photo_Forum($arFields, $FORUM_ID, $arLog)
+	public static function AddComment_Photo_Forum($arFields, $FORUM_ID, $arLog)
 	{
 		return CSocNetPhotoCommentEvent::AddComment_Photo_Forum($arFields, $FORUM_ID, $arLog);
 	}
 
-	function AddComment_Photo_Blog($arFields, $BLOG_ID, $arLog)
+	public static function AddComment_Photo_Blog($arFields, $BLOG_ID, $arLog)
 	{
 		return CSocNetPhotoCommentEvent::AddComment_Photo_Blog($arFields, $BLOG_ID, $arLog);
 	}
 
-	function logUFfileShow($arResult, $arParams)
+	public static function logUFfileShow($arResult, $arParams)
 	{
 		$result = false;
 		if (
@@ -5501,7 +5519,7 @@ class CSocNetLogTools
 	// working with task comments
 	///////////////////////////////
 
-	function AddComment_Tasks($arFields)
+	public static function AddComment_Tasks($arFields)
 	{
 		global $USER, $USER_FIELD_MANAGER;
 
@@ -5825,7 +5843,7 @@ class CSocNetLogTools
 		);
 	}
 
-	function DeleteComment_Task($arFields)
+	public static function DeleteComment_Task($arFields)
 	{
 		$arRes = array();
 
@@ -5874,7 +5892,7 @@ class CSocNetLogTools
 		return $arRes;
 	}
 
-	function CanEditComment_Task($arParams)
+	public static function CanEditComment_Task($arParams)
 	{
 		$res = false;
 
@@ -5910,7 +5928,7 @@ class CSocNetLogTools
 		return $res;
 	}
 
-	function CanEditOwnComment_Task($arParams)
+	public static function CanEditOwnComment_Task($arParams)
 	{
 		$res = false;
 
@@ -5989,9 +6007,9 @@ class logTextParser extends CTextParser
 		return (mb_strlen($a["TYPING"]) > mb_strlen($b["TYPING"])) ? -1 : 1;
 	}
 
-	function logTextParser($strLang = False, $pathToSmile = false)
+	public function __construct($strLang = False, $pathToSmile = false)
 	{
-		$this->CTextParser();
+		parent::__construct();
 		$this->MaxStringLen = 0;
 		if ($strLang === False)
 			$strLang = LANGUAGE_ID;
@@ -6507,7 +6525,7 @@ class CSocNetLogComponent
 
 		$bFound = $arResult = false;
 
-		$dbSitesList = CSite::GetList($b = "SORT", $o = "asc", array("ACTIVE" => "Y")); // cache used
+		$dbSitesList = CSite::GetList("SORT", "asc", array("ACTIVE" => "Y")); // cache used
 		while ($arSite = $dbSitesList->GetNext())
 		{
 			$siteRootDepartmentId = COption::GetOptionString("main", "wizard_departament", false, $arSite["LID"], true);
@@ -7104,7 +7122,7 @@ class CSocNetLogComponent
 					&& !CSocNetUser::IsCurrentUserModuleAdmin(SITE_ID, false)
 				) // intranet -> extranet
 				{
-					$rsRedirectSite = CSite::GetList($b = "SORT", $o = "asc", array("ACTIVE" => "Y", "LID" => $extranetSiteId)); // cache used
+					$rsRedirectSite = CSite::GetList("SORT", "asc", array("ACTIVE" => "Y", "LID" => $extranetSiteId)); // cache used
 					$arRedirectSite = $rsRedirectSite->Fetch();
 				}
 			}

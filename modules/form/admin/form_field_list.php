@@ -143,7 +143,7 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && $F_RIGHT>=30 && check
 	if($_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
-		$rsData = CFormField::GetList($WEB_FORM_ID, $additional, $by, $order, $arFilter, $is_filtered);
+		$rsData = CFormField::GetList($WEB_FORM_ID, $additional, '', '', $arFilter);
 		while($arRes = $rsData->Fetch())
 				$arID[] = $arRes['ID'];
 	}
@@ -190,8 +190,9 @@ $sDocTitle = ($additional=="Y") ? GetMessage("FORM_PAGE_ADDITIONAL_TITLE") : Get
 $APPLICATION->SetTitle(str_replace("#ID#","$WEB_FORM_ID",$sDocTitle));
 
 //////////////////////////////////////////////////////////////////////
+global $by, $order;
 
-$rsData = CFormField::GetList($WEB_FORM_ID, $additional, $by, $order, $arFilter, $is_filtered);
+$rsData = CFormField::GetList($WEB_FORM_ID, $additional, $by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 
@@ -240,7 +241,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 			$p_FIELD_TYPE='hidden';
 		else
 		{
-			$rAnswer = CFormAnswer::GetList($f_ID, $a_by, $a_order, array(), $a_is_filtered);
+			$rAnswer = CFormAnswer::GetList($f_ID);
 			$rAnswer->ExtractFields("p_");
 		}
 		$row->AddViewField("A_FIELD_TYPE",$p_FIELD_TYPE);

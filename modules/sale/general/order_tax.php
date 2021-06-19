@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSaleOrderTax
@@ -120,7 +121,7 @@ class CAllSaleOrderTax
 	// The function does not handle fixed-rate taxes. Only with interest!
 	// any tax returns for the price
 	// the second argument ($ arTaxList [] ["TAX_VAL"]) returns the value of the tax for that price
-	function CountTaxes($Price, &$arTaxList, $DefCurrency)
+	public static function CountTaxes($Price, &$arTaxList, $DefCurrency)
 	{
 		//1. Untwist stack tax included in the price for the determination of the initial price
 		$part_sum = 0.00;

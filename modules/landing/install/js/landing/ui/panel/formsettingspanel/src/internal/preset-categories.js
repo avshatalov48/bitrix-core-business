@@ -8,7 +8,7 @@ const presetCategories = [
 	}),
 	new PresetCategory({
 		id: 'products',
-		title: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_CATEGORY_PRODUCTS'),
+		title: Loc.getMessage('LANDING_FORM_SETTINGS_PRESET_CATEGORY_PRODUCTS_2'),
 	}),
 	new PresetCategory({
 		id: 'social',

@@ -486,36 +486,39 @@
 	background: #bcedfc;
 }
 
-.main-ui-filter-search .main-ui-square.main-ui-filter-search-square:first-child { margin-left: 5px; }
+.main-ui-filter-search .main-ui-square.main-ui-filter-search-square:first-child {
+	margin-left: 4px;
+}
 
 .main-ui-filter-search-filter {
 	position: relative;
 	z-index: 1;
 	box-sizing: border-box;
-	margin: 4px 1px;
-	padding: 0 50px 0 15px;
+	/*margin: 4px 1px;*/
+	padding: 0 50px 0 16px;
 	width: 100%;
 	height: 30px;
 	outline: none;
 	border: none;
 	border-radius: 2px;
+	background-color: #fff;
 	font: 15px/30px "Helvetica Neue", Arial, Helvetica, sans-serif;
-	transition: background .3s;
+	/*transition: background .3s;*/
 }
 
 .main-ui-filter-search-filter::-webkit-input-placeholder { /* Chrome/Opera/Safari */
 	color: #b1b6bb;
-	transition: color .3s;
 }
 
 .main-ui-filter-search-filter:hover::-webkit-input-placeholder { color: #80868e; }
 
-.pagetitle-wrap-filter-opened .main-ui-filter-search-filter:hover::-webkit-input-placeholder { color: #b1b6bb; }
+.pagetitle-wrap-filter-opened .main-ui-filter-search-filter:hover::-webkit-input-placeholder {
+	color: #b1b6bb;
+}
 
 .main-ui-filter-search-filter::-moz-placeholder { /* Firefox 19+ */
 	color: #b1b6bb;
 	opacity: 1;
-	transition: color .3s;
 }
 
 .main-ui-filter-search-filter:hover::-moz-placeholder { color: #80868e; }
@@ -524,7 +527,6 @@
 
 .main-ui-filter-search-filter:-ms-input-placeholder { /* IE 10+ */
 	color: #b1b6bb;
-	transition: color .3s;
 }
 
 .main-ui-filter-search-filter:hover:-ms-input-placeholder { color: #80868e; }
@@ -534,7 +536,6 @@
 .main-ui-filter-search-filter:-moz-placeholder { /* Firefox 18- */
 	color: #b1b6bb;
 	opacity: 1;
-	transition: color .3s;
 }
 
 .main-ui-filter-search-filter:hover:-moz-placeholder { color: #80868e; }
@@ -553,7 +554,7 @@
 
 .main-ui-filter-search-square:nth-last-child(3)::after {
 	position: absolute;
-	top: -3px;
+	top: -2.5px;
 	right: -17px;
 	display: inline-block;
 	width: 14px;
@@ -576,10 +577,6 @@ select::-ms-expand {
 	position: relative;
 	margin: 0 0 17px;
 	cursor: pointer;
-	-webkit-transform: translate3d(0px, 0px, 0px);
-	-moz-transform: translate3d(0px, 0px, 0px);
-	-ms-transform: translate3d(0px, 0px, 0px);
-	-o-transform: translate3d(0px, 0px, 0px);
 	transform: translate3d(0px, 0px, 0px);
 }
 
@@ -605,7 +602,7 @@ select::-ms-expand {
 	width: 25px;
 	height: 39px;
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2215%22%20height%3D%2215%22%20viewBox%3D%220%200%2015%2015%22%3E%3Cpath%20fill%3D%22%23535C68%22%20fill-rule%3D%22evenodd%22%20d%3D%22M1.33%205.5c0-2.304%201.866-4.17%204.17-4.17S9.67%203.195%209.67%205.5c0%202.305-1.865%204.17-4.17%204.17-2.305%200-4.17-1.865-4.17-4.17m12.528%206.944l-3.816-3.817-.014-.008C10.64%207.73%2011%206.66%2011%205.5%2011%202.462%208.537%200%205.5%200S0%202.462%200%205.5%202.463%2011%205.5%2011c1.158%200%202.232-.36%203.118-.972.004.004.005.01.01.014l3.816%203.817c.372.37.982.37%201.354%200l.06-.063c.372-.372.372-.982%200-1.354%22/%3E%3C/svg%3E');
-	background-position: center 12px;
+	background-position: center 11px;
 	background-repeat: no-repeat;
 	opacity: .3;
 }
@@ -617,7 +614,6 @@ select::-ms-expand {
 	left: 0;
 	width: 30px;
 	background-position: 6px -202px;
-	-webkit-transform: translate(0, -50%);
 	transform: translate(0, -50%);
 }
 
@@ -961,18 +957,15 @@ select::-ms-expand {
 }
 
 .main-ui-filter-search {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-ms-flex-wrap: nowrap;
 	flex-wrap: nowrap;
+	align-items: center;
 	position: relative;
 	height: 39px;
-	border: none;
+	border: 1px solid transparent;
 	border-radius: 2px;
 	background: #fff;
 	font: 15px/39px "Helvetica Neue", Arial, Helvetica, sans-serif;
-	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 	outline: none;
 	z-index: 1;
@@ -1001,7 +994,7 @@ select::-ms-expand {
 	-ms-flex-positive: 0;
 	flex-grow: 0;
 	flex-basis: min-content;
-	margin: 4px;
+	margin: 3.5px;
 	height: 31px;
 	white-space: nowrap;
 	outline: none;
@@ -1011,11 +1004,9 @@ select::-ms-expand {
 	max-width: 180px;
 }
 
-
 .main-ui-filter-new-filter .main-ui-filter-edit-mask {
 	display: block;
 }
-
 
 .main-ui-control.main-ui-select .main-ui-square-search,
 .main-ui-control.main-ui-select .main-ui-square-search-item {
@@ -1422,7 +1413,7 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 	width: 20px;
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2211%22%20viewBox%3D%220%200%2012%2011%22%3E%3Cpath%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M7.587%205.503l4.4-4.398-1.132-1.13-4.4%204.397L2.06-.026l-1.13%201.13%204.397%204.4L.927%209.9l1.13%201.132%204.4-4.398%204.398%204.398%201.13-1.13-4.398-4.4z%22/%3E%3C/svg%3E');
 	background-repeat: no-repeat;
-	background-position: center 14px;
+	background-position: center 13px;
 	-webkit-transition: right .3s, opacity .3s;
 	transition: right .3s, opacity .3s;
 	opacity: .3;

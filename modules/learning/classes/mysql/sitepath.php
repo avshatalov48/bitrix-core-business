@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/classes/general/sitepath.php");
 
 // 2012-04-16 Checked/modified for compatibility with new data model
@@ -6,7 +7,7 @@ class CSitePath extends CAllSitePath
 {
 	/*************** ADD, UPDATE, DELETE *****************/
 	// 2012-04-16 Checked/modified for compatibility with new data model
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -50,9 +51,8 @@ class CSitePath extends CAllSitePath
 		return False;
 	}
 
-
 	// 2012-04-16 Checked/modified for compatibility with new data model
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -96,10 +96,9 @@ class CSitePath extends CAllSitePath
 		return False;
 	}
 
-
 	//*************** SELECT *********************/
 	// 2012-04-16 Checked/modified for compatibility with new data model
-	function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 

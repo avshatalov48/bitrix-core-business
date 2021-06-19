@@ -100,6 +100,7 @@ class SeoAdsBuilderComponent extends CBitrixComponent implements Controllerable
 			'mode' => Router::COMPONENT_MODE_AJAX,
 		]);
 
+		$this->arResult['IS_CLOUD'] = Loader::includeModule('bitrix24');
 		return true;
 	}
 
@@ -446,7 +447,7 @@ class SeoAdsBuilderComponent extends CBitrixComponent implements Controllerable
 		];
 	}
 
-	public function getProductUrlAction($SITE_ID, $id)
+	public function getProductUrlAction($id)
 	{
 		$data = \Bitrix\Landing\Connector\Iblock::getElementUrl(self::STORE_ID, $id);
 

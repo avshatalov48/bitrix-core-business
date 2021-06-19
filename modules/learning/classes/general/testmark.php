@@ -1,4 +1,5 @@
-<?
+<?php
+
 // 2012-04-13 Checked/modified for compatibility with new data model
 class CLTestMark
 {
@@ -89,7 +90,7 @@ class CLTestMark
 
 
 	// 2012-04-13 Checked/modified for compatibility with new data model
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -106,14 +107,14 @@ class CLTestMark
 
 
 	// 2012-04-13 Checked/modified for compatibility with new data model
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		return CLTestMark::GetList($arOrder=Array(), $arFilter=Array("ID" => $ID));
 	}
 
 
 	// 2012-04-13 Checked/modified for compatibility with new data model
-	function GetByPercent($TEST_ID, $PERCENT)
+	public static function GetByPercent($TEST_ID, $PERCENT)
 	{
 		global $DB;
 
@@ -144,7 +145,7 @@ class CLTestMark
 
 
 	// 2012-04-13 Checked/modified for compatibility with new data model
-	function GetFilter($arFilter)
+	public static function GetFilter($arFilter)
 	{
 		if (!is_array($arFilter))
 			$arFilter = Array();
@@ -175,7 +176,7 @@ class CLTestMark
 
 
 	// 2012-04-13 Checked/modified for compatibility with new data model
-	function GetList($arOrder=Array(), $arFilter=Array())
+	public static function GetList($arOrder=Array(), $arFilter=Array())
 	{
 		global $DB, $USER;
 

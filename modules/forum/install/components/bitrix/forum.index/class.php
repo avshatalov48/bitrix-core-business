@@ -115,7 +115,7 @@ class ForumIndexComponent extends \CBitrixComponent
 		if ($this->getUser()->IsAuthorized())
 		{
 			$res = \CUserOptions::GetOption("forum", "user_info", "");
-			$res = (CheckSerializedData($res) ? @unserialize($res) : []);
+			$res = (CheckSerializedData($res) ? @unserialize($res, ["allowed_classes" => false]) : []);
 			$this->arResult["USER"]["HIDDEN_GROUPS"] = (is_array($res["groups"]) ? $res["groups"] : array());
 			$this->arResult["USER"]["HIDDEN_FORUMS"] = (is_array($res["forums"]) ? $res["forums"] : array());
 		}

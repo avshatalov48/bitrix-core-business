@@ -8,7 +8,7 @@ CModule::IncludeModule("bizproc");
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/options.php");
 IncludeModuleLangFile(__FILE__);
 
-$dbSites = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+$dbSites = CSite::GetList("", "", Array("ACTIVE" => "Y"));
 $arSites = array();
 $aSubTabs = array();
 while ($site = $dbSites->Fetch())

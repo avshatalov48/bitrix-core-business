@@ -142,6 +142,9 @@ BX.ready(function()
 				BX.SidePanel.Instance.open(sliderHref, {
 					allowChangeHistory: false,
 					width: BX.data(item, 'slider-width') ? parseInt(BX.data(item, 'slider-width')) : null,
+					data: {
+						rightBoundary: 0
+					},
 					events: {
 						onClose: function(eventClosed)
 						{

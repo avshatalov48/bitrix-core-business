@@ -75,9 +75,8 @@ foreach ($arDocumentFields as $fieldKey => $fieldValue)
 		<select name="group_site">
 			<option value="">(<?= GetMessage("BPCWG_SITE_OTHER") ?>)</option>
 			<?
-			$b = $o = "";
 			$expression = CBPDocument::IsExpression($arCurrentValues["group_site"]) ? htmlspecialcharsbx($arCurrentValues["group_site"]) : '';
-			$dbSites = CSite::GetList($b, $o, Array("ACTIVE" => "Y"));
+			$dbSites = CSite::GetList('', '', Array("ACTIVE" => "Y"));
 			while ($site = $dbSites->GetNext())
 			{
 				?><option value="<?= $site["LID"] ?>"<?= ($site["LID"] == $arCurrentValues["group_site"]) ? " selected" : ""?>>[<?= $site["LID"] ?>] <?= $site["NAME"] ?></option><?

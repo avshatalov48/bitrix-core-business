@@ -10,6 +10,11 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 		self.initialize(id, settings);
 		return self;
 	}
+	constructor()
+	{
+		super();
+		this._enumItems = [];
+	}
 	layoutInternal()
 	{
 		this._wrapper.appendChild(this.getInputContainer());

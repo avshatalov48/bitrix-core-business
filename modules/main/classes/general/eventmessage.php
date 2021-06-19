@@ -271,7 +271,7 @@ class CAllEventMessage
 	///////////////////////////////////////////////////////////////////
 	public static function GetByID($ID)
 	{
-		return CEventMessage::GetList($o = "", $b = "", array("ID"=>$ID));
+		return CEventMessage::GetList('', '', array("ID"=>$ID));
 	}
 
 	public static function GetSite($event_message_id)
@@ -380,11 +380,10 @@ class CAllEventMessage
 		return $data;
 	}
 
-	public static function GetList(&$by, &$order, $arFilter=Array())
+	public static function GetList($by = 'id', $order = 'desc', $arFilter=Array())
 	{
 		$arSearch = Array();
 		$arSqlSearch = Array();
-		$strSqlSearch = "";
 		$bIsLang = false;
 		if (is_array($arFilter))
 		{
@@ -401,7 +400,7 @@ class CAllEventMessage
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -484,18 +483,15 @@ class CAllEventMessage
 		else
 		{
 			$strSqlOrder = "ID";
-			$by = "id";
 		}
 
-		if ($order!="asc")
+		if ($order != "asc")
 		{
 			$strSqlOrderBy = "DESC";
-			$order = "desc";
 		}
 		else
 		{
 			$strSqlOrderBy = "ASC";
-			$order = "asc";
 		}
 
 		$arSelect = array(
@@ -739,31 +735,28 @@ class CEventType
 
 	public static function GetList($arFilter=array(), $arOrder=array())
 	{
-		global $DB;
-
 		$arSqlSearch = $arSqlOrder = array();
 
 		foreach($arFilter as $key => $val)
 		{
-			$val_escaped = $DB->ForSQL($val);
-			if($val_escaped == '')
+			if((string)$val == '')
 				continue;
 
-			$key = mb_strtoupper($key);
+			$key = strtoupper($key);
 			switch($key)
 			{
 				case "EVENT_NAME":
 				case "TYPE_ID":
-					$arSqlSearch["EVENT_NAME"] = (string) $val;
+					$arSqlSearch["=EVENT_NAME"] = (string)$val;
 					break;
 				case "EVENT_TYPE":
-					$arSqlSearch["=EVENT_TYPE"] = (string) $val;
+					$arSqlSearch["=EVENT_TYPE"] = (string)$val;
 					break;
 				case "LID":
-					$arSqlSearch["=LID"] = (string) $val;
+					$arSqlSearch["=LID"] = (string)$val;
 					break;
 				case "ID":
-					$arSqlSearch["=ID"] = intval($val);
+					$arSqlSearch["=ID"] = (int)$val;
 					break;
 			}
 		}
@@ -773,8 +766,8 @@ class CEventType
 			static $arFields = array("ID"=>1, "LID"=>1, "EVENT_NAME"=>1, "NAME"=>1, "SORT"=>1);
 			foreach($arOrder as $by => $ord)
 			{
-				$by = mb_strtoupper($by);
-				$ord = mb_strtoupper($ord);
+				$by = strtoupper($by);
+				$ord = strtoupper($ord);
 				if(array_key_exists($by, $arFields))
 					$arSqlOrder[$by] = ($ord == "DESC"? "DESC":"ASC");
 			}
@@ -994,15 +987,19 @@ class CEventType
 
 class _CEventTypeResult extends CDBResult
 {
-	var $type = "type";
-	var $LID = LANGUAGE_ID;
-	var $SITE_ID = SITE_ID;
+	var $type;
+	var $LID;
+	var $SITE_ID;
 
 	public function __construct($res, $arParams = array())
 	{
+		$language = (defined("LANGUAGE_ID") ? LANGUAGE_ID : 'en');
+		$site = (defined("SITE_ID") ? SITE_ID : 's1');
+
 		$this->type = empty($arParams["type"]) ? "type" : $arParams["type"];
-		$this->LID = empty($arParams["LID"]) ? LANGUAGE_ID : $arParams["LID"];
-		$this->SITE_ID = empty($arParams["SITE_ID"]) ? SITE_ID : $arParams["SITE_ID"];
+		$this->LID = empty($arParams["LID"]) ? $language : $arParams["LID"];
+		$this->SITE_ID = empty($arParams["SITE_ID"]) ? $site : $arParams["SITE_ID"];
+
 		parent::__construct($res);
 	}
 
@@ -1040,7 +1037,7 @@ class _CEventTypeResult extends CDBResult
 				if ($this->type != "type")
 				{
 					$arr = array();
-					$db_res_ = CEventMessage::GetList($sort = "sort", $by = "asc", array("EVENT_NAME" => $res["EVENT_NAME"]));
+					$db_res_ = CEventMessage::GetList('', '', array("EVENT_NAME" => $res["EVENT_NAME"]));
 					if ($db_res_ && $res_ = $db_res_->Fetch())
 					{
 						do

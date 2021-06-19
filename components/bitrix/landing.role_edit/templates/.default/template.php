@@ -4,6 +4,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+/** @var array $arParams */
+/** @var array $arResult */
+
 use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Localization\Loc;
 
@@ -48,7 +51,7 @@ if ($arResult['FATAL'])
 }
 
 // function for draw one tr (one site)
-$drawTr = function($siteId, array $selectedId = [], $title = '') use($arResult)
+$drawTr = function($siteId, array $selectedId = [], $title = '') use($arResult, $arParams)
 {
 	static $count = 0;
 
@@ -62,6 +65,10 @@ $drawTr = function($siteId, array $selectedId = [], $title = '') use($arResult)
 	{
 		$code = $right['NAME'];
 		if ($code == $arResult['TASK_DENIED_CODE'])
+		{
+			continue;
+		}
+		if ($code == 'public' && $arParams['TYPE'] == 'KNOWLEDGE')
 		{
 			continue;
 		}

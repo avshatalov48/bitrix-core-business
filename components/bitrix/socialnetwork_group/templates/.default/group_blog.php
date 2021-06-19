@@ -1,10 +1,12 @@
 <?php
 
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
 use Bitrix\Main\Loader;
 use Bitrix\Blog\Copy\Integration\Group;
-
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
-	die();
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -13,34 +15,20 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-?><div class="feed-blog-post-list"><?
+?><div class="feed-blog-post-list"><?php
+
 $pageId = "group_blog";
+$blogPageId = '';
+
 include("util_group_menu.php");
 include("util_group_profile.php");
+include('util_group_blog_menu.php');
 
-$APPLICATION->IncludeComponent(
-	"bitrix:socialnetwork.blog.menu",
-	"",
-	Array(
-		"PATH_TO_USER" => $arParams["PATH_TO_USER"],
-		"PATH_TO_POST_EDIT" => $arResult["PATH_TO_GROUP_BLOG_POST_EDIT"],
-		"PATH_TO_DRAFT" => $arResult["PATH_TO_GROUP_BLOG_DRAFT"],
-		"USER_ID" => $arResult["VARIABLES"]["user_id"],
-		"USER_VAR" => $arResult["ALIASES"]["user_id"],
-		"PAGE_VAR" => $arResult["ALIASES"]["blog_page"],
-		"POST_VAR" => $arResult["ALIASES"]["post_id"],
-		"SOCNET_GROUP_ID" => $arResult["VARIABLES"]["group_id"],
-		"PATH_TO_GROUP_BLOG" => $arResult["PATH_TO_GROUP_BLOG"],
-		"PATH_TO_GROUP" => $arResult["PATH_TO_GROUP"],
-		"SET_NAV_CHAIN" => $arResult["SET_NAV_CHAIN"],
-		"GROUP_ID" => $arParams["BLOG_GROUP_ID"],
-		"PATH_TO_MODERATION" => $arResult["PATH_TO_GROUP_BLOG_MODERATION"],
-		'HIDE_OWNER_IN_TITLE' => $arParams['HIDE_OWNER_IN_TITLE']
-	),
-	$this->getComponent()
-);
-
-if(COption::GetOptionString("blog", "socNetNewPerms", "N") == "N" && $USER->IsAdmin() && !file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrix24"))
+if (
+	COption::GetOptionString("blog", "socNetNewPerms", "N") === "N"
+	&& $USER->IsAdmin()
+	&& !file_exists($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/bitrix24")
+)
 {
 	?>
 	<div class="feed-add-error">
@@ -49,28 +37,11 @@ if(COption::GetOptionString("blog", "socNetNewPerms", "N") == "N" && $USER->IsAd
 	<?
 }
 
-if (Loader::includeModule("blog"))
-{
-	$APPLICATION->includeComponent(
-		"bitrix:socialnetwork.copy.checker",
-		"",
-		[
-			"moduleId" => Group::MODULE_ID,
-			"queueId" => $arParams["BLOG_GROUP_ID"],
-			"stepperClassName" => Group::STEPPER_CLASS,
-			"checkerOption" => Group::CHECKER_OPTION,
-			"errorOption" => Group::ERROR_OPTION,
-			"titleMessage" => GetMessage("BLG_STEPPER_PROGRESS_TITLE"),
-			"errorMessage" => GetMessage("BLG_STEPPER_PROGRESS_ERROR"),
-		],
-		$component,
-		["HIDE_ICONS" => "Y"]
-	);
-}
+include("util_copy_blog.php");
 
 $livefeedProvider = new \Bitrix\Socialnetwork\Livefeed\BlogPost;
 
-$arLogParams = Array(
+$componentParameters = [
 	"ENTITY_TYPE" => "",
 	"USER_VAR" => $arParams["VARIABLE_ALIASES"]["user_id"],
 	"GROUP_VAR" => $arParams["VARIABLE_ALIASES"]["group_id"],
@@ -116,17 +87,27 @@ $arLogParams = Array(
 	"SET_LOG_CACHE" => "Y",
 	"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 	"CACHE_TIME" => $arParams["CACHE_TIME"],
-	"CHECK_COMMENTS_PERMS" => (isset($arParams["CHECK_COMMENTS_PERMS"]) && $arParams["CHECK_COMMENTS_PERMS"] == "Y" ? "Y" : "N"),
+	"CHECK_COMMENTS_PERMS" => (isset($arParams["CHECK_COMMENTS_PERMS"]) && $arParams["CHECK_COMMENTS_PERMS"] === "Y" ? "Y" : "N"),
 	"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
 	"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
-);
-?><div id="log_external_container"></div><?
+];
+
+?><div id="log_external_container"></div><?php
+
 $APPLICATION->IncludeComponent(
-	"bitrix:socialnetwork.log.ex",
-	"",
-	$arLogParams,
-	$this->getComponent(),
-	array("HIDE_ICONS"=>"Y")
+	'bitrix:ui.sidepanel.wrapper',
+	'',
+	[
+		'USE_PADDING' => false,
+		'POPUP_COMPONENT_NAME' => "bitrix:socialnetwork.log.ex",
+		"POPUP_COMPONENT_TEMPLATE_NAME" => "",
+		"POPUP_COMPONENT_PARAMS" => $componentParameters,
+		"POPUP_COMPONENT_PARENT" => $this->getComponent(),
+		'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
+		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE' => 'SONET_GROUP',
+		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $arResult['VARIABLES']['group_id'],
+		'USE_UI_TOOLBAR' => 'Y',
+	]
 );
-?>
-</div>
+
+?></div>

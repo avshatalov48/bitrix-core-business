@@ -1,11 +1,13 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
+
 $GLOBALS["BLOG_CATEGORY"] = Array();
 
 class CAllBlogCategory
 {
 	/*************** ADD, UPDATE, DELETE *****************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && $arFields["NAME"] == '')
 		{
@@ -103,6 +105,4 @@ class CAllBlogCategory
 
 		return False;
 	}
-
 }
-?>

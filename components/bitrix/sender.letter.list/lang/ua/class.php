@@ -8,6 +8,7 @@ $MESS["SENDER_LETTER_LIST_COMP_UI_COLUMN_COUNT_CLICK"] = "Кількість п�
 $MESS["SENDER_LETTER_LIST_COMP_UI_COLUMN_COUNT_READ"] = "Кількість переглядів";
 $MESS["SENDER_LETTER_LIST_COMP_UI_COLUMN_COUNT_SEND_ALL"] = "Загальна кількість одержувачів";
 $MESS["SENDER_LETTER_LIST_COMP_UI_COLUMN_COUNT_SEND_SUCCESS"] = "Успішно відправлено";
+$MESS["SENDER_LETTER_LIST_COMP_UI_COLUMN_COUNT_UNSUB"] = "Кількість тих, хто відписався";
 $MESS["SENDER_LETTER_LIST_COMP_UI_COLUMN_DATE_INSERT"] = "Дата";
 $MESS["SENDER_LETTER_LIST_COMP_UI_COLUMN_DATE_INSERT2"] = "Дата створення";
 $MESS["SENDER_LETTER_LIST_COMP_UI_COLUMN_DATE_SENT"] = "Дата закінчення відправки";

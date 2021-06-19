@@ -87,7 +87,7 @@ Class CIdeaManagment
 
 
 		//Get Settings if possible
-		if ($arSite = CSite::GetList(($s = "sort"), ($o = "asc"), array("LID" => SITE_ID))->Fetch())
+		if ($arSite = CSite::GetList("sort", "asc", array("LID" => SITE_ID))->Fetch())
 		{
 			$arSettings["SERVER_NAME"] = $arSite["SERVER_NAME"];
 			$arSettings["CHARSET"] = $arSite["CHARSET"];

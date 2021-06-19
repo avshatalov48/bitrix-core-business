@@ -110,7 +110,7 @@ if (CModule::IncludeModule("form"))
 		$arParams["arrNOT_SHOW_FILTER"] = explode(",",$arParams["NOT_SHOW_FILTER"]);
 	}
 
-	if (is_array($arParams["arrNOT_SHOW_FILTER"])) //array_walk($arParams["arrNOT_SHOW_FILTER"], create_function("&\$item", "\$item=trim(\$item);"));
+	if (is_array($arParams["arrNOT_SHOW_FILTER"]))
 		TrimArr($arParams["arrNOT_SHOW_FILTER"]);
 
 	else $arParams["arrNOT_SHOW_FILTER"]=array();
@@ -123,7 +123,7 @@ if (CModule::IncludeModule("form"))
 	{
 		$arParams["arrNOT_SHOW_TABLE"] = explode(",",$arParams["NOT_SHOW_TABLE"]);
 	}
-	if (is_array($arParams["arrNOT_SHOW_TABLE"])) //array_walk($arParams["arrNOT_SHOW_TABLE"], create_function("&\$item", "\$item=trim(\$item);"));
+	if (is_array($arParams["arrNOT_SHOW_TABLE"]))
 		TrimArr($arParams["arrNOT_SHOW_TABLE"]);
 
 	else $arParams["arrNOT_SHOW_TABLE"]=array();
@@ -343,9 +343,8 @@ if (CModule::IncludeModule("form"))
 		// get results list
 		$arParams["by"] = $_REQUEST["by"];
 		$arParams["order"] = $_REQUEST["order"];
-		$arResult["is_filtered"] = false;
 
-		$rsResults = CFormResult::GetList($arParams["WEB_FORM_ID"], $arParams["by"], $arParams["order"], $arFilter, $arResult["is_filtered"]);
+		$rsResults = CFormResult::GetList($arParams["WEB_FORM_ID"], $arParams["by"], $arParams["order"], $arFilter);
 
 		$arResult["res_counter"] = 0;
 		$arParams["can_delete_some"] = false;
@@ -361,7 +360,7 @@ if (CModule::IncludeModule("form"))
 			{
 				if ($arParams["F_RIGHT"]>=20 || ($arParams["F_RIGHT"]>=15 && $arParams["USER_ID"]==$arR["USER_ID"]))
 				{
-					$arrRESULT_PERMISSION = CFormResult::GetPermissions($arR["ID"], $v);
+					$arrRESULT_PERMISSION = CFormResult::GetPermissions($arR["ID"]);
 					if (in_array("DELETE",$arrRESULT_PERMISSION)) $arParams["can_delete_some"] = true;
 				}
 			}
@@ -398,7 +397,7 @@ if (CModule::IncludeModule("form"))
 		$arrUsers = array();
 		while ($arRes = $rsResults->NavNext(false))
 		{
-			$arRes["arrRESULT_PERMISSION"] = CFormResult::GetPermissions($arRes["ID"], $v);
+			$arRes["arrRESULT_PERMISSION"] = CFormResult::GetPermissions($arRes["ID"]);
 
 			$arRes["can_view"] = false;
 			$arRes["can_edit"] = false;
@@ -455,10 +454,7 @@ if (CModule::IncludeModule("form"))
 		{
 			$arFilter = array("IN_RESULTS_TABLE" => "Y");
 
-			$v1="s_c_sort";
-			$v2="asc";
-			$v3 = false;
-			$rsFields = CFormField::GetList($arParams["WEB_FORM_ID"], "ALL", $v1, $v2, $arFilter, $v3);
+			$rsFields = CFormField::GetList($arParams["WEB_FORM_ID"], "ALL", "s_c_sort", "asc", $arFilter);
 			while ($arField = $rsFields->Fetch())
 			{
 				$arResult["arrColumns"][$arField["ID"]] = $arField;

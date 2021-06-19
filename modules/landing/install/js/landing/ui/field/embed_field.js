@@ -38,7 +38,7 @@
 		});
 
 		this.error = BX.Landing.UI.Field.BaseField.createDescription(
-			BX.Landing.Loc.getMessage("LANDING_EMBED_ERROR_TEXT")
+			BX.Landing.Loc.getMessage("LANDING_EMBED_ERROR_WRONG_SOURCE_TEXT")
 		);
 
 		BX.Dom.addClass(this.error, 'landing-ui-error');
@@ -70,7 +70,10 @@
 
 		isEmbedUrl: function(value)
 		{
-			return /^http[s]?:\/\//.test(value);
+			return BX.Landing.Utils.Matchers.youtube.test(value)
+				|| BX.Landing.Utils.Matchers.vimeo.test(value)
+				|| BX.Landing.Utils.Matchers.vine.test(value)
+				|| BX.Landing.Utils.Matchers.facebookVideos.test(value);
 		},
 
 		getValue: function()

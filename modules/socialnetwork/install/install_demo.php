@@ -13,7 +13,7 @@ $errorString = "";
 
 $arSite = array();
 $arSites = array();
-$dbResult = CSite::GetList(($b = ""), ($o = ""), Array("ID" => $installSiteID, "ACTIVE" => "Y"));
+$dbResult = CSite::GetList('', '', Array("ID" => $installSiteID, "ACTIVE" => "Y"));
 while ($arResult = $dbResult->Fetch())
 {
 	$arSites[] = $arResult["LID"];
@@ -31,7 +31,7 @@ while ($arResult = $dbResult->Fetch())
 }
 
 $arLanguages = array();
-$dbResult = CLanguage::GetList($lby="sort", $lorder="asc");
+$dbResult = CLanguage::GetList();
 while ($arResult = $dbResult->Fetch())
 	$arLanguages[] = $arResult;
 
@@ -137,7 +137,7 @@ if (CModule::IncludeModule("iblock"))
 			foreach ($arSites as $siteID)
 				$arFields["LID"][] = $siteID;
 
-			$dbUGroups = CGroup::GetList($by = "c_sort", $order = "asc");
+			$dbUGroups = CGroup::GetList();
 			while ($arUGroups = $dbUGroups->Fetch())
 			{
 				if ($arUGroups["ANONYMOUS"] == "Y")
@@ -735,7 +735,7 @@ if (CModule::IncludeModule("iblock"))
 
 			$iblock = new CIBlock;
 
-			$dbUGroups = CGroup::GetList($by = "c_sort", $order = "asc");
+			$dbUGroups = CGroup::GetList();
 			while ($arUGroups = $dbUGroups->Fetch())
 			{
 				if ($arUGroups["ANONYMOUS"] == "Y")
@@ -770,7 +770,7 @@ if (CModule::IncludeModule("iblock"))
 
 			$iblock = new CIBlock;
 
-			$dbUGroups = CGroup::GetList($by = "c_sort", $order = "asc");
+			$dbUGroups = CGroup::GetList();
 			while ($arUGroups = $dbUGroups->Fetch())
 			{
 				if ($arUGroups["ANONYMOUS"] == "Y")

@@ -49,7 +49,7 @@ return array(
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_36.1.SHEDULE_STYLE_LANDINGBLOCKNODECARDTITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-card-subtitle' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_36.1.SHEDULE_STYLE_LANDINGBLOCKNODECARDSUBTITLE'),

@@ -485,6 +485,16 @@ abstract class DataManager
 						$query->disableDataDoubling();
 					}
 					break;
+				case 'private_fields':
+					if($value)
+					{
+						$query->enablePrivateFields();
+					}
+					else
+					{
+						$query->disablePrivateFields();
+					}
+					break;
 				case 'cache':
 					$query->setCacheTtl($value["ttl"]);
 					if(isset($value["cache_joins"]))

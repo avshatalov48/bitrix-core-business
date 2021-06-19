@@ -7,24 +7,23 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 Loc::loadLanguageFile(__FILE__);
 
-return array(
+return [
 	'name' => Loc::getMessage('LANDING_DEMO_VALENTINE1_TITLE'),
 	'description' => Loc::getMessage('LANDING_DEMO_VALENTINE1_DESCRIPTION'),
-	'fields' => array(
-		'ADDITIONAL_FIELDS' => array(
+	'fields' => [
+		'ADDITIONAL_FIELDS' => [
 			'THEME_CODE' => 'travel',
-
-		    'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/holidays/holiday.valentine1/preview.jpg',
+			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/holidays/holiday.valentine1/preview.jpg',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_VALENTINE1_TITLE'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_VALENTINE1_DESCRIPTION'),
 			'METAMAIN_TITLE' => Loc::getMessage('LANDING_DEMO_VALENTINE1_TITLE'),
 			'METAMAIN_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_VALENTINE1_DESCRIPTION')
-		)
-	),
+		]
+	],
 	'available' => true,
-	'items' => array (
+	'items' => [
 		'0.menu_18_spa' =>
-			array (
+			[
 				'CODE' => '0.menu_18_spa',
 				'SORT' => '-100',
 				'CONTENT' => '<header class="landing-block landing-block-menu u-header u-header--sticky u-header--float g-z-index-9999">
@@ -78,9 +77,9 @@ return array(
 		</nav>
 	</div>
 </header>',
-			),
+			],
 		'01.big_with_text_3' =>
-			array (
+			[
 				'CODE' => '01.big_with_text_3',
 				'SORT' => '500',
 				'CONTENT' => '<section class="landing-block landing-block-node-img u-bg-overlay g-flex-centered g-min-height-70vh g-bg-img-hero g-bg-black-opacity-0_5--after g-pt-80 g-pb-80" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/1400x700/img4.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb">
@@ -93,9 +92,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'43.1.big_tiles_with_slider' =>
-			array (
+			[
 				'CODE' => '43.1.big_tiles_with_slider',
 				'SORT' => '1000',
 				'CONTENT' => '<section class="landing-block">
@@ -129,7 +128,7 @@ return array(
 			</div>
 
 			<div class="landing-block-node-block-bottom js-animation fadeInUp col-md-6">
-				<div class="js-carousel" data-infinite="true" data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-55 g-font-size-12 g-color-gray-dark-v5 g-bg-white g-mt-minus-10" data-arrow-left-classes="fa fa-chevron-left g-left-0" data-arrow-right-classes="fa fa-chevron-right g-right-0">
+				<div class="js-carousel" data-infinite="true" data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-55 g-font-size-12 g-bg-white g-mt-minus-10" data-arrow-left-classes="fa fa-chevron-left g-left-0" data-arrow-right-classes="fa fa-chevron-right g-right-0">
 					<div class="landing-block-node-card js-slide d-flex align-items-center g-max-height-300 g-max-height-625--lg">
 						<img class="landing-block-node-card-img w-100 img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1200x781/img8.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 					</div>
@@ -144,9 +143,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'47.1.title_with_icon' =>
-			array (
+			[
 				'CODE' => '47.1.title_with_icon',
 				'SORT' => '1500',
 				'CONTENT' => '<section class="landing-block g-pt-80 g-pb-20">
@@ -163,7 +162,7 @@ return array(
 			</div>
 		</div>
 
-		<div class="landing-block-node-text g-color-gray-dark-v5 mb-0 js-animation fadeInUp">
+		<div class="landing-block-node-text mb-0 js-animation fadeInUp">
 			<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.
 				Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis
 				elementum, enim orci viverra eros, fringilla porttitor lorem eros vel.
@@ -171,9 +170,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'06.2.features_4_cols' =>
-			array (
+			[
 				'CODE' => '06.2.features_4_cols',
 				'SORT' => '2000',
 				'CONTENT' => '<section class="landing-block g-pb-80 g-pt-20">
@@ -185,8 +184,8 @@ return array(
 					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
 					  <i class="landing-block-node-element-icon icon-star"></i>
 					</span>
-                        <h3 class="landing-block-node-element-title h5 g-color-black g-mb-10 g-text-transform-none"><span style="font-style: italic;">Gift set</span></h3>
-                        <div class="landing-block-node-element-text g-color-gray-dark-v4"><p>Donec id elit non mi porta gravida at eget metus id elit mi egetine. </p></div>
+                        <h5 class="landing-block-node-element-title g-mb-10 g-text-transform-none"><span style="font-style: italic;">Gift set</span></h5>
+                        <div class="landing-block-node-element-text"><p>Donec id elit non mi porta gravida at eget metus id elit mi egetine. </p></div>
 
                         <div class="landing-block-node-separator d-inline-block g-width-40 g-brd-bottom g-brd-2 g-brd-primary g-my-15"></div>
 
@@ -201,8 +200,8 @@ return array(
 					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
 					  <i class="landing-block-node-element-icon fa fa-heart-o"></i>
 					</span>
-                        <h3 class="landing-block-node-element-title h5 g-color-black g-mb-10 g-text-transform-none"><span style="font-style: italic;">Gift set</span></h3>
-                        <div class="landing-block-node-element-text g-color-gray-dark-v4"><p>Donec id elit non mi porta gravida at eget metus id elit mi egetine. </p></div>
+                        <h5 class="landing-block-node-element-title g-mb-10 g-text-transform-none"><span style="font-style: italic;">Gift set</span></h5>
+                        <div class="landing-block-node-element-text"><p>Donec id elit non mi porta gravida at eget metus id elit mi egetine. </p></div>
 
                         <div class="landing-block-node-separator d-inline-block g-width-40 g-brd-bottom g-brd-2 g-brd-primary g-my-15"></div>
 
@@ -215,8 +214,8 @@ return array(
 					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
 					  <i class="landing-block-node-element-icon icon-diamond"></i>
 					</span>
-                        <h3 class="landing-block-node-element-title h5 g-color-black g-mb-10 g-text-transform-none"><span style="font-style: italic;">Gift set</span></h3>
-                        <div class="landing-block-node-element-text g-color-gray-dark-v4"><p>Donec id elit non mi porta gravida at eget metus id elit mi egetine. </p></div>
+                        <h5 class="landing-block-node-element-title g-mb-10 g-text-transform-none"><span style="font-style: italic;">Gift set</span></h5>
+                        <div class="landing-block-node-element-text"><p>Donec id elit non mi porta gravida at eget metus id elit mi egetine. </p></div>
 
                         <div class="landing-block-node-separator d-inline-block g-width-40 g-brd-bottom g-brd-2 g-brd-primary g-my-15"></div>
 
@@ -229,8 +228,8 @@ return array(
 					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
 					  <i class="landing-block-node-element-icon icon-present"></i>
 					</span>
-                        <h3 class="landing-block-node-element-title h5 g-color-black g-mb-10 g-text-transform-none"><span style="font-style: italic;">Gift set</span></h3>
-                        <div class="landing-block-node-element-text g-color-gray-dark-v4"><p>Donec id elit non mi porta gravida at eget metus id elit mi egetine. </p></div>
+                        <h5 class="landing-block-node-element-title g-mb-10 g-text-transform-none"><span style="font-style: italic;">Gift set</span></h5>
+                        <div class="landing-block-node-element-text"><p>Donec id elit non mi porta gravida at eget metus id elit mi egetine. </p></div>
 
                         <div class="landing-block-node-separator d-inline-block g-width-40 g-brd-bottom g-brd-2 g-brd-primary g-my-15"></div>
 
@@ -240,14 +239,14 @@ return array(
             </div>
         </div>
     </section>',
-			),
+			],
 		'01.big_with_text_3@2' =>
-			array (
+			[
 				'CODE' => '01.big_with_text_3',
 				'SORT' => '2500',
 				'CONTENT' => '<section class="landing-block landing-block-node-img u-bg-overlay g-flex-centered g-min-height-70vh g-bg-img-hero g-bg-black-opacity-0_5--after g-pt-80 g-pb-80" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/1400x700/img5.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb">
 	<div class="container g-max-width-800 text-center u-bg-overlay__inner g-mx-1 js-animation landing-block-node-container fadeInDown">
-		<h2 class="landing-block-node-title g-line-height-1 g-font-weight-700 g-mb-20 g-text-transform-none g-color-primary g-font-size-86"><span style="font-style: italic;color: rgb(245, 245, 245);">
+		<h2 class="landing-block-node-title g-line-height-1 g-font-weight-700 g-mb-20 g-text-transform-none g-color-primary g-font-size-85"><span style="font-style: italic;color: rgb(245, 245, 245);">
 			The power of Love</span></h2>
 
 		<div class="landing-block-node-text g-mb-35 g-color-white">
@@ -259,9 +258,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'47.1.title_with_icon@2' =>
-			array (
+			[
 				'CODE' => '47.1.title_with_icon',
 				'SORT' => '3000',
 				'CONTENT' => '<section class="landing-block g-pt-80 g-pb-80">
@@ -278,7 +277,7 @@ return array(
 			</div>
 		</div>
 
-		<div class="landing-block-node-text g-color-gray-dark-v5 mb-0 js-animation fadeInUp">
+		<div class="landing-block-node-text mb-0 js-animation fadeInUp">
 			<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.
 				Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis
 				elementum, enim orci viverra eros, fringilla porttitor lorem eros vel.
@@ -286,9 +285,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'44.7.three_columns_with_img_and_price' =>
-			array (
+			[
 				'CODE' => '44.7.three_columns_with_img_and_price',
 				'SORT' => '3500',
 				'CONTENT' => '<section class="landing-block g-pt-65 g-pb-65">
@@ -315,7 +314,7 @@ return array(
 					<!-- Article Content -->
 					<div class="landing-block-node-card-container-bottom h-100 g-pa-40 d-flex flex-column">
 						<div class="g-mb-15">
-							<div class="landing-block-node-card-price-subtitle g-color-gray-light-v1">
+							<div class="landing-block-node-card-price-subtitle">
 								From
 							</div>
 							<div class="landing-block-node-card-price g-font-weight-700 g-color-primary g-font-size-24 g-mt-10">
@@ -323,7 +322,7 @@ return array(
 							</div>
 						</div>
 
-						<div class="landing-block-node-card-text g-color-gray-light-v1 g-mb-40">
+						<div class="landing-block-node-card-text g-mb-40">
 							<p>
 								Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.
 							</p>
@@ -359,7 +358,7 @@ return array(
 					<!-- Article Content -->
 					<div class="landing-block-node-card-container-bottom h-100 g-pa-40 d-flex flex-column">
 						<div class="g-mb-15">
-							<div class="landing-block-node-card-price-subtitle g-color-gray-light-v1">
+							<div class="landing-block-node-card-price-subtitle">
 								From
 							</div>
 							<div class="landing-block-node-card-price g-font-weight-700 g-color-primary g-font-size-24 g-mt-10">
@@ -367,7 +366,7 @@ return array(
 							</div>
 						</div>
 
-						<div class="landing-block-node-card-text g-color-gray-light-v1 g-mb-40">
+						<div class="landing-block-node-card-text g-mb-40">
 							<p>
 								Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.
 							</p>
@@ -403,7 +402,7 @@ return array(
 					<!-- Article Content -->
 					<div class="landing-block-node-card-container-bottom h-100 g-pa-40 d-flex flex-column">
 						<div class="g-mb-15">
-							<div class="landing-block-node-card-price-subtitle g-color-gray-light-v1">
+							<div class="landing-block-node-card-price-subtitle">
 								From
 							</div>
 							<div class="landing-block-node-card-price g-font-weight-700 g-color-primary g-font-size-24 g-mt-10">
@@ -411,7 +410,7 @@ return array(
 							</div>
 						</div>
 
-						<div class="landing-block-node-card-text g-color-gray-light-v1 g-mb-40">
+						<div class="landing-block-node-card-text g-mb-40">
 							<p>
 								Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.
 							</p>
@@ -428,9 +427,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'46.3.cover_with_blocks_slider' =>
-			array (
+			[
 				'CODE' => '46.3.cover_with_blocks_slider',
 				'SORT' => '4000',
 				'CONTENT' => '<section class="landing-block landing-block-node-bgimg u-bg-overlay g-bg-img-hero g-bg-black-opacity-0_5--after g-pt-100 g-pb-100" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img29.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb">
@@ -447,7 +446,7 @@ return array(
 							March
 							15, 2017
 						</div>
-						<blockquote class="landing-block-node-card-text g-color-gray-light-v1 g-mb-40 js-animation fadeInRightBig">
+						<blockquote class="landing-block-node-card-text g-mb-40 js-animation fadeInRightBig">
 							<p>Curabitur eget
 								tortor sed urna faucibus iaculis id et nulla. Aliquam erat volutpat. Donec sed fringilla
 								quam. Sed tincidunt volutpat iaculis. Pellentesque maximus ut eros eget congue. Fusce ac
@@ -473,7 +472,7 @@ return array(
 							November
 							01, 2017
 						</div>
-						<blockquote class="landing-block-node-card-text g-color-gray-light-v1 g-mb-40 js-animation fadeInRightBig">
+						<blockquote class="landing-block-node-card-text g-mb-40 js-animation fadeInRightBig">
 							<p>Curabitur eget
 								tortor sed urna faucibus iaculis id et nulla. Aliquam erat volutpat. Donec sed fringilla
 								quam. Sed tincidunt volutpat iaculis. Pellentesque maximus ut eros eget congue. Fusce ac
@@ -498,7 +497,7 @@ return array(
 							November
 							01, 2017
 						</div>
-						<blockquote class="landing-block-node-card-text g-color-gray-light-v1 g-mb-40 js-animation fadeInRightBig">
+						<blockquote class="landing-block-node-card-text g-mb-40 js-animation fadeInRightBig">
 							<p>Curabitur eget
 								tortor sed urna faucibus iaculis id et nulla. Aliquam erat volutpat. Donec sed fringilla
 								quam. Sed tincidunt volutpat iaculis. Pellentesque maximus ut eros eget congue. Fusce ac
@@ -514,9 +513,9 @@ return array(
 			</div></div>
 	</div>
 </section>',
-			),
+			],
 		'47.1.title_with_icon@3' =>
-			array (
+			[
 				'CODE' => '47.1.title_with_icon',
 				'SORT' => '4500',
 				'CONTENT' => '<section class="landing-block g-pt-80 g-pb-80">
@@ -533,7 +532,7 @@ return array(
 			</div>
 		</div>
 
-		<div class="landing-block-node-text g-color-gray-dark-v5 mb-0 js-animation fadeInUp">
+		<div class="landing-block-node-text mb-0 js-animation fadeInUp">
 			<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.
 				Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis
 				elementum, enim orci viverra eros, fringilla porttitor lorem eros vel.
@@ -541,9 +540,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'33.3.form_1_transparent_black_no_text' =>
-			array (
+			[
 				'CODE' => '33.3.form_1_transparent_black_no_text',
 				'SORT' => '5000',
 				'CONTENT' => '<section class="landing-block landing-block-node-bgimg landing-semantic-color-overlay g-bg-primary-dark-v1 g-pos-rel g-pt-120 g-pb-120 g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_7--after"
@@ -564,6 +563,6 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
-	),
-);
+			],
+	],
+];

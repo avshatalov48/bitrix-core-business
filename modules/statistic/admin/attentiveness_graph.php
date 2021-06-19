@@ -35,7 +35,7 @@ $arFilter = Array(
 	"DATE2"		=> $find_date2,
 	"SITE_ID"	=> $find_site_id
 	);
-$rs = CTraffic::GetDailyList(($by="s_date"), ($order="asc"), $arMaxMin, $arFilter, $is_filtered);
+$rs = CTraffic::GetDailyList("s_date", "asc", $arMaxMin, $arFilter);
 while($arData = $rs->Fetch())
 {
 	$date = mktime(0, 0, 0, $arData["MONTH"], $arData["DAY"], $arData["YEAR"]);

@@ -9,7 +9,7 @@ IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/sale/delivery/d
 
 class CDeliverySimple
 {
-	function Init()
+	public static function Init()
 	{
 		return array(
 			/* Basic description */
@@ -41,8 +41,8 @@ class CDeliverySimple
 			)
 		);
 	}
-	
-	function GetConfig()
+
+	public static function GetConfig()
 	{
 		$arConfig = array(
 			"CONFIG_GROUPS" => array(
@@ -65,13 +65,13 @@ class CDeliverySimple
 		
 		return $arConfig; 
 	}
-	
-	function GetSettings($strSettings)
+
+	public static function GetSettings($strSettings)
 	{
 		return unserialize($strSettings, ['allowed_classes' => false]);
 	}
-	
-	function SetSettings($arSettings)
+
+	public static function SetSettings($arSettings)
 	{
 		foreach ($arSettings as $key => $value) 
 		{
@@ -84,7 +84,7 @@ class CDeliverySimple
 		return serialize($arSettings);
 	}
 
-	function __GetLocationPrice($LOCATION_ID, $arConfig)
+	public static function __GetLocationPrice($LOCATION_ID, $arConfig)
 	{
 		$dbLocationGroups = CSaleLocationGroup::GetLocationList(array("LOCATION_".(CSaleLocation::checkIsCode($LOCATION_ID) ? 'CODE' : 'ID') => $LOCATION_ID));
 
@@ -102,13 +102,13 @@ class CDeliverySimple
 
 		return false;
 	}
-	
-	function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
+
+	public static function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
 	{
 		return CDeliverySimple::__GetLocationPrice($arOrder["LOCATION_TO"], $arConfig);
 	}
-	
-	function Compability($arOrder, $arConfig)
+
+	public static function Compability($arOrder, $arConfig)
 	{
 		$price = CDeliverySimple::__GetLocationPrice($arOrder["LOCATION_TO"], $arConfig);
 		

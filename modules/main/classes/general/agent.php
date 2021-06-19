@@ -289,7 +289,7 @@ class CAllAgent
 			array_key_exists("NEXT_EXEC", $arFields)
 			&& (
 				$arFields["NEXT_EXEC"] == ""
-				|| !$DB->IsDate($arFields["NEXT_EXEC"], false, LANG, "FULL")
+				|| !$DB->IsDate($arFields["NEXT_EXEC"], false, false, "FULL")
 			)
 		)
 		{
@@ -299,7 +299,7 @@ class CAllAgent
 		if(
 			array_key_exists("DATE_CHECK", $arFields)
 			&& $arFields["DATE_CHECK"] <> ""
-			&& !$DB->IsDate($arFields["DATE_CHECK"], false, LANG, "FULL")
+			&& !$DB->IsDate($arFields["DATE_CHECK"], false, false, "FULL")
 		)
 		{
 			$errMsg[] = array("id" => "DATE_CHECK", "text" => Loc::getMessage("MAIN_AGENT_ERROR_DATE_CHECK"));
@@ -308,7 +308,7 @@ class CAllAgent
 		if(
 			array_key_exists("LAST_EXEC", $arFields)
 			&& $arFields["LAST_EXEC"] <> ""
-			&& !$DB->IsDate($arFields["LAST_EXEC"], false, LANG, "FULL")
+			&& !$DB->IsDate($arFields["LAST_EXEC"], false, false, "FULL")
 		)
 		{
 			$errMsg[] = array("id" => "LAST_EXEC", "text" => Loc::getMessage("MAIN_AGENT_ERROR_LAST_EXEC"));

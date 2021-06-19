@@ -17,19 +17,13 @@ class Promotion
 		{
 			return $result;
 		}
-
+/*
 		$result[] = [
 			"ID" => 'im:video:01042020:web',
 			"USER_TYPE" => \Bitrix\Main\UI\Tour::USER_TYPE_OLD,
 			"DEVICE_TYPE" => self::DEVICE_TYPE_WEB
 		];
-
-		$result[] = [
-			"ID" => 'im:video:01042020:mobile',
-			"USER_TYPE" => \Bitrix\Main\UI\Tour::USER_TYPE_OLD,
-			"DEVICE_TYPE" => self::DEVICE_TYPE_MOBILE
-		];
-
+*/
 		return $result;
 	}
 

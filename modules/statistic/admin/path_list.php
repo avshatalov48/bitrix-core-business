@@ -17,7 +17,7 @@ else
 
 $arSites = array();
 $ref = $ref_id = array();
-$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 {
 	$ref[] = $ar["ID"];
@@ -26,7 +26,7 @@ while ($ar = $rs->Fetch())
 }
 $arSiteDropdown = array("reference" => $ref, "reference_id" => $ref_id);
 
-$rs = CAdv::GetList($v1="", $v2="", Array(), $v3, "", $v4, $v5);
+$rs = CAdv::GetList();
 while ($ar = $rs->Fetch())
 {
 	$arrADV[$ar["ID"]] = $ar["REFERER1"]." / ".$ar["REFERER2"]." [".$ar["ID"]."]";
@@ -154,7 +154,9 @@ $arFilter = Array(
 	"LAST_PAGE_EXACT_MATCH" => $find_last_page_exact_match,
 );
 
-$rsPath = CPath::GetList($parent_id, $find_diagram_type, $by, $order, $arFilter, $is_filtered);
+global $by, $order;
+
+$rsPath = CPath::GetList($parent_id, $find_diagram_type, $by, $order, $arFilter);
 
 $str_err_404 = "ERROR_404: ";
 
@@ -243,7 +245,7 @@ if($find_diagram_type=="COUNTER"):
 								endif;
 							endif;
 							$arFilter["PATH_ID"] = $path_id;
-							$z = CPath::GetList($arParent[$path_id], $find_diagram_type, $v1, $v2, $arFilter, $v3);
+							$z = CPath::GetList($arParent[$path_id], $find_diagram_type, '', '', $arFilter);
 							$zr = $z->Fetch();
 							$counter = $zr["COUNTER"];
 							if($i==1) $max = $counter;

@@ -13,12 +13,7 @@ class CPHPCacheXCache implements ICacheBackend
 	var $written = false;
 	var $read = false;
 
-	function __construct()
-	{
-		$this->CPHPCacheXCache();
-	}
-
-	function CPHPCacheXCache()
+	public function __construct()
 	{
 		if(defined("BX_CACHE_SID"))
 			$this->sid = BX_CACHE_SID;

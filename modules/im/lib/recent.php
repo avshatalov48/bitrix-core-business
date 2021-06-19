@@ -24,65 +24,77 @@ class Recent
 		$ormParams = self::getOrmParams([
 			'USER_ID' => $userId,
 			'IS_OPERATOR' => $isOperator,
-			'COMPATIBLE_MODE' => true,
+			'WITHOUT_COMMON_USERS' => true,
 		]);
 
-		if ($options['LAST_MESSAGE_UPDATE'])
+		if ($options['LAST_SYNC_DATE'])
 		{
-			$ormParams['filter']['<DATE_UPDATE'] = $options['LAST_MESSAGE_UPDATE'];
+			$maxLimit = (new \Bitrix\Main\Type\DateTime())->add('-7 days');
+			if ($maxLimit > $options['LAST_SYNC_DATE'])
+			{
+				$options['LAST_SYNC_DATE'] = $maxLimit;
+			}
+			$ormParams['filter']['>=DATE_UPDATE'] = $options['LAST_SYNC_DATE'];
 		}
-		else if ($options['LAST_UPDATE'])
-		{
-			$ormParams['filter']['>=DATE_UPDATE'] = $options['LAST_UPDATE'];
-		}
-		else
+		else if ($options['ONLY_OPENLINES'] !== 'Y')
 		{
 			$ormParams['filter']['>=DATE_UPDATE'] = (new \Bitrix\Main\Type\DateTime())->add('-30 days');
 		}
 
 		$skipTypes = [];
-		if ($options['SKIP_OPENLINES'] === 'Y')
-		{
-			$skipTypes[] = IM_MESSAGE_OPEN_LINE;
-		}
-		if ($options['SKIP_CHAT'] === 'Y')
-		{
-			$skipTypes[] = IM_MESSAGE_OPEN;
-			$skipTypes[] = IM_MESSAGE_CHAT;
-		}
-		if ($options['SKIP_DIALOG'] === 'Y')
-		{
-			$skipTypes[] = IM_MESSAGE_PRIVATE;
-		}
-		if (!empty($skipTypes))
+		if ($options['ONLY_OPENLINES'] === 'Y')
 		{
 			$ormParams['filter'][] = [
-				'!=ITEM_TYPE' => $skipTypes
+				'=ITEM_TYPE' => IM_MESSAGE_OPEN_LINE
 			];
 		}
+		else
+		{
+			if ($options['SKIP_OPENLINES'] === 'Y')
+			{
+				$skipTypes[] = IM_MESSAGE_OPEN_LINE;
+			}
+			if ($options['SKIP_CHAT'] === 'Y')
+			{
+				$skipTypes[] = IM_MESSAGE_OPEN;
+				$skipTypes[] = IM_MESSAGE_CHAT;
+			}
+			if ($options['SKIP_DIALOG'] === 'Y')
+			{
+				$skipTypes[] = IM_MESSAGE_PRIVATE;
+			}
+			if ($options['SKIP_NOTIFICATION'] !== 'N')
+			{
+				$skipTypes[] = IM_MESSAGE_SYSTEM;
+			}
+			if (!empty($skipTypes))
+			{
+				$ormParams['filter'][] = [
+					'!@ITEM_TYPE' => $skipTypes
+				];
+			}
+		}
 
-		if (isset($options['OFFSET']))
+		if (!isset($options['LAST_UPDATE']))
 		{
-			$ormParams['offset'] = $options['OFFSET'];
-		}
-		if (isset($options['LIMIT']))
-		{
-			$ormParams['limit'] = $options['LIMIT'];
-		}
-		if (isset($options['ORDER']))
-		{
-			$ormParams['order'] = $options['ORDER'];
+			if (isset($options['OFFSET']))
+			{
+				$ormParams['offset'] = $options['OFFSET'];
+			}
+			if (isset($options['LIMIT']))
+			{
+				$ormParams['limit'] = $options['LIMIT'];
+			}
+			if (isset($options['ORDER']))
+			{
+				$ormParams['order'] = $options['ORDER'];
+			}
 		}
 
 		$result = [];
 		$orm = \Bitrix\Im\Model\RecentTable::getList($ormParams);
 		while ($row = $orm->fetch())
 		{
-			if ($row['ITEM_TYPE'] == IM_MESSAGE_SYSTEM)
-			{
-				continue;
-			}
-
 			$isUser = $row['ITEM_TYPE'] == IM_MESSAGE_PRIVATE;
 			$id = $isUser? (int)$row['ITEM_ID']: 'chat'.$row['ITEM_ID'];
 
@@ -144,51 +156,71 @@ class Recent
 		}
 
 		$generalChatId = \CIMChat::GetGeneralChatId();
-		$isOperator = \Bitrix\Im\Integration\Imopenlines\User::isOperator();
+
+		if ($options['SKIP_OPENLINES'] === 'Y')
+		{
+			$isOperator = false;
+		}
+		else if (isset($options['IS_OPERATOR']))
+		{
+			$isOperator = $options['IS_OPERATOR'] === 'Y';
+		}
+		else
+		{
+			$isOperator = \Bitrix\Im\Integration\Imopenlines\User::isOperator();
+		}
+
+		$viewCommonUsers = (bool)\CIMSettings::GetSetting(\CIMSettings::SETTINGS, 'viewCommonUsers');
 
 		$ormParams = self::getOrmParams([
 			'USER_ID' => $userId,
 			'IS_OPERATOR' => $isOperator,
+			'WITHOUT_COMMON_USERS' => !$viewCommonUsers || $options['ONLY_OPENLINES'] === 'Y'
 		]);
 
-		if ($options['LAST_MESSAGE_UPDATE'])
-		{
-			$ormParams['filter']['<DATE_UPDATE'] = $options['LAST_MESSAGE_UPDATE'];
-		}
-		else if ($options['LAST_UPDATE'])
-		{
-			$ormParams['filter']['>=DATE_UPDATE'] = $options['LAST_UPDATE'];
-		}
-
-		$skipTypes = [];
-		if ($options['SKIP_OPENLINES'] === 'Y')
-		{
-			$skipTypes[] = IM_MESSAGE_OPEN_LINE;
-		}
-		if ($options['SKIP_CHAT'] === 'Y')
-		{
-			$skipTypes[] = IM_MESSAGE_OPEN;
-			$skipTypes[] = IM_MESSAGE_CHAT;
-		}
-		if ($options['SKIP_DIALOG'] === 'Y')
-		{
-			$skipTypes[] = IM_MESSAGE_PRIVATE;
-		}
-		if ($options['SKIP_NOTIFICATION'] === 'Y')
-		{
-			$skipTypes[] = IM_MESSAGE_SYSTEM;
-		}
-		if (!empty($skipTypes))
+		if ($options['ONLY_OPENLINES'] === 'Y')
 		{
 			$ormParams['filter'][] = [
-				'!=ITEM_TYPE' => $skipTypes
+				'=ITEM_TYPE' => IM_MESSAGE_OPEN_LINE
 			];
 		}
+		else
+		{
+			$skipTypes = [];
+			if ($options['SKIP_OPENLINES'] === 'Y')
+			{
+				$skipTypes[] = IM_MESSAGE_OPEN_LINE;
+			}
+			if ($options['SKIP_CHAT'] === 'Y')
+			{
+				$skipTypes[] = IM_MESSAGE_OPEN;
+				$skipTypes[] = IM_MESSAGE_CHAT;
+			}
+			if ($options['SKIP_DIALOG'] === 'Y')
+			{
+				$skipTypes[] = IM_MESSAGE_PRIVATE;
+			}
+			if ($options['SKIP_NOTIFICATION'] === 'Y')
+			{
+				$skipTypes[] = IM_MESSAGE_SYSTEM;
+			}
+			if (!empty($skipTypes))
+			{
+				$ormParams['filter'][] = [
+					'!@ITEM_TYPE' => $skipTypes
+				];
+			}
+		}
 
-		if (isset($options['OFFSET']))
+		if ($options['LAST_MESSAGE_DATE'] instanceof \Bitrix\Main\Type\DateTime)
+		{
+			$ormParams['filter']['<=DATE_MESSAGE'] = $options['LAST_MESSAGE_DATE'];
+		}
+		else if (isset($options['OFFSET']))
 		{
 			$ormParams['offset'] = $options['OFFSET'];
 		}
+
 		if (isset($options['LIMIT']))
 		{
 			$ormParams['limit'] = (int)$options['LIMIT'];
@@ -250,13 +282,15 @@ class Recent
 
 			return [
 				'items' => $result,
-				'hasMorePages' => $ormParams['limit'] == $counter
+				'hasMorePages' => $ormParams['limit'] == $counter, // TODO remove this later
+				'hasMore' => $ormParams['limit'] == $counter
 			];
 		}
 
 		return [
 			'ITEMS' => $result,
-			'HAS_MORE_PAGES' => $ormParams['limit'] == $counter
+			'HAS_MORE_PAGES' => $ormParams['limit'] == $counter, // TODO remove this later
+			'HAS_MORE' => $ormParams['limit'] == $counter
 		];
 	}
 
@@ -274,7 +308,7 @@ class Recent
 		$ormParams = self::getOrmParams([
 			'USER_ID' => $userId,
 			'IS_OPERATOR' => $isOperator,
-			'COMPATIBLE_MODE' => true,
+			'WITHOUT_COMMON_USERS' => true,
 		]);
 
 		$ormParams['filter']['=ITEM_TYPE'] = $itemType;
@@ -326,8 +360,8 @@ class Recent
 	{
 		$userId = (int)$params['USER_ID'];
 		$isOperator = \Bitrix\Main\Loader::includeModule('imopenlines') && (bool)$params['IS_OPERATOR'];
-		$isCompatibleMode = (bool)$params['COMPATIBLE_MODE'];
 		$isIntranet = \Bitrix\Main\Loader::includeModule('intranet') && \Bitrix\Intranet\Util::isIntranetUser($userId);
+		$withoutCommonUsers = $params['WITHOUT_COMMON_USERS'] === true || !$isIntranet;
 
 		$select = [
 			'*',
@@ -338,12 +372,14 @@ class Recent
 			'MESSAGE_FILE' => 'FILE.ID',
 			'MESSAGE_DATE' => 'MESSAGE.DATE_CREATE',
 			'MESSAGE_ATTACH' => 'ATTACH.ID',
+			'MESSAGE_CODE' => 'CODE.PARAM_VALUE',
 			'MESSAGE_USER_LAST_ACTIVITY_DATE' => 'MESSAGE.AUTHOR.LAST_ACTIVITY_DATE',
 			'MESSAGE_USER_IDLE' => 'MESSAGE.STATUS.IDLE',
 			'MESSAGE_USER_MOBILE_LAST_DATE' => 'MESSAGE.STATUS.MOBILE_LAST_DATE',
 			'MESSAGE_USER_DESKTOP_LAST_DATE' => 'MESSAGE.STATUS.DESKTOP_LAST_DATE',
 			'RELATION_USER_ID' => 'RELATION.USER_ID',
 			'RELATION_NOTIFY_BLOCK' => 'RELATION.NOTIFY_BLOCK',
+			'RELATION_IS_MANAGER' => 'RELATION.MANAGER',
 			'CHAT_ID' => 'CHAT.ID',
 			'CHAT_TITLE' => 'CHAT.TITLE',
 			'CHAT_TYPE' => 'CHAT.TYPE',
@@ -364,7 +400,7 @@ class Recent
 			'USER_MOBILE_LAST_DATE' => 'STATUS.MOBILE_LAST_DATE',
 			'USER_DESKTOP_LAST_DATE' => 'STATUS.DESKTOP_LAST_DATE',
 		];
-		if ($isIntranet)
+		if (!$withoutCommonUsers)
 		{
 			$select['INVITATION_ORIGINATOR_ID'] = 'INVITATION.ORIGINATOR_ID';
 		}
@@ -395,6 +431,15 @@ class Recent
 				["join_type" => "LEFT"]
 			),
 			new \Bitrix\Main\Entity\ReferenceField(
+				'CODE',
+				'\Bitrix\Im\Model\MessageParamTable',
+				[
+					"=ref.MESSAGE_ID" => "this.ITEM_MID",
+					"ref.PARAM_NAME" => new \Bitrix\Main\DB\SqlExpression("?s", "CODE")
+				],
+				["join_type" => "LEFT"]
+			),
+			new \Bitrix\Main\Entity\ReferenceField(
 				'USER',
 				'\Bitrix\Main\UserTable',
 				array("=this.ITEM_TYPE" => new \Bitrix\Main\DB\SqlExpression("?s", IM_MESSAGE_PRIVATE), "=ref.ID" => "this.ITEM_ID"),
@@ -402,12 +447,12 @@ class Recent
 			),
 			new \Bitrix\Main\Entity\ReferenceField(
 				'STATUS',
-				'\Bitrix\Im\StatusTable',
+				'\Bitrix\Im\Model\StatusTable',
 				array("=this.ITEM_TYPE" => new \Bitrix\Main\DB\SqlExpression("?s", IM_MESSAGE_PRIVATE), "=ref.USER_ID" => "this.ITEM_ID"),
 				array("join_type"=>"LEFT")
 			)
 		];
-		if ($isIntranet)
+		if (!$withoutCommonUsers)
 		{
 			$runtime[] = new \Bitrix\Main\Entity\ReferenceField(
 				'INVITATION',
@@ -426,13 +471,13 @@ class Recent
 			);
 		}
 
-		if ($isIntranet && !$isCompatibleMode)
+		if ($withoutCommonUsers)
 		{
-			$filter = ['@USER_ID' => [$userId, 0]];
+			$filter = ['=USER_ID' => $userId];
 		}
 		else
 		{
-			$filter = ['=USER_ID' => $userId];
+			$filter = ['@USER_ID' => [$userId, 0]];
 		}
 
 		return [
@@ -487,7 +532,7 @@ class Recent
 
 		if ($isUser)
 		{
-			if ($row['INVITATION_ORIGINATOR_ID'])
+			if (!$row['USER_LAST_ACTIVITY_DATE'] && $row['INVITATION_ORIGINATOR_ID'])
 			{
 				$item['INVITED'] = [
 					'ORIGINATOR_ID' => (int)$row['INVITATION_ORIGINATOR_ID'],
@@ -500,11 +545,13 @@ class Recent
 		}
 		else if ($isNotification)
 		{
+			$parser = new \CTextParser();
+
 			$item['ID'] = 'notify';
 			$item['USER'] = [
 				'ID' => (int)$row['MESSAGE_AUTHOR_ID'],
 			];
-			$item['MESSAGE']['TEXT'] = \CTextParser::convert4mail($item['MESSAGE']['TEXT']);
+			$item['MESSAGE']['TEXT'] = $parser->convert4mail($item['MESSAGE']['TEXT']);
 		}
 		else
 		{
@@ -522,6 +569,20 @@ class Recent
 			}
 
 			$muteList = [];
+			if ($row['RELATION_NOTIFY_BLOCK'] == 'Y')
+			{
+				$muteList = [$row['RELATION_USER_ID'] => true];
+			}
+
+			$managerList = [];
+			if (
+				$row['CHAT_OWNER'] == $row['RELATION_USER_ID']
+				|| $row['RELATION_IS_MANAGER'] == 'Y'
+			)
+			{
+				$managerList = [(int)$row['RELATION_USER_ID']];
+			}
+
 			if ($row['RELATION_NOTIFY_BLOCK'] == 'Y')
 			{
 				$muteList = [$row['RELATION_USER_ID'] => true];
@@ -546,6 +607,7 @@ class Recent
 				'ENTITY_DATA_2' => (string)$row['CHAT_ENTITY_DATA_2'],
 				'ENTITY_DATA_3' => (string)$row['CHAT_ENTITY_DATA_3'],
 				'MUTE_LIST' => $muteList,
+				'MANAGER_LIST' => $managerList,
 				'DATE_CREATE' => $row['CHAT_DATE_CREATE'],
 				'MESSAGE_TYPE' => $row["CHAT_TYPE"],
 			];
@@ -571,6 +633,16 @@ class Recent
 			}
 			else if ($item['TYPE'] == 'user')
 			{
+				if (
+					!$user['ACTIVE']
+					&& !$user['BOT']
+					&& !$user['CONNECTOR']
+					&& !$user['NETWORK']
+				)
+				{
+					return null;
+				}
+
 				$item['AVATAR'] = [
 					'URL' => $user['AVATAR'],
 					'COLOR' => $user['COLOR']
@@ -600,7 +672,7 @@ class Recent
 		}
 
 		$item['OPTIONS'] = [];
-		if ($row['USER_ID'] == 0)
+		if ($row['USER_ID'] == 0 || $row['MESSAGE_CODE'] === 'USER_JOIN')
 		{
 			$item['OPTIONS']['DEFAULT_USER_RECORD'] = true;
 		}
@@ -822,16 +894,14 @@ class Recent
 			$itemTypes = IM_MESSAGE_PRIVATE;
 		}
 
-		$element = \Bitrix\Im\Model\RecentTable::getList(
-			[
-				'select' => ['USER_ID', 'ITEM_TYPE', 'ITEM_ID', 'UNREAD'],
-				'filter' => [
-					'=USER_ID' => $userId,
-					'=ITEM_TYPE' => $itemTypes,
-					'=ITEM_ID' => $id
-				]
+		$element = \Bitrix\Im\Model\RecentTable::getList([
+			'select' => ['USER_ID', 'ITEM_TYPE', 'ITEM_ID', 'UNREAD', 'COUNTER' => 'RELATION.COUNTER', 'MUTED' => 'RELATION.NOTIFY_BLOCK'],
+			'filter' => [
+				'=USER_ID' => $userId,
+				'=ITEM_TYPE' => $itemTypes,
+				'=ITEM_ID' => $id
 			]
-		)->fetch();
+		])->fetch();
 		if (!$element)
 		{
 			return false;
@@ -859,6 +929,8 @@ class Recent
 		$pullInclude = \Bitrix\Main\Loader::includeModule("pull");
 		if ($pullInclude)
 		{
+			$counter = (int)$element['COUNTER'];
+
 			\Bitrix\Pull\Event::add(
 				$userId,
 				[
@@ -867,7 +939,10 @@ class Recent
 					'expiry' => 3600,
 					'params' => [
 						'dialogId' => $dialogId,
-						'active' => $unread === 'Y'
+						'active' => $unread === 'Y',
+						'muted' => $element['MUTED'] === 'Y',
+						'counter' => $counter,
+						'lines' => $element['ITEM_TYPE'] === IM_MESSAGE_OPEN_LINE,
 					],
 					'extra' => \Bitrix\Im\Common::getPullExtra()
 				]
@@ -1007,12 +1082,16 @@ class Recent
 			return true;
 		}
 
-		\Bitrix\Pull\Event::add($userId, [
-			'module_id' => 'im',
-			'command' => 'chatShow',
-			'params' => \Bitrix\Im\Recent::getElement($entityType, $entityId, $userId, ['JSON' => true]),
-			'extra' => \Bitrix\Im\Common::getPullExtra()
-		]);
+		$data = \Bitrix\Im\Recent::getElement($entityType, $entityId, $userId, ['JSON' => true]);
+		if ($data)
+		{
+			\Bitrix\Pull\Event::add($userId, [
+				'module_id' => 'im',
+				'command' => 'chatShow',
+				'params' => $data,
+				'extra' => \Bitrix\Im\Common::getPullExtra()
+			]);
+		}
 
 		return true;
 	}

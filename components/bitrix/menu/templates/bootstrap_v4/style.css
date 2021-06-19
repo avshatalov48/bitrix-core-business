@@ -435,9 +435,8 @@
 .bx-aside-nav .bx-nav-1-lvl.hover .bx-nav-2-lvl-container {
 	position: relative;
 	box-shadow: none;
+	top: auto;
 }
-
-
 
 .bx-aside-nav .bx-nav-1-lvl.bx-opened .bx-nav-2-lvl-container-advanced,
 .bx-aside-nav .bx-nav-1-lvl.bx-opened .bx-nav-2-lvl-container {

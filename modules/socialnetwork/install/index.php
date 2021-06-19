@@ -34,7 +34,7 @@ Class socialnetwork extends CModule
 		$this->MODULE_DESCRIPTION = Loc::getMessage("SONET_INSTALL_DESCRIPTION");
 	}
 
-	function __SetLogFilter($site_id = false)
+	public static function __SetLogFilter($site_id = false)
 	{
 		$arValue = array(
 			array(
@@ -103,7 +103,7 @@ Class socialnetwork extends CModule
 
 		$arFilter = ($site_id <> '' ? array("ID" => $site_id) : array());
 
-		$dbSites = CSite::GetList(($b = ""), ($o = ""), $arFilter);
+		$dbSites = CSite::GetList('', '', $arFilter);
 		while ($arSite = $dbSites->Fetch())
 		{
 			CUserOptions::SetOption("socialnetwork", "~log_filter_".$arSite["ID"], $arValue, true, false);
@@ -211,7 +211,7 @@ Class socialnetwork extends CModule
 			CUserOptions::SetOption("intranet", "~gadgets_sonet_group", $arOptions, false, 0);
 		}
 
-		$this->__SetLogFilter();
+		static::__SetLogFilter();
 
 		CModule::IncludeModule("socialnetwork");
 		if($DB->type == 'MYSQL')
@@ -307,7 +307,7 @@ Class socialnetwork extends CModule
 					),
 				);
 				$arLang = Array();
-				$dbLangs = CLanguage::GetList(($b = ""), ($o = ""), array("ACTIVE" => "Y"));
+				$dbLangs = CLanguage::GetList("", "", array("ACTIVE" => "Y"));
 				while ($arLangs = $dbLangs->Fetch())
 				{
 					IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/smiles.php", $arLangs["LID"]);
@@ -330,7 +330,7 @@ Class socialnetwork extends CModule
 			}
 		}
 
-		$res = $this->InstallUserFields();
+		$res = static::InstallUserFields();
 		if ($res)
 		{
 			$this->errors[] = $res;
@@ -436,7 +436,7 @@ Class socialnetwork extends CModule
 		return true;
 	}
 
-	function InstallUserFields($id = "all")
+	public static function InstallUserFields($id = "all")
 	{
 		global $APPLICATION, $USER_FIELD_MANAGER, $DB;
 		$errors = null;
@@ -487,7 +487,7 @@ Class socialnetwork extends CModule
 						"LIST_COLUMN_LABEL" => Array(),
 						"LIST_FILTER_LABEL" => Array());
 
-					$dbLangs = CLanguage::GetList(($b = ""), ($o = ""), array("ACTIVE" => "Y"));
+					$dbLangs = CLanguage::GetList('', '', array("ACTIVE" => "Y"));
 					while ($arLang = $dbLangs->Fetch())
 					{
 						$messages = IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/index.php", $arLang["LID"], true);
@@ -512,7 +512,7 @@ Class socialnetwork extends CModule
 						"LIST_COLUMN_LABEL" => Array(),
 						"LIST_FILTER_LABEL" => Array());
 
-					$dbLangs = CLanguage::GetList(($b = ""), ($o = ""), array("ACTIVE" => "Y"));
+					$dbLangs = CLanguage::GetList('', '', array("ACTIVE" => "Y"));
 					while ($arLang = $dbLangs->Fetch())
 					{
 						$messages = IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/index.php", $arLang["LID"], true);
@@ -773,7 +773,7 @@ Class socialnetwork extends CModule
 					"SETTINGS" => $prop["SETTINGS"],
 				);
 
-				$dbLangs = CLanguage::GetList(($b = ""), ($o = ""), array("ACTIVE" => "Y"));
+				$dbLangs = CLanguage::GetList("", "", array("ACTIVE" => "Y"));
 				while ($arLang = $dbLangs->Fetch())
 				{
 					$messages = IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/index.php", $arLang["LID"], true);
@@ -938,15 +938,15 @@ Class socialnetwork extends CModule
 		$arInstallParams = array();
 
 		//getting params from $_REQUEST
-		$dbSites = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+		$dbSites = CSite::GetList('', '', Array("ACTIVE" => "Y"));
 		while ($arSite = $dbSites->GetNext())
 		{
-			if ($_REQUEST{"install_site_id_".$arSite["ID"]} <> '')
+			if ($_REQUEST["install_site_id_".$arSite["ID"]] <> '')
 			{
-				$arInstallParams[$arSite["ID"]]["install_site_id"] = $_REQUEST{"install_site_id_".$arSite["ID"]};
-				$arInstallParams[$arSite["ID"]]["installPath"] = $_REQUEST{"public_path_".$arSite["ID"]};
-				$arInstallParams[$arSite["ID"]]["install404"] = (($_REQUEST{"is404_".$arSite["ID"]} == "Y") ? true : false);
-				$arInstallParams[$arSite["ID"]]["installRewrite"] = (($_REQUEST{"public_rewrite_".$arSite["ID"]} == "Y") ? true : false);
+				$arInstallParams[$arSite["ID"]]["install_site_id"] = $_REQUEST["install_site_id_".$arSite["ID"]];
+				$arInstallParams[$arSite["ID"]]["installPath"] = $_REQUEST["public_path_".$arSite["ID"]];
+				$arInstallParams[$arSite["ID"]]["install404"] = (($_REQUEST["is404_".$arSite["ID"]] == "Y") ? true : false);
+				$arInstallParams[$arSite["ID"]]["installRewrite"] = (($_REQUEST["public_rewrite_".$arSite["ID"]] == "Y") ? true : false);
 				$arSites[] = $arSite;
 			}
 		}

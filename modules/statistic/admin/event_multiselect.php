@@ -42,7 +42,7 @@ $arFilter = Array(
 	);
 
 $cData = new CStatEventType;
-$rsData = $cData->GetSimpleList($by, $order, $arFilter, $is_filtered);
+$rsData = $cData->GetSimpleList('', '', $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("STAT_EVENT_TYPE_PAGES")));

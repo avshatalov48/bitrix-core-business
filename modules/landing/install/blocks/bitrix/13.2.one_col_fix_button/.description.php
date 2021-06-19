@@ -9,7 +9,7 @@ use \Bitrix\Main\Localization\Loc;
 return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_6_ONE_COL_FIX_BUTTON_NAME'),
-		'section' => array('tiles'),
+		'section' => array('tiles', 'recommended'),
 	),
 	'cards' => array(),
 	'nodes' => array(

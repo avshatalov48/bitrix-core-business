@@ -1,11 +1,11 @@
-<section class="landing-block g-pt-10 g-pb-10">
+<section class="landing-block g-pt-30 g-pb-30">
 	<div class="container">
 		<div class="landing-block-node-container row g-flex-centered align-items-end">
-			<div class="landing-block-node-text-container text-left col-8 js-animation slideInLeft">
-				<h6 class="landing-block-node-title landing-semantic-text-medium h6 g-mb-0">
+			<div class="landing-block-node-text-container col-8 js-animation slideInLeft">
+				<h6 class="landing-block-node-title landing-semantic-text-medium g-mb-0">
 					Contact us
 				</h6>
-				<div class="landing-block-node-text landing-semantic-text-small g-font-size-16 g-color-black">
+				<div class="landing-block-node-text landing-semantic-text-small g-font-size-16">
 					#PHONE1#
 				</div>
 			</div>

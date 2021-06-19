@@ -520,8 +520,7 @@ else
 	$data["IS_REQUIRED"] = "N";
 	$data["MULTIPLE"] = "N";
 	$data["CODE"] = "";
-	list($data["TYPE"], $temp) = each($arResult["TYPES"]);
-	reset($arResult["TYPES"]);
+	$data["TYPE"] = key($arResult["TYPES"]);
 	$arResult["LIST"] = false;
 	$data["LIST_TEXT_VALUES"] = '';
 	$arResult["LIST_DEF"] = false;

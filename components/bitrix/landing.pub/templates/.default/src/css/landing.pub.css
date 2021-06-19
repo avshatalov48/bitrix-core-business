@@ -13,16 +13,17 @@
 	margin: 0 3px;
 }
 
+.bitrix-footer-link {
+	margin: 0;
+}
+
 .bitrix-footer-link,
-.bitrix-footer-link:visited,
+a.bitrix-footer-link,
+a.bitrix-footer-link:visited,
 .bitrix-footer-text {
 	color: #919191;
 	margin: 0 3px;
 	font: 12px/14px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-
-.bitrix-footer-link {
-	margin: 0;
 }
 
 a.bitrix-footer-link,
@@ -36,16 +37,6 @@ a.bitrix-footer-link:hover{
 	color:#fff;
 	border-bottom-color:#fff;
 	text-decoration: none;
-}
-
-.landing-public-mode {
-	flex: 1 0 auto;
-	display: flex;
-	flex-direction: column;
-}
-
-.landing-footer {
-	margin-top: auto;
 }
 
 body {

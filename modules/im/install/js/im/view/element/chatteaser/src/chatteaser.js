@@ -8,10 +8,10 @@
  */
 
 import './chatteaser.css';
-import {Vue} from 'ui.vue';
+import {BitrixVue} from 'ui.vue';
 import {Utils} from "im.lib.utils";
 
-Vue.component('bx-im-view-element-chat-teaser',
+BitrixVue.component('bx-im-view-element-chat-teaser',
 {
 	/*
 	 * @emits 'click' {}
@@ -24,22 +24,18 @@ Vue.component('bx-im-view-element-chat-teaser',
 	},
 	computed:
 	{
-		localize()
-		{
-			return Vue.getFilteredPhrases('IM_MESSENGER_COMMENT_', this.$root.$bitrixMessages);
-		},
 		formattedDate()
 		{
-			return Utils.date.format(this.messageLastDate, null, this.$root.$bitrixMessages);
+			return Utils.date.format(this.messageLastDate, null, this.$Bitrix.Loc.getMessages());
 		},
 		formattedCounter()
 		{
-			return this.messageCounter+' '+Utils.text.getLocalizeForNumber('IM_MESSENGER_COMMENT', this.messageCounter, this.languageId, this.$root.$bitrixMessages);
+			return this.messageCounter+' '+Utils.text.getLocalizeForNumber('IM_MESSENGER_COMMENT', this.messageCounter, this.languageId, this.$Bitrix.Loc.getMessages());
 		},
 	},
 	template: `
 		<div class="bx-im-element-chat-teaser" @click="$emit('click', $event)">
-			<span class="bx-im-element-chat-teaser-join">{{localize.IM_MESSENGER_COMMENT_OPEN}}</span>
+			<span class="bx-im-element-chat-teaser-join">{{$Bitrix.Loc.getMessage('IM_MESSENGER_COMMENT_OPEN')}}</span>
 			<span class="bx-im-element-chat-teaser-comment">
 				<span class="bx-im-element-chat-teaser-counter">{{formattedCounter}}</span>, {{formattedDate}}
 			</span>

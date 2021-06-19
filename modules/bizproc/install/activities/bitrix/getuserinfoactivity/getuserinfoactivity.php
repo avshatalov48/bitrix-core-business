@@ -153,7 +153,7 @@ class CBPGetUserInfoActivity
 		];
 
 		$dbUsers = CUser::GetList(
-			($sortBy = 'id'), ($sortOrder = 'asc'),
+			'id', 'asc',
 			array('ID' => $userId),
 			array('SELECT' => array_merge($defaultUserFields, array_keys(self::getFieldsCreatedByUser())))
 		);

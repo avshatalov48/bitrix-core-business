@@ -43,6 +43,7 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 	protected function initParams()
 	{
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
+		$this->arParams['IS_CRM_MARKETING_TITLE'] = $this->arParams['IS_CRM_MARKETING_TITLE'] ?? false;
 		$this->arParams['PATH_TO_ADS_ADD'] = isset($this->arParams['PATH_TO_ADS_ADD'])
 			?
 			$this->arParams['PATH_TO_ADS_ADD']
@@ -221,7 +222,11 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 		if ($this->arParams['SET_TITLE'])
 		{
 			/**@var CMain*/
-			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_START_TITLE'));
+			$GLOBALS['APPLICATION']->SetTitle(
+				$this->arParams['IS_CRM_MARKETING_TITLE']
+					? Loc::getMessage('SENDER_CRM_MARKETING_TITLE')
+					: Loc::getMessage('SENDER_START_TITLE')
+			);
 		}
 
 		$mailingMessages = $this->filterMessages(Message\Factory::getMailingMessages(), MailingAction::getMap());

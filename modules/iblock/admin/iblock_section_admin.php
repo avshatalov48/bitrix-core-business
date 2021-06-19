@@ -812,6 +812,7 @@ while ($arRes = $rsData->Fetch())
 		$row->AddViewField("DESCRIPTION", ($row->arRes["DESCRIPTION_TYPE"] == "text" ? htmlspecialcharsEx($row->arRes["DESCRIPTION"]) : HTMLToTxt($row->arRes["DESCRIPTION"])));
 	}
 }
+unset($row);
 
 $arSectionOps = CIBlockSectionRights::UserHasRightTo(
 	$IBLOCK_ID,
@@ -915,6 +916,7 @@ foreach ($arRows as $id => $row)
 
 	$row->AddActions($arActions);
 }
+unset($row);
 
 $actionList = [];
 foreach ($arSectionOps as $arOps)
@@ -1049,7 +1051,7 @@ if ($urlBuilder->getId() == 'IBLOCK')
 
 $lAdmin->setContextSettings(array("pagePath" => $pageConfig['CONTEXT_PATH']));
 $contextConfig = array();
-$excelExport = ((string)Main\Config\Option::get("iblock", "excel_export_rights") == "Y"
+$excelExport = (Main\Config\Option::get("iblock", "excel_export_rights") == "Y"
 	? CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "iblock_export")
 	: true
 );
@@ -1112,7 +1114,7 @@ if($pageConfig['CATALOG'])
 	if($parent_section_id > 0)
 	{
 		$rsSection = CIBlockSection::GetList(array(), array("=ID" => $parent_section_id), false, array("NAME"));
-		$arSection = $rsSection->GetNext();
+		$arSection = $rsSection->Fetch();
 		if($arSection)
 			$sSectionName = $arSection["NAME"];
 	}

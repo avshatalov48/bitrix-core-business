@@ -12,7 +12,7 @@ Class clouds extends CModule
 	var $MODULE_CSS;
 	var $MODULE_GROUP_RIGHTS = "Y";
 
-	function clouds()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -273,7 +273,7 @@ Class clouds extends CModule
 		}
 	}
 
-	function OnGetTableSchema()
+	public static function OnGetTableSchema()
 	{
 		return array(
 			"clouds" => array(

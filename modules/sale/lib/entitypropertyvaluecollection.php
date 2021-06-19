@@ -513,8 +513,7 @@ abstract class EntityPropertyValueCollection extends EntityCollection
 		/** @var EntityPropertyValue $propertyValue */
 		foreach ($this->collection as $propertyValue)
 		{
-			$property = $propertyValue->getPropertyObject();
-			if (!$property->getRelations())
+			if (!$propertyValue->needDeleteOnRefresh())
 			{
 				continue;
 			}
@@ -530,12 +529,6 @@ abstract class EntityPropertyValueCollection extends EntityCollection
 		/** @var EntityPropertyValue $propertyValue */
 		foreach ($props as $propertyValue)
 		{
-			$property = $propertyValue->getPropertyObject();
-			if (!$property->getRelations())
-			{
-				continue;
-			}
-
 			if (!$this->getItemByOrderPropertyId($propertyValue->getPropertyId()))
 			{
 				$propertyValue->setCollection($this);

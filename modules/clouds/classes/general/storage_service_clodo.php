@@ -23,7 +23,7 @@ class CCloudStorageService_ClodoRU extends CCloudStorageService_OpenStackStorage
 		if($bVarsFromForm)
 			$arSettings = $_POST["SETTINGS"][$this->GetID()];
 		else
-			$arSettings = unserialize($arBucket["SETTINGS"]);
+			$arSettings = unserialize($arBucket["SETTINGS"], ['allowed_classes' => false]);
 
 		if(!is_array($arSettings))
 			$arSettings = array("HOST" => "api.clodo.ru", "USER" => "", "KEY" => "");

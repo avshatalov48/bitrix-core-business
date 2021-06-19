@@ -1350,7 +1350,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      if (openSliders.length > 0) {
 	        var syncPanel = this.syncButton.getSyncPanel();
 	        openSliders.forEach(function (slider) {
-	          if (slider.getUrl() === SyncInterfaceManager.MAIN_SYNC_SLIDER_NAME) {
+	          if (slider.getUrl() === 'calendar:sync-slider') {
 	            _this4.refreshMainSlider(syncPanel, slider);
 	          } else {
 	            _this4.refreshConnectionSlider(slider, activePopup);
@@ -1365,7 +1365,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      var connection = slider.getData().get('connection');
 	      var updatedConnection = this.connectionsProviders[connection.getType()].getConnectionById(connection.getId());
 	      activePopup.refresh([updatedConnection]);
-	      itemInterface.setConnection(updatedConnection);
+	      itemInterface.refresh(updatedConnection);
 	      slider.reload();
 	    }
 	  }, {

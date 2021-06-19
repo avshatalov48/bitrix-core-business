@@ -14,122 +14,12 @@ $post = $this->request->getPostList()->toArray();
 if ($post["AJAX_POST"] == "Y")
 	CUtil::decodeURIComponent($post);
 
-if (!CModule::IncludeModule("forum") ||
-	(!($request["save_product_review"] == "Y" || in_array($request['REVIEW_ACTION'], array('DEL', 'HIDE', 'SHOW')))) ||
-	(is_set($request["ELEMENT_ID"]) && $arParams["ELEMENT_ID"] != $request["ELEMENT_ID"]))
-	return false;
-
 $this->includeComponentLang("action.php");
 
-// 1.1. Check gross errors message data
-if (!check_bitrix_sessid())
-{
-	$arError[] = array(
-		"code" => "session time is up",
-		"title" => GetMessage("F_ERR_SESSION_TIME_IS_UP"));
-}
 // 1.3 Check Permission
-elseif (ForumCurrUserPermissions($arParams["FORUM_ID"]) <= "E")
-{
-	$arError[] = array(
-		"code" => "access denied",
-		"title" => GetMessage("F_ERR_NOT_RIGHT_FOR_ADD"));
-}
-elseif ((empty($request["preview_comment"]) || $request["preview_comment"] == "N") && ($request["save_product_review"] == "Y"))
+if ((empty($request["preview_comment"]) || $request["preview_comment"] == "N"))
 {
 	$strErrorMessage = "";
-	// 1.2 Check Post Text
-	if (mb_strlen($post["REVIEW_TEXT"]) < 3)
-	{
-		$arError[] = array(
-			"code" => "post is empty",
-			"title" => GetMessage("F_ERR_NO_REVIEW_TEXT"));
-	}
-	// 1.4 Check Captcha
-	elseif (!$USER->IsAuthorized() && ($arParams["USE_CAPTCHA"]=="Y" || $arResult["FORUM"]["USE_CAPTCHA"] == "Y"))
-	{
-		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
-		$captchaPass = COption::GetOptionString("main", "captcha_password", "");
-		if ($arResult["FORUM"]["USE_CAPTCHA"] == "Y"):
-			if (!class_exists("CForumTmpCaptcha")):
-				class CForumTmpCaptcha extends CCaptcha
-				{
-					function CheckCaptchaCode($userCode, $sid, $bUpperCode = true)
-					{
-						global $DB;
-						if ($userCode == '' || $sid == '')
-							return false;
-						if ($bUpperCode)
-							$userCode = mb_strtoupper($userCode);
-						$res = $DB->Query("SELECT CODE FROM b_captcha WHERE ID = '".$DB->ForSQL($sid,32)."' ");
-						if (!$ar = $res->Fetch())
-							return false;
-						if ($ar["CODE"] != $userCode)
-							return false;
-//						CCaptcha::Delete($sid);
-						return true;
-					}
-
-					function CheckCode($userCode, $sid, $bUpperCode = True)
-					{
-						if (!defined("CAPTCHA_COMPATIBILITY"))
-							return CForumTmpCaptcha::CheckCaptchaCode($userCode, $sid, $bUpperCode);
-						if (!is_array($_SESSION["CAPTCHA_CODE"]) || count($_SESSION["CAPTCHA_CODE"]) <= 0)
-							return False;
-						if (!array_key_exists($sid, $_SESSION["CAPTCHA_CODE"]))
-							return False;
-						if ($bUpperCode)
-							$userCode = mb_strtoupper($userCode);
-						if ($_SESSION["CAPTCHA_CODE"][$sid] != $userCode)
-							return False;
-//						unset($_SESSION["CAPTCHA_CODE"][$sid]);
-						return True;
-					}
-
-					function CheckCodeCrypt($userCode, $codeCrypt, $password = "", $bUpperCode = True)
-					{
-						if (!defined("CAPTCHA_COMPATIBILITY"))
-							return CForumTmpCaptcha::CheckCaptchaCode($userCode, $codeCrypt, $bUpperCode);
-
-						if ($codeCrypt == '')
-							return False;
-
-						if (!array_key_exists("CAPTCHA_PASSWORD", $_SESSION) || $_SESSION["CAPTCHA_PASSWORD"] == '')
-							return False;
-
-						if ($bUpperCode)
-							$userCode = mb_strtoupper($userCode);
-
-						$code = $this->CryptData($codeCrypt, "D", $_SESSION["CAPTCHA_PASSWORD"]);
-
-						if ($code != $userCode)
-							return False;
-
-						return True;
-					}
-				}
-			endif;
-			$cpt = new CForumTmpCaptcha();
-		else:
-			$cpt = new CCaptcha();
-		endif;
-		if ($post["captcha_code"] == ''):
-			if (!$cpt->CheckCode($post["captcha_word"], 0)):
-				$arError[] = array(
-					"code" => "captcha is empty",
-					"title" => GetMessage("POSTM_CAPTCHA"));
-			endif;
-		elseif (!$cpt->CheckCodeCrypt($post["captcha_word"], $post["captcha_code"], $captchaPass)):
-			$arError[] = array(
-				"code" => "bad captcha",
-				"title" => GetMessage("POSTM_CAPTCHA"));
-		endif;
-	}
-	// First exit point
-	if (!empty($arError)):
-		return false;
-	endif;
-
 	// 1.5 Create Property
 	$needProperty = array();
 	$PRODUCT_IBLOCK_ID = intval($arResult["ELEMENT"]["IBLOCK_ID"]);
@@ -181,33 +71,7 @@ elseif ((empty($request["preview_comment"]) || $request["preview_comment"] == "N
 	// 1.6 Create New topic and add messages
 	if ($FORUM_TOPIC_ID <= 0)
 	{
-	// 1.6.a Create New topic
-	// 1.6.a.1 Get author info
-		$arUserStart = array(
-			"ID" => intval($arResult["ELEMENT"]["~CREATED_BY"]),
-			"NAME" => $GLOBALS["FORUM_STATUS_NAME"]["guest"]);
-		if ($arUserStart["ID"] > 0)
-		{
-			$res = array();
-			$db_res = CForumUser::GetListEx(array(), array("USER_ID" => $arResult["ELEMENT"]["~CREATED_BY"]));
-			if ($db_res && $res = $db_res->Fetch()):
-				$res["FORUM_USER_ID"] = intval($res["ID"]);
-				$res["ID"] = $res["USER_ID"];
-			else:
-				$db_res = CUser::GetByID($arResult["ELEMENT"]["~CREATED_BY"]);
-				if ($db_res && $res = $db_res->Fetch()):
-					$res["SHOW_NAME"] = COption::GetOptionString("forum", "USER_SHOW_NAME", "Y");
-					$res["USER_PROFILE"] = "N";
-				endif;
-			endif;
-			if (!empty($res)):
-				$arUserStart = $res;
-				$sName = ($res["SHOW_NAME"] == "Y" ? CUser::FormatName("#NAME# #LAST_NAME#", $res, true, false) : "");
-				$arUserStart["NAME"] = trim(empty($sName) ? $res["LOGIN"] : $sName);
-			else:
-				$arUserStart["ID"] = 0;
-			endif;
-		}
+
 		$arUserStart["NAME"] = (empty($arUserStart["NAME"]) ? $GLOBALS["FORUM_STATUS_NAME"]["guest"] : $arUserStart["NAME"]);
 	// 1.6.a.1 Add Topic
 		$DB->StartTransaction();
@@ -346,7 +210,7 @@ elseif ((empty($request["preview_comment"]) || $request["preview_comment"] == "N
 			$arFieldsG["FILES"] = $arFiles;
 	}
 	$MID = ForumAddMessage(($FORUM_TOPIC_ID > 0 ? "REPLY" : "NEW"), $arParams["FORUM_ID"], $FORUM_TOPIC_ID, 0, $arFieldsG, $strErrorMessage, $arNote, false,
-		$post["captcha_word"], 0, $post["captcha_code"], $arParams["NAME_TEMPLATE"]);
+		$post["captcha_word"], 0, $post["captcha_code"]);
 
 	if ($MID <= 0 || !empty($strErrorMessage)):
 		$arError[] = array(
@@ -385,7 +249,6 @@ elseif ((empty($request["preview_comment"]) || $request["preview_comment"] == "N
 }
 elseif ($post["save_product_review"] == "Y") // preview
 {
-	$arParams['SHOW_MINIMIZED'] = 'N';
 	$arAllow["SMILES"] = ($post["REVIEW_USE_SMILES"] !="Y" ? "N" : $arResult["FORUM"]["ALLOW_SMILES"]);
 	$arResult["MESSAGE_VIEW"] = array(
 		"POST_MESSAGE_TEXT" => $post["REVIEW_TEXT"],

@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSocNetMessages
@@ -6,7 +7,7 @@ class CAllSocNetMessages
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $DB;
 
@@ -76,7 +77,7 @@ class CAllSocNetMessages
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -101,7 +102,7 @@ class CAllSocNetMessages
 		return $bSuccess;
 	}
 
-	function DeleteMessage($ID, $userID, $bCheckMessages = true)
+	public static function DeleteMessage($ID, $userID, $bCheckMessages = true)
 	{
 		global $DB;
 
@@ -234,7 +235,7 @@ class CAllSocNetMessages
 	/***************************************/
 	/**********  DATA SELECTION  ***********/
 	/***************************************/
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -255,7 +256,7 @@ class CAllSocNetMessages
 	/***************************************/
 	/**********  SEND EVENTS  **************/
 	/***************************************/
-	function SendEvent($messageID, $mailTemplate = "SONET_NEW_MESSAGE")
+	public static function SendEvent($messageID, $mailTemplate = "SONET_NEW_MESSAGE")
 	{
 		$messageID = intval($messageID);
 		if ($messageID <= 0)
@@ -297,11 +298,10 @@ class CAllSocNetMessages
 		return true;
 	}
 
-
 	/***************************************/
 	/************  ACTIONS  ****************/
 	/***************************************/
-	function MarkMessageRead($senderUserID, $messageID, $bRead = true)
+	public static function MarkMessageRead($senderUserID, $messageID, $bRead = true)
 	{
 		global $APPLICATION;
 
@@ -367,7 +367,7 @@ class CAllSocNetMessages
 		return true;
 	}
 
-	function CreateMessage($senderUserID, $targetUserID, $message, $title = false)
+	public static function CreateMessage($senderUserID, $targetUserID, $message, $title = false)
 	{
 		global $APPLICATION;
 
@@ -421,7 +421,7 @@ class CAllSocNetMessages
 		return true;
 	}
 
-	function MarkMessageReadMultiple($userID, $arIDs)
+	public static function MarkMessageReadMultiple($userID, $arIDs)
 	{
 		global $APPLICATION, $DB;
 
@@ -441,7 +441,7 @@ class CAllSocNetMessages
 		return true;
 	}
 
-	function DeleteMessageMultiple($userID, $arIDs)
+	public static function DeleteMessageMultiple($userID, $arIDs)
 	{
 		global $APPLICATION, $DB;
 
@@ -461,7 +461,7 @@ class CAllSocNetMessages
 		return true;
 	}
 
-	function DeleteConversation($CurrentUserID, $PartnerUserID)
+	public static function DeleteConversation($CurrentUserID, $PartnerUserID)
 	{
 		global $APPLICATION, $DB;
 
@@ -491,7 +491,7 @@ class CAllSocNetMessages
 		return true;
 	}
 
-	function __SpeedFileCheckMessages($userID)
+	public static function __SpeedFileCheckMessages($userID)
 	{
 		$userID = intval($userID);
 		if ($userID <= 0)
@@ -514,7 +514,7 @@ class CAllSocNetMessages
 			CSocNetMessages::__SpeedFileDelete($userID);
 	}
 
-	function __SpeedFileCreate($userID)
+	public static function __SpeedFileCreate($userID)
 	{
 		global $CACHE_MANAGER;
 
@@ -538,7 +538,7 @@ class CAllSocNetMessages
 */
 	}
 
-	function __SpeedFileDelete($userID)
+	public static function __SpeedFileDelete($userID)
 	{
 		global $CACHE_MANAGER;
 
@@ -555,7 +555,7 @@ class CAllSocNetMessages
 */
 	}
 
-	function SpeedFileExists($userID)
+	public static function SpeedFileExists($userID)
 	{
 		global $CACHE_MANAGER;
 
@@ -570,7 +570,7 @@ class CAllSocNetMessages
 */
 	}
 
-	function SendEventAgent()
+	public static function SendEventAgent()
 	{
 		global $DB;
 
@@ -627,4 +627,3 @@ class CAllSocNetMessages
 		return "CSocNetMessages::SendEventAgent();";
 	}
 }
-?>

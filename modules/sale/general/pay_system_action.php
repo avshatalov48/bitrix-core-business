@@ -1,8 +1,8 @@
 <?
-use \Bitrix\Sale\Internals\PaySystemActionTable;
-use \Bitrix\Sale\Internals\ServiceRestrictionTable;
-use \Bitrix\Sale\Services\PaySystem\Restrictions\Manager;
-use \Bitrix\Sale;
+use Bitrix\Sale\Internals\ServiceRestrictionTable;
+use Bitrix\Sale\Services\PaySystem\Restrictions\Manager;
+use Bitrix\Sale\Internals\PaySystemActionTable;
+use Bitrix\Sale;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -11,18 +11,18 @@ class CAllSalePaySystemAction
 {
 	const GET_PARAM_VALUE = 1;
 
-	function GetByID($id)
+	public static function GetByID($id)
 	{
 		$id = (int)$id;
 
-		$dbRes = \Bitrix\Sale\Internals\PaySystemActionTable::getById($id);
+		$dbRes = PaySystemActionTable::getById($id);
 		if ($res = $dbRes->fetch())
 			return $res;
 
 		return false;
 	}
 
-	function CheckFields($ACTION, &$arFields)
+	public static function CheckFields($ACTION, &$arFields)
 	{
 		global $DB, $USER;
 
@@ -50,20 +50,20 @@ class CAllSalePaySystemAction
 		return True;
 	}
 
-	function Delete($id)
+	public static function Delete($id)
 	{
 		$id = (int)$id;
 
-		$result = \Bitrix\Sale\Internals\PaySystemActionTable::delete($id);
+		$result = Sale\PaySystem\Manager::delete($id);
 		return $result->isSuccess();
 	}
 
-	static function SerializeParams($arParams)
+	public static function SerializeParams($arParams)
 	{
 		return serialize($arParams);
 	}
 
-	static function UnSerializeParams($strParams)
+	public static function UnSerializeParams($strParams)
 	{
 		$arParams = unserialize($strParams, ['allowed_classes' => false]);
 
@@ -73,7 +73,7 @@ class CAllSalePaySystemAction
 		return $arParams;
 	}
 
-	function GetParamValue($key, $defaultValue = null)
+	public static function GetParamValue($key, $defaultValue = null)
 	{
 		if (
 			isset($_REQUEST["SALE_CORRESPONDENCE"]) || array_key_exists("SALE_CORRESPONDENCE", $_REQUEST)
@@ -155,13 +155,13 @@ class CAllSalePaySystemAction
 		return $res;
 	}
 
-	static function alarm($itemId, $description)
+	public static function alarm($itemId, $description)
 	{
 		self::writeToEventLog($itemId, $description);
 		self::showAlarmMessage();
 	}
 
-	static function writeToEventLog($itemId, $description)
+	public static function writeToEventLog($itemId, $description)
 	{
 		return CEventLog::Add(array(
 			"SEVERITY" => "ERROR",
@@ -172,14 +172,14 @@ class CAllSalePaySystemAction
 		));
 	}
 
-	public function OnEventLogGetAuditTypes()
+	public static function OnEventLogGetAuditTypes()
 	{
 		return array(
 			"PAY_SYSTEM_ACTION_ALARM" => "[PAY_SYSTEM_ACTION_ALARM] ".GetMessage("SKGPSA_ALARM_EVENT_LOG")
 		);
 	}
 
-	static function showAlarmMessage()
+	public static function showAlarmMessage()
 	{
 		$tag = "PAY_SYSTEM_ACTION_ALARM";
 		$dbRes = CAdminNotify::GetList(array(), array("TAG" => $tag));
@@ -197,7 +197,7 @@ class CAllSalePaySystemAction
 		);
 	}
 
-	function InitParamArrays($arOrder, $orderID = 0, $psParams = "", $relatedData = array(), $payment = array(), $shipment = array(), $registryType = Sale\Registry::REGISTRY_TYPE_ORDER)
+	public static function InitParamArrays($arOrder, $orderID = 0, $psParams = "", $relatedData = array(), $payment = array(), $shipment = array(), $registryType = Sale\Registry::REGISTRY_TYPE_ORDER)
 	{
 		if(!is_array($relatedData))
 			$relatedData = array();
@@ -499,7 +499,7 @@ class CAllSalePaySystemAction
 		}
 	}
 
-	function IncludePrePaySystem($fileName, $bDoPayAction, &$arPaySysResult, &$strPaySysError, &$strPaySysWarning, $BASE_LANG_CURRENCY = False, $ORDER_PRICE = 0.0, $TAX_PRICE = 0.0, $DISCOUNT_PRICE = 0.0, $DELIVERY_PRICE = 0.0)
+	public static function IncludePrePaySystem($fileName, $bDoPayAction, &$arPaySysResult, &$strPaySysError, &$strPaySysWarning, $BASE_LANG_CURRENCY = False, $ORDER_PRICE = 0.0, $TAX_PRICE = 0.0, $DISCOUNT_PRICE = 0.0, $DELIVERY_PRICE = 0.0)
 	{
 		$strPaySysError = "";
 		$strPaySysWarning = "";
@@ -598,7 +598,7 @@ class CAllSalePaySystemAction
 					$groupBy[self::getAlias($field)] = $order;
 				}
 			}
-			$dbRes = \Bitrix\Sale\Internals\PaySystemActionTable::getList(array(
+			$dbRes = Sale\PaySystem\Manager::getList(array(
 					'select' => $select,
 					'filter' => $filter,
 					'order' => $orderBy,
@@ -903,7 +903,7 @@ class CAllSalePaySystemAction
 		return $params;
 	}
 
-	function Add($fields)
+	public static function Add($fields)
 	{
 		if (\Bitrix\Main\Config\Option::get('main', '~sale_paysystem_converted') == 'Y')
 		{
@@ -928,13 +928,13 @@ class CAllSalePaySystemAction
 				$dbRes = PaySystemActionTable::getById($fields['PAY_SYSTEM_ID']);
 				$data = $dbRes->fetch();
 				if ($data['ACTION_FILE'] != '')
-					$result = PaySystemActionTable::add($fields);
+					$result = Sale\PaySystem\Manager::add($fields);
 				else
-					$result = PaySystemActionTable::update($fields['PAY_SYSTEM_ID'], $fields);
+					$result = Sale\PaySystem\Manager::update($fields['PAY_SYSTEM_ID'], $fields);
 			}
 			else
 			{
-				$result = PaySystemActionTable::add($fields);
+				$result = Sale\PaySystem\Manager::add($fields);
 			}
 
 			if ($result->isSuccess())
@@ -948,7 +948,7 @@ class CAllSalePaySystemAction
 								'TYPE' => '',
 								'VALUE' => $result->getId()
 						);
-						PaySystemActionTable::update($result->getId(), array('PARAMS' => serialize($params)));
+						Sale\PaySystem\Manager::update($result->getId(), array('PARAMS' => serialize($params)));
 						$consumers = \Bitrix\Sale\BusinessValue::getConsumers();
 						if (!isset($consumers['PAYSYSTEM_'.$result->getId()]))
 							\Bitrix\Sale\BusinessValue::addConsumer('PAYSYSTEM_'.$result->getId(), \Bitrix\Sale\PaySystem\Manager::getHandlerDescription($fields['ACTION_FILE']));
@@ -1002,7 +1002,7 @@ class CAllSalePaySystemAction
 		}
 	}
 
-	function Update($id, $fields)
+	public static function Update($id, $fields)
 	{
 		if (\Bitrix\Main\Config\Option::get('main', '~sale_paysystem_converted') == 'Y')
 		{
@@ -1029,7 +1029,7 @@ class CAllSalePaySystemAction
 				$fields['PARAMS'] = serialize($params);
 			}
 
-			$result = PaySystemActionTable::update($id, $fields);
+			$result = Sale\PaySystem\Manager::update($id, $fields);
 			if ($result->isSuccess())
 			{
 				if (array_key_exists('PARAMS', $fields))
@@ -1160,7 +1160,7 @@ class CAllSalePaySystemAction
 		if ($DB->TableExists('b_sale_pay_system_map') || $DB->TableExists('B_SALE_PAY_SYSTEM_MAP'))
 			return '';
 
-		$dbRes = \Bitrix\Sale\Internals\PaySystemActionTable::getList();
+		$dbRes = Sale\PaySystem\Manager::getList();
 		$oldActionFiles = self::getOldToNewHandlersMap();
 		$paySystems = array();
 		while ($paySystem = $dbRes->fetch())
@@ -1391,7 +1391,7 @@ class CAllSalePaySystemAction
 						$item['PARAMS'] = serialize($itemParams);
 						$itemId = $item['ID'];
 						unset($item['ID']);
-						\Bitrix\Sale\Internals\PaySystemActionTable::update($itemId, $item);
+						Sale\PaySystem\Manager::update($itemId, $item);
 					}
 				}
 			}
@@ -1521,7 +1521,7 @@ class CAllSalePaySystemAction
 		foreach ($mustDeleted as $items)
 		{
 			foreach ($items as $id)
-				PaySystemActionTable::delete($id);
+				Sale\PaySystem\Manager::delete($id);
 		}
 
 		/** DELIVERY2PAYSYSTEM */
@@ -1943,4 +1943,3 @@ class CAllSalePaySystemAction
 		return $psAliases['general'];
 	}
 }
-?>

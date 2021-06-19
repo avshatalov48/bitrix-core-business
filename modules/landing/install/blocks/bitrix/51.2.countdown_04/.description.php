@@ -37,7 +37,7 @@ return array(
 		'nodes' => array(
 			'.landing-block-node-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_51_2_COUNTDOWN_04--TITLE'),
-				'type' => 'typo',
+				'type' => ['typo', 'heading'],
 			),
 			'.landing-block-node-number-number' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_51_2_COUNTDOWN_04--NUMBER_NUMBER'),

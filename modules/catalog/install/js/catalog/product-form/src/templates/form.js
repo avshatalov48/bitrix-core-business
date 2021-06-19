@@ -9,7 +9,7 @@ import "ui.buttons";
 
 import "./row";
 import "./item-add";
-import {ProductFormElementPosition} from "../product-form";
+import {FormElementPosition} from "../types/form-element-position";
 
 Vue.component(config.templateName,
 {
@@ -70,7 +70,7 @@ Vue.component(config.templateName,
 		{
 			return this.options.singleProductMode !== true
 				&& this.editable
-				&& this.options.buttonsPosition !== ProductFormElementPosition.BOTTOM
+				&& this.options.buttonsPosition !== FormElementPosition.BOTTOM
 			;
 		},
 
@@ -78,7 +78,7 @@ Vue.component(config.templateName,
 		{
 			return this.options.singleProductMode !== true
 				&& this.editable
-				&& this.options.buttonsPosition === ProductFormElementPosition.BOTTOM
+				&& this.options.buttonsPosition === FormElementPosition.BOTTOM
 			;
 		},
 
@@ -90,6 +90,13 @@ Vue.component(config.templateName,
 		countItems()
 		{
 			return this.productList.basket.length;
+		},
+
+		totalResultLabel()
+		{
+			return this.options.hasOwnProperty('totalResultLabel') && this.options.totalResultLabel
+				? this.options.totalResultLabel
+				: this.localize.CATALOG_FORM_TOTAL_RESULT;
 		},
 
 		...Vuex.mapState({
@@ -142,10 +149,10 @@ Vue.component(config.templateName,
 					</td>
 				</tr>
 				<tr v-if="showResults">
-					<td>
+					<td class="catalog-pf-result-padding-bottom">
 						<span class="catalog-pf-text catalog-pf-text--discount">{{localize.CATALOG_FORM_TOTAL_DISCOUNT}}:</span>
 					</td>
-					<td>
+					<td class="catalog-pf-result-padding-bottom">
 						<span class="catalog-pf-text catalog-pf-text--discount" v-html="productList.total.discount"></span>
 						<span class="catalog-pf-symbol" v-html="options.currencySymbol"></span>
 					</td>
@@ -161,7 +168,7 @@ Vue.component(config.templateName,
 				</tr>
 				<tr v-if="showResults">
 					<td class="catalog-pf-result-padding">
-						<span class="catalog-pf-text catalog-pf-text--total catalog-pf-text--border">{{localize.CATALOG_FORM_TOTAL_RESULT}}:</span>
+						<span class="catalog-pf-text catalog-pf-text--total catalog-pf-text--border">{{totalResultLabel}}:</span>
 					</td>
 					<td class="catalog-pf-result-padding">
 						<span class="catalog-pf-text catalog-pf-text--total" v-html="productList.total.result"></span>

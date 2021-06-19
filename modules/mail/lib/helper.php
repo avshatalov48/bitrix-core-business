@@ -156,14 +156,14 @@ class Helper
 		return $list;
 	}
 
-	public static function getImapUnseen($mailbox, $dir = 'inbox', &$error, &$errors = null)
+	public static function getImapUnseen($mailbox, $dirPath = 'inbox', &$error, &$errors = null)
 	{
 		$error  = null;
 		$errors = null;
 
 		$client = static::createClient($mailbox);
 
-		$result = $client->getUnseen($dir, $error);
+		$result = $client->getUnseen($dirPath, $error);
 		$errors = $client->getErrors();
 
 		return $result;

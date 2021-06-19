@@ -3,17 +3,17 @@
 namespace Sale\Handlers\Delivery\YandexTaxi\ContextDependent\Crm;
 
 use Bitrix\Crm\Activity\Provider\Sms;
+use Bitrix\Crm\Integration\NotificationsManager;
+use Bitrix\Crm\Integration\SmsManager;
+use Bitrix\Crm\MessageSender\MessageSender;
+use Bitrix\Crm\Order\BindingsMaker\ActivityBindingsMaker;
 use Bitrix\Crm\Order\Company;
 use Bitrix\Crm\Order\Contact;
-use Bitrix\Crm\Order\ContactCompanyEntity;
 use Bitrix\Crm\Order\Order;
 use Bitrix\Crm\Timeline\DeliveryController;
 use Bitrix\Main\Event;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\PhoneNumber\Parser;
 use Bitrix\Main\Web\Uri;
-use Bitrix\MessageService\Sender\SmsManager;
 use Bitrix\Sale\Delivery\Services\Base;
 use Bitrix\Sale\Internals\LocalDeliveryRequestTable;
 use Bitrix\Crm\Order\Shipment;
@@ -23,6 +23,7 @@ use Sale\Handlers\Delivery\YandexTaxi\Api\StatusDictionary;
 use Sale\Handlers\Delivery\YandexTaxi\Common\ShipmentDataExtractor;
 use Sale\Handlers\Delivery\YandexTaxi\Common\StatusMapper;
 use Sale\Handlers\Delivery\YandexTaxi\Internals\ClaimsTable;
+use Bitrix\Crm\Activity;
 
 /**
  * Class ClaimUpdatesListener
@@ -156,7 +157,7 @@ final class ClaimUpdatesListener
 					$this->updateTaxiActivityWithPerformer($request, $performer);
 				}
 
-				$this->sendSmsToClient($shipment, $performer, $claim);
+				$this->sendSmsToClient($shipment, $claim);
 				break;
 			case StatusDictionary::PERFORMER_NOT_FOUND:
 			case StatusDictionary::FAILED:
@@ -227,83 +228,86 @@ final class ClaimUpdatesListener
 			|| in_array($claim['EXTERNAL_STATUS'], [StatusDictionary::PERFORMER_NOT_FOUND]))
 		{
 			ClaimsTable::update($claim['ID'], ['FURTHER_CHANGES_EXPECTED' => 'N']);
+
+			if (isset($claim['EXTERNAL_RESOLUTION'])
+				&& $claim['EXTERNAL_RESOLUTION'] === ClaimsTable::EXTERNAL_STATUS_SUCCESS
+			)
+			{
+				if ($shipment->setField('DEDUCTED', 'Y')->isSuccess())
+				{
+					$shipment->getOrder()->save();
+				}
+			}
 		}
 	}
 
 	/**
 	 * @param Shipment $shipment
-	 * @param array $performer
 	 * @param array $claim
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ArgumentTypeException
-	 * @throws \Bitrix\Main\LoaderException
-	 * @throws \Bitrix\Main\NotImplementedException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
-	private function sendSmsToClient(Shipment $shipment, array $performer, array $claim)
+	private function sendSmsToClient(Shipment $shipment, array $claim)
 	{
-		$deliveryResponsibleId = $this->extractor->getResponsibleUserId($shipment);
+		/** @var Order $order */
+		$order = $shipment->getOrder();
 
-		if (!Loader::includeModule('messageservice')
-			|| !SmsManager::getUsableSender()
-		)
+		$entityCommunication = $order->getEntityCommunication();
+		$phoneTo = $order->getEntityCommunicationPhone();
+
+		if ($entityCommunication && $phoneTo)
 		{
-			DeliveryController::getInstance()->createTaxiSmsProviderIssueMessage(
-				$claim['SHIPMENT_ID'],
+			$sendResult = MessageSender::send(
 				[
-					'SETTINGS' => [
-						'FIELDS' => [
-							'SMS_PROVIDER_SETUP_LINK' => $this->getSmsProviderSetupLink()->getLocator()
+					NotificationsManager::getSenderCode() => [
+						'ACTIVITY_PROVIDER_TYPE_ID' => Activity\Provider\Notification::PROVIDER_TYPE_NOTIFICATION,
+						'TEMPLATE_CODE' => 'ORDER_IN_TRANSIT',
+						'PLACEHOLDERS' => [
+							'NAME' => $entityCommunication->getCustomerName(),
+							'ORDER' => $order->getField('ACCOUNT_NUMBER')
 						]
 					],
-					'AUTHOR_ID' => $this->extractor->getResponsibleUserId($shipment),
-					'BINDINGS' => $this->bindingsMaker->makeByShipment($shipment),
+					SmsManager::getSenderCode() => [
+						'ACTIVITY_PROVIDER_TYPE_ID' => Sms::PROVIDER_TYPE_SALESCENTER_DELIVERY,
+						'MESSAGE_BODY' => $this->getSmsBody($claim),
+					]
+				],
+				[
+					'COMMON_OPTIONS' => [
+						'PHONE_NUMBER' => $phoneTo,
+						'USER_ID' => $this->extractor->getResponsibleUserId($shipment),
+						'ADDITIONAL_FIELDS' => [
+							'ENTITY_TYPE' => $entityCommunication::getEntityTypeName(),
+							'ENTITY_TYPE_ID' => $entityCommunication::getEntityType(),
+							'ENTITY_ID' => $entityCommunication->getField('ENTITY_ID'),
+							'BINDINGS' => ActivityBindingsMaker::makeByShipment(
+								$shipment,
+								[
+									'extraBindings' => [
+										[
+											'TYPE_ID' => $entityCommunication::getEntityType(),
+											'ID' => $entityCommunication->getField('ENTITY_ID')
+										]
+									]
+								]
+							),
+						]
+					]
 				]
 			);
 
-			return;
-		}
-
-		/** @var ContactCompanyEntity|null $entityCommunication */
-		$entityCommunication = $this->getEntityCommunication(Order::load($shipment->getOrder()->getId()));
-
-		if ($entityCommunication)
-		{
-			$bindings = $this->bindingsMaker->makeByShipment($shipment, 'OWNER');
-			$messageBody = $this->getSmsBody($claim);
-			$messageTo = $this->getEntityCommunicationPhone($entityCommunication);
-
-			$result =  SmsManager::sendMessage([
-				'MESSAGE_FROM' => '',
-				'AUTHOR_ID' => $deliveryResponsibleId,
-				'MESSAGE_TO' => $messageTo,
-				'MESSAGE_BODY' => $messageBody,
-				'MESSAGE_HEADERS' => [
-					'module_id' => 'crm',
-					'bindings' => $bindings
-				]
-			]);
-
-			if($result->isSuccess())
+			if (!$sendResult->isSuccess())
 			{
-				Sms::addActivity([
-					'AUTHOR_ID' => $deliveryResponsibleId,
-					'DESCRIPTION' => $messageBody,
-					'ASSOCIATED_ENTITY_ID' => $result->getId(),
-					'BINDINGS' => $bindings,
-					'COMMUNICATIONS' => [
-						[
-							'ENTITY_TYPE' => $entityCommunication ? $entityCommunication::getEntityTypeName() : '',
-							'ENTITY_TYPE_ID' => $entityCommunication ? $entityCommunication::getEntityType() : '',
-							'ENTITY_ID' => $entityCommunication ? $entityCommunication->getField('ENTITY_ID') : '',
-							'TYPE' => \CCrmFieldMulti::PHONE,
-							'VALUE' => $messageTo
-						]
+				DeliveryController::getInstance()->createTaxiSmsProviderIssueMessage(
+					$claim['SHIPMENT_ID'],
+					[
+						'SETTINGS' => [
+							'FIELDS' => [
+								'SMS_PROVIDER_SETUP_LINK' => $this->getSmsProviderSetupLink()->getLocator()
+							]
+						],
+						'AUTHOR_ID' => $this->extractor->getResponsibleUserId($shipment),
+						'BINDINGS' => $this->bindingsMaker->makeByShipment($shipment),
 					]
-				]);
+				);
 			}
 		}
 	}
@@ -332,28 +336,6 @@ final class ClaimUpdatesListener
 		}
 
 		return null;
-	}
-
-	/**
-	 * @param ContactCompanyEntity $entity
-	 * @return mixed|string
-	 * @throws \Bitrix\Main\NotImplementedException
-	 */
-	private function getEntityCommunicationPhone(ContactCompanyEntity $entity)
-	{
-		$phoneList = \CCrmFieldMulti::GetEntityFields(
-			$entity::getEntityTypeName(),
-			$entity->getField('ENTITY_ID'),
-			'PHONE',
-			true,
-			false
-		);
-		foreach ($phoneList as $phone)
-		{
-			return Parser::getInstance()->parse($phone['VALUE'])->format();
-		}
-
-		return '';
 	}
 
 	/**
@@ -437,7 +419,7 @@ final class ClaimUpdatesListener
 	 */
 	private function getSmsBody(array $claim): string
 	{
-		return Loc::getMessage('SALE_YANDEX_TAXI_PARCEL_ON_ITS_WAY_SMS');
+		return Loc::getMessage('SALE_YANDEX_TAXI_YOUR_ORDER_IS_ON_ITS_WAY');
 	}
 
 	/**

@@ -1,0 +1,171 @@
+.bx-im-textarea {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	box-sizing: border-box;
+	padding: 10px 0 0 0;
+	border-top: 1px solid rgba(31,170,241,.26);
+}
+.bx-im-textarea-box {
+	display: flex;
+	flex-grow: 1;
+	flex-shrink: 1;
+	padding: 0 16px;
+}
+
+.bx-im-textarea-input {
+	margin: 0 5px 0 0;
+	padding: 0 5px 0 0;
+	width: 100%;
+	min-width: auto;
+	min-height: auto;
+	border: none;
+	background: transparent;
+	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+	resize: none;
+	outline: none;
+	-webkit-tap-highlight-color: transparent;
+}
+.bx-im-textarea-input::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+	color: rgba(82,92,105,.42);
+}
+.bx-im-textarea-input::-moz-placeholder { /* Firefox 19+ */
+	color: rgba(82,92,105,.42);
+}
+.bx-im-textarea-input:-ms-input-placeholder { /* IE 10+ */
+	color: rgba(82,92,105,.42);
+}
+.bx-im-textarea-input:-moz-placeholder { /* Firefox 18- */
+	color: rgba(82,92,105,.42);
+}
+
+.bx-im-textarea-dark-background .bx-im-textarea-input {
+	color: #bfbfbf;
+}
+.bx-im-textarea-input::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+	color: #676B71;
+}
+.bx-im-textarea-input::-moz-placeholder { /* Firefox 19+ */
+	color: #676B71;
+}
+.bx-im-textarea-input:-ms-input-placeholder { /* IE 10+ */
+	color: #676B71;
+}
+.bx-im-textarea-input:-moz-placeholder { /* Firefox 18- */
+	color: #676B71;
+}
+
+.bx-im-textarea-send-button {
+	display: block;
+	width: 33px;
+	height: 33px;
+	background-color: transparent;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2213%22%3E%3Cpath%20fill%3D%22%23646D7B%22%20fill-rule%3D%22evenodd%22%20d%3D%22M4.059%209.152L4.04%2012.21.165%208.333l3.92-3.92-.018%203.245h2.862a3%203%200%200%200%203-3v-.156a3%203%200%200%200-3-3H5.545L6.06.286h1.38a4%204%200%200%201%204%204v.866a4%204%200%200%201-4%204H4.06z%22%20opacity%3D%22.8%22/%3E%3C/svg%3E');
+	background-position: center center;
+	background-repeat: no-repeat;
+	opacity: .5;
+	transition: opacity .3s;
+	-webkit-appearance: none;
+	outline: none;
+	cursor: pointer;
+	border-radius: 50%;
+	border: 1px solid #b1b1b1;
+	flex-shrink: 0;
+}
+.bx-im-textarea-send-button:hover,
+.bx-im-textarea-mobile .bx-im-textarea-send-button {
+	opacity: 1;
+}
+.bx-im-textarea-mobile .bx-im-textarea-send-button {
+	width: 40px;
+	height: 40px;
+}
+.bx-im-textarea-dark-background .bx-im-textarea-send-button {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2213%22%3E%3Cpath%20fill%3D%22%23b1b1b1%22%20fill-rule%3D%22evenodd%22%20d%3D%22M4.059%209.152L4.04%2012.21.165%208.333l3.92-3.92-.018%203.245h2.862a3%203%200%200%200%203-3v-.156a3%203%200%200%200-3-3H5.545L6.06.286h1.38a4%204%200%200%201%204%204v.866a4%204%200%200%201-4%204H4.06z%22%20opacity%3D%22.8%22/%3E%3C/svg%3E');
+}
+.bx-im-textarea-send-button-bright-arrow {
+	border-color: transparent;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2213%22%3E%3Cpath%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%20d%3D%22M4.059%209.152L4.04%2012.21.165%208.333l3.92-3.92-.018%203.245h2.862a3%203%200%200%200%203-3v-.156a3%203%200%200%200-3-3H5.545L6.06.286h1.38a4%204%200%200%201%204%204v.866a4%204%200%200%201-4%204H4.06z%22/%3E%3C/svg%3E');
+}
+.bx-im-textarea-send-button.bx-im-textarea-send-button-show {
+	animation: bx-im-textarea-send-button-show .2s linear forwards;
+}
+.bx-im-textarea-send-button.bx-im-textarea-send-button-hide  {
+	animation: bx-im-textarea-send-button-hide .2s linear forwards;
+}
+
+.bx-im-textarea-app-box {
+	width: 100%;
+	box-sizing: border-box;
+	margin-top: 5px;
+    height: 30px;
+	flex: 0 0 30px;
+	padding: 0 8px;
+}
+
+.bx-im-textarea-app-button {
+	display: inline-block;
+	width: 25px;
+	height: 25px;
+	border: none;
+	background-color: transparent;
+	background-position: center;
+	background-repeat: no-repeat;
+	transition: opacity .3s;
+	-webkit-appearance: none;
+	outline: none;
+	cursor: pointer;
+	vertical-align: top;
+}
+.bx-im-textarea-dark-background .bx-im-textarea-app-button {
+	opacity: .4;
+}
+.bx-im-textarea-dark-background .bx-im-textarea-app-button:hover {
+	opacity: 1;
+}
+.bx-im-textarea-app-file {
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTQuMDE5IDBjMS45NSAwIDMuMTI5IDEuMjcxIDMuMTI4IDIuODUzdjYuODQ0Yy4wMDIgMS4yMjMtLjc3MyAyLjE1LTIuMTE1IDIuMTM5LTEuMzU4LS4wMTItMi4xMDItMS4wMS0yLjA5Ni0yLjMyMlY1Ljc0OWEuNjUuNjUgMCAxMTEuMy0uMDAyVjkuNTJjLS4wMDMuNjYzLjI1NyAxLjAxMi44MDcgMS4wMTcuNTYuMDA1LjgwNS0uMjg5LjgwNC0uODM3VjIuODUzYzAtLjg4NS0uNjItMS41NTMtMS44MjgtMS41NTMtMS4yMzYgMC0xLjkyOS42OTktMS45MzIgMS41NTF2OC41MDNjLjAwOCAxLjU3NiAxLjA2MyAyLjY2MyAzLjAyMiAyLjY5MyAyLjIzNC4wMzMgMi45NDYtMS4wMTkgMi45OTMtMy40ODdsLjAwMy0uMjM2Yy4wMDMtMS40My4wMDMtMi43NyAwLTQuMDJhLjY1LjY1IDAgMDExLjMtLjAwM2wuMDAyIDEuOTQ2YzAgLjY3IDAgMS4zNjQtLjAwMiAyLjA4LS4wMDggMy4yNjctMS4xMSA1LjA2OC00LjMxNSA1LjAyLTIuNjczLS4wNC00LjI5MS0xLjcwOC00LjMwMy0zLjk4N1YyLjg0N0MuNzkzIDEuMjggMi4wNjMgMCA0LjAxOSAweiIgZmlsbD0iI0I1QkFCRSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PC9zdmc+');
+}
+.bx-im-textarea-app-file:hover {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2210%22%20height%3D%2216%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M4.019%200c1.95%200%203.129%201.271%203.128%202.853v6.844c.002%201.223-.773%202.15-2.115%202.139-1.358-.012-2.102-1.01-2.096-2.322V5.749a.65.65%200%20111.3-.002V9.52c-.003.663.257%201.012.807%201.017.56.005.805-.289.804-.837V2.853c0-.885-.62-1.553-1.828-1.553-1.236%200-1.929.699-1.932%201.551v8.503c.008%201.576%201.063%202.663%203.022%202.693%202.234.033%202.946-1.019%202.993-3.487l.003-.236c.003-1.43.003-2.77%200-4.02a.65.65%200%20011.3-.003l.002%201.946c0%20.67%200%201.364-.002%202.08-.008%203.267-1.11%205.068-4.315%205.02-2.673-.04-4.291-1.708-4.303-3.987V2.847C.793%201.28%202.063%200%204.019%200z%22%20fill%3D%22%232FC6F6%22%20fill-rule%3D%22nonzero%22%2F%3E%3C%2Fsvg%3E');
+}
+.bx-im-textarea-app-file > input {display: none!important;}
+
+.bx-im-textarea-app-smile {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2215%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M8.14%2013.864a6.364%206.364%200%20100-12.728%206.364%206.364%200%20000%2012.728zm0%201.136a7.5%207.5%200%20110-15%207.5%207.5%200%20010%2015zm3.504-5.8c.194.197.191.576-.006.77a4.985%204.985%200%2001-3.505%201.434%204.984%204.984%200%2001-3.49-1.42c-.198-.192-.202-.571-.01-.769.193-.198.51-.364.708-.171a3.985%203.985%200%20002.792%201.135c1.064%200%202.06-.416%202.804-1.147.197-.194.513-.029.707.168zM5.89%204a1%201%200%20011%201v1a1%201%200%2001-2%200V5a1%201%200%20011-1zm4.5%200a1%201%200%20011%201v1a1%201%200%2001-2%200V5a1%201%200%20011-1z%22%20fill%3D%22%23B5BABE%22%20fill-rule%3D%22nonzero%22%2F%3E%3C%2Fsvg%3E');
+}
+.bx-im-textarea-app-smile:hover {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2215%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M8.14%2013.864a6.364%206.364%200%20100-12.728%206.364%206.364%200%20000%2012.728zm0%201.136a7.5%207.5%200%20110-15%207.5%207.5%200%20010%2015zm3.504-5.8c.194.197.191.576-.006.77a4.985%204.985%200%2001-3.505%201.434%204.984%204.984%200%2001-3.49-1.42c-.198-.192-.202-.571-.01-.769.193-.198.51-.364.708-.171a3.985%203.985%200%20002.792%201.135c1.064%200%202.06-.416%202.804-1.147.197-.194.513-.029.707.168zM5.89%204a1%201%200%20011%201v1a1%201%200%2001-2%200V5a1%201%200%20011-1zm4.5%200a1%201%200%20011%201v1a1%201%200%2001-2%200V5a1%201%200%20011-1z%22%20fill%3D%22%232FC6F6%22%20fill-rule%3D%22nonzero%22%2F%3E%3C%2Fsvg%3E');
+}
+.bx-im-textarea-app-gif {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2213%22%20height%3D%2215%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M11.814%203.621c.243.242.38.572.38.915v9.169c0%20.715-.58%201.295-1.296%201.295h-9.41c-.715%200-1.295-.58-1.295-1.295V1.295C.193.58.773%200%201.488%200h6.168C8%200%208.33.137%208.572.379l3.242%203.242zm-.743%201.392a1.26%201.26%200%2000-.37-.893L8.11%201.53a1.266%201.266%200%2000-.894-.37H1.929c-.446%200-.613.166-.613.612v11.514c0%20.414.14.554.554.554h8.616c.43%200%20.585-.153.585-.584V5.013zm-3.632%202.87c-.05.051-.077.114-.113.172h1.983v.89H7.326c.036.058.063.122.113.171l1.295%201.295-.63.63L6.81%209.744c-.05-.05-.113-.077-.172-.113v1.984h-.89V9.632c-.057.036-.12.063-.17.113L4.283%2011.04l-.63-.63%201.295-1.294c.05-.05.078-.113.114-.17H3.078v-.89h1.984c-.036-.06-.064-.122-.114-.172L3.653%206.588l.63-.628%201.295%201.294c.05.05.113.078.17.114V5.384h.89v1.984c.059-.036.121-.063.172-.114L8.104%205.96l.63.628-1.295%201.296z%22%20fill%3D%22%23B5BABE%22%20fill-rule%3D%22nonzero%22%2F%3E%3C%2Fsvg%3E');
+}
+.bx-im-textarea-app-gif:hover {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2213%22%20height%3D%2215%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M11.814%203.621c.243.242.38.572.38.915v9.169c0%20.715-.58%201.295-1.296%201.295h-9.41c-.715%200-1.295-.58-1.295-1.295V1.295C.193.58.773%200%201.488%200h6.168C8%200%208.33.137%208.572.379l3.242%203.242zm-.743%201.392a1.26%201.26%200%2000-.37-.893L8.11%201.53a1.266%201.266%200%2000-.894-.37H1.929c-.446%200-.613.166-.613.612v11.514c0%20.414.14.554.554.554h8.616c.43%200%20.585-.153.585-.584V5.013zm-3.632%202.87c-.05.051-.077.114-.113.172h1.983v.89H7.326c.036.058.063.122.113.171l1.295%201.295-.63.63L6.81%209.744c-.05-.05-.113-.077-.172-.113v1.984h-.89V9.632c-.057.036-.12.063-.17.113L4.283%2011.04l-.63-.63%201.295-1.294c.05-.05.078-.113.114-.17H3.078v-.89h1.984c-.036-.06-.064-.122-.114-.172L3.653%206.588l.63-.628%201.295%201.294c.05.05.113.078.17.114V5.384h.89v1.984c.059-.036.121-.063.172-.114L8.104%205.96l.63.628-1.295%201.296z%22%20fill%3D%22%232FC6F6%22%20fill-rule%3D%22nonzero%22%2F%3E%3C%2Fsvg%3E');
+}
+
+
+.bx-im-textarea-smile-box {
+	width: 340px;
+	height: 420px;
+	position: absolute;
+	background: #fff;
+}
+
+@keyframes bx-im-textarea-send-button-show {
+	0% {
+		transform: translate(50px, 0);
+	}
+	100% {
+		transform: translate(0, 0);
+	}
+}
+@keyframes bx-im-textarea-send-button-hide {
+	0% {
+		transform: translate(0, 0);
+	}
+	100% {
+		transform: translate(50px, 0);
+	}
+}

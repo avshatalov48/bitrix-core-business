@@ -1,5 +1,7 @@
-<?
+<?php
+
 $GLOBALS["UF_GALLERY_SIZE"] = array(); 
+
 if (!is_array($GLOBALS["PHOTOGALLERY_VARS"]))
 {
 	$GLOBALS["PHOTOGALLERY_VARS"] = array(
@@ -15,7 +17,7 @@ class CPhotogalleryElement
 //	static $arGalleries = array(); 
 //	static $arIBlock = array(); 
 	
-	function CheckElement($ID, &$arElement, &$arSection, &$arGallery)
+	public static function CheckElement($ID, &$arElement, &$arSection, &$arGallery)
 	{
 		$ID = doubleval($ID); 
 		
@@ -129,7 +131,7 @@ class CPhotogalleryElement
 		return true; 
 	}
 	
-	function OnBeforeIBlockElementDelete($ID)
+	public static function OnBeforeIBlockElementDelete($ID)
 	{
 		$ID = doubleval($ID);
 		if (CPhotogalleryElement::CheckElement($ID, $arElement, $arSection, $arGallery))
@@ -147,7 +149,7 @@ class CPhotogalleryElement
 		return true;
 	}
 	
-	function OnRecalcGalleries($ID, $INDEX)
+	public static function OnRecalcGalleries($ID, $INDEX)
 	{
 		$ID = doubleval($ID); 
 		
@@ -169,7 +171,7 @@ class CPhotogalleryElement
 		return true;
 	}
 	
-	function OnAfterRecalcGalleries($IBLOCK_ID, $INDEX)
+	public static function OnAfterRecalcGalleries($IBLOCK_ID, $INDEX)
 	{
 		if ($IBLOCK_ID <= 0)
 			return false; 
@@ -196,9 +198,7 @@ class CPhotogalleryElement
 		}
 	}
 
-	
-	
-	function OnAfterIBlockElementAdd($res)
+	public static function OnAfterIBlockElementAdd($res)
 	{
 		$ID = doubleval($res["ID"]); 
 		if (CPhotogalleryElement::CheckElement($ID, $arElement, $arSection, $arGallery))
@@ -214,4 +214,3 @@ class CPhotogalleryElement
 		return true;
 	}
 }
-?>

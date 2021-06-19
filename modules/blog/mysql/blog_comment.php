@@ -1,10 +1,11 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/general/blog_comment.php");
 
 class CBlogComment extends CAllBlogComment
 {
 	/*************** ADD, UPDATE, DELETE *****************/
-	function Add($arFields, $bSearchIndex = true)
+	public static function Add($arFields, $bSearchIndex = true)
 	{
 		global $DB, $USER_FIELD_MANAGER;
 
@@ -173,7 +174,7 @@ class CBlogComment extends CAllBlogComment
 		return $ID;
 	}
 
-	function Update($ID, $arFields, $bSearchIndex = true)
+	public static function Update($ID, $arFields, $bSearchIndex = true)
 	{
 		global $DB, $USER_FIELD_MANAGER;
 
@@ -328,7 +329,7 @@ class CBlogComment extends CAllBlogComment
 	}
 
 	//*************** SELECT *********************/
-	function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB, $USER_FIELD_MANAGER, $APPLICATION, $USER;
 
@@ -594,4 +595,3 @@ class CBlogComment extends CAllBlogComment
 		return $dbRes;
 	}
 }
-?>

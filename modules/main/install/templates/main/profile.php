@@ -335,7 +335,7 @@ function SectionClick(id)
 	<tr valign="top">
 		<td align="right"><font class="tablefieldtext"><?echo GetMessage('GROUPS');?></font></td>
 		<td><font class="tablebodytext"><?
-			$rsGroups = CGroup::GetList(($by="c_sort"), ($order="asc"), Array("ANONYMOUS"=>"N"));
+			$rsGroups = CGroup::GetList("c_sort", "asc", Array("ANONYMOUS"=>"N"));
 			while($arGroup = $rsGroups->Fetch())
 			{
 				if ($arGroup["ID"]!=2) :

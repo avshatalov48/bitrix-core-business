@@ -90,12 +90,11 @@ class CWorkflow extends CAllWorkflow
 		return $zr["LOCK_STATUS"];
 	}
 
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetList($by = 's_date_modify', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = (CWorkflow::err_mess())."<br>Function: GetList<br>Line: ";
-		global $DB, $USER, $APPLICATION;
+		global $DB, $USER;
 		$arSqlSearch = Array();
-		$strSqlSearch = "";
 		$MAX_LOCK = intval(COption::GetOptionString("workflow","MAX_LOCK_TIME","60"));
 		$arGroups = $USER->GetUserGroupArray();
 		if (!is_array($arGroups)) $arGroups[] = 2;
@@ -105,12 +104,12 @@ class CWorkflow extends CAllWorkflow
 		{
 			foreach ($arFilter as $key => $val)
 			{
-				if ($val == '' || "$val"=="NOT_REF")
+				if ((string)$val == '' || "$val"=="NOT_REF")
 					continue;
 				if (is_array($val) && count($val)<=0)
 					continue;
 				$match_value_set = (array_key_exists($key."_EXACT_MATCH", $arFilter) ? true : false);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -171,13 +170,12 @@ class CWorkflow extends CAllWorkflow
 		elseif ($by == "s_status") $strSqlOrder = "ORDER BY D.STATUS_ID";
 		else
 		{
-			$by = "s_date_modify";
 			$strSqlOrder = "ORDER BY D.DATE_MODIFY";
 		}
-		if ($order!="asc")
+
+		if ($order != "asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
@@ -234,7 +232,6 @@ class CWorkflow extends CAllWorkflow
 		}
 
 		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
 		$arr = array();
 		while($ar=$rs->Fetch())
 		{
@@ -332,22 +329,21 @@ class CWorkflow extends CAllWorkflow
 		return $res;
 	}
 
-	public static function GetHistoryList(&$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetHistoryList($by = 's_id', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = (CWorkflow::err_mess())."<br>Function: GetHistoryList<br>Line: ";
 		global $DB;
 		$arSqlSearch = Array();
-		$strSqlSearch = "";
 		if (is_array($arFilter))
 		{
 			foreach ($arFilter as $key => $val)
 			{
-				if ($val == '' || "$val"=="NOT_REF")
+				if ((string)$val == '' || "$val"=="NOT_REF")
 					continue;
 				if (is_array($val) && count($val)<=0)
 					continue;
 				$match_value_set = (array_key_exists($key."_EXACT_MATCH", $arFilter)) ? true : false;
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -409,13 +405,12 @@ class CWorkflow extends CAllWorkflow
 		elseif ($by == "s_status") $strSqlOrder = "ORDER BY L.STATUS_ID";
 		else
 		{
-			$by = "s_id";
 			$strSqlOrder = "ORDER BY L.ID";
 		}
+
 		if ($order!="asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
@@ -435,7 +430,7 @@ class CWorkflow extends CAllWorkflow
 			";
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 

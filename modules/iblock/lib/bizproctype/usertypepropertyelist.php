@@ -2,11 +2,10 @@
 
 namespace Bitrix\Iblock\BizprocType;
 
-use Bitrix\Main,
-	Bitrix\Bizproc\BaseType,
-	Bitrix\Bizproc\FieldType,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Page\Asset;
+use Bitrix\Main;
+use Bitrix\Bizproc\FieldType;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Loader;
 
 Loc::loadMessages(__FILE__);
@@ -98,7 +97,7 @@ if (Loader::requireModule('bizproc'))
 			return parent::renderControlMultiple($fieldType, $field, $value, $allowSelection, $renderMode);
 		}
 
-		private function initControlHelpers()
+		private static function initControlHelpers()
 		{
 			if (!static::$controlIsRendered)
 			{

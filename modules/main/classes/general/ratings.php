@@ -1,4 +1,4 @@
-<?
+<?php
 
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/ratings.php");
 
@@ -1361,9 +1361,9 @@ class CAllRatings
 		{
 			foreach ($arFilter as $key => $val)
 			{
-				if ($val == '' || $val === "NOT_REF")
+				if ((string)$val == '' || $val === "NOT_REF")
 					continue;
-				switch(mb_strtoupper($key))
+				switch(strtoupper($key))
 				{
 					case "ID":
 						$arSqlSearch[] = GetFilterQuery("RW.ID", $val, "N");
@@ -1895,8 +1895,8 @@ class CAllRatings
 				}
 
 				$rsUser = CUser::GetList(
-					($by = "ID"),
-					($order = "ASC"),
+					"ID",
+					"ASC",
 					array("ID" => implode("|", $arUserID)),
 					$arUserListParams
 				);

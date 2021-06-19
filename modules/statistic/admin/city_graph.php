@@ -35,8 +35,7 @@ $arF = array(
 	"DATE2" => $find_date2
 );
 $arrDays = CCity::GetGraphArray($arF, $arrLegend, $find_data_type, 20);
-reset($arrDays);
-while (list($keyD,$arD) = each($arrDays))
+foreach ($arrDays as $keyD => $arD)
 {
 	$date = mktime(0,0,0,$arD["M"],$arD["D"],$arD["Y"]);
 	$date_tmp = 0;
@@ -47,8 +46,7 @@ while (list($keyD,$arD) = each($arrDays))
 		while ($date_tmp<$date)
 		{
 			$arrX[] = $date_tmp;
-			reset($arrLegend);
-			while(list($keyL, $arrL) = each($arrLegend))
+			foreach ($arrLegend as $keyL => $arrL)
 			{
 				$arrY_data[$keyL][] = 0;
 				$arrY[] = 0;
@@ -57,8 +55,7 @@ while (list($keyD,$arD) = each($arrDays))
 		}
 	}
 	$arrX[] = $date;
-	reset($arrLegend);
-	while(list($keyL, $arrL) = each($arrLegend))
+	foreach ($arrLegend as $keyL => $arrL)
 	{
 		$value = $arD[$keyL][$find_data_type];
 		$arrY_data[$keyL][] = $value;
@@ -87,8 +84,7 @@ DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle);
 			Plot data
 *******************************************************/
 
-reset($arrLegend);
-while(list($keyL, $arrL) = each($arrLegend))
+foreach ($arrLegend as $keyL => $arrL)
 {
 	if ($keyL <> '')
 	{

@@ -220,8 +220,10 @@ export class SeoAccount
 		this.accountId = null;
 		this.pageId = null;
 
-		this._helper.showBlockMain();
-		this.loadSettings();
+		if(this.clientSelector.selected)
+		{
+			this._helper.showBlockMain();
+		}
 
 		this.clientSelector.setSelected(item);
 	}

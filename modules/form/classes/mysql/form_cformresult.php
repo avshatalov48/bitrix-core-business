@@ -1,14 +1,15 @@
-<?
+<?php
+
 class CFormResult extends CAllFormResult
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "form";
 		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
 		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CFormResult<br>File: ".__FILE__;
 	}
 
-	function GetList($WEB_FORM_ID, &$by, &$order, $arFilter=Array(), &$is_filtered, $CHECK_RIGHTS="Y", $records_limit=false)
+	public static function GetList($WEB_FORM_ID, $by = 's_timestamp', $order = 'desc', $arFilter = [], $is_filtered = null, $CHECK_RIGHTS = "Y", $records_limit = false)
 	{
 		$err_mess = (CFormResult::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $USER, $strError;
@@ -21,7 +22,6 @@ class CFormResult extends CAllFormResult
 		$USER_ID = intval($USER->GetID());
 		$arSqlSearch = array();
 		$arr["FIELDS"] = array();
-		$strSqlSearch = "";
 		if (is_array($arFilter))
 		{
 			$arFilter = CFormResult::PrepareFilter($WEB_FORM_ID, $arFilter);
@@ -31,7 +31,7 @@ class CFormResult extends CAllFormResult
 
 			/***********************/
 
-			$z = CFormField::GetList($WEB_FORM_ID, "", $v1, $v2, array(), $v3);
+			$z = CFormField::GetList($WEB_FORM_ID, "");
 
 			while ($zr=$z->Fetch())
 			{
@@ -91,7 +91,7 @@ class CFormResult extends CAllFormResult
 						continue;
 				}
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys));
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -290,14 +290,14 @@ class CFormResult extends CAllFormResult
 		elseif ($by == "s_sent_to_crm")	$strSqlOrder = "ORDER BY R.SENT_TO_CRM";
 		else
 		{
-			$by = "s_timestamp";
 			$strSqlOrder = "ORDER BY R.TIMESTAMP_X";
 		}
-		if ($order!="asc")
+
+		if ($order != "asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
+
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 		if (is_array($arr["TABLES"]))
 			$str1 = implode(",\n				",$arr["TABLES"]);
@@ -387,11 +387,11 @@ class CFormResult extends CAllFormResult
 			$res = new CDBResult();
 			$res->InitFromArray(array());
 		}
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB, $strError;
 		$err_mess = (CFormResult::err_mess())."<br>Function: GetByID<br>Line: ";
@@ -420,7 +420,7 @@ class CFormResult extends CAllFormResult
 		return $res;
 	}
 
-	function GetPermissions($RESULT_ID, &$CURRENT_STATUS_ID)
+	public static function GetPermissions($RESULT_ID, &$CURRENT_STATUS_ID = null)
 	{
 		$err_mess = (CFormResult::err_mess())."<br>Function: GetPermissions<br>Line: ";
 		global $DB, $USER, $strError;
@@ -459,7 +459,7 @@ class CFormResult extends CAllFormResult
 		return $arrReturn;
 	}
 
-	function AddAnswer($arFields)
+	public static function AddAnswer($arFields)
 	{
 		$err_mess = (CFormResult::err_mess())."<br>Function: AddAnswer<br>Line: ";
 		global $DB, $strError;
@@ -469,7 +469,7 @@ class CFormResult extends CAllFormResult
 		return intval($DB->LastID());
 	}
 
-	function UpdateField($arFields, $RESULT_ID, $FIELD_ID)
+	public static function UpdateField($arFields, $RESULT_ID, $FIELD_ID)
 	{
 		$err_mess = (CFormResult::err_mess())."<br>Function: UpdateField<br>Line: ";
 		global $DB, $strError;

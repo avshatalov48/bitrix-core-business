@@ -13,6 +13,7 @@ import "./file.css";
 import {Vue} from "ui.vue";
 import {FilesModel} from "im.model";
 import {Utils} from "im.lib.utils";
+import "ui.icons.disk";
 
 export const AttachTypeFile =
 {
@@ -78,19 +79,12 @@ export const AttachTypeFile =
 					position++;
 				}
 
-				return Math.round(size) + " " + this.localize['IM_MESSENGER_ATTACH_FILE_SIZE_'+sizes[position]];
+				return Math.round(size) + " " + this.$Bitrix.Loc.getMessage('IM_MESSENGER_ATTACH_FILE_SIZE_'+sizes[position]);
 			},
 			fileIcon(element)
 			{
 				return FilesModel.getIconType(element.NAME.split('.').splice(-1)[0]);
 			}
-		},
-		computed:
-		{
-			localize()
-			{
-				return Vue.getFilteredPhrases('IM_MESSENGER_ATTACH_FILE_', this.$root.$bitrixMessages);
-			},
 		},
 		template: `
 			<div class="bx-im-element-attach-type-file-element">

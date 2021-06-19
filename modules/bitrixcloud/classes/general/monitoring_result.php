@@ -207,7 +207,7 @@ class CBitrixCloudMonitoringDomainResult implements CBitrixCloudMonitoring_Acces
 		$tests = array();
 		foreach ($option->getArrayValue() as $testName => $testResult)
 		{
-			$testResult = unserialize($testResult);
+			$testResult = unserialize($testResult, ['allowed_classes' => false]);
 			if (is_array($testResult))
 			{
 				$test = new CBitrixCloudMonitoringTest(

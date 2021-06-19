@@ -49,10 +49,10 @@ class InboxAttachmentManager
 	}
 
 	/**
-	 * @return Calendar
+	 * @return Calendar|null
 	 */
-	public function getComponent(): Calendar
+	public function getComponent(): ?Calendar
 	{
-		return $this->parser->getComponent();
+		return $this->parser->getCalendarComponent();
 	}
 }

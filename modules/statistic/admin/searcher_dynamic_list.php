@@ -36,6 +36,8 @@ $arFilter = Array(
 	"DATE2"		=> $find_date2
 );
 
+global $by, $order;
+
 $rsData = CSearcher::GetDynamicList($find_searcher_id, $by, $order, $arMaxMin, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();

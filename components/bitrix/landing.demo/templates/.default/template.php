@@ -124,16 +124,16 @@ foreach ($arResult['DEMO'] as $item):
 		? $item['DATA']['items'][0]
 		: $item['ID'];
 
-	if (!isset($item['EXTERNAL_URL']))
+	if ($item['ID'] === 'store_v3')
 	{
-		$uriSelect = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);
-		$uriSelect->addParams([
-			'tpl' => $tpl
-		]);
-		$uriSelect->deleteParams([
-			'select'
-		]);
-		$previewUrl = $uriSelect->getUri();
+		$previewUrl = $component->getUri(['super' => 'Y']);
+	}
+	else if (!isset($item['EXTERNAL_URL']))
+	{
+		$previewUrl = $component->getUri(
+			['tpl' => $tpl],
+			['select']
+		);
 	}
 	else if (isset($item['EXTERNAL_URL']['href']))
 	{
@@ -145,7 +145,7 @@ foreach ($arResult['DEMO'] as $item):
 	}
 	?>
 	<?if ($item['AVAILABLE']):?>
-	<span data-href="<?= $previewUrl;?>" id="landing-demo-<?= \htmlspecialcharsbx($tpl);?>" <?
+	<span data-href="<?= $previewUrl;?>"<?if ($item['ID'] === 'store_v3') {?> data-slider-width="1200"<?}?> id="landing-demo-<?= \htmlspecialcharsbx($tpl);?>" <?
 		?>class="landing-template-pseudo-link landing-item landing-item-hover<?= ($arResult['LIMIT_REACHED'] && !$item['SINGLETON']) ? ' landing-item-payment' : '';?>" <?
 		?><?if (isset($item['EXTERNAL_URL']['width'])){?>data-slider-width="<?= (int)$item['EXTERNAL_URL']['width'];?>"<?}?>>
 	<?else:?>

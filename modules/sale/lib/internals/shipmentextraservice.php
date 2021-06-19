@@ -55,6 +55,10 @@ class ShipmentExtraServiceTable extends Main\Entity\DataManager
 				'validation' => array(__CLASS__, 'validateValue'),
 				'title' => Loc::getMessage('ORDER_DELIVERY_EXTRA_SERVICES_ENTITY_VALUE_FIELD'),
 			),
+			'EXTRA_SERVICE' => array(
+				'data_type' => '\Bitrix\Sale\Delivery\ExtraServices\Table',
+				'reference' => array('=this.EXTRA_SERVICE_ID' => 'ref.ID'),
+			),
 		);
 	}
 	public static function validateValue()

@@ -125,7 +125,7 @@ class CatalogViewedProductTable extends Main\Entity\DataManager
 	{
 		$rowId = -1;
 
-		if ((string)Option::get('catalog', 'enable_viewed_products') != 'Y')
+		if (Option::get('catalog', 'enable_viewed_products') !== 'Y')
 		{
 			return $rowId;
 		}
@@ -447,8 +447,12 @@ class CatalogViewedProductTable extends Main\Entity\DataManager
 	 *
 	 * @return string
 	 */
-	public static function clearAgent()
+	public static function clearAgent(): string
 	{
+		if (Option::get('catalog', 'enable_viewed_products') !== 'Y')
+		{
+			return '';
+		}
 		self::clear((int)Option::get('catalog', 'viewed_time'));
 		return '\Bitrix\Catalog\CatalogViewedProductTable::clearAgent();';
 	}

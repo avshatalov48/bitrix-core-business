@@ -42,7 +42,7 @@ class Store extends Base
 		return $result;
 	}
 
-	public function getClassTitle()
+	public static function getClassTitle()
 	{
 		return Loc::getMessage("DELIVERY_EXTRA_SERVICE_STORE_TITLE");
 	}

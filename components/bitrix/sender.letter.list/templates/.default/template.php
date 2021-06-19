@@ -252,13 +252,13 @@ foreach ($arResult['ROWS'] as $index => $data)
 		>
 			<?=Loc::getMessage('SENDER_LETTER_LIST_ROW_RECIPIENT')?>
 		</a>
+		<br/>
 		<?
 	}
 	if ($data['HAS_STATISTICS'])
 	{
 
 		?>
-		<br>
 		<a class="sender-letter-list-link"
 			onclick="BX.Sender.Page.open('<?=CUtil::JSEscape($data['URLS']['STAT'])?>'); return false;"
 			href="<?=htmlspecialcharsbx($data['URLS']['STAT'])?>"
@@ -275,7 +275,9 @@ foreach ($arResult['ROWS'] as $index => $data)
 			<?
 			$clicks = $data['STATS']['CLICK'];
 			$clicks .= '%';
-			echo Loc::getMessage('SENDER_LETTER_LIST_ROW_STATS_CLICKS', ['#COUNT#' => $clicks])?>
+			$unsub = $data['STATS']['UNSUB'];
+			$unsub .= '%';
+			echo Loc::getMessage('SENDER_LETTER_LIST_ROW_STATS_CLICKS', ['#COUNT#' => $clicks, '#UNSUB#' => $unsub])?>
 		</a>
 		<?
 	}

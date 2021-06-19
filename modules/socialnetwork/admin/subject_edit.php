@@ -176,7 +176,7 @@ $tabControl->BeginNextTab();
 		<td class="adm-detail-valign-top"><?echo GetMessage("SONETE_SITE")?>:</td>
 		<td>
 			<?
-			$rsSite = CLang::GetList(($by="sort"), ($order="asc"));
+			$rsSite = CLang::GetList();
 			echo '<select name="SITE_ID[]" multiple>';
 
 			while(($arSite = $rsSite->Fetch()))

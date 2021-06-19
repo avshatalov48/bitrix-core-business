@@ -28,7 +28,7 @@ function hrefHtml()
 }
 
 $ref = $ref_id = array();
-$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 {
 	$ref[] = "[".$ar["ID"]."] ".$ar["NAME"];
@@ -297,7 +297,7 @@ elseif ($site_filter=="Y" && $_REQUEST["table_id"]==$sTableID_tab2):
 elseif ($_REQUEST["table_id"] == $sTableID_tab2):
 	$arADVF["DATE1_PERIOD"] = $arFilter["DATE1"];
 	$arADVF["DATE2_PERIOD"] = $arFilter["DATE2"];
-	$adv = CAdv::GetList($a_by, $a_order, $arADVF, $is_filtered, "", $arrGROUP_DAYS, $v);
+	$adv = CAdv::GetList('', '', $arADVF, $is_filtered);
 ?>
 <table border="0" cellspacing="0" cellpadding="0" width="100%" class="list-table">
 <tr class="heading" valign="top">
@@ -640,7 +640,7 @@ $lAdmin_tab4->BeginCustomContent();
 if ($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif ($_REQUEST["table_id"]==$sTableID_tab4):
-	$referers = CTraffic::GetRefererList($by, $order, $arFilter, $is_filtered, false);
+	$referers = CTraffic::GetRefererList('', '', $arFilter, $is_filtered, false);
 ?>
 <table border="0" cellspacing="0" cellpadding="0" width="100%" class="list-table">
 

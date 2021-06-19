@@ -47,7 +47,7 @@ return array(
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_41.7.TEXT_BLOCKS_SLIDER_ON_COLOR_BG_STYLE_LANDINGBLOCKNODECARDTITLE'),
-			'type' => array('typo', 'background-color-before', 'animation'),
+			'type' => ['typo', 'background-color-before', 'animation', 'heading'],
 		),
 		'.landing-block-node-card-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_41.7.TEXT_BLOCKS_SLIDER_ON_COLOR_BG_STYLE_LANDINGBLOCKNODECARDTEXT'),

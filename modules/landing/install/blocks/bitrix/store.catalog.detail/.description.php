@@ -99,7 +99,6 @@ if (!Manager::availableOnlyForZone('ru'))
 
 // remove extended fields in simple mode
 $extendedFields = \Bitrix\Landing\Hook\Page\Settings::getCodes(true);
-//if (!isset($extended) || $extended !== true)
 foreach ($params as $key => $item)
 {
 	if (in_array($key, $extendedFields))

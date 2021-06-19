@@ -88,98 +88,6 @@
 		}
 	};
 
-
-	function ConfirmDeleteDialog(calendar)
-	{
-		this.calendar = calendar;
-		this.id = this.calendar.id + '_confirm_delete';
-		this.zIndex = 3200;
-	}
-
-	ConfirmDeleteDialog.prototype = {
-		show: function (entry)
-		{
-			var content = BX.create('DIV');
-			this.dialog = new BX.PopupWindow(this.id, null, {
-				overlay: {opacity: 10},
-				autoHide: true,
-				closeByEsc : true,
-				zIndex: this.zIndex,
-				offsetLeft: 0,
-				offsetTop: 0,
-				draggable: true,
-				bindOnResize: false,
-				titleBar: BX.message('EC_DEL_REC_EVENT'),
-				closeIcon: { right : "12px", top : "10px"},
-				className: 'bxc-popup-window',
-				buttons: [
-					new BX.PopupWindowButtonLink({
-						text: BX.message('EC_SEC_SLIDER_CANCEL'),
-						className: "popup-window-button-link-cancel",
-						events: {click : BX.proxy(this.close, this)}
-					})
-				],
-				content: content,
-				events: {}
-			});
-
-			content.appendChild(new BX.PopupWindowButton({
-				text: BX.message('EC_REC_EV_ONLY_THIS_EVENT'),
-				events: {click : BX.delegate(function()
-				{
-					if (entry.isRecursive())
-					{
-						this.calendar.entryController.excludeRecursionDate(entry);
-					}
-					else if (entry.hasRecurrenceId())
-					{
-						this.calendar.entryController.deleteEntry(entry, {
-							confirmed: true,
-							recursionMode: 'this'
-						});
-					}
-					this.close();
-				}, this)}
-			}).buttonNode);
-
-			content.appendChild(new BX.PopupWindowButton({
-				text: BX.message('EC_REC_EV_NEXT'),
-				events: {click : BX.delegate(function()
-				{
-					if (entry.isRecursive() && entry.isFirstReccurentEntry())
-					{
-						this.calendar.entryController.deleteAllReccurent(entry);
-					}
-					else
-					{
-						this.calendar.entryController.cutOffRecursiveEvent(entry);
-					}
-					this.close();
-				}, this)}
-			}).buttonNode);
-
-			content.appendChild(new BX.PopupWindowButton(
-				{
-					text: BX.message('EC_REC_EV_ALL'),
-					events: {click : BX.delegate(function()
-					{
-						this.calendar.entryController.deleteAllReccurent(entry);
-						this.close();
-					}, this)}
-				}).buttonNode);
-
-			this.dialog.show();
-		},
-
-		close: function()
-		{
-			if (this.dialog)
-			{
-				this.dialog.close();
-			}
-		}
-	};
-
 	function ConfirmDeclineDialog(calendar)
 	{
 		this.calendar = calendar;
@@ -314,9 +222,6 @@
 						className: "popup-window-button-link-cancel",
 						events: {click : BX.delegate(function()
 							{
-								if (this.simpleEntryPopup)
-									this.simpleEntryPopup.close();
-
 								if (this.calendar.editSlider)
 									this.calendar.editSlider.close();
 
@@ -366,7 +271,6 @@
 	if (window.BXEventCalendar)
 	{
 		window.BXEventCalendar.ConfirmEditDialog = ConfirmEditDialog;
-		window.BXEventCalendar.ConfirmDeleteDialog = ConfirmDeleteDialog;
 		window.BXEventCalendar.ConfirmDeclineDialog = ConfirmDeclineDialog;
 		window.BXEventCalendar.BusyUsersDialog = BusyUsersDialog;
 	}
@@ -375,7 +279,6 @@
 		BX.addCustomEvent(window, "onBXEventCalendarInit", function()
 		{
 			window.BXEventCalendar.ConfirmEditDialog = ConfirmEditDialog;
-			window.BXEventCalendar.ConfirmDeleteDialog = ConfirmDeleteDialog;
 			window.BXEventCalendar.ConfirmDeclineDialog = ConfirmDeclineDialog;
 			window.BXEventCalendar.BusyUsersDialog = BusyUsersDialog;
 		});

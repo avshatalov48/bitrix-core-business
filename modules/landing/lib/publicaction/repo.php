@@ -541,7 +541,7 @@ class Repo
 			{
 				$row['DATE_MODIFY'] = (string) $row['DATE_MODIFY'];
 			}
-			$row['MANIFEST'] = unserialize($row['MANIFEST']);
+			$row['MANIFEST'] = unserialize($row['MANIFEST'], ['allowed_classes' => false]);
 			$data[] = $row;
 		}
 		$result->setResult($data);

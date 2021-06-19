@@ -130,7 +130,7 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT>="W")
 {
 	if($_REQUEST['action_target'] == "selected")
 	{
-		$rsData = CStoplist::GetList($by, $order, $arFilter, $is_filtered);
+		$rsData = CStoplist::GetList('', '', $arFilter);
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -162,7 +162,9 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT>="W")
 	}
 }
 
-$rsData = CStoplist::GetList($by, $order, $arFilter, $is_filtered);
+global $by, $order;
+
+$rsData = CStoplist::GetList($by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 
@@ -336,7 +338,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 	<td><?
 	$ref = array();
 	$ref_id = array();
-	$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+	$rs = CSite::GetList();
 	while ($ar = $rs->Fetch())
 	{
 		$ref[] = "[".$ar["ID"]."] ".$ar["NAME"];

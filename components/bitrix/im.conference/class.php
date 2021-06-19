@@ -153,14 +153,7 @@ class ImComponentConference extends CBitrixComponent
 			return false;
 		}
 
-		if (Call::isCallServerEnabled())
-		{
-			$this->userLimit = Call::getMaxCallServerParticipants();
-		}
-		else
-		{
-			$this->userLimit = Option::get('im', 'turn_server_max_users');
-		}
+		$this->userLimit = $this->conference->getUserLimit();
 
 		return true;
 	}
@@ -177,11 +170,15 @@ class ImComponentConference extends CBitrixComponent
 		$this->arResult['IS_INTRANET_OR_EXTRANET'] = $this->isIntranetOrExtranet;
 		$this->arResult['LANGUAGE'] = Loc::getCurrentLang();
 		$this->arResult['FEATURE_CONFIG'] = $this->getFeatureConfig();
+		$this->arResult['LOGGER_CONFIG'] = \Bitrix\Im\Settings::getLoggerConfig();
 
+		$this->arResult['PRESENTERS'] = [];
 		if ($this->conference)
 		{
 			$this->arResult['CONFERENCE_ID'] = $this->conference->getId();
 			$this->arResult['CONFERENCE_TITLE'] = $this->conference->getChatName();
+			$this->arResult['IS_BROADCAST'] = $this->conference->isBroadcast();
+			$this->arResult['PRESENTERS'] = $this->conference->getPresentersInfo();
 		}
 
 		return true;

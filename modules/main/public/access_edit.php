@@ -301,7 +301,12 @@ foreach($arUserGroupsID as $access_code):
 	$permissionID = $access_code."_".intval($currentPerm)."_".intval($inheritTaskID);?>
 
 	<tr>
-		<td><?=($access_code == "*"? GetMessage("EDIT_ACCESS_ALL_GROUPS") : ($arNames[$access_code]["provider"] <> ''? '<b>'.$arNames[$access_code]["provider"].':</b> ':'').$arNames[$access_code]["name"])?></td>
+		<td><?=(
+			$access_code == "*" ?
+				GetMessage("EDIT_ACCESS_ALL_GROUPS")
+				: ($arNames[$access_code]["provider"] <> '' ? '<b>'.htmlspecialcharsbx($arNames[$access_code]["provider"]).': </b> ' : '')
+					. htmlspecialcharsbx($arNames[$access_code]["name"])
+		)?></td>
 		<td>
 			<?if ($currentPerm === false && $path != "/"): //Inherit permission
 				$jsInheritPermID .= ",'".$permissionID."'";
@@ -382,7 +387,7 @@ window.BXAddNewPermission = function(arRights)
 			var currentTD = tableRow.insertCell(1);
 
 			var pr = BX.Access.GetProviderName(provider);
-			groupTD.innerHTML = (pr? '<b>'+pr+':</b> ':'')+arRights[provider][id].name;
+			groupTD.innerHTML = (pr? '<b>'+BX.util.htmlspecialchars(pr)+':</b> ':'')+BX.util.htmlspecialchars(arRights[provider][id].name);
 
 			//Insert Task Select
 			var permissionID = Math.round(Math.random() * 100000);

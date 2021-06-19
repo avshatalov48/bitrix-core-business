@@ -156,6 +156,36 @@ class LandingSitesComponent extends LandingBaseComponent
 	}
 
 	/**
+	 * Returns array of site ids with 'delete' locked.
+	 * @param array $ids Site ids.
+	 * @return array
+	 */
+	protected function getDeleteLocked(array $ids): array
+	{
+		$statuses = [];
+
+		if ($ids)
+		{
+			$res = \Bitrix\Landing\Lock::getList([
+				'select' => [
+					'SITE_ID' => 'ENTITY_ID'
+				],
+				'filter' => [
+					'ENTITY_ID' => $ids,
+					'=ENTITY_TYPE' => \Bitrix\Landing\Lock::ENTITY_TYPE_SITE,
+					'=LOCK_TYPE' => \Bitrix\Landing\Lock::LOCK_TYPE_DELETE
+				]
+			]);
+			while ($row = $res->fetch())
+			{
+				$statuses[] = $row['SITE_ID'];
+			}
+		}
+
+		return $statuses;
+	}
+
+	/**
 	 * Base executable method.
 	 * @return mixed
 	 */
@@ -240,6 +270,9 @@ class LandingSitesComponent extends LandingBaseComponent
 				'navigation' => $this::COUNT_PER_PAGE
 			]);
 			$this->arResult['NAVIGATION'] = $this->getLastNavigation();
+			$this->arResult['DELETE_LOCKED'] = $this->getDeleteLocked(
+				array_keys($this->arResult['SITES'])
+			);
 
 			// detect preview of sites and set rights
 			$rights = Rights::getOperationsForSite(

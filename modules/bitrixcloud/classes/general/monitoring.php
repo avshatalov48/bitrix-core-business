@@ -27,9 +27,7 @@ class CBitrixCloudMonitoring
 		if ($domainName != "")
 			$result[$domainName] = $domainName;
 
-		$by = "";
-		$order = "";
-		$siteList = CSite::GetList($by, $order, array("ACTIVE"=>"Y"));
+		$siteList = CSite::GetList('', '', array("ACTIVE"=>"Y"));
 		while($site = $siteList->Fetch())
 		{
 			$domains = explode("\r\n", $site["DOMAINS"]);

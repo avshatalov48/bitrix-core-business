@@ -160,7 +160,7 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 				}
 				else
 				{
-					$arResult['STATUS'] = implode($result->getErrorMessages(), "\n");
+					$arResult['STATUS'] = implode("\n", $result->getErrorMessages());
 				}
 			}
 

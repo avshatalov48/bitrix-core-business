@@ -42,13 +42,13 @@ abstract class Connector extends Entity\DataManager
 	*
 	* @return string field name
 	*/
-	abstract public function getLinkField();
+	abstract public static function getLinkField();
 
 	/** Method should return a name of the "target" entity plus namespace but without trailing 'Table'. For example, for delivery this should be 'Bitrix\Sale\Delivery\Delivery'
 	*
 	* @return string table name
 	*/
-	abstract public function getTargetEntityName();
+	abstract public static function getTargetEntityName();
 
 	/**
 	* Returns a name of type filed. By default 'LOCATION_TYPE' is used for the most of. Does not make any sense if getUseGroups() returns false

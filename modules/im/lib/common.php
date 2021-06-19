@@ -40,7 +40,18 @@ class Common
 			});
 		}
 
-		return $pureJson? \Bitrix\Main\Web\Json::encode($params): \CUtil::PhpToJSObject($params);
+		return $pureJson? self::jsonEncode($params): \CUtil::PhpToJSObject($params);
+	}
+
+	public static function jsonEncode($array = [])
+	{
+		$option = null;
+		if (\Bitrix\Main\Application::isUtfMode())
+		{
+			$option = JSON_UNESCAPED_UNICODE;
+		}
+
+		return \Bitrix\Main\Web\Json::encode($array, $option);
 	}
 
 	public static function getCacheUserPostfix($id)
@@ -105,6 +116,21 @@ class Common
 		}
 
 		return $result;
+	}
+
+	public static function getExternalAuthId($skipTypes = [])
+	{
+		$types = \Bitrix\Main\UserTable::getExternalUserTypes();
+		if (empty($skipTypes))
+		{
+			return $types;
+		}
+
+		$types = array_filter($types, function($authId) use ($skipTypes) {
+			return !in_array($authId, $skipTypes, true);
+		});
+
+		return $types;
 	}
 
 	public static function getPullExtra()

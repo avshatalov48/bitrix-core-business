@@ -1,10 +1,16 @@
-import {Type, Loc, Dom, Tag} from "main.core";
+import {Runtime, Type, Loc, Dom, Tag} from "main.core";
 import "ui.notification";
 import "../../../../../../main/install/js/main/date/main.date";
 import {PopupManager} from 'main.popup';
+import {PULL as Pull} from 'pull.client';
 
 export class Util
 {
+	static PLANNER_PULL_TAG = 'calendar-planner-#USER_ID#';
+	static PLANNER_WATCH_LIST = [];
+	static REQUEST_ID_LIST = [];
+	static accessNames = {};
+
 	static parseTime(str)
 	{
 		let date = Util.parseDate1(BX.date.format(Util.getDateFormat(), new Date()) + ' ' + str, false);
@@ -44,7 +50,7 @@ export class Util
 			regMonths = '';
 			for (i = 1; i <= 12; i++)
 			{
-				regMonths = regMonths + '|' + Loc.getMessage('MON_'+i);
+				regMonths = regMonths + '|' + Loc.getMessage('MON_' + i);
 			}
 
 			let
@@ -60,22 +66,22 @@ export class Util
 				return null;
 			}
 
-			if(aDate.length > aFormat.length)
+			if (aDate.length > aFormat.length)
 			{
 				aFormat = format.match(/(DD|MI|MMMM|MM|M|YYYY|HH|H|SS|TT|T|GG|G)/ig);
 			}
 
-			for(i = 0, cnt = aDate.length; i < cnt; i++)
+			for (i = 0, cnt = aDate.length; i < cnt; i++)
 			{
-				if(BX.util.trim(aDate[i]) !== '')
+				if (BX.util.trim(aDate[i]) !== '')
 				{
 					aDateArgs[aDateArgs.length] = aDate[i];
 				}
 			}
 
-			for(i = 0, cnt = aFormat.length; i < cnt; i++)
+			for (i = 0, cnt = aFormat.length; i < cnt; i++)
 			{
-				if(BX.util.trim(aFormat[i]) != '')
+				if (BX.util.trim(aFormat[i]) != '')
 				{
 					aFormatArgs[aFormatArgs.length] = aFormat[i];
 				}
@@ -97,17 +103,17 @@ export class Util
 				}
 			}
 
-			for(i = 0, cnt = aFormatArgs.length; i < cnt; i++)
+			for (i = 0, cnt = aFormatArgs.length; i < cnt; i++)
 			{
 				k = aFormatArgs[i].toUpperCase();
 				aResult[k] = k == 'T' || k == 'TT' ? aDateArgs[i] : parseInt(aDateArgs[i], 10);
 			}
 
-			if(aResult['DD'] > 0 && aResult['MM'] > 0 && aResult['YYYY'] > 0)
+			if (aResult['DD'] > 0 && aResult['MM'] > 0 && aResult['YYYY'] > 0)
 			{
 				let d = new Date();
 
-				if(bUTC)
+				if (bUTC)
 				{
 					d.setUTCDate(1);
 					d.setUTCFullYear(aResult['YYYY']);
@@ -124,16 +130,16 @@ export class Util
 					d.setHours(0, 0, 0);
 				}
 
-				if(
+				if (
 					(!isNaN(aResult['HH']) || !isNaN(aResult['GG']) || !isNaN(aResult['H']) || !isNaN(aResult['G']))
 					&& !isNaN(aResult['MI'])
 				)
 				{
 					if (!isNaN(aResult['H']) || !isNaN(aResult['G']))
 					{
-						let bPM = (aResult['T']||aResult['TT']||'am').toUpperCase()=='PM';
-						let h = parseInt(aResult['H']||aResult['G']||0, 10);
-						if(bPM)
+						let bPM = (aResult['T'] || aResult['TT'] || 'am').toUpperCase() == 'PM';
+						let h = parseInt(aResult['H'] || aResult['G'] || 0, 10);
+						if (bPM)
 						{
 							aResult['HH'] = h + (h == 12 ? 0 : 12);
 						}
@@ -144,13 +150,13 @@ export class Util
 					}
 					else
 					{
-						aResult['HH'] = parseInt(aResult['HH']||aResult['GG']||0, 10);
+						aResult['HH'] = parseInt(aResult['HH'] || aResult['GG'] || 0, 10);
 					}
 
 					if (isNaN(aResult['SS']))
 						aResult['SS'] = 0;
 
-					if(bUTC)
+					if (bUTC)
 					{
 						d.setUTCHours(aResult['HH'], aResult['MI'], aResult['SS']);
 					}
@@ -205,7 +211,7 @@ export class Util
 		let
 			lang = Loc.getMessage('LANGUAGE_ID'),
 			format = Util.getDateFormat();
-		if (lang === 'ru' || lang  === 'ua')
+		if (lang === 'ru' || lang === 'ua')
 		{
 			format = showDayOfWeek ? 'l, j F' : 'j F';
 
@@ -222,7 +228,7 @@ export class Util
 			["today", "today"],
 			["tommorow", "tommorow"],
 			["yesterday", "yesterday"],
-			["" , format]
+			["", format]
 		], date);
 	}
 
@@ -237,7 +243,7 @@ export class Util
 
 	static getDefaultColorList()
 	{
-		return ['#86B100','#0092CC','#00AFC7','#DA9100','#00B38C','#DE2B24','#BD7AC9','#838FA0','#AB7917','#E97090'];
+		return ['#86b100', '#0092cc', '#00afc7', '#da9100', '#00b38c', '#de2b24', '#bd7ac9', '#838fa0', '#ab7917', '#e97090'];
 	}
 
 	static findTargetNode(node, parentCont)
@@ -266,8 +272,7 @@ export class Util
 
 			if (!res)
 			{
-				res = BX.findParent(node, function(n)
-				{
+				res = BX.findParent(node, function(n) {
 					let j;
 					if (n.attributes && n.attributes.length)
 					{
@@ -293,7 +298,7 @@ export class Util
 
 	static getWeekDayByInd(index)
 	{
-		return ['SU','MO','TU','WE','TH','FR','SA'][index];
+		return ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][index];
 	}
 
 	static getLoader(size, className)
@@ -312,7 +317,7 @@ export class Util
 
 	static getDayCode(date)
 	{
-		return date.getFullYear() + '-' + ("0"+(~~(date.getMonth() + 1))).substr(-2,2) + '-' + ("0"+(~~(date.getDate()))).substr(-2,2);
+		return date.getFullYear() + '-' + ("0" + (~~(date.getMonth() + 1))).substr(-2, 2) + '-' + ("0" + (~~(date.getDate()))).substr(-2, 2);
 	}
 
 	static getTextColor(color)
@@ -470,7 +475,7 @@ export class Util
 	{
 		intValue = parseInt(intValue);
 		let h = Math.floor(intValue / 60);
-		return {hour: h, min: intValue - h * 60};
+		return { hour: h, min: intValue - h * 60 };
 	}
 
 	static preventSelection(node)
@@ -502,7 +507,7 @@ export class Util
 
 	static sendAnalyticLabel(label)
 	{
-		BX.ajax.runAction('calendar.api.calendarajax.sendAnalyticsLabel', {analyticsLabel: label});
+		BX.ajax.runAction('calendar.api.calendarajax.sendAnalyticsLabel', { analyticsLabel: label });
 	}
 
 	static setOptions(config, additionalParams)
@@ -518,7 +523,7 @@ export class Util
 
 	static getUserSettings()
 	{
-		return Util.userSettings || {};
+		return Type.isObjectLike(Util.userSettings) ? Util.userSettings : {};
 	}
 
 	static setCalendarContext(calendarContext)
@@ -542,8 +547,8 @@ export class Util
 		const emailGuestLimit = Util.getEventWithEmailGuestLimit();
 		return emailGuestLimit > 0
 			&& (emailGuestAmount === 8
-			|| emailGuestAmount === 4
-			|| emailGuestAmount >= emailGuestLimit);
+				|| emailGuestAmount === 4
+				|| emailGuestAmount >= emailGuestLimit);
 	}
 
 	static isEventWithEmailGuestAllowed()
@@ -556,6 +561,7 @@ export class Util
 	{
 		Util.countEventWithEmailGuestAmount = value;
 	}
+
 	static setEventWithEmailGuestLimit(value)
 	{
 		Util.eventWithEmailGuestLimit = value;
@@ -575,6 +581,7 @@ export class Util
 	{
 		Util.currentCalendarView = calendarView;
 	}
+
 	static getCurrentView()
 	{
 		return Util.currentCalendarView || null;
@@ -588,6 +595,130 @@ export class Util
 		if (!parseInt(timezoneOffset) || fullDay === true)
 			return date;
 
-		return new Date(date.getTime() - parseInt(timezoneOffset)  * 1000);
+		return new Date(date.getTime() - parseInt(timezoneOffset) * 1000);
+	}
+
+	static randomInt(min, max)
+	{
+		return Math.round(min - 0.5 + Math.random() * (max - min + 1));
+	}
+
+	static getRandomColor()
+	{
+		const defaultColors = Util.getDefaultColorList();
+		return defaultColors[Util.randomInt(0, defaultColors.length - 1)];
+	}
+
+	static setAccessNames(accessNames = {})
+	{
+		Util.accessNames = {};
+		for (let code in accessNames)
+		{
+			if (accessNames.hasOwnProperty(code))
+			{
+				Util.setAccessName(code, accessNames[code])
+			}
+		}
+	}
+
+	static getAccessName(code)
+	{
+		return Util.accessNames[code] || code;
+	}
+
+	static setAccessName(code, name)
+	{
+		Util.accessNames[code] = name;
+	}
+
+	static getRandomInt(numCount = 6)
+	{
+		return Math.round(Math.random() * Math.pow(10, numCount));
+	}
+
+	static displayError(errors, reloadPage)
+	{
+		if (Type.isArray(errors))
+		{
+			let errorMessage = '';
+			for (let i = 0; i < errors.length; i++)
+			{
+				errorMessage += errors[i].message + "\n";
+			}
+			errors = errorMessage;
+		}
+
+		setTimeout(() => {
+
+			alert(errors || '[Bitrix Calendar] Request error');
+			if (reloadPage)
+			{
+				location.reload();
+			}
+
+		}, 200);
+	}
+
+	static convertEntityToAccessCode(entity)
+	{
+		if (Type.isObjectLike(entity))
+		{
+			if (entity.entityId === 'meta-user' && entity.id === 'all-users')
+			{
+				return 'UA';
+			}
+			else if (entity.entityId === 'user')
+			{
+				return 'U' + entity.id;
+			}
+			else if (entity.entityId === 'project')
+			{
+				return 'SG' + entity.id;
+			}
+			else if (entity.entityId === 'department')
+			{
+				return 'DR' + entity.id;
+			}
+		}
+	}
+
+	static extendPlannerWatches({ entries, userId })
+	{
+		entries.forEach((entry) => {
+			if (entry.type === 'user' && parseInt(entry.id) !== parseInt(userId))
+			{
+				const tag = Util.PLANNER_PULL_TAG.replace('#USER_ID#', entry.id);
+				if (!Util.PLANNER_WATCH_LIST.includes(tag))
+				{
+					Pull.extendWatch(tag);
+					Util.PLANNER_WATCH_LIST.push(tag);
+				}
+			}
+		});
+	}
+
+	static clearPlannerWatches()
+	{
+		Util.PLANNER_WATCH_LIST.forEach((tag) => {
+			Pull.clearWatch(tag);
+		});
+		Util.PLANNER_WATCH_LIST = [];
+	}
+
+	static registerRequestId()
+	{
+		const requestUid = BX.Calendar.Util.getRandomInt(8);
+		Util.REQUEST_ID_LIST.push(requestUid);
+		return requestUid;
+	}
+	static unregisterRequestId(requestUid)
+	{
+		Util.REQUEST_ID_LIST = Util.REQUEST_ID_LIST.filter((uid) => {return uid !== requestUid});
+	}
+
+	static checkRequestId(requestUid)
+	{
+		requestUid = parseInt(requestUid);
+		return !Type.isInteger(requestUid) || !Util.REQUEST_ID_LIST.includes(requestUid);
 	}
 }

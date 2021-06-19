@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SONET_MODULE_NOT_INSTALL"] = "Модуль социальной сети не установлен.";
 $MESS["SONET_WORKGROUPS_FEATURE_DISABLED"] = "Функционал рабочих групп отключен.";
 $MESS["SONET_LOADING"] = "Загрузка...";
@@ -33,6 +33,4 @@ $MESS["SONET_GALLERIES_IS_NOT_ACTIVE"] = "Ваши фотогалереи заб
 $MESS["SONET_GALLERY_IS_NOT_ACTIVE"] = "Ваша фотогалерея заблокирована. Обратитесь к администратору.";
 $MESS["SONET_NAME_TEMPLATE_DEFAULT"] = "#NOBR##LAST_NAME# #NAME##/NOBR#";
 $MESS["SONET_CONTENT_SEARCH_CHAIN"] = "Поиск";
-$MESS["PHOTO_STEPPER_PROGRESS_TITLE"] = "Копирование фотографий";
-$MESS["PHOTO_STEPPER_PROGRESS_ERROR"] = "Не удалось скопировать фотографии с идентификаторами: ";
-?>
+$MESS["SONET_GROUP_PAGES_TITLE_TEMPLATE"] = "#GROUP_NAME#: #PAGE_TITLE#";

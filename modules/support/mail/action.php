@@ -58,7 +58,7 @@ if(CModule::IncludeModule("support")):
 	{
 		$w_subject = "";
 		$arrTemplate = array();
-		$db_res = CEventMessage::GetList($o, $b, Array("ACTIVE" => "Y", "EVENT_NAME"=>"TICKET_NEW_FOR_AUTHOR || TICKET_NEW_FOR_TECHSUPPORT || TICKET_CHANGE_FOR_TECHSUPPORT || TICKET_CHANGE_BY_AUTHOR_FOR_AUTHOR || TICKET_CHANGE_BY_SUPPORT_FOR_AUTHOR", "LID"=>$MAILBOX_LID));
+		$db_res = CEventMessage::GetList('', '', Array("ACTIVE" => "Y", "EVENT_NAME"=>"TICKET_NEW_FOR_AUTHOR || TICKET_NEW_FOR_TECHSUPPORT || TICKET_CHANGE_FOR_TECHSUPPORT || TICKET_CHANGE_BY_AUTHOR_FOR_AUTHOR || TICKET_CHANGE_BY_SUPPORT_FOR_AUTHOR", "LID"=>$MAILBOX_LID));
 		while($ar_res = $db_res->Fetch()) $arrTemplate[] = $ar_res["SUBJECT"];
 		$arrTemplate = array_unique($arrTemplate);
 		if (is_array($arrTemplate) && count($arrTemplate)>0)
@@ -79,7 +79,7 @@ if(CModule::IncludeModule("support")):
 <?
 $arrSiteRef = array();
 $arrSiteID = array();
-$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch()) 
 {
 	$arrSiteRef[] = "[".$ar["ID"]."] ".$ar["NAME"];

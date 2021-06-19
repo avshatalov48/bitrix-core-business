@@ -30,7 +30,7 @@ $arFilter = array(
 	"ADV_DATA_TYPE" => $find_adv_data_type,
 	"SECTION_EXACT_MATCH" => $find_section_exact_match,
 );
-$rsPages = CPage::GetList($find_diagram_type, $by, $order, $arFilter, $is_filtered);
+$rsPages = CPage::GetList($find_diagram_type, $by, $order, $arFilter);
 $arrPages = array();
 $max_counter = 0;
 $sum_counter = 0;

@@ -5,6 +5,11 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 :root {
+  --bs-gutter-x: 30px;
+  --bs-gutter-y: 0;
+}
+
+:root {
   --blue: #007bff;
   --indigo: #6610f2;
   --purple: #6f42c1;
@@ -586,10 +591,13 @@ pre code {
 .row {
   display: -ms-flexbox;
   display: flex;
+  -ms-flex: 1 0 100%;
+      flex: 1 0 100%;
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
-  margin-right: -15px;
-  margin-left: -15px;
+  margin-top: calc(var(--bs-gutter-y) * -1);
+  margin-right: calc(var(--bs-gutter-x) / -2);
+  margin-left: calc(var(--bs-gutter-x) / -2);
 }
 
 .no-gutters {
@@ -611,8 +619,8 @@ pre code {
 .col-xl-auto {
   position: relative;
   width: 100%;
-  padding-right: 15px;
-  padding-left: 15px;
+  padding-right: calc(var(--bs-gutter-x) / 2);
+  padding-left: calc(var(--bs-gutter-x) / 2);
 }
 
 .col {
@@ -6893,6 +6901,10 @@ button.bg-dark:focus {
 
 .embed-responsive-16by9::before {
   padding-top: 56.25%;
+}
+
+.embed-responsive-9by16::before {
+  padding-top: 177.77778%;
 }
 
 .embed-responsive-4by3::before {

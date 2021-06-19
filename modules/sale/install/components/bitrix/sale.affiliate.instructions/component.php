@@ -13,7 +13,7 @@ $arParams["SHOP_URL"] = trim($arParams["SHOP_URL"]);
 
 if ($arParams["SHOP_NAME"] == '' || $arParams["SHOP_URL"] == '')
 {
-	$dbSite = CSite::GetList(($b="sort"), ($o="asc"), array("LID" => SITE_ID));
+	$dbSite = CSite::GetList("sort", "asc", array("LID" => SITE_ID));
 	if ($arParams["arSite"] = $dbSite->GetNext())
 	{
 		if ($arParams["SHOP_NAME"] == '')

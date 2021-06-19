@@ -28,8 +28,7 @@ function data_sort($ar1, $ar2)
 uasort($arrLegend, "data_sort");
 
 $arr = array();
-reset($arrLegend);
-while(list($keyL, $arrL) = each($arrLegend)) 
+foreach ($arrLegend as $keyL => $arrL)
 {
 	if ($arrL[$diagram_type.$find_data_type] > 0)
 		$arr[] = array("COLOR"=> $arrL["COLOR"], "COUNTER" => intval($arrL[$diagram_type.$find_data_type]));

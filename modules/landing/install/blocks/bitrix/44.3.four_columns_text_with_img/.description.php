@@ -47,7 +47,7 @@ return array(
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.3.FOUR_COLUMNS_TEXT_WITH_IMG_NODES_LANDINGBLOCKNODECARD_TITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-card-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.3.FOUR_COLUMNS_TEXT_WITH_IMG_NODES_LANDINGBLOCKNODECARDTEXT'),

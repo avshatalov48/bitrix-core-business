@@ -5,15 +5,17 @@ namespace Bitrix\Calendar\ICal\MailInvitation;
 
 
 use Bitrix\Calendar\ICal\Builder\Attach;
+use Bitrix\Calendar\ICal\Builder\Attendee;
 use Bitrix\Calendar\SerializeObject;
-use Bitrix\Mail;
+use Bitrix\Calendar\Util;
+use Bitrix\Mail\MailboxTable;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Event;
 use CEvent;
 use COption;
-use \Serializable;
+use Serializable;
 
 /**
  * Class SenderInvitation
@@ -22,9 +24,11 @@ use \Serializable;
 abstract class SenderInvitation implements Serializable
 {
 	use SerializeObject;
-	protected const ATTACHMENT_NAME = 'invite.ics';
 	public const CHARSET = 'utf-8';
 	public const CONTENT_TYPE = 'text/calendar';
+	public const DECISION_YES = 'Y';
+	public const DECISION_NO = 'N';
+	protected const ATTACHMENT_NAME = 'invite.ics';
 	protected const MAIL_TEMPLATE = 'SEND_ICAL_INVENT';
 
 	/**
@@ -60,13 +64,18 @@ abstract class SenderInvitation implements Serializable
 		$this->context = $context;
 	}
 
+
 	/**
 	 * @return bool
 	 * @throws LoaderException
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function send(): bool
 	{
-//		$this->checkOrganizerEmail();
+		$this->checkEventOrganizer();
+		$this->checkAddresserEmail();
 		$this->prepareEventFields();
 
 		$status = CEvent::sendImmediate(
@@ -150,12 +159,12 @@ abstract class SenderInvitation implements Serializable
 	/**
 	 * @throws LoaderException
 	 */
-	protected function checkOrganizerEmail(): void
+	protected function checkAddresserEmail(): void
 	{
 		if (Loader::includeModule('mail') && empty($this->context->getAddresser()->getMailto()))
 		{
-			$boxes = Mail\MailboxTable::getUserMailboxes($this->event['MEETING_HOST']);
-			if (is_array($boxes) && !empty($boxes))
+			$boxes = MailboxTable::getUserMailboxes($this->event['MEETING_HOST']);
+			if (!empty($boxes) && is_array($boxes))
 			{
 				$this->context->getAddresser()->setMailto(array_shift($boxes)['EMAIL']);
 			}
@@ -243,7 +252,7 @@ abstract class SenderInvitation implements Serializable
 	 */
 	protected function getSubjectMessage(): string
 	{
-		return "{$this->getSiteName()}" . $this->getSubjectTitle();
+		return $this->getSiteName().$this->getSubjectTitle();
 	}
 
 	/**
@@ -269,6 +278,22 @@ abstract class SenderInvitation implements Serializable
 	}
 
 	/**
+	 * @return int
+	 */
+	protected function getEventDateCreateTimestamp(): int
+	{
+		return (int) Util::getTimestamp($this->event['CREATED']);
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getEventOwnerId(): int
+	{
+		return (int) $this->event['OWNER_ID'];
+	}
+
+	/**
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
@@ -276,5 +301,29 @@ abstract class SenderInvitation implements Serializable
 	protected function prepareEventFields(): void
 	{
 		$this->event['DESCRIPTION'] = Helper::getEventDescriptionById((int) $this->event['ID']);
+	}
+
+	/**
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	protected function checkEventOrganizer(): void
+	{
+		if (empty($this->event['ICAL_ORGANIZER']))
+		{
+			if ($user = Helper::getUserById($this->event['MEETING_HOST']))
+			{
+				$this->event['ICAL_ORGANIZER'] = Attendee::createInstance(
+					$user['EMAIL'],
+					$user['NAME'],
+					$user['LAST_NAME'],
+					null,
+					null,
+					null,
+					$user['EMAIL']
+				);
+			}
+		}
 	}
 }

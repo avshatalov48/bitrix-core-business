@@ -19,5 +19,5 @@ export const MutationType = Object.freeze({
 
 export const StorageLimit = Object.freeze({
 	dialogues: 50,
-	messages: 20,
+	messages: 100,
 });

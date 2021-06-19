@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSocNetLogEvents
@@ -6,7 +7,7 @@ class CAllSocNetLogEvents
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $DB, $arSocNetAllowedEntityTypes;
 
@@ -165,7 +166,7 @@ class CAllSocNetLogEvents
 		return true;
 	}
 
-	function DeleteByUserAndEntity($userID, $entityType, $entityID)
+	public static function DeleteByUserAndEntity($userID, $entityType, $entityID)
 	{
 		global $DB;
 
@@ -198,7 +199,7 @@ class CAllSocNetLogEvents
 	/***************************************/
 	/**********  DATA SELECTION  ***********/
 	/***************************************/
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -665,7 +666,7 @@ class CAllSocNetLogEvents
 
 	}
 
-	function GetSQLForEvent($entity_type, $entity_id, $event_id, $user_id, $transport = false, $visible = true, $arOfEntities = array())
+	public static function GetSQLForEvent($entity_type, $entity_id, $event_id, $user_id, $transport = false, $visible = true, $arOfEntities = array())
 	{
 		if (!in_array($entity_type, CSocNetAllowed::GetAllowedEntityTypes()))
 		{
@@ -763,4 +764,3 @@ class CAllSocNetLogEvents
 		return $strSQL;
 	}
 }
-?>

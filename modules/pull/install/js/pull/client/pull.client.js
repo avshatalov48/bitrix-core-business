@@ -602,7 +602,7 @@
 	 * @param {string} command Command name.
 	 * @param {object} params Command parameters.
 	 * @param {integer} [expiry] Message expiry time in seconds.
-	 * @return {BX.Promise<bool>}
+	 * @return void
 	 */
 	Pull.prototype.sendMessage = function(users, moduleId, command, params, expiry)
 	{
@@ -624,7 +624,7 @@
 	 * @param {string} messageBatch.command Command name.
 	 * @param {object} messageBatch.params Command parameters.
 	 * @param {integer} [messageBatch.expiry] Message expiry time in seconds.
-	 * @return {BX.Promise<bool>}
+	 * @return void
 	 */
 	Pull.prototype.sendMessageBatch = function(messageBatch)
 	{

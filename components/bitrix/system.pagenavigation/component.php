@@ -27,7 +27,7 @@ if (is_object($arParams["NAV_RESULT"]) &&  is_subclass_of($arParams["NAV_RESULT"
 	$arResult["add_anchor"] = $dbresult->add_anchor;
 	$arResult["nPageWindow"] = $nPageWindow = $dbresult->nPageWindow;
 	$arResult["bSavePage"] = (CPageOption::GetOptionString("main", "nav_page_in_session", "Y")=="Y");
-	if($arParams["BASE_LINK"] <> '')
+	if(($arParams["BASE_LINK"] ?? '') <> '')
 	{
 		if(($pos = mb_strpos($arParams["BASE_LINK"], "?")) !== false)
 		{

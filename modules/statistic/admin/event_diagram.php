@@ -21,7 +21,7 @@ $arFilter = Array(
 	);
 if ($find_date1 <> '' || $find_date2 <> '')	$period = "Y";
 $by = ($period=="Y") ? "s_period_counter" : "s_total_counter";
-$w = CStatEventType::GetList($by, ($order="desc"), $arFilter, $is_filtered);
+$w = CStatEventType::GetList($by, "desc", $arFilter);
 while ($wr = $w->Fetch())	
 {
 	$total++;
@@ -29,7 +29,7 @@ while ($wr = $w->Fetch())
 	if ($count>0) $arr[] = array("COUNTER"=>$count);
 }
 $arChart = array();
-while(list($key,$sector)=each($arr))
+foreach ($arr as $sector)
 {
 	$color = GetNextRGB($color, $total);
 	$arChart[] = array("COUNTER"=>$sector["COUNTER"], "COLOR"=>$color);

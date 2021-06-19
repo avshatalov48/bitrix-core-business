@@ -60,8 +60,7 @@ function GetVoteDataByID($VOTE_ID, &$arChannel, &$arVote, &$arQuestions, &$arAns
 				$arChannel["~".mb_substr($key, 9)] = $res;
 			}
 		}
-		$by = "s_c_sort"; $order = "asc";
-		$db_res = CVoteQuestion::GetList($VOTE_ID, $by, $order, array("ACTIVE" => "Y"), $is_filtered);
+		$db_res = CVoteQuestion::GetList($VOTE_ID, "s_c_sort", "asc", array("ACTIVE" => "Y"));
 		while ($res = $db_res->GetNext())
 		{
 			$arQuestions[$res["ID"]] = $res + array("ANSWERS" => array());
@@ -181,13 +180,13 @@ function GetVoteDataByID($VOTE_ID, &$arChannel, &$arVote, &$arQuestions, &$arAns
 // return vote id for channel sid with check permissions and ACTIVE vote
 function GetCurrentVote($GROUP_SID, $site_id=SITE_ID, $access=1)
 {
-	$z = CVoteChannel::GetList($by, $order, array("SID"=>$GROUP_SID, "SID_EXACT_MATCH"=>"Y", "SITE"=>$site_id, "ACTIVE"=>"Y"), $is_filtered);
+	$z = CVoteChannel::GetList('', '', array("SID"=>$GROUP_SID, "SID_EXACT_MATCH"=>"Y", "SITE"=>$site_id, "ACTIVE"=>"Y"));
 	if ($zr = $z->Fetch())
 	{
 		$perm = CVoteChannel::GetGroupPermission($zr["ID"]);
 		if (intval($perm)>=$access)
 		{
-			$v = CVote::GetList($by, $order, array("CHANNEL_ID"=>$zr["ID"], "LAMP"=>"green"), $is_filtered);
+			$v = CVote::GetList('', '', array("CHANNEL_ID"=>$zr["ID"], "LAMP"=>"green"));
 			if ($vr = $v->Fetch()) return $vr["ID"];
 		}
 	}
@@ -198,13 +197,13 @@ function GetCurrentVote($GROUP_SID, $site_id=SITE_ID, $access=1)
 function GetPrevVote($GROUP_SID, $level=1, $site_id=SITE_ID, $access=1)
 {
 	$VOTE_ID = 0;
-	$z = CVoteChannel::GetList($by, $order, array("SID"=>$GROUP_SID, "SID_EXACT_MATCH"=>"Y", "SITE"=>$site_id, "ACTIVE"=>"Y"), $is_filtered);
+	$z = CVoteChannel::GetList('', '', array("SID"=>$GROUP_SID, "SID_EXACT_MATCH"=>"Y", "SITE"=>$site_id, "ACTIVE"=>"Y"));
 	if ($zr = $z->Fetch())
 	{
 		$perm = CVoteChannel::GetGroupPermission($zr["ID"]);
 		if (intval($perm)>=$access)
 		{
-			$v = CVote::GetList(($by = "s_date_start"), ($order = "desc"), array("CHANNEL_ID"=>$zr["ID"], "LAMP"=>"red"), $is_filtered);
+			$v = CVote::GetList("s_date_start", "desc", array("CHANNEL_ID"=>$zr["ID"], "LAMP"=>"red"));
 			$i = 0;
 			while ($vr=$v->Fetch())
 			{
@@ -267,7 +266,7 @@ function GetAnyAccessibleVote($site_id=SITE_ID, $channel_id=null)
 		$arParams['SID_EXACT_MATCH'] = 'Y';
 	}
 
-	$z = CVoteChannel::GetList($by="s_c_sort", $order="asc", $arParams, $is_filtered);
+	$z = CVoteChannel::GetList("s_c_sort", "asc", $arParams);
 	$arResult = array();
 
 	while ($zr = $z->Fetch())
@@ -276,7 +275,7 @@ function GetAnyAccessibleVote($site_id=SITE_ID, $channel_id=null)
 
 		if (intval($perm)>=2)
 		{
-			$v = CVote::GetList($by, $order, array("CHANNEL_ID"=>$zr["ID"], "LAMP"=>"green"), $is_filtered);
+			$v = CVote::GetList('', '', array("CHANNEL_ID"=>$zr["ID"], "LAMP"=>"green"));
 			while ($vr = $v->Fetch()) 
 			{
 				if (!(IsUserVoted($vr['ID']))) $arResult[] = $vr['ID'];

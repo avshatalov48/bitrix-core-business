@@ -1630,7 +1630,7 @@ class OrderEdit
 
 		if($siteId == '')
 		{
-			$res = \CSite::GetList($by="id", $order="asc", array("ACTIVE" => "Y", "DEF" => "Y"));
+			$res = \CSite::GetList("id", "asc", array("ACTIVE" => "Y", "DEF" => "Y"));
 
 			if($site = $res->Fetch())
 			{

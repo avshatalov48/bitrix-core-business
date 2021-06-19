@@ -130,7 +130,6 @@ class CJSCore
 			$coreLang = self::_loadLang($config['lang'], true);
 			$coreSettings = self::loadSettings('main.core', $config['settings'], true);
             $coreJs = self::_loadJS($config['js'], true);
-			$coreCss = self::_loadCSS($config['css'], true);
 
 			if ($bReturn)
 			{
@@ -138,7 +137,6 @@ class CJSCore
 			    $ret .= $coreSettings;
 				$ret .= $relativities;
 			    $ret .= $coreJs;
-			    $ret .= $coreCss;
 			    $ret .= $includes;
             }
 
@@ -148,16 +146,6 @@ class CJSCore
             $asset->addString($relativities, true, AssetLocation::AFTER_CSS);
             $asset->addString($coreJs, true, AssetLocation::AFTER_CSS);
             $asset->addString($includes, true, AssetLocation::AFTER_CSS);
-
-			// Asset addString before_css doesn't works in admin section
-            if (!defined('ADMIN_SECTION') || ADMIN_SECTION !== true)
-			{
-				$asset->addString($coreCss, true, AssetLocation::BEFORE_CSS);
-			}
-            else
-			{
-				self::_loadCSS($config['css'], false);
-			}
 		}
 
 		for ($i = 0, $len = count($arExt); $i < $len; $i++)
@@ -241,6 +229,7 @@ class CJSCore
 			"FORMAT_DATETIME" => FORMAT_DATETIME,
 			"COOKIE_PREFIX" => COption::GetOptionString("main", "cookie_name", "BITRIX_SM"),
 			"SERVER_TZ_OFFSET" => date("Z"),
+			"UTF_MODE" => Main\Application::isUtfMode()? 'Y': 'N',
 		);
 
 		if (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
@@ -439,18 +428,7 @@ JS;
 	{
 		$ret = '';
 
-		if (preg_match("/^((?P<MODULE_ID>[\w\.]+):)?(?P<EXT_NAME>[\w\.\-]+)$/", $ext, $matches))
-		{
-			if ($matches['MODULE_ID'] <> '' && $matches['MODULE_ID'] !== 'main')
-			{
-				\Bitrix\Main\Loader::includeModule($matches['MODULE_ID']);
-			}
-			$ext = $matches['EXT_NAME'];
-		}
-		else
-		{
-			$ext = preg_replace('/[^a-z0-9_\.\-]/i', '', $ext);
-		}
+		$ext = preg_replace('/[^a-z0-9_\.\-]/i', '', $ext);
 
 		if (!self::IsExtRegistered($ext))
 		{

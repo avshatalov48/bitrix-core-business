@@ -6,21 +6,49 @@
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+	var instances = new Map();
 
 	var ProductField = /*#__PURE__*/function () {
+	  babelHelpers.createClass(ProductField, null, [{
+	    key: "getById",
+	    value: function getById(id) {
+	      return instances.get(id) || null;
+	    }
+	  }]);
+
 	  function ProductField(id) {
 	    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    babelHelpers.classCallCheck(this, ProductField);
+	    babelHelpers.defineProperty(this, "onSelectEditHandler", this.onSelectEdit.bind(this));
+	    babelHelpers.defineProperty(this, "onCancelEditHandler", this.onCancelEdit.bind(this));
+	    babelHelpers.defineProperty(this, "onBeforeGridRequestHandler", this.onBeforeGridRequest.bind(this));
+	    babelHelpers.defineProperty(this, "onUnsubscribeEventsHandler", this.unsubscribeEvents.bind(this));
 	    this.selector = new catalog_productSelector.ProductSelector(id, settings);
 	    this.componentName = settings.componentName || '';
 	    this.signedParameters = settings.signedParameters || '';
 	    this.rowIdMask = settings.rowIdMask || '#ID#';
-	    main_core_events.EventEmitter.subscribe('Grid::thereEditedRows', this.onSelectEdit.bind(this));
-	    main_core_events.EventEmitter.subscribe('Grid::noEditedRows', this.onCancelEdit.bind(this));
-	    main_core_events.EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequest.bind(this));
+	    this.subscribeEvents();
+	    instances.set(id, this);
 	  }
 
 	  babelHelpers.createClass(ProductField, [{
+	    key: "subscribeEvents",
+	    value: function subscribeEvents() {
+	      main_core_events.EventEmitter.subscribe('Grid::thereEditedRows', this.onSelectEditHandler);
+	      main_core_events.EventEmitter.subscribe('Grid::noEditedRows', this.onCancelEditHandler);
+	      main_core_events.EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
+	      main_core_events.EventEmitter.subscribe('Grid::updated', this.onUnsubscribeEventsHandler);
+	    }
+	  }, {
+	    key: "unsubscribeEvents",
+	    value: function unsubscribeEvents() {
+	      main_core_events.EventEmitter.unsubscribe('Grid::thereEditedRows', this.onSelectEditHandler);
+	      main_core_events.EventEmitter.unsubscribe('Grid::noEditedRows', this.onCancelEditHandler);
+	      main_core_events.EventEmitter.unsubscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
+	      main_core_events.EventEmitter.unsubscribe('Grid::updated', this.onUnsubscribeEventsHandler);
+	      this.selector.unsubscribeEvents();
+	    }
+	  }, {
 	    key: "getSelector",
 	    value: function getSelector() {
 	      return this.selector;

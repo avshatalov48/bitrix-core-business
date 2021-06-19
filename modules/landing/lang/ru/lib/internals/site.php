@@ -21,6 +21,7 @@ $MESS['LANDING_TABLE_FIELD_DATE_CREATE'] = 'Дата создания';
 $MESS['LANDING_TABLE_FIELD_DATE_MODIFY'] = 'Дата изменения';
 $MESS['LANDING_TABLE_ERROR_SITE_CODE_IS_NOT_UNIQUE2'] = 'Символьный код сайта не уникален в рамках домена.';
 $MESS['LANDING_TABLE_ERROR_SITE_IS_NOT_EMPTY'] = 'Сайт содержит страницы.';
+$MESS['LANDING_TABLE_ERROR_SITE_IS_LOCK'] = 'Сайт заблокирован на удаление.';
 $MESS['LANDING_TABLE_ERROR_DOMAIN_EXIST'] = 'Такой домен уже существует.';
 $MESS['LANDING_TABLE_ERROR_DOMAIN_EXIST_TRASH'] = 'Такой домен уже существует, но привязан к сайту, находящемуся в корзине. Отвяжите сначала сайт от домена, потом повторите попытку.';
 $MESS['LANDING_TABLE_ERROR_DOMAIN_BITRIX_DISABLE'] = 'Вы не можете использовать слово bitrix в составе домена.';

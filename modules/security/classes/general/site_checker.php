@@ -219,7 +219,7 @@ class CSecuritySiteChecker
 				{
 					if(checkSerializedData($result["RESULTS"]))
 					{
-						$lastResult["results"] = unserialize($result["RESULTS"]);
+						$lastResult["results"] = unserialize($result["RESULTS"], ['allowed_classes' => false]);
 					}
 				}
 				if($result && isset($result["TEST_DATE"]))

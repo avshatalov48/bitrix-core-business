@@ -236,7 +236,7 @@ if ($arTicket = $rsTicket->GetNext())
 
 	//Messages files
 	$arMessagesFiles = Array();
-	$rsFiles = CTicket::GetFileList($v1="s_id", $v2="asc", array("TICKET_ID" => $arParams["ID"]));
+	$rsFiles = CTicket::GetFileList("s_id", "asc", array("TICKET_ID" => $arParams["ID"]));
 	{
 		while ($arFile = $rsFiles->Fetch())
 		{
@@ -264,7 +264,7 @@ if ($arTicket = $rsTicket->GetNext())
 	//sort config
 	$order = $arParams["MESSAGE_SORT_ORDER"];
 	
-	$rsMessage = CTicket::GetMessageList($by, $order, $arFilter, $is_filtered, $check_rights = "Y", $get_user_name = "N");
+	$rsMessage = CTicket::GetMessageList('', '', $arFilter, null, "Y", "N");
 	$rsMessage->NavStart($arParams["MESSAGES_PER_PAGE"]);
 
 	$arResult["NAV_STRING"] = $rsMessage->GetPageNavString(GetMessage("SUP_PAGES"));

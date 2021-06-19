@@ -707,7 +707,6 @@ class User
 		}
 
 		$filter = $ormParams['filter'];
-		$filter['!UF_DEPARTMENT'] = false;
 		$filter['ACTIVE'] = 'Y';
 
 		$intranetInstalled = \Bitrix\Main\Loader::includeModule('intranet');
@@ -748,14 +747,12 @@ class User
 		}
 
 		$orm = \Bitrix\Main\UserTable::getList($ormParams);
-
 		$bots = \Bitrix\Im\Bot::getListCache();
-		$nameTemplate = \CSite::GetNameFormat(false);
 
 		$users = array();
 		while ($user = $orm->fetch())
 		{
-			if (isset($extranetUsers[$user['ID']]))
+			if (\CIMContactList::IsExtranet($user))
 			{
 				continue;
 			}
@@ -872,13 +869,7 @@ class User
 
 		$filter['=ACTIVE'] = 'Y';
 		$filter['=CONFIRM_CODE'] = false;
-		foreach (\Bitrix\Main\UserTable::getExternalUserTypes() as $authId)
-		{
-			if ($authId != \Bitrix\Im\Bot::EXTERNAL_AUTH_ID)
-			{
-				$filter['!=EXTERNAL_AUTH_ID'][] = $authId;
-			}
-		}
+		$filter['!=EXTERNAL_AUTH_ID'] = Common::getExternalAuthId([\Bitrix\Im\Bot::EXTERNAL_AUTH_ID]);
 
 		$filterByUsers = [];
 

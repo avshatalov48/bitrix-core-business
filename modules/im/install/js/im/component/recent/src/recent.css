@@ -1,0 +1,13 @@
+.bx-messenger-recent
+{
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.bx-messenger-recent-list
+{
+	height: 100%;
+	overflow: hidden;
+	overflow-y: auto;
+}

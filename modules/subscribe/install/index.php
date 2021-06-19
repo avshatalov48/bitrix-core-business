@@ -14,7 +14,7 @@ class subscribe extends CModule
 
 	var $errors;
 
-	function subscribe()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -157,7 +157,7 @@ class subscribe extends CModule
 			&& array_key_exists("public_dir", $arParams) && mb_strlen($arParams["public_dir"])
 		)
 		{
-			$rsSite = CSite::GetList(($by="sort"),($order="asc"));
+			$rsSite = CSite::GetList();
 			while ($site = $rsSite->Fetch())
 			{
 				$source = $_SERVER['DOCUMENT_ROOT']."/bitrix/modules/subscribe/public/";
@@ -273,7 +273,7 @@ class subscribe extends CModule
 		COption::SetOptionString('subscribe', 'mail_additional_parameters', '');
 	}
 
-	function OnGetTableSchema()
+	public static function OnGetTableSchema()
 	{
 		return array(
 			"subscribe" => array(

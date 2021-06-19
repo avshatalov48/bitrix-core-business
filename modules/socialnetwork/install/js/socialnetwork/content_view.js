@@ -46,6 +46,11 @@ BX.UserContentView.init = function(params)
 		return;
 	}
 
+	if ((BX.message('USER_ID') ? parseInt(BX.message('USER_ID')) : 0) <= 0)
+	{
+		return;
+	}
+
 	var observerOptions = {
 		rootMargin: '-10% 0% -10% 0%',
 		threshold: 0.10

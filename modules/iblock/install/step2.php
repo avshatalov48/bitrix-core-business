@@ -28,7 +28,7 @@ function CheckIBlockType($ID, $SECTIONS = "Y")
 			"SECTIONS" => $SECTIONS,
 			"LANG" => array(),
 		);
-		$rsLanguages = CLanguage::GetList(($by="sort"), ($order="asc"));
+		$rsLanguages = CLanguage::GetList();
 		while($arLanguage = $rsLanguages->Fetch())
 		{
 			$MY_MESS = IncludeModuleLangFile(__FILE__, $arLanguage["LID"], true);
@@ -56,7 +56,7 @@ if($obModule->errors===false)
 		//$MY_MESS['IBLOCK_INSTALL_NEWS_ELEMENTS_NAME']
 		//$MY_MESS['IBLOCK_INSTALL_NEWS_SECTION_NAME']
 		//$MY_MESS['IBLOCK_INSTALL_NEWS_ELEMENT_NAME']
-		$sites = CSite::GetList($by, $order, Array("ACTIVE"=>"Y"));
+		$sites = CSite::GetList('', '', Array("ACTIVE"=>"Y"));
 		while($site = $sites->Fetch())
 		{
 			$MY_MESS = IncludeModuleLangFile(__FILE__, $site["LANGUAGE_ID"], true);
@@ -134,7 +134,7 @@ if($obModule->errors===false)
 		//$MY_MESS['IBLOCK_INSTALL_CATALOG_ELEMENTS_NAME']
 		//$MY_MESS['IBLOCK_INSTALL_CATALOG_SECTION_NAME']
 		//$MY_MESS['IBLOCK_INSTALL_CATALOG_ELEMENT_NAME']
-		$sites = CSite::GetList($by, $order, Array("ACTIVE"=>"Y"));
+		$sites = CSite::GetList('', '', Array("ACTIVE"=>"Y"));
 		while($site = $sites->Fetch())
 		{
 			$MY_MESS = IncludeModuleLangFile(__FILE__, $site["LANGUAGE_ID"], true);
@@ -230,7 +230,7 @@ if($obModule->errors===false && $news == "Y" && $news_dir <> ''):
 		<td align="center"><p><b><?=GetMessage("IBLOCK_LINK")?></b></p></td>
 	</tr>
 	<?
-	$sites = CSite::GetList($by, $order, Array("ACTIVE"=>"Y"));
+	$sites = CSite::GetList('', '', Array("ACTIVE"=>"Y"));
 	while($site = $sites->Fetch())
 	{
 		$server = '';
@@ -258,7 +258,7 @@ if($obModule->errors===false && $catalog == "Y" && $catalog_dir <> ''):
 		<td align="center"><p><b><?=GetMessage("IBLOCK_LINK")?></b></p></td>
 	</tr>
 	<?
-	$sites = CSite::GetList($by, $order, Array("ACTIVE"=>"Y"));
+	$sites = CSite::GetList('', '', Array("ACTIVE"=>"Y"));
 	while($site = $sites->Fetch())
 	{
 		?>

@@ -55,6 +55,7 @@ export class RuleField extends BaseField
 		const row = new FieldRules({
 			...fieldRules,
 			fields: this.options.fields,
+			dictionary: this.options.dictionary,
 		});
 		this.rows.push(row);
 
@@ -171,12 +172,6 @@ export class RuleField extends BaseField
 				bindElement: this.getFooterActionPanel().getLeftContainer().firstElementChild,
 				maxHeight: 205,
 				items: this.options.fields
-					.filter((field) => {
-						return (
-							field.type !== 'page'
-							&& field.type !== 'layout'
-						);
-					})
 					.map((field) => {
 						return {
 							id: field.id,

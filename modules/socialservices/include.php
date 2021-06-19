@@ -1,4 +1,5 @@
-<?
+<?php
+
 global $DBType;
 
 define("SOCSERV_AUTHORISATION_ERROR", 1);
@@ -48,7 +49,7 @@ class CSocServEventHandlers
 		);
 	}
 
-	function FormatEvent_Data($arFields, $arParams, $bMail = false)
+	public static function FormatEvent_Data($arFields, $arParams, $bMail = false)
 	{
 		$arResult = array(
 			"EVENT" => $arFields,
@@ -191,7 +192,7 @@ class CSocServEventHandlers
 		return $arResult;
 	}
 
-	function GetEntity_Data($arFields, $bMail)
+	public static function GetEntity_Data($arFields, $bMail)
 	{
 		$arEntity = array();
 		$arEventParams = unserialize($arFields["~PARAMS"] <> '' ? $arFields["~PARAMS"] : $arFields["PARAMS"]);
@@ -226,7 +227,7 @@ class CSocServEventHandlers
 		return $arEntity;
 	}
 
-	function FormatComment_Data($arFields, $arParams, $bMail = false, $arLog = array())
+	public static function FormatComment_Data($arFields, $arParams, $bMail = false, $arLog = array())
 	{
 		$arResult = array(
 			"EVENT_FORMATTED"	=> array(),
@@ -307,10 +308,9 @@ class CSocServEventHandlers
 		return $arResult;
 	}
 
-	function OnTimeManShow()
+	public static function OnTimeManShow()
 	{
 		if(COption::GetOptionString("socialservices", "allow_send_user_activity", "Y") == 'Y')
 			CJSCore::Init(array('socserv_timeman'));
 	}
 }
-?>

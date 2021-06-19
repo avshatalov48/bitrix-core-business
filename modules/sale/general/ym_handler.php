@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Sale\TradingPlatform\YMarket;
 use Bitrix\Sale;
@@ -195,7 +195,7 @@ class CSaleYMHandler
 	protected function checkSiteId($siteId)
 	{
 		$result = false;
-		$rsSites = CSite::GetList($b = "", $o = "", Array(
+		$rsSites = CSite::GetList('', '', Array(
 			"LID" => $siteId,
 			"ACTIVE"=>"Y"
 		));
@@ -228,7 +228,7 @@ class CSaleYMHandler
 		}
 		else
 		{
-			$rsSites = CSite::GetList($b = "", $o = "", Array(
+			$rsSites = CSite::GetList('', '', Array(
 				"ACTIVE"=> "Y",
 				"DEF" => "Y"
 			));
@@ -1628,7 +1628,7 @@ class CSaleYMHandler
 	 * @return array|false
 	 * @throws \Bitrix\Main\ArgumentException
 	 */
-	public function getOrderInfo($orderId)
+	public static function getOrderInfo($orderId)
 	{
 		if(intval($orderId) <= 0)
 			return array();
@@ -1800,7 +1800,7 @@ class CSaleYMHandler
 	 * @param string $substatus Substatus.
 	 * @return bool
 	 */
-	public function onSaleStatusOrder($orderId, $status, $substatus = false)
+	public static function onSaleStatusOrder($orderId, $status, $substatus = false)
 	{
 		if(self::$isYandexRequest)
 			return false;
@@ -1894,7 +1894,7 @@ class CSaleYMHandler
 		return $result;
 	}
 
-	public function OnEventLogGetAuditTypes()
+	public static function OnEventLogGetAuditTypes()
 	{
 		return array(
 			"YMARKET_STATUS_CHANGE" => "[YMARKET_STATUS_CHANGE] ".GetMessage("SALE_YMH_LOG_TYPE_STATUS_CHANGE"),
@@ -2076,9 +2076,7 @@ class CSaleYMHandler
 				"SETTINGS" => "",
 			));
 
-			$b = "sort";
-			$o = "asc";
-			$dbSites = \CSite::GetList($b, $o, array("ACTIVE" => "Y"));
+			$dbSites = \CSite::GetList('', '', array("ACTIVE" => "Y"));
 
 			while ($site = $dbSites->Fetch())
 			{
@@ -2375,7 +2373,7 @@ class CSaleYMHandler
 
 		$settings = array();
 
-		$rsSites = CSite::GetList($by = "sort", $order = "asc", Array());
+		$rsSites = CSite::GetList();
 
 		while ($arSite = $rsSites->Fetch())
 		{

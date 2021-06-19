@@ -264,9 +264,8 @@ class CFileInput
 
 				if ($arDescInput)
 				{
-					list($descName, $descVal) = each($arDescInput['VALUES']);
-					$arFile['DESC_NAME'] = $descName;
-					$arFile['DESCRIPTION'] = $descVal;
+					$arFile['DESC_NAME'] = key($arDescInput['VALUES']);
+					$arFile['DESCRIPTION'] = current($arDescInput['VALUES']);
 				}
 			}
 			else

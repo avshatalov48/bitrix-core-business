@@ -25,3 +25,4 @@ DROP TABLE if exists b_im_permission_duration;
 DROP TABLE if exists b_im_permission_log;
 DROP TABLE if exists b_im_block_user;
 DROP TABLE if exists b_im_conference;
+DROP TABLE if exists b_im_conference_user_role;

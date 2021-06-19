@@ -22,7 +22,7 @@ if (!in_array($arParams["MODE"], ['PUB', 'LANDING']))
 	{
 		?><div class="feed-new-message-inform-wrap new-message-balloon-wrap" id="sonet_log_counter_2_wrap" style="visibility: hidden;"><?
 			?><div onclick="oLF.refresh()" id="sonet_log_counter_2_container" class="feed-new-message-informer"><?
-				?><span class="feed-new-message-inf-text new-message-balloon"><?
+				?><span class="feed-new-message-inf-text feed-new-message-inf-text-counter new-message-balloon"><?
 					?><span class="feed-new-message-icon new-message-balloon-icon"></span><?
 					?><span class="new-message-balloon-text"><?=GetMessage("SONET_C30_COUNTER_TEXT_1")?></span><?
 					?><span class="feed-new-message-informer-counter" id="sonet_log_counter_2">0</span><span class="feed-new-message-informer-counter feed-new-message-informer-counter-plus-hidden" id="sonet_log_counter_2_plus">+</span><?

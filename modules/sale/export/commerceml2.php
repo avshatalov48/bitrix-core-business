@@ -1,5 +1,6 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 class CSaleExportCML2 extends CSaleExport
 {
@@ -70,4 +71,3 @@ header("Content-Disposition: attachment; filename=orders.xml");
 
 echo $contents;
 die();
-?>

@@ -17,3 +17,7 @@ $MESS["BPRIOA_LOG_COMMENTS"] = "Comment";
 $MESS["BPSFA_PD_CANCEL"] = "Cancel";
 $MESS["BPSFA_PD_NO"] = "No";
 $MESS["BPSFA_PD_YES"] = "Yes";
+
+$MESS["BPRIA_PD_CANCEL_TYPE"] = "Can be declined by";
+$MESS["BPRIA_PD_CANCEL_TYPE_ANY"] = "Any employee";
+$MESS["BPRIA_PD_CANCEL_TYPE_ALL"] = "All employees";

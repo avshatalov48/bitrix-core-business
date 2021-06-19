@@ -201,7 +201,7 @@ if ($arEvent)
 				$arCommentTmp["CAN_DELETE"] = ($handler->canDelete() ? 'Y' : 'N');
 
 				if ($handler->checkRecalcNeeded($arCommentTmp['EVENT'], array(
-					'bPublicPage' => $arResult["bPublicPage"]
+					'bPublicPage' => $arResult['bPublicPage']
 				)))
 				{
 					$commentAuxFields = $arCommentTmp['EVENT'];

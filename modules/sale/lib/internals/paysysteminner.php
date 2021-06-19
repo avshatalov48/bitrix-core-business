@@ -2,7 +2,6 @@
 
 namespace Bitrix\Sale\Internals;
 
-use Bitrix\Sale\Internals\PaySystemActionTable;
 use Bitrix\Main\InvalidOperationException;
 use Bitrix\Main\Entity\EntityError;
 use Bitrix\Main\Entity\Result;
@@ -10,6 +9,7 @@ use Bitrix\Sale\Provider;
 use Bitrix\Sale\Payment;
 use Bitrix\Sale\Order;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\PaySystem;
 
 Loc::loadMessages(__FILE__);
 
@@ -39,7 +39,7 @@ class PaySystemInner
 
 		if(intval($id) <= 0)
 		{
-			$dbRes = PaySystemActionTable::getList(array(
+			$dbRes = PaySystem\Manager::getList(array(
 				'filter' => array('ACTION_FILE' => self::ACTION_FILE_TEXT),
 				'select' => array('PAY_SYSTEM_ID')
 				)
@@ -135,7 +135,7 @@ class PaySystemInner
 			$cacheManager = \Bitrix\Main\Application::getInstance()->getManagedCache();
 			$cacheManager->set(self::CACHE_ID, $res->getId());
 
-			$res = PaySystemActionTable::add(array(
+			$res = PaySystem\Manager::add(array(
 				'PAY_SYSTEM_ID' => $res->getId(),
 				'PERSON_TYPE_ID' => 0,
 				'NAME' => Loc::getMessage('ORDER_PS_INNER_NAME'),

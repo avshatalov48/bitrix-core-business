@@ -1,11 +1,12 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/location_group.php");
 
 use Bitrix\Sale\Location;
 
 class CSaleLocationGroup extends CAllSaleLocationGroup
 {
-	function GetList($arOrder = Array("NAME"=>"ASC"), $arFilter=Array(), $strLang = LANGUAGE_ID)
+	public static function GetList($arOrder = Array("NAME"=>"ASC"), $arFilter=Array(), $strLang = LANGUAGE_ID)
 	{
 		global $DB;
 		$arSqlSearch = Array();
@@ -116,7 +117,7 @@ class CSaleLocationGroup extends CAllSaleLocationGroup
 		return $db_res;
 	}
 
-	function GetByID($ID, $strLang = LANGUAGE_ID)
+	public static function GetByID($ID, $strLang = LANGUAGE_ID)
 	{
 		global $DB;
 
@@ -135,7 +136,7 @@ class CSaleLocationGroup extends CAllSaleLocationGroup
 		return False;
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -232,4 +233,3 @@ class CSaleLocationGroup extends CAllSaleLocationGroup
 		return $ID;
 	}
 }
-?>

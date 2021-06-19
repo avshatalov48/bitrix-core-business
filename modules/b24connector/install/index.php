@@ -18,7 +18,7 @@ class b24connector extends CModule
 
 	var $errors = false;
 
-	function b24connector()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 		include(__DIR__.'/version.php');

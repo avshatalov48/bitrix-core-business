@@ -1,8 +1,7 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
-use Bitrix\Main\DB;
-use Bitrix\Sale\Location;
 use Bitrix\Sale\Shipment;
 use Bitrix\Sale\Internals\DeliveryPaySystemTable;
 use Bitrix\Sale\Location\Admin\LocationHelper as Helper;
@@ -50,7 +49,7 @@ class CAllSaleDelivery
 	 * @internal
 	 * @deprecated
 	 */
-	static function DoProcessOrder(&$arOrder, $deliveryCode, &$arErrors)
+	public static function DoProcessOrder(&$arOrder, $deliveryCode, &$arErrors)
 	{
 		if($deliveryCode == '' || $deliveryCode == '0')
 			return false;
@@ -253,13 +252,12 @@ class CAllSaleDelivery
 		return $res->Fetch();
 	}
 
-
 	/**
 	 * @param array $arFilter
 	 * @return bool|CDBResult
 	 * @deprecated
 	 */
-	function GetLocationList($arFilter = Array())
+	public static function GetLocationList($arFilter = Array())
 	{
 		if(!empty($arFilter['DELIVERY_ID']))
 			$arFilter['DELIVERY_ID'] = self::getIdByCode($arFilter['DELIVERY_ID']);
@@ -622,7 +620,6 @@ class CAllSaleDelivery
 		return new CDBResult($res);
 	}
 
-
 	/**
 	 * The function select delivery and paysystem
 	 *
@@ -650,7 +647,7 @@ class CAllSaleDelivery
 	 * @return int $ID - code delivery
 	 * @deprecated
 	 */
-	static function UpdateDeliveryPay($ID, $arFields)
+	public static function UpdateDeliveryPay($ID, $arFields)
 	{
 		$ID = trim($ID);
 
@@ -1109,7 +1106,7 @@ class CAllSaleDelivery
 	 * @throws Exception
 	 * @deprecated
 	 */
-	static function Add($arFields, $arOptions = array())
+	public static function Add($arFields, $arOptions = array())
 	{
 		$fields = array_intersect_key($arFields, Bitrix\Sale\Delivery\Services\Table::getMap());
 
@@ -1668,4 +1665,3 @@ class CAllSaleDelivery
 		return $code;
 	}
 }
-?>

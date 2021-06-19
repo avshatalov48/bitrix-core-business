@@ -21,7 +21,7 @@ define("HELP_FILE","searcher_list.php");
 ***************************************************************************/
 
 $arrDef = array();
-$rs = CSearcher::GetList(($v1="s_total_hits"), ($v2="desc"), array(), $v3);
+$rs = CSearcher::GetList("s_total_hits", "desc");
 while ($ar = $rs->Fetch())
 {
 	if ($ar["DIAGRAM_DEFAULT"]=="Y") $arrDef[] = $ar["ID"];
@@ -32,8 +32,7 @@ if($lAdmin->IsDefaultFilter())
 {
 	if (is_array($arrSEARCHERS))
 	{
-		reset($arrSEARCHERS);
-		while (list($key,$value)=each($arrSEARCHERS))
+		foreach ($arrSEARCHERS as $key => $value)
 		{
 			if ($i<=9 && in_array($key, $arrDef))
 			{
@@ -100,8 +99,7 @@ if ($strError == '' && count($arrLegend)>0 && count($arrDays)>1) :
 		<td>
 			<table border="0" cellspacing="0" cellpadding="0" class="legend">
 			<?
-			reset($arrLegend);
-			while(list($keyL, $arrL) = each($arrLegend)) :
+			foreach ($arrLegend as $keyL => $arrL):
 				$color = $arrL["COLOR"];
 			?>
 				<tr>
@@ -117,7 +115,7 @@ if ($strError == '' && count($arrLegend)>0 && count($arrDays)>1) :
 					endif;
 					?></td>
 				</tr>
-			<?endwhile;?>
+			<?endforeach;?>
 			</table>
 		</td>
 		<?endif?>

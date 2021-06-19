@@ -85,36 +85,44 @@ class CAccess
 		if($USER_ID > 0)
 		{
 			$connection = \Bitrix\Main\Application::getConnection();
+			$clearCache = false;
 
-			foreach(static::$arAuthProviders as $provider_id=>$provider)
+			foreach (static::$arAuthProviders as $providerId => $providerDescription)
 			{
-				if(is_callable(array($provider["CLASS"], "UpdateCodes")))
+				/** @var CGroupAuthProvider $provider For example*/
+				$provider = new $providerDescription["CLASS"];
+
+				if(is_callable([$provider, "UpdateCodes"]))
 				{
 					//do we need to recalculate codes for the user?
-					if(static::NeedToRecalculate($provider_id, $USER_ID))
+					if(static::NeedToRecalculate($providerId, $USER_ID))
 					{
-						$name = "access.{$provider_id}.{$USER_ID}";
+						$name = "access.{$providerId}.{$USER_ID}";
 
 						if($connection->lock($name))
 						{
-							//remove old codes
-							static::DeleteCodes($provider_id, $USER_ID);
+							//should clear codes cache for the user
+							$clearCache = true;
 
-							/** @var CGroupAuthProvider $pr For example*/
-							$pr = new $provider["CLASS"];
+							//remove old codes
+							static::DeleteCodes($providerId, $USER_ID);
 
 							//call provider to insert access codes
-							$pr->UpdateCodes($USER_ID);
+							$provider->UpdateCodes($USER_ID);
 
 							//update cache for checking
-							static::UpdateStat($provider_id, $USER_ID);
+							static::UpdateStat($providerId, $USER_ID);
 
 							$connection->unlock($name);
 						}
 					}
 				}
 			}
-			$CACHE_MANAGER->Clean(static::GetCodesCacheId($USER_ID), static::CACHE_DIR);
+
+			if ($clearCache)
+			{
+				$CACHE_MANAGER->Clean(static::GetCodesCacheId($USER_ID), static::CACHE_DIR);
+			}
 		}
 	}
 

@@ -1,8 +1,6 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/basket.php");
-
-
-use \Bitrix\Main\Localization;
 
 class CSaleBasket extends CAllSaleBasket
 {
@@ -12,7 +10,7 @@ class CSaleBasket extends CAllSaleBasket
 	* @param string $LID - site for cleaning
 	* @return true false
 	*/
-	function _ClearProductSubscribe($LID)
+	public static function _ClearProductSubscribe($LID)
 	{
 		global $DB;
 
@@ -310,7 +308,7 @@ class CSaleBasket extends CAllSaleBasket
 		return $dbRes;
 	}
 
-	function GetPropsList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetPropsList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -428,7 +426,7 @@ class CSaleBasket extends CAllSaleBasket
 	* @param $arFields
 	* @return mixed - int ID or false
 	*/
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB, $APPLICATION;
 
@@ -697,7 +695,7 @@ class CSaleBasket extends CAllSaleBasket
 		return $ID;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB, $APPLICATION;
 
@@ -801,7 +799,7 @@ class CSaleBasket extends CAllSaleBasket
 		return true;
 	}
 
-	function DeleteAll($FUSER_ID = 0, $bIncOrdered = false)
+	public static function DeleteAll($FUSER_ID = 0, $bIncOrdered = false)
 	{
 		global $DB, $APPLICATION;
 
@@ -861,7 +859,7 @@ class CSaleBasket extends CAllSaleBasket
 		return true;
 	}
 
-	function GetLeave($arOrder = Array(), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = Array())
+	public static function GetLeave($arOrder = Array(), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = Array())
 	{
 		global $DB;
 		if(empty($arSelectFields) || in_array("*", $arSelectFields))
@@ -988,10 +986,9 @@ class CSaleBasket extends CAllSaleBasket
 	}
 }
 
-
 class CSaleUser extends CAllSaleUser
 {
-	function Add()
+	public static function Add()
 	{
 		global $DB, $USER;
 
@@ -1029,7 +1026,7 @@ class CSaleUser extends CAllSaleUser
 		return $ID;
 	}
 
-	function _Add($arFields)
+	public static function _Add($arFields)
 	{
 		global $DB;
 
@@ -1066,7 +1063,7 @@ class CSaleUser extends CAllSaleUser
 		return $ID;
 	}
 
-	function DeleteOld($nDays)
+	public static function DeleteOld($nDays)
 	{
 		global $DB;
 
@@ -1091,7 +1088,7 @@ class CSaleUser extends CAllSaleUser
 		return true;
 	}
 
-	function GetBuyersList($arOrder = Array(), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = Array())
+	public static function GetBuyersList($arOrder = Array(), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = Array())
 	{
 		global $DB;
 		if(empty($arSelectFields) || in_array("*", $arSelectFields))
@@ -1120,7 +1117,7 @@ class CSaleUser extends CAllSaleUser
 		}
 		else
 		{
-			$rsSites = CSite::GetList($by="id", $order="asc", array("ACTIVE" => "Y"));
+			$rsSites = CSite::GetList("id", "asc", array("ACTIVE" => "Y"));
 			$arSite = $rsSites->Fetch();
 			$LID = $arSite["ID"];
 		}
@@ -1217,7 +1214,7 @@ class CSaleUser extends CAllSaleUser
 		return $dbRes;
 	}
 
-	function GetUserID ($intFUserID)
+	public static function GetUserID ($intFUserID)
 	{
 		global $DB;
 		$intFUserID = intval($intFUserID);
@@ -1232,6 +1229,3 @@ class CSaleUser extends CAllSaleUser
 		return false;
 	}
 }
-
-
-?>

@@ -75,7 +75,7 @@ class CAdv extends CAllAdv
 		return $strSql;
 	}
 
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered, $limit="", &$arrGROUP_DAYS, &$strSql_res)
+	public static function GetList($by = '', $order = 'desc', $arFilter = [], &$is_filtered = false, $limit = '', &$arrGROUP_DAYS = [], &$strSql_res = '')
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -124,11 +124,11 @@ class CAdv extends CAllAdv
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -349,12 +349,18 @@ class CAdv extends CAllAdv
 		if ($find_group=="NOT_REF")
 			$arrFields = array_merge($arrFields, $arrFields_2);
 
-		if ($order!="asc")
+		if ($order != "asc")
+		{
 			$order = "desc";
+		}
+		else
+		{
+			$order = "asc";
+		}
 
-		$key = array_search(mb_strtoupper($by), $arrFields);
+		$key = array_search(strtoupper($by), $arrFields);
 		if ($key===NULL || $key===false)
-			$key = array_search("A.".mb_strtoupper($by),$arrFields);
+			$key = array_search("A.".strtoupper($by), $arrFields);
 
 		if ($key!==NULL && $key!==false)
 			$strSqlOrder = " ORDER BY ".$arrFields[$key];
@@ -372,7 +378,6 @@ class CAdv extends CAllAdv
 			{
 				$strSqlOrder = " ORDER BY SESSIONS ";
 			}
-			$by = "BY_DEFAULT";
 		}
 		$strSqlOrder .= " ".$order;
 
@@ -553,7 +558,10 @@ class CAdv extends CAllAdv
 				";
 
 			$z = $DB->Query($strSql_days, false, $err_mess.__LINE__);
-			while ($zr = $z->Fetch()) $arrGROUP_DAYS[$zr[$group]] = $zr;
+			while ($zr = $z->Fetch())
+			{
+				$arrGROUP_DAYS[$zr[$group]] = $zr;
+			}
 		}
 		$strSql_res = $strSql;
 
@@ -591,7 +599,7 @@ class CAdv extends CAllAdv
 		return $res;
 	}
 
-	public static function GetEventList($ID, &$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetEventList($ID, $by = 's_counter', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -638,11 +646,11 @@ class CAdv extends CAllAdv
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -719,14 +727,12 @@ class CAdv extends CAllAdv
 		}
 		else
 		{
-			$by = "s_counter";
 			$strSqlOrder = "ORDER BY COUNTER";
 		}
 
-		if ($order!="asc")
+		if ($order != "asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
@@ -817,7 +823,7 @@ class CAdv extends CAllAdv
 		}
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch) || $filter_period || $strSqlSearch_h <> '' || $find_group!="NOT_REF");
+
 		return $res;
 	}
 
@@ -864,7 +870,7 @@ class CAdv extends CAllAdv
 		}
 
 		$arFilter["GROUP"]="";
-		$a = CAdv::GetList($by, $order, $arFilter, $is_filtered, "", $arrGROUP_DAYS, $strSql_res);
+		$a = CAdv::GetList('', '', $arFilter, $is_filtered);
 		if ($is_filtered)
 		{
 			$str_id = "0";
@@ -926,7 +932,7 @@ class CAdv extends CAllAdv
 		return $res;
 	}
 
-	public static function GetDynamicList($ADV_ID, &$by, &$order, &$arMaxMin, $arFilter=Array())
+	public static function GetDynamicList($ADV_ID, $by = 's_date', $order = 'desc', &$arMaxMin = [], $arFilter = [])
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -944,11 +950,11 @@ class CAdv extends CAllAdv
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "DATE1":
@@ -970,14 +976,12 @@ class CAdv extends CAllAdv
 			$strSqlOrder = "ORDER BY D.DATE_STAT";
 		else
 		{
-			$by = "s_date";
 			$strSqlOrder = "ORDER BY D.DATE_STAT";
 		}
 
 		if ($order!="asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
 
 		$strSql =	"
@@ -1053,7 +1057,7 @@ class CAdv extends CAllAdv
 		return $res;
 	}
 
-	public static function GetSimpleList(&$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetSimpleList($by = 's_referer1', $order = 'asc', $arFilter = [])
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -1069,11 +1073,11 @@ class CAdv extends CAllAdv
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -1091,16 +1095,18 @@ class CAdv extends CAllAdv
 		}
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
-		$order= ($order!="desc") ? "asc" : "desc";
+
+		$order = ($order != "desc" ? "asc" : "desc");
+
 		if ($by == "s_id")				$strSqlOrder = "ORDER BY A.ID ".$order;
 		elseif ($by == "s_referer1")	$strSqlOrder = "ORDER BY A.REFERER1 ".$order.", A.REFERER2";
 		elseif ($by == "s_referer2")	$strSqlOrder = "ORDER BY A.REFERER2 ".$order;
 		elseif ($by == "s_description")	$strSqlOrder = "ORDER BY A.DESCRIPTION ".$order;
 		else
 		{
-			$by = "s_referer1";
 			$strSqlOrder = "ORDER BY A.REFERER1 ".$order.", A.REFERER2";
 		}
+
 		$strSql = "
 			SELECT
 				A.ID,

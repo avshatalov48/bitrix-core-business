@@ -307,6 +307,7 @@ class CatalogGridProductFieldComponent
 			'ENABLE_INPUT_DETAIL_LINK' => $this->arParams['ENABLE_INPUT_DETAIL_LINK'] ?? false,
 			'URL_BUILDER_CONTEXT' => $this->getBuilderContext(),
 			'GRID_ID' => $this->arParams['GRID_ID'] ?? '',
+			'ENABLE_IMAGE_INPUT' => $this->arParams['ENABLE_IMAGE_INPUT'] ?? true,
 			'MODEL_CONFIG' => ['isNew' => $this->arParams['IS_NEW']]
 		];
 	}

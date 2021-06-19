@@ -293,7 +293,7 @@ BX["UI"].FileInput.prototype = {
 				HTML : BX.message("JS_CORE_FILE_UPLOAD") + '<input type="file" id="' + inputID + '"' + ' class="adm-fileinput-area-input" />',
 				GLOBAL_ICON: "adm-menu-upload-pc"});
 		}
-		if (uploadParams['medialib'] || uploadParams['file_dialog'])
+		if (uploadParams['medialib'] || uploadParams['fileDialog'])
 		{
 			menu.push({
 				TEXT: BX.message('JS_CORE_FILE_INSERT_PATH'),
@@ -333,7 +333,7 @@ BX["UI"].FileInput.prototype = {
 			}
 			menu.push({SEPARATOR : true});
 		}
-		else if (uploadParams['medialib'] || uploadParams['file_dialog'] || uploadParams['cloud'])
+		else if (uploadParams['medialib'] || uploadParams['fileDialog'] || uploadParams['cloud'])
 		{
 			menu.push({SEPARATOR : true});
 		}
@@ -2091,7 +2091,7 @@ FrameMaster.prototype = {
 				null,
 				{
 					className : "bxu-popup" + (this.params["description"] !== false ? "" : " bxu-popup-nondescription"),
-					autoHide : false,
+					autoHide : true,
 					lightShadow : true,
 					closeIcon : false,
 					closeByEsc : true,

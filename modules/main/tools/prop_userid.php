@@ -28,7 +28,7 @@ class CIBlockPropertyUserID
 		$value = intval($value["VALUE"]);
 		if(!array_key_exists($value, $cache))
 		{
-			$rsUsers = CUser::GetList($by, $order, array("ID" => $value));
+			$rsUsers = CUser::GetList('', '', array("ID" => $value));
 			$cache[$value] = $rsUsers->Fetch();
 		}
 		$arUser = $cache[$value];
@@ -60,7 +60,7 @@ class CIBlockPropertyUserID
 		elseif ($default_value > 0)
 		{
 			$select = "SU";
-			$rsUsers = CUser::GetList($by, $order, array("ID" => $default_value));
+			$rsUsers = CUser::GetList('', '', array("ID" => $default_value));
 			if ($arUser = $rsUsers->Fetch())
 				$res = "[<a title='".GetMessage("MAIN_EDIT_USER_PROFILE")."'  href='/bitrix/admin/user_edit.php?ID=".$arUser["ID"]."&lang=".LANG."'>".$arUser["ID"]."</a>] (".htmlspecialcharsbx($arUser["LOGIN"]).") ".htmlspecialcharsbx($arUser["NAME"])." ".htmlspecialcharsbx($arUser["LAST_NAME"]);
 			else

@@ -198,10 +198,19 @@ class catalog extends CModule
 			'getBuilderList'
 		);
 
-		if (!$this->bitrix24mode)
+		if ($this->bitrix24mode)
 		{
-			CAgent::AddAgent('\Bitrix\Catalog\CatalogViewedProductTable::clearAgent();', 'catalog', 'N', (int)COption::GetOptionString("catalog", "viewed_period") * 24 * 3600);
+			Main\Config\Option::set('catalog', 'enable_viewed_products', 'Y');
+			Main\Config\Option::set('catalog', 'viewed_time', '2');
+			Main\Config\Option::set('catalog', 'viewed_count', '10');
+			Main\Config\Option::set('catalog', 'viewed_period', '1');
 		}
+		CAgent::AddAgent(
+			'\Bitrix\Catalog\CatalogViewedProductTable::clearAgent();',
+			'catalog',
+			'N',
+			(int)COption::GetOptionString("catalog", "viewed_period") * 86400
+		);
 
 		Main\Config\Option::set('catalog', 'subscribe_repeated_notify', 'Y', '');
 		if ($this->bitrix24mode)

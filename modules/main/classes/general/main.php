@@ -357,9 +357,6 @@ abstract class CAllMain
 			return true;
 		}
 
-		$o = 'LOGIN';
-		$b = 'DESC';
-
 		//This is local cache. May save one query.
 		$USER_ATTEMPTS = false;
 
@@ -371,7 +368,7 @@ abstract class CAllMain
 			$POLICY_ATTEMPTS = 0;
 			if($login <> '')
 			{
-				$rsUser = CUser::GetList($o, $b, array(
+				$rsUser = CUser::GetList('LOGIN', 'DESC', array(
 						"LOGIN_EQUAL_EXACT" => $login,
 						"EXTERNAL_AUTH_ID" => "",
 					),
@@ -398,7 +395,7 @@ abstract class CAllMain
 			//We need to know how many attempts user made
 			if($USER_ATTEMPTS === false)
 			{
-				$rsUser = CUser::GetList($o, $b, array(
+				$rsUser = CUser::GetList('LOGIN', 'DESC', array(
 						"LOGIN_EQUAL_EXACT" => $login,
 						"EXTERNAL_AUTH_ID" => "",
 					),
@@ -1064,7 +1061,7 @@ abstract class CAllMain
 			$obAjax = null;
 			if($bComponentEnabled)
 			{
-				if($arParams['AJAX_MODE'] == 'Y')
+				if(($arParams['AJAX_MODE'] ?? '') == 'Y')
 					$obAjax = new CComponentAjax($componentName, $componentTemplate, $arParams, $parentComponent);
 
 				$this->__componentStack[] = $component;
@@ -1134,7 +1131,16 @@ abstract class CAllMain
 		if(!is_array($this->__view[$view]))
 			return '';
 
-		uasort($this->__view[$view], create_function('$a, $b', 'if($a[1] == $b[1]) return 0; return ($a[1] < $b[1])? -1 : 1;'));
+		uasort(
+			$this->__view[$view],
+			function ($a, $b) {
+				if ($a[1] == $b[1])
+				{
+					return 0;
+				}
+				return ($a[1] < $b[1] ? -1 : 1);
+			}
+		);
 
 		$res = array();
 		foreach($this->__view[$view] as $item)
@@ -1146,7 +1152,7 @@ abstract class CAllMain
 	public static function OnChangeFileComponent($path, $site)
 	{
 		// kind of optimization
-		if(HasScriptExtension($path))
+		if(HasScriptExtension($path) && basename($path) !== '.access.php')
 		{
 			if($site === false)
 			{
@@ -2239,7 +2245,7 @@ abstract class CAllMain
 
 		$path_without_lang = $path_without_lang_tmp = "";
 
-		$db_res = CSite::GetList($by, $order, array("ACTIVE"=>"Y","ID"=>LANG));
+		$db_res = CSite::GetList('', '', array("ACTIVE"=>"Y","ID"=>LANG));
 		if(($ar = $db_res->Fetch()) && mb_strpos($cur_page, $ar["DIR"]) === 0)
 		{
 			$path_without_lang = mb_substr($cur_page, mb_strlen($ar["DIR"]) - 1);
@@ -2248,7 +2254,7 @@ abstract class CAllMain
 		}
 
 		$result = array();
-		$db_res = CSite::GetList($by="SORT", $order="ASC", array("ACTIVE"=>"Y"));
+		$db_res = CSite::GetList("SORT", "ASC", array("ACTIVE"=>"Y"));
 		while($ar = $db_res->Fetch())
 		{
 			$ar["NAME"] = htmlspecialcharsbx($ar["NAME"]);
@@ -2630,7 +2636,7 @@ abstract class CAllMain
 
 		foreach (GetModuleEvents("main", "OnAfterSetGroupRight", true) as $arEvent)
 		{
-			ExecuteModuleEventEx($arEvent, array("MODULE_ID" => $module_id, "GROUP_ID" => $group_id));
+			ExecuteModuleEventEx($arEvent, array($module_id, $group_id));
 		}
 	}
 
@@ -2676,7 +2682,7 @@ abstract class CAllMain
 
 			foreach (GetModuleEvents("main", "OnAfterDelGroupRight", true) as $arEvent)
 			{
-				ExecuteModuleEventEx($arEvent, array("MODULE_ID" => $module_id, "GROUPS" => $arGroups));
+				ExecuteModuleEventEx($arEvent, array($module_id, $arGroups));
 			}
 		}
 	}
@@ -2898,9 +2904,7 @@ abstract class CAllMain
 				$arrDomain = array();
 				$arrDomain[] = $request->getHttpHost();
 
-				$v1 = "sort";
-				$v2 = "asc";
-				$rs = CSite::GetList($v1, $v2, array("ACTIVE" => "Y"));
+				$rs = CSite::GetList('', '', array("ACTIVE" => "Y"));
 				while($ar = $rs->Fetch())
 				{
 					$arD = explode("\n", str_replace("\r", "\n", $ar["DOMAINS"]));
@@ -3305,9 +3309,16 @@ abstract class CAllMain
 
 	public function UnJSEscape($str)
 	{
-		if(mb_strpos($str, "%u") !== false)
+		if(strpos($str, "%u") !== false)
 		{
-			$str = preg_replace_callback("'%u([0-9A-F]{2})([0-9A-F]{2})'i", create_function('$ch', '$res = chr(hexdec($ch[2])).chr(hexdec($ch[1])); return $GLOBALS["APPLICATION"]->ConvertCharset($res, "UTF-16", LANG_CHARSET);'), $str);
+			$str = preg_replace_callback(
+				"'%u([0-9A-F]{2})([0-9A-F]{2})'i",
+				function ($ch) {
+					$res = chr(hexdec($ch[2])).chr(hexdec($ch[1]));
+					return $GLOBALS["APPLICATION"]->ConvertCharset($res, "UTF-16", LANG_CHARSET);
+				},
+				$str
+			);
 		}
 		return $str;
 	}
@@ -3344,7 +3355,8 @@ abstract class CAllMain
 		if (
 			class_exists('CUserOptions')
 			&& (
-				!is_array($arUrl['PARAMS'])
+				!isset($arUrl['PARAMS'])
+				|| !is_array($arUrl['PARAMS'])
 				|| !isset($arUrl['PARAMS']['resizable'])
 				|| $arUrl['PARAMS']['resizable'] !== false
 			)
@@ -3363,7 +3375,7 @@ abstract class CAllMain
 				), array("encode"));
 			}
 
-			$arPos = CUtil::GetPopupSize($check_url, $arUrl['PARAMS']);
+			$arPos = CUtil::GetPopupSize($check_url);
 
 			if ($arPos['width'])
 			{
@@ -3652,7 +3664,7 @@ class CAllSite
 	{
 		$bFullFormat = (mb_strtoupper($type) == "FULL");
 
-		if($lang === false)
+		if($lang === false && defined("LANG"))
 			$lang = LANG;
 
 		if(defined("SITE_ID") && $lang == SITE_ID)
@@ -4119,7 +4131,7 @@ class CAllSite
 		$path = str_replace("\\", "/", $path);
 		$path = mb_strtolower($path)."/";
 
-		$db_res = CSite::GetList($by="lendir", $order="desc");
+		$db_res = CSite::GetList("lendir", "desc");
 		while($ar_res = $db_res->Fetch())
 		{
 			$abspath = $ar_res["ABS_DOC_ROOT"].$ar_res["DIR"];
@@ -4143,7 +4155,7 @@ class CAllSite
 		return false;
 	}
 
-	public static function GetList(&$by, &$order, $arFilter=array())
+	public static function GetList($by = "sort", $order = "asc", $arFilter=array())
 	{
 		global $DB, $CACHE_MANAGER;
 
@@ -4172,7 +4184,7 @@ class CAllSite
 					continue;
 				}
 				$val = $DB->ForSql($val);
-				switch(mb_strtoupper($key))
+				switch(strtoupper($key))
 				{
 					case "ACTIVE":
 						if($val == "Y" || $val == "N")
@@ -4222,8 +4234,8 @@ class CAllSite
 				".$strSqlSearch."
 			";
 
-		$by = mb_strtolower($by);
-		$order = mb_strtolower($order);
+		$by = strtolower($by);
+		$order = strtolower($order);
 
 		if($by == "lid" || $by=="id")	$strSqlOrder = " ORDER BY L.LID ";
 		elseif($by == "active")			$strSqlOrder = " ORDER BY L.ACTIVE ";
@@ -4234,13 +4246,12 @@ class CAllSite
 		else
 		{
 			$strSqlOrder = " ORDER BY L.SORT ";
-			$by = "sort";
 		}
 
-		if($order=="desc")
+		if($order == "desc")
+		{
 			$strSqlOrder .= " desc ";
-		else
-			$order = "asc";
+		}
 
 		$strSql .= $strSqlOrder;
 		if(CACHED_b_lang===false)
@@ -4254,7 +4265,6 @@ class CAllSite
 			while($ar = $res->Fetch())
 				$arResult[]=$ar;
 
-			/** @noinspection PhpUndefinedVariableInspection */
 			$CACHE_MANAGER->Set($cacheId, $arResult);
 
 			$res = new CDBResult;
@@ -4266,7 +4276,7 @@ class CAllSite
 
 	public static function GetByID($ID)
 	{
-		return CSite::GetList($ord, $by, array("LID"=>$ID));
+		return CSite::GetList('', '', array("LID"=>$ID));
 	}
 
 	public static function GetArrayByID($ID)
@@ -4294,7 +4304,7 @@ class CAllSite
 	public static function IsDistinctDocRoots($arFilter=array())
 	{
 		$s = false;
-		$res = CSite::GetList($by, $order, $arFilter);
+		$res = CSite::GetList('', '', $arFilter);
 		while($ar = $res->Fetch())
 		{
 			if($s!==false && $s!=$ar["ABS_DOC_ROOT"])
@@ -4310,9 +4320,7 @@ class CAllSite
 	///////////////////////////////////////////////////////////////////
 	public static function SelectBox($sFieldName, $sValue, $sDefaultValue="", $sFuncName="", $field="class=\"typeselect\"")
 	{
-		$by = "sort";
-		$order = "asc";
-		$l = CLang::GetList($by, $order);
+		$l = CLang::GetList();
 		$s = '<select name="'.$sFieldName.'" '.$field;
 		$s1 = '';
 		if($sFuncName <> '') $s .= ' OnChange="'.$sFuncName.'"';
@@ -4330,9 +4338,7 @@ class CAllSite
 
 	public static function SelectBoxMulti($sFieldName, $Value)
 	{
-		$by = "sort";
-		$order = "asc";
-		$l = CLang::GetList($by, $order);
+		$l = CLang::GetList();
 		if(is_array($Value))
 			$arValue = $Value;
 		else

@@ -60,7 +60,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		$id = $request->getPost('id');
 		$isNew = (!isset($id) || !$id);
 		$type = $request->getPost('type');
-		$ownerId = intval($request->getPost('ownerId'));
+		$ownerId = (int)$request->getPost('ownerId');
 		$name = trim($request->getPost('name'));
 		$color = $request->getPost('color');
 		$customization = $request->getPost('customization') === 'Y';
@@ -126,8 +126,8 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 				$fields['OWNER_ID'] = $section['OWNER_ID'];
 			}
 
-			$id = intval(\CCalendar::SaveSection(['arFields' => $fields]));
-			if ($id > 0)
+			$id = \CCalendar::SaveSection(['arFields' => $fields]);
+			if ((int)$id > 0)
 			{
 				\CCalendarSect::SetClearOperationCache(true);
 				$response['section'] =  \CCalendarSect::GetById($id, true, true);
@@ -136,6 +136,15 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 					$this->addError(new Error('[se05]'.Loc::getMessage('EC_CALENDAR_SAVE_ERROR'), 'saving_error'));
 				}
 				$response['accessNames'] = \CCalendar::GetAccessNames();
+
+				$response['sectionList'] = \CCalendar::getSectionList([
+					'CAL_TYPE' => $type,
+					'OWNER_ID' => $ownerId,
+					'ADDITIONAL_IDS' => UserSettings::getFollowedSectionIdList($userId),
+					'checkPermissions' => true,
+					'getPermissions' => true,
+					'getImages' => true
+				]);
 			}
 			else
 			{
@@ -186,45 +195,45 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 	public function getTrackingSectionsAction()
 	{
 		$request = $this->getRequest();
-		$codes = $request->get('codes');
 		$mode = $request->get('type');
 
 		$users = [];
 		if ($mode == 'users')
 		{
-			$userIds = [];
-			$users = \CCalendar::GetDestinationUsers($codes, true);
-			foreach($users as $user)
+			$userIds = $request->get('userIdList');
+			$ormRes = \Bitrix\Main\UserTable::getList([
+				'filter' => ['=ID' => $userIds],
+				'select' => ['ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME']
+			]);
+			while ($user = $ormRes->fetch())
 			{
-				$userIds[] = $user['ID'];
+				$user['FORMATTED_NAME'] = \CCalendar::GetUserName($user);
+				$users[] = $user;
 			}
 
 			$sections = \CCalendarSect::getSuperposedList(['USERS' => $userIds]);
 		}
 		elseif($mode == 'groups')
 		{
-			$groupIds = [];
-			foreach($codes as $code)
-			{
-				if (mb_substr($code, 0, 2) === 'SG')
-				{
-					$groupIds[] = intval(mb_substr($code, 2));
-				}
-			}
-
+			$groupIds = $request->get('groupIdList');
 			$sections = \CCalendarSect::getSuperposedList(['GROUPS' => $groupIds]);
 
 			if (Loader::includeModule('socialnetwork'))
 			{
 				foreach($groupIds as $groupId)
 				{
-					$groupId = intval($groupId);
-					$createDefaultGroupSection = \CSocNetFeatures::isActiveFeature(SONET_ENTITY_GROUP, $groupId, "calendar");
+					$groupId = (int)$groupId;
+					$createDefaultGroupSection = \CSocNetFeatures::isActiveFeature(
+						SONET_ENTITY_GROUP,
+						$groupId,
+						"calendar"
+					);
+
 					if ($createDefaultGroupSection)
 					{
 						foreach($sections as $section)
 						{
-							if (intval($section['OWNER_ID']) === $groupId)
+							if ((int)$section['OWNER_ID'] === $groupId)
 							{
 								$createDefaultGroupSection = false;
 								break;
@@ -266,17 +275,16 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 	public function setTrackingSectionsAction()
 	{
 		$request = $this->getRequest();
-		$codes = $request->get('codes');
 		$type = $request->get('type');
-		$sections = $request->get('sections');
 
 		$userId = \CCalendar::getCurUserId();
 		if ($type === 'users')
 		{
-			UserSettings::setTrackingUsers($userId, \CCalendar::getDestinationUsers($codes));
+			UserSettings::setTrackingUsers($userId, $request->get('userIdList'));
 		}
 		elseif($type === 'groups')
 		{
+			$codes = $request->get('codes');
 			$groupIds = [];
 			foreach($codes as $code)
 			{
@@ -287,20 +295,21 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			}
 			UserSettings::setTrackingGroups($userId, $groupIds);
 		}
-		\CCalendar::setDisplayedSuperposed($userId, $sections);
+
+		\CCalendar::setDisplayedSuperposed($userId, $request->get('sections'));
 		return [];
 	}
 
 	public function getEditEventSliderAction()
 	{
 		$request = $this->getRequest();
-		$additionalResponseParams = [];
+		$responseParams = [];
 		$uniqueId = 'calendar_edit_slider_'.rand();
 		$formType = preg_replace('/[^\d|\w\_]/', '', $request->get('form_type'));
-		$entryId = intval($request->get('event_id'));
+		$entryId = (int)$request->get('event_id');
 		$userCodes = $request->get('userCodes');
 		$userId = \CCalendar::GetCurUserId();
-		$ownerId = intval($request->get('ownerId'));
+		$ownerId = (int)$request->get('ownerId');
 		$type = $request->get('type');
 		$sections = [];
 
@@ -317,12 +326,12 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 		if (!$entryId || !empty($entry) && \CCalendarSceleton::CheckBitrix24Limits(array('id' => $uniqueId)))
 		{
-			$additionalResponseParams['uniqueId'] = $uniqueId;
-			$additionalResponseParams['userId'] = $userId;
-			$additionalResponseParams['editorId'] = $uniqueId.'_entry_slider_editor';
-			$additionalResponseParams['entry'] = $entry;
-			$additionalResponseParams['timezoneList'] = \CCalendar::GetTimezoneList();
-			$additionalResponseParams['formSettings'] = \Bitrix\Calendar\UserSettings::getFormSettings($formType);
+			$responseParams['uniqueId'] = $uniqueId;
+			$responseParams['userId'] = $userId;
+			$responseParams['editorId'] = $uniqueId.'_entry_slider_editor';
+			$responseParams['entry'] = $entry;
+			$responseParams['timezoneList'] = \CCalendar::GetTimezoneList();
+			$responseParams['formSettings'] = UserSettings::getFormSettings($formType);
 
 			if ($type)
 			{
@@ -347,34 +356,37 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			}
 			$sections = array_merge($sections, \CCalendar::getSectionListAvailableForUser($userId, [$entry['SECTION_ID']]));
 
-			$additionalResponseParams['sections'] = [];
+			$responseParams['sections'] = [];
 			foreach($sections as $section)
 			{
-				if (!\CCalendarSect::CheckGoogleVirtualSection($section['GAPI_CALENDAR_ID'])
+				if (!\CCalendarSect::CheckGoogleVirtualSection($section['GAPI_CALENDAR_ID'], $section['EXTERNAL_TYPE'])
 					&&
-					($entryId && \CCalendarSect::CanDo('calendar_edit', $section['ID'], $userId)
-					||
-					!$entryId && \CCalendarSect::CanDo('calendar_add', $section['ID'], $userId)))
+					(
+						($entryId && \CCalendarSect::CanDo('calendar_edit', $section['ID'], $userId))
+						|| (!$entryId && \CCalendarSect::CanDo('calendar_add', $section['ID'], $userId))
+					)
+				)
 				{
-					$additionalResponseParams['sections'][] = $section;
+					$responseParams['sections'][] = $section;
 				}
 			}
 
-			$additionalResponseParams['lastSection'] = \CCalendarSect::GetLastUsedSection('user', $userId, $userId);
-			$additionalResponseParams['trackingUsersList'] = \Bitrix\Calendar\UserSettings::getTrackingUsers($userId);
-			$additionalResponseParams['userSettings'] = \Bitrix\Calendar\UserSettings::get($userId);
-			$additionalResponseParams['eventWithEmailGuestLimit'] = Limitation::getEventWithEmailGuestLimit();
-			$additionalResponseParams['countEventWithEmailGuestAmount'] = Limitation::getCountEventWithEmailGuestAmount();
-			$additionalResponseParams['iblockMeetingRoomList'] = \CCalendar::GetMeetingRoomList();
-			$additionalResponseParams['userIndex'] = \CCalendarEvent::getUserIndex();
-			$additionalResponseParams['locationFeatureEnabled'] = !\CCalendar::IsBitrix24() ||
+			$responseParams['trackingUsersList'] = UserSettings::getTrackingUsers($userId);
+			$responseParams['userSettings'] = UserSettings::get($userId);
+			$responseParams['eventWithEmailGuestLimit'] = Limitation::getEventWithEmailGuestLimit();
+			$responseParams['countEventWithEmailGuestAmount'] = Limitation::getCountEventWithEmailGuestAmount();
+			$responseParams['iblockMeetingRoomList'] = \CCalendar::GetMeetingRoomList();
+			$responseParams['userIndex'] = \CCalendarEvent::getUserIndex();
+			$responseParams['locationFeatureEnabled'] = !\CCalendar::IsBitrix24() ||
 		\Bitrix\Bitrix24\Feature::isFeatureEnabled("calendar_location");
-			if ($additionalResponseParams['locationFeatureEnabled'])
+			if ($responseParams['locationFeatureEnabled'])
 			{
-				$additionalResponseParams['locationList'] = \CCalendarLocation::GetList();
+				$responseParams['locationList'] = \CCalendarLocation::GetList();
 			}
 
-			$additionalResponseParams['attendeesEntityList'] = !empty($entry['attendeesEntityList']) ? $entry['attendeesEntityList'] : Util::getDefaultEntityList($userId, $type, $ownerId);
+			$responseParams['attendeesEntityList'] = ($entryId > 0 && !empty($entry['attendeesEntityList']))
+				? $entry['attendeesEntityList']
+				: Util::getDefaultEntityList($userId, $type, $ownerId);
 
 			return new \Bitrix\Main\Engine\Response\Component(
 				'bitrix:calendar.edit.slider',
@@ -389,7 +401,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 					'AVATAR_SIZE' => 21,
 					'ATTENDEES_CODES' => $userCodes
 				],
-				$additionalResponseParams
+				$responseParams
 			);
 		}
 		else
@@ -427,9 +439,10 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		{
 			$additionalResponseParams['uniqueId'] = $uniqueId;
 			$additionalResponseParams['userId'] = $userId;
+			$additionalResponseParams['userTimezone'] = \CCalendar::GetUserTimezoneName($userId);
 			$additionalResponseParams['entry'] = $entry;
 			$additionalResponseParams['userIndex'] = \CCalendarEvent::getUserIndex();
-			$additionalResponseParams['userSettings'] = \Bitrix\Calendar\UserSettings::get($userId);
+			$additionalResponseParams['userSettings'] = UserSettings::get($userId);
 			$additionalResponseParams['entryUrl'] = \CHTTP::urlAddParams(
 				\CCalendar::GetPath($entry['CAL_TYPE'], $entry['OWNER_ID'], true),
 				[
@@ -497,13 +510,18 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 	public function updatePlannerAction()
 	{
 		$request = $this->getRequest();
-		$entryId = intval($request['entryId']);
+		$entryId = (int)$request['entryId'];
 		$userId = \CCalendar::getCurUserId();
-		$ownerId = intval($request['ownerId']);
+		$ownerId = (int)$request['ownerId'];
 		$type = $request['type'];
 		$entries = $request['entries'];
-
 		$isExtranetUser = Util::isExtranetUser($userId);
+
+		$hostId = (int)$request['hostId'];
+		if (!$hostId && $type === 'user' && !$entryId)
+		{
+			$hostId = $ownerId;
+		}
 
 		if (!Loader::includeModule('intranet')
 			|| (!\Bitrix\Intranet\Util::isIntranetUser($userId) && !$isExtranetUser)
@@ -520,7 +538,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 		if (!$entryId && $request['cur_event_id'])
 		{
-			$entryId = intval($request['cur_event_id']);
+			$entryId = (int)$request['cur_event_id'];
 		}
 
 		$codes = [];
@@ -543,14 +561,15 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		return \CCalendarPlanner::prepareData([
 			'entry_id' => $entryId,
 			'user_id' => $userId,
-			'host_id' => $type === 'user' && $ownerId ? $ownerId : null,
+			'host_id' => $hostId,
 			'codes' => $codes,
 			'entries' => $entries,
 			'date_from' => $dateFrom,
 			'date_to' => $dateTo,
 			'timezone' => $request['timezone'],
 			'location' => trim($request['location']),
-			'roomEventId' => intval($request['roomEventId'])
+			'roomEventId' => (int)$request['roomEventId'],
+			'initPullWatches' => true
 		]);
 	}
 
@@ -584,11 +603,18 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		return ['locationList' => \CCalendarLocation::getList()];
 	}
 
-	public function deleteCalendarEntryAction($entryId, $recursionMode)
+	public function deleteCalendarEntryAction($entryId, $recursionMode, $requestUid)
 	{
 		$response = [];
 
-		$response['result'] = \CCalendar::deleteEvent($entryId, true, array('recursionMode' => $recursionMode));
+		$response['result'] = \CCalendar::deleteEvent(
+			$entryId,
+			true,
+			[
+				'recursionMode' => $recursionMode,
+				'requestUid' => (int)$requestUid
+			]
+		);
 
 		if ($response['result'] !== true)
 		{
@@ -698,15 +724,16 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		$response = [];
 		$request = $this->getRequest();
 
-		$id = intval($request['id']);
-		$sectionId = intval($request['section']);
+		$id = (int)$request['id'];
+		$sectionId = (int)$request['section'];
+		$requestUid = (int)$request['requestUid'];
 		$userId = \CCalendar::getCurUserId();
 
 		if (!$id && !\CCalendarSect::CanDo('calendar_add', $sectionId, $userId)
 			||
 			$id && !\CCalendarSect::CanDo('calendar_edit', $sectionId, $userId))
 		{
-			$this->addError(new Error('[ee01]'.Loc::getMessage('EC_ACCESS_DENIED'), 'edit_entry_access_denied'));
+			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'edit_entry_access_denied'));
 		}
 
 		if(empty($this->getErrors()))
@@ -723,7 +750,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 			if (!($section = $sectionList->fetch()))
 			{
-				$this->addError(new Error('[ee02]'.Loc::getMessage('EC_SECTION_NOT_FOUND'), 'edit_entry_section_not_found'));
+				$this->addError(new Error(Loc::getMessage('EC_SECTION_NOT_FOUND'), 'edit_entry_section_not_found'));
 			}
 
 			if(empty($this->getErrors()))
@@ -734,7 +761,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 				{
 					$name = Loc::getMessage('EC_DEFAULT_EVENT_NAME');
 				}
-				$remind = \CCalendarReminder::prepareReminder($request['reminder']);
+				$reminderList = \CCalendarReminder::prepareReminder($request['reminder']);
 
 				$rrule = $request['EVENT_RRULE'];
 				if (isset($rrule) && !isset($rrule['INTERVAL']) && $rrule['FREQ'] !== 'NONE')
@@ -802,7 +829,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 					'PRIVATE_EVENT' => $request['private_event'] === 'Y',
 					'RRULE' => $rrule,
 					'LOCATION' => $request['location'],
-					"REMIND" => $remind,
+					"REMIND" => $reminderList,
 					"IS_MEETING" => !!$request['is_meeting'],
 					"SECTION_CAL_TYPE" => $section['CAL_TYPE'],
 					"SECTION_OWNER_ID" => $section['OWNER_ID']
@@ -945,7 +972,8 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 						'silentErrorMode' => false,
 						'recursionEditMode' => $request['rec_edit_mode'],
 						'currentEventDateFrom' => \CCalendar::Date(\CCalendar::Timestamp($request['current_date_from']), false),
-						'sendInvitesToDeclined' => $request['sendInvitesAgain'] === 'Y'
+						'sendInvitesToDeclined' => $request['sendInvitesAgain'] === 'Y',
+						'requestUid' => $requestUid
 					]);
 
 					$errors = \CCalendar::GetErrors();
@@ -1055,14 +1083,21 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 							}
 						}
 					}
+
+					$pathToCalendar = \CCalendar::GetPathForCalendarEx($userId);
+					foreach($eventList as $ind => $event)
+					{
+						$eventList[$ind]['~URL'] = \CHTTP::urlAddParams($pathToCalendar, ['EVENT_ID' => $event['ID']]);
+					}
+
 					$response['eventList'] = $eventList;
 					$response['eventIdList'] = $eventIdList;
 					$response['displayMobileBanner'] = Util::isShowDailyBanner();
 					$response['countEventWithEmailGuestAmount'] = Limitation::getCountEventWithEmailGuestAmount();
 
-					$userSettings = \Bitrix\Calendar\UserSettings::get($userId);
-					$userSettings['lastUsedSection'] = $sectionId;
-					\Bitrix\Calendar\UserSettings::set($userSettings, $userId);
+					$userSettings = UserSettings::get($userId);
+					$userSettings['defaultReminders'][$skipTime ? 'fullDay' : 'withTime'] = $reminderList;
+					UserSettings::set($userSettings, $userId);
 				}
 			}
 		}
@@ -1090,17 +1125,24 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 	public function setMeetingStatusAction()
 	{
+		$userId = \CCalendar::GetCurUserId();
 		$request = $this->getRequest();
 		$response = [];
 
 		\CCalendarEvent::SetMeetingStatusEx([
-			'attendeeId' => \CCalendar::getCurUserId(),
-			'eventId' => intval($request->getPost('entryId')),
-			'parentId' => intval($request->getPost('entryParentId')),
+			'attendeeId' => $userId,
+			'eventId' => (int)$request->getPost('entryId'),
+			'parentId' => (int)$request->getPost('entryParentId'),
 			'status' => $request->getPost('status'),
 			'reccurentMode' => $request->getPost('recursionMode'),
-			'currentDateFrom' => $request->getPost('currentDateDrom')
+			'currentDateFrom' => $request->getPost('currentDateFrom')
 		]);
+
+		\CCalendar::UpdateCounter([$userId]);
+		$response['counters'] = [
+			'invitation' => \CUserCounter::GetValue($userId, 'calendar')
+		];
+
 		return $response;
 	}
 
@@ -1354,98 +1396,62 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		];
 	}
 
-	public function createEventChatAction($entryId)
-	{
-		$entry = \CCalendarEvent::GetById($entryId);
-		$userId = \CCalendar::getCurUserId();
-
-		$result = [];
-		if (Loader::includeModule('im') && $entry)
-		{
-			$attendeeIdList = [];
-			foreach($entry['ATTENDEE_LIST'] as $attendee)
-			{
-				if ($attendee['status'] !== 'N')
-				{
-					$attendeeIdList[] = intval($attendee['id']);
-				}
-			}
-
-			if (!in_array($userId, $attendeeIdList))
-			{
-				$this->addError(new Error(Loc::getMessage('EC_CALENDAR_ERROR_CHAT_USER_NOT_FOUND'), 'create_chat_error'));
-				return $result;
-			}
-
-			if ($entry['MEETING']['CHAT_ID'] > 0)
-			{
-				$result['chatId'] = $entry['MEETING']['CHAT_ID'];
-			}
-			else
-			{
-				$chat = new \CIMChat(0);
-				$chatFields = [
-					'TITLE' => Loc::getMessage('EC_CALENDAR_CHAT_TITLE', ['#EVENT_TITLE#' => $entry['NAME']]),
-					'TYPE' => IM_MESSAGE_CHAT,
-					'ENTITY_TYPE' => \CCalendar::CALENDAR_CHAT_ENTITY_TYPE,
-					'ENTITY_ID' => $entry['ID'],
-					'SKIP_ADD_MESSAGE' => 'Y',
-					'AUTHOR_ID' => $userId,
-					'USERS' => $attendeeIdList
-				];
-
-				$result['chatId'] = $chat->add($chatFields);
-
-				if ($result['chatId'])
-				{
-					$pathToCalendar = \CCalendar::GetPathForCalendarEx($userId);
-					$pathToEvent = \CHTTP::urlAddParams($pathToCalendar, ['EVENT_ID' => $entry['ID']]);
-					$entryLinkTitle = "[url=".$pathToEvent."]".$entry['NAME']."[/url]";
-					$chatMessageFields = [
-						'FROM_USER_ID' => $userId,
-						'MESSAGE' => Loc::getMessage('EC_CALENDAR_CHAT_FIRST_MESSAGE', ['#EVENT_TITLE#' => $entryLinkTitle, '#DATETIME_FROM#' => \CCalendar::Date(\CCalendar::Timestamp($entry['DATE_FROM']), $entry['DT_SKIP_TIME'] === 'N', true, true)]),
-						'SYSTEM' => 'Y',
-						'INCREMENT_COUNTER' => 'N',
-						'PUSH' => 'Y',
-						'TO_CHAT_ID' => $result['chatId'],
-						'SKIP_USER_CHECK' => 'Y',
-						'SKIP_COMMAND' => 'Y'
-					];
-
-					\CIMChat::addMessage($chatMessageFields);
-
-					$entry['MEETING']['CHAT_ID'] = $result['chatId'];
-					$response['id'] = \CCalendar::SaveEvent([
-						'arFields' => [
-							'ID' => $entry['ID'],
-							'MEETING' => $entry['MEETING']
-						],
-						'checkPermission' => false,
-						'userId' => $entry['CREATED_BY']
-					]);
-
-					\CCalendar::ClearCache('event_list');
-				}
-			}
-		}
-		else
-		{
-			$this->addError(new Error(Loc::getMessage('EC_CALENDAR_IM_NOT_FOUND'), 'create_chat_error'));
-		}
-
-		return $result;
-	}
-
 	public function getCompactFormDataAction($entryId)
 	{
 		$userId = \CCalendar::GetCurUserId();
 		$request = $this->getRequest();
-		$loadSectionId = intval($request['loadSectionId']);
+		$loadSectionId = (int)$request['loadSectionId'];
 		$result = [];
 		if ($loadSectionId > 0)
 		{
 			$result['section'] = \CCalendarSect::GetById($loadSectionId);
 		}
 		return $result;
+	}
+
+	public function getSectionListAction(): array
+	{
+		$userId = \CCalendar::GetCurUserId();
+		$request = $this->getRequest();
+		$type = $request['type'];
+		$ownerId = (int)$request['ownerId'];
+
+		$sectionList = \CCalendar::getSectionList([
+			'CAL_TYPE' => $type,
+			'OWNER_ID' => $ownerId,
+			'ADDITIONAL_IDS' => UserSettings::getFollowedSectionIdList($userId),
+			'checkPermissions' => true,
+			'getPermissions' => true,
+			'getImages' => true
+		]);
+
+		return [
+			'sections' => $sectionList
+		];
+	}
+
+	public function updateCountersAction(): array
+	{
+		$userId = \CCalendar::GetCurUserId();
+		\CCalendar::UpdateCounter([$userId]);
+		$counters = [
+			'invitation' => \CUserCounter::GetValue($userId, 'calendar')
+		];
+
+		return [
+			'counters' => $counters
+		];
+	}
+
+	public function updateDefaultSectionIdAction(string $key, int $sectionId): void
+	{
+		$userId = \CCalendar::GetCurUserId();
+		$key = preg_replace("/[^a-zA-Z0-9_:\.]/is", "", $key);
+		if ($key && $sectionId)
+		{
+			$userSettings = UserSettings::get($userId);
+			$userSettings['defaultSections'][$key] = $sectionId;
+			UserSettings::set($userSettings, $userId);
+		}
 	}
 }

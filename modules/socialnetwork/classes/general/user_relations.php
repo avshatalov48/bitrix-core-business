@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSocNetUserRelations
@@ -6,7 +7,7 @@ class CAllSocNetUserRelations
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $DB, $arSocNetAllowedRelations;
 
@@ -185,7 +186,7 @@ class CAllSocNetUserRelations
 		return False;
 	}
 
-	function GetByUserID($user1ID, $user2ID)
+	public static function GetByUserID($user1ID, $user2ID)
 	{
 		global $DB;
 
@@ -395,7 +396,7 @@ class CAllSocNetUserRelations
 		return $arSocNetUserRelationsCache[$firstUserID."_".$secondUserID];
 	}
 
-	function IsFriends2($firstUserID, $secondUserID)
+	public static function IsFriends2($firstUserID, $secondUserID)
 	{
 		global $DB;
 		static $arSocNetUser2RelationsCache = array();
@@ -464,7 +465,7 @@ class CAllSocNetUserRelations
 	/***************************************/
 	/**********  SEND EVENTS  **************/
 	/***************************************/
-	function SendEvent($relationID, $mailType = "INVITE_FRIEND")
+	public static function SendEvent($relationID, $mailType = "INVITE_FRIEND")
 	{
 		$relationID = intval($relationID);
 		if ($relationID <= 0)
@@ -531,7 +532,7 @@ class CAllSocNetUserRelations
 	/***************************************/
 	/************  ACTIONS  ****************/
 	/***************************************/
-	function SendRequestToBeFriend($senderUserID, $targetUserID, $message)
+	public static function SendRequestToBeFriend($senderUserID, $targetUserID, $message)
 	{
 		global $APPLICATION;
 
@@ -830,7 +831,7 @@ class CAllSocNetUserRelations
 		return true;
 	}
 
-	function DeleteRelation($senderUserID, $targetUserID)
+	public static function DeleteRelation($senderUserID, $targetUserID)
 	{
 		global $APPLICATION;
 
@@ -917,7 +918,7 @@ class CAllSocNetUserRelations
 		return true;
 	}
 
-	function BanUser($senderUserID, $targetUserID)
+	public static function BanUser($senderUserID, $targetUserID)
 	{
 		global $APPLICATION, $DB;
 
@@ -1043,7 +1044,7 @@ class CAllSocNetUserRelations
 		return true;
 	}
 
-	function UnBanMember($senderUserID, $relationID)
+	public static function UnBanMember($senderUserID, $relationID)
 	{
 		global $APPLICATION, $DB;
 
@@ -1105,7 +1106,7 @@ class CAllSocNetUserRelations
 		return true;
 	}
 
-	function __SpeedFileCheckMessages($userID)
+	public static function __SpeedFileCheckMessages($userID)
 	{
 		$userID = intval($userID);
 		if ($userID <= 0)
@@ -1127,7 +1128,7 @@ class CAllSocNetUserRelations
 			CSocNetUserRelations::__SpeedFileDelete($userID);
 	}
 
-	function __SpeedFileCreate($userID)
+	public static function __SpeedFileCreate($userID)
 	{
 		global $CACHE_MANAGER;
 		
@@ -1149,7 +1150,7 @@ class CAllSocNetUserRelations
 */
 	}
 
-	function __SpeedFileDelete($userID)
+	public static function __SpeedFileDelete($userID)
 	{
 		global $CACHE_MANAGER;
 
@@ -1166,7 +1167,7 @@ class CAllSocNetUserRelations
 */
 	}
 
-	function SpeedFileExists($userID)
+	public static function SpeedFileExists($userID)
 	{
 		global $CACHE_MANAGER;
 
@@ -1182,7 +1183,7 @@ class CAllSocNetUserRelations
 	}
 
 	/* Module IM callback */
-	function OnBeforeConfirmNotify($module, $tag, $value, $arParams)
+	public static function OnBeforeConfirmNotify($module, $tag, $value, $arParams)
 	{
 		if ($module == "socialnetwork")
 		{
@@ -1203,4 +1204,3 @@ class CAllSocNetUserRelations
 		}
 	}
 }
-?>

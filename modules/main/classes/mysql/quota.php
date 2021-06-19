@@ -1,4 +1,5 @@
-<?
+<?php
+
 /*
 ##############################################
 # Bitrix Site Manager                        #
@@ -8,9 +9,10 @@
 ##############################################
 */
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/quota.php");
+
 class CDiskQuota extends CAllDiskQuota
 {
-	function SetDBSize()
+	public static function SetDBSize()
 	{
 		global $DB;
 		$DBSize = 0;
@@ -38,4 +40,3 @@ class CDiskQuota extends CAllDiskQuota
 		return array("status" => "done", "size" => $DBSize, "time" => $params["time"]);
 	}
 }
-?>

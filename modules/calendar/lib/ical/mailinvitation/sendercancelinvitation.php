@@ -46,14 +46,14 @@ class SenderCancelInvitation extends SenderInvitation
 			'EMAIL_TO' => $this->context->getReceiver()->getEmail(),
 			'MESSAGE_SUBJECT' => $this->getSubjectMessage(),
 			'MESSAGE_PHP' => $this->getBodyMessage(),
-			'DATE_FROM' => $this->getDateForTemplate(),
+			'CONFIRM_CODE' => 'TRUE',
 			'NAME' => $this->event['NAME'],
-			'DESCRIPTION' => $this->event['DESCRIPTION'],
-			'ATTENDEES' => $this->event['ICAL_ATTENDEES'],
-			'ORGANIZER' => $this->context->getAddresser()->getFullNameWithEmail(),
-			'LOCATION' => $this->event['TEXT_LOCATION'],
-			'FILES_LINK' =>$this->getFilesLink(),
 			'METHOD' => self::METHOD,
+			'DATE_FROM' => $this->event['DATE_FROM'],
+			'DATE_TO' => $this->event['DATE_TO'],
+			'TZ_FROM' => $this->event['TZ_FROM'],
+			'TZ_TO' => $this->event['TZ_TO'],
+			'FULL_DAY' => $this->event['SKIP_TIME'] ? 'Y' : 'N',
 		];
 	}
 

@@ -1,11 +1,12 @@
-<?
+<?php
+
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/learning/general/ratings_components.php");
 
 // 2012-04-16 Checked/modified for compatibility with new data model
 class CRatingsComponentsLearning
 {	
 	// 2012-04-16 Checked/modified for compatibility with new data model
-	function OnGetRatingContentOwner($arParams)
+	public static function OnGetRatingContentOwner($arParams)
 	{
 		if ($arParams['ENTITY_TYPE_ID'] == 'LEARN_LESSON')
 		{
@@ -22,7 +23,7 @@ class CRatingsComponentsLearning
 	}
 	
 	// 2012-04-16 Checked/modified for compatibility with new data model
-	function OnAddRatingVote($id, $arParams)
+	public static function OnAddRatingVote($id, $arParams)
 	{
 		if (in_array($arParams['ENTITY_TYPE_ID'], Array('LEARN_CHAPTER', 'LEARN_LESSON', 'LEARN_COURSE')))
 		{
@@ -35,7 +36,7 @@ class CRatingsComponentsLearning
 	}
 	
 	// 2012-04-16 Checked/modified for compatibility with new data model
-	function OnCancelRatingVote($id, $arParams)
+	public static function OnCancelRatingVote($id, $arParams)
 	{	
 		return CRatingsComponentsLearning::OnAddRatingVote($id, $arParams);
 	}

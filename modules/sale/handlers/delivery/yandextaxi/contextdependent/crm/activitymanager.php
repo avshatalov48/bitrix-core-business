@@ -4,6 +4,8 @@ namespace Sale\Handlers\Delivery\YandexTaxi\ContextDependent\Crm;
 
 use Bitrix\Crm\Activity\Provider\Delivery;
 use Bitrix\Sale\Delivery\Services\Taxi\StatusDictionary;
+use Bitrix\Main\Loader;
+use Bitrix\Voximplant\Security\Helper;
 
 /**
  * Class ActivityManager
@@ -61,6 +63,10 @@ final class ActivityManager
 			$shipmentId,
 			[
 				'STATUS' => StatusDictionary::INITIAL,
+				'CAN_USE_TELEPHONY' => (
+					Loader::includeModule('voximplant')
+					&& Helper::canCurrentUserPerformCalls()
+				),
 				'REQUEST_ID' => null,
 				'REQUEST_CANCELLATION_AVAILABLE' => false,
 				'PERFORMER_PHONE' => null,

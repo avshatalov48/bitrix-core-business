@@ -29,7 +29,7 @@
 
 .bx-desktop-reconnect { display:inline-block; background: url(./../images/wait-small.gif) no-repeat; padding-left: 31px; height: 17px; line-height: 20px;}
 
-.bx-desktop-appearance-menu { position: absolute; z-index: 1000; background-color: #fff;border-right: 1px solid #e5e5e5;width: 43px; display: none; }
+.bx-desktop-appearance-menu { position: absolute; z-index: 1000; background-color: #fff;border-right: 1px solid #e5e5e5;width: 42px; display: none; }
 .bx-desktop-appearance-content { position: relative; z-index: 2; background-color: #fff;  margin-left:0; }
 .bx-desktop-appearance-show-menu .bx-desktop-appearance-menu { display: block; }
 .bx-desktop-appearance-show-menu .bx-desktop-appearance-content  { margin-left: 44px; }
@@ -40,7 +40,7 @@
 
 .bx-desktop-appearance-avatar { padding-top: 10px;text-align: center;}
 .bx-desktop-avatar { white-space: nowrap; background: url(./../images/im-sprite-v37.png) 2px -124px no-repeat; display: inline-block; width: 32px; height: 32px; vertical-align: middle; margin-bottom: 12px }
-.bx-desktop-avatar-img { width: inherit; height: inherit; border: 0; border-radius: 50%; }
+.bx-desktop-avatar-img { width: inherit; height: inherit; border: 0; border-radius: 50%; display: inline-block }
 .bx-desktop-avatar-img-default { background: url("./../images/im-sprite-v37.png") no-repeat scroll -41px -1903px #77828e; }
 .bx-desktop-separator { display: block;height: 0; border-top: 1px solid #eef0f2; margin: 0 10px;  }
 
@@ -48,41 +48,148 @@
 .bx-desktop-tab:hover .bx-desktop-tab-icon {  }
 .bx-desktop-tab-hide { display: none }
 .bx-desktop-tab-config {}
-.bx-desktop-tab-counter {background-color: #fff;border-radius: 10px;color: #fff;font-size: 11px;position: absolute;margin-top: 13px;margin-left: 13px;line-height: 14px; z-index:2;  opacity: 1;  }
-.bx-desktop-tab-counter-digit { padding: 0 4px 0 5px; display: block; border: 2px solid #fff; border-radius: 10px; background-color: #17b0e1; }
-.bx-desktop-tab-icon { width: 27px; height: inherit; background: url("./../images/desktop-sprite-v7.png?v2") no-repeat scroll 15px 15px;display: inline-block; }
-.bx-desktop-tab-icon-config { background-position: -49px -51px; }
+.bx-desktop-tab-counter {
+	border-radius: 10px;color: #fff;font-size: 11px;position: absolute;margin-top: 13px;margin-left: 13px;line-height: 14px; z-index:2;  opacity: 1;
+}
+.bx-desktop-tab-counter-digit {
+	padding: 0 4px 0 4px;
+	display: block;
+	border: 2px solid #fff;
+	border-radius: 10px;
+	position: relative;
+	background-color: #17b0e1;
+    color: #fff;
+}
+
+.bx-desktop-tab-active .bx-desktop-tab-counter-digit,
+.bx-desktop-tab:hover .bx-desktop-tab-counter-digit {
+	background-color: #17b0e1;
+    color: #fff;
+}
+.bx-desktop-tab-counter-digit[data-counter-type="dozens"] {
+	left: -3px;
+}
+.bx-desktop-tab-counter-digit[data-counter-type="hundreds"] {
+	left: -5px;
+    padding-right: 2px;
+}
+
+.bx-desktop-tab-icon {
+	width: 28px;
+	height: inherit;
+	display: inline-block;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+.bx-desktop-tab-icon-config {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2215%22%20height%3D%2215%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M9.032.303l.16%201.793c.219.073.43.16.636.257l1.362-1.177a7.321%207.321%200%20012.39%202.349l-1.154%201.381c.101.203.19.413.267.63l1.796.13c.23.937.278%201.946.105%202.987l-.07.364-1.788.161a5.475%205.475%200%2001-.256.647l1.183%201.369a7.2%207.2%200%2001-2.346%202.388l-1.388-1.16a5.477%205.477%200%2001-.645.269l-.13%201.79-.14.033a7.456%207.456%200%2001-3.21-.01l-.16-1.793a5.558%205.558%200%2001-.636-.257l-1.36%201.178a7.321%207.321%200%2001-2.391-2.35l1.154-1.38a5.562%205.562%200%2001-.268-.63l-1.796-.13a7.402%207.402%200%2001-.105-2.988l.07-.364L2.11%205.63c.075-.208.166-.415.271-.618L1.226%203.675A8.55%208.55%200%20013.584%201.28L4.94%202.414c.2-.11.404-.204.61-.283L5.68.326l.14-.033a7.455%207.455%200%20013.212.01zM6.62%203.848c-1.243.264-2.492%201.514-2.757%202.757a3.649%203.649%200%20004.355%204.354%203.588%203.588%200%20002.757-2.757%203.649%203.649%200%2000-4.355-4.354z%22%20fill%3D%22%2393979B%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+	background-position-x: 6px;
+}
 .bx-desktop-tab-active .bx-desktop-tab-icon-config,
-.bx-desktop-tab-icon-config:hover { background-position: -49px -201px; }
-.bx-desktop-tab-icon-disk { background-position: -13px -50px; }
+.bx-desktop-tab:hover .bx-desktop-tab-icon-config {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2215%22%20height%3D%2215%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M9.032.303l.16%201.793c.219.073.43.16.636.257l1.362-1.177a7.321%207.321%200%20012.39%202.349l-1.154%201.381c.101.203.19.413.267.63l1.796.13c.23.937.278%201.946.105%202.987l-.07.364-1.788.161a5.475%205.475%200%2001-.256.647l1.183%201.369a7.2%207.2%200%2001-2.346%202.388l-1.388-1.16a5.477%205.477%200%2001-.645.269l-.13%201.79-.14.033a7.456%207.456%200%2001-3.21-.01l-.16-1.793a5.558%205.558%200%2001-.636-.257l-1.36%201.178a7.321%207.321%200%2001-2.391-2.35l1.154-1.38a5.562%205.562%200%2001-.268-.63l-1.796-.13a7.402%207.402%200%2001-.105-2.988l.07-.364L2.11%205.63c.075-.208.166-.415.271-.618L1.226%203.675A8.55%208.55%200%20013.584%201.28L4.94%202.414c.2-.11.404-.204.61-.283L5.68.326l.14-.033a7.455%207.455%200%20013.212.01zM6.62%203.848c-1.243.264-2.492%201.514-2.757%202.757a3.649%203.649%200%20004.355%204.354%203.588%203.588%200%20002.757-2.757%203.649%203.649%200%2000-4.355-4.354z%22%20fill%3D%22%2317b0e1%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
+
+.bx-desktop-tab-icon-disk {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2217%22%20height%3D%2213%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M13.73%205.584l.002-.085c0-1.891-1.472-3.427-3.286-3.427-.372%200-.741.066-1.09.194A3.38%203.38%200%20006.23.08C4.367.079%202.857%201.656%202.857%203.6l.001.064a4.3%204.3%200%2000-2.74%204.055c0%202.378%201.848%204.306%204.128%204.306.047%200%20.092-.002.138-.003v.003h8.541a3.213%203.213%200%20003.124-3.278%203.259%203.259%200%2000-2.32-3.163zM8.034%209.822a3.05%203.05%200%20112.928-3.047%202.99%202.99%200%2001-2.928%203.047zm1.398-3.045H8.24V5.31a.362.362%200%2010-.722%200v1.844a.369.369%200%2000.361.376h1.553a.376.376%200%2000-.001-.752z%22%20fill%3D%22%2393979B%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
 .bx-desktop-tab-active .bx-desktop-tab-icon-disk,
-.bx-desktop-tab-icon-disk:hover { background-position: -13px -200px; }
-.bx-desktop-tab-icon-im { background-position: -12px -9px; }
+.bx-desktop-tab:hover .bx-desktop-tab-icon-disk {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2217%22%20height%3D%2213%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M13.73%205.584l.002-.085c0-1.891-1.472-3.427-3.286-3.427-.372%200-.741.066-1.09.194A3.38%203.38%200%20006.23.08C4.367.079%202.857%201.656%202.857%203.6l.001.064a4.3%204.3%200%2000-2.74%204.055c0%202.378%201.848%204.306%204.128%204.306.047%200%20.092-.002.138-.003v.003h8.541a3.213%203.213%200%20003.124-3.278%203.259%203.259%200%2000-2.32-3.163zM8.034%209.822a3.05%203.05%200%20112.928-3.047%202.99%202.99%200%2001-2.928%203.047zm1.398-3.045H8.24V5.31a.362.362%200%2010-.722%200v1.844a.369.369%200%2000.361.376h1.553a.376.376%200%2000-.001-.752z%22%20fill%3D%22%2317b0e1%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
+
+.bx-desktop-tab-icon-storage {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2217%22%20height%3D%2211%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M13.1.038a1%201%200%2001.792.39l3.097%204.023-.151-.001c.086.148.136.32.136.504V9.97a1%201%200%2001-1%201h-14a1%201%200%2001-1-1V4.954c0-.184.05-.356.136-.504H.974L3.865.453a1%201%200%2001.81-.414H13.1zm2.191%205.71H2.697v3.428h12.594V5.749zM7.868%206.917v1h-4v-1h4zm4.528-5.281H5.384l-1.801%202.32h10.62l-1.807-2.32z%22%20fill%3D%22%2393979B%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+	background-position-x: 5px;
+}
+.bx-desktop-tab-active .bx-desktop-tab-icon-storage,
+.bx-desktop-tab:hover .bx-desktop-tab-icon-storage {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2217%22%20height%3D%2211%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M13.1.038a1%201%200%2001.792.39l3.097%204.023-.151-.001c.086.148.136.32.136.504V9.97a1%201%200%2001-1%201h-14a1%201%200%2001-1-1V4.954c0-.184.05-.356.136-.504H.974L3.865.453a1%201%200%2001.81-.414H13.1zm2.191%205.71H2.697v3.428h12.594V5.749zM7.868%206.917v1h-4v-1h4zm4.528-5.281H5.384l-1.801%202.32h10.62l-1.807-2.32z%22%20fill%3D%22%2317b0e1%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
+
+.bx-desktop-tab-icon-im {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M12.942.994c1.16%200%202.1.94%202.1%202.1v7.8a2.1%202.1%200%2001-2.1%202.1H6.343L3.95%2015.708a.4.4%200%2001-.7-.264v-2.45H2.154a2.1%202.1%200%2001-2.1-2.1v-7.8c0-1.16.94-2.1%202.1-2.1h10.788zm-.283%201.794H2.477a.7.7%200%2000-.693.605l-.007.095v7.01a.7.7%200%2000.605.694l.095.007h2.197v1.05l.95-1.05h7.035a.7.7%200%2000.694-.605l.006-.095v-7.01a.7.7%200%2000-.7-.7zM5.3%205.952a.3.3%200%2001.3.3v1.504a.3.3%200%2001-.3.3H3.794a.3.3%200%2001-.3-.3V6.252a.3.3%200%2001.3-.3H5.3zm3.106%200a.3.3%200%2001.3.3v1.504a.3.3%200%2001-.3.3H6.901a.3.3%200%2001-.3-.3V6.252a.3.3%200%2001.3-.3h1.504zm3.107%200a.3.3%200%2001.3.3v1.504a.3.3%200%2001-.3.3h-1.504a.3.3%200%2001-.3-.3V6.252a.3.3%200%2001.3-.3h1.504z%22%20fill%3D%22%2393979B%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
 .bx-desktop-tab-active .bx-desktop-tab-icon-im,
-.bx-desktop-tab-icon-im:hover { background-position: -12px -159px; }
-.bx-desktop-tab-icon-notify { background-position: -86px -11px; }
+.bx-desktop-tab:hover .bx-desktop-tab-icon-im {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M12.942.994c1.16%200%202.1.94%202.1%202.1v7.8a2.1%202.1%200%2001-2.1%202.1H6.343L3.95%2015.708a.4.4%200%2001-.7-.264v-2.45H2.154a2.1%202.1%200%2001-2.1-2.1v-7.8c0-1.16.94-2.1%202.1-2.1h10.788zm-.283%201.794H2.477a.7.7%200%2000-.693.605l-.007.095v7.01a.7.7%200%2000.605.694l.095.007h2.197v1.05l.95-1.05h7.035a.7.7%200%2000.694-.605l.006-.095v-7.01a.7.7%200%2000-.7-.7zM5.3%205.952a.3.3%200%2001.3.3v1.504a.3.3%200%2001-.3.3H3.794a.3.3%200%2001-.3-.3V6.252a.3.3%200%2001.3-.3H5.3zm3.106%200a.3.3%200%2001.3.3v1.504a.3.3%200%2001-.3.3H6.901a.3.3%200%2001-.3-.3V6.252a.3.3%200%2001.3-.3h1.504zm3.107%200a.3.3%200%2001.3.3v1.504a.3.3%200%2001-.3.3h-1.504a.3.3%200%2001-.3-.3V6.252a.3.3%200%2001.3-.3h1.504z%22%20fill%3D%22%2317b0e1%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
+
+.bx-desktop-tab-icon-notify {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2214%22%20height%3D%2215%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5.338%2012.976l-.002.027a1.713%201.713%200%20003.424%200l-.002-.027h-3.42zm5.976-7.297c0-1.496-1.16-3.618-3.464-4.018v-.038A.852.852%200%20007%20.774a.851.851%200%2000-.849.849v.04c-2.3.402-3.457%202.522-3.457%204.016%200%201.658.017%202.84.017%203.601%200%20.761-1.762%201.837-1.762%201.837v.936h12.11v-.936s-1.761-1.076-1.761-1.837c0-.76.016-1.943.016-3.601z%22%20fill%3D%22%2393979B%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
 .bx-desktop-tab-active .bx-desktop-tab-icon-notify,
-.bx-desktop-tab-icon-notify:hover { background-position: -86px -161px; }
-.bx-desktop-tab-icon-im-phone { background-position: -49px -9px; }
+.bx-desktop-tab:hover .bx-desktop-tab-icon-notify {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2214%22%20height%3D%2215%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5.338%2012.976l-.002.027a1.713%201.713%200%20003.424%200l-.002-.027h-3.42zm5.976-7.297c0-1.496-1.16-3.618-3.464-4.018v-.038A.852.852%200%20007%20.774a.851.851%200%2000-.849.849v.04c-2.3.402-3.457%202.522-3.457%204.016%200%201.658.017%202.84.017%203.601%200%20.761-1.762%201.837-1.762%201.837v.936h12.11v-.936s-1.761-1.076-1.761-1.837c0-.76.016-1.943.016-3.601z%22%20fill%3D%22%2317b0e1%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
+
+.bx-desktop-tab-icon-im-phone {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2215%22%20height%3D%2215%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.195%201.016C1.787.423%203.32.195%203.59.638l.088.156c.425.783%201.769%203.531%201.782%203.82.014.313-1.298%201.514-1.61%201.826-.313.312%201.96%202.814%202.004%202.866l.444.397c.731.644%202.132%201.82%202.36%201.59l.473-.468c.501-.484%201.2-1.12%201.422-1.11.313.013%203.618%201.716%203.899%201.838.28.123.214%201.806-.378%202.4l-.068.064c-.643.577-3.236%202.157-7.62-1.003-.5-.288-1.025-.797-2.226-2l-.58-.586c-.81-.829-1.21-1.297-1.447-1.71C-1.15%204.15.689%201.524%201.195%201.017z%22%20fill%3D%22%2393979B%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+	background-position-x: 7px;
+}
 .bx-desktop-tab-active .bx-desktop-tab-icon-im-phone,
-.bx-desktop-tab-icon-im-phone:hover { background-position: -49px -159px; }
-.bx-desktop-tab-icon-im-lf { background-position: -86px -50px; }
+.bx-desktop-tab:hover .bx-desktop-tab-icon-im-phone {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2215%22%20height%3D%2215%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.195%201.016C1.787.423%203.32.195%203.59.638l.088.156c.425.783%201.769%203.531%201.782%203.82.014.313-1.298%201.514-1.61%201.826-.313.312%201.96%202.814%202.004%202.866l.444.397c.731.644%202.132%201.82%202.36%201.59l.473-.468c.501-.484%201.2-1.12%201.422-1.11.313.013%203.618%201.716%203.899%201.838.28.123.214%201.806-.378%202.4l-.068.064c-.643.577-3.236%202.157-7.62-1.003-.5-.288-1.025-.797-2.226-2l-.58-.586c-.81-.829-1.21-1.297-1.447-1.71C-1.15%204.15.689%201.524%201.195%201.017z%22%20fill%3D%22%2317b0e1%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
+
+.bx-desktop-tab-icon-im-lf {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2217%22%20height%3D%2216%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M12.827%208.658a.1.1%200%2001.07.028l3.208%203.099a.1.1%200%2001.023.108l-.023.036-3.208%203.099a.1.1%200%2001-.17-.072v-2.101H9.733v-1.932l2.994-.001V8.758a.1.1%200%2001.1-.1zm.17-8.629a1%201%200%20011%201v5.998h-1.911V1.952H1.947v9.149h6.444v1.922L1%2013.024a1%201%200%2001-1-1V1.03a1%201%200%20011-1h11.997zM5.339%207.254a.3.3%200%2001.3.3V8.72a.3.3%200%2001-.3.3H3.613a.3.3%200%2001-.3-.3V7.554a.3.3%200%2001.3-.3h1.725zm4.814%200a.3.3%200%2001.3.3V8.72a.3.3%200%2001-.3.3H6.755a.3.3%200%2001-.3-.3V7.554a.3.3%200%2001.3-.3h3.397zM5.338%204.068a.3.3%200%2001.3.3v1.167a.3.3%200%2001-.3.3H3.613a.3.3%200%2001-.3-.3V4.368a.3.3%200%2001.3-.3h1.725zm4.814%200a.3.3%200%2001.3.3v1.167a.3.3%200%2001-.3.3H6.755a.3.3%200%2001-.3-.3V4.368a.3.3%200%2001.3-.3h3.397z%22%20fill%3D%22%2393979B%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+	background-position-x: 7px;
+}
 .bx-desktop-tab-active .bx-desktop-tab-icon-im-lf,
-.bx-desktop-tab-icon-im-lf:hover { background-position: -86px -200px; }
-.bx-desktop-tab-icon-im-ol { background-position: -86px -123px; }
+.bx-desktop-tab:hover .bx-desktop-tab-icon-im-lf {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2217%22%20height%3D%2216%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M12.827%208.658a.1.1%200%2001.07.028l3.208%203.099a.1.1%200%2001.023.108l-.023.036-3.208%203.099a.1.1%200%2001-.17-.072v-2.101H9.733v-1.932l2.994-.001V8.758a.1.1%200%2001.1-.1zm.17-8.629a1%201%200%20011%201v5.998h-1.911V1.952H1.947v9.149h6.444v1.922L1%2013.024a1%201%200%2001-1-1V1.03a1%201%200%20011-1h11.997zM5.339%207.254a.3.3%200%2001.3.3V8.72a.3.3%200%2001-.3.3H3.613a.3.3%200%2001-.3-.3V7.554a.3.3%200%2001.3-.3h1.725zm4.814%200a.3.3%200%2001.3.3V8.72a.3.3%200%2001-.3.3H6.755a.3.3%200%2001-.3-.3V7.554a.3.3%200%2001.3-.3h3.397zM5.338%204.068a.3.3%200%2001.3.3v1.167a.3.3%200%2001-.3.3H3.613a.3.3%200%2001-.3-.3V4.368a.3.3%200%2001.3-.3h1.725zm4.814%200a.3.3%200%2001.3.3v1.167a.3.3%200%2001-.3.3H6.755a.3.3%200%2001-.3-.3V4.368a.3.3%200%2001.3-.3h3.397z%22%20fill%3D%22%2317b0e1%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
+
+.bx-desktop-tab-icon-im-ol {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M8.106%2014.177c-2.554-.008-4.873-1.52-5.865-3.826a6.095%206.095%200%20011.254-6.759c1.755-1.77%204.46-2.303%206.823-1.343%202.788%201.153%204.399%204.033%203.865%206.91-.534%202.878-3.067%204.97-6.077%205.018zm6.35-1.56c2.368-3.249%201.84-7.747-1.23-10.472-3.053-2.703-7.69-2.704-10.66-.004-2.985%202.723-3.374%207.22-.905%2010.471%202.442%203.239%206.998%204.152%2010.478%202.102a.531.531%200%2000.1.058l2.165.567a.539.539%200%2000.518-.138.523.523%200%2000.131-.513l-.598-2.07zm-4.282-3.335a.46.46%200%2000-.464-.134.485.485%200%2000-.332.363.543.543%200%2000.134.496l.245.258H5.32a.394.394%200%2000-.378.413l.003.2c-.006.217.169.4.391.412h4.44l-.237.26a.532.532%200%2000-.118.495c.04.17.171.31.344.363a.45.45%200%2000.46-.134l1.038-1.133a.541.541%200%2000-.011-.724l-1.079-1.135zM6.076%206.75a.445.445%200%2000.334-.15.541.541%200%2000-.011-.724l-.245-.258h4.44a.392.392%200%2000.377-.412l-.003-.2a.407.407%200%2000-.391-.412h-4.44l.238-.26a.539.539%200%2000-.013-.722.458.458%200%2000-.674-.002L4.65%204.744a.54.54%200%2000.011.724L5.736%206.6a.46.46%200%2000.34.149zm-.65.71v.001a.392.392%200%2000-.378.412l.003.204c-.006.216.168.4.39.412h5.367a.392.392%200%2000.378-.412l-.004-.202a.408.408%200%2000-.39-.414H5.427z%22%20fill%3D%22%2393979B%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
 .bx-desktop-tab-active .bx-desktop-tab-icon-im-ol,
-.bx-desktop-tab-icon-im-ol:hover { background-position: -86px -273px; }
-.bx-desktop-tab-icon-exit { background-position: -13px -87px; }
+.bx-desktop-tab:hover .bx-desktop-tab-icon-im-ol {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M8.106%2014.177c-2.554-.008-4.873-1.52-5.865-3.826a6.095%206.095%200%20011.254-6.759c1.755-1.77%204.46-2.303%206.823-1.343%202.788%201.153%204.399%204.033%203.865%206.91-.534%202.878-3.067%204.97-6.077%205.018zm6.35-1.56c2.368-3.249%201.84-7.747-1.23-10.472-3.053-2.703-7.69-2.704-10.66-.004-2.985%202.723-3.374%207.22-.905%2010.471%202.442%203.239%206.998%204.152%2010.478%202.102a.531.531%200%2000.1.058l2.165.567a.539.539%200%2000.518-.138.523.523%200%2000.131-.513l-.598-2.07zm-4.282-3.335a.46.46%200%2000-.464-.134.485.485%200%2000-.332.363.543.543%200%2000.134.496l.245.258H5.32a.394.394%200%2000-.378.413l.003.2c-.006.217.169.4.391.412h4.44l-.237.26a.532.532%200%2000-.118.495c.04.17.171.31.344.363a.45.45%200%2000.46-.134l1.038-1.133a.541.541%200%2000-.011-.724l-1.079-1.135zM6.076%206.75a.445.445%200%2000.334-.15.541.541%200%2000-.011-.724l-.245-.258h4.44a.392.392%200%2000.377-.412l-.003-.2a.407.407%200%2000-.391-.412h-4.44l.238-.26a.539.539%200%2000-.013-.722.458.458%200%2000-.674-.002L4.65%204.744a.54.54%200%2000.011.724L5.736%206.6a.46.46%200%2000.34.149zm-.65.71v.001a.392.392%200%2000-.378.412l.003.204c-.006.216.168.4.39.412h5.367a.392.392%200%2000.378-.412l-.004-.202a.408.408%200%2000-.39-.414H5.427z%22%20fill%3D%22%2317b0e1%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
+
+.bx-desktop-tab-icon-exit {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2213%22%20height%3D%2217%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M9.32%203.156v9.596l-4.304%203.609V6.764L9.32%203.156zm2.475-3.13a1%201%200%20011%201v12.03h-2.087V2.252H2.334v10.802H.213V1.025a1%201%200%20011-1h10.58z%22%20fill%3D%22%2393979B%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+	background-position-x: 7px;
+ }
 .bx-desktop-tab-active .bx-desktop-tab-icon-exit,
-.bx-desktop-tab-icon-exit:hover { background-position: -13px -237px; }
-.bx-desktop-tab-icon-contact_list { background-position: -49px -87px; }
-.bx-desktop-tab-active .bx-desktop-tab-icon-contact_list,
-.bx-desktop-tab-icon-contact_list:hover { background-position: -49px -237px; }
+.bx-desktop-tab:hover .bx-desktop-tab-icon-exit {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2213%22%20height%3D%2217%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M9.32%203.156v9.596l-4.304%203.609V6.764L9.32%203.156zm2.475-3.13a1%201%200%20011%201v12.03h-2.087V2.252H2.334v10.802H.213V1.025a1%201%200%20011-1h10.58z%22%20fill%3D%22%2317b0e1%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
+
+.bx-desktop-tab-icon-search {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2217%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M7.059.956a7.057%207.057%200%20015.672%2011.255l2.082%202.08c.39.392.395%201.021.007%201.408l-.144.145a.99.99%200%2001-1.408-.007l-2.092-2.092A7.057%207.057%200%20117.059.956zm0%202.016a5.04%205.04%200%20100%2010.082%205.04%205.04%200%20000-10.082zm-.001%204.803c1.884%200%202.186%201.431%202.186%202.452s-.979.875-2.186.875l-.747.007c-.84.001-1.439-.083-1.439-.882l.005-.224c.046-.994.431-2.228%202.18-2.228zm0-2.745a1.186%201.186%200%20110%202.371%201.186%201.186%200%20010-2.371z%22%20fill%3D%22%2393979B%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
+.bx-desktop-tab-active .bx-desktop-tab-icon-search,
+.bx-desktop-tab:hover .bx-desktop-tab-icon-search {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2217%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M7.059.956a7.057%207.057%200%20015.672%2011.255l2.082%202.08c.39.392.395%201.021.007%201.408l-.144.145a.99.99%200%2001-1.408-.007l-2.092-2.092A7.057%207.057%200%20117.059.956zm0%202.016a5.04%205.04%200%20100%2010.082%205.04%205.04%200%20000-10.082zm-.001%204.803c1.884%200%202.186%201.431%202.186%202.452s-.979.875-2.186.875l-.747.007c-.84.001-1.439-.083-1.439-.882l.005-.224c.046-.994.431-2.228%202.18-2.228zm0-2.745a1.186%201.186%200%20110%202.371%201.186%201.186%200%20010-2.371z%22%20fill%3D%22%2317b0e1%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
+
+.bx-desktop-tab-icon-mail {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2212%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M15.004.024a1%201%200%20011%201v9.96a1%201%200%2001-1%201h-14a1%201%200%2001-1-1v-9.96a1%201%200%20011-1h14zm-.683%201.789H1.727v8.383h12.594V1.813zM5.073%203L8.1%205.765%2011.129%203h2.278l.123.098L8.1%208.056%202.673%203.098%202.795%203h2.278z%22%20fill%3D%22%2393979B%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
+.bx-desktop-tab-active .bx-desktop-tab-icon-mail,
+.bx-desktop-tab:hover .bx-desktop-tab-icon-mail {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2212%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M15.004.024a1%201%200%20011%201v9.96a1%201%200%2001-1%201h-14a1%201%200%2001-1-1v-9.96a1%201%200%20011-1h14zm-.683%201.789H1.727v8.383h12.594V1.813zM5.073%203L8.1%205.765%2011.129%203h2.278l.123.098L8.1%208.056%202.673%203.098%202.795%203h2.278z%22%20fill%3D%22%2317b0e1%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+}
+
+.bx-desktop-tab-icon-account,
+.bx-desktop-appearance .bx-desktop-tab-icon-accounts{
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2215%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M14.96%204.08a1%201%200%20011%201v8.917a1%201%200%2001-1%201H5.154a1%201%200%2001-1-1V5.08a1%201%200%20011-1h9.806zm-.637%201.842H5.82v7.233h8.503V5.922zm-3.62-5.77a1%201%200%20011%201V2.97h-1.636v-.974H1.95v7.232h.992v1.842H1.02a1%201%200%2001-1-1V1.153a1%201%200%20011-1h9.684zm1.846%206.99a.3.3%200%2001.3.3v1.241a.3.3%200%2001-.3.3h-4.94a.3.3%200%2001-.3-.3v-1.24a.3.3%200%2001.3-.3h4.94z%22%20fill%3D%22%2393979B%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+	background-position: center center;
+}
+.bx-desktop-tab-active .bx-desktop-tab-icon-account,
+.bx-desktop-tab:hover .bx-desktop-tab-icon-account,
+.bx-desktop-appearance .bx-desktop-tab-active .bx-desktop-tab-icon-accounts,
+.bx-desktop-appearance .bx-desktop-tab:hover .bx-desktop-tab-icon-accounts {
+	background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2215%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M14.96%204.08a1%201%200%20011%201v8.917a1%201%200%2001-1%201H5.154a1%201%200%2001-1-1V5.08a1%201%200%20011-1h9.806zm-.637%201.842H5.82v7.233h8.503V5.922zm-3.62-5.77a1%201%200%20011%201V2.97h-1.636v-.974H1.95v7.232h.992v1.842H1.02a1%201%200%2001-1-1V1.153a1%201%200%20011-1h9.684zm1.846%206.99a.3.3%200%2001.3.3v1.241a.3.3%200%2001-.3.3h-4.94a.3.3%200%2001-.3-.3v-1.24a.3.3%200%2001.3-.3h4.94z%22%20fill%3D%22%2317b0e1%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+	background-position: center center;
+}
+
 .bx-desktop-tab-content { display: none; height: inherit }
 .bx-desktop-tab-content-active { display: block; }
-.bx-desktop-tab-icon-account { background-position: -13px -50px; }
-.bx-desktop-tab-active .bx-desktop-tab-icon-account,
-.bx-desktop-tab-icon-account:hover { background-position: -13px -200px; }
 
 .bx-desktop-loader-wrap {
 	position: absolute;
@@ -239,7 +346,9 @@
 	.bx-desktop-appearance-show-menu .bx-messenger-call-overlay.bx-messenger-call-overlay-folded { margin-left: 115px!important; width: calc(100% - 115px);}
 	.bx-im-fullscreen-adaptive .bx-messenger-box-dialog { margin-left: 70px!important; }
 	.bx-im-fullscreen-adaptive .bx-messenger-box-extra { margin-left: 70px!important; }
-	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-item-pinned:before { display: none;  }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-item-message-status-delivered:before,
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-item-message-status-received:before,
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-item-pinned:after { display: none;  }
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-recent-group {  margin: 2px 2px 2px 2px; text-align: center; }
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-recent-group-title { font-size: 10px!important; padding2: 0; }
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-panel-title-chat-input { width: 100%!important; }

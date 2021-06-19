@@ -5,13 +5,13 @@ if(!CModule::IncludeModule("sale"))
 	return;
 
 $arUGroupsEx = Array();
-$dbUGroups = CGroup::GetList($by = "c_sort", $order = "asc");
+$dbUGroups = CGroup::GetList();
 while($arUGroups = $dbUGroups -> Fetch())
 {
 	$arUGroupsEx[$arUGroups["ID"]] = $arUGroups["NAME"];
 }
 
-$rsSite = CSite::GetList($by="sort", $order="asc", $arFilter=array("ACTIVE" => "Y"));
+$rsSite = CSite::GetList("sort", "asc", array("ACTIVE" => "Y"));
 $arSites = array("" => GetMessage("CP_BCI1_ALL_SITES"));
 while ($arSite = $rsSite->GetNext())
 {

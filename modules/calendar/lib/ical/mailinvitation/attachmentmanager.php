@@ -58,7 +58,12 @@ abstract class AttachmentManager
 	 */
 	protected function prepareDescription(string $description = null): ?string
 	{
-		if (empty($description) && empty($this->event['ICAL_ATTACHES']->getCollection()))
+		if (
+			empty($description)
+			&& (empty($this->event['ICAL_ATTACHES'])
+				|| empty($this->event['ICAL_ATTACHES']->getCollection())
+			)
+		)
 		{
 			return null;
 		}
@@ -131,6 +136,20 @@ abstract class AttachmentManager
 		{
 			$boxes = \Bitrix\Mail\MailboxTable::getUserMailboxes($this->event['MEETING_HOST']);
 			$organizer = $this->event['ICAL_ORGANIZER'];
+			if ($organizer === null)
+			{
+				$user = Helper::getUserById($this->event['MEETING_HOST']);
+				$organizer = Attendee::createInstance(
+					$user['EMAIL'],
+					$user['NAME'],
+					$user['LAST_NAME'],
+					null,
+					null,
+					null,
+					$user['EMAIL']
+				);
+			}
+
 			foreach ($boxes as $box)
 			{
 				/** @var Attendee $organizer */

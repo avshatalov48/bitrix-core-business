@@ -68,7 +68,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	babelHelpers.defineProperty(IconButton, "Types", {
 	  remove: 'remove',
 	  drag: 'drag',
-	  edit: 'edit'
+	  edit: 'edit',
+	  font: 'font',
+	  link: 'link'
 	});
 
 	exports.IconButton = IconButton;

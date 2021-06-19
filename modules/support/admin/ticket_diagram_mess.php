@@ -37,7 +37,10 @@ $arFilter = Array(
 	"SOURCE"					=> $find_source_id,
 	);
 $CHECK_RIGHTS = ($bDemo=="Y") ? "N" : "Y";
-$rsTickets = CTicket::GetList($by, $order, $arFilter, $is_filtered, $CHECK_RIGHTS, "N", "N");
+
+global $by, $order;
+
+$rsTickets = CTicket::GetList($by, $order, $arFilter, null, $CHECK_RIGHTS, "N", "N");
 $arrMess = array();
 $arrMess["2_m"] = 0;
 $arrMess["3_m"] = 0;
@@ -59,7 +62,7 @@ while ($arTicket = $rsTickets->Fetch())
 	}
 }
 $arr = array();
-while (list($key,$value)=each($arrMess))
+foreach ($arrMess as $key => $value)
 {
 	$arr[] = array("COLOR"=> $arrColor[$key], "COUNTER" => $arrMess[$key]);
 }

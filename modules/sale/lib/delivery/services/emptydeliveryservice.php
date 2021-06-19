@@ -64,7 +64,7 @@ class EmptyDeliveryService extends Configurable
 				$cacheManager->set(self::CACHE_ID, $id);
 		}
 
-		return $id;
+		return (int)$id;
 	}
 
 	/**

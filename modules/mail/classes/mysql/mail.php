@@ -1,4 +1,5 @@
-<?
+<?php
+
 /*
 ##############################################
 # Bitrix Site Manager                        #
@@ -7,10 +8,12 @@
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/classes/general/mail.php");
+
 class CMailbox extends CAllMailBox
 {
-	function CleanUp()
+	public static function CleanUp()
 	{
 		global $DB;
 		$days = COption::GetOptionInt("mail", "time_keep_log", B_MAIL_KEEP_LOG);

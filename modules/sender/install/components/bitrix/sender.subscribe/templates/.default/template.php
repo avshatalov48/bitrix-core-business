@@ -106,7 +106,7 @@ $frame = $this->createFrame("sender-subscribe", false)->begin();
 			<input class="bx-form-control" type="email" name="SENDER_SUBSCRIBE_EMAIL" value="<?=$arResult["EMAIL"]?>" title="<?=GetMessage("subscr_form_email_title")?>" placeholder="<?=htmlspecialcharsbx(GetMessage('subscr_form_email_title'))?>">
 		</div>
 
-		<div style="<?=($arParams['HIDE_MAILINGS'] <> 'Y' ? '' : 'display: none;')?>">
+		<div style="<?=(($arParams['HIDE_MAILINGS'] ?? '') <> 'Y' ? '' : 'display: none;')?>">
 			<?if(count($arResult["RUBRICS"])>0):?>
 				<div class="bx-subscribe-desc"><?=GetMessage("subscr_form_title_desc")?></div>
 			<?endif;?>
@@ -118,7 +118,7 @@ $frame = $this->createFrame("sender-subscribe", false)->begin();
 			<?endforeach;?>
 		</div>
 
-		<?if ($arParams['USER_CONSENT'] == 'Y'  && $arParams['AJAX_MODE'] <> 'Y'):?>
+		<?if (($arParams['USER_CONSENT'] ?? '') == 'Y'  && $arParams['AJAX_MODE'] <> 'Y'):?>
 		<div class="bx_subscribe_checkbox_container bx-sender-subscribe-agreement">
 			<?$APPLICATION->IncludeComponent(
 				"bitrix:main.userconsent.request",
@@ -235,7 +235,7 @@ $frame->beginStub();
 			<input class="bx-form-control" type="email" name="SENDER_SUBSCRIBE_EMAIL" value="" title="<?=GetMessage("subscr_form_email_title")?>" placeholder="<?=htmlspecialcharsbx(GetMessage('subscr_form_email_title'))?>">
 		</div>
 
-		<div style="<?=($arParams['HIDE_MAILINGS'] <> 'Y' ? '' : 'display: none;')?>">
+		<div style="<?=(($arParams['HIDE_MAILINGS'] ?? '') <> 'Y' ? '' : 'display: none;')?>">
 			<?if(count($arResult["RUBRICS"])>0):?>
 				<div class="bx-subscribe-desc"><?=GetMessage("subscr_form_title_desc")?></div>
 			<?endif;?>
@@ -247,7 +247,7 @@ $frame->beginStub();
 			<?endforeach;?>
 		</div>
 
-		<?if ($arParams['USER_CONSENT_USE'] == 'Y' && $arParams['AJAX_MODE'] <> 'Y'):?>
+		<?if (($arParams['USER_CONSENT_USE'] ?? '') == 'Y' && $arParams['AJAX_MODE'] <> 'Y'):?>
 		<div class="bx_subscribe_checkbox_container bx-sender-subscribe-agreement">
 			<?$APPLICATION->IncludeComponent(
 				"bitrix:main.userconsent.request",

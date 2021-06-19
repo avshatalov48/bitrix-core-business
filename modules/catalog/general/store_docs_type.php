@@ -1,6 +1,6 @@
-<?
-use Bitrix\Main,
-	Bitrix\Catalog;
+<?php
+use Bitrix\Main;
+use Bitrix\Catalog;
 
 IncludeModuleLangFile(__DIR__.'\\store_docs.php');
 
@@ -15,21 +15,21 @@ abstract class CCatalogDocsTypes
 	 * @param $contractorId
 	 * @return mixed
 	 */
-	abstract function conductDocument($documentId, $userId, $currency, $contractorId);
+	abstract public static function conductDocument($documentId, $userId, $currency, $contractorId);
 
 	/** Method cancels an instrument and perform the reverse action of conducting a document.
 	 * @param $documentId
 	 * @param $userId
 	 * @return mixed
 	 */
-	abstract function cancellationDocument($documentId, $userId);
+	abstract public static function cancellationDocument($documentId, $userId);
 
 	/** The method checks the correctness of the data warehouse. If successful, enrolling \ debits to the storage required amount of product.
 	 * @param $arFields
 	 * @param $userId
 	 * @return array|bool
 	 */
-	protected function distributeElementsToStores($arFields, $userId)
+	protected static function distributeElementsToStores($arFields, $userId)
 	{
 		global $APPLICATION;
 
@@ -164,7 +164,7 @@ abstract class CCatalogDocsTypes
 	 * @param $userId
 	 * @return bool|int
 	 */
-	protected function applyBarCode($arFields, $userId)
+	protected static function applyBarCode($arFields, $userId)
 	{
 		global $APPLICATION;
 
@@ -217,7 +217,7 @@ abstract class CCatalogDocsTypes
 		return $result;
 	}
 
-	protected function checkTotalAmount($elementId, $name = '')
+	protected static function checkTotalAmount($elementId, $name = '')
 	{
 		global $DB, $APPLICATION;
 		static $arErrorElement = array();
@@ -256,7 +256,7 @@ abstract class CCatalogDocsTypes
 		return $arErrorElement;
 	}
 
-	protected function checkAmountField($arDocElement, $name = '')
+	protected static function checkAmountField($arDocElement, $name = '')
 	{
 		global $APPLICATION;
 		$name = (string)$name;
@@ -319,12 +319,12 @@ abstract class CCatalogDocsTypes
 	}
 }
 
-class CAllCatalogArrivalDocsType extends CCatalogDocsTypes
+class CCatalogArrivalDocs extends CCatalogDocsTypes
 {
 	/** The method returns an array of fields needed for this type of document.
 	 * @return array
 	 */
-	static public function getFields()
+	public static function getFields()
 	{
 		return array(
 			"ELEMENT_ID" => array("required" => 'Y'),
@@ -345,7 +345,7 @@ class CAllCatalogArrivalDocsType extends CCatalogDocsTypes
 	 * @param $contractorId
 	 * @return array|bool
 	 */
-	public function conductDocument($documentId, $userId, $currency, $contractorId)
+	public static function conductDocument($documentId, $userId, $currency, $contractorId)
 	{
 		global $APPLICATION;
 
@@ -451,7 +451,7 @@ class CAllCatalogArrivalDocsType extends CCatalogDocsTypes
 	 * @param $userId
 	 * @return array|bool
 	 */
-	public function cancellationDocument($documentId, $userId)
+	public static function cancellationDocument($documentId, $userId)
 	{
 		global $APPLICATION;
 
@@ -545,17 +545,12 @@ class CAllCatalogArrivalDocsType extends CCatalogDocsTypes
 
 }
 
-class CCatalogArrivalDocs extends CAllCatalogArrivalDocsType
-{
-
-}
-
-class CAllCatalogMovingDocsType extends CCatalogDocsTypes
+class CCatalogMovingDocs extends CCatalogDocsTypes
 {
 	/** The method returns an array of fields needed for this type of document.
 	 * @return array
 	 */
-	static public function getFields()
+	public static function getFields()
 	{
 		return array(
 			"ELEMENT_ID" => array("required" => 'Y'),
@@ -573,7 +568,7 @@ class CAllCatalogMovingDocsType extends CCatalogDocsTypes
 	 * @param $contractorId
 	 * @return array|bool
 	 */
-	public function conductDocument($documentId, $userId, $currency, $contractorId)
+	public static function conductDocument($documentId, $userId, $currency, $contractorId)
 	{
 		global $APPLICATION;
 
@@ -670,7 +665,7 @@ class CAllCatalogMovingDocsType extends CCatalogDocsTypes
 	 * @param $userId
 	 * @return array|bool
 	 */
-	public function cancellationDocument($documentId, $userId)
+	public static function cancellationDocument($documentId, $userId)
 	{
 		global $APPLICATION;
 
@@ -762,17 +757,12 @@ class CAllCatalogMovingDocsType extends CCatalogDocsTypes
 
 }
 
-class CCatalogMovingDocs extends CAllCatalogMovingDocsType
-{
-
-}
-
-class CAllCatalogReturnsDocsType extends CCatalogDocsTypes
+class CCatalogReturnsDocs extends CCatalogDocsTypes
 {
 	/** The method returns an array of fields needed for this type of document.
 	 * @return array
 	 */
-	static public function getFields()
+	public static function getFields()
 	{
 		return array(
 			"ELEMENT_ID" => array("required" => 'Y'),
@@ -789,7 +779,7 @@ class CAllCatalogReturnsDocsType extends CCatalogDocsTypes
 	 * @param $contractorId
 	 * @return array|bool
 	 */
-	public function conductDocument($documentId, $userId, $currency, $contractorId)
+	public static function conductDocument($documentId, $userId, $currency, $contractorId)
 	{
 		global $APPLICATION;
 
@@ -888,7 +878,7 @@ class CAllCatalogReturnsDocsType extends CCatalogDocsTypes
 	 * @param $userId
 	 * @return array|bool
 	 */
-	public function cancellationDocument($documentId, $userId)
+	public static function cancellationDocument($documentId, $userId)
 	{
 		global $APPLICATION;
 
@@ -981,17 +971,12 @@ class CAllCatalogReturnsDocsType extends CCatalogDocsTypes
 
 }
 
-class CCatalogReturnsDocs extends CAllCatalogReturnsDocsType
-{
-
-}
-
-class CAllCatalogDeductDocsType extends CCatalogDocsTypes
+class CCatalogDeductDocs extends CCatalogDocsTypes
 {
 	/** The method returns an array of fields needed for this type of document.
 	 * @return array
 	 */
-	static public function getFields()
+	public static function getFields()
 	{
 		return array(
 			"ELEMENT_ID" => array("required" => 'Y'),
@@ -1008,7 +993,7 @@ class CAllCatalogDeductDocsType extends CCatalogDocsTypes
 	 * @param $contractorId
 	 * @return array|bool
 	 */
-	public function conductDocument($documentId, $userId, $currency, $contractorId)
+	public static function conductDocument($documentId, $userId, $currency, $contractorId)
 	{
 		global $APPLICATION;
 
@@ -1108,7 +1093,7 @@ class CAllCatalogDeductDocsType extends CCatalogDocsTypes
 	 * @param $userId
 	 * @return array|bool
 	 */
-	public function cancellationDocument($documentId, $userId)
+	public static function cancellationDocument($documentId, $userId)
 	{
 		global $APPLICATION;
 
@@ -1202,12 +1187,7 @@ class CAllCatalogDeductDocsType extends CCatalogDocsTypes
 
 }
 
-class CCatalogDeductDocs extends CAllCatalogDeductDocsType
-{
-
-}
-
-class CAllCatalogUnReservedDocsType extends CCatalogDocsTypes
+class CCatalogUnReservedDocs extends CCatalogDocsTypes
 {
 	/** The method returns an array of fields needed for this type of document.
 	 * @return array
@@ -1228,7 +1208,7 @@ class CAllCatalogUnReservedDocsType extends CCatalogDocsTypes
 	 * @param $contractorId
 	 * @return bool
 	 */
-	public function conductDocument($documentId, $userId, $currency, $contractorId)
+	public static function conductDocument($documentId, $userId, $currency, $contractorId)
 	{
 		global $DB, $APPLICATION;
 
@@ -1313,7 +1293,7 @@ class CAllCatalogUnReservedDocsType extends CCatalogDocsTypes
 	 * @param $userId
 	 * @return bool
 	 */
-	public function cancellationDocument($documentId, $userId)
+	public static function cancellationDocument($documentId, $userId)
 	{
 		global $DB, $APPLICATION;
 
@@ -1358,9 +1338,4 @@ class CAllCatalogUnReservedDocsType extends CCatalogDocsTypes
 		}
 		return ($i > 0);
 	}
-}
-
-class CCatalogUnReservedDocs extends CAllCatalogUnReservedDocsType
-{
-
 }

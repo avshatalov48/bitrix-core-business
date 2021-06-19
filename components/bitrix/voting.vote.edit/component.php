@@ -48,6 +48,19 @@ if ($arParams["bVarsFromForm"])
 {
 	$arResult["VOTES"] = is_array($_POST[$arParams["~INPUT_NAME"]]) ?
 		$_POST[$arParams["~INPUT_NAME"]."_DATA"] : array($_POST[$arParams["~INPUT_NAME"]."_DATA"]);
+	foreach ($arResult["VOTES"] as &$vote)
+	{
+		if (array_key_exists('OPTIONS', $vote) && is_array($vote['OPTIONS']))
+		{
+			$res = 0;
+			foreach ($vote['OPTIONS'] as $v)
+			{
+				$res |= $v;
+			}
+			$vote['OPTIONS'] = $res;
+		}
+	}
+	unset($vote);
 }
 else if (!empty($arParams["INPUT_VALUE"]))
 {

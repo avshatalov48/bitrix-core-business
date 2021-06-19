@@ -10904,8 +10904,6 @@
 	var EventEmitter = /*#__PURE__*/function () {
 	  /** @private */
 	  function EventEmitter() {
-	    var _this = this;
-
 	    babelHelpers.classCallCheck(this, EventEmitter);
 	    this[targetProperty] = null;
 	    this[namespaceProperty] = null;
@@ -10923,11 +10921,6 @@
 	      }
 
 	    this[targetProperty] = target;
-	    setTimeout(function () {
-	      if (_this.getEventNamespace() === null) {
-	        console.warn('The instance of BX.Event.EventEmitter is supposed to have an event namespace. ' + 'Use emitter.setEventNamespace() to make events more unique.');
-	      }
-	    }, 500);
 	  }
 	  /**
 	   * Makes a target observable
@@ -10979,7 +10972,7 @@
 	  }, {
 	    key: "subscribeFromOptions",
 	    value: function subscribeFromOptions(options, aliases, compatMode) {
-	      var _this2 = this;
+	      var _this = this;
 
 	      if (!Type.isPlainObject(options)) {
 	        return;
@@ -10997,11 +10990,11 @@
 
 	        if (aliases[eventName]) {
 	          var actualName = aliases[eventName].eventName;
-	          EventEmitter.subscribe(_this2, actualName, listener, {
+	          EventEmitter.subscribe(_this, actualName, listener, {
 	            compatMode: compatMode !== false
 	          });
 	        } else {
-	          EventEmitter.subscribe(_this2, eventName, listener, {
+	          EventEmitter.subscribe(_this, eventName, listener, {
 	            compatMode: compatMode === true
 	          });
 	        }
@@ -11085,6 +11078,10 @@
 	     * @return {this}
 	     */
 	    value: function emit(eventName, event) {
+	      if (this.getEventNamespace() === null) {
+	        console.warn('The instance of BX.Event.EventEmitter is supposed to have an event namespace. ' + 'Use emitter.setEventNamespace() to make events more unique.');
+	      }
+
 	      EventEmitter.emit(this, eventName, event);
 	      return this;
 	    }
@@ -11112,6 +11109,10 @@
 	     * @return {Promise<Array>}
 	     */
 	    value: function emitAsync(eventName, event) {
+	      if (this.getEventNamespace() === null) {
+	        console.warn('The instance of BX.Event.EventEmitter is supposed to have an event namespace. ' + 'Use emitter.setEventNamespace() to make events more unique.');
+	      }
+
 	      return EventEmitter.emitAsync(this, eventName, event);
 	    }
 	    /**
@@ -11358,7 +11359,7 @@
 	  }, {
 	    key: "subscribeOnce",
 	    value: function subscribeOnce(target, eventName, listener) {
-	      var _this3 = this;
+	      var _this2 = this;
 
 	      if (Type.isString(target)) {
 	        listener = eventName;
@@ -11393,7 +11394,7 @@
 	        console.error("You cannot subscribe the same \"".concat(fullEventName, "\" event listener twice."));
 	      } else {
 	        var once = function once() {
-	          _this3.unsubscribe(target, eventName, once);
+	          _this2.unsubscribe(target, eventName, once);
 
 	          onceListeners.delete(listener);
 	          listener.apply(void 0, arguments);
@@ -11857,7 +11858,7 @@
 	  }, {
 	    key: "mergeEventAliases",
 	    value: function mergeEventAliases(aliases) {
-	      var _this4 = this;
+	      var _this3 = this;
 
 	      var globalEvents = eventStore.get(this.GLOBAL_TARGET);
 
@@ -11867,9 +11868,9 @@
 
 	      Object.keys(aliases).forEach(function (alias) {
 	        var options = aliases[alias];
-	        alias = _this4.normalizeEventName(alias);
+	        alias = _this3.normalizeEventName(alias);
 
-	        var fullEventName = _this4.makeFullEventName(options.namespace, options.eventName);
+	        var fullEventName = _this3.makeFullEventName(options.namespace, options.eventName);
 
 	        var aliasListeners = globalEvents.eventsMap.get(alias);
 
@@ -14695,7 +14696,7 @@
 	  }, {
 	    key: "getComponent",
 	    value: function getComponent(element) {
-	      var parentNode = _classStaticPrivateMethodGet(this, ZIndexManager, _getParentNode).call(this, element);
+	      var parentNode = _classStaticPrivateMethodGet(this, ZIndexManager, _getParentNode).call(this, element, true);
 
 	      if (!parentNode) {
 	        return null;
@@ -14722,11 +14723,19 @@
 	}();
 
 	var _getParentNode = function _getParentNode(element) {
+	  var suppressWarnings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
 	  if (!Type.isElementNode(element)) {
-	    console.error('ZIndexManager: The argument \'element\' must be a DOM element.', element);
+	    if (!suppressWarnings) {
+	      console.error('ZIndexManager: The argument \'element\' must be a DOM element.', element);
+	    }
+
 	    return null;
 	  } else if (!Type.isElementNode(element.parentNode)) {
-	    console.error('ZIndexManager: The \'element\' doesn\'t have a parent node.', element);
+	    if (!suppressWarnings) {
+	      console.error('ZIndexManager: The \'element\' doesn\'t have a parent node.', element);
+	    }
+
 	    return null;
 	  }
 

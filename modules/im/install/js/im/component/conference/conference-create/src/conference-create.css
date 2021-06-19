@@ -17,7 +17,7 @@
 	align-items: center;
 	justify-content: center;
 	width: 630px;
-	max-height: 600px;
+	max-height: 750px;
 	overflow-y: auto;
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%22629%22%20height%3D%22297%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.06%22%3E%3Cpath%20d%3D%22M99.7%20296.954H30.128c-.596%200-1.186-.023-1.77-.066C12.636%20296.526%200%20283.536%200%20267.565c.005-7.784%203.07-15.248%208.521-20.749a29.023%2029.023%200%20019.693-6.465c-.06-.793-.09-1.593-.09-2.4.004-8.214%203.238-16.09%208.99-21.894%205.753-5.804%2013.551-9.062%2021.68-9.057%2010.415.013%2019.61%205.274%2025.135%2013.305a24.81%2024.81%200%20018.391-1.449c13%20.016%2023.676%2010.028%2024.914%2022.831%2012.456%202.744%2021.777%2013.955%2021.766%2027.359-.013%2015.447-12.414%2027.96-27.703%2027.954a27.64%2027.64%200%2001-1.598-.046zM608.558%2062.968H560.02c-.415%200-.827-.016-1.235-.047C547.815%2062.668%20539%2053.575%20539%2042.396a20.689%2020.689%200%20015.945-14.525%2020.244%2020.244%200%20016.762-4.526%2022.266%2022.266%200%2001-.063-1.68c.004-5.75%202.26-11.262%206.273-15.325A21.24%2021.24%200%2001573.043%200c7.265.009%2013.68%203.692%2017.535%209.313a17.257%2017.257%200%20015.855-1.014c9.069.012%2016.518%207.02%2017.382%2015.982%208.69%201.92%2015.193%209.768%2015.185%2019.151-.009%2010.813-8.661%2019.572-19.328%2019.568-.374%200-.745-.011-1.114-.032z%22/%3E%3C/g%3E%3C/svg%3E');
 	background-repeat: no-repeat;
@@ -52,6 +52,18 @@
 	display: flex;
 	flex-direction: column;
 	margin-bottom: 20px;
+    width: 480px;
+}
+
+.bx-conference-quick-create-field-block-inline {
+    width: 480px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.bx-conference-quick-create-field-block-inline .bx-conference-quick-create-field-label {
+    margin-bottom: 0;
 }
 
 .bx-conference-quick-create-field-label {
@@ -83,6 +95,19 @@
 
 .bx-conference-quick-create-field-input:focus {
 	outline: none;
+}
+
+#bx-conference-quick-create-field-broadcast-mode {
+    margin: 0 7px 0 0;
+}
+
+.bx-conference-quick-create-broadcast-mode-label {
+    /*margin-right: 7px;*/
+}
+
+.bx-conference-quick-create-wrap-dark .bx-conference-quick-create-field-block-inline .ui-hint-icon {
+	background-color: #fff;
+    border-radius: 50%;
 }
 
 .bx-conference-quick-create-button {

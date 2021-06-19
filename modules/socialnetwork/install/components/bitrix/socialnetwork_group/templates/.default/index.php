@@ -74,7 +74,7 @@ $APPLICATION->IncludeComponent(
 		"COLOR_TYPE" => "Y",
 		"WIDTH" => "100%",
 		"USE_KEYWORDS" => $arParams["GROUP_USE_KEYWORDS"],
-		"USE_UI_FILTER" => (SITE_TEMPLATE_ID == 'bitrix24' ? "Y" : "N")
+		"USE_UI_FILTER" => (SITE_TEMPLATE_ID === 'bitrix24' ? "Y" : "N")
 	),
 	$component 
 );

@@ -4,13 +4,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use Bitrix\Landing\Hook\Page\B24button;
 use \Bitrix\Main\Localization\Loc;
 
 Loc::loadLanguageFile(__FILE__);
-
-$buttons = B24button::getButtons();
-$buttons = array_keys($buttons);
 
 return [
 	'name' => Loc::getMessage("LANDING_DEMO_WIKI_DARK_TITLE"),
@@ -33,7 +29,6 @@ return [
 			'THEMEFONTS_SIZE' => '1.14286',
 			'THEMEFONTS_USE' => 'Y',
 			'COPYRIGHT_SHOW' => 'Y',
-			'B24BUTTON_CODE' => $buttons[0],
 			'B24BUTTON_COLOR' => 'site',
 			'UP_SHOW' => 'Y',
 			'GMAP_USE' => 'N',

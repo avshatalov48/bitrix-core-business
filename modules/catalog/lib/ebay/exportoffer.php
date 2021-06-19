@@ -233,9 +233,7 @@ class ExportOffer implements \Iterator
 			{
 				if ($arIblock['SERVER_NAME'] == '')
 				{
-					$b = "sort";
-					$o = "asc";
-					$rsSite = \CSite::GetList($b, $o, array("LID" => $arIblock["LID"]));
+					$rsSite = \CSite::GetList('', '', array("LID" => $arIblock["LID"]));
 					if($arSite = $rsSite->Fetch())
 						$arIblock["SERVER_NAME"] = $arSite["SERVER_NAME"];
 					if($arIblock["SERVER_NAME"] == '' && defined("SITE_SERVER_NAME"))

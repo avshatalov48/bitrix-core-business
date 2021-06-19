@@ -32,18 +32,27 @@ class IncomingInvitationReplyHandler extends IncomingInvitationHandler
 	 * @param Calendar $component
 	 * @return IncomingInvitationReplyHandler
 	 */
-	public static function createInstance(Calendar $component): IncomingInvitationReplyHandler
+	public static function fromComponent(Calendar $component): IncomingInvitationReplyHandler
 	{
-		return new self($component);
+		$handler = new self();
+		$handler->component = $component;
+		return $handler;
+	}
+
+	/**
+	 * @return IncomingInvitationReplyHandler
+	 */
+	public static function createInstance(): IncomingInvitationReplyHandler
+	{
+		return new self();
 	}
 
 	/**
 	 * IncomingInvitationReplyHandler constructor.
 	 * @param Calendar $component
 	 */
-	public function __construct(Calendar $component)
+	public function __construct()
 	{
-		$this->component = $component;
 	}
 
 	/**
@@ -98,7 +107,7 @@ class IncomingInvitationReplyHandler extends IncomingInvitationHandler
 	 * @param array $event
 	 * @param string $attendeeStatus
 	 */
-	private function sendNotificationGuestReaction(array $event, string $attendeeStatus): void
+	public function sendNotificationGuestReaction(array $event, string $attendeeStatus): void
 	{
 		CCalendarEvent::SetMeetingStatusEx([
 			'attendeeId' => $event['OWNER_ID'],
@@ -150,7 +159,7 @@ class IncomingInvitationReplyHandler extends IncomingInvitationHandler
 
 					if ($icalComponent->getMethod() === Dictionary::METHOD['reply'])
 					{
-						return self::createInstance($icalComponent)
+						return self::fromComponent($icalComponent)
 							->handle()
 							->isSuccess();
 					}

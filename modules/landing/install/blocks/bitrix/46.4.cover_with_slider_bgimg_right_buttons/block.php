@@ -1,8 +1,8 @@
 <section class="landing-block">
 	<div class="js-carousel"
-		 data-arrows-classes="u-arrow-v1 g-pos-abs g-absolute-centered--y--md g-top-20x g-top-50x--md g-left-0 g-left-auto--md g-right-0--md g-width-40 g-width-60--md g-height-40 g-height-60--md g-color-white g-bg-primary g-opacity-0_8--hover g-transition-0_2 g-transition--ease-in"
-		 data-arrow-left-classes="fa fa-chevron-left g-mr-63--md"
-		 data-arrow-right-classes="fa fa-chevron-right g-ml-43 g-ml-0--md">
+		 data-arrows-classes="u-arrow-v1 u-arrow-v1-1 g-color-white g-bg-primary g-opacity-0_8--hover g-transition-0_2 g-transition--ease-in"
+		 data-arrow-left-classes="fa fa-chevron-left"
+		 data-arrow-right-classes="fa fa-chevron-right">
 		<div class="landing-block-node-card landing-block-node-card-bgimg js-slide d-flex align-items-center u-bg-overlay g-min-height-100vh g-bg-img-hero g-bg-black-opacity-0_5--after"
 			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1400x891/img1.jpg);">
 			<div class="u-bg-overlay__inner">
@@ -11,7 +11,7 @@
 						Company24 new album</h3>
 					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium u-heading-v4__title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-65 g-color-white g-mb-15">
 						Reincarnation</h2>
-					<div class="landing-block-node-card-text landing-semantic-text-image-medium mb-0" data-auto-font-scale>
+					<div class="landing-block-node-card-text landing-semantic-text-image-medium mb-0 g-color-white" data-auto-font-scale>
 						<p>Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 							finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor. Nullam faucibus
 							iaculis laoreet.
@@ -29,7 +29,7 @@
 						Company24 new album</h3>
 					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium u-heading-v4__title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-65 g-color-white g-mb-15">
 						Umbrella</h2>
-					<div class="landing-block-node-card-text landing-semantic-text-image-medium mb-0" data-auto-font-scale>
+					<div class="landing-block-node-card-text landing-semantic-text-image-medium mb-0 g-color-white" data-auto-font-scale>
 						<p>Donec erat urna, tincidunt at leo non, blandit finibus ante. Nunc venenatis risus in
 							finibus dapibus. Ut ac massa sodales, mattis enim id, efficitur tortor. Nullam faucibus
 							iaculis laoreet.

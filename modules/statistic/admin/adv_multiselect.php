@@ -42,8 +42,9 @@ $arFilter = Array(
 	"DESCRIPTION_EXACT_MATCH"	=> $find_description_exact_match,
 	);
 
+global $by, $order;
 
-$rsData = CAdv::GetSimpleList($by, $order, $arFilter, $is_filtered);
+$rsData = CAdv::GetSimpleList($by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 
@@ -82,8 +83,6 @@ $lAdmin->AddGroupActionTable(Array(
 ),array("disable_action_target"=>true));
 
 $lAdmin->CheckListMode();
-//$rs = CAdv::GetSimpleList($by, $order, $arFilter, $is_filtered);
-
 
 $APPLICATION->SetTitle(GetMessage("STAT_TITLE"));
 

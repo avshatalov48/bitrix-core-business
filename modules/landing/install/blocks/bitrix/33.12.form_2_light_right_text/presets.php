@@ -15,7 +15,7 @@ return [
 									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 										<i class="landing-block-card-linkcontact-icon icon-call-in"></i>
 									</span>
-									<span class="landing-block-card-linkcontact-title h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
+									<span class="landing-block-card-linkcontact-title d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
 										Phone number
 									</span>
 									<span class="landing-block-card-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
@@ -44,7 +44,7 @@ return [
 								<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 									<i class="landing-block-card-contact-icon icon-anchor"></i>
 								</span>
-								<span class="landing-block-card-contact-title h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
+								<span class="landing-block-card-contact-title d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
 									Address</span>
 								<span class="landing-block-card-contact-text g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
 									Sit amet adipiscing

@@ -4,7 +4,7 @@ if(!CModule::IncludeModule('support'))
 	return ;
 }
 
-$rsSites = CSite::GetList($v1, $v2, array('ACTIVE' => 'Y'));
+$rsSites = CSite::GetList('', '', array('ACTIVE' => 'Y'));
 while ($arSite = $rsSites->Fetch())
 {
 	

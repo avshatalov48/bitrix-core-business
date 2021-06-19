@@ -114,6 +114,7 @@ class LandingRoleEditComponent extends LandingBaseFormComponent
 				$callback = function(\Bitrix\Main\Event $event)
 				{
 					$primary = $event->getParameter('primary');
+					$primaryId = $event->getParameter('id');
 					static $firstCall = true;
 
 					if (!$firstCall)
@@ -146,7 +147,7 @@ class LandingRoleEditComponent extends LandingBaseFormComponent
 						}
 						// set rights
 						Role::setRights(
-							$primary['ID'],
+							$primary['ID'] ? $primary['ID'] : $primaryId,
 							$rights,
 							$this->request('ADDITIONAL')
 						);

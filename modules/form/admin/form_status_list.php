@@ -108,7 +108,7 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && $F_RIGHT>=30 && check
 	if($_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
-		$rsData = CFormStatus::GetList($WEB_FORM_ID, $by, $order, $arFilter, $is_filtered);
+		$rsData = CFormStatus::GetList($WEB_FORM_ID, '', '', $arFilter);
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -153,8 +153,9 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && $F_RIGHT>=30 && check
 
 //////////////////////////////////////////////////////////////////////
 // initialize list - preparing data
+global $by, $order;
 
-$rsData = CFormStatus::GetList($WEB_FORM_ID, $by, $order, $arFilter, $is_filtered);
+$rsData = CFormStatus::GetList($WEB_FORM_ID, $by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 

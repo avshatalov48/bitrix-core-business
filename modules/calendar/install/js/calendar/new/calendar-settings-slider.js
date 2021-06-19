@@ -115,8 +115,14 @@
 
 		initControls: function ()
 		{
-			BX.bind(top.BX(this.uid + '_save'), 'click', BX.proxy(this.save, this));
-			BX.bind(top.BX(this.uid + '_close'), 'click', BX.proxy(this.close, this));
+			BX.bind(top.BX(this.uid + '_save'), 'click', this.save.bind(this));
+			BX.bind(top.BX(this.uid + '_close'), 'click', this.close.bind(this));
+
+			this.DOM.buttonsWrap = this.DOM.content.querySelector('.calendar-form-buttons-fixed');
+			if (this.DOM.buttonsWrap)
+			{
+				BX.ZIndexManager.register(this.DOM.buttonsWrap);
+			}
 
 			this.DOM.denyBusyInvitation = top.BX(this.uid + '_deny_busy_invitation');
 			this.DOM.showWeekNumbers = top.BX(this.uid + '_show_week_numbers');
@@ -202,13 +208,14 @@
 			if (this.inPersonal)
 			{
 				this.DOM.sectionSelect.options.length = 0;
-				var
-					sections = this.calendar.sectionController.getSectionList(),
-					meetSection = parseInt(this.calendar.util.getUserOption('meetSection')),
-					crmSection = parseInt(this.calendar.util.getUserOption('crmSection')),
-					i, section, selected;
 
-				for (i = 0; i < sections.length; i++)
+				var sections = this.calendar.sectionManager.getSectionListForEdit();
+				var meetSection = parseInt(this.calendar.util.getUserOption('meetSection'));
+				var crmSection = parseInt(this.calendar.util.getUserOption('crmSection'));
+				var section;
+				var selected;
+
+				for (var i = 0; i < sections.length; i++)
 				{
 					section = sections[i];
 					if (section.belongsToOwner())

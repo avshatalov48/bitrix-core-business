@@ -1,7 +1,7 @@
 <?php
 class CReferer
 {
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered, &$total, &$grby, &$max)
+	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [], $is_filtered = null, &$total = 0, &$grby = '', &$max = 0)
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 
@@ -23,11 +23,11 @@ class CReferer
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -98,13 +98,12 @@ class CReferer
 			elseif ($by == "s_session_id")		$strSqlOrder = " ORDER BY L.SESSION_ID ";
 			else
 			{
-				$by = "s_id";
 				$strSqlOrder = "ORDER BY L.ID";
 			}
-			if ($order!="asc")
+
+			if ($order != "asc")
 			{
 				$strSqlOrder .= " desc ";
-				$order="desc";
 			}
 
 			$strSql = "
@@ -130,14 +129,14 @@ class CReferer
 			elseif ($by == "s_average_hits")	$strSqlOrder = "ORDER BY AVERAGE_HITS";
 			else
 			{
-				$by = "s_quantity";
 				$strSqlOrder = "ORDER BY QUANTITY";
 			}
-			if ($order!="asc")
+
+			if ($order == "desc")
 			{
 				$strSqlOrder .= " desc ";
-				$order="desc";
 			}
+
 			$strSql = "
 				SELECT
 					count(L.ID) as COUNTER
@@ -180,14 +179,14 @@ class CReferer
 			elseif ($by == "s_average_hits")	$strSqlOrder = "ORDER BY AVERAGE_HITS";
 			else
 			{
-				$by = "s_quantity";
 				$strSqlOrder = "ORDER BY QUANTITY";
 			}
-			if ($order!="asc")
+
+			if ($order == "desc")
 			{
 				$strSqlOrder .= " desc ";
-				$order="desc";
 			}
+
 			$strSql = "SELECT sum(R.SESSIONS) TOTAL, max(R.SESSIONS) MAX FROM b_stat_referer R";
 			$c = $DB->Query($strSql, false, $err_mess.__LINE__);
 			$cr = $c->Fetch();
@@ -207,7 +206,7 @@ class CReferer
 		}
 
 		$res = $DB->Query(CStatistics::DBTopSql($strSql), false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch) || $group);
+
 		return $res;
 	}
 }

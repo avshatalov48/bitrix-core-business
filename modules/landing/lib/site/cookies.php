@@ -151,6 +151,11 @@ class Cookies
 			];
 		}
 
+		if ($siteId < 0)
+		{
+			return $agreements;
+		}
+
 		// then get custom messages from DB
 		$res = CookiesAgreement::getList([
 			'select' => [
@@ -410,7 +415,8 @@ class Cookies
 								'ID', 'TITLE'
 							],
 							'filter' => [
-								'ID' => $id
+								'ID' => $id,
+								'=DELETED' => ['Y', 'N']
 							],
 							'limit' => 1
 						])->fetch();
@@ -433,7 +439,13 @@ class Cookies
 				},
 				'ITEMS' => function ($code = null) use(&$currentSite)
 				{
-					return $currentSite['AGREEMENTS'][$code]['TITLE'] ?? null;
+					if (!$currentSite)
+					{
+						$currentSite = [
+							'AGREEMENTS' => self::getAgreements(-1)
+						];
+					}
+					return $currentSite['AGREEMENTS'][$code]['TITLE'] ?? $code;
 				},
 			]
 		];

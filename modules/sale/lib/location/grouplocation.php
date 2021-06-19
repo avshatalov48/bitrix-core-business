@@ -24,12 +24,12 @@ class GroupLocationTable extends Connector
 		return '';
 	}
 
-	public function getLinkField()
+	public static function getLinkField()
 	{
 		return 'LOCATION_GROUP_ID';
 	}
 
-	public function getTargetEntityName()
+	public static function getTargetEntityName()
 	{
 		return 'Bitrix\Sale\Location\Group';
 	}

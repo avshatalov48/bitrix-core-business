@@ -881,7 +881,7 @@ class CSaleCondCtrlBasketGroup extends CSaleCondCtrlGroup
 		return static::searchControl($arControlList, $strControlID);
 	}
 
-	private function __GetVisual($boolExt = false)
+	private static function __GetVisual($boolExt = false)
 	{
 		$boolExt = ($boolExt === true);
 		if ($boolExt)
@@ -993,7 +993,7 @@ class CSaleCondCtrlBasketGroup extends CSaleCondCtrlGroup
 		);
 	}
 
-	private function __GetSubGroupCond($arOneCondition, $arValues, $arParams, $arControl, $arSubs)
+	private static function __GetSubGroupCond($arOneCondition, $arValues, $arParams, $arControl, $arSubs)
 	{
 		$mxResult = '';
 		$boolError = false;
@@ -1035,7 +1035,7 @@ class CSaleCondCtrlBasketGroup extends CSaleCondCtrlGroup
 		return $mxResult;
 	}
 
-	private function __GetRowGroupCond($arOneCondition, $arValues, $arParams, $arControl, $arSubs)
+	private static function __GetRowGroupCond($arOneCondition, $arValues, $arParams, $arControl, $arSubs)
 	{
 		$boolError = false;
 		$strFunc = '';
@@ -1107,7 +1107,7 @@ class CSaleCondCtrlBasketGroup extends CSaleCondCtrlGroup
 		}
 	}
 
-	private function __GetProductGroupCond($arOneCondition, $arValues, $arParams, $arControl, $arSubs)
+	private static function __GetProductGroupCond($arOneCondition, $arValues, $arParams, $arControl, $arSubs)
 	{
 		$strFunc = '';
 
@@ -1141,7 +1141,7 @@ class CSaleCondCtrlBasketGroup extends CSaleCondCtrlGroup
 		}
 	}
 
-	private function __GetAmtGroupCond($arOneCondition, $arValues, $arParams, $arControl, $arSubs)
+	private static function __GetAmtGroupCond($arOneCondition, $arValues, $arParams, $arControl, $arSubs)
 	{
 		$boolError = false;
 
@@ -1216,7 +1216,7 @@ class CSaleCondCtrlBasketGroup extends CSaleCondCtrlGroup
 		}
 	}
 
-	private function __GetAmtBaseGroupCond($arOneCondition, $arValues, $arParams, $arControl, $arSubs)
+	private static function __GetAmtBaseGroupCond($arOneCondition, $arValues, $arParams, $arControl, $arSubs)
 	{
 		$boolError = false;
 
@@ -1291,7 +1291,7 @@ class CSaleCondCtrlBasketGroup extends CSaleCondCtrlGroup
 		}
 	}
 
-	private function __GetCntGroupCond($arOneCondition, $arValues, $arParams, $arControl, $arSubs)
+	private static function __GetCntGroupCond($arOneCondition, $arValues, $arParams, $arControl, $arSubs)
 	{
 		$boolError = false;
 

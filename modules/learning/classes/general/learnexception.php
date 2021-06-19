@@ -58,7 +58,7 @@ class LearnException extends Exception
 				$DB->Query (
 					"INSERT INTO b_learn_exceptions_log
 					(DATE_REGISTERED, CODE, MESSAGE, FFILE, LINE, BACKTRACE)
-					VALUES (" . CDatabase::GetNowFunction() . ", " . (int) $code . ", '" 
+					VALUES (" . $DB->GetNowFunction() . ", " . (int) $code . ", '"
 						. $DB->ForSQL($message) . "', '" . $DB->ForSQL($file) . "', "
 						. (int) $line . ",'" 
 						. $DB->ForSQL(base64_encode(serialize($backtrace))) // due to charsets problems do base64_encode()

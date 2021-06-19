@@ -1,11 +1,12 @@
-<?
+<?php
+
 /***************************************
 	Form validator class
 ***************************************/
 
 class CAllFormValidator
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "form";
 		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
@@ -19,7 +20,7 @@ class CAllFormValidator
 	 * @param array $arFilter
 	 * @return CDBResult
 	 */
-	function GetList($FIELD_ID, $arFilter = array(), &$by, &$order)
+	public static function GetList($FIELD_ID, $arFilter = [], $by = 'C_SORT', $order = 'ASC')
 	{
 		$arFilter["FIELD_ID"] = $FIELD_ID;
 		return CFormValidator::__getList($arFilter, $by, $order);
@@ -32,22 +33,22 @@ class CAllFormValidator
 	 * @param array $arFilter
 	 * @return CDBResult
 	 */
-	function GetListForm($WEB_FORM_ID, $arFilter = array(), &$by, &$order)
+	public static function GetListForm($WEB_FORM_ID, $arFilter = [], $by = 'C_SORT', $order = 'ASC')
 	{
 		$arFilter["WEB_FORM_ID"] = $WEB_FORM_ID;
 		return CFormValidator::__getList($arFilter, $by, $order);
 	}
 
-	function __getList($arFilter = array(), &$by, &$order)
+	public static function __getList($arFilter = array(), $by = 'C_SORT', $order = 'ASC')
 	{
 		global $DB;
 
 		$arBy = array("ACTIVE", "C_SORT", "VALIDATOR_SID", "FIELD_ID");
-		$by = mb_strtoupper($by);
+		$by = strtoupper($by);
 		if (!in_array($by, $arBy))
 			$by = "C_SORT";
 
-		$order = mb_strtoupper($order);
+		$order = strtoupper($order);
 		if ($order != "ASC" && $order != "DESC")
 			$order = "ASC";
 
@@ -117,7 +118,7 @@ class CAllFormValidator
 	 * @param array $arFilter
 	 * @return false|CDBResult
 	 */
-	function GetAllList($arFilter = array())
+	public static function GetAllList($arFilter = array())
 	{
 		if (is_array($arFilter) && !empty($arFilter))
 		{
@@ -177,7 +178,7 @@ class CAllFormValidator
 	 * @param mixed $arValue
 	 * @return bool
 	 */
-	function Execute($arValidator, $arQuestion, $arAnswers, $arAnswerValues)
+	public static function Execute($arValidator, $arQuestion, $arAnswers, $arAnswerValues)
 	{
 		$rsValidators = CFormValidator::GetAllList();
 		while ($arValidatorInfo = $rsValidators->Fetch())
@@ -206,7 +207,7 @@ class CAllFormValidator
 	 * @param array $arParams
 	 * @return int|bool
 	 */
-	function Set($WEB_FORM_ID, $FIELD_ID, $sValSID, $arParams = array(), $C_SORT = 100)
+	public static function Set($WEB_FORM_ID, $FIELD_ID, $sValSID, $arParams = array(), $C_SORT = 100)
 	{
 		global $DB;
 
@@ -244,7 +245,7 @@ class CAllFormValidator
 	 * @param int $FIELD_ID
 	 * @param array $arValidators
 	 */
-	function SetBatch($WEB_FORM_ID, $FIELD_ID, $arValidators)
+	public static function SetBatch($WEB_FORM_ID, $FIELD_ID, $arValidators)
 	{
 		global $DB;
 
@@ -290,7 +291,7 @@ class CAllFormValidator
 		}
 	}
 
-	function GetSettingsString($arValidator, $arParams)
+	public static function GetSettingsString($arValidator, $arParams)
 	{
 		if (count($arParams) > 0 && is_set($arValidator, "CONVERT_TO_DB"))
 		{
@@ -299,7 +300,7 @@ class CAllFormValidator
 		}
 	}
 
-	function GetSettingsArray($arValidator, $strParams)
+	public static function GetSettingsArray($arValidator, $strParams)
 	{
 		if ($strParams <> '' && is_set($arValidator, "CONVERT_FROM_DB"))
 		{
@@ -308,7 +309,7 @@ class CAllFormValidator
 		}
 	}
 
-	function GetSettings($arValidator)
+	public static function GetSettings($arValidator)
 	{
 		if (is_set($arValidator, "SETTINGS"))
 		{
@@ -322,11 +323,10 @@ class CAllFormValidator
 	 *
 	 * @param int $FIELD_ID
 	 */
-	function Clear($FIELD_ID)
+	public static function Clear($FIELD_ID)
 	{
 		global $DB;
 		$query = "DELETE FROM b_form_field_validator WHERE FIELD_ID='".$DB->ForSql($FIELD_ID)."'";
 		$DB->Query($query, false, __LINE__);
 	}
 }
-?>

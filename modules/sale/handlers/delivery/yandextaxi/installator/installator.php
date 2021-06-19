@@ -259,6 +259,7 @@ final class Installator
 							'PROPS_GROUP_ID' => $propertyGroupId,
 							'CODE' => $property['CODE'],
 							'TYPE' => $property['TYPE'],
+							'ENTITY_TYPE' => Registry::ENTITY_SHIPMENT,
 						]
 					]
 				)->fetch();
@@ -299,8 +300,7 @@ final class Installator
 								'PROPS_GROUP_ID' => $propertyGroupId,
 								'CODE' => $property['CODE'],
 								'TYPE' => $property['TYPE'],
-
-
+								'ENTITY_TYPE' => Registry::ENTITY_SHIPMENT,
 							]
 						)
 					);

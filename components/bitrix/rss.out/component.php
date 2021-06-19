@@ -163,9 +163,7 @@ if($this->StartResultCache(false, array($arParams["CACHE_GROUPS"]==="N"? false: 
 	}
 	if($arResult["SERVER_NAME"] == '' && defined("SITE_SERVER_NAME"))
 	{
-		$b = "sort";
-		$o = "asc";
-		$rsSite = CSite::GetList($b, $o, array("LID" => $arResult["LID"]));
+		$rsSite = CSite::GetList('', '', array("LID" => $arResult["LID"]));
 		if($arSite = $rsSite->Fetch())
 			$arResult["SERVER_NAME"] = $arSite["SERVER_NAME"];
 	}

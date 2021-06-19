@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CFormValidatorNumSelected
 {
-	function GetDescription()
+	public static function GetDescription()
 	{
 		return array(
 			"NAME" => "num_selected", // unique validator string ID
@@ -16,7 +17,7 @@ class CFormValidatorNumSelected
 		);
 	}
 
-	function GetSettings()
+	public static function GetSettings()
 	{
 		return array(
 			"NUMBER_FROM" => array(
@@ -33,7 +34,7 @@ class CFormValidatorNumSelected
 		);
 	}
 
-	function ToDB($arParams)
+	public static function ToDB($arParams)
 	{
 		$arParams["NUMBER_FROM"] = intval($arParams["NUMBER_FROM"]);
 		$arParams["NUMBER_TO"] = intval($arParams["NUMBER_TO"]);
@@ -51,12 +52,12 @@ class CFormValidatorNumSelected
 		return serialize($arParams);
 	}
 
-	function FromDB($strParams)
+	public static function FromDB($strParams)
 	{
-		return unserialize($strParams);
+		return unserialize($strParams, ['allowed_classes' => false]);
 	}
 
-	function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
+	public static function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
 	{
 		global $APPLICATION;
 
@@ -77,4 +78,3 @@ class CFormValidatorNumSelected
 }
 
 AddEventHandler("form", "onFormValidatorBuildList", array("CFormValidatorNumSelected", "GetDescription"));
-?>

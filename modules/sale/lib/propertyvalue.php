@@ -42,8 +42,69 @@ class PropertyValue extends PropertyValueBase
 		return $order->getDeliveryIdList();
 	}
 
+	protected static function constructPropertyFilter(Entity $entity): array
+	{
+		$filter = parent::constructPropertyFilter($entity);
+
+		if ($tpLandingList = static::extractTpLandingIdList($entity))
+		{
+			$dbRes = Internals\OrderPropsRelationTable::getList([
+				'filter' => [
+					'@ENTITY_ID' => $tpLandingList,
+					'=ENTITY_TYPE' => 'L'
+				],
+				'limit' => 1
+			]);
+
+			if ($dbRes->fetch())
+			{
+				$filter['@RELATION_TP_LANDING.ENTITY_ID'] = $tpLandingList;
+			}
+			else
+			{
+				$filter['=RELATION_TP_LANDING.ENTITY_ID'] = null;
+			}
+		}
+		else
+		{
+			$filter['=RELATION_TP_LANDING.ENTITY_ID'] = null;
+		}
+
+		return $filter;
+	}
+
+	protected static function extractTpLandingIdList(Entity $order) : array
+	{
+		if (!$order instanceof Order)
+		{
+			return [];
+		}
+
+		return $order->getTradeBindingCollection()->getTradingPlatformIdList();
+	}
+
+	protected static function getRelationRuntimeFields(): array
+	{
+		$runtime = parent::getRelationRuntimeFields();
+
+		$runtime[] = new Main\Entity\ReferenceField(
+			'RELATION_TP_LANDING',
+			'\Bitrix\Sale\Internals\OrderPropsRelation',
+			[
+				'=this.ID' => 'ref.PROPERTY_ID',
+				'ref.ENTITY_TYPE' => new Main\DB\SqlExpression('?', 'L')
+			],
+			'left_join'
+		);
+
+		return $runtime;
+	}
+
 	/**
 	 * @return Result
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\NotImplementedException
 	 * @throws Main\ObjectNotFoundException
 	 */
 	protected function update()

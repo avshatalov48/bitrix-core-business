@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CIBlock extends CAllIBlock
 {
 	///////////////////////////////////////////////////////////////////
@@ -245,7 +246,7 @@ class CIBlock extends CAllIBlock
 		return $str;
 	}
 
-	function _Add($ID)
+	public function _Add($ID)
 	{
 		global $DB;
 		$err_mess = "FILE: ".__FILE__."<br>LINE: ";

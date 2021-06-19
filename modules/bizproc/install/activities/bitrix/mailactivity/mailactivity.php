@@ -523,7 +523,7 @@ class CBPMailActivity extends CBPActivity
 		$arMailUserFromArray = CBPHelper::ExtractUsers($mailUserFromArray, $this->GetDocumentId(), false);
 		foreach ($arMailUserFromArray as $user)
 		{
-			$dbUser = CUser::GetList(($b = ""), ($o = ""), array("ID_EQUAL_EXACT" => $user));
+			$dbUser = CUser::GetList("", "", array("ID_EQUAL_EXACT" => $user));
 			if ($arUser = $dbUser->Fetch())
 			{
 				$userName = '';
@@ -658,7 +658,7 @@ class CBPMailActivity extends CBPActivity
 		$arMailUserToArray = CBPHelper::ExtractUsers($MailUserToArray, $this->GetDocumentId(), false);
 		foreach ($arMailUserToArray as $user)
 		{
-			$dbUser = CUser::GetList(($b = ""), ($o = ""), array("ID_EQUAL_EXACT" => $user));
+			$dbUser = CUser::GetList("", "", array("ID_EQUAL_EXACT" => $user));
 			if ($arUser = $dbUser->Fetch())
 			{
 				if ($strMailUserTo <> '')

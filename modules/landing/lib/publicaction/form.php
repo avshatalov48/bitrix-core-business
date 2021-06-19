@@ -2,6 +2,7 @@
 namespace Bitrix\Landing\PublicAction;
 
 use Bitrix\Crm\WebForm\EntityFieldProvider;
+use Bitrix\Crm\WebForm\Options;
 use Bitrix\Landing\PublicActionResult;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UserConsent\Agreement;
@@ -138,5 +139,53 @@ class Form
 		}
 
 		return true;
+	}
+
+	/**
+	 * Returns CRM forms.
+	 * @return PublicActionResult
+	 */
+	public static function getList(): PublicActionResult
+	{
+		$publicActionResult = new PublicActionResult();
+		$publicActionResult->setResult(
+			array_values(\Bitrix\Landing\Subtype\Form::getForms())
+		);
+
+		return $publicActionResult;
+	}
+
+	/**
+	 * Find just one form by ID. Return array of form fields, or empty array if not found
+	 * @return PublicActionResult
+	 */
+	public static function getById($formId): PublicActionResult
+	{
+		$publicActionResult = new PublicActionResult();
+		$publicActionResult->setResult(
+			\Bitrix\Landing\Subtype\Form::getFormById((int)$formId)
+		);
+
+		return $publicActionResult;
+	}
+
+	public static function getEditorData($formId)
+	{
+		$publicActionResult = new PublicActionResult();
+		$publicActionResult->setResult([]);
+
+		if (static::checkFormPermission())
+		{
+			$publicActionResult->setResult([
+				'crmFields' => static::getCrmFields()->getResult(),
+				'crmCompanies' => static::getCrmCompanies()->getResult(),
+				'crmCategories' => static::getCrmCategories()->getResult(),
+				'agreements' => static::getAgreements()->getResult(),
+				'formOptions' => Options::create($formId)->getArray(),
+				'dictionary' => Options\Dictionary::instance()->toArray(),
+			]);
+		}
+
+		return $publicActionResult;
 	}
 }

@@ -21,9 +21,11 @@ class ConferenceEdit
 			params.chatUsers = Object.values(params.chatUsers);
 		}
 		this.chatUsers = params.chatUsers;
+		this.presenters = params.presenters;
 		this.publicLink = params.publicLink;
 		this.chatId = params.chatId;
 		this.invitation = params.invitation;
+		this.broadcastingEnabled = params.broadcastingEnabled || false;
 
 		this.formContainer = document.getElementById("im-conference-create-fields");
 
@@ -47,11 +49,13 @@ class ConferenceEdit
 					mode: this.mode,
 					chatHost: this.chatHost,
 					chatUsers: this.chatUsers,
+					presenters: this.presenters,
 					publicLink: this.publicLink,
 					chatId: this.chatId,
 					invitation: this.invitation,
 					gridId: this.gridId,
-					pathToList: this.pathToList
+					pathToList: this.pathToList,
+					broadcastingEnabled: this.broadcastingEnabled
 				};
 			},
 			template: `
@@ -61,11 +65,13 @@ class ConferenceEdit
 					:mode="mode"
 					:chatHost="chatHost"
 					:chatUsers="chatUsers"
+					:presenters="presenters"
 					:publicLink="publicLink"
 					:chatId="chatId"
 					:invitationText="invitation"
 					:gridId="gridId"
 					:pathToList="pathToList"
+					:broadcastingEnabled="broadcastingEnabled"
 				/>
 			`,
 		});

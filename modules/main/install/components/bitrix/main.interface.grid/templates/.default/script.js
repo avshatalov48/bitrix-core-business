@@ -576,7 +576,7 @@ function BxInterfaceGrid(table_id)
 				e = window.event;
 			if(e)
 				bControl = e.ctrlKey;
-			order = (bControl? (def_order == 'acs'? 'desc':'asc') : def_order);
+			order = (bControl? (def_order == 'asc'? 'desc':'asc') : def_order);
 		}
 		else if(sort_state == 'asc')
 			order = 'desc';

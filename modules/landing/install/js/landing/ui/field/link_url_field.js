@@ -37,6 +37,12 @@
 	var TYPE_PAGE = "landing";
 
 	/** @type {string} */
+	var TYPE_CRM_FORM = "crmFormPopup";
+
+	/** @type {string} */
+	var TYPE_CRM_PHONE = "crmPhone";
+
+	/** @type {string} */
 	var TYPE_SYSTEM = "system";
 
 	/** @type {string} */
@@ -71,6 +77,8 @@
 	 * 		catalogSection: RegExp,
 	 * 		block: RegExp,
 	 * 		page: RegExp,
+	 * 		crmForm: RegExp,
+	 * 		crmPhone: RegExp,
 	 * 		system: RegExp,
 	 * 		alias: RegExp
 	 * 	}}
@@ -81,6 +89,8 @@
 		catalogSection: new RegExp("^#catalogSection([0-9]+)"),
 		block: new RegExp("^#block([0-9]+)"),
 		page: new RegExp("^#landing([0-9]+)"),
+		crmForm: new RegExp("^#crmFormPopup([0-9]+)"),
+		crmPhone: new RegExp("^#crmPhone([0-9]+)"),
 		system: new RegExp("^#system_[a-z_-]+"),
 		alias: new RegExp("^#.*")
 	};
@@ -151,6 +161,8 @@
 
 	BX.Landing.UI.Field.LinkURL.TYPE_BLOCK = TYPE_BLOCK;
 	BX.Landing.UI.Field.LinkURL.TYPE_PAGE = TYPE_PAGE;
+	BX.Landing.UI.Field.LinkURL.TYPE_CRM_FORM = TYPE_CRM_FORM;
+	BX.Landing.UI.Field.LinkURL.TYPE_CRM_PHONE = TYPE_CRM_PHONE;
 	BX.Landing.UI.Field.LinkURL.TYPE_CATALOG = TYPE_CATALOG;
 	BX.Landing.UI.Field.LinkURL.TYPE_CATALOG_ELEMENT = TYPE_CATALOG_ELEMENT;
 	BX.Landing.UI.Field.LinkURL.TYPE_CATALOG_SECTION = TYPE_CATALOG_SECTION;
@@ -188,6 +200,12 @@
 					break;
 				case TYPE_PAGE:
 					valuePromise = this.getPageData(hrefValue);
+					break;
+				case TYPE_CRM_FORM:
+					valuePromise = this.getCrmFormData(hrefValue);
+					break;
+				case TYPE_CRM_PHONE:
+					valuePromise = this.getCrmPhoneData(hrefValue);
 					break;
 				case TYPE_CATALOG_ELEMENT:
 					valuePromise = this.getCatalogElementData(hrefValue);
@@ -395,6 +413,16 @@
 				return TYPE_PAGE;
 			}
 
+			if (matchers.crmForm.test(hrefValue))
+			{
+				return TYPE_CRM_FORM;
+			}
+
+			if (matchers.crmPhone.test(hrefValue))
+			{
+				return TYPE_CRM_PHONE;
+			}
+
 			if (matchers.catalogElement.test(hrefValue))
 			{
 				return TYPE_CATALOG_ELEMENT;
@@ -585,6 +613,60 @@
 			}.bind(this));
 		},
 
+		getCrmFormData: function(value)
+		{
+			return BX.Landing.UI.Field.LinkURL.cache.remember(value, function() {
+				var formId = value.replace("#crmFormPopup", "");
+
+				return BX.Landing.Backend
+					.getInstance()
+					.action("Form::getList")
+					.then(function(result) {
+						var form = result.find(function(item) {
+							return String(item.ID) === String(formId);
+						});
+
+						if (form)
+						{
+							return {
+								type: "crmFormPopup",
+								id: form.ID,
+								name: form.NAME
+							};
+						}
+
+						return null;
+					}.bind(this));
+			}.bind(this));
+		},
+
+		getCrmPhoneData: function(value)
+		{
+			return new Promise(function(resolve) {
+				var phoneId = value.replace('#crmPhone', '');
+				var item = BX.Landing.Env
+					.getInstance()
+					.getOptions()
+					.references
+					.find(function(item) {
+						return String(item.value) === String(phoneId);
+					});
+
+				if (item)
+				{
+					resolve({
+						type: "crmPhone",
+						id: item.value,
+						name: item.text
+					});
+				}
+				else
+				{
+					resolve(null);
+				}
+			}.bind(this));
+		},
+
 		/**
 		 * Gets system page data
 		 * @param {string} page - (#system_([a-z]))
@@ -659,6 +741,22 @@
 				buttons.push({
 					text: BX.Landing.Loc.getMessage("LANDING_LINKS_BUTTON_LANDINGS"),
 					onclick: this.onListShow.bind(this, TYPE_PAGE)
+				});
+			}
+
+			if (this.allowedTypes.includes(TYPE_CRM_FORM))
+			{
+				buttons.push({
+					text: BX.Landing.Loc.getMessage("LANDING_LINKS_BUTTON_FORMS"),
+					onclick: this.onListShow.bind(this, TYPE_CRM_FORM)
+				});
+			}
+
+			if (this.allowedTypes.includes(TYPE_CRM_PHONE))
+			{
+				buttons.push({
+					text: BX.Landing.Loc.getMessage("LANDING_LINKS_BUTTON_PHONES"),
+					onclick: this.onListShow.bind(this, TYPE_CRM_PHONE)
 				});
 			}
 

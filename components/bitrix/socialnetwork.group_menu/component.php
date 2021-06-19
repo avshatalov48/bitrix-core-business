@@ -207,7 +207,7 @@ if (
 
 			if($arResult["CanView"]["chat"])
 			{
-				$arResult["Urls"]["chat"] = "javascript:if (BXIM) { BXIM.openMessenger('sg".$arResult["Group"]["ID"]."'); }";
+				$arResult["Urls"]["chat"] = "javascript:if (BXIM) { top.BXIM.openMessenger('sg".$arResult["Group"]["ID"]."'); }";
 			}
 
 			$a = array_keys($arResult["Urls"]);
@@ -273,6 +273,22 @@ if (
 						$arResult["Urls"][$tabId] = $arResult["Urls"]["view"]."app/".$placementHandler['ID']."/";
 					}
 				}
+			}
+
+			if (Loader::includeModule('tasks'))
+			{
+				$groupId = $arParams["GROUP_ID"];
+				$counter = \Bitrix\Tasks\Internals\Counter::getInstance($USER->getId());
+				$arResult['Tasks']['Counters'] = [
+					\Bitrix\Tasks\Internals\Counter\Role::ALL => $counter->get(\Bitrix\Tasks\Internals\Counter\CounterDictionary::COUNTER_MEMBER_TOTAL, $groupId),
+					\Bitrix\Tasks\Internals\Counter\Role::RESPONSIBLE => $counter->get(\Bitrix\Tasks\Internals\Counter\CounterDictionary::COUNTER_MY, $groupId),
+					\Bitrix\Tasks\Internals\Counter\Role::ACCOMPLICE => $counter->get(\Bitrix\Tasks\Internals\Counter\CounterDictionary::COUNTER_ACCOMPLICES, $groupId),
+					\Bitrix\Tasks\Internals\Counter\Role::ORIGINATOR => $counter->get(\Bitrix\Tasks\Internals\Counter\CounterDictionary::COUNTER_ORIGINATOR, $groupId),
+					\Bitrix\Tasks\Internals\Counter\Role::AUDITOR => $counter->get(\Bitrix\Tasks\Internals\Counter\CounterDictionary::COUNTER_AUDITOR, $groupId),
+				];
+
+				$filter = \Bitrix\Tasks\Helper\Filter::getInstance($USER->getId(), $groupId);
+				$arResult['Tasks']['DefaultRoleId'] = $filter->getDefaultRoleId();
 			}
 
 			$this->IncludeComponentTemplate();

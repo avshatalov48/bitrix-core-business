@@ -472,7 +472,7 @@ foreach($arParams["FIELD_CODE"] as $field_code)
 			$arrRef = array("reference" => array_values($arResult["arrSection"]), "reference_id" => array_keys($arResult["arrSection"]));
 			$field_res = SelectBoxFromArray($name, $arrRef, $value, " ", "");
 
-			if (!is_array($value) && $value != "NOT_REF" && $value <> '')
+			if (!is_array($value) && $value != "NOT_REF" && (string)$value <> '')
 				${$FILTER_NAME}[$field_code] = intval($value);
 
 			$_name = $FILTER_NAME."_ff[INCLUDE_SUBSECTIONS]";

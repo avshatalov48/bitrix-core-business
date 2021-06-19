@@ -14,7 +14,7 @@ class advertising extends CModule
 	var $MODULE_GROUP_RIGHTS = "Y";
 	var $SHOW_SUPER_ADMIN_GROUP_RIGHTS = "Y";
 
-	function advertising()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -103,7 +103,7 @@ class advertising extends CModule
 			CModule::IncludeModule('advertising');
 
 			$arSites = array();
-			$rs = CSite::GetList($b="sort", $o="asc");
+			$rs = CSite::GetList();
 			while($ar = $rs->Fetch())
 			{
 				$arSites[] = $ar['ID'];

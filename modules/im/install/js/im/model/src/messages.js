@@ -10,8 +10,11 @@
 
 import {Vue} from 'ui.vue';
 import {VuexBuilderModel} from 'ui.vue.vuex';
-import {MutationType, StorageLimit} from 'im.const';
+import { MutationType, RecentSection as Section, StorageLimit, EventType } from 'im.const';
 import {Utils} from "im.lib.utils";
+import { Logger } from "im.lib.logger";
+
+import {EventEmitter} from 'main.core.events';
 
 const IntersectionType = {
 	empty: 'empty',
@@ -46,6 +49,7 @@ export class MessagesModel extends VuexBuilderModel
 		return {
 			templateId: 0,
 			templateType: 'message',
+			placeholderType: 0,
 
 			id: 0,
 			chatId: 0,
@@ -238,6 +242,51 @@ export class MessagesModel extends VuexBuilderModel
 					insertType : MutationType.set,
 					data : payload
 				});
+
+				return 'set is done';
+			},
+			addPlaceholders: (store, payload) =>
+			{
+				if (payload.placeholders instanceof Array)
+				{
+					payload.placeholders = payload.placeholders.map(message => this.prepareMessage(message, { host: store.state.host }));
+				}
+				else
+				{
+					return false;
+				}
+
+				const insertType = payload.requestMode === 'history'? MutationType.setBefore : MutationType.setAfter;
+				if (insertType === MutationType.setBefore)
+				{
+					payload.placeholders = payload.placeholders.reverse();
+				}
+
+				store.commit('set', {
+					insertType,
+					data : payload.placeholders
+				});
+
+				return payload.placeholders[0].id;
+			},
+			clearPlaceholders: (store, payload) =>
+			{
+				store.commit('clearPlaceholders', payload);
+			},
+			updatePlaceholders: (store, payload) =>
+			{
+				if (payload.data instanceof Array)
+				{
+					payload.data = payload.data.map(message => this.prepareMessage(message, { host: store.state.host }));
+				}
+				else
+				{
+					return false;
+				}
+
+				store.commit('updatePlaceholders', payload);
+
+				return true;
 			},
 			setAfter: (store, payload) =>
 			{
@@ -285,6 +334,11 @@ export class MessagesModel extends VuexBuilderModel
 				}
 
 				store.commit('initCollection', {chatId: payload.chatId});
+
+				if (!store.state.collection[payload.chatId])
+				{
+					return false;
+				}
 
 				let index = store.state.collection[payload.chatId].findIndex(el => el.id === payload.id);
 				if (index < 0)
@@ -350,9 +404,18 @@ export class MessagesModel extends VuexBuilderModel
 			{
 				payload.chatId = parseInt(payload.chatId);
 
-				store.commit('clear', {
-					chatId : payload.chatId
-				});
+				if (payload.keepPlaceholders)
+				{
+					store.commit('clearMessages', {
+						chatId : payload.chatId
+					});
+				}
+				else
+				{
+					store.commit('clear', {
+						chatId : payload.chatId
+					});
+				}
 
 				return true;
 			},
@@ -439,22 +502,55 @@ export class MessagesModel extends VuexBuilderModel
 			add: (state, payload) =>
 			{
 				this.initCollection(state, {chatId: payload.chatId});
-				this.setMutationType(state, {chatId: payload.chatId, initialType: MutationType.add});
 
 				state.collection[payload.chatId].push(payload);
 				state.saveMessageList[payload.chatId].push(payload.id);
 
 				state.created += 1;
 
+				state.collection[payload.chatId].sort((a, b) => a.id - b.id);
+				this.saveState(state, payload.chatId);
+				Logger.warn('Messages model: saving state after add');
+			},
+			clearPlaceholders: (state, payload) =>
+			{
+				if (!state.collection[payload.chatId])
+				{
+					return false;
+				}
+
+				state.collection[payload.chatId] = state.collection[payload.chatId].filter(element => {
+					return !element.id.toString().startsWith('placeholder');
+				});
+			},
+			updatePlaceholders: (state, payload) =>
+			{
+				const firstPlaceholderId = `placeholder${payload.firstMessage}`;
+				const firstPlaceholderIndex = state.collection[payload.chatId].findIndex((message) => {
+					return message.id === firstPlaceholderId;
+				});
+				// Logger.warn('firstPlaceholderIndex', firstPlaceholderIndex);
+				if (firstPlaceholderIndex >= 0)
+				{
+					// Logger.warn('before delete', state.collection[payload.chatId].length, [...state.collection[payload.chatId]]);
+					state.collection[payload.chatId].splice(firstPlaceholderIndex, payload.amount);
+					// Logger.warn('after delete', state.collection[payload.chatId].length, [...state.collection[payload.chatId]]);
+					state.collection[payload.chatId].splice(firstPlaceholderIndex, 0, ...payload.data);
+					// Logger.warn('after add', state.collection[payload.chatId].length, [...state.collection[payload.chatId]]);
+				}
+
+				state.collection[payload.chatId].sort((a, b) => a.id - b.id);
+				Logger.warn('Messages model: saving state after updating placeholders');
 				this.saveState(state, payload.chatId);
 			},
 			set: (state, payload) =>
 			{
+				Logger.warn('Messages model: set mutation', payload);
 				let chats = [];
 				let chatsSave = [];
-				let mutationType = {};
+				let isPush = false;
 
-				mutationType.initialType = payload.insertType;
+				const initialType = payload.insertType;
 
 				if (payload.insertType === MutationType.set)
 				{
@@ -475,6 +571,7 @@ export class MessagesModel extends VuexBuilderModel
 							continue;
 
 						this.initCollection(state, {chatId});
+						Logger.warn('Messages model: messages before adding from request - ', state.collection[chatId].length);
 
 						if (
 							state.saveMessageList[chatId].length > elements[chatId].length
@@ -485,10 +582,13 @@ export class MessagesModel extends VuexBuilderModel
 							state.saveMessageList[chatId] = state.saveMessageList[chatId].filter(id => elements[chatId].includes(id));
 						}
 
+						Logger.warn('Messages model: cache length', state.saveMessageList[chatId].length);
 						let intersection = this.manageCacheBeforeSet(
 							[...state.saveMessageList[chatId].reverse()],
 							elements[chatId]
 						);
+						Logger.warn('Messages model: set intersection with cache', intersection);
+
 						if (intersection.type === IntersectionType.none)
 						{
 							if (intersection.foundElements.length > 0)
@@ -497,47 +597,23 @@ export class MessagesModel extends VuexBuilderModel
 								state.saveMessageList[chatId] = state.saveMessageList[chatId].filter(id => !intersection.foundElements.includes(id));
 							}
 
+							Logger.warn('Messages model: no intersection - removing cache');
 							this.removeIntersectionCacheElements = state.collection[chatId].map(element => element.id);
 
-							clearTimeout(this.removeIntersectionCacheTimeout);
-							this.removeIntersectionCacheTimeout = setTimeout(() => {
-								state.collection[chatId] = state.collection[chatId].filter(element => !this.removeIntersectionCacheElements.includes(element.id));
-								state.saveMessageList[chatId] = state.saveMessageList[chatId].filter(id => !this.removeIntersectionCacheElements.includes(id));
-								this.removeIntersectionCacheElements = [];
-							}, 1000);
+							state.collection[chatId] = state.collection[chatId].filter(element => !this.removeIntersectionCacheElements.includes(element.id));
+							state.saveMessageList[chatId] = state.saveMessageList[chatId].filter(id => !this.removeIntersectionCacheElements.includes(id));
+							this.removeIntersectionCacheElements = [];
 						}
-						else
+						else if (intersection.type === IntersectionType.foundReverse)
 						{
-							if (intersection.type === IntersectionType.foundReverse)
-							{
-								payload.insertType = MutationType.setBefore;
-								payload.data = payload.data.reverse();
-							}
-						}
-
-						if (intersection.foundElements.length > 0)
-						{
-							if (intersection.type === IntersectionType.found && intersection.noneElements[0])
-							{
-								mutationType.scrollStickToTop = false;
-								mutationType.scrollMessageId = intersection.foundElements[intersection.foundElements.length-1];
-							}
-							else
-							{
-								mutationType.scrollStickToTop = false;
-								mutationType.scrollMessageId = 0;
-							}
-						}
-						else if (intersection.type === IntersectionType.none)
-						{
-							mutationType.scrollStickToTop = false;
-							mutationType.scrollMessageId = payload.data[0].id;
+							Logger.warn('Messages model: found reverse intersection');
+							payload.insertType = MutationType.setBefore;
+							payload.data = payload.data.reverse();
 						}
 					}
 				}
 
-				mutationType.appliedType = payload.insertType;
-
+				Logger.warn('Messages model: adding messages to model', payload.data);
 				for (let element of payload.data)
 				{
 					this.initCollection(state, {chatId: element.chatId});
@@ -572,38 +648,26 @@ export class MessagesModel extends VuexBuilderModel
 				chats = [...new Set(chats)];
 				chatsSave = [...new Set(chatsSave)];
 
-				// check array for correct order of messages
-				if (mutationType.initialType === MutationType.set)
-				{
-					chats.forEach(chatId =>
-					{
-						let lastElementId = 0;
-						let needApplySort = false;
-						for (let i = 0; i < state.collection[chatId].length; i++)
-						{
-							let element = state.collection[chatId][i];
-							if (element.id < lastElementId)
-							{
-								needApplySort = true;
-								break;
-							}
-
-							lastElementId = element.id;
-						}
-						if (needApplySort)
-						{
-							state.collection[chatId].sort((a, b) => a.id - b.id);
-						}
-					});
-				}
-
+				isPush = payload.data.every(element => element.push === true);
+				Logger.warn('Is it fake push message?', isPush);
 				chats.forEach(chatId => {
-					this.setMutationType(state, {chatId: chatId, ...mutationType});
+					state.collection[chatId].sort((a, b) => a.id - b.id);
+
+					if (!isPush)
+					{
+						//send event that messages are ready and we can start reading etc
+						Logger.warn('setting messagesSet = true for chatId = ', chatId);
+						setTimeout(() => {
+							EventEmitter.emit(EventType.dialog.messagesSet, {chatId});
+							EventEmitter.emit(EventType.dialog.readVisibleMessages, {chatId});
+						}, 100);
+					}
 				});
 
-				if (mutationType.initialType !== MutationType.setBefore)
+				if (initialType !== MutationType.setBefore)
 				{
 					chatsSave.forEach(chatId => {
+						Logger.warn('Messages model: saving state after set');
 						this.saveState(state, chatId);
 					});
 				}
@@ -638,6 +702,7 @@ export class MessagesModel extends VuexBuilderModel
 
 					if (isSaveState)
 					{
+						Logger.warn('Messages model: saving state after update');
 						this.saveState(state, payload.chatId);
 					}
 				}
@@ -645,7 +710,6 @@ export class MessagesModel extends VuexBuilderModel
 			delete: (state, payload) =>
 			{
 				this.initCollection(state, {chatId: payload.chatId});
-				this.setMutationType(state, {chatId: payload.chatId, initialType: MutationType.delete});
 
 				state.collection[payload.chatId] = state.collection[payload.chatId].filter(element => !payload.elements.includes(element.id));
 
@@ -655,6 +719,7 @@ export class MessagesModel extends VuexBuilderModel
 					{
 						if (state.saveMessageList[payload.chatId].includes(id))
 						{
+							Logger.warn('Messages model: saving state after delete');
 							this.saveState(state, payload.chatId);
 
 							break;
@@ -665,9 +730,17 @@ export class MessagesModel extends VuexBuilderModel
 			clear: (state, payload) =>
 			{
 				this.initCollection(state, {chatId: payload.chatId});
-				this.setMutationType(state, {chatId: payload.chatId, initialType: 'clear'});
 
 				state.collection[payload.chatId] = [];
+				state.saveMessageList[payload.chatId] = [];
+			},
+			clearMessages: (state, payload) =>
+			{
+				this.initCollection(state, {chatId: payload.chatId});
+
+				state.collection[payload.chatId] = state.collection[payload.chatId].filter(element => {
+					return element.id.toString().startsWith('placeholder');
+				});
 				state.saveMessageList[payload.chatId] = [];
 			},
 			applyMutationType: (state, payload) =>
@@ -701,6 +774,7 @@ export class MessagesModel extends VuexBuilderModel
 				}
 				if (saveNeeded)
 				{
+					Logger.warn('Messages model: saving state after reading');
 					this.saveState(state, payload.chatId);
 				}
 			},
@@ -726,6 +800,7 @@ export class MessagesModel extends VuexBuilderModel
 				}
 				if (saveNeeded)
 				{
+					Logger.warn('Messages model: saving state after unreading');
 					this.saveState(state, payload.chatId);
 					this.updateSubordinateStates();
 				}
@@ -749,35 +824,9 @@ export class MessagesModel extends VuexBuilderModel
 		}
 
 		Vue.set(state.collection, payload.chatId, payload.messages? [].concat(payload.messages): []);
-		Vue.set(state.mutationType, payload.chatId, {applied: false, initialType: MutationType.none, appliedType: MutationType.none, scrollStickToTop: 0, scrollMessageId: 0});
 		Vue.set(state.saveMessageList, payload.chatId, []);
 		Vue.set(state.saveFileList, payload.chatId, []);
 		Vue.set(state.saveUserList, payload.chatId, []);
-
-		return true;
-	}
-
-	setMutationType(state, payload)
-	{
-		let mutationType = {
-			applied: false,
-			initialType: MutationType.none,
-			appliedType: MutationType.none,
-			scrollStickToTop: false,
-			scrollMessageId: 0
-		};
-
-		if (payload.initialType && !payload.appliedType)
-		{
-			payload.appliedType = payload.initialType;
-		}
-
-		if (typeof state.mutationType[payload.chatId] === 'undefined')
-		{
-			Vue.set(state.mutationType, payload.chatId, mutationType);
-		}
-
-		state.mutationType[payload.chatId] = {...mutationType, ...payload};
 
 		return true;
 	}
@@ -794,6 +843,7 @@ export class MessagesModel extends VuexBuilderModel
 
 	manageCacheBeforeSet(cache, elements, recursive = false)
 	{
+		Logger.warn('manageCacheBeforeSet', cache, elements);
 		let result = {
 			type: IntersectionType.empty,
 			foundElements: [],
@@ -879,6 +929,7 @@ export class MessagesModel extends VuexBuilderModel
 			saveUserList.push(parseInt(dialog.dialogId));
 		}
 
+		let readCounter = 0;
 		for (let index = state.collection[chatId].length-1; index >= 0; index--)
 		{
 			if (state.collection[chatId][index].id.toString().startsWith('temporary'))
@@ -886,7 +937,12 @@ export class MessagesModel extends VuexBuilderModel
 				continue;
 			}
 
-			if (count >= StorageLimit.messages && !state.collection[chatId][index].unread)
+			if (!state.collection[chatId][index].unread)
+			{
+				readCounter++;
+			}
+
+			if (count >= StorageLimit.messages && readCounter === 50)
 			{
 				break;
 			}
@@ -958,8 +1014,13 @@ export class MessagesModel extends VuexBuilderModel
 
 				state.collection[chatId]
 					.filter(element => state.saveMessageList[chatId].includes(element.id))
-					.forEach(element => storedState.collection[chatId].push(element))
-				;
+					.forEach(element => {
+						if (element.templateType !== 'placeholder')
+						{
+							storedState.collection[chatId].push(element);
+						}
+					});
+				Logger.warn('Cache after updating', storedState.collection[chatId]);
 
 				storedState.saveMessageList[chatId] = state.saveMessageList[chatId];
 				storedState.saveFileList[chatId] = state.saveFileList[chatId];
@@ -986,7 +1047,7 @@ export class MessagesModel extends VuexBuilderModel
 		}
 		else if (typeof fields.id === "string")
 		{
-			if (fields.id.startsWith('temporary'))
+			if (fields.id.startsWith('temporary') || fields.id.startsWith('placeholder'))
 			{
 				result.id = fields.id;
 			}
@@ -1010,6 +1071,16 @@ export class MessagesModel extends VuexBuilderModel
 			{
 				result.templateId = parseInt(fields.templateId);
 			}
+		}
+
+		if (typeof fields.templateType === "string")
+		{
+			result.templateType = fields.templateType;
+		}
+
+		if (typeof fields.placeholderType === "number")
+		{
+			result.placeholderType = fields.placeholderType;
 		}
 
 		if (typeof fields.chat_id !== 'undefined')

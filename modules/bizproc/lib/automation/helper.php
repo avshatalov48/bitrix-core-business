@@ -628,8 +628,8 @@ class Helper
 		}
 
 		$dbUser = \CUser::GetList(
-			($by = 'id'),
-			($order = 'asc'),
+			'id',
+			'asc',
 			array('ID'=> $userID),
 			array(
 				'FIELDS' => array(

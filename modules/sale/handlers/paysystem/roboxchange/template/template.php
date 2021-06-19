@@ -25,6 +25,10 @@ Loc::loadMessages(__FILE__);
 				<input type="hidden" name="SignatureValue" value="<?=$params['SIGNATURE_VALUE'];?>">
 				<input type="hidden" name="Email" value="<?=htmlspecialcharsbx($params['BUYER_PERSON_EMAIL'])?>">
 
+				<?php if ($params['RECEIPT']):?>
+					<input type="hidden" name="Receipt" value="<?=htmlspecialcharsbx($params['RECEIPT'])?>">
+				<?php endif;?>
+
 				<?php foreach ($params['ADDITIONAL_USER_FIELDS'] as $fieldName => $fieldsValue):?>
 					<input type="hidden" name="<?=$fieldName?>" value="<?=htmlspecialcharsbx($fieldsValue);?>">
 				<?php endforeach; ?>

@@ -3,7 +3,10 @@
 	BX.namespace('BX.Call');
 
 	BX.Call.State = {
-		Incoming: 'Incoming'
+		Idle: 'Idle',
+		Proceeding: 'Proceeding',
+		Connected: 'Connected',
+		Finished: 'Finished'
 	};
 
 	BX.Call.UserState = {
@@ -16,6 +19,12 @@
 		Connecting: 'Connecting',
 		Connected: 'Connected',
 		Failed: 'Failed'
+	};
+
+	BX.Call.EndpointDirection = {
+		SendOnly: 'send',
+		RecvOnly: 'recv',
+		SendRecv: 'sendrecv',
 	};
 
 	BX.Call.Type = {
@@ -56,6 +65,8 @@
 		onUserInvited: 'onUserInvited',
 		onUserStateChanged: 'onUserStateChanged',
 		onUserMicrophoneState: 'onUserMicrophoneState',
+		onUserCameraState: 'onUserCameraState',
+		onUserVideoPaused: 'onUserVideoPaused',
 		onUserScreenState: 'onUserScreenState',
 		onUserRecordState: 'onUserRecordState',
 		onUserVoiceStarted: 'onUserVoiceStarted',
@@ -410,6 +421,7 @@
 				})
 			}).catch(function (error)
 			{
+				console.error(error);
 				if (BX.type.isFunction(error.error))
 				{
 					error = error.error().getError();
@@ -621,9 +633,9 @@
 		{
 			return BXIM.init;
 		}
-		else if (BX.Messenger && BX.Messenger.Application && BX.Messenger.Application.call)
+		else if (BX.Messenger && BX.Messenger.Application && BX.Messenger.Application.conference)
 		{
-			return BX.Messenger.Application.call.inited;
+			return BX.Messenger.Application.conference.inited;
 		}
 		return false;
 	};
@@ -669,7 +681,7 @@
 
 		if (BX.desktop && BX.desktop.ready())
 		{
-			BX.desktop.log(BX.message('USER_ID')+'.video.log', text.substr(3));
+			BX.desktop.log(BX.message('USER_ID')+'.video.log', text);
 		}
 		if (this.debugFlag)
 		{

@@ -447,7 +447,7 @@ if ($STEP == 2)
 
 					$strVal = COption::GetOptionString("catalog", "allowed_currencies", $defCatalogAvailCurrencies);
 					$arVal = explode(",", $strVal);
-					$lcur = CCurrency::GetList(($by1="sort"), ($order1="asc"));
+					$lcur = CCurrency::GetList('sort', 'asc');
 					$arCurList = array();
 					while ($lcur_res = $lcur->Fetch())
 					{

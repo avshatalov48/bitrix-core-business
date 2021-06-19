@@ -441,7 +441,7 @@ if (empty($user_alias)):
 						"MULTIPLE" => "N",
 						"MANDATORY" => "N");
 					$arFieldName = array();
-					$rsLanguage = CLanguage::GetList($by, $order, array());
+					$rsLanguage = CLanguage::GetList();
 					while($arLanguage = $rsLanguage->Fetch()):
 						if (LANGUAGE_ID == $arLanguage["LID"])
 							$arFieldName[$arLanguage["LID"]] = GetMessage("IBLOCK_DEFAULT_UF");
@@ -631,5 +631,15 @@ if (($componentPage == "group_photo_element_upload" || $componentPage == "group_
 /********************************************************************
 				/Activity before
 ********************************************************************/
+
+if (\Bitrix\Main\Context::getCurrent()->getRequest()->get('IFRAME') === 'Y')
+{
+	$link = $arResult['~PATH_TO_GROUP_PHOTO_SECTION'];
+	if (!empty($link))
+	{
+		$link .= (mb_strpos($link, '?') === false ? '?' : '&') . 'IFRAME=Y';
+	}
+	$arResult['~PATH_TO_GROUP_PHOTO_SECTION'] = $link;
+}
+
 return 1;
-?>

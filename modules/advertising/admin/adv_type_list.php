@@ -8,9 +8,11 @@
 ##############################################
 */
 
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/prolog.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/include.php");
+Loader::includeModule('advertising');
 
 $isDemo = CAdvContract::IsDemo();
 $isManager = CAdvContract::IsManager();
@@ -87,7 +89,7 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 	if($_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
-		$rsData = CAdvType::GetList($by, $order, $arFilter, $isFilterEdit);
+		$rsData = CAdvType::GetList('', '', $arFilter);
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['SID'];
 	}
@@ -117,7 +119,9 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 	}
 }
 
-$rsAdvType = CAdvType::GetList($by, $order, $arFilter, $is_filtered);
+global $by, $order;
+
+$rsAdvType = CAdvType::GetList($by, $order, $arFilter);
 
 $rsData = new CAdminResult($rsAdvType, $sTableID);
 $rsData->NavStart();

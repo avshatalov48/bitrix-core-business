@@ -8,6 +8,7 @@ $MESS['LANDING_TABLE_FIELD_SORT'] = 'Сортировка';
 $MESS['LANDING_TABLE_FIELD_ACTIVE'] = 'Активность';
 $MESS['LANDING_TABLE_FIELD_PUBLIC'] = 'Публичность';
 $MESS['LANDING_TABLE_FIELD_DELETED'] = 'Удален или нет';
+$MESS['LANDING_TABLE_FIELD_DESIGNED'] = 'Блок был изменен пользователем (дизайнер блока)';
 $MESS['LANDING_TABLE_FIELD_ACCESS'] = 'Уровень доступа к блоку';
 $MESS['LANDING_TABLE_FIELD_CREATED_BY_ID'] = 'Идентификатор создавшего пользователя';
 $MESS['LANDING_TABLE_FIELD_MODIFIED_BY_ID'] = 'Идентификатор изменившего пользователя';

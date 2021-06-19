@@ -46,7 +46,7 @@ if($REQUEST_METHOD=="POST" && $Update.$Apply.$RestoreDefaults <> '' && check_bit
 	{
 		COption::RemoveOption('seo');
 
-		$z = CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
+		$z = CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 		while($zr = $z->Fetch())
 			$APPLICATION->DelGroupRight($module_id, array($zr["ID"]));
 
@@ -57,7 +57,7 @@ if($REQUEST_METHOD=="POST" && $Update.$Apply.$RestoreDefaults <> '' && check_bit
 				$arFilter['NAME'] .= '|Yandex';
 
 			$strSearchers = '';
-			$dbRes = CSearcher::GetList($by = 's_id', $order = 'asc', $arFilter, $is_filtered);
+			$dbRes = CSearcher::GetList('s_id', 'asc', $arFilter);
 			while ($arRes = $dbRes->Fetch())
 			{
 				$strSearchers .= ($strSearchers == '' ? '' : ',').$arRes['ID'];
@@ -89,7 +89,7 @@ if ($searchers <> '' && CModule::IncludeModule('statistic'))
 {
 	$arSearchersList = explode(',', $searchers);
 
-	$dbRes = CSearcher::GetList($by = 's_name', $order = 'asc', array('ID' => implode('|', $arSearchersList)), $is_filtered);
+	$dbRes = CSearcher::GetList('s_name', 'asc', array('ID' => implode('|', $arSearchersList)));
 	while ($arRes = $dbRes->GetNext())
 	{
 		$arCurrentSearchers[$arRes['ID']] = $arRes['NAME'];

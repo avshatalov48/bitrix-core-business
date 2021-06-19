@@ -200,7 +200,7 @@ class CControllerClient
 			$arFields["PERSONAL_BIRTHDAY"] = $DB->FormatDate($arFields["PERSONAL_BIRTHDAY"], $FORMAT_DATE, FORMAT_DATE);
 		}
 
-		$dbr_user = CUser::GetList($O = '', $B = '', array(
+		$dbr_user = CUser::GetList('', '', array(
 			"LOGIN_EQUAL_EXACT" => $arFields["LOGIN"],
 			"EXTERNAL_AUTH_ID" => "__controller",
 		));

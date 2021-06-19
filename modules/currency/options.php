@@ -33,9 +33,7 @@ if ($moduleAccessLevel >= 'R')
 	)
 	{
 		COption::RemoveOption("currency");
-		$v1="id";
-		$v2="asc";
-		$z = CGroup::GetList($v1, $v2, array("ACTIVE" => "Y", "ADMIN" => "N"));
+		$z = CGroup::GetList('id', 'asc', array("ACTIVE" => "Y", "ADMIN" => "N"));
 		while($zr = $z->Fetch())
 			$APPLICATION->DelGroupRight($module_id, array($zr["ID"]));
 

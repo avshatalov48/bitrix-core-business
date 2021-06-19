@@ -21,19 +21,8 @@ class TaggedCache
 
 	public function __construct()
 	{
-		$this->isMySql = (static::getDbType() === "MYSQL");
 		$this->pool = Main\Application::getInstance()->getConnectionPool();
-	}
-
-	protected static function getDbType()
-	{
-		static $type = null;
-		if ($type === null)
-		{
-			$cm = Main\Application::getInstance()->getConnectionPool();
-			$type = $cm->getDefaultConnectionType();
-		}
-		return $type;
+		$this->isMySql = ($this->pool->getConnection()->getType() === "mysql");
 	}
 
 	protected function initDbCache($path)
@@ -154,40 +143,61 @@ class TaggedCache
 		$this->pool->useMasterOnly(true);
 
 		$con = Main\Application::getConnection();
-		$sqlHelper = $con->getSqlHelper();
+		$helper = $con->getSqlHelper();
 
 		if ($tag === true)
 		{
-			$sqlWhere = " WHERE TAG <> '*'";
+			$where = " WHERE TAG <> '*'";
 		}
 		else
 		{
-			$sqlWhere = " WHERE TAG = '".$sqlHelper->forSql($tag)."'";
+			$where = " WHERE TAG = '".$helper->forSql($tag)."'";
 		}
 
 		$dirs = [];
-		$rs = $con->query("SELECT * FROM b_cache_tag".$sqlWhere);
+		$rs = $con->query("SELECT ID, RELATIVE_PATH FROM b_cache_tag".$where);
 		while ($ar = $rs->fetch())
 		{
-			$dirs[$ar["RELATIVE_PATH"]] = $ar;
+			$dirs[$ar["RELATIVE_PATH"]][] = $ar["ID"];
 		}
 
-		$con->queryExecute("DELETE FROM b_cache_tag".$sqlWhere);
+		$con->queryExecute("DELETE FROM b_cache_tag".$where);
 
+		$max_length = 102400;
+		$sql = "DELETE FROM b_cache_tag WHERE ID in (%s)";
+		$where_list = array();
+		$length = 0;
 		$cache = Cache::createInstance();
 		foreach ($dirs as $path => $ar)
 		{
-			$con->queryExecute("
-				DELETE FROM b_cache_tag
-				WHERE SITE_ID = '".$sqlHelper->forSql($ar["SITE_ID"])."'
-				AND CACHE_SALT = '".$sqlHelper->forSql($ar["CACHE_SALT"])."'
-				AND RELATIVE_PATH = '".$sqlHelper->forSql($ar["RELATIVE_PATH"])."'
-			");
-
 			$cache->cleanDir($path);
 			unset($this->cacheTag[$path]);
+
+			foreach ($ar as $cacheTagId)
+			{
+				$where = intval($cacheTagId);
+				$length += mb_strlen($where) + 1;
+				$where_list[] = $where;
+				if ($length > $max_length)
+				{
+					$con->queryExecute(sprintf($sql, implode(",", $where_list)));
+					$where_list = array();
+					$length = 0;
+				}
+			}
+		}
+
+		if ($where_list)
+		{
+			$con->queryExecute(sprintf($sql, implode(",", $where_list)));
 		}
 
 		$this->pool->useMasterOnly(false);
+	}
+
+	public function deleteAllTags()
+	{
+		$con = Main\Application::getConnection();
+		$con->query("TRUNCATE TABLE b_cache_tag");
 	}
 }

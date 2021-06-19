@@ -17,7 +17,7 @@
 	  richLink: 'richLink'
 	});
 
-	ui_vue.Vue.component('bx-im-view-message-body', {
+	ui_vue.BitrixVue.component('bx-im-view-message-body', {
 	  /**
 	   * @emits 'clickByUserName' {user: object, event: MouseEvent}
 	   * @emits 'clickByUploadCancel' {file: object, event: MouseEvent}
@@ -42,18 +42,6 @@
 	    message: {
 	      type: Object,
 	      default: im_model.MessagesModel.create().getElementState
-	    },
-	    user: {
-	      type: Object,
-	      default: im_model.UsersModel.create().getElementState
-	    },
-	    dialog: {
-	      type: Object,
-	      default: im_model.DialoguesModel.create().getElementState
-	    },
-	    files: {
-	      type: Object,
-	      default: {}
 	    },
 	    enableReactions: {
 	      default: true
@@ -106,7 +94,7 @@
 	        return this.cacheFormatDate[id];
 	      }
 
-	      var dateFormat = im_lib_utils.Utils.date.getFormatType(BX.Messenger.Const.DateFormat.message, this.$root.$bitrixMessages);
+	      var dateFormat = im_lib_utils.Utils.date.getFormatType(BX.Messenger.Const.DateFormat.message, this.$Bitrix.Loc.getMessages());
 	      this.cacheFormatDate[id] = this._getDateFormat().format(dateFormat, date);
 	      return this.cacheFormatDate[id];
 	    },
@@ -119,11 +107,9 @@
 
 	      this.dateFormatFunction = Object.create(BX.Main.Date);
 
-	      if (this.$root.$bitrixMessages) {
-	        this.dateFormatFunction._getMessage = function (phrase) {
-	          return _this.$root.$bitrixMessages[phrase];
-	        };
-	      }
+	      this.dateFormatFunction._getMessage = function (phrase) {
+	        return _this.$Bitrix.Loc.getMessage(phrase);
+	      };
 
 	      return this.dateFormatFunction;
 	    },
@@ -211,9 +197,6 @@
 
 	      return _ContentType.default;
 	    },
-	    localize: function localize() {
-	      return ui_vue.Vue.getFilteredPhrases('IM_MESSENGER_MESSAGE_', this.$root.$bitrixMessages);
-	    },
 	    formattedDate: function formattedDate() {
 	      return this.formatDate(this.message.date);
 	    },
@@ -221,7 +204,7 @@
 	      var _this2 = this;
 
 	      if (this.isDeleted) {
-	        return this.localize.IM_MESSENGER_MESSAGE_DELETED;
+	        return this.$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_DELETED');
 	      }
 
 	      var message = this.message.textConverted;
@@ -247,6 +230,13 @@
 	    },
 	    chatColor: function chatColor() {
 	      return this.dialog.type !== im_const.DialogType.private ? this.dialog.color : this.user.color;
+	    },
+	    dialog: function dialog() {
+	      var dialog = this.$store.getters['dialogues/get'](this.dialogId);
+	      return dialog ? dialog : this.$store.getters['dialogues/getBlank']();
+	    },
+	    user: function user() {
+	      return this.$store.getters['users/get'](this.message.authorId, true);
 	    },
 	    filesData: function filesData() {
 	      var _this3 = this;

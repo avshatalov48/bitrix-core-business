@@ -7,6 +7,10 @@
 	position: relative;
 	margin-top: 2px;
 }
+.bx-im-element-attach a {
+	font-size: 14px;
+	line-height: 18px;
+}
 
 .bx-im-message-content-text + .bx-im-element-attach {
 	margin-top: 5px;
@@ -24,4 +28,10 @@
 	flex-grow: 1;
 	box-sizing: border-box;
     width: calc(100% - 14px);
+}
+
+.bx-im-element-attach-type-ajax-link {
+	border-bottom: 1px dashed #2067b0;
+	color: #2067b0;
+	cursor: pointer;
 }

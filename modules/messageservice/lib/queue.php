@@ -179,7 +179,7 @@ class Queue
 					}
 					$notifyUpdateMessages[] = $toUpdate;
 				}
-				catch (\Exception $e)
+				catch (\Throwable $e)
 				{
 					$application = \Bitrix\Main\Application::getInstance();
 					$exceptionHandler = $application->getExceptionHandler();

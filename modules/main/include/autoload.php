@@ -145,6 +145,8 @@ Loader::registerAutoLoadClasses(
 		"CLanguage" => "classes/general/language.php",
 		"CLangAdmin" => "classes/general/language.php",
 		"_CLangDBResult" => "classes/general/langdbresult.php",
+		"CAllAgent" => "classes/general/agent.php",
+		"CAgent" => "classes/mysql/agent.php",
 	)
 );
 

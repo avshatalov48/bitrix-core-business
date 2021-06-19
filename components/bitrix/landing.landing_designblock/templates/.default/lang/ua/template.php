@@ -1,0 +1,7 @@
+<?php
+$MESS["LANDING_TPL_CLOSE"] = "Закрити";
+$MESS["LANDING_TPL_FEEDBACK"] = "Зворотний зв'язок";
+$MESS["LANDING_TPL_SAVE"] = "Зберегти";
+$MESS["LANDING_TPL_START_PAGE_LOGO"] = "Бітрікс";
+$MESS["LANDING_TPL_START_PAGE_LOGO_24"] = "24";
+$MESS["LANDING_TPL_START_PAGE_LOGO_SMN"] = "Сайти";

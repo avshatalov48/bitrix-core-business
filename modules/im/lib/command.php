@@ -660,6 +660,7 @@ class Command
 			Array('COMMAND' => 'loud', 'TITLE' => Loc::getMessage("COMMAND_DEF_LOUD_TITLE"), 'PARAMS' => Loc::getMessage("COMMAND_DEF_LOUD_PARAMS"), 'HIDDEN' => 'N', 'EXTRANET_SUPPORT' => 'Y'),
 			Array('COMMAND' => '>>', 'TITLE' => Loc::getMessage("COMMAND_DEF_QUOTE_TITLE"), 'PARAMS' => Loc::getMessage("COMMAND_DEF_QUOTE_PARAMS"), 'HIDDEN' => 'N', 'EXTRANET_SUPPORT' => 'Y'),
 			Array('COMMAND' => 'rename', 'TITLE' => Loc::getMessage("COMMAND_DEF_RENAME_TITLE"), 'PARAMS' => Loc::getMessage("COMMAND_DEF_RENAME_PARAMS"), 'HIDDEN' => 'N', 'EXTRANET_SUPPORT' => 'Y', 'CATEGORY' => Loc::getMessage("COMMAND_DEF_CATEGORY_CHAT"), 'CONTEXT' => 'chat'),
+			Array('COMMAND' => 'getDialogId', 'TITLE' => Loc::getMessage("COMMAND_DEF_DIALOGID_TITLE"), 'HIDDEN' => 'N', 'EXTRANET_SUPPORT' => 'N', 'CATEGORY' => Loc::getMessage("COMMAND_DEF_CATEGORY_CHAT")),
 			Array('COMMAND' => 'webrtcDebug', 'TITLE' => Loc::getMessage("COMMAND_DEF_WD_TITLE"), 'HIDDEN' => 'N', 'EXTRANET_SUPPORT' => 'Y', 'CATEGORY' => Loc::getMessage("COMMAND_DEF_CATEGORY_DEBUG"), 'CONTEXT' => 'call'),
 		);
 
@@ -706,7 +707,7 @@ class Command
 	public static function getListCache($lang = LANGUAGE_ID)
 	{
 		$cache = \Bitrix\Main\Data\Cache::createInstance();
-		if($cache->initCache(self::CACHE_TTL, 'list_v4_'.$lang, self::CACHE_PATH))
+		if($cache->initCache(self::CACHE_TTL, 'list_v5_'.$lang, self::CACHE_PATH))
 		{
 			$result = $cache->getVars();
 		}

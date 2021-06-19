@@ -58,4 +58,3 @@ class CCommentBase
 		$this->handlers = [];
 	}
 }
-?>

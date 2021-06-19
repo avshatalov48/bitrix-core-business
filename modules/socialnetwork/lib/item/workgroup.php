@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -39,7 +40,7 @@ class Workgroup
 		static $cachedFields = array();
 
 		$groupItem = false;
-		$groupId = intval($groupId);
+		$groupId = (int)$groupId;
 
 		if ($groupId > 0)
 		{
@@ -102,7 +103,7 @@ class Workgroup
 	{
 		return (
 			isset($this->fields['PROJECT'])
-			&& $this->fields['PROJECT'] == 'Y'
+			&& $this->fields['PROJECT'] === 'Y'
 		);
 	}
 
@@ -131,10 +132,8 @@ class Workgroup
 				in_array($scrumTaskResponsible, $availableResponsibleTypes) ? $scrumTaskResponsible : 'A'
 			);
 		}
-		else
-		{
-			return 'A';
-		}
+
+		return 'A';
 	}
 
 	public static function getListSprintDuration(): array
@@ -307,13 +306,13 @@ class Workgroup
 	{
 		if (
 			!isset($section['ID'])
-			|| intval($section['ID']) <= 0
+			|| (int)$section['ID'] <= 0
 			|| !isset($section['IBLOCK_ID'])
-			|| intval($section['IBLOCK_ID']) <= 0
+			|| (int)$section['IBLOCK_ID'] <= 0
 			|| $section['IBLOCK_ID'] != Option::get('intranet', 'iblock_structure', 0)
 			|| (
 				isset($section['ACTIVE'])
-				&& $section['ACTIVE'] == 'N'
+				&& $section['ACTIVE'] === 'N'
 			)
 		)
 		{
@@ -343,9 +342,9 @@ class Workgroup
 	{
 		if(
 			!isset($section['ID'])
-			|| intval($section['ID']) <= 0
+			|| (int)$section['ID'] <= 0
 			|| !isset($section['IBLOCK_ID'])
-			|| intval($section['IBLOCK_ID']) <= 0
+			|| (int)$section['IBLOCK_ID'] <= 0
 			|| $section['IBLOCK_ID'] != Option::get('intranet', 'iblock_structure', 0)
 		)
 		{
@@ -357,7 +356,7 @@ class Workgroup
 
 		if (
 			isset($section['ACTIVE'])
-			&& $section['ACTIVE'] == 'N'
+			&& $section['ACTIVE'] === 'N'
 		)
 		{
 			self::disconnectSection($section['ID']);
@@ -384,7 +383,7 @@ class Workgroup
 			$oldGroupsIdToCheckList = array_unique($oldGroupsIdToCheckList);
 			foreach($oldGroupsIdToCheckList as $groupId)
 			{
-				$groupItem = \Bitrix\Socialnetwork\Item\Workgroup::getById($groupId, false);
+				$groupItem = self::getById($groupId, false);
 				$groupItem->syncDeptConnection(true);
 			}
 		}
@@ -394,7 +393,7 @@ class Workgroup
 			$newGroupsIdToCheckList = array_unique($newGroupsIdToCheckList);
 			foreach($newGroupsIdToCheckList as $groupId)
 			{
-				$groupItem = \Bitrix\Socialnetwork\Item\Workgroup::getById($groupId, false);
+				$groupItem = self::getById($groupId, false);
 				$groupItem->syncDeptConnection();
 			}
 		}
@@ -413,11 +412,11 @@ class Workgroup
 		if (
 			!($section = $res->fetch())
 			|| !isset($section['IBLOCK_ID'])
-			|| intval($section['IBLOCK_ID']) <= 0
+			|| (int)$section['IBLOCK_ID'] <= 0
 			|| $section['IBLOCK_ID'] != Option::get('intranet', 'iblock_structure', 0)
 			|| (
 				isset($section['ACTIVE'])
-				&& $section['ACTIVE'] == 'N'
+				&& $section['ACTIVE'] === 'N'
 			)
 		)
 		{
@@ -443,13 +442,13 @@ class Workgroup
 		return true;
 	}
 
-	function onAfterIBlockSectionDelete($section)
+	public static function onAfterIBlockSectionDelete($section)
 	{
 		if(
 			!isset($section['ID'])
-			|| intval($section['ID']) <= 0
+			|| (int)$section['ID'] <= 0
 			|| !isset($section['IBLOCK_ID'])
-			|| intval($section['IBLOCK_ID']) <= 0
+			|| (int)$section['IBLOCK_ID'] <= 0
 			|| $section['IBLOCK_ID'] != Option::get('intranet', 'iblock_structure', 0)
 		)
 		{
@@ -463,7 +462,7 @@ class Workgroup
 			$groupsToCheck = array_unique(self::$groupsIdToCheckList);
 			foreach($groupsToCheck as $groupId)
 			{
-				$groupItem = \Bitrix\Socialnetwork\Item\Workgroup::getById($groupId, false);
+				$groupItem = self::getById($groupId, false);
 				$groupItem->syncDeptConnection();
 			}
 		}
@@ -494,7 +493,7 @@ class Workgroup
 				'UF_SG_DEPT' => $departmentListNew
 			));
 
-			$groupItem = \Bitrix\Socialnetwork\Item\Workgroup::getById($group['ID'], false);
+			$groupItem = self::getById($group['ID'], false);
 			$groupItem->syncDeptConnection(true);
 		}
 	}
@@ -744,6 +743,166 @@ class Workgroup
 		return $result;
 	}
 
+	public static function getPresets($params = array())
+	{
+		static $intranetInstalled = null;
+		static $extranetInstalled = null;
+		static $landingInstalled = null;
+
+		if ($intranetInstalled === null)
+		{
+			$intranetInstalled = ModuleManager::isModuleInstalled('intranet');
+		}
+
+		if ($extranetInstalled === null)
+		{
+			$extranetInstalled = (
+				ModuleManager::isModuleInstalled('extranet')
+				&& Option::get("extranet", "extranet_site") <> ''
+			);
+		}
+
+		if ($landingInstalled === null)
+		{
+			$landingInstalled = ModuleManager::isModuleInstalled('landing');
+		}
+
+		$currentExtranetSite = (
+			!empty($params)
+			&& isset($params["currentExtranetSite"])
+			&& $params["currentExtranetSite"]
+		);
+
+		$entityOptions = (
+			!empty($params)
+			&& is_array($params['entityOptions'])
+			&& !empty($params['entityOptions'])
+				? $params['entityOptions']
+				: []
+		);
+
+		$fullMode = (
+			!empty($params)
+			&& isset($params["fullMode"])
+			&& $params["fullMode"]
+		);
+
+		$result = [];
+		$sort = 0;
+
+		$useProjects = $intranetInstalled && self::checkEntityOption([ 'project' ], $entityOptions);
+
+		if (!$currentExtranetSite)
+		{
+			if (self::checkEntityOption([ 'open', '!extranet', '!landing' ], $entityOptions))
+			{
+				$result['project-open'] = [
+					'SORT' => $sort += 10,
+					'NAME' => ($intranetInstalled ? Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_OPEN') : Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_OPEN')),
+					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_OPEN_DESC'),
+					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_OPEN_DESC2'),
+					'VISIBLE' => 'Y',
+					'OPENED' => 'Y',
+					'PROJECT' => ($useProjects ? 'Y' : 'N' ),
+					'EXTERNAL' => 'N',
+					'TILE_CLASS' => 'social-group-tile-item-cover-open ' . ($intranetInstalled ? 'social-group-tile-item-icon-project-open' : 'social-group-tile-item-icon-group-open')
+				];
+			}
+
+			if (self::checkEntityOption([ '!open', '!extranet', '!landing' ], $entityOptions))
+			{
+				$result['project-closed'] = [
+					'SORT' => $sort += 10,
+					'NAME' => ($intranetInstalled ? Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_CLOSED') : Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED')),
+					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_CLOSED_DESC'),
+					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_CLOSED_DESC'),
+					'VISIBLE' => 'N',
+					'OPENED' => 'N',
+					'PROJECT' => ($useProjects ? 'Y' : 'N' ),
+					'EXTERNAL' => 'N',
+					'TILE_CLASS' => 'social-group-tile-item-cover-close ' . ($intranetInstalled ? 'social-group-tile-item-icon-project-close' : 'social-group-tile-item-icon-group-close')
+				];
+			}
+
+			if (
+				$useProjects
+				&& Option::get('tasks', 'tasks_scrum_enabled', 'N') === 'Y'
+				&& self::checkEntityOption([ 'project', 'scrum', '!extranet', '!landing' ], $entityOptions)
+			)
+			{
+				$result['project-scrum'] = [
+					'SORT' => $sort += 10,
+					'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM'),
+					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_DESC'),
+					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_DESC'),
+					'VISIBLE' => 'N',
+					'OPENED' => 'N',
+					'PROJECT' => 'Y',
+					'SCRUM_PROJECT' => 'Y',
+					'EXTERNAL' => 'N',
+					'TILE_CLASS' => 'social-group-tile-item-cover-scrum social-group-tile-item-icon-project-scrum'
+				];
+			}
+
+			if (
+				$fullMode
+				&& self::checkEntityOption([ '!open', '!extranet', '!landing' ], $entityOptions)
+			)
+			{
+				$result['project-closed-visible'] = [
+					'SORT' => $sort += 10,
+					'NAME' => ($intranetInstalled ? Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_CLOSED_VISIBLE') : Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE')),
+					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_CLOSED_VISIBLE_DESC'),
+					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_CLOSED_VISIBLE_DESC'),
+					'VISIBLE' => 'Y',
+					'OPENED' => 'N',
+					'PROJECT' => ($useProjects ? 'Y' : 'N' ),
+					'EXTERNAL' => 'N',
+					'TILE_CLASS' => ''
+				];
+			}
+		}
+
+		if (
+			$extranetInstalled
+			&& self::checkEntityOption([ 'extranet', '!landing' ], $entityOptions)
+		)
+		{
+			$result['project-external'] = [
+				'SORT' => $sort += 10,
+				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_EXTERNAL'),
+				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_EXTERNAL_DESC'),
+				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GP_EXTERNAL_DESC'),
+				'VISIBLE' => 'N',
+				'OPENED' => 'N',
+				'PROJECT' => ($useProjects ? 'Y' : 'N' ),
+				'EXTERNAL' => 'Y',
+				'TILE_CLASS' => 'social-group-tile-item-cover-outer social-group-tile-item-icon-project-outer'
+			];
+		}
+
+		if (
+			$landingInstalled
+			&& self::checkEntityOption([ '!project', 'landing', '!extranet' ], $entityOptions)
+		)
+		{
+			$result['group-landing'] = [
+				'SORT' => $sort += 10,
+				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING'),
+				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC'),
+				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC'),
+				'VISIBLE' => 'N',
+				'OPENED' => 'N',
+				'PROJECT' => 'N',
+				'EXTERNAL' => 'N',
+				'LANDING' => 'Y',
+				'TILE_CLASS' => 'social-group-tile-item-cover-public social-group-tile-item-icon-group-public'
+			];
+		}
+
+		return $result;
+	}
+
 	private static function checkEntityOption(array $keysList = [], array $entityOptions = [])
 	{
 		$result = true;
@@ -896,18 +1055,18 @@ class Workgroup
 				}
 				if (!empty($tagList))
 				{
-					$content .= ' '.join(' ', $tagList);
+					$content .= ' '.implode(' ', $tagList);
 				}
 			}
 
 			if (
 				!empty($groupFieldsList['OWNER_ID'])
-				&& intval($groupFieldsList['OWNER_ID']) > 0
+				&& (int)$groupFieldsList['OWNER_ID'] > 0
 			)
 			{
 				$res = Main\UserTable::getList(array(
 					'filter' => array(
-						'ID' => intval($groupFieldsList['OWNER_ID'])
+						'ID' => (int)$groupFieldsList['OWNER_ID']
 					),
 					'select' => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL')
 				));
@@ -1062,7 +1221,7 @@ class Workgroup
 		}
 
 		if (
-			!in_array(\CBitrix24::getLicenseType(), array('project'), true)
+			\CBitrix24::getLicenseType() !== 'project'
 			|| !Option::get('socialnetwork', 'demo_edit_features', false)
 		)
 		{

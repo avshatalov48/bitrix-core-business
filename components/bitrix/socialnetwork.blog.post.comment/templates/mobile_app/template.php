@@ -48,7 +48,8 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 						: $arResult["newCount"]
 				)
 		),
-
+		"WARNING_CODE" => ($arResult["WARNING_CODE"] ?: ''),
+		"WARNING_MESSAGE" => ($arResult["WARNING_MESSAGE"] ?: ''),
 		"ERROR_MESSAGE" => ($arResult["ERROR_MESSAGE"] ?: $arResult["COMMENT_ERROR"]),
 		"OK_MESSAGE" => $arResult["MESSAGE"],
 		"RESULT" => ($arResult["ajax_comment"] ?: $_GET["commentId"]),
@@ -127,14 +128,15 @@ elseif ($arResult["CanUserComment"] == "Y")
 	$arResult["OUTPUT_LIST"]["HTML"] .= ob_get_clean();
 }
 
-if ($_REQUEST["empty_get_comments"] == "Y")
+if ($_REQUEST['empty_get_comments'] === 'Y')
 {
 	$APPLICATION->RestartBuffer();
 	while(ob_get_clean());
 	\CMain::finalActions(Json::encode([
-		"TEXT" => $arResult["OUTPUT_LIST"]["HTML"],
-		"POST_NUM_COMMENTS" => intval($arResult["Post"]["NUM_COMMENTS"]),
-		"POST_PERM" => $arResult["PostPerm"]
+		'TEXT' => $arResult['OUTPUT_LIST']['HTML'],
+		'POST_NUM_COMMENTS' => (int)$arResult['Post']['NUM_COMMENTS'],
+		'POST_PERM' => $arResult['PostPerm'],
+		'TS' => time(),
 	]));
 	die();
 }

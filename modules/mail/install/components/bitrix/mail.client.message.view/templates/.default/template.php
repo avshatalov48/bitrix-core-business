@@ -30,7 +30,7 @@ if (SITE_TEMPLATE_ID == 'bitrix24' || $_REQUEST['IFRAME'] == 'Y' && $_REQUEST['I
 
 <div class="pagetitle-container mail-pagetitle-flexible-space"></div>
 <div class="mail-msg-header-group">
-	<? if (!empty($message['BIND_LINKS']) && !empty(@call_user_func_array('array_merge', (array) $message['BIND_LINKS']))): ?>
+	<? if (!empty($message['BIND_LINKS']) && !empty(@call_user_func_array('array_merge', array_values((array) $message['BIND_LINKS'])))): ?>
 		<div class="mail-msg-header-control-item mail-msg-header-control-select" id="mail-msg-additional-switch">
 			<div class="mail-msg-header-control-text"><?=Loc::getMessage('MAIL_MESSAGE_EXT_BLOCK_LINK') ?></div>
 			<div class="mail-msg-header-control-triangle"></div>

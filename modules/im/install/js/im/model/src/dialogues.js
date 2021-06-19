@@ -51,11 +51,13 @@ export class DialoguesModel extends VuexBuilderModel
 			chatId: 0,
 			counter: 0,
 			userCounter: 0,
+			messageCount: 0,
 			unreadId: 0,
-			unreadLastId: 0,
+			lastMessageId: 0,
 			managerList: [],
 			readedList: [],
 			writingList: [],
+			muteList: [],
 			textareaMessage: "",
 			quoteId: 0,
 			editId: 0,
@@ -319,19 +321,17 @@ export class DialoguesModel extends VuexBuilderModel
 					increasedCounter = 100;
 				}
 
-				let fields = {
-					counter: increasedCounter
-				};
-
-				if (typeof payload.unreadLastId !== 'undefined')
-				{
-					fields.unreadLastId = payload.unreadLastId;
-				}
+				const userId = store.rootState.application?.common.userId;
+				const dialogMuted = userId && store.state.collection[payload.dialogId].muteList.includes(userId);
 
 				store.commit('update', {
 					actionName: 'increaseCounter',
 					dialogId : payload.dialogId,
-					fields
+					dialogMuted,
+					fields: {
+						counter: increasedCounter,
+						previousCounter: counter
+					}
 				});
 
 				return false;
@@ -366,22 +366,49 @@ export class DialoguesModel extends VuexBuilderModel
 					|| store.state.collection[payload.dialogId].counter !== decreasedCounter
 				)
 				{
+					const previousCounter = store.state.collection[payload.dialogId].counter;
 					if (decreasedCounter === 0)
 					{
 						unreadId = 0;
 					}
 
+					const userId = store.rootState.application?.common.userId;
+					const dialogMuted = userId && store.state.collection[payload.dialogId].muteList.includes(userId);
+
 					store.commit('update', {
 						actionName: 'decreaseCounter',
 						dialogId : payload.dialogId,
+						dialogMuted,
 						fields : {
 							counter: decreasedCounter,
-							unreadId: unreadId
+							previousCounter,
+							unreadId
 						}
 					});
 				}
 
 				return false;
+			},
+
+			increaseMessageCounter: (store, payload) =>
+			{
+				if (
+					typeof store.state.collection[payload.dialogId] === 'undefined'
+					|| store.state.collection[payload.dialogId].init === false
+				)
+				{
+					return true;
+				}
+
+				const currentCounter = store.state.collection[payload.dialogId].messageCount;
+
+				store.commit('update', {
+					actionName: 'increaseMessageCount',
+					dialogId : payload.dialogId,
+					fields : {
+						messageCount: currentCounter + payload.count,
+					}
+				});
 			},
 
 			saveDialog: (store, payload) =>
@@ -587,6 +614,15 @@ export class DialoguesModel extends VuexBuilderModel
 			result.userCounter = parseInt(fields.userCounter);
 		}
 
+		if (typeof fields.message_count === "number" || typeof fields.message_count === "string")
+		{
+			result.messageCount = parseInt(fields.message_count);
+		}
+		if (typeof fields.messageCount === "number" || typeof fields.messageCount === "string")
+		{
+			result.messageCount = parseInt(fields.messageCount);
+		}
+
 		if (typeof fields.unread_id !== 'undefined')
 		{
 			fields.unreadId = fields.unread_id;
@@ -596,13 +632,13 @@ export class DialoguesModel extends VuexBuilderModel
 			result.unreadId = parseInt(fields.unreadId);
 		}
 
-		if (typeof fields.unread_last_id !== 'undefined')
+		if (typeof fields.last_message_id !== 'undefined')
 		{
-			fields.unreadLastId = fields.unread_last_id;
+			fields.lastMessageId = fields.last_message_id;
 		}
-		if (typeof fields.unreadLastId === "number" || typeof fields.unreadLastId === "string")
+		if (typeof fields.lastMessageId === "number" || typeof fields.lastMessageId === "string")
 		{
-			result.unreadLastId = parseInt(fields.unreadLastId);
+			result.lastMessageId = parseInt(fields.lastMessageId);
 		}
 
 		if (typeof fields.readed_list !== 'undefined')
@@ -711,6 +747,19 @@ export class DialoguesModel extends VuexBuilderModel
 					if (userId > 0)
 					{
 						result.muteList.push(userId);
+					}
+				});
+			}
+			else if (typeof fields.muteList === 'object')
+			{
+				Object.entries(fields.muteList).forEach(entry => {
+					if (entry[1] === true)
+					{
+						const userId = parseInt(entry[0]);
+						if (userId > 0)
+						{
+							result.muteList.push(userId);
+						}
 					}
 				});
 			}

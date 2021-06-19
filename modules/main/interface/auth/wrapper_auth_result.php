@@ -28,6 +28,8 @@ if ($arAuthResult['CAPTCHA'])
 	$arAuthResult['CAPTCHA_CODE'] = $APPLICATION->CaptchaGetCode();
 }
 
+$arAuthResult['MESSAGE'] = str_replace('<br>', '', $arAuthResult['MESSAGE']);
+
 if ($bOnHit):
 ?>
 <script type="text/javascript">

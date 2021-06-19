@@ -7,11 +7,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 Loc::loadLanguageFile(__FILE__);
 
-return array(
+return [
 	'name' => Loc::getMessage('LANDING_DEMO_EASTER1_TITLE'),
 	'description' => Loc::getMessage('LANDING_DEMO_EASTER1_DESCRIPTION'),
-	'fields' => array(
-		'ADDITIONAL_FIELDS' => array(
+	'fields' => [
+		'ADDITIONAL_FIELDS' => [
 			'THEME_CODE' => 'accounting',
 
 		    'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/holidays/holiday.easter1/preview.jpg',
@@ -19,16 +19,16 @@ return array(
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_EASTER1_DESCRIPTION'),
 			'METAMAIN_TITLE' => Loc::getMessage('LANDING_DEMO_EASTER1_TITLE'),
 			'METAMAIN_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_EASTER1_DESCRIPTION')
-		)
-	),
+		]
+	],
 	'available' => true,
-	'active' => \LandingSiteDemoComponent::checkActive(array(
-		'ONLY_IN' => array(),
-		'EXCEPT' => array('kz','ua', 'cn', 'tr')
-	)),
-	'items' => array (
+	'active' => \LandingSiteDemoComponent::checkActive([
+		'ONLY_IN' => [],
+		'EXCEPT' => ['kz','ua', 'cn', 'tr']
+	]),
+	'items' => [
 		'0.menu_17_restaurant' =>
-			array (
+			[
 				'CODE' => '0.menu_17_restaurant',
 				'SORT' => '-100',
 				'CONTENT' => '
@@ -81,9 +81,9 @@ return array(
 		</nav>
 	</div>
 </header>',
-			),
+			],
 		'41.1.big_image_slider_with_texts' =>
-			array (
+			[
 				'CODE' => '41.1.big_image_slider_with_texts',
 				'SORT' => '500',
 				'CONTENT' => '<section class="landing-block">
@@ -112,49 +112,40 @@ return array(
 		
 	</div>
 </section>',
-			),
+			],
 		'10.2.two_cols_big_img_text_and_text_blocks_2' =>
-			array (
+			[
 				'CODE' => '10.2.two_cols_big_img_text_and_text_blocks_2',
 				'SORT' => '1000',
 				'CONTENT' => '<section class="landing-block row no-gutters">
         <div class="landing-block-node-texts col-lg-7 g-pt-100 g-pb-80 g-px-15 g-px-40--md g-bg-primary">
             <header class="landing-block-node-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
-                <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-mb-20 g-color-white-opacity-0_8 text-left">About us</h4>
+                <h6 class="landing-block-node-subtitle g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-mb-20 g-color-white-opacity-0_8 text-left">About us</h6>
                 <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-color-white g-mb-minus-10 text-left g-font-size-50--md text-uppercase g-font-size-35">we are the best<br /></h2>
             </header>
-
 			<div class="landing-block-node-text g-color-white-opacity-0_8 text-left"><p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros, fringilla porttitor lorem eros vel.</p><p><span style="font-size: 1rem;">Fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros, fringilla porttitor lorem eros vel.</span><br /></p></div>
-
             <div class="row align-items-stretch">
-
-            
-
-            
-
-            
-
             </div>
         </div>
 
 		<div class="landing-block-node-img col-lg-5 g-min-height-360 g-bg-img-hero" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/844x526/img1.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb"></div>
     </section>',
-			),
+			],
 		'04.1.one_col_fix_with_title' =>
-			array (
+			[
 				'CODE' => '04.1.one_col_fix_with_title',
 				'SORT' => '2000',
 				'CONTENT' => '<section class="landing-block g-pt-55 g-pb-30 js-animation fadeInUp">
         <div class="container">
             <div class="landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-primary">
-                <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">Our products</h4>
+                <h6 class="landing-block-node-subtitle g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">Our products</h6>
                 <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-font-size-40 g-mb-minus-10 text-uppercase">Choose your egg<br /></h2>
             </div>
         </div>
     </section>',
-			),
+			],
 		'42.1.rest_menu' =>
-			array (
+			[
 				'CODE' => '42.1.rest_menu',
 				'SORT' => '2500',
 				'CONTENT' => '<section class="landing-block g-pt-20 g-pb-20">
@@ -175,7 +166,7 @@ return array(
 							<!-- Article Content -->
 							<div class="media-body align-self-center g-pl-10">
 								<div class="d-flex justify-content-between u-heading-v1-4 g-bg-main g-brd-gray-light-v4 g-mb-8">
-									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0">with flowers</h3>
+									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-font-weight-700 g-font-size-13 text-uppercase mb-0">with flowers</h3>
 
 									<div class="align-self-center g-pos-rel g-bg-main g-pl-15">
 										<div class="landing-block-node-card-price g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12">$12</div>
@@ -201,7 +192,7 @@ return array(
 							<!-- Article Content -->
 							<div class="media-body align-self-center g-pl-10">
 								<div class="d-flex justify-content-between u-heading-v1-4 g-bg-main g-brd-gray-light-v4 g-mb-8">
-									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0">blue-green streaks<br /></h3>
+									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-font-weight-700 g-font-size-13 text-uppercase mb-0">blue-green streaks<br /></h3>
 
 									<div class="align-self-center g-pos-rel g-bg-main g-pl-15">
 										<div class="landing-block-node-card-price g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12">$10</div>
@@ -227,7 +218,7 @@ return array(
 							<!-- Article Content -->
 							<div class="media-body align-self-center g-pl-10">
 								<div class="d-flex justify-content-between u-heading-v1-4 g-bg-main g-brd-gray-light-v4 g-mb-8">
-									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0">multicolor streaks</h3>
+									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-font-weight-700 g-font-size-13 text-uppercase mb-0">multicolor streaks</h3>
 
 									<div class="align-self-center g-pos-rel g-bg-main g-pl-15">
 										<div class="landing-block-node-card-price g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12">$11</div>
@@ -253,7 +244,7 @@ return array(
 							<!-- Article Content -->
 							<div class="media-body align-self-center g-pl-10">
 								<div class="d-flex justify-content-between u-heading-v1-4 g-bg-main g-brd-gray-light-v4 g-mb-8">
-									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0">blue<br /></h3>
+									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-font-weight-700 g-font-size-13 text-uppercase mb-0">blue<br /></h3>
 
 									<div class="align-self-center g-pos-rel g-bg-main g-pl-15">
 										<div class="landing-block-node-card-price g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12">$16</div>
@@ -279,7 +270,7 @@ return array(
 							<!-- Article Content -->
 							<div class="media-body align-self-center g-pl-10">
 								<div class="d-flex justify-content-between u-heading-v1-4 g-bg-main g-brd-gray-light-v4 g-mb-8">
-									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0">polka-dot</h3>
+									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-font-weight-700 g-font-size-13 text-uppercase mb-0">polka-dot</h3>
 
 									<div class="align-self-center g-pos-rel g-bg-main g-pl-15">
 										<div class="landing-block-node-card-price g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12">$14</div>
@@ -305,7 +296,7 @@ return array(
 							<!-- Article Content -->
 							<div class="media-body align-self-center g-pl-10">
 								<div class="d-flex justify-content-between u-heading-v1-4 g-bg-main g-brd-gray-light-v4 g-mb-8">
-									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0">pink</h3>
+									<h3 class="landing-block-node-card-title align-self-center u-heading-v1__title g-font-weight-700 g-font-size-13 text-uppercase mb-0">pink</h3>
 
 									<div class="align-self-center g-pos-rel g-bg-main g-pl-15">
 										<div class="landing-block-node-card-price g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12">$15</div>
@@ -326,29 +317,21 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'41.2.text_bolcks_slider_on_color_bg' =>
-			array (
+			[
 				'CODE' => '41.2.text_bolcks_slider_on_color_bg',
 				'SORT' => '3000',
 				'CONTENT' => '<section class="g-bg-primary g-py-100">
 	<div class="container">
 		<section class="js-carousel" data-vertical="true" data-pagi-classes="u-carousel-indicators-v7 text-center">
-			
-
-			
-
-			
-
-			
-
 			<div class="landing-block-node-card js-slide">
 				<!-- Article -->
 				<article class="row flex-items-middle text-center">
 					<div class="col-lg-6 align-self-center g-mb-50">
-						<div class="text-uppercase text-center u-heading-v5-3 u-heading-v5-color-primary u-heading-v5-rounded-50x g-mb-20">
+						<div class="text-uppercase text-center g-mb-20">
 							<h4 class="landing-block-node-card-subtitle g-font-weight-700 g-font-size-12 g-color-white-opacity-0_7 g-mb-15">chef\'s special</h4>
-							<h2 class="landing-block-node-card-title u-heading-v5__title g-line-height-1_2 g-font-weight-700 g-color-white g-bg-white--before g-pb-40 g-font-size-38 text-uppercase js-animation fadeInLeft">sugar rabbit and cake<br /></h2>
+							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white g-bg-white--before u-heading-v2-12--1 g-mb-40 g-brd-white text-center">sugar rabbit and cake<br /></h2>
 						</div>
 
 						<div class="landing-block-node-card-text g-px-70--md g-color-white-opacity-0_7 g-mb-25 js-animation fadeIn">
@@ -374,15 +357,15 @@ return array(
 		</section>
 	</div>
 </section>',
-			),
+			],
 		'05.features_4_cols_with_title' =>
-			array (
+			[
 				'CODE' => '05.features_4_cols_with_title',
 				'SORT' => '3500',
 				'CONTENT' => '<section class="landing-block g-py-80">
         <div class="container">
             <div class="landing-block-node-header text-uppercase text-center u-heading-v2-4--bottom g-brd-primary g-mb-80 js-animation fadeIn">
-                <h4 class="landing-block-node-title h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">other cake&amp;#039;s shapes</h4>
+                <h6 class="landing-block-node-title g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">other cake&amp;#039;s shapes</h6>
                 <h2 class="landing-block-node-subtitle h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-font-size-38">CHOOSE ANYTHING YOU LIKE</h2>
             </div>
 
@@ -394,8 +377,8 @@ return array(
 					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
 					  <i class="landing-block-node-element-icon icon-science-100 u-line-icon-pro"></i>
 					</span>
-                        <h3 class="landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10">moon shape</h3>
-                        <div class="landing-block-node-element-text g-color-gray-dark-v4 g-font-size-13--md"><span style="color: rgb(167, 167, 167); font-family: Montserrat, Helvetica, Arial, sans-serif;"> Vivamus a fringilla lorem, vel faucibus ante.</span></div>
+                        <h5 class="landing-block-node-element-title text-uppercase g-mb-10">moon shape</h5>
+                        <div class="landing-block-node-element-text g-font-size-13--md"><span style="color: rgb(167, 167, 167); font-family: Montserrat, Helvetica, Arial, sans-serif;"> Vivamus a fringilla lorem, vel faucibus ante.</span></div>
 
                         <div class="landing-block-node-element-separator d-inline-block g-width-40 g-brd-bottom g-brd-2 g-brd-primary g-my-15"></div>
 
@@ -410,8 +393,8 @@ return array(
 					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
 					  <i class="landing-block-node-element-icon icon-media-119 u-line-icon-pro"></i>
 					</span>
-                        <h3 class="landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10">star shape</h3>
-                        <div class="landing-block-node-element-text g-color-gray-dark-v4 g-font-size-13--md"><span style="color: rgb(167, 167, 167); font-family: Montserrat, Helvetica, Arial, sans-serif;"> Vivamus a fringilla lorem, vel faucibus ante.</span></div>
+                        <h5 class="landing-block-node-element-title text-uppercase g-mb-10">star shape</h5>
+                        <div class="landing-block-node-element-text g-font-size-13--md"><span style="color: rgb(167, 167, 167); font-family: Montserrat, Helvetica, Arial, sans-serif;"> Vivamus a fringilla lorem, vel faucibus ante.</span></div>
 
                         <div class="landing-block-node-element-separator d-inline-block g-width-40 g-brd-bottom g-brd-2 g-brd-primary g-my-15"></div>
 
@@ -426,8 +409,8 @@ return array(
 					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
 					  <i class="landing-block-node-element-icon icon-medical-022 u-line-icon-pro"></i>
 					</span>
-                        <h3 class="landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10">heart shape</h3>
-                        <div class="landing-block-node-element-text g-color-gray-dark-v4 g-font-size-13--md"><span style="color: rgb(167, 167, 167); font-family: Montserrat, Helvetica, Arial, sans-serif;"> Vivamus a fringilla lorem, vel faucibus ante.</span></div>
+                        <h5 class="landing-block-node-element-title text-uppercase g-mb-10">heart shape</h5>
+                        <div class="landing-block-node-element-text g-font-size-13--md"><span style="color: rgb(167, 167, 167); font-family: Montserrat, Helvetica, Arial, sans-serif;"> Vivamus a fringilla lorem, vel faucibus ante.</span></div>
 
                         <div class="landing-block-node-element-separator d-inline-block g-width-40 g-brd-bottom g-brd-2 g-brd-primary g-my-15"></div>
 
@@ -442,8 +425,8 @@ return array(
 					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
 					  <i class="landing-block-node-element-icon icon-finance-145 u-line-icon-pro"></i>
 					</span>
-                        <h3 class="landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10">diamond shape</h3>
-                        <div class="landing-block-node-element-text g-color-gray-dark-v4 g-font-size-13--md"><span style="color: rgb(167, 167, 167); font-family: Montserrat, Helvetica, Arial, sans-serif;"> Vivamus a fringilla lorem, vel faucibus ante.</span></div>
+                        <h5 class="landing-block-node-element-title text-uppercase g-mb-10">diamond shape</h5>
+                        <div class="landing-block-node-element-text g-font-size-13--md"><span style="color: rgb(167, 167, 167); font-family: Montserrat, Helvetica, Arial, sans-serif;"> Vivamus a fringilla lorem, vel faucibus ante.</span></div>
 
                         <div class="landing-block-node-element-separator d-inline-block g-width-40 g-brd-bottom g-brd-2 g-brd-primary g-my-15"></div>
 
@@ -455,22 +438,22 @@ return array(
             <!-- End Icon Blocks -->
         </div>
     </section>',
-			),
+			],
 		'04.1.one_col_fix_with_title@2' =>
-			array (
+			[
 				'CODE' => '04.1.one_col_fix_with_title',
 				'SORT' => '4000',
 				'CONTENT' => '<section class="landing-block g-bg-primary g-pt-55 g-pb-30 js-animation fadeInUp">
         <div class="container">
             <div class="landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-primary">
-                <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-mb-20 g-color-white-opacity-0_8">special offers</h4>
+                <h6 class="landing-block-node-subtitle g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-mb-20 g-color-white-opacity-0_8">special offers</h6>
                 <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-color-white g-font-size-38">easter cookies<br /></h2>
             </div>
         </div>
     </section>',
-			),
+			],
 		'28.3.team' =>
-			array (
+			[
 				'CODE' => '28.3.team',
 				'SORT' => '4500',
 				'CONTENT' => '<section class="landing-block g-py-30 g-pb-80--md g-pb-0 g-pt-65">
@@ -496,8 +479,8 @@ return array(
 
 					<!-- Figure Info -->
 					<div class="landing-block-node-employee-post d-block text-uppercase g-font-style-normal g-font-weight-700 g-font-size-11 g-color-primary g-mb-5">$20</div>
-					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">green cookie</h4>
-					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-mb-7">green cookie</h4>
+					<div class="landing-block-node-employee-subtitle g-font-size-13 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
 					<!-- End Figure Info-->
 				</div>
 			</div>
@@ -520,8 +503,8 @@ return array(
 
 					<!-- Figure Info -->
 					<div class="landing-block-node-employee-post d-block text-uppercase g-font-style-normal g-font-weight-700 g-font-size-11 g-color-primary g-mb-5">$35</div>
-					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">yellow cookie</h4>
-					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-mb-7">yellow cookie</h4>
+					<div class="landing-block-node-employee-subtitle g-font-size-13 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
 					<!-- End Figure Info-->
 				</div>
 			</div>
@@ -544,8 +527,8 @@ return array(
 
 					<!-- Figure Info -->
 					<div class="landing-block-node-employee-post d-block text-uppercase g-font-style-normal g-font-weight-700 g-font-size-11 g-color-primary g-mb-5">$40</div>
-					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">blue cookie</h4>
-					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-mb-7">blue cookie</h4>
+					<div class="landing-block-node-employee-subtitle g-font-size-13 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
 					<!-- End Figure Info-->
 				</div>
 			</div>
@@ -568,8 +551,8 @@ return array(
 
 					<!-- Figure Info -->
 					<div class="landing-block-node-employee-post d-block text-uppercase g-font-style-normal g-font-weight-700 g-font-size-11 g-color-primary g-mb-5">$15</div>
-					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">pink cookie</h4>
-					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-mb-7">pink cookie</h4>
+					<div class="landing-block-node-employee-subtitle g-font-size-13 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
 					<!-- End Figure Info-->
 				</div>
 			</div>
@@ -577,9 +560,9 @@ return array(
 		<!-- End Team Block -->
 	</div>
 </section>',
-			),
+			],
 		'04.7.one_col_fix_with_title_and_text_2' =>
-			array (
+			[
 				'CODE' => '04.7.one_col_fix_with_title_and_text_2',
 				'SORT' => '5000',
 				'CONTENT' => '<section class="landing-block g-py-20 g-pb-30 g-bg-main g-pt-0 js-animation fadeInUp">
@@ -588,16 +571,14 @@ return array(
 
             <div class="landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary">
                 <h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-mb-15 g-color-primary">BOOKING FORM</h4>
-                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-mb-minus-10 g-color-black-opacity-0_8 g-font-size-38">Contact us</h2>
+                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-mb-minus-10 g-font-size-38">Contact us</h2>
             </div>
-
-			<div class="landing-block-node-text g-color-gray-dark-v5"><p>Etiam ultrices lacus ut ligula vestibulum, sit amet mattis nunc elementum. Nam arcu enim, euismod nec purus non, aliquam congue ante. Nulla faucibus enim mauris, fringilla mollis ligula sollicitudin mollis.</p></div>
+			<div class="landing-block-node-text"><p>Etiam ultrices lacus ut ligula vestibulum, sit amet mattis nunc elementum. Nam arcu enim, euismod nec purus non, aliquam congue ante. Nulla faucibus enim mauris, fringilla mollis ligula sollicitudin mollis.</p></div>
         </div>
-
     </section>',
-			),
+			],
 		'33.23.form_2_themecolor_no_text' =>
-			array (
+			[
 				'CODE' => '33.23.form_2_themecolor_no_text',
 				'SORT' => '5500',
 				'CONTENT' => '<section class="g-pos-rel landing-block g-pt-80 g-pb-80 g-bg-primary">
@@ -616,20 +597,20 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'17.copyright' =>
-			array (
+			[
 				'CODE' => '17.copyright',
 				'SORT' => '6000',
 				'CONTENT' => '<section class="landing-block js-animation animation-none">
-	<div class="text-center g-color-gray-dark-v3 g-pa-10">
+	<div class="text-center g-pa-10">
 		<div class="g-width-600 mx-auto">
 			<div class="landing-block-node-text g-font-size-12  js-animation animation-none">
-				<p>&copy; 2018 all rights reserved.</p>
+				<p>&copy; 2021 all rights reserved.</p>
 			</div>
 		</div>
 	</div>
 </section>',
-			),
-	),
-);
+			],
+	],
+];

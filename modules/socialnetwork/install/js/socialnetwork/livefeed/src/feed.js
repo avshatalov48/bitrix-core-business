@@ -1,6 +1,7 @@
 import {Type, Loc, ajax, Event} from "main.core";
 import {PinnedPanel} from "./pinned";
 import {Post} from "./post";
+import {Informer} from "./informer";
 
 import './css/feed.css';
 import './css/gratitude.css';
@@ -11,13 +12,21 @@ class Feed
 {
 	constructor()
 	{
-		this.init();
 		this.entryData = {};
+		this.feedInitialized = false;
 	}
 
 	init()
 	{
+		if (this.feedInitialized)
+		{
+			return;
+		}
 
+		PinnedPanelInstance.init();
+		InformerInstance.init();
+
+		this.feedInitialized = true;
 	}
 
 	changeFollow(params)
@@ -235,16 +244,19 @@ class Feed
 let FeedInstance = null;
 let PinnedPanelInstance = null;
 let PostInstance = null;
+let InformerInstance = null;
 
 Event.ready(() =>
 {
 	FeedInstance = new Feed();
 	PinnedPanelInstance = new PinnedPanel();
 	PostInstance = new Post();
+	InformerInstance = new Informer();
 });
 
 export {
 	FeedInstance,
 	PinnedPanelInstance,
-	PostInstance
+	PostInstance,
+	InformerInstance,
 };

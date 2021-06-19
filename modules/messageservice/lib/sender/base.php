@@ -52,6 +52,48 @@ abstract class Base
 	abstract public function canUse();
 
 	abstract public function getFromList();
+	
+	/**
+	 * Get default From.
+	 * @return null|string
+	 */
+	public function getDefaultFrom()
+	{
+		$fromList = $this->getFromList();
+		$from = isset($fromList[0]) ? $fromList[0]['id'] : null;
+		//Try to find alphanumeric from
+		foreach ($fromList as $item)
+		{
+			if (!preg_match('#^[0-9]+$#', $item['id']))
+			{
+				$from = $item['id'];
+				break;
+			}
+		}
+		return $from;
+	}
+
+	/**
+	 * @return mixed|null
+	 */
+	public function getFirstFromList()
+	{
+		$fromList = $this->getFromList();
+		if (!is_array($fromList))
+		{
+			return null;
+		}
+
+		foreach ($fromList as $item)
+		{
+			if (isset($item['id']) && $item['id'])
+			{
+				return $item['id'];
+			}
+		}
+
+		return null;
+	}
 
 	/**
 	 * @param string $from

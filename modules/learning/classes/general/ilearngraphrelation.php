@@ -168,7 +168,7 @@ final class CLearnGraphRelation implements ILearnGraphRelation
 		return (self::_ListImmediateNeighbours ($nodeId, self::NBRS_IMDT_PARENTS | self::NBRS_IMDT_CHILDS));
 	}
 
-	protected function _ListImmediateNeighbours ($nodeId, $bitmaskSearchMode)
+	protected static function _ListImmediateNeighbours ($nodeId, $bitmaskSearchMode)
 	{
 		global $DB;
 

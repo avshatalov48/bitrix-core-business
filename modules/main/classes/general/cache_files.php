@@ -1,4 +1,4 @@
-<?
+<?php
 /*********************************************************************
 						Caching
 *********************************************************************/
@@ -286,7 +286,7 @@ class CPHPCacheFiles
 		return false;
 	}
 
-	function DeleteOneDir($etime = 0)
+	public static function DeleteOneDir($etime = 0)
 	{
 		global $DB;
 		$bDeleteFromQueue = false;
@@ -327,17 +327,12 @@ class CPHPCacheFiles
 
 			if($bDeleteFromQueue)
 			{
-				$DB->Query("
-					DELETE FROM b_cache_tag
-					WHERE SITE_ID = '".$DB->ForSQL($ar["SITE_ID"])."'
-					AND CACHE_SALT = '".$DB->ForSQL($ar["CACHE_SALT"])."'
-					AND RELATIVE_PATH = '".$DB->ForSQL($ar["RELATIVE_PATH"])."'
-				");
+				$DB->Query("DELETE FROM b_cache_tag WHERE ID = ".intval($ar["ID"]));
 			}
 		}
 	}
 
-	function DelayedDelete($count = 1, $level = 1)
+	public static function DelayedDelete($count = 1, $level = 1)
 	{
 		global $DB;
 
@@ -402,4 +397,3 @@ class CPHPCacheFiles
 			return "";
 	}
 }
-?>

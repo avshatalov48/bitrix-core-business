@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale;
 use Bitrix\Sale\Internals;
@@ -23,7 +24,7 @@ class CAllSaleOrder
 	 * @param $arWarnings
 	 * @return array|null
 	 */
-	static function DoCalculateOrder($siteId, $userId, $arShoppingCart, $personTypeId, $arOrderPropsValues,
+	public static function DoCalculateOrder($siteId, $userId, $arShoppingCart, $personTypeId, $arOrderPropsValues,
 		$deliveryId, $paySystemId, $arOptions, &$arErrors, &$arWarnings)
 	{
 		if(!is_array($arErrors))
@@ -166,7 +167,7 @@ class CAllSaleOrder
 	 *
 	 * @return array
 	 */
-	static function makeOrderArray($siteId, $userId = null, array $shoppingCart, array $options = array())
+	public static function makeOrderArray($siteId, $userId = null, array $shoppingCart, array $options = array())
 	{
 		// calculate weight for set parent
 		$parentWeight = array();
@@ -218,6 +219,7 @@ class CAllSaleOrder
 
 		return $arOrder;
 	}
+
 	/**
 	 * calculate the cost according to the order basket
 	 * @param array $arBasketItems
@@ -422,7 +424,7 @@ class CAllSaleOrder
 
 			CSaleBasket::DoSaveOrderBasket($orderId, $arOrder["SITE_ID"], $arOrder["USER_ID"], $arOrder["BASKET_ITEMS"], $arErrors, $arCoupons, $arStoreBarcodeOrderFormData, $bSaveBarcodes);
 
-			CSaleTax::DoSaveOrderTax($orderId, $arOrder["TAX_LIST"], $arErrors);
+			CSaleTax::DoSaveOrderTax($orderId, $arOrder["TAX_LIST"]);
 			CSaleOrderProps::DoSaveOrderProps($orderId, $arOrder["PERSON_TYPE_ID"], $arOrder["ORDER_PROP"], $arErrors);
 			Sale\DiscountCouponsManager::finalApply();
 			Sale\DiscountCouponsManager::saveApplied();
@@ -442,7 +444,7 @@ class CAllSaleOrder
 	 * @param int $userID
 	 * @return bool
 	 */
-	function CanUserViewOrder($ID, $arUserGroups = false, $userID = 0)
+	public static function CanUserViewOrder($ID, $arUserGroups = false, $userID = 0)
 	{
 		$ID = intval($ID);
 		$userID = intval($userID);
@@ -457,7 +459,7 @@ class CAllSaleOrder
 	 * @param bool $siteID
 	 * @return bool
 	 */
-	static function CanUserUpdateOrder($ID, $arUserGroups = false, $siteID = false)
+	public static function CanUserUpdateOrder($ID, $arUserGroups = false, $siteID = false)
 	{
 		$ID = intval($ID);
 
@@ -512,7 +514,7 @@ class CAllSaleOrder
 	 * @param int $userID
 	 * @return bool
 	 */
-	static function CanUserCancelOrder($ID, $arUserGroups = false, $userID = 0)
+	public static function CanUserCancelOrder($ID, $arUserGroups = false, $userID = 0)
 	{
 		$ID = intval($ID);
 		$userID = intval($userID);
@@ -527,7 +529,7 @@ class CAllSaleOrder
 	 * @param int $userID
 	 * @return bool
 	 */
-	function CanUserMarkOrder($ID, $arUserGroups = false, $userID = 0)
+	public static function CanUserMarkOrder($ID, $arUserGroups = false, $userID = 0)
 	{
 		$ID = intval($ID);
 		$userID = intval($userID);
@@ -542,7 +544,7 @@ class CAllSaleOrder
 	 * @param bool|array $arUserGroups
 	 * @return bool
 	 */
-	function CanUserChangeOrderFlag($ID, $flag, $arUserGroups = false)
+	public static function CanUserChangeOrderFlag($ID, $flag, $arUserGroups = false)
 	{
 		$ID = intval($ID);
 		$flag = trim($flag);
@@ -598,7 +600,7 @@ class CAllSaleOrder
 	 * @param bool|array $arUserGroups
 	 * @return bool
 	 */
-	function CanUserChangeOrderStatus($ID, $statusID, $arUserGroups = false)
+	public static function CanUserChangeOrderStatus($ID, $statusID, $arUserGroups = false)
 	{
 		$ID = intval($ID);
 		$statusID = Trim($statusID);
@@ -661,7 +663,7 @@ class CAllSaleOrder
 	 * @param int $userID
 	 * @return bool
 	 */
-	static function CanUserDeleteOrder($ID, $arUserGroups = false, $userID = 0)
+	public static function CanUserDeleteOrder($ID, $arUserGroups = false, $userID = 0)
 	{
 		$ID = intval($ID);
 		$userID = intval($userID);
@@ -670,9 +672,8 @@ class CAllSaleOrder
 		return (isset($permList[$ID]) && $permList[$ID] === true);
 	}
 
-
 	//*************** ADD, UPDATE, DELETE *********************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $USER_FIELD_MANAGER, $DB, $APPLICATION;
 
@@ -841,7 +842,7 @@ class CAllSaleOrder
 		return True;
 	}
 
-	function _Delete($ID)
+	public static function _Delete($ID)
 	{
 		global $DB, $USER_FIELD_MANAGER;
 
@@ -909,7 +910,7 @@ class CAllSaleOrder
 		return $bSuccess;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $APPLICATION;
 		$ID = (int)$ID;
@@ -1246,7 +1247,12 @@ class CAllSaleOrder
 						{
 							if ($arFields[$key]["TYPE"] == "int")
 							{
-								array_walk($vals, create_function("&\$item", "\$item=IntVal(\$item);"));
+								array_walk(
+									$vals,
+									function (&$item) {
+										$item = (int)$item;
+									}
+								);
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
@@ -1257,7 +1263,12 @@ class CAllSaleOrder
 							}
 							elseif ($arFields[$key]["TYPE"] == "double")
 							{
-								array_walk($vals, create_function("&\$item", "\$item=DoubleVal(\$item);"));
+								array_walk(
+									$vals,
+									function (&$item) {
+										$item = (float)$item;
+									}
+								);
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
@@ -1268,7 +1279,12 @@ class CAllSaleOrder
 							}
 							elseif ($arFields[$key]["TYPE"] == "string" || $arFields[$key]["TYPE"] == "char")
 							{
-								array_walk($vals, create_function("&\$item", "\$item=\"'\".\$GLOBALS[\"DB\"]->ForSql(\$item).\"'\";"));
+								array_walk(
+									$vals,
+									function (&$item) {
+										$item = "'".$GLOBALS["DB"]->ForSql($item)."'";
+									}
+								);
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
@@ -1279,7 +1295,12 @@ class CAllSaleOrder
 							}
 							elseif ($arFields[$key]["TYPE"] == "datetime")
 							{
-								array_walk($vals, create_function("&\$item", "\$item=\"'\".\$GLOBALS[\"DB\"]->CharToDateFunction(\$GLOBALS[\"DB\"]->ForSql(\$item), \"FULL\").\"'\";"));
+								array_walk(
+									$vals,
+									function (&$item) {
+										$item = $GLOBALS["DB"]->CharToDateFunction($item, "FULL");
+									}
+								);
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
@@ -1290,7 +1311,12 @@ class CAllSaleOrder
 							}
 							elseif ($arFields[$key]["TYPE"] == "date")
 							{
-								array_walk($vals, create_function("&\$item", "\$item=\"'\".\$GLOBALS[\"DB\"]->CharToDateFunction(\$GLOBALS[\"DB\"]->ForSql(\$item), \"SHORT\").\"'\";"));
+								array_walk(
+									$vals,
+									function (&$item) {
+										$item = $GLOBALS["DB"]->CharToDateFunction($item, "SHORT");
+									}
+								);
 								$vals = array_unique($vals);
 								$val = implode(",", $vals);
 
@@ -1638,7 +1664,7 @@ class CAllSaleOrder
 		return true;
 	}
 
-	function OnBeforeUserDelete($userID)
+	public static function OnBeforeUserDelete($userID)
 	{
 		global $APPLICATION;
 
@@ -1671,7 +1697,7 @@ class CAllSaleOrder
 	}
 
 	//*************** ACTIONS *********************/
-	function PayOrder($ID, $val, $bWithdraw = True, $bPay = True, $recurringID = 0, $arAdditionalFields = array())
+	public static function PayOrder($ID, $val, $bWithdraw = True, $bPay = True, $recurringID = 0, $arAdditionalFields = array())
 	{
 		global $DB, $USER, $APPLICATION;
 
@@ -1873,7 +1899,7 @@ class CAllSaleOrder
 		return $res;
 	}
 
-	function DeliverOrder($ID, $val, $recurringID = 0, $arAdditionalFields = array())
+	public static function DeliverOrder($ID, $val, $recurringID = 0, $arAdditionalFields = array())
 	{
 		global $DB, $USER, $APPLICATION;
 
@@ -2045,7 +2071,7 @@ class CAllSaleOrder
 		return $res;
 	}
 
-	function DeductOrder($ID, $val, $description = "", $bAutoDeduction = true, $arStoreBarcodeOrderFormData = array(), $recurringID = 0)
+	public static function DeductOrder($ID, $val, $description = "", $bAutoDeduction = true, $arStoreBarcodeOrderFormData = array(), $recurringID = 0)
 	{
 		global $DB, $USER, $APPLICATION;
 
@@ -2162,7 +2188,7 @@ class CAllSaleOrder
 
 	}
 
-	function ReserveOrder($ID, $val)
+	public static function ReserveOrder($ID, $val)
 	{
 		global $APPLICATION;
 
@@ -2247,7 +2273,7 @@ class CAllSaleOrder
 		return $res;
 	}
 
-	function CancelOrder($ID, $val, $description = "")
+	public static function CancelOrder($ID, $val, $description = "")
 	{
 		global $DB, $USER, $APPLICATION;
 
@@ -2393,7 +2419,7 @@ class CAllSaleOrder
 		return $res;
 	}
 
-	function StatusOrder($ID, $val)
+	public static function StatusOrder($ID, $val)
 	{
 		global $DB, $USER, $APPLICATION;
 
@@ -2433,7 +2459,7 @@ class CAllSaleOrder
 		return $res;
 	}
 
-	function CommentsOrder($ID, $val)
+	public static function CommentsOrder($ID, $val)
 	{
 		$ID = intval($ID);
 		$val = Trim($val);
@@ -2448,8 +2474,7 @@ class CAllSaleOrder
 		return $res;
 	}
 
-
-	function Lock($ID)
+	public static function Lock($ID)
 	{
 		global $DB;
 
@@ -2466,7 +2491,7 @@ class CAllSaleOrder
 //		return CSaleOrder::Update($ID, $arFields, false);
 	}
 
-	function UnLock($ID)
+	public static function UnLock($ID)
 	{
 		$ID = intval($ID);
 		if ($ID <= 0)
@@ -2494,7 +2519,7 @@ class CAllSaleOrder
 		return False;
 	}
 
-	function IsLocked($ID, &$lockedBY, &$dateLock)
+	public static function IsLocked($ID, &$lockedBY, &$dateLock)
 	{
 		$ID = intval($ID);
 
@@ -2505,7 +2530,7 @@ class CAllSaleOrder
 		return false;
 	}
 
-	function RemindPayment()
+	public static function RemindPayment()
 	{
 		$reminder = COption::GetOptionString("sale", "pay_reminder", "");
 		$arReminder = unserialize($reminder, ['allowed_classes' => false]);
@@ -2513,7 +2538,7 @@ class CAllSaleOrder
 		if(!empty($arReminder))
 		{
 			$arSites = Array();
-			$minDay = mktime();
+			$minDay = time();
 			foreach($arReminder as $key => $val)
 			{
 				if($val["use"] == "Y" && $val["frequency"] > 0)
@@ -2524,7 +2549,7 @@ class CAllSaleOrder
 					for($i=0; $i <= floor($val["period"] / $val["frequency"]); $i++)
 					{
 						$day = AddToTimeStamp(Array("DD" => -($val["after"] + $val["period"] - $val["frequency"]*$i)));
-						if($day < mktime())
+						if($day < time())
 						{
 							if($minDay > $day)
 								$minDay = $day;
@@ -2747,7 +2772,7 @@ class CAllSaleOrder
 		return $value;
 	}
 
-	function __SaleOrderCount($arFilter, $strCurrency = '')
+	public static function __SaleOrderCount($arFilter, $strCurrency = '')
 	{
 		$mxResult = false;
 		if (is_array($arFilter) && !empty($arFilter))
@@ -2826,7 +2851,6 @@ class CAllSaleOrder
 		return $mxResult;
 	}
 
-
 	/**
 	* @deprecated Use CSaleOrderChange::GetList instead
 	* The function selects order history
@@ -2838,7 +2862,7 @@ class CAllSaleOrder
 	* @param array $arSelectFields - array to selectes fields
 	* @return object $dbRes - object result
 	*/
-	public function GetHistoryList($arOrder = array("ID"=>"DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetHistoryList($arOrder = array("ID"=>"DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -3379,4 +3403,3 @@ class CAllSaleOrder
 		return $output;
 	}
 }
-?>

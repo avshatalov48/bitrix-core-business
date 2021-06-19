@@ -1,6 +1,6 @@
 import {Vuex} from 'ui.vue.vuex';
 import {Menu, Popup} from 'main.popup';
-import {ajax, Event, Loc, Tag, Text} from 'main.core';
+import {ajax, Event, Loc, Tag, Text, Type} from 'main.core';
 import {Vue} from "ui.vue";
 import {config} from "../config";
 
@@ -77,7 +77,6 @@ Vue.component(config.templateProductAddName,
 			if (index < 0)
 			{
 				const productData = response.data;
-
 				const price = Text.toNumber(productData.fields.PRICE);
 				productData.fields = productData.fields || {};
 				let newItem = this.$store.getters['productList/getBaseProduct']();
@@ -90,6 +89,8 @@ Vue.component(config.templateProductAddName,
 					skuId: productData.skuId,
 					offerId: productData.skuId > 0 ? productData.skuId : productData.productId,
 					module: 'catalog',
+					isCustomPrice: Type.isNil(productData.fields.PRICE) ? 'Y' : 'N',
+					discountType: this.options.defaultDiscountType,
 				});
 
 				delete(productData.fields);
@@ -158,13 +159,13 @@ Vue.component(config.templateProductAddName,
 				autoHide: true,
 				closeByEsc: true,
 				closeIcon: true,
-				titleBar: Loc.getMessage('SALESCENTER_PRODUCT_BLOCK_PROD_EXIST_DLG_TITLE'),
+				titleBar: Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_TITLE'),
 				draggable: true,
 				resizable: false,
 				lightShadow: true,
 				cacheable: false,
 				overlay: true,
-				content: Loc.getMessage('SALESCENTER_PRODUCT_BLOCK_PROD_EXIST_DLG_TEXT').replace('#NAME#', params.name),
+				content: Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_TEXT').replace('#NAME#', params.name),
 				buttons: this.getButtons(params),
 			});
 
@@ -177,7 +178,7 @@ Vue.component(config.templateProductAddName,
 			buttons.push(
 				new BX.UI.SaveButton(
 					{
-						text : Loc.getMessage('SALESCENTER_PRODUCT_BLOCK_PROD_EXIST_DLG_OK'),
+						text : Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_OK'),
 						onclick: () => {
 							let productId = parseInt(params.id);
 							let inx = this.getInternalIndexByProductId(productId);
@@ -197,7 +198,7 @@ Vue.component(config.templateProductAddName,
 			buttons.push(
 				new BX.UI.CancelButton(
 					{
-						text : Loc.getMessage('SALESCENTER_PRODUCT_BLOCK_PROD_EXIST_DLG_NO'),
+						text : Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_NO'),
 						onclick: () => {this.popup.destroy()}
 					}
 				)

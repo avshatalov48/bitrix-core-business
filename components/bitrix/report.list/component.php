@@ -212,7 +212,7 @@ while ($report = $queryObject->fetch())
 	if($userId == $report['CREATED_BY'])
 		continue;
 
-	$users = CUser::getList($by='id', $order='asc', array('ID' => $report['CREATED_BY']),
+	$users = CUser::getList('id', 'asc', array('ID' => $report['CREATED_BY']),
 		array('FIELDS' => array('ID', 'NAME', 'LAST_NAME')));
 	if($user = $users->fetch())
 	{

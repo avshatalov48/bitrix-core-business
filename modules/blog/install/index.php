@@ -13,7 +13,7 @@ Class blog extends CModule
 	var $MODULE_CSS;
 	var $MODULE_GROUP_RIGHTS = "Y";
 
-	function blog()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -135,7 +135,7 @@ Class blog extends CModule
 		return $errors;
 	}
 
-	function InstallUserFields($id = "all")
+	public static function InstallUserFields($id = "all")
 	{
 		global $USER_FIELD_MANAGER;
 		$errors = null;
@@ -280,7 +280,7 @@ Class blog extends CModule
 
 		if (empty($errors))
 		{
-			$errors = $this->InstallUserFields();
+			$errors = static::InstallUserFields();
 		}
 
 		if (!empty($errors))
@@ -482,7 +482,8 @@ Class blog extends CModule
 
 		$arSite = Array();
 		$public_installed = false;
-		$dbSites = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+
+		$dbSites = CSite::GetList('', '', Array("ACTIVE" => "Y"));
 		while ($site = $dbSites->Fetch())
 		{
 			$arSite[] = Array(

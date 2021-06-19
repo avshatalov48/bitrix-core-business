@@ -29,16 +29,6 @@ class CIBlockResult extends CDBResult
 		parent::__construct($res);
 	}
 
-	/**
-	 * @deprected
-	 *
-	 * @param $res
-	 */
-	function CIBlockResult($res)
-	{
-		self::__construct($res);
-	}
-
 	function SetUrlTemplates($DetailUrl = "", $SectionUrl = "", $ListUrl = "")
 	{
 		$this->strDetailUrl = $DetailUrl;

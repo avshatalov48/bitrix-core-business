@@ -1,7 +1,7 @@
 import {ConfirmDeleteDialog} from "calendar.controls";
-import {Util} from "calendar.util";
+import {Util} from 'calendar.util';
 import {EntryManager} from "./entrymanager";
-import {Type} from 'main.core';
+import { Type, Dom } from 'main.core';
 
 export {EntryManager};
 
@@ -17,13 +17,16 @@ export class Entry
 		{
 			this.setUserIndex(options.userIndex);
 		}
-		//this.uid = this.calendar.entryController.getUniqueId(data, this);
+
+		this.delayTimeoutMap = new Map();
 	}
 
 	prepareData(data)
 	{
 		this.data = data;
-		this.id = this.data.ID || 0;
+		// this.id = this.data.ID || 0;
+		this.id = parseInt(this.data.ID || 0);
+		this.parentId = parseInt(this.data.PARENT_ID || 0);
 
 		if (!this.data.DT_SKIP_TIME)
 		{
@@ -31,7 +34,6 @@ export class Entry
 		}
 
 		this.fullDay = this.data.DT_SKIP_TIME === 'Y';
-		this.parentId = this.data.PARENT_ID || 0;
 		this.accessibility = this.data.ACCESSIBILITY || 'busy';
 		this.important = this.data.IMPORTANCE === 'high';
 		this.private = !!this.data.PRIVATE_EVENT;
@@ -132,21 +134,25 @@ export class Entry
 
 	getAttendees()
 	{
-		if (!this.attendeeList && Type.isArray(this.data['ATTENDEE_LIST']))
+		if (!this.attendeeList)
 		{
 			this.attendeeList = [];
-			const userIndex = this.getUserIndex();
-			this.data['ATTENDEE_LIST'].forEach((user) => {
-				if (userIndex[user.id])
-				{
-					let attendee = BX.clone(userIndex[user.id]);
-					attendee.STATUS = user.status;
-					attendee.ENTRY_ID = user.entryId || false;
-					this.attendeeList.push(attendee);
-				}
-			});
+			if (Type.isArray(this.data['ATTENDEE_LIST']))
+			{
+				const userIndex = this.getUserIndex();
+				this.data['ATTENDEE_LIST'].forEach((user) => {
+					if (userIndex[user.id])
+					{
+						let attendee = BX.clone(userIndex[user.id]);
+						attendee.STATUS = user.status;
+						attendee.ENTRY_ID = user.entryId || false;
+						this.attendeeList.push(attendee);
+					}
+				});
+			}
 		}
-		return this.attendeeList || [];
+
+		return this.attendeeList;
 	}
 
 	setUserIndex(userIndex)
@@ -196,15 +202,9 @@ export class Entry
 		//return this.calendar.sectionController.getSection(this.sectionId).name || '';
 	}
 
-	getDescription(callback)
+	getDescription():string
 	{
-		if (this.data.DESCRIPTION && this.data['~DESCRIPTION'] && Type.isFunction(callback))
-		{
-			setTimeout(function()
-			{
-				callback(this.data['~DESCRIPTION']);
-			}.bind(this), 50);
-		}
+		return this.data.DESCRIPTION || '';
 	}
 
 	applyViewRange(viewRange)
@@ -369,44 +369,64 @@ export class Entry
 		this.selected = true;
 	}
 
-	deleteParts()
+	deleteParts(recursionMode)
 	{
-		if (Type.isArray(this.parts))
+		const calendarContext = Util.getCalendarContext();
+		if (calendarContext)
 		{
-			this.parts.forEach(function(part){
-				if (part.params)
-				{
-					if (part.params.wrapNode)
-					{
-						part.params.wrapNode.style.opacity = 0;
-					}
-				}
-			}, this);
+			const wrap = calendarContext.getView().getContainer();
 
-			setTimeout(function(){
-				this.parts.forEach(function(part){
-					if (part.params)
+			if (recursionMode === 'all')
+			{
+				calendarContext.getView().entries.forEach((entry) => {
+					if (parseInt(entry.id) === this.id
+						|| parseInt(entry.data.RECURRENCE_ID) === this.id
+						|| parseInt(entry.data.RECURRENCE_ID) === parseInt(this.data.RECURRENCE_ID)
+						|| parseInt(entry.id) === parseInt(this.data.RECURRENCE_ID)
+					)
 					{
-						if (part.params.wrapNode)
+						const entryPart = wrap.querySelector('div[data-bx-calendar-entry="' + entry.uid + '"]');
+						if (entryPart)
 						{
-							BX.remove(part.params.wrapNode);
+							entryPart.style.opacity = 0;
+							setTimeout(()=>{entryPart.style.display = 'none';}, 200);
 						}
 					}
-				}, this);
-			}.bind(this), 300);
+				});
+			}
+			else if (recursionMode === 'next')
+			{
+				calendarContext.getView().entries.forEach((entry) => {
+					if ((parseInt(entry.id) === this.id
+						|| parseInt(entry.data.RECURRENCE_ID) === this.id
+						|| parseInt(entry.data.RECURRENCE_ID) === parseInt(this.data.RECURRENCE_ID)
+						|| parseInt(entry.id) === parseInt(this.data.RECURRENCE_ID))
+						&& entry.from.getTime() > this.from.getTime()
+					)
+					{
+						const entryPart = wrap.querySelector('div[data-bx-calendar-entry="' + entry.uid + '"]');
+						if (entryPart)
+						{
+							entryPart.style.opacity = 0;
+							setTimeout(()=>{entryPart.style.display = 'none';}, 200);
+						}
+					}
+				});
+			}
+			else if (recursionMode === 'this' || !recursionMode)
+			{
+				const parts = wrap.querySelectorAll('div[data-bx-calendar-entry="' + this.getUniqueId() + '"]');
+				parts.forEach((entryPart)=>{
+					entryPart.style.opacity = 0;
+					setTimeout(()=>{entryPart.style.display = 'none';}, 200);
+				});
+			}
 		}
 	}
 
 	getUniqueId()
 	{
-		let sid = this.data.PARENT_ID || this.data.PARENT_ID;
-		if (this.isRecursive())
-			sid += '|' + this.data.DT_FROM_TS;
-
-		if (this.data['~TYPE'] === 'tasks')
-			sid += '|' + 'task';
-
-		return sid;
+		return EntryManager.getEntryUniqueId(this.data, this);
 	}
 
 	getCurrentStatus()
@@ -439,6 +459,10 @@ export class Entry
 					}
 				}
 			}
+		}
+		else if (userId === parseInt(this.data.CREATED_BY))
+		{
+			status = this.data.MEETING_STATUS || 'H';
 		}
 
 		return Util.getMeetingStatusList().includes(status) ? status : false;
@@ -544,29 +568,31 @@ export class Entry
 		}
 		else
 		{
-			if (!params.confirmed
-				&& !confirm(BX.message('EC_DELETE_EVENT_CONFIRM'))
-			)
-			{
-				return false;
-			}
-
 			// Broadcast event
 			BX.onCustomEvent('BX.Calendar.Entry:beforeDelete', [{entryId: this.id, recursionMode: recursionMode}]);
 
-			this.deleteParts();
+			EntryManager.showDeleteEntryNotification(this);
+			this.deleteParts(recursionMode);
 
-			BX.ajax.runAction('calendar.api.calendarajax.deleteCalendarEntry', {
-				data: {
-					entryId: this.id,
-					recursionMode: params.recursionMode || false
-				}
-			}).then(
-				function (response)
-				{
-					BX.onCustomEvent('BX.Calendar.Entry:delete', [{entryId: this.id, recursionMode: recursionMode}]);
-				}.bind(this)
-			);
+			const action = 'deleteCalendarEntry';
+			const data = {
+				entryId: this.id,
+				recursionMode: params.recursionMode || false,
+				requestUid: Util.registerRequestId(),
+			};
+
+			EntryManager.registerDeleteTimeout({
+				action,
+				data,
+				params: {
+					entry: this,
+					callback: () => {
+						BX.onCustomEvent('BX.Calendar.Entry:delete', [{entryId: this.id, recursionMode: recursionMode}]);
+					}
+				}});
+
+			this.deleteTimeout = setTimeout(EntryManager.doDelayedActions, EntryManager.DELETE_DELAY_TIMEOUT);
+			this.delayTimeoutMap.set(this.deleteTimeout, {action, data});
 		}
 	}
 
@@ -576,18 +602,29 @@ export class Entry
 		if (this.isRecursive())
 		{
 			BX.onCustomEvent('BX.Calendar.Entry:beforeDelete', [{entryId: this.id, recursionMode: recursionMode}]);
-			BX.ajax.runAction('calendar.api.calendarajax.excludeRecursionDate', {
-				data: {
-					entryId: this.id,
-					excludeDate: this.data.DATE_FROM
-				}
-			}).then(
-				// Success
-				function (response)
-				{
-					BX.onCustomEvent('BX.Calendar.Entry:delete', [{entryId: this.id, recursionMode: recursionMode}]);
-				}.bind(this)
-			);
+
+			EntryManager.showDeleteEntryNotification(this);
+			this.deleteParts(recursionMode);
+
+			const action = 'excludeRecursionDate';
+			const data = {
+				entryId: this.id,
+				recursionMode: recursionMode,
+				excludeDate: this.data.DATE_FROM,
+			};
+
+			EntryManager.registerDeleteTimeout({
+				action,
+				data,
+				params: {
+					entry: this,
+					callback: () => {
+						BX.onCustomEvent('BX.Calendar.Entry:delete', [data]);
+					}
+				}});
+
+			this.deleteTimeout = setTimeout(EntryManager.doDelayedActions, EntryManager.DELETE_DELAY_TIMEOUT);
+			this.delayTimeoutMap.set(this.deleteTimeout, {action, data});
 		}
 		else if (this.hasRecurrenceId())
 		{
@@ -605,18 +642,34 @@ export class Entry
 		else
 		{
 			BX.onCustomEvent('BX.Calendar.Entry:beforeDelete', [{entryId: this.id, recursionMode: recursionMode}]);
-			BX.ajax.runAction('calendar.api.calendarajax.changeRecurciveEntryUntil', {
-				data: {
-					entryId: this.id,
-					untilDate: Util.formatDate(this.from.getTime() - Util.getDayLength())
-				}
-			}).then(
-				// Success
-				function (response)
-				{
-					BX.onCustomEvent('BX.Calendar.Entry:delete', [{entryId: this.id, recursionMode: recursionMode}]);
-				}.bind(this)
-			);
+
+			EntryManager.showDeleteEntryNotification(this);
+			this.deleteParts(recursionMode);
+
+			const calendarContext = Util.getCalendarContext();
+			if (calendarContext)
+			{
+
+			}
+
+			const action = 'changeRecurciveEntryUntil';
+			const data = {
+				entryId: this.id,
+				recursionMode: recursionMode,
+				untilDate: Util.formatDate(this.from.getTime() - Util.getDayLength()),
+			};
+			EntryManager.registerDeleteTimeout({
+				action,
+				data,
+				params: {
+					entry: this,
+					callback: () => {
+						BX.onCustomEvent('BX.Calendar.Entry:delete', [data]);
+					}
+				}});
+
+			this.deleteTimeout = setTimeout(EntryManager.doDelayedActions, EntryManager.DELETE_DELAY_TIMEOUT);
+			this.delayTimeoutMap.set(this.deleteTimeout, {action, data});
 		}
 	}
 
@@ -625,11 +678,33 @@ export class Entry
 		return this.delete({confirmed: true, recursionMode: 'all'});
 	}
 
+	cancelDelete()
+	{
+		if (this.deleteTimeout)
+		{
+			const deleteTimeoutData = this.delayTimeoutMap.get(this.deleteTimeout);
+			if (deleteTimeoutData)
+			{
+				EntryManager.unregisterDeleteTimeout(deleteTimeoutData);
+				this.delayTimeoutMap.delete(this.delayTimeoutMap);
+			}
+			clearTimeout(this.deleteTimeout);
+			this.deleteTimeout = null;
+		}
+
+		const calendarContext = Util.getCalendarContext();
+		if (calendarContext)
+		{
+			calendarContext.reload();
+		}
+	}
+
 	showConfirmDeleteDialog(params)
 	{
 		if (!this.confirmDeleteDialog)
 		{
-			this.confirmDeleteDialog = new ConfirmDeleteDialog({entry: params.entry});
+			this.confirmDeleteDialog = new (window.BX || window.top.BX).Calendar.Controls
+				.ConfirmDeleteDialog({entry: params.entry});
 		}
 		this.confirmDeleteDialog.show();
 	}

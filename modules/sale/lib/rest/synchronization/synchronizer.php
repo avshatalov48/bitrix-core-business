@@ -606,7 +606,7 @@ final class Synchronizer
 	protected static function getSites()
 	{
 		$result=[];
-		$r = \CSite::GetList($by,$order);
+		$r = \CSite::GetList();
 		while ($row = $r->fetch())
 			$result[$row['ID']]=$row;
 

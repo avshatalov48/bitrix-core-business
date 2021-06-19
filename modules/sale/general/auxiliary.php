@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 /***********************************************************************/
@@ -6,14 +7,14 @@ IncludeModuleLangFile(__FILE__);
 /***********************************************************************/
 class CAllSaleAuxiliary
 {
-	function PrepareItemMD54Where($val, $key, $operation, $negative, $field, &$arField, &$arFilter)
+	public static function PrepareItemMD54Where($val, $key, $operation, $negative, $field, &$arField, &$arFilter)
 	{
 		$val1 = md5($val);
 		return "(".($negative=="Y"?" A.ITEM_MD5 IS NULL OR NOT ":"")."(A.ITEM_MD5 ".$operation." '".$GLOBALS["DB"]->ForSql($val1)."' )".")";
 	}
 
 	//********** CHECK **************//
-	function CheckAccess($userID, $itemMD5, $periodLength, $periodType)
+	public static function CheckAccess($userID, $itemMD5, $periodLength, $periodType)
 	{
 		global $DB;
 
@@ -73,7 +74,7 @@ class CAllSaleAuxiliary
 	}
 
 	//********** ADD, UPDATE, DELETE **************//
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && intval($arFields["USER_ID"]) <= 0)
 		{
@@ -112,7 +113,7 @@ class CAllSaleAuxiliary
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -123,7 +124,7 @@ class CAllSaleAuxiliary
 		return $DB->Query("DELETE FROM b_sale_auxiliary WHERE ID = ".$ID." ", true);
 	}
 
-	function DeleteByUserID($userID)
+	public static function DeleteByUserID($userID)
 	{
 		global $DB;
 
@@ -135,7 +136,7 @@ class CAllSaleAuxiliary
 	}
 
 	//********** EVENTS **************//
-	function OnUserDelete($userID)
+	public static function OnUserDelete($userID)
 	{
 		$userID = intval($userID);
 
@@ -148,7 +149,7 @@ class CAllSaleAuxiliary
 	}
 
 	//********** AGENTS **************//
-	function DeleteOldAgent($periodLength, $periodType)
+	public static function DeleteOldAgent($periodLength, $periodType)
 	{
 		CSaleAuxiliary::DeleteByTime($periodLength, $periodType);
 
@@ -157,4 +158,3 @@ class CAllSaleAuxiliary
 		return 'CSaleAuxiliary::DeleteOldAgent('.$periodLength.', "'.$periodType.'");';
 	}
 }
-?>

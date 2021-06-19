@@ -118,7 +118,7 @@ class CAllStatEvent
 		{
 			if($url = @parse_url($referer_url))
 			{
-				$rs = CSite::GetList($v1="LENDIR", $v2="DESC", Array("ACTIVE"=>"Y", "DOMAIN"=>"%".$url["host"], "IN_DIR"=>$url["path"]));
+				$rs = CSite::GetList("LENDIR", "DESC", Array("ACTIVE"=>"Y", "DOMAIN"=>"%".$url["host"], "IN_DIR"=>$url["path"]));
 				$arr = $rs->Fetch();
 			}
 		}
@@ -456,11 +456,11 @@ class CAllStatEvent
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "EVENT3":

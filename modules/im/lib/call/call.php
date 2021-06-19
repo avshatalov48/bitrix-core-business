@@ -2,10 +2,8 @@
 
 namespace Bitrix\Im\Call;
 
-use Bitrix\Im\Call\Integration\Chat;
 use Bitrix\Im\Call\Integration\EntityFabric;
 use Bitrix\Im\Call\Integration\EntityType;
-use Bitrix\Im\ChatTable;
 use Bitrix\Im\Dialog;
 use Bitrix\Im\Model\AliasTable;
 use Bitrix\Im\Model\CallTable;
@@ -13,7 +11,6 @@ use Bitrix\Im\Model\CallUserTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Event;
@@ -293,9 +290,16 @@ class Call
 
 		$this->endDate = new DateTime();
 
-
 		if ($this->updateState(static::STATE_FINISHED))
 		{
+			$this->loadUsers();
+			foreach ($this->users as $callUser)
+			{
+				if ($callUser->getState() === CallUser::STATE_CALLING)
+				{
+					$callUser->updateState(CallUser::STATE_IDLE);
+				}
+			}
 			$this->getSignaling()->sendFinish();
 			$this->saveStat();
 		}

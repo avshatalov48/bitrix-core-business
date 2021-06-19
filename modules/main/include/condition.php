@@ -164,7 +164,7 @@ function ConditionJS($arOpt = array())
 	global $arConditionTypes, $arGroupsNames, $USER;
 
 	$arGroupsNames = array();
-	$dbGroups=CGroup::GetList(($b = "c_sort"), ($o = "asc"), Array("ANONYMOUS" => "N"));
+	$dbGroups=CGroup::GetList("c_sort", "asc", Array("ANONYMOUS" => "N"));
 	while ($arGroups = $dbGroups->Fetch())
 		$arGroupsNames[$arGroups["ID"]]=$arGroups["NAME"];
 

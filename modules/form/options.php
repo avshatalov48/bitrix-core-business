@@ -16,7 +16,7 @@ if ($FORM_RIGHT>="R") :
 if ($_SERVER['REQUEST_METHOD'] == "GET" && CForm::IsAdmin() && $RestoreDefaults <> '' && check_bitrix_sessid())
 {
 	COption::RemoveOption("form");
-	$z = CGroup::GetList($v1, $v2, array("ACTIVE" => "Y", "ADMIN" => "N"));
+	$z = CGroup::GetList('', '', array("ACTIVE" => "Y", "ADMIN" => "N"));
 	while($zr = $z->Fetch())
 	{
 		$APPLICATION->DelGroupRight($module_id, array($zr["ID"]));

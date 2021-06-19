@@ -186,7 +186,7 @@ class CloudStorage extends Storage implements Storable
 	 */
 	private function findBucket($file)
 	{
-		/** @noinspection PhpDynamicAsStaticMethodCallInspection */
+
 		$bucket = \CCloudStorage::findBucketForFile(array('FILE_SIZE' => $file['size'], 'MODULE_ID' => $this->moduleId), $file["name"]);
 		if(!$bucket || !$bucket->init())
 		{

@@ -431,9 +431,6 @@ class CHTMLEditor
 			$this->jsConfig["useFileDialogs"] = false;
 		}
 
-		if (isset($arParams["useLinkStat"]))
-			$this->jsConfig["useLinkStat"] = $arParams["useLinkStat"];
-
 		if (isset($arParams["showTaskbars"]))
 			$this->jsConfig["showTaskbars"] = $arParams["showTaskbars"];
 
@@ -962,7 +959,7 @@ class CHTMLEditor
 						"showAddToMenuTab" => false,
 						"fileFilter" => 'image',
 						"allowAllFiles" => true,
-						"SaveConfig" => true
+						"saveConfig" => true
 					)
 				);
 				CMedialib::ShowBrowseButton(

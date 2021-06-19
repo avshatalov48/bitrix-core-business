@@ -1452,10 +1452,11 @@ class CZip implements IBXArchive
 			$extract = false;
 
 			//look for the specific extract rules
-			if ((isset($arParams['by_name'])) && ($arParams['by_name'] != 0))
+			if ((isset($arParams['by_name'])) && is_array($arParams['by_name']))
 			{
 				//is filename in the list
-				for ($j = 0; ($j<sizeof($arParams['by_name'])) && (!$extract); $j++)
+				$count = count($arParams['by_name']);
+				for ($j = 0; $j < $count && !$extract; $j++)
 				{
 					//is directory
 					if (mb_substr($arParams['by_name'][$j], -1) == "/")
@@ -1481,10 +1482,10 @@ class CZip implements IBXArchive
 					$extract = true;
 				}
 			}
-			else if ((isset($arParams['by_index'])) && ($arParams['by_index'] != 0))
+			else if ((isset($arParams['by_index'])) && is_array($arParams['by_index']))
 			{
 				//extract by index rule (if index is in the list)
-				for ($j = $j_start; ($j<sizeof($arParams['by_index'])) && (!$extract); $j++)
+				for ($j = $j_start, $n = count($arParams['by_index']); $j < $n && !$extract; $j++)
 				{
 					if (($i>=$arParams['by_index'][$j]['start']) && ($i<=$arParams['by_index'][$j]['end']))
 					{
@@ -2125,10 +2126,10 @@ class CZip implements IBXArchive
 			$isFound = false;
 
 			//name rule
-			if ((isset($arParams['by_name'])) && ($arParams['by_name'] != 0))
+			if ((isset($arParams['by_name'])) && is_array($arParams['by_name']))
 			{
 				//if the filename is in the list
-				for ($j = 0; ($j<sizeof($arParams['by_name'])) && (!$isFound); $j++)
+				for ($j = 0, $n = count($arParams['by_name']); $j < $n && !$isFound; $j++)
 				{
 					if (mb_substr($arParams['by_name'][$j], -1) == "/")
 					{
@@ -2158,10 +2159,10 @@ class CZip implements IBXArchive
 					$isFound = true;
 				}
 			}
-			else if ((isset($arParams['by_index'])) && ($arParams['by_index'] != 0))
+			else if ((isset($arParams['by_index'])) && is_array($arParams['by_index']))
 			{
 				//index rule: if index is in the list
-				for ($j = $j_start; ($j<sizeof($arParams['by_index'])) && (!$isFound); $j++)
+				for ($j = $j_start, $n = count($arParams['by_index']); $j < $n && !$isFound; $j++)
 				{
 					if (($i>=$arParams['by_index'][$j]['start'])
 						&& ($i<=$arParams['by_index'][$j]['end']))

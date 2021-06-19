@@ -224,6 +224,7 @@ Class sale extends CModule
 		$eventManager->registerEventHandler('main', 'OnAfterUserLogin', 'sale', '\Bitrix\Sale\Update\CrmEntityCreatorStepper', 'OnAfterUserLogin');
 
 		$eventManager->registerEventHandler('landing', '\Bitrix\Landing\Internals\Site::OnAfterAdd', 'sale', '\Bitrix\Sale\TradingPlatform\Landing\Landing', 'onLandingSiteAdd');
+		$eventManager->registerEventHandler('landing', '\Bitrix\Landing\Internals\Site::OnAfterUpdate', 'sale', '\Bitrix\Sale\TradingPlatform\Landing\Landing', 'onLandingSiteUpdate');
 		$eventManager->registerEventHandler('landing', '\Bitrix\Landing\Internals\Site::OnAfterDelete', 'sale', '\Bitrix\Sale\TradingPlatform\Landing\Landing', 'onLandingSiteDelete');
 		$eventManager->registerEventHandler('landing', 'onBeforeSiteRecycle', 'sale', '\Bitrix\Sale\TradingPlatform\Landing\Landing', 'onLandingBeforeSiteRecycle');
 
@@ -495,6 +496,7 @@ Class sale extends CModule
 		$eventManager->unRegisterEventHandler('sale', 'OnSaleBasketItemRefreshData', 'sale', '\Bitrix\Sale\Compatible\DiscountCompatibility', 'OnSaleBasketItemRefreshData');
 
 		$eventManager->unRegisterEventHandler('landing', '\Bitrix\Landing\Internals\Site::OnAfterAdd', 'sale', '\Bitrix\Sale\TradingPlatform\Landing\Landing', 'onLandingSiteAdd');
+		$eventManager->unRegisterEventHandler('landing', '\Bitrix\Landing\Internals\Site::OnAfterUpdate', 'sale', '\Bitrix\Sale\TradingPlatform\Landing\Landing', 'onLandingSiteUpdate');
 		$eventManager->unRegisterEventHandler('landing', '\Bitrix\Landing\Internals\Site::OnAfterDelete', 'sale', '\Bitrix\Sale\TradingPlatform\Landing\Landing', 'onLandingSiteDelete');
 		$eventManager->unRegisterEventHandler('landing', 'onBeforeSiteRecycle', 'sale', '\Bitrix\Sale\TradingPlatform\Landing\Landing', 'onLandingBeforeSiteRecycle');
 
@@ -557,7 +559,7 @@ Class sale extends CModule
 		foreach($statusMes as $v)
 		{
 			$eventType->Delete($v);
-			$dbEvent = CEventMessage::GetList($b="ID", $order="ASC", Array("EVENT_NAME" => $v));
+			$dbEvent = CEventMessage::GetList("id", "asc", Array("EVENT_NAME" => $v));
 			while($arEvent = $dbEvent->Fetch())
 			{
 				$eventM->Delete($arEvent["ID"]);
@@ -605,7 +607,7 @@ Class sale extends CModule
 		return true;
 	}
 
-	function OnGetTableSchema()
+	public static function OnGetTableSchema()
 	{
 		return array(
 			'sale' => array(

@@ -249,9 +249,6 @@ class SiteStep extends \CWizardStep
 
 		$this->component->setBsmSiteId($bsmSite);
 
-		// set site for person types
-		$this->preparePersonTypes($bsmSite);
-
 		return true;
 	}
 
@@ -812,30 +809,6 @@ class SiteStep extends \CWizardStep
 	}
 
 	/**
-	 * Set site for person types
-	 *
-	 * @param $siteId
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
-	private function preparePersonTypes($siteId)
-	{
-		$personTypePreparer = new Tools\PersonTypePreparer();
-		$personTypeList = $personTypePreparer->getPersonTypeList();
-
-		$result = $personTypePreparer->preparePersonType($siteId, $personTypeList);
-		if (!$result)
-		{
-			$errors = $personTypePreparer->getErrors();
-			foreach ($errors as $error)
-			{
-				$this->SetError($error);
-			}
-		}
-	}
-
-	/**
 	 * Show extended errors
 	 *
 	 * @param $strError
@@ -951,14 +924,13 @@ class SiteStep extends \CWizardStep
 	private function createWizardIndex($siteId, $wizardName, $path)
 	{
 		/** @noinspection PhpUndefinedClassInspection */
-		$siteResult = \CSite::GetList($by="sort", $order="asc", ["ID" => $siteId]);
+		$siteResult = \CSite::GetList("sort", "asc", ["ID" => $siteId]);
 		$siteData = $siteResult->GetNext();
 
 		$indexContent = '<'.'?'.
 				'define("B_PROLOG_INCLUDED", true);'.
 				'define("WIZARD_DEFAULT_SITE_ID", "'.$siteId.'");'.
 				'define("ADDITIONAL_INSTALL", true);'.
-				$this->getPersonTypeIndexContent().
 				'define("WIZARD_DEFAULT_TONLY", true);'.
 				'define("PRE_LANGUAGE_ID","'.$siteData["LANGUAGE_ID"].'");'.
 				'define("PRE_INSTALL_CHARSET","'.$siteData["CHARSET"].'");'.
@@ -1003,23 +975,5 @@ class SiteStep extends \CWizardStep
 			true,
 			false
 		);
-	}
-
-	/**
-	 * @return string
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
-	private function getPersonTypeIndexContent()
-	{
-		$personTypePreparer = new Tools\PersonTypePreparer();
-		$personTypeList = $personTypePreparer->getPersonTypeList();
-		if (empty($personTypeList))
-		{
-			return 'define("NEED_PERSON_TYPE", true);';
-		}
-
-		return "";
 	}
 }

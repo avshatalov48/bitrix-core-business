@@ -1818,7 +1818,7 @@ class WindowsLiveLogin
 		return $arResult;
 	}
 
-	function IsAvailable()
+	public static function IsAvailable()
 	{
 		return function_exists('hash');
 	}

@@ -1,4 +1,5 @@
 import {Tag, Type, Loc, Dom, Event, Text} from 'main.core';
+import {Util} from 'calendar.util';
 
 export class Location
 {

@@ -291,7 +291,7 @@ else
 				$arResult["UsersInStructure"] = array();
 				$arFilter = array('ACTIVE' => 'Y');
 				$obUser = new CUser();
-				$dbUsers = $obUser->GetList(($sort_by = 'last_name'), ($sort_dir = 'asc'), $arFilter, array('SELECT' => array('UF_*')));
+				$dbUsers = $obUser->GetList('last_name', 'asc', $arFilter, array('SELECT' => array('UF_*')));
 				while ($arUser = $dbUsers->GetNext())
 				{
 					if($arResult["UserSelf"]["ID"] == $arUser["ID"])

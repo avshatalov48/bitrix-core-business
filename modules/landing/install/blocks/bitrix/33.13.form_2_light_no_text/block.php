@@ -1,4 +1,4 @@
-<section class="g-pos-rel landing-block g-color-gray-dark-v1 g-pt-100 g-pb-100">
+<section class="g-pos-rel landing-block g-pt-100 g-pb-100">
 
 	<div class="container">
 

@@ -25,7 +25,7 @@ global $by, $order;
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
 
 $arSites = array();
-$db_res = CSite::GetList($by1 = "sort", $order1 = "asc");
+$db_res = CSite::GetList();
 if ($db_res && $res = $db_res->GetNext()):
 	do 
 	{

@@ -133,7 +133,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 		$em = new CEventMessage;
 		if($_POST["SITE_MESSAGE_LINK"] == "C" && $_POST["SITE_MESSAGE_LINK_C_SITE"] <> '')
 		{
-			$db_msg = CEventMessage::GetList($o = "", $b = "", array("SITE_ID"=>$_POST["SITE_MESSAGE_LINK_C_SITE"]));
+			$db_msg = CEventMessage::GetList('', '', array("SITE_ID"=>$_POST["SITE_MESSAGE_LINK_C_SITE"]));
 			while($ar_msg = $db_msg->Fetch())
 			{
 				unset($ar_msg["TIMESTAMP_X"]);
@@ -143,7 +143,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 		}
 		elseif($_POST["SITE_MESSAGE_LINK"] == "E" && $_POST["SITE_MESSAGE_LINK_E_SITE"] <> '')
 		{
-			$db_msg = CEventMessage::GetList($o = "", $b = "", array("SITE_ID"=>$_POST["SITE_MESSAGE_LINK_E_SITE"]));
+			$db_msg = CEventMessage::GetList('', '', array("SITE_ID"=>$_POST["SITE_MESSAGE_LINK_E_SITE"]));
 			while($ar_msg = $db_msg->Fetch())
 			{
 				$msg_id = $ar_msg["ID"];
@@ -162,7 +162,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 
 		if ($bNew && $_POST["START_SITE_WIZARD"] == "Y")
 		{
-			$rsSite = CSite::GetList($by="sort", $order="asc", array("ID" => $LID));
+			$rsSite = CSite::GetList("sort", "asc", array("ID" => $LID));
 			$arSite = $rsSite->GetNext();
 
 			$siteDir = "/".ltrim(rtrim($arSite["DIR"], "/")."/", "/");
@@ -233,7 +233,7 @@ require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_af
 if($bNew)
 {
 	$sites_cnt = 0;
-	$r = CSite::GetList($o1, $b1, array("ACTIVE"=>"Y"));
+	$r = CSite::GetList('', '', array("ACTIVE"=>"Y"));
 	while($r->Fetch())
 		$sites_cnt++;
 }

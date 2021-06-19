@@ -1,14 +1,15 @@
-<?
+<?php
+
 class CFormStatus extends CAllFormStatus
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "form";
 		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
 		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CFormStatus<br>File: ".__FILE__;
 	}
 
-	function GetList($FORM_ID, &$by, &$order, $arFilter=array(), &$is_filtered)
+	public static function GetList($FORM_ID, $by = 's_sort', $order = 'asc', $arFilter = [])
 	{
 		$err_mess = (CFormStatus::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $strError;
@@ -29,7 +30,7 @@ class CFormStatus extends CAllFormStatus
 				if (is_array($val) && empty($val))
 					continue;
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys));
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -70,13 +71,12 @@ class CFormStatus extends CAllFormStatus
 		elseif ($by == "s_results")			$strSqlOrder = "ORDER BY RESULTS";
 		else
 		{
-			$by = "s_sort";
 			$strSqlOrder = "ORDER BY S.C_SORT";
 		}
+
 		if ($order!="desc")
 		{
 			$strSqlOrder .= " asc ";
-			$order="asc";
 		}
 		else $strSqlOrder .= " desc ";
 
@@ -98,11 +98,11 @@ class CFormStatus extends CAllFormStatus
 			$strSqlOrder
 			";
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		$err_mess = (CFormStatus::err_mess())."<br>Function: GetByID<br>Line: ";
 		global $DB, $strError;
@@ -123,7 +123,7 @@ class CFormStatus extends CAllFormStatus
 		return $res;
 	}
 
-	function GetDropdown($FORM_ID, $PERMISSION = array("MOVE"), $OWNER_ID=0)
+	public static function GetDropdown($FORM_ID, $PERMISSION = array("MOVE"), $OWNER_ID=0)
 	{
 		$err_mess = (CFormStatus::err_mess())."<br>Function: GetDropdown<br>Line: ";
 		global $DB, $USER, $strError;

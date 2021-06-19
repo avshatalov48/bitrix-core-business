@@ -31,7 +31,7 @@ $sTableID = "tbl_event_graph_list";
 $lAdmin = new CAdminList($sTableID);
 
 $arrDef = array();
-$rs = CStatEventType::GetList(($v1="s_total_counter"), ($v2="desc"), $arF, $v3);
+$rs = CStatEventType::GetList("s_total_counter", "desc");
 while ($ar = $rs->Fetch())
 {
 	if ($ar["DIAGRAM_DEFAULT"]=="Y") $arrDef[] = $ar["ID"];

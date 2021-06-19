@@ -82,7 +82,7 @@ else
 		if($USER->CanDoFileOperation('fm_edit_permission',$arPath))
 		{
 			$arPermissions=Array();
-			$db_groups = CGroup::GetList($order="sort", $by="asc");
+			$db_groups = CGroup::GetList("sort", "asc");
 			while($arGroup = $db_groups->Fetch())
 			{
 				$gperm = isset($_POST["g_".$arGroup["ID"]]) ? $_POST["g_".$arGroup["ID"]] : '';
@@ -431,7 +431,7 @@ $tabControl->Begin();
 				}
 
 				//for each groups
-				$db_groups = CGroup::GetList($order="sort", $by="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
+				$db_groups = CGroup::GetList("sort", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 				while($db_groups->ExtractFields("g_")):
 					if($g_ANONYMOUS=="Y")
 						$anonym = $g_NAME;

@@ -1177,11 +1177,9 @@ foreach ($arReportsList as $strReportFile => $arReportParams)
 		{
 			if (!isset($arUserList[$arProfile['MODIFIED_BY']]))
 			{
-				$byUser = 'ID';
-				$byOrder = 'ASC';
 				$rsUsers = CUser::GetList(
-					$byUser,
-					$byOrder,
+					'ID',
+					'ASC',
 					array('ID_EQUAL_EXACT' => $arProfile['MODIFIED_BY']),
 					array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL'))
 				);
@@ -1415,11 +1413,9 @@ foreach ($arReportsList as $strReportFile => $arReportParams)
 		{
 			if (!isset($arUserList[$arProfile['CREATED_BY']]))
 			{
-				$byUser = 'ID';
-				$byOrder = 'ASC';
 				$rsUsers = CUser::GetList(
-					$byUser,
-					$byOrder,
+					'ID',
+					'ASC',
 					array('ID_EQUAL_EXACT' => $arProfile['CREATED_BY']),
 					array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL'))
 				);
@@ -1444,11 +1440,9 @@ foreach ($arReportsList as $strReportFile => $arReportParams)
 		{
 			if (!isset($arUserList[$arProfile['MODIFIED_BY']]))
 			{
-				$byUser = 'ID';
-				$byOrder = 'ASC';
 				$rsUsers = CUser::GetList(
-					$byUser,
-					$byOrder,
+					'ID',
+					'ASC',
 					array('ID_EQUAL_EXACT' => $arProfile['MODIFIED_BY']),
 					array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL'))
 				);

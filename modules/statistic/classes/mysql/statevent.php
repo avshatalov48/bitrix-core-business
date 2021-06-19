@@ -260,7 +260,7 @@ class CStatEvent extends CAllStatEvent
 		return intval($EVENT_LIST_ID);
 	}
 
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [])
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -279,11 +279,11 @@ class CStatEvent extends CAllStatEvent
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -402,14 +402,14 @@ class CStatEvent extends CAllStatEvent
 		elseif ($by == "s_money")			$strSqlOrder = "ORDER BY MONEY";
 		else
 		{
-			$by = "s_id";
 			$strSqlOrder = "ORDER BY E.ID";
 		}
+
 		if ($order!="asc")
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
+
 		if($arFilter["GROUP"]=="total")
 		{
 			$strSql =	"
@@ -456,7 +456,7 @@ class CStatEvent extends CAllStatEvent
 		}
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch) || $strSqlSearch_h <> '');
+
 		return $res;
 	}
 

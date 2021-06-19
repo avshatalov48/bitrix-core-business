@@ -27,6 +27,7 @@ class Client
 	);
 
 	private static $appTop = null;
+	private static $isPayApplicationAvailable;
 
 	public static function getTop($action, $fields = array())
 	{
@@ -589,5 +590,36 @@ class Client
 		}
 
 		return !$used;
+	}
+
+	/**
+	 * Returns available pay application
+	 * @return bool
+	 */
+	public static function isPayApplicationAvailable() : bool
+	{
+		if (is_null(static::$isPayApplicationAvailable))
+		{
+			static::$isPayApplicationAvailable = true;
+			$time = (int) Option::get('rest', 'time_pay_application_off', 1621029600);
+			if (time() > $time)
+			{
+				if (Loader::includeModule('bitrix24'))
+				{
+					$region = \CBitrix24::getLicensePrefix();
+				}
+				else
+				{
+					$region = Option::get('main', '~PARAM_CLIENT_LANG', '');
+				}
+
+				if ($region === 'ru')
+				{
+					static::$isPayApplicationAvailable = false;
+				}
+			}
+		}
+
+		return static::$isPayApplicationAvailable;
 	}
 }

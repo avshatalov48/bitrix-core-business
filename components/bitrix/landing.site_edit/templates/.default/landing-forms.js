@@ -523,38 +523,64 @@ function deleteAccessRow(link)
 			colors: this.setColors()
 		});
 
-		this.colorPickerNode = node;
+		this.input = node;
+		this.colorPickerNode = node.parentElement;
+		BX.addClass(this.colorPickerNode, 'ui-colorpicker');
 
-		this.colorIcon = node.querySelector('.ui-colorpicker-color-js');
-		this.clearBtn = node.querySelector('.ui-colorpicker-clear');
-		this.input = node.querySelector('.landing-colorpicker-inp-js');
+		this.colorIcon = BX.create('span', {
+			props: {
+				className: 'ui-colorpicker-color'
+			}
+		});
+		BX.insertBefore(this.colorIcon, this.input);
+
+		this.colorValue = node.value;
+		if (this.colorValue)
+		{
+			BX.adjust(this.colorIcon, {
+				attrs: {
+					style: 'background-color:' + this.colorValue
+				}
+			});
+
+			BX.addClass(this.colorPickerNode, 'ui-colorpicker-selected');
+		}
+
+		this.clearBtn = BX.create('span', {
+			props: {
+				className: 'ui-colorpicker-clear'
+			}
+		});
+		BX.insertAfter(this.clearBtn, this.input);
 
 		BX.bind(this.colorPickerNode, 'click', this.show.bind(this));
 		BX.bind(this.clearBtn, 'click', this.clear.bind(this));
 
 	};
-	BX.Landing.ColorPicker.prototype =
-	{
-		onColorSelected : function (color)
+	BX.Landing.ColorPicker.prototype = {
+		onColorSelected: function(color)
 		{
 			this.colorPickerNode.classList.add('ui-colorpicker-selected');
 			this.colorIcon.style.backgroundColor = color;
 			this.input.value = color;
 		},
-		show : function (event)
+		show: function(event)
 		{
-			if(event.target == this.clearBtn)
+			if (event.target == this.clearBtn)
+			{
 				return;
+			}
 
 			this.picker.open();
 		},
-		clear : function ()
+		clear: function()
 		{
 			this.colorPickerNode.classList.remove('ui-colorpicker-selected');
 			this.input.value = '';
 			this.picker.setSelectedColor(null);
 		},
-		setColors :function () {
+		setColors: function()
+		{
 			return [
 				["#f5f5f5", "#eeeeee", "#e0e0e0", "#9e9e9e", "#757575", "#616161", "#212121"],
 				["#cfd8dc", "#b0bec5", "#90a4ae", "#607d8b", "#546e7a", "#455a64", "#263238"],
@@ -575,8 +601,10 @@ function deleteAccessRow(link)
 				["#e1bee7", "#ce93d8", "#ba68c8", "#9c27b0", "#8e24aa", "#7b1fa2", "#4a148c"],
 				["#f8bbd0", "#f48fb1", "#f06292", "#e91e63", "#d81b60", "#c2185b", "#880e4f"],
 				["#ffcdd2", "#ef9a9a", "#e57373", "#f44336", "#e53935", "#d32f2f", "#b71c1c"]
-			].map(function(item, index, arr) {
-				return arr.map(function(row) {
+			].map(function(item, index, arr)
+			{
+				return arr.map(function(row)
+				{
 					return row[index];
 				});
 			})
@@ -594,6 +622,7 @@ function deleteAccessRow(link)
 		{
 			defaultColor = '#' + defaultColor;
 		}
+		this.metrika = null;
 		this.picker = new BX.ColorPicker({
 			bindElement: node,
 			popupOptions: {angle: false, offsetTop: 5},
@@ -601,6 +630,11 @@ function deleteAccessRow(link)
 			colors: this.setColors(),
 			selectedColor: defaultColor,
 		});
+
+		if (typeof BX.Landing.Metrika !== 'undefined')
+		{
+			this.metrika = new BX.Landing.Metrika(true);
+		}
 
 		this.colorPickerNode = node;
 
@@ -628,7 +662,14 @@ function deleteAccessRow(link)
 				}
 
 				BX.onCustomEvent('BX.Landing:onSelectColor');
-				BX.Landing.Utils.AnalyticLabel('Color::CustomSet', this.input.value.substr(1));
+				if (this.metrika)
+				{
+					this.metrika.sendLabel(
+						null,
+						'Color::CustomSet',
+						this.input.value.substr(1)
+					);
+				}
 			},
 			show : function (event)
 			{
@@ -1075,7 +1116,7 @@ function deleteAccessRow(link)
 	 * GA metrika.
 	 */
 
-	BX.Landing.Metrika = function()
+	BX.Landing.ExternalMetrika = function()
 	{
 		if (!BX('field-gacounter_counter-use'))
 		{
@@ -1129,7 +1170,6 @@ function deleteAccessRow(link)
 	/**
 	 * Change iblock select.
 	 */
-
 	BX.Landing.IblockSelect = function()
 	{
 		this.section = BX("row_section_id");
@@ -1277,4 +1317,30 @@ function deleteAccessRow(link)
 
 	}
 
+	BX.Landing.B24ButtonColor = function(typeControl, valueControl)
+	{
+		this.colorCustomType = 'custom';
+
+		this.typeControl = typeControl;
+		this.valueControl = valueControl;
+		this.valueControlWrap = BX.findParent(valueControl, {class:'ui-control-wrap'});
+
+		bind(typeControl, "change", BX.delegate(this.checkVisibility, this));
+
+		this.checkVisibility();
+	};
+
+	BX.Landing.B24ButtonColor.prototype = {
+		checkVisibility: function()
+		{
+			if(this.typeControl.value === 'custom')
+			{
+				this.valueControlWrap.hidden = false;
+			}
+			else
+			{
+				this.valueControlWrap.hidden = true;
+			}
+		}
+	};
 })();

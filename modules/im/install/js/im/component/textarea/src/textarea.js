@@ -8,11 +8,16 @@
  */
 
 import './textarea.css';
-import {Vue} from "ui.vue";
-import {LocalStorage} from "im.tools.localstorage";
-import {Utils} from "im.utils";
+import {BitrixVue} from "ui.vue";
+import {LocalStorage} from "im.lib.localstorage";
+import {Utils} from "im.lib.utils";
+import {Browser} from 'main.core';
+import {Vuex} from "ui.vue.vuex";
 
-Vue.component('bx-messenger-textarea',
+import { EventEmitter } from 'main.core.events';
+import { EventType, DeviceType } from "im.const";
+
+BitrixVue.component('bx-im-component-textarea',
 {
 	/**
 	 * @emits 'send' {text: string}
@@ -24,12 +29,6 @@ Vue.component('bx-messenger-textarea',
 	 * @emits 'keydown' {event: object} -- 'event' - keydown event
 	 * @emits 'appButtonClick' {appId: string, event: object} -- 'appId' - application name, 'event' - event click
 	 * @emits 'fileSelected' {fileInput: domNode} -- 'fileInput' - dom node element
-	 */
-
-	/**
-	 * @listens props.listenEventInsertText {text: string, breakline: boolean, position: string, cursor: string, focus: boolean} (global|application) -- insert text to textarea, see more in methods.insertText()
-	 * @listens props.listenEventFocus {} (global|application) -- set focus on textarea
-	 * @listens props.listenEventBlur {} (global|application) -- clear focus on textarea
 	 */
 
 	props:
@@ -51,9 +50,6 @@ Vue.component('bx-messenger-textarea',
 				return {}
 			}
 		},
-		listenEventInsertText: { default: '' },
-		listenEventFocus: { default: '' },
-		listenEventBlur: { default: '' },
 	},
 	data()
 	{
@@ -68,21 +64,9 @@ Vue.component('bx-messenger-textarea',
 	},
 	created()
 	{
-		if (this.listenEventInsertText)
-		{
-			Vue.event.$on(this.listenEventInsertText, this.onInsertText);
-			this.$root.$on(this.listenEventInsertText, this.onInsertText);
-		}
-		if (this.listenEventFocus)
-		{
-			Vue.event.$on(this.listenEventFocus, this.onFocusSet);
-			this.$root.$on(this.listenEventFocus, this.onFocusSet);
-		}
-		if (this.listenEventBlur)
-		{
-			Vue.event.$on(this.listenEventBlur, this.onFocusClear);
-			this.$root.$on(this.listenEventBlur, this.onFocusClear);
-		}
+		EventEmitter.subscribe(EventType.textarea.insertText, this.onInsertText);
+		EventEmitter.subscribe(EventType.textarea.setFocus, this.onFocusSet);
+		EventEmitter.subscribe(EventType.textarea.setBlur, this.onFocusClear);
 
 		this.localStorage = LocalStorage;
 
@@ -92,21 +76,10 @@ Vue.component('bx-messenger-textarea',
 	},
 	beforeDestroy()
 	{
-		if (this.listenEventInsertText)
-		{
-			Vue.event.$off(this.listenEventInsertText, this.onInsertText);
-			this.$root.$off(this.listenEventInsertText, this.onInsertText);
-		}
-		if (this.listenEventFocus)
-		{
-			Vue.event.$off(this.listenEventFocus, this.onFocusSet);
-			this.$root.$off(this.listenEventFocus, this.onFocusSet);
-		}
-		if (this.listenEventBlur)
-		{
-			Vue.event.$off(this.listenEventBlur, this.onFocusClear);
-			this.$root.$off(this.listenEventBlur, this.onFocusClear);
-		}
+		EventEmitter.unsubscribe(EventType.textarea.insertText, this.onInsertText);
+		EventEmitter.unsubscribe(EventType.textarea.setFocus, this.onFocusSet);
+		EventEmitter.unsubscribe(EventType.textarea.setBlur, this.onFocusClear);
+
 		clearTimeout(this.messageStoreTimeout);
 		this.localStorage.set(this.siteId, this.userId, 'textarea-history', this.textareaHistory);
 		this.localStorage = null;
@@ -115,7 +88,10 @@ Vue.component('bx-messenger-textarea',
 	{
 		textareaClassName()
 		{
-			return 'bx-im-textarea' + (Utils.device.isMobile()? ' bx-im-textarea-mobile': '');
+			return ['bx-im-textarea', {
+				'bx-im-textarea-dark-background': this.isDarkBackground,
+				'bx-im-textarea-mobile': this.isMobile,
+			}];
 		},
 
 		buttonStyle()
@@ -137,11 +113,25 @@ Vue.component('bx-messenger-textarea',
 
 			return styles;
 		},
-
+		isDarkBackground()
+		{
+			return this.application.options.darkBackground;
+		},
+		isMobile()
+		{
+			return this.application.device.type === DeviceType.mobile;
+		},
 		localize()
 		{
-			return Vue.getFilteredPhrases('BX_MESSENGER_TEXTAREA_', this.$root.$bitrixMessages)
+			return BitrixVue.getFilteredPhrases('BX_MESSENGER_TEXTAREA_', this)
 		},
+		isIE11()
+		{
+			return Browser.isIE11();
+		},
+		...Vuex.mapState({
+			application: state => state.application,
+		})
 	},
 	directives: {
 		'bx-im-focus':
@@ -150,7 +140,7 @@ Vue.component('bx-messenger-textarea',
 			{
 				if (
 					params.value === true
-					|| params.value === null && !Utils.device.isMobile()
+					|| params.value === null && !this.isMobile
 				)
 				{
 					element.focus();
@@ -206,6 +196,14 @@ Vue.component('bx-messenger-textarea',
 					}
 					text = text+"\n";
 				}
+				else
+				{
+					if (textarea.value && !textarea.value.endsWith(' '))
+					{
+						text = ' '+text;
+					}
+				}
+
 				textarea.value = textarea.value.substring(0, selectionStart) + text + textarea.value.substring(selectionEnd, textarea.value.length);
 
 				if (focus)
@@ -232,6 +230,14 @@ Vue.component('bx-messenger-textarea',
 					}
 					text = text+"\n";
 				}
+				else
+				{
+					if (textarea.value && !textarea.value.endsWith(' '))
+					{
+						text = ' '+text;
+					}
+				}
+
 				textarea.value = textarea.value+text;
 
 				if (focus)
@@ -268,9 +274,11 @@ Vue.component('bx-messenger-textarea',
 			this.textChangeEvent();
 		},
 
-		sendMessage()
+		sendMessage(event)
 		{
-			this.$emit('send', {text: this.currentMessage.trim()});
+			event.preventDefault();
+
+			EventEmitter.emit(EventType.textarea.sendMessage, {text: this.currentMessage.trim()});
 
 			let textarea = this.$refs.textarea;
 			if (textarea)
@@ -302,7 +310,7 @@ Vue.component('bx-messenger-textarea',
 
 			if (this.writesEventLetter <= text.length)
 			{
-				this.$emit('writes', {text});
+				EventEmitter.emit(EventType.textarea.startWriting, {text});
 			}
 
 			this.previousMessage = this.currentMessage;
@@ -410,11 +418,11 @@ Vue.component('bx-messenger-textarea',
 			}
 			else if (this.enableEdit && event.keyCode == 38 && text.length <= 0)
 			{
-				this.$emit('edit', {});
+				EventEmitter.emit(EventType.textarea.edit, {});
 			}
 			else if (event.keyCode == 13)
 			{
-				if (Utils.device.isMobile())
+				if (this.isMobile)
 				{
 				}
 				else if (this.sendByEnter == true)
@@ -432,21 +440,18 @@ Vue.component('bx-messenger-textarea',
 					}
 					else
 					{
-						this.sendMessage();
-						event.preventDefault();
+						this.sendMessage(event);
 					}
 				}
 				else
 				{
 					if (event.ctrlKey == true)
 					{
-						this.sendMessage();
-						event.preventDefault();
+						this.sendMessage(event);
 					}
 					else if (isMac && (event.metaKey == true || event.altKey == true))
 					{
-						this.sendMessage();
-						event.preventDefault();
+						this.sendMessage(event);
 					}
 				}
 			}
@@ -465,7 +470,7 @@ Vue.component('bx-messenger-textarea',
 		},
 		onKeyUp(event)
 		{
-			this.$emit('keyup', {event, text: this.currentMessage});
+			EventEmitter.emit(EventType.textarea.keyUp, {event, text: this.currentMessage});
 			this.textChangeEvent();
 		},
 		onPaste(event)
@@ -478,17 +483,17 @@ Vue.component('bx-messenger-textarea',
 		},
 		onFocus(event)
 		{
-			this.$emit('focus', event);
+			EventEmitter.emit(EventType.textarea.focus, event);
 		},
 		onBlur(event)
 		{
-			this.$emit('blur', event);
+			EventEmitter.emit(EventType.textarea.blur, event);
 		},
 		onAppButtonClick(appId, event)
 		{
-			this.$emit('appButtonClick', {appId, event});
+			EventEmitter.emit(EventType.textarea.appButtonClick, {appId, event});
 		},
-		onInsertText(event = {})
+		onInsertText({data: event = {}})
 		{
 			if (!event.text)
 			{
@@ -496,7 +501,7 @@ Vue.component('bx-messenger-textarea',
 			}
 			this.insertText(event.text, event.breakline, event.position, event.cursor, event.focus);
 
-			this.$emit('keyup', {event, text: this.currentMessage});
+			EventEmitter.emit(EventType.textarea.keyUp, {event, text: this.currentMessage});
 
 			return true;
 		},
@@ -518,19 +523,46 @@ Vue.component('bx-messenger-textarea',
 		},
 		onFileSelect(event)
 		{
-			this.$emit('fileSelected', {fileInput: event.target});
+			EventEmitter.emit(EventType.textarea.fileSelected, {
+				fileChangeEvent: event,
+				fileInput: event.target
+			});
 		},
+		log(text, skip, event)
+		{
+			console.warn(text);
+			if (skip == 1)
+			{
+				event.preventDefault();
+			}
+		},
+		preventDefault(event)
+		{
+			event.preventDefault();
+		}
 	},
+	// language=Vue
 	template: `
 		<div :class="textareaClassName">
 			<div class="bx-im-textarea-box">
 				<textarea ref="textarea" class="bx-im-textarea-input" @keydown="onKeyDown" @keyup="onKeyUp" @paste="onPaste" @input="onInput" @focus="onFocus" @blur="onBlur" v-bx-im-focus="autoFocus" :placeholder="localize.BX_MESSENGER_TEXTAREA_PLACEHOLDER">{{placeholderMessage}}</textarea>
 				<transition enter-active-class="bx-im-textarea-send-button-show" leave-active-class="bx-im-textarea-send-button-hide">
-					<button v-if="currentMessage" :class="buttonStyle.button.className" :style="buttonStyle.button.style" @click="sendMessage" :title="localize.BX_MESSENGER_TEXTAREA_BUTTON_SEND"></button>
+					<button 
+						v-if="currentMessage" 
+						:class="buttonStyle.button.className" 
+						:style="buttonStyle.button.style" 
+						:title="localize.BX_MESSENGER_TEXTAREA_BUTTON_SEND"
+						@click="sendMessage" 
+						@touchend="sendMessage" 
+						@mousedown="preventDefault" 
+						@touchstart="preventDefault" 
+					/>
 				</transition>
 			</div>
 			<div class="bx-im-textarea-app-box">
-				<label v-if="enableFile" class="bx-im-textarea-app-button bx-im-textarea-app-file" :title="localize.BX_MESSENGER_TEXTAREA_FILE"><input type="file" @click="onFileClick($event)" @change="onFileSelect($event)"></label>
+				<label v-if="enableFile && !isIE11" class="bx-im-textarea-app-button bx-im-textarea-app-file" :title="localize.BX_MESSENGER_TEXTAREA_FILE">
+					<input type="file" @click="onFileClick($event)" @change="onFileSelect($event)" multiple>
+				</label>
 				<button class="bx-im-textarea-app-button bx-im-textarea-app-smile" :title="localize.BX_MESSENGER_TEXTAREA_SMILE" @click="onAppButtonClick('smile', $event)"></button>
 				<button v-if="false" class="bx-im-textarea-app-button bx-im-textarea-app-gif" :title="localize.BX_MESSENGER_TEXTAREA_GIPHY" @click="onAppButtonClick('giphy', $event)"></button>
 			</div>

@@ -28,6 +28,9 @@ abstract class ScalarField extends Field implements IStorable, ITypeHintable
 	/** @var boolean Permission to use in filter */
 	protected $is_private;
 
+	/** @var boolean Can be null */
+	protected $is_nullable;
+
 	protected $column_name = '';
 
 	/** @var null|callable|mixed  */
@@ -50,6 +53,7 @@ abstract class ScalarField extends Field implements IStorable, ITypeHintable
 		$this->is_required = (isset($parameters['required']) && $parameters['required']);
 		$this->is_autocomplete = (isset($parameters['autocomplete']) && $parameters['autocomplete']);
 		$this->is_private = (isset($parameters['private']) && $parameters['private']);
+		$this->is_nullable = (isset($parameters['nullable']) && $parameters['nullable']);
 
 		$this->column_name = isset($parameters['column_name']) ? $parameters['column_name'] : $this->name;
 		$this->default_value = isset($parameters['default_value']) ? $parameters['default_value'] : null;
@@ -145,6 +149,25 @@ abstract class ScalarField extends Field implements IStorable, ITypeHintable
 	public function isPrivate()
 	{
 		return $this->is_private;
+	}
+
+	/**
+	 * @param bool $value
+	 *
+	 * @return ScalarField
+	 */
+	public function configureNullable($value = true)
+	{
+		$this->is_nullable = (bool) $value;
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isNullable()
+	{
+		return $this->is_nullable;
 	}
 
 	/**

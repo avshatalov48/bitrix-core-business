@@ -13,7 +13,7 @@ global $adminSidePanelHelper;
 $publicMode = $adminPage->publicMode;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
-if(!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_store')))
+if(!$USER->CanDoOperation('catalog_store'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 CModule::IncludeModule("catalog");
 $bReadOnly = !$USER->CanDoOperation('catalog_store');
@@ -86,7 +86,7 @@ function getSiteTitle($siteId)
 
 	if($rsSites === '')
 	{
-		$rsSites = CSite::GetList($b="id", $o="asc", Array("ACTIVE" => "Y"));
+		$rsSites = CSite::GetList("id", "asc", Array("ACTIVE" => "Y"));
 		while($arSite = $rsSites->GetNext())
 			$arSitesShop[] = array("ID" => $arSite["ID"], "NAME" => $arSite["NAME"]);
 	}
@@ -140,7 +140,7 @@ $lAdmin->setContextSettings(array("pagePath" => $selfFolderUrl."cat_store_docume
 $lAdmin->AddAdminContextMenu($aContext);
 
 $listSite = array();
-$sitesQueryObject = CSite::getList($bySite = "sort", $orderSite = "asc", array("ACTIVE" => "Y"));
+$sitesQueryObject = CSite::getList("sort", "asc", array("ACTIVE" => "Y"));
 while ($site = $sitesQueryObject->fetch())
 {
 	$listSite[$site["LID"]] = "[".$site["LID"]."] ".$site["NAME"];
@@ -582,11 +582,9 @@ if($arSelectFieldsMap['CREATED_BY'] || $arSelectFieldsMap['MODIFIED_BY'])
 {
 	if(!empty($arUserID))
 	{
-		$byUser = 'ID';
-		$byOrder = 'ASC';
 		$rsUsers = CUser::GetList(
-			$byUser,
-			$byOrder,
+			'ID',
+			'ASC',
 			array('ID' => implode(' | ', array_keys($arUserID))),
 			array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL'))
 		);

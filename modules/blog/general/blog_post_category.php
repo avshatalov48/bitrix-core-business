@@ -1,10 +1,11 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllBlogPostCategory
 {
 	/*************** ADD, UPDATE, DELETE *****************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $APPLICATION;
 
@@ -66,7 +67,7 @@ class CAllBlogPostCategory
 	}
 
 	//*************** SELECT *********************/
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -93,4 +94,3 @@ class CAllBlogPostCategory
 		return $DB->Query("DELETE FROM b_blog_post_category WHERE POST_ID = ".$ID."", true);
 	}
 }
-?>

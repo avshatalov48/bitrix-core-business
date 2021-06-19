@@ -85,7 +85,9 @@ $APPLICATION->SetPageProperty("BodyClass", $bodyClass);
 				tagLinkPattern: '<?=(!empty($arParams["PATH_TO_LOG_TAG"]) ? CUtil::JSEscape($arParams["PATH_TO_LOG_TAG"]) : '')?>',
 				readOnly: '<?=($arResult['ReadOnly'] ? 'Y' : 'N')?>',
 				pathToUser: '<?=(!empty($arParams["PATH_TO_USER"]) ? CUtil::JSEscape($arParams["PATH_TO_USER"]) : '')?>',
-				pathToPost: '<?=(!empty($arParams["PATH_TO_POST"]) ? CUtil::JSEscape($arParams["PATH_TO_POST"]) : '')?>'
+				pathToPost: '<?=(!empty($arParams["PATH_TO_POST"]) ? CUtil::JSEscape($arParams["PATH_TO_POST"]) : '')?>',
+				allowToAll: <?=(empty($arResult["FEED_DESTINATION"]) || !isset($arResult["FEED_DESTINATION"]["DENY_TOALL"]) || !$arResult["FEED_DESTINATION"]["DENY_TOALL"] ? 'true' : 'false')?>,
+				allowSearchEmailUsers: <?=($arResult["ALLOW_EMAIL_INVITATION"] ? 'true' : 'false')?>
 			});
 		}
 	});
@@ -265,44 +267,7 @@ else
 				}
 			);
 
-			<?
-			$postDest = array();
-
-			if (
-				!$arResult["bPublicPage"]
-				&& is_set($arResult["Post"]["SPERM"])
-				&& is_array($arResult["Post"]["SPERM"])
-			)
-			{
-				foreach($arResult["Post"]["SPERM"] as $type => $ar)
-				{
-					if (!in_array($type, array('U', 'SG', 'DR', 'G')))
-					{
-						continue;
-					}
-
-					$typeText = "users";
-					if($type == "SG")
-						$typeText = "sonetgroups";
-					elseif($type == "G")
-						$typeText = "groups";
-					elseif($type == "DR")
-						$typeText = "department";
-
-					foreach($ar as $id => $val)
-					{
-						$postDest[] = (
-							$type == "U"
-							&& intval($val["ID"]) <= 0
-								? array("id" => "UA", "name" => ($arResult["bIntranetInstalled"] ? GetMessage("BLOG_DESTINATION_ALL") : GetMessage("BLOG_DESTINATION_ALL_BSM")), "type" => "groups")
-								: array("id" => $type.$id, "name" => $val["NAME"], "type" => $typeText, "entityId" => $type.$id)
-						);
-					}
-				}
-			}
-
-			?>
-			var postDest<?=$arResult["Post"]["ID"]?> = <?=\CUtil::phpToJSObject($postDest)?>;
+			var postDest<?=$arResult["Post"]["ID"]?> = <?=\CUtil::phpToJSObject($arResult['postDestEntities'], false, false, true)?>;
 
 			BX.ready(function () {
 				if (
@@ -374,7 +339,7 @@ else
 					"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
 					"PATH_TO_VIDEO_CALL" => $arParams["PATH_TO_VIDEO_CALL"],
 					"SHOW_RATING" => $arParams["SHOW_RATING"],
-					"RATING_TYPE" => ($arResult["bIntranetInstalled"] || $arParams["RATING_TYPE"] == "like" ? "like_react" : $arParams["RATING_TYPE"]),
+					"RATING_TYPE" => ($arResult["bIntranetInstalled"] || $arParams["RATING_TYPE"] === "like" ? "like_react" : $arParams["RATING_TYPE"]),
 					"IMAGE_MAX_WIDTH" => $arParams["IMAGE_MAX_WIDTH"],
 					"IMAGE_MAX_HEIGHT" => $arParams["IMAGE_MAX_HEIGHT"],
 					"ALLOW_VIDEO" => $arParams["ALLOW_VIDEO"],
@@ -855,6 +820,11 @@ else
 				{
 					$classList[] = 'feed-post-block-background';
 					$classList[] = 'feed-post-block-important';
+				}
+
+				if (!empty($arResult['Post']['BACKGROUND_CODE']))
+				{
+					$classList[] = 'feed-post-block-colored';
 				}
 
 				if (

@@ -31,7 +31,7 @@ define (
 
 class CDeliveryDHLUSA
 {
-	function Init()
+	public static function Init()
 	{
 		$arReturn = array(
 			/* Basic description */
@@ -66,8 +66,8 @@ class CDeliveryDHLUSA
 		
 		return $arReturn;
 	}
-	
-	function GetConfig()
+
+	public static function GetConfig()
 	{
 		$arConfig = array(
 			"CONFIG_GROUPS" => array(
@@ -91,18 +91,18 @@ class CDeliveryDHLUSA
 		
 		return $arConfig; 
 	}
-	
-	function GetSettings($strSettings)
+
+	public static function GetSettings($strSettings)
 	{
 		return unserialize($strSettings, ['allowed_classes' => false]);
 	}
-	
-	function SetSettings($arSettings)
+
+	public static function SetSettings($arSettings)
 	{
 		return serialize($arSettings);
 	}
-	
-	function __GetLocation($location_id)
+
+	public static function __GetLocation($location_id)
 	{
 		static $arDHLUSACountryList;
 	
@@ -122,8 +122,8 @@ class CDeliveryDHLUSA
 		
 		return $arLocation;
 	}
-	
-	function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
+
+	public static function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
 	{
 		$arLocationFrom = CDeliveryDHLUSA::__GetLocation($arOrder['LOCATION_FROM']);
 		$arLocationTo = CDeliveryDHLUSA::__GetLocation($arOrder['LOCATION_TO']);
@@ -283,17 +283,17 @@ class CDeliveryDHLUSA
 			"TEXT" => GetMessage('SALE_DH_DHL_USA_ERROR_RESPONSE'),
 		);
 	}
-	
-	function Compability($arOrder)
+
+	public static function Compability($arOrder)
 	{
 		$arLocationFrom = CDeliveryDHLUSA::__GetLocation($arOrder['LOCATION_FROM']);
 		
 		if ($arLocationFrom['COUNTRY_DHLUSA'] != 'US') return array();
 	
 		return array('simple');
-	} 
-	
-	function __Write2Log($data)
+	}
+
+	public static function __Write2Log($data)
 	{
 		if (defined('DELIVERY_DHL_USA_WRITE_LOG') && DELIVERY_DHL_USA_WRITE_LOG === 1)
 		{

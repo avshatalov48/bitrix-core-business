@@ -172,10 +172,10 @@ class Statistics
 			foreach ($list as $name)
 			{
 				if (
-				    !isset($userOptionFilters[$name])
-                    || !$userOptionFilters[$name]
-                    || !$this->checkFilterValue($userOptionFilters[$name])
-                    )
+					!isset($userOptionFilters[$name])
+					|| !$userOptionFilters[$name]
+					|| !$this->checkFilterValue($userOptionFilters[$name])
+				)
 				{
 					continue;
 				}
@@ -199,12 +199,10 @@ class Statistics
 	}
 
 	private function checkFilterValue($filter)
-    {
-        return $filter === null
-            || is_scalar($filter)
-            ;
-
-    }
+	{
+		return $filter === null
+			|| is_scalar($filter);
+	}
 
 	protected function saveFilterToUserOption()
 	{

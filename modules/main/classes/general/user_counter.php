@@ -106,7 +106,7 @@ class CAllUserCounter
 			}
 		}
 
-		return self::$counters[$user_id][$site_id];
+		return (self::$counters[$user_id][$site_id] ?? []);
 	}
 
 	public static function GetAllValues($user_id)
@@ -119,7 +119,9 @@ class CAllUserCounter
 			return $arCounters;
 
 		$arSites = Array();
-		$res = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+		$by = '';
+		$order = '';
+		$res = CSite::GetList($by, $order, Array("ACTIVE" => "Y"));
 		while ($row = $res->Fetch())
 			$arSites[] = $row['ID'];
 
@@ -252,7 +254,9 @@ class CAllUserCounter
 			global $DB;
 
 			$arSites = Array();
-			$res = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+			$by = '';
+			$order = '';
+			$res = CSite::GetList($by, $order, Array("ACTIVE" => "Y"));
 			while ($row = $res->Fetch())
 				$arSites[] = $row['ID'];
 
@@ -327,7 +331,9 @@ class CAllUserCounter
 			global $DB;
 
 			$arSites = Array();
-			$res = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+			$by = '';
+			$order = '';
+			$res = CSite::GetList($by, $order, Array("ACTIVE" => "Y"));
 			while ($row = $res->Fetch())
 				$arSites[] = $row['ID'];
 

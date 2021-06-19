@@ -66,7 +66,7 @@ class CashboxTable extends DataManager
 				'title' => Loc::getMessage('SALE_CASHBOX_ENTITY_DATE_LAST_CHECK_FIELD'),
 			),
 			'KKM_ID' => array(
-				'data_type' => 'integer',
+				'data_type' => 'string',
 				'title' => Loc::getMessage('SALE_CASHBOX_ENTITY_KKM_ID_FIELD'),
 			),
 			'OFD' => array(

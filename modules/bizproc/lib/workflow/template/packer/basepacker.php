@@ -37,7 +37,7 @@ abstract class BasePacker
 
 	protected function uncompress($data)
 	{
-		if (function_exists("gzuncompress"))
+		if (is_string($data) && function_exists("gzuncompress"))
 		{
 			$data = @gzuncompress($data);
 		}

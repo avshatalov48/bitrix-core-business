@@ -125,7 +125,8 @@ if ($_REQUEST["empty_get_comments"] == "Y")
 			mobile: true,
 			ajaxUrl: '<?=SITE_DIR?>mobile/ajax.php',
 			commentsContainerId: 'post-comments-wrap',
-			commentsClassName: 'post-comment-wrap'
+			commentsClassName: 'post-comment-wrap',
+			context: 'forum.comments/mobile'
 		}]);
 	});
 

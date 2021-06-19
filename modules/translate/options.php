@@ -44,7 +44,7 @@ if (
 )
 {
 	\COption::RemoveOption("translate");
-	$z = \CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
+	$z = \CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 	while($zr = $z->Fetch())
 	{
 		$APPLICATION->DelGroupRight($module_id, array($zr["ID"]));
@@ -134,7 +134,7 @@ if (
 	if ($RestoreDefaults <> '')
 	{
 		\COption::RemoveOption("translate");
-		$z = \CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
+		$z = \CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 		while($zr = $z->Fetch())
 		{
 			$APPLICATION->DelGroupRight($module_id, array($zr["ID"]));

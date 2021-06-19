@@ -7,9 +7,9 @@
  * @copyright 2001-2020 Bitrix
  */
 
-import {Vue} from 'ui.vue';
+import {BitrixVue} from 'ui.vue';
 
-Vue.component('bx-list-element',
+BitrixVue.component('bx-list-element',
 {
 	props: [
 		'rawListItem',

@@ -352,7 +352,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			}
 			CSocNetGroup::SearchIndex($ID, false, $arGroupOld, $bAutoSubscribe);
 
-			if (!empty($arFields["KEYWORDS"]))
+			if (isset($arFields['KEYWORDS']))
 			{
 				$tagsList = explode(',', $arFields["KEYWORDS"]);
 				if (
@@ -363,16 +363,11 @@ class CSocNetGroup extends CAllSocNetGroup
 					$tagsList = array_map(function($a) { return trim($a, ' '); }, $tagsList);
 					$tagsList = array_filter($tagsList, function($a) { return ($a <> ''); });
 				}
-				if (
-					!empty($tagsList)
-					&& is_array($tagsList)
-				)
-				{
-					\Bitrix\Socialnetwork\WorkgroupTagTable::set([
-						'groupId' => $ID,
-						'tags' => $tagsList
-					]);
-				}
+
+				\Bitrix\Socialnetwork\WorkgroupTagTable::set([
+					'groupId' => $ID,
+					'tags' => $tagsList
+				]);
 			}
 
 			Workgroup::setIndex(array(
@@ -381,8 +376,8 @@ class CSocNetGroup extends CAllSocNetGroup
 
 			$arGroupNew = CSocNetGroup::GetByID($ID);
 			if (
-				$arGroupNew["OPENED"] == "Y"
-				&& $arGroupOld["OPENED"] == "N"
+				$arGroupNew['OPENED'] === 'Y'
+				&& $arGroupOld['OPENED'] === 'N'
 			)
 			{
 				CSocNetGroup::ConfirmAllRequests($ID, $bAutoSubscribe);

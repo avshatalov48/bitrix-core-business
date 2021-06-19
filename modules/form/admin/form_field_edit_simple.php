@@ -96,12 +96,11 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $F_RIGHT >= 30 &
 	}
 	elseif (is_array($ANSWER))
 	{
-		reset($ANSWER);
 		$MESSAGE = $_REQUEST["MESSAGE"];
-		while ($e = each($ANSWER))
+		foreach ($ANSWER as $i => $pid)
 		{
-			$i = intval($e[0]);
-			$pid = intval($e[1]);
+			$i = intval($i);
+			$pid = intval($pid);
 			if ($i<0 || $pid<0) continue;
 
 			$arrA = array();
@@ -126,13 +125,12 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $F_RIGHT >= 30 &
 	if (is_array($DELETE))
 	{
 		$i=0;
-		reset($DELETE);
-		while ($e=each($DELETE))
+		foreach ($DELETE as $key => $val)
 		{
-			if ($e[1]=="Y" || ($i>0 && !in_array($FIELD_TYPE,$arTypeList))) // if it's not a list kill all answers except first one
+			if ($val == "Y" || ($i > 0 && !in_array($FIELD_TYPE, $arTypeList))) // if it's not a list kill all answers except first one
 			{
 				$arrA = array();
-				$arrA["ID"] = $e[0];
+				$arrA["ID"] = $key;
 				$arrA["DELETE"] = "Y";
 				$arFields["arANSWER"][] = $arrA;
 			}
@@ -172,7 +170,7 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $F_RIGHT >= 30 &
 		$sValStructSerialized = $_REQUEST["VAL_STRUCTURE"];
 		if (CheckSerializedData($sValStructSerialized))
 		{
-			$arValStructure = unserialize($sValStructSerialized);
+			$arValStructure = unserialize($sValStructSerialized, ['allowed_classes' => false]);
 
 			if (count($arValStructure) > 0)
 			{
@@ -248,7 +246,7 @@ if ($F_RIGHT>=30 && $ID>0)
 }
 
 ####### get answers list
-$rAnswer = CFormAnswer::GetList($ID, $by, $order, array(), $is_filtered);
+$rAnswer = CFormAnswer::GetList($ID);
 $i=0;
 $bWarn=false;
 $arRow=array();
@@ -281,7 +279,7 @@ if ($str_ADDITIONAL=="Y")
 $arCurrentValidators = array();
 if ($ID > 0)
 {
-	$rsCurrentValidators = CFormValidator::GetList($ID, array(), $by="C_SORT", $order="ASC");
+	$rsCurrentValidators = CFormValidator::GetList($ID);
 	while ($arValidator = $rsCurrentValidators->Fetch())
 	{
 		$arCurrentValidators[] = $arValidator;
@@ -544,16 +542,15 @@ BX.ready(function() {
 	$bResults=false;
 	if (intval($WEB_FORM_ID)>0)
 	{
-		$result = CFormResult::GetList($WEB_FORM_ID, $by, $order, $arFilter, $is_filtered);
+		$result = CFormResult::GetList($WEB_FORM_ID, '', '', $arFilter);
 		if ($result->Fetch()) // form already has results
 		{
 			$bResults=true;
-			reset($arCompat_desc);
-			while($e=each($arCompat_desc))
+			foreach ($arCompat_desc as $val)
 			{
-				if (in_array($ftype,array_keys($e[1])))
+				if (in_array($ftype, array_keys($val)))
 				{
-					$arCompatList=array_keys($e[1]); // list of compatible fields
+					$arCompatList = array_keys($val); // list of compatible fields
 					break;
 				}
 
@@ -562,11 +559,10 @@ BX.ready(function() {
 	}
 
 	$arTypes = CFormAnswer::GetTypeList();
-	reset($arTypes['reference']);
-	while ($e=each($arTypes['reference']))
+	foreach ($arTypes['reference'] as $val)
 	{
-		if (!$ID || !$bResults || in_array($e[1],$arCompatList))
-			print "<option value='$e[1]'".($e[1]==$ftype?" selected=\"selected\"":"").">".$arTypeList_desc[$e[1]]." [".$e[1]."]</option>\n";
+		if (!$ID || !$bResults || in_array($val, $arCompatList))
+			print "<option value='$val'".($val == $ftype?" selected=\"selected\"":"").">".$arTypeList_desc[$val]." [".$val."]</option>\n";
 	}
 	?>
 		</select>

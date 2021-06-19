@@ -87,17 +87,20 @@
 
 	// ALLOW_UPLOAD = 'A'll files | 'I'mages | 'F'iles with selected extensions
 	// ALLOW_UPLOAD_EXT = comma-separated list of allowed file extensions (ALLOW_UPLOAD='F')
-			this.limits["uploadFile"] = (params["allowUpload"] == "I" ? "image/*" : "");
+			this.limits["uploadFile"] = (params["allowUpload"] === "I" ? "image/*" : "");
 			this.limits["uploadFileExt"] = this.limits["allowUploadExt"];
 
 			if (this.limits["uploadFileExt"].length > 0)
 			{
 				var ext = this.limits["uploadFileExt"].split(this.limits["uploadFileExt"].indexOf(",") >= 0 ? "," : " ");
+				var ext2 = this.limits["uploadFile"] === '' ? [] : [this.limits["uploadFile"]];
 				for (ii = 0; ii < ext.length; ii++)
 				{
-					ext[ii] = (ext[ii].charAt(0) == "." ? ext[ii].substr(1) : ext[ii]);
+					ext[ii] = (ext[ii].charAt(0) === "." ? ext[ii].substr(1) : ext[ii]);
+					ext2.push('.' + ext[ii]);
 				}
-				this.limits["uploadFileExt"] = ext.join(",");
+				this.limits["uploadFileExt"] = ext.join(',');
+				this.limits["uploadFile"] = ext2.join(',');
 			}
 			this.params = params;
 
@@ -106,7 +109,7 @@
 			this.params["uploadFormData"] = (this.params["uploadFormData"] == "N" ? "N" : "Y");
 			this.params["uploadMethod"] = (this.params["uploadMethod"] == "immediate" ? "immediate" : "deferred"); // Should we start upload immediately or by event
 			this.params["uploadFilesForPackage"] = parseInt(this.params["uploadFilesForPackage"] > 0 ? this.params["uploadFilesForPackage"] : 0);
-			this.params["imageExt"] = "jpg,bmp,jpeg,jpe,gif,png";
+			this.params["imageExt"] = "jpg,bmp,jpeg,jpe,gif,png,webp";
 			this.params["uploadInputName"] = (!!this.params["uploadInputName"] ? this.params["uploadInputName"] : "bxu_files");
 			this.params["uploadInputInfoName"] = (!!this.params["uploadInputInfoName"] ? this.params["uploadInputInfoName"] : "bxu_info");
 			this.params["deleteFileOnServer"] = !(this.params["deleteFileOnServer"] === false || this.params["deleteFileOnServer"] === "N");

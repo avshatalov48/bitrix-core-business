@@ -312,7 +312,7 @@ class CSPListsClient extends CSOAPClient
 
 				$RESULT['COUNT'] = $DATA_NODE->getAttribute('ItemCount');
 				$RESULT['PAGING'] = $DATA_NODE->getAttribute('ListItemCollectionPositionNext');
-				$RESULT['MORE_ROWS'] |= (strlen($RESULT['PAGING']) > 0);
+				$RESULT['MORE_ROWS'] |= ($RESULT['PAGING'] <> '');
 
 				$RESULT['DATA'] = $this->ConvertRows($DATA_NODE);
 
@@ -381,9 +381,9 @@ class CSPListsClient extends CSOAPClient
 
 			foreach ($row as $fld => $value)
 			{
-				if (substr($fld, 0, 9) == 'MetaInfo_')
+				if (mb_substr($fld, 0, 9) == 'MetaInfo_')
 				{
-					$obRow->addChild(CXMLCreator::createTagAttributed('Field Name="MetaInfo" Property="'.CXMLCreator::xmlspecialchars(substr($fld, 9)).'"', $value));
+					$obRow->addChild(CXMLCreator::createTagAttributed('Field Name="MetaInfo" Property="'.CXMLCreator::xmlspecialchars(mb_substr($fld, 9)).'"', $value));
 				}
 				else
 				{
@@ -463,12 +463,12 @@ class CSPListsClient extends CSOAPClient
 
 			if ($file_contents = $CLIENT->Get($URL))
 			{
-				$point_pos = strrpos($URL, '.');
+				$point_pos = mb_strrpos($URL, '.');
 				$ext = '';
 
-				$new_filename = md5($URL).($point_pos > 0 ? substr($URL, $point_pos) : '');
+				$new_filename = md5($URL).($point_pos > 0? mb_substr($URL, $point_pos) : '');
 
-				$new_filepath = $_SERVER['DOCUMENT_ROOT'].$this->ATTACHMENTS_PATH.'/'.substr($new_filename, 0, 2).'/'.$new_filename;
+				$new_filepath = $_SERVER['DOCUMENT_ROOT'].$this->ATTACHMENTS_PATH.'/'.mb_substr($new_filename, 0, 2).'/'.$new_filename;
 				CheckDirPath($new_filepath);
 
 				$fp = fopen($new_filepath, 'wb');
@@ -566,8 +566,8 @@ class CSPListsClient extends CSOAPClient
 			foreach($arAttrs as $attr)
 			{
 				// cut 'ows' prefix
-				$name = substr($attr->name, 0, 4) == 'ows_'
-					? substr($attr->name, 4)
+				$name = mb_substr($attr->name, 0, 4) == 'ows_'
+					? mb_substr($attr->name, 4)
 					: $attr->name;
 
 				$arRow[$name] = $attr->content;

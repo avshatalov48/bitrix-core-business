@@ -149,7 +149,7 @@ function _ShowHiddenValue($name, $value)
 
 class Learning_CIBlockPropertyUserID
 {
-	function GetPropertyFieldHtml($arProperty, $value, $strHTMLControlName)
+	public static function GetPropertyFieldHtml($arProperty, $value, $strHTMLControlName)
 	{
 		global $USER;
 		$default_value = intval($value["VALUE"]);
@@ -162,7 +162,7 @@ class Learning_CIBlockPropertyUserID
 		elseif ($default_value > 0)
 		{
 			$select = "SU";
-			$rsUsers = CUser::GetList($by, $order, array("ID" => $default_value));
+			$rsUsers = CUser::GetList('', '', array("ID" => $default_value));
 			if ($arUser = $rsUsers->Fetch())
 				$res = "[<a title='".GetMessage("LEARNING_USER_SELECTOR_USER_PROFILE")."'  href='/bitrix/admin/user_edit.php?ID=".$arUser["ID"]."&lang=".LANG."'>".$arUser["ID"]."</a>] (".htmlspecialcharsbx($arUser["LOGIN"]).") ".htmlspecialcharsbx($arUser["NAME"])." ".htmlspecialcharsbx($arUser["LAST_NAME"]);
 			else

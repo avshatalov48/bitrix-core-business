@@ -15,7 +15,7 @@ export class SectionSelector
 		this.getCurrentSection = params.getCurrentSection;
 
 		this.defaultCalendarType = params.defaultCalendarType;
-		this.defaultOwnerId = parseInt(params.defaultOwnerId);
+		this.defaultOwnerId = parseInt(params.defaultOwnerId) || 0;
 
 		this.zIndex = params.zIndex || 3200;
 		this.mode = params.mode; // full|compact|textselect
@@ -83,18 +83,23 @@ export class SectionSelector
 				let filteredList;
 				if (sectionGroup.belongsToView)
 				{
-					filteredList = sectionList.filter(this.sectionBelongsToView, this);
+					filteredList = sectionList.filter((section) => {
+						return SectionSelector.getSectionType(section) === this.defaultCalendarType
+							&& SectionSelector.getSectionOwner(section) === this.defaultOwnerId;
+					}, this);
 				}
 				else if (sectionGroup.type === 'user')
 				{
 					filteredList = sectionList.filter((section) => {
-						return SectionSelector.getSectionType(section) === 'user' && SectionSelector.getSectionOwner(section) === sectionGroup.ownerId;
+						return SectionSelector.getSectionType(section) === 'user'
+							&& SectionSelector.getSectionOwner(section) === sectionGroup.ownerId;
 					});
 				}
 				else if (sectionGroup.type === 'company')
 				{
 					filteredList = sectionList.filter((section) => {
-						return SectionSelector.getSectionType(section) === 'company_calendar' || SectionSelector.getSectionType(section) === sectionGroup.type;
+						return SectionSelector.getSectionType(section) === 'company_calendar'
+							|| SectionSelector.getSectionType(section) === sectionGroup.type;
 					});
 				}
 				else
@@ -296,11 +301,6 @@ export class SectionSelector
 				}
 			})(sectionItem)
 		}
-	}
-
-	sectionBelongsToView(section)
-	{
-		return SectionSelector.getSectionType(section) === this.defaultCalendarType && SectionSelector.getSectionOwner(section) === this.defaultOwnerId;
 	}
 
 	static getSectionType(section)

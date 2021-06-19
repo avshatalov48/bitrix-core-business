@@ -14,7 +14,7 @@ class sender extends CModule
 
 	var $errors;
 
-	function sender()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -105,6 +105,7 @@ class sender extends CModule
 			RegisterModuleDependences("voximplant", "OnInfoCallResult", "sender", "Bitrix\\Sender\\Integration\\VoxImplant\\Service", "onInfoCallResult");
 
 			RegisterModuleDependences("pull", "OnGetDependentModule", "sender", "Bitrix\\Sender\\SenderPullSchema", "OnGetDependentModule" );
+			RegisterModuleDependences("im", "OnGetNotifySchema", "sender", "Bitrix\\Sender\\SenderNotifySchema", "OnGetNotifySchema" );
 
 			CTimeZone::Disable();
 
@@ -169,6 +170,7 @@ class sender extends CModule
 		UnRegisterModuleDependences("voximplant", "OnInfoCallResult", "sender", "Bitrix\\Sender\\Integration\\VoxImplant\\Service", "onInfoCallResult");
 
 		UnRegisterModuleDependences("pull", "OnGetDependentModule", "sender", "Bitrix\\Sender\\SenderPullSchema", "OnGetDependentModule" );
+		UnRegisterModuleDependences("im", "OnGetNotifySchema", "sender", "Bitrix\\Sender\\SenderNotifySchema", "OnGetNotifySchema" );
 
 		UnRegisterModule("sender");
 

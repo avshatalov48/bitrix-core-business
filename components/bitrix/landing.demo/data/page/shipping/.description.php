@@ -8,11 +8,11 @@ use \Bitrix\Main\Localization\Loc;
 
 Loc::loadLanguageFile(__FILE__);
 
-return array(
+return [
 	'name' => Loc::getMessage('LANDING_DEMO_TITLE'),
 	'description' => Loc::getMessage('LANDING_DEMO_DESCRIPTION'),
-	'fields' => array(
-		'ADDITIONAL_FIELDS' => array(
+	'fields' => [
+		'ADDITIONAL_FIELDS' => [
 			'THEME_CODE' => 'shipping',
 
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/shipping/preview.jpg',
@@ -20,11 +20,11 @@ return array(
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_DESCRIPTION'),
 			'METAMAIN_TITLE' => Loc::getMessage('LANDING_DEMO_TITLE'),
 			'METAMAIN_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_DESCRIPTION'),
-		),
-	),
-	'items' => array (
+		],
+	],
+	'items' => [
 		'0.menu_16' =>
-			array (
+			[
 				'CODE' => '0.menu_16',
 				'SORT' => '-100',
 				'CONTENT' => '
@@ -54,10 +54,10 @@ return array(
 											<i class="landing-block-node-menu-contact-img icon icon-screen-smartphone"></i>
 										</span>
 										<span class="landing-block-node-menu-contactlink-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">
-											<span class="landing-block-node-menu-contactlink-title  landing-block-node-menu-contact-title-style g-color-main d-block text-uppercase g-font-size-13">
+											<span class="landing-block-node-menu-contactlink-title  landing-block-node-menu-contact-title-style d-block text-uppercase g-font-size-13">
 												Call Us
 											</span>
-											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style d-block g-color-gray-dark-v2 g-font-weight-700 g-text-decoration-none g-text-underline--hover">
+											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style d-block g-font-weight-700 g-text-decoration-none g-text-underline--hover">
 												+469 548 521
 											</span>
 										</span>
@@ -71,10 +71,10 @@ return array(
 											<i class="landing-block-node-menu-contact-img icon icon-clock"></i>
 										</div>
 										<div class="landing-block-node-menu-contact-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">
-											<div class="landing-block-node-menu-contact-title landing-block-node-menu-contact-title-style g-color-main text-uppercase g-font-size-13">
+											<div class="landing-block-node-menu-contact-title landing-block-node-menu-contact-title-style text-uppercase g-font-size-13">
 												Opening time
 											</div>
-											<div class="landing-block-node-menu-contact-value landing-block-node-menu-contact-text-style g-color-gray-dark-v2 g-font-weight-700">
+											<div class="landing-block-node-menu-contact-value landing-block-node-menu-contact-text-style g-font-weight-700">
 												Mon-Sat: 08.00 -18.00
 											</div>
 										</div>
@@ -89,10 +89,10 @@ return array(
 											<i class="landing-block-node-menu-contactlink-img icon icon-envelope"></i>
 										</span>
 										<span class="landing-block-node-menu-contactlink-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">
-											<span class="landing-block-node-menu-contactlink-title  landing-block-node-menu-contact-title-style g-color-main d-block text-uppercase g-font-size-13">
+											<span class="landing-block-node-menu-contactlink-title  landing-block-node-menu-contact-title-style d-block text-uppercase g-font-size-13">
 												Email us
 											</span>
-											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style d-block g-color-gray-dark-v2 g-font-weight-700 g-text-decoration-none g-text-underline--hover">
+											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style d-block g-font-weight-700 g-text-decoration-none g-text-underline--hover">
 												info@company24.com
 											</span>
 										</span>
@@ -199,9 +199,9 @@ return array(
 		</nav>
 	</div>
 </header>',
-			),
+			],
 		'33.32.form_light_bgimg_right_text' =>
-			array (
+			[
 				'CODE' => '33.32.form_light_bgimg_right_text',
 				'SORT' => '500',
 				'CONTENT' => '<section class="g-pos-rel landing-block g-bg-primary-dark-v1">
@@ -239,9 +239,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'30.2.three_cols_fix_img_and_links' =>
-			array (
+			[
 				'CODE' => '30.2.three_cols_fix_img_and_links',
 				'SORT' => '1000',
 				'CONTENT' => '<section class="landing-block g-pt-60 g-pb-60">
@@ -251,27 +251,31 @@ return array(
 
                 <div class="landing-block-card col-sm-6 col-md-4 js-animation fadeIn animated ">
                     <article class="u-shadow-v28 g-bg-white">
+                    <div class="landing-block-node-img-container">
                         <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x400/img1.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-                        <div class="g-pos-rel">
-                            <!-- SVG Background -->
-                            <svg class="g-hidden-col-1 g-hidden-col-2 g-pos-abs g-left-0 g-right-0" version="1.1" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px" viewbox="20 -20 300 100" style="top: -70%;">
-                                <path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729
-              c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z" opacity="0.4" fill="#f0f1f3" />
-                                <path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729
-              c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z" opacity="0.4" fill="#f0f1f3" />
-                                <path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716
-              H42.401L43.415,98.342z" opacity="0" fill="#fff" />
-                                <path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428
-              c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z" fill="#fff" />
-                            </svg>
-                            <!-- End SVG Background -->
-
+                        <div class="landing-block-node-svg-container g-pointer-events-none g-pos-rel">
+							<svg class="g-hidden-col-1 g-hidden-col-2 g-hidden-col-3--md g-pos-abs g-left-0 g-right-0 g-bottom-0"
+								 version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
+								 xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px"
+								 viewBox="20 -20 300 100">
+								<path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729 c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729 c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716 H42.401L43.415,98.342z"
+									  opacity="0" fill="#fff"/>
+								<path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428 c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z"
+									  fill="#fff"/>
+							</svg>
+						</div>
+					</div>
+					<div class="g-pos-rel">
                             <div class="g-pos-rel g-z-index-1 g-pa-30">
                                 <h3 class="h5 mb-3">
-                                    <a class="landing-block-node-link u-link-v5 g-color-main g-color-primary--hover" href="#" target="_self">CARGO</a>
+                                    <a class="landing-block-node-link u-link-v5 g-color-primary--hover" href="#" target="_self">CARGO</a>
                                 </h3>
-                                <a class="landing-block-node-link-more u-link-v5 g-color-text g-color-primary--hover g-font-weight-500" href="#" target="_self">Read More</a>
+                                <a class="landing-block-node-link-more u-link-v5 g-color-primary--hover g-font-weight-500" href="#" target="_self">Read More</a>
                             </div>
                         </div>
                     </article>
@@ -279,27 +283,31 @@ return array(
 
                 <div class="landing-block-card col-sm-6 col-md-4 js-animation fadeIn animated ">
                     <article class="u-shadow-v28 g-bg-white">
+                    <div class="landing-block-node-img-container">
                         <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x400/img2.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-                        <div class="g-pos-rel">
-                            <!-- SVG Background -->
-                            <svg class="g-hidden-col-1 g-hidden-col-2 g-pos-abs g-left-0 g-right-0" version="1.1" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px" viewbox="20 -20 300 100" style="top: -70%;">
-                                <path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729
-              c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z" opacity="0.4" fill="#f0f1f3" />
-                                <path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729
-              c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z" opacity="0.4" fill="#f0f1f3" />
-                                <path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716
-              H42.401L43.415,98.342z" opacity="0" fill="#fff" />
-                                <path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428
-              c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z" fill="#fff" />
-                            </svg>
-                            <!-- End SVG Background -->
-
+                        <div class="landing-block-node-svg-container g-pointer-events-none g-pos-rel">
+							<svg class="g-hidden-col-1 g-hidden-col-2 g-hidden-col-3--md g-pos-abs g-left-0 g-right-0 g-bottom-0"
+								 version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
+								 xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px"
+								 viewBox="20 -20 300 100">
+								<path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729 c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729 c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716 H42.401L43.415,98.342z"
+									  opacity="0" fill="#fff"/>
+								<path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428 c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z"
+									  fill="#fff"/>
+							</svg>
+						</div>
+					</div>
+					<div class="g-pos-rel">
                             <div class="g-pos-rel g-z-index-1 g-pa-30">
                                 <h3 class="h5 mb-3">
-                                    <a class="landing-block-node-link u-link-v5 g-color-main g-color-primary--hover" href="#" target="_self">LOGISTIC SERVICES</a>
+                                    <a class="landing-block-node-link u-link-v5 g-color-primary--hover" href="#" target="_self">LOGISTIC SERVICES</a>
                                 </h3>
-                                <a class="landing-block-node-link-more u-link-v5 g-color-text g-color-primary--hover g-font-weight-500" href="#" target="_self">Read More</a>
+                                <a class="landing-block-node-link-more u-link-v5 g-color-primary--hover g-font-weight-500" href="#" target="_self">Read More</a>
                             </div>
                         </div>
                     </article>
@@ -308,27 +316,31 @@ return array(
 
 				<div class="landing-block-card col-sm-6 col-md-4 js-animation fadeIn animated ">
 					<article class="u-shadow-v28 g-bg-white">
+					<div class="landing-block-node-img-container">
 						<img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x400/img3.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-						<div class="g-pos-rel">
-							<!-- SVG Background -->
-							<svg class="g-hidden-col-1 g-hidden-col-2 g-pos-abs g-left-0 g-right-0" version="1.1" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px" viewbox="20 -20 300 100" style="top: -70%;">
-								<path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729
-              c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z" opacity="0.4" fill="#f0f1f3" />
-								<path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729
-              c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z" opacity="0.4" fill="#f0f1f3" />
-								<path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716
-              H42.401L43.415,98.342z" opacity="0" fill="#fff" />
-								<path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428
-              c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z" fill="#fff" />
+						<div class="landing-block-node-svg-container g-pointer-events-none g-pos-rel">
+							<svg class="g-hidden-col-1 g-hidden-col-2 g-hidden-col-3--md g-pos-abs g-left-0 g-right-0 g-bottom-0"
+								 version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
+								 xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px"
+								 viewBox="20 -20 300 100">
+								<path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729 c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M-35.667,44.628c0,0,42.91-34.463,87.51-14.191c77.31,35.141,113.304-1.952,146.639-4.729 c48.653-4.055,69.939,16.218,69.939,16.218v54.396H-35.667V44.628z"
+									  opacity="0.4" fill="#f0f1f3"/>
+								<path d="M43.415,98.342c0,0,48.283-68.927,109.133-68.927c65.886,0,97.983,67.914,97.983,67.914v3.716 H42.401L43.415,98.342z"
+									  opacity="0" fill="#fff"/>
+								<path d="M-34.667,62.998c0,0,56-45.667,120.316-27.839C167.484,57.842,197,41.332,232.286,30.428 c53.07-16.399,104.047,36.903,104.047,36.903l1.333,36.667l-372-2.954L-34.667,62.998z"
+									  fill="#fff"/>
 							</svg>
-							<!-- End SVG Background -->
-
+						</div>
+					</div>
+					<div class="g-pos-rel">
 							<div class="g-pos-rel g-z-index-1 g-pa-30">
 								<h3 class="h5 mb-3">
-									<a class="landing-block-node-link u-link-v5 g-color-main g-color-primary--hover" href="#" target="_self">STORAGE</a>
+									<a class="landing-block-node-link u-link-v5 g-color-primary--hover" href="#" target="_self">STORAGE</a>
 								</h3>
-								<a class="landing-block-node-link-more u-link-v5 g-color-text g-color-primary--hover g-font-weight-500" href="#" target="_self">Read More</a>
+								<a class="landing-block-node-link-more u-link-v5 g-color-primary--hover g-font-weight-500" href="#" target="_self">Read More</a>
 							</div>
 						</div>
 					</article>
@@ -338,9 +350,9 @@ return array(
         </div>
 
     </section>',
-			),
+			],
 		'04.7.one_col_fix_with_title_and_text_2' =>
-			array (
+			[
 				'CODE' => '04.7.one_col_fix_with_title_and_text_2',
 				'SORT' => '1500',
 				'CONTENT' => '<section class="landing-block js-animation fadeInUp g-bg-gray-light-v5 g-pt-20 g-pb-20">
@@ -349,16 +361,16 @@ return array(
 
             <div class="landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary">
                 <h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-primary g-mb-15"> </h4>
-                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-color-black g-mb-minus-10 g-font-size-26">TYPES OF SHIPPING</h2>
+                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-mb-minus-10 g-font-size-26">TYPES OF SHIPPING</h2>
             </div>
 
-			<div class="landing-block-node-text g-color-gray-dark-v5"><p>Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum.</p></div>
+			<div class="landing-block-node-text"><p>Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum.</p></div>
         </div>
 
     </section>',
-			),
+			],
 		'44.1.four_columns_with_img_and_text' =>
-			array (
+			[
 				'CODE' => '44.1.four_columns_with_img_and_text',
 				'SORT' => '2000',
 				'CONTENT' => '<section class="landing-block">
@@ -377,10 +389,10 @@ return array(
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-pa-30">
-							<h4 class="landing-block-node-card-title h3 text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
+							<h3 class="landing-block-node-card-title text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
 								<span style="font-weight: bold;" class="g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">Small</span><br>
 								Objects
-							</h4>
+							</h3>
 							<div class="landing-block-node-card-text-unhover info-v3-3__category g-font-size-11 text-uppercase">
 								Shipping & package
 							</div>
@@ -409,10 +421,10 @@ return array(
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-pa-30">
-							<h4 class="landing-block-node-card-title h3 text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
+							<h3 class="landing-block-node-card-title text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
 								<span style="font-weight: bold;" class="g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">Medium</span><br>
 								Objects
-							</h4>
+							</h3>
 							<div class="landing-block-node-card-text-unhover info-v3-3__category g-font-size-11 text-uppercase">
 								Shipping & package
 							</div>
@@ -441,10 +453,10 @@ return array(
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-pa-30">
-							<h4 class="landing-block-node-card-title h3 text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
+							<h3 class="landing-block-node-card-title text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
 								<span style="font-weight: bold;" class="g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">Large</span><br>
 								Objects
-							</h4>
+							</h3>
 							<div class="landing-block-node-card-text-unhover info-v3-3__category g-font-size-11 text-uppercase">
 								Shipping & package
 							</div>
@@ -473,10 +485,10 @@ return array(
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-pa-30">
-							<h4 class="landing-block-node-card-title h3 text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
+							<h3 class="landing-block-node-card-title text-uppercase g-line-height-1 g-font-weight-700 g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
 								<span style="font-weight: bold;" class="g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">XXXXL</span><br>
 								Objects
-							</h4>
+							</h3>
 							<div class="landing-block-node-card-text-unhover info-v3-3__category g-font-size-11 text-uppercase">
 								Shipping & package
 							</div>
@@ -497,9 +509,9 @@ return array(
 	</div>
 </section>
 ',
-			),
+			],
 		'41.4.cover_with_text_columns_on_bgimg' =>
-			array (
+			[
 				'CODE' => '41.4.cover_with_text_columns_on_bgimg',
 				'SORT' => '2500',
 				'CONTENT' => '<section
@@ -524,11 +536,11 @@ return array(
 				<!-- Icon Blocks -->
 				<div class="u-info-v2-2 h-100 g-color-white text-center">
 					<div class="u-info-v2-2__item h-100 g-brd-around g-brd-top-none g-brd-white-opacity-0_2 g-px-20 g-pb-30">
-						<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
+						<span class="landing-block-node-card-icon-container m-auto u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-transport-026 u-line-icon-pro"></i>
 						</span>
-						<h3 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
-							International Shipping</h3>
+						<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
+							International Shipping</h6>
 						<div class="landing-block-node-card-text g-color-white-opacity-0_8 mb-0">
 							<p>Fusce mauris eros, ullamcorper in gravida a, feugiat
 								in mauris. Curabitur ac scelerisque nisi. Vivamus accumsan in purus et egestas.</p>
@@ -542,11 +554,11 @@ return array(
 				<!-- Icon Blocks -->
 				<div class="u-info-v2-2 h-100 g-color-white text-center">
 					<div class="u-info-v2-2__item h-100 g-brd-around g-brd-top-none g-brd-white-opacity-0_2 g-px-20 g-pb-30">
-						<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
+						<span class="landing-block-node-card-icon-container m-auto u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-christmas-090 u-line-icon-pro"></i>
 						</span>
-						<h3 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
-							Packaging</h3>
+						<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
+							Packaging</h6>
 						<div class="landing-block-node-card-text g-color-white-opacity-0_8 mb-0">
 							<p>Fusce mauris eros, ullamcorper in gravida a, feugiat
 								in mauris. Curabitur ac scelerisque nisi. Vivamus accumsan in purus et egestas.</p>
@@ -560,12 +572,12 @@ return array(
 				<!-- Icon Blocks -->
 				<div class="u-info-v2-2 h-100 g-color-white text-center">
 					<div class="u-info-v2-2__item h-100 g-brd-around g-brd-top-none g-brd-white-opacity-0_2 g-px-20 g-pb-30">
-						<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
+						<span class="landing-block-node-card-icon-container m-auto u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-travel-044 u-line-icon-pro"></i>
 						</span>
-						<h3 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
+						<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							Competitive
-							rates</h3>
+							rates</h6>
 						<div class="landing-block-node-card-text g-color-white-opacity-0_8 mb-0">
 							<p>Fusce mauris eros, ullamcorper in gravida a, feugiat
 								in mauris. Curabitur ac scelerisque nisi. Vivamus accumsan in purus et egestas.</p>
@@ -579,12 +591,12 @@ return array(
 				<!-- Icon Blocks -->
 				<div class="u-info-v2-2 h-100 g-color-white text-center">
 					<div class="u-info-v2-2__item h-100 g-brd-around g-brd-top-none g-brd-white-opacity-0_2 g-px-20 g-pb-30">
-						<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
+						<span class="landing-block-node-card-icon-container m-auto u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-hotel-restaurant-249 u-line-icon-pro"></i>
 						</span>
-						<h3 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
+						<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							Quick
-							shipping</h3>
+							shipping</h6>
 						<div class="landing-block-node-card-text g-color-white-opacity-0_8 mb-0">
 							<p>Fusce mauris eros, ullamcorper in gravida a, feugiat
 								in mauris. Curabitur ac scelerisque nisi. Vivamus accumsan in purus et egestas.</p>
@@ -598,12 +610,12 @@ return array(
 				<!-- Icon Blocks -->
 				<div class="u-info-v2-2 h-100 g-color-white text-center">
 					<div class="u-info-v2-2__item h-100 g-brd-around g-brd-top-none g-brd-white-opacity-0_2 g-px-20 g-pb-30">
-						<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
+						<span class="landing-block-node-card-icon-container m-auto u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-hotel-restaurant-211 u-line-icon-pro"></i>
 						</span>
-						<h3 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
+						<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							Quality
-							protection</h3>
+							protection</h6>
 						<div class="landing-block-node-card-text g-color-white-opacity-0_8 mb-0">
 							<p>Fusce mauris eros, ullamcorper in gravida a, feugiat
 								in mauris. Curabitur ac scelerisque nisi. Vivamus accumsan in purus et egestas.</p>
@@ -617,12 +629,12 @@ return array(
 				<!-- Icon Blocks -->
 				<div class="u-info-v2-2 h-100 g-color-white text-center">
 					<div class="u-info-v2-2__item h-100 g-brd-around g-brd-top-none g-brd-white-opacity-0_2 g-px-20 g-pb-30">
-						<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
+						<span class="landing-block-node-card-icon-container m-auto u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
 							  <i class="landing-block-node-card-icon icon-hotel-restaurant-234 u-line-icon-pro"></i>
 						</span>
-						<h3 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
+						<h6 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							Shipping
-							anywhere</h3>
+							anywhere</h6>
 						<div class="landing-block-node-card-text g-color-white-opacity-0_8 mb-0">
 							<p>Fusce mauris eros, ullamcorper in gravida a, feugiat
 								in mauris. Curabitur ac scelerisque nisi. Vivamus accumsan in purus et egestas.</p>
@@ -635,9 +647,9 @@ return array(
 		<!-- End Icon Blocks -->
 	</div>
 </section>',
-			),
+			],
 		'04.7.one_col_fix_with_title_and_text_2@2' =>
-			array (
+			[
 				'CODE' => '04.7.one_col_fix_with_title_and_text_2',
 				'SORT' => '3000',
 				'CONTENT' => '<section class="landing-block g-bg-gray-light-v5 js-animation fadeInUp g-pt-60 g-pb-20">
@@ -646,16 +658,15 @@ return array(
 
             <div class="landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary">
                 <h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-primary g-mb-15"> </h4>
-                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-color-black g-mb-minus-10 g-font-size-26">OUR SKILLS</h2>
+                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-mb-minus-10 g-font-size-26">OUR SKILLS</h2>
             </div>
-
-			<div class="landing-block-node-text g-color-gray-dark-v5"><p>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Maecenas ac nulla vehicula risus pulvinar feugiat ullamcorper sit amet mi.</p></div>
+			<div class="landing-block-node-text"><p>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Maecenas ac nulla vehicula risus pulvinar feugiat ullamcorper sit amet mi.</p></div>
         </div>
 
     </section>',
-			),
+			],
 		'08.1.three_cols_fix_title_and_text' =>
-			array (
+			[
 				'CODE' => '08.1.three_cols_fix_title_and_text',
 				'SORT' => '3500',
 				'CONTENT' => '<section class="landing-block g-pb-60 g-pt-20">
@@ -664,8 +675,8 @@ return array(
 
                 <div class="landing-block-card g-mb-40 g-mb-0--lg  col-lg-3 js-animation fadeIn animated">
                     <div class="landing-block-card-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
-                        <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20"> </h4>
-                        <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-color-black g-font-size-17 g-text-break-word">84 HAPPY CLIENTS</h2>
+                        <h6 class="landing-block-node-subtitle g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20"> </h6>
+                        <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-font-size-17 g-text-break-word">84 HAPPY CLIENTS</h2>
                     </div>
 
                     <div class="landing-block-node-text"><p>Integer accumsan maximus leo, et consectetur metus vestibulum in. Vestibulum viverra justo odio maximus efficitur</p></div>
@@ -673,8 +684,8 @@ return array(
 
                 <div class="landing-block-card g-mb-40 g-mb-0--lg  col-lg-3 js-animation fadeIn animated">
                     <div class="landing-block-card-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
-                        <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20"> </h4>
-                        <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-color-black g-font-size-17 g-text-break-word">34 COMPLETED PROJECTS</h2>
+                        <h6 class="landing-block-node-subtitle g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20"> </h6>
+                        <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-font-size-17 g-text-break-word">34 COMPLETED PROJECTS</h2>
                     </div>
 
                     <div class="landing-block-node-text"><p>Integer accumsan maximus leo, et consectetur metus vestibulum in. Vestibulum viverra justo odio maximus efficitur</p></div>
@@ -682,8 +693,8 @@ return array(
 
                 <div class="landing-block-card g-mb-40 g-mb-0--lg  col-lg-3 js-animation fadeIn animated">
                     <div class="landing-block-card-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
-                        <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20"> </h4>
-                        <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-color-black g-font-size-17 g-text-break-word">35 OUR TEAM</h2>
+                        <h6 class="landing-block-node-subtitle g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20"> </h6>
+                        <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-font-size-17 g-text-break-word">35 OUR TEAM</h2>
                     </div>
 
                     <div class="landing-block-node-text"><p>Integer accumsan maximus leo, et consectetur metus vestibulum in. Vestibulum viverra justo odio maximus efficitur</p></div>
@@ -691,17 +702,17 @@ return array(
 
             <div class="landing-block-card g-mb-40 g-mb-0--lg  col-lg-3 js-animation fadeIn animated">
                     <div class="landing-block-card-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
-                        <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20"> </h4>
-                        <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-color-black g-font-size-17 g-text-break-word">67 COUNTRIES</h2>
+                        <h6 class="landing-block-node-subtitle g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20"> </h6>
+                        <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 	g-font-size-17 g-text-break-word">67 COUNTRIES</h2>
                     </div>
 
                     <div class="landing-block-node-text"><p>Integer accumsan maximus leo, et consectetur metus vestibulum in. Vestibulum viverra justo odio maximus efficitur</p></div>
                 </div></div>
         </div>
     </section>',
-			),
+			],
 		'10.1.two_cols_big_img_text_and_text_blocks' =>
-			array (
+			[
 				'CODE' => '10.1.two_cols_big_img_text_and_text_blocks',
 				'SORT' => '4000',
 				'CONTENT' => '<section class="landing-block row no-gutters g-pt-0">
@@ -709,19 +720,19 @@ return array(
 
         <div class="landing-block-node-texts col-lg-7 g-pt-100 g-pb-80 g-px-15 g-px-40--md g-bg-gray-light-v5">
             <header class="landing-block-node-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
-                <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20"> </h4>
-                <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-color-black-opacity-0_9 g-font-size-26">PACKING FRAGILE ITEMS</h2>
+                <h6 class="landing-block-node-subtitle g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20"> </h6>
+                <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-font-size-26">PACKING FRAGILE ITEMS</h2>
             </header>
 
-			<div class="landing-block-node-text g-color-gray-dark-v3"><p>Aenean volutpat erat quis mollis accumsan. Mauris at cursus ipsum. Praesent molestie imperdiet purus in finibus. Pellentesque elit enim, malesuada a varius elementum, sodales id turpis. Maecenas interdum enim egestas risus semper, consectetur auctor metus rhoncus.<br /><br /><span style="font-size: 1rem;">Proin tempus tincidunt nunc sed pellentesque. Vivamus suscipit, tellus nec auctor egestas, urna augue hendrerit est, vel luctus nisl leo ut sem. Suspendisse sed tincidunt risus.</span></p></div>
+			<div class="landing-block-node-text"><p>Aenean volutpat erat quis mollis accumsan. Mauris at cursus ipsum. Praesent molestie imperdiet purus in finibus. Pellentesque elit enim, malesuada a varius elementum, sodales id turpis. Maecenas interdum enim egestas risus semper, consectetur auctor metus rhoncus.<br /><br /><span style="font-size: 1rem;">Proin tempus tincidunt nunc sed pellentesque. Vivamus suscipit, tellus nec auctor egestas, urna augue hendrerit est, vel luctus nisl leo ut sem. Suspendisse sed tincidunt risus.</span></p></div>
 
             <div class="row align-items-stretch">
 
                 <div class="col-sm-6 g-mb-30 landing-block-card-text-block">
                     <article class="h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
                         <div class="g-flex-middle-item">
-                            <h4 class="landing-block-node-text-block-title h6 g-font-weight-600 text-uppercase g-mb-10 g-color-black"><span style="color: rgb(244, 67, 54);">01.</span> FUSCE ACCUMSAN FAUCIBUS</h4>
-                            <div class="landing-block-node-text-block-text g-color-gray-dark-v3"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
+                            <h6 class="landing-block-node-text-block-title g-font-weight-600 text-uppercase g-mb-10">01. FUSCE ACCUMSAN FAUCIBUS</h6>
+                            <div class="landing-block-node-text-block-text"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
                         </div>
                     </article>
                 </div>
@@ -729,8 +740,8 @@ return array(
                 <div class="col-sm-6 g-mb-30 landing-block-card-text-block">
                     <article class="h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
                         <div class="g-flex-middle-item">
-                            <h4 class="landing-block-node-text-block-title h6 g-font-weight-600 text-uppercase g-mb-10 g-color-black">02. MAECENAS AUCTOR MAURIS</h4>
-                            <div class="landing-block-node-text-block-text g-color-gray-dark-v3"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
+                            <h6 class="landing-block-node-text-block-title g-font-weight-600 text-uppercase g-mb-10">02. MAECENAS AUCTOR MAURIS</h6>
+                            <div class="landing-block-node-text-block-text"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
                         </div>
                     </article>
                 </div>
@@ -738,8 +749,8 @@ return array(
                 <div class="col-sm-6 g-mb-30 landing-block-card-text-block">
                     <article class="h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
                         <div class="g-flex-middle-item">
-                            <h4 class="landing-block-node-text-block-title h6 g-font-weight-600 text-uppercase g-mb-10 g-color-black">03. SUSPENDISSE PHARETRA ELIT AC</h4>
-                            <div class="landing-block-node-text-block-text g-color-gray-dark-v3"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
+                            <h6 class="landing-block-node-text-block-title g-font-weight-600 text-uppercase g-mb-10">03. SUSPENDISSE PHARETRA ELIT AC</h6>
+                            <div class="landing-block-node-text-block-text"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
                         </div>
                     </article>
                 </div>
@@ -747,15 +758,15 @@ return array(
                 <div class="col-sm-6 g-mb-30 landing-block-card-text-block">
                     <article class="h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
                         <div class="g-flex-middle-item">
-                            <h4 class="landing-block-node-text-block-title h6 g-font-weight-600 text-uppercase g-mb-10 g-color-black">04. VESTIBULUM FRINGILLA RISUS EGE</h4>
-                            <div class="landing-block-node-text-block-text g-color-gray-dark-v3"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
+                            <h6 class="landing-block-node-text-block-title g-font-weight-600 text-uppercase g-mb-10">04. VESTIBULUM FRINGILLA RISUS EGE</h6>
+                            <div class="landing-block-node-text-block-text"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
                         </div>
                     </article>
                 </div><div class="col-sm-6 g-mb-30 landing-block-card-text-block">
                     <article class="h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
                         <div class="g-flex-middle-item">
-                            <h4 class="landing-block-node-text-block-title h6 g-font-weight-600 text-uppercase g-mb-10 g-color-black">05. ENIM EGESTAS RISUS SEMPER</h4>
-                            <div class="landing-block-node-text-block-text g-color-gray-dark-v3"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
+                            <h6 class="landing-block-node-text-block-title g-font-weight-600 text-uppercase g-mb-10">05. ENIM EGESTAS RISUS SEMPER</h6>
+                            <div class="landing-block-node-text-block-text"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
                         </div>
                     </article>
                 </div>
@@ -763,24 +774,24 @@ return array(
             <div class="col-sm-6 g-mb-30 landing-block-card-text-block">
                     <article class="h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
                         <div class="g-flex-middle-item">
-                            <h4 class="landing-block-node-text-block-title h6 g-font-weight-600 text-uppercase g-mb-10 g-color-black">06. EU VENENATIS NULLA PORTTITOR</h4>
-                            <div class="landing-block-node-text-block-text g-color-gray-dark-v3"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
+                            <h6 class="landing-block-node-text-block-title g-font-weight-600 text-uppercase g-mb-10">06. EU VENENATIS NULLA PORTTITOR</h6>
+                            <div class="landing-block-node-text-block-text"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
                         </div>
                     </article>
                 </div></div>
 
         </div>
     </section>',
-			),
+			],
 		'11.2.three_cols_fix_tariffs_with_img' =>
-			array (
+			[
 				'CODE' => '11.2.three_cols_fix_tariffs_with_img',
 				'SORT' => '4500',
 				'CONTENT' => '<section class="landing-block g-bg-gray-light-v5 g-pt-60 g-pb-60">
 	<div class="container">
 		<div class="text-uppercase text-center g-mb-70">
 			<h2 class="landing-block-node-title d-inline-block g-letter-spacing-0_5 g-font-weight-700 g-brd-bottom g-brd-5 g-brd-primary g-pb-8 g-mb-20 g-font-size-26">Best offers</h2>
-			<div class="landing-block-node-text g-color-gray-dark-v5 mb-0 g-text-transform-none g-font-size-14 g-letter-spacing-0"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</p></div>
+			<div class="landing-block-node-text mb-0 g-text-transform-none g-font-size-14 g-letter-spacing-0"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</p></div>
 		</div>
 
 		<div class="row landing-block-inner">
@@ -794,16 +805,16 @@ return array(
 
 					<!-- Article Content -->
 					<header class="g-letter-spacing-3 g-pos-rel g-px-40 g-mb-30">
-						<span class="landing-block-node-card-icon-container u-icon-v3 u-icon-size--xl g-rounded-50x g-font-size-26 g-bg-gray-dark-v1 g-color-white g-pull-50x-up">
+						<span class="landing-block-node-card-icon-container m-auto u-icon-v3 u-icon-size--xl g-rounded-50x g-font-size-26 g-bg-gray-dark-v1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-tag"></i>
 						</span>
-						<h4 class="landing-block-node-card-title h6 g-mt-minus-25 g-mb-10 g-letter-spacing-0 g-color-gray-dark-v1 g-font-size-20"><span style="font-weight: bold;">
+						<h6 class="landing-block-node-card-title g-mt-minus-25 g-mb-10 g-letter-spacing-0 g-font-size-20"><span style="font-weight: bold;">
 							small</span></h4>
-						<div class="landing-block-node-card-text mb-0 g-text-transform-none g-letter-spacing-0 g-font-size-14 g-color-gray-dark-v3"><p><span style="font-style: italic;">Dimensions: 10x10x15cm</span></p></div>
+						<div class="landing-block-node-card-text mb-0 g-text-transform-none g-letter-spacing-0 g-font-size-14"><p><span style="font-style: italic;">Dimensions: 10x10x15cm</span></p></div>
 					</header>
 
 					<div class="landing-block-node-card-price g-font-weight-700 d-block g-mb-20 g-color-primary g-font-size-30 g-letter-spacing-0">$10.00</div>
-					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0"><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">CURABITUR SIT AMET</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">ETIAM AC MASSA SIT</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">FUSCE ACCUMSAN FAUCIBUS</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS TRISTIQUE BIBENDUM</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS VEHICULA</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DONEC FRINGILLA</span></li></ul>
+					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0"><li class="g-py-10 g-px-30 g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">CURABITUR SIT AMET</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">ETIAM AC MASSA SIT</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">FUSCE ACCUMSAN FAUCIBUS</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS TRISTIQUE BIBENDUM</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS VEHICULA</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DONEC FRINGILLA</span></li></ul>
 
 					<footer class="g-pa-40 landing-block-node-card-button-container">
 						<a class="landing-block-node-card-button btn g-btn-type-outline g-btn-size-md g-btn-px-m g-brd-2 g-letter-spacing-1 g-btn-primary g-rounded-4" href="#">Order Now</a>
@@ -824,15 +835,15 @@ return array(
 
 					<!-- Article Content -->
 					<header class="g-letter-spacing-3 g-pos-rel g-px-40 g-mb-30">
-						<span class="landing-block-node-card-icon-container u-icon-v3 u-icon-size--xl g-rounded-50x g-font-size-26 g-bg-gray-dark-v1 g-color-white g-pull-50x-up">
+						<span class="landing-block-node-card-icon-container m-auto u-icon-v3 u-icon-size--xl g-rounded-50x g-font-size-26 g-bg-gray-dark-v1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-bag"></i>
 						</span>
-						<h4 class="landing-block-node-card-title h6 g-mt-minus-25 g-mb-10 g-letter-spacing-0 g-color-gray-dark-v1 g-font-size-20"><span style="font-weight: bold;">medium</span></h4>
-						<div class="landing-block-node-card-text mb-0 g-text-transform-none g-letter-spacing-0 g-font-size-14 g-color-gray-dark-v3"><p><span style="font-style: italic;">Dimensions: 10x10x15cm</span></p></div>
+						<h6 class="landing-block-node-card-title g-mt-minus-25 g-mb-10 g-letter-spacing-0 g-font-size-20"><span style="font-weight: bold;">medium</span></h4>
+						<div class="landing-block-node-card-text mb-0 g-text-transform-none g-letter-spacing-0 g-font-size-14"><p><span style="font-style: italic;">Dimensions: 10x10x15cm</span></p></div>
 					</header>
 
 					<div class="landing-block-node-card-price g-font-weight-700 d-block g-mb-20 g-color-primary g-font-size-30 g-letter-spacing-0">$20.00</div>
-					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0"><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">CURABITUR SIT AMET</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">ETIAM AC MASSA SIT</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">FUSCE ACCUMSAN FAUCIBUS</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS TRISTIQUE BIBENDUM</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS VEHICULA</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DONEC FRINGILLA</span></li></ul>
+					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0"><li class="g-py-10 g-px-30 g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">CURABITUR SIT AMET</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">ETIAM AC MASSA SIT</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">FUSCE ACCUMSAN FAUCIBUS</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS TRISTIQUE BIBENDUM</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS VEHICULA</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DONEC FRINGILLA</span></li></ul>
 
 					<footer class="g-pa-40 landing-block-node-card-button-container">
 						<a class="landing-block-node-card-button btn g-btn-type-outline g-btn-size-md g-btn-px-m g-brd-2 g-letter-spacing-1 g-btn-primary g-rounded-4" href="#">Order Now</a>
@@ -853,15 +864,15 @@ return array(
 
 					<!-- Article Content -->
 					<header class="g-letter-spacing-3 g-pos-rel g-px-40 g-mb-30">
-						<span class="landing-block-node-card-icon-container u-icon-v3 u-icon-size--xl g-rounded-50x g-font-size-26 g-bg-gray-dark-v1 g-color-white g-pull-50x-up">
+						<span class="landing-block-node-card-icon-container m-auto u-icon-v3 u-icon-size--xl g-rounded-50x g-font-size-26 g-bg-gray-dark-v1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-briefcase"></i>
 						</span>
-						<h4 class="landing-block-node-card-title h6 g-mt-minus-25 g-mb-10 g-letter-spacing-0 g-color-gray-dark-v1 g-font-size-20"><span style="font-weight: bold;">large</span></h4>
-						<div class="landing-block-node-card-text mb-0 g-text-transform-none g-letter-spacing-0 g-font-size-14 g-color-gray-dark-v3"><p><span style="font-style: italic;">Dimensions: 10x10x15cm</span></p></div>
+						<h6 class="landing-block-node-card-title g-mt-minus-25 g-mb-10 g-letter-spacing-0 g-font-size-20"><span style="font-weight: bold;">large</span></h4>
+						<div class="landing-block-node-card-text mb-0 g-text-transform-none g-letter-spacing-0 g-font-size-14"><p><span style="font-style: italic;">Dimensions: 10x10x15cm</span></p></div>
 					</header>
 
 					<div class="landing-block-node-card-price g-font-weight-700 d-block g-mb-20 g-color-primary g-font-size-30 g-letter-spacing-0">$40.00</div>
-					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0"><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">CURABITUR SIT AMET</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">ETIAM AC MASSA SIT</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">FUSCE ACCUMSAN FAUCIBUS</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS TRISTIQUE BIBENDUM</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS VEHICULA</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DONEC FRINGILLA</span></li></ul>
+					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0"><li class="g-py-10 g-px-30 g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">CURABITUR SIT AMET</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">ETIAM AC MASSA SIT</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">FUSCE ACCUMSAN FAUCIBUS</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS TRISTIQUE BIBENDUM</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS VEHICULA</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DONEC FRINGILLA</span></li></ul>
 
 					<footer class="g-pa-40 landing-block-node-card-button-container">
 						<a class="landing-block-node-card-button btn g-btn-type-outline g-btn-size-md g-btn-px-m g-brd-2 g-letter-spacing-1 g-btn-primary g-rounded-4" href="#">Order Now</a>
@@ -881,15 +892,18 @@ return array(
 
 					<!-- Article Content -->
 					<header class="g-letter-spacing-3 g-pos-rel g-px-40 g-mb-30">
-						<span class="landing-block-node-card-icon-container u-icon-v3 u-icon-size--xl g-rounded-50x g-font-size-26 g-bg-gray-dark-v1 g-color-white g-pull-50x-up">
+						<span class="landing-block-node-card-icon-container m-auto u-icon-v3 u-icon-size--xl g-rounded-50x g-font-size-26 g-bg-gray-dark-v1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-present"></i>
 						</span>
-						<h4 class="landing-block-node-card-title h6 g-mt-minus-25 g-mb-10 g-letter-spacing-0 g-color-gray-dark-v1 g-font-size-20"><span style="font-weight: 700;">extra large</span></h4>
-						<div class="landing-block-node-card-text mb-0 g-text-transform-none g-letter-spacing-0 g-font-size-14 g-color-gray-dark-v3"><p><span style="font-style: italic;">Dimensions: 10x10x15cm</span></p></div>
+						<h6 class="landing-block-node-card-title g-mt-minus-25 g-mb-10 g-letter-spacing-0 g-font-size-20"><span style="font-weight: 700;">extra large</span></h4>
+						<div class="landing-block-node-card-text mb-0 g-text-transform-none g-letter-spacing-0 g-font-size-14"><p><span style="font-style: italic;">Dimensions: 10x10x15cm</span></p></div>
 					</header>
 
 					<div class="landing-block-node-card-price g-font-weight-700 d-block g-mb-20 g-color-primary g-font-size-30 g-letter-spacing-0">$100.00</div>
-					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0"><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">CURABITUR SIT AMET</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">ETIAM AC MASSA SIT</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">FUSCE ACCUMSAN FAUCIBUS</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS TRISTIQUE BIBENDUM</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS VEHICULA</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DONEC FRINGILLA</span></li></ul>
+					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0"><li class="g-py-10 g-px-30 g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">CURABITUR SIT AMET</span></li>
+					<li class="g-py-10 g-px-30 g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">ETIAM AC MASSA SIT</span></li><li class="g-py-10 g-px-30 g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">FUSCE ACCUMSAN FAUCIBUS</span></li>
+					<li class="g-py-10 g-px-30 g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS TRISTIQUE BIBENDUM</span></li><li class="g-py-10 g-px-30 g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS VEHICULA</span></li>
+					<li class="g-py-10 g-px-30 g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DONEC FRINGILLA</span></li></ul>
 
 					<footer class="g-pa-40 landing-block-node-card-button-container">
 						<a class="landing-block-node-card-button btn g-btn-type-outline g-btn-size-md g-btn-px-m g-brd-2 g-letter-spacing-1 g-btn-primary g-rounded-4" href="#">Order Now</a>
@@ -901,9 +915,9 @@ return array(
 ></div></div>
 	</div>
 </section>',
-			),
+			],
 		'04.7.one_col_fix_with_title_and_text_2@3' =>
-			array (
+			[
 				'CODE' => '04.7.one_col_fix_with_title_and_text_2',
 				'SORT' => '5000',
 				'CONTENT' => '<section class="landing-block js-animation fadeInUp g-bg-gray-light-v5 g-pt-60 g-pb-20">
@@ -912,16 +926,16 @@ return array(
 
             <div class="landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary">
                 <h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-primary g-mb-15"> </h4>
-                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-color-black g-mb-minus-10 g-font-size-26"><p style="text-align: center;"><span style="font-family: inherit;">Gallery</span></p></h2>
+                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-mb-minus-10 g-font-size-26"><p style="text-align: center;"><span style="font-family: inherit;">Gallery</span></p></h2>
             </div>
 
-			<div class="landing-block-node-text g-color-gray-dark-v5"><p>Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, Etiam rhoncus. Maecenas tempus.</p></div>
+			<div class="landing-block-node-text"><p>Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, Etiam rhoncus. Maecenas tempus.</p></div>
         </div>
 
     </section>',
-			),
+			],
 		'32.5.img_grid_3cols_1_wo_gutters' =>
-			array (
+			[
 				'CODE' => '32.5.img_grid_3cols_1_wo_gutters',
 				'SORT' => '5500',
 				'CONTENT' => '<section class="landing-block g-pt-0 g-pb-0">
@@ -961,9 +975,9 @@ return array(
 	</div>
 
 </section>',
-			),
+			],
 		'32.5.img_grid_3cols_1_wo_gutters@2' =>
-			array (
+			[
 				'CODE' => '32.5.img_grid_3cols_1_wo_gutters',
 				'SORT' => '6000',
 				'CONTENT' => '<section class="landing-block g-pt-0 g-pb-0">
@@ -997,9 +1011,9 @@ return array(
 	</div>
 
 </section>',
-			),
+			],
 		'04.7.one_col_fix_with_title_and_text_2@4' =>
-			array (
+			[
 				'CODE' => '04.7.one_col_fix_with_title_and_text_2',
 				'SORT' => '6500',
 				'CONTENT' => '<section class="landing-block js-animation fadeInUp g-bg-gray-light-v5 g-pt-60 g-pb-20">
@@ -1008,16 +1022,16 @@ return array(
 
             <div class="landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary">
                 <h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-primary g-mb-15"> </h4>
-                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-color-black g-mb-minus-10 g-font-size-26">FAQ</h2>
+                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-mb-minus-10 g-font-size-26">FAQ</h2>
             </div>
 
-			<div class="landing-block-node-text g-color-gray-dark-v3"><p>Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus.</p></div>
+			<div class="landing-block-node-text"><p>Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus.</p></div>
         </div>
 
     </section>',
-			),
+			],
 		'19.1.two_cols_fix_img_text_blocks' =>
-			array (
+			[
 				'CODE' => '19.1.two_cols_fix_img_text_blocks',
 				'SORT' => '7000',
 				'CONTENT' => '<section class="landing-block g-py-20 g-bg-gray-light-v5 g-pt-20">
@@ -1027,7 +1041,7 @@ return array(
                 <div class="col-md-5 g-mb-30 g-mb-0--md">
                     <img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/348x660/img1.png" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-                    <h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-black g-mb-20 g-font-size-40"> </h3>
+                    <h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-40"> </h3>
                     <div class="landing-block-node-text"><br /></div>
                 </div>
 
@@ -1044,7 +1058,7 @@ return array(
                             </div>
 
                             <div class="landing-block-card-accordeon-element-body" aria-labelledby="aboutAccordionHeading1">
-                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0 g-color-gray-dark-v3">
+                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0">
                                     <div class="landing-block-node-accordeon-element-text"><p>Anim pariatur cliche reprehenderit, 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod.</p></div>
                                 </div>
                             </div>
@@ -1061,7 +1075,7 @@ return array(
                             </div>
 
                             <div class="landing-block-card-accordeon-element-body" aria-labelledby="aboutAccordionHeading2">
-                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0 g-color-gray-dark-v3">
+                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0">
                                     <div class="landing-block-node-accordeon-element-text"><p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Food truck quinoa nesciunt laborum eiusmod.</p></div>
                                 </div>
                             </div>
@@ -1078,7 +1092,7 @@ return array(
                             </div>
 
                             <div class="landing-block-card-accordeon-element-body" aria-labelledby="aboutAccordionHeading3">
-                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0 g-color-gray-dark-v3">
+                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0">
                                     <div class="landing-block-node-accordeon-element-text"><p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Food truck quinoa nesciunt laborum eiusmod.</p></div>
                                 </div>
                             </div>
@@ -1095,7 +1109,7 @@ return array(
                             </div>
 
                             <div class="landing-block-card-accordeon-element-body" aria-labelledby="aboutAccordionHeading4">
-                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0 g-color-gray-dark-v3">
+                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0">
                                     <div class="landing-block-node-accordeon-element-text"><p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Food truck quinoa nesciunt laborum eiusmod.</p></div>
                                 </div>
                             </div>
@@ -1111,7 +1125,7 @@ return array(
                             </div>
 
                             <div class="landing-block-card-accordeon-element-body" aria-labelledby="aboutAccordionHeading4">
-                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0 g-color-gray-dark-v3">
+                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0">
                                     <div class="landing-block-node-accordeon-element-text"><p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute.</p></div>
                                 </div>
                             </div>
@@ -1121,9 +1135,9 @@ return array(
             </div>
         </div>
     </section>',
-			),
+			],
 		'43.3.cover_with_feedback' =>
-			array (
+			[
 				'CODE' => '43.3.cover_with_feedback',
 				'SORT' => '7500',
 				'CONTENT' => '<section class="landing-block">
@@ -1159,7 +1173,7 @@ return array(
 							<div class="landing-block-node-card-text g-mb-25">The customisation options you implemented are countless, and I
 								feel sorry I can\'t use them all. Good job, and keep going! are countless, and I feel
 							</div>
-							<h4 class="landing-block-node-card-name h6 text-uppercase g-font-weight-700 g-color-white mb-0">Someone someone</h4>
+							<h6 class="landing-block-node-card-name text-uppercase g-font-weight-700 g-color-white mb-0">Someone someone</h6>
 						</div>
 					</div>
 					<!-- End Testimonial Block -->
@@ -1177,7 +1191,7 @@ return array(
 							<div class="landing-block-node-card-text g-mb-25">The customisation options you implemented are countless, and I
 								feel sorry I can\'t use them all. Good job, and keep going! are countless, and I feel
 							</div>
-							<h4 class="landing-block-node-card-name h6 text-uppercase g-font-weight-700 g-color-white mb-0">Someone someone</h4>
+							<h6 class="landing-block-node-card-name text-uppercase g-font-weight-700 g-color-white mb-0">Someone someone</h6>
 						</div>
 					</div>
 					<!-- End Testimonial Block -->
@@ -1195,7 +1209,7 @@ return array(
 							<div class="landing-block-node-card-text g-mb-25">The customisation options you implemented are countless, and I
 								feel sorry I can\'t use them all. Good job, and keep going! are countless, and I feel
 							</div>
-							<h4 class="landing-block-node-card-name h6 text-uppercase g-font-weight-700 g-color-white mb-0">Someone someone</h4>
+							<h6 class="landing-block-node-card-name text-uppercase g-font-weight-700 g-color-white mb-0">Someone someone</h6>
 						</div>
 					</div>
 					<!-- End Testimonial Block -->
@@ -1206,9 +1220,9 @@ return array(
 
 </section>
 ',
-			),
+			],
 		'12.image_carousel_6_cols_fix' =>
-			array (
+			[
 				'CODE' => '12.image_carousel_6_cols_fix',
 				'SORT' => '8000',
 				'CONTENT' => ' <section class="landing-block js-animation zoomIn text-center g-pt-20 g-pb-20">
@@ -1307,9 +1321,9 @@ return array(
 
         </div>
     </section>',
-			),
+			],
 		'04.7.one_col_fix_with_title_and_text_2@5' =>
-			array (
+			[
 				'CODE' => '04.7.one_col_fix_with_title_and_text_2',
 				'SORT' => '8500',
 				'CONTENT' => '<section class="landing-block js-animation fadeInUp g-bg-gray-light-v5 g-pt-60 g-pb-20">
@@ -1318,16 +1332,16 @@ return array(
 
             <div class="landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary">
                 <h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-primary g-mb-15"> </h4>
-                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-color-black g-mb-minus-10 g-font-size-26">CONTACT US</h2>
+                <h2 class="landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-mb-minus-10 g-font-size-26">CONTACT US</h2>
             </div>
 
-			<div class="landing-block-node-text g-color-gray-dark-v5"><p>Curabitur ullamcorper ultricies nisi. Nam eget dui.</p></div>
+			<div class="landing-block-node-text"><p>Curabitur ullamcorper ultricies nisi. Nam eget dui.</p></div>
         </div>
 
     </section>',
-			),
+			],
 		'33.10.form_2_light_left_text' =>
-			array (
+			[
 				'CODE' => '33.10.form_2_light_left_text',
 				'SORT' => '9000',
 				'CONTENT' => '<section class="g-pos-rel landing-block g-pt-20 g-pb-60">
@@ -1337,9 +1351,9 @@ return array(
 		<div class="row">
 			<div class="col-md-6">
 				<div class="text-center g-overflow-hidden">
-					<h3 class="landing-block-node-main-title landing-semantic-title-medium h3 text-uppercase g-font-weight-700 g-mb-20 g-color-black"></h3>
+					<h3 class="landing-block-node-main-title landing-semantic-title-medium text-uppercase g-font-weight-700 g-mb-20"></h3>
 
-					<div class="landing-block-node-text landing-semantic-text-medium g-line-height-1_5 text-left g-mb-40 g-color-gray-dark-v5">
+					<div class="landing-block-node-text landing-semantic-text-medium g-line-height-1_5 text-left g-mb-40">
 						<p>
 							Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor.
 							Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum,
@@ -1354,9 +1368,9 @@ return array(
 								<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 									<i class="landing-block-card-contact-icon icon-anchor"></i>
 								</span>
-								<span class="landing-block-card-contact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
+								<span class="landing-block-card-contact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
 									Address</span>
-								<span class="landing-block-card-contact-text landing-semantic-text-medium g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
+								<span class="landing-block-card-contact-text landing-semantic-text-medium g-font-weight-700 g-font-size-11">
 									Sit amet adipiscing
 								</span>
 							</div>
@@ -1367,10 +1381,10 @@ return array(
 									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 										<i class="landing-block-card-linkcontact-icon icon-call-in"></i>
 									</span>
-									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
+									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
 										Phone number
 									</span>
-									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
+									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
 										#PHONE1#
 									</span>
 								</a>
@@ -1382,10 +1396,10 @@ return array(
 									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 										<i class="landing-block-card-linkcontact-icon icon-line icon-envelope-letter"></i>
 									</span>
-									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
+									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
 										Email
 									</span>
-									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
+									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
 										#EMAIL1#
 									</span>
 								</a>
@@ -1397,10 +1411,10 @@ return array(
 									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 										<i class="landing-block-card-linkcontact-icon icon-earphones-alt"></i>
 									</span>
-									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0">
+									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 mb-0">
 										Toll free
 									</span>
-									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
+									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
 										#PHONE2#
 									</span>
 								</a>
@@ -1421,9 +1435,9 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
+			],
 		'17.1.copyright_with_social' =>
-			array (
+			[
 				'CODE' => '17.1.copyright_with_social',
 				'SORT' => '9500',
 				'CONTENT' => '<section class="landing-block g-brd-top g-brd-gray-dark-v2 g-bg-black-opacity-0_8 js-animation animation-none">
@@ -1431,7 +1445,7 @@ return array(
 		<div class="row">
 			<div class="col-md-6 d-flex align-items-center g-mb-15 g-mb-0--md w-100 mb-0">
 				<div class="landing-block-node-text mr-1 js-animation animation-none">
-					&copy; 2018 All rights reserved.
+					&copy; 2021 All rights reserved.
 				</div>
 			</div>
 
@@ -1472,6 +1486,6 @@ return array(
 		</div>
 	</div>
 </section>',
-			),
-	),
-);
+			],
+	],
+];

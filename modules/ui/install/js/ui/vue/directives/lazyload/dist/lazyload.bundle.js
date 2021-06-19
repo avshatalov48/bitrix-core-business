@@ -124,7 +124,7 @@
 	  });
 	}
 
-	ui_vue.Vue.directive('bx-lazyload', {
+	ui_vue.BitrixVue.directive('bx-lazyload', {
 	  bind: function bind(element, bindings) {
 	    if (babelHelpers.typeof(bindings.value) === 'object' && typeof bindings.value.callback === 'function') {
 	      element.lazyloadCallback = bindings.value.callback;

@@ -84,7 +84,7 @@ CREATE TABLE b_bp_tracking (
 	MODIFIED_BY int NULL,
 	COMPLETED char(1) NOT NULL default 'N',
 	primary key (ID),
-	index ix_bp_tracking_wf(WORKFLOW_ID),
+	index ix_bp_tracking_wft(WORKFLOW_ID, TYPE),
 	index ix_bp_tracking_md(MODIFIED),
 	index ix_bp_tracking_ctm(COMPLETED, TYPE, MODIFIED)
 );

@@ -23,7 +23,7 @@ $arResult = Array();
 
 if ($arParams['CONTEXT'] == 'DESKTOP' || $arParams['DESKTOP'] == 'Y')
 {
-	$darkClass = \CIMSettings::GetSetting(CIMSettings::SETTINGS, 'enableDarkTheme')? 'bx-messenger-dark': '';
+	$darkClass = \CIMSettings::GetSetting(CIMSettings::SETTINGS, 'isCurrentThemeDark')? 'bx-messenger-dark': '';
 	$GLOBALS["APPLICATION"]->SetPageProperty("BodyClass", "im-desktop $darkClass");
 
 	CIMMessenger::SetDesktopStatusOnline(null, false);
@@ -119,8 +119,6 @@ $arResult['CURRENT_USER'] = \CIMContactList::GetUserData(Array(
 
 if ($arParams["INIT"] == 'Y')
 {
-	$arResult['RECENT'] = \Bitrix\Im\Recent::get(null, ['JSON' => 'Y']);
-
 	$arSmile = CIMMessenger::PrepareSmiles();
 	$arResult['SMILE'] = $arSmile['SMILE'];
 	$arResult['SMILE_SET'] = $arSmile['SMILE_SET'];

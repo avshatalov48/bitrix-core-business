@@ -29,6 +29,11 @@ BX.ImMobile = function(params)
 	this.mobileActionCache = false;
 	this.mobileActionRun = false;
 
+	this.linesDetailCounter = {};
+	this.dialogDetailCounter = {};
+
+	this.callController = null;
+
 	this.revision = 6; // mobile api revision - check include.php
 	this.errorMessage = '';
 	this.isAdmin = params.isAdmin || false;
@@ -1058,13 +1063,13 @@ BX.ImMobile.prototype.recentPageAction = function (params)
 				this.updateCounter();
 			}, this)});
 		}
-		else if (command == 'notify')
+		else if (command == 'notifyAdd')
 		{
 			this.notifyCount = params.counter;
 			this.updateCounter();
 			this.notifyRefresh();
 		}
-		else if (command == 'readNotifyList' || command == 'unreadNotifyList' || command == 'confirmNotify')
+		else if (command == 'notifyRead' || command == 'notifyUnread' || command == 'notifyConfirm')
 		{
 			this.notifyCount = params.counter;
 			this.updateCounter();

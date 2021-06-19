@@ -70,7 +70,7 @@ if($WEB_FORM_ID <= 0)
 
 $F_RIGHT = intval(CForm::GetPermission($WEB_FORM_ID)); // form rights
 if ($RESULT_ID > 0)
-	$arrRESULT_PERMISSION = CFormResult::GetPermissions($RESULT_ID, $v=0); // result rights array
+	$arrRESULT_PERMISSION = CFormResult::GetPermissions($RESULT_ID); // result rights array
 else
 {
 	$arrRESULT_PERMISSION = array();

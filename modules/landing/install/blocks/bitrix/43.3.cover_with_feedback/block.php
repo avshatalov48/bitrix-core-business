@@ -3,7 +3,7 @@
 		 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img10.jpg);">
 		<div class="container u-bg-overlay__inner g-max-width-800">
 			<div class="landing-block-node-header js-animation fadeInUp text-center mx-auto u-heading-v2-2--bottom g-brd-primary g-mb-70">
-				<h2 class="landing-block-node-title text-uppercase g-line-height-1_1 g-font-weight-700 g-font-size-26 g-color-white g-mb-15">
+				<h2 class="landing-block-node-title text-uppercase g-line-height-1_1 g-font-weight-700 h1 g-color-white g-mb-15">
 					What
 					do people say about us?</h2>
 				<div class="landing-block-node-text g-color-white-opacity-0_8 mb-0">
@@ -31,7 +31,7 @@
 							<div class="landing-block-node-card-text g-mb-25">The customisation options you implemented are countless, and I
 								feel sorry I can't use them all. Good job, and keep going! are countless, and I feel
 							</div>
-							<h4 class="landing-block-node-card-name h6 text-uppercase g-font-weight-700 g-color-white mb-0">Someone someone</h4>
+							<h6 class="landing-block-node-card-name text-uppercase g-font-weight-700 g-color-white mb-0">Someone someone</h6>
 						</div>
 					</div>
 					<!-- End Testimonial Block -->
@@ -49,7 +49,7 @@
 							<div class="landing-block-node-card-text g-mb-25">The customisation options you implemented are countless, and I
 								feel sorry I can't use them all. Good job, and keep going! are countless, and I feel
 							</div>
-							<h4 class="landing-block-node-card-name h6 text-uppercase g-font-weight-700 g-color-white mb-0">Someone someone</h4>
+							<h6 class="landing-block-node-card-name text-uppercase g-font-weight-700 g-color-white mb-0">Someone someone</h6>
 						</div>
 					</div>
 					<!-- End Testimonial Block -->
@@ -67,7 +67,7 @@
 							<div class="landing-block-node-card-text g-mb-25">The customisation options you implemented are countless, and I
 								feel sorry I can't use them all. Good job, and keep going! are countless, and I feel
 							</div>
-							<h4 class="landing-block-node-card-name h6 text-uppercase g-font-weight-700 g-color-white mb-0">Someone someone</h4>
+							<h6 class="landing-block-node-card-name text-uppercase g-font-weight-700 g-color-white mb-0">Someone someone</h6>
 						</div>
 					</div>
 					<!-- End Testimonial Block -->

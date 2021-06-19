@@ -201,22 +201,42 @@ class CAllPullWatch
 		return $isMulti? $result: $result[$searchTag];
 	}
 
+	/**
+	 * Sends a message to users, who have subscribed to the tag(s).
+	 *
+	 * @param string|string[] $tag Tag, or array of tags.
+	 * @param array $parameters Message parameters.
+	 * @param string $channelType Type of the channel: \CPullChannel::TYPE_PRIVATE | \CPullChannel::TYPE_SHARED .
+	 * @return bool
+	 */
 	public static function AddToStack($tag, $parameters, $channelType = \CPullChannel::TYPE_PRIVATE)
 	{
-		global $DB;
-
-		$users = Array();
-
-		$result = $DB->Query("SELECT USER_ID FROM b_pull_watch WHERE TAG = '".$DB->ForSQL($tag)."'");
-		while ($row = $result->Fetch())
+		if (empty($tag))
 		{
-			if (isset($parameters['skip_users']) && in_array($row['USER_ID'], $parameters['skip_users']))
-				continue;
-
-			$users[] = $row['USER_ID'];
+			return false;
 		}
 
-		\Bitrix\Pull\Event::add($users, $parameters, $channelType);
+		$query = \Bitrix\Pull\Model\WatchTable::query();
+		$query->addSelect('USER_ID');
+		if (is_array($tag))
+		{
+			$query->whereIn('TAG', $tag);
+		}
+		else
+		{
+			$query->where('TAG', $tag);
+		}
+
+		if (isset($parameters['skip_users']) && !empty($parameters['skip_users']) && is_array($parameters['skip_users']))
+		{
+			$query->whereNotIn('USER_ID', $parameters['skip_users']);
+		}
+		$users = array_column($query->fetchAll(), 'USER_ID');
+
+		if (!empty($users))
+		{
+			\Bitrix\Pull\Event::add($users, $parameters, $channelType);
+		}
 
 		return true;
 	}

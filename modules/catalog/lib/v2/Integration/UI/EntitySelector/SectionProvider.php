@@ -10,6 +10,7 @@ use Bitrix\UI\EntitySelector\SearchQuery;
 class SectionProvider extends BaseProvider
 {
 	private const SECTION_LIMIT = 20;
+	private const SECTION_ENTITY_ID = 'section';
 
 	public function __construct(array $options = [])
 	{
@@ -25,7 +26,16 @@ class SectionProvider extends BaseProvider
 
 	public function getItems(array $ids): array
 	{
-		return [];
+		$items = [];
+
+		$filter = !empty($ids) ? ['ID' => $ids] : [];
+
+		foreach ($this->getActiveSections($filter) as $section)
+		{
+			$items[] = $this->makeItem($section);
+		}
+
+		return $items;
 	}
 
 	public function getSelectedItems(array $ids): array
@@ -44,11 +54,16 @@ class SectionProvider extends BaseProvider
 
 	public function fillDialog(Dialog $dialog): void
 	{
-		foreach ($this->getSections() as $section)
+		$recentItemsCount = count($dialog->getRecentItems()->getEntityItems(self::SECTION_ENTITY_ID));
+
+		if ($recentItemsCount < self::SECTION_LIMIT)
 		{
-			$dialog->addRecentItem(
-				$this->makeItem($section)
-			);
+			foreach ($this->getActiveSections() as $section)
+			{
+				$dialog->addRecentItem(
+					$this->makeItem($section)
+				);
+			}
 		}
 	}
 
@@ -62,7 +77,7 @@ class SectionProvider extends BaseProvider
 			$filter['%NAME'] = $query;
 		}
 
-		foreach ($this->getSections($filter) as $section)
+		foreach ($this->getActiveSections($filter) as $section)
 		{
 			$dialog->addItem(
 				$this->makeItem($section)
@@ -73,6 +88,11 @@ class SectionProvider extends BaseProvider
 		{
 			$searchQuery->setCacheable(false);
 		}
+	}
+
+	protected function getActiveSections(array $additionalFilter = []): array
+	{
+		return $this->getSections(array_merge(['=ACTIVE' => 'Y'], $additionalFilter));
 	}
 
 	protected function getSections(array $additionalFilter = []): array
@@ -122,7 +142,7 @@ class SectionProvider extends BaseProvider
 	{
 		return new Item([
 			'id' => $section['ID'],
-			'entityId' => 'section',
+			'entityId' => self::SECTION_ENTITY_ID,
 			'title' => $section['NAME'],
 			'avatar' => $section['PICTURE'],
 		]);
@@ -130,9 +150,7 @@ class SectionProvider extends BaseProvider
 
 	private function getDefaultFilter(): array
 	{
-		$filter = [
-			'=ACTIVE' => 'Y',
-		];
+		$filter = [];
 
 		$iblockId = (int)($this->getOptions()['iblockId'] ?? 0);
 		if (!empty($iblockId))

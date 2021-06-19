@@ -2,10 +2,14 @@
 
 namespace Bitrix\Catalog\v2\Integration\JS\ProductForm;
 
+use Bitrix\Catalog\MeasureTable;
+use Bitrix\Catalog\v2\Price\BasePrice;
 use Bitrix\Catalog\v2\Product\BaseProduct;
 use Bitrix\Catalog\v2\Sku\BaseSku;
 use Bitrix\Catalog\Component\ImageInput;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
+use Bitrix\Iblock\PropertyEnumerationTable;
+use Bitrix\Iblock\PropertyTable;
 use Bitrix\Iblock\Url\AdminPage\BuilderManager;
 use Bitrix\Main\Web\Json;
 
@@ -22,6 +26,9 @@ class BasketItem
 
 	/** @var BaseSku $sku */
 	private $sku;
+
+	/** @var BasePrice $priceItem */
+	private $priceItem;
 
 	public function __construct()
 	{
@@ -45,6 +52,10 @@ class BasketItem
 			'measureRatio' => 1,
 			'discountRate' => 0,
 			'discount' => 0,
+			'taxId' => 0,
+			'taxIncluded' => 'N',
+			'additionalFields' => [],
+			'properties' => [],
 		];
 
 		$this->setDetailUrlManagerType(self::SHOP_DETAIL_URL_TYPE);
@@ -97,10 +108,6 @@ class BasketItem
 		}
 
 		$variationImageField = new ImageInput($this->sku);
-		if ($variationImageField->isEmpty())
-		{
-			return null;
-		}
 
 		return $variationImageField->getFormattedField();
 	}
@@ -124,8 +131,13 @@ class BasketItem
 			return '';
 		}
 
-		$urlBuilder->setIblockId($this->sku->getIblockId());
+		$urlBuilder->setIblockId($parent->getIblockId());
 		return $urlBuilder->getElementDetailUrl($parent->getId());
+	}
+
+	public function getFields(): array
+	{
+		return $this->fields;
 	}
 
 	public function getId(): string
@@ -143,6 +155,11 @@ class BasketItem
 		return null;
 	}
 
+	public function getPriceItem(): ?BasePrice
+	{
+		return $this->priceItem;
+	}
+
 	public function setSku(BaseSku $sku): self
 	{
 		$this->sku = $sku;
@@ -153,6 +170,65 @@ class BasketItem
 		$this->fields['skuId'] = $sku->getId();
 		$this->fields['module'] = 'catalog';
 
+		$properties = [];
+		$propertyKeys = array_flip(['ID', 'NAME', 'CODE', 'SORT', 'XML_ID']);
+		foreach ($sku->getPropertyCollection() as $property)
+		{
+			$formattedValues = $property->getPropertyValueCollection()->toArray();
+			if (empty($formattedValues))
+			{
+				continue;
+			}
+
+			$enumValueMap = [];
+			if ($property->getPropertyType() === PropertyTable::TYPE_LIST)
+			{
+				$enumIds = array_column($formattedValues, 'VALUE');
+				$enumSettings = PropertyEnumerationTable::getList([
+					'select' => ['ID', 'VALUE'],
+					'filter' => [
+						'=ID' => $enumIds,
+					],
+				])
+					->fetchAll()
+				;
+
+				$enumValueMap = array_column($enumSettings, 'VALUE','ID');
+			}
+
+			$propertySettings = $property->getSettings();
+			foreach ($formattedValues as $propertyValueId => $valueInfo)
+			{
+				$value = $valueInfo['VALUE'];
+
+				if ($property->getPropertyType() === PropertyTable::TYPE_LIST)
+				{
+					$value = $enumValueMap[$value] ?? $value;
+				}
+
+				$displayProperty = array_merge(
+					$propertySettings,
+					[
+						'DESCRIPTION' => $valueInfo['DESCRIPTION'],
+						'~DESCRIPTION' => $valueInfo['DESCRIPTION'],
+						'VALUE' => $value,
+						'~VALUE' => $value,
+						'~PROPERTY_VALUE_ID' => $valueInfo['PROPERTY_VALUE_ID'],
+					]
+				);
+
+				$displayProperty = \CIBlockFormatProperties::GetDisplayValue([], $displayProperty, '');
+
+				$formattedValues[$propertyValueId]['DISPLAY_VALUE'] = $displayProperty['DISPLAY_VALUE'];
+			}
+
+			$propertySettings = array_intersect_key($propertySettings, $propertyKeys);
+			$propertySettings['PROPERTY_VALUES'] = $formattedValues;
+			$properties[] = $propertySettings;
+		}
+
+		$this->fields['properties'] = $properties;
+
 		$this->fillFieldsFromSku();
 		return $this;
 	}
@@ -160,9 +236,11 @@ class BasketItem
 	public function removeSku(): self
 	{
 		$this->sku = null;
+		$this->priceItem = null;
 		$this->fields['productId'] = '';
 		$this->fields['skuId'] = '';
 		$this->fields['module'] = '';
+		$this->fields['properties'] = [];
 
 		return $this;
 	}
@@ -173,9 +251,37 @@ class BasketItem
 		{
 			$this
 				->setName($this->sku->getName())
-				->setMeasureCode((int)$this->sku->getField('MEASURE_CODE'))
-				->setMeasureName($this->sku->getField('MEASURE_NAME'))
+				->setTaxIncluded($this->sku->getField('VAT_INCLUDED'))
 			;
+
+			$measureId = (int)$this->sku->getField('MEASURE');
+			if ($measureId > 0)
+			{
+                $measureRow = \CCatalogMeasure::getList(
+                    array('CODE' => 'ASC'),
+                    array('=ID' => $this->sku->getField('MEASURE')),
+                    false,
+                    array('nTopCount' => 1),
+                    array('CODE', 'SYMBOL', 'SYMBOL_INTL')
+                );
+
+				if ($measure = $measureRow->Fetch())
+				{
+					$name = $measure['SYMBOL'] ?? $measure['SYMBOL_INTL'];
+					$this
+						->setMeasureCode((int)$measure['CODE'])
+						->setMeasureName($name)
+					;
+				}
+			}
+			
+			$taxId = $this->sku->getField('VAT_ID');
+			if (empty($taxId))
+			{
+				$taxId = $this->sku->getIblockInfo()->getVatId();
+			}
+
+			$this->setTaxId((int)$taxId);
 
 			$ratioItem = $this->sku->getMeasureRatioCollection()->findDefault();
 			if ($ratioItem)
@@ -185,10 +291,10 @@ class BasketItem
 
 			if ($this->priceGroupId)
 			{
-				$priceItem = $this->sku->getPriceCollection()->findByGroupId($this->priceGroupId);
-				if ($priceItem)
+				$this->priceItem = $this->sku->getPriceCollection()->findByGroupId($this->priceGroupId);
+				if ($this->priceItem)
 				{
-					$price = (float)$priceItem->getPrice();
+					$price = (float)$this->priceItem->getPrice();
 					$this
 						->setPrice($price)
 						->setBasePrice($price)
@@ -302,6 +408,34 @@ class BasketItem
 	public function setDiscountValue(float $value): self
 	{
 		$this->fields['discount'] = $value;
+
+		return $this;
+	}
+
+	public function addAdditionalField(string $name, $value): self
+	{
+		$this->fields['additionalFields'][$name] = $value;
+
+		return $this;
+	}
+
+	public function setTaxIncluded(string $value = null): self
+	{
+		$this->fields['taxIncluded'] = ($value === 'N') ? 'N' : 'Y';
+
+		return $this;
+	}
+
+	public function setTaxId(int $value): self
+	{
+		$this->fields['taxId'] = $value;
+
+		return $this;
+	}
+
+	public function clearAdditionalFields(): self
+	{
+		$this->fields['additionalFields'] = [];
 
 		return $this;
 	}

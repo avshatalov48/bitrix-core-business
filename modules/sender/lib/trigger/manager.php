@@ -8,23 +8,22 @@
 
 namespace Bitrix\Sender\Trigger;
 
+use Bitrix\Main\Diag\Debug;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Type\DateTime;
-use Bitrix\Main\Diag\Debug;
-
 use Bitrix\Sender\ContactTable;
-use Bitrix\Sender\Recipient;
-use Bitrix\Sender\Subscription;
-use Bitrix\Sender\MailEventHandler;
-use Bitrix\Sender\MailingTable;
-use Bitrix\Sender\MailingChainTable;
-use Bitrix\Sender\MailingTriggerTable;
-use Bitrix\Sender\PostingTable;
-use Bitrix\Sender\PostingRecipientTable;
 use Bitrix\Sender\Integration;
 use Bitrix\Sender\Internals\Model;
+use Bitrix\Sender\MailEventHandler;
+use Bitrix\Sender\MailingChainTable;
+use Bitrix\Sender\MailingTable;
+use Bitrix\Sender\MailingTriggerTable;
+use Bitrix\Sender\PostingRecipientTable;
+use Bitrix\Sender\PostingTable;
+use Bitrix\Sender\Recipient;
+use Bitrix\Sender\Subscription;
 
 class Manager
 {
@@ -671,7 +670,7 @@ class Manager
 						continue;
 					}
 
-					$connectorCode = call_user_func(array($connectorClassName, 'getCode'));
+					$connectorCode = (new $connectorClassName)->getCode();
 					if($moduleConnectorFilter && !in_array($connectorCode, $moduleConnectorFilter[$eventResult->getModuleId()]))
 					{
 						continue;
@@ -681,8 +680,8 @@ class Manager
 					if(is_subclass_of($connectorClassName,  '\Bitrix\Sender\TriggerConnectorClosed'))
 						$isClosedTrigger = true;
 
-					$connectorName = call_user_func(array($connectorClassName, 'getName'));
-					$connectorRequireConfigure = call_user_func(array($connectorClassName, 'requireConfigure'));
+					$connectorName = (new $connectorClassName)->getName();
+					$connectorRequireConfigure = (new $connectorClassName)->requireConfigure();
 					$resultList[] = array(
 						'MODULE_ID' => $eventResult->getModuleId(),
 						'CLASS_NAME' => $connectorClassName,

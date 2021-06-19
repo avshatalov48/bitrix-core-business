@@ -51,6 +51,6 @@ return [
 		],
 	],
 	'assets' => [
-		'ext' => ['landing_menu'],
+		'ext' => ['landing_menu', 'landing_header_sidebar'],
 	],
 ];

@@ -26,7 +26,7 @@ IncludeModuleLangFile(__FILE__);
 
 $sTableID = "tbl_language";
 
-$oSort = new CAdminSorting($sTableID, "C_SORT", "asc");
+$oSort = new CAdminSorting($sTableID, "sort", "asc");
 
 $lAdmin = new CAdminList($sTableID, $oSort);
 
@@ -52,7 +52,7 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 	if($_REQUEST['action_target']=='selected')
 	{
 		$arID = array();
-		$rsData = CLanguage::GetList($by, $order, array());
+		$rsData = CLanguage::GetList();
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -86,6 +86,8 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 }
 
 $APPLICATION->SetTitle(GetMessage("TITLE"));
+
+global $by, $order;
 
 $langs = CLanguage::GetList($by, $order, Array());
 $rsData = new CAdminResult($langs, $sTableID);

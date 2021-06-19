@@ -229,7 +229,7 @@ class CIBlockProperty extends CAllIBlockProperty
 		return true;
 	}
 
-	function DropColumnSQL($strTable, $arColumns)
+	public static function DropColumnSQL($strTable, $arColumns)
 	{
 		global $DB;
 		$tableFields = $DB->GetTableFields($strTable);

@@ -149,7 +149,7 @@ if ($detailUrl)
 						'AJAX_OPTION_HISTORY' => 'N',
 						'CACHE_TYPE' => 'A',
 						'CACHE_TIME' => '36000000',
-						'CACHE_GROUPS' => 'N',
+						'CACHE_GROUPS' => 'Y',
 						'SET_META_KEYWORDS' => 'Y',
 						'META_KEYWORDS' => '',
 						'SET_META_DESCRIPTION' => 'Y',

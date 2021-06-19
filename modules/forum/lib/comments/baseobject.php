@@ -4,6 +4,7 @@ namespace Bitrix\Forum\Comments;
 
 use \Bitrix\Forum\Internals\Error\ErrorCollection;
 use \Bitrix\Forum\Internals\Error\Error;
+use \Bitrix\Forum;
 use Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\ArgumentTypeException;
 use \Bitrix\Main\ArgumentException;
@@ -206,7 +207,7 @@ abstract class BaseObject
 		if (!$this->checkForumId($id))
 			throw new ArgumentTypeException(Loc::getMessage("FORUM_CM_FORUM_IS_WRONG"), self::ERROR_PARAMS_FORUM_ID);
 
-		$this->forum = \CForumNew::getByIDEx($id, SITE_ID);
+		$this->forum = Forum\ForumTable::getMainData($id, SITE_ID);
 
 		if (!$this->forum)
 			throw new ArgumentException(Loc::getMessage("FORUM_CM_FORUM_IS_LOST"), self::ERROR_PARAMS_FORUM_ID);

@@ -20,6 +20,7 @@ $isEmpty = true;
 <?php
 foreach($arResult['value'] as $res)
 {
+	$res = (int)$res;
 	if(array_key_exists($res, $arResult['userField']['USER_TYPE']['FIELDS']))
 	{
 		$textRes = $arResult['userField']['USER_TYPE']['FIELDS'][$res];

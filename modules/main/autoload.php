@@ -96,8 +96,6 @@ Loader::registerAutoLoadClasses(
 		"CAllGroup" => "classes/general/group.php",
 		"CGroup" => "classes/general/group.php",
 		"CAjax" => "ajax_tools.php",
-		"CAllAgent" => "classes/general/agent.php",
-		"CAgent" => "classes/mysql/agent.php",
 		"CAllUser" => "classes/general/user.php",
 		"CUser" => "classes/general/user.php",
 		"CAllEvent" => "classes/general/event.php",

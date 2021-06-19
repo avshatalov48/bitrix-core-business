@@ -11,7 +11,7 @@ class CAllLanguage
 {
 	var $LAST_ERROR;
 
-	public static function GetList(&$by, &$order, $arFilter=array())
+	public static function GetList($by = "sort", $order = "asc", $arFilter=array())
 	{
 		global $DB;
 		$arSqlSearch = array();
@@ -22,7 +22,7 @@ class CAllLanguage
 			{
 				if ((string)$val <> '')
 				{
-					switch(mb_strtoupper($key))
+					switch(strtoupper($key))
 					{
 						case "ACTIVE":
 							if($val == "Y" || $val == "N")
@@ -64,13 +64,12 @@ class CAllLanguage
 		else
 		{
 			$strSqlOrder = " ORDER BY L.SORT ";
-			$by = "sort";
 		}
 
-		if($order=="desc")
+		if($order == "desc")
+		{
 			$strSqlOrder .= " desc ";
-		else
-			$order = "asc";
+		}
 
 		$strSql .= $strSqlOrder;
 
@@ -81,7 +80,7 @@ class CAllLanguage
 
 	public static function GetByID($ID)
 	{
-		return CLanguage::GetList($o, $b, array("LID"=>$ID));
+		return CLanguage::GetList('', '', array("LID"=>$ID));
 	}
 
 	public function CheckFields($arFields, $ID = false)
@@ -206,9 +205,7 @@ class CAllLanguage
 		/** @global CMain $APPLICATION */
 		global $APPLICATION, $DB;
 
-		$b = "";
-		$o = "";
-		$db_res = CLang::GetList($b, $o, array("LANGUAGE_ID" => $ID));
+		$db_res = CLang::GetList('', '', array("LANGUAGE_ID" => $ID));
 		if($db_res->Fetch())
 			return false;
 
@@ -232,9 +229,7 @@ class CAllLanguage
 
 	public static function SelectBox($sFieldName, $sValue, $sDefaultValue="", $sFuncName="", $field="class=\"typeselect\"")
 	{
-		$by = "sort";
-		$order = "asc";
-		$l = CLanguage::GetList($by, $order);
+		$l = CLanguage::GetList();
 		$s = '<select name="'.$sFieldName.'" '.$field;
 		$s1 = '';
 		if($sFuncName <> '') $s .= ' OnChange="'.$sFuncName.'"';

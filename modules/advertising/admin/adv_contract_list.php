@@ -8,9 +8,11 @@
 ##############################################
 */
 
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/prolog.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/include.php");
+Loader::includeModule('advertising');
 
 $isDemo = CAdvContract::IsDemo();
 $isManager = CAdvContract::IsManager();
@@ -124,7 +126,7 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 	if($_REQUEST['action_target']=='selected')
 	{
 		$arID = Array();
-		$rsData = CAdvContract::GetList($by, $order, $arFilter);
+		$rsData = CAdvContract::GetList('', '', $arFilter);
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -153,7 +155,9 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 	}
 }
 
-$rsContracts = CAdvContract::GetList($by, $order, $arFilter, $is_filtered);
+global $by, $order;
+
+$rsContracts = CAdvContract::GetList($by, $order, $arFilter);
 
 $rsData = new CAdminResult($rsContracts, $sTableID);
 $rsData->NavStart();
@@ -182,7 +186,7 @@ $Headers[] = array("id"=>"CTR", "content"=>"CTR (%)", "sort"=>"s_ctr", "align"=>
 $lAdmin->AddHeaders($Headers);
 
 $arrSites = array();
-$rs = CSite::GetList(($b="sort"), ($o="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 	$arrSites[$ar["ID"]] = $ar;
 
@@ -367,7 +371,7 @@ $oFilter->Begin();
 	<td><?
 	$ref = array();
 	$ref_id = array();
-	$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+	$rs = CSite::GetList();
 	while ($ar = $rs->Fetch())
 	{
 		$ref[] = "[".$ar["ID"]."] ".$ar["NAME"];

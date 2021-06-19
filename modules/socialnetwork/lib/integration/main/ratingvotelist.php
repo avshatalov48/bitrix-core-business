@@ -40,7 +40,7 @@ class RatingVoteList
 		)))
 		{
 			$liveFeedEntity->setContentView(array(
-				"userId" => $userId
+				"user_id" => $userId
 			));
 		}
 

@@ -1,11 +1,13 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
+
 $GLOBALS["BLOG_USER_GROUP"] = Array();
 
 class CAllBlogUserGroup
 {
 	/*************** ADD, UPDATE, DELETE *****************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && $arFields["NAME"] == '')
 		{
@@ -31,7 +33,7 @@ class CAllBlogUserGroup
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -65,7 +67,7 @@ class CAllBlogUserGroup
 		return True;
 	}
 
-	function SetGroupPerms($ID, $blogID, $postID = 0, $permission = BLOG_PERMS_DENY, $permsType = BLOG_PERMS_POST)
+	public static function SetGroupPerms($ID, $blogID, $postID = 0, $permission = BLOG_PERMS_DENY, $permsType = BLOG_PERMS_POST)
 	{
 		global $DB;
 
@@ -177,7 +179,7 @@ class CAllBlogUserGroup
 	}
 
 	//*************** SELECT *********************/
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -256,4 +258,3 @@ class CAllBlogUserGroup
 		return False;
 	}
 }
-?>

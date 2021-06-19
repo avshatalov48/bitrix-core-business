@@ -82,7 +82,7 @@ JS
 
 		if ($mobileHit === null)
 		{
-			$mobileHit = mb_strpos(Manager::getCurDir(), '/mobile/') === 0;
+			$mobileHit = mb_strpos(Manager::getCurDir(), SITE_DIR . 'mobile/') === 0;
 		}
 
 		return $mobileHit;

@@ -13,6 +13,7 @@ BX.UI.InfoHelper =
 		this.inited = true;
 		this.frameUrlTemplate = params.frameUrlTemplate || '';
 
+
 		BX.bind(window, 'message', BX.proxy(function(event)
 		{
 			if (!!event.origin && event.origin.indexOf('bitrix') === -1)
@@ -108,7 +109,7 @@ BX.UI.InfoHelper =
 							BX.UI.InfoHelper.frameNode.contentWindow.postMessage(
 								{
 									action: 'onActivateDemoLicenseResult',
-										result: response
+									result: response
 								},
 								'*'
 							);
@@ -116,6 +117,27 @@ BX.UI.InfoHelper =
 					}.bind(this)
 				);
 			}
+
+			if (event.data.action === 'openBuySubscriptionPage')
+			{
+				BX.ajax.runAction("ui.infoHelper.getBuySubscriptionUrl").then(
+					function(response)
+					{
+						if (!!response.data && !!response.data.url)
+						{
+							if (response.data.action === 'blank')
+							{
+								window.open(response.data.url, '_blank');
+							}
+							else if (response.data.action === 'redirect')
+							{
+								window.location.href = response.data.url;
+							}
+						}
+					}.bind(this)
+				);
+			}
+
 
 		}, this));
 	},
@@ -177,6 +199,7 @@ BX.UI.InfoHelper =
 			return;
 		}
 
+
 		if (!code)
 		{
 			return;
@@ -189,6 +212,7 @@ BX.UI.InfoHelper =
 					{
 						this.init(response.data);
 						this.frameUrl = this.frameUrlTemplate.replace(/code/, code);
+
 
 						if (this.getFrame().src !== this.frameUrl)
 						{

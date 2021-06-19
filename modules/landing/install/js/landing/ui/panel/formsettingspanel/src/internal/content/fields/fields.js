@@ -30,6 +30,7 @@ export default class FieldsContent extends ContentWrapper
 				new FieldsListField({
 					selector: 'fields',
 					isLeadEnabled: this.options.isLeadEnabled,
+					dictionary: this.options.dictionary,
 					formOptions: {
 						...this.options.formOptions,
 					},

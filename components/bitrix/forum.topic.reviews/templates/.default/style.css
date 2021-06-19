@@ -66,6 +66,7 @@ table.reviews-post-table thead td, table.reviews-post-table tbody td div.reviews
 	padding-top: 0.5em;
 }
 table.reviews-post-table thead td .message-post-date {
+	padding-left: 7px;
 	font-size: 0.85em;
 }
 table.reviews-post-table thead td .review-avatar {
@@ -137,13 +138,17 @@ div.reviews-post-reply-buttons {
 	padding:0;
 	position:relative;
 }
-div.reviews-post-reply-buttons span.separator {
+div.reviews-post-reply-buttons .reviews-button-small::before {
+	content: '';
 	background-color: #E0E0E0;
 	display: inline-block;
-	margin: 0 1px;
+	margin: 0 7px;
 	height: 7px;
 	line-height: 5px;
 	width:1px;
+}
+div.reviews-post-reply-buttons .reviews-button-small:first-child::before {
+	display: none;
 }
 table.reviews-post-table .reply-action-note {
 	color: #777777;
@@ -307,14 +312,11 @@ div.reviews-reply-field-captcha input { width: 180px;}
 div.reviews-reply-field-settings input, div.reviews-uploaded-file input, div.reviews-reply-field-lastedit-view input { width:1.55em; height:1.55em; margin:0 0 0 -0.25em; vertical-align: middle; font-size:1em; }
 div.reviews-reply-field-settings label, div.reviews-uploaded-file a, div.reviews-reply-field-lastedit label { vertical-align: middle; }
 
-div.reviews-reply-field-upload a { outline: none;}
-div.reviews-upload-file-hint { display: none;}
-div.reviews-upload-file-hint span { font-weight: bold;}
-div.reviews-upload-file {display: none; margin-top: 0.262em;}
+div.reviews-upload-file {margin-top: 0.262em;}
 div.reviews-upload-file input {font-size:1.184em; }
 
 div.reviews-reply-buttons { margin-top: 1em;}
-div.reviews-reply-buttons input { padding:0 0.5em; font-size:1.184em; overflow: visible; /*IE paddings*/}
+div.reviews-reply-buttons button { padding:0 0.5em; font-size:1.184em; overflow: visible; /*IE paddings*/}
 
 /* Utils */
 div.reviews-clear-float { clear: both; }
@@ -540,4 +542,32 @@ a.postFormAutosave {
 	margin-right: 9px;
 	margin-top: 5px;
 	z-index:2;
+}
+label.forum-upload-file-attach {
+	text-decoration: underline;
+	cursor: pointer;
+}
+a.reviews-form-switcher {
+	padding: 15px 0;
+	display: inline-block;
+}
+
+input[data-bx-role="attach-visibility"] {
+	display: none;
+}
+div[data-bx-role="attach-form"] {
+	display: none;
+}
+input[data-bx-role="attach-visibility"]:checked ~ div[data-bx-role="attach-form"] {
+	display: block;
+}
+input[data-bx-role="attach-visibility"]:checked ~ label.forum-upload-file-attach {
+	display: none;
+}
+[data-bx-act] [data-bx-description=show],
+[data-bx-act=show] [data-bx-description=hide] {
+	display: none;
+}
+[data-bx-act=show] [data-bx-description=show] {
+	display: inline-block;
 }

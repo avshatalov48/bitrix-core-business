@@ -68,7 +68,8 @@ class FileTable extends Main\Entity\DataManager
 			(new Reference("USER", \Bitrix\Main\UserTable::class, Join::on("this.USER_ID", "ref.ID"))),
 			(new DatetimeField("TIMESTAMP_X", ["default_value" => function(){return new DateTime();}])),
 			(new IntegerField("HITS")),
-			(new Reference("FORUM", ForumTable::class, Join::on("this.FORUM_ID", "ref.ID")))
+			(new Reference("FORUM", ForumTable::class, Join::on("this.FORUM_ID", "ref.ID"))),
+			(new Reference("FILE", Main\FileTable::class, Join::on("this.FILE_ID", "ref.ID")))
 		];
 	}
 }
@@ -135,9 +136,8 @@ class File
 					"FORUM_ID" => $params["FORUM_ID"] ?: $forum->getId(),
 					"TOPIC_ID" => $params["TOPIC_ID"],
 					"MESSAGE_ID" => $params["MESSAGE_ID"],
-					"USER_ID" => $params["USER_ID"],
 					"FILE_ID" => $existingFiles
-				],
+				] + ($params["MESSAGE_ID"] > 0 ? [] : ["USER_ID" => $params["USER_ID"]]),
 				"order" => [
 					"FILE_ID" => "ASC"
 				]
@@ -179,7 +179,7 @@ class File
 			}
 			else
 			{
-				$id = \CFile::SaveFile($file, $uploadDir, true, true);
+				$id = \CFile::SaveFile($file, $uploadDir);
 				if ($id > 0)
 				{
 					$files[$key]["FILE_ID"] = $id;

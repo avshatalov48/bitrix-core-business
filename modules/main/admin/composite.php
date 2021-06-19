@@ -136,9 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" &&
 	if (isset($_REQUEST["group"]) && is_array($_REQUEST["group"]))
 	{
 		$compositeOptions["GROUPS"] = array();
-		$b = "";
-		$o = "";
-		$rsGroups = CGroup::GetList($b, $o, array());
+		$rsGroups = CGroup::GetList();
 		while ($arGroup = $rsGroups->Fetch())
 		{
 			if ($arGroup["ID"] > 2)
@@ -1046,9 +1044,7 @@ $tabControl->BeginNextTab();
 $arUsedGroups = array();
 $groups = $compositeOptions["GROUPS"];
 $arGROUPS = array();
-$b = "";
-$o = "";
-$rsGroups = CGroup::GetList($b, $o, array("ACTIVE"=>"Y", "ADMIN"=>"N", "ANONYMOUS"=>"N"));
+$rsGroups = CGroup::GetList('', '', array("ACTIVE"=>"Y", "ADMIN"=>"N", "ANONYMOUS"=>"N"));
 while ($arGroup = $rsGroups->Fetch())
 {
 	$arGROUPS[] = $arGroup;

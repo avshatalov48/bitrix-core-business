@@ -231,11 +231,8 @@ abstract class NameHelper extends Helper
 
 		if($languages == null)
 		{
-			$by = 'sort';
-			$order = 'asc';
-
 			$lang = new \CLanguage();
-			$res = $lang->GetList($by, $order, array());
+			$res = $lang->GetList();
 			$languages = array();
 			while($item = $res->Fetch())
 				$languages[$item['LANGUAGE_ID']] = $item['LANGUAGE_ID'];

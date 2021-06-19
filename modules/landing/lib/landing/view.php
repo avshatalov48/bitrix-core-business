@@ -67,7 +67,6 @@ class View
 		{
 			return;
 		}
-
 		if (!isset($_SESSION[self::SESSION_VIEWS_KEY]))
 		{
 			$_SESSION[self::SESSION_VIEWS_KEY] = [];

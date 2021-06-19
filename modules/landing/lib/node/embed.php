@@ -45,21 +45,27 @@ class Embed extends \Bitrix\Landing\Node
 				{
 					$resultList[$pos]->setAttribute('data-source', $value['source']);
 				}
+
+//				set preview image
+                $styles = [];
+                foreach (StyleInliner::getStyle($resultList[$pos]) as $key => $stylesValue)
+                {
+                    if ($key !== 'background' && $key !== 'background-image')
+                    {
+                        $styles[] = "{$key}: {$stylesValue};";
+                    }
+                }
 				if (isset($value['preview']) && $value['preview'])
 				{
-					$styles = [];
-					foreach (StyleInliner::getStyle($resultList[$pos]) as $key => $stylesValue)
-					{
-						if ($key !== 'background' && $key !== 'background-image')
-						{
-							$styles[] = "{$key}: {$stylesValue};";
-						}
-					}
 					$styles[] = "background-image: url('{$value['preview']}');";
-					$styles = implode(' ', $styles);
-					$resultList[$pos]->setAttribute('style', $styles);
 					$resultList[$pos]->setAttribute('data-preview', $value['preview']);
 				}
+				else
+                {
+                    $resultList[$pos]->removeAttribute('data-preview');
+                }
+                $styles = implode(' ', $styles);
+                $resultList[$pos]->setAttribute('style', $styles);
 			}
 		}
 	}

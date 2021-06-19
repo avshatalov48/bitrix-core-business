@@ -163,15 +163,17 @@ if($strError)
 {
 	$aMsg=array();
 	$arrErr = explode("<br>",$strError);
-	while (list(,$err)=each($arrErr)) $aMsg[]['text']=$err;
+	foreach ($arrErr as $err)
+	{
+		$aMsg[]['text'] = $err;
+	}
 
 	$e = new CAdminException($aMsg);
 	$GLOBALS["APPLICATION"]->ThrowException($e);
 	$message = new CAdminMessage(GetMessage("FORM_ERROR_SAVE"), $e);
 	echo $message->Show();
 }
-echo ShowNote($strNote);
-
+ShowNote($strNote);
 ?>
 
 <form method="POST" action="<?echo $APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID?>" name="form_status_edit">
@@ -358,10 +360,9 @@ function DeleteMailTemplate(template_id)
 		<td width="40%" valign="top"><?=GetMessage("FORM_MAIL_TEMPLATE")?></td>
 		<td width="60%" valign="top" nowrap style="padding:0px" id="form_templates">
 			<?
+			$arrMAIL = array();
 			$arr = CFormStatus::GetTemplateList($ID);
 			if (is_array($arr) && count($arr)>0):
-				$arrMAIL = array();
-				reset($arr);
 				if (is_array($arr["reference_id"]))
 				{
 					foreach ($arr['reference_id'] as $key => $value)

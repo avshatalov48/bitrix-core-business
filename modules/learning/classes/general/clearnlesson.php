@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Note: usually in phpDoc blocks for methods listed not all exceptions, 
+ * Note: usually in phpDoc blocks for methods listed not all exceptions,
  * that can be throwed by them.
- * 
+ *
  * @access public
  */
 interface ILearnLesson
@@ -12,7 +12,7 @@ interface ILearnLesson
 	 * WARNING: second param ($isCourse) must be always set to FALSE, because
 	 * it's is for internal use only. If you want to create course, use
 	 * CCourse::Add instead.
-	 * 
+	 *
 	 * Creates new lesson
 	 *
 	 * WARNING: this method terminates (by die()/exit()) current execution flow
@@ -26,16 +26,16 @@ interface ILearnLesson
 	 * ACTIVE, true by default, available values are: true/false
 	 * NAME, mustn't be omitted
 	 * CODE, NULL by default
-	 * PREVIEW_PICTURE, NULL by default, available value is array ('name' => ..., 
+	 * PREVIEW_PICTURE, NULL by default, available value is array ('name' => ...,
 	 *     'size' => ..., 'tmp_name' => ..., 'type' => ..., 'del' => ...)
 	 * PREVIEW_TEXT, NULL by default
 	 * PREVIEW_TEXT_TYPE, 'text' by default, available values are: 'text', 'html'
-	 * DETAIL_PICTURE, NULL by default, available value is array ('name' => ..., 
+	 * DETAIL_PICTURE, NULL by default, available value is array ('name' => ...,
 	 *     'size' => ..., 'tmp_name' => ..., 'type' => ..., 'del' => ...)
 	 * DETAIL_TEXT, NULL by default
 	 * DETAIL_TEXT_TYPE, 'text' by default, available values are: 'text', 'html', 'file' (filename in LAUNCH)
 	 * LAUNCH, NULL by default
-	 * 
+	 *
 	 * @param bool flag of course. If FALSE (default) lesson is not course,
 	 *        if TRUE created lesson will be the course (in this case arguments
 	 *        $parentLessonId and $arProperties are ignored, and $arFields
@@ -44,7 +44,7 @@ interface ILearnLesson
 	 *        - ACTIVE_FROM: datetime, NULL by default
 	 *        - ACTIVE_TO: datetime, NULL by default
 	 *        - RATING: string (1 char): 'Y' / 'N' / NULL, 'N' by default
-	 *        - RATING_TYPE: string, allowed values: NULL, "like", "standart_text", 
+	 *        - RATING_TYPE: string, allowed values: NULL, "like", "standart_text",
 	 *           "like_graphic", "standart", NULL by default
 	 *        - SCORM: string (1 char), 'N' by default
 	 *        ).
@@ -59,7 +59,7 @@ interface ILearnLesson
 	 *         - LearnException::EXC_ERR_GN_FILE_UPLOAD
 	 * Also can throws other exceptions or exceptions' codes.
 	 *
-	 * @return integer id of created lesson (if course was created, 
+	 * @return integer id of created lesson (if course was created,
 	 *         for get id of course method GetLinkedCourse() must be used)
 	 */
 	public static function Add ($arFields, $isCourse = false,
@@ -83,7 +83,7 @@ interface ILearnLesson
 	 *        - ACTIVE_FROM: datetime
 	 *        - ACTIVE_TO: datetime
 	 *        - RATING: string (1 char): 'Y' / 'N' / NULL
-	 *        - RATING_TYPE: string, allowed values: NULL, "like", "standart_text", 
+	 *        - RATING_TYPE: string, allowed values: NULL, "like", "standart_text",
 	 *           "like_graphic", "standart"
 	 *        - SCORM: string (1 char)
 	 *        ).
@@ -105,7 +105,7 @@ interface ILearnLesson
 	 * - 'lesson_id' - integer. Id of lesson to be removed.
 	 * - 'simulate' - boolean, false by default. If true => nothing will be writed to DB.
 	 * - 'check_permissions' - boolean, true by default
-	 * - 'user_id' - integer. User_id for which permissions will be checked, -1 by 
+	 * - 'user_id' - integer. User_id for which permissions will be checked, -1 by
 	 * default, which means 'current logged user'
 	 * (it's means 'current user')
 	 *
@@ -118,7 +118,7 @@ interface ILearnLesson
 	/**
 	 * Detach the given lesson from all parents and recursively remove descendants, excepts
 	 * descendants, that have ancestors outside of descendants of the given lesson. Such
-	 * lessons will not be removed, but will be unlinked from lessons, which will be really 
+	 * lessons will not be removed, but will be unlinked from lessons, which will be really
 	 * removed.
 	 *
 	 * @param integer/array. If not array => param interpreted as id of lesson to be removed.
@@ -126,7 +126,7 @@ interface ILearnLesson
 	 * - 'lesson_id' - integer. Id of lesson to be removed.
 	 * - 'simulate' - boolean, false by default. If true => nothing will be writed to DB.
 	 * - 'check_permissions' - boolean, true by default
-	 * - 'user_id' - integer. User_id for which permissions will be checked, -1 by default 
+	 * - 'user_id' - integer. User_id for which permissions will be checked, -1 by default
 	 * (it's means 'current user')
 	 */
 	public static function DeleteRecursiveLikeHardlinks ($id);
@@ -134,13 +134,13 @@ interface ILearnLesson
 
 	/**
 	 * WARNING: don't use this function, it's for internal use only.
-	 * 
+	 *
 	 * @param integer id of node to be getted
 	 *
 	 * @throws LearnException with errcode bit set LearnException::EXC_ERR_GN_GETBYID.
 	 *         Messages can be: 'EA_PARAMS', 'EA_ACCESS_DENIED',
 	 *         'EA_SQLERROR', 'EA_NOT_EXISTS'.
-	 * 
+	 *
 	 * @access private
 	 *
 	 * @return array of properties for node with $id
@@ -149,16 +149,16 @@ interface ILearnLesson
 
 
 	/**
-	 * @throws LearnException with error bit set EXC_ERR_ALL_PARAMS 
+	 * @throws LearnException with error bit set EXC_ERR_ALL_PARAMS
 	 * @return CDBResult
 	 */
 	public static function GetByID($id);
 
 
 	/**
-	 * @param array order in format: array('FIELD_NAME' => '#sort_order#' [, ...]), 
+	 * @param array order in format: array('FIELD_NAME' => '#sort_order#' [, ...]),
 	 * where #sort_order# is 'ASC' or 'DESC'
-	 * 
+	 *
 	 * @param array filter in format: array('???FIELD_NAME' => 'value' [, ...]),
 	 * where ??? can be one of (without double quotes):
 	 * "!" - not equals
@@ -166,23 +166,23 @@ interface ILearnLesson
 	 * "<=" - less than or equal to value
 	 * ">" - greater than value
 	 * ">=" - greater than or equal to value
-	 * 
-	 * Additionally available fields (not presented in data, but 
+	 *
+	 * Additionally available fields (not presented in data, but
 	 * can be used for filter): DATE_ACTIVE_TO, DATE_ACTIVE_FROM, ACTIVE_DATE.
-	 * 
+	 *
 	 * @example shows lessons with LESSON_ID >= 100, and DETAIL_TEXT_TYPE != 'html',
 	 * sorted by NAME ascending, than by LESSON_ID descending.
-	 * 
+	 *
 	 * <?php
 	 * $arOrder = array ('NAME' => 'ASC', 'LESSON_ID' => 'DESC');
 	 * $arFilter = array ('!DETAIL_TEXT_TYPE' => 'html', '>=LESSON_ID' => 100);
-	 * 
+	 *
 	 * $rc = ClassName::GetList($arOrder, $arFilter);
 	 * while (($data = $rc->Fetch()) !== false)
 	 *    var _dump ($data);
-	 * 
-	 * @throws LearnException with error bit set EXC_ERR_ALL_PARAMS 
-	 * @return CDBResult each element of which can contains 
+	 *
+	 * @throws LearnException with error bit set EXC_ERR_ALL_PARAMS
+	 * @return CDBResult each element of which can contains
 	 * COURSE_SORT (only if lesson is course)
 	 */
 	public static function GetList($arOrder = array(), $arFilter = array());
@@ -193,8 +193,8 @@ interface ILearnLesson
 	 * @param array order (see format in comment for ThisClass::GetList())
 	 * @param array filter (see format in comment for ThisClass::GetList())
 	 * @param array list of fields to be selected. If empty => selects all fields.
-	 * 
-	 * @throws LearnException with error bit set EXC_ERR_ALL_PARAMS 
+	 *
+	 * @throws LearnException with error bit set EXC_ERR_ALL_PARAMS
 	 * @return CDBResult
 	 */
 	public static function GetListOfImmediateParents($lessonId, $arOrder = array(), $arFilter = array(), $arSelectFields = array());
@@ -205,8 +205,8 @@ interface ILearnLesson
 	 * @param array order (see format in comment for ThisClass::GetList())
 	 * @param array filter (see format in comment for ThisClass::GetList())
 	 * @param array list of fields to be selected. If empty => selects all fields.
-	 * 
-	 * @throws LearnException with error bit set EXC_ERR_ALL_PARAMS 
+	 *
+	 * @throws LearnException with error bit set EXC_ERR_ALL_PARAMS
 	 * @return CDBResult each element contains EDGE_SORT - the sort index
 	 * of LESSON_ID in relation to parent lesson given in first argument
 	 * to this method.
@@ -259,7 +259,7 @@ interface ILearnLesson
 	 * @param integer id of lesson
 	 *
 	 * @return array of immediate childs (empty array if there is no childs)
-	 * 
+	 *
 	 * @see example for ListImmediateParents()
 	 */
 	public static function ListImmediateChilds($lessonId);
@@ -271,7 +271,7 @@ interface ILearnLesson
 	 * @param integer id of lesson
 	 *
 	 * @return array of immediate neighbours (empty array if there is no neighbours)
-	 * 
+	 *
 	 * @see example for ListImmediateParents()
 	 */
 	public static function ListImmediateNeighbours($lessonId);
@@ -283,7 +283,7 @@ interface ILearnLesson
 	 * @throws LearnException with error bit set (one of):
 	 *         - LearnException::EXC_ERR_ALL_GIVEUP
 	 *         - LearnException::EXC_ERR_ALL_LOGIC
-	 * @return integer/bool id of linked (corresponded) course or 
+	 * @return integer/bool id of linked (corresponded) course or
 	 *         FALSE if there is no course corresponded to the lesson.
 	 */
 	public static function GetLinkedCourse ($lessonId);
@@ -294,13 +294,13 @@ interface ILearnLesson
 	 * WARNING: tree build algorithm skips duplicated lessons, so
 	 * if there is some duplicates lessons, only one of them
 	 * will be in resulted tree.
-	 * 
+	 *
 	 * @param integer id of root lesson
 	 * @param array order (by default: array('EDGE_SORT' => 'asc'))
 	 * @param array Filter for lessons
-	 * @param bool public prohibition mode flag. If set to TRUE, than all 
-	 * 		lessons (and they descendants) that are public prohibited in context 
-	 * 		of a course with lesson_id == $lessonId will be skipped during 
+	 * @param bool public prohibition mode flag. If set to TRUE, than all
+	 * 		lessons (and they descendants) that are public prohibited in context
+	 * 		of a course with lesson_id == $lessonId will be skipped during
 	 * 		tree building.
 	 * @return object of type CLearnLessonTree
 	 */
@@ -366,9 +366,9 @@ interface ILearnLesson
 
 	/**
 	 * Counts how much immediate childs given lesson has.
-	 * 
+	 *
 	 * @param int id of lesson
-	 * 
+	 *
 	 * @return int count of immediate childs for given lesson id.
 	 */
 	public static function CountImmediateChilds ($lessonId);
@@ -376,7 +376,7 @@ interface ILearnLesson
 
 	/**
 	 * Lists all pathes to given lesson. Given lesson not included in pathes.
-	 * 
+	 *
 	 * @param int lesson id to be started from
 	 * @param int/bool id of breakpoint-lesson (root lesson).
 	 * It means, this lesson will be interpreted as parentless lesson.
@@ -387,31 +387,31 @@ interface ILearnLesson
 	 * If param is false (it's by default) - than this argument will be ignored.
 	 * @param array of edges to be ignored (interpreted as non-existing).
 	 * array must be array of such arrays: ('PARENT_LESSON' => #id#, 'CHILD_LESSON' => #id#)
-	 * 
+	 *
 	 * @return array of objects CLearnPath
 	 */
-	public static function GetListOfParentPathes ($lessonId, $breakOnLessonId = false, 
+	public static function GetListOfParentPathes ($lessonId, $breakOnLessonId = false,
 		$breakBeforeLessonId = false, $arIgnoreEdges = array());
 
 
 	/**
 	 * Checks for probition of publishing for given lesson in context of given course.
-	 * 
+	 *
 	 * @param int lesson id to be checked for publish prohibition
 	 * @param int lesson id in context of which check. Must corresponds to course.
-	 * 
+	 *
 	 * @return bool true - if lesson is prohibited to be published in this course, otherwise - false.
 	 */
 	public static function IsPublishProhibited ($lessonId, $contextCourseLessonId);
 
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param int lesson id for publish (un)prohibition
 	 * @param int lesson id in context of which publish (un)prohibition will be done
 	 * @param bool if true - lesson will be prohibited for publish. If false - prohibition will be removed.
-	 * 
+	 *
 	 * @return bool if true - prohibition status changed, false - otherwise. If status not changed - it isn't error,
 	 * it means that status to be setted === status, that already set for lesson.
 	 */
@@ -424,12 +424,12 @@ class CLearnLesson implements ILearnLesson
 	const GET_LIST_IMMEDIATE_CHILDS_OF  = 0x1;	// List only immediate childs of requested parent_lesson_id
 	const GET_LIST_IMMEDIATE_PARENTS_OF = 0x2;	// List only immediate parents of requested parent_lesson_id
 
-	
+
 	// PUBLISH_PROHIBITION_PURGE_* constants can be ORed
-	
+
 	// Purge all prohibitions where given lessonId is contextCourse
 	const PUBLISH_PROHIBITION_PURGE_ALL_LESSONS_IN_COURSE_CONTEXT = 0x1;
-	
+
 	// Purge all prohibitions for lessonId in all contextCourses
 	const PUBLISH_PROHIBITION_PURGE_LESSON_IN_ALL_COURSE_CONTEXT  = 0x2;
 
@@ -467,7 +467,7 @@ class CLearnLesson implements ILearnLesson
 					// We must check, is user have access to link lesson to some parent
 					if (CLearnAccessMacroses::CanUserAddLessonToParentLesson (
 						array(
-							'parent_lesson_id' => $parentLessonId, 
+							'parent_lesson_id' => $parentLessonId,
 							'user_id'          => $checkPermissionsForUserId
 							)
 						)
@@ -484,7 +484,7 @@ class CLearnLesson implements ILearnLesson
 		if ( ! $isAccessGranted )
 		{
 			throw new LearnException(
-				'EA_ACCESS_DENIED', 
+				'EA_ACCESS_DENIED',
 				LearnException::EXC_ERR_ALL_ACCESS_DENIED);
 		}
 
@@ -553,7 +553,7 @@ class CLearnLesson implements ILearnLesson
 	{
 		$arCourseFields = array();
 
-		if (array_key_exists('SORT', $arFields) 
+		if (array_key_exists('SORT', $arFields)
 			&& ( ! array_key_exists('COURSE_SORT', $arFields))
 		)
 		{
@@ -567,9 +567,9 @@ class CLearnLesson implements ILearnLesson
 		if (array_key_exists('SORT', $arFields))
 			unset ($arFields['SORT']);
 
-		$additionalParams = array ('COURSE_SORT', 'ACTIVE_FROM', 
+		$additionalParams = array ('COURSE_SORT', 'ACTIVE_FROM',
 			'ACTIVE_TO', 'RATING', 'RATING_TYPE', 'SCORM');
-		
+
 		foreach ($additionalParams as $paramName)
 		{
 			if (array_key_exists($paramName, $arFields))
@@ -658,8 +658,8 @@ class CLearnLesson implements ILearnLesson
 			if ( ($arFields['RATING_TYPE'] !== NULL)
 				&&
 				( ! in_array (
-						$arFields['RATING_TYPE'], 
-						array ('like', 'standart_text', 'like_graphic', 'standart'), 
+						$arFields['RATING_TYPE'],
+						array ('like', 'standart_text', 'like_graphic', 'standart'),
 						true)
 				)
 			)
@@ -692,7 +692,7 @@ class CLearnLesson implements ILearnLesson
 	{
 		global $DB, $USER_FIELD_MANAGER;
 
-		if ( isset($arFields['ACTIVE']) 
+		if ( isset($arFields['ACTIVE'])
 			&& ( ! is_bool($arFields['ACTIVE']) )
 		)
 		{
@@ -860,8 +860,8 @@ class CLearnLesson implements ILearnLesson
 				if ( ! (is_object($USER) && method_exists($USER, 'GetID')) )
 				{
 					throw new LearnException(
-						'EA_OTHER: $USER isn\'t available.', 
-						LearnException::EXC_ERR_ALL_GIVEUP 
+						'EA_OTHER: $USER isn\'t available.',
+						LearnException::EXC_ERR_ALL_GIVEUP
 						| LearnException::EXC_ERR_ALL_LOGIC);
 				}
 
@@ -875,7 +875,7 @@ class CLearnLesson implements ILearnLesson
 
 	final public static function DeleteRecursiveLikeHardlinks ($in_data)
 	{
-		list ($root_lesson_id, $simulate, $check_permissions, $user_id) = 
+		list ($root_lesson_id, $simulate, $check_permissions, $user_id) =
 			self::_funcDelete_ParseOptions($in_data);
 
 		// list of lessons, which are candidates to be removed
@@ -970,12 +970,12 @@ class CLearnLesson implements ILearnLesson
 		}
 	}
 
-	
+
 	final public static function Delete ($lesson_id)
 	{
 		global $USER_FIELD_MANAGER;
 
-		list ($lesson_id, $simulate, $check_permissions, $user_id) = 
+		list ($lesson_id, $simulate, $check_permissions, $user_id) =
 			self::_funcDelete_ParseOptions($lesson_id);
 
 		if ($check_permissions)
@@ -984,7 +984,7 @@ class CLearnLesson implements ILearnLesson
 			if ( ! $oAccess->IsLessonAccessible($lesson_id, CLearnAccess::OP_LESSON_REMOVE) )
 			{
 				throw new LearnException(
-					'EA_ACCESS_DENIED', 
+					'EA_ACCESS_DENIED',
 					LearnException::EXC_ERR_ALL_ACCESS_DENIED);
 			}
 		}
@@ -1027,18 +1027,18 @@ class CLearnLesson implements ILearnLesson
 				else
 				{
 					throw new LearnException(
-						'EA_FATAL: $lesson_id (' . $lesson_id 
-							. ') not equal to one of: $child_lesson_id (' 
-							. $child_lesson_id . '), $parent_lesson_id (' 
-							. $parent_lesson_id . ')', 
-						LearnException::EXC_ERR_ALL_LOGIC 
+						'EA_FATAL: $lesson_id (' . $lesson_id
+							. ') not equal to one of: $child_lesson_id ('
+							. $child_lesson_id . '), $parent_lesson_id ('
+							. $parent_lesson_id . ')',
+						LearnException::EXC_ERR_ALL_LOGIC
 						| LearnException::EXC_ERR_ALL_GIVEUP);
 				}
 
 				if ( ! $IsLessonAccessible )
 				{
 					throw new LearnException(
-						'EA_ACCESS_DENIED', 
+						'EA_ACCESS_DENIED',
 						LearnException::EXC_ERR_ALL_ACCESS_DENIED);
 				}
 
@@ -1065,7 +1065,7 @@ class CLearnLesson implements ILearnLesson
 				if ($rc === false)
 				{
 					throw new LearnException (
-						'EA_OTHER: lesson is unremovable because linked course is in use.', 
+						'EA_OTHER: lesson is unremovable because linked course is in use.',
 						LearnException::EXC_ERR_LL_UNREMOVABLE_CL);
 				}
 
@@ -1082,13 +1082,13 @@ class CLearnLesson implements ILearnLesson
 			$r = $DB->Query(
 				"SELECT PREVIEW_PICTURE, DETAIL_PICTURE 
 				FROM b_learn_lesson 
-				WHERE ID = " . (int) $lesson_id, 
+				WHERE ID = " . (int) $lesson_id,
 				true);
 
 			if ($r === false)
 			{
 				throw new LearnException(
-					'EA_SQLERROR', 
+					'EA_SQLERROR',
 					LearnException::EXC_ERR_ALL_GIVEUP);
 			}
 
@@ -1096,7 +1096,7 @@ class CLearnLesson implements ILearnLesson
 			if ( ! $arRes )
 			{
 				throw new LearnException(
-					'EA_SQLERROR', 
+					'EA_SQLERROR',
 					LearnException::EXC_ERR_ALL_GIVEUP);
 			}
 
@@ -1105,7 +1105,7 @@ class CLearnLesson implements ILearnLesson
 
 			// Remove questions
 			$q = CLQuestion::GetList(
-				array(), 
+				array(),
 				array('LESSON_ID' => $lesson_id)
 				);
 			while($arQ = $q->Fetch())
@@ -1113,7 +1113,7 @@ class CLearnLesson implements ILearnLesson
 				if ( ! CLQuestion::Delete($arQ['ID']) )
 				{
 					throw new LearnException(
-						'EA_QUESTION_NOT_REMOVED', 
+						'EA_QUESTION_NOT_REMOVED',
 						LearnException::EXC_ERR_ALL_GIVEUP);
 				}
 			}
@@ -1179,7 +1179,7 @@ class CLearnLesson implements ILearnLesson
 		}
 
 		// convert return data to expected form
-		if ( isset($arData['ACTIVE']) 
+		if ( isset($arData['ACTIVE'])
 			&& is_bool($arData['ACTIVE'])
 		)
 		{
@@ -1209,7 +1209,7 @@ class CLearnLesson implements ILearnLesson
 
 	/**
 	 * This function is for internal use only. It's not a part of public API.
-	 * 
+	 *
 	 * @access private
 	 */
 	final public static function GetCourseToLessonMap($bRefreshCache = false)
@@ -1273,7 +1273,7 @@ class CLearnLesson implements ILearnLesson
 		if ($rc === false)
 		{
 			throw new LearnException (
-				'EA_SQLERROR', 
+				'EA_SQLERROR',
 				LearnException::EXC_ERR_ALL_GIVEUP);
 		}
 
@@ -1293,10 +1293,10 @@ class CLearnLesson implements ILearnLesson
 
 	/**
 	 * WARNING: don't use this method, it's for internal use only
-	 * 
-	 * Convert lesson to course (lesson will stay exists, but new course 
+	 *
+	 * Convert lesson to course (lesson will stay exists, but new course
 	 * binded to lesson will be created)
-	 * 
+	 *
 	 * WARNING: this method terminates (by die()/exit()) current execution flow
 	 * when SQL server error occured. It's due to bug in CDatabase::Update() in main
 	 * module (version info:
@@ -1310,12 +1310,12 @@ class CLearnLesson implements ILearnLesson
 	 *        - ACTIVE_FROM: datetime, NULL by default
 	 *        - ACTIVE_TO: datetime, NULL by default
 	 *        - RATING: string (1 char), 'N' by default
-	 *        - RATING_TYPE: string, allowed values: NULL, "like", "standart_text", 
+	 *        - RATING_TYPE: string, allowed values: NULL, "like", "standart_text",
 	 *           "like_graphic", "standart", NULL by default
 	 *        - SCORM: string (1 char), 'N' by default
-	 * 
+	 *
 	 * @return int course id
-	 * 
+	 *
 	 * @access private
 	 */
 	protected static function BecomeCourse ($lessonId, $arFields)
@@ -1372,10 +1372,10 @@ class CLearnLesson implements ILearnLesson
 
 	/**
 	 * WARNING: don't use this method, it's for internal use only
-	 * 
+	 *
 	 * Convert course to non-course lesson (course will be removed,
 	 * but lesson will stay exists)
-	 * 
+	 *
 	 * WARNING: this method terminates (by die()/exit()) current execution flow
 	 * when SQL server error occured. It's due to bug in CDatabase::Update() in main
 	 * module (version info:
@@ -1384,7 +1384,7 @@ class CLearnLesson implements ILearnLesson
 	 * )
 	 *
 	 * @param int $courseId (returned by GetLinkedCourse($lessonId) )
-	 * 
+	 *
 	 * @access private
 	 */
 	protected static function CourseBecomeLesson ($courseId)
@@ -1418,7 +1418,7 @@ class CLearnLesson implements ILearnLesson
 		// Remove all prohibitions for lessons in context of course to be removed
 		// and remove prohibitions for course to be removed in context of all other courses
 		self::PublishProhibitionPurge(
-			$linkedLessonId, 
+			$linkedLessonId,
 			self::PUBLISH_PROHIBITION_PURGE_ALL_LESSONS_IN_COURSE_CONTEXT
 			| self::PUBLISH_PROHIBITION_PURGE_LESSON_IN_ALL_COURSE_CONTEXT
 			);
@@ -1463,7 +1463,7 @@ class CLearnLesson implements ILearnLesson
 				|| ( ! is_int($arg + 0) )
 			)
 			{
-				throw new LearnException ('EA_PARAMS', 
+				throw new LearnException ('EA_PARAMS',
 					LearnException::EXC_ERR_ALL_LOGIC | LearnException::EXC_ERR_ALL_PARAMS);
 			}
 		}
@@ -1572,8 +1572,8 @@ class CLearnLesson implements ILearnLesson
 			);
 
 		$allowedModes = array(
-			self::GET_LIST_ALL, 
-			self::GET_LIST_IMMEDIATE_CHILDS_OF, 
+			self::GET_LIST_ALL,
+			self::GET_LIST_IMMEDIATE_CHILDS_OF,
 			self::GET_LIST_IMMEDIATE_PARENTS_OF,
 			self::GET_LIST_IMMEDIATE_CHILDS_OF | self::GET_LIST_IMMEDIATE_PARENTS_OF
 		);
@@ -1618,16 +1618,17 @@ class CLearnLesson implements ILearnLesson
 			'COURSE_SORT'       => 'TC.SORT'
 		);
 
-		// filter by TIMESTAMP_X by default 
+		// filter by TIMESTAMP_X by default
 		if (count($arOrder) == 0)
 			$arOrder['TIMESTAMP_X'] = 'DESC';
 
 		$arSqlSearch = self::GetFilter($arFilter, $mode);
 
+		$SqlSearchLang = '';
 		if (isset($arFilter['SITE_ID']))
 		{
 			$arLID = array();
-			
+
 			if (is_array($arFilter['SITE_ID']))
 				$arLID = $arFilter['SITE_ID'];
 			else
@@ -1658,7 +1659,7 @@ class CLearnLesson implements ILearnLesson
 		// Prepare SQL's joins, if $mode need it
 		if ($mode & self::GET_LIST_IMMEDIATE_PARENTS_OF)
 		{
-			$modeSQL_join .= 
+			$modeSQL_join .=
 				"\nINNER JOIN b_learn_lesson_edges TLE 
 				ON TLE.SOURCE_NODE = TL.ID\n";
 
@@ -1672,13 +1673,13 @@ class CLearnLesson implements ILearnLesson
 		{
 			/**
 			 * GROUP BY works for MySQL, MSSQL, Oracle
-			 * select a.id, a.NAME, count(b.USER_ID) as C 
+			 * select a.id, a.NAME, count(b.USER_ID) as C
 			 * from b_group a, b_user_group b
 			 * where a.id = b.GROUP_ID
 			 * group by a.id, a.NAME
 			 * order by C
 			 */
-			$modeSQL_join .= 
+			$modeSQL_join .=
 				"\nINNER JOIN b_learn_lesson_edges TLE 
 				ON TLE.TARGET_NODE = TL.ID\n";
 
@@ -1802,7 +1803,7 @@ class CLearnLesson implements ILearnLesson
 				if ( ! isset($arMap[$by]) )
 				{
 					throw new LearnException(
-						'EA_PARAMS: unknown order by field: "' . $by . '"', 
+						'EA_PARAMS: unknown order by field: "' . $by . '"',
 						LearnException::EXC_ERR_ALL_PARAMS
 					);
 				}
@@ -1877,7 +1878,7 @@ class CLearnLesson implements ILearnLesson
 
 	/**
 	 * @access protected
-	 * @throws LearnException with error bit set EXC_ERR_ALL_PARAMS 
+	 * @throws LearnException with error bit set EXC_ERR_ALL_PARAMS
 	 */
 	protected static function GetFilter($arFilter = array(), $mode)
 	{
@@ -1942,7 +1943,7 @@ class CLearnLesson implements ILearnLesson
 					{
 						$arSqlSearch[] = "(TC." . $key . " " . ($cOperationType == "N" ? "<" : ">=")
 							. $DB->CharToDateFunction($DB->ForSql($val), "FULL")
-							. ($cOperationType == "N" ? "" : " OR TC.ACTIVE_FROM IS NULL") 
+							. ($cOperationType == "N" ? "" : " OR TC.ACTIVE_FROM IS NULL")
 							. ")";
 					}
 					break;
@@ -1950,9 +1951,9 @@ class CLearnLesson implements ILearnLesson
 				case "ACTIVE_DATE":
 					if($val <> '')
 					{
-						$arSqlSearch[] = ($cOperationType == "N" ? " NOT" : "") 
-							. "((TC.ACTIVE_TO >= " . $DB->GetNowFunction() 
-							." OR TC.ACTIVE_TO IS NULL) AND (TC.ACTIVE_FROM <= " . $DB->GetNowFunction() 
+						$arSqlSearch[] = ($cOperationType == "N" ? " NOT" : "")
+							. "((TC.ACTIVE_TO >= " . $DB->GetNowFunction()
+							." OR TC.ACTIVE_TO IS NULL) AND (TC.ACTIVE_FROM <= " . $DB->GetNowFunction()
 							. " OR TC.ACTIVE_FROM IS NULL))";
 					}
 					break;
@@ -1995,7 +1996,7 @@ class CLearnLesson implements ILearnLesson
 					break;
 
 				case 'CREATED_USER_NAME':
-					$arSqlSearch[] = CLearnHelper::FilterCreate($DB->Concat("'('", 'TU.LOGIN', "') '", 'TU.NAME', "' '", 'TU.LAST_NAME'), 
+					$arSqlSearch[] = CLearnHelper::FilterCreate($DB->Concat("'('", 'TU.LOGIN', "') '", 'TU.NAME', "' '", 'TU.LAST_NAME'),
 						$val, 'string', $bFullJoin, $cOperationType);
 					break;
 
@@ -2059,25 +2060,25 @@ class CLearnLesson implements ILearnLesson
 
 	/**
 	 * This function is DEPRECATED
-	 * 
+	 *
 	 * Get lesson id of lesson, previously was chapter (before convertion to new data model.
-	 * 
-	 * WARNING: This function is for backward compatibility of old-style 
+	 *
+	 * WARNING: This function is for backward compatibility of old-style
 	 * links to courses, chapters, lessons resolving in components.
-	 * 
+	 *
 	 * Don't use it in new projects, when there is no old-style links.
-	 * 
+	 *
 	 * @access public
 	 */
 	final public static function LessonIdByChapterId ($chapterId)
 	{
 		$rc = self::GetListUni(
-			array(), 
+			array(),
 			array(
 				'WAS_CHAPTER_ID'    => $chapterId,
 				'CHECK_PERMISSIONS' => 'N'
-			), 
-			array('LESSON_ID'), 
+			),
+			array('LESSON_ID'),
 			self::GET_LIST_ALL
 		);
 
@@ -2098,7 +2099,7 @@ class CLearnLesson implements ILearnLesson
 	final public static function GetListOfAncestors ($lessonId, $stopAtLessonId = false, $stopBeforeLessonId = false, $arIgnoreEdges = array())
 	{
 		$arAncestors = array();
-		
+
 		$arOPathes = self::GetListOfParentPathes ($lessonId, $stopAtLessonId, $stopBeforeLessonId, $arIgnoreEdges);
 		foreach ($arOPathes as $oPath)
 			$arAncestors = array_merge($arAncestors, array_map('intval', $oPath->GetPathAsArray()));
@@ -2121,7 +2122,7 @@ class CLearnLesson implements ILearnLesson
 		if ($breakOnLessonId !== false)
 		{
 			// This lesson must be interpreted as parentless.
-			// This behaviour can be emulated by adding to 
+			// This behaviour can be emulated by adding to
 			// $arAlreadyProcessedLessons all immediate parents
 			// of this lesson.
 			$arEdges = self::ListImmediateParents($breakOnLessonId);
@@ -2249,7 +2250,7 @@ class CLearnLesson implements ILearnLesson
 		self::_EnsureArgsStrictlyCastableToIntegers ($in_lessonId, $in_contextCourseLessonId);
 		if ( ! is_bool($in_isProhibited) )
 		{
-			throw new LearnException ('EA_PARAMS: isProhibited', 
+			throw new LearnException ('EA_PARAMS: isProhibited',
 				LearnException::EXC_ERR_ALL_LOGIC | LearnException::EXC_ERR_ALL_PARAMS);
 		}
 
@@ -2291,10 +2292,10 @@ class CLearnLesson implements ILearnLesson
 
 
 	/**
-	 * 
+	 *
 	 * @param int lesson id
-	 * @param int purge mode (PUBLISH_PROHIBITION_PURGE_ALL_LESSONS_IN_COURSE_CONTEXT, 
-	 * PUBLISH_PROHIBITION_PURGE_LESSON_IN_ALL_COURSE_CONTEXT, 
+	 * @param int purge mode (PUBLISH_PROHIBITION_PURGE_ALL_LESSONS_IN_COURSE_CONTEXT,
+	 * PUBLISH_PROHIBITION_PURGE_LESSON_IN_ALL_COURSE_CONTEXT,
 	 * PUBLISH_PROHIBITION_PURGE_BOTH)
 	 */
 	protected static function PublishProhibitionPurge ($in_lessonId, $in_purgeMode)
@@ -2307,17 +2308,17 @@ class CLearnLesson implements ILearnLesson
 		$purgeMode = (int) $in_purgeMode;
 
 		if ( ! in_array(
-				$purgeMode, 
+				$purgeMode,
 				array(
-					self::PUBLISH_PROHIBITION_PURGE_ALL_LESSONS_IN_COURSE_CONTEXT, 
-					self::PUBLISH_PROHIBITION_PURGE_LESSON_IN_ALL_COURSE_CONTEXT, 
+					self::PUBLISH_PROHIBITION_PURGE_ALL_LESSONS_IN_COURSE_CONTEXT,
+					self::PUBLISH_PROHIBITION_PURGE_LESSON_IN_ALL_COURSE_CONTEXT,
 					self::PUBLISH_PROHIBITION_PURGE_BOTH	// ORed previous two elements
-					), 
+					),
 				true
 				)
 		)
 		{
-			throw new LearnException ('EA_PARAMS: purgeMode', 
+			throw new LearnException ('EA_PARAMS: purgeMode',
 				LearnException::EXC_ERR_ALL_LOGIC | LearnException::EXC_ERR_ALL_PARAMS);
 		}
 
@@ -2348,7 +2349,7 @@ class CLearnLesson implements ILearnLesson
 
 	/**
 	 * Cleanup publish prohibitions to be orphaned on relation remove.
-	 * 
+	 *
 	 * @param int $parentLessonId of relation to be removed
 	 * @param int $childLessonId of relation to be removed
 	 */
@@ -2364,12 +2365,12 @@ class CLearnLesson implements ILearnLesson
 				General version of algorithm:
 			1) Get list of all descendants of $in_childLessonId (include $in_childLessonId itself).
 			2) Get list of publish prohibitions for lessons from step 1.
-			3) Checks every prohibition, that prohibited lesson still have path 
+			3) Checks every prohibition, that prohibited lesson still have path
 		to courseLessonId in context of which lesson is prohibited.
 		Remove prohibition, when check failed.
 
 				Optimized version of algorithm:
-			1) Get list of all ancectors (that are courses) of $in_parentLessonId (include 
+			1) Get list of all ancectors (that are courses) of $in_parentLessonId (include
 		$in_parentLessonId itself).
 		EXPLAINATION: when DeleteRecursiveLikeHardlinks() function will work,
 		relations will be removed from top to bottom mainly. It means, that if
@@ -2382,10 +2383,10 @@ class CLearnLesson implements ILearnLesson
 
 				One more optimization:
 			In optimized algorithm, we shouldn't exclude non-courses from ancestors list
-		on step 1, because, there is no non-courses can be in table 
-		b_learn_publish_prohibition. So, if we can do 
+		on step 1, because, there is no non-courses can be in table
+		b_learn_publish_prohibition. So, if we can do
 			"SELECT *
-			FROM b_learn_publish_prohibition 
+			FROM b_learn_publish_prohibition
 			WHERE COURSE_LESSON_ID IN (...list of all ancestors...)"
 		and result will be as expected when ancesotrs list includes only courses.
 		I'm sure, DB engine will do this job more fast, than my PHP-script excludes non-courses.
@@ -2394,14 +2395,14 @@ class CLearnLesson implements ILearnLesson
 			In step 1 of optimized algorithm we can limit tree of ancestors at $in_childLessonId
 		(in case, when tree of ancestors are cycled).
 		EXPLAINATION: $in_childLessonId will lost relation to parent lesson ($in_parentLessonId) only.
-		It means, that all descendants of $in_childLessonId (include $in_childLessonId itself) 
-		will not lost link (path) to other immediate parents of $in_childLessonId and to 
+		It means, that all descendants of $in_childLessonId (include $in_childLessonId itself)
+		will not lost link (path) to other immediate parents of $in_childLessonId and to
 		$in_childLessonId itself. So we don't need to check descendsnts in context of $in_childLessonId
 		or it's ancestors (except $in_parentLessonId and it's ancestros).
 
-				About checking that lesson after relation 
+				About checking that lesson after relation
 				remove still have path (link) to some course:
-			1) Get all ancestors of lesson with method self::GetListOfAncestors($lessonId, false, 
+			1) Get all ancestors of lesson with method self::GetListOfAncestors($lessonId, false,
 		false, $arIgnoreEdges). It will return ancestors in case, when all edges from $arIgnoreEdges
 		is interpreted as non-existing.
 			2) If course-lesson among this ancestors, that link will be still exists after relation removing.
@@ -2413,7 +2414,7 @@ class CLearnLesson implements ILearnLesson
 		overhead for processor, it's only overheads RAM, but a little.
 
 				So, final algorithm:
-			1) Get list of all ancectors of $in_parentLessonId (include $in_parentLessonId itself). 
+			1) Get list of all ancectors of $in_parentLessonId (include $in_parentLessonId itself).
 		Stop cycling BEFORE $in_childLessonId.
 			2) Get list of publish prohibitions in context of courses from step 1.
 			3) Checks every prohibition, that prohibited lesson still have path
@@ -2421,7 +2422,7 @@ class CLearnLesson implements ILearnLesson
 		Remove prohibition, when check failed.
 		*/
 
-		// 1) Get list of all ancectors of $in_parentLessonId (include $in_parentLessonId itself). 
+		// 1) Get list of all ancectors of $in_parentLessonId (include $in_parentLessonId itself).
 		// Stop cycling BEFORE $in_childLessonId.
 		$arAncestors = self::GetListOfAncestors ($in_parentLessonId, false, $in_childLessonId);
 		$arAncestors[] = (int) $in_parentLessonId;		// include $in_parentLessonId itself
@@ -2436,13 +2437,13 @@ class CLearnLesson implements ILearnLesson
 			"SELECT COURSE_LESSON_ID, PROHIBITED_LESSON_ID
 			FROM b_learn_publish_prohibition
 			WHERE COURSE_LESSON_ID IN (" . implode (',', $arAncestorsInt) . ")"
-			, 
+			,
 			true);
 
 		if ($rc === false)
 			throw new LearnException ('EA_SQLERROR', LearnException::EXC_ERR_ALL_GIVEUP);
 
-		// This relation will be removed, so must be ignoredm when determine 
+		// This relation will be removed, so must be ignoredm when determine
 		// future ancestors (after relation removing)
 		$arIgnoreEdges = array(
 			array(
@@ -2457,13 +2458,13 @@ class CLearnLesson implements ILearnLesson
 			$prohibitedLessonId = (int) $arData['PROHIBITED_LESSON_ID'];
 			$contextLessonId    = (int) $arData['COURSE_LESSON_ID'];
 
-			// Precache future ancestors (after relation removing) 
+			// Precache future ancestors (after relation removing)
 			// for lesson, if they are not precached yet.
 			if ( ! isset($arCache_ancestorsOfLesson[$prohibitedLessonId]) )
 			{
-				$arCache_ancestorsOfLesson[$prohibitedLessonId] = 
+				$arCache_ancestorsOfLesson[$prohibitedLessonId] =
 					self::GetListOfAncestors(
-						$prohibitedLessonId, 
+						$prohibitedLessonId,
 						false,		// $stopAtLessonId
 						false,		// $stopBeforeLessonId
 						$arIgnoreEdges

@@ -1,4 +1,5 @@
-.calendar-pagetitle-view .pagetitle-below {
+.calendar-pagetitle-view .pagetitle-below,
+.calendar-pagetitle-view .ui-side-panel-wrap-below {
 	display: flex;
 	box-sizing: border-box;
 	padding: 0 5px 0 13px;

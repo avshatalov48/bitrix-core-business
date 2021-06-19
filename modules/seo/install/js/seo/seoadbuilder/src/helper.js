@@ -103,6 +103,7 @@ export class Helper
 
 	showErrorPopup(data)
 	{
+		console.log(data);
 		const text = data.text || this.mess.errorAction;
 
 		const popup = PopupManager.create({

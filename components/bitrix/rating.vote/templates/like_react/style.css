@@ -1,6 +1,7 @@
 .ilike-light .bx-ilike-button {color:#929292;  display:inline-block;  height:19px; position:relative;-moz-user-select: none; -khtml-user-select: none; user-select: none;}
 .ilike-light .bx-ilike-left {display:inline-block; height:19px; vertical-align:top; width:10px;}
 .ilike-light .bx-ilike-text { display:inline-block;  height:17px; padding:3px 0px 0;  cursor:pointer; }
+.bx-ilike-text.bx-ilike-text-unavailable { cursor:default; }
 * html .ilike-light .bx-ilike-text{height:19px;}
 .ilike-light .bx-ilike-right-wrap {display:inline-block; height:19px;  cursor:default; margin-right: 3px; }
 .bx-ilike-button.bx-ilike-button-comment .bx-ilike-right-wrap {

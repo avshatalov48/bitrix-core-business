@@ -6,3 +6,5 @@ $MESS["SALE_BASKET_AVAILABLE_FOR_DECREASE_QUANTITY"] = "Доступное дл�
 $MESS["SALE_BASKET_ITEM_WRONG_PRICE"] = "Ошибка получения цены товара \"#PRODUCT_NAME#\"";
 $MESS["SALE_BASKET_ITEM_ERR_QUANTITY_ZERO"] = "Количество товара \"#PRODUCT_NAME#\" не может быть меньше или равным 0";
 $MESS["SALE_BASKET_ITEM_ERR_CURRENCY_EMPTY"] = "Не указана валюта товара";
+$MESS["SALE_BASKET_AVAILABLE_FOR_ADDING_QUANTITY_IS_ZERO"] = "В корзину уже добавлено максимально возможное количество товара \"#PRODUCT_NAME#\" : #QUANTITY#";
+$MESS["SALE_BASKET_AVAILABLE_FOR_ADDING_QUANTITY_IS_LESS"] = "Товар \"#PRODUCT_NAME#\" уже добавлен в корзине в количестве #QUANTITY#. Можно добавить не более #ADD#";

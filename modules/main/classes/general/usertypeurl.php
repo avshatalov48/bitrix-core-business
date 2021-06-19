@@ -12,7 +12,7 @@ class CUserTypeUrl extends CUserTypeString
 {
 	const USER_TYPE_ID = UrlType::USER_TYPE_ID;
 
-	function getUserTypeDescription()
+	public static function getUserTypeDescription()
 	{
 		return UrlType::getUserTypeDescription();
 	}

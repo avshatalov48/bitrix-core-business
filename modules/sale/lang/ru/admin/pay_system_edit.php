@@ -118,4 +118,8 @@ $MESS["SALE_PSE_YANDEX_INVOICE_SETTINGS_OK"] = "Обработчик успеш�
 $MESS["SPS_VALIDATION_DOMAIN_HEAD"] = "Подтверждение владения доменом";
 $MESS["SPS_VALIDATION_DOMAIN_VALIDATION"] = "Подтвердить домен";
 $MESS["SPS_VALIDATION_DOMAIN_FORM"] = "Форма подтверждения домена";
+$MESS["SPS_FISCALIZATION_TAB"] = "Фискализация";
+$MESS["SPS_FISCALIZATION_TAB_TITLE"] = "Настройка кассы";
+$MESS["SPS_FISCALIZATION_TAB_CASHBOXROBOKASSA"] = "Робочеки";
+$MESS["SPS_FISCALIZATION_TAB_TITLE_CASHBOXROBOKASSA"] = "Настройка Робочеков";
 ?>

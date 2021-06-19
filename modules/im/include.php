@@ -101,16 +101,10 @@ CModule::AddAutoloadClasses(
 		"CIMStatus" => "classes/general/im_status.php",
 		"CIMDisk" => "classes/general/im_disk.php",
 		"CIMShare" => "classes/general/im_share.php",
-		"\\Bitrix\\Im\\ChatTable" => "lib/model/chat.php",
-		"\\Bitrix\\Im\\MessageTable" => "lib/model/message.php",
-		"\\Bitrix\\Im\\MessageParamTable" => "lib/model/messageparam.php",
-		"\\Bitrix\\Im\\RecentTable" => "lib/model/recent.php",
-		"\\Bitrix\\Im\\RelationTable" => "lib/model/relation.php",
-		"\\Bitrix\\Im\\StatusTable" => "lib/model/status.php",
 	)
 );
 
-$jsCoreRel = array('resize_observer', 'im_common', 'im_phone_call_view', 'im.lib.localstorage', 'clipboard', 'sidepanel', 'loader', 'ui.notification', 'ui.alerts', 'ui.vue', 'ui.buttons', 'ui.switcher', 'ui.hint');
+$jsCoreRel = array('resize_observer', 'im_common', 'im_phone_call_view', 'im.lib.localstorage', 'clipboard', 'sidepanel', 'loader', 'ui.notification', 'ui.alerts', 'ui.vue', 'ui.buttons', 'ui.switcher', 'ui.hint', 'im.application.notifications');
 $jsCoreRelMobile = array('im_common', 'uploader', 'mobile.pull.client');
 if (IsModuleInstalled('voximplant'))
 {
@@ -154,6 +148,8 @@ $jsImCall = [
 	'/bitrix/js/im/call/voximplant_call.js',
 	'/bitrix/js/im/call/util.js',
 	'/bitrix/js/im/call/view.js',
+	'/bitrix/js/im/call/mic_muted_popup.js',
+	'/bitrix/js/im/call/web_screenshare_popup.js',
 	'/bitrix/js/im/call/notification.js',
 	'/bitrix/js/im/call/notification_conference.js',
 	'/bitrix/js/im/call/invite_popup.js',
@@ -254,7 +250,7 @@ CJSCore::RegisterExt('im_window', array(
 CJSCore::RegisterExt('im_desktop', array(
 	'js' => '/bitrix/js/im/desktop.js',
 	'lang' => '/bitrix/modules/im/js_desktop.php',
-	'rel' => array('im_page', 'socnetlogdest'),
+	'rel' => array('im_page', 'socnetlogdest', 'im.lib.logger'),
 ));
 
 CJSCore::RegisterExt('im_timecontrol', array(

@@ -4,12 +4,7 @@ class CIBlockSequence
 	var $iblock_id = 0;
 	var $property_id = 0;
 
-	function __construct($iblock_id, $property_id = 0)
-	{
-		return $this->CIBlockSequence($iblock_id, $property_id);
-	}
-
-	function CIBlockSequence($iblock_id, $property_id = 0)
+	public function __construct($iblock_id, $property_id = 0)
 	{
 		$this->iblock_id = $iblock_id;
 		$this->property_id = $property_id;

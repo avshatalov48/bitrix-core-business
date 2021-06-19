@@ -29,4 +29,5 @@ $MESS["PSL_LIST_CHECKED"] = "Marked:";
 $MESS["PSL_FILTER_ANY"] = "(any)";
 $MESS["PSL_FILTER_YES"] = "Yes";
 $MESS["PSL_FILTER_NO"] = "No";
+$MESS["PSL_ERR_BUILDER_ADSENT"] = "Link builder was not found.";
 ?>

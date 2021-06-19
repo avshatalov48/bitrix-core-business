@@ -1134,7 +1134,7 @@ $arJsParams = array(
 				if (id > 0)
 				{
 					window.location.href = BX.util.add_url_param(
-						'<?=\CUtil::jsEscape($arParams['PATH_TO_MAIL_MSG_LIST']) ?>'.replace('#id#', id),
+						'<?=\CUtil::jsEscape($arParams['PATH_TO_MAIL_MSG_LIST']) ?>'.replace('#id#', id).replace('#start_sync_with_showing_stepper#', true),
 						{ 'strict': 'N' }
 					);
 				}
@@ -1226,7 +1226,7 @@ $arJsParams = array(
 										if (item.customData)
 										{
 											result += ' (' +
-												'<a href="#" onclick="BX.hide(this); BX.show(BX.findNextSibling(this, {class: \'main-connect-form-error-ext\'}), \'inline\'); return false; "><?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_ERR_EXT')) ?></a>' +
+												'<span class="mail-connect-dashed-switch" onclick="BX.hide(this); BX.show(BX.findNextSibling(this, {class: \'main-connect-form-error-ext\'}), \'inline\'); return false;"><?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_ERR_EXT')) ?></span>' +
 												'<span class="main-connect-form-error-ext">' + item.customData + '</span>' +
 											')';
 										}

@@ -256,7 +256,9 @@ class CUserCounter extends CAllUserCounter
 			if ($pullInclude)
 			{
 				$arSites = Array();
-				$res = CSite::GetList($b = "", $o = "", Array("ACTIVE" => "Y"));
+				$by = '';
+				$order = '';
+				$res = CSite::GetList($by, $order, Array("ACTIVE" => "Y"));
 				while($row = $res->Fetch())
 				{
 					$arSites[] = $row['ID'];
@@ -437,7 +439,9 @@ class CUserCounter extends CAllUserCounter
 				$bPullEnabled = true;
 
 				$arSites = array();
-				$res = CSite::GetList($b = "", $o = "", array("ACTIVE" => "Y"));
+				$by = '';
+				$order = '';
+				$res = CSite::GetList($by, $order, array("ACTIVE" => "Y"));
 				while($row = $res->Fetch())
 				{
 					$arSites[] = $row['ID'];
@@ -553,7 +557,9 @@ class CUserCounterPage extends CAllUserCounterPage
 		if ($userString <> '')
 		{
 			$arSites = array();
-			$res = CSite::GetList($b = "", $o = "", array("ACTIVE" => "Y"));
+			$by = '';
+			$order = '';
+			$res = CSite::GetList($by, $order, array("ACTIVE" => "Y"));
 			while($row = $res->Fetch())
 			{
 				$arSites[] = $row['ID'];

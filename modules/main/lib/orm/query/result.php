@@ -588,9 +588,11 @@ class Result extends BaseResult
 
 	public function fetch(\Bitrix\Main\Text\Converter $converter = null)
 	{
+		$row = $this->result->fetch($converter);
+
 		return empty($this->hiddenObjectFields)
-			? $this->result->fetch($converter)
-			: $this->hideObjectFields($this->result->fetch($converter));
+			? $row
+			: $this->hideObjectFields($row);
 	}
 
 	public function fetchAll(\Bitrix\Main\Text\Converter $converter = null)

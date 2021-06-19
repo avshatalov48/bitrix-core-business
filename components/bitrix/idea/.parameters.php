@@ -9,7 +9,7 @@ if(!CModule::IncludeModule("idea"))
 $arCurrentValues = (is_array($arCurrentValues) ? $arCurrentValues : array());
 //User groups, offical
 $arGroups = array();
-$oRes = CGroup::GetList($by = "name", $order = "asc"); 
+$oRes = CGroup::GetList("name", "asc");
 while($arRes = $oRes->Fetch())
 	$arGroups[$arRes["ID"]] = $arRes["NAME"];
 

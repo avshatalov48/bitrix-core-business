@@ -20,8 +20,11 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 	const RETURN_INNER = 'Y';
 	const RETURN_PS = 'P';
 
-	/** @var  Sale\PaySystem\Service */
+	/** @var Sale\PaySystem\Service */
 	protected $service;
+
+	/** @var PayableItemCollection */
+	protected $payableItemCollection;
 
 	/**
 	 * Payment constructor.
@@ -49,6 +52,26 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 	public static function getRegistryEntity()
 	{
 		return Registry::ENTITY_PAYMENT;
+	}
+
+	/**
+	 * @return PayableItemCollection
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentTypeException
+	 * @throws Main\SystemException
+	 */
+	public function getPayableItemCollection() : PayableItemCollection
+	{
+		if ($this->payableItemCollection === null)
+		{
+			$registry = Registry::getInstance(static::getRegistryType());
+
+			/** @var PayableItemCollection $itemCollectionClassName */
+			$itemCollectionClassName = $registry->getPayableItemCollectionClassName();
+			$this->payableItemCollection = $itemCollectionClassName::load($this);
+		}
+
+		return $this->payableItemCollection;
 	}
 
 	/**
@@ -242,20 +265,19 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 
 	/**
 	 * @internal
-	 *
-	 * @param $idOrder
+	 * @param $orderId
 	 * @return Result
 	 * @throws Main\ArgumentException
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
-	public static function deleteNoDemand($idOrder)
+	public static function deleteNoDemand($orderId)
 	{
 		$result = new Result();
 
 		$dbRes = static::getList([
 				"select" => ["ID"],
-				"filter" => ["=ORDER_ID" => $idOrder]
+				"filter" => ["=ORDER_ID" => $orderId]
 		]);
 
 		while ($payment = $dbRes->fetch())
@@ -630,9 +652,27 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 
 		$this->callDelayedEvents();
 
+		$payableItemCollection = $this->getPayableItemCollection();
+		$r = $payableItemCollection->save();
+		if (!$r->isSuccess())
+		{
+			return $result->addErrors($r->getErrors());
+		}
+
 		$this->onAfterSave($isNew);
 
 		return $result;
+	}
+
+	public function isChanged()
+	{
+		$isChanged = parent::isChanged();
+		if ($isChanged)
+		{
+			return true;
+		}
+
+		return $this->getPayableItemCollection()->isChanged();
 	}
 
 	/**

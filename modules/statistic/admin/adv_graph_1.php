@@ -32,7 +32,7 @@ $arFilter = Array(
 	"DATE1"		=> $find_date1,
 	"DATE2"		=> $find_date2
 	);
-$dynamic = CAdv::GetDynamicList($ADV_ID, ($by="s_date"), ($order="asc"), $arMaxMin,$arFilter);
+$dynamic = CAdv::GetDynamicList($ADV_ID, "s_date", "asc", $arMaxMin, $arFilter);
 while($arData = $dynamic->GetNext())
 {
 	$date = mktime(0, 0, 0, $arData["MONTH"], $arData["DAY"], $arData["YEAR"]);

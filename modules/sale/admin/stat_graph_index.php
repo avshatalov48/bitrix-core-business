@@ -37,7 +37,7 @@ while ($arStatusList = $dbStatusList->GetNext())
 	$arStatus[$arStatusList["ID"]] = $arStatusList["NAME"];
 }
 $arSite = array();
-$dbSite = CSite::GetList($by="sort", $order="desc", Array("ACTIVE" => "Y"));
+$dbSite = CSite::GetList("sort", "desc", Array("ACTIVE" => "Y"));
 while($arSites = $dbSite->GetNext())
 {
 	$arSite[$arSites["LID"]] = $arSites["NAME"];

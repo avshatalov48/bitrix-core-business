@@ -494,7 +494,7 @@ if ($APPLICATION->GetGroupRight("sale") != "D")
 		if (IsModuleInstalled('report'))
 		{
 			$arSaleReports = array();
-			if(method_exists($adminMenu, "IsSectionActive"))
+			if($adminMenu && method_exists($adminMenu, "IsSectionActive"))
 			{
 				if($adminMenu->IsSectionActive("menu_sale_report") && CModule::IncludeModule("report"))
 				{
@@ -930,48 +930,6 @@ if ($APPLICATION->GetGroupRight("sale") == "W" ||
 				"title" => GetMessage("SALE_TRADING_PLATFORMS_DESCR"),
 				"items_id" => "menu_sale_trading_platforms",
 				"items"=>array(
-					array(
-						"text" => "eBay",
-						"title" => "eBay",
-						"items_id" => "menu_sale_trading_platforms_ebay",
-						"url" => "sale_ebay.php?lang=".LANGUAGE_ID,
-						"more_url" => array("sale_ebay_actions.php", "sale_ebay.php"),
-						"items"  => array(
-							array(
-								"text" => GetMessage("SALE_MENU_EBAY_WIZARD"),
-								"title" => GetMessage("SALE_MENU_EBAY_EXCHANGE_DESCR"),
-								"url" => "sale_ebay_wizard.php?lang=".LANGUAGE_ID,
-								"more_url" => array("sale_ebay_wizard.php"),
-								"items_id" => "sale_ebay_wizard",
-								"sort" => 733,
-							),
-							array(
-								"text" => GetMessage("SALE_MENU_EBAY_SETT"),
-								"title" => GetMessage("SALE_MENU_EBAY_SETT_DESCR"),
-								"url" => "sale_ebay_general.php?lang=".LANGUAGE_ID,
-								"more_url" => array("sale_ebay_general.php"),
-								"items_id" => "sale_ebay_general",
-								"sort" => 734,
-							),
-							array(
-								"text" => GetMessage("SALE_MENU_EBAY_POLICY"),
-								"title" => GetMessage("SALE_MENU_EBAY_POLICY_DESCR"),
-								"url" => "sale_ebay_policy.php?lang=".LANGUAGE_ID,
-								"more_url" => array("sale_ebay_policy.php"),
-								"items_id" => "sale_ebay_policy",
-								"sort" => 735,
-							),
-							array(
-								"text" => GetMessage("SALE_MENU_EBAY_EXCHANGE"),
-								"title" => GetMessage("SALE_MENU_EBAY_EXCHANGE_DESCR"),
-								"url" => "sale_ebay_exchange.php?lang=".LANGUAGE_ID,
-								"more_url" => array("sale_ebay_exchange.php"),
-								"items_id" => "sale_ebay_exchange",
-								"sort" => 736,
-							)
-						),
-						"sort" => 732,
-					),
 					array(
 						"text" => GetMessage("SALE_MENU_VK"),
 						"title" => GetMessage("SALE_MENU_VK_DESC"),

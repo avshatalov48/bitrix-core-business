@@ -15,7 +15,7 @@ function _GetDictionaryInfoEx($arDictionary)
 
 	if (!empty($arID))
 	{
-		$rs = CTicketDictionary::GetList($v1, $v2, array("ID"=> $arID), $v3);
+		$rs = CTicketDictionary::GetList('', '', array("ID"=> $arID));
 		while ($ar = $rs->Fetch())
 		{
 			if (array_key_exists($ar["C_TYPE"], $arDictionary))

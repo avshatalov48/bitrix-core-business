@@ -17,7 +17,7 @@ $err_mess = "File: ".__FILE__."<br>Line: ";
 define("HELP_FILE","searcher_list.php");
 
 $arrDef = array();
-$rs = CSearcher::GetList(($v1="s_total_hits"), ($v2="desc"), array(), $v3);
+$rs = CSearcher::GetList("s_total_hits", "desc");
 while ($ar = $rs->Fetch())
 {
 	if ($ar["DIAGRAM_DEFAULT"]=="Y") $arrDef[] = $ar["ID"];
@@ -28,8 +28,7 @@ if($lAdmin->IsDefaultFilter())
 {
 	if (is_array($arrSEARCHERS))
 	{
-		reset($arrSEARCHERS);
-		while (list($key,$value)=each($arrSEARCHERS))
+		foreach ($arrSEARCHERS as $key => $value)
 		{
 			if ($i<=19 && in_array($key, $arrDef))
 			{
@@ -67,7 +66,7 @@ $arr = array();
 if (is_array($find_searchers) && count($find_searchers) > 0)
 {
 	$by = ($period == "Y") ? "s_period_hits" : "s_total_hits";
-	$w = CSearcher::GetList($by, ($order = "desc"), $arFilter, $is_filtered);
+	$w = CSearcher::GetList($by, "desc", $arFilter);
 	while ($wr = $w->Fetch())
 	{
 		$total++;

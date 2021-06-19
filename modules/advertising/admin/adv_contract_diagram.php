@@ -8,9 +8,11 @@
 ##############################################
 */
 
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/prolog.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/include.php");
+Loader::includeModule('advertising');
 
 $isAdmin = CAdvContract::IsAdmin();
 $isDemo = CAdvContract::IsDemo();
@@ -28,7 +30,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 						Обработка GET | POST
 ****************************************************************************/
 $strError = '';
-$rsContracts = CAdvContract::GetList($v1="s_sort", $v2="desc", array(), $v3);
+$rsContracts = CAdvContract::GetList("s_sort", "desc");
 $contract_ref_id = array();
 $contract_ref = array();
 
@@ -47,7 +49,7 @@ while ($arContract = $rsContracts->Fetch())
 }
 if(empty($contract_ref))
 	$strError = GetMessage("ADV_NO_CONTRACTS_FOR_DIAGRAM");
-	
+
 $man = false;
 if ((!isset($_SESSION["SESS_ADMIN"]["AD_STAT_CONTRACT_DIAGRAM"]) || empty($_SESSION["SESS_ADMIN"]["AD_STAT_CONTRACT_DIAGRAM"])) && $find_date1 == '' && $find_date2 == '' && !is_array($find_contract_id) && !is_array($find_what_show))
 {
@@ -55,7 +57,7 @@ if ((!isset($_SESSION["SESS_ADMIN"]["AD_STAT_CONTRACT_DIAGRAM"]) || empty($_SESS
 	$find_what_show = Array("ctr");
 	$man = true;
 }
-	
+
 $FilterArr = Array(
 	"find_date1",
 	"find_date2",
@@ -63,8 +65,8 @@ $FilterArr = Array(
 	"find_what_show"
 	);
 if ($set_filter <> '' || $man)
-	InitFilterEx($FilterArr,"AD_STAT_CONTRACT_DIAGRAM","set",true); 
-else 
+	InitFilterEx($FilterArr,"AD_STAT_CONTRACT_DIAGRAM","set",true);
+else
 	InitFilterEx($FilterArr,"AD_STAT_CONTRACT_DIAGRAM","get",true);
 if ($del_filter <> '') DelFilterEx($FilterArr,"AD_STAT_LIST",true);
 
@@ -160,15 +162,14 @@ elseif (count($arrLegend)>0) :
 
 	// Диаграммы по контрактам
 	if ($find_contract_summa!="Y" && count($find_contract_id)>1) :
-	
+
 		$diagram_type = "CONTRACT";
-	
+
 		$sum_ctr = 0;
 		$sum_show = 0;
 		$sum_click = 0;
 		$sum_visitor = 0;
-		reset($arrLegend);
-		while(list($keyL, $arrS) = each($arrLegend))
+		foreach ($arrLegend as $keyL => $arrS)
 		{
 			if ($arrS["COUNTER_TYPE"]=="DETAIL" && $arrS["TYPE"]==$diagram_type)
 			{
@@ -179,7 +180,7 @@ elseif (count($arrLegend)>0) :
 			}
 		}
 		if ($sum_show>0 || $sum_click>0 || $sum_ctr>0 || $sum_visitor>0) :
-	
+
 			if (!function_exists("ImageCreate")) :
 				echo CAdminMessage::ShowMessage(GetMessage("AD_GD_NOT_INSTALLED"));
 			else :
@@ -195,7 +196,7 @@ elseif (count($arrLegend)>0) :
 						$aTabs[] = array("DIV"=>"ttab".$i, "TAB"=>GetMessage("AD_".$counter_type."_DIAGRAM"), "TITLE"=>GetMessage("AD_CONTRACT_DIAGRAM_TITLE"));
 					}
 				}
-				
+
 				reset($arShow);
 				$viewTabContract = new CAdminViewTabControl("viewTabContract", $aTabs);
 				if(count($aTabs)>0)
@@ -214,8 +215,7 @@ elseif (count($arrLegend)>0) :
 									<table cellpadding=0 cellspacing=0 border=0 class="legend">
 										<?
 										$i=0;
-										reset($arrLegend);
-										while(list($keyL, $arrS) = each($arrLegend)) :
+										foreach($arrLegend as $keyL => $arrS):
 											if ($arrS["COUNTER_TYPE"]=="DETAIL" && $arrS["TYPE"]==$diagram_type):
 											$i++;
 											$counter = $arrS[$counter_type];
@@ -234,7 +234,7 @@ elseif (count($arrLegend)>0) :
 										</tr>
 										<?
 											endif;
-										endwhile;
+										endforeach;
 										?>
 									</table>
 								</td>

@@ -11,6 +11,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Landing\Config;
 use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Manager;
+use \Bitrix\Landing\Rights;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Landing\Assets;
 use \Bitrix\Main\UI\Extension;
@@ -21,6 +22,9 @@ $this->setFrameMode(true);
 $landing = $arResult['LANDING'];/** @var \Bitrix\Landing\Landing $landing */
 $b24Installed = \Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24');
 $formEditor = $arResult['SPECIAL_TYPE'] == \Bitrix\Landing\Site\Type::PSEUDO_SCOPE_CODE_FORMS;
+$masterFrame = $component->request('master') == 'Y' && Rights::hasAccessForSite(
+	$landing->getSiteId(), Rights::ACCESS_TYPES['edit']
+);
 
 Manager::setPageTitle(
 	Loc::getMessage('LANDING_TPL_TITLE')
@@ -70,6 +74,16 @@ if ($component->request('IFRAME'))
 		})();
 	</script>
 	<?
+}
+
+// shop master frame
+if ($masterFrame)
+{
+	\Bitrix\Landing\Manager::setPageView(
+		'BodyTag',
+		'style="pointer-events: none; user-select: none;"'
+	);
+	echo '<style>.b24-widget-button-wrapper, .catalog-cart-block {display: none;}</style>';
 }
 
 // edit menu
@@ -193,7 +207,7 @@ $assets->addAsset('landing_critical_grid', Assets\Location::LOCATION_BEFORE_ALL)
 <?endif;?>
 
 <?ob_start(); ?>
-<?if (!$formEditor && (!$enableHook || isset($hooksSite['COPYRIGHT']) && $hooksSite['COPYRIGHT']->enabled())):?>
+<?if (!$masterFrame && !$formEditor && (!$enableHook || isset($hooksSite['COPYRIGHT']) && $hooksSite['COPYRIGHT']->enabled())):?>
 <div class="bitrix-footer">
 	<?if (Manager::isB24()):?>
 		<span class="bitrix-footer-text">

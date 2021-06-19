@@ -23,6 +23,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_46.4.COVER_WITH_SLIDER_BGIMG_RIGHT_BUTTONS_NODES_LANDINGBLOCKNODECARDBGIMG'),
 			'type' => 'img',
 			'allowInlineEdit' => false,
+			'useInDesigner' => false,
 			'dimensions' => array('width' => 1920, 'height' => 1080),
 		),
 		'.landing-block-node-card-subtitle' => array(

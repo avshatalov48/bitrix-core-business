@@ -35,7 +35,8 @@ $rateName = $_GET['rate'];
 
 if (! $rateType = $rateTypes[$rateName])
 {
-	list ($rateName, $rateType) = each($rateTypes);
+	$rateName = key($rateTypes);
+	$rateType = current($rateTypes);
 }
 
 // SITES
@@ -59,7 +60,8 @@ $site = $_GET['site'] ?: $userOptions['site'];
 
 if (! $siteName = $sites[$site])
 {
-	list ($site, $siteName) = each($sites);
+	$site = key($sites);
+	$siteName = current($sites);
 }
 
 // FILTER

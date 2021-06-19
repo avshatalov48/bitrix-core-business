@@ -13,14 +13,14 @@ Loc::loadMessages(__FILE__);
 /** @internal */
 final class Handlers
 {
-	static public function onGetCounterTypes()
+	public static function onGetCounterTypes()
 	{
 		return array(
 			'conversion_visit_day' => array('MODULE' => 'conversion', 'GROUP' => 'day', 'NAME' => 'Day visits'),
 		);
 	}
 
-	static public function onGetAttributeTypes()
+	public static function onGetAttributeTypes()
 	{
 		$userAgent = $_SERVER['HTTP_USER_AGENT'];
 
@@ -261,7 +261,7 @@ final class Handlers
 		);
 	}
 
-	static public function onSetDayContextAttributes(DayContext $dayContext)
+	public static function onSetDayContextAttributes(DayContext $dayContext)
 	{
 		foreach (self::onGetAttributeTypes() as $name => $type)
 		{
@@ -286,7 +286,7 @@ final class Handlers
 		);
 	}
 
-	static public function onProlog()
+	public static function onProlog()
 	{
 		static $done = false;
 		if (! $done)

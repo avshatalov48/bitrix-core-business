@@ -17,7 +17,7 @@ while($arr=$rsIBlock->Fetch())
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
 
 $arUGroupsEx = Array();
-$dbUGroups = CGroup::GetList($by = "c_sort", $order = "asc");
+$dbUGroups = CGroup::GetList();
 if ($arCurrentValues["IBLOCK_ID"] > 0)
 	$arUGroupsExPermission = CIBlock::GetGroupPermissions($arCurrentValues["IBLOCK_ID"]);
 

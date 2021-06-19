@@ -1,7 +1,8 @@
-<?
+<?php
+
 class CSocNetLogPages
 {
-	function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		if (func_num_args() <= 2)
 		{
@@ -158,4 +159,3 @@ class CSocNetLogPages
 		}
 	}
 }
-?>

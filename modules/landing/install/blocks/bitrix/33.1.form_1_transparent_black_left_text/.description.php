@@ -69,7 +69,7 @@ return array(
 		'nodes' => array(
 			'.landing-block-node-main-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.1_NODE_TITLE'),
-				'type' => array('typo', 'animation'),
+				'type' => ['typo', 'animation', 'heading'],
 			),
 			'.landing-block-card-contact-icon-container' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.1_NODE_CONTACT_ICON'),
@@ -77,7 +77,7 @@ return array(
 			),
 			'.landing-block-node-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.1_NODE_SUBTITLE'),
-				'type' => 'typo',
+				'type' => ['typo', 'heading'],
 			),
 			'.landing-block-node-text' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.1_NODE_TEXT'),

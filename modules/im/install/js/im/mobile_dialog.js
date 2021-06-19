@@ -22,6 +22,11 @@ BX.ImMobile = function(params)
 	this.mobileActionCache = false;
 	this.mobileActionRun = false;
 
+	this.linesDetailCounter = {};
+	this.dialogDetailCounter = {};
+
+	this.callController = null;
+
 	this.revision = 9;
 	this.errorMessage = '';
 	this.isAdmin = false;

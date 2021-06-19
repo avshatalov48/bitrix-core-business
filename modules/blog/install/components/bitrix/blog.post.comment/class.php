@@ -119,6 +119,10 @@ class CBlogPostCommentEdit extends CBitrixComponent
 			$arParams["EDITOR_DEFAULT_HEIGHT"] = 200;
 		$arParams["ALLOW_VIDEO"] = ($arParams["ALLOW_VIDEO"] == "Y" ? "Y" : "N");
 
+		if (!isset($arParams["COMMENT_PROPERTY"]) || !is_array($arParams["COMMENT_PROPERTY"]))
+		{
+			$arParams["COMMENT_PROPERTY"] = [];
+		}
 		if($arParams["ALLOW_IMAGE_UPLOAD"] == "A" || ($arParams["ALLOW_IMAGE_UPLOAD"] == "R" && $USER->IsAuthorized()))
 		{
 			if(!is_array($arParams["COMMENT_PROPERTY"]))
@@ -505,7 +509,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 												$arFields["POST_TEXT"] = str_replace($toReplaceInText['SEARCH'], $toReplaceInText['REPLACE'], $arFields["POST_TEXT"]);
 										}
 
-										if (count($this->arParams["COMMENT_PROPERTY"]) > 0)
+										if (!empty($this->arParams["COMMENT_PROPERTY"]))
 											$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("BLOG_COMMENT", $arFields);
 
 										$commentUrl = CComponentEngine::MakePathFromTemplate(htmlspecialcharsBack($this->arParams["PATH_TO_POST"]), array("blog" => $arBlog["URL"], "post_id"=> CBlogPost::GetPostID($arPost["ID"], $arPost["CODE"], $this->arParams["ALLOW_POST_CODE"]), "user_id" => $arBlog["OWNER_ID"], "group_id" => $this->arParams["SOCNET_GROUP_ID"]));
@@ -702,7 +706,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 												$arFields["POST_TEXT"] = str_replace($toReplaceInText['SEARCH'], $toReplaceInText['REPLACE'], $arFields["POST_TEXT"]);
 
 										}
-										if (count($this->arParams["COMMENT_PROPERTY"]) > 0)
+										if (!empty($this->arParams["COMMENT_PROPERTY"]))
 											$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("BLOG_COMMENT", $arFields);
 
 										$commentUrl = CComponentEngine::MakePathFromTemplate(htmlspecialcharsBack($this->arParams["PATH_TO_POST"]), array("blog" => $arBlog["URL"], "post_id"=> CBlogPost::GetPostID($arPost["ID"], $arPost["CODE"], $this->arParams["ALLOW_POST_CODE"]), "user_id" => $arBlog["OWNER_ID"], "group_id" => $this->arParams["SOCNET_GROUP_ID"]));
@@ -904,7 +908,10 @@ class CBlogPostCommentEdit extends CBitrixComponent
 		{
 			$vars = $cache->GetVars();
 			$this->arResult = array_merge($this->arResult, $vars["arResult"]);
-			CBitrixComponentTemplate::ApplyCachedData($vars["templateCachedData"]);
+
+			$template = new CBitrixComponentTemplate();
+			$template->ApplyCachedData($vars["templateCachedData"]);
+
 			$cache->Output();
 		}
 		else
@@ -1169,7 +1176,10 @@ class CBlogPostCommentEdit extends CBitrixComponent
 		{
 			$vars = $cache->GetVars();
 			$this->arResult = array_merge($this->arResult, $vars["arResult"]);
-			CBitrixComponentTemplate::ApplyCachedData($vars["templateCachedData"]);
+
+			$template = new CBitrixComponentTemplate();
+			$template->ApplyCachedData($vars["templateCachedData"]);
+
 			$cache->Output();
 		}
 		else
@@ -1205,7 +1215,10 @@ class CBlogPostCommentEdit extends CBitrixComponent
 		{
 			$vars = $cache->GetVars();
 			$this->arResult = array_merge($this->arResult, $vars["arResult"]);
-			CBitrixComponentTemplate::ApplyCachedData($vars["templateCachedData"]);
+
+			$template = new CBitrixComponentTemplate();
+			$template->ApplyCachedData($vars["templateCachedData"]);
+
 			$cache->Output();
 		}
 		else
@@ -1296,7 +1309,9 @@ class CBlogPostCommentEdit extends CBitrixComponent
 			$Vars = $cache->GetVars();
 			$this->arResult = array_merge($this->arResult, $Vars["arResult"]);
 
-			CBitrixComponentTemplate::ApplyCachedData($Vars["templateCachedData"]);
+			$template = new CBitrixComponentTemplate();
+			$template->ApplyCachedData($Vars["templateCachedData"]);
+
 			$cache->Output();
 		}
 

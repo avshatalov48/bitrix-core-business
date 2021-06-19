@@ -119,8 +119,16 @@ if ($arResult['groupingMode'] === true) // show result using a grouping mode
 					while ($rowNumber++ < $nRows)
 					{
 						// get index
-						if ($bUseRowSet) list(,$dataIndex) = each($arRowSet);
-						else list($dataIndex,) = each($arData);
+						if ($bUseRowSet)
+						{
+							$dataIndex = current($arRowSet);
+							next($arRowSet);
+						}
+						else
+						{
+							$dataIndex = key($arData);
+							next($arData);
+						}
 
 						// fill index and value of group
 						$arGroupValuesIndexes[] = $dataIndex;
@@ -278,8 +286,16 @@ if ($arResult['groupingMode'] === true) // show result using a grouping mode
 						while ($rowNumber++ < $nRows)
 						{
 							// get index
-							if ($bUseRowSet) list(,$dataIndex) = each($arRowSet);
-							else list($dataIndex,) = each($arData);
+							if ($bUseRowSet)
+							{
+								$dataIndex = current($arRowSet);
+								next($arRowSet);
+							}
+							else
+							{
+								$dataIndex = key($arData);
+								next($arData);
+							}
 
 							// total += values
 							foreach ($arColumns as $columnIndex => $viewColumnIndex)

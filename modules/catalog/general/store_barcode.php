@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllCatalogStoreBarCode
 {
-	protected function CheckFields($action, &$arFields)
+	protected static function CheckFields($action, &$arFields)
 	{
 		if((($action == 'ADD') || isset($arFields["PRODUCT_ID"])) && intval($arFields["PRODUCT_ID"]) <= 0)
 		{

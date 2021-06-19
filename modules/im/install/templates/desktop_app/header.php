@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <?php
 \CModule::IncludeModule('im');
-$darkClass = \CIMSettings::GetSetting(CIMSettings::SETTINGS, 'enableDarkTheme')? 'style="background: #313131"': '';
+$darkClass = \CIMSettings::GetSetting(CIMSettings::SETTINGS, 'isCurrentThemeDark')? 'style="background: #313131"': '';
 ?>
 <html <?=$darkClass?>>
 <head>

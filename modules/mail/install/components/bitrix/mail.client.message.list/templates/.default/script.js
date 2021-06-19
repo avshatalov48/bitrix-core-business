@@ -1,46 +1,400 @@
-(function (exports) {
+(function (exports,mail_avatar,mail_messagegrid,mail_directorymenu,main_core_events,main_core,ui_buttons) {
 	'use strict';
 
-	(function () {
-	  BX.namespace('BX.Mail.Client.Message.List');
+	var ProgressBar = /*#__PURE__*/function () {
+	  function ProgressBar(node) {
+	    babelHelpers.classCallCheck(this, ProgressBar);
 
-	  BX.Mail.Client.Message.List = function (options) {
+	    _node.set(this, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _errorTitleNode.set(this, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _errorTextNode.set(this, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _errorBoxNode.set(this, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _syncButton.set(this, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _errorHintNode.set(this, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    babelHelpers.classPrivateFieldSet(this, _node, node);
+	  }
+
+	  babelHelpers.createClass(ProgressBar, [{
+	    key: "setSyncButton",
+	    value: function setSyncButton(button) {
+	      babelHelpers.classPrivateFieldSet(this, _syncButton, button);
+	    }
+	  }, {
+	    key: "getSyncButton",
+	    value: function getSyncButton() {
+	      return babelHelpers.classPrivateFieldGet(this, _syncButton);
+	    }
+	  }, {
+	    key: "getErrorBoxNode",
+	    value: function getErrorBoxNode() {
+	      return babelHelpers.classPrivateFieldGet(this, _errorBoxNode);
+	    }
+	  }, {
+	    key: "setErrorBoxNode",
+	    value: function setErrorBoxNode(errorBoxNode) {
+	      babelHelpers.classPrivateFieldSet(this, _errorBoxNode, errorBoxNode);
+	    }
+	  }, {
+	    key: "setErrorTitleNode",
+	    value: function setErrorTitleNode(errorTitleNode) {
+	      babelHelpers.classPrivateFieldSet(this, _errorTitleNode, errorTitleNode);
+	    }
+	  }, {
+	    key: "setErrorTextNode",
+	    value: function setErrorTextNode(errorTextNode) {
+	      babelHelpers.classPrivateFieldSet(this, _errorTextNode, errorTextNode);
+	    }
+	  }, {
+	    key: "setErrorHintNode",
+	    value: function setErrorHintNode(errorHintNode) {
+	      babelHelpers.classPrivateFieldSet(this, _errorHintNode, errorHintNode);
+	    }
+	  }, {
+	    key: "getErrorTextNode",
+	    value: function getErrorTextNode() {
+	      return babelHelpers.classPrivateFieldGet(this, _errorTextNode);
+	    }
+	  }, {
+	    key: "getErrorHintNode",
+	    value: function getErrorHintNode() {
+	      return babelHelpers.classPrivateFieldGet(this, _errorHintNode);
+	    }
+	  }, {
+	    key: "getErrorTitleNode",
+	    value: function getErrorTitleNode() {
+	      return babelHelpers.classPrivateFieldGet(this, _errorTitleNode);
+	    }
+	  }, {
+	    key: "show",
+	    value: function show() {
+	      if (this.getSyncButton() !== undefined) this.getSyncButton().setWaiting(true);
+	      babelHelpers.classPrivateFieldGet(this, _node).classList.add("mail-progress-show");
+	      babelHelpers.classPrivateFieldGet(this, _node).classList.remove("mail-progress-hide");
+	    }
+	  }, {
+	    key: "hide",
+	    value: function hide() {
+	      if (this.getSyncButton() !== undefined) this.getSyncButton().setWaiting(false);
+	      babelHelpers.classPrivateFieldGet(this, _node).classList.add("mail-progress-hide");
+	      babelHelpers.classPrivateFieldGet(this, _node).classList.remove("mail-progress-show");
+	    }
+	  }, {
+	    key: "hideErrorBox",
+	    value: function hideErrorBox() {
+	      babelHelpers.classPrivateFieldGet(this, _errorBoxNode).classList.add("mail-hidden-element");
+	      babelHelpers.classPrivateFieldGet(this, _errorBoxNode).classList.remove("mail-visible-element");
+	    }
+	  }, {
+	    key: "showErrorBox",
+	    value: function showErrorBox() {
+	      babelHelpers.classPrivateFieldGet(this, _errorBoxNode).classList.add("mail-visible-element");
+	      babelHelpers.classPrivateFieldGet(this, _errorBoxNode).classList.remove("mail-hidden-element");
+	    }
+	  }]);
+	  return ProgressBar;
+	}();
+
+	var _node = new WeakMap();
+
+	var _errorTitleNode = new WeakMap();
+
+	var _errorTextNode = new WeakMap();
+
+	var _errorBoxNode = new WeakMap();
+
+	var _syncButton = new WeakMap();
+
+	var _errorHintNode = new WeakMap();
+
+	var Counters = /*#__PURE__*/function () {
+	  function Counters(name) {
+	    babelHelpers.classCallCheck(this, Counters);
+	    babelHelpers.defineProperty(this, "counters", []);
+	    babelHelpers.defineProperty(this, "hiddenCountersForTotalCounter", []);
+
+	    _name.set(this, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    babelHelpers.classPrivateFieldSet(this, _name, name);
+	  }
+
+	  babelHelpers.createClass(Counters, [{
+	    key: "getName",
+	    value: function getName() {
+	      return babelHelpers.classPrivateFieldGet(this, _name);
+	    }
+	  }, {
+	    key: "setHiddenCountersForTotalCounter",
+	    value: function setHiddenCountersForTotalCounter() {
+	      for (var _len = arguments.length, counterNames = new Array(_len), _key = 0; _key < _len; _key++) {
+	        counterNames[_key] = arguments[_key];
+	      }
+
+	      for (var _i = 0, _counterNames = counterNames; _i < _counterNames.length; _i++) {
+	        var counter = _counterNames[_i];
+	        this.hiddenCountersForTotalCounter[counter] = 'disabled';
+	      }
+	    }
+	  }, {
+	    key: "getTotalCounter",
+	    value: function getTotalCounter() {
+	      var counters = 0;
+
+	      for (var name in this.counters) {
+	        if (name in this.hiddenCountersForTotalCounter) continue;
+	        counters += this.counters[name];
+	      }
+
+	      return counters;
+	    }
+	  }, {
+	    key: "getCounterObjects",
+	    value: function getCounterObjects() {
+	      return this.counters;
+	    }
+	  }, {
+	    key: "getCounter",
+	    value: function getCounter(name) {
+	      return this.counters[name];
+	    }
+	  }, {
+	    key: "addCounter",
+	    value: function addCounter(name, count) {
+	      this.counters[name] = Number(count);
+	      return this.counters[name];
+	    }
+	  }, {
+	    key: "addCounters",
+	    value: function addCounters(counters) {
+	      var resultCounters = {};
+
+	      for (var i = 0; i < counters.length; i++) {
+	        var counter = counters[i];
+	        var path = counter['path'];
+	        this.addCounter(path, counter['count']);
+	        resultCounters[path] = counter['count'];
+	      }
+
+	      var event = new main_core_events.BaseEvent({
+	        data: {
+	          counters: resultCounters,
+	          name: this.getName()
+	        }
+	      });
+	      main_core_events.EventEmitter.emit('BX.Mail.Home:updatingCounters', event);
+	    }
+	    /*Set counters as when adding. Old counters with different names are retained*/
+
+	  }, {
+	    key: "setCounters",
+	    value: function setCounters(counters) {
+	      this.addCounters(counters);
+	    }
+	  }, {
+	    key: "isExists",
+	    value: function isExists(name) {
+	      return this.counters[name] !== undefined;
+	    }
+	  }, {
+	    key: "increaseCounter",
+	    value: function increaseCounter(name) {
+	      var count = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+
+	      if (!this.isExists(name)) {
+	        return "no counter";
+	      }
+
+	      this.counters[name] += Number(count);
+	    }
+	  }, {
+	    key: "lowerCounter",
+	    value: function lowerCounter(name) {
+	      var count = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+
+	      if (!this.isExists(name)) {
+	        return "no counter";
+	      }
+
+	      var newValue = this.counters[name] - Number(count);
+
+	      if (newValue < 0) {
+	        return "negative value";
+	      }
+
+	      this.counters[name] = newValue;
+	    }
+	    /*Change counters by rule*/
+
+	  }, {
+	    key: "updateCounters",
+	    value: function updateCounters() {
+	      var counters = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [{
+	        name: 'counter1',
+	        count: 2,
+	        increase: false,
+	        lower: true
+	      }, {
+	        name: 'counter2',
+	        count: 2,
+	        increase: true,
+	        lower: false
+	      }];
+	      var resultCounters = {};
+	      var countersAreNotLoadedFromTheServer = false;
+
+	      for (var i = 0; i < counters.length; i++) {
+	        var counter = counters[i];
+	        var name = counter['name'];
+
+	        if (counter['lower']) {
+	          if (this.lowerCounter(name, counter['count']) === "negative value") {
+	            countersAreNotLoadedFromTheServer = true;
+	          }
+	        }
+
+	        if (counter['increase'] && countersAreNotLoadedFromTheServer === false) {
+	          this.increaseCounter(name, counter['count']);
+	        }
+
+	        resultCounters[name] = this.getCounter(name);
+	      }
+
+	      var event = new main_core_events.BaseEvent({
+	        data: {
+	          counters: resultCounters,
+	          name: this.getName()
+	        }
+	      });
+	      main_core_events.EventEmitter.emit('BX.Mail.Home:updatingCounters', event);
+	    }
+	  }]);
+	  return Counters;
+	}();
+
+	var _name = new WeakMap();
+
+	var LeftMenu = function LeftMenu() {
+	  var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+	    dirsWithUnseenMailCounters: {},
+	    mailboxId: '',
+	    filterId: ''
+	  };
+	  babelHelpers.classCallCheck(this, LeftMenu);
+	  var leftDirectoryMenuWrapper = document.querySelector('.mail-left-menu-wrapper');
+	  this.directoryMenu = new mail_directorymenu.DirectoryMenu({
+	    dirsWithUnseenMailCounters: config['dirsWithUnseenMailCounters'],
+	    filterId: config['filterId']
+	  });
+	  main_core_events.EventEmitter.subscribe('BX.Mail.Sync:newLettersArrived', function () {
+	    BX.ajax.runComponentAction('bitrix:mail.client.message.list', 'getDirsWithUnseenMailCounters', {
+	      mode: 'class',
+	      data: {
+	        mailboxId: config['mailboxId']
+	      }
+	    }).then(function (response) {
+	      var data = response.data || {};
+	      BX.Mail.Home.Counters.setCounters(data);
+	    });
+	  });
+	  leftDirectoryMenuWrapper.append(this.directoryMenu.getNode());
+	};
+
+	var List = /*#__PURE__*/function () {
+	  function List(options) {
+	    babelHelpers.classCallCheck(this, List);
+	    this.pageCounter = options.pageCounter;
+	    this.pageCounterTitle = options.pageCounterTitle;
+	    this.mailReadAllButton = options.mailReadAllButton;
 	    this.gridId = options.gridId;
 	    this.mailboxId = options.mailboxId;
 	    this.canMarkSpam = options.canMarkSpam;
 	    this.canDelete = options.canDelete;
-	    this.moveBtnMailIdPrefix = options.moveBtnMailIdPrefix;
 	    this.connectedMailboxesLicenseInfo = options.connectedMailboxesLicenseInfo;
 	    this.ERROR_CODE_CAN_NOT_DELETE = options.ERROR_CODE_CAN_NOT_DELETE;
 	    this.ERROR_CODE_CAN_NOT_MARK_SPAM = options.ERROR_CODE_CAN_NOT_MARK_SPAM;
 	    this.disabledClassName = 'js-disabled';
 	    this.userInterfaceManager = new BX.Mail.Client.Message.List.UserInterfaceManager(options);
-	    this.userInterfaceManager.reloadGrid = this.reloadGrid.bind(this);
 	    this.userInterfaceManager.resetGridSelection = this.resetGridSelection.bind(this);
 	    this.userInterfaceManager.isSelectedRowsHaveClass = this.isSelectedRowsHaveClass.bind(this);
 	    this.userInterfaceManager.getGridInstance = this.getGridInstance.bind(this);
 	    this.cache = {};
 	    this.addEventHandlers();
 	    BX.Mail.Client.Message.List[options.id] = this;
-	  };
+	  }
 
-	  BX.Mail.Client.Message.List.prototype = {
-	    addEventHandlers: function addEventHandlers() {
+	  babelHelpers.createClass(List, [{
+	    key: "addEventHandlers",
+	    value: function addEventHandlers() {
+	      var _this = this;
+
 	      // todo delete this hack
 	      // it is here to prevent grid's title changing after filter apply
 	      BX.ajax.UpdatePageData = function () {};
 
-	      BX.addCustomEvent('onSubMenuShow', function () {
-	        var container = this.getMenuWindow().getPopupWindow().getPopupContainer();
+	      main_core_events.EventEmitter.subscribe('onSubMenuShow', function (event) {
+	        var menuItem = event.target;
+	        var container = menuItem.getMenuWindow().getPopupWindow().getPopupContainer();
 	        var id = null;
 
 	        if (container) {
 	          id = BX.data(container, 'grid-row-id');
 	        }
 
-	        BX.data(this.getSubMenu().getPopupWindow().getPopupContainer(), 'grid-row-id', this.gridRowId || id);
+	        BX.data(menuItem.getSubMenu().getPopupWindow().getPopupContainer(), 'grid-row-id', menuItem.gridRowId || id);
 	      });
-	      BX.Event.EventEmitter.subscribe('BX.Main.Menu.Item:onmouseenter', function (event) {
+	      BX.Mail.Home.LeftMenuNode.directoryMenu.setDirectory(this.getCurrentFolder());
+	      main_core_events.EventEmitter.subscribe('Mail::directoryChanged', function () {
+	        _this.resetGridSelection();
+	      });
+	      main_core_events.EventEmitter.subscribe('BX.Mail.Home:updatingCounters', function (event) {
+	        if (event['data']['name'] !== 'mailboxCounters') {
+	          var counters = event['data']['counters'];
+	          BX.Mail.Home.LeftMenuNode.directoryMenu.setCounters(counters);
+
+	          var currentFolderCount = counters[_this.getCurrentFolder()];
+
+	          if (currentFolderCount !== undefined) {
+	            _this.changeCurrentFolderCount(currentFolderCount);
+	          }
+
+	          BX.Mail.Home.mailboxCounters.setCounters([{
+	            path: 'unseenCountInCurrentMailbox',
+	            count: BX.Mail.Home.Counters.getTotalCounter()
+	          }]);
+	        } else {
+	          _this.userInterfaceManager.updateLeftMenuCounter();
+	        }
+	      });
+	      main_core_events.EventEmitter.subscribe('BX.DirectoryMenu:onChangeFilter', function (event) {
+	        _this.changeCurrentFolderCount(BX.Mail.Home.Counters.getCounter(event['data']['directory']));
+	      });
+	      main_core_events.EventEmitter.subscribe('BX.Main.Menu.Item:onmouseenter', function (event) {
 	        var menuItem = event.target;
 
 	        if (!menuItem.dataset || !menuItem.getMenuWindow()) {
@@ -66,10 +420,10 @@
 	            if (hasSubMenu) {
 	              item.showSubMenu();
 	              var subMenu = item.getSubMenu();
+	              var hasLoadingItem = false;
 
 	              if (subMenu) {
 	                var items = subMenu.getMenuItems();
-	                var hasLoadingItem = false;
 
 	                for (var k = 0; k < items.length; k++) {
 	                  var subItem = items[k];
@@ -98,8 +452,22 @@
 	      BX.bindDelegate(document.body, 'click', {
 	        className: 'ical-event-control-button'
 	      }, this.onClickICalButton.bind(this));
-	    },
-	    loadLevelMenu: function loadLevelMenu(menuItem, hash) {
+	    }
+	  }, {
+	    key: "changeCurrentFolderCount",
+	    value: function changeCurrentFolderCount(count) {
+	      if (count > 0) {
+	        this.pageCounter.textContent = count;
+	        this.pageCounterTitle.classList.remove("main-ui-hide");
+	        this.mailReadAllButton.classList.remove("main-ui-hide");
+	      } else {
+	        this.pageCounterTitle.classList.add("main-ui-hide");
+	        this.mailReadAllButton.classList.add("main-ui-hide");
+	      }
+	    }
+	  }, {
+	    key: "loadLevelMenu",
+	    value: function loadLevelMenu(menuItem, hash) {
 	      var menu = this.getCache(menuItem.getId());
 	      var popup = BX.Main.PopupManager.getPopupById('menu-popup-popup-submenu-' + menuItem.getId());
 
@@ -116,7 +484,7 @@
 
 	      var subItem = {
 	        'id': 'loading',
-	        'text': BX.message('MAIL_CLIENT_BUTTON_LOADING'),
+	        'text': main_core.Loc.getMessage('MAIL_CLIENT_BUTTON_LOADING'),
 	        'disabled': true
 	      };
 	      menuItem.destroySubMenu();
@@ -148,7 +516,7 @@
 	            },
 	            items: hasChild ? [{
 	              id: 'loading',
-	              'text': BX.message('MAIL_CLIENT_BUTTON_LOADING'),
+	              'text': main_core.Loc.getMessage('MAIL_CLIENT_BUTTON_LOADING'),
 	              'disabled': true
 	            }] : []
 	          };
@@ -169,11 +537,15 @@
 	          menuItem.showSubMenu();
 	        }
 	      }.bind(this), function (response) {}.bind(this));
-	    },
-	    showLicensePopup: function showLicensePopup(code) {
-	      B24.licenseInfoPopup.show(code, BX.message('MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_TITLE'), this.connectedMailboxesLicenseInfo);
-	    },
-	    onCrmClick: function onCrmClick(id) {
+	    }
+	  }, {
+	    key: "showLicensePopup",
+	    value: function showLicensePopup(code) {
+	      B24.licenseInfoPopup.show(code, main_core.Loc.getMessage('MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_TITLE'), this.connectedMailboxesLicenseInfo);
+	    }
+	  }, {
+	    key: "onCrmClick",
+	    value: function onCrmClick(id) {
 	      var selected = this.getGridInstance().getRows().getSelected();
 	      var row = id ? this.getGridInstance().getRows().getById(id) : selected[0];
 
@@ -188,7 +560,9 @@
 	        return;
 	      }
 
-	      this.resetGridSelection();
+	      if (id === undefined) {
+	        this.resetGridSelection();
+	      }
 
 	      if (addToCrm) {
 	        if (babelHelpers.typeof(this.isAddingToCrmInProgress) !== "object") {
@@ -209,10 +583,9 @@
 	            'groupCount': selected.length,
 	            'bindings': this.getRowsBindings([row])
 	          }
-	        }).then(function (id, json) {
+	        }).then(function (id) {
 	          this.isAddingToCrmInProgress[id] = false;
-	          this.notify(BX.message('MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM'));
-	          this.userInterfaceManager.onBindingCreated();
+	          this.notify(main_core.Loc.getMessage('MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM'));
 	        }.bind(this, id), function (json) {
 	          this.isAddingToCrmInProgress[id] = false;
 
@@ -221,7 +594,7 @@
 	              return item.message;
 	            }).join('<br>'), 5000);
 	          } else {
-	            this.notify(BX.message('MAIL_MESSAGE_LIST_NOTIFY_ADD_TO_CRM_ERROR'));
+	            this.notify(main_core.Loc.getMessage('MAIL_MESSAGE_LIST_NOTIFY_ADD_TO_CRM_ERROR'));
 	          }
 	        }.bind(this));
 	      } else {
@@ -236,11 +609,19 @@
 	          }
 	        }).then(function (messageIdNode) {
 	          this.userInterfaceManager.onCrmBindingDeleted(messageIdNode.dataset.messageId);
-	          this.notify(BX.message('MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM'));
+	          this.notify(main_core.Loc.getMessage('MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM'));
 	        }.bind(this, messageIdNode));
 	      }
-	    },
-	    onViewClick: function onViewClick(id) {
+
+	      var selectedIds = this.getGridInstance().getRows().getSelectedIds();
+
+	      if (selectedIds.length === 1 && selectedIds[0] === id) {
+	        this.resetGridSelection();
+	      }
+	    }
+	  }, {
+	    key: "onViewClick",
+	    value: function onViewClick(id) {
 	      if (id === undefined && this.getGridInstance().getRows().getSelectedIds().length === 0) {
 	        return;
 	      } // @TODO: path
@@ -250,8 +631,18 @@
 	        width: 1080,
 	        loader: 'view-mail-loader'
 	      });
-	    },
-	    onDeleteClick: function onDeleteClick(id) {
+	    }
+	  }, {
+	    key: "onDeleteImmediately",
+	    value: function onDeleteImmediately(id) {
+	      var additionalOptions = {
+	        'deleteImmediately': true
+	      };
+	      this.onDeleteClick(id, additionalOptions);
+	    }
+	  }, {
+	    key: "onDeleteClick",
+	    value: function onDeleteClick(id, additionalOptions) {
 	      var selected = this.getGridInstance().getRows().getSelected();
 
 	      if (id === undefined && selected.length === 0) {
@@ -264,45 +655,49 @@
 	      }
 
 	      var options = {
+	        params: additionalOptions !== undefined ? additionalOptions : {},
+	        keepRows: true,
 	        analyticsLabel: {
 	          'groupCount': selected.length,
 	          'bindings': this.getRowsBindings(id ? [this.getGridInstance().getRows().getById(id)] : selected)
-	        },
-	        onSuccess: function onSuccess() {
-	          this.reloadGrid({});
 	        }
 	      };
+	      var selectedIds;
 
-	      if (id !== undefined) {
-	        options.ids = [id];
+	      if (id === undefined) {
+	        selectedIds = BX.Mail.Home.Grid.getSelectedIds();
+	      } else {
+	        selectedIds = [id];
 	      }
 
-	      if (this.userInterfaceManager.isCurrentFolderTrash) {
-	        /*
-	        BX.UI.Dialogs.MessageBox.show({
-	        	title: BX.message('MAIL_MESSAGE_LIST_CONFIRM_TITLE'),
-	        	message: BX.message('MAIL_MESSAGE_LIST_CONFIRM_DELETE_ALL'),
-	        	onYes: function () { return true; }, // handler.bind(this),
-	        	buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL
-	        });
-	        */
+	      selectedIds = this.filterRowsByClassName(this.disabledClassName, selectedIds, true);
+	      options.ids = selectedIds;
+
+	      if (this.userInterfaceManager.isCurrentFolderTrash || additionalOptions !== undefined && additionalOptions['deleteImmediately']) {
 	        var confirmPopup = this.getConfirmDeletePopup(options);
 	        confirmPopup.show();
 	      } else {
-	        /*
-	        BX.UI.Dialogs.MessageBox.show({
-	        	title: BX.message('MAIL_MESSAGE_LIST_CONFIRM_TITLE'),
-	        	message: BX.message('MAIL_MESSAGE_LIST_CONFIRM_TRASH_ALL'),
-	        	onYes: function () { return true; }, // handler.bind(this),
-	        	buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL
+	        BX.Mail.Home.Grid.hideRowByIds(selectedIds);
+	        var unseenRowsIdsCount = this.filterRowsByClassName('mail-msg-list-cell-unseen', selectedIds).length;
+	        BX.Mail.Home.Counters.updateCounters([{
+	          name: this.getCurrentFolder(),
+	          lower: true,
+	          count: unseenRowsIdsCount
+	        }]);
+	        this.runAction('delete', options, function () {
+	          return BX.Mail.Home.Grid.reloadTable();
 	        });
-	        */
-	        this.runAction('delete', options);
+
+	        if (id === undefined) {
+	          this.resetGridSelection();
+	        }
 	      }
-	    },
-	    onMoveToFolderClick: function onMoveToFolderClick(event) {
+	    }
+	  }, {
+	    key: "onMoveToFolderClick",
+	    value: function onMoveToFolderClick(event) {
 	      var folderOptions = event.currentTarget.dataset;
-	      var id = null;
+	      var id = undefined;
 	      var popupSubmenu = BX.findParent(event.currentTarget, {
 	        className: 'popup-window'
 	      });
@@ -312,50 +707,90 @@
 	      }
 
 	      var isDisabled = JSON.parse(folderOptions.isDisabled);
-	      var path = folderOptions.path;
+	      var toFolderByPath = folderOptions.path;
+	      var toFolderByName = toFolderByPath;
 
-	      if (id === null && this.getGridInstance().getRows().getSelectedIds().length === 0 || isDisabled) {
+	      if (id === undefined && this.getGridInstance().getRows().getSelectedIds().length === 0 || isDisabled) {
 	        return;
 	      }
 
 	      var selected = this.getGridInstance().getRows().getSelected();
-	      var resultIds = id ? [id] : this.getGridInstance().getRows().getSelectedIds();
-	      resultIds = this.filterRowsByClassName(this.disabledClassName, resultIds, true);
+	      var idsForMoving = id ? [id] : this.getGridInstance().getRows().getSelectedIds();
+	      idsForMoving = this.filterRowsByClassName(this.disabledClassName, idsForMoving, true);
 
-	      if (!resultIds.length) {
+	      if (!idsForMoving.length) {
 	        return;
+	      } // to hide the context menu
+
+
+	      BX.onCustomEvent('Grid::updated');
+	      var selectedIds;
+
+	      if (id === undefined) {
+	        selectedIds = BX.Mail.Home.Grid.getSelectedIds();
+	      } else {
+	        selectedIds = [id];
 	      }
 
-	      this.resetGridSelection();
-	      /*
-	      BX.UI.Dialogs.MessageBox.show({
-	      	title: BX.message('MAIL_MESSAGE_LIST_CONFIRM_TITLE'),
-	      	message: BX.message('MAIL_MESSAGE_LIST_CONFIRM_MOVE_ALL'),
-	      	onYes: function () { return true; }, // handler.bind(this),
-	      	buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL
-	      });
-	      */
-
+	      BX.Mail.Home.Grid.hideRowByIds(selectedIds);
+	      var unseenRowsIdsCount = this.filterRowsByClassName('mail-msg-list-cell-unseen', selectedIds).length;
+	      BX.Mail.Home.Counters.updateCounters([{
+	        name: toFolderByName,
+	        increase: true,
+	        count: unseenRowsIdsCount
+	      }, {
+	        name: this.getCurrentFolder(),
+	        lower: true,
+	        count: unseenRowsIdsCount
+	      }]);
 	      this.runAction('moveToFolder', {
-	        ids: resultIds,
+	        keepRows: true,
+	        ids: idsForMoving,
 	        params: {
-	          folder: path
+	          folder: toFolderByPath
 	        },
 	        analyticsLabel: {
 	          'groupCount': selected.length,
 	          'bindings': this.getRowsBindings(id ? [this.getGridInstance().getRows().getById(id)] : selected)
 	        }
+	      }, function () {
+	        BX.Mail.Home.Grid.reloadTable();
 	      });
-	    },
-	    onReadClick: function onReadClick(id) {
-	      var selected = this.getGridInstance().getRows().getSelected();
+
+	      if (id === undefined) {
+	        this.resetGridSelection();
+	      }
+	    }
+	  }, {
+	    key: "onReadClick",
+	    value: function onReadClick(id) {
+	      var selected = [];
+	      var resultIds = [];
+
+	      if (id === undefined) {
+	        selected = this.getGridInstance().getRows().getSelected();
+	        resultIds = this.getGridInstance().getRows().getSelectedIds();
+	      } else {
+	        var selectedIds = this.getGridInstance().getRows().getSelectedIds();
+
+	        if (selectedIds.length === 1 && selectedIds[0] === id) {
+	          /*if the action is non-group, but one cell is selected,
+	          then the action was performed through the "Action panel"
+	          and the selection should be reset*/
+	          selected = this.getGridInstance().getRows().getSelected();
+	          resultIds = selectedIds;
+	          id = undefined;
+	        } else {
+	          resultIds = [id];
+	        }
+	      }
 
 	      if (id === undefined && selected.length === 0) {
 	        return;
 	      }
 
 	      var actionName = 'all' == id || this.isSelectedRowsHaveClass('mail-msg-list-cell-unseen', id) ? 'markAsSeen' : 'markAsUnseen';
-	      var resultIds = this.filterRowsByClassName('mail-msg-list-cell-unseen', id, actionName !== 'markAsSeen');
+	      resultIds = this.filterRowsByClassName('mail-msg-list-cell-unseen', resultIds, actionName !== 'markAsSeen');
 	      resultIds = this.filterRowsByClassName(this.disabledClassName, resultIds, true);
 
 	      if (!resultIds.length) {
@@ -366,25 +801,37 @@
 	        this.userInterfaceManager.onMessagesRead(resultIds, {
 	          action: actionName
 	        });
+	        var currentFolder = this.getCurrentFolder();
 
 	        if (actionName === 'markAsSeen') {
 	          var count = resultIds.length;
 
-	          if ('all' == id) {
-	            count = Math.max(this.userInterfaceManager.getQuickFilterUnseenCounter(), count);
+	          if ('all' === id) {
+	            count = BX.Mail.Home.Counters.getCounter(currentFolder);
 	          }
 
-	          this.userInterfaceManager.updateUnreadCounters(-count);
+	          BX.Mail.Home.Counters.updateCounters([{
+	            name: currentFolder,
+	            lower: true,
+	            count: count
+	          }]);
 	        } else {
-	          this.userInterfaceManager.updateUnreadCounters(resultIds.length);
+	          BX.Mail.Home.Counters.updateCounters([{
+	            name: currentFolder,
+	            increase: true,
+	            count: resultIds.length
+	          }]);
 	        }
 
-	        this.resetGridSelection();
+	        if (id === undefined) {
+	          this.resetGridSelection();
+	        }
 
 	        if ('all' == id) {
 	          resultIds['for_all'] = this.mailboxId + '-' + this.userInterfaceManager.getCurrentFolder();
 	        }
 
+	        this.userInterfaceManager.updateUnreadCounters();
 	        this.runAction(actionName, {
 	          ids: resultIds,
 	          keepRows: true,
@@ -398,18 +845,11 @@
 	        return true;
 	      };
 
-	      if ('all' == id) {
-	        BX.UI.Dialogs.MessageBox.show({
-	          title: BX.message('MAIL_MESSAGE_LIST_CONFIRM_TITLE'),
-	          message: BX.message('MAIL_MESSAGE_LIST_CONFIRM_READ_ALL'),
-	          onYes: handler.bind(this),
-	          buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL
-	        });
-	      } else {
-	        handler.apply(this);
-	      }
-	    },
-	    onSpamClick: function onSpamClick(id) {
+	      handler.apply(this);
+	    }
+	  }, {
+	    key: "onSpamClick",
+	    value: function onSpamClick(id) {
 	      var selected = this.getGridInstance().getRows().getSelected();
 
 	      if (id === undefined && selected.length === 0) {
@@ -430,40 +870,69 @@
 	      }
 
 	      var options = {
+	        keepRows: true,
 	        analyticsLabel: {
 	          'groupCount': selected.length,
 	          'bindings': this.getRowsBindings(id ? [this.getGridInstance().getRows().getById(id)] : selected)
-	        },
-	        onSuccess: function onSuccess() {
-	          this.reloadGrid({});
 	        }
 	      };
+	      var selectedIds;
 
-	      if (id !== undefined) {
-	        options.ids = [id];
+	      if (id === undefined) {
+	        selectedIds = BX.Mail.Home.Grid.getSelectedIds();
+	      } else {
+	        selectedIds = [id];
 	      }
-	      /*
-	      BX.UI.Dialogs.MessageBox.show({
-	      	title: BX.message('MAIL_MESSAGE_LIST_CONFIRM_TITLE'),
-	      	message: BX.message('MAIL_MESSAGE_LIST_CONFIRM_SPAM_ALL'),
-	      	onYes: function () { return true; }, // handler.bind(this),
-	      	buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL
+
+	      options.ids = selectedIds;
+	      BX.Mail.Home.Grid.hideRowByIds(selectedIds);
+	      var unseenRowsIdsCount = this.filterRowsByClassName('mail-msg-list-cell-unseen', selectedIds).length;
+
+	      if (actionName === 'markAsSpam') {
+	        BX.Mail.Home.Counters.updateCounters([{
+	          name: this.userInterfaceManager.spamDir,
+	          increase: true,
+	          count: unseenRowsIdsCount
+	        }, {
+	          name: this.getCurrentFolder(),
+	          lower: true,
+	          count: unseenRowsIdsCount
+	        }]);
+	      } else {
+	        BX.Mail.Home.Counters.updateCounters([{
+	          name: this.userInterfaceManager.spamDir,
+	          lower: true,
+	          count: unseenRowsIdsCount
+	        }, {
+	          name: this.userInterfaceManager.inboxDir,
+	          increase: true,
+	          count: unseenRowsIdsCount
+	        }]);
+	      }
+
+	      this.runAction(actionName, options, function () {
+	        return BX.Mail.Home.Grid.reloadTable();
 	      });
-	      */
 
-
-	      this.runAction(actionName, options);
-	    },
-	    getConfirmDeletePopup: function getConfirmDeletePopup(options) {
+	      if (id === undefined) {
+	        this.resetGridSelection();
+	      }
+	    }
+	  }, {
+	    key: "getConfirmDeletePopup",
+	    value: function getConfirmDeletePopup(options) {
 	      return new BX.UI.Dialogs.MessageBox({
-	        title: BX.message('MAIL_MESSAGE_LIST_CONFIRM_TITLE'),
-	        message: BX.message('MAIL_MESSAGE_LIST_CONFIRM_DELETE'),
+	        title: main_core.Loc.getMessage('MAIL_MESSAGE_LIST_CONFIRM_TITLE'),
+	        message: main_core.Loc.getMessage('MAIL_MESSAGE_LIST_CONFIRM_DELETE'),
 	        buttons: [new BX.UI.Button({
 	          color: BX.UI.Button.Color.DANGER,
-	          text: BX.message('MAIL_MESSAGE_LIST_CONFIRM_DELETE_BTN'),
+	          text: main_core.Loc.getMessage('MAIL_MESSAGE_LIST_CONFIRM_DELETE_BTN'),
 	          onclick: function (button) {
-	            this.runAction('delete', options);
+	            this.runAction('delete', options, function () {
+	              return BX.Mail.Home.Grid.reloadTable();
+	            });
 	            button.getContext().close();
+	            BX.Mail.Home.Grid.hideRowByIds(options.ids);
 	          }.bind(this)
 	        }), new BX.UI.CancelButton({
 	          onclick: function onclick(button) {
@@ -471,16 +940,26 @@
 	          }
 	        })]
 	      });
-	    },
-	    resetGridSelection: function resetGridSelection() {
+	    }
+	  }, {
+	    key: "resetGridSelection",
+	    value: function resetGridSelection() {
+	      BX.onCustomEvent('Mail::resetGridSelection');
 	      this.getGridInstance().getRows().unselectAll();
-	      this.getGridInstance().adjustCheckAllCheckboxes(); // todo there is no other way to hide panel for now
-	      // please delete this line below
+	      this.getGridInstance().adjustCheckAllCheckboxes();
+	      BX.Mail.Home.Grid.hidePanel();
+	    }
+	  }, {
+	    key: "isSelectedRowsHaveClass",
+	    value: function isSelectedRowsHaveClass(className, id) {
+	      var selectedIds;
 
-	      BX.onCustomEvent('Grid::updated');
-	    },
-	    isSelectedRowsHaveClass: function isSelectedRowsHaveClass(className, id) {
-	      var selectedIds = this.getGridInstance().getRows().getSelectedIds();
+	      if (id === undefined) {
+	        selectedIds = this.getGridInstance().getRows().getSelectedIds();
+	      } else {
+	        selectedIds = [id];
+	      }
+
 	      var ids = selectedIds.length ? selectedIds : id ? [id] : [];
 
 	      for (var i = 0; i < ids.length; i++) {
@@ -496,8 +975,10 @@
 	      }
 
 	      return false;
-	    },
-	    filterRowsByClassName: function filterRowsByClassName(className, ids, isReversed) {
+	    }
+	  }, {
+	    key: "filterRowsByClassName",
+	    value: function filterRowsByClassName(className, ids, isReversed) {
 	      var resIds = [];
 
 	      if ('all' == ids) {
@@ -528,16 +1009,20 @@
 	      }
 
 	      return resultIds;
-	    },
-	    notify: function notify(text, delay) {
+	    }
+	  }, {
+	    key: "notify",
+	    value: function notify(text, delay) {
 	      top.BX.UI.Notification.Center.notify({
 	        autoHideDelay: delay > 0 ? delay : 2000,
-	        content: text ? text : BX.message('MAIL_MESSAGE_LIST_NOTIFY_SUCCESS')
+	        content: text ? text : main_core.Loc.getMessage('MAIL_MESSAGE_LIST_NOTIFY_SUCCESS')
 	      });
-	    },
-	    runAction: function runAction(actionName, options) {
+	    }
+	  }, {
+	    key: "runAction",
+	    value: function runAction(actionName, options, actionOnSuccess) {
 	      options = options ? options : {};
-	      var selectedIds = this.getGridInstance().getRows().getSelectedIds();
+	      var selectedIds = [];
 
 	      if (options.ids) {
 	        selectedIds = options.ids;
@@ -572,7 +1057,7 @@
 	        mode: 'ajax',
 	        data: data,
 	        analyticsLabel: options.analyticsLabel
-	      }).then(function (response) {
+	      }).then(function () {
 	        if (options.onSuccess === false) {
 	          return;
 	        }
@@ -582,18 +1067,25 @@
 	          return;
 	        }
 
-	        this.onSuccessRequest(response, actionName);
+	        if (actionOnSuccess === undefined) {
+	          this.notify();
+	        } else {
+	          actionOnSuccess();
+	        }
 	      }.bind(this), function (response) {
 	        options.onError && typeof options.onError === "function" ? options.onError().bind(this, response) : this.onErrorRequest(response);
 	      }.bind(this));
-	    },
-	    onErrorRequest: function onErrorRequest(response) {
+	    }
+	  }, {
+	    key: "onErrorRequest",
+	    value: function onErrorRequest(response) {
 	      var options = {};
 	      this.checkErrorRights(response.errors);
 	      options.errorMessage = response.errors[0].message;
-	      this.reloadGrid(options);
-	    },
-	    checkErrorRights: function checkErrorRights(errors) {
+	    }
+	  }, {
+	    key: "checkErrorRights",
+	    value: function checkErrorRights(errors) {
 	      for (var i = 0; i < errors.length; i++) {
 	        if (errors[i].code === this.ERROR_CODE_CAN_NOT_DELETE) {
 	          this.canDelete = false;
@@ -603,20 +1095,10 @@
 	          this.canMarkSpam = false;
 	        }
 	      }
-	    },
-	    onSuccessRequest: function onSuccessRequest(response, action) {
-	      this.notify();
-	      this.reloadGrid({});
-	    },
-	    reloadGrid: function reloadGrid(options) {
-	      var gridInstance = this.getGridInstance();
-
-	      if (gridInstance) {
-	        options.apply_filter = 'Y';
-	        gridInstance.reloadTable('POST', options);
-	      }
-	    },
-	    showDirsSlider: function showDirsSlider() {
+	    }
+	  }, {
+	    key: "showDirsSlider",
+	    value: function showDirsSlider() {
 	      var url = BX.util.add_url_param("/mail/config/dirs", {
 	        mailboxId: this.mailboxId
 	      });
@@ -627,31 +1109,28 @@
 	      });
 	      this.canDelete = true;
 	      this.canMarkSpam = true;
-	    },
-	    onDisabledGroupActionClick: function onDisabledGroupActionClick() {},
-	    onUnreadCounterClick: function onUnreadCounterClick() {
+	    }
+	  }, {
+	    key: "onDisabledGroupActionClick",
+	    value: function onDisabledGroupActionClick() {}
+	  }, {
+	    key: "onUnreadCounterClick",
+	    value: function onUnreadCounterClick() {
 	      this.userInterfaceManager.onUnreadCounterClick();
-	    },
-	    getCurrentFolder: function getCurrentFolder() {
+	    }
+	  }, {
+	    key: "getCurrentFolder",
+	    value: function getCurrentFolder() {
 	      return this.userInterfaceManager.getCurrentFolder();
-	    },
-	    onDirsMenuItemClick: function onDirsMenuItemClick(el) {
-	      if (BX.data(el, 'is-disabled') == 'true') {
-	        return;
-	      }
-
-	      var filter = this.userInterfaceManager.getFilterInstance();
-	      var filterApi = filter.getApi();
-	      filterApi.setFields({
-	        'DIR': BX.data(el, 'path')
-	      });
-	      filterApi.apply();
-	      this.userInterfaceManager.closeMailboxMenu();
-	    },
-	    getGridInstance: function getGridInstance() {
+	    }
+	  }, {
+	    key: "getGridInstance",
+	    value: function getGridInstance() {
 	      return BX.Main.gridManager.getById(this.gridId).instance;
-	    },
-	    getRowsBindings: function getRowsBindings(rows) {
+	    }
+	  }, {
+	    key: "getRowsBindings",
+	    value: function getRowsBindings(rows) {
 	      return BX.util.array_unique(Array.prototype.concat.apply([], rows.map(function (row) {
 	        if (!row || !row.node) {
 	          return null;
@@ -661,18 +1140,24 @@
 	          return node.dataset.type;
 	        });
 	      })));
-	    },
-	    getCache: function getCache(key) {
+	    }
+	  }, {
+	    key: "getCache",
+	    value: function getCache(key) {
 	      if (!key) {
 	        return;
 	      }
 
 	      return this.cache[key] ? this.cache[key] : null;
-	    },
-	    setCache: function setCache(key, value) {
+	    }
+	  }, {
+	    key: "setCache",
+	    value: function setCache(key, value) {
 	      return this.cache[key] = value;
-	    },
-	    showICalMenuDropdown: function showICalMenuDropdown(event) {
+	    }
+	  }, {
+	    key: "showICalMenuDropdown",
+	    value: function showICalMenuDropdown(event) {
 	      event.stopPropagation();
 	      event.preventDefault();
 	      var menu = event.currentTarget.dataset.menu;
@@ -701,13 +1186,17 @@
 	      });
 	      this.iCalMenuDropdown.popupWindow.setBindElement(event.currentTarget);
 	      this.iCalMenuDropdown.show();
-	    },
-	    removeICalMenuDropdown: function removeICalMenuDropdown() {
+	    }
+	  }, {
+	    key: "removeICalMenuDropdown",
+	    value: function removeICalMenuDropdown() {
 	      if (this.iCalMenuDropdown) {
 	        BX.Main.MenuManager.destroy(this.iCalMenuDropdown.id);
 	      }
-	    },
-	    onClickICalButton: function onClickICalButton(event) {
+	    }
+	  }, {
+	    key: "onClickICalButton",
+	    value: function onClickICalButton(event) {
 	      event.stopPropagation();
 	      event.preventDefault();
 	      var messageId = event.target.dataset.messageid || event.target.parentNode.dataset.messageid;
@@ -717,13 +1206,15 @@
 	      this.removeICalMenuDropdown();
 	      this.sendICal(messageId, action).then(function () {
 	        button.classList.remove('ui-btn-wait');
-	        this.notify(BX.message(action === 'cancelled' ? 'MAIL_MESSAGE_ICAL_NOTIFY_REJECT' : 'MAIL_MESSAGE_ICAL_NOTIFY_ACCEPT'));
+	        this.notify(main_core.Loc.getMessage(action === 'cancelled' ? 'MAIL_MESSAGE_ICAL_NOTIFY_REJECT' : 'MAIL_MESSAGE_ICAL_NOTIFY_ACCEPT'));
 	      }.bind(this)).catch(function () {
 	        button.classList.remove('ui-btn-wait');
-	        this.notify(BX.message('MAIL_MESSAGE_ICAL_NOTIFY_ERROR'));
+	        this.notify(main_core.Loc.getMessage('MAIL_MESSAGE_ICAL_NOTIFY_ERROR'));
 	      }.bind(this));
-	    },
-	    sendICal: function sendICal(messageId, action) {
+	    }
+	  }, {
+	    key: "sendICal",
+	    value: function sendICal(messageId, action) {
 	      return new Promise(function (resolve, reject) {
 	        BX.ajax.runComponentAction('bitrix:mail.client', 'ical', {
 	          mode: 'ajax',
@@ -738,8 +1229,92 @@
 	        }.bind(this));
 	      });
 	    }
-	  };
-	})();
+	  }]);
+	  return List;
+	}();
 
-}((this.window = this.window || {})));
+	var namespaceMailHome = main_core.Reflection.namespace('BX.Mail.Home');
+	main_core_events.EventEmitter.subscribe('SidePanel.Slider:onMessage', function (event) {
+	  var _event$getCompatData = event.getCompatData(),
+	      _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
+	      messageEvent = _event$getCompatData2[0];
+
+	  if (messageEvent.getEventId() === 'mail-mailbox-config-success') {
+	    BXMailMailbox.sync(namespaceMailHome.ProgressBar, namespaceMailHome.Grid.getId(), false, true);
+	  }
+	});
+	var sliderPage;
+	var progressBar;
+	var errorBox;
+	var syncButtonWrapper;
+	var selectedIdsForRecovery = {};
+	main_core.Event.ready(function () {
+	  syncButtonWrapper = document.querySelector('[data-role="mail-msg-sync-button-wrapper"]');
+	  var syncButton = new ui_buttons.Button({
+	    className: "ui-btn ui-btn-themes ui-btn-light-border mail-msg-sync-button",
+	    icon: ui_buttons.Button.Icon.BUSINESS,
+	    props: {
+	      title: main_core.Loc.getMessage("MAIL_MESSAGE_SYNC_BTN_HINT")
+	    },
+	    onclick: function onclick() {
+	      BXMailMailbox.sync(namespaceMailHome.ProgressBar, main_core.Loc.getMessage("MAIL_MESSAGE_GRID_ID"), false, true);
+	    }
+	  });
+	  syncButtonWrapper.append(syncButton.getContainer());
+	  main_core_events.EventEmitter.subscribe('BX.Main.Grid:onBeforeReload', function (event) {
+	    var _event$getCompatData3 = event.getCompatData(),
+	        _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 1),
+	        grid = _event$getCompatData4[0];
+
+	    if (grid !== {} && grid !== undefined && main_core.Loc.getMessage("MAIL_MESSAGE_GRID_ID") === grid.getId()) {
+	      selectedIdsForRecovery = grid.getRows().getSelectedIds();
+	    }
+	  });
+	  main_core_events.EventEmitter.subscribe('Grid::updated', function (event) {
+	    var _event$getCompatData5 = event.getCompatData(),
+	        _event$getCompatData6 = babelHelpers.slicedToArray(_event$getCompatData5, 1),
+	        grid = _event$getCompatData6[0];
+
+	    if (grid !== {} && grid !== undefined && main_core.Loc.getMessage("MAIL_MESSAGE_GRID_ID") === grid.getId()) {
+	      var rowsWereSelected = false;
+	      namespaceMailHome.Grid.getRows().map(function (row) {
+	        if (main_core.Type.isFunction(selectedIdsForRecovery.indexOf) && selectedIdsForRecovery.indexOf(row.getId()) !== -1) {
+	          if (row.isShown()) {
+	            row.select();
+	            rowsWereSelected = true;
+	          }
+	        }
+	      });
+	      selectedIdsForRecovery = {};
+
+	      if (rowsWereSelected) {
+	        setTimeout(function () {
+	          main_core_events.EventEmitter.emit(window, 'Grid::thereSelectedRows');
+	        }, 0);
+	      }
+	    }
+	  });
+	  mail_avatar.Avatar.replaceTagsWithAvatars({
+	    className: 'mail-ui-avatar'
+	  });
+	  sliderPage = document.getElementsByClassName("ui-slider-page")[0];
+	  progressBar = document.querySelector('[data-role="mail-progress-bar"]');
+	  sliderPage.insertBefore(progressBar, sliderPage.firstChild);
+	  errorBox = document.querySelector('[data-role="error-box"]');
+	  namespaceMailHome.ProgressBar = new ProgressBar(progressBar);
+	  namespaceMailHome.unreadMessageMailboxesMarker = document.querySelector('[data-role="unreadMessageMailboxesMarker"]');
+	  namespaceMailHome.ProgressBar.setSyncButton(syncButton);
+	  namespaceMailHome.ProgressBar.setErrorBoxNode(document.querySelector('[data-role="error-box"]'));
+	  namespaceMailHome.ProgressBar.setErrorTextNode(document.querySelector('[data-role="error-box-text"]'));
+	  namespaceMailHome.ProgressBar.setErrorHintNode(document.querySelector('[data-role="error-box-hint"]'));
+	  namespaceMailHome.ProgressBar.setErrorTitleNode(document.querySelector('[data-role="error-box-title"]'));
+	});
+	namespaceMailHome.Counters = new Counters();
+	namespaceMailHome.mailboxCounters = new Counters('mailboxCounters');
+	namespaceMailHome.Grid = new mail_messagegrid.MessageGrid();
+	namespaceMailHome.LeftMenu = LeftMenu;
+	var namespaceClientMessage = main_core.Reflection.namespace('BX.Mail.Client.Message');
+	namespaceClientMessage.List = List;
+
+}((this.window = this.window || {}),BX.Mail,BX.Mail,BX.Mail,BX.Event,BX,BX.UI));
 //# sourceMappingURL=script.js.map

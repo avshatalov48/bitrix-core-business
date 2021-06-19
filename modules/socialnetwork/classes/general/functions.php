@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
 
@@ -48,7 +49,7 @@ class CSocNetTextParser
 		return (mb_strlen($a["TYPING"]) > mb_strlen($b["TYPING"])) ? -1 : 1;
 	}
 
-	function CSocNetTextParser($strLang = False, $pathToSmile = false)
+	public function __construct($strLang = False, $pathToSmile = false)
 	{
 		global $DB, $CACHE_MANAGER;
 		static $arSmiles = array();
@@ -424,7 +425,7 @@ class CSocNetTextParser
 		return trim($text);
 	}
 
-	function killAllTags($text)
+	public static function killAllTags($text)
 	{
 		if (method_exists("CTextParser", "clearAllTags"))
 			return CTextParser::clearAllTags($text);
@@ -1046,7 +1047,7 @@ class CSocNetTextParser
 
 class CSocNetTools
 {
-	function InitImage($imageID, $imageSize, $defaultImage, $defaultImageSize, $imageUrl, $showImageUrl, $urlParams=false)
+	public static function InitImage($imageID, $imageSize, $defaultImage, $defaultImageSize, $imageUrl, $showImageUrl, $urlParams=false)
 	{
 		$imageFile = false;
 		$imageImg = "";
@@ -1085,7 +1086,7 @@ class CSocNetTools
 		return array("FILE" => $imageFile, "IMG" => $imageImg);
 	}
 
-	function htmlspecialcharsExArray($array)
+	public static function htmlspecialcharsExArray($array)
 	{
 		$res = Array();
 		if(!empty($array) && is_array($array))
@@ -1110,7 +1111,7 @@ class CSocNetTools
 		return $res;
 	}
 
-	function ResizeImage($aFile, $sizeX, $sizeY)
+	public static function ResizeImage($aFile, $sizeX, $sizeY)
 	{
 		$result = CFile::ResizeImageGet($aFile, array("width" => $sizeX, "height" => $sizeY));
 		if(is_array($result))
@@ -1119,7 +1120,7 @@ class CSocNetTools
 			return false;
 	}
 
-	function GetDateTimeFormat()
+	public static function GetDateTimeFormat()
 	{
 		$timestamp = mktime(7,30,45,2,22,2007);
 		return array(
@@ -1138,7 +1139,7 @@ class CSocNetTools
 			);
 	}
 
-	function Birthday($datetime, $gender, $showYear = "N")
+	public static function Birthday($datetime, $gender, $showYear = "N")
 	{
 		if ($datetime == '')
 			return false;
@@ -1198,7 +1199,7 @@ class CSocNetTools
 		);
 	}
 
-	function GetDefaultNameTemplates()
+	public static function GetDefaultNameTemplates()
 	{
 		return array(
 			'#NOBR##LAST_NAME# #NAME##/NOBR#' => GetMessage('SONET_NAME_TEMPLATE_SMITH_JOHN'),
@@ -1216,7 +1217,7 @@ class CSocNetTools
 		);
 	}
 
-	function GetMyGroups()
+	public static function GetMyGroups()
 	{
 		global $USER;
 
@@ -1240,7 +1241,7 @@ class CSocNetTools
 		return $arGroupsMy;
 	}
 
-	function GetGroupUsers($group_id)
+	public static function GetGroupUsers($group_id)
 	{
 		if (intval($group_id) <= 0)
 			return false;
@@ -1263,7 +1264,7 @@ class CSocNetTools
 		return $arGroupUsers;
 	}
 
-	function IsMyGroup($entity_id)
+	public static function IsMyGroup($entity_id)
 	{
 		global $USER;
 
@@ -1282,7 +1283,7 @@ class CSocNetTools
 		return $is_my;
 	}
 
-	function GetMyUsers($user_id = false)
+	public static function GetMyUsers($user_id = false)
 	{
 		global $USER;
 
@@ -1306,7 +1307,7 @@ class CSocNetTools
 		return $arUsersMy;
 	}
 
-	function IsMyUser($entity_id)
+	public static function IsMyUser($entity_id)
 	{
 		global $USER;
 
@@ -1320,7 +1321,7 @@ class CSocNetTools
 		return $is_my;
 	}
 
-	function HasLogEventCreatedBy($event_id)
+	public static function HasLogEventCreatedBy($event_id)
 	{
 		return CSocNetLogTools:: HasLogEventCreatedBy($event_id);
 	}
@@ -2316,5 +2317,3 @@ class CSocNetAllowed
 		}
 	}
 }
-
-?>

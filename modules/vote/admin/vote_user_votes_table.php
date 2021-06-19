@@ -142,7 +142,7 @@ if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT=="W" && check_bitrix_sessid()
 		if($_REQUEST['action_target']=='selected')
 		{
 				$arID = Array();
-				$rsData = CVoteEvent::GetList($by, $order, $arFilter, $is_filtered);
+				$rsData = CVoteEvent::GetList('', '', $arFilter);
 				while($arRes = $rsData->Fetch())
 						$arID[] = $arRes['ID'];
 		}
@@ -171,7 +171,8 @@ if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT=="W" && check_bitrix_sessid()
 
 /************** Initial list - Get data ****************************/
 $nameFormat = CSite::GetNameFormat(false);
-$rsData = new CAdminResult(CVoteEvent::GetList($by, $order, $arFilter, $is_filtered, "Y"), $sTableID);
+global $by, $order;
+$rsData = new CAdminResult(CVoteEvent::GetList($by, $order, $arFilter, null, "Y"), $sTableID);
 $rsData->NavStart();
 
 /************** Initial list - Navigation **************************/
@@ -185,10 +186,8 @@ $headers = array(
 	array("id"=>"DATE_VOTE", "content"=>GetMessage("VOTE_DATE"), "sort"=>"s_date", "default"=>true),
 	array("id"=>"VALID", "content"=>GetMessage("VOTE_VALID"), "sort"=>"s_valid", "default"=>true)
 );
-$by = 'c_sort';
-$order = 'asc';
 $arAllQuestions = array();
-$rsQuestions = CVoteQuestion::GetList($voteId, $by, $order, array(), $is_filtered);
+$rsQuestions = CVoteQuestion::GetList($voteId);
 while ($arQuestion = $rsQuestions->Fetch())
 {
 	$headers[] = array(

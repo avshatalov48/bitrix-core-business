@@ -1,9 +1,10 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSaleStoreBarcode
 {
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if (defined("SALE_DEBUG") && SALE_DEBUG)
 			CSaleHelper::WriteToLog("CSaleStoreBarcode checking fields", array("ACTION" => $ACTION, "arFields" => $arFields), "SSBA1");
@@ -29,7 +30,7 @@ class CAllSaleStoreBarcode
 		return true;
 	}
 
-	public function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -51,7 +52,7 @@ class CAllSaleStoreBarcode
 		return False;
 	}
 
-	public function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 

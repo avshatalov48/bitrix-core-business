@@ -47,31 +47,18 @@ class Step1 extends CWizardStep
 	{
 		CModule::IncludeModule("currency");
 		$arSites = Array();
-		//$dbSite = CSite::GetList($b="SORT", $o="ASC", Array("ACTIVE"=>"Y", "ID"=>"ru"));
-		$dbSite = CSite::GetList($b="SORT", $o="ASC", Array("ACTIVE"=>"Y"));
+		$dbSite = CSite::GetList("SORT", "ASC", Array("ACTIVE"=>"Y"));
 		while($arSite = $dbSite -> Fetch())
 		{
 			$arSites[$arSite["ID"]] = $arSite["NAME"];
-			if($arSite["DEF"]=="Y")
-				$defSite = $arSite["ID"];
 		}
-		/*if(empty($arSites))
-		{
-			$dbSite = CSite::GetList($b="SORT", $o="ASC", Array("ACTIVE"=>"Y", "ID"=>"s1"));
-			while($arSite = $dbSite -> Fetch())
-			{
-				$arSites[$arSite["ID"]] = $arSite["NAME"];
-				if($arSite["DEF"]=="Y")
-					$defSite = $arSite["ID"];
-			}
-		}*/
 
 		$this->content = "<link rel=\"stylesheet\" type=\"text/css\" href=\"/bitrix/wizards/bitrix/sale.install/styles.css\">";
 		$this->content .= GetMessage("WW_STEP1_1").'<br /><table class="data-table">';
 		$this->content .= "<tr><th>".GetMessage("WW_STEP1_2").":</th><td>".$this->ShowSelectField("siteID", $arSites)."</td></tr>";
 		$this->content .= "<tr><th>".GetMessage("WW_STEP1_3")."</th><td>".$this->ShowInputField("text", "orderEmail", Array("size" => "20"))."</td></tr>";
 		$this->content .= "<tr><th>".GetMessage("WW_STEP1_4")."</th><td>".$this->ShowInputField("text", "saveBasket", Array("size" => "10"))."</td></tr>";
-		$dbCurrency = CCurrency::GetList($b="SORT", $o="ASC");
+		$dbCurrency = CCurrency::GetList("SORT", "ASC");
 		while($arCurrency = $dbCurrency -> Fetch())
 			$arCurrencies[$arCurrency["CURRENCY"]] = $arCurrency["CURRENCY"] ." (".$arCurrency["FULL_NAME"].")";
 		$this->content .= "<tr><th>".GetMessage("WW_STEP1_5")."</th><td>".$this->ShowSelectField("currencyID", $arCurrencies)."</td></tr>";
@@ -644,7 +631,7 @@ class Step5 extends CWizardStep
 
 	function ShowStep()
 	{
-		$dbUGroup = CGroup::GetList($b="c_sort", $o="ASC", Array("ACTIVE" => "Y"));
+		$dbUGroup = CGroup::GetList("c_sort", "asc", Array("ACTIVE" => "Y"));
 		while($arUGroup = $dbUGroup->Fetch())
 		{
 			if(!in_array($arUGroup["ID"], Array(1, 2)))
@@ -701,7 +688,7 @@ class Step6 extends CWizardStep
 		$siteID = $wizard->GetVar("siteID");
 		$arGr = Array();
 
-		$dbUGroup = CGroup::GetList($b="c_sort", $o="ASC", Array("ACTIVE" => "Y"));
+		$dbUGroup = CGroup::GetList("c_sort", "asc", Array("ACTIVE" => "Y"));
 		while($arUGroup = $dbUGroup->Fetch())
 			$arGroups[$arUGroup["ID"]] = $arUGroup["NAME"];
 
@@ -824,7 +811,7 @@ class Step7 extends CWizardStep
 		}
 
 		$arUGroupsEx = Array();
-		$dbUGroups = CGroup::GetList($by = "c_sort", $order = "asc");
+		$dbUGroups = CGroup::GetList();
 		while($arUGroups = $dbUGroups -> Fetch())
 		{
 			$arUGroupsEx[$arUGroups["ID"]] = $arUGroups["NAME"];
@@ -1209,11 +1196,11 @@ class Install extends CWizardStep
 		$arSite = $dbSite->GetNext();
 
 		CModule::IncludeModule("currency");
-		$dbCurrency = CCurrency::GetList($b="SORT", $o="ASC", $arResult["siteID"]);
+		$dbCurrency = CCurrency::GetList("SORT", "ASC", $arResult["siteID"]);
 		while($arCur = $dbCurrency->GetNext())
 			$arCurrency[$arCur["CURRENCY"]] = $arCur["FULL_NAME"];
 
-		$dbUGroup = CGroup::GetList($b="c_sort", $o="ASC", Array("ACTIVE" => "Y"));
+		$dbUGroup = CGroup::GetList("c_sort", "asc", Array("ACTIVE" => "Y"));
 		while($arUGroup = $dbUGroup->GetNext())
 			$arGroups[$arUGroup["ID"]] = $arUGroup["NAME"];
 

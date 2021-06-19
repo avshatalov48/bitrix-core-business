@@ -1,11 +1,12 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 $GLOBALS["SALE_AFFILIATE_PLAN"] = Array();
 
 class CAllSaleAffiliatePlan
 {
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "SITE_ID") || $ACTION=="ADD") && $arFields["SITE_ID"] == '')
 		{
@@ -99,7 +100,7 @@ class CAllSaleAffiliatePlan
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -130,7 +131,7 @@ class CAllSaleAffiliatePlan
 		return $bResult;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -162,7 +163,7 @@ class CAllSaleAffiliatePlan
 		return false;
 	}
 
-	function CheckAffiliatePlanFunc($affiliatePlan)
+	public static function CheckAffiliatePlanFunc($affiliatePlan)
 	{
 		if (is_array($affiliatePlan))
 		{
@@ -199,4 +200,3 @@ class CAllSaleAffiliatePlan
 		return $arAffiliatePlan;
 	}
 }
-?>

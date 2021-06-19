@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SONET_EXT_COMMON_AJAX_ERROR"] = "Error processing request.";
 $MESS["SONET_EXT_COMMON_B24_SONET_GROUP_FEATURES_TEXT"] = "<p>Access permissions provide an easy and convenient way to streamline workflow in a workgroup. You will be able to select the tools your employees can or cannot access.<p>Access permissions are available on major plans only.";
 $MESS["SONET_EXT_COMMON_B24_SONET_GROUP_FEATURES_TITLE"] = "Get more options for your Bitrix24";
@@ -28,4 +28,4 @@ $MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT"] = "Your workgroup membership re
 $MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT_PROJECT"] = "Your project membership request has been submitted. You will see the project in your projects and workgroups list once the administration has approved your request.";
 $MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TITLE"] = "Warning";
 $MESS["SONET_EXT_COMMON_WAIT"] = "Please wait&hellip;";
-?>
+$MESS["SONET_EXT_COMMON_GROUP_MENU_THEME_DIALOG"] = "Themes";

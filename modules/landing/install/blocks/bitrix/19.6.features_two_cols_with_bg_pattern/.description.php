@@ -43,7 +43,7 @@ return array(
 	'style' => array(
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_19.6.FEATURES_TWO_COLS_WITH_BG_PATTERN_NODES_LANDINGBLOCKNODETITLE'),
-			'type' => array('typo', 'border-color'),
+			'type' => ['typo', 'border-color', 'heading'],
 		),
 		'.landing-block-node-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_19.6.FEATURES_TWO_COLS_WITH_BG_PATTERN_NODES_LANDINGBLOCKNODETEXT'),

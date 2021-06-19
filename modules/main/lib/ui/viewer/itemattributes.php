@@ -155,6 +155,16 @@ class ItemAttributes
 		return $this->setAttribute('data-title', htmlspecialcharsbx($title));
 	}
 
+	public function setTypeClass(string $class)
+	{
+		return $this->setAttribute('data-viewer-type-class', htmlspecialcharsbx($class));
+	}
+
+	public function getTypeClass()
+	{
+		return $this->getAttribute('data-viewer-type-class');
+	}
+
 	/**
 	 * @param $id
 	 *

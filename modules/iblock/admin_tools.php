@@ -605,26 +605,57 @@ function _ShowUserPropertyField($name, $property_fields, $values, $bInitDef = fa
 	echo $html;
 }
 
-function _ShowPropertyField($name, $property_fields, $values, $bInitDef = false, $bVarsFromForm = false, $max_file_size_show = 50000, $form_name = "form_element", $bCopy = false)
+function _ShowPropertyField(
+	$name,
+	$property_fields,
+	$values,
+	$bInitDef = false,
+	$bVarsFromForm = false,
+	$max_file_size_show = 50000,
+	$form_name = "form_element",
+	$bCopy = false
+)
 {
 	$type = $property_fields["PROPERTY_TYPE"];
-	if($property_fields["USER_TYPE"]!="")
-		_ShowUserPropertyField($name, $property_fields, $values, $bInitDef, $bVarsFromForm, $max_file_size_show, $form_name, $bCopy);
-	elseif($type=="L") //list property
-		_ShowListPropertyField($name, $property_fields, $values, $bInitDef);
-	elseif($type=="F") //file property
-		_ShowFilePropertyField($name, $property_fields, $values, $max_file_size_show, $bVarsFromForm);
-	elseif($type=="G") //section link
+	$userType = (string)$property_fields["USER_TYPE"] ?? '';
+	$foundUserType = false;
+	if ($userType !== '')
 	{
-		if(function_exists("_ShowGroupPropertyField_custom"))
-			_ShowGroupPropertyField_custom($name, $property_fields, $values, $bVarsFromForm);
-		else
-			_ShowGroupPropertyField($name, $property_fields, $values, $bVarsFromForm);
+		$userTypeDescription = CIBlockProperty::GetUserType($userType);
+		if (!empty($userTypeDescription))
+		{
+			$foundUserType = true;
+			_ShowUserPropertyField($name, $property_fields, $values, $bInitDef, $bVarsFromForm, $max_file_size_show, $form_name, $bCopy);
+		}
 	}
-	elseif($type=="E") //element link
-		_ShowElementPropertyField($name, $property_fields, $values, $bVarsFromForm);
-	else
-		_ShowStringPropertyField($name, $property_fields, $values, $bInitDef, $bVarsFromForm);
+	if (!$foundUserType)
+	{
+		switch ($type)
+		{
+			case Iblock\PropertyTable::TYPE_LIST:
+				_ShowListPropertyField($name, $property_fields, $values, $bInitDef);
+				break;
+			case Iblock\PropertyTable::TYPE_FILE:
+				_ShowFilePropertyField($name, $property_fields, $values, $max_file_size_show, $bVarsFromForm);
+				break;
+			case Iblock\PropertyTable::TYPE_SECTION:
+				if (function_exists("_ShowGroupPropertyField_custom"))
+				{
+					_ShowGroupPropertyField_custom($name, $property_fields, $values, $bVarsFromForm);
+				}
+				else
+				{
+					_ShowGroupPropertyField($name, $property_fields, $values, $bVarsFromForm);
+				}
+				break;
+			case Iblock\PropertyTable::TYPE_ELEMENT:
+				_ShowElementPropertyField($name, $property_fields, $values, $bVarsFromForm);
+				break;
+			default:
+				_ShowStringPropertyField($name, $property_fields, $values, $bInitDef, $bVarsFromForm);
+				break;
+		}
+	}
 }
 
 function _ShowHiddenValue($name, $value)
@@ -648,7 +679,7 @@ class _CIBlockError
 {
 	var $err_type, $err_text, $err_level;
 
-	function _CIBlockError($err_level = false, $err_type = "", $err_text = "")
+	public function __construct($err_level = false, $err_type = "", $err_text = "")
 	{
 		$this->err_type = $err_type;
 		$this->err_text = preg_replace("#<br>$#i", "", $err_text);

@@ -68,7 +68,7 @@ if (Loader::includeModule('sender'))
 			if($formId && $propertyEmailId)
 			{
 				$filter = array();
-				$formResultDb = \CFormResult::GetList($formId, ($by="s_timestamp"),($order="asc"), $filter, $filtered, "N");
+				$formResultDb = \CFormResult::GetList($formId, "s_timestamp", $order="asc", $filter, null, "N");
 				while ($formResult = $formResultDb->Fetch())
 				{
 					$answerList = \CFormResult::GetDataByID(
@@ -115,7 +115,7 @@ if (Loader::includeModule('sender'))
 			 * select form list
 			*/
 			$formList = array();
-			$formDb = \CForm::GetList($by = "s_sort", $order = "asc", array(), $filtered);
+			$formDb = \CForm::GetList();
 			while($form = $formDb->Fetch())
 			{
 				$formList[] = array('ID' => $form['ID'], 'NAME' => $form['NAME']);
@@ -142,7 +142,7 @@ if (Loader::includeModule('sender'))
 			{
 				if(empty($form['ID'])) continue;
 
-				$formFieldsDb = \CFormField::GetList($form['ID'], 'N', $by = "s_sort", $order = "asc", array(), $filtered);
+				$formFieldsDb = \CFormField::GetList($form['ID'], 'N');
 				while ($formFields = $formFieldsDb->Fetch())
 				{
 					if($formFields['TITLE_TYPE'] != 'text') continue;

@@ -13,7 +13,6 @@ import {Backend} from 'landing.backend';
 
 import './css/style.css';
 
-
 type Agreement = {
 	id: string,
 	checked: boolean,
@@ -68,11 +67,9 @@ export class AgreementsList extends BaseField
 			})
 			.then((agreements) => {
 				void this.hideAgreementLoader();
-				setTimeout(() => {
-					agreements.forEach((agreement) => {
-						this.addItem(agreement);
-					});
-				}, 200);
+				agreements.forEach((agreement) => {
+					this.addItem(agreement);
+				});
 			});
 
 		this.draggable = new Draggable({
@@ -367,13 +364,16 @@ export class AgreementsList extends BaseField
 	showAgreementLoader(): Promise
 	{
 		const loader = this.getAgreementLoader();
-		Dom.append(loader.layout, this.getListContainer());
-		return this.getAgreementLoader().show(this.getListContainer());
+		const container = this.getListContainer();
+		Dom.append(loader.layout, container);
+		return loader.show(container);
 	}
 
 	hideAgreementLoader(): Promise
 	{
-		return this.getAgreementLoader().hide();
+		const loader = this.getAgreementLoader();
+		Dom.remove(loader.layout);
+		return loader.hide();
 	}
 
 	onAgreementsMenuItemClick(itemOptions)
@@ -385,10 +385,8 @@ export class AgreementsList extends BaseField
 			.prepareOptions(this.options.formOptions, {agreements: [{id: itemOptions.id}]})
 			.then((result) => {
 				void this.hideAgreementLoader();
-				setTimeout(() => {
-					this.addItem(result.data.agreements[0]);
-					this.emit('onChange', {skipPrepare: true});
-				}, 200);
+				this.addItem(result.data.agreements[0]);
+				this.emit('onChange', {skipPrepare: true});
 			});
 
 		this.refreshAgreementsMenu();

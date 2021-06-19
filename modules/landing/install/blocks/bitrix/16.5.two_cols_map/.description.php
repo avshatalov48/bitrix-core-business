@@ -88,7 +88,7 @@ return [
 			],
 			'.landing-block-node-address-title' => [
 				'name' => Loc::getMessage("LANDING_BLOCK_16_5_TWO_COLS_MAP--TITLE"),
-				'type' => 'typo',
+				'type' => ['typo', 'heading'],
 			],
 			'.landing-block-node-address-text' => [
 				'name' => Loc::getMessage("LANDING_BLOCK_16_5_TWO_COLS_MAP--TEXT"),

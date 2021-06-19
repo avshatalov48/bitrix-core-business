@@ -236,6 +236,14 @@
 			}
 		},
 
+		clearValue: function()
+		{
+			this.removeSquares();
+
+			var hiddenNode = this.getHiddenNode();
+			hiddenNode.value = this.isMultiple() ? '[]': '';
+		},
+
 		setPopupContainer: function(container)
 		{
 			if (BX.type.isDomNode(container))

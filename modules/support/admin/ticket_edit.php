@@ -60,7 +60,7 @@ function CheckFields()
 	if ($max_size>0 && is_array($arFILES) && count($arFILES)>0)
 	{
 		$i = -1;
-		while (list($key, $arFILE) = each($arFILES))
+		foreach ($arFILES as $key => $arFILE)
 		{
 			$i++;
 			if (intval($arFILE["size"])>$max_size)
@@ -164,8 +164,7 @@ function _Support_GetDictionaryInfoEx($arDictionary = Array())
 				"D" => "DIFFICULTY"
 		);
 
-		$v1 = $v2 = $v3 = null;
-		$rs = CTicketDictionary::GetList($v1, $v2, array("ID"=> $arID), $v3);
+		$rs = CTicketDictionary::GetList('', '', array("ID"=> $arID));
 		while ($ar = $rs->Fetch())
 		{
 			$dic = $ar["C_TYPE"];
@@ -275,7 +274,7 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && check_bitrix_ses
 	$arFILES = array();
 	if (is_array($_FILES) && count($_FILES)>0)
 	{
-		while (list($key, $arFILE) = each($_FILES))
+		foreach ($_FILES as $key => $arFILE)
 		{
 			if ($arFILE["name"] <> '')
 			{
@@ -410,7 +409,7 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && check_bitrix_ses
 
 $arrSiteRef = array();
 $arrSiteID = array();
-$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch())
 {
 	$arrSiteRef[] = "[".$ar["ID"]."] ".$ar["NAME"];
@@ -437,7 +436,7 @@ else
 	if ($str_DATE_CLOSE <> '') $str_CLOSE = "Y";
 	CTicket::UpdateOnline($ID);
 
-	$rsFiles = CTicket::GetFileList($v1="s_id", $v2="asc", array("TICKET_ID" => $ID));
+	$rsFiles = CTicket::GetFileList("s_id", "asc", array("TICKET_ID" => $ID));
 	{
 		while ($arFile = $rsFiles->Fetch())
 		{
@@ -767,7 +766,7 @@ if (isset($_GET['TICKET_ID']) && isset($_GET['MESSAGE_ID']))
 		$str_TITLE = '';
 		$str_DATE_CLOSE = null;
 		$arFiles = array();
-		if ($rsFiles = CTicket::GetFileList($v1="s_id", $v2="asc", array("MESSAGE_ID" => $_SESSION['MESSAGE_ID'])))
+		if ($rsFiles = CTicket::GetFileList("s_id", "asc", array("MESSAGE_ID" => $_SESSION['MESSAGE_ID'])))
 		{
 			while ($arFile = $rsFiles->Fetch())
 			{
@@ -1408,7 +1407,7 @@ if (isset($_GET['TICKET_ID']) && isset($_GET['MESSAGE_ID']))
 	if ($ID>0) :
 
 	if ($bDemo=="Y") $CHECK_RIGHTS = "N"; else $CHECK_RIGHTS = "Y";
-	$mess = CTicket::GetMessageList($a, $b, array("TICKET_ID" => $ID, "TICKET_ID_EXACT_MATCH" => "Y"), $c, $CHECK_RIGHTS, $get_user_name);
+	$mess = CTicket::GetMessageList('', '', array("TICKET_ID" => $ID, "TICKET_ID_EXACT_MATCH" => "Y"), null, $CHECK_RIGHTS, $get_user_name);
 	$mess->NavStart(COption::GetOptionString("support", "MESSAGES_PER_PAGE", 50));
 	//$mess->NavStart(5);
 	$messages = $mess->SelectedRowsCount();

@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/user_group.php");
 
 class CSocNetUserToGroup extends CAllSocNetUserToGroup
@@ -6,7 +7,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB, $CACHE_MANAGER;
 
@@ -81,7 +82,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 		return $ID;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB, $APPLICATION, $CACHE_MANAGER;
 
@@ -330,4 +331,3 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 		return $dbRes;
 	}
 }
-?>

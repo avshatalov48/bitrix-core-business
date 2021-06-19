@@ -10,7 +10,7 @@ if($md->SHOW_SUPER_ADMIN_GROUP_RIGHTS != "Y")
 	$arFilter["ADMIN"] = "N";
 
 $arGROUPS = array();
-$z = CGroup::GetList($v1="sort", $v2="asc", $arFilter);
+$z = CGroup::GetList("sort", "asc", $arFilter);
 while($zr = $z->Fetch())
 {
 	$ar = array();
@@ -142,7 +142,7 @@ $arSites = array(
 		"reference" => array()
 	);
 
-$rsSites = CSite::GetList($by="sort", $order="asc", Array("ACTIVE" => "Y"));
+$rsSites = CSite::GetList("sort", "asc", Array("ACTIVE" => "Y"));
 while ($arSite = $rsSites->GetNext())
 {
 	$arSites["reference_id"][] = $arSite["ID"];

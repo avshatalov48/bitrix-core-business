@@ -145,7 +145,7 @@ class Cloud
 
 		if ($template)
 		{
-			$template['MANIFEST'] = unserialize($template['MANIFEST']);
+			$template['MANIFEST'] = unserialize($template['MANIFEST'], ['allowed_classes' => false]);
 			$result->setResult($template);
 		}
 

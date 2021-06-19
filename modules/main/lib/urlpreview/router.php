@@ -103,11 +103,47 @@ class Router
 						}
 					}
 				}
+				unset($parameterValue);
+
+				$uriQuery = $uri->getQuery();
+				if (mb_strlen($uriQuery) > 0)
+				{
+					$uriQueryParams = static::parseQueryParams($uriQuery);
+					foreach ($result['PARAMETERS'] as $parameterName => &$parameterValue)
+					{
+						if (mb_strpos($parameterValue, '$') === 0)
+						{
+							$variableName = mb_substr($parameterValue, 1);
+							if (isset($uriQueryParams[$variableName]))
+							{
+								$parameterValue = $uriQueryParams[$variableName];
+							}
+						}
+					}
+					unset($parameterValue);
+				}
+
 				return $result;
 			}
 		}
 
 		return false;
+	}
+
+	protected static function parseQueryParams($uriQuery): array
+	{
+		$data = preg_replace_callback(
+			'/(?:^|(?<=&))[^=[]+/',
+			function($match)
+			{
+				return bin2hex(urldecode($match[0]));
+			},
+			$uriQuery
+		);
+
+		parse_str($data, $values);
+
+		return array_combine(array_map('hex2bin', array_keys($values)), $values);
 	}
 
 	/**

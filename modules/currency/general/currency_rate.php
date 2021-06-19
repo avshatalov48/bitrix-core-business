@@ -251,7 +251,7 @@ class CAllCurrencyRates
 		return false;
 	}
 
-	public static function GetList(&$by, &$order, $arFilter=array())
+	public static function GetList($by = 'date', $order = 'asc', $arFilter = [])
 	{
 		global $DB;
 
@@ -272,13 +272,13 @@ class CAllCurrencyRates
 			$key = $filter_keys[$i];
 			if ($key[0]=="!")
 			{
-				$key = mb_substr($key, 1);
+				$key = substr($key, 1);
 				$bInvert = true;
 			}
 			else
 				$bInvert = false;
 
-			switch(mb_strtoupper($key))
+			switch(strtoupper($key))
 			{
 				case "CURRENCY":
 					$arSqlSearch[] = "C.CURRENCY = '".$val."'";
@@ -303,18 +303,15 @@ class CAllCurrencyRates
 		$strSql = "SELECT C.ID, C.CURRENCY, C.RATE_CNT, C.RATE, ".$DB->DateToCharFunction("C.DATE_RATE", "SHORT")." as DATE_RATE FROM b_catalog_currency_rate C ".
 			$strSqlSearch;
 
-		if (mb_strtolower($by) == "curr") $strSqlOrder = " ORDER BY C.CURRENCY ";
-		elseif (mb_strtolower($by) == "rate") $strSqlOrder = " ORDER BY C.RATE ";
+		if (strtolower($by) == "curr") $strSqlOrder = " ORDER BY C.CURRENCY ";
+		elseif (strtolower($by) == "rate") $strSqlOrder = " ORDER BY C.RATE ";
 		else
 		{
 			$strSqlOrder = " ORDER BY C.DATE_RATE ";
-			$by = "date";
 		}
 
-		if (mb_strtolower($order) == "desc")
+		if (strtolower($order) == "desc")
 			$strSqlOrder .= " desc ";
-		else
-			$order = "asc";
 
 		$strSql .= $strSqlOrder;
 		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);

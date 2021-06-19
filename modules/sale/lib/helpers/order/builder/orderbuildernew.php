@@ -11,9 +11,6 @@ final class OrderBuilderNew implements IOrderBuilderDelegate
 {
 	protected $builder = null;
 
-	/** @var array */
-	protected $deliveryCalculationErrors = [];
-
 	public function __construct(OrderBuilder $builder)
 	{
 		$this->builder = $builder;
@@ -108,18 +105,22 @@ final class OrderBuilderNew implements IOrderBuilderDelegate
 			'USER_ID',
 			$this->builder->getUserId()
 		);
-		$personTypeId = (int)$this->builder->getOrder()->getPersonTypeId();
-		$currentUserId = $this->builder->getOrder()->getUserId();
+
+		$currentUserId = (int)$this->builder->getOrder()->getUserId();
 		$oldFormDataUserId = (int)$this->builder->getFormData('OLD_USER_ID');
-		$reloadProfile = ((int)$currentUserId !== $oldFormDataUserId);
-		if (!$reloadProfile && (int)$this->builder->getFormData('OLD_PERSON_TYPE_ID') !== $personTypeId)
+
+		$currentPersonTypeId = (int)$this->builder->getOrder()->getPersonTypeId();
+		$oldPersonTypeId = (int)$this->builder->getFormData('OLD_PERSON_TYPE_ID');
+
+		$reloadProfile = $oldFormDataUserId > 0 && $currentUserId !== $oldFormDataUserId;
+		if (!$reloadProfile && $oldPersonTypeId > 0 && $oldPersonTypeId !== $currentPersonTypeId)
 		{
 			$reloadProfile = true;
 		}
 
 		if ($reloadProfile)
 		{
-			$resultLoading = \Bitrix\Sale\OrderUserProperties::loadProfiles($currentUserId, $personTypeId);
+			$resultLoading = \Bitrix\Sale\OrderUserProperties::loadProfiles($currentUserId, $currentPersonTypeId);
 			if (!$resultLoading->isSuccess())
 			{
 				return;
@@ -129,7 +130,7 @@ final class OrderBuilderNew implements IOrderBuilderDelegate
 			{
 				return;
 			}
-			$currentProfile = current($profiles[$personTypeId]);
+			$currentProfile = current($profiles[$currentPersonTypeId]);
 			if (empty($currentProfile))
 			{
 				return;
@@ -144,27 +145,11 @@ final class OrderBuilderNew implements IOrderBuilderDelegate
 
 	public function setShipmentPriceFields(Shipment $shipment, array $fields)
 	{
-		if($fields['CUSTOM_PRICE_DELIVERY'] == 'Y')
+		if($fields['CUSTOM_PRICE_DELIVERY'] !== 'Y')
 		{
-			$priceDelivery = $fields['PRICE_DELIVERY'];
+			$fields['PRICE_DELIVERY'] = $shipment->calculateDelivery()->getPrice();
+			$fields['BASE_PRICE_DELIVERY'] = $fields['PRICE_DELIVERY'];
 		}
-		else
-		{
-			$calcPrice = $shipment->calculateDelivery();
-
-			if(!$calcPrice->isSuccess())
-			{
-				/**
-				 * Deferred errors (see recalculateDeliveryPrice)
-				 */
-				$this->deliveryCalculationErrors = $calcPrice->getErrors();
-			}
-
-			$priceDelivery = $calcPrice->getPrice();
-		}
-
-		$fields['BASE_PRICE_DELIVERY'] = $priceDelivery;
-		$fields['PRICE_DELIVERY'] = $priceDelivery;
 
 		$res = $shipment->setFields($fields);
 
@@ -174,51 +159,5 @@ final class OrderBuilderNew implements IOrderBuilderDelegate
 		}
 
 		return $shipment;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function recalculateDeliveryPrice(int $orderPropsCountBefore, Sale\Order $order)
-	{
-		$orderPropsCountAfter = count($order->getPropertyCollection());
-
-		$isRecalculated = false;
-		if ($orderPropsCountAfter > $orderPropsCountBefore)
-		{
-			$isRecalculated = true;
-
-			$this->builder->setProperties();
-			$shipments = $order->getShipmentCollection();
-
-			/** @var Shipment $shipment */
-			foreach ($shipments as $shipment)
-			{
-				if ($shipment->isSystem())
-				{
-					continue;
-				}
-
-				if ($shipment->getField('CUSTOM_PRICE_DELIVERY') != 'Y')
-				{
-					$calcPrice = $shipment->calculateDelivery();
-
-					if(!$calcPrice->isSuccess())
-					{
-						$this->builder->getErrorsContainer()->addErrors($calcPrice->getErrors());
-					}
-					$priceDelivery = $calcPrice->getPrice();
-
-					$shipment->setField('BASE_PRICE_DELIVERY', $priceDelivery);
-					$shipment->setField('PRICE_DELIVERY', $priceDelivery);
-				}
-			}
-		}
-
-		if (!$isRecalculated && !empty($this->deliveryCalculationErrors))
-		{
-			$this->builder->getErrorsContainer()->addErrors($this->deliveryCalculationErrors);
-			$this->deliveryCalculationErrors = [];
-		}
 	}
 }

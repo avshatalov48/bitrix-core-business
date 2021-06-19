@@ -232,14 +232,14 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 			while(is_array($ar = $rs->Fetch()))
 			{
 				if($ar["FILE_RULES"] != "")
-					$arRules = unserialize($ar["FILE_RULES"]);
+					$arRules = unserialize($ar["FILE_RULES"], ['allowed_classes' => false]);
 				else
 					$arRules = array();
 
 				$ar["FILE_RULES_COMPILED"] = self::CompileRules($arRules);
 
 				if($ar["SETTINGS"] != "")
-					$arSettings = unserialize($ar["SETTINGS"]);
+					$arSettings = unserialize($ar["SETTINGS"], ['allowed_classes' => false]);
 				else
 					$arSettings = array();
 

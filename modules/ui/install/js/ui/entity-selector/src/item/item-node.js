@@ -1276,19 +1276,19 @@ export default class ItemNode
 			else if (field.getName() === 'title')
 			{
 				this.getTitleContainer().innerHTML =
-					Highlighter.mark(this.getItem().getTitle(), matchField.getMatches())
+					Highlighter.mark(this.getItem().getTitleNode(), matchField.getMatches())
 				;
 			}
 			else if (field.getName() === 'subtitle')
 			{
 				this.getSubtitleContainer().innerHTML =
-					Highlighter.mark(this.getItem().getSubtitle(), matchField.getMatches())
+					Highlighter.mark(this.getItem().getSubtitleNode(), matchField.getMatches())
 				;
 			}
 			else if (field.getName() === 'supertitle')
 			{
 				this.getSupertitleContainer().innerHTML =
-					Highlighter.mark(this.getItem().getSupertitle(), matchField.getMatches())
+					Highlighter.mark(this.getItem().getSupertitleNode(), matchField.getMatches())
 				;
 			}
 		});
@@ -1362,7 +1362,11 @@ export default class ItemNode
 		{
 			if (this.getItem().isSelected())
 			{
-				this.getItem().deselect();
+				if (this.getItem().isDeselectable())
+				{
+					this.getItem().deselect();
+				}
+
 				if (this.getDialog().shouldHideOnDeselect())
 				{
 					this.getDialog().hide();

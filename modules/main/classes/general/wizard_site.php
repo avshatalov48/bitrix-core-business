@@ -77,12 +77,6 @@ class CWizard
 		$this->__GetInstallationScript();
 	}
 
-	/** @deprecated */
-	public function CWizard($wizardName)
-	{
-		self::__construct($wizardName);
-	}
-
 	function Install()
 	{
 		if ($this->__bInited)
@@ -875,7 +869,12 @@ class CWizard
 			closedir($handle);
 		}
 
-		uasort($this->arTemplates, create_function('$a, $b', 'return strcmp($a["SORT"], $b["SORT"]);'));
+		uasort(
+			$this->arTemplates,
+			function ($a, $b) {
+				return strcmp($a["SORT"], $b["SORT"]);
+			}
+		);
 
 		if (array_key_exists("GROUPS", $arWizardTemplates) && is_array($arWizardTemplates["GROUPS"]))
 			$this->arTemplateGroups = $arWizardTemplates["GROUPS"];
@@ -924,7 +923,6 @@ class CWizard
 			return;
 
 		//If the main module was not included
-		global $DB, $DBType, $APPLICATION, $USER;
 		require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include.php");
 
 		//Copy files
@@ -943,7 +941,6 @@ class CWizard
 		);
 
 		//If the main module was not included
-		global $DB, $DBType, $APPLICATION, $USER;
 		require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include.php");
 
 		if ($canCopyTemplate)
@@ -957,7 +954,7 @@ class CWizard
 		}
 
 		//Attach template to default site
-		$obSite = CSite::GetList($by = "def", $order = "desc", Array("ACTIVE" => "Y"));
+		$obSite = CSite::GetList("def", "desc", Array("ACTIVE" => "Y"));
 		if ($arSite = $obSite->Fetch())
 		{
 			$arTemplates = Array();
@@ -995,7 +992,6 @@ class CWizard
 			return;
 
 		//If the main module was not included
-		global $DB, $DBType, $APPLICATION, $USER;
 		require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include.php");
 
 		//Copy files
@@ -1017,12 +1013,9 @@ class CWizard
 		);
 
 		//If the main module was not included
-		global $DB, $DBType, $APPLICATION, $USER;
 		require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include.php");
 
 		$arStructure = $this->__GetNewStructure($this->structureID, $arStructure);
-
-		//echo "<pre>".print_r($arStructure,true)."</pre>";exit;
 
 		function __CreateMenuItem($arPage)
 		{

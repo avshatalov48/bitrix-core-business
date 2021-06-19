@@ -12,7 +12,7 @@ class User extends \CBPRuntimeService
 	{
 		$departments = [];
 		$result = \CUser::getList(
-			($by='id'), ($order='asc'),
+			'id', 'asc',
 			['ID_EQUAL_EXACT' => $userId],
 			['FIELDS' => ['ID'], 'SELECT' => ['UF_DEPARTMENT']]
 		);
@@ -34,10 +34,8 @@ class User extends \CBPRuntimeService
 
 	public function getUserInfo(int $userId): ?array
 	{
-		$sortBy = 'id';
-		$sortOrder = 'asc';
 		$dbUsers = \CUser::GetList(
-			$sortBy, $sortOrder,
+			'id', 'asc',
 			['ID_EQUAL_EXACT' => $userId],
 			[
 				'FIELDS' => ['ID', 'EMAIL'],

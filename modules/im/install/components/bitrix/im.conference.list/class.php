@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Im\Call\Call;
 use Bitrix\Im\Call\Conference;
 use Bitrix\Im\User;
 use Bitrix\Main\Engine\CurrentUser;
@@ -35,6 +36,7 @@ class ImComponentConferenceList extends CBitrixComponent
 		$this->arResult['FILTERS'] = $this->getFilter();
 		$this->arResult['FILTER_PRESETS'] = $this->getFilterPresets();
 		$this->arResult['SLIDER_WIDTH'] = 800;
+		$this->arResult['USER_LIMIT'] = Call::getMaxCallServerParticipants();
 
 		$this->arResult['ROWS'] = [];
 

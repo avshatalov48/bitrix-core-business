@@ -2,12 +2,13 @@
 global $APPLICATION, $DBType;
 IncludeModuleLangFile(__FILE__);
 
+
 if (file_exists(__DIR__."/deprecated.php"))
 {
 	include("deprecated.php");
 }
 
-$arNameStatuses = @unserialize(COption::GetOptionString("forum", "statuses_name"));
+$arNameStatuses = @unserialize(COption::GetOptionString("forum", "statuses_name"), ["allowed_classes" => false]);
 $arNameStatuses = is_array($arNameStatuses) ? $arNameStatuses : array();
 $arNameStatuses[LANGUAGE_ID] = is_array($arNameStatuses[LANGUAGE_ID]) ? $arNameStatuses[LANGUAGE_ID] : array();
 $name = array("guest" => "Guest", "user" => "User", "moderator" => "Moderator", "editor" => "Editor", "administrator" => "Administrator");

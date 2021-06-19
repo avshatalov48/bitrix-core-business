@@ -10,7 +10,7 @@ class CXMLCreator {
 	var $attributs = array();
 	var $children = array();
 
-	function CXMLCreator($tag, $cdata = false)
+	public function __construct($tag, $cdata = false)
 	{
 		$cdata ? $this->setCDATA() : null;
 		$this->tag = $tag;
@@ -18,18 +18,18 @@ class CXMLCreator {
 
 	// format of $heavyTag = '[Index:]TagName [asd:qwe="asd"] [zxc:dfg="111"]'
 	// returns created CXMLCreator node with setted TagName and Attributes
-	function createTagAttributed($heavyTag, $value = null)
+	public static function createTagAttributed($heavyTag, $value = null)
 	{
 		$heavyTag = trim($heavyTag);
 		$name = $heavyTag;
 
 		$attrs = 0;
-		$attrsPos = strpos($heavyTag, " ");
+		$attrsPos = mb_strpos($heavyTag, " ");
 
 		if ($attrsPos)
 		{
-			$name = substr($heavyTag, 0, $attrsPos);
-			$attrs = strstr(trim($heavyTag), " ");
+			$name = mb_substr($heavyTag, 0, $attrsPos);
+			$attrs = mb_strstr(trim($heavyTag), " ");
 		}
 
 		if (!trim($name)) return false;
@@ -41,15 +41,15 @@ class CXMLCreator {
 
 		$node = new CXMLCreator( $name );
 
-		if ($attrs and strlen($attrs))
+		if ($attrs and mb_strlen($attrs))
 		{
 			$attrsSplit = explode("\"", $attrs);
 			$i = 0;
-			while ($validi = strpos(trim($attrsSplit[$i]), "="))
+			while ($validi = mb_strpos(trim($attrsSplit[$i]), "="))
 			{
 				$attrsSplit[$i] = trim($attrsSplit[$i]);
 				// attr:ns=
-				$attrName = CDataXML::xmlspecialcharsback(substr($attrsSplit[$i], 0, $validi));
+				$attrName = CDataXML::xmlspecialcharsback(mb_substr($attrsSplit[$i], 0, $validi));
 				// attrs:ns
 				$attrValue = CDataXML::xmlspecialcharsback($attrsSplit[$i+1]);
 
@@ -64,8 +64,7 @@ class CXMLCreator {
 		return $node;
 	}
 
-	/* static */
-	function encodeValueLight( $name, $value)
+	public static function encodeValueLight( $name, $value)
 	{
 		global $xsd_simple_type;
 
@@ -85,7 +84,7 @@ class CXMLCreator {
 			return false;
 		}
 
-		if (is_object($value) && strtolower(get_class($value)) == "cxmlcreator")
+		if (is_object($value) && mb_strtolower(get_class($value)) == "cxmlcreator")
 		{
 			$node->addChild($value);
 		}
@@ -204,7 +203,7 @@ class CXMLCreator {
 		return $xml;
 	}
 
-	function getXMLHeader()
+	public static function getXMLHeader()
 	{
 		return "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 	}
@@ -214,14 +213,12 @@ class CXMLCreator {
 		unset($this->tag);
 	}
 
-	/* static */
-	function CreateFromDOM($dom)
+	public static function CreateFromDOM($dom)
 	{
 		return CXMLCreator::__createFromDOM($dom->root[0]);
 	}
 
-	/* static */
-	function __createFromDOM($domNode)
+	public static function __createFromDOM($domNode)
 	{
 		$result = new CXMLCreator($domNode->name);
 
@@ -260,5 +257,3 @@ class CXMLCreator {
 		return str_replace($search, $replace, $str);
 	}
 }
-
-?>

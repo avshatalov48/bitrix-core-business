@@ -31,7 +31,7 @@ $arFilterFields = array(
 	"filter_site_id",
 );
 $arSite = array();
-$dbSite = CSite::GetList($by1="sort", $order1="desc", Array("ACTIVE" => "Y"));
+$dbSite = CSite::GetList("sort", "desc", Array("ACTIVE" => "Y"));
 while($arSites = $dbSite->GetNext())
 {
 	$arSite[$arSites["LID"]] = $arSites["NAME"];
@@ -275,7 +275,7 @@ $arHeaders = array(
 
 $arCurrency = Array();
 
-$dbCur = CCurrency::GetList(($b1="name"), ($order1="asc"), LANGUAGE_ID);
+$dbCur = CCurrency::GetList("name", "asc", LANGUAGE_ID);
 while($arCur = $dbCur->Fetch())
 {
 	$arCurrency[$arCur["CURRENCY"]] = htmlspecialcharsEx($arCur["FULL_NAME"]);

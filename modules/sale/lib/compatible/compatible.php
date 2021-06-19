@@ -51,7 +51,7 @@ class AliasedQuery extends Query
 
 	public function addAlias($alias, $field = null)
 	{
-		if ($this->aliases[$alias])
+		if (($this->aliases[$alias] ?? false))
 		{
 			throw new SystemException("`$alias` already added", 0, __FILE__, __LINE__);
 		}

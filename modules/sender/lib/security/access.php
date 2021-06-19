@@ -206,6 +206,30 @@ class Access
 	}
 
 	/**
+	 * Return can user start stop or pause
+	 *
+	 * @param string $letterClass
+	 *
+	 * @return bool
+	 */
+	public function canStopStartPause(string $letterClass)
+	{
+		$letterType = explode("\\", $letterClass);
+
+		switch ($letterType[count($letterType) - 1])
+		{
+			case 'Rc':
+				return AccessController::can($this->user->getId(), ActionDictionary::ACTION_RC_PAUSE_START_STOP);
+				break;
+			case 'Ad':
+				return AccessController::can($this->user->getId(), ActionDictionary::ACTION_ADS_PAUSE_START_STOP);
+				break;
+			default:
+				return AccessController::can($this->user->getId(), ActionDictionary::ACTION_MAILING_PAUSE_START_STOP);
+		}
+	}
+
+	/**
 	 * Return true if can view letters.
 	 *
 	 * @return bool

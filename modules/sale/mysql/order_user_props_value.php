@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/order_user_props_value.php");
 
 class CSaleOrderUserPropsValue extends CAllSaleOrderUserPropsValue
@@ -172,7 +173,7 @@ class CSaleOrderUserPropsValue extends CAllSaleOrderUserPropsValue
 		return $dbRes;
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -191,4 +192,3 @@ class CSaleOrderUserPropsValue extends CAllSaleOrderUserPropsValue
 		return $ID;
 	}
 }
-?>

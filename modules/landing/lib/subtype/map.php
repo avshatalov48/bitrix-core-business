@@ -18,13 +18,21 @@ class Map
 	{
 		if (
 			isset($params['required']) &&
-			$params['required'] == 'google'
+			$params['required'] === 'google'
 		)
 		{
 			$hooks = \Bitrix\Landing\Hook::getForSite(
 				$block->getSiteId()
 			);
-			if ($hooks['GMAP']->getFields()['USE']->getValue() !== 'Y')
+			$fields = $hooks['GMAP']->getFields();
+			if (
+				$fields
+				&& isset($fields['USE'], $fields['CODE'])
+				&& (
+					$fields['USE']->getValue() !== 'Y'
+					|| empty($fields['CODE']->getValue())
+				)
+			)
 			{
 				$manifest['requiredUserAction'] = array(
 					'header' => Loc::getMessage('LANDING_BLOCK_EMPTY_GMAP_TITLE'),

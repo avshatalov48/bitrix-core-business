@@ -155,7 +155,7 @@ class User extends BaseObject
 			"COOKIE_ID" => $cookieId,
 			"AUTH_USER_ID"	=> intval($this->getId())
 		];
-		$id = implode($filter, "_");
+		$id = implode("_", $filter);
 
 		if ($cookieId > 0 && !array_key_exists($id, self::$usersIds) && ($res = UserTable::getList([
 				"select" => ["ID"],
@@ -227,10 +227,13 @@ class User extends BaseObject
 		}
 		$id = $dbRes->getId();
 		$fields = $dbRes->getData();
-		self::$usersIds[implode([
-			"COOKIE_ID" => $fields["COOKIE_ID"],
-			"AUTH_USER_ID"	=> $fields["AUTH_USER_ID"]
-		], "_")] = $id;
+		self::$usersIds[implode(
+			"_",
+			[
+				"COOKIE_ID" => $fields["COOKIE_ID"],
+				"AUTH_USER_ID"	=> $fields["AUTH_USER_ID"]
+			]
+		)] = $id;
 		self::setCookieId($fields["COOKIE_ID"]);
 		return $id;
 	}

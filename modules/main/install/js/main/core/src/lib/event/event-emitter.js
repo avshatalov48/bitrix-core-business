@@ -45,16 +45,6 @@ export default class EventEmitter
 		}
 
 		this[targetProperty] = target;
-
-		setTimeout(() => {
-			if (this.getEventNamespace() === null)
-			{
-				console.warn(
-					'The instance of BX.Event.EventEmitter is supposed to have an event namespace. ' +
-					'Use emitter.setEventNamespace() to make events more unique.'
-				);
-			}
-		}, 500);
 	}
 
 	/**
@@ -570,6 +560,14 @@ export default class EventEmitter
 	 */
 	emit(eventName: string, event?: BaseEvent | {[key: string]: any}): this
 	{
+		if (this.getEventNamespace() === null)
+		{
+			console.warn(
+				'The instance of BX.Event.EventEmitter is supposed to have an event namespace. ' +
+				'Use emitter.setEventNamespace() to make events more unique.'
+			);
+		}
+
 		EventEmitter.emit(this, eventName, event);
 
 		return this;
@@ -608,6 +606,14 @@ export default class EventEmitter
 	 */
 	emitAsync(eventName: string, event?: BaseEvent | {[key: string]: any}): Promise<Array>
 	{
+		if (this.getEventNamespace() === null)
+		{
+			console.warn(
+				'The instance of BX.Event.EventEmitter is supposed to have an event namespace. ' +
+				'Use emitter.setEventNamespace() to make events more unique.'
+			);
+		}
+
 		return EventEmitter.emitAsync(this, eventName, event);
 	}
 

@@ -89,7 +89,7 @@ if ($result !== true || !$USER->IsAuthorized())
 
 			if (!empty($_POST['LOGIN']))
 			{
-				$dbRes = CUser::GetList($by, $order, array("LOGIN_EQUAL_EXACT" => $_POST['LOGIN']), array('FIELDS' => array('ID')));
+				$dbRes = CUser::GetList('', '', array("LOGIN_EQUAL_EXACT" => $_POST['LOGIN']), array('FIELDS' => array('ID')));
 				$arUser = $dbRes->fetch();
 				if ($arUser)
 				{

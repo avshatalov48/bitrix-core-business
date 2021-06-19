@@ -140,7 +140,7 @@ class CBitrixCloudCDNLocation
 	 */
 	public static function fromOptionValue($name, $value, CBitrixCloudCDNConfig $config)
 	{
-		$values = unserialize($value);
+		$values = unserialize($value, ['allowed_classes' => false]);
 		$proto = "";
 		$prefixes = /*.(array[int]string).*/ array();
 		$services = /*.(array[string]string).*/ array();
@@ -299,27 +299,27 @@ class CBitrixCloudCDNLocations implements Iterator
 		$option->setArrayValue($locations);
 		return $this;
 	}
-	
+
 	function rewind()
 	{
 		reset($this->locations);
 	}
-	
+
 	function current()
 	{
 		return current($this->locations);
 	}
-	
+
 	function key()
 	{
 		return key($this->locations);
 	}
-	
+
 	function next()
 	{
 		next($this->locations);
 	}
-	
+
 	function valid()
 	{
 		return key($this->locations) !== null;

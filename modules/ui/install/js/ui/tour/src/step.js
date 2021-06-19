@@ -1,4 +1,4 @@
-import {Type, Reflection, Event} from 'main.core';
+import {Type, Reflection, Event, Dom} from 'main.core';
 
 export class Step extends Event.EventEmitter
 {
@@ -23,6 +23,9 @@ export class Step extends Event.EventEmitter
 		this.title = options.title || null;
 		this.article = options.article || null;
 		this.position = options.position || null;
+		this.cursorMode = options.cursorMode || false;
+		this.targetEvent = options.targetEvent || null;
+		this.buttons = options.buttons || [];
 
 		const events = Type.isPlainObject(options.events) ? options.events : {};
 
@@ -53,9 +56,22 @@ export class Step extends Event.EventEmitter
 		return this.target;
 	}
 
+	getTargetPos()
+	{
+		if (Type.isDomNode(this.target))
+		{
+			return Dom.getPosition(this.target);
+		}
+	}
+
 	getId()
 	{
 		return this.id;
+	}
+
+	getButtons()
+	{
+		return this.buttons;
 	}
 
 	getAreaPadding()
@@ -93,6 +109,16 @@ export class Step extends Event.EventEmitter
 		return this.article;
 	}
 
+	getCursorMode()
+	{
+		return this.cursorMode;
+	}
+
+	getTargetEvent()
+	{
+		return this.targetEvent;
+	}
+
 	static getFullEventName(shortName)
 	{
 		return "Step:" + shortName;
@@ -101,5 +127,16 @@ export class Step extends Event.EventEmitter
 	setTarget(target)
 	{
 		this.target = target;
+	}
+
+	initTargetEvent()
+	{
+		if(Type.isFunction(this.targetEvent))
+		{
+			this.targetEvent();
+			return;
+		}
+
+		this.getTarget().dispatchEvent(new MouseEvent(this.targetEvent))
 	}
 }

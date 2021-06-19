@@ -660,25 +660,44 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 		doRegisterLayout: function()
 		{
 		},
+		needRefreshViewModeLayout: function(options)
+		{
+			if (this._mode === BX.UI.EntityEditorMode.edit)
+			{
+				return false;
+			}
+			if(!this._hasLayout)
+			{
+				return false;
+			}
+			return true;
+		},
+		refreshViewModeLayout: function(options)
+		{
+			if (this.needRefreshViewModeLayout(options))
+			{
+				this.refreshLayout(options);
+			}
+		},
 		refreshLayout: function(options)
 		{
 			if(!this._hasLayout)
 			{
 				return;
 			}
-
-			this.clearLayout({ preservePosition: true });
-
 			if(!BX.type.isPlainObject(options))
 			{
 				options = {};
 			}
+			options["preservePosition"] = true;
+
+			this.clearLayout(options);
+
 			if(BX.prop.getBoolean(options, "reset", false))
 			{
 				this.reset();
 			}
 
-			options["preservePosition"] = true;
 			this.layout(options);
 		},
 		clearLayout: function(options)
@@ -1124,6 +1143,51 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 		{
 			this._layoutAttributes = { animate: "show" };
 		}
+	};
+	BX.UI.EntityEditorField.prototype.needRefreshViewModeLayout = function(options)
+	{
+		if (!BX.UI.EntityEditorField.superclass.needRefreshViewModeLayout.call(this, options))
+		{
+			return false;
+		}
+		var prevModel = BX.prop.get(options, 'previousModel', null);
+		if (!prevModel)
+		{
+			return true;
+		}
+
+		var affectedFields = this._schemeElement ? this._schemeElement.getAffectedFields() : [];
+		if (!affectedFields.length)
+		{
+			affectedFields.push(this.getDataKey());
+		}
+
+		return affectedFields.reduce(function(result, fieldName) {
+			return result || !this.areModelValuesEqual(prevModel, this._model, fieldName);
+		}.bind(this), false);
+	};
+	BX.UI.EntityEditorField.prototype.areModelValuesEqual = function(previousModel, currentModel, fieldName)
+	{
+		var prevModelHasField = previousModel.hasField(fieldName);
+		var curModelHasField = currentModel.hasField(fieldName);
+
+		if (!prevModelHasField && !curModelHasField)
+		{
+			return true;
+		}
+
+		if (!prevModelHasField || !curModelHasField)
+		{
+			return false;
+		}
+		var prevValue = previousModel.getField(fieldName);
+		var curValue = currentModel.getField(fieldName);
+
+		return this.areValuesEqual(prevValue, curValue);
+	};
+	BX.UI.EntityEditorField.prototype.areValuesEqual = function(value1, value2)
+	{
+		return (JSON.stringify(value1) === JSON.stringify(value2));
 	};
 	BX.UI.EntityEditorField.prototype.onModelChange = function(sender, params)
 	{
@@ -2289,6 +2353,17 @@ if(typeof BX.UI.EntityEditorColumn === "undefined")
 			callback();
 		}
 	};
+	BX.UI.EntityEditorColumn.prototype.refreshViewModeLayout = function(options)
+	{
+		if (this.needRefreshViewModeLayout(options))
+		{
+			for (var i = 0, l = this._sections.length; i < l; i++)
+			{
+				var section = this._sections[i];
+				section.refreshViewModeLayout(options);
+			}
+		}
+	};
 	BX.UI.EntityEditorColumn.prototype.onStubClick = function(e)
 	{
 		this.toggle();
@@ -3294,6 +3369,18 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			callback();
 		}
 	};
+	BX.UI.EntityEditorSection.prototype.refreshViewModeLayout = function(options)
+	{
+		if (this.needRefreshViewModeLayout(options))
+		{
+			for (var i = 0, l = this._fields.length; i < l; i++)
+			{
+				var field = this._fields[i];
+				field.refreshViewModeLayout(options);
+			}
+		}
+	};
+
 	BX.UI.EntityEditorSection.prototype.release = function()
 	{
 		var i, length;
@@ -7452,8 +7539,20 @@ if(typeof BX.UI.EntityEditorMultiList === "undefined")
 				for (var i=0; i<this._selectedValues.length ;i++)
 				{
 					var item = this.getItemByValue(this._selectedValues[i].VALUE);
-					var code = (BX.type.isNotEmptyString(item['NAME'])) ? 'NAME' : 'VALUE';
-					selectedNames.push(item[code]);
+					var selectedName;
+					if (BX.type.isNotEmptyString(item['HTML']))
+					{
+						selectedName = item['HTML'];
+					}
+					else if (BX.type.isNotEmptyString(item['NAME']))
+					{
+						selectedName = BX.util.htmlspecialchars(item['NAME']);
+					}
+					else
+					{
+						selectedName = BX.util.htmlspecialchars(item['VALUE']);
+					}
+					selectedNames.push(selectedName);
 				}
 
 				if (selectedNames.length > 0)
@@ -7461,7 +7560,7 @@ if(typeof BX.UI.EntityEditorMultiList === "undefined")
 					this._innerWrapper.appendChild(BX.create("div",
 						{
 							props: {className: "ui-entity-editor-content-block"},
-							text: selectedNames.join(', ')
+							html: selectedNames.join(', ')
 						}
 					));
 				}
@@ -8729,6 +8828,21 @@ if(typeof BX.UI.EntityEditorCustom === "undefined")
 			result |= BX.UI.EntityEditorModeSwitchType.button|BX.UI.EntityEditorModeSwitchType.content;
 		}
 		return result;
+	};
+	BX.UI.EntityEditorCustom.prototype.areModelValuesEqual = function(previousModel, currentModel)
+	{
+		var prevValue = previousModel.getSchemeField(
+			this._schemeElement,
+			'view',
+			''
+		);
+		var curValue = currentModel.getSchemeField(
+			this._schemeElement,
+			'view',
+			''
+		);
+
+		return this.areValuesEqual(prevValue, curValue);
 	};
 	BX.UI.EntityEditorCustom.prototype.layout = function(options)
 	{

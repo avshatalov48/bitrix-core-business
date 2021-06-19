@@ -79,7 +79,7 @@
 }
 
 .landing-ui-card-image-preview-container {
-	background-size: cover;
+	background-size: contain;
 	background-position: center center;
 	background-repeat: no-repeat;
 	height: 165px;

@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Fileman\UserField;
 
 use Bitrix\Main\Security\Random;
@@ -28,7 +29,7 @@ class Geo extends \Bitrix\Main\UserField\TypeBase
 		);
 	}
 
-	function getDBColumnType($arUserField)
+	public static function getDBColumnType($arUserField)
 	{
 		global $DB;
 		switch($DB->type)
@@ -373,7 +374,7 @@ foreach($value as $point)
 		return ob_get_clean();
 	}
 
-	protected function getCenter($arUserField, $pointList)
+	protected static function getCenter($arUserField, $pointList)
 	{
 		$center = array(0, 0);
 		$pointCount = 0;

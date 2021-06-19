@@ -5,6 +5,8 @@
 # http://www.bitrixsoft.com                  #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
+use \Bitrix\Main;
+use \Bitrix\Forum;
 IncludeModuleLangFile(__FILE__);
 /**********************************************************************/
 /************** FORUM *************************************************/
@@ -138,7 +140,7 @@ class CAllForumNew
 		{
 			if (is_array($arFields["SITES"]) && !empty($arFields["SITES"]))
 			{
-				$db_res = CSite::GetList($sBy = "sort", $sOrder = "asc");
+				$db_res = CSite::GetList();
 				$arSites = array();
 				while ($res = $db_res->Fetch())
 				{
@@ -463,8 +465,12 @@ class CAllForumNew
 
 	public static function GetAccessPermissions($ID, $TYPE = "ONE")
 	{
-		$res = \Bitrix\Forum\Forum::getById($ID)->getPermissions();
-		if ($TYPE == "ONE")
+		$res = [];
+		if (($forum = Forum\Forum::getById($ID)) !== null)
+		{
+			$res = $forum->getPermissions();
+		}
+		if ($TYPE === "ONE")
 		{
 			$result = [];
 			foreach ($res as $key => $val)
@@ -545,22 +551,34 @@ class CAllForumNew
 
 	public static function SetAccessPermissions($ID, $arGROUP_ID)
 	{
-		unset($GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSION"]);
-		unset($GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSIONS"]);
-		if (CACHED_b_forum_perms !== false)
-			$GLOBALS["CACHE_MANAGER"]->CleanDir("b_forum_perms");
-		\Bitrix\Forum\Forum::getById($ID)->setPermission($arGROUP_ID);
+		if (($forum = Forum\Forum::getById($ID)) !== null)
+		{
+			unset($GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSION"]);
+			unset($GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSIONS"]);
+			if (CACHED_b_forum_perms !== false)
+			{
+				$GLOBALS["CACHE_MANAGER"]->CleanDir("b_forum_perms");
+			}
+			$forum->setPermission($arGROUP_ID);
+		}
 		return true;
 	}
 
 	public static function GetUserPermission($ID, $arUserGroups)
 	{
-		if (is_array($arUserGroups))
+		$result = Forum\Permission::ACCESS_DENIED;
+		if (($forum = Forum\Forum::getById($ID)) !== null)
 		{
-			return \Bitrix\Forum\Forum::getById($ID)->getPermissionForUserGroups($arUserGroups);
+			if (is_array($arUserGroups))
+			{
+				$result = $forum->getPermissionForUserGroups($arUserGroups);
+			}
+			else if (($user = Forum\User::getById($arUserGroups)) !== null)
+			{
+				$result = $forum->getPermissionForUser($user);
+			}
 		}
-		$user = \Bitrix\Forum\User::getById($arUserGroups);
-		return \Bitrix\Forum\Forum::getById($ID)->getPermissionForUser($user);
+		return $result;
 	}
 
 	//---------------> Forum Utils
@@ -622,31 +640,56 @@ class CAllForumNew
 				$vals = array($vals);
 			if ($type == "int")
 			{
-				array_walk($vals, create_function("&\$item", "\$item=intval(\$item);"));
+				array_walk(
+					$vals,
+					function (&$item) {
+						$item = (int)$item;
+					}
+				);
 				$vals = array_unique($vals);
 				$val = implode(",", $vals);
 			}
 			elseif ($type == "double")
 			{
-				array_walk($vals, create_function("&\$item", "\$item=doubleval(\$item);"));
+				array_walk(
+					$vals,
+					function (&$item) {
+						$item = (float)$item;
+					}
+				);
 				$vals = array_unique($vals);
 				$val = implode(",", $vals);
 			}
 			elseif ($type == "datetime")
 			{
-				array_walk($vals, create_function("&\$item", "\$item=\"'\".\$GLOBALS[\"DB\"]->CharToDateFunction(\$GLOBALS[\"DB\"]->ForSql(\$item), \"FULL\").\"'\";"));
+				array_walk(
+					$vals,
+					function (&$item) {
+						$item = $GLOBALS["DB"]->CharToDateFunction($item, "FULL");
+					}
+				);
 				$vals = array_unique($vals);
 				$val = implode(",", $vals);
 			}
 			elseif ($type == "date")
 			{
-				array_walk($vals, create_function("&\$item", "\$item=\"'\".\$GLOBALS[\"DB\"]->CharToDateFunction(\$GLOBALS[\"DB\"]->ForSql(\$item), \"SHORT\").\"'\";"));
+				array_walk(
+					$vals,
+					function (&$item) {
+						$item = $GLOBALS["DB"]->CharToDateFunction($item, "SHORT");
+					}
+				);
 				$vals = array_unique($vals);
 				$val = implode(",", $vals);
 			}
 			else
 			{
-				array_walk($vals, create_function("&\$item", "\$item=\"'\".\$GLOBALS[\"DB\"]->ForSql(\$item).\"'\";"));
+				array_walk(
+					$vals,
+					function (&$item) {
+						$item = "'".$GLOBALS["DB"]->ForSql($item)."'";
+					}
+				);
 				$vals = array_unique($vals);
 				$val = implode(",", $vals);
 			}
@@ -663,11 +706,11 @@ class CAllForumNew
 		}
 		elseif ($type === "datetime")
 		{
-			$val = $GLOBALS["DB"]->CharToDateFunction($GLOBALS["DB"]->ForSql($vals), "FULL");
+			$val = $GLOBALS["DB"]->CharToDateFunction($vals, "FULL");
 		}
 		elseif ($type === "date")
 		{
-			$val = $GLOBALS["DB"]->CharToDateFunction($GLOBALS["DB"]->ForSql($vals), "SHORT");
+			$val = $GLOBALS["DB"]->CharToDateFunction($vals, "SHORT");
 		}
 		else if ($type == "string" || $type == "char")
 		{
@@ -1896,7 +1939,7 @@ class CAllForumGroup
 					unset($res[$i]);
 				}
 			}
-			$db_lang = CLanguage::GetList(($b="sort"), ($o="asc"), ["ACTIVE" => "Y"]);
+			$db_lang = CLanguage::GetList("sort", "asc", ["ACTIVE" => "Y"]);
 			while ($arLang = $db_lang->Fetch())
 			{
 				$bFound = false;
@@ -2388,10 +2431,10 @@ class CForumSmile
 class _CForumDBResult extends CDBResult
 {
 	var $sNameTemplate = '';
-	function _CForumDBResult($res, $params = array())
+	public function __construct($res, $params = array())
 	{
 		$this->sNameTemplate = (!empty($params["sNameTemplate"]) ? $params["sNameTemplate"] : '');
-		parent::CDBResult($res);
+		parent::__construct($res);
 	}
 	function Fetch()
 	{
@@ -2402,20 +2445,20 @@ class _CForumDBResult extends CDBResult
 			{
 				if (trim($res["HTML"]) <> '')
 				{
-					$arr = unserialize($res["HTML"]);
+					$arr = unserialize($res["HTML"], ["allowed_classes" => false]);
 					if (is_array($arr) && count($arr) > 0):
 						$res["LAST_POSTER_NAME"] = $arr["LAST_POSTER_NAME"];
 					endif;
 				}
 				if (trim($res["TOPIC_HTML"]) <> '')
 				{
-					$arr = unserialize($res["TOPIC_HTML"]);
+					$arr = unserialize($res["TOPIC_HTML"], ["allowed_classes" => false]);
 					if (is_array($arr) && is_set($arr, "TITLE"))
 						$res["TITLE"] = $arr["TITLE"];
 				}
 				if (trim($res["ABS_TOPIC_HTML"]) <> '')
 				{
-					$arr = unserialize($res["ABS_TOPIC_HTML"]);
+					$arr = unserialize($res["ABS_TOPIC_HTML"], ["allowed_classes" => false]);
 					if (is_array($arr))
 					{
 						if (is_set($arr, "TITLE"))

@@ -9,8 +9,10 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Internals\OrderPropsGroupTable;
 use Bitrix\Sale\Internals\OrderPropsTable;
 
+Loc::loadMessages(__FILE__);
+
 /**
- * Class EntityPropery
+ * Class EntityProperty
  * @package Bitrix\Sale
  */
 abstract class EntityProperty
@@ -197,13 +199,27 @@ abstract class EntityProperty
 				/**
 				 * JSON most likely
 				 */
-				return Main\Web\Json::decode(
-					Main\Text\Encoding::convertEncoding(
-						$value,
-						SITE_CHARSET,
-						'UTF-8'
-					)
-				);
+
+				try
+				{
+					$result = Main\Web\Json::decode(
+						Main\Text\Encoding::convertEncoding(
+							$value,
+							SITE_CHARSET,
+							'UTF-8'
+						)
+					);
+				}
+				catch (\Exception $exception)
+				{
+					trigger_error($exception->getMessage() . ' Data: "'.$value.'"', E_USER_WARNING);
+
+					$result = (new Address(LANGUAGE_ID))
+						->setFieldValue(Address\FieldType::ADDRESS_LINE_2, $value)
+						->toArray();
+				}
+
+				return $result;
 			}
 		}
 		elseif ($this->fields['TYPE'] === "STRING")
@@ -361,20 +377,21 @@ abstract class EntityProperty
 			}
 		}
 
-		if (
-			!is_array($value)
-			&& $this->getField('IS_EMAIL') === 'Y'
-			&& trim($value) !== ''
-			&& !check_email(trim($value), true)
-		)
+		if (!is_array($value) && trim($value) !== '')
 		{
-			$result->addError(new Main\Error(
-				str_replace(
-					["#EMAIL#", "#NAME#"],
-					[htmlspecialcharsbx($value), htmlspecialcharsbx($this->getField('NAME'))],
-					Loc::getMessage("SALE_GOPE_WRONG_EMAIL")
-				)
-			));
+			$value = trim($value);
+
+			if ($this->getField('IS_EMAIL') === 'Y')
+			{
+				if (!check_email($value, true))
+				{
+					$result->addError(
+						new Main\Error(
+							Loc::getMessage("SALE_GOPE_WRONG_EMAIL")
+						)
+					);
+				}
+			}	
 		}
 
 		return $result;
@@ -467,7 +484,7 @@ abstract class EntityProperty
 				\CFile::Delete($fileId);
 			}
 		}
-		elseif ($this->getType() == 'ADDRESS'  && Main\Loader::includeModule('location'))
+		elseif ($this->getType() === 'ADDRESS'  && Main\Loader::includeModule('location'))
 		{
 			if (is_array($value))
 			{

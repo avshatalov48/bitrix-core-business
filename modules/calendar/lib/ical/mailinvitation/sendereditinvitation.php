@@ -3,37 +3,25 @@
 
 namespace Bitrix\Calendar\ICal\MailInvitation;
 
-use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ObjectException;
-use Bitrix\Main\ORM\Data\UpdateResult;
 use Bitrix\Main\Text\Encoding;
-use Exception;
 
 class SenderEditInvitation extends SenderInvitation
 {
 	public const METHOD = 'edit';
+	public const DECISION_CHANGE = 'C';
 	/**
 	 * @var array
 	 */
 	private $changeFields;
 
-	/**
-	 * @return bool
-	 * @throws Exception
-	 */
-	public function executeAfterSuccessfulInvitation(): bool
-	{
-		$result = EventTable::update(
-			$this->getEventId(),
-			[
-				'MEETING_STATUS' => 'Q',
-			]
-		);
 
-		return ($result instanceof UpdateResult)
-			? $result->isSuccess()
-			: false;
+	/**
+	 *
+	 */
+	public function executeAfterSuccessfulInvitation(): void
+	{
 	}
 
 	/**
@@ -70,15 +58,39 @@ class SenderEditInvitation extends SenderInvitation
 			'EMAIL_TO' => $this->context->getReceiver()->getEmail(),
 			'MESSAGE_SUBJECT' => $this->getSubjectMessage(),
 			'MESSAGE_PHP' => $this->getBodyMessage(),
-			'DATE_FROM' => $this->getDateForTemplate(),
+			'CONFIRM_CODE' => 'TRUE',
 			'NAME' => $this->event['NAME'],
-			'DESCRIPTION' => $this->event['DESCRIPTION'],
-			'ATTENDEES' => $this->getAttendeesListForTemplate(),
-			'ORGANIZER' => $this->context->getAddresser()->getFullNameWithEmail(),
-			'LOCATION' => $this->event['TEXT_LOCATION'],
-			'FILES_LINK' =>$this->getFilesLink(),
-			'METHOD' => SenderRequestInvitation::METHOD,
-			'TITLE' => $this->getTemplateTitle(),
+			'METHOD' => self::METHOD,
+			'CHANGE_FIELDS_TITLE' => $this->getChangeFieldsTitle(),
+			'DETAIL_LINK' => Helper::getDetailLink(
+				$this->getEventId(),
+				$this->getEventOwnerId(),
+				$this->getEventDateCreateTimestamp()
+			),
+			'DECISION_YES_LINK' => Helper::getPubEventLinkWithParameters(
+				$this->getEventId(),
+				$this->getEventOwnerId(),
+				$this->getEventDateCreateTimestamp(),
+				self::DECISION_YES
+			),
+			'DECISION_NO_LINK' => Helper::getPubEventLinkWithParameters(
+				$this->getEventId(),
+				$this->getEventOwnerId(),
+				$this->getEventDateCreateTimestamp(),
+				self::DECISION_NO
+			),
+			'CHANGE_DECISION_LINK' => Helper::getPubEventLinkWithParameters(
+				$this->getEventId(),
+				$this->getEventOwnerId(),
+				$this->getEventDateCreateTimestamp(),
+				self::DECISION_CHANGE
+			),
+			'REQUEST_DECISION' => $this->event['MEETING']['REINVITE'] ? 'Y' : 'N',
+			'DATE_FROM' => $this->event['DATE_FROM'],
+			'DATE_TO' => $this->event['DATE_TO'],
+			'TZ_FROM' => $this->event['TZ_FROM'],
+			'TZ_TO' => $this->event['TZ_TO'],
+			'FULL_DAY' => $this->event['SKIP_TIME'] ? 'Y' : 'N',
 			'CHANGE_FIELDS' => $this->getChangeFieldsString(),
 		];
 	}
@@ -94,11 +106,12 @@ class SenderEditInvitation extends SenderInvitation
 	/**
 	 * @return string
 	 */
-	protected function getTemplateTitle(): string
+	protected function getChangeFieldsTitle(): string
 	{
-		if (count($this->changeFields) === 1)
+		$fields = $this->context->getChangeFields();
+		if (count($fields) === 1)
 		{
-			switch ($this->changeFields[0]['fieldKey'])
+			switch ($fields[0]['fieldKey'])
 			{
 				case 'DATE_FROM':
 					return Loc::getMessage('EC_CALENDAR_ICAL_MAIL_CHANGE_FIELD_TITLE_DATE');
@@ -118,6 +131,9 @@ class SenderEditInvitation extends SenderInvitation
 		return Loc::getMessage('EC_CALENDAR_ICAL_MAIL_METHOD_EDIT');
 	}
 
+	/**
+	 * @return string
+	 */
 	protected function getSubjectTitle(): string
 	{
 		return Loc::getMessage("EC_CALENDAR_ICAL_MAIL_METHOD_EDIT") . ": {$this->event['NAME']}";

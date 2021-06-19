@@ -34,13 +34,13 @@ $arrParams = array(
 				GET | POST handlers
 ****************************************************************************/
 
-$rs = CAdv::GetList($v1="", $v2="", Array(), $v3, "", $v4, $v5);
+$rs = CAdv::GetList();
 while($ar = $rs->Fetch())
 {
 	$arrADV[$ar["ID"]] = $ar["REFERER1"]." / ".$ar["REFERER2"]." [".$ar["ID"]."]";
 }
 
-$rs = CStatEventType::GetSimpleList($v1="", $v2="", array(), $v3);
+$rs = CStatEventType::GetSimpleList();
 while($ar = $rs->Fetch())
 {
 	$arrEVENT[$ar["ID"]] = htmlspecialcharsbx($ar["EVENT"])." [".$ar["ID"]."]";
@@ -66,8 +66,7 @@ if($lAdmin->IsDefaultFilter())
 	$find_adv=array();
 	if (is_array($arrADV))
 	{
-		reset($arrADV);
-		while (list($key,$value)=each($arrADV))
+		foreach ($arrADV as $key => $value)
 		{
 			$i++;
 			if ($i<=10) $find_adv[] = $key;

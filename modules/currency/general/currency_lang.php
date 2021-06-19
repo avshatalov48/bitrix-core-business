@@ -415,7 +415,7 @@ class CAllCurrencyLang
 		return $arCurrencyLang;
 	}
 
-	public static function GetList(&$by, &$order, $currency = "")
+	public static function GetList($by = 'lang', $order = 'asc', $currency = '')
 	{
 		global $DB;
 
@@ -424,18 +424,15 @@ class CAllCurrencyLang
 		if ('' != $currency)
 			$strSql .= "where CURL.CURRENCY = '".$DB->ForSql($currency, 3)."' ";
 
-		if (mb_strtolower($by) == "currency") $strSqlOrder = " order by CURL.CURRENCY ";
-		elseif (mb_strtolower($by) == "name") $strSqlOrder = " order by CURL.FULL_NAME ";
+		if (strtolower($by) == "currency") $strSqlOrder = " order by CURL.CURRENCY ";
+		elseif (strtolower($by) == "name") $strSqlOrder = " order by CURL.FULL_NAME ";
 		else
 		{
 			$strSqlOrder = " order BY CURL.LID ";
-			$by = "lang";
 		}
 
-		if ($order=="desc")
+		if ($order == "desc")
 			$strSqlOrder .= " desc ";
-		else
-			$order = "asc";
 
 		$strSql .= $strSqlOrder;
 		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);

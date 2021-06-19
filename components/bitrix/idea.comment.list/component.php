@@ -793,7 +793,10 @@ if(((!empty($arPost) && ($arPost["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLIS
 					if(!array_key_exists($k, $arResult))
 						$arResult[$k] = $v;
 				}
-				CBitrixComponentTemplate::ApplyCachedData($Vars["templateCachedData"]);
+
+				$template = new CBitrixComponentTemplate();
+				$template->ApplyCachedData($Vars["templateCachedData"]);
+
 				$cache->Output();
 			}
 			else

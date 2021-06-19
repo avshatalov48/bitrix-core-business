@@ -35,83 +35,102 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 	private function prepareUiFilter()
 	{
 		$categoryList = \Bitrix\Rest\Marketplace\Client::getCategoriesFull();
-		$this->arResult["CATEGORIES"] = (is_array($categoryList['ITEMS']) ? $categoryList['ITEMS'] : []);
-		$this->arResult["CATEGORIES_COUNT"] = ($categoryList['COUNT_TOTAL'] > 0 ? (int) $categoryList['COUNT_TOTAL'] : 0);
+		$this->arResult['CATEGORIES'] = (is_array($categoryList['ITEMS']) ? $categoryList['ITEMS'] : []);
+		$this->arResult['CATEGORIES_COUNT'] = ($categoryList['COUNT_TOTAL'] > 0 ? (int) $categoryList['COUNT_TOTAL'] : 0);
 
-		$categoryItems = array(
-			"all" => Loc::getMessage("MARKETPLACE_ALL_APPS")
-		);
-		foreach ($this->arResult["CATEGORIES"] as $id => $category)
+		$categoryItems = [
+			'all' => Loc::getMessage('MARKETPLACE_ALL_APPS'),
+		];
+		foreach ($this->arResult['CATEGORIES'] as $id => $category)
 		{
-			$categoryItems[$category["CODE"]] = $category["NAME"];
+			$categoryItems[$category['CODE']] = $category['NAME'];
 		}
-		$this->arResult["FILTER"] = [
-			"FILTER_ID" => "marketplace_list".($this->arParams['FILTER_ID']?: ''),
-			"FILTER"  => [
-				[
-					"id"      => "CATEGORY",
-					"name"    => Loc::getMessage("MARKETPLACE_FILTER_CATEGORY"),
-					"type"    => "list",
-					"items"   => $categoryItems,
-					"default" => true,
-					"required" => isset($this->arParams["CATEGORY"]) ? true : false,
-					"strict" => isset($this->arParams["CATEGORY"]) ? true : false
-				],
-				[
-					"id"    => "PAID",
-					"name"  => Loc::getMessage("MARKETPLACE_FILTER_PAID"),
-					"type"  => "list",
-					"default" => true,
-					"items" => [
-						"Y" => Loc::getMessage("MARKETPLACE_FILTER_PAID"),
-						"N" => Loc::getMessage("MARKETPLACE_FILTER_FREE"),
-						"BY_SUBSCRIPTION" => Loc::getMessage("MARKETPLACE_FILTER_BY_SUBSCRIPTION")
-					]
-				],
-				[
-					"id"    => "INSTALLS",
-					"name"  => Loc::getMessage("MARKETPLACE_FILTER_INSTALLS"),
-					"type"  => "list",
-					"default" => true,
-					"items" => [
-						"100" => "1-100",
-						"500" => "100-500",
-						"5000" => "500-5000",
-						"10000" => "5000-10000",
-						"10000+" => Loc::getMessage("MARKETPLACE_FILTER_INSTALLS_10000"),
-					]
-				],
-				[
-					"id"    => "HIDDEN_BUY",
-					"name"  => Loc::getMessage("MARKETPLACE_FILTER_HIDDEN_BUY"),
-					"type"  => "checkbox",
-					"default" => true
-				],
-				[
-					"id"    => "PRICE",
-					"name"  => Loc::getMessage("MARKETPLACE_FILTER_PRICE"),
-					"type"  => "number",
-					"default" => true
-				],
-				[
-					"id"    => "MOBILE_COMPATIBLE",
-					"name"  => Loc::getMessage("MARKETPLACE_FILTER_MOBILE_COMPATIBLE"),
-					"type"  => "checkbox",
-					"default" => true
-				],
-				[
-					"id"    => "DATE",
-					"name"  => Loc::getMessage("MARKETPLACE_FILTER_DATE_PUBLIC"),
-					"type"  => "date"
-				],
-				[
-					"id"    => "SALE_OUT",
-					"name"  => Loc::getMessage("MARKETPLACE_FILTER_SALE_OUT"),
-					"type"  => "checkbox",
-					"default" => true
+		$filter = [
+			[
+				'id' => 'CATEGORY',
+				'name' => Loc::getMessage('MARKETPLACE_FILTER_CATEGORY'),
+				'type' => 'list',
+				'items' => $categoryItems,
+				'default' => true,
+				'required' => isset($this->arParams['CATEGORY']) ? true : false,
+				'strict' => isset($this->arParams['CATEGORY']) ? true : false,
+			],
+			[
+				'id' => 'INSTALLS',
+				'name' => Loc::getMessage('MARKETPLACE_FILTER_INSTALLS'),
+				'type' => 'list',
+				'default' => true,
+				'items' => [
+					'100' => '1-100',
+					'500' => '100-500',
+					'5000' => '500-5000',
+					'10000' => '5000-10000',
+					'10000+' => Loc::getMessage('MARKETPLACE_FILTER_INSTALLS_10000'),
 				],
 			],
-			"DATA" => []
+			[
+				'id' => 'HIDDEN_BUY',
+				'name' => Loc::getMessage('MARKETPLACE_FILTER_HIDDEN_BUY'),
+				'type' => 'checkbox',
+				'default' => true,
+			],
+			[
+				'id' => 'MOBILE_COMPATIBLE',
+				'name' => Loc::getMessage('MARKETPLACE_FILTER_MOBILE_COMPATIBLE'),
+				'type' => 'checkbox',
+				'default' => true,
+			],
+			[
+				'id' => 'DATE',
+				'name' => Loc::getMessage('MARKETPLACE_FILTER_DATE_PUBLIC'),
+				'type' => 'date',
+			],
+		];
+
+		if (\Bitrix\Rest\Marketplace\Client::isPayApplicationAvailable())
+		{
+			$filter[] = [
+				'id' => 'PRICE',
+				'name' => Loc::getMessage('MARKETPLACE_FILTER_PRICE'),
+				'type' => 'number',
+				'default' => true,
+			];
+			$filter[] = [
+				'id' => 'SALE_OUT',
+				'name' => Loc::getMessage('MARKETPLACE_FILTER_SALE_OUT'),
+				'type' => 'checkbox',
+				'default' => true,
+			];
+			$filter[] = [
+				'id' => 'PAID',
+				'name' => Loc::getMessage('MARKETPLACE_FILTER_PAID'),
+				'type' => 'list',
+				'default' => true,
+				'items' => [
+					'Y' => Loc::getMessage('MARKETPLACE_FILTER_PAID'),
+					'N' => Loc::getMessage('MARKETPLACE_FILTER_FREE'),
+					'BY_SUBSCRIPTION' => Loc::getMessage('MARKETPLACE_FILTER_BY_SUBSCRIPTION'),
+				],
+			];
+		}
+		else
+		{
+			$filter[] = [
+				'id' => 'PAID',
+				'name' => Loc::getMessage('MARKETPLACE_FILTER_PAID'),
+				'type' => 'list',
+				'default' => true,
+				'items' => [
+					'N' => Loc::getMessage('MARKETPLACE_FILTER_FREE'),
+					'BY_SUBSCRIPTION' => Loc::getMessage('MARKETPLACE_FILTER_BY_SUBSCRIPTION'),
+				],
+			];
+		}
+
+		$this->arResult['FILTER'] = [
+			'FILTER_ID' => 'marketplace_list' . ($this->arParams['FILTER_ID'] ? : ''),
+			'FILTER' => $filter,
+			'DATA' => [],
 		];
 	}
 

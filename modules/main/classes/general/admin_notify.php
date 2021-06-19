@@ -10,9 +10,7 @@ class CAdminNotify
 	{
 		global $CACHE_MANAGER;
 
-		$by = 'lid';
-		$order = 'asc';
-		$rsLangs = CLanguage::GetList($by, $order);
+		$rsLangs = CLanguage::GetList('lid', 'asc');
 		while ($arLang = $rsLangs->Fetch())
 		{
 			$CACHE_MANAGER->Clean("admin_notify_list_".$arLang['LANGUAGE_ID']);

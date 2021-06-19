@@ -28,7 +28,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 	protected static $restrictionCount = null;
 
-	function getUserTypeDescription()
+	public static function getUserTypeDescription()
 	{
 		return array(
 			"USER_TYPE_ID" => static::USER_TYPE_ID,
@@ -80,7 +80,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		);
 	}
 
-	function getDBColumnType()
+	public static function getDBColumnType()
 	{
 		return "text";
 	}

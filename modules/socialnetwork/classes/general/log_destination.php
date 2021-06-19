@@ -733,7 +733,7 @@ class CSocNetLogDestination
 			$arGratUsers = Array();
 			$arMedalUsers = Array();
 
-			$dbUsers = CUser::GetList(($sort_by = Array("last_name" => "asc", "IS_ONLINE" => "desc")), ($dummy=''), $arFilter, $arExtParams);
+			$dbUsers = CUser::GetList(Array("last_name" => "asc", "IS_ONLINE" => "desc"), '', $arFilter, $arExtParams);
 			while ($arUser = $dbUsers->GetNext())
 			{
 				$sName = trim(CUser::FormatName(empty($arParams["NAME_TEMPLATE"]) ? CSite::GetNameFormat(false) : $arParams["NAME_TEMPLATE"], $arUser));
@@ -773,7 +773,7 @@ class CSocNetLogDestination
 		return $resultCache[$userId];
 	}
 
-	public function __percent_walk(&$val)
+	public static function __percent_walk(&$val)
 	{
 		$val = str_replace('%', '', $val)."%";
 	}
@@ -1984,8 +1984,8 @@ class CSocNetLogDestination
 				if ($code === 'UA')
 				{
 					$dbRes = CUser::GetList(
-						$by = 'ID',
-						$order = 'ASC',
+						'ID',
+						'ASC',
 						['INTRANET_USERS' => true],
 						['FIELDS' => $fields]
 					);
@@ -2081,7 +2081,7 @@ class CSocNetLogDestination
 			&& $fetchUsers
 		)
 		{
-			$dbRes = CUser::GetList($by = 'ID', $order = 'ASC',
+			$dbRes = CUser::GetList('ID', 'ASC',
 				[
 					'ID' => implode('|', $usersToFetch)
 				],

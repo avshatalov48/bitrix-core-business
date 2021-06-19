@@ -1,7 +1,8 @@
-<?
+<?php
+
 class CSeoKeywords
 { 
-	function GetList($arOrder, $arFilter)
+	public static function GetList($arOrder, $arFilter)
 	{
 		global $DB;
 		
@@ -64,7 +65,7 @@ class CSeoKeywords
 		return $DB->Query($query);
 	}
 	
-	function CheckFields($ACTION, &$arFields)
+	public static function CheckFields($ACTION, &$arFields)
 	{
 		if ($ACTION == 'UPDATE' && isset($arFields['ID']))
 			$arFields['ID'] = intval($arFields['ID']);
@@ -101,7 +102,7 @@ class CSeoKeywords
 		return true;
 	}
 	
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $APPLICATION, $DB;
 		
@@ -125,7 +126,7 @@ class CSeoKeywords
 		return $ID;
 	}
 	
-	function Update($arFields)
+	public static function Update($arFields)
 	{
 		global $APPLICATION, $DB;
 		
@@ -172,7 +173,7 @@ class CSeoKeywords
 		return $cnt;
 	}
 	
-	function GetByURL($URL, $SITE_ID = false, $bPart = false, $bCleanUrl = false)
+	public static function GetByURL($URL, $SITE_ID = false, $bPart = false, $bCleanUrl = false)
 	{
 		if ($bCleanUrl)
 			$URL = CSeoUtils::CleanURL($URL);
@@ -193,4 +194,3 @@ class CSeoKeywords
 		return $arKeywords;
 	}
 }
-?>

@@ -40,7 +40,7 @@ IncludeModuleLangFile(__FILE__);
 if($_REQUEST["action"] == "authorize" && check_bitrix_sessid() && $USER->CanDoOperation('edit_php'))
 {
 	$USER->Logout();
-	$USER->Authorize(intval($_REQUEST["ID"]));
+	$USER->Authorize(intval($_REQUEST["ID"]), false, false, null, false);
 	LocalRedirect("user_admin.php?lang=".LANGUAGE_ID);
 }
 

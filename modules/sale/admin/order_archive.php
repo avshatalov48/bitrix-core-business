@@ -490,7 +490,7 @@ if (!empty($orderList) && is_array($orderList))
 		$fieldValue = "";
 		if(in_array("ACCOUNT_NUMBER", $arVisibleColumns))
 		{
-			$fieldValue = str_replace('##ID##', Loc::getMessage("SO_ORDER_ID_PREF").$arOrder["ACCOUNT_NUMBER"], $rowTmp);
+			$fieldValue = str_replace('##ID##', Loc::getMessage("SO_ORDER_ID_PREF").htmlspecialcharsbx($arOrder["ACCOUNT_NUMBER"]), $rowTmp);
 		}
 		$row->AddField("ACCOUNT_NUMBER", $fieldValue);
 
@@ -618,7 +618,7 @@ if (!empty($orderList) && is_array($orderList))
 				$fieldValue .= '<span id="status_order_'.$arOrder["ID"].'">'.$LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]]['NAME'].'</span>';
 				$colorRGB = array();
 				$colorRGB = sscanf($LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]]['COLOR'], "#%02x%02x%02x");
-				if (count($colorRGB))
+				if (is_array($colorRGB) && !empty($colorRGB))
 				{
 					$color = "background:rgba(".$colorRGB[0].",".$colorRGB[1].",".$colorRGB[2].",0.6);";
 					$fieldValue = '<div style=	"'.$color.'

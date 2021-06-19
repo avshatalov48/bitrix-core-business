@@ -1,5 +1,5 @@
 import {HeaderCard} from 'landing.ui.card.headercard';
-import {Loc} from 'main.core';
+import {Loc, Type} from 'main.core';
 import {ContentWrapper} from 'landing.ui.panel.basepresetpanel';
 import {FormSettingsForm} from 'landing.ui.form.formsettingsform';
 import {RuleField} from 'landing.ui.field.rulefield';
@@ -76,12 +76,41 @@ export default class FieldsRulesContent extends ContentWrapper
 
 			this.getRulesForm().addField(
 				new RuleField({
-					fields: this.options.fields,
+					fields: this.getFormFields(),
 					rules: values,
 					onRemove: this.onFieldRemove.bind(this),
+					dictionary: this.options.dictionary,
 				}),
 			);
 		}
+	}
+
+	getFormFields()
+	{
+		const disallowedTypes = (() => {
+			if (
+				!Type.isPlainObject(this.options.dictionary.deps.field)
+				|| !Type.isArrayFilled(this.options.dictionary.deps.field.disallowed)
+			)
+			{
+				return null;
+			}
+
+			return this.options.dictionary.deps.field.disallowed;
+		})();
+
+		return this.options.fields.filter((field) => {
+			return (
+				!Type.isArrayFilled(disallowedTypes)
+				|| (
+					!disallowedTypes.includes(field.type)
+					&& (
+						!Type.isPlainObject(field.content)
+						|| disallowedTypes.includes(field.content.type)
+					)
+				)
+			);
+		});
 	}
 
 	onFieldRemove(event: BaseEvent)
@@ -140,9 +169,10 @@ export default class FieldsRulesContent extends ContentWrapper
 
 		ruleForm.addField(
 			new RuleField({
-				fields: this.options.fields,
+				fields: this.getFormFields(),
 				rules: [],
 				onRemove: this.onFieldRemove.bind(this),
+				dictionary: this.options.dictionary,
 			}),
 		);
 

@@ -109,13 +109,11 @@ $arParams["TICKETS_PER_PAGE"] = (intval($arParams["TICKETS_PER_PAGE"]) <= 0 ? 50
 $grid_options = new CGridOptions($arResult["GRID_ID"]);
 $aSort = $grid_options->GetSorting(array("sort"=>array("id"=>"desc"), "vars"=>array("by"=>"by", "order"=>"order")));
 $aNav = $grid_options->GetNavParams(array("nPageSize"=>$arParams["TICKETS_PER_PAGE"]));
-$aSortArg = each($aSort["sort"]);
 $aFilter = $grid_options->GetFilter($arResult["FILTER"]);
 
 $aSortVal = $aSort['sort'];
 $sort_order = current($aSortVal);
 $sort_by = key($aSortVal);
-
 
 if ($arParams["SITE_ID"] <> '')
 	$aFilter["LID"] = $arParams["SITE_ID"];
@@ -124,7 +122,7 @@ $rsTickets = CTicket::GetList(
 	$sort_by,
 	$sort_order,
 	$aFilter,
-	$is_filtered,
+	null,
 	$check_rights = "Y",
 	$get_user_name = "N",
 	$get_dictionary_name = "N",

@@ -185,7 +185,7 @@ abstract class Base
 		{
 			$options = $this->options;
 
-			$commentAuthorId = (!empty($params['commentAuthorId']) && intval($params['commentAuthorId']) > 0 ? intval($params['commentAuthorId']) : 0);
+			$commentAuthorId = (!empty($params['commentAuthorId']) && (int)$params['commentAuthorId'] > 0 ? (int)$params['commentAuthorId'] : 0);
 
 			$siteList = $intranetSiteId = $extranetSiteId = false;
 
@@ -194,7 +194,7 @@ abstract class Base
 				$siteList = array();
 				$intranetSiteId = \CExtranet::getExtranetSiteID();
 				$extranetSiteId = \CSite::getDefSite();
-				$res = \CSite::getList($by="sort", $order="desc", array("ACTIVE" => "Y"));
+				$res = \CSite::getList("sort", "desc", array("ACTIVE" => "Y"));
 				while($site = $res->fetch())
 				{
 					$siteList[$site["ID"]] = array(

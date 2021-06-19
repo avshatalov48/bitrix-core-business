@@ -6,6 +6,7 @@ $MESS["ACTIONS"] = "Действия";
 $MESS["NAME"] = "Название";
 $MESS["BASE"] = "Базовый";
 $MESS["BASE_YES"] = "Да";
+$MESS["BASE_NO"] = "Нет";
 $MESS["EDIT_STATUS_ALT"] = "Изменить тип цен";
 $MESS["EDIT"] = "Изменить";
 $MESS["DELETE_STATUS_ALT"] = "Удалить тип цен";
@@ -26,4 +27,5 @@ $MESS["BT_CAT_GROUP_ADM_TITLE_MODIFIED_BY"] = "Кем изменен";
 $MESS["BT_CAT_GROUP_ADM_TITLE_TIMESTAMP_X"] = "Дата изменения";
 $MESS["BT_CAT_GROUP_ADM_TITLE_CREATED_BY"] = "Кем создан";
 $MESS["BT_CAT_GROUP_ADM_TITLE_DATE_CREATE"] = "Дата создания";
+$MESS["BT_CAT_GROUP_ADM_ACTION_SET_BASE_PRICE"] = "Сделать базовым";
 ?>

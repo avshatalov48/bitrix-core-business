@@ -17,7 +17,7 @@ class Quantity extends Base
 		$this->params["TYPE"] = "STRING";
 	}
 
-	public function getClassTitle()
+	public static function getClassTitle()
 	{
 		return Loc::getMessage("DELIVERY_EXTRA_SERVICE_QUANTITY_TITLE");
 	}

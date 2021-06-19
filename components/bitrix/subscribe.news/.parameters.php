@@ -6,9 +6,7 @@ if(!IsModuleInstalled("iblock") || !CModule::IncludeModule("iblock"))
 
 $arSites=array();
 $defSite="";
-$sitesSort="SORT";
-$sitesBy="ASC";
-$rsSite = CSite::GetList($sitesSort, $sitesBy, array());
+$rsSite = CSite::GetList();
 while($arSite = $rsSite->Fetch())
 {
 	$arSites[$arSite["ID"]] = $arSite["NAME"];

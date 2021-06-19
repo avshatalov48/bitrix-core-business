@@ -38,7 +38,7 @@ if (
 
 
 $sTableID = "t_dict_list_".mb_strtolower($find_type);
-$oSort = new CAdminSorting($sTableID, "SORT", "asc");// инициализация сортировки
+$oSort = new CAdminSorting($sTableID, "s_c_sort", "asc");// инициализация сортировки
 $lAdmin = new CAdminList($sTableID, $oSort);// инициализация списка
 
 
@@ -144,7 +144,7 @@ if($bAdmin=="Y" && $arID = $lAdmin->GroupAction())
 	if($_REQUEST['action_target']=='selected')
 	{
 		$isFiltered = null;
-		$rsData = CTicketDictionary::GetList($by, $order, $arFilter, $isFiltered);
+		$rsData = CTicketDictionary::GetList('', '', $arFilter);
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -172,8 +172,9 @@ if ($find_type=="C" ||
 	$find_type=="NOT_REF" || 
 	$find_type == '') $show_responsible_column = "Y";
 
+global $by, $order;
 
-$rsData = CTicketDictionary::GetList($by, $order, $arFilter, $is_filtered);
+$rsData = CTicketDictionary::GetList($by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 
@@ -252,9 +253,7 @@ while($arRes = $rsData->Fetch())
 $arRespUsersProp = array();
 $arRespUserIDs = array_unique($arRespUserIDs);
 $strUsers = implode("|", $arRespUserIDs);
-$f = "ID";
-$o = "asc";
-$rs = CUser::GetList($f, $o, array( "ID" => $strUsers), array("FIELDS"=>array("NAME","LAST_NAME","LOGIN","ID")));
+$rs = CUser::GetList('id', 'asc', array( "ID" => $strUsers), array("FIELDS"=>array("NAME","LAST_NAME","LOGIN","ID")));
 while($ar = $rs->Fetch())
 {
 	$arRespUsersProp[$ar["ID"]] = $ar;
@@ -362,7 +361,7 @@ require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_adm
 	<td><?
 	$ref = array();
 	$ref_id = array();
-	$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+	$rs = CSite::GetList();
 	while ($ar = $rs->Fetch()) 
 	{
 		$ref[] = "[".$ar["ID"]."] ".$ar["NAME"];

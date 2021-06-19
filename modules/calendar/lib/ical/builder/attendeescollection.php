@@ -87,6 +87,14 @@ class AttendeesCollection implements IteratorAggregate, Serializable
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getCount(): int
+	{
+		return count($this->collection);
+	}
+
+	/**
 	 * @param array|null collection
 	 * @return bool
 	 */

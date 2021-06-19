@@ -261,7 +261,7 @@ elseif (!empty($_REQUEST["save"]))
 						"MULTIPLE" => "N",
 						"MANDATORY" => "N");
 					$arFieldName = array();
-					$rsLanguage = CLanguage::GetList($by, $order, array());
+					$rsLanguage = CLanguage::GetList();
 					while($arLanguage = $rsLanguage->Fetch())
 					{
 						if (LANGUAGE_ID == $arLanguage["LID"])
@@ -288,7 +288,7 @@ elseif (!empty($_REQUEST["save"]))
 						"MULTIPLE" => "N",
 						"MANDATORY" => "N");
 					$arFieldName = array();
-					$rsLanguage = CLanguage::GetList($by, $order, array());
+					$rsLanguage = CLanguage::GetList();
 					while($arLanguage = $rsLanguage->Fetch())
 					{
 						if (LANGUAGE_ID == $arLanguage["LID"])
@@ -314,7 +314,7 @@ elseif (!empty($_REQUEST["save"]))
 						"MULTIPLE" => "N",
 						"MANDATORY" => "N");
 					$arFieldName = array();
-					$rsLanguage = CLanguage::GetList($by, $order, array());
+					$rsLanguage = CLanguage::GetList();
 					while($arLanguage = $rsLanguage->Fetch()):
 						if (LANGUAGE_ID == $arLanguage["LID"])
 							$arFieldName[$arLanguage["LID"]] = GetMessage("IBLOCK_GALLERY_RECALC");

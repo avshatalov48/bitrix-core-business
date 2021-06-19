@@ -3,26 +3,35 @@
 namespace Bitrix\MobileApp\Janative\Entity;
 
 use Bitrix\Main\Application;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\IO\Directory;
 use Bitrix\Main\IO\File;
+use Bitrix\Main\IO\FileNotFoundException;
+use Bitrix\Main\Loader;
+use Bitrix\Main\LoaderException;
+use Bitrix\Main\SystemException;
 use Bitrix\MobileApp\Janative\Manager;
 use Bitrix\MobileApp\Janative\Utils;
+use Bitrix\MobileApp\Mobile;
+use CExtranet;
+use CSite;
+use Exception;
 
 class Component extends Base
 {
 	const VERSION = 2;
 	protected static $modificationDates = [];
 	protected static $dependencies = [];
-	private $version;
+	private $version = null;
 
 	/**
 	 * Component constructor.
 	 * @param null $path
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function __construct($path = null)
 	{
-		\Bitrix\MobileApp\Mobile::Init();
+		Mobile::Init();
 		if (mb_strpos($path, Application::getDocumentRoot()) === 0)
 		{
 			$this->path = $path;
@@ -32,56 +41,56 @@ class Component extends Base
 			$this->path = Application::getDocumentRoot() . $path;
 		}
 
-		if (mb_substr($this->path, -1) != "/") //compatibility fix
+		if (mb_substr($this->path, -1) != '/') //compatibility fix
 		{
-			$this->path .= "/";
+			$this->path .= '/';
 		}
 
 		$directory = new Directory($this->path);
-		$this->baseFileName = "component";
-		$file = new File($directory->getPath() . "/component.js");
+		$this->baseFileName = 'component';
+		$file = new File($directory->getPath() . '/component.js');
 		$this->name = $directory->getName();
 
 		if (!$directory->isExists() || !$file->isExists())
 		{
-			throw new \Exception("Component '{$this->name}' doesn't exists ($this->path) ");
+			throw new Exception("Component '{$this->name}' doesn't exists ($this->path) ");
 		}
 	}
 
-	public function getPath()
+	public function getPath(): string
 	{
-		return str_replace(Application::getDocumentRoot(), "", $this->path);
+		return str_replace(Application::getDocumentRoot(), '', $this->path);
 	}
 
 	/**
 	 * @param $name
 	 * @param string $namespace
 	 * @return Component|null
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public static function createInstanceByName($name, $namespace = "bitrix")
-	{
+	public static function createInstanceByName($name, $namespace = 'bitrix'): ?Component
+    {
 		$info = Utils::extractEntityDescription($name, $namespace);
-		return Manager::getComponentByName($info["defaultFullname"]);
+		return Manager::getComponentByName($info['defaultFullname']);
 	}
 
-	public function getResult()
-	{
-		$componentFile = new File($this->path . "/component.php");
+	public function getResult(): ?array
+    {
+		$componentFile = new File($this->path . '/component.php');
 		if ($componentFile->isExists())
 		{
-			return include($componentFile->getPath());
+            return include($componentFile->getPath());
 		}
 
-		return "{}";
+		return [];
 	}
 
 	/**
 	 * @param bool $resultOnly
 	 * @param bool $loadExtensionsSeparately
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\IO\FileNotFoundException
-	 * @throws \Bitrix\Main\LoaderException
+	 * @throws ArgumentException
+	 * @throws FileNotFoundException
+	 * @throws LoaderException
 	 */
 	public function execute($resultOnly = false, $loadExtensionsSeparately = false)
 	{
@@ -91,8 +100,8 @@ class Component extends Base
 		if ($resultOnly)
 		{
 			header('Content-Type: application/json;charset=UTF-8');
-			header("BX-Component-Version: " . $this->getVersion());
-			header("BX-Component: true");
+			header('BX-Component-Version: ' . $this->getVersion());
+			header('BX-Component: true');
 			echo $result;
 		}
 		else
@@ -101,17 +110,17 @@ class Component extends Base
 			$lang = $this->getLangDefinitionExpression();
 			$object = Utils::jsonEncode($this->getInfo());
 			$componentList = Utils::jsonEncode(Manager::getAvailableComponents());
-			$isExtranetModuleInstalled = \Bitrix\Main\Loader::includeModule("extranet");
+			$isExtranetModuleInstalled = Loader::includeModule('extranet');
 
 			if ($isExtranetModuleInstalled)
 			{
-				$extranetSiteId = \CExtranet::getExtranetSiteId();
+				$extranetSiteId = CExtranet::getExtranetSiteId();
 				if (!$extranetSiteId)
 				{
 					$isExtranetModuleInstalled = false;
 				}
 			}
-			$isExtranetUser = $isExtranetModuleInstalled && !\CExtranet::IsIntranetUser();
+			$isExtranetUser = $isExtranetModuleInstalled && !CExtranet::IsIntranetUser();
 			$siteId = (
 			$isExtranetUser
 				? $extranetSiteId
@@ -122,13 +131,13 @@ class Component extends Base
 			$siteDir = SITE_DIR;
 			if ($isExtranetUser)
 			{
-				$res = \CSite::getById($siteId);
+				$res = CSite::getById($siteId);
 				if (
 					($extranetSiteFields = $res->fetch())
-					&& ($extranetSiteFields["ACTIVE"] != "N")
+					&& ($extranetSiteFields['ACTIVE'] != 'N')
 				)
 				{
-					$siteDir = $extranetSiteFields["DIR"];
+					$siteDir = $extranetSiteFields['DIR'];
 				}
 			}
 
@@ -178,8 +187,8 @@ JS;
 			$componentCode = $file->getContents();
 
 			header('Content-Type: text/javascript;charset=UTF-8');
-			header("BX-Component-Version: " . $this->getVersion());
-			header("BX-Component: true");
+			header('BX-Component-Version: ' . $this->getVersion());
+			header('BX-Component: true');
 
 			if ($loadExtensionsSeparately)
 			{
@@ -195,17 +204,15 @@ JS;
 
 			echo $content;
 		}
-
-
 	}
 
-	public function getInfo()
-	{
+	public function getInfo(): array
+    {
 		return [
 			'path' => $this->getPath(),
 			'version' => $this->getVersion(),
 			'publicUrl' => $this->getPublicPath(),
-			'resultUrl' => $this->getPublicPath() . "&get_result=Y"
+			'resultUrl' => $this->getPublicPath() . '&get_result=Y'
 		];
 	}
 
@@ -230,8 +237,8 @@ JS;
 
 	}
 
-	public function getVersion()
-	{
+	public function getVersion(): string
+    {
 		if (!$this->version)
 		{
 			$versionFile = new File("{$this->path}/version.php");
@@ -240,27 +247,27 @@ JS;
 			if ($versionFile->isExists())
 			{
 				$versionDesc = include($versionFile->getPath());
-				$this->version = $versionDesc["version"];
-				$this->version .= "." . self::VERSION;
+				$this->version = $versionDesc['version'];
+				$this->version .= '.' . self::VERSION;
 			}
 
-			$this->version .= "_" . $this->getModificationTime();
+			$this->version .= '_' . $this->getModificationTime();
 		}
 
 
 		return $this->version;
 	}
 
-	public function getPublicPath()
-	{
+	public function getPublicPath(): string
+    {
 		return "/mobileapp/jn/{$this->name}/?version=" . $this->getVersion();
 	}
 
 	/**
 	 * @return array|null
 	 */
-	public function resolveDependencies()
-	{
+	public function resolveDependencies(): ?array
+    {
 		$rootDeps = $this->getDependencyList();
 		$deps = [];
 
@@ -272,9 +279,9 @@ JS;
 		return array_unique($deps);
 	}
 
-	private function getExtensionsContent($lazyLoad = false)
-	{
-		$content = "";
+	private function getExtensionsContent($lazyLoad = false): string
+    {
+		$content = '';
 		$deps = $this->getDependencies();
 		if ($lazyLoad)
 		{
@@ -297,23 +304,23 @@ JS;
 
 		foreach ($deps as $ext)
 		{
-			try
-			{
-				$extension = new Extension($ext);
-				if (!$lazyLoad)
-				{
-					$content .= "\n" . $extension->getContent();
-				}
-				else
-				{
-					$content .= "\n" . $extension->getIncludeExpression();
-				}
-			} catch (\Bitrix\Main\ArgumentException $e)
-			{
-				echo "Janative: error while initialization of '{$extension->name}' extension\n\n";
-				throw $e;
-			}
-		}
+            try
+            {
+                $extension = new Extension($ext);
+                if (!$lazyLoad)
+                {
+                    $content .= "\n" . $extension->getContent();
+                }
+                else
+                {
+                    $content .= "\n" . $extension->getIncludeExpression();
+                }
+            } catch (SystemException $e)
+            {
+                echo "Janative: error while initialization of '{$ext}' extension\n\n";
+                throw $e;
+            }
+        }
 
 		return $content;
 	}

@@ -31,7 +31,7 @@ class Block extends \Bitrix\Main\Update\Stepper
 		{
 			$codes = [$codes];
 		}
-		
+
 		$res = UpdateBlock::getList([
 			'select' => [
 				'ID', 'CODE'
@@ -48,7 +48,7 @@ class Block extends \Bitrix\Main\Update\Stepper
 			]);
 			$codes = array_diff($codes, [$row['CODE']]);
 		}
-		
+
 		if (!empty($codes))
 		{
 			foreach ($codes as $code)
@@ -77,7 +77,7 @@ class Block extends \Bitrix\Main\Update\Stepper
 		{
 			$codes = [$codes];
 		}
-		
+
 		$res = UpdateBlock::getList([
 			'select' => [
 				'ID'
@@ -105,7 +105,7 @@ class Block extends \Bitrix\Main\Update\Stepper
 		{
 			$classes = [$classes];
 		}
-		
+
 		$classesUnique = array_unique($classes);
 		// all nodes have equal classes
 		if (count($classesUnique) === 1)
@@ -145,14 +145,14 @@ class Block extends \Bitrix\Main\Update\Stepper
 				$classesSorted
 			);
 		}
-		
+
 		// add and remove classes
 		foreach ($result as $pos => $class)
 		{
 			if ($addClasses || $removeClasses)
 			{
 				$classList = explode(' ', $class['classList']);
-		
+
 				if ($addClasses)
 				{
 					$classList = array_merge($classList, $addClasses);
@@ -164,7 +164,7 @@ class Block extends \Bitrix\Main\Update\Stepper
 				$result[$pos]['classList'] = implode(' ', array_unique($classList));
 			}
 		}
-		
+
 		return $result;
 	}
 
@@ -240,7 +240,7 @@ class Block extends \Bitrix\Main\Update\Stepper
 							$addClasses = explode(' ', trim($params[$selector]['new_class']));
 						}
 					}
-					
+
 					$removeClasses = [];
 					if (isset($params[$selector]['remove_class']))
 					{
@@ -260,13 +260,13 @@ class Block extends \Bitrix\Main\Update\Stepper
 							$removeClasses = explode(' ', trim($params[$selector]['remove_class']));
 						}
 					}
-					
+
 					// change wrapper to valid selector
 					if ($selector == '#wrapper')
 					{
 						$selector = '#' . $block->getAnchor($block->getId());
 					}
-					
+
 					foreach (self::prepareClassesToSet($classes, $addClasses, $removeClasses) as $class)
 					{
 						$block->setClasses(array(
@@ -348,16 +348,16 @@ class Block extends \Bitrix\Main\Update\Stepper
 
 		// gets common quantity
 		$res = BlockTable::getList([
-				'select' => [
-					new \Bitrix\Main\Entity\ExpressionField(
-						'CNT', 'COUNT(*)'
-					)
-				],
-				'filter' => [
-					'=CODE' => $rowUpdate['CODE']
-				]
+			'select' => [
+				new \Bitrix\Main\Entity\ExpressionField(
+					'CNT', 'COUNT(*)'
+				)
+			],
+			'filter' => [
+				'=CODE' => $rowUpdate['CODE'],
+				'!=DESIGNED' => 'Y',
 			]
-		);
+		]);
 
 		// skip blocks that not exists
 		$row = $res->fetch();
@@ -379,7 +379,8 @@ class Block extends \Bitrix\Main\Update\Stepper
 			],
 			'filter' => [
 				'<=ID' => $rowUpdate['LAST_BLOCK_ID'],
-				'=CODE' => $rowUpdate['CODE']
+				'=CODE' => $rowUpdate['CODE'],
+				'!=DESIGNED' => 'Y',
 			]
 			]
 		);
@@ -391,7 +392,8 @@ class Block extends \Bitrix\Main\Update\Stepper
 		// gets block group for update
 		$lastId = $this::executeStep([
 				'>ID' => $rowUpdate['LAST_BLOCK_ID'],
-				'=CODE' => $rowUpdate['CODE']
+				'=CODE' => $rowUpdate['CODE'],
+				'!=DESIGNED' => 'Y',
 			],
 		 	$count,
 		 	$this::STEPPER_COUNT,
@@ -426,7 +428,7 @@ class Block extends \Bitrix\Main\Update\Stepper
 				// youtube
 				if (strpos($node['src'], 'www.youtube.com') !== false)
 				{
-					if (!$node['preview'] && $node['source'])
+					if ($node['source'])
 					{
 						$pattern = "#(youtube\\.com|youtu\\.be|youtube\\-nocookie\\.com)\\/(watch\\?(.*&)?v=|v\\/|u\\/|embed\\/?)?(videoseries\\?list=(.*)|[\\w-]{11}|\\?listType=(.*)&list=(.*))(.*)#";
 						if(preg_match($pattern, $node['source'], $matches))

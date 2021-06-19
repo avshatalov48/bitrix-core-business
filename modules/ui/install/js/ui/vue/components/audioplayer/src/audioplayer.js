@@ -4,13 +4,14 @@
  *
  * @package bitrix
  * @subpackage ui
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2021 Bitrix
  */
 
 import "./audioplayer.css";
 import 'main.polyfill.intersectionobserver';
 
-import {Vue} from 'ui.vue';
+import {BitrixVue} from 'ui.vue';
+import {BaseEvent} from "main.core.events";
 
 const State = Object.freeze({
 	play: 'play',
@@ -19,7 +20,7 @@ const State = Object.freeze({
 	none: 'none',
 });
 
-Vue.component('bx-audioplayer',
+BitrixVue.component('bx-audioplayer',
 {
 	props:
 	{
@@ -51,13 +52,10 @@ Vue.component('bx-audioplayer',
 
 		this.registerPlayer(this.id);
 
-		this.$root.$on('ui:audioplayer:play', this.onPlay);
-		Vue.event.$on('ui:audioplayer:play', this.onPlay);
-		this.$root.$on('ui:audioplayer:stop', this.onStop);
-		Vue.event.$on('ui:audioplayer:stop', this.onStop);
-		this.$root.$on('ui:audioplayer:pause', this.onPause);
-		Vue.event.$on('ui:audioplayer:pause', this.onPause);
-		this.$root.$on('ui:audioplayer:preload', this.onPreload);
+		this.$Bitrix.eventEmitter.subscribe('ui:audioplayer:play', this.onPlay);
+		this.$Bitrix.eventEmitter.subscribe('ui:audioplayer:stop', this.onStop);
+		this.$Bitrix.eventEmitter.subscribe('ui:audioplayer:pause', this.onPause);
+		this.$Bitrix.eventEmitter.subscribe('ui:audioplayer:preload', this.onPreload);
 
 		this.isDark = this.background === 'dark';
 	},
@@ -69,13 +67,10 @@ Vue.component('bx-audioplayer',
 	{
 		this.unregisterPlayer();
 
-		this.$root.$off('ui:audioplayer:play', this.onPlay);
-		Vue.event.$off('ui:audioplayer:play', this.onPlay);
-		this.$root.$off('ui:audioplayer:stop', this.onStop);
-		Vue.event.$off('ui:audioplayer:stop', this.onStop);
-		this.$root.$off('ui:audioplayer:pause', this.onPause);
-		Vue.event.$off('ui:audioplayer:pause', this.onPause);
-		this.$root.$off('ui:audioplayer:preload', this.onPreload);
+		this.$Bitrix.eventEmitter.unsubscribe('ui:audioplayer:play', this.onPlay);
+		this.$Bitrix.eventEmitter.unsubscribe('ui:audioplayer:stop', this.onStop);
+		this.$Bitrix.eventEmitter.unsubscribe('ui:audioplayer:pause', this.onPause);
+		this.$Bitrix.eventEmitter.unsubscribe('ui:audioplayer:preload', this.onPreload);
 
 		this.getObserver().unobserve(this.$refs.body);
 	},
@@ -219,21 +214,14 @@ Vue.component('bx-audioplayer',
 				return false;
 			}
 
-			if (typeof this.$root.$uiAudioPlayerId === 'undefined')
-			{
-				this.$root.$uiAudioPlayerId = [];
-			}
+			let registry = this.$Bitrix.Data.get('ui-audioplayer-id', []);
 
-			this.unregisterPlayer();
+			registry = [...new Set([...registry, id])]
+				.filter(id => id !== this.registeredId)
+				.sort((a, b) => a - b)
+			;
 
-			this.$root.$uiAudioPlayerId = [...new Set([...this.$root.$uiAudioPlayerId, id])].sort((a, b) => {
-				if (a > b)
-					return 1;
-				else if (a < b)
-					return -1;
-				else
-					return 0;
-			});
+			this.$Bitrix.Data.set('ui-audioplayer-id', registry);
 
 			this.registeredId = id;
 
@@ -246,7 +234,9 @@ Vue.component('bx-audioplayer',
 				return true;
 			}
 
-			this.$root.$uiAudioPlayerId = this.$root.$uiAudioPlayerId.filter(id => id !== this.registeredId);
+			let registry = this.$Bitrix.Data.get('ui-audioplayer-id', []).filter(id => id !== this.registeredId);
+
+			this.$Bitrix.Data.set('ui-audioplayer-id', registry);
 
 			this.registeredId = 0;
 
@@ -259,10 +249,10 @@ Vue.component('bx-audioplayer',
 				return false;
 			}
 
-			const nextId = this.$root.$uiAudioPlayerId.filter(id => id > this.registeredId).slice(0, 1)[0];
+			const nextId = this.$Bitrix.Data.get('ui-audioplayer-id', []).filter(id => id > this.registeredId).slice(0, 1)[0];
 			if (nextId)
 			{
-				this.$root.$emit('ui:audioplayer:play', {id: nextId, start: true});
+				this.$Bitrix.eventEmitter.emit('ui:audioplayer:play', {id: nextId, start: true});
 			}
 
 			return true;
@@ -281,49 +271,57 @@ Vue.component('bx-audioplayer',
 
 			this.preloadRequestSent = true;
 
-			const nextId = this.$root.$uiAudioPlayerId.filter(id => id > this.registeredId).slice(0, 1)[0];
+			const nextId = this.$Bitrix.Data.get('ui-audioplayer-id', []).filter(id => id > this.registeredId).slice(0, 1)[0];
 			if (nextId)
 			{
-				this.$root.$emit('ui:audioplayer:preload', {id: nextId});
+				this.$Bitrix.eventEmitter.emit('ui:audioplayer:preload', {id: nextId});
 			}
 
 			return true;
 		},
-		onPlay(event)
+		onPlay(event: BaseEvent)
 		{
-			if (event.id !== this.id)
+			const data = event.getData();
+
+			if (data.id !== this.id)
 			{
 				return false;
 			}
 
-			if (event.start)
+			if (data.start)
 			{
 				this.stop();
 			}
 
 			this.play();
 		},
-		onStop(event)
+		onStop(event: BaseEvent)
 		{
-			if (event.initiator === this.id)
+			const data = event.getData();
+
+			if (data.initiator === this.id)
 			{
 				return false;
 			}
 
 			this.stop();
 		},
-		onPause(event)
+		onPause(event: BaseEvent)
 		{
-			if (event.initiator === this.id)
+			const data = event.getData();
+
+			if (data.initiator === this.id)
 			{
 				return false;
 			}
 
 			this.pause();
 		},
-		onPreload(event)
+		onPreload(event: BaseEvent)
 		{
-			if (event.id !== this.id)
+			const data = event.getData();
+
+			if (data.id !== this.id)
 			{
 				return false;
 			}
@@ -401,8 +399,7 @@ Vue.component('bx-audioplayer',
 
 				if (this.id > 0)
 				{
-					this.$root.$emit('ui:audioplayer:pause', {initiator: this.id});
-					Vue.event.$emit('ui:audioplayer:pause', {initiator: this.id});
+					this.$Bitrix.eventEmitter.emit('ui:audioplayer:pause', {initiator: this.id});
 				}
 			}
 		},

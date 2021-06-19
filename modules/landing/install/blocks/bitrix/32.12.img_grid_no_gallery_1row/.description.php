@@ -22,6 +22,7 @@ return array(
 		'.landing-block-node-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_32_12-IMG'),
 			'type' => 'img',
+			'useInDesigner' => false,
 			'dimensions' => array('width' => 1110),
 			'allowInlineEdit' => false,
 		),

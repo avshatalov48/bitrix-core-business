@@ -34,13 +34,13 @@ class CSaleWS extends IWebService
 		$server_name = COption::GetOptionString("main", "server_name", $GLOBALS["SERVER_NAME"]);
 		$protocol = (CMain::IsHTTPS() ? "https" : "http");
 
-		if (strlen($site_id) > 0)
+		if ($site_id <> '')
 		{
 			$rsSites = CSite::GetByID($arFields["SITE_ID"]);
 			if ($arSite = $rsSites->Fetch())
 			{
 				$arFilterLID = array("LID" => $site_id);
-				if (strlen($arSite["SERVER_NAME"]) > 0)
+				if ($arSite["SERVER_NAME"] <> '')
 					$server_name = $arSite["SERVER_NAME"];
 			}
 			$strSiteCurrency = CSaleLang::GetLangCurrency($site_id);			
@@ -148,7 +148,7 @@ class CSaleWS extends IWebService
 					|| in_array($status_code, $arGadgetParams["ORDERS_STATUS_1"])
 				)
 				{
-					if (array_key_exists("Y_FIELD", $arStatus) && strlen($arStatus["Y_FIELD"]) > 0)
+					if (array_key_exists("Y_FIELD", $arStatus) && $arStatus["Y_FIELD"] <> '')
 						$arFilterYField = array($arStatus["Y_FIELD"] => "Y");
 					else
 						$arFilterYField = array();
@@ -226,7 +226,7 @@ class CSaleWS extends IWebService
 		return $arResult;
 	}
 
-	function GetWebServiceDesc()
+	public static function GetWebServiceDesc()
 	{
 		$wsdesc = new CWebServiceDesc();
 		$wsdesc->wsname = "bitrix.webservice.sale";

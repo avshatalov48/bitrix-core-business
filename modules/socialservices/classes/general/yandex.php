@@ -315,7 +315,7 @@ class CYandexOAuthInterface extends CSocServOAuthTransport
 		parent::__construct($appID, $appSecret, $code);
 	}
 
-	public function GetRedirectURI()
+	public static function GetRedirectURI()
 	{
 		return \CHTTP::URN2URI("/bitrix/tools/oauth/yandex.php");
 	}

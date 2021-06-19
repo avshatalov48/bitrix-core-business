@@ -16,7 +16,7 @@ class bitrixcloud extends CModule
 	var $MODULE_GROUP_RIGHTS = "N";
 	var $errors = false;
 
-	function bitrixcloud()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 		include(__DIR__.'/version.php');

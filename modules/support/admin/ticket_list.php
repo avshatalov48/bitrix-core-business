@@ -202,7 +202,7 @@ function Support_GetSiteInfo($SITE_ID)
 	}
 	else
 	{
-		$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+		$rs = CSite::GetList();
 		while ($ar = $rs->Fetch())
 		{
 			$arrSites[$ar["ID"]] = "[".$ar["ID"]."] ".$ar["NAME"];
@@ -566,13 +566,11 @@ if($arID = $lAdmin->GroupAction())
 {
 	if($_REQUEST['action_target']=='selected')
 	{
-		$is_filteredTT = null;
-		//$rsData = CTicket::GetList($by, $order, $arFilter);
 		$rsData = CTicket::GetList(
-			$by,
-			$order,
+			'',
+			'',
 			$arFilter,
-			$is_filteredTT,
+			null,
 			"Y",
 			"Y",
 			"Y",
@@ -647,7 +645,7 @@ $arHeaders[] = array("id"=>"LAMP", "content"=>GetMessage("SUP_F_LAMP"), "sort"=>
 $arHeaders[] = array("id"=>"TITLE", "content"=>GetMessage('SUP_TITLE'),	"sort"=>"s_title", "default"=>true);
 
 if ($bADS)
-	$arHeaders[] = array("id"=>"DATE_CREATE","content"=>GetMessage("SUP_DATE_CREATE"), "default"=>true, sort=>"s_date_create" );
+	$arHeaders[] = array("id"=>"DATE_CREATE","content"=>GetMessage("SUP_DATE_CREATE"), "default"=>true, "sort"=>"s_date_create" );
 
 
 $arHeaders[] = array("id"=>"TIMESTAMP_X", "content"=>GetMessage('SUP_TIMESTAMP'),"sort"=> "s_timestamp", "default"=>($bADS ? false : true ));
@@ -694,12 +692,14 @@ $USER_FIELD_MANAGER->AdminListAddHeaders( $entity_id, $arHeaders );
 $lAdmin->AddHeaders($arHeaders);
 
 $get_user_name = "N";
-//$rsData = CTicket::GetList($by, $order, $arFilter, $is_filtered, "Y", $get_user_name, $get_extra_names);
+
+global $by, $order;
+
 $rsData = CTicket::GetList(
 	$by,
 	$order,
 	$arFilter,
-	$is_filtered,
+	null,
 	"Y",
 	$get_user_name,
 	$get_extra_names,
@@ -1170,7 +1170,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 	<td><?
 		$ref = array();
 		$ref_id = array();
-		$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+		$rs = CSite::GetList();
 		while ($ar = $rs->Fetch())
 		{
 			$ref[] = "[".$ar["ID"]."] ".$ar["NAME"];

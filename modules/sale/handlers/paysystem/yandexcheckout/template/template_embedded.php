@@ -19,9 +19,7 @@ $sum = round($params['SUM'], 2);
 	var checkout = new window.YooMoneyCheckoutWidget({
 		confirmation_token: '<?=CUtil::JSEscape($params['CONFIRMATION_TOKEN'])?>',
 		return_url: '<?=CUtil::JSEscape($params['RETURN_URL'])?>',
-		error_callback(error) {
-			console.log(error);
-
+		error_callback: function(error) {
 			var paySystemBlockNode = BX("paysystem-yookassa"),
 				resultDiv = document.createElement('div');
 

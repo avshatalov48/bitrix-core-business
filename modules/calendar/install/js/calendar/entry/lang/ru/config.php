@@ -18,4 +18,5 @@ $MESS["EC_BUSY_USERS_EXCLUDE_SINGLE"] = "Создать встречу без у
 $MESS["EC_BUSY_USERS_EXCLUDE_PLURAL"] = "Создать встречу без них";
 $MESS["EC_BUSY_USERS_BACK2EDIT"] = "Вернуться к редактированию";
 $MESS["EC_BUSY_USERS_CLOSE"] = "Отменить и закрыть";
+$MESS["CALENDAR_DELETE_EVENT_NOTIFICATION"] = "Событие удалено";
 ?>

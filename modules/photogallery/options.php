@@ -10,7 +10,7 @@ if ($RIGHTS > "D"):
 		$arSights = array();
 
 	$arLangs = array();
-	$db_res = CLanguage::GetList($by, $order, array());
+	$db_res = CLanguage::GetList();
 	while($res = $db_res->Fetch())
 		$arLangs[$res["LID"]] = $res;
 	//*****************************************************************************************************************

@@ -53,32 +53,35 @@ class CIBlockRights
 		$arRights = array();
 		$RIGHT_ID = "";
 		$i = 0;
-		foreach($ar as $arRight)
+		if (!empty($ar) && is_array($ar))
 		{
-			if(isset($arRight["RIGHT_ID"]))
+			foreach ($ar as $arRight)
 			{
-				if($arRight["RIGHT_ID"] <> '')
-					$RIGHT_ID = $arRight["RIGHT_ID"];
-				else
-					$RIGHT_ID = "n".$i++;
+				if (isset($arRight["RIGHT_ID"]))
+				{
+					if ($arRight["RIGHT_ID"] <> '')
+						$RIGHT_ID = $arRight["RIGHT_ID"];
+					else
+						$RIGHT_ID = "n".$i++;
 
-				$arRights[$RIGHT_ID] = array(
-					"GROUP_CODE" => "",
-					"DO_CLEAN" => "N",
-					"TASK_ID" => 0,
-				);
-			}
-			elseif(isset($arRight["GROUP_CODE"]))
-			{
-				$arRights[$RIGHT_ID]["GROUP_CODE"] = $arRight["GROUP_CODE"];
-			}
-			elseif(isset($arRight["DO_CLEAN"]))
-			{
-				$arRights[$RIGHT_ID]["DO_CLEAN"] = $arRight["DO_CLEAN"] == "Y"? "Y": "N";
-			}
-			elseif(isset($arRight["TASK_ID"]))
-			{
-				$arRights[$RIGHT_ID]["TASK_ID"] = $arRight["TASK_ID"];
+					$arRights[$RIGHT_ID] = array(
+						"GROUP_CODE" => "",
+						"DO_CLEAN" => "N",
+						"TASK_ID" => 0,
+					);
+				}
+				elseif (isset($arRight["GROUP_CODE"]))
+				{
+					$arRights[$RIGHT_ID]["GROUP_CODE"] = $arRight["GROUP_CODE"];
+				}
+				elseif (isset($arRight["DO_CLEAN"]))
+				{
+					$arRights[$RIGHT_ID]["DO_CLEAN"] = $arRight["DO_CLEAN"] == "Y" ? "Y" : "N";
+				}
+				elseif (isset($arRight["TASK_ID"]))
+				{
+					$arRights[$RIGHT_ID]["TASK_ID"] = $arRight["TASK_ID"];
+				}
 			}
 		}
 
@@ -94,7 +97,7 @@ class CIBlockRights
 					foreach($arRights as $RIGHT_ID2 => $arRightSet2)
 					{
 						if(
-							$RIGHT_ID2 > 0
+							(int)$RIGHT_ID2 > 0
 							&& $arRightSet2["GROUP_CODE"] === $arRightSet["GROUP_CODE"]
 						)
 						{

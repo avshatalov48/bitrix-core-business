@@ -36,7 +36,7 @@ class CDeliveryPecom
 	public static $PAYER_SHOP = "1";
 	public static $PAYER_BUYER = "2";
 
-	function Init()
+	public static function Init()
 	{
 		return array(
 			/* Basic description */
@@ -85,7 +85,7 @@ class CDeliveryPecom
 		);
 	}
 
-	function getExtraInfoParams($arOrder, $arConfig, $profileId, $siteId)
+	public static function getExtraInfoParams($arOrder, $arConfig, $profileId, $siteId)
 	{
 		$result = array();
 
@@ -109,8 +109,8 @@ class CDeliveryPecom
 
 		return $result;
 	}
-	
-	function getConfig($siteId = false)
+
+	public static function getConfig($siteId = false)
 	{
 		$shopLocationId = CSaleHelper::getShopLocationId($siteId);
 		$arShopLocation = CSaleHelper::getLocationByIdHitCached($shopLocationId);
@@ -354,12 +354,12 @@ class CDeliveryPecom
 		return $arConfig;
 	}
 
-	function getSettings($strSettings)
+	public static function getSettings($strSettings)
 	{
 		return unserialize($strSettings, ['allowed_classes' => false]);
 	}
 
-	function setSettings($arSettings)
+	public static function setSettings($arSettings)
 	{
 		unset($arSettings["CITY"]);
 
@@ -374,7 +374,7 @@ class CDeliveryPecom
 		return serialize($arSettings);
 	}
 
-	function getFeatures($arConfig)
+	public static function getFeatures($arConfig)
 	{
 		$arResult = array();
 
@@ -418,7 +418,7 @@ class CDeliveryPecom
 		return $arResult;
 	}
 
-	function calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
+	public static function calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
 	{
 		$ttl = 604800; //week
 		$cacheId = "SaleDeliveryPecomCalc_".$profile."_".md5(serialize($arConfig))."_".md5(serialize($arOrder));
@@ -438,7 +438,7 @@ class CDeliveryPecom
 		return $result;
 	}
 
-	function compability($arOrder, $arConfig)
+	public static function compability($arOrder, $arConfig)
 	{
 		$ttl = 604800;
 		$cacheId = "SaleDeliveryPecomCompability".$arConfig["CITY_DELIVERY"]["VALUE"].$arOrder["LOCATION_TO"];
@@ -613,7 +613,7 @@ class CDeliveryPecom
 		);
 	}
 
-	public function getAdminMessage()
+	public static function getAdminMessage()
 	{
 		$result = array();
 		$message = '';
@@ -753,7 +753,7 @@ class CDeliveryPecom
 		return $result[$shipmentId];
 	}
 
-	public function processAdditionalInfoShipmentEdit(Shipment $shipment, array $requestData)
+	public static function processAdditionalInfoShipmentEdit(Shipment $shipment, array $requestData)
 	{
 		if(empty($requestData['REQUEST_SELF']) || $requestData['REQUEST_SELF'] != 'Y')
 			return null;

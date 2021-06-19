@@ -20,14 +20,7 @@ if (($ACTION == 'EXPORT_EDIT' || $ACTION == 'EXPORT_COPY') && $STEP == 1)
 		$V = $arOldSetupVars['V'];
 	if (array_key_exists('XML_DATA', $arOldSetupVars))
 	{
-		if (get_magic_quotes_gpc())
-		{
-			$XML_DATA = base64_encode(stripslashes($arOldSetupVars['XML_DATA']));
-		}
-		else
-		{
-			$XML_DATA = base64_encode($arOldSetupVars['XML_DATA']);
-		}
+		$XML_DATA = base64_encode($arOldSetupVars['XML_DATA']);
 	}
 	if (array_key_exists('SETUP_SERVER_NAME', $arOldSetupVars))
 		$SETUP_SERVER_NAME = $arOldSetupVars['SETUP_SERVER_NAME'];
@@ -405,7 +398,7 @@ if ($STEP==1)
 <tr>
 	<td width="40%"><?echo GetMessage("CET_SAVE_FILENAME");?></td>
 	<td width="60%">
-		<b><? echo htmlspecialcharsbx(COption::GetOptionString("catalog", "export_default_path", "/bitrix/catalog_export/"));?></b><input type="text" name="SETUP_FILE_NAME" value="<?echo ($SETUP_FILE_NAME <> '') ? htmlspecialcharsbx($SETUP_FILE_NAME) : "ebay_product_feed_".mktime().".xml" ?>" size="50" />
+		<b><? echo htmlspecialcharsbx(COption::GetOptionString("catalog", "export_default_path", "/bitrix/catalog_export/"));?></b><input type="text" name="SETUP_FILE_NAME" value="<?echo ($SETUP_FILE_NAME <> '') ? htmlspecialcharsbx($SETUP_FILE_NAME) : "ebay_product_feed_".time().".xml" ?>" size="50" />
 	</td>
 </tr>
 <?

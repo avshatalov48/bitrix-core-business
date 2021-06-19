@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,calendar_entry,calendar_calendarsection,calendar_util,main_core_events,calendar_controls,calendar_compacteventform,main_core) {
+(function (exports,calendar_entry,calendar_sectionmanager,calendar_util,main_core_events,calendar_controls,calendar_compacteventform,ui_notification,calendar_eventviewform,main_core) {
 	'use strict';
 
 	var EntryManager = /*#__PURE__*/function () {
@@ -7,7 +7,54 @@ this.BX = this.BX || {};
 	    babelHelpers.classCallCheck(this, EntryManager);
 	  }
 
-	  babelHelpers.createClass(EntryManager, null, [{
+	  babelHelpers.createClass(EntryManager, [{
+	    key: "handlePullChanges",
+	    value: function handlePullChanges(params) {
+	      var compactForm = EntryManager.getCompactViewForm();
+
+	      if (compactForm && compactForm.isShown()) {
+	        var _compactForm$userPlan, _compactForm$userPlan2, _params$fields;
+
+	        if (compactForm.userPlannerSelector && ((_compactForm$userPlan = compactForm.userPlannerSelector) === null || _compactForm$userPlan === void 0 ? void 0 : (_compactForm$userPlan2 = _compactForm$userPlan.planner) === null || _compactForm$userPlan2 === void 0 ? void 0 : _compactForm$userPlan2.isShown())) {
+	          var _compactForm$userPlan3;
+
+	          compactForm === null || compactForm === void 0 ? void 0 : (_compactForm$userPlan3 = compactForm.userPlannerSelector) === null || _compactForm$userPlan3 === void 0 ? void 0 : _compactForm$userPlan3.refreshPlannerState();
+	        }
+
+	        var entry = compactForm.getCurrentEntry();
+
+	        if (!compactForm.isNewEntry() && entry && entry.parentId === parseInt(params === null || params === void 0 ? void 0 : (_params$fields = params.fields) === null || _params$fields === void 0 ? void 0 : _params$fields.PARENT_ID)) {
+	          if (params.command === 'delete_event') {
+	            compactForm.close();
+	          } else {
+	            var onEntryListReloadHandler = function onEntryListReloadHandler() {
+	              if (compactForm) {
+	                compactForm.reloadEntryData();
+	              }
+
+	              BX.Event.EventEmitter.unsubscribe('BX.Calendar:onEntryListReload', onEntryListReloadHandler);
+	            };
+
+	            BX.Event.EventEmitter.subscribe('BX.Calendar:onEntryListReload', onEntryListReloadHandler);
+	          }
+	        }
+	      }
+
+	      BX.SidePanel.Instance.getOpenSliders().forEach(function (slider) {
+	        var _params$fields2;
+
+	        var data = EntryManager.slidersMap.get(slider);
+
+	        if (data && data.entry && data.entry.parentId === parseInt(params === null || params === void 0 ? void 0 : (_params$fields2 = params.fields) === null || _params$fields2 === void 0 ? void 0 : _params$fields2.PARENT_ID)) {
+	          if (params.command === 'delete_event') {
+	            slider.close();
+	          } else if (data.control instanceof calendar_eventviewform.EventViewForm) {
+	            data.control.reloadSlider(params);
+	          }
+	        }
+	      });
+	    }
+	  }], [{
 	    key: "getNewEntry",
 	    value: function getNewEntry(options) {
 	      var newEntryData = {};
@@ -18,11 +65,8 @@ this.BX = this.BX || {};
 	      newEntryData.NAME = EntryManager.getNewEntryName();
 	      newEntryData.dateFrom = dateTime.from;
 	      newEntryData.dateTo = dateTime.to;
-	      newEntryData.SECT_ID = calendar_calendarsection.CalendarSectionManager.getNewEntrySectionId();
-	      newEntryData.REMIND = [{
-	        type: 'min',
-	        count: 15
-	      }];
+	      newEntryData.SECT_ID = calendar_sectionmanager.SectionManager.getNewEntrySectionId(options.type, parseInt(options.ownerId));
+	      newEntryData.REMIND = EntryManager.getNewEntryReminders();
 	      newEntryData.attendeesEntityList = [{
 	        entityId: 'user',
 	        id: userId
@@ -103,6 +147,36 @@ this.BX = this.BX || {};
 	      }]);
 	    }
 	  }, {
+	    key: "showDeleteEntryNotification",
+	    value: function showDeleteEntryNotification(entry) {
+	      if (entry && entry instanceof calendar_entry.Entry) {
+	        BX.UI.Notification.Center.notify({
+	          id: 'calendar' + entry.getUniqueId(),
+	          content: main_core.Loc.getMessage('CALENDAR_DELETE_EVENT_NOTIFICATION'),
+	          actions: [{
+	            title: main_core.Loc.getMessage('CALENDAR_EVENT_DO_CANCEL'),
+	            events: {
+	              click: function click(event, balloon, action) {
+	                entry.cancelDelete();
+	                balloon.close();
+	              }
+	            }
+	          }]
+	        });
+	      }
+	    }
+	  }, {
+	    key: "closeDeleteNotificationBalloon",
+	    value: function closeDeleteNotificationBalloon(entry) {
+	      if (entry && entry instanceof calendar_entry.Entry) {
+	        var balloon = BX.UI.Notification.Center.getBalloonById('calendar' + entry.getUniqueId());
+
+	        if (balloon) {
+	          balloon.close();
+	        }
+	      }
+	    }
+	  }, {
 	    key: "openEditSlider",
 	    value: function openEditSlider() {
 	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -139,20 +213,27 @@ this.BX = this.BX || {};
 	    key: "deleteEntry",
 	    value: function deleteEntry(entry) {
 	      if (entry instanceof calendar_entry.Entry) {
-	        main_core_events.EventEmitter.subscribe('BX.Calendar.Entry:beforeDelete', function () {
+	        var beforeDeleteHandler = function beforeDeleteHandler() {
 	          if (calendar_util.Util.getBX().SidePanel.Instance) {
 	            calendar_util.Util.getBX().SidePanel.Instance.close();
 	          }
-	        });
-	        main_core_events.EventEmitter.subscribe('BX.Calendar.Entry:delete', function () {
+	        };
+
+	        main_core_events.EventEmitter.subscribe('BX.Calendar.Entry:beforeDelete', beforeDeleteHandler);
+
+	        var deleteHandler = function deleteHandler() {
 	          var calendar = calendar_util.Util.getCalendarContext();
 
-	          if (calendar) {
-	            calendar.reload();
-	          } else {
-	            calendar_util.Util.getBX().reload();
+	          if (!calendar) {
+	            return calendar_util.Util.getBX().reload();
 	          }
-	        });
+
+	          calendar.reload();
+	          main_core_events.EventEmitter.unsubscribe('BX.Calendar.Entry:delete', deleteHandler);
+	          main_core_events.EventEmitter.unsubscribe('BX.Calendar.Entry:beforeDelete', beforeDeleteHandler);
+	        };
+
+	        main_core_events.EventEmitter.subscribe('BX.Calendar.Entry:delete', deleteHandler);
 	        entry.delete();
 	      }
 	    }
@@ -171,10 +252,8 @@ this.BX = this.BX || {};
 
 	        if (status === 'N' && !params.confirmed) {
 	          if (entry.isRecursive()) {
-	            _this.showConfirmStatusDialog(entry);
+	            _this.showConfirmStatusDialog(entry, resolve);
 
-	            return false;
-	          } else if (!confirm(main_core.Loc.getMessage('EC_DECLINE_MEETING_CONFIRM'))) {
 	            return false;
 	          }
 	        }
@@ -185,7 +264,7 @@ this.BX = this.BX || {};
 	            entryParentId: entry.parentId,
 	            status: status,
 	            recursionMode: params.recursionMode,
-	            currentDateDrom: calendar_util.Util.formatDate(entry.from)
+	            currentDateFrom: calendar_util.Util.formatDate(entry.from)
 	          }
 	        }).then(function (response) {
 	          BX.Event.EventEmitter.emit('BX.Calendar.Entry:onChangeMeetingStatus', new main_core.Event.BaseEvent({
@@ -193,7 +272,8 @@ this.BX = this.BX || {};
 	              entry: entry,
 	              status: status,
 	              recursionMode: params.recursionMode,
-	              currentDateDrom: entry.from
+	              currentDateFrom: entry.from,
+	              counters: response.data.counters
 	            }
 	          }));
 
@@ -205,7 +285,7 @@ this.BX = this.BX || {};
 	            entry: entry,
 	            status: status,
 	            recursionMode: params.recursionMode,
-	            currentDateDrom: entry.from
+	            currentDateFrom: entry.from
 	          });
 	        });
 	      });
@@ -213,6 +293,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "showConfirmStatusDialog",
 	    value: function showConfirmStatusDialog(entry) {
+	      var resolvePromiseCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
 	      if (!this.confirmDeclineDialog) {
 	        this.confirmDeclineDialog = new calendar_controls.ConfirmStatusDialog();
 	      }
@@ -224,6 +306,10 @@ this.BX = this.BX || {};
 	          EntryManager.setMeetingStatus(entry, 'N', {
 	            recursionMode: event.getData().recursionMode,
 	            confirmed: true
+	          }).then(function () {
+	            if (main_core.Type.isFunction(resolvePromiseCallback)) {
+	              resolvePromiseCallback();
+	            }
 	          });
 	        }
 	      });
@@ -376,30 +462,137 @@ this.BX = this.BX || {};
 	      EntryManager.userIndex = userIndex;
 	    }
 	  }, {
-	    key: "openChatForEntry",
-	    value: function openChatForEntry(_ref) {
-	      var entryId = _ref.entryId,
-	          entry = _ref.entry;
+	    key: "registerDeleteTimeout",
+	    value: function registerDeleteTimeout(params) {
+	      EntryManager.delayedActionList.push(params);
+	    }
+	  }, {
+	    key: "unregisterDeleteTimeout",
+	    value: function unregisterDeleteTimeout(_ref) {
+	      var action = _ref.action,
+	          data = _ref.data;
+	      EntryManager.delayedActionList = EntryManager.delayedActionList.filter(function (item) {
+	        return item.action !== action || item.data.entryId !== data.entryId || item.data.recursionMode !== data.recursionMode || item.data.excludeDate !== data.excludeDate;
+	      });
+	    }
+	  }, {
+	    key: "doDelayedActions",
+	    value: function doDelayedActions() {
+	      var requestList = [];
+	      return new Promise(function (resolve) {
+	        if (!EntryManager.delayedActionList.length) {
+	          resolve();
+	        }
 
-	      if (window.BXIM && entry && entry.data.MEETING && parseInt(entry.data.MEETING.CHAT_ID)) {
-	        BXIM.openMessenger('chat' + parseInt(entry.data.MEETING.CHAT_ID));
-	      } else {
-	        BX.ajax.runAction('calendar.api.calendarajax.createEventChat', {
-	          data: {
-	            entryId: entryId
+	        EntryManager.delayedActionList.forEach(function (_ref2) {
+	          var action = _ref2.action,
+	              data = _ref2.data,
+	              params = _ref2.params;
+	          var requestUid = parseInt(data.requestUid);
+	          requestList.push(data.requestUid);
+
+	          if (params.entry) {
+	            EntryManager.closeDeleteNotificationBalloon(params.entry);
 	          }
-	        }).then(function (response) {
-	          if (window.BXIM && response.data && response.data.chatId > 0) {
-	            BXIM.openMessenger('chat' + response.data.chatId);
-	          }
+
+	          BX.ajax.runAction("calendar.api.calendarajax.".concat(action), {
+	            data: data
+	          }).then(function () {
+	            main_core.Type.isFunction(params.callback);
+	            {
+	              params.callback();
+	            }
+	            requestList = requestList.filter(function (uid) {
+	              return uid !== requestUid;
+	            });
+
+	            if (!requestList.length) {
+	              resolve();
+	            }
+	          }, function () {
+	            requestList = requestList.filter(function (uid) {
+	              return uid !== requestUid;
+	            });
+
+	            if (!requestList.length) {
+	              resolve();
+	            }
+	          });
+	          EntryManager.unregisterDeleteTimeout({
+	            action: action,
+	            data: data,
+	            params: params
+	          });
+	        });
+	      });
+	    }
+	  }, {
+	    key: "getEntryUniqueId",
+	    value: function getEntryUniqueId(entryData, entry) {
+	      var sid = entryData.PARENT_ID || entryData.ID;
+
+	      if (entryData.RRULE) {
+	        sid += '|' + (entry ? calendar_util.Util.formatDate(entry.from) : calendar_util.Util.formatDate(BX.parseDate(entryData.DATE_FROM)));
+	      }
+
+	      if (entryData['~TYPE'] === 'tasks') {
+	        sid += '|' + 'task';
+	      }
+
+	      return sid;
+	    }
+	  }, {
+	    key: "registerEntrySlider",
+	    value: function registerEntrySlider(entry, control) {
+	      var slider = calendar_util.Util.getBX().SidePanel.Instance.getTopSlider();
+
+	      if (slider) {
+	        EntryManager.slidersMap.set(slider, {
+	          entry: entry,
+	          control: control
 	        });
 	      }
+	    }
+	  }, {
+	    key: "getNewEntryReminders",
+	    value: function getNewEntryReminders() {
+	      var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'withTime';
+	      var userSettings = calendar_util.Util.getUserSettings();
+
+	      if (main_core.Type.isObjectLike(userSettings.defaultReminders) && main_core.Type.isArray(userSettings.defaultReminders[type]) && userSettings.defaultReminders[type].length) {
+	        return userSettings.defaultReminders[type];
+	      }
+
+	      return type === 'withTime' ? [{
+	        type: 'min',
+	        count: 15
+	      }] : [{
+	        type: 'daybefore',
+	        before: 0,
+	        time: 480
+	      }];
+	    }
+	  }, {
+	    key: "setNewEntryReminders",
+	    value: function setNewEntryReminders() {
+	      var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'withTime';
+	      var reminders = arguments.length > 1 ? arguments[1] : undefined;
+	      var userSettings = calendar_util.Util.getUserSettings();
+
+	      if (main_core.Type.isObjectLike(userSettings.defaultReminders) && reminders.length) {
+	        userSettings.defaultReminders[type] = reminders;
+	      }
+
+	      calendar_util.Util.setUserSettings(userSettings);
 	    }
 	  }]);
 	  return EntryManager;
 	}();
 	babelHelpers.defineProperty(EntryManager, "newEntryName", '');
 	babelHelpers.defineProperty(EntryManager, "userIndex", {});
+	babelHelpers.defineProperty(EntryManager, "delayedActionList", []);
+	babelHelpers.defineProperty(EntryManager, "DELETE_DELAY_TIMEOUT", 4000);
+	babelHelpers.defineProperty(EntryManager, "slidersMap", new WeakMap());
 
 	var Entry = /*#__PURE__*/function () {
 	  function Entry() {
@@ -411,22 +604,24 @@ this.BX = this.BX || {};
 
 	    if (options.userIndex) {
 	      this.setUserIndex(options.userIndex);
-	    } //this.uid = this.calendar.entryController.getUniqueId(data, this);
+	    }
 
+	    this.delayTimeoutMap = new Map();
 	  }
 
 	  babelHelpers.createClass(Entry, [{
 	    key: "prepareData",
 	    value: function prepareData(data) {
-	      this.data = data;
-	      this.id = this.data.ID || 0;
+	      this.data = data; // this.id = this.data.ID || 0;
+
+	      this.id = parseInt(this.data.ID || 0);
+	      this.parentId = parseInt(this.data.PARENT_ID || 0);
 
 	      if (!this.data.DT_SKIP_TIME) {
 	        this.data.DT_SKIP_TIME = this.data.SKIP_TIME ? 'Y' : 'N';
 	      }
 
 	      this.fullDay = this.data.DT_SKIP_TIME === 'Y';
-	      this.parentId = this.data.PARENT_ID || 0;
 	      this.accessibility = this.data.ACCESSIBILITY || 'busy';
 	      this.important = this.data.IMPORTANCE === 'high';
 	      this.private = !!this.data.PRIVATE_EVENT;
@@ -512,21 +707,24 @@ this.BX = this.BX || {};
 	    value: function getAttendees() {
 	      var _this = this;
 
-	      if (!this.attendeeList && main_core.Type.isArray(this.data['ATTENDEE_LIST'])) {
+	      if (!this.attendeeList) {
 	        this.attendeeList = [];
-	        var userIndex = this.getUserIndex();
-	        this.data['ATTENDEE_LIST'].forEach(function (user) {
-	          if (userIndex[user.id]) {
-	            var attendee = BX.clone(userIndex[user.id]);
-	            attendee.STATUS = user.status;
-	            attendee.ENTRY_ID = user.entryId || false;
 
-	            _this.attendeeList.push(attendee);
-	          }
-	        });
+	        if (main_core.Type.isArray(this.data['ATTENDEE_LIST'])) {
+	          var userIndex = this.getUserIndex();
+	          this.data['ATTENDEE_LIST'].forEach(function (user) {
+	            if (userIndex[user.id]) {
+	              var attendee = BX.clone(userIndex[user.id]);
+	              attendee.STATUS = user.status;
+	              attendee.ENTRY_ID = user.entryId || false;
+
+	              _this.attendeeList.push(attendee);
+	            }
+	          });
+	        }
 	      }
 
-	      return this.attendeeList || [];
+	      return this.attendeeList;
 	    }
 	  }, {
 	    key: "setUserIndex",
@@ -576,12 +774,8 @@ this.BX = this.BX || {};
 	    }
 	  }, {
 	    key: "getDescription",
-	    value: function getDescription(callback) {
-	      if (this.data.DESCRIPTION && this.data['~DESCRIPTION'] && main_core.Type.isFunction(callback)) {
-	        setTimeout(function () {
-	          callback(this.data['~DESCRIPTION']);
-	        }.bind(this), 50);
-	      }
+	    value: function getDescription() {
+	      return this.data.DESCRIPTION || '';
 	    }
 	  }, {
 	    key: "applyViewRange",
@@ -733,33 +927,55 @@ this.BX = this.BX || {};
 	    }
 	  }, {
 	    key: "deleteParts",
-	    value: function deleteParts() {
-	      if (main_core.Type.isArray(this.parts)) {
-	        this.parts.forEach(function (part) {
-	          if (part.params) {
-	            if (part.params.wrapNode) {
-	              part.params.wrapNode.style.opacity = 0;
-	            }
-	          }
-	        }, this);
-	        setTimeout(function () {
-	          this.parts.forEach(function (part) {
-	            if (part.params) {
-	              if (part.params.wrapNode) {
-	                BX.remove(part.params.wrapNode);
+	    value: function deleteParts(recursionMode) {
+	      var _this2 = this;
+
+	      var calendarContext = calendar_util.Util.getCalendarContext();
+
+	      if (calendarContext) {
+	        var wrap = calendarContext.getView().getContainer();
+
+	        if (recursionMode === 'all') {
+	          calendarContext.getView().entries.forEach(function (entry) {
+	            if (parseInt(entry.id) === _this2.id || parseInt(entry.data.RECURRENCE_ID) === _this2.id || parseInt(entry.data.RECURRENCE_ID) === parseInt(_this2.data.RECURRENCE_ID) || parseInt(entry.id) === parseInt(_this2.data.RECURRENCE_ID)) {
+	              var entryPart = wrap.querySelector('div[data-bx-calendar-entry="' + entry.uid + '"]');
+
+	              if (entryPart) {
+	                entryPart.style.opacity = 0;
+	                setTimeout(function () {
+	                  entryPart.style.display = 'none';
+	                }, 200);
 	              }
 	            }
-	          }, this);
-	        }.bind(this), 300);
+	          });
+	        } else if (recursionMode === 'next') {
+	          calendarContext.getView().entries.forEach(function (entry) {
+	            if ((parseInt(entry.id) === _this2.id || parseInt(entry.data.RECURRENCE_ID) === _this2.id || parseInt(entry.data.RECURRENCE_ID) === parseInt(_this2.data.RECURRENCE_ID) || parseInt(entry.id) === parseInt(_this2.data.RECURRENCE_ID)) && entry.from.getTime() > _this2.from.getTime()) {
+	              var entryPart = wrap.querySelector('div[data-bx-calendar-entry="' + entry.uid + '"]');
+
+	              if (entryPart) {
+	                entryPart.style.opacity = 0;
+	                setTimeout(function () {
+	                  entryPart.style.display = 'none';
+	                }, 200);
+	              }
+	            }
+	          });
+	        } else if (recursionMode === 'this' || !recursionMode) {
+	          var parts = wrap.querySelectorAll('div[data-bx-calendar-entry="' + this.getUniqueId() + '"]');
+	          parts.forEach(function (entryPart) {
+	            entryPart.style.opacity = 0;
+	            setTimeout(function () {
+	              entryPart.style.display = 'none';
+	            }, 200);
+	          });
+	        }
 	      }
 	    }
 	  }, {
 	    key: "getUniqueId",
 	    value: function getUniqueId() {
-	      var sid = this.data.PARENT_ID || this.data.PARENT_ID;
-	      if (this.isRecursive()) sid += '|' + this.data.DT_FROM_TS;
-	      if (this.data['~TYPE'] === 'tasks') sid += '|' + 'task';
-	      return sid;
+	      return EntryManager.getEntryUniqueId(this.data, this);
 	    }
 	  }, {
 	    key: "getCurrentStatus",
@@ -784,6 +1000,8 @@ this.BX = this.BX || {};
 	            }
 	          }
 	        }
+	      } else if (userId === parseInt(this.data.CREATED_BY)) {
+	        status = this.data.MEETING_STATUS || 'H';
 	      }
 
 	      return calendar_util.Util.getMeetingStatusList().includes(status) ? status : false;
@@ -876,6 +1094,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "delete",
 	    value: function _delete(params) {
+	      var _this3 = this;
+
 	      params = main_core.Type.isPlainObject(params) ? params : {};
 	      var recursionMode = params.recursionMode || false;
 
@@ -884,27 +1104,37 @@ this.BX = this.BX || {};
 	          entry: this
 	        });
 	      } else {
-	        if (!params.confirmed && !confirm(BX.message('EC_DELETE_EVENT_CONFIRM'))) {
-	          return false;
-	        } // Broadcast event
-
-
+	        // Broadcast event
 	        BX.onCustomEvent('BX.Calendar.Entry:beforeDelete', [{
 	          entryId: this.id,
 	          recursionMode: recursionMode
 	        }]);
-	        this.deleteParts();
-	        BX.ajax.runAction('calendar.api.calendarajax.deleteCalendarEntry', {
-	          data: {
-	            entryId: this.id,
-	            recursionMode: params.recursionMode || false
+	        EntryManager.showDeleteEntryNotification(this);
+	        this.deleteParts(recursionMode);
+	        var action = 'deleteCalendarEntry';
+	        var data = {
+	          entryId: this.id,
+	          recursionMode: params.recursionMode || false,
+	          requestUid: calendar_util.Util.registerRequestId()
+	        };
+	        EntryManager.registerDeleteTimeout({
+	          action: action,
+	          data: data,
+	          params: {
+	            entry: this,
+	            callback: function callback() {
+	              BX.onCustomEvent('BX.Calendar.Entry:delete', [{
+	                entryId: _this3.id,
+	                recursionMode: recursionMode
+	              }]);
+	            }
 	          }
-	        }).then(function (response) {
-	          BX.onCustomEvent('BX.Calendar.Entry:delete', [{
-	            entryId: this.id,
-	            recursionMode: recursionMode
-	          }]);
-	        }.bind(this));
+	        });
+	        this.deleteTimeout = setTimeout(EntryManager.doDelayedActions, EntryManager.DELETE_DELAY_TIMEOUT);
+	        this.delayTimeoutMap.set(this.deleteTimeout, {
+	          action: action,
+	          data: data
+	        });
 	      }
 	    }
 	  }, {
@@ -917,18 +1147,29 @@ this.BX = this.BX || {};
 	          entryId: this.id,
 	          recursionMode: recursionMode
 	        }]);
-	        BX.ajax.runAction('calendar.api.calendarajax.excludeRecursionDate', {
-	          data: {
-	            entryId: this.id,
-	            excludeDate: this.data.DATE_FROM
+	        EntryManager.showDeleteEntryNotification(this);
+	        this.deleteParts(recursionMode);
+	        var action = 'excludeRecursionDate';
+	        var data = {
+	          entryId: this.id,
+	          recursionMode: recursionMode,
+	          excludeDate: this.data.DATE_FROM
+	        };
+	        EntryManager.registerDeleteTimeout({
+	          action: action,
+	          data: data,
+	          params: {
+	            entry: this,
+	            callback: function callback() {
+	              BX.onCustomEvent('BX.Calendar.Entry:delete', [data]);
+	            }
 	          }
-	        }).then( // Success
-	        function (response) {
-	          BX.onCustomEvent('BX.Calendar.Entry:delete', [{
-	            entryId: this.id,
-	            recursionMode: recursionMode
-	          }]);
-	        }.bind(this));
+	        });
+	        this.deleteTimeout = setTimeout(EntryManager.doDelayedActions, EntryManager.DELETE_DELAY_TIMEOUT);
+	        this.delayTimeoutMap.set(this.deleteTimeout, {
+	          action: action,
+	          data: data
+	        });
 	      } else if (this.hasRecurrenceId()) {
 	        this.delete({
 	          confirmed: true,
@@ -948,18 +1189,31 @@ this.BX = this.BX || {};
 	          entryId: this.id,
 	          recursionMode: recursionMode
 	        }]);
-	        BX.ajax.runAction('calendar.api.calendarajax.changeRecurciveEntryUntil', {
-	          data: {
-	            entryId: this.id,
-	            untilDate: calendar_util.Util.formatDate(this.from.getTime() - calendar_util.Util.getDayLength())
+	        EntryManager.showDeleteEntryNotification(this);
+	        this.deleteParts(recursionMode);
+	        var calendarContext = calendar_util.Util.getCalendarContext();
+
+	        var action = 'changeRecurciveEntryUntil';
+	        var data = {
+	          entryId: this.id,
+	          recursionMode: recursionMode,
+	          untilDate: calendar_util.Util.formatDate(this.from.getTime() - calendar_util.Util.getDayLength())
+	        };
+	        EntryManager.registerDeleteTimeout({
+	          action: action,
+	          data: data,
+	          params: {
+	            entry: this,
+	            callback: function callback() {
+	              BX.onCustomEvent('BX.Calendar.Entry:delete', [data]);
+	            }
 	          }
-	        }).then( // Success
-	        function (response) {
-	          BX.onCustomEvent('BX.Calendar.Entry:delete', [{
-	            entryId: this.id,
-	            recursionMode: recursionMode
-	          }]);
-	        }.bind(this));
+	        });
+	        this.deleteTimeout = setTimeout(EntryManager.doDelayedActions, EntryManager.DELETE_DELAY_TIMEOUT);
+	        this.delayTimeoutMap.set(this.deleteTimeout, {
+	          action: action,
+	          data: data
+	        });
 	      }
 	    }
 	  }, {
@@ -971,10 +1225,31 @@ this.BX = this.BX || {};
 	      });
 	    }
 	  }, {
+	    key: "cancelDelete",
+	    value: function cancelDelete() {
+	      if (this.deleteTimeout) {
+	        var deleteTimeoutData = this.delayTimeoutMap.get(this.deleteTimeout);
+
+	        if (deleteTimeoutData) {
+	          EntryManager.unregisterDeleteTimeout(deleteTimeoutData);
+	          this.delayTimeoutMap.delete(this.delayTimeoutMap);
+	        }
+
+	        clearTimeout(this.deleteTimeout);
+	        this.deleteTimeout = null;
+	      }
+
+	      var calendarContext = calendar_util.Util.getCalendarContext();
+
+	      if (calendarContext) {
+	        calendarContext.reload();
+	      }
+	    }
+	  }, {
 	    key: "showConfirmDeleteDialog",
 	    value: function showConfirmDeleteDialog(params) {
 	      if (!this.confirmDeleteDialog) {
-	        this.confirmDeleteDialog = new calendar_controls.ConfirmDeleteDialog({
+	        this.confirmDeleteDialog = new (window.BX || window.top.BX).Calendar.Controls.ConfirmDeleteDialog({
 	          entry: params.entry
 	        });
 	      }
@@ -1049,5 +1324,5 @@ this.BX = this.BX || {};
 	exports.EntryManager = EntryManager;
 	exports.Entry = Entry;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.Calendar.Controls,BX.Calendar,BX));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.Calendar.Controls,BX.Calendar,BX,BX.Calendar,BX));
 //# sourceMappingURL=entry.bundle.js.map

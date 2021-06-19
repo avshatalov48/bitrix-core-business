@@ -353,6 +353,12 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 			"landing_knowledge" => [],
 		];
 
+		$group = Workgroup::getById($groupId);
+		if ($group && $group->isScrumProject())
+		{
+			unset($whiteList['tasks']);
+		}
+
 		$features = [];
 		__GCE_GetFeatures($groupId, $features);
 

@@ -44,7 +44,7 @@ namespace
 	$siteList = array();
 	$defaultSite = '';
 
-	$rsSites = CSite::GetList($by = "sort", $order = "asc", Array("ACTIVE"=> "Y"));
+	$rsSites = CSite::GetList("sort", "asc", Array("ACTIVE"=> "Y"));
 
 	while($arRes = $rsSites->Fetch())
 	{

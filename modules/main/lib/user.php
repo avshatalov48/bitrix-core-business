@@ -9,16 +9,24 @@ namespace Bitrix\Main;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\DB\SqlExpression;
-use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\BooleanField;
+use Bitrix\Main\ORM\Fields\DateField;
+use Bitrix\Main\ORM\Fields\DatetimeField;
+use Bitrix\Main\ORM\Fields\IntegerField;
+use Bitrix\Main\ORM\Fields\StringField;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Fields\TextField;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\Search\MapBuilder;
 
 Loc::loadMessages(__FILE__);
 
-class UserTable extends Entity\DataManager
+class UserTable extends DataManager
 {
 	public static function getTableName()
 	{
@@ -36,224 +44,135 @@ class UserTable extends Entity\DataManager
 		$helper = $connection->getSqlHelper();
 
 		return array(
-			'ID' => array(
-				'data_type' => 'integer',
-				'primary' => true,
-				'autocomplete' => true,
+			(new IntegerField('ID'))
+				->configurePrimary()
+				->configureAutocomplete(),
+
+			new StringField('LOGIN'),
+
+			(new StringField('PASSWORD'))
+				->configurePrivate(),
+
+			new StringField('EMAIL'),
+
+			(new BooleanField('ACTIVE'))
+				->configureValues('N','Y'),
+
+			(new BooleanField('BLOCKED'))
+				->configureValues('N','Y'),
+
+			new DatetimeField('DATE_REGISTER'),
+
+			(new ExpressionField(
+				'DATE_REG_SHORT',
+				$helper->getDatetimeToDateFunction('%s'),
+				'DATE_REGISTER')
+			)->configureValueType(DatetimeField::class),
+
+
+			new DatetimeField('LAST_LOGIN'),
+
+			(new ExpressionField(
+				'LAST_LOGIN_SHORT',
+				$helper->getDatetimeToDateFunction('%s'),
+				'LAST_LOGIN')
+			)->configureValueType(DatetimeField::class),
+
+			new DatetimeField('LAST_ACTIVITY_DATE'),
+
+			new DatetimeField('TIMESTAMP_X'),
+
+			new StringField('NAME'),
+			new StringField('SECOND_NAME'),
+			new StringField('LAST_NAME'),
+			new StringField('TITLE'),
+			new StringField('EXTERNAL_AUTH_ID'),
+			new StringField('XML_ID'),
+			new StringField('BX_USER_ID'),
+			new StringField('CONFIRM_CODE'),
+			new StringField('LID'),
+			new StringField('LANGUAGE_ID'),
+			new StringField('TIME_ZONE'),
+			new IntegerField('TIME_ZONE_OFFSET'),
+			new StringField('PERSONAL_PROFESSION'),
+			new StringField('PERSONAL_PHONE'),
+			new StringField('PERSONAL_MOBILE'),
+			new StringField('PERSONAL_WWW'),
+			new StringField('PERSONAL_ICQ'),
+			new StringField('PERSONAL_FAX'),
+			new StringField('PERSONAL_PAGER'),
+			new TextField('PERSONAL_STREET'),
+			new StringField('PERSONAL_MAILBOX'),
+			new StringField('PERSONAL_CITY'),
+			new StringField('PERSONAL_STATE'),
+			new StringField('PERSONAL_ZIP'),
+			new StringField('PERSONAL_COUNTRY'),
+			new DateField('PERSONAL_BIRTHDAY'),
+			new StringField('PERSONAL_GENDER'),
+			new IntegerField('PERSONAL_PHOTO'),
+			new TextField('PERSONAL_NOTES'),
+			new StringField('WORK_COMPANY'),
+			new StringField('WORK_DEPARTMENT'),
+			new StringField('WORK_PHONE'),
+			new StringField('WORK_POSITION'),
+			new StringField('WORK_WWW'),
+			new StringField('WORK_FAX'),
+			new StringField('WORK_PAGER'),
+			new TextField('WORK_STREET'),
+			new StringField('WORK_MAILBOX'),
+			new StringField('WORK_CITY'),
+			new StringField('WORK_STATE'),
+			new StringField('WORK_ZIP'),
+			new StringField('WORK_COUNTRY'),
+			new TextField('WORK_PROFILE'),
+			new IntegerField('WORK_LOGO'),
+			new TextField('WORK_NOTES'),
+			new TextField('ADMIN_NOTES'),
+
+			new ExpressionField(
+				'SHORT_NAME',
+				$helper->getConcatFunction(
+					"%s",
+					"' '",
+					"UPPER(" . $helper->getSubstrFunction("%s", 1, 1) . ")", "'.'"
+				),
+				['LAST_NAME', 'NAME']
 			),
-			'LOGIN' => array(
-				'data_type' => 'string'
-			),
-			'PASSWORD' => array(
-				'data_type' => 'string'
-			),
-			'EMAIL' => array(
-				'data_type' => 'string'
-			),
-			'ACTIVE' => array(
-				'data_type' => 'boolean',
-				'values' => array('N','Y')
-			),
-			'BLOCKED' => array(
-				'data_type' => 'boolean',
-				'values' => array('N','Y')
-			),
-			'DATE_REGISTER' => array(
-				'data_type' => 'datetime'
-			),
-			'DATE_REG_SHORT' => array(
-				'data_type' => 'datetime',
-				'expression' => array(
-					$helper->getDatetimeToDateFunction('%s'), 'DATE_REGISTER'
-				)
-			),
-			'LAST_LOGIN' => array(
-				'data_type' => 'datetime'
-			),
-			'LAST_LOGIN_SHORT' => array(
-				'data_type' => 'datetime',
-				'expression' => array(
-					$helper->getDatetimeToDateFunction('%s'), 'LAST_LOGIN'
-				)
-			),
-			'LAST_ACTIVITY_DATE' => array(
-				'data_type' => 'datetime'
-			),
-			'TIMESTAMP_X' => array(
-				'data_type' => 'datetime'
-			),
-			'NAME' => array(
-				'data_type' => 'string'
-			),
-			'SECOND_NAME' => array(
-				'data_type' => 'string'
-			),
-			'LAST_NAME' => array(
-				'data_type' => 'string'
-			),
-			'TITLE' => array(
-				'data_type' => 'string'
-			),
-			'EXTERNAL_AUTH_ID' => array(
-				'data_type' => 'string'
-			),
-			'XML_ID' => array(
-				'data_type' => 'string'
-			),
-			'BX_USER_ID' => array(
-				'data_type' => 'string'
-			),
-			'CONFIRM_CODE' => array(
-				'data_type' => 'string'
-			),
-			'LID' => array(
-				'data_type' => 'string'
-			),
-			'LANGUAGE_ID' => array(
-				'data_type' => 'string'
-			),
-			'TIME_ZONE_OFFSET' => array(
-				'data_type' => 'integer'
-			),
-			'PERSONAL_PROFESSION' => array(
-				'data_type' => 'string'
-			),
-			'PERSONAL_PHONE' => array(
-				'data_type' => 'string'
-			),
-			'PERSONAL_MOBILE' => array(
-				'data_type' => 'string'
-			),
-			'PERSONAL_WWW' => array(
-				'data_type' => 'string'
-			),
-			'PERSONAL_ICQ' => array(
-				'data_type' => 'string'
-			),
-			'PERSONAL_FAX' => array(
-				'data_type' => 'string'
-			),
-			'PERSONAL_PAGER' => array(
-				'data_type' => 'string'
-			),
-			'PERSONAL_STREET' => array(
-				'data_type' => 'text'
-			),
-			'PERSONAL_MAILBOX' => array(
-				'data_type' => 'string'
-			),
-			'PERSONAL_CITY' => array(
-				'data_type' => 'string'
-			),
-			'PERSONAL_STATE' => array(
-				'data_type' => 'string'
-			),
-			'PERSONAL_ZIP' => array(
-				'data_type' => 'string'
-			),
-			'PERSONAL_COUNTRY' => array(
-				'data_type' => 'string'
-			),
-			'PERSONAL_BIRTHDAY' => array(
-				'data_type' => 'date'
-			),
-			'PERSONAL_GENDER' => array(
-				'data_type' => 'string'
-			),
-			'PERSONAL_PHOTO' => array(
-				'data_type' => 'integer'
-			),
-			'PERSONAL_NOTES' => array(
-				'data_type' => 'text'
-			),
-			'WORK_COMPANY' => array(
-				'data_type' => 'string'
-			),
-			'WORK_DEPARTMENT' => array(
-				'data_type' => 'string'
-			),
-			'WORK_PHONE' => array(
-				'data_type' => 'string'
-			),
-			'WORK_POSITION' => array(
-				'data_type' => 'string'
-			),
-			'WORK_WWW' => array(
-				'data_type' => 'string'
-			),
-			'WORK_FAX' => array(
-				'data_type' => 'string'
-			),
-			'WORK_PAGER' => array(
-				'data_type' => 'string'
-			),
-			'WORK_STREET' => array(
-				'data_type' => 'text'
-			),
-			'WORK_MAILBOX' => array(
-				'data_type' => 'string'
-			),
-			'WORK_CITY' => array(
-				'data_type' => 'string'
-			),
-			'WORK_STATE' => array(
-				'data_type' => 'string'
-			),
-			'WORK_ZIP' => array(
-				'data_type' => 'string'
-			),
-			'WORK_COUNTRY' => array(
-				'data_type' => 'string'
-			),
-			'WORK_PROFILE' => array(
-				'data_type' => 'text'
-			),
-			'WORK_LOGO' => array(
-				'data_type' => 'integer'
-			),
-			'WORK_NOTES' => array(
-				'data_type' => 'text'
-			),
-			'ADMIN_NOTES' => array(
-				'data_type' => 'text'
-			),
-			'SHORT_NAME' => array(
-				'data_type' => 'string',
-				'expression' => array(
-					$helper->getConcatFunction("%s","' '", "UPPER(".$helper->getSubstrFunction("%s", 1, 1).")", "'.'"),
-					'LAST_NAME', 'NAME'
-				)
-			),
-			'IS_ONLINE' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'expression' => array(
-					'CASE WHEN %s > '.$helper->addSecondsToDateTime('(-'.self::getSecondsForLimitOnline().')').' THEN \'Y\' ELSE \'N\' END',
-					'LAST_ACTIVITY_DATE',
-				)
-			),
-			'IS_REAL_USER' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'expression' => array(
-					'CASE WHEN %s IN ("'.join('", "', static::getExternalUserTypes()).'") THEN \'N\' ELSE \'Y\' END',
-					'EXTERNAL_AUTH_ID',
-				)
-			),
-			'INDEX' => array(
-				'data_type' => 'Bitrix\Main\UserIndex',
-				'reference' => array('=this.ID' => 'ref.USER_ID'),
-				'join_type' => 'INNER',
-			),
-			'INDEX_SELECTOR' => array(
-				'data_type' => 'Bitrix\Main\UserIndexSelector',
-				'reference' => array('=this.ID' => 'ref.USER_ID'),
-				'join_type' => 'INNER',
-			),
-			(new Entity\ReferenceField(
+
+			(new ExpressionField(
+				'IS_ONLINE',
+				'CASE WHEN %s > '
+					. $helper->addSecondsToDateTime('(-' . self::getSecondsForLimitOnline() . ')')
+					. ' THEN \'Y\' ELSE \'N\' END',
+				'LAST_ACTIVITY_DATE',
+				['values' => ['N', 'Y']]
+			))->configureValueType(BooleanField::class),
+
+			(new ExpressionField(
+				'IS_REAL_USER',
+				'CASE WHEN %s IN ("'
+					. join('", "', static::getExternalUserTypes())
+					. '") THEN \'N\' ELSE \'Y\' END',
+				'EXTERNAL_AUTH_ID',
+				['values' => ['N', 'Y']]
+			))->configureValueType(BooleanField::class),
+
+			(new Reference(
+				'INDEX',
+				UserIndexTable::class,
+				Join::on('this.ID', 'ref.USER_ID')
+			))->configureJoinType(Join::TYPE_INNER),
+
+			(new Reference(
+				'INDEX_SELECTOR',
+				UserIndexSelectorTable::class,
+				Join::on('this.ID', 'ref.USER_ID')
+			))->configureJoinType(Join::TYPE_INNER),
+
+			(new Reference(
 				'COUNTER',
 				\Bitrix\Main\UserCounterTable::class,
-				Entity\Query\Join::on('this.ID', 'ref.USER_ID')->where('ref.CODE', 'tasks_effective')
+				Join::on('this.ID', 'ref.USER_ID')->where('ref.CODE', 'tasks_effective')
 			)),
 			(new Reference(
 				'PHONE_AUTH',
@@ -261,7 +180,7 @@ class UserTable extends Entity\DataManager
 				Join::on('this.ID', 'ref.USER_ID')
 			)),
 			(new OneToMany('GROUPS', UserGroupTable::class, 'USER'))
-				->configureJoinType(Entity\Query\Join::TYPE_INNER),
+				->configureJoinType(Join::TYPE_INNER),
 		);
 	}
 
@@ -392,7 +311,19 @@ class UserTable extends Entity\DataManager
 
 	public static function getExternalUserTypes()
 	{
-		static $types = array("bot", "email", "__controller", "replica", "imconnector", "sale", "saleanonymous", "shop", "call");
+		static $types = [
+			'bot',
+			'email',
+			'__controller',
+			'replica',
+			'imconnector',
+			'sale',
+			'saleanonymous',
+			'shop',
+			'call',
+			'document_editor',
+		];
+
 		return $types;
 	}
 
@@ -711,30 +642,30 @@ class UserTable extends Entity\DataManager
 		throw new NotImplementedException("Use CUser class.");
 	}
 
-	public static function onAfterAdd(Entity\Event $event)
+	public static function onAfterAdd(ORM\Event $event)
 	{
 		$id = $event->getParameter("id");
 		static::indexRecord($id);
-		return new Entity\EventResult();
+		return new ORM\EventResult();
 	}
 
-	public static function onAfterUpdate(Entity\Event $event)
+	public static function onAfterUpdate(ORM\Event $event)
 	{
 		$primary = $event->getParameter("id");
 		$id = $primary["ID"];
 		static::indexRecord($id);
-		return new Entity\EventResult();
+		return new ORM\EventResult();
 	}
 
-	public static function onAfterDelete(Entity\Event $event)
+	public static function onAfterDelete(ORM\Event $event)
 	{
 		$primary = $event->getParameter("id");
 		$id = $primary["ID"];
 		static::deleteIndexRecord($id);
-		return new Entity\EventResult();
+		return new ORM\EventResult();
 	}
 
-	public static function postInitialize(\Bitrix\Main\ORM\Entity $entity)
+	public static function postInitialize(ORM\Entity $entity)
 	{
 		// add uts inner reference
 

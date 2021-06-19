@@ -1,0 +1,740 @@
+.calendar-pub-event-wrap-inactive.calendar-pub-event-wrap {
+	display: none;
+}
+
+.calendar-pub-event-wrap {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 100%;
+}
+
+.calendar-pub-event-title-main {
+	display: block;
+	margin-bottom: 10px;
+	font: 32px/43px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333;
+	text-align: center;
+}
+
+.calendar-pub-event-link-box {
+	display: block;
+	margin-bottom: 44px;
+	text-align: center;
+}
+
+.calendar-pub-event-link {
+	display: inline-block;
+	border-bottom: 1px solid rgba(0,101,163,.2);
+	font: 14px/22px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #0b66c3;
+	transition: border-bottom .3s;
+}
+
+.calendar-pub-event-link:hover {
+	border-bottom: 1px solid transparent;
+}
+
+.calendar-pub-event-date-box {
+	margin-bottom: 28px;
+	width: 100%;
+	text-align: center;
+}
+
+.calendar-pub-event-date {
+	display: inline-block;
+	min-width: 84px;
+}
+
+.calendar-pub-event-date-head {
+	position: relative;
+	min-height: 27px;
+	border-radius: 9px 9px 0 0;
+	background-color: #ff5752;
+	font: 12px/19px "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #fff;
+	text-align: center;
+}
+
+.calendar-pub-event-date-head:before {
+	content: '';
+	position: absolute;
+	left: 0;
+	bottom: -3px;
+	width: 100%;
+	height: 3px;
+	background-color: rgba(0,146,192,.16);
+}
+
+.calendar-pub-event-date-head-circle {
+	position: relative;
+	display: block;
+	width: 7px;
+	height: 7px;
+	border-radius: 100%;
+	background-color: rgba(0,0,0,.27);
+}
+
+.calendar-pub-event-date-head-rect {
+	position: absolute;
+	top: 0;
+}
+
+.calendar-pub-event-date-head-rect:nth-child(1) {
+	left: 8px;
+}
+
+.calendar-pub-event-date-head-rect:nth-child(2) {
+	right: 8px;
+}
+
+.calendar-pub-event--decision .calendar-pub-event-date-head-rect:nth-child(1) {
+	left: 5px;
+}
+
+.calendar-pub-event--decision .calendar-pub-event-date-head-rect:nth-child(2) {
+	right: 5px;
+}
+
+.calendar-pub-event-date-head-tree {
+	position: absolute;
+	top: -5px;
+	left: 1px;
+	width: 5px;
+	height: 12px;
+	border-radius: 2px;
+	background-color: #525C69;
+	z-index: 1;
+}
+
+.calendar-pub-event-date-month {
+	line-height: 27px;
+	margin: 0 auto;
+	max-width: 78px;
+	height: 100%;
+	text-transform: capitalize;
+	letter-spacing: 1.1px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.calendar-pub-event-date-num {
+	position: relative;
+	min-height: 58px;
+	border: 6px solid #c2c7cf;
+	border-top: none;
+	border-radius: 0 0 9px 9px;
+	font: 42px/48px "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+.calendar-pub-event-date-num:before,
+.calendar-pub-event-date-num:after {
+	content: '';
+	position: absolute;
+}
+
+.calendar-pub-event-date-num:before {
+	left: 0;
+	bottom: 0;
+	height: 4px;
+	width: 100%;
+	border-radius: 0 0 6px 6px;
+	background-color: #f0f0f0;
+}
+
+.calendar-pub-event-date-num:after {
+	right: 0;
+	bottom: 4px;
+	width: 12px;
+	height: 12px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%0A%3Csvg%20width%3D%2213px%22%20height%3D%2212px%22%20viewBox%3D%220%200%2013%2012%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%3E%0A%20%20%20%20%3Ctitle%3ERectangle%3C/title%3E%0A%20%20%20%20%3Cg%20id%3D%22Page-1%22%20stroke%3D%22none%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%0A%20%20%20%20%20%20%20%20%3Cg%20id%3D%22%u0421%u043A%u0440%u0438%u043D-2%22%20transform%3D%22translate%28-750.000000%2C%20-240.000000%29%22%20fill%3D%22%23F0F0F0%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22Group-7%22%20transform%3D%22translate%28474.000000%2C%20123.000000%29%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22calend2%22%20transform%3D%22translate%28210.000000%2C%2045.000000%29%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22calend%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22Group-5%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M66.3347639%2C72.1341507%20L74.6317597%2C72.1341507%20C76.6199848%2C72.1341507%2078.2317597%2C73.7459256%2078.2317597%2C75.7341507%20L78.2317597%2C83.7336121%20L78.2317597%2C83.7336121%20L66.3347639%2C72.1341507%20Z%22%20id%3D%22Rectangle%22%20transform%3D%22translate%2872.283262%2C%2077.933881%29%20scale%28-1%2C%201%29%20translate%28-72.283262%2C%20-77.933881%29%20%22%3E%3C/path%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%3C/g%3E%0A%3C/svg%3E');
+	background-repeat: no-repeat;
+}
+
+.calendar-pub-event-main {
+	position: relative;
+	padding: 51px 20px 35px 20px;
+	margin-bottom: 20px;
+	background: #fff;
+	border-radius: 30px;
+	box-shadow: 0 22px 34px 0 rgba(0,0,0,.25);
+	box-sizing: border-box;
+	z-index: 2;
+}
+
+.calendar-pub-event-main:after {
+	content: '';
+	position: absolute;
+	right: -311px;
+	bottom: 0;
+	width: 264px;
+	height: 165px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%22264%22%20height%3D%22165%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M216.883%2045.528C214.438%2019.981%20192.9%200%20166.68%200c-20.249%200-37.703%2011.924-45.73%2029.12a50.413%2050.413%200%2000-17.245-3.023c-27.859%200-50.442%2022.555-50.442%2050.38%200%201.316.066%202.616.165%203.907A43.066%2043.066%200%200043%2079.105c-23.749%200-43%2019.228-43%2042.948C0%20145.772%2019.251%20165%2043%20165h160.433c33.45%200%2060.567-27.085%2060.567-60.493%200-28.79-20.142-52.866-47.117-58.979%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.2%22/%3E%3C/svg%3E');
+	background-repeat: no-repeat;
+}
+
+.calendar-pub-event--members-changed .calendar-pub-event-main {
+	padding-bottom: 20px;
+}
+
+.flexible-mode--linear-blue--v2 .content {
+	background: transparent;
+	box-shadow: none!important;
+}
+
+.calendar-pub-event-info {
+	margin-bottom: 57px;
+	text-align: center;
+}
+
+.calendar-pub-event-info-text {
+	margin: 6px 0;
+	font: 20px/28px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333;
+}
+
+.calendar-pub-event-info-time {
+	font: 13px/20px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525c69;
+	opacity: .69;
+}
+
+.calendar-pub-event--decision .calendar-pub-event-info-time {
+	font: 13px/17px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.calendar-pub-event--decision .calendar-pub-event-info-text {
+	margin: 2px 0;
+	color: #525c69;
+}
+
+.calendar-pub-event--decision .calendar-pub-event-info {
+	margin-bottom: 42px;
+}
+
+.calendar-pub-event-btn-container {
+	display: flex;
+	flex-direction: column;
+}
+
+.calendar-pub-event-btn.ui-btn.ui-btn-success {
+	min-height: 52px;
+	border-radius: 30px!important;
+	min-width: 295px;
+	font: 17px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333;
+	text-transform: initial;
+}
+
+/*.calendar-pub-event--decision */.calendar-pub-event-btn-change-decision{
+	border: none;
+	background-color: rgba(47,198,246,.25);
+}
+
+/*.calendar-pub-event--decision */.calendar-pub-event-btn-change-decision:hover {
+	border: none;
+	background-color: rgba(47,198,246,.5);
+}
+
+.calendar-pub-event-btn.ui-btn.ui-btn-link {
+	font: 17px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	opacity: .68;
+	text-transform: initial;
+}
+
+.calendar-pub-event-footer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: 15px;
+	color: #fff;
+}
+
+.calendar-pub-event-footer-logo {
+	display: block;
+    border: none;
+	margin-bottom: 3px;
+	width: 100px;
+	height: 20px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%22100%22%20height%3D%2220%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%3E%3Cpath%20d%3D%22M5.303%2015.932c1.927%200%202.89-.658%202.89-2.174%200-1.288-.963-2.02-2.56-2.02H3.527v4.194h1.775zm-.457-7.024c1.522%200%202.308-.86%202.308-1.946%200-1.137-.76-2.02-2.384-2.02H3.528v3.966h1.318zM.055%202.11h5.248c3.625%200%205.248%202.097%205.248%204.22%200%201.364-.685%202.703-1.978%203.36v.05c2.003.531%203.119%202.148%203.119%204.017%200%202.527-1.978%205.003-5.933%205.003H.055V2.111zM13.492%2018.761h3.423V6.811h-3.423v11.95zm-.355-15.639c0-1.086.887-1.97%202.08-1.97%201.165%200%202.053.833%202.053%201.97%200%201.112-.888%202.021-2.054%202.021-1.192%200-2.079-.884-2.079-2.021zM20.186%2015.654v-6.19H17.98V6.81h2.206V4.006l3.448-.985v3.79h3.625l-.786%202.653h-2.84v5.33c0%201.112.356%201.491%201.142%201.491a3.34%203.34%200%20001.774-.53l.99%202.324c-.888.606-2.46.935-3.652.935-2.282%200-3.701-1.264-3.701-3.36M28.476%206.81h2.89l.38%201.264c1.015-.935%201.979-1.566%203.272-1.566.583%200%201.293.176%201.825.555l-1.192%202.83a2.929%202.929%200%2000-1.52-.455c-.736%200-1.32.253-2.232.986v8.337h-3.423V6.811zM37.503%2018.761h3.423V6.811h-3.423v11.95zm-.355-15.639c0-1.086.887-1.97%202.079-1.97%201.166%200%202.053.833%202.053%201.97%200%201.112-.887%202.021-2.053%202.021-1.192%200-2.08-.884-2.08-2.021zM46.326%2012.748l-4.387-5.937h3.55l2.688%203.638%202.687-3.638h3.55l-4.437%205.937%204.487%206.013h-3.55l-2.763-3.74-2.789%203.74h-3.55zM64.504%206.868c0-1.434-1.185-1.936-2.447-1.936-1.69%200-3.078.553-4.364%201.131l-.884-2.64c1.439-.654%203.432-1.383%205.803-1.383%203.709%200%205.5%201.86%205.5%204.475%200%204.576-6.307%205.858-7.367%209.353h7.594v2.917H56.254c.682-8.171%208.25-8.649%208.25-11.917%22/%3E%3Cpath%20d%3D%22M73.662%2012.072h1.514v-1.785c0-1.282.1-2.766.151-3.093l-3.759%204.953a41.211%2041.211%200%20012.094-.075zm-5.928.578l8.325-10.56h2.473v9.982h2.472v2.765h-2.472v3.948h-3.356v-3.948h-7.442V12.65zM92.149%2011.028a4.825%204.825%200%2011-.001-9.65%204.825%204.825%200%20010%209.65m0-11.028a6.204%206.204%200%20100%2012.406%206.204%206.204%200%20100-12.406%22/%3E%3Cpath%20d%3D%22M92.838%203.446v2.067h2.068v1.38H91.46V3.445h1.379z%22/%3E%3C/g%3E%3C/svg%3E');
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+
+.calendar-pub-event-footer-desc {
+	font: bold 16px/19px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.calendar-pub-event--decision .calendar-pub-event-head {
+	display: flex;
+}
+
+.calendar-pub-event--decision .calendar-pub-event-head-left {
+	margin-right: 20px;
+}
+
+.calendar-pub-event--decision .calendar-pub-event-main {
+	padding: 49px 44px 45px 44px;
+	width: 100%;
+	max-width: 544px;
+}
+
+.calendar-pub-event--decision .calendar-pub-event-date {
+	min-width: 65px;
+}
+
+.calendar-pub-event--decision .calendar-pub-event-date-head {
+	min-height: 21px;
+	height: 21px;
+}
+
+.calendar-pub-event--decision .calendar-pub-event-date-month {
+	max-width: 60px;
+	line-height: 21px;
+	letter-spacing: .1px;
+}
+
+.calendar-pub-event--decision .calendar-pub-event-date-head {
+	font: 10px/14px "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.calendar-pub-event--decision .calendar-pub-event-date-head:before {
+	bottom: -2px;
+	height: 2px;
+}
+
+.calendar-pub-event--decision .calendar-pub-event-date-num:after {
+	width: 9px;
+	height: 9px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%0A%3Csvg%20width%3D%2210px%22%20height%3D%2210px%22%20viewBox%3D%220%200%2010%2010%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%3E%0A%20%20%20%20%3Ctitle%3ERectangle%3C/title%3E%0A%20%20%20%20%3Cg%20id%3D%22Page-1%22%20stroke%3D%22none%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%0A%20%20%20%20%20%20%20%20%3Cg%20id%3D%22%u0421%u043A%u0440%u0438%u043D-3%22%20transform%3D%22translate%28-548.000000%2C%20-222.000000%29%22%20fill%3D%22%23F0F0F0%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22Group-7%22%20transform%3D%22translate%28453.000000%2C%20123.000000%29%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22calend2%22%20transform%3D%22translate%2844.000000%2C%2043.450000%29%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22calend%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22Group-5%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M51.4094421%2C55.9233577%20L57.8296137%2C55.9233577%20C59.376011%2C55.9233577%2060.6296137%2C57.1769604%2060.6296137%2C58.7233577%20L60.6296137%2C64.9160584%20L60.6296137%2C64.9160584%20L51.4094421%2C55.9233577%20Z%22%20id%3D%22Rectangle%22%20transform%3D%22translate%2856.019528%2C%2060.419708%29%20scale%28-1%2C%201%29%20translate%28-56.019528%2C%20-60.419708%29%20%22%3E%3C/path%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%3C/g%3E%0A%3C/svg%3E');
+}
+
+.calendar-pub-event--decision .calendar-pub-event-date-num {
+	min-height: 46px;
+	font: 33px/36px "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.calendar-pub-event-head {
+	margin-bottom: 40px;
+}
+
+.calendar-pub-event--members-changed .calendar-pub-event-head {
+	margin-bottom: 48px;
+}
+
+.calendar-pub-event-head-left .calendar-pub-event-date-box {
+	margin-bottom: 0;
+}
+
+.calendar-pub-event-head-right .calendar-pub-event-title-main {
+	margin-bottom: 5px;
+	margin-top: 4px;
+	font: 26px/29px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	text-align: left;
+}
+
+.calendar-pub-event-head-center {
+	text-align: center;
+}
+
+.calendar-pub-event-desc {
+	display: block;
+	font: 14px/19px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	text-align: inherit;
+}
+
+.calendar-pub-event--accept .calendar-pub-event-desc {
+	color: #8ebb00;
+}
+
+.calendar-pub-event--decline .calendar-pub-event-desc {
+	color: #ff5752;
+}
+
+.calendar-pub-event--members-changed .calendar-pub-event-desc {
+	color: #8ebb00;
+	text-align: center;
+}
+
+.calendar-pub-event-user-list-box {
+    display: block;
+	margin-bottom: 33px;
+	padding: 9px 9px 0 21px;
+	border-radius: 9px;
+	background-color: rgba(130,152,181,.09);
+    box-sizing: border-box;
+}
+
+.calendar-pub-event-user-list-inner {
+	padding-bottom: 15px;
+	min-height: 180px;
+	max-height: 342px;
+	scrollbar-track-color: rgba(82,92,105,.1);
+	scrollbar-base-color: rgba(82,92,105,.4);
+	scrollbar-shadow-color: rgba(82,92,105,.4);
+	scrollbar-highlight-color: rgba(82,92,105,.4);
+	scrollbar-width: 9px;
+	scrollbar-color: rgba(82,92,105,.4) rgba(82,92,105,.1);
+	overflow-y: auto;
+	box-sizing: border-box;
+}
+
+.calendar-pub-event-user-list-inner::-webkit-scrollbar-track {
+	border-radius: 9px;
+	background-color: rgba(82,92,105,.1);
+}
+
+.calendar-pub-event-user-list-inner::-webkit-scrollbar {
+	width: 6px;
+	border-radius: 9px;
+	background-color: rgba(82,92,105,.1);
+}
+
+.calendar-pub-event-user-list-inner::-webkit-scrollbar-thumb {
+	border-radius: 9px;
+	background-color: rgba(82,92,105,.4);
+}
+
+.calendar-pub-event-user-list-title,
+.calendar-pub-event-attachment-list-title {
+	display: block;
+	margin-bottom: 6px;
+	font: 10px/19px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: rgba(82,92,105,.42);
+	text-transform: uppercase;
+}
+
+.calendar-pub-event-user-list-content,
+.calendar-pub-event-location-content {
+	color: #333;
+}
+
+.calendar-pub-event-user-list-content,
+.calendar-pub-event-user-attachment-content {
+	height: 95px;
+	margin-bottom: 10px;
+    transition: height .5s;
+	overflow: hidden;
+}
+
+.calendar-pub-event-user-attachment-content {
+    max-height: 80px;
+}
+
+.calendar-pub-event-user-list-item {
+	position: relative;
+	display: block;
+	padding-left: 21px;
+	margin-bottom: 13px;
+	font: 15px/19px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333;
+}
+
+.calendar-pub-event-user--waiting.calendar-pub-event-user-list-item {
+	color: #828b95;
+}
+
+.calendar-pub-event-user-list-item:last-child {
+	margin-bottom: 0;
+}
+
+.calendar-pub-event-user--accept.calendar-pub-event-user-list-item:before,
+.calendar-pub-event-user--waiting.calendar-pub-event-user-list-item:before,
+.calendar-pub-event-user--cancel.calendar-pub-event-user-list-item:before {
+	content: '';
+	position: absolute;
+}
+
+.calendar-pub-event-user--accept.calendar-pub-event-user-list-item:before {
+	top: 4px;
+	left: 0;
+	width: 13px;
+	height: 10px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2213%22%20height%3D%2210%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M4.617%209.707L.03%205.236%201.635%203.67l2.982%202.906L11.365.001l1.605%201.565z%22%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.5%22/%3E%3C/svg%3E') no-repeat;
+}
+
+.calendar-pub-event-user--waiting.calendar-pub-event-user-list-item:before {
+	top: 0;
+	left: 2px;
+	width: 9px;
+	height: 24px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%229%22%20height%3D%2215%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Ctext%20transform%3D%22translate%28-21%20-94%29%22%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20font-family%3D%22OpenSans-Bold%2C%20Open%20Sans%22%20font-size%3D%2218%22%20font-weight%3D%22bold%22%20opacity%3D%22.5%22%3E%3Ctspan%20x%3D%2221.707%22%20y%3D%22107.506%22%3E%3F%3C/tspan%3E%3C/text%3E%3C/svg%3E') no-repeat;
+}
+
+.calendar-pub-event-user--cancel.calendar-pub-event-user-list-item:before {
+	top: 4px;
+	left: 1px;
+	width: 10px;
+	height: 10px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2210%22%20height%3D%2210%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M6.768%205.243l3.05%203.05-1.526%201.524-3.05-3.05-3.05%203.05L.669%208.292l3.05-3.05-3.05-3.05L2.193.669l3.05%203.05%203.05-3.05%201.524%201.525z%22%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.5%22/%3E%3C/svg%3E') no-repeat;
+}
+
+
+.calendar-pub-event-user-list-btn,
+.calendar-pub-event-user-attachment-btn {
+	display: inline-block;
+	padding-left: 21px;
+	font: 14px/19px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333;
+	opacity: .5;
+    transition: opacity .2s;
+	cursor: pointer;
+}
+
+.calendar-pub-event-user-attachment-btn {
+    padding-left: 0;
+}
+
+.calendar-pub-event-user-btn--hide {
+    opacity: 0;
+}
+
+.calendar-pub-event-attachment-list-item {
+	margin-bottom: 10px;
+}
+
+.calendar-pub-event-attachment-list-item:last-child {
+	margin-bottom: 0;
+}
+
+.calendar-pub-event-attachment-file-box {
+    display: block;
+    overflow: hidden;
+}
+
+.calendar-pub-event-attachment-file-name-box {
+    display: flex;
+    align-items: center;
+    font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	overflow: hidden;
+}
+
+.calendar-pub-event-attachment-file-name-box:hover {
+    color: #333;
+}
+
+.calendar-pub-event-attachment-file-name {
+    display: inline-block;
+	margin-right: 5px;
+    max-width: 100%;
+	color: #333;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.calendar-pub-event-attachment-file-name + span {
+    margin-right: 4px;
+}
+
+.calendar-pub-event-attachment-file-size {
+    font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #828b95;
+	white-space: nowrap;
+}
+
+.calendar-pub-event-list-box-item +
+.calendar-pub-event-attachment-list-members,
+.calendar-pub-event-list-box-item +
+.calendar-pub-event-user-list-desc,
+.calendar-pub-event-list-box-item +
+.calendar-pub-event-user-list-location {
+	margin-top: 20px;
+	padding-top: 10px;
+	border-top: 1px solid rgba(82,92,105,.1);
+}
+
+.calendar-pub-event-wrap .calendar-pub-event-user-list-desc {
+	display: block;
+}
+
+/*.calendar-pub-event--decline .calendar-pub-event-user-list-desc {*/
+/*	display: none;*/
+/*}*/
+
+.calendar-pub-event-user-list-desc .calendar-pub-event-user-list-content {
+	height: auto;
+	/*max-height: 130px;*/
+}
+
+.calendar-pub-event-user-list-desc .calendar-pub-event-user-list-content p {
+	margin: 0;
+	font: 15px/20px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.calendar-pub-event-user-list-desc .calendar-pub-event-user-list-content  p:first-child {
+	margin: 0 0 15px 0;
+}
+
+.calendar-pub-event-user-list-location .calendar-pub-event-user-list-content {
+	height: auto;
+}
+
+.calendar-pub-event-user-list-location .calendar-pub-event-user-list-content p {
+	margin: 0;
+	font: 15px/20px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.calendar-pub-event-user-list-location .calendar-pub-event-user-list-content  p:first-child {
+	margin: 0 0 15px 0;
+}
+
+.calendar-pub-event--decline .calendar-pub-event-user-list-box {
+	margin-bottom: 20px;
+}
+
+.calendar-pub-event--decision .calendar-pub-event--decline .calendar-pub-event-info {
+	margin-bottom: 29px;
+}
+
+.calendar-pub-event--warning .calendar-pub-event-main {
+	margin: 0 auto;
+	padding-top: 47px;
+	padding-bottom: 56px;
+	max-width: 502px;
+}
+
+.calendar-pub-event-date-icon {
+	display: block;
+	margin: 0 auto;
+	width: 84px;
+	height: 93px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2284%22%20height%3D%2293%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cpath%20d%3D%22M9%205.437h66a9%209%200%20019%209v20.796H0V14.437a9%209%200%20019-9z%22%20fill%3D%22%23FF5752%22/%3E%3Cpath%20d%3D%22M0%2032.841h84v50.592a9%209%200%2001-9%209H9a9%209%200%2001-9-9V32.841z%22%20fill%3D%22%23C2C7CF%22/%3E%3Cg%20transform%3D%22translate%287.94%29%22%3E%3Cellipse%20fill-opacity%3D%22.27%22%20fill%3D%22%23000%22%20opacity%3D%22.5%22%20cx%3D%223.435%22%20cy%3D%2211.237%22%20rx%3D%223.245%22%20ry%3D%223.262%22/%3E%3Cellipse%20fill-opacity%3D%22.27%22%20fill%3D%22%23000%22%20opacity%3D%22.5%22%20cx%3D%2265.245%22%20cy%3D%2211.237%22%20rx%3D%223.245%22%20ry%3D%223.262%22/%3E%3Crect%20fill%3D%22%23525C69%22%20x%3D%221.271%22%20y%3D%22.587%22%20width%3D%224.326%22%20height%3D%2211.738%22%20rx%3D%222.16%22/%3E%3Crect%20fill%3D%22%23525C69%22%20x%3D%2263.082%22%20y%3D%22.587%22%20width%3D%224.326%22%20height%3D%2211.738%22%20rx%3D%222.16%22/%3E%3C/g%3E%3Cpath%20d%3D%22M9.368%2087.358h65.264a3.6%203.6%200%20003.6-3.6v-47.51H5.768v47.51a3.6%203.6%200%20003.6%203.6z%22%20fill%3D%22%23F0F0F0%22/%3E%3Cpath%20d%3D%22M9.368%2083.371h65.264a3.6%203.6%200%20003.6-3.6V32.623H5.768v47.148a3.6%203.6%200%20003.6%203.6z%22%20fill%3D%22%23FFF%22/%3E%3Cpath%20fill%3D%22%230092C0%22%20opacity%3D%22.161%22%20d%3D%22M.452%2032.452h83.097v2.709H.452z%22/%3E%3Cpath%20d%3D%22M78.232%2072.134h-8.297a3.6%203.6%200%2000-3.6%203.6v8l11.897-11.6z%22%20fill%3D%22%23F0F0F0%22/%3E%3Cg%20transform%3D%22translate%2816.385%2044.24%29%22%20fill%3D%22%23525C69%22%3E%3Crect%20width%3D%228.277%22%20height%3D%228.277%22%20rx%3D%221%22/%3E%3Crect%20x%3D%2214.557%22%20width%3D%228.277%22%20height%3D%228.277%22%20rx%3D%221%22/%3E%3Crect%20x%3D%2229.115%22%20width%3D%228.277%22%20height%3D%228.277%22%20rx%3D%221%22/%3E%3Crect%20x%3D%2243.672%22%20width%3D%228.277%22%20height%3D%228.277%22%20rx%3D%221%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2816.385%2060.072%29%22%20fill%3D%22%23525C69%22%3E%3Crect%20width%3D%228.277%22%20height%3D%228.277%22%20rx%3D%221%22/%3E%3Crect%20x%3D%2214.557%22%20width%3D%228.277%22%20height%3D%228.277%22%20rx%3D%221%22/%3E%3Crect%20x%3D%2229.115%22%20width%3D%228.277%22%20height%3D%228.277%22%20rx%3D%221%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E') no-repeat;
+}
+
+.calendar-pub-event-message-icon {
+	display: block;
+	margin: 0 auto 9px auto;
+	width: 114px;
+	height: 114px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%22114%22%20height%3D%22114%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%3E%3Cdefs%3E%3Cfilter%20x%3D%22-13.2%25%22%20y%3D%22-10.5%25%22%20width%3D%22126.3%25%22%20height%3D%22126.3%25%22%20filterUnits%3D%22objectBoundingBox%22%20id%3D%22a%22%3E%3CfeOffset%20dy%3D%222%22%20in%3D%22SourceAlpha%22%20result%3D%22shadowOffsetOuter1%22/%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22%20in%3D%22shadowOffsetOuter1%22%20result%3D%22shadowBlurOuter1%22/%3E%3CfeColorMatrix%20values%3D%220%200%200%200%200%20%20%200%200%200%200%200%20%20%200%200%200%200%200%20%200%200%200%200.0741641171%200%22%20in%3D%22shadowBlurOuter1%22/%3E%3C/filter%3E%3Cfilter%20x%3D%22-9.8%25%22%20y%3D%22-7.8%25%22%20width%3D%22119.6%25%22%20height%3D%22119.6%25%22%20filterUnits%3D%22objectBoundingBox%22%20id%3D%22c%22%3E%3CfeOffset%20dy%3D%222%22%20in%3D%22SourceAlpha%22%20result%3D%22shadowOffsetOuter1%22/%3E%3CfeGaussianBlur%20stdDeviation%3D%223%22%20in%3D%22shadowOffsetOuter1%22%20result%3D%22shadowBlurOuter1%22/%3E%3CfeColorMatrix%20values%3D%220%200%200%200%200%20%20%200%200%200%200%200%20%20%200%200%200%200%200%20%200%200%200%200.0741641171%200%22%20in%3D%22shadowBlurOuter1%22/%3E%3C/filter%3E%3Cpath%20d%3D%22M51%2089c-20.987%200-38-17.013-38-38s17.013-38%2038-38%2038%2017.013%2038%2038-17.013%2038-38%2038z%22%20id%3D%22b%22/%3E%3Cpath%20d%3D%22M51%200c28.167%200%2051%2022.833%2051%2051s-22.833%2051-51%2051S0%2079.167%200%2051%2022.833%200%2051%200zm0%202C23.938%202%202%2023.938%202%2051s21.938%2049%2049%2049%2049-21.938%2049-49S78.062%202%2051%202z%22%20id%3D%22d%22/%3E%3C/defs%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20opacity%3D%22.866%22%20fill-rule%3D%22nonzero%22%20transform%3D%22translate%286%204%29%22%3E%3Cuse%20fill%3D%22%23000%22%20filter%3D%22url%28%23a%29%22%20xlink%3Ahref%3D%22%23b%22/%3E%3Cuse%20fill%3D%22%23FF5752%22%20xlink%3Ahref%3D%22%23b%22/%3E%3C/g%3E%3Cg%20opacity%3D%22.1%22%20fill-rule%3D%22nonzero%22%20transform%3D%22translate%286%204%29%22%3E%3Cuse%20fill%3D%22%23000%22%20filter%3D%22url%28%23c%29%22%20xlink%3Ahref%3D%22%23d%22/%3E%3Cuse%20fill%3D%22%23FF5752%22%20xlink%3Ahref%3D%22%23d%22/%3E%3C/g%3E%3Cpath%20d%3D%22M75.16%2064.386L59.612%2038.491c-1.198-1.988-4.052-1.988-5.225%200L38.84%2064.386c-1.223%202.04.255%204.614%202.625%204.614H72.56c2.345%200%203.823-2.575%202.6-4.614zM54.77%2047.514c0-1.147.917-2.065%202.064-2.065h.28c1.147%200%202.065.918%202.065%202.065v7.722a2.056%202.056%200%2001-2.064%202.065h-.28a2.056%202.056%200%2001-2.065-2.065v-7.722zM59.587%2062.5a2.61%202.61%200%2001-2.6%202.6%202.61%202.61%200%2001-2.6-2.6%202.61%202.61%200%20012.6-2.6%202.61%202.61%200%20012.6%202.6z%22%20fill%3D%22%23FFF%22/%3E%3C/g%3E%3C/svg%3E') no-repeat;
+}
+
+.calendar-pub-event-message {
+	padding: 29px 42px;
+	border-radius: 9px;
+	background-color: rgba(255,87,82,.09);
+}
+
+.calendar-pub-event-message-warning {
+	display: block;
+	margin: 0 auto 25px auto;
+	max-width: 320px;
+	font: 19px/27px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #cd1a15;
+	text-align: center;
+}
+
+.calendar-pub-event-message-dark {
+	display: block;
+	font: 17px/23px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333;
+	text-align: center;
+}
+
+.calendar-pub-event-info-text--sm {
+	font-size: 17px;
+}
+
+@media (max-width: 480px) {
+	.flexible-mode--linear-blue--v2 .main-title-inner,
+	.flexible-mode--linear-blue--v2 .title-num {
+		font-size: 28px;
+	}
+
+	.calendar-pub-event-main {
+		padding: 31px 20px 31px 20px;
+	}
+
+	.calendar-pub-event-main:after {
+		display: none;
+	}
+
+	.calendar-pub-event-footer {
+		margin-bottom: 42px;
+	}
+
+	.calendar-pub-event-date {
+		min-width: 71px;
+	}
+
+	.calendar-pub-event-date-head {
+		min-height: 23px;
+		font-size: 11px;
+	}
+
+	.calendar-pub-event-date-head:before {
+		bottom: -2px;
+		height: 2px;
+	}
+
+	.calendar-pub-event-date-month {
+		line-height: 23px;
+	}
+
+	.calendar-pub-event-date-num {
+		min-height: 55px;
+		font-size: 35px;
+		line-height: 46px;
+	}
+
+	.calendar-pub-event-date-head-rect:nth-child(1) {
+		left: 6px;
+	}
+
+	.calendar-pub-event-date-head-rect:nth-child(2) {
+		right: 6px;
+	}
+
+	.calendar-pub-event-date-head-tree {
+		width: 4px;
+		height: 10px;
+	}
+
+	.calendar-pub-event-date-head-circle {
+		width: 6px;
+		height: 6px;
+	}
+
+	.calendar-pub-event-title-main {
+		font-size: 23px;
+	}
+
+	.calendar-pub-event-link-box {
+		margin-bottom: 34px;
+	}
+
+	.calendar-pub-event-link {
+		font-size: 13px;
+	}
+
+	.calendar-pub-event-info-text {
+		font-size: 18px;
+	}
+
+	.calendar-pub-event-info-text--sm {
+		font-size: 15px;
+	}
+
+	.calendar-pub-event-info-time {
+		font-size: 12px;
+	}
+
+	.calendar-pub-event-info {
+		margin-bottom: 31px;
+	}
+
+	.calendar-pub-event-btn.ui-btn.ui-btn-success {
+		max-width: 256px;
+		min-width: 256px;
+		max-height: 51px;
+		font: 16px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-seri;
+	}
+
+	.calendar-pub-event-btn.ui-btn.ui-btn-link {
+		font: 16px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-seri;
+	}
+}

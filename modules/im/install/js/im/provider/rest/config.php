@@ -13,6 +13,7 @@ return [
 		'ui.vue.vuex',
 		'im.const',
 		'im.lib.logger',
+		'main.core.events',
 	],
 	'skip_core' => true,
 ];

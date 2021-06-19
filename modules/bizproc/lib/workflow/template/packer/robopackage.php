@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Bizproc\Workflow\Template\Packer;
 
 use Bitrix\Bizproc\Automation;
@@ -23,18 +24,18 @@ class RoboPackage extends BasePacker
 		$robots = $robotTemplate->toArray()['ROBOTS'];
 
 		return [
-			'DOCUMENT_TYPE'   => $tpl->getDocumentComplexType(),
+			'DOCUMENT_TYPE' => $tpl->getDocumentComplexType(),
 			'DOCUMENT_STATUS' => $tpl->getDocumentStatus(),
-			'NAME'            => $tpl->getName(),
-			'DESCRIPTION'     => $tpl->getDescription(),
-			'PARAMETERS'      => $tpl->getParameters(),
-			'VARIABLES'       => $tpl->getVariables(),
-			'CONSTANTS'       => $tpl->getConstants(),
-			'SYSTEM_CODE'     => $tpl->getSystemCode(),
-			'ORIGINATOR_ID'     => $tpl->getOriginatorId(),
-			'ORIGIN_ID'     => $tpl->getOriginId(),
+			'NAME' => $tpl->getName(),
+			'DESCRIPTION' => $tpl->getDescription(),
+			'PARAMETERS' => $tpl->getParameters(),
+			'VARIABLES' => $tpl->getVariables(),
+			'CONSTANTS' => $tpl->getConstants(),
+			'SYSTEM_CODE' => $tpl->getSystemCode(),
+			'ORIGINATOR_ID' => $tpl->getOriginatorId(),
+			'ORIGIN_ID' => $tpl->getOriginId(),
 
-			'ROBOTS'          => $robots,
+			'ROBOTS' => $robots,
 			'DOCUMENT_FIELDS' => $this->getUsedDocumentFields($tpl),
 			'REQUIRED_APPLICATIONS' => $this->getRequiredApplications($tpl),
 		];
@@ -42,12 +43,11 @@ class RoboPackage extends BasePacker
 
 	public function pack(Tpl $tpl)
 	{
-		$result = new Result\Pack();
 		$datum = $this->makePackageData($tpl);
 
 		if (!$datum)
 		{
-			$result->addError(new Main\Error(Loc::getMessage("BIZPROC_WF_TEMPLATE_ROBOPACKAGE_EXTERNAL_MODIFIED")));
+			return (new Result\Pack())->addError(new Main\Error(Loc::getMessage("BIZPROC_WF_TEMPLATE_ROBOPACKAGE_EXTERNAL_MODIFIED")));
 		}
 
 		$datum = Main\Web\Json::encode($datum);
@@ -61,19 +61,16 @@ class RoboPackage extends BasePacker
 		$result = new Result\Unpack();
 		$datumTmp = $this->uncompress($data);
 
-		try
-		{
-			$datumTmp = Main\Web\Json::decode($datumTmp);
-		}
-		catch (Main\ArgumentException $e) {}
-
-		if (!is_array($datumTmp) || is_array($datumTmp) && !array_key_exists('ROBOTS', $datumTmp))
+		if (is_string($datumTmp))
 		{
 			try
 			{
 				$datumTmp = Main\Web\Json::decode($data);
 			}
-			catch (Main\ArgumentException $e) {}
+			catch (Main\ArgumentException $e)
+			{
+				//do nothing
+			}
 		}
 
 		if (is_array($datumTmp) && array_key_exists('ROBOTS', $datumTmp))
@@ -86,12 +83,15 @@ class RoboPackage extends BasePacker
 			catch (Main\ArgumentException $e)
 			{
 				$result->addError(new Main\Error(Loc::getMessage("BIZPROC_WF_TEMPLATE_ROBOPACKAGE_WRONG_DATA")));
+
 				return $result;
 			}
 
 			/** @var Tpl $tpl */
 			$tpl = WorkflowTemplateTable::createObject();
-			$tpl->set('DOCUMENT_TYPE', $datumTmp['DOCUMENT_TYPE']);
+			$tpl->set('MODULE_ID', $datumTmp['DOCUMENT_TYPE'][0]);
+			$tpl->set('ENTITY', $datumTmp['DOCUMENT_TYPE'][1]);
+			$tpl->set('DOCUMENT_TYPE', $datumTmp['DOCUMENT_TYPE'][2]);
 			$tpl->set('DOCUMENT_STATUS', $datumTmp['DOCUMENT_STATUS']);
 			$tpl->set('NAME', $datumTmp['NAME']);
 			$tpl->set('DESCRIPTION', $datumTmp['DESCRIPTION']);
@@ -109,6 +109,7 @@ class RoboPackage extends BasePacker
 		}
 
 		$result->addError(new Main\Error(Loc::getMessage("BIZPROC_WF_TEMPLATE_ROBOPACKAGE_WRONG_DATA")));
+
 		return $result;
 	}
 

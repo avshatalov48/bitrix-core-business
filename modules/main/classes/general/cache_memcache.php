@@ -9,12 +9,7 @@ class CPHPCacheMemcache implements ICacheBackend
 	var $read = false;
 	// unfortunately is not available for memcache...
 
-	function __construct()
-	{
-		$this->CPHPCacheMemcache();
-	}
-
-	function CPHPCacheMemcache()
+	public function __construct()
 	{
 		if(!is_object(self::$obMemcache))
 			self::$obMemcache = new Memcache;

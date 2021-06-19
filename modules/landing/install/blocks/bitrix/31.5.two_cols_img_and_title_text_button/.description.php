@@ -59,7 +59,7 @@ return [
 		],
 		'.landing-block-node-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_31_5-TITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		],
 		'.landing-block-node-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_31_5-TEXT'),

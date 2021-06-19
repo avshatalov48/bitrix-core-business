@@ -6,4 +6,7 @@ $MESS["SENDER_START_CREATE_RC"] = "Генератор продаж";
 $MESS["SENDER_START_CREATE_LETTER"] = "Создать рассылку";
 $MESS["SENDER_START_CREATE_TOLOKA"] = "Яндекс.Толока";
 $MESS["SENDER_START_ADDITIONAL"] = "дополнительно";
-?>
+$MESS["SENDER_START_CONFIGURATION_HELP"] = "Помощь в настройке";
+$MESS["SENDER_START_CONFIGURATION_NEED_HELP"] = "Нужна помощь в настройке?";
+$MESS["SENDER_START_CONFIGURATION_HELP_ORDER"] = "Помощь от партнёров <br/> в настройке";
+$MESS["SENDER_START_CONFIGURATION_ORDER"] = "Получить";

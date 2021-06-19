@@ -64,8 +64,8 @@ class AdvertisingBanner extends \CBitrixComponent
 			{
 				if ($banner['AD_TYPE'] === 'template')
 				{
-					$templateProps = unserialize($banner['TEMPLATE']);
-					$templateFiles = unserialize($banner['TEMPLATE_FILES']);
+					$templateProps = unserialize($banner['TEMPLATE'], ['allowed_classes' => false]);
+					$templateFiles = unserialize($banner['TEMPLATE_FILES'], ['allowed_classes' => false]);
 
 					if (empty($this->arResult['SIZE']))
 					{
@@ -220,8 +220,8 @@ class AdvertisingBanner extends \CBitrixComponent
 		{
 			if ($banner['AD_TYPE'] === 'template')
 			{
-				$this->templateProps = unserialize($banner['TEMPLATE']);
-				$this->templateFiles = unserialize($banner['TEMPLATE_FILES']);
+				$this->templateProps = unserialize($banner['TEMPLATE'], ['allowed_classes' => false]);
+				$this->templateFiles = unserialize($banner['TEMPLATE_FILES'], ['allowed_classes' => false]);
 
 				foreach ($this->templateProps['PROPS'] as $k => $v)
 				{

@@ -1,0 +1,149 @@
+.bx-messenger-next-notify {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+.bx-messenger-next-notify .bx-messenger-panel {
+	box-sizing: border-box;
+	border-bottom: 1px solid #e5e5e5;
+}
+.bx-messenger-next-notify .bx-messenger-panel {
+	box-sizing: border-box;
+	border-bottom: 1px solid #e5e5e5;
+}
+.bx-messenger-dark .bx-messenger-next-notify .bx-messenger-panel {
+	border-bottom: 1px solid #4a4a4a;
+}
+
+.bx-messenger-list-notifications-wrap {
+	flex-grow: 1;
+	position: relative;
+	overflow: hidden;
+	overflow-y: auto;
+	display: block;
+	height: 100%;
+	width: 100%;
+}
+
+.bx-messenger-list-notifications {
+	height: 100%;
+	width: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+	position: absolute;
+}
+
+.bx-im-notifications-header-image {
+	border-radius: 50%;
+}
+
+.bx-messenger-notifications-search-results-wrap {
+	height: 100%;
+	width: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+	position: absolute;
+}
+
+.bx-im-notifications-header-filter-content {
+	display: flex;
+	padding-bottom: 10px;
+}
+
+.bx-im-notifications-header-buttons {
+	display: flex;
+}
+
+.bx-im-notifications-header-filter, .bx-im-notifications-header-read-all {
+	justify-content: flex-end;
+	display: flex;
+	cursor: pointer;
+	width: 100%;
+	align-items: center;
+}
+
+.bx-im-notifications-header-read-all {
+	margin-right: 15px;
+}
+
+.bx-im-notifications-header-read-all-icon {
+	background: url("data:image/svg+xml,%3Csvg%20width%3D%2263%22%20height%3D%2261%22%20viewBox%3D%220%200%2063%2061%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M44.2185%200H5.86814C2.62726%200%200%202.62726%200%205.86814V30.862C0%2034.1029%202.62726%2036.7302%205.86814%2036.7302H10.7882V52.7381L26.7962%2036.7302H44.2185C47.4594%2036.7302%2050.0866%2034.1029%2050.0866%2030.862V5.86814C50.0866%202.62726%2047.4594%200%2044.2185%200ZM20.4985%2029.4876L11.1378%2020.6534L14.9734%2016.9153L20.4985%2022.0114L35.3926%207.43704L39.2282%2011.1751L20.4985%2029.4876Z%22%20fill%3D%22%23767C87%22%2F%3E%0A%3Cpath%20d%3D%22M23.5455%2050.577H20.7036L28.8944%2042.4424H49.7603C53.0012%2042.4424%2055.6285%2039.8152%2055.6285%2036.5743V14.4672H56.3119C59.5527%2014.4672%2062.18%2017.0945%2062.18%2020.3354V44.7089C62.18%2047.9497%2059.5527%2050.577%2056.3119%2050.577H33.5724L23.5455%2060.6038V50.577Z%22%20fill%3D%22%23767C87%22%2F%3E%0A%3C%2Fsvg%3E%0A") no-repeat 5px 5px;
+	background-size: 65%;
+}
+
+.bx-im-notifications-header-read-all .bx-im-notifications-header-read-all-icon {
+	opacity: 0.6;
+}
+
+.bx-im-notifications-header-filter .bx-im-notifications-header-filter-icon {
+	margin-top: 0;
+}
+
+.bx-im-notifications-header-filter .bx-im-notifications-header-filter-active {
+	opacity: 1;
+	border-color: #a7a7a7;
+}
+
+.bx-messenger-panel-button.bx-im-notifications-header-read-all-icon:active {
+	border-color: #a7a7a7;
+}
+
+.bx-messenger-panel-next-wrapper {
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	border-bottom: 1px solid #e5e5e5;
+	position: relative;
+	z-index: 400;
+	padding: 0 15px 0 11px;
+	justify-content: space-between;
+}
+
+.bx-messenger-panel-next {
+	display: flex;
+	justify-content: space-between;
+	height: 66px;
+}
+
+.bx-messenger-input-close {
+	cursor: pointer;
+}
+
+.bx-im-notifications-header-filter-box {
+	padding-top: 0;
+	padding-bottom: 10px;
+	overflow: hidden;
+	display: flex;
+	justify-content: flex-start;
+	user-select: none;
+}
+
+.bx-messenger-dark .bx-im-notifications-header-filter-box input {
+	background: #313131;
+	color: #c3c3c3;
+}
+.bx-messenger-dark .bx-im-notifications-header-filter-box input::placeholder {
+	color: #c3c3c3;
+}
+
+.bx-messenger-dark .bx-im-notifications-header-filter-box .ui-ctl-element {
+    border: 1px solid #505152;
+}
+
+.bx-messenger-next-notify a {
+	text-decoration: none;
+	font: 14px "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.popup-window-content .bx-messenger-confirm {
+	width: auto;
+}
+
+.notifications-read-all-fade-enter-active, .notifications-read-all-fade-leave-active {
+	transition: opacity .3s;
+}
+
+.notifications-read-all-fade-enter, .notifications-read-all-fade-leave-to {
+	opacity: 0;
+}

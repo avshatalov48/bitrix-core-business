@@ -24,7 +24,10 @@ class Property extends PropertyBase
 
 		$dbRes = OrderPropsRelationTable::getList([
 			'select' => ['ENTITY_ID', 'ENTITY_TYPE'],
-			'filter' => ['=PROPERTY_ID' => $this->getId()]
+			'filter' => [
+				'=PROPERTY_ID' => $this->getId(),
+				'@ENTITY_TYPE' => ['P', 'D']
+			]
 		]);
 
 		while ($data = $dbRes->fetch())

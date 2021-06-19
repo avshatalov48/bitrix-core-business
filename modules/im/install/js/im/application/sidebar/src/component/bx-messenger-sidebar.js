@@ -7,16 +7,13 @@
  * @copyright 2001-2019 Bitrix
  */
 
-import {Vue} from "ui.vue";
+import {BitrixVue} from "ui.vue";
 import {Vuex} from "ui.vue.vuex";
-import {Logger} from "im.lib.logger";
-import {EventType} from "im.const";
-import {Utils} from "im.lib.utils";
 
 /**
  * @notice Do not mutate or clone this component! It is under development.
  */
-Vue.component('bx-im-component-sidebar',
+BitrixVue.component('bx-im-component-sidebar',
 	{
 		data: function()
 		{
@@ -44,12 +41,12 @@ Vue.component('bx-im-component-sidebar',
 			{
 				getController()
 				{
-					return this.$root.$bitrixController;
+					return this.$Bitrix.Data.get('controller');
 				},
 
 				getStore()
 				{
-					return this.$root.$bitrixController.store;
+					return this.getController().store;
 				},
 
 				onScroll(event)

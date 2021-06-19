@@ -261,8 +261,8 @@ class BlogUser
 		
 //		get Users data
 		$rsUsers = \CUser::GetList(
-			$by = 'id',
-			$order = 'asc',
+			'id',
+			'asc',
 			array('ID' => implode('|', $ids)),
 			array('FIELDS' => array('ID', 'DATE_REGISTER'/*, 'NAME', 'LAST_NAME', 'LOGIN'*/))
 		);

@@ -23,9 +23,7 @@
 		this.hideClassName = 'main-ui-hide';
 		this.mailboxMenuToggle = document.querySelector('[data-role="mailbox-current-title"]');
 		this.settingsToggle = document.querySelector('[data-role="mail-list-settings-menu-popup-toggle"]');
-		this.mailboxMenuCurrentUnseenCounter = document.querySelector('[data-role="unseen-total"]');
 		this.mailboxPopupMenuId = 'mail-msg-list-mailbox-menu';
-		this.UNREAD_COUNTER_TYPE = 'unread';
 		this.isCurrentFolderSpam = false;
 		this.isCurrentFolderTrash = false;
 		this.isCurrentFolderOutcome = false;
@@ -67,31 +65,50 @@
 
 			BX.addCustomEvent('BX.Main.Filter:apply', this.onApplyFilter.bind(this));
 			BX.addCustomEvent('BX.UI.ActionPanel:hidePanel', this.setDefaultBtnTitles.bind(this));
-			BX.addCustomEvent('Grid::updated', this.setDefaultBtnTitles.bind(this));
+			BX.addCustomEvent('BX.UI.ActionPanel:showPanel', this.setDefaultBtnOnShow.bind(this));
+			BX.addCustomEvent('Grid::updated', function(){
+				if(this.getGridInstance().getRows().getSelectedIds().length > 0)
+				{
+					BX.onCustomEvent(window,'Grid::thereSelectedRows');
+				}
+			}.bind(this));
 			BX.addCustomEvent('Grid::thereSelectedRows', this.handleGridSelectItem.bind(this));
 			BX.addCustomEvent('Grid::allRowsSelected', this.handleGridSelectItem.bind(this));
+			
+			BX.addCustomEvent('mail:openMessageForView',
+				function(event)
+				{
+					var messageId = event['id']
+					var row = BX.findParent(document.querySelector('.mail-msg-list-cell-' + messageId), {tagName: 'tr'});
+					if (row && row.dataset.id
+						&& row.getElementsByClassName('mail-msg-list-cell-unseen').length !== 0)
+					{
+						this.updateUnreadCounters();
+
+						BX.Mail.Home.Counters.updateCounters([
+							{
+								name: this.getCurrentFolder(),
+								lower: true,
+								count: 1,
+							},
+						]);
+
+						this.onMessagesRead([row.dataset.id], {action: 'markAsSeen'});
+					}
+
+				}.bind(this)
+			)
 
 			BX.addCustomEvent(
 				'SidePanel.Slider:onMessage',
 				function (event)
 				{
-					if (event.getEventId() === 'mail-message-view')
-					{
-						var row = BX.findParent(document.querySelector('.mail-msg-list-cell-' + event.getData().id), {tagName: 'tr'});
-						if (row && row.dataset.id
-							&& row.getElementsByClassName('mail-msg-list-cell-unseen').length !== 0)
-						{
-							this.updateUnreadCounters(-1);
-							this.onMessagesRead([row.dataset.id], {action: 'markAsSeen'});
-						}
-					}
-					else if (event.getEventId() === 'Mail.Client.MessageCreatedSuccess')
+					if (event.getEventId() === 'Mail.Client.MessageCreatedSuccess')
 					{
 						if (this.isCurrentFolderOutcome)
 						{
-							this.reloadGrid({});
+							BX.Mail.Home.Grid.reloadTable();
 						}
-						this.resetGridSelection();
 					}
 				}.bind(this)
 			);
@@ -150,8 +167,6 @@
 			if ('messageBindingCreated' === command
 				&& this.mailboxId == params.mailboxId)
 			{
-				this.resetGridSelection();
-
 				var bindingWrapper = document.querySelector('.js-bind-' + params.messageId);
 				if (bindingWrapper)
 				{
@@ -174,25 +189,39 @@
 						switch (params.entityType)
 						{
 							case this.ENTITY_TYPE_TASKS_TASK:
-								bindNode = BX.create('a', {
-									attrs: {href: this.PATH_TO_USER_TASKS_TASK.replace('#action#', 'view').replace('#task_id#', params.entityId)},
+								bindNode = BX.create('span', {
+									attrs: {
+										class: 'mail-badge mail-badge-dark',
+									},
+									dataset: {
+										type: params.entityType
+									},
 									children: [
-										BX.create('span', {
-											dataset: {type: params.entityType},
+										BX.create('a', {
+											attrs: {
+												href: this.PATH_TO_USER_TASKS_TASK.replace('#action#', 'view').replace('#task_id#', params.entityId),
+												class: 'mail-badge-item',
+											},
 											text: BX.message('MAIL_MESSAGE_LIST_COLUMN_BIND_TASKS_TASK')
 										})
 									]
 								});
 								break;
 							case this.ENTITY_TYPE_BLOG_POST:
-								bindNode = BX.create('a', {
+								bindNode = BX.create('span', {
 									attrs: {
-										'href': this.PATH_TO_USER_BLOG_POST.replace('#post_id#', params.entityId),
-										'onclick': 'top.BX.SidePanel.Instance.open(this.href, {loader: \'socialnetwork:userblogpost\'}); return false; '
+										class: 'mail-badge mail-badge-dark',
+									},
+									'dataset': {
+										'type': params.entityType
 									},
 									children: [
-										BX.create('span', {
-											'dataset': {'type': params.entityType},
+										BX.create('a', {
+											attrs: {
+												class: 'mail-badge-item',
+												'href': this.PATH_TO_USER_BLOG_POST.replace('#post_id#', params.entityId),
+												'onclick': 'top.BX.SidePanel.Instance.open(this.href, {loader: \'socialnetwork:userblogpost\'}); return false; '
+											},
 											'text': BX.message('MAIL_MESSAGE_LIST_COLUMN_BIND_BLOG_POST')
 										})
 									]
@@ -202,6 +231,9 @@
 								if (this.userHasCrmActivityPermission)
 								{
 									bindNode = BX.create('span', {
+										attrs: {
+											class: 'mail-badge mail-badge-dark',
+										},
 										dataset: {
 											role: 'crm-binding-link',
 											entityId: params.entityId,
@@ -209,7 +241,10 @@
 										},
 										children: [
 											BX.create('a', {
-												attrs: {href: params.bindingEntityLink ? params.bindingEntityLink : '#'},
+												attrs: {
+													class: 'mail-badge-item',
+													href: params.bindingEntityLink ? params.bindingEntityLink : '#'
+												},
 												text: BX.message('MAIL_MESSAGE_LIST_COLUMN_BIND_CRM_ACTIVITY')
 											})
 										]
@@ -226,16 +261,28 @@
 						}
 						if (bindNode)
 						{
-							if (bindingsNodes.length > 0)
-							{
-								bindingWrapper.appendChild(document.createTextNode(', '));
-							}
 							bindingWrapper.appendChild(bindNode);
-
+							this.arrangeBindings(bindingWrapper);
 							this.updateGridByUnbindFilter();
 						}
 					}
 				}
+			}
+		},
+		arrangeBindings: function(bindingWrapper)
+		{
+			var crmBind = bindingWrapper.querySelector('[data-type="' + this.ENTITY_TYPE_CRM_ACTIVITY + '"]');
+			var taskBind = bindingWrapper.querySelector('[data-type="' + this.ENTITY_TYPE_TASKS_TASK + '"]');
+			var postBind = bindingWrapper.querySelector('[data-type="' + this.ENTITY_TYPE_BLOG_POST + '"]');
+
+			if(crmBind !== null && bindingWrapper.firstElementChild !== null)
+			{
+				bindingWrapper.insertBefore(crmBind, bindingWrapper.firstElementChild);
+			}
+
+			if(postBind !== null && taskBind !== null)
+			{
+				bindingWrapper.insertBefore(taskBind, postBind);
 			}
 		},
 		trackActionPanelStyleChange: function ()
@@ -261,6 +308,8 @@
 					}
 				}
 			);
+
+			BX.Mail.Home.Grid.setCheckboxNodeForCheckAll(checkbox);
 
 			var container = BX.create(
 				'span',
@@ -416,6 +465,7 @@
 				var readBtn = BX.findParent(popupWindow.getPopupContainer().querySelector('[data-role^="read"]'), {className: 'menu-popup-item'});
 
 				var actionName = this.isSelectedRowsHaveClass('mail-msg-list-cell-unseen', tableRow.dataset.id) ? 'markAsSeen' : 'markAsUnseen';
+				
 				if (actionName === 'markAsSeen')
 				{
 					this.showElement(readBtn, true);
@@ -438,7 +488,7 @@
 			var filter = this.getFilterInstance();
 			if (filter.getFilterFieldsValues() && filter.getFilterFieldsValues()['IS_SEEN'] !== '')
 			{
-				this.reloadGrid({});
+				BX.Mail.Home.Grid.reloadTable();
 			}
 		},
 		updateGridByUnbindFilter: function ()
@@ -446,7 +496,7 @@
 			var filter = this.getFilterInstance();
 			if (filter.getFilterFieldsValues() && filter.getFilterFieldsValues()['BIND'] !== '')
 			{
-				this.reloadGrid({});
+				BX.Mail.Home.Grid.reloadTable();
 			}
 		},
 		onPopupMenuFirstShow: function (popupWindow)
@@ -499,33 +549,29 @@
 				popup.close();
 			}
 		},
-		updateUnreadCounters: function (seenNumber)
+		updateUnreadCounters: function ()
 		{
-			var currentFolder = this.getCurrentFolder();
-			this.updateTotalUnseenCounter(seenNumber);
-
-			if ([this.spamDir, this.trashDir].includes(currentFolder))
-			{
-				this.updateMailboxMenuUnseenCounter(seenNumber, false);
-				this.updateQuickFilterUnseenCounter(seenNumber);
-				return
-			}
-
-			this.updateMailboxMenuCurrentUnseenCounter();
-			this.updateMailboxMenuUnseenCounter(seenNumber);
-			this.updateQuickFilterUnseenCounter(seenNumber);
-			this.updateLeftMenuCounter();
+			this.updateMailboxMenuUnseenCounter();
 		},
-		updateTotalUnreadCounters: function (count, gridCount)
+		updateUnreadMessageMailboxesMarker: function(totalNumberOfUnreadLetters)
 		{
-			this.setTotalUnseenCounter(count);
-			this.setMailboxMenuCurrentUnseenCounter(count);
-			this.setQuickFilterUnseenCounter(gridCount);
+			if(totalNumberOfUnreadLetters)
+				BX.Mail.Home.unreadMessageMailboxesMarker.classList.remove('mail-hidden-element');
+			else
+				BX.Mail.Home.unreadMessageMailboxesMarker.classList.add('mail-hidden-element');
+		}
+		,
+		updateTotalUnreadCounters: function (totalNumberOfUnreadMessagesInOtherMailboxes)
+		{
+			BX.onCustomEvent('BX.Mail.Home:updateAllCounters');
+
+			this.updateUnreadMessageMailboxesMarker(totalNumberOfUnreadMessagesInOtherMailboxes);
+			this.setTotalUnseenCounter(totalNumberOfUnreadMessagesInOtherMailboxes);
 			this.updateLeftMenuCounter();
 		},
 		updateLeftMenuCounter: function ()
 		{
-			var unseen = this.getTotalUnseenCounter();
+			var unseen = BX.Mail.Home.mailboxCounters.getTotalCounter();
 			if (typeof top.B24 === "object" && typeof top.B24.updateCounters === "function" && unseen > 0)
 			{
 				top.B24.updateCounters({mail_unseen: unseen});
@@ -542,31 +588,9 @@
 				}
 			}
 		},
-		updateTotalUnseenCounter: function (seenNumber)
-		{
-			var currentUnseen = this.getTotalUnseenCounter();
-			var count = parseInt(currentUnseen) + parseInt(seenNumber);
-			this.setTotalUnseenCounter(count);
-		},
 		updateMailboxUnseenCounter: function (seenNumber)
 		{
 			this.updateMailboxMenuUnseenCounter(seenNumber);
-		},
-		getTotalUnseen: function ()
-		{
-			return this.getTotalUnseenCounter();
-		},
-		getTotalUnseenCounter: function ()
-		{
-			var currentMailboxId = this.getCurrentMailboxId();
-			return this.mailboxesUnseen[currentMailboxId] || 0;
-		},
-		updateCounter: function (type, changedNumber)
-		{
-			if (type === this.UNREAD_COUNTER_TYPE)
-			{
-				this.updateQuickFilterUnseenCounter(changedNumber)
-			}
 		},
 		changeMessageRead: function (selectedIds, params)
 		{
@@ -581,6 +605,7 @@
 						for (var j = columns.length - 1; j >= 0; j--)
 						{
 							columns[j].classList.remove('mail-msg-list-cell-unseen');
+							row.node.setAttribute("unseen", "false");
 						}
 					}
 				}
@@ -592,15 +617,16 @@
 					var row = this.getGridInstance().getRows().getById(selectedIds[i]);
 					if (row && row.node)
 					{
+						row.node.setAttribute("unseen", "true");
 						row.node.cells[2].classList.add('mail-msg-list-cell-unseen');
 						row.node.cells[3].classList.add('mail-msg-list-cell-unseen');
+						row.node.cells[4].classList.add('mail-msg-list-cell-unseen');
 					}
 				}
 			}
 		},
 		handleGridSelectItem: function ()
 		{
-			this.updateSeenAllBtn();
 			this.updateSeenBtn();
 			this.updateCrmBtn();
 			this.updateSpamBtn();
@@ -679,21 +705,35 @@
 				this.disActivateBtn(this.readActionBtnRole);
 			}
 		},
-		updateSeenAllBtn: function ()
+		setDefaultBtnOnShow: function (panel)
 		{
-			this.toggleButton('read-all-action', this.getGridInstance().getRows().getSelected().length == 0);
-		},
+			panel.items.forEach(function(item) {
+
+			if(item && item instanceof BX.UI.ActionPanel.Item)
+			{
+				if(this.getCurrentFolder() === '[Gmail]/All Mail' && item['id']==='deleteImmediately')
+				{
+					item.disable();
+					item.layout.container.removeAttribute('onclick');
+				}
+			}}.bind(this));
+		}
+		,
 		setDefaultBtnTitles: function (panel)
 		{
-			if (panel && document.querySelectorAll('[data-role^="read-all-action"]').length == 0)
+			if(panel && Array.isArray(panel.items))
 			{
-				panel.buildPanelByGroup();
+				panel.items.forEach(function(item) {
+					if(item && item instanceof BX.UI.ActionPanel.Item)
+					{
+						item.layout.container.removeAttribute('onclick');
+					}
+				});
 			}
-
+			
 			var popup = BX.Main.MenuManager.getMenuById('ui-action-panel-item-popup-menu');
 			popup && popup.close();
 
-			this.toggleButton('read-all-action', true);
 			this.toggleButton(this.readActionBtnRole, false);
 			this.toggleButton('not-' + this.readActionBtnRole, false);
 			this.activateBtn(this.crmActionBtnRole);
@@ -762,14 +802,15 @@
 		},
 		setLastDir: function ()
 		{
+			BX.onCustomEvent(window,'Mail::directoryChanged');
 			this.lastDir = this.getCurrentFolder();
 		},
 		getCurrentFolder: function ()
 		{
 			var filter = this.getFilterInstance();
 			var dir = filter.getFilterFieldsValues()['DIR'];
-
-			return dir || this.inboxDir;
+			var inboxDir = this.inboxDir;
+			return dir || inboxDir;
 		},
 		getCurrentMailboxId: function ()
 		{
@@ -781,20 +822,9 @@
 			var currentMailboxId = this.getCurrentMailboxId();
 			this.mailboxesUnseen[currentMailboxId] = count;
 		},
-		updateMailboxMenuCurrentUnseenCounter: function ()
+		updateMailboxMenuUnseenCounter: function ()
 		{
-			var unseen = this.getTotalUnseenCounter();
-			this.setMailboxMenuCurrentUnseenCounter(unseen);
-		},
-		updateMailboxMenuUnseenCounter: function (seenNumber, updateTitleMenu)
-		{
-			if (typeof updateTitleMenu == 'undefined')
-			{
-				updateTitleMenu = true;
-			}
-
 			var currentMailboxId = this.getCurrentMailboxId();
-			var currentUnseen = this.getTotalUnseenCounter();
 
 			if (!currentMailboxId)
 			{
@@ -808,9 +838,7 @@
 				{
 					this.mailboxMenu[i] = this.updateMailboxMenuItemUnseenCounter(
 						this.mailboxMenu[i],
-						seenNumber,
-						currentUnseen,
-						updateTitleMenu
+						BX.Mail.Home.Counters.getTotalCounter()
 					);
 
 					BX.Main.MenuManager.destroy(this.mailboxPopupMenuId);
@@ -818,74 +846,17 @@
 				}
 			}
 		},
-		updateQuickFilterUnseenCounter: function (seenNumber)
+		updateMailboxMenuItemUnseenCounter: function (mailboxMenu, count)
 		{
-			var currentUnseen = this.getQuickFilterUnseenCounter();
-			var count = parseInt(currentUnseen) + parseInt(seenNumber);
-			this.setQuickFilterUnseenCounter(count);
-		},
-		setQuickFilterUnseenCounter: function (count)
-		{
-			var counter = document.querySelector('[data-role="unread-counter-number"]');
-			var containerSelector = document.querySelector('[data-role="unreadCounter"]');
-			var emptyContainerSelector = document.querySelector('[data-role="emptyCountersTitle"]');
-
-			if (!counter)
-			{
-				return;
-			}
-
-			if (count > 0)
-			{
-				counter.textContent = count;
-				this.showElement(containerSelector);
-				this.hideElement(emptyContainerSelector);
-			}
-			else
-			{
-				counter.textContent = '0';
-				this.hideElement(containerSelector);
-				this.showElement(emptyContainerSelector);
-			}
-		},
-		getQuickFilterUnseenCounter: function ()
-		{
-			var counter = document.querySelector('[data-role="unread-counter-number"]');
-
-			return counter ? counter.textContent : 0;
-		},
-		setMailboxMenuCurrentUnseenCounter: function (count)
-		{
-			this.mailboxMenuCurrentUnseenCounter.textContent = count;
-
-			if (count > 0)
-			{
-				this.showElement(this.mailboxMenuCurrentUnseenCounter);
-			}
-			else
-			{
-				this.hideElement(this.mailboxMenuCurrentUnseenCounter);
-			}
-		},
-		updateMailboxMenuItemUnseenCounter: function (mailboxMenu, seenNumber, count, updateTitleMenu)
-		{
-			if (updateTitleMenu)
-			{
-				mailboxMenu = this.setMailboxTitleMenuUnseenCounter(
-					mailboxMenu,
-					count
-				);
-			}
+			mailboxMenu = this.setMailboxTitleMenuUnseenCounter(
+				mailboxMenu,
+				count
+			);
 
 			if (!mailboxMenu.items)
 			{
 				return mailboxMenu;
 			}
-
-			mailboxMenu.items = this.updateMailboxSubMenuUnseenCounter(
-				mailboxMenu.items,
-				seenNumber
-			);
 
 			return mailboxMenu;
 		},
@@ -928,47 +899,6 @@
 			mailboxMenu.dataset.unseen = count;
 
 			return mailboxMenu;
-		},
-		updateMailboxSubMenuUnseenCounter: function (mailboxSubMenu, seenNumber)
-		{
-			var currentFolder = this.getCurrentFolder();
-			for (var j = 0; j < mailboxSubMenu.length; j++)
-			{
-				var subMenuId = mailboxSubMenu[j].id;
-				var delimiter = mailboxSubMenu[j].dataset.delimiter || '';
-
-				if (delimiter && currentFolder.indexOf(subMenuId + delimiter) === 0
-					|| currentFolder.localeCompare(subMenuId) === 0)
-				{
-					if (currentFolder.localeCompare(subMenuId) === 0)
-					{
-						mailboxSubMenu[j].unseen += parseInt(seenNumber);
-					}
-					else
-					{
-						mailboxSubMenu[j].items_unseen += parseInt(seenNumber);
-					}
-
-					var totalUnseen = parseInt(mailboxSubMenu[j].unseen) + parseInt(mailboxSubMenu[j].items_unseen);
-
-					mailboxSubMenu[j] = this.setMailboxTitleMenuUnseenCounter(
-						mailboxSubMenu[j],
-						totalUnseen
-					);
-
-					if (!mailboxSubMenu[j].items)
-					{
-						continue;
-					}
-
-					mailboxSubMenu[j].items = this.updateMailboxSubMenuUnseenCounter(
-						mailboxSubMenu[j].items,
-						seenNumber
-					);
-				}
-			}
-
-			return mailboxSubMenu;
 		},
 		isVisible: function (element)
 		{

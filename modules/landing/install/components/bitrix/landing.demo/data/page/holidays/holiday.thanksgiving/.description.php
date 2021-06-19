@@ -97,7 +97,7 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 					0 => 'landing-block-node-button-container',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-700 g-color-white g-mb-20 g-text-transform-none g-font-size-86 g-line-height-1_2',
+					0 => 'landing-block-node-title g-font-weight-700 g-color-white g-mb-20 g-text-transform-none g-font-size-85 g-line-height-1_2',
 				),
 				'.landing-block-node-text' => array(
 					0 => 'landing-block-node-text g-color-white-opacity-0_7 g-mb-35',

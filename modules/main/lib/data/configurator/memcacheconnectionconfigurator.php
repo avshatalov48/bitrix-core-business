@@ -65,11 +65,12 @@ class MemcacheConnectionConfigurator
 			throw new NotSupportedException('Empty server list to redis connection.');
 		}
 
+		$connectionTimeout = $this->getConfig()['connectionTimeout'] ?? 1;
 		$connection = new \Memcache();
 		if (count($this->servers) === 1)
 		{
 			['host' => $host, 'port' => $port] = $this->servers[0];
-			$result = $connection->pconnect($host, $port);
+			$result = $connection->pconnect($host, $port, $connectionTimeout);
 		}
 		else
 		{
@@ -80,7 +81,7 @@ class MemcacheConnectionConfigurator
 					$server['port'],
 					true,
 					$server['weight'],
-					1
+					$connectionTimeout
 				);
 			}
 		}

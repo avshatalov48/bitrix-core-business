@@ -20,7 +20,7 @@ if (($_REQUEST["action"] == "set_filter") && check_bitrix_sessid() && $GLOBALS["
 {
 	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 	$res = CUserOptions::GetOption("forum", "Filter", "");
-	$res = (CheckSerializedData($res) ? @unserialize($res) : array());
+	$res = (CheckSerializedData($res) ? @unserialize($res, ["allowed_classes" => false]) : array());
 	if (!is_array($res))
 		$res = array();
 

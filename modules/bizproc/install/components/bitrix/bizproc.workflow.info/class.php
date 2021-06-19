@@ -72,7 +72,7 @@ class BizprocWorkflowInfo extends \CBitrixComponent
 
 	protected function getStartedByPhoto($userId)
 	{
-		$iterator = \CUser::GetList($by='id', $order='asc',
+		$iterator = \CUser::GetList('id', 'asc',
 			array('ID' => $userId),
 			array('FIELDS' => array('PERSONAL_PHOTO'))
 		);

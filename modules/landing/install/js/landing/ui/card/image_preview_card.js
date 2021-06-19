@@ -20,6 +20,7 @@
 		this.code = "code" in data ? data.code : "";
 		this.clickHandler = "onClick" in data ? data.onClick : "";
 		this.credit = "credit" in data ? data.credit : null;
+		this.dimensions = "dimensions" in data ? data.dimensions : {width: 0, height: 0};
 		this.layout.classList.add("landing-ui-card-image-preview");
 		this.imageContainer = BX.Landing.UI.Card.ImagePreview.createImageContainer();
 		this.header.innerText = this.title;
@@ -39,7 +40,10 @@
 							title: BX.Landing.Loc.getMessage("LANDING_UNSPLASH_CREDIT_LABEL") + " " + this.credit.name
 						},
 						text: this.credit.name
-					})
+					})/*,
+					BX.create("span", {
+						text: "  [" + ((this.dimensions.width > this.dimensions.height) ? " __ " : " | " ) + "]"
+					})*/
 				]
 			});
 

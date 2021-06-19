@@ -118,7 +118,7 @@ return array(
 			'code' => '17.copyright',
 			'nodes' => array(
 				'.landing-block-node-text' => array(
-					0 => '2020 &copy; All rights reserved',
+					0 => '2021 &copy; All rights reserved',
 				),
 			),
 		),

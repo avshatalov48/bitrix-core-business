@@ -17,7 +17,7 @@ IncludeModuleLangFile(__FILE__);
 $err_mess = "File: ".__FILE__."<br>Line: ";
 
 
-$rs = CSite::GetList(($b="sort"), ($o="asc"));
+$rs = CSite::GetList();
 while ($ar = $rs->Fetch()) $arrSites[$ar["ID"]] = $ar;
 
 $sTableID = "t_workflow_list";
@@ -135,7 +135,7 @@ if($WORKFLOW_RIGHT>"R" && $arID = $lAdmin->GroupAction())
 {
 	if($_REQUEST['action_target']=='selected')
 	{
-		$rsData = CWorkflow::GetList($by, $order, $arFilter, $is_filtered);
+		$rsData = CWorkflow::GetList('', '', $arFilter);
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -179,7 +179,9 @@ if($WORKFLOW_RIGHT>"R" && $arID = $lAdmin->GroupAction())
 	}
 }
 
-$rsData = CWorkflow::GetList($by, $order, $arFilter, $is_filtered);
+global $by, $order;
+
+$rsData = CWorkflow::GetList($by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart(50);
 

@@ -501,7 +501,7 @@ class CIMDisk
 					{
 						if ($userId)
 						{
-							\Bitrix\Disk\Driver::getInstance()->getRecentlyUsedManager()->push($userId, $newFile->getId());
+							\Bitrix\Disk\Driver::getInstance()->getRecentlyUsedManager()->push($userId, $newFile);
 						}
 					}
 					else if ($chat['ENTITY_TYPE'] != 'LIVECHAT')
@@ -514,7 +514,7 @@ class CIMDisk
 							if ($userId == $relation['USER_ID'])
 								continue;
 
-							\Bitrix\Disk\Driver::getInstance()->getRecentlyUsedManager()->push($relation['USER_ID'], $newFile->getId());
+							\Bitrix\Disk\Driver::getInstance()->getRecentlyUsedManager()->push($relation['USER_ID'], $newFile);
 						}
 					}
 				}
@@ -1283,7 +1283,8 @@ class CIMDisk
 
 		try
 		{
-			$viewerType = Bitrix\Main\UI\Viewer\ItemAttributes::buildByFileId($fileModel->getFileId(), $fileData['urlDownload'])
+			$viewerType = \Bitrix\Disk\Ui\FileAttributes::buildByFileId($fileModel->getFileId(), $fileData['urlDownload'])
+				->setObjectId($fileModel->getId())
 				->setGroupBy($chatId)
 				->setTitle($fileModel->getName())
 				->addAction([

@@ -4,17 +4,18 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-/** @var LandingViewComponent $component */
+/** @var \LandingViewComponent $component */
 /** @var \CMain $APPLICATION */
 /** @var array $arResult */
 /** @var array $arParams */
 
-use Bitrix\Landing\Config;
+use \Bitrix\Landing\Config;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Assets;
 use \Bitrix\Landing\Site;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\UI\Extension;
+use \Bitrix\Main\ModuleManager;
 
 Loc::loadMessages(__FILE__);
 Loc::loadMessages(Manager::getDocRoot() . '/bitrix/modules/landing/lib/mutator.php');
@@ -33,6 +34,7 @@ Extension::load([
 	'landing_master',
 	'landing.dialog.publication',
 	'helper',
+	'landing.metrika'
 ]);
 $assets = Assets\Manager::getInstance();
 $assets->addAsset(
@@ -77,7 +79,7 @@ if ($arResult['ERRORS'])
 	{
 		?>
 		<div class="landing-view-loader-container">
-			<div class="main-ui-loader main-ui-show" data-is-shown="true" style="">
+			<div class="main-ui-loader main-ui-show" data-is-shown="true">
 				<svg class="main-ui-loader-svg" viewBox="25 25 50 50">
 					<circle class="main-ui-loader-svg-circle" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"></circle>
 				</svg>
@@ -141,6 +143,7 @@ if ($arResult['FATAL'])
 	return;
 }
 
+
 $site = $arResult['SITE'];
 $context = \Bitrix\Main\Application::getInstance()->getContext();
 $request = $context->getRequest();
@@ -149,18 +152,21 @@ $curUrl = $arResult['CUR_URI'];
 $urls = $arResult['TOP_PANEL_CONFIG']['urls'];
 $this->getComponent()->initAPIKeys();
 $formEditor = $arResult['SPECIAL_TYPE'] == Site\Type::PSEUDO_SCOPE_CODE_FORMS;
-$helperFrameOpenUrl = \Bitrix\UI\Util::getHelpdeskUrl(true)."/widget2/";
-global $USER;
-$helperFrameOpenUrl = CHTTP::urlAddParams($helperFrameOpenUrl, [
-	"url" => urlencode("https://".$_SERVER["HTTP_HOST"].$APPLICATION->GetCurPageParam()),
-	"user_id" => $USER->GetID(),
-	"is_cloud" => IsModuleInstalled('bitrix24') ? "1" : "0",
-	"action" => "open",
+$helperFrameOpenUrl = \CHTTP::urlAddParams(\Bitrix\UI\Util::getHelpdeskUrl(true) . '/widget2/', [
+	'url' => urlencode(
+		(Manager::isHttps() ? 'https://' : 'http://') .
+		Manager::getHttpHost() .
+		Manager::getApplication()->getCurPageParam()
+	),
+	'user_id' => Manager::getUserId(),
+	'is_cloud' => ModuleManager::isModuleInstalled('bitrix24') ? '1' : '0',
+	'action' => 'open',
 ]);
 
 if ($formEditor)
 {
 	$arParams['PAGE_URL_URL_SITES'] = '/crm/webform/';
+	Extension::load('landing.ui.panel.formsettingspanel');
 }
 
 if ($request->get('close') == 'Y')
@@ -173,7 +179,7 @@ if ($request->get('close') == 'Y')
 		}
 	</script>
 	<div class="landing-view-loader-container">
-		<div class="main-ui-loader main-ui-show" data-is-shown="true" style="">
+		<div class="main-ui-loader main-ui-show" data-is-shown="true">
 			<svg class="main-ui-loader-svg" viewBox="25 25 50 50">
 				<circle class="main-ui-loader-svg-circle" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"></circle>
 			</svg>
@@ -201,26 +207,19 @@ if (!$request->offsetExists('landing_mode')):
 	$panelModifier = $lightMode ? ' landing-ui-panel-top-light' : '';
 	$panelModifier .= $formEditor ? ' landing-ui-panel-top-form' : '';
 	// informer
-	if (\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
+	if (ModuleManager::isModuleInstalled('bitrix24'))
 	{
 		$APPLICATION->includeComponent('bitrix:ui.info.helper', '', []);
 	}
 	?>
 	<div class="landing-ui-panel landing-ui-panel-top<?= $panelModifier;?>">
 		<div class="landing-ui-panel-top-logo">
-		<?if ($arParams['PAGE_URL_URL_SITES']):?>
-			<a href="<?= $arParams['PAGE_URL_URL_SITES'];?>" data-slider-ignore-autobinding="true"><?
+			<a href="<?= SITE_DIR;?>" data-slider-ignore-autobinding="true"><?
 				?><span class="landing-ui-panel-top-logo-text"><?= \htmlspecialcharsbx($b24Title);?></span><?
 				if ($b24Logo != 'N'):
 					?><span class="landing-ui-panel-top-logo-color"><?= Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24');?></span><?
 				endif;?>
 			</a>
-		<?else:?>
-			<span class="landing-ui-panel-top-logo-text"><?= \htmlspecialcharsbx($b24Title);?></span><?
-			if ($b24Logo != 'N'):
-				?><span class="landing-ui-panel-top-logo-color"><?= Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24');?></span>
-			<?endif;?>
-		<?endif;?>
 		</div>
 		<div class="landing-ui-panel-top-chain">
 			<?if ($formEditor):?>
@@ -270,6 +269,7 @@ if (!$request->offsetExists('landing_mode')):
 			<span class="landing-ui-panel-top-history-button landing-ui-panel-top-history-redo landing-ui-disabled"></span>
 		</div>
 		<div class="landing-ui-panel-top-menu" id="landing-panel-settings">
+
 			<span class="ui-btn ui-btn-light-border ui-btn-icon-setting landing-ui-panel-top-menu-link landing-ui-panel-top-menu-link-settings" title="<?= Loc::getMessage('LANDING_TPL_SETTINGS_URL');?>"></span>
 			<span class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-panel-top-menu-link-settings">
 				<?= Loc::getMessage('LANDING_TPL_SETTINGS_URL');?>
@@ -284,7 +284,7 @@ if (!$request->offsetExists('landing_mode')):
 			</a>
 			<?endif;?>
 
-			<?if (!$lightMode && !$formEditor && $arParams['DRAFT_MODE'] != 'Y'):?>
+			<?if (!$lightMode && $arParams['DRAFT_MODE'] != 'Y'):?>
 				<div class="ui-btn-split ui-btn-primary landing-btn-menu<?= !$arResult['CAN_PUBLIC_SITE'] ? ' ui-btn-disabled' : '';?>">
 					<a href="<?= ($arParams['FULL_PUBLICATION'] == 'Y') ? $urls['publicationAll']->getUri() : $urls['publication']->getUri();?>" <?
 					?>id="landing-publication" data-slider-ignore-autobinding="true" <?
@@ -328,10 +328,11 @@ if (!$request->offsetExists('landing_mode')):
 		});
 	});
 </script>
+
 <script type="text/javascript">
 	BX.Helper.init({
-		frameOpenUrl : '<?=CUtil::JSEscape($helperFrameOpenUrl)?>',
-		langId: '<?=LANGUAGE_ID?>'
+		frameOpenUrl : '<?=CUtil::JSEscape($helperFrameOpenUrl);?>',
+		langId: '<?= LANGUAGE_ID;?>'
 	});
 </script>
 
@@ -360,14 +361,27 @@ if ($request->offsetExists('landing_mode'))
 		}
 	</style>
 	<script type="text/javascript">
-		BX.Landing.Component.View.create(
-			<?= \CUtil::phpToJSObject($arResult['TOP_PANEL_CONFIG']);?>
-		);
+		BX.ready(function()
+		{
+			BX.Landing.Component.View.create(
+				<?= \CUtil::phpToJSObject($arResult['TOP_PANEL_CONFIG']);?>
+			);
+		});
 	</script>
 	<?if ($request->get('forceLoad') == 'true'):?>
 		<script type="text/javascript">
 			BX.namespace('BX.Landing');
-			BX.Landing.Block = function() {};
+			BX.Landing.Block = function(element) {
+				BX.onCustomEvent(window, 'BX.Landing.Block:init', [
+					new BX.Landing.Event.Block({
+						block: element,
+						node: null,
+						card: null,
+						data: {},
+						onForceInit: function() {}
+					})
+				]);
+			};
 			BX.Landing.Main = function() {};
 			BX.Landing.Main.createInstance = function() {};
 		</script>

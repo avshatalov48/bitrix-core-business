@@ -21,6 +21,7 @@ return array(
 		'.landing-block-node-bgimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_TEAM002._NODES_LANDINGBLOCKNODE-BGIMG'),
 			'type' => 'img',
+			'useInDesigner' => false,
 			'dimensions' => array('width' => 1920, 'height' => 1080),
 		),
 		'.landing-block-node-subtitle' => array(
@@ -37,6 +38,7 @@ return array(
 		),
 		'.landing-block-node-employee-photo' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_TEAM002._NODES_LANDINGBLOCKNODEEMPLOYEEPHOTO'),
+			'useInDesigner' => false,
 			'type' => 'img',
 			'dimensions' => array('width' => 540),
 		),
@@ -72,7 +74,7 @@ return array(
 			),
 			'.landing-block-node-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_TEAM002._STYLE_LANDINGBLOCKNODETITLE'),
-				'type' => 'typo',
+				'type' => ['typo', 'heading'],
 			),
 			'.landing-block-node-text' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_TEAM002._STYLE_LANDINGBLOCKNODETEXT'),
@@ -97,10 +99,6 @@ return array(
 			'.landing-block-node-bgimg' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_TEAM002._NODES_LANDINGBLOCKNODE-BGIMG'),
 				'type' => 'background-overlay',
-			),
-			'.landing-block-node-header' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_TEAM002._STYLE_LANDINGBLOCKNODEHEADER'),
-				'type' => 'border-color',
 			),
 			'.landing-block-inner' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_TEAM002._CARDS_LANDINGBLOCKNODEINNER'),

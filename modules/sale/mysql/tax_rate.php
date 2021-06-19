@@ -1,9 +1,10 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/tax_rate.php");
 
 class CSaleTaxRate extends CAllSaleTaxRate
 {
-	function Add($arFields, $arOptions = array())
+	public static function Add($arFields, $arOptions = array())
 	{
 		global $DB;
 		if (!CSaleTaxRate::CheckFields("ADD", $arFields))
@@ -189,6 +190,4 @@ class CSaleTaxRate extends CAllSaleTaxRate
 		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		return $db_res;
 	}
-
 }
-?>

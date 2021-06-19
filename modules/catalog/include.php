@@ -359,9 +359,7 @@ function CatalogViewedProductCallback($productID, $UserID, $strSiteID = SITE_ID)
 	{
 		if (!isset($arUserCache[$UserID]))
 		{
-			$by = 'ID';
-			$order = 'DESC';
-			$rsUsers = CUser::GetList($by, $order, array("ID_EQUAL_EXACT"=>$UserID), array('FIELDS' => array('ID')));
+			$rsUsers = CUser::GetList('ID',	'ASC', array("ID_EQUAL_EXACT"=>$UserID), array('FIELDS' => array('ID')));
 			if ($arUser = $rsUsers->Fetch())
 				$arUserCache[$arUser['ID']] = CUser::GetUserGroup($arUser['ID']);
 			else
@@ -2190,9 +2188,7 @@ function __GetCatLangMessages($strBefore, $strAfter, $MessID, $strDefMess = fals
 
 	if (empty($arLangList))
 	{
-		$by="lid";
-		$order="asc";
-		$rsLangs = CLanguage::GetList($by, $order, array("ACTIVE" => "Y"));
+		$rsLangs = CLanguage::GetList("lid", "asc", array("ACTIVE" => "Y"));
 		while ($arLang = $rsLangs->Fetch())
 		{
 			$arLangList[] = $arLang['LID'];

@@ -25,107 +25,137 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 	 */
 	public static function getMap()
 	{
-		return array(
-			'ID' => array(
+		$serializeCallback = [__CLASS__, 'toSerializedForm'];
+		$unserializeCallback = [__CLASS__, 'getFromSerializedForm'];
+
+		return [
+			'ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
-			),
-			'MODULE_ID' => array(
-				'data_type' => 'string'
-			),
-			'ENTITY' => array(
-				'data_type' => 'string'
-			),
-			'DOCUMENT_TYPE' => array(
-				'data_type' => 'string'
-			),
-			'DOCUMENT_STATUS' => array(
-				'data_type' => 'string'
-			),
-			'AUTO_EXECUTE' => array(
-				'data_type' => 'integer'
-			),
-			'NAME' => array(
-				'data_type' => 'string'
-			),
-			'DESCRIPTION' => array(
-				'data_type' => 'string'
-			),
-			'TEMPLATE' => (new Main\ORM\Fields\ArrayField('TEMPLATE'))
-				->configureUnserializeCallback([__CLASS__, "getFromSerializedForm"]),
-			'PARAMETERS' => (new Main\ORM\Fields\ArrayField('PARAMETERS'))
-				->configureUnserializeCallback([__CLASS__, "getFromSerializedForm"]),
-			'VARIABLES' =>  (new Main\ORM\Fields\ArrayField('VARIABLES'))
-				->configureUnserializeCallback([__CLASS__, "getFromSerializedForm"]),
-			'CONSTANTS' => (new Main\ORM\Fields\ArrayField('CONSTANTS'))
-				->configureUnserializeCallback([__CLASS__, "getFromSerializedForm"]),
-			'MODIFIED' => array(
-				'data_type' => 'datetime'
-			),
-			'IS_MODIFIED' => array(
-				'data_type' => 'boolean',
-				'values' => ['N', 'Y']
-			),
-			'USER_ID' => array(
-				'data_type' => 'integer'
-			),
-			'SYSTEM_CODE' => array(
-				'data_type' => 'string'
-			),
-			'ACTIVE' => array(
-				'data_type' => 'boolean',
-				'values' => ['N', 'Y']
-			),
-			'ORIGINATOR_ID' => array(
-				'data_type' => 'string'
-			),
-			'ORIGIN_ID' => array(
-				'data_type' => 'string'
-			),
-			'USER' => array(
-				'data_type' => '\Bitrix\Main\UserTable',
-				'reference' => array(
-					'=this.USER_ID' => 'ref.ID'
-				),
-				'join_type' => 'LEFT',
-			),
-			'IS_SYSTEM' => array(
-				'data_type' => 'boolean',
-				'values' => ['N', 'Y']
-			),
-			'SORT' => array(
+			],
+			'MODULE_ID' => [
+				'data_type' => 'string',
+			],
+			'ENTITY' => [
+				'data_type' => 'string',
+			],
+			'DOCUMENT_TYPE' => [
+				'data_type' => 'string',
+			],
+			'DOCUMENT_STATUS' => [
+				'data_type' => 'string',
+			],
+			'AUTO_EXECUTE' => [
 				'data_type' => 'integer',
-				'default_value' => 10
+			],
+			'NAME' => [
+				'data_type' => 'string',
+			],
+			'DESCRIPTION' => [
+				'data_type' => 'string',
+			],
+			'TEMPLATE' => (
+				(new Main\ORM\Fields\ArrayField('TEMPLATE'))
+					->configureSerializeCallback($serializeCallback)
+					->configureUnserializeCallback($unserializeCallback)
 			),
-		);
+			'PARAMETERS' => (
+				(new Main\ORM\Fields\ArrayField('PARAMETERS'))
+					->configureSerializeCallback($serializeCallback)
+					->configureUnserializeCallback($unserializeCallback)
+			),
+			'VARIABLES' => (
+				(new Main\ORM\Fields\ArrayField('VARIABLES'))
+					->configureSerializeCallback($serializeCallback)
+					->configureUnserializeCallback($unserializeCallback)
+			),
+			'CONSTANTS' => (
+				(new Main\ORM\Fields\ArrayField('CONSTANTS'))
+					->configureSerializeCallback($serializeCallback)
+					->configureUnserializeCallback($unserializeCallback)
+			),
+			'MODIFIED' => [
+				'data_type' => 'datetime',
+			],
+			'IS_MODIFIED' => [
+				'data_type' => 'boolean',
+				'values' => ['N', 'Y'],
+			],
+			'USER_ID' => [
+				'data_type' => 'integer',
+			],
+			'SYSTEM_CODE' => [
+				'data_type' => 'string',
+			],
+			'ACTIVE' => [
+				'data_type' => 'boolean',
+				'values' => ['N', 'Y'],
+			],
+			'ORIGINATOR_ID' => [
+				'data_type' => 'string',
+			],
+			'ORIGIN_ID' => [
+				'data_type' => 'string',
+			],
+			'USER' => [
+				'data_type' => Main\UserTable::class,
+				'reference' => [
+					'=this.USER_ID' => 'ref.ID',
+				],
+				'join_type' => 'LEFT',
+			],
+			'IS_SYSTEM' => [
+				'data_type' => 'boolean',
+				'values' => ['N', 'Y'],
+			],
+			'SORT' => [
+				'data_type' => 'integer',
+				'default_value' => 10,
+			],
+		];
 	}
 
 	public static function getFromSerializedForm($value)
 	{
-		static $useCompression;
-		if ($useCompression === null)
+		if (!empty($value))
 		{
-			$useCompression = \CBPWorkflowTemplateLoader::useGZipCompression();
-		}
-
-		if ($value <> '')
-		{
-			if ($useCompression)
+			if (self::shouldUseCompression())
 			{
 				$value1 = @gzuncompress($value);
 				if ($value1 !== false)
+				{
 					$value = $value1;
+				}
 			}
 
 			$value = unserialize($value, ['allowed_classes' => false]);
 			if (!is_array($value))
-				$value = array();
+			{
+				$value = [];
+			}
 		}
 		else
 		{
-			$value = array();
+			$value = [];
 		}
+
 		return $value;
+	}
+
+	public static function toSerializedForm($value)
+	{
+		if (empty($value))
+		{
+			return null;
+		}
+
+		$buffer = serialize($value);
+		if (self::shouldUseCompression())
+		{
+			$buffer = gzcompress($buffer, 9);
+		}
+
+		return $buffer;
 	}
 
 	public static function getIdsByDocument(array $documentType): array
@@ -136,17 +166,11 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 			'filter' => [
 				'=MODULE_ID' => $documentType[0],
 				'=ENTITY' => $documentType[1],
-				'=DOCUMENT_TYPE' => $documentType[2]
-			]
+				'=DOCUMENT_TYPE' => $documentType[2],
+			],
 		])->fetchAll();
 
 		return array_column($rows, 'ID');
-	}
-
-	/** @inheritdoc */
-	public static function add(array $data)
-	{
-		throw new Main\NotImplementedException("Use CBPTemplateLoader class.");
 	}
 
 	/** @inheritdoc */
@@ -159,5 +183,16 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 	public static function delete($primary)
 	{
 		throw new Main\NotImplementedException("Use CBPTemplateLoader class.");
+	}
+
+	private static function shouldUseCompression(): bool
+	{
+		static $useCompression;
+		if ($useCompression === null)
+		{
+			$useCompression = \CBPWorkflowTemplateLoader::useGZipCompression();
+		}
+
+		return $useCompression;
 	}
 }

@@ -1,11 +1,12 @@
-<section class="landing-block g-bg-gray-light-v5 g-pt-100 g-pb-100">
+<section class="landing-block g-bg-gray-light-v5 g-pt-30 g-pb-30">
 	<div class="container">
 		<div class="text-uppercase text-center g-mb-70">
-			<h2 class="landing-block-node-title d-inline-block g-letter-spacing-0_5 g-font-weight-700 g-font-size-12 g-brd-bottom g-brd-5 g-brd-primary g-pb-8 g-mb-20">
+			<h6 class="landing-block-node-title d-inline-block g-letter-spacing-0_5 g-font-weight-700 u-heading-v2-8-2--bottom g-brd-primary g-pb-8 g-mb-20">
 				Our offers
-			</h2>
-			<div class="landing-block-node-text text-uppercase g-letter-spacing-3 g-font-size-12 g-color-gray-dark-v5 mb-0">
-				<p>Tgsdgwe sfgdrss dfw vero eos et accusamus</p>
+			</h6>
+			<div class="landing-block-node-text text-uppercase g-letter-spacing-3 mb-0">
+				<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor.
+					Vivamus a fringilla lorem, vel faucibus ante.</p>
 			</div>
 		</div>
 
@@ -20,12 +21,12 @@
 
 					<!-- Article Content -->
 					<header class="g-letter-spacing-3 g-pos-rel g-px-40 g-mb-30">
-						<span class="landing-block-node-card-icon-container u-icon-v3 u-icon-size--xl g-rounded-50x g-font-size-26 g-bg-gray-dark-v1 g-color-white g-pull-50x-up">
+						<span class="landing-block-node-card-icon-container m-auto u-icon-v3 u-icon-size--xl g-rounded-50x g-font-size-26 g-bg-gray-dark-v1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-camera"></i>
 						</span>
-						<h4 class="landing-block-node-card-title h6 g-color-white g-mt-minus-25 g-mb-10">
-							Photography</h4>
-						<div class="landing-block-node-card-text g-font-size-12 g-color-gray-dark-v4 mb-0">
+						<h6 class="landing-block-node-card-title g-color-white g-mt-minus-25 g-mb-10">
+							Photography</h6>
+						<div class="landing-block-node-card-text g-color-gray-dark-v4 mb-0">
 							<p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc.</p>
 						</div>
 					</header>
@@ -67,11 +68,11 @@
 
 					<!-- Article Content -->
 					<header class="g-letter-spacing-3 g-pos-rel g-px-40 g-mb-30">
-						<span class="landing-block-node-card-icon-container u-icon-v3 u-icon-size--xl g-rounded-50x g-font-size-26 g-bg-gray-dark-v1 g-color-white g-pull-50x-up">
+						<span class="landing-block-node-card-icon-container m-auto u-icon-v3 u-icon-size--xl g-rounded-50x g-font-size-26 g-bg-gray-dark-v1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-film"></i>
 						</span>
-						<h4 class="landing-block-node-card-title h6 g-color-white g-mt-minus-25 g-mb-10">Video</h4>
-						<div class="landing-block-node-card-text g-font-size-12 g-color-gray-dark-v4 mb-0">
+						<h6 class="landing-block-node-card-title g-color-white g-mt-minus-25 g-mb-10">Video</h6>
+						<div class="landing-block-node-card-text g-color-gray-dark-v4 mb-0">
 							<p>Dftwrgf dolor libero,Proin fermentum turpis, faucibus hhdre nec nunc.</p>
 						</div>
 					</header>
@@ -113,12 +114,12 @@
 
 					<!-- Article Content -->
 					<header class="g-letter-spacing-3 g-pos-rel g-px-40 g-mb-30">
-						<span class="landing-block-node-card-icon-container u-icon-v3 u-icon-size--xl g-rounded-50x g-font-size-26 g-bg-gray-dark-v1 g-color-white g-pull-50x-up">
+						<span class="landing-block-node-card-icon-container m-auto u-icon-v3 u-icon-size--xl g-rounded-50x g-font-size-26 g-bg-gray-dark-v1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-star"></i>
 						</span>
-						<h4 class="landing-block-node-card-title h6 g-color-white g-mt-minus-25 g-mb-10">Photo and
-							video</h4>
-						<div class="landing-block-node-card-text g-font-size-12 g-color-gray-dark-v4 mb-0">
+						<h6 class="landing-block-node-card-title g-color-white g-mt-minus-25 g-mb-10">Photo and
+							video</h6>
+						<div class="landing-block-node-card-text g-color-gray-dark-v4 mb-0">
 							<p>Proin agas sshwe dolor libero, efficitur nunc.Proin fermentum turpis</p>
 						</div>
 					</header>

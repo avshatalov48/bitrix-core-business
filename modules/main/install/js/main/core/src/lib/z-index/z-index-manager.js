@@ -53,7 +53,7 @@ export default class ZIndexManager
 
 	static getComponent(element: HTMLElement): ?ZIndexComponent
 	{
-		const parentNode = this.#getParentNode(element);
+		const parentNode = this.#getParentNode(element, true);
 		if (!parentNode)
 		{
 			return null;
@@ -77,17 +77,23 @@ export default class ZIndexManager
 		return null;
 	}
 
-	static #getParentNode(element: HTMLElement): ?HTMLElement
+	static #getParentNode(element: HTMLElement, suppressWarnings: boolean = false): ?HTMLElement
 	{
 		if (!Type.isElementNode(element))
 		{
-			console.error('ZIndexManager: The argument \'element\' must be a DOM element.', element);
+			if (!suppressWarnings)
+			{
+				console.error('ZIndexManager: The argument \'element\' must be a DOM element.', element);
+			}
 
 			return null;
 		}
 		else if (!Type.isElementNode(element.parentNode))
 		{
-			console.error('ZIndexManager: The \'element\' doesn\'t have a parent node.', element);
+			if (!suppressWarnings)
+			{
+				console.error('ZIndexManager: The \'element\' doesn\'t have a parent node.', element);
+			}
 
 			return null;
 		}

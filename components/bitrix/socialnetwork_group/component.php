@@ -1,4 +1,10 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -9,15 +15,17 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
+use Bitrix\Main\Localization\Loc;
+
 if (!CModule::IncludeModule("socialnetwork"))
 {
-	ShowError(GetMessage("SONET_MODULE_NOT_INSTALL"));
+	ShowError(Loc::getMessage('SONET_MODULE_NOT_INSTALL'));
 	return;
 }
 
 if (!CBXFeatures::IsFeatureEnabled("Workgroups"))
 {
-	ShowError(GetMessage("SONET_WORKGROUPS_FEATURE_DISABLED"));
+	ShowError(Loc::getMessage('SONET_WORKGROUPS_FEATURE_DISABLED'));
 	return;
 }
 
@@ -700,6 +708,22 @@ if (!empty($arParams["PATH_TO_USER_BLOG_POST_IMPORTANT"]))
 
 $arParams["ERROR_MESSAGE"] = "";
 $arParams["NOTE_MESSAGE"] = "";
+
+$arResult['groupFields'] = [];
+$arResult['PAGES_TITLE_TEMPLATE'] = '';
+if ((int)$arResult['VARIABLES']['group_id'] > 0)
+{
+	$groupFields = \CSocNetGroup::getById((int)$arResult['VARIABLES']['group_id']);
+	if (!empty($groupFields))
+	{
+		$arResult['groupFields'] = $groupFields;
+		$arResult['PAGES_TITLE_TEMPLATE'] = Loc::getMessage('SONET_GROUP_PAGES_TITLE_TEMPLATE', [
+			'#GROUP_NAME#' => $groupFields['NAME'],
+		]);
+	}
+}
+
+
 /********************************************************************
 				WebDav
 ********************************************************************/
@@ -851,7 +875,7 @@ if(mb_strpos($componentPage, 'group_disk') !== false)
 {
 	if(!CSocNetFeatures::isActiveFeature(SONET_ENTITY_GROUP, $arResult["VARIABLES"]["group_id"], "files"))
 	{
-		ShowError(GetMessage("SONET_FILES_IS_NOT_ACTIVE"));
+		ShowError(Loc::getMessage('SONET_FILES_IS_NOT_ACTIVE'));
 		return 0;
 	}
 }
@@ -859,7 +883,7 @@ elseif (mb_strpos($componentPage, 'group_app') !== false)
 {
 	if(!CSocNetFeatures::isActiveFeature(SONET_ENTITY_GROUP, $arResult["VARIABLES"]["group_id"], "placement_".$arResult["VARIABLES"]["placement_id"]))
 	{
-		ShowError(GetMessage("SONET_APP_IS_NOT_ACTIVE"));
+		ShowError(Loc::getMessage('SONET_APP_IS_NOT_ACTIVE'));
 		return 0;
 	}
 }
@@ -1190,21 +1214,22 @@ if(\Bitrix\Main\ModuleManager::isModuleInstalled('tasks'))
 	);
 }
 
-CUtil::InitJSCore(array("window", "ajax"));
-\Bitrix\Main\UI\Extension::load("socialnetwork.slider");
+CUtil::InitJSCore([ 'window', 'ajax' ]);
+\Bitrix\Main\UI\Extension::load('socialnetwork.slider');
 
-$this->IncludeComponentTemplate($componentPage, array_key_exists($componentPage, $arCustomPagesPath) ? $arCustomPagesPath[$componentPage] : "");
+$arResult['componentPage'] = $componentPage;
+
+$this->IncludeComponentTemplate($componentPage, array_key_exists($componentPage, $arCustomPagesPath) ? $arCustomPagesPath[$componentPage] : '');
 
 //top panel button to reindex
 if($USER->IsAdmin())
 {
-	$APPLICATION->AddPanelButton(array(
-		"HREF"=> $arResult["PATH_TO_GROUP_REINDEX"],
-		"ICON"=>"bx-panel-reindex-icon",
-		"ALT"=>GetMessage('SONET_PANEL_REINDEX_TITLE'),
-		"TEXT"=>GetMessage('SONET_PANEL_REINDEX'),
-		"MAIN_SORT"=>"1000",
-		"SORT"=>100
-	));
+	$APPLICATION->AddPanelButton([
+		'HREF' => $arResult["PATH_TO_GROUP_REINDEX"],
+		'ICON' => 'bx-panel-reindex-icon',
+		'ALT' => Loc::getMessage('SONET_PANEL_REINDEX_TITLE'),
+		'TEXT' => Loc::getMessage('SONET_PANEL_REINDEX'),
+		'MAIN_SORT' => "1000",
+		'SORT' => 100
+	]);
 }
-?>

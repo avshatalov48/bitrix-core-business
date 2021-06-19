@@ -1,4 +1,5 @@
-<?
+<?php
+
 define("NOT_CHECK_FILE_PERMISSIONS", true);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
@@ -219,14 +220,17 @@ function HideShowId(id)
 	<td width="75%"><textarea cols="70" rows="3" name="activity_editor_comment"><?=htmlspecialcharsbx($editorComment)?></textarea></td>
 </tr>
 
-<?
+<?php
 
 //TODO: Experimental
-$arCurrentActivity['Properties'] = \Bitrix\Bizproc\Automation\Helper::convertProperties(
-	$arCurrentActivity['Properties'],
-	$documentType,
-	false
-);
+if ($arCurrentActivity && is_array($arCurrentActivity['Properties']))
+{
+	$arCurrentActivity['Properties'] = \Bitrix\Bizproc\Automation\Helper::convertProperties(
+		$arCurrentActivity['Properties'],
+		$documentType,
+		false
+	);
+}
 
 $z = CBPActivity::CallStaticMethod(
 	$activityType,
@@ -307,4 +311,3 @@ $popupWindow->ShowStandardButtons();
 $popupWindow->EndButtons();
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
-?>

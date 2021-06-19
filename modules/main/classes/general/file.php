@@ -1192,6 +1192,8 @@ class CFile extends CAllFile
 	public static function FormatSize($size, $precision = 2)
 	{
 		static $a = array("b", "Kb", "Mb", "Gb", "Tb");
+
+		$size = (float)$size;
 		$pos = 0;
 		while($size >= 1024 && $pos < 4)
 		{
@@ -2327,6 +2329,9 @@ function ImgShw(ID, width, height, alt)
 	 */
 	public static function ApplyImageFilter($picture, $arFilter)
 	{
+		//prevents destroing outside the function
+		static $engine;
+
 		switch($arFilter["name"])
 		{
 			case "sharpen":
@@ -2370,6 +2375,9 @@ function ImgShw(ID, width, height, alt)
 	 */
 	public static function ImageFlipHorizontal($picture)
 	{
+		//prevents destroing outside the function
+		static $engine;
+
 		$engine = new File\Image\Gd();
 		$engine->setResource($picture);
 		$engine->flipHorizontal();
@@ -2402,6 +2410,9 @@ function ImgShw(ID, width, height, alt)
 			}
 			return false;
 		}
+
+		//prevents destroing outside the function
+		static $engine;
 
 		//compatibility around GD image resource
 		$engine = new File\Image\Gd();
@@ -2827,6 +2838,9 @@ function ImgShw(ID, width, height, alt)
 	 */
 	public static function WatermarkText($obj, $Params = array())
 	{
+		//prevents destroing outside the function
+		static $engine;
+
 		$engine = new File\Image\Gd();
 		$engine->setResource($obj);
 
@@ -2847,6 +2861,9 @@ function ImgShw(ID, width, height, alt)
 	 */
 	public static function WatermarkImage($obj, $Params = array())
 	{
+		//prevents destroing outside the function
+		static $engine;
+
 		$engine = new File\Image\Gd();
 		$engine->setResource($obj);
 

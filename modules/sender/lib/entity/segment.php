@@ -18,6 +18,7 @@ use Bitrix\Sender\GroupDealCategoryTable;
 use Bitrix\Sender\GroupTable;
 use Bitrix\Sender\Internals\Model\GroupCounterTable;
 use Bitrix\Sender\ListTable;
+use Bitrix\Sender\Posting\SegmentDataBuilder;
 
 Loc::loadMessages(__FILE__);
 
@@ -187,6 +188,7 @@ class Segment extends Base
 				$this->updateDealCategory($id, $connector);
 			}
 
+			SegmentDataBuilder::checkIsSegmentPrepared($id);
 			$this->updateAddressCounters($id, $dataCounters);
 		}
 

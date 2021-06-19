@@ -61,8 +61,8 @@ export class Main extends Event.EventEmitter
 
 		this.id = id;
 		this.options = Object.freeze(options);
-		this.blocksPanel = null;
 		this.currentBlock = null;
+		this.isDesignBlockModeFlag = this.options["design_block"] === true;
 		this.loadedDeps = {};
 		this.cache = new Cache.MemoryCache();
 
@@ -73,28 +73,38 @@ export class Main extends Event.EventEmitter
 
 		this.adjustEmptyAreas();
 
-		if (this.options.blocks)
-		{
-			if (!this.blocksPanel)
-			{
-				this.blocksPanel = this.createBlocksPanel();
-				this.onBlocksListCategoryChange(this.options.default_section);
-				this.blocksPanel.layout.hidden = true;
-				Dom.append(this.blocksPanel.layout, document.body);
-			}
-
-			this.blocksPanel.content.hidden = false;
-		}
-
 		BX.Landing.UI.Panel.StatusPanel.setLastModified(options.lastModified);
-		BX.Landing.UI.Panel.StatusPanel.getInstance().show();
+		if (!this.isDesignBlockModeFlag)
+		{
+			BX.Landing.UI.Panel.StatusPanel.getInstance().show();
+		}
+	}
+
+	isDesignBlockMode()
+	{
+		return this.isDesignBlockModeFlag;
+	}
+
+	getBlocksPanel(): Content
+	{
+		return this.cache.remember('blockPanel', () => {
+			const blocksPanel = this.createBlocksPanel();
+			setTimeout(() => {
+				blocksPanel.sidebarButtons.get(this.options.default_section).layout.click();
+			});
+			blocksPanel.layout.hidden = true;
+			blocksPanel.content.hidden = false;
+			Dom.append(blocksPanel.layout, document.body);
+
+			return blocksPanel;
+		});
 	}
 
 	hideBlocksPanel()
 	{
-		if (this.blocksPanel)
+		if (this.getBlocksPanel())
 		{
-			return this.blocksPanel.hide();
+			return this.getBlocksPanel().hide();
 		}
 
 		return Promise.resolve();
@@ -332,7 +342,7 @@ export class Main extends Event.EventEmitter
 	{
 		this.currentBlock = block;
 		this.currentArea = area;
-		this.blocksPanel.show();
+		this.getBlocksPanel().show();
 
 		this.disableAddBlockButtons();
 
@@ -566,14 +576,14 @@ export class Main extends Event.EventEmitter
 	 */
 	onBlocksListCategoryChange(category)
 	{
-		this.blocksPanel.content.hidden = false;
+		this.getBlocksPanel().content.hidden = false;
 
-		this.blocksPanel.sidebarButtons.forEach((button) => {
+		this.getBlocksPanel().sidebarButtons.forEach((button) => {
 			const action = button.id === category ? 'add' : 'remove';
 			button.layout.classList[action]('landing-ui-active');
 		});
 
-		this.blocksPanel.content.innerHTML = '';
+		this.getBlocksPanel().content.innerHTML = '';
 
 		if (category === 'last')
 		{
@@ -586,7 +596,7 @@ export class Main extends Event.EventEmitter
 
 			this.lastBlocks.forEach((blockKey) => {
 				const block = this.getBlockFromRepository(blockKey);
-				this.blocksPanel.appendCard(this.createBlockCard(blockKey, block));
+				this.getBlocksPanel().appendCard(this.createBlockCard(blockKey, block));
 			});
 
 			return;
@@ -594,13 +604,13 @@ export class Main extends Event.EventEmitter
 
 		Object.keys(this.options.blocks[category].items).forEach((blockKey) => {
 			const block = this.options.blocks[category].items[blockKey];
-			this.blocksPanel.appendCard(this.createBlockCard(blockKey, block));
+			this.getBlocksPanel().appendCard(this.createBlockCard(blockKey, block));
 		});
 
-		if (this.blocksPanel.content.scrollTop)
+		if (this.getBlocksPanel().content.scrollTop)
 		{
 			requestAnimationFrame(() => {
-				this.blocksPanel.content.scrollTop = 0;
+				this.getBlocksPanel().content.scrollTop = 0;
 			});
 		}
 	}
@@ -783,6 +793,8 @@ export class Main extends Event.EventEmitter
 					manifest: res.manifest,
 					access: res.access,
 					active: Text.toBoolean(res.active),
+					php: res.php,
+					designed: res.designed,
 					anchor: res.anchor,
 					dynamicParams: res.dynamicParams,
 				});

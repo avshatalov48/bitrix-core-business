@@ -825,7 +825,7 @@ class AppTable extends Main\Entity\DataManager
 			}
 			else
 			{
-				$dbSites = \CSite::getList($by = 'sort', $order = 'asc', array('DEFAULT' => 'Y', 'ACTIVE' => 'Y'));
+				$dbSites = \CSite::getList('sort', 'asc', array('DEFAULT' => 'Y', 'ACTIVE' => 'Y'));
 				$site = $dbSites->fetch();
 
 				static::$licenseLang = is_array($site) && isset($site['LANGUAGE_ID']) ? $site['LANGUAGE_ID'] : LANGUAGE_ID;

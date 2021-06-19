@@ -7,10 +7,11 @@
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
+use Bitrix\Main\Loader;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/prolog.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/include.php");
+Loader::includeModule('advertising');
 
 $isAdmin = CAdvContract::IsAdmin();
 $isDemo = CAdvContract::IsDemo();
@@ -33,7 +34,7 @@ $banner_ref_id = array();
 $group_ref_id = array();
 $group_ref = array();
 
-$rsBanns = CAdvBanner::GetList($v1="s_dropdown", $v2="desc", array(), $v3);
+$rsBanns = CAdvBanner::GetList("s_dropdown", "desc");
 
 while ($arBann = $rsBanns->Fetch())
 {
@@ -73,16 +74,16 @@ $FilterArr = Array(
 	"find_group_summa",
 	"find_type_sid"
 	);
-	
+
 $sTableID = "adv_banner_list";
 $oSort = new CAdminSorting($sTableID);
 $lAdmin = new CAdminList($sTableID, $oSort);
 
 $lAdmin->InitFilter($FilterArr);
 
-if ($set_filter <> '' || $man) 
-	InitFilterEx($FilterArr,"AD_STAT_BANNER_GRAPH","set",true); 
-else 
+if ($set_filter <> '' || $man)
+	InitFilterEx($FilterArr,"AD_STAT_BANNER_GRAPH","set",true);
+else
 	InitFilterEx($FilterArr,"AD_STAT_BANNER_GRAPH","get",true);
 if ($del_filter <> '')
 	DelFilterEx($FilterArr,"AD_STAT_LIST",true);
@@ -114,7 +115,7 @@ $arFilter = Array(
 	"GROUP_SID"		=> $find_group_sid,
 	"GROUP_SUMMA"		=> $find_group_summa,
 	);
-	
+
 if (count($find_banner_id) < 2)
 {
 	$find_banner_summa = 'Y';
@@ -188,13 +189,13 @@ $arHeaders[]=
 		"align"		=>"right",
 		"default"	=>true
 	);
-	
+
 $lAdmin->AddHeaders($arHeaders);
 $noContent = true;//var_dump($rsData);
 while($arRes = $rsData->NavNext(true, "f_"))
 {
 	$noContent = false;
-	$row =& $lAdmin->AddRow($f_DATE, $arRes);	
+	$row =& $lAdmin->AddRow($f_DATE, $arRes);
 	$row->AddViewField("DATE", $f_DATE_STAT);
 	$row->AddViewField("VISITORS", $f_VISITOR_COUNT);
 	$row->AddViewField("CTR", $f_CTR==0?'0':$f_CTR);
@@ -203,7 +204,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	if ($find_banner_summa=="N"){
 		$row->AddViewField("BANNER_ID", $f_BANNER_ID);
 		$row->AddViewField("BANNER_NAME", $f_BANNER_NAME);
-	}	
+	}
 }
 
 $arFooter = array();
@@ -260,9 +261,7 @@ else :
 				</tr>
 				<?endif;?>
 				<?
-				reset($arrLegend);
-
-				while(list($keyL, $arrS) = each($arrLegend)) :
+				foreach ($arrLegend as $keyL => $arrS) :
 				?>
 				<tr valign="center">
 					<?if (in_array("visitor", $arShow)):?>
@@ -303,7 +302,7 @@ else :
 						break;
 					endswitch;
 				?></tr><?
-				endwhile;
+				endforeach;
 				?>
 			</table>
 			</td>
@@ -396,7 +395,7 @@ $filter->End();
 </form>
 
 	<?
-		
+
 		$lAdmin->DisplayList();
 	?>
 <?

@@ -43,12 +43,14 @@ $APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "") . 
 				'errors' => $arResult['ERRORS'],
 				'pathToList' => $arParams['PATH_TO_LIST'],
 				'fieldsData' => $arResult['FIELDS_DATA'],
+				'presenters' => $arResult['PRESENTERS'],
 				'chatHost' => $arResult['CHAT_HOST'],
 				'chatUsers' => $arResult['CHAT_USERS'],
 				'mode' => $arResult['MODE'],
 				'publicLink' => $arResult['PUBLIC_LINK'],
 				'chatId' => $arResult['CHAT_ID'],
-				'invitation' => $arResult['INVITATION']
+				'invitation' => $arResult['INVITATION'],
+				'broadcastingEnabled' => \Bitrix\Im\Settings::isBroadcastingEnabled()
 			]
 		)?>);
 	});

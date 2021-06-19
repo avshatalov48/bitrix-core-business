@@ -3,11 +3,23 @@ import type {BaseEvent} from "main.core.events";
 import {EventEmitter} from "main.core.events";
 import {ProductSelector} from 'catalog.product-selector';
 
+const instances = new Map();
+
 class ProductField
 {
 	static EDIT_CLASS = 'catalog-grid-product-field-edit';
 	static PRODUCT_MODE = 'product';
 	static SKU_MODE = 'sku';
+
+	onSelectEditHandler = this.onSelectEdit.bind(this);
+	onCancelEditHandler = this.onCancelEdit.bind(this);
+	onBeforeGridRequestHandler = this.onBeforeGridRequest.bind(this);
+	onUnsubscribeEventsHandler = this.unsubscribeEvents.bind(this);
+
+	static getById(id: string): ?ImageInput
+	{
+		return instances.get(id) || null;
+	}
 
 	constructor(id, settings = {})
 	{
@@ -16,9 +28,26 @@ class ProductField
 		this.signedParameters = settings.signedParameters || '';
 		this.rowIdMask = settings.rowIdMask || '#ID#';
 
-		EventEmitter.subscribe('Grid::thereEditedRows', this.onSelectEdit.bind(this));
-		EventEmitter.subscribe('Grid::noEditedRows', this.onCancelEdit.bind(this));
-		EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequest.bind(this));
+		this.subscribeEvents();
+
+		instances.set(id, this);
+	}
+
+	subscribeEvents()
+	{
+		EventEmitter.subscribe('Grid::thereEditedRows', this.onSelectEditHandler);
+		EventEmitter.subscribe('Grid::noEditedRows', this.onCancelEditHandler);
+		EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
+		EventEmitter.subscribe('Grid::updated', this.onUnsubscribeEventsHandler);
+	}
+
+	unsubscribeEvents()
+	{
+		EventEmitter.unsubscribe('Grid::thereEditedRows', this.onSelectEditHandler);
+		EventEmitter.unsubscribe('Grid::noEditedRows', this.onCancelEditHandler);
+		EventEmitter.unsubscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
+		EventEmitter.unsubscribe('Grid::updated', this.onUnsubscribeEventsHandler);
+		this.selector.unsubscribeEvents();
 	}
 
 	getSelector(): ProductSelector

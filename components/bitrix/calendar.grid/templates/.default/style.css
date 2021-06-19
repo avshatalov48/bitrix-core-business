@@ -2769,7 +2769,6 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 }
 
 .calendar-members-change-link,
-.calendar-create-chat-link,
 .calendar-members-more,
 .calendar-members-invited {
 	margin-left: 5px;
@@ -2789,9 +2788,45 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 	margin-left: 5px;
 }
 
-.calendar-create-chat-link {
-	margin-right: 10px;
-	margin-bottom: 4px;
+.calendar-videocall-wrap.calendar-videocall-hidden{
+	display: none;
+}
+.calendar-videocall-wrap{
+	padding-right: 10px;
+}
+.calendar-videocall-wrap .control-btn {
+	border: none;
+	padding: 0 20px 0 0;
+	height: 19px;
+	top: -3px;
+	white-space: nowrap;
+}
+.calendar-videocall-wrap .control-btn-text{
+	text-transform: none;
+	padding-left: 0;
+	font: 400 13px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	border-bottom: 1px dashed rgba(128, 134, 142, .4);
+	color: #80868e;
+	cursor: pointer;
+}
+.calendar-videocall-wrap .control-btn-text:before,
+.calendar-videocall-wrap .control-btn-arrow:before{
+	display: none;
+}
+
+.calendar-videocall-wrap .control-btn-arrow{
+	width: 20px;
+	height: 20px;
+}
+.calendar-videocall-wrap .control-btn-arrow:after{
+	width: 4px;
+	height: 4px;
+	top: 5px;
+	left: 8px;
+	border: 2px solid #c7cdd3;
+	border-top: none;
+	border-left: none;
+	transform: rotate(45deg);
 }
 
 .calendar-members-additionally {
@@ -5487,7 +5522,7 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 
 .calendar-timeline-stream-content-event-time {
 	max-width: 150px;
-	flex: 2;
+	flex: 1;
 }
 
 .calendar-timeline-stream-content-event-time-link {
@@ -5505,7 +5540,8 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 .calendar-timeline-stream-content-event-name {
 	position: relative;
 	padding-left: 20px;
-	flex: 10;
+	flex: 1;
+	width: 100%;
 }
 
 .calendar-timeline-stream-content-event-name-link {
@@ -5542,12 +5578,15 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 	min-width: 130px;
 	color: #b5bbc1;
 	font: 400 13px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
-	flex: 2;
 }
 
 .calendar-timeline-stream-content-event-actions {
 	min-width: 150px;
-	flex: 1;
+	text-align: right;
+}
+
+.calendar-timeline-stream-content-event-control {
+	margin-right: 10px;
 }
 
 .calendar-timeline-content-event-action-join-btn,
@@ -6904,6 +6943,9 @@ div#invite-email-email-user-popup
 	left: 42%;
 }
 
+.calendar-simple-view-popup .popup-window-buttons {
+	position: relative;
+}
 
 .calendar-popup-user-menu .popup-window-content {
 	padding: 0;
@@ -7281,4 +7323,8 @@ div#invite-email-email-user-popup
 	display: block;
 	font: 14px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	opacity: .7;
+}
+
+.calendar-slider-sidebar-videocall {
+	padding: 18px 0 9px;
 }

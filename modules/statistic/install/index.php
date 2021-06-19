@@ -14,7 +14,7 @@ Class statistic extends CModule
 
 	var $errors;
 
-	function statistic()
+	public function __construct()
 	{
 		$arModuleVersion = array();
 

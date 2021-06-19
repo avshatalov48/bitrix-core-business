@@ -31,7 +31,7 @@ class CAllDiskQuota
 			$this->max_execution_time = intval($params["max_execution_time"]);
 	}
 
-	function SetDBSize()
+	public static function SetDBSize()
 	{
 	}
 

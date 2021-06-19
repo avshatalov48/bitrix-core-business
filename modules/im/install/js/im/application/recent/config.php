@@ -15,11 +15,7 @@ return [
 		'main.polyfill.core',
 		'im.application.core',
 		'ui.vue',
-		'ui.vue.vuex',
-		'im.view.list.recent',
-		'im.lib.logger',
-		'im.const',
-		'im.lib.utils',
+		'im.component.recent',
 	],
 	'skip_core' => true,
 ];

@@ -12,7 +12,7 @@ class CUserTypeDouble extends TypeBase
 {
 	const USER_TYPE_ID = DoubleType::USER_TYPE_ID;
 
-	function getUserTypeDescription()
+	public static function getUserTypeDescription()
 	{
 		return DoubleType::getUserTypeDescription();
 	}
@@ -52,7 +52,7 @@ class CUserTypeDouble extends TypeBase
 		return DoubleType::renderEdit($userField, $arAdditionalParameters);
 	}
 
-	function getDbColumnType($userField)
+	public static function getDbColumnType($userField)
 	{
 		return DoubleType::getDbColumnType();
 	}

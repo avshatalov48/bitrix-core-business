@@ -6,7 +6,7 @@ if (!CModule::IncludeModule("vote"))
 
 /*$arrChannels = Array("-" => GetMessage("VOTE_ALL_CHANNELS"));*/
 $arrChannels = array();
-$rs = CVoteChannel::GetList($v1, $v2, array(), $v3);
+$rs = CVoteChannel::GetList();
 while ($arChannel=$rs->GetNext()) 
 {
 	$arrChannels[$arChannel["SID"]] = "[".$arChannel["SID"]."] ".html_entity_decode($arChannel["TITLE"]);

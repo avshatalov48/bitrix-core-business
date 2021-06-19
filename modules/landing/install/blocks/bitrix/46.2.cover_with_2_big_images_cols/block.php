@@ -10,7 +10,7 @@
 						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<article class="landing-block-node-img-title-border h-100 g-flex-middle text-center g-brd-around g-brd-white-opacity-0_2 text-uppercase g-color-white">
 								<div class="g-flex-middle-item">
-									<h3 class="landing-block-node-img-title landing-semantic-title-image-small g-color-white h3 g-line-height-1_4 g-letter-spacing-5 g-font-size-20 g-mb-20">
+									<h3 class="landing-block-node-img-title landing-semantic-title-image-small g-color-white g-line-height-1_4 g-letter-spacing-5 g-font-size-20 g-mb-20">
 										Professional<br>Photography
 									</h3>
 									<div class="landing-block-node-img-text landing-semantic-text-image-medium g-letter-spacing-3 g-mb-40" data-auto-font-scale>
@@ -35,7 +35,7 @@
 						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 							<article class="landing-block-node-img-title-border h-100 g-flex-middle text-center g-brd-around g-brd-white-opacity-0_2 text-uppercase g-color-white">
 								<div class="g-flex-middle-item">
-									<h3 class="landing-block-node-img-title landing-semantic-title-image-small g-color-white h3 g-line-height-1_4 g-letter-spacing-5 g-font-size-20 g-mb-20">
+									<h3 class="landing-block-node-img-title landing-semantic-title-image-small g-color-white g-line-height-1_4 g-letter-spacing-5 g-font-size-20 g-mb-20">
 										Work<br>Presentations
 									</h3>
 									<div class="landing-block-node-img-text landing-semantic-text-image-medium g-letter-spacing-3 g-mb-40" data-auto-font-scale>

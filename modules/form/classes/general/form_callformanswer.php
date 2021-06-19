@@ -1,15 +1,15 @@
-<?
+<?php
 
 class CAllFormAnswer
 {
-	function err_mess()
+	public static function err_mess()
 	{
 		$module_id = "form";
 		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
 		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CAllFormAnswer<br>File: ".__FILE__;
 	}
 
-	function Copy($ID, $NEW_QUESTION_ID=false)
+	public static function Copy($ID, $NEW_QUESTION_ID=false)
 	{
 		global $DB, $APPLICATION, $strError;
 		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: Copy<br>Line: ";
@@ -36,7 +36,7 @@ class CAllFormAnswer
 		return false;
 	}
 
-	function Delete($ID, $QUESTION_ID=false)
+	public static function Delete($ID, $QUESTION_ID=false)
 	{
 		global $DB, $strError;
 		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: Delete<br>Line: ";
@@ -47,7 +47,7 @@ class CAllFormAnswer
 		return true;
 	}
 
-	function GetTypeList()
+	public static function GetTypeList()
 	{
 		global $bSimple;
 		$arrT = array(
@@ -70,13 +70,12 @@ class CAllFormAnswer
 		return $arr;
 	}
 
-	function GetList($QUESTION_ID, &$by, &$order, $arFilter=Array(), &$is_filtered)
+	public static function GetList($QUESTION_ID, $by = 's_sort', $order = 'asc', $arFilter = [])
 	{
 		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: GetList<br>Line: ";
-		global $DB, $strError;
+		global $DB;
 		$QUESTION_ID = intval($QUESTION_ID);
 		$arSqlSearch = Array();
-		$strSqlSearch = "";
 		if (is_array($arFilter))
 		{
 			$filter_keys = array_keys($arFilter);
@@ -96,7 +95,7 @@ class CAllFormAnswer
 					continue;
 				}
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys));
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -123,19 +122,18 @@ class CAllFormAnswer
 		elseif ($by == "s_c_sort" || $by == "s_sort") $strSqlOrder = "ORDER BY A.C_SORT";
 		else
 		{
-			$by = "s_sort";
 			$strSqlOrder = "ORDER BY A.C_SORT";
 		}
-		if ($order!="desc")
+
+		if ($order != "desc")
 		{
 			$strSqlOrder .= " asc ";
-			$order="asc";
 		}
 		else
 		{
 			$strSqlOrder .= " desc ";
-			$order="desc";
 		}
+
 		$strSql = "
 			SELECT
 				A.ID,
@@ -159,11 +157,11 @@ class CAllFormAnswer
 			";
 		//echo "<pre>$strSql</pre>";
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: GetByID<br>Line: ";
 		global $DB, $strError;
@@ -192,7 +190,7 @@ class CAllFormAnswer
 		return $res;
 	}
 
-	function CheckFields($arFields, $ANSWER_ID=false)
+	public static function CheckFields($arFields, $ANSWER_ID=false)
 	{
 		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: CheckFields<br>Line: ";
 		global $DB, $strError, $APPLICATION, $USER;
@@ -216,7 +214,7 @@ class CAllFormAnswer
 		if ($str <> '') return false; else return true;
 	}
 
-	function Set($arFields, $ANSWER_ID=false)
+	public static function Set($arFields, $ANSWER_ID=false)
 	{
 		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: Set<br>Line: ";
 		global $DB, $USER, $strError, $APPLICATION;

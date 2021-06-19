@@ -1,0 +1,64 @@
+.mail-grid-disable .main-grid-panel-control-container:not([id*="actallrows_"]) {
+	opacity: .5;
+	cursor: default;
+	pointer-events: none;
+}
+
+.mail-grid-disable .main-grid-buttons.apply {
+	background: none;
+	color: #535c69;
+}
+
+.mail-grid-disable.main-grid-settings-window-actions-item-button {
+	opacity: .6;
+	pointer-events: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.mail-grid-disable .ui-action-panel{
+	opacity: 0;
+}
+
+.mail-msg-list-grid-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	flex-direction: column;
+	padding: 30px;
+	box-sizing: border-box;
+}
+
+.mail-msg-list-grid-empty-inner {
+	max-width: 330px;
+}
+
+.mail-msg-list-grid-empty-title {
+	font: 31px/36px "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333;
+	margin-bottom: 10px;
+}
+
+.mail-message-grid-filling-bar
+{
+	width: 100% !important;
+	transition-property: width;
+	transition: 10s !important;
+}
+
+.mail-message-grid-bar
+{
+	background-color: #9dcf00 !important;
+	width: 0;
+	transition-property: width;
+	transition: 10s !important;
+}
+
+.mail-msg-list-grid-empty-text {
+	font: 16px/22px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525C69;
+	margin: 0;
+}

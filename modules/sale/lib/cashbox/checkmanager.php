@@ -22,12 +22,13 @@ Loc::loadLanguageFile(__FILE__);
  */
 final class CheckManager
 {
-	const EVENT_ON_GET_CUSTOM_CHECK = 'OnGetCustomCheckList';
-	const EVENT_ON_CHECK_PRINT_SEND = 'OnPrintableCheckSend';
-	const EVENT_ON_BEFORE_CHECK_ADD_VERIFY = 'OnBeforeCheckAddVerify';
-	const EVENT_ON_CHECK_PRINT_ERROR = 'OnCheckPrintError';
-	const EVENT_ON_CHECK_VALIDATION_ERROR = 'OnCheckValidationError';
-	const MIN_TIME_FOR_SWITCH_CASHBOX = 240;
+	public const EVENT_ON_GET_CUSTOM_CHECK = 'OnGetCustomCheckList';
+	public const EVENT_ON_CHECK_PRINT_SEND = 'OnPrintableCheckSend';
+	public const EVENT_ON_BEFORE_CHECK_ADD_VERIFY = 'OnBeforeCheckAddVerify';
+	public const EVENT_ON_CHECK_PRINT_ERROR = 'OnCheckPrintError';
+	public const EVENT_ON_CHECK_COLLATE_DOCUMENTS = 'OnCheckCollateDocuments';
+	public const EVENT_ON_CHECK_VALIDATION_ERROR = 'OnCheckValidationError';
+	public const MIN_TIME_FOR_SWITCH_CASHBOX = 240;
 
 	/** This is time re-sending a check print in minutes */
 	const CHECK_RESENDING_TIME = 4;
@@ -49,31 +50,20 @@ final class CheckManager
 			return $result;
 		}
 
-		$check = static::createByType($type);
+		$check = self::createByType($type);
 		if (!$check instanceof Check)
 		{
 			$result->addError(new Error(Loc::getMessage('SALE_CASHBOX_ERROR_CHECK')));
 			return $result;
 		}
 
-		$cashboxList = array();
-		$firstIteration = true;
-		foreach ($entities as $entity)
-		{
-			$items = Manager::getListWithRestrictions($entity);
-			if ($firstIteration)
-			{
-				$cashboxList = $items;
-				$firstIteration = false;
-			}
-			else
-			{
-				$cashboxList = array_intersect_assoc($items, $cashboxList);
-			}
-		}
+		$check->setEntities($entities);
+		$check->setRelatedEntities($relatedEntities);
+
+		$cashboxList = Manager::getAvailableCashboxList($check);
 
 		$entity = reset($entities);
-		$order = static::getOrder($entity);
+		$order = self::getOrder($entity);
 
 		if (!$cashboxList)
 		{
@@ -84,8 +74,6 @@ final class CheckManager
 			return $result;
 		}
 
-		$check->setEntities($entities);
-		$check->setRelatedEntities($relatedEntities);
 		$check->setAvailableCashbox($cashboxList);
 
 		$registry = Sale\Registry::getInstance($check->getField("ENTITY_REGISTRY_TYPE"));
@@ -104,7 +92,7 @@ final class CheckManager
 			$notifyClassName::callNotify($order, Sale\EventActions::EVENT_ON_CHECK_VALIDATION_ERROR);
 			$result->addErrors($validateResult->getErrors());
 
-			$event = new Main\Event('sale', static::EVENT_ON_CHECK_VALIDATION_ERROR, $check->getDataForCheck());
+			$event = new Main\Event('sale', self::EVENT_ON_CHECK_VALIDATION_ERROR, $check->getDataForCheck());
 			$event->send();
 
 			return $result;
@@ -148,11 +136,14 @@ final class CheckManager
 				if ($printResult->isSuccess())
 				{
 					$data = $printResult->getData();
-					CashboxCheckTable::update($checkId, ['EXTERNAL_UUID' => $data['UUID']]);
+					if ($data)
+					{
+						CashboxCheckTable::update($checkId, ['EXTERNAL_UUID' => $data['UUID']]);
+					}
 				}
 				else
 				{
-					static::savePrintResult(
+					self::savePrintResult(
 						$checkId,
 						[
 							'ID' => $checkId,
@@ -220,7 +211,7 @@ final class CheckManager
 		}
 
 		/** @var CorrectionCheck $check */
-		$check = static::createByType($type);
+		$check = self::createByType($type);
 		if (!$check instanceof CorrectionCheck)
 		{
 			$result->addError(new Error(Loc::getMessage('SALE_CASHBOX_ERROR_CHECK')));
@@ -257,7 +248,7 @@ final class CheckManager
 				}
 				else
 				{
-					static::savePrintResult(
+					self::savePrintResult(
 						$check->getField('ID'),
 						[
 							'ID' => $check->getField('ID'),
@@ -307,7 +298,7 @@ final class CheckManager
 		$payment = null;
 		$shipment = null;
 
-		$dbRes = static::getList(array('select' => array('*'), 'filter' => array('ID' => $checkId)));
+		$dbRes = self::getList(array('select' => array('*'), 'filter' => array('ID' => $checkId)));
 		$check = $dbRes->fetch();
 		if (!$check)
 		{
@@ -434,7 +425,7 @@ final class CheckManager
 				Logger::addWarning($error->getMessage(), $check['CASHBOX_ID']);
 			}
 
-			$event = new Main\Event('sale', static::EVENT_ON_CHECK_PRINT_ERROR, array($data));
+			$event = new Main\Event('sale', self::EVENT_ON_CHECK_PRINT_ERROR, array($data));
 			$event->send();
 
 			$result->addError($error);
@@ -460,7 +451,7 @@ final class CheckManager
 				$isSend = false;
 				$event = new Main\Event(
 					'sale',
-					static::EVENT_ON_CHECK_PRINT_SEND,
+					self::EVENT_ON_CHECK_PRINT_SEND,
 					array('PAYMENT' => $payment, 'SHIPMENT' => $shipment, 'CHECK' => $check)
 				);
 				$event->send();
@@ -547,12 +538,12 @@ final class CheckManager
 	{
 		$result = new Result();
 
-		$map = static::collateDocuments($entities);
+		$map = self::collateDocuments($entities);
 		foreach ($map as $check)
 		{
 			$isCorrect = true;
 
-			$event = new Main\Event('sale', static::EVENT_ON_BEFORE_CHECK_ADD_VERIFY, array($check));
+			$event = new Main\Event('sale', self::EVENT_ON_BEFORE_CHECK_ADD_VERIFY, array($check));
 			$event->send();
 
 			if ($event->getResults())
@@ -569,9 +560,11 @@ final class CheckManager
 
 			if ($isCorrect)
 			{
-				$addResult = static::addByType($check["ENTITIES"], $check["TYPE"], $check["RELATED_ENTITIES"]);
+				$addResult = self::addByType($check["ENTITIES"], $check["TYPE"], $check["RELATED_ENTITIES"]);
 				if (!$addResult->isSuccess())
+				{
 					$result->addErrors($addResult->getErrors());
+				}
 			}
 		}
 
@@ -653,7 +646,7 @@ final class CheckManager
 	{
 		$checkList = array();
 
-		$event = new Main\Event('sale', static::EVENT_ON_GET_CUSTOM_CHECK);
+		$event = new Main\Event('sale', self::EVENT_ON_GET_CUSTOM_CHECK);
 		$event->send();
 		$resultList = $event->getResults();
 
@@ -683,7 +676,7 @@ final class CheckManager
 
 		if ($isInit === false)
 		{
-			$handlers = static::getUserCheckList();
+			$handlers = self::getUserCheckList();
 			Main\Loader::registerAutoLoadClasses(null, $handlers);
 			$isInit = true;
 		}
@@ -698,8 +691,8 @@ final class CheckManager
 		if (!$checkList)
 		{
 			$checkList = array_merge(
-				static::getBuildInCheckList(),
-				array_keys(static::getUserCheckList())
+				self::getBuildInCheckList(),
+				array_keys(self::getUserCheckList())
 			);
 		}
 
@@ -722,10 +715,10 @@ final class CheckManager
 	 */
 	public static function getCheckTypeMap()
 	{
-		static::init();
+		self::init();
 
 		$result = array();
-		$checkMap = static::getCheckList();
+		$checkMap = self::getCheckList();
 
 		/** @var Check $className */
 		foreach ($checkMap as $className)
@@ -745,9 +738,9 @@ final class CheckManager
 	 */
 	public static function createByType($type)
 	{
-		static::init();
+		self::init();
 
-		$typeMap = static::getCheckTypeMap();
+		$typeMap = self::getCheckTypeMap();
 		$handler = $typeMap[$type];
 
 		return Check::create($handler);
@@ -762,7 +755,7 @@ final class CheckManager
 	{
 		$map = [];
 
-		$event = new Main\Event('sale', 'OnCheckCollateDocuments', [
+		$event = new Main\Event('sale', self::EVENT_ON_CHECK_COLLATE_DOCUMENTS, [
 			'ENTITIES' => $entities
 		]);
 		$event->send();
@@ -801,7 +794,7 @@ final class CheckManager
 			if ($existingChecks === null)
 			{
 				$existingChecks = [];
-				$order = static::getOrder($entity);
+				$order = self::getOrder($entity);
 
 				$filter = [
 					'ORDER_ID' => $order->getId(),
@@ -816,7 +809,7 @@ final class CheckManager
 					$filter["SHIPMENT_ID"] = $entity->getId();
 				}
 
-				$db = static::getList([
+				$db = self::getList([
 					"filter" => $filter,
 					"select" => ["ID", "PAYMENT_ID", "SHIPMENT_ID", "TYPE", "STATUS"]
 				]);
@@ -838,15 +831,22 @@ final class CheckManager
 			// we should allow users to implement their own algorithms
 			if (count($existingChecks) <= 0)
 			{
-				if (static::isAutomaticEnabled($order))
+				if (self::isAutomaticEnabled($order))
 				{
 					if (Manager::isSupportedFFD105())
 					{
-						$result = static::collateWithFFD105($entity);
+						if (Manager::isEnabledPaySystemPrint())
+						{
+							$result = self::collatePaySystemWithFFD105($entity);
+						}
+						else
+						{
+							$result = self::collateWithFFD105($entity);
+						}
 					}
 					else
 					{
-						$result = static::collate($entity);
+						$result = self::collate($entity);
 					}
 
 					if ($result)
@@ -916,7 +916,7 @@ final class CheckManager
 
 		if ($entity instanceof Sale\Payment)
 		{
-			$order = static::getOrder($entity);
+			$order = self::getOrder($entity);
 
 			/** @var Sale\PaySystem\Service $service */
 			$service = $entity->getPaySystem();
@@ -955,8 +955,8 @@ final class CheckManager
 	{
 		$map = array();
 
-		$order = static::getOrder($entity);
-		if (!static::canPrintCheck($order))
+		$order = self::getOrder($entity);
+		if (!self::canPrintCheck($order))
 		{
 			return $map;
 		}
@@ -1072,6 +1072,124 @@ final class CheckManager
 	}
 
 	/**
+	 * @param $entity
+	 * @return array
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 */
+	private static function collatePaySystemWithFFD105($entity): array
+	{
+		$map = [];
+		$entities = [];
+		$relatedEntities = [];
+		$type = SellCheck::getType();
+
+		$option = Main\Config\Option::get('sale', 'check_type_on_pay', 'sell');
+
+		if ($entity instanceof Sale\Payment)
+		{
+			$fields = $entity->getFields();
+			$originalFields = $fields->getOriginalValues();
+			if ($originalFields['PAID'] === 'Y' || $fields->get('IS_RETURN') === 'Y')
+			{
+				return $map;
+			}
+
+			$order = $entity->getOrder();
+
+			$entities[] = $entity;
+
+			$isShipped = false;
+			/** @var Sale\Shipment $shipment */
+			foreach ($order->getShipmentCollection()->getNotSystemItems() as $shipment)
+			{
+				$isShipped = $shipment->isShipped();
+				if (!$isShipped)
+				{
+					$relatedEntities = [];
+					break;
+				}
+
+				$relatedEntities[Check::SHIPMENT_TYPE_NONE][] = $shipment;
+			}
+
+			if (!$isShipped)
+			{
+				$order = $entity->getOrder();
+				if ($option === 'prepayment')
+				{
+					$type = (Sale\PriceMaths::roundPrecision($entity->getSum()) === Sale\PriceMaths::roundPrecision($order->getPrice()))
+						? FullPrepaymentCheck::getType()
+						: PrepaymentCheck::getType();
+
+					$shipmentCollection = $order->getShipmentCollection()->getNotSystemItems();
+					/** @var Sale\Shipment $shipment */
+					foreach ($shipmentCollection as $shipment)
+					{
+						$relatedEntities[Check::SHIPMENT_TYPE_NONE][] = $shipment;
+					}
+				}
+				elseif ($option === 'advance')
+				{
+					$type = AdvancePaymentCheck::getType();
+				}
+				else
+				{
+					$shipmentCollection = $order->getShipmentCollection()->getNotSystemItems();
+					/** @var Sale\Shipment $shipment */
+					foreach ($shipmentCollection as $shipment)
+					{
+						$relatedEntities[Check::SHIPMENT_TYPE_NONE][] = $shipment;
+					}
+				}
+			}
+		}
+		elseif ($entity instanceof Sale\Shipment)
+		{
+			$fields = $entity->getFields();
+			$originalFields = $fields->getOriginalValues();
+			if ($originalFields['DEDUCTED'] === 'Y' || $fields->get('DEDUCTED') !== 'Y')
+			{
+				return $map;
+			}
+
+			$order = $entity->getOrder();
+			if ($order->isPaid() && $entity->isShipped())
+			{
+				if ($option === 'sell')
+				{
+					return $map;
+				}
+
+				$entities[] = $entity;
+
+				/** @var Sale\Payment $payment */
+				foreach ($order->getPaymentCollection() as $payment)
+				{
+					if ($payment->isInner())
+					{
+						continue;
+					}
+
+					$relatedEntities[Check::PAYMENT_TYPE_CASHLESS][] = $payment;
+				}
+			}
+		}
+
+		if ($entities)
+		{
+			$map[] = [
+				'TYPE' => $type,
+				'ENTITIES' => $entities,
+				'RELATED_ENTITIES' => $relatedEntities,
+			];
+		}
+
+		return $map;
+	}
+
+	/**
 	 * @param Sale\Order $order
 	 * @return bool
 	 */
@@ -1144,8 +1262,8 @@ final class CheckManager
 			$filter['ORDER_ID'] = $orderIds;
 		}
 
-		$limit = count($cashboxIds)*static::CHECK_LIMIT_RECORDS;
-		$dbRes = static::getList(
+		$limit = count($cashboxIds)*self::CHECK_LIMIT_RECORDS;
+		$dbRes = self::getList(
 			array(
 				'select' => array('*', 'AVAILABLE_CASHBOX_ID' => 'CHECK2CASHBOX.CASHBOX_ID'),
 				'filter' => $filter,
@@ -1153,7 +1271,7 @@ final class CheckManager
 				'runtime' => array(
 					new Main\Entity\ExpressionField(
 						'MAX_DT_REPEAT_CHECK',
-						'DATE_ADD(DATE_PRINT_START, INTERVAL '.static::CHECK_RESENDING_TIME.' MINUTE)',
+						'DATE_ADD(DATE_PRINT_START, INTERVAL '.self::CHECK_RESENDING_TIME.' MINUTE)',
 						null,
 						array(
 							'data_type' => 'datetime'
@@ -1171,7 +1289,7 @@ final class CheckManager
 				if (!isset($result[$data['ID']]))
 				{
 					$i++;
-					if ($i > static::CHECK_LIMIT_RECORDS)
+					if ($i > self::CHECK_LIMIT_RECORDS)
 						break;
 
 					$result[$data['ID']] = $data;
@@ -1193,7 +1311,7 @@ final class CheckManager
 					$dateStartPrint = $item['DATE_PRINT_START'];
 					$dateStartPrintTs = $dateStartPrint->getTimestamp();
 
-					if ($nowTs - $dateStartPrintTs > static::MIN_TIME_FOR_SWITCH_CASHBOX)
+					if ($nowTs - $dateStartPrintTs > self::MIN_TIME_FOR_SWITCH_CASHBOX)
 					{
 						$availableCashboxIds = array_diff($item['CASHBOX_LIST'], array($item['CASHBOX_ID']));
 						if ($availableCashboxIds)
@@ -1256,7 +1374,7 @@ final class CheckManager
 				$filter['SHIPMENT_ID'] = $entity->getId();
 			}
 
-			return static::collectInfo($filter);
+			return self::collectInfo($filter);
 		}
 
 		return array();
@@ -1289,7 +1407,7 @@ final class CheckManager
 			$filter['SHIPMENT_ID'] = $entity->getId();
 		}
 
-		$dbRes = static::getList(
+		$dbRes = self::getList(
 			array(
 				'select' => array('*'),
 				'filter' => $filter,
@@ -1326,7 +1444,7 @@ final class CheckManager
 
 		$typeMap = CheckManager::getCheckTypeMap();
 
-		$dbRes = static::getList(
+		$dbRes = self::getList(
 			array(
 				'select' => array('*'),
 				'filter' => $filter
@@ -1365,7 +1483,7 @@ final class CheckManager
 	 */
 	public static function getCheckInfoByExternalUuid($uuid)
 	{
-		$dbRes = static::getList(array('filter' => array('EXTERNAL_UUID' => $uuid)));
+		$dbRes = self::getList(array('filter' => array('EXTERNAL_UUID' => $uuid)));
 		return $dbRes->fetch();
 	}
 
@@ -1384,7 +1502,7 @@ final class CheckManager
 		$dbRes = CashboxCheckTable::getById($id);
 		if ($checkInfo = $dbRes->fetch())
 		{
-			$check = static::createByType($checkInfo['TYPE']);
+			$check = self::createByType($checkInfo['TYPE']);
 			if ($check)
 			{
 				$check->init($checkInfo);
@@ -1417,7 +1535,7 @@ final class CheckManager
 	{
 		$result = array();
 
-		$check = static::createByType($checkType);
+		$check = self::createByType($checkType);
 		if ($check === null)
 		{
 			throw new Main\ArgumentTypeException($checkType);
@@ -1445,7 +1563,7 @@ final class CheckManager
 			if (Manager::isSupportedFFD105())
 			{
 				$dbRes = $paymentClassName::getList(array(
-					'select' => array('ID', 'ACCOUNT_NUMBER', 'NAME' => 'PAY_SYSTEM.NAME'),
+					'select' => array('ID', 'ACCOUNT_NUMBER', 'SUM', 'CURRENCY', 'NAME' => 'PAY_SYSTEM.NAME'),
 					'filter' => array(
 						'!ID' => $paymentId,
 						'=ORDER_ID' => $paymentData['ORDER_ID']
@@ -1476,7 +1594,7 @@ final class CheckManager
 			/** @var Sale\Shipment $shipmentClassName */
 			$shipmentClassName = $registry->getShipmentClassName();
 			$dbRes = $shipmentClassName::getList(array(
-				'select' => array('ID', 'ACCOUNT_NUMBER', 'NAME' => 'DELIVERY.NAME'),
+				'select' => array('ID', 'ACCOUNT_NUMBER', 'PRICE_DELIVERY', 'CURRENCY', 'NAME' => 'DELIVERY.NAME'),
 				'filter' => array(
 					'=ORDER_ID' => $paymentData['ORDER_ID'],
 					'SYSTEM' => 'N'
@@ -1509,7 +1627,7 @@ final class CheckManager
 			return $result;
 		}
 
-		$check = static::createByType($checkType);
+		$check = self::createByType($checkType);
 		if ($check === null)
 		{
 			throw new Main\ArgumentTypeException($checkType);
@@ -1535,7 +1653,7 @@ final class CheckManager
 		)
 		{
 			$dbRes = $shipmentClassName::getList(array(
-				'select' => array('ID', 'ACCOUNT_NUMBER', 'NAME' => 'DELIVERY.NAME'),
+				'select' => array('ID', 'ACCOUNT_NUMBER', 'PRICE_DELIVERY', 'CURRENCY', 'NAME' => 'DELIVERY.NAME'),
 				'filter' => array(
 					'!ID' => $shipmentId,
 					'=ORDER_ID' => $shipmentData['ORDER_ID'],
@@ -1556,7 +1674,7 @@ final class CheckManager
 			/** @var Sale\Payment $paymentClassName */
 			$paymentClassName = $registry->getPaymentClassName();
 			$dbRes = $paymentClassName::getList(array(
-				'select' => array('ID', 'ACCOUNT_NUMBER', 'NAME' => 'PAY_SYSTEM.NAME'),
+				'select' => array('ID', 'ACCOUNT_NUMBER', 'SUM', 'CURRENCY', 'NAME' => 'PAY_SYSTEM.NAME'),
 				'filter' => array(
 					'=ORDER_ID' => $shipmentData['ORDER_ID']
 				)
@@ -1580,5 +1698,42 @@ final class CheckManager
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Returns payment by check
+	 *
+	 * @param Check $check
+	 * @return Sale\Payment
+	 */
+	public static function getPaymentByCheck(Check $check): ?Sale\Payment
+	{
+		$payment = null;
+
+		$entities = $check->getEntities();
+		foreach ($entities as $entity)
+		{
+			if ($entity instanceof Sale\Payment)
+			{
+				$payment = $entity;
+			}
+		}
+
+		if (!$payment)
+		{
+			$relatedEntities = $check->getRelatedEntities();
+			foreach ($relatedEntities as $relatedEntityCollection)
+			{
+				foreach ($relatedEntityCollection as $relatedEntity)
+				{
+					if ($relatedEntity instanceof Sale\Payment)
+					{
+						$payment = $relatedEntity;
+					}
+				}
+			}
+		}
+
+		return $payment;
 	}
 }

@@ -15,7 +15,7 @@ $sFilterID = $sTableID."_filter";
 $lAdmin = new CAdminList($sTableID);
 
 $arrDef = array();
-$rs = CStatEventType::GetList(($v1="s_total_counter"), ($v2="desc"), $arF, $v3);
+$rs = CStatEventType::GetList("s_total_counter", "desc");
 while ($ar = $rs->Fetch())
 {
 	if ($ar["DIAGRAM_DEFAULT"]=="Y") $arrDef[] = $ar["ID"];
@@ -28,8 +28,7 @@ if($lAdmin->IsDefaultFilter())
 	if (is_array($arrEVENTS))
 	{
 		$i=0;
-		reset($arrEVENTS);
-		while (list($key,$value)=each($arrEVENTS))
+		foreach ($arrEVENTS as $key => $value)
 		{
 			if ($i<=9 && in_array($key, $arrDef))
 			{
@@ -76,7 +75,7 @@ $lAdmin->BeginCustomContent();
 if (is_array($find_events) && count($find_events)>0):
 	$arr = array();
 	$by = ($period=="Y") ? "s_period_counter" : "s_total_counter";
-	$w = CStatEventType::GetList($by, ($order="desc"), $arFilter, $is_filtered);
+	$w = CStatEventType::GetList($by, "desc", $arFilter);
 	$total=0;
 	while ($wr=$w->Fetch())
 	{

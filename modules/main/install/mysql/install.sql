@@ -867,10 +867,12 @@ CREATE TABLE b_log_notification_action
 
 CREATE TABLE b_cache_tag
 (
+	ID bigint not null auto_increment,
 	SITE_ID char(2),
 	CACHE_SALT char(4),
 	RELATIVE_PATH varchar(255),
 	TAG varchar(100),
+	PRIMARY KEY pk_b_cache_tag(ID),
 	INDEX ix_b_cache_tag_0 (SITE_ID, CACHE_SALT, RELATIVE_PATH(50)),
 	INDEX ix_b_cache_tag_1 (TAG)
 );

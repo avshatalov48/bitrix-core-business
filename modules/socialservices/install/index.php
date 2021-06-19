@@ -98,7 +98,7 @@ class socialservices extends CModule
 		UnRegisterModuleDependences('socialservices', 'OnFindSocialservicesUser', 'socialservices', "CSocServAuthManager", "checkOldUser");
 		UnRegisterModuleDependences('socialservices', 'OnFindSocialservicesUser', 'socialservices', "CSocServAuthManager", "checkAbandonedUser");
 
-		$dbSites = CSite::GetList($b="sort", $o="asc", array("ACTIVE" => "Y"));
+		$dbSites = CSite::GetList("sort", "asc", array("ACTIVE" => "Y"));
 		while ($arSite = $dbSites->Fetch())
 		{
 			$siteId = $arSite['ID'];
@@ -188,7 +188,7 @@ class socialservices extends CModule
 		COption::RemoveOption($this->MODULE_ID);
 	}
 
-	function OnGetTableSchema()
+	public static function OnGetTableSchema()
 	{
 		return array(
 			"socialservices" => array(

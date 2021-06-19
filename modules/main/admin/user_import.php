@@ -388,7 +388,7 @@ endif;
 		<td>
 			<select name="userGroups[]" style="width:300px" size="7" multiple="multiple">
 			<?
-			$dbGroup = CGroup::GetList($by="name", $order="asc", array());
+			$dbGroup = CGroup::GetList("name", "asc");
 			while ($arGroup = $dbGroup->GetNext()):?>
 				<option value="<?=$arGroup["ID"]?>"<?if (in_array($arGroup["ID"], $userGroups)):?> selected<?endif?>><?=$arGroup["NAME"]?></option>
 			<?endwhile?>
@@ -461,7 +461,7 @@ if(CModule::IncludeModule("iblock")):
 			<label for="eventLdapLangID" id="eventLdapLangLabel"><?=GetMessage("USER_IMPORT_EMAIL_TEMPLATE1")?>:</label>
 			<select id="eventLdapLangID" name="eventLdapLangID" style="width:300px;" <?if ($ldapServer < 1):?>disabled="disabled"<?endif?>>
 			<?
-			$dbSites = CSite::GetList($by="name", $order="asc", array());
+			$dbSites = CSite::GetList("name", "asc");
 			while ($arSite = $dbSites->Fetch()):
 			?>
 					<option value="<?=htmlspecialcharsbx($arSite["LID"])?>" <?if ($eventLdapLangID == $arSite["LID"]):?> selected<?endif?>><?=htmlspecialcharsbx($arSite["NAME"])?> (<?=htmlspecialcharsbx($arSite["LID"])?>)</option>
@@ -481,7 +481,7 @@ if(CModule::IncludeModule("iblock")):
 			<label for="event-lang" id="eventLangLabel"><?=GetMessage("USER_IMPORT_EMAIL_TEMPLATE1")?>:</label>
 			<select id="event-lang" name="eventLangID" style="width:300px;">
 			<?
-			$dbSites = CSite::GetList($by="name", $order="asc", array());
+			$dbSites = CSite::GetList("name", "asc");
 			while ($arSite = $dbSites->Fetch()):
 			?>
 					<option value="<?=htmlspecialcharsbx($arSite["LID"])?>" <?if ($eventLangID == $arSite["LID"]):?> selected<?endif?>><?=htmlspecialcharsbx($arSite["NAME"])?> (<?=htmlspecialcharsbx($arSite["LID"])?>)</option>
@@ -661,7 +661,7 @@ if(CModule::IncludeModule("iblock")):
 		<td class="adm-detail-valign-top"><label disabled="true" id="newUserGroupsLabel"><?=getMessage('USER_IMPORT_1C_USER_GROUP') ?>:</label></td>
 		<td>
 			<select name="newUserGroups[]" style="width: 300px; " size="7" multiple="multiple">
-				<? $groupRes = \CGroup::getList($by = 'name', $order = 'asc', array()); ?>
+				<? $groupRes = \CGroup::getList('name', 'asc'); ?>
 				<? while ($item = $groupRes->fetch()): ?>
 					<option value="<?=intval($item['ID']) ?>"><?=htmlspecialcharsbx($item['NAME']) ?></option>
 				<? endwhile ?>

@@ -448,7 +448,7 @@ class Options
 					$result["rows"][] = $id;
 				}
 			}
-			else if ($type == "dest_selector")
+			else if ($type == "dest_selector" || $type == "entity_selector")
 			{
 				if ($request[$id] !== null)
 				{
@@ -1208,7 +1208,7 @@ class Options
 		{
 			case DateType::YESTERDAY :
 			{
-				$dateTime = new Filter\DateTime();
+				$dateTime = Filter\DateTimeFactory::createToday();
 
 				$result[$fieldId."_datesel"] = DateType::YESTERDAY;
 				$result[$fieldId."_month"] = $dateTime->month();
@@ -1221,7 +1221,7 @@ class Options
 
 			case DateType::CURRENT_DAY :
 			{
-				$dateTime = new Filter\DateTime();
+				$dateTime = Filter\DateTimeFactory::createToday();
 
 				$result[$fieldId."_datesel"] = DateType::CURRENT_DAY;
 				$result[$fieldId."_month"] = $dateTime->month();
@@ -1234,7 +1234,7 @@ class Options
 
 			case DateType::TOMORROW :
 			{
-				$dateTime = new Filter\DateTime();
+				$dateTime = Filter\DateTimeFactory::createToday();
 
 				$result[$fieldId."_datesel"] = DateType::TOMORROW;
 				$result[$fieldId."_month"] = $dateTime->month();
@@ -1247,8 +1247,7 @@ class Options
 
 			case DateType::CURRENT_WEEK :
 			{
-				$date = Date::createFromTimestamp(strtotime("monday this week"));
-				$dateTime = new Filter\DateTime($date->getTimestamp());
+				$dateTime = Filter\DateTimeFactory::createCurrentWeekMonday();
 
 				$result[$fieldId."_datesel"] = DateType::CURRENT_WEEK;
 				$result[$fieldId."_month"] = $dateTime->month();
@@ -1261,8 +1260,7 @@ class Options
 
 			case DateType::NEXT_WEEK :
 			{
-				$date = Date::createFromTimestamp(strtotime("monday next week"));
-				$dateTime = new Filter\DateTime($date->getTimestamp());
+				$dateTime = Filter\DateTimeFactory::createNextWeekMonday();
 
 				$result[$fieldId."_datesel"] = DateType::NEXT_WEEK;
 				$result[$fieldId."_month"] = $dateTime->month();
@@ -1275,8 +1273,7 @@ class Options
 
 			case DateType::CURRENT_MONTH :
 			{
-				$date = Date::createFromTimestamp(strtotime("first day of this month"));
-				$dateTime = new Filter\DateTime($date->getTimestamp());
+				$dateTime = Filter\DateTimeFactory::createFirstDayOfCurrentMonth();
 
 				$result[$fieldId."_datesel"] = DateType::CURRENT_MONTH;
 				$result[$fieldId."_month"] = $dateTime->month();
@@ -1289,8 +1286,7 @@ class Options
 
 			case DateType::NEXT_MONTH :
 			{
-				$date = Date::createFromTimestamp(strtotime("first day of next month"));
-				$dateTime = new Filter\DateTime($date->getTimestamp());
+				$dateTime = Filter\DateTimeFactory::createFirstDayOfNextMonth();
 
 				$result[$fieldId."_datesel"] = DateType::NEXT_MONTH;
 				$result[$fieldId."_month"] = $dateTime->month();
@@ -1303,7 +1299,7 @@ class Options
 
 			case DateType::CURRENT_QUARTER :
 			{
-				$dateTime = new Filter\DateTime();
+				$dateTime = Filter\DateTimeFactory::createToday();
 
 				$result[$fieldId."_datesel"] = DateType::QUARTER;
 				$result[$fieldId."_month"] = $dateTime->month();
@@ -1316,7 +1312,7 @@ class Options
 
 			case DateType::LAST_7_DAYS :
 			{
-				$dateTime = new Filter\DateTime();
+				$dateTime = Filter\DateTimeFactory::createToday();
 
 				$result[$fieldId."_datesel"] = DateType::LAST_7_DAYS;
 				$result[$fieldId."_month"] = $dateTime->month();
@@ -1329,7 +1325,7 @@ class Options
 
 			case DateType::LAST_30_DAYS :
 			{
-				$dateTime = new Filter\DateTime();
+				$dateTime = Filter\DateTimeFactory::createToday();
 
 				$result[$fieldId."_datesel"] = DateType::LAST_30_DAYS;
 				$result[$fieldId."_month"] = $dateTime->month();
@@ -1342,7 +1338,7 @@ class Options
 
 			case DateType::LAST_60_DAYS :
 			{
-				$dateTime = new Filter\DateTime();
+				$dateTime = Filter\DateTimeFactory::createToday();
 
 				$result[$fieldId."_datesel"] = DateType::LAST_60_DAYS;
 				$result[$fieldId."_month"] = $dateTime->month();
@@ -1355,7 +1351,7 @@ class Options
 
 			case DateType::LAST_90_DAYS :
 			{
-				$dateTime = new Filter\DateTime();
+				$dateTime = Filter\DateTimeFactory::createToday();
 
 				$result[$fieldId."_datesel"] = DateType::LAST_90_DAYS;
 				$result[$fieldId."_month"] = $dateTime->month();
@@ -1390,7 +1386,7 @@ class Options
 			{
 				if (is_numeric($source[$fieldId."_days"]))
 				{
-					$dateTime = new Filter\DateTime();
+					$dateTime = Filter\DateTimeFactory::createToday();
 					$days = (int) $source[$fieldId."_days"];
 					$days = $days > 0 ? ($days + 1) : $days;
 
@@ -1410,7 +1406,7 @@ class Options
 			{
 				if (is_numeric($source[$fieldId."_days"]))
 				{
-					$dateTime = new Filter\DateTime();
+					$dateTime = Filter\DateTimeFactory::createToday();
 					$days = (int) $source[$fieldId."_days"];
 					$days = max($days, 0);
 
@@ -1430,7 +1426,7 @@ class Options
 			{
 				if (is_numeric($source[$fieldId."_days"]))
 				{
-					$dateTime = new Filter\DateTime();
+					$dateTime = Filter\DateTimeFactory::createToday();
 					$days = (int) $source[$fieldId."_days"];
 
 					$result[$fieldId."_days"] = $source[$fieldId."_days"];
@@ -1445,7 +1441,7 @@ class Options
 			{
 				if (is_numeric($source[$fieldId."_days"]))
 				{
-					$dateTime = new Filter\DateTime();
+					$dateTime = Filter\DateTimeFactory::createToday();
 					$days = (int) $source[$fieldId."_days"];
 
 					$result[$fieldId."_days"] = $source[$fieldId."_days"];
@@ -1460,7 +1456,7 @@ class Options
 			{
 				if (is_numeric($source[$fieldId."_days"]))
 				{
-					$dateTime = new Filter\DateTime();
+					$dateTime = Filter\DateTimeFactory::createToday();
 					$days = (int) $source[$fieldId."_days"];
 
 					$result[$fieldId."_days"] = $source[$fieldId."_days"];
@@ -1475,7 +1471,7 @@ class Options
 				{
 					if (is_numeric($source[$fieldId."_days"]))
 					{
-						$dateTime = new Filter\DateTime();
+						$dateTime = Filter\DateTimeFactory::createToday();
 						$days = (int) $source[$fieldId."_days"];
 
 						$result[$fieldId."_days"] = $source[$fieldId."_days"];
@@ -1552,8 +1548,7 @@ class Options
 
 			case DateType::LAST_WEEK :
 			{
-				$date = Date::createFromTimestamp(strtotime("monday previous week"));
-				$dateTime = new Filter\DateTime($date->getTimestamp());
+				$dateTime = Filter\DateTimeFactory::createLastWeekMonday();
 
 				$result[$fieldId."_datesel"] = DateType::LAST_WEEK;
 				$result[$fieldId."_from"] = $dateTime->toString();
@@ -1563,8 +1558,7 @@ class Options
 
 			case DateType::LAST_MONTH :
 			{
-				$date = Date::createFromTimestamp(strtotime("first day of previous month"));
-				$dateTime = new Filter\DateTime($date->getTimestamp());
+				$dateTime = Filter\DateTimeFactory::createFirstDayOfLastMonth();
 
 				$result[$fieldId."_datesel"] = DateType::LAST_MONTH;
 				$result[$fieldId."_year"] = $dateTime->year();

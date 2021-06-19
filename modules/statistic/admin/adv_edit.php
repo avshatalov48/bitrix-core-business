@@ -56,7 +56,7 @@ if ($base_currency <> '')
 		$currency_module = "Y";
 		$arrRefID = array();
 		$arrRef = array();
-		$rsCur = CCurrency::GetList(($by="sort"), ($order="asc"));
+		$rsCur = CCurrency::GetList("sort", "asc");
 		$strJavaCurArray = "
 			var arrCur = new Array();
 			";
@@ -280,7 +280,10 @@ if($strError)
 {
 	$aMsg=array();
 	$arrErr = explode("<br>",$strError);
-	while (list(,$err)=each($arrErr)) $aMsg[]['text']=$err;
+	foreach ($arrErr as $err)
+	{
+		$aMsg[]['text'] = $err;
+	}
 
 	$e = new CAdminException($aMsg);
 	$GLOBALS["APPLICATION"]->ThrowException($e);

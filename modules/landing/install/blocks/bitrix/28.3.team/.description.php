@@ -20,6 +20,7 @@ return array(
 	'nodes' => array(
 		'.landing-block-node-employee-photo' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_TEAM002._NODES_LANDINGBLOCKNODEEMPLOYEEPHOTO'),
+			'useInDesigner' => false,
 			'type' => 'img',
 			'dimensions' => array('width' => 540),
 		),

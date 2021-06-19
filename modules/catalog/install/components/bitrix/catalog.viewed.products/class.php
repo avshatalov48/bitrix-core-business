@@ -901,9 +901,7 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 			$cached['CURRENCY'] = array();
 			if ($this->isCurrency)
 			{
-				$by = "currency";
-				$order = "asc";
-				$currencyIterator = CCurrency::getList($by, $order);
+				$currencyIterator = CCurrency::getList("currency", "asc");
 				while ($currency = $currencyIterator->fetch())
 				{
 					$cached['CURRENCY'][$currency['CURRENCY']] = $currency;

@@ -139,7 +139,7 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 		$meta = static::getInstance()->getMetaData();
 		if($meta && $service = $meta->getService())
 		{
-			return ($meta->getType() === 'instagram'? 'instagram.' : '') . $service->getMethodPrefix();
+			return $service->getMethodPrefix();
 		}
 		return '';
 	}

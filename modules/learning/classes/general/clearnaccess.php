@@ -792,7 +792,7 @@ class CLearnAccess implements ILearnAccessInterface
 
 		$userAccessSymbols = $this->GetAccessCodesForSQL ($isUseCache);
 		$sqlOperations     = $this->ParseOperationsForSQL ($in_bitmaskOperations);
-		$prfx   = CDatabase::ForSQL ($in_prfx);
+		$prfx   = $DB->ForSQL ($in_prfx);
 		$userId = $this->userId;
 
 		$sql = "

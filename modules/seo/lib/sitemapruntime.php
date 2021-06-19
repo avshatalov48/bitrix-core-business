@@ -201,8 +201,9 @@ class SitemapRuntime
 				$this->reInit($filename);
 			
 			$this->putSitemapContent($this->originalFile);
+			$e = [];
 			$this->appendEntry(array(
-				'XML_LOC' => $this->settings['PROTOCOL'] . '://' . \CBXPunycode::toASCII($this->settings['DOMAIN'], $e = NULL) . $url,
+				'XML_LOC' => $this->settings['PROTOCOL'] . '://' . \CBXPunycode::toASCII($this->settings['DOMAIN'], $e) . $url,
 				'XML_LASTMOD' => date('c', $modifiedDate - \CTimeZone::getOffset()),
 			));
 		}

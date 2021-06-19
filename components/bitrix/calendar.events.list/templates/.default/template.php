@@ -1,4 +1,9 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
+<?php
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+?>
 <div class="news-list">
 <?if ($arResult['ACCESS_DENIED']):?>
 	<?=GetMessage('ECL_T_ACCESS_DENIED')?>

@@ -2,12 +2,11 @@ import {Text, Type} from 'main.core';
 
 export class Base
 {
-	TYPE = '';
-
 	constructor(id, config = {})
 	{
 		this.id = id || Text.getRandom();
 		this.config = config || {};
+		this.errors = {};
 		this.setMorePhotoValues(config.morePhoto);
 		this.setFields(config.fields);
 	}
@@ -42,24 +41,39 @@ export class Base
 		return BX.prop.get(this.config, name, defaultValue);
 	}
 
-	getType(): string
-	{
-		return this.TYPE;
-	}
-
 	getFields()
 	{
 		return this.fields;
 	}
 
-	getField(fieldName)
+	getField(fieldName, defaultValue = '')
 	{
-		return BX.prop.get(this.fields, fieldName, '');
+		return BX.prop.get(this.fields, fieldName, defaultValue);
 	}
 
 	setFields(fields)
 	{
 		this.fields = Type.isObject(fields) ? fields : {};
+	}
+
+	getErrors()
+	{
+		return this.errors;
+	}
+
+	setError(code, text)
+	{
+		this.errors[code] = text;
+	}
+
+	clearErrors(code, text)
+	{
+		this.errors = {};
+	}
+
+	hasErrors()
+	{
+		return Object.keys(this.errors).length > 0;
 	}
 
 	isEnableFileSaving(): boolean
@@ -85,11 +99,6 @@ export class Base
 	addMorePhotoItem(fileId, value)
 	{
 		this.morePhoto[fileId] = value;
-	}
-
-	getFileType(): string
-	{
-		return this.getType();
 	}
 
 	setFileType(value): string

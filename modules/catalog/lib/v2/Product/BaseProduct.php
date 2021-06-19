@@ -3,6 +3,7 @@
 namespace Bitrix\Catalog\v2\Product;
 
 use Bitrix\Catalog\ProductTable;
+use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\Iblock\IblockInfo;
 use Bitrix\Catalog\v2\Image\ImageRepositoryContract;
@@ -138,11 +139,11 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 		{
 			if ($isNew)
 			{
-				$eventId = self::EVENT_PREFIX.ORM\Data\DataManager::EVENT_ON_AFTER_ADD;
+				$eventId = self::EVENT_PREFIX . ORM\Data\DataManager::EVENT_ON_AFTER_ADD;
 			}
 			else
 			{
-				$eventId = self::EVENT_PREFIX.ORM\Data\DataManager::EVENT_ON_AFTER_UPDATE;
+				$eventId = self::EVENT_PREFIX . ORM\Data\DataManager::EVENT_ON_AFTER_UPDATE;
 			}
 
 			$this->sendOnAfterEvents($eventId);
@@ -156,7 +157,7 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 		$result = $this->deleteInternal();
 		if ($result->isSuccess())
 		{
-			$this->sendOnAfterEvents(self::EVENT_PREFIX.ORM\Data\DataManager::EVENT_ON_AFTER_DELETE);
+			$this->sendOnAfterEvents(self::EVENT_PREFIX . ORM\Data\DataManager::EVENT_ON_AFTER_DELETE);
 		}
 
 		return $result;
@@ -170,8 +171,8 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 
 		switch ($eventId)
 		{
-			case self::EVENT_PREFIX.ORM\Data\DataManager::EVENT_ON_AFTER_ADD:
-			case self::EVENT_PREFIX.ORM\Data\DataManager::EVENT_ON_AFTER_UPDATE:
+			case self::EVENT_PREFIX . ORM\Data\DataManager::EVENT_ON_AFTER_ADD:
+			case self::EVENT_PREFIX . ORM\Data\DataManager::EVENT_ON_AFTER_UPDATE:
 				$eventData['fields'] = $this->getFields();
 				$type = $this->getType();
 				if (
@@ -191,5 +192,23 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 
 		$event = new Event('catalog', $eventId, $eventData);
 		$event->send();
+	}
+
+	public function setField(string $name, $value): BaseEntity
+	{
+		if ($name === 'NAME')
+		{
+			$productName = $this->getName();
+
+			foreach ($this->getSkuCollection() as $sku)
+			{
+				if ($sku->getName() === $productName)
+				{
+					$sku->setName($value);
+				}
+			}
+		}
+
+		return parent::setField($name, $value);
 	}
 }

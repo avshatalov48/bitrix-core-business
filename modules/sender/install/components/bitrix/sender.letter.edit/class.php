@@ -483,6 +483,19 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 
 		// get options list
 		$configuration = $this->letter->getMessage()->getConfiguration();
+		$templateType = $configuration->get('TEMPLATE_TYPE');
+		$templateId = $configuration->get('TEMPLATE_ID');
+		if ($templateType)
+		{
+			$configuration->getOption('TEMPLATE_TYPE')->setValue($templateType);
+			$this->arResult['ROW']['TEMPLATE_TYPE'] = $templateType;
+		}
+		if ($templateId)
+		{
+			$configuration->getOption('TEMPLATE_ID')->setValue($templateId);
+			$this->arResult['ROW']['TEMPLATE_ID'] = $templateId;
+		}
+
 		$this->arResult['LIST'] = array(
 			Message\ConfigurationOption::GROUP_DEFAULT => Message\Configuration::convertToArray(
 				$configuration->getOptionsByGroup(Message\ConfigurationOption::GROUP_DEFAULT)
@@ -515,7 +528,7 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 
 
 		$this->arResult['SEGMENTS'] = array(
-			'INCLUDE' => $this->arResult['ROW']['SEGMENTS_INCLUDE'],
+			'INCLUDE' => $this->arResult['ROW']['SEGMENTS_INCLUDE'] + $this->letter->get('SEGMENTS_INCLUDE'),
 			'EXCLUDE' => $this->arResult['ROW']['SEGMENTS_EXCLUDE'],
 			'RECIPIENT_COUNT' => $this->letter->getId() ?
 				$this->letter->getCounter()->getAll()

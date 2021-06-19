@@ -256,7 +256,7 @@ export default class Manager extends EventEmitter
 			const syncPanel = this.syncButton.getSyncPanel();
 			openSliders.forEach(slider =>
 			{
-				if (slider.getUrl() === SyncInterfaceManager.MAIN_SYNC_SLIDER_NAME)
+				if (slider.getUrl() === 'calendar:sync-slider')
 				{
 					this.refreshMainSlider(syncPanel, slider);
 				}
@@ -274,7 +274,7 @@ export default class Manager extends EventEmitter
 		const connection = slider.getData().get('connection');
 		const updatedConnection = this.connectionsProviders[connection.getType()].getConnectionById(connection.getId());
 		activePopup.refresh([updatedConnection]);
-		itemInterface.setConnection(updatedConnection);
+		itemInterface.refresh(updatedConnection);
 		slider.reload();
 	}
 

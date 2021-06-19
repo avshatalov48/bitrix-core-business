@@ -13,8 +13,7 @@
 		<?
 		CForm::GetResultAnswerArray($WEB_FORM_ID, $arrColumns, $arrAnswers, $arrAnswersSID, array("IN_EXCEL_TABLE" => "Y"));
 		$colspan = 5;
-		reset($arrColumns);
-		while (list($key, $arrCol) = each($arrColumns)) :
+		foreach ($arrColumns as $key => $arrCol) :
 
 			if (!is_array($arrNOT_SHOW_TABLE) || !in_array($arrCol["SID"],$arrNOT_SHOW_TABLE)):
 
@@ -37,14 +36,14 @@
 
 			endif;
 
-		endwhile;
+		endforeach;
 		?>
 	</tr>
 	<?
 	$j=0;
 	while ($result->NavNext(true, "f_")) :
 		$j++;
-		$arrRESULT_PERMISSION = CFormResult::GetPermissions($f_ID, $v);
+		$arrRESULT_PERMISSION = CFormResult::GetPermissions($f_ID);
 	?>
 	<tr valign="top">
 		<td class="number0" nowrap><?=$f_ID?></td>
@@ -70,8 +69,7 @@
 		<?endif;?>
 		<?endif;?>
 		<?
-		reset($arrColumns);
-		while (list($FIELD_ID,$arrC) = each($arrColumns)):
+		foreach ($arrColumns as $FIELD_ID => $arrC):
 
 			if (!is_array($arrNOT_SHOW_TABLE) || !in_array($arrC["SID"],$arrNOT_SHOW_TABLE)):
 
@@ -80,10 +78,9 @@
 		<td valign="top" align="left" nowrap><?
 			$arrAnswer = $arrAnswers[$f_ID][$FIELD_ID];
 			if (!is_array($arrAnswer)) $arrAnswer = array();
-			reset($arrAnswer);
 			$count = count($arrAnswer);
 			$i = 0;
-			while (list($key,$arrA) = each($arrAnswer)):
+			foreach ($arrAnswer as $key => $arrA):
 				$i++;
 						if (trim($arrA["USER_TEXT"]) <> '')
 						{
@@ -115,12 +112,12 @@
 
 							echo GetMessage("FORM_SIZE").$arFile["FILE_SIZE"]."<br>";
 						}
-			endwhile;
+			endforeach;
 			?></td>
 		<?
 			endif;
 			endif;
-		endwhile;
+		endforeach;
 		?>
 	</tr>
 	<?

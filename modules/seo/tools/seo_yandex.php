@@ -177,7 +177,8 @@ elseif (isset($_REQUEST['get']))
 <?
 				foreach($arDomains as $domain)
 				{
-					$domainView = \CBXPunycode::ToUnicode($domain['DOMAIN'], $errors=null);
+					$errors = [];
+					$domainView = \CBXPunycode::ToUnicode($domain['DOMAIN'], $errors);
 					$domainEnc = Converter::getHtmlConverter()->encode($domain['DOMAIN']);
 					$domainViewEnc = Converter::getHtmlConverter()->encode($domainView);
 

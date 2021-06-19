@@ -42,9 +42,9 @@
 	border-radius: 2px;
 	height: 36px;
 	padding: 0 17px;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
+	-webkit-box-sizing: border-box !important;
+	-moz-box-sizing: border-box !important;
+	box-sizing: border-box !important;
 }
 .bizproc-type-control::-webkit-input-placeholder {color:#bdc0c4;}
 .bizproc-type-control::-moz-placeholder          {color:#bdc0c4;}
@@ -137,6 +137,10 @@
 	-ms-appearance: none;
 	appearance: none !important;
 	vertical-align: middle;
+}
+.bizproc-type-control-select-wide
+{
+	min-width: 300px;
 }
 .bizproc-type-control.bizproc-type-control-multiple
 {

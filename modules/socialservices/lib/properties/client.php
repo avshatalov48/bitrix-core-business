@@ -341,7 +341,7 @@ class Client
 
 		if($accessSettings != '')
 		{
-			return unserialize($accessSettings);
+			return unserialize($accessSettings, ["allowed_classes" => false]);
 		}
 		else
 		{

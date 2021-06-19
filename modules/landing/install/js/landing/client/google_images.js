@@ -46,7 +46,7 @@
 			data.safe = "medium";
 			data.imgType = "photo";
 			data.filter = "1";
-			data.num = "9";
+			data.num = "10";
 
 			return BX.util.add_url_param(this.host, data);
 		},

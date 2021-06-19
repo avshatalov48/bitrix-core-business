@@ -81,7 +81,7 @@ $editable = ($USER->IsAdmin() ||
 if($_REQUEST["action"] == "authorize" && check_bitrix_sessid() && $USER->CanDoOperation('edit_php'))
 {
 	$USER->Logout();
-	$USER->Authorize(intval($_REQUEST["ID"]));
+	$USER->Authorize(intval($_REQUEST["ID"]), false, false, null, false);
 	LocalRedirect("user_edit.php?lang=".LANGUAGE_ID."&ID=".intval($_REQUEST["ID"]));
 }
 
@@ -773,7 +773,7 @@ if($showGroupTabs):
 			</tr>
 			<?
 			$ind = -1;
-			$dbGroups = CGroup::GetList(($b = "c_sort"), ($o = "asc"), array("ANONYMOUS" => "N"));
+			$dbGroups = CGroup::GetList("c_sort", "asc", array("ANONYMOUS" => "N"));
 			while ($arGroups = $dbGroups->Fetch())
 			{
 				$arGroups["ID"] = intval($arGroups["ID"]);

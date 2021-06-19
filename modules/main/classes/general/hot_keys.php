@@ -919,7 +919,7 @@ class CHotKeys
 
 		if(intval($charCode)<256)
 		{
-			if(!($codeSymb = $this->arServSymb[intval($charCode)]))
+			if(!($codeSymb = ($this->arServSymb[intval($charCode)] ?? 0)))
 				$codeSymb = chr($charCode);
 		}
 		else

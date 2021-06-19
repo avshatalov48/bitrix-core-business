@@ -160,7 +160,6 @@
 .popup-window
 {
 	max-height: 600px;
-	overflow-y: scroll;
 }
 
 textarea.sender-toloka-input

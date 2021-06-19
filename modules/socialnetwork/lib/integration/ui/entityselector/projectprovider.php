@@ -55,6 +55,12 @@ class ProjectProvider extends BaseProvider
 			$this->options['fillRecentTab'] = $options['fillRecentTab'];
 		}
 
+		$this->options['createProjectLink'] = null; // auto
+		if (isset($options['createProjectLink']) && is_bool($options['createProjectLink']))
+		{
+			$this->options['createProjectLink'] = $options['createProjectLink'];
+		}
+
 		if (isset($options['projectId']))
 		{
 			if (is_array($options['projectId']))
@@ -128,7 +134,7 @@ class ProjectProvider extends BaseProvider
 
 		$dialog->addTab(new Tab([
 			'id' => 'projects',
-			'title' => Loc::getMessage("SOCNET_ENTITY_SELECTOR_PROJECTS_TAB_TITLE"),
+			'title' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECTS_TAB_TITLE'),
 			'stub' => true,
 			'icon' => [
 				'default' => $icon,
@@ -138,79 +144,34 @@ class ProjectProvider extends BaseProvider
 			]
 		]));
 
+		$onlyProjectsMode = count($dialog->getEntities()) === 1;
+
 		$fillRecentTab = (
 			$this->options['fillRecentTab'] === true ||
-			($this->options['fillRecentTab'] !== false && count($dialog->getEntities()) === 1)
+			($this->options['fillRecentTab'] !== false && $onlyProjectsMode)
 		);
 
-		if (!$fillRecentTab)
+		if ($fillRecentTab)
 		{
-			return;
+			$this->fillRecentTab($dialog, $projects);
 		}
 
-		$maxProjectsInRecentTab = 30;
+		$createProjectLink =
+			$this->options['createProjectLink'] === true ||
+			($this->options['createProjectLink'] !== false && $onlyProjectsMode)
+		;
 
-		$recentItems = $dialog->getRecentItems()->getEntityItems('project');
-		if (count($recentItems) < $maxProjectsInRecentTab)
+		if ($createProjectLink && self::canCreateProject())
 		{
-			$limit = $maxProjectsInRecentTab - count($recentItems);
-			$recentGlobalItems = $dialog->getGlobalRecentItems()->getEntityItems('project');
-			foreach ($recentGlobalItems as $recentGlobalItem)
+			$footerOptions = [];
+			if ($dialog->getFooter() === 'BX.SocialNetwork.EntitySelector.Footer')
 			{
-				if ($limit <= 0)
-				{
-					break;
-				}
-
-				if (!isset($recentItems[$recentGlobalItem->getId()]) && $recentGlobalItem->isLoaded())
-				{
-					$dialog->getRecentItems()->add($recentGlobalItem);
-					$limit--;
-				}
+				// Footer could be set from UserProvider
+				$footerOptions = $dialog->getFooterOptions() ?? [];
 			}
 
-			$recentItems = $dialog->getRecentItems()->getEntityItems('project');
-		}
-
-		if (count($recentItems) < $maxProjectsInRecentTab)
-		{
-			$recentIds = array_map('intval', array_keys($recentItems));
-
-			$dialog->addRecentItems(
-				$this->getProjectItems([
-					'!projectId' => $recentIds,
-					'viewed' => true,
-					'order' => ['VIEWED_PROJECT.DATE_VIEW' => 'desc'],
-					'limit' => $maxProjectsInRecentTab - count($recentItems)
-				])
-			);
-
-			$recentItems = $dialog->getRecentItems()->getEntityItems('project');
-		}
-
-		if (count($recentItems) < $maxProjectsInRecentTab)
-		{
-			$limit = $maxProjectsInRecentTab - count($recentItems);
-			foreach ($projects as $project)
-			{
-				if ($limit <= 0)
-				{
-					break;
-				}
-
-				if (isset($recentItems[$project->getId()]))
-				{
-					continue;
-				}
-
-				$dialog->getRecentItems()->add(new RecentItem([
-					'id' => $project->getId(),
-					'entityId' => 'project',
-					'loaded' => true,
-				]));
-
-				$limit--;
-			}
+			$footerOptions['createProjectLink'] = self::getCreateProjectUrl(UserProvider::getCurrentUserId());
+			$dialog->setFooter('BX.SocialNetwork.EntitySelector.Footer', $footerOptions);
 		}
 	}
 
@@ -290,7 +251,7 @@ class ProjectProvider extends BaseProvider
 
 		$query->registerRuntimeField(
 			new Reference(
-				'PROJECT_SITE', WorkgroupSiteTable::class, Join::on('this.ID', 'ref.GROUP_ID'), ["join_type" => "INNER"]
+				'PROJECT_SITE', WorkgroupSiteTable::class, Join::on('this.ID', 'ref.GROUP_ID'), ['join_type' => 'INNER']
 			)
 		);
 
@@ -308,7 +269,7 @@ class ProjectProvider extends BaseProvider
 							'<=',
 							UserToGroupTable::ROLE_USER
 						),
-					["join_type" => "INNER"]
+					['join_type' => 'INNER']
 				)
 			);
 		}
@@ -325,7 +286,7 @@ class ProjectProvider extends BaseProvider
 			);
 		}
 
-		$extranetSiteId = Option::get("extranet", "extranet_site");
+		$extranetSiteId = Option::get('extranet', 'extranet_site');
 		$extranetSiteId = ($extranetSiteId && ModuleManager::isModuleInstalled('extranet') ? $extranetSiteId : false);
 		if ($extranetSiteId)
 		{
@@ -334,7 +295,7 @@ class ProjectProvider extends BaseProvider
 					'EXTRANET_PROJECT',
 					WorkgroupSiteTable::class,
 					Join::on('this.ID', 'ref.GROUP_ID')->where('ref.SITE_ID', $extranetSiteId),
-					["join_type" => "LEFT"]
+					['join_type' => 'LEFT']
 				)
 			);
 
@@ -528,10 +489,11 @@ class ProjectProvider extends BaseProvider
 		$availableIds = [];
 		if (!empty($availableIdsByFeature))
 		{
-			$availableIds = (count($availableIdsByFeature) > 1 ? call_user_func_array(
-				'array_intersect',
-				$availableIdsByFeature
-			) : $availableIdsByFeature[0]);
+			$availableIds = (
+				count($availableIdsByFeature) > 1
+					? call_user_func_array('array_intersect', $availableIdsByFeature)
+					: $availableIdsByFeature[0]
+			);
 		}
 
 		if (empty($availableIds))
@@ -569,7 +531,7 @@ class ProjectProvider extends BaseProvider
 	 */
 	public static function makeItem(EO_Workgroup $project, $options = []): Item
 	{
-		$extranetSiteId = Option::get("extranet", "extranet_site");
+		$extranetSiteId = Option::get('extranet', 'extranet_site');
 		$extranetSiteId = ($extranetSiteId && ModuleManager::isModuleInstalled('extranet') ? $extranetSiteId : false);
 
 		$entityType =
@@ -624,7 +586,7 @@ class ProjectProvider extends BaseProvider
 	{
 		if (UserProvider::isExtranetUser($currentUserId))
 		{
-			$extranetSiteId = Option::get("extranet", "extranet_site");
+			$extranetSiteId = Option::get('extranet', 'extranet_site');
 			$projectPage = Option::get('socialnetwork', 'workgroups_page', false, $extranetSiteId);
 			if (!$projectPage)
 			{
@@ -636,10 +598,99 @@ class ProjectProvider extends BaseProvider
 			$projectPage = Option::get('socialnetwork', 'workgroups_page', false, SITE_ID);
 			if (!$projectPage)
 			{
-				$projectPage = SITE_DIR.'company/workgroups/';
+				$projectPage = SITE_DIR.'workgroups/';
 			}
 		}
 
 		return $projectPage.'group/'.($projectId !== null ? $projectId : '#id#').'/';
+	}
+
+	public static function getCreateProjectUrl(?int $currentUserId = null): string
+	{
+		$userPage =
+			UserProvider::isExtranetUser($currentUserId)
+				? UserProvider::getExtranetUserUrl($currentUserId)
+				: UserProvider::getIntranetUserUrl($currentUserId)
+		;
+
+		return $userPage . 'groups/create/';
+	}
+
+	public static function canCreateProject(): bool
+	{
+		return (
+			\CSocNetUser::isCurrentUserModuleAdmin()
+			|| $GLOBALS['APPLICATION']->getGroupRight('socialnetwork', false, 'Y', 'Y', [SITE_ID, false]) >= 'K'
+		);
+	}
+
+	private function fillRecentTab(Dialog $dialog, EO_Workgroup_Collection $projects): void
+	{
+		$maxProjectsInRecentTab = 30;
+
+		$recentItems = $dialog->getRecentItems()->getEntityItems('project');
+		if (count($recentItems) < $maxProjectsInRecentTab)
+		{
+			$limit = $maxProjectsInRecentTab - count($recentItems);
+			$recentGlobalItems = $dialog->getGlobalRecentItems()->getEntityItems('project');
+			foreach ($recentGlobalItems as $recentGlobalItem)
+			{
+				if ($limit <= 0)
+				{
+					break;
+				}
+
+				if (!isset($recentItems[$recentGlobalItem->getId()]) && $recentGlobalItem->isLoaded())
+				{
+					$dialog->getRecentItems()->add($recentGlobalItem);
+					$limit--;
+				}
+			}
+
+			$recentItems = $dialog->getRecentItems()->getEntityItems('project');
+		}
+
+		if (count($recentItems) < $maxProjectsInRecentTab)
+		{
+			$recentIds = array_map('intval', array_keys($recentItems));
+
+			$dialog->addRecentItems(
+				$this->getProjectItems([
+					'!projectId' => $recentIds,
+					'viewed' => true,
+					'order' => ['VIEWED_PROJECT.DATE_VIEW' => 'desc'],
+					'limit' => $maxProjectsInRecentTab - count($recentItems)
+				])
+			);
+
+			$recentItems = $dialog->getRecentItems()->getEntityItems('project');
+		}
+
+		if (count($recentItems) < $maxProjectsInRecentTab)
+		{
+			$limit = $maxProjectsInRecentTab - count($recentItems);
+			foreach ($projects as $project)
+			{
+				if ($limit <= 0)
+				{
+					break;
+				}
+
+				if (isset($recentItems[$project->getId()]))
+				{
+					continue;
+				}
+
+				$dialog->getRecentItems()->add(
+					new RecentItem([
+						'id' => $project->getId(),
+						'entityId' => 'project',
+						'loaded' => true,
+					])
+				);
+
+				$limit--;
+			}
+		}
 	}
 }

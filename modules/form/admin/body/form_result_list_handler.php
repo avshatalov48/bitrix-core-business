@@ -183,7 +183,7 @@ if ($save <> '' && $_SERVER['REQUEST_METHOD']=="POST" && (check_bitrix_sessid() 
 	}
 }
 
-$result = CFormResult::GetList($WEB_FORM_ID, $by, $order, $arFilter, $is_filtered);
+$result = CFormResult::GetList($WEB_FORM_ID, '', '', $arFilter);
 
 $HELP_FILE_ACCESS = $APPLICATION->GetFileAccessPermission("/bitrix/modules/form/help/".LANGUAGE_ID."/index.php");
 $MODULE_RIGHT = $APPLICATION->GetGroupRight("form");

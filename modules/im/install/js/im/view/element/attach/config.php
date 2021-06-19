@@ -13,6 +13,8 @@ return [
 	],
 	'rel' => [
 		'main.polyfill.core',
+		'ui.icons.disk',
+		'ui.vue.directives.lazyload',
 		'im.model',
 		'im.lib.utils',
 		'ui.vue',

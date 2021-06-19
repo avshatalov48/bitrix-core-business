@@ -36,7 +36,7 @@ class CDeliveryUaPost
 			"OB_COMISS_MIN" => 3 // min declared value comission UAH
 				);
 
-	function Init()
+	public static function Init()
 	{
 		return array(
 			/* Basic description */
@@ -80,7 +80,7 @@ class CDeliveryUaPost
 		);
 	}
 
-	function GetConfig()
+	public static function GetConfig()
 	{
 		$arConfig = array(
 			'CONFIG_GROUPS' => array(
@@ -201,12 +201,12 @@ class CDeliveryUaPost
 		return $arConfig;
 	}
 
-	function GetSettings($strSettings)
+	public static function GetSettings($strSettings)
 	{
 		return unserialize($strSettings, ['allowed_classes' => false]);
 	}
 
-	function SetSettings($arSettings)
+	public static function SetSettings($arSettings)
 	{
 		foreach ($arSettings as $key => $value)
 		{
@@ -219,7 +219,7 @@ class CDeliveryUaPost
 		return serialize($arSettings);
 	}
 
-	function GetFeatures($arConfig)
+	public static function GetFeatures($arConfig)
 	{
 		$arResult = array();
 
@@ -234,7 +234,7 @@ class CDeliveryUaPost
 		return $arResult;
 	}
 
-	function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
+	public static function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
 	{
 		$arPacks = CSaleDeliveryHelper::getBoxesFromConfig($profile, $arConfig);
 
@@ -269,7 +269,7 @@ class CDeliveryUaPost
 		return $arResult;
 	}
 
-	function Compability($arOrder, $arConfig)
+	public static function Compability($arOrder, $arConfig)
 	{
 		if(floatval($arOrder["WEIGHT"]) <= self::$MAX_WEIGHT)
 			$profiles = array('ware', 'door');

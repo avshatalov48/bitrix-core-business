@@ -105,7 +105,7 @@ class Repo extends \Bitrix\Landing\Internals\BaseTable
 		));
 		while ($row = $res->fetch())
 		{
-			$manifest = unserialize($row['MANIFEST']);
+			$manifest = unserialize($row['MANIFEST'], ['allowed_classes' => false]);
 			if (isset($manifest['lang'][$langPortal][$row['NAME']]))
 			{
 				$row['NAME'] = $manifest['lang'][$langPortal][$row['NAME']];
@@ -150,7 +150,7 @@ class Repo extends \Bitrix\Landing\Internals\BaseTable
 			$manifest[$id] = array();
 			if (($block = self::getById($id)->fetch()))
 			{
-				$manifestLocal = unserialize($block['MANIFEST']);
+				$manifestLocal = unserialize($block['MANIFEST'], ['allowed_classes' => false]);
 				if (!is_array($manifestLocal))
 				{
 					$manifestLocal = array();

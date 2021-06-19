@@ -34,7 +34,6 @@ $MESS["FILEMAN_ED_LINK_TYPE2"] = "Ссылка на другой сайт";
 $MESS["FILEMAN_ED_LINK_TYPE3"] = "Ссылка внутри данного документа";
 $MESS["FILEMAN_ED_LINK_ATITLE"] = "Всплывающая подсказка:";
 $MESS["FILEMAN_ED_LINK_TYPE"] = "Тип:";
-$MESS["FILEMAN_ED_LINK_STAT"] = "Фиксировать переход в статистике";
 $MESS["FILEMAN_ED_LINK_DOC"] = "Адрес ссылки";
 $MESS["FILEMAN_ED_LINK_ACH"] = "Закладка:";
 $MESS["FILEMAN_ED_FF"] = "Внимание! FireFox не позволяет автоматически получать содержимое вашего буфера обмена по соображениям безопасности. Пожалуйста, для вставки данных нажмите комбинацию клавиш Ctrl+V, затем кнопку";

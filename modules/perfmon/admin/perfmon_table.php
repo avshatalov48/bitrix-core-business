@@ -138,7 +138,9 @@ foreach ($arFields as $FIELD_NAME => $FIELD_TYPE)
 
 	if (isset($filterValue))
 	{
-		$op = CSQLWhere::MakeOperation($filterValue);
+		$where = new CSQLWhere();
+
+		$op = $where->MakeOperation($filterValue);
 
 		if ($filterValue === $op["FIELD"])
 			$op["OPERATOR"] = "%=";

@@ -10,6 +10,7 @@ use Bitrix\Sale\Cashbox\Internals\CashboxTable;
 use Bitrix\Sale\Internals\CashboxRestHandlerTable;
 use Bitrix\Sale\Internals\CollectableEntity;
 use Bitrix\Sale\Result;
+use Bitrix\Sale;
 
 Loc::loadMessages(__FILE__);
 
@@ -52,6 +53,75 @@ final class Manager
 		}
 
 		return $result;
+	}
+
+	private static function getCashboxByPayment(Sale\Payment $payment): array
+	{
+		$service = $payment->getPaySystem();
+		if ($service && $service->isSupportPrintCheck())
+		{
+			/** @var CashboxPaySystem $cashboxClass */
+			$cashboxClass = $service->getCashboxClass();
+			$paySystemParams = $service->getParamsBusValue($payment);
+			$paySystemCodeForKkm = $cashboxClass::getPaySystemCodeForKkm();
+
+			return self::getList([
+				'filter' => [
+					'=ACTIVE' => 'Y',
+					'=HANDLER' => $cashboxClass,
+					'=KKM_ID' => $paySystemParams[$paySystemCodeForKkm],
+				],
+			])->fetch();
+		}
+
+		return [];
+	}
+
+	/**
+	 * @param Check $check
+	 * @return array
+	 */
+	public static function getAvailableCashboxList(Check $check): array
+	{
+		$cashboxList = [];
+		$firstIteration = true;
+
+		$payment = CheckManager::getPaymentByCheck($check);
+		if ($payment && self::canPaySystemPrint($payment))
+		{
+			$cashbox = self::getCashboxByPayment($payment);
+			if ($cashbox)
+			{
+				$cashboxList[] = $cashbox;
+			}
+		}
+		else
+		{
+			$entities = $check->getEntities();
+			foreach ($entities as $entity)
+			{
+				$items = self::getListWithRestrictions($entity);
+				if ($firstIteration)
+				{
+					$cashboxList = $items;
+					$firstIteration = false;
+				}
+				else
+				{
+					$cashboxList = array_intersect_assoc($items, $cashboxList);
+				}
+			}
+
+			foreach ($cashboxList as $key => $cashbox)
+			{
+				if (self::isPaySystemCashbox($cashbox['HANDLER']))
+				{
+					unset($cashboxList[$key]);
+				}
+			}
+		}
+
+		return $cashboxList;
 	}
 
 	/**
@@ -116,7 +186,9 @@ final class Manager
 
 	/**
 	 * @param $cashboxList
+	 * @param Check|null $check
 	 * @return mixed
+	 * @throws Main\SystemException
 	 */
 	public static function chooseCashbox($cashboxList)
 	{
@@ -289,6 +361,18 @@ final class Manager
 		$updateResult = CashboxTable::update($primary, $data);
 
 		$cacheManager = Main\Application::getInstance()->getManagedCache();
+
+		$service = self::getObjectById($primary);
+		if ($service && self::isPaySystemCashbox($service->getField('HANDLER')))
+		{
+			/** @var CashboxPaySystem $cashboxClass */
+			$cashboxClass = $service->getField('HANDLER');
+			if ($cashboxClass::CACHE_ID)
+			{
+				$cacheManager->clean($cashboxClass::CACHE_ID);
+			}
+		}
+
 		$cacheManager->clean(Manager::CACHE_ID);
 
 		if (is_subclass_of($data['HANDLER'], '\Bitrix\Sale\Cashbox\ICheckable'))
@@ -305,15 +389,25 @@ final class Manager
 	 */
 	public static function delete($primary)
 	{
+		$service = self::getObjectById($primary);
 		$deleteResult = CashboxTable::delete($primary);
+		$cacheManager = Main\Application::getInstance()->getManagedCache();
 
 		if ($primary == Cashbox1C::getId())
 		{
-			$cacheManager = Main\Application::getInstance()->getManagedCache();
 			$cacheManager->clean(Cashbox1C::CACHE_ID);
 		}
 
-		$cacheManager = Main\Application::getInstance()->getManagedCache();
+		if ($service && self::isPaySystemCashbox($service->getField('HANDLER')))
+		{
+			/** @var CashboxPaySystem $cashboxClass */
+			$cashboxClass = $service->getField('HANDLER');
+			if ($cashboxClass::CACHE_ID)
+			{
+				$cacheManager->clean($cashboxClass::CACHE_ID);
+			}
+		}
+
 		$cacheManager->clean(Manager::CACHE_ID);
 
 		return $deleteResult;
@@ -354,6 +448,42 @@ final class Manager
 		}
 
 		return true;
+	}
+
+	public static function isEnabledPaySystemPrint(): bool
+	{
+		Cashbox::init();
+
+		$cashboxList = self::getListFromCache();
+		foreach ($cashboxList as $cashbox)
+		{
+			if ($cashbox['ACTIVE'] === 'N')
+			{
+				continue;
+			}
+
+			if (self::isPaySystemCashbox($cashbox['HANDLER']))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param Sale\Payment $payment
+	 * @return bool
+	 */
+	public static function canPaySystemPrint(Sale\Payment $payment): bool
+	{
+		$service = $payment->getPaySystem();
+
+		return $service
+			&& $service->isSupportPrintCheck()
+			&& $service->canPrintCheck()
+			&& $service->canPrintCheckSelf($payment)
+		;
 	}
 
 	/**
@@ -456,5 +586,14 @@ final class Manager
 		{
 			Logger::addError($error->getMessage(), $cashboxId);
 		}
+	}
+
+	/**
+	 * @param string $cashboxClassName
+	 * @return bool
+	 */
+	public static function isPaySystemCashbox(string $cashboxClassName): bool
+	{
+		return is_subclass_of($cashboxClassName, CashboxPaySystem::class);
 	}
 }

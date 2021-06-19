@@ -848,26 +848,16 @@ abstract class Base
 	}
 
 	/**
+	 * Checks if handler is compatible
+	 *
 	 * @return bool
-	 * @throws \Bitrix\Main\LoaderException
 	 */
 	public static function isHandlerCompatible()
 	{
-		$result = true;
-
-		//Only configurable are fully compatible with all languages
-		if (ModuleManager::isModuleInstalled('bitrix24')
-			&& Loader::includeModule('bitrix24')
-			&& method_exists('CBitrix24', 'getLicensePrefix'))
-		{
-			$languageId = \CBitrix24::getLicensePrefix();
-
-			if(!in_array($languageId, ['ru', 'kz', 'by']))
-			{
-				$result = false;
-			}
-		}
-
-		return $result;
+		// Actually only configurable are fully compatible with all languages
+		return in_array(
+			\Bitrix\Sale\Delivery\Helper::getPortalZone(),
+			['ru', 'kz', 'by', 'ua']
+		);
 	}
 }

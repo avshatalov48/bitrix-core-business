@@ -40,6 +40,8 @@ class Scope
 	{
 		$result = [];
 		$scopeIds = $this->getScopesIdByUser($moduleId);
+		$entityTypeIds = ($this->getEntityTypeIdMap()[$entityTypeId] ?? [$entityTypeId]);
+
 		if (count($scopeIds))
 		{
 			$scopes = EntityFormConfigTable::getList([
@@ -50,7 +52,7 @@ class Scope
 				],
 				'filter' => [
 					'@ID' => $scopeIds,
-					'=ENTITY_TYPE_ID' => $entityTypeId
+					'@ENTITY_TYPE_ID' => $entityTypeIds
 				]
 			]);
 			foreach ($scopes as $scope)
@@ -66,6 +68,14 @@ class Scope
 			}
 		}
 		return $result;
+	}
+
+	protected function getEntityTypeIdMap(): array
+	{
+		return [
+			'lead_details' => ['lead_details', 'returning_lead_details'],
+			'returning_lead_details' => ['lead_details', 'returning_lead_details'],
+		];
 	}
 
 	/**
@@ -123,7 +133,7 @@ class Scope
 			}
 		}
 
-		return $result;
+		return array_unique($result);
 	}
 
 	/**
@@ -134,7 +144,7 @@ class Scope
 	{
 		if ($row = EntityFormConfigTable::getRowById($scopeId))
 		{
-			return $row['CONFIG'];
+			return (is_array($row['CONFIG']) ? $row['CONFIG'] : null);
 		}
 		return null;
 	}
@@ -281,7 +291,7 @@ class Scope
 		$accessCodes = EntityFormConfigAcTable::getList([
 			'select' => ['ACCESS_CODE'],
 			'filter' => ['=CONFIG_ID' => $configId]
-		]);
+		])->fetchAll();
 		$result = [];
 		if (count($accessCodes))
 		{

@@ -8,14 +8,13 @@
 
 namespace Bitrix\Sender\Integration\Crm;
 
+use Bitrix\Crm\CompanyAddress;
 use Bitrix\Crm\EntityAddressType;
-use Bitrix\Main\Loader;
-use Bitrix\Main\Localization\Loc;
-
-use Bitrix\Crm\Requisite;
 use Bitrix\Crm\EntityRequisite;
 use Bitrix\Crm\Format;
-use Bitrix\Crm\EntityAddress;
+use Bitrix\Crm\Requisite;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
@@ -129,9 +128,7 @@ class CompanyCard
 
 		if ($address && is_array($address))
 		{
-			$address = Format\EntityAddressFormatter::format($address, array(
-				'SEPARATOR' => Format\AddressSeparator::Comma
-			));
+			$address = Format\AddressFormatter::getSingleInstance()->formatTextComma($address);
 		}
 		else
 		{
@@ -149,11 +146,10 @@ class CompanyCard
 			{
 				$addressTypeId =  EntityAddressType::Primary;
 			}
-
-			$address = Format\CompanyAddressFormatter::format($address, array(
-				'SEPARATOR' => Format\AddressSeparator::Comma,
-				'TYPE_ID' => $addressTypeId
-			));
+			
+			$address = Format\AddressFormatter::getSingleInstance()->formatTextComma(
+				CompanyAddress::mapEntityFields($address, ['TYPE_ID' => $addressTypeId])
+			);
 		}
 
 		$result['COMPANY_ADDRESS'] = $address;

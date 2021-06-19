@@ -1,11 +1,12 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Main\Text\HtmlFilter;
 
 class CBlogMetaWeblog
 {
-	function Authorize($user, $password)
+	public static function Authorize($user, $password)
 	{
 		global $USER, $APPLICATION;
 
@@ -17,7 +18,7 @@ class CBlogMetaWeblog
 			return false;
 	}
 
-	function DecodeParams($value)
+	public static function DecodeParams($value)
 	{
 		foreach($value as $t => $v)
 		{
@@ -28,7 +29,7 @@ class CBlogMetaWeblog
 		}
 	}
 
-	function GetUsersBlogs($params, $arPath)
+	public static function GetUsersBlogs($params, $arPath)
 	{
 		global $USER;
 		$blog = CBlogMetaWeblog::DecodeParams($params[0]["#"]["value"][0]["#"]);
@@ -182,7 +183,7 @@ class CBlogMetaWeblog
 		}
 	}
 
-	function GetCategories($params)
+	public static function GetCategories($params)
 	{
 		global $USER;
 		$blog = CBlogMetaWeblog::DecodeParams($params[0]["#"]["value"][0]["#"]);
@@ -270,7 +271,8 @@ class CBlogMetaWeblog
 		}
 
 	}
-	function GetRecentPosts($params, $arPath)
+
+	public static function GetRecentPosts($params, $arPath)
 	{
 		global $USER;
 		$blogId = intval(CBlogMetaWeblog::DecodeParams($params[0]["#"]["value"][0]["#"]));
@@ -424,7 +426,7 @@ class CBlogMetaWeblog
 
 	}
 
-	function NewMediaObject($params)
+	public static function NewMediaObject($params)
 	{
 		global $USER, $DB;
 		$blogId = intval(CBlogMetaWeblog::DecodeParams($params[0]["#"]["value"][0]["#"]));
@@ -580,7 +582,7 @@ class CBlogMetaWeblog
 
 	}
 
-	function NewPost($params)
+	public static function NewPost($params)
 	{
 		global $USER, $DB;
 		$blogId = intval(CBlogMetaWeblog::DecodeParams($params[0]["#"]["value"][0]["#"]));
@@ -765,7 +767,7 @@ class CBlogMetaWeblog
 		}
 	}
 
-	function EditPost($params)
+	public static function EditPost($params)
 	{
 		global $USER, $DB;
 		$postId = intval(CBlogMetaWeblog::DecodeParams($params[0]["#"]["value"][0]["#"]));
@@ -953,7 +955,7 @@ class CBlogMetaWeblog
 		}
 	}
 
-	function GetPost($params, $arPath)
+	public static function GetPost($params, $arPath)
 	{
 		global $USER;
 		$postId = intval(CBlogMetaWeblog::DecodeParams($params[0]["#"]["value"][0]["#"]));
@@ -1097,7 +1099,7 @@ class CBlogMetaWeblog
 		}
 	}
 
-	function DeletePost($params)
+	public static function DeletePost($params)
 	{
 		global $USER;
 		$postId = intval(CBlogMetaWeblog::DecodeParams($params[1]["#"]["value"][0]["#"]));
@@ -1175,7 +1177,7 @@ class CBlogMetaWeblog
 		}
 	}
 
-	function GetUserInfo($params)
+	public static function GetUserInfo($params)
 	{
 		global $USER;
 		$user = CBlogMetaWeblog::DecodeParams($params[1]["#"]["value"][0]["#"]);
@@ -1270,7 +1272,4 @@ class CBlogMetaWeblog
 		}
 
 	}
-
-
 }
-?>

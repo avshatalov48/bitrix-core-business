@@ -106,6 +106,22 @@ if (($arID = $lAdmin->GroupAction()) && !$bReadOnly)
 					$DB->Commit();
 				}
 				break;
+			case 'setbase':
+				$DB->StartTransaction();
+				if (!CCatalogGroup::Update($ID, ['BASE' => 'Y']))
+				{
+					$DB->Rollback();
+
+					if ($ex = $APPLICATION->GetException())
+						$lAdmin->AddGroupError($ex->GetString(), $ID);
+					else
+						$lAdmin->AddGroupError(GetMessage("ERROR_UPDATING_REC"), $ID);
+				}
+				else
+				{
+					$DB->Commit();
+				}
+				break;
 		}
 	}
 	if ($lAdmin->hasGroupErrors())
@@ -210,9 +226,7 @@ $arLangList = array();
 $arLangDefList = array();
 if ($arSelectFieldsMap['NAME_LID'])
 {
-	$by1 = "sort";
-	$order1 = "asc";
-	$rsPriceLangs = CLangAdmin::GetList($by1, $order1);
+	$rsPriceLangs = CLangAdmin::GetList();
 	while ($arPriceLang = $rsPriceLangs->Fetch())
 	{
 		$arLangList[$arPriceLang['LID']] = true;
@@ -223,6 +237,15 @@ if ($arSelectFieldsMap['NAME_LID'])
 }
 
 global $by, $order;
+
+if (!in_array('ID', $arSelectFields))
+{
+	$arSelectFields[] = 'ID';
+}
+if (!in_array('BASE', $arSelectFields))
+{
+	$arSelectFields[] = 'BASE';
+}
 
 $dbResultList = CCatalogGroup::GetList(
 	array($by => $order),
@@ -284,7 +307,9 @@ while ($arRes = $dbResultList->Fetch())
 	}
 
 	if ($arSelectFieldsMap['BASE'])
-		$row->AddViewField("BASE", ("Y" == $arRes['BASE'] ? GetMessage("BASE_YES") : "&nbsp;"));
+	{
+		$row->AddViewField("BASE", ("Y" == $arRes['BASE'] ? GetMessage("BASE_YES") : GetMessage("BASE_NO")));
+	}
 
 	$arActions = array();
 	$arActions[] = array(
@@ -303,6 +328,12 @@ while ($arRes = $dbResultList->Fetch())
 				"TEXT" => GetMessage("DELETE_STATUS_ALT"),
 				"ACTION" => "if(confirm('".GetMessageJS('DELETE_STATUS_CONFIRM')."')) ".$lAdmin->ActionDoGroup($arRes['ID'], "delete")
 			);
+			$arActions[] = [
+				'ICON' => 'edit',
+				'TEXT' => GetMessage('BT_CAT_GROUP_ADM_ACTION_SET_BASE_PRICE'),
+				'ACTION' => $lAdmin->ActionDoGroup($arRes['ID'], 'setbase'),
+				'ONCLICK' => '',
+			];
 		}
 	}
 
@@ -340,11 +371,9 @@ if ($arSelectFieldsMap['CREATED_BY'] || $arSelectFieldsMap['MODIFIED_BY'])
 {
 	if (!empty($arUserID))
 	{
-		$byUser = 'ID';
-		$byOrder = 'ASC';
 		$rsUsers = CUser::GetList(
-			$byUser,
-			$byOrder,
+			'ID',
+			'ASC',
 			array('ID' => implode(' | ', array_keys($arUserID))),
 			array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL'))
 		);

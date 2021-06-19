@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 define("SALE_TIME_LOCK_USER", 600);
@@ -9,7 +10,7 @@ $GLOBALS["SALE_USER_ACCOUNT"] = array();
 /***********************************************************************/
 class CAllSaleUserAccount
 {
-	static function DoPayOrderFromAccount($userId, $currency, $orderId, $orderSum, $arOptions, &$arErrors)
+	public static function DoPayOrderFromAccount($userId, $currency, $orderId, $orderSum, $arOptions, &$arErrors)
 	{
 		if (!array_key_exists("ONLY_FULL_PAY_FROM_ACCOUNT", $arOptions))
 			$arOptions["ONLY_FULL_PAY_FROM_ACCOUNT"] = COption::GetOptionString("sale", "ONLY_FULL_PAY_FROM_ACCOUNT", "N");
@@ -133,9 +134,8 @@ class CAllSaleUserAccount
 		return $res;
 	}
 
-
 	//********** LOCK **************//
-	function Lock($userID, $payCurrency)
+	public static function Lock($userID, $payCurrency)
 	{
 		global $DB, $APPLICATION;
 
@@ -205,7 +205,7 @@ class CAllSaleUserAccount
 		}
 	}
 
-	function UnLock($userID, $payCurrency)
+	public static function UnLock($userID, $payCurrency)
 	{
 		$userID = (int)$userID;
 		if ($userID <= 0)
@@ -262,7 +262,7 @@ class CAllSaleUserAccount
 		}
 	}
 
-	function UnLockByID($ID)
+	public static function UnLockByID($ID)
 	{
 		global $APPLICATION;
 
@@ -304,7 +304,7 @@ class CAllSaleUserAccount
 	// $orderID - ID of order (if known)
 	// $useCC - increase the local user account from credit card if necessary (default - True)
 	// Return True if the necessary sum withdraw from an account or False in other way
-	function Pay($userID, $paySum, $payCurrency, $orderID = 0, $useCC = true, $paymentId = null)
+	public static function Pay($userID, $paySum, $payCurrency, $orderID = 0, $useCC = true, $paymentId = null)
 	{
 		global $DB, $APPLICATION, $USER;
 
@@ -476,7 +476,7 @@ class CAllSaleUserAccount
 	// $payCurrency - currency
 	// $orderID - ID of order (if known)
 	// Return withdrawn sum or False
-	function Withdraw($userID, $paySum, $payCurrency, $orderID = 0)
+	public static function Withdraw($userID, $paySum, $payCurrency, $orderID = 0)
 	{
 		global $DB, $APPLICATION, $USER;
 
@@ -585,7 +585,7 @@ class CAllSaleUserAccount
 	// $currency - currency
 	// $description - reason of modification
 	// Return True on success or False in other way
-	function UpdateAccount($userID, $sum, $currency, $description = "", $orderID = 0, $notes = "", $paymentId = null)
+	public static function UpdateAccount($userID, $sum, $currency, $description = "", $orderID = 0, $notes = "", $paymentId = null)
 	{
 		global $DB, $APPLICATION, $USER;
 

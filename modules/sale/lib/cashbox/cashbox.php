@@ -93,6 +93,8 @@ abstract class Cashbox
 
 			$handlerList['\Bitrix\Sale\Cashbox\CashboxRest'] = '/bitrix/modules/sale/lib/cashbox/cashboxrest.php';
 
+			$handlerList['\Bitrix\Sale\Cashbox\CashboxRobokassa'] = '/bitrix/modules/sale/lib/cashbox/cashboxrobokassa.php';
+
 			$event = new Main\Event('sale', static::EVENT_ON_GET_CUSTOM_CASHBOX_HANDLERS);
 			$event->send();
 			$resultList = $event->getResults();
@@ -117,7 +119,8 @@ abstract class Cashbox
 
 	/**
 	 * @param array $settings
-	 * @return Cashbox|null
+	 * @return mixed|null
+	 * @throws Main\LoaderException
 	 */
 	public static function create(array $settings)
 	{
@@ -459,5 +462,4 @@ abstract class Cashbox
 	{
 		return false;
 	}
-
 }

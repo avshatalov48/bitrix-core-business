@@ -125,11 +125,8 @@ final class ForumTopic extends Provider
 						if ($topic = $res->fetch())
 						{
 							$title = htmlspecialcharsback($topic['TITLE']);
-							$title = preg_replace(
-								"/\[USER\s*=\s*([^\]]*)\](.+?)\[\/USER\]/is".BX_UTF_PCRE_MODIFIER,
-								"\\2",
-								$title
-							);
+							$title = \Bitrix\Socialnetwork\Helper\Mention::clear($title);
+
 							$CBXSanitizer = new \CBXSanitizer;
 							$CBXSanitizer->delAllTags();
 							$title = preg_replace(array("/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER), " ", $CBXSanitizer->sanitizeHtml($title));

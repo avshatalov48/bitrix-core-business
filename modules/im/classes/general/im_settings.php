@@ -203,9 +203,12 @@ class CIMSettings
 				'viewOffline' => COption::GetOptionString("im", "view_offline"),
 				'viewGroup' => COption::GetOptionString("im", "view_group"),
 				'viewLastMessage' => true,
+				'viewBirthday' => true,
+				'viewCommonUsers' => true,
 				'enableSound' => true,
 				'enableBigSmile' => true,
-				'enableDarkTheme' => false,
+				'enableDarkTheme' => 'auto',
+				'isCurrentThemeDark' => false,
 				'enableRichLink' => true,
 				'linesTabEnable' => true,
 				'linesNewGroupEnable' => false,
@@ -227,7 +230,8 @@ class CIMSettings
 				'privacyCall' => COption::GetOptionString("im", "privacy_call"),
 				'privacySearch' => COption::GetOptionString("im", "privacy_search"),
 				'privacyProfile' => COption::GetOptionString("im", "privacy_profile"),
-				'callAcceptIncomingVideo' => VideoStrategyType::ALLOW_ALL
+				'callAcceptIncomingVideo' => VideoStrategyType::ALLOW_ALL,
+				'next' => false,
 			);
 		}
 		elseif ($type == self::NOTIFY)
@@ -276,6 +280,10 @@ class CIMSettings
 				else if ($key == 'notifyScheme')
 				{
 					$arValues[$key] = in_array($value[$key], Array('simple', 'expert'))? $value[$key]: $default;
+				}
+				else if ($key == 'enableDarkTheme')
+				{
+					$arValues[$key] = in_array($value[$key], ['auto', 'light', 'dark']) ? $value[$key] : $default;
 				}
 				else if (in_array($key, Array('privacyMessage', 'privacyChat', 'privacyCall', 'privacySearch')))
 				{

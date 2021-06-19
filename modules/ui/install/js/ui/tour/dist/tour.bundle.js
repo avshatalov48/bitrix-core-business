@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_core) {
+(function (exports,main_core_events,main_core) {
 	'use strict';
 
 	var Step = /*#__PURE__*/function (_Event$EventEmitter) {
@@ -25,6 +25,9 @@ this.BX.UI = this.BX.UI || {};
 	    _this.title = options.title || null;
 	    _this.article = options.article || null;
 	    _this.position = options.position || null;
+	    _this.cursorMode = options.cursorMode || false;
+	    _this.targetEvent = options.targetEvent || null;
+	    _this.buttons = options.buttons || [];
 	    var events = main_core.Type.isPlainObject(options.events) ? options.events : {};
 
 	    var _loop = function _loop(eventName) {
@@ -58,9 +61,21 @@ this.BX.UI = this.BX.UI || {};
 	      return this.target;
 	    }
 	  }, {
+	    key: "getTargetPos",
+	    value: function getTargetPos() {
+	      if (main_core.Type.isDomNode(this.target)) {
+	        return main_core.Dom.getPosition(this.target);
+	      }
+	    }
+	  }, {
 	    key: "getId",
 	    value: function getId() {
 	      return this.id;
+	    }
+	  }, {
+	    key: "getButtons",
+	    value: function getButtons() {
+	      return this.buttons;
 	    }
 	  }, {
 	    key: "getAreaPadding",
@@ -98,9 +113,29 @@ this.BX.UI = this.BX.UI || {};
 	      return this.article;
 	    }
 	  }, {
+	    key: "getCursorMode",
+	    value: function getCursorMode() {
+	      return this.cursorMode;
+	    }
+	  }, {
+	    key: "getTargetEvent",
+	    value: function getTargetEvent() {
+	      return this.targetEvent;
+	    }
+	  }, {
 	    key: "setTarget",
 	    value: function setTarget(target) {
 	      this.target = target;
+	    }
+	  }, {
+	    key: "initTargetEvent",
+	    value: function initTargetEvent() {
+	      if (main_core.Type.isFunction(this.targetEvent)) {
+	        this.targetEvent();
+	        return;
+	      }
+
+	      this.getTarget().dispatchEvent(new MouseEvent(this.targetEvent));
 	    }
 	  }], [{
 	    key: "getFullEventName",
@@ -110,6 +145,16 @@ this.BX.UI = this.BX.UI || {};
 	  }]);
 	  return Step;
 	}(main_core.Event.EventEmitter);
+
+	function _templateObject15() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-cursor\"></div>\n\t\t\t"]);
+
+	  _templateObject15 = function _templateObject15() {
+	    return data;
+	  };
+
+	  return data;
+	}
 
 	function _templateObject14() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button class=\"ui-btn ui-btn-sm ui-btn-primary ui-btn-round\" onclick=\"", "\">\n\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"]);
@@ -232,7 +277,7 @@ this.BX.UI = this.BX.UI || {};
 	}
 
 	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup ", "\" >\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-tour-popup-content\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-tour-popup-footer\">\n\t\t\t\t\t\t<div class=\"ui-tour-popup-index\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup ", " ", "\" >\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-tour-popup-content\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-tour-popup-footer\">\n\t\t\t\t\t\t<div class=\"ui-tour-popup-index\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
 
 	  _templateObject2 = function _templateObject2() {
 	    return data;
@@ -296,9 +341,11 @@ this.BX.UI = this.BX.UI || {};
 	      counterItems: []
 	    };
 	    _this.buttons = options.buttons || "";
+	    _this.onEvents = options.onEvents || false;
 	    _this.currentStepIndex = 0;
 	    _this.targetPos = null;
 	    _this.clickOnBackBtn = false;
+	    _this.helper = BX.Helper;
 	    _this.finalStep = options.finalStep || false;
 	    _this.finalText = options.finalText || "";
 	    _this.finalTitle = options.finalTitle || "";
@@ -404,10 +451,22 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "close",
 	    value: function close() {
+	      if (this.currentStepIndex === this.steps.length && this.onEvents) return;
+	      this.closeStep();
 	      this.emit(this.constructor.getFullEventName("onFinish"), {
 	        guide: this
 	      });
 	      this.getPopup().destroy();
+
+	      if (this.getCursor()) {
+	        main_core.Dom.remove(this.getCursor());
+	        this.layout.cursor = null;
+	      }
+
+	      if (this.onEvents) {
+	        this.increaseCurrentStepIndex();
+	      }
+
 	      main_core.Dom.remove(this.layout.overlay);
 	      main_core.Dom.removeClass(document.body, "ui-tour-body-overflow");
 
@@ -428,6 +487,7 @@ this.BX.UI = this.BX.UI || {};
 	      this.layout.counter = null;
 	      this.layout.currentCounter = null;
 	      this.layout.counterItems = [];
+	      this.popup = null;
 	    }
 	    /**
 	     * @private
@@ -436,26 +496,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "showStep",
 	    value: function showStep() {
-	      var currentStep = this.getCurrentStep();
-	      currentStep.emit(currentStep.constructor.getFullEventName("onShow"), {
-	        step: currentStep,
-	        guide: this
-	      });
-
-	      if (currentStep.getTarget()) {
-	        var close = this.close.bind(this);
-	        main_core.Event.bind(currentStep.getTarget(), 'click', close);
-	        this.subscribe("UI.Tour.Guide:onFinish", function () {
-	          main_core.Event.unbind(currentStep.getTarget(), 'click', close);
-	        });
-	        var targetPos = currentStep.getTarget().getBoundingClientRect();
-	        var targetPosWindow = main_core.Dom.getPosition(currentStep.getTarget());
-
-	        if (!this.isTargetVisible(targetPos)) {
-	          this.scrollToTarget(targetPosWindow);
-	        }
-	      }
-
+	      this.adjustEvents();
 	      main_core.Dom.removeClass(this.popup.getPopupContainer(), "popup-window-ui-tour-opacity");
 
 	      if (this.layout.element) {
@@ -466,8 +507,85 @@ this.BX.UI = this.BX.UI || {};
 	        this.layout.backBtn.style.display = "block";
 	      }.bind(this), 10);
 	      this.setOverlayElementForm();
-	      this.setCoords(this.getCurrentStep().getTarget());
+
+	      if (this.getCurrentStep()) {
+	        this.setCoords(this.getCurrentStep().getTarget());
+	      }
+
 	      this.setPopupData();
+	    }
+	    /**
+	     * @public
+	     */
+
+	  }, {
+	    key: "showNextStep",
+	    value: function showNextStep() {
+	      if (this.currentStepIndex === this.steps.length) {
+	        return;
+	      }
+
+	      if (this.getCurrentStep().getCursorMode()) {
+	        this.showCursor();
+	      } else {
+	        var popup = this.getPopup();
+	        popup.show();
+
+	        if (popup.getPopupContainer()) {
+	          main_core.Dom.removeClass(popup.getPopupContainer(), "popup-window-ui-tour-opacity");
+	        }
+
+	        if (this.getCurrentStep()) {
+	          this.setCoords(this.getCurrentStep().getTarget());
+	        }
+
+	        this.setPopupData();
+	      }
+
+	      this.adjustEvents();
+
+	      if (this.getCurrentStep() && this.getCurrentStep().getTarget()) {
+	        main_core.Dom.addClass(this.getCurrentStep().getTarget(), 'ui-tour-selector');
+	      }
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "adjustEvents",
+	    value: function adjustEvents() {
+	      var _this2 = this;
+
+	      var currentStep = this.getCurrentStep();
+	      currentStep.emit(currentStep.constructor.getFullEventName("onShow"), {
+	        step: currentStep,
+	        guide: this
+	      });
+
+	      if (currentStep.getTarget()) {
+	        var close = this.close.bind(this);
+
+	        var clickEvent = function clickEvent(e) {
+	          if (e.isTrusted) {
+	            close();
+	          }
+
+	          main_core_events.EventEmitter.emit('UI.Tour.Guide:clickTarget', _this2);
+	          main_core.Event.unbind(currentStep.getTarget(), 'click', clickEvent);
+	        };
+
+	        main_core.Event.bind(currentStep.getTarget(), 'click', clickEvent);
+	        this.subscribe('UI.Tour.Guide:onFinish', function () {
+	          main_core.Event.unbind(currentStep.getTarget(), 'click', close);
+	        });
+	        var targetPos = currentStep.getTarget().getBoundingClientRect();
+	        var targetPosWindow = main_core.Dom.getPosition(currentStep.getTarget());
+
+	        if (!this.isTargetVisible(targetPos)) {
+	          this.scrollToTarget(targetPosWindow);
+	        }
+	      }
 	    }
 	    /**
 	     * @private
@@ -493,7 +611,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setPopupPosition",
 	    value: function setPopupPosition() {
-	      if (!this.getCurrentStep().getTarget() || this.targetPos === null) {
+	      if (!this.getCurrentStep().getTarget() || this.targetPos === null || this.getCurrentStep().getPosition() === 'center') {
 	        this.getPopup().setBindElement(null);
 	        this.getPopup().setOffset({
 	          offsetLeft: 0,
@@ -548,7 +666,10 @@ this.BX.UI = this.BX.UI || {};
 	          bindOptions.forceTop = false;
 
 	          if (this.getCurrentStep().getRounded()) {
-	            offsetTop = -(this.layout.element.getAttribute("r") - this.targetPos.height / 2 + 10);
+	            if (!this.onEvents) {
+	              offsetTop = -(this.layout.element.getAttribute("r") - this.targetPos.height / 2 + 10);
+	            }
+
 	            angleOffset = 0;
 	            offsetLeft = this.targetPos.width / 2;
 	          } else if (this.targetPos.width < 30) {
@@ -557,12 +678,25 @@ this.BX.UI = this.BX.UI || {};
 	            angleOffset = 0;
 	          } else {
 	            offsetLeft = 25;
-	            offsetTop = -(this.layout.element.getAttribute("height") / 2 - this.targetPos.height / 2 + 10);
+
+	            if (!this.onEvents) {
+	              offsetTop = -(this.layout.element.getAttribute("height") / 2 - this.targetPos.height / 2 + 10);
+	            }
+
 	            angleOffset = 0;
 	          }
 	        }
 
-	      this.getPopup().setBindElement(this.getCurrentStep().getTarget());
+	      if (this.onEvents) {
+	        offsetTop = 0;
+	        offsetLeft = -50;
+	        angleOffset = 120;
+	      } // console.log("this.target", this.getCurrentStep().getTarget());
+
+
+	      var bindElement = this.getCurrentStep().getTarget();
+	      if (this.getCurrentStep().getPosition() === 'center') bindElement = window;
+	      this.getPopup().setBindElement(bindElement);
 	      this.getPopup().setOffset({
 	        offsetLeft: offsetLeft,
 	        offsetTop: -offsetTop
@@ -603,7 +737,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleResizeWindow",
 	    value: function handleResizeWindow() {
-	      if (this.layout.element) {
+	      if (this.layout.element && this.getCurrentStep()) {
 	        this.setCoords(this.getCurrentStep().getTarget());
 	      }
 	    }
@@ -616,22 +750,28 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setCoords",
 	    value: function setCoords(node) {
 	      if (!node) {
-	        this.layout.element.style.display = "none";
+	        if (this.layout.element) {
+	          this.layout.element.style.display = "none";
+	        }
+
 	        return;
 	      }
 
-	      this.layout.element.style.display = "block";
 	      this.targetPos = node.getBoundingClientRect();
 
-	      if (this.getCurrentStep().getRounded()) {
-	        this.layout.element.setAttribute('cx', this.targetPos.left + this.targetPos.width / 2);
-	        this.layout.element.setAttribute('cy', this.targetPos.top + this.targetPos.height / 2);
-	        this.layout.element.setAttribute('r', this.targetPos.width / 2 + this.getAreaPadding());
-	      } else {
-	        this.layout.element.setAttribute('x', this.targetPos.left - this.getAreaPadding());
-	        this.layout.element.setAttribute('y', this.targetPos.top - this.getAreaPadding());
-	        this.layout.element.setAttribute('width', this.targetPos.width + this.getAreaPadding() * 2);
-	        this.layout.element.setAttribute('height', this.targetPos.height + this.getAreaPadding() * 2);
+	      if (this.layout.element) {
+	        this.layout.element.style.display = "block";
+
+	        if (this.getCurrentStep().getRounded()) {
+	          this.layout.element.setAttribute('cx', this.targetPos.left + this.targetPos.width / 2);
+	          this.layout.element.setAttribute('cy', this.targetPos.top + this.targetPos.height / 2);
+	          this.layout.element.setAttribute('r', this.targetPos.width / 2 + this.getAreaPadding());
+	        } else {
+	          this.layout.element.setAttribute('x', this.targetPos.left - this.getAreaPadding());
+	          this.layout.element.setAttribute('y', this.targetPos.top - this.getAreaPadding());
+	          this.layout.element.setAttribute('width', this.targetPos.width + this.getAreaPadding() * 2);
+	          this.layout.element.setAttribute('height', this.targetPos.height + this.getAreaPadding() * 2);
+	        }
 	      }
 	    }
 	  }, {
@@ -654,7 +794,7 @@ this.BX.UI = this.BX.UI || {};
 	    value: function increaseCurrentStepIndex() {
 	      this.currentStepIndex++;
 
-	      if (this.currentStepIndex + 1 === this.steps.length && !this.finalStep) {
+	      if (this.currentStepIndex + 1 === this.steps.length && !this.finalStep && !this.onEvents) {
 	        setTimeout(function () {
 	          this.layout.nextBtn.textContent = main_core.Loc.getMessage("JS_UI_TOUR_BUTTON_CLOSE");
 	        }.bind(this), 200);
@@ -686,17 +826,36 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getPopup",
 	    value: function getPopup() {
-	      var _this2 = this;
+	      var _this3 = this;
 
-	      if (this.popup === null) {
+	      if (!this.popup) {
+	        var bindElement = window;
+	        if (this.getCurrentStep()) bindElement = this.getCurrentStep().getTarget();
+	        var className = 'popup-window-ui-tour popup-window-ui-tour-opacity';
+	        this.onEvents ? className = className + ' popup-window-ui-tour-animate' : null;
+	        var buttons = [];
+
+	        if (this.getCurrentStep().getButtons().length > 0) {
+	          this.getCurrentStep().getButtons().forEach(function (item) {
+	            buttons.push(new BX.PopupWindowButton({
+	              text: item.text,
+	              className: 'ui-btn ui-btn-sm ui-btn-primary ui-btn-round',
+	              events: {
+	                click: main_core.Type.isFunction(item.event) ? item.event : null
+	              }
+	            }));
+	          });
+	        }
+
 	        this.popup = new BX.PopupWindow({
 	          content: this.getContent(),
-	          bindElement: this.getCurrentStep().getTarget(),
-	          className: 'popup-window-ui-tour popup-window-ui-tour-opacity',
+	          bindElement: bindElement,
+	          className: className,
+	          autoHide: true,
 	          offsetTop: 15,
 	          offsetLeft: 30,
-	          maxWidth: 420,
-	          minWidth: 420,
+	          maxWidth: this.onEvents ? 280 : 420,
+	          minWidth: this.onEvents ? 280 : 420,
 	          closeIcon: true,
 	          bindOptions: {
 	            forceTop: true,
@@ -704,10 +863,13 @@ this.BX.UI = this.BX.UI || {};
 	            forceBindPosition: true
 	          },
 	          events: {
-	            onPopupClose: function onPopupClose() {
-	              _this2.close();
+	            onPopupClose: function onPopupClose(popup) {
+	              if (popup.destroyed === false && _this3.onEvents) main_core_events.EventEmitter.emit('UI.Tour.Guide:onPopupClose', _this3);
+
+	              _this3.close();
 	            }
-	          }
+	          },
+	          buttons: buttons
 	        });
 	      }
 
@@ -721,7 +883,13 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContent",
 	    value: function getContent() {
 	      if (!this.layout.content) {
-	        this.layout.content = main_core.Tag.render(_templateObject2(), this.simpleMode ? 'ui-tour-popup-simple' : '', this.getTitle(), this.getText(), this.getLink(), this.getCounterItems(), this.getCurrentCounter(), this.getBtnContainer());
+	        var linkNode = '';
+
+	        if (this.getCurrentStep().getLink() || this.getCurrentStep().getArticle()) {
+	          linkNode = this.getLink();
+	        }
+
+	        this.layout.content = main_core.Tag.render(_templateObject2(), this.simpleMode ? 'ui-tour-popup-simple' : '', this.onEvents ? 'ui-tour-popup-events' : '', this.getTitle(), this.getText(), linkNode, linkNode, this.onEvents ? '' : this.getCounterItems(), this.onEvents ? '' : this.getCurrentCounter(), this.onEvents ? '' : this.getBtnContainer());
 	      }
 
 	      return this.layout.content;
@@ -775,8 +943,18 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleClickLink",
 	    value: function handleClickLink() {
+	      var _this4 = this;
+
 	      event.preventDefault();
-	      BX.Helper.show("redirect=detail&code=" + this.getCurrentStep().getArticle());
+	      if (!this.helper) this.helper = BX.Helper;
+	      this.helper.show("redirect=detail&code=" + this.getCurrentStep().getArticle());
+
+	      if (this.onEvent) {
+	        if (this.helper.isOpen()) this.getPopup().setAutoHide(false);
+	        main_core_events.EventEmitter.subscribe(this.helper.getSlider(), 'SidePanel.Slider:onCloseComplete', function () {
+	          _this4.getPopup().setAutoHide(true);
+	        });
+	      }
 	    }
 	    /**
 	     * @public
@@ -811,7 +989,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getLink",
 	    value: function getLink() {
-	      if (this.layout.link === null) {
+	      if (!this.layout.link) {
 	        this.layout.link = main_core.Tag.render(_templateObject5(), main_core.Loc.getMessage("JS_UI_TOUR_LINK"));
 	      }
 
@@ -960,7 +1138,7 @@ this.BX.UI = this.BX.UI || {};
 	      this.popup = new BX.PopupWindow({
 	        content: this.getFinalContent(),
 	        className: 'popup-window-ui-tour-final',
-	        offsetTop: 15,
+	        offsetTop: this.onEvents ? 0 : 15,
 	        offsetLeft: 35,
 	        maxWidth: 430,
 	        minWidth: 300
@@ -1016,6 +1194,57 @@ this.BX.UI = this.BX.UI || {};
 	     * @private
 	     */
 
+	  }, {
+	    key: "showCursor",
+	    value: function showCursor() {
+	      this.setCursorPos();
+	      setTimeout(function () {
+	        this.animateCursor();
+	      }.bind(this), 1000);
+	    }
+	  }, {
+	    key: "getCursor",
+	    value: function getCursor() {
+	      if (!this.layout.cursor) {
+	        this.layout.cursor = main_core.Tag.render(_templateObject15());
+	        main_core.Event.bind(this.layout.cursor, 'transitionend', function () {
+	          this.getCurrentStep().initTargetEvent();
+	        }.bind(this));
+	        main_core.Dom.append(this.layout.cursor, document.body);
+	      }
+
+	      return this.layout.cursor;
+	    }
+	  }, {
+	    key: "setCursorPos",
+	    value: function setCursorPos() {
+	      var targetPos = this.getCurrentStep().getTargetPos();
+	      var left = targetPos.left + targetPos.width / 2;
+
+	      if (left < 0) {
+	        left = 0;
+	      }
+
+	      this.cursorPaddingTop = 30;
+	      var top = targetPos.bottom + this.cursorPaddingTop;
+
+	      if (top < 0) {
+	        top = 0;
+	      }
+
+	      main_core.Dom.adjust(this.getCursor(), {
+	        style: {
+	          top: top + 'px',
+	          left: left + 'px'
+	        }
+	      });
+	    }
+	  }, {
+	    key: "animateCursor",
+	    value: function animateCursor() {
+	      var adjustment = this.cursorPaddingTop + this.getCurrentStep().getTargetPos().height / 2;
+	      this.layout.cursor.style.transform = 'translateY(-' + adjustment + 'px)';
+	    }
 	  }], [{
 	    key: "getFullEventName",
 	    value: function getFullEventName(shortName) {
@@ -1126,5 +1355,5 @@ this.BX.UI = this.BX.UI || {};
 	exports.Step = Step;
 	exports.Manager = manager;
 
-}((this.BX.UI.Tour = this.BX.UI.Tour || {}),BX));
+}((this.BX.UI.Tour = this.BX.UI.Tour || {}),BX.Event,BX));
 //# sourceMappingURL=tour.bundle.js.map

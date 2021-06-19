@@ -42,12 +42,10 @@ $MESS["EC_REMIND1_SHORT_2880"] = "За 2 дня";
 $MESS["EC_REMIND1_MIN_COUNT"] = "За #COUNT# минут(-ы)";
 $MESS["EC_REMIND1_HOUR_COUNT"] = "За #COUNT# час(-а)";
 $MESS["EC_REMIND1_DAY_COUNT"] = "За #COUNT# дня(дней)";
-
 $MESS["EC_REMIND1_DAY_0"] = "В день события (#TIME#)";
 $MESS["EC_REMIND1_DAY_1"] = "За 1 день до события (#TIME#)";
 $MESS["EC_REMIND1_DAY_2"] = "За 2 дня до события (#TIME#)";
 $MESS["EC_REMIND1_CUSTOM"] = "Другое напоминание";
-
 $MESS["EC_ALL_DAY"] = "весь день";
 $MESS['EC_EVENT'] = 'Событие';
 $MESS['EC_TASK'] = 'Задача';
@@ -65,7 +63,6 @@ $MESS["EC_MAP_LOCATION_LABEL"] = "Указать местоположение";
 $MESS["EC_ASK_TZ"] = "Укажите ваш часовой пояс:";
 $MESS["EC_EVENT_TZ_DEF_HINT"] = "Укажите часовой пояс, в котором вы находитесь. Мы его запомним и больше спрашивать не будем.";
 $MESS["EC_EVENT_TZ_HINT"] = "Если событие планируется в другом часовом поясе, укажите его, выбрав нужное значение из списка. Возможно, указать разные часовые пояса начала и окончания мероприятия.";
-
 $MESS["EC_ATTENDEES_LABEL"] = "Участники";
 $MESS["EC_ATTENDEES_MORE"] = "еще #COUNT#";
 $MESS["EC_ATTENDEES_TOTAL_COUNT"] = "приглашено #COUNT#";
@@ -74,14 +71,11 @@ $MESS["EC_SOCNET_DESTINATION_3"] = "Всем сотрудникам";
 $MESS["EC_SOCNET_DESTINATION_4"] = "Всем пользователям";
 $MESS["EC_DESTINATION_ADD_USERS"] = "Добавить сотрудников, группы или отделы";
 $MESS["EC_DESTINATION_ADD_MORE"] = "Добавить еще";
-
 $MESS["EC_FULL_FORM_LABEL"] = "Полная форма";
 $MESS["EC_SIMPLE_FORM_BACK"] = "назад";
 $MESS["EC_SIMPLE_FORM_ADD"] = "добавить";
-
 $MESS['EC_ENTRIES_EVENTS'] = 'События';
 $MESS['EC_ENTRIES_TASKS'] = 'Задачи';
-
 $MESS['EC_COUNTER_TOTAL'] = 'События';
 $MESS['EC_COUNTER_INVITATION_PLURAL_0'] = 'приглашение';
 $MESS['EC_COUNTER_INVITATION_PLURAL_1'] = 'приглашения';
@@ -89,12 +83,10 @@ $MESS['EC_COUNTER_INVITATION_PLURAL_2'] = 'приглашения';
 $MESS['EC_COUNTER_NEW_COMMENTS_PLURAL_0'] = 'с новыми комментариями';
 $MESS['EC_COUNTER_NEW_COMMENTS_PLURAL_1'] = 'с новыми комментариями';
 $MESS['EC_COUNTER_NEW_COMMENTS_PLURAL_2'] = 'с новыми комментариями';
-
 $MESS["EC_ALLOW_INVITE_LABEL"] = "Разрешать участникам приглашать других";
 $MESS["EC_NOTIFY_STATUS_LABEL"] = "Оповещать о подтверждении/отказе участников";
 $MESS["EC_REINVITE_LABEL"] = "Запросить повторное подтверждение участия";
 $MESS["EC_COLOR"] = "Другой цвет";
-
 $MESS["EC_SEC_SLIDER_NEW_SECTION"] = "Новый календарь";
 $MESS["EC_SEC_SLIDER_EDIT_SECTION"] = "Изменение календаря";
 $MESS["EC_SEC_SLIDER_EDIT_SECTION_PERSONAL"] = "Персональное изменение";
@@ -139,7 +131,6 @@ $MESS["EC_SEC_USER_TASK_DEFAULT"] = "Задачи пользователя";
 $MESS["EC_SEC_GROUP_TASK_DEFAULT"] = "Задачи группы";
 $MESS["EC_SET_SLIDER_SETTINGS_TITLE"] = "Настройки";
 $MESS["EC_SET_SLIDER_PESONAL_SETTINGS_TITLE"] = "Персональные настройки";
-$MESS["EC_DELETE_EVENT_CONFIRM"] = "Вы действительно хотите удалить событие?";
 $MESS["EC_DELETE_MEETING_CONFIRM"] = "Вы пытаетесь удалить событие с другими участниками. Вы действительно хотите отменить событие?";
 $MESS["EC_DELETE_MEETING_GUEST_CONFIRM"] = "Удаление события приведет к отказу от участия в событии. Вы действительно хотите удалить событие?";
 $MESS["EC_CAL_GOOGLE_HIDE_CONFIRM"] = "Вы действительно хотите отключить синхронизацию этого календаря и скрыть его?";
@@ -149,7 +140,7 @@ $MESS["EC_CAL_REMOVE_GOOGLE_SYNC_CONFIRM"] = "Вы действительно х
 $MESS["EC_CAL_SYNC_CONNECT"] = "подключить";
 $MESS["EC_CAL_SYNC_DISCONNECT"] = "отключить";
 $MESS["EC_CAL_SYNC_REFRESH"] = "обновить";
-$MESS["EC_CAL_SYNC_MAC"] = "Mac OSX";
+$MESS["EC_CAL_SYNC_MAC"] = "macOS";
 $MESS["EC_CAL_SYNC_IPHONE"] = "iPhone";
 $MESS["EC_CAL_SYNC_ANDROID"] = "Android";
 $MESS["EC_CAL_SYNC_OUTLOOK"] = "MS Outlook";
@@ -175,8 +166,6 @@ $MESS["EC_ACTION_REFRESH"] = "Обновить";
 $MESS["EC_ACTION_EXTERNAL_ADJUST"] = "Настроить";
 $MESS["EC_ACTION_HIDE"] = "Отключить и скрыть";
 $MESS["EC_ACTION_EXPORT"] = "Экспорт (iCal)";
-$MESS["EC_DECLINE_MEETING_CONFIRM"] = "Вы действительно хотите отказаться от участия?";
-
 $MESS["EC_NO_EVENTS"] = "Нет событий";
 $MESS["EC_TILL_TIME"] = "до #TIME#";
 $MESS["EC_DAY_LENGTH"] = "#COUNT# дней";
@@ -187,7 +176,6 @@ $MESS["EC_HOST"] = "Организатор";
 $MESS["EC_EVENT_IS_MINE"] = "Мое событие";
 $MESS["EC_SEARCH_RESULT"] = "Результаты поиска";
 $MESS["EC_SEARCH_RESET_RESULT"] = "сбросить";
-
 $MESS["EC_CAL_DAV_CON_WAIT"] = "Подождите, идет обработка предыдущего запроса.";
 $MESS["EC_NEW_CONNECTION_NAME"] = "Новое подключение CalDav";
 $MESS["EC_ADD_CALDAV"] = "Добавить внешний календарь";
@@ -261,11 +249,9 @@ $MESS["EC_MOBILE_HELP_ANDROID"] = "<p>Для того, чтобы подключ
 </ol>
 Готово! Ваш календарь «Битрикс 24» появится в календаре на мобильном и все события будут автоматически синхронизированы.
 </p>";
-$MESS["EC_MOBILE_SYNC_TITLE_MACOSX"] = "Настройка синхронизации для Mac OSX";
+$MESS["EC_MOBILE_SYNC_TITLE_MACOSX"] = "Настройка синхронизации для macOS";
 $MESS["EC_MOBILE_SYNC_TITLE_IPHONE"] = "Настройка синхронизации для Apple iPhone/iPad";
 $MESS["EC_MOBILE_SYNC_TITLE_ANDROID"] = "Настройка синхронизации для Android";
-
-
 $MESS["EC_B24_LOCATION_LIMITATION_TITLE"] = "Создание и выбор мест проведения";
 $MESS["EC_B24_LOCATION_LIMITATION"] = "<span>Создание и выбор мест проведения событий включены только на тарифе Компания. Также вам будут доступны следующие полезные
 инструменты:
@@ -278,7 +264,6 @@ $MESS["EC_B24_LOCATION_LIMITATION"] = "<span>Создание и выбор ме
 $MESS["EC_MONTH_WEEK_TITLE"] = "<span class='calendar-lowercase'>#DAY_OF_WEEK#</span>";
 $MESS["EC_MONTH_SHORT"] = "#DATE# <small class='calendar-lowercase'>#MONTH#</small>";
 $MESS["EC_WEEK_TITLE"] = "<span class='calendar-day-of-week calendar-lowercase'>#DAY_OF_WEEK#</span><span class='calendar-num-day'>#DATE#</span>";
-
 $MESS["EC_LOCATION_RESERVE_ERROR"] = "Местоположение занято в указанное время";
 $MESS["EC_VIEW_MODE_SHOW_BY"] = "Показывать по";
 $MESS["EC_DESCRIPTION"] = "Описание";

@@ -77,8 +77,12 @@ $aOptions = $grid_options->GetOptions();
 if(!isset($aOptions["views"]["default"]["name"]))
 	$aOptions["views"]["default"]["name"] = GetMessage("interface_grid_default_view");
 
-$func = create_function('$a, $b', 'return strcmp($a["name"], $b["name"]);');
-uasort($aOptions["views"], $func);
+uasort(
+	$aOptions["views"],
+	function ($a, $b) {
+		return strcmp($a["name"], $b["name"]);
+	}
+);
 
 $arResult["OPTIONS"] = $aOptions;
 $arResult["GLOBAL_OPTIONS"] = CUserOptions::GetOption("main.interface", "global", array(), 0);
@@ -191,7 +195,17 @@ if(!$bEmptyCols)
 {
 	foreach($aCols as $i=>$col)
 		$arResult["HEADERS"][$col]["__sort"] = $i;
-	uasort($arResult["HEADERS"], create_function('$a, $b', 'if($a["__sort"] == $b["__sort"]) return 0; return ($a["__sort"] < $b["__sort"])? -1 : 1;'));
+
+	uasort(
+		$arResult["HEADERS"],
+		function ($a, $b) {
+			if ($a["__sort"] == $b["__sort"])
+			{
+				return 0;
+			}
+			return ($a["__sort"] < $b["__sort"] ? -1 : 1);
+		}
+	);
 }
 
 //*********************

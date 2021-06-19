@@ -1,9 +1,10 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/user_cards.php");
 
 class CSaleUserCards extends CAllSaleUserCards
 {
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -29,7 +30,7 @@ class CSaleUserCards extends CAllSaleUserCards
 		return false;
 	}
 
-	function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -150,7 +151,7 @@ class CSaleUserCards extends CAllSaleUserCards
 		return $dbRes;
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -169,7 +170,7 @@ class CSaleUserCards extends CAllSaleUserCards
 		return $ID;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -187,4 +188,3 @@ class CSaleUserCards extends CAllSaleUserCards
 		return $ID;
 	}
 }
-?>

@@ -6,7 +6,7 @@
 	$strWarning = "";
 	$bVarsFromForm = false;
 	$arUGroupsEx = Array();
-	$dbUGroups = CGroup::GetList($by = "c_sort", $order = "asc");
+	$dbUGroups = CGroup::GetList();
 	while($arUGroups = $dbUGroups -> Fetch())
 	{
 		if ($arUGroups["ANONYMOUS"] == "Y")
@@ -20,7 +20,7 @@
 		{
 			$arIBTLang = array();
 			$arLang = array();
-			$l = CLanguage::GetList($lby="sort", $lorder="asc");
+			$l = CLanguage::GetList();
 			while($ar = $l->ExtractFields("l_"))
 				$arIBTLang[]=$ar;
 			
@@ -63,7 +63,7 @@
 				"LID"=>array());
 			$ib = new CIBlock;
 			
-			$db_sites = CSite::GetList($lby="sort", $lorder="asc");
+			$db_sites = CSite::GetList();
 			while ($ar_sites = $db_sites->Fetch())
 			{
 				if ($ar_sites["ACTIVE"] == "Y")
@@ -103,7 +103,7 @@
 				"SITE_ID" => "");
 
 			$arSites = array();
-			$db_sites = CLang::GetList($lby="sort", $lorder="asc");
+			$db_sites = CLang::GetList();
 			while ($ar_sites = $db_sites->Fetch())
 			{
 				if ($ar_sites["DEF"] == "Y")

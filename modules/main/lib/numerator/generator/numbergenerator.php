@@ -68,7 +68,7 @@ abstract class NumberGenerator
 	 * @see NumberGeneratorFactory::EVENT_GENERATOR_CLASSES_COLLECT
 	 * @return string - static class name
 	 */
-	public function onGeneratorClassesCollect()
+	public static function onGeneratorClassesCollect()
 	{
 		return new EventResult(EventResult::SUCCESS, static::class);
 	}

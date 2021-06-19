@@ -52,14 +52,13 @@ $type = $arParams['TYPE'];
 						<span><?=Loc::getMessage('CRM_ADS_RTG_YEARS_OLD')?></span>
 					</label>
 					<input class="crm-ads-new-campaign-item-runner-input" type="range" min="13"
-						value="18" max="65"
-						id="min">
+						   value="18" max="65" id="min">
 					<label for="max" class="crm-ads-new-campaign-item-runner-label" id="label-max">
 						<span class="crm-ads-new-campaign-item-runner-label-value">60</span>
 						<span><?=Loc::getMessage('CRM_ADS_RTG_YEARS_OLD')?></span>
 					</label>
 					<input class="crm-ads-new-campaign-item-runner-input" type="range" min="13"
-						value="60" max="65" id="max">
+						   value="60" max="65" id="max">
 				</div>
 			</div>
 		</div>

@@ -14,6 +14,10 @@
 	background-image: url("images/type4.svg");
 }
 
+.landing-ui-crm-entity-type5 {
+	background-image: url("images/type5.svg");
+}
+
 .landing-ui-field[data-selector="duplicatesEnabled"] {
 	margin-top: -25px!important;
 }

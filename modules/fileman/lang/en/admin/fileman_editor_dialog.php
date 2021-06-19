@@ -34,7 +34,6 @@ $MESS["FILEMAN_ED_LINK_TYPE2"] = "Link to Web location";
 $MESS["FILEMAN_ED_LINK_TYPE3"] = "Link to place in this document";
 $MESS["FILEMAN_ED_LINK_ATITLE"] = "Tooltip:";
 $MESS["FILEMAN_ED_LINK_TYPE"] = "Type:";
-$MESS["FILEMAN_ED_LINK_STAT"] = "Register clicks in statistics";
 $MESS["FILEMAN_ED_LINK_DOC"] = "Link URL";
 $MESS["FILEMAN_ED_LINK_ACH"] = "Anchor:";
 $MESS["FILEMAN_ED_FF"] = "Attention! FireFox doesn't allow to automatically get your clipboard content due to security reasons. Please for pasting data press Ctrl+V and then button";

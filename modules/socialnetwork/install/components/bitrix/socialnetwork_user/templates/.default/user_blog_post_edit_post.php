@@ -1,4 +1,10 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -8,14 +14,13 @@
 
 $pageId = "user_blog_post_edit_post";
 
-?><?
 $APPLICATION->IncludeComponent(
-	"bitrix:ui.sidepanel.wrapper",
-	"",
-	array(
-		'POPUP_COMPONENT_NAME' => "bitrix:socialnetwork.blog.post.edit",
-		"POPUP_COMPONENT_TEMPLATE_NAME" => "",
-		"POPUP_COMPONENT_PARAMS" => array(
+	'bitrix:ui.sidepanel.wrapper',
+	'',
+	[
+		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.blog.post.edit',
+		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+		'POPUP_COMPONENT_PARAMS' => [
 			"ID" => $arResult["VARIABLES"]["post_id"],
 			"PATH_TO_BLOG" => $arResult["PATH_TO_USER_BLOG"],
 			"PATH_TO_POST" => $arResult["PATH_TO_USER_BLOG_POST"],
@@ -56,11 +61,10 @@ $APPLICATION->IncludeComponent(
 			"USE_GOOGLE_CODE" => $arParams["BLOG_USE_GOOGLE_CODE"],
 			"USE_CUT" => $arParams["BLOG_USE_CUT"],
 			"SELECTOR_VERSION" => 2,
-		),
+		],
 		"POPUP_COMPONENT_PARENT" => $this->getComponent(),
 		"CLOSE_AFTER_SAVE" => !empty($_SERVER['HTTP_REFERER']),
 		"RELOAD_PAGE_AFTER_SAVE" => false,
 		"NOTIFICATION" => \Bitrix\Main\Localization\Loc::getMessage('SOCNET_USER_BLOG_POST_EDIT_NOTIFY_SUCCESS'),
-	)
+	]
 );
-?>

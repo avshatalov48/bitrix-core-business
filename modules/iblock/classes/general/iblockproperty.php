@@ -134,6 +134,10 @@ class CAllIBlockProperty
 		/** @var CMain $APPLICATION */
 		global $DB, $APPLICATION;
 		$ID = (int)$ID;
+		if ($ID <= 0)
+		{
+			return false;
+		}
 
 		$APPLICATION->ResetException();
 		foreach (GetModuleEvents("iblock", "OnBeforeIBlockPropertyDelete", true) as $arEvent)
@@ -1144,7 +1148,7 @@ class CAllIBlockProperty
 		return false;
 	}
 
-	function DropColumnSQL($strTable, $arColumns)
+	public static function DropColumnSQL($strTable, $arColumns)
 	{
 		return array();
 	}

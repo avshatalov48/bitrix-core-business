@@ -1,4 +1,4 @@
-import {Util} from "calendar.util";
+import {Util} from 'calendar.util';
 
 export class RepeatSelector
 {

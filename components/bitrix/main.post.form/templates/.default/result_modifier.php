@@ -11,6 +11,8 @@
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
 /** @global CMain $APPLICATION */
 
+use Bitrix\Main\UI\EntitySelector;
+
 __IncludeLang(dirname(__FILE__)."/lang/".LANGUAGE_ID."/result_modifier.php");
 
 /********************************************************************
@@ -281,7 +283,21 @@ if (
 	);
 }
 
-$arResult["ALLOW_EMAIL_INVITATION"] = (isset($arParams["ALLOW_EMAIL_INVITATION"]) && $arParams["ALLOW_EMAIL_INVITATION"] == "Y");
+$arResult["ALLOW_EMAIL_INVITATION"] = (isset($arParams["ALLOW_EMAIL_INVITATION"]) && $arParams["ALLOW_EMAIL_INVITATION"] === "Y");
 $arResult["ALLOW_ADD_CRM_CONTACT"] = ($arResult["ALLOW_EMAIL_INVITATION"] && CModule::IncludeModule('crm') && CCrmContact::CheckCreatePermission());
-$arResult["ALLOW_CRM_EMAILS"] = (isset($arParams["ALLOW_CRM_EMAILS"]) && $arParams["ALLOW_CRM_EMAILS"] == 'Y');
+$arResult["ALLOW_CRM_EMAILS"] = (isset($arParams["ALLOW_CRM_EMAILS"]) && $arParams["ALLOW_CRM_EMAILS"] === 'Y');
+
+if ($arParams["DESTINATION_SHOW"] === "Y")
+{
+	$arResult['ALLOW_TO_ALL'] = (
+		!is_array($arParams['DESTINATION'])
+		|| !isset($arParams['DESTINATION']['DENY_TOALL'])
+		|| !$arParams['DESTINATION']['DENY_TOALL']
+	);
+
+
+	$arResult['DESTINATION'] = [
+		'ENTITIES_PRESELECTED' => EntitySelector\Converter::sortEntities(EntitySelector\Converter::convertFromFinderCodes(is_array($arParams["DESTINATION"]["SELECTED"]) ? array_keys($arParams["DESTINATION"]["SELECTED"]) : []))
+	];
+}
 ?>

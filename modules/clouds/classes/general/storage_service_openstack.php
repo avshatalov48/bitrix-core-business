@@ -30,7 +30,7 @@ class CCloudStorageService_OpenStackStorage extends CCloudStorageService
 		if($bVarsFromForm)
 			$arSettings = $_POST["SETTINGS"][$this->GetID()];
 		else
-			$arSettings = unserialize($arBucket["SETTINGS"]);
+			$arSettings = unserialize($arBucket["SETTINGS"], ['allowed_classes' => false]);
 
 		if(!is_array($arSettings))
 		{
@@ -314,7 +314,7 @@ class CCloudStorageService_OpenStackStorage extends CCloudStorageService
 	function GetFileSRC($arBucket, $arFile)
 	{
 		global $APPLICATION;
-		
+
 		if ($arBucket["SETTINGS"]["FORCE_HTTP"] === "Y")
 			$proto = "http";
 		else

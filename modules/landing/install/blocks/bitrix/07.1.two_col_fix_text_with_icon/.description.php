@@ -21,11 +21,13 @@ return array(
 		'.landing-block-node-icon' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_4_TWO_COL_FIX_TEXT_WITH_ICON_NODES_LANDINGBLOCKNODEICON'),
 			'type' => 'icon',
+			'useInDesigner' => false,
 		),
 		'.landing-block-node-icon-hover' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_4_TWO_COL_FIX_TEXT_WITH_ICON_NODES_LANDINGBLOCKNODEICONHOVER'),
 			'type' => 'img',
 			'dimensions' => array('width' => 100, 'height' => 100),
+			'useInDesigner' => false,
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_4_TWO_COL_FIX_TEXT_WITH_ICON_NODES_LANDINGBLOCKNODETITLE'),

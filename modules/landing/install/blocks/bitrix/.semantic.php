@@ -1,7 +1,7 @@
 <?php
 
 return [
-	'titleBig' => 'landing-semantic-title-big',
+	'titleBig' => 'landing-semantic-title-big', //not used in blocks
 	'titleMedium' => 'landing-semantic-title-medium',
 	'titleSmall' => 'landing-semantic-title-small',
 
@@ -13,7 +13,7 @@ return [
 	'subtitleMediumPrimary' => 'landing-semantic-subtitle-medium-primary',
 	'subtitleSmallPrimary' => 'landing-semantic-subtitle-small-primary',
 
-	'textBig' => 'landing-semantic-text-big',
+	'textBig' => 'landing-semantic-text-big',  //not used in blocks
 	'textMedium' => 'landing-semantic-text-medium',
 	'textSmall' => 'landing-semantic-text-small',
 

@@ -19,7 +19,7 @@ import {AttachTypeMessage} from './types/message';
 import {AttachTypeRich} from './types/rich';
 import {AttachTypeUser} from './types/user';
 
-import {Vue} from 'ui.vue';
+import {BitrixVue} from 'ui.vue';
 
 const AttachTypes = [
 	AttachTypeDelimiter,
@@ -38,7 +38,7 @@ AttachTypes.forEach(attachType => {
 	AttachComponents[attachType.name] = attachType.component;
 });
 
-Vue.component('bx-im-view-element-attach',
+BitrixVue.component('bx-im-view-element-attach',
 {
 	props:
 	{

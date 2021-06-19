@@ -1,5 +1,5 @@
 import {ajax as Ajax, Loc} from "main.core";
-import {Vue} from "ui.vue";
+import {BitrixVue} from "ui.vue";
 import {Uploader} from "im.lib.uploader";
 import {Utils} from "im.lib.utils";
 import {FileStatus} from "im.const";
@@ -21,7 +21,7 @@ const LimitCode = Object.freeze({
 	image: 'call_background',
 });
 
-Vue.component('bx-im-component-settings-call-background',
+BitrixVue.component('bx-im-component-settings-call-background',
 {
 	props:
 	{
@@ -145,14 +145,10 @@ Vue.component('bx-im-component-settings-call-background',
             const eventData = event.getData();
 			const file = eventData.file;
 
-			const localize = Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_FILE_SIZE_EXCEEDED');
-			if (localize)
-			{
-				BX.UI.Notification.Center.notify({
-					content: localize.replace('#LIMIT#', 100).replace('#FILE_NAME#', file.name),
-					autoHideDelay: 5000
-				});
-			}
+			BX.UI.Notification.Center.notify({
+				content: Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_FILE_SIZE_EXCEEDED').replace('#LIMIT#', 100).replace('#FILE_NAME#', file.name),
+				autoHideDelay: 5000
+			});
         });
 
 		this.uploader.subscribe('onSelectFile', (event) => {
@@ -161,14 +157,11 @@ Vue.component('bx-im-component-settings-call-background',
 
 			if (!this.isAllowedType(file.type) || !eventData.previewData)
 			{
-				const localize = Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_UNSUPPORTED_FILE');
-				if (localize)
-				{
-					BX.UI.Notification.Center.notify({
-						content: localize.replace('#FILE_NAME#', file.name),
-						autoHideDelay: 5000
-					});
-				}
+				BX.UI.Notification.Center.notify({
+					content: Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_UNSUPPORTED_FILE').replace('#FILE_NAME#', file.name),
+					autoHideDelay: 5000
+				});
+
 				return false;
 			}
 
@@ -301,10 +294,6 @@ Vue.component('bx-im-component-settings-call-background',
 			}
 
 			return '.png, .jpg, .jpeg, .avi, .mp4';
-		},
-		localize()
-		{
-			return Vue.getFilteredPhrases('BX_IM_COMPONENT_SETTINGS_CALL_BG_', this.$root.$bitrixMessages);
 		},
 	},
 	methods:
@@ -476,8 +465,8 @@ Vue.component('bx-im-component-settings-call-background',
 				</div>
 			</div>
 			<div class="ui-btn-container ui-btn-container-center">
-				<button :class="['ui-btn', 'ui-btn-success', {'ui-btn-wait ui-btn-disabled': loading}]" @click="save">{{localize.BX_IM_COMPONENT_SETTINGS_CALL_BG_SAVE}}</button>
-				<button class="ui-btn ui-btn-link" @click="cancel">{{localize.BX_IM_COMPONENT_SETTINGS_CALL_BG_CANCEL}}</button>
+				<button :class="['ui-btn', 'ui-btn-success', {'ui-btn-wait ui-btn-disabled': loading}]" @click="save">{{$Bitrix.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_SAVE')}}</button>
+				<button class="ui-btn ui-btn-link" @click="cancel">{{$Bitrix.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_CANCEL')}}</button>
 			</div>
 		</div>
 	`

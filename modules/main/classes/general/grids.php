@@ -539,7 +539,14 @@ class CGridOptions
 				closedir($dir);
 			}
 		}
-		uasort($arThemes, create_function('$a, $b', 'return strcmp($a["name"], $b["name"]);'));
+
+		uasort(
+			$arThemes,
+			function ($a, $b) {
+				return strcmp($a["name"], $b["name"]);
+			}
+		);
+
 		return $arThemes;
 	}
 

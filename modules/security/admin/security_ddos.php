@@ -40,7 +40,7 @@ $supportFinishStamp = mktime(0,0,0, $aSupportFinishDate[1], $aSupportFinishDate[
 $errorMessage = "";
 if(!IsModuleInstalled("intranet"))
 {
-	if ($supportFinishStamp > mktime() || $supportFinishDate == '')
+	if ($supportFinishStamp > time() || $supportFinishDate == '')
 	{
 
 		if ($_SERVER["REQUEST_METHOD"] == "POST")

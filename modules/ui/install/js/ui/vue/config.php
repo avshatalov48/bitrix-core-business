@@ -11,7 +11,8 @@ if (
 {
 	$js = './vue2/dev/dist/vue.bundle.js';
 	$rel = [
-		'main.polyfill.core',
+		'main.core',
+		'main.core.events',
 		'ui.vue.devtools'
 	];
 }
@@ -19,12 +20,13 @@ else
 {
 	$js = './vue2/prod/dist/vue.bundle.js';
 	$rel = [
-		'main.polyfill.core',
+		'main.core',
+		'main.core.events',
 	];
 }
 
 return [
 	'js' => $js,
 	'rel' => $rel,
-	'skip_core' => true,
+	'skip_core' => false,
 ];

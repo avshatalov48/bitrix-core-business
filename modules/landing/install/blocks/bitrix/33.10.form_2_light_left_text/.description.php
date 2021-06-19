@@ -85,7 +85,7 @@ return array(
 	'style' => array(
 		'.landing-block-node-main-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.10_NODE_TITLE'),
-			'type' => 'typo',
+			'type' => ['typo', 'heading'],
 		),
 		'.landing-block-node-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.10_NODE_TEXT'),

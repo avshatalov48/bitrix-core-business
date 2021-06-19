@@ -653,6 +653,10 @@ class Imap extends Mail\Helper\Mailbox
 
 			$hashesMap = array();
 
+			//To display new messages(grid reload) until synchronization is complete
+			$numberOfMessagesInABatch = 1;
+			$numberLeftToFillTheBatch = $numberOfMessagesInABatch;
+
 			foreach ($messages as $id => $item)
 			{
 				if ($this->syncMessage($dir->getPath(), $uidtoken, $item, $hashesMap))
@@ -663,6 +667,24 @@ class Imap extends Mail\Helper\Mailbox
 					if ($time < time() - $timeout)
 					{
 						$time = time();
+					}
+
+					$numberLeftToFillTheBatch--;
+					if($numberLeftToFillTheBatch === 0 and Main\Loader::includeModule('pull'))
+					{
+						$numberOfMessagesInABatch *= 2;
+						$numberLeftToFillTheBatch = $numberOfMessagesInABatch;
+						\CPullWatch::addToStack(
+							'mail_mailbox_' . $this->mailbox['ID'],
+							array(
+								'params' => array(
+									'dir' => $dir->getPath()
+								),
+								'module_id' => 'mail',
+								'command' => 'new_message_is_synchronized',
+							)
+						);
+						\Bitrix\Pull\Event::send();
 					}
 				}
 

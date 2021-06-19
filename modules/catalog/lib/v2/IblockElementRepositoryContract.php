@@ -12,5 +12,7 @@ namespace Bitrix\Catalog\v2;
  */
 interface IblockElementRepositoryContract extends RepositoryContract
 {
-	public function setDetailUrlTemplate(string $template);
+	public function setDetailUrlTemplate(?string $template);
+
+	public function getDetailUrlTemplate(): ?string;
 }

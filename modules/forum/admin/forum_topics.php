@@ -298,7 +298,7 @@ if ($clearCache)
 {
 	// Clear cache.
 	$arSites = array();
-	if ($db_res = CSite::GetList($by = "sort", $order = "asc"))
+	if ($db_res = CSite::GetList())
 	{
 		while ($res = $db_res->GetNext())
 		{

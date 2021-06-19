@@ -106,8 +106,13 @@ window.__blogOnUCFormSubmit =  function(obj, post_data) {
 };
 
 window.__blogOnUCAfterRecordAdd = function(ENTITY_XML_ID, response) {
-	if (response.errorMessage.length > 0)
+	if (
+		response.errorMessage
+		&& response.errorMessage.length > 0
+	)
+	{
 		return;
+	}
 
 	if (BX('blg-post-inform-' + ENTITY_XML_ID.substr(5)))
 	{

@@ -72,7 +72,7 @@ class Comment
 		return $commentItem;
 	}
 
-	public function setFields($fields = array())
+	public function setFields($fields = array()): void
 	{
 		$this->fields = $fields;
 	}
@@ -82,38 +82,38 @@ class Comment
 		return $this->fields;
 	}
 
-	public static function checkDuplicate(array $params)
+	public static function checkDuplicate(array $params = [], int &$duplicateCommentId = 0): bool
 	{
 		$message = (
-			isset($params["MESSAGE"])
-			&& trim($params["MESSAGE"]) <> ''
-				? trim($params["MESSAGE"])
+			isset($params['MESSAGE'])
+			&& trim((string)$params['MESSAGE']) !== ''
+				? trim((string)$params['MESSAGE'])
 				: ''
 		);
 
 		$blogId = (
-			isset($params["BLOG_ID"])
-			&& intval($params["BLOG_ID"]) > 0
-				? intval($params["BLOG_ID"])
+			isset($params['BLOG_ID'])
+			&& (int)$params['BLOG_ID'] > 0
+				? (int)$params['BLOG_ID']
 				: 0
 		);
 
 		$postId = (
-			isset($params["POST_ID"])
-			&& intval($params["POST_ID"]) > 0
-				? intval($params["POST_ID"])
+			isset($params['POST_ID'])
+			&& (int)$params['POST_ID'] > 0
+				? (int)$params['POST_ID']
 				: 0
 		);
 
 		$authorId = (
-			isset($params["AUTHOR_ID"])
-			&& intval($params["AUTHOR_ID"]) > 0
-				? intval($params["AUTHOR_ID"])
+			isset($params['AUTHOR_ID'])
+			&& (int)$params['AUTHOR_ID'] > 0
+				? (int)$params['AUTHOR_ID']
 				: 0
 		);
 
 		if (
-			$message == ''
+			$message === ''
 			|| $blogId <= 0
 			|| $postId <= 0
 		)
@@ -132,16 +132,17 @@ class Comment
 			],
 			false,
 			[ "nTopCount" => 1 ],
-			[ "ID", "POST_ID", "BLOG_ID", "AUTHOR_ID", "POST_TEXT" ]
+			[ 'ID', 'POST_TEXT' ]
 		);
 		\CTimeZone::Enable();
 
 		if (
 			($duplicateComment = $res->fetch())
-			&& md5($duplicateComment["POST_TEXT"]) == md5($message)
 			&& mb_strlen($message) > 10
+			&& md5((string)$duplicateComment['POST_TEXT']) === md5($message)
 		)
 		{
+			$duplicateCommentId = (int)$duplicateComment['ID'];
 			return false;
 		}
 

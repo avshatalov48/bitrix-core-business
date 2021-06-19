@@ -122,6 +122,7 @@ class UserFieldPermissionTable extends AccessPermissionTable
 		$query->addSelect('USER_FIELD_ID');
 		$query->addFilter('=ENTITY_TYPE_ID', $entityTypeID);
 		$query->addFilter('=VALUE', self::PERMISSION_ALLOWED);
+		$query->whereNotNull('FIELD_NAME');
 
 		$dbResult = $query->exec();
 

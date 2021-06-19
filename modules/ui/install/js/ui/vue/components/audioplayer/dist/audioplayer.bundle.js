@@ -1,4 +1,4 @@
-(function (exports,main_polyfill_intersectionobserver,ui_vue) {
+(function (exports,main_polyfill_intersectionobserver,ui_vue,main_core_events) {
 	'use strict';
 
 	/**
@@ -7,7 +7,7 @@
 	 *
 	 * @package bitrix
 	 * @subpackage ui
-	 * @copyright 2001-2019 Bitrix
+	 * @copyright 2001-2021 Bitrix
 	 */
 
 	var _State = Object.freeze({
@@ -17,7 +17,7 @@
 	  none: 'none'
 	});
 
-	ui_vue.Vue.component('bx-audioplayer', {
+	ui_vue.BitrixVue.component('bx-audioplayer', {
 	  props: {
 	    id: {
 	      default: 0
@@ -51,13 +51,10 @@
 	    this.preloadRequestSent = false;
 	    this.registeredId = 0;
 	    this.registerPlayer(this.id);
-	    this.$root.$on('ui:audioplayer:play', this.onPlay);
-	    ui_vue.Vue.event.$on('ui:audioplayer:play', this.onPlay);
-	    this.$root.$on('ui:audioplayer:stop', this.onStop);
-	    ui_vue.Vue.event.$on('ui:audioplayer:stop', this.onStop);
-	    this.$root.$on('ui:audioplayer:pause', this.onPause);
-	    ui_vue.Vue.event.$on('ui:audioplayer:pause', this.onPause);
-	    this.$root.$on('ui:audioplayer:preload', this.onPreload);
+	    this.$Bitrix.eventEmitter.subscribe('ui:audioplayer:play', this.onPlay);
+	    this.$Bitrix.eventEmitter.subscribe('ui:audioplayer:stop', this.onStop);
+	    this.$Bitrix.eventEmitter.subscribe('ui:audioplayer:pause', this.onPause);
+	    this.$Bitrix.eventEmitter.subscribe('ui:audioplayer:preload', this.onPreload);
 	    this.isDark = this.background === 'dark';
 	  },
 	  mounted: function mounted() {
@@ -65,13 +62,10 @@
 	  },
 	  beforeDestroy: function beforeDestroy() {
 	    this.unregisterPlayer();
-	    this.$root.$off('ui:audioplayer:play', this.onPlay);
-	    ui_vue.Vue.event.$off('ui:audioplayer:play', this.onPlay);
-	    this.$root.$off('ui:audioplayer:stop', this.onStop);
-	    ui_vue.Vue.event.$off('ui:audioplayer:stop', this.onStop);
-	    this.$root.$off('ui:audioplayer:pause', this.onPause);
-	    ui_vue.Vue.event.$off('ui:audioplayer:pause', this.onPause);
-	    this.$root.$off('ui:audioplayer:preload', this.onPreload);
+	    this.$Bitrix.eventEmitter.unsubscribe('ui:audioplayer:play', this.onPlay);
+	    this.$Bitrix.eventEmitter.unsubscribe('ui:audioplayer:stop', this.onStop);
+	    this.$Bitrix.eventEmitter.unsubscribe('ui:audioplayer:pause', this.onPause);
+	    this.$Bitrix.eventEmitter.unsubscribe('ui:audioplayer:preload', this.onPreload);
 	    this.getObserver().unobserve(this.$refs.body);
 	  },
 	  watch: {
@@ -180,47 +174,49 @@
 	      return (hour > 0 ? hour + ':' : '') + (hour > 0 ? minute.toString().padStart(2, "0") + ':' : minute + ':') + second.toString().padStart(2, "0");
 	    },
 	    registerPlayer: function registerPlayer(id) {
+	      var _this = this;
+
 	      if (id <= 0) {
 	        return false;
 	      }
 
-	      if (typeof this.$root.$uiAudioPlayerId === 'undefined') {
-	        this.$root.$uiAudioPlayerId = [];
-	      }
-
-	      this.unregisterPlayer();
-	      this.$root.$uiAudioPlayerId = babelHelpers.toConsumableArray(new Set([].concat(babelHelpers.toConsumableArray(this.$root.$uiAudioPlayerId), [id]))).sort(function (a, b) {
-	        if (a > b) return 1;else if (a < b) return -1;else return 0;
+	      var registry = this.$Bitrix.Data.get('ui-audioplayer-id', []);
+	      registry = babelHelpers.toConsumableArray(new Set([].concat(babelHelpers.toConsumableArray(registry), [id]))).filter(function (id) {
+	        return id !== _this.registeredId;
+	      }).sort(function (a, b) {
+	        return a - b;
 	      });
+	      this.$Bitrix.Data.set('ui-audioplayer-id', registry);
 	      this.registeredId = id;
 	      return true;
 	    },
 	    unregisterPlayer: function unregisterPlayer() {
-	      var _this = this;
+	      var _this2 = this;
 
 	      if (!this.registeredId) {
 	        return true;
 	      }
 
-	      this.$root.$uiAudioPlayerId = this.$root.$uiAudioPlayerId.filter(function (id) {
-	        return id !== _this.registeredId;
+	      var registry = this.$Bitrix.Data.get('ui-audioplayer-id', []).filter(function (id) {
+	        return id !== _this2.registeredId;
 	      });
+	      this.$Bitrix.Data.set('ui-audioplayer-id', registry);
 	      this.registeredId = 0;
 	      return true;
 	    },
 	    playNext: function playNext() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      if (!this.registeredId || !this.autoPlayNext) {
 	        return false;
 	      }
 
-	      var nextId = this.$root.$uiAudioPlayerId.filter(function (id) {
-	        return id > _this2.registeredId;
+	      var nextId = this.$Bitrix.Data.get('ui-audioplayer-id', []).filter(function (id) {
+	        return id > _this3.registeredId;
 	      }).slice(0, 1)[0];
 
 	      if (nextId) {
-	        this.$root.$emit('ui:audioplayer:play', {
+	        this.$Bitrix.eventEmitter.emit('ui:audioplayer:play', {
 	          id: nextId,
 	          start: true
 	        });
@@ -229,7 +225,7 @@
 	      return true;
 	    },
 	    preloadNext: function preloadNext() {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      if (this.preloadRequestSent) {
 	        return true;
@@ -240,12 +236,12 @@
 	      }
 
 	      this.preloadRequestSent = true;
-	      var nextId = this.$root.$uiAudioPlayerId.filter(function (id) {
-	        return id > _this3.registeredId;
+	      var nextId = this.$Bitrix.Data.get('ui-audioplayer-id', []).filter(function (id) {
+	        return id > _this4.registeredId;
 	      }).slice(0, 1)[0];
 
 	      if (nextId) {
-	        this.$root.$emit('ui:audioplayer:preload', {
+	        this.$Bitrix.eventEmitter.emit('ui:audioplayer:preload', {
 	          id: nextId
 	        });
 	      }
@@ -253,32 +249,40 @@
 	      return true;
 	    },
 	    onPlay: function onPlay(event) {
-	      if (event.id !== this.id) {
+	      var data = event.getData();
+
+	      if (data.id !== this.id) {
 	        return false;
 	      }
 
-	      if (event.start) {
+	      if (data.start) {
 	        this.stop();
 	      }
 
 	      this.play();
 	    },
 	    onStop: function onStop(event) {
-	      if (event.initiator === this.id) {
+	      var data = event.getData();
+
+	      if (data.initiator === this.id) {
 	        return false;
 	      }
 
 	      this.stop();
 	    },
 	    onPause: function onPause(event) {
-	      if (event.initiator === this.id) {
+	      var data = event.getData();
+
+	      if (data.initiator === this.id) {
 	        return false;
 	      }
 
 	      this.pause();
 	    },
 	    onPreload: function onPreload(event) {
-	      if (event.id !== this.id) {
+	      var data = event.getData();
+
+	      if (data.id !== this.id) {
 	        return false;
 	      }
 
@@ -323,17 +327,14 @@
 	        }
 
 	        if (this.id > 0) {
-	          this.$root.$emit('ui:audioplayer:pause', {
-	            initiator: this.id
-	          });
-	          ui_vue.Vue.event.$emit('ui:audioplayer:pause', {
+	          this.$Bitrix.eventEmitter.emit('ui:audioplayer:pause', {
 	            initiator: this.id
 	          });
 	        }
 	      }
 	    },
 	    getObserver: function getObserver() {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      if (this.observer) {
 	        return this.observer;
@@ -342,10 +343,10 @@
 	      this.observer = new IntersectionObserver(function (entries, observer) {
 	        entries.forEach(function (entry) {
 	          if (entry.isIntersecting) {
-	            if (_this4.preload === "none") {
-	              _this4.preload = "metadata";
+	            if (_this5.preload === "none") {
+	              _this5.preload = "metadata";
 
-	              _this4.observer.unobserve(entry.target);
+	              _this5.observer.unobserve(entry.target);
 	            }
 	          }
 	        });
@@ -396,5 +397,5 @@
 	  template: "\n\t\t<div :class=\"['ui-vue-audioplayer-container', {\n\t\t\t\t'ui-vue-audioplayer-container-dark': isDark,\n\t\t\t\t'ui-vue-audioplayer-container-mobile': isMobile,\n\t\t\t}]\" ref=\"body\">\n\t\t\t<div class=\"ui-vue-audioplayer-controls-container\">\n\t\t\t\t<button :class=\"['ui-vue-audioplayer-control', {\n\t\t\t\t\t'ui-vue-audioplayer-control-loader': loading,\n\t\t\t\t\t'ui-vue-audioplayer-control-play': !loading && state !== State.play,\n\t\t\t\t\t'ui-vue-audioplayer-control-pause': !loading && state === State.play,\n\t\t\t\t}]\" @click=\"clickToButton\"></button>\n\t\t\t</div>\n\t\t\t<div class=\"ui-vue-audioplayer-timeline-container\">\n\t\t\t\t<div class=\"ui-vue-audioplayer-track-container\" @click=\"setPosition\" ref=\"track\">\n\t\t\t\t\t<div class=\"ui-vue-audioplayer-track-mask\"></div>\n\t\t\t\t\t<div class=\"ui-vue-audioplayer-track\" :style=\"progressPosition\"></div>\n\t\t\t\t\t<div class=\"ui-vue-audioplayer-track-seek\" :style=\"seekPosition\"></div>\n\t\t\t\t\t<div class=\"ui-vue-audioplayer-track-event\" @mousemove=\"seeking\"></div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-vue-audioplayer-timers-container\">\n\t\t\t\t\t<div class=\"ui-vue-audioplayer-time-current\">{{labelTime}}</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<audio v-if=\"src\" :src=\"src\" class=\"ui-vue-audioplayer-source\" ref=\"source\" :preload=\"preload\"\n\t\t\t\t@abort=\"audioEventRouter('abort', $event)\"\n\t\t\t\t@error=\"audioEventRouter('error', $event)\"\n\t\t\t\t@suspend=\"audioEventRouter('suspend', $event)\"\n\t\t\t\t@canplay=\"audioEventRouter('canplay', $event)\"\n\t\t\t\t@canplaythrough=\"audioEventRouter('canplaythrough', $event)\"\n\t\t\t\t@durationchange=\"audioEventRouter('durationchange', $event)\"\n\t\t\t\t@loadeddata=\"audioEventRouter('loadeddata', $event)\"\n\t\t\t\t@loadedmetadata=\"audioEventRouter('loadedmetadata', $event)\"\n\t\t\t\t@timeupdate=\"audioEventRouter('timeupdate', $event)\"\n\t\t\t\t@play=\"audioEventRouter('play', $event)\"\n\t\t\t\t@playing=\"audioEventRouter('playing', $event)\"\n\t\t\t\t@pause=\"audioEventRouter('pause', $event)\"\n\t\t\t></audio>\n\t\t</div>\n\t"
 	});
 
-}((this.window = this.window || {}),BX,BX));
+}((this.window = this.window || {}),BX,BX,BX.Event));
 //# sourceMappingURL=audioplayer.bundle.js.map

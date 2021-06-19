@@ -13,7 +13,7 @@ if(CModule::IncludeModule("statistic"))
 			$url = @parse_url($referer_url);
 			if($url)
 			{
-				$rs = CSite::GetList($v1 = "LENDIR", $v2 = "DESC", Array("ACTIVE" => "Y", "DOMAIN" => "%".$url["host"], "IN_DIR" => $url["path"]));
+				$rs = CSite::GetList("LENDIR", "DESC", Array("ACTIVE" => "Y", "DOMAIN" => "%".$url["host"], "IN_DIR" => $url["path"]));
 				if($arr = $rs->Fetch())
 				{
 					$site_id = $arr["ID"];

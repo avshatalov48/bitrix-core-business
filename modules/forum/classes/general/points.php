@@ -1,36 +1,39 @@
-<?
+<?php
+
 ##############################################
 # Bitrix Site Manager Forum                  #
 # Copyright (c) 2002-2007 Bitrix             #
 # http://www.bitrixsoft.com                  #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
+
 IncludeModuleLangFile(__FILE__);
+
 /**********************************************************************/
 /************** POINTS ************************************************/
 /**********************************************************************/
 class CAllForumPoints
 {
 	//---------------> Points insert, update, delete
-	function CanUserAddPoints($arUserGroups)
+	public static function CanUserAddPoints($arUserGroups)
 	{
 		if (in_array(1, $arUserGroups)) return True;
 		return False;
 	}
 
-	function CanUserUpdatePoints($ID, $arUserGroups)
+	public static function CanUserUpdatePoints($ID, $arUserGroups)
 	{
 		if (in_array(1, $arUserGroups)) return True;
 		return False;
 	}
 
-	function CanUserDeletePoints($ID, $arUserGroups)
+	public static function CanUserDeletePoints($ID, $arUserGroups)
 	{
 		if (in_array(1, $arUserGroups)) return True;
 		return False;
 	}
 
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		$aMsg = array();
 
@@ -39,7 +42,7 @@ class CAllForumPoints
 			if (!is_array($arFields["LANG"]))
 				$arFields["LANG"] = array();
 
-			$db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"));
+			$db_lang = CLangAdmin::GetList();
 			while ($arLang = $db_lang->Fetch())
 			{
 				$bFound = False;
@@ -106,7 +109,7 @@ class CAllForumPoints
 		return true;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 		$ID = intval($ID);
@@ -134,7 +137,7 @@ class CAllForumPoints
 		return $ID;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 		$ID = intval($ID);
@@ -145,7 +148,7 @@ class CAllForumPoints
 		return true;
 	}
 
-	function GetList($arOrder = array("MIN_POINTS"=>"ASC"), $arFilter = array())
+	public static function GetList($arOrder = array("MIN_POINTS"=>"ASC"), $arFilter = array())
 	{
 		global $DB;
 		$arSqlSearch = Array();
@@ -210,7 +213,7 @@ class CAllForumPoints
 		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
-	function GetListEx($arOrder = array("MIN_POINTS"=>"ASC"), $arFilter = array())
+	public static function GetListEx($arOrder = array("MIN_POINTS"=>"ASC"), $arFilter = array())
 	{
 		global $DB;
 		$arSqlSearch = Array();
@@ -284,7 +287,7 @@ class CAllForumPoints
 		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -302,7 +305,7 @@ class CAllForumPoints
 		return False;
 	}
 
-	function GetByIDEx($ID, $strLang)
+	public static function GetByIDEx($ID, $strLang)
 	{
 		global $DB;
 
@@ -321,7 +324,7 @@ class CAllForumPoints
 		return False;
 	}
 
-	function GetLangByID($POINTS_ID, $strLang)
+	public static function GetLangByID($POINTS_ID, $strLang)
 	{
 		global $DB;
 
@@ -348,25 +351,25 @@ class CAllForumPoints
 class CAllForumPoints2Post
 {
 	//---------------> Insert, update, delete
-	function CanUserAddPoints2Post($arUserGroups)
+	public static function CanUserAddPoints2Post($arUserGroups)
 	{
 		if (in_array(1, $arUserGroups)) return True;
 		return False;
 	}
 
-	function CanUserUpdatePoints2Post($ID, $arUserGroups)
+	public static function CanUserUpdatePoints2Post($ID, $arUserGroups)
 	{
 		if (in_array(1, $arUserGroups)) return True;
 		return False;
 	}
 
-	function CanUserDeletePoints2Post($ID, $arUserGroups)
+	public static function CanUserDeletePoints2Post($ID, $arUserGroups)
 	{
 		if (in_array(1, $arUserGroups)) return True;
 		return False;
 	}
 
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		$aMsg = array();
 		if (is_set($arFields, "MIN_NUM_POSTS") || $ACTION=="ADD")
@@ -423,7 +426,7 @@ class CAllForumPoints2Post
 	}
 
 	// User points is not recount.
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 		$ID = intval($ID);
@@ -439,7 +442,7 @@ class CAllForumPoints2Post
 	}
 
 	// User points is not recount.
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 		$ID = intval($ID);
@@ -449,7 +452,7 @@ class CAllForumPoints2Post
 		return true;
 	}
 
-	function GetList($arOrder = array("MIN_NUM_POSTS"=>"ASC"), $arFilter = array())
+	public static function GetList($arOrder = array("MIN_NUM_POSTS"=>"ASC"), $arFilter = array())
 	{
 		global $DB;
 
@@ -508,7 +511,7 @@ class CAllForumPoints2Post
 		return $db_res;
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -534,25 +537,25 @@ class CAllForumPoints2Post
 class CAllForumUserPoints
 {
 	//---------------> Insert, update, delete
-	function CanUserAddUserPoints($iUserID)
+	public static function CanUserAddUserPoints($iUserID)
 	{
 		if (CForumUser::IsLocked($iUserID)) return False;
 		return True;
 	}
 
-	function CanUserUpdateUserPoints($iUserID)
+	public static function CanUserUpdateUserPoints($iUserID)
 	{
 		if (CForumUser::IsLocked($iUserID)) return False;
 		return True;
 	}
 
-	function CanUserDeleteUserPoints($iUserID)
+	public static function CanUserDeleteUserPoints($iUserID)
 	{
 		if (CForumUser::IsLocked($iUserID)) return False;
 		return True;
 	}
 
-	function CheckFields($ACTION, &$arFields)
+	public static function CheckFields($ACTION, &$arFields)
 	{
 		if ((is_set($arFields, "FROM_USER_ID") || $ACTION=="ADD") && intval($arFields["FROM_USER_ID"])<=0) return false;
 		if ((is_set($arFields, "TO_USER_ID") || $ACTION=="ADD") && intval($arFields["TO_USER_ID"])<=0) return false;
@@ -561,7 +564,7 @@ class CAllForumUserPoints
 		return True;
 	}
 
-	function Update($FROM_USER_ID, $TO_USER_ID, $arFields)
+	public static function Update($FROM_USER_ID, $TO_USER_ID, $arFields)
 	{
 		global $DB;
 
@@ -603,7 +606,7 @@ class CAllForumUserPoints
 		return true;
 	}
 
-	function Delete($FROM_USER_ID, $TO_USER_ID)
+	public static function Delete($FROM_USER_ID, $TO_USER_ID)
 	{
 		global $DB;
 
@@ -633,7 +636,7 @@ class CAllForumUserPoints
 		return true;
 	}
 
-	function GetList($arOrder = array("TO_USER_ID"=>"ASC"), $arFilter = array())
+	public static function GetList($arOrder = array("TO_USER_ID"=>"ASC"), $arFilter = array())
 	{
 		global $DB;
 		$arSqlSearch = Array();
@@ -691,7 +694,7 @@ class CAllForumUserPoints
 		return $db_res;
 	}
 
-	function GetByID($FROM_USER_ID, $TO_USER_ID)
+	public static function GetByID($FROM_USER_ID, $TO_USER_ID)
 	{
 		global $DB;
 
@@ -714,7 +717,7 @@ class CAllForumUserPoints
 		return False;
 	}
 
-	function CountSumPoints($TO_USER_ID)
+	public static function CountSumPoints($TO_USER_ID)
 	{
 		global $DB;
 
@@ -734,4 +737,3 @@ class CAllForumUserPoints
 		return 0;
 	}
 }
-?>

@@ -33,7 +33,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 					</td>
 					<td>=</td>
 					<td id="id_td_variable_value_<?= $ind ?>">
-						<input type="text" name="<?= htmlspecialcharsbx($variableKey) ?>" value="<?/*= htmlspecialcharsbx($variableValue) */?>">
+						<input type="text" name="<?= htmlspecialcharsbx($variableKey) ?>" value="...">
 					</td>
 					<td align="right">
 						<a href="#" onclick="BWFVCDeleteCondition(<?= $ind ?>); return false;"><?= GetMessage("BPSVA_PD_DELETE") ?></a>

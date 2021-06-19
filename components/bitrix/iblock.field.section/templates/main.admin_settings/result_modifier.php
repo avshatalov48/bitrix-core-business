@@ -56,7 +56,7 @@ if($component->isIblockIncluded())
 
 	if($iblockId)
 	{
-		$filter = ['IBLOCK_ID' => $iblock_id];
+		$filter = ['IBLOCK_ID' => $iblockId];
 
 		if($activeFilter === 'Y')
 		{

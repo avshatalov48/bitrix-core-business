@@ -47,7 +47,7 @@ else
 			SONET_C36_T_NO_GROUPS: '<?=GetMessageJS("SONET_C36_T_NO_GROUPS")?>',
 			SONET_C36_T_NO_GROUPS_PROJECT: '<?=GetMessageJS("SONET_C36_T_NO_GROUPS_PROJECT")?>'
 		});
-	</script><?
+		</script><?
 
 		$APPLICATION->IncludeComponent(
 			"bitrix:socialnetwork.group.iframe.popup",
@@ -460,5 +460,38 @@ else
 		<?
 		$this->EndViewTarget();
 	}
+
+	if (
+		SITE_TEMPLATE_ID === 'bitrix24'
+		&& !empty($arParams['SLIDER_GROUP_ID'])
+		&& (int)$arParams['SLIDER_GROUP_ID'] > 0
+	)
+	{
+		$groupUrl = $arParams["PATH_TO_GROUP"];
+		$groupUrl = str_replace(['#ID#', '#GROUP_ID#', '#group_id#'], (int)$arParams['SLIDER_GROUP_ID'], $groupUrl);
+
+		?><script>
+		BX.ready(function () {
+			BX.SidePanel.Instance.open(
+				'<?=$groupUrl?>',
+				{
+					cacheable: false,
+					allowChangeHistory: false,
+					contentClassName: "bitrix24-group-slider-content",
+					loader: "intranet:group",
+					customLeftBoundary: 0,
+					events: {
+						onCloseComplete: function(event) {
+							setTimeout(function() {
+								window.history.replaceState({}, "", '<?=$arParams['LIST_URL']?>');
+							}, 500);
+						}
+					}
+				}
+			);
+		});
+		</script><?
+	}
+
 }
 ?>

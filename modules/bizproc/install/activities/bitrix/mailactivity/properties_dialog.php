@@ -78,7 +78,7 @@ $file = $map['File'];
 			<option value="">(<?= GetMessage("BPMA_PD_MAIL_SITE_OTHER") ?>)</option>
 			<?
 			$bFound = false;
-			$dbSites = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
+			$dbSites = CSite::GetList("", "", Array("ACTIVE" => "Y"));
 			while ($site = $dbSites->GetNext())
 			{
 				$bFound = ($site["LID"] == $arCurrentValues["mail_site"]);

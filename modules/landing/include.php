@@ -48,6 +48,7 @@ $jsConfig = array(
 		'js' => [
 			$pathTemplate24 . '/assets/js/helpers/inline-video.js',
 		],
+		'lang' => $pathLang . '/js/video_alert.php',
 		'rel' => ['mediaplayer']
 	],
 	'map_provider' => array(
@@ -204,6 +205,13 @@ $jsConfig = array(
 		'js' => [
 			$pathTemplate24 . '/assets/js/helpers/menu/block-header-entry.js',
 			$pathTemplate24 . '/assets/js/helpers/menu/block-header-init.js',
+		],
+		'rel' => ['landing_core'],
+	],
+
+	'landing_header_sidebar' => [
+		'js' => [
+			$pathTemplate24 . '/assets/js/helpers/header-sidebar.js',
 		],
 		'rel' => ['landing_core'],
 	],

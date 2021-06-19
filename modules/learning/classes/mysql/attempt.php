@@ -1,9 +1,10 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/classes/general/attempt.php");
 
 class CTestAttempt extends CAllTestAttempt
 {
-	function DoInsert($arInsert, $arFields)
+	public static function DoInsert($arInsert, $arFields)
 	{
 		global $DB;
 

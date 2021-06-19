@@ -132,6 +132,7 @@ CREATE TABLE b_im_relation (
 	NOTIFY_BLOCK char(1) DEFAULT 'N',
 	MANAGER char(1) DEFAULT 'N',
 	COUNTER int(18) DEFAULT 0,
+	START_COUNTER int(18) DEFAULT 0,
 	PRIMARY KEY (ID),
 	KEY IX_IM_REL_2 (USER_ID, MESSAGE_TYPE, STATUS),
 	KEY IX_IM_REL_3 (USER_ID, MESSAGE_TYPE, CHAT_ID),
@@ -155,7 +156,8 @@ CREATE TABLE b_im_recent(
 	DATE_UPDATE datetime null,
 	PRIMARY KEY (USER_ID, ITEM_TYPE, ITEM_ID),
 	KEY IX_IM_REC_1 (ITEM_TYPE, ITEM_ID),
-	KEY IX_IM_REC_2 (DATE_UPDATE)
+	KEY IX_IM_REC_2 (DATE_UPDATE),
+	KEY IX_IM_REC_3 (ITEM_RID)
 );
 
 CREATE TABLE b_im_last_search (
@@ -285,7 +287,7 @@ CREATE TABLE b_im_alias
 	ENTITY_ID varchar(255) not null,
 	PRIMARY KEY PK_B_IM_ALIAS (ID),
 	UNIQUE UX_B_IM_ALIAS (ALIAS),
-	INDEX IX_IM_ALIAS_1 (ENTITY_TYPE, ENTITY_ID)
+	INDEX IX_IM_ALIAS_2 (ENTITY_TYPE(100), ENTITY_ID(100))
 );
 
 CREATE TABLE b_im_external_avatar
@@ -388,6 +390,7 @@ CREATE TABLE b_im_block_user(
 	ID int(18) not null auto_increment,
 	CHAT_ID int(18) not null,
 	USER_ID int(18) not null,
+	BLOCK_DATE datetime default null,
 	PRIMARY KEY PK_B_IM_BLOCK_USER (ID)
 );
 
@@ -396,7 +399,15 @@ CREATE TABLE b_im_conference(
 	ALIAS_ID int(18) not null,
 	PASSWORD text,
 	INVITATION text,
+	IS_BROADCAST char(1) not null default 'N',
 	CONFERENCE_START datetime,
 	CONFERENCE_END datetime,
 	PRIMARY KEY PK_B_IM_CONFERENCE(ID)
+);
+
+CREATE TABLE b_im_conference_user_role(
+    CONFERENCE_ID int not null,
+    USER_ID int not null,
+    ROLE varchar(64),
+    PRIMARY KEY PK_B_IM_CONFERENCE_USER_ROLE(CONFERENCE_ID, USER_ID)
 );

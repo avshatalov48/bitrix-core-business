@@ -102,7 +102,7 @@ return [
 					0 => 'Julia Exon',
 				],
 				'.landing-block-node-subtitle' => [
-					0 => '<p>January 16, 2020</p>',
+					0 => '<p>January 16, 2021</p>',
 				],
 				'.landing-block-node-img' => [
 					0 => [
@@ -116,10 +116,10 @@ return [
 					0 => 'landing-block-card js-animation fadeIn media g-mb-0--last landing-card g-mb-50',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-color-primary g-font-size-24 g-mb-2',
+					0 => 'landing-block-node-title g-color-primary g-mb-2',
 				],
 				'.landing-block-node-subtitle' => [
-					0 => 'landing-block-node-subtitle g-color-gray-light-v4 g-font-size-16',
+					0 => 'landing-block-node-subtitle g-color-gray-light-v4',
 				],
 				'.landing-block-node-img' => [
 					0 => 'landing-block-node-img g-width-60 g-height-60 g-object-fit-cover g-rounded-50x',
@@ -155,7 +155,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 container g-color-white g-max-width-container text-left g-font-size-30 g-line-height-1_5',
+					0 => 'landing-block-node-text g-pb-1 container g-color-white g-max-width-container text-left g-line-height-1_5',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation g-pt-40 g-pb-10 animation-none animated g-bg-transparent',
@@ -234,12 +234,12 @@ return [
 			],
 			'style' => [
 				'.landing-block-card-text' => [
-					0 => 'landing-block-card-text g-font-size-17 text-center g-mt-30 g-mb-0 g-color-white',
-					1 => 'landing-block-card-text g-font-size-17 text-center g-mt-30 g-mb-0 g-color-white',
-					2 => 'landing-block-card-text g-font-size-17 text-center g-mt-30 g-mb-0 g-color-white',
-					3 => 'landing-block-card-text g-font-size-17 text-center g-mt-30 g-mb-0 g-color-white',
-					4 => 'landing-block-card-text g-font-size-17 text-center g-mt-30 g-mb-0 g-color-white',
-					5 => 'landing-block-card-text g-font-size-17 text-center g-mt-30 g-mb-0 g-color-white',
+					0 => 'landing-block-card-text text-center g-mt-30 g-mb-0 g-color-white',
+					1 => 'landing-block-card-text text-center g-mt-30 g-mb-0 g-color-white',
+					2 => 'landing-block-card-text text-center g-mt-30 g-mb-0 g-color-white',
+					3 => 'landing-block-card-text text-center g-mt-30 g-mb-0 g-color-white',
+					4 => 'landing-block-card-text text-center g-mt-30 g-mb-0 g-color-white',
+					5 => 'landing-block-card-text text-center g-mt-30 g-mb-0 g-color-white',
 				],
 				'.landing-block-border' => [
 					0 => 'landing-block-border g-brd-bottom g-brd-black g-width-80 g-ml-auto g-mr-auto g-brd-0 g-mt-auto g-mb-auto',
@@ -294,10 +294,10 @@ return [
 					0 => 'landing-block-node-text-container js-animation slideInLeft col-md-6 col-lg-6 g-pb-20 g-pb-0--md',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title text-uppercase g-font-weight-700 g-font-size-26 mb-0 g-mb-15',
+					0 => 'landing-block-node-title text-uppercase g-font-weight-700 mb-0 g-mb-15',
 				],
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-font-size-30 g-color-gray-light-v4 g-line-height-1_5 g-pr-10',
+					0 => 'landing-block-node-text g-color-gray-light-v4 g-line-height-1_5 g-pr-10',
 				],
 				'.landing-block-node-img' => [
 					0 => 'landing-block-node-img js-animation slideInRight img-fluid',
@@ -346,10 +346,10 @@ return [
 					0 => 'landing-block-text-container align-items-center g-bottom-0 w-100 g-pl-30 g-pr-30 g-pb-20 g-pt-20 u-bg-overlay__inner',
 				],
 				'.landing-block-title' => [
-					0 => 'landing-block-title g-color-white g-font-size-17',
+					0 => 'landing-block-title g-color-white',
 				],
 				'.landing-block-link' => [
-					0 => 'landing-block-link u-link-v5 g-font-size-18 g-font-weight-700 g-color-primary g-color-primary-opacity-0_8--hover',
+					0 => 'landing-block-link u-link-v5 g-font-weight-700 g-color-primary g-color-primary-opacity-0_8--hover',
 				],
 				'.landing-block-link-container' => [
 					0 => 'landing-block-link-container',
@@ -370,7 +370,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 container g-color-white g-font-size-50 g-font-montserrat g-max-width-container text-left g-font-weight-700',
+					0 => 'landing-block-node-text g-pb-1 container g-color-white g-font-montserrat g-max-width-container text-left g-font-weight-700',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation g-pt-50 g-pb-auto animation-none animated g-bg-transparent',
@@ -409,7 +409,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 container g-max-width-container text-left g-font-size-22 g-color-gray-light-v4 g-line-height-1_3',
+					0 => 'landing-block-node-text g-pb-1 container g-max-width-container text-left g-color-gray-light-v4 g-line-height-1_3',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation g-pb-50 g-pt-40 animation-none animated g-bg-transparent',
@@ -489,10 +489,10 @@ return [
 					3 => 'landing-block-card row js-animation fadeIn g-mb-10 g-mb-0--last landing-card',
 				],
 				'.landing-block-title' => [
-					0 => 'landing-block-title col-10 col-md-11 text-left g-font-size-22 g-font-weight-700 g-ma-0 g-color-gray-light-v4',
-					1 => 'landing-block-title col-10 col-md-11 text-left g-font-size-22 g-font-weight-700 g-ma-0 g-color-gray-light-v4',
-					2 => 'landing-block-title col-10 col-md-11 text-left g-font-size-22 g-font-weight-700 g-ma-0 g-color-gray-light-v4',
-					3 => 'landing-block-title col-10 col-md-11 text-left g-font-size-22 g-font-weight-700 g-ma-0 g-color-gray-light-v4',
+					0 => 'landing-block-title col-10 col-md-11 text-left g-font-weight-700 g-ma-0 g-color-gray-light-v4',
+					1 => 'landing-block-title col-10 col-md-11 text-left g-font-weight-700 g-ma-0 g-color-gray-light-v4',
+					2 => 'landing-block-title col-10 col-md-11 text-left g-font-weight-700 g-ma-0 g-color-gray-light-v4',
+					3 => 'landing-block-title col-10 col-md-11 text-left g-font-weight-700 g-ma-0 g-color-gray-light-v4',
 				],
 				'.landing-block-text' => [
 					0 => 'col-10 offset-2 col-md-11 offset-md-1 text-left landing-block-text g-color-gray-light-v1',
@@ -501,10 +501,10 @@ return [
 					3 => 'col-10 offset-2 col-md-11 offset-md-1 text-left landing-block-text g-color-gray-light-v1',
 				],
 				'.landing-block-icon-container' => [
-					0 => 'landing-block-icon-container col-2 col-md-1 text-right g-font-size-22 g-color-gray-light-v4',
-					1 => 'landing-block-icon-container col-2 col-md-1 text-right g-font-size-22 g-color-gray-light-v4',
-					2 => 'landing-block-icon-container col-2 col-md-1 text-right g-font-size-22 g-color-gray-light-v4',
-					3 => 'landing-block-icon-container col-2 col-md-1 text-right g-font-size-22 g-color-gray-light-v4',
+					0 => 'landing-block-icon-container col-2 col-md-1 text-right g-color-gray-light-v4',
+					1 => 'landing-block-icon-container col-2 col-md-1 text-right g-color-gray-light-v4',
+					2 => 'landing-block-icon-container col-2 col-md-1 text-right g-color-gray-light-v4',
+					3 => 'landing-block-icon-container col-2 col-md-1 text-right g-color-gray-light-v4',
 				],
 				'#wrapper' => [
 					0 => 'landing-block g-pb-30 g-pt-30 g-bg-transparent',

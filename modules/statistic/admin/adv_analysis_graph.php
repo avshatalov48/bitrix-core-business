@@ -72,8 +72,7 @@ $arFilter = Array(
 	);
 $arrDays = CAdv::GetAnalysisGraphArray($arFilter, $is_filtered, $find_data_type, $arrLegend, $total, $max);
 
-reset($arrDays);
-while (list($keyD,$arD) = each($arrDays))
+foreach ($arrDays as $keyD => $arD)
 {
 	$date = mktime(0,0,0,$arD["M"],$arD["D"],$arD["Y"]);
 	$date_tmp = 0;
@@ -86,8 +85,7 @@ while (list($keyD,$arD) = each($arrDays))
 		while ($date_tmp<$date)
 		{
 			$arrX[] = $date_tmp;
-			reset($arrLegend);
-			while(list($adv_id, $arrS) = each($arrLegend))
+			foreach ($arrLegend as $adv_id => $arrS)
 			{
 				$arrY_adv[$adv_id][] = 0;
 				$arrY[] = 0;
@@ -96,8 +94,7 @@ while (list($keyD,$arD) = each($arrDays))
 		}
 	}
 	$arrX[] = $date;
-	reset($arrLegend);
-	while(list($adv_id, $arrS) = each($arrLegend))
+	foreach ($arrLegend as $adv_id => $arrS)
 	{
 		$arrY_adv[$adv_id][] = $arD[$adv_id];
 		$arrY[] = $arD[$adv_id];
@@ -126,8 +123,7 @@ DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle);
 			plot graph
 *******************************************************/
 
-reset($arrLegend);
-while(list($adv_id, $arrS) = each($arrLegend))
+foreach ($arrLegend as $adv_id => $arrS)
 {
 	Graf($arrX, $arrY_adv[$adv_id], $ImageHandle, $MinX, $MaxX, $MinY, $MaxY, $arrS["CLR"]);
 }

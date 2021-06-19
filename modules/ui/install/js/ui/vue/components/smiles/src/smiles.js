@@ -10,13 +10,12 @@
 import "./smiles.css";
 import 'ui.vue.directives.lazyload';
 
-import {Vue} from 'ui.vue';
-import {rest} from 'rest.client';
+import {BitrixVue} from 'ui.vue';
 
 import {SmileManager} from "./manager.js";
 import {emoji} from './emoji';
 
-Vue.component('bx-smiles', {
+BitrixVue.component('bx-smiles', {
 	/**
 	 * @emits 'selectSmile' {text: string}
 	 * @emits 'selectSet' {setId: number}
@@ -117,13 +116,9 @@ Vue.component('bx-smiles', {
 	},
 	computed:
 	{
-		localize()
-		{
-			return Vue.getFilteredPhrases(['UI_VUE_SMILES_EMOJI_CATEGORY_', 'UTF_MODE'], this.$root.$bitrixMessages);
-		},
 		showEmoji()
 		{
-			return this.localize.UTF_MODE === 'Y';
+			return this.$Bitrix.Loc.getMessage('UTF_MODE') === 'Y';
 		},
 		isEmojiMode()
 		{
@@ -181,7 +176,7 @@ Vue.component('bx-smiles', {
 					<div v-for="category in emoji" class="bx-ui-smiles-emoji-wrap">
 						<template v-if="showCategory(category)">
 							<div class="bx-ui-smiles-category">
-								{{ localize['UI_VUE_SMILES_EMOJI_CATEGORY_' + category.code] }}
+								{{ $Bitrix.Loc.getMessage('UI_VUE_SMILES_EMOJI_CATEGORY_' + category.code) }}
 							</div>
 							<template v-for="element in category.emoji">
 								<div class="bx-ui-smiles-smile" style="font-size: 28px;">

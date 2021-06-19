@@ -52,7 +52,7 @@ while ($arr=$rsProp->Fetch())
 }
 
 $arGroups = array();
-$rsGroups = CGroup::GetList($by="c_sort", $order="asc", Array("ACTIVE" => "Y"));
+$rsGroups = CGroup::GetList("c_sort", "asc", Array("ACTIVE" => "Y"));
 while ($arGroup = $rsGroups->Fetch())
 {
 	$arGroups[$arGroup["ID"]] = $arGroup["NAME"];
@@ -60,7 +60,7 @@ while ($arGroup = $rsGroups->Fetch())
 
 if ($bWorkflowIncluded)
 {
-	$rsWFStatus = CWorkflowStatus::GetList($by="c_sort", $order="asc", Array("ACTIVE" => "Y"), $is_filtered);
+	$rsWFStatus = CWorkflowStatus::GetList("c_sort", "asc", Array("ACTIVE" => "Y"));
 	$arWFStatus = array();
 	while ($arWFS = $rsWFStatus->Fetch())
 	{

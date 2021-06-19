@@ -144,11 +144,6 @@ BX.SocialnetworkUICommon = {
 					sonetGroupMenu.setItemTitle(!favoritesValue);
 					sonetGroupMenu.favoritesValue = !favoritesValue;
 
-					BX.onCustomEvent(window, 'BX.Socialnetwork.WorkgroupMenu:onSetFavorites', [{
-						groupId: params.groupId,
-						value: !favoritesValue
-					}]);
-
 					this.setFavoritesAjax({
 						groupId: params.groupId,
 						favoritesValue: favoritesValue,
@@ -162,6 +157,11 @@ BX.SocialnetworkUICommon = {
 									extranet: (typeof data.EXTRANET != 'undefined' ? data.EXTRANET : 'N')
 								}, !favoritesValue]);
 
+								BX.onCustomEvent(window, 'BX.Socialnetwork.WorkgroupMenu:onSetFavorites', [{
+									groupId: params.groupId,
+									value: !favoritesValue
+								}]);
+
 								window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', {
 									code: 'afterSetFavorites',
 									data: {
@@ -174,11 +174,6 @@ BX.SocialnetworkUICommon = {
 							{
 								sonetGroupMenu.favoritesValue = favoritesValue;
 								sonetGroupMenu.setItemTitle(favoritesValue);
-
-								BX.onCustomEvent(window, 'BX.Socialnetwork.WorkgroupMenu:onSetFavorites', [{
-									groupId: params.groupId,
-									value: favoritesValue
-								}]);
 							}
 						}
 					});
@@ -302,6 +297,17 @@ BX.SocialnetworkUICommon = {
 					href: params.urls.userLeaveGroup
 				});
 			}
+
+			if (params.canPickTheme)
+			{
+				menu.push({
+					text: BX.message('SONET_EXT_COMMON_GROUP_MENU_THEME_DIALOG'),
+					title: BX.message('SONET_EXT_COMMON_GROUP_MENU_THEME_DIALOG'),
+					onclick: function() {
+						BX.Intranet.Bitrix24.ThemePicker.Singleton.showDialog(false);
+					}
+				});
+			}
 		}
 
 		var popup = BX.PopupMenu.create("group-profile-menu", bindElement, menu, {
@@ -375,38 +381,24 @@ BX.SocialnetworkUICommon = {
 
 	setFavoritesAjax: function(params)
 	{
-		var actionUrl = '/bitrix/components/bitrix/socialnetwork.group_menu/ajax.php';
-		actionUrl = BX.util.add_url_param(actionUrl, {
-			b24statAction: (params.favoritesValue ? 'removeFavSonetGroup' : 'addFavSonetGroup')
-		});
-
-		BX.ajax({
-			url: actionUrl,
-			method: 'POST',
-			dataType: 'json',
+		BX.ajax.runAction('socialnetwork.api.workgroup.setFavorites', {
 			data: {
-				groupID: params.groupId,
-				action: (params.favoritesValue ? 'fav_unset' : 'fav_set'),
-				sessid: BX.bitrix_sessid(),
-				lang: BX.message('LANGUAGE_ID')
-			},
-			onsuccess: function(data) {
-				if (
-					typeof data.SUCCESS != 'undefined'
-					&& data.SUCCESS == "Y"
-				)
-				{
-					params.callback.success(data);
-				}
-				else
-				{
-					params.callback.failure(data);
+				params: {
+					groupId: params.groupId,
+					value: (params.favoritesValue === false ? 'Y' : 'N'),
+					getAdditionalResultData: true,
 				}
 			},
-			onfailure: function(data) {
-				params.callback.failure(data);
+			analyticsLabel: {
+				b24statAction: (params.favoritesValue ? 'removeFavSonetGroup' : 'addFavSonetGroup')
 			}
-		});
+		}).then(function(response) {
+			params.callback.success(response.data);
+		}.bind(this)).catch(function(response) {
+			params.callback.failure({
+				ERROR: response.errors[0].message,
+			});
+		}.bind(this));
 	},
 
 	showButtonWait: function(buttonNode)
@@ -620,7 +612,6 @@ BX.SocialnetworkUICommon.Waiter.prototype = {
 	}
 };
 
-
 BX.SocialnetworkUICommon.SonetGroupMenu = function()
 {
 	this.favoritesValue = null;
@@ -641,6 +632,10 @@ BX.SocialnetworkUICommon.SonetGroupMenu.getInstance = function()
 				BX.SocialnetworkUICommon.SonetGroupMenu.instance.menuPopup.close();
 			}
 		});
+
+		BX.addCustomEvent('BX.Socialnetwork.WorkgroupMenuIcon:onSetFavorites', function(params) {
+			this.getInstance().setItemTitle(params.value);
+		}.bind(this));
 	}
 
 	return BX.SocialnetworkUICommon.SonetGroupMenu.instance;

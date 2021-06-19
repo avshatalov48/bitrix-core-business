@@ -357,9 +357,9 @@ class CIMStatus
 					'id' => $user["ID"],
 					'status' => in_array($user['STATUS'], self::$AVAILABLE_STATUSES)? $user['STATUS']: 'online',
 					'color' => $color,
-					'idle' => $user['IDLE'],
-					'last_activity_date' => $user['LAST_ACTIVITY_DATE'],
-					'mobile_last_date' => $user['MOBILE_LAST_DATE'],
+					'idle' => $user['IDLE']?: false,
+					'last_activity_date' => $user['LAST_ACTIVITY_DATE']?: false,
+					'mobile_last_date' => $user['MOBILE_LAST_DATE']?: false,
 					'absent' => \CIMContactList::formatAbsentResult($user["ID"]),
 				);
 

@@ -28,8 +28,7 @@ $arParams["CALENDAR_TYPE"] = Array(
 
 if (!isset($arCurrentValues["CALENDAR_TYPE"]) && count($arTypes) > 0)
 {
-	$arCurrentValues["CALENDAR_TYPE"] = each($arTypes);
-	$arCurrentValues["CALENDAR_TYPE"] = $arCurrentValues["CALENDAR_TYPE"]["key"];
+	$arCurrentValues["CALENDAR_TYPE"] = key($arTypes);
 }
 
 if ($arCurrentValues["CALENDAR_TYPE"] && $arCurrentValues["CALENDAR_TYPE"] != 'user' && $arCurrentValues["CALENDAR_TYPE"] != 'group')

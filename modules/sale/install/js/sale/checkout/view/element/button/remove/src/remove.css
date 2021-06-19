@@ -1,0 +1,13 @@
+.checkout-item-remove-btn-container {
+    text-align: right;
+}
+
+.checkout-item-remove-btn {
+    cursor: pointer;
+    font: 11px/13px "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #000;
+    opacity: 0.4;
+    transition: 170ms linear all;
+}
+
+.checkout-item-remove-btn:hover { opacity: .7; }

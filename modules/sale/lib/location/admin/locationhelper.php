@@ -37,7 +37,7 @@ final class LocationHelper extends NameHelper
 	* Function returns instructions from where and which columns we take to show in UI
 	* @return string Entity class name
 	*/
-	public function getEntityRoadMap()
+	public static function getEntityRoadMap()
 	{
 		return array(
 			'main' => array(

@@ -31,7 +31,7 @@ if($Reindex <> '' && check_bitrix_sessid())
 	if(is_array($res)):
 		//$res["STAT"]=$NS["STAT"];
 		//$res["STAT"][]=$res["CNT"]-$NS["CNT"];
-		//$perfomance = "<br>",implode($res["STAT"],", ");
+		//$perfomance = "<br>",implode(", ", $res["STAT"]);
 		CAdminMessage::ShowMessage(array(
 			"MESSAGE"=>GetMessage("url_rewrite_mess_title"),
 			"DETAILS"=>GetMessage("MURL_REINDEX_TOTAL")." <b>".$res["CNT"]."</b>",

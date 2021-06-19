@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,main_core_events) {
+(function (exports,main_core,main_core_events,landing_ui_component_internal) {
 	'use strict';
 
 	function _templateObject4() {
@@ -74,6 +74,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BaseField).call(this, options));
 
 	    _this.setEventNamespace('BX.Landing.UI.Field');
+
+	    _this.subscribeFromOptions(landing_ui_component_internal.fetchEventsFromOptions(options));
 
 	    _this.data = babelHelpers.objectSpread({}, options);
 	    _this.options = _this.data;
@@ -247,5 +249,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.BaseField = BaseField;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Event));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Event,BX.Landing.UI.Component));
 //# sourceMappingURL=basefield.bundle.js.map

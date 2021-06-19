@@ -1,10 +1,11 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/general/blog_post.php");
 
 class CBlogPost extends CAllBlogPost
 {
 	/*************** ADD, UPDATE, DELETE *****************/
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB, $USER_FIELD_MANAGER;
 
@@ -546,7 +547,7 @@ class CBlogPost extends CAllBlogPost
 		return False;
 	}
 
-	function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB, $USER_FIELD_MANAGER, $USER, $APPLICATION;
 		static $blogPostEventIdList = null;
@@ -995,7 +996,7 @@ class CBlogPost extends CAllBlogPost
 		return $dbRes;
 	}
 
-	function GetListCalendar($blogID, $year = false, $month = false, $day = false)
+	public static function GetListCalendar($blogID, $year = false, $month = false, $day = false)
 	{
 		global $DB, $USER, $APPLICATION;
 
@@ -1075,4 +1076,3 @@ class CBlogPost extends CAllBlogPost
 		return $arResult;
 	}
 }
-?>

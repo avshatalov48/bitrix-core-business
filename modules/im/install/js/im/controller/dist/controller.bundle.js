@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,pull_client,rest_client,ui_vue_vuex,im_model,im_provider_pull,im_provider_rest,im_lib_timer,im_lib_utils,ui_vue,im_const,im_lib_logger) {
+(function (exports,pull_client,rest_client,ui_vue_vuex,im_model,im_provider_pull,im_provider_rest,im_lib_timer,im_const,im_lib_utils,ui_vue,im_lib_logger) {
 	'use strict';
 
 	/**
@@ -20,7 +20,7 @@ this.BX = this.BX || {};
 	      return params;
 	    };
 
-	    this.defaultMessageLimit = 20;
+	    this.defaultMessageLimit = 50;
 	    this.requestMessageLimit = this.getDefaultMessageLimit();
 	    this.messageLastReadId = {};
 	    this.messageReadQueue = {};
@@ -207,7 +207,7 @@ this.BX = this.BX || {};
 	        return true;
 	      }
 
-	      if (dialog.unreadLastId <= 0) {
+	      if (dialog.lastMessageId <= 0) {
 	        return true;
 	      }
 
@@ -228,7 +228,7 @@ this.BX = this.BX || {};
 	        }
 	      }
 
-	      return lastElementId >= dialog.unreadLastId;
+	      return lastElementId >= dialog.lastMessageId;
 	    }
 	  }, {
 	    key: "prepareFilesBeforeSave",
@@ -583,195 +583,6 @@ this.BX = this.BX || {};
 	}();
 
 	/**
-	 * Bitrix Messenger
-	 * Recent list controller
-	 *
-	 * @package bitrix
-	 * @subpackage im
-	 * @copyright 2001-2020 Bitrix
-	 */
-	var RecentController = /*#__PURE__*/function () {
-	  function RecentController() {
-	    babelHelpers.classCallCheck(this, RecentController);
-	    this.paginationCount = 50;
-	    this.loadingMore = false;
-	    this.hasMoreToLoad = true;
-	    this.placeholderCount = 0;
-	    this.lastMessageDate = null;
-	  }
-
-	  babelHelpers.createClass(RecentController, [{
-	    key: "setCoreController",
-	    value: function setCoreController(controller) {
-	      this.controller = controller;
-	    }
-	  }, {
-	    key: "drawPlaceholders",
-	    value: function drawPlaceholders() {
-	      var placeholders = this.generatePlaceholders(this.paginationCount);
-	      this.controller.getStore().dispatch('recent/set', {
-	        general: placeholders
-	      });
-	    }
-	  }, {
-	    key: "getRecentData",
-	    value: function getRecentData() {
-	      var _this = this;
-
-	      var queryParams = {
-	        'SKIP_OPENLINES': 'Y',
-	        'LIMIT': this.paginationCount
-	      };
-	      this.controller.restClient.callMethod(im_const.RestMethod.imRecentList, queryParams, null, null).then(function (result) {
-	        _this.lastMessageDate = _this.getLastMessageDate(result.data().items);
-
-	        if (result.data().items.length !== _this.paginationCount) {
-	          _this.hasMoreToLoad = false;
-	        }
-
-	        _this.controller.getStore().dispatch('recent/clearPlaceholders');
-
-	        _this.controller.executeRestAnswer(im_const.RestMethodHandler.imRecentList, result);
-	      });
-	    }
-	  }, {
-	    key: "loadMore",
-	    value: function loadMore() {
-	      var _this2 = this;
-
-	      if (!this.loadingMore && this.hasMoreToLoad) {
-	        this.loadingMore = true;
-	        var firstMessageToUpdate = this.placeholderCount;
-	        var placeholders = this.generatePlaceholders(this.paginationCount);
-	        this.controller.getStore().dispatch('recent/set', {
-	          general: placeholders
-	        }).then(function () {
-	          var queryParams = {
-	            'SKIP_OPENLINES': 'Y',
-	            'LIMIT': _this2.paginationCount,
-	            'LAST_MESSAGE_UPDATE': _this2.lastMessageDate
-	          };
-
-	          _this2.controller.restClient.callMethod(im_const.RestMethod.imRecentList, queryParams, null, null).then(function (result) {
-	            var items = result.data().items;
-
-	            if (!items || items.length === 0) {
-	              _this2.controller.getStore().dispatch('recent/clearPlaceholders');
-
-	              return false;
-	            }
-
-	            if (items.length !== _this2.paginationCount) {
-	              _this2.hasMoreToLoad = false;
-	            }
-
-	            _this2.lastMessageDate = _this2.getLastMessageDate(items);
-
-	            var data = _this2.prepareDataForModels(items);
-
-	            _this2.controller.getStore().dispatch('users/set', data.users).then(function () {
-	              _this2.controller.getStore().dispatch('dialogues/set', data.dialogues).then(function () {
-	                _this2.controller.getStore().dispatch('recent/updatePlaceholders', {
-	                  items: data.recent,
-	                  firstMessage: firstMessageToUpdate
-	                }).then(function () {
-	                  _this2.loadingMore = false;
-
-	                  if (!_this2.hasMoreToLoad) {
-	                    _this2.controller.getStore().dispatch('recent/clearPlaceholders');
-	                  }
-	                });
-	              });
-	            });
-	          });
-	        });
-	      }
-	    }
-	  }, {
-	    key: "generatePlaceholders",
-	    value: function generatePlaceholders(amount) {
-	      var placeholders = [];
-
-	      for (var i = 0; i < amount; i++) {
-	        placeholders.push({
-	          id: 'placeholder' + this.placeholderCount,
-	          templateId: 'placeholder' + this.placeholderCount,
-	          template: 'placeholder',
-	          sectionCode: 'general'
-	        });
-	        this.placeholderCount++;
-	      }
-
-	      return placeholders;
-	    }
-	  }, {
-	    key: "getLastMessageDate",
-	    value: function getLastMessageDate(collection) {
-	      return collection.slice(-1)[0].date_update;
-	    }
-	  }, {
-	    key: "openOldDialog",
-	    value: function openOldDialog(event) {
-	      if (event.id !== 'notify') {
-	        BXIM.openMessenger(event.id);
-	      } else {
-	        BXIM.openNotify();
-	      }
-	    }
-	  }, {
-	    key: "openOldContextMenu",
-	    value: function openOldContextMenu(event) {
-	      event.$event.preventDefault();
-	      var recentItem = this.controller.getStore().getters['recent/get'](event.id);
-	      var params = {
-	        userId: event.id,
-	        userIsChat: typeof event.id === 'string',
-	        dialogIsPinned: recentItem.element.pinned
-	      };
-	      BXIM.messenger.openPopupMenu(event.$event.target, 'contactList', undefined, params);
-	    }
-	  }, {
-	    key: "prepareDataForModels",
-	    value: function prepareDataForModels(items) {
-	      var result = {
-	        users: [],
-	        dialogues: [],
-	        recent: []
-	      };
-	      items.forEach(function (item) {
-	        var userId = 0;
-	        var chatId = 0;
-
-	        if (item.user && item.user.id > 0) {
-	          userId = item.user.id;
-	          result.users.push(item.user);
-	        }
-
-	        if (item.chat) {
-	          chatId = item.chat.id;
-	          result.dialogues.push(Object.assign(item.chat, {
-	            dialogId: item.id
-	          }));
-	        } else {
-	          result.dialogues.push(Object.assign({}, {
-	            dialogId: item.id
-	          }));
-	        }
-
-	        result.recent.push(babelHelpers.objectSpread({}, item, {
-	          avatar: item.avatar.url,
-	          color: item.avatar.color,
-	          userId: userId,
-	          chatId: chatId
-	        }));
-	      });
-	      return result;
-	    }
-	  }]);
-	  return RecentController;
-	}();
-
-	/**
 	 * Bitrix im
 	 * Core controller class
 	 *
@@ -811,8 +622,8 @@ this.BX = this.BX || {};
 	      return _this.initEnvironment();
 	    }).then(function () {
 	      return _this.initComplete();
-	    }).catch(function () {
-	      im_lib_logger.Logger.log('error initializing core controller');
+	    }).catch(function (error) {
+	      im_lib_logger.Logger.error('error initializing core controller', error);
 	    });
 	  }
 
@@ -944,8 +755,6 @@ this.BX = this.BX || {};
 	    value: function initController() {
 	      this.application = new ApplicationController();
 	      this.application.setCoreController(this);
-	      this.recent = new RecentController();
-	      this.recent.setCoreController(this);
 	      return new Promise(function (resolve, reject) {
 	        return resolve();
 	      });
@@ -971,8 +780,7 @@ this.BX = this.BX || {};
 	        },
 	        dialog: {
 	          messageLimit: this.application.getDefaultMessageLimit(),
-	          enableReadMessages: false // TODO: remove
-
+	          enableReadMessages: true
 	        },
 	        device: {
 	          type: im_lib_utils.Utils.device.isMobile() ? im_const.DeviceType.mobile : im_const.DeviceType.desktop,
@@ -994,6 +802,8 @@ this.BX = this.BX || {};
 	          name: 'Anonymous'
 	        }
 	      })).addModel(im_model.RecentModel.create().useDatabase(false).setVariables({
+	        host: this.getHost()
+	      })).addModel(im_model.NotificationsModel.create().useDatabase(false).setVariables({
 	        host: this.getHost()
 	      }));
 	      this.vuexAdditionalModel.forEach(function (model) {
@@ -1135,8 +945,6 @@ this.BX = this.BX || {};
 	    value: function createVue(application) {
 	      var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	      var controller = this;
-	      var restClient = this.restClient;
-	      var pullClient = this.pullClient || null;
 
 	      var beforeCreateFunction = function beforeCreateFunction() {};
 
@@ -1150,22 +958,33 @@ this.BX = this.BX || {};
 	        destroyedFunction = config.destroyed;
 	      }
 
+	      var createdFunction = function createdFunction() {};
+
+	      if (config.created) {
+	        createdFunction = config.created;
+	      }
+
 	      var initConfig = {
 	        store: this.store,
 	        beforeCreate: function beforeCreate() {
-	          this.$bitrixApplication = application;
-	          this.$bitrixController = controller;
-	          this.$bitrixRestClient = restClient;
-	          this.$bitrixPullClient = pullClient;
-	          this.$bitrixMessages = controller.localize;
+	          this.$bitrix.Data.set('controller', controller);
+	          this.$bitrix.Application.set(application);
+	          this.$bitrix.Loc.setMessage(controller.localize);
+
+	          if (controller.restClient) {
+	            this.$bitrix.RestClient.set(controller.restClient);
+	          }
+
+	          if (controller.pullClient) {
+	            this.$bitrix.PullClient.set(controller.pullClient);
+	          }
+
 	          beforeCreateFunction.bind(this)();
 	        },
+	        created: function created() {
+	          createdFunction.bind(this)();
+	        },
 	        destroyed: function destroyed() {
-	          this.$bitrixApplication = null;
-	          this.$bitrixController = null;
-	          this.$bitrixRestClient = null;
-	          this.$bitrixPullClient = null;
-	          this.$bitrixMessages = null;
 	          destroyedFunction.bind(this)();
 	        }
 	      };
@@ -1182,20 +1001,18 @@ this.BX = this.BX || {};
 	        initConfig.computed = config.computed;
 	      }
 
-	      if (config.created) {
-	        initConfig.created = config.created;
-	      }
-
 	      if (config.data) {
 	        initConfig.data = config.data;
 	      }
 
+	      var initConfigCreatedFunction = initConfig.created;
 	      return new Promise(function (resolve, reject) {
 	        initConfig.created = function () {
+	          initConfigCreatedFunction.bind(this)();
 	          resolve(this);
 	        };
 
-	        ui_vue.Vue.create(initConfig);
+	        ui_vue.BitrixVue.createApp(initConfig);
 	      });
 	    }
 	    /* endregion 04. Template engine */
@@ -1386,5 +1203,5 @@ this.BX = this.BX || {};
 
 	exports.Controller = Controller;
 
-}((this.BX.Messenger = this.BX.Messenger || {}),BX,BX,BX,BX.Messenger.Model,BX.Messenger.Provider.Pull,BX.Messenger.Provider.Rest,BX.Messenger.Lib,BX.Messenger.Lib,BX,BX.Messenger.Const,BX.Messenger.Lib));
+}((this.BX.Messenger = this.BX.Messenger || {}),BX,BX,BX,BX.Messenger.Model,BX.Messenger.Provider.Pull,BX.Messenger.Provider.Rest,BX.Messenger.Lib,BX.Messenger.Const,BX.Messenger.Lib,BX,BX.Messenger.Lib));
 //# sourceMappingURL=controller.bundle.js.map

@@ -28,7 +28,7 @@ class CDeliveryRusPostFirst
 	private static $TARIF_DESCR = 1;
 
 	/* Standard mandatory delivery services functions */
-	function Init()
+	public static function Init()
 	{
 		self::$TARIFS = array(
 							'WEIGHT_LESS_100' => array(6, GetMessage('SALE_DH_RPF_WRP_LESS_100')),
@@ -78,7 +78,7 @@ class CDeliveryRusPostFirst
 		);
 	}
 
-	function GetConfig($siteId = false)
+	public static function GetConfig($siteId = false)
 	{
 		$shopLocationId = CSaleHelper::getShopLocationId($siteId);
 		$arShopLocation = CSaleHelper::getLocationByIdHitCached($shopLocationId);
@@ -167,7 +167,7 @@ class CDeliveryRusPostFirst
 		return $arConfig;
 	}
 
-	function GetSettings($strSettings)
+	public static function GetSettings($strSettings)
 	{
 		$result = unserialize($strSettings, ['allowed_classes' => false]);
 
@@ -186,7 +186,7 @@ class CDeliveryRusPostFirst
 		return $result;
 	}
 
-	function SetSettings($arSettings)
+	public static function SetSettings($arSettings)
 	{
 		if(isset($arSettings['RESET_TARIF_SETTINGS']))
 			unset($arSettings['RESET_TARIF_SETTINGS']);
@@ -202,7 +202,7 @@ class CDeliveryRusPostFirst
 		return serialize($arSettings);
 	}
 
-	function GetFeatures($arConfig)
+	public static function GetFeatures($arConfig)
 	{
 		$arResult = array();
 
@@ -218,7 +218,7 @@ class CDeliveryRusPostFirst
 		return $arResult;
 	}
 
-	function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
+	public static function Calculate($profile, $arConfig, $arOrder, $STEP, $TEMP = false)
 	{
 		$arPacks = CSaleDeliveryHelper::getBoxesFromConfig($profile, $arConfig);
 
@@ -251,7 +251,7 @@ class CDeliveryRusPostFirst
 		return $arResult;
 	}
 
-	function Compability($arOrder, $arConfig)
+	public static function Compability($arOrder, $arConfig)
 	{
 		$result = array();
 
@@ -428,7 +428,7 @@ class CDeliveryRusPostFirst
 		return isset($data[$regionLangName]) ? $data[$regionLangName] : "";
 	}
 
-	public function getAdminMessage()
+	public static function getAdminMessage()
 	{
 		return array(
 			'MESSAGE' => GetMessage(

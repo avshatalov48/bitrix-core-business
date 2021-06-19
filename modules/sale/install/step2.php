@@ -38,9 +38,7 @@ if ($install_public == "Y" && !empty($public_dir))
 		}
 	}
 
-	$b = "sort";
-	$o = "asc";
-	$dbSites = CSite::GetList($b, $o, array("ACTIVE" => "Y"));
+	$dbSites = CSite::GetList('', '', array("ACTIVE" => "Y"));
 	while ($site = $dbSites->Fetch())
 	{
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/install/public/".$site['LANGUAGE_ID'], $site['ABS_DOC_ROOT'].$site["DIR"].$public_dir, $bReWritePublicFiles, true);
@@ -113,7 +111,7 @@ if ($public_dir <> '') :
 		<td align="center"><p><b><?=GetMessage("MOD_DEMO_LINK")?></b></p></td>
 	</tr>
 	<?
-	$sites = CSite::GetList($by, $order, Array("ACTIVE"=>"Y"));
+	$sites = CSite::GetList('', '', Array("ACTIVE"=>"Y"));
 	while($site = $sites->Fetch())
 	{
 		?>

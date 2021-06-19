@@ -21,6 +21,10 @@ class VariationGrid
 		this.modifyPropertyLink = settings.modifyPropertyLink;
 		this.gridEditData = settings.gridEditData;
 		this.canHaveSku = settings.canHaveSku || false;
+		if (settings.copyItemsMap)
+		{
+			this.getGrid().arParams.COPY_ITEMS_MAP = settings.copyItemsMap;
+		}
 
 		const isGridReload = settings.isGridReload || false;
 		if (!isGridReload)
@@ -41,6 +45,8 @@ class VariationGrid
 		{
 			this.enableEdit();
 			this.prepareNewNodes();
+			this.getGrid().updateCounterSelected();
+			this.getGrid().disableCheckAllCheckboxes();
 		}
 		else
 		{
@@ -55,9 +61,6 @@ class VariationGrid
 
 	subscribeCustomEvents()
 	{
-		this.onSubmitEntityEditorAjaxHandler = this.onSubmitEntityEditorAjax.bind(this);
-		EventEmitter.subscribeOnce('BX.UI.EntityEditorAjax:onSubmit', this.onSubmitEntityEditorAjaxHandler);
-
 		this.onGridUpdatedHandler = this.onGridUpdated.bind(this);
 		EventEmitter.subscribe('Grid::updated', this.onGridUpdatedHandler);
 
@@ -66,6 +69,9 @@ class VariationGrid
 
 		this.onAllRowsSelectHandler = this.enableEdit.bind(this)
 		EventEmitter.subscribe('Grid::allRowsSelected', this.onAllRowsSelectHandler);
+
+		this.onAllRowsUnselectHandler = this.disableEdit.bind(this);
+		EventEmitter.subscribe('Grid::allRowsUnselected', this.onAllRowsUnselectHandler);
 
 		this.showPropertySettingsSliderHandler = this.showPropertySettingsSlider.bind(this);
 		EventEmitter.subscribe('VariationGrid::propertyModify', this.showPropertySettingsSliderHandler);
@@ -76,6 +82,12 @@ class VariationGrid
 
 	unsubscribeCustomEvents()
 	{
+		if (this.onGridUpdatedHandler)
+		{
+			EventEmitter.unsubscribe('Grid::updated', this.onGridUpdatedHandler);
+			this.onGridUpdatedHandler = null;
+		}
+
 		if (this.onPropertySaveHandler)
 		{
 			EventEmitter.unsubscribe('SidePanel.Slider:onMessage', this.onPropertySaveHandler);
@@ -98,6 +110,12 @@ class VariationGrid
 		{
 			EventEmitter.unsubscribe('Grid::allRowsSelected', this.onAllRowsSelectHandler);
 			this.onAllRowsSelectHandler = null;
+		}
+
+		if (this.onAllRowsUnselectHandler)
+		{
+			EventEmitter.unsubscribe('Grid::allRowsUnselected', this.onAllRowsUnselectHandler);
+			this.onAllRowsUnselectHandler = null;
 		}
 	}
 
@@ -131,11 +149,6 @@ class VariationGrid
 				menu.close();
 			}
 		})
-	}
-
-	onSubmitEntityEditorAjax(event)
-	{
-		EventEmitter.emit(this.getGrid().getSettingsWindow().getPopup(), 'onDestroy');
 	}
 
 	onPrepareDropDownItems(event)
@@ -232,10 +245,40 @@ class VariationGrid
 		return this.grid;
 	}
 
+	emitEditedRowsEvent()
+	{
+		if (this.getGrid().getRows().isSelected())
+		{
+			EventEmitter.emit('Grid::thereEditedRows', []);
+		}
+		else
+		{
+			EventEmitter.emit('Grid::noEditedRows', []);
+		}
+	}
+
+	disableEdit()
+	{
+		if (this.isNew)
+		{
+			return;
+		}
+
+		this.getGrid().getRows().getRows().forEach((current) => {
+			if (!Dom.hasClass(current.getNode(), 'main-grid-row-new'))
+			{
+				current.editCancel();
+				current.unselect();
+			}
+		});
+
+		this.emitEditedRowsEvent();
+	}
+
 	enableEdit()
 	{
 		this.getGrid().getRows().selectAll();
-		this.getGrid().editSelected();
+		this.getGrid().getRows().editSelected();
 	}
 
 	prepareNewNodes()
@@ -245,7 +288,17 @@ class VariationGrid
 			this.markNodeAsNew(newNode)
 			this.addSkuListCreationItem(newNode);
 			this.modifyCustomSkuProperties(newNode);
+			this.disableCheckbox(row);
 		});
+	}
+
+	disableCheckbox(row)
+	{
+		const checkbox = row.getCheckbox();
+		if (Type.isDomNode(checkbox))
+		{
+			checkbox.setAttribute('disabled', 'disabled');
+		}
 	}
 
 	markNodeAsNew(node)
@@ -326,14 +379,7 @@ class VariationGrid
 
 		if (changed)
 		{
-			if (this.getGrid().getRows().isSelected())
-			{
-				EventEmitter.emit('Grid::thereEditedRows', []);
-			}
-			else
-			{
-				EventEmitter.emit('Grid::noEditedRows', []);
-			}
+			this.emitEditedRowsEvent();
 
 			this.getGrid().adjustRows();
 			this.getGrid().updateCounterSelected();
@@ -429,11 +475,7 @@ class VariationGrid
 		const grid = this.getGrid();
 		const newRow = grid.prependRowEditor();
 
-		const checkbox = newRow.getCheckbox();
-		if (Type.isDomNode(checkbox))
-		{
-			checkbox.setAttribute('disabled', 'disabled');
-		}
+		this.disableCheckbox(newRow);
 
 		const newNode = newRow.getNode();
 		grid.getRows().reset();
@@ -446,6 +488,7 @@ class VariationGrid
 			this.markNodeAsNew(newNode);
 			this.modifyCustomSkuProperties(newNode);
 			this.addSkuListCreationItem(newNode);
+			this.setDeleteButton(newNode);
 			newRow.makeCountable();
 		}
 
@@ -459,6 +502,52 @@ class VariationGrid
 		grid.adjustRows();
 		grid.updateCounterDisplayed();
 		grid.updateCounterSelected();
+		this.updateCounterTotal();
+	}
+
+	updateCounterTotal()
+	{
+		const grid = this.getGrid();
+		const counterTotalTextContainer = grid.getCounterTotal().querySelector('.main-grid-panel-content-text');
+		counterTotalTextContainer.textContent = grid.getRows().getCountDisplayed();
+	}
+
+	setDeleteButton(row)
+	{
+		const actionCellContentContainer = row.querySelector('.main-grid-cell-action .main-grid-cell-content');
+		const rowId = row?.dataset?.id;
+
+		if (rowId)
+		{
+			const deleteButton = Tag.render`
+				<span 
+					class="main-grid-delete-button" 
+					onclick="${this.removeNewRowFromGrid.bind(this, rowId)}"
+				></span>
+			`;
+
+			Dom.append(deleteButton, actionCellContentContainer);
+		}
+	}
+
+	removeNewRowFromGrid(rowId)
+	{
+		if (!Type.isStringFilled(rowId))
+		{
+			return;
+		}
+
+		const gridRow = this.getGrid().getRows().getById(rowId);
+		if (gridRow)
+		{
+			Dom.remove(gridRow.getNode());
+			this.getGrid().getRows().reset();
+			this.getGrid().updateCounterDisplayed();
+			this.getGrid().updateCounterSelected();
+			this.updateCounterTotal();
+
+			this.emitEditedRowsEvent();
+		}
 	}
 
 	removeRowFromGrid(skuId)

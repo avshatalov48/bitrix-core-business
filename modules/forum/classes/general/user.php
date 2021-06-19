@@ -1655,7 +1655,7 @@ class CAllForumRank
 				if (!is_set($val, "NAME") || empty($val["NAME"])) return false;
 			}
 
-			$db_lang = CLang::GetList(($b="sort"), ($o="asc"));
+			$db_lang = CLang::GetList();
 			while ($arLang = $db_lang->Fetch())
 			{
 				$bFound = false;
@@ -2171,15 +2171,14 @@ class CALLForumStat
 		return $db_res;
 	}
 
-	public static function CleanUp($period = 48) // time in hours
+	public static function CleanUp()
 	{
 		global $DB;
-		$period = intval($period)*3600;
-		$date = $DB->CharToDateFunction($DB->ForSql(Date(CDatabase::DateFormatToPHP(CLang::GetDateFormat("FULL", LANGUAGE_ID)), time()-$period)), "FULL") ;
-		$strSQL = "DELETE FROM b_forum_stat
-					WHERE (LAST_VISIT
-					< ".$date.")";
-		$DB->Query($strSQL, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query(
+			"DELETE FROM b_forum_stat WHERE LAST_VISIT < DATE_SUB(NOW(), INTERVAL 1 DAY)",
+			false,
+			"File: ".__FILE__."<br>Line: ".__LINE__
+		);
 		return "CForumStat::CleanUp();";
 	}
 }

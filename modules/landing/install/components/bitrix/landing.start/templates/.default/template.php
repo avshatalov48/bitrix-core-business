@@ -4,13 +4,18 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
-$sef = [];
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var \CMain $APPLICATION */
+/** @var \CBitrixComponent $component */
 
+$sef = [];
 foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 {
 	$sef[$code] = $arParams['SEF_FOLDER'] . $url;
 }
 
+\CJSCore::init('landing.metrika');
 \Bitrix\Landing\Update\Stepper::show();
 ?>
 

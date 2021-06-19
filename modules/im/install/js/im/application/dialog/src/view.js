@@ -7,62 +7,64 @@
  * @copyright 2001-2020 Bitrix
  */
 
-import {Vue} from "ui.vue";
+import {BitrixVue} from "ui.vue";
 import {Logger} from "im.lib.logger";
 import {Utils} from "im.lib.utils";
+import "im.component.recent";
 import "im.component.dialog";
+import "im.component.textarea";
 import "pull.component.status";
 import "./view.css";
 
-/**
- * @notice Do not mutate or clone this component! It is under development.
- */
-Vue.component('bx-im-application-dialog',
+import {DeviceType} from 'im.const';
+import {
+	DialogCore, DialogReadMessages, DialogQuoteMessage, DialogClickOnCommand, DialogClickOnMention, DialogClickOnUserName,
+	DialogClickOnMessageMenu, DialogClickOnMessageRetry, DialogClickOnUploadCancel, DialogClickOnReadList,
+	DialogSetMessageReaction, DialogOpenMessageReactionList, DialogClickOnKeyboardButton, DialogClickOnChatTeaser,
+	DialogClickOnDialog, TextareaCore, TextareaUploadFile
+} from 'im.mixin';
+import { EventEmitter } from "main.core.events";
+
+BitrixVue.component('bx-im-application-dialog',
 {
 	props:
 	{
 		userId: { default: 0 },
-		dialogId: { default: '0' }
+		initialDialogId: { default: '0' }
 	},
+
+	mixins: [
+		DialogCore, DialogReadMessages, DialogQuoteMessage, DialogClickOnCommand, DialogClickOnMention, DialogClickOnUserName,
+		DialogClickOnMessageMenu, DialogClickOnMessageRetry, DialogClickOnUploadCancel, DialogClickOnReadList,
+		DialogSetMessageReaction, DialogOpenMessageReactionList, DialogClickOnKeyboardButton, DialogClickOnChatTeaser,
+		DialogClickOnDialog, TextareaCore, TextareaUploadFile
+	],
 
 	data()
 	{
 		return {
-			realDialogId: 0
+			dialogId: 0
 		}
 	},
 
-
 	created()
 	{
-		this.realDialogId = this.dialogId;
+		this.dialogId = this.initialDialogId;
 
-		Vue.event.$on('openMessenger', data =>
-		{
-			let metaPress = data.$event.ctrlKey || data.$event.metaKey;
+		EventEmitter.subscribe('openMessenger', this.onOpenMessenger)
+	},
 
-			if (this.$root.$bitrixApplication.params.place === 2)
-			{
-				if (metaPress)
-				{
-					this.realDialogId = data.id;
-				}
-			}
-			else
-			{
-				if (!metaPress)
-				{
-					this.realDialogId = data.id;
-				}
-			}
-		});
+	beforeDestroy()
+	{
+		EventEmitter.unsubscribe('openMessenger', this.onOpenMessenger)
 	},
 
 	computed:
 	{
+		DeviceType: () => DeviceType,
 		isDialog()
 		{
-			return Utils.dialog.isChatId(this.realDialogId);
+			return Utils.dialog.isChatId(this.dialogId);
 		},
 
 		isEnableGesture()
@@ -77,36 +79,42 @@ Vue.component('bx-im-application-dialog',
 	},
 	methods:
 	{
+		onOpenMessenger({data: event})
+		{
+			this.dialogId = event.id;
+		},
 		logEvent(name, ...params)
 		{
 			Logger.info(name, ...params);
 		},
 	},
+	// language=Vue
 	template: `
-		<div class="bx-mobilechat">
-			<div class="bx-mobilechat-dialog-title">Dialog: {{realDialogId}}</div>
-			<bx-pull-component-status/>
-			<bx-im-component-dialog
-				:userId="userId" 
-				:dialogId="realDialogId"
-				:enableGestureMenu="isEnableGesture"
-				:enableGestureQuote="isEnableGesture"
-				:enableGestureQuoteFromRight="isEnableGestureQuoteFromRight"
-				:showMessageUserName="isDialog"
-				:showMessageAvatar="isDialog"
-				@clickByCommand="logEvent('clickByCommand', $event)"
-				@clickByMention="logEvent('clickByMention', $event)"
-				@clickByUserName="logEvent('clickByUserName', $event)"
-				@clickByMessageMenu="logEvent('clickByMessageMenu', $event)"
-				@clickByMessageRetry="logEvent('clickByMessageRetry', $event)"
-				@clickByUploadCancel="logEvent('clickByUploadCancel', $event)"
-				@clickByReadedList="logEvent('clickByReadedList', $event)"
-				@setMessageReaction="logEvent('setMessageReaction', $event)"
-				@openMessageReactionList="logEvent('openMessageReactionList', $event)"
-				@clickByKeyboardButton="logEvent('clickByKeyboardButton', $event)"
-				@clickByChatTeaser="logEvent('clickByChatTeaser', $event)"
-				@click="logEvent('click', $event)"
-			 />
+	  	<div style="display: flex;">
+			<div class="bx-mobilechat">
+				<div class="bx-mobilechat-dialog-title">Dialog: {{dialogId}}</div>
+				<bx-pull-component-status/>
+				<bx-im-component-dialog
+					:userId="userId" 
+					:dialogId="dialogId"
+					:enableGestureMenu="isEnableGesture"
+					:enableGestureQuote="isEnableGesture"
+					:enableGestureQuoteFromRight="isEnableGestureQuoteFromRight"
+					:showMessageUserName="isDialog"
+					:showMessageAvatar="isDialog"
+				 />
+				<bx-im-component-textarea
+					:siteId="application.common.siteId"
+					:userId="userId"
+					:dialogId="dialogId"
+					:writesEventLetter="3"
+					:enableEdit="true"
+					:enableCommand="false"
+					:enableMention="false"
+					:enableFile="true"
+					:autoFocus="application.device.type !== DeviceType.mobile"
+				/>
+			</div>
 		</div>
 	`
 });

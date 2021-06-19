@@ -243,7 +243,7 @@ else
 				"UF_DEPARTMENT" => false
 			); 
 
-			$rsUsers = CUser::GetList(($by="ID"), ($order="asc"), $arFilter);
+			$rsUsers = CUser::GetList("ID", "asc", $arFilter);
 			while($arUser = $rsUsers->Fetch())
 				$arExtranetUserID[] = $arUser["ID"];
 		}

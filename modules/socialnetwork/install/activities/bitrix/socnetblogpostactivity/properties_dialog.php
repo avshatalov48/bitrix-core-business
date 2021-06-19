@@ -40,9 +40,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 		<select name="post_site">
 			<option value="">(<?= GetMessage("SNBPA_PD_POST_SITE_OTHER") ?>)</option>
 			<?
-			$b = $o = "";
 			$expression = CBPDocument::IsExpression($arCurrentValues["post_site"]) ? htmlspecialcharsbx($arCurrentValues["post_site"]) : '';
-			$dbSites = CSite::GetList($b, $o, Array("ACTIVE" => "Y"));
+			$dbSites = CSite::GetList('', '', Array("ACTIVE" => "Y"));
 			while ($site = $dbSites->GetNext())
 			{
 				?><option value="<?= $site["LID"] ?>"<?= ($site["LID"] == $arCurrentValues["post_site"]) ? " selected" : ""?>>[<?= $site["LID"] ?>] <?= $site["NAME"] ?></option><?

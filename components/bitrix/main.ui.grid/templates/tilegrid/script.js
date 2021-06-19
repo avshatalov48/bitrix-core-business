@@ -20,6 +20,11 @@
 		this.isLoadingNextPortion = false;
 
 		this.init(options);
+		BX.onCustomEvent(
+			window,
+			"BX.TileGrid.Grid:initialized",
+			[this]
+		);
 	};
 
 	BX.Main.TileGrid.prototype =

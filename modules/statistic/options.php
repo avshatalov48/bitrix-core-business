@@ -47,7 +47,7 @@ if ($STAT_RIGHT>="R"):
 	if ($REQUEST_METHOD=="POST" && $STAT_RIGHT=="W" && $RestoreDefaults <> '' && check_bitrix_sessid())
 	{
 		COption::RemoveOption($module_id);
-		$z = CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
+		$z = CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 		while($zr = $z->Fetch())
 			$APPLICATION->DelGroupRight($module_id, array($zr["ID"]));
 		LocalRedirect($APPLICATION->GetCurPage()."?mid=".urlencode($mid)."&lang=".urlencode(LANGUAGE_ID)."&back_url_settings=".urlencode($_REQUEST["back_url_settings"])."&".$tabControl->ActiveTabParam());
@@ -636,7 +636,7 @@ if ($STAT_RIGHT>="R"):
 					</td>
 				</tr>
 			<?elseif($key == "SKIP_STATISTIC_GROUPS"):
-				$rUserGroups = CGroup::GetList($by = "c_sort", $order = "asc");
+				$rUserGroups = CGroup::GetList();
 				while ($arUserGroups = $rUserGroups->Fetch())
 				{
 					$ug_id[] = $arUserGroups["ID"];

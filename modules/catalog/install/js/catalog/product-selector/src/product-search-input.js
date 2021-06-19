@@ -21,8 +21,9 @@ export class ProductSearchInput
 		}
 
 		this.model = options.model || {};
-		this.isEnabledSearch = options.isSearchEnabled || false;
+		this.isEnabledSearch = options.isSearchEnabled;
 		this.isEnabledDetailLink = options.isEnabledDetailLink;
+		this.isEnabledEmptyProductError = options.isEnabledEmptyProductError;
 		this.inputName = options.inputName || '';
 	}
 
@@ -46,11 +47,6 @@ export class ProductSearchInput
 		return this.isEnabledSearch;
 	}
 
-	isEmptyModel(): boolean
-	{
-		return this.model.getType() === 'empty';
-	}
-
 	toggleIcon(icon, value)
 	{
 		if (Type.isDomNode(icon))
@@ -61,13 +57,15 @@ export class ProductSearchInput
 
 	getNameBlock(): HTMLElement
 	{
-		return Tag.render`
-			<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
-				${this.getNameTag()}
-				${this.getNameInput()}
-				${this.getHiddenNameInput()}
-			</div>
-		`;
+		return this.cache.remember('nameBlock', () => {
+			return Tag.render`
+				<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
+					${this.getNameTag()}
+					${this.getNameInput()}
+					${this.getHiddenNameInput()}
+				</div>
+			`;
+		});
 	}
 
 	getNameTag(): ?HTMLElement
@@ -191,7 +189,6 @@ export class ProductSearchInput
 		}
 
 		block.appendChild(this.getNameBlock());
-
 		return block;
 	}
 
@@ -272,7 +269,7 @@ export class ProductSearchInput
 
 	handleClearIconClick(event: UIEvent)
 	{
-		if (this.selector.isProductSearchEnabled() && !this.isEmptyModel())
+		if (this.selector.isProductSearchEnabled() && !this.selector.isEmptyModel())
 		{
 			this.selector.clearState();
 			this.selector.clearLayout();
@@ -330,7 +327,7 @@ export class ProductSearchInput
 
 	handleShowSearchDialog(event: UIEvent)
 	{
-		if (this.isEmptyModel())
+		if (this.selector.isEmptyModel() || this.selector.isSimpleModel())
 		{
 			this.selector.searchInDialog(event.target.value);
 		}
@@ -353,6 +350,21 @@ export class ProductSearchInput
 				this.toggleIcon(this.getSearchIcon(), 'block');
 			}
 		}, 200);
+
+		if (this.isSearchEnabled() && this.isEnabledEmptyProductError)
+		{
+			setTimeout(() => {
+				if (this.selector.isEmptyModel())
+				{
+					this.model.setError(
+						'NOT_SELECTED_PRODUCT',
+						Loc.getMessage('CATALOG_SELECTOR_SELECTED_PRODUCT_TITLE')
+					);
+
+					this.selector.layoutErrors();
+				}
+			}, 200);
+		}
 	}
 
 	handleSearchIconClick(event: UIEvent)
@@ -364,11 +376,26 @@ export class ProductSearchInput
 		event.preventDefault();
 	}
 
+	resetModel(title)
+	{
+		const fields = this.selector.getModel().getFields();
+		const newModel = this.selector.createModel({isSimpleModel: true});
+		this.selector.setModel(newModel);
+		fields['NAME'] = title;
+		this.selector.getModel().setFields(fields);
+	}
+
 	onProductSelect(event)
 	{
 		const item = event.getData().item;
 		item.getDialog().getTargetNode().value = item.getTitle();
 		this.toggleIcon(this.getSearchIcon(), 'none');
+
+		this.resetModel(item.getTitle());
+
+		this.selector.getFileInput().unsubscribeImageInputEvents();
+		this.selector.clearLayout();
+		this.selector.layout();
 
 		if (this.selector)
 		{
@@ -383,14 +410,27 @@ export class ProductSearchInput
 
 	createProduct(event): Promise
 	{
+		const {searchQuery} = event.getData();
+		this.resetModel(searchQuery.getQuery());
 		return new Promise(
 			(resolve, reject) => {
-				const {searchQuery} = event.getData();
 				const dialog: Dialog = event.getTarget();
 				const fields = {
 					NAME: searchQuery.getQuery(),
 					IBLOCK_ID: this.selector.getIblockId()
 				};
+
+				const price = this.selector.getModel().getField('PRICE', null);
+				if (!Type.isNil(price))
+				{
+					fields['PRICE'] = price;
+				}
+
+				const currency = this.selector.getModel().getField('CURRENCY', null);
+				if (Type.isStringFilled(currency))
+				{
+					fields['CURRENCY'] = currency;
+				}
 
 				dialog.showLoader();
 				ajax.runAction(
@@ -429,7 +469,7 @@ export class ProductSearchInput
 	getPlaceholder(): string
 	{
 		return (
-			this.isSearchEnabled() && this.isEmptyModel()
+			this.isSearchEnabled() && this.selector.isEmptyModel()
 				? Loc.getMessage('CATALOG_SELECTOR_BEFORE_SEARCH_TITLE')
 				: Loc.getMessage('CATALOG_SELECTOR_VIEW_NAME_TITLE')
 		);

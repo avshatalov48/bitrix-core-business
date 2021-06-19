@@ -7,12 +7,12 @@ if (!CModule::IncludeModule("vote"))
 $arrChannels = array();
 $arrVotes = Array();
 
-$rs = CVoteChannel::GetList($v1, $v2, array(), $v3);
+$rs = CVoteChannel::GetList();
 while ($arChannel=$rs->Fetch()) 
 {
 	$arrChannels[$arChannel["SID"]] = "[".$arChannel["SID"]."] ".$arChannel["TITLE"];	
 
-	$rsVotes = CVote::GetList($v1, $v2, array("CHANNEL_ID" => $arChannel["ID"]), $v3);
+	$rsVotes = CVote::GetList('', '', array("CHANNEL_ID" => $arChannel["ID"]));
 	while ($arVote = $rsVotes->Fetch())
 	{
 		$arrVotes[$arVote["ID"]] = "[".$arVote["ID"]."] (".$arChannel["SID"].") ".TruncateText($arVote["TITLE"],40);

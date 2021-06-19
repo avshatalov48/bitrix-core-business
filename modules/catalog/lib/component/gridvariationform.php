@@ -290,7 +290,7 @@ class GridVariationForm extends VariationForm
 	{
 		$headers = [];
 
-		$numberFields = ['QUANTITY', 'MEASURE_RATIO', 'WEIGHT', 'WIDTH', 'LENGTH', 'HEIGHT'];
+		$numberFields = ['QUANTITY', 'QUANTITY_RESERVED', 'MEASURE_RATIO', 'WEIGHT', 'WIDTH', 'LENGTH', 'HEIGHT'];
 		$numberFields = array_fill_keys($numberFields, true);
 
 		$immutableFields = ['TIMESTAMP_X', 'USER_NAME', 'DATE_CREATE', 'CREATED_USER_NAME', 'AVAILABLE'];
@@ -381,6 +381,7 @@ class GridVariationForm extends VariationForm
 						break;
 
 					case 'QUANTITY':
+					case 'QUANTITY_RESERVED':
 						if (State::isUsedInventoryManagement())
 						{
 							$editable = false;

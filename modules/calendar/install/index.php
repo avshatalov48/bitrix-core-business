@@ -135,7 +135,7 @@ class calendar extends CModule
 		if (intval($arCurPhpVer[0]) < 5)
 			return true;
 
-		$errors = $this->InstallUserFields();
+		$errors = static::InstallUserFields();
 		if (!empty($errors))
 		{
 			$APPLICATION->ThrowException(implode("", $errors));
@@ -343,7 +343,7 @@ class calendar extends CModule
 		return true;
 	}
 
-	function InstallUserFields($id = "all")
+	public static function InstallUserFields($id = "all")
 	{
 		global $APPLICATION;
 		$errors = null;

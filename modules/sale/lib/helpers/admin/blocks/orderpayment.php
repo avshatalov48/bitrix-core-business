@@ -109,7 +109,12 @@ class OrderPayment
 		$fields['PAY_SYSTEM_LIST'] = self::getPaySystemList($item);
 
 		$fields['CHECK'] = CheckManager::getCheckInfo($item);
+
 		$fields['CAN_PRINT_CHECK'] = $fields['PAY_SYSTEM_LIST'][$fields['PAY_SYSTEM_ID']]['CAN_PRINT_CHECK'];
+		if (Sale\Cashbox\Manager::isEnabledPaySystemPrint())
+		{
+			$fields['CAN_PRINT_CHECK'] = 'N';
+		}
 
 		$dbRes = CashboxTable::getList(array('filter' => array('=ACTIVE' => 'Y', '=ENABLED' => 'Y')));
 		$fields['HAS_ENABLED_CASHBOX'] = ($dbRes->fetch()) ? 'Y' : 'N';

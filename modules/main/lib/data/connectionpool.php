@@ -19,9 +19,9 @@ class ConnectionPool
 	/**
 	 * @var Connection[]
 	 */
-	protected $connections = array();
+	protected $connections = [];
 
-	protected $connectionParameters = array();
+	protected $connectionParameters = [];
 
 	protected $slavePossible = true;
 	protected $ignoreDml = 0;
@@ -41,7 +41,7 @@ class ConnectionPool
 	 * @param string $name
 	 * @param array $parameters
 	 * @return Connection
-	 * @throws \Bitrix\Main\Config\ConfigurationException
+	 * @throws Config\ConfigurationException
 	 */
 	protected function createConnection($name, $parameters)
 	{
@@ -55,7 +55,9 @@ class ConnectionPool
 		}
 
 		$connection = new $className($parameters);
+
 		$this->connections[$name] = $connection;
+
 		return $connection;
 	}
 
@@ -63,7 +65,7 @@ class ConnectionPool
 	 * Returns database connection by its name. Creates new connection if necessary.
 	 *
 	 * @param string $name Connection name.
-	 * @return Connection|null
+	 * @return Connection|Main\DB\Connection|null
 	 */
 	public function getConnection($name = "")
 	{
@@ -121,14 +123,6 @@ class ConnectionPool
 			{
 				$params = $configParams[$name];
 			}
-			elseif ($name === static::DEFAULT_CONNECTION_NAME)
-			{
-				$dbconnParams = $this->getDbConnConnectionParameters();
-				if (!empty($dbconnParams))
-				{
-					$params = $dbconnParams;
-				}
-			}
 		}
 
 		if ($params !== null && $name === static::DEFAULT_CONNECTION_NAME && !isset($params["include_after_connected"]))
@@ -157,68 +151,6 @@ class ConnectionPool
 	}
 
 	/**
-	 * Returns connected database type.
-	 * - MYSQL
-	 * - ORACLE
-	 * - MSSQL
-	 *
-	 * @return string
-	 */
-	public function getDefaultConnectionType()
-	{
-		$params = Config\Configuration::getValue('connections');
-		if (isset($params[static::DEFAULT_CONNECTION_NAME]) && !empty($params[static::DEFAULT_CONNECTION_NAME]))
-		{
-			$cn = $params[static::DEFAULT_CONNECTION_NAME]['className'];
-			if ($cn === "\\Bitrix\\Main\\DB\\MysqlConnection" || $cn === "\\Bitrix\\Main\\DB\\MysqliConnection")
-				return 'MYSQL';
-			elseif ($cn === "\\Bitrix\\Main\\DB\\OracleConnection")
-				return 'ORACLE';
-			else
-				return 'MSSQL';
-		}
-
-		return mb_strtoupper($GLOBALS["DBType"]);
-	}
-
-	protected function getDbConnConnectionParameters()
-	{
-		/* Old kernel code for compatibility */
-
-		global $DBType, $DBDebug, $DBDebugToFile, $DBHost, $DBName, $DBLogin, $DBPassword;
-
-		require_once(
-			Main\Application::getDocumentRoot().
-			Main\Application::getPersonalRoot().
-			"/php_interface/dbconn.php"
-		);
-
-		$className = null;
-		$type = mb_strtolower($DBType);
-		if($type == 'mysql')
-		{
-			$className = "\\Bitrix\\Main\\DB\\MysqlConnection";
-		}
-		elseif($type == 'mssql')
-		{
-			$className = "\\Bitrix\\Main\\DB\\MssqlConnection";
-		}
-		elseif($type == 'oracle')
-		{
-			$className = "\\Bitrix\\Main\\DB\\OracleConnection";
-		}
-
-		return array(
-			'className' => $className,
-			'host' => $DBHost,
-			'database' => $DBName,
-			'login' => $DBLogin,
-			'password' => $DBPassword,
-			'options' =>  ((!defined("DBPersistent") || DBPersistent) ? Main\DB\Connection::PERSISTENT : 0) | ((defined("DELAY_DB_CONNECT") && DELAY_DB_CONNECT === true) ? Main\DB\Connection::DEFERRED : 0)
-		);
-	}
-
-	/**
 	 * Returns a slave connection or null if the query should go to the master.
 	 *
 	 * @param string $sql A SQL string. Only SELECT will go to a slave.
@@ -244,9 +176,12 @@ class ConnectionPool
 				if($this->slaveConnection === null)
 				{
 					$this->useMasterOnly(true);
+
 					$this->slaveConnection = $this->createSlaveConnection();
+
 					$this->useMasterOnly(false);
 				}
+
 				if(is_object($this->slaveConnection))
 				{
 					return $this->slaveConnection;
@@ -295,16 +230,10 @@ class ConnectionPool
 	/**
 	 * Creates a new slave connection.
 	 *
-	 * @return bool|null|Connection
-	 * @throws \Bitrix\Main\Config\ConfigurationException
+	 * @return bool|Main\DB\Connection
 	 */
 	protected function createSlaveConnection()
 	{
-		if(!class_exists('csqlwhere'))
-		{
-			return null;
-		}
-
 		if(!Main\Loader::includeModule('cluster'))
 		{
 			return false;
@@ -318,14 +247,20 @@ class ConnectionPool
 
 			if(is_array($node) && $node["ACTIVE"] == "Y" && ($node["STATUS"] == "ONLINE" || $node["STATUS"] == "READY"))
 			{
-				$parameters = array(
+				$parameters = [
 					'host' => $node["DB_HOST"],
 					'database' => $node["DB_NAME"],
 					'login' => $node["DB_LOGIN"],
 					'password' => $node["DB_PASSWORD"],
-				);
+				];
+
 				$connection = $this->cloneConnection(self::DEFAULT_CONNECTION_NAME, "node".$node["ID"], $parameters);
-				$connection->setNodeId($node["ID"]);
+
+				if($connection instanceof Main\DB\Connection)
+				{
+					$connection->setNodeId($node["ID"]);
+				}
+
 				return $connection;
 			}
 		}
@@ -338,8 +273,8 @@ class ConnectionPool
 	 * @param string $name Copy source.
 	 * @param string $newName Copy target.
 	 * @param array $parameters Parameters to be passed to createConnection method.
-	 * @throws \Bitrix\Main\Config\ConfigurationException
-	 * @return Main\DB\Connection
+	 * @throws Config\ConfigurationException
+	 * @return Connection
 	 */
 	public function cloneConnection($name, $newName, array $parameters=array())
 	{
@@ -373,5 +308,19 @@ class ConnectionPool
 	public function isMasterOnly()
 	{
 		return ($this->masterOnly > 0);
+	}
+
+	/**
+	 * Disconnects all *database* connections.
+	 */
+	public function disconnect()
+	{
+		foreach ($this->connections as $connection)
+		{
+			if ($connection instanceof Main\DB\Connection)
+			{
+				$connection->disconnect();
+			}
+		}
 	}
 }

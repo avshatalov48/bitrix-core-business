@@ -259,8 +259,9 @@ class SiteTable extends Entity\DataManager
 		}
 
 		// build filter
+		$allowedSites = Rights::getAllowedSites();
 		$buildFilter = Rights::getAccessFilter(
-			['ID' => Rights::getAllowedSites()]
+			$allowedSites ? ['ID' => $allowedSites] : []
 		);
 		if (empty($buildFilter))
 		{
@@ -300,14 +301,11 @@ class SiteTable extends Entity\DataManager
 		}
 
 		// create runtime fields
-		$runtimeParams = [
+		$runtimeParams = [];
+		$runtimeParams[] = [
+			'LOGIC' => 'OR',
 			'=this.ID' => 'ref.ENTITY_ID',
-			'=ref.ENTITY_TYPE' => [
-				'?', Rights::ENTITY_TYPE_SITE
-			]
-			/*'=ref.TASK_ID' => [
-				$tasks[$readCode]
-			]*/
+			'=ref.ENTITY_ID' => [0]
 		];
 		if ($extendedRights)
 		{
@@ -315,36 +313,15 @@ class SiteTable extends Entity\DataManager
 		}
 		else
 		{
+			$runtimeParams['=ref.ENTITY_TYPE'] = ['?', Rights::ENTITY_TYPE_SITE];
 			$runtimeParams['@ref.ROLE_ID'] = [implode(',', $expectedRoles)];
 		}
 		$params['runtime'][] = new Entity\ReferenceField(
 			'RIGHTS',
 			'Bitrix\Landing\Internals\RightsTable',
 			$runtimeParams,
-			[
-				'join_type' => 'LEFT'
-			]
+			['join_type' => 'INNER']
 		);
-		if (!$extendedRights)
-		{
-			$params['runtime'][] = new Entity\ReferenceField(
-				'RIGHTS_COMMON',
-				'Bitrix\Landing\Internals\RightsTable',
-				[
-					'=ref.ENTITY_ID' => [0],
-					'=ref.ENTITY_TYPE' => [
-						'?', Rights::ENTITY_TYPE_SITE
-					],
-					/*'=ref.TASK_ID' => [
-						$tasks[$readCode]
-					],*/
-					'@ref.ROLE_ID' => [implode(',', $expectedRoles)]
-				],
-				[
-					'join_type' => 'LEFT'
-				]
-			);
-		}
 
 		$params['group'][] = 'ID';
 
@@ -421,6 +398,21 @@ class SiteTable extends Entity\DataManager
 				print_r([$fields, \Bitrix\Main\Diag\Helper::getBackTrace(15)],  true),
 				'LANDING_SITE_CREATE'
 			);
+		}
+
+		// clear binding cache
+		if (
+			isset($fields['CODE']) ||
+			isset($fields['TITLE']) ||
+			isset($fields['DELETED'])
+		)
+		{
+			if ($primary)
+			{
+				\Bitrix\Landing\Binding\Entity::onSiteChange(
+					$primary['ID']
+				);
+			}
 		}
 
 		if (
@@ -1425,6 +1417,17 @@ class SiteTable extends Entity\DataManager
 					new Entity\EntityError(
 						Loc::getMessage('LANDING_TABLE_ERROR_SITE_IS_NOT_EMPTY'),
 						'SITE_IS_NOT_EMPTY'
+					)
+				));
+				return $result;
+			}
+			// check lock status
+			if (\Bitrix\Landing\Lock::isSiteDeleteLocked($primary['ID']))
+			{
+				$result->setErrors(array(
+					new Entity\EntityError(
+						Loc::getMessage('LANDING_TABLE_ERROR_SITE_IS_LOCK'),
+						'SITE_IS_LOCK'
 					)
 				));
 				return $result;

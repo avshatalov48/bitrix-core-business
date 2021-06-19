@@ -542,9 +542,7 @@ class Importer
 			'LANG' => array(),
 		);
 
-		$by = "lid";
-		$order = "asc";
-		$langList = \CLanguage::GetList($by, $order, array("ACTIVE" => "Y"));
+		$langList = \CLanguage::GetList('lid', 'asc', array("ACTIVE" => "Y"));
 		while ($lang = $langList->Fetch())
 			$iblockType['LANG'][$lang['LID']]['NAME'] = "Processes";
 

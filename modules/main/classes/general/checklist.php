@@ -123,7 +123,7 @@ class CCheckList
 						$arResult["FAILED"]++;
 					if ($arPointFields["STATE"]["STATUS"] == "W")
 						$arResult["WAITING"]++;
-					if ($arPointFields["REQUIRE"] == "Y")
+					if (isset($arPointFields["REQUIRE"]) && $arPointFields["REQUIRE"] == "Y")
 					{
 						$arResult["REQUIRE"]++;
 						if ($arPointFields["STATE"]["STATUS"] == "A")
@@ -174,15 +174,16 @@ class CCheckList
 		$arCheckList = $this->GetCurrentState();
 		$arResult = array();
 		if (is_array($arCheckList) && !empty($arCheckList))
-		foreach ($arCheckList["POINTS"] as $key => $arFields)
 		{
-			$arFields = array_merge($this->GetDescription($key), $arFields);
+			foreach ($arCheckList["POINTS"] as $key => $arFields)
+			{
+				$arFields = array_merge($this->GetDescription($key), $arFields);
 
-			if ($arFields["PARENT"] == $arSectionCode || $arSectionCode  == false)
-			$arResult[$key] = $arFields;
-			if ($arResult[$key]["STATE"]['COMMENTS'] && is_array($arResult[$key]["STATE"]['COMMENTS']))
-				$arResult[$key]["STATE"]['COMMENTS_COUNT'] = count($arResult[$key]["STATE"]['COMMENTS']);
-
+				if ($arFields["PARENT"] == $arSectionCode || $arSectionCode  == false)
+					$arResult[$key] = $arFields;
+				if (isset($arResult[$key]["STATE"]['COMMENTS']) && is_array($arResult[$key]["STATE"]['COMMENTS']))
+					$arResult[$key]["STATE"]['COMMENTS_COUNT'] = count($arResult[$key]["STATE"]['COMMENTS']);
+			}
 		}
 
 		return $arResult;

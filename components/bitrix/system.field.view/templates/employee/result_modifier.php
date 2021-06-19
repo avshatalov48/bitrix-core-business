@@ -13,7 +13,7 @@ if (is_array($arResult['VALUE']) && count($arResult['VALUE']) > 0)
 {
 
 	$dbRes = CUser::GetList(
-		$by = "LAST_NAME", $order = "ASC", 
+		"LAST_NAME", "ASC",
 		array(
 			'ACTIVE' => 'Y', 
 			'ID' => implode('|', $arResult['VALUE'])

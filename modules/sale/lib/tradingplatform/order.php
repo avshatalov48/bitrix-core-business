@@ -62,7 +62,7 @@ class OrderTable extends Entity\DataManager
 				'data_type' => 'string',
 				'required' => false,
 				'serialized' => true,
-				'title' => Loc::getMessage('TRADING_PLATFORM_ORDER_ENTITY_EXTERNAL_ORDER_LINES_FIELD'),
+				'title' => Loc::getMessage('TRADING_PLATFORM_ORDER_ENTITY_PARAMS_FIELD'),
 			),
 			'TRADING_PLATFORM_ID' => array(
 				'data_type' => 'integer',

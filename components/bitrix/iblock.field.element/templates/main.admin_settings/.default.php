@@ -4,15 +4,14 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 use Bitrix\Iblock\UserField\Types\ElementType;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Text\HtmlFilter;
 
 $name = $arResult['additionalParameters']['NAME'];
-$iblockId = $arResult['iblockId'];
-$value = $arResult['value'];
+$iblockId = (int)$arResult['iblockId'];
+$value = (int)$arResult['value'];
 $activeFilter = $arResult['activeFilter'];
 
 
-/*
+/**
  * @var ElementUfComponent $component
  */
 if($component->isIblockIncluded())
@@ -100,7 +99,7 @@ else
 				type="text"
 				size="8"
 				name="<?= $name ?>[DEFAULT_VALUE]"
-				value="<?= HtmlFilter::encode($value) ?>"
+				value="<?= $value ?>"
 			>
 		</td>
 	</tr>
@@ -116,11 +115,7 @@ else
 				type="radio"
 				name="<?= $name ?>[DISPLAY]"
 				value="<?= ElementType::DISPLAY_LIST ?>"
-				<?= (
-				ElementType::DISPLAY_LIST === $arResult['display']
-					? 'checked="checked"' : ''
-				)
-				?>
+				<?= (ElementType::DISPLAY_LIST === $arResult['display'] ? 'checked="checked"' : '') ?>
 			>
 			<?= Loc::getMessage('USER_TYPE_IBEL_LIST') ?>
 		</label>
@@ -130,11 +125,7 @@ else
 				type="radio"
 				name="<?= $name ?>[DISPLAY]"
 				value="<?= ElementType::DISPLAY_CHECKBOX ?>"
-				<?= (
-				ElementType::DISPLAY_CHECKBOX === $arResult['display']
-					? 'checked="checked"' : ''
-				)
-				?>
+				<?= (ElementType::DISPLAY_CHECKBOX === $arResult['display'] ? 'checked="checked"' : '') ?>
 			>
 			<?= Loc::getMessage('USER_TYPE_IBEL_CHECKBOX') ?>
 		</label>

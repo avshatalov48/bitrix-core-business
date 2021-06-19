@@ -357,7 +357,7 @@ class iblock extends CModule
 		);
 	}
 
-	function OnGetTableSchema()
+	public static function OnGetTableSchema()
 	{
 		return array(
 			"iblock" => array(

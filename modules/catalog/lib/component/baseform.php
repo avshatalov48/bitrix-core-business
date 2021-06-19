@@ -285,6 +285,12 @@ abstract class BaseForm
 					{
 						$value = $this->getEntityViewPictureValues($this->entity);
 						$editValue = $this->getEntityEditPictureValues($this->entity);
+
+						if (!$description['multiple'])
+						{
+							$value = $value[0];
+							$editValue = $editValue[0];
+						}
 					}
 					else
 					{
@@ -298,11 +304,19 @@ abstract class BaseForm
 					$diffExtensions = array_diff($fileExtensions, $imageExtensions);
 					$isImageInput = empty($diffExtensions);
 
+					$descriptionSingle = $description;
+					$descriptionSingle['settings']['MULTIPLE'] = false;
+					$descriptionMultiple = $description;
+					$descriptionMultiple['settings']['MULTIPLE'] = true;
 
 					if ($isImageInput)
 					{
 						$additionalValues[$descriptionData['view']] = $this->getImagePropertyViewHtml($value);
+						$additionalValues[$descriptionData['viewList']]['SINGLE'] = $this->getImagePropertyViewHtml(is_array($value) ? $value[0] : $value);
+						$additionalValues[$descriptionData['viewList']]['MULTIPLE'] = $this->getImagePropertyViewHtml(is_array($value) ? $value : [$value]);
 						$additionalValues[$descriptionData['edit']] = $this->getImagePropertyEditHtml($description, $editValue);
+						$additionalValues[$descriptionData['editList']]['SINGLE'] = $this->getImagePropertyEditHtml($descriptionSingle, is_array($editValue) ? $editValue[0] : $editValue);
+						$additionalValues[$descriptionData['editList']]['MULTIPLE'] = $this->getImagePropertyEditHtml($descriptionMultiple, is_array($editValue) ? $editValue : [$editValue]);
 					}
 					else
 					{
@@ -460,8 +474,12 @@ abstract class BaseForm
 			if ($morePhotoProperty)
 			{
 				$morePhotoValues = $morePhotoProperty->getPropertyValueCollection()->getValues();
-				if (!empty($morePhotoValues) && is_array($morePhotoValues))
+				if (!empty($morePhotoValues))
 				{
+					if (!is_array($morePhotoValues))
+					{
+						$morePhotoValues = [$morePhotoValues];
+					}
 					$values = array_merge($values, $morePhotoValues);
 				}
 			}
@@ -816,6 +834,7 @@ abstract class BaseForm
 	{
 		return [
 			'QUANTITY',
+			'QUANTITY_RESERVED',
 			'VAT_ID',
 			'VAT_INCLUDED',
 			// 'PURCHASING_PRICE',
@@ -900,12 +919,23 @@ abstract class BaseForm
 
 	private function isEditableField(Field $field): bool
 	{
-		if (in_array($field->getName(), ['IBLOCK_ID', 'MODIFIED_BY', 'CREATED_BY', 'AVAILABLE'], true))
+		if (in_array(
+				$field->getName(),
+				[
+					'IBLOCK_ID',
+					'MODIFIED_BY',
+					'CREATED_BY',
+					'AVAILABLE',
+					'DATE_CREATE',
+					'TIMESTAMP_X',
+				],
+			true
+		))
 		{
 			return false;
 		}
 
-		if ($field->getName() === 'QUANTITY' && State::isUsedInventoryManagement())
+		if (in_array($field->getName(), ['QUANTITY', 'QUANTITY_RESERVED'], true) && State::isUsedInventoryManagement())
 		{
 			return false;
 		}
@@ -1155,12 +1185,22 @@ abstract class BaseForm
 		return $fieldType;
 	}
 
+	protected function getHiddenPropertyCodes(): array
+	{
+		return [];
+	}
+
 	protected function getPropertiesConfigElements(): array
 	{
 		$elements = [];
-
+		$hiddenCodesMap = array_fill_keys($this->getHiddenPropertyCodes(), true);
 		foreach ($this->entity->getPropertyCollection() as $property)
 		{
+			if (isset($hiddenCodesMap[$property->getCode()]))
+			{
+				continue;
+			}
+
 			$elements[] = [
 				'name' => static::preparePropertyNameFromProperty($property),
 			];

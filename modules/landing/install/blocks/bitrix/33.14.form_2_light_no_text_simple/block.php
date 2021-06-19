@@ -1,8 +1,6 @@
-<section class="g-pos-rel landing-block g-color-gray-dark-v1 g-pt-30 g-pb-30">
-
-	<div class="container px-0">
-
-		<div class="mx-auto"
+<section class="g-pos-rel landing-block g-pt-30 g-pb-30">
+	<div class="container">
+		<div class="landing-block-node-form-container row justify-content-center">
 			<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v4"
 				data-b24form-use-style="Y"
 				data-b24form-embed

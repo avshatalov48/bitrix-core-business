@@ -12,15 +12,14 @@
 					<!-- End Article Image -->
 
 					<!-- Article Title -->
-					<h4 class="landing-block-node-card-name landing-semantic-subtitle-big g-line-height-1 g-font-size-40 font-italic g-font-weight-700 g-mb-20">
-						Samantha
-						Fox</h4>
+					<h2 class="landing-block-node-card-name landing-semantic-subtitle-big g-line-height-1 h1 font-italic g-font-weight-700 g-mb-20">
+						Samantha Fox</h2>
 					<!-- End Article Title -->
 					<!-- Article Body -->
-					<div class="landing-block-node-card-post landing-semantic-subtitle-small-primary text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-30">
+					<div class="landing-block-node-card-post landing-semantic-subtitle-small-primary text-uppercase g-font-weight-700 g-color-primary g-mb-30">
 						Stylist, Co-Founder
 					</div>
-					<div class="landing-block-node-card-text landing-semantic-text-medium g-color-gray-dark-v5 g-mb-40">
+					<div class="landing-block-node-card-text landing-semantic-text-medium g-mb-40">
 						<p>
 							Etiam dolor tortor, egestas a libero eget, sollicitudin maximus nulla.
 							Nunc vitae maximus ipsum. Vestibulum sodales nisi massa, vitae blandit massa luctus id. Nunc
@@ -45,15 +44,14 @@
 					<!-- End Article Image -->
 
 					<!-- Article Title -->
-					<h4 class="landing-block-node-card-name landing-semantic-subtitle-big g-line-height-1 g-font-size-40 font-italic g-font-weight-700 g-mb-20">
-						Dorian
-						Black</h4>
+					<h2 class="landing-block-node-card-name landing-semantic-subtitle-big g-line-height-1 h1 font-italic g-font-weight-700 g-mb-20">
+						Dorian Black</h2>
 					<!-- End Article Title -->
 					<!-- Article Body -->
-					<div class="landing-block-node-card-post landing-semantic-subtitle-small-primary text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-30">
+					<div class="landing-block-node-card-post landing-semantic-subtitle-small-primary text-uppercase g-font-weight-700 g-color-primary g-mb-30">
 						Photography, Co-Founder
 					</div>
-					<div class="landing-block-node-card-text landing-semantic-text-medium g-color-gray-dark-v5 g-mb-40">
+					<div class="landing-block-node-card-text landing-semantic-text-medium g-mb-40">
 						<p>
 							Etiam dolor tortor, egestas a libero eget, sollicitudin maximus nulla. Nunc vitae maximus
 							ipsum.

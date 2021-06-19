@@ -24,3 +24,17 @@
 .landing-ui-button-icon-edit {
 	background-image: url("images/edit-icon.svg");
 }
+
+.landing-ui-button-icon-font {
+	/*background-image: url("images/edit-icon.svg");*/
+	width: 20px;
+	height: 20px;
+	border: 1px solid red;
+}
+
+.landing-ui-button-icon-link {
+	/*background-image: url("images/edit-icon.svg");*/
+	width: 20px;
+	height: 20px;
+	border: 1px solid green;
+}

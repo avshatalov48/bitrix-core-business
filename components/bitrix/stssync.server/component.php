@@ -60,7 +60,7 @@ if($componentPage !== 'endpoint')
 
 if($componentPage == 'endpoint')
 {
-	if(!isset($arVariables['user_id']) || !isset($arVariables['ap']) || intval($arVariables['user_id']) <= 0 || strlen($arVariables['ap']) <= 0)
+	if(!isset($arVariables['user_id']) || !isset($arVariables['ap']) || intval($arVariables['user_id']) <= 0 || $arVariables['ap'] == '')
 	{
 		die('wrong request');
 	}

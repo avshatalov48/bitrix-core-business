@@ -1,4 +1,4 @@
-<?
+<?php
 
 // 2012-04-10 Checked/modified for compatibility with new data model
 class CAllCertification
@@ -22,9 +22,8 @@ class CAllCertification
 		return ($lessonId);
 	}
 
-
 	// 2012-04-10 Checked/modified for compatibility with new data model
-	function CheckFields(&$arFields, $ID = false)
+	public static function CheckFields(&$arFields, $ID = false)
 	{
 		global $DB, $APPLICATION;
 
@@ -90,9 +89,8 @@ class CAllCertification
 		return true;
 	}
 
-
 	// 2012-04-10 Checked/modified for compatibility with new data model
-	function Add($arFields, $arParams = array())
+	public static function Add($arFields, $arParams = array())
 	{
 		global $DB;
 
@@ -117,9 +115,8 @@ class CAllCertification
 		return false;
 	}
 
-
 	// 2012-04-10 Checked/modified for compatibility with new data model
-	function Update($ID, $arFields, $arParams = array())
+	public static function Update($ID, $arFields, $arParams = array())
 	{
 		global $DB;
 
@@ -154,9 +151,8 @@ class CAllCertification
 		return false;
 	}
 
-
 	// 2012-04-10 Checked/modified for compatibility with new data model
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -190,7 +186,7 @@ class CAllCertification
 	}
 
 	// 2012-04-10 Checked/modified for compatibility with new data model
-	function GetFilter($arFilter)
+	public static function GetFilter($arFilter)
 	{
 
 		if (!is_array($arFilter))
@@ -241,11 +237,10 @@ class CAllCertification
 	}
 
 	// 2012-04-10 Checked/modified for compatibility with new data model
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		return CCertification::GetList(Array(),Array("ID" => $ID));
 	}
-
 
 	// 2012-04-10 Checked/modified for compatibility with new data model
 	public static function IsCourseCompleted($STUDENT_ID, $COURSE_ID)
@@ -307,9 +302,8 @@ class CAllCertification
 		return $isCourseCompleted;
 	}
 
-
 	// 2012-04-10 Checked/modified for compatibility with new data model
-	function Certificate($STUDENT_ID, $COURSE_ID, $checkPerms = true)
+	public static function Certificate($STUDENT_ID, $COURSE_ID, $checkPerms = true)
 	{
 		global $DB;
 

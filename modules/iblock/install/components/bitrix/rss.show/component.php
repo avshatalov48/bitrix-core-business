@@ -70,9 +70,23 @@ if($this->StartResultCache())
 	}
 
 	if($arParams["PROCESS"] == "QUOTE")
-		array_walk_recursive($arResult, create_function('&$val, $key', '$val=htmlspecialcharsex($val);'));
+	{
+		array_walk_recursive(
+			$arResult,
+			function (&$val, $key) {
+				$val = htmlspecialcharsex($val);
+			}
+		);
+	}
 	elseif($arParams["PROCESS"] == "TEXT")
-		array_walk_recursive($arResult, create_function('&$val, $key', '$val=str_replace(array("    ", "\\r\\n"), array("&nbsp;&nbsp;&nbsp;&nbsp;", "<br>"), HTMLToTxt($val));'));
+	{
+		array_walk_recursive(
+			$arResult,
+			function (&$val, $key) {
+				$val = str_replace(["    ", "\\r\\n"], ["&nbsp;&nbsp;&nbsp;&nbsp;", "<br>"], HTMLToTxt($val));
+			}
+		);
+	}
 
 	$this->IncludeComponentTemplate();
 }

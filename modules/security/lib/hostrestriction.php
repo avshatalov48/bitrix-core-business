@@ -62,7 +62,7 @@ class HostRestriction
 	{
 		$this->hosts = Config\Option::get('security', $this->optionPrefix.'hosts', '');
 		$this->action = Config\Option::get('security', $this->optionPrefix.'action', '');
-		$this->actionOptions = unserialize(Config\Option::get('security', $this->optionPrefix.'action_options', '{}'));
+		$this->actionOptions = unserialize(Config\Option::get('security', $this->optionPrefix.'action_options', '{}'), ['allowed_classes' => false]);
 		$this->isLogNeeded = Config\Option::get('security', $this->optionPrefix.'logging', false);
 	}
 

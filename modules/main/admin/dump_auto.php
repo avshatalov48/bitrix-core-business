@@ -600,7 +600,7 @@ if ($BUCKET_ID == -1 && !$bBitrixCloud)
 </tr>
 <?
 	$arSitePath = array();
-	$res = CSite::GetList($by='sort', $order='asc', array('ACTIVE'=>'Y'));
+	$res = CSite::GetList('sort', 'asc', array('ACTIVE'=>'Y'));
 	while($f = $res->Fetch())
 	{
 		$root = rtrim($f['ABS_DOC_ROOT'],'/');

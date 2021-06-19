@@ -9,7 +9,6 @@ $MESS["EC_VIEW_REMINDER_ADD"] = "Remind";
 $MESS["EC_VIEW_SECTION"] = "Calendar";
 $MESS["EC_VIEW_SLIDER_ATTENDEES"] = "Attendees";
 $MESS["EC_VIEW_SLIDER_CANCEL_BUTTON"] = "Cancel";
-$MESS["EC_VIEW_SLIDER_CHAT_LINK"] = "Chat with attendees";
 $MESS["EC_VIEW_SLIDER_COMMENTS"] = "Comments";
 $MESS["EC_VIEW_SLIDER_COPY_LINK"] = "Copy event link to the Clipboard";
 $MESS["EC_VIEW_SLIDER_DEL"] = "Delete";

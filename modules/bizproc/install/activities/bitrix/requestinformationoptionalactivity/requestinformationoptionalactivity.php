@@ -1,5 +1,9 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
 use Bitrix\Bizproc;
 
@@ -206,6 +210,16 @@ class CBPRequestInformationOptionalActivity extends CBPRequestInformationActivit
 	protected static function getPropertiesDialogMap()
 	{
 		return array_merge(parent::getPropertiesDialogMap(), [
+			'CancelType' => [
+				'Name' => GetMessage('BPRIA_PD_CANCEL_TYPE'),
+				'FieldName' => 'cancel_type',
+				'Type' => Bizproc\FieldType::SELECT,
+				'Options' => [
+					'any' => GetMessage('BPRIA_PD_CANCEL_TYPE_ANY'),
+					'all' => GetMessage('BPRIA_PD_CANCEL_TYPE_ALL'),
+				],
+				'Default' => 'any',
+			],
 			'TaskButtonCancelMessage' => [
 				'Name' => GetMessage('BPAR_PD_TASK_BUTTON_CANCEL_MESSAGE'),
 				'FieldName' => 'task_button_cancel_message',

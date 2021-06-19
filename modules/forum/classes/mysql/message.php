@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/classes/general/message.php");
 
 class CForumMessage extends CAllForumMessage
@@ -1087,16 +1088,31 @@ class CForumFiles extends CAllForumFiles
 	public static function CleanUp()
 	{
 		global $DB;
-		$period = 24*3600;
-		$db_res = $DB->Query("SELECT FF.FILE_ID FROM b_forum_file FF WHERE ((UNIX_TIMESTAMP(CURRENT_TIMESTAMP) - UNIX_TIMESTAMP(FF.TIMESTAMP_X)) >= ".$period.
-			" AND (FF.TOPIC_ID IS NULL OR FF.TOPIC_ID <= 0) AND (FF.MESSAGE_ID IS NULL OR FF.MESSAGE_ID <= 0))", false, "FILE: ".__FILE__." LINE:".__LINE__);
+		$db_res = $DB->Query(<<<SQL
+			SELECT FF.ID, FF.FILE_ID 
+			FROM b_forum_file FF 
+			WHERE FF.TIMESTAMP_X < DATE_SUB(NOW(), INTERVAL 1 DAY)
+				AND (FF.TOPIC_ID IS NULL OR FF.TOPIC_ID <= 0) 
+				AND (FF.MESSAGE_ID IS NULL OR FF.MESSAGE_ID <= 0)
+			ORDER BY FF.ID ASC
+SQL
+		, false, "FILE: ".__FILE__." LINE:".__LINE__);
 		if ($db_res && $res = $db_res->Fetch())
 		{
 			do
 			{
-//				$DB->Query("DELETE FROM b_forum_file WHERE FILE_ID=".$res["FILE_ID"], false, "FILE: ".__FILE__." LINE:".__LINE__);
 				CFile::Delete($res["FILE_ID"]);
+				$lastId = (int)$res["ID"];
 			} while ($res = $db_res->Fetch());
+
+			$DB->Query(<<<SQL
+			DELETE FF 
+			FROM b_forum_file FF 
+			WHERE (FF.ID < $lastId)
+				AND (FF.TOPIC_ID IS NULL OR FF.TOPIC_ID <= 0) 
+				AND (FF.MESSAGE_ID IS NULL OR FF.MESSAGE_ID <= 0)
+SQL
+				, false, "FILE: ".__FILE__." LINE:".__LINE__);
 		}
 		return "CForumFiles::CleanUp();";
 	}

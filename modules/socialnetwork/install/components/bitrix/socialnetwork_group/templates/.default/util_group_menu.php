@@ -1,7 +1,15 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
 /** @var CBitrixComponentTemplate $this */
+/** @var CBitrixComponent $component */
 /** @var array $arParams */
 /** @var array $arResult */
+/** @var string $pageId */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
@@ -33,25 +41,26 @@ $arReturnGroupMenu = $APPLICATION->IncludeComponent(
 		"FILES_GROUP_IBLOCK_ID" => $arParams["FILES_GROUP_IBLOCK_ID"],
 		"GROUP_ID" => $arResult["VARIABLES"]["group_id"],
 		"PAGE_ID" => $pageId,
+		'componentPage' => $arResult['componentPage'],
 		"USE_MAIN_MENU" => $arParams["USE_MAIN_MENU"],
 		"MAIN_MENU_TYPE" => $arParams["MAIN_MENU_TYPE"],
 	),
 	$component,
-	array("HIDE_ICONS" => "Y")
+	[ 'HIDE_ICONS' => 'Y' ]
 );
-?><?
+
 if (
-	$GLOBALS["USER"]->IsAuthorized()
-	&& COption::GetOptionString("main", "wizard_solution", "", SITE_ID) == "community"
+	$USER->IsAuthorized()
+	&& COption::GetOptionString("main", "wizard_solution", "", SITE_ID) === "community"
 )
+{
 	include("util_community.php");
-?>
-<?
+}
+
 $APPLICATION->IncludeComponent(
-	"bitrix:socialnetwork.admin.set",
-	"",
-	Array(),
+	'bitrix:socialnetwork.admin.set',
+	'',
+	[],
 	$component,
-	array("HIDE_ICONS" => "Y")
+	[ 'HIDE_ICONS' => 'Y' ]
 );
-?>

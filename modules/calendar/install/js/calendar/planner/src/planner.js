@@ -1,6 +1,6 @@
 // @flow
 import {Runtime, Type, Event, Loc, Dom, Tag, Text} from 'main.core';
-import {Util} from "calendar.util";
+import {Util} from 'calendar.util';
 import {EventEmitter, BaseEvent} from 'main.core.events';
 import {Selector} from './selector.js';
 import {PopupWindowManager} from "main.popup";
@@ -41,6 +41,8 @@ export class Planner extends EventEmitter
 	limitScaleSizeMode = false;
 	useAnimation = true;
 	checkTimeCache = {};
+	entriesIndex = new Map();
+	solidStatus = false;
 
 	constructor(params = {}, initialUpdateParams = null)
 	{
@@ -48,10 +50,9 @@ export class Planner extends EventEmitter
 		this.setEventNamespace('BX.Calendar.Planner');
 		this.config = params;
 		this.id = params.id;
-		this.userId = params.userId || Loc.getMessage('USER_ID');
+		this.userId = parseInt(params.userId || Loc.getMessage('USER_ID'));
 		this.DOM.wrap = params.wrap;
 		this.SCALE_TIME_FORMAT = BX.isAmPmMode() ? 'g a' : 'G';
-		this.entriesIndex = new Map();
 
 		this.setConfig(params);
 		// this.SetLoadedDataLimits(this.scaleDateFrom, this.scaleDateTo);
@@ -85,10 +86,7 @@ export class Planner extends EventEmitter
 
 	show(options = {animation: false})
 	{
-		// if (!this.compactMode || this.useAnimation === false)
-		// {
 		let animation = false;
-		//}
 
 		if (this.hideAnimation)
 		{
@@ -107,7 +105,6 @@ export class Planner extends EventEmitter
 			this.resizePlannerWidth(this.width);
 		}
 
-		//this.HideSelector();
 		this.buildTimeline();
 
 		if (this.adjustWidth)
@@ -118,14 +115,22 @@ export class Planner extends EventEmitter
 		this.DOM.wrap.style.display = '';
 
 		if (this.readonly)
+		{
 			Dom.addClass(this.DOM.mainWrap, 'calendar-planner-readonly');
+		}
 		else
+		{
 			Dom.removeClass(this.DOM.mainWrap, 'calendar-planner-readonly');
+		}
 
 		if (this.compactMode)
+		{
 			Dom.addClass(this.DOM.mainWrap, 'calendar-planner-compact');
+		}
 		else
+		{
 			Dom.removeClass(this.DOM.mainWrap, 'calendar-planner-compact');
+		}
 
 		this.DOM.entriesOuterWrap.style.display = this.compactMode ? 'none' : '';
 
@@ -160,49 +165,6 @@ export class Planner extends EventEmitter
 
 		this.shown = true;
 	}
-
-	// Hide(animation)
-	// {
-	// 	if (this.showAnimation)
-	// 	{
-	// 		this.showAnimation.stop();
-	// 		this.showAnimation = null;
-	// 	}
-	//
-	// 	if (this.shown)
-	// 	{
-	// 		this.shown = false;
-	//
-	// 		if (animation)
-	// 		{
-	// 			if (this.hideAnimation)
-	// 			{
-	// 				this.hideAnimation.stop();
-	// 			}
-	// 			this.hideAnimation = new BX.easing({
-	// 				duration: 300,
-	// 				start: {height: this.height},
-	// 				finish: {height: 0},
-	// 				transition: BX.easing.makeEaseOut(BX.easing.transitions.quart),
-	// 				step: (state)=>{this.DOM.wrap.style.height = state.height + 'px';},
-	// 				complete: ()=>{
-	// 					this.hideAnimation = null;
-	// 					this.Hide(false);
-	// 				}
-	// 			});
-	// 			this.hideAnimation.animate();
-	// 		}
-	// 		else
-	// 		{
-	// 			this.DOM.wrap.style.display = 'none';
-	// 			Dom.clean(this.DOM.timelineScaleWrap);
-	// 			this.DOM.timelineInnerWrap.removeAttribute('style');
-	// 			this.DOM.wrap.removeAttribute('style');
-	// 			this.DOM.mainWrap.removeAttribute('style');
-	// 			this.DOM.entriesOuterWrap.removeAttribute('style');
-	// 		}
-	// 	}
-	// }
 
 	setConfig(params)
 	{
@@ -293,6 +255,7 @@ export class Planner extends EventEmitter
 		this.selectorAccuracy = parseInt(params.selectorAccuracy) || this.selectorAccuracy || 300; // 5 min
 		this.entriesListWidth = parseInt(params.entriesListWidth) || this.entriesListWidth || 200;
 		this.timelineCellWidth = params.timelineCellWidth || this.timelineCellWidth || 40;
+		this.solidStatus = params.solidStatus === true;
 
 		this.showEntiesHeader = params.showEntiesHeader === undefined ? true : !!params.showEntiesHeader;
 		this.showEntryName = params.showEntryName === undefined ? true : !!params.showEntryName;
@@ -511,6 +474,7 @@ export class Planner extends EventEmitter
 			getDateByPos: this.getDateByPos.bind(this),
 			getPosDateMap: ()=>{return this.posDateMap;},
 			useAnimation: this.useAnimation,
+			solidStatus: this.solidStatus,
 			getScaleInfo: ()=>{return {
 				scale: this.scaleType,
 				shownTimeFrom: this.shownScaleTimeFrom,
@@ -611,15 +575,14 @@ export class Planner extends EventEmitter
 			}
 
 			let mapDatePosRes = this.mapDatePos();
-			//this.datePosMap = mapDatePosRes.datePosMap;
 			this.posDateMap = mapDatePosRes.posDateMap;
 
-			let timelineOffset = this.DOM.timelineScaleWrap.offsetWidth;
+			const timelineOffset = this.DOM.timelineScaleWrap.offsetWidth;
 			this.DOM.timelineInnerWrap.style.width = timelineOffset + 'px';
 			this.DOM.entrieListWrap.style.top = (parseInt(this.DOM.timelineDataWrap.offsetTop) + 10) + 'px';
 
 			this.lastTimelineKey = this.getTimelineShownKey();
-			//this.checkRebuildTimeout(timelineOffset);
+			this.checkRebuildTimeout(timelineOffset);
 		}
 	}
 
@@ -628,10 +591,8 @@ export class Planner extends EventEmitter
 		return 'tm_' + this.scaleDateFrom.getTime() + '_' + this.scaleDateTo.getTime();
 	}
 
-	checkRebuildTimeout(timelineOffset, timeout = 200)
+	checkRebuildTimeout(timelineOffset, timeout = 300)
 	{
-		let _this = this;
-
 		if (!this._checkRebuildTimeoutCount)
 		{
 			this._checkRebuildTimeoutCount = 0;
@@ -642,11 +603,14 @@ export class Planner extends EventEmitter
 			this.rebuildTimeout = !!clearTimeout(this.rebuildTimeout);
 		}
 
-		if (this._checkRebuildTimeoutCount <= 5)
+		if (this._checkRebuildTimeoutCount <= 10
+			&& Type.isElementNode(this.DOM.timelineScaleWrap)
+			&& Dom.isShown(this.DOM.timelineScaleWrap)
+		)
 		{
 			this._checkRebuildTimeoutCount++;
 			this.rebuildTimeout = setTimeout(() => {
-				if (timelineOffset !== _this.DOM.timelineScaleWrap.offsetWidth)
+				if (timelineOffset !== this.DOM.timelineScaleWrap.offsetWidth)
 				{
 					if (this.rebuildTimeout)
 					{
@@ -654,7 +618,10 @@ export class Planner extends EventEmitter
 					}
 
 					this.rebuild();
-					this.FocusSelector(true, 200);
+					if (this.selector)
+					{
+						this.selector.focus(false, 300);
+					}
 				}
 				else
 				{
@@ -1101,15 +1068,15 @@ export class Planner extends EventEmitter
 
 			if (this.showEntryName)
 			{
-				rowWrap.appendChild(BX.create("span", {props: {className: 'calendar-planner-user-name'}})).appendChild(BX.create("A", {
-					props: {
-						href: entry.url ? entry.url : '#',
-						className: 'calendar-planner-entry-name'
-					},
-					style: {
-						width: (this.entriesListWidth - 20) + 'px'
-					},
-					text: entry.name
+				rowWrap.appendChild(BX.create("span", {props: {className: 'calendar-planner-user-name'}}))
+					.appendChild(BX.create("span", {
+						props: {
+							className: 'calendar-planner-entry-name'
+						},
+						style: {
+							width: (this.entriesListWidth - 20) + 'px'
+						},
+						text: entry.name
 				}));
 			}
 			else
@@ -1136,15 +1103,17 @@ export class Planner extends EventEmitter
 
 			if (this.showEntryName)
 			{
-				rowWrap.appendChild(BX.create("span", {props: {className: 'calendar-planner-user-name'}})).appendChild(BX.create("span", {
-					props: {
-						className: 'calendar-planner-entry-name'
-					},
-					style: {
-						width: (this.entriesListWidth - 20) + 'px'
-					},
-					text: entry.name
-				}));
+				rowWrap.appendChild(BX.create("span", {props: {className: 'calendar-planner-user-name'}}))
+					.appendChild(BX.create("span", {
+						props: {
+							className: 'calendar-planner-entry-name'
+						},
+						style: {
+							width: (this.entriesListWidth - 20) + 'px'
+						},
+						text: entry.name
+					})
+				);
 			}
 			else
 			{
@@ -1865,7 +1834,6 @@ export class Planner extends EventEmitter
 	{
 		Dom.clean(this.DOM.entrieListWrap);
 		Dom.clean(this.DOM.accessibilityWrap);
-		//this.entriesRowMap = new WeakMap();
 		this.entriesDataRowMap = new Map();
 
 		if (!Type.isArray(entries))
@@ -1991,6 +1959,9 @@ export class Planner extends EventEmitter
 				}
 			}
 		}
+
+		Util.extendPlannerWatches({entries: entries, userId: this.userId});
+
 		this.adjustHeight();
 	}
 
@@ -2067,7 +2038,6 @@ export class Planner extends EventEmitter
 				fullDay: fullDay
 			});
 
-			//this.selector.focus();
 			this.selector.focus(false, 300);
 		}
 	}
@@ -2201,17 +2171,6 @@ export class Planner extends EventEmitter
 							entry = this.entries[i];
 							entrieIds.push(entry.id);
 						}
-
-						// BX.onCustomEvent('OnCalendarPlannerScaleChanged', [{
-						// 	from: Util.formatDate(this.loadedDataFrom),
-						// 	to: Util.formatDate(loadedDataTo),
-						// 	entrieIds: entrieIds,
-						// 	entries: this.entries,
-						// 	focusSelector: true,
-						// 	params: {
-						// 		callback: function(){_this.ProposeTime({checkedFuture: true});}
-						// 	}
-						// }]);
 					}
 				}
 				else

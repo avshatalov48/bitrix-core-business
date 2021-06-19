@@ -19,6 +19,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    this.generateUniqueName = task.generateUniqueName;
 	    this.chunkSizeInBytes = task.chunkSize;
 	    this.previewBlob = task.previewBlob || null;
+	    this.requestToDelete = false;
 	    this.listener('onStartUpload', {
 	      id: this.taskId,
 	      file: this.fileData,
@@ -101,6 +102,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    key: "deleteContent",
 	    value: function deleteContent() {
 	      this.status = Uploader.STATUSES.CANCELLED;
+	      this.requestToDelete = true;
 
 	      if (!this.token) {
 	        console.error('Empty token.');
@@ -128,7 +130,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      }).then(function (response) {
 	        return response.json();
 	      }).then(function (result) {
-	        return console.log();
+	        return console.log(result);
 	      }).catch(function (err) {
 	        return console.error(err);
 	      });
@@ -140,6 +142,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	      if (!this.token) {
 	        console.error('Empty token.');
+	        return;
+	      }
+
+	      if (this.requestToDelete) {
 	        return;
 	      }
 
@@ -185,6 +191,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	          console.error(result.errors[0].message);
 	        } else {
+	          _this2.calculateProgress();
+
 	          _this2.status = Uploader.STATUSES.DONE;
 
 	          _this2.listener('onComplete', {
@@ -254,6 +262,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      _this.inputNode = options.inputNode || null;
 	      _this.dropNode = options.dropNode || null;
 	      _this.fileMaxSize = options.fileMaxSize || null;
+	      _this.fileMaxWidth = options.fileMaxWidth || null;
+	      _this.fileMaxHeight = options.fileMaxHeight || null;
 
 	      if (options.sender) {
 	        _this.senderOptions = {
@@ -261,7 +271,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          actionUploadChunk: options.sender.actionUploadChunk,
 	          actionCommitFile: options.sender.actionCommitFile,
 	          actionRollbackUpload: options.sender.actionRollbackUpload,
-	          customHeaders: options.sender.customHeaders || {}
+	          customHeaders: options.sender.customHeaders || null
 	        };
 	      }
 
@@ -357,13 +367,14 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        return;
 	      }
 
-	      var task = this.queue.find(function (queueItem) {
-	        return queueItem.taskId === taskId;
-	      });
+	      this.queue = this.queue.filter(function (queueItem) {
+	        if (queueItem.taskId === taskId) {
+	          queueItem.deleteContent();
+	          return false;
+	        }
 
-	      if (task) {
-	        task.deleteContent();
-	      }
+	        return true;
+	      });
 	    }
 	  }, {
 	    key: "getTask",
@@ -527,6 +538,24 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          data['previewData'] = previewData.blob;
 	          data['previewDataWidth'] = previewData.width;
 	          data['previewDataHeight'] = previewData.height;
+
+	          if (_this9.fileMaxWidth || _this9.fileMaxHeight) {
+	            var isMaxWidthExceeded = _this9.fileMaxWidth === null ? false : _this9.fileMaxWidth < data['previewDataWidth'];
+	            var isMaxHeightExceeded = _this9.fileMaxHeight === null ? false : _this9.fileMaxHeight < data['previewDataHeight'];
+
+	            if (isMaxWidthExceeded || isMaxHeightExceeded) {
+	              var eventData = {
+	                maxWidth: _this9.fileMaxWidth,
+	                maxHeight: _this9.fileMaxHeight,
+	                fileWidth: data['previewDataWidth'],
+	                fileHeight: data['previewDataHeight']
+	              };
+
+	              _this9.emit('onFileMaxResolutionExceeded', eventData);
+
+	              return false;
+	            }
+	          }
 	        }
 
 	        _this9.emit('onSelectFile', data);

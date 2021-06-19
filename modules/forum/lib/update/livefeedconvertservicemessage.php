@@ -16,7 +16,7 @@ Loc::loadMessages(__FILE__);
 class LivefeedConvertServiceMessage extends Stepper
 {
 	protected static $moduleId = "forum";
-	protected const MESSAGE_LIMIT = 200;
+	protected const MESSAGE_LIMIT = 500;
 
 	public function execute(array &$result)
 	{

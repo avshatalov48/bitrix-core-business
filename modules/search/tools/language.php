@@ -170,7 +170,7 @@ class CSearchLanguage
 		return $result;
 	}
 
-	function StrToArray($str)
+	public static function StrToArray($str)
 	{
 		if(defined("BX_UTF"))
 		{
@@ -187,7 +187,7 @@ class CSearchLanguage
 	}
 
 	//This function converts text between layouts
-	static function ConvertKeyboardLayout($text, $from, $to)
+	public static function ConvertKeyboardLayout($text, $from, $to)
 	{
 		static $keyboards = array();
 		$combo = $from."|".$to;
@@ -316,7 +316,7 @@ class CSearchLanguage
 		if(empty($cache))
 		{
 			$cache[] = "en";//English is always in mind and on the first place
-			$rsLanguages = CLanguage::GetList(($b=""), ($o=""));
+			$rsLanguages = CLanguage::GetList();
 			while($arLanguage = $rsLanguages->Fetch())
 				if($arLanguage["LID"] != "en")
 					$cache[] = $arLanguage["LID"];

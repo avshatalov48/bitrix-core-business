@@ -131,7 +131,7 @@ if (isset($arFilter['=PROPERTY_TYPE']))
 
 if($lAdmin->EditAction())
 {
-	foreach($FIELDS as $ID => $arFields)
+	foreach($_REQUEST['FIELDS'] as $ID => $arFields)
 	{
 		$DB->StartTransaction();
 		$ID = (int)$ID;

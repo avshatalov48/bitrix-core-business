@@ -192,7 +192,7 @@ class CSVUserImport
 		if (!$dbRes->Fetch())
 		{
 			$arLabelNames = Array();
-			$rsLanguage = CLanguage::GetList($by, $order, array());
+			$rsLanguage = CLanguage::GetList();
 			while($arLanguage = $rsLanguage->Fetch())
 			{
 				IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/csv_user_import_labels.php", $arLanguage["LID"]);

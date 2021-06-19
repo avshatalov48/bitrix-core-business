@@ -70,7 +70,7 @@ AddEventHandler("search", "OnSearchPrepareFilter", Array("CSocNetSearchComponent
 
 class CSocNetSearchComponent
 {
-	function OnSearchPrepareFilterHandler($strSearchContentAlias, $field, $val)
+	public static function OnSearchPrepareFilterHandler($strSearchContentAlias, $field, $val)
 	{
 		if($field == "SONET_FEATURE")
 		{

@@ -33,3 +33,10 @@ export const CallApplicationErrorCode = Object.freeze({
 	finished: 'finished',
 	userLeftCall: 'userLeftCall'
 });
+
+export const ConferenceRightPanelMode = Object.freeze({
+	hidden: 'hidden',
+	chat: 'chat',
+	users: 'users',
+	split: 'split'
+});

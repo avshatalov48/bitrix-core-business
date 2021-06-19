@@ -67,8 +67,25 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 
 <div class="grid-tile-wrap" id="grid-tile-wrap">
 	<div class="grid-tile-inner" id="grid-tile-inner">
-		<?if ($arResult['ACCESS_SITE_NEW'] == 'Y'):?>
-		<div class="landing-item landing-item-add-new" style="display: <?=$arResult['IS_DELETED'] ? 'none' : 'block';?>;">
+		<?if ($arResult['ACCESS_SITE_NEW'] == 'Y' && $arParams['SHOW_MASTER_BUTTON'] == 'Y'):?>
+		<div class="landing-item landing-item-add-new landing-item-add-new-super">
+			<?
+			$uriSuperStore = $component->getPageParam(
+				str_replace('#site_edit#', 0, $arParams['PAGE_URL_SITE_EDIT']),
+				['super' => 'Y']
+			);
+			?>
+			<span class="landing-item-inner" data-href="<?= $uriSuperStore;?>">
+				<span class="landing-item-add-new-inner">
+					<span class="landing-item-add-icon landing-item-add-icon--new-store"></span>
+					<span class="landing-item-text">
+						<?= Loc::getMessage('LANDING_TPL_ACTION_ADD_PERSONAL_STORE');?>
+					</span>
+				</span>
+			</span>
+		</div>
+		<?elseif ($arResult['ACCESS_SITE_NEW'] == 'Y'):?>
+		<div class="landing-item landing-item-add-new">
 			<?$urlEdit = str_replace('#site_edit#', 0, $arParams['PAGE_URL_SITE_EDIT']);?>
 			<span class="landing-item-inner" data-href="<?= $urlEdit;?>">
 				<span class="landing-item-add-new-inner">
@@ -91,6 +108,10 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 			if ($arParams['DRAFT_MODE'] == 'Y' && $item['DELETED'] != 'Y')
 			{
 				$item['ACTIVE'] = 'Y';
+			}
+			if (in_array($item['ID'], $arResult['DELETE_LOCKED']))
+			{
+				$item['ACCESS_DELETE'] = 'N';
 			}
 			?>
 			<div class="landing-item <?
@@ -324,10 +345,10 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 	{
 		var condition = [];
 		<?if ($arParams['PAGE_URL_SITE_EDIT']):?>
-		condition.push('<?= str_replace('#site_edit#', '(\\\d+)', \CUtil::jsEscape($arParams['PAGE_URL_SITE_EDIT']));?>');
+		condition.push('<?= str_replace(['#site_edit#', '?'], ['(\\\d+)', '\\\?'], \CUtil::jsEscape($arParams['PAGE_URL_SITE_EDIT']));?>');
 		<?endif;?>
 		<?if ($arParams['PAGE_URL_LANDING_EDIT']):?>
-		condition.push('<?= str_replace(array('#site_show#', '#landing_edit#'), '(\\\d+)', \CUtil::jsEscape($arParams['PAGE_URL_LANDING_EDIT']));?>');
+		condition.push('<?= str_replace(['#site_show#', '#landing_edit#', '?'], ['(\\\d+)', '(\\\d+)', '\\\?'], \CUtil::jsEscape($arParams['PAGE_URL_LANDING_EDIT']));?>');
 		<?endif;?>
 		if (condition)
 		{
@@ -359,11 +380,23 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 		}
 	}
 
-    BX.bind(document.querySelector('.landing-item-add-new span.landing-item-inner'), 'click', function(event) {
-        BX.SidePanel.Instance.open(event.currentTarget.dataset.href, {
-            allowChangeHistory: false
-        });
-    });
+	<?if ($arResult['ACCESS_SITE_NEW'] == 'Y' && $arParams['SHOW_MASTER_BUTTON'] == 'Y'):?>
+	BX.bind(document.querySelector('.landing-item-add-new-super span.landing-item-inner'), 'click', function(event) {
+		BX.SidePanel.Instance.open(event.currentTarget.dataset.href, {
+			allowChangeHistory: false,
+			width: 1200,
+			data: {
+				rightBoundary: 0
+			}
+		});
+	});
+	<?elseif ($arResult['ACCESS_SITE_NEW'] == 'Y'):?>
+	BX.bind(document.querySelector('.landing-item-add-new span.landing-item-inner'), 'click', function(event) {
+		BX.SidePanel.Instance.open(event.currentTarget.dataset.href, {
+			allowChangeHistory: false
+		});
+	});
+	<?endif;?>
 
 	var tileGrid;
 	var isMenuShown = false;
@@ -635,6 +668,11 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 </script>
 
 <?php
+if ($arParams['TYPE'] === 'STORE' && \Bitrix\Main\Loader::includeModule('crm'))
+{
+	\Bitrix\Crm\Integration\NotificationsManager::showSignUpFormOnCrmShopCreated();
+}
+
 if ($arResult['AGREEMENT'])
 {
 	include Manager::getDocRoot() . '/bitrix/components/bitrix/landing.start/templates/.default/popups/agreement.php';

@@ -47,7 +47,7 @@ return array(
 		'nodes' => array(
 			'.landing-block-node-person-name' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_28.PERSONAL_SLIDER_STYLE_LANDINGBLOCKNODEPERSONNAME'),
-				'type' => 'typo',
+				'type' => ['typo', 'heading'],
 			),
 			'.landing-block-node-person-post' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_28.PERSONAL_SLIDER_STYLE_LANDINGBLOCKNODEPERSONPOST'),

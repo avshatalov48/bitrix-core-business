@@ -1,11 +1,11 @@
 <?php
 namespace Bitrix\Landing\Hook\Page;
 
-use \Bitrix\Landing\Field;
-use \Bitrix\Landing\File;
-use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\PublicAction;
-use \Bitrix\Main\Localization\Loc;
+use Bitrix\Landing\Field;
+use Bitrix\Landing\File;
+use Bitrix\Landing\Manager;
+use Bitrix\Landing\PublicAction;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
 
 Loc::loadMessages(__FILE__);
@@ -121,14 +121,11 @@ class Background extends \Bitrix\Landing\Hook\Page
 		 * for web form backward compatibility.
 		 */
 
-		if ($picture)
+		if ($picture && is_numeric($picture) && (int)$picture > 0)
 		{
-			if ($picture > 0)
-			{
-				$picture = \htmlspecialcharsbx(
-					\Bitrix\Landing\File::getFilePath($picture)
-				);
-			}
+			$picture = \htmlspecialcharsbx(
+				File::getFilePath((int)$picture)
+			);
 		}
 
 		if ($picture)

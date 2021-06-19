@@ -45,7 +45,7 @@ $MESS["EC_NO_VALUE"] = "не указан";
 $MESS["EC_ADD_NEW"] = "Добавить новый e-mail";
 
 $MESS["EC_CONFIRMED_EMAIL_TITLE"] = "Укажите адрес электронной почты";
-$MESS["EC_CONFIRMED_EMAIL_TEXT"] = "Укажите адрес электронной почты для отправки приглашения участникам по email";
+$MESS["EC_CONFIRMED_EMAIL_TEXT_1"] = "С этого адреса будут отправлены приглашения участникам по email";
 $MESS["EC_CONFIRMED_EMAIL_HELP_LINK"] = "Подробнее для чего нужен емейл";
 
 $MESS["EC_CONFIRMED_EMAIL_SEND"] = "Продолжить";

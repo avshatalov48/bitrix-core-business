@@ -1,5 +1,5 @@
-<section class="landing-block g-pt-30 g-pb-30">
-	<div class="container g-max-width-800">
+<section class="landing-block g-pt-30 g-pb-15">
+	<div class="landing-block-node-container container g-max-width-container">
 		<div class="row g-flex-centered">
 			<div class="landing-block-node-button-container text-center col-md-4 col-lg-4 js-animation slideInLeft">
 				<a class="landing-block-node-button landing-semantic-link-image-medium btn text-uppercase g-btn-primary rounded-0 g-btn-type-solid g-btn-size-md g-btn-px-m" href="#">

@@ -1,7 +1,8 @@
-<?
+<?php
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 /** @global array $FIELDS */
+/** @global CDatabase $DB */
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -12,6 +13,8 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admi
 
 /** @global CAdminPage $adminPage */
 global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
 
 Loader::includeModule('catalog');
 Loc::loadMessages(__FILE__);
@@ -31,6 +34,45 @@ if(!$USER->canDoOperation('catalog_read') && !$USER->canDoOperation('catalog_vie
 
 if(isset($_REQUEST['mode']) && ($_REQUEST['mode'] == 'list' || $_REQUEST['mode'] == 'frame'))
 	CFile::disableJSFunction(true);
+
+$request = Main\Context::getCurrent()->getRequest();
+$adminSection = $request->isAdminSection();
+if ($adminSection)
+{
+	$urlParams = [
+		'find_section_section' => -1,
+		'WF' => 'Y',
+	];
+}
+else
+{
+	$urlParams = [
+		'find_section_section' => -1,
+		'WF' => 'Y',
+		'return_url' => $APPLICATION->GetCurPageParam(
+			'',
+			[
+				'mode',
+				'table_id',
+				'internal',
+				'grid_id',
+				'grid_action',
+				'bxajaxid',
+				'sessid',
+			]
+		),
+	];
+}
+/** @var \Bitrix\Catalog\Url\AdminPage\CatalogBuilder $urlBuilder */
+$urlBuilder = Iblock\Url\AdminPage\BuilderManager::getInstance()->getBuilder();
+if ($urlBuilder === null)
+{
+	$APPLICATION->SetTitle(Loc::getMessage('PSL_PAGE_TITLE'));
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	ShowError(GetMessage("PSL_ERR_BUILDER_ADSENT"));
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	die();
+}
 
 $tableId = 'tbl_product_subscription_list';
 $sortObject = new CAdminUiSorting($tableId, 'DATE_FROM', 'DESC');
@@ -239,17 +281,22 @@ while($subscribe = $queryObject->fetch())
 		$row->addField('ACTIVE', Loc::getMessage('PSL_FILTER_NO'));
 	}
 
-	if(defined('CATALOG_PRODUCT'))
+	$urlBuilder->setIblockId((int)$subscribe['IBLOCK_ID']);
+	if ($adminPage)
 	{
-		$editUrl = $selfFolderUrl.CIBlock::getAdminElementEditLink($subscribe['IBLOCK_ID'], $subscribe['ITEM_ID'], array(
-			'find_section_section' => -1, 'WF' => 'Y', 'replace_script_name' => true,
-			'return_url' => $APPLICATION->getCurPageParam('', array('mode', 'table_id', "internal", "grid_id", "grid_action", "bxajaxid", "sessid")))); //todo replace to $listObject->getCurPageParam()
+		$editUrl = $urlBuilder->getElementDetailUrl(
+			(int)$subscribe['ITEM_ID'],
+			$urlParams
+		);
 	}
 	else
 	{
-		$editUrl = $selfFolderUrl.CIBlock::getAdminElementEditLink($subscribe['IBLOCK_ID'], $subscribe['ITEM_ID'], array(
-			'find_section_section' => -1, 'WF' => 'Y', 'replace_script_name' => true));
+		$editUrl = $urlBuilder->getProductDetailUrl(
+			(int)$subscribe['ITEM_ID'],
+			$urlParams
+		);
 	}
+
 	$row->addField('PRODUCT_NAME',
 		'<a href="'.$editUrl.'">'.htmlspecialcharsbx($subscribe['PRODUCT_NAME']).'</a>');
 
@@ -275,7 +322,7 @@ while($subscribe = $queryObject->fetch())
 
 $listUserId = array_keys($listUserData);
 $listUsers = implode(' | ', $listUserId);
-$userQuery = CUser::getList($byUser = 'ID', $orderUser = 'ASC',
+$userQuery = CUser::getList('ID', 'ASC',
 	array('ID' => $listUsers) ,
 	array('FIELDS' => array('ID' ,'LOGIN', 'NAME', 'LAST_NAME')));
 while($user = $userQuery->fetch())

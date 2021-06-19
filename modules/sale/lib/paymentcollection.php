@@ -144,40 +144,22 @@ class PaymentCollection extends Internals\EntityCollection
 			break;
 
 			case "PRICE":
-				if (($order = $this->getOrder()) && !$order->isCanceled())
+				if ($this->isAllowAutoEdit())
 				{
-					$currentPayment = false;
-					$allowSumChange = false;
-					if (count($this->collection) == 1)
+					$payment = $this->getItemForAutoEdit();
+					if ($payment !== null)
 					{
-						/** @var Payment $currentPayment */
-						if ($currentPayment = $this->rewind())
-						{
-							$allowSumChange = (bool)(!$currentPayment->isPaid() && !$currentPayment->isReturn() && ($currentPayment->getSum() == $oldValue));
-							
-							if ($allowSumChange)
-							{
-								if ($paySystemService = $currentPayment->getPaysystem())
-								{
-									$allowSumChange = $paySystemService->isAllowEditPayment();
-								}
-							}
-						}
-					}
-
-					if ($allowSumChange && $currentPayment)
-					{
-						$r = $currentPayment->setField("SUM", $value);
+						$r = $payment->setField("SUM", $value);
 						if (!$r->isSuccess())
 						{
 							$result->addErrors($r->getErrors());
 						}
 
-						$service = $currentPayment->getPaySystem();
+						$service = $payment->getPaySystem();
 						if ($service)
 						{
-							$price = $service->getPaymentPrice($currentPayment);
-							$currentPayment->setField('PRICE_COD', $price);
+							$price = $service->getPaymentPrice($payment);
+							$payment->setField('PRICE_COD', $price);
 						}
 					}
 				}
@@ -185,6 +167,54 @@ class PaymentCollection extends Internals\EntityCollection
 		}
 
 		return $result;
+	}
+
+	protected function isAllowAutoEdit()
+	{
+		if (
+			!$this->getOrder()->isCanceled()
+			&&
+			$this->count() === 1
+		)
+		{
+			/** @var Payment $payment */
+			foreach ($this as $payment)
+			{
+				$isAllowEditPayment =
+					!$payment->isPaid()
+					&&
+					!$payment->isReturn()
+					&&
+					!$payment->getFields()->isChanged('SUM')
+				;
+
+				if ($isAllowEditPayment)
+				{
+					if ($service = $payment->getPaySystem())
+					{
+						$isAllowEditPayment = $service->isAllowEditPayment();
+					}
+				}
+
+				return $isAllowEditPayment;
+			}
+		}
+
+		return false;
+	}
+
+	private function getItemForAutoEdit()
+	{
+		if ($this->isAllowAutoEdit())
+		{
+			/** @var Payment $payment */
+			foreach ($this as $payment)
+			{
+				return $payment;
+			}
+		}
+
+		return null;
 	}
 
 	/**

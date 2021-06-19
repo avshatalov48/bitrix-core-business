@@ -62,7 +62,7 @@ return array(
 			),
 			'style' => array(
 				'#wrapper' => array(
-					0 => 'g-pos-rel landing-block g-color-gray-dark-v1 g-pt-15 g-pb-30 g-bg-white u-block-border-none',
+					0 => 'g-pos-rel landing-block g-pt-15 g-pb-30 g-bg-white u-block-border-none',
 				),
 			),
 		),

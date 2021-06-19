@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/user.php");
 
 class CSaleUserAccount extends CAllSaleUserAccount

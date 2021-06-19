@@ -1,0 +1,33 @@
+.landing-ui-field-product {
+	margin-bottom: 0;
+}
+
+.landing-ui-field-product .landing-ui-field-input {
+	border: 0;
+	background: transparent;
+	height: auto;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.landing-ui-field-product .landing-ui-field-input .catalog-product-form-container {
+	padding-left: 0;
+	padding-right: 0;
+	padding-bottom: 0;
+}
+
+.catalog-pf-product-item-section .catalog-pf-product-label:nth-child(1),
+.catalog-pf-product-item-section .catalog-pf-product-control:nth-child(1) {
+	margin-right: 0;
+}
+
+.catalog-pf-product-item-section .catalog-pf-product-label:nth-child(2),
+.catalog-pf-product-item-section .catalog-pf-product-label:nth-child(3),
+.catalog-pf-product-item-section .catalog-pf-product-control:nth-child(2),
+.catalog-pf-product-item-section .catalog-pf-product-control:nth-child(3) {
+	display: none;
+}
+
+.landing-ui-field-product .catalog-pf-result-line {
+	margin-top: 0;
+}

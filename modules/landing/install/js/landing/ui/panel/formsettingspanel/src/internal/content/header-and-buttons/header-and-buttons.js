@@ -1,10 +1,11 @@
 import {HeaderCard} from 'landing.ui.card.headercard';
-import {Loc} from 'main.core';
+import {Loc, Reflection, Type} from 'main.core';
 import {MessageCard} from 'landing.ui.card.messagecard';
 import {FormSettingsForm} from 'landing.ui.form.formsettingsform';
 import {TextField} from 'landing.ui.field.textfield';
 import {VariablesField} from 'landing.ui.field.variablesfield';
 import {ContentWrapper} from 'landing.ui.panel.basepresetpanel';
+import 'helper';
 import headerAndButtonsIcon from './images/header-and-buttons-message-icon.svg';
 
 export default class HeaderAndButtonContent extends ContentWrapper
@@ -22,8 +23,15 @@ export default class HeaderAndButtonContent extends ContentWrapper
 			id: 'headerAndButtonMessage',
 			icon: headerAndButtonsIcon,
 			header: Loc.getMessage('LANDING_HEADER_AND_BUTTONS_MESSAGE_HEADER'),
-			description: Loc.getMessage('LANDING_HEADER_AND_BUTTONS_MESSAGE_DESCRIPTION'),
+			description: Loc.getMessage('LANDING_HEADER_AND_BUTTONS_MESSAGE_DESCRIPTION_2'),
 			restoreState: true,
+			more: () => {
+				const helper = Reflection.getClass('top.BX.Helper');
+				if (helper)
+				{
+					BX.Helper.show('redirect=detail&code=12802786');
+				}
+			},
 		});
 
 		const headersForm = new FormSettingsForm({

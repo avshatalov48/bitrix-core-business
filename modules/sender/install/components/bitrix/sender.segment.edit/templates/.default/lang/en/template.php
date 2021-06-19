@@ -1,5 +1,5 @@
 <?php
-$MESS["SENDER_SEGMENT_CREATED"] = "Segment has been created successfully. You can click Save as soon as you select conditions (for dynamic segment) or when loading is started (for static segment). Segment will continue to be populated with data.";
+$MESS["SENDER_SEGMENT_CREATED"] = "Segment has been saved; however, it is currently empty. Select the required filters or upload your own address list, and click Save.";
 $MESS["SENDER_SEGMENT_EDIT_BUTTON_SELECT_CONTACT"] = "Select recipient list";
 $MESS["SENDER_SEGMENT_EDIT_CONTACT_SEARCHER_TITLE"] = "Static recipient lists";
 $MESS["SENDER_SEGMENT_EDIT_TMPL_BTN_ADD"] = "Add filter";

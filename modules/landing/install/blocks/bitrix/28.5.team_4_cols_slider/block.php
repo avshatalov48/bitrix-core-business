@@ -1,4 +1,4 @@
-<section class="landing-block g-pt-100 g-pb-100">
+<section class="landing-block g-pt-30 g-pb-30">
 	<div class="container">
 		<div class="js-carousel row"
 			 data-autoplay="false"
@@ -71,7 +71,7 @@
 
 					<!-- Figure Info -->
 					<div class="g-pa-20">
-						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-size-16 g-mb-5">Tammy Exon</h4>
+						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-mb-5">Tammy Exon</h4>
 						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-color-white-opacity-0_75">
 							Yoga, Cardio, Pilates, Crossfit
 						</div>
@@ -117,7 +117,7 @@
 
 					<!-- Figure Info -->
 					<div class="g-pa-20">
-						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-size-16 g-mb-5">Jacob
+						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-mb-5">Jacob
 							Barton</h4>
 						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-color-white-opacity-0_75">
 							Gym, Boxing, Crossfit, Cardio
@@ -164,7 +164,7 @@
 
 					<!-- Figure Info -->
 					<div class="g-pa-20">
-						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-size-16 g-mb-5">Monica
+						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-mb-5">Monica
 							Notrom</h4>
 						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-color-white-opacity-0_75">
 							Cardio, Pilates, Zymba, Crossfit
@@ -211,7 +211,7 @@
 
 					<!-- Figure Info -->
 					<div class="g-pa-20">
-						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-size-16 g-mb-5">Tom Sowyer</h4>
+						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-mb-5">Tom Sowyer</h4>
 						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-color-white-opacity-0_75">
 							Box, Kickboxing, Gym, Crossfit
 						</div>
@@ -257,7 +257,7 @@
 
 					<!-- Figure Info -->
 					<div class="g-pa-20">
-						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-size-16 g-mb-5">Tammy Exon</h4>
+						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-mb-5">Tammy Exon</h4>
 						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-color-white-opacity-0_75">
 							Yoga, Cardio, Pilates, Crossfit
 						</div>

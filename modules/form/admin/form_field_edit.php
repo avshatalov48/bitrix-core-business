@@ -177,7 +177,7 @@ if (($_REQUEST['save'] <> '' || $_REQUEST['apply'] <> '') && $_SERVER['REQUEST_M
 				$sValStructSerialized = $_REQUEST["VAL_STRUCTURE"];
 				if (CheckSerializedData($sValStructSerialized))
 				{
-					$arValStructure = unserialize($sValStructSerialized);
+					$arValStructure = unserialize($sValStructSerialized, ['allowed_classes' => false]);
 					if (count($arValStructure) > 0)
 					{
 						CFormValidator::SetBatch($WEB_FORM_ID, $ID, $arValStructure);
@@ -216,7 +216,7 @@ if ($additional!="Y")
 {
 	if ($ID > 0)
 	{
-		$rsCurrentValidators = CFormValidator::GetList($ID, array(), $by="C_SORT", $order="ASC");
+		$rsCurrentValidators = CFormValidator::GetList($ID);
 		while ($arValidator = $rsCurrentValidators->Fetch())
 		{
 			$arCurrentValidators[] = $arValidator;
@@ -335,7 +335,10 @@ if($strError)
 {
 	$aMsg=array();
 	$arrErr = explode("<br>",$strError);
-	while (list(,$err)=each($arrErr)) $aMsg[]['text']=$err;
+	foreach ($arrErr as $err)
+	{
+		$aMsg[]['text'] = $err;
+	}
 
 	$e = new CAdminException($aMsg);
 	$GLOBALS["APPLICATION"]->ThrowException($e);
@@ -576,7 +579,7 @@ BX.ready(function() {
 				</thead>
 				<tbody>
 				<?
-				$z = CFormAnswer::GetList($ID, $by, $order, array(), $is_filtered);
+				$z = CFormAnswer::GetList($ID);
 				$i = 1;
 				$arSort = array(0);
 				while ($zr=$z->ExtractFields("p_")) :

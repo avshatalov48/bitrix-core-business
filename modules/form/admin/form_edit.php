@@ -76,7 +76,7 @@ if ($reset_id > 0 && check_bitrix_sessid() && $F_RIGHT >= 30)
 	LocalRedirect("/bitrix/admin/form_edit.php?ID=".$reset_id."&lang=".LANGUAGE_ID);
 }
 
-$w = CGroup::GetList($v1="dropdown", $v2="asc", array("ADMIN"=>"N"));
+$w = CGroup::GetList("dropdown", "asc", array("ADMIN"=>"N"));
 $arGroups = array();
 while ($wr=$w->Fetch())
 {
@@ -86,14 +86,14 @@ while ($wr=$w->Fetch())
 	);
 }
 
-$z = CLanguage::GetList($v1, $v2, array("ACTIVE" => "Y"));
+$z = CLanguage::GetList('', '', array("ACTIVE" => "Y"));
 $arFormMenuLang = array();
 while ($zr=$z->Fetch())
 {
 	$arFormMenuLang[] = array("LID"=>$zr["LID"], "NAME"=>$zr["NAME"]);
 }
 
-$rs = CSite::GetList(($by="sort"), ($order="asc"));
+$rs = CSite::GetList();
 $arrSites = array();
 while ($ar = $rs->Fetch())
 {
@@ -190,7 +190,11 @@ if (($_REQUEST['save'] <> '' || $_REQUEST['apply'] <> '') && $_SERVER['REQUEST_M
 			// structure
 			$FORM_STRUCTURE = $_REQUEST["FORM_STRUCTURE"];
 
-			$arrFS = CheckSerializedData($FORM_STRUCTURE) ? unserialize($FORM_STRUCTURE) : array();
+			$arrFS =
+				CheckSerializedData($FORM_STRUCTURE)
+					? unserialize($FORM_STRUCTURE, ['allowed_classes' => false])
+					: []
+			;
 
 			if (CFormOutput::CheckTemplate($FORM_TEMPLATE, $arrFS))
 			{
@@ -911,7 +915,7 @@ if (intval($str_RESTRICT_TIME) > 0)
 	</tr>
 	<?
 if (!$bSimple && $ID > 0):
-	$rsStatusList = CFormStatus::GetList($ID, $by="s_sort", $order="asc", array("ACTIVE" => "Y"), $is_filtered);
+	$rsStatusList = CFormStatus::GetList($ID, "s_sort", "asc", array("ACTIVE" => "Y"));
 	?>
 	<tr>
 		<td><?=GetMessage('FORM_RESTRICT_STATUS')?>: </td>
@@ -1223,7 +1227,7 @@ else:
 		}
 	}
 
-	$dbRes = CFormField::GetList($ID, 'ALL', $by, $order, array(), $is_filtered);
+	$dbRes = CFormField::GetList($ID, 'ALL');
 	$arFormFields = array();
 	while ($arFld = $dbRes->Fetch())
 	{

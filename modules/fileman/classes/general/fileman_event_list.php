@@ -1,15 +1,16 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CEventFileman
 {
-	function MakeFilemanObject()
+	public static function MakeFilemanObject()
 	{
 		$obj = new CEventFileman;
 		return $obj;
 	}
 
-	function GetFilter()
+	public static function GetFilter()
 	{
 		$arFilter = array();
 		$module_id = 'fileman';
@@ -21,8 +22,8 @@ class CEventFileman
 		
 		return  $arFilter;
 	}
-	
-	function GetAuditTypes()
+
+	public static function GetAuditTypes()
 	{
 		return array(
 			"PAGE_EDIT" => "[PAGE_EDIT] ".GetMessage("LOG_TYPE_PAGE_EDIT"), 
@@ -46,7 +47,7 @@ class CEventFileman
 		);         
 	}
 	
-	function GetEventInfo($row, $arParams, $arUser)
+	public static function GetEventInfo($row, $arParams, $arUser)
 	{
 		$site = CFileMan::__CheckSite($site);
 		$DOC_ROOT = CSite::GetSiteDocRoot($site);		
@@ -129,7 +130,7 @@ class CEventFileman
 				);     
 	}
 	
-	function GetFilterSQL($var)
+	public static function GetFilterSQL($var)
 	{
 		if (is_array($var))
 			foreach($var as $key => $val)
@@ -165,4 +166,3 @@ class CEventFileman
 		return $ar;
 	}
 }
-?>

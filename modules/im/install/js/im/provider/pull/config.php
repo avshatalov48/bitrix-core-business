@@ -12,8 +12,9 @@ return [
 		'main.polyfill.core',
 		'ui.vue.vuex',
 		'im.lib.logger',
-		'pull.client',
+		'main.core.events',
 		'im.const',
+		'pull.client',
 	],
 	'skip_core' => true,
 ];

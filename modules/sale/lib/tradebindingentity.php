@@ -73,8 +73,9 @@ class TradeBindingEntity extends Internals\CollectableEntity
 		if ($platform !== null)
 		{
 			$entity->setFieldNoDemand('TRADING_PLATFORM_ID', $platform->getId());
-			$entity->setFieldNoDemand('XML_ID', static::generateXmlId());
 		}
+
+		$entity->setFieldNoDemand('XML_ID', static::generateXmlId());
 
 		return $entity;
 	}
@@ -82,7 +83,7 @@ class TradeBindingEntity extends Internals\CollectableEntity
 	/**
 	 * @return string
 	 */
-	public static function generateXmlId()
+	protected static function generateXmlId()
 	{
 		return uniqid('bx_');
 	}

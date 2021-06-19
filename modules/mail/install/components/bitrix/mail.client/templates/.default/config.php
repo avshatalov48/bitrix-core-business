@@ -2,8 +2,18 @@
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
-$this->getComponent()->includePageComponent(
-	'bitrix:mail.client.config',
+$APPLICATION->IncludeComponent(
+	'bitrix:ui.sidepanel.wrapper',
 	'',
-	$arResult
+	[
+		'POPUP_COMPONENT_NAME' => 'bitrix:mail.client.config',
+		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+		'POPUP_COMPONENT_PARAMS' => $arResult,
+		'USE_UI_TOOLBAR' => 'Y',
+		'USE_PADDING' => false,
+		'PLAIN_VIEW' => false,
+		'PAGE_MODE' => false,
+		'PAGE_MODE_OFF_BACK_URL' => "/mail/",
+
+	]
 );

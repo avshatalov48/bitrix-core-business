@@ -100,60 +100,46 @@ class CIBlockXMLFile
 	return : result of the CDatabase::Query method
 	We use drop due to mysql innodb slow truncate bug.
 	*/
-	function DropTemporaryTables()
+	public function DropTemporaryTables()
 	{
-		if(!isset($this) || !is_object($this) || $this->_table_name == '')
+		global $DB;
+
+		if ($DB->TableExists($this->_table_name))
 		{
-			$ob = new CIBlockXMLFile;
-			return $ob->DropTemporaryTables();
+			return $DB->DDL("drop table ".$this->_table_name);
 		}
-		else
-		{
-			global $DB;
-			if($DB->TableExists($this->_table_name))
-				return $DB->DDL("drop table ".$this->_table_name);
-			else
-				return true;
-		}
+		return true;
 	}
 
-	function CreateTemporaryTables($with_sess_id = false)
+	public function CreateTemporaryTables($with_sess_id = false)
 	{
-		if(!isset($this) || !is_object($this) || $this->_table_name == '')
-		{
-			$ob = new CIBlockXMLFile;
-			return $ob->CreateTemporaryTables();
-		}
-		else
-		{
-			global $DB;
+		global $DB;
 
-			if ($DB->TableExists($this->_table_name))
-				return false;
+		if ($DB->TableExists($this->_table_name))
+			return false;
 
-			if(defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
-				$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
+		if(defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
+			$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 
-			$res = $DB->DDL("create table ".$this->_table_name."
-				(
-					ID int(11) not null auto_increment,
-					".($with_sess_id? "SESS_ID varchar(32),": "")."
-					PARENT_ID int(11),
-					LEFT_MARGIN int(11),
-					RIGHT_MARGIN int(11),
-					DEPTH_LEVEL int(11),
-					NAME varchar(255),
-					VALUE longtext,
-					ATTRIBUTES text,
-					PRIMARY KEY (ID)
-				)
-			");
+		$res = $DB->DDL("create table ".$this->_table_name."
+			(
+				ID int(11) not null auto_increment,
+				".($with_sess_id? "SESS_ID varchar(32),": "")."
+				PARENT_ID int(11),
+				LEFT_MARGIN int(11),
+				RIGHT_MARGIN int(11),
+				DEPTH_LEVEL int(11),
+				NAME varchar(255),
+				VALUE longtext,
+				ATTRIBUTES text,
+				PRIMARY KEY (ID)
+			)
+		");
 
-			if ($res && defined("BX_XML_CREATE_INDEXES_IMMEDIATELY"))
-				$res = $this->IndexTemporaryTables($with_sess_id);
+		if ($res && defined("BX_XML_CREATE_INDEXES_IMMEDIATELY"))
+			$res = $this->IndexTemporaryTables($with_sess_id);
 
-			return $res;
-		}
+		return $res;
 	}
 
 	function IsExistTemporaryTable()
@@ -199,35 +185,27 @@ class CIBlockXMLFile
 
 	return : result of the CDatabase::Query method
 	*/
-	function IndexTemporaryTables($with_sess_id = false)
+	public function IndexTemporaryTables($with_sess_id = false)
 	{
-		if(!isset($this) || !is_object($this) || $this->_table_name == '')
+		global $DB;
+		$res = true;
+
+		if($with_sess_id)
 		{
-			$ob = new CIBlockXMLFile;
-			return $ob->IndexTemporaryTables();
+			if(!$DB->IndexExists($this->_table_name, array("SESS_ID", "PARENT_ID")))
+				$res = $DB->DDL("CREATE INDEX ix_".$this->_table_name."_parent on ".$this->_table_name."(SESS_ID, PARENT_ID)");
+			if($res && !$DB->IndexExists($this->_table_name, array("SESS_ID", "LEFT_MARGIN")))
+				$res = $DB->DDL("CREATE INDEX ix_".$this->_table_name."_left on ".$this->_table_name."(SESS_ID, LEFT_MARGIN)");
 		}
 		else
 		{
-			global $DB;
-			$res = true;
-
-			if($with_sess_id)
-			{
-				if(!$DB->IndexExists($this->_table_name, array("SESS_ID", "PARENT_ID")))
-					$res = $DB->DDL("CREATE INDEX ix_".$this->_table_name."_parent on ".$this->_table_name."(SESS_ID, PARENT_ID)");
-				if($res && !$DB->IndexExists($this->_table_name, array("SESS_ID", "LEFT_MARGIN")))
-					$res = $DB->DDL("CREATE INDEX ix_".$this->_table_name."_left on ".$this->_table_name."(SESS_ID, LEFT_MARGIN)");
-			}
-			else
-			{
-				if(!$DB->IndexExists($this->_table_name, array("PARENT_ID")))
-					$res = $DB->DDL("CREATE INDEX ix_".$this->_table_name."_parent on ".$this->_table_name."(PARENT_ID)");
-				if($res && !$DB->IndexExists($this->_table_name, array("LEFT_MARGIN")))
-					$res = $DB->DDL("CREATE INDEX ix_".$this->_table_name."_left on ".$this->_table_name."(LEFT_MARGIN)");
-			}
-
-			return $res;
+			if(!$DB->IndexExists($this->_table_name, array("PARENT_ID")))
+				$res = $DB->DDL("CREATE INDEX ix_".$this->_table_name."_parent on ".$this->_table_name."(PARENT_ID)");
+			if($res && !$DB->IndexExists($this->_table_name, array("LEFT_MARGIN")))
+				$res = $DB->DDL("CREATE INDEX ix_".$this->_table_name."_left on ".$this->_table_name."(LEFT_MARGIN)");
 		}
+
+		return $res;
 	}
 
 	function Add($arFields)

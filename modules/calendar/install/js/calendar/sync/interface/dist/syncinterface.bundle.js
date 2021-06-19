@@ -348,6 +348,18 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 
 	  babelHelpers.createClass(StatusBlock, [{
+	    key: "setStatus",
+	    value: function setStatus(status) {
+	      this.status = status;
+	      return this;
+	    }
+	  }, {
+	    key: "setConnections",
+	    value: function setConnections(connections) {
+	      this.connections = connections;
+	      return this;
+	    }
+	  }, {
 	    key: "getContent",
 	    value: function getContent() {
 	      var _this = this;
@@ -577,14 +589,14 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }, {
 	    key: "getContentInfoHeader",
 	    value: function getContentInfoHeader() {
-	      var statusBlock = StatusBlock.createInstance({
+	      this.statusBlock = StatusBlock.createInstance({
 	        status: "not_connected",
 	        connections: [this.connection],
 	        withStatusLabel: false,
 	        popupWithUpdateButton: this.popupWithUpdateButton,
 	        popupId: 'calendar-interfaceTemplate-status'
 	      });
-	      return main_core.Tag.render(_templateObject3$2(), this.getHeaderTitle(), statusBlock.getContent());
+	      return main_core.Tag.render(_templateObject3$2(), this.getHeaderTitle(), this.statusBlock.getContent());
 	    }
 	  }, {
 	    key: "getContentInfoBody",
@@ -594,14 +606,14 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }, {
 	    key: "getContentActiveHeader",
 	    value: function getContentActiveHeader() {
-	      var statusBlock = StatusBlock.createInstance({
+	      this.statusBlock = StatusBlock.createInstance({
 	        status: this.connection.getStatus(),
 	        connections: [this.connection],
 	        withStatusLabel: false,
 	        popupWithUpdateButton: this.popupWithUpdateButton,
 	        popupId: 'calendar-interfaceTemplate-status'
 	      });
-	      return main_core.Tag.render(_templateObject5$2(), this.getHeaderTitle(), statusBlock.getContent());
+	      return main_core.Tag.render(_templateObject5$2(), this.getHeaderTitle(), this.statusBlock.getContent());
 	    }
 	  }, {
 	    key: "getContentActiveBody",
@@ -642,11 +654,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      this.provider = provider;
 	    }
 	  }, {
-	    key: "setConnection",
-	    value: function setConnection(connection) {
-	      this.connection = connection;
-	    }
-	  }, {
 	    key: "sendRequestRemoveConnection",
 	    value: function sendRequestRemoveConnection(id) {
 	      BX.ajax.runAction('calendar.api.calendarajax.removeConnection', {
@@ -669,6 +676,13 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      }).then(function (response) {
 	        _this2.emit('reDrawCalendarGrid', {});
 	      });
+	    }
+	  }, {
+	    key: "refresh",
+	    value: function refresh(connection) {
+	      this.connection = connection;
+	      this.statusBlock.setStatus(this.connection.getStatus()).setConnections([this.connection]);
+	      main_core.Dom.replace(document.getElementById('status-info-block'), this.statusBlock.getContent());
 	    }
 	  }], [{
 	    key: "createInstance",
@@ -1487,10 +1501,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }, {
 	    key: "showWebGridContent",
 	    value: function showWebGridContent(items) {
+	      var wrapper = this.getWebContentWrapper();
+	      main_core.Dom.clean(wrapper);
 	      var grid = new BX.TileGrid.Grid({
 	        id: 'calendar_sync',
 	        items: items,
-	        container: this.getWebContentWrapper(),
+	        container: wrapper,
 	        sizeRatio: "55%",
 	        itemMinWidth: 180,
 	        tileMargin: 7,
@@ -1502,10 +1518,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }, {
 	    key: "showMobileGridContent",
 	    value: function showMobileGridContent(items) {
+	      var wrapper = this.getMobileContentWrapper();
+	      main_core.Dom.clean(wrapper);
 	      var grid = new BX.TileGrid.Grid({
 	        id: 'calendar_sync',
 	        items: items,
-	        container: this.getMobileContentWrapper(),
+	        container: wrapper,
 	        sizeRatio: "55%",
 	        itemMinWidth: 180,
 	        tileMargin: 7,
@@ -1652,7 +1670,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	}(BX.TileGrid.Item);
 
 	function _templateObject2$a() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-ical-popup-link-block\">\n\t\t\t\t\t<a class=\"ui-link ui-link-primary \" target=\"_blank\" href=\"", "\">", "</a>\n\t\t\t\t</div>\n\t\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-ical-popup-link-block\">\n\t\t\t\t\t<a class=\"ui-link ui-link-primary \" target=\"_blank\" href=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t</div>\n\t\t\t"]);
 
 	  _templateObject2$a = function _templateObject2() {
 	    return data;
@@ -1674,6 +1692,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	var IcalSyncPopup = /*#__PURE__*/function () {
 	  function IcalSyncPopup(options) {
 	    babelHelpers.classCallCheck(this, IcalSyncPopup);
+	    babelHelpers.defineProperty(this, "LINK_LENGTH", 112);
 	    this.link = this.getIcalLink(options);
 	  }
 
@@ -1742,7 +1761,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }, {
 	    key: "getLinkBlock",
 	    value: function getLinkBlock() {
-	      return main_core.Tag.render(_templateObject2$a(), BX.util.htmlspecialchars(this.link), BX.util.htmlspecialchars(this.link));
+	      return main_core.Tag.render(_templateObject2$a(), BX.util.htmlspecialchars(this.link), BX.util.htmlspecialchars(this.getShortenLink(this.link)));
 	    }
 	  }, {
 	    key: "showPopupWithSyncDataError",
@@ -1755,6 +1774,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      window.BX.clipboard.copy(this.link);
 	      event.preventDefault();
 	      event.stopPropagation();
+	    }
+	  }, {
+	    key: "getShortenLink",
+	    value: function getShortenLink(link) {
+	      return link.length < this.LINK_LENGTH ? link : link.substr(0, 105) + '...' + link.slice(-7);
 	    }
 	  }], [{
 	    key: "createInstance",

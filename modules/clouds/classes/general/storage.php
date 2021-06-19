@@ -535,7 +535,7 @@ class CCloudStorage
 		{
 			if ($resize["ERROR_CODE"] < 10)
 			{
-				$arResizeParams = unserialize($resize["PARAMS"]);
+				$arResizeParams = unserialize($resize["PARAMS"], ['allowed_classes' => false]);
 				$id = $resize["ID"];
 			} //Give it a try
 			elseif (
@@ -549,7 +549,7 @@ class CCloudStorage
 					SET ERROR_CODE='1'
 					WHERE ID=".$resize["ID"]."
 				");
-				$arResizeParams = unserialize($resize["PARAMS"]);
+				$arResizeParams = unserialize($resize["PARAMS"], ['allowed_classes' => false]);
 				$id = $resize["ID"];
 			}
 			else
@@ -668,7 +668,7 @@ class CCloudStorage
 			return false;
 		}
 
-		$arResizeParams = unserialize($task["PARAMS"]);
+		$arResizeParams = unserialize($task["PARAMS"], ['allowed_classes' => false]);
 		if (!is_array($arResizeParams))
 		{
 			$DB->Query("
@@ -1183,18 +1183,6 @@ class CCloudStorage
 		$subDir = "";
 		$filePath = "";
 
-		if (array_key_exists("content", $arFile))
-		{
-			$arFile["tmp_name"] = CTempFile::GetFileName($arFile["name"]);
-			CheckDirPath($arFile["tmp_name"]);
-			$fp = fopen($arFile["tmp_name"], "ab");
-			if ($fp)
-			{
-				fwrite($fp, $arFile["content"]);
-				fclose($fp);
-			}
-		}
-
 		if (array_key_exists("bucket", $arFile))
 		{
 			$newName = bx_basename($arFile["tmp_name"]);
@@ -1205,6 +1193,18 @@ class CCloudStorage
 		}
 		else
 		{
+			if (array_key_exists("content", $arFile))
+			{
+				$arFile["tmp_name"] = CTempFile::GetFileName($arFile["name"]);
+				CheckDirPath($arFile["tmp_name"]);
+				$fp = fopen($arFile["tmp_name"], "ab");
+				if ($fp)
+				{
+					fwrite($fp, $arFile["content"]);
+					fclose($fp);
+				}
+			}
+
 			if (
 				$bForceMD5 != true
 				&& COption::GetOptionString("main", "save_original_file_name", "N") == "Y"

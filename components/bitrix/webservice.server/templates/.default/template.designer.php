@@ -58,7 +58,6 @@
 				$methodDeclared = "";
 				if (isset($params["output"]))
 				{
-					reset($params['output']);
 					if (count($params['output']) > 1)
 					{
 						$first = true;
@@ -80,8 +79,8 @@
 					}
 					else
 					{
-						list($pname, $pparam) = each($params['output']);
-						//foreach ($params["output"] as $pname => $pparam) break;
+						$pname = key($params['output']);
+						$pparam = current($params['output']);
 						$methodDeclared .= "{$pname}";
 						if (isset($pparam["arrType"])) $methodDeclared .= "[]";
 						$methodDeclared .= ": <i>{$pparam[varType]}</i>";
@@ -103,7 +102,7 @@
 						if (isset($pparam["arrType"])) $methodDeclared .= "[]";
 						$methodDeclared .= ", ";
 					}
-					$methodDeclared = substr($methodDeclared, 0, strlen($methodDeclared) - 2);
+					$methodDeclared = mb_substr($methodDeclared, 0, mb_strlen($methodDeclared) - 2);
 				}
 				//$methodDeclared .= ");</a>";
 				$methodDeclared .= ");";

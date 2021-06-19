@@ -355,6 +355,12 @@ class Shipment extends Controller
 		$r=$shipment->setBasePriceDelivery($value, $custom);
 		return $this->save($shipment, $r);
 	}
+
+	public function setShippedAction(\Bitrix\Sale\Shipment $shipment, $value)
+	{
+		$r = $shipment->setField('DEDUCTED', $value);
+		return $this->save($shipment, $r);
+	}
 	//endregion
 
 	private function save(\Bitrix\Sale\Shipment $shipment, Result $r)
@@ -490,7 +496,9 @@ class Shipment extends Controller
 		{
 			$r = $this->checkReadPermissionEntity();
 		}
-		elseif($name == 'setbasepricedelivery')
+		elseif($name == 'setbasepricedelivery'
+			|| $name == 'setshipped'
+		)
 		{
 			$r = $this->checkModifyPermissionEntity();
 		}

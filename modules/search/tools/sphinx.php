@@ -1127,36 +1127,42 @@ class CSearchSphinx extends CSearchFullText
 
 	protected function canConnect()
 	{
-		return function_exists("mysql_connect") || function_exists("mysqli_connect");
+		return function_exists("mysqli_connect");
 	}
-	
+
 	protected function internalConnect($connectionIndex, &$error)
 	{
 		$error = "";
-		if (function_exists("mysql_connect"))
-		{
-			$result = @mysql_connect($connectionIndex);
-			if (!$result)
-				$error = mysql_error();
-		}
-		elseif (function_exists("mysqli_connect"))
+		if (function_exists("mysqli_connect"))
 		{
 			$result = mysqli_init();
 
 			if (mb_strpos($connectionIndex, ":") !== false)
 			{
 				list($host, $port) = explode(":", $connectionIndex, 2);
+				$port = intval($port);
 			}
 			else
 			{
 				$host = $connectionIndex;
-				$port = '';
+				$port = 0;
 			}
 
-			if (!$result->real_connect($host, '', '', '', $port))
+			if ($port > 0)
 			{
-				$error = mysqli_connect_error();
-				$result = false;
+				if (!$result->real_connect($host, '', '', '', $port))
+				{
+					$error = mysqli_connect_error();
+					$result = false;
+				}
+			}
+			else
+			{
+				if (!$result->real_connect($host, '', '', ''))
+				{
+					$error = mysqli_connect_error();
+					$result = false;
+				}
 			}
 		}
 		else
@@ -1167,14 +1173,10 @@ class CSearchSphinx extends CSearchFullText
 
 		return $result;
 	}
-	
+
 	public function query($query)
 	{
-		if (is_resource($this->db))
-		{
-			$result = mysql_query($query, $this->db);
-		}
-		elseif (is_object($this->db))
+		if (is_object($this->db))
 		{
 			$result = $this->db->query($query);
 		}
@@ -1184,14 +1186,10 @@ class CSearchSphinx extends CSearchFullText
 		}
 		return $result;
 	}
-	
+
 	public function fetch($queryResult)
 	{
-		if (is_resource($this->db))
-		{
-			$result = mysql_fetch_array($queryResult, MYSQL_ASSOC);
-		}
-		elseif (is_object($this->db))
+		if (is_object($this->db))
 		{
 			$result = mysqli_fetch_assoc($queryResult);
 		}
@@ -1204,11 +1202,7 @@ class CSearchSphinx extends CSearchFullText
 
 	public function getError()
 	{
-		if (is_resource($this->db))
-		{
-			$result = "[".mysql_errno($this->db)."] ".mysql_error($this->db);
-		}
-		elseif (is_object($this->db))
+		if (is_object($this->db))
 		{
 			$result = "[".$this->db->errno."] ".$this->db->error;
 		}

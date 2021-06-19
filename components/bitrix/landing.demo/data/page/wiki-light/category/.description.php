@@ -60,7 +60,7 @@ return [
 					0 => 'landing-block js-animation fadeInUp g-pl-0 g-pb-auto container g-max-width-container g-pt-50',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-size-40',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left',
 				],
 			],
 		],
@@ -78,7 +78,7 @@ return [
 					0 => 'landing-block container js-animation fadeInUp g-pl-auto g-pb-9 g-pr-65 g-pt-25',
 				],
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 text-left g-color-black g-line-height-1_8 g-font-size-18',
+					0 => 'landing-block-node-text g-pb-1 text-left g-color-black g-line-height-1_8',
 				],
 			],
 		],
@@ -105,7 +105,7 @@ return [
 					0 => 'landing-block js-animation fadeInUp g-pl-0 g-pb-auto container g-max-width-container g-pt-50',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-size-30',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left',
 				],
 			],
 		],
@@ -169,9 +169,9 @@ return [
 					2 => 'landing-block-node-img d-flex u-shadow-v25 g-width-40 g-height-40 g-rounded-50x g-object-fit-cover mr-3',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-size-20 g-color-blue',
-					1 => 'landing-block-node-title g-font-size-20 g-color-blue',
-					2 => 'landing-block-node-title g-font-size-20 g-color-blue',
+					0 => 'landing-block-node-title g-color-blue',
+					1 => 'landing-block-node-title g-color-blue',
+					2 => 'landing-block-node-title g-color-blue',
 				],
 				'.landing-block-node-text' => [
 					0 => 'landing-block-node-text g-color-black',
@@ -199,7 +199,7 @@ return [
 					0 => 'landing-block js-animation fadeInUp g-pl-0 g-pb-auto container g-max-width-container g-pt-50',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-size-30',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left',
 				],
 			],
 		],
@@ -263,9 +263,9 @@ return [
 					2 => 'landing-block-node-img d-flex u-shadow-v25 g-width-40 g-height-40 g-rounded-50x g-object-fit-cover mr-3',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-size-20 g-color-blue',
-					1 => 'landing-block-node-title g-font-size-20 g-color-blue',
-					2 => 'landing-block-node-title g-font-size-20 g-color-blue',
+					0 => 'landing-block-node-title g-color-blue',
+					1 => 'landing-block-node-title g-color-blue',
+					2 => 'landing-block-node-title g-color-blue',
 				],
 				'.landing-block-node-text' => [
 					0 => 'landing-block-node-text g-color-black',

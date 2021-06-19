@@ -26,9 +26,9 @@ $APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/rating.vote/templates/
 		 data-like-id="<?=htmlspecialcharsbx($arResult['VOTE_ID'])?>"
 		 class="feed-post-emoji-icon-container"
 		><?
+			$reactionIndex = 1;
 			if (!empty($arParams['REACTIONS_LIST']))
 			{
-				$reactionIndex = 1;
 				foreach($arParams['REACTIONS_LIST'] as $key => $value)
 				{
 					if (intval($value) <= 0)

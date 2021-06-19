@@ -147,12 +147,12 @@ $lAdmin->AddHeaders(array(
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
 $arSites = array();
-$dbSiteList = CSite::GetList(($b = "sort"), ($o = "asc"));
+$dbSiteList = CSite::GetList();
 while ($arSite = $dbSiteList->Fetch())
 	$arSites[$arSite["LID"]] = "[".$arSite["LID"]."]&nbsp;".$arSite["NAME"];
 
 $arCurrencies = array("P" => "%");
-$dbCurrencyList = CCurrency::GetList(($b = "currency"), ($o = "asc"));
+$dbCurrencyList = CCurrency::GetList("currency", "asc");
 while ($arCurrency = $dbCurrencyList->Fetch())
 	$arCurrencies[$arCurrency["CURRENCY"]] = "[".$arCurrency["CURRENCY"]."]&nbsp;".$arCurrency["FULL_NAME"];
 

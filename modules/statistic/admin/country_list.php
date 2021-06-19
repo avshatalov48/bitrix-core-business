@@ -14,7 +14,7 @@ $err_mess = "File: ".__FILE__."<br>Line: ";
 /***************************************************************************
 			GET | POST handlers
 ****************************************************************************/
-$rs = CCountry::GetList($v1="s_dropdown", $v2="asc", array(), $v);
+$rs = CCountry::GetList("s_dropdown");
 while ($ar = $rs->Fetch()) $arrCOUNTRY[$ar["ID"]] = $ar["NAME"]." [".$ar["ID"]."]";
 
 $sTableID = "t_country_list";
@@ -34,8 +34,7 @@ if($lAdmin->IsDefaultFilter())
 
 	if (is_array($arrCOUNTRY))
 	{
-		reset($arrCOUNTRY);
-		while (list($key,$value)=each($arrCOUNTRY))
+		foreach ($arrCOUNTRY as $key => $value)
 		{
 			$i++;
 			if ($i<=20) $find_country_id[] = $key;
@@ -145,12 +144,13 @@ if (($strError == '') && count($arrLegend)>0) :
 				uasort($arrLegend, "data_sort");
 
 				$sum = 0;
-				reset($arrLegend);
-				while(list($keyL, $arrL) = each($arrLegend)) $sum += $arrL[$find_data_type];
+				foreach ($arrLegend as $keyL => $arrL)
+				{
+					$sum += $arrL[$find_data_type];
+				}
 
 				$i=0;
-				reset($arrLegend);
-				while(list($keyL, $arrL) = each($arrLegend)) :
+				foreach ($arrLegend as $keyL => $arrL):
 					$i++;
 					$id = $keyL;
 					$name = $arrL["NAME"];
@@ -184,7 +184,7 @@ if (($strError == '') && count($arrLegend)>0) :
 					?></td>
 					<td nowrap><a href="city_list.php?lang=<?=LANGUAGE_ID?>&amp;find_country_id=<?echo urlencode($id)?>&amp;find_date1=<?echo urlencode($arFilter["DATE1"])?>&amp;find_date2=<?echo urlencode($arFilter["DATE2"])?>&amp;find_data_type=<?=$find_data_type?>&amp;set_filter=Y">[<?=htmlspecialcharsbx($id)?>] <?=htmlspecialcharsbx($name)?></a></td>
 				</tr>
-				<?endwhile;?>
+				<?endforeach;?>
 			</table>
 		</td>
 	</tr>
@@ -223,12 +223,13 @@ if ($found):
 				uasort($arrLegend, "total_data_sort");
 
 				$sum = 0;
-				reset($arrLegend);
-				while(list($keyL, $arrL) = each($arrLegend)) $sum += $arrL["TOTAL_".$find_data_type];
+				foreach ($arrLegend as $keyL => $arrL)
+				{
+					$sum += $arrL["TOTAL_".$find_data_type];
+				}
 
 				$i=0;
-				reset($arrLegend);
-				while(list($keyL, $arrL) = each($arrLegend)) :
+				foreach ($arrLegend as $keyL => $arrL):
 					$i++;
 					$id = $keyL;
 					$name = $arrL["NAME"];
@@ -261,7 +262,7 @@ if ($found):
 					?></td>
 					<td nowrap>[<?=htmlspecialcharsbx($id)?>] <?=htmlspecialcharsbx($name)?></td>
 				</tr>
-				<?endwhile;?>
+				<?endforeach;?>
 			</table>
 		</td>
 	</tr>

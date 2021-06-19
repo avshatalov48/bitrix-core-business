@@ -1,11 +1,13 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
+
 $GLOBALS["BLOG_SITE_PATH"] = Array();
 
 class CAllBlogSitePath
 {
 	/*************** ADD, UPDATE, DELETE *****************/
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "PATH") || $ACTION=="ADD") && $arFields["PATH"] == '')
 		{
@@ -46,7 +48,7 @@ class CAllBlogSitePath
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -62,7 +64,7 @@ class CAllBlogSitePath
 	}
 
 	//*************** SELECT *********************/
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -90,7 +92,7 @@ class CAllBlogSitePath
 		return False;
 	}
 
-	function GetBySiteID($siteID)
+	public static function GetBySiteID($siteID)
 	{
 		global $DB;
 
@@ -120,7 +122,7 @@ class CAllBlogSitePath
 		return False;
 	}
 	
-	function DeleteBySiteID($siteID)
+	public static function DeleteBySiteID($siteID)
 	{
 		global $DB;
 
@@ -138,6 +140,4 @@ class CAllBlogSitePath
 		
 		return true;
 	}
-
 }
-?>

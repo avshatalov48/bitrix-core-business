@@ -2342,6 +2342,7 @@ abstract class Base extends \CBitrixComponent
 				$vatRate = $this->storage['VATS'][$vatId];
 			$element['PRODUCT']['VAT_RATE'] = $vatRate;
 			unset($vatRate, $vatId);
+			$element['PRODUCT']['USE_OFFERS'] = $element['PRODUCT']['TYPE'] == Catalog\ProductTable::TYPE_SKU;
 
 			if ($this->isEnableCompatible())
 			{
@@ -2374,7 +2375,8 @@ abstract class Base extends \CBitrixComponent
 		{
 			$element['PRODUCT'] = array(
 				'TYPE' => null,
-				'AVAILABLE' => null
+				'AVAILABLE' => null,
+				'USE_OFFERS' => false
 			);
 		}
 
@@ -4735,10 +4737,8 @@ abstract class Base extends \CBitrixComponent
 		}
 
 		$APPLICATION->RestartBuffer();
-		echo Main\Web\Json::encode($result);
 
-		\CMain::FinalActions();
-		die();
+		\CMain::FinalActions(Main\Web\Json::encode($result));
 	}
 
 	/**

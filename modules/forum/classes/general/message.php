@@ -426,7 +426,7 @@ class CAllForumMessage
 		return $ID;
 	}
 
-	public static function Reindex($ID, &$arMessage)
+	public static function Reindex($ID, &$arMessage = [])
 	{
 		if (!($ID > 0) || !CModule::IncludeModule("search"))
 			return array("FORUM_ID", "TOPIC_ID", "TITLE_SEO", "MESSAGE_ID", "SOCNET_GROUP_ID", "OWNER_ID", "PARAM1", "PARAM2");
@@ -1184,7 +1184,7 @@ class CAllForumMessage
 class _CMessageDBResult extends CDBResult
 {
 	var $sNameTemplate = '';
-	function _CMessageDBResult($res, $params = array())
+	public function __construct($res, $params = array())
 	{
 		$this->sNameTemplate = (!empty($params["sNameTemplate"]) ? $params["sNameTemplate"] : '');
 		$this->checkUserFields = false;
@@ -1195,7 +1195,7 @@ class _CMessageDBResult extends CDBResult
 			$this->arUserFields = $USER_FIELD_MANAGER->GetUserFields("FORUM_MESSAGE", 0, LANGUAGE_ID);
 			$this->checkUserFields = (!empty($this->arUserFields));
 		}
-		parent::CDBResult($res);
+		parent::__construct($res);
 	}
 	function Fetch()
 	{
@@ -1253,7 +1253,7 @@ class _CMessageDBResult extends CDBResult
 			{
 				if (is_set($res, "HTML") || is_set($res, "FM_HTML"))
 				{
-					$arr = @unserialize(is_set($res, "HTML") ? $res["HTML"] : $res["FM_HTML"]);
+					$arr = @unserialize(is_set($res, "HTML") ? $res["HTML"] : $res["FM_HTML"], ["allowed_classes" => false]);
 					if (empty($arr) || !is_array($arr))
 					{
 						$arr = array(
@@ -1285,7 +1285,7 @@ class _CMessageDBResult extends CDBResult
 
 				if (!empty($res["FT_HTML"]))
 				{
-					$arr = @unserialize($res["FT_HTML"]);
+					$arr = @unserialize($res["FT_HTML"], ["allowed_classes" => false]);
 					if (is_array($arr) && !empty($arr["TITLE"]))
 					{
 						foreach ($arr as $key => $val)
@@ -1298,7 +1298,7 @@ class _CMessageDBResult extends CDBResult
 
 				if (!empty($res["F_HTML"]))
 				{
-					$arr = @unserialize($res["F_HTML"]);
+					$arr = @unserialize($res["F_HTML"], ["allowed_classes" => false]);
 					if (is_array($arr))
 					{
 						foreach ($arr as $key => $val)

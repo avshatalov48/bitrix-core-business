@@ -291,8 +291,15 @@ class Uploader
 
 	public static function prepareData($data)
 	{
-		array_walk_recursive($data, create_function('&$v,$k',
-			'if($k=="error"){$v=preg_replace("/<(.+?)>/is".BX_UTF_PCRE_MODIFIER, "", $v);}'));
+		array_walk_recursive(
+			$data,
+			function(&$v, $k) {
+				if ($k == "error")
+				{
+					$v = preg_replace("/<(.+?)>/is".BX_UTF_PCRE_MODIFIER, "", $v);
+				}
+			}
+		);
 		return self::removeTmpPath($data);
 	}
 

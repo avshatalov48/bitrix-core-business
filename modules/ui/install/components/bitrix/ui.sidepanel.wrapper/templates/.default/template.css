@@ -116,6 +116,7 @@ div.ui-side-panel-wrap-title-container.ui-side-panel-wrap-title-align-right-cont
 	align-items: center;
 	-ms-flex: 0 1 auto;
 	flex: 0 1 auto;
+	flex-wrap: wrap;
 	margin: 0 45px 0 0;
 	padding: 22px 0 17px 6px;
 	min-height: 73px;
@@ -152,7 +153,8 @@ div.ui-side-panel-wrap-title-container.ui-side-panel-wrap-title-align-right-cont
 	box-sizing: border-box;
 }
 
-.bitrix24-light-theme .ui-side-panel-wrap-title-item {
+.bitrix24-light-theme .ui-side-panel-wrap-title-item,
+.bitrix24-light-theme .ui-toolbar-title-item {
 	color: #fff;
 }
 
@@ -297,7 +299,7 @@ div.ui-side-panel-wrap-title-container.ui-side-panel-wrap-title-align-right-cont
 }
 
 .ui-page-slider-wrapper .feed-new-message-informer-place {
-	background-color: #eef2f4;
+	background-color: transparent;
 }
 
 /*.ui-page-slider-wrapper .feed-post-block {*/

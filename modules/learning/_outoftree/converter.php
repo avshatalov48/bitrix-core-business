@@ -466,7 +466,7 @@ if($updater->CanUpdateDatabase())
 				'learning_lesson_access_manage_full' => array('G1')		// Admins
 				);
 
-			$rc = CGroup::GetList($v1 = 'sort', $v2 = 'asc', array('ACTIVE' => 'Y'));
+			$rc = CGroup::GetList('sort', 'asc', array('ACTIVE' => 'Y'));
 			while($zr = $rc->Fetch())
 			{
 				$group_id = $zr['ID'];

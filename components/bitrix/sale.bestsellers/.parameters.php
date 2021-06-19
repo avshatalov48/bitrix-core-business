@@ -147,16 +147,6 @@ $arComponentParameters = array(
 			"HIDDEN" => (isset($arCurrentValues['ADD_PROPERTIES_TO_BASKET']) && $arCurrentValues['ADD_PROPERTIES_TO_BASKET'] == 'N' ? 'Y' : 'N')
 		),
 
-		"DISPLAY_COMPARE" => array(
-			"PARENT" => "ADDITIONAL_SETTINGS",
-			"NAME" => GetMessage("SBP_DESC_DISPLAY_COMPARE"),
-			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "N",
-			"HIDDEN" => true
-		),
-
-
-
 		"SHOW_OLD_PRICE" => array(
 			"PARENT" => "PRICES",
 			"NAME" => GetMessage("SBP_SHOW_OLD_PRICE"),
@@ -444,9 +434,7 @@ if (Loader::includeModule('currency'))
 	if (isset($arCurrentValues['CONVERT_CURRENCY']) && 'Y' == $arCurrentValues['CONVERT_CURRENCY'])
 	{
 		$arCurrencyList = array();
-		$by = 'SORT';
-		$order = 'ASC';
-		$rsCurrencies = CCurrency::GetList($by, $order);
+		$rsCurrencies = CCurrency::GetList('sort', 'asc');
 		while ($arCurrency = $rsCurrencies->Fetch())
 		{
 			$arCurrencyList[$arCurrency['CURRENCY']] = $arCurrency['CURRENCY'];

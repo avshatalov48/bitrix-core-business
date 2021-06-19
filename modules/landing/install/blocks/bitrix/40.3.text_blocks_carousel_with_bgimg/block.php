@@ -3,7 +3,7 @@
 	<div class="u-bg-overlay__inner">
 		<div class="container g-max-width-780 text-center g-mb-60">
 			<div class="text-center u-heading-v8-1 g-mb-35">
-				<h2 class="landing-block-node-title landing-semantic-subtitle-image-medium h3 text-uppercase u-heading-v8__title g-font-weight-700 g-font-size-26 g-color-white mb-0">
+				<h2 class="landing-block-node-title landing-semantic-subtitle-image-medium text-uppercase u-heading-v8__title g-font-weight-700 g-color-white mb-0">
 					Success
 					<span style="font-weight: bold;" class="g-color-primary">stories</span></h2>
 			</div>
@@ -24,12 +24,12 @@
 				<div class="landing-block-node-card js-slide">
 					<div class="row justify-content-end">
 						<div class="col-md-6 g-color-white g-pt-80--md">
-							<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-big text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-5">
+							<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-big text-uppercase g-font-weight-700 g-color-white g-mb-5">
 								Catherine
 								Cameron</h3>
-							<h4 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-font-size-10 g-color-primary g-mb-16">
+							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-color-primary g-mb-16">
 								Molestie
-								ullamcorper nisl eget</h4>
+								ullamcorper nisl eget</h6>
 							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-0" data-auto-font-scale>
 								<p>Integer accumsan maximus leo, et consectetur metus vestibulum in.
 									Vestibulum viverra justo odio. Donec eu nulla leo. Vivamus risus lacus, viverra eu
@@ -45,12 +45,12 @@
 				<div class="landing-block-node-card js-slide">
 					<div class="row justify-content-end">
 						<div class="col-md-6 g-color-white g-pt-80--md">
-							<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-big text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-5">
+							<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-big text-uppercase g-font-weight-700 g-color-white g-mb-5">
 								Catherine
 								Cameron</h3>
-							<h4 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-font-size-10 g-color-primary g-mb-16">
+							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-color-primary g-mb-16">
 								Molestie
-								ullamcorper nisl eget</h4>
+								ullamcorper nisl eget</h6>
 							<div class="landing-block-node-card-text landing-semantic-text-image-medium g-mb-0" data-auto-font-scale>
 								<p>Integer accumsan maximus leo, et consectetur metus vestibulum in.
 									Vestibulum viverra justo odio. Donec eu nulla leo. Vivamus risus lacus, viverra eu

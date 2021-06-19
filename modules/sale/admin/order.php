@@ -501,7 +501,7 @@ if(!empty($filter_delivery_service) && is_array($filter_delivery_service))
 		$runtimeFields["REQUIRED_DLV_PRESENTED"] = array(
 			'data_type' => 'boolean',
 			'expression' => array(
-				'CASE WHEN EXISTS (SELECT ID FROM b_sale_order_delivery WHERE ORDER_ID = %s AND SYSTEM="N" AND '.$whereExpression.') THEN 1 ELSE 0 END',
+				'CASE WHEN EXISTS (SELECT ID FROM b_sale_order_delivery WHERE ORDER_ID = %s AND `SYSTEM`="N" AND '.$whereExpression.') THEN 1 ELSE 0 END',
 				'ID'
 			)
 		);
@@ -1555,9 +1555,7 @@ foreach ($arVisibleColumns as $visibleColumn)
 	}
 }
 
-$b = "sort";
-$o = "asc";
-$dbSite = CSite::GetList($b, $o, array());
+$dbSite = CSite::GetList();
 while ($arSite = $dbSite->Fetch())
 {
 	$serverName[$arSite["LID"]] = $arSite["SERVER_NAME"];
@@ -1913,7 +1911,7 @@ if (!empty($orderList) && is_array($orderList))
 		$fieldValue = "";
 		if(in_array("ACCOUNT_NUMBER", $arVisibleColumns))
 		{
-			$fieldValue = str_replace('##ID##', Loc::getMessage("SO_ORDER_ID_PREF").$arOrder["ACCOUNT_NUMBER"], $idTmp);
+			$fieldValue = str_replace('##ID##', Loc::getMessage("SO_ORDER_ID_PREF").htmlspecialcharsbx($arOrder["ACCOUNT_NUMBER"]), $idTmp);
 		}
 		$row->AddField("ACCOUNT_NUMBER", $fieldValue);
 
@@ -3524,7 +3522,7 @@ else
 		$arSiteMenu = array();
 		$arSitesShop = array();
 		$arSitesTmp = array();
-		$rsSites = CSite::GetList($b = "id", $o = "asc", Array("ACTIVE" => "Y"));
+		$rsSites = CSite::GetList("id", "asc", Array("ACTIVE" => "Y"));
 
 		while ($arSite = $rsSites->GetNext())
 		{
@@ -3851,9 +3849,7 @@ else
 				<select name="filter_lang">
 					<option value=""><?= htmlspecialcharsbx(Loc::getMessage("SALE_F_ALL")) ?></option>
 					<?
-					$b1 = "SORT";
-					$o1 = "ASC";
-					$dbSitesList = CLang::GetList($b1, $o1);
+					$dbSitesList = CLang::GetList();
 					while ($arSitesList = $dbSitesList->Fetch())
 					{
 						if(!in_array($arSitesList["LID"], $arAccessibleSites)

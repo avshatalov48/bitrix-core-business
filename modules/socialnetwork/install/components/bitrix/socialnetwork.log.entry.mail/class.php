@@ -12,6 +12,7 @@ use Bitrix\Main\Config;
 use Bitrix\Main\Localization;
 use Bitrix\Main\Loader;
 use Bitrix\Socialnetwork\ComponentHelper;
+use Bitrix\Socialnetwork\Helper\Mention;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
@@ -198,12 +199,7 @@ class CBitrixSocialnetworkLogEntryMailComponent extends CBitrixComponent
 					$arResult["LOG_ENTRY"]["EVENT"]["MESSAGE"]
 				);
 
-				$arResult["LOG_ENTRY"]["EVENT"]["MESSAGE_FORMATTED"] = preg_replace(
-					"/\[USER\s*=\s*([^\]]*)\](.+?)\[\/USER\]/is".BX_UTF_PCRE_MODIFIER,
-					"\\2",
-					$arResult["LOG_ENTRY"]["EVENT"]["MESSAGE_FORMATTED"]
-				);
-
+				$arResult['LOG_ENTRY']['EVENT']['MESSAGE_FORMATTED'] = Mention::clear($arResult['LOG_ENTRY']['EVENT']['MESSAGE_FORMATTED']);
 				$arResult["LOG_ENTRY"]["EVENT"]["MESSAGE_FORMATTED"] = $this->parseText($arResult["LOG_ENTRY"]["EVENT"]["MESSAGE_FORMATTED"]);
 			}
 		}
@@ -317,12 +313,7 @@ class CBitrixSocialnetworkLogEntryMailComponent extends CBitrixComponent
 						$commentFormatted["EVENT"]["MESSAGE"]
 					);
 
-					$commentFormatted["EVENT"]["MESSAGE_FORMATTED"] = preg_replace(
-						"/\[USER\s*=\s*([^\]]*)\](.+?)\[\/USER\]/is".BX_UTF_PCRE_MODIFIER,
-						"\\2",
-						$commentFormatted["EVENT"]["MESSAGE_FORMATTED"]
-					);
-
+					$commentFormatted['EVENT']['MESSAGE_FORMATTED'] = Mention::clear($commentFormatted['EVENT']['MESSAGE_FORMATTED']);
 					$commentFormatted["EVENT"]["MESSAGE_FORMATTED"] = $this->parseText($commentFormatted["EVENT"]["MESSAGE_FORMATTED"]);
 
 					$arResult["COMMENTS"][$comment["ID"]] = $commentFormatted;

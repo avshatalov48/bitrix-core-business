@@ -113,36 +113,7 @@ class EntityUsageTable extends Main\Entity\DataManager
 
 	public static function getCompatEntities()
 	{
-		static $compatEntities;
-
-		if ($compatEntities)
-		{
-			return $compatEntities;
-		}
-
-		$compatEntities =[
-			'user' => ['prefix' => 'U', 'pattern' => '^(?<prefix>U)(?<itemId>\d+)$'],
-			'project' => ['prefix' => 'SG', 'pattern' => '^(?<prefix>SG)(?<itemId>\d+)$'],
-			'crm-company' => ['prefix' => 'CRMCOMPANY', 'pattern' => '^(?<prefix>CRMCOMPANY)(?<itemId>.+)$'],
-			'crm-contact' => ['prefix' => 'CRMCONTACT', 'pattern' => '^(?<prefix>CRMCONTACT)(?<itemId>.+)$'],
-			'crm-lead' => ['prefix' => 'CRMLEAD', 'pattern' => '^(?<prefix>CRMLEAD)(?<itemId>.+)$'],
-			'crm-deal' => ['prefix' => 'CRMDEAL', 'pattern' => '^(?<prefix>CRMDEAL)(?<itemId>.+)$'],
-			'crm-quote' => ['prefix' => 'CRMQUOTE', 'pattern' => '^(?<prefix>CRMQUOTE)(?<itemId>.+)$'],
-			'crm-order' => ['prefix' => 'CRMORDER', 'pattern' => '^(?<prefix>CRMORDER)(?<itemId>.+)$'],
-			'crm-product' => ['prefix' => 'CRMPRODUCT', 'pattern' => '^(?<prefix>CRMPRODUCT)(?<itemId>.+)$'],
-			'mail-contact' => ['prefix' => 'MC', 'pattern' => '^(?<prefix>MC)(?<itemId>[0-9]+)$'],
-			'department' => [
-				'prefix' => (function($itemId) {
-					return is_string($itemId) && $itemId[-1] === 'F' ? 'D' : 'DR';
-				}),
-				'itemId' => function($prefix, $itemId) {
-					return $prefix === 'D' ? $itemId.':F' : $itemId;
-				},
-				'pattern' => '^(?<prefix>DR?)(?<itemId>\d+)$'
-			],
-		];
-
-		return $compatEntities;
+		return Converter::getCompatEntities();
 	}
 
 	public static function merge(array $data)
@@ -191,7 +162,7 @@ class EntityUsageTable extends Main\Entity\DataManager
 		}
 		else
 		{
-			$compatEntities = static::getCompatEntities();
+			$compatEntities = Converter::getCompatEntities();
 			if (isset($compatEntities[$entityId]))
 			{
 				$prefix = $compatEntities[$entityId]['prefix'];

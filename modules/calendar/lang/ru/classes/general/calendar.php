@@ -439,7 +439,7 @@ $MESS["EC_CALDAV_SYNC_ERROR"] = "Последняя синхронизация �
 $MESS["EC_CALDAV_NOTICE"] = "Синхронизация подключаемых календарей происходит автоматически.";
 $MESS["EC_CALDAV_NOTICE_GOOGLE"] = "Для подключения календарей <b>Google</b> введите ссылку вида <span class=\"bxec-link\">https://www.google.com/calendar/dav/YOUREMAIL@DOMAIN.COM/user</span> в поле адрес, а также свой логин и пароль. <br/> Более подробную информацию можно посмотреть <a href=\"http://www.google.com/support/calendar/bin/answer.py?answer=99358&&hl=en#ical\">здесь</a>";
 $MESS["EC_ALL_CALENDARS"] = "Все календари";
-$MESS["EC_MOBILE_SYNC_TITLE_MACOSX"] = "Настройка синхронизации для Mac OSX";
+$MESS["EC_MOBILE_SYNC_TITLE_MACOSX"] = "Настройка синхронизации для macOS";
 $MESS["EC_MOBILE_SYNC_TITLE_IPHONE"] = "Настройка синхронизации для Apple iPhone/iPad";
 $MESS["EC_MOBILE_SYNC_TITLE_ANDROID"] = "Настройка синхронизации для Android";
 $MESS["EC_MOBILE_MAC_OS"] = "Программа iCal для MAC OS";
@@ -615,7 +615,7 @@ $MESS["EC_CAL_LAST_SYNC_DATE"] = "Дата последней успешной �
 $MESS["EC_CAL_REMOVE_GOOGLE_SYNC_CONFIRM"] = "Вы действительно хотите отключить синхронизацию календарей Google и удалить их?";
 $MESS["EC_CAL_SYNC_CONNECT"] = "Подключить";
 $MESS["EC_CAL_SYNC_DISCONNECT"] = "отключить";
-$MESS["EC_CAL_SYNC_MAC"] = "Mac OSX";
+$MESS["EC_CAL_SYNC_MAC"] = "macOS";
 $MESS["EC_CAL_SYNC_IPHONE"] = "iPhone";
 $MESS["EC_CAL_SYNC_ANDROID"] = "Android";
 $MESS["EC_CAL_SYNC_OUTLOOK"] = "MS Outlook";
@@ -635,7 +635,6 @@ $MESS["EC_CAL_DISCONNECT_EXCHANGE"] = "<p>Обратитесь к админис
 $MESS["EC_CAL_OPERATION_CANNOT_BE_PERFORMED"] = "Введены некорректные данные или сервер не отвечает";
 $MESS["EC_CAL_SERVER_ALREADY_CONNECTED"] = "Подключение с такими данными уже существует";
 $MESS["EC_CAL_CONTACT_ADMINISTRATOR"] = "Обратитесь к администратору вашего Битрикс24 за помощью";
-$MESS["EC_CAL_CONTACT_ADMINISTRATOR"] = "Обратитесь к администратору вашего Битрикс24 за помощью";
 $MESS["EC_COMPANY_CALENDAR"] = "Календарь компании";
 $MESS["EC_MESS_STATUS_NOTIFY_Y_SITE"] = "Вы согласились принять участие во встрече \"[B]#TITLE#[/B]\", которая состоится [B]#ACTIVE_FROM#[/B]";
 $MESS["EC_MESS_STATUS_NOTIFY_N_SITE"] = "Вы отказались принять участие во встрече \"[B]#TITLE#[/B]\", которая состоится [B]#ACTIVE_FROM#[/B]";
@@ -646,7 +645,6 @@ $MESS["EC_EDIT_REC_EVENT"] = "Изменить повторяющееся соб
 $MESS["EC_REC_EV_ONLY_THIS_EVENT"] = "Только это";
 $MESS["EC_REC_EV_NEXT"] = "Это и все следующие";
 $MESS["EC_REC_EV_ALL"] = "Все повторения";
-$MESS["EC_DECLINE_MEETING_CONFIRM"] = "Вы действительно хотите отказаться от участия?";
 $MESS["EC_DECLINE_REC_EVENT"] = "Отказаться от участия в повторяющемся событии?";
 $MESS["EC_D_REC_EV_ONLY_THIS_EVENT"] = "Только в этом";
 $MESS["EC_D_REC_EV_NEXT"] = "В этом и следующих";
@@ -666,7 +664,6 @@ $MESS["EC_REMIND1_VIEW_HOUR_COUNT"] = "За #COUNT# час(-а) до начал�
 $MESS["EC_REMIND1_VIEW_DAY_COUNT"] = "За #COUNT# дня(дней) до начала";
 $MESS["EC_YEAR_HOLIDAYS_DEFAULT"] = "1.01,2.01,7.01,23.02,8.03,1.05,9.05,12.06,4.11";
 $MESS["EC_YEAR_WORKDAYS_DEFAULT"] = "31.12";
-
 $MESS["EC_SYNC_PERIOD"] = "Период синхронизации событий";
 $MESS["EC_SYNC_PERIOD_PAST_3"] = "3 месяца назад";
 $MESS["EC_SYNC_PERIOD_PAST_6"] = "6 месяцев назад";
@@ -674,7 +671,6 @@ $MESS["EC_SYNC_PERIOD_PAST_12"] = "1 год назад";
 $MESS["EC_SYNC_PERIOD_FUTURE_12"] = "1 год вперед";
 $MESS["EC_SYNC_PERIOD_FUTURE_24"] = "2 года вперед";
 $MESS["EC_SYNC_PERIOD_FUTURE_36"] = "3 года вперед";
-
 $MESS["EC_ATTENDEES_EVENT_TITLE_DESCRIPTION"] = "Участники события";
 $MESS["EC_SEND_FROM_EMAIL"] = "E-mail для отправки почтовых приглашений";
 $MESS["EC_SEND_FROM_EMAIL_HELP"] = "Подробнее, для чего нужен емейл";
@@ -684,6 +680,5 @@ $MESS["EC_CALENDAR_IM_NOT_FOUND"] = "Модуль Веб-мессенджер (i
 $MESS["EC_CALENDAR_CHAT_TITLE"] = "Чат события \"#EVENT_TITLE#\"";
 $MESS["EC_CALENDAR_CHAT_FIRST_MESSAGE"] = "Чат создан из события \"#EVENT_TITLE#\" от #DATETIME_FROM#";
 $MESS["EC_CALENDAR_ERROR_CHAT_USER_NOT_FOUND"] = "Ошибка! Только участник события может создать чат";
-
 $MESS["EC_ICAL_NOTICE_DO_NOT_SET_EMAIL"] = "Не удалось установить адрес почтового ящика для отправки. Проверьте настройку почтового ящика у организатора события";
 ?>

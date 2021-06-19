@@ -109,6 +109,7 @@ $MESS["SONET_GCE_T_SUBTITLE"] = "Gruppenparameter";
 $MESS["SONET_GCE_T_SUCCESS_CREATE"] = "Die Gruppe wurde erstellt.";
 $MESS["SONET_GCE_T_SUCCESS_EDIT"] = "Gruppenparameter wurden erfolgreich geändert.";
 $MESS["SONET_GCE_T_TAG_ADD"] = "Tag hinzufügen";
+$MESS["SONET_GCE_T_THEME"] = "Visuelles Thema";
 $MESS["SONET_GCE_T_TITLE_CREATE"] = "Arbeitsgruppe erstellen";
 $MESS["SONET_GCE_T_TITLE_CREATE_PROJECT"] = "Projekt erstellen";
 $MESS["SONET_GCE_T_TITLE_EDIT"] = "Gruppe #GROUP_NAME# bearbeiten";

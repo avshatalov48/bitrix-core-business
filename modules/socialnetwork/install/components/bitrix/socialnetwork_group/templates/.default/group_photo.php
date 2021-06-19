@@ -1,24 +1,31 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
 	die();
+}
+
+/** @var CBitrixComponentTemplate $this */
+/** @var CBitrixComponent $component */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CDatabase $DB */
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
 
 $pageId = "group_photo";
 include("util_group_menu.php");
 include("util_group_profile.php");
 
-if ($arParams["FATAL_ERROR"] == "Y"):
-	if (!empty($arParams["ERROR_MESSAGE"])):
-		ShowError($arParams["ERROR_MESSAGE"]);
-	else:
-		ShowNote($arParams["NOTE_MESSAGE"], "notetext-simple");
-	endif;
-	return false;
-endif;
+$sliderComponentList = [
+	'bitrix:photogallery.user',
+];
+$sliderComponentTemplateList = [
+	''
+];
 
-?><?$result =$APPLICATION->IncludeComponent(
-	"bitrix:photogallery.user",
-	"",
-	Array(
+$sliderComponentParamsList = [
+	[
 		"IBLOCK_TYPE" => $arParams["PHOTO_GROUP_IBLOCK_TYPE"],
 		"IBLOCK_ID" => $arParams["PHOTO_GROUP_IBLOCK_ID"],
 		"PAGE_NAME" => "INDEX",
@@ -40,34 +47,30 @@ endif;
 		"ONLY_ONE_GALLERY" => $arParams["PHOTO"]["ALL"]["ONLY_ONE_GALLERY"],
 		"GALLERY_GROUPS" => $arParams["PHOTO"]["ALL"]["GALLERY_GROUPS"],
 		"GALLERY_SIZE" => $arParams["PHOTO"]["ALL"]["GALLERY_SIZE"],
-
 		"RETURN_ARRAY" => "Y",
 		"SET_TITLE" => "N",
 		"SET_NAV_CHAIN" => "N",
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"],
+		"GALLERY_AVATAR_SIZE" => $arParams["GALLERY_AVATAR_SIZE"],
+		'SHOW_CONTROLS' => (
+			$arParams['PERMISSION'] >= 'U'
+				? 'Y'
+				: 'N'
+		),
+		'PARENT_FATAL_ERROR' => $arParams['FATAL_ERROR'],
+		'PARENT_ERROR_MESSAGE' => $arParams['ERROR_MESSAGE'],
+		'PARENT_NOTE_MESSAGE' => $arParams['NOTE_MESSAGE'],
+	]
+];
 
-		"GALLERY_AVATAR_SIZE"	=>	$arParams["GALLERY_AVATAR_SIZE"]
-	),
-	$component,
-	array("HIDE_ICONS" => "Y")
-);?>
-<br />
+if ($arParams['FATAL_ERROR'] !== 'Y')
+{
+	$sliderComponentList[] = 'bitrix:photogallery.section.list';
+	$sliderComponentTemplateList[] = '';
 
-<?if ($arParams["PERMISSION"] >= "U"):?>
-<noindex>
-	<div class="photo-top-controls">
-		<a rel="nofollow" href="<?=$result["ALL"]["GALLERY"]["LINK"]["~NEW"]?>" onclick="EditAlbum('<?= CUtil::JSEscape($result["ALL"]["GALLERY"]["LINK"]["~NEW"])?>'); return false;"><?=GetMessage("P_ADD_ALBUM")?></a>
-		<a rel="nofollow" href="<?=$result["ALL"]["GALLERY"]["LINK"]["UPLOAD"]?>" target="_self"><?=GetMessage("P_UPLOAD")?></a>
-	</div>
-</noindex>
-<?endif;?>
-
-<?$APPLICATION->IncludeComponent(
-	"bitrix:photogallery.section.list",
-	"",
-	Array(
+	$sliderComponentParamsList[] = [
 		"IBLOCK_TYPE" => $arParams["PHOTO_GROUP_IBLOCK_TYPE"],
 		"IBLOCK_ID" => $arParams["PHOTO_GROUP_IBLOCK_ID"],
 		"BEHAVIOUR" => "USER",
@@ -75,10 +78,8 @@ endif;
 		"PERMISSION" => $arResult["VARIABLES"]["PERMISSION"],
 		"SECTION_ID" => $arResult["VARIABLES"]["SECTION_ID"],
 		"SECTION_CODE" => $arResult["VARIABLES"]["SECTION_CODE"],
-
 		"SORT_BY" => $arParams["PHOTO"]["ALL"]["SECTION_SORT_BY"],
 		"SORT_ORD" => $arParams["PHOTO"]["ALL"]["SECTION_SORT_ORD"],
-
 		"DETAIL_URL" => $arResult["~PATH_TO_GROUP_PHOTO_ELEMENT"],
 		"GALLERIES_URL" => $arResult["~PATH_TO_GROUP_PHOTO_GALLERIES"],
 		"GALLERY_URL" => $arResult["~PATH_TO_GROUP_PHOTO"],
@@ -89,8 +90,8 @@ endif;
 		"PAGE_ELEMENTS" => $arParams["PHOTO"]["ALL"]["SECTION_PAGE_ELEMENTS"],
 		"PAGE_NAVIGATION_TEMPLATE" => $arParams["PHOTO"]["ALL"]["PAGE_NAVIGATION_TEMPLATE"],
 		"DATE_TIME_FORMAT" => $arParams["PHOTO"]["ALL"]["DATE_TIME_FORMAT_SECTION"],
-		"ALBUM_PHOTO_THUMBS_SIZE"	=>	$arParams["PHOTO"]["ALL"]["ALBUM_PHOTO_THUMBS_SIZE"],
-		"ALBUM_PHOTO_SIZE"	=>	$arParams["PHOTO"]["ALL"]["ALBUM_PHOTO_SIZE"],
+		"ALBUM_PHOTO_THUMBS_SIZE" => $arParams["PHOTO"]["ALL"]["ALBUM_PHOTO_THUMBS_SIZE"],
+		"ALBUM_PHOTO_SIZE" => $arParams["PHOTO"]["ALL"]["ALBUM_PHOTO_SIZE"],
 		"GALLERY_SIZE" => $arParams["PHOTO"]["ALL"]["GALLERY_SIZE"],
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
@@ -116,8 +117,23 @@ endif;
 		"PATH_TO_USER" => $arParams["PHOTO"]["ALL"]["PATH_TO_USER"],
 		"NAME_TEMPLATE" => $arParams["PHOTO"]["ALL"]["NAME_TEMPLATE"],
 		"SHOW_LOGIN" => $arParams["PHOTO"]["ALL"]["SHOW_LOGIN"]
-	),
-	$component,
-	array("HIDE_ICONS" => "Y")
+	];
+}
+
+$APPLICATION->IncludeComponent(
+	'bitrix:ui.sidepanel.wrapper',
+	'',
+	[
+		'POPUP_COMPONENT_NAME' => $sliderComponentList,
+		'POPUP_COMPONENT_TEMPLATE_NAME' => $sliderComponentTemplateList,
+		'POPUP_COMPONENT_PARAMS' => $sliderComponentParamsList,
+		'POPUP_COMPONENT_PARENT' => $component,
+		'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
+		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE' => 'SONET_GROUP',
+		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $arResult['VARIABLES']['group_id'],
+		'USE_UI_TOOLBAR' => 'Y',
+		'UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE' => (isset($arParams['HIDE_OWNER_IN_TITLE']) && $arParams['HIDE_OWNER_IN_TITLE'] === 'Y' ? $arResult['PAGES_TITLE_TEMPLATE'] : ''),
+	]
 );
-?>
+
+$APPLICATION->SetPageProperty('FavoriteTitleTemplate', (isset($arParams['HIDE_OWNER_IN_TITLE']) && $arParams['HIDE_OWNER_IN_TITLE'] === 'Y' ? $arResult['PAGES_TITLE_TEMPLATE'] : ''));

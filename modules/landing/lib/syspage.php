@@ -16,7 +16,8 @@ class Syspage
 		'cart',
 		'order',
 		'payment',
-		'compare'
+		'compare',
+		'feedback',
 	);
 
 	/**

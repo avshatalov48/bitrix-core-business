@@ -1,7 +1,7 @@
 <?php
 class CPhrase
 {
-	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered, &$total, &$grby, &$max)
+	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [], $is_filtered = null, &$total = 0, &$grby = '', &$max = 0)
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
@@ -22,11 +22,11 @@ class CPhrase
 				}
 				else
 				{
-					if( ($val == '') || ($val === "NOT_REF") )
+					if( ((string)$val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -99,14 +99,14 @@ class CPhrase
 			elseif ($by == "s_session_id")		$strSqlOrder = "ORDER BY PH.SESSION_ID";
 			else
 			{
-				$by = "s_id";
 				$strSqlOrder = "ORDER BY PH.ID";
 			}
+
 			if ($order!="asc")
 			{
 				$strSqlOrder .= " desc ";
-				$order="desc";
 			}
+
 			$strSql = "
 				SELECT /*TOP*/
 					PH.ID,
@@ -134,13 +134,11 @@ class CPhrase
 			elseif ($by == "s_quantity")					$strSqlOrder = "ORDER BY QUANTITY";
 			else
 			{
-				$by = "s_quantity";
 				$strSqlOrder = "ORDER BY QUANTITY";
 			}
 			if ($order!="asc")
 			{
 				$strSqlOrder .= " desc ";
-				$order="desc";
 			}
 			$strSql = "
 				SELECT
@@ -205,13 +203,11 @@ class CPhrase
 			elseif ($by == "s_average_hits")	$strSqlOrder = "ORDER BY AVERAGE_HITS";
 			else
 			{
-				$by = "s_quantity";
 				$strSqlOrder = "ORDER BY QUANTITY";
 			}
 			if ($order!="asc")
 			{
 				$strSqlOrder .= " desc ";
-				$order="desc";
 			}
 			$strSql = "SELECT sum(S.PHRASES) TOTAL, max(S.PHRASES) MAX FROM b_stat_searcher S";
 			$c = $DB->Query($strSql, false, $err_mess.__LINE__);
@@ -234,7 +230,7 @@ class CPhrase
 		}
 
 		$res = $DB->Query(CStatistics::DBTopSql($strSql), false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch) || $group);
+
 		return $res;
 	}
 }

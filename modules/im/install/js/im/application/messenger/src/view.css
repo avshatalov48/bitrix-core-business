@@ -1,0 +1,95 @@
+/* GENERAL WRAPPER */
+
+.bx-im-next-layout {
+	display: flex;
+	height: 100%;
+	width: 100%;
+	flex-wrap: nowrap;
+	align-items: stretch;
+}
+.bx-im-next-layout-recent {
+	flex: 0 0 300px;
+	overflow: hidden;
+	overflow-y: auto;
+	position: relative;
+	border-right: 1px solid #cccabe;
+}
+.bx-im-next-layout-recent > div {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+.bx-im-next-layout-content {
+	flex-grow: 1;
+}
+.bx-im-next-layout-notify {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+}
+.bx-im-next-layout-notify-header {
+	flex: 0 0 67px;
+	border-bottom: 1px solid #ccc;
+}
+
+.bx-im-next-layout-notify-messages {
+	flex-grow: 1;
+	position: relative;
+	overflow: hidden;
+	overflow-y: auto;
+}
+.bx-im-next-layout-notify-messages > div {
+	position: absolute;
+	width: 100%;
+}
+
+.bx-im-next-layout-dialog {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+}
+.bx-im-next-layout-dialog-header {
+	flex: 0 0 67px;
+	border-bottom: 1px solid #ccc;
+}
+
+.bx-im-next-layout-dialog-messages {
+	flex-grow: 1;
+	position: relative;
+	overflow: hidden;
+	overflow-y: auto;
+	background-color: #fbfbfb;
+	background-image: url(./images/light_gray_v1.svg);
+	background-size: 240px;
+}
+.bx-im-next-layout-dialog-messages > div {
+	position: absolute;
+	width: 100%;
+}
+.bx-im-next-layout-dialog-textarea {
+	flex: 0 0 120px;
+	position: relative;
+}
+.bx-im-next-layout-dialog-textarea-handle {
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOSIgaGVpZ2h0PSIzIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxnIHN0cm9rZT0iIzk3OTc5NyIgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIj48cGF0aCBkPSJNLjUuNUg4TS41IDIuNUg4Ii8+PC9nPjwvc3ZnPg==);
+	background-position: center center;
+	background-repeat: no-repeat;
+	height: 10px;
+	width: 100%;
+	position: absolute;
+	cursor: row-resize;
+	opacity: .5;
+	transition: opacity .5s;
+}
+.bx-im-next-layout-dialog-textarea .bx-im-textarea {
+	border-top-color: #ccc;
+}
+
+
+
+.bx-im-header-title {
+	padding: 25px 15px;
+}
+

@@ -7,7 +7,6 @@
  * @deprecated
  */
 
-use Bitrix\Main\Loader;
 use Bitrix\Main\UserField\Types\EnumType;
 use Bitrix\Main\UserField\TypeBase;
 
@@ -20,7 +19,7 @@ class CUserTypeEnum extends TypeBase
 	public const
 		USER_TYPE_ID = EnumType::USER_TYPE_ID;
 
-	function getUserTypeDescription()
+	public static function getUserTypeDescription()
 	{
 		return EnumType::getUserTypeDescription();
 	}
@@ -75,7 +74,7 @@ class CUserTypeEnum extends TypeBase
 		return EnumType::getPublicText($userField);
 	}
 
-	function getDbColumnType($userField)
+	public static function getDbColumnType($userField)
 	{
 		return EnumType::getDbColumnType();
 	}
@@ -100,7 +99,7 @@ class CUserTypeEnum extends TypeBase
 		return EnumType::checkFields($userField, $value);
 	}
 
-	function getList($userField)
+	public static function getList($userField)
 	{
 		return EnumType::getList($userField);
 	}
@@ -117,7 +116,7 @@ class CUserTypeEnum extends TypeBase
 
 	protected static function getEnumList(&$userField, $arParams = array())
 	{
-		return EnumType::getEnumList($userField, $arParams);
+		EnumType::getEnumList($userField, $arParams);
 	}
 
 	protected static function getEmptyCaption($userField)

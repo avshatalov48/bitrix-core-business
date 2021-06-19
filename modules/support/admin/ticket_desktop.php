@@ -70,7 +70,7 @@ function fill_all_values($sid, $type, $mess=false, $site=false)
 	{
 		$site = implode("|", $site);
 	}
-	$z = ($type=="SLA") ? CTicketSLA::GetDropDown($site) : CTicketDictionary::GetList($v1="s_dropdown", $v2="asc", array("TYPE" => $type, "SITE" => $site), $v3);
+	$z = ($type=="SLA") ? CTicketSLA::GetDropDown($site) : CTicketDictionary::GetList("s_dropdown", "asc", array("TYPE" => $type, "SITE" => $site));
 	if ($type!="SLA")
 	{
 		if ($mess===false) $mess = GetMessage("SUP_NO");
@@ -160,7 +160,10 @@ else
 	if($e = $APPLICATION->GetException())
 		$message = new CAdminMessage(GetMessage("SUP_FILTER_ERROR"), $e);
 }
-$rsTickets = CTicket::GetList($by, $order, $arFilter, $is_filtered, "Y", "N", "N");
+
+global $by, $order;
+
+$rsTickets = CTicket::GetList($by, $order, $arFilter, null, "Y", "N", "N");
 $OPEN_TICKETS = $CLOSE_TICKETS = 0;
 $arrTickets = array();
 $arrValues = array(
@@ -259,9 +262,7 @@ if(count($arUsersID) > 0)
 	$arrSupportUser = array();
 	$arUsersID = array_unique($arUsersID);
 	$strUsers = implode("|", $arUsersID);
-	$f = "ID";
-	$o = "asc";
-	$rs = CUser::GetList($f, $o, array( "ID" => $strUsers), array("FIELDS"=>array("NAME","LAST_NAME","LOGIN","ID")));
+	$rs = CUser::GetList('id', 'asc', array( "ID" => $strUsers), array("FIELDS"=>array("NAME","LAST_NAME","LOGIN","ID")));
 	while($ar = $rs->Fetch())
 	{
 		$arrT["RESPONSIBLE"][$ar["ID"]]["NAME"] = "[<a href='/bitrix/admin/user_edit.php?ID=" . $ar["ID"] . "'>" . $ar["ID"] . "</a>] " .
@@ -317,7 +318,7 @@ $lAdmin->BeginCustomContent();?>
 if ($message)
 	echo $message->Show();
 
-while (list($key, $arrR) = each($arrTickets)):
+foreach ($arrTickets as $key => $arrR):
 	$w1 = 45;
 	$w2 = round((100-$w1)/8);
 	if ($find_show_messages!="Y") $w2 = round((100-$w1)/5);
@@ -362,7 +363,7 @@ while (list($key, $arrR) = each($arrTickets)):
 
 	<?
 	if (is_array($arrR) && count($arrR)>0) :
-	while (list($id, $arr) = each($arrR)):
+	foreach ($arrR as $id => $arr):
 		if (intval($CLOSE_TICKETS)>0)
 		{
 			$procent = round(($counter*100)/$CLOSE_TICKETS,2);
@@ -418,7 +419,7 @@ while (list($key, $arrR) = each($arrTickets)):
 		<?endif;?>
 	</tr>
 	<?
-	endwhile;
+	endforeach;
 	endif;
 	?>
 	<?if ($key=="RESPONSIBLE" && ($bAdmin=="Y" || $bDemo=="Y")):?>
@@ -470,9 +471,7 @@ while (list($key, $arrR) = each($arrTickets)):
 	</tr>
 	<?endif;?>
 </table><br>
-<?endwhile;?>
-
-
+<?endforeach;?>
 
 <?
 $lAdmin->EndCustomContent();
@@ -515,7 +514,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 	<td><?
 		$ref = array();
 		$ref_id = array();
-		$rs = CSite::GetList(($v1="sort"), ($v2="asc"));
+		$rs = CSite::GetList();
 		while ($ar = $rs->Fetch())
 		{
 			$ref[] = "[".$ar["ID"]."] ".$ar["NAME"];
@@ -538,7 +537,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 			}
 			if (is_array($arrSupportUser) && count($arrSupportUser)>0)
 			{
-				while (list($key, $arUser) = each($arrSupportUser))
+				foreach ($arrSupportUser as $key => $arUser)
 				{
 					if (!in_array($key,$ref_id))
 					{

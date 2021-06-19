@@ -177,7 +177,7 @@ var arCurrenciesArray = new Array();
 <?
 $arBaseLangCurrencies = array();
 $i = -1;
-$dbSiteList = CSite::GetList(($b = "sort"), ($o = "asc"));
+$dbSiteList = CSite::GetList();
 while ($arSite = $dbSiteList->Fetch())
 {
 	$i++;

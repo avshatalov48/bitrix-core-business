@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core) {
+(function (exports,ui_entitySelector,main_core_events,main_core) {
 	'use strict';
 
 	(function () {
@@ -1038,6 +1038,366 @@ this.BX = this.BX || {};
 	  };
 	})();
 
+	var EntitySelector = /*#__PURE__*/function () {
+	  function EntitySelector(id, settings) {
+	    babelHelpers.classCallCheck(this, EntitySelector);
+	    babelHelpers.defineProperty(this, "id", null);
+	    babelHelpers.defineProperty(this, "filter", null);
+	    babelHelpers.defineProperty(this, "dialog", null);
+	    babelHelpers.defineProperty(this, "dialogOptions", null);
+	    babelHelpers.defineProperty(this, "control", null);
+	    babelHelpers.defineProperty(this, "isMultiple", false);
+	    babelHelpers.defineProperty(this, "needAddEntityIdToFilter", false);
+	    babelHelpers.defineProperty(this, "isActive", false);
+	    this.id = id;
+	    this.settings = settings ? settings : {};
+	    this.filter = this.getSetting('filter', null);
+
+	    if (!this.filter) {
+	      throw new Error('Filter option is required for EntitySelector field');
+	    }
+
+	    this.isMultiple = this.getSetting('isMultiple', 'N') === 'Y';
+	    this.needAddEntityIdToFilter = this.getSetting('addEntityIdToResult', 'N') === 'Y';
+	    this.dialogOptions = this.getSetting('dialogOptions', {});
+	    this.dialog = null;
+	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:customEntityFocus', this.onCustomEntityFocus.bind(this));
+	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:customEntityBlur', this.onCustomEntityBlur.bind(this));
+	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:onGetStopBlur', this.onGetStopBlur.bind(this));
+	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:move", ', this.onCustomEntityRemove.bind(this));
+	    this.controlInputChangeHandler = this.onSearchInputChange.bind(this);
+	  }
+
+	  babelHelpers.createClass(EntitySelector, [{
+	    key: "open",
+	    value: function open() {
+	      var _this = this;
+
+	      this.isActive = true;
+
+	      if (!this.dialog) {
+	        this.initDialog().then(function () {
+	          if (_this.isActive) {
+	            _this.openDialog();
+	          }
+	        });
+	      } else {
+	        this.openDialog();
+	      }
+	    }
+	  }, {
+	    key: "close",
+	    value: function close() {
+	      this.isActive = false;
+
+	      if (this.dialog && this.dialog.isOpen()) {
+	        this.dialog.hide();
+	      }
+
+	      main_core.Event.unbind(this.getFilterFieldInput(), 'input', this.controlInputChangeHandler);
+	    }
+	  }, {
+	    key: "getFilterField",
+	    value: function getFilterField() {
+	      return this.filter.getField(this.id);
+	    }
+	  }, {
+	    key: "getFilterFieldInputWrapper",
+	    value: function getFilterFieldInputWrapper() {
+	      var field = this.getFilterField();
+
+	      if (!field) {
+	        return null;
+	      }
+
+	      return BX.Filter.Utils.getBySelector(field.node, '.main-ui-control-entity');
+	    }
+	  }, {
+	    key: "getFilterFieldInput",
+	    value: function getFilterFieldInput() {
+	      var field = this.getFilterField();
+
+	      if (!field) {
+	        return null;
+	      }
+
+	      return BX.Filter.Utils.getBySelector(field.node, '.' + this.filter.settings.classStringInput + '[type="text"]');
+	    }
+	  }, {
+	    key: "setControl",
+	    value: function setControl(control) {
+	      this.control = control;
+	    }
+	  }, {
+	    key: "unsetControl",
+	    value: function unsetControl() {
+	      this.control = null;
+	    }
+	  }, {
+	    key: "getSetting",
+	    value: function getSetting(name, defaultValue) {
+	      return this.settings.hasOwnProperty(name) ? this.settings[name] : defaultValue;
+	    }
+	  }, {
+	    key: "openDialog",
+	    value: function openDialog() {
+	      if (this.dialog.isOpen()) {
+	        return;
+	      }
+
+	      var inputWrapper = this.getFilterFieldInputWrapper();
+	      this.dialog.setTargetNode(inputWrapper);
+	      this.dialog.setWidth(inputWrapper.offsetWidth);
+	      this.dialog.show();
+	      this.updateSelectedItemsInDialog(this.dialog);
+	      var searchInput = this.getFilterFieldInput();
+	      var searchQuery = main_core.Type.isDomNode(searchInput) ? searchInput.value.trim() : '';
+
+	      if (searchQuery.length) {
+	        this.dialog.search(searchQuery);
+	      }
+
+	      main_core.Event.bind(searchInput, 'input', this.controlInputChangeHandler);
+	    }
+	  }, {
+	    key: "initDialog",
+	    value: function initDialog() {
+	      var _this2 = this;
+
+	      return EntitySelector.initDialogExtension().then(function (exports) {
+	        var Dialog = exports.Dialog;
+	        _this2.dialog = new Dialog(babelHelpers.objectSpread({}, _this2.dialogOptions, {
+	          id: _this2.getDialogId(),
+	          multiple: _this2.isMultiple,
+	          enableSearch: false,
+	          hideOnSelect: true,
+	          autoHide: false,
+	          hideByEsc: false,
+	          events: {
+	            'Item:onSelect': _this2.onDialogItemSelect.bind(_this2),
+	            'Item:onDeselect': _this2.onDialogItemDeSelect.bind(_this2),
+	            'onLoad': _this2.onDialogLoad.bind(_this2)
+	          }
+	        }));
+	      });
+	    }
+	  }, {
+	    key: "addItemToFilter",
+	    value: function addItemToFilter(id, title) {
+	      if (!this.control) {
+	        return;
+	      }
+
+	      if (this.isMultiple) {
+	        var currentValues = this.control.getCurrentValues();
+
+	        if (!currentValues.filter(function (item) {
+	          return item.value === id;
+	        }).length) {
+	          currentValues.push({
+	            value: id,
+	            label: title
+	          });
+	          this.control.setMultipleData(currentValues);
+	        }
+	      } else {
+	        this.control.setSingleData(title, id);
+	      }
+	    }
+	  }, {
+	    key: "removeItemFromFilter",
+	    value: function removeItemFromFilter(id) {
+	      if (!this.control) {
+	        return;
+	      }
+
+	      if (this.isMultiple) {
+	        var currentValues = this.control.getCurrentValues();
+	        this.control.setMultipleData(currentValues.filter(function (item) {
+	          return item.value !== id;
+	        }));
+	      } else {
+	        this.control.clearValue();
+	      }
+	    }
+	  }, {
+	    key: "getDialogId",
+	    value: function getDialogId() {
+	      return this.id + '_' + this.filter.getParam('FILTER_ID');
+	    }
+	  }, {
+	    key: "getItemId",
+	    value: function getItemId(item) {
+	      if (this.needAddEntityIdToFilter) {
+	        return JSON.stringify([item.getEntityId() + '', item.getId() + '']);
+	      }
+
+	      return item.getId() + '';
+	    }
+	  }, {
+	    key: "updateSelectedItemsInDialog",
+	    value: function updateSelectedItemsInDialog(dialog) {
+	      var _this3 = this;
+
+	      if (!this.control) {
+	        return;
+	      }
+
+	      var currentValues = this.control.getCurrentValues();
+
+	      if (!this.isMultiple) {
+	        currentValues = [currentValues];
+	      }
+
+	      var selectedIds = currentValues.map(function (item) {
+	        return item.value;
+	      });
+	      dialog.getItems().forEach(function (dialogItem) {
+	        if (selectedIds.indexOf(_this3.getItemId(dialogItem)) > -1) {
+	          dialogItem.select(true);
+	        } else {
+	          dialogItem.deselect();
+	        }
+	      });
+	    }
+	  }, {
+	    key: "onCustomEntityFocus",
+	    value: function onCustomEntityFocus(event) {
+	      var _event$getData = event.getData(),
+	          _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
+	          control = _event$getData2[0];
+
+	      if (this.id !== control.getId()) {
+	        return;
+	      }
+
+	      this.setControl(control);
+	      this.open();
+	    }
+	  }, {
+	    key: "onCustomEntityBlur",
+	    value: function onCustomEntityBlur(event) {
+	      var _event$getData3 = event.getData(),
+	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
+	          control = _event$getData4[0];
+
+	      if (this.id !== control.getId()) {
+	        return;
+	      }
+
+	      this.close();
+	      this.unsetControl();
+	    }
+	  }, {
+	    key: "onGetStopBlur",
+	    value: function onGetStopBlur(event) {
+	      var _event$getData5 = event.getData(),
+	          _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 2),
+	          browserEvent = _event$getData6[0],
+	          result = _event$getData6[1];
+
+	      if (!(this.dialog && this.dialog.isOpen())) {
+	        return; // if dialog wasn't shown, cancel blur is not required
+	      }
+
+	      var field = this.getFilterField();
+
+	      if (!field) {
+	        return;
+	      }
+
+	      var target = browserEvent.target;
+
+	      if (target === field.node || // click on any child except field deletion button
+	      field.node.contains(target) && !main_core.Dom.hasClass(target, this.filter.settings.classFieldDelete) || target === document.body) {
+	        result.stopBlur = true;
+	        return;
+	      }
+
+	      var dialogContainerElement = this.dialog.getPopup().getContentContainer();
+
+	      if (target === dialogContainerElement || dialogContainerElement.contains(target)) {
+	        result.stopBlur = true;
+	      }
+	    }
+	  }, {
+	    key: "onCustomEntityRemove",
+	    value: function onCustomEntityRemove(event) {
+	      var _event$getData7 = event.getData(),
+	          _event$getData8 = babelHelpers.slicedToArray(_event$getData7, 1),
+	          control = _event$getData8[0];
+
+	      if (this.id !== control.getId()) {
+	        return;
+	      }
+
+	      if (this.dialog) {
+	        this.dialog.destroy();
+	        this.dialog = null;
+	      }
+
+	      main_core.Event.unbind(this.getFilterFieldInput(), 'input', this.controlInputChangeHandler);
+	      this.unsetControl();
+	    }
+	  }, {
+	    key: "onSearchInputChange",
+	    value: function onSearchInputChange(event) {
+	      if (this.dialog) {
+	        this.dialog.search(event.target.value);
+	      }
+	    }
+	  }, {
+	    key: "onDialogItemSelect",
+	    value: function onDialogItemSelect(event) {
+	      var _event$getData9 = event.getData(),
+	          item = _event$getData9.item;
+
+	      this.addItemToFilter(this.getItemId(item), item.getTitle());
+	      this.getFilterFieldInput().value = ''; // clear search query
+	    }
+	  }, {
+	    key: "onDialogItemDeSelect",
+	    value: function onDialogItemDeSelect(event) {
+	      var _event$getData10 = event.getData(),
+	          item = _event$getData10.item;
+
+	      this.removeItemFromFilter(this.getItemId(item));
+	    }
+	  }, {
+	    key: "onDialogLoad",
+	    value: function onDialogLoad(event) {
+	      var dialog = event.getTarget();
+	      this.updateSelectedItemsInDialog(dialog);
+	    }
+	  }], [{
+	    key: "initDialogExtension",
+	    value: function initDialogExtension() {
+	      if (!EntitySelector.initExtensionPromise) {
+	        EntitySelector.initExtensionPromise = main_core.Runtime.loadExtension('ui.entity-selector');
+	      }
+
+	      return EntitySelector.initExtensionPromise;
+	    }
+	  }, {
+	    key: "create",
+	    value: function create(id, settings) {
+	      if (main_core.Type.isObject(this.items[id])) {
+	        return this.items[id];
+	      }
+
+	      var self = new EntitySelector(id, settings);
+	      this.items[id] = self;
+	      return self;
+	    }
+	  }]);
+	  return EntitySelector;
+	}();
+
+	babelHelpers.defineProperty(EntitySelector, "initExtensionPromise", null);
+	babelHelpers.defineProperty(EntitySelector, "items", {});
+	var namespace = main_core.Reflection.namespace('BX.Filter');
+	namespace.EntitySelector = EntitySelector;
+
 	(function () {
 
 	  BX.namespace('BX.Filter');
@@ -1358,6 +1718,11 @@ this.BX = this.BX || {};
 	          BX.fireEvent(hiddenNode, 'input');
 	        }
 	      }
+	    },
+	    clearValue: function clearValue() {
+	      this.removeSquares();
+	      var hiddenNode = this.getHiddenNode();
+	      hiddenNode.value = this.isMultiple() ? '[]' : '';
 	    },
 	    setPopupContainer: function setPopupContainer(container) {
 	      if (BX.type.isDomNode(container)) {
@@ -1873,6 +2238,12 @@ this.BX = this.BX || {};
 	          this.adjustPlaceholder();
 	        }
 	      }
+
+	      if (this.parent.isAppliedUserFilter()) {
+	        BX.Dom.addClass(this.container, 'main-ui-filter-search--active');
+	      } else {
+	        BX.Dom.removeClass(this.container, 'main-ui-filter-search--active');
+	      }
 	    },
 	    _onInput: function _onInput() {
 	      var searchString = this.getSearchString();
@@ -2248,6 +2619,7 @@ this.BX = this.BX || {};
 
 	          case this.parent.types.CUSTOM_ENTITY:
 	          case this.parent.types.DEST_SELECTOR:
+	          case this.parent.types.ENTITY_SELECTOR:
 	            {
 	              if (current.MULTIPLE) {
 	                var label = !!current.VALUES._label ? current.VALUES._label : [];
@@ -2469,6 +2841,7 @@ this.BX = this.BX || {};
 	   * @param types.MULTI_SELECT
 	   * @param types.NUMBER
 	   * @param types.DEST_SELECTOR
+	   * @param types.ENTITY_SELECTOR
 	   * @param types.CUSTOM_ENTITY
 	   * @param types.CHECKBOX
 	   * @param types.CUSTOM
@@ -2777,6 +3150,8 @@ this.BX = this.BX || {};
 	              break;
 	            }
 
+	          case this.types.DEST_SELECTOR:
+	          case this.types.ENTITY_SELECTOR:
 	          case this.types.CUSTOM_ENTITY:
 	            {
 	              if (BX.type.isPlainObject(current.VALUES)) {
@@ -3048,17 +3423,7 @@ this.BX = this.BX || {};
 	              };
 	            }
 
-	            if (field.TYPE === this.types.DEST_SELECTOR) {
-	              if (typeof dataFields[current + '_label'] !== 'undefined') {
-	                field.VALUES._label = dataFields[current + '_label'];
-	              }
-
-	              if (typeof dataFields[current] !== 'undefined') {
-	                field.VALUES._value = dataFields[current];
-	              }
-	            }
-
-	            if (field.TYPE === this.types.CUSTOM_ENTITY) {
+	            if (field.TYPE === this.types.DEST_SELECTOR || field.TYPE === this.types.ENTITY_SELECTOR || field.TYPE === this.types.CUSTOM_ENTITY) {
 	              if (typeof dataFields[current + '_label'] !== 'undefined') {
 	                field.VALUES._label = dataFields[current + '_label'];
 	              }
@@ -3222,7 +3587,7 @@ this.BX = this.BX || {};
 	          GRID_ID: this.getParam('GRID_ID'),
 	          PRESET_ID: data['data']['preset_id'],
 	          FIND: data['data'].hasOwnProperty('fields') && data['data']['fields'].hasOwnProperty('FIND') && !!data['data']['fields']['FIND'] ? "Y" : "N",
-	          ROWS: main_core.Type.isObject(data['data']['additional']) && Object.keys(data['data']['additional']).length == 0 ? "N" : "Y"
+	          ROWS: BX.Type.isObject(data['data']['additional']) && Object.keys(data['data']['additional']).length == 0 ? "N" : "Y"
 	        }, analyticsLabel)
 	      });
 	    },
@@ -3985,6 +4350,8 @@ this.BX = this.BX || {};
 	              }
 
 	            case this.types.DEST_SELECTOR:
+	            case this.types.CUSTOM_ENTITY:
+	            case this.types.ENTITY_SELECTOR:
 	              {
 	                this.prepareControlCustomEntityValue(values, name, current);
 	                break;
@@ -3993,12 +4360,6 @@ this.BX = this.BX || {};
 	            case this.types.CUSTOM:
 	              {
 	                this.prepareControlCustomValue(values, name, current);
-	                break;
-	              }
-
-	            case this.types.CUSTOM_ENTITY:
-	              {
-	                this.prepareControlCustomEntityValue(values, name, current);
 	                break;
 	              }
 
@@ -4356,6 +4717,23 @@ this.BX = this.BX || {};
 
 	      return presetId;
 	    },
+	    isAppliedUserFilter: function isAppliedUserFilter() {
+	      var _this = this;
+
+	      var presetOptions = this.getPreset().getCurrentPresetData();
+
+	      if (BX.Type.isPlainObject(presetOptions)) {
+	        var hasFields = BX.Type.isArrayFilled(presetOptions.FIELDS) && presetOptions.FIELDS.some(function (field) {
+	          return !_this.getPreset().isEmptyField(field);
+	        });
+	        var hasAdditional = BX.Type.isArrayFilled(presetOptions.ADDITIONAL) && presetOptions.ADDITIONAL.some(function (field) {
+	          return !_this.getPreset().isEmptyField(field);
+	        });
+	        return !presetOptions.IS_PINNED && (hasFields || hasAdditional) || presetOptions.IS_PINNED && BX.Type.isArrayFilled(presetOptions.ADDITIONAL) || BX.Type.isStringFilled(this.getSearch().getSearchString());
+	      }
+
+	      return false;
+	    },
 
 	    /**
 	     * Applies filter
@@ -4373,6 +4751,13 @@ this.BX = this.BX || {};
 	        autoResolve: !this.grid
 	      };
 	      var self = this;
+
+	      if (this.isAppliedUserFilter()) {
+	        BX.Dom.addClass(this.getSearch().container, 'main-ui-filter-search--active');
+	      } else {
+	        BX.Dom.removeClass(this.getSearch().container, 'main-ui-filter-search--active');
+	      }
+
 	      this.clearGet();
 	      this.showGridAnimation();
 	      var action = clear ? "clear" : "apply";
@@ -4494,14 +4879,7 @@ this.BX = this.BX || {};
 	            }
 
 	          case this.types.DEST_SELECTOR:
-	            {
-	              controlData.VALUES = {
-	                '_label': '',
-	                '_value': ''
-	              };
-	              break;
-	            }
-
+	          case this.types.ENTITY_SELECTOR:
 	          case this.types.CUSTOM_ENTITY:
 	            {
 	              controlData.VALUES = {
@@ -4573,6 +4951,7 @@ this.BX = this.BX || {};
 	      var popupContainer = popup.popupContainer;
 	      var configCloseDelay = this.settings.get('FILTER_CLOSE_DELAY');
 	      var closeDelay;
+	      BX.Dom.removeClass(this.getSearch().container, 'main-ui-filter-search--showed');
 	      setTimeout(BX.delegate(function () {
 	        if (!this.isIe()) {
 	          BX.removeClass(popupContainer, this.settings.classAnimationShow);
@@ -4607,6 +4986,7 @@ this.BX = this.BX || {};
 	      var popupContainer;
 
 	      if (!popup.isShown()) {
+	        BX.Dom.addClass(this.getSearch().container, 'main-ui-filter-search--showed');
 	        this.isOpened = true;
 	        var showDelay = this.settings.get('FILTER_SHOW_DELAY');
 
@@ -4810,9 +5190,9 @@ this.BX = this.BX || {};
 	          }
 
 	          if (defPreset.ID !== 'default_filter') {
-	            this.addSidebarItem(defPreset.ID, defPreset.TITLE, defPreset.PINNED);
+	            this.addSidebarItem(defPreset.ID, defPreset.TITLE, defPreset.IS_PINNED);
 
-	            if (defPreset.PINNED) {
+	            if (defPreset.IS_PINNED) {
 	              applyPresetId = defPreset.ID;
 	            }
 	          }
@@ -4900,12 +5280,7 @@ this.BX = this.BX || {};
 	            }
 	          }
 
-	          if (current.TYPE === this.types.DEST_SELECTOR) {
-	            result[current.NAME + '_label'] = current.VALUES._label;
-	            result[current.NAME + '_value'] = current.VALUES._value;
-	          }
-
-	          if (current.TYPE === this.types.CUSTOM_ENTITY) {
+	          if (current.TYPE === this.types.DEST_SELECTOR || current.TYPE === this.types.ENTITY_SELECTOR || current.TYPE === this.types.CUSTOM_ENTITY) {
 	            result[current.NAME + '_label'] = current.VALUES._label;
 	            result[current.NAME + '_value'] = current.VALUES._value;
 	          }
@@ -6183,8 +6558,8 @@ this.BX = this.BX || {};
 	      return field;
 	    }
 	  }, {
-	    key: "createDestSelector",
-	    value: function createDestSelector(fieldData) {
+	    key: "createCustomEntityFieldLayout",
+	    value: function createCustomEntityFieldLayout(fieldData) {
 	      var field = {
 	        block: 'main-ui-control-field',
 	        mix: this.parent.getParam('ENABLE_LABEL') ? [this.parent.settings.classFieldWithLabel] : null,
@@ -6273,9 +6648,8 @@ this.BX = this.BX || {};
 	      field = BX.decl(field);
 	      var input = BX.Filter.Utils.getBySelector(field, '.main-ui-control-string[type="text"]');
 	      BX.addClass(input, 'main-ui-square-search-item');
-	      main_core.Event.bind(input, 'focus', function (event) {
-	        BX.fireEvent(event.currentTarget, 'click');
-	      });
+	      input.autocomplete = 'off';
+	      main_core.Event.bind(input, 'focus', BX.proxy(this._onCustomEntityInputFocus, this));
 	      main_core.Event.bind(input, 'click', BX.proxy(this._onCustomEntityInputClick, this));
 
 	      if (!this.bindDocument) {
@@ -6286,6 +6660,12 @@ this.BX = this.BX || {};
 
 	      main_core.Event.bind(input, 'keydown', BX.proxy(this._onCustomEntityKeydown, this));
 	      main_core.Event.bind(field, 'click', BX.proxy(this._onCustomEntityFieldClick, this));
+	      return field;
+	    }
+	  }, {
+	    key: "createDestSelector",
+	    value: function createDestSelector(fieldData) {
+	      var field = this.createCustomEntityFieldLayout(fieldData);
 	      BX.ready(BX.proxy(function () {
 	        BX.Filter.DestinationSelector.create(fieldData.NAME, {
 	          filterId: this.parent.getParam('FILTER_ID'),
@@ -6302,107 +6682,28 @@ this.BX = this.BX || {};
 	      return field;
 	    }
 	  }, {
+	    key: "createEntitySelector",
+	    value: function createEntitySelector(fieldData) {
+	      var field = this.createCustomEntityFieldLayout(fieldData);
+	      BX.Filter.EntitySelector.create(fieldData.NAME, {
+	        filter: this.parent,
+	        isMultiple: fieldData.MULTIPLE,
+	        addEntityIdToResult: fieldData.ADD_ENTITY_ID_TO_RESULT,
+	        dialogOptions: fieldData.DIALOG_OPTIONS
+	      });
+	      this.parent.getEmitter().emit('init', {
+	        field: new Field({
+	          parent: this.parent,
+	          options: babelHelpers.objectSpread({}, fieldData),
+	          node: field
+	        })
+	      });
+	      return field;
+	    }
+	  }, {
 	    key: "createCustomEntity",
 	    value: function createCustomEntity(fieldData) {
-	      var field = {
-	        block: 'main-ui-control-field',
-	        mix: this.parent.getParam('ENABLE_LABEL') ? [this.parent.settings.classFieldWithLabel] : null,
-	        deleteButton: true,
-	        valueDelete: true,
-	        name: fieldData.NAME,
-	        type: fieldData.TYPE,
-	        label: this.parent.getParam('ENABLE_LABEL') ? fieldData.LABEL : '',
-	        dragTitle: this.parent.getParam('MAIN_UI_FILTER__DRAG_FIELD_TITLE'),
-	        deleteTitle: this.parent.getParam('MAIN_UI_FILTER__REMOVE_FIELD'),
-	        content: {
-	          block: 'main-ui-control-entity',
-	          mix: 'main-ui-control',
-	          attrs: {
-	            'data-multiple': JSON.stringify(fieldData.MULTIPLE)
-	          },
-	          content: []
-	        }
-	      };
-
-	      if ('_label' in fieldData.VALUES && !!fieldData.VALUES._label) {
-	        if (fieldData.MULTIPLE) {
-	          var label = fieldData.VALUES._label ? fieldData.VALUES._label : [];
-
-	          if (main_core.Type.isPlainObject(label)) {
-	            label = Object.keys(label).map(function (key) {
-	              return label[key];
-	            });
-	          }
-
-	          if (!main_core.Type.isArray(label)) {
-	            label = [label];
-	          }
-
-	          var value = fieldData.VALUES._value ? fieldData.VALUES._value : [];
-
-	          if (main_core.Type.isPlainObject(value)) {
-	            value = Object.keys(value).map(function (key) {
-	              return value[key];
-	            });
-	          }
-
-	          if (!main_core.Type.isArray(value)) {
-	            value = [value];
-	          }
-
-	          label.forEach(function (currentLabel, index) {
-	            field.content.content.push({
-	              block: 'main-ui-square',
-	              tag: 'span',
-	              name: currentLabel,
-	              item: {
-	                _label: currentLabel,
-	                _value: value[index]
-	              }
-	            });
-	          });
-	        } else {
-	          field.content.content.push({
-	            block: 'main-ui-square',
-	            tag: 'span',
-	            name: '_label' in fieldData.VALUES ? fieldData.VALUES._label : '',
-	            item: fieldData.VALUES
-	          });
-	        }
-	      }
-
-	      field.content.content.push({
-	        block: 'main-ui-square-search',
-	        tag: 'span',
-	        content: {
-	          block: 'main-ui-control-string',
-	          name: "".concat(fieldData.NAME, "_label"),
-	          tabindex: fieldData.TABINDEX,
-	          type: 'text',
-	          placeholder: fieldData.PLACEHOLDER || ''
-	        }
-	      }, {
-	        block: 'main-ui-control-string',
-	        name: fieldData.NAME,
-	        type: 'hidden',
-	        placeholder: fieldData.PLACEHOLDER || '',
-	        value: '_value' in fieldData.VALUES ? fieldData.VALUES._value : '',
-	        tabindex: fieldData.TABINDEX
-	      });
-	      field = BX.decl(field);
-	      var input = BX.Filter.Utils.getBySelector(field, '.main-ui-control-string[type="text"]');
-	      BX.addClass(input, 'main-ui-square-search-item');
-	      main_core.Event.bind(input, 'focus', BX.proxy(this._onCustomEntityInputFocus, this));
-	      main_core.Event.bind(input, 'click', BX.proxy(this._onCustomEntityInputClick, this));
-
-	      if (!this.bindDocument) {
-	        main_core.Event.bind(document, 'click', BX.proxy(this._onCustomEntityBlur, this));
-	        document.addEventListener('focus', BX.proxy(this._onDocumentFocus, this), true);
-	        this.bindDocument = true;
-	      }
-
-	      main_core.Event.bind(input, 'keydown', BX.proxy(this._onCustomEntityKeydown, this));
-	      main_core.Event.bind(field, 'click', BX.proxy(this._onCustomEntityFieldClick, this));
+	      var field = this.createCustomEntityFieldLayout(fieldData);
 	      this.parent.getEmitter().emit('init', {
 	        field: new Field({
 	          parent: this.parent,
@@ -7969,7 +8270,7 @@ this.BX = this.BX || {};
 	        }
 	      }
 
-	      if (field.TYPE === this.parent.types.CUSTOM_ENTITY || field.TYPE === this.parent.types.DEST_SELECTOR) {
+	      if (field.TYPE === this.parent.types.CUSTOM_ENTITY || field.TYPE === this.parent.types.DEST_SELECTOR || field.TYPE === this.parent.types.ENTITY_SELECTOR) {
 	        if (BX.type.isPlainObject(field.VALUES)) {
 	          if (BX.type.isNotEmptyString(field.VALUES._label) && BX.type.isNotEmptyString(field.VALUES._value)) {
 	            result = false;
@@ -8239,6 +8540,12 @@ this.BX = this.BX || {};
 	        case this.parent.types.DEST_SELECTOR:
 	          {
 	            control = this.parent.getFields().createDestSelector(fieldData);
+	            break;
+	          }
+
+	        case this.parent.types.ENTITY_SELECTOR:
+	          {
+	            control = this.parent.getFields().createEntitySelector(fieldData);
 	            break;
 	          }
 
@@ -8670,5 +8977,5 @@ this.BX = this.BX || {};
 	exports.Fields = Fields;
 	exports.Presets = Presets;
 
-}((this.BX.Filter = this.BX.Filter || {}),BX));
+}((this.BX.Filter = this.BX.Filter || {}),BX.UI.EntitySelector,BX.Event,BX));
 //# sourceMappingURL=script.js.map

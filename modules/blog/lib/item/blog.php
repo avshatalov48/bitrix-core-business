@@ -82,7 +82,7 @@ class Blog
 				$ideaBlogGroupIdList = array();
 				if (ModuleManager::isModuleInstalled("idea"))
 				{
-					$res = \CSite::getList($by="sort", $order="desc", Array("ACTIVE" => "Y"));
+					$res = \CSite::getList("sort", "desc", Array("ACTIVE" => "Y"));
 					while ($site = $res->fetch())
 					{
 						$val = Config\Option::get("idea", "blog_group_id", false, $site["LID"]);

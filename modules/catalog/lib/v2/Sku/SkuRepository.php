@@ -187,4 +187,14 @@ class SkuRepository extends BaseIblockElementRepository implements SkuRepository
 			}
 		}
 	}
+
+	public function setDetailUrlTemplate(?string $template): BaseIblockElementRepository
+	{
+		if ($this->productRepository->getDetailUrlTemplate() === null)
+		{
+			$this->productRepository->setDetailUrlTemplate($template);
+		}
+
+		return parent::setDetailUrlTemplate($template);
+	}
 }

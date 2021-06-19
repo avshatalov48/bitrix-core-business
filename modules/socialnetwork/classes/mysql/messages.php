@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/messages.php");
 
 class CSocNetMessages extends CAllSocNetMessages
@@ -6,7 +7,7 @@ class CSocNetMessages extends CAllSocNetMessages
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -61,7 +62,7 @@ class CSocNetMessages extends CAllSocNetMessages
 		return $ID;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -247,7 +248,7 @@ class CSocNetMessages extends CAllSocNetMessages
 		return $dbRes;
 	}
 
-	function GetChatLastDate($currentUserID, $userID)
+	public static function GetChatLastDate($currentUserID, $userID)
 	{
 		global $DB;
 
@@ -284,7 +285,7 @@ class CSocNetMessages extends CAllSocNetMessages
 		return $date;
 	}
 
-	function GetMessagesForChat($currentUserID, $userID, $date = false, $arNavStartParams = false, $replyMessId=false)
+	public static function GetMessagesForChat($currentUserID, $userID, $date = false, $arNavStartParams = false, $replyMessId=false)
 	{
 		global $DB;
 
@@ -375,7 +376,7 @@ class CSocNetMessages extends CAllSocNetMessages
 		return $dbRes;
 	}
 
-	function GetMessagesUsers($userID, $arNavStartParams = false, $online_interval = 120)
+	public static function GetMessagesUsers($userID, $arNavStartParams = false, $online_interval = 120)
 	{
 		global $DB;
 
@@ -441,7 +442,7 @@ class CSocNetMessages extends CAllSocNetMessages
 		return $dbRes;
 	}
 
-	function Now()
+	public static function Now()
 	{
 		global $DB;
 
@@ -453,4 +454,3 @@ class CSocNetMessages extends CAllSocNetMessages
 			return date("Y-m-d H:i:s");
 	}
 }
-?>

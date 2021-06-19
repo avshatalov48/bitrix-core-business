@@ -221,6 +221,8 @@ if(
 			BXClearCache(true);
 			$GLOBALS["CACHE_MANAGER"]->CleanAll();
 			$GLOBALS["stackCacheManager"]->CleanAll();
+			$taggedCache = \Bitrix\Main\Application::getInstance()->getTaggedCache();
+			$taggedCache->deleteAllTags();
 			$page = \Bitrix\Main\Composite\Page::getInstance();
 			$page->deleteAll();
 		}

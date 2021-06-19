@@ -1,21 +1,22 @@
-<?
+<?php
+
 use \Bitrix\Main\Localization\Loc;
 
 IncludeModuleLangFile(__FILE__);
 
 class CWikiSocnet
 {
-	static public $bActive = false;
+	public static $bActive = false;
 
-	static public $bInit = false;
+	public static $bInit = false;
 
-	static public $iCatId = 0;
-	static public $iCatLeftBorder = 0;
-	static public $iCatRightBorder = 0;
+	public static $iCatId = 0;
+	public static $iCatLeftBorder = 0;
+	public static $iCatRightBorder = 0;
 
-	static public $iSocNetId = 0;
+	public static $iSocNetId = 0;
 
-	static function Init($SOCNET_GROUP_ID, $IBLOCK_ID)
+	public static function Init($SOCNET_GROUP_ID, $IBLOCK_ID)
 	{
 		if (self::$bInit)
 			return self::$bInit;
@@ -74,7 +75,7 @@ class CWikiSocnet
 		return self::$bInit;
 	}
 
-	static function IsEnabledSocnet()
+	public static function IsEnabledSocnet()
 	{
 		if (self::$bActive)
 			return self::$bActive;
@@ -93,12 +94,12 @@ class CWikiSocnet
 		return $bActive;
 	}
 
-	static function IsSocNet()
+	public static function IsSocNet()
 	{
 		return self::$bInit;
 	}
 
-	static function EnableSocnet($bActive = false)
+	public static function EnableSocnet($bActive = false)
 	{
 		if($bActive)
 		{
@@ -122,7 +123,7 @@ class CWikiSocnet
 		}
 	}
 
-	static function OnFillSocNetFeaturesList(&$arSocNetFeaturesSettings)
+	public static function OnFillSocNetFeaturesList(&$arSocNetFeaturesSettings)
 	{
 		$arSocNetFeaturesSettings['wiki'] = array(
 			'allowed' => array(SONET_ENTITY_GROUP),
@@ -181,7 +182,7 @@ class CWikiSocnet
 		);
 	}
 
-	static function OnFillSocNetMenu(&$arResult, $arParams = array())
+	public static function OnFillSocNetMenu(&$arResult, $arParams = array())
 	{
 		$arResult['AllowSettings']['wiki'] = true;
 
@@ -202,7 +203,7 @@ class CWikiSocnet
 		}
 	}
 
-	static function OnParseSocNetComponentPath(&$arUrlTemplates, &$arCustomPagesPath, $arParams)
+	public static function OnParseSocNetComponentPath(&$arUrlTemplates, &$arCustomPagesPath, $arParams)
 	{
 		if ($arParams['SEF_MODE'] == 'N')
 		{
@@ -253,7 +254,7 @@ class CWikiSocnet
 		}
 	}
 
-	static function OnInitSocNetComponentVariables(&$arVariableAliases, &$arCustomPagesPath)
+	public static function OnInitSocNetComponentVariables(&$arVariableAliases, &$arCustomPagesPath)
 	{
 		$arVariableAliases['wiki_name'] = 'wiki_name';
 		$arVariableAliases['title'] = 'title';
@@ -261,7 +262,7 @@ class CWikiSocnet
 		$arVariableAliases['message_id'] = 'message_id';
 	}
 
-	static function FormatEvent_Wiki($arFields, $arParams, $bMail = false)
+	public static function FormatEvent_Wiki($arFields, $arParams, $bMail = false)
 	{
 		$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/themes/.default/wiki_sonet_log.css');
 
@@ -405,7 +406,7 @@ class CWikiSocnet
 		return $arResult;
 	}
 
-	static function FormatComment_Wiki($arFields, $arParams, $bMail = false, $arLog = array())
+	public static function FormatComment_Wiki($arFields, $arParams, $bMail = false, $arLog = array())
 	{
 		$arResult = array(
 			"EVENT_FORMATTED" => array()
@@ -513,7 +514,7 @@ class CWikiSocnet
 		return $arResult;
 	}
 
-	static function AddComment_Wiki($arFields)
+	public static function AddComment_Wiki($arFields)
 	{
 		if (!CModule::IncludeModule('iblock'))
 			return false;
@@ -718,7 +719,7 @@ class CWikiSocnet
 		);
 	}
 
-	static function RecalcIBlockID($SocNetGroupID)
+	public static function RecalcIBlockID($SocNetGroupID)
 	{
 		if(!CModule::IncludeModule('iblock'))
 			return false;
@@ -728,7 +729,7 @@ class CWikiSocnet
 		if (intval($iblock_id_tmp) > 0)
 			$arWikiIblockID[] = $iblock_id_tmp;
 
-		$rsSite = CSite::GetList($by="sort", $order="asc", array("ACTIVE"=>"Y"));
+		$rsSite = CSite::GetList("sort", "asc", array("ACTIVE"=>"Y"));
 		while($arSite = $rsSite->Fetch())
 		{
 			$iblock_id_tmp = COption::GetOptionString("wiki", "socnet_iblock_id", false, $arSite["LID"]);
@@ -754,7 +755,7 @@ class CWikiSocnet
 		return false;
 	}
 
-	static function PrepareTextForFeed($text)
+	public static function PrepareTextForFeed($text)
 	{
 /*		$retText = preg_replace("/(<\s*\/(h(\d+)|li|ul)\s*>)\s*(<\s*br\s*\/*\s*>){0,1}(\s*(\r*\n)\s*){1,2}/ism", "$1##NN##", $text);
 		$retText = preg_replace("/(<\s*(ul)\s*>)\s*(<\s*br\s*\/*\s*>){0,1}(\s*(\r*\n)\s*){1,2}/ism", "$1##NN##", $retText);
@@ -768,12 +769,12 @@ class CWikiSocnet
 		return $retText;
 	}
 
-	function __ProcessPath($arUrl, $user_id)
+	public static function __ProcessPath($arUrl, $user_id)
 	{
 		return CSocNetLogTools::ProcessPath($arUrl, $user_id);
 	}
 	
-	function BeforeIndexSocNet($bxSocNetSearch, $arFields)
+	public static function BeforeIndexSocNet($bxSocNetSearch, $arFields)
 	{
 		static $isSonetEnable = false;
 		static $sonetForumId = false;
@@ -821,4 +822,3 @@ class CWikiSocnet
 		return $arFields;
 	}
 }
-?>

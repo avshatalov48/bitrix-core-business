@@ -8,9 +8,10 @@
  */
 
 import {BaseRestHandler} from "./base.rest";
-import {FileStatus} from "im.const";
+import { EventType, FileStatus } from "im.const";
 import {VuexBuilderModel} from "ui.vue.vuex";
 import {Logger} from "im.lib.logger";
+import { EventEmitter } from "main.core.events";
 
 class CoreRestHandler extends BaseRestHandler
 {
@@ -33,21 +34,32 @@ class CoreRestHandler extends BaseRestHandler
 	{
 		this.store.dispatch('users/set', data.users);
 		this.store.dispatch('files/setBefore', this.controller.application.prepareFilesBeforeSave(data.files));
-		this.store.dispatch('messages/setBefore', data.messages);
+		// this.store.dispatch('messages/setBefore', data.messages);
 	}
 
 	handleImDialogMessagesGetInitSuccess(data)
 	{
 		this.store.dispatch('users/set', data.users);
 		this.store.dispatch('files/set', this.controller.application.prepareFilesBeforeSave(data.files));
-		this.store.dispatch('messages/set', data.messages.reverse());
+		//handling messagesSet for empty chat
+		if (data.messages.length === 0 && data.chat_id)
+		{
+			Logger.warn('setting messagesSet for empty chat', data.chat_id);
+			setTimeout(() => {
+				EventEmitter.emit(EventType.dialog.messagesSet, {chatId: data.chat_id});
+			}, 100);
+		}
+		else
+		{
+			this.store.dispatch('messages/set', data.messages.reverse());
+		}
 	}
 
 	handleImDialogMessagesGetUnreadSuccess(data)
 	{
 		this.store.dispatch('users/set', data.users);
 		this.store.dispatch('files/set', this.controller.application.prepareFilesBeforeSave(data.files));
-		this.store.dispatch('messages/setAfter', data.messages);
+		// this.store.dispatch('messages/setAfter', data.messages);
 	}
 
 	handleImDiskFolderGetSuccess(data)
@@ -121,12 +133,9 @@ class CoreRestHandler extends BaseRestHandler
 	handleImRecentListSuccess(result, message)
 	{
 		Logger.warn('Provider.Rest.handleImRecentGetSuccess', result);
-		let users = [];
-		let dialogues = [];
-		let recent = {
-			general: [],
-			pinned: []
-		};
+		const users = [];
+		const dialogues = [];
+		const recent = [];
 		result.items.forEach(item => {
 			let userId = 0;
 			let chatId = 0;
@@ -145,34 +154,7 @@ class CoreRestHandler extends BaseRestHandler
 			{
 				dialogues.push(Object.assign({}, {dialogId: item.id}));
 			}
-			recent.general.push({
-				...item,
-				avatar: item.avatar.url,
-				color: item.avatar.color,
-				userId: userId,
-				chatId: chatId
-			});
-		});
-
-		result.pinned.forEach(item => {
-			let userId = 0;
-			let chatId = 0;
-
-			if (item.user && item.user.id > 0)
-			{
-				userId = item.user.id;
-				users.push(item.user);
-			}
-			if (item.chat)
-			{
-				chatId = item.chat.id;
-				dialogues.push(Object.assign(item.chat, { dialogId: item.id }));
-			}
-			else
-			{
-				dialogues.push(Object.assign({}, {dialogId: item.id}));
-			}
-			recent.pinned.push({
+			recent.push({
 				...item,
 				avatar: item.avatar.url,
 				color: item.avatar.color,

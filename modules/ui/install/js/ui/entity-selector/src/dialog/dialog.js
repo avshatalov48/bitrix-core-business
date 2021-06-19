@@ -127,6 +127,7 @@ export default class Dialog extends EventEmitter
 		this.context = Type.isStringFilled(options.context) ? options.context : null;
 		this.clearUnavailableItems = options.clearUnavailableItems === true;
 		this.compactView = options.compactView === true;
+		this.dropdownMode = Type.isBoolean(options.dropdownMode) ? options.dropdownMode : false;
 
 		if (Type.isArray(options.entities))
 		{
@@ -182,7 +183,6 @@ export default class Dialog extends EventEmitter
 		this.addTab(this.recentTab);
 		this.addTab(this.searchTab);
 
-		this.setDropdownMode(options.dropdownMode);
 		this.setPreselectedItems(options.preselectedItems);
 		this.setUndeselectedItems(options.undeselectedItems);
 
@@ -1220,15 +1220,6 @@ export default class Dialog extends EventEmitter
 		return this.dropdownMode;
 	}
 
-	setDropdownMode(flag: boolean): void
-	{
-		if (Type.isBoolean(flag))
-		{
-			this.dropdownMode = flag;
-			this.getRecentTab().setVisible(!flag);
-		}
-	}
-
 	setPreselectedItems(itemIds: ItemId[]): void
 	{
 		this.preselectedItems = this.validateItemIds(itemIds);
@@ -1636,9 +1627,16 @@ export default class Dialog extends EventEmitter
 						this.getTagSelector().unlock();
 					}
 
-					if (this.isRendered() && !this.getActiveTab())
+					if (this.isRendered())
 					{
-						this.selectFirstTab();
+						if (this.isDropdownMode() && this.getActiveTab() === this.getRecentTab())
+						{
+							this.selectFirstTab();
+						}
+						else if (!this.getActiveTab())
+						{
+							this.selectFirstTab();
+						}
 					}
 
 					this.focusSearch();
@@ -1841,6 +1839,11 @@ export default class Dialog extends EventEmitter
 		if (!this.isMultiple())
 		{
 			this.deselectAll();
+
+			if (this.getSelectedItems().length > 0)
+			{
+				console.error('EntitySelector: some items are still selected.', this.getSelectedItems());
+			}
 		}
 
 		if (this.getTagSelector() && (this.isMultiple() || this.isTagSelectorOutside()))

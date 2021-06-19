@@ -27,7 +27,7 @@ abstract class Base
 	protected $currency = "";
 	protected $operatingCurrency = "";
 
-	abstract public function getClassTitle();
+	abstract public static function getClassTitle();
 
 	public function __construct($id, array $initParams, $currency, $value = null, array $additionalParams = array())
 	{
@@ -227,5 +227,13 @@ abstract class Base
 	public function getPriceShipment(Shipment $shipment = null)
 	{
 		return $this->getPrice();
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getDisplayValue(): ?string
+	{
+		return is_null($this->value) ? null : (string)$this->value;
 	}
 }

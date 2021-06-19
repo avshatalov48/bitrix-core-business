@@ -1,0 +1,10 @@
+<?php
+$MESS["CHECKOUT_VIEW_SUCCESSFUL_CALL_MANAGER"] = "Менеджер скоро позвонит Вам для уточнения оплаты и доставки";
+$MESS["CHECKOUT_VIEW_SUCCESSFUL_STATUS_ORDER_TITLE"] = "Заказ №#ORDER_NUMBER#";
+$MESS["CHECKOUT_VIEW_SUCCESSFUL_STATUS_ORDER_SUCCESSFUL_CREATED"] = "Заказ успешно оформлен и оплачен";
+$MESS["CHECKOUT_VIEW_SUCCESSFUL_STATUS_ORDER_CREATED"] = "Заказ оформлен! Мы свяжемся с вами для уточнения деталей";
+$MESS["CHECKOUT_VIEW_SUCCESSFUL_STATUS_ORDER_PAYED"] = "Заказ успешно оформлен и оплачен";
+$MESS["CHECKOUT_VIEW_SUCCESSFUL_STATUS_ORDER_PAYED_1"] = "Оплачено #AMOUNT#";
+$MESS["CHECKOUT_VIEW_SUCCESSFUL_ELEMENT_BUTTON_SHIPPING_BUY"] = "Спасибо, до связи!";
+$MESS["CHECKOUT_VIEW_SUCCESSFUL_ELEMENT_BUTTON_SHIPPING_TO_ORDER"] = "Вернуться к заказу";
+$MESS["CHECKOUT_VIEW_SUCCESSFUL_ELEMENT_BUTTON_SHIPPING_TO_SHOP"] = "Вернуться в магазин";

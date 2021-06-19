@@ -35,11 +35,6 @@ return array(
 			'type' => 'img',
 			'dimensions' => array('width' => 369),
 		),
-		'.landing-block-node-card-icon' => array(
-			// deprecated
-			'name' => Loc::getMessage('LANDING_BLOCK_5_BLOCKS_CAROUSEL_NODES_LANDINGBLOCKNODECARDICON'),
-			'type' => 'icon',
-		),
 		'.landing-block-node-card-icon1' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_5_BLOCKS_CAROUSEL_NODES_LANDINGBLOCKNODECARDICON'),
 			'type' => 'icon',
@@ -84,13 +79,12 @@ return array(
 			'type' => array('box', 'animation'),
 		),
 		'.landing-block-node-card-icon-container' => array(
-			//deprecated
 			'name' => Loc::getMessage('LANDING_BLOCK_5_BLOCKS_CAROUSEL_NODES_LANDINGBLOCKNODECARDICON'),
-			'type' => 'color',
+			'type' => ['color', 'font-size'],
 		),
-		'.landing-block-node-card-icon-text' => array(
+		'.landing-block-node-card-texticon-container' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_5_BLOCKS_CAROUSEL_NODES_LANDINGBLOCKNODECARDICONTEXT'),
-			'type' => 'typo',
+			'type' => ['typo', 'border-color'],
 		),
 	),
 	'assets' => array(

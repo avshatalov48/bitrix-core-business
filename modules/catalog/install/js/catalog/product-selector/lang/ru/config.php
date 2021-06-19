@@ -4,3 +4,4 @@ $MESS["CATALOG_SELECTOR_BEFORE_SEARCH_TITLE"] = "Найти или создат�
 $MESS["CATALOG_SELECTOR_IS_EMPTY_TITLE"] = "Товар не найден";
 $MESS["CATALOG_SELECTOR_IS_EMPTY_SUBTITLE"] = "Создать новый товар?";
 $MESS["CATALOG_SELECTOR_NEW_TAG_TITLE"] = "новый";
+$MESS["CATALOG_SELECTOR_SELECTED_PRODUCT_TITLE"] = "Выберите или создайте товар";

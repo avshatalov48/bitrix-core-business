@@ -2,6 +2,7 @@
 
 require_once __DIR__.'/autoload.php';
 
+
 class CRestEventHandlers
 {
 	public static function OnBeforeProlog()

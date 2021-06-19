@@ -18,6 +18,8 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(LabelColor, "LIGHT", 'ui-label-light');
 	babelHelpers.defineProperty(LabelColor, "TAG_SECONDARY", 'ui-label-tag-secondary');
 	babelHelpers.defineProperty(LabelColor, "TAG_LIGHT", 'ui-label-tag-light');
+	babelHelpers.defineProperty(LabelColor, "LIGHT_BLUE", 'ui-label-lightblue');
+	babelHelpers.defineProperty(LabelColor, "LIGHT_GREEN", 'ui-label-lightgreen');
 
 	/**
 	 * @namespace {BX.UI}

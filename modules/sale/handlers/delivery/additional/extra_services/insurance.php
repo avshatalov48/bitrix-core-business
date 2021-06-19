@@ -17,7 +17,7 @@ class Insurance extends Base
 		$this->params["TYPE"] = "Y/N";
 	}
 
-	public function getClassTitle()
+	public static function getClassTitle()
 	{
 		return Loc::getMessage('SALE_DLVRS_ADD_ESI_TITLE');
 	}

@@ -18,7 +18,18 @@
 	 */
 	BX.SimpleVAD = function(config)
 	{
-		this.mediaStream = config.mediaStream;
+		if(!(config.mediaStream instanceof MediaStream))
+		{
+			throw new Error("config.mediaStream should be instance of MediaStream");
+		}
+
+		if (config.mediaStream.getAudioTracks().length === 0)
+		{
+			throw new Error("config.mediaStream should contain audio track");
+		}
+
+		this.mediaStream = new MediaStream();
+		this.mediaStream.addTrack(config.mediaStream.getAudioTracks()[0].clone());
 		this.audioContext = null;
 		this.mediaStreamNode = null;
 		this.analyserNode = null;
@@ -47,11 +58,6 @@
 
 	BX.SimpleVAD.prototype.init = function()
 	{
-		if(!(this.mediaStream instanceof MediaStream))
-		{
-			return false;
-		}
-
 		this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
 		this.analyserNode = this.audioContext.createAnalyser();
 		this.analyserNode.fftSize = 128;
@@ -129,11 +135,19 @@
 			this.audioContext.close();
 		}
 
+		if (this.mediaStream)
+		{
+			this.mediaStream.getTracks().forEach(function(track)
+			{
+				track.stop();
+			});
+			this.mediaStream = null;
+		}
+
 		clearInterval(this.measureInterval);
 
 		this.analyserNode = null;
 		this.mediaStreamNode = null;
-		this.mediaStream = null;
 		this.audioContext = null;
 
 		this.callbacks = {

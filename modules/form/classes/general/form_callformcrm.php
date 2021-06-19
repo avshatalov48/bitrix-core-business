@@ -398,7 +398,7 @@ WHERE fcl.FORM_ID='".intval($FORM_ID)."' AND fc.ACTIVE='Y'";
 
 		$strResult = "";
 
-		$w = CFormField::GetList($WEB_FORM_ID, "ALL", $by, $order, array("ACTIVE" => "Y"), $is_filtered);
+		$w = CFormField::GetList($WEB_FORM_ID, "ALL", '', '', array("ACTIVE" => "Y"));
 		while ($wr=$w->Fetch())
 		{
 			$answer = "";
@@ -541,7 +541,7 @@ WHERE fcl.FORM_ID='".intval($FORM_ID)."' AND fc.ACTIVE='Y'";
 
 		$strResult = "";
 
-		$w = CFormField::GetList($WEB_FORM_ID, "ALL", $by, $order, array("ACTIVE" => "Y"), $is_filtered);
+		$w = CFormField::GetList($WEB_FORM_ID, "ALL", '', '', array("ACTIVE" => "Y"));
 		while ($wr=$w->Fetch())
 		{
 			$answer = "";

@@ -364,8 +364,8 @@ class CBPReviewActivity
 		if (count($this->arReviewResults) > 0)
 		{
 			$dbUsers = CUser::GetList(
-				($b = ""),
-				($o = ""),
+				"",
+				"",
 				array("ID" => implode('|', $this->arReviewResults)),
 				array('FIELDS' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'TITLE'))
 			);

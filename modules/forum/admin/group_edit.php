@@ -12,7 +12,7 @@ IncludeModuleLangFile(__FILE__);
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 //region Default values
 $sysLangs = [];
-$dbRes = CLanguage::GetList($by="sort", $order="desc", ["ACTIVE" => "Y"]);
+$dbRes = CLanguage::GetList("sort", "desc", ["ACTIVE" => "Y"]);
 while ($res = $dbRes->Fetch())
 {
 	$sysLangs[$res["LID"]] = htmlspecialcharsbx($res["NAME"]);

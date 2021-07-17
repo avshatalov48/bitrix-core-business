@@ -47,6 +47,7 @@ class Form
 		'XML_ID',
 	];
 
+	// region replaces for view and public
 	/**
 	 * Replace form markers in block, put true scripts. Run on publication action
 	 * @param string $content - content of block
@@ -160,16 +161,9 @@ class Form
 			]);
 		}
 	}
+	// endregion
 
-	/**
-	 * Check if b24 or box portal
-	 * @return bool
-	 */
-	protected static function isCrm(): bool
-	{
-		return Loader::includeModule('crm');
-	}
-
+	// region get forms
 	/**
 	 * Gets web forms in system.
 	 * @param bool $force - if true - get forms forcibly w/o cache
@@ -190,6 +184,62 @@ class Form
 		elseif (Manager::isB24Connector())
 		{
 			$forms = self::getFormsViaConnector();
+		}
+
+		return $forms;
+	}
+
+	/**
+	 * Check if b24 or box portal
+	 * @return bool
+	 */
+	protected static function isCrm(): bool
+	{
+		return Loader::includeModule('crm');
+	}
+
+	protected static function getFormsForPortal(array $filter = []): array
+	{
+		$res = Webform\Internals\FormTable::getList([
+			'select' => self::AVAILABLE_FORM_FIELDS,
+			'filter' => $filter,
+			'order' => [
+				'ID' => 'ASC',
+			],
+		]);
+
+		$forms = [];
+		while ($form = $res->fetch())
+		{
+			$form['ID'] = (int) $form['ID'];
+			$webpack = Webpack\Form::instance($form['ID']);
+			if (!$webpack->isBuilt())
+			{
+				$webpack->build();
+				$webpack = Webpack\Form::instance($form['ID']);
+			}
+			$form['URL'] = $webpack->getEmbeddedFileUrl();
+			$forms[$form['ID']] = $form;
+		}
+
+		return $forms;
+	}
+
+	protected static function getFormsViaConnector(): array
+	{
+		$forms = [];
+		$client = ApClient::init();
+		if ($client)
+		{
+			$res = $client->call('crm.webform.list', ['GET_INACTIVE' => 'Y']);
+			if (isset($res['result']) && is_array($res['result']))
+			{
+				foreach($res['result'] as $form)
+				{
+					$form['ID'] = (int) $form['ID'];
+					$forms[$form['ID']] = $form;
+				}
+			}
 		}
 
 		return $forms;
@@ -254,191 +304,9 @@ class Form
 		return $forms;
 	}
 
-	protected static function getFormsForPortal(array $filter = []): array
-	{
-		$res = Webform\Internals\FormTable::getList([
-			'select' => self::AVAILABLE_FORM_FIELDS,
-			'filter' => $filter,
-			'order' => [
-				'ID' => 'ASC',
-			],
-		]);
+	// endregion
 
-		$forms = [];
-		while ($form = $res->fetch())
-		{
-			$form['ID'] = (int) $form['ID'];
-			$webpack = Webpack\Form::instance($form['ID']);
-			if (!$webpack->isBuilt())
-			{
-				$webpack->build();
-				$webpack = Webpack\Form::instance($form['ID']);
-			}
-			$form['URL'] = $webpack->getEmbeddedFileUrl();
-			$forms[$form['ID']] = $form;
-		}
-
-		return $forms;
-	}
-
-	protected static function getFormsViaConnector(): array
-	{
-		$forms = [];
-		$client = ApClient::init();
-		if ($client)
-		{
-			$res = $client->call('crm.webform.list', ['GET_INACTIVE' => 'Y']);
-			if (isset($res['result']) && is_array($res['result']))
-			{
-				foreach($res['result'] as $form)
-				{
-					$form['ID'] = (int) $form['ID'];
-					$forms[$form['ID']] = $form;
-				}
-			}
-		}
-
-		return $forms;
-	}
-
-	/**
-	 * Move callback form to end.
-	 * @param array $forms Forms array.
-	 * @return array
-	 */
-	protected static function prepareFormsToAttrs(array $forms): array
-	{
-		$sorted = [];
-		foreach ($forms as $form)
-		{
-			if(array_key_exists('ACTIVE', $form) && $form['ACTIVE'] !== 'Y')
-			{
-				continue;
-			}
-
-			$item = [
-				'name' => $form['NAME'],
-				'value' => self::INLINE_MARKER_PREFIX . $form['ID'],
-			];
-
-			if ($form['IS_CALLBACK_FORM'] === 'Y')
-			{
-				$sorted[] = $item;
-			}
-			else
-			{
-				array_unshift($sorted, $item);
-			}
-		}
-
-		return $sorted;
-	}
-
-	/**
-	 * Gets attrs for form.
-	 * @return array
-	 */
-	protected static function getAttrs(): array
-	{
-		static $attrs = [];
-		if ($attrs)
-		{
-			return $attrs;
-		}
-
-		// get from CRM or via connector
-		$forms = self::getForms();
-		$forms = self::prepareFormsToAttrs($forms);
-
-		$attrs = [
-			$attrs[] = [
-				'name' => 'Embed form flag',
-				'attribute' => self::ATTR_FORM_EMBED,
-				'type' => 'string',
-				'hidden' => true,
-			],
-			[
-				'name' => 'Form design',
-				'attribute' => self::ATTR_FORM_STYLE,
-				'type' => 'string',
-				'hidden' => true,
-			],
-			[
-				'name' => 'Form from connector flag',
-				'attribute' => self::ATTR_FORM_FROM_CONNECTOR,
-				'type' => 'string',
-				'hidden' => true,
-			],
-		];
-
-		if (!empty($forms))
-		{
-			// get forms list
-			$attrs[] = [
-				'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
-				'attribute' => self::ATTR_FORM_PARAMS,
-				'items' => $forms,
-				'type' => 'list',
-			];
-			// show header
-			// use custom design
-			$attrs[] = [
-				'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_USE_STYLE'),
-				'attribute' => self::ATTR_FORM_USE_STYLE,
-				'type' => 'list',
-				'items' => [
-					[
-						'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_USE_STYLE_Y'),
-						'value' => 'Y',
-					],
-					[
-						'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_USE_STYLE_N'),
-						'value' => 'N',
-					],
-				],
-			];
-		}
-		// no form - no settings, just message for user
-		else
-		{
-			// portal or SMN with b24connector
-			if (Manager::isB24() || Manager::isB24Connector())
-			{
-				// todo:need alert?
-				$attrs[] = [
-					'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
-					'attribute' => self::ATTR_FORM_PARAMS,
-					'type' => 'list',
-					'items' => [
-						[
-							'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_NO_FORM'),
-							'value' => false,
-						],
-					],
-				];
-			}
-			// siteman
-			else
-			{
-				// todo: need?
-				$attrs[] = [
-					'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
-					'attribute' => self::ATTR_FORM_PARAMS,
-					'type' => 'list',
-					'items' => [
-						[
-							'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_NO_FORM'),
-							'value' => false,
-						],
-					],
-
-				];
-			}
-		}
-
-		return $attrs;
-	}
-
+	// region prepare manifest
 	/**
 	 * Prepare manifest.
 	 * @param array $manifest Block's manifest.
@@ -560,6 +428,146 @@ class Form
 	}
 
 	/**
+	 * Gets attrs for form.
+	 * @return array
+	 */
+	protected static function getAttrs(): array
+	{
+		static $attrs = [];
+		if ($attrs)
+		{
+			return $attrs;
+		}
+
+		// get from CRM or via connector
+		$forms = self::getForms();
+		$forms = self::prepareFormsToAttrs($forms);
+
+		$attrs = [
+			$attrs[] = [
+				'name' => 'Embed form flag',
+				'attribute' => self::ATTR_FORM_EMBED,
+				'type' => 'string',
+				'hidden' => true,
+			],
+			[
+				'name' => 'Form design',
+				'attribute' => self::ATTR_FORM_STYLE,
+				'type' => 'string',
+				'hidden' => true,
+			],
+			[
+				'name' => 'Form from connector flag',
+				'attribute' => self::ATTR_FORM_FROM_CONNECTOR,
+				'type' => 'string',
+				'hidden' => true,
+			],
+		];
+
+		if (!empty($forms))
+		{
+			// get forms list
+			$attrs[] = [
+				'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
+				'attribute' => self::ATTR_FORM_PARAMS,
+				'items' => $forms,
+				'type' => 'list',
+			];
+			// show header
+			// use custom design
+			$attrs[] = [
+				'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_USE_STYLE'),
+				'attribute' => self::ATTR_FORM_USE_STYLE,
+				'type' => 'list',
+				'items' => [
+					[
+						'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_USE_STYLE_Y'),
+						'value' => 'Y',
+					],
+					[
+						'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_USE_STYLE_N'),
+						'value' => 'N',
+					],
+				],
+			];
+		}
+		// no form - no settings, just message for user
+		else
+		{
+			// portal or SMN with b24connector
+			if (Manager::isB24() || Manager::isB24Connector())
+			{
+				// todo:need alert?
+				$attrs[] = [
+					'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
+					'attribute' => self::ATTR_FORM_PARAMS,
+					'type' => 'list',
+					'items' => [
+						[
+							'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_NO_FORM'),
+							'value' => false,
+						],
+					],
+				];
+			}
+			// siteman
+			else
+			{
+				// todo: need?
+				$attrs[] = [
+					'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
+					'attribute' => self::ATTR_FORM_PARAMS,
+					'type' => 'list',
+					'items' => [
+						[
+							'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM_NO_FORM'),
+							'value' => false,
+						],
+					],
+
+				];
+			}
+		}
+
+		return $attrs;
+	}
+
+	/**
+	 * Move callback form to end.
+	 * @param array $forms Forms array.
+	 * @return array
+	 */
+	protected static function prepareFormsToAttrs(array $forms): array
+	{
+		$sorted = [];
+		foreach ($forms as $form)
+		{
+			if (array_key_exists('ACTIVE', $form) && $form['ACTIVE'] !== 'Y')
+			{
+				continue;
+			}
+
+			$item = [
+				'name' => $form['NAME'],
+				'value' => self::INLINE_MARKER_PREFIX . $form['ID'],
+			];
+
+			if ($form['IS_CALLBACK_FORM'] === 'Y')
+			{
+				$sorted[] = $item;
+			}
+			else
+			{
+				array_unshift($sorted, $item);
+			}
+		}
+
+		return $sorted;
+	}
+	// endregion
+
+	// region actions with blocks and forms
+	/**
 	 * @param int|array $landingIds - int or [int] of landing IDs
 	 * @return array of all block with CRM-forms at this page
 	 * @throws \Bitrix\Main\ArgumentException
@@ -607,8 +615,9 @@ class Form
 	 * Save form params in block for current form
 	 * @param int $blockId - from landing block table
 	 * @param int $formId - from webform table
+	 * @return bool - true if success, false if errors
 	 */
-	public static function setFormIdToBlock(int $blockId, int $formId): void
+	public static function setFormIdToBlock(int $blockId, int $formId): bool
 	{
 		$block = new Block($blockId);
 		// on form create need forced get forms!
@@ -618,6 +627,8 @@ class Form
 			self::setFormIdParam($block, $formId);
 			$block->save();
 		}
+
+		return $block->getError()->isEmpty();
 	}
 
 	/**
@@ -800,6 +811,9 @@ class Form
 		return $data;
 	}
 
+	// endregion
+
+	// region update
 	/**
 	 * Find old forms blocks and update to embed format
 	 * @param int $landingId
@@ -902,4 +916,5 @@ class Form
 
 		return '';
 	}
+	// endregion
 }

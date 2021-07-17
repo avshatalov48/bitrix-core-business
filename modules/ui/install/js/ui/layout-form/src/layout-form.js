@@ -35,7 +35,7 @@ export class LayoutForm
 
 	onClick(event)
 	{
-		event.preventDefault();
+		// event.preventDefault();
 
 		let checkbox = event.currentTarget.querySelector('.ui-ctl-element[type="checkbox"]');
 		let hiddenBlock = event.currentTarget.nextElementSibling;

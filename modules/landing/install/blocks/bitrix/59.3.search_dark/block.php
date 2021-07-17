@@ -3,8 +3,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
-
-use \Bitrix\Main\Localization\Loc;
 ?>
 
 <section class="landing-block g-pt-15 g-pb-15 g-pl-15 g-pr-15 g-theme-bitrix-bg-dark-v2">

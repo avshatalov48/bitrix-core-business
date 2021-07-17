@@ -521,19 +521,27 @@
 				props: {
 					name: fieldName + (isMultiple(property) ? '[]' : '')
 				},
-				children: [
-					BX.create('option', {
-						props: {value: ''},
-						text: BX.message('BIZPROC_JS_BP_FIELD_TYPE_NOT_SELECTED')
-					})
-				]
 			});
+
+			var getDefaultOption = function()
+			{
+				return BX.create('option', {
+					props: { value: '' },
+					text: BX.message('BIZPROC_JS_BP_FIELD_TYPE_NOT_SELECTED')
+				});
+			}
 
 			if (isMultiple(property))
 			{
 				node.setAttribute('multiple', 'multiple');
 				node.setAttribute('size', '5');
 			}
+			option = getDefaultOption();
+			if (BX.Type.isNil(value) || value.length === 0)
+			{
+				option.setAttribute('selected', 'selected');
+			}
+			node.appendChild(option);
 
 			if (BX.type.isPlainObject(property['Options']))
 			{

@@ -30,6 +30,7 @@ import './realtime';
 import './cell-actions';
 import './cell-action-state';
 import './counters';
+import './label';
 
 import './grid';
 import '../css/style.css';

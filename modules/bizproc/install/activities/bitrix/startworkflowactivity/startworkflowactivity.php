@@ -1,33 +1,37 @@
-<?
+<?php
+
 use \Bitrix\Bizproc\FieldType;
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 class CBPStartWorkflowActivity
 	extends CBPActivity
 	implements IBPEventActivity, IBPActivityExternalEventListener
 {
-	private static $templatesCache = array();
+	private static $templatesCache = [];
 	protected $wfId = null;
 
 	public function __construct($name)
 	{
 		parent::__construct($name);
-		$this->arProperties = array(
-			'Title'      => '',
+		$this->arProperties = [
+			'Title' => '',
 			'DocumentId' => null,
 			'TemplateId' => 0,
-			'TemplateParameters' => array(),
+			'TemplateParameters' => [],
 			'UseSubscription' => 'N',
 
-			'WorkflowId' => null
-		);
+			'WorkflowId' => null,
+		];
 
-		$this->SetPropertiesTypes(array(
-			'WorkflowId' => array(
-				'Type' => 'string'
-			)
-		));
+		$this->SetPropertiesTypes([
+			'WorkflowId' => [
+				'Type' => 'string',
+			],
+		]);
 	}
 
 	protected function ReInitialize()
@@ -36,7 +40,7 @@ class CBPStartWorkflowActivity
 		$this->WorkflowId = null;
 	}
 
-	public function OnExternalEvent($eventParameters = array())
+	public function OnExternalEvent($eventParameters = [])
 	{
 		if ($this->executionStatus == CBPActivityExecutionStatus::Closed || $this->wfId != $eventParameters[0])
 			return;
@@ -99,9 +103,14 @@ class CBPStartWorkflowActivity
 		if (method_exists($rootActivity, 'GetWorkflowTemplateId'))
 		{
 			$templateId = $rootActivity->GetWorkflowTemplateId();
-			if ((int) $templateId === (int) $this->TemplateId)
+			if ((int)$templateId === (int)$this->TemplateId)
 			{
-				$this->WriteToTrackingService(GetMessage("BPSWFA_SELFSTART_ERROR"));
+				$this->WriteToTrackingService(
+					GetMessage("BPSWFA_SELFSTART_ERROR"),
+					0,
+					CBPTrackingType::Error
+				);
+
 				return CBPActivityExecutionStatus::Closed;
 			}
 		}
@@ -122,7 +131,17 @@ class CBPStartWorkflowActivity
 
 		/** @var CBPDocumentService $documentService */
 		$documentService = CBPRuntime::GetRuntime()->GetService('DocumentService');
-		$documentId = $documentService->normalizeDocumentId($documentId);
+		$documentId = $documentService->normalizeDocumentId($documentId, $template['DOCUMENT_TYPE'][2]);
+
+		//hotfix 141709
+		if (
+			preg_match('/^_[0-9]+$/', $documentId[2])
+			&& $documentId[0] === 'crm'
+			&& strpos($template['DOCUMENT_TYPE'][2], 'DYNAMIC_') === 0
+		)
+		{
+			$documentId[2] = $template['DOCUMENT_TYPE'][2] . $documentId[2];
+		}
 
 		//check Document type
 		try
@@ -137,14 +156,20 @@ class CBPStartWorkflowActivity
 		if (!$realDocumentType || $realDocumentType != $template['DOCUMENT_TYPE'][2])
 		{
 			$this->WriteToTrackingService(
-				$realDocumentType ? GetMessage("BPSWFA_DOCTYPE_ERROR") : GetMessage("BPSWFA_DOCTYPE_NOT_FOUND_ERROR")
+				$realDocumentType
+					? GetMessage("BPSWFA_DOCTYPE_ERROR")
+					: GetMessage("BPSWFA_DOCTYPE_NOT_FOUND_ERROR")
+				,
+				0,
+				CBPTrackingType::Error
 			);
+
 			return CBPActivityExecutionStatus::Closed;
 		}
 
 		$parameters = $this->TemplateParameters;
 		if (!is_array($parameters))
-			$parameters = array();
+			$parameters = [];
 
 		if ($template['PARAMETERS'])
 		{
@@ -156,7 +181,7 @@ class CBPStartWorkflowActivity
 					if (is_array($userIds))
 					{
 						foreach ($userIds as $i => $uid)
-							$userIds[$i] = 'user_'.$uid;
+							$userIds[$i] = 'user_' . $uid;
 					}
 					$parameters[$key] = $userIds;
 				}
@@ -170,7 +195,7 @@ class CBPStartWorkflowActivity
 			$documentId,
 			$parameters,
 			$errors,
-			array('workflowId' => $this->GetWorkflowInstanceId(), 'templateId' => $templateId)
+			['workflowId' => $this->GetWorkflowInstanceId(), 'templateId' => $templateId]
 		);
 		$this->WorkflowId = $this->wfId;
 		$workflowIsCompleted = false;
@@ -189,7 +214,7 @@ class CBPStartWorkflowActivity
 			if ($this->UseSubscription == 'Y')
 				throw new Exception($errors[0]['message']);
 			else
-				$this->WriteToTrackingService(GetMessage("BPSWFA_START_ERROR", array('#MESSAGE#' => $errors[0]['message'])));
+				$this->WriteToTrackingService(GetMessage("BPSWFA_START_ERROR", ['#MESSAGE#' => $errors[0]['message']]));
 
 			return CBPActivityExecutionStatus::Closed;
 		}
@@ -200,6 +225,7 @@ class CBPStartWorkflowActivity
 		}
 
 		$this->Subscribe($this);
+
 		return CBPActivityExecutionStatus::Executing;
 	}
 
@@ -209,7 +235,7 @@ class CBPStartWorkflowActivity
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->GetService("DocumentService");
 
-		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, array(
+		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, [
 			'documentType' => $documentType,
 			'activityName' => $activityName,
 			'workflowTemplate' => $arWorkflowTemplate,
@@ -217,8 +243,8 @@ class CBPStartWorkflowActivity
 			'workflowVariables' => $arWorkflowVariables,
 			'currentValues' => $currentValues,
 			'formName' => $formName,
-			'siteId' => $siteId
-		));
+			'siteId' => $siteId,
+		]);
 
 		$entities = $types = $templates = [];
 		$currentEntity = $currentType = $currentTemplateId = $templateParametersRender = '';
@@ -235,7 +261,7 @@ class CBPStartWorkflowActivity
 			$entityName = $documentService->getEntityName($row['MODULE_ID'], $row['ENTITY']);
 			if ($entityName)
 			{
-				$entities[$row['MODULE_ID'].'@'.$row['ENTITY']] = $entityName;
+				$entities[$row['MODULE_ID'] . '@' . $row['ENTITY']] = $entityName;
 			}
 		}
 
@@ -263,12 +289,12 @@ class CBPStartWorkflowActivity
 			$template = self::getTemplate($currentValues['template_id']);
 			if ($template)
 			{
-				$currentEntity = implode('@', array($template['MODULE_ID'], $template['ENTITY']));
+				$currentEntity = implode('@', [$template['MODULE_ID'], $template['ENTITY']]);
 				$currentType = implode('@', $template['DOCUMENT_TYPE']);
 				$currentTemplateId = $template['ID'];
 
 				if (!is_array($currentValues['template']))
-					$currentValues['template'] = array();
+					$currentValues['template'] = [];
 			}
 		}
 
@@ -278,7 +304,7 @@ class CBPStartWorkflowActivity
 		if ($currentTemplateId)
 		{
 			$templates = self::getTemplatesList($currentType);
-			if($formName === 'bizproc_automation_robot_dialog')
+			if ($formName === 'bizproc_automation_robot_dialog')
 			{
 				$templateParametersRender = self::renderRobotTemplateParametersForm(
 					$dialog,
@@ -297,16 +323,16 @@ class CBPStartWorkflowActivity
 			}
 		}
 
-		$dialog->setMap(array(
+		$dialog->setMap([
 			'DOCUMENT_ID' => [
 				'Name' => GetMessage('BPSWFA_PD_DOCUMENT_ID'),
 				'FieldName' => 'document_id',
 				'Type' => FieldType::STRING,
-				'Required' => true
-			]
-		));
+				'Required' => true,
+			],
+		]);
 
-		$dialog->setRuntimeData(array(
+		$dialog->setRuntimeData([
 			'isAdmin' => static::checkAdminPermissions(),
 			'documentType' => $documentType,
 
@@ -322,20 +348,21 @@ class CBPStartWorkflowActivity
 			'templateParametersRender' => $templateParametersRender,
 
 			"formName" => $formName,
-		));
+		]);
+
 		return $dialog;
 	}
 
 	public static function GetPropertiesDialogValues($documentType, $activityName, &$workflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $currentValues, &$errors)
 	{
-		$errors = array();
+		$errors = [];
 
-		$properties = array(
+		$properties = [
 			'DocumentId' => $currentValues['document_id'],
 			'TemplateId' => $currentValues['template_id'],
 			'UseSubscription' => isset($currentValues['use_subscription']) && $currentValues['use_subscription'] == 'Y' ? 'Y' : 'N',
 			'TemplateParameters' => self::extractTemplateParameterValues($documentType, $currentValues['template_id'], $currentValues, $errors),
-		);
+		];
 
 		if (count($errors) > 0)
 			return false;
@@ -350,28 +377,29 @@ class CBPStartWorkflowActivity
 		return true;
 	}
 
-	public static function ValidateProperties($testProperties = array(), CBPWorkflowTemplateUser $user = null)
+	public static function ValidateProperties($testProperties = [], CBPWorkflowTemplateUser $user = null)
 	{
-		$errors = array();
+		$errors = [];
 
 		if (!static::checkAdminPermissions())
 		{
-			$errors[] = array(
-					"code"      => "AccessDenied",
-					"parameter" => "Admin",
-					"message"   => GetMessage("BPSWFA_ACCESS_DENIED")
-			);
+			$errors[] = [
+				"code" => "AccessDenied",
+				"parameter" => "Admin",
+				"message" => GetMessage("BPSWFA_ACCESS_DENIED"),
+			];
+
 			return array_merge($errors, parent::ValidateProperties($testProperties, $user));
 		}
 
 		if (empty($testProperties['DocumentId']))
 		{
-			$errors[] = array("code" => "NotExist", "parameter" => "DocumentId", "message" => GetMessage("BPSWFA_ERROR_DOCUMENT_ID"));
+			$errors[] = ["code" => "NotExist", "parameter" => "DocumentId", "message" => GetMessage("BPSWFA_ERROR_DOCUMENT_ID")];
 		}
 
 		if (empty($testProperties['TemplateId']))
 		{
-			$errors[] = array("code" => "NotExist", "parameter" => "TemplateId", "message" => GetMessage("BPSWFA_ERROR_TEMPLATE"));
+			$errors[] = ["code" => "NotExist", "parameter" => "TemplateId", "message" => GetMessage("BPSWFA_ERROR_TEMPLATE")];
 		}
 
 		$template = self::getTemplate($testProperties['TemplateId']);
@@ -382,15 +410,14 @@ class CBPStartWorkflowActivity
 				$value = isset($testProperties['TemplateParameters'][$key]) ? $testProperties['TemplateParameters'][$key] : null;
 				if (CBPHelper::getBool($parameter['Required']) && CBPHelper::isEmptyValue($value))
 				{
-					$errors[] = array(
+					$errors[] = [
 						"code" => "NotExist",
-						"parameter" => "TemplateParameters_".$key,
-						"message" => GetMessage("BPSWFA_TEMPLATE_PARAMETERS_ERROR", array('#NAME#' => $parameter['Name']))
-					);
+						"parameter" => "TemplateParameters_" . $key,
+						"message" => GetMessage("BPSWFA_TEMPLATE_PARAMETERS_ERROR", ['#NAME#' => $parameter['Name']]),
+					];
 				}
 			}
 		}
-
 
 		return array_merge($errors, parent::ValidateProperties($testProperties, $user));
 	}
@@ -403,17 +430,17 @@ class CBPStartWorkflowActivity
 
 		if (!empty($request['entity']))
 		{
-			$result = array('types' => self::getTypesList($request['entity']));
+			$result = ['types' => self::getTypesList($request['entity'])];
 		}
 
 		if (!empty($request['document']))
 		{
-			$result = array('templates' => self::getTemplatesList($request['document']));
+			$result = ['templates' => self::getTemplatesList($request['document'])];
 		}
 
 		if (!empty($request['template_id']) && !empty($request['form_name']))
 		{
-			if(isset($request['isRobot']) && $request['isRobot'] === 'y')
+			if (isset($request['isRobot']) && $request['isRobot'] === 'y')
 			{
 				$result = self::renderRobotTemplateParametersForm(
 					self::jsObjectToPropertiesDialog($request['properties_dialog']),
@@ -435,20 +462,21 @@ class CBPStartWorkflowActivity
 
 	protected static function jsObjectToPropertiesDialog(array $dialog)
 	{
-		return new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, array(
+		return new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, [
 			'documentType' => $dialog['documentType'],
 			'activityName' => $dialog['activityName'],
 			'workflowTemplate' => $dialog['workflowTemplate'],
 			'workflowParameters' => $dialog['workflowParameters'],
-			'currentValues' => isset($dialog['currentValues']) ? $dialog['currentValues'] : array(),
+			'currentValues' => isset($dialog['currentValues']) ? $dialog['currentValues'] : [],
 			'formName' => $dialog['formName'],
-			'siteId' => $dialog['siteId']
-		));
+			'siteId' => $dialog['siteId'],
+		]);
 	}
 
 	private static function checkAdminPermissions()
 	{
 		$user = new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser);
+
 		return $user->isAdmin();
 	}
 
@@ -458,21 +486,21 @@ class CBPStartWorkflowActivity
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->GetService("DocumentService");
 
-		list($moduleId, $entity) = explode('@', $entityId);
-		$result = array();
+		[$moduleId, $entity] = explode('@', $entityId);
+		$result = [];
 
 		$iterator = CBPWorkflowTemplateLoader::GetList(
-			array('MODULE_ID' => 'ASC'),
-			array('MODULE_ID' => $moduleId, 'ENTITY' => $entity),
-			array('MODULE_ID', 'ENTITY', 'DOCUMENT_TYPE'),
+			['MODULE_ID' => 'ASC'],
+			['MODULE_ID' => $moduleId, 'ENTITY' => $entity],
+			['MODULE_ID', 'ENTITY', 'DOCUMENT_TYPE'],
 			false,
-			array('MODULE_ID', 'ENTITY', 'DOCUMENT_TYPE')
+			['MODULE_ID', 'ENTITY', 'DOCUMENT_TYPE']
 		);
 		while ($row = $iterator->fetch())
 		{
 			$name = $documentService->getDocumentTypeName($row['DOCUMENT_TYPE']);
 			if ($name)
-				$result[] = array('name' => $name, 'id' => implode('@', $row['DOCUMENT_TYPE']));
+				$result[] = ['name' => $name, 'id' => implode('@', $row['DOCUMENT_TYPE'])];
 		}
 
 		return $result;
@@ -480,40 +508,42 @@ class CBPStartWorkflowActivity
 
 	private static function getTemplatesList($document)
 	{
-		$result = array();
+		$result = [];
 
 		$iterator = CBPWorkflowTemplateLoader::GetList(
-			array('NAME' => 'ASC'),
-			array(
+			['NAME' => 'ASC'],
+			[
 				'DOCUMENT_TYPE' => explode('@', $document),
-				'<AUTO_EXECUTE' => CBPDocumentEventType::Automation
-			),
+				'<AUTO_EXECUTE' => CBPDocumentEventType::Automation,
+			],
 			false,
 			false,
-			array('ID', 'NAME')
+			['ID', 'NAME']
 		);
 		while ($row = $iterator->fetch())
 		{
-			$result[] = array('name' => $row['NAME'], 'id' => $row['ID']);
+			$result[] = ['name' => $row['NAME'], 'id' => $row['ID']];
 		}
+
 		return $result;
 	}
 
 	private static function getTemplate($id)
 	{
-		$id = (int) $id;
+		$id = (int)$id;
 		if (!isset(self::$templatesCache[$id]))
 		{
-			$iterator = CBPWorkflowTemplateLoader::GetList(array(), array("ID" => $id), false, false, array("ID", 'NAME', "MODULE_ID", "ENTITY", "DOCUMENT_TYPE", 'PARAMETERS'));
+			$iterator = CBPWorkflowTemplateLoader::GetList([], ["ID" => $id], false, false, ["ID", 'NAME', "MODULE_ID", "ENTITY", "DOCUMENT_TYPE", 'PARAMETERS']);
 			self::$templatesCache[$id] = $iterator->fetch();
 		}
+
 		return self::$templatesCache[$id];
 	}
 
-	private static function extractTemplateParameterValues($documentType, $templateId, $request, &$errors = array())
+	private static function extractTemplateParameterValues($documentType, $templateId, $request, &$errors = [])
 	{
 		$template = self::getTemplate($templateId);
-		$result = array();
+		$result = [];
 
 		if ($template && $template['PARAMETERS'])
 		{
@@ -527,7 +557,7 @@ class CBPStartWorkflowActivity
 				$result[$key] = $documentService->GetFieldInputValue(
 					$dt,
 					$parameter,
-					'bpswfatemplate_'.$key,
+					'bpswfatemplate_' . $key,
 					$request,
 					$errors
 				);
@@ -537,7 +567,7 @@ class CBPStartWorkflowActivity
 		return $result;
 	}
 
-	private static function renderTemplateParametersForm($documentType, $templateId, $formName, array $currentValues = array())
+	private static function renderTemplateParametersForm($documentType, $templateId, $formName, array $currentValues = [])
 	{
 		$result = '';
 		$template = self::getTemplate($templateId);
@@ -549,38 +579,39 @@ class CBPStartWorkflowActivity
 				/** @var CBPDocumentService $documentService */
 				$documentService = $runtime->GetService("DocumentService");
 
-				$result .= '<tr><td colspan="2" align="center">'.GetMessage('BPSWFA_TEMPLATE_PARAMETERS').':</td></tr>';
+				$result .= '<tr><td colspan="2" align="center">' . GetMessage('BPSWFA_TEMPLATE_PARAMETERS') . ':</td></tr>';
 				foreach ($template['PARAMETERS'] as $key => $parameter)
 				{
-					$parameterKeyExt = 'bpswfatemplate_'.$key;
+					$parameterKeyExt = 'bpswfatemplate_' . $key;
 					$parameterValue = isset($currentValues[$key]) ? $currentValues[$key] : $parameter['Default'];
 					$dt = $parameter['Type'] == FieldType::USER ? $documentType : $template['DOCUMENT_TYPE'];
 
 					$result .= '<tr>
 					<td align="right" width="40%" valign="top" class="adm-detail-content-cell-l">'
-					.($parameter['Required'] ? '<span class="adm-required-field">*' : '').htmlspecialcharsbx($parameter['Name'])
-					.($parameter['Required'] ? '</span>' : '').':</td>
-					<td width="60%" valign="top" class="adm-detail-content-cell-r">'.$documentService->GetFieldInputControl(
+						. ($parameter['Required'] ? '<span class="adm-required-field">*' : '') . htmlspecialcharsbx($parameter['Name'])
+						. ($parameter['Required'] ? '</span>' : '') . ':</td>
+					<td width="60%" valign="top" class="adm-detail-content-cell-r">' . $documentService->GetFieldInputControl(
 							$dt,
 							$parameter,
-							array('Form' => $formName, 'Field' => $parameterKeyExt),
+							['Form' => $formName, 'Field' => $parameterKeyExt],
 							$parameterValue,
 							true
 						)
-					.'</td></tr>';
+						. '</td></tr>';
 				}
 			}
 		}
+
 		return $result;
 	}
 
-	private static function renderRobotTemplateParametersForm($dialog, $templateId, array $currentValues = array())
+	private static function renderRobotTemplateParametersForm($dialog, $templateId, array $currentValues = [])
 	{
 		$result = '';
 		$template = self::getTemplate($templateId);
-		if($template)
+		if ($template)
 		{
-			if(!empty($template['PARAMETERS']))
+			if (!empty($template['PARAMETERS']))
 			{
 				$result .= '<div class="bizproc-automation-popup-settings">';
 				$result .= GetMessage('BPSWFA_TEMPLATE_PARAMETERS') . ": ";
@@ -598,6 +629,7 @@ class CBPStartWorkflowActivity
 				}
 			}
 		}
+
 		return $result;
 	}
 }

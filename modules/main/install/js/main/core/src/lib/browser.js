@@ -149,7 +149,7 @@ export default class Browser
 
 	static isIPad()
 	{
-		return UA.includes('ipad;');
+		return UA.includes('ipad;') || (this.isMac() && this.isTouchDevice());
 	}
 
 	static isIPhone()
@@ -176,6 +176,13 @@ export default class Browser
 	static isRetina()
 	{
 		return window.devicePixelRatio && window.devicePixelRatio >= 2;
+	}
+
+	static isTouchDevice()
+	{
+		return (
+			('ontouchstart' in window) || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
+		);
 	}
 
 	static isDoctype(target: any)

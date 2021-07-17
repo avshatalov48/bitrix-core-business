@@ -554,3 +554,10 @@
 	opacity: 0!important;
 	pointer-events: none!important;
 }
+
+/*------------------------------------
+  For slider panel
+------------------------------------*/
+.side-panel-label-icon {
+	box-sizing: content-box;
+}

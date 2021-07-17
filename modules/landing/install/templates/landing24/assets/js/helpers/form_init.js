@@ -243,7 +243,7 @@
 				"var h=d.getElementsByTagName('script')[0];h.parentNode.insertBefore(s,h);" +
 				"})(window,document,'" + this.url + "')"
 			;
-			this.node.append(script);
+			this.node.appendChild(script);
 		},
 
 		onFormLoad: function(formObject)

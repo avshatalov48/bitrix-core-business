@@ -807,7 +807,7 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 	width: calc(125px + var(--icon-width-before) + var(--icon-width-after));
 }
 
-.ui-ctl-datetime div.ui-ctl-element { padding-top: 10px; }
+/*.ui-ctl-datetime div.ui-ctl-element { padding-top: 10px; }*/
 
 /*endregion*/
 

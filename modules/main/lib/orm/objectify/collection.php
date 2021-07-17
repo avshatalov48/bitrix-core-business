@@ -189,7 +189,14 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	final public function getByPrimary($primary)
 	{
 		$normalizedPrimary = $this->sysNormalizePrimary($primary);
-		return $this->_objects[$this->sysSerializePrimaryKey($normalizedPrimary)];
+		$serializePrimaryKey = $this->sysSerializePrimaryKey($normalizedPrimary);
+
+		if (isset($this->_objects[$serializePrimaryKey]))
+		{
+			return $this->_objects[$serializePrimaryKey];
+		}
+
+		return null;
 	}
 
 	/**

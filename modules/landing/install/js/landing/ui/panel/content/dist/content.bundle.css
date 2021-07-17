@@ -205,6 +205,7 @@
 .landing-ui-panel-content-title {
 	font-family: 'OpenSans-Light', Helvetica, Arial, sans-serif;
 	font-size: 24px;
+	font-weight: 400;
 	color: #000000;
 	margin: 10px 33px 0 30px;
 	white-space: nowrap;

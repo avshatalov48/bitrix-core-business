@@ -10,7 +10,7 @@
 					Alex Teseira &nbsp;&mdash;&nbsp; 5 June 2020
 				</h6>
 				<h3 class="landing-block-node-title landing-semantic-title-small g-font-weight-700 mb-4">
-					Exclusive interview with InVision's CEO
+					Exclusive interview with CEO
 				</h3>
 				<div class="landing-block-node-text landing-semantic-text-medium">
 					<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a

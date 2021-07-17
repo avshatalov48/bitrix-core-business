@@ -151,8 +151,8 @@ HTML;
 		$updater->setOuterParams(func_get_args());
 		if ($updater->execute($option) === self::CONTINUE_EXECUTION)
 		{
-			$option["steps"] = (array_key_exists("steps", $option) ? intval($option["steps"]) : 0);
-			$option["count"] = (array_key_exists("count", $option) ? intval($option["count"]) : 0);
+			$option["steps"] = (array_key_exists("steps", $option) ? (int)$option["steps"] : 0);
+			$option["count"] = (array_key_exists("count", $option) ? (int)$option["count"] : 0);
 			$option["title"] = $updater::getTitle();
 
 			Option::set("main.stepper.".$updater->getModuleId(), $className, serialize($option));

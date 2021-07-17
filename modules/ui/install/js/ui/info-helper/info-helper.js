@@ -12,7 +12,7 @@ BX.UI.InfoHelper =
 	{
 		this.inited = true;
 		this.frameUrlTemplate = params.frameUrlTemplate || '';
-
+		this.trialableFeatureList = params.trialableFeatureList || [];
 
 		BX.bind(window, 'message', BX.proxy(function(event)
 		{
@@ -138,6 +138,32 @@ BX.UI.InfoHelper =
 				);
 			}
 
+			if (event.data.action === 'activateTrialFeature')
+			{
+				BX.ajax.runAction(
+					'ui.infoHelper.activateTrialFeature',
+					{
+						data: {
+							featureId: event.data.featureId
+						}
+					}
+				).then(
+					function(response)
+					{
+						var slider = BX.SidePanel.Instance.getTopSlider();
+						if (slider)
+						{
+							BX.UI.InfoHelper.frameNode.contentWindow.postMessage(
+								{
+									action: 'onActivateTrialFeature',
+									result: response
+								},
+								'*'
+							);
+						}
+					}.bind(this)
+				);
+			}
 
 		}, this));
 	},
@@ -192,13 +218,17 @@ BX.UI.InfoHelper =
 			});
 	},
 
-	show: function(code)
+	show: function(code, params)
 	{
 		if (this.isOpen())
 		{
 			return;
 		}
 
+		if (!BX.Type.isPlainObject(params))
+		{
+			params = {};
+		}
 
 		if (!code)
 		{
@@ -211,8 +241,18 @@ BX.UI.InfoHelper =
 					BX.ajax.runAction("ui.infoHelper.getInitParams").then(function(response)
 					{
 						this.init(response.data);
-						this.frameUrl = this.frameUrlTemplate.replace(/code/, code);
 
+						var url = this.frameUrlTemplate.replace(/code/, code);
+
+						if (params.featureId && BX.Type.isArray(this.trialableFeatureList))
+						{
+							url = BX.Uri.addParam(url, {
+								featureId: params.featureId,
+								trialableFeatureList: this.trialableFeatureList.join(',')
+							});
+						}
+
+						this.frameUrl = url;
 
 						if (this.getFrame().src !== this.frameUrl)
 						{

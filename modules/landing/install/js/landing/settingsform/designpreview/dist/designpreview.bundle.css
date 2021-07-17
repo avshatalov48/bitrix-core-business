@@ -1,0 +1,103 @@
+.landing-design-preview-wrap
+{
+	--design-preview-bg: white;
+	--design-preview-primary: #34bcf2;
+	--design-preview-color: #333;
+	--design-preview-color-h: #111;
+	--design-preview-font-size: 14px;
+	--design-preview-font-weight: 400;
+	--design-preview-font-weight-h: 700;
+	--design-preview-line-height: 1.5;
+	--design-preview-font: "Montserrat", Arial, sans-serif;
+	--design-preview-font-h: "Montserrat", Arial, sans-serif;
+}
+
+.landing-design-preview-wrap
+{
+	position: absolute;
+	top: 0;
+	right: 20px;
+	width: 45%;
+}
+
+.landing-design-preview
+{
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+	padding: 30px 25px;
+	margin-top: 20px;
+	color: var(--design-preview-color);
+	font-size: var(--design-preview-font-size);
+	font-weight: var(--design-preview-font-weight);
+	line-height: var(--design-preview-line-height);
+	background: var(--design-preview-bg);
+	-webkit-box-shadow: 0 4px 15px -10px var(--design-preview-primary);
+	        box-shadow: 0 4px 15px -10px var(--design-preview-primary);
+	font-family: var(--design-preview-font);
+}
+
+.landing-design-preview-title, .landing-design-preview-subtitle
+{
+	font-weight: var(--design-preview-font-weight-h);
+	color: var(--design-preview-color-h);
+	margin-top: 0;
+	margin-bottom: 7px; /* 0.5rem */
+	font-family: var(--design-preview-font-h);
+}
+
+.landing-design-preview-title
+{
+	font-size: 28px; /* 2rem */
+}
+
+.landing-design-preview-subtitle
+{
+	font-size: 21px; /* 1.5rem */
+}
+
+.landing-design-preview-text
+{
+	margin-top: 0;
+	margin-bottom: 14px; /* 1rem */
+}
+
+.landing-design-preview-link
+{
+	color: var(--design-preview-primary);
+}
+
+.landing-design-preview-link:hover
+{
+	color: var(--design-preview-primary);
+
+	text-decoration: underline;
+}
+
+.landing-design-preview-button
+{
+	background-color: var(--design-preview-primary);
+	color: white;
+	line-height: 1.4;
+	padding: 8px 20px;
+	font-size: 15px; /* 1.07143rem */
+	font-weight: 700 !important;
+	position: relative;
+	-webkit-transition: .2s ease;
+	-o-transition: .2s ease;
+	transition: .2s ease;
+	cursor: pointer;
+	display: inline-block;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.landing-design-preview-button:hover
+{
+	color: white;
+}

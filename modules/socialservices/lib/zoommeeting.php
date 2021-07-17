@@ -8,7 +8,20 @@ use Bitrix\Main,
  * Class ZoomMeetingTable
  *
  * @package Bitrix\Socialservices
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ZoomMeeting_Query query()
+ * @method static EO_ZoomMeeting_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ZoomMeeting_Result getById($id)
+ * @method static EO_ZoomMeeting_Result getList(array $parameters = array())
+ * @method static EO_ZoomMeeting_Entity getEntity()
+ * @method static \Bitrix\Socialservices\EO_ZoomMeeting createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialservices\EO_ZoomMeeting_Collection createCollection()
+ * @method static \Bitrix\Socialservices\EO_ZoomMeeting wakeUpObject($row)
+ * @method static \Bitrix\Socialservices\EO_ZoomMeeting_Collection wakeUpCollection($rows)
+ */
 
 class ZoomMeetingTable extends Main\Entity\DataManager
 {

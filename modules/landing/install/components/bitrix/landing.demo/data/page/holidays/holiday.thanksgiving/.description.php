@@ -261,7 +261,7 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 					0 => 'landing-block-node-text g-mb-35',
 				),
 				'.landing-block-node-button' => array(
-					0 => 'landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-10 g-rounded-50',
+					0 => 'landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-50',
 				),
 				'.landing-block-node-button-container' => array(
 					0 => 'landing-block-node-button-container',

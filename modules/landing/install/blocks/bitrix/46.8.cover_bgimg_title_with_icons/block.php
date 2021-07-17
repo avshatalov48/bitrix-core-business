@@ -54,7 +54,7 @@
 
 			<div class="landing-block-node-button-container">
 				<a href="#"
-				   class="landing-block-node-button landing-semantic-link-image-medium btn g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-l text-uppercase g-letter-spacing-1 g-rounded-50 g-py-14">
+				   class="landing-block-node-button landing-semantic-link-image-medium btn g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-l text-uppercase g-letter-spacing-1 g-rounded-50">
 					Learn More</a>
 			</div>
 		</div>

@@ -114,6 +114,7 @@
 				var href = BX.Landing.UI.Panel.GoogleFonts.getInstance().client.makeUrl({
 					family: family
 				});
+				href += ':300,400,500,600,700,900';
 
 				if (this.headlessMode)
 				{

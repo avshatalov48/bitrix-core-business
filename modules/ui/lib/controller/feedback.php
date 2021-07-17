@@ -25,7 +25,9 @@ class Feedback extends JsonController
 
 
 		$feedbackForm = new \Bitrix\UI\Form\FeedbackForm($request['id']);
-		$feedbackForm->setFormParams($request['forms']);
+
+		$feedbackForm->setFormParams($request['forms']??[]);
+
 		$feedbackForm->setPresets(is_array($request['presets']) ? $request['presets'] : []);
 		if (isset($request['title']))
 		{
@@ -37,9 +39,14 @@ class Feedback extends JsonController
 			$feedbackForm->setPortalUri($request['portalUri']);
 		}
 
-		if (!$feedbackForm->getFormParams())
+		if (!$feedbackForm->getFormParams() && !isset($request['defaultForm']))
 		{
 			return [];
+		}
+
+		if (!$feedbackForm->getFormParams() && isset($request['defaultForm']))
+		{
+			$feedbackForm->setFormParamsDirectly($request['defaultForm']);
 		}
 
 		return [

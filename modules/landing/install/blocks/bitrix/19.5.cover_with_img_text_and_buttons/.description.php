@@ -38,11 +38,6 @@ return array(
 			'type' => 'img',
 			'group' => 'button',
 		),
-		'.landing-block-node-card-button-img-custom' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_19.5.COVER_WITH_IMG_TEXT_AND_BUTTONS_NODES_LANDINGBLOCKNODE_BUTTON_IMG'),
-			'type' => 'img',
-			'group' => 'button',
-		),
 		'.landing-block-node-card-button' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_19.5.COVER_WITH_IMG_TEXT_AND_BUTTONS_NODES_LANDINGBLOCKNODEBUTTON'),
 			'type' => 'link',

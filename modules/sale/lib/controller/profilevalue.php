@@ -77,6 +77,13 @@ final class ProfileValue extends ControllerBase
 
 	protected function checkReadPermissionEntity()
 	{
-		return new Result();
+		$r = new Result();
+
+		if (self::getApplication()->GetGroupRight("sale") == "D")
+		{
+			$r->addError(new Error('Buyer access denied'));
+		}
+
+		return $r;
 	}
 }

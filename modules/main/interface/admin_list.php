@@ -1219,6 +1219,7 @@ topWindow.BX.ajax.UpdatePageData({});
 
 			header("Content-Type: application/vnd.ms-excel");
 			header("Content-Disposition: filename=".$fname.".xls");
+			$APPLICATION->EndBufferContentMan();
 			$this->DisplayExcel();
 			require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin_after.php");
 			die();

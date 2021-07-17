@@ -22,7 +22,7 @@ class RestMarketplaceBookletComponent extends CBitrixComponent
 	protected $countAppBanner = 3;
 	protected $iconList = [
 		'default' => '/bitrix/images/rest/icon/default.svg',
-		'add' => '/bitrix/images/rest/icon/phone-rent.svg',
+		'add' => '/bitrix/images/rest/icon/add.svg',
 		'adjust' => '/bitrix/images/rest/icon/adjust.svg',
 		'phone-rent' => '/bitrix/images/rest/icon/phone-rent.svg',
 	];

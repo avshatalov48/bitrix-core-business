@@ -147,6 +147,10 @@ namespace Bitrix\Rest\Marketplace\Urls
 				{
 					$result = 'https://www.1c-bitrix.ru/buy/products/b24.php?subscr=y';
 				}
+				elseif ($region === 'ua')
+				{
+					$result = 'https://www.bitrix.ua/buy/products/b24.php?subscr=y';
+				}
 			}
 
 			return $result;

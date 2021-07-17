@@ -206,6 +206,10 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 		{
 			return this._schemeElement ? this._schemeElement.getData() : {};
 		},
+		getInnerConfig: function()
+		{
+			return this._schemeElement ? this._schemeElement.getInnerConfig() : {};
+		},
 		isVisible: function()
 		{
 			if(!this._isVisible)
@@ -4026,6 +4030,17 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 		for(var i = 0; i < length; i++)
 		{
 			var schemeElement = schemeElements[i];
+
+			if (schemeElement)
+			{
+				var data = schemeElement.getData();
+
+				if (data.doNotDisplayInShowFieldList)
+				{
+					continue;
+				}
+			}
+
 			menuItems.push({ text: schemeElement.getTitle(), value: schemeElement.getName() });
 		}
 
@@ -4323,6 +4338,80 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 				this
 			)
 		)
+
+		var typeId = BX.prop.getString(params, "typeId");
+		if (typeId === "list")
+		{
+			var fieldData = { "typeId": typeId };
+
+			fieldData["innerConfig"] = BX.prop.getObject(params, "innerConfig", {});
+			fieldData["enumeration"] = BX.prop.getArray(params, "enumeration", []);
+
+			if (
+				BX.Type.isPlainObject(fieldData["innerConfig"])
+				&& fieldData["innerConfig"].hasOwnProperty("controller")
+				&& BX.Type.isStringFilled(fieldData["innerConfig"]["controller"])
+			)
+			{
+				BX.ajax.runAction(fieldData["innerConfig"]["controller"], { data: { configData: fieldData } }).then(
+					function(response) {
+						if (
+							BX.Type.isObject(response)
+							&& response.hasOwnProperty("status")
+							&& response.status === "success"
+							&& response.hasOwnProperty("data")
+							&& BX.Type.isArray(response["data"])
+						)
+						{
+							var field = BX.prop.get(params, "field", null);
+							if (BX.Type.isObject(field))
+							{
+								var enumeration = response["data"];
+								var items = [];
+								for (var i = 0; i < enumeration.length; i++)
+								{
+									items.push({
+										"NAME": enumeration[i]["VALUE"],
+										"VALUE": enumeration[i]["ID"]
+									});
+								}
+								field.getSchemeElement().setDataParam("items", items);
+								field.setItems();
+								field.refreshLayout();
+							}
+						}
+						else
+						{
+							console.error("Invalid server response.");
+						}
+					}.bind(this),
+					function(response) {
+						if (
+							BX.Type.isObject(response)
+							&& response.hasOwnProperty("status")
+							&& response["status"] === "error"
+							&& response.hasOwnProperty("errors")
+							&& BX.Type.isArray(response["errors"])
+							&& response["errors"].length > 0
+							&& BX.Type.isPlainObject(response["errors"][0])
+							&& response["errors"][0].hasOwnProperty("message")
+							&& BX.Type.isString(response["errors"][0]["message"])
+						)
+						{
+							console.error(response["errors"][0]["message"]);
+						}
+						else
+						{
+							console.error("Invalid server response.");
+						}
+					}.bind(this)
+				);
+			}
+			else
+			{
+				console.error("Invalid field inner configuration.");
+			}
+		}
 	};
 	BX.UI.EntityEditorSection.prototype.onFieldConfigurationCancel = function(sender, params)
 	{
@@ -4482,12 +4571,82 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 
 			field.adjustFieldParams(fieldData, false);
 
-			this._editor.getUserFieldManager().updateField(
-				fieldData,
-				field.getMode()
-			).then(
-				BX.delegate(this.onUserFieldUpdate, this)
-			);
+			var updateField = function()
+			{
+				this._editor.getUserFieldManager().updateField(
+					fieldData,
+					field.getMode()
+				).then(
+					BX.delegate(this.onUserFieldUpdate, this)
+				);
+			}.bind(this);
+
+			if (typeId === BX.UI.EntityUserFieldType.crmStatus)
+			{
+				var configData = {
+					"typeId": typeId,
+					"innerConfig": BX.prop.getObject(params, "innerConfig", {}),
+					"enumeration": BX.prop.getArray(params, "enumeration", [])
+				};
+
+				if (
+					BX.Type.isPlainObject(configData["innerConfig"])
+					&& configData["innerConfig"].hasOwnProperty("controller")
+					&& BX.Type.isStringFilled(configData["innerConfig"]["controller"])
+				)
+				{
+					BX.ajax.runAction(
+						configData["innerConfig"]["controller"],
+						{ data: { configData: configData } }
+					).then(
+						function(response) {
+							if (
+								!(
+									BX.Type.isObject(response)
+									&& response.hasOwnProperty("status")
+									&& response.status === "success"
+									&& response.hasOwnProperty("data")
+									&& BX.Type.isArray(response["data"])
+								)
+							)
+							{
+								console.error("Invalid server response.");
+							}
+							updateField();
+						}.bind(this),
+						function(response) {
+							if (
+								BX.Type.isObject(response)
+								&& response.hasOwnProperty("status")
+								&& response["status"] === "error"
+								&& response.hasOwnProperty("errors")
+								&& BX.Type.isArray(response["errors"])
+								&& response["errors"].length > 0
+								&& BX.Type.isPlainObject(response["errors"][0])
+								&& response["errors"][0].hasOwnProperty("message")
+								&& BX.Type.isString(response["errors"][0]["message"])
+							)
+							{
+								console.error(response["errors"][0]["message"]);
+							}
+							else
+							{
+								console.error("Invalid server response.");
+							}
+							updateField();
+						}.bind(this)
+					);
+				}
+				else
+				{
+					console.error("Invalid field inner configuration.");
+					updateField();
+				}
+			}
+			else
+			{
+				updateField();
+			}
 		}
 		else
 		{

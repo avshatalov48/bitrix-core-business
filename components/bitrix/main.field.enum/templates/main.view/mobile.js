@@ -5,23 +5,27 @@ this.BX.Mobile.Field = this.BX.Mobile.Field || {};
 	'use strict';
 
 	var nodeEnum = function () {
-	  var nodeEnum = function nodeEnum(select, container) {
+	  var nodeEnum = function nodeEnum(select, container, isInlineEdit) {
 	    this.click = BX.delegate(this.click, this);
 	    this.callback = BX.delegate(this.callback, this);
 	    this.multiple = false;
 	    this.select = null;
 	    this.container = null;
+	    this.isInlineEdit = null;
 	    this.titles = [];
 	    this.values = [];
 	    this.defaultTitles = [];
-	    this.init(select, container);
+	    this.init(select, container, isInlineEdit);
 	  };
 
 	  nodeEnum.prototype = {
 	    init: function init(select, container) {
+	      var isInlineEdit = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+
 	      if (BX(select) && BX(container)) {
 	        this.select = select;
 	        this.container = container;
+	        this.isInlineEdit = isInlineEdit;
 
 	        if (!this.select.hasAttribute('bx-bound')) {
 	          this.select.setAttribute('bx-bound', 'Y');
@@ -109,7 +113,9 @@ this.BX.Mobile.Field = this.BX.Mobile.Field || {};
 	        this.container.innerHTML = main_core.Loc.getMessage('USER_TYPE_ENUM_NO_VALUE');
 	      }
 
-	      BX.onCustomEvent(this, 'onChange', [this, this.select]);
+	      if (this.isInlineEdit) {
+	        BX.onCustomEvent(this, 'onChange', [this, this.select]);
+	      }
 	    }
 	  };
 	  return nodeEnum;
@@ -127,7 +133,7 @@ this.BX.Mobile.Field = this.BX.Mobile.Field || {};
 	    var result = null;
 
 	    if (BX(node)) {
-	      result = new nodeEnum(node, BX("".concat(node.id, "_select")));
+	      result = new nodeEnum(node, BX("".concat(node.id, "_select")), node.dataset.isInlineEdit !== 'false');
 	    }
 
 	    return result;

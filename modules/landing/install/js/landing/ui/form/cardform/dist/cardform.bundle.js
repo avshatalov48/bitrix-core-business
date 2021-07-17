@@ -77,8 +77,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "onRemoveItemClick",
 	    value: function onRemoveItemClick(event) {
 	      event.preventDefault();
-	      main_core.Dom.remove(this.wrapper);
-	      this.emit('onRemove');
+	      event.stopPropagation();
+
+	      if (!this.getLayout().closest('.landing-ui-disallow-remove')) {
+	        main_core.Dom.remove(this.wrapper);
+	        this.emit('onRemove');
+	      }
 	    }
 	  }, {
 	    key: "serialize",

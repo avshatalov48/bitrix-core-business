@@ -100,7 +100,8 @@ div.bx-gd-button a {display:block; color: black; text-decoration: none; font-siz
 	background-image: -webkit-linear-gradient(top, #e0eaec, #e5ecef);
 	background-image:   linear-gradient(to bottom, #e0eaec, #e5ecef);
 	height: 34px;
-	padding:8px 6px 0 0;
+	padding: 7px 5px 0 0;
+	margin: 1px 1px 0 0;
 	overflow: hidden;
 	opacity: 0;
 	width: 54px;

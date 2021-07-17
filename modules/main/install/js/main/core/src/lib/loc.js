@@ -10,11 +10,31 @@ export default class Loc
 	/**
 	 * Gets message by id
 	 * @param {string} messageId
+	 * @param {object} replacements
 	 * @return {?string}
 	 */
-	static getMessage(messageId: string): ?string
+	static getMessage(messageId: string, replacements:? {[key: string]: string} = null): ?string
 	{
-		return message(messageId);
+		let mess = message(messageId);
+		if (Type.isString(mess) && Type.isPlainObject(replacements))
+		{
+			Object.keys(replacements).forEach((replacement: string) => {
+				const globalRegexp = new RegExp(replacement, 'gi');
+				mess = mess.replace(
+					globalRegexp,
+					() => {
+						return Type.isNil(replacements[replacement]) ? '' : String(replacements[replacement]);
+					}
+				);
+			});
+		}
+
+		return mess;
+	}
+
+	static hasMessage(messageId: string): boolean
+	{
+		return Type.isString(messageId) && !Type.isNil(message[messageId]);
 	}
 
 	/**

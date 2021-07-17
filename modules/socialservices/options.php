@@ -2,6 +2,7 @@
 if(!$USER->CanDoOperation('edit_other_settings'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Text\Converter;
 
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/options.php");
@@ -313,8 +314,42 @@ foreach($arSiteList as $site):
 		<td width="50%">
 			<table cellpadding="0" style="width:45%;" cellspacing="3" border="0" width="" class="padding-0">
 <?
+    $dontShowForUkraine = [
+            \CSocServMyMailRu::ID,
+            'MailRuOpenID',
+            'Livejournal',
+            'Liveinternet',
+            \CSocServMailRu2::ID,
+            \CSocServVKontakte::ID,
+            \CSocServYandexAuth::ID,
+            \CSocServOdnoklassniki::ID,
+    ];
+    $portalPrefix = '';
+    if (Loader::includeModule('bitrix24'))
+    {
+        $portalPrefix = \CBitrix24::getLicensePrefix();
+    }
+    elseif (Loader::includeModule('intranet'))
+    {
+        $portalPrefix = \CIntranetUtils::getPortalZone();
+    }
+
+    $isUkraine = ($portalPrefix === 'ua');
+
 	$arServices = $oAuthManager->GetAuthServices($suffix);
-	foreach($arServices as $id=>$service):
+	$allowedServices = [];
+	foreach($arServices as $id=>$service)
+	{
+		if ($isUkraine && in_array($id, $dontShowForUkraine, true))
+		{
+			continue;
+		}
+
+		$allowedServices[$id] = $service;
+	}
+
+
+	foreach($allowedServices as $id=>$service):
 ?>
 				<tr>
 					<td style="padding-top: 3px;">
@@ -338,23 +373,33 @@ foreach($arSiteList as $site):
 		</td>
 	</tr>
 <?
-	foreach($arOptions as $option)
+	foreach($allowedServices as $id => $service)
 	{
-		if(!is_array($option))
+		$options = $oAuthManager->GetSettingByServiceId($service['ID']);
+		if (!$options)
 		{
-			$option = GetMessage("soc_serv_opt_settings_of", array("#SERVICE#" => $option));
-		}
-		else
-		{
-			$option[0] .= $suffix;
+			continue;
 		}
 
-		if (!empty($option['note']))
+		array_unshift($options, htmlspecialcharsbx($service['NAME']));
+		foreach ($options as $option)
 		{
-			$option['note'] = '<div style="text-align: left; ">' . $option['note'] . '</div>';
-		}
+			if(!is_array($option))
+			{
+				$option = GetMessage("soc_serv_opt_settings_of", array("#SERVICE#" => $option));
+			}
+			else
+			{
+				$option[0] .= $suffix;
+			}
 
-		__AdmSettingsDrawRow($module_id, $option);
+			if (!empty($option['note']))
+			{
+				$option['note'] = '<div style="text-align: left; ">' . $option['note'] . '</div>';
+			}
+
+			__AdmSettingsDrawRow($module_id, $option);
+		}
 	}
 ?>
 </table>

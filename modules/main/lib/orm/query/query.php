@@ -68,6 +68,9 @@ use Bitrix\Main\Text\StringHelper;
  * @method $this whereNotMatch($column, $value)
  * @see Filter::whereNotMatch()
  *
+ * @method $this whereExpr($expr, $arguments)
+ * @see Filter::whereExpr()
+ *
  * Virtual HAVING methods (proxy to Filter):
  *
  * @method $this having(...$filter)

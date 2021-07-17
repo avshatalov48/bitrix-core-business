@@ -4,7 +4,7 @@ namespace Bitrix\Currency;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\Type\Collection;
+use Bitrix\Main\Type\Collection;
 
 Loc::loadMessages(__FILE__);
 
@@ -42,30 +42,34 @@ final class CurrencyClassifier
 	{
 		$currency = CurrencyManager::checkCurrencyID($currency);
 		if (!$currency)
+		{
 			return null;
+		}
 		self::prepare($languages, '', $b24Area);
-		return (isset(self::$currencyClassifier[$currency]) ? self::$currencyClassifier[$currency] : null);
+
+		return self::$currencyClassifier[$currency] ?? null;
 	}
 
 	/**
 	 * Return classifier
 	 *
-	 * @param array $languageIds Array of languages
-	 * @param string $baseLanguageId Base language
+	 * @param array $languageIds Array of languages.
+	 * @param string $baseLanguageId Base language.
 	 * @param string|null $b24Area Specific Bitrix24 parameter.
 	 * @return array
 	 */
 	public static function get(array $languageIds, string $baseLanguageId, ?string $b24Area = null): array
 	{
 		self::prepare($languageIds, $baseLanguageId, $b24Area);
+
 		return self::$currencyClassifier;
 	}
 
 	/**
 	 * Preparing of classifier
 	 *
-	 * @param array $languageIds Array of languages
-	 * @param string $baseLanguageId Base language
+	 * @param array $languageIds Array of languages.
+	 * @param string $baseLanguageId Base language.
 	 * @param string|null $b24Area Specific Bitrix24 parameter.
 	 * @return void
 	 */
@@ -195,35 +199,55 @@ final class CurrencyClassifier
 	/**
 	 * Fill classifier with missing languages
 	 *
-	 * @param array $languageIds - Array of languages
+	 * @param array $languageIds - Array of languages.
 	 */
-	private static function fill($languageIds)
+	private static function fill(array $languageIds): void
 	{
 		foreach ($languageIds as $languageId => $upperLanguageId)
 		{
 			reset(self::$currencyClassifier);
 			$currentElement = current(self::$currencyClassifier);
 			if (isset($currentElement[$upperLanguageId]))
+			{
 				continue;
+			}
 
 			foreach (self::$currencyClassifier as $key => $value)
 			{
-				$currencyName = Loc::getMessage('CURRENCY_CLASSIFIER_'.$value['SYM_CODE'].'_FULL_NAME', null, $languageId);
-				$formatString = Loc::getMessage('CURRENCY_CLASSIFIER_'.$value['SYM_CODE'].'_FORMAT_STRING', null, $languageId);
-				$decimalPoint = Loc::getMessage('CURRENCY_CLASSIFIER_'.$value['SYM_CODE'].'_DEC_POINT', null, $languageId);
-				$thousandsVariant = Loc::getMessage('CURRENCY_CLASSIFIER_'.$value['SYM_CODE'].'_THOUSANDS_VARIANT', null, $languageId);
+				$currencyName = Loc::getMessage(
+					'CURRENCY_CLASSIFIER_'.$value['SYM_CODE'].'_FULL_NAME',
+					null,
+					$languageId
+				);
+				$formatString = Loc::getMessage(
+					'CURRENCY_CLASSIFIER_'.$value['SYM_CODE'].'_FORMAT_STRING',
+					null,
+					$languageId
+				);
+				$decimalPoint = Loc::getMessage(
+					'CURRENCY_CLASSIFIER_'.$value['SYM_CODE'].'_DEC_POINT',
+					null,
+					$languageId
+				);
+				$thousandsVariant = Loc::getMessage(
+					'CURRENCY_CLASSIFIER_'.$value['SYM_CODE'].'_THOUSANDS_VARIANT',
+					null,
+					$languageId
+				);
 				if (!isset(self::$separators[$thousandsVariant]))
+				{
 					$thousandsVariant = null;
+				}
 
 				$defaultProperties = $value['DEFAULT'];
 
-				self::$currencyClassifier[$key][$upperLanguageId] = array(
-					'FULL_NAME' => !is_null($currencyName) ? $currencyName : $defaultProperties['FULL_NAME'],
-					'FORMAT_STRING' => !is_null($formatString) ? $formatString : $defaultProperties['FORMAT_STRING'],
-					'DEC_POINT' => !is_null($decimalPoint) ? $decimalPoint : $defaultProperties['DEC_POINT'],
-					'THOUSANDS_VARIANT' => !is_null($thousandsVariant) ? $thousandsVariant : $defaultProperties['THOUSANDS_VARIANT'],
-					'DECIMALS' => $defaultProperties['DECIMALS']
-				);
+				self::$currencyClassifier[$key][$upperLanguageId] = [
+					'FULL_NAME' => $currencyName ??$defaultProperties['FULL_NAME'],
+					'FORMAT_STRING' => $formatString ?? $defaultProperties['FORMAT_STRING'],
+					'DEC_POINT' => $decimalPoint ?? $defaultProperties['DEC_POINT'],
+					'THOUSANDS_VARIANT' => $thousandsVariant ?? $defaultProperties['THOUSANDS_VARIANT'],
+					'DECIMALS' => $defaultProperties['DECIMALS'],
+				];
 			}
 		}
 	}
@@ -262,23 +286,27 @@ final class CurrencyClassifier
 	 *
 	 * @param string $baseLanguageId - Base language
 	 */
-	private static function sort($baseLanguageId)
+	private static function sort(string $baseLanguageId): void
 	{
 		$baseLanguageId = mb_strtoupper(trim($baseLanguageId));
 		if ($baseLanguageId === '')
+		{
 			return;
+		}
 		if (self::$lastSortLanguage == $baseLanguageId)
+		{
 			return;
+		}
 
 		Collection::sortByColumn(
 			self::$currencyClassifier,
 			$baseLanguageId,
-			array(
+			[
 				$baseLanguageId => function($row)
 				{
 					return $row['FULL_NAME'];
 				}
-			),
+			],
 			null,
 			true
 		);
@@ -289,13 +317,17 @@ final class CurrencyClassifier
 	/**
 	 * Fill arrays with separators data
 	 */
-	private static function fillSeparatorsData()
+	private static function fillSeparatorsData(): void
 	{
 		if (empty(self::$separators))
+		{
 			self::$separators = \CCurrencyLang::GetSeparators();
+		}
 
 		if (empty(self::$separatorsTypes))
+		{
 			self::$separatorsTypes = \CCurrencyLang::GetSeparatorTypes(true);
+		}
 	}
 
 	private static $areaConfig = [
@@ -303,145 +335,145 @@ final class CurrencyClassifier
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_COMMA,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_DOT,
-				'TEMPLATE' => '#CURRENCY# #VALUE#'
-			]
+				'TEMPLATE' => '#CURRENCY# #VALUE#',
+			],
 		],
 		'de' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_COMMA,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_DOT,
-				'TEMPLATE' => '#VALUE# #CURRENCY#'
-			]
+				'TEMPLATE' => '#VALUE# #CURRENCY#',
+			],
 		],
 		'pl' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_COMMA,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_SPACE,
-				'TEMPLATE' => '#VALUE# #CURRENCY#'
-			]
+				'TEMPLATE' => '#VALUE# #CURRENCY#',
+			],
 		],
 		'vn' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_COMMA,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_DOT,
-				'TEMPLATE' => '#VALUE# #CURRENCY#'
-			]
+				'TEMPLATE' => '#VALUE# #CURRENCY#',
+			],
 		],
 		'sc' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_DOT,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_EMPTY,
-				'TEMPLATE' => '#CURRENCY# #VALUE#'
+				'TEMPLATE' => '#CURRENCY# #VALUE#',
 			],
 			'CNY' => [
-				'TEMPLATE' => '&#165; #VALUE#'
-			]
+				'TEMPLATE' => '&#165; #VALUE#',
+			],
 		],
 		'tc' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_DOT,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
-				'TEMPLATE' => '#CURRENCY##VALUE#'
-			]
+				'TEMPLATE' => '#CURRENCY##VALUE#',
+			],
 		],
 		'jp' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_DOT,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
-				'TEMPLATE' => '#VALUE##CURRENCY#'
+				'TEMPLATE' => '#VALUE##CURRENCY#',
 			],
 			'JPY' => [
 				'DECIMALS' => 0,
 				'DEC_POINT' => self::DECIMAL_POINT_DOT,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
-				'TEMPLATE' => '#VALUE#&#20870;'
-			]
+				'TEMPLATE' => '#VALUE#&#20870;',
+			],
 		],
 		'it' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_COMMA,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_DOT,
-				'TEMPLATE' => '#VALUE# #CURRENCY#'
-			]
+				'TEMPLATE' => '#VALUE# #CURRENCY#',
+			],
 		],
 		'tr' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_COMMA,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_DOT,
-				'TEMPLATE' => '#VALUE##CURRENCY#'
-			]
+				'TEMPLATE' => '#VALUE##CURRENCY#',
+			],
 		],
 		'fr' => [
 			self::MODIFIER_ALL => [
-				'DEC_POINT' => self::DECIMAL_POINT_DOT,
-				'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
-				'TEMPLATE' => '#VALUE# #CURRENCY#'
-			]
+				'DEC_POINT' => self::DECIMAL_POINT_COMMA,
+				'THOUSANDS_VARIANT' => self::SEPARATOR_SPACE,
+				'TEMPLATE' => '#VALUE# #CURRENCY#',
+			],
 		],
 		'id' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_COMMA,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_DOT,
-				'TEMPLATE' => '#CURRENCY# #VALUE#'
+				'TEMPLATE' => '#CURRENCY# #VALUE#',
 			],
 			'IDR' => [
-				'TEMPLATE' => 'Rp. #VALUE#'
-			]
+				'TEMPLATE' => 'Rp. #VALUE#',
+			],
 		],
 		'ms' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_DOT,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
-				'TEMPLATE' => '#CURRENCY# #VALUE#'
-			]
+				'TEMPLATE' => '#CURRENCY# #VALUE#',
+			],
 		],
 		'in' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_DOT,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
-				'TEMPLATE' => '#CURRENCY# #VALUE#'
+				'TEMPLATE' => '#CURRENCY# #VALUE#',
 			],
 			'INR' => [
-				'TEMPLATE' => 'Rs. #VALUE#'
-			]
+				'TEMPLATE' => 'Rs. #VALUE#',
+			],
 		],
 		'hi' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_DOT,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
-				'TEMPLATE' => '#CURRENCY# #VALUE#'
+				'TEMPLATE' => '#CURRENCY# #VALUE#',
 			],
 			'INR' => [
-				'TEMPLATE' => 'Rs. #VALUE#'
-			]
+				'TEMPLATE' => 'Rs. #VALUE#',
+			],
 		],
 		'uk' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_DOT,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
-				'TEMPLATE' => '#CURRENCY##VALUE#'
-			]
+				'TEMPLATE' => '#CURRENCY##VALUE#',
+			],
 		],
 		'mx' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_DOT,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
-				'TEMPLATE' => '#CURRENCY##VALUE#'
+				'TEMPLATE' => '#CURRENCY##VALUE#',
 			],
 			'USD' => [
-				'TEMPLATE' => 'USD#VALUE#'
-			]
+				'TEMPLATE' => 'USD#VALUE#',
+			],
 		],
 		'co' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_DOT,
 				'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
-				'TEMPLATE' => '#CURRENCY##VALUE#'
+				'TEMPLATE' => '#CURRENCY##VALUE#',
 			],
 			'USD' => [
-				'TEMPLATE' => 'USD#VALUE#'
-			]
-		]
+				'TEMPLATE' => 'USD#VALUE#',
+			],
+		],
 	];
 
 	private static $currencyClassifier = array(

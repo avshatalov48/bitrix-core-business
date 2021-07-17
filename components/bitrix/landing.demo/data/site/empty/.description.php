@@ -18,6 +18,7 @@ return array(
 			'THEMEFONTS_CODE' => 'g-font-open-sans',
 			'THEMEFONTS_CODE_H' => 'g-font-open-sans',
 			'THEMEFONTS_SIZE' => '1',
+			'THEMEFONTS_LINE_HEIGHT' => '1.6',
 			'THEMEFONTS_USE' => 'Y',
 			'UP_SHOW' => 'Y',
 		)

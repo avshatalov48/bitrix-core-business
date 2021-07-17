@@ -21,6 +21,9 @@ return array(
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_EMPTY_DESCRIPTION'),
 			'METAMAIN_TITLE' => Loc::getMessage('LANDING_DEMO_EMPTY_TITLE_PAGE'),
 			'METAMAIN_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_EMPTY_DESCRIPTION'),
+
+			'THEMEFONTS_SIZE' => '1',
+			'THEMEFONTS_LINE_HEIGHT' => '1.6',
 		),
 	),
 	'items' => array (),

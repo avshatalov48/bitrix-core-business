@@ -337,7 +337,9 @@ input.ui-entity-editor-header-title-text {
 
 /* remove btn*/
 
-.ui-entity-editor-content-remove-block {
+.ui-entity-editor-content-remove-block,
+.ui-entity-editor-content-remove-block-system,
+.ui-entity-editor-content-revert-name-block {
 	position: relative;
 	margin: 9px;
 	max-width: 20px;
@@ -348,8 +350,18 @@ input.ui-entity-editor-header-title-text {
 	cursor: pointer;
 	transition: opacity 220ms linear;
 }
+/*    crm-entity-widget-content-revert-name    */
 
-.ui-entity-editor-content-remove-block:hover { opacity: .7 !important; }
+.ui-entity-editor-content-remove-block-system {
+	cursor: auto;
+}
+
+.ui-entity-editor-content-revert-name-block {
+	background: url(images/revert-name.svg) no-repeat center;
+}
+
+.ui-entity-editor-content-remove-block:hover,
+.ui-entity-editor-content-revert-name-block:hover { opacity: .7 !important; }
 
 .ui-entity-editor-content-remove-block:after,
 .ui-entity-editor-content-remove-block:before {
@@ -648,6 +660,20 @@ input.ui-entity-editor-header-title-text {
 .ui-entity-editor-field-multinumber .ui-ctl-textbox,
 .ui-entity-editor-field-multitext .ui-ctl-textbox {
 	margin-bottom: 10px;
+}
+
+.ui-ctl-row-draggable {
+	position: absolute;
+	left: -18px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 24px;
+	height: 24px;
+	display: block;
+	opacity: .3;
+	cursor: grab;
+	transition: opacity .2s;
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%226%22%20height%3D%2214%22%3E%3Cpath%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M2%2012v2H0v-2h2zm4%200v2H4v-2h2zM2%208v2H0V8h2zm4%200v2H4V8h2zM2%204v2H0V4h2zm4%200v2H4V4h2zM2%200v2H0V0h2zm4%200v2H4V0h2z%22/%3E%3C/svg%3E) no-repeat center;
 }
 
 /*endregion*/

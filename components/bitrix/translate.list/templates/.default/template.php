@@ -133,6 +133,14 @@ if (!empty($arResult['ERROR_MESSAGE']))
 	</div>
 	<?
 }
+elseif (!empty($arResult['WARNING_MESSAGE']))
+{
+	?>
+	<div class="ui-alert ui-alert-warning ui-alert-icon-warning">
+		<span class="ui-alert-message"><?= $arResult['WARNING_MESSAGE'] ?></span>
+	</div>
+	<?
+}
 
 $pageNav = array(
 	'SHOW_MORE_BUTTON' => true,
@@ -479,16 +487,24 @@ if (!$isAjax)
 						return c !== null && c !== "";
 					});
 
+					var pathCodeList = [];
+					for (var i = 0; i < pathList.length; i++)
+					{
+						pathCodeList.push(pathList[i] + "::" + codeList[i]);
+					}
+
 					var process = BX.UI.StepProcessing.ProcessManager.get('export');
 					if (process)
 					{
 						process
-							.setParam('codeList', codeList.join("\r\n"))
+							//.setParam('codeList', codeList.join("\r\n"))
+							.setParam('codeList', pathCodeList.join("\r\n"))
 							.showDialog();
 
 						var field = process.getDialog().getOptionField('pathList');
 						if (field)
 						{
+							pathList = pathList.filter((p, i, arr) => arr.indexOf(p) === i);
 							field.setValue(pathList.join("\r\n"));
 						}
 					}

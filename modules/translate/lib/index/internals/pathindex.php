@@ -28,7 +28,20 @@ use Bitrix\Translate\Index;
  * <li> HAS_SETTINGS bool optional
  * </ul>
  *
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_PathIndex_Query query()
+ * @method static EO_PathIndex_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_PathIndex_Result getById($id)
+ * @method static EO_PathIndex_Result getList(array $parameters = array())
+ * @method static EO_PathIndex_Entity getEntity()
+ * @method static \Bitrix\Translate\Index\PathIndex createObject($setDefaultValues = true)
+ * @method static \Bitrix\Translate\Index\PathIndexCollection createCollection()
+ * @method static \Bitrix\Translate\Index\PathIndex wakeUpObject($row)
+ * @method static \Bitrix\Translate\Index\PathIndexCollection wakeUpCollection($rows)
+ */
 
 class PathIndexTable extends DataManager
 {

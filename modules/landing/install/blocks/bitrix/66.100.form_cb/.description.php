@@ -8,8 +8,8 @@ use Bitrix\Main\Localization\Loc;
 
 return [
 	'block' => [
-		// 'name' => Loc::getMessage('LNDNGBLCK_66_100_NAME'),
-		// 'section' => ['forms'],
+		'name' => Loc::getMessage('LNDNGBLCK_66_100_NAME'),
+		'section' => ['contacts'],
 		'type' => ['page', 'store', 'smn'],
 		'dynamic' => false,
 		'namespace' => 'bitrix',

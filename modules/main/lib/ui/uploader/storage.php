@@ -176,7 +176,7 @@ class CloudStorage extends Storage implements Storable
 		if (is_array($params))
 		{
 			$params = array_change_key_case($params, CASE_LOWER);
-			$this->moduleId = ($params["moduleId"] ?: $this->moduleId);
+			$this->moduleId = ($params["moduleid"] ?: $this->moduleId);
 		}
 	}
 

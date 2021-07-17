@@ -70,10 +70,9 @@ class Network
 			}
 		}
 
-		global $USER;
-		if(Loader::includeModule('replica'))
+		if(Loader::includeModule('socialservices'))
 		{
-			if(is_object($USER) && $USER->GetID() > 0 && \Bitrix\Replica\Client\User::getGuid($USER->GetID()) === false)
+			if(\CSocServAuthManager::GetAuthorizedServiceId() !== \CSocServBitrix24Net::ID)
 			{
 				return false;
 			}

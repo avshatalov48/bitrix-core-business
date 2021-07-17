@@ -308,6 +308,18 @@ class File
 			return false;
 		}
 
+		$content = $this->getContents();
+		if (
+			empty($content)
+			|| !is_string($content)
+			|| $content === '<?'
+			|| $content === '<?php'
+		)
+		{
+			$this->addError(new Main\Error('Empty content', 'EMPTY_CONTENT'));
+			return false;
+		}
+
 		// encoding
 		$targetEncoding = $this->getOperatingEncoding();
 		$sourceEncoding = $this->getSourceEncoding();
@@ -384,9 +396,14 @@ class File
 		}
 
 		$content = $this->getContents();
-		if (empty($content) || !is_string($content))
+		if (
+			empty($content)
+			|| !is_string($content)
+			|| $content === '<?'
+			|| $content === '<?php'
+		)
 		{
-			$this->addError(new Main\Error("Empty content"));
+			$this->addError(new Main\Error('Empty content', 'EMPTY_CONTENT'));
 			return false;
 		}
 

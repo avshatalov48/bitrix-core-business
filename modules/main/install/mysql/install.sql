@@ -228,6 +228,7 @@ CREATE TABLE b_user
 	BX_USER_ID varchar(32) null,
 	LANGUAGE_ID char(2) null,
 	BLOCKED char(1) not null default 'N',
+	PASSWORD_EXPIRED char(1) not null default 'N',
 	PRIMARY KEY (ID),
 	UNIQUE ix_login (LOGIN, EXTERNAL_AUTH_ID),
 	INDEX ix_b_user_email (EMAIL),

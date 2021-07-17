@@ -101,6 +101,7 @@ $MESS["USER_ZIP"] = "Zip:";
 $MESS["main_profile_decode_err"] = "Password decryption error (#ERRCODE#).";
 $MESS["main_profile_sess_expired"] = "Your session has expired. Please try again.";
 $MESS["main_user_edit_blocked"] = "Blocked:";
+$MESS["main_user_edit_pass_expired"] = "Require changing password on next log on:";
 $MESS["main_user_edit_phone_number"] = "Phone number:";
 $MESS["user_edit_form_groups"] = "User's Groups";
 $MESS["user_edit_form_settings"] = "Settings";

@@ -164,6 +164,11 @@ class Landing
 			}
 			$blockInstance->setAttributes($block['attrs']);
 		}
+		// update dynamic source
+		if (isset($block['dynamic']) && is_array($block['dynamic']))
+		{
+			$blockInstance->saveDynamicParams($block['dynamic']);
+		}
 	}
 
 	/**

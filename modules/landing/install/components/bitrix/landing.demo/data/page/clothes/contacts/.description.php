@@ -97,7 +97,7 @@ return array(
 					1 => Loc::getMessage("NOTTRANSLATE--LANDING_DEMO_STORE_CLOTHES-CONTACTS--TEXT_3"),
 				),
 				'.landing-block-card-linkcontact-link' => array(
-					0 => '+7 (495) 212 85 06</a>',
+					0 => '1-800-643-4500</a>',
 					1 => 'shipping.example.ru',
 				),
 				'.landing-block-card-linkcontact-text' => array(),

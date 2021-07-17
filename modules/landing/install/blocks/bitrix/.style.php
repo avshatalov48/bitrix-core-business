@@ -316,11 +316,11 @@ return [
 			'property' => 'color',
 			'type' => 'palette',
 			'items' => array(
+				array('name' => 'g-color-main', 'value' => 'g-color-main'),
 				array('name' => 'g-color-primary', 'value' => 'g-color-primary'),
 				array('name' => 'g-color-primary-opacity-0_3', 'value' => 'g-color-primary-opacity-0_3'),
 				array('name' => 'g-color-primary-opacity-0_4', 'value' => 'g-color-primary-opacity-0_4'),
 				array('name' => 'g-color-primary-opacity-0_8', 'value' => 'g-color-primary-opacity-0_8'),
-				array('name' => 'g-color-main', 'value' => 'g-color-main'),
 				array('name' => 'g-color-black', 'value' => 'g-color-black'),
 				array('name' => 'g-color-black-opacity-0_1', 'value' => 'g-color-black-opacity-0_1'),
 				array('name' => 'g-color-black-opacity-0_3', 'value' => 'g-color-black-opacity-0_3'),

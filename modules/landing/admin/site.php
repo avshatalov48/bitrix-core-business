@@ -1,4 +1,5 @@
 <?php
+define('ADMIN_SECTION', false);
 if (
 	isset($_GET['template']) &&
 	preg_match('/^[a-z0-9_]+$/i', $_GET['template'])
@@ -9,6 +10,13 @@ if (
 else
 {
 	define('SITE_TEMPLATE_ID', 'landing24');
+}
+if (
+	isset($_GET['site']) &&
+	preg_match('/^[a-z0-9_]+$/i', $_GET['site'])
+)
+{
+	define('SITE_ID', $_GET['site']);
 }
 
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php');
@@ -353,7 +361,8 @@ else
 			'SITE_ID' => $siteId,
 			'ACTION_FOLDER' => $actionFolder,
 			'PAGE_URL_LANDING_EDIT' => $editPage,
-			'PAGE_URL_LANDING_VIEW' => $viewPage
+			'PAGE_URL_LANDING_VIEW' => $viewPage,
+			'PAGE_URL_LANDING_DESIGN' => 'null'
 		),
 		false
 	);

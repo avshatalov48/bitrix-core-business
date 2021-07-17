@@ -780,9 +780,10 @@ class BXInstallServices
 		else
 			$host = "www.bitrixsoft.com";
 
+		$maxUsers = (defined('TRIAL_RENT_VERSION_MAX_USERS') ? TRIAL_RENT_VERSION_MAX_USERS : 0);
 		$path = "/bsm_register_key.php";
 		$port = 80;
-		$query = "sur_name=$lic_key_user_surname&first_name=$lic_key_user_name&email=$lic_key_email&site=$lic_site&modules=".urlencode($lic_edition)."&db=$DBType&lang=".LANGUAGE_ID."&bx=Y&max_users=".TRIAL_RENT_VERSION_MAX_USERS;
+		$query = "sur_name=$lic_key_user_surname&first_name=$lic_key_user_name&email=$lic_key_email&site=$lic_site&modules=".urlencode($lic_edition)."&db=$DBType&lang=".LANGUAGE_ID."&bx=Y&max_users=".$maxUsers;
 
 		if(defined("install_license_type"))
 			$query .= "&cp_type=".install_license_type;

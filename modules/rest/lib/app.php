@@ -694,6 +694,17 @@ class AppTable extends Main\Entity\DataManager
 			$suffix .= '_A';
 		}
 
+		if (
+			array_key_exists('#DAYS#', $replace)
+			&& (
+				is_int($replace['#DAYS#'])
+				|| preg_match('/^(-|)\d+$/', $replace['#DAYS#'])
+			)
+		)
+		{
+			$replace['#DAYS#'] = FormatDate('ddiff', time(), time() + 24 * 60 * 60 * $replace['#DAYS#']);
+		}
+
 		return Loc::getMessage('PAYMENT_MESSAGE' . $suffix, $replace, $language);
 	}
 

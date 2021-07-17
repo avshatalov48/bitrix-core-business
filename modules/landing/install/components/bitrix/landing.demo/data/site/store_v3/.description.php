@@ -27,7 +27,7 @@ return [
 			'B24BUTTON_COLOR' => 'custom',
 			'B24BUTTON_COLOR_VALUE' => '#6cb70e',
 			'UP_SHOW' => 'N',
-			'THEME_CODE' => 'photography',
+			'THEME_COLOR' => '#333333',
 			'THEMEFONTS_CODE_H' => 'g-font-roboto',
 			'THEMEFONTS_CODE' => 'g-font-roboto',
 			'THEMEFONTS_SIZE' => '1.14286',
@@ -84,6 +84,5 @@ return [
 		10 => 'store_v3/payinfo',
 		11 => 'store_v3/payment',
 		12 => 'store_v3/checkout',
-		//13 => 'store_v3/new',
 	],
 ];

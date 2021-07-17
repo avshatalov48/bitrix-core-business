@@ -9,18 +9,16 @@
 				</a>
 				<!-- End Logo -->
 			</div>
-
 			<div class="col-12 col-sm-9 col-lg-10">
 				<div class="landing-block-node-card-container row g-ml-20--sm">
 					<div class="landing-block-node-card col-md g-mb-10 g-mb-0--md g-brd-right--md g-brd-gray-light-v4"
 						 data-card-preset="contact-link">
-
 						<a href="tel:#PHONE1#"
 						   class="landing-block-node-card-contactlink-link g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start g-text-decoration-none--hover">
-							<span class="landing-block-node-card-icon-container text-left text-md-center text-lg-left w-auto g-width-100x--md g-width-auto--lg g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-valign-top g-color-primary g-mr-10 g-mr-0--md g-mr-10--lg">
+							<span class="landing-block-node-card-icon-container text-left text-md-center text-lg-left g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-color-primary col-12 g-pa-0">
 								<i class="landing-block-node-card-contactlink-icon icon icon-screen-smartphone"></i>
 							</span>
-							<span class="landing-block-node-card-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">
+							<span class="landing-block-node-card-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block col-12 g-pa-0">
 								<span class="landing-block-node-menu-contactlink-title landing-block-node-card-title-style landing-semantic-text-medium g-color-main d-block text-uppercase g-font-size-13">
 									Call Us
 								</span>
@@ -30,14 +28,13 @@
 							</span>
 						</a>
 					</div>
-
 					<div class="landing-block-node-card col-md g-mb-10 g-mb-0--md g-brd-right--md g-brd-gray-light-v4"
 						 data-card-preset="contact-text">
 						<div class="g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start">
-							<div class="landing-block-node-card-icon-container text-left text-md-center text-lg-left w-auto g-width-100x--md g-width-auto--lg g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-valign-top g-color-primary g-mr-10 g-mr-0--md g-mr-10--lg">
+							<div class="landing-block-node-card-icon-container text-left text-md-center text-lg-left g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-color-primary col-12 g-pa-0">
 								<i class="landing-block-node-card-icon icon icon-clock"></i>
 							</div>
-							<div class="landing-block-node-card-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">
+							<div class="landing-block-node-card-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block col-12 g-pa-0">
 								<div class="landing-block-node-card-title landing-block-node-card-title-style landing-semantic-text-medium g-color-main text-uppercase g-font-size-13">
 									Opening time
 								</div>
@@ -47,16 +44,14 @@
 							</div>
 						</div>
 					</div>
-
 					<div class="landing-block-node-card col-md g-mb-10 g-mb-0--md g-brd-right--md g-brd-gray-light-v4"
 						 data-card-preset="contact-link">
-
 						<a href="mailto:#EMAIL1#"
 						   class="landing-block-node-card-contactlink-link g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start g-text-decoration-none--hover">
-							<span class="landing-block-node-card-icon-container text-left text-md-center text-lg-left w-auto g-width-100x--md g-width-auto--lg g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-valign-top g-color-primary g-mr-10 g-mr-0--md g-mr-10--lg">
+							<span class="landing-block-node-card-icon-container text-left text-md-center text-lg-left g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-color-primary col-12 g-pa-0">
 								<i class="landing-block-node-card-contactlink-icon icon icon-envelope"></i>
 							</span>
-							<span class="landing-block-node-card-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">
+							<span class="landing-block-node-card-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block col-12 g-pa-0">
 								<span class="landing-block-node-menu-contactlink-title landing-block-node-card-title-style landing-semantic-text-medium g-color-main d-block text-uppercase g-font-size-13">
 									Email us
 								</span>
@@ -65,10 +60,7 @@
 								</span>
 							</span>
 						</a>
-
 					</div>
-
-
 				</div>
 			</div>
 		</div>

@@ -1,0 +1,32 @@
+.landing-colorpicker-theme {
+	flex-grow: 1;
+	border-radius: 50%;
+	position: relative;
+	cursor: pointer;
+	max-width: 22px;
+	height: 22px;
+}
+
+.landing-colorpicker-theme + .landing-colorpicker-theme {
+	margin-left: 7px;
+}
+
+.landing-colorpicker-theme::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border: 1px solid rgba(0, 0 ,0 , .13);
+	border-radius: 100%;
+	transition: all 200ms ease;
+}
+
+.landing-colorpicker-theme.active::before {
+	top: -4px;
+	left: -4px;
+	right: -4px;
+	bottom: -4px;
+	border: 2px rgba(82, 92, 105, .45) solid;
+}

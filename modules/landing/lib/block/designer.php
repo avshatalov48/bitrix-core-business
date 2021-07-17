@@ -238,22 +238,27 @@ class Designer
 
 	/**
 	 * Returns repository's elements.
+	 * @param bool $installRepo Install repo if empty result.
 	 * @return array
 	 */
-	public static function getRepository(): array
+	public static function getRepository(bool $installRepo = true): array
 	{
 		$repo = [];
 
 		foreach (self::getRepo() as $row)
 		{
 			$repo[] = [
-				'name' => $row['TITLE']
-					? $row['TITLE']
-					: Loc::getMessage('LANDING_DESIGNER_REPO_ELEM_' . mb_strtoupper($row['XML_ID'])),
+				'name' => $row['TITLE'] ?: Loc::getMessage('LANDING_DESIGNER_REPO_ELEM_' . mb_strtoupper($row['XML_ID'])),
 				'code' => $row['XML_ID'],
 				'html' => $row['HTML'],
 				'manifest' => $row['MANIFEST']
 			];
+		}
+
+		if (!$repo && $installRepo)
+		{
+			DesignerRepo::installRepo();
+			return self::getRepository(false);
 		}
 
 		return $repo;

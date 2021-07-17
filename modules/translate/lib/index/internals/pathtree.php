@@ -19,7 +19,20 @@ use Bitrix\Translate\Index;
  * <li> DEPTH_LEVEL int
  * </ul>
  *
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_PathTree_Query query()
+ * @method static EO_PathTree_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_PathTree_Result getById($id)
+ * @method static EO_PathTree_Result getList(array $parameters = array())
+ * @method static EO_PathTree_Entity getEntity()
+ * @method static \Bitrix\Translate\Index\Internals\EO_PathTree createObject($setDefaultValues = true)
+ * @method static \Bitrix\Translate\Index\Internals\EO_PathTree_Collection createCollection()
+ * @method static \Bitrix\Translate\Index\Internals\EO_PathTree wakeUpObject($row)
+ * @method static \Bitrix\Translate\Index\Internals\EO_PathTree_Collection wakeUpCollection($rows)
+ */
 
 class PathTreeTable extends DataManager
 {

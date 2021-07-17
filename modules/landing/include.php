@@ -274,6 +274,9 @@ $jsConfig = array(
 		'js' => [
 			$pathTemplate24 . '/assets/js/helpers/lazyload.js',
 		],
+		'rel' => [
+			'main.polyfill.intersectionobserver',
+		]
 	],
 
 	'landing_auto_font_scale' => [

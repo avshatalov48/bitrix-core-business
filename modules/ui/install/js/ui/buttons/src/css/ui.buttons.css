@@ -90,7 +90,6 @@
 }
 
 .ui-btn,
-.ui-btn-double,
 .ui-btn-split {
 	line-height: calc(var(--ui-btn-height) - 2px);
 	vertical-align: middle;
@@ -100,7 +99,6 @@
 
 .ui-btn-min { min-width: var(--ui-btn-min-width); }
 
-.ui-btn-double,
 .ui-btn-split {
 	position: relative;
 	display: -webkit-inline-box;
@@ -155,7 +153,6 @@ a.ui-btn:focus,
 .ui-btn:active,
 a.ui-btn:focus,
 a.ui-btn-split:focus,
-a.ui-btn-double:focus,
 .ui-btn-main:active,
 .ui-btn-menu:active,
 .ui-btn-extra:active,
@@ -218,9 +215,6 @@ a.ui-btn-double:focus,
 }
 
 .ui-btn + .ui-btn,
-.ui-btn + .ui-btn-double,
-.ui-btn-double + .ui-btn,
-.ui-btn-double + .ui-btn-double,
 .ui-btn + .ui-btn-split,
 .ui-btn-split + .ui-btn,
 .ui-btn-split + .ui-btn-split,
@@ -229,7 +223,6 @@ a.ui-btn-double:focus,
 .ui-btn-split + script + .ui-btn,
 .ui-btn-split + script + .ui-btn-split,
 .ui-ctl + .ui-btn,
-.ui-ctl + .ui-btn-double,
 .ui-ctl + .ui-btn-split { margin-left: var(--ui-btn-margin-left); }
 
 .ui-btn-text {
@@ -275,14 +268,12 @@ a.ui-btn-double:focus,
 	--ui-btn-font-size: 11px;
 }
 
-.ui-btn-double.ui-btn-lg,
 .ui-btn-split.ui-btn-lg { padding-right: 33px; }
 
 .ui-btn-lg.ui-btn:not(.ui-btn-round) { --ui-btn-radius: 3px; }
 
 .ui-btn-lg:not(.ui-btn-round) .ui-btn-main { --ui-btn-radius: 3px; }
 
-.ui-btn-lg.ui-btn-double,
 .ui-btn-lg.ui-btn-split { padding-right: 34px; }
 
 .ui-btn-lg .ui-btn-extra,
@@ -291,7 +282,6 @@ a.ui-btn-double:focus,
 .ui-btn-lg:not(.ui-btn-round) .ui-btn-extra,
 .ui-btn-lg:not(.ui-btn-round) .ui-btn-menu { --ui-btn-radius: 3px; }
 
-.ui-btn-sm.ui-btn-double,
 .ui-btn-sm.ui-btn-split { padding-right: 28px; }
 
 .ui-btn-sm .ui-btn-extra,
@@ -688,7 +678,6 @@ a.ui-btn-double:focus,
 
 /*region Clock*/
 .ui-btn.ui-btn-clock,
-.ui-btn-double.ui-btn-clock .ui-btn-main,
 .ui-btn-split.ui-btn-clock .ui-btn-main {
 	background-position: center !important;
 	background-repeat: no-repeat !important;
@@ -696,7 +685,6 @@ a.ui-btn-double:focus,
 }
 
 .ui-btn.ui-btn-clock:after,
-.ui-btn-double.ui-btn-clock .ui-btn-main:after,
 .ui-btn-split.ui-btn-clock .ui-btn-main:after { opacity: 0; }
 
 .ui-btn-clock,

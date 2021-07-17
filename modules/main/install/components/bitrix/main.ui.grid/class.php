@@ -1791,6 +1791,10 @@ class CMainUIGrid extends CBitrixComponent
 				{
 					$typeName = Grid\Editor\Types::DROPDOWN;
 				}
+				elseif($columnTypeName === "multiselect")
+				{
+					$typeName = Grid\Editor\Types::MULTISELECT;
+				}
 				elseif($columnTypeName === "money")
 				{
 					$typeName = Grid\Editor\Types::MONEY;
@@ -1808,9 +1812,18 @@ class CMainUIGrid extends CBitrixComponent
 				}
 			}
 
-			if($result["TYPE"] === Grid\Editor\Types::DROPDOWN
+			if (
+				(
+					$result["TYPE"] === Grid\Editor\Types::DROPDOWN
+					|| $result["TYPE"] === Grid\Editor\Types::MULTISELECT
+				)
 				&& $result["items"] && is_array($result["items"])
-				&& !(isset($result["DATA"]) && isset($result["DATA"]["ITEMS"]) && is_array($result["DATA"]["ITEMS"])))
+				&& !(
+					isset($result["DATA"])
+					&& isset($result["DATA"]["ITEMS"])
+					&& is_array($result["DATA"]["ITEMS"])
+				)
+			)
 			{
 				if(!isset($result["DATA"]))
 				{
@@ -2209,6 +2222,161 @@ class CMainUIGrid extends CBitrixComponent
 				$counter["align"] = "left";
 			}
 
+			$content = [];
+			if (
+				isset($column["type"])
+				&& $column["type"] === Grid\Column\Type::LABELS
+				&& isset($row["columns"][$column["id"]])
+				&& is_array($row["columns"][$column["id"]])
+			)
+			{
+				foreach ($row["columns"][$column["id"]] as $labelKey => $label)
+				{
+					$labelClass = "";
+					if (isset($label["color"]) && is_string($label["color"]))
+					{
+						$labelClass .= " " . $label["color"];
+					}
+
+					if (isset($label["size"]) && is_string($label["size"]))
+					{
+						$labelClass .= " " . $label["size"];
+					}
+
+					if (!isset($label["light"]) || (isset($label["light"]) && $label["light"] !== true))
+					{
+						$labelClass .= " ui-label-fill";
+					}
+
+					$labelEvents = [];
+					if (isset($label["events"]) && is_array($label["events"]))
+					{
+						$labelEvents = $label["events"];
+
+						if (isset($label["events"]["click"]))
+						{
+							$labelClass .= " ui-label-link";
+						}
+					}
+
+					$removeButton = [
+						"enabled" => false,
+					];
+					if (
+						isset($label["removeButton"])
+						&& is_array($label["removeButton"])
+					)
+					{
+						$removeButton["enabled"] = true;
+						if (
+							isset($label["removeButton"]["type"])
+							&& is_string($label["removeButton"]["type"])
+						)
+						{
+							$removeButton["class"] = " " . $label["removeButton"]["type"];
+							$removeButton["type"] = $label["removeButton"]["type"];
+						}
+						else
+						{
+							$removeButton["class"] = " " . Grid\Cell\Label\RemoveButtonType::INSIDE;
+							$removeButton["type"] = Grid\Cell\Label\RemoveButtonType::INSIDE;
+						}
+
+						if (
+							isset($label["removeButton"]["events"])
+							&& is_array($label["removeButton"]["events"])
+						)
+						{
+							$removeButton["attributes"] = static::stringifyAttrs([
+								"data-events" => $label["removeButton"]["events"],
+								"data-target" => ".ui-label",
+							]);
+						}
+					}
+
+					$content[$labelKey] = [
+						"class" => Text\HtmlFilter::encode($labelClass),
+						"attributes" => static::stringifyAttrs([
+							"data-events" => $labelEvents,
+						]),
+						"removeButton" => $removeButton,
+					];
+				}
+			}
+
+			if (
+				isset($column["type"])
+				&& $column["type"] === Grid\Column\Type::TAGS
+				&& isset($row["columns"][$column["id"]])
+				&& is_array($row["columns"][$column["id"]])
+			)
+			{
+				$addButtonEvents = [];
+				$addButtonEnabled = false;
+				if (
+					isset($row["columns"][$column["id"]]["addButton"])
+					&& is_array($row["columns"][$column["id"]]["addButton"])
+					&& isset($row["columns"][$column["id"]]["addButton"]["events"])
+					&& is_array($row["columns"][$column["id"]]["addButton"]["events"])
+				)
+				{
+					$addButtonEvents = $row["columns"][$column["id"]]["addButton"]["events"];
+					$addButtonEnabled = true;
+				}
+
+				$items = [];
+				foreach ($row["columns"][$column["id"]]["items"] as $tagKey => $tag)
+				{
+					$item = [];
+					$item["class"] = "";
+					$item["active"] = false;
+					if (isset($tag["active"]) && $tag["active"] === true)
+					{
+						$item["class"] = " main-grid-tag-active";
+						$item["active"] = true;
+					}
+
+					$tagEvents = [];
+					if (isset($tag["events"]) && is_array($tag["events"]))
+					{
+						$tagEvents = $tag["events"];
+					}
+
+					$item["attributes"] = static::stringifyAttrs([
+						"data-events" => $tagEvents,
+					]);
+
+					$removeButtonEvents = [];
+					if (
+						isset($tag["removeButton"])
+						&& is_array($tag["removeButton"])
+						&& isset($tag["removeButton"]["events"])
+						&& is_array($tag["removeButton"]["events"])
+					)
+					{
+						$removeButtonEvents = $tag["removeButton"]["events"];
+					}
+
+					$item["removeButton"] = [
+						"attributes" => static::stringifyAttrs([
+							"data-events" => $removeButtonEvents,
+						]),
+					];
+
+					$items[] = $item;
+				}
+
+				$content = [
+					"addButton" => [
+						"enabled" => $addButtonEnabled,
+						"attributes" => static::stringifyAttrs([
+							"data-events" => $addButtonEvents,
+						]),
+					],
+					"items" => $items,
+				];
+			}
+
 			$columns[$column["id"]] = [
 				"cell" => [
 					"class" => $cellClass,
@@ -2225,6 +2393,7 @@ class CMainUIGrid extends CBitrixComponent
 					"items" => $cellActions,
 				],
 				"counter" => $counter,
+				"content" => $content,
 			];
 		}
 

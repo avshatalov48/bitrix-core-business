@@ -112,6 +112,11 @@ $arComponentParameters = Array(
 				'DEFAULT' => 'site/edit/#site_edit#/',
 				'VARIABLES' => array('site_edit')
 			),
+			'site_design' => array(
+				'NAME' => getMessage('LANDING_CMP_PAR_SM_SITE_DESIGN'),
+				'DEFAULT' => 'site/design/#site_edit#/',
+				'VARIABLES' => array('site_edit')
+			),
 			'site_master' => array(
 				'NAME' => getMessage('LANDING_CMP_PAR_SM_SITE_MASTER'),
 				'DEFAULT' => 'site/edit/#site_edit#/',
@@ -135,6 +140,11 @@ $arComponentParameters = Array(
 			'landing_edit' => array(
 				'NAME' => getMessage('LANDING_CMP_PAR_SM_LANDING_EDIT'),
 				'DEFAULT' => 'site/#site_show#/edit/#landing_edit#/',
+				'VARIABLES' => array('site_show', 'landing_edit')
+			),
+			'landing_design' => array(
+				'NAME' => getMessage('LANDING_CMP_PAR_SM_LANDING_DESIGN'),
+				'DEFAULT' => 'site/#site_show#/design/#landing_edit#/',
 				'VARIABLES' => array('site_show', 'landing_edit')
 			),
 			'landing_view' => array(

@@ -19,7 +19,20 @@ use Bitrix\Translate\Index;
  * <li> PHRASE string optional
  * </ul>
  *
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_PhraseIndex_Query query()
+ * @method static EO_PhraseIndex_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_PhraseIndex_Result getById($id)
+ * @method static EO_PhraseIndex_Result getList(array $parameters = array())
+ * @method static EO_PhraseIndex_Entity getEntity()
+ * @method static \Bitrix\Translate\Index\PhraseIndex createObject($setDefaultValues = true)
+ * @method static \Bitrix\Translate\Index\PhraseIndexCollection createCollection()
+ * @method static \Bitrix\Translate\Index\PhraseIndex wakeUpObject($row)
+ * @method static \Bitrix\Translate\Index\PhraseIndexCollection wakeUpCollection($rows)
+ */
 
 class PhraseIndexTable extends DataManager
 {

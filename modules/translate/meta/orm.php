@@ -189,18 +189,6 @@ namespace Bitrix\Translate\Index\Internals {
 }
 namespace Bitrix\Translate\Index\Internals {
 	/**
-	 * @method static EO_FileDiff_Query query()
-	 * @method static EO_FileDiff_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_FileDiff_Result getById($id)
-	 * @method static EO_FileDiff_Result getList(array $parameters = array())
-	 * @method static EO_FileDiff_Entity getEntity()
-	 * @method static \Bitrix\Translate\Index\FileDiff createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Translate\Index\FileDiffCollection createCollection()
-	 * @method static \Bitrix\Translate\Index\FileDiff wakeUpObject($row)
-	 * @method static \Bitrix\Translate\Index\FileDiffCollection wakeUpCollection($rows)
-	 */
-	class FileDiffTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -414,18 +402,6 @@ namespace Bitrix\Translate\Index\Internals {
 	}
 }
 namespace Bitrix\Translate\Index\Internals {
-	/**
-	 * @method static EO_FileIndex_Query query()
-	 * @method static EO_FileIndex_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_FileIndex_Result getById($id)
-	 * @method static EO_FileIndex_Result getList(array $parameters = array())
-	 * @method static EO_FileIndex_Entity getEntity()
-	 * @method static \Bitrix\Translate\Index\FileIndex createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Translate\Index\FileIndexCollection createCollection()
-	 * @method static \Bitrix\Translate\Index\FileIndex wakeUpObject($row)
-	 * @method static \Bitrix\Translate\Index\FileIndexCollection wakeUpCollection($rows)
-	 */
-	class FileIndexTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -726,18 +702,6 @@ namespace Bitrix\Translate\Index\Internals {
 }
 namespace Bitrix\Translate\Index\Internals {
 	/**
-	 * @method static EO_PathIndex_Query query()
-	 * @method static EO_PathIndex_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PathIndex_Result getById($id)
-	 * @method static EO_PathIndex_Result getList(array $parameters = array())
-	 * @method static EO_PathIndex_Entity getEntity()
-	 * @method static \Bitrix\Translate\Index\PathIndex createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Translate\Index\PathIndexCollection createCollection()
-	 * @method static \Bitrix\Translate\Index\PathIndex wakeUpObject($row)
-	 * @method static \Bitrix\Translate\Index\PathIndexCollection wakeUpCollection($rows)
-	 */
-	class PathIndexTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -865,18 +829,6 @@ namespace Bitrix\Translate\Index\Internals {
 	}
 }
 namespace Bitrix\Translate\Index\Internals {
-	/**
-	 * @method static EO_PathLang_Query query()
-	 * @method static EO_PathLang_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PathLang_Result getById($id)
-	 * @method static EO_PathLang_Result getList(array $parameters = array())
-	 * @method static EO_PathLang_Entity getEntity()
-	 * @method static \Bitrix\Translate\Index\Internals\EO_PathLang createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Translate\Index\Internals\EO_PathLang_Collection createCollection()
-	 * @method static \Bitrix\Translate\Index\Internals\EO_PathLang wakeUpObject($row)
-	 * @method static \Bitrix\Translate\Index\Internals\EO_PathLang_Collection wakeUpCollection($rows)
-	 */
-	class PathLangTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1042,18 +994,6 @@ namespace Bitrix\Translate\Index\Internals {
 	}
 }
 namespace Bitrix\Translate\Index\Internals {
-	/**
-	 * @method static EO_PathTree_Query query()
-	 * @method static EO_PathTree_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PathTree_Result getById($id)
-	 * @method static EO_PathTree_Result getList(array $parameters = array())
-	 * @method static EO_PathTree_Entity getEntity()
-	 * @method static \Bitrix\Translate\Index\Internals\EO_PathTree createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Translate\Index\Internals\EO_PathTree_Collection createCollection()
-	 * @method static \Bitrix\Translate\Index\Internals\EO_PathTree wakeUpObject($row)
-	 * @method static \Bitrix\Translate\Index\Internals\EO_PathTree_Collection wakeUpCollection($rows)
-	 */
-	class PathTreeTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1256,18 +1196,6 @@ namespace Bitrix\Translate\Index\Internals {
 	}
 }
 namespace Bitrix\Translate\Index\Internals {
-	/**
-	 * @method static EO_PhraseIndex_Query query()
-	 * @method static EO_PhraseIndex_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PhraseIndex_Result getById($id)
-	 * @method static EO_PhraseIndex_Result getList(array $parameters = array())
-	 * @method static EO_PhraseIndex_Entity getEntity()
-	 * @method static \Bitrix\Translate\Index\PhraseIndex createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Translate\Index\PhraseIndexCollection createCollection()
-	 * @method static \Bitrix\Translate\Index\PhraseIndex wakeUpObject($row)
-	 * @method static \Bitrix\Translate\Index\PhraseIndexCollection wakeUpCollection($rows)
-	 */
-	class PhraseIndexTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

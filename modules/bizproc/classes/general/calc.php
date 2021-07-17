@@ -57,6 +57,10 @@ class CBPCalc
 		'urlencode' => ['args' => true, 'func' => 'FunctionUrlencode'],
 		'touserdate' => ['args' => true, 'func' => 'FunctionToUserDate'],
 		'getuserdateoffset' => ['args' => true, 'func' => 'FunctionGetUserDateOffset'],
+		'strtolower' => ['args' => true, 'func' => 'FunctionStrtolower'],
+		'strtoupper' => ['args' => true, 'func' => 'FunctionStrtoupper'],
+		'ucwords' => ['args' => true, 'func' => 'FunctionUcwords'],
+		'ucfirst' => ['args' => true, 'func' => 'FunctionUcfirst'],
 	];
 
 	// Allowable errors
@@ -1254,6 +1258,66 @@ class CBPCalc
 		}
 
 		return $result;
+	}
+
+	private function FunctionStrtolower($args)
+	{
+		$ar = $this->ArrgsToArray($args);
+		$str = array_shift($ar);
+
+		if (!is_scalar($str))
+		{
+			return null;
+		}
+
+		return mb_strtolower((string) $str);
+	}
+
+	private function FunctionStrtoupper($args)
+	{
+		$ar = $this->ArrgsToArray($args);
+		$str = array_shift($ar);
+
+		if (!is_scalar($str))
+		{
+			return null;
+		}
+
+		return mb_strtoupper((string) $str);
+	}
+
+	private function FunctionUcwords($args)
+	{
+		$ar = $this->ArrgsToArray($args);
+		$str = array_shift($ar);
+
+		if (!is_scalar($str))
+		{
+			return null;
+		}
+
+		return mb_convert_case((string) $str, MB_CASE_TITLE);
+	}
+
+	private function FunctionUcfirst($args)
+	{
+		$ar = $this->ArrgsToArray($args);
+		$str = array_shift($ar);
+
+		if (!is_scalar($str))
+		{
+			return null;
+		}
+
+		return $this->mb_ucfirst((string) $str);
+	}
+
+	private function mb_ucfirst($str)
+	{
+		$len = mb_strlen($str);
+		$firstChar = mb_substr($str, 0, 1);
+		$otherChars = mb_substr($str, 1, $len - 1);
+		return mb_strtoupper($firstChar) . $otherChars;
 	}
 
 	/* Complex values */

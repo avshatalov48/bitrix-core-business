@@ -7,7 +7,7 @@
 
 		<div class="col-lg-6 col-md-8 col-12">
 			<h3 class="landing-block-node-title landing-semantic-subtitle-medium g-line-height-1_1 g-font-weight-700 g-mb-10">
-				Exclusive interview with InVision's CEO</h3>
+				Exclusive interview with CEO</h3>
 			<div class="landing-block-node-text landing-semantic-text-medium g-line-height-1_2">
 				In rutrum tellus vitae blandit lacinia. Phasellus eget sapien odio. Phasellus eget sapien odio.
 				Vivamus at risus quis leo tincidunt scelerisque non et erat.

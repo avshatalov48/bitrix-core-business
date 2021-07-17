@@ -12,6 +12,7 @@ $MESS["LANDING_TPL_ACTION_DELETE"] = "Видалити сайт";
 $MESS["LANDING_TPL_ACTION_DELETE_CONFIRM"] = "Дійсно видалити?";
 $MESS["LANDING_TPL_ACTION_DELETE_KNOWLEDGE"] = "Видалити базу знань";
 $MESS["LANDING_TPL_ACTION_EDIT"] = "Налаштувати сайт";
+$MESS["LANDING_TPL_ACTION_EDIT_DESIGN"] = "Налаштувати дизайн";
 $MESS["LANDING_TPL_ACTION_EDIT_KNOWLEDGE"] = "Налаштувати базу знань";
 $MESS["LANDING_TPL_ACTION_EDIT_PAGE"] = "Налаштувати сайт";
 $MESS["LANDING_TPL_ACTION_EDIT_STORE"] = "Налаштувати магазин";

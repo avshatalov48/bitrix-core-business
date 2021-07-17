@@ -101,7 +101,7 @@ return [
 					<h2 class="landing-block-node-card-title g-font-weight-700 g-mb-20 g-text-transform-none g-font-size-120 g-color-white font-italic">Happy woman day!</h2>
 					<div class="landing-block-node-card-text g-max-width-645 g-color-white-opacity-0_9 mx-auto g-mb-35"> </div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-py-15 g-rounded-10" href="#" tabindex="-1" target="_self">view more</a>
+						<a class="landing-block-node-card-button btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-rounded-10" href="#" tabindex="-1" target="_self">view more</a>
 					</div>
 				</div>
 			</div>
@@ -213,7 +213,7 @@ return [
 
 		<div class="landing-block-node-text g-mb-35 g-color-white">Etiam dolor tortor, egestas a libero eget, sollicitudin maximus nulla. Nunc vitae maximus ipsum. Vestibulum sodales nisi massa, vitae blandit massa luctus id. Nunc diam tellus.</div>
 		<div class="landing-block-node-button-container">
-			<a href="#" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-py-15 g-mb-15 g-rounded-10" target="_self">view more</a>
+			<a href="#" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-mb-15 g-rounded-10" target="_self">view more</a>
 		</div>
 	</div>
 </section>',

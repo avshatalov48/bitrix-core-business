@@ -92,7 +92,7 @@ class LandingDesignBlockComponent extends LandingBaseComponent
 				);
 				if (!in_array(Rights::ACCESS_TYPES['edit'], $rights))
 				{
-					$this->addError('ACCESS_DENIED', Loc::getMessage('LANDING_CMP_ACCESS_DENIED'), true);
+					$this->addError('ACCESS_DENIED', Loc::getMessage('LANDING_CMP_ACCESS_DENIED2'), true);
 				}
 				else
 				{

@@ -38,7 +38,7 @@
 								Our Goal: <span style="font-weight: bold; color:#f5f219 !important">$760 000</span>
 							</div>
 						</div>
-						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle btn-block text-uppercase g-btn-primary g-color-gray-dark-v1 rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0"
+						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle btn-block text-uppercase g-btn-primary g-color-gray-dark-v1 rounded-0 mt-auto g-btn-type-solid g-btn-size-md g-btn-px-m rounded-0"
 						   href="#">
 							Donate Now
 						</a>
@@ -68,7 +68,7 @@
 								Our Goal: <span style="font-weight: bold; color:#f5f219 !important">$2 600 000</span>
 							</div>
 						</div>
-						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle btn-block text-uppercase g-btn-primary g-color-gray-dark-v1 rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0"
+						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle btn-block text-uppercase g-btn-primary g-color-gray-dark-v1 rounded-0 mt-auto g-btn-type-solid g-btn-size-md g-btn-px-m rounded-0"
 						   href="#">
 							Donate Now
 						</a>
@@ -98,7 +98,7 @@
 								Our Goal: <span style="font-weight: bold; color:#f5f219 !important">$760 000</span>
 							</div>
 						</div>
-						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle btn-block text-uppercase g-btn-primary g-color-gray-dark-v1 rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0"
+						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle btn-block text-uppercase g-btn-primary g-color-gray-dark-v1 rounded-0 mt-auto g-btn-type-solid g-btn-size-md g-btn-px-m rounded-0"
 						   href="#">
 							Donate Now
 						</a>
@@ -128,7 +128,7 @@
 								Our Goal: <span style="font-weight: bold; color:#f5f219 !important">$2 600 000</span>
 							</div>
 						</div>
-						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle btn-block text-uppercase g-btn-primary g-color-gray-dark-v1 rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0"
+						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle btn-block text-uppercase g-btn-primary g-color-gray-dark-v1 rounded-0 mt-auto g-btn-type-solid g-btn-size-md g-btn-px-m rounded-0"
 						   href="#">
 							Donate Now
 						</a>

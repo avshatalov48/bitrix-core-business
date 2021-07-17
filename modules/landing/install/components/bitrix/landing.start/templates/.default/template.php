@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Landing\Update\Stepper;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 {
 	die();
@@ -6,8 +9,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 
 /** @var array $arParams */
 /** @var array $arResult */
-/** @var \CMain $APPLICATION */
-/** @var \CBitrixComponent $component */
+/** @var CMain $APPLICATION */
+/** @var CBitrixComponent $component */
 
 $sef = [];
 foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
@@ -15,18 +18,20 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 	$sef[$code] = $arParams['SEF_FOLDER'] . $url;
 }
 
-\CJSCore::init('landing.metrika');
-\Bitrix\Landing\Update\Stepper::show();
+CJSCore::init('landing.metrika');
+Stepper::show();
 ?>
 
-<?$result = $APPLICATION->IncludeComponent(
+<?php $result = $APPLICATION->IncludeComponent(
 	'bitrix:landing.sites',
 	'.default',
 	array(
 		'TYPE' => $arParams['TYPE'],
 		'PAGE_URL_SITE' => $arParams['PAGE_URL_SITE_SHOW'],
 		'PAGE_URL_SITE_EDIT' => $arParams['PAGE_URL_SITE_EDIT'],
+		'PAGE_URL_SITE_DESIGN' => $arParams['PAGE_URL_SITE_DESIGN'],
 		'PAGE_URL_LANDING_EDIT' => $arParams['PAGE_URL_LANDING_EDIT'],
+		'PAGE_URL_LANDING_DESIGN' => $arParams['PAGE_URL_LANDING_DESIGN'],
 		'PAGE_URL_SITE_DOMAIN_SWITCH' => $arParams['PAGE_URL_SITE_DOMAIN_SWITCH'],
 		'TILE_MODE' => $arParams['TILE_SITE_MODE'],
 		'DRAFT_MODE' => $arParams['DRAFT_MODE'],
@@ -36,8 +41,8 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 	$component
 );?>
 
-<?if ($arParams['REOPEN_LOCATION_IN_SLIDER'] == 'Y'):
-	\CJSCore::init('sidepanel');
+<?php if ($arParams['REOPEN_LOCATION_IN_SLIDER'] === 'Y'):
+	CJSCore::init('sidepanel');
 	?>
 	<script type="text/javascript">
 		BX.ready(function()
@@ -47,4 +52,4 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 			);
 		});
 	</script>
-<?endif;?>
+<?php endif; ?>

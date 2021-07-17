@@ -20,23 +20,23 @@ Loc::loadMessages($_SERVER['DOCUMENT_ROOT'] . $this->getFolder() . '/template.ph
 
 $this->setFrameMode(true);
 
-$favoriteTitleTemplate = (!empty($arParams['FAVORITES_TITLE_TEMPLATE']) ? htmlspecialcharsbx($arParams['FAVORITES_TITLE_TEMPLATE']) : '');
+$favoriteTitleTemplate = (!empty($arParams['~FAVORITES_TITLE_TEMPLATE']) ? $arParams['~FAVORITES_TITLE_TEMPLATE'] : '');
 if (mb_strlen($favoriteTitleTemplate) <= 0)
 {
 	$favoriteTitleTemplate = $APPLICATION->getProperty('FavoriteTitleTemplate', '');
 }
 
-$favoriteUrl = (!empty($arParams['FAVORITES_URL']) ? htmlspecialcharsbx($arParams['FAVORITES_URL']) : '');
+$favoriteUrl = (!empty($arParams['~FAVORITES_URL']) ? $arParams['~FAVORITES_URL'] : '');
 if (mb_strlen($favoriteUrl) <= 0)
 {
 	$favoriteUrl = $APPLICATION->getProperty('FavoriteUrl', '');
 }
 
-$favoriteStar = Toolbar::hasFavoriteStar()? '<span class="ui-toolbar-star" id="uiToolbarStar" data-bx-title-template="' . $favoriteTitleTemplate . '" data-bx-url="' . $favoriteUrl . '"></span>' : '';
+$favoriteStar = Toolbar::hasFavoriteStar()? '<span class="ui-toolbar-star" id="uiToolbarStar" data-bx-title-template="' . htmlspecialcharsbx($favoriteTitleTemplate) . '" data-bx-url="' . htmlspecialcharsbx($favoriteUrl) . '"></span>' : '';
 
 ?><div class="pagetitle-wrap <?= $APPLICATION->getProperty('TitleClass') ?>">
 	<div class="pagetitle-inner-container">
-		<div class="pagetitle-menu pagetitle-container pagetitle-last-item-in-a-row" id="pagetitle-menu"><?
+		<div class="pagetitle-menu pagetitle-container pagetitle-last-item-in-a-row" id="pagetitle-menu"><?php
 			echo $GLOBALS["INTRANET_TOOLBAR"]->__display();
 			echo $APPLICATION->getViewContent("pagetitle");
 		?></div>

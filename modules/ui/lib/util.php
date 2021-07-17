@@ -56,6 +56,10 @@ class Util
 				$helpdeskUrl = "https://helpdesk.bitrix24.pl";
 				break;
 
+			case "it":
+				$helpdeskUrl = "https://helpdesk.bitrix24.it";
+				break;
+
 			default:
 				$helpdeskUrl = "https://helpdesk.bitrix24.com";
 		}

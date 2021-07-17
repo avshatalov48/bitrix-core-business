@@ -104,7 +104,7 @@ return [
 
 		<div class="landing-block-node-text g-color-white-opacity-0_7 g-mb-35 text-uppercase g-font-size-13 g-letter-spacing-4">Donec erat urna, tincidunt at leo non, blandit finibus ante.<br /> Nunc venenatis risus in finibus dapibus. Ut ac massa sodales, <br />&amp;nbsp;mattis enim id, efficitur tortor. Nullam </div>
 		<div class="landing-block-node-button-container">
-			<a href="#" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-py-15 g-mb-15 rounded-0" target="_self">LEARN MORE</a>
+			<a href="#" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-mb-15 rounded-0" target="_self">LEARN MORE</a>
 		</div>
 	</div>
 </section>',

@@ -1,26 +1,28 @@
 import {Loc} from 'main.core';
 
-let nodeEnum = (function ()
+const nodeEnum = (function ()
 {
-	let nodeEnum = function (select, container)
+	const nodeEnum = function (select, container, isInlineEdit)
 	{
 		this.click = BX.delegate(this.click, this);
 		this.callback = BX.delegate(this.callback, this);
 		this.multiple = false;
 		this.select = null;
 		this.container = null;
+		this.isInlineEdit = null;
 		this.titles = [];
 		this.values = [];
 		this.defaultTitles = [];
-		this.init(select, container);
+		this.init(select, container, isInlineEdit);
 	};
 	nodeEnum.prototype = {
-		init: function (select, container)
+		init: function (select, container, isInlineEdit = true)
 		{
 			if (BX(select) && BX(container))
 			{
 				this.select = select;
 				this.container = container;
+				this.isInlineEdit = isInlineEdit;
 				if (!this.select.hasAttribute('bx-bound'))
 				{
 					this.select.setAttribute('bx-bound', 'Y');
@@ -118,7 +120,10 @@ let nodeEnum = (function ()
 				this.container.innerHTML = Loc.getMessage('USER_TYPE_ENUM_NO_VALUE');
 			}
 
-			BX.onCustomEvent(this, 'onChange', [this, this.select]);
+			if (this.isInlineEdit)
+			{
+				BX.onCustomEvent(this, 'onChange', [this, this.select]);
+			}
 		}
 	};
 	return nodeEnum;
@@ -138,9 +143,10 @@ BX.Mobile.Field.Enum.prototype = {
 		{
 			result = new nodeEnum(
 				node,
-				BX(`${node.id}_select`)
+				BX(`${node.id}_select`),
+				(node.dataset.isInlineEdit !== 'false')
 			);
 		}
 		return result;
-	}
+	},
 };

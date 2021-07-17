@@ -168,7 +168,7 @@ return [
 					0 => 'landing-block-node-text g-mb-35',
 				],
 				'.landing-block-node-button' => [
-					0 => 'landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-10 g-rounded-50',
+					0 => 'landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-50',
 				],
 				'.landing-block-node-button-container' => [
 					0 => 'landing-block-node-button-container',
@@ -559,9 +559,10 @@ return [
 					2 => 'landing-block-node-card-text g-mb-40',
 				],
 				'.landing-block-node-card-button' => [
-					0 => 'landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-15 g-rounded-50',
-					1 => 'landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-15 g-rounded-50',
-					2 => 'landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-15 g-rounded-50',
+					0 => '
+					-primary g-rounded-50',
+					1 => 'landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-50',
+					2 => 'landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-50',
 				],
 				'.landing-block-node-card-button-container' => [
 					0 => 'landing-block-node-card-button-container mt-auto',

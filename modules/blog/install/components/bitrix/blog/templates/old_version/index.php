@@ -67,7 +67,6 @@
 
 ?>
 <script>
-<!--
 function BXBlogTabShow(id, type)
 {
 	if(type == 'post')
@@ -94,7 +93,6 @@ function BXBlogTabShow(id, type)
 	}
 	
 }
-//-->
 </script>
 <table width="100%" style="font-size:100%;">
 <tr>

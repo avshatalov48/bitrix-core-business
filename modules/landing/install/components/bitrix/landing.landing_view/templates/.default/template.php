@@ -320,11 +320,13 @@ if (!$request->offsetExists('landing_mode')):
 			LANDING_SITE_TYPE: '<?= $arParams['TYPE'];?>',
 			LANDING_PUBLIC_PAGE_REACHED: '<?= \CUtil::jsEscape(\Bitrix\Landing\Restriction\Manager::getSystemErrorMessage('limit_sites_number_page'));?>',
 			LANDING_TPL_SETTINGS_SITE_URL: '<?= \CUtil::jsEscape($component->getMessageType('LANDING_TPL_SETTINGS_SITE_URL'));?>',
+			LANDING_TPL_SETTINGS_SITE_DIZ_URL: '<?= \CUtil::jsEscape($component->getMessageType('LANDING_TPL_SETTINGS_SITE_DIZ_URL'));?>',
 			LANDING_TPL_SETTINGS_CATALOG_URL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_SETTINGS_CATALOG_URL'));?>',
 			LANDING_TPL_SETTINGS_UNPUBLIC: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_SETTINGS_UNPUBLIC'));?>',
 			LANDING_TPL_PUBLIC_URL_PAGE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_PUBLIC_URL_PAGE'));?>',
 			LANDING_TPL_PUBLIC_URL_ALL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_PUBLIC_URL_ALL'));?>',
-			LANDING_TPL_SETTINGS_PAGE_URL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_SETTINGS_PAGE_URL'));?>'
+			LANDING_TPL_SETTINGS_PAGE_URL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_SETTINGS_PAGE_URL'));?>',
+			LANDING_TPL_SETTINGS_PAGE_DIZ_URL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_SETTINGS_PAGE_DIZ_URL'));?>'
 		});
 	});
 </script>

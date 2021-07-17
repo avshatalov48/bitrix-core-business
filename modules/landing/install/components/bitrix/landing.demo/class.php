@@ -254,6 +254,14 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			{
 				$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
 			}
+			if($this->arParams['SITE_ID'] > 0)
+			{
+				$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'Y';
+			}
+			else
+			{
+				$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'N';
+			}
 		}
 
 		if ($this->request('theme_custom_color'))
@@ -1173,7 +1181,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					$landingReplaceDynamic['#landing' . $oldId] = '#landing' . $newId;
 				}
 				// update site for some fields
-				if (isset($landings[$pageIndex]))
+				if (isset($landings[$pageIndex]) && count($landings) > 1)
 				{
 					$forSiteUpdate['LANDING_ID_INDEX'] = $landings[$pageIndex];
 				}

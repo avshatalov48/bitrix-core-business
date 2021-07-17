@@ -11,7 +11,7 @@
 		</div>
 		<div class="landing-block-node-button-container">
 			<a href="#"
-			   class="landing-block-node-button landing-semantic-link-image-medium btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-rounded-50 g-py-15">Buy
+			   class="landing-block-node-button landing-semantic-link-image-medium btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-rounded-50">Buy
 				full version</a>
 		</div>
 	</div>

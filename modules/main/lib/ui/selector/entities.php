@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Main\UI\Selector;
 
@@ -331,7 +331,9 @@ class Entities
 
 		$cacheTtl = defined("BX_COMP_MANAGED_CACHE") ? 3153600 : 3600*4;
 		$cacheId = 'dest_sort_2'.$userId.serialize($params);
-		$cacheDir = '/ui_selector/dest_sort/'.intval($userId / 100);
+		$cacheDir = self::getCacheDir([
+			'userId' => $userId,
+		]);
 
 		$cache = new \CPHPCache;
 		if($cache->initCache($cacheTtl, $cacheId, $cacheDir))
@@ -752,7 +754,9 @@ class Entities
 				{
 					$cacheTtl = defined("BX_COMP_MANAGED_CACHE") ? 3153600 : 3600*4;
 					$cacheId = 'dest_sort_users'.$userId.serialize($params).intval($bAllowCrmEmail);
-					$cacheDir = '/ui_selector/dest_sort/'.intval($userId / 100);
+					$cacheDir = self::getCacheDir([
+						'userId' => $userId,
+					]);;
 					$cache = new \CPHPCache;
 
 					if($cache->initCache($cacheTtl, $cacheId, $cacheDir))
@@ -856,7 +860,9 @@ class Entities
 
 				$cacheTtl = defined("BX_COMP_MANAGED_CACHE") ? 3153600 : 3600*4;
 				$cacheId = 'dest_sort_sonetgroups'.$userId.serialize($params);
-				$cacheDir = '/ui_selector/dest_sort/'.intval($userId / 100);
+				$cacheDir = self::getCacheDir([
+					'userId' => $userId,
+				]);
 				$cache = new \CPHPCache;
 
 				if($cache->initCache($cacheTtl, $cacheId, $cacheDir))
@@ -1122,6 +1128,23 @@ class Entities
 			"CONTEXT" => $context,
 			"CODE" => $code
 		));
+	}
+
+	public static function getCacheDir(array $params = [])
+	{
+		global $USER;
+
+		$userId = (int)($params['userId'] ?? 0);
+
+		if (
+			$userId <= 0
+			&& $USER->isAuthorized()
+		)
+		{
+			$userId = $USER->getId();
+		}
+
+		return '/ui_selector/dest_sort/' . substr(md5($userId), 2, 2) . '/' . $userId;
 	}
 
 }

@@ -313,4 +313,9 @@ class CSocServEventHandlers
 		if(COption::GetOptionString("socialservices", "allow_send_user_activity", "Y") == 'Y')
 			CJSCore::Init(array('socserv_timeman'));
 	}
+
+	public static function OnUserLogout(&$arParams)
+	{
+		CSocServAuthManager::UnsetAuthorizedServiceId();
+	}
 }

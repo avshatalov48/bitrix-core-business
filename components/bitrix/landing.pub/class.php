@@ -594,10 +594,11 @@ class LandingPubComponent extends LandingBaseComponent
 					array(
 						'ID' => $site['LANDING_ID_404']
 					),
-					array(
-						'ID' => $site['LANDING_ID_INDEX'],
-						'FOLDER_ID' => false
+					$site['LANDING_ID_INDEX']
+					? array(
+						'ID' => $site['LANDING_ID_INDEX']
 					)
+					: array()
 				),
 				$this->isPreviewMode
 				? array()
@@ -607,10 +608,11 @@ class LandingPubComponent extends LandingBaseComponent
 						'=ACTIVE' => ['Y', 'N'],
 						'FOLDER_ID' => false
 					),
-					array(
-						'ID' => $site['LANDING_ID_INDEX'],
-						'FOLDER_ID' => false
-					),
+					$site['LANDING_ID_INDEX']
+					? array(
+						'ID' => $site['LANDING_ID_INDEX']
+					)
+					: array(),
 					array(
 						'ID' => $site['LANDING_ID_404']
 					)
@@ -1223,7 +1225,7 @@ class LandingPubComponent extends LandingBaseComponent
 		$canonical = $domainName . Manager::getApplication()->getCurDir();
 		Manager::setPageView(
 			'MetaOG',
-			'<meta name="og:url" content="' . $canonical . '" />' . "\n" .
+			'<meta property="og:url" content="' . $canonical . '" />' . "\n" .
 			'<link rel="canonical" href="' . $canonical . '"/>'
 		);
 	}

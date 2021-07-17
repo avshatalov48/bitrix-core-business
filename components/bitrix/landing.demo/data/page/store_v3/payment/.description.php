@@ -17,7 +17,6 @@ return [
 		'RULE' => NULL,
 		'ADDITIONAL_FIELDS' => [
 			'B24BUTTON_CODE' => 'N',
-			'THEME_CODE' => 'photography',
 		],
 	],
 	'layout' => [

@@ -30,7 +30,7 @@ class Conference
 			return false;
 		}
 
-		return \CBitrix24::IsLicensePaid() || \CBitrix24::IsNfrLicense() || \CBitrix24::IsDemoLicense();
+		return \Bitrix\Bitrix24\Feature::isFeatureEnabled("crm_zoom_integration");
 	}
 
 	public static function create($userId, $data): Result

@@ -538,35 +538,38 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		}
 
 		// first check
-		foreach (array('draft', 'public') as $code)
+		if (Rights::isOn())
 		{
-			self::setEditMode($code == 'draft');
-			$landing = self::createInstance($id, $params);
-			if ($landing->exist())
+			foreach (['draft', 'public'] as $code)
 			{
-				foreach ($landing->getBlocks() as $block)
+				self::setEditMode($code == 'draft');
+				$landing = self::createInstance($id, $params);
+				if ($landing->exist())
 				{
-					if ($block->getAccess() < $block::ACCESS_X)
+					foreach ($landing->getBlocks() as $block)
 					{
-						$result->addError(
-							new \Bitrix\Main\Error(
-								Loc::getMessage('LANDING_BLOCK_ACCESS_DENIED'),
-								'ACCESS_DENIED'
-							)
-						);
-						return $result;
+						if ($block->getAccess() < $block::ACCESS_X)
+						{
+							$result->addError(
+								new \Bitrix\Main\Error(
+									Loc::getMessage('LANDING_BLOCK_ACCESS_DENIED'),
+									'ACCESS_DENIED'
+								)
+							);
+							return $result;
+						}
 					}
 				}
-			}
-			else
-			{
-				if (!$landing->getError()->isEmpty())
+				else
 				{
-					$result->addError(
-						$landing->getError()->getErrors()[0]
-					);
+					if (!$landing->getError()->isEmpty())
+					{
+						$result->addError(
+							$landing->getError()->getErrors()[0]
+						);
+					}
+					return $result;
 				}
-				return $result;
 			}
 		}
 
@@ -972,7 +975,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 					);
 				}
 			}
-			else if ($this->siteRow['LANDING_ID_INDEX'] != $this->id)
+			if ($this->siteRow['LANDING_ID_INDEX'] != $this->id)
 			{
 				Manager::getApplication()->addChainItem(
 					$this->title,

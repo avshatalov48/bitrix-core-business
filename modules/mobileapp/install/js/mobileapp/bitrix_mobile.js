@@ -2646,38 +2646,44 @@
 		}
 	};
 
-	/**
-	 * @deprecated since version 2.0
-	 */
-	window.MobileAjaxWrapper = function ()
-	{
-		this.instance = new BX.Mobile.Ajax();
-	};
-
-	MobileAjaxWrapper.prototype.Wrap = function (params)
-	{
-		var result = this.instance.instanceWrap(params);
-		this.xhr = this.instance.xhr;
-		return result;
-	};
-
-	MobileAjaxWrapper.prototype.runComponentAction = function(component, action, config, callbacks)
-	{
-		return this.instance.instanceRunComponentAction(component, action, config, callbacks);
-	};
-
-	MobileAjaxWrapper.prototype.runAction = function(action, config, callbacks)
-	{
-		return this.instance.instanceRunAction(action, config, callbacks);
-	};
-
-	MobileAjaxWrapper.prototype.OfflineAlert = function (callback)
-	{
-		navigator.notification.alert(BX.message('MobileAppOfflineMessage'), (callback || BX.DoNothing), BX.message('MobileAppOfflineTitle'));
-	};
-
 	BMAjaxWrapper = null;
 	BX.ready(function() {
+
+		if (BX.type.isUndefined(BX.Mobile))
+		{
+			return;
+		}
+
+		/**
+		 * @deprecated since version 2.0
+		 */
+		window.MobileAjaxWrapper = function ()
+		{
+			this.instance = new BX.Mobile.Ajax();
+		};
+
+		MobileAjaxWrapper.prototype.Wrap = function (params)
+		{
+			var result = this.instance.instanceWrap(params);
+			this.xhr = this.instance.xhr;
+			return result;
+		};
+
+		MobileAjaxWrapper.prototype.runComponentAction = function(component, action, config, callbacks)
+		{
+			return this.instance.instanceRunComponentAction(component, action, config, callbacks);
+		};
+
+		MobileAjaxWrapper.prototype.runAction = function(action, config, callbacks)
+		{
+			return this.instance.instanceRunAction(action, config, callbacks);
+		};
+
+		MobileAjaxWrapper.prototype.OfflineAlert = function (callback)
+		{
+			navigator.notification.alert(BX.message('MobileAppOfflineMessage'), (callback || BX.DoNothing), BX.message('MobileAppOfflineTitle'));
+		};
+
 		BMAjaxWrapper = new MobileAjaxWrapper;
 	});
 

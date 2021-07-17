@@ -28,7 +28,7 @@
 							<div class="g-flex-middle-item">
 								<h6 class="landing-block-node-card-title landing-semantic-subtitle-medium g-font-weight-700 text-uppercase g-mb-10 g-text-break-word">We are the
 									best</h6>
-								<div class="landing-block-node-card-text landing-semantic-text-medium g-color-black-opacity-0_7">
+								<div class="landing-block-node-card-text landing-semantic-text-medium">
 									<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros, fringilla porttitor lorem eros vel odio.</p>
 								</div>
 							</div>

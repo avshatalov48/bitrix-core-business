@@ -151,7 +151,7 @@ class PlacementTable extends Main\Entity\DataManager
 			static::$handlersListCache[$placement] = array();
 
 			$cache = Main\Application::getInstance()->getManagedCache();
-			if(false && $cache->read(static::CACHE_TTL, static::getCacheId($placement), static::CACHE_DIR))
+			if($cache->read(static::CACHE_TTL, static::getCacheId($placement), static::CACHE_DIR))
 			{
 				static::$handlersListCache = $cache->get(static::getCacheId($placement));
 			}

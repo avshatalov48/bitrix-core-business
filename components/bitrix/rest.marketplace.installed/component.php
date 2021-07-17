@@ -161,7 +161,7 @@ if (!empty($arCodes))
 {
 	$arAppsBuy = Client::getBuy($arCodes);
 
-	if (is_array($arAppsBuy))
+	if (isset($arAppsBuy['ITEMS']) && is_array($arAppsBuy['ITEMS']))
 	{
 		foreach ($arAppsBuy['ITEMS'] as $key => $app)
 		{

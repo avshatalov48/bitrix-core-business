@@ -106,7 +106,7 @@ return array(
 					<h2 class="landing-block-node-card-title g-font-weight-700 g-mb-20 g-text-transform-none g-font-size-120 g-color-primary"><span style="font-style: italic;"><span style="color: rgb(245, 245, 245);">Tom</span> <span style="">&amp;</span> <span style="color: rgb(245, 245, 245);">Anna</span></span></h2>
 					<div class="landing-block-node-card-text g-max-width-645 g-color-white-opacity-0_9 mx-auto g-mb-35"> </div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-py-15 g-rounded-10" href="#" tabindex="-1" target="_self">View more</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-rounded-10" href="#" tabindex="-1" target="_self">View more</a>
 					</div>
 				</div>
 			</div>
@@ -122,7 +122,7 @@ return array(
 					<h2 class="landing-block-node-card-title g-font-weight-700 g-mb-20 g-text-transform-none g-font-size-120 g-color-primary"><span style="font-style: italic;"><span style="color: rgb(245, 245, 245);">Tom</span> <span style="">&amp;</span> <span style="color: rgb(245, 245, 245);">Anna</span></span></h2>
 					<div class="landing-block-node-card-text g-max-width-645 g-color-white-opacity-0_9 mx-auto g-mb-35"> </div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-py-15 g-rounded-10" href="#" tabindex="0" target="_self">View more</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-rounded-10" href="#" tabindex="0" target="_self">View more</a>
 					</div>
 				</div>
 			</div>
@@ -312,7 +312,7 @@ return array(
 			Pellentesque finibus convallis nulla vel placerat.
 		</div>
 		<div class="landing-block-node-button-container">
-			<a href="#" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-py-15 g-mb-15 g-rounded-10" target="_self">View our presentation</a>
+			<a href="#" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-mb-15 g-rounded-10" target="_self">View our presentation</a>
 		</div>
 	</div>
 </section>',

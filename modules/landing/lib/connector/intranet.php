@@ -121,7 +121,7 @@ class Intranet
 					$menuItems[] = [
 						'id' => 'landing_unbind',
 						'extension' => 'landing.connector.intranet',
-						'text' => Loc::getMessage('LANDING_CONNECTOR_INTRANET_MENU_UNBIND_TITLE'),
+						'text' => Loc::getMessage('LANDING_CONNECTOR_INTRANET_MENU_HIDE_TITLE'),
 						'items' => $unbindItems
 					];
 				}

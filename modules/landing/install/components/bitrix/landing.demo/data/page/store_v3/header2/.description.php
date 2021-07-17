@@ -14,9 +14,7 @@ return [
 	'version' => 3,
 	'fields' => [
 		'RULE' => NULL,
-		'ADDITIONAL_FIELDS' => [
-			'THEME_CODE' => 'photography',
-		],
+		'ADDITIONAL_FIELDS' => [],
 	],
 	'layout' => [
 		'code' => 'empty',

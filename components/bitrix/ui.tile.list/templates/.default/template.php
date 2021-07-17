@@ -55,6 +55,11 @@ $getTileLayout = function (array $tile = [])
 			<span class="ui-tile-list-label-text"><?=Loc::getMessage('UI_TILE_LIST_COMMING_SOON')?></span>
 		</div>
 		<? endif ?>
+		<? if ($tile['button']): ?>
+		<div>
+			<button class="ui-btn ui-btn-primary"><?=$tile['data']['buttonName']?></button>
+		</div>
+		<? endif ?>
 	</div>
 	<?
 	return ob_get_clean();

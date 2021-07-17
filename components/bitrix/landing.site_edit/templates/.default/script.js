@@ -285,18 +285,19 @@ BX.ready(function()
 			BX.PreventDefault();
 		});
 	}
-});
 
-/**
- * Show all 20 colors in setting 'corporate color'
- */
-function showAllColors()
-{
-	var colors = document.getElementById("set-colors");
-	for (var i = 0; i < colors.childNodes.length; i++)
+	//Show all 20 colors in setting 'corporate color'
+	var linkAllColors = document.getElementById("link-all-colors");
+	if (linkAllColors)
 	{
-		colors.childNodes[i].hidden = false;
+		linkAllColors.addEventListener("click", showAllColors);
 	}
-	var link = document.getElementById("link-all-colors");
-	link.hidden = true;
-}
+	function showAllColors() {
+		var colors = document.getElementById("set-colors");
+		for (var i = 0; i < colors.childNodes.length; i++)
+		{
+			colors.childNodes[i].hidden = false;
+		}
+		linkAllColors.hidden = true;
+	}
+});

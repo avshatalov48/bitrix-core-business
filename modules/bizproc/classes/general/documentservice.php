@@ -259,7 +259,7 @@ class CBPDocumentService
 		return null;
 	}
 
-	public function normalizeDocumentId($parameterDocumentId)
+	public function normalizeDocumentId($parameterDocumentId, string $docType = null)
 	{
 		$normalized = $parameterDocumentId;
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
@@ -271,7 +271,7 @@ class CBPDocumentService
 
 		if (class_exists($entity) && method_exists($entity, "normalizeDocumentId"))
 		{
-			$normalized = [$moduleId, $entity, call_user_func_array([$entity, "normalizeDocumentId"], [$documentId])];
+			$normalized = [$moduleId, $entity, call_user_func_array([$entity, "normalizeDocumentId"], [$documentId, $docType])];
 		}
 
 		return $normalized;

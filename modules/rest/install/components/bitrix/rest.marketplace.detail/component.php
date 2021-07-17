@@ -67,6 +67,15 @@ if($ver === false && $ar['ACTIVE'] === 'N' && $ar['STATUS'] === \Bitrix\Rest\App
 {
 	$ver = intval($ar['VERSION']);
 }
+elseif (
+	$arResult['START_INSTALL']
+	&& $ar['ID'] > 0
+	&& $ar['ACTIVE'] === \Bitrix\Rest\AppTable::ACTIVE
+	&& $ar['INSTALLED'] === \Bitrix\Rest\AppTable::INSTALLED
+)
+{
+	$arResult['START_INSTALL'] = false;
+}
 
 if(
 	($ar['ID'] > 0 && $ar['ACTIVE'] === \Bitrix\Rest\AppTable::ACTIVE && $ar['INSTALLED'] === \Bitrix\Rest\AppTable::INSTALLED)

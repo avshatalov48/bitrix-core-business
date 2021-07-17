@@ -286,6 +286,7 @@ class UserFieldTable extends ORM\Data\DataManager
 
 				/** @var \Bitrix\Main\ORM\Fields\ScalarField $utsField */
 				$utsField = $utsEntity->getField($utsFieldName);
+				$fieldAsType = $USER_FIELD_MANAGER->getEntityField($userfield);
 
 				$aliasField = new ORM\Fields\UserTypeField(
 					$utsFieldName,
@@ -294,10 +295,12 @@ class UserFieldTable extends ORM\Data\DataManager
 					array('data_type' => get_class($utsField))
 				);
 
+				$aliasField->configureValueType(get_class($fieldAsType));
+
 				if ($userfield['MULTIPLE'] == 'Y')
 				{
 					$aliasField->configureMultiple();
-					static::setMultipleFieldSerialization($aliasField, $userfield);
+					static::setMultipleFieldSerialization($aliasField, $fieldAsType);
 				}
 
 				$entity->addField($aliasField);

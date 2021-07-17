@@ -9,10 +9,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  * @var \TranslateEditComponent $component
  */
 $component = $this->getComponent();
-
-if($component->hasErrors())
+if ($component->hasErrors())
 {
-	/** @var \Bitrix\Main\Error $error */
-	$error = $component->getFirstError();
-	$arResult['ERROR_MESSAGE'] = $error->getMessage();
+	$arResult['ERROR_MESSAGE'] = $component->getFirstError()->getMessage();
+}
+if ($component->hasWarnings())
+{
+	$arResult['WARNING_MESSAGE'] = $component->getFirstWarning()->getMessage();
 }

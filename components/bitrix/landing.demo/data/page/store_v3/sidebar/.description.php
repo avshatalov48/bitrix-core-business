@@ -15,7 +15,6 @@ return [
 	'fields' => [
 		'RULE' => NULL,
 		'ADDITIONAL_FIELDS' => [
-			'THEME_CODE' => 'photography',
 			'BACKGROUND_USE' => 'Y',
 			'BACKGROUND_COLOR' => '#ffffff',
 		],

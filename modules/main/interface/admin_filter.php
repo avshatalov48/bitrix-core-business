@@ -29,7 +29,7 @@ class CAdminFilter
 		if(empty($popup) || !is_array($popup))
 			$popup = false;
 
-		$this->id = $id;
+		$this->id = preg_replace('/[^a-z0-9_]/i', '', $id);
 		$this->popup = $popup;
 
 		if(is_array($arExtraParams))

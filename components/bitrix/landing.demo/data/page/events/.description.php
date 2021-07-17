@@ -196,7 +196,7 @@ return [
 										to UI/UX Design</h4>
 									<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-23 g-mb-10">
 										John Doe,
-										Dribbble</h3>
+										Co-founder</h3>
 									<div class="landing-block-node-card-text mb-0"><p>Lorem ipsum
 											dolor
 											sit amet, consectetur adipiscing
@@ -235,7 +235,7 @@ return [
 										Design Trands for 2021</h4>
 									<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-23 g-mb-10">
 										Kate Watson,
-										Airbnb</h3>
+										Designer</h3>
 									<div class="landing-block-node-card-text mb-0"><p>Lorem ipsum
 											dolor
 											sit amet, consectetur adipiscing
@@ -274,7 +274,7 @@ return [
 										Digital Marketing</h4>
 									<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-23 g-mb-10">
 										Sara Woodman,
-										Google</h3>
+										Consultant</h3>
 									<div class="landing-block-node-card-text mb-0"><p>Lorem ipsum
 											dolor
 											sit amet, consectetur adipiscing
@@ -313,7 +313,7 @@ return [
 										Photoshop vs Sketch</h4>
 									<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-23 g-mb-10">
 										Mark Rayman,
-										Invision</h3>
+										Photographer</h3>
 									<div class="landing-block-node-card-text mb-0"><p>Lorem ipsum
 											dolor
 											sit amet, consectetur adipiscing

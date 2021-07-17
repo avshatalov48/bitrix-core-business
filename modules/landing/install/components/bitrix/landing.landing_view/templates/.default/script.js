@@ -613,6 +613,18 @@
 						disabled: !this.rights.settings
 					}
 					: null,
+					{
+						href: this.urls['landingDesign'],
+						text: BX.message('LANDING_TPL_SETTINGS_PAGE_DIZ_URL'),
+						disabled: !this.rights.settings
+					},
+					!this.formEditor
+						? {
+							href: this.urls['landingSiteDesign'],
+							text: BX.message('LANDING_TPL_SETTINGS_SITE_DIZ_URL'),
+							disabled: !this.rights.settings
+						}
+						: null,
 					this.storeEnabled
 					? {
 						href: this.urls['landingCatalogEdit'],

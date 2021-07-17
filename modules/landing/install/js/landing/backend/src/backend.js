@@ -198,7 +198,10 @@ export class Backend
 		uploadParams = {},
 	): Promise<{[key: string]: any}, any>
 	{
-		queryParams.site_id = this.getSiteId();
+		if (!queryParams.site_id)
+		{
+			queryParams.site_id = this.getSiteId();
+		}
 
 		const requestBody = {
 			sessid: Loc.getMessage('bitrix_sessid'),
@@ -238,7 +241,12 @@ export class Backend
 					&& requestBody.action !== 'Landing::upBlock'
 				)
 				{
-					if (requestBody.action !== 'Block::getById')
+					if (
+						requestBody.action !== 'Block::getById'
+						&& requestBody.action !== 'Landing::move'
+						&& requestBody.action !== 'Landing::copy'
+						&& requestBody.action !== 'Site::moveFolder'
+					)
 					{
 						const error = Type.isString(err) ? {type: 'error'} : err;
 						err.action = requestBody.action;

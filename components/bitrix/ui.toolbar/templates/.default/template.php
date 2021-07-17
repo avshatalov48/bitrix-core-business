@@ -22,19 +22,19 @@ $afterTitleButtons = Toolbar::renderAfterTitleButtons();
 $rightButtons = Toolbar::renderRightButtons();
 $filterButtons = Toolbar::renderAfterFilterButtons();
 
-$favoriteTitleTemplate = (!empty($arParams['FAVORITES_TITLE_TEMPLATE']) ? htmlspecialcharsbx($arParams['FAVORITES_TITLE_TEMPLATE']) : '');
+$favoriteTitleTemplate = (!empty($arParams['~FAVORITES_TITLE_TEMPLATE']) ? $arParams['~FAVORITES_TITLE_TEMPLATE'] : '');
 if (mb_strlen($favoriteTitleTemplate) <= 0)
 {
 	$favoriteTitleTemplate = $APPLICATION->getProperty('FavoriteTitleTemplate', '');
 }
 
-$favoriteUrl = (!empty($arParams['FAVORITES_URL']) ? htmlspecialcharsbx($arParams['FAVORITES_URL']) : '');
+$favoriteUrl = (!empty($arParams['~FAVORITES_URL']) ? $arParams['~FAVORITES_URL'] : '');
 if (mb_strlen($favoriteUrl) <= 0)
 {
 	$favoriteUrl = $APPLICATION->getProperty('FavoriteUrl', '');
 }
 
-$favoriteStar = Toolbar::hasFavoriteStar()? '<span class="ui-toolbar-star" id="uiToolbarStar" data-bx-title-template="' . $favoriteTitleTemplate . '" data-bx-url="' . $favoriteUrl . '"></span>' : '';
+$favoriteStar = Toolbar::hasFavoriteStar()? '<span class="ui-toolbar-star" id="uiToolbarStar" data-bx-title-template="' . htmlspecialcharsbx($favoriteTitleTemplate) . '" data-bx-url="' . htmlspecialcharsbx($favoriteUrl) . '"></span>' : '';
 
 $titleProps = "";
 if (Toolbar::getTitleMinWidth() !== null)
@@ -51,42 +51,42 @@ $titleStyles = !empty($titleProps) ? ' style="'.$titleProps.'"' : "";
 
 ?>
 
-<div id="uiToolbarContainer" class="ui-toolbar"><?
-	?><div id="pagetitleContainer" class="ui-toolbar-title-box"<?=$titleStyles?>><?
+<div id="uiToolbarContainer" class="ui-toolbar"><?php
+	?><div id="pagetitleContainer" class="ui-toolbar-title-box"<?=$titleStyles?>><?php
 		?>
 		<div class="ui-toolbar-title-inner">
 			<div class="ui-toolbar-title-item-box">
 				<span id="pagetitle" class="ui-toolbar-title-item"><?=$APPLICATION->getTitle(false, true)?></span>
 				<?= $favoriteStar ?>
-			</div><?
+			</div><?php
 			?>
 			<div style="display: none" class="ui-toolbar-subtitle">
 				<span class="ui-toolbar-subtitle-item"></span>
 				<span class="ui-toolbar-subtitle-control"></span>
 			</div>
 		</div>
-		<?
+		<?php
 	?></div>
-	<?
+	<?php
 
 	if($afterTitleButtons <> ''):
 		?>
-		<div class="ui-toolbar-after-title-buttons"><?= $afterTitleButtons ?></div><?
+		<div class="ui-toolbar-after-title-buttons"><?= $afterTitleButtons ?></div><?php
 	endif;
 
 	if($filter <> ''):
 		?>
-		<div class="ui-toolbar-filter-box"><?= $filter ?><?
-		if($filterButtons <> ''): ?><?
+		<div class="ui-toolbar-filter-box"><?= $filter ?><?php
+		if($filterButtons <> ''): ?><?php
 			?>
-			<div class="ui-toolbar-filter-buttons"><?= $filterButtons ?></div><?
+			<div class="ui-toolbar-filter-buttons"><?= $filterButtons ?></div><?php
 		endif
-		?></div><?
+		?></div><?php
 	endif;
 
 	if($rightButtons <> ''):
 		?>
-		<div class="ui-toolbar-right-buttons"><?= $rightButtons ?></div><?
+		<div class="ui-toolbar-right-buttons"><?= $rightButtons ?></div><?php
 	endif;
 ?></div>
 

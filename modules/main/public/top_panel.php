@@ -9,6 +9,8 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 
+use Bitrix\Main;
+
 IncludeModuleLangFile(__FILE__);
 
 class CTopPanel
@@ -1131,113 +1133,68 @@ class CTopPanel
 		$result .= '
 			<a id="bx-panel-menu" href="" '.CTopPanel::AddAttrHint(GetMessage('top_panel_start_menu_tooltip_title'), GetMessage('top_panel_start_menu_tooltip')).'><span id="bx-panel-menu-icon"></span><span id="bx-panel-menu-text">'.GetMessage("top_panel_menu").'</span></a><div id="bx-panel-btn-wrap">';
 
-		$additionalSiteId = null;
-		$backUrlParamName = "back_url_pub";
-		$additionalTabButton = "";
-		$additionalTabMessage = GetMessage("top_panel_b24");
+		$backUrlParamName = 'back_url_pub';
+		$siteList = [];
 
-		if (\Bitrix\Main\Config\Option::get("sale", "~IS_SALE_CRM_SITE_MASTER_FINISH") === "Y")
+		if (
+			Main\Config\Option::get('sale', '~IS_SALE_CRM_SITE_MASTER_FINISH') === 'Y'
+			|| Main\Config\Option::get('sale', '~IS_SALE_BSM_SITE_MASTER_FINISH') === 'Y'
+		)
 		{
-			$additionalSiteId = \Bitrix\Main\Config\Option::get("sale", "~CRM_WIZARD_SITE_ID");
-		}
-		elseif (\Bitrix\Main\Config\Option::get("sale", "~IS_SALE_BSM_SITE_MASTER_FINISH") === "Y")
-		{
-			$additionalSiteId = \Bitrix\Main\Config\Option::get("sale", "~BSM_WIZARD_SITE_ID");
-		}
-
-		$additionalSite = \Bitrix\Main\SiteTable::getList([
-			"select" => ["SERVER_NAME"],
-			"filter" => ["LID" => $additionalSiteId]
-		])->fetch();
-
-		if ($additionalSite)
-		{
-			$defaultServerName = '';
-			$additionalServerName = '';
-
-			if ($additionalSiteId == SITE_ID
-				&& \Bitrix\Main\Config\Option::get("sale", "~IS_SALE_CRM_SITE_MASTER_FINISH") === "Y"
-			)
+			$siteList = self::getSiteList();
+			if (count($siteList) > 1)
 			{
-				$backUrlParamName = 'back_url_additional';
+				$siteMenu = [];
+				$defaultButtonTitle = '';
+				$protocol = Main\Context::getCurrent()->getRequest()->isHttps() ? "https://" : "http://";
+				foreach ($siteList as $site)
+				{
+					$siteId = $site['ID'] ?? null;
+					$isDefault = $siteId === SITE_ID;
+					$menuItemTitle =
+						$site['NAME']
+						. ' (' . $site['SERVER_NAME'] . ')'
+						. ($siteId ? ' [' . $siteId . ']' : '')
+					;
+					$siteMenu[] = [
+						'TEXT' => $menuItemTitle,
+						'ACTION' => 'jsUtils.Redirect([], \''.CUtil::JSEscape($protocol.$site['SERVER_NAME']).'\')',
+						'DEFAULT' => $isDefault,
+					];
 
-				$defaultSite = \Bitrix\Main\SiteTable::getList([
-					"select" => ["SERVER_NAME"],
-					"filter" => ["=DEF" => "Y"]
-				])->fetch();
-				if (!empty($defaultSite["SERVER_NAME"]))
-				{
-					$defaultServerName = (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".$defaultSite["SERVER_NAME"];
+					if ($isDefault)
+					{
+						$defaultButtonTitle = $menuItemTitle;
+					}
 				}
-				elseif ($serverName = \Bitrix\Main\Config\Option::get("main", "server_name"))
+
+				if (!$defaultButtonTitle)
 				{
-					$defaultServerName = (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".$serverName;
+					$defaultButtonTitle = current($siteMenu)['TEXT'];
 				}
+
+				$defaultButtonTitle = htmlspecialcharsbx($defaultButtonTitle);
+				if (mb_strlen($defaultButtonTitle) > 30)
+				{
+					$defaultButtonTitle = mb_substr($defaultButtonTitle, 0, 30) . '...';
+				}
+
+				$result .= '<a id="bx-panel-view-tab" class="bx-panel-view-tab-btn"><strong><span id="bx-panel-view-tab-select">'.$defaultButtonTitle.'</span></strong></a>';
+				$result .= '
+					<script type="text/javascript">
+						BX.admin.panel.RegisterButton({
+							ID: "bx-panel-view-tab-select",
+							TYPE: "SMALL",
+							MENU: '.CUtil::PhpToJsObject($siteMenu).',
+							TEXT: "'.$defaultButtonTitle.'",
+							GROUP_ID: 0
+						})
+					</script>
+				';
 			}
 			else
 			{
-				if (!empty($additionalSite["SERVER_NAME"]))
-				{
-					$additionalServerName = (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".$additionalSite["SERVER_NAME"];
-				}
-			}
-
-			if (\Bitrix\Main\Config\Option::get("sale", "~IS_SALE_CRM_SITE_MASTER_FINISH") === "Y")
-			{
-				if ($defaultServerName)
-				{
-					$result .= '<a id="bx-panel-view-site" href="'.$defaultServerName.'"><span>'.GetMessage("top_panel_site").'</span></a>';
-				}
-				else
-				{
-					$result .= '<a id="bx-panel-view-tab"><span>'.GetMessage("top_panel_site").'</span></a>';
-				}
-
-				if ($additionalServerName)
-				{
-					$additionalTabButton = '<a id="bx-panel-view-site" href="'.$additionalServerName.'"><span>'.$additionalTabMessage.'</span></a>';
-				}
-				else
-				{
-					$additionalTabButton = '<a id="bx-panel-view-tab"><span>' . $additionalTabMessage . '</span></a>';
-				}
-			}
-			elseif (\Bitrix\Main\Config\Option::get("sale", "~IS_SALE_BSM_SITE_MASTER_FINISH") === "Y")
-			{
-				$defaultSite = \Bitrix\Main\SiteTable::getList([
-					"select" => ["LID", "SERVER_NAME"],
-					"filter" => ["=DEF" => "Y"]
-				])->fetch();
-				if ($defaultSite["LID"] === SITE_ID)
-				{
-					$backUrlParamName = 'back_url_additional';
-					$result .= '<a id="bx-panel-view-site" href="'.$additionalServerName.'"><span>'.GetMessage("top_panel_site").'</span></a>';
-				}
-				else
-				{
-					$result .= '<a id="bx-panel-view-tab"><span>'.GetMessage("top_panel_site").'</span></a>';
-				}
-
-				if ($additionalServerName)
-				{
-					if (!empty($defaultSite["SERVER_NAME"]))
-					{
-						$defaultServerName = (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".$defaultSite["SERVER_NAME"];
-					}
-					elseif ($serverName = \Bitrix\Main\Config\Option::get("main", "server_name"))
-					{
-						$defaultServerName = (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".$serverName;
-					}
-
-					if ($defaultSite["LID"] === SITE_ID)
-					{
-						$additionalTabButton = '<a id="bx-panel-view-tab"><span>'.$additionalTabMessage.'</span></a>';
-					}
-					else
-					{
-						$additionalTabButton = '<a id="bx-panel-view-site" href="'.$defaultServerName.'"><span>'.$additionalTabMessage.'</span></a>';
-					}
-				}
+				$result .= '<a id="bx-panel-view-tab"><span>'.GetMessage("top_panel_site").'</span></a>';
 			}
 		}
 		else
@@ -1245,14 +1202,25 @@ class CTopPanel
 			$result .= '<a id="bx-panel-view-tab"><span>'.GetMessage("top_panel_site").'</span></a>';
 		}
 
-		$result .= '
-				<a id="bx-panel-admin-tab" href="'.(
-						isset(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADMIN"]) && \Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADMIN"] <> ""
-						? htmlspecialcharsbx(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADMIN"]).(mb_strpos(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADMIN"], "?") !== false? "&amp;":"?")
-						: '/bitrix/admin/index.php?lang='.LANGUAGE_ID.'&amp;'
-					).$backUrlParamName.'='.urlencode($href.($params<>""? "?".$params:"")).'"><span>'.GetMessage("top_panel_admin").'</span></a>';
+		$isBackUrlAdmin = (
+			isset(Main\Application::getInstance()->getSession()["BACK_URL_ADMIN"])
+			&& Main\Application::getInstance()->getSession()["BACK_URL_ADMIN"] != ""
+		);
+		$adminHref = (
+			$isBackUrlAdmin
+				? htmlspecialcharsbx(Main\Application::getInstance()->getSession()["BACK_URL_ADMIN"]) . (mb_strpos(Main\Application::getInstance()->getSession()["BACK_URL_ADMIN"], "?") !== false ? "&amp;" : "?")
+				: '/bitrix/admin/index.php?lang=' . LANGUAGE_ID . '&amp;'
+			) . $backUrlParamName . '=' . urlencode($href . ($params != "" ? "?".$params : ""));
 
-		$result .= $additionalTabButton;
+		if (count($siteList) > 1)
+		{
+			$result .= '<a id="bx-panel-admin-tab" class="bx-panel-admin-tab-btn" href="'.$adminHref.'"><span>'.GetMessage("top_panel_admin").'</span></a>';
+		}
+		else
+		{
+			$result .= '<a id="bx-panel-admin-tab" href="'.$adminHref.'"><span>'.GetMessage("top_panel_admin").'</span></a>';
+		}
+
 		$result .= "</div>";
 
 		$back_url = CUtil::JSUrlEscape(CUtil::addslashes($href.($params<>""? "?".$params:"")));
@@ -1540,5 +1508,104 @@ class CTopPanel
 		$result .= $adminPage->ShowSound();
 
 		return $result;
+	}
+
+	private static function getSiteList(): array
+	{
+		$siteList = [];
+		$siteIdList = [];
+		$isDefaultSiteExists = false;
+
+		$siteIterator = Main\SiteTable::getList([
+			'select' => ['LID', 'NAME', 'DEF', 'SITE_NAME', 'SERVER_NAME', 'SORT'],
+			'filter' => [
+				'=ACTIVE' => 'Y',
+			],
+			'cache' => ['ttl' => 86400],
+		]);
+		while ($siteData = $siteIterator->fetch())
+		{
+			$siteIdList[] = $siteData['LID'];
+
+			if (empty($siteData['SERVER_NAME']))
+			{
+				continue;
+			}
+
+			$siteList[] = [
+				'ID' => $siteData['LID'],
+				'NAME' => $siteData['SITE_NAME'] ?: $siteData['NAME'],
+				'SERVER_NAME' => $siteData['SERVER_NAME'],
+				'SORT' => $siteData['SORT'],
+			];
+
+			if ($siteData['DEF'] === 'Y')
+			{
+				$isDefaultSiteExists = true;
+			}
+		}
+
+		if ($siteIdList)
+		{
+			$siteDomainIterator = Main\SiteDomainTable::getList([
+				'select' => [
+					'LID',
+					'DOMAIN',
+					'NAME' => 'SITE.NAME',
+					'SITE_NAME' => 'SITE.SITE_NAME',
+					'DEF' => 'SITE.DEF',
+					'SORT' => 'SITE.SORT',
+				],
+				'filter' => [
+					'=LID' => $siteIdList,
+				],
+				'cache' => ['ttl' => 86400],
+			]);
+			while ($siteDomainData = $siteDomainIterator->fetch())
+			{
+				$isDomainExists = (bool)array_filter($siteList, static function ($site) use ($siteDomainData) {
+					return $site['SERVER_NAME'] === $siteDomainData['DOMAIN'];
+				});
+
+				if (!$isDomainExists)
+				{
+					$siteList[] = [
+						'ID' => $siteDomainData['LID'],
+						'NAME' => $siteDomainData['SITE_NAME'] ?: $siteDomainData['NAME'],
+						'SERVER_NAME' => $siteDomainData['DOMAIN'],
+						'SORT' => $siteDomainData['SORT']
+					];
+
+					if ($siteDomainData['DEF'] === 'Y')
+					{
+						$isDefaultSiteExists = true;
+					}
+				}
+			}
+		}
+
+		if (!$isDefaultSiteExists)
+		{
+			$serverName = Main\Config\Option::get('main', 'server_name', '', '');
+			$isDefaultSiteExists = (bool)array_filter($siteList, static function ($site) use ($serverName) {
+				return $site['SERVER_NAME'] === $serverName;
+			});
+			if (!$isDefaultSiteExists)
+			{
+				$siteName = Main\Config\Option::get('main', 'site_name', '', '');
+				array_unshift(
+					$siteList,
+					[
+						'NAME' => $siteName,
+						'SERVER_NAME' => $serverName,
+						'SORT' => 1,
+					]
+				);
+			}
+		}
+
+		Main\Type\Collection::sortByColumn($siteList, ['SORT' => SORT_ASC]);
+
+		return $siteList;
 	}
 }

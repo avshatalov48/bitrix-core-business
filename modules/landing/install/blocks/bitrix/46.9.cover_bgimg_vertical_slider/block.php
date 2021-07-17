@@ -25,7 +25,7 @@
 						Apartment in<br>London's center
 					</h2>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-md g-btn-px-l rounded-0 g-mt-0 text-uppercase g-btn-primary g-py-7 g-py-15--md"
+						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-md g-btn-px-l rounded-0 g-mt-0 text-uppercase g-btn-primary"
 						   href="#">Learn more</a>
 					</div>
 				</div>
@@ -44,7 +44,7 @@
 						Apartment in<br>London's center
 					</h2>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-md g-btn-px-l rounded-0 g-mt-0 text-uppercase g-btn-primary g-py-7 g-py-15--md"
+						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-md g-btn-px-l rounded-0 g-mt-0 text-uppercase g-btn-primary"
 						   href="#">Learn more</a>
 					</div>
 				</div>
@@ -63,7 +63,7 @@
 						Apartment in<br>London's center
 					</h2>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-md g-btn-px-l rounded-0 g-mt-0 text-uppercase g-btn-primary g-py-7 g-py-15--md"
+						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-md g-btn-px-l rounded-0 g-mt-0 text-uppercase g-btn-primary"
 						   href="#">Learn more</a>
 					</div>
 				</div>
@@ -83,7 +83,7 @@
 						Apartment in<br>London's center
 					</h2>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-md g-btn-px-l rounded-0 g-mt-0 text-uppercase g-btn-primary g-py-7 g-py-15--md"
+						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-md g-btn-px-l rounded-0 g-mt-0 text-uppercase g-btn-primary"
 						   href="#">Learn more</a>
 					</div>
 				</div>

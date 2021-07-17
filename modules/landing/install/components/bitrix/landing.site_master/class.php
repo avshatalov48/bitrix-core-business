@@ -140,7 +140,7 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 	 * @param string $shopCode Shop code.
 	 * @return bool
 	 */
-	protected function actionCreate(string $shopCode): bool
+	public function actionCreate(string $shopCode): bool
 	{
 		$result = \Bitrix\Landing\Site::addByTemplate($shopCode, 'STORE', ['section' => 'fashion']);
 		if ($result->getId())
@@ -155,7 +155,11 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 			$contacts = Connector\Crm::getContacts($result->getId());
 			$this->updateMainTitles($result->getId(), ['TITLE' => $contacts['COMPANY']]);
 			$this->setSiteMasterUrl($result->getId());
-			$this->frameRedirect($this->arParams['PAGE_URL_SITE_MASTER']);
+
+			if (isset($this->arParams['PAGE_URL_SITE_MASTER']) && is_string($this->arParams['PAGE_URL_SITE_MASTER']))
+			{
+				$this->frameRedirect($this->arParams['PAGE_URL_SITE_MASTER']);
+			}
 		}
 
 		return false;

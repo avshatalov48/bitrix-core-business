@@ -278,6 +278,7 @@
 
 			this.iframeWrapper.dataset.postfix = "";
 			BX.Landing.Main.getInstance().enableControls();
+			BX.Landing.Main.getInstance().setNoTouchDevice();
 		},
 
 
@@ -296,6 +297,7 @@
 
 			this.iframeWrapper.dataset.postfix = "--md";
 			BX.Landing.Main.getInstance().disableControls();
+			BX.Landing.Main.getInstance().setTouchDevice();
 		},
 
 
@@ -314,6 +316,7 @@
 
 			this.iframeWrapper.dataset.postfix = "--md";
 			BX.Landing.Main.getInstance().disableControls();
+			BX.Landing.Main.getInstance().setTouchDevice();
 		},
 
 

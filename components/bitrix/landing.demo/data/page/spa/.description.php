@@ -96,7 +96,7 @@ return [
 
 		<div class="landing-block-node-text g-mb-35 g-color-white g-font-size-36"><span style="font-weight: bold;">30% OFF</span></div>
 		<div class="landing-block-node-button-container">
-			<a href="#" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-py-15 g-mb-15 rounded-0" target="_self">LEARN MORE</a>
+			<a href="#" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-mb-15 rounded-0" target="_self">LEARN MORE</a>
 		</div>
 	</div>
 </section>',
@@ -125,7 +125,7 @@ return [
 							justo, rhoncus ut, imperdiet a, venenatis vitae, justo.</p>
 					</div>
 					<div class="landing-block-node-button-container">
-						<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10" href="#">View our procedures</a>
+						<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0" href="#">View our procedures</a>
 					</div>
 				</div>
 			</div>
@@ -176,7 +176,7 @@ return [
 								<span style="font-weight: bold;">40% Off</span>
 							</h4>
 							<div class="landing-block-node-button1-container">
-								<a class="landing-block-node-button1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10"
+								<a class="landing-block-node-button1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0"
 								   href="#">Contact us</a>
 							</div>
 						</div>

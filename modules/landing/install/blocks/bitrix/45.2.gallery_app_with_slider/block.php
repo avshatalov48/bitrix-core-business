@@ -23,11 +23,15 @@
                    "slidesToShow": 1,
                    "slidesToScroll": 1
                  }
-               }]'>
-			<div class="landing-block-node-card js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
-				<div class="g-pos-rel g-parent d-inline-block h-100 g-max-height-500">
-					<img class="landing-block-node-card-img g-object-fit-cover w-100 h-100 g-max-width-100x mx-auto"
-						 data-fancybox="gallery" data-link-classes='d-block g-pos-rel h-auto' alt=""
+               }]'
+			data-init-classes-exclude='[{
+					 "selector": ".landing-block-node-card",
+					 "class": "col-12 col-md-6 col-lg-4"
+				   }]'>
+			<div class="landing-block-node-card col-12 col-md-6 col-lg-4 js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
+				<div class="g-pos-rel g-parent d-inline-block w-100">
+					<img class="landing-block-node-card-img g-object-fit-cover g-width-auto g-max-width-100x g-max-height-500 mx-auto"
+						 data-fancybox="gallery" data-link-classes="d-block g-pos-rel h-auto" alt=""
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img1.jpg"/>
 					<div class="landing-block-node-card-title-container g-pointer-events-all w-100 g-pos-abs g-bottom-0 g-left-0 text-center g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 						<h3 class="landing-block-node-card-title g-color-white">Title</h3>
@@ -35,10 +39,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="landing-block-node-card js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
-				<div class="g-pos-rel g-parent d-inline-block h-100 g-max-height-500">
-					<img class="landing-block-node-card-img g-object-fit-cover w-100 h-100 g-max-width-100x mx-auto"
-						 data-fancybox="gallery" data-link-classes='d-block g-pos-rel h-auto' alt=""
+			<div class="landing-block-node-card col-12 col-md-6 col-lg-4 js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
+				<div class="g-pos-rel g-parent d-inline-block w-100">
+					<img class="landing-block-node-card-img g-object-fit-cover g-width-auto g-max-width-100x g-max-height-500 mx-auto"
+						 data-fancybox="gallery" data-link-classes="d-block g-pos-rel h-auto" alt=""
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img2.jpg"/>
 					<div class="landing-block-node-card-title-container g-pointer-events-all w-100 g-pos-abs g-bottom-0 g-left-0 text-center g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 						<h3 class="landing-block-node-card-title g-color-white">Title</h3>
@@ -46,10 +50,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="landing-block-node-card js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
-				<div class="g-pos-rel g-parent d-inline-block h-100 g-max-height-500">
-					<img class="landing-block-node-card-img g-object-fit-cover w-100 h-100 g-max-width-100x mx-auto"
-						 data-fancybox="gallery" data-link-classes='d-block g-pos-rel h-auto' alt=""
+			<div class="landing-block-node-card col-12 col-md-6 col-lg-4 js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
+				<div class="g-pos-rel g-parent d-inline-block w-100">
+					<img class="landing-block-node-card-img g-object-fit-cover g-width-auto g-max-width-100x g-max-height-500 mx-auto"
+						 data-fancybox="gallery" data-link-classes="d-block g-pos-rel h-auto" alt=""
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img3.jpg"/>
 					<div class="landing-block-node-card-title-container g-pointer-events-all w-100 g-pos-abs g-bottom-0 g-left-0 text-center g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 						<h3 class="landing-block-node-card-title g-color-white">Title</h3>
@@ -57,10 +61,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="landing-block-node-card js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
-				<div class="g-pos-rel g-parent d-inline-block h-100 g-max-height-500">
-					<img class="landing-block-node-card-img g-object-fit-cover w-100 h-100 g-max-width-100x mx-auto"
-						 data-fancybox="gallery" data-link-classes='d-block g-pos-rel h-auto' alt=""
+			<div class="landing-block-node-card col-12 col-md-6 col-lg-4 js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
+				<div class="g-pos-rel g-parent d-inline-block w-100">
+					<img class="landing-block-node-card-img g-object-fit-cover g-width-auto g-max-width-100x g-max-height-500 mx-auto"
+						 data-fancybox="gallery" data-link-classes="d-block g-pos-rel h-auto" alt=""
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img4.jpg"/>
 					<div class="landing-block-node-card-title-container g-pointer-events-all w-100 g-pos-abs g-bottom-0 g-left-0 text-center g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 						<h3 class="landing-block-node-card-title g-color-white">Title</h3>
@@ -68,10 +72,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="landing-block-node-card js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
-				<div class="g-pos-rel g-parent d-inline-block h-100 g-max-height-500">
-					<img class="landing-block-node-card-img g-object-fit-cover w-100 h-100 g-max-width-100x mx-auto"
-						 data-fancybox="gallery" data-link-classes='d-block g-pos-rel h-auto' alt=""
+			<div class="landing-block-node-card col-12 col-md-6 col-lg-4 js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
+				<div class="g-pos-rel g-parent d-inline-block w-100">
+					<img class="landing-block-node-card-img g-object-fit-cover g-width-auto g-max-width-100x g-max-height-500 mx-auto"
+						 data-fancybox="gallery" data-link-classes="d-block g-pos-rel h-auto" alt=""
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img5.jpg"/>
 					<div class="landing-block-node-card-title-container g-pointer-events-all w-100 g-pos-abs g-bottom-0 g-left-0 text-center g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 						<h3 class="landing-block-node-card-title g-color-white">Title</h3>
@@ -79,10 +83,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="landing-block-node-card js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
-				<div class="g-pos-rel g-parent d-inline-block h-100 g-max-height-500">
-					<img class="landing-block-node-card-img g-object-fit-cover w-100 h-100 g-max-width-100x mx-auto"
-						 data-fancybox="gallery" data-link-classes='d-block g-pos-rel h-auto' alt=""
+			<div class="landing-block-node-card col-12 col-md-6 col-lg-4 js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
+				<div class="g-pos-rel g-parent d-inline-block w-100">
+					<img class="landing-block-node-card-img g-object-fit-cover g-width-auto g-max-width-100x g-max-height-500 mx-auto"
+						 data-fancybox="gallery" data-link-classes="d-block g-pos-rel h-auto" alt=""
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img6.jpg"/>
 					<div class="landing-block-node-card-title-container g-pointer-events-all w-100 g-pos-abs g-bottom-0 g-left-0 text-center g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 						<h3 class="landing-block-node-card-title g-color-white">Title</h3>
@@ -90,10 +94,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="landing-block-node-card js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
-				<div class="g-pos-rel g-parent d-inline-block h-100 g-max-height-500">
-					<img class="landing-block-node-card-img g-object-fit-cover w-100 h-100 g-max-width-100x mx-auto"
-						 data-fancybox="gallery" data-link-classes='d-block g-pos-rel h-auto' alt=""
+			<div class="landing-block-node-card col-12 col-md-6 col-lg-4 js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
+				<div class="g-pos-rel g-parent d-inline-block w-100">
+					<img class="landing-block-node-card-img g-object-fit-cover g-width-auto g-max-width-100x g-max-height-500 mx-auto"
+						 data-fancybox="gallery" data-link-classes="d-block g-pos-rel h-auto" alt=""
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img7.jpg"/>
 					<div class="landing-block-node-card-title-container g-pointer-events-all w-100 g-pos-abs g-bottom-0 g-left-0 text-center g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 						<h3 class="landing-block-node-card-title g-color-white">Title</h3>
@@ -101,10 +105,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="landing-block-node-card js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
-				<div class="g-pos-rel g-parent d-inline-block h-100 g-max-height-500">
-					<img class="landing-block-node-card-img g-object-fit-cover w-100 h-100 g-max-width-100x mx-auto"
-						 data-fancybox="gallery" data-link-classes='d-block g-pos-rel h-auto' alt=""
+			<div class="landing-block-node-card col-12 col-md-6 col-lg-4 js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
+				<div class="g-pos-rel g-parent d-inline-block w-100">
+					<img class="landing-block-node-card-img g-object-fit-cover g-width-auto g-max-width-100x g-max-height-500 mx-auto"
+						 data-fancybox="gallery" data-link-classes="d-block g-pos-rel h-auto" alt=""
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img8.jpg"/>
 					<div class="landing-block-node-card-title-container g-pointer-events-all w-100 g-pos-abs g-bottom-0 g-left-0 text-center g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 						<h3 class="landing-block-node-card-title g-color-white">Title</h3>
@@ -112,10 +116,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="landing-block-node-card js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
-				<div class="g-pos-rel g-parent d-inline-block h-100 g-max-height-500">
-					<img class="landing-block-node-card-img g-object-fit-cover w-100 h-100 g-max-width-100x mx-auto"
-						 data-fancybox="gallery" data-link-classes='d-block g-pos-rel h-auto' alt=""
+			<div class="landing-block-node-card col-12 col-md-6 col-lg-4 js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
+				<div class="g-pos-rel g-parent d-inline-block w-100">
+					<img class="landing-block-node-card-img g-object-fit-cover g-width-auto g-max-width-100x g-max-height-500 mx-auto"
+						 data-fancybox="gallery" data-link-classes="d-block g-pos-rel h-auto" alt=""
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img9.jpg"/>
 					<div class="landing-block-node-card-title-container g-pointer-events-all w-100 g-pos-abs g-bottom-0 g-left-0 text-center g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 						<h3 class="landing-block-node-card-title g-color-white">Title</h3>
@@ -123,10 +127,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="landing-block-node-card js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
-				<div class="g-pos-rel g-parent d-inline-block h-100 g-max-height-500">
-					<img class="landing-block-node-card-img g-object-fit-cover w-100 h-100 g-max-width-100x mx-auto"
-						 data-fancybox="gallery" data-link-classes='d-block g-pos-rel h-auto' alt=""
+			<div class="landing-block-node-card col-12 col-md-6 col-lg-4 js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
+				<div class="g-pos-rel g-parent d-inline-block w-100">
+					<img class="landing-block-node-card-img g-object-fit-cover g-width-auto g-max-width-100x g-max-height-500 mx-auto"
+						 data-fancybox="gallery" data-link-classes="d-block g-pos-rel h-auto" alt=""
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img10.jpg"/>
 					<div class="landing-block-node-card-title-container g-pointer-events-all w-100 g-pos-abs g-bottom-0 g-left-0 text-center g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 						<h3 class="landing-block-node-card-title g-color-white">Title</h3>
@@ -134,10 +138,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="landing-block-node-card js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
-				<div class="g-pos-rel g-parent d-inline-block h-100 g-max-height-500">
-					<img class="landing-block-node-card-img g-object-fit-cover w-100 h-100 g-max-width-100x mx-auto"
-						 data-fancybox="gallery" data-link-classes='d-block g-pos-rel h-auto' alt=""
+			<div class="landing-block-node-card col-12 col-md-6 col-lg-4 js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
+				<div class="g-pos-rel g-parent d-inline-block w-100">
+					<img class="landing-block-node-card-img g-object-fit-cover g-width-auto g-max-width-100x g-max-height-500 mx-auto"
+						 data-fancybox="gallery" data-link-classes="d-block g-pos-rel h-auto" alt=""
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img11.jpg"/>
 					<div class="landing-block-node-card-title-container g-pointer-events-all w-100 g-pos-abs g-bottom-0 g-left-0 text-center g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 						<h3 class="landing-block-node-card-title g-color-white">Title</h3>
@@ -145,10 +149,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="landing-block-node-card js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
-				<div class="g-pos-rel g-parent d-inline-block h-100 g-max-height-500">
-					<img class="landing-block-node-card-img g-object-fit-cover w-100 h-100 g-max-width-100x mx-auto"
-						 data-fancybox="gallery" data-link-classes='d-block g-pos-rel h-auto' alt=""
+			<div class="landing-block-node-card col-12 col-md-6 col-lg-4 js-animation slideInUp text-center g-px-30 g-mb-30 align-self-start">
+				<div class="g-pos-rel g-parent d-inline-block w-100">
+					<img class="landing-block-node-card-img g-object-fit-cover g-width-auto g-max-width-100x g-max-height-500 mx-auto"
+						 data-fancybox="gallery" data-link-classes="d-block g-pos-rel h-auto" alt=""
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img12.jpg"/>
 					<div class="landing-block-node-card-title-container g-pointer-events-all w-100 g-pos-abs g-bottom-0 g-left-0 text-center g-bg-primary-opacity-0_9 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
 						<h3 class="landing-block-node-card-title g-color-white">Title</h3>

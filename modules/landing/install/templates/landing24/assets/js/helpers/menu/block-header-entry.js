@@ -227,6 +227,12 @@
 
 		setFixMoment: function()
 		{
+			if(this.prevState < BX.Landing.BlockHeaderEntry.STATE_FIX_MOMENT)
+			{
+				// if fast tuda-suda
+				return Promise.resolve();
+			}
+
 			var transitionPromises = [];
 
 			addClass(this.headerNode, BX.Landing.BlockHeaderEntry.FIX_MOMENT_CLASSES);

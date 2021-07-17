@@ -61,6 +61,31 @@ class InfoHelper extends Engine\Controller
 			'url' => $url,
 			'action' => $action,
 		];
+	}
 
+	public function activateTrialFeatureAction(string $featureId)
+	{
+		$result	= [
+			'success' => 'N',
+		];
+
+		if (
+			Loader::includeModule('bitrix24')
+			&& method_exists(Bitrix24\Feature::class, 'trialFeature')
+		)
+		{
+			$trialable = Bitrix24\Feature::isFeatureTrialable($featureId);
+
+			if ($trialable)
+			{
+				$result['success'] = Bitrix24\Feature::trialFeature($featureId) ? 'Y' : 'N';
+			}
+			else
+			{
+				$result['error'] = 'IS_NOT_TRIALABLE';
+			}
+		}
+
+		return $result;
 	}
 }

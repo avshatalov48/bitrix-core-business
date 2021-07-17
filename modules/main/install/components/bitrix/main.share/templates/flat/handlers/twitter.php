@@ -7,9 +7,9 @@ $title = GetMessage("BOOKMARK_HANDLER_TWITTER");
 
 if (
 	is_array($arParams)
-	&& array_key_exists("SHORTEN_URL_LOGIN", $arParams) 
+	&& array_key_exists("SHORTEN_URL_LOGIN", $arParams)
 	&& trim($arParams["SHORTEN_URL_LOGIN"]) <> ''
-	&& array_key_exists("SHORTEN_URL_KEY", $arParams) 
+	&& array_key_exists("SHORTEN_URL_KEY", $arParams)
 	&& trim($arParams["SHORTEN_URL_KEY"]) <> ''
 )
 {
@@ -57,7 +57,7 @@ else
 {
 	$icon_url_template = "
 	<a
-		href=\"http://twitter.com/home/?status=#PAGE_URL_ENCODED#+#PAGE_TITLE_UTF_ENCODED#\"
+		href=\"https://twitter.com/intent/tweet?text=#PAGE_TITLE_UTF_ENCODED#&tw_p=tweetbutton&url=#PAGE_URL_ENCODED#\"
 		onclick=\"window.open(this.href,'','toolbar=0,status=0,width=711,height=437');return false;\"
 		target=\"_blank\"
 		style=\"background: #50abf1\"

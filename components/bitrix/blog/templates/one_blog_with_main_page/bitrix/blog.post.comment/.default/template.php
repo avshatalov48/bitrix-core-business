@@ -154,7 +154,6 @@ else
 		</div>
 	</div>
 	<script>
-	<!--
 	var last_div = '';
 	function showComment(key, subject, error, comment, userName, userEmail)
 	{
@@ -197,7 +196,6 @@ else
 		//document.form_comment.comment.focus();
 		return false;
 	}
-	//-->
 	</script>
 	<?
 	function ShowComment($comment, $tabCount=0, $tabSize=30, $canModerate=false, $User=Array(), $use_captcha=false, $bCanUserComment=false, $errorComment=false, $arParams)
@@ -410,10 +408,8 @@ else
 							$user_email = CUtil::JSEscape($_POST["user_email"]);
 							?>
 							<script>
-							<!--
 							var cmt = '<?=$form1?>';
 							showComment('<?=$comment["ID"]?>', '<?=$subj?>', 'Y', cmt, '<?=$user_name?>', '<?=$user_email?>');
-							//-->
 							</script>
 							<?
 						}
@@ -511,10 +507,8 @@ else
 			$user_email = CUtil::JSEscape($_POST["user_email"]);
 			?>
 			<script>
-			<!--
 			var cmt = '<?=$form1?>';
 			showComment('0', '<?=$subj?>', 'Y', cmt, '<?=$user_name?>', '<?=$user_email?>');
-			//-->
 			</script>
 			<?
 		}
@@ -575,10 +569,8 @@ else
 			$user_email = CUtil::JSEscape($_POST["user_email"]);
 			?>
 			<script>
-			<!--
 			var cmt = '<?=$form1?>';
 			showComment('00', '<?=$subj?>', 'Y', cmt, '<?=$user_name?>', '<?=$user_email?>');
-			//-->
 			</script>
 			<?
 		}

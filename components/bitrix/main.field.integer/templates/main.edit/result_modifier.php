@@ -7,6 +7,8 @@ use Bitrix\Main\Text\HtmlFilter;
 /**
  * @var $component IntegerUfComponent
  * @var $attrList array
+ * @var $arResult array
+ * @var $arParams array
  */
 
 $component = $this->getComponent();
@@ -44,7 +46,10 @@ $attrList['name'] = $arResult['fieldName'];
 
 $attrList['type'] = 'text';
 $attrList['tabindex'] = '0';
-$attrList['placeholder'] = HtmlFilter::encode($arResult['userField']['EDIT_FORM_LABEL']);
+$attrList['placeholder'] = $attrList['placeholder'] = (
+	$arParams['userField']['placeholder']
+	?? htmlspecialcharsback($arParams['userField']['EDIT_FORM_LABEL'])
+);
 
 foreach($arResult['value'] as $key => $value)
 {

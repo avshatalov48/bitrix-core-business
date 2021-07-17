@@ -1503,8 +1503,7 @@ this.BX = this.BX || {};
 
 	  function SplitButton(options) {
 	    babelHelpers.classCallCheck(this, SplitButton);
-	    options = main_core.Type.isPlainObject(options) ? options : {};
-	    delete options.round;
+	    options = main_core.Type.isPlainObject(options) ? options : {}; // delete options.round;
 
 	    if (main_core.Type.isStringFilled(options.link)) {
 	      options.mainButton = main_core.Type.isPlainObject(options.mainButton) ? options.mainButton : {};
@@ -1716,27 +1715,6 @@ this.BX = this.BX || {};
 	    key: "getMenuTarget",
 	    value: function getMenuTarget() {
 	      return this.menuTarget;
-	    }
-	    /**
-	     *
-	     * @param {boolean} [flag=true]
-	     * @return {this}
-	     */
-
-	  }, {
-	    key: "setRound",
-	    value: function setRound(flag) {
-	      throw new Error('BX.UI.SplitButton: a split button cannot be round.');
-	    }
-	    /**
-	     *
-	     * @return {boolean}
-	     */
-
-	  }, {
-	    key: "isRound",
-	    value: function isRound() {
-	      return false;
 	    }
 	    /**
 	     *

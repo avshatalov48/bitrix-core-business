@@ -103,6 +103,7 @@ class Scope
 	private function getScopesIdByUser(?string $moduleId = null): array
 	{
 		$accessCodes = $this->getUser()->GetAccessCodes();
+		$this->prepareAccessCodes($accessCodes);
 
 		$params = [
 			'select' => [
@@ -134,6 +135,15 @@ class Scope
 		}
 
 		return array_unique($result);
+	}
+
+	protected function prepareAccessCodes(array &$accessCodes): void
+	{
+		foreach ($accessCodes as &$accessCode)
+		{
+			$accessCode = preg_replace('|^(SG\d*?)(_[K,A,M])$|', '$1', $accessCode);
+		}
+		unset($accessCode);
 	}
 
 	/**

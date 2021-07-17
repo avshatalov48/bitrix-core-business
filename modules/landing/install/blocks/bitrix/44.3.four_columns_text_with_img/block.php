@@ -49,7 +49,7 @@
 						</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-small btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10"
+						<a class="landing-block-node-card-button landing-semantic-link-image-small btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0"
 						   href="#">Learn more</a>
 					</div>
 				</div>
@@ -70,7 +70,7 @@
 						</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-small btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10"
+						<a class="landing-block-node-card-button landing-semantic-link-image-small btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0"
 						   href="#">Learn more</a>
 					</div>
 				</div>
@@ -91,7 +91,7 @@
 						</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-small btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10"
+						<a class="landing-block-node-card-button landing-semantic-link-image-small btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0"
 						   href="#">Learn more</a>
 					</div>
 				</div>
@@ -112,7 +112,7 @@
 						</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-small btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10"
+						<a class="landing-block-node-card-button landing-semantic-link-image-small btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0"
 						   href="#">Learn more</a>
 					</div>
 				</div>
@@ -133,7 +133,7 @@
 						</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-small btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10"
+						<a class="landing-block-node-card-button landing-semantic-link-image-small btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0"
 						   href="#">Learn more</a>
 					</div>
 				</div>
@@ -154,7 +154,7 @@
 						</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-small btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10"
+						<a class="landing-block-node-card-button landing-semantic-link-image-small btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0"
 						   href="#">Learn more</a>
 					</div>
 				</div>

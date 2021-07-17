@@ -857,7 +857,8 @@ abstract class Base
 		// Actually only configurable are fully compatible with all languages
 		return in_array(
 			\Bitrix\Sale\Delivery\Helper::getPortalZone(),
-			['ru', 'kz', 'by', 'ua']
+			['', 'ru', 'kz', 'by', 'ua'],
+			true
 		);
 	}
 }

@@ -6,8 +6,8 @@ export class Intranet
 	static unbindMenuItem(bindCode, entityId, title)
 	{
 		MessageBox.confirm(
-			Loc.getMessage('LANDING_CONNECTOR_INTRANET_UNBIND_ALERT_MESSAGE'),
-			Loc.getMessage('LANDING_CONNECTOR_INTRANET_UNBIND_ALERT_TITLE').replaceAll('#title#', title),
+			Loc.getMessage('LANDING_CONNECTOR_INTRANET_HIDE_ALERT_MESSAGE'),
+			Loc.getMessage('LANDING_CONNECTOR_INTRANET_HIDE_ALERT_TITLE').replaceAll('#title#', title),
 			() => {
 				BX.ajax({
 					url: BX.message('SITE_DIR') + 'kb/binding/menu/',
@@ -28,7 +28,7 @@ export class Intranet
 					}
 				});
 			},
-			Loc.getMessage('LANDING_CONNECTOR_INTRANET_UNBIND_ALERT_BUTTON')
+			Loc.getMessage('LANDING_CONNECTOR_INTRANET_HIDE_ALERT_BUTTON')
 		);
 	}
 }

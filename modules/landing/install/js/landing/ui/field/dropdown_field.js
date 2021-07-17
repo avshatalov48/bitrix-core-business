@@ -9,9 +9,7 @@
 	var data = BX.Landing.Utils.data;
 	var offsetTop = BX.Landing.Utils.offsetTop;
 	var offsetLeft = BX.Landing.Utils.offsetLeft;
-	var bind = BX.Landing.Utils.bind;
-	var unbind = BX.Landing.Utils.unbind;
-	
+
 	/**
 	 * Implements interface for works with dropdown
 	 *
@@ -47,7 +45,6 @@
 		if (this.content !== "")
 		{
 			this.setValue(this.content);
-			this.onMouseWheel = this.onMouseWheel.bind(this);
 		}
 	};
 
@@ -63,6 +60,7 @@
 				this.popup = new BX.PopupMenuWindow({
 					id: "dropdown_" + (+new Date()),
 					bindElement: this.input,
+					maxHeight: 196,
 					items: this.items.map(function(item) {
 						return {
 							html: item.html,
@@ -96,12 +94,6 @@
 			{
 				this.popup.show();
 			}
-
-			this.popup.layout.menuContainer.style.maxHeight = "calc((36px * 5) + 16px)";
-			this.popup.popupWindow.contentContainer.style.overflowX = "hidden";
-
-			bind(this.popup.popupWindow.popupContainer, "mouseover", this.onMouseOver.bind(this));
-			bind(this.popup.popupWindow.popupContainer, "mouseleave", this.onMouseLeave.bind(this));
 
 			var rect = this.input.getBoundingClientRect();
 			var left = offsetLeft(this.input, this.popupRoot);
@@ -166,48 +158,6 @@
 			if (this.popup)
 			{
 				this.popup.close();
-			}
-		},
-
-		/**
-		 * Handles mouse over event
-		 */
-		onMouseOver: function()
-		{
-			var mouseEvent = "onwheel" in window ? "wheel" : "mousewheel";
-			bind(this.popup.popupWindow.popupContainer, mouseEvent, this.onMouseWheel);
-			bind(this.popup.popupWindow.popupContainer, "touchmove", this.onMouseWheel);
-		},
-
-
-		/**
-		 * Handles mouse leave event
-		 */
-		onMouseLeave: function()
-		{
-			var mouseEvent = "onwheel" in window ? "wheel" : "mousewheel";
-			unbind(this.popup.popupWindow.popupContainer, mouseEvent, this.onMouseWheel);
-			unbind(this.popup.popupWindow.popupContainer, "touchmove", this.onMouseWheel);
-		},
-
-
-		/**
-		 * Handle mouse wheel event
-		 * @param event
-		 */
-		onMouseWheel: function(event)
-		{
-			event.stopPropagation();
-			event.preventDefault();
-
-			if (this.popup)
-			{
-				var delta = BX.Landing.UI.Panel.Content.getDeltaFromEvent(event);
-				var scrollTop = this.popup.popupWindow.contentContainer.scrollTop;
-
-				requestAnimationFrame(function() {
-					this.popup.popupWindow.contentContainer.scrollTop = scrollTop - delta.y;
-				}.bind(this));
 			}
 		}
 	};

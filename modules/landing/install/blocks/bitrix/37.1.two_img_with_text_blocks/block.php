@@ -12,14 +12,14 @@
 								bibendum purus eu nisi pulvinar
 								venenatis vitae non velit.</p></div>
 						<div class="landing-block-node-button-container">
-							<a class="landing-block-node-button landing-semantic-link-medium-white js-animation fadeIn btn text-uppercase g-btn-primary rounded-0 g-btn-type-solid g-btn-primary g-btn-size-sm g-btn-px-l g-py-10 g-color-black"
+							<a class="landing-block-node-button landing-semantic-link-medium-white js-animation fadeIn btn text-uppercase g-btn-primary rounded-0 g-btn-type-solid g-btn-primary g-btn-size-md g-btn-px-m g-color-black"
 							   href="#">Join Us</a>
 						</div>
 					</div>
 					<!-- End Article Content -->
 
 					<!-- Article Image -->
-					<div class="landing-block-node-img col-sm-6 px-0 u-bg-overlay g-bg-black-opacity-0_2--after g-bg-img-hero g-min-height-300"
+					<div class="landing-block-node-img col-sm-6 px-0 u-bg-overlay g-bg-black-opacity-0_2 g-bg-img-hero g-min-height-300"
 						 style="background-image: url('https://cdn.bitrix24.site/bitrix/images/landing/business/800x842/img1.jpg');"></div>
 					<!-- End Article Image -->
 				</article>
@@ -30,7 +30,7 @@
 				<!-- Article -->
 				<article class="row align-items-stretch text-center mx-0">
 					<!-- Article Image -->
-					<div class="landing-block-node-img col-sm-6 px-0 u-bg-overlay g-bg-black-opacity-0_2--after g-bg-img-hero g-min-height-300"
+					<div class="landing-block-node-img col-sm-6 px-0 u-bg-overlay g-bg-black-opacity-0_2 g-bg-img-hero g-min-height-300"
 						 style="background-image: url('https://cdn.bitrix24.site/bitrix/images/landing/business/800x842/img2.jpg');"></div>
 					<!-- End Article Image -->
 
@@ -42,7 +42,7 @@
 								bibendum purus eu nisi pulvinar
 								venenatis vitae non velit.</p></div>
 						<div class="landing-block-node-button-container">
-							<a class="landing-block-node-button landing-semantic-link-medium-white js-animation fadeIn btn text-uppercase g-btn-primary rounded-0 g-btn-type-solid g-btn-primary g-btn-size-sm g-btn-px-l g-py-10 g-color-black"
+							<a class="landing-block-node-button landing-semantic-link-medium-white js-animation fadeIn btn text-uppercase g-btn-primary rounded-0 g-btn-type-solid g-btn-primary g-btn-size-md g-btn-px-m g-color-black"
 						   href="#">Join Us</a>
 						</div>
 					</div>

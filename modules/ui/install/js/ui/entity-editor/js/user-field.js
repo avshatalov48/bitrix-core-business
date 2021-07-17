@@ -1155,124 +1155,35 @@ if(typeof BX.UI.EntityEditorUserField === "undefined")
 	}
 }
 
-if(typeof BX.UI.EntityEditorUserFieldListItem === "undefined")
+if (typeof BX.UI.EntityEditorUserFieldListItem === "undefined")
 {
 	BX.UI.EntityEditorUserFieldListItem = function()
 	{
-		this._id = "";
-		this._settings = null;
-		this._data = null;
-		this._configurator = null;
-		this._container = null;
-		this._labelInput = null;
-
-		this._hasLayout = false;
+		BX.UI.EntityEditorUserFieldListItem.superclass.constructor.apply(this);
 	};
-	BX.UI.EntityEditorUserFieldListItem.prototype =
+	BX.extend(BX.UI.EntityEditorUserFieldListItem, BX.UI.EntityEditorFieldConfiguratorEnumItem);
+	BX.UI.EntityEditorUserFieldListItem.prototype.prepareData = function()
 	{
-		initialize: function(id, settings)
+		var value = this._labelInput ? BX.util.trim(this._labelInput.value) : "";
+		if(value === "")
 		{
-			this._id = BX.type.isNotEmptyString(id) ? id : BX.util.getRandomString(4);
-			this._settings = BX.type.isPlainObject(settings) ? settings : {};
-
-			this._data = BX.prop.getObject(this._settings, "data", {});
-			this._configurator = BX.prop.get(this._settings, "configurator");
-			this._container = BX.prop.getElementNode(this._settings, "container");
-		},
-		layout: function()
-		{
-			if(this._hasLayout)
-			{
-				return;
-			}
-
-			this._wrapper = BX.create("div", {
-				props: { className: "ui-ctl ui-ctl-textbox ui-ctl-w100 ui-ctl-row" },
-				style: { marginBottom: "10px" }
-			});
-
-			this._labelInput = BX.create(
-				"input",
-				{
-					props:
-						{
-							className: "ui-ctl-element",
-							placeholder: BX.message("UI_ENTITY_EDITOR_NEW_LIST_ITEM"),
-							type: "input",
-							value: BX.prop.getString(this._data, "VALUE", "")
-						}
-				}
-			);
-
-			this._wrapper.appendChild(this._labelInput);
-			this._wrapper.appendChild(
-				BX.create(
-					"div",
-					{
-						props: { className: "ui-entity-editor-content-remove-block" },
-						events: { click: BX.delegate(this.onDeleteButtonClick, this) }
-					}
-				)
-			);
-
-			var anchor = BX.prop.getElementNode(this._settings, "anchor");
-			if(anchor)
-			{
-				this._container.insertBefore(this._wrapper, anchor);
-			}
-			else
-			{
-				this._container.appendChild(this._wrapper);
-			}
-
-			this._hasLayout = true;
-		},
-		clearLayout: function()
-		{
-			if(!this._hasLayout)
-			{
-				return;
-			}
-
-			this._wrapper = BX.remove(this._wrapper);
-			this._hasLayout = false;
-		},
-		focus: function()
-		{
-			if(this._labelInput)
-			{
-				setTimeout(function() {
-					this._labelInput.focus();
-				}.bind(this), 0);
-			}
-		},
-		prepareData: function()
-		{
-			var value = this._labelInput ? BX.util.trim(this._labelInput.value) : "";
-			if(value === "")
-			{
-				return null;
-			}
-
-			var data = { "VALUE": value };
-			var id = BX.prop.getInteger(this._data, "ID", 0);
-			if(id > 0)
-			{
-				data["ID"] = id;
-			}
-
-			var xmlId = BX.prop.getString(this._data, "XML_ID", "");
-			if(id > 0)
-			{
-				data["XML_ID"] = xmlId;
-			}
-
-			return data;
-		},
-		onDeleteButtonClick: function(e)
-		{
-			this._configurator.removeEnumerationItem(this);
+			return null;
 		}
+
+		var data = { "VALUE": value };
+		var id = BX.prop.getInteger(this._data, "ID", 0);
+		if(id > 0)
+		{
+			data["ID"] = id;
+		}
+
+		var xmlId = BX.prop.getString(this._data, "XML_ID", "");
+		if(id > 0)
+		{
+			data["XML_ID"] = xmlId;
+		}
+
+		return data;
 	};
 	BX.UI.EntityEditorUserFieldListItem.create = function(id, settings)
 	{
@@ -1687,12 +1598,9 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 		this._isRequiredCheckBox = null;
 		this._isMultipleCheckBox = null;
 		this._showAlwaysCheckBox = null;
-		this._enumItemWrapper = null;
-		this._enumItemContainer = null;
-		this._enumButtonWrapper = null;
 		this._optionWrapper = null;
 
-		this._enumItems = null;
+		this._enumConfigurator = null;
 
 		this._enableMandatoryControl = true;
 		this._mandatoryConfigurator = null;
@@ -1732,126 +1640,134 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 			}
 		);
 
-		return BX.create("div",
-				{
-					props: { className: "ui-entity-editor-content-block" },
-					children:
-						[
-							BX.create(
-								"div",
-								{
-									props: { className: "ui-entity-editor-block-title" },
-									children:
-										[
-											BX.create(
-												"span",
-												{
-													attrs: { className: "ui-entity-editor-block-title-text" },
-													text: title
-												}
-											)
-										]
-								}
-							),
-							BX.create(
-								"div",
-								{
-									props: { className: "ui-entity-editor-content-block" },
-									children:
-										[
-											BX.create(
-												"div",
-												{
-													props: { className: "ui-ctl ui-ctl-textbox ui-ctl-w100" },
-													children: [ this._labelInput ]
-												}
-											)
-										]
-								}
-							)
-						]
-				}
-			);
+		return BX.create(
+			"div",
+			{
+				props: { className: "ui-entity-editor-content-block" },
+				children: [
+					BX.create(
+						"div",
+						{
+							props: { className: "ui-entity-editor-block-title" },
+							children: [
+								BX.create(
+									"span",
+									{
+										attrs: { className: "ui-entity-editor-block-title-text" },
+										text: title
+									}
+								)
+							]
+						}
+					),
+					BX.create(
+						"div",
+						{
+							props: { className: "ui-entity-editor-content-block" },
+							children: [
+								BX.create(
+									"div",
+									{
+										props: { className: "ui-ctl ui-ctl-textbox ui-ctl-w100" },
+										children: [ this._labelInput ]
+									}
+								)
+							]
+						}
+					)
+				]
+			}
+		);
 	};
 
 	BX.UI.EntityEditorUserFieldConfigurator.prototype.layoutInternal = function()
 	{
 		this._wrapper.appendChild(this.getInputContainer());
 
-		if(this._typeId === "enumeration")
+		if (this._typeId === BX.UI.EntityUserFieldType.enumeration)
 		{
-			this._wrapper.appendChild(
-				BX.create("hr", { props: { className: "ui-entity-editor-line" } })
-			);
-
-			this._wrapper.appendChild(this.getEnumerationContainer());
+			if (this._enumConfigurator === null)
+			{
+				var fieldInfo = (this._field) ? this._field.getFieldInfo() : {};
+				var enums = BX.prop.getArray(fieldInfo, "ENUM", []);
+				this._enumConfigurator = BX.UI.EntityEditorUserFieldEnumConfigurator.create({
+					enumInfo: { enumItems: enums },
+					wrapper: this._wrapper
+				});
+				this._enumConfigurator.layout();
+			}
 		}
 
-		this._wrapper.appendChild(this.getOptionContainer());
+		var innerConfigNextNode = this.getOptionContainer();
+		this._wrapper.appendChild(innerConfigNextNode);
 		this._wrapper.appendChild(
 			BX.create("hr", { props: { className: "ui-entity-editor-line" } })
 		);
 		this._wrapper.appendChild(this.getButtonContainer());
-	};
 
-	BX.UI.EntityEditorUserFieldConfigurator.prototype.getEnumerationContainer = function()
-	{
-		this._enumItemWrapper = BX.create(
-			"div",
-			{
-				props: { className: "ui-entity-editor-content-block" }
-			}
-		);
-
-		this._enumItemWrapper.appendChild(
-			BX.create(
-				"div",
-				{
-					props: { className: "ui-entity-editor-block-title" },
-					children: [
-						BX.create(
-							"span",
-							{
-								attrs: { className: "ui-entity-editor-block-title-text" },
-								text: BX.message("UI_ENTITY_EDITOR_UF_ENUM_ITEMS")
-							}
-						)
-					]
-				}
-			)
-		);
-
-		this._enumItemContainer = BX.create("div", { props: { className: "ui-entity-editor-content-block" } });
-		this._enumItemWrapper.appendChild(this._enumItemContainer);
-
-		this._enumButtonWrapper = BX.create("div", { props: { className: "ui-entity-editor-content-block-add-field" } });
-		this._enumItemWrapper.appendChild(this._enumButtonWrapper);
-
-		this._enumButtonWrapper.appendChild(
-			BX.create(
-				"span",
-				{
-					props: { className: "ui-entity-card-content-add-field" },
-					events: { click: BX.delegate(this.onEnumerationItemAddButtonClick, this) },
-					text: BX.message("UI_ENTITY_EDITOR_ADD")
-				}
-			)
-		);
-
-		if(this._field)
+		if (this._typeId === BX.UI.EntityUserFieldType.crmStatus)
 		{
-			var fieldInfo = this._field.getFieldInfo();
-			var enums = BX.prop.getArray(fieldInfo, "ENUM", []);
-			for(var i = 0, length = enums.length; i < length; i++)
+			var innerConfig = this._field.getInnerConfig();
+			if (BX.Type.isPlainObject(innerConfig))
 			{
-				this.createEnumerationItem(enums[i]);
+				BX.ajax.runAction(
+					"crm.status.getItems",
+					{ data: { configData: { innerConfig: innerConfig } } }
+				).then(
+					function(response) {
+						if (
+							BX.Type.isObject(response)
+							&& response.hasOwnProperty("status")
+							&& response.status === "success"
+							&& response.hasOwnProperty("data")
+							&& BX.Type.isArray(response["data"])
+						)
+						{
+							var enumeration = response["data"];
+							var items = [];
+							for (var i = 0; i < enumeration.length; i++)
+							{
+								items.push({
+									"NAME": enumeration[i]["VALUE"],
+									"VALUE": enumeration[i]["ID"]
+								});
+							}
+							this.layoutInnerConfigurator(innerConfig, items, innerConfigNextNode);
+						}
+						else
+						{
+							console.error("Invalid server response.");
+						}
+					}.bind(this),
+					function(response) {
+						if (
+							BX.Type.isObject(response)
+							&& response.hasOwnProperty("status")
+							&& response["status"] === "error"
+							&& response.hasOwnProperty("errors")
+							&& BX.Type.isArray(response["errors"])
+							&& response["errors"].length > 0
+							&& BX.Type.isPlainObject(response["errors"][0])
+							&& response["errors"][0].hasOwnProperty("message")
+							&& BX.Type.isString(response["errors"][0]["message"])
+						)
+						{
+							console.error(response["errors"][0]["message"]);
+						}
+						else
+						{
+							console.error("Invalid server response.");
+						}
+					}.bind(this)
+				);
+			}
+			else
+			{
+				console.error("Invalid field inner configuration.");
 			}
 		}
-
-		this.createEnumerationItem();
-
-		return this._enumItemWrapper;
 	};
+
 	BX.UI.EntityEditorUserFieldConfigurator.prototype.getOptionContainer = function()
 	{
 		var isNew = (this._field === null);
@@ -1928,28 +1844,16 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 	BX.UI.EntityEditorUserFieldConfigurator.prototype.prepareSaveParams = function(e)
 	{
 		var params = BX.UI.EntityEditorUserFieldConfigurator.superclass.prepareSaveParams.apply(this, arguments);
-		if(this._typeId === "enumeration")
+		if (
+			(
+				this._typeId === BX.UI.EntityUserFieldType.enumeration
+				|| this._typeId === BX.UI.EntityUserFieldType.crmStatus
+			)
+			&& this._enumConfigurator
+		)
 		{
-			params["enumeration"] = [];
-			var hashes = [];
-			for(var i = 0, length = this._enumItems.length; i < length; i++)
-			{
-				var enumData = this._enumItems[i].prepareData();
-				if(!enumData)
-				{
-					continue;
-				}
-
-				var hash = BX.util.hashCode(enumData["VALUE"]);
-				if(BX.util.in_array(hash, hashes))
-				{
-					continue;
-				}
-
-				hashes.push(hash);
-				enumData["SORT"] = (params["enumeration"].length + 1) * 100;
-				params["enumeration"].push(enumData);
-			}
+			params["innerConfig"] = (this._field) ? this._field.getInnerConfig() : {};
+			params["enumeration"] = this._enumConfigurator.prepareSaveParams();
 		}
 
 		if (this._field)
@@ -1977,38 +1881,6 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 		}
 
 		return params;
-	};
-	BX.UI.EntityEditorUserFieldConfigurator.prototype.onEnumerationItemAddButtonClick = function(e)
-	{
-		this.createEnumerationItem().focus();
-	};
-	BX.UI.EntityEditorUserFieldConfigurator.prototype.createEnumerationItem = function(data)
-	{
-		var item = BX.UI.EntityEditorUserFieldListItem.create(
-			"",
-			{
-				configurator: this,
-				container: this._enumItemContainer,
-				data: data
-			}
-		);
-
-		this._enumItems.push(item);
-		item.layout();
-		return item;
-	};
-
-	BX.UI.EntityEditorUserFieldConfigurator.prototype.removeEnumerationItem = function(item)
-	{
-		for(var i = 0, length = this._enumItems.length; i < length; i++)
-		{
-			if(this._enumItems[i] === item)
-			{
-				this._enumItems[i].clearLayout();
-				this._enumItems.splice(i, 1);
-				break;
-			}
-		}
 	};
 
 	BX.UI.EntityEditorUserFieldConfigurator.prototype.getIsRequiredCheckBox = function()
@@ -2057,4 +1929,36 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 	};
 
 	BX.onCustomEvent(window, "BX.UI.EntityEditorUserFieldConfigurator:onDefine");
+}
+
+if (typeof BX.UI.EntityEditorUserFieldEnumConfigurator === "undefined")
+{
+	BX.UI.EntityEditorUserFieldEnumConfigurator = function()
+	{
+		BX.UI.EntityEditorUserFieldEnumConfigurator.superclass.constructor.apply(this);
+	};
+	BX.extend(BX.UI.EntityEditorUserFieldEnumConfigurator, BX.UI.EntityEditorEnumConfigurator);
+
+	BX.UI.EntityEditorUserFieldEnumConfigurator.prototype.createEnumerationItem = function(data)
+	{
+		var item = BX.UI.EntityEditorUserFieldListItem.create(
+			"",
+			{
+				configurator: this,
+				container: this._enumItemContainer,
+				data: data
+			}
+		);
+
+		this._enumItems.push(item);
+		item.layout();
+		return item;
+	};
+
+	BX.UI.EntityEditorUserFieldEnumConfigurator.create = function(settings)
+	{
+		var self = new BX.UI.EntityEditorUserFieldEnumConfigurator();
+		self.initialize(settings);
+		return self;
+	};
 }

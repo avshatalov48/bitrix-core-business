@@ -208,7 +208,7 @@ class CTextParser
 		foreach(GetModuleEvents("main", "TextParserBefore", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(&$text, &$this));
 
-		if ($this->allow["CODE"]=="Y")
+		if (($this->allow["CODE"] ?? '') == "Y")
 		{
 			$text = preg_replace_callback(
 				array(
@@ -218,14 +218,14 @@ class CTextParser
 				$text
 			);
 		}
-		if ($this->allow["HTML"] != "Y" && $this->allow['NL2BR'] == 'Y')
+		if (($this->allow["HTML"] ?? '') != "Y" && ($this->allow['NL2BR'] ?? '') == 'Y')
 		{
 			$text = preg_replace("#<br(.*?)>#is", "\n", $text);
 		}
-		if ($this->allow["HTML"] != "Y")
+		if (($this->allow["HTML"] ?? '') != "Y")
 		{
 			// тут она превращается!
-			if ($this->allow["ANCHOR"]=="Y")
+			if (($this->allow["ANCHOR"] ?? '') == "Y")
 			{
 				$text = preg_replace(
 					array(
@@ -234,7 +234,7 @@ class CTextParser
 					"[url=\\2]\\3[/url]", $text
 				);
 			}
-			if ($this->allow["BIU"]=="Y")
+			if (($this->allow["BIU"] ?? '') == "Y")
 			{
 				$replaced = 0;
 				do
@@ -246,7 +246,7 @@ class CTextParser
 				}
 				while($replaced > 0);
 			}
-			if ($this->allow["P"]=="Y")
+			if (($this->allow["P"] ?? '') == "Y")
 			{
 				$replaced = 0;
 				do
@@ -258,14 +258,14 @@ class CTextParser
 				}
 				while($replaced > 0);
 			}
-			if ($this->allow["IMG"]=="Y")
+			if (($this->allow["IMG"] ?? '') == "Y")
 			{
 				$text = preg_replace(
 					"#<img[^>]+src\\s*=[\\s'\"]*(((http|https|ftp)://[.\\-_:a-z0-9@]+)*(\\/[-_/=:.a-z0-9@{}&?%]+)+)[\\s'\"]*[^>]*>#is".BX_UTF_PCRE_MODIFIER,
 					"[img]\\1[/img]", $text
 				);
 			}
-			if ($this->allow["FONT"]=="Y")
+			if (($this->allow["FONT"] ?? '') == "Y")
 			{
 				$text = preg_replace(
 					array(
@@ -281,7 +281,7 @@ class CTextParser
 					$text
 				);
 			}
-			if ($this->allow["LIST"]=="Y")
+			if (($this->allow["LIST"] ?? '') == "Y")
 			{
 				$text = preg_replace(
 					array(
@@ -299,7 +299,7 @@ class CTextParser
 					$text
 				);
 			}
-			if ($this->allow["TABLE"]=="Y")
+			if (($this->allow["TABLE"] ?? '') == "Y")
 			{
 				$text = preg_replace(
 					array(
@@ -325,7 +325,7 @@ class CTextParser
 					$text
 				);
 			}
-			if ($this->allow["QUOTE"]=="Y")
+			if (($this->allow["QUOTE"] ?? '') == "Y")
 			{
 				$text = preg_replace("#<(/?)quote(.*?)>#is", "[\\1quote]", $text);
 			}
@@ -363,15 +363,15 @@ class CTextParser
 			}
 		}
 		$patt = array();
-		if ($this->allow["VIDEO"] == "Y")
+		if (($this->allow["VIDEO"] ?? '') == "Y")
 			$patt[] = "/\\[video([^\\]]*)\\](.+?)\\[\\/video[\\s]*\\]/is".BX_UTF_PCRE_MODIFIER;
-		if ($this->allow["IMG"] == "Y")
+		if (($this->allow["IMG"] ?? '') == "Y")
 			$patt[] = "/\\[img([^\\]]*)\\](.+?)\\[\\/img\\]/is".BX_UTF_PCRE_MODIFIER;
 
 		foreach(GetModuleEvents("main", "TextParserBeforeAnchorTags", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(&$text, &$this));
 
-		if ($this->allow["ANCHOR"]=="Y")
+		if (($this->allow["ANCHOR"] ?? '') == "Y")
 		{
 			$patt[] = "/\\[url\\](.*?)\\[\\/url\\]/i".BX_UTF_PCRE_MODIFIER;
 			$patt[] = "/\\[url\\s*=\\s*(
@@ -448,7 +448,7 @@ class CTextParser
 			ExecuteModuleEventEx($arEvent, array(&$text, &$this));
 
 		if (
-			$this->allow["SMILES"] == "Y"
+			($this->allow["SMILES"] ?? '') == "Y"
 			|| ($this->allow["CLEAR_SMILES"] ?? '') == "Y"
 		)
 		{
@@ -540,7 +540,7 @@ class CTextParser
 							)\\s*\\](.*?)\\[\\/url\\]/ixs".BX_UTF_PCRE_MODIFIER,
 					);
 
-					if($this->allow["CUT_ANCHOR"] != "Y")
+					if(($this->allow["CUT_ANCHOR"] ?? '') != "Y")
 					{
 						$text = preg_replace_callback(
 							$arUrlPatterns,
@@ -822,7 +822,7 @@ class CTextParser
 		foreach(GetModuleEvents("main", "TextParserAfterTags", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(&$text, &$this));
 
-		if ($this->allow["HTML"] != "Y" || $this->allow['NL2BR'] == 'Y')
+		if (($this->allow["HTML"] ?? '') != "Y" || ($this->allow['NL2BR'] ?? '') == 'Y')
 		{
 			$text = str_replace(array("\r\n", "\n"), "<br />", $text);
 			$text = preg_replace(array(
@@ -852,7 +852,7 @@ class CTextParser
 				"&#174;", "&#174;"),
 			$text);
 
-		if ($this->allow["HTML"] != "Y")
+		if (($this->allow["HTML"] ?? '') != "Y")
 		{
 			if ($this->maxStringLen > 0)
 			{
@@ -1152,7 +1152,7 @@ class CTextParser
 		$replacement = reset(array_intersect_key($this->smileReplaces, $matches));
 		if (!empty($replacement))
 		{
-			if ($this->allow['CLEAR_SMILES'] == 'Y')
+			if (($this->allow['CLEAR_SMILES'] ?? '') == 'Y')
 			{
 				return $this->convert_emoticon(
 					$replacement["code"],
@@ -1714,7 +1714,7 @@ class CTextParser
 		$text = ($text == '' ? $url : $text);
 
 		$bTextUrl = ($text == $url);
-		$bShortUrl = ($this->allow["SHORT_ANCHOR"] == "Y");
+		$bShortUrl = (($this->allow["SHORT_ANCHOR"] ?? '') == "Y");
 
 		$text = str_replace("\\\"", "\"", $text);
 		$end = "";

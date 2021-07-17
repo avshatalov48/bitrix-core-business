@@ -352,9 +352,18 @@ class ImportCsv
 					{
 						if (!$langFile->load() && $langFile->hasErrors())
 						{
-							$this->addErrors($langFile->getErrors());
-							continue;
+							foreach ($langFile->getErrors() as $error)
+							{
+								if ($error->getCode() !== 'EMPTY_CONTENT')
+								{
+									$this->addError($error);
+								}
+							}
 						}
+					}
+					if (count($this->getErrors()) > 0)
+					{
+						continue;
 					}
 
 					$hasDataToUpdate = false;

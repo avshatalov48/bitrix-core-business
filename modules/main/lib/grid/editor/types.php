@@ -19,6 +19,7 @@ class Types
 	const CUSTOM = "CUSTOM";
 	const IMAGE = "IMAGE";
 	const MONEY = "MONEY";
+	const MULTISELECT = "MULTISELECT";
 
 
 	/**

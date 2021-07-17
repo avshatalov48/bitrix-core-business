@@ -3,6 +3,7 @@ $MESS['LANDING_TPL_TITLE'] = 'Сайт';
 $MESS['LANDING_TPL_TITLE_PAGE'] = 'Сайт';
 $MESS['LANDING_TPL_TITLE_STORE'] = 'Магазин';
 $MESS['LANDING_TPL_ACTION_EDIT'] = 'Настроить';
+$MESS['LANDING_TPL_ACTION_EDIT_DESIGN'] = 'Настроить дизайн';
 $MESS['LANDING_TPL_ACTION_COPY'] = 'Копировать страницу';
 $MESS['LANDING_TPL_ACTION_MOVE'] = 'Переместить страницу';
 $MESS['LANDING_TPL_ACTION_COPY_TITLE'] = 'Копировать страницу в сайт';

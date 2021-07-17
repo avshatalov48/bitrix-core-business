@@ -20,7 +20,7 @@
 
 						<div class="landing-block-node-card-price landing-semantic-subtitle-medium g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
 						<div class="landing-block-node-card-button-container text-center">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase g-py-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
 							   href="#">Book now
 							</a>
 						</div>
@@ -54,7 +54,7 @@
 
 						<div class="landing-block-node-card-price landing-semantic-subtitle-medium g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
 						<div class="landing-block-node-card-button-container text-center">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase g-py-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
 							   href="#">Book now
 							</a>
 						</div>
@@ -88,7 +88,7 @@
 
 						<div class="landing-block-node-card-price landing-semantic-subtitle-medium g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
 						<div class="landing-block-node-card-button-container text-center">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase g-py-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
 							   href="#">Book now
 							</a>
 						</div>
@@ -122,7 +122,7 @@
 
 						<div class="landing-block-node-card-price landing-semantic-subtitle-medium g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
 						<div class="landing-block-node-card-button-container text-center">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase g-py-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
 							   href="#">Book now
 							</a>
 						</div>
@@ -156,7 +156,7 @@
 
 						<div class="landing-block-node-card-price landing-semantic-subtitle-medium g-font-weight-700 g-color-white g-font-size-26 g-mb-30 text-center">$14.00</div>
 						<div class="landing-block-node-card-button-container text-center">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase g-py-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeIn btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 text-uppercase"
 							   href="#">Book now
 							</a>
 						</div>

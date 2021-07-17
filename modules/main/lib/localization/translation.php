@@ -467,7 +467,7 @@ class Translation
 			// bitrix/js/[moduleName]/[smth] -> [moduleName]/install/js/[moduleName]/[smth]
 			// bitrix/js/[moduleName]/[smth] -> [moduleName]/install/public/js/[moduleName]/[smth]
 			case 'js':
-				$libraryNamespace = $langPathParts[2];
+				$libraryNamespace = $langPathParts[2]. '/'. $langPathParts[3];
 
 				foreach (self::$map as $moduleName => $moduleEntries)
 				{
@@ -557,9 +557,13 @@ class Translation
 						foreach ($testForExistence as $testEntry)
 						{
 							$testPath = $bxRoot. '/'. $moduleName. '/install/'. $testEntry;
-							if ($testEntry === 'templates' || $testEntry === 'mobileapp' || $testEntry === 'js' || $testEntry === 'public/js')
+							if ($testEntry === 'templates' || $testEntry === 'mobileapp')
 							{
 								$testPath .= '/';
+							}
+							elseif ($testEntry === 'js' || $testEntry === 'public/js')
+							{
+								$testPath .= '/'. $moduleName. '/';
 							}
 							elseif ($testEntry === 'payment')
 							{
@@ -578,7 +582,14 @@ class Translation
 								{
 									if ($testDirectoryEntry->isDirectory())
 									{
-										self::$map[$moduleName][$testEntry][$testDirectoryEntry->getName()] = 1;
+										if ($testEntry === 'js' || $testEntry === 'public/js')
+										{
+											self::$map[$moduleName][$testEntry][$moduleName.'/'.$testDirectoryEntry->getName()] = 1;
+										}
+										else
+										{
+											self::$map[$moduleName][$testEntry][$testDirectoryEntry->getName()] = 1;
+										}
 									}
 								}
 							}

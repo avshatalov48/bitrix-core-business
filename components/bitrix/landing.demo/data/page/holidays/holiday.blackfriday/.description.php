@@ -107,7 +107,7 @@ return [
 					0 => 'landing-block-node-card-text g-mb-20 g-color-white g-font-size-16 g-letter-spacing-0 g-line-height-0',
 				],
 				'.landing-block-node-card-button' => [
-					0 => 'landing-block-node-card-button btn g-btn-type-solid g-btn-px-l g-btn-size-sm text-uppercase g-btn-red text-uppercase g-py-10 g-color-white-opacity-0_9 g-rounded-3',
+					0 => 'landing-block-node-card-button btn g-btn-type-solid g-btn-px-m g-btn-size-md text-uppercase g-btn-red text-uppercase g-color-white-opacity-0_9 g-rounded-3',
 				],
 				'.landing-block-node-card-bgimg' => [
 					0 => 'landing-block-node-card-bgimg g-bg-img-hero u-bg-overlay g-bg-black-opacity-0_4--after d-flex align-items-center justify-content-center w-100 h-100 g-min-height-100vh',

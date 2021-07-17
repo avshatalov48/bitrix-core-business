@@ -9,11 +9,13 @@ use Bitrix\Main\Type\DateTime;
  */
 class Setting
 {
-	const SETTING_MANIFEST = 'SETTING_MANIFEST';
-	const MANIFEST_CODE = 'MANIFEST_CODE';
-	const SETTING_RATIO = 'SETTING_RATIO';
-	const SETTING_APP_INFO = 'APP_INFO';
-	const SETTING_EXPORT_ARCHIVE_NAME = 'EXPORT_ARCHIVE_NAME';
+	public const SETTING_MANIFEST = 'SETTING_MANIFEST';
+	public const MANIFEST_CODE = 'MANIFEST_CODE';
+	public const SETTING_RATIO = 'SETTING_RATIO';
+	public const SETTING_APP_INFO = 'APP_INFO';
+	public const SETTING_EXPORT_ARCHIVE_NAME = 'EXPORT_ARCHIVE_NAME';
+	public const SETTING_ACTION_INFO = 'ACTION_INFO';
+	public const SETTING_NOTICE_COLLECTION = 'NOTICE_COLLECTION';
 
 	private $context = 'null';
 	private $ttlContext = 14400;//3600*4

@@ -9543,7 +9543,7 @@
 	  }, {
 	    key: "isFile",
 	    value: function isFile(value) {
-	      return Type.isBlob(value) && Type.isObjectLike(value.lastModifiedDate) && Type.isNumber(value.lastModified) && Type.isString(value.name);
+	      return Type.isBlob(value) && Type.isNumber(value.lastModified) && Type.isString(value.name);
 	    }
 	    /**
 	     * Checks that value is FormData
@@ -12788,7 +12788,7 @@
 	  }, {
 	    key: "isIPad",
 	    value: function isIPad() {
-	      return UA.includes('ipad;');
+	      return UA.includes('ipad;') || this.isMac() && this.isTouchDevice();
 	    }
 	  }, {
 	    key: "isIPhone",
@@ -12809,6 +12809,11 @@
 	    key: "isRetina",
 	    value: function isRetina() {
 	      return window.devicePixelRatio && window.devicePixelRatio >= 2;
+	    }
+	  }, {
+	    key: "isTouchDevice",
+	    value: function isTouchDevice() {
+	      return 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
 	    }
 	  }, {
 	    key: "isDoctype",
@@ -13193,10 +13198,28 @@
 	    /**
 	     * Gets message by id
 	     * @param {string} messageId
+	     * @param {object} replacements
 	     * @return {?string}
 	     */
 	    value: function getMessage(messageId) {
-	      return message(messageId);
+	      var replacements = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+	      var mess = message(messageId);
+
+	      if (Type.isString(mess) && Type.isPlainObject(replacements)) {
+	        Object.keys(replacements).forEach(function (replacement) {
+	          var globalRegexp = new RegExp(replacement, 'gi');
+	          mess = mess.replace(globalRegexp, function () {
+	            return Type.isNil(replacements[replacement]) ? '' : String(replacements[replacement]);
+	          });
+	        });
+	      }
+
+	      return mess;
+	    }
+	  }, {
+	    key: "hasMessage",
+	    value: function hasMessage(messageId) {
+	      return Type.isString(messageId) && !Type.isNil(message[messageId]);
 	    }
 	    /**
 	     * Sets message or messages

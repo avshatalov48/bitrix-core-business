@@ -15,7 +15,6 @@ return [
 	'fields' => [
 		'RULE' => null,
 		'ADDITIONAL_FIELDS' => [
-			'THEME_CODE' => 'photography',
 			'CSSBLOCK_USE' => 'Y',
 			'CSSBLOCK_CODE' => '.b24-widget-button-wrapper{display:none!important;}',
 		],

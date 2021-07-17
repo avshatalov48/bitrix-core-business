@@ -245,6 +245,7 @@ this.BX = this.BX || {};
 	    babelHelpers.defineProperty(this, "hoverArea", null);
 	    babelHelpers.defineProperty(this, "activeNode", null);
 	    babelHelpers.defineProperty(this, "changed", false);
+	    babelHelpers.defineProperty(this, "saving", false);
 
 	    if (!blockNode) {
 	      return;
@@ -354,6 +355,7 @@ this.BX = this.BX || {};
 	          return;
 	        }
 
+	        _this3.saving = true;
 	        setTimeout(function () {
 	          landing_backend.Backend.getInstance().action('Block::updateContent', {
 	            lid: _this3.landingId,
@@ -362,6 +364,7 @@ this.BX = this.BX || {};
 	            designed: 1
 	          }).then(function () {
 	            if (finishCallback) {
+	              _this3.saving = false;
 	              finishCallback();
 	            }
 	          });
@@ -656,6 +659,10 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "onMouseOver",
 	    value: function onMouseOver(node) {
+	      if (this.saving) {
+	        return;
+	      }
+
 	      this.activeNode = node;
 	      this.adjustHoverArea();
 

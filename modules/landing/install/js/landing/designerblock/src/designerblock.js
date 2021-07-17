@@ -51,6 +51,7 @@ export class DesignerBlock
 	hoverArea: HTMLElement = null;
 	activeNode: Node = null;
 	changed: boolean = false;
+	saving: boolean = false;
 	designed: boolean;
 	blockCode: string;
 	blockId: number;
@@ -185,6 +186,7 @@ export class DesignerBlock
 				{
 					return;
 				}
+				this.saving = true;
 				setTimeout(() => {
 					Backend.getInstance()
 						.action(
@@ -198,6 +200,7 @@ export class DesignerBlock
 						).then(() => {
 							if (finishCallback)
 							{
+								this.saving = false;
 								finishCallback();
 							}
 						});
@@ -535,6 +538,10 @@ export class DesignerBlock
 
 	onMouseOver(node: Node)
 	{
+		if (this.saving)
+		{
+			return;
+		}
 		this.activeNode = node;
 		this.adjustHoverArea();
 		if (!node.isPseudoElement())

@@ -1,27 +1,26 @@
 /*region Icons Base*/
 .ui-btn[class*="ui-btn-icon-"],
-.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main,
-.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main {
+.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main {
 	padding-left: calc(var(--ui-btn-height) + 5px );
 }
 
 
 .ui-btn.ui-btn-lg[class*="ui-btn-icon-"],
-.ui-btn-split.ui-btn-lg[class*="ui-btn-icon-"] .ui-btn-main,
-.ui-btn-double.ui-btn-lg[class*="ui-btn-icon-"] .ui-btn-main {
+.ui-btn-split.ui-btn-lg[class*="ui-btn-icon-"] .ui-btn-main {
 	padding-left: var(--ui-btn-height) ;
 }
 
+.ui-btn.ui-btn-icon-inline[class*="ui-btn-icon-"],
+.ui-btn-split.ui-btn-icon-inline[class*="ui-btn-icon-"] .ui-btn-main {
+	padding: var(--ui-btn-padding) ;
+}
 
 .ui-btn:not(input):empty,
 .ui-btn-split .ui-btn-main:empty,
-.ui-btn-double .ui-btn-main:empty,
 .ui-btn.ui-btn-empty:not(input),
 .ui-btn.ui-btn-collapsed:not(input),
 .ui-btn-split.ui-btn-empty .ui-btn-main,
-.ui-btn-split.ui-btn-collapsed .ui-btn-main,
-.ui-btn-double.ui-btn-empty .ui-btn-main,
-.ui-btn-double.ui-btn-collapsed .ui-btn-main {
+.ui-btn-split.ui-btn-collapsed .ui-btn-main {
 	padding: 0;
 	min-width: 0;
 	width: var(--ui-btn-height);
@@ -31,37 +30,28 @@
 
 .ui-btn-dropdown.ui-btn[class*="ui-btn-icon-"]:not(input):empty,
 .ui-btn-dropdown.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:empty,
-.ui-btn-dropdown.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:empty,
 .ui-btn-dropdown.ui-btn.ui-btn-empty[class*="ui-btn-icon-"]:not(input),
 .ui-btn-dropdown.ui-btn.ui-btn-collapsed[class*="ui-btn-icon-"]:not(input),
 .ui-btn-dropdown.ui-btn-split.ui-btn-empty[class*="ui-btn-icon-"] .ui-btn-main,
-.ui-btn-dropdown.ui-btn-split.ui-btn-collapsed[class*="ui-btn-icon-"] .ui-btn-main,
-.ui-btn-dropdown.ui-btn-double.ui-btn-empty[class*="ui-btn-icon-"] .ui-btn-main,
-.ui-btn-dropdown.ui-btn-double.ui-btn-collapsed[class*="ui-btn-icon-"] .ui-btn-main {
+.ui-btn-dropdown.ui-btn-split.ui-btn-collapsed[class*="ui-btn-icon-"] .ui-btn-main {
 	width: calc(var(--ui-btn-height) * 2);
 }
 
 .ui-btn-dropdown.ui-btn-lg.ui-btn[class*="ui-btn-icon-"]:not(input):empty,
 .ui-btn-dropdown.ui-btn-lg.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:empty,
-.ui-btn-dropdown.ui-btn-lg.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:empty,
 .ui-btn-dropdown.ui-btn-lg.ui-btn.ui-btn-empty[class*="ui-btn-icon-"]:not(input),
 .ui-btn-dropdown.ui-btn-lg.ui-btn.ui-btn-collapsed[class*="ui-btn-icon-"]:not(input),
 .ui-btn-dropdown.ui-btn-lg.ui-btn-split.ui-btn-empty[class*="ui-btn-icon-"] .ui-btn-main,
-.ui-btn-dropdown.ui-btn-lg.ui-btn-split.ui-btn-collapsed[class*="ui-btn-icon-"] .ui-btn-main,
-.ui-btn-dropdown.ui-btn-lg.ui-btn-double.ui-btn-empty[class*="ui-btn-icon-"] .ui-btn-main,
-.ui-btn-dropdown.ui-btn-lg.ui-btn-double.ui-btn-collapsed[class*="ui-btn-icon-"] .ui-btn-main {
+.ui-btn-dropdown.ui-btn-lg.ui-btn-split.ui-btn-collapsed[class*="ui-btn-icon-"] .ui-btn-main {
 	width: calc(var(--ui-btn-height) * 1.5);
 }
 
 .ui-btn[class*="ui-btn-icon-"]:not(input):not(.ui-btn-dropdown):empty:after,
 .ui-btn-split[class*="ui-btn-icon-"]:not(.ui-btn-dropdown) .ui-btn-main:empty:after,
-.ui-btn-double[class*="ui-btn-icon-"]:not(.ui-btn-dropdown) .ui-btn-main:empty:after,
 .ui-btn[class*="ui-btn-icon-"].ui-btn-empty:not(input):not(.ui-btn-dropdown):after,
 .ui-btn[class*="ui-btn-icon-"].ui-btn-collapsed:not(input):not(.ui-btn-dropdown):after,
 .ui-btn-split[class*="ui-btn-icon-"].ui-btn-empty:not(.ui-btn-dropdown) .ui-btn-main:after,
-.ui-btn-split[class*="ui-btn-icon-"].ui-btn-collapsed:not(.ui-btn-dropdown) .ui-btn-main:after,
-.ui-btn-double[class*="ui-btn-icon-"].ui-btn-empty:not(.ui-btn-dropdown) .ui-btn-main:after,
-.ui-btn-double[class*="ui-btn-icon-"].ui-btn-collapsed:not(.ui-btn-dropdown) .ui-btn-main:after {
+.ui-btn-split[class*="ui-btn-icon-"].ui-btn-collapsed:not(.ui-btn-dropdown) .ui-btn-main:after {
 	left: 50%;
 	top: 50%;
 	transform: none;
@@ -81,6 +71,20 @@
 	background-image: var(--ui-btn-icon);
 	content: '';
 	transition: 160ms color linear, 160ms opacity linear, 160ms background-color linear;
+}
+
+.ui-btn.ui-btn-icon-inline,
+.ui-btn-split.ui-btn-icon-inline .ui-btn-main {
+	flex-direction: row-reverse;
+}
+
+.ui-btn.ui-btn-icon-inline::after,
+.ui-btn-split.ui-btn-icon-inline .ui-btn-main::after {
+	position: relative;
+	top: 0;
+	left: 0;
+	transform: none;
+	margin-right: 4px;
 }
 
 .ui-btn-lg.ui-btn:after,
@@ -159,7 +163,6 @@
 /*region ui-btn-icon-add-folder*/
 .ui-btn-icon-add-folder.ui-btn,
 .ui-btn-icon-add-folder.ui-btn-split,
-.ui-btn-icon-add-folder.ui-btn-double,
 .ui-btn-icon-add-folder.ui-btn-danger,
 .ui-btn-icon-add-folder.ui-btn-primary,
 .ui-btn-icon-add-folder.ui-btn-default,
@@ -268,7 +271,6 @@
 /*region ui-btn-icon-business*/
 .ui-btn-icon-business.ui-btn,
 .ui-btn-icon-business.ui-btn-split,
-.ui-btn-icon-business.ui-btn-double,
 .ui-btn-icon-business.ui-btn-danger,
 .ui-btn-icon-business.ui-btn-primary,
 .ui-btn-icon-business.ui-btn-default,
@@ -289,7 +291,6 @@
 /*region ui-btn-icon-business-confirm*/
 .ui-btn-icon-business-confirm.ui-btn,
 .ui-btn-icon-business-confirm.ui-btn-split,
-.ui-btn-icon-business-confirm.ui-btn-double,
 .ui-btn-icon-business-confirm.ui-btn-danger,
 .ui-btn-icon-business-confirm.ui-btn-primary,
 .ui-btn-icon-business-confirm.ui-btn-default,
@@ -310,7 +311,6 @@
 /*region ui-btn-icon-business-warning*/
 .ui-btn-icon-business-warning.ui-btn,
 .ui-btn-icon-business-warning.ui-btn-split,
-.ui-btn-icon-business-warning.ui-btn-double,
 .ui-btn-icon-business-warning.ui-btn-danger,
 .ui-btn-icon-business-warning.ui-btn-primary,
 .ui-btn-icon-business-warning.ui-btn-default,
@@ -331,7 +331,6 @@
 /*region ui-btn-icon-camera*/
 .ui-btn-icon-camera.ui-btn,
 .ui-btn-icon-camera.ui-btn-split,
-.ui-btn-icon-camera.ui-btn-double,
 .ui-btn-icon-camera.ui-btn-danger,
 .ui-btn-icon-camera.ui-btn-primary,
 .ui-btn-icon-camera.ui-btn-default,
@@ -352,7 +351,6 @@
 /*region ui-btn-icon-chat*/
 .ui-btn-icon-chat.ui-btn,
 .ui-btn-icon-chat.ui-btn-split,
-.ui-btn-icon-chat.ui-btn-double,
 .ui-btn-icon-chat.ui-btn-danger,
 .ui-btn-icon-chat.ui-btn-primary,
 .ui-btn-icon-chat.ui-btn-default,
@@ -370,10 +368,39 @@
 
 /*endregion*/
 
+/*region ui-btn-icon-chat-blue*/
+.ui-btn-icon-chat-blue.ui-btn,
+.ui-btn-icon-chat-blue.ui-btn-split,
+.ui-btn-icon-chat-blue.ui-btn-danger,
+.ui-btn-icon-chat-blue.ui-btn-primary,
+.ui-btn-icon-chat-blue.ui-btn-default,
+.ui-btn-icon-chat-blue.ui-btn-danger-dark,
+.ui-btn-icon-chat-blue.ui-btn-success-dark,
+.ui-btn-icon-chat-blue.ui-btn-primary-dark,
+.bitrix24-dark-theme .ui-btn-icon-chat-blue.ui-btn-themes { --ui-btn-icon: url("data:image/svg+xml,%3Csvg width='17' height='15' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M.992 0h10.256c.548 0 .992.445.992.995v6.874c0 .55-.444.995-.992.995H6.12l-3.4 3.409v-3.41H.992A.993.993 0 010 7.87V.995C0 .445.444 0 .992 0zm15.016 4.09c.548 0 .992.446.992.996v6.192c0 .55-.444.995-.992.995H14.28V15l-2.72-2.727H7.112a.993.993 0 01-.992-.995v-1.05h5.995a1.49 1.49 0 001.488-1.493V4.091h2.405z' fill='%233BC8F5' fill-rule='evenodd'/%3E%3C/svg%3E"); }
+
+.bitrix24-light-theme .ui-btn-icon-chat-blue.ui-btn-themes { --ui-btn-icon: url("data:image/svg+xml,%3Csvg width='17' height='15' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M.992 0h10.256c.548 0 .992.445.992.995v6.874c0 .55-.444.995-.992.995H6.12l-3.4 3.409v-3.41H.992A.993.993 0 010 7.87V.995C0 .445.444 0 .992 0zm15.016 4.09c.548 0 .992.446.992.996v6.192c0 .55-.444.995-.992.995H14.28V15l-2.72-2.727H7.112a.993.993 0 01-.992-.995v-1.05h5.995a1.49 1.49 0 001.488-1.493V4.091h2.405z' fill='%23FFFFFF' fill-rule='evenodd'/%3E%3C/svg%3E"); }
+
+/*endregion*/
+
+/*region ui-btn-icon-camera-blue*/
+.ui-btn-icon-camera-blue.ui-btn,
+.ui-btn-icon-camera-blue.ui-btn-split,
+.ui-btn-icon-camera-blue.ui-btn-danger,
+.ui-btn-icon-camera-blue.ui-btn-primary,
+.ui-btn-icon-camera-blue.ui-btn-default,
+.ui-btn-icon-camera-blue.ui-btn-danger-dark,
+.ui-btn-icon-camera-blue.ui-btn-success-dark,
+.ui-btn-icon-camera-blue.ui-btn-primary-dark,
+.bitrix24-dark-theme .ui-btn-icon-camera-blue.ui-btn-themes { --ui-btn-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2217%22%20height%3D%2210%22%3E%3Cpath%20fill%3D%22%233bc8f5%22%20fill-rule%3D%22evenodd%22%20d%3D%22M10%200a2%202%200%20012%202v6a2%202%200%2001-2%202H2a2%202%200%2001-2-2V2a2%202%200%20012-2h8zm7%201v8l-4-1.644V2.868L17%201z%22%2F%3E%3C%2Fsvg%3E"); }
+
+.bitrix24-light-theme .ui-btn-icon-camera-blue.ui-btn-themes { --ui-btn-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2217%22%20height%3D%2210%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20fill-rule%3D%22evenodd%22%20d%3D%22M10%200a2%202%200%20012%202v6a2%202%200%2001-2%202H2a2%202%200%2001-2-2V2a2%202%200%20012-2h8zm7%201v8l-4-1.644V2.868L17%201z%22%2F%3E%3C%2Fsvg%3E"); }
+
+/*endregion*/
+
 /*region ui-btn-icon-cloud*/
 .ui-btn-icon-cloud.ui-btn,
 .ui-btn-icon-cloud.ui-btn-split,
-.ui-btn-icon-cloud.ui-btn-double,
 .ui-btn-icon-cloud.ui-btn-danger,
 .ui-btn-icon-cloud.ui-btn-primary,
 .ui-btn-icon-cloud.ui-btn-default,
@@ -394,7 +421,6 @@
 /*region ui-btn-icon-disk*/
 .ui-btn-icon-disk.ui-btn,
 .ui-btn-icon-disk.ui-btn-split,
-.ui-btn-icon-disk.ui-btn-double,
 .ui-btn-icon-disk.ui-btn-danger,
 .ui-btn-icon-disk.ui-btn-primary,
 .ui-btn-icon-disk.ui-btn-default,
@@ -415,7 +441,6 @@
 /*region ui-btn-icon-done*/
 .ui-btn-icon-done.ui-btn,
 .ui-btn-icon-done.ui-btn-split,
-.ui-btn-icon-done.ui-btn-double,
 .ui-btn-icon-done.ui-btn-danger,
 .ui-btn-icon-done.ui-btn-primary,
 .ui-btn-icon-done.ui-btn-default,
@@ -436,7 +461,6 @@
 /*region ui-btn-icon-dots*/
 .ui-btn-icon-dots.ui-btn,
 .ui-btn-icon-dots.ui-btn-split,
-.ui-btn-icon-dots.ui-btn-double,
 .ui-btn-icon-dots.ui-btn-danger,
 .ui-btn-icon-dots.ui-btn-primary,
 .ui-btn-icon-dots.ui-btn-default,
@@ -457,7 +481,6 @@
 /*region ui-btn-icon-download*/
 .ui-btn-icon-download.ui-btn,
 .ui-btn-icon-download.ui-btn-split,
-.ui-btn-icon-download.ui-btn-double,
 .ui-btn-icon-download.ui-btn-danger,
 .ui-btn-icon-download.ui-btn-primary,
 .ui-btn-icon-download.ui-btn-default,
@@ -478,7 +501,6 @@
 /*region ui-btn-icon-edit*/
 .ui-btn-icon-edit.ui-btn,
 .ui-btn-icon-edit.ui-btn-split,
-.ui-btn-icon-edit.ui-btn-double,
 .ui-btn-icon-edit.ui-btn-danger,
 .ui-btn-icon-edit.ui-btn-primary,
 .ui-btn-icon-edit.ui-btn-default,
@@ -499,7 +521,6 @@
 /*region ui-btn-icon-forward*/
 .ui-btn-icon-forward.ui-btn,
 .ui-btn-icon-forward.ui-btn-split,
-.ui-btn-icon-forward.ui-btn-double,
 .ui-btn-icon-forward.ui-btn-danger,
 .ui-btn-icon-forward.ui-btn-primary,
 .ui-btn-icon-forward.ui-btn-default,
@@ -520,7 +541,6 @@
 /*region ui-btn-icon-follow*/
 .ui-btn-icon-follow.ui-btn,
 .ui-btn-icon-follow.ui-btn-split,
-.ui-btn-icon-follow.ui-btn-double,
 .ui-btn-icon-follow.ui-btn-danger,
 .ui-btn-icon-follow.ui-btn-primary,
 .ui-btn-icon-follow.ui-btn-default,
@@ -541,7 +561,6 @@
 /*region ui-btn-icon-fail*/
 .ui-btn-icon-fail.ui-btn,
 .ui-btn-icon-fail.ui-btn-split,
-.ui-btn-icon-fail.ui-btn-double,
 .ui-btn-icon-fail.ui-btn-danger,
 .ui-btn-icon-fail.ui-btn-primary,
 .ui-btn-icon-fail.ui-btn-default,
@@ -559,7 +578,6 @@
 /*region ui-btn-icon-setting*/
 .ui-btn-icon-setting.ui-btn,
 .ui-btn-icon-setting.ui-btn-split,
-.ui-btn-icon-setting.ui-btn-double,
 .ui-btn-icon-setting.ui-btn-danger,
 .ui-btn-icon-setting.ui-btn-primary,
 .ui-btn-icon-setting.ui-btn-default,
@@ -580,7 +598,6 @@
 /*region ui-btn-icon-task*/
 .ui-btn-icon-task.ui-btn,
 .ui-btn-icon-task.ui-btn-split,
-.ui-btn-icon-task.ui-btn-double,
 .ui-btn-icon-task.ui-btn-danger,
 .ui-btn-icon-task.ui-btn-primary,
 .ui-btn-icon-task.ui-btn-default,
@@ -601,7 +618,6 @@
 /*region ui-btn-icon-search*/
 .ui-btn-icon-search.ui-btn,
 .ui-btn-icon-search.ui-btn-split,
-.ui-btn-icon-search.ui-btn-double,
 .ui-btn-icon-search.ui-btn-danger,
 .ui-btn-icon-search.ui-btn-primary,
 .ui-btn-icon-search.ui-btn-default,
@@ -622,7 +638,6 @@
 /*region ui-btn-icon-list*/
 .ui-btn-icon-list.ui-btn,
 .ui-btn-icon-list.ui-btn-split,
-.ui-btn-icon-list.ui-btn-double,
 .ui-btn-icon-list.ui-btn-danger,
 .ui-btn-icon-list.ui-btn-primary,
 .ui-btn-icon-list.ui-btn-default,
@@ -643,7 +658,6 @@
 /*region ui-btn-icon-lock*/
 .ui-btn-icon-lock.ui-btn,
 .ui-btn-icon-lock.ui-btn-split,
-.ui-btn-icon-lock.ui-btn-double,
 .ui-btn-icon-lock.ui-btn-danger,
 .ui-btn-icon-lock.ui-btn-primary,
 .ui-btn-icon-lock.ui-btn-default,
@@ -664,7 +678,6 @@
 /*region ui-btn-icon-print*/
 .ui-btn-icon-print.ui-btn,
 .ui-btn-icon-print.ui-btn-split,
-.ui-btn-icon-print.ui-btn-double,
 .ui-btn-icon-print.ui-btn-danger,
 .ui-btn-icon-print.ui-btn-primary,
 .ui-btn-icon-print.ui-btn-default,
@@ -685,7 +698,6 @@
 /*region ui-btn-icon-info*/
 .ui-btn-icon-info.ui-btn,
 .ui-btn-icon-info.ui-btn-split,
-.ui-btn-icon-info.ui-btn-double,
 .ui-btn-icon-info.ui-btn-danger,
 .ui-btn-icon-info.ui-btn-primary,
 .ui-btn-icon-info.ui-btn-default,
@@ -706,7 +718,6 @@
 /*region ui-btn-icon-phone-up*/
 .ui-btn-icon-phone-up.ui-btn,
 .ui-btn-icon-phone-up.ui-btn-split,
-.ui-btn-icon-phone-up.ui-btn-double,
 .ui-btn-icon-phone-up.ui-btn-danger,
 .ui-btn-icon-phone-up.ui-btn-primary,
 .ui-btn-icon-phone-up.ui-btn-default,
@@ -727,7 +738,6 @@
 /*region ui-btn-icon-phone-down*/
 .ui-btn-icon-phone-down.ui-btn,
 .ui-btn-icon-phone-down.ui-btn-split,
-.ui-btn-icon-phone-down.ui-btn-double,
 .ui-btn-icon-phone-down.ui-btn-danger,
 .ui-btn-icon-phone-down.ui-btn-primary,
 .ui-btn-icon-phone-down.ui-btn-default,
@@ -748,7 +758,6 @@
 /*region ui-btn-icon-phone-call*/
 .ui-btn-icon-phone-call.ui-btn,
 .ui-btn-icon-phone-call.ui-btn-split,
-.ui-btn-icon-phone-call.ui-btn-double,
 .ui-btn-icon-phone-call.ui-btn-danger,
 .ui-btn-icon-phone-call.ui-btn-primary,
 .ui-btn-icon-phone-call.ui-btn-default,
@@ -769,7 +778,6 @@
 /*region ui-btn-icon-start*/
 .ui-btn-icon-start.ui-btn,
 .ui-btn-icon-start.ui-btn-split,
-.ui-btn-icon-start.ui-btn-double,
 .ui-btn-icon-start.ui-btn-danger,
 .ui-btn-icon-start.ui-btn-primary,
 .ui-btn-icon-start.ui-btn-default,
@@ -790,7 +798,6 @@
 /*region ui-btn-icon-stop*/
 .ui-btn-icon-stop.ui-btn,
 .ui-btn-icon-stop.ui-btn-split,
-.ui-btn-icon-stop.ui-btn-double,
 .ui-btn-icon-stop.ui-btn-danger,
 .ui-btn-icon-stop.ui-btn-primary,
 .ui-btn-icon-stop.ui-btn-default,
@@ -811,7 +818,6 @@
 /*region ui-btn-icon-pause*/
 .ui-btn-icon-pause.ui-btn,
 .ui-btn-icon-pause.ui-btn-split,
-.ui-btn-icon-pause.ui-btn-double,
 .ui-btn-icon-pause.ui-btn-danger,
 .ui-btn-icon-pause.ui-btn-primary,
 .ui-btn-icon-pause.ui-btn-default,
@@ -832,7 +838,6 @@
 /*region ui-btn-icon-remove*/
 .ui-btn-icon-remove.ui-btn,
 .ui-btn-icon-remove.ui-btn-split,
-.ui-btn-icon-remove.ui-btn-double,
 .ui-btn-icon-remove.ui-btn-danger,
 .ui-btn-icon-remove.ui-btn-primary,
 .ui-btn-icon-remove.ui-btn-default,
@@ -853,7 +858,6 @@
 /*region ui-btn-icon-share*/
 .ui-btn-icon-share.ui-btn,
 .ui-btn-icon-share.ui-btn-split,
-.ui-btn-icon-share.ui-btn-double,
 .ui-btn-icon-share.ui-btn-danger,
 .ui-btn-icon-share.ui-btn-primary,
 .ui-btn-icon-share.ui-btn-default,
@@ -874,7 +878,6 @@
 /*region ui-btn-icon-page*/
 .ui-btn-icon-page.ui-btn,
 .ui-btn-icon-page.ui-btn-split,
-.ui-btn-icon-page.ui-btn-double,
 .ui-btn-icon-page.ui-btn-danger,
 .ui-btn-icon-page.ui-btn-primary,
 .ui-btn-icon-page.ui-btn-default,
@@ -895,7 +898,6 @@
 /*region ui-btn-icon-mail*/
 .ui-btn-icon-mail.ui-btn,
 .ui-btn-icon-mail.ui-btn-split,
-.ui-btn-icon-mail.ui-btn-double,
 .ui-btn-icon-mail.ui-btn-danger,
 .ui-btn-icon-mail.ui-btn-primary,
 .ui-btn-icon-mail.ui-btn-default,
@@ -916,7 +918,6 @@
 /*region ui-btn-icon-success*/
 .ui-btn-icon-success.ui-btn,
 .ui-btn-icon-success.ui-btn-split,
-.ui-btn-icon-success.ui-btn-double,
 .ui-btn-icon-success.ui-btn-danger,
 .ui-btn-icon-success.ui-btn-primary,
 .ui-btn-icon-success.ui-btn-default,
@@ -934,7 +935,6 @@
 /*region ui-btn-icon-plan*/
 .ui-btn-icon-plan.ui-btn,
 .ui-btn-icon-plan.ui-btn-split,
-.ui-btn-icon-plan.ui-btn-double,
 .ui-btn-icon-plan.ui-btn-danger,
 .ui-btn-icon-plan.ui-btn-primary,
 .ui-btn-icon-plan.ui-btn-default,
@@ -955,7 +955,6 @@
 /*region ui-btn-icon-eye-opened*/
 .ui-btn-icon-eye-opened.ui-btn,
 .ui-btn-icon-eye-opened.ui-btn-split,
-.ui-btn-icon-eye-opened.ui-btn-double,
 .ui-btn-icon-eye-opened.ui-btn-danger,
 .ui-btn-icon-eye-opened.ui-btn-primary,
 .ui-btn-icon-eye-opened.ui-btn-default,
@@ -976,7 +975,6 @@
 /*region ui-btn-icon-eye-closed*/
 .ui-btn-icon-eye-closed.ui-btn,
 .ui-btn-icon-eye-closed.ui-btn-split,
-.ui-btn-icon-eye-closed.ui-btn-double,
 .ui-btn-icon-eye-closed.ui-btn-danger,
 .ui-btn-icon-eye-closed.ui-btn-primary,
 .ui-btn-icon-eye-closed.ui-btn-default,
@@ -997,7 +995,6 @@
 /*region ui-btn-icon-tariff*/
 .ui-btn-icon-tariff.ui-btn,
 .ui-btn-icon-tariff.ui-btn-split,
-.ui-btn-icon-tariff.ui-btn-double,
 .ui-btn-icon-tariff.ui-btn-danger,
 .ui-btn-icon-tariff.ui-btn-primary,
 .ui-btn-icon-tariff.ui-btn-default,
@@ -1023,7 +1020,6 @@
 /*region ui-btn-icon-battery*/
 .ui-btn-icon-battery.ui-btn,
 .ui-btn-icon-battery.ui-btn-split,
-.ui-btn-icon-battery.ui-btn-double,
 .ui-btn-icon-battery.ui-btn-danger,
 .ui-btn-icon-battery.ui-btn-primary,
 .ui-btn-icon-battery.ui-btn-default,
@@ -1049,7 +1045,6 @@
 /*region ui-btn-icon-no-battery*/
 .ui-btn-icon-no-battery.ui-btn,
 .ui-btn-icon-no-battery.ui-btn-split,
-.ui-btn-icon-no-battery.ui-btn-double,
 .ui-btn-icon-no-battery.ui-btn-danger,
 .ui-btn-icon-no-battery.ui-btn-primary,
 .ui-btn-icon-no-battery.ui-btn-default,
@@ -1075,7 +1070,6 @@
 /*region ui-btn-icon-half-battery*/
 .ui-btn-icon-half-battery.ui-btn,
 .ui-btn-icon-half-battery.ui-btn-split,
-.ui-btn-icon-half-battery.ui-btn-double,
 .ui-btn-icon-half-battery.ui-btn-danger,
 .ui-btn-icon-half-battery.ui-btn-primary,
 .ui-btn-icon-half-battery.ui-btn-default,
@@ -1101,7 +1095,6 @@
 /*region ui-btn-icon-low-battery*/
 .ui-btn-icon-low-battery.ui-btn,
 .ui-btn-icon-low-battery.ui-btn-split,
-.ui-btn-icon-low-battery.ui-btn-double,
 .ui-btn-icon-low-battery.ui-btn-danger,
 .ui-btn-icon-low-battery.ui-btn-primary,
 .ui-btn-icon-low-battery.ui-btn-default,
@@ -1127,7 +1120,6 @@
 /*region ui-btn-icon-crit-battery*/
 .ui-btn-icon-crit-battery.ui-btn,
 .ui-btn-icon-crit-battery.ui-btn-split,
-.ui-btn-icon-crit-battery.ui-btn-double,
 .ui-btn-icon-crit-battery.ui-btn-danger,
 .ui-btn-icon-crit-battery.ui-btn-primary,
 .ui-btn-icon-crit-battery.ui-btn-default,
@@ -1152,7 +1144,6 @@
 /*region ui-btn-icon-demo*/
 .ui-btn-icon-demo.ui-btn,
 .ui-btn-icon-demo.ui-btn-split,
-.ui-btn-icon-demo.ui-btn-double,
 .ui-btn-icon-demo.ui-btn-danger,
 .ui-btn-icon-demo.ui-btn-primary,
 .ui-btn-icon-demo.ui-btn-default,
@@ -1177,7 +1168,6 @@
 /*region ui-btn-icon-unfollow*/
 .ui-btn-icon-unfollow.ui-btn,
 .ui-btn-icon-unfollow.ui-btn-split,
-.ui-btn-icon-unfollow.ui-btn-double,
 .ui-btn-icon-unfollow.ui-btn-danger,
 .ui-btn-icon-unfollow.ui-btn-primary,
 .ui-btn-icon-unfollow.ui-btn-default,

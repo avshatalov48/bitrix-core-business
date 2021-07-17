@@ -111,7 +111,7 @@ BX.SidePanel.Slider = function(url, options)
 			this.newWindowLabel = new BX.SidePanel.Label(this, {
 				iconClass: 'side-panel-label-icon-new-window',
 				iconTitle: BX.Loc.getMessage('MAIN_SIDEPANEL_NEW_WINDOW'),
-				bgColor: ['#000000', 40],
+				bgColor: ['#d9dcdf', 100],
 				onclick: function(label, slider) {
 					Object.assign(document.createElement('a'), {
 						target: '_blank',
@@ -126,7 +126,7 @@ BX.SidePanel.Slider = function(url, options)
 			this.copyLinkLabel = new BX.SidePanel.Label(this, {
 				iconClass: 'side-panel-label-icon-copy-link',
 				iconTitle: BX.Loc.getMessage('MAIN_SIDEPANEL_COPY_LINK'),
-				bgColor: ['#000000', 40],
+				bgColor: ['#d9dcdf', 100],
 			});
 
 			BX.clipboard.bindCopyClick(
@@ -894,6 +894,7 @@ BX.SidePanel.Slider.prototype =
 		if (this.isSelfContained())
 		{
 			this.contentCallbackInvoved = false;
+			this.showLoader();
 			this.setContent();
 		}
 		else
@@ -1208,7 +1209,6 @@ BX.SidePanel.Slider.prototype =
 		this.contentCallbackInvoved = true;
 
 		BX.cleanNode(this.getContentContainer());
-		this.showLoader();
 
 		var promise = this.contentCallback(this);
 		var isPromiseReturned =
@@ -1304,8 +1304,6 @@ BX.SidePanel.Slider.prototype =
 			this.iframeSrc = this.getUrl();
 			this.iframe.src = url;
 		}
-
-		this.showLoader();
 	},
 
 	/**
@@ -1621,6 +1619,11 @@ BX.SidePanel.Slider.prototype =
 
 			this.firePageEvent("onOpenComplete");
 			this.fireFrameEvent("onOpenComplete");
+
+			if (!this.isLoaded())
+			{
+				this.showLoader();
+			}
 
 			if (this.isFocusable())
 			{

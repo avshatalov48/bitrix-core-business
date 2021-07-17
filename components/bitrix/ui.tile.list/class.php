@@ -62,6 +62,7 @@ class UiTileListComponent extends CBitrixComponent
 				'color' => isset($item['color']) ? $item['color'] : null,
 				'comingSoon' => isset($item['comingSoon']) && $item['comingSoon'] === true,
 				'badgeNew' => isset($item['badgeNew']) && $item['badgeNew'] === true,
+				'button' => isset($item['button']) && $item['button'] === true,
 			);
 		}
 

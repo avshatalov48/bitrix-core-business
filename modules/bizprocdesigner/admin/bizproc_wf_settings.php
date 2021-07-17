@@ -148,8 +148,8 @@ function WFSStart()
 	}
 	document.getElementById('WFStemplate_name').value = workflowTemplateName;
 	document.getElementById('WFStemplate_description').value = workflowTemplateDescription;
-	document.getElementById('WFStemplate_is_system').checked = workflowTemplateIsSystem === 'Y';
-	document.getElementById('WFStemplate_sort').value = workflowTemplateSort || 10;
+	document.getElementById('WFStemplate_is_system').checked = window.workflowTemplateIsSystem === 'Y';
+	document.getElementById('WFStemplate_sort').value = window.workflowTemplateSort || 10;
 
 	if (workflowTemplateAutostart < 8)
 	{

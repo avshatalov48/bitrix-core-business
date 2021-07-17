@@ -2,7 +2,7 @@
 	<div class="container">
 		<!-- Icon Blocks -->
 		<div class="row landing-block-inner">
-			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-30 g-mb-0--last g-px-20">
+			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-30 g-px-20">
 				<!-- Icon Blocks -->
 				<div class="media">
 					<div class="d-flex g-mt-25 g-mr-40 g-width-64 justify-content-center">
@@ -24,7 +24,7 @@
 				</div>
 				<!-- End Icon Blocks -->
 			</div>
-			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-30 g-mb-0--last g-px-20">
+			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-30 g-px-20">
 				<!-- Icon Blocks -->
 				<div class="media">
 					<div class="d-flex g-mt-25 g-mr-40 g-width-64 justify-content-center">
@@ -43,7 +43,7 @@
 				</div>
 				<!-- End Icon Blocks -->
 			</div>
-			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-30 g-mb-0--last g-px-20">
+			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-30 g-px-20">
 				<!-- Icon Blocks -->
 				<div class="media">
 					<div class="d-flex g-mt-25 g-mr-40 g-width-64 justify-content-center">
@@ -64,13 +64,13 @@
 				</div>
 				<!-- End Icon Blocks -->
 			</div>
-			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-30 g-mb-0--last g-px-20">
+			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-30 g-px-20">
 				<!-- Icon Blocks -->
 				<div class="media">
 					<div class="d-flex g-mt-25 g-mr-40 g-width-64 justify-content-center">
-                  <span class="landing-block-node-card-icon-container g-color-primary d-block g-font-size-48 g-line-height-1">
-                    <i class="landing-block-node-card-icon fa fa-money"></i>
-                  </span>
+						<span class="landing-block-node-card-icon-container g-color-primary d-block g-font-size-48 g-line-height-1">
+							<i class="landing-block-node-card-icon fa fa-money"></i>
+						</span>
 					</div>
 					<div class="media-body align-self-center">
 						<h5 class="landing-block-node-card-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700">Tax law</h5>

@@ -55,7 +55,7 @@
 			UI & UX Design 2021</h2>
 
 		<div class="row">
-			<div class="col-sm-6 col-md-5 text-center text-md-left g-mb-30 g-mb-0--md">
+			<div class="col-sm-6 col-md-4 text-center text-md-left g-mb-30 g-mb-0--md">
 				<div class="media">
 					<div class="landing-block-node-icon-container d-none d-sm-flex media-left align-self-center g-mr-20 g-color-white-opacity-0_5 g-font-size-27">
 						<i class="landing-block-node-date-icon fa fa-calendar"></i>
@@ -71,7 +71,7 @@
 				</div>
 			</div>
 
-			<div class="col-sm-6 col-md-5 text-center text-md-left g-mb-30 g-mb-0--md">
+			<div class="col-sm-6 col-md-4 text-center text-md-left g-mb-30 g-mb-0--md">
 				<div class="media">
 					<div class="landing-block-node-icon-container d-none d-sm-flex media-left align-self-center g-mr-20 g-color-white-opacity-0_5 g-font-size-27">
 						<i class="landing-block-node-place-icon fa fa-map-marker"></i>
@@ -87,8 +87,8 @@
 				</div>
 			</div>
 
-			<div class="col-md-2 text-center text-md-right">
-				<a class="landing-block-node-button btn text-uppercase g-btn-white rounded-0 g-py-18  g-btn-type-solid g-btn-white g-btn-px-s rounded-0 g-btn-size-special"
+			<div class="col-md-4 text-center text-md-right">
+				<a class="landing-block-node-button btn text-uppercase g-btn-white rounded-0 g-btn-type-solid g-btn-white g-btn-px-s rounded-0 g-btn-size-special"
 				   href="#">Register Now</a>
 			</div>
 		</div>

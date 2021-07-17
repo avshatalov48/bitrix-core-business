@@ -320,6 +320,18 @@ this.BX = this.BX || {};
 	    value: function isControlsEnabled() {
 	      return !main_core.Dom.hasClass(document.body, 'landing-ui-hide-controls');
 	    }
+	  }, {
+	    key: "setTouchDevice",
+	    value: function setTouchDevice() {
+	      main_core.Dom.removeClass(document.documentElement, 'bx-no-touch');
+	      main_core.Dom.addClass(document.documentElement, 'bx-touch');
+	    }
+	  }, {
+	    key: "setNoTouchDevice",
+	    value: function setNoTouchDevice() {
+	      main_core.Dom.removeClass(document.documentElement, 'bx-touch');
+	      main_core.Dom.addClass(document.documentElement, 'bx-no-touch');
+	    }
 	    /**
 	     * Appends block
 	     * @param {addBlockResponse} data

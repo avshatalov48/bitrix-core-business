@@ -61,9 +61,9 @@
 						<li class="landing-block-node-element-list-item landing-semantic-subtitle-small g-brd-bottom g-brd-gray-light-v3 g-py-10">Display Advertising</li>
 						<li class="landing-block-node-element-list-item landing-semantic-subtitle-small g-brd-bottom g-brd-gray-light-v3 g-py-10">App &amp; Icon Design</li>
 						<li class="landing-block-node-element-list-item landing-semantic-subtitle-small g-brd-bottom g-brd-gray-light-v3 g-py-10">Analysis &amp; Consulting</li>
-						<li class="landing-block-node-element-list-item landing-semantic-subtitle-small g-brd-bottom g-brd-gray-light-v3 g-py-10">Google AdSense</li>
+						<li class="landing-block-node-element-list-item landing-semantic-subtitle-small g-brd-bottom g-brd-gray-light-v3 g-py-10">Ad services</li>
 						<li class="landing-block-node-element-list-item landing-semantic-subtitle-small g-brd-bottom g-brd-gray-light-v3 g-py-10">Social Media</li>
-						<li class="landing-block-node-element-list-item landing-semantic-subtitle-small g-py-8">Google/Bing Analysis</li>
+						<li class="landing-block-node-element-list-item landing-semantic-subtitle-small g-py-8">Analysis</li>
 					</ul>
 				</div>
 				<!-- End Icon Blocks -->

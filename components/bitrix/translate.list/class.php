@@ -108,6 +108,11 @@ class TranslateListComponent extends Translate\ComponentBase
 			return;
 		}
 
+		if (!$this->isAjaxRequest())
+		{
+			$this->checkMysqlConfig();
+		}
+
 		$this->prepareParams();
 		$paramsIn =& $this->getParams();
 
@@ -208,9 +213,7 @@ class TranslateListComponent extends Translate\ComponentBase
 			$this->filterOptions->reset();
 			$this->filterOptions->setFilterSettings(
 				$presetId,
-				array(
-					'fields' => $filterFieldsValue
-				),
+				['fields' => $filterFieldsValue],
 				true,
 				false
 			);
@@ -302,7 +305,7 @@ class TranslateListComponent extends Translate\ComponentBase
 			$customNames = [];
 
 			$customNames[] = 'TITLE';
-			$result[] = array(
+			$result[] = [
 				'id' => 'TITLE',
 				'name' => ($this->action === self::ACTION_FILE_LIST ?
 					Loc::getMessage('TR_LIST_COLUMN_TITLE') : Loc::getMessage('TR_LIST_COLUMN_FILE_NAME')),
@@ -313,10 +316,10 @@ class TranslateListComponent extends Translate\ComponentBase
 				'editable' => false,
 				'resizeable' => true,
 				'type' => '',
-			);
+			];
 
 			$customNames[] = 'PATH';
-			$result[] = array(
+			$result[] = [
 				'id' => 'PATH',
 				'name' => Loc::getMessage('TR_LIST_COLUMN_PATH'),
 				'default' => true,
@@ -326,12 +329,12 @@ class TranslateListComponent extends Translate\ComponentBase
 				'editable' => false,
 				'resizeable' => true,
 				'type' => '',
-			);
+			];
 
 			if ($this->action !== self::ACTION_SEARCH_FILE)
 			{
 				$customNames[] = 'PHRASE_CODE';
-				$result[] = array(
+				$result[] = [
 					'id' => 'PHRASE_CODE',
 					'name' => Loc::getMessage('TR_LIST_COLUMN_PHRASE_CODE'),
 					'default' => true,
@@ -341,7 +344,7 @@ class TranslateListComponent extends Translate\ComponentBase
 					'editable' => false,
 					'resizeable' => true,
 					'type' => '',
-				);
+				];
 			}
 
 			/*
@@ -377,7 +380,7 @@ class TranslateListComponent extends Translate\ComponentBase
 			$languagesList = $this->getLanguages();
 
 			// move current language to the first position
-			$this->rearrangeLanguages($languagesList, $paramsIn['CURRENT_LANG']);
+			$languagesList = $this->rearrangeLanguages($languagesList, $paramsIn['CURRENT_LANG']);
 
 			$titles = $this->getLanguagesTitle($languagesList);
 
@@ -385,7 +388,7 @@ class TranslateListComponent extends Translate\ComponentBase
 			{
 				$columnId = mb_strtoupper($langId).'_LANG';
 				$customNames[] = $columnId;
-				$result[] = array(
+				$result[] = [
 					'id' => $columnId,
 					'name' => $langId. ($langId == $paramsIn['CURRENT_LANG'] ? '*' : ''),
 					'default' => true,
@@ -395,7 +398,7 @@ class TranslateListComponent extends Translate\ComponentBase
 					'editable' => false,
 					'resizeable' => true,
 					'type' => '',
-				);
+				];
 			}
 
 			// switch on sorting
@@ -431,28 +434,6 @@ class TranslateListComponent extends Translate\ComponentBase
 		if (empty($result))
 		{
 			$result = [];
-			/*
-			 	\Bitrix\Main\UI\Filter\FieldAdapter::adapt
-
-				$field['type'] = string|list|date|number|custom|custom_entity|checkbox|custom_date|dest_selector
-
-				$field['allow_years_switcher']
-				$field['exclude']
-				$field['html']
-				$field['id']
-				$field['include']
-				$field['items']
-				$field['lightweight']
-				$field['messages']
-				$field['name']
-				$field['params']
-				$field['placeholder']
-				$field['style']
-				$field['time']
-				$field['value']
-				$field['valueType']
-				$field['params']['multiple']
-			*/
 
 			$result['FOLDER_NAME'] = array(
 				'id' => 'FOLDER_NAME',
@@ -748,7 +729,7 @@ class TranslateListComponent extends Translate\ComponentBase
 		}
 
 		$enabledLanguages = !empty($this->arResult['GRID_LANGUAGES']) ? $this->arResult['GRID_LANGUAGES'] : $this->arResult['LANGUAGES'];
-		$this->rearrangeLanguages($enabledLanguages, $paramsIn['CURRENT_LANG']);
+		$enabledLanguages = $this->rearrangeLanguages($enabledLanguages, $paramsIn['CURRENT_LANG']);
 		$languageUpperKeys = array_combine($enabledLanguages, array_map('mb_strtoupper', $enabledLanguages));
 
 		// go up
@@ -967,7 +948,7 @@ class TranslateListComponent extends Translate\ComponentBase
 		$select = array('PATH_ID', 'PATH', 'IS_LANG', 'IS_DIR', 'TITLE');
 
 		$enabledLanguages = !empty($this->arResult['GRID_LANGUAGES']) ? $this->arResult['GRID_LANGUAGES'] : $this->arResult['LANGUAGES'];
-		$this->rearrangeLanguages($enabledLanguages, $paramsIn['CURRENT_LANG']);
+		$enabledLanguages = $this->rearrangeLanguages($enabledLanguages, $paramsIn['CURRENT_LANG']);
 
 		$languageUpperKeys = array_combine($enabledLanguages, array_map('mb_strtoupper', $enabledLanguages));
 		foreach ($languageUpperKeys as $langId => $langUpper)
@@ -1095,7 +1076,11 @@ class TranslateListComponent extends Translate\ComponentBase
 			$this->getApplication()->setTitle(Loc::getMessage('TR_LIST_SEARCH'));
 		}
 
-		$select = array('PATH_ID', 'PHRASE_CODE', 'FILE_PATH', 'TITLE');
+		$enabledLanguages = !empty($this->arResult['GRID_LANGUAGES']) ? $this->arResult['GRID_LANGUAGES'] : $this->arResult['LANGUAGES'];
+		$enabledLanguages = $this->rearrangeLanguages($enabledLanguages, $paramsIn['CURRENT_LANG']);
+		$languageUpperKeys = array_combine($enabledLanguages, array_map('mb_strtoupper', $enabledLanguages));
+
+		$select = ['PATH_ID', 'PHRASE_CODE', 'FILE_PATH', 'TITLE'];
 
 		if (!empty($this->filter['PHRASE_CODE']))
 		{
@@ -1106,26 +1091,16 @@ class TranslateListComponent extends Translate\ComponentBase
 				in_array(Index\PhraseIndexSearch::SEARCH_METHOD_CASE_SENSITIVE, $this->arResult['CODE_SEARCH_METHOD'], true);
 		}
 
-		$enabledLanguages = !empty($this->arResult['GRID_LANGUAGES']) ? $this->arResult['GRID_LANGUAGES'] : $this->arResult['LANGUAGES'];
-		$this->rearrangeLanguages($enabledLanguages, $paramsIn['CURRENT_LANG']);
-
-		$languageUpperKeys = array_combine($enabledLanguages, array_map('mb_strtoupper', $enabledLanguages));
-		foreach ($languageUpperKeys as $langId => $langUpper)
+		if (!empty($this->filter['PHRASE_TEXT']))
 		{
-			$alias = "{$langUpper}_LANG";
-			$select[] = $alias;
-
-			if (!empty($this->filter['PHRASE_TEXT']) && ($langId === $this->filter['LANGUAGE_ID']))
-			{
-				$this->arResult['HIGHLIGHT_SEARCHED_PHRASE'] = true;
-				$this->arResult['PHRASE_SEARCH'] = $this->filter['PHRASE_TEXT'];
-				$this->arResult['PHRASE_SEARCH_LANGUAGE_ID'] = $langId;
-				$this->arResult['PHRASE_SEARCH_METHOD'] = !empty($this->filter['PHRASE_ENTRY']) ? $this->filter['PHRASE_ENTRY'] : [];
-				$this->arResult['PHRASE_SEARCH_CASE'] =
-					in_array(Index\PhraseIndexSearch::SEARCH_METHOD_CASE_SENSITIVE, $this->arResult['PHRASE_SEARCH_METHOD'], true);
-			}
+			$select[] = $languageUpperKeys[$this->filter['LANGUAGE_ID']]. "_LANG";
+			$this->arResult['HIGHLIGHT_SEARCHED_PHRASE'] = true;
+			$this->arResult['PHRASE_SEARCH'] = $this->filter['PHRASE_TEXT'];
+			$this->arResult['PHRASE_SEARCH_LANGUAGE_ID'] = $this->filter['LANGUAGE_ID'];
+			$this->arResult['PHRASE_SEARCH_METHOD'] = !empty($this->filter['PHRASE_ENTRY']) ? $this->filter['PHRASE_ENTRY'] : [];
+			$this->arResult['PHRASE_SEARCH_CASE'] =
+				in_array(Index\PhraseIndexSearch::SEARCH_METHOD_CASE_SENSITIVE, $this->arResult['PHRASE_SEARCH_METHOD'], true);
 		}
-		unset($langId, $langUpper, $alias);
 
 		try
 		{
@@ -1144,85 +1119,85 @@ class TranslateListComponent extends Translate\ComponentBase
 			if ($this->totalItemsFound > 0)
 			{
 				$useTranslationRepository = Main\Localization\Translation::useTranslationRepository();
+
+				$fileInxCache = [];
 				while ($row = $cursor->fetchRaw())
 				{
-					$inx = $row['PATH_ID'].':'.$row['PHRASE_CODE'];
+					$pathId = $row['PATH_ID'];
+					$inx = $pathId.':'.$row['PHRASE_CODE'];
 
-					$entry = array(
+					if (!isset($fileInxCache[$pathId]))
+					{
+						$fileInxCache[$pathId] = [];
+						$fileInxRes = Translate\Index\Internals\FileIndexTable::getList([
+							'filter' => ['=PATH_ID' => $pathId],
+							'order' => ['ID' => 'ASC'],
+							'select' => ['LANG_ID', 'FULL_PATH'],
+						]);
+						while ($fileInx = $fileInxRes->fetch())
+						{
+							$fileInxCache[$pathId][$fileInx['LANG_ID']] = $fileInx['FULL_PATH'];
+						}
+					}
+
+					$entry = [
 						'depth' => 0,
 						'editable' => true,
 						'draggable' => false,
 						'expand' => false,
 						'not_count' => false,
-						'columns' => array(
+						'columns' => [
 							'IS_FILE' => true,
 							'TITLE' => $row['TITLE'],
 							'PHRASE_CODE' => $row['PHRASE_CODE'],
 							'PATH' => $row['FILE_PATH'],
-						),
-						'attrs' => array(
+						],
+						'attrs' => [
 							'data-path' => htmlspecialcharsbx($row['FILE_PATH']),
 							'data-code' => htmlspecialcharsbx($row['PHRASE_CODE']),
-						),
-					);
+						],
+					];
 					foreach ($languageUpperKeys as $langId => $langUpper)
 					{
-						$columnId = "{$langUpper}_LANG";
-
-						if (!isset($row[$columnId]) || !is_string($row[$columnId]) || (empty($row[$columnId]) && $row[$columnId] !== '0'))
+						if (!isset($fileInxCache[$pathId], $fileInxCache[$pathId][$langId]))
 						{
 							continue;
 						}
 
-						$isCompatible = in_array($langId, $this->arResult['COMPATIBLE_LANGUAGES'], true);
-
-						if (!$isCompatible)
+						$langFile = Translate\File::instantiateByPath($fileInxCache[$pathId][$langId]);
+						if ($langFile->load())
 						{
-							$entry['columns'][$columnId] =
-								'<span title="'. Loc::getMessage('TR_UNCOMPATIBLE_ENCODING'). '">'.
-								Translate\Text\StringHelper::htmlSpecialChars($row[$columnId]).
-								'</span>';
-						}
-						else
-						{
-							$entry['columns'][$columnId] =
-								Translate\Text\StringHelper::htmlSpecialChars($row[$columnId]);
-						}
-
-						// suppose there is a problem with collation
-						if (Translate\Text\StringHelper::getPosition($row[$columnId], '?') !== false)
-						{
-							$fileIndex = Translate\Index\FileIndex::wakeUp(['ID' => $row["{$langUpper}_FILE_ID"]]);
-							$fileIndex->fill();
-							$langFile = Translate\File::instantiateByIndex($fileIndex);
-							if ($langFile->load())
+							$columnId = "{$langUpper}_LANG";
+							if (!in_array($langId, $this->arResult['COMPATIBLE_LANGUAGES'], true))
 							{
-								$phrase = $langFile[$row['PHRASE_CODE']];
-								if (!empty($phrase) && $phrase != $row[$columnId])
-								{
-									if (!$isCompatible)
-									{
-										$entry['columns'][$columnId] =
-											'<span title="'. Loc::getMessage('TR_UNCOMPATIBLE_ENCODING'). '">'.
-											Translate\Text\StringHelper::htmlSpecialChars($langFile[$row['PHRASE_CODE']]).
-											'</span>';
-									}
-									else
-									{
-										$entry['columns'][$columnId] =
-											Translate\Text\StringHelper::htmlSpecialChars($langFile[$row['PHRASE_CODE']]);
-									}
-								}
+								$entry['columns'][$columnId] =
+									'<span title="'. Loc::getMessage('TR_UNCOMPATIBLE_ENCODING'). '">'.
+									Translate\Text\StringHelper::htmlSpecialChars($langFile[$row['PHRASE_CODE']]).
+									'</span>';
+							}
+							else
+							{
+								$entry['columns'][$columnId] =
+									Translate\Text\StringHelper::htmlSpecialChars($langFile[$row['PHRASE_CODE']]);
 							}
 						}
 					}
+
+					$entry['columns']['IS_EXIST'] = null;
 					if ($useTranslationRepository)
 					{
-						$entry['columns']['IS_EXIST'] = ($row['IS_EXIST'] == 1);
-					}
-					else
-					{
-						$entry['columns']['IS_EXIST'] = null;
+						$entry['columns']['IS_EXIST'] = false;
+						foreach ($languageUpperKeys as $langId => $langUpper)
+						{
+							if (
+								Main\Localization\Translation::isDefaultTranslationLang($langId)
+								&& isset($fileInxCache[$pathId], $fileInxCache[$pathId][$langId])
+							)
+							{
+								$entry['columns']['IS_EXIST'] = true;
+								break;
+							}
+						}
 					}
 
 					if (isset($this->fileData[$inx]))
@@ -1590,7 +1565,13 @@ class TranslateListComponent extends Translate\ComponentBase
 							if (isset($children[$paramsIn['CURRENT_LANG']]))
 							{
 								$ethalonFile = Translate\File::instantiateByPath($children[$paramsIn['CURRENT_LANG']]);
-								$ethalonFile->load();
+								if (!$ethalonFile->loadTokens())
+								{
+									if (!$ethalonFile->load())
+									{
+										$ethalonFile = null;
+									}
+								}
 							}
 
 							$index = [];
@@ -1601,20 +1582,22 @@ class TranslateListComponent extends Translate\ComponentBase
 									$langFile = Translate\File::instantiateByPath($childPath);
 									if ($langFile instanceof Translate\File)
 									{
-										$langFile->load();
-										$index[$langId] = $langFile->count(true);
-
-										if ($langId != $paramsIn['CURRENT_LANG'])
+										if ($langFile->loadTokens() || $langFile->load())
 										{
-											if ($ethalonFile instanceof Translate\File)
+											$index[$langId] = $langFile->count(true);
+
+											if ($langId != $paramsIn['CURRENT_LANG'])
 											{
-												$index["{$langId}_excess"] = $langFile->countExcess($ethalonFile);
-												$index["{$langId}_deficiency"] = $langFile->countDeficiency($ethalonFile);
+												if ($ethalonFile instanceof Translate\File)
+												{
+													$index["{$langId}_excess"] = $langFile->countExcess($ethalonFile);
+													$index["{$langId}_deficiency"] = $langFile->countDeficiency($ethalonFile);
+												}
 											}
 										}
 									}
 								}
-								catch (Main\ArgumentException $ex)
+								catch (\Exception $ex)
 								{
 									continue;
 								}
@@ -1668,7 +1651,7 @@ class TranslateListComponent extends Translate\ComponentBase
 			{
 				$currentLanguage = $paramsIn['CURRENT_LANG'];
 				$languages = !empty($this->arResult['GRID_LANGUAGES']) ? $this->arResult['GRID_LANGUAGES'] : $this->arResult['LANGUAGES'];
-				$this->rearrangeLanguages($languages, $paramsIn['CURRENT_LANG']);
+				$languages = $this->rearrangeLanguages($languages, $paramsIn['CURRENT_LANG']);
 				$languageUpperKeys = array_combine($languages, array_map('mb_strtoupper', $languages));
 
 				if ($loadPathsDiff)

@@ -22,6 +22,7 @@ $nodes = [$arResult['userField']['~id']];
 	name="<?= $arResult['fieldName'] ?>"
 	id="<?= $arResult['userField']['~id'] ?>"
 	class="mobile-grid-data-select"
+	data-is-inline-edit="false"
 	<?= ($arResult['userField']['MULTIPLE'] === 'Y' ? ' multiple' : '') ?>
 >
 	<?php
@@ -50,10 +51,7 @@ $nodes = [$arResult['userField']['~id']];
 	id="<?= $arResult['userField']['~id'] ?>_select"
 >
 	<?php
-	if(
-		empty($arResult['currentValue']['VALUE'])
-		|| (is_array($arResult['userField']['VALUE']) && !count($arResult['userField']['VALUE']))
-	)
+	if(!$arResult['userField']['VALUE'])
 	{
 		print EnumType::getEmptyCaption($arResult['userField']);
 	}

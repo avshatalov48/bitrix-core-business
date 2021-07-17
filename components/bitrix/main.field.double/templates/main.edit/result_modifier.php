@@ -6,6 +6,8 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 /**
  * @var $component DoubleUfComponent
+ * @var $arResult array
+ * @var $arParams array
  */
 
 $component = $this->getComponent();
@@ -40,9 +42,11 @@ $attrList['class'] = implode(' ',[
 ]);
 
 $attrList['name'] = $arResult['fieldName'];
-$attrList['placeholder'] = HtmlFilter::encode(
-	$arParams['userField']['placeholder'] ?: $arParams['userField']['EDIT_FORM_LABEL']
+$attrList['placeholder'] = (
+	$arParams['userField']['placeholder']
+	?? htmlspecialcharsback($arParams['userField']['EDIT_FORM_LABEL'])
 );
+
 $attrList['type'] = 'text';
 
 foreach($arResult['value'] as $key => $value)

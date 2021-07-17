@@ -2609,6 +2609,7 @@
 						fields.push({
 							Id: fieldId,
 							ObjectId: this.getId(),
+							ObjectName: this.getTitle(),
 							Name: field['NAME'],
 							Type: field['TYPE'],
 							Expression: '{{~'+this.getId()+':'+fieldId+' # '+this.getTitle()+': '+field['NAME']+'}}',
@@ -4623,7 +4624,7 @@
 				var names, groupKey = field['Id'].indexOf('.') < 0 ? 'ROOT' : field['Id'].split('.')[0];
 				var fieldName = field['Name'];
 				var groupName = '';
-				if (fieldName && fieldName.indexOf(': ') >= 0)
+				if (fieldName && groupKey !== 'ROOT' && fieldName.indexOf(': ') >= 0)
 				{
 					names = fieldName.split(': ');
 					groupName = names.shift();
@@ -4943,8 +4944,16 @@
 				var exp = field['ObjectId'] === 'Document' ?
 					'{{'+field['Name']+' > shortlink}}'
 					: '{{~'+field['ObjectId']+':'+field['Id']+' > shortlink}}';
+
+				var title = field['Name'] || field['Id'];
+
+				if (field.ObjectName)
+				{
+					title = field.ObjectName + ': ' + title;
+				}
+
 				menu.push({
-					title: field['Name'] || field['Id'],
+					title: title,
 					customData: {
 						property: {
 							Id: field['Id'] + '_shortlink',

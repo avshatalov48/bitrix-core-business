@@ -39,7 +39,6 @@
 
 ?>
 <script>
-<!--
 function BXBlogTabShow(id, type)
 {
 	if(type == 'post')
@@ -78,7 +77,6 @@ function BXBlogTabShow(id, type)
 	}
 	
 }
-//-->
 </script>
 <div class="blog-mainpage-side-left">
 <div class="blog-tab-container">

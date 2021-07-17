@@ -130,7 +130,7 @@ class RestManager extends \IRestService
 			$result = $result->getContent();
 		}
 
-		if(is_a($result, "\\Bitrix\\Rest\\RestException"))
+		if ($result instanceof RestException)
 		{
 			throw $result;
 		}

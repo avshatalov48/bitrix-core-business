@@ -23,11 +23,11 @@ class Helper
 	{
 		if (self::isSpaMode())
 		{
-			return isset($options["SPA_REQUEST_URI"]) ? $options["SPA_REQUEST_URI"] : "/";
+			return ($options["SPA_REQUEST_URI"] ?? "/");
 		}
 		else
 		{
-			return $_SERVER["REQUEST_URI"];
+			return ($_SERVER["REQUEST_URI"] ?? '');
 		}
 	}
 
@@ -40,7 +40,7 @@ class Helper
 	 */
 	public static function getHttpHost($host = null)
 	{
-		return preg_replace("/:(80|443)$/", "", $host === null ? $_SERVER["HTTP_HOST"] : $host);
+		return preg_replace("/:(80|443)$/", "", $host === null ? ($_SERVER["HTTP_HOST"] ?? '') : $host);
 	}
 
 	/**

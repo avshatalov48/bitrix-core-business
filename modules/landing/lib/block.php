@@ -1061,7 +1061,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 													: '',
 									'restricted' => false,
 									'repo_id' => false,
-									'app_code' => false
+									'app_code' => false,
+									'only_for_license' => $description['block']['only_for_license'] ?? '',
 								);
 								if ($withManifest)
 								{
@@ -3481,11 +3482,11 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 						'sanitize' => false
 					]
 				);
-				$this->access = $rememberAccess;
 				if(!$edit)
 				{
 					Assets\PreProcessing::blockSetDynamicProcessing($this);
 				}
+				$this->access = $rememberAccess;
 
 				header('X-Bitrix24-Page: dynamic');
 				if ($caching)

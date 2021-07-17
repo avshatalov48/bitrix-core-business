@@ -353,11 +353,11 @@
 }
 
 .ui-checkbox-hidden-input .ui-checkbox:checked  + .ui-checkbox-hidden-input-inner {
-	height: 115px;
+	height: 170px;
 }
 
 .ui-form-right-cell-fonts .ui-checkbox:checked + .ui-checkbox-hidden-input-inner {
-	height: 270px;
+	height: 500px;
 }
 
 .ui-form-right-cell-fonts .ui-checkbox-hidden-input-inner.opened {

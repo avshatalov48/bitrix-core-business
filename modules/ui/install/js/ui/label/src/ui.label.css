@@ -155,6 +155,12 @@ a.ui-label:not(.ui-label-fill):hover,
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2210%22%20height%3D%2210%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M7.787%201L5%203.787%202.213%201%201%202.213%203.787%205%201%207.787%202.213%209%205%206.213%207.787%209%209%207.787%206.213%205%209%202.213%22%20fill%3D%22%23fff%22/%3E%3C/svg%3E');
 }
 
+.ui-label-fill.ui-label-lightgreen .ui-label-icon,
+.ui-label-fill.ui-label-lightblue .ui-label-icon,
+.ui-label-fill.ui-label-light .ui-label-icon {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2210%22%20height%3D%2210%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M7.787%201L5%203.787%202.213%201%201%202.213%203.787%205%201%207.787%202.213%209%205%206.213%207.787%209%209%207.787%206.213%205%209%202.213%22%20fill%3D%22%23757c87%22/%3E%3C/svg%3E');
+}
+
 .ui-label-icon:hover {
 	transition: none;
 	opacity: 1;

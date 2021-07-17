@@ -240,7 +240,7 @@ else
 			}
 			else
 			{
-				$arTmp["TITLE"] = ($arTmp["MICRO"] == "Y" ? htmlspecialcharsback($arPost["TITLE"]) : $arPost["TITLE"]);
+				$arTmp["TITLE"] = ($arTmp["MICRO"] === "Y" ? html_entity_decode(htmlspecialcharsback($arPost["TITLE"]), ENT_QUOTES) : $arPost["TITLE"]);
 				$arTmp["TITLE"] = TruncateText($arTmp["TITLE"], $arParams["MESSAGE_LENGTH"]);
 			}
 

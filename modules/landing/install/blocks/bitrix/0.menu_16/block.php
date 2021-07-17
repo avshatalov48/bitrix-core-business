@@ -11,19 +11,17 @@
 					</a>
 					<!-- End Logo -->
 				</div>
-
 				<div class="col-12 col-sm-9 col-lg-10">
 					<div class="row g-ml-20--sm">
 						<div class="landing-block-card-menu-contact-container col-sm-8 col-md-9">
 							<div class="landing-block-card-menu-contact-container-inner row">
 								<div class="landing-block-card-menu-contact col-md g-mb-10 g-mb-0--md g-brd-right--md g-brd-gray-light-v4"
 									 data-card-preset="contact-link">
-
 									<a href="tel:#PHONE1#" class="landing-block-node-menu-contactlink-link g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start g-text-decoration-none--hover">
-										<span class="landing-block-node-menu-contact-img-container text-md-center text-lg-left w-auto g-width-100x--md g-width-auto--lg g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-valign-top g-color-primary g-mr-10 g-mr-0--md g-mr-10--lg">
+										<span class="landing-block-node-menu-contact-img-container text-md-center text-lg-left g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-color-primary col-12 g-pa-0">
 											<i class="landing-block-node-menu-contact-img icon icon-screen-smartphone"></i>
 										</span>
-										<span class="landing-block-node-menu-contactlink-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">
+										<span class="landing-block-node-menu-contactlink-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block col-12 g-pa-0">
 											<span class="landing-block-node-menu-contactlink-title landing-block-node-menu-contact-title-style landing-semantic-text-medium g-color-main d-block text-uppercase g-font-size-13">
 												Call Us
 											</span>
@@ -33,14 +31,13 @@
 										</span>
 									</a>
 								</div>
-
 								<div class="landing-block-card-menu-contact col-md g-mb-10 g-mb-0--md g-brd-right--md g-brd-gray-light-v4"
 									 data-card-preset="contact-text">
 									<div class="g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start">
-										<div class="landing-block-node-menu-contact-img-container text-md-center text-lg-left w-auto g-width-100x--md g-width-auto--lg g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-valign-top g-color-primary g-mr-10 g-mr-0--md g-mr-10--lg">
+										<div class="landing-block-node-menu-contact-img-container text-md-center text-lg-left g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-color-primary col-12 g-pa-0">
 											<i class="landing-block-node-menu-contact-img icon icon-clock"></i>
 										</div>
-										<div class="landing-block-node-menu-contact-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">
+										<div class="landing-block-node-menu-contact-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block col-12 g-pa-0">
 											<div class="landing-block-node-menu-contact-title landing-block-node-menu-contact-title-style landing-semantic-text-medium g-color-main text-uppercase g-font-size-13">
 												Opening time
 											</div>
@@ -50,15 +47,13 @@
 										</div>
 									</div>
 								</div>
-
 								<div class="landing-block-card-menu-contact col-md g-mb-10 g-mb-0--md g-brd-right--md g-brd-gray-light-v4"
 									 data-card-preset="contact-link">
-
 									<a href="mailto:#EMAIL1#" class="landing-block-node-menu-contactlink-link g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start g-text-decoration-none--hover">
-										<span class="landing-block-node-menu-contact-img-container text-md-center text-lg-left w-auto g-width-100x--md g-width-auto--lg g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-valign-top g-color-primary g-mr-10 g-mr-0--md g-mr-10--lg">
+										<span class="landing-block-node-menu-contact-img-container text-md-center text-lg-left g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-color-primary col-12 g-pa-0">
 											<i class="landing-block-node-menu-contactlink-img icon icon-envelope"></i>
 										</span>
-										<span class="landing-block-node-menu-contactlink-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">
+										<span class="landing-block-node-menu-contactlink-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block col-12 g-pa-0">
 											<span class="landing-block-node-menu-contactlink-title  landing-block-node-menu-contact-title-style landing-semantic-text-medium g-color-main d-block text-uppercase g-font-size-13">
 												Email us
 											</span>
@@ -67,12 +62,10 @@
 											</span>
 										</span>
 									</a>
-									
 								</div>
 							</div>
 						</div>
-
-						<div class="landing-block-socials-container col-sm-4 col-md-3 g-mb-10 g-mb-0--md">
+						<div class="landing-block-socials-container col-sm-4 col-md-3 g-mb-10 g-mb-0--md align-self-center">
 							<ul class="landing-block-cards-social list-inline g-pa-10--md g-mb-0 row align-items-center justify-content-center justify-content-sm-start">
 								<li class="landing-block-card-social list-inline-item g-valign-middle g-mx-3 g-mb-6"
 									data-card-preset="facebook">
@@ -151,7 +144,6 @@
 					</ul>
 				</div>
 				<!-- End Navigation -->
-
 				<!-- Responsive Toggle Button -->
 				<button class="navbar-toggler btn g-pos-rel g-line-height-1 g-brd-none g-pa-0 ml-auto" type="button"
 						aria-label="Toggle navigation"
@@ -159,11 +151,11 @@
 						aria-controls="navBar"
 						data-toggle="collapse"
 						data-target="#navBar">
-                <span class="hamburger hamburger--slider">
-                  <span class="hamburger-box">
-                    <span class="hamburger-inner"></span>
-                  </span>
-                </span>
+					<span class="hamburger hamburger--slider">
+						<span class="hamburger-box">
+							<span class="hamburger-inner"></span>
+						</span>
+					</span>
 				</button>
 				<!-- End Responsive Toggle Button -->
 			</div>

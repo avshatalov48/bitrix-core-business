@@ -357,6 +357,24 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		{
 			return BX.prop.getArray(this._data, name, defaultval);
 		},
+		getInnerConfig: function()
+		{
+			var innerConfig = this.getDataObjectParam("innerConfig", {});
+
+			var isInnerConfigValid = (
+				BX.Type.isPlainObject(innerConfig)
+				&& innerConfig.hasOwnProperty("type")
+				&& BX.Type.isStringFilled(innerConfig["type"])
+				&& innerConfig.hasOwnProperty("controller")
+				&& BX.Type.isStringFilled(innerConfig["controller"])
+				&& innerConfig.hasOwnProperty("statusType")
+				&& BX.Type.isStringFilled(innerConfig["statusType"])
+				&& innerConfig.hasOwnProperty("itemsConfig")
+				&& BX.Type.isPlainObject(innerConfig["itemsConfig"])
+			);
+
+			return (isInnerConfigValid) ? innerConfig : null;
+		},
 		getElements: function()
 		{
 			return this._elements;

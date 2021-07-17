@@ -210,6 +210,7 @@ class CAllUser extends CDBResult
 
 			$arFields['ACTIVE'] = (is_set($arFields, 'ACTIVE') && $arFields['ACTIVE'] != 'Y'? 'N' : 'Y');
 			$arFields['BLOCKED'] = (is_set($arFields, 'BLOCKED') && $arFields['BLOCKED'] == 'Y'? 'Y' : 'N');
+			$arFields['PASSWORD_EXPIRED'] = (is_set($arFields, 'PASSWORD_EXPIRED') && $arFields['PASSWORD_EXPIRED'] == 'Y'? 'Y' : 'N');
 
 			if($arFields["PERSONAL_GENDER"]=="NOT_REF" || ($arFields["PERSONAL_GENDER"]!="M" && $arFields["PERSONAL_GENDER"]!="F"))
 				$arFields["PERSONAL_GENDER"] = "";
@@ -379,7 +380,10 @@ class CAllUser extends CDBResult
 				),
 			));
 		}
-		$obUserFieldsSql->SetSelect($arParams["SELECT"]);
+		if (isset($arParams["SELECT"]))
+		{
+			$obUserFieldsSql->SetSelect($arParams["SELECT"]);
+		}
 		$obUserFieldsSql->SetFilter($arFilter);
 		$obUserFieldsSql->SetOrder($arOrder);
 
@@ -728,7 +732,7 @@ class CAllUser extends CDBResult
 			".$userFieldsSelect."
 		";
 
-		if (is_array($arParams['SELECT']))
+		if (isset($arParams['SELECT']) && is_array($arParams['SELECT']))
 		{
 			$arRatingInSelect = array();
 			foreach ($arParams['SELECT'] as $column)
@@ -1688,7 +1692,7 @@ class CAllUser extends CDBResult
 		$errorType = "LOGIN";
 
 		$strSql =
-			"SELECT U.ID, U.LOGIN, U.ACTIVE, U.BLOCKED, U.PASSWORD, U.LOGIN_ATTEMPTS, U.CONFIRM_CODE, U.EMAIL ".
+			"SELECT U.ID, U.LOGIN, U.ACTIVE, U.BLOCKED, U.PASSWORD, U.PASSWORD_EXPIRED, U.LOGIN_ATTEMPTS, U.CONFIRM_CODE, U.EMAIL ".
 			"FROM b_user U  ".
 			"WHERE U.LOGIN='".$DB->ForSQL($arParams["LOGIN"])."' ";
 
@@ -1796,16 +1800,30 @@ class CAllUser extends CDBResult
 						}
 					}
 
-					$policyChangeDays = (int)$policy["PASSWORD_CHANGE_DAYS"];
-					if($policyChangeDays > 0)
+					$passwordExpired = false;
+					if ($arUser['PASSWORD_EXPIRED'] == 'Y')
 					{
-						//require to change the password after N days
-						if(UserPasswordTable::passwordExpired($arUser["ID"], $policyChangeDays))
+						//require to change the password right now
+						$passwordExpired = true;
+					}
+					else
+					{
+						$policyChangeDays = (int)$policy["PASSWORD_CHANGE_DAYS"];
+						if($policyChangeDays > 0)
 						{
-							$passwordCorrect = false;
-							$message = GetMessage("MAIN_LOGIN_CHANGE_PASSWORD");
-							$errorType = "CHANGE_PASSWORD";
+							//require to change the password after N days
+							if(UserPasswordTable::passwordExpired($arUser["ID"], $policyChangeDays))
+							{
+								$passwordExpired = true;
+							}
 						}
+					}
+
+					if ($passwordExpired)
+					{
+						$passwordCorrect = false;
+						$message = GetMessage("MAIN_LOGIN_CHANGE_PASSWORD");
+						$errorType = "CHANGE_PASSWORD";
 					}
 				}
 
@@ -3446,6 +3464,8 @@ class CAllUser extends CDBResult
 				$arFields["ACTIVE"] = "N";
 			if(is_set($arFields, "BLOCKED") && $arFields["BLOCKED"] != "Y")
 				$arFields["BLOCKED"] = "N";
+			if(is_set($arFields, "PASSWORD_EXPIRED") && $arFields["PASSWORD_EXPIRED"] != "Y")
+				$arFields["PASSWORD_EXPIRED"] = "N";
 
 			if(is_set($arFields, "PERSONAL_GENDER") && ($arFields["PERSONAL_GENDER"]!="M" && $arFields["PERSONAL_GENDER"]!="F"))
 				$arFields["PERSONAL_GENDER"] = "";
@@ -3477,8 +3497,17 @@ class CAllUser extends CDBResult
 						$passwordChanged = true;
 					}
 				}
+
 				if(COption::GetOptionString("main", "event_log_password_change", "N") === "Y")
+				{
 					CEventLog::Log("SECURITY", "USER_PASSWORD_CHANGED", "main", $ID);
+				}
+
+				if (!isset($arFields['PASSWORD_EXPIRED']))
+				{
+					// reset the flag on password change
+					$arFields['PASSWORD_EXPIRED'] = 'N';
+				}
 			}
 			unset($arFields["STORED_HASH"]);
 

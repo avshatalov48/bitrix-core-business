@@ -103,7 +103,6 @@
 	-moz-appearance: none;
 	-ms-appearance: none;
 	appearance: none !important;
-	vertical-align: top;
 }
 .bizproc-type-control-date-lc {
 	max-width: 180px !important;

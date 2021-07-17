@@ -32,7 +32,8 @@ class Operator
 		'between' => 'between',
 		'like' => 'like',
 		'exists' => 'exists',
-		'match' => 'match'
+		'match' => 'match',
+		'expr' => 'expr'
 	);
 
 	/**
@@ -98,7 +99,7 @@ class Operator
 		return "{$columnSql} LIKE {$valueSql}";
 	}
 
-	public static function exists(/** @noinspection PhpUnusedParameterInspection */ $columnSql, $valueSql)
+	public static function exists($columnSql, $valueSql)
 	{
 		return "EXISTS ({$valueSql})";
 	}
@@ -106,5 +107,10 @@ class Operator
 	public static function match($columnSql, $valueSql)
 	{
 		return "MATCH ({$columnSql}) AGAINST ({$valueSql} IN BOOLEAN MODE)";
+	}
+
+	public static function expr($columnSql, $valueSql)
+	{
+		return "{$columnSql}";
 	}
 }

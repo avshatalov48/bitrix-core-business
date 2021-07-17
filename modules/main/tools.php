@@ -2094,19 +2094,11 @@ function extract_url($s)
 function convert_to_href($url, $link_class="", $event1="", $event2="", $event3="", $script="", $link_target="_self")
 {
 	$url = stripslashes($url);
-	$goto = $url;
-	if ($event1 <> '' || $event2 <> '')
-	{
-		$script = $script <> '' ? $script : "/bitrix/redirect.php";
-		$goto = $script.
-			"?event1=".urlencode($event1).
-			"&event2=".urlencode($event2).
-			"&event3=".urlencode($event3).
-			"&goto=".urlencode($goto);
-	}
+
 	$target = $link_target == '_self'? '': ' target="'.$link_target.'"';
 
-	$s = "<a class=\"".$link_class."\" href=\"".delete_special_symbols($goto)."\"".$target.">".$url."</a>";
+	$s = "<a class=\"".$link_class."\" href=\"".delete_special_symbols($url)."\"".$target.">".$url."</a>";
+
 	return $s;
 }
 
@@ -2134,7 +2126,7 @@ function TxtToHTML(
 	$code_body_class       = "tdcodebody",   // css класс на вторую TD таблицы кода
 	$code_textarea_class   = "codetextarea", // css класс на textarea в таблице кода
 	$link_class            = "txttohtmllink",// css класс на ссылках
-	$arUrlEvent            = array(),        // массив в нем если заданы ключи EVENT1, EVENT2, EVENT3 то ссылки будут через $arUrlEvent["SCRIPT"] (по умолчанию равен "/bitrix/redirect.php")
+	$arUrlEvent            = array(),        // deprecated
 	$link_target           = "_self"         // tagret открытия страницы
 )
 {
@@ -2195,15 +2187,10 @@ function TxtToHTML(
 	// chr(3).E-Mail.chr(3) => <a href="mailto:E-Mail">E-Mail</a>
 	if($bMakeUrls)
 	{
-		$script = ($arUrlEvent["SCRIPT"] ?? '');
 		$helper = new CConvertorsPregReplaceHelper("");
 		$helper->setLinkClass($link_class);
 		$helper->setLinkTarget($link_target);
-		$helper->setEvents(($arUrlEvent["EVENT1"] ?? ''), ($arUrlEvent["EVENT2"] ?? ''), ($arUrlEvent["EVENT3"] ?? ''));
-		if($script <> '')
-		{
-			$helper->setScript($script);
-		}
+
 		$str = preg_replace_callback("#\x01([^\n\x01]+?)/\x01#is", array($helper, "convertToHref"), $str);
 		$str = preg_replace_callback("#\x03([^\n\x03]+?)\x03#is", array($helper, "convertToMailTo"), $str);
 	}

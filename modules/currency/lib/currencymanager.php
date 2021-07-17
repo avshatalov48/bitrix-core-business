@@ -168,8 +168,8 @@ class CurrencyManager
 			]);
 			while ($currency = $currencyIterator->fetch())
 			{
+				$showValue = $currency['CURRENCY'];
 				$currencyFormat = (string)$currency['FORMAT_STRING'];
-
 				if ($currencyFormat !== '')
 				{
 					$symbol = \CCurrencyLang::applyTemplate('', $currencyFormat);
@@ -178,10 +178,11 @@ class CurrencyManager
 						$symbol = trim($symbol);
 						if ($symbol !== '')
 						{
-							$currencyList[$currency['CURRENCY']] = $symbol;
+							$showValue = $symbol;
 						}
 					}
 				}
+				$currencyList[$currency['CURRENCY']] = $showValue;
 			}
 
 			$managedCache->set($cacheId, $currencyList);

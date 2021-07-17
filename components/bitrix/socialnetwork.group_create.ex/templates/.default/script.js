@@ -409,10 +409,8 @@ BX.BXGCE.init = function(params) {
 	}
 
 	this.isScrumProject = params.isScrumProject === 'Y';
-	if (parseInt(this.groupId, 10) > 0)
-	{
-		this.makeAdditionalCustomizationForm();
-	}
+
+	this.makeAdditionalCustomizationForm();
 
 	var i = null;
 	var cnt = null;
@@ -953,15 +951,21 @@ BX.BXGCE.makeAdditionalCustomizationForm = function()
 	{
 		this.createHiddenInputs();
 
-		this.hideBlocksForScrumProject();
+		this.hideBlocks();
+
+		this.showScrumBlocks();
 	}
 	else
 	{
+		this.removeHiddenInputs();
+
+		this.showBlocks();
+
 		this.hideScrumBlocks();
 	}
 };
 
-BX.BXGCE.hideBlocksForScrumProject = function ()
+BX.BXGCE.hideBlocks = function ()
 {
 	var typeBlock = document.getElementById('additional-block-type');
 	if (typeBlock)
@@ -984,11 +988,42 @@ BX.BXGCE.hideBlocksForScrumProject = function ()
 	}
 };
 
+BX.BXGCE.showBlocks = function ()
+{
+	var typeBlock = document.getElementById('additional-block-type');
+	if (typeBlock)
+	{
+		var itemList = typeBlock.querySelector('.social-group-create-form-field-list');
+		itemList.querySelectorAll('.social-group-create-form-field-list-item').forEach(function(itemNode) {
+			var checkboxNode = itemNode.querySelector('input[type=checkbox]');
+			if (!BX.util.in_array(checkboxNode.id, ['GROUP_VISIBLE', 'GROUP_OPENED']))
+			{
+				BX.removeClass(itemNode, 'sgcp-hide-scrum-project');
+			}
+		});
+		itemList.style.height = 'auto';
+	}
+
+	var subjectBlock = document.getElementById('GROUP_SUBJECT_ID_LABEL_block');
+	if (subjectBlock)
+	{
+		BX.removeClass(subjectBlock.closest('.social-group-create-options-item'), 'sgcp-hide-scrum-project');
+	}
+};
+
 BX.BXGCE.hideScrumBlocks = function ()
 {
 	document.querySelectorAll('#scrum-block').forEach(function (scrumBlock)
 	{
 		BX.addClass(scrumBlock, 'sgcp-hide-scrum-project');
+	});
+};
+
+BX.BXGCE.showScrumBlocks = function ()
+{
+	document.querySelectorAll('#scrum-block').forEach(function (scrumBlock)
+	{
+		BX.removeClass(scrumBlock, 'sgcp-hide-scrum-project');
 	});
 };
 
@@ -1003,6 +1038,16 @@ BX.BXGCE.createHiddenInputs = function ()
 			}
 		})
 	);
+};
+
+BX.BXGCE.removeHiddenInputs = function ()
+{
+	document.forms['sonet_group_create_popup_form'].querySelectorAll('input[name="SCRUM_PROJECT"]')
+		.forEach(function (input)
+		{
+			BX.remove(input);
+		})
+	;
 };
 
 BX.BXGCE.recalcForm = function (params) {

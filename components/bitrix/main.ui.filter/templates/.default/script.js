@@ -1057,7 +1057,7 @@ this.BX = this.BX || {};
 	      throw new Error('Filter option is required for EntitySelector field');
 	    }
 
-	    this.isMultiple = this.getSetting('isMultiple', 'N') === 'Y';
+	    this.isMultiple = !!this.getSetting('isMultiple', false);
 	    this.needAddEntityIdToFilter = this.getSetting('addEntityIdToResult', 'N') === 'Y';
 	    this.dialogOptions = this.getSetting('dialogOptions', {});
 	    this.dialog = null;

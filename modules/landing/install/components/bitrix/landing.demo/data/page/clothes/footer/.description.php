@@ -48,12 +48,12 @@ return array(
 				),
 				'.landing-block-node-card-contact-text' => array(
 					0 => Loc::getMessage("NOTETRANSLATE--LANDING_DEMO_STORE_CLOTHES-FOOTER--TEXT_1"),
-					1 => 'Phone: ',
+					1 => Loc::getMessage("LANDING_DEMO_STORE_CLOTHES_FOOTER_TEXT_12"),
 				),
 				'.landing-block-node-card-contact-link' => array(
 					0 => [
-						'text' => '+7 (495) 212 85 06',
-						'href' => 'tel:74952128506',
+						'text' => '1-800-643-4500',
+						'href' => 'tel:1-800-643-4500',
 					],
 				),
 				'.landing-block-node-list-item' => array(

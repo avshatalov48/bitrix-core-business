@@ -5,19 +5,50 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use \Bitrix\Landing\Hook;
+use Bitrix\Landing\Hook\Page\Theme;
+use Bitrix\Landing\Node\Component;
 use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Rights;
+use Bitrix\Landing\Site\Type;
 use \Bitrix\Landing\TemplateRef;
 use \Bitrix\Landing\Domain\Register;
 use \Bitrix\Landing\Site\Cookies;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Event;
 use \Bitrix\Main\Localization\Loc;
+use \Bitrix\Landing\Restriction;
 
-\CBitrixComponent::includeComponentClass('bitrix:landing.base.form');
+CBitrixComponent::includeComponentClass('bitrix:landing.base.form');
 
 class LandingSiteEditComponent extends LandingBaseFormComponent
 {
+	/**
+	 * Default site color (lightblue bitrix color)
+	 */
+	public const DEFAULT_SITE_COLOR = '#6ab8ee';
+
+	/**
+	 * Default color picker color
+	 */
+	public const COLOR_PICKER_COLOR = '#f25a8f';
+
+	/**
+	 * Default color for color picker bg color
+	 */
+	public const COLOR_PICKER_DEFAULT_BG_COLOR = '#ffffff';
+
+	/**
+	 * Default color for color pickers: text color, title color
+	 */
+	public const COLOR_PICKER_DEFAULT_COLOR_TEXT = '#000000';
+
+	/**
+	 * Default color picker color in RGB format
+	 */
+	public const COLOR_PICKER_COLOR_RGB = 'rgb(52, 188, 242)';
+
 	/**
 	 * Class of current element.
 	 * @var string
@@ -28,7 +59,7 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 	 * Local version of table map with available fields for change.
 	 * @return array
 	 */
-	protected function getMap()
+	protected function getMap(): array
 	{
 		return array(
 			'CODE', 'TITLE', 'TYPE', 'TPL_ID', 'DOMAIN_ID', 'LANG',
@@ -40,7 +71,7 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 	 * Allowed or not additional fields for this form.
 	 * @return boolean
 	 */
-	protected function additionalFieldsAllowed()
+	protected function additionalFieldsAllowed(): bool
 	{
 		return true;
 	}
@@ -49,7 +80,7 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 	 * Gets lang codes.
 	 * @return array
 	 */
-	protected function getLangCodes()
+	protected function getLangCodes(): array
 	{
 		if (
 			!Manager::isB24() ||
@@ -83,23 +114,21 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 			}
 			return $langs;
 		}
-		else
-		{
-			return [];
-		}
+
+		return [];
 	}
 
 	/**
 	 * Returns true, if this site without external domain.
 	 * @return bool
 	 */
-	protected function isIntranet()
+	protected function isIntranet(): bool
 	{
 		return
 			isset($this->arResult['SITE']['DOMAIN_ID']['CURRENT']) &&
 			(
-				$this->arResult['SITE']['DOMAIN_ID']['CURRENT'] == '0' ||
-				$this->arResult['SITE']['DOMAIN_ID']['CURRENT'] == ''
+				$this->arResult['SITE']['DOMAIN_ID']['CURRENT'] === '0' ||
+				$this->arResult['SITE']['DOMAIN_ID']['CURRENT'] === ''
 			);
 	}
 
@@ -107,7 +136,7 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 	 * Base executable method.
 	 * @return void
 	 */
-	public function executeComponent()
+	public function executeComponent(): void
 	{
 		$init = $this->init();
 
@@ -121,7 +150,7 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 			$this->checkParam('PAGE_URL_SITE_COOKIES', '');
 			$this->checkParam('TEMPLATE', '');
 
-			\Bitrix\Landing\Site\Type::setScope(
+			Type::setScope(
 				$this->arParams['TYPE']
 			);
 
@@ -141,7 +170,7 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 
 			if (
 				!defined('LANDING_DISABLE_B24_MODE') &&
-				$this->arResult['SITE']['TYPE']['CURRENT'] == 'SMN'
+				$this->arResult['SITE']['TYPE']['CURRENT'] === 'SMN'
 			)
 			{
 				Manager::forceB24disable(true);
@@ -153,8 +182,8 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 			}
 
 			// set predefined for getting props from component
-			\Bitrix\Landing\Node\Component::setPredefineForDynamicProps([
-				'IBLOCK_ID' => \Bitrix\Main\Config\Option::get('crm', 'default_product_catalog_id'),
+			Component::setPredefineForDynamicProps([
+				'IBLOCK_ID' => Option::get('crm', 'default_product_catalog_id'),
 				'USE_ENHANCED_ECOMMERCE' => 'Y',
 				'SHOW_DISCOUNT_PERCENT' => 'Y',
 				'LABEL_PROP' => [
@@ -203,7 +232,7 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 											))
 										: array();
 			// check landings as areas
-			$areas = \Bitrix\Landing\TemplateRef::landingIsArea(
+			$areas = TemplateRef::landingIsArea(
 				array_keys($this->arResult['LANDINGS'])
 			);
 			foreach ($this->arResult['LANDINGS'] as &$landingItem)
@@ -220,23 +249,49 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 
 			if ($this->id)
 			{
-				\Bitrix\Landing\Hook::setEditMode();
+				Hook::setEditMode();
 				$this->arResult['HOOKS'] = $this->getHooks();
 				$this->arResult['TEMPLATES_REF'] = TemplateRef::getForSite($this->id);
 			}
+
+			$this->arResult['COLORS'] = Theme::getColorCodes();
+			$this->arResult['PREPARE_COLORS'] = self::prepareColors($this->arResult['COLORS']);
+			$themeHookFields = $this->arResult['HOOKS']['THEME']->getPageFields();
+			if ($themeHookFields['THEME_CODE'])
+			{
+				$this->arResult['LANDING_VALUE_CODE'] = $themeHookFields['THEME_CODE']->getValue();
+			}
+			if ($themeHookFields['THEME_COLOR'])
+			{
+				$this->arResult['LANDING_VALUE_COLOR'] = $themeHookFields['THEME_COLOR']->getValue();
+			}
+			if (isset($this->arResult['LANDING_VALUE_CODE']) && !isset($this->arResult['LANDING_VALUE_COLOR']))
+			{
+				$themeHookFields['THEME_USE']->setValue('Y');
+			}
+			$this->arResult['CURRENT_COLORS']['value'] = htmlspecialcharsbx(trim($themeHookFields['THEME_COLOR']->getValue()));
+			if (!$this->arResult['CURRENT_COLORS']['value'])
+			{
+				$this->arResult['CURRENT_COLORS']['theme'] = htmlspecialcharsbx(trim($themeHookFields['THEME_CODE']->getValue()));
+			}
+			$this->arResult['CURRENT_COLORS']  = self::getCurrentColors($this->arResult['CURRENT_COLORS']);
+			$this->arResult['CURRENT_THEME'] = self::getCurrentTheme($this->arResult['HOOKS'], $this->arResult['COLORS']);
+			$this->arResult['SLIDER_CODE'] = Restriction\Hook::getRestrictionCodeByHookCode('THEME');
+			$this->arResult['ALLOWED_HOOK'] = Restriction\Manager::isAllowed($this->arResult['SLIDER_CODE']);
+			if (!$this->arResult['ALLOWED_HOOK'] && !(in_array($this->arResult['CURRENT_THEME'], $this->arResult['PREPARE_COLORS']['allColors'], true)))
+			{
+				$this->arResult['LAST_CUSTOM_COLOR'] = $this->arResult['CURRENT_THEME'];
+				$this->arResult['CURRENT_THEME'] = self::DEFAULT_SITE_COLOR;
+			}
+			$this->arResult['CURRENT_THEME'] = self::checkCurrentTheme($this->arResult['CURRENT_THEME']);
 		}
 
 		// callback for update site
 		$tplRef = $this->request('TPL_REF', true);
 		Site::callback('OnAfterUpdate',
-			function(\Bitrix\Main\Event $event) use ($tplRef, $site)
+			function(Event $event) use ($tplRef, $site)
 			{
 				$primary = $event->getParameter('primary');
-
-				if ($site['ACTIVE']['STORED'] !== 'Y')
-				{
-					return;
-				}
 
 				if ($tplRef !== false)
 				{
@@ -280,7 +335,10 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 						$data
 					);
 				}
-				if (Manager::getOption('public_hook_on_save') == 'Y')
+				if (
+					$site['ACTIVE']['STORED'] === 'Y' &&
+					Manager::getOption('public_hook_on_save') === 'Y'
+				)
 				{
 					Hook::publicationSite($primary['ID']);
 				}
@@ -297,5 +355,129 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 
 		parent::executeComponent();
 		Manager::forceB24disable(false);
+	}
+
+	/**
+	 * Get correct hex value.
+	 * @param array $params some params.
+	 *
+	 * @return string
+	 */
+	public static function getPrepareColor(array $params): string
+	{
+		$colors = Theme::getColorCodes();
+		$value = $params['value'];
+		if ($params['theme'])
+		{
+			$value = $colors[$params['theme']]['color'];
+		}
+		if ($params['value'][0] !== '#')
+		{
+			$value = '#'.$params['value'];
+		}
+		return $value;
+	}
+
+	/**
+	 * Check allowed hook by hook code
+	 * @param string $hookCode
+	 * @return bool
+	 */
+	public static function isHookAllowed(string $hookCode): bool
+	{
+		$restrictionCode = Restriction\Hook::getRestrictionCodeByHookCode($hookCode);
+		return Restriction\Manager::isAllowed($restrictionCode);
+	}
+
+	/**
+	 * Get colors array
+	 * @return array
+	 */
+	public static function getColors(): array
+	{
+		$colors = Theme::getColorCodes();
+		$colors["allColors"] = Theme::getAllColorCodes();
+		$colors["startColors"] = Theme::getStartColorCodes();
+		return $colors;
+	}
+
+	/**
+	 * Get current color or last custom color with default color
+	 * @param array $params
+	 * @return array
+	 */
+	public static function getCurrentColors(array $params): array
+	{
+		$allowed = self::isHookAllowed('THEME');
+		$currentColor = self::getPrepareColor($params);
+		$colors = self::getColors();
+		$result['currentColor'] = $currentColor;
+		if (!$allowed && !(in_array($currentColor, $colors["allColors"], true)))
+		{
+			$result['lastColor'] = $currentColor;
+			$result['currentColor'] = self::DEFAULT_SITE_COLOR;
+		}
+		return $result;
+	}
+
+	/**
+	 * Getting a set of colors: all, start, other
+	 * @param array $colors
+	 * @return array
+	 */
+	public static function prepareColors(array $colors): array
+	{
+		$prepareColors = [];
+		foreach ($colors as $colorItem)
+		{
+			if (isset($colorItem['color']))
+			{
+				$prepareColors['allColors'][] = $colorItem['color'];
+			}
+			if (isset($colorItem['base']) && $colorItem['base'] === true)
+			{
+				$prepareColors['startColors'][] = $colorItem['color'];
+			}
+		}
+
+		return $prepareColors;
+	}
+
+	/**
+	 * Getting a current theme
+	 * @param array $hooks
+	 * @param array $colors
+	 * @return string
+	 */
+	public static function getCurrentTheme(array $hooks, array $colors): string
+	{
+		$themeHookFields = $hooks['THEME']->getPageFields();
+		$themeCurr = htmlspecialcharsbx(trim($themeHookFields['THEME_COLOR']->getValue()));
+		if (!$themeCurr)
+		{
+			$theme = htmlspecialcharsbx(trim($themeHookFields['THEME_CODE']->getValue()));
+			$themeCurr = $colors[$theme]['color'];
+		}
+		if ($themeCurr[0] !== '#')
+		{
+			$themeCurr = '#' . $themeCurr;
+		}
+
+		return $themeCurr;
+	}
+
+	/**
+	 * Check for length for current theme
+	 * @param string $color
+	 * @return string
+	 */
+	public static function checkCurrentTheme(string $color): string
+	{
+		if (strlen($color) !== 7)
+		{
+			$color = self::COLOR_PICKER_COLOR;
+		}
+
+		return $color;
 	}
 }

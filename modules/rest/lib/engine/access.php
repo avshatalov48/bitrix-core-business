@@ -8,7 +8,6 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Web\Json;
 use Bitrix\Rest\AppTable;
-use Bitrix\Rest\Preset\IntegrationTable;
 use Bitrix\Rest\Marketplace\Client;
 use Bitrix\Rest\Marketplace\Immune;
 
@@ -178,7 +177,7 @@ class Access
 			$count = static::DEFAULT_AVAILABLE_COUNT;
 			if (Loader::includeModule('bitrix24'))
 			{
-				if (\CBitrix24::getLicensePrefix() === 'ru')
+				if (Client::isSubscriptionAccess())
 				{
 					$restUnlimitedFinish = Option::get(static::MODULE_ID, static::OPTION_REST_UNLIMITED_FINISH, null);
 					$count = (int) \Bitrix\Bitrix24\Feature::getVariable('rest_no_subscribe_access_limit');
@@ -330,28 +329,32 @@ class Access
 		}
 
 		$isFreeEntity = false;
-		if (
-			$entityType === static::ENTITY_TYPE_INTEGRATION
-			|| (
-				!empty($entityData)
-				&&
-				(
-					(
-						$entityData['ID'] > 0
-						&& (
-							$entityData['STATUS'] === AppTable::STATUS_FREE
-							|| $entityData['STATUS'] === AppTable::STATUS_LOCAL
-						)
-					)
-					|| !(
-						$entityData['BY_SUBSCRIPTION'] === 'Y'
-						|| ($entityData['FREE'] === 'N' && !empty($entityData['PRICE']))
-					)
-				)
-			)
-		)
+		if ($entityType === static::ENTITY_TYPE_INTEGRATION)
 		{
 			$isFreeEntity = true;
+		}
+		elseif (!empty($entityData))
+		{
+			if (
+				$entityData['ID'] > 0
+				&& (
+					$entityData['STATUS'] === AppTable::STATUS_FREE
+					|| $entityData['STATUS'] === AppTable::STATUS_LOCAL
+				)
+			)
+			{
+				$isFreeEntity = true;
+			}
+			elseif (
+				!$entityData['ID']
+				&& (
+					$entityData['BY_SUBSCRIPTION'] === 'Y'
+					|| ($entityData['FREE'] === 'N' && !empty($entityData['PRICE']))
+				)
+			)
+			{
+				$isFreeEntity = true;
+			}
 		}
 
 		$isUsedDemoLicense = false;
@@ -519,6 +522,7 @@ class Access
 	 */
 	public static function resetToFree()
 	{
+		static::reset();
 		Option::delete(static::MODULE_ID, ['name' => static::OPTION_HOLD_CHECK_COUNT_APP]);
 		\Bitrix\Rest\Marketplace\Notification::setLastCheckTimestamp(time());
 
@@ -530,6 +534,7 @@ class Access
 	 */
 	public static function onBitrix24LicenseChange($licenseType)
 	{
+		static::reset();
 		if (
 			!static::isActiveRules()
 			&& Loader::includeModule('bitrix24')
@@ -572,5 +577,17 @@ class Access
 	{
 		static::getActiveEntity(true);
 		return $period === true ? '\Bitrix\Rest\Engine\Access::calcUsageEntityAgent(true);' : '';
+	}
+
+	/**
+	 * Reset saved data
+	 * @return bool
+	 */
+	public static function reset() : bool
+	{
+		static::$availableApp = [];
+		static::$availableAppCount = [];
+
+		return true;
 	}
 }

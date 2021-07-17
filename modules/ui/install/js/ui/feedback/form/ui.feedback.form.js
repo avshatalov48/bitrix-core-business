@@ -104,6 +104,7 @@
 						presets: this.map.presets || null,
 						portalUri: this.map.portalUri || null,
 						forms: this.map.forms || null,
+						defaultForm: this.map.defaultForm || null,
 					},
 				}).then(
 					function(response)

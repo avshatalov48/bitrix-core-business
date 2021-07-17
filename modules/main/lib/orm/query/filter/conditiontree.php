@@ -8,6 +8,8 @@
 
 namespace Bitrix\Main\ORM\Query\Filter;
 
+use Bitrix\Main\ORM\Fields\BooleanField;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Query\Filter\Expressions\ColumnExpression;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\ORM\Query\Chain;
@@ -15,6 +17,7 @@ use Bitrix\Main\ORM\Fields\IReadable;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\Type\RandomSequence;
 
 /**
  * Handles filtering conditions for Query and join conditions for Entity References.
@@ -111,15 +114,13 @@ class ConditionTree
 	 *     or with expr helper
 	 *   where(Query::expr()->concat("NAME", "LAST_NAME"), 'Anton Ivanov')
 	 *
-	 * @param array ...$filter
+	 * @param mixed ...$filter
 	 *
 	 * @return $this
 	 * @throws ArgumentException
 	 */
-	public function where()
+	public function where(...$filter)
 	{
-		$filter = func_get_args();
-
 		// subfilter
 		if (count($filter) == 1 && $filter[0] instanceof ConditionTree)
 		{
@@ -186,14 +187,12 @@ class ConditionTree
 	 * Sets NOT before any conditions or subfilter.
 	 * @see ConditionTree::where()
 	 *
-	 * @param array ...$filter
+	 * @param mixed ...$filter
 	 *
 	 * @return $this
 	 */
-	public function whereNot()
+	public function whereNot(...$filter)
 	{
-		$filter = func_get_args();
-
 		$subFilter = new static();
 		call_user_func_array(array($subFilter, 'where'), $filter);
 
@@ -205,15 +204,13 @@ class ConditionTree
 	 * The same logic as where(), but value will be taken as another column name.
 	 * @see ConditionTree::where()
 	 *
-	 * @param array ...$filter
+	 * @param mixed ...$filter
 	 *
 	 * @return $this
 	 * @throws ArgumentException
 	 */
-	public function whereColumn()
+	public function whereColumn(...$filter)
 	{
-		$filter = func_get_args();
-
 		if (count($filter) == 3)
 		{
 			list($column, $operator, $value) = $filter;
@@ -428,6 +425,33 @@ class ConditionTree
 	{
 		$subFilter = new static();
 		$this->conditions[] = $subFilter->whereMatch($column, $value)->negative();
+
+		return $this;
+	}
+
+	/**
+	 * Any SQL Expression condition
+	 * @see ExpressionField
+	 *
+	 * @param string $expr
+	 * @param string[] $arguments
+	 *
+	 * @return $this
+	 * @throws ArgumentException
+	 * @throws SystemException
+	 */
+	public function whereExpr($expr, $arguments)
+	{
+		// get random field name
+		$randomSequence = new RandomSequence('orm.filter.expr');
+		$tmpName = 'TMP_'.$randomSequence->randString(10);
+
+		// set boolean expression
+		$tmpField = (new ExpressionField($tmpName, $expr, $arguments))
+			->configureValueType(BooleanField::class);
+
+		// add condition
+		$this->where($tmpField, 'expr', true);
 
 		return $this;
 	}

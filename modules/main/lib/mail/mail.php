@@ -1208,6 +1208,9 @@ class Mail
 		// change <br> to new line
 		$body = preg_replace('/\<br(\s*)?\/?\>/i', "\n", $body);
 
+		$body = preg_replace('|(<style[^>]*>)(.*?)(<\/style>)|isU', '', $body);
+		$body = preg_replace('|(<script[^>]*>)(.*?)(<\/script>)|isU', '', $body);
+
 		// remove tags
 		$body = strip_tags($body);
 

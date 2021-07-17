@@ -414,7 +414,7 @@
 
 .bx-core-popup-menu-angle {
 	top: -9px;
-	background: url("images/popup_menu_sprite_2.png") no-repeat left bottom;
+	background: url("images/popup_menu_sprite_2.png") no-repeat left -1490px;
 }
 
 .bx-core-popup-menu-angle-bottom {

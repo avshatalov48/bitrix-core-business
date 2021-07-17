@@ -105,7 +105,7 @@ class Panel
 			return;
 		}
 
-		if ($_SESSION["SHOW_LANG_FILES"] !== 'Y')
+		if (($_SESSION["SHOW_LANG_FILES"] ?? '') !== 'Y')
 		{
 			return;
 		}

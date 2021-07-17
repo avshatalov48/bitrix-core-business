@@ -12,52 +12,52 @@ class Fonts extends \Bitrix\Landing\Hook\Page
 		'g-font-open-sans' => [
 			'name' => 'Open Sans',
 			'family' => '"Open Sans", Helvetica, Arial, sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&subset=cyrillic',
+			'url' => 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700,900&subset=cyrillic',
 		],
 		'g-font-roboto' => [
 			'name' => 'Roboto',
 			'family' => '"Roboto", Arial, sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&subset=cyrillic,cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,600,700,900&subset=cyrillic,cyrillic-ext,latin-ext',
 		],
 		'g-font-roboto-slab' => [
 			'name' => 'Roboto Slab',
 			'family' => '"Roboto Slab", Helvetica, Arial, sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700&subset=cyrillic,cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,500,600,700,900&subset=cyrillic,cyrillic-ext,latin-ext',
 		],
 		'g-font-montserrat' => [
 			'name' => 'Montserrat',
 			'family' => '"Montserrat", Helvetica, Arial, sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=Montserrat:300,400,600,700,900&subset=cyrillic',
+			'url' => 'https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700,900&subset=cyrillic',
 		],
 		'g-font-alegreya-sans' => [
 			'name' => 'Alegreya Sans',
 			'family' => '"Alegreya Sans", sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=Alegreya+Sans:400,700,900&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css?family=Alegreya+Sans:300,400,500,600,700,900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-cormorant-infant' => [
 			'name' => 'Cormorant Infant',
 			'family' => '"Cormorant Infant", serif',
-			'url' => 'https://fonts.googleapis.com/css?family=Cormorant+Infant:400,400i,600,600i,700,700i&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css?family=Cormorant+Infant:300,400,400i,500,600,600i,700,700i,900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-pt-sans-caption' => [
 			'name' => 'PT Sans Caption',
 			'family' => '"PT Sans Caption", sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=PT+Sans+Caption:400,700&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css?family=PT+Sans+Caption:300,400,500,600,700,900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-pt-sans-narrow' => [
 			'name' => 'PT Sans Narrow',
 			'family' => '"PT Sans Narrow", sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700|PT+Sans:400,700&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css?family=PT+Sans+Narrow:300,400,500,600,700,900|PT+Sans:300,400,500,600,700,900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-pt-sans' => [
 			'name' => 'PT Sans',
 			'family' => '"PT Sans", sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=PT+Sans:400,700&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css?family=PT+Sans:300,400,500,600,700,900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-lobster' => [
 			'name' => 'Lobster',
 			'family' => '"Lobster", cursive',
-			'url' => 'https://fonts.googleapis.com/css?family=Lobster&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css?family=Lobster:300,400,500,600,700,900&subset=cyrillic-ext,latin-ext',
 		],
 	];
 

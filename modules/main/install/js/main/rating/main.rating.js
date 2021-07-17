@@ -1522,6 +1522,21 @@ BXRL.render = {
 			}
 		}
 
+	},
+
+	onMobileCommentsGet: function()
+	{
+		var ratingEmojiSelectorPopup = document.querySelector('.feed-post-emoji-popup-container');
+		if (ratingEmojiSelectorPopup)
+		{
+			ratingEmojiSelectorPopup.style.top = 0;
+			ratingEmojiSelectorPopup.style.left = 0;
+			ratingEmojiSelectorPopup.classList.remove('feed-post-emoji-popup-active');
+			ratingEmojiSelectorPopup.classList.remove('feed-post-emoji-popup-active-final');
+			ratingEmojiSelectorPopup.classList.remove('feed-post-emoji-popup-active-final-item');
+			ratingEmojiSelectorPopup.classList.add('feed-post-emoji-popup-invisible-final');
+			ratingEmojiSelectorPopup.classList.add('feed-post-emoji-popup-invisible-final-mobile');
+		}
 	}
 };
 
@@ -1563,6 +1578,7 @@ BXRL.manager = {
 		}
 
 		BX.addCustomEvent('onBeforeMobileLivefeedRefresh', BXRL.render.reactionsPopupMobileHide);
+		BX.addCustomEvent('BX.MobileLF:onCommentsGet', BXRL.render.onMobileCommentsGet);
 
 		if (this.mobile)
 		{

@@ -25,11 +25,16 @@ use \Bitrix\Main\Application;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Landing\Landing;
 
+/** @var \CMain $APPLICATION */
+/** @var array $arResult */
+/** @var array $arParams */
+
 \Bitrix\Main\Loader::includeModule('landing');
 
 // vars
 $request = Application::getInstance()->getContext()->getRequest();
 $application = \Bitrix\Landing\Manager::getApplication();
+$designBlockId = $request->get('design_block');
 $site = $request->get('site');
 $template = $request->get('template');
 $landingId = $request->get('id');
@@ -89,28 +94,45 @@ if ($landing = $res->fetch())
 		'#landing_edit#' => $landing['ID']
 	);
 
-	$APPLICATION->IncludeComponent(
-		'bitrix:landing.landing_view',
-		'.default',
-		array(
-			'TYPE' => 'SMN',
-			'SITE_ID' => $landing['SITE_ID'],
-			'LANDING_ID' => $landingId,
-			'PAGE_URL_LANDINGS' => str_replace(array_keys($replace), $replace, $landingsPage),
-			'PAGE_URL_LANDING_EDIT' => str_replace(array_keys($replace), $replace, $editPage),
-			'PAGE_URL_SITE_EDIT' => str_replace(array_keys($replace), $replace, $editSite),
-			'PAGE_URL_URL_SITES' => $mainPageLogo,
-			'PARAMS' => array(
-				'sef_url' => array(
-					'landing_edit' => $editPage,
-					'landing_view' => $viewPage,
-					'site_show' => $landingsPage,
-					'site_edit' => str_replace('#site_show#', '#site_edit#', $editSite)
+	if ($designBlockId)
+	{
+		$APPLICATION->includeComponent(
+			'bitrix:landing.landing_designblock',
+			'.default',
+			array(
+				'TYPE' => 'SMN',
+				'SITE_ID' => $landing['SITE_ID'],
+				'LANDING_ID' => $landingId,
+				'BLOCK_ID' => $designBlockId
+			),
+			false
+		);
+	}
+	else
+	{
+		$APPLICATION->IncludeComponent(
+			'bitrix:landing.landing_view',
+			'.default',
+			array(
+				'TYPE' => 'SMN',
+				'SITE_ID' => $landing['SITE_ID'],
+				'LANDING_ID' => $landingId,
+				'PAGE_URL_LANDINGS' => str_replace(array_keys($replace), $replace, $landingsPage),
+				'PAGE_URL_LANDING_EDIT' => str_replace(array_keys($replace), $replace, $editPage),
+				'PAGE_URL_SITE_EDIT' => str_replace(array_keys($replace), $replace, $editSite),
+				'PAGE_URL_URL_SITES' => $mainPageLogo,
+				'PARAMS' => array(
+					'sef_url' => array(
+						'landing_edit' => $editPage,
+						'landing_view' => $viewPage,
+						'site_show' => $landingsPage,
+						'site_edit' => str_replace('#site_show#', '#site_edit#', $editSite)
+					)
 				)
-			)
-		),
-		false
-	);
+			),
+			false
+		);
+	}
 }
 
 

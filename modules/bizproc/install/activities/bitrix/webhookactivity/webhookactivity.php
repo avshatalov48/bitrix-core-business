@@ -68,7 +68,7 @@ class CBPWebHookActivity
 						null,
 						$target,
 						array(
-							'document_id' => $this->GetDocumentId(),
+							//'document_id' => $this->GetDocumentId(),
 						),
 						array(),
 						array(

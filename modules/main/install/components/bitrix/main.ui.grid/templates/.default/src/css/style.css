@@ -480,6 +480,10 @@ span.main-grid-cell-head-container { box-sizing: border-box; }
 	margin-right: 16px;
 }
 
+.main-grid-row-edit [data-editable="true"] .main-grid-cell-content-actions {
+	display: none;
+}
+
 .main-grid-cell-content-action {
 	position: relative;
 	display: inline-block;
@@ -1377,8 +1381,9 @@ label.main-grid-checkbox {
 	width: 100%;
 	text-transform: none;
 	font-weight: normal;
-	font-size: 13px;
+	font-size: 15px;
 	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	line-height: 36px;
 }
 
 .main-grid-editor-money {
@@ -2707,6 +2712,10 @@ label.main-grid-checkbox {
 	text-align: right;
 }
 
+.main-grid-row-edit [data-editable="true"] .main-grid-cell-counter {
+	display: none;
+}
+
 .main-grid-cell-counter.main-grid-cell-counter-right {
 	padding-right: 16px;
 	padding-left: 0;
@@ -2739,14 +2748,161 @@ th[class*="main-grid-column-color-"]::before {
 
 .main-grid-column-color-blue::before {
 	opacity: .07;
-	background-color: #2FC6F6;;
+	background-color: #2FC6F6;
 }
 
 .main-grid-column-color-grey::before {
 	opacity: .04;
-	background-color: #525C69;;
+	background-color: #525C69;
+}
+
+.main-grid-cell-content .main-grid-labels {
+	margin-top: -5px;
+	margin-bottom: -3px;
+}
+
+.main-grid-labels .ui-label {
+	position: relative;
+	margin-top: 3px;
+	margin-bottom: 3px;
+	margin-right: 4px;
+}
+
+.main-grid-labels .ui-label.ui-label-link,
+.main-grid-labels .ui-label.ui-label-link:hover {
+	cursor: default;
+}
+
+.main-grid-labels .ui-label.ui-label-link:hover .ui-label-inner {
+	border-bottom: 1px dashed transparent;
+}
+
+.main-grid-labels .ui-label.ui-label-link .ui-label-inner:hover {
+	cursor: pointer;
+	border-bottom: 1px dashed var(--ui-label-link-dashed-color);
 }
 
 .main-grid-head-title-tooltip {
 	margin-left: 4px;
+}
+
+.main-grid-label-remove-button {
+	cursor: pointer;
+}
+
+.main-grid-label-remove-inside {
+	background: url("images/tag-remove-inside.svg") center center no-repeat;
+	width: 16px;
+	height: 16px;
+	margin-right: -5px;
+	margin-left: 3px;
+	opacity: .5;
+	transition: 200ms opacity ease;
+}
+
+.main-grid-label-remove-inside:hover {
+	opacity: .8;
+}
+
+.main-grid-label-remove-outside {
+	position: absolute;
+	background-color: #FFFFFF;
+	background-image: url("images/tag-remove-inside.svg");
+	background-position: center;
+	background-repeat: no-repeat;
+	width: 18px;
+	height: 18px;
+	top: -9px;
+	right: -9px;
+	box-shadow: 0 2px 2px 0 rgba(0,0,0,0.09);
+	border-radius: 100%;
+	opacity: 0;
+	cursor: pointer;
+	transition: 200ms ease opacity;
+}
+
+.main-grid-labels .ui-label:hover .main-grid-label-remove-outside {
+	opacity: .8;
+}
+
+.main-grid-labels .ui-label:hover .main-grid-label-remove-outside:hover {
+	opacity: 1;
+}
+
+
+.main-grid-tags {
+	display: flex;
+	flex-wrap: wrap;
+	margin-top: -5px;
+	margin-bottom: -3px;
+}
+
+.main-grid-tag {
+	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	background: #EBECF0;
+	display: inline-flex;
+	align-items: center;
+	padding-left: 8px;
+	padding-right: 8px;
+	margin-right: 5px;
+	margin-top: 3px;
+	margin-bottom: 3px;
+	height: 21px;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	border-radius: 14px;
+	cursor: pointer;
+	transition: 200ms all ease;
+	user-select: none;
+	box-sizing: border-box;
+}
+
+.main-grid-tag:hover,
+.main-grid-tag-active {
+	background-color: #BCEDFC;
+}
+
+.main-grid-tag-inner {
+	margin-top: -2px;
+}
+
+.main-grid-tag-remove {
+	background-image: url("images/tag-remove-inside.svg");
+	background-repeat: no-repeat;
+	background-position: center;
+	width: 16px;
+	height: 16px;
+	margin-right: -4px;
+	opacity: .5;
+	transition: opacity 200ms ease;
+}
+
+.main-grid-tag-add {
+	background: url("images/add-icon.svg") center center no-repeat;
+	display: inline-flex;
+	width: 31px;
+	height: 21px;
+	border-radius: 14px;
+	margin-right: 5px;
+	margin-top: 3px;
+	margin-bottom: 3px;
+	border: 1px rgba(82, 92, 105, .37) solid;
+	cursor: pointer;
+	transition: 200ms all ease;
+	opacity: 0;
+}
+
+.main-grid-row:hover .main-grid-tag-add {
+	opacity: .7;
+}
+
+.main-grid-row:hover .main-grid-tag-add:hover {
+	opacity: 1;
+}
+
+.main-grid-editor-container .main-ui-multi-select {
+	min-width: 160px;
 }

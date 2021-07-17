@@ -117,8 +117,7 @@
 	margin-right:10px;
 }
 
-#bx-panel #bx-panel-view-tab
-{
+#bx-panel #bx-panel-view-tab {
 	display: inline-block !important;
 	height: 40px !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) 0 -980px !important;
@@ -132,19 +131,80 @@
 	font: normal normal bold 17px/37px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
 
-#bx-panel #bx-panel-view-tab span
-{
+#bx-panel #bx-panel-view-tab span {
 	display: inline-block !important;
 	height: 40px !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) right -980px !important;
-	padding:0 23px 0 21px !important;
+	padding: 0 23px 0 21px !important;
 	font: normal normal bold 17px/37px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-	color:#16191a !important;
-	text-shadow: 1px 1px 0 rgba(221,223,233,0.29) !important;
+	color: #16191a !important;
+	text-shadow: 1px 1px 0 rgba(221, 223, 233, 0.29) !important;
 }
 
-#bx-panel #bx-panel-admin-tab, #bx-panel #bx-panel-view-site
-{
+#bx-panel #bx-panel-view-tab.bx-panel-view-tab-btn {
+	background: transparent !important;
+	position: relative !important;
+	transition: 180ms linear all;
+}
+
+#bx-panel #bx-panel-view-tab.bx-panel-view-tab-btn span {
+	border-radius: 3px !important;
+	height: 31px !important;
+	color: rgba(221, 231, 233, 0.988) !important;
+	padding: 0 13px !important;
+	font: normal normal bold 12px/29px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	color: #dde7e9 !important;
+	max-width: 345px !important;
+	white-space: nowrap !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
+	position: relative !important;
+	background: -moz-linear-gradient(90deg, #353C49 0%, #4B5466 100%) !important;
+	background: -webkit-linear-gradient(90deg, #353C49 0%, #4B5466 100%) !important;
+	background: -ms-linear-gradient(90deg, #353C49 0%, #4B5466 100%) !important;
+	box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.17), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
+	transition: 180ms linear background !important;
+	border: 1px solid #141517 !important;
+	text-shadow: none !important;
+	box-sizing: border-box;
+	padding-right: 20px !important;
+}
+
+#bx-panel #bx-panel-view-tab.bx-panel-view-tab-btn strong {
+	display: block;
+}
+
+#bx-panel #bx-panel-view-tab.bx-panel-view-tab-btn span:after {
+	content: '';
+	display: block;
+	width: 5px;
+	height: 4px;
+	position: absolute;
+	top: 50%;
+	margin-top: -1px;
+	right: 8px;
+	background: no-repeat center url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='5px' height='4px'%3E%3Cpath fill-rule='evenodd' fill='rgb(255, 255, 255)' d='M0.019,0.062 L2.502,3.108 L4.932,0.076 L0.019,0.062 Z'/%3E%3C/svg%3E");
+}
+
+#bx-panel #bx-panel-view-tab.bx-panel-view-tab-btn span:hover {
+	background: -moz-linear-gradient(90deg, #232934 0%, #2e3645 100%) !important;
+	background: -webkit-linear-gradient(90deg, #232934 0%, #2e3645 100%) !important;
+	background: -ms-linear-gradient(90deg, #232934 0%, #2e3645 100%) !important;
+	box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.17), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
+	color: rgba(221, 231, 233, 0.988) !important;
+}
+
+#bx-panel #bx-panel-view-tab.bx-panel-view-tab-btn span:active {
+	background: -moz-linear-gradient(90deg, #1c2029 0%, #191d25 100%) !important;
+	background: -webkit-linear-gradient(90deg, #1c2029 0%, #191d25 100%) !important;
+	background: -ms-linear-gradient(90deg, #1c2029 0%, #191d25 100%) !important;
+	box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.17), inset 0 1px 3px 0 rgba(0, 0, 0, 0.88) !important;
+	border-color: #25282d !important;
+	color: rgba(221, 231, 233, 0.988) !important;
+}
+
+#bx-panel #bx-panel-admin-tab,
+#bx-panel #bx-panel-view-site {
 	display: inline-block !important;
 	height: 40px !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) 0 -1029px !important;
@@ -158,23 +218,80 @@
 	font: normal normal bold 17px/37px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
 
-#bx-panel.bx-panel-admin-mode #bx-panel-admin-tab {background:none !important; padding-left:0!important;}
+#bx-panel.bx-panel-admin-mode #bx-panel-admin-tab {
+	background: none !important;
+	padding-left: 0 !important;
+}
 
-#bx-panel-admin-tab span, #bx-panel-view-site span
-{
+#bx-panel-admin-tab span,
+#bx-panel-view-site span {
 	display: inline-block !important;
 	height: 40px !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) right -1029px !important;
-	padding:0 20px 0 18px !important;
+	padding: 0 20px 0 18px !important;
 	font: normal normal bold 17px/37px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-	color:#BDC1C8 !important;
+	color: #bdc1c8 !important;
 }
 
-#bx-panel #bx-panel-admin-tab:hover, #bx-panel #bx-panel-view-site:hover {
+#bx-panel #bx-panel-admin-tab:hover,
+#bx-panel #bx-panel-view-site:hover {
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) 0 -1078px !important;
 }
-#bx-panel #bx-panel-admin-tab:hover span, #bx-panel #bx-panel-view-site:hover span {
+
+#bx-panel #bx-panel-admin-tab:hover span,
+#bx-panel #bx-panel-view-site:hover span {
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) right -1078px !important; color: #fff !important;
+}
+
+#bx-panel #bx-panel-admin-tab.bx-panel-admin-tab-btn {
+	display: inline-block !important;
+	text-decoration: none !important;
+	outline: none !important;
+	padding: 0 0 0 3px !important;
+	vertical-align: top !important;
+	cursor: pointer !important;
+	text-align: left !important;
+	font: normal normal bold 12px/29px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	background: none !important;
+	position: relative !important;
+}
+
+#bx-panel #bx-panel-admin-tab.bx-panel-admin-tab-btn span {
+	border-radius: 3px !important;
+	display: inline-block !important;
+	height: 31px !important;
+	padding: 0 13px !important;
+	font: normal normal bold 12px/29px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	color: #dde7e9 !important;
+	background: -moz-linear-gradient(90deg, #181d28 0%, #202736 100%) !important;
+	background: -webkit-linear-gradient(90deg, #181d28 0%, #202736 100%) !important;
+	background: -ms-linear-gradient(90deg, #181d28 0%, #202736 100%) !important;
+	box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.17), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
+	color: rgba(221, 231, 233, 0.988) !important;
+	max-width: 345px !important;
+	white-space: nowrap !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
+	position: relative !important;
+	border: 1px solid #141517 !important;
+	box-sizing: border-box !important;
+}
+
+#bx-panel #bx-panel-admin-tab.bx-panel-admin-tab-btn span:hover {
+	background: -moz-linear-gradient(90deg, #222834 0%, #2e3646 100%) !important;
+	background: -webkit-linear-gradient(90deg, #222834 0%, #2e3646 100%) !important;
+	background: -ms-linear-gradient(90deg, #222834 0%, #2e3646 100%) !important;
+	box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.17), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
+	color: rgba(221, 231, 233, 0.988) !important;
+}
+
+#bx-panel #bx-panel-admin-tab.bx-panel-admin-tab-btn span:active {
+	background: -moz-linear-gradient(90deg, #191d26 0%, #202531 100%) !important;
+	background: -webkit-linear-gradient(90deg, #191d26 0%, #202531 100%) !important;
+	background: -ms-linear-gradient(90deg, #191d26 0%, #202531 100%) !important;
+	box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.17), inset 0 1px 3px 0 rgba(0, 0, 0, 0.88) !important;
+	border-color: #25282d !important;
+	color: rgba(221, 231, 233, 0.988) !important;
 }
 
 #bx-panel #bx-panel-clear-cache { display: none !important;}
@@ -773,6 +890,12 @@
 	text-align: left !important;
 	font: normal normal bold 12px/27px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) 0 -1938px !important;
+}
+
+#bx-panel.bx-panel-folded #bx-panel-admin-tab.bx-panel-admin-tab-btn span {
+	border: none !important;
+	box-shadow: none !important;
+	border-radius: 0px !important;
 }
 
 #bx-panel.bx-panel-folded #bx-panel-admin-tab span {

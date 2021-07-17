@@ -40,7 +40,7 @@
 					</div>
 
 					<div class="col-md-3 col-lg-3 text-md-right g-px-5">
-						<a class="landing-block-node-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-white rounded-0 g-py-18"
+						<a class="landing-block-node-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-white rounded-0"
 						   href="#">Register Now</a>
 					</div>
 				</div>

@@ -378,7 +378,7 @@ if ($arParams["SHOW_POST_FORM"] == "Y")
 		<div class="ui-icon ui-icon-common-user feed-com-avatar feed-com-avatar-<?=($AUTHOR_AVATAR == '/bitrix/images/1.gif' ? "N" : "Y")?>"><?
 			?>
 			<i></i>
-			<img width="37" height="37" src="<?=\CHTTP::urnEncode($AUTHOR_AVATAR)?>">
+			<img width="37" height="37" src="<?= $AUTHOR_AVATAR ?>">
 			<?
 		?></div>
 

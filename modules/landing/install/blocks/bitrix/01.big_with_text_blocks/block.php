@@ -24,7 +24,7 @@
 							get things mapped out and organized.</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-rounded-50 g-py-15"
+						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-rounded-50"
 						   href="#" tabindex="-1">View Presentation</a>
 					</div>
 				</div>
@@ -51,7 +51,7 @@
 							get things mapped out and organized.</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-rounded-50 g-py-15"
+						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-rounded-50"
 					   href="#" tabindex="-1">View Presentation</a>
 					</div>
 				</div>
@@ -78,7 +78,7 @@
 							get things mapped out and organized.</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-rounded-50 g-py-15"
+						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-rounded-50"
 					   href="#" tabindex="0">View Presentation</a>
 					</div>
 				</div>
@@ -106,7 +106,7 @@
 							get things mapped out and organized.</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-rounded-50 g-py-15"
+						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-rounded-50"
 					   href="#" tabindex="0">View Presentation</a>
 					</div>
 				</div>

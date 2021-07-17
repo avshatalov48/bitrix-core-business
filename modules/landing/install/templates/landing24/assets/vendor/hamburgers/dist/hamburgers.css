@@ -393,5 +393,3 @@
 .hamburger.hamburger--slider.hamburger--rounded.is-active .hamburger-inner {
   transform: translate3d(0, 9px, 0) rotate(45deg);
 }
-
-/* fix for landing/21.100.0 */

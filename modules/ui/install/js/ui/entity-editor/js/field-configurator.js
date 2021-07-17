@@ -155,12 +155,9 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 		this._isRequiredCheckBox = null;
 		this._isMultipleCheckBox = null;
 		this._showAlwaysCheckBox = null;
-		this._enumItemWrapper = null;
-		this._enumItemContainer = null;
-		this._enumButtonWrapper = null;
 		this._optionWrapper = null;
 
-		this._enumItems = null;
+		this._enumConfigurator = null;
 
 		this._enableMandatoryControl = true;
 		this._mandatoryConfigurator = null;
@@ -179,7 +176,6 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 		this._mandatoryConfigurator = BX.prop.get(this._settings, "mandatoryConfigurator", null);
 
 		this._typeId = BX.prop.getString(this._settings, "typeId", "");
-		this._enumItems = [];
 	};
 	BX.UI.EntityEditorFieldConfigurator.prototype.checkField = function()
 	{
@@ -207,9 +203,44 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 		this._hasLayout = true;
 	};
 
+	BX.UI.EntityEditorFieldConfigurator.prototype.layoutInnerConfigurator = function(innerConfig, listItems, nextNode)
+	{
+		if (
+			BX.Type.isPlainObject(innerConfig)
+			&& BX.Type.isArray(listItems)
+			&& this._enumConfigurator === null
+		)
+		{
+			var enums = [];
+
+			for (var i = 0; i < listItems.length; i++)
+			{
+				enums.push({
+					ID: listItems[i]["VALUE"],
+					VALUE: listItems[i]["NAME"],
+					XML_ID: ""
+				});
+			}
+
+			this._enumConfigurator = BX.UI.EntityEditorEnumConfigurator.create({
+				enumInfo: {
+					enumItems: enums,
+					innerConfig: innerConfig
+				},
+				wrapper: this._wrapper,
+				nextNode: (BX.Type.isDomNode(nextNode)) ? nextNode : null
+			});
+			this._enumConfigurator.layout();
+		}
+	}
+
 	BX.UI.EntityEditorFieldConfigurator.prototype.layoutInternal = function()
 	{
 		this._wrapper.appendChild(this.getInputContainer());
+		if(this._typeId === "list")
+		{
+			this.layoutInnerConfigurator(this._field.getInnerConfig(), this._field.getItems());
+		}
 		this._wrapper.appendChild(this.getOptionContainer());
 		this._wrapper.appendChild(
 			BX.create("hr", { props: { className: "ui-entity-editor-line" } })
@@ -352,9 +383,6 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 		);
 	};
 
-	BX.UI.EntityEditorFieldConfigurator.prototype.appendEnumerationSettings = function()
-	{
-	};
 	BX.UI.EntityEditorFieldConfigurator.prototype.getIsTimeEnabledCheckBox = function()
 	{
 		var checkBox = null;
@@ -416,12 +444,7 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 		this._isRequiredCheckBox = null;
 		// this._isMultipleCheckBox = null;
 		this._showAlwaysCheckBox = null;
-		this._enumItemWrapper = null;
-		this._enumButtonWrapper = null;
-		this._enumItemContainer = null;
 		this._optionWrapper = null;
-
-		this._enumItems = [];
 
 		this._hasLayout = false;
 	};
@@ -558,6 +581,12 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 			params['settings']['USE_TIMEZONE'] = (this._useTimezoneCheckBox.checked ? 'Y' : 'N');
 		}
 
+		if(this._typeId === "list" && this._enumConfigurator)
+		{
+			params["innerConfig"] = (this._field) ? this._field.getInnerConfig() : {};
+			params["enumeration"] = this._enumConfigurator.prepareSaveParams();
+		}
+
 		return params;
 	};
 	BX.UI.EntityEditorFieldConfigurator.prototype.onCancelButtonClick = function(e)
@@ -600,6 +629,472 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 	BX.UI.EntityEditorFieldConfigurator.create = function(id, settings)
 	{
 		var self = new BX.UI.EntityEditorFieldConfigurator();
+		self.initialize(id, settings);
+		return self;
+	};
+}
+if (typeof BX.UI.EntityEditorEnumConfigurator === "undefined")
+{
+	BX.UI.EntityEditorEnumConfigurator = function()
+	{
+		this._settings = null;
+
+		this._enumInfo = null;
+
+		this._wrapper = null;
+		this._nextNode = null;
+		this._enumItemWrapper = null;
+		this._enumItemContainer = null;
+		this._enumButtonWrapper = null;
+		this._draggable = null;
+
+		this._enumItems = [];
+	};
+
+	BX.UI.EntityEditorEnumConfigurator.prototype = {
+		initialize: function (settings)
+		{
+			this._settings = settings ? settings : {};
+
+			this._enumInfo = BX.prop.getObject(this._settings, "enumInfo", {});
+			this._wrapper = BX.prop.getElementNode(this._settings, "wrapper", null);
+			this._nextNode = BX.prop.getElementNode(this._settings, "nextNode", null);
+		},
+		layout: function()
+		{
+			if (BX.Type.isDomNode(this._wrapper))
+			{
+				var isNextNode = BX.Type.isDomNode(this._nextNode);
+				var enumContainer = this.getEnumerationContainer();
+				var elements = [
+					BX.create("hr", { props: { className: "ui-entity-editor-line" } }),
+					BX.create(
+						"div",
+						{
+							props: { className: "ui-entity-editor-block-title" },
+							children: [
+								BX.create(
+									"span",
+									{
+										attrs: { className: "ui-entity-editor-block-title-text" },
+										text: BX.message("UI_ENTITY_EDITOR_UF_ENUM_ITEMS")
+									}
+								)
+							]
+						}
+					),
+					enumContainer
+				];
+				for (var i = 0; i < elements.length; i++)
+				{
+					if (isNextNode)
+					{
+						this._wrapper.insertBefore(elements[i], this._nextNode);
+					}
+					else
+					{
+						this._wrapper.appendChild(elements[i]);
+					}
+				}
+			}
+		},
+		getEnumerationContainer: function()
+		{
+			this._enumItemWrapper = BX.create(
+				"div",
+				{
+					props: { className: "ui-entity-editor-content-block" }
+				}
+			);
+
+			this._enumItemContainer = BX.create("div", { props: { className: "ui-entity-editor-content-block" } });
+			this._enumItemWrapper.appendChild(this._enumItemContainer);
+
+			this._enumButtonWrapper = BX.create(
+				"div",
+				{ props: { className: "ui-entity-editor-content-block-add-field" } }
+			);
+			this._enumItemWrapper.appendChild(this._enumButtonWrapper);
+
+			this._enumButtonWrapper.appendChild(
+				BX.create(
+					"span",
+					{
+						props: { className: "ui-entity-card-content-add-field" },
+						events: { click: BX.delegate(this.onEnumerationItemAddButtonClick, this) },
+						text: BX.message("UI_ENTITY_EDITOR_ADD")
+					}
+				)
+			);
+
+			var enumItems = BX.Runtime.clone(BX.prop.getArray(this._enumInfo, "enumItems", []));
+			var innerConfig = BX.prop.getObject(this._enumInfo, "innerConfig", {});
+			var itemsConfig = BX.prop.getObject(innerConfig, "itemsConfig", {});
+			var fakeValues = BX.prop.getArray(itemsConfig, "fakeValues", []);
+			var systemValues = BX.prop.getArray(itemsConfig, "systemValues", []);
+			var systemInitText = BX.prop.getObject(itemsConfig, "systemInitText", {});
+			for(var i = 0, length = enumItems.length; i < length; i++)
+			{
+				if (enumItems[i].hasOwnProperty("ID"))
+				{
+					var id = enumItems[i]["ID"];
+					var isFakeItem = (fakeValues.indexOf(id) >= 0);
+					var isSystemItem = (systemValues.indexOf(id) >= 0);
+					var hasInitText = (
+						isSystemItem
+						&& systemInitText.hasOwnProperty(id)
+						&& BX.Type.isString(systemInitText[id])
+					);
+					enumItems[i]["IS_FAKE"] = (isFakeItem) ? "Y" : "N";
+					enumItems[i]["IS_SYSTEM"] = (isSystemItem) ? "Y" : "N";
+					enumItems[i]["INIT_TEXT"] = (hasInitText) ? systemInitText[id] : "";
+				}
+				this.createEnumerationItem(enumItems[i]);
+			}
+			this.createEnumerationItem();
+
+			this._draggable = new BX.UI.DragAndDrop.Draggable({
+				container: this._enumItemContainer,
+				draggable: '.ui-ctl-row',
+				dragElement: '.ui-ctl-row-draggable',
+				type: BX.UI.DragAndDrop.Draggable.CLONE,
+			});
+
+			return this._enumItemWrapper;
+		},
+		onEnumerationItemAddButtonClick: function(e)
+		{
+			this.createEnumerationItem().focus();
+		},
+		createEnumerationItem: function(data)
+		{
+			var item = BX.UI.EntityEditorFieldConfiguratorEnumItem.create(
+				"",
+				{
+					configurator: this,
+					container: this._enumItemContainer,
+					data: data
+				}
+			);
+
+			this._enumItems.push(item);
+			item.layout();
+			return item;
+		},
+		removeEnumerationItem: function(item)
+		{
+			for(var i = 0, length = this._enumItems.length; i < length; i++)
+			{
+				if(this._enumItems[i] === item)
+				{
+					this._enumItems[i].clearLayout();
+					this._enumItems.splice(i, 1);
+					break;
+				}
+			}
+		},
+		prepareSaveParams: function()
+		{
+			var result = [];
+
+			var hashes = [];
+			var sortIndex;
+			for(var i = 0, length = this._enumItems.length; i < length; i++)
+			{
+				var enumData = this._enumItems[i].prepareData();
+				if(!enumData)
+				{
+					continue;
+				}
+
+				var hash = BX.util.hashCode(enumData["VALUE"]);
+				if(BX.util.in_array(hash, hashes))
+				{
+					continue;
+				}
+
+				hashes.push(hash);
+				sortIndex = -1;
+				if (this._draggable)
+				{
+					sortIndex = this._draggable.getElementIndex(this._enumItems[i].getDraggableContainer());
+				}
+				enumData["SORT"] = (sortIndex >= 0) ? sortIndex * 100 : (result.length + 1) * 100;
+				result.push(enumData);
+			}
+
+			return result;
+		}
+	};
+
+	BX.UI.EntityEditorEnumConfigurator.create = function(settings)
+	{
+		var self = new BX.UI.EntityEditorEnumConfigurator();
+		self.initialize(settings);
+		return self;
+	};
+}
+if(typeof BX.UI.EntityEditorFieldConfiguratorEnumItem === "undefined")
+{
+	BX.UI.EntityEditorFieldConfiguratorEnumItem = function()
+	{
+		this._id = "";
+		this._settings = null;
+		this._data = null;
+		this._configurator = null;
+		this._container = null;
+		this._labelInput = null;
+
+		this._hasLayout = false;
+
+		this._isFake = null;
+		this._isSystem = null;
+
+		this._initText = "";
+
+		this._onRevertButtonClickHandler = BX.delegate(this.onRevertButtonClick, this);
+		this._onChangeTextHandler = BX.delegate(this.onChangeText, this);
+	};
+	BX.UI.EntityEditorFieldConfiguratorEnumItem.prototype = {
+		initialize: function(id, settings)
+		{
+			this._id = BX.type.isNotEmptyString(id) ? id : BX.util.getRandomString(4);
+			this._settings = BX.type.isPlainObject(settings) ? settings : {};
+
+			this._data = BX.prop.getObject(this._settings, "data", {});
+			this._configurator = BX.prop.get(this._settings, "configurator");
+			this._container = BX.prop.getElementNode(this._settings, "container");
+
+			this._isFake = (BX.prop.getString(this._data, "IS_FAKE", "N") === "Y");
+			this._isSystem = (BX.prop.getString(this._data, "IS_SYSTEM", "N") === "Y");
+
+			this._initText = BX.prop.getString(this._data, "INIT_TEXT", "");
+		},
+		isFake: function()
+		{
+			return this._isFake;
+		},
+		isSystem: function()
+		{
+			return this._isSystem;
+		},
+		getDraggableContainer: function()
+		{
+			return (this._hasLayout && BX.Type.isDomNode(this._wrapper)) ? this._wrapper : null;
+		},
+		layout: function()
+		{
+			if(this._hasLayout)
+			{
+				return;
+			}
+
+			this._wrapper = BX.create("div", {
+				props: { className: "ui-ctl ui-ctl-textbox ui-ctl-w100 ui-ctl-row" },
+				style: { marginTop: "10px", marginBottom: "10px" }
+			});
+
+			if (!this.isFake())
+			{
+				this._wrapper.appendChild(
+					BX.create("span", {
+						props: { className: "ui-ctl-row-draggable" }
+					})
+				);
+			}
+
+			this._labelInput = BX.create(
+				"input",
+				{
+					props:
+						{
+							className: "ui-ctl-element",
+							placeholder: BX.message("UI_ENTITY_EDITOR_NEW_LIST_ITEM"),
+							type: "input",
+							value: BX.prop.getString(this._data, "VALUE", "")
+						}
+				}
+			);
+
+			this._wrapper.appendChild(this._labelInput);
+			if (this.isFake())
+			{
+				this._labelInput.setAttribute("disabled", "");
+				this._labelInput.style.cursor = "auto";
+				this._wrapper.appendChild(
+					BX.create("div", { props: { className: "ui-entity-editor-content-remove-block-system" } })
+				);
+			}
+			else if (this.isSystem())
+			{
+				if (this.isInitialTextDifferent())
+				{
+					this._revertButton = BX.create(
+						"div",
+						{
+							props: { className: "ui-entity-editor-content-revert-name-block" },
+							events: { click: this._onRevertButtonClickHandler }
+						}
+					);
+				}
+				else
+				{
+					this._revertButton = BX.create(
+						"div",
+						{
+							props: { className: "ui-entity-editor-content-remove-block-system" }
+						}
+					);
+				}
+				this._wrapper.appendChild(this._revertButton);
+				
+				BX.Event.bind(this._labelInput, "keyup", this._onChangeTextHandler);
+				BX.Event.bind(this._labelInput, "input", this._onChangeTextHandler);
+			}
+			else
+			{
+				this._wrapper.appendChild(
+					BX.create(
+						"div",
+						{
+							props: { className: "ui-entity-editor-content-remove-block" },
+							events: { click: BX.delegate(this.onDeleteButtonClick, this) }
+						}
+					)
+				);
+			}
+
+			var anchor = BX.prop.getElementNode(this._settings, "anchor");
+			if(anchor)
+			{
+				this._container.insertBefore(this._wrapper, anchor);
+			}
+			else
+			{
+				this._container.appendChild(this._wrapper);
+			}
+
+			this._hasLayout = true;
+		},
+		clearLayout: function()
+		{
+			if(!this._hasLayout)
+			{
+				return;
+			}
+
+			if (BX.Type.isDomNode(this._revertButton))
+			{
+				BX.Event.unbind(this._revertButton, "click", this._onRevertButtonClickHandler);
+			}
+
+			if (BX.Type.isDomNode(this._labelInput))
+			{
+				BX.Event.unbind(this._labelInput, "keyup", this._onChangeTextHandler);
+				BX.Event.unbind(this._labelInput, "input", this._onChangeTextHandler);
+			}
+
+			this._wrapper = BX.remove(this._wrapper);
+			this._hasLayout = false;
+		},
+		focus: function()
+		{
+			if(this._labelInput)
+			{
+				setTimeout(function() {
+					this._labelInput.focus();
+				}.bind(this), 0);
+			}
+		},
+		prepareData: function()
+		{
+			var value = this._labelInput ? BX.util.trim(this._labelInput.value) : "";
+			if(value === "")
+			{
+				return null;
+			}
+
+			var data = {
+				"IS_FAKE": (BX.prop.getString(this._data, "IS_FAKE", "N") === "Y") ? "Y" : "N",
+				"IS_SYSTEM": (BX.prop.getString(this._data, "IS_SYSTEM", "N") === "Y") ? "Y" : "N",
+				"VALUE": value
+			};
+
+			var id = BX.prop.get(this._data, "ID", null);
+			if (id !== null)
+			{
+				data["ID"] = id;
+			}
+
+			var xmlId = BX.prop.get(this._data, "XML_ID", null);
+			if (xmlId !== null)
+			{
+				data["XML_ID"] = xmlId;
+			}
+
+			return data;
+		},
+		isInitialTextDifferent: function()
+		{
+			return (
+				(BX.Type.isDomNode(this._labelInput))
+				? (this._initText !== this._labelInput.value)
+				: false
+			);
+		},
+		toggleRevertButton: function()
+		{
+			if (this.isSystem() && BX.Type.isDomNode(this._revertButton))
+			{
+				var systemClassName = "ui-entity-editor-content-remove-block-system";
+				var revertClassName = "ui-entity-editor-content-revert-name-block";
+				if (this.isInitialTextDifferent())
+				{
+					if (BX.Dom.hasClass(this._revertButton, systemClassName))
+					{
+						BX.Dom.removeClass(this._revertButton, systemClassName);
+						BX.Dom.addClass(this._revertButton, revertClassName);
+						BX.Event.bind(this._revertButton, "click", this._onRevertButtonClickHandler);
+					}
+				}
+				else
+				{
+					if (BX.Dom.hasClass(this._revertButton, revertClassName))
+					{
+						BX.Dom.removeClass(this._revertButton, revertClassName);
+						BX.Dom.addClass(this._revertButton, systemClassName);
+						BX.Event.unbind(this._revertButton, "click", this._onRevertButtonClickHandler);
+					}
+				}
+			}
+		},
+		revertText: function()
+		{
+			if (this.isSystem())
+			{
+				if (BX.Type.isStringFilled(this._initText) && BX.Type.isDomNode(this._labelInput))
+				{
+					this._labelInput.value = this._initText;
+				}
+			}
+		},
+		onChangeText: function()
+		{
+			this.toggleRevertButton();
+		},
+		onDeleteButtonClick: function(e)
+		{
+			this._configurator.removeEnumerationItem(this);
+		},
+		onRevertButtonClick: function(e)
+		{
+			this.revertText();
+			this.toggleRevertButton();
+		}
+	};
+	BX.UI.EntityEditorFieldConfiguratorEnumItem.create = function(id, settings)
+	{
+		var self = new BX.UI.EntityEditorFieldConfiguratorEnumItem();
 		self.initialize(id, settings);
 		return self;
 	};

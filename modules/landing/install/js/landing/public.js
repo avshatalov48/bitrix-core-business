@@ -184,13 +184,7 @@
 								});
 								// disable :focus after click
 								event.target.blur();
-								// setHash AFTER scroll
-								var setHash = function(){
-									document.location.hash = link.hash;
-									document.removeEventListener('scroll', setHashWithDebounce)
-								}
-								var setHashWithDebounce = BX.debounce(setHash, 333);
-								document.addEventListener('scroll', setHashWithDebounce);
+								history.pushState({}, '', link.href);
 							});
 						}
 					}

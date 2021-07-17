@@ -10,8 +10,9 @@ $fieldName = $arResult['fieldName'];
 $value = $arResult['value'];
 
 $arResult['isEnabled'] = ($arResult['userField']['EDIT_IN_LIST'] === 'Y');
+$isMobileMode = $this->getComponent()->isMobileMode();
 
-if($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI)
+if($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI && !$isMobileMode)
 {
 	$value = $arResult['value'];
 
@@ -88,7 +89,7 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI)
 		'/bitrix/components/bitrix/main.field.enum/templates/main.edit/desktop.js'
 	);
 }
-elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_LIST)
+elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_LIST && !$isMobileMode)
 {
 	$attrList = [
 		'name' => $fieldName,

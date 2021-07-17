@@ -20,7 +20,20 @@ use Bitrix\Translate\Index;
  * <li> MISSING_COUNT int optional
  * </ul>
  *
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_FileIndex_Query query()
+ * @method static EO_FileIndex_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_FileIndex_Result getById($id)
+ * @method static EO_FileIndex_Result getList(array $parameters = array())
+ * @method static EO_FileIndex_Entity getEntity()
+ * @method static \Bitrix\Translate\Index\FileIndex createObject($setDefaultValues = true)
+ * @method static \Bitrix\Translate\Index\FileIndexCollection createCollection()
+ * @method static \Bitrix\Translate\Index\FileIndex wakeUpObject($row)
+ * @method static \Bitrix\Translate\Index\FileIndexCollection wakeUpCollection($rows)
+ */
 
 class FileIndexTable extends DataManager
 {

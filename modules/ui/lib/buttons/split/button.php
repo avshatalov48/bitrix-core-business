@@ -201,17 +201,6 @@ class Button extends Buttons\Button
 
 	/**
 	 * @param bool $flag
-	 *
-	 * @return Buttons\Button|void
-	 * @throws InvalidOperationException
-	 */
-	public function setRound($flag = true)
-	{
-		throw new InvalidOperationException("BX.UI.SplitButton can't be round.");
-	}
-
-	/**
-	 * @param bool $flag
 	 * @return static
 	 */
 	public function setDropdown($flag = true)

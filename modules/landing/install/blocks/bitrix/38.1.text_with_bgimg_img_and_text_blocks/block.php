@@ -27,7 +27,7 @@
 									enim orci viverra eros, fringilla porttitor lorem eros vel odio gravida sollicitudin
 									tortor.</p>
 							</div>
-							<a class="landing-block-node-leftblock-button landing-semantic-link-image-medium g-valign-middle btn text-uppercase g-btn-black rounded-0 g-py-16 g-btn-size-sm g-btn-type-solid g-width-100x"
+							<a class="landing-block-node-leftblock-button landing-semantic-link-image-medium g-valign-middle btn text-uppercase g-btn-black rounded-0 g-btn-size-md g-btn-type-solid g-width-100x"
 							   href="#">
 								Donate Now
 							</a>

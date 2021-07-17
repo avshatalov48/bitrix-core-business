@@ -59,7 +59,10 @@ if (!empty($routingConfig['config']))
 }
 
 // system files
-$files[] = $_SERVER["DOCUMENT_ROOT"].'/bitrix/routes/web_bitrix.php';
+if (file_exists($_SERVER["DOCUMENT_ROOT"].'/bitrix/routes/web_bitrix.php'))
+{
+	$files[] = $_SERVER["DOCUMENT_ROOT"].'/bitrix/routes/web_bitrix.php';
+}
 
 foreach ($files as $file)
 {
@@ -217,13 +220,7 @@ if (!empty($route))
 		'Unknown controller `%s`', $controller
 	));
 }
-
-//admin section 404
-if(strpos($request->getRequestUri(), "/bitrix/admin/") === 0)
+else
 {
-	$_SERVER["REAL_FILE_PATH"] = "/bitrix/admin/404.php";
-	include($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/404.php");
-	die();
+	require_once __DIR__.'/urlrewrite.php';
 }
-
-define("BX_CHECK_SHORT_URI", true);

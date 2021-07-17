@@ -870,7 +870,7 @@ class HttpClient
 					$this->setHeader("Content-Type", $contentType);
 				}
 			}
-			if($entityBody <> '' || $method == self::HTTP_POST)
+			if($method == self::HTTP_POST || $method == self::HTTP_PUT)
 			{
 				//HTTP/1.0 requires Content-Length for POST
 				if($this->requestHeaders->get("Content-Length") === null)

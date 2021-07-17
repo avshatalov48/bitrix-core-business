@@ -1612,85 +1612,87 @@
 				if (event.target.nodeName !== 'A' && event.target.nodeName !== 'INPUT')
 				{
 					row = this.getRows().get(event.target);
-
-					contentContainer = row.getContentContainer(event.target);
-
-					if (BX.type.isDomNode(contentContainer) && event.target.nodeName !== 'TD' && event.target !== contentContainer)
+					if (row)
 					{
-						isPrevent = BX.data(contentContainer, 'prevent-default') === 'true';
-					}
+						contentContainer = row.getContentContainer(event.target);
 
-					if (isPrevent)
-					{
-						if (row.getCheckbox())
+						if (BX.type.isDomNode(contentContainer) && event.target.nodeName !== 'TD' && event.target !== contentContainer)
 						{
-							rows = [];
-
-							this.currentIndex = 0;
-
-							this.getRows().getRows().forEach(function(currentRow, index) {
-								if (currentRow === row)
-								{
-									this.currentIndex = index;
-								}
-							}, this);
-
-							this.lastIndex = this.lastIndex || this.currentIndex;
-
-							if (!event.shiftKey)
-							{
-								if (!row.isSelected())
-								{
-									this.lastRowAction = 'select';
-									row.select();
-									BX.onCustomEvent(window, 'Grid::selectRow', [row, this]);
-								}
-								else
-								{
-									this.lastRowAction = 'unselect';
-									row.unselect();
-									BX.onCustomEvent(window, 'Grid::unselectRow', [row, this]);
-								}
-							}
-							else
-							{
-								min = Math.min(this.currentIndex, this.lastIndex);
-								max = Math.max(this.currentIndex, this.lastIndex);
-
-								while (min <= max)
-								{
-									rows.push(this.getRows().getRows()[min]);
-									min++;
-								}
-
-								containsNotSelected = rows.some(function(current) {
-									return !current.isSelected();
-								});
-
-								if (containsNotSelected)
-								{
-									rows.forEach(function(current) {
-										current.select();
-									});
-									this.lastRowAction = 'select';
-									BX.onCustomEvent(window, 'Grid::selectRows', [rows, this]);
-								}
-								else
-								{
-									rows.forEach(function(current) {
-										current.unselect();
-									});
-									this.lastRowAction = 'unselect';
-									BX.onCustomEvent(window, 'Grid::unselectRows', [rows, this]);
-								}
-							}
-
-							this.updateCounterSelected();
-							this.lastIndex = this.currentIndex;
+							isPrevent = BX.data(contentContainer, 'prevent-default') === 'true';
 						}
 
-						this.adjustRows();
-						this.adjustCheckAllCheckboxes();
+						if (isPrevent)
+						{
+							if (row.getCheckbox())
+							{
+								rows = [];
+
+								this.currentIndex = 0;
+
+								this.getRows().getRows().forEach(function(currentRow, index) {
+									if (currentRow === row)
+									{
+										this.currentIndex = index;
+									}
+								}, this);
+
+								this.lastIndex = this.lastIndex || this.currentIndex;
+
+								if (!event.shiftKey)
+								{
+									if (!row.isSelected())
+									{
+										this.lastRowAction = 'select';
+										row.select();
+										BX.onCustomEvent(window, 'Grid::selectRow', [row, this]);
+									}
+									else
+									{
+										this.lastRowAction = 'unselect';
+										row.unselect();
+										BX.onCustomEvent(window, 'Grid::unselectRow', [row, this]);
+									}
+								}
+								else
+								{
+									min = Math.min(this.currentIndex, this.lastIndex);
+									max = Math.max(this.currentIndex, this.lastIndex);
+
+									while (min <= max)
+									{
+										rows.push(this.getRows().getRows()[min]);
+										min++;
+									}
+
+									containsNotSelected = rows.some(function(current) {
+										return !current.isSelected();
+									});
+
+									if (containsNotSelected)
+									{
+										rows.forEach(function(current) {
+											current.select();
+										});
+										this.lastRowAction = 'select';
+										BX.onCustomEvent(window, 'Grid::selectRows', [rows, this]);
+									}
+									else
+									{
+										rows.forEach(function(current) {
+											current.unselect();
+										});
+										this.lastRowAction = 'unselect';
+										BX.onCustomEvent(window, 'Grid::unselectRows', [rows, this]);
+									}
+								}
+
+								this.updateCounterSelected();
+								this.lastIndex = this.currentIndex;
+							}
+
+							this.adjustRows();
+							this.adjustCheckAllCheckboxes();
+						}
 					}
 				}
 			}

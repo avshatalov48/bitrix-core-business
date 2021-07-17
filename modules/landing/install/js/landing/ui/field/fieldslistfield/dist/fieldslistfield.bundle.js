@@ -371,6 +371,20 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        }));
 	      }
 
+	      if (field.type === 'file' && main_core.Type.isArrayFilled(this.options.dictionary.contentTypes)) {
+	        fields.push(new BX.Landing.UI.Field.Checkbox({
+	          selector: 'contentTypes',
+	          title: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_FILE_TYPE'),
+	          value: field.contentTypes,
+	          items: this.options.dictionary.contentTypes.map(function (item) {
+	            return {
+	              name: item.name,
+	              value: item.id
+	            };
+	          })
+	        }));
+	      }
+
 	      return new landing_ui_form_formsettingsform.FormSettingsForm({
 	        fields: fields,
 	        serializeModifier: function serializeModifier(value) {

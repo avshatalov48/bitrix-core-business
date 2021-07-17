@@ -307,6 +307,59 @@ import {EventEmitter} from "main.core.events";
 
 		},
 
+		createMultiselect: function(editObject)
+		{
+			const selectedValues = [];
+			const squares = (() => {
+				if (BX.Type.isArrayFilled(editObject.VALUE))
+				{
+					return editObject.VALUE.map((value) => {
+						const item = this.getDropdownValueItemByValue(editObject.DATA.ITEMS, value);
+						selectedValues.push(item);
+						const itemName = item.HTML ?? BX.util.htmlspecialchars(item.NAME);
+						const renderedItem = BX.Tag.render`
+							<span class="main-ui-square">
+								<span class="main-ui-square-item">${itemName}</span>
+								<span class="main-ui-item-icon main-ui-square-delete"></span>
+							</span>
+						`;
+
+						BX.Dom.attr(renderedItem, 'data-item', item);
+
+						return renderedItem;
+					});
+				}
+
+				return [];
+			})();
+			const layout = BX.Tag.render`
+				<div 
+					class="main-grid-editor main-ui-control main-ui-multi-select"
+					name="${BX.Text.encode(editObject.NAME)}"
+					id="${`${BX.Text.encode(editObject.NAME)}_control`}"
+				>
+					<span class="main-ui-square-container">${squares}</span>
+					<span class="main-ui-hide main-ui-control-value-delete">
+						<span class="main-ui-control-value-delete-item"></span>
+					</span>
+					<span class="main-ui-square-search">
+						<input type="text" class="main-ui-square-search-item">
+					</span>	
+				</div>
+			`;
+
+			BX.Dom.attr(
+				layout,
+				{
+					'data-params': {isMulti: true},
+					'data-items': editObject.DATA.ITEMS,
+					'data-value': selectedValues,
+				},
+			);
+
+			return layout;
+		},
+
 		validateEditObject: function(editObject)
 		{
 			return (
@@ -412,6 +465,11 @@ import {EventEmitter} from "main.core.events";
 
 					case this.types.DROPDOWN : {
 						control = this.createDropdown(editObject);
+						break;
+					}
+
+					case this.types.MULTISELECT : {
+						control = this.createMultiselect(editObject);
 						break;
 					}
 

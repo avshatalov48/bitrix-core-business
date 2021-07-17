@@ -136,6 +136,20 @@ class ExportPath
 		$processedItemCount = 0;
 
 		$filterCodeList = $this->codeList ?: [];
+		$fileCodeList = [];
+		foreach ($filterCodeList as $pathCode)
+		{
+			[$path, $code] = explode('::', $pathCode);
+			if ($path && $code)
+			{
+				$langFilePath = Translate\IO\Path::replaceLangId($path, '#LANG_ID#');
+				if (!isset($fileCodeList[$langFilePath]))
+				{
+					$fileCodeList[$langFilePath] = [];
+				}
+				$fileCodeList[$langFilePath][] = $code;
+			}
+		}
 
 		for ($pos = ((int)$this->seekOffset > 0 ? (int)$this->seekOffset : 0), $total = count($this->pathList); $pos < $total; $pos ++)
 		{
@@ -160,7 +174,7 @@ class ExportPath
 					$fullPaths[$langId] = $langFullPath;
 				}
 
-				$rows = $this->mergeLangFiles($langFilePath, $fullPaths, $this->collectUntranslated, $filterCodeList);
+				$rows = $this->mergeLangFiles($langFilePath, $fullPaths, $this->collectUntranslated, $fileCodeList[$langFilePath]);
 				foreach ($rows as $row)
 				{
 					$csvFile->put(array_values($row));
@@ -214,7 +228,7 @@ class ExportPath
 					{
 						foreach ($filePaths as $langFilePath => $fullPaths)
 						{
-							$rows = $this->mergeLangFiles($langFilePath, $fullPaths, $this->collectUntranslated, $filterCodeList);
+							$rows = $this->mergeLangFiles($langFilePath, $fullPaths, $this->collectUntranslated, $fileCodeList[$langFilePath]);
 							foreach ($rows as $row)
 							{
 								$csvFile->put(array_values($row));

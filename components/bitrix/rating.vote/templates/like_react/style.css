@@ -223,26 +223,30 @@
 .feed-com-block .feed-post-emoji-icon-item.feed-post-emoji-icon-item-1,
 .feed-post-block .feed-post-emoji-icon-item.feed-post-emoji-icon-item-1 {
 	margin: 0;
-	z-index: 6;
+	z-index: 7;
 }
 
 .feed-post-emoji-icon-item-2 {
-	z-index: 5;
+	z-index: 6;
 }
 
 .feed-post-emoji-icon-item-3 {
-	z-index: 4;
+	z-index: 5;
 }
 
 .feed-post-emoji-icon-item-4 {
-	z-index: 3;
+	z-index: 4;
 }
 
 .feed-post-emoji-icon-item-5 {
-	z-index: 2;
+	z-index: 3;
 }
 
 .feed-post-emoji-icon-item-6 {
+	z-index: 2;
+}
+
+.feed-post-emoji-icon-item-7 {
 	z-index: 1;
 }
 
@@ -490,21 +494,17 @@
 .feed-post-emoji-icon-inner .feed-post-emoji-icon-item:nth-child(6) {
 	z-index: 4;
 }
+.feed-post-emoji-icon-inner .feed-post-emoji-icon-item:nth-child(7) {
+	z-index: 7;
+}
 
 .feed-post-emoji-popup-invisible .feed-post-emoji-icon-inner .feed-post-emoji-icon-item:nth-child(1),
-.feed-post-emoji-popup-invisible .feed-post-emoji-icon-inner .feed-post-emoji-icon-item:nth-child(6) {
-	animation: feed-post-emoji-popup-hide-icon .3s linear forwards;
-	transition: none;
-}
-
 .feed-post-emoji-popup-invisible .feed-post-emoji-icon-inner .feed-post-emoji-icon-item:nth-child(2),
-.feed-post-emoji-popup-invisible .feed-post-emoji-icon-inner .feed-post-emoji-icon-item:nth-child(3) {
-	animation: feed-post-emoji-popup-hide-icon .3s linear forwards;
-	transition: none;
-}
-
+.feed-post-emoji-popup-invisible .feed-post-emoji-icon-inner .feed-post-emoji-icon-item:nth-child(3),
 .feed-post-emoji-popup-invisible .feed-post-emoji-icon-inner .feed-post-emoji-icon-item:nth-child(4),
-.feed-post-emoji-popup-invisible .feed-post-emoji-icon-inner .feed-post-emoji-icon-item:nth-child(5) {
+.feed-post-emoji-popup-invisible .feed-post-emoji-icon-inner .feed-post-emoji-icon-item:nth-child(5),
+.feed-post-emoji-popup-invisible .feed-post-emoji-icon-inner .feed-post-emoji-icon-item:nth-child(6),
+.feed-post-emoji-popup-invisible .feed-post-emoji-icon-inner .feed-post-emoji-icon-item:nth-child(7) {
 	animation: feed-post-emoji-popup-hide-icon .3s linear forwards;
 	transition: none;
 }

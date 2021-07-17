@@ -17,7 +17,7 @@ if(!defined('REST_MARKETPLACE_URL'))
 class Transport
 {
 	const SERVICE_URL = REST_MARKETPLACE_URL;
-	private const VERSION = 1;
+	protected const VERSION = 1;
 
 	const SOCKET_TIMEOUT = 10;
 	const STREAM_TIMEOUT = 10;

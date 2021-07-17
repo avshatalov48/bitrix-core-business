@@ -255,9 +255,9 @@ return [
                             <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">Display Advertising</li>
                             <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">App &amp; Icon Design</li>
                             <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">Analysis &amp; Consulting</li>
-                            <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">Google AdSense</li>
+                            <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">Ad services</li>
                             <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">Social Media</li>
-                            <li class="landing-block-node-element-list-item g-py-8">Google/Bing Analysis</li>
+                            <li class="landing-block-node-element-list-item g-py-8">Analysis</li>
                         </ul>
                     </div>
                     <!-- End Icon Blocks -->
@@ -277,10 +277,10 @@ return [
                         <div class="landing-block-node-element-separator d-inline-block g-width-40 g-brd-bottom g-brd-2 g-brd-primary g-my-15"></div>
 
                         <ul class="landing-block-node-element-list list-unstyled text-uppercase g-mb-0">
-                            <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">Google AdSense</li>
+                            <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">Ad services</li>
                             <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">Social Media</li>
-                            <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">Google/Bing Analysis</li>
-                            <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">Google AdSense</li>
+                            <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">Analysis</li>
+                            <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">Ad services</li>
                             <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">Social Media</li>
                             <li class="landing-block-node-element-list-item g-py-8">Analysis &amp; Consulting</li>
                         </ul>

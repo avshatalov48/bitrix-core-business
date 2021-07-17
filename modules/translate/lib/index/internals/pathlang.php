@@ -15,7 +15,20 @@ use Bitrix\Translate\Index;
  * <li> PATH string(255)
  * </ul>
  *
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_PathLang_Query query()
+ * @method static EO_PathLang_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_PathLang_Result getById($id)
+ * @method static EO_PathLang_Result getList(array $parameters = array())
+ * @method static EO_PathLang_Entity getEntity()
+ * @method static \Bitrix\Translate\Index\Internals\EO_PathLang createObject($setDefaultValues = true)
+ * @method static \Bitrix\Translate\Index\Internals\EO_PathLang_Collection createCollection()
+ * @method static \Bitrix\Translate\Index\Internals\EO_PathLang wakeUpObject($row)
+ * @method static \Bitrix\Translate\Index\Internals\EO_PathLang_Collection wakeUpCollection($rows)
+ */
 
 class PathLangTable extends DataManager
 {

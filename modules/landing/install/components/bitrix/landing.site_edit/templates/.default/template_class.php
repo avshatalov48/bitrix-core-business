@@ -103,9 +103,7 @@ class Template
 	public function showMultiply(string $code, bool $alwaysOpen = false): void
 	{
 		$code = strtoupper($code);
-		$hooks = isset($this->result['HOOKS'])
-			? $this->result['HOOKS']
-			: array();
+		$hooks = $this->result['HOOKS'] ?? [];
 
 		if (isset($hooks[$code]))
 		{

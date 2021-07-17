@@ -170,7 +170,10 @@
 		{
 			var subItem = this.getSubItem(item);
 			var value = BX.data(subItem, this.dataValue);
-
+			if (BX.Type.isUndefined(value))
+			{
+				value = '';
+			}
 			BX.firstChild(this.dropdown).innerText = subItem.innerText;
 			this.dropdown.dataset[this.dataValue] = value;
 		},

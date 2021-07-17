@@ -1106,6 +1106,12 @@
 					BX.getClass('BX.SidePanel.Instance') &&
 					BX.SidePanel.Instance.isOpen()
 				)
+				&& !(
+					BX.type.isNotEmptyObject(BXRL) &&
+					BX.type.isNotEmptyObject(BXRL.render) &&
+					BX.type.isDomNode(BXRL.render.reactionsPopup) &&
+					!BXRL.render.reactionsPopup.classList.contains('feed-post-emoji-popup-invisible')
+				)
 			)
 			{
 				var curPos = BX.pos(container),

@@ -1,3 +1,5 @@
+import {Type} from "main.core";
+
 ;(function() {
 	'use strict';
 
@@ -52,7 +54,7 @@
 							row.addEventListener("click", function() {
 								if (this.isSelected())
 								{
-									this.unselect()
+									this.unselect();
 								}
 								else
 								{
@@ -168,6 +170,10 @@
 				else if(BX.hasClass(editor, 'main-grid-editor-money'))
 				{
 					result = this.getMoneyValue(editor);
+				}
+				else if(BX.hasClass(editor, 'main-ui-multi-select'))
+				{
+					result = this.getMultiSelectValues(editor);
 				}
 				else
 				{
@@ -401,6 +407,15 @@
 			}
 
 			return result;
+		},
+
+		getMultiSelectValues: function(editor)
+		{
+			const value = JSON.parse(BX.data(editor, 'value'));
+			return {
+				'NAME': editor.getAttribute('name'),
+				'VALUE': Type.isArrayFilled(value) ? value : ''
+			};
 		},
 
 		/**
@@ -1223,18 +1238,189 @@
 			BX.Dom.addClass(this.getNode(), 'main-grid-not-count');
 		},
 
+		getColumnOptions: function(columnId)
+		{
+			const columns = this.parent.getParam('COLUMNS_ALL');
+			if (
+				BX.Type.isPlainObject(columns)
+				&& Reflect.has(columns, columnId)
+			)
+			{
+				return columns[columnId];
+			}
+
+			return null;
+		},
+
 		setCellsContent: function(content)
 		{
 			const headRow = this.parent.getRows().getHeadFirstChild();
 
 			[...this.getCells()].forEach((cell, cellIndex) => {
 				const cellName = headRow.getCellNameByCellIndex(cellIndex);
-				const cellContent = content[cellName];
 
-				if (cellContent)
+				if (Reflect.has(content, cellName))
 				{
+					const columnOptions = this.getColumnOptions(cellName);
 					const container = this.getContentContainer(cell);
-					BX.Runtime.html(container, cellContent);
+					const cellContent = content[cellName];
+					if (
+						columnOptions.type === 'labels'
+						&& BX.Type.isArray(cellContent)
+					)
+					{
+						const labels = cellContent.map((labelOptions) => {
+							const label = BX.Tag.render`
+								<span class="ui-label ${labelOptions.color}"></span>
+							`;
+
+							if (labelOptions.light !== true)
+							{
+								BX.Dom.addClass(label, 'ui-label-fill');
+							}
+
+							if (BX.Type.isPlainObject(labelOptions.events))
+							{
+								if (Reflect.has(labelOptions.events, 'click'))
+								{
+									BX.Dom.addClass(label, 'ui-label-link');
+								}
+
+								this.bindOnEvents(label, labelOptions.events);
+							}
+
+							const labelContent = (() => {
+								if (BX.Type.isStringFilled(labelOptions.html))
+								{
+									return labelOptions.html;
+								}
+
+								return labelOptions.text;
+							})();
+
+							const inner = BX.Tag.render`
+								<span class="ui-label-inner">${labelContent}</span>
+							`;
+
+							BX.Dom.append(inner, label);
+
+							if (BX.Type.isPlainObject(labelOptions.removeButton))
+							{
+								const button = (() => {
+									if (labelOptions.removeButton.type === BX.Grid.Label.RemoveButtonType.INSIDE)
+									{
+										return BX.Tag.render`
+											<span class="ui-label-icon"></span>	
+										`;
+									}
+
+									return BX.Tag.render`
+										<span class="main-grid-label-remove-button ${labelOptions.removeButton.type}"></span>	
+									`;
+								})();
+
+								if (BX.Type.isPlainObject(labelOptions.removeButton.events))
+								{
+									this.bindOnEvents(button, labelOptions.removeButton.events);
+								}
+
+								BX.Dom.append(button, label);
+							}
+
+							return label;
+						});
+
+						const labelsContainer = BX.Tag.render`
+							<div class="main-grid-labels">${labels}</div>
+						`;
+
+						const oldLabelsContainer = container.querySelector('.main-grid-labels');
+						if (BX.Type.isDomNode(oldLabelsContainer))
+						{
+							BX.Dom.replace(oldLabelsContainer, labelsContainer);
+						}
+						else
+						{
+							BX.Dom.append(labelsContainer, container);
+						}
+					}
+					else if (
+						columnOptions.type === 'tags'
+						&& BX.Type.isPlainObject(cellContent)
+					)
+					{
+						const tags = cellContent.items.map((tagOptions) => {
+							const tag = BX.Tag.render`
+								<span class="main-grid-tag"></span>
+							`;
+
+							this.bindOnEvents(tag, tagOptions.events);
+
+							if (tagOptions.active === true)
+							{
+								BX.Dom.addClass(tag, 'main-grid-tag-active');
+							}
+
+							const tagContent = (() => {
+								if (BX.Type.isStringFilled(tagOptions.html))
+								{
+									return tagOptions.html;
+								}
+
+								return BX.Text.encode(tagOptions.text);
+							})();
+
+							const tagInner = BX.Tag.render`
+								<span class="main-grid-tag-inner">${tagContent}</span>
+							`;
+
+							BX.Dom.append(tagInner, tag);
+
+							if (tagOptions.active === true)
+							{
+								const removeButton = BX.Tag.render`
+									<span class="main-grid-tag-remove"></span>
+								`;
+
+								BX.Dom.append(removeButton, tag);
+
+								if (BX.Type.isPlainObject(tagOptions.removeButton))
+								{
+									this.bindOnEvents(removeButton, tagOptions.removeButton.events);
+								}
+							}
+
+							return tag;
+						});
+
+						const tagsContainer = BX.Tag.render`
+							<span class="main-grid-tags">${tags}</span>
+						`;
+
+						const addButton = BX.Tag.render`
+							<span class="main-grid-tag-add"></span>
+						`;
+						if (BX.Type.isPlainObject(cellContent.addButton))
+						{
+							this.bindOnEvents(addButton, cellContent.addButton.events);
+						}
+
+						BX.Dom.append(addButton, tagsContainer);
+
+						const oldTagsContainer = container.querySelector('.main-grid-tags');
+						if (BX.Type.isDomNode(oldTagsContainer))
+						{
+							BX.Dom.replace(oldTagsContainer, tagsContainer);
+						}
+						else
+						{
+							BX.Dom.append(tagsContainer, container);
+						}
+					}
+					else
+					{
+						BX.Runtime.html(container, cellContent);
+					}
 				}
 			});
 		},
@@ -1344,8 +1530,7 @@
 		initElementsEvents: function()
 		{
 			const buttons = [
-				...this.getNode().querySelectorAll('.main-grid-cell-content-action'),
-				...this.getNode().querySelectorAll('.main-grid-cell-counter > .ui-counter'),
+				...this.getNode().querySelectorAll('.main-grid-cell [data-events]'),
 			];
 			if (BX.Type.isArrayFilled(buttons))
 			{
@@ -1381,17 +1566,28 @@
 			{
 				BX.Event.bind(button, 'click', this.onElementClick.bind(this));
 
+				const target = (() => {
+					const selector = BX.Dom.attr(button, 'data-target');
+					if (selector)
+					{
+						return button.closest(selector);
+					}
+
+					return button;
+				})();
+
 				const event = new BX.Event.BaseEvent({
 					data: {
 						button,
+						target,
 						row: this,
 					},
 				});
 
-				event.setTarget(button);
+				event.setTarget(target);
 
 				Object.entries(events).forEach(([eventName, handler]) => {
-					const preparedHandler = BX.Reflection.getClass(handler);
+					const preparedHandler = eval(handler);
 					BX.Event.bind(button, eventName, preparedHandler.bind(null, event));
 				});
 			}

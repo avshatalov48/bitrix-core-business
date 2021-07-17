@@ -303,36 +303,16 @@ class Helper
 	}
 
 	/**
+	 * @deprecated use Manifest::isEntityAvailable()
+	 *
 	 * check Event manifest[USES] intersect current entity[USES]
 	 * @param array $params all event parameters
 	 * @param array $uses all access uses in current entity
 	 *
 	 * @return bool
 	 */
-	public static function checkAccessManifest($params, $uses = [])
+	public static function checkAccessManifest($params, $uses = []) : bool
 	{
-		if(!empty($params['IMPORT_MANIFEST']))
-		{
-			if(empty($params['IMPORT_MANIFEST']['USES']))
-			{
-				return false;
-			}
-
-			$access = array_intersect($params['IMPORT_MANIFEST']['USES'], $uses);
-			if(!$access)
-			{
-				return false;
-			}
-		}
-		elseif(!empty($params['MANIFEST']['USES']))
-		{
-			$access = array_intersect($params['MANIFEST']['USES'], $uses);
-			if(!$access)
-			{
-				return false;
-			}
-		}
-
-		return true;
+		return Manifest::isEntityAvailable('', $params, $uses);
 	}
 }

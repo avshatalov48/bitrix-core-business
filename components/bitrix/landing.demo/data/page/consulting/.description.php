@@ -668,7 +668,7 @@ return [
 					<div class="g-pos-rel">
                             <div class="g-pos-rel g-z-index-1 g-pa-30">
                                 <h3 class="h5 mb-3">
-                                    <a class="landing-block-node-link u-link-v5 g-color-primary--hover" href="#" target="_self">Exclusive interview with InVision\'s CEO</a>
+                                    <a class="landing-block-node-link u-link-v5 g-color-primary--hover" href="#" target="_self">Exclusive interview with CEO</a>
                                 </h3>
                                 <a class="landing-block-node-link-more u-link-v5 g-color-primary--hover g-font-weight-500" href="#" target="_self">Read More</a>
                             </div>

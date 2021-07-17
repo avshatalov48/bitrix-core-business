@@ -15,9 +15,7 @@ return [
 	'lock_delete' => true,
 	'fields' => [
 		'RULE' => null,
-		'ADDITIONAL_FIELDS' => [
-			'THEME_CODE' => 'photography',
-		],
+		'ADDITIONAL_FIELDS' => [],
 	],
 	'layout' => [
 		'code' => 'without_right',

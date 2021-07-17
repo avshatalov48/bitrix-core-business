@@ -170,44 +170,32 @@ class blogTextParser extends CTextParser
 			return;
 		return "TAG [".$name."]";
 	}
-	
-	function convert4im($text, $arImages = Array())
+
+	function convert4im($text, $arImages = [])
 	{
 		$text = preg_replace(
-			array(
-				"/\[(\/?)(code|quote)([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER,
-				"/\\[url\\s*=\\s*(\\S+?)\\s*\\](.*?)\\[\\/url\\]/is".BX_UTF_PCRE_MODIFIER,
-				"/\\[(table)(.*?)\\]/is".BX_UTF_PCRE_MODIFIER,
-				"/\\[\\/table(.*?)\\]/is".BX_UTF_PCRE_MODIFIER
-			),
-			array(
-				"",
-				"\\1",
+			[
+				"/\[(\/?)(code|quote)([^\]]*)\]/is" . BX_UTF_PCRE_MODIFIER,
+				"/\\[url\\s*=\\s*(\\S+?)\\s*\\](.*?)\\[\\/url\\]/is" . BX_UTF_PCRE_MODIFIER,
+				"/\\[(table)(.*?)\\]/is" . BX_UTF_PCRE_MODIFIER,
+				"/\\[\\/table(.*?)\\]/is" . BX_UTF_PCRE_MODIFIER
+			],
+			[
+				'',
+				"\\2",
 				"\n",
 				"\n",
-			),
+			],
 			$text
 		);
 
 		return $this->convert4mail($text, $arImages);
 	}
-	
+
 	public function convert4mail($text, $arImages = Array())
 	{
 		$text = parent::convert4mail($text);
-/*
-		$serverName = (
-			(defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0)
-				? SITE_SERVER_NAME
-				: COption::GetOptionString("main", "server_name", "")
-		);
-		if (strlen($serverName) <=0 )
-		{
-			$serverName = $_SERVER["SERVER_NAME"];
-		}
 
-		$this->serverName = $serverName;
-*/
 		$this->arImages = $arImages;
 
 		$text = preg_replace_callback(

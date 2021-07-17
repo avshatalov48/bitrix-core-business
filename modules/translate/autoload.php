@@ -45,6 +45,7 @@ const IGNORE_FS_NAMES = array(
 	'.git',
 	'.svn',
 	'.vs',
+	'.vscode',
 	'.idea',
 	'.DS_Store',
 	'.htaccess',
@@ -64,6 +65,13 @@ const IGNORE_BX_NAMES = array(
 	'/bitrix/stack_cache',
 	'/bitrix/tmp',
 	'/bitrix/html_pages',
+	'/bitrix/vendor',
+	'/bitrix/css',
+	'/bitrix/fonts',
+	'/bitrix/images',
+	'/bitrix/js',
+	'/bitrix/routes',
+	'/bitrix/sounds',
 	'/upload',
 );
 
@@ -73,12 +81,11 @@ const IGNORE_LANG_NAMES = array(
 
 const IGNORE_MODULE_NAMES = array(
 	'dev',
+	'meta',
 	'tests',
 );
 
 const SUPD_LANG_DATE_MARK = '/main/lang/#LANG_ID#/supd_lang_date.dat';
-
-const COLLECT_CUSTOM_LIST = '/bitrix/modules/langs.txt';
 
 const ASSIGNMENT_TYPES = array(
 	'modules',

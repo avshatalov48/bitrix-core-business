@@ -4,6 +4,7 @@ namespace Bitrix\UI\Form;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Config\Option;
 
 class FeedbackForm
 {
@@ -36,10 +37,26 @@ class FeedbackForm
 		return $this->formParams;
 	}
 
+	public function setFormParamsDirectly($form)
+	{
+		$form['lang'] = $form['lang']??LANGUAGE_ID;
+		$this->formParams = $form;
+	}
+
 	public function getPresets()
 	{
 		$presets = $this->presets;
 		$presets['b24_plan'] = $this->isCloud ? \CBitrix24::getLicenseType() : '';
+		$presets['b24_plan_date_to'] = (
+			$this->isCloud
+				? ConvertTimeStamp(Option::get('main', '~controller_group_till', time()))
+				: ''
+		);
+		$presets['b24_partner_id'] = (
+			($this->isCloud && method_exists('CBitrix24', 'getPartnerId'))
+				? \CBitrix24::getPartnerId()
+				: ''
+		);
 
 		global $USER;
 		$name = '';
@@ -82,7 +99,35 @@ class FeedbackForm
 
 	public function setFormParams(array $forms)
 	{
-		if ($this->isCloud)
+		if ($this->isCloud && $forms['prefixes'])
+		{
+			$zone = \CBitrix24::getLicensePrefix();
+			$defaultForm = null;
+			foreach ($forms as $form)
+			{
+				if (!isset($form['zones']) || !is_array($forms['licenseZones']))
+				{
+					continue;
+				}
+
+				if (in_array($zone, $forms['licenseZones']))
+				{
+					$form['lang'] = $form['lang']??LANGUAGE_ID;
+					$this->formParams = $form;
+					return;
+				}
+
+				if (in_array('en', $forms['licenseZones']))
+				{
+					$form['lang'] = $form['lang']??LANGUAGE_ID;
+					$defaultForm = $form;
+				}
+			}
+
+			$this->formParams = $defaultForm;
+			return;
+		}
+		else if ($this->isCloud)
 		{
 			$zone = \CBitrix24::getPortalZone();
 			$defaultForm = null;
@@ -95,12 +140,14 @@ class FeedbackForm
 
 				if (in_array($zone, $form['zones']))
 				{
+					$form['lang'] = $form['lang']??LANGUAGE_ID;
 					$this->formParams = $form;
 					return;
 				}
 
 				if (in_array('en', $form['zones']))
 				{
+					$form['lang'] = $form['lang']??LANGUAGE_ID;
 					$defaultForm = $form;
 				}
 			}

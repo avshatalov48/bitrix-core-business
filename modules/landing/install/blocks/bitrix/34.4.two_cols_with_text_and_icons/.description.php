@@ -39,7 +39,7 @@ return array(
 		'nodes' => array(
 			'.landing-block-node-card' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_34.4_CARDS_LANDINGBLOCKNODECARD'),
-				'type' => array('columns', 'animation'),
+				'type' => array('columns', 'animation', 'margin-bottom'),
 			),
 			'.landing-block-node-card-text' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_34.4_NODES_LANDINGBLOCKNODECARDTEXT'),

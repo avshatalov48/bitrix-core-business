@@ -10,7 +10,7 @@ use Bitrix\Main\Web\Uri;
 class HtmlDocument
 {
 	const MAX_IMAGES = 4;
-	const MAX_IMAGE_URL_LENGTH = 255;
+	const MAX_IMAGE_URL_LENGTH = 2000;
 
 	/** @var \Bitrix\Main\Web\Uri */
 	protected $uri;
@@ -452,11 +452,13 @@ class HtmlDocument
 	 * @param string $url Image's URL.
 	 * @return string|null Absolute image's URL, or null if URL is incorrect or too long.
 	 */
-	protected function normalizeImageUrl($url)
+	protected function normalizeImageUrl($url): ?string
 	{
 		$url = $this->convertRelativeUriToAbsolute($url);
 		if(mb_strlen($url) > self::MAX_IMAGE_URL_LENGTH)
+		{
 			$url = null;
+		}
 		return $url;
 	}
 

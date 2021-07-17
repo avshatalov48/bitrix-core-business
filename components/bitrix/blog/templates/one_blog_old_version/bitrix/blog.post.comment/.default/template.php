@@ -154,7 +154,6 @@ else
 		</div>
 	</div>
 	<script>
-	<!--
 	var last_div = '';
 	function showComment(key, subject, error, comment, userName, userEmail)
 	{
@@ -199,7 +198,6 @@ else
 		
 		return false;
 	}
-	//-->
 	</script>
 	<?
 	function ShowComment($comment, $tabCount=0, $tabSize=30, $canModerate=false, $User=Array(), $use_captcha=false, $bCanUserComment=false, $errorComment=false, $arParams = array())
@@ -414,11 +412,8 @@ else
 							$user_email = str_replace("'","\'", $_POST["user_email"]);
 							?>
 							<script>
-							<!--
-
 							var cmt = '<?=$form1?>';
 							showComment('<?=$comment["ID"]?>', '<?=$subj?>', 'Y', cmt, '<?=$user_name?>', '<?=$user_email?>');
-							//-->
 							</script>
 							<?
 						}
@@ -518,10 +513,8 @@ else
 			$user_email = str_replace("'","\'", $_POST["user_email"]);
 			?>
 			<script>
-			<!--
 			var cmt = '<?=$form1?>';
 			showComment('0', '<?=$subj?>', 'Y', cmt, '<?=$user_name?>', '<?=$user_email?>');
-			//-->
 			</script>
 			<?
 		}
@@ -584,10 +577,8 @@ else
 			$user_email = str_replace("'","\'", $_POST["user_email"]);
 			?>
 			<script>
-			<!--
 			var cmt = '<?=$form1?>';
 			showComment('00', '<?=$subj?>', 'Y', cmt, '<?=$user_name?>', '<?=$user_email?>');
-			//-->
 			</script>
 			<?
 		}

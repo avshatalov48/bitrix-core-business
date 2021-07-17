@@ -27,7 +27,7 @@
 							</p>
 						</blockquote>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeInRightBig btn text-uppercase g-btn-primary g-btn-type-solid g-btn-size-sm g-btn-px-m g-rounded-20 g-py-15"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeInRightBig btn text-uppercase g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-s g-rounded-20"
 							   href="#">View Photos</a>
 						</div>
 					</div>
@@ -56,7 +56,7 @@
 							</p>
 						</blockquote>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeInRightBig btn text-uppercase g-btn-primary g-btn-type-solid g-btn-size-sm g-btn-px-m g-rounded-20 g-py-15"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeInRightBig btn text-uppercase g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-s g-rounded-20"
 							   href="#">View Photos</a>
 						</div>
 					</div>

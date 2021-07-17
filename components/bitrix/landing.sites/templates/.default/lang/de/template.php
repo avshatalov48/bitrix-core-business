@@ -12,6 +12,7 @@ $MESS["LANDING_TPL_ACTION_DELETE"] = "Website löschen";
 $MESS["LANDING_TPL_ACTION_DELETE_CONFIRM"] = "Möchten Sie die Seite wirklich löschen?";
 $MESS["LANDING_TPL_ACTION_DELETE_KNOWLEDGE"] = "Wissensbasis löschen";
 $MESS["LANDING_TPL_ACTION_EDIT"] = "Website konfigurieren";
+$MESS["LANDING_TPL_ACTION_EDIT_DESIGN"] = "Design-Einstellungen";
 $MESS["LANDING_TPL_ACTION_EDIT_KNOWLEDGE"] = "Wissensbasis bearbeiten";
 $MESS["LANDING_TPL_ACTION_EDIT_PAGE"] = "Website konfigurieren";
 $MESS["LANDING_TPL_ACTION_EDIT_STORE"] = "Onlineshop konfigurieren";

@@ -114,19 +114,31 @@ final class Loc
 		static $langDirCache = array();
 
 		// open_basedir restriction
-		static $openBasedir;
-		if ($openBasedir === null)
+		static $openBasedir = [], $openBasedirRestriction;
+		if ($openBasedirRestriction === null)
 		{
-			$openBasedir = '';
 			$openBasedirTmp = ini_get('open_basedir');
 			if (!empty($openBasedirTmp))
 			{
-				$openBasedirTmp = Path::normalize($openBasedirTmp);
-				if (is_dir($openBasedirTmp))
+				// multiple paths split by colon ":" - "/home/bitrix:/var/www/html"
+				// under non windows by semicolon ";" - "c:/www/;c:/www/html"
+				$openBasedirTmp = explode(
+					(strncasecmp(PHP_OS, 'WIN', 3) == 0 ? ';' : ':'),
+					$openBasedirTmp
+				);
+				foreach ($openBasedirTmp as $testDir)
 				{
-					$openBasedir = $openBasedirTmp;
+					if (!empty($testDir))
+					{
+						$testDir = Path::normalize($testDir);
+						if (is_dir($testDir))
+						{
+							$openBasedir[] = $testDir;
+						}
+					}
 				}
 			}
+			$openBasedirRestriction = !empty($openBasedir);
 		}
 
 		$path = Path::getDirectory($file);
@@ -141,15 +153,27 @@ final class Loc
 			//let's find language folder
 			$langDir = $fileName = '';
 			$filePath = $file;
-			while(($slashPos = mb_strrpos($filePath, '/')) !== false)
+			while (($slashPos = mb_strrpos($filePath, '/')) !== false)
 			{
 				$filePath = mb_substr($filePath, 0, $slashPos);
-				if ($openBasedir !== '' && strpos($filePath, $openBasedir) !== 0)
+				if ($openBasedirRestriction === true)
 				{
-					break;
+					$withinOpenBasedir = false;
+					foreach ($openBasedir as $testDir)
+					{
+						if (stripos($filePath, $testDir) === 0)
+						{
+							$withinOpenBasedir = true;
+							break;
+						}
+					}
+					if (!$withinOpenBasedir)
+					{
+						break;
+					}
 				}
-				$langPath = $filePath.'/lang';
-				if(is_dir($langPath))
+				$langPath = $filePath. '/lang';
+				if (is_dir($langPath))
 				{
 					$langDir = $langPath;
 					$fileName = mb_substr($file, $slashPos);

@@ -41,7 +41,7 @@ class Theme extends Page
 			]),
 			'COLOR' => new Field\Text('COLOR', [
 				'title' => Loc::getMessage('LANDING_HOOK_THEME_CUSTOM_COLOR')
-			])
+			]),
 		];
 	}
 
@@ -51,14 +51,7 @@ class Theme extends Page
 	 */
 	public static function getColorCodes(): array
 	{
-		static $colors = [];
-
-		if (!empty($colors))
-		{
-			return $colors;
-		}
-
-		$colors = [
+		static $colors = [
 			'2business' => [
 				'color' => '#3949a0',
 				'main' => '#333333',
@@ -207,13 +200,50 @@ class Theme extends Page
 	}
 
 	/**
+	 * Get hex for all colors.
+	 * @return array
+	 */
+	public static function getAllColorCodes(): array
+	{
+		$colors = self::getColorCodes();
+		$allColors = [];
+		foreach ($colors as $colorItem)
+		{
+			if (isset($colorItem['color']))
+			{
+				$allColors[] = $colorItem['color'];
+			}
+		}
+		return $allColors;
+	}
+
+	/**
+	 * Get hex for start colors.
+	 * @return array
+	 */
+	public static function getStartColorCodes(): array
+	{
+		$colors = self::getColorCodes();
+		$startColors = [];
+		foreach ($colors as $colorItem)
+		{
+			if (isset($colorItem['base']) && $colorItem['base'] === true)
+			{
+				$startColors[] = $colorItem['color'];
+			}
+		}
+		return $startColors;
+	}
+
+	/**
 	 * Find theme name (old format) by hex color
 	 * @param string $hexColor (with lead #)
 	 * @return string|null
 	 */
 	protected static function getThemeCodeByColor(string $hexColor): ?string
 	{
-		foreach(self::getColorCodes() as $code => $color)
+		$colors = self::getColorCodes();
+		foreach($colors as $code => $color)
 		{
 			if($color['color'] === $hexColor)
 			{
@@ -378,8 +408,10 @@ class Theme extends Page
 		$rgbTemplate = $rgbColor[0] . ', ' . $rgbColor[1] . ', ' . $rgbColor[2];
 		$hslColor = self::convertRgbToHsl($rgbColor[0], $rgbColor[1], $rgbColor[2]);
 
-		$themeCode = $themeCode ?? self::getThemeCodeByColor($colorHex);
-		if ($themeCode)
+		if (
+			isset($themeCode)
+			|| ($themeCode = self::getThemeCodeByColor($colorHex))
+		)
 		{
 			$colorMain = $defaultColors[$themeCode]['main'];
 			if ($defaultColors[$themeCode]['secondary'])

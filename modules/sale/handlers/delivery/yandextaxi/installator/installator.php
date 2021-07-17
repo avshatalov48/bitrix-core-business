@@ -20,6 +20,7 @@ use Bitrix\Sale\PersonTypeTable;
 use Bitrix\Sale\Registry;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Tariffs\Repository;
 use Sale\Handlers\Delivery\YandexTaxi\Common\OrderEntitiesCodeDictionary;
+use Sale\Handlers\Delivery\YandexTaxi\ServiceContainer;
 
 /**
  * Class Installator
@@ -105,6 +106,13 @@ final class Installator
 		{
 			return $result->addError(new Error('Parent service not found'));
 		}
+		$isByRegion = ServiceContainer::getRegionFinder()->getCurrentRegion() === 'by';
+
+		$nameCode = 'SALE_YANDEX_TAXI_TARIFF_%s';
+		if ($isByRegion && $tariff['name'] === 'courier')
+		{
+			$nameCode .= '_BY';
+		}
 
 		$addResult = Manager::add(
 			[
@@ -114,7 +122,7 @@ final class Installator
 				),
 				'NAME' => Loc::getMessage(
 					sprintf(
-						'SALE_YANDEX_TAXI_TARIFF_%s',
+						$nameCode,
 						mb_strtoupper($tariff['name'])
 					)
 				),

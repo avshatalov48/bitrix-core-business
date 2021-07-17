@@ -1,5 +1,9 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main;
 use Bitrix\Main\Loader;
@@ -456,34 +460,31 @@ class CBPMailActivity extends CBPActivity
 
 	private static function extractEmails($ar)
 	{
-		$arEmails = array();
-		$arUsers = array();
-
-		if (!is_array($ar))
-			$ar = array($ar);
+		$emails = [];
+		$users = [];
 
 		$ar = CBPHelper::MakeArrayFlat($ar);
 
 		foreach ($ar as $item)
 		{
-			$arItem = explode(",", $item);
+			$arItem = explode(',', $item);
 			$flag = true;
 			foreach ($arItem as $itemTmp)
 			{
 				if (check_email($itemTmp))
 				{
+					$emails[] = $itemTmp;
 					$flag = false;
-					break;
 				}
 			}
 
 			if ($flag)
-				$arUsers[] = $item;
-			else
-				$arEmails[] = $item;
+			{
+				$users[] = $item;
+			}
 		}
 
-		return array($arUsers, $arEmails);
+		return [$users, $emails];
 	}
 
 	private static function getMailUserPropertyGetter()
@@ -651,43 +652,46 @@ class CBPMailActivity extends CBPActivity
 
 	private function getMailUserTo($separator = self::DEFAULT_SEPARATOR)
 	{
-		$strMailUserTo = "";
+		$result = [];
 
-		[$MailUserToArray, $MailUserToArrayString] = static::extractEmails($this->MailUserToArray);
+		[$mailUserToArray, $mailUserToArrayString] = static::extractEmails($this->MailUserToArray);
 
-		$arMailUserToArray = CBPHelper::ExtractUsers($MailUserToArray, $this->GetDocumentId(), false);
-		foreach ($arMailUserToArray as $user)
+		$userIds = CBPHelper::ExtractUsers($mailUserToArray, $this->GetDocumentId());
+		foreach ($userIds as $userId)
 		{
-			$dbUser = CUser::GetList("", "", array("ID_EQUAL_EXACT" => $user));
-			if ($arUser = $dbUser->Fetch())
+			$listResult = CUser::GetList('', '', ['ID_EQUAL_EXACT' => $userId]);
+			if ($row = $listResult->fetch())
 			{
-				if ($strMailUserTo <> '')
+				$userEmail = trim(preg_replace("#[\r\n]+#", "", $row['EMAIL']));
+				if ($userEmail)
 				{
-					$strMailUserTo .= $separator;
+					$result[] = $userEmail;
 				}
-				$strMailUserTo .= preg_replace("#[\r\n]+#", "", $arUser["EMAIL"]);
 			}
 		}
 
-		$mailUserToTmp = str_replace(', ', $separator, $this->MailUserTo);
-		if ($mailUserToTmp <> '')
+		$toEmails = explode(', ', $this->MailUserTo);
+		if ($toEmails)
 		{
-			if ($strMailUserTo <> '')
-				$strMailUserTo .= $separator;
-			$strMailUserTo .= preg_replace("#[\r\n]+#", "", $mailUserToTmp);
-		}
-
-		if (!empty($MailUserToArrayString))
-		{
-			foreach ($MailUserToArrayString as $s)
+			foreach ($toEmails as $toEmail)
 			{
-				if ($strMailUserTo <> '')
-					$strMailUserTo .= $separator;
-				$strMailUserTo .= $s;
+				$toEmail = trim(preg_replace("#[\r\n]+#", '', $toEmail));
+				if ($toEmail)
+				{
+					$result[] = $toEmail;
+				}
 			}
 		}
 
-		return $strMailUserTo;
+		if (!empty($mailUserToArrayString))
+		{
+			foreach ($mailUserToArrayString as $s)
+			{
+				$result[] = $s;
+			}
+		}
+
+		return implode($separator, $result);
 	}
 
 	private function getMailText()

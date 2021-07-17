@@ -75,7 +75,7 @@ return array(
 				),
 				'.landing-block-node-linkcontact-link' => array(
 					0 => array(
-						'href' => 'tel:+74952128506'
+						'href' => 'tel:1-800-643-4500'
 					),
 					1 => array(
 						'href' => 'mailto:info@company24.com',
@@ -86,7 +86,7 @@ return array(
 					1 => 'Email',
 				),
 				'.landing-block-node-linkcontact-text' => array(
-					0 => '+7 (495) 212 85 06',
+					0 => '1-800-643-4500',
 					1 => 'info@company24.com',
 				),
 				'.landing-block-node-contact-icon' => array(

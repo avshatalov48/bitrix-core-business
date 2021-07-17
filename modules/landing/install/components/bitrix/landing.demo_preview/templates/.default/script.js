@@ -6,14 +6,12 @@
 	var slice = BX.Landing.Utils.slice;
 	var proxy = BX.Landing.Utils.proxy;
 	var bind = BX.Landing.Utils.bind;
-	var unbind = BX.Landing.Utils.unbind;
 	var addClass = BX.Landing.Utils.addClass;
 	var removeClass = BX.Landing.Utils.removeClass;
 	var isNumber = BX.Landing.Utils.isNumber;
 	var style = BX.Landing.Utils.style;
 	var data = BX.Landing.Utils.data;
 	var addQueryParams = BX.Landing.Utils.addQueryParams;
-	var getDeltaFromEvent = BX.Landing.Utils.getDeltaFromEvent;
 
 	/**
 	 * Implements interface for works with template preview
@@ -27,7 +25,7 @@
 		this.title = document.querySelector(".landing-template-preview-input-title");
 		this.description = document.querySelector(".landing-template-preview-input-description");
 		this.themesPalete = document.querySelector(".landing-template-preview-themes");
-		this.themesSiteColorNode = document.querySelector(".landing-template-preview-sitecolor");
+		this.themesSiteColorNode = document.querySelector(".landing-template-preview-site-color");
 		this.themesSiteCustomColorNode = document.querySelector(".landing-demo-preview-custom-color");
 		this.imageContainer = document.querySelector(".preview-desktop-body-image");
 		this.loaderContainer = document.querySelector(".preview-desktop-body-loader-container");
@@ -333,19 +331,19 @@
 
 			if(this.themesSiteColorNode && this.getActiveColorNode().parentElement === this.themesSiteColorNode)
 			{
-				result[data(this.themesSiteColorNode, "data-name")] = data(this.getActiveColorNode(), "data-value");
+				result[this.themesSiteColorNode.dataset.name] = this.getActiveColorNode().dataset.value;
 			}
 			if(this.siteGroupPalette)
 			{
-				result[data(this.siteGroupPalette, "data-name")] = data(this.getActiveSiteGroupItem(), "data-value");
+				result[this.siteGroupPalette.dataset.name] = this.getActiveSiteGroupItem().dataset.value;
 			}
-			result[data(this.themesPalete, "data-name")] = this.getActiveColorNode().dataset.value;
+			result[this.themesPalete.dataset.name] = this.getActiveColorNode().dataset.value;
 			if (this.themesSiteCustomColorNode)
 			{
-				result[data(this.themesSiteCustomColorNode, "data-name")] = this.getActiveColorNode().dataset.value;
+				result[this.themesPalete.dataset.name] = this.getActiveColorNode().dataset.value;
 			}
-			result[data(this.title, "data-name")] = this.title.value;
-			result[data(this.description, "data-name")] = this.description.value;
+			result[this.title.dataset.name] = this.title.value;
+			result[this.description.dataset.name] = this.description.value;
 
 			return result;
 		},
@@ -548,13 +546,12 @@
 		}
 	};
 
-	BX.addCustomEvent('BX.Landing:onSelectColor', function()
+	BX.addCustomEvent('BX.Landing.ColorPicker:onSelectColor', function(params)
 	{
-		var elementCustomColor = document.getElementById("landing-form-colorpicker-theme");
-		var elemetSettingCustomColor = document.getElementById("landing-template-preview-settings");
-		var elementActive = elemetSettingCustomColor.querySelector(".active");
+		var elementSettingCustomColor = BX("landing-template-preview-settings");
+		var elementActive = elementSettingCustomColor.querySelector(".active");
 		elementActive.classList.remove("active");
-		elementCustomColor.classList.add("active");
+		params.node.classList.add("active");
 
 		function replacePreview() {
 			loader.hide();
@@ -562,11 +559,10 @@
 		}
 		var loader = new BX.Loader({});
 		var loaderContainer = document.querySelector(".preview-desktop-body-loader-container");
-		var imageContainer = document.querySelector(".preview-desktop-body-image");
 		loader.show(loaderContainer);
+		var imageContainer = document.querySelector(".preview-desktop-body-image");
 		addClass(imageContainer, "landing-template-preview-overlay");
-		var colorpickerColor = document.getElementById('landing-form-colorpicker-theme');
-		var color = colorpickerColor.getAttribute('data-value');
+
 		var url = document.getElementsByClassName('preview-desktop-body-preview-frame');
 		url = url[0];
 		var attr = url.getAttribute('src');
@@ -580,7 +576,7 @@
 		{
 			attr = attr.substr(0,attr.length - 6);
 		}
-		attr = attr + color;
+		attr = attr + params.color.substr(1);
 		url.setAttribute('src', attr);
 		setTimeout(replacePreview, 1600);
 	});

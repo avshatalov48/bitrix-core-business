@@ -728,9 +728,32 @@ class RestService extends \IRestService
 		{
 			throw new RestException('Empty TEMPLATE_ID', self::ERROR_WRONG_WORKFLOW_ID);
 		}
-
-		$documentId = self::validateDocumentId($params['DOCUMENT_ID']);
 		$templateId = (int)$params['TEMPLATE_ID'];
+		$tplDocumentType = self::getTemplateDocumentType($templateId);
+
+		if (!$tplDocumentType)
+		{
+			throw new RestException('Template not found', self::ERROR_WRONG_WORKFLOW_ID);
+		}
+
+		$documentId = self::getDocumentId($params['DOCUMENT_ID']);
+
+		if (!$documentId)
+		{
+			throw new RestException('Wrong DOCUMENT_ID!');
+		}
+
+		$documentType = self::getDocumentType($documentId);
+
+		if (!$documentType)
+		{
+			throw new RestException('Incorrect document type!');
+		}
+		if (!self::isEqualDocumentType($tplDocumentType, $documentType))
+		{
+			throw new RestException('Template type and DOCUMENT_ID mismatch!');
+		}
+
 		self::checkStartWorkflowPermissions($documentId, $templateId);
 
 		$workflowParameters = isset($params['PARAMETERS']) && is_array($params['PARAMETERS']) ? $params['PARAMETERS'] : [];
@@ -1621,29 +1644,51 @@ class RestService extends \IRestService
 		}
 	}
 
-	private static function validateDocumentId($documentId)
+	private static function getDocumentId($documentId): ?array
 	{
-		$type = null;
-		if ($documentId && is_array($documentId))
+		if (is_array($documentId))
 		{
-			try
-			{
-				$runtime = \CBPRuntime::getRuntime();
-				$runtime->startRuntime();
-				/** @var \CBPDocumentService $documentService */
-				$documentService = $runtime->getService('DocumentService');
-				$documentId = $documentService->normalizeDocumentId($documentId);
-				$type = $documentService->getDocumentType($documentId);
-			}
-			catch (\CBPArgumentNullException $e) {}
+			$runtime = \CBPRuntime::getRuntime(true);
+			$documentService = $runtime->getDocumentService();
+			return $documentService->normalizeDocumentId($documentId);
 		}
+		return null;
+	}
 
-		if (!$type)
+	private static function getDocumentType(array $documentId): ?array
+	{
+		try
 		{
-			throw new RestException('Wrong DOCUMENT_ID!');
+			$runtime = \CBPRuntime::getRuntime(true);
+			$documentService = $runtime->getDocumentService();
+			return $documentService->getDocumentType($documentId);
 		}
+		catch (\CBPArgumentNullException $e) {}
 
-		return $documentId;
+		return null;
+	}
+
+	private static function getTemplateDocumentType(int $id): ?array
+	{
+		$tpl = WorkflowTemplateTable::getList([
+			'select' => ['MODULE_ID', 'ENTITY', 'DOCUMENT_TYPE'],
+			'filter' => ['=ID' => $id],
+		])->fetch();
+
+		if ($tpl)
+		{
+			return [$tpl['MODULE_ID'], $tpl['ENTITY'], $tpl['DOCUMENT_TYPE']];
+		}
+		return null;
+	}
+
+	private static function isEqualDocumentType(array $a, array $b)
+	{
+		return (
+			(string)$a[0] === (string)$b[0]
+			&& (string)$a[1] === (string)$b[1]
+			&& (string)$a[2] === (string)$b[2]
+		);
 	}
 
 	private static function validateTemplateName($name)

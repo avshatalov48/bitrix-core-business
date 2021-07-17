@@ -987,6 +987,7 @@
 
 				popupItems = this.createPopupItems(items);
 				this.popup.setContent(popupItems);
+				BX.onCustomEvent(window, 'UiSelect::onCreatePopup', [this.popup, items])
 			}
 
 			return this.popup;

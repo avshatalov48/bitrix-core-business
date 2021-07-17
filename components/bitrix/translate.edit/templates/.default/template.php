@@ -81,7 +81,14 @@ if (!empty($arResult['ERROR_MESSAGE']))
 	</div>
 	<?
 }
-
+elseif (!empty($arResult['WARNING_MESSAGE']))
+{
+	?>
+	<div class="ui-alert ui-alert-warning ui-alert-icon-warning">
+		<span class="ui-alert-message"><?= $arResult['WARNING_MESSAGE'] ?></span>
+	</div>
+	<?
+}
 
 $dataUselessTitle = Loc::getMessage('TR_DIFF_USELESS');
 $dataMoreTitle = Loc::getMessage('TR_DIFF_MORE');

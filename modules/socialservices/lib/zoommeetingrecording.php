@@ -19,7 +19,20 @@ use Bitrix\Main,
  * </ul>
  *
  * @package Bitrix\Socialservices
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ZoomMeetingRecording_Query query()
+ * @method static EO_ZoomMeetingRecording_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ZoomMeetingRecording_Result getById($id)
+ * @method static EO_ZoomMeetingRecording_Result getList(array $parameters = array())
+ * @method static EO_ZoomMeetingRecording_Entity getEntity()
+ * @method static \Bitrix\Socialservices\EO_ZoomMeetingRecording createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialservices\EO_ZoomMeetingRecording_Collection createCollection()
+ * @method static \Bitrix\Socialservices\EO_ZoomMeetingRecording wakeUpObject($row)
+ * @method static \Bitrix\Socialservices\EO_ZoomMeetingRecording_Collection wakeUpCollection($rows)
+ */
 
 class ZoomMeetingRecordingTable extends Main\Entity\DataManager
 {

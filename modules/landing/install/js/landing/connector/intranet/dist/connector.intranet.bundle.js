@@ -11,7 +11,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  babelHelpers.createClass(Intranet, null, [{
 	    key: "unbindMenuItem",
 	    value: function unbindMenuItem(bindCode, entityId, title) {
-	      ui_dialogs_messagebox.MessageBox.confirm(landing_loc.Loc.getMessage('LANDING_CONNECTOR_INTRANET_UNBIND_ALERT_MESSAGE'), landing_loc.Loc.getMessage('LANDING_CONNECTOR_INTRANET_UNBIND_ALERT_TITLE').replaceAll('#title#', title), function () {
+	      ui_dialogs_messagebox.MessageBox.confirm(landing_loc.Loc.getMessage('LANDING_CONNECTOR_INTRANET_HIDE_ALERT_MESSAGE'), landing_loc.Loc.getMessage('LANDING_CONNECTOR_INTRANET_HIDE_ALERT_TITLE').replaceAll('#title#', title), function () {
 	        BX.ajax({
 	          url: BX.message('SITE_DIR') + 'kb/binding/menu/',
 	          method: 'POST',
@@ -29,7 +29,7 @@ this.BX.Landing = this.BX.Landing || {};
 	            }
 	          }
 	        });
-	      }, landing_loc.Loc.getMessage('LANDING_CONNECTOR_INTRANET_UNBIND_ALERT_BUTTON'));
+	      }, landing_loc.Loc.getMessage('LANDING_CONNECTOR_INTRANET_HIDE_ALERT_BUTTON'));
 	    }
 	  }]);
 	  return Intranet;

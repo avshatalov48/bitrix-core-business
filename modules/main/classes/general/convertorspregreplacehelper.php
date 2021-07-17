@@ -5,6 +5,18 @@ IncludeModuleLangFile(__FILE__);
 class CConvertorsPregReplaceHelper
 {
 	private $codeMessage = "";
+	private $quoteOpened = 0;
+	private $quoteClosed = 0;
+	private $quoteError  = 0;
+	private $quoteTableClass = "";
+	private $quoteHeadClass  = "";
+	private $quoteBodyClass  = "";
+	private $linkClass  = "";
+	private $linkTarget  = "_self";
+	private $codeTableClass = "";
+	private $codeHeadClass  = "";
+	private $codeBodyClass  = "";
+	private $codeTextClass  = "";
 
 	function __construct($codeMessage = "")
 	{
@@ -27,17 +39,11 @@ class CConvertorsPregReplaceHelper
 		return $text;
 	}
 
-	private $quoteOpened = 0;
-	private $quoteClosed = 0;
-	private $quoteError  = 0;
 	public function checkQuoteError()
 	{
 		return (($this->quoteOpened == $this->quoteClosed) && ($this->quoteError == 0));
 	}
 
-	private $quoteTableClass = "";
-	private $quoteHeadClass  = "";
-	private $quoteBodyClass  = "";
 	public function setQuoteClasses($tableClass, $headClass, $bodyClass)
 	{
 		$this->quoteTableClass = $tableClass;
@@ -83,63 +89,52 @@ class CConvertorsPregReplaceHelper
 		return extract_url(str_replace('@', chr(11), $match[1]));
 	}
 
-	private $linkClass  = "";
 	public function setLinkClass($linkClass)
 	{
 		$this->linkClass = $linkClass;
 	}
 
-	private $linkTarget  = "_self";
 	public function setLinkTarget($linkTarget)
 	{
 		$this->linkTarget = $linkTarget;
 	}
 
-	private $event1 = "";
-	private $event2 = "";
-	private $event3 = "";
+	/**
+	 * @deprecated
+	 * @param string $event1
+	 * @param string $event2
+	 * @param string $event3
+	 */
 	public function setEvents($event1="", $event2="", $event3="")
 	{
-		$this->event1 = $event1;
-		$this->event2 = $event2;
-		$this->event3 = $event3;
 	}
 
-	private $script  = "/bitrix/redirect.php";
+	/**
+	 * @deprecated
+	 * @param $script
+	 */
 	public function setScript($script)
 	{
-		$this->script = $script;
 	}
 
-	function convertToMailTo($match)
+	public function convertToMailTo($match)
 	{
 		$s = $match[1];
 		$s = "<a class=\"".$this->linkClass."\" href=\"mailto:".delete_special_symbols($s)."\" title=\"".GetMessage("CONV_MAIN_MAILTO")."\">".$s."</a>";
 		return $s;
 	}
 
-	function convertToHref($match)
+	public function convertToHref($match)
 	{
 		$url = $match[1];
-		$goto = $url;
-		if ($this->event1 != "" || $this->event2 != "")
-		{
-			$goto = $this->script.
-				"?event1=".urlencode($this->event1).
-				"&event2=".urlencode($this->event2).
-				"&event3=".urlencode($this->event3).
-				"&goto=".urlencode($this->goto);
-		}
+
 		$target = $this->linkTarget == '_self'? '': ' target="'.$this->linkTarget.'"';
 
-		$s = "<a class=\"".$this->linkClass."\" href=\"".delete_special_symbols($goto)."\"".$target.">".$url."</a>";
+		$s = "<a class=\"".$this->linkClass."\" href=\"".delete_special_symbols($url)."\"".$target.">".$url."</a>";
+
 		return $s;
 	}
 
-	private $codeTableClass = "";
-	private $codeHeadClass  = "";
-	private $codeBodyClass  = "";
-	private $codeTextClass  = "";
 	public function setCodeClasses($tableClass, $headClass, $bodyClass, $textAreaClass)
 	{
 		$this->codeTableClass = $tableClass;
@@ -148,7 +143,7 @@ class CConvertorsPregReplaceHelper
 		$this->codeTextClass  = $textAreaClass;
 	}
 
-	function convertCodeTagForHtmlBefore($text = "")
+	public function convertCodeTagForHtmlBefore($text = "")
 	{
 		if (is_array($text))
 			$text = $text[2];
@@ -172,7 +167,7 @@ class CConvertorsPregReplaceHelper
 		return $return;
 	}
 
-	function convertCodeTagForHtmlAfter($text = "")
+	public function convertCodeTagForHtmlAfter($text = "")
 	{
 		if (is_array($text))
 			$text = $text[1];

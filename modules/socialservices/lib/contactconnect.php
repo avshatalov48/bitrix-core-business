@@ -20,7 +20,20 @@ use Bitrix\Main\Type\DateTime;
  * </ul>
  *
  * @package Bitrix\Socialservices
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ContactConnect_Query query()
+ * @method static EO_ContactConnect_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ContactConnect_Result getById($id)
+ * @method static EO_ContactConnect_Result getList(array $parameters = array())
+ * @method static EO_ContactConnect_Entity getEntity()
+ * @method static \Bitrix\Socialservices\EO_ContactConnect createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialservices\EO_ContactConnect_Collection createCollection()
+ * @method static \Bitrix\Socialservices\EO_ContactConnect wakeUpObject($row)
+ * @method static \Bitrix\Socialservices\EO_ContactConnect_Collection wakeUpCollection($rows)
+ */
 
 class ContactConnectTable extends Main\Entity\DataManager
 {

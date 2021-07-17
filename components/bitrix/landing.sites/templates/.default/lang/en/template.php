@@ -12,6 +12,7 @@ $MESS["LANDING_TPL_ACTION_DELETE"] = "Delete site";
 $MESS["LANDING_TPL_ACTION_DELETE_CONFIRM"] = "Do you really want to delete it?";
 $MESS["LANDING_TPL_ACTION_DELETE_KNOWLEDGE"] = "Delete knowledge base";
 $MESS["LANDING_TPL_ACTION_EDIT"] = "Configure site";
+$MESS["LANDING_TPL_ACTION_EDIT_DESIGN"] = "Design settings";
 $MESS["LANDING_TPL_ACTION_EDIT_KNOWLEDGE"] = "Edit knowledge base";
 $MESS["LANDING_TPL_ACTION_EDIT_PAGE"] = "Configure site";
 $MESS["LANDING_TPL_ACTION_EDIT_STORE"] = "Configure online store";

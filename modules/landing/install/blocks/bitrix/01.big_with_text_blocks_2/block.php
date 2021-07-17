@@ -41,10 +41,10 @@
 
 						<div class="landing-block-node-card-buttons2 js-animation slideInUp">
 							<a href="#"
-							   class="landing-block-node-card-link landing-block-node-card-link1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-py-20--md g-mr-10">
+							   class="landing-block-node-card-link landing-block-node-card-link1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-mr-10">
 								Donate now</a>
 							<a href="#"
-							   class="landing-block-node-card-link landing-block-node-card-link2 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-py-20--md g-mr-10">Learn
+							   class="landing-block-node-card-link landing-block-node-card-link2 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-mr-10">Learn
 								more</a>
 						</div>
 					</div>

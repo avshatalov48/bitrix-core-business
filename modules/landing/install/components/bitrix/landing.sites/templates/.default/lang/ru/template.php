@@ -10,6 +10,7 @@ $MESS['LANDING_TPL_COL_TITLE'] = 'Название';
 $MESS['LANDING_TPL_COL_CREATED'] = 'Создан';
 $MESS['LANDING_TPL_COL_MODIFIED'] = 'Изменен';
 $MESS['LANDING_TPL_ACTION_EDIT'] = 'Настроить сайт';
+$MESS['LANDING_TPL_ACTION_EDIT_DESIGN'] = 'Настроить дизайн';
 $MESS['LANDING_TPL_ACTION_EDIT_PAGE'] = 'Настроить сайт';
 $MESS['LANDING_TPL_ACTION_EDIT_STORE'] = 'Настроить магазин';
 $MESS['LANDING_TPL_ACTION_EDIT_KNOWLEDGE'] = 'Настроить базу знаний';

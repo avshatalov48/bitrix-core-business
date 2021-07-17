@@ -294,7 +294,7 @@ return [
 
 						<div class="landing-block-node-card-text g-mb-40"><p>'. Loc::getMessage("NOTTRANSLATE__LANDING_DEMO_23FEB3_TEXT50").'</p></div>
 						<div class="landing-block-node-card-button-container mt-auto">
-							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-15 g-rounded-50" href="#" target="_self">'. Loc::getMessage("NOTTRANSLATE__LANDING_DEMO_23FEB3_TEXT51").'</a>
+							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-50" href="#" target="_self">'. Loc::getMessage("NOTTRANSLATE__LANDING_DEMO_23FEB3_TEXT51").'</a>
 						</div>
 					</div>
 					<!-- End Article Content -->
@@ -324,7 +324,7 @@ return [
 						</div>
 						<div class="landing-block-node-card-text g-mb-40"><p>'. Loc::getMessage("NOTTRANSLATE__LANDING_DEMO_23FEB3_TEXT56").'</p></div>
 						<div class="landing-block-node-card-button-container mt-auto">
-							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-15 g-rounded-50" href="#" target="_self">'. Loc::getMessage("NOTTRANSLATE__LANDING_DEMO_23FEB3_TEXT57").'</a>
+							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-50" href="#" target="_self">'. Loc::getMessage("NOTTRANSLATE__LANDING_DEMO_23FEB3_TEXT57").'</a>
 						</div>
 					</div>
 					<!-- End Article Content -->
@@ -354,7 +354,7 @@ return [
 						</div>
 						<div class="landing-block-node-card-text g-mb-40"><p>'. Loc::getMessage("NOTTRANSLATE__LANDING_DEMO_23FEB3_TEXT62").'</p></div>
 						<div class="landing-block-node-card-button-container mt-auto">
-							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-15 g-rounded-50" href="#" target="_self">'. Loc::getMessage("NOTTRANSLATE__LANDING_DEMO_23FEB3_TEXT63").'</a>
+							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-50" href="#" target="_self">'. Loc::getMessage("NOTTRANSLATE__LANDING_DEMO_23FEB3_TEXT63").'</a>
 						</div>
 					</div>
 					<!-- End Article Content -->

@@ -14,12 +14,13 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Translate;
 
 $component = $this->getComponent();
-
-if($component->hasErrors())
+if ($component->hasErrors())
 {
-	/** @var Bitrix\Main\Error $error */
-	$error = $component->getFirstError();
-	$arResult['ERROR_MESSAGE'] = $error->getMessage();
+	$arResult['ERROR_MESSAGE'] = $component->getFirstError()->getMessage();
+}
+if ($component->hasWarnings())
+{
+	$arResult['WARNING_MESSAGE'] = $component->getFirstWarning()->getMessage();
 }
 
 
@@ -163,29 +164,56 @@ if (!empty($arResult['GRID_DATA']))
 
 	$formatSearchedCode = static function($value, $search, $case, $startTag = '<span class="translate-highlight">', $endTag = '</span>')
 	{
-		$modifier = ($case ? '' : 'i'). BX_UTF_PCRE_MODIFIER;
-		$search = preg_quote($search, '/');
-		return preg_replace('/('.$search.')/'.$modifier, "{$startTag}\\1{$endTag}", $value);
+		if (!empty($search))
+		{
+			$modifier = ($case ? '' : 'i').BX_UTF_PCRE_MODIFIER;
+			$search = preg_quote($search, '/');
+			return preg_replace('/('.$search.')/'.$modifier, "{$startTag}\\1{$endTag}", $value);
+		}
+		return $value;
 	};
 
 	$formatSearchedPart = static function($value, $search, $case, $startTag = '<span class="translate-highlight">', $endTag = '</span>')
 	{
-		$modifier = ($case ? '' : 'i'). BX_UTF_PCRE_MODIFIER;
-		$search = preg_quote($search, '/');
-		return preg_replace('/(\b'.$search.'\b)/'.$modifier, "{$startTag}\\1{$endTag}", $value);
+		if (!empty($search) && !empty($value))
+		{
+			$modifier = ($case ? '' : 'i').BX_UTF_PCRE_MODIFIER;
+			$search = preg_quote($search, '/');
+			if (preg_match('/[\s]+/', $search))
+			{
+				return preg_replace('/('.$search.')/'.$modifier, "{$startTag}\\1{$endTag}", $value);
+			}
+			return preg_replace('/(\b'.$search.'\b)/'.$modifier, "{$startTag}\\1{$endTag}", $value);
+		}
+		return $value;
 	};
 	$formatSearchedPhrase = static function($value, $search, $method, $case) use ($formatSearchedPart)
 	{
-		$searchParts = explode(' ', $search);
-		$rnd = microtime();
-		$startTag = "<!--#$rnd#-->";
-		$endTag = "<!--/#$rnd#-->";
-		foreach ($searchParts as $searchPart)
+		if (!empty($search) && !empty($value))
 		{
-			$value = $formatSearchedPart($value, $searchPart, $case, $startTag, $endTag);
-		}
+			if (preg_match('/[\s]+/', $search))
+			{
+				$searchParts = [$search];
+			}
+			else
+			{
+				$searchParts = preg_split('/[\s]+/', $search);
+			}
 
-		return str_replace([$startTag, $endTag], ['<span class="translate-highlight">', '</span>'], $value);
+			$rnd = microtime();
+			$startTag = "<!--#$rnd#-->";
+			$endTag = "<!--/#$rnd#-->";
+			foreach ($searchParts as $searchPart)
+			{
+				if (!empty($searchPart))
+				{
+					$value = $formatSearchedPart($value, $searchPart, $case, $startTag, $endTag);
+				}
+			}
+
+			return str_replace([$startTag, $endTag], ['<span class="translate-highlight">', '</span>'], $value);
+		}
+		return $value;
 	};
 
 

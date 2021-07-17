@@ -393,7 +393,7 @@ if($USER->IsAuthorized()):
 		echo EndNote();
 
 	elseif(defined("TIMELIMIT_EDITION") && TIMELIMIT_EDITION == "Y"):
-	
+
 		$delta = $SiteExpireDate - time();
 		$daysToExpire = ceil($delta / 86400);
 		$sWarnDate = ConvertTimeStamp($SiteExpireDate, "SHORT");

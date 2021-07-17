@@ -233,7 +233,7 @@ return [
 					<!-- End Article Content -->
 
 					<!-- Article Image -->
-					<div class="landing-block-node-img col-sm-6 px-0 u-bg-overlay g-bg-black-opacity-0_2--after g-bg-img-hero g-min-height-300" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/800x842/img1.jpg\');"></div>
+					<div class="landing-block-node-img col-sm-6 px-0 u-bg-overlay g-bg-black-opacity-0_2 g-bg-img-hero g-min-height-300" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/800x842/img1.jpg\');"></div>
 					<!-- End Article Image -->
 				</article>
 				<!-- End Article -->
@@ -243,7 +243,7 @@ return [
 				<!-- Article -->
 				<article class="row align-items-stretch text-center g-color-gray-dark-v5 g-bg-black mx-0">
 					<!-- Article Image -->
-					<div class="landing-block-node-img col-sm-6 px-0 u-bg-overlay g-bg-black-opacity-0_2--after g-bg-img-hero g-min-height-300" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/800x842/img2.jpg\');"></div>
+					<div class="landing-block-node-img col-sm-6 px-0 u-bg-overlay g-bg-black-opacity-0_2 g-bg-img-hero g-min-height-300" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/800x842/img2.jpg\');"></div>
 					<!-- End Article Image -->
 
 					<!--Article Content-->

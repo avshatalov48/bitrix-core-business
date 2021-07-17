@@ -6,7 +6,6 @@
 	<input type="hidden" name="step" value="2">
 
 	<script language="JavaScript">
-	<!--
 	function ChangeInstallPublic(val, lan)
 	{
 		var name1 = 'is404_'+lan;
@@ -17,7 +16,6 @@
 		document.getElementById(name3).disabled = !val;
 		
 	}
-	//-->
 	</script>
 	<?
 	$arSites= Array();
@@ -65,11 +63,9 @@
 	</p>
 
 	<script language="JavaScript">
-	<!--
 	<?foreach($arSites as $fSite):?>
 		ChangeInstallPublic(false, '<?=CUtil::JSEscape($fSite["SITE_ID"]);?>');
 	<?endforeach;?>
-	//-->
 	</script>
 	<br>
 	<input type="submit" name="inst" value="<?= GetMessage("MOD_INSTALL")?>">

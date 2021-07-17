@@ -238,25 +238,6 @@ export default class SplitButton extends Button
 	 * @param {boolean} [flag=true]
 	 * @return {this}
 	 */
-	setRound(flag?: boolean): this
-	{
-		throw new Error('BX.UI.SplitButton: a split button cannot be round.');
-	}
-
-	/**
-	 *
-	 * @return {boolean}
-	 */
-	isRound(): boolean
-	{
-		return false;
-	}
-
-	/**
-	 *
-	 * @param {boolean} [flag=true]
-	 * @return {this}
-	 */
 	setDropdown(flag?: boolean): this
 	{
 		return this;

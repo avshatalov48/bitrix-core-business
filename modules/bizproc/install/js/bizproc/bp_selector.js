@@ -552,6 +552,22 @@
 				text: 'urlencode',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_URLENCODE_DESCRIPTION'),
 				value: '{{=urlencode()}}'
+			},{
+				text: 'strtolower',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_STRTOLOWER_DESCRIPTION'),
+				value: '{{=strtolower()}}'
+			},{
+				text: 'strtoupper',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_STRTOUPPER_DESCRIPTION'),
+				value: '{{=strtoupper()}}'
+			},{
+				text: 'ucwords',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_UCWORDS_DESCRIPTION'),
+				value: '{{=ucwords()}}'
+			},{
+				text: 'ucfirst',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_UCFIRST_DESCRIPTION'),
+				value: '{{=ucfirst()}}'
 			}], query)
 		});
 

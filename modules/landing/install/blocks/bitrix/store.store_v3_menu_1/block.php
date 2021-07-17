@@ -6,7 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 /**
  * @global \CMain $APPLICATION
- * @var \StoreV3Menu1 $classBlock
+ * @var StoreV3Menu1 $classBlock
  */
 ?>
 <header class="landing-block landing-semantic-background-color u-header u-header--sticky u-header--relative g-z-index-9999 g-height-auto g-bg-white u-shadow-v41--header--lg">

@@ -87,9 +87,12 @@ export class CardForm extends BaseForm
 	onRemoveItemClick(event: MouseEvent)
 	{
 		event.preventDefault();
-		Dom.remove(this.wrapper);
-
-		this.emit('onRemove');
+		event.stopPropagation();
+		if (!this.getLayout().closest('.landing-ui-disallow-remove'))
+		{
+			Dom.remove(this.wrapper);
+			this.emit('onRemove');
+		}
 	}
 
 	serialize(): {[key: string]: any}

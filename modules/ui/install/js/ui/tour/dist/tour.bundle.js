@@ -851,7 +851,7 @@ this.BX.UI = this.BX.UI || {};
 	          content: this.getContent(),
 	          bindElement: bindElement,
 	          className: className,
-	          autoHide: true,
+	          autoHide: this.onEvents ? false : true,
 	          offsetTop: 15,
 	          offsetLeft: 30,
 	          maxWidth: this.onEvents ? 280 : 420,

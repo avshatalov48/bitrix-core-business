@@ -33,7 +33,6 @@ $MESS["top_panel_access_page_new"] = "Access to Page";
 $MESS["top_panel_access_page_title"] = "Set page access permissions";
 $MESS["top_panel_access_title"] = "Page access permissions";
 $MESS["top_panel_admin"] = "Control Panel";
-$MESS["top_panel_b24"] = "Bitrix24";
 $MESS["top_panel_browser"] = "The administrative toolbar does not support Internet Explorer 7. Please install any current edition of <a href=\"http://www.firefox.com\">Firefox</a>, <a href=\"http://www.google.com/chrome/\">Chrome</a>, <a href=\"http://www.opera.com\">Opera</a> or <a href=\"http://www.microsoft.com/windows/internet-explorer/\">Microsoft Edge</a>.";
 $MESS["top_panel_cache"] = "Cache";
 $MESS["top_panel_cache_comp"] = "Refresh Component Cache";

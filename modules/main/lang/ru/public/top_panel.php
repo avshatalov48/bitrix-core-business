@@ -169,5 +169,4 @@ $MESS["top_panel_debug_cache"] = "Детальная статистика кеш
 $MESS["top_panel_debug_cache_title"] = "Внимание! Может сильно влиять на время исполнения страницы.";
 $MESS["HK_PANEL_TITLE"] = "Настройки горячих клавиш";
 $MESS["top_panel_more_button_title"] = "Еще";
-$MESS["top_panel_b24"] = "Битрикс24";
 ?>

@@ -140,4 +140,39 @@ class Manifest
 
 		return $result;
 	}
+
+	/**
+	 * check Event manifest[USES] intersect current entity[USES]
+	 *
+	 * @param string $entityCode
+	 * @param array $option all event parameters
+	 * @param array $uses all access uses in current entity
+	 *
+	 * @return bool
+	 */
+	public static function isEntityAvailable(string $entityCode, array $option, $uses = []) : bool
+	{
+		$manifest = [];
+		if (!empty($option['IMPORT_MANIFEST']['USES']))
+		{
+			$manifest = $option['IMPORT_MANIFEST'];
+		}
+		elseif (!empty($option['MANIFEST']['USES']))
+		{
+			$manifest = $option['MANIFEST'];
+		}
+
+		if (empty($manifest['USES']))
+		{
+			return false;
+		}
+
+		$access = array_intersect($manifest['USES'], $uses);
+		if (!$access)
+		{
+			return false;
+		}
+
+		return true;
+	}
 }

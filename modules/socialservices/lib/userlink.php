@@ -4,6 +4,22 @@ namespace Bitrix\Socialservices;
 use \Bitrix\Main\Entity\DataManager;
 use \Bitrix\Socialservices\UserTable as SocservUserTable;
 
+/**
+ * Class UserLinkTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserLink_Query query()
+ * @method static EO_UserLink_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserLink_Result getById($id)
+ * @method static EO_UserLink_Result getList(array $parameters = array())
+ * @method static EO_UserLink_Entity getEntity()
+ * @method static \Bitrix\Socialservices\EO_UserLink createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialservices\EO_UserLink_Collection createCollection()
+ * @method static \Bitrix\Socialservices\EO_UserLink wakeUpObject($row)
+ * @method static \Bitrix\Socialservices\EO_UserLink_Collection wakeUpCollection($rows)
+ */
 class UserLinkTable extends DataManager
 {
 	public static function getFilePath()

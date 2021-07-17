@@ -539,9 +539,7 @@ else
 		</form>
 
 		<script>
-		<!--
 		document.REPLIER.POST_TITLE.focus();
-		//-->
 		</script>
 		<?
 }

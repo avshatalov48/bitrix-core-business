@@ -37,7 +37,7 @@
 							dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem.</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-medium-bg js-animation fadeInLeft btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-white g-rounded-10 g-py-12 mb-0"
+						<a class="landing-block-node-card-button landing-semantic-link-medium-bg js-animation fadeInLeft btn g-btn-type-solid g-btn-size-md g-btn-px-l text-uppercase g-btn-white g-rounded-10 mb-0"
 						   href="#">Learn more</a>
 					</div>
 				</div>
@@ -62,7 +62,7 @@
 							porttitor lorem eros vel odio.</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-medium-bg js-animation fadeInLeft btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-white g-rounded-10 g-py-12 mb-0"
+						<a class="landing-block-node-card-button landing-semantic-link-medium-bg js-animation fadeInLeft btn g-btn-type-solid g-btn-size-md g-btn-px-l text-uppercase g-btn-white g-rounded-10 mb-0"
 						   href="#">Learn more</a>
 					</div>
 				</div>
@@ -85,7 +85,7 @@
 							faucibus ante. Nunc ullamcorper.</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-medium-bg js-animation fadeInLeft btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-white g-rounded-10 g-py-12 mb-0"
+						<a class="landing-block-node-card-button landing-semantic-link-medium-bg js-animation fadeInLeft btn g-btn-type-solid g-btn-size-md g-btn-px-l text-uppercase g-btn-white g-rounded-10 mb-0"
 						   href="#">Learn more</a>
 					</div>
 				</div>

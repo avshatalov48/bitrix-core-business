@@ -5,7 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 /**
- * @var StoreCatalogListBlock $classBlock
+ * @var StoreCatalogDetailBlock $classBlock
  */
 
 $elementCode = $classBlock->get('ELEMENT_CODE');

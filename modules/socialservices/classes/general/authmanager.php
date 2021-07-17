@@ -201,6 +201,31 @@ class CSocServAuthManager
 		return $arOptions;
 	}
 
+	public function GetSettingByServiceId(string $serviceId): ?array
+	{
+		$settings = [];
+		if (!isset(self::$arAuthServices[$serviceId]))
+		{
+			return null;
+		}
+
+		$service = self::$arAuthServices[$serviceId];
+		$serviceInstance = new $service["CLASS"]();
+		if (is_callable([$serviceInstance, "GetSettings"]))
+		{
+			$options = call_user_func_array([$serviceInstance, "GetSettings"], []);
+			if (is_array($options))
+			{
+				foreach ($options as $opt)
+				{
+					$settings[] = $opt;
+				}
+			}
+		}
+
+		return $settings;
+	}
+
 	public function Authorize($service_id, $arParams = array())
 	{
 		if($service_id === 'Bitrix24OAuth')
@@ -304,6 +329,24 @@ class CSocServAuthManager
 			return true;
 		}
 		return false;
+	}
+
+	public static function SetAuthorizedServiceId($service_id)
+	{
+		$session = \Bitrix\Main\Application::getInstance()->getKernelSession();
+		$session["AUTH_SERVICE_ID"] = $service_id;
+	}
+
+	public static function UnsetAuthorizedServiceId()
+	{
+		$session = \Bitrix\Main\Application::getInstance()->getKernelSession();
+		unset($session["AUTH_SERVICE_ID"]);
+	}
+
+	public static function GetAuthorizedServiceId()
+	{
+		$session = \Bitrix\Main\Application::getInstance()->getKernelSession();
+		return $session["AUTH_SERVICE_ID"];
 	}
 
 	function CleanParam()
@@ -1210,7 +1253,7 @@ class CSocServAuth
 	{
 		//settings depend on current site
 		$arUseOnSites = unserialize(COption::GetOptionString("socialservices", "use_on_sites", ""));
-		return ($arUseOnSites[SITE_ID] == "Y"? '_bx_site_'.SITE_ID : '');
+		return (isset($arUseOnSites[SITE_ID]) && $arUseOnSites[SITE_ID] === "Y"? '_bx_site_'.SITE_ID : '');
 	}
 
 	public static function GetOption($opt)

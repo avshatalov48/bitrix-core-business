@@ -306,6 +306,24 @@ export class Main extends Event.EventEmitter
 		return !Dom.hasClass(document.body, 'landing-ui-hide-controls');
 	}
 
+	/**
+	 * Set BX classes to mark this landing frame as mobile (touch) device
+	 */
+	setTouchDevice()
+	{
+		Dom.removeClass(document.documentElement, 'bx-no-touch');
+		Dom.addClass(document.documentElement, 'bx-touch');
+	}
+
+	/**
+	 * Set BX classes to mark this landing frame as desktop (no touch) device
+	 */
+	setNoTouchDevice()
+	{
+		Dom.removeClass(document.documentElement, 'bx-touch');
+		Dom.addClass(document.documentElement, 'bx-no-touch');
+	}
+
 
 	/**
 	 * Appends block

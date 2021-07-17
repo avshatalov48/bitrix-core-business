@@ -116,7 +116,7 @@ return [
 							justo, rhoncus ut, imperdiet a, venenatis vitae, justo.</p>
 					</div>
 					<div class="landing-block-node-button-container">
-						<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-10 g-rounded-50" href="#" target="_self">View more</a>
+						<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-50" href="#" target="_self">View more</a>
 					</div>
 				</div>
 			</div>
@@ -328,7 +328,7 @@ return [
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container mt-auto">
-							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-15 g-rounded-50" href="#">Order Now</a>
+							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-50" href="#">Order Now</a>
 						</div>
 					</div>
 					<!-- End Article Content -->
@@ -372,7 +372,7 @@ return [
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container mt-auto">
-							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-15 g-rounded-50" href="#">Order Now</a>
+							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-50" href="#">Order Now</a>
 						</div>
 					</div>
 					<!-- End Article Content -->
@@ -416,7 +416,7 @@ return [
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container mt-auto">
-							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-15 g-rounded-50" href="#">Order Now</a>
+							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-50" href="#">Order Now</a>
 						</div>
 					</div>
 					<!-- End Article Content -->

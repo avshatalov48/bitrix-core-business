@@ -17,6 +17,13 @@ if(!defined('REST_MP_CATEGORIES_CACHE_TTL'))
 class Client
 {
 	const CATEGORIES_CACHE_TTL = REST_MP_CATEGORIES_CACHE_TTL;
+	private const SUBSCRIPTION_REGION = [
+		'ru',
+		'ua',
+	];
+	private const SUBSCRIPTION_DEFAULT_START_TIME = [
+		'ua' => 1625090400,
+	];
 
 	protected static $buyLinkList = array(
 		'bitrix24' => '/settings/order/make.php?limit=#NUM#&module=#CODE#',
@@ -84,11 +91,6 @@ class Client
 				"code" => serialize($codeList)
 			)
 		);
-
-		if(is_array($updatesList) && is_array($updatesList["ITEMS"]))
-		{
-			static::setAvailableUpdate($updatesList["ITEMS"]);
-		}
 
 		return $updatesList;
 	}
@@ -541,15 +543,27 @@ class Client
 		return $result;
 	}
 
+	private static function checkSubscriptionAccessStart($region): bool
+	{
+		$canStart = true;
+		if (!empty(static::SUBSCRIPTION_DEFAULT_START_TIME[$region]))
+		{
+			$time = Option::get(
+				'rest',
+				'subscription_region_start_time_' . $region,
+				static::SUBSCRIPTION_DEFAULT_START_TIME[$region]
+			);
+			$canStart =  $time < time();
+		}
+
+		return $canStart && in_array($region, static::SUBSCRIPTION_REGION, true);
+	}
+
 	public static function isSubscriptionAccess()
 	{
-		$result = false;
-		if (ModuleManager::isModuleInstalled('bitrix24'))
+		if (ModuleManager::isModuleInstalled('bitrix24') && Loader::includeModule('bitrix24'))
 		{
-			if (Loader::includeModule('bitrix24') && \CBitrix24::getLicensePrefix() === 'ru')
-			{
-				$result = true;
-			}
+			$result = static::checkSubscriptionAccessStart(\CBitrix24::getLicensePrefix());
 		}
 		else
 		{

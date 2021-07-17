@@ -205,7 +205,9 @@ class LandingSitesComponent extends LandingBaseComponent
 			$this->checkParam('TILE_MODE', 'list');
 			$this->checkParam('PAGE_URL_SITE', '');
 			$this->checkParam('PAGE_URL_SITE_EDIT', '');
+			$this->checkParam('PAGE_URL_SITE_DESIGN', '');
 			$this->checkParam('PAGE_URL_LANDING_EDIT', '');
+			$this->checkParam('PAGE_URL_LANDING_DESIGN', '');
 			$this->checkParam('PAGE_URL_SITE_DOMAIN_SWITCH', '');
 			$this->checkParam('DRAFT_MODE', 'N');
 			$this->checkParam('ACCESS_CODE', '');

@@ -26,6 +26,7 @@ Extension::load([
 	'dnd',
 	'ui.hint',
 	'ui.cnt',
+	'ui.label',
 ]);
 
 global $APPLICATION;
@@ -419,9 +420,80 @@ $displayedCount = count(
 														if ($colLayout["plusButton"]["enabled"]) :
 															?><span class="main-grid-plus-button"></span><?
 														endif;
-														if($header["type"] == "checkbox" && ($arRow["columns"][$header["id"]] == 'Y' || $arRow["columns"][$header["id"]] == 'N'))
+
+														if (
+															isset($header["type"])
+															&& is_string($header["type"])
+															&& isset($arRow["columns"][$header["id"]])
+														)
 														{
-															echo ($arRow["columns"][$header["id"]] == 'Y'? GetMessage("interface_grid_yes"):GetMessage("interface_grid_no"));
+															if (
+																$header["type"] === Grid\Column\Type::CHECKBOX
+																&& in_array($arRow["columns"][$header["id"]], ["Y", "N"])
+															)
+															{
+																if ($arRow["columns"][$header["id"]] === "Y")
+																{
+																	echo Loc::getMessage("interface_grid_yes");
+																}
+																else
+																{
+																	echo Loc::getMessage("interface_grid_no");
+																}
+															}
+															else if (
+																$header["type"] === Grid\Column\Type::LABELS
+																&& is_array($arRow["columns"][$header["id"]])
+															)
+															{
+																?><div class="main-grid-labels"><?
+																	foreach ($arRow["columns"][$header["id"]] as $labelKey => $label) :
+																		$labelLayout = $colLayout["content"][$labelKey];
+																		?><span class="ui-label<?=$labelLayout["class"]?>"<?=$labelLayout["attributes"]?>><?
+																			if (isset($label["html"]) && is_string($label["html"])) :
+																				?><span class="ui-label-inner"><?=$label["html"]?></span><?
+																			else :
+																				?><span class="ui-label-inner"><?=htmlspecialcharsbx($label["text"])?></span><?
+																			endif;
+																			if ($labelLayout["removeButton"]["enabled"]) :
+																				if ($labelLayout["removeButton"]["type"] === Grid\Cell\Label\RemoveButtonType::INSIDE) :
+																					?><span class="ui-label-icon"<?=$labelLayout["removeButton"]["attributes"]?>></span><?
+																				else :
+																					?><span class="main-grid-labels-remove-button<?=$labelLayout["removeButton"]["class"]?>"<?=$labelLayout["removeButton"]["attributes"]?>></span><?
+																				endif;
+																			endif;
+																		?></span><?
+																	endforeach;
+																?></div><?
+															}
+															else if (
+																$header["type"] === Grid\Column\Type::TAGS
+																&& is_array($arRow["columns"][$header["id"]])
+															)
+															{
+																?><div class="main-grid-tags"><?
+																	foreach ($arRow["columns"][$header["id"]]["items"] as $tagKey => $tag) :
+																		$tagLayout = $colLayout["content"]["items"][$tagKey];
+																		?><span class="main-grid-tag<?=$tagLayout["class"]?>"<?=$tagLayout["attributes"]?>><?
+																			if (isset($tag["html"]) && is_string($tag["html"])) :
+																				?><span class="main-grid-tag-inner"><?=$tag["html"]?></span><?
+																			else :
+																				?><span class="main-grid-tag-inner"><?=htmlspecialcharsbx($tag["text"])?></span><?
+																			endif;
+																			if ($tagLayout["active"]) :
+																				?><span class="main-grid-tag-remove"<?=$tagLayout["removeButton"]["attributes"]?>></span><?
+																			endif;
+																		?></span><?
+																	endforeach;
+																	if ($colLayout["content"]["addButton"]["enabled"]) :
+																		?><span class="main-grid-tag-add"<?=$colLayout["content"]["addButton"]["attributes"]?>></span><?
+																	endif;
+																?></div><?
+															}
+															else
+															{
+																echo $arRow["columns"][$header["id"]];
+															}
 														}
 														else
 														{
@@ -702,6 +774,7 @@ endif; ?>
 							"PRESERVE_HISTORY" => $arParams["PRESERVE_HISTORY"],
 							"BACKEND_URL" => $arResult["BACKEND_URL"],
 							"ALLOW_CONTEXT_MENU" => $arResult["ALLOW_CONTEXT_MENU"],
+							"COLUMNS_ALL" => $arResult["COLUMNS_ALL"],
 							"DEFAULT_COLUMNS" => $arResult["DEFAULT_COLUMNS"],
 							"ENABLE_COLLAPSIBLE_ROWS" => $arParams["ENABLE_COLLAPSIBLE_ROWS"],
 							"EDITABLE_DATA" => $arResult["DATA_FOR_EDIT"],

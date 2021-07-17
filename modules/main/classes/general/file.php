@@ -426,7 +426,7 @@ class CFile extends CAllFile
 	protected static function CalculateHash($file, $size)
 	{
 		$hash = '';
-		if(COption::GetOptionString('main', 'control_file_duplicates', 'N') === 'Y')
+		if ($size > 0 && COption::GetOptionString('main', 'control_file_duplicates', 'N') === 'Y')
 		{
 			$maxSize = (int)COption::GetOptionString('main', 'duplicates_max_size', '100') * 1024 * 1024; //Mbytes
 			if($size <= $maxSize || $maxSize === 0)
@@ -2052,6 +2052,16 @@ function ImgShw(ID, width, height, alt)
 
 			$cacheImageFileCheck = $cacheImageFile;
 		}
+		elseif (defined("BX_FILE_USE_FLOCK"))
+		{
+			$hLock = $io->OpenFile($_SERVER["DOCUMENT_ROOT"].$imageFile, "r+");
+			if ($hLock)
+			{
+				flock($hLock, LOCK_EX);
+				flock($hLock, LOCK_UN);
+				fclose($hLock);
+			}
+		}
 
 		if ($bInitSizes && !is_array($arImageSize))
 		{
@@ -2068,6 +2078,11 @@ function ImgShw(ID, width, height, alt)
 
 			$f = $io->GetFile($_SERVER["DOCUMENT_ROOT"].$cacheImageFileCheck);
 			$arImageSize[2] = $f->GetFileSize();
+		}
+
+		if (!is_array($arImageSize))
+		{
+			$arImageSize = [0, 0, 0];
 		}
 
 		$cache[$cache_id] = array(

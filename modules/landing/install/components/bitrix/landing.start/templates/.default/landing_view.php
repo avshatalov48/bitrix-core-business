@@ -1,4 +1,7 @@
 <?php
+
+use bitrix\Main\HttpContext;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 {
 	die();
@@ -6,10 +9,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 
 /** @var array $arResult */
 /** @var array $arParams */
-/** @var \CBitrixComponent $component */
-/** @var \CMain $APPLICATION */
+/** @var CBitrixComponent $component */
+/** @var CMain $APPLICATION */
 
-$request = \bitrix\Main\HttpContext::getCurrent()->getRequest();
+$request = HttpContext::getCurrent()->getRequest();
 $designBlockId = $request->get('design_block');
 
 $arParams['PAGE_URL_SITE_SHOW'] = str_replace(
@@ -22,6 +25,12 @@ $arParams['PAGE_URL_LANDING_EDIT'] = str_replace(
 	array('#site_show#', '#landing_edit#'),
 	array($arResult['VARS']['site_show'], $arResult['VARS']['landing_edit']),
 	$arParams['PAGE_URL_LANDING_EDIT']
+);
+
+$arParams['PAGE_URL_LANDING_DESIGN'] = str_replace(
+	array('#site_show#', '#landing_edit#'),
+	array($arResult['VARS']['site_show'], $arResult['VARS']['landing_edit']),
+	$arParams['PAGE_URL_LANDING_DESIGN']
 );
 
 $arParams['PAGE_URL_SITE_EDIT'] = str_replace(
@@ -57,7 +66,7 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 	$component
 );?>
 
-<?else:?>
+<?php else:?>
 
 <?$APPLICATION->includeComponent(
 	'bitrix:landing.landing_view',
@@ -72,6 +81,7 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 		'PAGE_URL_URL_SITES' => $arParams['PAGE_URL_SITES'],
 		'PAGE_URL_LANDINGS' => $arParams['PAGE_URL_SITE_SHOW'],
 		'PAGE_URL_LANDING_EDIT' => $arParams['PAGE_URL_LANDING_EDIT'],
+		'PAGE_URL_LANDING_DESIGN' => $arParams['PAGE_URL_LANDING_DESIGN'],
 		'PAGE_URL_SITE_EDIT' => $arParams['PAGE_URL_SITE_EDIT'],
 		'DRAFT_MODE' => $arParams['DRAFT_MODE'],
 		'PARAMS' => $params,
@@ -81,4 +91,4 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 	$component
 );?>
 
-<?endif;?>
+<?php endif; ?>

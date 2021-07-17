@@ -139,7 +139,9 @@ class FinderDestTable extends Main\UI\EntitySelector\EntityUsageTable
 
 				$cache = new \CPHPCache;
 				$cache->cleanDir('/sonet/log_dest_sort/'.intval($userId / 100));
-				$cache->cleanDir('/ui_selector/dest_sort/'.intval($userId / 100));
+				$cache->cleanDir(\Bitrix\Main\UI\Selector\Entities::getCacheDir([
+					'userId' => $userId,
+				]));
 
 				return;
 			}

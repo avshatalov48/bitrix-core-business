@@ -441,13 +441,20 @@ final class YandextaxiHandler extends Taxi implements ICrmActivityProvider, ICrm
 	{
 		$result = [];
 
+		$isByRegion = ServiceContainer::getRegionFinder()->getCurrentRegion() === 'by';
 		$tariffs = $this->tariffsRepository->getTariffs();
 
 		foreach ($tariffs as $tariff)
 		{
+			$code = 'SALE_YANDEX_TAXI_TARIFF_%s';
+			if ($isByRegion && $tariff['name'] === 'courier')
+			{
+				$code .= '_BY';
+			}
+
 			$result[$tariff['name']] = Loc::getMessage(
 				sprintf(
-					'SALE_YANDEX_TAXI_TARIFF_%s',
+					$code,
 					mb_strtoupper($tariff['name'])
 				)
 			);

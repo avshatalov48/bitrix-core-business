@@ -475,6 +475,23 @@ export class FieldsListField extends BaseField
 			);
 		}
 
+		if (
+			field.type === 'file'
+			&& Type.isArrayFilled(this.options.dictionary.contentTypes)
+		)
+		{
+			fields.push(
+				new BX.Landing.UI.Field.Checkbox({
+					selector: 'contentTypes',
+					title: Loc.getMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_FILE_TYPE'),
+					value: field.contentTypes,
+					items: this.options.dictionary.contentTypes.map((item) => {
+						return {name: item.name, value: item.id};
+					}),
+				}),
+			);
+		}
+
 		return new FormSettingsForm({
 			fields,
 			serializeModifier(value) {

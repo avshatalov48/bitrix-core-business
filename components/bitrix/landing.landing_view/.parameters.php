@@ -1,12 +1,16 @@
 <?php
+
+use Bitrix\Landing\Site;
+use Bitrix\Main\Loader;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 {
 	die();
 }
 
-if (\Bitrix\Main\Loader::includeModule('landing'))
+if (Loader::includeModule('landing'))
 {
-	$types = \Bitrix\Landing\Site::getTypes();
+	$types = Site::getTypes();
 }
 else
 {
@@ -54,6 +58,10 @@ $arComponentParameters = Array(
 		),
 		'PAGE_URL_LANDING_EDIT' => array(
 			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_LANDING_EDIT'),
+			'TYPE' => 'STRING'
+		),
+		'PAGE_URL_LANDING_DESIGN' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_LANDING_DESIGN'),
 			'TYPE' => 'STRING'
 		),
 		'PAGE_URL_SITE_EDIT' => array(

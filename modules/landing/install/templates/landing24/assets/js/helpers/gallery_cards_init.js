@@ -9,8 +9,6 @@
 		this.galleries = {};
 	};
 
-	BX.Landing.CardGalleryCollection.GALLERY_SELECTOR = ".js-gallery-cards";
-
 	/**
 	 * Singleton pattern
 	 * @returns {BX.Landing.CardGalleryCollection}
@@ -29,7 +27,7 @@
 	 */
 	BX.Landing.CardGalleryCollection.initBlock = function (block)
 	{
-		if (this.isGalleryBlock(block))
+		if (BX.Landing.CardGallery.isGalleryBlock(block))
 		{
 			var galleryCollection = this.getInstance();
 			galleryCollection.add(block);
@@ -37,41 +35,16 @@
 	};
 
 	/**
-	 *
+	 * Set block to not activate fancybox
 	 * @param {HTMLElement} block
-	 * @param {HTMLElement} imgNode
 	 */
-	BX.Landing.CardGalleryCollection.reinitImg = function (block, imgNode)
+	BX.Landing.CardGalleryCollection.disableBlock = function (block)
 	{
-		if (this.isGalleryBlock(block))
+		if (BX.Landing.CardGallery.isGalleryBlock(block))
 		{
-			var galleryCollection = this.getInstance();
-			var gallery = galleryCollection.findGalleryByBlock(block);
-			if(gallery)
-			{
-				gallery.reinitImage(imgNode);
-			}
+			var gallery = new BX.Landing.CardGallery(block);
+			gallery.disable();
 		}
-	};
-
-	/**
-	 * Check if block has gallery
-	 * @param {HTMLElement} block
-	 */
-	BX.Landing.CardGalleryCollection.isGalleryBlock = function (block)
-	{
-		var gallery = this.getGalleryNode(block);
-		return gallery !== null;
-	};
-
-	/**
-	 * Find gallery node in block
-	 * @param {HTMLElement}block
-	 * @returns {HTMLElement|null}
-	 */
-	BX.Landing.CardGalleryCollection.getGalleryNode = function (block)
-	{
-		return block.querySelector(this.GALLERY_SELECTOR);
 	};
 
 	BX.Landing.CardGalleryCollection.prototype = {
@@ -82,10 +55,7 @@
 		 */
 		add: function (block)
 		{
-			var gallery = new BX.Landing.CardGallery(
-				block,
-				BX.Landing.CardGalleryCollection.getGalleryNode(block)
-			);
+			var gallery = new BX.Landing.CardGallery(block);
 			gallery.initImages();
 			this.galleries[gallery.getId()] = gallery;
 		},
@@ -99,23 +69,58 @@
 	/************
 	 Entry object
 	 ************/
-	BX.Landing.CardGallery = function (block, galleryNode)
+	/**
+	 *
+	 * @param {HTMLElement} block
+	 * @constructor
+	 */
+	BX.Landing.CardGallery = function (block)
 	{
-		this.gallery = galleryNode;
 		this.uniqId = block.id;
+		this.gallery = BX.Landing.CardGallery.getGalleryNode(block);
 	}
 
+	/**
+	 * Check if block has gallery
+	 * @param {HTMLElement} block
+	 */
+	BX.Landing.CardGallery.isGalleryBlock = function (block)
+	{
+		return this.getGalleryNode(block) !== null;
+	};
+
+	/**
+	 * Find gallery node in block
+	 * @param {HTMLElement}block
+	 * @returns {HTMLElement|null}
+	 */
+	BX.Landing.CardGallery.getGalleryNode = function (block)
+	{
+		return block.querySelector(this.GALLERY_SELECTOR);
+	};
+
+	BX.Landing.CardGallery.GALLERY_SELECTOR = ".js-gallery-cards";
 	BX.Landing.CardGallery.IMAGES_SELECTOR = '[data-fancybox]';
-	BX.Landing.CardGallery.DATA_FANCYBOX_ID = 'fancybox';
+	BX.Landing.CardGallery.DATA_FANCYBOX = 'fancybox';
 	BX.Landing.CardGallery.DATA_FANCYBOX_INITIED = 'fancyboxInitied';
 	BX.Landing.CardGallery.DATA_FANCYBOX_TITLE = 'caption';
 	BX.Landing.CardGallery.DATA_LINK_CLASSES = 'linkClasses';
+	BX.Landing.CardGallery.DATA_LAZY_IMAGE = 'lazyImg';
 	BX.Landing.CardGallery.CAROUSEL_CLONED_CLASSES = 'slick-cloned';
 
 	BX.Landing.CardGallery.prototype = {
 		getId: function()
 		{
 			return this.uniqId;
+		},
+
+		disable: function()
+		{
+			var images = [].slice.call(this.gallery.querySelectorAll(BX.Landing.CardGallery.IMAGES_SELECTOR));
+			images.forEach(function (image)
+			{
+				delete image.dataset[BX.Landing.CardGallery.DATA_FANCYBOX];
+			}, this);
 		},
 
 		initImages: function ()
@@ -161,58 +166,51 @@
 		// create A around the image, need to fancybox popup
 		addOuterLink: function (image)
 		{
-			var src = image.getAttribute('src');
-			if (src != null)
+			var src;
+			var srcset;
+			if(image.dataset[BX.Landing.CardGallery.DATA_LAZY_IMAGE] === 'Y')
 			{
-				// add outer link to image for fancybox activity
-				var parent = image.parentNode;
-				var outerLink = BX.create('a', {
-					attrs: {
-						href: src,
-						class: image.dataset[BX.Landing.CardGallery.DATA_LINK_CLASSES] || ''
-					},
-					children: [].slice.call(parent.children)
-				});
-				BX.adjust(parent, {'children': [outerLink]});
-
-				// set unique fancybox id
-				outerLink.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_ID] =
-					image.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_ID] + '_' + this.uniqId;
-				outerLink.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_TITLE] =
-					BX.Text.encode(image.getAttribute('alt')) || '';
-
-				// remove data-attribute to disable gallery on <img>
-				delete image.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_ID];
-				image.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_INITIED] = "Y";
-
+				src = image.dataset.src;
+				srcset = image.dataset.srcset;
 			}
-		},
-
-		reinitImage: function (image)
-		{
-			// only if card has gallery image and image has outer link
-			if (this.isImageInit(image))
+			else
 			{
-				var src = image.getAttribute('src');
-				if (src !== null)
-				{
-					// find outer link
-					var outerLink = image.parentNode;
-					if (
-						outerLink.tagName === 'A'
-						&& outerLink.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_ID]
-					)
-					{
-						outerLink.href = src;
-						outerLink.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_TITLE] =
-							BX.Text.encode(image.getAttribute('alt')) || '';
-					}
-				}
+				src = image.src;
+				srcset = image.srcset
 			}
-			// todo: else - init?
+
+			if(!src)
+			{
+				return;
+			}
+
+			// add outer link to image for fancybox activity
+			var parent = image.parentNode;
+			var outerLink = BX.create('a', {
+				attrs: {
+					href: src,
+					class: image.dataset[BX.Landing.CardGallery.DATA_LINK_CLASSES] || ''
+				},
+				children: [].slice.call(parent.children)
+			});
+			if(srcset)
+			{
+				srcset = src + ' 1x,' + srcset;
+				outerLink.dataset.options = '{"image":{"srcset": "'+ srcset + '"}}';
+			}
+			BX.adjust(parent, {'children': [outerLink]});
+
+			// set unique fancybox id
+			outerLink.dataset[BX.Landing.CardGallery.DATA_FANCYBOX] =
+				image.dataset[BX.Landing.CardGallery.DATA_FANCYBOX] + '_' + this.uniqId;
+			outerLink.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_TITLE] =
+				BX.Text.encode(image.getAttribute('alt')) || '';
+
+			// remove data-attribute to disable gallery on <img>
+			delete image.dataset[BX.Landing.CardGallery.DATA_FANCYBOX];
+			image.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_INITIED] = "Y";
 		}
 	}
-
 
 	/****************
 	 * Event handlers
@@ -221,21 +219,11 @@
 	{
 		if(BX.Landing.getMode() === "edit")
 		{
-			return;
+			BX.Landing.CardGalleryCollection.disableBlock(event.block);
 		}
-
-		BX.Landing.CardGalleryCollection.initBlock(event.block);
-	});
-
-	BX.addCustomEvent("BX.Landing.Lazyload:loadImage", function (event)
-	{
-		if(BX.Landing.getMode() === "edit")
+		else
 		{
-			return;
+			BX.Landing.CardGalleryCollection.initBlock(event.block);
 		}
-
-		BX.Landing.CardGalleryCollection.reinitImg(event.block, event.node);
-		// todo: maybe not need in editor?
 	});
-
 })();

@@ -4,18 +4,35 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Landing\Hook;
+use Bitrix\Landing\Hook\Page\Theme;
+use Bitrix\Landing\Site\Type;
+use Bitrix\Main\Config\Option;
 use \Bitrix\Main\Event;
+use Bitrix\Main\EventManager;
 use \Bitrix\Main\EventResult;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Web\Uri;
 
-\CBitrixComponent::includeComponentClass('bitrix:landing.demo');
+CBitrixComponent::includeComponentClass('bitrix:landing.demo');
 
 class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 {
 	/**
+	 * Default color picker color
+	 */
+	public const COLOR_PICKER_COLOR = '#f25a8f';
+
+	/**
+	 * Default site color (lightblue bitrix color)
+	 */
+	public const BASE_COLOR = '#6ab8ee';
+
+	/**
 	 * Base executable method.
 	 * @return void
 	 */
-	public function executeComponent()
+	public function executeComponent(): void
 	{
 		$init = $this->init();
 
@@ -29,7 +46,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 			$this->checkParam('BINDING_TYPE', '');
 			$this->checkParam('BINDING_ID', '');
 
-			\Bitrix\Landing\Site\Type::setScope(
+			Type::setScope(
 				$this->arParams['TYPE']
 			);
 
@@ -68,11 +85,13 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 				}
 
 				$this->arResult['EXTERNAL_IMPORT'] = [];
-				$this->arResult['COLORS'] = \Bitrix\Landing\Hook\Page\Theme::getColorCodes();
+				$colors = Theme::getColorCodes();
+				$this->arResult['COLORS'] = $colors;
 				$this->arResult['TEMPLATE'] = $demo[$code];
 				$this->arResult['TEMPLATE']['URL_PREVIEW'] = $this->getUrlPreview($code, $demo[$code]);
 				// first color by default
-				$this->arResult['THEME_CURRENT'] = array_shift(array_keys($this->arResult['COLORS']));
+				$array = array_keys($this->arResult['COLORS']);
+				$this->arResult['THEME_CURRENT'] = array_shift($array);
 
 				// check external import (additional step after submit create)
 				$event = new Event('landing', 'onBuildTemplateCreateUrl', array(
@@ -82,18 +101,15 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 				$event->send();
 				foreach ($event->getResults() as $result)
 				{
-					if ($result->getType() != EventResult::ERROR)
+					if (($result->getType() != EventResult::ERROR) && ($modified = $result->getModified()))
 					{
-						if (($modified = $result->getModified()))
+						if (isset($modified['onclick']))
 						{
-							if (isset($modified['onclick']))
-							{
-								$this->arResult['EXTERNAL_IMPORT']['onclick'] = $modified['onclick'];
-							}
-							if (isset($modified['href']))
-							{
-								$this->arResult['EXTERNAL_IMPORT']['href'] = $modified['href'];
-							}
+							$this->arResult['EXTERNAL_IMPORT']['onclick'] = $modified['onclick'];
+						}
+						if (isset($modified['href']))
+						{
+							$this->arResult['EXTERNAL_IMPORT']['href'] = $modified['href'];
 						}
 					}
 				}
@@ -105,11 +121,11 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 					$classFull = $this->getValidClass('Site');
 					if ($classFull && method_exists($classFull, 'getHooks'))
 					{
-						\Bitrix\Landing\Hook::setEditMode();
+						Hook::setEditMode();
 						$hooks = $classFull::getHooks($this->arParams['SITE_ID']);
 					}
 
-					if (isset($hooks['THEME']) && isset($hooks['THEME']->getPageFields()['THEME_CODE']))
+					if (isset($hooks['THEME'], $hooks['THEME']->getPageFields()['THEME_CODE']))
 					{
 						$this->arResult['THEME_SITE'] = $hooks['THEME']->getPageFields()['THEME_CODE']->getValue();
 					}
@@ -119,7 +135,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 					}
 
 					$this->arResult['THEME_COLOR'] = '#34bcf2';
-					if (isset($hooks['THEME']) && isset($hooks['THEME']->getPageFields()['THEME_COLOR']))
+					if (isset($hooks['THEME'], $hooks['THEME']->getPageFields()['THEME_COLOR']))
 					{
 						$this->arResult['THEME_COLOR'] = $hooks['THEME']->getPageFields()['THEME_COLOR']->getValue();
 					}
@@ -151,7 +167,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 
 				// disable import
 				if (isset($demo[$code]['DATA']['disable_import']) &&
-					$demo[$code]['DATA']['disable_import'] == 'Y')
+					$demo[$code]['DATA']['disable_import'] === 'Y')
 				{
 					$this->arResult['DISABLE_IMPORT'] = true;
 				}
@@ -174,23 +190,23 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 	 * Temp function for register external instagram import.
 	 * @return void
 	 */
-	private function instagramUrlRegister()
+	private function instagramUrlRegister(): void
 	{
-		$eventManager = \Bitrix\Main\EventManager::getInstance();
+		$eventManager = EventManager::getInstance();
 		$eventManager->addEventHandler('landing', 'onBuildTemplateCreateUrl',
-			function(\Bitrix\Main\Event $event)
+			function(Event $event)
 			{
 				$result = new \Bitrix\Main\Entity\EventResult;
 				$uri = $event->getParameter('uri');
 				$code = $event->getParameter('code');
 
 				if (
-					($code == 'store-instagram/mainpage') &&
-					\Bitrix\Main\Loader::includeModule('crm')
+					($code === 'store-instagram/mainpage') &&
+					Loader::includeModule('crm')
 				)
 				{
 					// build url for create site
-					$uriSelect = new \Bitrix\Main\Web\Uri($uri);
+					$uriSelect = new Uri($uri);
 					$uriSelect->addParams([
 						'action' => 'select',
 						'param' => $code,
@@ -202,10 +218,10 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 					]);
 					// removed dependency from crm instagram feature
 					// @see \Bitrix\Crm\Order\Import\Instagram::isSiteTemplateImportable
-					$externalImportPath = (string) \Bitrix\Main\Config\Option::get(
+					$externalImportPath = (string) Option::get(
 						'crm', 'path_to_order_import_instagram'
 					);
-					$uriCreate = new \Bitrix\Main\Web\Uri($externalImportPath);
+					$uriCreate = new Uri($externalImportPath);
 					$params = [
 						'create_url' => $uriSelect->getUri(),
 					];
@@ -231,10 +247,12 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 
 	/**
 	 * Mark some color for default set.
+	 *
 	 * @param string $color Color code.
+	 *
 	 * @return void
 	 */
-	private function addColorToPallete($color)
+	private function addColorToPallete(string $color): void
 	{
 		if (isset($this->arResult['COLORS'][$color]))
 		{
@@ -246,7 +264,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 	 * If try to using unknown color - set default from pallete
 	 * @param $color - attention: color is the theme code!
 	 */
-	private function checkColorExists(&$color)
+	private function checkColorExists(&$color): void
 	{
 		$isExist = false;
 		foreach ($this->arResult['COLORS'] as $code => $codeInfo)
@@ -260,7 +278,8 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 
 		if (!isset($this->arResult['COLORS'][$color]) && !$isExist)
 		{
-			$color = array_shift(array_keys($this->arResult['COLORS']));
+			$array = array_keys($this->arResult['COLORS']);
+			$color = array_shift($array);
 		}
 	}
 }

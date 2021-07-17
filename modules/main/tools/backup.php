@@ -795,7 +795,7 @@ function IntOption($name, $def = 0)
 	static $CACHE;
 	$name .= '_auto';
 
-	if (!$CACHE[$name])
+	if (!isset($CACHE[$name]))
 		$CACHE[$name] = COption::GetOptionInt("main", $name, $def);
 	return $CACHE[$name];
 }

@@ -200,11 +200,34 @@
 							this.showNote([entityId, id], data['okMessage']);
 						}
 					}
-				}, this)
+				}, this),
+				OnUploadQueueError : function(params)
+				{
+					if (!repo["list"][params.entityId])
+					{
+						return;
+					}
+
+					var container = repo["list"][params.entityId].getCommentNode(document.getElementById(params.commentData.commentNodeId).getAttribute('bx-mpl-entity-id'));
+					if (container)
+					{
+						this.showError({
+							node: container,
+							attachments: [
+								{
+									fieldValue: 'do not bind click',
+								}
+							],
+						}, params.errorText);
+					}
+
+
+				}.bind(this),
 			};
 
 			BX.addCustomEvent(window, 'OnUCReply', this.windowEvents.OnUCReply);
 			BX.addCustomEvent(window, 'OnUCAfterRecordEdit', this.windowEvents.OnUCAfterRecordEdit);
+			BX.addCustomEvent(window, 'OnUploadQueueError', this.windowEvents.OnUploadQueueError);
 		},
 		reboot : function(id, oldObj, newObj) {
 			for (var ii in this.handlerEvents)

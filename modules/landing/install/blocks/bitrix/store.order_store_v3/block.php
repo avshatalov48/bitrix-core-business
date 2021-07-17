@@ -6,7 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 /**
- * @var StoreOrderBlock $classBlock
+ * @var StoreOrderBlockStoreV3 $classBlock
  */
 $detailUrl = '#system_catalogitem/#ELEMENT_CODE#/';
 ?>

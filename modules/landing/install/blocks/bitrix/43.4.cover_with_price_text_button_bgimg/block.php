@@ -26,7 +26,7 @@
 								</p>
 							</div>
 							<div class="landing-block-node-card-button-container">
-								<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-l g-btn-size-sm text-uppercase g-btn-primary rounded-0 g-py-10"
+								<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-m g-btn-size-md text-uppercase g-btn-primary rounded-0"
 								   href="#">Take a tour</a>
 							</div>
 						</div>
@@ -53,7 +53,7 @@
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-l g-btn-size-sm text-uppercase g-btn-primary rounded-0 g-py-10"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-m g-btn-size-md text-uppercase g-btn-primary rounded-0"
 							   href="#">Take a tour</a>
 						</div>
 					</div>
@@ -79,7 +79,7 @@
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-l g-btn-size-sm text-uppercase g-btn-primary rounded-0 g-py-10"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-m g-btn-size-md text-uppercase g-btn-primary rounded-0"
 							   href="#">Take a tour</a>
 						</div>
 					</div>
@@ -105,7 +105,7 @@
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-l g-btn-size-sm text-uppercase g-btn-primary rounded-0 g-py-10"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-m g-btn-size-md text-uppercase g-btn-primary rounded-0"
 							   href="#">Take a tour</a>
 						</div>
 					</div>
@@ -131,7 +131,7 @@
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-l g-btn-size-sm text-uppercase g-btn-primary rounded-0 g-py-10"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-m g-btn-size-md text-uppercase g-btn-primary rounded-0"
 							   href="#">Take a tour</a>
 						</div>
 					</div>
@@ -158,7 +158,7 @@
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-l g-btn-size-sm text-uppercase g-btn-primary rounded-0 g-py-10"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-m g-btn-size-md text-uppercase g-btn-primary rounded-0"
 							   href="#">Take a tour</a>
 						</div>
 					</div>
@@ -185,7 +185,7 @@
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-l g-btn-size-sm text-uppercase g-btn-primary rounded-0 g-py-10"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-m g-btn-size-md text-uppercase g-btn-primary rounded-0"
 							   href="#">Take a tour</a>
 						</div>
 					</div>
@@ -211,7 +211,7 @@
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-l g-btn-size-sm text-uppercase g-btn-primary rounded-0 g-py-10"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-m g-btn-size-md text-uppercase g-btn-primary rounded-0"
 							   href="#">Take a tour</a>
 						</div>
 					</div>
@@ -237,7 +237,7 @@
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-l g-btn-size-sm text-uppercase g-btn-primary rounded-0 g-py-10"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-m g-btn-size-md text-uppercase g-btn-primary rounded-0"
 							   href="#">Take a tour</a>
 						</div>
 					</div>
@@ -263,7 +263,7 @@
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-l g-btn-size-sm text-uppercase g-btn-primary rounded-0 g-py-10"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-px-m g-btn-size-md text-uppercase g-btn-primary rounded-0"
 							   href="#">Take a tour</a>
 						</div>
 					</div>

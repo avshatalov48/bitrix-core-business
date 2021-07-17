@@ -15,7 +15,6 @@ return [
 	'fields' => [
 		'RULE' => '(item)/([^/]+)',
 		'ADDITIONAL_FIELDS' => [
-			'THEME_CODE' => 'photography',
 		],
 	],
 	'layout' => [

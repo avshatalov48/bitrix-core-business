@@ -199,6 +199,11 @@ class CSocServBitrix24Net extends CSocServAuth
 
 		$bSuccess = $authError === true;
 
+		if ($bSuccess)
+		{
+			CSocServAuthManager::SetAuthorizedServiceId(self::ID);
+		}
+
 		// hack to update option used for visualization in module options
 		if($bSuccess && !self::GetOption("bitrix24net_domain"))
 		{

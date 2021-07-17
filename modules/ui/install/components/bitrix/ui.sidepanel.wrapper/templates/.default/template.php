@@ -133,7 +133,7 @@ if ($arResult["SHOW_BITRIX24_THEME"] == "Y")
 		else
 		{
 			$APPLICATION->IncludeComponent('bitrix:ui.toolbar', '', [
-				'FAVORITES_TITLE_TEMPLATE' => (!empty($arParams['UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE']) ? $arParams['UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE'] : ''),
+				'FAVORITES_TITLE_TEMPLATE' => (!empty($arParams['~UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE']) ? $arParams['~UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE'] : ''),
 				'FAVORITES_URL' => (!empty($arParams['UI_TOOLBAR_FAVORITES_URL']) ? $arParams['UI_TOOLBAR_FAVORITES_URL'] : ''),
 			]);
 		}

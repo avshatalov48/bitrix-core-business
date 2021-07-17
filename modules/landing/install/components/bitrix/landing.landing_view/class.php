@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Landing;
+use Bitrix\Landing\Site\Type;
 use \Bitrix\Landing\Syspage;
 use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Rights;
@@ -541,7 +542,7 @@ class LandingViewComponent extends LandingBaseComponent
 				$options['params']['type'] = $params['TYPE'];
 				$options['params']['draftMode'] = $params['DRAFT_MODE'] == 'Y';
 				$options['params']['sef_url']['design_block'] = $arResult['TOP_PANEL_CONFIG']['urls']['designBlock'];
-				if ($options['specialType'] === \Bitrix\Landing\Site\Type::PSEUDO_SCOPE_CODE_FORMS)
+				if ($options['specialType'] === Type::PSEUDO_SCOPE_CODE_FORMS)
 				{
 					$res = \Bitrix\Crm\WebForm\Internals\LandingTable::getList([
 						'select' => [
@@ -717,6 +718,10 @@ class LandingViewComponent extends LandingBaseComponent
 						$options['params']['type'] = 'STORE';
 					}
 				}
+				if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+				{
+					$options['license'] = \CBitrix24::getLicenseType();
+				}
 				// unset blocks not for this type
 				foreach ($options['blocks'] as $sectionCode => &$section)
 				{
@@ -769,6 +774,10 @@ class LandingViewComponent extends LandingBaseComponent
 						{
 							$block['requires_updates'] = false;
 						}
+						if (!empty($block['only_for_license']) && $block['only_for_license'] !== $options['license'])
+						{
+							unset($section['items'][$code]);
+						}
 					}
 					unset($block);
 				}
@@ -812,10 +821,6 @@ class LandingViewComponent extends LandingBaseComponent
 										: $row['APP_NAME']
 						);
 					}
-				}
-				if (\Bitrix\Main\Loader::includeModule('bitrix24'))
-				{
-					$options['license'] = \CBitrix24::getLicenseType();
 				}
 				$result->modifyFields(array(
 					'options' => $options
@@ -936,8 +941,14 @@ class LandingViewComponent extends LandingBaseComponent
 		$urls['landingEdit'] = new \Bitrix\Main\Web\Uri(
 			$replaceParamUrl('landing_edit')
 		);
+		$urls['landingDesign'] = new \Bitrix\Main\Web\Uri(
+			$replaceParamUrl('landing_design')
+		);
 		$urls['landingSiteEdit'] = new \Bitrix\Main\Web\Uri(
 			$replaceParamUrl('site_edit')
+		);
+		$urls['landingSiteDesign'] = new \Bitrix\Main\Web\Uri(
+			$replaceParamUrl('site_design')
 		);
 		$urls['landingCatalogEdit'] = new \Bitrix\Main\Web\Uri(
 			$replaceParamUrl('site_edit')
@@ -970,7 +981,7 @@ class LandingViewComponent extends LandingBaseComponent
 		$sliderConditions = [];
 
 		$sliderUrlKeys = [
-			'landing_edit', 'site_edit', 'site_show'
+			'landing_edit', 'site_edit', 'site_show', 'landing_design', 'site_design'
 		];
 		$sefUrls = isset($this->arParams['SEF'])
 					? $this->arParams['SEF']
@@ -1005,7 +1016,7 @@ class LandingViewComponent extends LandingBaseComponent
 	 * Base executable method.
 	 * @return void
 	 */
-	public function executeComponent()
+	public function executeComponent(): void
 	{
 		$init = $this->init();
 
@@ -1017,6 +1028,7 @@ class LandingViewComponent extends LandingBaseComponent
 			$this->checkParam('PAGE_URL_URL_SITES', '');
 			$this->checkParam('PAGE_URL_LANDINGS', '');
 			$this->checkParam('PAGE_URL_LANDING_EDIT', '');
+			$this->checkParam('PAGE_URL_LANDING_DESIGN', '');
 			$this->checkParam('PAGE_URL_SITE_EDIT', '');
 			$this->checkParam('FULL_PUBLICATION', 'N');
 			$this->checkParam('PANEL_LIGHT_MODE', 'N');
@@ -1024,7 +1036,7 @@ class LandingViewComponent extends LandingBaseComponent
 			$this->checkParam('DRAFT_MODE', 'N');
 			$this->checkParam('PARAMS', array());
 
-			\Bitrix\Landing\Site\Type::setScope(
+			Type::setScope(
 				$this->arParams['TYPE']
 			);
 
@@ -1032,12 +1044,12 @@ class LandingViewComponent extends LandingBaseComponent
 			Landing::setEditMode();
 			$landing = Landing::createInstance($this->arParams['LANDING_ID']);
 
-			$this->arResult['SUCCESS_SAVE'] = $this->request('success') == 'Y';
+			$this->arResult['SUCCESS_SAVE'] = $this->request('success') === 'Y';
 			$this->arResult['LANDING'] = $landing;
 			$this->arResult['~LANDING_FULL_URL'] = $landing->getPublicUrl(
 				false,
 				true,
-				$this->arParams['DRAFT_MODE'] != 'Y'
+				$this->arParams['DRAFT_MODE'] !== 'Y'
 			);
 			$this->arResult['LANDING_FULL_URL'] = $this->getTimestampUrl(
 				$this->arResult['~LANDING_FULL_URL']

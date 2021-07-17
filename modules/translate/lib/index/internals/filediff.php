@@ -20,7 +20,20 @@ use Bitrix\Translate\Index;
  * <li> DEFICIENCY_COUNT int
  * </ul>
  *
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_FileDiff_Query query()
+ * @method static EO_FileDiff_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_FileDiff_Result getById($id)
+ * @method static EO_FileDiff_Result getList(array $parameters = array())
+ * @method static EO_FileDiff_Entity getEntity()
+ * @method static \Bitrix\Translate\Index\FileDiff createObject($setDefaultValues = true)
+ * @method static \Bitrix\Translate\Index\FileDiffCollection createCollection()
+ * @method static \Bitrix\Translate\Index\FileDiff wakeUpObject($row)
+ * @method static \Bitrix\Translate\Index\FileDiffCollection wakeUpCollection($rows)
+ */
 
 class FileDiffTable extends DataManager
 {

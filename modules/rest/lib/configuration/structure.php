@@ -17,6 +17,7 @@ class Structure
 	public const CODE_CONFIGURATION_FILES_LIST = 'CONFIGURATION_FILES_LIST';
 	public const CODE_FILES_LIST = 'FILES_LIST';
 	public const CODE_UNPACK_FILE_PREFIX = 'UNPACK_FILE_';
+	public const CODE_CUSTOM_FILE = 'CUSTOM_FILE_';
 	private static $maxAgentTime = 10;
 	private static $fileDescriptionDelete = 'configuration_delete';
 	private $context;

@@ -11,7 +11,7 @@ $result = [
 	'app-store' => [
 		'name' => 'Download app from App Store',
 		'html' => '
-			<div class="landing-block-node-card g-mb-12 g-mr-12"
+			<div class="landing-block-node-card g-mb-12 g-ml-0--md g-mr-12--md g-mx-6"
 				data-card-preset="app-store">
 				<a href="#" class="landing-block-node-card-button">
 					<img class="landing-block-node-card-button-img g-height-42" 
@@ -34,7 +34,7 @@ $result = [
 	'play-market' => [
 		'name' => 'Download app from Play Market',
 		'html' => '
-			<div class="landing-block-node-card g-mb-12 g-mr-12"
+			<div class="landing-block-node-card g-mb-12 g-ml-0--md g-mr-12--md g-mx-6"
 				data-card-preset="play-market">
 				<a href="#" class="landing-block-node-card-button">
 					<img class="landing-block-node-card-button-img g-height-42" 
@@ -57,10 +57,10 @@ $result = [
 	'custom-picture' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_19_5_CUSTOM_PICTURE'),
 		'html' => '
-			<div class="landing-block-node-card g-mb-12 g-mr-12"
+			<div class="landing-block-node-card g-mb-12 g-ml-0--md g-mr-12--md g-mx-6"
 				data-card-preset="custom-picture">
 				<a href="#" class="landing-block-node-card-button">
-					<img class="landing-block-node-card-button-img-custom g-height-42" 
+					<img class="landing-block-node-card-button-img g-height-42" 
 						src="https://cdn.bitrix24.site/bitrix/images/landing/custom-badge.png"
 						alt="">
 				</a>
@@ -69,7 +69,7 @@ $result = [
 			'.landing-block-node-card-button' => [
 				'href' => '#',
 			],
-			'.landing-block-node-card-button-img-custom' => [
+			'.landing-block-node-card-button-img' => [
 				'type' => 'image',
 				'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/custom-badge.png',
 				'src2x' => 'https://cdn.bitrix24.site/bitrix/images/landing/custom-badge.png',

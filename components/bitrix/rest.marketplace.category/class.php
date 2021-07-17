@@ -349,9 +349,16 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 		{
 			foreach ($itemList as $k => $item)
 			{
-				if(!empty($item['URL']))
+				if (!empty($item['URL']))
 				{
-					$itemList[$k]['ONCLICK'] = "window.open('" . $item['URL'] . "', '_blank')";
+					if ($item['SLIDER'] === 'Y')
+					{
+						$itemList[$k]['ONCLICK'] = "BX.SidePanel.Instance.open('" . $item['URL'] . "')";
+					}
+					else
+					{
+						$itemList[$k]['ONCLICK'] = "window.open('" . $item['URL'] . "', '_blank')";
+					}
 				}
 
 				if($item['TYPE'] == $this->bannerTypeFeedback)

@@ -17,6 +17,7 @@ use Bitrix\Main\ORM\Data\UpdateResult;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\IReadable;
+use Bitrix\Main\ORM\Fields\ObjectField;
 use Bitrix\Main\ORM\Fields\Relations\CascadePolicy;
 use Bitrix\Main\ORM\Fields\Relations\ManyToMany;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
@@ -295,6 +296,32 @@ abstract class EntityObject implements ArrayAccess
 
 		$dataClass = $this->entity->getDataClass();
 
+		// check for object fields, it could be changed without notification
+		foreach ($this->_currentValues as $fieldName => $currentValue)
+		{
+			$field = $this->entity->getField($fieldName);
+
+			if ($field instanceof ObjectField)
+			{
+				$actualValue = $this->_actualValues[$fieldName];
+
+				if ($field->encode($currentValue) !== $field->encode($actualValue))
+				{
+					if ($this->_state === State::ACTUAL)
+					{
+						// value has changed, set new state
+						$this->_state = State::CHANGED;
+					}
+				}
+				else
+				{
+					// value has not changed, hide it until postSave
+					unset($this->_currentValues[$fieldName]);
+				}
+			}
+		}
+
+		// save data
 		if ($this->_state == State::RAW)
 		{
 			$data = $this->_currentValues;
@@ -1384,7 +1411,15 @@ abstract class EntityObject implements ArrayAccess
 	 */
 	public function sysSetActual($fieldName, $value)
 	{
-		$this->_actualValues[StringHelper::strtoupper($fieldName)] = $value;
+		$fieldName = StringHelper::strtoupper($fieldName);
+		$this->_actualValues[$fieldName] = $value;
+
+		// special condition for object values - it should be gotten and changed as current value
+		// and actual value will be used for comparison
+		if ($this->entity->getField($fieldName) instanceof ObjectField)
+		{
+			$this->_currentValues[$fieldName] = clone $value;
+		}
 	}
 
 	/**
@@ -1650,6 +1685,15 @@ abstract class EntityObject implements ArrayAccess
 	public function sysIsChanged($fieldName)
 	{
 		$fieldName = StringHelper::strtoupper($fieldName);
+		$field = $this->entity->getField($fieldName);
+
+		if ($field instanceof ObjectField)
+		{
+			$currentValue = $this->_currentValues[$fieldName];
+			$actualValue = $this->_actualValues[$fieldName];
+
+			return $field->encode($currentValue) !== $field->encode($actualValue);
+		}
 
 		return array_key_exists($fieldName, $this->_currentValues);
 	}
@@ -2039,6 +2083,15 @@ abstract class EntityObject implements ArrayAccess
 
 		// change state
 		$this->sysChangeState(State::ACTUAL);
+
+		// return object field to current values
+		foreach ($this->_actualValues as $fieldName => $actualValue)
+		{
+			if ($this->entity->getField($fieldName) instanceof ObjectField)
+			{
+				$this->_currentValues[$fieldName] = clone $actualValue;
+			}
+		}
 	}
 
 	/**

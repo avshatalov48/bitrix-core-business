@@ -402,7 +402,7 @@ class CBitrixComponent
 	 * @return string
 	 *
 	 */
-	final private function __getClassForPath($componentPath)
+	private function __getClassForPath($componentPath)
 	{
 		if (!isset(self::$__classes_map[$componentPath]))
 		{

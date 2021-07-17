@@ -1,6 +1,6 @@
 <?php
 
-/* ORMENTITYANNOTATION:Bitrix\Socialservices\ApTable:socialservices/lib/ap.php:bd26b488e95aa7bc09b9a6e341956cb0 */
+/* ORMENTITYANNOTATION:Bitrix\Socialservices\ApTable:socialservices/lib/ap.php:ae9f6f6e789a03e4ee7a62d5a8271240 */
 namespace Bitrix\Socialservices {
 	/**
 	 * EO_Ap
@@ -186,18 +186,6 @@ namespace Bitrix\Socialservices {
 	}
 }
 namespace Bitrix\Socialservices {
-	/**
-	 * @method static EO_Ap_Query query()
-	 * @method static EO_Ap_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Ap_Result getById($id)
-	 * @method static EO_Ap_Result getList(array $parameters = array())
-	 * @method static EO_Ap_Entity getEntity()
-	 * @method static \Bitrix\Socialservices\EO_Ap createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialservices\EO_Ap_Collection createCollection()
-	 * @method static \Bitrix\Socialservices\EO_Ap wakeUpObject($row)
-	 * @method static \Bitrix\Socialservices\EO_Ap_Collection wakeUpCollection($rows)
-	 */
-	class ApTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -449,18 +437,6 @@ namespace Bitrix\Socialservices {
 }
 namespace Bitrix\Socialservices {
 	/**
-	 * @method static EO_Contact_Query query()
-	 * @method static EO_Contact_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Contact_Result getById($id)
-	 * @method static EO_Contact_Result getList(array $parameters = array())
-	 * @method static EO_Contact_Entity getEntity()
-	 * @method static \Bitrix\Socialservices\EO_Contact createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialservices\EO_Contact_Collection createCollection()
-	 * @method static \Bitrix\Socialservices\EO_Contact wakeUpObject($row)
-	 * @method static \Bitrix\Socialservices\EO_Contact_Collection wakeUpCollection($rows)
-	 */
-	class ContactTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -686,18 +662,6 @@ namespace Bitrix\Socialservices {
 	}
 }
 namespace Bitrix\Socialservices {
-	/**
-	 * @method static EO_ContactConnect_Query query()
-	 * @method static EO_ContactConnect_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ContactConnect_Result getById($id)
-	 * @method static EO_ContactConnect_Result getList(array $parameters = array())
-	 * @method static EO_ContactConnect_Entity getEntity()
-	 * @method static \Bitrix\Socialservices\EO_ContactConnect createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialservices\EO_ContactConnect_Collection createCollection()
-	 * @method static \Bitrix\Socialservices\EO_ContactConnect wakeUpObject($row)
-	 * @method static \Bitrix\Socialservices\EO_ContactConnect_Collection wakeUpCollection($rows)
-	 */
-	class ContactConnectTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1044,18 +1008,6 @@ namespace Bitrix\Socialservices {
 }
 namespace Bitrix\Socialservices {
 	/**
-	 * @method static EO_User_Query query()
-	 * @method static EO_User_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_User_Result getById($id)
-	 * @method static EO_User_Result getList(array $parameters = array())
-	 * @method static EO_User_Entity getEntity()
-	 * @method static \Bitrix\Socialservices\EO_User createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialservices\EO_User_Collection createCollection()
-	 * @method static \Bitrix\Socialservices\EO_User wakeUpObject($row)
-	 * @method static \Bitrix\Socialservices\EO_User_Collection wakeUpCollection($rows)
-	 */
-	class UserTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1295,18 +1247,6 @@ namespace Bitrix\Socialservices {
 }
 namespace Bitrix\Socialservices {
 	/**
-	 * @method static EO_UserLink_Query query()
-	 * @method static EO_UserLink_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UserLink_Result getById($id)
-	 * @method static EO_UserLink_Result getList(array $parameters = array())
-	 * @method static EO_UserLink_Entity getEntity()
-	 * @method static \Bitrix\Socialservices\EO_UserLink createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialservices\EO_UserLink_Collection createCollection()
-	 * @method static \Bitrix\Socialservices\EO_UserLink wakeUpObject($row)
-	 * @method static \Bitrix\Socialservices\EO_UserLink_Collection wakeUpCollection($rows)
-	 */
-	class UserLinkTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1332,7 +1272,7 @@ namespace Bitrix\Socialservices {
 	 */
 	class EO_UserLink_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialservices\ZoomMeetingTable:socialservices/lib/zoommeeting.php:d9cfb90897f0ead8e9dd4a898608e411 */
+/* ORMENTITYANNOTATION:Bitrix\Socialservices\ZoomMeetingTable:socialservices/lib/zoommeeting.php:1d104ddfa80387369277314a914af15f */
 namespace Bitrix\Socialservices {
 	/**
 	 * EO_ZoomMeeting
@@ -1579,18 +1519,6 @@ namespace Bitrix\Socialservices {
 }
 namespace Bitrix\Socialservices {
 	/**
-	 * @method static EO_ZoomMeeting_Query query()
-	 * @method static EO_ZoomMeeting_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ZoomMeeting_Result getById($id)
-	 * @method static EO_ZoomMeeting_Result getList(array $parameters = array())
-	 * @method static EO_ZoomMeeting_Entity getEntity()
-	 * @method static \Bitrix\Socialservices\EO_ZoomMeeting createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialservices\EO_ZoomMeeting_Collection createCollection()
-	 * @method static \Bitrix\Socialservices\EO_ZoomMeeting wakeUpObject($row)
-	 * @method static \Bitrix\Socialservices\EO_ZoomMeeting_Collection wakeUpCollection($rows)
-	 */
-	class ZoomMeetingTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1616,7 +1544,7 @@ namespace Bitrix\Socialservices {
 	 */
 	class EO_ZoomMeeting_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialservices\ZoomMeetingRecordingTable:socialservices/lib/zoommeetingrecording.php:e236bbc40e551ebde8a4032dbc1d9d98 */
+/* ORMENTITYANNOTATION:Bitrix\Socialservices\ZoomMeetingRecordingTable:socialservices/lib/zoommeetingrecording.php:0368edde66618646dda9dab3036045c1 */
 namespace Bitrix\Socialservices {
 	/**
 	 * EO_ZoomMeetingRecording
@@ -1863,18 +1791,6 @@ namespace Bitrix\Socialservices {
 	}
 }
 namespace Bitrix\Socialservices {
-	/**
-	 * @method static EO_ZoomMeetingRecording_Query query()
-	 * @method static EO_ZoomMeetingRecording_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ZoomMeetingRecording_Result getById($id)
-	 * @method static EO_ZoomMeetingRecording_Result getList(array $parameters = array())
-	 * @method static EO_ZoomMeetingRecording_Entity getEntity()
-	 * @method static \Bitrix\Socialservices\EO_ZoomMeetingRecording createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialservices\EO_ZoomMeetingRecording_Collection createCollection()
-	 * @method static \Bitrix\Socialservices\EO_ZoomMeetingRecording wakeUpObject($row)
-	 * @method static \Bitrix\Socialservices\EO_ZoomMeetingRecording_Collection wakeUpCollection($rows)
-	 */
-	class ZoomMeetingRecordingTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

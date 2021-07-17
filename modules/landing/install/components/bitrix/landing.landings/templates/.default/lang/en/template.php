@@ -8,6 +8,7 @@ $MESS["LANDING_TPL_ACTION_DELETE"] = "Delete page";
 $MESS["LANDING_TPL_ACTION_DELETE_CONFIRM"] = "Do you want to delete page?";
 $MESS["LANDING_TPL_ACTION_DELETE_FOLDER"] = "Delete folder";
 $MESS["LANDING_TPL_ACTION_EDIT"] = "Edit settings";
+$MESS["LANDING_TPL_ACTION_EDIT_DESIGN"] = "Design settings";
 $MESS["LANDING_TPL_ACTION_FOLDER_UP"] = "Up";
 $MESS["LANDING_TPL_ACTION_GOTO"] = "Open page";
 $MESS["LANDING_TPL_ACTION_MOVE"] = "Move page";

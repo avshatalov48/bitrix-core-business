@@ -903,10 +903,12 @@ foreach ($arProps as $arFProps)
 	$editable = true;
 	$preventDefault = true;
 
+	$extendedMorePhoto = $pageConfig['USE_NEW_CARD'] && $arFProps['CODE'] === 'MORE_PHOTO';
+
 	if (
 		$arFProps['PROPERTY_TYPE'] === 'F'
 		&& $arFProps['MULTIPLE'] === 'Y'
-		&& $arFProps['CODE'] !== 'MORE_PHOTO'
+		&& !$extendedMorePhoto
 	)
 	{
 		$editable = false;
@@ -915,7 +917,7 @@ foreach ($arProps as $arFProps)
 
 	$columnSort = null;
 	$headerId = 'PROPERTY_' . $arFProps['ID'];
-	if ($arFProps['CODE'] === 'MORE_PHOTO')
+	if ($extendedMorePhoto)
 	{
 		$moreProtoPropertyId = $arFProps['ID'];
 		$headerId = 'MORE_PHOTO';
@@ -927,7 +929,7 @@ foreach ($arProps as $arFProps)
 		'content' => $arFProps['NAME'],
 		'title' => '',
 		'align' => ($arFProps['PROPERTY_TYPE'] === 'N'? 'right': 'left'),
-		"sort" => ($arFProps['MULTIPLE'] !== 'Y' && $arFProps['CODE'] !== 'MORE_PHOTO' ? 'PROPERTY_' . $arFProps['ID']: ''),
+		"sort" => ($arFProps['MULTIPLE'] !== 'Y' && !$extendedMorePhoto ? 'PROPERTY_' . $arFProps['ID']: ''),
 		'default' => isset($defaultHeaders[$headerId]),
 		'editable' => $editable,
 		'prevent_default' => $preventDefault,
@@ -1497,7 +1499,7 @@ if($lAdmin->EditAction())
 					$arFields[$k] = $v[0];
 			}
 
-			if ($moreProtoPropertyId !== null)
+			if ($pageConfig['USE_NEW_CARD'] && $moreProtoPropertyId !== null)
 			{
 				if (isset($arFields['MORE_PHOTO']) && is_array($arFields['MORE_PHOTO']))
 				{
@@ -2380,7 +2382,7 @@ foreach ($priceTypeList as $priceType)
 	$skuFields[] = 'CATALOG_GROUP_'.$priceType['ID'];
 }
 
-if ($moreProtoPropertyId !== null)
+if ($pageConfig['USE_NEW_CARD'] && $moreProtoPropertyId !== null)
 {
 	$skuFields[] = 'MORE_PHOTO';
 }
@@ -2673,7 +2675,7 @@ foreach (array_keys($rawRows) as $rowId)
 		unset($rsProperties);
 	}
 
-	if ($bCatalog && isset($arSelectedFieldsMap['MORE_PHOTO']))
+	if ($bCatalog && $pageConfig['USE_NEW_CARD'] && isset($arSelectedFieldsMap['MORE_PHOTO']))
 	{
 		$skuId = $selectedSkuMap[$itemId] ?? $itemId;
 		$repositoryFacade = ServiceContainer::getRepositoryFacade();
@@ -2693,10 +2695,7 @@ foreach (array_keys($rawRows) as $rowId)
 				$imageInput = new ImageInput($entity);
 				$field = $imageInput->getFormattedField();
 				$row->AddViewField('MORE_PHOTO', $field['preview']);
-				if (!$bReadOnly)
-				{
-					$row->AddEditField('MORE_PHOTO', $field['input']);
-				}
+				$row->AddEditField('MORE_PHOTO', $field['input']);
 			}
 		}
 	}
@@ -2708,7 +2707,10 @@ foreach (array_keys($rawRows) as $rowId)
 		$arUserType = $aProp['PROPERTY_USER_TYPE'];
 
 		if (
-			$aProp['CODE'] === 'MORE_PHOTO'
+			(
+				$pageConfig['USE_NEW_CARD']
+				&& $aProp['CODE'] === 'MORE_PHOTO'
+			)
 			&& $aProp['PROPERTY_TYPE'] === 'F'
 			&& !$bExcel
 		)

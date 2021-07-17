@@ -137,7 +137,7 @@
 
 		BX.addCustomEvent('BX.Main.Filter:beforeApply', BX.delegate(this.filterBeforeApply, this));
 
-		BX.addCustomEvent('onAjaxFailure', BX.delegate(function(errType, status){
+		BX.addCustomEvent('onAjaxFailure', BX.delegate(function(errType, status, config){
 			if (errType == 'auth')
 			{
 				if (typeof(this) == "object" && typeof(this.filterId) != "undefined")
@@ -146,6 +146,29 @@
 						content: this.getMessage("AuthError")
 					});
 					top.location = top.location.href;
+				}
+			}
+			else if (errType == 'status')
+			{
+				if (typeof(config) == "object" && typeof(config.xhr) == "object" && config.xhr instanceof XMLHttpRequest)
+				{
+					try
+					{
+						var data = JSON.parse(config.xhr.responseText);
+						if (BX.type.isPlainObject(data))
+						{
+							if (data.status === 'error')
+							{
+								if (data.errors[0])
+								{
+									BX.UI.Notification.Center.notify({
+										content: data.errors[0].message
+									});
+								}
+							}
+						}
+					}
+					catch (err){}
 				}
 			}
 		}, this));

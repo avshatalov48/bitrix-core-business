@@ -170,3 +170,12 @@
 	color: #333333;
 	border-bottom: 1px dashed #333333;
 }
+
+.landing-ui-field.landing-ui-field-dropdown[data-selector="customPrice"] {
+	margin-top: 3px!important;
+	margin-left: 22px;
+}
+
+.landing-ui-field.landing-ui-field-dropdown[data-selector="customPrice"]::after {
+	top: 50%;
+}

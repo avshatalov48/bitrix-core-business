@@ -44,6 +44,20 @@ export class ConnectionProvider
 		this.additionalParams = options;
 	}
 
+	setSyncTimestamp(timestamp)
+	{
+		this.syncTimestamp = timestamp;
+
+		return this;
+	}
+
+	setStatus(status)
+	{
+		this.status = status;
+
+		return this;
+	}
+
 	getGridTitle()
 	{
 		return this.gridTitle;

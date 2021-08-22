@@ -179,7 +179,9 @@ class CCatalogAdminToolsAll
 					'ICON' => 'btn_new',
 					'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_SKU'),
 					'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_SKU_TITLE'),
+					'ID' => 'create_new_product_button_' . $gridId,
 					'LINK' => $urlBuilder->getElementDetailUrl(0, $arParams),
+					'PUBLIC' => $productCardEnabled, // TODO: remove this hack after refactoring \CAdminUiList::AddAdminContextMenu
 					'SHOW_TITLE' => true
 				);
 			}

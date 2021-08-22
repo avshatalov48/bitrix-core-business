@@ -132,7 +132,10 @@
 						backend
 							.action('Landing::addByTemplate', {
 								siteId: backend.getSiteId(),
-								code: template.ID
+								code: template.ID,
+								fields: {
+									ID: backend.getLandingId()
+								}
 							})
 							.then(function(response) {
 								this.loader.hide();

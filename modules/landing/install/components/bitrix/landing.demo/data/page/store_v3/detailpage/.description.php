@@ -15,6 +15,7 @@ return [
 	'fields' => [
 		'RULE' => '(item)/([^/]+)',
 		'ADDITIONAL_FIELDS' => [
+			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/store_v3/detailpage/preview.jpg',
 		],
 	],
 	'layout' => [

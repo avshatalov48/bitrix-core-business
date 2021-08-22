@@ -1,7 +1,12 @@
 <?php
+$MESS["CORRECTION_CHECK_EXPORT_CSV_TITLE"] = "Export items to CSV";
+$MESS["CORRECTION_CHECK_EXPORT_EXCEL_TITLE"] = "Export items to Microsoft Excel";
+$MESS["CORRECTION_CHECK_STEXPORT_SUMMARY"] = "This will export table items to a file. Exporting a considerable amount of data may take some time.";
 $MESS["SALE_CASHBOX_CORRECTION_ACCESS_DENIED"] = "Access denied.";
 $MESS["SALE_CASHBOX_CORRECTION_ADD"] = "Add correction receipt";
 $MESS["SALE_CASHBOX_CORRECTION_GROUP_ADD"] = "Add receipt";
+$MESS["SALE_CASHBOX_CORRECTION_GROUP_EXPORT_TO_CSV"] = "Export payments to CSV";
+$MESS["SALE_CASHBOX_CORRECTION_GROUP_EXPORT_TO_EXCEL"] = "Export payments to Microsoft Excel";
 $MESS["SALE_CASHBOX_CORRECTION_SAVE_CHECK"] = "Receipt has been created and sent to the printer";
 $MESS["SALE_CASHBOX_CORRECTION_TITLE"] = "Correction";
 $MESS["SALE_CHECK_CORRECTION_ORDER_DATE_BILL"] = "Payment created on";

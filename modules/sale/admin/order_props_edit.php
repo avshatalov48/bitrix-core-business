@@ -270,7 +270,11 @@ $propertySettings = $commonSettings + $inputSettings;
 //	unset($propertySettings['MULTIPLE']);
 //elseif ($property['MULTIPLE'] == 'Y')
 //	unset($propertySettings['IS_FILTERED']);
-if ($property['MULTIPLE'] == 'Y')
+
+/*
+ * We store the property of type DATE as a string, so we can't filter properly by it.
+ */
+if ($property['MULTIPLE'] === 'Y' || $property['TYPE'] === 'DATE')
 {
 	$propertySettings['IS_FILTERED']['DISABLED'] = 'Y';
 	unset($property['IS_FILTERED']);

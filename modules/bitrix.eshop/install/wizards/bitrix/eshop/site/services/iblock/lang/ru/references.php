@@ -29,6 +29,11 @@ $MESS["WZD_REF_COLOR_PINK"] = "Розовый";
 $MESS["WZD_REF_COLOR_AZURE"] = "Голубой";
 $MESS["WZD_REF_COLOR_JEANS"] = "Синяя джинса";
 $MESS["WZD_REF_COLOR_FLOWERS"] = "Черный с Белым и Цветочки";
+$MESS["WZD_REF_COLOR_DARKBLUE"] = "Темно-синий";
+$MESS["WZD_REF_COLOR_DARKGREEN"] = "Темно-зеленый";
+$MESS["WZD_REF_COLOR_GREY"] = "Серый";
+$MESS["WZD_REF_COLOR_YELLOW"] = "Желтый";
+$MESS["WZD_REF_COLOR_ORANGE"] = "Оранжевый";
 
 $MESS["WZD_REF_BRAND_COMPANY1"] = "Фэшн хаус";
 $MESS["WZD_REF_BRAND_DESCR_COMPANY1"] = "";

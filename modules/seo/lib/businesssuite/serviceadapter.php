@@ -139,4 +139,12 @@ class ServiceAdapter
 		return null;
 	}
 
+	/**
+	 * get conversion base api
+	 * @return Conversion
+	 */
+	public function getConversion()
+	{
+		return Conversion::create($this->wrapper->getMetaData()->getType())->setService($this->wrapper);
+	}
 }

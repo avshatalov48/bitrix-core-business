@@ -7,6 +7,7 @@ use Bitrix\Catalog\MeasureTable;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\Image\DetailImage;
+use Bitrix\Catalog\v2\Image\MorePhotoImage;
 use Bitrix\Catalog\v2\Image\PreviewImage;
 use Bitrix\Catalog\v2\Integration\JS\ProductForm\BasketBuilder;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
@@ -19,6 +20,8 @@ use Bitrix\Main\Engine\JsonController;
 use Bitrix\Main\Engine\Response;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
+use Bitrix\Main\Security\Sign\BadSignatureException;
+use Bitrix\Main\Security\Sign\Signer;
 
 class ProductSelector extends JsonController
 {
@@ -200,7 +203,7 @@ class ProductSelector extends JsonController
 
 		$formFields = $basketItem->getFields();
 
-		$price= null;
+		$price = null;
 		$currency = '';
 		if ($basketItem->getPriceItem() && $basketItem->getPriceItem()->hasPrice())
 		{
@@ -287,7 +290,7 @@ class ProductSelector extends JsonController
 
 			if ($productName !== '')
 			{
-				$fields['CODE'] = $this->prepareProductCode($productName);
+				$fields['CODE'] = (new \CIBlockElement())->generateMnemonicCode($productName, $iblockId);
 			}
 		}
 
@@ -412,7 +415,7 @@ class ProductSelector extends JsonController
 		}
 
 		// use the head product - in case when a simple product was saved but it became sku product
-		/** @var BaseIblockElementEntity $sku */
+		/** @var BaseIblockElementEntity $entity */
 		if ($productId === $variationId)
 		{
 			$entity = $product;
@@ -431,25 +434,30 @@ class ProductSelector extends JsonController
 
 		$values = [];
 
+		$property = $entity->getPropertyCollection()->findByCode(MorePhotoImage::CODE);
 		foreach ($imageValues as $key => $newImage)
 		{
-			if (!empty($newImage['data']) && is_array($newImage['data']))
+			$newImage = $this->prepareMorePhotoValue($newImage);
+			if (empty($newImage))
 			{
-				$newImage = \CIBlock::makeFileArray($newImage['data']);
-
-				if ($key === DetailImage::CODE)
-				{
-					$detailPicture = $newImage;
-					$newImage = null;
-				}
-				elseif ($key === PreviewImage::CODE)
-				{
-					$previewPicture = $newImage;
-					$newImage = null;
-				}
+				continue;
 			}
 
-			if (!empty($newImage))
+			if (!$property)
+			{
+				$detailPicture = $newImage;
+				break;
+			}
+
+			if ($key === DetailImage::CODE)
+			{
+				$detailPicture = $newImage;
+			}
+			elseif ($key === PreviewImage::CODE)
+			{
+				$previewPicture = $newImage;
+			}
+			else
 			{
 				$values[$key] = $newImage;
 			}
@@ -478,6 +486,43 @@ class ProductSelector extends JsonController
 		$productImageField = new ImageInput($entity);
 
 		return $productImageField->getFormattedField();
+	}
+
+	private function prepareMorePhotoValue($imageValue)
+	{
+		if (empty($imageValue))
+		{
+			return null;
+		}
+
+		if (is_string($imageValue))
+		{
+			try
+			{
+				static $signer = null;
+				if ($signer === null)
+				{
+					$signer = new Signer;
+				}
+
+				return (int)$signer->unsign($imageValue, ImageInput::FILE_ID_SALT);
+			}
+			catch (BadSignatureException $e)
+			{
+				return null;
+			}
+		}
+
+		if (
+			is_array($imageValue)
+			&& !empty($imageValue['data'])
+			&& is_array($imageValue['data'])
+		)
+		{
+			return \CIBlock::makeFileArray($imageValue['data']);
+		}
+
+		return null;
 	}
 
 	private function saveProduct(BaseProduct $product, array $fields = []): Result
@@ -613,6 +658,7 @@ class ProductSelector extends JsonController
 		}
 		$product = $productFactory->createEntity();
 		$imageField = new ImageInput($product);
+		$imageField->disableAutoSaving();
 
 		return $imageField->getComponentResponse();
 	}

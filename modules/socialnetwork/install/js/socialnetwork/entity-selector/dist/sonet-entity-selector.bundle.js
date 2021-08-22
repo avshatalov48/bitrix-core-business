@@ -27,6 +27,10 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('content', function () {
+	        if (_this2.getOption('tagCreationLabel', false)) {
+	          return _this2.createTagCreationLabel();
+	        }
+
 	        var inviteEmployeeLink = _this2.getOption('inviteEmployeeLink');
 
 	        var inviteGuestLink = _this2.getOption('inviteGuestLink');
@@ -97,6 +101,11 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 
 	        return null;
 	      });
+	    }
+	  }, {
+	    key: "createTagCreationLabel",
+	    value: function createTagCreationLabel() {
+	      return main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_TAG_FOOTER_LABEL');
 	    }
 	  }, {
 	    key: "createInviteEmployeeLink",

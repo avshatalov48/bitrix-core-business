@@ -13,6 +13,8 @@ abstract class CCloudStorageService
 	protected $result = '';
 
 	public $tokenHasExpired = false;
+	protected $streamTimeout = 0;
+
 	/**
 	 * @return CCloudStorageService
 	 * @deprecated

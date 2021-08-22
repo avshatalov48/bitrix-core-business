@@ -92,6 +92,7 @@
 		this.userId = BX.message('USER_ID');
 		this.isIntranetOrExtranet = BX.prop.getBoolean(config, "isIntranetOrExtranet", true);
 		this.users = {}; // Call participants. The key is the user id.
+		this.screenUsers = {}; // Screen sharing participants. The key is the user id.
 		this.userRegistry = new UserRegistry();
 
 		var localUserModel = new UserModel({
@@ -222,11 +223,6 @@
 		this.uiState = config.uiState || UiState.Calling;
 		this.layout = config.layout || Layouts.Centered;
 
-		if(BX.type.isPlainObject(config.userStates))
-		{
-			this.appendUsers(config.userStates);
-		}
-
 		this.eventEmitter = new BX.Event.EventEmitter(this, 'BX.Call.View');
 
 		this.scrollInterval = 0;
@@ -282,6 +278,10 @@
 
 		this.init();
 		this.subscribeEvents(config);
+		if(BX.type.isPlainObject(config.userStates))
+		{
+			this.appendUsers(config.userStates);
+		}
 	};
 
 	BX.Call.View.prototype.init = function()
@@ -410,7 +410,6 @@
 		{
 			previousCentralUser.dismount();
 			this.updateUserList();
-			this.centralUser.mount(this.elements.center);
 		}
 		if (this.layout == Layouts.Mobile)
 		{
@@ -872,6 +871,15 @@
 		this.microphoneId = microphoneId;
 	};
 
+	BX.Call.View.prototype.setMicrophoneLevel = function(level)
+	{
+		this.microphoneLevel = level;
+		if (this.buttons.microphone)
+		{
+			this.buttons.microphone.setLevel(level);
+		}
+	};
+
 	BX.Call.View.prototype.setCameraState = function(newCameraState)
 	{
 		newCameraState = !!newCameraState;
@@ -1003,13 +1011,27 @@
 
 		this.userRegistry.push(userModel);
 
+		if(!this.elements.audio[userId])
+		{
+			this.elements.audio[userId] = BX.create("audio");
+			this.elements.audioContainer.appendChild(this.elements.audio[userId]);
+		}
+
 		this.users[userId] = new CallUser({
 			parentContainer: this.container,
 			userModel: userModel,
+			audioElement: this.elements.audio[userId],
 			allowPinButton: this.getConnectedUserCount() > 1,
 			onClick: this._onUserClick.bind(this),
 			onPin: this._onUserPin.bind(this),
 			onUnPin: this._onUserUnPin.bind(this),
+		});
+
+		this.screenUsers[userId] = new CallUser({
+			parentContainer: this.container,
+			userModel: userModel,
+			allowPinButton: false,
+			screenSharingUser: true,
 		});
 
 		if (this.elements.root)
@@ -1049,6 +1071,11 @@
 		if(!user)
 		{
 			return;
+		}
+
+		if(newState === BX.Call.UserState.Connected && this.uiState === UiState.Calling)
+		{
+			this.setUiState(UiState.Connected);
 		}
 
 		user.state = newState;
@@ -1295,7 +1322,7 @@
 
 	BX.Call.View.prototype.setLocalStream = function(mediaStream, flipVideo)
 	{
-		this.localUser.stream = mediaStream;
+		this.localUser.videoTrack = mediaStream.getVideoTracks().length > 0 ? mediaStream.getVideoTracks()[0] : null;
 		this.localUser.flipVideo = !!flipVideo;
 		this.setCameraState(this.localUser.hasVideo());
 		this.localUser.userModel.cameraState = this.localUser.hasVideo();
@@ -1390,10 +1417,8 @@
 
 	BX.Call.View.prototype.setStream = function(userId, mediaStream)
 	{
-		if(this.uiState == UiState.Calling)
-		{
-			this.setUiState(UiState.Connected);
-		}
+		console.error("BX.Call.View.prototype.setStream is deprecated");
+		return;
 
 		if(!this.users[userId])
 		{
@@ -1405,14 +1430,6 @@
 			throw Error("mediaStream should be instance of MediaStream");
 		}
 
-		if(!this.elements.audio[userId])
-		{
-			this.elements.audio[userId] = BX.create("audio");
-			this.elements.audioContainer.appendChild(this.elements.audio[userId]);
-		}
-
-		this.elements.audio[userId].volume = this.speakerMuted ? 0 : 1;
-
 		if(mediaStream.getAudioTracks().length > 0 && mediaStream != this.elements.audio[userId].srcObject)
 		{
 			if(this.speakerId && this.elements.audio[userId].setSinkId)
@@ -1420,19 +1437,13 @@
 				this.elements.audio[userId].setSinkId(this.speakerId).then(function()
 				{
 					this.elements.audio[userId].srcObject = mediaStream;
-					this.elements.audio[userId].play().catch(function(error)
-					{
-						console.error("Playback start error: ", error);
-					}.bind(this));
+					this.elements.audio[userId].play().catch(logPlaybackError);
 				}.bind(this)).catch(console.error);
 			}
 			else
 			{
 				this.elements.audio[userId].srcObject = mediaStream;
-				this.elements.audio[userId].play().catch(function(error)
-				{
-					console.error("Playback start error: ", error);
-				}.bind(this));
+				this.elements.audio[userId].play().catch(logPlaybackError);
 			}
 		}
 
@@ -1441,10 +1452,6 @@
 
 	BX.Call.View.prototype.setVideoRenderer = function(userId, mediaRenderer)
 	{
-		if(this.uiState == UiState.Calling)
-		{
-			this.setUiState(UiState.Connected);
-		}
 		if(!this.users[userId])
 		{
 			throw Error("User " + userId + " is not a part of this call");
@@ -1465,6 +1472,24 @@
 		}
 
 		this.users[userId].videoRenderer = mediaRenderer;
+	};
+
+	BX.Call.View.prototype.setUserMedia = function(userId, kind, track)
+	{
+		if (kind === 'audio')
+		{
+			this.users[userId].audioTrack = track;
+		}
+		if (kind === 'video')
+		{
+			this.users[userId].videoTrack = track;
+		}
+		if (kind === 'screen')
+		{
+			this.screenUsers[userId].videoTrack = track;
+			this.updateUserList();
+			this.setUserScreenState(userId, track !== null);
+		}
 	};
 
 	BX.Call.View.prototype.applyIncomingVideoConstraints = function()
@@ -1540,12 +1565,12 @@
 		}
 		this.container.appendChild(this.elements.root);
 
+		this.startIntersectionObserver();
 		this.updateButtons();
 		this.updateUserList();
-		this.resumeVideo();
 
+		this.resumeVideo();
 		this.toggleEars();
-		this.startIntersectionObserver();
 		this.visible = true;
 
 		this.eventEmitter.emit(EventName.onShow);
@@ -1571,6 +1596,28 @@
 				threshold: 0.5
 			}
 		);
+	};
+
+	/**
+	 * @param {CallUser} callUser
+	 */
+	BX.Call.View.prototype.observeIntersections = function(callUser)
+	{
+		if (this.intersectionObserver && callUser.elements.root)
+		{
+			this.intersectionObserver.observe(callUser.elements.root);
+		}
+	};
+
+	/**
+	 * @param {CallUser} callUser
+	 */
+	BX.Call.View.prototype.unobserveIntersections = function(callUser)
+	{
+		if (this.intersectionObserver && callUser.elements.root)
+		{
+			this.intersectionObserver.unobserve(callUser.elements.root);
+		}
 	};
 
 	BX.Call.View.prototype.showDeviceSelector = function(bindElement)
@@ -2447,11 +2494,7 @@
 
 	BX.Call.View.prototype.renderUserList = function()
 	{
-		var showLocalUser = (
-			this.localUser.userModel.state != BX.Call.UserState.Idle
-			&& this.localUser.userModel.direction != BX.Call.EndpointDirection.RecvOnly
-		);
-
+		var showLocalUser = this.shouldShowLocalUser();
 		var userCount = 0;
 		var skipUsers = 0;
 		var skippedUsers = 0;
@@ -2473,14 +2516,22 @@
 
 			/** @type {CallUser} */
 			var user = this.users[userId];
+			var screenUser = this.screenUsers[userId];
 			if(userId == this.centralUser.id && (this.layout == Layouts.Centered || this.layout == Layouts.Mobile))
 			{
-				if(this.intersectionObserver && user.elements.root)
+				this.unobserveIntersections(user);
+				if (screenUser.hasVideo())
 				{
-					this.intersectionObserver.unobserve(user.elements.root);
+					screenUser.mount(this.elements.center);
+					screenUser.visible = true;
+					user.mount(this.elements.userList.container);
 				}
-				user.mount(this.elements.center);
-				user.visible = true;
+				else
+				{
+					user.visible = true;
+					user.mount(this.elements.center);
+					screenUser.dismount();
+				}
 
 				continue;
 			}
@@ -2508,18 +2559,22 @@
 			if(!userActive)
 			{
 				user.dismount();
-				if(this.intersectionObserver && user.elements.root)
-				{
-					this.intersectionObserver.unobserve(user.elements.root);
-				}
+				this.unobserveIntersections(user);
+				screenUser.dismount();
 				continue;
 			}
 
-			user.mount(this.elements.userList.container);
-			if(this.intersectionObserver)
+			if (screenUser.hasVideo())
 			{
-				this.intersectionObserver.observe(user.elements.root);
+				screenUser.mount(this.elements.userList.container);
+				userCount++;
 			}
+			else
+			{
+				screenUser.dismount();
+			}
+			user.mount(this.elements.userList.container);
+			this.observeIntersections(user);
 			renderedUsers++;
 			userCount++;
 		}
@@ -2527,10 +2582,7 @@
 		{
 			if(this.layout == Layouts.Centered && this.userId == this.centralUser.id || this.layout == Layouts.Mobile)
 			{
-				if(this.intersectionObserver && this.localUser.elements.root)
-				{
-					this.intersectionObserver.unobserve(this.localUser.elements.root);
-				}
+				this.unobserveIntersections(this.localUser);
 				this.localUser.mount(this.elements.center, true);
 				this.localUser.visible = true;
 			}
@@ -2540,7 +2592,7 @@
 				this.localUser.mount(this.elements.userList.container);
 				if(this.layout == Layouts.Centered && this.intersectionObserver)
 				{
-					this.intersectionObserver.observe(this.localUser.elements.root);
+					this.observeIntersections(this.localUser);
 				}
 				else
 				{
@@ -2553,35 +2605,12 @@
 		else
 		{
 			this.localUser.dismount();
-			if(this.intersectionObserver && this.localUser.elements.root)
-			{
-				this.intersectionObserver.unobserve(this.localUser.elements.root);
-			}
+			this.unobserveIntersections(this.localUser);
 		}
 
 		if (this.layout == Layouts.Grid)
 		{
-			var containerSize = this.elements.userList.container.getBoundingClientRect();
-			this.userSize = BX.Call.Util.findBestElementSize(
-				containerSize.width,
-				containerSize.height,
-				userCount,
-				MIN_GRID_USER_WIDTH,
-				MIN_GRID_USER_HEIGHT
-			);
-
-			var avatarSize = Math.round(this.userSize.height * 0.45);
-			this.elements.userList.container.style.setProperty('--grid-user-width', this.userSize.width + 'px');
-			this.elements.userList.container.style.setProperty('--grid-user-height', this.userSize.height + 'px');
-			this.elements.userList.container.style.setProperty('--avatar-size', avatarSize + 'px');
-			if (this.userSize.width < 220)
-			{
-				this.elements.userList.container.classList.add("bx-messenger-videocall-user-list-small");
-			}
-			else
-			{
-				this.elements.userList.container.classList.remove("bx-messenger-videocall-user-list-small");
-			}
+			this.updateGridUserSize(userCount);
 		}
 		else
 		{
@@ -2601,15 +2630,41 @@
 			BX.remove(this.elements.userList.addButton);
 		}
 
-		if (this.elements.userList.container.childElementCount === 0)
+		this.elements.root.classList.toggle("bx-messenger-videocall-user-list-empty", (this.elements.userList.container.childElementCount === 0));
+		this.localUser.updatePanelDeferred();
+	};
+
+	BX.Call.View.prototype.shouldShowLocalUser = function()
+	{
+		return (
+			this.localUser.userModel.state != BX.Call.UserState.Idle
+			&& this.localUser.userModel.direction != BX.Call.EndpointDirection.RecvOnly
+		);
+	};
+
+	BX.Call.View.prototype.updateGridUserSize = function(userCount)
+	{
+		var containerSize = this.elements.userList.container.getBoundingClientRect();
+		this.userSize = BX.Call.Util.findBestElementSize(
+			containerSize.width,
+			containerSize.height,
+			userCount,
+			MIN_GRID_USER_WIDTH,
+			MIN_GRID_USER_HEIGHT
+		);
+
+		var avatarSize = Math.round(this.userSize.height * 0.45);
+		this.elements.userList.container.style.setProperty('--grid-user-width', this.userSize.width + 'px');
+		this.elements.userList.container.style.setProperty('--grid-user-height', this.userSize.height + 'px');
+		this.elements.userList.container.style.setProperty('--avatar-size', avatarSize + 'px');
+		if (this.userSize.width < 220)
 		{
-			this.elements.root.classList.add("bx-messenger-videocall-user-list-empty");
+			this.elements.userList.container.classList.add("bx-messenger-videocall-user-list-small");
 		}
 		else
 		{
-			this.elements.root.classList.remove("bx-messenger-videocall-user-list-empty");
+			this.elements.userList.container.classList.remove("bx-messenger-videocall-user-list-small");
 		}
-		this.localUser.updatePanelDeferred();
 	};
 
 	BX.Call.View.prototype.updateCentralUserAvatarSize = function()
@@ -2707,6 +2762,7 @@
 						arrowHidden: this.layout == Layouts.Mobile,
 						arrowEnabled: this.isMediaSelectionAllowed(),
 						blocked: this.isButtonBlocked("microphone"),
+						showLevel: true,
 						onClick: function(e)
 						{
 							this._onMicrophoneButtonClick(e);
@@ -3136,6 +3192,9 @@
 			/** @type {CallUser} */
 			var user = this.users[userId];
 			user.playVideo()
+			/** @type {CallUser} */
+			var screenUser = this.screenUsers[userId];
+			screenUser.playVideo();
 		}
 		this.localUser.playVideo(true);
 	};
@@ -4313,6 +4372,8 @@
 		this._allowPinButton = BX.prop.getBoolean(config, "allowPinButton", true);
 		this._visible = true;
 
+		this.screenSharingUser = BX.prop.getBoolean(config, "screenSharingUser", false);
+
 		Object.defineProperty(this, "allowPinButton", {
 			get: function()
 			{
@@ -4334,16 +4395,54 @@
 				return this.userModel.id
 			}
 		});
-		this._stream = config.stream;
+
+		this._audioTrack = config.audioTrack;
+		this._audioStream = this._audioTrack ? new MediaStream([this._audioTrack]) : null;
+		Object.defineProperty(this, 'audioTrack', {
+			get: function()
+			{
+				return this._audioTrack;
+			},
+			set: function(audioTrack)
+			{
+				if (this._audioTrack === audioTrack)
+				{
+					return;
+				}
+				this._audioTrack = audioTrack;
+				this._audioStream = this._audioTrack ? new MediaStream([this._audioTrack]) : null;
+				this.playAudio()
+			}
+		});
+		Object.defineProperty(this, 'audioStream', {
+			get: function()
+			{
+				return this._audioStream;
+			}
+		});
+
+		this._videoTrack = config.videoTrack;
+		this._stream = this._videoTrack ? new MediaStream([this._videoTrack]) : null;
+		Object.defineProperty(this, "videoTrack", {
+			get: function()
+			{
+				return this._videoTrack;
+			},
+			set: function(videoTrack)
+			{
+				if (this._videoTrack === videoTrack)
+				{
+					return;
+				}
+				this._videoTrack = videoTrack;
+				this._stream = this._videoTrack ? new MediaStream([this._videoTrack]) : null;
+				this.update()
+			}
+		});
 		Object.defineProperty(this, "stream", {
 			get: function()
 			{
 				return this._stream;
-			},
-			set: function(stream)
-			{
-				this._stream = stream;
-				this.update()
 			}
 		});
 		this._videoRenderer = null;
@@ -4397,6 +4496,7 @@
 			container: null,
 			videoContainer: null,
 			video: null,
+			audio: config.audioElement || null,
 			videoBorder: null,
 			avatarContainer: null,
 			avatar: null,
@@ -4490,7 +4590,7 @@
 										}),
 										this.elements.name = BX.create("span", {
 											props: {className: "bx-messenger-videocall-user-name"},
-											text: this.userModel.name
+											text: (this.screenSharingUser ? BX.message('IM_CALL_USERS_SCREEN').replace("#NAME#", this.userModel.name)	: this.userModel.name)
 										}),
 										this.elements.changeNameIcon = BX.create("div", {
 											props: {className: "bx-messenger-videocall-user-change-name-icon hidden"},
@@ -5007,7 +5107,10 @@
 
 		if(this.elements.name)
 		{
-			this.elements.name.innerText = this.userModel.name;
+			this.elements.name.innerText = this.screenSharingUser
+				? BX.message('IM_CALL_USERS_SCREEN').replace("#NAME#", this.userModel.name)
+				: this.userModel.name
+			;
 		}
 	};
 
@@ -5148,11 +5251,34 @@
 		this.updatePanelDeferred();
 	};
 
+	CallUser.prototype.playAudio = function()
+	{
+		if (!this.audioStream)
+		{
+			this.elements.audio.srcObject = null;
+			return;
+		}
+
+		if(this.speakerId && this.elements.audio.setSinkId)
+		{
+			this.elements.audio.setSinkId(this.speakerId).then(function()
+			{
+				this.elements.audio.srcObject = this.audioStream;
+				this.elements.audio.play().catch(logPlaybackError);
+			}.bind(this)).catch(console.error);
+		}
+		else
+		{
+			this.elements.audio.srcObject = this.audioStream;
+			this.elements.audio.play().catch(logPlaybackError);
+		}
+	};
+
 	CallUser.prototype.playVideo = function()
 	{
 		if(this.elements.video)
 		{
-			this.elements.video.play().catch(BX.DoNothing);
+			this.elements.video.play().catch(logPlaybackError);
 		}
 	};
 
@@ -5385,8 +5511,7 @@
 	CallUser.prototype.hasVideo = function()
 	{
 		return this.userModel.state == BX.Call.UserState.Connected && (
-			BX.Call.Util.containsVideoTrack(this.stream)
-			|| !!this._videoRenderer
+			!!this._videoTrack || !!this._videoRenderer
 		);
 	};
 
@@ -5413,7 +5538,7 @@
 		{
 			this.elements.video.srcObject = null;
 		}
-		this.stream = null;
+		this.videoTrack = null;
 	};
 
 
@@ -6341,10 +6466,14 @@
 		this.arrowHidden = (config.arrowHidden === true);
 		this.blocked = (config.blocked === true);
 
+		this.showLevel = (config.showLevel === true);
+		this.level = config.level || 0;
+
 		this.elements = {
 			root: null,
 			icon: null,
-			arrow: null
+			arrow: null,
+			levelMeter: null,
 		};
 
 		this.callbacks = {
@@ -6406,6 +6535,35 @@
 			this.elements.root.appendChild(this.elements.arrow);
 		}
 
+		if (this.showLevel)
+		{
+			this.elements.icon.appendChild(createSVG("svg", {
+				attrNS: {
+					class: "bx-messenger-videocall-panel-item-level-meter-container",
+					width: 3, height: 20
+				},
+				children: [
+					createSVG("g", {
+						attrNS: {
+							fill: "#30B1DC"
+						},
+						children: [
+							createSVG("rect", {
+								attrNS: {
+									x: 0, y: 0, width: 3, height: 20, rx: 1.5, opacity: .1,
+								}
+							}),
+							this.elements.levelMeter = createSVG("rect", {
+								attrNS: {
+									x: 0, y: 20, width: 3, height: 20, rx: 1.5,
+								}
+							}),
+						]
+					})
+				]
+			}));
+		}
+
 		return this.elements.root;
 	};
 
@@ -6422,6 +6580,10 @@
 		}
 		this.enabled = true;
 		this.elements.icon.className = this.getIconClass();
+		if (this.elements.levelMeter)
+		{
+			this.elements.levelMeter.setAttribute('y', Math.round((1-this.level) * 20));
+		}
 	};
 
 	DeviceButton.prototype.disable = function()
@@ -6432,6 +6594,10 @@
 		}
 		this.enabled = false;
 		this.elements.icon.className = this.getIconClass();
+		if (this.elements.levelMeter)
+		{
+			this.elements.levelMeter.setAttribute('y', 20);
+		}
 	};
 
 	DeviceButton.prototype.setBlocked = function (blocked)
@@ -6472,6 +6638,15 @@
 		this.arrowHidden = false;
 		this.elements.root.removeChild(this.elements.arrow);
 	};
+
+	DeviceButton.prototype.setLevel = function(level)
+	{
+		this.level = Math.log(level * 100) / 4.6;
+		if (this.showLevel && this.enabled)
+		{
+			this.elements.levelMeter.setAttribute('y', Math.round((1-this.level) * 20));
+		}
+	}
 
 	var WaterMarkButton = function(config)
 	{
@@ -7842,6 +8017,11 @@
 
 		BX.adjust(element, config);
 		return element;
+	}
+
+	function logPlaybackError(error)
+	{
+		console.error("Playback start error: ", error);
 	}
 
 	BX.Call.View.Layout = Layouts;

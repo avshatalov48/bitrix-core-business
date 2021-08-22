@@ -62,7 +62,7 @@ class Rc extends Letter
 	{
 		if (!Integration\Crm\ReturnCustomer\Service::isAvailable())
 		{
-			$this->addError(Loc::getMessage('SENDER_ENTITY_RC_ERROR_NO_ACCESS'));
+			$this->addError(Loc::getMessage('SENDER_ENTITY_RC_ERROR_NO_ACCESS'), 'feature:sender_rc');
 			return $id;
 		}
 

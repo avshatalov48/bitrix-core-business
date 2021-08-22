@@ -182,6 +182,12 @@ export class UserPlannerSelector extends EventEmitter
 					formType: 'compact'
 				}
 			});
+
+			// For testing purposes
+			if (Type.isElementNode(this.intranetControllButton.button))
+			{
+				this.intranetControllButton.button.setAttribute('data-role', 'videocallButton');
+			}
 		}
 		else if(this.DOM.videocallWrap)
 		{
@@ -505,20 +511,17 @@ export class UserPlannerSelector extends EventEmitter
 							dataset: {user: user},
 							className: 'calendar-add-popup-user-menu-item',
 							onclick: () => {
-								if (!user.EMAIL_USER)
-								{
-									BX.SidePanel.Instance.open(
-										user.URL,
-										{
-											loader: "intranet:profile",
-											cacheable: false,
-											allowChangeHistory: false,
-											contentClassName: "bitrix24-profile-slider-content",
-											width: 1100
-										}
-									);
-									this.morePopup.close();
-								}
+								BX.SidePanel.Instance.open(
+									user.URL,
+									{
+										loader: "intranet:profile",
+										cacheable: false,
+										allowChangeHistory: false,
+										contentClassName: "bitrix24-profile-slider-content",
+										width: 1100
+									}
+								);
+								this.morePopup.close();
 							}
 						}
 					);

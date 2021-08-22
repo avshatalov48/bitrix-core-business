@@ -425,6 +425,11 @@ class Property extends Controller
 				'REQUIRED' => 'Y',
 				'RLABEL' => $personType['NAME']
 			],
+			'ENTITY_TYPE' => [
+				'TYPE' => 'STRING',
+				'LABEL' => 'ENTITY_TYPE',
+				'HIDDEN' => 'Y',
+			],
 			'PROPS_GROUP_ID' => [
 				'TYPE' => 'ENUM',
 				'LABEL' => Loc::getMessage('F_PROPS_GROUP_ID'),

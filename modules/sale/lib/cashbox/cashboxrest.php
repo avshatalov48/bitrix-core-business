@@ -184,6 +184,15 @@ class CashboxRest extends Cashbox implements IPrintImmediately, ICheckable
 		}
 
 		$checkInfo = CheckManager::getCheckInfoByExternalUuid($data['UUID']);
+
+		if ($data['STATUS'] === 'ERROR')
+		{
+			$result['ERROR'] = [
+				'TYPE' => Errors\Error::TYPE,
+				'MESSAGE' => $data['ERROR'],
+			];
+		}
+
 		$result['ID'] = $checkInfo['ID'];
 		$result['CHECK_TYPE'] = $checkInfo['TYPE'];
 
@@ -223,12 +232,12 @@ class CashboxRest extends Cashbox implements IPrintImmediately, ICheckable
 		{
 			return $result->addError(new Errors\Error(Loc::getMessage("SALE_CASHBOX_REST_DATA_ERROR_CHECK_CHECK")));
 		}
-		if (isset($response["ERRORS"]))
+
+		$response['UUID'] = $checkUUID;
+
+		if ($response['STATUS'] === 'WAIT')
 		{
-			foreach ($response["ERRORS"] as $error)
-			{
-				$result = $result->addError(new Errors\Error($error));
-			}
+			$result = $result->addError(new Main\Error(Loc::getMessage('SALE_CASHBOX_REST_PRINT_IN_PROGRESS')));
 
 			return $result;
 		}
@@ -252,7 +261,23 @@ class CashboxRest extends Cashbox implements IPrintImmediately, ICheckable
 	public function printImmediately(Check $check): Result
 	{
 		$url = $this->getPrintUrl();
-		return Sale\Helpers\Rest\Http::sendRequest($url, $this->buildCheckQuery($check));
+		$printResult = Sale\Helpers\Rest\Http::sendRequest($url, $this->buildCheckQuery($check));
+
+		if (!$printResult->isSuccess())
+		{
+			return $printResult;
+		}
+
+		$printData = $printResult->getData();
+		if (isset($printData['ERRORS']) && is_array($printData['ERRORS']))
+		{
+			foreach ($printData['ERRORS'] as $errorMessage)
+			{
+				$printResult->addError(new Errors\Error($errorMessage));
+			}
+		}
+
+		return $printResult;
 	}
 
 	/**

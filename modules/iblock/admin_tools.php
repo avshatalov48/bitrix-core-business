@@ -135,6 +135,7 @@ function _ShowGroupPropertyField($name, $property_fields, $values, $bVarsFromFor
 		$res .= '>'.str_repeat(" . ", $ar["DEPTH_LEVEL"]-1).$ar["NAME"].'</option>';
 	}
 
+	echo '<input type="hidden" name="'.$name.'[]" value="">';
 	echo '<select name="'.$name.'[]" size="'.$property_fields["MULTIPLE_CNT"].'" '.($property_fields["MULTIPLE"]=="Y"?"multiple":"").'>';
 	echo '<option value=""'.(!$bWas?' selected':'').'>'.GetMessage("IBLOCK_AT_NOT_SET").'</option>';
 	echo $res;

@@ -8,6 +8,22 @@ use Bitrix\Main\ORM;
 
 Localization\Loc::loadMessages(__FILE__);
 
+/**
+ * Class MailServicesTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MailServices_Query query()
+ * @method static EO_MailServices_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MailServices_Result getById($id)
+ * @method static EO_MailServices_Result getList(array $parameters = array())
+ * @method static EO_MailServices_Entity getEntity()
+ * @method static \Bitrix\Mail\EO_MailServices createObject($setDefaultValues = true)
+ * @method static \Bitrix\Mail\EO_MailServices_Collection createCollection()
+ * @method static \Bitrix\Mail\EO_MailServices wakeUpObject($row)
+ * @method static \Bitrix\Mail\EO_MailServices_Collection wakeUpCollection($rows)
+ */
 class MailServicesTable extends Entity\DataManager
 {
 

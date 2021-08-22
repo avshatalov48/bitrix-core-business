@@ -82,7 +82,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 				$bFinish = true;
 
 				$arSysLangs = Array();
-				$db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"), array("ACTIVE" => "Y"));
+				$db_lang = CLangAdmin::GetList('', '', array("ACTIVE" => "Y"));
 				while ($arLang = $db_lang->Fetch())
 				{
 					$arSysLangs[$arLang["LID"]] = $arLang["LID"];

@@ -104,7 +104,9 @@ else
 	{
 		$arResult["Group"] = $arGroup;
 
-		$arResult["CurrentUserPerms"] = CSocNetUserToGroup::InitUserPerms($GLOBALS["USER"]->GetID(), $arResult["Group"], CSocNetUser::IsCurrentUserModuleAdmin());
+		$arResult["CurrentUserPerms"] = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
+			'groupId' => $arGroup['ID'],
+		]);
 
 		if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"])
 			$APPLICATION->AddHeadScript('/bitrix/js/main/admin_tools.js');	

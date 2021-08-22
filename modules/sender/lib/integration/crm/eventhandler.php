@@ -100,11 +100,6 @@ class EventHandler
 		$dataToInsert = [];
 		foreach($eventDataArray as $eventData)
 		{
-			if (!$eventData['SEND_RESULT'])
-			{
-				continue;
-			}
-
 			$recipient = $eventData['RECIPIENT'];
 			$fields = $eventData['RECIPIENT']['FIELDS'];
 

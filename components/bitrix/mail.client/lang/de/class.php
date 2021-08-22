@@ -22,7 +22,6 @@ $MESS["MAIL_DISK_FILE_DOWNLOAD_ARCHIVE"] = "Alle Dateien als Archiv herunterlade
 $MESS["MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_BODY"] = "Die Anzahl der Mailboxen pro Mitarbeiter hängt vom jeweiligen Bitrix24 Tarif ab.
 <br><br>
 Ihr aktueller Tarif erlaubt #LIMIT# Mailboxen pro Mitarbeiter.";
-$MESS["MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_TITLE"] = "Mailbox mit Bitrix24 verbinden";
 $MESS["MAIL_MESSAGE_ATTACHES"] = "Dateien";
 $MESS["MAIL_MESSAGE_BAD_SENDER"] = "Ungültiger Absender";
 $MESS["MAIL_MESSAGE_BTN_DEL"] = "Löschen";

@@ -149,18 +149,15 @@ export default class TagSelector extends EventEmitter
 		{
 			this.locked = flag;
 
-			if (this.isRendered())
+			if (flag)
 			{
-				if (flag)
-				{
-					Dom.addClass(this.getOuterContainer(), 'ui-tag-selector-container-locked');
-					this.getTextBox().disabled = true;
-				}
-				else
-				{
-					Dom.removeClass(this.getOuterContainer(), 'ui-tag-selector-container-locked');
-					this.getTextBox().disabled = false;
-				}
+				Dom.addClass(this.getOuterContainer(), 'ui-tag-selector-container-locked');
+				this.getTextBox().disabled = true;
+			}
+			else
+			{
+				Dom.removeClass(this.getOuterContainer(), 'ui-tag-selector-container-locked');
+				this.getTextBox().disabled = false;
 			}
 		}
 	}

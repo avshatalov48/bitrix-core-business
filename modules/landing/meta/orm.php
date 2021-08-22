@@ -139,18 +139,6 @@ namespace Bitrix\Landing\Internals {
 }
 namespace Bitrix\Landing\Internals {
 	/**
-	 * @method static EO_Binding_Query query()
-	 * @method static EO_Binding_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Binding_Result getById($id)
-	 * @method static EO_Binding_Result getList(array $parameters = array())
-	 * @method static EO_Binding_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_Binding createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_Binding_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_Binding wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_Binding_Collection wakeUpCollection($rows)
-	 */
-	class BindingTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -176,7 +164,7 @@ namespace Bitrix\Landing\Internals {
 	 */
 	class EO_Binding_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Landing\Internals\BlockTable:landing/lib/internals/block.php:6c0f64dc4f7c054ab6efa9e47a0f057b */
+/* ORMENTITYANNOTATION:Bitrix\Landing\Internals\BlockTable:landing/lib/internals/block.php:752f04cfc48ed43205c88cfc9734b807 */
 namespace Bitrix\Landing\Internals {
 	/**
 	 * EO_Block
@@ -300,6 +288,16 @@ namespace Bitrix\Landing\Internals {
 	 * @method \Bitrix\Landing\Internals\EO_Block resetDeleted()
 	 * @method \Bitrix\Landing\Internals\EO_Block unsetDeleted()
 	 * @method \string fillDeleted()
+	 * @method \string getDesigned()
+	 * @method \Bitrix\Landing\Internals\EO_Block setDesigned(\string|\Bitrix\Main\DB\SqlExpression $designed)
+	 * @method bool hasDesigned()
+	 * @method bool isDesignedFilled()
+	 * @method bool isDesignedChanged()
+	 * @method \string remindActualDesigned()
+	 * @method \string requireDesigned()
+	 * @method \Bitrix\Landing\Internals\EO_Block resetDesigned()
+	 * @method \Bitrix\Landing\Internals\EO_Block unsetDesigned()
+	 * @method \string fillDesigned()
 	 * @method \string getAccess()
 	 * @method \Bitrix\Landing\Internals\EO_Block setAccess(\string|\Bitrix\Main\DB\SqlExpression $access)
 	 * @method bool hasAccess()
@@ -457,6 +455,8 @@ namespace Bitrix\Landing\Internals {
 	 * @method \string[] fillPublic()
 	 * @method \string[] getDeletedList()
 	 * @method \string[] fillDeleted()
+	 * @method \string[] getDesignedList()
+	 * @method \string[] fillDesigned()
 	 * @method \string[] getAccessList()
 	 * @method \string[] fillAccess()
 	 * @method array[] getSourceParamsList()
@@ -507,18 +507,6 @@ namespace Bitrix\Landing\Internals {
 	}
 }
 namespace Bitrix\Landing\Internals {
-	/**
-	 * @method static EO_Block_Query query()
-	 * @method static EO_Block_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Block_Result getById($id)
-	 * @method static EO_Block_Result getList(array $parameters = array())
-	 * @method static EO_Block_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_Block createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_Block_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_Block wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_Block_Collection wakeUpCollection($rows)
-	 */
-	class BlockTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -746,18 +734,6 @@ namespace Bitrix\Landing\Internals {
 }
 namespace Bitrix\Landing\Internals {
 	/**
-	 * @method static EO_Chat_Query query()
-	 * @method static EO_Chat_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Chat_Result getById($id)
-	 * @method static EO_Chat_Result getList(array $parameters = array())
-	 * @method static EO_Chat_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_Chat createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_Chat_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_Chat wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_Chat_Collection wakeUpCollection($rows)
-	 */
-	class ChatTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -909,18 +885,6 @@ namespace Bitrix\Landing\Internals {
 	}
 }
 namespace Bitrix\Landing\Internals {
-	/**
-	 * @method static EO_ChatBinding_Query query()
-	 * @method static EO_ChatBinding_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ChatBinding_Result getById($id)
-	 * @method static EO_ChatBinding_Result getList(array $parameters = array())
-	 * @method static EO_ChatBinding_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_ChatBinding createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_ChatBinding_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_ChatBinding wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_ChatBinding_Collection wakeUpCollection($rows)
-	 */
-	class ChatBindingTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1145,18 +1109,6 @@ namespace Bitrix\Landing\Internals {
 	}
 }
 namespace Bitrix\Landing\Internals {
-	/**
-	 * @method static EO_CookiesAgreement_Query query()
-	 * @method static EO_CookiesAgreement_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CookiesAgreement_Result getById($id)
-	 * @method static EO_CookiesAgreement_Result getList(array $parameters = array())
-	 * @method static EO_CookiesAgreement_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_CookiesAgreement createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_CookiesAgreement_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_CookiesAgreement wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_CookiesAgreement_Collection wakeUpCollection($rows)
-	 */
-	class CookiesAgreementTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1502,18 +1454,6 @@ namespace Bitrix\Landing\Internals {
 }
 namespace Bitrix\Landing\Internals {
 	/**
-	 * @method static EO_Demos_Query query()
-	 * @method static EO_Demos_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Demos_Result getById($id)
-	 * @method static EO_Demos_Result getList(array $parameters = array())
-	 * @method static EO_Demos_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_Demos createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_Demos_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_Demos wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_Demos_Collection wakeUpCollection($rows)
-	 */
-	class DemosTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1538,6 +1478,230 @@ namespace Bitrix\Landing\Internals {
 	 * @method \Bitrix\Landing\Internals\EO_Demos_Collection wakeUpCollection($rows)
 	 */
 	class EO_Demos_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Landing\Internals\DesignerRepoTable:landing/lib/internals/designerrepo.php:45fe5a9a94343906536f8028bcb0107a */
+namespace Bitrix\Landing\Internals {
+	/**
+	 * EO_DesignerRepo
+	 * @see \Bitrix\Landing\Internals\DesignerRepoTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getXmlId()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo setXmlId(\string|\Bitrix\Main\DB\SqlExpression $xmlId)
+	 * @method bool hasXmlId()
+	 * @method bool isXmlIdFilled()
+	 * @method bool isXmlIdChanged()
+	 * @method \string remindActualXmlId()
+	 * @method \string requireXmlId()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo resetXmlId()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo unsetXmlId()
+	 * @method \string fillXmlId()
+	 * @method \string getTitle()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo setTitle(\string|\Bitrix\Main\DB\SqlExpression $title)
+	 * @method bool hasTitle()
+	 * @method bool isTitleFilled()
+	 * @method bool isTitleChanged()
+	 * @method \string remindActualTitle()
+	 * @method \string requireTitle()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo resetTitle()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo unsetTitle()
+	 * @method \string fillTitle()
+	 * @method \int getSort()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo setSort(\int|\Bitrix\Main\DB\SqlExpression $sort)
+	 * @method bool hasSort()
+	 * @method bool isSortFilled()
+	 * @method bool isSortChanged()
+	 * @method \int remindActualSort()
+	 * @method \int requireSort()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo resetSort()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo unsetSort()
+	 * @method \int fillSort()
+	 * @method \string getHtml()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo setHtml(\string|\Bitrix\Main\DB\SqlExpression $html)
+	 * @method bool hasHtml()
+	 * @method bool isHtmlFilled()
+	 * @method bool isHtmlChanged()
+	 * @method \string remindActualHtml()
+	 * @method \string requireHtml()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo resetHtml()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo unsetHtml()
+	 * @method \string fillHtml()
+	 * @method array getManifest()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo setManifest(array|\Bitrix\Main\DB\SqlExpression $manifest)
+	 * @method bool hasManifest()
+	 * @method bool isManifestFilled()
+	 * @method bool isManifestChanged()
+	 * @method array remindActualManifest()
+	 * @method array requireManifest()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo resetManifest()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo unsetManifest()
+	 * @method array fillManifest()
+	 * @method \int getCreatedById()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo setCreatedById(\int|\Bitrix\Main\DB\SqlExpression $createdById)
+	 * @method bool hasCreatedById()
+	 * @method bool isCreatedByIdFilled()
+	 * @method bool isCreatedByIdChanged()
+	 * @method \int remindActualCreatedById()
+	 * @method \int requireCreatedById()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo resetCreatedById()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo unsetCreatedById()
+	 * @method \int fillCreatedById()
+	 * @method \int getModifiedById()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo setModifiedById(\int|\Bitrix\Main\DB\SqlExpression $modifiedById)
+	 * @method bool hasModifiedById()
+	 * @method bool isModifiedByIdFilled()
+	 * @method bool isModifiedByIdChanged()
+	 * @method \int remindActualModifiedById()
+	 * @method \int requireModifiedById()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo resetModifiedById()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo unsetModifiedById()
+	 * @method \int fillModifiedById()
+	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
+	 * @method bool hasDateCreate()
+	 * @method bool isDateCreateFilled()
+	 * @method bool isDateCreateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo resetDateCreate()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo unsetDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime getDateModify()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo setDateModify(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateModify)
+	 * @method bool hasDateModify()
+	 * @method bool isDateModifyFilled()
+	 * @method bool isDateModifyChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateModify()
+	 * @method \Bitrix\Main\Type\DateTime requireDateModify()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo resetDateModify()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo unsetDateModify()
+	 * @method \Bitrix\Main\Type\DateTime fillDateModify()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo set($fieldName, $value)
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo reset($fieldName)
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Landing\Internals\EO_DesignerRepo wakeUp($data)
+	 */
+	class EO_DesignerRepo {
+		/* @var \Bitrix\Landing\Internals\DesignerRepoTable */
+		static public $dataClass = '\Bitrix\Landing\Internals\DesignerRepoTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Landing\Internals {
+	/**
+	 * EO_DesignerRepo_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getXmlIdList()
+	 * @method \string[] fillXmlId()
+	 * @method \string[] getTitleList()
+	 * @method \string[] fillTitle()
+	 * @method \int[] getSortList()
+	 * @method \int[] fillSort()
+	 * @method \string[] getHtmlList()
+	 * @method \string[] fillHtml()
+	 * @method array[] getManifestList()
+	 * @method array[] fillManifest()
+	 * @method \int[] getCreatedByIdList()
+	 * @method \int[] fillCreatedById()
+	 * @method \int[] getModifiedByIdList()
+	 * @method \int[] fillModifiedById()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateModifyList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateModify()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Landing\Internals\EO_DesignerRepo $object)
+	 * @method bool has(\Bitrix\Landing\Internals\EO_DesignerRepo $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo getByPrimary($primary)
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo[] getAll()
+	 * @method bool remove(\Bitrix\Landing\Internals\EO_DesignerRepo $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Landing\Internals\EO_DesignerRepo_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_DesignerRepo_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Landing\Internals\DesignerRepoTable */
+		static public $dataClass = '\Bitrix\Landing\Internals\DesignerRepoTable';
+	}
+}
+namespace Bitrix\Landing\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_DesignerRepo_Result exec()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo fetchObject()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_DesignerRepo_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo fetchObject()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo_Collection fetchCollection()
+	 */
+	class EO_DesignerRepo_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo createObject($setDefaultValues = true)
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo_Collection createCollection()
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo wakeUpObject($row)
+	 * @method \Bitrix\Landing\Internals\EO_DesignerRepo_Collection wakeUpCollection($rows)
+	 */
+	class EO_DesignerRepo_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Landing\Internals\DomainTable:landing/lib/internals/domain.php:3760372ea6e056d2f0fc760e01d378a8 */
 namespace Bitrix\Landing\Internals {
@@ -1764,18 +1928,6 @@ namespace Bitrix\Landing\Internals {
 }
 namespace Bitrix\Landing\Internals {
 	/**
-	 * @method static EO_Domain_Query query()
-	 * @method static EO_Domain_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Domain_Result getById($id)
-	 * @method static EO_Domain_Result getList(array $parameters = array())
-	 * @method static EO_Domain_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_Domain createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_Domain_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_Domain wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_Domain_Collection wakeUpCollection($rows)
-	 */
-	class DomainTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1928,18 +2080,6 @@ namespace Bitrix\Landing\Internals {
 }
 namespace Bitrix\Landing\Internals {
 	/**
-	 * @method static EO_File_Query query()
-	 * @method static EO_File_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_File_Result getById($id)
-	 * @method static EO_File_Result getList(array $parameters = array())
-	 * @method static EO_File_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_File createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_File_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_File wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_File_Collection wakeUpCollection($rows)
-	 */
-	class FileTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2079,18 +2219,6 @@ namespace Bitrix\Landing\Internals {
 	}
 }
 namespace Bitrix\Landing\Internals {
-	/**
-	 * @method static EO_FilterBlock_Query query()
-	 * @method static EO_FilterBlock_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_FilterBlock_Result getById($id)
-	 * @method static EO_FilterBlock_Result getList(array $parameters = array())
-	 * @method static EO_FilterBlock_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_FilterBlock createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_FilterBlock_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_FilterBlock wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_FilterBlock_Collection wakeUpCollection($rows)
-	 */
-	class FilterBlockTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2292,18 +2420,6 @@ namespace Bitrix\Landing\Internals {
 }
 namespace Bitrix\Landing\Internals {
 	/**
-	 * @method static EO_FilterEntity_Query query()
-	 * @method static EO_FilterEntity_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_FilterEntity_Result getById($id)
-	 * @method static EO_FilterEntity_Result getList(array $parameters = array())
-	 * @method static EO_FilterEntity_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_FilterEntity createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_FilterEntity_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_FilterEntity wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_FilterEntity_Collection wakeUpCollection($rows)
-	 */
-	class FilterEntityTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2492,18 +2608,6 @@ namespace Bitrix\Landing\Internals {
 }
 namespace Bitrix\Landing\Internals {
 	/**
-	 * @method static EO_HookData_Query query()
-	 * @method static EO_HookData_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_HookData_Result getById($id)
-	 * @method static EO_HookData_Result getList(array $parameters = array())
-	 * @method static EO_HookData_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_HookData createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_HookData_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_HookData wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_HookData_Collection wakeUpCollection($rows)
-	 */
-	class HookDataTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2529,7 +2633,7 @@ namespace Bitrix\Landing\Internals {
 	 */
 	class EO_HookData_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Landing\Internals\LandingTable:landing/lib/internals/landing.php:9568f9897d9a754b3497b73e0ec3c5e8 */
+/* ORMENTITYANNOTATION:Bitrix\Landing\Internals\LandingTable:landing/lib/internals/landing.php:33312bd05c60324439a26ae9561497ee */
 namespace Bitrix\Landing\Internals {
 	/**
 	 * EO_Landing
@@ -2960,18 +3064,6 @@ namespace Bitrix\Landing\Internals {
 }
 namespace Bitrix\Landing\Internals {
 	/**
-	 * @method static EO_Landing_Query query()
-	 * @method static EO_Landing_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Landing_Result getById($id)
-	 * @method static EO_Landing_Result getList(array $parameters = array())
-	 * @method static EO_Landing_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_Landing createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_Landing_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_Landing wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_Landing_Collection wakeUpCollection($rows)
-	 */
-	class LandingTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2996,6 +3088,158 @@ namespace Bitrix\Landing\Internals {
 	 * @method \Bitrix\Landing\Internals\EO_Landing_Collection wakeUpCollection($rows)
 	 */
 	class EO_Landing_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Landing\Internals\LockTable:landing/lib/internals/lock.php:30dfecdbc88a6ff5d83ae6bc5f0cfbf8 */
+namespace Bitrix\Landing\Internals {
+	/**
+	 * EO_Lock
+	 * @see \Bitrix\Landing\Internals\LockTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Landing\Internals\EO_Lock setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getEntityId()
+	 * @method \Bitrix\Landing\Internals\EO_Lock setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
+	 * @method bool hasEntityId()
+	 * @method bool isEntityIdFilled()
+	 * @method bool isEntityIdChanged()
+	 * @method \int remindActualEntityId()
+	 * @method \int requireEntityId()
+	 * @method \Bitrix\Landing\Internals\EO_Lock resetEntityId()
+	 * @method \Bitrix\Landing\Internals\EO_Lock unsetEntityId()
+	 * @method \int fillEntityId()
+	 * @method \string getEntityType()
+	 * @method \Bitrix\Landing\Internals\EO_Lock setEntityType(\string|\Bitrix\Main\DB\SqlExpression $entityType)
+	 * @method bool hasEntityType()
+	 * @method bool isEntityTypeFilled()
+	 * @method bool isEntityTypeChanged()
+	 * @method \string remindActualEntityType()
+	 * @method \string requireEntityType()
+	 * @method \Bitrix\Landing\Internals\EO_Lock resetEntityType()
+	 * @method \Bitrix\Landing\Internals\EO_Lock unsetEntityType()
+	 * @method \string fillEntityType()
+	 * @method \string getLockType()
+	 * @method \Bitrix\Landing\Internals\EO_Lock setLockType(\string|\Bitrix\Main\DB\SqlExpression $lockType)
+	 * @method bool hasLockType()
+	 * @method bool isLockTypeFilled()
+	 * @method bool isLockTypeChanged()
+	 * @method \string remindActualLockType()
+	 * @method \string requireLockType()
+	 * @method \Bitrix\Landing\Internals\EO_Lock resetLockType()
+	 * @method \Bitrix\Landing\Internals\EO_Lock unsetLockType()
+	 * @method \string fillLockType()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Landing\Internals\EO_Lock set($fieldName, $value)
+	 * @method \Bitrix\Landing\Internals\EO_Lock reset($fieldName)
+	 * @method \Bitrix\Landing\Internals\EO_Lock unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Landing\Internals\EO_Lock wakeUp($data)
+	 */
+	class EO_Lock {
+		/* @var \Bitrix\Landing\Internals\LockTable */
+		static public $dataClass = '\Bitrix\Landing\Internals\LockTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Landing\Internals {
+	/**
+	 * EO_Lock_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getEntityIdList()
+	 * @method \int[] fillEntityId()
+	 * @method \string[] getEntityTypeList()
+	 * @method \string[] fillEntityType()
+	 * @method \string[] getLockTypeList()
+	 * @method \string[] fillLockType()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Landing\Internals\EO_Lock $object)
+	 * @method bool has(\Bitrix\Landing\Internals\EO_Lock $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Landing\Internals\EO_Lock getByPrimary($primary)
+	 * @method \Bitrix\Landing\Internals\EO_Lock[] getAll()
+	 * @method bool remove(\Bitrix\Landing\Internals\EO_Lock $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Landing\Internals\EO_Lock_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Landing\Internals\EO_Lock current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_Lock_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Landing\Internals\LockTable */
+		static public $dataClass = '\Bitrix\Landing\Internals\LockTable';
+	}
+}
+namespace Bitrix\Landing\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Lock_Result exec()
+	 * @method \Bitrix\Landing\Internals\EO_Lock fetchObject()
+	 * @method \Bitrix\Landing\Internals\EO_Lock_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_Lock_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Landing\Internals\EO_Lock fetchObject()
+	 * @method \Bitrix\Landing\Internals\EO_Lock_Collection fetchCollection()
+	 */
+	class EO_Lock_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Landing\Internals\EO_Lock createObject($setDefaultValues = true)
+	 * @method \Bitrix\Landing\Internals\EO_Lock_Collection createCollection()
+	 * @method \Bitrix\Landing\Internals\EO_Lock wakeUpObject($row)
+	 * @method \Bitrix\Landing\Internals\EO_Lock_Collection wakeUpCollection($rows)
+	 */
+	class EO_Lock_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Landing\Internals\PlacementTable:landing/lib/internals/placement.php:82b18ea46ec0deafca89902d74df0307 */
 namespace Bitrix\Landing\Internals {
@@ -3183,18 +3427,6 @@ namespace Bitrix\Landing\Internals {
 	}
 }
 namespace Bitrix\Landing\Internals {
-	/**
-	 * @method static EO_Placement_Query query()
-	 * @method static EO_Placement_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Placement_Result getById($id)
-	 * @method static EO_Placement_Result getList(array $parameters = array())
-	 * @method static EO_Placement_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_Placement createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_Placement_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_Placement wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_Placement_Collection wakeUpCollection($rows)
-	 */
-	class PlacementTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -3480,18 +3712,6 @@ namespace Bitrix\Landing\Internals {
 }
 namespace Bitrix\Landing\Internals {
 	/**
-	 * @method static EO_Repo_Query query()
-	 * @method static EO_Repo_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Repo_Result getById($id)
-	 * @method static EO_Repo_Result getList(array $parameters = array())
-	 * @method static EO_Repo_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_Repo createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_Repo_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_Repo wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_Repo_Collection wakeUpCollection($rows)
-	 */
-	class RepoTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3517,7 +3737,7 @@ namespace Bitrix\Landing\Internals {
 	 */
 	class EO_Repo_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Landing\Internals\RightsTable:landing/lib/internals/rights.php:648cf560e32d134410926c82c3a8eb94 */
+/* ORMENTITYANNOTATION:Bitrix\Landing\Internals\RightsTable:landing/lib/internals/rights.php:fa4efd8a4808eb8ce4849d5b61e5934e */
 namespace Bitrix\Landing\Internals {
 	/**
 	 * EO_Rights
@@ -3706,18 +3926,6 @@ namespace Bitrix\Landing\Internals {
 	}
 }
 namespace Bitrix\Landing\Internals {
-	/**
-	 * @method static EO_Rights_Query query()
-	 * @method static EO_Rights_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Rights_Result getById($id)
-	 * @method static EO_Rights_Result getList(array $parameters = array())
-	 * @method static EO_Rights_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_Rights createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_Rights_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_Rights wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_Rights_Collection wakeUpCollection($rows)
-	 */
-	class RightsTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -3969,18 +4177,6 @@ namespace Bitrix\Landing\Internals {
 }
 namespace Bitrix\Landing\Internals {
 	/**
-	 * @method static EO_Role_Query query()
-	 * @method static EO_Role_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Role_Result getById($id)
-	 * @method static EO_Role_Result getList(array $parameters = array())
-	 * @method static EO_Role_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_Role createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_Role_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_Role wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_Role_Collection wakeUpCollection($rows)
-	 */
-	class RoleTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4006,7 +4202,7 @@ namespace Bitrix\Landing\Internals {
 	 */
 	class EO_Role_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Landing\Internals\SiteTable:landing/lib/internals/site.php:02490df3c336157d05841a9a847dd918 */
+/* ORMENTITYANNOTATION:Bitrix\Landing\Internals\SiteTable:landing/lib/internals/site.php:0cb7f0c42249c5deac1bfac6a9e3ed6c */
 namespace Bitrix\Landing\Internals {
 	/**
 	 * EO_Site
@@ -4376,18 +4572,6 @@ namespace Bitrix\Landing\Internals {
 }
 namespace Bitrix\Landing\Internals {
 	/**
-	 * @method static EO_Site_Query query()
-	 * @method static EO_Site_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Site_Result getById($id)
-	 * @method static EO_Site_Result getList(array $parameters = array())
-	 * @method static EO_Site_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_Site createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_Site_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_Site wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_Site_Collection wakeUpCollection($rows)
-	 */
-	class SiteTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4539,18 +4723,6 @@ namespace Bitrix\Landing\Internals {
 	}
 }
 namespace Bitrix\Landing\Internals {
-	/**
-	 * @method static EO_Syspage_Query query()
-	 * @method static EO_Syspage_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Syspage_Result getById($id)
-	 * @method static EO_Syspage_Result getList(array $parameters = array())
-	 * @method static EO_Syspage_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_Syspage createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_Syspage_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_Syspage wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_Syspage_Collection wakeUpCollection($rows)
-	 */
-	class SyspageTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -4814,18 +4986,6 @@ namespace Bitrix\Landing\Internals {
 }
 namespace Bitrix\Landing\Internals {
 	/**
-	 * @method static EO_Template_Query query()
-	 * @method static EO_Template_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Template_Result getById($id)
-	 * @method static EO_Template_Result getList(array $parameters = array())
-	 * @method static EO_Template_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_Template createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_Template_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_Template wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_Template_Collection wakeUpCollection($rows)
-	 */
-	class TemplateTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4989,18 +5149,6 @@ namespace Bitrix\Landing\Internals {
 	}
 }
 namespace Bitrix\Landing\Internals {
-	/**
-	 * @method static EO_TemplateRef_Query query()
-	 * @method static EO_TemplateRef_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_TemplateRef_Result getById($id)
-	 * @method static EO_TemplateRef_Result getList(array $parameters = array())
-	 * @method static EO_TemplateRef_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_TemplateRef createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_TemplateRef_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_TemplateRef wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_TemplateRef_Collection wakeUpCollection($rows)
-	 */
-	class TemplateRefTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -5202,18 +5350,6 @@ namespace Bitrix\Landing\Internals {
 }
 namespace Bitrix\Landing\Internals {
 	/**
-	 * @method static EO_UpdateBlock_Query query()
-	 * @method static EO_UpdateBlock_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UpdateBlock_Result getById($id)
-	 * @method static EO_UpdateBlock_Result getList(array $parameters = array())
-	 * @method static EO_UpdateBlock_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_UpdateBlock createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_UpdateBlock_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_UpdateBlock wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_UpdateBlock_Collection wakeUpCollection($rows)
-	 */
-	class UpdateBlockTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -5414,18 +5550,6 @@ namespace Bitrix\Landing\Internals {
 }
 namespace Bitrix\Landing\Internals {
 	/**
-	 * @method static EO_UrlRewrite_Query query()
-	 * @method static EO_UrlRewrite_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UrlRewrite_Result getById($id)
-	 * @method static EO_UrlRewrite_Result getList(array $parameters = array())
-	 * @method static EO_UrlRewrite_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_UrlRewrite createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_UrlRewrite_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_UrlRewrite wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_UrlRewrite_Collection wakeUpCollection($rows)
-	 */
-	class UrlRewriteTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -5601,18 +5725,6 @@ namespace Bitrix\Landing\Internals {
 	}
 }
 namespace Bitrix\Landing\Internals {
-	/**
-	 * @method static EO_View_Query query()
-	 * @method static EO_View_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_View_Result getById($id)
-	 * @method static EO_View_Result getList(array $parameters = array())
-	 * @method static EO_View_Entity getEntity()
-	 * @method static \Bitrix\Landing\Internals\EO_View createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Landing\Internals\EO_View_Collection createCollection()
-	 * @method static \Bitrix\Landing\Internals\EO_View wakeUpObject($row)
-	 * @method static \Bitrix\Landing\Internals\EO_View_Collection wakeUpCollection($rows)
-	 */
-	class ViewTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

@@ -9,6 +9,22 @@ namespace Bitrix\Socialnetwork;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class WorkgroupSubjectSiteTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_WorkgroupSubjectSite_Query query()
+ * @method static EO_WorkgroupSubjectSite_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_WorkgroupSubjectSite_Result getById($id)
+ * @method static EO_WorkgroupSubjectSite_Result getList(array $parameters = array())
+ * @method static EO_WorkgroupSubjectSite_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection wakeUpCollection($rows)
+ */
 class WorkgroupSubjectSiteTable extends Entity\DataManager
 {
 	public static function getTableName()

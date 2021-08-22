@@ -17,7 +17,6 @@ if (Main\Loader::includeModule("sale"))
 		/** @noinspection PhpVariableNamingConventionInspection */
 		global $APPLICATION;
 		$APPLICATION->restartBuffer();
-		header('Content-Type: text/plain');
 
 		Sale\Domain\Verification\Service::setEndBufferContentHandler($domainVerification["CONTENT"]);
 	}

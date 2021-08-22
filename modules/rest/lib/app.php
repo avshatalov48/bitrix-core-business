@@ -7,6 +7,7 @@ use Bitrix\Main\EventResult;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Rest\Engine\Access;
 use Bitrix\Rest\Marketplace\Client;
+use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
 use Bitrix\Rest\Preset\EventController;
 
@@ -38,7 +39,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Rest
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_App_Query query()
+ * @method static EO_App_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_App_Result getById($id)
+ * @method static EO_App_Result getList(array $parameters = array())
+ * @method static EO_App_Entity getEntity()
+ * @method static \Bitrix\Rest\EO_App createObject($setDefaultValues = true)
+ * @method static \Bitrix\Rest\EO_App_Collection createCollection()
+ * @method static \Bitrix\Rest\EO_App wakeUpObject($row)
+ * @method static \Bitrix\Rest\EO_App_Collection wakeUpCollection($rows)
+ */
 class AppTable extends Main\Entity\DataManager
 {
 	const ACTIVE = 'Y';
@@ -60,7 +74,7 @@ class AppTable extends Main\Entity\DataManager
 	const STATUS_TRIAL = 'T';
 	const STATUS_SUBSCRIPTION = 'S';
 
-	const PAID_NOTIFY_DAYS = 30;
+	const PAID_NOTIFY_DAYS = 14;
 	const PAID_GRACE_PERIOD = -14;
 
 	const CACHE_TTL = 86400;
@@ -561,7 +575,11 @@ class AppTable extends Main\Entity\DataManager
 
 		if(!is_array($app) && intval($app) > 0)
 		{
-			$app = static::getByClientId($app);
+			$appInfo = $app = static::getByClientId($app);
+		}
+		elseif ($app['CODE'])
+		{
+			$appInfo = static::getByClientId($app['CODE']);
 		}
 
 		if(is_array($app))
@@ -676,6 +694,19 @@ class AppTable extends Main\Entity\DataManager
 
 		}
 
+		if (!empty($appInfo['CLIENT_ID']))
+		{
+			$isHold = \Bitrix\Rest\Engine\Access\HoldEntity::is(
+				\Bitrix\Rest\Engine\Access\HoldEntity::TYPE_APP,
+				$appInfo['CLIENT_ID']
+			);
+			if ($isHold)
+			{
+				$res['MESSAGE_SUFFIX'] = '_HOLD_OVERLOAD';
+				$res['PAYMENT_NOTIFY'] = 'Y';
+			}
+		}
+
 		return $res;
 	}
 
@@ -787,18 +818,56 @@ class AppTable extends Main\Entity\DataManager
 				);
 			}
 
-			$dbRes = static::getList(array(
-				'filter' => $filter,
-				'select' => array(
-					'*',
-					'MENU_NAME' => 'LANG.MENU_NAME',
-					'MENU_NAME_DEFAULT' => 'LANG_DEFAULT.MENU_NAME',
-					'MENU_NAME_LICENSE' => 'LANG_LICENSE.MENU_NAME',
-				)
-			));
+			$dbRes = static::getList(
+				[
+					'filter' => $filter,
+					'select' => [
+						'*',
+						'MENU_NAME' => 'LANG.MENU_NAME',
+						'MENU_NAME_DEFAULT' => 'LANG_DEFAULT.MENU_NAME',
+						'MENU_NAME_LICENSE' => 'LANG_LICENSE.MENU_NAME',
+					],
+					'limit' => 1,
+				]
+			);
 
-			$appInfo = $dbRes->fetch();
-			if(is_array($appInfo))
+			foreach ($dbRes->fetchCollection() as $app)
+			{
+				$appInfo = [
+					'ID' => $app->getId(),
+					'MENU_NAME' => !is_null($app->getLang()) ? $app->getLang()->getMenuName() : '',
+					'MENU_NAME_DEFAULT' => !is_null($app->getLangDefault()) ? $app->getLangDefault()->getMenuName() : '',
+					'MENU_NAME_LICENSE' => !is_null($app->getLangLicense()) ? $app->getLangLicense()->getMenuName() : '',
+				];
+				foreach ($app->sysGetEntity()->getScalarFields() as $field)
+				{
+					$fieldName = $field->getName();
+					if ($field instanceof BooleanField)
+					{
+						$appInfo[$fieldName] = $app->get($fieldName) ? 'Y' : 'N';
+					}
+					else
+					{
+						$appInfo[$fieldName] = $app->get($fieldName);
+					}
+				}
+				$app->fillLangAll();
+				if (!is_null($app->getLangAll()))
+				{
+					foreach ($app->getLangAll() as $lang)
+					{
+						$appInfo['LANG_ALL'][$lang->getLanguageId()] = [
+							'MENU_NAME' => $lang->getMenuName(),
+						];
+					}
+				}
+				if ($appInfo['MENU_NAME'] === '')
+				{
+					$appInfo = Lang::mergeFromLangAll($appInfo);
+				}
+			}
+
+			if (is_array($appInfo))
 			{
 				static::$applicationCache[$appInfo['ID']] = $appInfo;
 				static::$applicationCache[$appInfo['CLIENT_ID']] = $appInfo;

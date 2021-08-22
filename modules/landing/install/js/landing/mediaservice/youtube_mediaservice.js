@@ -1,15 +1,13 @@
-;(function() {
+;(function () {
 	"use strict";
 
 	BX.namespace("BX.Landing.MediaService");
-
 
 	/**
 	 * Implements interface for works with Youtube
 	 * @inheritDoc
 	 */
-	BX.Landing.MediaService.Youtube = function(url, settings)
-	{
+	BX.Landing.MediaService.Youtube = function (url, settings) {
 		BX.Landing.MediaService.BaseMediaService.apply(this, arguments);
 
 		this.matcher = BX.Landing.Utils.Matchers.youtube;
@@ -27,29 +25,24 @@
 		};
 	};
 
-
 	/**
 	 * Checks that URL is valid Youtube url
 	 * @param {string} url
 	 * @return {boolean}
 	 */
-	BX.Landing.MediaService.Youtube.validate = function(url)
-	{
+	BX.Landing.MediaService.Youtube.validate = function (url) {
 		return BX.Landing.Utils.Matchers.youtube.test(url);
 	};
-
 
 	BX.Landing.MediaService.Youtube.prototype = {
 		constructor: BX.Landing.MediaService.Youtube,
 		__proto__: BX.Landing.MediaService.BaseMediaService.prototype,
 
-
 		/**
 		 * Gets settings form
 		 * @return {BX.Landing.UI.Form.BaseForm}
 		 */
-		getSettingsForm: function()
-		{
+		getSettingsForm: function () {
 			if (!this.form)
 			{
 				this.form = new BX.Landing.UI.Form.BaseForm();
@@ -59,14 +52,48 @@
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
 						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_AUTOPLAY"),
+						description: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_AUTOPLAY_DESC"),
 						selector: "autoplay",
 						content: parseInt(settings.autoplay),
 						items: [
 							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
-							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
-						]
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 0},
+						],
+						onChange: onAutoplayChange
 					})
 				);
+
+				function onAutoplayChange(value) {
+					if (value === 1)
+					{
+						muteField.setValue(1);
+						muteField.disable();
+						if (!muteField.descriptionText)
+						{
+							muteField.setDescription(
+								BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_SOUND_ALERT")
+							);
+						}
+					}
+					else if (value === 0)
+					{
+						muteField.removeDescription();
+						muteField.enable();
+						muteField.setValue(0);
+					}
+				}
+
+				var muteField = new BX.Landing.UI.Field.Dropdown({
+					title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_SOUND"),
+					selector: "mute",
+					content: parseInt(settings.mute),
+					items: [
+						{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 0},
+						{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 1}
+					]
+				});
+				this.form.addField(muteField);
+				onAutoplayChange(parseInt(settings.autoplay));
 
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
@@ -92,18 +119,6 @@
 					})
 				);
 
-				this.form.addField(
-					new BX.Landing.UI.Field.Dropdown({
-						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_SOUND"),
-						selector: "mute",
-						content: parseInt(settings.mute),
-						items: [
-							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 0},
-							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 1}
-						]
-					})
-				);
-
 				var start = new BX.Landing.UI.Field.Unit({
 					title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_START"),
 					selector: "start",
@@ -115,6 +130,6 @@
 			}
 
 			return this.form;
-		}
+		},
 	};
 })();

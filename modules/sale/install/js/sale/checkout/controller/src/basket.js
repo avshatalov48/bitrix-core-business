@@ -1,9 +1,5 @@
-import {ajax} from 'main.core';
-import {
-    Pool,
-    Timer,
-    Basket as Lib
-} from 'sale.checkout.lib'
+import { ajax } from 'main.core';
+import { Pool, Timer, Basket as Lib } from 'sale.checkout.lib'
 import {
     Application as ApplicationConst,
     RestMethod as RestMethodConst,
@@ -18,6 +14,22 @@ export class Basket
     {
         this.pool = new Pool();
         this.timer = new Timer();
+        this.running = 'N';
+    }
+    
+    isRunning()
+    {
+        return this.running === 'Y';
+    }
+    
+    setRunningY()
+    {
+        this.running = 'Y'
+    }
+    
+    setRunningN()
+    {
+        this.running = 'N'
     }
 
     setStore(store)
@@ -210,7 +222,7 @@ export class Basket
                         signedParameters: this.store.getters['application/getSignedParameters']
                     }
                 )
-                .then((result) => this.executeRestAnswer(cmd, result, this.pool.get())
+                .then((result) => this.executeRestAnswer(cmd, result, this.pool)
                     .then(() => this.commit()
                         .then(() => resolve())))
                 .catch()
@@ -224,13 +236,13 @@ export class Basket
 
     shelveCommit(index = 'BASKET')
     {
-        if(this.getStatus() === LoaderConst.status.none)
+        if(this.isRunning() === false)
         {
             this.timer.create(300, index,
                 () => {
-                    this.setStatusWait();
+                    this.setRunningY();
                     this.commit()
-                        .then(()=>this.setStatusNone())
+                        .then(()=>this.setRunningN())
                 }
             );
         }
@@ -243,13 +255,37 @@ export class Basket
 
     setStatusWait()
     {
-        let app = { status: LoaderConst.status.wait};
+        let app = {status: LoaderConst.status.wait};
         return this.store.dispatch('basket/setStatus', app);
     }
 
     setStatusNone()
     {
-        let app = { status: LoaderConst.status.none};
+        let app = {status: LoaderConst.status.none};
         return this.store.dispatch('basket/setStatus', app);
+    }
+    
+    handlerNeedRefreshY()
+    {
+        this.setNeedRefreshY();
+        this.setStatusWait();
+    }
+    
+    handlerNeedRefreshN()
+    {
+        this.setNeedRefreshN();
+        this.setStatusNone();
+    }
+    
+    setNeedRefreshY()
+    {
+        let app = {needRefresh: 'Y'};
+        return this.store.dispatch('basket/setNeedRefresh', app);
+    }
+    
+    setNeedRefreshN()
+    {
+        let app = {needRefresh: 'N'};
+        return this.store.dispatch('basket/setNeedRefresh', app);
     }
 }

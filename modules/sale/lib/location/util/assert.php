@@ -257,7 +257,7 @@ class Assert
 		throw new Main\NotSupportedException($msg);
 	}
 
-	private final static function formMessage($msgCode, $argName = '', $customMsg = '')
+	private static function formMessage($msgCode, $argName = '', $customMsg = '')
 	{
 		if($customMsg <> '')
 		{

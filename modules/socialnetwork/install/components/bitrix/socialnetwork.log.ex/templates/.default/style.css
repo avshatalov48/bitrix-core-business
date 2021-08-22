@@ -1626,10 +1626,6 @@ a.feed-post-title:hover {
 	padding-bottom: 23px;
 }
 
-.feed-post-text-block.feed-info-block {
-	padding-bottom: 0;
-}
-
 .feed-post-cont-wrap .feed-post-text-block.feed-info-block-empty {
 	min-height: auto;
 }
@@ -2526,6 +2522,7 @@ a.feed-post-more-link:hover {
 	font-weight: bold;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	white-space: nowrap;
 	max-width: 100%;
 	vertical-align: top;
 }
@@ -2537,9 +2534,10 @@ a.feed-post-more-link:hover {
 .feed-workday-user-position {
 	display: block;
 	margin-top: 2px;
+	width: 100%;
+	max-width: 245px;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	width: 100%;
 }
 
 .feed-workday-right-side .feed-user-name-wrap {

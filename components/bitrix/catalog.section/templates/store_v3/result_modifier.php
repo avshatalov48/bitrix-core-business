@@ -74,10 +74,23 @@ if ($arParams['SECTIONS_TOP_DEPTH'] <= 0)
 	$arParams['SECTIONS_TOP_DEPTH'] = 2;
 }
 
-if (!isset($arParams['CYCLIC_LOADING']) || $arParams['CYCLIC_LOADING'] !== 'Y')
+if (
+	!isset($arParams['CYCLIC_LOADING'])
+	|| $arParams['CYCLIC_LOADING'] !== 'Y'
+	|| !empty($arParams['EXTERNAL_PRODUCT_MAP'])
+)
 {
 	$arParams['CYCLIC_LOADING'] = 'N';
 }
+
+if (!empty($arResult['NAV_RESULT']))
+{
+	if ((int)$arResult['NAV_RESULT']->NavPageCount < 2)
+	{
+		$arParams['CYCLIC_LOADING'] = 'N';
+	}
+}
+
 if ($arParams['CYCLIC_LOADING'] === 'N')
 {
 	$arParams['CYCLIC_LOADING_COUNTER_NAME'] = '';
@@ -127,12 +140,19 @@ if ($arParams['CYCLIC_LOADING'] === 'Y')
 			)
 			{
 				$offersCount = count($item['OFFERS']);
-				$item['OFFERS_SELECTED'] = ($item['OFFERS_SELECTED'] + $cyclicCount) % $offersCount;
+				$item['OFFERS_SELECTED'] = (
+					$offersCount > 0
+						? ($item['OFFERS_SELECTED'] + $cyclicCount) % $offersCount
+						: 0
+				);
 				foreach ($item['OFFERS'] as $offerIndex => $offer)
 				{
 					if (!empty($offer['MORE_PHOTO']) && is_array($offer['MORE_PHOTO']))
 					{
-						$offer['MORE_PHOTO_SELECTED'] = $cyclicCount % count($offer['MORE_PHOTO']);
+						$offer['MORE_PHOTO_SELECTED'] =
+							intdiv($cyclicCount, count($item['OFFERS']))
+							% count($offer['MORE_PHOTO'])
+						;
 						$item['JS_OFFERS'][$offerIndex]['MORE_PHOTO_SELECTED'] = $offer['MORE_PHOTO_SELECTED'];
 					}
 					$item['OFFERS'][$offerIndex] = $offer;

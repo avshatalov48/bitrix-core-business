@@ -18,7 +18,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Im
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CommandLang_Query query()
+ * @method static EO_CommandLang_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CommandLang_Result getById($id)
+ * @method static EO_CommandLang_Result getList(array $parameters = array())
+ * @method static EO_CommandLang_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_CommandLang createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_CommandLang_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_CommandLang wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_CommandLang_Collection wakeUpCollection($rows)
+ */
 
 class CommandLangTable extends Main\Entity\DataManager
 {

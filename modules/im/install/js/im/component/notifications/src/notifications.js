@@ -13,6 +13,7 @@ import { Logger } from 'im.lib.logger';
 import { Utils as MessengerUtils } from 'im.lib.utils';
 import { Popup } from 'im.view.popup';
 import { MountingPortal } from 'ui.vue.portal';
+import { Animation } from "im.lib.animation";
 
 import { MenuManager } from 'main.popup';
 import { Type } from 'main.core';
@@ -21,22 +22,10 @@ import 'ui.forms';
 import { NotificationItem } from './component/notification-item';
 import { NotificationSearchResult } from './component/notification-search-result';
 import './notifications.css';
-import { EventType, RestMethod, RestMethodHandler } from 'im.const';
+import { EventType, RestMethod, RestMethodHandler, NotificationTypesCodes } from 'im.const';
 import { NotificationCore } from './mixin/notificationCore';
 import { Timer } from 'im.lib.timer';
 import { EventEmitter } from "main.core.events";
-
-const ItemTypes = Object.freeze({
-	confirm: 'confirm',
-	notification: 'notification'
-});
-
-const ItemTypesCodes = Object.freeze({
-	confirm: 1,
-	unreadNotification: 2,
-	simpleNotification: 3,
-	placeholder: 4,
-});
 
 const ObserverType = Object.freeze({
 	read: 'read',
@@ -109,11 +98,14 @@ BitrixVue.component('bx-im-component-notifications',
 			pagesRequested: 0,
 			pagesLoaded: 0,
 			lastId: 0,
-			lastType: 1, //confirm
+			lastType: NotificationTypesCodes.confirm,
 
 			ObserverType: ObserverType,
+			notificationsOnScreen: [],
 			notificationsToRead: [],
+			notificationsToDelete: [],
 			changeReadStatusBlockTimeout: {},
+			firstUnreadNotificationOnInit: null,
 
 			contentPopupType: '',
 			contentPopupValue: '',
@@ -131,8 +123,7 @@ BitrixVue.component('bx-im-component-notifications',
 	},
 	computed:
 	{
-		ItemTypes: () => ItemTypes,
-		ItemTypesCodes: () => ItemTypesCodes,
+		NotificationTypesCodes: () => NotificationTypesCodes,
 		remainingPages()
 		{
 			return Math.ceil(
@@ -160,7 +151,10 @@ BitrixVue.component('bx-im-component-notifications',
 			let isNeedToReadAll = false;
 			for (let index = 0; this.notification.length > index; index++)
 			{
-				if (this.notification[index].sectionCode !== 'confirm' && this.notification[index].unread === true)
+				if (
+					this.notification[index].sectionCode !== NotificationTypesCodes.confirm
+					&& this.notification[index].unread === true
+				)
 				{
 					isNeedToReadAll = true;
 					break;
@@ -171,7 +165,7 @@ BitrixVue.component('bx-im-component-notifications',
 		},
 		panelStyles()
 		{
-			if (this.callViewState === BX.Call.Controller.ViewState.Folded)
+			if (this.callViewState === BX.Call.Controller.ViewState.Folded && !this.showSearch)
 			{
 				return {
 					paddingBottom: '60px' // height of .bx-messenger-videocall-panel-folded
@@ -179,6 +173,178 @@ BitrixVue.component('bx-im-component-notifications',
 			}
 
 			return {};
+		},
+		filterBoxStyles()
+		{
+			if (this.callViewState === BX.Call.Controller.ViewState.Folded && this.showSearch)
+			{
+				return {
+					paddingTop: '70px' // height of .bx-messenger-videocall-panel-folded + 10px for space
+				};
+			}
+
+			return {};
+		},
+		firstUnreadNotification()
+		{
+			let unreadNotification = null;
+			const maxNotificationIndex = this.notification.length - 1;
+
+			for (let i = 0; i <= maxNotificationIndex; i++)
+			{
+				if (this.notification[i].unread && this.notification[i].sectionCode !== NotificationTypesCodes.placeholder)
+				{
+					unreadNotification = this.notification[i];
+					break;
+				}
+			}
+
+			return unreadNotification;
+		},
+		firstUnreadNotificationBelowVisible()
+		{
+			const minIdOnScreen = Math.max(...this.notificationsOnScreen);
+
+			let unreadId = null;
+			const maxNotificationIndex = this.notification.length - 1;
+
+			for (let i = 0; i <= maxNotificationIndex; i++)
+			{
+				if (
+					this.notification[i].unread
+					&& minIdOnScreen > this.notification[i].id
+					&& this.notification[i].sectionCode === NotificationTypesCodes.simple
+				)
+				{
+					unreadId = this.notification[i].id;
+					break;
+				}
+			}
+
+			return unreadId;
+		},
+		isUnreadNotificationVisible()
+		{
+			const unreadOnScreen = Array.from(this.notificationsOnScreen).filter(idOnScreen => {
+				const notificationOnScreen = this.$store.getters['notifications/getById'](idOnScreen);
+
+				return notificationOnScreen ? notificationOnScreen.unread : false;
+			});
+
+			return unreadOnScreen.length > 0
+		},
+		showScrollButton()
+		{
+			if (!this.initialDataReceived)
+			{
+				return false;
+			}
+
+			if (this.unreadCounter <= 0 || !BXIM.settings.notifyAutoRead)
+			{
+				return false;
+			}
+
+			if (this.notificationsOnScreen.length === 0)
+			{
+				return false;
+			}
+
+			if (this.isUnreadNotificationVisible)
+			{
+				return false;
+			}
+
+			return true;
+		},
+
+		hasUnreadBelowVisible()
+		{
+			let unreadCounterBeforeVisible = 0;
+
+			for (let i = 0; i <= this.notification.length - 1; i++)
+			{
+				if (this.notification[i].unread && this.notification[i].sectionCode !== NotificationTypesCodes.placeholder)
+				{
+					++unreadCounterBeforeVisible;
+				}
+
+				// In this case we decide that there is no more unread notifications below visible notifications,
+				// so we show arrow up on scroll button.
+				if (
+					this.notificationsOnScreen.includes(this.notification[i].id)
+					&& this.unreadCounter === unreadCounterBeforeVisible
+				)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		},
+
+		arrowButtonClass()
+		{
+			let arrowUp = !this.hasUnreadBelowVisible;
+
+			return {
+				'bx-im-notifications-scroll-button-arrow-down': !arrowUp,
+				'bx-im-notifications-scroll-button-arrow-up': arrowUp,
+				'bx-im-notifications-scroll-button-arrow': true,
+			}
+		},
+		filterTypes()
+		{
+			const originalSchema = Object.assign({}, this.schema);
+
+			// get rid of some subcategories
+			const modulesToReduceListItems = [
+				'timeman', 'mail', 'disk', 'bizproc', 'voximplant', 'sender', 'blog', 'vote', 'socialnetwork',
+				'imopenlines', 'photogallery', 'intranet', 'forum'
+			];
+			modulesToReduceListItems.forEach(moduleId => {
+				if (originalSchema.hasOwnProperty(moduleId))
+				{
+					delete originalSchema[moduleId].LIST;
+				}
+			});
+
+			// rename some groups
+			if (originalSchema.hasOwnProperty('calendar'))
+			{
+				originalSchema['calendar'].NAME = this.localize['IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_CALENDAR'];
+			}
+			if (originalSchema.hasOwnProperty('sender'))
+			{
+				originalSchema['sender'].NAME = this.localize['IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_SENDER'];
+			}
+			if (originalSchema.hasOwnProperty('blog'))
+			{
+				originalSchema['blog'].NAME = this.localize['IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_BLOG'];
+			}
+			if (originalSchema.hasOwnProperty('socialnetwork'))
+			{
+				originalSchema['socialnetwork'].NAME = this.localize['IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_SOCIALNETWORK'];
+			}
+			if (originalSchema.hasOwnProperty('intranet'))
+			{
+				originalSchema['intranet'].NAME = this.localize['IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_INTRANET'];
+			}
+
+			// we need only this modules in this order!
+			const modulesToShowInFilter = [
+				'tasks', 'calendar', 'crm', 'timeman', 'mail', 'disk', 'bizproc', 'voximplant', 'sender',
+				'blog', 'vote', 'socialnetwork', 'imopenlines', 'photogallery', 'intranet', 'forum'
+			];
+			const notificationFilterTypes = [];
+			modulesToShowInFilter.forEach(moduleId => {
+				if (originalSchema.hasOwnProperty(moduleId))
+				{
+					notificationFilterTypes.push(originalSchema[moduleId]);
+				}
+			});
+
+			return notificationFilterTypes;
 		},
 		...Vuex.mapState({
 			notification: state => state.notifications.collection,
@@ -205,7 +371,7 @@ BitrixVue.component('bx-im-component-notifications',
 		}
 
 		this.timer = new Timer();
-		this.readNotificationsQueue = [];
+		this.readNotificationsQueue = new Set();
 		this.readNotificationsNodes = {};
 		this.observers = {};
 
@@ -228,6 +394,27 @@ BitrixVue.component('bx-im-component-notifications',
 	},
 	methods:
 	{
+		getFirstUnreadNotificationOnInit()
+		{
+			if (this.unreadCounter <= 0)
+			{
+				return null;
+			}
+
+			let unreadId = null;
+			const maxNotificationIndex = this.notification.length - 1;
+
+			for (let i = 0; i <= maxNotificationIndex; i++)
+			{
+				if (this.notification[i].unread)
+				{
+					unreadId = this.notification[i].id;
+					break;
+				}
+			}
+
+			return unreadId;
+		},
 		onCallViewStateChange({data})
 		{
 			this.callViewState = data.callViewState;
@@ -254,19 +441,14 @@ BitrixVue.component('bx-im-component-notifications',
 				return false;
 			}
 
-			this.readNotificationsQueue = this.readNotificationsQueue.filter(notificationId => {
+			this.readNotificationsQueue.forEach(notificationId => {
 				if (this.readNotificationsNodes[notificationId])
 				{
-					if (this.observers[ObserverType.read])
-					{
-						this.observers[ObserverType.read].unobserve(this.readNotificationsNodes[notificationId]);
-					}
 					delete this.readNotificationsNodes[notificationId];
 				}
-				this.readNotifications(parseInt(notificationId));
-
-				return false;
+				this.readNotifications(parseInt(notificationId, 10));
 			});
+			this.readNotificationsQueue.clear();
 		},
 		getInitialData()
 		{
@@ -285,6 +467,7 @@ BitrixVue.component('bx-im-component-notifications',
 				this.processSchemaData(response[RestMethodHandler.imNotifySchemaGet].data());
 				this.pagesLoaded++;
 				this.isLoadingInitialData = false;
+				this.firstUnreadNotificationOnInit = this.getFirstUnreadNotificationOnInit();
 			}, false, false);
 		},
 		processInitialData(data)
@@ -304,12 +487,14 @@ BitrixVue.component('bx-im-component-notifications',
 			this.lastId = this.getLastItemId(data.notifications);
 			this.lastType = this.getLastItemType(data.notifications);
 
-			this.$store.dispatch('notifications/deleteAll');
+			this.$store.dispatch('notifications/clearPlaceholders');
+			this.$store.dispatch('notifications/setCounter', {
+				unreadTotal: data.total_unread_count
+			});
 			this.$store.dispatch('notifications/set', {
 				notification: data.notifications,
 				total: data.total_count,
 			});
-			this.$store.dispatch('notifications/setCounter', { unreadTotal: data.total_unread_count });
 			this.$store.dispatch('users/set', data.users);
 			this.updateRecentList(data.total_unread_count, true);
 
@@ -427,7 +612,8 @@ BitrixVue.component('bx-im-component-notifications',
 		delete(item)
 		{
 			const itemId = +item.id;
-			const notification = this.$store.getters['notifications/getById'](itemId)
+			this.notificationsToDelete.push(itemId);
+			const notification = this.$store.getters['notifications/getById'](itemId);
 			this.$store.dispatch('notifications/update', {
 				id: itemId,
 				fields: { display: false }
@@ -440,22 +626,35 @@ BitrixVue.component('bx-im-component-notifications',
 				unreadTotal: counterValue
 			});
 
-			this.getRestClient().callMethod('im.notify.delete', { id: itemId })
-				.then(() => {
-					this.$store.dispatch('notifications/delete', { id: itemId });
-				})
-				.catch((error) => {
-					console.error(error)
-					this.$store.dispatch('notifications/update', {
-						id: itemId,
-						fields: { display: true }
+			this.timer.stop('deleteNotificationServer', 'notifications', true);
+
+			this.timer.start('deleteNotificationServer', 'notifications', .5, () => {
+				const idsToDelete = this.notificationsToDelete;
+				this.notificationsToDelete = [];
+
+				this.getRestClient().callMethod('im.notify.delete', { id: idsToDelete })
+					.then(() => {
+						idsToDelete.forEach(id => {
+							this.$store.dispatch('notifications/delete', { id: id });
+						});
+
+					})
+					.catch((error) => {
+						console.error(error)
+						idsToDelete.forEach(id => {
+							this.$store.dispatch('notifications/update', {
+								id: id,
+								fields: { display: true }
+							});
+						});
+
+						// restore the unread counter in case of an error
+						this.updateRecentList(originalCounterBeforeUpdate, true)
+						this.$store.dispatch('notifications/setCounter', {
+							unreadTotal: originalCounterBeforeUpdate
+						});
 					});
-					// restore the unread counter in case of an error
-					this.updateRecentList(originalCounterBeforeUpdate, true)
-					this.$store.dispatch('notifications/setCounter', {
-						unreadTotal: originalCounterBeforeUpdate
-					});
-				});
+			});
 		},
 		getObserver(config)
 		{
@@ -470,17 +669,17 @@ BitrixVue.component('bx-im-component-notifications',
 				};
 			}
 
-			let observerCallback, observerOptions;
-
-			observerCallback = (entries) => {
+			const observerCallback = (entries) => {
 				entries.forEach(entry => {
 					let sendReadEvent = false;
+					const entryNotificationId = parseInt(entry.target.dataset.id, 10);
 					if (entry.isIntersecting)
 					{
 						//on Windows with interface scaling intersectionRatio will never be 1
 						if (entry.intersectionRatio >= 0.99)
 						{
 							sendReadEvent = true;
+							this.notificationsOnScreen.push(entryNotificationId);
 						}
 						else if (
 							entry.intersectionRatio > 0
@@ -488,26 +687,34 @@ BitrixVue.component('bx-im-component-notifications',
 						)
 						{
 							sendReadEvent = true;
+							this.notificationsOnScreen.push(entryNotificationId);
 						}
+						else
+						{
+							this.notificationsOnScreen = this.notificationsOnScreen.filter(notificationId => notificationId !== entryNotificationId);
+						}
+					}
+					else
+					{
+						this.notificationsOnScreen = this.notificationsOnScreen.filter(notificationId => notificationId !== entryNotificationId);
 					}
 
 					if (sendReadEvent)
 					{
-						this.readNotificationsQueue.push(entry.target.dataset.id);
-						this.readNotificationsNodes[entry.target.dataset.id] = entry.target;
+						this.readNotificationsQueue.add(entryNotificationId);
+						this.readNotificationsNodes[entryNotificationId] = entry.target;
 					}
 					else
 					{
-						this.readNotificationsQueue = this.readNotificationsQueue.filter(notificationId => notificationId !== entry.target.dataset.id);
-						delete this.readNotificationsNodes[entry.target.dataset.id];
+						this.readNotificationsQueue.delete(entryNotificationId);
+						delete this.readNotificationsNodes[entryNotificationId];
 					}
 
 					this.readVisibleNotificationsDelayed();
 				});
-
 			};
 
-			observerOptions = {
+			const observerOptions = {
 				root: this.$refs['listNotifications'],
 				threshold: new Array(101).fill(0).map((zero, index) => index * 0.01)
 			};
@@ -703,44 +910,57 @@ BitrixVue.component('bx-im-component-notifications',
 		},
 		readNotifications(notificationId)
 		{
-			const counterValueBeforeUpdate = this.unreadCounter;
 			const notification = this.$store.getters['notifications/getById'](notificationId);
-			if (notification.unread === false)
+			if (notification.unread === false || notification.sectionCode === NotificationTypesCodes.confirm)
 			{
 				return false;
 			}
-			else
-			{
-				this.$store.dispatch('notifications/read', { ids: [notificationId], action: true });
-				// change the unread counter
-				const counterValue = this.unreadCounter - 1;
-				this.$store.dispatch('notifications/setCounter', { unreadTotal: counterValue });
-				this.updateRecentList(counterValue);
-			}
 
-			if (notificationId)
-			{
-				this.notificationsToRead.push(notificationId);
-			}
+			this.notificationsToRead.push(notificationId);
+			// read on front
+			this.$store.dispatch('notifications/read', { ids: [notificationId], action: true });
+
+			// change the unread counter
+			const counterValueBeforeUpdate = this.unreadCounter;
+			const counterValue = this.unreadCounter - 1;
+			this.$store.dispatch('notifications/setCounter', { unreadTotal: counterValue });
+			// update recent counter
+			this.updateRecentList(counterValue);
 
 			this.timer.stop('readNotificationServer', 'notifications', true);
 
-			if (this.notificationsToRead.length <= 0)
-			{
-				return false;
-			}
-
 			this.timer.start('readNotificationServer', 'notifications', .5, () => {
-				const ids = this.notificationsToRead;
+				const idsToRead = this.notificationsToRead;
 				this.notificationsToRead = [];
 
-				this.getRestClient().callMethod('im.notify.read.list', {
-					ids: ids,
+				// we can read all notifications from some ID, only if we have not received new notifications
+				// (otherwise we will read notifications at the top that we are not actually seeing)
+				let canReadFromId = false;
+				if (this.firstUnreadNotificationOnInit !== null)
+				{
+					canReadFromId = Math.max(...idsToRead) <= this.firstUnreadNotificationOnInit;
+				}
+
+				let restMethod = 'im.notify.read.list';
+				let requestParams = {
+					ids: idsToRead,
 					action: 'Y'
-				}).then(() => {
-					Logger.warn('I have read the notifications with ids =', ids.toString());
+				};
+
+				if (canReadFromId)
+				{
+					const readFromId = Math.min(...idsToRead);
+					restMethod = 'im.notify.read';
+					requestParams = {
+						id: readFromId,
+						action: 'Y'
+					};
+				}
+
+				this.getRestClient().callMethod(restMethod, requestParams).then(() => {
+					Logger.warn('I have read the notifications', requestParams);
 				}).catch(() => {
-					this.$store.dispatch('notifications/read', { ids: ids, action: false });
+					this.$store.dispatch('notifications/read', { ids: idsToRead, action: false });
 					// restore the unread counter in case of an error
 					this.$store.dispatch('notifications/setCounter', { unreadTotal: counterValueBeforeUpdate });
 					this.updateRecentList(counterValueBeforeUpdate);
@@ -753,17 +973,13 @@ BitrixVue.component('bx-im-component-notifications',
 		},
 		getItemType(item)
 		{
-			if (item.notify_type === ItemTypesCodes.confirm)
+			if (item.notify_type === NotificationTypesCodes.confirm)
 			{
-				return ItemTypesCodes.confirm;
-			}
-			else if (item.notify_read === 'N')
-			{
-				return ItemTypesCodes.unreadNotification;
+				return NotificationTypesCodes.confirm;
 			}
 			else
 			{
-				return ItemTypesCodes.simpleNotification;
+				return NotificationTypesCodes.simple;
 			}
 		},
 		getLatest()
@@ -825,7 +1041,7 @@ BitrixVue.component('bx-im-component-notifications',
 
 			//we need to count "confirms" because its always "unread"
 			const confirms = this.notification.filter((notificationItem) => {
-				return notificationItem.sectionCode === 'confirm';
+				return notificationItem.sectionCode === NotificationTypesCodes.confirm;
 			});
 			this.$store.dispatch('notifications/setCounter', { unreadTotal: confirms.length });
 			this.updateRecentList(confirms.length);
@@ -857,6 +1073,98 @@ BitrixVue.component('bx-im-component-notifications',
 			this.$store.dispatch('recent/update', {
 				id: 'notify',
 				fields: fields
+			});
+		},
+		onScrollButtonClick(event)
+		{
+			if (this.isLoadingNewPage || !this.initialDataReceived)
+			{
+				return false;
+			}
+
+			let notificationIdToScroll = null;
+			if (this.firstUnreadNotificationBelowVisible !== null)
+			{
+				notificationIdToScroll = this.firstUnreadNotificationBelowVisible;
+			}
+			else if (!this.hasUnreadBelowVisible)
+			{
+				notificationIdToScroll = this.firstUnreadNotification.id
+			}
+
+			let firstUnreadNotificationNode = null
+			if (notificationIdToScroll !== null)
+			{
+				const selector = `.bx-im-notifications-item[data-id="${notificationIdToScroll}"]`;
+				firstUnreadNotificationNode = document.querySelector(selector);
+			}
+
+			if (firstUnreadNotificationNode)
+			{
+				this.animatedScrollToPosition({
+					start: this.$refs['listNotifications'].scrollTop,
+					end: firstUnreadNotificationNode.offsetTop
+				});
+			}
+			else
+			{
+				const latestNotification = this.notification[this.notification.length - 1];
+				const selector = `.bx-im-notifications-item[data-id="${latestNotification.id}"]`;
+				const latestNotificationNode = document.querySelector(selector);
+
+				this.animatedScrollToPosition({
+					start: this.$refs['listNotifications'].scrollTop,
+					end: latestNotificationNode.offsetTop
+				});
+			}
+		},
+		animatedScrollToPosition(params = {})
+		{
+			if (this.animateScrollId)
+			{
+				Animation.cancel(this.animateScrollId);
+				this.scrollAnimating = false;
+			}
+			if (typeof params === 'function')
+			{
+				params = {callback: params};
+			}
+
+			const container = this.$refs.listNotifications;
+
+			let {
+				start = container.scrollTop,
+				end = container.scrollHeight - container.clientHeight,
+				increment = 20,
+				callback,
+				duration = 500
+			} = params;
+
+			if (container && (end - start) > container.offsetHeight * 3)
+			{
+				start = end - container.offsetHeight * 3;
+			}
+
+			this.scrollAnimating = true;
+
+			this.animateScrollId = Animation.start({
+				start,
+				end,
+				increment,
+				duration,
+
+				element: container,
+				elementProperty: 'scrollTop',
+
+				callback: () =>
+				{
+					this.animateScrollId = null;
+					this.scrollAnimating = false;
+					if (callback && typeof callback === 'function')
+					{
+						callback();
+					}
+				},
 			});
 		},
 	},
@@ -892,18 +1200,28 @@ BitrixVue.component('bx-im-component-notifications',
 						</div>
 					</div>
 				</div>
-				<div v-if="showSearch" class="bx-im-notifications-header-filter-box">
+				<div v-if="showSearch" class="bx-im-notifications-header-filter-box" :style="filterBoxStyles">
 					<div class="ui-ctl ui-ctl-after-icon ui-ctl-dropdown ui-ctl-xs ui-ctl-w25">
 						<div class="ui-ctl-after ui-ctl-icon-angle"></div>
 						<select class="ui-ctl-element" v-model="searchType">
 							<option value="">
 								{{ $Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_PLACEHOLDER') }}
 							</option>
-							<optgroup v-for="group in schema" :label="group.NAME">
-								<option v-for="option in group.LIST" :value="option.ID">
-									{{ option.NAME }}
-								</option>
-							</optgroup>
+							<template v-for="group in filterTypes">
+								<template v-if="group.LIST">
+									<optgroup :label="group.NAME">
+										<option v-for="option in group.LIST" :value="option.ID">
+											{{ option.NAME }}
+										</option>
+									</optgroup>
+								</template>
+								<template v-else>   
+									<option :value="group.MODULE_ID">
+										{{ group.NAME }}
+									</option>
+								</template>
+							</template>
+							
 						</select>
 					</div>
 					<div class="ui-ctl ui-ctl-textbox ui-ctl-after-icon ui-ctl-xs ui-ctl-w50"> 
@@ -949,7 +1267,7 @@ BitrixVue.component('bx-im-component-notifications',
 						@deleteClick="onDeleteClick"
 						@contentClick="onContentClick"
 						v-bx-im-directive-notifications-observer="
-							(listItem.sectionCode === ItemTypes.notification && listItem.template !== 'placeholder')
+							listItem.sectionCode !== NotificationTypesCodes.placeholder
 							? ObserverType.read 
 							: ObserverType.none
 						"
@@ -959,9 +1277,20 @@ BitrixVue.component('bx-im-component-notifications',
 						style="padding-top: 210px; margin-bottom: 20px;"
 						class="bx-messenger-box-empty bx-notifier-content-empty"
 					>
-						{{ $Bitrix.Loc.getMessage('IM_NOTIFICATIONS_NO_ITEMS_30_DAYS') }}
+						{{ $Bitrix.Loc.getMessage('IM_NOTIFICATIONS_NO_ITEMS') }}
 					</div>
 				</div>
+				<!-- Scroll button -->
+				<transition name="bx-im-notifications-scroll-button">
+					<div v-show="showScrollButton" class="bx-im-notifications-scroll-button-box" @click="onScrollButtonClick">
+						<div class="bx-im-notifications-scroll-button">
+							<div class="bx-im-notifications-scroll-button-counter">
+								<div class="bx-im-notifications-scroll-button-counter-digit">{{ unreadCounter }}</div>
+							</div>
+							<div :class="arrowButtonClass"></div>
+						</div>
+					</div>
+				</transition>
 				
 				<mounting-portal :mount-to="popupIdSelector" append v-if="popupInstance">
 					<popup :type="contentPopupType" :value="contentPopupValue" :popupInstance="popupInstance"/>

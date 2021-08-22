@@ -22,6 +22,7 @@ $componentParameters = array(
 	'PATH_TO_SEGMENT_EDIT' => $arParams['PATH_TO_SEGMENT_EDIT'],
 	'SET_TITLE' => 'Y',
 	'SHOW_SEGMENT_COUNTERS' => false,
+	'CHECK_ON_STATIC' => true,
 	'CAN_VIEW' => Security\Access::getInstance()->canViewRc(),
 	'CAN_EDIT' => Security\Access::getInstance()->canModifyRc(),
 	'MESS' => [

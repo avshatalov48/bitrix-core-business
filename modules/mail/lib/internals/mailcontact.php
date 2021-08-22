@@ -11,6 +11,19 @@ Localization\Loc::loadMessages(__FILE__);
 /**
  * Class MailContactTable
  * @package Bitrix\Mail
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MailContact_Query query()
+ * @method static EO_MailContact_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MailContact_Result getById($id)
+ * @method static EO_MailContact_Result getList(array $parameters = array())
+ * @method static EO_MailContact_Entity getEntity()
+ * @method static \Bitrix\Mail\Internals\EO_MailContact createObject($setDefaultValues = true)
+ * @method static \Bitrix\Mail\Internals\EO_MailContact_Collection createCollection()
+ * @method static \Bitrix\Mail\Internals\EO_MailContact wakeUpObject($row)
+ * @method static \Bitrix\Mail\Internals\EO_MailContact_Collection wakeUpCollection($rows)
  */
 class MailContactTable extends Entity\DataManager
 {

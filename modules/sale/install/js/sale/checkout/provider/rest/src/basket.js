@@ -14,8 +14,56 @@ export class BasketRestHandler extends BaseRestHandler
     {
         return new Promise((resolve, reject) =>
         {
+            if(response.data.needFullRecalculation === 'Y')
+            {
+                Event.EventEmitter.emit(EventType.basket.needRefresh, {})
+            }
+            
+            let needRefresh = this.store.getters['basket/getNeedRefresh'];
+            
             this.#setModelBasketForAction(response.data, pool)
                 .then(() => resolve());
+            
+            if(needRefresh === 'Y')
+            {
+                if(pool.isEmpty())
+                {
+                    this.#setModelBasketByItem(response.data, pool)
+                    Event.EventEmitter.emit(EventType.basket.refreshAfter, {})
+                }
+            }
+        });
+    }
+    
+    #setModelBasketByItem(data, pool)
+    {
+        return new Promise((resolve, reject) =>{
+            if(Type.isObject(data) && Type.isArray(data.basketItems))
+            {
+                const items = data.basketItems;
+                const collection = this.store.getters['basket/getBasket'];
+                
+                //refresh
+                collection.forEach((fields, index) =>
+                {
+                    let item = this.#findItemById(fields.id, items);
+        
+                    if(Type.isObject(item))
+                    {
+                        let fields = this.#prepareBasketItemFields(item);
+            
+                        this.#changeBasketItem(fields, index);
+                    }
+                })
+    
+                if(Type.isObject(data) && Type.isObject(data.orderPriceTotal))
+                {
+                    this.#refreshModelBasketTotal(data);
+                    this.#refreshModelBasketDiscount(data);
+                }
+            }
+    
+            resolve();
         });
     }
 
@@ -28,6 +76,7 @@ export class BasketRestHandler extends BaseRestHandler
                 const items = data.basketItems;
                 const actions = data.actions;
                 const collection = this.store.getters['basket/getBasket'];
+                const poolList = pool.get();
 
                 collection.forEach((fields, index) =>
                 {
@@ -40,7 +89,7 @@ export class BasketRestHandler extends BaseRestHandler
                         {
                             item = null; //not refresh
 
-                            let exists = this.#hasActionInPool(index, PoolConst.action.quantity, pool);
+                            let exists = this.#hasActionInPool(index, PoolConst.action.quantity, poolList);
                             if(exists === false)
                             {
                                 item = this.#findItemById(fields.id, items)
@@ -94,9 +143,9 @@ export class BasketRestHandler extends BaseRestHandler
         return null;
     }
 
-    #hasActionInPool(index, type, pool)
+    #hasActionInPool(index, type, poolList)
     {
-        let item = pool.hasOwnProperty(index) ? pool[index]:null;
+        let item = poolList.hasOwnProperty(index) ? poolList[index]:null;
         if(Type.isArray(item))
         {
             return this.#hasActionInPoolItem(item, type);

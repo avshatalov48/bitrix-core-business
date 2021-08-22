@@ -5,11 +5,11 @@ class CCalendarSect
 {
 	private static
 		$sections,
-		$Permissions = array(),
-		$arOp = array(),
+		$Permissions = [],
+		$arOp = [],
 		$bClearOperationCache = false,
 		$authHashiCal = null, // for login by hash
-		$Fields = array();
+		$Fields = [];
 
 	private static function GetFields()
 	{
@@ -40,7 +40,7 @@ class CCalendarSect
 		return self::$Fields;
 	}
 
-	public static function GetList($params = array())
+	public static function GetList($params = [])
 	{
 		global $DB;
 		$result = false;
@@ -80,7 +80,7 @@ class CCalendarSect
 		if (!$cacheEnabled || !isset($arSectionIds))
 		{
 			$arFields = self::GetFields();
-			$arSqlSearch = array();
+			$arSqlSearch = [];
 			if(is_array($filter))
 			{
 				$filter_keys = array_keys($filter);
@@ -694,20 +694,20 @@ class CCalendarSect
 		$meetingIds = [];
 		if (\Bitrix\Calendar\Util::isSectionStructureConverted())
 		{
-			$strSql = "SELECT CE.PARENT_ID FROM b_calendar_event CE
-				WHERE CE.SECTION_ID=".$id."
-				AND (CE.PARENT_ID=CE.ID)
-				AND (CE.IS_MEETING='1' and CE.IS_MEETING is not null)
-				AND (CE.DELETED='N' and CE.DELETED is not null)";
+			$strSql = "select CE.ID, CE.PARENT_ID, CE.CREATED_BY 
+				from b_calendar_event CE
+				where CE.SECTION_ID=".$id."
+				and (CE.IS_MEETING='1' and CE.IS_MEETING is not null)
+				and (CE.DELETED='N' and CE.DELETED is not null)";
 		}
 		else
 		{
 			// Here we don't use GetList to speed up delete process
 			// mantis: 82918
-			$strSql = "SELECT CE.ID, CE.PARENT_ID, CE.DELETED, CES.SECT_ID, CES.EVENT_ID FROM b_calendar_event CE
+			$strSql = "SELECT CE.ID, CE.PARENT_ID, CE.DELETED, CE.CREATED_BY, CES.SECT_ID, CES.EVENT_ID
+				FROM b_calendar_event CE
 				LEFT JOIN b_calendar_event_sect CES ON (CE.ID=CES.EVENT_ID)
 				WHERE CES.SECT_ID=".$id."
-				AND (CE.PARENT_ID=CE.ID)
 				AND (CE.IS_MEETING='1' and CE.IS_MEETING is not null)
 				AND (CE.DELETED='N' and CE.DELETED is not null)";
 		}
@@ -715,8 +715,23 @@ class CCalendarSect
 		$res = $DB->Query($strSql , false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		while($ev = $res->Fetch())
 		{
-			$meetingIds[] = intval($ev['PARENT_ID']);
-			CCalendarLiveFeed::OnDeleteCalendarEventEntry($ev['PARENT_ID']);
+			if ((int)$ev['ID'] === (int)$ev['PARENT_ID'])
+			{
+				$meetingIds[] = intval($ev['PARENT_ID']);
+				CCalendarLiveFeed::OnDeleteCalendarEventEntry($ev['PARENT_ID']);
+			}
+
+			$pullUserId = (int)$ev['CREATED_BY'] > 0 ? (int)$ev['CREATED_BY'] : \CCalendar::GetCurUserId();
+			if ($pullUserId)
+			{
+				Bitrix\Calendar\Util::addPullEvent(
+					'delete_event',
+					$pullUserId,
+					[
+						'fields' => $ev
+					]
+				);
+			}
 		}
 
 		if (count($meetingIds) > 0)
@@ -861,20 +876,26 @@ class CCalendarSect
 		global $USER;
 
 		if (!$userId)
+		{
 			$userId = CCalendar::GetCurUserId();
+		}
 
 		if (!isset($USER) || !is_object($USER) || !$sectId || !($USER instanceof \CUser))
+		{
 			return false;
+		}
 
-		if ($userId == CCalendar::GetCurUserId() && $USER->CanDoOperation('edit_php'))
+		if ($userId === CCalendar::GetCurUserId()
+			&& $USER->CanDoOperation('edit_php'))
+		{
 			return true;
+		}
 
 		if ((CCalendar::GetType() == 'group' || CCalendar::GetType() == 'user' || CCalendar::IsBitrix24())
 			&& CCalendar::IsSocNet() && CCalendar::IsSocnetAdmin())
+		{
 			return true;
-
-		if (CCalendar::IsBitrix24() && Loader::includeModule('bitrix24') && \CBitrix24::isPortalAdmin($userId))
-			return true;
+		}
 
 		$res = in_array($operation, self::GetOperations($sectId, $userId));
 

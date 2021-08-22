@@ -2,6 +2,7 @@
 use Bitrix\Main,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Catalog;
+use Bitrix\Main\Loader;
 
 Loc::loadMessages(__FILE__);
 
@@ -1342,11 +1343,11 @@ class CAllCatalog
 						{
 							if (ExecuteModuleEventEx($arEvent, array($arOffer['ID']))===false)
 							{
-								$err = Loc::getMessage("BT_MOD_CATALOG_ERR_BEFORE_DEL_TITLE").' '.$arEvent['TO_NAME'];
+								$err = "";
 								$err_id = false;
 								if ($ex = $APPLICATION->GetException())
 								{
-									$err .= ': '.$ex->GetString();
+									$err = $ex->GetString();
 									$err_id = $ex->GetID();
 								}
 								$APPLICATION->ThrowException($err, $err_id);
@@ -1420,14 +1421,14 @@ class CAllCatalog
 		global $APPLICATION;
 
 		$result = true;
-		if (
-			isset($fields['ID'])
-			&& isset($fields['ACTIVE'])
-			&& $fields['ACTIVE'] != 'Y'
-		)
+		$id = (int)$fields['ID'];
+		if ($id > 0)
 		{
-			$id = (int)$fields['ID'];
-			if ($id > 0)
+			if (
+				isset($fields['ID'])
+				&& isset($fields['ACTIVE'])
+				&& $fields['ACTIVE'] != 'Y'
+			)
 			{
 				$iterator = Catalog\CatalogIblockTable::getList(array(
 					'select' => array('IBLOCK_ID', 'PRODUCT_IBLOCK_ID', 'SKU_PROPERTY_ID'),
@@ -1448,6 +1449,23 @@ class CAllCatalog
 					$result = false;
 				}
 				unset($row);
+			}
+			elseif (self::isCrmCatalogBrandProperty($id))
+			{
+				$property = \CIBlockProperty::GetByID($id)->Fetch();
+
+				if ($fields['NAME'] !== $property['NAME']) {
+					$APPLICATION->throwException(GetMessage("BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_NAME"));
+					$result = false;
+				}
+				elseif ($fields['CODE'] !== 'BRAND') {
+					$APPLICATION->throwException(GetMessage("BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_CODE"));
+					$result = false;
+				}
+				elseif ($fields['MULTIPLE'] !== 'Y') {
+					$APPLICATION->throwException(GetMessage("BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_MULTIPLE"));
+					$result = false;
+				}
 			}
 			unset($id);
 		}
@@ -1485,8 +1503,29 @@ class CAllCatalog
 			));
 			$result = false;
 		}
+		elseif (self::isCrmCatalogBrandProperty($intPropertyID))
+		{
+			$APPLICATION->throwException(GetMessage("BT_MOD_CATALOG_ERR_CANNOT_DELETE_BRAND_PROPERTY"));
+			$result = false;
+		}
 		unset($property);
 		return $result;
+	}
+
+	private static function isCrmCatalogBrandProperty($propertyId): bool
+	{
+		if (
+			!Loader::includeModule('crm')
+			|| !Loader::includeModule('bitrix24')
+		)
+		{
+			return false;
+		}
+
+		$crmCatalogId = \CCrmCatalog::GetDefaultID();
+		$property = \CIBlockProperty::GetByID($propertyId)->Fetch();
+
+		return $property['CODE'] === 'BRAND' && (int)$property['IBLOCK_ID'] === $crmCatalogId;
 	}
 
 	public static function OnIBlockModuleUnInstall()

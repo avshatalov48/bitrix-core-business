@@ -178,10 +178,10 @@ else
 			?><div id="sonet_group_create_popup" class="sonet-group-create-popup"><?
 
 				if (
-					$arResult["USE_PRESETS"] == 'Y'
+					$arResult["USE_PRESETS"] === 'Y'
 					&& (
 						empty($arResult["TAB"])
-						|| $arResult["TAB"] == "edit"
+						|| $arResult["TAB"] === "edit"
 					)
 				)
 				{
@@ -189,10 +189,10 @@ else
 						<div id="sonet_group_create_step_1_content">
 							<div class="social-group-create-container first-step"><?
 
-								$typeCode = \Bitrix\Socialnetwork\Item\Workgroup::getTypeCodeByParams(array(
-									"typesList" => $arResult["Types"],
-									"fields" => $arResult["POST"]
-								));
+								$typeCode = \Bitrix\Socialnetwork\Helper\Workgroup::getTypeCodeByParams([
+									'typesList' => $arResult['Types'],
+									'fields' => $arResult['POST'],
+								]);
 								foreach ($arResult['TypeRowList'] as $rowCode)
 								{
 									?><div class="social-group-create-inner">

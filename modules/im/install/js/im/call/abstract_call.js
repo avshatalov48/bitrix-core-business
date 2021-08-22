@@ -86,6 +86,24 @@
 				}
 			}
 		})
+
+		this._microphoneLevel = 0;
+		Object.defineProperty(this, "microphoneLevel", {
+			get: function()
+			{
+				return this._microphoneLevel
+			},
+			set: function(level)
+			{
+				if (level != this._microphoneLevel)
+				{
+					this._microphoneLevel = level;
+					this.runCallback(BX.Call.Event.onMicrophoneLevel, {
+						level: level
+					});
+				}
+			}
+		})
 	};
 
 	BX.Call.AbstractCall.prototype.initEventListeners = function(eventListeners)

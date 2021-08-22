@@ -889,7 +889,8 @@ a.sonet-invitation-dash-link:hover{ color: #696969; border-color: #696969; text-
 
 .social-group-create-form-control-block .main-user-selector-wrap {
 	flex: 1 1 auto;
-	margin: 0 220px 0 0;
+	margin: 0 20px 0 0;
+	max-width: 468px;
 }
 
 .sonet-slider-frame-popup .sonet-group-create-popup .social-group-create-form-control-block {
@@ -903,6 +904,7 @@ a.sonet-invitation-dash-link:hover{ color: #696969; border-color: #696969; text-
 .social-group-create-form-control-block .social-group-create-text {
 	display: block;
 	line-height: 35px;
+	margin-left: auto;
 	padding-left: 15px;
 	max-width: 225px;
 	overflow: hidden;

@@ -11,6 +11,8 @@ import {IphoneProvider} from "./connectionproviders/iphoneprovider";
 import {MacProvider} from "./connectionproviders/macprovider";
 import {OutlookProvider} from "./connectionproviders/outlookprovider";
 import {YandexProvider} from "./connectionproviders/yandexprovider";
+import SyncStatusPopup from "./controls/syncstatuspopup";
+import {Util} from "calendar.util";
 
 type ManagerOptions = {
 	wrapper: string,
@@ -218,16 +220,22 @@ export default class Manager extends EventEmitter
 		BX.ajax.runAction('calendar.api.calendarajax.updateConnection', {
 			data: {
 				type: 'user',
+				requestUid: Util.registerRequestId(),
 			}
 		}).then((response) => {
 			this.syncInfo = response.data;
 			this.status = this.STATUS_SUCCESS;
-			this.init();
-			this.refreshCalendarGrid();
-			this.refreshSyncButton();
-			this.refreshActivePopup(activePopup);
-			this.refreshOpenSliders(activePopup);
+			this.refreshContent(activePopup);
 		});
+	}
+
+	refreshContent(activePopup = {})
+	{
+		this.init();
+		this.refreshCalendarGrid();
+		this.refreshSyncButton();
+		this.refreshActivePopup(activePopup);
+		this.refreshOpenSliders(activePopup);
 	}
 
 	refreshCalendarGrid()
@@ -242,13 +250,17 @@ export default class Manager extends EventEmitter
 
 	refreshActivePopup(activePopup)
 	{
-		if (activePopup.getId() === 'calendar-syncPanel-status')
+		if (activePopup instanceof SyncStatusPopup && activePopup.getId() === 'calendar-syncPanel-status')
 		{
 			activePopup.refresh(this.getConnections());
 		}
+		else if (this.syncButton.popup instanceof SyncStatusPopup && this.syncButton.popup.getId() === 'calendar-syncButton-status')
+		{
+			this.syncButton.popup.refresh(this.getConnections());
+		}
 	}
 
-	refreshOpenSliders(activePopup)
+	refreshOpenSliders(activePopup = {})
 	{
 		const openSliders = BX.SidePanel.Instance.getOpenSliders();
 		if (openSliders.length > 0)
@@ -260,7 +272,7 @@ export default class Manager extends EventEmitter
 				{
 					this.refreshMainSlider(syncPanel, slider);
 				}
-				else
+				else if (slider.getUrl().indexOf('calendar:item-sync-') !== -1)
 				{
 					this.refreshConnectionSlider(slider, activePopup);
 				}
@@ -270,18 +282,30 @@ export default class Manager extends EventEmitter
 
 	refreshConnectionSlider(slider, activePopup)
 	{
+		let updatedConnection = undefined;
 		const itemInterface = slider.getData().get('itemInterface');
 		const connection = slider.getData().get('connection');
-		const updatedConnection = this.connectionsProviders[connection.getType()].getConnectionById(connection.getId());
-		activePopup.refresh([updatedConnection]);
-		itemInterface.refresh(updatedConnection);
+		if (connection)
+		{
+			updatedConnection = this.connectionsProviders[connection.getType()].getConnectionById(connection.getId());
+		}
+
+		if (activePopup instanceof SyncStatusPopup && updatedConnection)
+		{
+			activePopup.refresh([updatedConnection]);
+		}
+
+		if (itemInterface && updatedConnection)
+		{
+			itemInterface.refresh(updatedConnection);
+		}
+
 		slider.reload();
 	}
 
 	refreshMainSlider(syncPanel, slider)
 	{
 		syncPanel.refresh(this.status, this.connectionsProviders);
-		slider.reload();
 	}
 
 	getConnections()
@@ -310,5 +334,71 @@ export default class Manager extends EventEmitter
 	reDrawCalendarGrid()
 	{
 		this.calendarInstance.reload();
+	}
+
+	updateSyncStatus(params)
+	{
+		if (!BX.Calendar.Util.checkRequestId(params.requestUid))
+		{
+			return;
+		}
+
+		for (let connectionName in params.syncInfo)
+		{
+			if (this.syncInfo[connectionName])
+			{
+				this.syncInfo[connectionName] = {
+					...this.syncInfo[connectionName],
+					...params.syncInfo[connectionName]
+				};
+			}
+		}
+
+		this.status = this.STATUS_SUCCESS;
+		this.refreshContent();
+	}
+
+	addSyncConnection(params)
+	{
+		for (let connectionName in params.syncInfo)
+		{
+			if (['yandex', 'caldav', 'google'].includes(params.syncInfo[connectionName].type))
+			{
+				BX.reload();
+			}
+
+			if (BX.Calendar.Util.checkRequestId(params.requestUid))
+			{
+				if (this.syncInfo[connectionName])
+				{
+					this.syncInfo[connectionName] = {
+						...this.syncInfo[connectionName],
+						...params.syncInfo[connectionName]
+					};
+				}
+			}
+		}
+
+		this.status = this.STATUS_SUCCESS;
+		this.refreshContent();
+	}
+
+	deleteSyncConnection(params)
+	{
+		if (!BX.Calendar.Util.checkRequestId(params.requestUid))
+		{
+			return;
+		}
+
+		for (let connectionName in params.syncInfo)
+		{
+			if (this.syncInfo[connectionName])
+			{
+				delete this.syncInfo[connectionName];
+			}
+		}
+
+		this.status = this.STATUS_SUCCESS;
+		this.refreshContent();
 	}
 }

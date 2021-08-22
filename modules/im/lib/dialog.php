@@ -24,11 +24,11 @@ class Dialog
 
 	public static function getChatId($dialogId, $userId = null)
 	{
-		if (\Bitrix\Im\Common::isChatId($dialogId))
+		if (preg_match('/^chat[0-9]{1,}$/i', $dialogId))
 		{
 			$chatId = (int)mb_substr($dialogId, 4);
 		}
-		else
+		else if (preg_match('/^\d{1,}$/i', $dialogId))
 		{
 			$dialogId = intval($dialogId);
 			if (!$dialogId)
@@ -48,6 +48,18 @@ class Dialog
 				return false;
 			}
 		}
+		else if (preg_match('/^crm[0-9]{1,}$/i', $dialogId))
+		{
+			$chatId = \CIMChat::GetCrmChatId(mb_substr($dialogId, 4));
+		}
+		else if (preg_match('/^sg[0-9]{1,}$/i', $dialogId))
+		{
+			$chatId = \CIMChat::GetSonetGroupChatId(mb_substr($dialogId, 2));
+		}
+		else
+		{
+			$chatId = 0;
+		}
 
 		return $chatId;
 	}
@@ -62,7 +74,7 @@ class Dialog
 
 		if (\Bitrix\Im\Common::isChatId($dialogId))
 		{
-			$chatId = intval(mb_substr($dialogId, 4));
+			$chatId = \Bitrix\Im\Dialog::getChatId($dialogId, $userId);
 
 			$sql =
 				'SELECT C.ID CHAT_ID, R.ID RID,
@@ -130,6 +142,10 @@ class Dialog
 			{
 				return false;
 			}
+		}
+		else if ($dialogId == $userId)
+		{
+			return true;
 		}
 		else
 		{

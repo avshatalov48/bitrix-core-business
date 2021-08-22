@@ -2360,7 +2360,6 @@ $selectedCount = $rsData->SelectedRowsCount();
 unset($rsData, $row);
 
 $skuFields = [
-	'NAME',
 	'VAT_ID',
 	'CATALOG_MEASURE_RATIO',
 	'CATALOG_MEASURE',
@@ -4332,6 +4331,7 @@ foreach($arRows as $idRow => $row)
 					'ROW_ID' => $idRow,
 					'PRODUCT_FIELDS' => $productFields,
 					'ENABLE_IMAGE_INPUT' => false,
+					'ENABLE_CHANGES_RENDERING' => false,
 					'SKU_TREE' => $productSkuTree[$idRow] ?? null,
 				]
 			);

@@ -10,6 +10,7 @@ import { NotificationItemHeader } from './notification-item-header';
 import { NotificationPlaceholder } from './notification-placeholder';
 import { PopupManager } from "main.popup";
 import { Dom } from 'main.core';
+import { NotificationTypesCodes } from 'im.const';
 
 export const NotificationItem = {
 	components:
@@ -22,20 +23,16 @@ export const NotificationItem = {
 	data()
 	{
 		return {
-			itemTypes: {
-				default: 'default',
-				placeholder: 'placeholder'
-			},
 			menuId: 'popup-window-content-bx-messenger-popup-notify'
 		};
 	},
 	computed:
 	{
+		NotificationTypesCodes: () => NotificationTypesCodes,
 		listItem()
 		{
 			return {
 				id: this.rawListItem.id,
-				template: this.rawListItem.template,
 				type: this.rawListItem.type,
 				sectionCode: this.rawListItem.sectionCode,
 				authorId: this.rawListItem.authorId,
@@ -61,7 +58,7 @@ export const NotificationItem = {
 		},
 		isRealItem()
 		{
-			return this.rawListItem.template === 'item';
+			return this.rawListItem.sectionCode !== NotificationTypesCodes.placeholder;
 		},
 		isNeedQuickAnswer()
 		{
@@ -124,7 +121,7 @@ export const NotificationItem = {
 		//events
 		onDoubleClick(event)
 		{
-			if (!this.searchMode && event.item.sectionCode === 'notification')
+			if (!this.searchMode && event.item.sectionCode === NotificationTypesCodes.simple)
 			{
 				this.$emit('dblclick', event);
 			}
@@ -229,11 +226,11 @@ export const NotificationItem = {
 	template: `
 		<div 
 			class="bx-im-notifications-item"
-			:class="[listItem.unread && !searchMode ? 'bx-im-notifications-item-unread' : '', 'bx-im-notifications-item']"
+			:class="[listItem.unread && !searchMode ? 'bx-im-notifications-item-unread' : '']"
 			@dblclick="onDoubleClick({item: listItem, event: $event})"
 			@contextmenu="onRightClick"
 		>
-			<template v-if="listItem.template !== itemTypes.placeholder">
+			<template v-if="listItem.sectionCode !== NotificationTypesCodes.placeholder">
 				<div v-if="listItem.avatar" class="bx-im-notifications-item-image-wrap">
 					<div 
 						v-if="listItem.avatar.url" 
@@ -270,7 +267,7 @@ export const NotificationItem = {
 					</div>
 				</div>
 			</template>
-			<NotificationPlaceholder v-else-if="listItem.template === itemTypes.placeholder"/>
+			<NotificationPlaceholder v-else-if="listItem.sectionCode === NotificationTypesCodes.placeholder"/>
 		</div>
 	`
 };

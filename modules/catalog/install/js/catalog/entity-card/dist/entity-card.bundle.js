@@ -252,65 +252,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return Manager;
 	}();
 
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t\t<span class=\"ui-tile-selector-selector-wrap readonly\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t</div>"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tile-selector-item ui-tile-selector-item-readonly-yes\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t<span data-role=\"tile-item-name\">", "</span>\n\t\t\t\t\t</span>\n\t\t\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-tile-selector-item-picture\" style=\"background-image: url('", "');\"></span>"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block\"></div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"", "[]\" value=\"0\">"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6;
 
 	var IblockSectionField = /*#__PURE__*/function (_BX$UI$EntityEditorFi) {
 	  babelHelpers.inherits(IblockSectionField, _BX$UI$EntityEditorFi);
@@ -366,11 +308,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "drawEditMode",
 	    value: function drawEditMode() {
-	      this.defaultInput = main_core.Tag.render(_templateObject(), this.getName());
+	      this.defaultInput = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"", "[]\" value=\"0\">"])), this.getName());
 
 	      this._wrapper.appendChild(this.defaultInput);
 
-	      this.innerWrapper = main_core.Tag.render(_templateObject2());
+	      this.innerWrapper = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block\"></div>"])));
 
 	      this._wrapper.appendChild(this.innerWrapper);
 
@@ -421,7 +363,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "drawViewMode",
 	    value: function drawViewMode() {
 	      if (this.hasNoSections()) {
-	        this.innerWrapper = main_core.Tag.render(_templateObject3(), main_core.Loc.getMessage("CATALOG_ENTITY_CARD_EMPTY_SECTION"));
+	        this.innerWrapper = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage("CATALOG_ENTITY_CARD_EMPTY_SECTION"));
 	        main_core.Dom.addClass(this._wrapper, 'ui-entity-editor-content-block-click-empty');
 	      } else {
 	        var content = [];
@@ -430,12 +372,12 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          var picture = '';
 
 	          if (main_core.Type.isStringFilled(section.PICTURE)) {
-	            picture = main_core.Tag.render(_templateObject4(), main_core.Text.encode(section.PICTURE));
+	            picture = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-tile-selector-item-picture\" style=\"background-image: url('", "');\"></span>"])), main_core.Text.encode(section.PICTURE));
 	          }
 
-	          content.push(main_core.Tag.render(_templateObject5(), picture, main_core.Text.encode(section.NAME)));
+	          content.push(main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tile-selector-item ui-tile-selector-item-readonly-yes\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t<span data-role=\"tile-item-name\">", "</span>\n\t\t\t\t\t</span>\n\t\t\t\t"])), picture, main_core.Text.encode(section.NAME)));
 	        });
-	        this.innerWrapper = main_core.Tag.render(_templateObject6(), content);
+	        this.innerWrapper = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t\t<span class=\"ui-tile-selector-selector-wrap readonly\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t</div>"])), content);
 	      }
 
 	      this._wrapper.appendChild(this.innerWrapper);
@@ -491,185 +433,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return IblockSectionField;
 	}(BX.UI.EntityEditorField);
 
-	function _templateObject18() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span>\n\t\t\t\t\t", "\n\t\t\t\t\t<span style=\"color: rgb(255, 0, 0);\">*</span>\n\t\t\t\t</span>\n\t\t\t"]);
-
-	  _templateObject18 = function _templateObject18() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject17() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span>", "</span>"]);
-
-	  _templateObject17 = function _templateObject17() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject16() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<label class=\"ui-entity-editor-block-title\"></label>"]);
-
-	  _templateObject16 = function _templateObject16() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject15() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-symbol-code-box\">\n\t\t\t\t<div class=\"ui-entity-editor-symbol-code-label\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-entity-editor-symbol-code-value ", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject15 = function _templateObject15() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject14() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<p>", "</p>"]);
-
-	  _templateObject14 = function _templateObject14() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject13() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-symbol-code-label\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject13 = function _templateObject13() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject12() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<p>", "</p>"]);
-
-	  _templateObject12 = function _templateObject12() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject11() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block-text\"></div>\n\t\t"]);
-
-	  _templateObject11 = function _templateObject11() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject10() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button name=\"", "\" class=\"ui-ctl-before ui-ctl-icon-", "\" id=\"code_state_button\"></button>\n\t\t\t"]);
-
-	  _templateObject10 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t\tclass=\"ui-ctl-element\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tid=\"", "\"\n\t\t\t\t\ttype=\"text\"\n\t\t\t\t\tvalue=\"", "\"/>\n\t\t\t"]);
-
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<textarea\n\t\t\t\t\tclass=\"ui-ctl-element ui-entity-editor-field-textarea\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tid=\"", "\"\n\t\t\t\t\trows=\"", "\">", "</textarea>\n\t\t\t"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-ctl ui-ctl-w100 ui-ctl-textbox\"></div>\n\t\t"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "_container\"></div>\n\t\t"]);
-
-	  _templateObject6$1 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-field-error-text\"></div>"]);
-
-	  _templateObject5$1 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">", "</div>\n\t\t\t"]);
-
-	  _templateObject4$1 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block\">", "</div>"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div></div>"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span id=\"name_code_marker\" style=\"color: rgb(255, 0, 0); display: ", ";\">*</span>"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6$1, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17, _templateObject18;
 
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
@@ -797,7 +561,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      var display = this.isShownSymbolicCode ? 'none' : 'inline';
 
 	      if (this._mode === BX.UI.EntityEditorMode.edit) {
-	        return main_core.Tag.render(_templateObject$1(), display);
+	        return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<span id=\"name_code_marker\" style=\"color: rgb(255, 0, 0); display: ", ";\">*</span>"])), display);
 	      }
 	    }
 	  }, {
@@ -830,13 +594,13 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      main_core.Dom.append(this.createTitleNode(title), this._wrapper);
 
 	      if (this._mode === BX.UI.EntityEditorMode.edit) {
-	        this._inputContainer = main_core.Tag.render(_templateObject2$1());
+	        this._inputContainer = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div></div>"])));
 
 	        for (var valueKey in values) {
 	          main_core.Dom.append(this.createSingleInput(values[valueKey], valueKey), this._inputContainer);
 	        }
 
-	        this._innerWrapper = main_core.Tag.render(_templateObject3$1(), this._inputContainer);
+	        this._innerWrapper = main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block\">", "</div>"])), this._inputContainer);
 
 	        if (this.isShownSymbolicCode) {
 	          main_core.Dom.addClass(this._innerWrapper, 'ui-entity-editor-content-block--code');
@@ -844,7 +608,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          main_core.Dom.addClass(this._innerWrapper, 'ui-entity-editor-content-block--no-code');
 	        }
 	      } else {
-	        this._innerWrapper = main_core.Tag.render(_templateObject4$1(), this.getViewInnerLayout());
+	        this._innerWrapper = main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">", "</div>\n\t\t\t"])), this.getViewInnerLayout());
 	      }
 
 	      main_core.Dom.append(this._innerWrapper, this._wrapper);
@@ -905,7 +669,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "showError",
 	    value: function showError(error, anchor) {
 	      if (!this._errorContainer) {
-	        this._errorContainer = main_core.Tag.render(_templateObject5$1());
+	        this._errorContainer = main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-field-error-text\"></div>"])));
 	      }
 
 	      this._errorContainer.innerHTML = BX.util.htmlspecialchars(error);
@@ -919,14 +683,14 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "createSingleInput",
 	    value: function createSingleInput(value, name) {
-	      var inputWrapper = main_core.Tag.render(_templateObject6$1(), name.toLowerCase());
-	      var inputContainer = main_core.Tag.render(_templateObject7());
+	      var inputWrapper = main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "_container\"></div>\n\t\t"])), name.toLowerCase());
+	      var inputContainer = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-ctl ui-ctl-w100 ui-ctl-textbox\"></div>\n\t\t"])));
 	      var input;
 
 	      if (this.getLineCount() > 1) {
-	        input = main_core.Tag.render(_templateObject8(), name, name.toLowerCase() + '_text', this.getLineCount(), BX.util.htmlspecialchars(value) || '');
+	        input = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<textarea\n\t\t\t\t\tclass=\"ui-ctl-element ui-entity-editor-field-textarea\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tid=\"", "\"\n\t\t\t\t\trows=\"", "\">", "</textarea>\n\t\t\t"])), name, name.toLowerCase() + '_text', this.getLineCount(), BX.util.htmlspecialchars(value) || '');
 	      } else {
-	        input = main_core.Tag.render(_templateObject9(), name, name.toLowerCase() + '_text', BX.util.htmlspecialchars(value) || '');
+	        input = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t\tclass=\"ui-ctl-element\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tid=\"", "\"\n\t\t\t\t\ttype=\"text\"\n\t\t\t\t\tvalue=\"", "\"/>\n\t\t\t"])), name, name.toLowerCase() + '_text', BX.util.htmlspecialchars(value) || '');
 	      }
 
 	      main_core.Event.bind(input, 'input', _classPrivateMethodGet(this, _onInputHandler, _onInputHandler2).bind(this, name));
@@ -944,7 +708,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        main_core.Dom.addClass(inputContainer, 'ui-ctl-ext-before-icon');
 	        main_core.Dom.addClass(inputWrapper, 'name-code-container');
 	        var chainState = this.allowToGenerateCode ? 'chain' : 'unchain';
-	        var button = main_core.Tag.render(_templateObject10(), name, chainState);
+	        var button = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button name=\"", "\" class=\"ui-ctl-before ui-ctl-icon-", "\" id=\"code_state_button\"></button>\n\t\t\t"])), name, chainState);
 	        main_core.Event.bind(button, 'click', _classPrivateMethodGet(this, _onCodeStateButtonClick, _onCodeStateButtonClick2).bind(this));
 	        main_core.Dom.append(button, inputContainer);
 	      }
@@ -959,20 +723,20 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getViewInnerLayout",
 	    value: function getViewInnerLayout() {
-	      var textValue = main_core.Tag.render(_templateObject11());
+	      var textValue = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block-text\"></div>\n\t\t"])));
 	      var values = this.getValue();
 
 	      if (!this.isShownSymbolicCode) {
-	        main_core.Dom.append(main_core.Tag.render(_templateObject12(), BX.util.htmlspecialchars(values.NAME)), textValue);
+	        main_core.Dom.append(main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["<p>", "</p>"])), BX.util.htmlspecialchars(values.NAME)), textValue);
 	        return textValue;
 	      }
 
-	      main_core.Dom.append(main_core.Tag.render(_templateObject13(), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_NAME')), textValue);
-	      main_core.Dom.append(main_core.Tag.render(_templateObject14(), BX.util.htmlspecialchars(values.NAME)), textValue);
+	      main_core.Dom.append(main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-symbol-code-label\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_NAME')), textValue);
+	      main_core.Dom.append(main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["<p>", "</p>"])), BX.util.htmlspecialchars(values.NAME)), textValue);
 	      main_core.Dom.addClass(textValue, 'ui-entity-editor-symbol-code');
 	      var codeValue = values.CODE === '' ? main_core.Loc.getMessage('UI_ENTITY_EDITOR_FIELD_EMPTY') : values.CODE;
 	      var chainClass = this.allowToGenerateCode ? 'ui-entity-editor-symbol-code-value-chain' : 'ui-entity-editor-symbol-code-value-unchain';
-	      main_core.Dom.append(main_core.Tag.render(_templateObject15(), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SYMBOLIC_CODE'), chainClass, BX.util.htmlspecialchars(codeValue)), textValue);
+	      main_core.Dom.append(main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-symbol-code-box\">\n\t\t\t\t<div class=\"ui-entity-editor-symbol-code-label\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-entity-editor-symbol-code-value ", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SYMBOLIC_CODE'), chainClass, BX.util.htmlspecialchars(codeValue)), textValue);
 	      return textValue;
 	    }
 	  }]);
@@ -980,15 +744,15 @@ this.BX.Catalog = this.BX.Catalog || {};
 	}(BX.UI.EntityEditorMultiText);
 
 	var _creatLabelForEditMode2 = function _creatLabelForEditMode2(name) {
-	  var label = main_core.Tag.render(_templateObject16());
+	  var label = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["<label class=\"ui-entity-editor-block-title\"></label>"])));
 	  var labelText;
 
 	  if (name === 'CODE') {
-	    labelText = main_core.Tag.render(_templateObject17(), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SYMBOLIC_CODE'));
+	    labelText = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["<span>", "</span>"])), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SYMBOLIC_CODE'));
 	    main_core.Dom.append(labelText, label);
 	    main_core.Dom.append(_classPrivateMethodGet(this, _getHintNode, _getHintNode2).call(this), label);
 	  } else {
-	    labelText = main_core.Tag.render(_templateObject18(), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_NAME'));
+	    labelText = main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span>\n\t\t\t\t\t", "\n\t\t\t\t\t<span style=\"color: rgb(255, 0, 0);\">*</span>\n\t\t\t\t</span>\n\t\t\t"])), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_NAME'));
 	    main_core.Dom.append(labelText, label);
 	  }
 
@@ -1414,6 +1178,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      }
 
 	      main_core_events.EventEmitter.emit(this.getGrid().getSettingsWindow().getPopup(), 'onDestroy');
+	      main_core_events.EventEmitter.unsubscribeAll('BX.Main.grid:paramsUpdated');
 	      this.getGrid().destroy();
 	    }
 	  }, {
@@ -2018,55 +1783,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return ControllersFactory;
 	}();
 
-	function _templateObject5$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-remove-block\"></div>\n\t\t\t"]);
-
-	  _templateObject5$2 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\tclass=\"ui-ctl-element\" \n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\tplaceholder=\"", "\"\n\t\t\t\t>\n\t\t\t"]);
-
-	  _templateObject4$2 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label class=\"catalog-dictionary-item ", "\">\n\t\t\t\t<img src=\"", "\" alt=\"\">\n\t\t\t\t", "\n\t\t\t</label>\n\t\t\t"]);
-
-	  _templateObject3$2 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input class=\"input-image-hidden\" value=\"", "\" type=\"file\" accept=\"image/*\">\n\t\t\t"]);
-
-	  _templateObject2$2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-w100 ui-ctl-row\"></div>\n\t\t\t"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$2, _templateObject2$2, _templateObject3$2, _templateObject4$2, _templateObject5$2;
 
 	var IblockDirectoryFieldItem = /*#__PURE__*/function (_BX$UI$EntityEditorUs) {
 	  babelHelpers.inherits(IblockDirectoryFieldItem, _BX$UI$EntityEditorUs);
@@ -2094,19 +1811,19 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        return;
 	      }
 
-	      this._wrapper = main_core.Tag.render(_templateObject$2());
-	      this._fileInput = main_core.Tag.render(_templateObject2$2(), BX.prop.getString(this._data, 'FILE_ID', ''));
+	      this._wrapper = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-w100 ui-ctl-row\"></div>\n\t\t\t"])));
+	      this._fileInput = main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input class=\"input-image-hidden\" value=\"", "\" type=\"file\" accept=\"image/*\">\n\t\t\t"])), BX.prop.getString(this._data, 'FILE_ID', ''));
 	      main_core.Event.bind(this._fileInput, 'change', this.onFileLoaderChange.bind(this));
 	      var link = BX.prop.getString(this._data, 'IMAGE_SRC', '');
 
-	      this._wrapper.appendChild(main_core.Tag.render(_templateObject3$2(), link === '' ? 'catalog-dictionary-item-empty' : '', link, this._fileInput));
+	      this._wrapper.appendChild(main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label class=\"catalog-dictionary-item ", "\">\n\t\t\t\t<img src=\"", "\" alt=\"\">\n\t\t\t\t", "\n\t\t\t</label>\n\t\t\t"])), link === '' ? 'catalog-dictionary-item-empty' : '', link, this._fileInput));
 
 	      var labelText = main_core.Text.encode(BX.prop.getString(this._data, 'TEXT', ''));
-	      this._labelInput = main_core.Tag.render(_templateObject4$2(), labelText, BX.message('CATALOG_ENTITY_CARD_NEW_FIELD_ITEM_PLACEHOLDER'));
+	      this._labelInput = main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\tclass=\"ui-ctl-element\" \n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\tplaceholder=\"", "\"\n\t\t\t\t>\n\t\t\t"])), labelText, BX.message('CATALOG_ENTITY_CARD_NEW_FIELD_ITEM_PLACEHOLDER'));
 
 	      this._wrapper.appendChild(this._labelInput);
 
-	      var deleteButton = main_core.Tag.render(_templateObject5$2());
+	      var deleteButton = main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-remove-block\"></div>\n\t\t\t"])));
 	      main_core.Event.bind(deleteButton, 'click', this.onDeleteButtonClick.bind(this));
 
 	      this._wrapper.appendChild(deleteButton);
@@ -2176,85 +1893,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return IblockDirectoryFieldItem;
 	}(BX.UI.EntityEditorUserFieldListItem);
 
-	function _templateObject8$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block-add-field\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject8$1 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-card-content-add-field\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject7$1 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t\t"]);
-
-	  _templateObject6$2 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t<div class=\"ui-entity-editor-block-title\">\n\t\t\t\t\t<span class=\"ui-entity-editor-block-title-text\">", "</span>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject5$3 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t"]);
-
-	  _templateObject4$3 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t"]);
-
-	  _templateObject3$3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<hr class=\"ui-entity-editor-line\">"]);
-
-	  _templateObject2$3 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<hr class=\"ui-entity-editor-line\">"]);
-
-	  _templateObject$3 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$3, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$3, _templateObject6$2, _templateObject7$1, _templateObject8$1;
 
 	var IblockFieldConfigurator = /*#__PURE__*/function (_BX$UI$EntityEditorFi) {
 	  babelHelpers.inherits(IblockFieldConfigurator, _BX$UI$EntityEditorFi);
@@ -2282,7 +1921,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      this._wrapper.appendChild(this.getInputContainer());
 
 	      if (this._typeId === "list" || this._typeId === "multilist" || this._typeId === "directory") {
-	        this._wrapper.appendChild(main_core.Tag.render(_templateObject$3()));
+	        this._wrapper.appendChild(main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["<hr class=\"ui-entity-editor-line\">"]))));
 
 	        this._wrapper.appendChild(this.getEnumerationContainer());
 	      }
@@ -2291,7 +1930,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      this._wrapper.appendChild(this.getErrorContainer());
 
-	      main_core.Dom.append(main_core.Tag.render(_templateObject2$3()), this._wrapper);
+	      main_core.Dom.append(main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["<hr class=\"ui-entity-editor-line\">"]))), this._wrapper);
 
 	      this._wrapper.appendChild(this.getButtonContainer());
 	    }
@@ -2299,7 +1938,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "getOptionContainer",
 	    value: function getOptionContainer() {
 	      var isNew = this._field === null;
-	      this._optionWrapper = main_core.Tag.render(_templateObject3$3());
+	      this._optionWrapper = main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t"])));
 
 	      if (this._typeId === "datetime" || this._typeId === "multidatetime") {
 	        this._isTimeEnabledCheckBox = this.getIsTimeEnabledCheckBox();
@@ -2309,20 +1948,39 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        this._isRequiredCheckBox = this.getIsRequiredCheckBox();
 	      }
 
-	      if (this._typeId !== "directory") {
+	      if (this.isAllowedMultipleCheckBox()) {
 	        this._isMultipleCheckBox = this.getMultipleCheckBox();
 	      }
 
 	      this._isPublic = this.getIsPublicCheckBox(); //region Show Always
 
 	      this._showAlwaysCheckBox = this.createOption({
-	        caption: BX.message("UI_ENTITY_EDITOR_SHOW_ALWAYS"),
-	        helpUrl: "https://helpdesk.bitrix24.ru/open/7046149/",
-	        helpCode: "9627471"
+	        caption: BX.message('UI_ENTITY_EDITOR_SHOW_ALWAYS'),
+	        helpUrl: 'https://helpdesk.bitrix24.ru/open/7046149/',
+	        helpCode: '9627471'
 	      });
-	      this._showAlwaysCheckBox.checked = isNew ? BX.prop.getBoolean(this._settings, "showAlways", true) : this._field.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways); //endregion
+	      this._showAlwaysCheckBox.checked = isNew ? BX.prop.getBoolean(this._settings, 'showAlways', true) : this._field.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways);
+
+	      if (!this.isAllowedShowAlwaysCheckBox()) {
+	        main_core.Dom.style(this._showAlwaysCheckBox.closest('div.ui-ctl-checkbox'), 'display', 'none');
+	      } //endregion
+
 
 	      return this._optionWrapper;
+	    }
+	  }, {
+	    key: "isAllowedMultipleCheckBox",
+	    value: function isAllowedMultipleCheckBox() {
+	      var _this$_field, _this$_field$getSchem, _this$_field$getSchem2, _this$_field2, _this$_field2$getSche, _this$_field2$getSche2;
+
+	      var isEnabledOfferTree = this === null || this === void 0 ? void 0 : (_this$_field = this._field) === null || _this$_field === void 0 ? void 0 : (_this$_field$getSchem = _this$_field.getSchemeElement()) === null || _this$_field$getSchem === void 0 ? void 0 : (_this$_field$getSchem2 = _this$_field$getSchem._settings) === null || _this$_field$getSchem2 === void 0 ? void 0 : _this$_field$getSchem2.isEnabledOfferTree;
+	      var isMultiple = this === null || this === void 0 ? void 0 : (_this$_field2 = this._field) === null || _this$_field2 === void 0 ? void 0 : (_this$_field2$getSche = _this$_field2.getSchemeElement()) === null || _this$_field2$getSche === void 0 ? void 0 : (_this$_field2$getSche2 = _this$_field2$getSche._settings) === null || _this$_field2$getSche2 === void 0 ? void 0 : _this$_field2$getSche2.multiple;
+	      return !isEnabledOfferTree || isMultiple;
+	    }
+	  }, {
+	    key: "isAllowedShowAlwaysCheckBox",
+	    value: function isAllowedShowAlwaysCheckBox() {
+	      return true;
 	    }
 	  }, {
 	    key: "getInputTitle",
@@ -2334,7 +1992,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getErrorContainer",
 	    value: function getErrorContainer() {
-	      this._errorContainer = main_core.Tag.render(_templateObject4$3());
+	      this._errorContainer = main_core.Tag.render(_templateObject4$3 || (_templateObject4$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t"])));
 	      return this._errorContainer;
 	    }
 	  }, {
@@ -2342,12 +2000,12 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    value: function getEnumerationContainer() {
 	      var _this2 = this;
 
-	      var enumWrapper = main_core.Tag.render(_templateObject5$3(), BX.message("UI_ENTITY_EDITOR_UF_ENUM_ITEMS"));
-	      this._enumItemContainer = main_core.Tag.render(_templateObject6$2());
+	      var enumWrapper = main_core.Tag.render(_templateObject5$3 || (_templateObject5$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t<div class=\"ui-entity-editor-block-title\">\n\t\t\t\t\t<span class=\"ui-entity-editor-block-title-text\">", "</span>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), BX.message("UI_ENTITY_EDITOR_UF_ENUM_ITEMS"));
+	      this._enumItemContainer = main_core.Tag.render(_templateObject6$2 || (_templateObject6$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t\t"])));
 	      main_core.Dom.append(this._enumItemContainer, enumWrapper);
-	      var addButton = main_core.Tag.render(_templateObject7$1(), BX.message("UI_ENTITY_EDITOR_ADD"));
+	      var addButton = main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-card-content-add-field\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), BX.message("UI_ENTITY_EDITOR_ADD"));
 	      main_core.Event.bind(addButton, "click", this.onEnumerationItemAddButtonClick.bind(this));
-	      main_core.Dom.append(main_core.Tag.render(_templateObject8$1(), addButton), enumWrapper);
+	      main_core.Dom.append(main_core.Tag.render(_templateObject8$1 || (_templateObject8$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block-add-field\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), addButton), enumWrapper);
 
 	      if (this._field) {
 	        this._field.getItems().forEach(function (enumFields) {
@@ -2793,55 +2451,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return IblockFieldConfigurationManager;
 	}(BX.UI.EntityConfigurationManager);
 
-	function _templateObject5$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-entity-editor-content-block-add-field\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject5$4 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-entity-card-content-add-field\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject4$4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t\t\t"]);
-
-	  _templateObject3$4 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t\t<div class=\"ui-entity-editor-block-title\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-block-title-text\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject2$4 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<hr class=\"ui-entity-editor-line\">"]);
-
-	  _templateObject$4 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$4, _templateObject2$4, _templateObject3$4, _templateObject4$4, _templateObject5$4;
 
 	var GridFieldConfigurator = /*#__PURE__*/function (_BX$UI$EntityEditorFi) {
 	  babelHelpers.inherits(GridFieldConfigurator, _BX$UI$EntityEditorFi);
@@ -2858,14 +2468,14 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      var _this = this;
 
 	      if (this._typeId === "list" || this._typeId === "multilist") {
-	        main_core.Dom.append(main_core.Tag.render(_templateObject$4()), this._wrapper);
-	        var enumWrapper = main_core.Tag.render(_templateObject2$4(), BX.message("UI_ENTITY_EDITOR_UF_ENUM_ITEMS"));
+	        main_core.Dom.append(main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["<hr class=\"ui-entity-editor-line\">"]))), this._wrapper);
+	        var enumWrapper = main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t\t<div class=\"ui-entity-editor-block-title\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-block-title-text\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), BX.message("UI_ENTITY_EDITOR_UF_ENUM_ITEMS"));
 	        main_core.Dom.append(enumWrapper, this._wrapper);
-	        this._enumItemContainer = main_core.Tag.render(_templateObject3$4());
+	        this._enumItemContainer = main_core.Tag.render(_templateObject3$4 || (_templateObject3$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t\t\t"])));
 	        main_core.Dom.append(this._enumItemContainer, enumWrapper);
-	        var addButton = main_core.Tag.render(_templateObject4$4(), BX.message("UI_ENTITY_EDITOR_ADD"));
+	        var addButton = main_core.Tag.render(_templateObject4$4 || (_templateObject4$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-entity-card-content-add-field\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), BX.message("UI_ENTITY_EDITOR_ADD"));
 	        main_core.Event.bind(addButton, "click", this.onEnumerationItemAddButtonClick.bind(this));
-	        main_core.Dom.append(main_core.Tag.render(_templateObject5$4(), addButton), enumWrapper);
+	        main_core.Dom.append(main_core.Tag.render(_templateObject5$4 || (_templateObject5$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-entity-editor-content-block-add-field\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), addButton), enumWrapper);
 
 	        if (this._field) {
 	          this._field.getItems().forEach(function (enumFields) {
@@ -3202,45 +2812,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return GridFieldConfigurationManager;
 	}(BX.UI.EntityConfigurationManager);
 
-	function _templateObject4$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label class=\"ui-ctl-block ui-entity-editor-popup-create-field-item ui-ctl-w100\">\n\t\t\t\t\t<div class=\"ui-ctl-w10\" style=\"text-align: center\">", "</div>\n\t\t\t\t\t<div class=\"ui-ctl-w75\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-title\">", "</span>\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-desc\">", "</span>\t\n\t\t\t\t\t</div>\n\t\t\t\t</label>\n\t\t\t"]);
-
-	  _templateObject4$5 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input type=\"checkbox\">\n\t\t"]);
-
-	  _templateObject3$5 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class='ui-entity-editor-popup-create-field-list'></div>\n\t\t"]);
-
-	  _templateObject2$5 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-entity-overlay\"></div>"]);
-
-	  _templateObject$5 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$5, _templateObject2$5, _templateObject3$5, _templateObject4$5;
 	var EntityCard = /*#__PURE__*/function () {
 	  function EntityCard(id) {
 	    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -3314,7 +2886,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "checkFadeOverlay",
 	    value: function checkFadeOverlay() {
 	      if (this.entityId <= 0) {
-	        this.overlay = main_core.Tag.render(_templateObject$5());
+	        this.overlay = main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-entity-overlay\"></div>"])));
 	        main_core.Dom.append(this.overlay, this.container);
 
 	        if (window === window.top) {
@@ -3652,7 +3224,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    value: function prepareCardSettingsContent() {
 	      var _this2 = this;
 
-	      var content = main_core.Tag.render(_templateObject2$5());
+	      var content = main_core.Tag.render(_templateObject2$5 || (_templateObject2$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class='ui-entity-editor-popup-create-field-list'></div>\n\t\t"])));
 	      this.cardSettings.map(function (item) {
 	        content.append(_this2.getSettingItem(item));
 	      });
@@ -3661,10 +3233,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getSettingItem",
 	    value: function getSettingItem(item) {
-	      var input = main_core.Tag.render(_templateObject3$5());
+	      var input = main_core.Tag.render(_templateObject3$5 || (_templateObject3$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input type=\"checkbox\">\n\t\t"])));
 	      input.checked = item.checked;
 	      input.dataset.settingId = item.id;
-	      var setting = main_core.Tag.render(_templateObject4$5(), input, item.title, item.desc);
+	      var setting = main_core.Tag.render(_templateObject4$5 || (_templateObject4$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label class=\"ui-ctl-block ui-entity-editor-popup-create-field-item ui-ctl-w100\">\n\t\t\t\t\t<div class=\"ui-ctl-w10\" style=\"text-align: center\">", "</div>\n\t\t\t\t\t<div class=\"ui-ctl-w75\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-title\">", "</span>\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-desc\">", "</span>\t\n\t\t\t\t\t</div>\n\t\t\t\t</label>\n\t\t\t"])), input, item.title, item.desc);
 	      main_core.Event.bind(setting, 'change', this.setProductCardSetting.bind(this));
 	      return setting;
 	    }

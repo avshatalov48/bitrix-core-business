@@ -11,6 +11,19 @@ use Bitrix\Sender\Access\Role\Role;
  * Class PermissionTable
  *
  * @package Bitrix\Sender\Internals\Model\Role
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Permission_Query query()
+ * @method static EO_Permission_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Permission_Result getById($id)
+ * @method static EO_Permission_Result getList(array $parameters = array())
+ * @method static EO_Permission_Entity getEntity()
+ * @method static \Bitrix\Sender\Internals\Model\Role\EO_Permission createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\Internals\Model\Role\EO_Permission_Collection createCollection()
+ * @method static \Bitrix\Sender\Internals\Model\Role\EO_Permission wakeUpObject($row)
+ * @method static \Bitrix\Sender\Internals\Model\Role\EO_Permission_Collection wakeUpCollection($rows)
  */
 class PermissionTable extends Entity\DataManager
 {

@@ -252,19 +252,126 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	      var listItem = new landing_ui_component_listitem.ListItem(listItemOptions);
 	      return Promise.resolve(listItem);
+	    }
+	  }, {
+	    key: "createCustomPriceDropdown",
+	    value: function createCustomPriceDropdown(field) {
+	      return new BX.Landing.UI.Field.Dropdown({
+	        id: 'customPrice',
+	        selector: 'customPrice',
+	        items: [{
+	          name: landing_loc.Loc.getMessage('LANDING_FIELDS_LIST_FIELD_PRODUCTS_ALLOW_CUSTOM_PRICE_NOT_SELECTED'),
+	          value: null
+	        }].concat(babelHelpers.toConsumableArray(field.items.map(function (item) {
+	          return {
+	            name: item.label,
+	            value: item.value
+	          };
+	        }))),
+	        content: field.items.reduce(function (acc, item) {
+	          if (item.changeablePrice && acc === null) {
+	            return item.value;
+	          }
+
+	          return acc;
+	        }, null)
+	      });
 	    } // eslint-disable-next-line class-methods-use-this
 
 	  }, {
 	    key: "createFieldSettingsForm",
 	    value: function createFieldSettingsForm(field) {
+	      var _this5 = this;
+
 	      var fields = [];
+	      var form = new landing_ui_form_formsettingsform.FormSettingsForm({
+	        serializeModifier: function serializeModifier(value) {
+	          var modifiedValue = babelHelpers.objectSpread({}, value);
+
+	          if (Reflect.has(value, 'label')) {
+	            modifiedValue.label = main_core.Text.decode(value.label);
+	          }
+
+	          if (Reflect.has(value, 'required')) {
+	            modifiedValue.required = value.required.includes('required');
+	          }
+
+	          if (Reflect.has(value, 'multiple')) {
+	            modifiedValue.multiple = value.multiple.includes('multiple');
+	          }
+
+	          if (Reflect.has(value, 'bigPic')) {
+	            modifiedValue.bigPic = value.bigPic.includes('bigPic');
+	          }
+
+	          if (Reflect.has(value, 'value') && main_core.Type.isArrayFilled(value.items)) {
+	            modifiedValue.items = modifiedValue.items.map(function (item) {
+	              item.selected = value.value === item.value;
+	              return item;
+	            });
+	          }
+
+	          if (Reflect.has(value, 'products')) {
+	            modifiedValue.items = main_core.Runtime.clone(value.products);
+
+	            if (!main_core.Type.isPlainObject(modifiedValue.editing)) {
+	              modifiedValue.editing = {};
+	            }
+
+	            modifiedValue.editing.catalog = main_core.Runtime.clone(value.products);
+	          }
+
+	          if (Reflect.has(value, 'valueType')) {
+	            if (!main_core.Type.isPlainObject(modifiedValue.editing)) {
+	              modifiedValue.editing = {};
+	            }
+
+	            if (!main_core.Type.isPlainObject(modifiedValue.editing.editable)) {
+	              modifiedValue.editing.editable = {};
+	            }
+
+	            modifiedValue.editing.editable.valueType = value.valueType;
+	          }
+
+	          if (main_core.Type.isArray(value.useCustomPrice)) {
+	            modifiedValue.items.forEach(function (item) {
+	              item.changeablePrice = value.useCustomPrice.includes('useCustomPrice') && String(item.value) === String(value.customPrice);
+	            });
+	            delete modifiedValue.customPrice;
+	            delete modifiedValue.useCustomPrice;
+	          }
+
+	          return modifiedValue;
+	        }
+	      });
 
 	      if (field.type === 'product') {
 	        fields.push(new landing_ui_field_productfield.ProductField({
 	          title: landing_loc.Loc.getMessage('LANDING_FIELDS_LIST_FIELD_PRODUCTS_TITLE2'),
 	          selector: 'products',
 	          items: field.editing.catalog || [],
-	          iblockId: this.options.dictionary.catalog.id
+	          iblockId: this.options.dictionary.catalog.id,
+	          onChange: function onChange() {
+	            var oldCustomPrice = form.fields.get('customPrice');
+
+	            var newCustomPrice = _this5.createCustomPriceDropdown(babelHelpers.objectSpread({}, field, {
+	              items: form.serialize().items
+	            }));
+
+	            var useCustomPrice = field.items.some(function (item) {
+	              return item.changeablePrice;
+	            });
+	            var useCustomPriceField = form.fields.get('useCustomPrice');
+
+	            if (useCustomPrice || useCustomPriceField.getValue().includes('useCustomPrice')) {
+	              main_core.Dom.style(newCustomPrice.getLayout(), 'display', null);
+	            } else {
+	              main_core.Dom.style(newCustomPrice.getLayout(), 'display', 'none');
+	            }
+
+	            newCustomPrice.setValue(oldCustomPrice.getValue());
+	            form.replaceField(oldCustomPrice, newCustomPrice);
+	          }
 	        }));
 	      }
 
@@ -320,6 +427,39 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          }],
 	          value: field.bigPic ? ['bigPic'] : []
 	        }));
+	        var useCustomPrice = field.items.some(function (item) {
+	          return item.changeablePrice;
+	        });
+	        var customPriceField = this.createCustomPriceDropdown(field);
+
+	        if (useCustomPrice) {
+	          main_core.Dom.style(customPriceField.getLayout(), 'display', null);
+	        } else {
+	          main_core.Dom.style(customPriceField.getLayout(), 'display', 'none');
+	        }
+
+	        fields.push(new BX.Landing.UI.Field.Checkbox({
+	          id: 'useCustomPrice',
+	          selector: 'useCustomPrice',
+	          compact: true,
+	          items: [{
+	            name: landing_loc.Loc.getMessage('LANDING_FIELDS_LIST_FIELD_PRODUCTS_ALLOW_CUSTOM_PRICE'),
+	            value: 'useCustomPrice'
+	          }],
+	          value: useCustomPrice ? ['useCustomPrice'] : [],
+	          onChange: function onChange(checkbox) {
+	            if (checkbox instanceof landing_ui_field_basefield.BaseField) {
+	              var _customPriceField = form.fields.get('customPrice');
+
+	              if (checkbox.getValue().includes('useCustomPrice')) {
+	                main_core.Dom.style(_customPriceField.getLayout(), 'display', null);
+	              } else {
+	                main_core.Dom.style(_customPriceField.getLayout(), 'display', 'none');
+	              }
+	            }
+	          }
+	        }));
+	        fields.push(customPriceField);
 	      }
 
 	      if ((field.type === 'list' || field.type === 'radio') && field.editing.items.length > 0) {
@@ -385,59 +525,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        }));
 	      }
 
-	      return new landing_ui_form_formsettingsform.FormSettingsForm({
-	        fields: fields,
-	        serializeModifier: function serializeModifier(value) {
-	          var modifiedValue = babelHelpers.objectSpread({}, value);
-
-	          if (Reflect.has(value, 'label')) {
-	            modifiedValue.label = main_core.Text.decode(value.label);
-	          }
-
-	          if (Reflect.has(value, 'required')) {
-	            modifiedValue.required = value.required.includes('required');
-	          }
-
-	          if (Reflect.has(value, 'multiple')) {
-	            modifiedValue.multiple = value.multiple.includes('multiple');
-	          }
-
-	          if (Reflect.has(value, 'bigPic')) {
-	            modifiedValue.bigPic = value.bigPic.includes('bigPic');
-	          }
-
-	          if (Reflect.has(value, 'value') && main_core.Type.isArrayFilled(value.items)) {
-	            modifiedValue.items = modifiedValue.items.map(function (item) {
-	              item.selected = value.value === item.value;
-	              return item;
-	            });
-	          }
-
-	          if (Reflect.has(value, 'products')) {
-	            modifiedValue.items = main_core.Runtime.clone(value.products);
-
-	            if (!main_core.Type.isPlainObject(modifiedValue.editing)) {
-	              modifiedValue.editing = {};
-	            }
-
-	            modifiedValue.editing.catalog = main_core.Runtime.clone(value.products);
-	          }
-
-	          if (Reflect.has(value, 'valueType')) {
-	            if (!main_core.Type.isPlainObject(modifiedValue.editing)) {
-	              modifiedValue.editing = {};
-	            }
-
-	            if (!main_core.Type.isPlainObject(modifiedValue.editing.editable)) {
-	              modifiedValue.editing.editable = {};
-	            }
-
-	            modifiedValue.editing.editable.valueType = value.valueType;
-	          }
-
-	          return modifiedValue;
-	        }
+	      fields.forEach(function (currentField) {
+	        form.addField(currentField);
 	      });
+	      return form;
 	    }
 	  }, {
 	    key: "getListContainer",
@@ -449,7 +540,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "onSelectFieldButtonClick",
 	    value: function onSelectFieldButtonClick(event) {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      event.preventDefault();
 	      landing_ui_panel_fieldspanel.FieldsPanel.getInstance({
@@ -460,14 +551,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        })
 	      }).then(function (selectedFields) {
 	        if (main_core.Type.isArrayFilled(selectedFields)) {
-	          _this5.onFieldsSelect(selectedFields);
+	          _this6.onFieldsSelect(selectedFields);
 	        }
 	      });
 	    }
 	  }, {
 	    key: "onFieldsSelect",
 	    value: function onFieldsSelect(selectedFields) {
-	      var _this6 = this;
+	      var _this7 = this;
 
 	      var preparingOptions = {
 	        fields: selectedFields.map(function (fieldId) {
@@ -478,12 +569,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      };
 	      void this.showLoader();
 	      crm_form_client.FormClient.getInstance().prepareOptions(this.options.formOptions, preparingOptions).then(function (result) {
-	        void _this6.hideLoader();
+	        void _this7.hideLoader();
 	        return Promise.all(result.data.fields.map(function (field) {
-	          return _this6.addItem(field);
+	          return _this7.addItem(field);
 	        }));
 	      }).then(function () {
-	        _this6.emit('onChange', {
+	        _this7.emit('onChange', {
 	          skipPrepare: true
 	        });
 	      });
@@ -499,7 +590,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "onSelectProductsButtonClick",
 	    value: function onSelectProductsButtonClick(event) {
-	      var _this7 = this;
+	      var _this8 = this;
 
 	      event.preventDefault();
 	      var preparingOptions = {
@@ -509,12 +600,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      };
 	      void this.showLoader();
 	      crm_form_client.FormClient.getInstance().prepareOptions(this.options.formOptions, preparingOptions).then(function (result) {
-	        void _this7.hideLoader();
+	        void _this8.hideLoader();
 	        var promises = result.data.fields.map(function (field) {
-	          return _this7.addItem(field);
+	          return _this8.addItem(field);
 	        });
 	        Promise.all(promises).then(function () {
-	          _this7.emit('onChange', {
+	          _this8.emit('onChange', {
 	            skipPrepare: true
 	          });
 	        });
@@ -523,38 +614,38 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "onSelectSeparatorButtonClick",
 	    value: function onSelectSeparatorButtonClick(event) {
-	      var _this8 = this;
+	      var _this9 = this;
 
 	      event.preventDefault();
 	      landing_ui_panel_separatorpanel.SeparatorPanel.getInstance().show().then(function (separator) {
 	        var fields = [separator];
 
-	        if (separator.type === 'page' && !_this8.items.find(function (item) {
+	        if (separator.type === 'page' && !_this9.items.find(function (item) {
 	          return item.options.type === 'page';
 	        })) {
 	          fields.push(babelHelpers.objectSpread({}, fields[0]));
 	        }
 
-	        void _this8.showLoader();
-	        crm_form_client.FormClient.getInstance().prepareOptions(_this8.options.formOptions, {
+	        void _this9.showLoader();
+	        crm_form_client.FormClient.getInstance().prepareOptions(_this9.options.formOptions, {
 	          fields: fields
 	        }).then(function (result) {
-	          void _this8.hideLoader();
+	          void _this9.hideLoader();
 	          var separatorPromise = Promise.resolve();
 
-	          if (separator.type === 'page' && !_this8.items.find(function (item) {
+	          if (separator.type === 'page' && !_this9.items.find(function (item) {
 	            return item.options.type === 'page';
 	          })) {
 	            result.data.fields[0].label = landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_PAGE_TITLE').replace('#number#', 1);
 	            result.data.fields[1].label = landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_PAGE_TITLE').replace('#number#', 2);
-	            separatorPromise = Promise.all([_this8.prependItem(result.data.fields[0]), _this8.insertItemAfterIndex(result.data.fields[1], 1)]);
+	            separatorPromise = Promise.all([_this9.prependItem(result.data.fields[0]), _this9.insertItemAfterIndex(result.data.fields[1], 1)]);
 	          } else {
 	            result.data.fields.forEach(function (field) {
 	              var _field$id$split = field.id.split('_'),
 	                  _field$id$split2 = babelHelpers.slicedToArray(_field$id$split, 1),
 	                  type = _field$id$split2[0];
 
-	              var count = _this8.items.filter(function (item) {
+	              var count = _this9.items.filter(function (item) {
 	                return item.options.id.startsWith(type);
 	              }).length;
 
@@ -570,12 +661,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	                field.label = landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_LINE_TITLE').replace('#number#', count + 1);
 	              }
 
-	              separatorPromise = _this8.addItem(field);
+	              separatorPromise = _this9.addItem(field);
 	            });
 	          }
 
 	          separatorPromise.then(function () {
-	            _this8.emit('onChange', {
+	            _this9.emit('onChange', {
 	              skipPrepare: true
 	            });
 	          });
@@ -595,7 +686,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "onItemEdit",
 	    value: function onItemEdit(event) {
-	      var _this9 = this;
+	      var _this10 = this;
 
 	      var _event$getTarget = event.getTarget(),
 	          options = _event$getTarget.options;
@@ -604,7 +695,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        event.preventDefault();
 	        options.fieldController.showSettingsPopup();
 	        setTimeout(function () {
-	          options.fieldController.settingsPopup.subscribeOnce('onClose', function () {
+	          options.fieldController.settingsPopupsettingsPopup.subscribeOnce('onClose', function () {
 	            options.sourceOptions.booking.settings_data = options.fieldController.getSettings().data; // eslint-disable-next-line camelcase
 
 	            var settings_data = options.sourceOptions.booking.settings_data;
@@ -614,7 +705,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	              }
 	            });
 
-	            _this9.emit('onChange', {
+	            _this10.emit('onChange', {
 	              skipPrepare: true
 	            });
 	          });
@@ -634,17 +725,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "onDragEnd",
 	    value: function onDragEnd() {
-	      var _this10 = this;
+	      var _this11 = this;
 
 	      setTimeout(function () {
-	        _this10.items = babelHelpers.toConsumableArray(_this10.getListContainer().children).map(function (itemNode) {
+	        _this11.items = babelHelpers.toConsumableArray(_this11.getListContainer().children).map(function (itemNode) {
 	          var itemNodeId = main_core.Dom.attr(itemNode, 'data-id');
-	          return _this10.items.find(function (item) {
+	          return _this11.items.find(function (item) {
 	            return item.options.id === itemNodeId;
 	          });
 	        });
 
-	        _this10.emit('onChange', {
+	        _this11.emit('onChange', {
 	          skipPrepare: true
 	        });
 	      });

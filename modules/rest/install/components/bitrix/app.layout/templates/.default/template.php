@@ -66,9 +66,16 @@ $url .= (mb_strpos($url, '?') === false ? '?' : '&');
 
 $frameStyle = array();
 
-if(is_array($arParams['PARAM']) && !empty($arParams['PARAM']))
+if(
+	!empty($arResult['PRESET_OPTIONS'])
+	|| (is_array($arParams['PARAM']) && !empty($arParams['PARAM']))
+)
 {
-	if(isset($arParams['PARAM']['FRAME_HEIGHT']))
+	if ((int)$arResult['PRESET_OPTIONS']['height'] > 0)
+	{
+		$frameStyle[] = 'height:' . (int)$arResult['PRESET_OPTIONS']['height'] . 'px';
+	}
+	elseif(isset($arParams['PARAM']['FRAME_HEIGHT']))
 	{
 		$frameStyle[] = 'height:' . $arParams['PARAM']['FRAME_HEIGHT'];
 	}

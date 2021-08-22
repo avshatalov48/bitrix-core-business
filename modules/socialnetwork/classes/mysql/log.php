@@ -794,7 +794,14 @@ class CSocNetLog extends CAllSocNetLog
 								(is_object($USER) && CSocNetUser::IsCurrentUserModuleAdmin() ? " OR SLR.GROUP_CODE = 'SA'" : "").
 								(is_object($USER) && $USER->IsAuthorized() ? " OR (SLR.GROUP_CODE = 'AU')" : "").
 								" OR (SLR.GROUP_CODE = 'G2')".
-								(isset($arParams["CHECK_RIGHTS_OSG"]) && $arParams["CHECK_RIGHTS_OSG"] == "Y" && is_object($USER) && $USER->IsAuthorized() ? " OR (SLR.GROUP_CODE LIKE 'OSG%')" : "").
+								(
+									isset($arParams['CHECK_RIGHTS_OSG'])
+									&& $arParams['CHECK_RIGHTS_OSG'] === 'Y'
+									&& is_object($USER)
+									&& $USER->IsAuthorized()
+										? " OR (SLR.GROUP_CODE LIKE 'OSG%')"
+										: ''
+								).
 								(!empty($arFilter['LOG_RIGHTS_SG']) && !is_array($arFilter['LOG_RIGHTS_SG']) ? " OR (SLR.GROUP_CODE = '".$DB->ForSQL($arFilter['LOG_RIGHTS_SG'])."')" : "").
 								(is_object($USER) && $USER->IsAuthorized() ? " OR (UA.ACCESS_CODE = SLR.GROUP_CODE AND UA.USER_ID = ".intval($USER->GetID()).")" : "")."
 							)"

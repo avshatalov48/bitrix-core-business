@@ -2672,7 +2672,6 @@ if (!empty($sectionIds))
 unset($sectionIds);
 
 $skuFields = [
-	'NAME',
 	'VAT_ID',
 	'CATALOG_MEASURE_RATIO',
 	'CATALOG_MEASURE',
@@ -3854,6 +3853,7 @@ foreach (array_keys($rawRows) as $rowId)
 						'ROW_ID_MASK' => 'E#ID#',
 						'PRODUCT_FIELDS' => $productFields,
 						'ENABLE_IMAGE_INPUT' => false,
+						'ENABLE_CHANGES_RENDERING' => false,
 						'SKU_TREE' => $productSkuTree[$row->arRes['ID']] ?? null,
 					]
 				);

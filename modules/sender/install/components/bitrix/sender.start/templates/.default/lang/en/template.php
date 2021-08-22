@@ -6,6 +6,7 @@ $MESS["SENDER_START_CONFIGURATION_NEED_HELP"] = "Do you need help configuring yo
 $MESS["SENDER_START_CONFIGURATION_ORDER"] = "Get help now";
 $MESS["SENDER_START_CREATE_AD"] = "Retargeting in Ad Networks";
 $MESS["SENDER_START_CREATE_AUDIENCE"] = "Create audience";
+$MESS["SENDER_START_CREATE_FACEBOOK_CONVERSION"] = "Send customer actions";
 $MESS["SENDER_START_CREATE_LETTER"] = "Create Campaign";
 $MESS["SENDER_START_CREATE_RC"] = "Sales Boost";
 $MESS["SENDER_START_CREATE_TOLOKA"] = "Yandex.Toloka";

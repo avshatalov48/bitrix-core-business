@@ -461,7 +461,7 @@ div.product-item-detail-quantity-field {
 .product-item-detail-short-card-btn .btn.product-item-detail-buy-button { margin: 0; }
 
 .btn.product-item-detail-buy-button[disabled],
-.btn.btn-primary.product-item-detail-buy-button[disabled]
+.btn.btn-primary.product-item-detail-buy-button[disabled],
 .btn.product-item-detail-buy-button[disabled],
 .btn.btn-primary.product-item-detail-buy-button[disabled] {
 	background-color: #121212;
@@ -488,15 +488,16 @@ div.product-item-detail-quantity-field {
 /*endregion*/
 
 /*region Slider */
-.product-detail-slider-container {
+div.product-detail-slider-container {
 	position: relative;
-	max-width: 100%;
+	/*max-width: 100%;*/
 	background: transparent;
 	transition: background 800ms ease;
 	z-index: 90;
 	overflow: hidden;
-	min-width: 285px;
-	flex-grow: 1;
+	/*min-width: 285px;*/
+	/*flex-grow: 1;*/
+	margin-bottom: 20px;
 }
 
 .product-detail-slider-block {
@@ -795,10 +796,13 @@ div.product-item-detail-quantity-field {
 
 /*endregion*/
 
-.product-detail-props-container {
+/*
+section.product-detail-props-container {
 	min-width: 285px;
 	flex-grow: 1;
+	max-width: 100%;
 }
+*/
 
 @media (max-width: 575px) {
 	.product-detail-props-container { padding: 0 16px; }
@@ -1112,3 +1116,26 @@ input[type='number'] { -moz-appearance: textfield; }
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.btn-wait {
+	position: relative;
+	color: transparent !important;
+}
+
+.btn-wait:after {
+	content: '';
+	width: 12px;
+	height: 12px;
+	border: 1px solid #fff;
+	border-right-color: transparent;
+	border-radius: 50%;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-top: -6px;
+	margin-left: -6px;
+	animation-name: spin;
+	animation-duration: 1000ms !important;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+}

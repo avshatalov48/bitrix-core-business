@@ -350,7 +350,19 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 		}
 		else
 		{
-			$result->addError(new Error("Delete operation for entity with id {$id} failed."));
+			global $APPLICATION;
+			$exception = $APPLICATION->GetException();
+
+			if ($exception && $exception->GetString())
+			{
+				$errorMessage = $exception->GetString();
+			}
+			else
+			{
+				$errorMessage = "Delete operation for entity with id {$id} failed.";
+			}
+
+			$result->addError(new Error($errorMessage));
 		}
 
 		return $result;

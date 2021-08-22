@@ -1,7 +1,6 @@
 <?php
 use Bitrix\Main,
 	Bitrix\Main\EventManager,
-	Bitrix\Main\Loader,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Main\ModuleManager,
 	Bitrix\Main\Localization\LanguageTable;
@@ -244,6 +243,13 @@ class catalog extends CModule
 				\CTimeZone::Enable();
 			}
 		}
+		else
+		{
+			if (Main\Config\Option::get('catalog', 'enable_processing_deprecated_events') === 'Y')
+			{
+				\Bitrix\Catalog\Compatible\EventCompatibility::registerEvents();
+			}
+		}
 
 		\CTimeZone::Disable();
 		\CAgent::AddAgent(
@@ -326,6 +332,7 @@ class catalog extends CModule
 		if (!defined('BX_CATALOG_UNINSTALLED'))
 			define('BX_CATALOG_UNINSTALLED', true);
 
+		$enableDeprecatedEvents = Main\Config\Option::get('catalog', 'enable_processing_deprecated_events') === 'Y';
 		if (!isset($arParams["savedata"]) || $arParams["savedata"] != "Y")
 		{
 			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/catalog/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
@@ -439,8 +446,13 @@ class catalog extends CModule
 		{
 			\Bitrix\Catalog\Compatible\EventCompatibility::unRegisterEvents();
 		}
-
-
+		else
+		{
+			if ($enableDeprecatedEvents)
+			{
+				\Bitrix\Catalog\Compatible\EventCompatibility::unRegisterEvents();
+			}
+		}
 
 		CAgent::RemoveModuleAgents('catalog');
 

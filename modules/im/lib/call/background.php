@@ -276,11 +276,11 @@ class Background
 		{
 			if ($fileModel->getTypeFile() == \Bitrix\Disk\TypeFile::IMAGE)
 			{
-				$supported = in_array($fileModel->getExtension(), ['png', 'jpg', 'jpeg'], true);
+				$supported = in_array(mb_strtolower($fileModel->getExtension()), ['png', 'jpg', 'jpeg'], true);
 			}
 			else if ($fileModel->getTypeFile() == \Bitrix\Disk\TypeFile::VIDEO)
 			{
-				$supported = in_array($fileModel->getExtension(), ['mp4', 'mov', 'avi'], true);
+				$supported = in_array(mb_strtolower($fileModel->getExtension()), ['mp4', 'mov', 'avi'], true);
 			}
 			else
 			{

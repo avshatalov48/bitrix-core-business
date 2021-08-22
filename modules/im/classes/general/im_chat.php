@@ -3181,7 +3181,7 @@ class CIMChat
 					'chatOwner' => $chatAuthorId,
 					'chatExtranet' => $extranetFlag == 'Y',
 					'users' => $arUsers,
-					'newUsers' => $arUserId,
+					'newUsers' => array_values($arUserId),
 					'userCount' => $newUsersCount
 				),
 				'extra' => \Bitrix\Im\Common::getPullExtra()
@@ -3370,7 +3370,11 @@ class CIMChat
 		$arUsers = Array($userId);
 		if($this->user_id != $userId)
 		{
-			if ($chatEntityType === 'VIDEOCONF' && !IM\User::getInstance($this->user_id)->isExtranet())
+			if (
+				$chatEntityType === 'VIDEOCONF'
+				&& !IM\User::getInstance($this->user_id)->isExtranet()
+				&& IM\User::getInstance($userId)->isExtranet()
+			)
 			{
 			}
 			else if ($checkPermission && $chatAuthorId != $this->user_id)
@@ -3703,7 +3707,7 @@ class CIMChat
 			$path = CTasksTools::GetOptionPathTaskUserEntry(SITE_ID, "/company/personal/user/#user_id#/tasks/task/view/#task_id#/");
 			$path = str_replace(Array('#user_id#', '#task_id#'), Array($USER->GetId(), '#ID#'), mb_strtolower($path));
 
-			self::$entityOption['TASKS'] = Array('AVATAR' => false, 'RENAME' => false, 'EXTEND' => false, 'LEAVE' => false, 'LEAVE_OWNER' => false, 'PATH' => $path, 'PATH_TITLE' => GetMessage('IM_PATH_TITLE_TASKS'));
+			self::$entityOption['TASKS'] = Array('AVATAR' => false, 'RENAME' => true, 'EXTEND' => true, 'LEAVE' => true, 'LEAVE_OWNER' => true, 'PATH' => $path, 'PATH_TITLE' => GetMessage('IM_PATH_TITLE_TASKS'));
 		}
 
 		if (CModule::IncludeModule('calendar'))
@@ -3711,7 +3715,7 @@ class CIMChat
 			$path = CCalendar::GetPathForCalendarEx($USER->GetId());
 			$path = \CHTTP::urlAddParams($path, ['EVENT_ID' => '#ID#']);
 
-			self::$entityOption[CCalendar::CALENDAR_CHAT_ENTITY_TYPE] = Array('AVATAR' => false, 'RENAME' => false, 'EXTEND' => true, 'LEAVE' => false, 'LEAVE_OWNER' => false, 'PATH' => $path, 'PATH_TITLE' => GetMessage('IM_PATH_TITLE_CALENDAR_EVENT'));
+			self::$entityOption[CCalendar::CALENDAR_CHAT_ENTITY_TYPE] = Array('AVATAR' => false, 'RENAME' => true, 'EXTEND' => true, 'LEAVE' => true, 'LEAVE_OWNER' => true, 'PATH' => $path, 'PATH_TITLE' => GetMessage('IM_PATH_TITLE_CALENDAR_EVENT'));
 		}
 
 		if (CModule::IncludeModule('crm'))

@@ -108,6 +108,7 @@ export default class VariationGridController extends BX.UI.EntityEditorControlle
 			gridComponent.unsubscribeCustomEvents();
 		}
 		EventEmitter.emit(this.getGrid().getSettingsWindow().getPopup(), 'onDestroy');
+		EventEmitter.unsubscribeAll('BX.Main.grid:paramsUpdated');
 		this.getGrid().destroy();
 	}
 

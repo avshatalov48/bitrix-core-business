@@ -19,7 +19,20 @@ use Bitrix\Main\ORM\Fields\ArrayField;
  * </ul>
  *
  * @package Bitrix\Rest
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Event_Query query()
+ * @method static EO_Event_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Event_Result getById($id)
+ * @method static EO_Event_Result getList(array $parameters = array())
+ * @method static EO_Event_Entity getEntity()
+ * @method static \Bitrix\Rest\EO_Event createObject($setDefaultValues = true)
+ * @method static \Bitrix\Rest\EO_Event_Collection createCollection()
+ * @method static \Bitrix\Rest\EO_Event wakeUpObject($row)
+ * @method static \Bitrix\Rest\EO_Event_Collection wakeUpCollection($rows)
+ */
 class EventTable extends Main\Entity\DataManager
 {
 	const ERROR_EVENT_NOT_FOUND = 'ERROR_EVENT_NOT_FOUND';

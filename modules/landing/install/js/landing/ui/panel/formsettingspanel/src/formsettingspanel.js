@@ -344,10 +344,27 @@ export class FormSettingsPanel extends BasePresetPanel
 					this.setFormOptions(formOptions);
 				}
 
-				if (options.state === 'presets' && formOptions.templateId !== 'callback')
+				if (options.state === 'presets')
 				{
-					this.onPresetFieldClick();
-					this.activatePreset(formOptions.templateId);
+					const presetFromRequest = this.getPresetIdFromRequest();
+					let preset = false;
+
+					if (presetFromRequest)
+					{
+						preset = this.getPresets().find((item) => {
+							return item.options.id === presetFromRequest;
+						});
+					}
+
+					if (preset)
+					{
+						this.applyPreset(preset);
+					}
+					else if (formOptions.templateId !== 'callback')
+					{
+						this.onPresetFieldClick();
+						this.activatePreset(formOptions.templateId);
+					}
 				}
 				else
 				{
@@ -413,6 +430,13 @@ export class FormSettingsPanel extends BasePresetPanel
 				</div>
 			`;
 		});
+	}
+
+	// eslint-disable-next-line class-methods-use-this
+	getPresetIdFromRequest(): ?string
+	{
+		const uri = new Uri(window.top.location.href);
+		return uri.getQueryParam('preset');
 	}
 
 	// eslint-disable-next-line class-methods-use-this

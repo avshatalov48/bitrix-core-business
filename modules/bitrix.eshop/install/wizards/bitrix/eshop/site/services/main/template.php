@@ -32,7 +32,7 @@ CopyDirFiles(
 );
 
 //Attach template to default site
-$obSite = CSite::GetList($by = "def", $order = "desc", Array("LID" => WIZARD_SITE_ID));
+$obSite = CSite::GetList('def', 'desc', Array("LID" => WIZARD_SITE_ID));
 if ($arSite = $obSite->Fetch())
 {
 	$arTemplates = Array();

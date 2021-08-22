@@ -14,8 +14,8 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'wedding',
-			'THEMEFONTS_CODE' => 'g-font-montserrat',
-			'THEMEFONTS_CODE_H' => 'g-font-cormorant-infant',
+			'THEMEFONTS_CODE' => 'Montserrat',
+			'THEMEFONTS_CODE_H' => 'Cormorant Infant',
 			'THEMEFONTS_SIZE' => '1',
 			'THEMEFONTS_USE' => 'Y',
 			'UP_SHOW' => 'Y',

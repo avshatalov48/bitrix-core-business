@@ -3,10 +3,14 @@
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 
-\Bitrix\Main\UI\Extension::load('mail.messagegrid');
-\Bitrix\Main\UI\Extension::load('mail.avatar');
-\Bitrix\Main\UI\Extension::load('mail.directorymenu');
-\Bitrix\Main\UI\Extension::load("ui.progressbar");
+\Bitrix\Main\UI\Extension::load(["mail.messagegrid",
+	"mail.avatar",
+	"mail.directorymenu",
+	"mail.directorymenu",
+	"ui.progressbar",
+	'ui.info-helper'
+]);
+
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
@@ -83,11 +87,8 @@ if ($userMailboxesLimit >= 0 && $arResult['USER_OWNED_MAILBOXES_COUNT'] >= $user
 {
 	if (\CModule::includeModule('bitrix24'))
 	{
-		\CBitrix24::initLicenseInfoPopupJS();
-
-		$licenseConnectedMailboxesInfo = Loc::getMessage('MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_BODY', array('#LIMIT#' => $userMailboxesLimit));
 		$addMailboxMenuItem = array(
-			'html' => '<div onclick="' . "BX.Mail.Client.Message.List['" . CUtil::JSEscape($component->getComponentId()) . "'].showLicensePopup('connectedMailboxes')\">" .
+			'html' => '<div onclick="BX.UI.InfoHelper.show(\'mail_user_mailboxes_limit\')">'.
 				'<span class="mail-connect-lock-text">' . Loc::getMessage('MAIL_CLIENT_MAILBOX_ADD') . '</span>' .
 				'<span class="mail-connect-lock-icon"></span>' .
 			'</div>',
@@ -679,7 +680,6 @@ $APPLICATION->includeComponent(
 		MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM')) ?>',
 		MAIL_MESSAGE_LIST_NOTIFY_SUCCESS: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_SUCCESS')) ?>',
 		MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN')) ?>',
-		MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_TITLE: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_TITLE')) ?>',
 		MAIL_MESSAGE_SYNC_BTN_HINT: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_SYNC_BTN_HINT')) ?>',
 		MAIL_CLIENT_MAILBOX_SYNC_BAR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_MAILBOX_SYNC_BAR')) ?>',
 		MAIL_CLIENT_MAILBOX_SYNC_BAR_COMPLETED: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_MAILBOX_SYNC_BAR_COMPLETED')) ?>',
@@ -758,7 +758,6 @@ $APPLICATION->includeComponent(
 			inboxDir: '<?= CUtil::JSEscape($arResult['inboxDir']) ?>',
 			spamDir: '<?= CUtil::JSEscape($arResult['spamDir']) ?>',
 			trashDir: '<?= CUtil::JSEscape($arResult['trashDir']) ?>',
-			connectedMailboxesLicenseInfo: '<?= CUtil::JSEscape($licenseConnectedMailboxesInfo) ?>',
 			ENTITY_TYPE_NO_BIND: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_NO_BIND) ?>',
 			ENTITY_TYPE_CRM_ACTIVITY: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_CRM_ACTIVITY) ?>',
 			ENTITY_TYPE_TASKS_TASK: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_TASKS_TASK) ?>',

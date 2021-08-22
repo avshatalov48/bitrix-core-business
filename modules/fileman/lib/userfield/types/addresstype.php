@@ -120,8 +120,6 @@ class AddressType extends BaseType
 	{
 		if(static::useRestriction() && !static::checkRestriction())
 		{
-			\CBitrix24::initLicenseInfoPopupJS(static::BITRIX24_RESTRICTION_CODE);
-
 			return [
 				Loc::getMessage('USER_TYPE_ADDRESS_TRIAL_TITLE'),
 				Loc::getMessage('USER_TYPE_ADDRESS_TRIAL')

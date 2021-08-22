@@ -131,6 +131,11 @@
 					this.refresh.bind(this)
 				);
 
+				top.BX.Event.EventEmitter.subscribe(
+					'BX.Calendar:doReloadCounters',
+					top.BX.Runtime.debounce(this.updateCounters, 5000, this)
+				);
+
 				if (top !== window)
 				{
 					if (!top.BX.getClass('top.BX.SocNetLogDestination'))
@@ -926,7 +931,6 @@
 					if (BX.Calendar.Util.checkRequestId(params.requestUid))
 					{
 						this.entryManager.handlePullChanges(params);
-						this.updateCounters();
 						this.reload();
 					}
 					break;
@@ -934,7 +938,6 @@
 					if (BX.Calendar.Util.checkRequestId(params.requestUid))
 					{
 						this.entryManager.handlePullChanges(params);
-						this.updateCounters();
 						this.reload();
 					}
 					break;
@@ -945,6 +948,15 @@
 					break;
 				case 'change_section_customization':
 					BX.reload();
+					break;
+				case 'refresh_sync_status':
+					this.syncInterface.updateSyncStatus(params);
+					break;
+				case 'add_sync_connection':
+					this.syncInterface.addSyncConnection(params);
+					break;
+				case 'delete_sync_connection':
+					this.syncInterface.deleteSyncConnection(params);
 					break;
 			}
 		},

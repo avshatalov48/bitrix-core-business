@@ -9,6 +9,7 @@ class Domain extends \Bitrix\Landing\Internals\BaseTable
 {
 	/**
 	 * Bitrix24 domains.
+	 * @see \Bitrix\Landing\Agent::removeBadDomains
 	 */
 	const B24_DOMAINS = [
 		'bitrix24.site',
@@ -89,6 +90,24 @@ class Domain extends \Bitrix\Landing\Internals\BaseTable
 		}
 
 		return $postfix;
+	}
+
+	/**
+	 * Returns true if remote service os available.
+	 * @return bool
+	 */
+	public static function canRegisterInBitrix24(): bool
+	{
+		try
+		{
+			Manager::getExternalSiteController()::isDomainExists('repo.bitrix24.site');
+		}
+		catch (\Bitrix\Main\SystemException $ex)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

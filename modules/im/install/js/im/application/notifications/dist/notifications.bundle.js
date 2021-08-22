@@ -187,5 +187,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	exports.NotificationsApplication = NotificationsApplication;
 
-}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX.Messenger.Application,BX,BX.Im.Component,BX.Messenger.Provider.Pull));
+}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX.Messenger.Application,BX,BX.Messenger,BX.Messenger.Provider.Pull));
 //# sourceMappingURL=notifications.bundle.js.map

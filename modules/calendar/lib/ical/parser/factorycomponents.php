@@ -45,6 +45,9 @@ class FactoryComponents
 			case 'standard':
 				$this->component = $this->getStandardComponent($properties);
 				break;
+			case 'daylight':
+				$this->component = $this->getDaylightComponent($properties);
+				break;
 			case 'vcalendar':
 				$this->component = $this->getCalendarComponent($properties, $subComponents);
 				break;
@@ -81,9 +84,13 @@ class FactoryComponents
 				->setDtStart($properties['dtstart']);
 	}
 
-	private function getDaylightComponent(?array $properties): DaylightObservances
+	/**
+	 * @param array|null $properties
+	 * @return DaylightObservance
+	 */
+	private function getDaylightComponent(?array $properties): DaylightObservance
 	{
-		return DaylightObservances::createInstance()
+		return DaylightObservance::createInstance()
 			->setTzOffsetTo($properties['tzoffsetto'])
 			->setTzOffsetFrom($properties['tzoffsetfrom'])
 			->setDtStart($properties['dtstart']);

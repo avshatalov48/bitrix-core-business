@@ -1,9 +1,9 @@
 <?php
 namespace Bitrix\Catalog\Model;
 
-use Bitrix\Main,
-	Bitrix\Main\ORM,
-	Bitrix\Main\Localization\Loc;
+use Bitrix\Main;
+use Bitrix\Main\ORM;
+use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
@@ -26,7 +26,7 @@ abstract class Entity
 	/** @var array User fields list */
 	private $tabletUserFields = [];
 	/** @var null|Main\DB\Result Database result object */
-	private $result = null;
+	private $result;
 	/** @var array Entity cache */
 	private $cache = [];
 	/** @var array internal */
@@ -36,7 +36,7 @@ abstract class Entity
 	private $fieldsCount = 0;
 	private $aliases = [];
 	private $fieldMask = [];
-	private $fetchCutMask = [];
+	private $fetchCutMask;
 
 	public function __construct()
 	{
@@ -57,7 +57,6 @@ abstract class Entity
 		$className = get_called_class();
 		if (empty(self::$entity[$className]))
 		{
-			/** @var Entity $entity */
 			$entity = new static;
 			self::$entity[$className] = $entity;
 		}
@@ -87,7 +86,7 @@ abstract class Entity
 	 * Entity fetch. Work with entity change cache.
 	 *
 	 * @param Main\Text\Converter|null $converter
-	 * @return array|bool|false
+	 * @return array|false
 	 */
 	public function fetch(Main\Text\Converter $converter = null)
 	{
@@ -834,7 +833,7 @@ abstract class Entity
 	 * @param bool $load
 	 * @return array
 	 */
-	private function getEntityCacheItem($id, bool $load = false)
+	private function getEntityCacheItem($id, bool $load = false): array
 	{
 		$result = [];
 		if (!isset($this->cache[$id]) && $load && !empty($this->fields))

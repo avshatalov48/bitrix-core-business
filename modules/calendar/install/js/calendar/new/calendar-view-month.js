@@ -602,6 +602,10 @@
 				entryClassName += ' calendar-event-line-border';
 			}
 
+			if (entry.getCurrentStatus() === 'N')
+			{
+				entryClassName += ' calendar-event-line-refused';
+			}
 			// if (entry.hasEmailAttendees())
 			// {
 			// 	entryClassName += ' calendar-event-line-intranet';

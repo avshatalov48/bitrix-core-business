@@ -26,13 +26,13 @@ class ThemeFonts extends Hook\Page
 			'USE' => new Field\Checkbox('USE', [
 				'title' => Loc::getMessage('LNDNGHOOK_THEMEFONTS_USE_2'),
 			]),
-			'CODE_H' => new Field\Select('CODE_H', [
+			'CODE_H' => new Field\Text('CODE_H', [
 				'title' => Loc::getMessage('LNDNGHOOK_THEMEFONTS_FONT_BASE_2'),
-				'options' => self::getSelectOptions(),
+				'default' => 'Open Sans',
 			]),
-			'CODE' => new Field\Select('CODE', [
+			'CODE' => new Field\Text('CODE', [
 				'title' => Loc::getMessage('LNDNGHOOK_THEMEFONTS_FONT_BASE_2'),
-				'options' => self::getSelectOptions(),
+				'default' => 'Open Sans',
 			]),
 			'SIZE' => new Field\Select('SIZE', [
 				'title' => Loc::getMessage('LNDNGHOOK_THEMEFONTS_FONT_SIZE'),
@@ -101,31 +101,29 @@ class ThemeFonts extends Hook\Page
 		];
 	}
 
-	protected static function getSelectOptions(): ?array
-	{
-		// todo: add OS font (SanFrancisco -> Helvetica -> Roboto -> Arial). What if Roboto use separately by g-font-roboto?
-		static $options = [];
-
-		if (!empty($options))
-		{
-			return $options;
-		}
-
-		foreach (Hook\Page\Fonts::DEFAULT_FONTS as $fontClass => $font)
-		{
-			$options[$fontClass] = $font['name'];
-		}
-
-		return $options;
-	}
+	// protected static function getSelectOptions(): ?array
+	// {
+	// 	// todo: add OS font (SanFrancisco -> Helvetica -> Roboto -> Arial). What if Roboto use separately by g-font-roboto?
+	// 	static $options = [];
+	//
+	// 	if (!empty($options))
+	// 	{
+	// 		return $options;
+	// 	}
+	//
+	// 	foreach (Hook\Page\Fonts::DEFAULT_FONTS as $fontClass => $font)
+	// 	{
+	// 		$options[$fontClass] = $font['name'];
+	// 	}
+	//
+	// 	return $options;
+	// }
 
 	protected static function getDefaultValues(): array
 	{
-		$defaultFont = array_keys(Hook\Page\Fonts::DEFAULT_FONTS)[0];
-
 		return [
-			'baseFont' => $defaultFont,
-			'hFont' => $defaultFont,
+			'themeFont' => 'Open Sans',
+			'hThemeFont' => 'Open Sans',
 			'size' => '1',
 			'textLineHeight' => '1.6',
 		];
@@ -161,21 +159,22 @@ class ThemeFonts extends Hook\Page
 			return;
 		}
 
-		$baseFont = HtmlFilter::encode(trim($this->fields['CODE']->getValue()));
-		$hFont = HtmlFilter::encode(trim($this->fields['CODE_H']->getValue()));
+		$themeFont = HtmlFilter::encode(trim($this->fields['CODE']->getValue()));
+		$hThemeFont = HtmlFilter::encode(trim($this->fields['CODE_H']->getValue()));
 		$size = HtmlFilter::encode(trim($this->fields['SIZE']->getValue()));
 		$lineHeight = HtmlFilter::encode(trim($this->fields['LINE_HEIGHT']->getValue()));
-		// todo: array_merge
-		if (!$baseFont || !$size || !$hFont || !$lineHeight)
+		if (!$size || !$lineHeight || $themeFont || $hThemeFont)
 		{
 			$defaultValues = self::getDefaultValues();
-			$baseFont = $baseFont ?: $defaultValues['baseFont'];
-			$hFont = $hFont ?: $defaultValues['hFont'];
 			$size = $size ?: $defaultValues['size'];
 			$lineHeight = $lineHeight ?: $defaultValues['textLineHeight'];
+			$themeFont = $themeFont ?: $defaultValues['themeFont'];
+			$hThemeFont = $hThemeFont ?: $defaultValues['hThemeFont'];
 		}
-		$this->setBaseFont($baseFont);
-		$this->setHFont($hFont);
+		$themeFont = $this->convertFont($themeFont);
+		$this->setThemeFont($themeFont);
+		$hThemeFont = $this->convertFont($hThemeFont);
+		$this->setHFontTheme($hThemeFont);
 		$this->setSize($size);
 
 		$fontWeight = HtmlFilter::encode(trim($this->fields['FONT_WEIGHT']->getValue()));
@@ -188,19 +187,21 @@ class ThemeFonts extends Hook\Page
 	}
 
 	/**
-	 * Set fonts for ALL text in body, add style string
+	 * Set the main font to the page
 	 * @param string $font
 	 */
-	protected function setBaseFont(string $font): void
+	protected function setThemeFont(string $font): void
 	{
+		$fontLink = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=';
+		$fontLink .= str_replace(" ", "+", $font);
+		$fontLink .= ':wght@300;400;500;600;700;900">';
 		$assets = Assets\Manager::getInstance();
-		$assets->addString(Hook\Page\Fonts::outputDefaultFont($font));
+		$assets->addString($fontLink);
 		$assets->addString(
 			'<style>
 				body {
 					font-weight: 400;
-					font-family: ' . Hook\Page\Fonts::DEFAULT_FONTS[$font]['family'] . ';
-					
+					font-family: ' . $font . ';
 					-webkit-font-smoothing: antialiased;
 					-moz-osx-font-smoothing: grayscale;
 					-moz-font-feature-settings: "liga", "kern";
@@ -254,14 +255,17 @@ class ThemeFonts extends Hook\Page
 	 * Set fonts for headers, add style string
 	 * @param string $font
 	 */
-	protected function setHFont(string $font): void
+	protected function setHFontTheme(string $font): void
 	{
+		$fontLink = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=';
+		$fontLink .= str_replace(" ", "+", $font);
+		$fontLink .= ':wght@300;400;500;600;700;900">';
 		$assets = Assets\Manager::getInstance();
-		$assets->addString(Hook\Page\Fonts::outputDefaultFont($font));
+		$assets->addString($fontLink);
 		$assets->addString(
 			'<style>
 				h1, h2, h3, h4, h5, h6 {
-					font-family: ' . Hook\Page\Fonts::DEFAULT_FONTS[$font]['family'] . ';
+					font-family: ' . $font . ';
 				}
 			</style>'
 		);
@@ -284,6 +288,34 @@ class ThemeFonts extends Hook\Page
 	}
 
 	/**
+	 * Convert to correct font name
+	 * @param string $fontName
+	 * @return string
+	 */
+	protected function convertFont(string $fontName):string
+	{
+		$fontName = str_replace(['g-font-', '-'], ['', ' '], $fontName);
+		$fontName = str_replace(['ibm ', 'pt '], ['IBM ', 'PT '], $fontName);
+
+		$pattern = [
+			'/sc(?:(?![a-z]))/i',
+			'/jp(?:(?![a-z]))/i',
+			'/kr(?:(?![a-z]))/i',
+			'/tc(?:(?![a-z]))/i',
+		];
+		$replace = ['SC', 'JP', 'KR', 'TC'];
+		$fontNameNew = preg_filter($pattern, $replace, $fontName);
+		if ($fontNameNew)
+		{
+			$fontName = $fontNameNew;
+		}
+
+		$fontName = ucwords($fontName);
+
+		return $fontName;
+	}
+
+	/**
 	 * Replace THEME_CODE_TYPO hook to THEMEFONTS hooks.
 	 * @param int $lid Landing id.
 	 * @param int $siteId Site id.
@@ -296,108 +328,108 @@ class ThemeFonts extends Hook\Page
 	{
 		$migrations = [
 			'1construction' => [
-				'CODE' => 'g-font-alegreya-sans',
-				'CODE_H' => 'g-font-alegreya-sans',
+				'CODE' => 'Alegreya Sans',
+				'CODE_H' => 'Alegreya Sans',
 				'SIZE' => '1.14286',
 			],
 			'2business' => [
-				'CODE' => 'g-font-roboto',
-				'CODE_H' => 'g-font-roboto',
+				'CODE' => 'Roboto',
+				'CODE_H' => 'Roboto',
 				'SIZE' => '1',
 			],
 			'3corporate' => [
-				'CODE' => 'g-font-roboto',
-				'CODE_H' => 'g-font-roboto',
+				'CODE' => 'Roboto',
+				'CODE_H' => 'Roboto',
 				'SIZE' => '1',
 			],
 			'accounting' => [
-				'CODE' => 'g-font-open-sans',
-				'CODE_H' => 'g-font-open-sans',
+				'CODE' => 'Open Sans',
+				'CODE_H' => 'Open Sans',
 				'SIZE' => '1',
 			],
 			'agency' => [
-				'CODE' => 'g-font-roboto',
-				'CODE_H' => 'g-font-roboto',
+				'CODE' => 'Roboto',
+				'CODE_H' => 'Roboto',
 				'SIZE' => '1',
 			],
 			'app' => [
-				'CODE' => 'g-font-open-sans',
-				'CODE_H' => 'g-font-open-sans',
+				'CODE' => 'Open Sans',
+				'CODE_H' => 'Open Sans',
 				'SIZE' => '1.14286',
 			],
 			'architecture' => [
-				'CODE' => 'g-font-open-sans',
-				'CODE_H' => 'g-font-open-sans',
+				'CODE' => 'Open Sans',
+				'CODE_H' => 'Open Sans',
 				'SIZE' => '1',
 			],
 			'charity' => [
-				'CODE' => 'g-font-open-sans',
-				'CODE_H' => 'g-font-open-sans',
+				'CODE' => 'Open Sans',
+				'CODE_H' => 'Open Sans',
 				'SIZE' => '0.92857',
 			],
 			'consulting' => [
-				'CODE' => 'g-font-open-sans',
-				'CODE_H' => 'g-font-open-sans',
+				'CODE' => 'Open Sans',
+				'CODE_H' => 'Open Sans',
 				'SIZE' => '1',
 			],
 			'courses' => [
-				'CODE' => 'g-font-alegreya-sans',
-				'CODE_H' => 'g-font-alegreya-sans',
+				'CODE' => 'Alegreya Sans',
+				'CODE_H' => 'Alegreya Sans',
 				'SIZE' => '1',
 			],
 			'event' => [
-				'CODE' => 'g-font-open-sans',
-				'CODE_H' => 'g-font-open-sans',
+				'CODE' => 'Open Sans',
+				'CODE_H' => 'Open Sans',
 				'SIZE' => '1.14286',
 			],
 			'gym' => [
-				'CODE' => 'g-font-roboto',
-				'CODE_H' => 'g-font-roboto',
+				'CODE' => 'Roboto',
+				'CODE_H' => 'Roboto',
 				'SIZE' => '1',
 			],
 			'lawyer' => [
-				'CODE' => 'g-font-roboto',
-				'CODE_H' => 'g-font-open-sans',
+				'CODE' => 'Roboto',
+				'CODE_H' => 'Open Sans',
 				'SIZE' => '1',
 			],
 			'music' => [
-				'CODE' => 'g-font-open-sans',
-				'CODE_H' => 'g-font-open-sans',
+				'CODE' => 'Open Sans',
+				'CODE_H' => 'Open Sans',
 				'SIZE' => '0.92857',
 			],
 			'photography' => [
-				'CODE' => 'g-font-roboto',
-				'CODE_H' => 'g-font-roboto',
+				'CODE' => 'Roboto',
+				'CODE_H' => 'Roboto',
 				'SIZE' => '0.92857',
 			],
 			'real-estate' => [
-				'CODE' => 'g-font-open-sans',
-				'CODE_H' => 'g-font-open-sans',
+				'CODE' => 'Open Sans',
+				'CODE_H' => 'Open Sans',
 				'SIZE' => '1',
 			],
 			'restaurant' => [
-				'CODE' => 'g-font-montserrat',
-				'CODE_H' => 'g-font-montserrat',
+				'CODE' => 'Montserrat',
+				'CODE_H' => 'Montserrat',
 				'SIZE' => '0.92857',
 			],
 			'shipping' => [
-				'CODE' => 'g-font-open-sans',
-				'CODE_H' => 'g-font-open-sans',
+				'CODE' => 'Open Sans',
+				'CODE_H' => 'Open Sans',
 				'SIZE' => '1',
 			],
 			'spa' => [
-				'CODE' => 'g-font-open-sans',
-				'CODE_H' => 'g-font-open-sans',
+				'CODE' => 'Open Sans',
+				'CODE_H' => 'Open Sans',
 				'SIZE' => '1',
 			],
 			'travel' => [
-				'CODE' => 'g-font-roboto',
-				'CODE_H' => 'g-font-roboto',
+				'CODE' => 'Roboto',
+				'CODE_H' => 'Roboto',
 				'SIZE' => '1',
 			],
 			'wedding' => [
-				'CODE' => 'g-font-montserrat',
-				'CODE_H' => 'g-font-montserrat',
+				'CODE' => 'Montserrat',
+				'CODE_H' => 'Montserrat',
 				'SIZE' => '1',
 			],
 		];

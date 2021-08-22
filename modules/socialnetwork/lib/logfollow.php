@@ -15,6 +15,22 @@ use Bitrix\Main\NotImplementedException;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class LogFollowTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_LogFollow_Query query()
+ * @method static EO_LogFollow_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_LogFollow_Result getById($id)
+ * @method static EO_LogFollow_Result getList(array $parameters = array())
+ * @method static EO_LogFollow_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_LogFollow createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_LogFollow_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_LogFollow wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_LogFollow_Collection wakeUpCollection($rows)
+ */
 class LogFollowTable extends Entity\DataManager
 {
 	public static function getTableName()

@@ -156,7 +156,7 @@ BX.IM = function(domNode, params)
 				{
 					if (this.bitrixIntranet)
 					{
-						BX.Helper.show("redirect=detail&HD_ID=12715116");
+						BX.Helper.show("redirect=detail&code=12715116");
 					}
 					else
 					{
@@ -866,8 +866,8 @@ BX.IM.prototype.checkCallSupport = function(dialogId)
 		else
 		{
 			var chatId = dialogId.toString().substr(4);
-			userCheck = (this.messenger.userInChat[chatId]);
-			if (userCheck)
+			userCheck = this.messenger.userInChat[chatId];
+			if (userCheck && Array.isArray(userCheck))
 			{
 				var count = 0;
 
@@ -1253,14 +1253,14 @@ BX.IM.prototype.openSettings = function(params)
 	}
 
 	var modernBrowser = BX.browser.IsChrome() || BX.browser.IsFirefox() ||BX.browser.IsSafari();
-	var telemetryLink = BX.Helper? BX.Helper.frameOpenUrl + ((BX.Helper.frameOpenUrl.indexOf("?") < 0) ? "?" : "&") + "redirect=detail&HD_ID=12933226": '';
+	var telemetryLink = BX.Helper? BX.Helper.frameOpenUrl + ((BX.Helper.frameOpenUrl.indexOf("?") < 0) ? "?" : "&") + "redirect=detail&code=12933226": '';
 
 	this.settingsView.common = {
 		'title' : BX.message('IM_SETTINGS_COMMON'),
 		'settings': [
 			{'title': BX.message('IM_M_VIEW_LAST_MESSAGE_OFF'), 'type': 'checkbox', 'name':'viewLastMessage',  'checked': !this.settings.viewLastMessage, 'saveCallback': BX.delegate(function(element) { BX.MessengerCommon.recentListRedraw(); return !element.checked; }, this)},
 			this.messenger.birthdayEnable !== 'none'? {'title': BX.message('IM_M_VIEW_BIRTHDAY'), 'type': 'checkbox', 'name':'viewBirthday',  'checked': this.settings.viewBirthday, 'afterSaveCallback': BX.delegate(function(element) { BX.MessengerCommon.applyBirthdaySettings(); }, this)}: null,
-			this.bitrixIntranet? {'title': BX.message('IM_M_VIEW_COMMON_USERS'), 'type': 'checkbox', 'name':'viewCommonUsers', 'checked': this.settings.viewCommonUsers, 'afterSaveCallback': BX.delegate(function(element) { BX.MessengerCommon.applyViewCommonUsers(); }, this)}: null,
+			this.bitrixIntranet? {'title': BX.message('IM_M_VIEW_INVITED_USERS'), 'tooltip': BX.message('IM_M_VIEW_INVITED_USERS_HINT'), 'type': 'checkbox', 'name':'viewCommonUsers', 'checked': this.settings.viewCommonUsers, 'afterSaveCallback': BX.delegate(function(element) { BX.MessengerCommon.applyViewCommonUsers(); }, this)}: null,
 			//{'title': BX.message('IM_M_VIEW_OFFLINE_OFF'), 'type': 'checkbox', 'name':'viewOffline', 'checked': !this.settings.viewOffline, 'saveCallback': BX.delegate(function(element) { return !element.checked; }, this)},
 			{'type': 'space'},
 			{'title': BX.message('IM_M_NAR'), 'type': 'checkbox', 'name':'notifyAutoRead', 'checked': this.settings.notifyAutoRead},
@@ -1684,6 +1684,28 @@ BX.IM.prototype.prepareSettings = function(params)
 				if (this.settingsView[tab].settings[item].condition && !this.settingsView[tab].settings[item].condition())
 					continue;
 
+				var tooltipNode = null;
+				if (this.settingsView[tab].settings[item].tooltip)
+				{
+					tooltipNode = BX.create("span", {
+						props: {className: "bx-messenger-settings-tooltip"},
+						attrs: {'data-tooltip': this.settingsView[tab].settings[item].tooltip},
+						html: '?',
+						events: {
+							'mouseover': BX.delegate(function(e){
+								this.messenger.tooltip(BX.proxy_context, BX.proxy_context.getAttribute('data-tooltip'), {angle: false, width: 300, closeIcon: false});
+								BX.PreventDefault(e);
+							}, this),
+							'mouseout': function(e) {
+								if (this.messenger.tooltipIsOpen())
+								{
+									this.messenger.popupTooltip.close();
+								}
+							}.bind(this)
+						}
+					});
+				}
+
 				if (this.settingsView[tab].settings[item].type == 'notifyControl' || this.settingsView[tab].settings[item].type == 'table' || this.settingsView[tab].settings[item].type == 'space')
 				{
 					tableItems.push(BX.create("tr", {children : [
@@ -1705,7 +1727,9 @@ BX.IM.prototype.prepareSettings = function(params)
 				else
 				{
 					tableItems.push(BX.create("tr", {children : [
-						BX.create("td", {attrs: {'width': '55%'}, html: this.settingsView[tab].settings[item].title}),
+						BX.create("td", {attrs: {'width': '55%'}, children: [
+							BX.create("span", {html: this.settingsView[tab].settings[item].title}), tooltipNode
+						]}),
 						BX.create("td", {attrs: {'width': '45%'}, children: this.prepareSettingsItem(this.settingsView[tab].settings[item])})
 					]}));
 				}
@@ -1794,17 +1818,6 @@ BX.IM.prototype.prepareSettingsItem = function(params)
 	var items = [];
 	var config = BX.clone(params);
 
-	var tooltipNode = null;
-	if (config.tooltip)
-	{
-		tooltipNode = BX.create("span", {props: {className: "bx-messenger-settings-tooltip"}, attrs: {'data-tooltip': config.tooltip}, html: 'i', events: {
-			'click': BX.delegate(function(e){
-				this.messenger.tooltip(BX.proxy_context, BX.proxy_context.getAttribute('data-tooltip'), {angle: false, width: 300});
-				BX.PreventDefault(e);
-			}, this)
-		}});
-	}
-
 	if (config.type == 'space')
 	{
 		items.push(BX.create("span", {props: {className: "bx-messenger-settings-space"}}));
@@ -1844,7 +1857,7 @@ BX.IM.prototype.prepareSettingsItem = function(params)
 			attrs['data-save'] = 1;
 
 		var element = BX.create("input", {attrs: attrs, events: events });
-		items.push(BX.create("div", {style: {whiteSpace: 'nowrap'}, children: [element, tooltipNode]}));
+		items.push(BX.create("div", {style: {whiteSpace: 'nowrap'}, children: [element]}));
 
 		if (config.saveCallback)
 			this.settingsSaveCallback[config.name] = config.saveCallback;
@@ -1866,7 +1879,7 @@ BX.IM.prototype.prepareSettingsItem = function(params)
 		if (config.name)
 			attrs['data-save'] = 1;
 		var element = BX.create("select", {attrs : attrs, events: events, children: options});
-		items.push(BX.create("div", {style: {whiteSpace: 'nowrap'}, children: [element, tooltipNode]}));
+		items.push(BX.create("div", {style: {whiteSpace: 'nowrap'}, children: [element]}));
 
 		if (config.saveCallback)
 			this.settingsSaveCallback[config.name] = config.saveCallback;
@@ -5231,6 +5244,11 @@ BX.MessengerChat = function(BXIM, params)
 	params.userBirthday.forEach(function(user){
 		if (!this.users[user.id])
 		{
+			user.name = BX.util.htmlspecialchars(user.name);
+			user.first_name = BX.util.htmlspecialchars(user.first_name);
+			user.last_name = BX.util.htmlspecialchars(user.last_name);
+			user.work_position = BX.util.htmlspecialchars(user.work_position);
+
 			this.users[user.id] = user;
 		}
 		this.birthdayUsers[user.id] = true;
@@ -6447,7 +6465,7 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 						this.popupMessengerTextareaPlaceholder = BX.create("div", { props : {className : "bx-messenger-textarea-placeholder"}, html : BX.message('IM_M_TA_TEXT')})
 					]}),
 					BX.create("div", { props : { className : "bx-messenger-textarea-clear" }}),
-					BX.MessengerCommon.isPage() && !BX.MessengerCommon.isDesktop()? null: BX.create("span", { props : { className : "bx-messenger-resize" }, events : BX.MessengerCommon.isPage()? {}: { mousedown : BX.delegate(this.resizeWindowStart, this)}})
+					//BX.MessengerCommon.isPage() && !BX.MessengerCommon.isDesktop()? null: BX.create("span", { props : { className : "bx-messenger-resize" }, events : BX.MessengerCommon.isPage()? {}: { mousedown : BX.delegate(this.resizeWindowStart, this)}})
 				]})
 			]})
 		]}),
@@ -7426,6 +7444,7 @@ BX.MessengerChat.prototype.tooltip = function(bind, text, params)
 	params.angle = typeof(params.angle) == 'undefined'? true: params.angle;
 	params.showOnce = typeof(params.showOnce) == 'undefined'? false: params.showOnce;
 	params.bindOptions = typeof(params.bindOptions) == 'undefined'? {position: "top"}: params.bindOptions;
+	params.closeIcon = typeof(params.closeIcon) == 'undefined'? {}: params.closeIcon;
 
 	if (params.showOnce)
 	{
@@ -7459,7 +7478,7 @@ BX.MessengerChat.prototype.tooltip = function(bind, text, params)
 		darkMode: true,
 		offsetLeft: params.offsetLeft,
 		offsetTop: params.offsetTop,
-		closeIcon : {},
+		closeIcon : params.closeIcon,
 		bindOptions: params.bindOptions,
 		events : {
 			onPopupClose : function() {this.destroy(); },
@@ -8691,7 +8710,7 @@ BX.MessengerChat.prototype.redrawChatHeader = function(params)
 				else if (this.BXIM.settings.generalNotify)
 				{
 					addClass.push('bx-messenger-chat-general-first-open');
-					// onclick="BX.Helper.show(\"redirect=detail&HD_ID='+BX.message('IM_G_JOIN_HELPDESK_ID')+'\");"
+					// onclick="BX.Helper.show(\"redirect=detail&code='+BX.message('IM_G_JOIN_HELPDESK_ID')+'\");"
 					this.popupMessengerTextareaGeneralText.innerHTML = BX.message('IM_G_JOIN').replace('#LINK_START#', '<a href="'+BX.message('IM_G_JOIN_LINK')+'"" style="margin-left: 10px; text-decoration: underline;">').replace('#LINK_END#', '</a>').replace('#ICON#', '<span class="bx-messenger-icon-notify-mute" onclick="BX.MessengerCommon.muteMessageChat(\'chat'+this.generalChatId+'\');"></span>');
 					textareaDisabled = true;
 				}
@@ -10088,69 +10107,6 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 			}
 		}
 	}
-	else if (type == 'callTransferMenu')
-	{
-		offsetTop = 2;
-		offsetLeft = 25;
-		params.onSelect = BX.type.isFunction(params.onSelect) ? params.onSelect : BX.DoNothing;
-
-		menuItems = [
-			{icon: 'bx-messenger-menu-call-voice', text: BX.message('IM_PHONE_INNER_CALL'), onclick: BX.delegate(function(){
-				this.closeMenuPopup();
-				params.onSelect({
-					type: 'user',
-					userId: params.userId
-				});
-			}, this)}
-		];
-
-		if (this.phones[params.userId])
-		{
-			menuItems.push({separator: true});
-
-			if (this.phones[params.userId].PERSONAL_MOBILE)
-			{
-				menuItems.push(
-					{type: 'call', text: BX.message('IM_PHONE_PERSONAL_MOBILE'), phone: BX.util.htmlspecialchars(this.phones[params.userId].PERSONAL_MOBILE), onclick: BX.delegate(function(){
-						this.closeMenuPopup();
-						params.onSelect({
-							type: 'phone',
-							userId: params.userId,
-							phone: this.phones[params.userId].PERSONAL_MOBILE
-						});
-					}, this)}
-				);
-			}
-
-			if (this.phones[params.userId].PERSONAL_PHONE)
-			{
-				menuItems.push(
-					{type: 'call', text: BX.message('IM_PHONE_PERSONAL_PHONE'), phone: BX.util.htmlspecialchars(this.phones[params.userId].PERSONAL_PHONE), onclick: BX.delegate(function(){
-						this.closeMenuPopup();
-						params.onSelect({
-							type: 'phone',
-							userId: params.userId,
-							phone: this.phones[params.userId].PERSONAL_PHONE
-						});
-					}, this)}
-				);
-			}
-
-			if (this.phones[params.userId].WORK_PHONE)
-			{
-				menuItems.push(
-					{type: 'call', text: BX.message('IM_PHONE_WORK_PHONE'), phone: BX.util.htmlspecialchars(this.phones[params.userId].WORK_PHONE), onclick: BX.delegate(function(){
-						this.closeMenuPopup();
-						params.onSelect({
-							type: 'phone',
-							userId: params.userId,
-							phone: this.phones[params.userId].WORK_PHONE
-						});
-					}, this)}
-				);
-			}
-		}
-	}
 	else if (type == 'callContextMenu')
 	{
 		var callData = BX.MessengerCommon.phoneGetCallFields(this.getChatId());
@@ -10511,8 +10467,8 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		}
 
 		var hideBlockCreate = isAnnouncement || selectedText.text.length > 0 || this.users[this.BXIM.userId].extranet;
-		var hideElementCreateOl = hideBlockCreate || !this.chat[this.message[messageId].chatId] || this.chat[this.message[messageId].chatId].entity_type != 'LINES';
-		var hideSaveToQuickAnswers = hideElementCreateOl || (!this.message[messageId].text || this.message[messageId].text.length <= 0);
+		var isChatOl = this.chat[this.message[messageId].chatId] && this.chat[this.message[messageId].chatId].entity_type == 'LINES';
+		var hideSaveToQuickAnswers = hideBlockCreate || !isChatOl || (!this.message[messageId].text || this.message[messageId].text.length <= 0);
 
 		var linesQuickAnswersItem =
 		{
@@ -10634,13 +10590,13 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 					this.closeMenuPopup();
 				}, this)
 			},
-			hideBlockCreate ? null: {separator: true},
-			hideBlockCreate ? null: {text: BX.message("IM_MENU_TO_TASK"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'TASK'); this.closeMenuPopup(); }, this)},
-			hideBlockCreate || !canShareToCalend? null: {text: BX.message("IM_MENU_TO_CALEND"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'CALEND'); this.closeMenuPopup(); }, this)},
-			hideBlockCreate ? null: {text: BX.message("IM_MENU_TO_CHAT"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'CHAT'); this.closeMenuPopup(); }, this)},
-			hideBlockCreate ? null: {text: BX.message("IM_MENU_TO_POST_2"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'POST'); this.closeMenuPopup(); }, this)},
-			hideElementCreateOl? null: {separator: true},
-			hideElementCreateOl? null: {text: BX.message("IM_MENU_TO_OL_START"), onclick: BX.delegate(function(){ BX.MessengerCommon.linesStartSessionByMessage(messageId); this.closeMenuPopup(); }, this)},
+			hideBlockCreate || isChatOl ? null: {separator: true},
+			hideBlockCreate || isChatOl ? null: {text: BX.message("IM_MENU_TO_TASK"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'TASK'); this.closeMenuPopup(); }, this)},
+			hideBlockCreate || isChatOl || !canShareToCalend? null: {text: BX.message("IM_MENU_TO_CALEND"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'CALEND'); this.closeMenuPopup(); }, this)},
+			hideBlockCreate || isChatOl ? null: {text: BX.message("IM_MENU_TO_CHAT"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'CHAT'); this.closeMenuPopup(); }, this)},
+			hideBlockCreate || isChatOl ? null: {text: BX.message("IM_MENU_TO_POST_2"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'POST'); this.closeMenuPopup(); }, this)},
+			hideBlockCreate || !isChatOl ? null: {separator: true},
+			hideBlockCreate || !isChatOl ? null: {text: BX.message("IM_MENU_TO_OL_START"), onclick: BX.delegate(function(){ BX.MessengerCommon.linesStartSessionByMessage(messageId); this.closeMenuPopup(); }, this)},
 			hideSaveToQuickAnswers? null: linesQuickAnswersItem,
 			!(!canEdit || this.message[messageId].senderId != this.BXIM.userId) || canDelete? {separator: true}: null,
 			!canEdit || this.message[messageId].senderId != this.BXIM.userId? null: {text: BX.message("IM_MENU_EDIT"), onclick: BX.delegate(function() {this.editMessage(messageId);this.closeMenuPopup();}, this)},
@@ -16692,7 +16648,10 @@ BX.MessengerChat.prototype.updateMessageCount = function(send)
 
 			if (
 				!this.chat[element.id.substr(4)]
-				|| !this.chat[element.id.substr(4)].mute_list[this.BXIM.userId]
+				|| (
+					this.chat[element.id.substr(4)].mute_list
+					&& !this.chat[element.id.substr(4)].mute_list[this.BXIM.userId]
+				)
 			)
 			{
 				count += element.counter;
@@ -16906,6 +16865,7 @@ BX.MessengerChat.MenuPrepareList = function(menuItems)
 				props : { className: "bx-messenger-popup-menu-item"},
 				attrs : { title : item.title ? item.title : "",  href : item.href ? item.href : "", target: item.target ? item.target : "_blank", 'data-params': item.dataParams? JSON.stringify(item.dataParams): ""},
 				events : item.onclick && BX.type.isFunction(item.onclick) ? { click : item.onclick } : null,
+				dataset : item.dataset ? item.dataset : null,
 				html :  '<div class="bx-messenger-popup-menu-item-call"><span class="bx-messenger-popup-menu-item-left"></span><span class="bx-messenger-popup-menu-item-title">' + item.text + '</span><span class="bx-messenger-popup-menu-right"></span></div>'+
 						'<div><span class="bx-messenger-popup-menu-item-left"></span><span class="bx-messenger-popup-menu-item-text">' + item.phone + '</span><span class="bx-messenger-popup-menu-right"></span></div>'
 			});
@@ -16926,6 +16886,7 @@ BX.MessengerChat.MenuPrepareList = function(menuItems)
 				props : { className: "bx-messenger-popup-menu-item"+(item.bold? " bx-messenger-popup-menu-item-bold":"")+(item.slim? " bx-messenger-popup-menu-item-slim":"")+(item.disabled? " bx-messenger-popup-menu-item-disabled":"")+(item.restricted? " bx-messenger-popup-menu-item-restricted":"")+(BX.type.isNotEmptyString(item.className) ? " " + item.className : "")},
 				attrs : attrs,
 				events : item.onclick && BX.type.isFunction(item.onclick) ? { click : item.onclick } : null,
+				dataset : item.dataset ? item.dataset : null,
 				html :  '<span class="bx-messenger-popup-menu-item-left"></span>'+
 					(item.icon? '<span class="bx-messenger-popup-menu-item-icon '+item.icon+'"></span>':'')+
 					(item.restricted? '<span class="tariff-lock"></span>':'')+
@@ -18200,6 +18161,19 @@ BX.IM.Desktop = function(BXIM, params)
 
 			BX.desktop.addCustomEvent('bxConferenceLoadComplete', BX.delegate(function() {
 				this.messenger.updateMessageCount(false);
+			}, this));
+
+			BX.desktop.addCustomEvent('bxConferenceOpenChat', BX.delegate(function(userId) {
+				BX.desktop.windowCommand("show");
+				BX.desktop.changeTab('im');
+				this.messenger.openMessenger(userId);
+			}, this));
+
+			BX.desktop.addCustomEvent('bxConferenceOpenProfile', BX.delegate(function(userId) {
+				BX.desktop.windowCommand("show");
+				BX.desktop.changeTab('im');
+				var profilePath = BX.MessengerCommon.getUserParam(userId).profile;
+				BX.SidePanel.Instance.open(profilePath);
 			}, this));
 
 			BX.desktop.addCustomEvent("bxCallMuteMic", BX.delegate(function() {
@@ -22039,10 +22013,16 @@ BX.IM.WebRTC.prototype._doOpenKeyPad = function(e)
 				offsetTop = -110;
 				offsetLeft = 60;
 			}
-			else
+			else if (this.messenger.popupContactListSearchCall)
 			{
 				BX.addClass(this.messenger.popupContactListSearchCall, 'bx-messenger-input-search-call-active');
 				bindElement = this.messenger.popupContactListSearchCall;
+				offsetTop = -10;
+				offsetLeft = -52;
+			}
+			else if (this.messenger.popupMessengerPanelButtonCall3)
+			{
+				bindElement = this.messenger.popupMessengerPanelButtonCall3;
 				offsetTop = -10;
 				offsetLeft = -52;
 			}
@@ -22180,6 +22160,7 @@ BX.IM.WebRTC.prototype.phoneDisplayExternal = function(params)
 		portalCall: params.portalCall,
 		portalCallUserId: params.portalCallUserId,
 		portalCallData: params.portalCallData,
+		portalCallQueueName: params.portalCallQueueName,
 		crm: params.showCrmCard,
 		crmEntityType: params.crmEntityType,
 		crmEntityId: params.crmEntityId,
@@ -22515,8 +22496,6 @@ BX.IM.WebRTC.prototype._doCallListMakeCall = function(e)
 	var number = e.phoneNumber;
 	var numberOriginal = number;
 	var internationalNumber = BX.MessengerCommon.phoneCorrect(number);
-	if(internationalNumber[0] === '+')
-		internationalNumber = internationalNumber.substr(1);
 
 	if (internationalNumber.length <= 0)
 	{
@@ -23014,17 +22993,15 @@ BX.IM.WebRTC.prototype.bindPhoneViewCallbacks = function(callView)
 	}.bind(this));
 	callView.setCallback('transfer', function(e)
 	{
-		if(e.type == 'user')
+		if (e.type == 'user' || e.type == 'pstn' || e.type == 'queue')
 		{
-			this.phoneTransferTargetType = 'user';
-			this.phoneTransferTargetId = e.userId;
+			this.phoneTransferTargetType = e.type;
+			this.phoneTransferTargetId = e.target;
 			this.sendInviteTransfer();
 		}
-		else if(e.type == 'phone')
+		else
 		{
-			this.phoneTransferTargetType = 'pstn';
-			this.phoneTransferTargetId = e.phone;
-			this.sendInviteTransfer();
+			console.error('Unknown transfer type', e);
 		}
 	}.bind(this));
 	callView.setCallback('cancelTransfer', this.cancelInviteTransfer.bind(this));
@@ -23433,6 +23410,7 @@ BX.IM.WebRTC.prototype.showExternalCall = function(params)
 		crm: params.showCrmCard,
 		crmEntityType: params.crmEntityType,
 		crmEntityId: params.crmEntityId,
+		crmBindings: params.crmBindings,
 		crmActivityId: params.crmActivityId,
 		crmActivityEditUrl: params.crmActivityEditUrl,
 		crmData: this.phoneCrm
@@ -26488,156 +26466,3 @@ MessengerExternalList.prototype.showMessage = function(params)
 }
 
 BX.MessengerExternalList = new MessengerExternalList();
-
-/* Desktop utils */
-
-(function(){
-
-if (BX.desktopUtils)
-	return;
-
-BX.desktopUtils = function (){
-	this.runningCheckTimeout = {};
-	this.checkUrl = "http://127.0.0.1:20141/";
-	this._openedBxLink = false;
-};
-
-BX.desktopUtils.prototype.runningCheck = function(successCallback, failureCallback, successOnlyWithNewApp)
-{
-	if (typeof(successCallback) == 'undefined')
-	{
-		return false;
-	}
-	if (typeof(failureCallback) == 'undefined')
-	{
-		failureCallback = function(){};
-	}
-
-	successOnlyWithNewApp = typeof (successOnlyWithNewApp) == 'undefined' || !successOnlyWithNewApp? false: true;
-
-	var dateCheck = (+new Date());
-	if (typeof (BXDesktopSystem) !== 'undefined')
-	{
-		if (BX.MessengerCommon.isDesktop())
-		{
-			failureCallback(false, dateCheck);
-		}
-		else
-		{
-			successCallback(true, dateCheck);
-		}
-		return true;
-	}
-	else if (typeof(BXIM) == 'undefined' || BX.MessengerCommon.isDesktop() || !BXIM.desktopStatus || BXIM.desktopVersion < 18)
-	{
-		failureCallback(false, dateCheck);
-		return false;
-	}
-	else if (BXIM.desktopVersion < 35)
-	{
-		if (successOnlyWithNewApp)
-		{
-			failureCallback(false, dateCheck);
-		}
-		else
-		{
-			successCallback(true, dateCheck);
-		}
-		return true;
-	}
-
-	var alreadyRunFailureCallback = false;
-	var checkElement = BX.create("img", {
-		attrs : {
-			"src" : this.checkUrl+"icon.png?"+dateCheck,
-			"data-id": dateCheck
-		},
-		props : {className : "bx-messenger-out-of-view"},
-		events : {
-			"error" : function () {
-				if (alreadyRunFailureCallback)
-				{
-					return;
-				}
-
-				var checkId = this.getAttribute('data-id');
-				failureCallback(false, checkId);
-				clearTimeout(BX.desktopUtils.runningCheckTimeout[checkId]);
-				BX.remove(this);
-			},
-			"load" : function () {
-				var checkId = this.getAttribute('data-id');
-				successCallback(true, checkId);
-				clearTimeout(BX.desktopUtils.runningCheckTimeout[checkId]);
-				BX.remove(this);
-			}
-		}
-	});
-	document.body.appendChild(checkElement);
-	this.runningCheckTimeout[dateCheck] = setTimeout(function(){
-		failureCallback(false, dateCheck);
-		clearTimeout(BX.desktopUtils.runningCheckTimeout[dateCheck]);
-		BX.remove(this);
-
-		alreadyRunFailureCallback = true;
-	}, 500);
-
-	return true;
-};
-
-BX.desktopUtils.prototype.goToBx = function (url)
-{
-	if (typeof(BXIM) != 'undefined' && BXIM.desktopVersion >= 36 && !url.match(/^bx:\/\/v(\d)\//))
-	{
-		url = url.replace('bx://', 'bx://v'+BXIM.desktopProtocolVersion+'/' + location.hostname + '/');
-	}
-	this._setOpenedBxLink();
-	location.href = url;
-};
-
-BX.desktopUtils.prototype._setOpenedBxLink = function()
-{
-	this._openedBxLink = true;
-	setTimeout(function()
-	{
-		BX.onCustomEvent("BXLinkOpened", []);
-		this._openedBxLink = false;
-	}.bind(this), 1000);
-};
-
-BX.desktopUtils.prototype.isChangedLocationToBx = function ()
-{
-	return this._openedBxLink;
-};
-
-BX.desktopUtils.prototype.encodeParams = function(params)
-{
-	if(!BX.type.isPlainObject(params))
-		return '';
-
-	var stringParams = '';
-	var first = true;
-	for (var i in params)
-	{
-		stringParams = stringParams+(first ? '' : '!!')+i+'!!'+params[i];
-		first = false;
-	}
-	return stringParams;
-};
-
-BX.desktopUtils.prototype.decodeParams = function(encodedParams)
-{
-	var result = {};
-	if(!BX.type.isNotEmptyString(encodedParams))
-		return result;
-
-	var chunks = encodedParams.split('!!');
-	for (var i = 0; i < chunks.length; i=i+2)
-	{
-		result[chunks[i]] = chunks[i+1];
-	}
-	return result;
-};
-
-BX.desktopUtils = new BX.desktopUtils();
-})();

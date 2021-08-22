@@ -1941,7 +1941,7 @@ abstract class ElementList extends Base
 				'cookieDomain' => Main\Web\Cookie::getCookieDomain(),
 				'serverTime' => time()
 			),
-			'params' => $this->getBigDataServiceRequestParams($this->arParams['RCM_TYPE'])
+			'params' => $this->getBigDataServiceRequestParams(($this->arParams['RCM_TYPE'] ?? ''))
 		);
 	}
 
@@ -2184,7 +2184,7 @@ abstract class ElementList extends Base
 				: (int)$item['CATALOG_QUANTITY'];
 
 			$item['CATALOG'] = false;
-			$item['CATALOG_SUBSCRIPTION'] = $item['CATALOG_SUBSCRIPTION'] === 'Y' ? 'Y' : 'N';
+			$item['CATALOG_SUBSCRIPTION'] = ($item['CATALOG_SUBSCRIPTION'] ?? '') === 'Y' ? 'Y' : 'N';
 
 			$item['BIG_DATA'] = $this->getAction() === 'bigDataLoad';
 
@@ -2417,13 +2417,13 @@ abstract class ElementList extends Base
 			$ratioSelectedIndex = $offer['ITEM_MEASURE_RATIO_SELECTED'];
 			$oneRow = array(
 				'ID' => $offer['ID'],
-				'NAME' => $offer['~NAME'],
+				'NAME' => ($offer['~NAME'] ?? ''),
 				'TREE' => $offer['TREE'],
 				'DISPLAY_PROPERTIES' => $skuProps,
 
 				// compatible prices
-				'PRICE' => isset($offer['RATIO_PRICE']) ? $offer['RATIO_PRICE'] : $offer['MIN_PRICE'],
-				'BASIS_PRICE' => $offer['MIN_PRICE'],
+				'PRICE' => ($offer['RATIO_PRICE'] ?? $offer['MIN_PRICE'] ?? 0),
+				'BASIS_PRICE' => ($offer['MIN_PRICE'] ?? 0),
 
 				// new prices
 				'ITEM_PRICE_MODE' => $offer['ITEM_PRICE_MODE'],

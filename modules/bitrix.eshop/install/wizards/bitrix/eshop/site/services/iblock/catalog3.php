@@ -90,7 +90,7 @@ if ($IBLOCK_CATALOG_ID)
 
 	//user fields for sections
 	$arLanguages = Array();
-	$rsLanguage = CLanguage::GetList($by, $order, array());
+	$rsLanguage = CLanguage::GetList();
 	while($arLanguage = $rsLanguage->Fetch())
 		$arLanguages[] = $arLanguage["LID"];
 

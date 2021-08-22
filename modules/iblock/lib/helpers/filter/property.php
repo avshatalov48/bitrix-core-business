@@ -30,7 +30,11 @@ class Property
 	public static function render($filterId, $propertyType, array $listProperty)
 	{
 		$result = '';
-
+		/**
+		 * @see Property::renderByECrm()
+		 * @see Property::renderByE()
+		 * @see Property::renderByEmployee()
+		 */
 		if(method_exists(__CLASS__, 'renderBy'.$propertyType))
 		{
 			$renderMethod = 'renderBy'.$propertyType;

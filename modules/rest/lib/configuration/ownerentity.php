@@ -24,7 +24,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Rest\Configuration
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_OwnerEntity_Query query()
+ * @method static EO_OwnerEntity_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_OwnerEntity_Result getById($id)
+ * @method static EO_OwnerEntity_Result getList(array $parameters = array())
+ * @method static EO_OwnerEntity_Entity getEntity()
+ * @method static \Bitrix\Rest\Configuration\EO_OwnerEntity createObject($setDefaultValues = true)
+ * @method static \Bitrix\Rest\Configuration\EO_OwnerEntity_Collection createCollection()
+ * @method static \Bitrix\Rest\Configuration\EO_OwnerEntity wakeUpObject($row)
+ * @method static \Bitrix\Rest\Configuration\EO_OwnerEntity_Collection wakeUpCollection($rows)
+ */
 
 class OwnerEntityTable extends DataManager
 {

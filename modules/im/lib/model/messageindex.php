@@ -19,7 +19,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Im
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MessageIndex_Query query()
+ * @method static EO_MessageIndex_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MessageIndex_Result getById($id)
+ * @method static EO_MessageIndex_Result getList(array $parameters = array())
+ * @method static EO_MessageIndex_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_MessageIndex createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_MessageIndex_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_MessageIndex wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_MessageIndex_Collection wakeUpCollection($rows)
+ */
 
 class MessageIndexTable extends Main\Entity\DataManager
 {

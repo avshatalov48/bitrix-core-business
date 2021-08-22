@@ -37,7 +37,7 @@ class LastSearch
 
 		if (\Bitrix\Im\Common::isChatId($dialogId))
 		{
-			$chatId = mb_substr($dialogId, 4);
+			$chatId = \Bitrix\Im\Dialog::getChatId($dialogId);
 			$relations = Chat::getRelation($chatId);
 			if (!$relations[$userId])
 			{
@@ -124,8 +124,8 @@ class LastSearch
 
 		$orm = \Bitrix\Im\Model\LastSearchTable::getList(Array(
 			'filter' => Array(
-				'USER_ID' => $userId,
-				'DIALOG_ID' => $dialogId
+				'=USER_ID' => $userId,
+				'=DIALOG_ID' => $dialogId
 			)
 		));
 		$row = $orm->fetch();

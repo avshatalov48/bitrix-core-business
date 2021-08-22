@@ -4,6 +4,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use \Bitrix\Landing\Manager;
+use \Bitrix\Main\Config\Option;
+
 class Tariff24Block extends \Bitrix\Landing\LandingBlock
 {
 	/**
@@ -27,12 +30,22 @@ class Tariff24Block extends \Bitrix\Landing\LandingBlock
 		{
 			$currencyCode = 'UAH';
 		}
+		if (Manager::isB24())
+		{
+			$partnerId = (int)Option::get('bitrix24', 'partner_id', 0);
+		}
+		else
+		{
+			$partnerId = (int)COption::GetOptionString("main", "~PARAM_PARTNER_ID");
+		}
+
 		$options = [
 			'productTypeCode' => 'CLOUD',
 			'locationAreaId' => $zone,
 			'languageId' => LANGUAGE_ID,
 			'currencyCode' => $currencyCode,
 			'catalogForNewCustomer' => false,
+			'partnerId' => $partnerId,
 		];
 		$this->params['OPTION'] = $options;
 	}

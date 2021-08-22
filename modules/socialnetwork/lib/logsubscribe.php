@@ -10,6 +10,22 @@ namespace Bitrix\Socialnetwork;
 use Bitrix\Main\Application;
 use Bitrix\Main\Entity;
 
+/**
+ * Class LogSubscribeTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_LogSubscribe_Query query()
+ * @method static EO_LogSubscribe_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_LogSubscribe_Result getById($id)
+ * @method static EO_LogSubscribe_Result getList(array $parameters = array())
+ * @method static EO_LogSubscribe_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_LogSubscribe createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_LogSubscribe_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_LogSubscribe wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_LogSubscribe_Collection wakeUpCollection($rows)
+ */
 class LogSubscribeTable extends Entity\DataManager
 {
 	const TYPE_COUNTER_COMMENT_PUSH = 'CCP';

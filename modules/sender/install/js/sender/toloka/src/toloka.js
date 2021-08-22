@@ -24,6 +24,7 @@ export class Toloka
 	#filterData;
 	#filterId;
 	#filter;
+	#isAvailable;
 	#ajaxAction;
 	#messageFields = null;
 	#templateChangeButton;
@@ -123,6 +124,7 @@ export class Toloka
 		this.#isSaved = params.isSaved || false;
 		this.#isRegistered = params.isRegistered || false;
 		this.#isOutside = params.isOutside || false;
+		this.#isAvailable = params.isAvailable || true;
 		this.#mess = params.mess;
 		this.#letterTile = params.letterTile || {};
 		this.#templateData = [];
@@ -585,6 +587,12 @@ export class Toloka
 
 	applyChanges(event)
 	{
+		if (!this.#isAvailable)
+		{
+			BX.UI.InfoHelper.show('limit_crm_marketing_toloka');
+			return;
+		}
+
 		this.createProject();
 	}
 

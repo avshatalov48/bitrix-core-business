@@ -237,6 +237,17 @@ BitrixVue.component('bx-im-component-conference-public',
 		{
 			return [this.conference.common.callEnded ? 'with-clouds': ''];
 		},
+		wrapClasses()
+		{
+			const classes = ['bx-im-component-call-wrap'];
+
+			if (this.isMobile() && this.isBroadcast && !this.isCurrentUserPresenter && this.isPreparationStep)
+			{
+				classes.push('bx-im-component-call-mobile-viewer-mode');
+			}
+
+			return classes;
+		},
 		localize()
 		{
 			return BitrixVue.getFilteredPhrases(['BX_IM_COMPONENT_CALL_', 'IM_DIALOG_CLIPBOARD_']);
@@ -466,7 +477,7 @@ BitrixVue.component('bx-im-component-conference-public',
 		/* endregion 03. Helpers */
 	},
 	template: `
-	<div class="bx-im-component-call-wrap">
+	<div :class="wrapClasses">
 		<div class="bx-im-component-call">
 			<div class="bx-im-component-call-left">
 				<div id="bx-im-component-call-container" :class="callContainerClasses"></div>

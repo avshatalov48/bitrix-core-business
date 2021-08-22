@@ -80,7 +80,9 @@ elseif (
 
 if (check_bitrix_sessid())
 {
-	$arCurrentUserPerms = CSocNetUserToGroup::InitUserPerms($USER->GetID(), $arGroup, CSocNetUser::IsCurrentUserModuleAdmin());
+	$arCurrentUserPerms = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
+		'groupId' => $arGroup['ID'],
+	]);
 	if (!$arCurrentUserPerms || !$arCurrentUserPerms["UserCanViewGroup"] || !$arCurrentUserPerms["UserCanModifyGroup"])
 	{
 		echo CUtil::PhpToJsObject(Array('ERROR' => 'USER_GROUP_NO_PERMS'));
@@ -149,7 +151,10 @@ if (check_bitrix_sessid())
 		elseif ($action == 'ADDMODERATOR')
 		{
 			$error = false;
-			$arUserPerms = CSocNetUserToGroup::initUserPerms($USER->getId(), $arGroup, CSocNetUser::IsCurrentUserModuleAdmin());
+			$arUserPerms = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
+				'groupId' => $arGroup['ID'],
+			]);
+
 			if (!$arUserPerms["UserCanModifyGroup"])
 			{
 				$error = true;

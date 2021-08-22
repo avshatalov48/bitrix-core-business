@@ -15,6 +15,19 @@ use Bitrix\Sender\Internals\Model;
  * Class ReadTable
  *
  * @package Bitrix\Sender\Internals\Model\Posting
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Read_Query query()
+ * @method static EO_Read_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Read_Result getById($id)
+ * @method static EO_Read_Result getList(array $parameters = array())
+ * @method static EO_Read_Entity getEntity()
+ * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Read createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Read_Collection createCollection()
+ * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Read wakeUpObject($row)
+ * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Read_Collection wakeUpCollection($rows)
  */
 class ReadTable extends Main\Entity\DataManager
 {

@@ -11,11 +11,14 @@ export class IblockProductList
 	grid;
 	variations = new Map();
 	variationsEditData = new Map();
+	editedVariations = new Map();
+	morePhotoChangedInputs = new Map();
 
 	onSettingsWindowSaveHandler = this.handleOnSettingsWindowSave.bind(this);
 	onChangeVariationHandler = this.handleOnChangeVariation.bind(this);
 	onBeforeGridRequestHandler = this.handleOnBeforeGridRequest.bind(this);
 	onFilterApplyHandler = this.handleOnFilterApply.bind(this);
+	onSaveImageHandler = this.handleOnSaveImage.bind(this);
 
 	constructor(options = {})
 	{
@@ -33,6 +36,7 @@ export class IblockProductList
 		EventEmitter.subscribe('SkuProperty::onChange', this.onChangeVariationHandler);
 		EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
 		EventEmitter.subscribe('BX.Main.Filter:apply', this.onFilterApplyHandler);
+		EventEmitter.subscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
 	}
 
 	addCustomClassToGrid()
@@ -59,12 +63,15 @@ export class IblockProductList
 	{
 		this.variations.clear();
 		this.variationsEditData.clear();
+		this.editedVariations.clear();
+		this.morePhotoChangedInputs.clear();
 	}
 
 	clearVariationCache(variationId)
 	{
 		this.variations.delete(variationId);
 		this.variationsEditData.delete(variationId);
+		this.editedVariations.delete(variationId);
 	}
 
 	/**
@@ -98,6 +105,25 @@ export class IblockProductList
 			return;
 		}
 
+		const productRow = this.getProductRow(productId);
+
+		if (productRow.isEdit())
+		{
+			const values = this.getEditedVariationValues(productRow);
+			const currentVariationId = this.getCurrentVariationIdByProduct(productId);
+			this.editedVariations.set(currentVariationId, values);
+		}
+
+		if (productRow.isEdit() && this.editedVariations.has(variationId))
+		{
+			const editData = Object.assign(productRow.getEditData(), this.editedVariations.get(variationId));
+			productRow.setEditData(editData);
+			productRow.editCancel();
+			productRow.edit();
+			this.productVariationMap[productId] = variationId;
+			return;
+		}
+
 		this.getVariation(productId, variationId)
 			.then((variationNode) => {
 				this.updateProductRow(productId, variationId, variationNode);
@@ -105,8 +131,61 @@ export class IblockProductList
 			});
 	}
 
+	getEditedVariationValues(row: BX.Grid.Row)
+	{
+		const currentEditorValues = row.getEditorValue();
+		const headRow = this.getHeadRow();
+		const values = {};
+		let morePhotoHtml = null;
+		[...row.getCells()].forEach((cell, index) => {
+			const cellName = headRow.getCellNameByCellIndex(index);
+			if (cellName !== 'MORE_PHOTO')
+			{
+				return;
+			}
+			const editorContainer = row.getEditorContainer(cell);
+			if (editorContainer)
+			{
+				const imageBlock = editorContainer.querySelector('.catalog-image-input-wrapper');
+				const id = imageBlock.id;
+				if (this.morePhotoChangedInputs.has(id))
+				{
+					morePhotoHtml = this.morePhotoChangedInputs.get(id);
+				}
+				else
+				{
+					morePhotoHtml = imageBlock.outerHTML;
+				}
+			}
+		});
+
+		for (let name in currentEditorValues)
+		{
+			if (!currentEditorValues.hasOwnProperty(name) || !this.variationFieldNames.includes(name))
+			{
+				continue;
+			}
+
+			if (name === 'MORE_PHOTO' && !Type.isNil(morePhotoHtml))
+			{
+				values[name] = morePhotoHtml;
+			}
+			else
+			{
+				values[name] = currentEditorValues[name];
+			}
+		}
+
+		return values;
+	}
+
 	getVariation(productId, variationId)
 	{
+		if (this.getProductRow(productId).isEdit() && this.editedVariations.has(variationId))
+		{
+			return Promise.resolve(this.editedVariations.get(variationId))
+		}
+
 		if (this.variations.has(variationId))
 		{
 			return Promise.resolve(this.variations.get(variationId))
@@ -195,7 +274,7 @@ export class IblockProductList
 				let columnCell = productRow.getCellByIndex(index);
 				if (columnCell)
 				{
-					const cellHtml = productRow.getContentContainer(cell).innerHTML;
+					let cellHtml = productRow.getContentContainer(cell).innerHTML;
 					productRow.getContentContainer(columnCell).innerHTML = cellHtml;
 					fields[cellName] = cellHtml;
 				}
@@ -210,7 +289,6 @@ export class IblockProductList
 		{
 			productRow.resetEditData();
 			this.variationsEditData.set(variationId, productRow.getEditData());
-
 		}
 
 		if (productRow.isEdit())
@@ -233,6 +311,35 @@ export class IblockProductList
 
 		if (submitData.FIELDS)
 		{
+			this.editedVariations.forEach((editFields, variationId) => {
+				const rowId = this.getRowIdByProductId(variationId);
+				submitData.FIELDS[rowId] = submitData.FIELDS[rowId] || {};
+				Object.keys(editFields).map((cellName) => {
+					if (cellName.indexOf('CATALOG_GROUP_') >= 0)
+					{
+						const groupPriceId = cellName.replace('CATALOG_GROUP_', '');
+						if (!Type.isNil(editFields[cellName]['PRICE']))
+						{
+							submitData['CATALOG_PRICE'] = submitData['CATALOG_PRICE'] || {};
+							submitData['CATALOG_PRICE'][variationId] = submitData['CATALOG_PRICE'][variationId] || {};
+							submitData['CATALOG_PRICE'][variationId][groupPriceId] = editFields[cellName]['PRICE']['VALUE'];
+						}
+						if (!Type.isNil(editFields[cellName]['CURRENCY']))
+						{
+							submitData['CATALOG_CURRENCY'] = submitData['CATALOG_CURRENCY'] || {};
+							submitData['CATALOG_CURRENCY'][variationId] = submitData['CATALOG_CURRENCY'][variationId] || {};
+							submitData['CATALOG_CURRENCY'][variationId][groupPriceId] = editFields[cellName]['CURRENCY']['VALUE'];
+						}
+					}
+					else if (cellName !== 'MORE_PHOTO' && cellName !== 'MORE_PHOTO_custom')
+					{
+						submitData.FIELDS[rowId][cellName] = editFields[cellName];
+					}
+				});
+
+				this.clearVariationCache(variationId);
+			});
+
 			for (let rowId in submitData.FIELDS)
 			{
 				if (!submitData.FIELDS.hasOwnProperty(rowId))
@@ -292,6 +399,8 @@ export class IblockProductList
 					}
 				}
 			}
+
+			this.morePhotoChangedInputs.clear();
 		}
 	}
 
@@ -329,6 +438,12 @@ export class IblockProductList
 
 			this.setNewProductButtonHrefSectionId(sectionId);
 		}
+	}
+
+	handleOnSaveImage(event: BaseEvent)
+	{
+		const [id, inputId, response] = event.getData();
+		this.morePhotoChangedInputs.set(id, response.data.input);
 	}
 
 	getFilterFields(filter: BX.Main.Filter)

@@ -223,6 +223,7 @@ class QueryBuilder
 	 */
 	private function fillWhere(&$where, &$hasAdditionalFilters, &$toUnset, &$filter)
 	{
+		$countUnset = count($toUnset);
 		$properties = null;
 		foreach ($filter as $filterKey => $filterValue)
 		{
@@ -442,6 +443,13 @@ class QueryBuilder
 			)
 			{
 				$hasAdditionalFilters = true;
+			}
+		}
+		if ($hasAdditionalFilters)
+		{
+			while (count($toUnset) > $countUnset)
+			{
+				array_pop($toUnset);
 			}
 		}
 	}

@@ -6,14 +6,11 @@ IncludeModuleLangFile(__FILE__);
 class CIBlockFormatProperties
 {
 	private static $b24Installed = null;
-	private static $statisticInstalled = null;
 
 	public static function GetDisplayValue($arItem, $arProperty, $event1 = '')
 	{
 		if (self::$b24Installed === null)
 			self::$b24Installed = ModuleManager::isModuleInstalled('bitrix24');
-		if (self::$statisticInstalled === null)
-			self::$statisticInstalled = ModuleManager::isModuleInstalled('statistic');
 
 		/** @var array $arUserTypeFormat */
 		$arUserTypeFormat = false;
@@ -123,28 +120,19 @@ class CIBlockFormatProperties
 				if($arFile = CFile::GetFileArray($val))
 				{
 					$arFiles[] = $arFile;
-					if(self::$statisticInstalled)
-						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("/bitrix/redirect.php?event1=".urlencode($event1)."&event2=".urlencode($arFile["SRC"])."&event3=".urlencode($arFile["ORIGINAL_NAME"])."&goto=".urlencode($arFile["SRC"])).'">'.GetMessage('IBLOCK_DOWNLOAD').'</a>';
-					else
-						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx($arFile["SRC"]).'">'.GetMessage('IBLOCK_DOWNLOAD').'</a>';
+					$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx($arFile["SRC"]).'">'.GetMessage('IBLOCK_DOWNLOAD').'</a>';
 				}
 			}
 			else
 			{
 				$trimmed = trim($val);
-				if (mb_strpos($trimmed, "http") === 0)
+				if (strpos($trimmed, "http") === 0)
 				{
-					if(self::$statisticInstalled)
-						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("/bitrix/redirect.php?event1=".urlencode($event1)."&event2=".urlencode($trimmed)."&event3=".urlencode($arItem["NAME"])."&goto=".urlencode($trimmed)).'">'.$trimmed.'</a>';
-					else
-						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx($trimmed).'">'.$trimmed.'</a>';
+					$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx($trimmed).'">'.$trimmed.'</a>';
 				}
-				elseif (mb_strpos($trimmed, "www") === 0)
+				elseif (strpos($trimmed, "www") === 0)
 				{
-					if(self::$statisticInstalled)
-						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("/bitrix/redirect.php?event1=".urlencode($event1)."&event2=".urlencode("http://".$trimmed)."&event3=".urlencode($arItem["NAME"])."&goto=".urlencode("http://".$trimmed)).'">'.$trimmed.'</a>';
-					else
-						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("http://".$trimmed).'">'.$trimmed.'</a>';
+					$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("http://".$trimmed).'">'.$trimmed.'</a>';
 				}
 				else
 					$arDisplayValue[] = $val;

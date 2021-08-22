@@ -47,6 +47,20 @@ class SegmentDataBuilderJob extends Job
 	}
 
 	/**
+	 * Remove agent from DB
+	 *
+	 * @param int $groupStateId
+	 *
+	 * @return bool
+	 */
+	public static function existsInDB(int $groupStateId): bool
+	{
+		return (new SegmentDataBuilderJob())->agentExists(
+			static::getAgentName((int)$groupStateId)
+		);
+	}
+
+	/**
 	 * get timeline agent name
 	 *
 	 * @param int $groupStateId

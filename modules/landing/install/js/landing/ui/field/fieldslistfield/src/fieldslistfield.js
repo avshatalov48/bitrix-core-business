@@ -316,10 +316,105 @@ export class FieldsListField extends BaseField
 		return Promise.resolve(listItem);
 	}
 
+	createCustomPriceDropdown(field)
+	{
+		return new BX.Landing.UI.Field.Dropdown({
+			id: 'customPrice',
+			selector: 'customPrice',
+			items: [
+				{name: Loc.getMessage('LANDING_FIELDS_LIST_FIELD_PRODUCTS_ALLOW_CUSTOM_PRICE_NOT_SELECTED'), value: null},
+				...(field.items.map((item) => {
+					return {name: item.label, value: item.value};
+				})),
+			],
+			content: field.items.reduce((acc, item) => {
+				if (item.changeablePrice && acc === null)
+				{
+					return item.value;
+				}
+
+				return acc;
+			}, null),
+		});
+	}
+
 	// eslint-disable-next-line class-methods-use-this
 	createFieldSettingsForm(field)
 	{
 		const fields = [];
+		const form = new FormSettingsForm({
+			serializeModifier(value) {
+				const modifiedValue = {...value};
+				if (Reflect.has(value, 'label'))
+				{
+					modifiedValue.label = Text.decode(value.label);
+				}
+
+				if (Reflect.has(value, 'required'))
+				{
+					modifiedValue.required = value.required.includes('required');
+				}
+
+				if (Reflect.has(value, 'multiple'))
+				{
+					modifiedValue.multiple = value.multiple.includes('multiple');
+				}
+
+				if (Reflect.has(value, 'bigPic'))
+				{
+					modifiedValue.bigPic = value.bigPic.includes('bigPic');
+				}
+
+				if (Reflect.has(value, 'value') && Type.isArrayFilled(value.items))
+				{
+					modifiedValue.items = modifiedValue.items.map((item) => {
+						item.selected = (value.value === item.value);
+						return item;
+					});
+				}
+
+				if (Reflect.has(value, 'products'))
+				{
+					modifiedValue.items = Runtime.clone(value.products);
+					if (!Type.isPlainObject(modifiedValue.editing))
+					{
+						modifiedValue.editing = {};
+					}
+
+					modifiedValue.editing.catalog = Runtime.clone(value.products);
+				}
+
+				if (Reflect.has(value, 'valueType'))
+				{
+					if (!Type.isPlainObject(modifiedValue.editing))
+					{
+						modifiedValue.editing = {};
+					}
+
+					if (!Type.isPlainObject(modifiedValue.editing.editable))
+					{
+						modifiedValue.editing.editable = {};
+					}
+
+					modifiedValue.editing.editable.valueType = value.valueType;
+				}
+
+				if (Type.isArray(value.useCustomPrice))
+				{
+					modifiedValue.items.forEach((item) => {
+						item.changeablePrice = (
+							value.useCustomPrice.includes('useCustomPrice')
+							&& String(item.value) === String(value.customPrice)
+						);
+					});
+
+					delete modifiedValue.customPrice;
+					delete modifiedValue.useCustomPrice;
+				}
+
+				return modifiedValue;
+			},
+		});
 
 		if (field.type === 'product')
 		{
@@ -329,6 +424,35 @@ export class FieldsListField extends BaseField
 					selector: 'products',
 					items: field.editing.catalog || [],
 					iblockId: this.options.dictionary.catalog.id,
+					onChange: () => {
+						const oldCustomPrice = form.fields.get('customPrice');
+						const newCustomPrice = this.createCustomPriceDropdown({
+							...field,
+							items: form.serialize().items,
+						});
+
+						const useCustomPrice = field.items.some((item) => {
+							return item.changeablePrice;
+						});
+
+						const useCustomPriceField = form.fields.get('useCustomPrice');
+
+						if (useCustomPrice || useCustomPriceField.getValue().includes('useCustomPrice'))
+						{
+							Dom.style(newCustomPrice.getLayout(), 'display', null);
+						}
+						else
+						{
+							Dom.style(newCustomPrice.getLayout(), 'display', 'none');
+						}
+
+						newCustomPrice.setValue(oldCustomPrice.getValue());
+
+						form.replaceField(
+							oldCustomPrice,
+							newCustomPrice,
+						);
+					},
 				}),
 			);
 		}
@@ -406,6 +530,51 @@ export class FieldsListField extends BaseField
 					value: field.bigPic ? ['bigPic'] : [],
 				}),
 			);
+
+			const useCustomPrice = field.items.some((item) => {
+				return item.changeablePrice;
+			});
+
+			const customPriceField = this.createCustomPriceDropdown(field);
+			if (useCustomPrice)
+			{
+				Dom.style(customPriceField.getLayout(), 'display', null);
+			}
+			else
+			{
+				Dom.style(customPriceField.getLayout(), 'display', 'none');
+			}
+
+			fields.push(
+				new BX.Landing.UI.Field.Checkbox({
+					id: 'useCustomPrice',
+					selector: 'useCustomPrice',
+					compact: true,
+					items: [
+						{
+							name: Loc.getMessage('LANDING_FIELDS_LIST_FIELD_PRODUCTS_ALLOW_CUSTOM_PRICE'),
+							value: 'useCustomPrice',
+						},
+					],
+					value: useCustomPrice ? ['useCustomPrice'] : [],
+					onChange: (checkbox) => {
+						if (checkbox instanceof BaseField)
+						{
+							const customPriceField = form.fields.get('customPrice');
+							if (checkbox.getValue().includes('useCustomPrice'))
+							{
+								Dom.style(customPriceField.getLayout(), 'display', null);
+							}
+							else
+							{
+								Dom.style(customPriceField.getLayout(), 'display', 'none');
+							}
+						}
+					},
+				}),
+			);
+
+			fields.push(customPriceField);
 		}
 
 		if (
@@ -492,67 +661,11 @@ export class FieldsListField extends BaseField
 			);
 		}
 
-		return new FormSettingsForm({
-			fields,
-			serializeModifier(value) {
-				const modifiedValue = {...value};
-				if (Reflect.has(value, 'label'))
-				{
-					modifiedValue.label = Text.decode(value.label);
-				}
-
-				if (Reflect.has(value, 'required'))
-				{
-					modifiedValue.required = value.required.includes('required');
-				}
-
-				if (Reflect.has(value, 'multiple'))
-				{
-					modifiedValue.multiple = value.multiple.includes('multiple');
-				}
-
-				if (Reflect.has(value, 'bigPic'))
-				{
-					modifiedValue.bigPic = value.bigPic.includes('bigPic');
-				}
-
-				if (Reflect.has(value, 'value') && Type.isArrayFilled(value.items))
-				{
-					modifiedValue.items = modifiedValue.items.map((item) => {
-						item.selected = (value.value === item.value);
-						return item;
-					});
-				}
-
-				if (Reflect.has(value, 'products'))
-				{
-					modifiedValue.items = Runtime.clone(value.products);
-					if (!Type.isPlainObject(modifiedValue.editing))
-					{
-						modifiedValue.editing = {};
-					}
-
-					modifiedValue.editing.catalog = Runtime.clone(value.products);
-				}
-
-				if (Reflect.has(value, 'valueType'))
-				{
-					if (!Type.isPlainObject(modifiedValue.editing))
-					{
-						modifiedValue.editing = {};
-					}
-
-					if (!Type.isPlainObject(modifiedValue.editing.editable))
-					{
-						modifiedValue.editing.editable = {};
-					}
-
-					modifiedValue.editing.editable.valueType = value.valueType;
-				}
-
-				return modifiedValue;
-			},
+		fields.forEach((currentField) => {
+			form.addField(currentField);
 		});
+
+		return form;
 	}
 
 	getListContainer(): HTMLDivElement
@@ -736,7 +849,7 @@ export class FieldsListField extends BaseField
 			event.preventDefault();
 			options.fieldController.showSettingsPopup();
 			setTimeout(() => {
-				options.fieldController.settingsPopup.subscribeOnce('onClose', () => {
+				options.fieldController.settingsPopupsettingsPopup.subscribeOnce('onClose', () => {
 					options.sourceOptions.booking.settings_data = options.fieldController.getSettings().data;
 
 					// eslint-disable-next-line camelcase

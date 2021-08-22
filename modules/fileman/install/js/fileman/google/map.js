@@ -168,8 +168,11 @@
 					}
 			}.bind(this));
 		}
-
-		this.infoWindow.open(this.map.getGoogleMap(), this.marker);
+		this.infoWindow.open({
+			anchor: this.marker,
+			map: this.map.getGoogleMap(),
+			shouldFocus: false,
+		});
 	};
 
 	BX.Fileman.Google.Point.prototype.moveTo = function(latLng)

@@ -33,10 +33,7 @@ if ($arParams["SHOW_WEBDAV"] == "Y")
 
 if ($arParams["PERMISSION"] >= "W" && $arParams["CHECK_CREATOR"] != "Y" && $arResult["VARIABLES"]["PAGE_NAME"] == "SECTIONS")
 {
-//	$result = CSocNetUserToGroup::InitUserPerms($GLOBALS["USER"]->GetId(), $arGroup, CSocNetUser::IsCurrentUserModuleAdmin()); 
-//	if ($result["UserCanModerateGroup"] === true)
-//	{
-		$bNeedButton = ($arParams["OBJECT"]->workflow == "bizproc"); 
+		$bNeedButton = ($arParams["OBJECT"]->workflow == "bizproc");
 		if ($arParams["OBJECT"]->workflow == "bizproc_limited")
 		{
 			$bNeedButton = (CIBlock::GetArrayByID($arParams["OBJECT"]->IBLOCK_ID, "BIZPROC") != "N"); 
@@ -54,7 +51,6 @@ if ($arParams["PERMISSION"] >= "W" && $arParams["CHECK_CREATOR"] != "Y" && $arRe
 				)),
 				"ICON" => "btn-list settings"); 
 		}
-//	}
 }
 
 ?><?$result = $APPLICATION->IncludeComponent("bitrix:webdav.menu", ".default", Array(

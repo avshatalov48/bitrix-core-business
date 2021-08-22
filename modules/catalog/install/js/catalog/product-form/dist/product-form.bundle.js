@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,ui_notification,currency,ui_layoutForm,ui_forms,ui_buttons,catalog_productSelector,ui_common,ui_alerts,ui_vue_vuex,main_popup,main_core,ui_vue,main_core_events,currency_currencyCore,catalog_productCalculator) {
+(function (exports,currency,ui_layoutForm,ui_forms,ui_buttons,ui_common,ui_alerts,catalog_productSelector,ui_entitySelector,ui_vue_vuex,ui_vue,main_popup,main_core,main_loader,ui_label,ui_messagecard,ui_vue_components_hint,ui_notification,ui_infoHelper,main_qrcode,clipboard,helper,main_core_events,currency_currencyCore,catalog_productCalculator) {
 	'use strict';
 
 	var FormElementPosition = function FormElementPosition() {
@@ -222,7 +222,8 @@ this.BX = this.BX || {};
 	          measureRatio: 1,
 	          isCustomPrice: 'N',
 	          additionalFields: [],
-	          properties: []
+	          properties: [],
+	          brands: []
 	        },
 	        calculatedFields: [],
 	        showDiscount: 'N',
@@ -244,20 +245,366 @@ this.BX = this.BX || {};
 	  databaseConfig: {
 	    name: 'catalog.product-form'
 	  },
-	  templateName: 'bx-product-form',
-	  templateProductAddName: 'bx-product-add',
-	  templateProductRowName: 'bx-product-form-row',
+	  templateName: 'bx-form',
+	  templatePanelButtons: 'bx-panel-buttons',
+	  templatePanelCompilation: 'bx-panel-compilation',
+	  templateRowName: 'bx-form-row',
+	  templateFieldInlineSelector: 'bx-field-inline-selector',
+	  templateFieldPrice: 'bx-field-price',
+	  templateFieldQuantity: 'bx-field-quantity',
+	  templateFieldDiscount: 'bx-field-discount',
+	  templateFieldTax: 'bx-field-tax',
+	  templateFieldBrand: 'bx-field-brand',
 	  moduleId: 'catalog'
 	});
 
-	ui_vue.Vue.component(config.templateProductRowName, {
+	var FormInputCode = function FormInputCode() {
+	  babelHelpers.classCallCheck(this, FormInputCode);
+	};
+	babelHelpers.defineProperty(FormInputCode, "PRODUCT_SELECTOR", 'product-selector');
+	babelHelpers.defineProperty(FormInputCode, "IMAGE_EDITOR", 'image-editor');
+	babelHelpers.defineProperty(FormInputCode, "QUANTITY", 'quantity');
+	babelHelpers.defineProperty(FormInputCode, "PRICE", 'price');
+	babelHelpers.defineProperty(FormInputCode, "RESULT", 'result');
+	babelHelpers.defineProperty(FormInputCode, "DISCOUNT", 'discount');
+	babelHelpers.defineProperty(FormInputCode, "TAX", 'tax');
+	babelHelpers.defineProperty(FormInputCode, "BRAND", 'brand');
+
+	var FormErrorCode = function FormErrorCode() {
+	  babelHelpers.classCallCheck(this, FormErrorCode);
+	};
+	babelHelpers.defineProperty(FormErrorCode, "EMPTY_PRODUCT_SELECTOR", 0);
+	babelHelpers.defineProperty(FormErrorCode, "EMPTY_IMAGE", 1);
+	babelHelpers.defineProperty(FormErrorCode, "EMPTY_QUANTITY", 2);
+	babelHelpers.defineProperty(FormErrorCode, "EMPTY_PRICE", 3);
+	babelHelpers.defineProperty(FormErrorCode, "EMPTY_BRAND", 4);
+
+	var FormMode = function FormMode() {
+	  babelHelpers.classCallCheck(this, FormMode);
+	};
+	babelHelpers.defineProperty(FormMode, "REGULAR", 'REGULAR');
+	babelHelpers.defineProperty(FormMode, "READ_ONLY", 'READ_ONLY');
+	babelHelpers.defineProperty(FormMode, "COMPILATION", 'COMPILATION');
+
+	ui_vue.Vue.component(config.templateFieldQuantity, {
 	  /**
-	   * @emits 'changeProduct' {index: number, fields: object}
-	   * @emits 'changeRowData' {index: number, fields: object}
-	   * @emits 'refreshBasket'
-	   * @emits 'removeItem' {index: number}
+	   * @emits 'changeQuantity' {quantity: number}
+	   * @emits 'changeMeasure' {quantity: number, }
 	   */
-	  props: ['basketItem', 'basketItemIndex', 'countItems', 'options', 'editable'],
+	  props: {
+	    measureCode: Number,
+	    measureRatio: Number,
+	    measureName: String,
+	    quantity: Number,
+	    editable: Boolean,
+	    hasError: Boolean,
+	    options: Object
+	  },
+	  created: function created() {
+	    this.onInputQuantityHandler = main_core.Runtime.debounce(this.onInputQuantity, 500, this);
+	  },
+	  methods: {
+	    onInputQuantity: function onInputQuantity(event) {
+	      if (!this.editable) {
+	        return;
+	      }
+
+	      event.target.value = event.target.value.replace(/[^.\d]/g, '.');
+	      var newQuantity = parseFloat(event.target.value);
+	      var lastSymbol = event.target.value.substr(-1);
+
+	      if (lastSymbol === '.') {
+	        return;
+	      }
+
+	      this.changeQuantity(newQuantity);
+	    },
+	    calculateCorrectionFactor: function calculateCorrectionFactor(quantity, measureRatio) {
+	      var factoredQuantity = quantity;
+	      var factoredRatio = measureRatio;
+	      var correctionFactor = 1;
+
+	      while (!(Number.isInteger(factoredQuantity) && Number.isInteger(factoredRatio))) {
+	        correctionFactor *= 10;
+	        factoredQuantity = quantity * correctionFactor;
+	        factoredRatio = measureRatio * correctionFactor;
+	      }
+
+	      return correctionFactor;
+	    },
+	    incrementValue: function incrementValue() {
+	      if (!this.editable) {
+	        return;
+	      }
+
+	      var correctionFactor = this.calculateCorrectionFactor(this.quantity, this.measureRatio);
+	      var quantity = (this.quantity * correctionFactor + this.measureRatio * correctionFactor) / correctionFactor;
+	      this.changeQuantity(quantity);
+	    },
+	    decrementValue: function decrementValue() {
+	      if (this.quantity > this.measureRatio && this.editable) {
+	        var correctionFactor = this.calculateCorrectionFactor(this.quantity, this.measureRatio);
+	        var quantity = (this.quantity * correctionFactor - this.measureRatio * correctionFactor) / correctionFactor;
+	        this.changeQuantity(quantity);
+	      }
+	    },
+	    changeQuantity: function changeQuantity(value) {
+	      this.$emit('changeQuantity', value);
+	    },
+	    showPopupMenu: function showPopupMenu(target) {
+	      var _this = this;
+
+	      if (!this.editable || !main_core.Type.isArray(this.options.measures)) {
+	        return;
+	      }
+
+	      var menuItems = [];
+	      this.options.measures.forEach(function (item) {
+	        menuItems.push({
+	          text: item.SYMBOL,
+	          item: item,
+	          onclick: _this.changeMeasure
+	        });
+	      });
+
+	      if (menuItems.length > 0) {
+	        this.popupMenu = new main_popup.Menu({
+	          bindElement: target,
+	          items: menuItems
+	        });
+	        this.popupMenu.show();
+	      }
+	    },
+	    changeMeasure: function changeMeasure(event, params) {
+	      this.$emit('changeMeasure', {
+	        code: param.options.item.CODE,
+	        name: param.options.item.SYMBOL
+	      });
+
+	      if (this.popupMenu) {
+	        this.popupMenu.close();
+	      }
+	    }
+	  },
+	  // language=Vue
+	  template: "\n\t\t<div class=\"catalog-pf-product-input-wrapper\" v-bind:class=\"{ 'ui-ctl-danger': hasError }\">\n\t\t\t<input \t\n\t\t\t\ttype=\"text\" class=\"catalog-pf-product-input\"\n\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t:value=\"quantity\"\n\t\t\t\t@input=\"onInputQuantity\"\n\t\t\t\t:disabled=\"!editable\"\n\t\t\t>\n\t\t\t<div \n\t\t\t\tclass=\"catalog-pf-product-input-info catalog-pf-product-input-info--action\" \n\t\t\t\t@click=\"showPopupMenu($event.target)\"\n\t\t\t>\n\t\t\t\t<span>{{ measureName }}</span>\n\t\t\t</div>\n\t\t</div>\n\t"
+	});
+
+	ui_vue.Vue.component(config.templateFieldPrice, {
+	  /**
+	   * @emits 'changePrice' {price: number}
+	   */
+	  props: {
+	    basePrice: Number,
+	    editable: Boolean,
+	    hasError: Boolean,
+	    options: Object
+	  },
+	  created: function created() {
+	    this.onInputPriceHandler = main_core.Runtime.debounce(this.onInputPrice, 500, this);
+	  },
+	  methods: {
+	    onInputPrice: function onInputPrice(event) {
+	      if (!this.editable) {
+	        return;
+	      }
+
+	      event.target.value = event.target.value.replace(/[^.,\d]/g, '');
+
+	      if (event.target.value === '') {
+	        event.target.value = 0;
+	      }
+
+	      var lastSymbol = event.target.value.substr(-1);
+
+	      if (lastSymbol === ',') {
+	        event.target.value = event.target.value.replace(',', ".");
+	      }
+
+	      var newPrice = parseFloat(event.target.value);
+
+	      if (newPrice < 0 || lastSymbol === '.' || lastSymbol === ',') {
+	        return;
+	      }
+
+	      this.$emit('changePrice', newPrice);
+	    }
+	  },
+	  computed: {
+	    localize: function localize() {
+	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
+	    },
+	    currencySymbol: function currencySymbol() {
+	      return this.options.currencySymbol || '';
+	    }
+	  },
+	  // language=Vue
+	  template: "\n\t\t<div class=\"catalog-pf-product-input-wrapper\" v-bind:class=\"{ 'ui-ctl-danger': hasError }\">\n\t\t\t<input \ttype=\"text\" class=\"catalog-pf-product-input catalog-pf-product-input--align-right\"\n\t\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t\t:value=\"basePrice\"\n\t\t\t\t\t@input=\"onInputPriceHandler\"\n\t\t\t\t\t:disabled=\"!editable\">\n\t\t\t<div class=\"catalog-pf-product-input-info\" v-html=\"currencySymbol\"></div>\n\t\t</div>\n\t"
+	});
+
+	ui_vue.Vue.component(config.templateFieldDiscount, {
+	  /**
+	   * @emits 'changeDiscountType' {type: Y|N}
+	   * @emits 'changeDiscount' {discountValue: number}
+	   */
+	  props: {
+	    editable: Boolean,
+	    options: Object,
+	    discount: Number,
+	    discountType: Number,
+	    discountRate: Number
+	  },
+	  created: function created() {
+	    this.onInputDiscount = main_core.Runtime.debounce(this.onChangeDiscount, 500, this);
+	    this.currencySymbol = this.options.currencySymbol;
+	  },
+	  methods: {
+	    onChangeType: function onChangeType(event, params) {
+	      var _params$options;
+
+	      if (!this.editable) {
+	        return;
+	      }
+
+	      var type = main_core.Text.toNumber(params === null || params === void 0 ? void 0 : (_params$options = params.options) === null || _params$options === void 0 ? void 0 : _params$options.type) === catalog_productCalculator.DiscountType.MONETARY ? catalog_productCalculator.DiscountType.MONETARY : catalog_productCalculator.DiscountType.PERCENTAGE;
+	      this.$emit('changeDiscountType', type);
+
+	      if (this.popupMenu) {
+	        this.popupMenu.close();
+	      }
+	    },
+	    onChangeDiscount: function onChangeDiscount(event) {
+	      var discountValue = main_core.Text.toNumber(event.target.value) || 0;
+
+	      if (discountValue === main_core.Text.toNumber(this.discount) || !this.editable) {
+	        return;
+	      }
+
+	      this.$emit('changeDiscount', discountValue);
+	    },
+	    showPopupMenu: function showPopupMenu(target) {
+	      if (!this.editable || !main_core.Type.isArray(this.options.allowedDiscountTypes)) {
+	        return;
+	      }
+
+	      var menuItems = [];
+
+	      if (this.options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.PERCENTAGE)) {
+	        menuItems.push({
+	          text: '%',
+	          onclick: this.onChangeType,
+	          type: catalog_productCalculator.DiscountType.PERCENTAGE
+	        });
+	      }
+
+	      if (this.options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.MONETARY)) {
+	        menuItems.push({
+	          text: this.currencySymbol,
+	          onclick: this.onChangeType,
+	          type: catalog_productCalculator.DiscountType.MONETARY
+	        });
+	      }
+
+	      if (menuItems.length > 0) {
+	        this.popupMenu = new main_popup.Menu({
+	          bindElement: target,
+	          items: menuItems
+	        });
+	        this.popupMenu.show();
+	      }
+	    }
+	  },
+	  computed: {
+	    getDiscountInputValue: function getDiscountInputValue() {
+	      if (main_core.Text.toNumber(this.discountType) === catalog_productCalculator.DiscountType.PERCENTAGE) {
+	        return main_core.Text.toNumber(this.discountRate);
+	      }
+
+	      return main_core.Text.toNumber(this.discount);
+	    },
+	    getDiscountSymbol: function getDiscountSymbol() {
+	      return main_core.Text.toNumber(this.discountType) === catalog_productCalculator.DiscountType.PERCENTAGE ? '%' : this.currencySymbol;
+	    }
+	  },
+	  // language=Vue
+	  template: "\n\t\t<div class=\"catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--left\">\n\t\t\t<input class=\"catalog-pf-product-input catalog-pf-product-input--align-right catalog-pf-product-input--right\"\n\t\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t\tref=\"discountInput\" \n\t\t\t\t\t:value=\"getDiscountInputValue\"\n\t\t\t\t\t@input=\"onInputDiscount\"\n\t\t\t\t\tplaceholder=\"0\"\n\t\t\t\t\t:disabled=\"!editable\">\n\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input-info--action\" \n\t\t\t\t@click=\"showPopupMenu\">\n\t\t\t\t<span v-html=\"getDiscountSymbol\"></span>\n\t\t\t</div>\n\t\t</div>\n\t"
+	});
+
+	ui_vue.Vue.component(config.templateFieldTax, {
+	  /**
+	   * @emits 'changeTax' {taxValue: number}
+	   */
+	  props: {
+	    taxId: Number,
+	    editable: Boolean,
+	    options: Object
+	  },
+	  data: function data() {
+	    return {
+	      taxValue: this.getTaxList()[this.taxId] || 0
+	    };
+	  },
+	  methods: {
+	    onChangeValue: function onChangeValue(event, params) {
+	      var _params$options, _params$options2;
+
+	      var taxValue = main_core.Text.toNumber(params === null || params === void 0 ? void 0 : (_params$options = params.options) === null || _params$options === void 0 ? void 0 : _params$options.item);
+
+	      if (taxValue === main_core.Text.toNumber(this.taxValue) || !this.editable) {
+	        return;
+	      }
+
+	      this.$emit('changeTax', {
+	        taxValue: taxValue,
+	        taxId: params === null || params === void 0 ? void 0 : (_params$options2 = params.options) === null || _params$options2 === void 0 ? void 0 : _params$options2.id
+	      });
+
+	      if (this.popupMenu) {
+	        this.popupMenu.close();
+	      }
+	    },
+	    getTaxList: function getTaxList() {
+	      return main_core.Type.isArray(this.options.taxList) ? this.options.taxList : [];
+	    },
+	    showPopupMenu: function showPopupMenu(target) {
+	      var _this = this;
+
+	      if (!this.editable || !main_core.Type.isArray(this.options.taxList)) {
+	        return;
+	      }
+
+	      var menuItems = [];
+	      this.options.taxList.forEach(function (item, id) {
+	        menuItems.push({
+	          id: id,
+	          text: item + '%',
+	          item: item,
+	          onclick: _this.onChangeValue
+	        });
+	      });
+
+	      if (menuItems.length > 0) {
+	        this.popupMenu = new main_popup.Menu({
+	          bindElement: target,
+	          items: menuItems
+	        });
+	        this.popupMenu.show();
+	      }
+	    }
+	  },
+	  // language=Vue
+	  template: "\n\t\t<div class=\"catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--right\" @click=\"showPopupMenu\">\n\t\t\t<div class=\"catalog-pf-product-input\">{{this.taxValue}}%</div>\n\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input-info--dropdown\"></div>\n\t\t</div>\n\t"
+	});
+
+	ui_vue.Vue.component(config.templateFieldInlineSelector, {
+	  /**
+	   * @emits 'onProductChange' {fields: object}
+	   */
+	  props: {
+	    editable: Boolean,
+	    options: Object,
+	    basketItem: Object
+	  },
 	  data: function data() {
 	    return {
 	      currencySymbol: null,
@@ -267,11 +614,295 @@ this.BX = this.BX || {};
 	    };
 	  },
 	  created: function created() {
+	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.onProductChange.bind(this));
+	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.onProductClear.bind(this));
+	  },
+	  mounted: function mounted() {
+	    this.productSelector = new catalog_productSelector.ProductSelector(this.selectorId, this.prepareSelectorParams());
+	    this.productSelector.renderTo(this.$refs.selectorWrapper);
+	  },
+	  methods: {
+	    prepareSelectorParams: function prepareSelectorParams() {
+	      var selectorOptions = {
+	        iblockId: this.options.iblockId,
+	        basePriceId: this.options.basePriceId,
+	        productId: this.getField('productId'),
+	        skuId: this.getField('skuId'),
+	        skuTree: this.getDefaultSkuTree(),
+	        fileInputId: '',
+	        morePhotoValues: [],
+	        fileInput: '',
+	        config: {
+	          DETAIL_PATH: this.basketItem.detailUrl || '',
+	          ENABLE_SEARCH: true,
+	          ENABLE_INPUT_DETAIL_LINK: true,
+	          ENABLE_IMAGE_CHANGE_SAVING: true,
+	          ENABLE_EMPTY_PRODUCT_ERROR: this.options.enableEmptyProductError || this.isRequiredField(FormInputCode.PRODUCT_SELECTOR),
+	          ENABLE_EMPTY_IMAGES_ERROR: this.isRequiredField(FormInputCode.IMAGE_EDITOR),
+	          ROW_ID: this.selectorId,
+	          ENABLE_SKU_SELECTION: this.editable,
+	          HIDE_UNSELECTED_ITEMS: this.options.hideUnselectedProperties,
+	          URL_BUILDER_CONTEXT: this.options.urlBuilderContext
+	        },
+	        mode: this.editable ? catalog_productSelector.ProductSelector.MODE_EDIT : catalog_productSelector.ProductSelector.MODE_VIEW,
+	        isSimpleModel: this.getField('name', '') !== '' && this.getField('productId') <= 0 && this.getField('skuId') <= 0,
+	        fields: {
+	          NAME: this.getField('name') || '',
+	          PRICE: this.getField('basePrice') || 0,
+	          CURRENCY: this.options.currency
+	        }
+	      };
+	      var formImage = this.basketItem.image;
+
+	      if (main_core.Type.isObject(formImage)) {
+	        selectorOptions.fileView = formImage.preview;
+	        selectorOptions.fileInput = formImage.input;
+	        selectorOptions.fileInputId = formImage.id;
+	        selectorOptions.morePhotoValues = formImage.values;
+	      }
+
+	      return selectorOptions;
+	    },
+	    isRequiredField: function isRequiredField(code) {
+	      return main_core.Type.isArray(this.options.requiredFields) && this.options.requiredFields.includes(code);
+	    },
+	    getDefaultSkuTree: function getDefaultSkuTree() {
+	      var skuTree = this.basketItem.skuTree || {};
+
+	      if (main_core.Type.isStringFilled(skuTree)) {
+	        skuTree = JSON.parse(skuTree);
+	      }
+
+	      return skuTree;
+	    },
+	    getField: function getField(name) {
+	      var defaultValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+	      return this.basketItem.fields[name] || defaultValue;
+	    },
+	    onProductChange: function onProductChange(event) {
+	      var data = event.getData();
+
+	      if (main_core.Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId()) {
+	        var basePrice = main_core.Text.toNumber(data.fields.PRICE);
+	        var fields = {
+	          BASE_PRICE: basePrice,
+	          MODULE: 'catalog',
+	          NAME: data.fields.NAME,
+	          ID: data.fields.ID,
+	          PRODUCT_ID: data.fields.PRODUCT_ID,
+	          SKU_ID: data.fields.SKU_ID,
+	          PROPERTIES: data.fields.PROPERTIES,
+	          URL_BUILDER_CONTEXT: this.options.urlBuilderContext,
+	          CUSTOMIZED: main_core.Type.isNil(data.fields.PRICE) ? 'Y' : 'N',
+	          MEASURE_CODE: data.fields.MEASURE_CODE,
+	          MEASURE_NAME: data.fields.MEASURE_NAME
+	        };
+	        this.$emit('onProductChange', fields);
+	      }
+	    },
+	    onProductClear: function onProductClear(event) {
+	      var data = event.getData();
+
+	      if (main_core.Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId()) {
+	        this.$emit('onProductClear');
+	      }
+	    }
+	  },
+	  // language=Vue
+	  template: "\n\t\t<div class=\"catalog-pf-product-item-section\" :id=\"selectorId\" ref=\"selectorWrapper\"></div>\n\t"
+	});
+
+	function _templateObject2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
+
+	  _templateObject2 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject() {
+	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
+
+	  _templateObject = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
+	ui_vue.Vue.component(config.templateFieldBrand, {
+	  /**
+	   * @emits 'changeBrand' {values: Array<any>}
+	   */
+	  props: {
+	    brands: [Array, String],
+	    options: Object,
+	    editable: Boolean,
+	    hasError: Boolean,
+	    selectorId: String
+	  },
+	  data: function data() {
+	    return {
+	      cache: new main_core.Cache.MemoryCache()
+	    };
+	  },
+	  created: function created() {
+	    this.selector = new ui_entitySelector.TagSelector({
+	      id: this.selectorId,
+	      dialogOptions: {
+	        id: this.selectorId,
+	        context: 'CATALOG_BRANDS',
+	        // enableSearch: true,
+	        preselectedItems: this.getPreselectedBrands(),
+	        events: {
+	          'Item:onSelect': this.onBrandChange.bind(this),
+	          'Item:onDeselect': this.onBrandChange.bind(this),
+	          'Search:onItemCreateAsync': this.createBrand.bind(this)
+	        },
+	        searchTabOptions: {
+	          stub: true,
+	          stubOptions: {
+	            title: main_core.Tag.message(_templateObject(), 'CATALOG_FORM_BRAND_SELECTOR_IS_EMPTY_TITLE'),
+	            subtitle: main_core.Tag.message(_templateObject2(), 'CATALOG_FORM_BRAND_SELECTOR_IS_EMPTY_SUBTITLE'),
+	            arrow: true
+	          }
+	        },
+	        searchOptions: {
+	          allowCreateItem: true
+	        },
+	        entities: [{
+	          id: 'brand',
+	          options: {
+	            iblockId: this.options.iblockId
+	          },
+	          dynamicSearch: true,
+	          dynamicLoad: true
+	        }]
+	      }
+	    });
+	  },
+	  mounted: function mounted() {
+	    this.selector.renderTo(this.$refs.brandSelectorWrapper);
+	  },
+	  methods: {
+	    getPreselectedBrands: function getPreselectedBrands() {
+	      if (!main_core.Type.isArray(this.brands) || this.brands.length === 0) {
+	        return [];
+	      }
+
+	      return this.brands.map(function (item) {
+	        return ['brand', item];
+	      });
+	    },
+	    onBrandChange: function onBrandChange(event) {
+	      var items = event.getTarget().getSelectedItems();
+	      var resultValues = [];
+
+	      if (main_core.Type.isArray(items)) {
+	        items.forEach(function (item) {
+	          resultValues.push(item.getId());
+	        });
+	      }
+
+	      this.$emit('changeBrand', resultValues);
+	    },
+	    createBrand: function createBrand(event) {
+	      var _event$getData = event.getData(),
+	          searchQuery = _event$getData.searchQuery;
+
+	      var iblockId = this.options.iblockId;
+	      return new Promise(function (resolve, reject) {
+	        var dialog = event.getTarget();
+	        var fields = {
+	          name: searchQuery.getQuery(),
+	          iblockId: iblockId
+	        };
+	        dialog.showLoader();
+	        main_core.ajax.runAction('catalog.productForm.createBrand', {
+	          data: {
+	            fields: fields
+	          }
+	        }).then(function (response) {
+	          dialog.hideLoader();
+	          var item = dialog.addItem({
+	            id: response.data.id,
+	            entityId: 'brand',
+	            title: searchQuery.getQuery(),
+	            tabs: dialog.getRecentTab().getId()
+	          });
+
+	          if (item) {
+	            item.select();
+	          }
+
+	          dialog.hide();
+	          resolve();
+	        }).catch(function () {
+	          return reject();
+	        });
+	      });
+	    }
+	  },
+	  computed: {
+	    localize: function localize() {
+	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
+	    }
+	  },
+	  // language=Vue
+	  template: "\n\t\t<div class=\"catalog-pf-product-control ui-ctl-w100\" v-bind:class=\"{ 'ui-ctl-danger': hasError }\">\n\t\t\t<div class=\"catalog-pf-product-input-wrapper\" ref=\"brandSelectorWrapper\" :id=\"selectorId\"></div>\n\t\t</div>\n\t"
+	});
+
+	var FormCompilationType = function FormCompilationType() {
+	  babelHelpers.classCallCheck(this, FormCompilationType);
+	};
+	babelHelpers.defineProperty(FormCompilationType, "REGULAR", 'REGULAR');
+	babelHelpers.defineProperty(FormCompilationType, "FACEBOOK", 'FACEBOOK');
+
+	ui_vue.Vue.component(config.templateRowName, {
+	  /**
+	   * @emits 'changeProduct' {index: number, fields: object}
+	   * @emits 'changeRowData' {index: number, fields: object}
+	   * @emits 'refreshBasket'
+	   * @emits 'removeItem' {index: number}
+	   */
+	  props: {
+	    basketItem: Object,
+	    basketItemIndex: Number,
+	    countItems: Number,
+	    options: Object,
+	    mode: String
+	  },
+	  data: function data() {
+	    return {
+	      currencySymbol: null,
+	      productSelector: null,
+	      imageControlId: null,
+	      selectorId: this.basketItem.selectorId,
+	      blocks: {
+	        productSelector: FormInputCode.PRODUCT_SELECTOR,
+	        quantity: FormInputCode.QUANTITY,
+	        price: FormInputCode.PRICE,
+	        result: FormInputCode.RESULT,
+	        discount: FormInputCode.DISCOUNT,
+	        tax: FormInputCode.TAX,
+	        brand: FormInputCode.BRAND
+	      },
+	      errorCodes: {
+	        emptyProductSelector: FormErrorCode.EMPTY_PRODUCT_SELECTOR,
+	        emptyImage: FormErrorCode.EMPTY_IMAGE,
+	        emptyQuantity: FormErrorCode.EMPTY_QUANTITY,
+	        emptyPrice: FormErrorCode.EMPTY_PRICE,
+	        emptyBrand: FormErrorCode.EMPTY_BRAND
+	      }
+	    };
+	  },
+	  created: function created() {
 	    var _this = this;
 
 	    var defaultFields = this.basketItem.fields;
 	    var defaultPrice = main_core.Text.toNumber(defaultFields.price);
-	    var basePrice = this.basketItem.fields.basePrice || defaultPrice;
+	    var basePrice = defaultFields.basePrice || defaultPrice;
 	    var calculatorFields = {
 	      'QUANTITY': main_core.Text.toNumber(defaultFields.quantity),
 	      'BASE_PRICE': basePrice,
@@ -315,15 +946,7 @@ this.BX = this.BX || {};
 	      });
 	    }
 
-	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.onProductChange.bind(this));
-	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.onProductClear.bind(this));
-	    this.onInputPrice = main_core.Runtime.debounce(this.changePrice, 500, this);
-	    this.onInputQuantity = main_core.Runtime.debounce(this.changeQuantity, 500, this);
 	    this.onInputDiscount = main_core.Runtime.debounce(this.changeDiscount, 500, this);
-	  },
-	  mounted: function mounted() {
-	    this.productSelector = new catalog_productSelector.ProductSelector(this.selectorId, this.prepareSelectorParams());
-	    this.productSelector.renderTo(this.$refs.selectorWrapper);
 	  },
 	  updated: function updated() {
 	    if (main_core.Type.isObject(this.basketItem.calculatedFields)) {
@@ -341,56 +964,6 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  methods: {
-	    prepareSelectorParams: function prepareSelectorParams() {
-	      var selectorOptions = {
-	        iblockId: this.options.iblockId,
-	        basePriceId: this.options.basePriceId,
-	        productId: this.getField('productId'),
-	        skuId: this.getField('skuId'),
-	        skuTree: this.getDefaultSkuTree(),
-	        fileInputId: '',
-	        morePhotoValues: [],
-	        fileInput: '',
-	        imageValues: [],
-	        config: {
-	          DETAIL_PATH: this.basketItem.detailUrl || '',
-	          ENABLE_SEARCH: true,
-	          ENABLE_INPUT_DETAIL_LINK: true,
-	          ENABLE_IMAGE_CHANGE_SAVING: true,
-	          ENABLE_EMPTY_PRODUCT_ERROR: this.options.enableEmptyProductError,
-	          ROW_ID: this.selectorId,
-	          ENABLE_SKU_SELECTION: this.editable,
-	          HIDE_UNSELECTED_ITEMS: this.options.hideUnselectedProperties,
-	          URL_BUILDER_CONTEXT: this.options.urlBuilderContext
-	        },
-	        mode: this.editable ? catalog_productSelector.ProductSelector.MODE_EDIT : catalog_productSelector.ProductSelector.MODE_VIEW,
-	        isSimpleModel: this.getField('name', '') !== '' && this.getField('productId') <= 0 && this.getField('skuId') <= 0,
-	        fields: {
-	          NAME: this.getField('name') || '',
-	          PRICE: this.getField('basePrice') || 0,
-	          CURRENCY: this.options.currency
-	        }
-	      };
-	      var formImage = this.basketItem.image;
-
-	      if (main_core.Type.isObject(formImage)) {
-	        selectorOptions.fileView = formImage.preview;
-	        selectorOptions.fileInput = formImage.input;
-	        selectorOptions.fileInputId = formImage.id;
-	        selectorOptions.morePhotoValues = formImage.values;
-	      }
-
-	      return selectorOptions;
-	    },
-	    getDefaultSkuTree: function getDefaultSkuTree() {
-	      var skuTree = this.basketItem.skuTree || {};
-
-	      if (main_core.Type.isStringFilled(skuTree)) {
-	        skuTree = JSON.parse(skuTree);
-	      }
-
-	      return skuTree;
-	    },
 	    getField: function getField(name) {
 	      var defaultValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      return this.basketItem.fields[name] || defaultValue;
@@ -431,7 +1004,7 @@ this.BX = this.BX || {};
 	        productFields.priceExclusive = main_core.Text.toNumber(fields.PRICE);
 	      }
 
-	      if (main_core.Text.toNumber(fields.QUANTITY) > 0) {
+	      if (main_core.Text.toNumber(fields.QUANTITY) >= 0) {
 	        productFields.quantity = main_core.Text.toNumber(fields.QUANTITY);
 	      }
 
@@ -467,6 +1040,14 @@ this.BX = this.BX || {};
 	        productFields.properties = fields.PROPERTIES;
 	      }
 
+	      if (!main_core.Type.isNil(fields.BRANDS)) {
+	        productFields.brands = fields.BRANDS;
+	      }
+
+	      if (!main_core.Type.isNil(fields.TAX_ID)) {
+	        productFields.taxId = fields.TAX_ID;
+	      }
+
 	      this.changeRowData(map);
 	      this.changeProduct(productFields);
 	    },
@@ -483,145 +1064,83 @@ this.BX = this.BX || {};
 	        fields: fields
 	      });
 	    },
-	    onProductChange: function onProductChange(event) {
-	      var data = event.getData();
-
-	      if (main_core.Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId()) {
-	        var basePrice = main_core.Text.toNumber(data.fields.PRICE);
-	        var fields = {
-	          BASE_PRICE: basePrice,
-	          MODULE: 'catalog',
-	          NAME: data.fields.NAME,
-	          ID: data.fields.ID,
-	          PRODUCT_ID: data.fields.PRODUCT_ID,
-	          SKU_ID: data.fields.SKU_ID,
-	          PROPERTIES: data.fields.PROPERTIES,
-	          URL_BUILDER_CONTEXT: this.options.urlBuilderContext,
-	          CUSTOMIZED: main_core.Type.isNil(data.fields.PRICE) ? 'Y' : 'N',
-	          MEASURE_CODE: data.fields.MEASURE_CODE,
-	          MEASURE_NAME: data.fields.MEASURE_NAME
-	        };
-	        fields = Object.assign(this.getCalculator().calculatePrice(basePrice), fields);
-	        this.getCalculator().setFields(fields);
-	        this.setCalculatedFields(fields);
-	      }
+	    onProductChange: function onProductChange(fields) {
+	      fields = Object.assign(this.getCalculator().calculatePrice(fields.BASE_PRICE), fields);
+	      this.getCalculator().setFields(fields);
+	      this.setCalculatedFields(fields);
 	    },
-	    onProductClear: function onProductClear(event) {
-	      var data = event.getData();
-
-	      if (main_core.Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId()) {
-	        var fields = this.getCalculator().calculatePrice(0);
-	        fields.BASE_PRICE = 0;
-	        fields.NAME = '';
-	        fields.ID = 0;
-	        fields.PRODUCT_ID = 0;
-	        fields.SKU_ID = 0;
-	        fields.MODULE = '';
-	        this.getCalculator().setFields(fields);
-	        this.setCalculatedFields(fields);
-	      }
+	    onProductClear: function onProductClear() {
+	      var fields = this.getCalculator().calculatePrice(0);
+	      fields.BASE_PRICE = 0;
+	      fields.NAME = '';
+	      fields.ID = 0;
+	      fields.PRODUCT_ID = 0;
+	      fields.SKU_ID = 0;
+	      fields.MODULE = '';
+	      this.getCalculator().setFields(fields);
+	      this.setCalculatedFields(fields);
 	    },
 	    toggleDiscount: function toggleDiscount(value) {
 	      var _this2 = this;
 
-	      if (!this.editable) {
+	      if (this.isReadOnly) {
 	        return;
 	      }
 
 	      this.changeRowData({
 	        showDiscount: value
 	      });
-	      value === 'Y' ? setTimeout(function () {
-	        return _this2.$refs.discountInput.focus();
-	      }) : null;
+
+	      if (value === 'Y') {
+	        setTimeout(function () {
+	          var _this2$$refs, _this2$$refs$discount, _this2$$refs$discount2, _this2$$refs$discount3;
+
+	          return (_this2$$refs = _this2.$refs) === null || _this2$$refs === void 0 ? void 0 : (_this2$$refs$discount = _this2$$refs.discountWrapper) === null || _this2$$refs$discount === void 0 ? void 0 : (_this2$$refs$discount2 = _this2$$refs$discount.$refs) === null || _this2$$refs$discount2 === void 0 ? void 0 : (_this2$$refs$discount3 = _this2$$refs$discount2.discountInput) === null || _this2$$refs$discount3 === void 0 ? void 0 : _this2$$refs$discount3.focus();
+	        });
+	      }
 	    },
 	    toggleTax: function toggleTax(value) {
 	      this.changeRowData({
 	        showTax: value
 	      });
 	    },
-	    changeQuantity: function changeQuantity(event) {
-	      if (!this.editable) {
-	        return;
-	      }
-
-	      event.target.value = event.target.value.replace(/[^.\d]/g, '.');
-	      var newQuantity = parseFloat(event.target.value);
-	      var lastSymbol = event.target.value.substr(-1);
-
-	      if (!newQuantity || lastSymbol === '.') {
-	        return;
-	      }
-
-	      var calculatedFields = this.getCalculator().calculateQuantity(newQuantity);
-	      this.setCalculatedFields(calculatedFields);
-	      this.getCalculator().setFields(calculatedFields);
+	    changeBrand: function changeBrand(values) {
+	      var fields = this.getCalculator().getFields();
+	      fields.BRANDS = main_core.Type.isArray(values) ? values : [];
+	      this.setCalculatedFields(fields);
 	    },
-	    changePrice: function changePrice(event) {
-	      if (!this.editable) {
-	        return;
-	      }
-
-	      event.target.value = event.target.value.replace(/[^.,\d]/g, '');
-
-	      if (event.target.value === '') {
-	        event.target.value = 0;
-	      }
-
-	      var lastSymbol = event.target.value.substr(-1);
-
-	      if (lastSymbol === ',') {
-	        event.target.value = event.target.value.replace(',', ".");
-	      }
-
-	      var newPrice = parseFloat(event.target.value);
-
-	      if (newPrice < 0 || lastSymbol === '.' || lastSymbol === ',') {
-	        return;
-	      }
-
-	      var calculatedFields = this.getCalculator().calculatePrice(newPrice);
-	      calculatedFields.BASE_PRICE = newPrice;
-	      this.getCalculator().setFields(calculatedFields);
-	      this.setCalculatedFields(calculatedFields);
+	    processFields: function processFields(fields) {
+	      this.setCalculatedFields(fields);
+	      this.getCalculator().setFields(fields);
 	    },
-
-	    /**
-	     *
-	     * @param discountType {string}
-	     */
+	    changeQuantity: function changeQuantity(quantity) {
+	      this.processFields(this.getCalculator().calculateQuantity(quantity));
+	    },
+	    changeMeasure: function changeMeasure(measure) {
+	      var productFields = this.basketItem.fields;
+	      productFields['measureCode'] = measure.code;
+	      productFields['measureName'] = measure.name;
+	      this.changeProduct(productFields);
+	    },
+	    changePrice: function changePrice(price) {
+	      var calculatedFields = this.getCalculator().calculatePrice(price);
+	      calculatedFields.BASE_PRICE = price;
+	      this.processFields(calculatedFields);
+	    },
 	    changeDiscountType: function changeDiscountType(discountType) {
-	      if (!this.editable) {
-	        return;
-	      }
-
 	      var type = main_core.Text.toNumber(discountType) === catalog_productCalculator.DiscountType.MONETARY ? catalog_productCalculator.DiscountType.MONETARY : catalog_productCalculator.DiscountType.PERCENTAGE;
-	      var calculatedFields = this.getCalculator().calculateDiscountType(type);
-	      this.getCalculator().setFields(calculatedFields);
-	      this.setCalculatedFields(calculatedFields);
+	      this.processFields(this.getCalculator().calculateDiscountType(type));
 	    },
-	    changeDiscount: function changeDiscount(event) {
-	      var discountValue = main_core.Text.toNumber(event.target.value) || 0;
-
-	      if (discountValue === main_core.Text.toNumber(this.basketItem.discount) || !this.editable) {
-	        return;
-	      }
-
-	      var calculatedFields = this.getCalculator().calculateDiscount(discountValue);
-	      this.getCalculator().setFields(calculatedFields);
-	      this.setCalculatedFields(calculatedFields);
+	    changeDiscount: function changeDiscount(discount) {
+	      this.processFields(this.getCalculator().calculateDiscount(discount));
 	    },
-	    changeTax: function changeTax(taxValue) {
-	      if (taxValue === main_core.Text.toNumber(this.basketItem.tax) || !this.editable) {
-	        return;
-	      }
-
-	      var calculatedFields = this.getCalculator().calculateTax(taxValue);
-	      this.getCalculator().setFields(calculatedFields);
-	      this.setCalculatedFields(calculatedFields);
+	    changeTax: function changeTax(fields) {
+	      var calculatedFields = this.getCalculator().calculateTax(fields.taxValue);
+	      calculatedFields.TAX_ID = fields.taxId;
+	      this.processFields(calculatedFields);
 	    },
 	    changeTaxIncluded: function changeTaxIncluded(taxIncluded) {
-	      if (taxIncluded === this.basketItem.taxIncluded || !this.editable) {
+	      if (taxIncluded === this.basketItem.taxIncluded || !this.isEditableField(this.blocks.tax)) {
 	        return;
 	      }
 
@@ -634,140 +1153,26 @@ this.BX = this.BX || {};
 	        index: this.basketItemIndex
 	      });
 	    },
-	    openDiscountEditor: function openDiscountEditor(e, url) {
-	      if (!(window.top.BX.SidePanel && window.top.BX.SidePanel.Instance)) {
-	        return;
+	    isRequiredField: function isRequiredField(code) {
+	      return main_core.Type.isArray(this.options.requiredFields) && this.options.requiredFields.includes(code);
+	    },
+	    isVisibleBlock: function isVisibleBlock(code) {
+	      return main_core.Type.isArray(this.options.visibleBlocks) && this.options.visibleBlocks.includes(code);
+	    },
+	    hasError: function hasError(code) {
+	      if (this.basketItem.errors.length === 0) {
+	        return false;
 	      }
 
-	      window.top.BX.SidePanel.Instance.open(BX.util.add_url_param(url, {
-	        "IFRAME": "Y",
-	        "IFRAME_TYPE": "SIDE_SLIDER",
-	        "publicSidePanel": "Y"
-	      }), {
-	        allowChangeHistory: false
+	      var filteredErrors = this.basketItem.errors.filter(function (error) {
+	        return error.code === code;
 	      });
-	      e.preventDefault ? e.preventDefault() : e.returnValue = false;
+	      return filteredErrors.length > 0;
 	    },
-	    isEmptyProductName: function isEmptyProductName() {
-	      return this.basketItem.name.length === 0;
-	    },
-	    calculateCorrectionFactor: function calculateCorrectionFactor(quantity, measureRatio) {
-	      var factoredQuantity = quantity;
-	      var factoredRatio = measureRatio;
-	      var correctionFactor = 1;
+	    isEditableField: function isEditableField(code) {
+	      var _this$options;
 
-	      while (!(Number.isInteger(factoredQuantity) && Number.isInteger(factoredRatio))) {
-	        correctionFactor *= 10;
-	        factoredQuantity = quantity * correctionFactor;
-	        factoredRatio = measureRatio * correctionFactor;
-	      }
-
-	      return correctionFactor;
-	    },
-	    incrementQuantity: function incrementQuantity() {
-	      if (!this.editable) {
-	        return;
-	      }
-
-	      var correctionFactor = this.calculateCorrectionFactor(this.basketItem.quantity, this.basketItem.measureRatio);
-	      var quantity = (this.basketItem.quantity * correctionFactor + this.basketItem.measureRatio * correctionFactor) / correctionFactor;
-	      this.changeQuantity(quantity);
-	    },
-	    decrementQuantity: function decrementQuantity() {
-	      if (this.basketItem.quantity > this.basketItem.measureRatio && this.editable) {
-	        var correctionFactor = this.calculateCorrectionFactor(this.basketItem.quantity, this.basketItem.measureRatio);
-	        var quantity = (this.basketItem.quantity * correctionFactor - this.basketItem.measureRatio * correctionFactor) / correctionFactor;
-	        this.changeQuantity(quantity);
-	      }
-	    },
-	    showPopupMenu: function showPopupMenu(target, array, type) {
-	      var _this3 = this;
-
-	      if (!this.editable) {
-	        return;
-	      }
-
-	      var menuItems = [];
-
-	      var setItem = function setItem(ev, param) {
-	        if (type === 'tax') {
-	          _this3.changeTax(main_core.Text.toNumber(param.options.item));
-	        } else if (type === 'measures') {
-	          var productFields = _this3.basketItem.fields;
-	          productFields['measureCode'] = param.options.item.CODE;
-	          productFields['measureName'] = param.options.item.SYMBOL;
-
-	          _this3.changeProduct(productFields);
-	        } else {
-	          target.innerHTML = ev.target.innerHTML;
-
-	          if (type === 'discount') {
-	            _this3.changeDiscountType(param.options.type);
-	          }
-	        }
-
-	        _this3.popupMenu.close();
-	      };
-
-	      if (type === 'discount') {
-	        array = [];
-
-	        if (main_core.Type.isArray(this.options.allowedDiscountTypes)) {
-	          if (this.options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.PERCENTAGE)) {
-	            array[catalog_productCalculator.DiscountType.PERCENTAGE] = '%';
-	          }
-
-	          if (this.options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.MONETARY)) {
-	            array[catalog_productCalculator.DiscountType.MONETARY] = this.currencySymbol;
-	          }
-	        }
-	      }
-
-	      if (array) {
-	        for (var item in array) {
-	          var text = array[item];
-
-	          if (type === 'measures') {
-	            text = array[item].SYMBOL;
-	          } else if (type === 'tax') {
-	            text = text + '%';
-	          }
-
-	          menuItems.push({
-	            text: text,
-	            item: array[item],
-	            onclick: setItem.bind({
-	              value: 'settswguy'
-	            }),
-	            type: type === 'discount' ? item : null
-	          });
-	        }
-	      }
-
-	      if (menuItems.length > 0) {
-	        this.popupMenu = new main_popup.Menu({
-	          bindElement: target,
-	          items: menuItems
-	        });
-	        this.popupMenu.show();
-	      }
-	    },
-	    showProductTooltip: function showProductTooltip(e) {
-	      if (!this.productTooltip) {
-	        this.productTooltip = new main_popup.Popup({
-	          bindElement: e.target,
-	          maxWidth: 400,
-	          darkMode: true,
-	          innerHTML: e.target.value,
-	          animation: 'fading-slide'
-	        });
-	      }
-
-	      this.productTooltip.setContent(e.target.value);
-	      e.target.value.length > 0 ? this.productTooltip.show() : null;
-	    },
-	    hideProductTooltip: function hideProductTooltip() {
-	      this.productTooltip ? this.productTooltip.close() : null;
+	      return (_this$options = this.options) === null || _this$options === void 0 ? void 0 : _this$options.editableFields.includes(code);
 	    }
 	  },
 	  watch: {
@@ -784,27 +1189,20 @@ this.BX = this.BX || {};
 	    showDiscount: function showDiscount() {
 	      return this.showDiscountBlock && this.basketItem.showDiscount === 'Y';
 	    },
-	    getDiscountSymbol: function getDiscountSymbol() {
-	      return main_core.Text.toNumber(this.basketItem.fields.discountType) === catalog_productCalculator.DiscountType.PERCENTAGE ? '%' : this.currencySymbol;
-	    },
-	    getDiscountInputValue: function getDiscountInputValue() {
-	      if (main_core.Text.toNumber(this.basketItem.fields.discountType) === catalog_productCalculator.DiscountType.PERCENTAGE) {
-	        return main_core.Text.toNumber(this.basketItem.fields.discountRate);
-	      }
-
-	      return main_core.Text.toNumber(this.basketItem.fields.discount);
+	    getBrandsSelectorId: function getBrandsSelectorId() {
+	      return this.basketItem.selectorId + '_brands';
 	    },
 	    getPriceExclusive: function getPriceExclusive() {
 	      return this.basketItem.fields.priceExclusive || this.basketItem.fields.price;
 	    },
 	    showDiscountBlock: function showDiscountBlock() {
-	      return this.options.showDiscountBlock === 'Y' && (this.editable || !this.editable && this.basketItem.fields.discount > 0);
+	      return this.options.showDiscountBlock === 'Y' && this.isVisibleBlock(this.blocks.discount) && !this.isReadOnly;
 	    },
 	    showTaxBlock: function showTaxBlock() {
-	      return this.options.showTaxBlock === 'Y' && this.getTaxList.length > 0 && (this.editable || !this.editable && this.showBasePrice);
+	      return this.options.showTaxBlock === 'Y' && this.getTaxList.length > 0 && this.isVisibleBlock(this.blocks.tax) && !this.isReadOnly;
 	    },
 	    showRemoveIcon: function showRemoveIcon() {
-	      if (!this.editable) {
+	      if (this.isReadOnly) {
 	        return false;
 	      }
 
@@ -835,18 +1233,92 @@ this.BX = this.BX || {};
 	    isTaxIncluded: function isTaxIncluded() {
 	      return this.taxIncluded === 'Y';
 	    },
-	    isNotEnoughQuantity: function isNotEnoughQuantity() {
-	      return this.basketItem.errors.includes('SALE_BASKET_AVAILABLE_QUANTITY');
-	    },
-	    hasPriceError: function hasPriceError() {
-	      return this.basketItem.errors.includes('SALE_BASKET_ITEM_WRONG_PRICE');
+	    isReadOnly: function isReadOnly() {
+	      return this.mode === FormMode.READ_ONLY;
 	    }
 	  },
-	  template: "\n\t\t<div class=\"catalog-pf-product-item\" v-bind:class=\"{ 'catalog-pf-product-item--borderless': !editable && basketItemIndex === 0 }\">\n\t\t\t<div class=\"catalog-pf-product-item--remove\" @click=\"removeItem\" v-if=\"showRemoveIcon\"></div>\n\t\t\t<div class=\"catalog-pf-product-item--num\">\n\t\t\t\t<div class=\"catalog-pf-product-index\">{{basketItemIndex + 1}}</div>\n\t\t\t</div>\n\t\t\t<div class=\"catalog-pf-product-item--left\">\n\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-pf-product-label\">{{localize.CATALOG_FORM_NAME}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"catalog-pf-product-item-section\" :id=\"selectorId\" ref=\"selectorWrapper\"></div>\n\t\t\t</div>\n\t\t\t<div class=\"catalog-pf-product-item--right\">\n\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-pf-product-label\" style=\"width: 94px\">{{localize.CATALOG_FORM_PRICE}}</div>\n\t\t\t\t\t<div class=\"catalog-pf-product-label\" style=\"width: 72px\">{{localize.CATALOG_FORM_QUANTITY}}</div>\n\t\t\t\t\t<div class=\"catalog-pf-product-label\" style=\"width: 94px\">{{localize.CATALOG_FORM_RESULT}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-pf-product-control\" style=\"width: 94px\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-wrapper\">\n\t\t\t\t\t\t\t<input \ttype=\"text\" class=\"catalog-pf-product-input catalog-pf-product-input--align-right\"\n\t\t\t\t\t\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t\t\t\t\t\t:value=\"basketItem.fields.basePrice\"\n\t\t\t\t\t\t\t\t\t@input=\"onInputPrice\"\n\t\t\t\t\t\t\t\t\t:disabled=\"!editable\">\n\t\t\t\t\t\t\t<div class=\"catalog-pf-product-input-info\" v-html=\"currencySymbol\"></div>\n\t\t\t\t\t\t</div>\t\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"catalog-pf-product-control\" style=\"width: 72px\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-wrapper\">\n\t\t\t\t\t\t\t<input \ttype=\"text\" class=\"catalog-pf-product-input\"\n\t\t\t\t\t\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t\t\t\t\t\t:value=\"basketItem.fields.quantity\"\n\t\t\t\t\t\t\t\t\t@input=\"onInputQuantity\"\n\t\t\t\t\t\t\t\t\t:disabled=\"!editable\">\n\t\t\t\t\t\t\t<div \tclass=\"catalog-pf-product-input-info catalog-pf-product-input-info--action\" \n\t\t\t\t\t\t\t\t\t@click=\"showPopupMenu($event.target, options.measures, 'measures')\"><span>{{ getMeasureName }}</span></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"catalog-pf-product-control\" style=\"width: 94px\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-wrapper\">\n\t\t\t\t\t\t\t<input disabled type=\"text\" class=\"catalog-pf-product-input catalog-pf-product-input--disabled catalog-pf-product-input--gray catalog-pf-product-input--align-right\" :value=\"basketItem.sum\">\n\t\t\t\t\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input--disabled catalog-pf-product-input--gray\" v-html=\"currencySymbol\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showDiscountBlock\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div v-if=\"showDiscount\" class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide\" @click=\"toggleDiscount('N')\">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>\n\t\t\t\t\t<div v-else class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show\" @click=\"toggleDiscount('Y')\">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showDiscount\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--left\">\n\t\t\t\t\t\t<input class=\"catalog-pf-product-input catalog-pf-product-input--align-right catalog-pf-product-input--right\"\n\t\t\t\t\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t\t\t\t\tref=\"discountInput\" \n\t\t\t\t\t\t\t\t:value=\"getDiscountInputValue\"\n\t\t\t\t\t\t\t\t@input=\"onInputDiscount\"\n\t\t\t\t\t\t\t\tplaceholder=\"0\"\n\t\t\t\t\t\t\t\t:disabled=\"!editable\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input-info--action\" \n\t\t\t\t\t\t\t@click=\"showPopupMenu($event.target, null, 'discount')\">\n\t\t\t\t\t\t\t<span v-html=\"getDiscountSymbol\"></span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t\n\t\t\t\t<div v-if=\"showTaxBlock\" class=\"catalog-pf-product-item-section catalog-pf-product-item-section--dashed\">\n\t\t\t\t\t<div v-if=\"showTaxSelector\" class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide\" @click=\"toggleTax('N')\">{{localize.CATALOG_FORM_TAX_TITLE}}</div>\n\t\t\t\t\t<div v-else class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show\" @click=\"toggleTax('Y')\">{{localize.CATALOG_FORM_TAX_TITLE}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showTaxSelector && showTaxBlock\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass=\"catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--right\"\n\t\t\t\t\t\t@click=\"showPopupMenu($event.target, getTaxList, 'tax')\"\n\t\t\t\t\t>\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input\">{{basketItem.fields.tax}}%</div>\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input-info--dropdown\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"catalog-pf-product-item-section catalog-pf-product-item-section--dashed\"></div>\n\t\t\t</div>\n\t\t</div>\n\t"
+	  // language=Vue
+	  template: "\n\t\t<div class=\"catalog-pf-product-item\" v-bind:class=\"{ 'catalog-pf-product-item--borderless': !isReadOnly && basketItemIndex === 0 }\">\n\t\t\t<div class=\"catalog-pf-product-item--remove\" @click=\"removeItem\" v-if=\"showRemoveIcon\"></div>\n\t\t\t<div class=\"catalog-pf-product-item--num\">\n\t\t\t\t<div class=\"catalog-pf-product-index\">{{basketItemIndex + 1}}</div>\n\t\t\t</div>\n\t\t\t<div class=\"catalog-pf-product-item--left\">\n\t\t\t\t<div v-if=\"isVisibleBlock(blocks.productSelector)\">\n\t\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-label\">{{localize.CATALOG_FORM_NAME}}</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<".concat(config.templateFieldInlineSelector, " \n\t\t\t\t\t\t:basketItem=\"basketItem\" \n\t\t\t\t\t\t:options=\"options\"\n\t\t\t\t\t\t:editable=\"isEditableField(blocks.productSelector)\"\n\t\t\t\t\t\t@onProductChange=\"onProductChange\" \n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"isVisibleBlock(blocks.brand)\" class=\"catalog-pf-product-input-brand-wrapper\">\n\t\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-label\">{{localize.CATALOG_FORM_BRAND_TITLE}}</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<").concat(config.templateFieldBrand, " \n\t\t\t\t\t\t:brands=\"basketItem.fields.brands\"\n\t\t\t\t\t\t:selectorId=\"getBrandsSelectorId\"\n\t\t\t\t\t\t:hasError=\"hasError(errorCodes.emptyBrand)\"\n\t\t\t\t\t\t:options=\"options\"\n\t\t\t\t\t\t:editable=\"isEditableField(blocks.brand)\"\n\t\t\t\t\t\t@changeBrand=\"changeBrand\" \n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t\t\n\t\t\t</div>\n\t\t\t<div class=\"catalog-pf-product-item--right\">\n\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div v-if=\"isVisibleBlock(blocks.price)\" class=\"catalog-pf-product-label\" style=\"width: 94px\">\n\t\t\t\t\t\t{{localize.CATALOG_FORM_PRICE}}\n\t\t\t\t\t</div>\n\t\t\t\t\t<div v-if=\"isVisibleBlock(blocks.quantity)\" class=\"catalog-pf-product-label\" style=\"width: 72px\">\n\t\t\t\t\t\t{{localize.CATALOG_FORM_QUANTITY}}\n\t\t\t\t\t</div>\n\t\t\t\t\t<div v-if=\"isVisibleBlock(blocks.result)\" class=\"catalog-pf-product-label\" style=\"width: 94px\">\n\t\t\t\t\t\t{{localize.CATALOG_FORM_RESULT}}\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\n\t\t\t\t\t<div v-if=\"isVisibleBlock(blocks.price)\" class=\"catalog-pf-product-control\" style=\"width: 94px\">\n\t\t\t\t\t\t<").concat(config.templateFieldPrice, " \n\t\t\t\t\t\t\t:basePrice=\"basketItem.fields.basePrice\"\n\t\t\t\t\t\t\t:options=\"options\"\n\t\t\t\t\t\t\t:editable=\"isEditableField(blocks.price)\"\n\t\t\t\t\t\t\t:hasError=\"hasError(errorCodes.emptyPrice)\"\n\t\t\t\t\t\t\t@changePrice=\"changePrice\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t\t<div v-if=\"isVisibleBlock(blocks.quantity)\" class=\"catalog-pf-product-control\" style=\"width: 72px\">\n\t\t\t\t\t\t<").concat(config.templateFieldQuantity, " \n\t\t\t\t\t\t\t:quantity=\"basketItem.fields.quantity\"\n\t\t\t\t\t\t\t:measureCode=\"getMeasureCode\"\n\t\t\t\t\t\t\t:measureRatio=\"basketItem.fields.measureRatio\"\n\t\t\t\t\t\t\t:measureName=\"getMeasureName\"\n\t\t\t\t\t\t\t:hasError=\"hasError(errorCodes.emptyQuantity)\"\n\t\t\t\t\t\t\t:options=\"options\"\n\t\t\t\t\t\t\t:editable=\"isEditableField(blocks.quantity)\"\n\t\t\t\t\t\t\t@changeQuantity=\"changeQuantity\" \n\t\t\t\t\t\t\t@changeMeasure=\"changeMeasure\" \n\t\t\t\t\t\t/>\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t\t<div v-if=\"isVisibleBlock(blocks.result)\" class=\"catalog-pf-product-control\" style=\"width: 94px\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-wrapper\">\n\t\t\t\t\t\t\t<input disabled type=\"text\" class=\"catalog-pf-product-input catalog-pf-product-input--disabled catalog-pf-product-input--gray catalog-pf-product-input--align-right\" :value=\"basketItem.sum\">\n\t\t\t\t\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input--disabled catalog-pf-product-input--gray\" v-html=\"currencySymbol\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"hasError(errorCodes.emptyQuantity)\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-product-error\">{{localize.CATALOG_FORM_ERROR_EMPTY_QUANTITY}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"hasError(errorCodes.emptyPrice)\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-product-error\">{{localize.CATALOG_FORM_ERROR_EMPTY_PRICE}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showDiscountBlock\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div v-if=\"showDiscount\" class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide\" @click=\"toggleDiscount('N')\">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>\n\t\t\t\t\t<div v-else class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show\" @click=\"toggleDiscount('Y')\">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>\n\t\t\t\t</div>\n\t\t\t\t\n\t\t\t\t<div v-if=\"showDiscount\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<").concat(config.templateFieldDiscount, " \n\t\t\t\t\t\t:discount=\"basketItem.fields.discount\"\n\t\t\t\t\t\t:discountType=\"basketItem.fields.discountType\"\n\t\t\t\t\t\t:discountRate=\"basketItem.fields.discountRate\"\n\t\t\t\t\t\t:options=\"options\"\n\t\t\t\t\t\t:editable=\"isEditableField(blocks.discount)\"\n\t\t\t\t\t\tref=\"discountWrapper\"\n\t\t\t\t\t\t@changeDiscount=\"changeDiscount\" \n\t\t\t\t\t\t@changeDiscountType=\"changeDiscountType\" \n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t\t\n\t\t\t\t<div v-if=\"showTaxBlock\" class=\"catalog-pf-product-item-section catalog-pf-product-item-section--dashed\">\n\t\t\t\t\t<div v-if=\"showTaxSelector\" class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide\" @click=\"toggleTax('N')\">{{localize.CATALOG_FORM_TAX_TITLE}}</div>\n\t\t\t\t\t<div v-else class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show\" @click=\"toggleTax('Y')\">{{localize.CATALOG_FORM_TAX_TITLE}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showTaxSelector && showTaxBlock\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<").concat(config.templateFieldTax, " \n\t\t\t\t\t\t:taxId=\"basketItem.fields.taxId\"\n\t\t\t\t\t\t:options=\"options\"\n\t\t\t\t\t\t:editable=\"isEditableField(blocks.tax)\"\n\t\t\t\t\t\t@changeProduct=\"changeProduct\" \n\t\t\t\t\t/>\n\t\t\t\t</div>\t\t\t\t\n\t\t\t\t<div class=\"catalog-pf-product-item-section catalog-pf-product-item-section--dashed\"></div>\n\t\t\t</div>\n\t\t</div>\n\t")
 	});
 
+	var FormHelpdeskCode = function FormHelpdeskCode() {
+	  babelHelpers.classCallCheck(this, FormHelpdeskCode);
+	};
+	babelHelpers.defineProperty(FormHelpdeskCode, "COMPILATION_FACEBOOK", 13856526);
+	babelHelpers.defineProperty(FormHelpdeskCode, "COMMON_COMPILATION", 13841876);
+
+	function _templateObject10() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"catalog-product-form-popup--container\">\n\t\t\t\t\t<div class=\"catalog-product-form-popup--title\">", "</div>\n\t\t\t\t\t<div class=\"catalog-product-form-popup--loader-block catalog-product-form-popup--done\"></div>\n\t\t\t\t\t<div class=\"catalog-product-form-popup--text\">", "</div>\n\t\t\t\t</div>\n\t\t\t"]);
+
+	  _templateObject10 = function _templateObject10() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject9() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"catalog-product-form-popup--container\">\n\t\t\t\t\t<div class=\"catalog-product-form-popup--title\">", "</div>\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"catalog-product-form-popup--text\">", "</div>\n\t\t\t\t</div>\n\t\t\t"]);
+
+	  _templateObject9 = function _templateObject9() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject8() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"catalog-product-form-popup--loader-block\"></div>\n\t\t\t"]);
+
+	  _templateObject8 = function _templateObject8() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject7() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t\t\t\t<span>", "</span>\n\t\t\t\t\t\t\t\t\t\t<a href=\"/shop/stores/\" target=\"_blank\">\n\t\t\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t"]);
+
+	  _templateObject7 = function _templateObject7() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject6() {
+	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
+
+	  _templateObject6 = function _templateObject6() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject5() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"catalog-pf-product-qr-popup\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-qr-popup-content\">\n\t\t\t\t\t\t\t<div class=\"catalog-pf-product-qr-popup-text\">", "</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"catalog-pf-product-qr-popup-buttons\">\n\t\t\t\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"ui-btn ui-btn-light-border ui-btn-round\">", "</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"catalog-pf-product-qr-popup-bottom\">\n\t\t\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"catalog-pf-product-qr-popup--url\">", "</a>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\t\t\t\t\t\n\t\t\t\t\t</div>\n\t\t\t\t"]);
+
+	  _templateObject5 = function _templateObject5() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject4() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-pf-product-qr-popup-image\"></div>"]);
+
+	  _templateObject4 = function _templateObject4() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
 	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='catalog-pf-product-config-popup'></div>\n\t\t\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"catalog-pf-product-qr-popup-copy\">", "</div>\n\t\t\t"]);
 
 	  _templateObject3 = function _templateObject3() {
 	    return data;
@@ -855,32 +1327,320 @@ this.BX = this.BX || {};
 	  return data;
 	}
 
-	function _templateObject2() {
+	function _templateObject2$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<p>", "</p>\n\t\t\t\t<p>", "</p>\n\t\t\t"]);
+
+	  _templateObject2$1 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a class=\"ui-btn ui-btn-primary\">", "</a>\n\t\t"]);
+
+	  _templateObject$1 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
+	ui_vue.Vue.component(config.templatePanelCompilation, {
+	  props: {
+	    compilationOptions: Object,
+	    mode: String
+	  },
+	  created: function created() {
+	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.destroyPopup.bind(this));
+	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.destroyPopup.bind(this));
+	    this.newLabel = new ui_label.Label({
+	      text: this.localize.CATALOG_FORM_COMPILATION_PRODUCT_NEW_LABEL,
+	      color: ui_label.LabelColor.PRIMARY,
+	      fill: true
+	    });
+	    var moreMessageButton = main_core.Tag.render(_templateObject$1(), this.localize.CATALOG_FORM_COMPILATION_INFO_BUTTON_MORE);
+	    main_core.Event.bind(moreMessageButton, 'click', this.openHelpDesk);
+	    var header = '';
+	    var description = '';
+
+	    if (this.isFacebookForm()) {
+	      header = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_TITLE_FACEBOOK;
+	      description = main_core.Tag.render(_templateObject2$1(), this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_FACEBOOK_FIRST_BLOCK, this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_FACEBOOK_SECOND_BLOCK);
+	    } else {
+	      header = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_TITLE;
+	      description = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_MARKETING;
+	    }
+
+	    this.message = new ui_messagecard.MessageCard({
+	      id: 'compilationInfo',
+	      header: header,
+	      description: description,
+	      angle: false,
+	      hidden: true,
+	      actionElements: [moreMessageButton]
+	    });
+	    main_core_events.EventEmitter.subscribe(this.message, 'onClose', this.hideMessage);
+	  },
+	  mounted: function mounted() {
+	    this.$refs.label.appendChild(this.newLabel.render());
+	    this.$refs.message.appendChild(this.message.getLayout());
+
+	    if (!this.compilationOptions.hiddenInfoMessage) {
+	      this.showMessage();
+	    }
+	  },
+	  data: function data() {
+	    return {
+	      compilationLink: null
+	    };
+	  },
+	  methods: {
+	    isFacebookForm: function isFacebookForm() {
+	      return this.compilationOptions.type === FormCompilationType.FACEBOOK;
+	    },
+	    openHelpDesk: function openHelpDesk() {
+	      this.helpdeskCode = this.isFacebookForm() ? FormHelpdeskCode.COMPILATION_FACEBOOK : FormHelpdeskCode.COMMON_COMPILATION;
+	      top.BX.Helper.show('redirect=detail&code=' + this.helpdeskCode);
+	    },
+	    showPopup: function showPopup(event) {
+	      var _this = this;
+
+	      if (this.compilationOptions.disabledSwitcher) {
+	        return;
+	      }
+
+	      if (this.isFacebookForm()) {
+	        this.openHelpDesk();
+	        return;
+	      }
+
+	      if (this.popup instanceof main_popup.Popup) {
+	        this.popup.setBindElement(this.$refs.qrLink);
+	        this.popup.show();
+	        return;
+	      }
+
+	      var basket = this.$store.getters['productList/getBasket']();
+	      var productIds = basket.map(function (basketItem) {
+	        var _basketItem$fields;
+
+	        return basketItem === null || basketItem === void 0 ? void 0 : (_basketItem$fields = basketItem.fields) === null || _basketItem$fields === void 0 ? void 0 : _basketItem$fields.skuId;
+	      });
+	      return new Promise(function (resolve, reject) {
+	        main_core.ajax.runAction('salescenter.api.store.getLinkToProductCollection', {
+	          json: {
+	            productIds: productIds
+	          }
+	        }).then(function (response) {
+	          _this.compilationLink = response.data.link;
+	          _this.popup = new main_popup.Popup({
+	            bindElement: event.target,
+	            content: _this.getQRPopupContent(),
+	            width: 375,
+	            closeIcon: {
+	              top: '5px',
+	              right: '5px'
+	            },
+	            padding: 0,
+	            closeByEsc: true,
+	            autoHide: true,
+	            cacheable: true,
+	            animation: 'fading-slide',
+	            angle: {
+	              offset: 30
+	            }
+	          });
+
+	          _this.popup.show();
+
+	          resolve();
+	        }).catch(function () {
+	          return reject();
+	        });
+	      });
+	    },
+	    destroyPopup: function destroyPopup() {
+	      if (this.popup instanceof main_popup.Popup) {
+	        this.popup.destroy();
+	        this.popup = null;
+	      }
+	    },
+	    getQRPopupContent: function getQRPopupContent() {
+	      var _this2 = this;
+
+	      if (!this.compilationLink) {
+	        return '';
+	      }
+
+	      var buttonCopy = main_core.Tag.render(_templateObject3(), this.localize.CATALOG_FORM_COMPILATION_QR_COPY);
+	      main_core.Event.bind(buttonCopy, 'click', function () {
+	        BX.clipboard.copy(_this2.compilationLink);
+	        BX.UI.Notification.Center.notify({
+	          content: _this2.localize.CATALOG_FORM_COMPILATION_QR_COPY_NOTIFY_MESSAGE,
+	          autoHideDelay: 2000
+	        });
+	      });
+	      var qrWrapper = main_core.Tag.render(_templateObject4());
+	      var content = main_core.Tag.render(_templateObject5(), this.localize.CATALOG_FORM_COMPILATION_QR_POPUP_TITLE, qrWrapper, this.compilationLink, this.localize.CATALOG_FORM_COMPILATION_QR_POPUP_INPUT_TITLE, this.compilationLink, this.compilationLink, buttonCopy);
+	      new QRCode(qrWrapper, {
+	        text: this.compilationLink,
+	        width: 250,
+	        height: 250
+	      });
+	      return content;
+	    },
+	    setSetting: function setSetting(event) {
+	      var _this3 = this;
+
+	      var value = event.target.checked ? 'Y' : 'N';
+
+	      if (!this.compilationOptions.hasStore) {
+	        this.compilationOptions.disabledSwitcher = true;
+	        var creationStorePopup = new main_popup.Popup({
+	          bindElement: event.target,
+	          className: 'catalog-product-form-popup--creating-shop',
+	          content: this.getOnBeforeCreationStorePopupContent(),
+	          width: 310,
+	          overlay: true,
+	          padding: 17,
+	          animation: 'fading-slide',
+	          angle: false
+	        });
+	        creationStorePopup.show();
+	        main_core.ajax.runAction('salescenter.api.store.getStoreInfo', {
+	          json: {}
+	        }).then(function (response) {
+	          var _response$data, _response$data$deacti;
+
+	          if (main_core.Type.isStringFilled((_response$data = response.data) === null || _response$data === void 0 ? void 0 : (_response$data$deacti = _response$data.deactivatedStore) === null || _response$data$deacti === void 0 ? void 0 : _response$data$deacti.TITLE)) {
+	            var _response$data2, _response$data2$deact;
+
+	            var title = main_core.Loc.getMessage('CATALOG_FORM_COMPILATION_UNPUBLISHED_STORE', {
+	              '#STORE_TITLE#': main_core.Tag.safe(_templateObject6(), (_response$data2 = response.data) === null || _response$data2 === void 0 ? void 0 : (_response$data2$deact = _response$data2.deactivatedStore) === null || _response$data2$deact === void 0 ? void 0 : _response$data2$deact.TITLE)
+	            });
+	            BX.UI.Notification.Center.notify({
+	              content: main_core.Tag.render(_templateObject7(), title, main_core.Loc.getMessage('CATALOG_FORM_COMPILATION_UNPUBLISHED_STORE_LINK'))
+	            });
+	          }
+
+	          creationStorePopup.setContent(_this3.getOnAfterCreationStorePopupContent());
+	          creationStorePopup.setClosingByEsc(true);
+	          creationStorePopup.setAutoHide(true);
+	          creationStorePopup.show();
+
+	          _this3.$root.$app.changeFormOption('isCompilationMode', value);
+
+	          _this3.compilationOptions.disabledSwitcher = _this3.compilationOptions.isLimitedStore;
+	          _this3.compilationOptions.hasStore = true;
+	        });
+	      } else {
+	        this.$root.$app.changeFormOption('isCompilationMode', value);
+	      }
+	    },
+	    getOnBeforeCreationStorePopupContent: function getOnBeforeCreationStorePopupContent() {
+	      var loaderContent = main_core.Tag.render(_templateObject8());
+	      var node = main_core.Tag.render(_templateObject9(), main_core.Loc.getMessage('CATALOG_FORM_POPUP_BEFORE_MARKET_CREATING'), loaderContent, main_core.Loc.getMessage('CATALOG_FORM_POPUP_BEFORE_MARKET_CREATING_INFO'));
+	      var loader = new main_loader.Loader({
+	        color: "#2fc6f6",
+	        target: loaderContent,
+	        size: 40
+	      });
+	      loader.show();
+	      return node;
+	    },
+	    getOnAfterCreationStorePopupContent: function getOnAfterCreationStorePopupContent() {
+	      return main_core.Tag.render(_templateObject10(), main_core.Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING'), main_core.Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING_INFO'));
+	    },
+	    onLabelClick: function onLabelClick() {
+	      if (this.compilationOptions.isLimitedStore) {
+	        BX.UI.InfoHelper.show('limit_sites_number');
+	      }
+	    },
+	    onClickHint: function onClickHint(event) {
+	      event.preventDefault();
+	      event.stopImmediatePropagation();
+
+	      if (!this.message) {
+	        return;
+	      }
+
+	      if (this.message.isShown()) {
+	        this.hideMessage();
+	      } else {
+	        this.showMessage();
+	      }
+	    },
+	    showMessage: function showMessage() {
+	      if (this.message) {
+	        main_core.Dom.addClass(this.$refs.hintIcon, 'catalog-pf-product-panel-message-arrow-target');
+	        this.message.show();
+	      }
+	    },
+	    hideMessage: function hideMessage() {
+	      if (this.message) {
+	        main_core.Dom.removeClass(this.$refs.hintIcon, 'catalog-pf-product-panel-message-arrow-target');
+	      }
+
+	      this.message.hide();
+	      this.$root.$app.changeFormOption('hiddenCompilationInfoMessage', 'Y');
+	    }
+	  },
+	  computed: babelHelpers.objectSpread({
+	    localize: function localize() {
+	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
+	    },
+	    showQrLink: function showQrLink() {
+	      return this.mode === FormMode.COMPILATION;
+	    }
+	  }, ui_vue_vuex.Vuex.mapState({
+	    productList: function productList(state) {
+	      return state.productList;
+	    }
+	  })),
+	  // language=Vue
+	  template: "\n\t\t<div>\n\t\t\t<div class=\"catalog-pf-product-panel-compilation\">\n\t\t\t\t<div class=\"catalog-pf-product-panel-compilation-wrapper\">\n\t\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox\" @click=\"onLabelClick\">\n\t\t\t\t\t\t<input \n\t\t\t\t\t\t\ttype=\"checkbox\" \n\t\t\t\t\t\t\t:disabled=\"compilationOptions.disabledSwitcher\"\n\t\t\t\t\t\t\tclass=\"ui-ctl-element\" \n\t\t\t\t\t\t\t@change=\"setSetting\" \n\t\t\t\t\t\t\tdata-setting-id=\"isCompilationMode\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t<div class=\"ui-ctl-label-text\">{{localize.CATALOG_FORM_COMPILATION_PRODUCT_SWITCHER}}</div>\n\t\t\t\t\t\t<div ref=\"hintIcon\">\n\t\t\t\t\t\t\t<div data-hint-init=\"vue\" class=\"ui-hint\" @click=\"onClickHint\">\n\t\t\t\t\t\t\t\t<span class=\"ui-hint-icon\"></span>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div ref=\"label\"></div>\n\t\t\t\t\t\t<div class=\"tariff-lock\" v-if=\"compilationOptions.isLimitedStore\"></div>\n\t\t\t\t\t</label>\n\t\t\t\t</div>\n\t\t\t\t<div \t\t\t\t\n\t\t\t\t\tv-if=\"showQrLink\"\n\t\t\t\t\tclass=\"catalog-pf-product-panel-compilation-link --icon-qr\"\n\t\t\t\t\t@click=\"showPopup\"\n\t\t\t\t\tref=\"qrLink\"\n\t\t\t\t>\n\t\t\t\t\t{{localize.CATALOG_FORM_COMPILATION_QR_LINK}}\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"catalog-pf-product-panel-compilation-message\" ref=\"message\"></div>\n\t\t</div>\n\t"
+	});
+
+	function _templateObject3$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='catalog-pf-product-config-popup'></div>\n\t\t\t\t"]);
+
+	  _templateObject3$1 = function _templateObject3() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject2$2() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox ui-ctl-w100\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-ctl-label-text\">", "</div>\n\t\t\t\t</label>\n\t\t\t"]);
 
-	  _templateObject2 = function _templateObject2() {
+	  _templateObject2$2 = function _templateObject2() {
 	    return data;
 	  };
 
 	  return data;
 	}
 
-	function _templateObject() {
+	function _templateObject$2() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<input type=\"checkbox\"  class=\"ui-ctl-element\">\n\t\t\t\t"]);
 
-	  _templateObject = function _templateObject() {
+	  _templateObject$2 = function _templateObject() {
 	    return data;
 	  };
 
 	  return data;
 	}
-	ui_vue.Vue.component(config.templateProductAddName, {
+	ui_vue.Vue.component(config.templatePanelButtons, {
 	  /**
 	   * @emits 'changeRowData' {index: number, fields: object}
 	   * @emits 'refreshBasket'
 	   * @emits 'addItem'
 	   */
-	  props: ['options'],
+	  props: {
+	    options: Object,
+	    mode: String
+	  },
 	  methods: {
 	    refreshBasket: function refreshBasket() {
 	      this.$emit('refreshBasket');
@@ -1092,10 +1852,10 @@ this.BX = this.BX || {};
 	      }
 	    },
 	    getSettingItem: function getSettingItem(item) {
-	      var input = main_core.Tag.render(_templateObject());
+	      var input = main_core.Tag.render(_templateObject$2());
 	      input.checked = item.checked;
 	      input.dataset.settingId = item.id;
-	      var setting = main_core.Tag.render(_templateObject2(), input, item.title);
+	      var setting = main_core.Tag.render(_templateObject2$2(), input, item.title);
 	      main_core.Event.bind(setting, 'change', this.setSetting.bind(this));
 	      return setting;
 	    },
@@ -1117,7 +1877,7 @@ this.BX = this.BX || {};
 	      // 	title: this.localize.CATALOG_FORM_ADD_SHOW_TAXES_OPTION,
 	      // },
 	      ];
-	      var content = main_core.Tag.render(_templateObject3());
+	      var content = main_core.Tag.render(_templateObject3$1());
 	      settings.forEach(function (item) {
 	        content.append(_this6.getSettingItem(item));
 	      });
@@ -1154,11 +1914,15 @@ this.BX = this.BX || {};
 	      return state.productList;
 	    }
 	  })),
-	  template: "\n\t\t<div class=\"catalog-pf-product-add\">\n\t\t\t<div class=\"catalog-pf-product-add-wrapper\">\n\t\t\t\t<span class=\"catalog-pf-product-add-link\" @click=\"addBasketItemForm\">{{localize.CATALOG_FORM_ADD_PRODUCT}}</span>\n\t\t\t\t<span class=\"catalog-pf-product-add-link catalog-pf-product-add-link--gray\" @click=\"showDialogProductSearch\">{{localize.CATALOG_FORM_ADD_PRODUCT_FROM_CATALOG}}</span>\n\t\t\t</div>\n\t\t\t<div class=\"catalog-pf-product-configure-link\" @click=\"showConfigPopup\">{{localize.CATALOG_FORM_DISCOUNT_EDIT_PAGE_URL_TITLE}}</div>\n\t\t</div>\n\t"
+	  // language=Vue
+	  template: "\n\t\t<div>\n\t\t\t<div class=\"catalog-pf-product-add\">\n\t\t\t\t<div class=\"catalog-pf-product-add-wrapper\">\n\t\t\t\t\t<span class=\"catalog-pf-product-add-link\" @click=\"addBasketItemForm\">{{localize.CATALOG_FORM_ADD_PRODUCT}}</span>\n\t\t\t\t\t<span class=\"catalog-pf-product-add-link catalog-pf-product-add-link--gray\" @click=\"showDialogProductSearch\">{{localize.CATALOG_FORM_ADD_PRODUCT_FROM_CATALOG}}</span>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"catalog-pf-product-configure-link\" @click=\"showConfigPopup\">{{localize.CATALOG_FORM_DISCOUNT_EDIT_PAGE_URL_TITLE}}</div>\n\t\t\t</div>\n\t\t</div>\n\t"
 	});
 
 	ui_vue.Vue.component(config.templateName, {
-	  props: ['options'],
+	  props: {
+	    options: Object,
+	    mode: String
+	  },
 	  created: function created() {
 	    BX.ajax.runAction("catalog.productSelector.getFileInput", {
 	      json: {
@@ -1188,9 +1952,6 @@ this.BX = this.BX || {};
 	    localize: function localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
 	    },
-	    editable: function editable() {
-	      return this.$root.$app.editable;
-	    },
 	    showTaxResult: function showTaxResult() {
 	      return this.options.showTaxBlock !== 'N';
 	    },
@@ -1198,10 +1959,10 @@ this.BX = this.BX || {};
 	      return this.options.showResults !== false;
 	    },
 	    showButtonsTop: function showButtonsTop() {
-	      return this.options.singleProductMode !== true && this.editable && this.options.buttonsPosition !== FormElementPosition.BOTTOM;
+	      return this.options.singleProductMode !== true && this.mode !== FormMode.READ_ONLY && this.options.buttonsPosition !== FormElementPosition.BOTTOM;
 	    },
 	    showButtonsBottom: function showButtonsBottom() {
-	      return this.options.singleProductMode !== true && this.editable && this.options.buttonsPosition === FormElementPosition.BOTTOM;
+	      return this.options.singleProductMode !== true && this.mode !== FormMode.READ_ONLY && this.options.buttonsPosition === FormElementPosition.BOTTOM;
 	    },
 	    showResultBlock: function showResultBlock() {
 	      return this.showResults || this.enableAddButtons;
@@ -1217,13 +1978,14 @@ this.BX = this.BX || {};
 	      return state.productList;
 	    }
 	  })),
-	  template: "\n\t<div class=\"catalog-product-form-container\">\n\t\t<".concat(config.templateProductAddName, "\n\t\t\t:options=\"options\" \n\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t@addItem=\"addItem\"\n\t\t\t@changeRowData=\"changeRowData\"\n\t\t\t@changeProduct=\"changeProduct\" \n\t\t\tv-if=\"showButtonsTop\"\n\t\t/>\n\t\t<div v-for=\"(item, index) in productList.basket\" :key=\"item.selectorId\">\n\t\t\t<").concat(config.templateProductRowName, " \n\t\t\t\t:basketItem=\"item\" \n\t\t\t\t:basketItemIndex=\"index\"  \n\t\t\t\t:countItems=\"countItems\"\n\t\t\t\t:options=\"options\"\n\t\t\t\t:editable=\"editable\"\n\t\t\t\t@changeProduct=\"changeProduct\" \n\t\t\t\t@changeRowData=\"changeRowData\" \n\t\t\t\t@removeItem=\"removeItem\" \n\t\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t/>\n\t\t</div>\n\t\t<").concat(config.templateProductAddName, "\n\t\t\t:options=\"options\" \n\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t@addItem=\"addItem\"\n\t\t\t@changeRowData=\"changeRowData\"\n\t\t\t@changeProduct=\"changeProduct\" \n\t\t\tv-if=\"showButtonsBottom\"\n\t\t/>\n\t\t<div class=\"catalog-pf-result-line\"></div>\n\t\t<div class=\"catalog-pf-result-wrapper\" v-if=\"showResultBlock\">\n\t\t\t<table class=\"catalog-pf-result\" v-if=\"showResultBlock\">\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td>\n\t\t\t\t\t\t<span class=\"catalog-pf-text\">{{localize.CATALOG_FORM_PRODUCTS_PRICE}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td>\n\t\t\t\t\t\t<span v-html=\"productList.total.sum\"\n\t\t\t\t\t\t\t:class=\"productList.total.result !== productList.total.sum ? 'catalog-pf-text catalog-pf-text--line-through' : 'catalog-pf-text'\"\n\t\t\t\t\t\t></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td class=\"catalog-pf-result-padding-bottom\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--discount\">{{localize.CATALOG_FORM_TOTAL_DISCOUNT}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td class=\"catalog-pf-result-padding-bottom\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--discount\" v-html=\"productList.total.discount\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults && showTaxResult\">\n\t\t\t\t\t<td class=\"catalog-pf-tax\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--tax\">{{localize.CATALOG_FORM_TAX_TITLE}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td class=\"catalog-pf-tax\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--tax\" v-html=\"productList.total.taxSum\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td class=\"catalog-pf-result-padding\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--total catalog-pf-text--border\">{{totalResultLabel}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td class=\"catalog-pf-result-padding\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--total\" v-html=\"productList.total.result\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol catalog-pf-symbol--total\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t</table>\n\t\t</div>\n\t</div>\n")
+	  // language=Vue
+	  template: "\n\t<div class=\"catalog-product-form-container\">\n\t\t<".concat(config.templatePanelButtons, "\n\t\t\t:options=\"options\" \n\t\t\t:mode=\"mode\" \n\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t@addItem=\"addItem\"\n\t\t\t@changeRowData=\"changeRowData\"\n\t\t\t@changeProduct=\"changeProduct\" \n\t\t\tv-if=\"showButtonsTop\"\n\t\t/>\n\t\t<div v-for=\"(item, index) in productList.basket\" :key=\"item.selectorId\">\n\t\t\t<").concat(config.templateRowName, " \n\t\t\t\t:basketItem=\"item\" \n\t\t\t\t:basketItemIndex=\"index\"  \n\t\t\t\t:countItems=\"countItems\"\n\t\t\t\t:options=\"options\"\n\t\t\t\t:mode=\"mode\"\n\t\t\t\t@changeProduct=\"changeProduct\" \n\t\t\t\t@changeRowData=\"changeRowData\" \n\t\t\t\t@removeItem=\"removeItem\" \n\t\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t/>\n\t\t</div>\n\t\t<").concat(config.templatePanelButtons, "\n\t\t\t:options=\"options\" \n\t\t\t:mode=\"mode\"\n\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t@addItem=\"addItem\"\n\t\t\t@changeRowData=\"changeRowData\"\n\t\t\t@changeProduct=\"changeProduct\" \n\t\t\tv-if=\"showButtonsBottom\"\n\t\t/>\n\t\t<").concat(config.templatePanelCompilation, "  \n\t\t\tv-if=\"options.showCompilationModeSwitcher\"\n\t\t\t:compilationOptions=\"options.compilationFormOption\" \n\t\t\t:mode=\"mode\" \n\t\t/>\n\t\t<div class=\"catalog-pf-result-line\"></div>\n\t\t<div class=\"catalog-pf-result-wrapper\" v-if=\"showResultBlock\">\n\t\t\t<table class=\"catalog-pf-result\" v-if=\"showResultBlock\">\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td>\n\t\t\t\t\t\t<span class=\"catalog-pf-text\">{{localize.CATALOG_FORM_PRODUCTS_PRICE}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td>\n\t\t\t\t\t\t<span v-html=\"productList.total.sum\"\n\t\t\t\t\t\t\t:class=\"productList.total.result !== productList.total.sum ? 'catalog-pf-text catalog-pf-text--line-through' : 'catalog-pf-text'\"\n\t\t\t\t\t\t></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td class=\"catalog-pf-result-padding-bottom\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--discount\">{{localize.CATALOG_FORM_TOTAL_DISCOUNT}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td class=\"catalog-pf-result-padding-bottom\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--discount\" v-html=\"productList.total.discount\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults && showTaxResult\">\n\t\t\t\t\t<td class=\"catalog-pf-tax\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--tax\">{{localize.CATALOG_FORM_TAX_TITLE}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td class=\"catalog-pf-tax\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--tax\" v-html=\"productList.total.taxSum\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td class=\"catalog-pf-result-padding\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--total catalog-pf-text--border\">{{totalResultLabel}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td class=\"catalog-pf-result-padding\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--total\" v-html=\"productList.total.result\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol catalog-pf-symbol--total\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t</table>\n\t\t</div>\n\t</div>\n")
 	});
 
-	function _templateObject$1() {
+	function _templateObject$3() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"\"></div>"]);
 
-	  _templateObject$1 = function _templateObject() {
+	  _templateObject$3 = function _templateObject() {
 	    return data;
 	  };
 
@@ -1234,6 +1996,12 @@ this.BX = this.BX || {};
 
 	var _onBasketChange = new WeakSet();
 
+	var _checkRequiredFields = new WeakSet();
+
+	var _changeCompilationModeSetting = new WeakSet();
+
+	var _setMode = new WeakSet();
+
 	var ProductForm = /*#__PURE__*/function () {
 	  function ProductForm() {
 	    var _this = this;
@@ -1241,11 +2009,21 @@ this.BX = this.BX || {};
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ProductForm);
 
+	    _setMode.add(this);
+
+	    _changeCompilationModeSetting.add(this);
+
+	    _checkRequiredFields.add(this);
+
 	    _onBasketChange.add(this);
 
 	    this.options = this.prepareOptions(options);
+	    this.defaultOptions = Object.assign({}, this.options);
 	    this.editable = true;
-	    this.wrapper = main_core.Tag.render(_templateObject$1());
+
+	    _classPrivateMethodGet(this, _setMode, _setMode2).call(this, FormMode.REGULAR);
+
+	    this.wrapper = main_core.Tag.render(_templateObject$3());
 
 	    if (main_core.Text.toNumber(options.iblockId) <= 0) {
 	      return;
@@ -1271,6 +2049,7 @@ this.BX = this.BX || {};
 	        taxList: [],
 	        singleProductMode: false,
 	        showResults: true,
+	        showCompilationModeSwitcher: false,
 	        enableEmptyProductError: true,
 	        pricePrecision: 2,
 	        currency: settingsCollection.get('currency'),
@@ -1279,13 +2058,40 @@ this.BX = this.BX || {};
 	        showDiscountBlock: settingsCollection.get('showDiscountBlock'),
 	        showTaxBlock: settingsCollection.get('showTaxBlock'),
 	        allowedDiscountTypes: [catalog_productCalculator.DiscountType.PERCENTAGE, catalog_productCalculator.DiscountType.MONETARY],
+	        visibleBlocks: [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.QUANTITY, FormInputCode.RESULT, FormInputCode.DISCOUNT],
+	        requiredFields: [],
+	        editableFields: [],
 	        newItemPosition: FormElementPosition.TOP,
 	        buttonsPosition: FormElementPosition.TOP,
 	        urlBuilderContext: 'SHOP',
-	        hideUnselectedProperties: false
+	        hideUnselectedProperties: false,
+	        compilationFormType: FormCompilationType.REGULAR,
+	        compilationFormOption: {}
 	      };
+
+	      if (options.visibleBlocks && !main_core.Type.isArray(options.visibleBlocks)) {
+	        delete options.visibleBlocks;
+	      }
+
+	      if (options.requiredFields && !main_core.Type.isArray(options.requiredFields)) {
+	        delete options.requiredFields;
+	      }
+
 	      options = babelHelpers.objectSpread({}, defaultOptions, options);
 	      options.showTaxBlock = 'N';
+
+	      if (settingsCollection.get('isEnabledLanding')) {
+	        options.compilationFormOption = {
+	          type: options.compilationFormType,
+	          hasStore: settingsCollection.get('hasLandingStore'),
+	          isLimitedStore: settingsCollection.get('isLimitedLandingStore'),
+	          disabledSwitcher: settingsCollection.get('isLimitedLandingStore'),
+	          hiddenInfoMessage: settingsCollection.get('hiddenCompilationInfoMessage')
+	        };
+	      } else {
+	        options.showCompilationModeSwitcher = false;
+	      }
+
 	      options.defaultDiscountType = '';
 
 	      if (main_core.Type.isArray(options.allowedDiscountTypes)) {
@@ -1311,11 +2117,12 @@ this.BX = this.BX || {};
 	      return new Promise(function (resolve) {
 	        var context = _this2;
 	        _this2.store = result.store;
-	        _this2.templateEngine = ui_vue.Vue.create({
+	        _this2.templateEngine = ui_vue.BitrixVue.createApp({
 	          el: _this2.wrapper,
 	          store: _this2.store,
 	          data: {
-	            options: _this2.options
+	            options: _this2.options,
+	            mode: _this2.mode
 	          },
 	          created: function created() {
 	            this.$app = context;
@@ -1323,7 +2130,7 @@ this.BX = this.BX || {};
 	          mounted: function mounted() {
 	            resolve();
 	          },
-	          template: "<".concat(config.templateName, " :options=\"options\"/>")
+	          template: "<".concat(config.templateName, " :options=\"options\" :mode=\"mode\"/>")
 	        });
 
 	        if (main_core.Type.isStringFilled(_this2.options.currency)) {
@@ -1373,9 +2180,14 @@ this.BX = this.BX || {};
 	    value: function changeProduct(product) {
 	      var _this4 = this;
 
+	      var fields = product.fields;
+
+	      var result = _classPrivateMethodGet(this, _checkRequiredFields, _checkRequiredFields2).call(this, fields);
+
+	      fields.errors = (result === null || result === void 0 ? void 0 : result.errors) || [];
 	      this.store.dispatch('productList/changeItem', {
 	        index: product.index,
-	        fields: product.fields
+	        fields: fields
 	      }).then(function () {
 	        _classPrivateMethodGet(_this4, _onBasketChange, _onBasketChange2).call(_this4);
 	      });
@@ -1458,22 +2270,39 @@ this.BX = this.BX || {};
 	      var _this7 = this;
 
 	      value = value === 'Y' ? 'Y' : 'N';
-	      this.options[optionName] = value;
-	      var basket = this.store.getters['productList/getBasket']();
-	      basket.forEach(function (item, index) {
-	        if (optionName === 'showDiscountBlock') {
-	          item.showDiscountBlock = value;
-	        } else if (optionName === 'showTaxBlock') {
-	          item.showTaxBlock = value;
-	        } else if (optionName === 'taxIncluded') {
-	          item.fields.taxIncluded = value;
+
+	      if (optionName === 'isCompilationMode') {
+	        if (!this.options.showCompilationModeSwitcher) {
+	          return;
 	        }
 
-	        _this7.store.dispatch('productList/changeItem', {
-	          index: index,
-	          fields: item
+	        var mode = value === 'Y' ? FormMode.COMPILATION : FormMode.REGULAR;
+
+	        _classPrivateMethodGet(this, _changeCompilationModeSetting, _changeCompilationModeSetting2).call(this, mode);
+
+	        return;
+	      }
+
+	      this.options[optionName] = value;
+
+	      if (optionName !== 'hiddenCompilationInfoMessage') {
+	        var basket = this.store.getters['productList/getBasket']();
+	        basket.forEach(function (item, index) {
+	          if (optionName === 'showDiscountBlock') {
+	            item.showDiscountBlock = value;
+	          } else if (optionName === 'showTaxBlock') {
+	            item.showTaxBlock = value;
+	          } else if (optionName === 'taxIncluded') {
+	            item.fields.taxIncluded = value;
+	          }
+
+	          _this7.store.dispatch('productList/changeItem', {
+	            index: index,
+	            fields: item
+	          });
 	        });
-	      });
+	      }
+
 	      main_core.ajax.runAction('catalog.productForm.setConfig', {
 	        data: {
 	          configName: optionName,
@@ -1490,12 +2319,31 @@ this.BX = this.BX || {};
 	    key: "setEditable",
 	    value: function setEditable(value) {
 	      this.editable = value;
+
+	      if (!value) {
+	        _classPrivateMethodGet(this, _setMode, _setMode2).call(this, FormMode.READ_ONLY);
+	      } else {
+	        _classPrivateMethodGet(this, _setMode, _setMode2).call(this, FormMode.REGULAR);
+	      }
+	    }
+	  }, {
+	    key: "hasErrors",
+	    value: function hasErrors() {
+	      if (!this.store) {
+	        return false;
+	      }
+
+	      var basket = this.store.getters['productList/getBasket']();
+	      var errorItems = basket.filter(function (item) {
+	        return item.errors.length > 0;
+	      });
+	      return errorItems.length > 0;
 	    }
 	  }], [{
 	    key: "initStore",
 	    value: function initStore() {
 	      var builder = new ui_vue_vuex.VuexBuilder();
-	      return builder.addModel(ProductList.create()).useNamespace(true).build();
+	      return builder.addModel(ProductList.create()).build();
 	    }
 	  }, {
 	    key: "showError",
@@ -1512,7 +2360,110 @@ this.BX = this.BX || {};
 	  });
 	};
 
+	var _checkRequiredFields2 = function _checkRequiredFields2(fields) {
+	  var result = {};
+
+	  if (this.options.requiredFields.length === 0) {
+	    return result;
+	  }
+
+	  result.errors = [];
+	  this.options.requiredFields.forEach(function (code) {
+	    switch (code) {
+	      case FormInputCode.PRICE:
+	        if (fields.price <= 0) {
+	          result.errors.push({
+	            code: FormErrorCode.EMPTY_PRICE,
+	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_PRICE')
+	          });
+	        }
+
+	        break;
+
+	      case FormInputCode.QUANTITY:
+	        if (fields.quantity <= 0) {
+	          result.errors.push({
+	            code: FormErrorCode.EMPTY_QUANTITY,
+	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_QUANTITY')
+	          });
+	        }
+
+	        break;
+
+	      case FormInputCode.BRAND:
+	        if (!main_core.Type.isArray(fields.brands) || fields.brands.length === 0) {
+	          result.errors.push({
+	            code: FormErrorCode.EMPTY_BRAND,
+	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_BRAND')
+	          });
+	        }
+
+	        break;
+	    }
+	  });
+	  return result;
+	};
+
+	var _changeCompilationModeSetting2 = function _changeCompilationModeSetting2(mode) {
+	  var _this8 = this;
+
+	  this.options.requiredFields = [];
+
+	  if (mode === FormMode.COMPILATION) {
+	    var compilationRequiredFields = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.BRAND];
+	    this.options.requiredFields = this.options.visibleBlocks.filter(function (item) {
+	      return compilationRequiredFields.includes(item);
+	    });
+	  }
+
+	  _classPrivateMethodGet(this, _setMode, _setMode2).call(this, mode);
+
+	  var basket = this.store.getters['productList/getBasket']();
+	  basket.forEach(function (item, index) {
+	    return _this8.changeProduct({
+	      index: index,
+	      fields: item.fields
+	    });
+	  });
+	};
+
+	var _setMode2 = function _setMode2(mode) {
+	  this.mode = mode;
+
+	  if (mode === FormMode.READ_ONLY) {
+	    this.options.editableFields = [];
+	  } else if (mode === FormMode.COMPILATION) {
+	    this.options.editableFields = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.BRAND];
+	    this.options.visibleBlocks = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE];
+
+	    if (this.options.compilationFormType === FormCompilationType.FACEBOOK) {
+	      this.options.visibleBlocks.push(FormInputCode.BRAND);
+	    }
+
+	    this.options.showResults = false;
+	  } else {
+	    mode = FormMode.REGULAR;
+	    this.options.visibleBlocks = this.defaultOptions.visibleBlocks;
+	    this.options.showResults = this.defaultOptions.showResults;
+	    var visibleBlocks = this.options.visibleBlocks.slice(0);
+
+	    if (visibleBlocks.includes(FormInputCode.RESULT)) {
+	      visibleBlocks.splice(visibleBlocks.indexOf(FormInputCode.RESULT), 1);
+	    }
+
+	    this.options.editableFields = visibleBlocks;
+	  }
+
+	  if (this.templateEngine) {
+	    this.templateEngine.mode = mode;
+	  }
+
+	  main_core_events.EventEmitter.emit(this, 'ProductForm:onModeChange', {
+	    mode: mode
+	  });
+	};
+
 	exports.ProductForm = ProductForm;
 
-}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX,BX.UI,BX,BX.UI,BX.Catalog,BX,BX.UI,BX,BX.Main,BX,BX,BX.Event,BX.Currency,BX.Catalog));
+}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX.UI,BX,BX.UI,BX,BX.UI,BX.Catalog,BX.UI.EntitySelector,BX,BX,BX.Main,BX,BX,BX.UI,BX.UI,window,BX,BX,BX,BX,BX,BX.Event,BX.Currency,BX.Catalog));
 //# sourceMappingURL=product-form.bundle.js.map

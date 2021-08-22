@@ -306,12 +306,26 @@ class CIMShare
 		}
 		else
 		{
-			if ($message['MESSAGE_TYPE'] != IM_MESSAGE_PRIVATE)
+			if ($message['MESSAGE_TYPE'] !== IM_MESSAGE_PRIVATE)
 			{
 				$chat = \Bitrix\Im\Model\ChatTable::getById($message['CHAT_ID'])->fetch();
-				if ($chat['ENTITY_TYPE'] == 'SONET_GROUP')
+				if (
+					$chat['ENTITY_TYPE'] === 'SONET_GROUP'
+					&& \Bitrix\Main\Loader::includeModule('socialnetwork')
+				)
 				{
-					$sonetRights = Array('SG'.$chat['ENTITY_ID']);
+					if (
+						CSocNetFeaturesPerms::canPerformOperation($this->user_id, SONET_ENTITY_GROUP, $chat['ENTITY_ID'], 'blog', 'write_post')
+						|| CSocNetFeaturesPerms::canPerformOperation($this->user_id, SONET_ENTITY_GROUP, $chat['ENTITY_ID'], 'blog', 'moderate_post')
+						|| CSocNetFeaturesPerms::canPerformOperation($this->user_id, SONET_ENTITY_GROUP, $chat['ENTITY_ID'], 'blog', 'full_post')
+					)
+					{
+						$sonetRights = array('SG' . $chat['ENTITY_ID']);
+					}
+					else
+					{
+						return false;
+					}
 				}
 			}
 		}

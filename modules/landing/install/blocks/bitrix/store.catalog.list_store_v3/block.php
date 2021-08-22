@@ -174,10 +174,7 @@ else
 				'BACKGROUND_IMAGE' => 'UF_BACKGROUND_IMAGE',
 				'DISABLE_INIT_JS_IN_COMPONENT' => 'N',
 				'CUSTOM_FILTER' => '',
-				'PRODUCT_BLOCKS_ORDER' => 'props,sku,price,quantity,buttons,quantityLimit,compare',
-				//"PRODUCT_ROW_VARIANTS" => "[{'VARIANT':'3','BIG_DATA':false},{'VARIANT':'3','BIG_DATA':false},{'VARIANT':'3','BIG_DATA':false}]",
 				'SHOW_SLIDER' => 'Y',
-				'ENLARGE_PRODUCT' => 'STRICT',
 				'LABEL_PROP_MOBILE' => [
 					0 => 'NEWPRODUCT',
 					1 => 'SALELEADER',

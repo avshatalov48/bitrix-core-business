@@ -11,6 +11,7 @@ return [
 		'main.popup',
 		'main.core.events',
 		'main.core',
+		'calendar.util',
 	],
 	'skip_core' => false,
 ];

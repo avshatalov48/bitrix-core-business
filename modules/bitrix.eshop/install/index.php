@@ -62,10 +62,11 @@ Class bitrix_eshop extends CModule
 
 	function InstallFiles()
 	{
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrix.eshop/install/wizards/bitrix/eshop", $_SERVER["DOCUMENT_ROOT"]."/bitrix/wizards/bitrix/eshop", true, true);
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrix.eshop/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrix.eshop/install/wizards/bitrix/eshop.mobile", $_SERVER["DOCUMENT_ROOT"]."/bitrix/wizards/bitrix/eshop.mobile", true, true);
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrix.eshop/install/images",  $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/bitrix.eshop", true, true);
-	
+
 		return true;
 	}
 
@@ -75,7 +76,9 @@ Class bitrix_eshop extends CModule
 
 	function UnInstallFiles()
 	{
+		DeleteDirFilesEx("/bitrix/wizards/bitrix/eshop");
 		DeleteDirFilesEx("/bitrix/images/bitrix.eshop/");//images
+
 		return true;
 	}
 

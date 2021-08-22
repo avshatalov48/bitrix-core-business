@@ -702,7 +702,7 @@
 			}
 		});
 
-		// this.point.setContent(this.infoWindowContent);
+		this.point.setContent(this.infoWindowContent);
 
 		if(!this.hoverMode)
 		{
@@ -864,7 +864,7 @@
 
 	BX.Fileman.UserField.AddressSearchRestriction.prototype.getContent = function()
 	{
-		return '<span class="tariff-lock"></span>&nbsp;<span>'+BX.message('GOOGLE_MAP_TRIAL_HINT')+'</span> <a href="javascript:void(0)" onclick="BX.Fileman.UserField.addressSearchRestriction.showPopup()" class="uf-address-trial-more">'+ BX.message('GOOGLE_MAP_TRIAL_HINT_MORE')+'</a>';
+		return '<span class="tariff-lock"></span>&nbsp;<span>'+BX.message('GOOGLE_MAP_TRIAL_HINT')+'</span> <a href="javascript:void(0)" onclick="BX.loadExt(\'ui.info-helper\').then(function () {BX.UI.InfoHelper.show(\'limit_crm_google_map_user_field\');});" class="uf-address-trial-more">'+ BX.message('GOOGLE_MAP_TRIAL_HINT_MORE')+'</a>';
 	};
 
 	BX.Fileman.UserField.AddressSearchRestriction.prototype.showPopup = function()

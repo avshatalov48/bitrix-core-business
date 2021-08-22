@@ -218,7 +218,7 @@ if($diskEnabled)
 	$arDefaultUrlTemplates404["user_disk_help"] = "user/#user_id#/disk/help";
 	$arDefaultUrlTemplates404["user_disk_volume"] = "user/#user_id#/disk/volume/#ACTION#";
 
-	if (\Bitrix\Main\Config\Option::get('disk', 'documents_enabled', false) === 'Y')
+	if (\Bitrix\Main\Config\Option::get('disk', 'documents_enabled', 'N') === 'Y')
 	{
 		$arDefaultUrlTemplates404["user_disk_documents"] = "user/#user_id#/disk/documents/";
 	}
@@ -1311,11 +1311,11 @@ if (
 
 if (
 	!in_array($componentPage, array("message_form_mess", "messages_chat", "messages_users_messages"))
-	&& intval($arResult["VARIABLES"]["user_id"]) > 0
+	&& (int)$arResult['VARIABLES']['user_id'] > 0
 	&& $arResult["VARIABLES"]["user_id"] != $USER->GetID()
 )
 {
-	$arContext = array();
+	$arContext = [];
 	if (
 		isset($_REQUEST["entityType"])
 		&& $_REQUEST["entityType"] <> ''
@@ -1325,22 +1325,22 @@ if (
 	}
 
 	if (
-		isset($_REQUEST["entityId"])
-		&& intval($_REQUEST["entityId"]) > 0
+		isset($_REQUEST['entityId'])
+		&& (int)$_REQUEST['entityId'] > 0
 	)
 	{
-		$arContext["ENTITY_ID"] = intval($_REQUEST["entityId"]);
+		$arContext["ENTITY_ID"] = (int)$_REQUEST['entityId'];
 	}
 
 	if (
-		$componentPage == "user"
+		$componentPage === 'user'
 		&& !CSocNetUser::IsCurrentUserModuleAdmin()
 	)
 	{
-		\Bitrix\Socialnetwork\ComponentHelper::checkProfileRedirect(intval($arResult["VARIABLES"]["user_id"]));
+		\Bitrix\Socialnetwork\ComponentHelper::checkProfileRedirect((int)$arResult['VARIABLES']['user_id']);
 	}
 
-	$rsUser = \CUser::getById(intval($arResult["VARIABLES"]["user_id"]));
+	$rsUser = \CUser::getById((int)$arResult['VARIABLES']['user_id']);
 	$arUser = $rsUser->fetch();
 	if (!$arUser)
 	{
@@ -1360,15 +1360,15 @@ if (
 	}
 
 	if (
-		$this->request->get('IFRAME_TYPE') != 'SIDE_SLIDER'
-		&& !CSocNetUser::CanProfileView($USER->GetID(), intval($arResult["VARIABLES"]["user_id"]), SITE_ID, $arContext))
+		$this->request->get('IFRAME_TYPE') !== 'SIDE_SLIDER'
+		&& !CSocNetUser::CanProfileView($USER->getId(), (int)$arResult['VARIABLES']['user_id'], SITE_ID, $arContext))
 	{
 		$bAccessFound = false;
-		if ($componentPage == "user_blog_post")
+		if ($componentPage === 'user_blog_post')
 		{
 			if (
 				isset($arResult["VARIABLES"]["post_id"])
-				&& intval($arResult["VARIABLES"]["post_id"]) > 0
+				&& (int)$arResult["VARIABLES"]["post_id"] > 0
 			)
 			{
 				$blogPostLivefeedProvider = new \Bitrix\Socialnetwork\Livefeed\BlogPost();

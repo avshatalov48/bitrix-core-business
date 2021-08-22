@@ -27,12 +27,12 @@ else
 
 	?><script>
 		BX.ready(function() {
-			SonetGroupCardSlider.getInstance().init({
-				groupId: <?=intval($arParams["GROUP_ID"])?>,
-				groupType: '<?=CUtil::JSEscape($arResult["groupTypeCode"])?>',
-				isProject: <?=($arResult['Group']['PROJECT'] == 'Y' ? 'true' : 'false')?>,
-				isOpened: <?=($arResult['Group']['OPENED'] == 'Y' ? 'true' : 'false')?>,
-				currentUserId: <?=($USER->isAuthorized() ? $USER->getid() : 0)?>,
+			(new BX.Socialnetwork.WorkgroupCard()).init({
+				groupId: <?= (int)$arParams['GROUP_ID'] ?>,
+				groupType: '<?= CUtil::JSEscape($arResult['groupTypeCode']) ?>',
+				isProject: <?= ($arResult['Group']['PROJECT'] === 'Y' ? 'true' : 'false') ?>,
+				isOpened: <?= ($arResult['Group']['OPENED'] === 'Y' ? 'true' : 'false') ?>,
+				currentUserId: <?= ($USER->isAuthorized() ? $USER->getid() : 0) ?>,
 				userRole: '<?=CUtil::JSUrlEscape($arResult["CurrentUserPerms"]["UserRole"])?>',
 				userIsMember: <?=($arResult["CurrentUserPerms"]["UserIsMember"] ? 'true' : 'false')?>,
 				userIsAutoMember: <?=(isset($arResult["CurrentUserPerms"]["UserIsAutoMember"]) && $arResult["CurrentUserPerms"]["UserIsAutoMember"] ? 'true' : 'false')?>,
@@ -46,6 +46,7 @@ else
 				containerNodeId: 'socialnetwork-group-card-box',
 				subscribeButtonNodeId: 'group_card_subscribe_button',
 				menuButtonNodeId: 'group_card_menu_button',
+				sliderMenuNodeId: '<?= CUtil::JSEscape((string)$arParams['SLIDER_MENU_CONTAINER_ID']) ?>',
 				styles: {
 					tags: {
 						box: 'socialnetwork-group-tag-box',
@@ -61,9 +62,9 @@ else
 					}
 				},
 				urls: {
-					groupsList: '<?=CUtil::JSUrlEscape($arParams["PATH_TO_GROUPS_LIST"])?>'
+					groupsList: '<?= CUtil::JSUrlEscape($arParams["PATH_TO_GROUPS_LIST"]) ?>'
 				},
-				editFeaturesAllowed: <?=(\Bitrix\Socialnetwork\Item\Workgroup::getEditFeaturesAvailability() ? 'true' : 'false')?>
+				editFeaturesAllowed: <?= (\Bitrix\Socialnetwork\Helper\Workgroup::getEditFeaturesAvailability() ? 'true' : 'false') ?>
 			})
 		});
 
@@ -74,12 +75,12 @@ else
 		});
 	</script><?
 
-	$this->SetViewTarget("sonet-slider-pagetitle", 1000);
+	$this->SetViewTarget(($arResult['IS_IFRAME'] ? 'pagetitle' : 'sonet-slider-pagetitle'), 1000);
+
 	$bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 	$APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "")."pagetitle-menu-visible");
 	include("title_buttons.php");
 	$this->EndViewTarget();
-
 
 	?><div class="socialnetwork-group-content" id="socialnetwork-group-card-box">
 		<div class="socialnetwork-group-box">

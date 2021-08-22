@@ -32,13 +32,6 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arResult["VARIABLES"][
 		\Bitrix\Tasks\Ui\Filter\Task::setGroupId($arResult[ "VARIABLES" ][ "group_id" ]);
 		$state = \Bitrix\Tasks\Ui\Filter\Task::listStateInit()->getState();
 
-		// temporary we show agile parts only by option
-		$scrumBacklog = \Bitrix\Main\Config\Option::get(
-			'tasks',
-			'agile_enabled_group_' . $groupId,
-			'N'
-		);
-
 		switch ($state[ 'VIEW_SELECTED' ][ 'CODENAME' ])
 		{
 			case 'VIEW_MODE_GANTT':
@@ -122,7 +115,6 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arResult["VARIABLES"][
 				"INLINE" => "Y",
 				"HIDE_OWNER_IN_TITLE" => $arParams['HIDE_OWNER_IN_TITLE'],
 				"TASKS_ALWAYS_EXPANDED" => 'Y',
-				"SCRUM_BACKLOG" => $scrumBacklog,
 				'LAZY_LOAD' => 'Y',
 			),
 			"POPUP_COMPONENT_PARENT" => $component,

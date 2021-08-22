@@ -177,18 +177,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_CatalogIblock_Query query()
-	 * @method static EO_CatalogIblock_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CatalogIblock_Result getById($id)
-	 * @method static EO_CatalogIblock_Result getList(array $parameters = array())
-	 * @method static EO_CatalogIblock_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_CatalogIblock createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_CatalogIblock_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_CatalogIblock wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_CatalogIblock_Collection wakeUpCollection($rows)
-	 */
-	class CatalogIblockTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -213,270 +201,6 @@ namespace Bitrix\Catalog {
 	 * @method \Bitrix\Catalog\EO_CatalogIblock_Collection wakeUpCollection($rows)
 	 */
 	class EO_CatalogIblock_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Catalog\CatalogViewedProductTable:catalog/lib/catalogviewedproduct.php:5cef63c44c0d4240028878d69b44299e */
-namespace Bitrix\Catalog {
-	/**
-	 * EO_CatalogViewedProduct
-	 * @see \Bitrix\Catalog\CatalogViewedProductTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \int getFuserId()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setFuserId(\int|\Bitrix\Main\DB\SqlExpression $fuserId)
-	 * @method bool hasFuserId()
-	 * @method bool isFuserIdFilled()
-	 * @method bool isFuserIdChanged()
-	 * @method \int remindActualFuserId()
-	 * @method \int requireFuserId()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetFuserId()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetFuserId()
-	 * @method \int fillFuserId()
-	 * @method \Bitrix\Main\Type\DateTime getDateVisit()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setDateVisit(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateVisit)
-	 * @method bool hasDateVisit()
-	 * @method bool isDateVisitFilled()
-	 * @method bool isDateVisitChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateVisit()
-	 * @method \Bitrix\Main\Type\DateTime requireDateVisit()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetDateVisit()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetDateVisit()
-	 * @method \Bitrix\Main\Type\DateTime fillDateVisit()
-	 * @method \int getProductId()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setProductId(\int|\Bitrix\Main\DB\SqlExpression $productId)
-	 * @method bool hasProductId()
-	 * @method bool isProductIdFilled()
-	 * @method bool isProductIdChanged()
-	 * @method \int remindActualProductId()
-	 * @method \int requireProductId()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetProductId()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetProductId()
-	 * @method \int fillProductId()
-	 * @method \int getElementId()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setElementId(\int|\Bitrix\Main\DB\SqlExpression $elementId)
-	 * @method bool hasElementId()
-	 * @method bool isElementIdFilled()
-	 * @method bool isElementIdChanged()
-	 * @method \int remindActualElementId()
-	 * @method \int requireElementId()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetElementId()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetElementId()
-	 * @method \int fillElementId()
-	 * @method \string getSiteId()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
-	 * @method bool hasSiteId()
-	 * @method bool isSiteIdFilled()
-	 * @method bool isSiteIdChanged()
-	 * @method \string remindActualSiteId()
-	 * @method \string requireSiteId()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetSiteId()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetSiteId()
-	 * @method \string fillSiteId()
-	 * @method \int getViewCount()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setViewCount(\int|\Bitrix\Main\DB\SqlExpression $viewCount)
-	 * @method bool hasViewCount()
-	 * @method bool isViewCountFilled()
-	 * @method bool isViewCountChanged()
-	 * @method \int remindActualViewCount()
-	 * @method \int requireViewCount()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetViewCount()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetViewCount()
-	 * @method \int fillViewCount()
-	 * @method \string getRecommendation()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setRecommendation(\string|\Bitrix\Main\DB\SqlExpression $recommendation)
-	 * @method bool hasRecommendation()
-	 * @method bool isRecommendationFilled()
-	 * @method bool isRecommendationChanged()
-	 * @method \string remindActualRecommendation()
-	 * @method \string requireRecommendation()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetRecommendation()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetRecommendation()
-	 * @method \string fillRecommendation()
-	 * @method \Bitrix\Iblock\EO_Element getElement()
-	 * @method \Bitrix\Iblock\EO_Element remindActualElement()
-	 * @method \Bitrix\Iblock\EO_Element requireElement()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setElement(\Bitrix\Iblock\EO_Element $object)
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetElement()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetElement()
-	 * @method bool hasElement()
-	 * @method bool isElementFilled()
-	 * @method bool isElementChanged()
-	 * @method \Bitrix\Iblock\EO_Element fillElement()
-	 * @method \Bitrix\Sale\Internals\EO_Product getProduct()
-	 * @method \Bitrix\Sale\Internals\EO_Product remindActualProduct()
-	 * @method \Bitrix\Sale\Internals\EO_Product requireProduct()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setProduct(\Bitrix\Sale\Internals\EO_Product $object)
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetProduct()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetProduct()
-	 * @method bool hasProduct()
-	 * @method bool isProductFilled()
-	 * @method bool isProductChanged()
-	 * @method \Bitrix\Sale\Internals\EO_Product fillProduct()
-	 * @method \Bitrix\Iblock\EO_Element getParentElement()
-	 * @method \Bitrix\Iblock\EO_Element remindActualParentElement()
-	 * @method \Bitrix\Iblock\EO_Element requireParentElement()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setParentElement(\Bitrix\Iblock\EO_Element $object)
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetParentElement()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetParentElement()
-	 * @method bool hasParentElement()
-	 * @method bool isParentElementFilled()
-	 * @method bool isParentElementChanged()
-	 * @method \Bitrix\Iblock\EO_Element fillParentElement()
-	 * @method \Bitrix\Sale\Internals\EO_Fuser getFuser()
-	 * @method \Bitrix\Sale\Internals\EO_Fuser remindActualFuser()
-	 * @method \Bitrix\Sale\Internals\EO_Fuser requireFuser()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setFuser(\Bitrix\Sale\Internals\EO_Fuser $object)
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetFuser()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetFuser()
-	 * @method bool hasFuser()
-	 * @method bool isFuserFilled()
-	 * @method bool isFuserChanged()
-	 * @method \Bitrix\Sale\Internals\EO_Fuser fillFuser()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct set($fieldName, $value)
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct reset($fieldName)
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Catalog\EO_CatalogViewedProduct wakeUp($data)
-	 */
-	class EO_CatalogViewedProduct {
-		/* @var \Bitrix\Catalog\CatalogViewedProductTable */
-		static public $dataClass = '\Bitrix\Catalog\CatalogViewedProductTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Catalog {
-	/**
-	 * EO_CatalogViewedProduct_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getFuserIdList()
-	 * @method \int[] fillFuserId()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateVisitList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateVisit()
-	 * @method \int[] getProductIdList()
-	 * @method \int[] fillProductId()
-	 * @method \int[] getElementIdList()
-	 * @method \int[] fillElementId()
-	 * @method \string[] getSiteIdList()
-	 * @method \string[] fillSiteId()
-	 * @method \int[] getViewCountList()
-	 * @method \int[] fillViewCount()
-	 * @method \string[] getRecommendationList()
-	 * @method \string[] fillRecommendation()
-	 * @method \Bitrix\Iblock\EO_Element[] getElementList()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection getElementCollection()
-	 * @method \Bitrix\Iblock\EO_Element_Collection fillElement()
-	 * @method \Bitrix\Sale\Internals\EO_Product[] getProductList()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection getProductCollection()
-	 * @method \Bitrix\Sale\Internals\EO_Product_Collection fillProduct()
-	 * @method \Bitrix\Iblock\EO_Element[] getParentElementList()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection getParentElementCollection()
-	 * @method \Bitrix\Iblock\EO_Element_Collection fillParentElement()
-	 * @method \Bitrix\Sale\Internals\EO_Fuser[] getFuserList()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection getFuserCollection()
-	 * @method \Bitrix\Sale\Internals\EO_Fuser_Collection fillFuser()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Catalog\EO_CatalogViewedProduct $object)
-	 * @method bool has(\Bitrix\Catalog\EO_CatalogViewedProduct $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct getByPrimary($primary)
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct[] getAll()
-	 * @method bool remove(\Bitrix\Catalog\EO_CatalogViewedProduct $object)
-	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Catalog\EO_CatalogViewedProduct_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 */
-	class EO_CatalogViewedProduct_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Catalog\CatalogViewedProductTable */
-		static public $dataClass = '\Bitrix\Catalog\CatalogViewedProductTable';
-	}
-}
-namespace Bitrix\Catalog {
-	/**
-	 * @method static EO_CatalogViewedProduct_Query query()
-	 * @method static EO_CatalogViewedProduct_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CatalogViewedProduct_Result getById($id)
-	 * @method static EO_CatalogViewedProduct_Result getList(array $parameters = array())
-	 * @method static EO_CatalogViewedProduct_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_CatalogViewedProduct createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_CatalogViewedProduct_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_CatalogViewedProduct wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_CatalogViewedProduct_Collection wakeUpCollection($rows)
-	 */
-	class CatalogViewedProductTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_CatalogViewedProduct_Result exec()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct fetchObject()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 */
-	class EO_CatalogViewedProduct_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct fetchObject()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection fetchCollection()
-	 */
-	class EO_CatalogViewedProduct_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct createObject($setDefaultValues = true)
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection createCollection()
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct wakeUpObject($row)
-	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection wakeUpCollection($rows)
-	 */
-	class EO_CatalogViewedProduct_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Catalog\DiscountTable:catalog/lib/discount.php:1c1e13a48c5c2154ee9b0658ad7afe5d */
 namespace Bitrix\Catalog {
@@ -1004,18 +728,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_Discount_Query query()
-	 * @method static EO_Discount_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Discount_Result getById($id)
-	 * @method static EO_Discount_Result getList(array $parameters = array())
-	 * @method static EO_Discount_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_Discount createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_Discount_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_Discount wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_Discount_Collection wakeUpCollection($rows)
-	 */
-	class DiscountTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1291,18 +1003,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_DiscountCoupon_Query query()
-	 * @method static EO_DiscountCoupon_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DiscountCoupon_Result getById($id)
-	 * @method static EO_DiscountCoupon_Result getList(array $parameters = array())
-	 * @method static EO_DiscountCoupon_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_DiscountCoupon createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_DiscountCoupon_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_DiscountCoupon wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_DiscountCoupon_Collection wakeUpCollection($rows)
-	 */
-	class DiscountCouponTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1516,18 +1216,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_DiscountEntity_Query query()
-	 * @method static EO_DiscountEntity_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DiscountEntity_Result getById($id)
-	 * @method static EO_DiscountEntity_Result getList(array $parameters = array())
-	 * @method static EO_DiscountEntity_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_DiscountEntity createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_DiscountEntity_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_DiscountEntity wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_DiscountEntity_Collection wakeUpCollection($rows)
-	 */
-	class DiscountEntityTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1667,18 +1355,6 @@ namespace Bitrix\Catalog {
 	}
 }
 namespace Bitrix\Catalog {
-	/**
-	 * @method static EO_DiscountModule_Query query()
-	 * @method static EO_DiscountModule_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DiscountModule_Result getById($id)
-	 * @method static EO_DiscountModule_Result getList(array $parameters = array())
-	 * @method static EO_DiscountModule_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_DiscountModule createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_DiscountModule_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_DiscountModule wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_DiscountModule_Collection wakeUpCollection($rows)
-	 */
-	class DiscountModuleTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1857,18 +1533,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_DiscountRestriction_Query query()
-	 * @method static EO_DiscountRestriction_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DiscountRestriction_Result getById($id)
-	 * @method static EO_DiscountRestriction_Result getList(array $parameters = array())
-	 * @method static EO_DiscountRestriction_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_DiscountRestriction createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_DiscountRestriction_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_DiscountRestriction wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_DiscountRestriction_Collection wakeUpCollection($rows)
-	 */
-	class DiscountRestrictionTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2008,18 +1672,6 @@ namespace Bitrix\Catalog {
 	}
 }
 namespace Bitrix\Catalog {
-	/**
-	 * @method static EO_Extra_Query query()
-	 * @method static EO_Extra_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Extra_Result getById($id)
-	 * @method static EO_Extra_Result getList(array $parameters = array())
-	 * @method static EO_Extra_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_Extra createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_Extra_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_Extra wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_Extra_Collection wakeUpCollection($rows)
-	 */
-	class ExtraTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2285,18 +1937,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_Group_Query query()
-	 * @method static EO_Group_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Group_Result getById($id)
-	 * @method static EO_Group_Result getList(array $parameters = array())
-	 * @method static EO_Group_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_Group createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_Group_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_Group wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_Group_Collection wakeUpCollection($rows)
-	 */
-	class GroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2462,18 +2102,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_GroupAccess_Query query()
-	 * @method static EO_GroupAccess_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_GroupAccess_Result getById($id)
-	 * @method static EO_GroupAccess_Result getList(array $parameters = array())
-	 * @method static EO_GroupAccess_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_GroupAccess createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_GroupAccess_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_GroupAccess wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_GroupAccess_Collection wakeUpCollection($rows)
-	 */
-	class GroupAccessTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2638,18 +2266,6 @@ namespace Bitrix\Catalog {
 	}
 }
 namespace Bitrix\Catalog {
-	/**
-	 * @method static EO_GroupLang_Query query()
-	 * @method static EO_GroupLang_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_GroupLang_Result getById($id)
-	 * @method static EO_GroupLang_Result getList(array $parameters = array())
-	 * @method static EO_GroupLang_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_GroupLang createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_GroupLang_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_GroupLang wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_GroupLang_Collection wakeUpCollection($rows)
-	 */
-	class GroupLangTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2839,18 +2455,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_Measure_Query query()
-	 * @method static EO_Measure_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Measure_Result getById($id)
-	 * @method static EO_Measure_Result getList(array $parameters = array())
-	 * @method static EO_Measure_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_Measure createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_Measure_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_Measure wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_Measure_Collection wakeUpCollection($rows)
-	 */
-	class MeasureTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3015,18 +2619,6 @@ namespace Bitrix\Catalog {
 	}
 }
 namespace Bitrix\Catalog {
-	/**
-	 * @method static EO_MeasureRatio_Query query()
-	 * @method static EO_MeasureRatio_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MeasureRatio_Result getById($id)
-	 * @method static EO_MeasureRatio_Result getList(array $parameters = array())
-	 * @method static EO_MeasureRatio_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_MeasureRatio createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_MeasureRatio_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_MeasureRatio wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_MeasureRatio_Collection wakeUpCollection($rows)
-	 */
-	class MeasureRatioTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -3303,18 +2895,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_Price_Query query()
-	 * @method static EO_Price_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Price_Result getById($id)
-	 * @method static EO_Price_Result getList(array $parameters = array())
-	 * @method static EO_Price_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_Price createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_Price_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_Price wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_Price_Collection wakeUpCollection($rows)
-	 */
-	class PriceTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3340,7 +2920,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_Price_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\ProductTable:catalog/lib/product.php:3d67fbf19b28757faa477bb8c84b4d1a */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\ProductTable:catalog/lib/product.php:cbfdb028c2e9b035b5e807446543980a */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_Product
@@ -3830,18 +3410,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_Product_Query query()
-	 * @method static EO_Product_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Product_Result getById($id)
-	 * @method static EO_Product_Result getList(array $parameters = array())
-	 * @method static EO_Product_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_Product createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_Product_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_Product wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_Product_Collection wakeUpCollection($rows)
-	 */
-	class ProductTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4018,18 +3586,6 @@ namespace Bitrix\Catalog {
 	}
 }
 namespace Bitrix\Catalog {
-	/**
-	 * @method static EO_ProductGroupAccess_Query query()
-	 * @method static EO_ProductGroupAccess_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ProductGroupAccess_Result getById($id)
-	 * @method static EO_ProductGroupAccess_Result getList(array $parameters = array())
-	 * @method static EO_ProductGroupAccess_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_ProductGroupAccess createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_ProductGroupAccess_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_ProductGroupAccess wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_ProductGroupAccess_Collection wakeUpCollection($rows)
-	 */
-	class ProductGroupAccessTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -4268,18 +3824,6 @@ namespace Bitrix\Catalog {
 	}
 }
 namespace Bitrix\Catalog {
-	/**
-	 * @method static EO_Rounding_Query query()
-	 * @method static EO_Rounding_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Rounding_Result getById($id)
-	 * @method static EO_Rounding_Result getList(array $parameters = array())
-	 * @method static EO_Rounding_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_Rounding createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_Rounding_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_Rounding wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_Rounding_Collection wakeUpCollection($rows)
-	 */
-	class RoundingTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -4649,18 +4193,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_Store_Query query()
-	 * @method static EO_Store_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Store_Result getById($id)
-	 * @method static EO_Store_Result getList(array $parameters = array())
-	 * @method static EO_Store_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_Store createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_Store_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_Store wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_Store_Collection wakeUpCollection($rows)
-	 */
-	class StoreTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4925,18 +4457,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_StoreBarcode_Query query()
-	 * @method static EO_StoreBarcode_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_StoreBarcode_Result getById($id)
-	 * @method static EO_StoreBarcode_Result getList(array $parameters = array())
-	 * @method static EO_StoreBarcode_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_StoreBarcode createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_StoreBarcode_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_StoreBarcode wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_StoreBarcode_Collection wakeUpCollection($rows)
-	 */
-	class StoreBarcodeTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -5115,18 +4635,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_StoreProduct_Query query()
-	 * @method static EO_StoreProduct_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_StoreProduct_Result getById($id)
-	 * @method static EO_StoreProduct_Result getList(array $parameters = array())
-	 * @method static EO_StoreProduct_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_StoreProduct createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_StoreProduct_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_StoreProduct wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_StoreProduct_Collection wakeUpCollection($rows)
-	 */
-	class StoreProductTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -5152,7 +4660,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_StoreProduct_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\SubscribeTable:catalog/lib/subscribe.php:28e09d35b6a1daa3fcd3c40052b1fd28 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\SubscribeTable:catalog/lib/subscribe.php:57f671d2406abd89157cd57025d60514 */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_Subscribe
@@ -5390,18 +4898,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_Subscribe_Query query()
-	 * @method static EO_Subscribe_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Subscribe_Result getById($id)
-	 * @method static EO_Subscribe_Result getList(array $parameters = array())
-	 * @method static EO_Subscribe_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_Subscribe createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_Subscribe_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_Subscribe wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_Subscribe_Collection wakeUpCollection($rows)
-	 */
-	class SubscribeTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -5567,18 +5063,6 @@ namespace Bitrix\Catalog {
 }
 namespace Bitrix\Catalog {
 	/**
-	 * @method static EO_SubscribeAccess_Query query()
-	 * @method static EO_SubscribeAccess_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_SubscribeAccess_Result getById($id)
-	 * @method static EO_SubscribeAccess_Result getList(array $parameters = array())
-	 * @method static EO_SubscribeAccess_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_SubscribeAccess createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_SubscribeAccess_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_SubscribeAccess wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_SubscribeAccess_Collection wakeUpCollection($rows)
-	 */
-	class SubscribeAccessTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -5604,7 +5088,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_SubscribeAccess_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\VatTable:catalog/lib/vat.php:a8b14abf1b4c9b2f7473cbaba1318a15 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\VatTable:catalog/lib/vat.php:3efbca6ce0929133b02f949722d08245 */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_Vat
@@ -5754,18 +5238,6 @@ namespace Bitrix\Catalog {
 	}
 }
 namespace Bitrix\Catalog {
-	/**
-	 * @method static EO_Vat_Query query()
-	 * @method static EO_Vat_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Vat_Result getById($id)
-	 * @method static EO_Vat_Result getList(array $parameters = array())
-	 * @method static EO_Vat_Entity getEntity()
-	 * @method static \Bitrix\Catalog\EO_Vat createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Catalog\EO_Vat_Collection createCollection()
-	 * @method static \Bitrix\Catalog\EO_Vat wakeUpObject($row)
-	 * @method static \Bitrix\Catalog\EO_Vat_Collection wakeUpCollection($rows)
-	 */
-	class VatTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

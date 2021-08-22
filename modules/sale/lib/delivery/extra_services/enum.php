@@ -135,7 +135,7 @@ class Enum extends Base
 
 			$priceVal = floatval($price["PRICE"]);
 			$this->params["OPTIONS"][$key] =
-				$price["TITLE"].
+				htmlspecialcharsbx($price["TITLE"]).
 				" (".
 				strip_tags(
 					SaleFormatCurrency(

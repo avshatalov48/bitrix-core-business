@@ -214,6 +214,7 @@ $APPLICATION->IncludeComponent(
 			[
 				'containerId'      => 'workarea-content',
 				'actionUri'        => $arResult['ACTION_URL'],
+				'isAvailable'      => $arResult['IS_AVAILABLE'],
 				'isSaved'          => $arResult['IS_SAVED'],
 				'isOutside'        => $arParams['IS_OUTSIDE'],
 				'isTemplateShowed' => $arResult['SHOW_TEMPLATE_SELECTOR'],

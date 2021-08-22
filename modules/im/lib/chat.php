@@ -332,6 +332,17 @@ class Chat
 			));
 		}
 
+		$chat = \Bitrix\Im\Chat::getById($chatId);
+		foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("im", "OnAfterChatMuteNotify") as $event)
+		{
+			ExecuteModuleEventEx($event, [[
+				'CHAT_ID' => $chatId,
+				'USER_ID' => $userId,
+				'MUTE' => $action == 'Y',
+				'CHAT' => $chat,
+			]]);
+		}
+
 		return true;
 	}
 

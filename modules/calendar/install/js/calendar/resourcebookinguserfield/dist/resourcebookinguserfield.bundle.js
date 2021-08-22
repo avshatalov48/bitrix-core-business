@@ -4825,7 +4825,7 @@ this.BX = this.BX || {};
 	        html: '<span class="calendar-resourcebook-content-block-control-delete calendar-resourcebook-content-block-control-delete-detail"></span>'
 	      })); // Adjust outer wrap max height
 
-	      this.serviceListOuterWrap.style.maxHeight = Math.max(600, this.serviceListRowsWrap.childNodes.length * 40 + 100) + 'px';
+	      this.serviceListOuterWrap.style.maxHeight = Math.max(500, this.serviceListRowsWrap.childNodes.length * 45 + 100) + 'px';
 	    }
 	  }, {
 	    key: "checkDurationTitlePosition",
@@ -6285,18 +6285,28 @@ this.BX = this.BX || {};
 
 	      if (langId) {
 	        switch (langId) {
-	          case 'de':
-	          case 'en':
-	            pluralForm = number !== 1 ? 1 : 0;
-	            break;
-
 	          case 'ru':
 	          case 'ua':
-	            pluralForm = number % 10 === 1 && number % 100 !== 11 ? 0 : number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 10 || number % 100 >= 20) ? 1 : 2;
+	            if (number % 10 === 1 && number % 100 !== 11) {
+	              pluralForm = 0;
+	            } else {
+	              pluralForm = number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 10 || number % 100 >= 20) ? 1 : 2;
+	            }
+
+	            break;
+
+	          case 'pl':
+	            if (number <= 4) {
+	              pluralForm = number === 1 ? 0 : 1;
+	            } else {
+	              pluralForm = 2;
+	            }
+
 	            break;
 
 	          default:
-	            pluralForm = 1;
+	            // en, de and other languages
+	            pluralForm = number !== 1 ? 1 : 0;
 	            break;
 	        }
 	      } else {

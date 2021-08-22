@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["USER_TYPE_DURATION_REGEXP_DAY"] = "day|d";
 $MESS["USER_TYPE_DURATION_REGEXP_HOUR"] = "hour|hr";
 $MESS["USER_TYPE_DURATION_X_DAY"] = "#NUM# day(s)";
@@ -97,7 +97,7 @@ $MESS["WEBF_RES_PART_OF_THE_DAY_NIGHT"] = "Night";
 $MESS["WEBF_RES_RESOURCES"] = "Resources";
 $MESS["WEBF_RES_RESOURCES_LABEL"] = "Select resource";
 $MESS["WEBF_RES_RESOURCE_PLURAL_0"] = "resource";
-$MESS["WEBF_RES_RESOURCE_PLURAL_1"] = "resource";
+$MESS["WEBF_RES_RESOURCE_PLURAL_1"] = "resources";
 $MESS["WEBF_RES_RESOURCE_PLURAL_2"] = "resources";
 $MESS["WEBF_RES_SELECT_ALL"] = "Select all";
 $MESS["WEBF_RES_SELECT_ALL_SERVICES"] = "Select all services";
@@ -132,6 +132,5 @@ $MESS["WEBF_RES_TIME_STYLE_SLOT"] = "Time slot";
 $MESS["WEBF_RES_USERS"] = "Employees";
 $MESS["WEBF_RES_USERS_LABEL"] = "Select employee";
 $MESS["WEBF_RES_USER_PLURAL_0"] = "employee";
-$MESS["WEBF_RES_USER_PLURAL_1"] = "employee";
+$MESS["WEBF_RES_USER_PLURAL_1"] = "employees";
 $MESS["WEBF_RES_USER_PLURAL_2"] = "employees";
-?>

@@ -318,7 +318,7 @@ elseif (
 		{
 			$lastUpdate = new \Bitrix\Main\Type\DateTime($_POST['RECENT_LAST_UPDATE'], DateTimeInterface::RFC3339);
 			$recent = \Bitrix\Im\Recent::get(null, [
-				'LAST_UPDATE' => $lastUpdate,
+				'LAST_SYNC_DATE' => $lastUpdate,
 				'SKIP_NOTIFICATION' => 'Y',
 				'SKIP_OPENLINES' => ($isOperator? 'Y': 'N'),
 				'JSON' => 'Y'
@@ -334,7 +334,7 @@ elseif (
 		{
 			$lastUpdate = new \Bitrix\Main\Type\DateTime($_POST['LINES_LAST_UPDATE'], DateTimeInterface::RFC3339);
 			$linesList = \Bitrix\Im\Recent::get(null, [
-				'LAST_UPDATE' => $lastUpdate,
+				'LAST_SYNC_DATE' => $lastUpdate,
 				'ONLY_OPENLINES' => 'Y',
 				'JSON' => 'Y'
 			]);

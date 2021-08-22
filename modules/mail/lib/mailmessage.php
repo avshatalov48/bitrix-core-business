@@ -9,6 +9,22 @@ use Bitrix\Main\ORM\Fields\TextField;
 
 Localization\Loc::loadMessages(__FILE__);
 
+/**
+ * Class MailMessageTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MailMessage_Query query()
+ * @method static EO_MailMessage_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MailMessage_Result getById($id)
+ * @method static EO_MailMessage_Result getList(array $parameters = array())
+ * @method static EO_MailMessage_Entity getEntity()
+ * @method static \Bitrix\Mail\EO_MailMessage createObject($setDefaultValues = true)
+ * @method static \Bitrix\Mail\EO_MailMessage_Collection createCollection()
+ * @method static \Bitrix\Mail\EO_MailMessage wakeUpObject($row)
+ * @method static \Bitrix\Mail\EO_MailMessage_Collection wakeUpCollection($rows)
+ */
 class MailMessageTable extends Entity\DataManager
 {
 

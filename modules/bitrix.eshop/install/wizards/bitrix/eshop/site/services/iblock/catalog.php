@@ -194,7 +194,7 @@ $dbResultList = CCatalogGroup::GetList(array(), array("BASE" => "Y"));
 if(!($dbResultList->Fetch()))
 {
 	$arFields = array();
-	$rsLanguage = CLanguage::GetList($by, $order, array());
+	$rsLanguage = CLanguage::GetList();
 	while($arLanguage = $rsLanguage->Fetch())
 	{
 		WizardServices::IncludeServiceLang("catalog.php", $arLanguage["ID"]);
@@ -214,12 +214,14 @@ if($IBLOCK_CATALOG_ID == false)
 			"1" => "X",
 			"2" => "R"
 		);
-	$dbGroup = CGroup::GetList($by = "", $order = "", Array("STRING_ID" => "sale_administrator"));
+	$dbGroup = CGroup::GetList('', '', Array("STRING_ID" => "sale_administrator"));
 	if($arGroup = $dbGroup -> Fetch())
 	{
 		$permissions[$arGroup["ID"]] = 'W';
 	}
-	$dbGroup = CGroup::GetList($by = "", $order = "", Array("STRING_ID" => "content_editor"));
+	$by = "";
+	$order = "";
+	$dbGroup = CGroup::GetList('', '', Array("STRING_ID" => "content_editor"));
 	if($arGroup = $dbGroup -> Fetch())
 	{
 		$permissions[$arGroup["ID"]] = 'W';

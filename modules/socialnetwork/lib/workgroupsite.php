@@ -12,6 +12,22 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class WorkgroupSiteTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_WorkgroupSite_Query query()
+ * @method static EO_WorkgroupSite_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_WorkgroupSite_Result getById($id)
+ * @method static EO_WorkgroupSite_Result getList(array $parameters = array())
+ * @method static EO_WorkgroupSite_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite_Collection wakeUpCollection($rows)
+ */
 class WorkgroupSiteTable extends Entity\DataManager
 {
 	public static function getTableName()

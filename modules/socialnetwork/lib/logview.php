@@ -14,6 +14,22 @@ use Bitrix\Main\NotImplementedException;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class LogViewTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_LogView_Query query()
+ * @method static EO_LogView_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_LogView_Result getById($id)
+ * @method static EO_LogView_Result getList(array $parameters = array())
+ * @method static EO_LogView_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_LogView createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_LogView_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_LogView wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_LogView_Collection wakeUpCollection($rows)
+ */
 class LogViewTable extends Entity\DataManager
 {
 	public static function getTableName()

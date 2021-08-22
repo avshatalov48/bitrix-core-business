@@ -14,6 +14,7 @@ type Controls = {
 		textColor: ?Control,
 		textSize: ?Control,
 		textFont: ?Control,
+		font: ?Control,
 		textWeight: ?Control,
 		textLineHeight: ?Control,
 		hColor: ?Control,
@@ -49,11 +50,9 @@ export class DesignPreview
 	initLayout()
 	{
 		this.layout = DesignPreview.createLayout(this.phrase);
-		this.fonts = DesignPreview.loadFonts();
 		this.styleNode = document.createElement("style");
 		Dom.append(this.styleNode, this.layout);
 		Dom.append(this.layout, this.form);
-		Dom.append(this.fonts, this.form);
 
 		const paramsObserver = {
 			threshold: 1
@@ -118,6 +117,7 @@ export class DesignPreview
 				{
 					control.setClickHandler(this.applyStyles.bind(this));
 				}
+				
 				this.controls[group][key] = control;
 			}
 		}
@@ -149,6 +149,34 @@ export class DesignPreview
 		BX.addCustomEvent('BX.Landing.ColorPicker:onSelectColor', this.onApplyStyles.bind(this));
 		BX.addCustomEvent('BX.Landing.ColorPicker:onClearColorPicker', this.onApplyStyles.bind(this));
 		BX.addCustomEvent('BX.Landing.UI.Field.Image:onChangeImage', this.onApplyStyles.bind(this));
+		BX.addCustomEvent('BX.Landing.UI.Panel.GoogleFonts:onSelectFont', this.onApplyStyles.bind(this));
+
+		let fieldCode = BX('field-themefonts_code');
+		let fieldCodeH = BX('field-themefonts_code_h');
+		const panel = BX.Landing.UI.Panel.GoogleFonts.getInstance();
+		
+		BX.Dom.append(panel.layout, document.body);
+		fieldCode.setAttribute("value", this.convertFont(fieldCode.value));
+		fieldCodeH.setAttribute("value", this.convertFont(fieldCodeH.value));
+
+		this.showFontPanel(panel, fieldCode);
+		this.showFontPanel(panel, fieldCodeH);
+	}
+
+	showFontPanel(panel, element)
+	{
+		element.onclick = function(){
+			panel.show({
+				hideOverlay: true,
+				targetWindow: 'window',
+			}).then(function(font) {
+				if (!this.response)
+				{
+					element.setAttribute("value", font.family);
+					BX.onCustomEvent('BX.Landing.UI.Panel.GoogleFonts:onSelectFont');
+				}
+			}.bind(this));
+		}
 	}
 
 	generateSelectorStart(className)
@@ -197,8 +225,8 @@ export class DesignPreview
 	getCSSPart2(css)
 	{
 		let textColor = this.controls.typo.textColor.node.value;
-		let font = this.convertFont(this.controls.typo.textFont.node.value);
-		let hFont = this.convertFont(this.controls.typo.hFont.node.value);
+		let font = this.controls.typo.font.node.value;
+		let hFont = this.controls.typo.hFont.node.value;
 		let textSize = Math.round(this.controls.typo.textSize.node.value * DesignPreview.DEFAULT_FONT_SIZE) + 'px';
 		let fontWeight = this.controls.typo.textWeight.node.value;
 		let fontLineHeight = this.controls.typo.textLineHeight.node.value;
@@ -210,8 +238,8 @@ export class DesignPreview
 			if (this.controls.typo.use.node.checked === false)
 			{
 				textColor = this.controls.typo.textColor.defaultValue;
-				font = this.convertFont(this.controls.typo.textFont.defaultValue);
-				hFont = this.convertFont(this.controls.typo.hFont.defaultValue);
+				font = this.controls.typo.font.defaultValue;
+				hFont = this.controls.typo.hFont.defaultValue;
 				textSize = Math.round(this.controls.typo.textSize.defaultValue
 					* DesignPreview.DEFAULT_FONT_SIZE) + 'px';
 				fontWeight = this.controls.typo.textWeight.defaultValue;
@@ -221,8 +249,13 @@ export class DesignPreview
 			}
 		}
 
+		let link = this.createLink(font);
+		Dom.append(link, this.form);
+		let linkH = this.createLink(hFont);
+		Dom.append(linkH, this.form);
+
 		css += `--design-preview-color: ${textColor};`;
-		css += `--design-preview-font: ${font};`;
+		css += `--design-preview-font-theme: ${font};`;
 		css += `--design-preview-font-size: ${textSize};`;
 		css += `--design-preview-font-weight: ${fontWeight};`;
 		css += `--design-preview-line-height: ${fontLineHeight};`;
@@ -244,11 +277,11 @@ export class DesignPreview
 		}
 		if (this.controls.typo.hFont.node.value)
 		{
-			css += `--design-preview-font-h: ${hFont};`;
+			css += `--design-preview-font-h-theme: ${hFont};`;
 		}
 		else
 		{
-			css += `--design-preview-font-h: ${font};`;
+			css += `--design-preview-font-h-theme: ${font};`;
 		}
 
 		return css;
@@ -311,6 +344,16 @@ export class DesignPreview
 		return css;
 	}
 
+	createLink(font)
+	{
+		let link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.href = 'https://fonts.googleapis.com/css2?family=';
+		link.href += font.replace(' ', '+');
+		link.href += ':wght@300;400;500;600;700;900';
+		return link;
+	}
+
 	generateCss()
 	{
 		let css;
@@ -333,46 +376,6 @@ export class DesignPreview
 		this.styleNode.innerHTML = this.generateCss();
 	}
 
-	convertFont(font)
-	{
-		switch (font)
-		{
-			case 'g-font-open-sans':
-				font = '"Open Sans", Helvetica, Arial, sans-serif';
-				break;
-			case 'g-font-roboto':
-				font = '"Roboto", Arial, sans-serif';
-				break;
-			case 'g-font-roboto-slab':
-				font = '"Roboto Slab", Helvetica, Arial, sans-serif';
-				break;
-			case 'g-font-montserrat':
-				font = '"Montserrat", Arial, sans-serif';
-				break;
-			case 'g-font-alegreya-sans':
-				font = '"Alegreya Sans", sans-serif';
-				break;
-			case 'g-font-cormorant-infant':
-				font = '"Cormorant Infant", serif';
-				break;
-			case 'g-font-pt-sans-caption':
-				font = '"PT Sans Caption", sans-serif';
-				break;
-			case 'g-font-pt-sans-narrow':
-				font = '"PT Sans Narrow", sans-serif';
-				break;
-			case 'g-font-pt-sans':
-				font = '"PT Sans", sans-serif';
-				break;
-			case 'g-font-lobster':
-				font = '"Lobster", cursive';
-				break;
-			default:
-				font = '"Montserrat", Arial, sans-serif';
-		}
-		return font;
-	}
-
 	static createLayout(phrase): HTMLDivElement
 	{
 		return Tag.render`
@@ -390,48 +393,6 @@ export class DesignPreview
 						<a href="#" class="landing-design-preview-button">${phrase.button}</a>
 					</div>
 				</div>
-			</div>
-		`;
-	}
-
-	static loadFonts(): HTMLDivElement
-	{
-		return Tag.render`
-			<div>
-				<link
-					rel="stylesheet"
-					href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700,900"
-				>
-				<link
-					rel="stylesheet"
-					href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,600,700,900"
-				>
-				<link
-					rel="stylesheet"
-					href="https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,500,600,700,900"
-				>
-				<link
-					rel="stylesheet"
-					href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700,900"
-				>
-				<link
-					rel="stylesheet"
-					href="https://fonts.googleapis.com/css?family=Alegreya+Sans:300,400,500,600,700,900"
-				>
-				<link
-					rel="stylesheet"
-					href="https://fonts.googleapis.com/css?family=Cormorant+Infant:300,400,500,600,700,900"
-				>
-				<link
-					rel="stylesheet"
-					href="https://fonts.googleapis.com/css?family=PT+Sans+Caption:300,400,500,600,700,900"
-				>
-				<link
-					rel="stylesheet"
-					href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow:300,400,500,600,700,900"
-				>
-				<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:300,400,500,600,700,900">
-				<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lobster:300,400,500,600,700,900">
 			</div>
 		`;
 	}
@@ -465,5 +426,22 @@ export class DesignPreview
 	{
 		let designPreview = document.querySelector('.landing-design-preview');
 		designPreview.setAttribute("style", '');
+	}
+
+	convertFont(font)
+	{
+		font = font.replace('g-font-', '');
+		font = font.replaceAll('-', ' ');
+		font = font.replace('ibm ', 'IBM ');
+		font = font.replace('pt ', 'PT ');
+		font = font.replace(/sc(?:(?![a-z]))/i, 'SC');
+		font = font.replace(/jp(?:(?![a-z]))/i, 'JP');
+		font = font.replace(/kr(?:(?![a-z]))/i, 'KR');
+		font = font.replace(/tc(?:(?![a-z]))/i, 'TC');
+		font = font.replace(/(^|\s)\S/g, function(firstSymbol) {
+			return firstSymbol.toUpperCase()
+		})
+
+		return font;
 	}
 }

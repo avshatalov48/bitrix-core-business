@@ -501,6 +501,10 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					$this->arParams['ACTION_FOLDER']
 				);
 			}
+			else if ($this->arParams['FOLDER_ID'])
+			{
+				$pageData['FOLDER_ID'] = $this->arParams['FOLDER_ID'];
+			}
 			if ($initiatorAppCode)
 			{
 				$pageData['INITIATOR_APP_CODE'] = $initiatorAppCode;
@@ -613,7 +617,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					// redefine content of blocks
 					foreach ($landing->getBlocks() as $k => $block)
 					{
-						if (!$block->getManifest())
+						$manifest = $block->getManifest();
+						if (!$manifest)
 						{
 							continue;
 						}
@@ -632,7 +637,13 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 									);
 								}
 								// update style
-								if (isset($newData['style']) && is_array($newData['style']))
+								if (
+									isset($newData['style']) && is_array($newData['style']) &&
+									(
+										!empty($manifest['style']['block']) ||
+										!empty($manifest['style']['nodes'])
+									)
+								)
 								{
 									$updatedStyles = [];
 									foreach ($newData['style'] as $selector => $classes)
@@ -1107,6 +1118,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				{
 					$siteData['ADDITIONAL_FIELDS']['COOKIES_USE'] = 'Y';
 				}
+				$siteData['ADDITIONAL_FIELDS']['SETTINGS_USE_ENHANCED_ECOMMERCE'] = 'N';
 				$res = Site::add($siteData);
 				Manager::disableFeatureTmp(
 					Manager::FEATURE_CREATE_SITE
@@ -2826,6 +2838,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		$application = Manager::getApplication();
 		set_time_limit(300);
 		$this->checkParam('SITE_ID', 0);
+		$this->checkParam('FOLDER_ID', 0);
 		$this->checkParam('TYPE', '');
 
 		\Bitrix\Landing\Hook::setEditMode(true);

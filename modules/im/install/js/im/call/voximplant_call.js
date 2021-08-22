@@ -110,6 +110,7 @@
 		this.direction = BX.Call.EndpointDirection.SendRecv;
 
 		this.localVAD = null;
+		this.microphoneLevelInterval = null;
 
 		Object.defineProperty(this, "screenShared", {
 			get: function() {
@@ -243,11 +244,13 @@
 
 			onMediaReceived: function(e)
 			{
-				this.runCallback(BX.Call.Event.onStreamReceived, e);
+				console.log("onMediaReceived: ", e);
+				this.runCallback(BX.Call.Event.onRemoteMediaReceived, e);
 			}.bind(this),
 			onMediaRemoved: function(e)
 			{
-				this.runCallback(BX.Call.Event.onStreamRemoved, e);
+				console.log("onMediaRemoved: ", e);
+				this.runCallback(BX.Call.Event.onRemoteMediaStopped, e);
 			}.bind(this),
 			onStateChanged: this.__onPeerStateChanged.bind(this),
 			onInviteTimeout: this.__onPeerInviteTimeout.bind(this)
@@ -275,6 +278,7 @@
 				{
 					this.log(e.label + ": " + e.message);
 				}.bind(this));
+				this.log("Voximplant SDK version: " + VoxImplant.version)
 
 				this.bindClientEvents();
 
@@ -793,6 +797,7 @@
 			this.localVAD.destroy();
 			this.localVAD = null;
 		}
+		clearInterval(this.microphoneLevelInterval);
 
 		var data = {};
 		this.ready = false;
@@ -1385,6 +1390,11 @@
 					}.bind(this),
 				});
 
+				clearInterval(this.microphoneLevelInterval);
+				this.microphoneLevelInterval = setInterval(function()
+				{
+					this.microphoneLevel = this.localVAD.currentVolume;
+				}.bind(this), 200)
 			}
 		}
 	};
@@ -1639,6 +1649,7 @@
 			this.localVAD.destroy();
 			this.localVAD = null;
 		}
+		clearInterval(this.microphoneLevelInterval);
 		if(this.voximplantCall)
 		{
 			this.removeCallEvents();
@@ -1886,12 +1897,6 @@
 
 		this.isIncomingVideoAllowed = params.isIncomingVideoAllowed !== false;
 
-		this.tracks = {
-			audio: null,
-			video: null,
-			sharing: null
-		};
-
 		this.callingTimeout = 0;
 		this.connectionRestoreTimeout = 0;
 
@@ -2020,14 +2025,6 @@
 			}
 
 			this.isIncomingVideoAllowed = !!isIncomingVideoAllowed;
-			if(false && this.tracks.video)
-			{
-				this.callbacks.onMediaReceived({
-					userId: this.userId,
-					//mediaRenderer: mediaRenderer
-				});
-
-			}
 		},
 
 		addMediaRenderer: function(mediaRenderer)
@@ -2037,6 +2034,7 @@
 			this.mediaRenderers.push(mediaRenderer);
 			this.callbacks.onMediaReceived({
 				userId: this.userId,
+				kind: mediaRenderer.kind,
 				mediaRenderer: mediaRenderer
 			});
 			this.updateCalculatedState();
@@ -2054,8 +2052,9 @@
 			}
 			this.callbacks.onMediaRemoved({
 				userId: this.userId,
+				kind: mediaRenderer.kind,
 				mediaRenderer: mediaRenderer
-			})
+			});
 			this.updateCalculatedState();
 		},
 
@@ -2176,7 +2175,7 @@
 
 		__onEndpointRemoteMediaAdded: function(e)
 		{
-			this.log("VoxImplant.EndpointEvents.RemoteMediaAdded", e);
+			this.log("VoxImplant.EndpointEvents.RemoteMediaAdded", e.mediaRenderer);
 
 			// voximplant audio auto-play bug workaround:
 			if(e.mediaRenderer.element)
@@ -2189,7 +2188,7 @@
 
 		__onEndpointRemoteMediaRemoved: function(e)
 		{
-			console.log("VoxImplant.EndpointEvents.RemoteMediaRemoved, ", e)
+			console.log("VoxImplant.EndpointEvents.RemoteMediaRemoved, ", e.mediaRenderer)
 			//this.log("VoxImplant.EndpointEvents.RemoteMediaRemoved, ", e);
 			this.removeMediaRenderer(e.mediaRenderer);
 		},
@@ -2206,13 +2205,6 @@
 			if(this.stream)
 			{
 				this.stream = null;
-			}
-			for(var kind in this.tracks)
-			{
-				if(this.tracks.hasOwnProperty(kind))
-				{
-					this.tracks[kind] = null;
-				}
 			}
 
 			if(this.ready)
@@ -2243,21 +2235,11 @@
 				this.removeEndpointEventHandlers();
 				this.endpoint = null;
 			}
-			for(var kind in this.tracks)
-			{
-				if(this.tracks.hasOwnProperty(kind))
-				{
-					if(this.tracks[kind] && this.tracks[kind].stop)
-					{
-						this.tracks[kind].stop();
-					}
-					this.tracks[kind] = null;
-				}
-			}
 
-			this.callbacks['onStateChanged'] = BX.DoNothing;
-			this.callbacks['onStreamReceived'] = BX.DoNothing;
-			this.callbacks['onStreamRemoved'] = BX.DoNothing;
+			this.callbacks.onStateChanged = BX.DoNothing;
+			this.callbacks.onInviteTimeout = BX.DoNothing;
+			this.callbacks.onMediaReceived = BX.DoNothing;
+			this.callbacks.onMediaRemoved = BX.DoNothing;
 
 			clearTimeout(this.callingTimeout);
 			clearTimeout(this.connectionRestoreTimeout);

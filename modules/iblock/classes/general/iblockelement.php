@@ -43,13 +43,13 @@ class CAllIBlockElement
 
 	protected static $elementIblock = array();
 
-	protected $catalogIncluded = null;
-	protected $workflowIncluded = null;
-	protected $bizprocInstalled = null;
-	protected $searchIncluded = null;
+	protected $catalogIncluded;
+	protected $workflowIncluded;
+	protected $bizprocInstalled;
+	protected $searchIncluded;
 
-	protected $userExists = null;
-	protected $userId = null;
+	protected $userExists;
+	protected $userId;
 
 	protected $iblock;
 	protected $iblockLanguage;
@@ -2726,8 +2726,10 @@ class CAllIBlockElement
 				}
 				elseif($by == "CNT")
 				{
-					if(!empty($arGroupBy) && is_array($arGroupBy))
-						$arSqlOrder[$by] = " CNT ".$order." ";
+					if (!empty($arGroupBy) && is_array($arGroupBy))
+					{
+						$arSqlOrder[$by] = ' '.CIBlock::_Order('CNT', $order, 'desc', false).' ';
+					}
 				}
 				elseif(mb_substr($by, 0, 9) == "PROPERTY_")
 				{
@@ -3089,7 +3091,15 @@ class CAllIBlockElement
 	{
 		global $DB;
 
-		$arIBlock = CIBlock::GetArrayByID($arFields["IBLOCK_ID"]);
+		if ($this->iblock !== null && $this->iblock['ID'] === (int)$arFields["IBLOCK_ID"])
+		{
+			$arIBlock = $this->iblock;
+		}
+		else
+		{
+			$arIBlock = CIBlock::GetArrayByID($arFields["IBLOCK_ID"]);
+		}
+
 		$existIblock = !empty($arIBlock) && is_array($arIBlock);
 		$bWorkFlow = $bWorkFlow && $existIblock && ($arIBlock["WORKFLOW"] != "N") && $this->workflowIncluded;
 		$bBizProc = $existIblock && ($arIBlock["BIZPROC"] == "Y") && $this->bizprocInstalled;
@@ -4154,7 +4164,7 @@ class CAllIBlockElement
 				break;
 		}
 
-		if(($ID===false || is_set($arFields, "NAME")) && $arFields["NAME"] == '')
+		if(($ID===false || array_key_exists("NAME", $arFields)) && (string)$arFields["NAME"] === '')
 			$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_ELEMENT_NAME")."<br>";
 
 		if(
@@ -4717,14 +4727,15 @@ class CAllIBlockElement
 
 		if(is_array($ID))
 		{
-			if(empty($ID))
-				$sqlID = array(0);
-			else
-				$sqlID = array_map("intval", $ID);
+			if (!empty($ID))
+			{
+				Main\Type\Collection::normalizeArrayValuesByInt($ID);
+			}
+			$sqlID = !empty($ID) ? $ID : array(0);
 		}
 		else
 		{
-			$sqlID = array(intval($ID));
+			$sqlID = array((int)$ID);
 		}
 
 		$arSqlSelect = array();
@@ -7051,7 +7062,7 @@ class CAllIBlockElement
 	 * @param mixed $order
 	 * @return string
 	 */
-	protected function getIdOrder($order)
+	protected function getIdOrder($order): string
 	{
 		if (!is_string($order))
 			$order = '';

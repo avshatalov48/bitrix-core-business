@@ -38,7 +38,7 @@
 				content: this.render(),
 				padding: 0,
 				contentPadding: 14,
-				height: 60,  // 32 + (14 * 2) = 60 total
+				height: this.getPopupHeight(),
 				className: 'bx-call-view-popup-call-muted',
 				contentBackground: 'unset',
 
@@ -99,15 +99,32 @@
 
 		getPopupMessage: function()
 		{
-			var message = BX.message("IM_CALL_MIC_MUTED_WHILE_TALKING_HOTKEY");
+			var title = BX.util.htmlspecialchars(BX.message("IM_CALL_MIC_MUTED_WHILE_TALKING"));
+			if (!BX.Call.Util.isDesktop())
+			{
+				return title;
+			}
+
+			var hotKeyMessage = BX.message("IM_CALL_MIC_MUTED_WHILE_TALKING_HOTKEY");
 			if (this.options.callFolded)
 			{
 				var hotkey = (BX.browser.IsMac() ? 'Shift + &#8984; + A' : 'Ctrl + Shift + A');
-				message = BX.message("IM_CALL_MIC_MUTED_WHILE_TALKING_FOLDED_CALL_HOTKEY").replace('#HOTKEY#', hotkey);
+				hotKeyMessage = BX.message("IM_CALL_MIC_MUTED_WHILE_TALKING_FOLDED_CALL_HOTKEY").replace('#HOTKEY#', hotkey);
 			}
-			var hotkeyText = '<span class="bx-call-view-popup-call-muted-text-hotkey">' + message + '</span>';
+			hotKeyMessage = '<span class="bx-call-view-popup-call-muted-text-hotkey">' + hotKeyMessage + '</span>';
 
-			return 	BX.util.htmlspecialchars(BX.message("IM_CALL_MIC_MUTED_WHILE_TALKING")) + '<br>' + hotkeyText;
+			return title + '<br>' + hotKeyMessage;
+		},
+
+		/**
+		 * Returns height in pixels for the popup.
+		 * The height depends on the hotkey hint (hint appears only in the desktop app).
+		 *
+		 * @returns {number}
+		 */
+		getPopupHeight: function()
+		{
+			return BX.Call.Util.isDesktop() ? 60 : 54;
 		},
 
 		close: function()

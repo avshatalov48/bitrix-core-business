@@ -2967,7 +2967,7 @@ class ComponentHelper
 		}
 
 		// parse inline disk attached object ids
-		if (preg_match_all('#\\[disk file id=(\\d+)\\]#is' . BX_UTF_PCRE_MODIFIER, $$text, $matches))
+		if (preg_match_all('#\\[disk file id=(\\d+)\\]#is' . BX_UTF_PCRE_MODIFIER, $text, $matches))
 		{
 			$inlineDiskAttachedObjectIdList = array_map(function($a) { return (int)$a; }, $matches[1]);
 		}
@@ -4291,12 +4291,18 @@ class ComponentHelper
 		$userAdmin = \CSocNetUser::isUserModuleAdmin($currentUserId, $siteId);
 		$allowToAll = self::getAllowToAllDestination();
 
-		$newSonetGroupIdList = array();
+		$newSonetGroupIdList = [];
+		$newUserIdList = [];
+
 		foreach($destinationList as $code)
 		{
 			if (preg_match('/^SG(\d+)/i', $code, $matches))
 			{
 				$newSonetGroupIdList[] = $matches[1];
+			}
+			elseif (preg_match('/^U(\d+)/i', $code, $matches))
+			{
+				$newUserIdList[] = $matches[1];
 			}
 		}
 
@@ -4305,7 +4311,7 @@ class ComponentHelper
 			$oneSG = false;
 			$firstSG = true;
 
-			$unavailableSGList = [];
+			$premoderateSGList = [];
 			$canPublish = true;
 
 			foreach($newSonetGroupIdList as $groupId)
@@ -4321,14 +4327,19 @@ class ComponentHelper
 
 				$canPublishToGroup = (
 					$userAdmin
-					|| \CSocNetFeaturesPerms::canPerformOperation($currentUserId, SONET_ENTITY_GROUP, $groupId, "blog", "write_post")
-					|| \CSocNetFeaturesPerms::canPerformOperation($currentUserId, SONET_ENTITY_GROUP, $groupId, "blog", "moderate_post")
-					|| \CSocNetFeaturesPerms::canPerformOperation($currentUserId, SONET_ENTITY_GROUP, $groupId, "blog", "full_post")
+					|| \CSocNetFeaturesPerms::canPerformOperation($currentUserId, SONET_ENTITY_GROUP, $groupId, 'blog', 'write_post')
+					|| \CSocNetFeaturesPerms::canPerformOperation($currentUserId, SONET_ENTITY_GROUP, $groupId, 'blog', 'full_post')
+					|| \CSocNetFeaturesPerms::canPerformOperation($currentUserId, SONET_ENTITY_GROUP, $groupId, 'blog', 'moderate_post')
 				);
 
-				if (!$canPublishToGroup)
+				$canPremoderateToGroup = \CSocNetFeaturesPerms::canPerformOperation($currentUserId, SONET_ENTITY_GROUP, $groupId, 'blog', 'premoderate_post');
+
+				if (
+					!$canPublishToGroup
+					&& $canPremoderateToGroup
+				)
 				{
-					$unavailableSGList[] = $groupId;
+					$premoderateSGList[] = $groupId;
 				}
 
 				$canPublish = (
@@ -4349,50 +4360,71 @@ class ComponentHelper
 
 			if (!$canPublish)
 			{
-				if ($oneSG)
+				if (!empty($premoderateSGList))
 				{
-					if ($resultFields['PUBLISH_STATUS'] === BLOG_PUBLISH_STATUS_PUBLISH)
+					if ($oneSG)
 					{
-						if (!$postId) // new post
+						if ($resultFields['PUBLISH_STATUS'] === BLOG_PUBLISH_STATUS_PUBLISH)
 						{
-							$resultFields['PUBLISH_STATUS'] = BLOG_PUBLISH_STATUS_READY;
+							if (!$postId) // new post
+							{
+								$resultFields['PUBLISH_STATUS'] = BLOG_PUBLISH_STATUS_READY;
+							}
+							elseif ($postFields['PUBLISH_STATUS'] !== BLOG_PUBLISH_STATUS_PUBLISH)
+							{
+								$resultFields['PUBLISH_STATUS'] = $postFields['PUBLISH_STATUS'];
+							}
+							else
+							{
+								$resultFields['ERROR_MESSAGE'] = Loc::getMessage('SBPE_EXISTING_POST_PREMODERATION');
+								$resultFields['ERROR_MESSAGE_PUBLIC'] = $resultFields['ERROR_MESSAGE'];
+							}
 						}
-						elseif ($postFields['PUBLISH_STATUS'] !== BLOG_PUBLISH_STATUS_PUBLISH)
+					}
+					else
+					{
+						$groupNameList = [];
+						$groupUrl = Option::get('socialnetwork', 'workgroups_page', SITE_DIR.'workgroups/', SITE_ID).'group/#group_id#/';
+
+						$res = WorkgroupTable::getList([
+							'filter' => [
+								'@ID' => $premoderateSGList
+							],
+							'select' => [ 'ID', 'NAME' ]
+						]);
+						while ($groupFields = $res->fetch())
 						{
-							$resultFields['PUBLISH_STATUS'] = $postFields['PUBLISH_STATUS'];
+							$groupNameList[] = (
+							isset($params['MOBILE']) && $params['MOBILE'] === 'Y'
+								? $groupFields['NAME']
+								: '<a href="' . \CComponentEngine::makePathFromTemplate($groupUrl, [ 'group_id' => $groupFields['ID'] ]) . '">'.$groupFields['NAME'].'</a>'
+							);
 						}
-						else
-						{
-							$resultFields['ERROR_MESSAGE'] = Loc::getMessage('SBPE_EXISTING_POST_PREMODERATION');
-							$resultFields['ERROR_MESSAGE_PUBLIC'] = $resultFields['ERROR_MESSAGE'];
-						}
+
+						$resultFields['ERROR_MESSAGE'] = Loc::getMessage('SBPE_MULTIPLE_PREMODERATION2', [
+							'#GROUPS_LIST#' => implode(', ', $groupNameList)
+						]);
+						$resultFields['ERROR_MESSAGE_PUBLIC'] = $resultFields['ERROR_MESSAGE'];
 					}
 				}
 				else
 				{
-					$groupNameList = [];
-					$groupUrl = Option::get('socialnetwork', 'workgroups_page', SITE_DIR.'workgroups/', SITE_ID).'group/#group_id#/';
-
-					$res = WorkgroupTable::getList([
-						'filter' => [
-							'@ID' => $unavailableSGList
-						],
-						'select' => [ 'ID', 'NAME' ]
-					]);
-					while ($groupFields = $res->fetch())
-					{
-						$groupNameList[] = (
-							isset($params['MOBILE']) && $params['MOBILE'] === 'Y'
-								? $groupFields['NAME']
-								: '<a href="' . \CComponentEngine::makePathFromTemplate($groupUrl, [ 'group_id' => $groupFields['ID'] ]) . '">'.$groupFields['NAME'].'</a>'
-						);
-					}
-
-					$resultFields['ERROR_MESSAGE'] = Loc::getMessage('SBPE_MULTIPLE_PREMODERATION2', [
-						'#GROUPS_LIST#' => implode(', ', $groupNameList)
-					]);
-					$resultFields['ERROR_MESSAGE_PUBLIC'] = $resultFields['ERROR_MESSAGE'];
+					$resultFields['ERROR_MESSAGE'] = Loc::getMessage('SONET_HELPER_NO_PERMISSIONS');
 				}
+			}
+		}
+
+		if (
+			$extranetUser
+			&& !empty($newUserIdList)
+			&& Loader::includeModule('extranet')
+		)
+		{
+			$visibleUserIdList = \CExtranet::getMyGroupsUsersSimple(SITE_ID);
+
+			if (!empty(array_diff($newUserIdList, $visibleUserIdList)))
+			{
+				$resultFields['ERROR_MESSAGE'] = Loc::getMessage('SONET_HELPER_NO_PERMISSIONS');
 			}
 		}
 
@@ -5167,5 +5199,21 @@ class ComponentHelper
 		}
 
 		return $result;
+	}
+
+	public static function getWorkgroupSliderMenuUrlList(array $componentResult = []): array
+	{
+		return [
+			'CARD' => (string)($componentResult['PATH_TO_GROUP_CARD'] ?? ''),
+			'EDIT' => (string)($componentResult['PATH_TO_GROUP_EDIT'] ?? ''),
+			'COPY' => (string)($componentResult['PATH_TO_GROUP_COPY'] ?? ''),
+			'DELETE' => (string)($componentResult['PATH_TO_GROUP_DELETE'] ?? ''),
+			'LEAVE' => (string)($componentResult['PATH_TO_USER_LEAVE_GROUP'] ?? ''),
+			'JOIN' => (string)($componentResult['PATH_TO_USER_REQUEST_GROUP'] ?? ''),
+			'MEMBERS' => (string)($componentResult['PATH_TO_GROUP_USERS'] ?? ''),
+			'REQUESTS_IN' => (string)($componentResult['PATH_TO_GROUP_REQUESTS'] ?? ''),
+			'REQUESTS_OUT' => (string)($componentResult['PATH_TO_GROUP_REQUESTS_OUT'] ?? ''),
+			'FEATURES' => (string)($componentResult['PATH_TO_GROUP_FEATURES'] ?? ''),
+		];
 	}
 }

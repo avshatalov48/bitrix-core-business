@@ -7,6 +7,7 @@ use Bitrix\Main;
 use Bitrix\Main\Entity;
 use Bitrix\Sale;
 use Bitrix\Sale\Internals;
+use Bitrix\Sale\PaySystem\ServiceResult;
 
 Loc::loadMessages(__FILE__);
 
@@ -121,6 +122,7 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 			'PS_CURRENCY',
 			'PS_RESPONSE_DATE',
 			'PS_RECURRING_TOKEN',
+			'PS_CARD_NUMBER',
 			'PAY_VOUCHER_NUM',
 			'PAY_VOUCHER_DATE',
 			'DATE_PAY_BEFORE',
@@ -166,7 +168,7 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 	 * @return Payment
 	 * @throws Main\ArgumentException
 	 */
-	private static function createPaymentObject(array $fields = [])
+	protected static function createPaymentObject(array $fields = [])
 	{
 		$registry = Registry::getInstance(static::getRegistryType());
 		$paymentClassName = $registry->getPaymentClassName();
@@ -534,6 +536,16 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 					{
 						return $result->addErrors($refResult->getErrors());
 					}
+
+					$refResultOperation = $refResult->getOperationType();
+					if ($refResultOperation === ServiceResult::MONEY_LEAVING)
+					{
+						$setUnpaidResult = $this->setField('PAID', 'N');
+						if (!$setUnpaidResult->isSuccess())
+						{
+							return $result->addErrors($setUnpaidResult->getErrors());
+						}
+					}
 				}
 			}
 			else
@@ -544,12 +556,6 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 						'SALE_ORDER_PAYMENT_RETURN_NO_SUPPORTED'
 					)
 				);
-			}
-
-			$r = $this->setField('PAID', 'N');
-			if (!$r->isSuccess())
-			{
-				return $result->addErrors($r->getErrors());
 			}
 		}
 		elseif($name === "SUM")

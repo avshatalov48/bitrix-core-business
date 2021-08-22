@@ -24,7 +24,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Catalog
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Price_Query query()
+ * @method static EO_Price_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Price_Result getById($id)
+ * @method static EO_Price_Result getList(array $parameters = array())
+ * @method static EO_Price_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_Price createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_Price_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_Price wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_Price_Collection wakeUpCollection($rows)
+ */
 
 class PriceTable extends Main\Entity\DataManager
 {

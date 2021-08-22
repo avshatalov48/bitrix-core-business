@@ -40,6 +40,13 @@ return [
 						'moduleId' => 'socialnetwork',
 						'className' => '\\Bitrix\\Socialnetwork\\Integration\\UI\\EntitySelector\\MetaUserProvider'
 					],
+				],
+				[
+					'entityId' => 'project-tag',
+					'provider' => [
+						'moduleId' => 'socialnetwork',
+						'className' => '\\Bitrix\\SocialNetwork\\Integration\\UI\\EntitySelector\\ProjectTagProvider',
+					],
 				]
 			],
 			'extensions' => ['socialnetwork.entity-selector'],

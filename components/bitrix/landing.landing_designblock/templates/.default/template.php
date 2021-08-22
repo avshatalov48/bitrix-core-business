@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 /** @var \LandingDesignBlockComponent $component */
+/** @var \Bitrix\Landing\Landing $landing */
 /** @var \CMain $APPLICATION */
 /** @var array $arResult */
 /** @var array $arParams */
@@ -44,6 +45,9 @@ $assets->addAsset(
 );
 Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.landing_view/templates/.default/style.css');
 Asset::getInstance()->addJS('/bitrix/components/bitrix/landing.landing_view/templates/.default/script.js');
+
+$blockManifest = $arResult['BLOCK_MANIFEST'];
+$landing = $arResult['LANDING'];
 
 // errors output
 if ($arResult['ERRORS'])
@@ -109,7 +113,10 @@ if (!$component->request('landing_mode')):
 				<?$APPLICATION->includeComponent(
 					'bitrix:ui.feedback.form',
 					'',
-					$component->getFeedbackParameters('designblock')
+					$component->getFeedbackParameters('designblock', [
+						'siteUrl' => $landing->getPublicUrl(),
+						'blockName' => $blockManifest['block']['name'] ?? null
+					])
 				);?>
 			</div>
 			<span class="landing-ui-panel-top-history-button landing-ui-panel-top-history-undo landing-ui-disabled"></span>

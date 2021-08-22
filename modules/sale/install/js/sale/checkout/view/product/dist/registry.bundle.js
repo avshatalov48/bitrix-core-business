@@ -2,7 +2,7 @@ this.BX = this.BX || {};
 this.BX.Sale = this.BX.Sale || {};
 this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
-(function (exports,sale_checkout_view_mixins,sale_checkout_view_element_button_itemMobileMenu,sale_checkout_view_element_button_remove,sale_checkout_view_element_button_plus,sale_checkout_view_element_button_minus,sale_checkout_view_element_animatePrice,sale_checkout_view_element_button_resotre,currency_currencyCore,ui_vue,main_core_events,sale_checkout_const) {
+(function (exports,sale_checkout_view_element_button_itemMobileMenu,sale_checkout_view_element_button_remove,sale_checkout_view_element_button_plus,sale_checkout_view_element_button_minus,sale_checkout_view_element_animatePrice,sale_checkout_view_element_button_resotre,sale_checkout_view_mixins,currency_currencyCore,ui_vue,main_core_events,sale_checkout_const) {
 	'use strict';
 
 	ui_vue.Vue.component('sale-checkout-view-product-price', {
@@ -243,8 +243,12 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	});
 
 	ui_vue.Vue.component('sale-checkout-view-product', {
-	  props: ['items', 'total', 'mode'],
+	  props: ['items', 'total', 'mode', 'config'],
+	  mixins: [sale_checkout_view_mixins.MixinLoader],
 	  computed: {
+	    isLocked: function isLocked() {
+	      return this.config.status === sale_checkout_const.Loader.status.wait;
+	    },
 	    getObjectClass: function getObjectClass() {
 	      var classes = ['checkout-basket-list-items'];
 
@@ -252,11 +256,15 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	        classes.push('checkout-basket-list-items-view-mode');
 	      }
 
+	      if (this.isLocked) {
+	        classes.push('checkout-basket-item-locked');
+	      }
+
 	      return classes;
 	    }
 	  },
 	  // language=Vue
-	  template: "\n    \t<div :class=\"getObjectClass\">\n\t\t\t<sale-checkout-view-product-list :items=\"items\" :mode=\"mode\"/>\n\t\t\t<sale-checkout-view-product-summary :total=\"total\" :mode=\"mode\"/>\n\t\t</div>\n\t"
+	  template: "\n    \t<div :class=\"getObjectClass\" ref=\"container\">\n\t\t\t<sale-checkout-view-product-list :items=\"items\" :mode=\"mode\"/>\n\t\t\t<sale-checkout-view-product-summary :total=\"total\" :mode=\"mode\"/>\n\t\t</div>\n\t"
 	});
 
 	ui_vue.Vue.component('sale-checkout-view-product-item_backdrop_remove', {
@@ -285,5 +293,5 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  template: "\n      <div class=\"checkout-basket-item-backdrop-wrapper\" style=\"\">\n      <div class=\"checkout-basket-item-backdrop-overlay\" @click=\"close\"></div>\n      <div class=\"checkout-basket-item-backdrop-container\">\n        <!-- region top-->\n        <div class=\"checkout-basket-item-detail-header justify-content-between align-items-center\">\n          <div class=\"checkout-basket-item-detail-header-separate\"></div>\n          <div class=\"checkout-basket-item-detail-swipe-btn-container\"\n               id=\"bx_3966226736_424_7e1b8e3524755c391129a9d7e6f2d206_prebuy_swipe_btn\">\n            <div class=\"checkout-basket-item-detail-swipe-btn\"></div>\n          </div>\n          <div class=\"checkout-basket-item-detail-close-btn-container\" @click=\"close\">\n\t\t\t\t<span class=\"checkout-basket-item-detail-close-btn\"\n                        id=\"bx_3966226736_424_7e1b8e3524755c391129a9d7e6f2d206_prebuy_close_btn\">\n\t\t\t\t\t<span class=\"checkout-basket-item-detail-close-btn-text\" >{{localize.CHECKOUT_VIEW_ITEM_BACKDROP_CLOSE}}</span>\n\t\t\t\t</span>\n          </div>\n        </div>\n        <!--endregion-->\n        <div class=\"checkout-basket-item-backdrop-inner\">\n\n          <div class=\"checkout-basket-item-remove-btn-container pt-2\">\n            <button class=\"product-item-detail-remove-button btn btn-danger rounded-pill\" @click=\"remove\">{{localize.CHECKOUT_VIEW_ITEM_BACKDROP_REMOVE}}</button>\n          </div>\n\n          <div class=\"checkout-basket-item-cancel-btn-container\">\n            <button class=\"product-item-detail-cancel-button btn border border-dark rounded-pill\" @click=\"close\">{{localize.CHECKOUT_VIEW_ITEM_BACKDROP_CANCEL}}</button>\n          </div>\n        </div>\n      </div>\n      </div>\n\t"
 	});
 
-}((this.BX.Sale.Checkout.View.Product = this.BX.Sale.Checkout.View.Product || {}),BX.Sale.Checkout.View.Mixins,BX.Sale.Checkout.View.Element.Button,BX.Sale.Checkout.View.Element.Button,BX.Sale.Checkout.View.Element.Button,BX.Sale.Checkout.View.Element.Button,BX.Sale.Checkout.View.Element,BX.Sale.Checkout.View.Element.Button,BX.Currency,BX,BX.Event,BX.Sale.Checkout.Const));
+}((this.BX.Sale.Checkout.View.Product = this.BX.Sale.Checkout.View.Product || {}),BX.Sale.Checkout.View.Element.Button,BX.Sale.Checkout.View.Element.Button,BX.Sale.Checkout.View.Element.Button,BX.Sale.Checkout.View.Element.Button,BX.Sale.Checkout.View.Element,BX.Sale.Checkout.View.Element.Button,BX.Sale.Checkout.View.Mixins,BX.Currency,BX,BX.Event,BX.Sale.Checkout.Const));
 //# sourceMappingURL=registry.bundle.js.map

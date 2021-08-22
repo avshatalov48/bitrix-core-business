@@ -19,7 +19,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Im
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_BotToken_Query query()
+ * @method static EO_BotToken_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_BotToken_Result getById($id)
+ * @method static EO_BotToken_Result getList(array $parameters = array())
+ * @method static EO_BotToken_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_BotToken createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_BotToken_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_BotToken wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_BotToken_Collection wakeUpCollection($rows)
+ */
 
 class BotTokenTable extends Entity\DataManager
 {

@@ -1287,6 +1287,10 @@
 	transition: opacity 250ms ease, background-color 250ms linear, border-color 250ms linear;
 }
 
+.calendar-event-line-wrap.calendar-event-line-refused .calendar-event-line-inner-container {
+	opacity: .5;
+}
+
 .calendar-event-line-wrap.calendar-event-line-expired .calendar-event-line-inner-container { opacity: .7; }
 
 .calendar-event-line-wrap.calendar-event-line-fill .calendar-event-line-inner {
@@ -1325,6 +1329,7 @@
 
 .calendar-event-line-fill .calendar-event-angle-start-yesterday,
 .calendar-event-line-fill .calendar-event-angle-finish-tomorrow { opacity: .3; }
+
 
 .calendar-event-angle-start-yesterday {
 	left: -7px;
@@ -1799,7 +1804,7 @@ a.calendar-event-block-members-user {
 }
 
 .calendar-event-block-compact .calendar-event-block-inner {
-	padding: 5px 2px 2px 7px;
+	padding: 3px 2px 2px 7px;
 	font-size: 0;
 }
 
@@ -2449,6 +2454,17 @@ select.calendar-field-select {
 	height: 37px;
 }
 
+.calendar-event-block-icon-refused {
+	position: absolute;
+	top: 7px;
+	left: 11px;
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	background: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23FFF' d='M3.7881393,9.53543213 C4.42311341,9.92466127 5.17005184,10.1490532 5.96939983,10.1490532 C8.27775866,10.1490532 10.1490532,8.27775866 10.1490532,5.96939983 C10.1490532,5.17005184 9.92466127,4.42311341 9.53543213,3.7881393 L3.7881393,9.53543213 L3.7881393,9.53543213 Z M2.40336752,8.15066036 L8.15066036,2.40336752 C7.51568624,2.01413838 6.76874781,1.78974643 5.96939983,1.78974643 C3.66104099,1.78974643 1.78974643,3.66104099 1.78974643,5.96939983 C1.78974643,6.76874781 2.01413838,7.51568624 2.40336752,8.15066036 Z M5.96939983,11.9387997 C2.67259134,11.9387997 -1.73105974e-12,9.26620832 -1.73105974e-12,5.96939983 C-1.73105974e-12,2.67259134 2.67259134,-8.21565038e-13 5.96939983,-8.21565038e-13 C9.26620832,-8.21565038e-13 11.9387997,2.67259134 11.9387997,5.96939983 C11.9387997,9.26620832 9.26620832,11.9387997 5.96939983,11.9387997 Z'/%3E%3C/svg%3E") center no-repeat;
+	z-index: 99;
+}
+
 .calendar-field-container-select.locked .calendar-field-select:hover { border-color: #bfbfbf !important; }
 
 select.calendar-field-select::-ms-expand { display: none; }
@@ -2794,31 +2810,41 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 .calendar-videocall-wrap{
 	padding-right: 10px;
 }
-.calendar-videocall-wrap .control-btn {
+.calendar-videocall-wrap .ui-btn-split.intranet-control-btn {
 	border: none;
 	padding: 0 20px 0 0;
 	height: 19px;
 	top: -3px;
 	white-space: nowrap;
+	width: auto;
 }
-.calendar-videocall-wrap .control-btn-text{
+.calendar-videocall-wrap .ui-btn-split.intranet-control-btn .ui-btn-main {
 	text-transform: none;
 	padding-left: 0;
+	padding-right: 0;
 	font: 400 13px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	border-top: none;
+	border-right: none;
 	border-bottom: 1px dashed rgba(128, 134, 142, .4);
+	border-left: none;
 	color: #80868e;
 	cursor: pointer;
+	height: auto;
 }
-.calendar-videocall-wrap .control-btn-text:before,
-.calendar-videocall-wrap .control-btn-arrow:before{
+.calendar-videocall-wrap .ui-btn-split.intranet-control-btn.ui-btn-wait .ui-btn-main {
+	background-color: var(--ui-btn-background);
+	border-bottom-color: transparent;
+}
+.calendar-videocall-wrap .ui-btn-split.intranet-control-btn .ui-btn-main:after,
+.calendar-videocall-wrap .ui-btn-split.intranet-control-btn .ui-btn-menu:before {
 	display: none;
 }
-
-.calendar-videocall-wrap .control-btn-arrow{
+.calendar-videocall-wrap .ui-btn-split.intranet-control-btn .ui-btn-menu {
 	width: 20px;
 	height: 20px;
+	border: none;
 }
-.calendar-videocall-wrap .control-btn-arrow:after{
+.calendar-videocall-wrap .ui-btn-split.intranet-control-btn .ui-btn-menu:after{
 	width: 4px;
 	height: 4px;
 	top: 5px;
@@ -2827,6 +2853,8 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 	border-top: none;
 	border-left: none;
 	transform: rotate(45deg);
+	opacity: 1;
+	background: none;
 }
 
 .calendar-members-additionally {
@@ -6388,7 +6416,7 @@ input.calendar-error {
 }
 
 .calendar-event-block-compact .calendar-event-block-icon-refused {
-	top: 5px;
+	top: 3px;
 	left: 8px;
 }
 /*.calendar-main-container-small-calendar .calendar-grid-day-full-days-events-holder {*/
@@ -7328,3 +7356,61 @@ div#invite-email-email-user-popup
 .calendar-slider-sidebar-videocall {
 	padding: 18px 0 9px;
 }
+
+/** region ALERT **/
+.calendar-slider-alert-header {
+	margin: 20px 30px;
+}
+
+.calendar-slider-alert {
+	display: flex;
+	align-items: center;
+	margin: 0 auto 10px auto;
+	height: 100%;
+	width: 100%;
+	max-width: 540px;
+}
+
+.calendar-slider-alert-inner {
+	text-align: center;
+}
+
+.calendar-slider-alert-img {
+	position: relative;
+	display: block;
+	margin: 0 auto;
+	width: 270px;
+	height: 276px;
+	background: url("data:image/svg+xml,%3Csvg viewBox='0 0 270 276' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill-rule='nonzero'%3E%3Cpath d='M135.078 261c68.501 0 124.032-55.068 124.032-123 0-67.931-55.53-123-124.032-123-68.501 0-124.03 55.069-124.03 123 0 67.932 55.53 123 124.03 123z' fill='%23FF5752' opacity='.094'/%3E%3Cpath d='M135.078 218c44.65 0 80.847-35.817 80.847-80s-36.196-80-80.847-80c-44.65 0-80.846 35.817-80.846 80s36.196 80 80.846 80z' fill='%23FFF'/%3E%3Cpath d='M237.292 124.076c.033.05.063.102.092.153 5.295 40.161-13.576 81.477-50.972 103.068-37.432 21.611-82.699 17.268-114.837-7.461a2.417 2.417 0 01-.208-1.719 2.412 2.412 0 013.222-1.667l-.853-.655c30.769 24.062 74.394 28.408 110.426 7.605 35.75-20.64 53.797-60.132 48.75-98.526.131-.595.49-1.141 1.042-1.5a2.412 2.412 0 013.338.702zm-153.88-75.18c36.759-21.223 81.074-17.416 113.091 6.148.35.463.537 1.053.482 1.677a2.412 2.412 0 01-2.608 2.198l-.15-.017-.14-.025-.297-.221c-30.617-22.52-72.984-26.154-108.128-5.863-35.048 20.235-53.082 58.586-49.022 96.261a2.408 2.408 0 01-1.182 1.735 2.413 2.413 0 01-3.213-.741l-.05-.079-.124-1.18c-3.92-39.149 14.93-78.871 51.34-99.893z' fill='%23FF5752' opacity='.304'/%3E%3C/g%3E%3Cpath d='M106.835 98.19v3.256c0 5.39 4.189 9.765 9.364 9.765 4.888 0 8.896-3.902 9.327-8.877l.038-.888V98.19h19.067v3.255c0 5.39 4.195 9.765 9.364 9.765 4.882 0 8.895-3.902 9.326-8.877l.039-.888V98.19h7.191c6.27.398 11.19 5.641 11.522 12.09l.016.93v65.1c0 3.355-2.431 6.119-5.562 6.473l-.681.038H94.349c-3.216 0-5.867-2.54-6.206-5.801l-.037-.71v-65.1c-.025-.339-.038-.67-.038-1.003.012-6.35 4.734-11.539 10.713-11.986l.862-.031h7.192zm62.768 19.9h-69.011v51.712h69.01V118.09zm-48.97 29.372a2.953 2.953 0 012.954 2.953v5.905a2.953 2.953 0 01-2.953 2.953h-5.906a2.953 2.953 0 01-2.952-2.953v-5.905a2.953 2.953 0 012.952-2.953h5.906zm17.717 0a2.953 2.953 0 012.953 2.953v5.905a2.953 2.953 0 01-2.953 2.953h-5.905a2.953 2.953 0 01-2.953-2.953v-5.905a2.953 2.953 0 012.953-2.953h5.905zm-17.716-17.716a2.953 2.953 0 012.953 2.953v5.905a2.953 2.953 0 01-2.953 2.953h-5.906a2.953 2.953 0 01-2.952-2.953V132.7a2.953 2.953 0 012.952-2.953h5.906zm17.716 0a2.953 2.953 0 012.953 2.953v5.905a2.953 2.953 0 01-2.953 2.953h-5.905a2.953 2.953 0 01-2.953-2.953V132.7a2.953 2.953 0 012.953-2.953h5.905zm17.716 0a2.953 2.953 0 012.953 2.953v5.905a2.953 2.953 0 01-2.953 2.953h-5.905a2.953 2.953 0 01-2.953-2.953V132.7a2.953 2.953 0 012.953-2.953h5.905zm-39.835-41.568c2.323.018 4.227 1.83 4.518 4.168l.04.65v7.16c0 2.644-2.055 4.786-4.59 4.786-2.34 0-4.27-1.825-4.552-4.185l-.036-.6V92.93c.012-2.637 2.085-4.766 4.62-4.753zm37.764.476c2.192 0 4.006 1.695 4.293 3.904l.04.614v6.79c0 2.493-1.942 4.518-4.34 4.518-2.197-.006-4-1.708-4.286-3.912l-.04-.613v-6.783c0-2.5 1.942-4.518 4.333-4.518z' fill='%232FC6F6'/%3E%3Cg transform='translate(154.5 145.5)'%3E%3Ccircle stroke='%23FFF' stroke-width='5' fill='%23FF5752' cx='19.931' cy='19.931' r='22'/%3E%3Cpath d='M30.426 25.45L21.44 10.486c-.692-1.15-2.342-1.15-3.02 0L9.438 25.45c-.707 1.179.147 2.666 1.517 2.666h17.97c1.354 0 2.209-1.487 1.502-2.666zM18.643 15.7c0-.663.53-1.193 1.193-1.193h.162c.662 0 1.193.53 1.193 1.193v4.463c0 .662-.53 1.193-1.193 1.193h-.162c-.663 0-1.193-.53-1.193-1.193V15.7zm2.783 8.66c0 .825-.677 1.503-1.502 1.503a1.509 1.509 0 01-1.502-1.503c0-.825.677-1.502 1.502-1.502s1.502.677 1.502 1.502z' fill='%23FFF'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") center no-repeat;
+}
+
+.calendar-slider-alert-img:before,
+.calendar-slider-alert-img:after {
+	content: '';
+	position: absolute;
+	display: block;
+}
+
+.calendar-slider-alert-img:before {
+	top: 75px;
+	left: -104px;
+	width: 101px;
+	height: 171px;
+	background: url("data:image/svg+xml,%3Csvg viewBox='0 0 101 171' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M83.587 29.985h-23.29c-.2 0-.397-.008-.593-.022-5.263-.121-9.493-4.451-9.493-9.775a9.813 9.813 0 012.852-6.916 9.719 9.719 0 013.245-2.155 10.354 10.354 0 012.98-8.098A10.23 10.23 0 0166.546 0c3.486.004 6.564 1.758 8.414 4.435a8.338 8.338 0 012.809-.483c4.352.005 7.926 3.343 8.34 7.61 4.17.915 7.29 4.652 7.287 9.12-.005 5.149-4.156 9.32-9.274 9.318-.18 0-.358-.005-.535-.015z' fill='%232FC6F6' opacity='.117'/%3E%3Cpath d='M77.843 169.964H24.22c-.458 0-.913-.017-1.364-.05C10.74 169.637 1 159.678 1 147.434a22.559 22.559 0 016.568-15.908 22.378 22.378 0 017.47-4.957 23.803 23.803 0 016.86-18.625A23.566 23.566 0 0138.608 101c8.027.01 15.113 4.044 19.372 10.2 2.022-.72 4.2-1.111 6.468-1.11 10.019.012 18.248 7.688 19.202 17.503 9.6 2.104 16.784 10.699 16.776 20.975-.01 11.843-9.568 21.437-21.352 21.432-.414 0-.824-.012-1.231-.036h0z' stroke='%232FC6F6' opacity='.302'/%3E%3C/g%3E%3C/svg%3E") center no-repeat;
+}
+
+.calendar-slider-alert-img:after {
+	right: -85px;
+	top: 64px;
+	width: 82px;
+	height: 142px;
+	background: url("data:image/svg+xml,%3Csvg viewBox='0 0 82 142' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M72.448 141.987h-20.04c-.172 0-.342-.007-.51-.02-4.53-.104-8.169-3.857-8.169-8.47a8.536 8.536 0 012.455-5.995 8.359 8.359 0 012.792-1.867 9.007 9.007 0 012.564-7.018A8.772 8.772 0 0157.784 116c3 .004 5.648 1.524 7.24 3.844a7.128 7.128 0 012.417-.419c3.744.005 6.82 2.897 7.176 6.596 3.588.792 6.273 4.031 6.27 7.903-.003 4.463-3.576 8.078-7.98 8.076-.154 0-.308-.005-.46-.013z' fill='%232FC6F6' opacity='.117'/%3E%3Cpath d='M24.834 21.99H8.585c-.139 0-.277-.006-.413-.016-3.672-.085-6.624-3.116-6.624-6.842a6.881 6.881 0 011.99-4.842 6.779 6.779 0 012.264-1.508 7.26 7.26 0 012.079-5.668A7.126 7.126 0 0112.945 1a7.128 7.128 0 015.87 3.104 5.8 5.8 0 011.96-.338c3.036.004 5.53 2.34 5.819 5.328 2.909.64 5.086 3.256 5.083 6.383-.003 3.605-2.899 6.524-6.47 6.523-.125 0-.25-.004-.373-.01h0z' stroke='%232FC6F6' opacity='.302'/%3E%3C/g%3E%3C/svg%3E") center no-repeat;
+}
+
+.calendar-slider-alert-text {
+	display: block;
+	font: 29px/32px 'OpenSans-Light', "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333;
+}
+
+/** endregion **/

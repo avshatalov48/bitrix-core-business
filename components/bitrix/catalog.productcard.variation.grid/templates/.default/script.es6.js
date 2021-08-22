@@ -78,6 +78,9 @@ class VariationGrid
 
 		this.onPrepareDropDownItemsHandler = this.onPrepareDropDownItems.bind(this);
 		EventEmitter.subscribe('Dropdown::onPrepareItems', this.onPrepareDropDownItemsHandler);
+
+		this.onCreatePopupHandler = this.onCreatePopup.bind(this);
+		EventEmitter.subscribe('UiSelect::onCreatePopup', this.onCreatePopupHandler);
 	}
 
 	unsubscribeCustomEvents()
@@ -116,6 +119,12 @@ class VariationGrid
 		{
 			EventEmitter.unsubscribe('Grid::allRowsUnselected', this.onAllRowsUnselectHandler);
 			this.onAllRowsUnselectHandler = null;
+		}
+
+		if (this.onCreatePopupHandler)
+		{
+			EventEmitter.unsubscribe('UiSelect::onCreatePopup', this.onCreatePopupHandler);
+			this.onCreatePopupHandler = null;
 		}
 	}
 
@@ -200,6 +209,39 @@ class VariationGrid
 			const popup = document.getElementById('menu-popup-' + menuId);
 			Dom.addClass(popup, 'catalog-productcard-popup-list');
 		});
+	}
+
+	onCreatePopup(event)
+	{
+		const [popup] = event.getData();
+		const bindElementId = popup?.bindElement?.id;
+
+		if (!Type.isStringFilled(bindElementId))
+		{
+			return;
+		}
+
+		if (bindElementId.indexOf('SKU_GRID_PROPERTY_') === -1)
+		{
+			return;
+		}
+
+		const propertyId = bindElementId.replace('SKU_GRID_PROPERTY_', '').replace('_control', '');
+
+		const addButton = Tag.render`
+			<div class="catalog-productcard-popup-select-item catalog-productcard-popup-multi-select-item-new">
+				<label 
+					class="catalog-productcard-popup-select-label main-dropdown-item">
+					<span class="catalog-productcard-popup-select-add"></span>
+					<span class="catalog-productcard-popup-select-text">
+						${Loc.getMessage('C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON')}
+					</span>
+				</label>
+			</div>
+		`;
+		Event.bind(addButton, 'mousedown', BX.Catalog.VariationGrid.firePropertyModification.bind(this, propertyId));
+
+		popup.contentContainer.appendChild(addButton);
 	}
 
 	clearGridSettingsPopupStuff()
@@ -552,7 +594,11 @@ class VariationGrid
 
 	removeRowFromGrid(skuId)
 	{
-		this.getGrid().removeRow(skuId);
+		const data = {
+			'id': skuId,
+			'action': 'deleteRow'
+		}
+		this.getGrid().reloadTable('POST', data);
 	}
 
 	getGridEditData()

@@ -94,7 +94,7 @@ class CatalogPropertyCreationFormComponent extends \CBitrixComponent
 							if ($description['data']['userType'] === 'directory')
 							{
 								$type = $description['data']['userType'];
-								$propertySchemeType = 'list';
+								$propertySchemeType = $description['multiple'] ? 'multilist' : 'list';
 							}
 							$this->setPropertyType($type);
 							$this->arResult['PROPERTY_SCHEME_TYPE'] = $propertySchemeType;

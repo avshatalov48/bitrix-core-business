@@ -21,7 +21,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Catalog
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Measure_Query query()
+ * @method static EO_Measure_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Measure_Result getById($id)
+ * @method static EO_Measure_Result getList(array $parameters = array())
+ * @method static EO_Measure_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_Measure createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_Measure_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_Measure wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_Measure_Collection wakeUpCollection($rows)
+ */
 
 class MeasureTable extends Main\Entity\DataManager
 {

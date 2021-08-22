@@ -58,6 +58,7 @@ class Base
 			{
 				$url = $this->getReplaced($url, $replace, $subject);
 			}
+			$url = $this->getReplaced($url, '//', '/');
 
 			if(is_array($query))
 			{

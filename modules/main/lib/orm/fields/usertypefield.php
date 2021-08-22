@@ -89,6 +89,8 @@ class UserTypeField extends ExpressionField
 	 */
 	public function convertValueToDb($value)
 	{
-		return $this->getConnection()->getSqlHelper()->convertToDbString($value);
+		return $this->isMultiple
+			? $this->getConnection()->getSqlHelper()->convertToDbString($value) // serialized values
+			: parent::convertValueToDb($value);
 	}
 }

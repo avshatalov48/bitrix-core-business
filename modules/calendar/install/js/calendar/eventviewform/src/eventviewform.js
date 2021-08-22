@@ -1,7 +1,7 @@
 "use strict";
 
 import { Util } from 'calendar.util';
-import { Type, Event, Loc, Tag, Dom, Runtime } from 'main.core';
+import { Type, Event, Loc, Tag, Dom, Runtime, Text } from 'main.core';
 import { Entry, EntryManager } from 'calendar.entry';
 import { MeetingStatusControl, Reminder } from 'calendar.controls';
 import { BaseEvent, EventEmitter } from 'main.core.events';
@@ -109,11 +109,12 @@ export class EventViewForm {
 					dateFrom: Util.formatDate(this.entryDateFrom),
 					timezoneOffset: this.timezoneOffset
 				}
-			}).then((response) => {
+			}).then(
+				response => {
 					let html = '';
 					if ((Type.isFunction(slider.isOpen) && slider.isOpen()) || slider.isOpen === true)
 					{
-						html = this.BX.util.trim(response.data.html);
+						html = response.data.html;
 						slider.getData().set("sliderContent", html);
 						let params = response.data.additionalParams;
 
@@ -125,7 +126,20 @@ export class EventViewForm {
 					}
 					resolve(html);
 				},
-				(response) => {
+				response => {
+					if (response.errors && response.errors.length)
+					{
+						slider.getData().set(
+							"sliderContent",
+							'<div class="calendar-slider-alert">'
+								+ '<div class="calendar-slider-alert-inner">'
+									+ '<div class="calendar-slider-alert-img"></div>'
+									+ '<h1 class="calendar-slider-alert-text">' + Text.encode(response.errors[0].message) + '</h1>'
+								+ '</div>'
+							+ '</div>'
+						);
+					}
+
 					this.displayError(response.errors);
 					resolve(response);
 				});
@@ -367,22 +381,14 @@ export class EventViewForm {
 					.appendChild(this.BX.create('DIV', {props: {className: 'calendar-slider-sidebar-user-block-item'}}))
 					.appendChild(this.BX.create('IMG', {props: {width: 34, height: 34, src: user.AVATAR}}));
 
-				if (user.EMAIL_USER)
-				{
-					userWrap.appendChild(this.BX.create("DIV", {props: {className: 'calendar-slider-sidebar-user-info'}}))
-						.appendChild(this.BX.create("span", {
-							text: user.DISPLAY_NAME
-						}));
-				}
-				else
-				{
-					userWrap.appendChild(this.BX.create("DIV", {props: {className: 'calendar-slider-sidebar-user-info'}}))
-						.appendChild(this.BX.create("A", {
-							props: {
-								href: user.URL ? user.URL : '#', className: 'calendar-slider-sidebar-user-info-name'
-							}, text: user.DISPLAY_NAME
-						}));
-				}
+				userWrap.appendChild(this.BX.create("DIV", {props: {className: 'calendar-slider-sidebar-user-info'}}))
+					.appendChild(this.BX.create("A", {
+						props: {
+							href: user.URL ? user.URL : '#',
+							className: 'calendar-slider-sidebar-user-info-name'
+						},
+						text: user.DISPLAY_NAME
+					}));
 			}, this);
 
 			this.userListPopup = this.BX.PopupWindowManager.create("user-list-popup-" + Math.random(), node, {

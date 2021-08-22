@@ -6,14 +6,44 @@ use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\UserTable;
+use Bitrix\Rest\AppTable;
 use Bitrix\Rest\RestException;
 use Bitrix\Rest\Controller\File;
 
 class User extends \IRestService
 {
-	const SCOPE_USER = 'user';
+	public const SCOPE_USER = 'user';
+	public const SCOPE_USER_BASIC = 'user_basic';
+	public const SCOPE_USER_BRIEF = 'user_brief';
+
+	private const ALLOWED_USER_NAME_FIELDS = [
+		'ID',
+		'ACTIVE',
+		'NAME',
+		'LAST_NAME',
+		'SECOND_NAME',
+		'IS_ONLINE',
+		'TIME_ZONE_OFFSET',
+	];
+
+	private const ALLOWED_USER_BASIC_FIELDS = [
+		'ID',
+		'ACTIVE',
+		'NAME',
+		'LAST_NAME',
+		'SECOND_NAME',
+		'EMAIL',
+		'PERSONAL_PHONE',
+		'WORK_PHONE',
+		'WORK_POSITION',
+		'WORK_COMPANY',
+		'IS_ONLINE',
+		'TIME_ZONE_OFFSET',
+	];
+
 	private static $entityUser = 'USER';
 	private static $nameFieldFullPrefix = 'UF_USR_';
+	private static $userUserFieldList;
 
 	protected static $allowedUserFields = array(
 		"ID", /*"LOGIN", */
@@ -42,6 +72,51 @@ class User extends \IRestService
 		if (Loader::includeModule('intranet'))
 		{
 			$result[] = 'USER_TYPE';
+		}
+
+		return $result;
+	}
+
+	private static function isMainScope(\CRestServer $server)
+	{
+		return in_array(static::SCOPE_USER, $server->getAuthScope());
+	}
+
+	private static function getErrorScope()
+	{
+		return [
+			'error' => 'insufficient_scope',
+			'error_description' => 'The request requires higher privileges than provided by the access token',
+		];
+	}
+
+	private static function getAllowedUserFields($scopeList): array
+	{
+		$result = [];
+		if (in_array(static::SCOPE_USER, $scopeList))
+		{
+			$result = static::getDefaultAllowedUserFields();
+		}
+		else
+		{
+			if (in_array(static::SCOPE_USER_BASIC, $scopeList))
+			{
+				$result = static::ALLOWED_USER_BASIC_FIELDS;
+			}
+			elseif (in_array(static::SCOPE_USER_BRIEF, $scopeList))
+			{
+				$result = static::ALLOWED_USER_NAME_FIELDS;
+			}
+
+			if (Loader::includeModule('intranet'))
+			{
+				$result[] = 'USER_TYPE';
+			}
+
+			if (in_array(UserField::SCOPE_USER_USERFIELD, $scopeList))
+			{
+				$result = array_merge($result, static::getUserFields());
+			}
 		}
 
 		return $result;
@@ -82,6 +157,8 @@ class User extends \IRestService
 					'OnUserAdd' => array('main', 'OnUserInitialize', array(__CLASS__, 'onUserInitialize')),
 				),
 			);
+			$result[static::SCOPE_USER_BRIEF] = [];
+			$result[static::SCOPE_USER_BASIC] = [];
 			$result[UserField::SCOPE_USER_USERFIELD] = [
 				'user.userfield.add' => [UserField::class, 'addRest'],
 				'user.userfield.update' => [UserField::class, 'updateRest'],
@@ -92,6 +169,27 @@ class User extends \IRestService
 		}
 
 		return $result;
+	}
+
+	private static function getUserFields()
+	{
+		if (is_null(static::$userUserFieldList))
+		{
+			static::$userUserFieldList = [];
+			global $USER_FIELD_MANAGER;
+
+			$fields = $USER_FIELD_MANAGER->GetUserFields("USER");
+
+			foreach ($fields as $code => $field)
+			{
+				if (mb_strpos($code, static::$nameFieldFullPrefix) === 0)
+				{
+					static::$userUserFieldList[] = $code;
+				}
+			}
+		}
+
+		return static::$userUserFieldList;
 	}
 
 	protected static function checkAllowedFields()
@@ -129,7 +227,18 @@ class User extends \IRestService
 			throw new RestException('Unnecessary event call for this user type');
 		}
 
-		$arRes = self::getUserData($arUser);
+		$allowedFields = null;
+		if ($arHandler['APP_ID'] > 0)
+		{
+			$app = AppTable::getByClientId($arHandler['APP_CODE']);
+			if ($app['SCOPE'])
+			{
+				$scope = explode(',', $app['SCOPE']);
+				$allowedFields = static::getAllowedUserFields($scope);
+			}
+		}
+
+		$arRes = self::getUserData($arUser, $allowedFields);
 		if($arUser['PERSONAL_PHOTO'] > 0)
 		{
 			$arRes['PERSONAL_PHOTO'] = \CRestUtil::GetFile($arUser["PERSONAL_PHOTO"]);
@@ -179,7 +288,7 @@ class User extends \IRestService
 		}
 	}
 
-	public static function getFields()
+	public static function getFields($query = [], $nav = 0, \CRestServer $server = null)
 	{
 		global $USER_FIELD_MANAGER;
 
@@ -192,7 +301,15 @@ class User extends \IRestService
 			IncludeModuleLangFile('/bitrix/modules/main/admin/user_admin.php', false, true)
 		);
 		$fieldsList = $USER_FIELD_MANAGER->getUserFields('USER', 0, LANGUAGE_ID);
-		foreach (static::getDefaultAllowedUserFields() as $key)
+		if (!is_null($server))
+		{
+			$allowedFields = static::getAllowedUserFields($server->getAuthScope());
+		}
+		else
+		{
+			$allowedFields = static::getDefaultAllowedUserFields();
+		}
+		foreach ($allowedFields as $key)
 		{
 			if(mb_substr($key, 0, 3) != 'UF_')
 			{
@@ -221,7 +338,8 @@ class User extends \IRestService
 		$dbRes = \CUser::getByID($USER->getID());
 		$userFields = $dbRes->fetch();
 
-		$result = self::getUserData($userFields);
+		$allowedFields = static::getAllowedUserFields($server->getAuthScope());
+		$result = self::getUserData($userFields, $allowedFields);
 		if($userFields['PERSONAL_PHOTO'] > 0)
 		{
 			$result['PERSONAL_PHOTO'] = \CRestUtil::GetFile($userFields["PERSONAL_PHOTO"]);
@@ -275,7 +393,7 @@ class User extends \IRestService
 			}
 		}
 
-		$allowedUserFields = static::getDefaultAllowedUserFields();
+		$allowedUserFields = static::getAllowedUserFields($server->getAuthScope());
 		$allowedUserFields[] = 'IS_ONLINE';
 		$allowedUserFields[] = 'HAS_DEPARTAMENT';
 		$allowedUserFields[] = 'NAME_SEARCH';
@@ -394,11 +512,11 @@ class User extends \IRestService
 			{
 				$querySort[$sort] = $order;
 			}
-
+			$allowedFields = static::getAllowedUserFields($server->getAuthScope());
 			$dbRes = $getListClassName::$getListMethodName(array(
 				'order' => $querySort,
 				'filter' => $filter,
-				'select' => static::getDefaultAllowedUserFields(),
+				'select' => $allowedFields,
 				'limit' => $navParams['limit'],
 				'offset' => $navParams['offset'],
 				'data_doubling' => false,
@@ -409,7 +527,7 @@ class User extends \IRestService
 
 			while($userInfo = $dbRes->fetch())
 			{
-				$result[] = self::getUserData($userInfo);
+				$result[] = self::getUserData($userInfo, $allowedFields);
 
 				if($userInfo['PERSONAL_PHOTO'] > 0)
 				{
@@ -476,8 +594,13 @@ class User extends \IRestService
 		return $counters;
 	}
 
-	public static function userAdd($userFields)
+	public static function userAdd($userFields, $nav = 0, \CRestServer $server = null)
 	{
+		if (!is_null($server) && !static::isMainScope($server))
+		{
+			return static::getErrorScope();
+		}
+
 		global $APPLICATION, $USER;
 
 		static::checkAllowedFields();
@@ -612,8 +735,13 @@ class User extends \IRestService
 		return $res;
 	}
 
-	public static function userUpdate($userFields)
+	public static function userUpdate($userFields, $nav = 0, \CRestServer $server = null)
 	{
+		if (!is_null($server) && !static::isMainScope($server))
+		{
+			return static::getErrorScope();
+		}
+
 		global $USER;
 
 		static::checkAllowedFields();
@@ -851,7 +979,7 @@ class User extends \IRestService
 		return $user;
 	}
 
-	protected static function getUserData($userFields)
+	protected static function getUserData($userFields, $allowedFields = null)
 	{
 		static $extranetModuleInstalled = null;
 		if ($extranetModuleInstalled === null)
@@ -864,7 +992,11 @@ class User extends \IRestService
 		$urlManager = \Bitrix\Main\Engine\UrlManager::getInstance();
 
 		$res = array();
-		foreach (static::getDefaultAllowedUserFields() as $key)
+		if (is_null($allowedFields))
+		{
+			$allowedFields = static::getDefaultAllowedUserFields();
+		}
+		foreach ($allowedFields as $key)
 		{
 			switch ($key)
 			{

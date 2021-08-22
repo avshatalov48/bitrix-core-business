@@ -4,6 +4,7 @@ import {DiscountType} from "catalog.product-calculator";
 import {PageObject} from 'landing.pageobject';
 import {Dom, Runtime, Type} from 'main.core';
 import {BaseEvent} from 'main.core.events';
+import {fetchEventsFromOptions} from 'landing.ui.component.internal';
 
 import './css/style.css';
 
@@ -13,6 +14,7 @@ export class ProductField extends BaseField
 	{
 		super(options);
 		this.setEventNamespace('BX.Landing.UI.Field.ProductField');
+		this.subscribeFromOptions(fetchEventsFromOptions(options));
 		this.setLayoutClass('landing-ui-field-product');
 
 		this.onBasketChange = this.onBasketChange.bind(this);

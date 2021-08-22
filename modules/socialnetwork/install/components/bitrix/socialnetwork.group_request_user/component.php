@@ -88,7 +88,9 @@ else
 
 				$arResult["Urls"]["Group"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $arResult["Group"]["ID"]));
 
-				$arResult["CurrentUserPerms"] = CSocNetUserToGroup::InitUserPerms($GLOBALS["USER"]->GetID(), $arResult["Group"], CSocNetUser::IsCurrentUserModuleAdmin());
+				$arResult['CurrentUserPerms'] = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
+					'groupId' => $arGroup['ID'],
+				]);
 
 				if (!$arResult["CurrentUserPerms"] || !$arResult["CurrentUserPerms"]["UserCanInitiate"])
 					$arResult["FatalError"] = GetMessage("SONET_C11_NO_PERMS").". ";

@@ -984,6 +984,16 @@
 				);
 			}
 		);
+		BX('rest-integration-form').querySelectorAll('#rest-integration-form .integration-action-dropdown').forEach(
+			function (value)
+			{
+				BX.bind(
+					value,
+					'click',
+					BX.rest.integration.edit.actionDropdown
+				);
+			}
+		);
 
 		BX('rest-integration-form').querySelectorAll('#rest-integration-form #applicationType input').forEach(
 			function (value)
@@ -1215,6 +1225,49 @@
 				}
 			);
 		}
+	};
+
+	BX.rest.integration.edit.actionDropdown = function ()
+	{
+		var input;
+		var id = this.dataset.id;
+		var selector = this.dataset.selector;
+		var required = this.dataset.required;
+		var active = BX.hasClass(this, 'active') === true;
+
+		if (active)
+		{
+			BX.removeClass(this, 'active');
+		}
+		else
+		{
+			BX.addClass(this, 'active');
+		}
+
+		BX('rest-integration-form').querySelectorAll('#' + id + ' .' + selector).forEach(
+			function (value)
+			{
+				if (active)
+				{
+					input = BX.findChild(
+						value,
+						{
+							'tag' : 'input',
+						},
+						true
+					);
+
+					if (input.value === '' && BX.hasClass(input, required) === false)
+					{
+						BX.addClass(value, 'hidden');
+					}
+				}
+				else
+				{
+					BX.removeClass(value, 'hidden');
+				}
+			}
+		);
 	};
 
 	BX.rest.integration.edit.actionCurlQuery = function ()

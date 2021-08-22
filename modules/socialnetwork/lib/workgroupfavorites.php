@@ -24,6 +24,19 @@ use Bitrix\Main\NotImplementedException;
  * </ul>
  *
  * @package Bitrix\Socialnetwork
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_WorkgroupFavorites_Query query()
+ * @method static EO_WorkgroupFavorites_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_WorkgroupFavorites_Result getById($id)
+ * @method static EO_WorkgroupFavorites_Result getList(array $parameters = array())
+ * @method static EO_WorkgroupFavorites_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupFavorites createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupFavorites_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupFavorites wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupFavorites_Collection wakeUpCollection($rows)
  */
 class WorkgroupFavoritesTable extends Entity\DataManager
 {

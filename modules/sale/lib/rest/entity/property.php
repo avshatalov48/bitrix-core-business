@@ -101,6 +101,9 @@ class Property extends Base
 					'TYPE'=>self::TYPE_DATATYPE,
 					//'ATTRIBUTES'=>[Attributes::ReadOnly]
 				],
+				'ENTITY_TYPE' => [
+					'TYPE' => self::TYPE_STRING,
+				],
 			],
 			$this->getFieldsByTypeString(),
 			$this->getFieldsByTypeLocation()

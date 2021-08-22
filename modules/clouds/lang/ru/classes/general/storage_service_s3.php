@@ -7,4 +7,5 @@ $MESS["CLO_STORAGE_S3_EMPTY_SECRET_KEY"] = "Не задан секретный �
 $MESS["CLO_STORAGE_S3_EDIT_ACCESS_KEY"] = "Ключ доступа";
 $MESS["CLO_STORAGE_S3_EDIT_SECRET_KEY"] = "Секретный ключ";
 $MESS["CLO_STORAGE_S3_EDIT_HOST"] = "Имя сервера (API host)";
+$MESS["CLO_STORAGE_S3_EDIT_USE_HTTPS"] = "Подключаться с использованием https";
 ?>

@@ -144,10 +144,15 @@ class CAllIBlockProperty
 		{
 			if(ExecuteModuleEventEx($arEvent, array($ID))===false)
 			{
-				$err = GetMessage("MAIN_BEFORE_DEL_ERR").' '.$arEvent['TO_NAME'];
 				if($ex = $APPLICATION->GetException())
-					$err .= ': '.$ex->GetString();
-				$APPLICATION->ThrowException($err);
+				{
+					$APPLICATION->ThrowException($ex->GetString());
+				}
+				else
+				{
+					$APPLICATION->ThrowException(GetMessage("MAIN_BEFORE_DEL_ERR1"));
+				}
+
 				return false;
 			}
 		}

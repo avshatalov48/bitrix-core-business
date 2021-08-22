@@ -35,21 +35,20 @@ export class CalendarSection
 		if (!this.isShown())
 		{
 			let hiddenSections = this.calendarContext.sectionManager.getHiddenSections();
-			hiddenSections = BX.util.deleteFromArray(hiddenSections, BX.util.array_search(this.id, hiddenSections));
+			hiddenSections = hiddenSections.filter((sectionId) => {return sectionId !== this.id;}, this);
 			this.calendarContext.sectionManager.setHiddenSections(hiddenSections);
-
-			BX.userOptions.save('calendar', 'hidden_sections', 'hidden_sections', hiddenSections);
+			this.calendarContext.sectionManager.saveHiddenSections();
 		}
 	}
 
-	hide()
+	hide(): void
 	{
 		if (this.isShown())
 		{
-			var hiddenSections = this.calendarContext.sectionManager.getHiddenSections();
+			const hiddenSections = this.calendarContext.sectionManager.getHiddenSections();
 			hiddenSections.push(this.id);
 			this.calendarContext.sectionManager.setHiddenSections(hiddenSections);
-			BX.userOptions.save('calendar', 'hidden_sections', 'hidden_sections', hiddenSections);
+			this.calendarContext.sectionManager.saveHiddenSections();
 		}
 	}
 

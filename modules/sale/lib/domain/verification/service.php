@@ -137,6 +137,7 @@ final class Service
 			'onEndBufferContent',
 			static function(&$resultContent) use ($content)
 			{
+				header('Content-Type: text/plain');
 				$resultContent = $content;
 			}
 		);

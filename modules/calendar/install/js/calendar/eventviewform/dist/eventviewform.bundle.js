@@ -105,7 +105,7 @@ this.BX = this.BX || {};
 	          var html = '';
 
 	          if (main_core.Type.isFunction(slider.isOpen) && slider.isOpen() || slider.isOpen === true) {
-	            html = _this.BX.util.trim(response.data.html);
+	            html = response.data.html;
 	            slider.getData().set("sliderContent", html);
 	            var params = response.data.additionalParams;
 	            _this.userId = params.userId;
@@ -118,6 +118,10 @@ this.BX = this.BX || {};
 
 	          resolve(html);
 	        }, function (response) {
+	          if (response.errors && response.errors.length) {
+	            slider.getData().set("sliderContent", '<div class="calendar-slider-alert">' + '<div class="calendar-slider-alert-inner">' + '<div class="calendar-slider-alert-img"></div>' + '<h1 class="calendar-slider-alert-text">' + main_core.Text.encode(response.errors[0].message) + '</h1>' + '</div>' + '</div>');
+	          }
+
 	          _this.displayError(response.errors);
 
 	          resolve(response);
@@ -368,28 +372,17 @@ this.BX = this.BX || {};
 	              src: user.AVATAR
 	            }
 	          }));
-
-	          if (user.EMAIL_USER) {
-	            userWrap.appendChild(this.BX.create("DIV", {
-	              props: {
-	                className: 'calendar-slider-sidebar-user-info'
-	              }
-	            })).appendChild(this.BX.create("span", {
-	              text: user.DISPLAY_NAME
-	            }));
-	          } else {
-	            userWrap.appendChild(this.BX.create("DIV", {
-	              props: {
-	                className: 'calendar-slider-sidebar-user-info'
-	              }
-	            })).appendChild(this.BX.create("A", {
-	              props: {
-	                href: user.URL ? user.URL : '#',
-	                className: 'calendar-slider-sidebar-user-info-name'
-	              },
-	              text: user.DISPLAY_NAME
-	            }));
-	          }
+	          userWrap.appendChild(this.BX.create("DIV", {
+	            props: {
+	              className: 'calendar-slider-sidebar-user-info'
+	            }
+	          })).appendChild(this.BX.create("A", {
+	            props: {
+	              href: user.URL ? user.URL : '#',
+	              className: 'calendar-slider-sidebar-user-info-name'
+	            },
+	            text: user.DISPLAY_NAME
+	          }));
 	        }, this);
 	        this.userListPopup = this.BX.PopupWindowManager.create("user-list-popup-" + Math.random(), node, {
 	          autoHide: true,

@@ -44,6 +44,19 @@ use Bitrix\Main;
 /**
  * Class StatTable
  * @deprecated
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Stat_Query query()
+ * @method static EO_Stat_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Stat_Result getById($id)
+ * @method static EO_Stat_Result getList(array $parameters = array())
+ * @method static EO_Stat_Entity getEntity()
+ * @method static \Bitrix\Rest\EO_Stat createObject($setDefaultValues = true)
+ * @method static \Bitrix\Rest\EO_Stat_Collection createCollection()
+ * @method static \Bitrix\Rest\EO_Stat wakeUpObject($row)
+ * @method static \Bitrix\Rest\EO_Stat_Collection wakeUpCollection($rows)
  */
 class StatTable extends Main\Entity\DataManager
 {

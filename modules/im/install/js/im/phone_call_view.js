@@ -36,6 +36,7 @@
 		setCrmEntity: 'phoneCallViewSetCrmEntity',
 		setPortalCall: 'phoneCallViewSetPortalCall',
 		setPortalCallUserId: 'phoneCallViewSetPortalCallUserId',
+		setPortalCallQueueName: 'phoneCallViewSetPortalCallQueueName',
 		setPortalCallData: 'phoneCallViewSetPortalCallData',
 		setConfig: 'phoneCallViewSetConfig',
 		setCallState: 'phoneCallViewSetCallState',
@@ -98,17 +99,18 @@
 		this.callState = BX.PhoneCallView.CallState.idle;
 
 		//associated crm entities
-		this.crmEntityType = params.crmEntityType || '';
-		this.crmEntityId = params.crmEntityId || 0;
-		this.crmActivityId = params.crmActivityId || 0;
-		this.crmActivityEditUrl = params.crmActivityEditUrl || '';
-		this.crmData = BX.type.isPlainObject(params.crmData) ? params.crmData : {};
-		this.crmBindings = [];
+		this.crmEntityType = BX.prop.getString(params, 'crmEntityType', '');
+		this.crmEntityId = BX.prop.getInteger(params, 'crmEntityId', 0);
+		this.crmActivityId = BX.prop.getInteger(params, 'crmActivityId', 0);
+		this.crmActivityEditUrl = BX.prop.getString(params, 'crmActivityEditUrl', '');
+		this.crmData = BX.prop.getObject(params, 'crmData', {});
+		this.crmBindings = BX.prop.getArray(params, 'crmBindings', []);
 		this.externalRequests = {};
 
 		//portal call
-		this.portalCallUserId = params.portalCallUserId;
 		this.portalCallData = params.portalCallData;
+		this.portalCallUserId = params.portalCallUserId;
+		this.portalCallQueueName = params.portalCallQueueName;
 
 		//flags
 		this.hasSipPhone = (params.hasSipPhone === true);
@@ -411,6 +413,7 @@
 			this.disableDocumentScroll();
 
 		this.popup.show();
+		return this;
 	};
 
 	BX.PhoneCallView.prototype.createPopup = function()
@@ -785,7 +788,7 @@
 						BX.create("div", {props: {className: 'im-phone-calling-progress-container-block-r'}, children: [
 							this.elements.avatar = BX.create("div", {
 								props: {className: 'im-phone-calling-progress-customer'},
-								style: portalCallUserImage == '' ?  {} : {'background-image': 'url(' + portalCallUserImage +')'}
+								style: portalCallUserImage == '' ?  {} : {'background-image': 'url(\'' + portalCallUserImage +'\')'}
 							})
 						]})
 					]})
@@ -1040,10 +1043,20 @@
 				switch (this.direction)
 				{
 					case BX.PhoneCallView.Direction.incoming:
-						callTitle = BX.message("IM_M_CALL_VOICE_FROM").replace('#USER#', this.portalCallData.users[this.portalCallUserId].name);
+						if (this.portalCallUserId)
+						{
+							callTitle = BX.message("IM_M_CALL_VOICE_FROM").replace('#USER#', this.portalCallData.users[this.portalCallUserId].name);
+						}
 						break;
 					case BX.PhoneCallView.Direction.outgoing:
-						callTitle = BX.message("IM_M_CALL_VOICE_TO").replace('#USER#', this.portalCallData.users[this.portalCallUserId].name);
+						if (this.portalCallUserId)
+						{
+							callTitle = BX.message("IM_M_CALL_VOICE_TO").replace('#USER#', this.portalCallData.users[this.portalCallUserId].name);
+						}
+						else
+						{
+							callTitle = BX.message("IM_M_CALL_VOICE_TO").replace('#USER#', this.portalCallQueueName) + ' (' + this.phoneNumber + ')';
+						}
 						break;
 				}
 			}
@@ -1085,7 +1098,7 @@
 			portalCallUserImage = this.portalCallData.hrphoto[this.portalCallUserId];
 
 			BX.adjust(this.elements.avatar, {
-				style: portalCallUserImage == '' ? {} :  {'background-image': 'url(' + portalCallUserImage +')'}
+				style: portalCallUserImage == '' ? {} :  {'background-image': 'url(\'' + portalCallUserImage +'\')'}
 			});
 		}
 	};
@@ -1548,11 +1561,22 @@
 		if(this.portalCallData && this.portalCallData.users[this.portalCallUserId])
 		{
 			this.renderAvatar();
-			if(!this.slave)
+			this.createTitle().then(function(title)
 			{
-				this.setTitle(BX.message("IM_M_CALL_VOICE_TO").replace('#USER#', this.portalCallData.users[this.portalCallUserId].name));
-			}
+				this.setTitle(title)
+			}.bind(this));
 		}
+	};
+
+	BX.PhoneCallView.prototype.setPortalCallQueueName = function(queueName)
+	{
+		this.portalCallQueueName = queueName;
+		this.setOnSlave(desktopEvents.setPortalCallQueueName, [queueName]);
+
+		this.createTitle().then(function(title)
+		{
+			this.setTitle(title)
+		}.bind(this));
 	};
 
 	BX.PhoneCallView.prototype.setPortalCall = function(portalCall)
@@ -2341,25 +2365,17 @@
 	};
 	BX.PhoneCallView.prototype._onTransferButtonClick = function(e)
 	{
-		var self = this;
-		this.transferPopup = TransferPopup.create({
-			bindElement: this.elements.buttons.transfer,
-			BXIM: this.BXIM,
-			onSelect: function(e)
+		this.selectTransferTarget(function(result)
+		{
+			if(this.isDesktop() && this.slave)
 			{
-				if(self.isDesktop() && self.slave)
-					BX.desktop.onCustomEvent(desktopEvents.onStartTransfer, [e]);
-				else
-					self.callbacks.transfer(e);
-
-			},
-			onDestroy: function()
-			{
-				self.transferPopup = null;
+				BX.desktop.onCustomEvent(desktopEvents.onStartTransfer, [result]);
 			}
-		});
-
-		this.transferPopup.show();
+			else
+			{
+				this.callbacks.transfer(result);
+			}
+		}.bind(this));
 	};
 
 	BX.PhoneCallView.prototype._onTransferCompleteButtonClick = function(e)
@@ -3113,6 +3129,7 @@
 		BX.desktop.addCustomEvent(desktopEvents.reloadCrmCard, this.reloadCrmCard.bind(this));
 		BX.desktop.addCustomEvent(desktopEvents.setPortalCall, this.setPortalCall.bind(this));
 		BX.desktop.addCustomEvent(desktopEvents.setPortalCallUserId, this.setPortalCallUserId.bind(this));
+		BX.desktop.addCustomEvent(desktopEvents.setPortalCallQueueName, this.setPortalCallQueueName.bind(this));
 		BX.desktop.addCustomEvent(desktopEvents.setPortalCallData, this.setPortalCallData.bind(this));
 		BX.desktop.addCustomEvent(desktopEvents.setConfig, this.setConfig.bind(this));
 		BX.desktop.addCustomEvent(desktopEvents.setCallId, this.setCallId.bind(this));
@@ -3472,6 +3489,181 @@
 			initialTimestamp: this.initialTimestamp,
 			crmData: this.crmData
 		};
+	};
+
+	BX.PhoneCallView.prototype.selectTransferTarget = function(resultCallback)
+	{
+		resultCallback = BX.type.isFunction(resultCallback) ? resultCallback : BX.DoNothing;
+
+		BX.loadExt('ui.entity-selector').then(function()
+		{
+			var transferDialog = new BX.UI.EntitySelector.Dialog({
+				targetNode: this.elements.buttons.transfer,
+				multiple: false,
+				cacheable: false,
+				hideOnSelect: false,
+				enableSearch: true,
+				entities: [
+					{
+						id: 'user',
+						options: {
+							inviteEmployeeLink: false,
+							selectFields: ['personalPhone', 'personalMobile', 'workPhone']
+						}
+					},
+					{
+						id: 'department'
+					},
+					{
+						id: 'voximplant_group'
+					},
+				],
+				events: {
+					'Item:onSelect': function(event)
+					{
+						event.target.deselectAll();
+
+						var item = event.data.item;
+
+						if (item.getEntityId() === 'user')
+						{
+							var customData = item.getCustomData();
+							if (customData.get('personalPhone') || customData.get('personalMobile') || customData.get('workPhone'))
+							{
+								this.showTransferToUserMenu({
+									userId: item.getId(),
+									customData: Object.fromEntries(customData),
+									onSelect: function(result)
+									{
+										event.target.hide();
+										resultCallback({
+											type: result.type,
+											target: result.target
+										})
+									}
+								})
+							}
+							else
+							{
+								event.target.hide();
+								resultCallback({
+									type: 'user',
+									target: item.getId()
+								})
+							}
+						}
+						else if (item.getEntityId() === 'voximplant_group')
+						{
+							event.target.hide();
+							resultCallback({
+								type: 'queue',
+								target: item.getId()
+							})
+						}
+					}.bind(this)
+				}
+			});
+			transferDialog.show();
+		}.bind(this));
+	};
+
+	BX.PhoneCallView.prototype.showTransferToUserMenu = function(options)
+	{
+		var userId = BX.prop.getInteger(options, "userId", 0);
+		var userCustomData = BX.prop.getObject(options, "customData", {});
+		var onSelect = BX.prop.getFunction(options, "onSelect", BX.DoNothing);
+		var popup;
+
+		var onMenuItemClick = function (e)
+		{
+			var type = e.currentTarget.dataset["type"];
+			var target = e.currentTarget.dataset["target"];
+			onSelect({
+				type: type,
+				target: target,
+			});
+			popup.close();
+		};
+
+		var menuItems = [
+			{
+				icon: 'bx-messenger-menu-call-voice',
+				text: BX.message('IM_PHONE_INNER_CALL'),
+				dataset: {
+					type: 'user',
+					target: userId
+				},
+				onclick: onMenuItemClick
+			},
+			{
+				separator: true
+			},
+		];
+
+		if (userCustomData["personalMobile"])
+		{
+			menuItems.push({
+				type: "call",
+				text: BX.message("IM_PHONE_PERSONAL_MOBILE"),
+				phone: BX.util.htmlspecialchars(userCustomData["personalMobile"]),
+				dataset: {
+					type: 'pstn',
+					target: userCustomData["personalMobile"]
+				},
+				onclick: onMenuItemClick,
+			});
+		}
+		if (userCustomData["personalPhone"])
+		{
+			menuItems.push({
+				type: "call",
+				text: BX.message("IM_PHONE_PERSONAL_PHONE"),
+				phone: BX.util.htmlspecialchars(userCustomData["personalPhone"]),
+				dataset: {
+					type: 'pstn',
+					target: userCustomData["personalPhone"]
+				},
+				onclick: onMenuItemClick,
+			});
+		}
+		if (userCustomData["workPhone"])
+		{
+			menuItems.push({
+				type: "call",
+				text: BX.message("IM_PHONE_WORK_PHONE"),
+				phone: BX.util.htmlspecialchars(userCustomData["workPhone"]),
+				dataset: {
+					type: 'pstn',
+					target: userCustomData["workPhone"]
+				},
+				onclick: onMenuItemClick,
+			});
+		}
+		var popupContent = BX.create("div", {
+			props: {className: "bx-messenger-popup-menu"},
+			children: [
+				BX.create("div", {
+					props: {className: "bx-messenger-popup-menu-items"},
+					children: BX.MessengerChat.MenuPrepareList(menuItems),
+				}),
+			],
+		});
+
+		popup = new BX.PopupWindow("bx-messenger-phone-transfer-menu", null, {
+			targetContainer: document.body,
+			darkMode: this.BXIM.settings.enableDarkTheme,
+			lightShadow: true,
+			autoHide: true,
+			closeByEsc: true,
+			cacheable: false,
+			overlay: {
+				backgroundColor: '#FFFFFF',
+				opacity: 0
+			},
+			content: popupContent,
+		});
+		popup.show();
+
 	};
 
 	BX.PhoneCallView.Direction = {
@@ -4637,337 +4829,6 @@
 	{
 		BX.PreventDefault(e);
 		this.unfold(false);
-	};
-
-	var TransferPopup = function(params)
-	{
-		this.bindElement = BX.type.isDomNode(params.bindElement) ? params.bindElement : null;
-		this.callbacks = {
-			onSelect: BX.type.isFunction(params.onSelect) ? params.onSelect : BX.DoNothing,
-			onDestroy: BX.type.isFunction(params.onDestroy) ? params.onDestroy : BX.DoNothing
-		};
-		this.popup = null;
-		this.selectedUserId = 0;
-
-		this.BXIM = params.BXIM;
-
-		this.elements = {
-			destinationContainer: null,
-			input: null
-		};
-	};
-
-	TransferPopup.create = function(params)
-	{
-		return new TransferPopup(params);
-	};
-
-	TransferPopup.prototype.show = function()
-	{
-		if(!this.popup)
-		{
-			this.popup = this.createPopup();
-			this.popup.setAngle({offset: BX.MessengerCommon.isPage()? 32: 198});
-			this.bindEvents();
-		}
-
-		this.popup.show();
-		this.elements.input.focus();
-	};
-
-	TransferPopup.prototype.close = function()
-	{
-		if(this.popup)
-			this.popup.close();
-	};
-
-	TransferPopup.prototype.createPopup = function()
-	{
-		var self = this;
-		return new BX.PopupWindow('bx-messenger-popup-transfer', this.bindElement, {
-			targetContainer: document.body,
-			zIndex: baseZIndex + 200,
-			lightShadow : true,
-			offsetTop: 5,
-			offsetLeft: BX.MessengerCommon.isPage()? 5: -162,
-			autoHide: true,
-			closeByEsc: true,
-			content: this.render(),
-			buttons: [
-				new BX.PopupWindowButton({
-					text: BX.message('IM_M_CALL_BTN_TRANSFER'),
-					className: "popup-window-button-accept",
-					events: {
-						click: function(e)
-						{
-							var hasExternalPhones = false;
-
-							if (self.selectedUserId == 0)
-								return false;
-
-							if(self.BXIM.messenger.phones && self.BXIM.messenger.phones[self.selectedUserId])
-							{
-								if (
-									self.BXIM.messenger.phones[self.selectedUserId].PERSONAL_MOBILE
-									|| self.BXIM.messenger.phones[self.selectedUserId].PERSONAL_PHONE
-									|| self.BXIM.messenger.phones[self.selectedUserId].WORK_PHONE
-								)
-								{
-									hasExternalPhones = true;
-								}
-							}
-
-							if (!hasExternalPhones)
-							{
-								self.popup.close();
-								self.callbacks.onSelect({
-									type: 'user',
-									userId: self.selectedUserId
-								});
-							}
-							else
-							{
-								self.BXIM.messenger.openPopupMenu(
-									e.target,
-									'callTransferMenu',
-									true,
-									{
-										userId: self.selectedUserId,
-										zIndex: baseZIndex + 210,
-										onSelect: function(e)
-										{
-											self.popup.close();
-											self.callbacks.onSelect(e);
-										}
-									}
-								);
-							}
-					}}
-				}),
-				new BX.PopupWindowButton({
-					text: BX.message('IM_M_CHAT_BTN_CANCEL'),
-					events: {
-						click: function()
-						{
-							self.popup.close();
-						}
-				}})
-			],
-			events: {
-				onPopupClose : function() { this.destroy() },
-				onPopupDestroy : function() { self.popup = null; self.elements.contactList = null; self.callbacks.onDestroy(); }
-			}
-		});
-	};
-
-	TransferPopup.prototype.render = function()
-	{
-		return BX.create("div", { props : { className : "bx-messenger-popup-newchat-wrap" }, children: [
-			BX.create("div", { props : { className : "bx-messenger-popup-newchat-caption" }, html: BX.message('IM_M_CALL_TRANSFER_TEXT')}),
-			BX.create("div", { props : { className : "bx-messenger-popup-newchat-box bx-messenger-popup-newchat-dest bx-messenger-popup-newchat-dest-even" }, children: [
-				this.elements.destinationContainer = BX.create("span", { props : { className : "bx-messenger-dest-items" }}),
-				this.elements.input = BX.create("input", {props : { className : "bx-messenger-input" }, attrs: {type: "text", placeholder: BX.message(this.BXIM.bitrixIntranet ? 'IM_M_SEARCH_PLACEHOLDER_CP': 'IM_M_SEARCH_PLACEHOLDER'), value: ''}})
-			]}),
-			this.elements.contactList = BX.create("div", { props : { className : "bx-messenger-popup-newchat-box bx-messenger-popup-newchat-cl bx-messenger-recent-wrap" }, children: []})
-		]})
-	};
-
-	TransferPopup.prototype.bindEvents = function(params)
-	{
-		var self = this;
-		var maxUsers = 1;
-		BX.MessengerCommon.contactListSearchClear();
-		if (!this.BXIM.messenger.contactListLoad)
-		{
-			this.elements.contactList.appendChild(BX.create("div", {
-				props : { className: "bx-messenger-cl-item-load"},
-				html : BX.message('IM_CL_LOAD')
-			}));
-
-			BX.MessengerCommon.contactListGetFromServer(function()
-			{
-				BX.MessengerCommon.contactListPrepareSearch(
-					'popupTransferDialogContactListElements',
-					self.elements.contactList,
-					self.elements.input.value,
-					{
-						'viewChat': false,
-						'viewOpenChat': false,
-						'viewOffline': true,
-						'viewBot': false,
-						'viewOnlyIntranet': true,
-						'viewOfflineWithPhones': true
-					}
-				);
-			});
-		}
-		else
-		{
-			BX.MessengerCommon.contactListPrepareSearch(
-				'popupTransferDialogContactListElements',
-				this.elements.contactList,
-				this.elements.input.value,
-				{
-					'viewChat': false,
-					'viewOpenChat': false,
-					'viewOffline': true,
-					'viewBot': false,
-					'viewOnlyIntranet': true,
-					'viewOfflineWithPhones': true
-				}
-			);
-		}
-		BX.bindDelegate(this.elements.contactList, "click", {className: 'bx-messenger-chatlist-more'}, BX.delegate(this.BXIM.messenger.toggleChatListGroup, this.BXIM.messenger));
-
-		BX.addClass(this.popup.popupContainer, "bx-messenger-mark");
-		BX.bind(this.popup.popupContainer, "click", BX.PreventDefault);
-
-		BX.bind(this.elements.input, "keyup", BX.delegate(function(event){
-			if (event.keyCode == 16 || event.keyCode == 17 || event.keyCode == 18 || event.keyCode == 20 || event.keyCode == 244 || event.keyCode == 224 || event.keyCode == 91)
-				return false;
-
-			if (event.keyCode == 27 && this.elements.input.value != '')
-				BX.MessengerCommon.preventDefault(event);
-
-			if (event.keyCode == 27)
-			{
-				this.elements.input.value = '';
-			}
-
-			if (event.keyCode == 8)
-			{
-				var lastId = null;
-				var arMentionSort = BX.util.objectSort(this.popupChatDialogUsers, 'date', 'asc');
-				for (var i = 0; i < arMentionSort.length; i++)
-				{
-					lastId = arMentionSort[i].id;
-				}
-				if (lastId)
-				{
-					delete this.popupChatDialogUsers[lastId];
-					this.redrawChatDialogDest();
-				}
-			}
-
-			if (event.keyCode == 13)
-			{
-				this.elements.input.value = '';
-				var item = BX.findChildByClassName(this.elements.contactList, "bx-messenger-cl-item");
-				if (item)
-				{
-					if (this.elements.input.value != '')
-					{
-						this.elements.input.value = '';
-					}
-					if (this.selectedUserId > 0)
-					{
-						maxUsers = maxUsers + 1;
-						if (maxUsers> 0)
-							BX.show(this.elements.input);
-						this.selectedUserId = 0;
-					}
-					else
-					{
-						if (maxUsers> 0)
-						{
-							maxUsers = maxUsers - 1;
-							if (maxUsers<= 0)
-								BX.hide(this.elements.input);
-
-							this.selectedUserId = item.getAttribute('data-userId');
-						}
-					}
-					this.redrawTransferDialogDest();
-				}
-			}
-
-			BX.MessengerCommon.contactListPrepareSearch('popupTransferDialogContactListElements', this.elements.contactList, this.elements.input.value, {'viewChat': false, 'viewOpenChat': false, 'viewOffline': true, 'viewBot': false, 'viewOnlyIntranet': true, 'viewOfflineWithPhones': true, timeout: 100});
-		}, this));
-
-		BX.bindDelegate(this.elements.destinationContainer, "click", {className: 'bx-messenger-dest-del'}, BX.delegate(function() {
-			this.selectedUserId = 0;
-			maxUsers = maxUsers + 1;
-			if (maxUsers> 0)
-				BX.show(this.elements.input);
-			this.redrawTransferDialogDest();
-		}, this));
-		BX.bindDelegate(this.elements.contactList, "click", {className: 'bx-messenger-cl-item'}, BX.delegate(function(e) {
-			if (this.elements.input.value != '')
-			{
-				this.elements.input.value = '';
-				BX.MessengerCommon.contactListPrepareSearch('popupTransferDialogContactListElements', this.elements.contactList, '', {'viewChat': false, 'viewOpenChat': false, 'viewOffline': true, 'viewBot': false, 'viewOnlyIntranet': true, 'viewOfflineWithPhones': true});
-			}
-			if (this.selectedUserId)
-			{
-				maxUsers = maxUsers+1;
-				this.selectedUserId = 0;
-			}
-			else
-			{
-				if (maxUsers <= 0)
-					return false;
-				maxUsers = maxUsers - 1;
-				this.selectedUserId = BX.proxy_context.getAttribute('data-userId');
-			}
-
-			if (maxUsers <= 0)
-				BX.hide(this.elements.input);
-			else
-				BX.show(this.elements.input);
-
-			this.redrawTransferDialogDest();
-
-			return BX.PreventDefault(e);
-		}, this));
-	};
-
-	TransferPopup.prototype.redrawTransferDialogDest = function()
-	{
-		var content = '';
-		var count = 0;
-
-		var isQueue = this.selectedUserId.toString().substr(0, 5) == 'queue';
-		var queueId = isQueue? this.selectedUserId.toString().substr(5): 0;
-
-		if (isQueue)
-		{
-			var queueName = this.selectedUserId;
-			for (var i = 0; i < this.queue.length; i++)
-			{
-				if (this.queue[i].ID == queueId)
-				{
-					queueName = this.queue[i].NAME;
-					break;
-				}
-			}
-
-			count++;
-			content += '<span class="bx-messenger-dest-block bx-messenger-dest-block-extranet">'+
-				'<span class="bx-messenger-dest-text">'+queueName+'</span>'+
-				'<span class="bx-messenger-dest-del" data-userId="'+this.selectedUserId+'"></span></span>';
-		}
-		else if (this.selectedUserId > 0)
-		{
-			count++;
-			content += '<span class="bx-messenger-dest-block'+(this.BXIM.messenger.users[this.selectedUserId].extranet? ' bx-messenger-dest-block-extranet': '')+'">'+
-				'<span class="bx-messenger-dest-text">'+(this.BXIM.messenger.users[this.selectedUserId].name)+'</span>'+
-				'<span class="bx-messenger-dest-del" data-userId="'+this.selectedUserId+'"></span></span>';
-		}
-
-		this.elements.destinationContainer.innerHTML = content;
-		this.elements.destinationContainer.parentNode.scrollTop = this.elements.destinationContainer.parentNode.offsetHeight;
-
-		if (BX.util.even(count))
-			BX.addClass(this.elements.destinationContainer.parentNode, 'bx-messenger-popup-newchat-dest-even');
-		else
-			BX.removeClass(this.elements.destinationContainer.parentNode, 'bx-messenger-popup-newchat-dest-even');
-
-		this.elements.input.focus();
-	};
-
-	TransferPopup.prototype.destroy = function()
-	{
-		this.BXIM.messenger.closeMenuPopup();
 	};
 
 	var Keypad = function(params)

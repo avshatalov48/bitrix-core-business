@@ -17,9 +17,16 @@ Loc::loadMessages(__FILE__);
 /** @var array $arResult */
 $containerId = 'bx-sender-letter-edit';
 
-Extension::load("ui.buttons");
-Extension::load("ui.buttons.icons");
-Extension::load("ui.notification");
+Extension::load([
+	'ui.buttons',
+	'ui.buttons.icons',
+	'ui.notification',
+	'ui.sidepanel-content',
+	'ui.sidepanel.layout',
+	'ui.info-helper',
+	'sender.consent.preview',
+]);
+
 CJSCore::Init(array('admin_interface'));
 
 if($arParams['IFRAME'] === 'Y')
@@ -166,6 +173,7 @@ if($arParams['IFRAME'] === 'Y')
 							'IS_RECIPIENT_COUNT_EXACT' => $arResult['SEGMENTS']['IS_RECIPIENT_COUNT_EXACT'],
 							'DURATION_FORMATTED' => $arResult['SEGMENTS']['DURATION_FORMATTED'],
 							'SHOW_COUNTERS' => $arParams['SHOW_SEGMENT_COUNTERS'],
+							'CHECK_ON_STATIC' => $arParams['CHECK_ON_STATIC'],
 							'MESS' => $arParams['MESS'],
 						),
 						false
@@ -206,8 +214,8 @@ if($arParams['IFRAME'] === 'Y')
 						'NAME' => 'save_as_template'
 					];
 				}
-				$buttons[] = ['TYPE' => 'save'];
-				$buttons[] = ['TYPE' => 'apply', 'ONCLICK' => 'BX.Sender.Letter.applyChanges()'];
+				$buttons[] = ['TYPE' => 'save', 'ONCLICK' => !$arResult['IS_AVAILABLE']? "BX.UI.InfoHelper.show('limit_crm_marketing_adv'); return false;": ""];
+				$buttons[] = ['TYPE' => 'apply', 'ONCLICK' => !$arResult['IS_AVAILABLE']? "BX.UI.InfoHelper.show('limit_crm_marketing_adv'); return false;": "BX.Sender.Letter.applyChanges()"];
 			}
 			$buttons[] = ['TYPE' => 'cancel', 'LINK' => $arParams['PATH_TO_LIST']];
 			$APPLICATION->IncludeComponent(
@@ -223,6 +231,19 @@ if($arParams['IFRAME'] === 'Y')
 
 	</form>
 </div>
+<?php
+if(!$arResult['IS_AVAILABLE'] )
+{
+	$APPLICATION->IncludeComponent("bitrix:ui.info.helper", "", array());
+	?>
+    <script>
+        BX.ready(function (){
+            BX.UI.InfoHelper.show('limit_crm_marketing_email');
+        });
+    </script>
+	<?
+}
+
 
 
 

@@ -173,7 +173,9 @@ class ConferenceList
 					this.menu.show();
 				}
 			})
-			.catch((response) => {});
+			.catch((response) => {
+				console.error(response);
+			});
 	}
 
 	closeContextMenu()

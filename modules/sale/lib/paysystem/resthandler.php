@@ -363,6 +363,11 @@ class RestHandler extends PaySystem\ServiceHandler
 		{
 			$psData['PS_RECURRING_TOKEN'] = $psRecurringToken;
 		}
+		
+		if ($psCardNumber = $request->get('PS_CARD_NUMBER'))
+		{
+			$psData['PS_CARD_NUMBER'] = $psCardNumber;
+		}
 
 		return $psData;
 	}

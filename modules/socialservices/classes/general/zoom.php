@@ -538,7 +538,9 @@ class CSocServZoom extends CSocServAuth
 	}
 
 	/**
-	 * Notifies Zoom that we comply with the user’s data policy after the user uninstalls Bitrix24 app.
+	 * Notifies Zoom that we comply with the user's data policy after the user uninstalls Bitrix24 app.
+	 *
+	 * @deprecated by Zoom since August 7, 2021.
 	 *
 	 * @param array $payload
 	 *
@@ -822,6 +824,13 @@ class CZoomInterface extends CSocServOAuthTransport
 		return $requestResult->getData();
 	}
 
+	/**
+	 * @deprecated by Zoom since August 7, 2021.
+	 * @param array $params
+	 *
+	 * @return Result
+	 * @throws ArgumentException
+	 */
 	public function sendComplianceNotify(array $params): Result
 	{
 		$requestParams = [

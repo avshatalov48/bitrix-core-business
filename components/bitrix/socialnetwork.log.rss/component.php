@@ -74,8 +74,10 @@ if($arResult["SERVER_NAME"] == '')
 if ($arParams["ENTITY_TYPE"] == SONET_ENTITY_GROUP)
 {
 	$arGroup = CSocNetGroup::GetByID($arParams["ENTITY_ID"]);
-	
-	$arCurrentUserPerms = CSocNetUserToGroup::InitUserPerms($GLOBALS["USER"]->GetID(), $arGroup, $bCurrentUserIsAdmin);
+
+	$arCurrentUserPerms = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
+		'groupId' => $arGroup['ID'],
+	]);
 
 	if (!$arCurrentUserPerms || !$arCurrentUserPerms["UserCanViewGroup"])
 	{

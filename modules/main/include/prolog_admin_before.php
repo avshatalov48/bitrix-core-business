@@ -25,7 +25,10 @@ if (isset($_REQUEST['public']) && $_REQUEST['public'] == 'Y' && !defined("PUBLIC
 
 if (!defined('PUBLIC_MODE') || PUBLIC_MODE !== 1)
 {
-	define("ADMIN_SECTION", true);
+	if (!defined('ADMIN_SECTION'))
+	{
+		define("ADMIN_SECTION", true);
+	}
 }
 
 require_once(dirname(__FILE__)."/../include.php");

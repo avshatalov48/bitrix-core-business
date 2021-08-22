@@ -24,6 +24,7 @@ BitrixSUG.prototype.init = function(params)
 	}
 
 	this.processNavigation();
+	this.processFavorites();
 
 	BX.addCustomEvent("BX.SonetGroupList.Filter:beforeApply", BX.delegate(function(filterValues, filterPromise) {
 		this.showRefreshFade();
@@ -97,7 +98,7 @@ BitrixSUG.prototype.sendRequest = function(params)
 				}
 			},
 			analyticsLabel: {
-				b24statAction: (params.value === 'Y' ? 'removeFavSonetGroup' : 'addFavSonetGroup'),
+				b24statAction: (params.value === 'Y' ? 'addFavSonetGroup' : 'removeFavSonetGroup'),
 			}
 		}).then(function(response) {
 			params.callback_success(response.data);
@@ -505,6 +506,7 @@ BitrixSUG.prototype.refresh = function(params, filterPromise)
 					this.processAjaxBlock(data.PROPS);
 				}
 				this.processNavigation();
+				this.processFavorites();
 			}
 			else
 			{
@@ -689,6 +691,69 @@ BitrixSUG.prototype.clickNavigation = function(link)
 	this.refresh({
 		url: link + "&refreshAjax=Y"
 	});
+};
+
+BitrixSUG.prototype.processFavorites = function()
+{
+	var favContainer = document.getElementById('sonet-groups-list-container');
+	if (!favContainer)
+	{
+		return;
+	}
+
+	var clickHandler = this.starClickHandler.bind(this);
+
+	var starList = favContainer.querySelectorAll('.sonet-groups-group-title-favorites');
+	for (var i = 0; i < starList.length; i++)
+	{
+		starList[i].removeEventListener('click',  clickHandler);
+		starList[i].addEventListener('click',  clickHandler);
+	}
+};
+
+BitrixSUG.prototype.starClickHandler = function(event)
+{
+	var star = event.currentTarget;
+	var isActive = star.classList.contains('sonet-groups-group-title-favorites-active');
+
+	var groupId = parseInt(star.getAttribute('data-bx-group-id'));
+
+	if (groupId <= 0)
+	{
+		return;
+	}
+
+	this.setFavorites(star, !isActive);
+
+	this.sendRequest({
+		action: 'FAVORITES',
+		groupId: groupId,
+		value: (isActive ? 'N' : 'Y'),
+		callback_success: function(data)
+		{
+			if (
+				!BX.type.isNotEmptyString(data.NAME)
+				|| BX.type.isNotEmptyString(data.URL)
+			)
+			{
+				return;
+			}
+
+			BX.onCustomEvent(window, 'BX.Socialnetwork.WorkgroupFavorites:onSet', [{
+				id: groupId,
+				name: data.NAME,
+				url: data.URL,
+				extranet: (BX.type.isNotEmptyString(data.EXTRANET) ? data.EXTRANET : 'N')
+			}, !isActive]);
+		}.bind(this),
+		callback_failure: function(errorText)
+		{
+			this.setFavorites(star, isActive);
+		}.bind(this)
+	});
+
+	event.stopPropagation();
+	event.preventDefault();
 };
 
 oSUG = new BitrixSUG;

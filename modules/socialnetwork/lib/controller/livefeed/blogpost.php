@@ -9,6 +9,7 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Web\Json;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Socialnetwork\Item\Helper;
 
 class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 {
@@ -194,7 +195,7 @@ class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 
 	public function shareAction(array $params = [])
 	{
-		$postId = (isset($params['postId']) ? (int)$params['postId'] : 0);
+		$postId = (int)($params['postId'] ?? 0);
 		$destCodesList = ($params['DEST_CODES'] ?? []);
 		$destData = ($params['DEST_DATA'] ?? []);
 		$invitedUserName = ($params['INVITED_USER_NAME'] ?? []);
@@ -232,7 +233,7 @@ class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 			return null;
 		}
 
-		$currentUserPerm = \Bitrix\Socialnetwork\Item\Helper::getBlogPostPerm([
+		$currentUserPerm = Helper::getBlogPostPerm([
 			'USER_ID' => $currentUserId,
 			'POST_ID' => $postId
 		]);
@@ -411,7 +412,7 @@ class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 
 		try
 		{
-			$postId = \Bitrix\Socialnetwork\Item\Helper::addBlogPost($params, $this->getScope(), $resultFields);
+			$postId = Helper::addBlogPost($params, $this->getScope(), $resultFields);
 			if ($postId <= 0)
 			{
 				if (
@@ -457,7 +458,7 @@ class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 		try
 		{
 			$params['POST_ID'] = $id;
-			$postId = \Bitrix\Socialnetwork\Item\Helper::updateBlogPost($params, $this->getScope(), $resultFields);
+			$postId = Helper::updateBlogPost($params, $this->getScope(), $resultFields);
 			if ($postId <= 0)
 			{
 				if (
@@ -495,5 +496,23 @@ class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 		}
 		return \Bitrix\Mobile\Livefeed\Helper::getBlogPostFullData($params);
 	}
+
+	public function deleteAction($id = 0)
+	{
+		try
+		{
+			$result = Helper::deleteBlogPost([
+				'POST_ID' => (int)$id,
+			]);
+		}
+		catch (\Exception $e)
+		{
+			$this->addError(new Error($e->getMessage(), $e->getCode()));
+			return null;
+		}
+
+		return $result;
+	}
+
 }
 

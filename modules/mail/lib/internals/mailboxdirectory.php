@@ -5,6 +5,22 @@ namespace Bitrix\Mail\Internals;
 use Bitrix\Mail\Internals\Entity\MailboxDirectory;
 use Bitrix\Main\ORM\Data\DataManager;
 
+/**
+ * Class MailboxDirectoryTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MailboxDirectory_Query query()
+ * @method static EO_MailboxDirectory_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MailboxDirectory_Result getById($id)
+ * @method static EO_MailboxDirectory_Result getList(array $parameters = array())
+ * @method static EO_MailboxDirectory_Entity getEntity()
+ * @method static \Bitrix\Mail\Internals\Entity\MailboxDirectory createObject($setDefaultValues = true)
+ * @method static \Bitrix\Mail\Internals\EO_MailboxDirectory_Collection createCollection()
+ * @method static \Bitrix\Mail\Internals\Entity\MailboxDirectory wakeUpObject($row)
+ * @method static \Bitrix\Mail\Internals\EO_MailboxDirectory_Collection wakeUpCollection($rows)
+ */
 class MailboxDirectoryTable extends DataManager
 {
 	const ACTIVE = 1;

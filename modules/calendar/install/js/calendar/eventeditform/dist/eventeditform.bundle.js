@@ -533,8 +533,7 @@ this.BX = this.BX || {};
 	          ownerId: this.ownerId,
 	          entityList: this.participantsEntityList
 	        }
-	      }).then( // Success
-	      function (response) {
+	      }).then(function (response) {
 	        if (main_core.Type.isFunction(slider.isOpen) && slider.isOpen() || slider.isOpen === true) {
 	          var html = _this4.BX.util.trim(response.data.html);
 
@@ -588,8 +587,7 @@ this.BX = this.BX || {};
 
 	          promise.fulfill(html);
 	        }
-	      }, // Failure
-	      function (response) {//this.calendar.displayError(response.errors);
+	      }, function (response) {//this.calendar.displayError(response.errors);
 	      });
 	      return promise;
 	    }

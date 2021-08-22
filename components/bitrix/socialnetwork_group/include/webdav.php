@@ -1,4 +1,19 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var CBitrixComponent $component */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var array $arDefaultUrlTemplates404 */
+/** @var string $componentPage */
+/** @global CDatabase $DB */
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
+
 if (!CModule::IncludeModule("webdav")):
 	ShowError(GetMessage("SONET_WD_MODULE_IS_NOT_INSTALLED"));
 	return 0;
@@ -139,9 +154,9 @@ $arError = array();
 if ($object == 'user')
 {
 }
-elseif ($object == 'group')
+elseif ($object === 'group')
 {
-	if (!CSocNetGroup::GetByID($arResult["VARIABLES"]["group_id"]))
+	if (empty($arResult['groupFields']))
 	{
 		$arError[] = array(
 			"id" => "group_not_exists", 
@@ -213,34 +228,49 @@ elseif (
 /************** Set Page Title or Add Navigation *******************/
 if ($arParams["SET_NAV_CHAIN"] == "Y" || $arParams["SET_TITLE"] == "Y")
 {
-
 	$strTitle = "";
-	if($object == "group")
+	if ($object === "group")
 	{
-		$arResult["GROUP"] = $arGroup = CSocNetGroup::GetByID($arResult["VARIABLES"]["group_id"]);
-		$db_res = CSocNetFeatures::GetList(
-			array(),
-			array(
-				"ENTITY_ID" => $arResult["GROUP"]["ID"],
-				"ENTITY_TYPE" => SONET_ENTITY_GROUP,
-				"FEATURE" => "files"));
-		if ($db_res && $arResult["GROUP"]["FEATURE"] = $db_res->GetNext()):
-			$arParams["STR_TITLE"] = $arResult["GROUP"]["FEATURE"]["FEATURE_NAME"] = (empty($arResult["GROUP"]["FEATURE"]["FEATURE_NAME"]) ?
-				$arParams["STR_TITLE"] : $arResult["GROUP"]["FEATURE"]["FEATURE_NAME"]);
-		else:
-			$arResult["GROUP"]["FEATURE"] = array(
-				"FEATURE_NAME" => $arParams["STR_TITLE"]);
-		endif;
+		$arResult['GROUP'] = $arResult['groupFields'];
+		$res = \CSocNetFeatures::getList(
+			[],
+			[
+				'ENTITY_ID' => $arResult['GROUP']['ID'],
+				'ENTITY_TYPE' => SONET_ENTITY_GROUP,
+				'FEATURE' => 'files',
+			]
+		);
 
-		$strTitle = $arGroup["~NAME"].": ".$arParams["STR_TITLE"];
-		$strTitleShort = $arParams["STR_TITLE"];
-
-		if ($arParams["SET_NAV_CHAIN"] == "Y")
+		if (
+			$res
+			&& ($arResult['GROUP']['FEATURE'] = $res->getNext())
+		)
 		{
-			$APPLICATION->AddChainItem($arGroup["NAME"], CComponentEngine::MakePathFromTemplate($arResult["PATH_TO_GROUP"],
-				array("group_id" => $arGroup["ID"])));
-			$APPLICATION->AddChainItem($arParams["STR_TITLE"], CComponentEngine::MakePathFromTemplate($arResult["PATH_TO_GROUP_FILES"],
-				array("group_id" => $arGroup["ID"], "path" => "")));
+			if (empty($arResult['GROUP']['FEATURE']['FEATURE_NAME']))
+			{
+				$arResult['GROUP']['FEATURE']['FEATURE_NAME'] = $arParams['STR_TITLE'];
+			}
+			$arParams['STR_TITLE'] = $arResult["GROUP"]["FEATURE"]["FEATURE_NAME"];
+		}
+		else
+		{
+			$arResult['GROUP']['FEATURE'] = [
+				'FEATURE_NAME' => $arParams['STR_TITLE'],
+			];
+		}
+
+		$strTitle = str_replace('#PAGE_TITLE#', $arParams['STR_TITLE'], $arResult['PAGES_TITLE_TEMPLATE']);
+		$strTitleShort = $arParams['STR_TITLE'];
+
+		if ($arParams['SET_NAV_CHAIN'] === 'Y')
+		{
+			$APPLICATION->addChainItem($arResult['groupFields']['NAME'], \CComponentEngine::makePathFromTemplate($arResult['PATH_TO_GROUP'], [
+				'group_id' => $arResult['groupFields']['ID'],
+			]));
+			$APPLICATION->addChainItem($arParams['STR_TITLE'], \CComponentEngine::makePathFromTemplate($arResult['PATH_TO_GROUP_FILES'], [
+				'group_id' => $arResult['groupFields']['ID'],
+				'path' => '',
+			]));
 		}
 	}
 	else

@@ -244,6 +244,7 @@ class UserProvider extends BaseProvider
 				$inviteEmployeeLink = UrlManager::getInstance()->create('getSliderContent', [
 					'c' => 'bitrix:intranet.invitation',
 					'mode' => Router::COMPONENT_MODE_AJAX,
+					'analyticsLabel[source]' => 'userProvider',
 				]);
 			}
 

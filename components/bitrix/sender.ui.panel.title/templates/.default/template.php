@@ -119,9 +119,9 @@ foreach ($arParams['LIST'] as $item):
 				<a id="<?=htmlspecialcharsbx($button['id'])?>"
 					href="<?=htmlspecialcharsbx($button['href'])?>"
 					class="ui-btn <?=htmlspecialcharsbx($button['class'])?>"
-					onclick="BX.Sender.Page.open('<?=CUtil::JSEscape(
+					onclick="<?php if ($button['onclick']):?><?= htmlspecialcharsbx($button['onclick'])?><?php else:?>BX.Sender.Page.open('<?=CUtil::JSEscape(
 						htmlspecialcharsbx($button['href'])
-					)?>'); return false;"
+					)?>'); return false;<?php endif;?>"
 					style="<?=($button['visible'] ? '' : 'display: none;')?>"
 				>
 					<?=htmlspecialcharsbx($button['caption'])?>

@@ -110,10 +110,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Dom.addClass(_this.layout, _this.className);
 	    }
 
-	    if (main_core.Type.isString(_this.descriptionText) && _this.descriptionText !== '') {
-	      _this.description = BaseField.createDescription(_this.descriptionText);
-	      main_core.Dom.append(_this.description, _this.layout);
-	    }
+	    _this.setDescription(_this.descriptionText);
 
 	    if (_this.data.disabled === true) {
 	      _this.disable();
@@ -130,6 +127,28 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "setTitle",
 	    value: function setTitle(title) {
 	      this.header.innerHTML = main_core.Text.encode(title);
+	    }
+	  }, {
+	    key: "getDescription",
+	    value: function getDescription() {
+	      return this.layout.querySelector('.landing-ui-field-description');
+	    }
+	  }, {
+	    key: "setDescription",
+	    value: function setDescription(description) {
+	      if (main_core.Type.isString(description) && description !== '') {
+	        this.descriptionText = description;
+	        this.description = BaseField.createDescription(this.descriptionText);
+	        main_core.Dom.remove(this.getDescription());
+	        main_core.Dom.append(this.description, this.layout);
+	      }
+	    }
+	  }, {
+	    key: "removeDescription",
+	    value: function removeDescription() {
+	      main_core.Dom.remove(this.getDescription());
+	      this.description = null;
+	      this.descriptionText = '';
 	    }
 	  }, {
 	    key: "createInput",

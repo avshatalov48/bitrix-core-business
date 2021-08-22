@@ -37,7 +37,6 @@ export default class HeaderAndButtonContent extends ContentWrapper
 		const headersForm = new FormSettingsForm({
 			id: 'headers',
 			title: Loc.getMessage('LANDING_HEADER_AND_BUTTONS_HEADERS_FORM_TITLE'),
-			toggleable: true,
 			fields: [
 				new VariablesField({
 					selector: 'title',

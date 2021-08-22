@@ -46,18 +46,24 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 	{
 		$request = $this->getRequest();
 		$finish = false;
-		$monthFrom = intval($request->getPost('month_from'));
-		$yearFrom = intval($request->getPost('year_from'));
-		$monthTo = intval($request->getPost('month_to'));
-		$yearTo = intval($request->getPost('year_to'));
-		$loadLimit = intval($request->getPost('loadLimit'));
+		$monthFrom = (int)$request->getPost('month_from');
+		$yearFrom = (int)$request->getPost('year_from');
+		$monthTo = (int)$request->getPost('month_to');
+		$yearTo = (int)$request->getPost('year_to');
+		$loadLimit = (int)$request->getPost('loadLimit');
+		$ownerId = (int)$request->getPost('ownerId');
+		$calendarType = $request->getPost('type');
+
 		$loadNext = $request->getPost('loadNext') === 'Y';
 		$loadPrevious = $request->getPost('loadPrevious') === 'Y';
+
 		$parseRecursion = true;
-		$activeSectionIds = $request->getPost('active_sect');
-		$additionalSectionIds = $request->getPost('sup_sect');
-		$calendarType = $request->getPost('type');
-		$ownerId = (int)$request->getPost('ownerId');
+		$activeSectionIds = is_array($request->getPost('active_sect'))
+			? $request->getPost('active_sect')
+			: [];
+		$additionalSectionIds = is_array($request->getPost('sup_sect'))
+			? $request->getPost('sup_sect')
+			: [];
 
 		$params = [
 			'type' => $calendarType,
@@ -111,38 +117,39 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		}
 
 		$fetchTasks = false;
-		if (is_array($activeSectionIds))
+		$sectionIdList = [];
+		$entries = [];
+
+		foreach(array_unique(array_merge($activeSectionIds, $additionalSectionIds)) as $sectId)
 		{
-			foreach($activeSectionIds as $sectId)
+			if ($sectId == 'tasks')
 			{
-				if ($sectId == 'tasks')
-					$fetchTasks = true;
-				elseif (intval($sectId) > 0)
-					$params['section'][] = intval($sectId);
+				$fetchTasks = true;
+			}
+			elseif ((int)$sectId > 0)
+			{
+				$sectionIdList[] = (int)$sectId;
 			}
 		}
 
-		$entries = [];
-		$activeSections = [];
-		if (count($params['section']) > 0)
+		if (count($sectionIdList) > 0)
 		{
 			$sect = \CCalendarSect::GetList([
 				'arFilter' => [
-					'ID'=> $params['section'],
+					'ID'=> $sectionIdList,
 					'ACTIVE' => 'Y'
-				]]
-			);
+				],
+				'checkPermissions' => true
+			]);
 			foreach($sect as $section)
 			{
-				$activeSections[] = $section['ID'];
+				$params['section'][] = (int)$section['ID'];
 			}
-			$params['section'] = $activeSections;
 		}
 
 		if (count($params['section']) > 0)
 		{
 			$arFilter = [
-				'OWNER_ID' => $ownerId,
 				'SECTION' => $params['section']
 			];
 
@@ -155,17 +162,13 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				$arFilter["TO_LIMIT"] = $params['toLimit'];
 			}
 
-			if ($params['type'] == 'user')
+			if ($params['type'] === 'user')
 			{
 				$fetchMeetings = in_array(\CCalendar::GetMeetingSection($arFilter['OWNER_ID']), $params['section']);
 			}
 			else
 			{
 				$fetchMeetings = in_array(\CCalendar::GetCurUserMeetingSection(), $params['section']);
-				if ($params['type'])
-				{
-					$arFilter['CAL_TYPE'] = $params['type'];
-				}
 			}
 
 			$res = \CCalendarEvent::GetList(
@@ -216,7 +219,6 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				{
 					if (in_array($entry['SECT_ID'], $params['section']))
 					{
-
 						if (\CCalendarEvent::CheckRecurcion($entry))
 						{
 							\CCalendarEvent::ParseRecursion($entries, $entry, [
@@ -229,24 +231,6 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 					}
 				}
 			}
-		}
-
-		if (is_array($additionalSectionIds) && !empty($additionalSectionIds))
-		{
-			array_walk($additionalSectionIds, 'intval');
-			$superposedEvents = \CCalendarEvent::GetList(
-				[
-					'arFilter' => [
-						"FROM_LIMIT" => $params['fromLimit'],
-						"TO_LIMIT" => $params['toLimit'],
-						"SECTION" => $additionalSectionIds
-					],
-					'parseRecursion' => true,
-					'fetchAttendees' => true,
-					'userId' => \CCalendar::GetUserId()
-				]
-			);
-			$entries = array_merge($entries, $superposedEvents);
 		}
 
 		//  **** GET TASKS ****

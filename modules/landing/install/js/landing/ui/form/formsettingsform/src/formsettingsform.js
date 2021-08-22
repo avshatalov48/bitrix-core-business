@@ -81,6 +81,15 @@ export class FormSettingsForm extends BaseForm
 		super.addField(field);
 	}
 
+	replaceField(oldField, newField) {
+		if (Type.isFunction(newField.subscribe))
+		{
+			newField.subscribe('onChange', this.onFieldChange.bind(this));
+		}
+
+		super.replaceField(oldField, newField);
+	}
+
 	onFieldChange(event: BaseEvent)
 	{
 		this.emit('onChange', event.getData());

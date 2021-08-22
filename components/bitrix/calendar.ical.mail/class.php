@@ -47,6 +47,7 @@ class CalendarPubEventComponent extends CBitrixComponent
 		$this->arResult['NAME'] = $this->arParams['PARAMS']['NAME'];
 		$this->arResult['TITLE'] = \COption::GetOptionString("main", "site_name", '', '-');
 		$this->arResult['DETAIL_LINK'] = $this->arParams['PARAMS']['DETAIL_LINK'];
+		$this->arResult['FULL_DAY'] = $this->arParams['PARAMS']['FULL_DAY'] === 'Y';
 		$this->dateFrom = Util::getDateObject(
 			$this->arParams['PARAMS']['DATE_FROM'],
 			$this->arResult['FULL_DAY'],
@@ -129,7 +130,6 @@ class CalendarPubEventComponent extends CBitrixComponent
 	 */
 	protected function prepareEventDurationParams(): void
 	{
-		$this->arResult['FULL_DAY'] = $this->arParams['PARAMS']['FULL_DAY'] === 'Y';
 		$this->arResult['IS_LONG_DATETIME_FORMAT'] = false;
 		$this->arResult['IS_SHOW_RRULE'] = false;
 		$dateTo = Util::getDateObject(

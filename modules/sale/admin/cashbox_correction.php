@@ -1,6 +1,8 @@
 <?
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
 use Bitrix\Sale;
 use Bitrix\Main;
 
@@ -17,10 +19,10 @@ Main\Page\Asset::getInstance()->addJs("/bitrix/js/sale/cashbox.js");
 Main\Page\Asset::getInstance()->addJs("/bitrix/js/crm/cashbox/script.js");
 Main\Page\Asset::getInstance()->addJs("/bitrix/js/crm/common.js");
 
-\Bitrix\Main\UI\Extension::load(['sidepanel']);
+\Bitrix\Main\UI\Extension::load(['sidepanel', 'ui.stepprocessing']);
 \Bitrix\Main\Loader::includeModule('sale');
 
-$tableId = "tbl_sale_cashbox_correction";
+$tableId = Sale\Helpers\Admin\Correction::TABLE_ID;
 $instance = \Bitrix\Main\Application::getInstance();
 $context = $instance->getContext();
 $request = $context->getRequest();
@@ -40,72 +42,15 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 	}
 }
 
-$filterFields = [
-	[
-		"id" => "PAID",
-		"name" => GetMessage("SALE_F_CORRECTION_PAID"),
-		"type" => "checkbox",
-		"default" => true
-	],
-	[
-		"id" => "DATE_BILL",
-		"name" => GetMessage("SALE_F_CORRECTION_DATE_BILL"),
-		"type" => "date",
-	],
-	[
-		"id" => "ORDER_ID",
-		"name" => GetMessage("SALE_F_CORRECTION_ORDER_ID"),
-		"type" => "number",
-		"filterable" => "",
-		"quickSearch" => ""
-	],
-	[
-		"id" => "CHECK_PRINTED",
-		"name" => GetMessage("SALE_F_CORRECTION_CHECK_PRINTED"),
-		"type" => "checkbox",
-		"filterable" => "",
-		"quickSearch" => "",
-		"default" => true
-	],
-];
+$filterFields = Sale\Helpers\Admin\Correction::getFilterFields();
 
 $filter = array();
 
 $lAdmin->AddFilter($filterFields, $filter);
 
-if (isset($filter['CHECK_PRINTED']))
-{
-	if ($filter['CHECK_PRINTED'] === 'Y')
-	{
-		$filter['=PAYMENT_CHECK_PRINTED.STATUS'] = 'Y';
-	}
-	else
-	{
-		$filter[] = [
-			'LOGIC' => 'OR',
-			'=PAYMENT_CHECK_PRINTED.STATUS' => null,
-			'@PAYMENT_CHECK_PRINTED.STATUS' => ['N', 'P', 'E']
-		];
-	}
+$filter = Sale\Helpers\Admin\Correction::prepareFilter($filter);
 
-	unset($filter['CHECK_PRINTED']);
-}
-
-$params = [
-	'select' => [
-		'ID', 'ORDER_ID', 'SUM', 'CURRENCY', 'PAY_SYSTEM_NAME',
-		'PAID', 'DATE_BILL', 'CHECK_PRINTED' => 'PAYMENT_CHECK_PRINTED.STATUS'
-	],
-	'filter' => $filter,
-	'runtime' => [
-		new Main\ORM\Fields\Relations\Reference(
-			'PAYMENT_CHECK_PRINTED',
-			\Bitrix\Sale\Cashbox\Internals\CashboxCheckTable::getEntity(),
-			['=ref.PAYMENT_ID' => 'this.ID',],
-			['join_type' => 'LEFT',]
-		)
-	]
-];
+$params = Sale\Helpers\Admin\Correction::getPaymentSelectParams($filter);
 
 global $by, $order;
 $by = isset($by) ? $by : "ID";
@@ -120,44 +65,7 @@ $dbResultList = new CAdminUiResult($paymentClass::getList($params), $tableId);
 
 $dbResultList->NavStart();
 
-$headers = [
-	[
-		"id"        => "ID",
-		"content"   => GetMessage("SALE_CHECK_CORRECTION_PAYMENT_ID"),
-		"sort"      => "ID",
-		"default"   => true
-	],
-	[
-		"id"        => "ORDER_ID",
-		"content"   => GetMessage("SALE_CHECK_CORRECTION_ORDER_ID"),
-		"sort"      => "ORDER_ID",
-		"default"   => true
-	],
-	[
-		"id"        => "PAID",
-		"content"   => GetMessage("SALE_CHECK_CORRECTION_ORDER_PAID"),
-		"sort"      => "PAID",
-		"default"   => true
-	],
-	[
-		"id"        => "PAY_SYSTEM_NAME",
-		"content"   => GetMessage("SALE_CHECK_CORRECTION_PAY_SYSTEM_NAME"),
-		"sort"      => "PAY_SYSTEM_NAME",
-		"default"   => true
-	],
-	[
-		"id"        => "SUM",
-		"content"   => GetMessage("SALE_CHECK_CORRECTION_ORDER_SUM"),
-		"sort"      => "SUM",
-		"default"   => true
-	],
-	[
-		"id"        => "DATE_BILL",
-		"content"   => GetMessage("SALE_CHECK_CORRECTION_ORDER_DATE_BILL"),
-		"sort"      => "DATE_BILL",
-		"default"   => false
-	],
-];
+$headers = Sale\Helpers\Admin\Correction::getTableHeaders();
 
 $lAdmin->SetNavigationParams($dbResultList, array("BASE_LINK" => $selfFolderUrl."sale_cashbox_check_correction.php"));
 $lAdmin->AddHeaders($headers);
@@ -208,12 +116,43 @@ if ($saleModulePermissions == "W")
 		&& \Bitrix\Main\Loader::includeModule('crm')
 	)
 	{
+		$exportCsvParams = [
+			'id' => 'EXPORT_' . CCrmOwnerType::CheckCorrectionName . '_CSV',
+			'controller' => 'bitrix:crm.api.export',
+			'queue' => [
+				[
+					'action' => 'dispatcher',
+				],
+			],
+			'params' => [
+				'SITE_ID' => SITE_ID,
+				'EXPORT_TYPE' => 'csv',
+				'ENTITY_TYPE' => CCrmOwnerType::CheckCorrectionName,
+				'COMPONENT_NAME' => 'bitrix:crm.check.correction.export',
+				'signedParameters' => \Bitrix\Main\Component\ParameterSigner::signParameters(
+					'bitrix:crm.check.correction.export',
+					[]
+				),
+			],
+			'messages' => array(
+				'DialogTitle' => Loc::getMessage('CORRECTION_CHECK_EXPORT_CSV_TITLE'),
+				'DialogSummary' => Loc::getMessage('CORRECTION_CHECK_STEXPORT_SUMMARY'),
+			),
+			'dialogMaxWidth' => 650,
+		];
+
+		$exportExcelParams = $exportCsvParams;
+		$exportExcelParams['id'] = 'EXPORT_' . CCrmOwnerType::CheckCorrectionName . '_EXCEL';
+		$exportExcelParams['params']['EXPORT_TYPE'] = 'excel';
+		$exportExcelParams['messages']['DialogTitle'] = Loc::getMessage('CORRECTION_CHECK_EXPORT_EXCEL_TITLE');
+
 		$lAdmin->AddGroupActionTable([
 			[
 				'action' => 'addCorrectionCheck()',
 				'value' => 'group_add',
-				'name' => GetMessage('SALE_CASHBOX_CORRECTION_GROUP_ADD'),
-			]
+				'name' => Loc::getMessage('SALE_CASHBOX_CORRECTION_GROUP_ADD'),
+			],
+			'for_all' => true,
 		]);
 
 		$addButton = [
@@ -233,13 +172,21 @@ if ($saleModulePermissions == "W")
 			['HIDE_ICONS' => 'Y']
 		);
 	}
-	else
-	{
-		$aContext = [];
 
-		$lAdmin->setContextSettings(array("pagePath" => $selfFolderUrl."sale_cashbox_correction.php"));
-		$lAdmin->AddAdminContextMenu($aContext);
-	}
+	$menu = [
+		[
+			'TITLE' => Loc::getMessage('SALE_CASHBOX_CORRECTION_GROUP_EXPORT_TO_EXCEL'),
+			'TEXT' => Loc::getMessage('SALE_CASHBOX_CORRECTION_GROUP_EXPORT_TO_EXCEL'),
+			'ONCLICK' => "exportToExcel()",
+		],
+		[
+			'TITLE' => Loc::getMessage('SALE_CASHBOX_CORRECTION_GROUP_EXPORT_TO_CSV'),
+			'TEXT' => Loc::getMessage('SALE_CASHBOX_CORRECTION_GROUP_EXPORT_TO_CSV'),
+			'ONCLICK' => "exportToCsv()",
+		],
+	];
+	$lAdmin->setContextSettings(array("pagePath" => $selfFolderUrl."sale_cashbox_correction.php"));
+	$lAdmin->SetContextMenu([], $menu);
 }
 
 $lAdmin->CheckListMode();
@@ -283,24 +230,50 @@ $jsData = [
 		}
 	);
 
+	function exportToExcel()
+	{
+		var excelExportParams = <?= Json::encode($exportExcelParams) ?>;
+		var excelExportProcess = BX.UI.StepProcessing.ProcessManager.create(excelExportParams);
+
+		excelExportProcess.showDialog();
+	}
+
+	function exportToCsv()
+	{
+		var csvExportParams = <?= Json::encode($exportCsvParams) ?>;
+		var csvExportProcess = BX.UI.StepProcessing.ProcessManager.create(csvExportParams);
+
+		csvExportProcess.showDialog();
+	}
+
+	function getSelectedIds()
+	{
+		return BX.Main.gridManager.getInstanceById(<?= CUtil::PhpToJSObject($tableId) ?>).getRows().getSelectedIds();
+	}
+
+	function getIsForAll()
+	{
+		return document.getElementById('actallrows_' + <?= CUtil::PhpToJSObject($tableId) ?>).checked ? 'Y' : 'N';
+	}
+
 	function addCorrectionCheck()
 	{
-		var oForm = document.form_<?=$tableId?>;
+		var url = '<?= getLocalPath('components'.\CComponentEngine::makeComponentPath('bitrix:crm.check.correction.details').'/slider.php'); ?>';
 
-		var url = '<?=getLocalPath('components'.\CComponentEngine::makeComponentPath('bitrix:crm.check.correction.details').'/slider.php');?>?';
+		var paymentIds = getSelectedIds();
+		var isForAll = getIsForAll();
 
-		for (var i = 0; i < oForm.elements.length; i++)
-		{
-			if (oForm.elements[i].tagName.toUpperCase() == "INPUT"
-				&& oForm.elements[i].type.toUpperCase() == "CHECKBOX"
-				&& oForm.elements[i].name.toUpperCase() == "ID[]"
-				&& oForm.elements[i].checked == true)
-			{
-				url += '&payment_id[]=' + oForm.elements[i].value;
-			}
-		}
+		var params = {
+			payment_id: paymentIds,
+			is_for_all: isForAll,
+		};
 
-		BX.Crm.Page.openSlider(url, { width: 500 , cacheable: false});
+		BX.Crm.Page.openSlider(url, {
+			width: 500,
+			cacheable: false,
+			requestMethod: 'post',
+			requestParams: params,
+		});
 	}
 </script>
 

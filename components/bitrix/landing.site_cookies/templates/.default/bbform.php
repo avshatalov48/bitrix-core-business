@@ -15,7 +15,7 @@ if (!isset($agreement))
 		'ACTIVE' => 'Y'
 	];
 }
-if (!isset($id))
+if (!isset($id) || preg_match('/[^a-z0-9_]/i', $id))
 {
 	$id = strtolower(\randString(5));
 }
@@ -65,7 +65,7 @@ $formParams = function(string $fieldName, string $value): array
 		<div class="landing-agreement-input-block">
 			<input type="hidden" name="<?= 'agreement_active_' . $id;?>"  value="N" >
 			<input type="checkbox" name="<?= 'agreement_active_' . $id;?>" class="landing-agreement-input"<?if ($agreement['ACTIVE'] == 'Y'){?> checked="checked"<?}?> id="<?= \htmlspecialcharsbx($agreement['TITLE']);?>" value="Y" >
-			<label class="landing-agreement-input-label" for="<?= \htmlspecialcharsbx($agreement['TITLE']);?>"><?= Loc::getMessage('LANDING_TPL_TITLE_SHOW_COOKIES', ['#BLOCK_NAME#' => $agreement['TITLE']]);?></label>
+			<label class="landing-agreement-input-label" for="<?= \htmlspecialcharsbx($agreement['TITLE']);?>"><?= Loc::getMessage('LANDING_TPL_TITLE_SHOW_COOKIES', ['#BLOCK_NAME#' => \htmlspecialcharsbx($agreement['TITLE'])]);?></label>
 		</div>
 	<?endif;?>
 	<div class="landing-agreement-block-inner<?if ($agreement['ACTIVE'] == 'Y'){?> landing-agreement-block-inner-show<?}?>">

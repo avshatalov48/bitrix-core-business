@@ -148,7 +148,7 @@ abstract class Provider
 		return $this->parentProvider;
 	}
 
-	final private static function getTypes()
+	private static function getTypes()
 	{
 		return [
 			self::TYPE_POST,
@@ -837,7 +837,7 @@ abstract class Provider
 		return $result;
 	}
 
-	final private function processDescription($text)
+	private function processDescription($text)
 	{
 		$result = $text;
 
@@ -871,7 +871,7 @@ abstract class Provider
 		return $result;
 	}
 
-	final private function parseDiskObjectsCloned($matches)
+	private function parseDiskObjectsCloned($matches)
 	{
 		$text = $matches[0];
 
@@ -885,7 +885,7 @@ abstract class Provider
 		return $text;
 	}
 
-	final private function parseAttachedDiskObjectsCloned($matches)
+	private function parseAttachedDiskObjectsCloned($matches)
 	{
 		$text = $matches[0];
 
@@ -1260,7 +1260,7 @@ abstract class Provider
 		return true;
 	}
 
-	final private function setLogEntityType($entityType = '')
+	private function setLogEntityType($entityType = '')
 	{
 		if ($entityType == '')
 		{
@@ -1272,7 +1272,7 @@ abstract class Provider
 		return true;
 	}
 
-	final private function setLogEntityId($entityId = 0)
+	private function setLogEntityId($entityId = 0)
 	{
 		if ((int)$entityId <= 0)
 		{

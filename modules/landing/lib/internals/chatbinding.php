@@ -6,6 +6,22 @@ use \Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class ChatBindingTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ChatBinding_Query query()
+ * @method static EO_ChatBinding_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ChatBinding_Result getById($id)
+ * @method static EO_ChatBinding_Result getList(array $parameters = array())
+ * @method static EO_ChatBinding_Entity getEntity()
+ * @method static \Bitrix\Landing\Internals\EO_ChatBinding createObject($setDefaultValues = true)
+ * @method static \Bitrix\Landing\Internals\EO_ChatBinding_Collection createCollection()
+ * @method static \Bitrix\Landing\Internals\EO_ChatBinding wakeUpObject($row)
+ * @method static \Bitrix\Landing\Internals\EO_ChatBinding_Collection wakeUpCollection($rows)
+ */
 class ChatBindingTable extends Entity\DataManager
 {
 	/**

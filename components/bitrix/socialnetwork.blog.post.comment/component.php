@@ -1003,7 +1003,7 @@ if (
 											"ENTITY_TYPE" => SONET_ENTITY_USER,
 											"ENTITY_ID" => $arBlog["OWNER_ID"],
 											"EVENT_ID" => "blog_comment",
-											'=LOG_DATE' => \CDatabase::currentDateFunction(),
+											'=LOG_DATE' => \CDatabase::currentTimeFunction(),
 											"MESSAGE" => $text4message,
 											"TEXT_MESSAGE" => $text4mail,
 											"URL" => $commentUrl,

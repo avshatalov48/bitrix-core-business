@@ -715,12 +715,11 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    value: function collapse() {
 	      this.active = null;
 	      var postEditSlider = false;
+	      var currentSlider = window !== top.window ? BX.SidePanel.Instance.getSliderByWindow(window) : null;
 
 	      if (window !== top.window) // slider
 	        {
-	          var _currentSlider = BX.SidePanel.Instance.getSliderByWindow(window);
-
-	          if (_currentSlider && _currentSlider.url.match(/\/user\/(\d+)\/blog\/edit\//)) {
+	          if (currentSlider && currentSlider.url.match(/\/user\/(\d+)\/blog\/edit\//)) {
 	            postEditSlider = true;
 	          }
 	        }
@@ -751,9 +750,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      if (!postEditSlider) {
 	        this.endAnimation();
 	      } else {
-	        main_core_events.EventEmitter.emit(window.top, 'SidePanel.Slider:onClose', new main_core_events.BaseEvent({
-	          compatData: [currentSlider.getEvent('onClose')]
-	        }));
+	        if (currentSlider) {
+	          main_core_events.EventEmitter.emit(window.top, 'SidePanel.Slider:onClose', new main_core_events.BaseEvent({
+	            compatData: [currentSlider.getEvent('onClose')]
+	          }));
+	        }
+
 	        BX.SidePanel.Instance.close();
 	      }
 	    }

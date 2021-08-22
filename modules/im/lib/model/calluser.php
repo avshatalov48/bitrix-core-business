@@ -6,6 +6,22 @@ use Bitrix\Main\Application;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Error;
 
+/**
+ * Class CallUserTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CallUser_Query query()
+ * @method static EO_CallUser_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CallUser_Result getById($id)
+ * @method static EO_CallUser_Result getList(array $parameters = array())
+ * @method static EO_CallUser_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_CallUser createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_CallUser_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_CallUser wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_CallUser_Collection wakeUpCollection($rows)
+ */
 class CallUserTable extends Entity\DataManager
 {
 	public static function getTableName()

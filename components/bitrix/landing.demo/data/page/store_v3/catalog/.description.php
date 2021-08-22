@@ -14,7 +14,9 @@ return [
 	'version' => 3,
 	'fields' => [
 		'RULE' => '(.*?)',
-		'ADDITIONAL_FIELDS' => [],
+		'ADDITIONAL_FIELDS' => [
+			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/store_v3/catalog/preview.jpg',
+		],
 	],
 	'layout' => [
 		'code' => 'without_right',

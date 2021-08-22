@@ -22,6 +22,7 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_MENU_26-NAVBAR'),
 			'type' => 'text',
 			'allowInlineEdit' => false,
+			'useInDesigner' => false,
 		],
 	],
 	'menu' => [

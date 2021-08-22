@@ -406,7 +406,12 @@ this.BX = this.BX || {};
 	              _this3.save();
 	            }
 	          }
-	        }));
+	        })); // For testing purposes
+
+	        if (main_core.Type.isElementNode(buttons[0].button)) {
+	          buttons[0].button.setAttribute('data-role', 'saveButton');
+	        }
+
 	        buttons.push(new BX.UI.Button({
 	          text: main_core.Loc.getMessage('CALENDAR_EVENT_DO_CANCEL'),
 	          className: "ui-btn ui-btn-link",
@@ -493,7 +498,11 @@ this.BX = this.BX || {};
 	              _this3.close();
 	            }
 	          }
-	        }));
+	        })); // For testing purposes
+
+	        if (main_core.Type.isElementNode(buttons[buttons.length - 1].button)) {
+	          buttons[buttons.length - 1].button.setAttribute('data-role', 'openButton');
+	        }
 
 	        if (this.entry.isMeeting() && this.entry.getCurrentStatus() === 'N') {
 	          buttons.push(new BX.UI.Button({

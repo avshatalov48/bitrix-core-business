@@ -4,7 +4,7 @@ namespace Bitrix\Rest\Url;
 
 class DevOps extends Base
 {
-	protected $directory = 'devops/';
+	protected $directory = '/devops/';
 	protected $pages = [
 		'index' => '',
 		'statistic' => 'statistic/',

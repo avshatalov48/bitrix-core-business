@@ -4,6 +4,22 @@ namespace Bitrix\Im\Model;
 use Bitrix\Main,
 	Bitrix\Main\Entity;
 
+/**
+ * Class ConferenceTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Conference_Query query()
+ * @method static EO_Conference_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Conference_Result getById($id)
+ * @method static EO_Conference_Result getList(array $parameters = array())
+ * @method static EO_Conference_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_Conference createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_Conference_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_Conference wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_Conference_Collection wakeUpCollection($rows)
+ */
 class ConferenceTable extends Main\Entity\DataManager
 {
 	public static function getTableName(): string

@@ -13,6 +13,22 @@ use Bitrix\Main\Type as MainType;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class ContactListTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ContactList_Query query()
+ * @method static EO_ContactList_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ContactList_Result getById($id)
+ * @method static EO_ContactList_Result getList(array $parameters = array())
+ * @method static EO_ContactList_Entity getEntity()
+ * @method static \Bitrix\Sender\EO_ContactList createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\EO_ContactList_Collection createCollection()
+ * @method static \Bitrix\Sender\EO_ContactList wakeUpObject($row)
+ * @method static \Bitrix\Sender\EO_ContactList_Collection wakeUpCollection($rows)
+ */
 class ContactListTable extends Entity\DataManager
 {
 	/**

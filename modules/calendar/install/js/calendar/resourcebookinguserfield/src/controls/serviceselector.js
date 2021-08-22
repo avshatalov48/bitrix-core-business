@@ -52,7 +52,6 @@ export class ServiceSelector
 			text: Loc.getMessage('USER_TYPE_RESOURCE_ADD_SERVICE'),
 			events: {click: this.addRow.bind(this)}
 		}));
-
 		BX.bind(window, 'resize', this.checkDurationTitlePosition.bind(this));
 		this.checkDurationTitlePosition();
 
@@ -138,7 +137,7 @@ export class ServiceSelector
 		}));
 
 		// Adjust outer wrap max height
-		this.serviceListOuterWrap.style.maxHeight = Math.max(600, this.serviceListRowsWrap.childNodes.length * 40 + 100) + 'px';
+		this.serviceListOuterWrap.style.maxHeight = Math.max(500, this.serviceListRowsWrap.childNodes.length * 45 + 100) + 'px';
 	}
 
 	checkDurationTitlePosition(timeout)

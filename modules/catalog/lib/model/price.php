@@ -1,11 +1,11 @@
 <?php
 namespace Bitrix\Catalog\Model;
 
-use Bitrix\Main,
-	Bitrix\Main\ORM,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Catalog,
-	Bitrix\Currency;
+use Bitrix\Main;
+use Bitrix\Main\ORM;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
+use Bitrix\Currency;
 
 Loc::loadMessages(__FILE__);
 
@@ -32,7 +32,7 @@ class Price extends Entity
 		return '\Bitrix\Catalog\PriceTable';
 	}
 
-	public static function recountPricesFromBase($id)
+	public static function recountPricesFromBase($id): bool
 	{
 		$id = (int)$id;
 		if ($id <= 0)
@@ -45,7 +45,9 @@ class Price extends Entity
 			return false;
 
 		if (self::$separateSkuMode === null)
-			self::$separateSkuMode = (string)Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+		{
+			self::$separateSkuMode = Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+		}
 
 		$iterator = Catalog\PriceTable::getList([
 			'select' => ['ID', 'PRODUCT_ID', 'CATALOG_GROUP_ID', 'PRICE', 'CURRENCY', 'QUANTITY_FROM', 'QUANTITY_TO'],
@@ -134,7 +136,9 @@ class Price extends Entity
 			return;
 
 		if (self::$separateSkuMode === null)
-			self::$separateSkuMode = (string)Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+		{
+			self::$separateSkuMode = Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+		}
 
 		static $defaultValues = null,
 			$blackList = null;
@@ -293,7 +297,9 @@ class Price extends Entity
 		}
 
 		if (self::$separateSkuMode === null)
-			self::$separateSkuMode = (string)Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+		{
+			self::$separateSkuMode = Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+		}
 
 		$fields = $data['fields'];
 		parent::prepareForUpdate($result, $id, $fields);
@@ -709,7 +715,7 @@ class Price extends Entity
 		$fields['CURRENCY'] = self::$productPrices[$productId][$index]['CURRENCY'];
 	}
 
-	private static function getPriceIndex(array $row)
+	private static function getPriceIndex(array $row): string
 	{
 		return ($row['QUANTITY_FROM'] === null ? 'ZERO' : $row['QUANTITY_FROM']).
 			'-'.($row['QUANTITY_TO'] === null ? 'INF' : $row['QUANTITY_TO']);

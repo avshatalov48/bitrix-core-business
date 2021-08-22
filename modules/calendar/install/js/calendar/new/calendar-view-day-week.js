@@ -1009,6 +1009,10 @@
 		{
 			entryClassName += ' calendar-event-line-border';
 		}
+		if (entry.getCurrentStatus() === 'N')
+		{
+			entryClassName += ' calendar-event-line-refused';
+		}
 
 		if (this.util.getDayCode(entry.from) !== this.util.getDayCode(from.date))
 		{
@@ -1199,7 +1203,9 @@
 			toTimeValue = params.part.toTimeValue,
 			entryClassName = 'calendar-event-block-wrap';
 
-		if (entry.hasEmailAttendees() || entry.ownerIsEmailUser())
+		if (entry.hasEmailAttendees()
+			|| entry.ownerIsEmailUser()
+			|| entry.getCurrentStatus() === 'N')
 		{
 			entryClassName += ' calendar-event-block-wrap-icon';
 		}
@@ -1208,6 +1214,7 @@
 		{
 			entryClassName += ' calendar-event-block-wrap-past';
 		}
+
 
 		if (!this.collapseOffHours
 			|| (toTimeValue > workTime.start
@@ -1240,11 +1247,16 @@
 
 			innerNode = wrapNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block-inner'}}));
 			bgNode = innerNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block-background'}}));
-			timeLabel = this.calendar.util.formatTime(entry.from) + ' &ndash; ' + this.calendar.util.formatTime(entry.to);
-			if (entry.hasEmailAttendees() || entry.ownerIsEmailUser())
+
+			if (entry.getCurrentStatus() === 'N')
+			{
+				innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-refused'}}));
+			}
+			else if (entry.hasEmailAttendees() || entry.ownerIsEmailUser())
 			{
 				innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-mail'}}));
 			}
+
 			nameNode = innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-text'}, text: params.entry.name}));
 
 			if (!this.calendar.util.isDarkColor(entry.color))
@@ -1254,7 +1266,7 @@
 
 			timeNode = innerNode.appendChild(BX.create('SPAN', {
 				props: {className: 'calendar-event-block-time'},
-				html: timeLabel
+				html: this.calendar.util.formatTime(entry.from) + ' &ndash; ' + this.calendar.util.formatTime(entry.to)
 			}));
 
 			bgNode.style.backgroundColor = entry.color;
@@ -1916,16 +1928,17 @@
 
 	DayView.prototype.checkTimelineScroll = function(setPadding)
 	{
-		// todo: bug: 2 calling
 		// Compensate padding in right title calendar-grid-week-full-days-events-holder
 		var wrapOffsetRight = setPadding ? this.util.getScrollbarWidth() : 0;
-
 		if (this.titleCont)
 		{
 			this.titleCont.style.paddingRight = wrapOffsetRight + "px";
 		}
 
-		if(this.fullDayEventsHolderCont && this.topEntryHolder)
+		if(this.fullDayEventsHolderCont
+			&& this.topEntryHolder
+			&& parseInt(this.topEntryHolder.style.right) !== parseInt(wrapOffsetRight)
+		)
 		{
 			new BX.easing({
 				duration: 100,
@@ -1937,9 +1950,7 @@
 					this.topEntryHolder.style.right = state.paddingRight + "px";
 					this.fullDayEventsHolderCont.style.paddingRight = state.paddingRight + "px";
 				}, this),
-				complete: function () {
-
-				}
+				complete: function (){}
 			}).animate();
 		}
 	};

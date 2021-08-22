@@ -1,7 +1,7 @@
 import {Vue} from 'ui.vue';
 import {VuexBuilderModel} from 'ui.vue.vuex';
 import {Type} from 'main.core';
-import {Loader as LoaderConst} from 'sale.checkout.const';
+import {Loader as LoaderConst, Basket as BasketConst} from 'sale.checkout.const';
 
 export class Basket extends VuexBuilderModel
 {
@@ -15,6 +15,7 @@ export class Basket extends VuexBuilderModel
         return {
             basket: [],
             status: LoaderConst.status.none,
+            needRefresh: 'N',
             currency: null,
             discount: Basket.getDiscountItem(),
             total: Basket.getTotalItem(),
@@ -106,6 +107,11 @@ export class Basket extends VuexBuilderModel
         if (Type.isString(fields.status))
         {
             result.status = fields.status.toString()
+        }
+    
+        if (Type.isString(fields.needRefresh))
+        {
+            result.needRefresh = fields.needRefresh.toString() === 'Y' ? 'Y':'N'
         }
 
         if (Type.isString(fields.currency))
@@ -370,13 +376,15 @@ export class Basket extends VuexBuilderModel
             {
                 payload = this.validate(payload);
 
-                const status = [
-                    LoaderConst.status.none,
-                    LoaderConst.status.wait,
-                ];
+                const allowed = Object.values(LoaderConst.status);
 
-                payload.status = status.includes(payload.status) ? payload.status : LoaderConst.status.none;
+                payload.status = allowed.includes(payload.status) ? payload.status : LoaderConst.status.none;
                 commit('setStatus', payload);
+            },
+            setNeedRefresh: ({ commit }, payload) =>
+            {
+                payload = this.validate(payload);
+                commit('setNeedRefresh', payload);
             },
             addItem: ({ commit }, payload) =>
             {
@@ -423,6 +431,10 @@ export class Basket extends VuexBuilderModel
             {
                 return state.status;
             },
+            getNeedRefresh: state =>
+            {
+                return state.needRefresh;
+            },
             get: state => id =>
             {
                 if (!state.basket[id] || state.basket[id].length <= 0)
@@ -464,6 +476,13 @@ export class Basket extends VuexBuilderModel
 
                 item = Object.assign(item, payload);
                 state.status = item.status;
+            },
+            setNeedRefresh: (state, payload) =>
+            {
+                let item = { needRefresh: 'N' };
+        
+                item = Object.assign(item, payload);
+                state.needRefresh = item.needRefresh;
             },
             setCurrency: (state, payload) =>
             {

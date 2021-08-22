@@ -23,7 +23,6 @@ $MESS["MAIL_DISK_FILE_DOWNLOAD_ARCHIVE"] = "Download all files as archive";
 $MESS["MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_BODY"] = "The number of mailboxes per employee depends on the active Bitrix24 plan.
 <br><br>
 Your current plan allows #LIMIT# mailboxes per employee.";
-$MESS["MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_TITLE"] = "Connect Mailbox to Bitrix24";
 $MESS["MAIL_MESSAGE_ATTACHES"] = "Files";
 $MESS["MAIL_MESSAGE_BAD_SENDER"] = "Invalid sender";
 $MESS["MAIL_MESSAGE_BTN_DEL"] = "Delete";

@@ -19,7 +19,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Im
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_NoRelationPermissionDisk_Query query()
+ * @method static EO_NoRelationPermissionDisk_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_NoRelationPermissionDisk_Result getById($id)
+ * @method static EO_NoRelationPermissionDisk_Result getList(array $parameters = array())
+ * @method static EO_NoRelationPermissionDisk_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_NoRelationPermissionDisk createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_NoRelationPermissionDisk_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_NoRelationPermissionDisk wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_NoRelationPermissionDisk_Collection wakeUpCollection($rows)
+ */
 
 class NoRelationPermissionDiskTable extends DataManager
 {

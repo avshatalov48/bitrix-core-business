@@ -166,7 +166,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    setPasswordFocus: 'IM.Conference:setPasswordFocus',
 	    hideSmiles: 'IM.Conference:hideSmiles',
 	    requestPermissions: 'IM.Conference:requestPermissions',
-	    waitForStart: 'IM.Conference:waitForStart'
+	    waitForStart: 'IM.Conference:waitForStart',
+	    userRenameFocus: 'IM.Conference:userRenameFocus',
+	    userRenameBlur: 'IM.Conference:userRenameBlur'
 	  },
 	  notification: {
 	    updateState: 'IM.Notifications:restoreConnection'
@@ -288,6 +290,18 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  chat: 'chat',
 	  users: 'users',
 	  split: 'split'
+	}); //BX.Call.UserState sync
+
+	var ConferenceUserState = Object.freeze({
+	  Idle: 'Idle',
+	  Busy: 'Busy',
+	  Calling: 'Calling',
+	  Unavailable: 'Unavailable',
+	  Declined: 'Declined',
+	  Ready: 'Ready',
+	  Connecting: 'Connecting',
+	  Connected: 'Connected',
+	  Failed: 'Failed'
 	});
 
 	/**
@@ -317,6 +331,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  delivered: 'delivered'
 	};
 
+	var NotificationTypesCodes = Object.freeze({
+	  confirm: 1,
+	  simple: 3,
+	  placeholder: 5
+	});
+
 	exports.DateFormat = DateFormat;
 	exports.DeviceType = DeviceType;
 	exports.DeviceOrientation = DeviceOrientation;
@@ -337,10 +357,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	exports.ConferenceStateType = ConferenceStateType;
 	exports.ConferenceErrorCode = ConferenceErrorCode;
 	exports.ConferenceRightPanelMode = ConferenceRightPanelMode;
+	exports.ConferenceUserState = ConferenceUserState;
 	exports.ChatTypes = ChatTypes;
 	exports.TemplateTypes = TemplateTypes;
 	exports.RecentSection = RecentSection;
 	exports.MessageStatus = MessageStatus;
+	exports.NotificationTypesCodes = NotificationTypesCodes;
 
 }((this.BX.Messenger.Const = this.BX.Messenger.Const || {})));
 //# sourceMappingURL=registry.bundle.js.map

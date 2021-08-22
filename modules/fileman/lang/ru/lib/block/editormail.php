@@ -41,6 +41,7 @@ $MESS["BLOCK_EDITOR_BLOCK_CODE_EXAMPLE"] = "Здесь вы можете нап�
 $MESS["BLOCK_EDITOR_BLOCK_FOOTER_NAME"] = "Футер";
 $MESS["BLOCK_EDITOR_BLOCK_FOOTER_DESC"] = "Это блок отписки.";
 $MESS["BLOCK_EDITOR_BLOCK_FOOTER_EXAMPLE"] = "Отписаться";
+$MESS["BLOCK_EDITOR_BLOCK_FOOTER_CONSENT_EXAMPLE"] = "Согласие на отслеживание";
 
 $MESS["BLOCK_EDITOR_BLOCK_SOCIAL_NAME"] = "Соцсети";
 $MESS["BLOCK_EDITOR_BLOCK_SOCIAL_DESC"] = "Это блок ссылок на страницы в соцсетях.";

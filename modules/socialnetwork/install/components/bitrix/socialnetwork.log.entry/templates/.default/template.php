@@ -1,5 +1,12 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponentTemplate $this */
+/** @var CBitrixComponent $component */
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CDatabase $DB */
@@ -43,6 +50,8 @@ else
 		&& !empty($arResult["Event"])
 	)
 	{
+		$arEvent = &$arResult['Event'];
+
 		?><div class="feed-item-wrap" data-livefeed-id="<?=(int)$arEvent["EVENT"]["ID"]?>"><?
 
 		if (!defined("SONET_LOG_JS"))
@@ -102,8 +111,6 @@ else
 			</script>
 			<?
 		}
-
-		$arEvent = &$arResult["Event"];
 
 		$ind = $arParams["IND"];
 		$is_unread = $arParams["EVENT"]["IS_UNREAD"];
@@ -305,9 +312,9 @@ else
 					$avatar = $arEvent["AVATAR_SRC"];
 				}
 
-				$style = ($avatar ? "background: url('".\CHTTP::urnEncode($avatar)."'); background-size: cover;" : "");
+				$style = ($avatar ? "background: url('" . $avatar . "'); background-size: cover;" : "");
 
-				?><div class="ui-icon ui-icon-common-user feed-user-avatar"><i style="<?=$style?>"></i></div><?
+				?><div class="ui-icon ui-icon-common-user feed-user-avatar"><i style="<?= $style ?>"></i></div><?
 
 				?><div class="feed-post-pinned-block"><?
 					?><div class="feed-post-pinned-title"><?
@@ -1129,10 +1136,10 @@ else
 					}
 
 					if (
-						array_key_exists("HAS_COMMENTS", $arEvent)
-						&& $arEvent["HAS_COMMENTS"] == "Y"
-						&& array_key_exists("CAN_ADD_COMMENTS", $arEvent)
-						&& $arEvent["CAN_ADD_COMMENTS"] == "Y"
+						isset($arEvent['HAS_COMMENTS'])
+						&& $arEvent['HAS_COMMENTS'] === 'Y'
+						&& isset($arEvent['CAN_ADD_COMMENTS'])
+						&& $arEvent['CAN_ADD_COMMENTS'] === 'Y'
 					)
 					{
 						$bHasComments = true;
@@ -1571,8 +1578,8 @@ else
 						"SHOW_POST_FORM" => (
 							isset($arEvent["HAS_COMMENTS"])
 							&& $arEvent["HAS_COMMENTS"] === "Y"
-							&& isset($arEvent["CAN_ADD_COMMENTS"])
-							&& $arEvent["CAN_ADD_COMMENTS"] === "Y"
+							&& isset($arEvent['CAN_ADD_COMMENTS'])
+							&& $arEvent['CAN_ADD_COMMENTS'] === 'Y'
 								? "Y"
 								: "N"
 						),

@@ -466,7 +466,6 @@ this.BX = this.BX || {};
 	      item.getDialog().getTargetNode().value = item.getTitle();
 	      this.toggleIcon(this.getSearchIcon(), 'none');
 	      this.resetModel(item.getTitle());
-	      this.selector.getFileInput().unsubscribeImageInputEvents();
 	      this.selector.clearLayout();
 	      this.selector.layout();
 
@@ -550,7 +549,6 @@ this.BX = this.BX || {};
 	  function ProductImageInput(id) {
 	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    babelHelpers.classCallCheck(this, ProductImageInput);
-	    babelHelpers.defineProperty(this, "onUploaderIsInitedHandler", this.handleOnUploaderIsInited.bind(this));
 	    this.id = id || main_core.Text.getRandom();
 	    this.selector = options.selector || null;
 
@@ -569,46 +567,9 @@ this.BX = this.BX || {};
 
 	    this.enableSaving = options.enableSaving;
 	    this.uploaderFieldMap = {};
-
-	    if (this.isEnabledLiveSaving()) {
-	      main_core_events.EventEmitter.subscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
-	    }
 	  }
 
 	  babelHelpers.createClass(ProductImageInput, [{
-	    key: "handleOnUploaderIsInited",
-	    value: function handleOnUploaderIsInited(event) {
-	      var _event$getCompatData = event.getCompatData(),
-	          _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 2),
-	          id = _event$getCompatData2[0],
-	          uploader = _event$getCompatData2[1];
-
-	      if (!this.isViewMode() && main_core.Type.isStringFilled(this.id) && this.id === id) {
-	        this.uploaderFieldMap = {};
-	        main_core_events.EventEmitter.subscribe(uploader, 'onFileIsDeleted', this.onFileDelete.bind(this));
-	        main_core_events.EventEmitter.subscribe(uploader, 'onFileIsUploaded', this.onFileUpload.bind(this));
-	        main_core_events.EventEmitter.subscribe(uploader, 'onQueueIsChanged', this.onQueueIsChanged.bind(this));
-	      }
-	    }
-	  }, {
-	    key: "unsubscribeEvents",
-	    value: function unsubscribeEvents() {
-	      if (this.isEnabledLiveSaving()) {
-	        main_core_events.EventEmitter.unsubscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
-	      }
-	    }
-	  }, {
-	    key: "unsubscribeImageInputEvents",
-	    value: function unsubscribeImageInputEvents() {
-	      if (main_core.Reflection.getClass('BX.UI.ImageInput')) {
-	        var imageInput = BX.UI.ImageInput.getById(this.getId());
-
-	        if (imageInput) {
-	          imageInput.unsubscribeEvents();
-	        }
-	      }
-	    }
-	  }, {
 	    key: "getId",
 	    value: function getId() {
 	      return this.id;
@@ -649,74 +610,6 @@ this.BX = this.BX || {};
 	      var imageContainer = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div></div>"])));
 	      main_core.Runtime.html(imageContainer, this.isViewMode() ? this.view : this.inputHtml);
 	      return imageContainer;
-	    }
-	  }, {
-	    key: "onFileDelete",
-	    value: function onFileDelete(event) {
-	      var _event$getCompatData3 = event.getCompatData(),
-	          _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 4),
-	          file = _event$getCompatData4[3];
-
-	      var fileId = file.fileId;
-
-	      if (this.isViewMode() || !this.selector) {
-	        return;
-	      }
-
-	      var deleteResult = this.selector.getModel().removeMorePhotoItem(fileId);
-
-	      if (deleteResult) {
-	        this.save();
-	      }
-	    }
-	  }, {
-	    key: "onQueueIsChanged",
-	    value: function onQueueIsChanged(event) {
-	      var _event$getCompatData5 = event.getCompatData(),
-	          _event$getCompatData6 = babelHelpers.slicedToArray(_event$getCompatData5, 4),
-	          type = _event$getCompatData6[1],
-	          itemId = _event$getCompatData6[2],
-	          uploaderItem = _event$getCompatData6[3];
-
-	      var image = uploaderItem.file;
-
-	      if (type === 'add' && 'input_name' in image && main_core.Type.isNil(this.uploaderFieldMap[itemId])) {
-	        this.uploaderFieldMap[itemId] = image['input_name'];
-	      }
-	    }
-	  }, {
-	    key: "onFileUpload",
-	    value: function onFileUpload(event) {
-	      var _event$getCompatData7 = event.getCompatData(),
-	          _event$getCompatData8 = babelHelpers.slicedToArray(_event$getCompatData7, 3),
-	          itemId = _event$getCompatData8[0],
-	          params = _event$getCompatData8[2];
-
-	      if (!main_core.Type.isObject(params) || !('file' in params) || !('files' in params.file) || !('default' in params.file.files) || this.isViewMode() || !this.selector) {
-	        return;
-	      }
-
-	      var currentUploadedFile = params['file']['files']['default'];
-	      var photoItem = {
-	        fileId: itemId,
-	        data: {
-	          name: currentUploadedFile.name,
-	          type: currentUploadedFile.type,
-	          tmp_name: currentUploadedFile.path,
-	          size: currentUploadedFile.size,
-	          error: null
-	        }
-	      };
-	      var fileFieldName = this.uploaderFieldMap[itemId] || itemId;
-	      this.selector.getModel().addMorePhotoItem(fileFieldName, photoItem);
-	      this.save(true);
-	    }
-	  }, {
-	    key: "save",
-	    value: function save(rebuild) {
-	      if (this.selector) {
-	        this.selector.saveFiles(rebuild);
-	      }
 	    }
 	  }]);
 	  return ProductImageInput;
@@ -773,6 +666,20 @@ this.BX = this.BX || {};
 	      }
 
 	      return false;
+	    }
+	  }, {
+	    key: "setMorePhotoValues",
+	    value: function setMorePhotoValues(values) {
+	      babelHelpers.get(babelHelpers.getPrototypeOf(Product.prototype), "setMorePhotoValues", this).call(this, values);
+
+	      if (this.isEnabledEmptyImageError() && this.morePhoto.length === 0) {
+	        this.setError('EMPTY_IMAGE', main_core.Loc.getMessage('CATALOG_SELECTOR_EMPTY_IMAGE_ERROR'));
+	      }
+	    }
+	  }, {
+	    key: "isEnabledEmptyImageError",
+	    value: function isEnabledEmptyImageError() {
+	      return this.getConfig('ENABLE_EMPTY_IMAGES_ERROR', false);
 	    }
 	  }]);
 	  return Product;
@@ -832,6 +739,7 @@ this.BX = this.BX || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "mode", ProductSelector.MODE_EDIT);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "cache", new main_core.Cache.MemoryCache());
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "variationChangeHandler", _this.handleVariationChange.bind(babelHelpers.assertThisInitialized(_this)));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "onSaveImageHandler", _this.onSaveImage.bind(babelHelpers.assertThisInitialized(_this)));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "onChangeFieldsHandler", main_core.Runtime.debounce(_this.onChangeFields, 500, babelHelpers.assertThisInitialized(_this)));
 
 	    _this.setEventNamespace('BX.Catalog.ProductSelector');
@@ -863,6 +771,7 @@ this.BX = this.BX || {};
 	    _this.layout();
 
 	    main_core_events.EventEmitter.subscribe('ProductList::onChangeFields', _this.onChangeFieldsHandler);
+	    main_core_events.EventEmitter.subscribe('Catalog.ImageInput::save', _this.onSaveImageHandler);
 	    instances.set(_this.id, babelHelpers.assertThisInitialized(_this));
 	    return _this;
 	  }
@@ -995,6 +904,11 @@ this.BX = this.BX || {};
 	    key: "isEnabledEmptyProductError",
 	    value: function isEnabledEmptyProductError() {
 	      return this.getConfig('ENABLE_EMPTY_PRODUCT_ERROR', false);
+	    }
+	  }, {
+	    key: "isEnabledChangesRendering",
+	    value: function isEnabledChangesRendering() {
+	      return this.getConfig('ENABLE_CHANGES_RENDERING', true);
 	    }
 	  }, {
 	    key: "isInputDetailLinkEnabled",
@@ -1141,8 +1055,6 @@ this.BX = this.BX || {};
 	    key: "unsubscribeEvents",
 	    value: function unsubscribeEvents() {
 	      this.unsubscribeToVariationChange();
-	      this.getFileInput().unsubscribeImageInputEvents();
-	      this.getFileInput().unsubscribeEvents();
 	      main_core_events.EventEmitter.unsubscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
 	    }
 	  }, {
@@ -1318,48 +1230,25 @@ this.BX = this.BX || {};
 	      });
 	    }
 	  }, {
-	    key: "saveFiles",
-	    value: function saveFiles(rebuild) {
-	      var _this4 = this;
+	    key: "onSaveImage",
+	    value: function onSaveImage(event) {
+	      var _event$getData3 = event.getData(),
+	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 3),
+	          inputId = _event$getData4[1],
+	          response = _event$getData4[2];
 
-	      if (this.isEmptyModel() || this.isSimpleModel()) {
+	      if (this.isEmptyModel() || this.isSimpleModel() || inputId !== this.getFileInput().getId()) {
 	        return;
 	      }
 
-	      var imageValues = this.getModel().getMorePhotoValues();
+	      this.getFileInput().setId(response.data.id);
+	      this.getFileInput().setInputHtml(response.data.input);
+	      this.getFileInput().setView(response.data.preview);
+	      this.getModel().setMorePhotoValues(response.data.values);
 
-	      if (this.submitFileTimeOut) {
-	        clearTimeout(this.submitFileTimeOut);
+	      if (this.isImageFieldEnabled()) {
+	        this.layoutImage();
 	      }
-
-	      var requestId = main_core.Text.getRandom(20);
-	      this.refreshImageSelectorId = requestId;
-	      this.submitFileTimeOut = setTimeout(function () {
-	        main_core.ajax.runAction('catalog.productSelector.saveMorePhoto', {
-	          json: {
-	            productId: _this4.model.getProductId(),
-	            variationId: _this4.model.getId(),
-	            iblockId: _this4.getIblockId(),
-	            imageValues: imageValues
-	          }
-	        }).then(function (response) {
-	          if (!rebuild && _this4.refreshImageSelectorId === requestId) {
-	            return;
-	          }
-
-	          _this4.getFileInput().setId(response.data.id);
-
-	          _this4.getFileInput().setInputHtml(response.data.input);
-
-	          _this4.getFileInput().setView(response.data.preview);
-
-	          _this4.getModel().setMorePhotoValues(response.data.values);
-
-	          if (_this4.isImageFieldEnabled()) {
-	            _this4.layoutImage();
-	          }
-	        });
-	      }, 500);
 	    }
 	  }, {
 	    key: "onProductSelect",
@@ -1373,7 +1262,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "productSelectAjaxAction",
 	    value: function productSelectAjaxAction(productId) {
-	      var _this5 = this;
+	      var _this4 = this;
 
 	      var itemConfig = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
 	        saveProductFields: false,
@@ -1388,7 +1277,7 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      }).then(function (response) {
-	        return _this5.processResponse(response, babelHelpers.objectSpread({}, _this5.options.config, itemConfig), true);
+	        return _this4.processResponse(response, babelHelpers.objectSpread({}, _this4.options.config, itemConfig), true);
 	      });
 	    }
 	  }, {
@@ -1397,7 +1286,6 @@ this.BX = this.BX || {};
 	      var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	      var isProductAction = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 	      var data = (response === null || response === void 0 ? void 0 : response.data) || null;
-	      this.getFileInput().unsubscribeImageInputEvents();
 
 	      if (data) {
 	        this.changeSelectedElement(data, config);
@@ -1408,8 +1296,12 @@ this.BX = this.BX || {};
 	      }
 
 	      this.unsubscribeToVariationChange();
-	      this.clearLayout();
-	      this.layout();
+
+	      if (this.isEnabledChangesRendering()) {
+	        this.clearLayout();
+	        this.layout();
+	      }
+
 	      var fields = (data === null || data === void 0 ? void 0 : data.fields) || null;
 	      this.emit('onChange', {
 	        selectorId: this.id,

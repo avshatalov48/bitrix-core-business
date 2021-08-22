@@ -129,6 +129,23 @@ class CCatalogStore extends CAllCatalogStore
 			"ELEMENT_ID" => array("FIELD" => "CP.PRODUCT_ID", "TYPE" => "int")
 		);
 
+		if (!is_array($arOrder))
+		{
+			$arOrder = [];
+		}
+		if (!empty($arOrder))
+		{
+			$arOrder = array_change_key_case($arOrder, CASE_UPPER);
+			foreach (array_keys($arOrder) as $field)
+			{
+				$arOrder[$field] = strtoupper($arOrder[$field]);
+				if ($arOrder[$field] !== 'DESC')
+				{
+					$arOrder[$field] = 'ASC';
+				}
+			}
+		}
+
 		$userField = new CUserTypeSQL();
 		$userField->SetEntity("CAT_STORE", "CS.ID");
 		$userField->SetSelect($arSelectFields);

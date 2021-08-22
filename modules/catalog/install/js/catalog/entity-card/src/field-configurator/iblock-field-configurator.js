@@ -46,7 +46,7 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 			this._isRequiredCheckBox = this.getIsRequiredCheckBox();
 		}
 
-		if (this._typeId !== "directory")
+		if (this.isAllowedMultipleCheckBox())
 		{
 			this._isMultipleCheckBox = this.getMultipleCheckBox();
 		}
@@ -54,15 +54,37 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 		this._isPublic = this.getIsPublicCheckBox();
 
 		//region Show Always
-		this._showAlwaysCheckBox = this.createOption(
-			{ caption: BX.message("UI_ENTITY_EDITOR_SHOW_ALWAYS"), helpUrl: "https://helpdesk.bitrix24.ru/open/7046149/", helpCode: "9627471" }
+		this._showAlwaysCheckBox = this.createOption({
+			caption: BX.message('UI_ENTITY_EDITOR_SHOW_ALWAYS'),
+			helpUrl: 'https://helpdesk.bitrix24.ru/open/7046149/',
+			helpCode: '9627471'
+		});
+		this._showAlwaysCheckBox.checked = (
+			isNew
+				? BX.prop.getBoolean(this._settings, 'showAlways', true)
+				: this._field.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways)
 		);
-		this._showAlwaysCheckBox.checked = isNew
-			? BX.prop.getBoolean(this._settings, "showAlways", true)
-			: this._field.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways);
+
+		if (!this.isAllowedShowAlwaysCheckBox())
+		{
+			Dom.style(this._showAlwaysCheckBox.closest('div.ui-ctl-checkbox'), 'display', 'none');
+		}
 		//endregion
 
 		return this._optionWrapper;
+	}
+
+	isAllowedMultipleCheckBox()
+	{
+		const isEnabledOfferTree = this?._field?.getSchemeElement()?._settings?.isEnabledOfferTree;
+		const isMultiple = this?._field?.getSchemeElement()?._settings?.multiple;
+
+		return !isEnabledOfferTree || isMultiple;
+	}
+
+	isAllowedShowAlwaysCheckBox()
+	{
+		return true;
 	}
 
 	getInputTitle()

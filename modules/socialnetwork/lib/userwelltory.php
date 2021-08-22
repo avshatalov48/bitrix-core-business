@@ -10,6 +10,22 @@ namespace Bitrix\Socialnetwork;
 use Bitrix\Main\Entity;
 use Bitrix\Main\NotImplementedException;
 
+/**
+ * Class UserWelltoryTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserWelltory_Query query()
+ * @method static EO_UserWelltory_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserWelltory_Result getById($id)
+ * @method static EO_UserWelltory_Result getList(array $parameters = array())
+ * @method static EO_UserWelltory_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_UserWelltory createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_UserWelltory_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_UserWelltory wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_UserWelltory_Collection wakeUpCollection($rows)
+ */
 class UserWelltoryTable extends Entity\DataManager
 {
 	/**

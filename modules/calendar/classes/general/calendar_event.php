@@ -17,6 +17,7 @@ use Bitrix\Calendar\ICal\
 	Builder,
 	MailInvitation\Helper};
 use \Bitrix\Main\Loader;
+use \Bitrix\Main\UserTable;
 use \Bitrix\Disk\Uf\FileUserType;
 use \Bitrix\Disk\AttachedObject;
 use Bitrix\Calendar\Internals;
@@ -1231,13 +1232,13 @@ class CCalendarEvent
 	public static function getUsersDetails($userIdList = [], $params = [])
 	{
 		$users = [];
-		$userList = \Bitrix\Main\UserTable::getList([
+		$userList = UserTable::getList([
 			'select' => ['ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'PERSONAL_PHOTO', 'EMAIL', 'EXTERNAL_AUTH_ID'],
 			'filter' => ['=ID' => $userIdList]
 		]);
 		foreach ($userList as $userData)
 		{
-			$id = (int) $userData['ID'];
+			$id = (int)$userData['ID'];
 			if (!in_array($id, $userIdList))
 			{
 				continue;
@@ -2291,7 +2292,7 @@ class CCalendarEvent
 		{
 			// Here we collecting information about EXTERNAL_AUTH_ID to
 			// know if some of the users are external
-			$orm = \Bitrix\Main\UserTable::getList([
+			$orm = UserTable::getList([
 				'filter' => [
 					'=ID' => $involvedAttendees,
 					'ACTIVE' => 'Y'
@@ -4627,7 +4628,7 @@ class CCalendarEvent
 			return $userIndex[$organizerId];
 		}
 
-		$userOrm = \Bitrix\Main\UserTable::getList([
+		$userOrm = UserTable::getList([
 			'filter' => [
 				'=ID' => $organizerId,
 				'ACTIVE' => 'Y'

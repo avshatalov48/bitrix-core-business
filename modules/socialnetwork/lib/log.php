@@ -10,6 +10,22 @@ namespace Bitrix\Socialnetwork;
 use Bitrix\Main\ORM;
 use Bitrix\Socialnetwork\Item\LogIndex;
 
+/**
+ * Class LogTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Log_Query query()
+ * @method static EO_Log_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Log_Result getById($id)
+ * @method static EO_Log_Result getList(array $parameters = array())
+ * @method static EO_Log_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_Log createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_Log_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_Log wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_Log_Collection wakeUpCollection($rows)
+ */
 class LogTable extends ORM\Data\DataManager
 {
 	public static function getTableName()

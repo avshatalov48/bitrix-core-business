@@ -469,7 +469,6 @@ export class EventEditForm
 			}
 		})
 			.then(
-				// Success
 				(response) => {
 					if ((Type.isFunction(slider.isOpen) && slider.isOpen()) || slider.isOpen === true)
 					{
@@ -528,8 +527,7 @@ export class EventEditForm
 						promise.fulfill(html);
 					}
 				},
-				// Failure
-				(response)=>{
+				(response) => {
 					//this.calendar.displayError(response.errors);
 				}
 			);

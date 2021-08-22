@@ -2,7 +2,8 @@ import { Vuex } from "ui.vue.vuex";
 import { Logger } from "im.lib.logger";
 import { EventEmitter } from 'main.core.events';
 import { EventType } from "im.const";
-import { ConferenceRightPanelMode as RightPanelMode } from 'im.const';
+import { ConferenceRightPanelMode as RightPanelMode, ConferenceUserState } from 'im.const';
+import { MessageBox, MessageBoxButtons } from "ui.dialogs.messagebox";
 
 import {UserListItem} from './user-list-item';
 
@@ -61,6 +62,7 @@ const UserList = {
 			user: state => state.users.collection[state.application.common.userId],
 			application: state => state.application,
 			conference: state => state.conference,
+			call: state => state.call,
 			dialog: state => state.dialogues.collection[state.application.dialog.dialogId]
 		})
 	},
@@ -95,6 +97,36 @@ const UserList = {
 			});
 		},
 		onUserMenuKick({user})
+		{
+			this.showUserKickConfirm(user);
+		},
+		showUserKickConfirm(user)
+		{
+			if (this.userKickConfirm)
+			{
+				this.userKickConfirm.close();
+			}
+
+			let confirmMessage = this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_KICK_INTRANET_USER_CONFIRM_TEXT');
+			if (user.extranet)
+			{
+				confirmMessage = this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_KICK_GUEST_USER_CONFIRM_TEXT');
+			}
+			this.userKickConfirm = MessageBox.create({
+				message: confirmMessage,
+				modal: true,
+				buttons: MessageBoxButtons.OK_CANCEL,
+				onOk: () => {
+					this.kickUser(user);
+					this.userKickConfirm.close();
+				},
+				onCancel: () => {
+					this.userKickConfirm.close();
+				}
+			});
+			this.userKickConfirm.show();
+		},
+		kickUser(user)
 		{
 			this.$store.dispatch('conference/removeUsers', { users: [user.id] });
 			this.$Bitrix.RestClient.get().callMethod('im.chat.user.delete', {
@@ -142,6 +174,26 @@ const UserList = {
 				});
 			});
 		},
+		onUserMenuPin({user})
+		{
+			this.getApplication().pinUser(user);
+		},
+		onUserMenuUnpin()
+		{
+			this.getApplication().unpinUser();
+		},
+		onUserMenuChangeBackground()
+		{
+			this.getApplication().changeBackground();
+		},
+		onUserMenuOpenChat({user})
+		{
+			this.getApplication().openChat(user);
+		},
+		onUserMenuOpenProfile({user})
+		{
+			this.getApplication().openProfile(user);
+		},
 		// Helpers
 		getLoaderObserver()
 		{
@@ -162,16 +214,36 @@ const UserList = {
 
 			return new IntersectionObserver(callback, options);
 		},
-		userSortFunction(user)
+		userSortFunction(userA, userB)
 		{
-			if (user === this.userId)
+			if (userA === this.userId)
 			{
 				return -1;
 			}
-			else
+			if (userB === this.userId)
 			{
-				return 0;
+				return 1;
 			}
+
+			if (this.call.users[userA] && (this.call.users[userA].floorRequestState || this.call.users[userA].screenState))
+			{
+				return -1;
+			}
+			if (this.call.users[userB] && (this.call.users[userB].floorRequestState || this.call.users[userB].screenState))
+			{
+				return 1;
+			}
+
+			if (this.call.users[userA] && [ConferenceUserState.Ready, ConferenceUserState.Connected].includes(this.call.users[userA].state))
+			{
+				return -1;
+			}
+			if (this.call.users[userB] && [ConferenceUserState.Ready, ConferenceUserState.Connected].includes(this.call.users[userB].state))
+			{
+				return 1;
+			}
+
+			return 0;
 		},
 		getApplication()
 		{
@@ -191,7 +263,10 @@ const UserList = {
 				},
 				unbind(element, bindings, vnode)
 				{
-					vnode.context.loaderObserver.unobserve(element);
+					if (vnode.context.loaderObserver)
+					{
+						vnode.context.loaderObserver.unobserve(element);
+					}
 
 					return true;
 				}
@@ -200,7 +275,12 @@ const UserList = {
 	template: `
 		<div class="bx-im-component-call-user-list">
 			<!-- Loading first page -->
-			<div v-if="!firstPageLoaded">{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_LOADING') }}</div>
+			<div v-if="!firstPageLoaded" class="bx-im-component-call-user-list-loader">
+				<div class="bx-im-component-call-user-list-loader-icon"></div>
+				<div class="bx-im-component-call-user-list-loader-text">
+					{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_LOADING_USERS') }}
+				</div>
+			</div>
 			<!-- Loading completed -->
 			<template v-else>
 				<!-- Speakers list section (if broadcast) -->
@@ -217,7 +297,18 @@ const UserList = {
 					<!-- Speakers list -->
 					<div class="bx-im-component-call-user-list-items">
 						<template v-for="presenter in presentersList">
-							<UserListItem @userChangeName="onUserChangeName" @userKick="onUserMenuKick" @userInsertName="onUserMenuInsertName" :userId="presenter" :key="presenter" />
+							<UserListItem
+								@userChangeName="onUserChangeName"
+								@userKick="onUserMenuKick"
+								@userInsertName="onUserMenuInsertName"
+								@userPin="onUserMenuPin"
+								@userUnpin="onUserMenuUnpin"
+								@userChangeBackground="onUserMenuChangeBackground"
+								@userOpenChat="onUserMenuOpenChat"
+								@userOpenProfile="onUserMenuOpenProfile"
+								:userId="presenter"
+								:key="presenter"
+							/>
 						</template>
 					</div>
 				</template>
@@ -235,13 +326,26 @@ const UserList = {
 					<!-- Participants list -->
 					<div class="bx-im-component-call-user-list-items">
 						<template v-for="user in usersList">
-							<UserListItem @userChangeName="onUserChangeName" @userKick="onUserMenuKick" @userInsertName="onUserMenuInsertName" :userId="user" :key="user" />
+							<UserListItem
+								@userChangeName="onUserChangeName"
+								@userKick="onUserMenuKick"
+								@userInsertName="onUserMenuInsertName" 
+								@userPin="onUserMenuPin"
+								@userUnpin="onUserMenuUnpin"
+								@userChangeBackground="onUserMenuChangeBackground"
+								@userOpenChat="onUserMenuOpenChat"
+								@userOpenProfile="onUserMenuOpenProfile"
+								:userId="user"
+								:key="user" />
 						</template>
 					</div>
 				</template>
 				<!-- Next page loader -->
-				<div v-if="hasMoreToLoad" v-bx-im-directive-user-list-observer class="bx-im-component-call-user-list-next-page-loader">
-					{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_LOADING') }}
+				<div v-if="hasMoreToLoad" v-bx-im-directive-user-list-observer class="bx-im-component-call-user-list-loader">
+					<div class="bx-im-component-call-user-list-loader-icon"></div>
+					<div class="bx-im-component-call-user-list-loader-text">
+						{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_LOADING_USERS') }}
+					</div>
 				</div>
 			</template>	
 		</div>

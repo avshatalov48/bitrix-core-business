@@ -43,38 +43,25 @@ if (check_bitrix_sessid())
 {
 	if (in_array($action, array("set", "unset", "fav_set", "fav_unset")))
 	{
-		if (in_array($action, array("set", "unset")))
+		if (in_array($action, [ 'set', 'unset' ]))
 		{
-			$userRole = CSocNetUserToGroup::GetUserRole($USER->GetID(), $groupID);
-			if (!in_array($userRole, array(SONET_ROLES_OWNER, SONET_ROLES_MODERATOR, SONET_ROLES_USER)))
+			$res = false;
+			try
 			{
-				echo CUtil::PhpToJsObject(Array("ERROR" => "INCORRECT_USER_ROLE"));
-				die();
-			}
+				$res = \Bitrix\Socialnetwork\Item\Subscription::set([
+					'GROUP_ID' => $groupID,
+					'USER_ID' => $USER->getId(),
+					'VALUE' => ($action === 'set' ? 'Y' : 'N'),
+				]);
 
-			if (CSocNetSubscription::set($USER->GetID(), "SG".$groupID, ($action == "set" ? "Y" : "N")))
+				echo CUtil::phpToJsObject([
+					'SUCCESS' => 'Y',
+					'RESULT' => ($res ? 'Y' : 'N'),
+				]);
+			}
+			catch (Exception $e)
 			{
-				$rsSubscription = CSocNetSubscription::getList(
-					array(),
-					array(
-						"USER_ID" => $USER->GetID(),
-						"CODE" => "SG".$groupID
-					)
-				);
-				if ($arSubscription = $rsSubscription->fetch())
-				{
-					echo CUtil::PhpToJsObject(Array(
-						"SUCCESS" => "Y",
-						"RESULT" => "Y"
-					));
-				}
-				else
-				{
-					echo CUtil::PhpToJsObject(Array(
-						"SUCCESS" => "Y",
-						"RESULT" => "N"
-					));
-				}
+				echo CUtil::phpToJsObject([ 'ERROR' => $e->getMessage() ]);
 			}
 		}
 		elseif(in_array($action, array("fav_set", "fav_unset")))
@@ -85,7 +72,7 @@ if (check_bitrix_sessid())
 				$res = \Bitrix\Socialnetwork\Item\WorkgroupFavorites::set(array(
 					'GROUP_ID' => $groupID,
 					'USER_ID' => $USER->getId(),
-					'VALUE' => ($action == 'fav_set' ? 'Y' : 'N')
+					'VALUE' => ($action === 'fav_set' ? 'Y' : 'N')
 				));
 			}
 			catch (Exception $e)
@@ -127,7 +114,7 @@ if (check_bitrix_sessid())
 					)
 				);
 
-				if ($action == 'fav_set')
+				if ($action === 'fav_set')
 				{
 					$result["RESULT"] = "Y";
 				}

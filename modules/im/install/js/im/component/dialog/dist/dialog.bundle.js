@@ -103,42 +103,55 @@ this.BX = this.BX || {};
 	   */
 	  props: {
 	    userId: {
+	      type: Number,
 	      default: 0
 	    },
 	    dialogId: {
-	      default: 0
+	      type: String,
+	      default: "0"
 	    },
 	    messageLimit: {
+	      type: Number,
 	      default: 50
 	    },
 	    enableReadMessages: {
+	      type: Boolean,
 	      default: true
 	    },
 	    enableReactions: {
+	      type: Boolean,
 	      default: true
 	    },
 	    enableDateActions: {
+	      type: Boolean,
 	      default: true
 	    },
 	    enableCreateContent: {
+	      type: Boolean,
 	      default: true
 	    },
 	    enableGestureQuote: {
+	      type: Boolean,
 	      default: true
 	    },
 	    enableGestureQuoteFromRight: {
+	      type: Boolean,
 	      default: true
 	    },
 	    enableGestureMenu: {
+	      type: Boolean,
 	      default: false
 	    },
 	    showMessageUserName: {
+	      type: Boolean,
 	      default: true
 	    },
 	    showMessageAvatar: {
+	      type: Boolean,
 	      default: true
 	    },
 	    showMessageMenu: {
+	      type: Boolean,
 	      default: true
 	    }
 	  },
@@ -153,31 +166,19 @@ this.BX = this.BX || {};
 	      messagesSet: false,
 	      scrollAnimating: false,
 	      showScrollButton: false,
-	      TemplateType: im_const.DialogTemplateType,
-	      ObserverType: ObserverType,
-	      DialogReferenceClassName: im_const.DialogReferenceClassName,
 	      captureMove: false,
 	      capturedMoveEvent: null,
 	      lastMessageId: null,
-	      historyMessageLimit: 50,
-	      unreadMessageLimit: 50,
 	      isRequestingHistory: false,
 	      historyPagesRequested: 0,
 	      stopHistoryLoading: false,
 	      isRequestingUnread: false,
 	      unreadPagesRequested: 0,
-	      placeholdersComposition: [],
 	      placeholderCount: 0,
-	      lastScroll: 0,
-	      scrollingDownThreshold: 1000,
-	      scrollingUpThreshold: 1000,
-	      messageScrollOffset: 20,
 	      pagesLoaded: 0
 	    };
 	  },
 	  created: function created() {
-	    this.count = 1;
-	    this.placeholdersComposition = this.getPlaceholdersComposition();
 	    im_lib_logger.Logger.warn('MessageList component is created');
 	    this.initParams();
 	    this.initEvents();
@@ -206,6 +207,15 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  computed: babelHelpers.objectSpread({
+	    TemplateType: function TemplateType() {
+	      return im_const.DialogTemplateType;
+	    },
+	    ObserverType: function ObserverType$$1() {
+	      return ObserverType;
+	    },
+	    DialogReferenceClassName: function DialogReferenceClassName() {
+	      return im_const.DialogReferenceClassName;
+	    },
 	    localize: function localize() {
 	      return ui_vue.BitrixVue.getFilteredPhrases('IM_MESSENGER_DIALOG_', this);
 	    },
@@ -389,7 +399,14 @@ this.BX = this.BX || {};
 	  methods: {
 	    /* region 01. Init and destroy */
 	    initParams: function initParams() {
+	      this.placeholdersComposition = this.getPlaceholdersComposition();
+	      this.historyMessageLimit = 50;
+	      this.unreadMessageLimit = 50;
 	      this.showScrollButton = this.unreadCounter > 0;
+	      this.scrollingDownThreshold = 1000;
+	      this.scrollingUpThreshold = 1000;
+	      this.messageScrollOffset = 20;
+	      this.lastScroll = 0;
 	      this.scrollChangedByUser = false;
 	      this.scrollButtonDiff = 100;
 	      this.scrollButtonShowTimeout = null;
@@ -439,7 +456,7 @@ this.BX = this.BX || {};
 	    /* endregion 01. Init and destroy */
 
 	    /* region 02. Event handlers */
-	    onReadMessage: function onReadMessage() {//reassign method to ignore handler from ReadMessages mixin
+	    onReadMessage: function onReadMessage() {//redeclare method to ignore handler from ReadMessages mixin
 	    },
 	    onDialogClick: function onDialogClick(event) {
 	      if (ui_vue.BitrixVue.testNode(event.target, {

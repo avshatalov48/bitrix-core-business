@@ -15,6 +15,7 @@ global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\UserToGroupTable;
 
 if (!Loader::includeModule("socialnetwork"))
 {
@@ -99,7 +100,9 @@ $arParams["USE_MAIN_MENU"] = (isset($arParams["USE_MAIN_MENU"]) ? $arParams["USE
 if ($arParams["USE_MAIN_MENU"] == "Y" && !array_key_exists("MAIN_MENU_TYPE", $arParams))
 	$arParams["MAIN_MENU_TYPE"] = "left";
 
-$arGroup = CSocNetGroup::GetByID($arParams["GROUP_ID"]);
+$arGroup = CSocNetGroup::GetById($arParams['GROUP_ID'], false, [
+	'getSites' => true,
+]);
 
 if (
 	$arGroup
@@ -108,10 +111,7 @@ if (
 
 )
 {
-	$arGroupSites = array();
-	$rsGroupSite = CSocNetGroup::GetSite($arGroup["ID"]);
-	while ($arGroupSite = $rsGroupSite->Fetch())
-		$arGroupSites[] = $arGroupSite["LID"];
+	$arGroupSites = $arGroup['SITE_LIST'];
 
 	if (in_array(SITE_ID, $arGroupSites))
 	{
@@ -134,7 +134,9 @@ if (
 			$arResult["HideArchiveLinks"] = true;
 		}
 
-		$arResult["CurrentUserPerms"] = CSocNetUserToGroup::InitUserPerms($USER->GetID(), $arResult["Group"], CSocNetUser::IsCurrentUserModuleAdmin());
+		$arResult['CurrentUserPerms'] = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
+			'groupId' => $arGroup['ID'],
+		]);
 
 		if (
 			$arResult["CurrentUserPerms"] != false
@@ -194,7 +196,10 @@ if (
 			$arResult["CanView"]["blog"] = (array_key_exists("blog", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_GROUP, $arResult["Group"]["ID"], "blog", "view_post", CSocNetUser::IsCurrentUserModuleAdmin()));
 			$arResult["CanView"]["photo"] = (array_key_exists("photo", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_GROUP, $arResult["Group"]["ID"], "photo", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 			$arResult["CanView"]["content_search"] = (array_key_exists("search", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_GROUP, $arResult["Group"]["ID"], "search", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
-			$arResult["CanView"]["chat"] = array_key_exists("chat", $arResult["ActiveFeatures"]);
+			$arResult['CanView']['chat'] = (
+				array_key_exists('chat', $arResult['ActiveFeatures'])
+				&& in_array($arResult['CurrentUserPerms']['UserRole'], UserToGroupTable::getRolesMember())
+			);
 
 			$arResult["Title"]["blog"] = Loc::getMessage("SONET_UM_BLOG");
 			$arResult["Title"]["microblog"] = Loc::getMessage("SONET_UM_MICROBLOG");

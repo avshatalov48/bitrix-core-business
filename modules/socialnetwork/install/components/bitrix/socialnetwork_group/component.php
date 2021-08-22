@@ -718,7 +718,7 @@ if ((int)$arResult['VARIABLES']['group_id'] > 0)
 	{
 		$arResult['groupFields'] = $groupFields;
 		$arResult['PAGES_TITLE_TEMPLATE'] = Loc::getMessage('SONET_GROUP_PAGES_TITLE_TEMPLATE', [
-			'#GROUP_NAME#' => $groupFields['NAME'],
+			'#GROUP_NAME#' => htmlspecialcharsback($groupFields['NAME']),
 		]);
 	}
 }

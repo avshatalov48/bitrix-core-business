@@ -52,7 +52,7 @@ export default class MobileInterfaceTemplate extends InterfaceTemplate
 				<div class="calendar-sync-slider-title">${this.titleActiveHeader}</div>
 				<div class="calendar-sync-slider-info">
 					<span class="calendar-sync-slider-info-text">${Loc.getMessage('CAL_SYNC_LAST_SYNC_DATE')}</span>
-					<span class="calendar-sync-slider-info-time">${Util.formatDateUsable(this.connection.getSyncTimestamp()) + ' ' + Util.formatTime(this.connection.getSyncTimestamp())}</span>
+					<span class="calendar-sync-slider-info-time">${Util.formatDateUsable(this.connection.getSyncTimestamp()) + ' ' + BX.date.format(Util.getTimeFormatShort(), this.connection.getSyncTimestamp())}</span>
 				</div>
 				<div class="calendar-sync-slider-desc">${Loc.getMessage('CAL_SYNC_DISABLE')}</div>
 					<a class="calendar-sync-slider-link" href="javascript:void(0);" onclick="${this.showHelp.bind(this)}">${Loc.getMessage('CAL_TEXT_ABOUT_WORK_SYNC')}</a>

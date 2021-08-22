@@ -26,6 +26,11 @@ class DeliveryService extends BaseService
 	private const ERROR_DELIVERY_CONFIG_UPDATE = 'ERROR_DELIVERY_CONFIG_UPDATE';
 	private const ERROR_DELIVERY_NOT_FOUND = 'ERROR_DELIVERY_NOT_FOUND';
 
+	private const ALLOW_HANDLERS = [
+		'\\' . \Sale\Handlers\Delivery\RestHandler::class,
+		'\\' . \Sale\Handlers\Delivery\RestProfile::class,
+	];
+
 	/**
 	 * @return string[]
 	 */
@@ -53,14 +58,14 @@ class DeliveryService extends BaseService
 	 */
 	private static function checkParamsBeforeDeliveryAdd($params): void
 	{
+		if (empty($params['REST_CODE']))
+		{
+			throw new RestException('Parameter REST_CODE is not defined', self::ERROR_CHECK_FAILURE);
+		}
+
 		if (empty($params['NAME']))
 		{
 			throw new RestException('Parameter NAME is not defined', self::ERROR_CHECK_FAILURE);
-		}
-
-		if (empty($params['CLASS_NAME']))
-		{
-			throw new RestException('Parameter CLASS_NAME is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
 		if (empty($params['CONFIG']) || !is_array($params['CONFIG']))
@@ -73,11 +78,30 @@ class DeliveryService extends BaseService
 			throw new RestException('Parameter CURRENCY is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
-		$handlerList = Delivery\Services\Manager::getHandlersList();
-		if (!in_array($params['CLASS_NAME'], $handlerList, true))
+		$deliveryRestHandler = Internals\DeliveryRestHandlerTable::getList([
+			'filter' => [
+				'=CODE' => $params['REST_CODE'],
+			],
+			'limit' => 1,
+		])->fetch();
+		if (!$deliveryRestHandler)
 		{
-			throw new RestException('Handler not found', self::ERROR_HANDLER_NOT_FOUND);
+			throw new RestException(
+				'Handler "' . $params['REST_CODE'] . '" not exists', self::ERROR_HANDLER_NOT_FOUND
+			);
 		}
+	}
+
+	private static function prepareParamsBeforeDeliveryAdd(array $params): array
+	{
+		$params['CONFIG'] = self::prepareIncomingConfig($params['CONFIG'], $params);
+
+		if (isset($params['LOGOTIP']))
+		{
+			$params['LOGOTIP'] = self::saveFile($params['LOGOTIP']);
+		}
+
+		return $params;
 	}
 
 	/**
@@ -95,15 +119,6 @@ class DeliveryService extends BaseService
 		if (empty($params['FIELDS']))
 		{
 			throw new RestException('Parameter FIELDS is not defined', self::ERROR_CHECK_FAILURE);
-		}
-
-		if (isset($params['FIELDS']['CLASS_NAME']))
-		{
-			$handlerList = Delivery\Services\Manager::getHandlersList();
-			if (!in_array($params['FIELDS']['CLASS_NAME'], $handlerList, true))
-			{
-				throw new RestException('Handler not found', self::ERROR_HANDLER_NOT_FOUND);
-			}
 		}
 
 		$data = Delivery\Services\Manager::getById($params['ID']);
@@ -130,6 +145,11 @@ class DeliveryService extends BaseService
 		{
 			throw new RestException('Delivery not found', self::ERROR_DELIVERY_NOT_FOUND);
 		}
+
+		if (!\in_array($data['CLASS_NAME'], self::ALLOW_HANDLERS, true))
+		{
+			throw new RestException('Access denied', self::ERROR_CHECK_FAILURE);
+		}
 	}
 
 	/**
@@ -151,6 +171,11 @@ class DeliveryService extends BaseService
 			throw new RestException('Parameter ID is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
+		if (empty($params['REST_CODE']))
+		{
+			throw new RestException('Parameter REST_CODE is not defined', self::ERROR_CHECK_FAILURE);
+		}
+
 		if (empty($params['FIELDS']) || !is_array($params['FIELDS']))
 		{
 			throw new RestException('Parameter FIELDS is not defined', self::ERROR_CHECK_FAILURE);
@@ -160,6 +185,19 @@ class DeliveryService extends BaseService
 		if (!$data)
 		{
 			throw new RestException('Delivery not found', self::ERROR_DELIVERY_NOT_FOUND);
+		}
+
+		$deliveryRestHandler = Internals\DeliveryRestHandlerTable::getList([
+			'filter' => [
+				'=CODE' => $params['REST_CODE'],
+			],
+			'limit' => 1,
+		])->fetch();
+		if (!$deliveryRestHandler)
+		{
+			throw new RestException(
+				'Handler "' . $params['REST_CODE'] . '" not exists', self::ERROR_HANDLER_NOT_FOUND
+			);
 		}
 	}
 
@@ -191,20 +229,18 @@ class DeliveryService extends BaseService
 		$params = self::prepareIncomingParams($query);
 		self::checkParamsBeforeDeliveryAdd($params);
 
+		$params = self::prepareParamsBeforeDeliveryAdd($params);
+
 		$fields = [
 			'NAME' => $params['NAME'],
 			'DESCRIPTION' => $params['DESCRIPTION'] ?? '',
-			'CLASS_NAME' => $params['CLASS_NAME'],
+			'CLASS_NAME' => '\\' . \Sale\Handlers\Delivery\RestHandler::class,
 			'CURRENCY' => $params['CURRENCY'],
 			'SORT' => $params['SORT'] ?? 100,
 			'ACTIVE' => $params['ACTIVE'] ?? 'Y',
 			'CONFIG' => $params['CONFIG'],
+			'LOGOTIP' => $params['LOGOTIP'] ?? null,
 		];
-
-		if (isset($params['LOGOTIP']))
-		{
-			$fields['LOGOTIP'] = self::saveFile($params['LOGOTIP']);
-		}
 
 		$result = Delivery\Services\Manager::add($fields);
 		if ($result->isSuccess())
@@ -232,7 +268,7 @@ class DeliveryService extends BaseService
 		$params = self::prepareIncomingParams($query);
 		self::checkParamsBeforeDeliveryUpdate($params);
 
-		$fields = array();
+		$fields = [];
 		if (isset($params['FIELDS']['NAME']))
 		{
 			$fields['NAME'] = $params['FIELDS']['NAME'];
@@ -320,7 +356,9 @@ class DeliveryService extends BaseService
 		$filter = isset($query['filter']) && is_array($query['filter']) ? self::prepareIncomingParams($query['filter']) : [];
 		$order = isset($query['order']) && is_array($query['order']) ? self::prepareIncomingParams($query['order']) : [];
 
-		$result = array();
+		$filter['=CLASS_NAME'] = self::ALLOW_HANDLERS;
+
+		$result = [];
 		$deliveryListResult = Delivery\Services\Manager::getList([
 			'select' => $select,
 			'filter' => $filter,
@@ -328,6 +366,11 @@ class DeliveryService extends BaseService
 		]);
 		while ($delivery = $deliveryListResult->fetch())
 		{
+			if (\is_array($delivery['CONFIG']))
+			{
+				$delivery['CONFIG'] = self::prepareOutcomingConfig($delivery['CONFIG']);
+			}
+
 			$result[] = self::prepareOutcomingFields($delivery);
 		}
 
@@ -353,7 +396,12 @@ class DeliveryService extends BaseService
 		$delivery = Delivery\Services\Manager::getById($params['ID']);
 		if ($delivery)
 		{
-			return $delivery['CONFIG'] ?: [];
+			if (\is_array($delivery['CONFIG']))
+			{
+				$delivery['CONFIG'] = self::prepareOutcomingConfig($delivery['CONFIG']);
+			}
+
+			return \is_array($delivery['CONFIG']) ? $delivery['CONFIG'] : [];
 		}
 
 		throw new RestException('Delivery not found', self::ERROR_DELIVERY_NOT_FOUND);
@@ -375,6 +423,8 @@ class DeliveryService extends BaseService
 		$params = self::prepareIncomingParams($query);
 		self::checkParamsBeforeDeliveryConfigUpdate($params);
 
+		$params['FIELDS'] = self::prepareIncomingConfig($params['FIELDS'], $params);
+
 		$result = Delivery\Services\Manager::update($params['ID'], ['CONFIG' => $params['FIELDS']]);
 		if ($result->isSuccess())
 		{
@@ -383,5 +433,25 @@ class DeliveryService extends BaseService
 
 		$error = implode("\n", $result->getErrorMessages());
 		throw new RestException($error, self::ERROR_DELIVERY_CONFIG_UPDATE);
+	}
+
+	private static function prepareIncomingConfig(array $config, array $params): array
+	{
+		foreach (array_keys($config) as $configName)
+		{
+			$config[$configName]['REST_CODE'] = $params['REST_CODE'];
+		}
+
+		return $config;
+	}
+
+	private static function prepareOutcomingConfig(array $config): array
+	{
+		foreach (array_keys($config) as $configName)
+		{
+			unset($config[$configName]['REST_CODE']);
+		}
+
+		return $config;
 	}
 }

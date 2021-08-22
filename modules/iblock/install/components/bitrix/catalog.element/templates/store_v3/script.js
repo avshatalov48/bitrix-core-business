@@ -1016,7 +1016,6 @@
 			{
 				case 'showDetail':
 					info = {
-						'event': 'showDetail',
 						'ecommerce': {
 							'currencyCode': this.currentPrices[this.currentPriceSelected] && this.currentPrices[this.currentPriceSelected].CURRENCY || '',
 							'detail': {
@@ -1034,7 +1033,6 @@
 					break;
 				case 'addToCart':
 					info = {
-						'event': 'addToCart',
 						'ecommerce': {
 							'currencyCode': this.currentPrices[this.currentPriceSelected] && this.currentPrices[this.currentPriceSelected].CURRENCY || '',
 							'add': {
@@ -3412,6 +3410,8 @@
 
 		buyBasket: function()
 		{
+			console.log(this.obBuyBtn)
+			BX.addClass(this.obBuyBtn, "btn-wait");
 			this.basketMode = 'BUY';
 			this.basket();
 		},

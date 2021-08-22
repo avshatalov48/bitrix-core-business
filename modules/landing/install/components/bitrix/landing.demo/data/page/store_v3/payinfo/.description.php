@@ -15,7 +15,9 @@ return [
 	'lock_delete' => true,
 	'fields' => [
 		'RULE' => null,
-		'ADDITIONAL_FIELDS' => [],
+		'ADDITIONAL_FIELDS' => [
+			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/store_v3/payinfo/preview.jpg',
+		],
 	],
 	'layout' => [
 		'code' => 'without_right',

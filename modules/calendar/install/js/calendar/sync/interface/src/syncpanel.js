@@ -55,24 +55,34 @@ export default class SyncPanel
 
 	getContent()
 	{
-		const mainHeader = Tag.render`
-			<span class="calendar-sync-header-text">${Loc.getMessage('SYNC_CALENDAR_HEADER')}</span>
-		`;
-
-		this.blockStatusContent = this.getStatusBlockContent(this.getConnections());
-
 		return Tag.render`
 			<div class="calendar-sync-wrap">
-				<div class="calendar-sync-header">
-					${mainHeader}
-					${this.blockStatusContent}
-				</div>
+				${this.getHeader()}
 				${this.getMobileHeader()}
 				${this.getMobileContentWrapper()}
 				${this.getWebHeader()}
 				${this.getWebContentWrapper()}
 			</div>
 		`;
+	}
+
+	getHeader()
+	{
+		return Tag.render`
+			<div class="calendar-sync-header">
+				${this.getMainHeader()}
+				${this.getStatusBlockContent(this.getConnections())}
+			</div>
+		`;
+	}
+
+	getMainHeader()
+	{
+		return this.cache.remember('calendar-syncPanel-mainHeader', () => {
+			return Tag.render`
+				<span class="calendar-sync-header-text">${Loc.getMessage('SYNC_CALENDAR_HEADER')}</span>
+			`;
+		});
 	}
 
 	getMobileContentWrapper()
@@ -122,7 +132,8 @@ export default class SyncPanel
 			popupId: 'calendar-syncPanel-status',
 		});
 
-		return this.statusBlock.getContent();
+		this.statusBlockContent =  this.statusBlock.getContent()
+		return this.statusBlockContent;
 	}
 
 	getConnections()
@@ -202,5 +213,6 @@ export default class SyncPanel
 		this.connectionsProviders = connectionsProviders;
 		this.blockStatusContent = this.statusBlock.refresh(status, this.getConnections()).getContent();
 		Dom.replace(document.querySelector('#calendar-sync-status-block'), this.blockStatusContent);
+		this.setGridContent();
 	}
 }

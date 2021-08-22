@@ -8,3 +8,4 @@ $MESS["SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE"] = "Invite a user";
 $MESS["SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE_OR_GUEST"] = "<employee>Invite a user</employee><span>or</span><guest>invite a guest</guest>";
 $MESS["SOCNET_ENTITY_SELECTOR_INVITE_GUEST"] = "Invite a guest";
 $MESS["SOCNET_ENTITY_SELECTOR_PROJECT_OR_GUEST"] = "<project>Create a workgroup</project><span>or</span><guest>invite a guest</guest>";
+$MESS["SOCNET_ENTITY_SELECTOR_TAG_FOOTER_LABEL"] = "Start typing to create a new tag";

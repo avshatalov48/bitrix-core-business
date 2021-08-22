@@ -240,6 +240,19 @@
 	color: #80868e;
 }
 
+.catalog-productcard-popup-multi-select-item-new {
+	background: #e8f9fe;
+}
+
+.catalog-productcard-popup-multi-select-item-new:hover {
+	background: #e1f9ff;
+}
+
+.catalog-productcard-popup-multi-select-item-new .catalog-productcard-popup-select-text {
+	font: 14px/24px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #80868e;
+}
+
 .catalog-productcard-select .catalog-productcard-select-block .catalog-productcard-select-btn-color-icon {
 	top: -1px !important;
 }
@@ -486,3 +499,7 @@
 }
 
 .main-grid-delete-button:hover { opacity: .7; }
+
+.main-ui-square-container {
+	margin-right: 25px;
+}

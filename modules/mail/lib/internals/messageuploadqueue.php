@@ -4,6 +4,22 @@ namespace Bitrix\Mail\Internals;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class MessageUploadQueueTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MessageUploadQueue_Query query()
+ * @method static EO_MessageUploadQueue_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MessageUploadQueue_Result getById($id)
+ * @method static EO_MessageUploadQueue_Result getList(array $parameters = array())
+ * @method static EO_MessageUploadQueue_Entity getEntity()
+ * @method static \Bitrix\Mail\Internals\EO_MessageUploadQueue createObject($setDefaultValues = true)
+ * @method static \Bitrix\Mail\Internals\EO_MessageUploadQueue_Collection createCollection()
+ * @method static \Bitrix\Mail\Internals\EO_MessageUploadQueue wakeUpObject($row)
+ * @method static \Bitrix\Mail\Internals\EO_MessageUploadQueue_Collection wakeUpCollection($rows)
+ */
 class MessageUploadQueueTable extends Entity\DataManager
 {
 

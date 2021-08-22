@@ -373,32 +373,6 @@ class Structure
 			StorageTable::delete($item['ID']);
 		}
 
-		$res = CFile::getList(
-			[],
-			[
-				'MODULE_ID' => 'rest'
-			]
-		);
-
-		$startTime = microtime(true);
-		while ($file = $res->fetch())
-		{
-			if ($file['DESCRIPTION'] == static::$fileDescriptionDelete)
-			{
-				$creatDate = DateTime::createFromTimestamp(strtotime($file['TIMESTAMP_X']));
-
-				if ($creatDate < $deleteDate)
-				{
-					CFile::Delete($file['ID']);
-				}
-			}
-
-			if (microtime(true) - $startTime > static::$maxAgentTime)
-			{
-				break;
-			}
-		}
-
 		return '\Bitrix\Rest\Configuration\Structure::clearContentAgent();';
 	}
 }

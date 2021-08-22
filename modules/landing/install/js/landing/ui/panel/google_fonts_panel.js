@@ -87,7 +87,7 @@
 		 * Shows panel
 		 * @return {Promise}
 		 */
-		show: function()
+		show: function(params)
 		{
 			var showPromise = this.superclass.show.call(this);
 
@@ -95,6 +95,18 @@
 			{
 				return showPromise
 					.then(proxy(this.saveResolver, this));
+			}
+
+			if (params)
+			{
+				if (params.hideOverlay)
+				{
+					this.overlay.remove();
+				}
+				if (params.targetWindow)
+				{
+					this.targetWindow = params.targetWindow;
+				}
 			}
 
 			return showPromise
@@ -195,6 +207,16 @@
 		 */
 		loadFonts: function(response)
 		{
+			var targetWindow;
+			if (this.targetWindow)
+			{
+				targetWindow = eval(this.targetWindow);
+			}
+			else
+			{
+				targetWindow = top;
+			}
+
 			return new Promise(function(resolve) {
 				WebFont.load({
 					google: {
@@ -202,7 +224,7 @@
 							return font.family.replace(/ /g, "+")
 						})
 					},
-					context: top,
+					context: targetWindow,
 					classes: false,
 					active: function()
 					{

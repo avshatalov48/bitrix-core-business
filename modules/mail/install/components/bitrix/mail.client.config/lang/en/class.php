@@ -96,9 +96,6 @@ $MESS["MAIL_CLIENT_CONFIG_TITLE"] = "Mailbox Integration";
 $MESS["MAIL_MAILBOX_DAYS_PLURAL_1"] = "day";
 $MESS["MAIL_MAILBOX_DAYS_PLURAL_2"] = "days";
 $MESS["MAIL_MAILBOX_DAYS_PLURAL_3"] = "days";
-$MESS["MAIL_MAILBOX_LICENSE_AGE_LIMIT_DESCR"] = "The number of days to download emails for depends on the active Bitrix24 plan.
-<br><br>
-Your current plan fetches emails for #LIMIT# recent #DAYS#.";
 $MESS["MAIL_MAILBOX_LICENSE_AGE_LIMIT_TITLE"] = "Email downloading";
 $MESS["MAIL_MAILBOX_LICENSE_SHARED_LIMIT_BODY"] = "The number of shared mailboxes depends on the active Bitrix24 plan.
 <br><br>

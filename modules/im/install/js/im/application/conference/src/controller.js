@@ -12,7 +12,7 @@ import 'im_call';
 import 'im.debug';
 import 'im.application.launch';
 import 'im.component.conference.conference-public';
-import { ConferenceModel } from "im.model";
+import { ConferenceModel, CallModel } from "im.model";
 import { Controller } from 'im.controller';
 import { Utils } from "im.lib.utils";
 import { Cookie } from "im.lib.cookie";
@@ -95,18 +95,19 @@ class ConferenceApplication
 		this.onCallUserCameraStateHandler = this.onCallUserCameraState.bind(this);
 		this.onCallUserVideoPausedHandler = this.onCallUserVideoPaused.bind(this);
 		this.onCallLocalMediaReceivedHandler = BX.debounce(this.onCallLocalMediaReceived.bind(this), 1000);
-		this.onCallUserStreamReceivedHandler = this.onCallUserStreamReceived.bind(this);
-		this.onCallUserStreamRemovedHandler = this.onCallUserStreamRemoved.bind(this);
+		this.onCallRemoteMediaReceivedHandler = this.onCallRemoteMediaReceived.bind(this);
+		this.onCallRemoteMediaStoppedHandler = this.onCallRemoteMediaStopped.bind(this);
 		this.onCallUserVoiceStartedHandler = this.onCallUserVoiceStarted.bind(this);
 		this.onCallUserVoiceStoppedHandler = this.onCallUserVoiceStopped.bind(this);
 		this.onCallUserScreenStateHandler = this.onCallUserScreenState.bind(this);
 		this.onCallUserRecordStateHandler = this.onCallUserRecordState.bind(this);
 		this.onCallUserFloorRequestHandler = this.onCallUserFloorRequest.bind(this);
+		this.onMicrophoneLevelHandler = this.onMicrophoneLevel.bind(this);
 		this._onCallJoinHandler = this.onCallJoin.bind(this);
 		this.onCallLeaveHandler = this.onCallLeave.bind(this);
 		this.onCallDestroyHandler = this.onCallDestroy.bind(this);
-		this.onChatTextareaFocusHandler = this.onChatTextareaFocus.bind(this);
-		this.onChatTextareaBlurHandler = this.onChatTextareaBlur.bind(this);
+		this.onInputFocusHandler = this.onInputFocus.bind(this);
+		this.onInputBlurHandler = this.onInputBlur.bind(this);
 
 		this.onPreCallDestroyHandler = this.onPreCallDestroy.bind(this);
 		this.onPreCallUserStateChangedHandler = this.onPreCallUserStateChanged.bind(this);
@@ -193,8 +194,10 @@ class ConferenceApplication
 				});
 			});
 
-			EventEmitter.subscribe(EventType.textarea.focus, this.onChatTextareaFocusHandler);
-			EventEmitter.subscribe(EventType.textarea.blur, this.onChatTextareaBlurHandler);
+			EventEmitter.subscribe(EventType.textarea.focus, this.onInputFocusHandler);
+			EventEmitter.subscribe(EventType.textarea.blur, this.onInputBlurHandler);
+			EventEmitter.subscribe(EventType.conference.userRenameFocus, this.onInputFocusHandler);
+			EventEmitter.subscribe(EventType.conference.userRenameBlur, this.onInputBlurHandler);
 
 			return new Promise((resolve, reject) => resolve());
 		}
@@ -253,7 +256,8 @@ class ConferenceApplication
 					databaseName: 'imol/call',
 					databaseType: VuexBuilder.DatabaseType.localStorage,
 					models: [
-						ConferenceModel.create()
+						ConferenceModel.create(),
+						CallModel.create()
 					],
 				}
 			});
@@ -377,6 +381,7 @@ class ConferenceApplication
 				this.callView.subscribe(BX.Call.View.Event.onChangeHdVideo, this.onCallViewChangeHdVideo.bind(this));
 				this.callView.subscribe(BX.Call.View.Event.onChangeMicAutoParams, this.onCallViewChangeMicAutoParams.bind(this));
 				this.callView.subscribe(BX.Call.View.Event.onUserRename, this.onCallViewUserRename.bind(this));
+				this.callView.subscribe(BX.Call.View.Event.onUserPinned, this.onCallViewUserPinned.bind(this));
 
 				this.callView.blockAddUser();
 				this.callView.blockHistoryButton();
@@ -769,6 +774,8 @@ class ConferenceApplication
 			}
 			this.callView.appendUsers(this.currentCall.getUsers());
 			BX.Call.Util.getUsers(this.currentCall.id, this.getCallUsers(true)).then(userData => {
+				this.controller.getStore().dispatch('users/set', Object.values(userData));
+				this.controller.getStore().dispatch('conference/setUsers', {users: Object.keys(userData)});
 				this.callView.updateUserData(userData)
 			});
 			this.releasePreCall();
@@ -834,6 +841,8 @@ class ConferenceApplication
 
 			this.callView.appendUsers(this.currentCall.getUsers());
 			BX.Call.Util.getUsers(this.currentCall.id, this.getCallUsers(true)).then(userData => {
+				this.controller.getStore().dispatch('users/set', Object.values(userData));
+				this.controller.getStore().dispatch('conference/setUsers', {users: Object.keys(userData)});
 				this.callView.updateUserData(userData)
 			});
 
@@ -903,8 +912,10 @@ class ConferenceApplication
 			this.controller.getStore().commit('conference/endCall');
 		}
 
-		EventEmitter.unsubscribe(EventType.textarea.focus, this.onChatTextareaFocusHandler);
-		EventEmitter.unsubscribe(EventType.textarea.blur, this.onChatTextareaBlurHandler);
+		EventEmitter.unsubscribe(EventType.textarea.focus, this.onInputFocusHandler);
+		EventEmitter.unsubscribe(EventType.textarea.blur, this.onInputBlurHandler);
+		EventEmitter.unsubscribe(EventType.conference.userRenameFocus, this.onInputFocusHandler);
+		EventEmitter.unsubscribe(EventType.conference.userRenameBlur, this.onInputBlurHandler);
 	}
 
 	restart()
@@ -1037,7 +1048,9 @@ class ConferenceApplication
 			onUnmuteClick: () =>
 			{
 				this.onCallViewToggleMuteButtonClick({
-					muted: false
+					data: {
+						muted: false
+					}
 				});
 				this.mutePopup.destroy();
 				this.mutePopup = null;
@@ -1265,6 +1278,20 @@ class ConferenceApplication
 		{
 			this.renameGuest(newName);
 		}
+	}
+
+	onCallViewUserPinned(event)
+	{
+		if (event.data.userId)
+		{
+			this.updateCallUser(event.data.userId, {pinned: true});
+
+			return true;
+		}
+
+		this.controller.getStore().dispatch('call/unpinUser');
+
+		return true;
 	}
 
 	renameGuest(newName)
@@ -1631,13 +1658,14 @@ class ConferenceApplication
 		this.currentCall.addEventListener(BX.Call.Event.onUserCameraState, this.onCallUserCameraStateHandler);
 		this.currentCall.addEventListener(BX.Call.Event.onUserVideoPaused, this.onCallUserVideoPausedHandler);
 		this.currentCall.addEventListener(BX.Call.Event.onLocalMediaReceived, this.onCallLocalMediaReceivedHandler);
-		this.currentCall.addEventListener(BX.Call.Event.onStreamReceived, this.onCallUserStreamReceivedHandler);
-		this.currentCall.addEventListener(BX.Call.Event.onStreamRemoved, this.onCallUserStreamRemovedHandler);
+		this.currentCall.addEventListener(BX.Call.Event.onRemoteMediaReceived, this.onCallRemoteMediaReceivedHandler);
+		this.currentCall.addEventListener(BX.Call.Event.onRemoteMediaStopped, this.onCallRemoteMediaStoppedHandler);
 		this.currentCall.addEventListener(BX.Call.Event.onUserVoiceStarted, this.onCallUserVoiceStartedHandler);
 		this.currentCall.addEventListener(BX.Call.Event.onUserVoiceStopped, this.onCallUserVoiceStoppedHandler);
 		this.currentCall.addEventListener(BX.Call.Event.onUserScreenState, this.onCallUserScreenStateHandler);
 		this.currentCall.addEventListener(BX.Call.Event.onUserRecordState, this.onCallUserRecordStateHandler);
 		this.currentCall.addEventListener(BX.Call.Event.onUserFloorRequest, this.onCallUserFloorRequestHandler);
+		this.currentCall.addEventListener(BX.Call.Event.onMicrophoneLevel, this.onMicrophoneLevelHandler);
 		//this.currentCall.addEventListener(BX.Call.Event.onDeviceListUpdated, this._onCallDeviceListUpdatedHandler);
 		//this.currentCall.addEventListener(BX.Call.Event.onCallFailure, this._onCallFailureHandler);
 		this.currentCall.addEventListener(BX.Call.Event.onJoin, this._onCallJoinHandler);
@@ -1653,13 +1681,14 @@ class ConferenceApplication
 		this.currentCall.removeEventListener(BX.Call.Event.onUserCameraState, this.onCallUserCameraStateHandler);
 		this.currentCall.removeEventListener(BX.Call.Event.onUserVideoPaused, this.onCallUserVideoPausedHandler);
 		this.currentCall.removeEventListener(BX.Call.Event.onLocalMediaReceived, this.onCallLocalMediaReceivedHandler);
-		this.currentCall.removeEventListener(BX.Call.Event.onStreamReceived, this.onCallUserStreamReceivedHandler);
-		//this.currentCall.removeEventListener(BX.Call.Event.onStreamRemoved, this.onCallUserStreamRemoved.bind(this));
+		this.currentCall.removeEventListener(BX.Call.Event.onRemoteMediaReceived, this.onCallRemoteMediaReceivedHandler);
+		this.currentCall.removeEventListener(BX.Call.Event.onRemoteMediaStopped, this.onCallRemoteMediaStoppedHandler);
 		this.currentCall.removeEventListener(BX.Call.Event.onUserVoiceStarted, this.onCallUserVoiceStartedHandler);
 		this.currentCall.removeEventListener(BX.Call.Event.onUserVoiceStopped, this.onCallUserVoiceStoppedHandler);
 		this.currentCall.removeEventListener(BX.Call.Event.onUserScreenState, this.onCallUserScreenStateHandler);
 		this.currentCall.removeEventListener(BX.Call.Event.onUserRecordState, this.onCallUserRecordStateHandler);
 		this.currentCall.removeEventListener(BX.Call.Event.onUserFloorRequest, this.onCallUserFloorRequestHandler);
+		this.currentCall.removeEventListener(BX.Call.Event.onMicrophoneLevel, this.onMicrophoneLevelHandler);
 		//this.currentCall.removeEventListener(BX.Call.Event.onDeviceListUpdated, this._onCallDeviceListUpdatedHandler);
 		//this.currentCall.removeEventListener(BX.Call.Event.onCallFailure, this._onCallFailureHandler);
 		this.currentCall.removeEventListener(BX.Call.Event.onLeave, this.onCallLeaveHandler);
@@ -1670,6 +1699,8 @@ class ConferenceApplication
 		this.callView.addUser(e.userId);
 
 		BX.Call.Util.getUsers(this.currentCall.id, [e.userId]).then(userData => {
+			this.controller.getStore().dispatch('users/set', Object.values(userData));
+			this.controller.getStore().dispatch('conference/setUsers', {users: Object.keys(userData)});
 			this.callView.updateUserData(userData)
 		});
 	}
@@ -1677,6 +1708,7 @@ class ConferenceApplication
 	onCallUserStateChanged(e)
 	{
 		this.callView.setUserState(e.userId, e.state);
+		this.updateCallUser(e.userId,{state: e.state});
 		/*if (e.direction)
 		{
 			this.callView.setUserDirection(e.userId, e.direction);
@@ -1686,11 +1718,13 @@ class ConferenceApplication
 	onCallUserMicrophoneState(e)
 	{
 		this.callView.setUserMicrophoneState(e.userId, e.microphoneState);
+		this.updateCallUser(e.userId, {microphoneState: e.microphoneState});
 	}
 
 	onCallUserCameraState(e)
 	{
 		this.callView.setUserCameraState(e.userId, e.cameraState);
+		this.updateCallUser(e.userId, {cameraState: e.cameraState});
 	}
 
 	onCallUserVideoPaused(e)
@@ -1729,30 +1763,40 @@ class ConferenceApplication
 		}
 	}
 
-	onCallUserStreamReceived(e)
+	onCallRemoteMediaReceived(e)
 	{
 		if (this.callView)
 		{
-			if ("stream" in e)
+			if ('track' in e)
 			{
-				this.callView.setStream(e.userId, e.stream);
+				this.callView.setUserMedia(e.userId, e.kind, e.track)
 			}
-			if ("mediaRenderer" in e && e.mediaRenderer.kind === "audio")
+			if ('mediaRenderer' in e && e.mediaRenderer.kind === 'audio')
 			{
-				this.callView.setStream(e.userId, e.mediaRenderer.stream);
+				this.callView.setUserMedia(e.userId, 'audio', e.mediaRenderer.stream.getAudioTracks()[0]);
 			}
-			if ("mediaRenderer" in e && (e.mediaRenderer.kind === "video" || e.mediaRenderer.kind === "sharing"))
+			if ('mediaRenderer' in e && (e.mediaRenderer.kind === 'video' || e.mediaRenderer.kind === 'sharing'))
 			{
 				this.callView.setVideoRenderer(e.userId, e.mediaRenderer);
 			}
 		}
 	}
 
-	onCallUserStreamRemoved(e)
+	onCallRemoteMediaStopped(e)
 	{
-		if ("mediaRenderer" in e && (e.mediaRenderer.kind === "video" || e.mediaRenderer.kind === "sharing"))
+		if (this.callView)
 		{
-			this.callView.setVideoRenderer(e.userId, null);
+			if ('mediaRenderer' in e)
+			{
+				if (e.kind === 'video' || e.kind === 'sharing')
+				{
+					this.callView.setVideoRenderer(e.userId, null);
+				}
+			}
+			else
+			{
+				this.callView.setUserMedia(e.userId, e.kind, null);
+			}
 		}
 	}
 
@@ -1769,11 +1813,13 @@ class ConferenceApplication
 
 		this.callView.setUserTalking(e.userId, true);
 		this.callView.setUserFloorRequestState(e.userId, false);
+		this.updateCallUser(e.userId, {talking: true, floorRequestState: false});
 	}
 
 	onCallUserVoiceStopped(e)
 	{
 		this.callView.setUserTalking(e.userId, false);
+		this.updateCallUser(e.userId, {talking: false});
 	}
 
 	onCallUserScreenState(e)
@@ -1782,6 +1828,7 @@ class ConferenceApplication
 		{
 			this.callView.setUserScreenState(e.userId, e.screenState);
 		}
+		this.updateCallUser(e.userId, {screenState: e.screenState});
 	}
 
 	onCallUserRecordState(event)
@@ -1830,6 +1877,7 @@ class ConferenceApplication
 				muted: this.currentCall.isMuted(),
 				cropTop: 72,
 				cropBottom: 73,
+				shareMethod: 'im.disk.record.share'
 			});
 		}
 		else if (event.recordState.state === BX.Call.View.RecordState.Stopped)
@@ -1843,6 +1891,12 @@ class ConferenceApplication
 	onCallUserFloorRequest(e)
 	{
 		this.callView.setUserFloorRequestState(e.userId, e.requestActive);
+		this.updateCallUser(e.userId, {floorRequestState: e.requestActive});
+	}
+
+	onMicrophoneLevel(e)
+	{
+		this.callView.setMicrophoneLevel(e.level);
 	}
 
 	onCallJoin(e)
@@ -1982,6 +2036,44 @@ class ConferenceApplication
 			}
 		}
 
+		pinUser(user)
+		{
+			if (!this.callView)
+			{
+				return false;
+			}
+			this.callView.pinUser(user.id);
+			this.callView.setLayout(BX.Call.View.Layout.Centered);
+		}
+
+		unpinUser()
+		{
+			if (!this.callView)
+			{
+				return false;
+			}
+			this.callView.unpinUser();
+		}
+
+		changeBackground()
+		{
+			if (!BX.Call.Hardware)
+			{
+				return false;
+			}
+			BX.Call.Hardware.BackgroundDialog.open();
+		}
+
+		openChat(user)
+		{
+			this.desktop.onCustomEvent('bxConferenceOpenChat', [user.id]);
+		}
+
+		openProfile(user)
+		{
+			this.desktop.onCustomEvent('bxConferenceOpenProfile', [user.id]);
+		}
+
 		setDialogInited()
 		{
 			this.dialogInited = true;
@@ -2039,14 +2131,14 @@ class ConferenceApplication
 			return true;
 		}
 
-		onChatTextareaFocus(e)
+		onInputFocus(e)
 		{
-			this.callView.setHotKeyActive('microphoneSpace', false);
+			this.callView.setHotKeyTemporaryBlock(true);
 		}
 
-		onChatTextareaBlur (e)
+		onInputBlur(e)
 		{
-			this.callView.setHotKeyActive('microphoneSpace', true);
+			this.callView.setHotKeyTemporaryBlock(false);
 		}
 
 		setUserWasRenamed()
@@ -2095,6 +2187,11 @@ class ConferenceApplication
 		{
 			this.controller.getStore().commit('conference/setUserReadyToJoin');
 		}
+
+		updateCallUser(userId, fields)
+		{
+			this.controller.getStore().dispatch('call/updateUser', {id: userId, fields});
+		}
 		/* endregion 02. Store actions */
 
 		/* region 03. Rest actions */
@@ -2130,6 +2227,8 @@ class ConferenceApplication
 						{
 							reject();
 						}
+					}).catch(result => {
+						console.error('Password check error', result);
 					});
 			});
 		}

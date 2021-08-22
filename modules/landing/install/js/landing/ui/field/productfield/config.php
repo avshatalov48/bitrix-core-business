@@ -14,6 +14,7 @@ return [
 		'landing.pageobject',
 		'main.core',
 		'main.core.events',
+		'landing.ui.component.internal',
 	],
 	'skip_core' => false,
 ];

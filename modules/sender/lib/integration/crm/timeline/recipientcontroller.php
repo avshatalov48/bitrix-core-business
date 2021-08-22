@@ -101,12 +101,13 @@ class RecipientController extends Timeline\EntityController
 		if ($settings->recipient)
 		{
 			$row = PostingRecipientTable::getRow([
-				'select' => ['IS_READ', 'IS_CLICK', 'IS_UNSUB'],
+				'select' => ['IS_READ', 'IS_CLICK', 'IS_UNSUB', 'STATUS'],
 				'filter' => ['=ID' => $settings->recipient['id']]
 			]);
 			$settings->isRead = $row ? $row['IS_READ'] == 'Y' : false;
 			$settings->isClick = $row ? $row['IS_CLICK'] == 'Y' : false;
 			$settings->isUnsub = $row ? $row['IS_UNSUB'] == 'Y' : false;
+			$settings->isError = $row ? $row['STATUS'] === PostingRecipientTable::SEND_RESULT_ERROR : false;
 		}
 
 

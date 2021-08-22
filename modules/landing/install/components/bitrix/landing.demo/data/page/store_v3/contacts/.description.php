@@ -14,7 +14,9 @@ return [
 	'version' => 3,
 	'fields' => [
 		'RULE' => null,
-		'ADDITIONAL_FIELDS' => [],
+		'ADDITIONAL_FIELDS' => [
+			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/store_v3/contacts/preview.jpg',
+		],
 	],
 	'layout' => [
 		'code' => 'without_right',
@@ -64,6 +66,11 @@ return [
 				'.landing-block-node-button' => [
 					0 => [
 						'text' => Loc::getMessage('LANDING_DEMO_STORE_CONTACTS_TEXT3'),
+						'href' => 'tel:#crmPhone1',
+						'target' => '_self',
+						'attrs' => [
+							'data-embed' => NULL,
+							'data-url' => NULL,],
 					],
 				],
 				'.landing-block-node-text' => [

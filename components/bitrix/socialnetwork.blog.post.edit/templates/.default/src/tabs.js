@@ -489,9 +489,10 @@ export default class PostFormTabs extends EventEmitter
 		this.active = null;
 		let postEditSlider = false;
 
+		const currentSlider = (window !== top.window ? BX.SidePanel.Instance.getSliderByWindow(window) : null);
+
 		if (window !== top.window) // slider
 		{
-			const currentSlider = BX.SidePanel.Instance.getSliderByWindow(window);
 			if (
 				currentSlider
 				&& currentSlider.url.match(/\/user\/(\d+)\/blog\/edit\//)
@@ -533,9 +534,12 @@ export default class PostFormTabs extends EventEmitter
 		}
 		else
 		{
-			EventEmitter.emit(window.top, 'SidePanel.Slider:onClose', new BaseEvent({
-				compatData: [ currentSlider.getEvent('onClose') ]
-			}));
+			if (currentSlider)
+			{
+				EventEmitter.emit(window.top, 'SidePanel.Slider:onClose', new BaseEvent({
+					compatData: [ currentSlider.getEvent('onClose') ]
+				}));
+			}
 			BX.SidePanel.Instance.close();
 		}
 	};

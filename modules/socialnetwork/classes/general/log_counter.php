@@ -43,8 +43,8 @@ class CAllSocNetLogCounter
 			$code  = (isset($arFields["CODE"]) ? $arFields["CODE"] : false);
 			$params  = (isset($arFields["PARAMS"]) ? $arFields["PARAMS"] : array());
 			$bDecrement = (isset($arFields["DECREMENT"]) ? $arFields["DECREMENT"] : false);
-			$bMultiple = (isset($arFields["MULTIPLE"]) && $arFields["MULTIPLE"] == "Y");
-			$bSetTimestamp = (isset($arFields["SET_TIMESTAMP"]) && $arFields["SET_TIMESTAMP"] == "Y");
+			$bMultiple = (isset($arFields['MULTIPLE']) && $arFields['MULTIPLE'] === 'Y');
+			$bSetTimestamp = (isset($arFields['SET_TIMESTAMP']) && $arFields['SET_TIMESTAMP'] === 'Y');
 
 			$IsForAllAccessOnly = false;
 			if (isset($arFields["FOR_ALL_ACCESS_ONLY"]))
@@ -52,14 +52,14 @@ class CAllSocNetLogCounter
 				$IsForAllAccessOnly = ($arFields["FOR_ALL_ACCESS_ONLY"] ? "Y" : "N");
 			}
 			$bForAllAccess  = (
-				$IsForAllAccessOnly == "Y"
+				$IsForAllAccessOnly === 'Y'
 					? true
 					: (isset($arFields["FOR_ALL_ACCESS"]) ? $arFields["FOR_ALL_ACCESS"] : false)
 			);
 			$tagSet  = (isset($arFields["TAG_SET"]) ? $arFields["TAG_SET"] : false);
 			$bSendToAuthor = (
 				!isset($arFields["SEND_TO_AUTHOR"])
-				|| $arFields["SEND_TO_AUTHOR"] != 'Y'
+				|| $arFields['SEND_TO_AUTHOR'] !== 'Y'
 					? false
 					: true
 			);
@@ -208,7 +208,7 @@ class CAllSocNetLogCounter
 		{
 			$default_follow = COption::GetOptionString("socialnetwork", "follow_default_type", "Y");
 
-			if ($default_follow == "Y")
+			if ($default_follow === 'Y')
 			{
 				$followWhere = "
 					AND (
@@ -356,7 +356,7 @@ class CAllSocNetLogCounter
 				,".$params['CODE']." as CODE,
 				0 as SENT
 				".($tagSet ? ", '".$DB->ForSQL($tagSet)."' as TAG" : "")."
-				".($bSetTimestamp ? ", ".$DB->CurrentTimeFunction()." as TIMESTAMP_X" : "")."
+				" . ($bSetTimestamp ? ', ' . CDatabase::currentTimeFunction() . ' as TIMESTAMP_X' : '') . "
 			FROM
 				b_user U
 				INNER JOIN b_sonet_log_right SLR ON SLR.LOG_ID = ".$logId."

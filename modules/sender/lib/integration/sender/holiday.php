@@ -208,6 +208,6 @@ class Holiday
 
 	private static function createDate($day, $month, $year = null)
 	{
-		return Date::createFromTimestamp(mktime(0, 0, 0, $month, $day, $year ?: self::$defaultYear));
+		return Date::createFromTimestamp(mktime(0, 0, 0, $month, $day, $year ?: date('Y')));
 	}
 }

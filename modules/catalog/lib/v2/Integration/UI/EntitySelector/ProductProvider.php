@@ -17,6 +17,7 @@ use Bitrix\UI\EntitySelector\SearchQuery;
 class ProductProvider extends BaseProvider
 {
 	private const PRODUCT_LIMIT = 20;
+	private const PRODUCT_ENTITY_ID = 'product';
 
 	public function __construct(array $options = [])
 	{
@@ -30,39 +31,55 @@ class ProductProvider extends BaseProvider
 	{
 		global $USER;
 
-		return $this->getIblockId() > 0
-			&& $USER->isAuthorized()
-			&& ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_view'));
+		if (
+			!$USER->isAuthorized()
+			|| !($USER->canDoOperation('catalog_read') || $USER->canDoOperation('catalog_view'))
+		)
+		{
+			return false;
+		}
+
+		if ($this->getIblockId() <= 0 || !$this->getIblockInfo())
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	public function getItems(array $ids): array
 	{
-		return [];
+		$items = [];
+
+		foreach ($this->getProductsByIds($ids) as $product)
+		{
+			$items[] = $this->makeItem($product);
+		}
+
+		return $items;
 	}
 
 	public function getSelectedItems(array $ids): array
 	{
-		return [];
+		return $this->getItems($ids);
 	}
 
 	public function fillDialog(Dialog $dialog): void
 	{
-		foreach ($this->getProducts() as $product)
+		$recentItemsCount = count($dialog->getRecentItems()->getEntityItems(self::PRODUCT_ENTITY_ID));
+
+		if ($recentItemsCount < self::PRODUCT_LIMIT)
 		{
-			$dialog->addRecentItem(
-				$this->makeItem($product)
-			);
+			foreach ($this->getProducts() as $product)
+			{
+				$dialog->addRecentItem($this->makeItem($product));
+			}
 		}
-	}
-
-	public function getChildren(Item $parentItem, Dialog $dialog): void
-	{
-
 	}
 
 	public function doSearch(SearchQuery $searchQuery, Dialog $dialog): void
 	{
-		$products = $this->getProducts($searchQuery->getQuery());
+		$products = $this->getProductsBySearchString($searchQuery->getQuery());
 
 		if (!empty($products))
 		{
@@ -95,7 +112,7 @@ class ProductProvider extends BaseProvider
 
 		return new Item([
 			'id' => $product['ID'],
-			'entityId' => 'product',
+			'entityId' => self::PRODUCT_ENTITY_ID,
 			'title' => $product['NAME'],
 			'supertitle' => $product['SKU_PROPERTIES'],
 			'caption' => [
@@ -117,6 +134,18 @@ class ProductProvider extends BaseProvider
 		return $this->getOptions()['basePriceId'];
 	}
 
+	private function getIblockInfo(): ?IblockInfo
+	{
+		static $iblockInfo = null;
+
+		if ($iblockInfo === null)
+		{
+			$iblockInfo = ServiceContainer::getIblockInfo($this->getIblockId());
+		}
+
+		return $iblockInfo;
+	}
+
 	private function getImageSource(int $id): ?string
 	{
 		if ($id <= 0)
@@ -133,17 +162,98 @@ class ProductProvider extends BaseProvider
 		return Tools::getImageSrc($file, true) ?: null;
 	}
 
-	private function getProducts(string $searchString = ''): array
+	private function getProductsByIds(array $ids): array
 	{
-		$iblockInfo = ServiceContainer::getIblockInfo($this->getIblockId());
+		[$productIds, $offerIds] = $this->separateOffersFromProducts($ids);
+
+		$products = $this->getProducts([
+			'filter' => ['=ID' => $productIds],
+			'offer_filter' => ['=ID' => $offerIds],
+			'sort' => [],
+		]);
+
+		// sort $products by $productIds
+		return $this->sortProductsByIds($products, $productIds);
+	}
+
+	private function separateOffersFromProducts(array $ids): array
+	{
+		$iblockInfo = $this->getIblockInfo();
+		if (!$iblockInfo)
+		{
+			return [[], []];
+		}
+
+		$productIds = $ids;
+		$offerIds = [];
+
+		if ($iblockInfo->canHaveSku())
+		{
+			$productList = \CCatalogSku::getProductList($ids, $iblockInfo->getSkuIblockId());
+			if (!empty($productList))
+			{
+				$productIds = [];
+				$counter = 0;
+
+				foreach ($ids as $id)
+				{
+					if ($counter >= self::PRODUCT_LIMIT)
+					{
+						break;
+					}
+
+					if (isset($productList[$id]))
+					{
+						$productId = $productList[$id]['ID'];
+
+						if (isset($productIds[$productId]))
+						{
+							continue;
+						}
+
+						$offerIds[] = $id;
+						$productIds[$productId] = $productId;
+					}
+					else
+					{
+						$productIds[$id] = $id;
+					}
+
+					$counter++;
+				}
+
+				$productIds = array_values($productIds);
+			}
+		}
+
+		return [$productIds, $offerIds];
+	}
+
+	private function sortProductsByIds(array $products, array $ids): array
+	{
+		$sorted = [];
+
+		foreach ($ids as $id)
+		{
+			if (isset($products[$id]))
+			{
+				$sorted[$id] = $products[$id];
+			}
+		}
+
+		return $sorted;
+	}
+
+	private function getProductsBySearchString(string $searchString = ''): array
+	{
+		$iblockInfo = $this->getIblockInfo();
 		if (!$iblockInfo)
 		{
 			return [];
 		}
 
-		$productFilter = [
-			'IBLOCK_ID' => $iblockInfo->getProductIblockId(),
-		];
+		$productFilter = [];
+		$offerFilter = [];
 
 		if ($searchString !== '')
 		{
@@ -161,6 +271,7 @@ class ProductProvider extends BaseProvider
 						'*SEARCHABLE_CONTENT' => $searchString,
 					]),
 				];
+				$offerFilter['*SEARCHABLE_CONTENT'] = $searchString;
 			}
 			else
 			{
@@ -168,7 +279,29 @@ class ProductProvider extends BaseProvider
 			}
 		}
 
-		$products = $this->loadElements($productFilter, self::PRODUCT_LIMIT);
+		return $this->getProducts([
+			'filter' => $productFilter,
+			'offer_filter' => $offerFilter,
+		]);
+	}
+
+	private function getProducts(array $parameters = []): array
+	{
+		$iblockInfo = $this->getIblockInfo();
+		if (!$iblockInfo)
+		{
+			return [];
+		}
+
+		$productFilter = (array)($parameters['filter'] ?? []);
+		$offerFilter = (array)($parameters['offer_filter'] ?? []);
+
+		$products = $this->loadElements([
+			'filter' => array_merge($productFilter, [
+				'IBLOCK_ID' => $iblockInfo->getProductIblockId(),
+			]),
+			'limit' => self::PRODUCT_LIMIT,
+		]);
 		if (empty($products))
 		{
 			return [];
@@ -178,7 +311,7 @@ class ProductProvider extends BaseProvider
 
 		if ($iblockInfo->canHaveSku())
 		{
-			$products = $this->loadOffers($products, $iblockInfo, $searchString);
+			$products = $this->loadOffers($products, $iblockInfo, $offerFilter);
 		}
 
 		$products = $this->loadPrices($products);
@@ -186,9 +319,12 @@ class ProductProvider extends BaseProvider
 		return $products;
 	}
 
-	private function loadElements(array $additionalFilter, int $limit = null): array
+	private function loadElements(array $parameters = []): array
 	{
 		$elements = [];
+
+		$additionalFilter = (array)($parameters['filter'] ?? []);
+		$limit = (int)($parameters['limit'] ?? 0);
 
 		$filter = [
 			'CHECK_PERMISSIONS' => 'Y',
@@ -261,9 +397,9 @@ class ProductProvider extends BaseProvider
 		return $elements;
 	}
 
-	private function loadOffers(array $products, IblockInfo $iblockInfo, string $searchString = ''): array
+	private function loadOffers(array $products, IblockInfo $iblockInfo, array $additionalFilter = []): array
 	{
-		$productsWithOffers = $this->filterOffers($products);
+		$productsWithOffers = $this->filterProductsWithOffers($products);
 		if (empty($productsWithOffers))
 		{
 			return $products;
@@ -274,13 +410,13 @@ class ProductProvider extends BaseProvider
 			'IBLOCK_ID' => $iblockInfo->getSkuIblockId(),
 			$skuPropertyId => array_keys($productsWithOffers),
 		];
-		if ($searchString)
+		if (!empty($additionalFilter))
 		{
-			$offerFilter['*SEARCHABLE_CONTENT'] = $searchString;
+			$offerFilter = array_merge($offerFilter, $additionalFilter);
 		}
 
-		// first - load offers with coincidence in searchable content
-		$offers = $this->loadElements($offerFilter);
+		// first - load offers with coincidence in searchable content or by offer ids
+		$offers = $this->loadElements(['filter' => $offerFilter]);
 		$offers = array_column($offers, null, $skuPropertyId . '_VALUE');
 
 		$productsStillWithoutOffers = array_diff_key($productsWithOffers, $offers);
@@ -288,8 +424,10 @@ class ProductProvider extends BaseProvider
 		{
 			// second - load any offer for product if have no coincidences in searchable content
 			$additionalOffers = $this->loadElements([
-				'IBLOCK_ID' => $iblockInfo->getSkuIblockId(),
-				$skuPropertyId => array_keys($productsStillWithoutOffers),
+				'filter' => [
+					'IBLOCK_ID' => $iblockInfo->getSkuIblockId(),
+					$skuPropertyId => array_keys($productsStillWithoutOffers),
+				],
 			]);
 			$additionalOffers = array_column($additionalOffers, null, $skuPropertyId . '_VALUE');
 			$offers = array_merge($offers, $additionalOffers);
@@ -312,10 +450,16 @@ class ProductProvider extends BaseProvider
 			return [];
 		}
 
+		$variationToProductMap = [];
+		foreach ($elements as $id => $element)
+		{
+			$variationToProductMap[$element['ID']] = $id;
+		}
+
 		$priceTableResult = PriceTable::getList([
 			'select' => ['PRICE', 'CURRENCY', 'PRODUCT_ID'],
 			'filter' => [
-				'PRODUCT_ID' => array_keys($elements),
+				'PRODUCT_ID' => array_keys($variationToProductMap),
 				'=CATALOG_GROUP_ID' => $this->getBasePriceId(),
 				[
 					'LOGIC' => 'OR',
@@ -332,8 +476,9 @@ class ProductProvider extends BaseProvider
 
 		while ($price = $priceTableResult->fetch())
 		{
+			$productId = $variationToProductMap[$price['PRODUCT_ID']];
 			$formattedPrice = \CCurrencyLang::CurrencyFormat($price['PRICE'], $price['CURRENCY'], true);
-			$elements[$price['PRODUCT_ID']]['PRICE'] = $formattedPrice;
+			$elements[$productId]['PRICE'] = $formattedPrice;
 		}
 
 		return $elements;
@@ -377,7 +522,7 @@ class ProductProvider extends BaseProvider
 		return $products;
 	}
 
-	private function filterOffers(array $products): array
+	private function filterProductsWithOffers(array $products): array
 	{
 		return array_filter($products, static function ($item) {
 			return $item['TYPE'] === ProductTable::TYPE_SKU;

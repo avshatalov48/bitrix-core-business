@@ -35,7 +35,7 @@ class ComponentsCollection implements IteratorAggregate
 			throw new LogicException('The collection contains elements of the wrong class. You need to pass a collection of objects Bitrix\\Calendar\\ICal\\Builder\\Attendee');
 		}
 
-		$this->collection = $collection;
+		$this->collection = $collection ?? [];
 	}
 
 	/**
@@ -47,12 +47,12 @@ class ComponentsCollection implements IteratorAggregate
 	}
 
 	/**
-	 * @param ParserComponent $component
+	 * @param ParserComponent|null $component
 	 * @return $this
 	 */
 	public function add(?ParserComponent $component): ComponentsCollection
 	{
-		if (is_null($component))
+		if ($component === null)
 		{
 			return $this;
 		}
@@ -92,7 +92,7 @@ class ComponentsCollection implements IteratorAggregate
 	 */
 	private function checkCollection(?array $collection): bool
 	{
-		if (is_null($collection))
+		if ($collection === null)
 		{
 			return true;
 		}

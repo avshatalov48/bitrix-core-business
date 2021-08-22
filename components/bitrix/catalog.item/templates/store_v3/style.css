@@ -380,7 +380,7 @@
 	left: 50%;
 	transform: translateX(-50%);
 	max-width: 615px;
-	max-height: 80vh;
+	max-height: 90vh;
 	z-index: 200;
 	transition: 200ms linear all;
 	display: flex;

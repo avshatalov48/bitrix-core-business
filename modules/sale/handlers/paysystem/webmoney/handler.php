@@ -44,7 +44,7 @@ class WebMoneyHandler extends PaySystem\ServiceHandler
 		$extraParams = array(
 			'URL' => $this->getUrl($payment, 'pay'),
 			'ENCODING' => $this->service->getField('ENCODING'),
-			'BX_PAYSYSTEM_CODE' => $payment->getPaymentSystemId(),
+			'BX_PAYSYSTEM_CODE' => $this->service->getField('ID'),
 			'WEBMONEY_SUCCESS_URL' => $this->getSuccessUrl($payment),
 			'WEBMONEY_FAIL_URL' => $this->getFailUrl($payment),
 		);

@@ -13,6 +13,9 @@ if (empty($arResult['userField']['SETTINGS']['DISPLAY'])){
 	$arResult['userField']['SETTINGS']['DISPLAY'] = SectionType::DISPLAY_UI;
 }
 
+
+$isMultiple = ($arResult['userField']['MULTIPLE'] === 'Y');
+
 if($arResult['userField']['SETTINGS']['DISPLAY'] === SectionType::DISPLAY_UI)
 {
 	\CJSCore::Init('ui');
@@ -22,7 +25,7 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === SectionType::DISPLAY_UI)
 
 	foreach($arResult['userField']['USER_TYPE']['FIELDS'] as $key => $val)
 	{
-		if($key === '' && $arResult['userField']['MULTIPLE'] === 'Y')
+		if($key === '' && $isMultiple)
 		{
 			continue;
 		}
@@ -40,13 +43,10 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === SectionType::DISPLAY_UI)
 		$itemList[] = $item;
 	}
 
-	$params = Json::encode([
-		'isMulti' => ($arResult['userField']['MULTIPLE'] === 'Y'),
+	$arResult['params'] = Json::encode([
+		'isMulti' => $isMultiple,
 		'fieldName' => $arResult['userField']['FIELD_NAME']
 	]);
-	$arResult['params'] = $params;
-
-	$result = '';
 
 	$controlNodeId = $arResult['userField']['FIELD_NAME'] . '_control_';
 	$valueContainerId = $arResult['userField']['FIELD_NAME'] . '_value_';
@@ -64,14 +64,14 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === SectionType::DISPLAY_UI)
 	{
 		$attrList = [
 			'type' => 'hidden',
-			'name' => $arResult['userField']['FIELD_NAME'],
+			'name' => $fieldName,
 			'value' => $startValue[$i]['VALUE'],
 		];
 
 		$arResult['attrList'][] = $attrList;
 	}
 
-	if($arResult['userField']['MULTIPLE'] !== 'Y')
+	if(!$isMultiple)
 	{
 		$startValue = $startValue[0];
 	}
@@ -86,9 +86,7 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === SectionType::DISPLAY_UI)
 	$htmlFieldNameJs = CUtil::JSEscape($fieldName);
 	$controlNodeIdJs = CUtil::JSEscape($controlNodeId);
 	$valueContainerIdJs = CUtil::JSEscape($valueContainerId);
-	$block = ($arResult['userField']['MULTIPLE'] === 'Y' ?
-		'main-ui-multi-select' : 'main-ui-select'
-	);
+	$block = ($isMultiple ? 'main-ui-multi-select' : 'main-ui-select');
 
 	$arResult['block'] = $block;
 	$arResult['controlNodeId'] = $controlNodeId;
@@ -110,7 +108,7 @@ elseif($arResult['userField']['SETTINGS']['DISPLAY'] === SectionType::DISPLAY_LI
 		$attrList['size'] = (int)$arResult['userField']['SETTINGS']['LIST_HEIGHT'];
 	}
 
-	if($arResult['userField']['MULTIPLE'] === 'Y')
+	if($isMultiple)
 	{
 		$attrList['multiple'] = 'multiple';
 	}

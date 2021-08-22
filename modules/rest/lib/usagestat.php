@@ -39,7 +39,20 @@ use Bitrix\Main\DB\SqlQueryException;
  * </ul>
  *
  * @package Bitrix\Rest
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UsageStat_Query query()
+ * @method static EO_UsageStat_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UsageStat_Result getById($id)
+ * @method static EO_UsageStat_Result getList(array $parameters = array())
+ * @method static EO_UsageStat_Entity getEntity()
+ * @method static \Bitrix\Rest\EO_UsageStat createObject($setDefaultValues = true)
+ * @method static \Bitrix\Rest\EO_UsageStat_Collection createCollection()
+ * @method static \Bitrix\Rest\EO_UsageStat wakeUpObject($row)
+ * @method static \Bitrix\Rest\EO_UsageStat_Collection wakeUpCollection($rows)
+ */
 class UsageStatTable extends Main\Entity\DataManager
 {
 
@@ -225,6 +238,16 @@ class UsageStatTable extends Main\Entity\DataManager
 		static::increment(UsageEntityTable::ENTITY_TYPE_APPLICATION, $clientId, UsageEntityTable::SUB_ENTITY_TYPE_ROBOT, $clientCode);
 	}
 
+	/**
+	 * Saves statistic used application from bizproc
+	 * @param mixed $clientId 'ID' or 'CODE' of application
+	 * @param string $clientCode additional information about saving statistic
+	 */
+	public static function logBizProc($clientId, string $clientCode): void
+	{
+		static::increment(UsageEntityTable::ENTITY_TYPE_APPLICATION, $clientId, UsageEntityTable::SUB_ENTITY_TYPE_BIZ_PROC, $clientCode);
+	}
+
 	public static function logActivity($clientId, $clientCode)
 	{
 		static::increment(UsageEntityTable::ENTITY_TYPE_APPLICATION, $clientId, UsageEntityTable::SUB_ENTITY_TYPE_ACTIVITY, $clientCode);
@@ -264,6 +287,27 @@ class UsageStatTable extends Main\Entity\DataManager
 		}
 		static::$data[$entityKey] += (int)$count;
 
+	}
+
+	/**
+	 * Saves statistic of usage base of knowledge
+	 * @param int|string $clientId
+	 * @param string $type
+	 * @param int $count
+	 */
+	public static function logLandingKnowledge($clientId, string $type, int $count = 1)
+	{
+		$entityKey = static::getEntityKey(
+			UsageEntityTable::ENTITY_TYPE_APPLICATION,
+			$clientId,
+			UsageEntityTable::SUB_ENTITY_TYPE_LANDING_KNOWLEDGE,
+			$type
+		);
+		if (!isset(static::$data[$entityKey]))
+		{
+			static::$data[$entityKey] = 0;
+		}
+		static::$data[$entityKey] += $count;
 	}
 
 	protected static function increment($entityType, $entityId, $subEntityType, $subEntityName)
@@ -458,6 +502,12 @@ class UsageStatTable extends Main\Entity\DataManager
 			if ($dayStat["ENTITY_CODE"] && $dayStat["STAT_DATE"])
 			{
 				$dayStat["STAT_DATE"] = $dayStat["STAT_DATE"]->format("Y-m-d");
+				$dayStat['HOUR_TOTAL'] = 0;
+				for ($i = 0; $i < 24; $i++)
+				{
+					$dayStat['HOUR_TOTAL'] += (int)$dayStat['HOUR_' . $i];
+					unset($dayStat['HOUR_' . $i]);
+				}
 				$usage[] = $dayStat;
 			}
 		}

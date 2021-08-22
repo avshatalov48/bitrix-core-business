@@ -568,11 +568,26 @@ $strWarning = "";
 
 if ($isPost && isset($_POST["checkAction"]) && $_POST["checkAction"] === "delete")
 {
-	CIBlockProperty::Delete($str_PROPERTY_ID);
+	$res = CIBlockProperty::Delete($str_PROPERTY_ID);
 
 	if ($adminSidePanelHelper->isSidePanelRequest())
 	{
-		$adminSidePanelHelper->sendJsonSuccessResponse();
+		if ($res)
+		{
+			$adminSidePanelHelper->sendJsonSuccessResponse();
+		}
+		else
+		{
+			$exception = $APPLICATION->GetException();
+			if($exception)
+			{
+				$adminSidePanelHelper->sendJsonErrorResponse($exception->GetString());
+			}
+			else
+			{
+				$adminSidePanelHelper->sendJsonErrorResponse(GetMessage("BT_ADM_IEP_DELETE_ERROR"));
+			}
+		}
 	}
 	else
 	{
@@ -1215,6 +1230,7 @@ elseif($message)
 								else if (result.status === 'error')
 								{
 									alert(result.message.replace(/<br>/gi, ''));
+									_flag.value = '';
 								}
 							}
 							else

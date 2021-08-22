@@ -74,15 +74,19 @@ class GroupQueueService implements GroupQueueServiceInterface
 	public function isReleased(int $groupId): bool
 	{
 		$entities = GroupQueueTable::query()
+			->setSelect([
+				'ID',
+				'DATE_INSERT',
+			])
 			->where('GROUP_ID', $groupId)
 			->exec()
 			->fetchAll();
 		
-		foreach ($entities as &$entity)
+		foreach ($entities as $key =>$entity)
 		{
 			$dateTime = DateTime::createFromPhp(new \DateTime());
 			
-			if (!$entity['DATE_INSERT'] || $dateTime->getTimestamp() - $entity['DATE_INSERT']->getTimestamp() > self::LIFETIME)
+			if (!$entity['DATE_INSERT'] || abs($dateTime->getTimestamp() - $entity['DATE_INSERT']->getTimestamp()) > self::LIFETIME)
 			{
 				try
 				{
@@ -90,7 +94,7 @@ class GroupQueueService implements GroupQueueServiceInterface
 				} catch (\Exception $e)
 				{
 				}
-				unset($entity);
+				unset($entities[$key]);
 			}
 		}
 		

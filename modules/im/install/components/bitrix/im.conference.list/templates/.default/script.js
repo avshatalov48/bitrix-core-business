@@ -179,7 +179,9 @@
 
 	          _this4.menu.show();
 	        }
-	      }).catch(function (response) {});
+	      }).catch(function (response) {
+	        console.error(response);
+	      });
 	    }
 	  }, {
 	    key: "closeContextMenu",

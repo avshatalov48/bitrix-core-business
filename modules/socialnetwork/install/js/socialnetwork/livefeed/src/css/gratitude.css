@@ -144,11 +144,15 @@
 	width: auto;
 }
 
+.feed-grat-block.feed-info-block .feed-user-name-wrap-outer {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+}
+
 .feed-grat-block.feed-info-block .feed-user-name-wrap {
-	min-width: 250px;
-	width: 50%;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
+	min-width: 200px;
+	max-width: 250px;
+	width: calc(100% - 20px);
 	box-sizing: border-box;
 	float: left;
 	display: flex;
@@ -160,8 +164,6 @@
 }
 
 .feed-grat-block .feed-workday-left-side .feed-user-name-wrap {
-	overflow: hidden;
-	white-space: nowrap;
 	min-height: 40px;
 }
 

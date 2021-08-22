@@ -16,7 +16,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Im
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_LastSearch_Query query()
+ * @method static EO_LastSearch_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_LastSearch_Result getById($id)
+ * @method static EO_LastSearch_Result getList(array $parameters = array())
+ * @method static EO_LastSearch_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_LastSearch createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_LastSearch_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_LastSearch wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_LastSearch_Collection wakeUpCollection($rows)
+ */
 
 class LastSearchTable extends Main\Entity\DataManager
 {

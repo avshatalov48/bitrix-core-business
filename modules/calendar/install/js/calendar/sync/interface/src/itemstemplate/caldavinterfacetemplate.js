@@ -24,6 +24,13 @@ export class CaldavInterfaceTemplate extends InterfaceTemplate
 		const bodyHeader = this.getContentInfoBodyHeader();
 
 		button.addEventListener('click', (event) => {
+			BX.ajax.runAction('calendar.api.calendarajax.analytical', {
+				analyticsLabel: {
+					click_to_connection_button: 'Y',
+					connection_type: this.provider.getType(),
+				}
+			});
+
 			Dom.addClass(button, ['ui-btn-clock', 'ui-btn-disabled']);
 			event.preventDefault();
 			this.sendRequestAddConnection(form);

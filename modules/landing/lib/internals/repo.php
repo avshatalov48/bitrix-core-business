@@ -6,6 +6,22 @@ use \Bitrix\Main\Entity;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class RepoTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Repo_Query query()
+ * @method static EO_Repo_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Repo_Result getById($id)
+ * @method static EO_Repo_Result getList(array $parameters = array())
+ * @method static EO_Repo_Entity getEntity()
+ * @method static \Bitrix\Landing\Internals\EO_Repo createObject($setDefaultValues = true)
+ * @method static \Bitrix\Landing\Internals\EO_Repo_Collection createCollection()
+ * @method static \Bitrix\Landing\Internals\EO_Repo wakeUpObject($row)
+ * @method static \Bitrix\Landing\Internals\EO_Repo_Collection wakeUpCollection($rows)
+ */
 class RepoTable extends Entity\DataManager
 {
 	/**

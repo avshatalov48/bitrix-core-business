@@ -249,6 +249,11 @@ class CFileInput
 		self::$curFiles = array();
 		self::$bFileExists = false;
 
+		if ($arDescInput)
+		{
+			reset($arDescInput['VALUES']);
+		}
+
 		foreach($values as $inputName => $fileId)
 		{
 			if (mb_strlen($fileId) <= 1 && intval($fileId) === 0)
@@ -266,6 +271,7 @@ class CFileInput
 				{
 					$arFile['DESC_NAME'] = key($arDescInput['VALUES']);
 					$arFile['DESCRIPTION'] = current($arDescInput['VALUES']);
+					next($arDescInput['VALUES']);
 				}
 			}
 			else

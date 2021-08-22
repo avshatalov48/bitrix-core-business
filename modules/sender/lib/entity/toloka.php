@@ -57,9 +57,9 @@ class Toloka extends Letter
 	 */
 	protected function saveData($id = null, array $data)
 	{
-		if (!Integration\Seo\Ads\Service::isAvailable())
+		if (!Integration\Seo\Ads\Service::isAvailable() && Integration\Bitrix24\Service::isTolokaAvailable())
 		{
-			$this->addError(Loc::getMessage('SENDER_ENTITY_TOLOKA_ERROR_NO_ACCESS'));
+			$this->addError(Loc::getMessage('SENDER_ENTITY_TOLOKA_ERROR_NO_ACCESS'), 'feature:sender_toloka');
 			return $id;
 		}
 

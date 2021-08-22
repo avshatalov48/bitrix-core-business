@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-this.BX.Im = this.BX.Im || {};
+this.BX.Messenger = this.BX.Messenger || {};
 (function (exports,ui_vue,im_const) {
 	'use strict';
 
@@ -296,5 +296,5 @@ this.BX.Im = this.BX.Im || {};
 
 	exports.Popup = Popup;
 
-}((this.BX.Im.View = this.BX.Im.View || {}),BX,BX.Messenger.Const));
+}((this.BX.Messenger.View = this.BX.Messenger.View || {}),BX,BX.Messenger.Const));
 //# sourceMappingURL=popup.bundle.js.map

@@ -3,8 +3,10 @@
 namespace Bitrix\Im\Controller;
 
 use Bitrix\Im\Alias;
+use Bitrix\Im\User;
 use Bitrix\Im\Model\AliasTable;
 use Bitrix\Main\Context;
+use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Engine\JsonController;
 use Bitrix\Main\Engine\JsonPayload;
@@ -13,10 +15,28 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Im\Call\Conference as ConferenceClass;
-use CGlobalCounter;
 
 class Conference extends JsonController
 {
+	protected function processBeforeAction(Action $action): bool
+	{
+		if (!Loader::includeModule('im'))
+		{
+			$this->addError(new Error("Module IM is not installed"));
+
+			return false;
+		}
+
+		if (User::getInstance()->isExtranet())
+		{
+			$this->addError(new Error("You dont have access to this action"));
+
+			return false;
+		}
+
+		return true;
+	}
+
 	public function prepareAction(JsonPayload $payload)
 	{
 		$result = [];

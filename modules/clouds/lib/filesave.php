@@ -20,7 +20,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Clouds
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_FileSave_Query query()
+ * @method static EO_FileSave_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_FileSave_Result getById($id)
+ * @method static EO_FileSave_Result getList(array $parameters = array())
+ * @method static EO_FileSave_Entity getEntity()
+ * @method static \Bitrix\Clouds\EO_FileSave createObject($setDefaultValues = true)
+ * @method static \Bitrix\Clouds\EO_FileSave_Collection createCollection()
+ * @method static \Bitrix\Clouds\EO_FileSave wakeUpObject($row)
+ * @method static \Bitrix\Clouds\EO_FileSave_Collection wakeUpCollection($rows)
+ */
 
 class FileSaveTable extends Main\ORM\Data\DataManager
 {

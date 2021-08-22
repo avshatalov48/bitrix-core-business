@@ -31,6 +31,13 @@ export default class GoogleTemplate extends InterfaceTemplate
 
 	createConnection()
 	{
+		BX.ajax.runAction('calendar.api.calendarajax.analytical', {
+			analyticsLabel: {
+				click_to_connection_button: 'Y',
+				connection_type: 'google',
+			}
+		});
+
 		BX.util.popup(this.provider.getSyncLink(), 500, 600);
 	}
 

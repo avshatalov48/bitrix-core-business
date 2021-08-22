@@ -15,8 +15,8 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'courses',
-			'THEMEFONTS_CODE' => 'g-font-alegreya-sans',
-			'THEMEFONTS_CODE_H' => 'g-font-alegreya-sans',
+			'THEMEFONTS_CODE' => 'Alegreya Sans',
+			'THEMEFONTS_CODE_H' => 'Alegreya Sans',
 			'THEMEFONTS_SIZE' => '1',
 			'THEMEFONTS_USE' => 'Y',
 			'UP_SHOW' => 'Y',

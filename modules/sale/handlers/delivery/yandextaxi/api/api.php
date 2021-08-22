@@ -10,6 +10,7 @@ use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\MultiClaimResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\PhoneResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\PriceResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\SingleClaimResult;
+use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\Tariff;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\TariffsResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ClaimReader\ClaimReader;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Claim;
@@ -149,7 +150,38 @@ final class Api
 					continue;
 				}
 
-				$result->addTariff($tariff['name']);
+				$tariffObject = new Tariff($tariff['name']);
+
+				if (isset($tariff['supported_requirements']) && is_array($tariff['supported_requirements']))
+				{
+					foreach ($tariff['supported_requirements'] as $supportedRequirement)
+					{
+						if (!isset($supportedRequirement['name']))
+						{
+							continue;
+						}
+
+						if ($supportedRequirement['name'] === 'cargo_options')
+						{
+							if (isset($supportedRequirement['options']) && is_array($supportedRequirement['options']))
+							{
+								foreach ($supportedRequirement['options'] as $option)
+								{
+									if (isset($option['value']) && !empty($option['value']))
+									{
+										$tariffObject->addSupportedRequirement($option['value']);
+									}
+								}
+							}
+						}
+						else
+						{
+							$tariffObject->addSupportedRequirement($supportedRequirement['name']);
+						}
+					}
+				}
+
+				$result->addTariff($tariffObject);
 			}
 		}
 

@@ -24,6 +24,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\Integration\UI\EntitySelector;
 use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
+use Bitrix\Socialnetwork\Helper;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork.group_create.ex/include.php");
 
@@ -1617,8 +1618,8 @@ else
 			$arResult["isScrumProject"] = ($group && $group->isScrumProject());
 		}
 
-		$arResult['ScrumSprintDuration'] = Bitrix\Socialnetwork\Item\Workgroup::getListSprintDuration();
-		$arResult['ScrumTaskResponsible'] = Bitrix\Socialnetwork\Item\Workgroup::getScrumTaskResponsibleList();
+		$arResult['ScrumSprintDuration'] = Helper\Workgroup::getListSprintDuration();
+		$arResult['ScrumTaskResponsible'] = Helper\Workgroup::getScrumTaskResponsibleList();
 
 		if (
 			!array_key_exists("TAB", $arResult)

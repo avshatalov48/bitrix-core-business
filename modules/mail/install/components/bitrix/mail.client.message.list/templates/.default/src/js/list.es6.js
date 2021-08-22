@@ -12,7 +12,6 @@ export class List
 		this.mailboxId = options.mailboxId;
 		this.canMarkSpam = options.canMarkSpam;
 		this.canDelete = options.canDelete;
-		this.connectedMailboxesLicenseInfo = options.connectedMailboxesLicenseInfo;
 		this.ERROR_CODE_CAN_NOT_DELETE = options.ERROR_CODE_CAN_NOT_DELETE;
 		this.ERROR_CODE_CAN_NOT_MARK_SPAM = options.ERROR_CODE_CAN_NOT_MARK_SPAM;
 		this.disabledClassName = 'js-disabled';
@@ -251,15 +250,6 @@ export class List
 			}.bind(this),
 			function(response) {
 			}.bind(this),
-		);
-	}
-
-	showLicensePopup(code)
-	{
-		B24.licenseInfoPopup.show(
-			code,
-			Loc.getMessage('MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_TITLE'),
-			this.connectedMailboxesLicenseInfo,
 		);
 	}
 

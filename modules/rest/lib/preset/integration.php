@@ -31,7 +31,20 @@ Loc::loadMessages(__FILE__);
  * <li> BOT_HANDLER_URL string optional
  * </ul>
  *
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Integration_Query query()
+ * @method static EO_Integration_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Integration_Result getById($id)
+ * @method static EO_Integration_Result getList(array $parameters = array())
+ * @method static EO_Integration_Entity getEntity()
+ * @method static \Bitrix\Rest\Preset\EO_Integration createObject($setDefaultValues = true)
+ * @method static \Bitrix\Rest\Preset\EO_Integration_Collection createCollection()
+ * @method static \Bitrix\Rest\Preset\EO_Integration wakeUpObject($row)
+ * @method static \Bitrix\Rest\Preset\EO_Integration_Collection wakeUpCollection($rows)
+ */
 
 class IntegrationTable extends Main\Entity\DataManager
 {

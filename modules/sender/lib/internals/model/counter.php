@@ -10,7 +10,20 @@ use Bitrix\Main\Type\DateTime;
 /**
  * Class CounterTable
  * @package Bitrix\Sender\Internals\Model
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Counter_Query query()
+ * @method static EO_Counter_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Counter_Result getById($id)
+ * @method static EO_Counter_Result getList(array $parameters = array())
+ * @method static EO_Counter_Entity getEntity()
+ * @method static \Bitrix\Sender\Internals\Model\EO_Counter createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\Internals\Model\EO_Counter_Collection createCollection()
+ * @method static \Bitrix\Sender\Internals\Model\EO_Counter wakeUpObject($row)
+ * @method static \Bitrix\Sender\Internals\Model\EO_Counter_Collection wakeUpCollection($rows)
+ */
 class CounterTable extends Entity\DataManager
 {
 	/**

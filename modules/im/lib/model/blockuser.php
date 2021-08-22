@@ -7,6 +7,22 @@ use Bitrix\Main\Entity;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 
+/**
+ * Class BlockUserTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_BlockUser_Query query()
+ * @method static EO_BlockUser_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_BlockUser_Result getById($id)
+ * @method static EO_BlockUser_Result getList(array $parameters = array())
+ * @method static EO_BlockUser_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_BlockUser createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_BlockUser_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_BlockUser wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_BlockUser_Collection wakeUpCollection($rows)
+ */
 class BlockUserTable extends Entity\DataManager
 {
 	public static function getTableName()

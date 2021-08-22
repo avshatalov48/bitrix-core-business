@@ -4606,7 +4606,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          analyticsLabel: {
 	            formType: 'compact'
 	          }
-	        });
+	        }); // For testing purposes
+
+	        if (main_core.Type.isElementNode(this.intranetControllButton.button)) {
+	          this.intranetControllButton.button.setAttribute('data-role', 'videocallButton');
+	        }
 	      } else if (this.DOM.videocallWrap) {
 	        main_core.Dom.addClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
 	      }
@@ -4901,17 +4905,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	              },
 	              className: 'calendar-add-popup-user-menu-item',
 	              onclick: function onclick() {
-	                if (!user.EMAIL_USER) {
-	                  BX.SidePanel.Instance.open(user.URL, {
-	                    loader: "intranet:profile",
-	                    cacheable: false,
-	                    allowChangeHistory: false,
-	                    contentClassName: "bitrix24-profile-slider-content",
-	                    width: 1100
-	                  });
+	                BX.SidePanel.Instance.open(user.URL, {
+	                  loader: "intranet:profile",
+	                  cacheable: false,
+	                  allowChangeHistory: false,
+	                  contentClassName: "bitrix24-profile-slider-content",
+	                  width: 1100
+	                });
 
-	                  _this6.morePopup.close();
-	                }
+	                _this6.morePopup.close();
 	              }
 	            });
 	          });

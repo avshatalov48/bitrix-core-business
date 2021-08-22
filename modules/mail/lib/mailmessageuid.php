@@ -10,6 +10,22 @@ use Bitrix\Main\Localization;
 
 Localization\Loc::loadMessages(__FILE__);
 
+/**
+ * Class MailMessageUidTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MailMessageUid_Query query()
+ * @method static EO_MailMessageUid_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MailMessageUid_Result getById($id)
+ * @method static EO_MailMessageUid_Result getList(array $parameters = array())
+ * @method static EO_MailMessageUid_Entity getEntity()
+ * @method static \Bitrix\Mail\EO_MailMessageUid createObject($setDefaultValues = true)
+ * @method static \Bitrix\Mail\EO_MailMessageUid_Collection createCollection()
+ * @method static \Bitrix\Mail\EO_MailMessageUid wakeUpObject($row)
+ * @method static \Bitrix\Mail\EO_MailMessageUid_Collection wakeUpCollection($rows)
+ */
 class MailMessageUidTable extends Entity\DataManager
 {
 	public static function getFilePath()

@@ -820,6 +820,7 @@ class CRestServerBatchItem extends \CRestServer
 		if($this->scope !== \CRestUtil::GLOBAL_SCOPE)
 		{
 			$allowedScope = explode(',', $this->authData['scope']);
+			$allowedScope = \Bitrix\Rest\Engine\RestManager::fillAlternativeScope($this->scope, $allowedScope);
 			if(!in_array($this->scope, $allowedScope))
 			{
 				throw new \Bitrix\Rest\OAuthException(array('error' => 'insufficient_scope'));

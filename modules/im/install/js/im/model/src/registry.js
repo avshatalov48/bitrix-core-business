@@ -6,6 +6,7 @@ import {UsersModel} from './users.js';
 import {FilesModel} from './files.js';
 import {RecentModel} from './recent.js';
 import {NotificationsModel} from './notifications.js';
+import {CallModel} from './call.js';
 
 export {
 	ApplicationModel,
@@ -15,5 +16,6 @@ export {
 	UsersModel,
 	FilesModel,
 	RecentModel,
-	NotificationsModel
+	NotificationsModel,
+	CallModel
 }

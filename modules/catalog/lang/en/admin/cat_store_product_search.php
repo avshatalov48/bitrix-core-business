@@ -59,4 +59,5 @@ $MESS["SPS_ELSEARCH_ELEMENT_EDIT"] = "Open item edit page";
 $MESS["SPS_FIELD_ACTION"] = "Action";
 $MESS["SKU_EMPTY"] = "None";
 $MESS["SKU_EMPTY_TITLE"] = "No active SKU's";
+$MESS["SPS_OFFER"] = "SKU";
 ?>

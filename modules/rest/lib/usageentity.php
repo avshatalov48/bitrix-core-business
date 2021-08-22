@@ -18,7 +18,20 @@ use \Bitrix\Main\DB\SqlQueryException;
  * </ul>
  *
  * @package Bitrix\Rest
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UsageEntity_Query query()
+ * @method static EO_UsageEntity_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UsageEntity_Result getById($id)
+ * @method static EO_UsageEntity_Result getList(array $parameters = array())
+ * @method static EO_UsageEntity_Entity getEntity()
+ * @method static \Bitrix\Rest\EO_UsageEntity createObject($setDefaultValues = true)
+ * @method static \Bitrix\Rest\EO_UsageEntity_Collection createCollection()
+ * @method static \Bitrix\Rest\EO_UsageEntity wakeUpObject($row)
+ * @method static \Bitrix\Rest\EO_UsageEntity_Collection wakeUpCollection($rows)
+ */
 class UsageEntityTable extends Main\Entity\DataManager
 {
 
@@ -29,10 +42,12 @@ class UsageEntityTable extends Main\Entity\DataManager
 	const SUB_ENTITY_TYPE_EVENT = 'E';
 	const SUB_ENTITY_TYPE_PLACEMENT = 'P';
 	const SUB_ENTITY_TYPE_ROBOT = 'R';
+	const SUB_ENTITY_TYPE_BIZ_PROC = 'B';
 	const SUB_ENTITY_TYPE_ACTIVITY = 'A';
 	const SUB_ENTITY_TYPE_CONFIGURATION = 'C';
 	const SUB_ENTITY_TYPE_SEND_MESSAGE = 'S';
 	const SUB_ENTITY_TYPE_LANDING = 'L';
+	const SUB_ENTITY_TYPE_LANDING_KNOWLEDGE = 'K';
 
 	protected static $info = array();
 
@@ -89,10 +104,12 @@ class UsageEntityTable extends Main\Entity\DataManager
 					self::SUB_ENTITY_TYPE_EVENT,
 					self::SUB_ENTITY_TYPE_PLACEMENT,
 					self::SUB_ENTITY_TYPE_ROBOT,
+					self::SUB_ENTITY_TYPE_BIZ_PROC,
 					self::SUB_ENTITY_TYPE_ACTIVITY,
 					self::SUB_ENTITY_TYPE_CONFIGURATION,
 					self::SUB_ENTITY_TYPE_SEND_MESSAGE,
 					self::SUB_ENTITY_TYPE_LANDING,
+					self::SUB_ENTITY_TYPE_LANDING_KNOWLEDGE,
 				),
 				'validation' => array(
 					__CLASS__,
@@ -152,7 +169,7 @@ class UsageEntityTable extends Main\Entity\DataManager
 	{
 		$entity = static::getEntityInfo($entityType, $entityId);
 
-		$res = static::getList(array(
+		$getListParameters = array(
 			'filter' => array(
 				'ENTITY_TYPE' => $entityType,
 				'ENTITY_ID' => $entity['ENTITY_ID'],
@@ -161,9 +178,11 @@ class UsageEntityTable extends Main\Entity\DataManager
 			),
 			'select' => array('ID'),
 			'limit' => 1,
-		));
+		);
 
-		if ($element = $res->fetch())
+		$res = static::getList($getListParameters);
+		$element = $res->fetch();
+		if ($element)
 		{
 			return $element['ID'];
 		}
@@ -185,9 +204,13 @@ class UsageEntityTable extends Main\Entity\DataManager
 		{
 			if (mb_strpos($e->getMessage(), 'Duplicate entry') !== false)
 			{
-				//Try one more time
-				$res = static::add($newEntity);
-				return $res->isSuccess() ? $res->getId() : false;
+				//Try to get one more time
+				$res = static::getList($getListParameters);
+				$element = $res->fetch();
+				if ($element)
+				{
+					return $element['ID'];
+				}
 			}
 			throw $e;
 		}

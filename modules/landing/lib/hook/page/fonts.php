@@ -2,6 +2,7 @@
 namespace Bitrix\Landing\Hook\Page;
 
 use \Bitrix\Landing\Field;
+use Bitrix\Main\Localization\Loc;
 
 class Fonts extends \Bitrix\Landing\Hook\Page
 {
@@ -12,52 +13,52 @@ class Fonts extends \Bitrix\Landing\Hook\Page
 		'g-font-open-sans' => [
 			'name' => 'Open Sans',
 			'family' => '"Open Sans", Helvetica, Arial, sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700,900&subset=cyrillic',
+			'url' => 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;900&subset=cyrillic',
 		],
 		'g-font-roboto' => [
 			'name' => 'Roboto',
 			'family' => '"Roboto", Arial, sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,600,700,900&subset=cyrillic,cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;900&subset=cyrillic,cyrillic-ext,latin-ext',
 		],
 		'g-font-roboto-slab' => [
 			'name' => 'Roboto Slab',
 			'family' => '"Roboto Slab", Helvetica, Arial, sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,500,600,700,900&subset=cyrillic,cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;400;500;600;700;900&subset=cyrillic,cyrillic-ext,latin-ext',
 		],
 		'g-font-montserrat' => [
 			'name' => 'Montserrat',
 			'family' => '"Montserrat", Helvetica, Arial, sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700,900&subset=cyrillic',
+			'url' => 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;900&subset=cyrillic',
 		],
 		'g-font-alegreya-sans' => [
 			'name' => 'Alegreya Sans',
 			'family' => '"Alegreya Sans", sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=Alegreya+Sans:300,400,500,600,700,900&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@300;400;500;600;700;900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-cormorant-infant' => [
 			'name' => 'Cormorant Infant',
 			'family' => '"Cormorant Infant", serif',
-			'url' => 'https://fonts.googleapis.com/css?family=Cormorant+Infant:300,400,400i,500,600,600i,700,700i,900&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=Cormorant+Infant:wght@300;400;500;600;700;900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-pt-sans-caption' => [
 			'name' => 'PT Sans Caption',
 			'family' => '"PT Sans Caption", sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=PT+Sans+Caption:300,400,500,600,700,900&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=PT+Sans+Caption:wght@300;400;500;600;700;900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-pt-sans-narrow' => [
 			'name' => 'PT Sans Narrow',
 			'family' => '"PT Sans Narrow", sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=PT+Sans+Narrow:300,400,500,600,700,900|PT+Sans:300,400,500,600,700,900&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@300;400;500;600;700;900&PT+Sans:wght@300;400;500;600;700;900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-pt-sans' => [
 			'name' => 'PT Sans',
 			'family' => '"PT Sans", sans-serif',
-			'url' => 'https://fonts.googleapis.com/css?family=PT+Sans:300,400,500,600,700,900&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=PT+Sans:wght@300;400;500;600;700;900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-lobster' => [
 			'name' => 'Lobster',
 			'family' => '"Lobster", cursive',
-			'url' => 'https://fonts.googleapis.com/css?family=Lobster:300,400,500,600,700,900&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=Lobster:wght@300;400;500;600;700;900&subset=cyrillic-ext,latin-ext',
 		],
 	];
 
@@ -73,9 +74,12 @@ class Fonts extends \Bitrix\Landing\Hook\Page
 	 */
 	protected function getMap()
 	{
-		return array(
-			'CODE' => new Field\Textarea('CODE', array())
-		);
+		return [
+			'CODE' => new Field\Textarea(
+				'CODE', [
+				'title' => Loc::getMessage('LNDNGHOOK_FONTS_FONT_BASE'),
+			]),
+		];
 	}
 
 	/**
@@ -174,6 +178,7 @@ class Fonts extends \Bitrix\Landing\Hook\Page
 			return;
 		}
 		// @fix for #101643
+
 		$this->fields['CODE'] = str_replace(
 			['st yle', 'onl oad', 'li nk'],
 			['style', 'onload', 'link'],
@@ -184,6 +189,7 @@ class Fonts extends \Bitrix\Landing\Hook\Page
 			$this->fields['CODE'],
 			$matches
 		);
+
 		$fonts = [];
 		if ($styleFound)
 		{

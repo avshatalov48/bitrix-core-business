@@ -825,6 +825,12 @@ BX.Sale.Admin.OrderPayment.prototype.initPaidPopup = function()
 					if (isReturn)
 						isReturn.value = 'N';
 
+					var isReturnChanged = BX("PAYMENT_IS_RETURN_CHANGED_"+indexes[k]);
+					if (isReturnChanged)
+					{
+						isReturnChanged.value = 'N';
+					}
+
 					var obOperation = BX("OPERATION_ID_"+this.index);
 					if (obOperation)
 						obOperation.disabled = true;
@@ -864,6 +870,12 @@ BX.Sale.Admin.OrderPayment.prototype.initPaidPopup = function()
 					{
 						if (BX("PAYMENT_PAID_" + indexes[k]))
 							BX("PAYMENT_PAID_" + indexes[k]).value = 'N';
+
+						var isReturnChanged = BX("PAYMENT_IS_RETURN_CHANGED_"+indexes[k]);
+						if (isReturnChanged)
+						{
+							isReturnChanged.value = 'Y';
+						}
 
 						var obOperation = BX("OPERATION_ID_" + this.index);
 						if (obOperation)
@@ -920,6 +932,12 @@ BX.Sale.Admin.OrderPayment.prototype.initPaidPopup = function()
 						var paymentPaid = BX("PAYMENT_PAID_"+indexes[k]);
 						if (paymentPaid)
 							paymentPaid.value = 'Y';
+
+						var isReturnChanged = BX("PAYMENT_IS_RETURN_CHANGED_"+indexes[k]);
+						if (isReturnChanged)
+						{
+							isReturnChanged.value = 'N';
+						}
 
 						this.changePaidStatus('YES');
 

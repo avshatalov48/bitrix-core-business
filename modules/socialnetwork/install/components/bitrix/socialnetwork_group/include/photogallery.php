@@ -1,4 +1,21 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var CBitrixComponent $component */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var array $arDefaultUrlTemplates404 */
+/** @var string $componentPage */
+/** @global CDatabase $DB */
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
+
+use Bitrix\Main\Localization\Loc;
+
 $file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/../lang/".LANGUAGE_ID."/include/photogallery.php")));
 __IncludeLang($file);
 
@@ -41,24 +58,30 @@ if (
 $strTitle = "";
 if ($arParams["SET_NAV_CHAIN"] == "Y" || $arParams["SET_TITLE"] == "Y")
 {
-
 	$feature = "photo";
 	$arEntityActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames((($object == 'group') ? SONET_ENTITY_GROUP : SONET_ENTITY_USER), (($object == 'group') ? $arResult["VARIABLES"]["group_id"] : $arResult["VARIABLES"]["user_id"]));
 	$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && $arEntityActiveFeatures[$feature] <> '') ? $arEntityActiveFeatures[$feature] : GetMessage("SONET_PHOTO"));
 
-	if($object == "group")
+	if ($object === "group")
 	{
-		$arGroup = CSocNetGroup::GetByID($arResult["VARIABLES"]["group_id"]);
-		if ($arParams["SET_NAV_CHAIN"] == "Y")
+		if ($arParams['SET_NAV_CHAIN'] === 'Y')
 		{
-			$APPLICATION->AddChainItem($arGroup["NAME"],
-				CComponentEngine::MakePathFromTemplate($arResult["PATH_TO_GROUP"], array("group_id" => $arGroup["ID"])));
-			$APPLICATION->AddChainItem($strFeatureTitle,
-				CComponentEngine::MakePathFromTemplate($arResult["PATH_TO_GROUP_PHOTO"],
-					array("group_id" => $arGroup["ID"], "path" => "")));
+			$APPLICATION->addChainItem(
+				$arResult['groupFields']['NAME'],
+				\CComponentEngine::MakePathFromTemplate($arResult['PATH_TO_GROUP'], [
+					'group_id' => $arResult['groupFields']['ID'],
+				])
+			);
+			$APPLICATION->addChainItem(
+				$strFeatureTitle,
+				\CComponentEngine::MakePathFromTemplate($arResult['PATH_TO_GROUP_PHOTO'], [
+					'group_id' => $arResult['groupFields']['ID'],
+					'path' => ''
+				])
+			);
 		}
-		$strTitle = $arGroup["NAME"].": ".$strFeatureTitle;
-		$arResult["GROUP"] = $arGroup;
+		$strTitle = str_replace('#PAGE_TITLE#', $strFeatureTitle, $arResult['PAGES_TITLE_TEMPLATE']);
+		$arResult['GROUP'] = $arResult['groupFields'];
 	}
 	else
 	{
@@ -430,8 +453,13 @@ if (empty($user_alias)):
 			$arUserFields = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("IBLOCK_".$arParams["IBLOCK_ID"]."_SECTION", 0, LANGUAGE_ID);
 			if (empty($arUserFields) || empty($arUserFields["UF_DEFAULT"]))
 			{
-				$db_res = CUserTypeEntity::GetList(array($by=>$order),
-					array("ENTITY_ID" => "IBLOK_".$arParams["IBLOCK_ID"]."_SECTION", "FIELD_NAME" => "UF_DEFAULT"));
+				$db_res = CUserTypeEntity::GetList(
+					[],
+					[
+						'ENTITY_ID' => 'IBLOCK_' . $arParams['IBLOCK_ID'] . '_SECTION',
+						'FIELD_NAME' => 'UF_DEFAULT',
+					]
+				);
 				if (!$db_res || !($res = $db_res->GetNext()))
 				{
 					$arFields = Array(
@@ -475,15 +503,14 @@ if (empty($user_alias)):
 			}
 			else
 			{
-				$res = CSocNetGroup::GetByID($groupId);
-				if (!$res)
+				if (empty($arResult['groupFields']))
 				{
-					$arParams["ERROR_MESSAGE"] = GetMessage("SONET_GROUP_NOT_EXISTS");
+					$arParams['ERROR_MESSAGE'] = Loc::getMessage('SONET_GROUP_NOT_EXISTS');
 					return 0;
 				}
-				$arFields["SOCNET_GROUP_ID"] = $groupId;
-				$arFields["NAME"] = GetMessage("SONET_GROUP_PREFIX").$res["NAME"];
-				$arFields["CODE"] = "group_".$groupId;
+				$arFields['SOCNET_GROUP_ID'] = $groupId;
+				$arFields['NAME'] = Loc::getMessage('SONET_GROUP_PREFIX') . $arResult['groupFields']['NAME'];
+				$arFields['CODE'] = 'group_' . $groupId;
 			}
 
 			if (!empty($arFiles))
@@ -640,6 +667,13 @@ if (\Bitrix\Main\Context::getCurrent()->getRequest()->get('IFRAME') === 'Y')
 		$link .= (mb_strpos($link, '?') === false ? '?' : '&') . 'IFRAME=Y';
 	}
 	$arResult['~PATH_TO_GROUP_PHOTO_SECTION'] = $link;
+
+	$link = $arResult['~PATH_TO_GROUP_PHOTO_ELEMENT_UPLOAD'];
+	if (!empty($link))
+	{
+		$link .= (mb_strpos($link, '?') === false ? '?' : '&') . 'IFRAME=Y';
+	}
+	$arResult['~PATH_TO_GROUP_PHOTO_ELEMENT_UPLOAD'] = $link;
 }
 
 return 1;

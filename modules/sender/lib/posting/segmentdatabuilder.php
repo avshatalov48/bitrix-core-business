@@ -2,26 +2,27 @@
 
 namespace Bitrix\Sender\Posting;
 
-use Bitrix\Blog\Copy\Integration\Group;
 use Bitrix\Main\DB\Result;
 use Bitrix\Main\Entity;
 use Bitrix\Sender\Connector;
 use Bitrix\Sender\Connector\IncrementallyConnector;
-use Bitrix\Sender\Entity\Letter;
 use Bitrix\Sender\GroupConnectorTable;
 use Bitrix\Sender\GroupTable;
 use Bitrix\Sender\Integration\Crm\Connectors\QueryCount;
 use Bitrix\Sender\Internals\Model\GroupStateTable;
+use Bitrix\Sender\Internals\Model\GroupThreadTable;
 use Bitrix\Sender\Internals\Model\LetterSegmentTable;
 use Bitrix\Sender\Internals\Model\LetterTable;
-use Bitrix\Sender\MailingChainTable;
-use Bitrix\Sender\MailingGroupTable;
+use Bitrix\Sender\Posting\ThreadStrategy\IThreadStrategy;
 use Bitrix\Sender\Runtime\SegmentDataBuilderJob;
 use Bitrix\Sender\SegmentDataTable;
-use Bitrix\Sender\Service\GroupQueueService;
+use Bitrix\Sender\Posting\SegmentThreadStrategy\AbstractThreadStrategy;
+use Bitrix\Sender\Posting\SegmentThreadStrategy\TenThreadsStrategy;
+use Bitrix\Sender\Posting\SegmentThreadStrategy\ThreadStrategyContext;
 use Bitrix\Sender\UI\PageNavigation;
 use CModule;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sender\Runtime;
 Loc::loadMessages(__FILE__);
 
 class SegmentDataBuilder
@@ -212,6 +213,11 @@ class SegmentDataBuilder
 		{
 			if ((int)$state['STATE'] !== GroupStateTable::STATES['COMPLETED'])
 			{
+				if (!SegmentDataBuilderJob::existsInDB($state['ID']))
+				{
+					SegmentDataBuilderJob::addEventAgent($state['ID']);
+				}
+
 				$currentState = GroupTable::STATUS_IN_PROGRESS;
 				break;
 			}
@@ -339,7 +345,7 @@ class SegmentDataBuilder
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function addToDB(Result $data)
+	public function addToDB(?Result $data)
 	{
 		if ($data)
 		{
@@ -372,7 +378,6 @@ class SegmentDataBuilder
 					SegmentDataTable::addMulti($rows, true);
 					$rows = [];
 					$counter = 0;
-					$this->calculateCurrentFilterCount();
 				}
 			}
 
@@ -412,27 +417,46 @@ class SegmentDataBuilder
 		$connector->setFieldValues($this->endpoint['FIELDS']);
 
 		$lastId = $connector->getEntityLimitInfo()['lastId'];
-		$offset = $groupState['OFFSET'];
+
+		/** @var AbstractThreadStrategy $threadStrategy */
+		$threadStrategy = Runtime\Env::getGroupThreadContext();
+
+		$threadStrategy->setGroupStateId($groupState['ID']);
+		$threadStrategy->fillThreads();
+		$threadStrategy->setPerPage(self::PER_PAGE);
+		$threadStrategy->lockThread();
+
+		$offset = $threadStrategy->getOffset();
 		Locker::lock(self::SEGMENT_DATA_LOCK_KEY, $this->groupId);
 
 		if ($offset < $lastId)
 		{
-			$limit = $offset + ($perPage ?? self::PER_PAGE);
-			$this->updateGroupStateOffset($limit);
+			$limit = $offset + self::PER_PAGE;
 
 			$this->addToDB(
 				$connector->getLimitedData($offset, $limit)
 			);
 
-			if($limit < $lastId)
-			{
-				Locker::unlock(self::SEGMENT_DATA_LOCK_KEY, $this->groupId);
-				return false;
-			}
+			Locker::unlock(self::SEGMENT_DATA_LOCK_KEY, $this->groupId);
+			$threadStrategy->updateStatus(GroupThreadTable::STATUS_NEW);
+			return false;
+		}
+		Locker::unlock(self::SEGMENT_DATA_LOCK_KEY, $this->groupId);
+
+		if ($threadStrategy->getThreadId() < $threadStrategy->lastThreadId())
+		{
+			$threadStrategy->updateStatus(GroupThreadTable::STATUS_DONE);
+			return false;
+		}
+
+		$threadStrategy->updateStatus(GroupThreadTable::STATUS_NEW);
+
+		if (!$threadStrategy->finalize())
+		{
+			return false;
 		}
 
 		$this->completeBuilding();
-		Locker::unlock(self::SEGMENT_DATA_LOCK_KEY, $this->groupId);
 
 		return true;
 	}
@@ -595,6 +619,7 @@ class SegmentDataBuilder
 	public static function run($groupStateId, $perPage = null)
 	{
 		$groupState = GroupStateTable::getById($groupStateId)->fetch();
+
 		if (!$groupState['FILTER_ID'])
 		{
 			GroupStateTable::update(
@@ -794,6 +819,35 @@ class SegmentDataBuilder
 		return $endpoint && isset($endpoint['FIELDS']) && !empty($endpoint['FIELDS']);
 	}
 
+	public static function checkBuild(): void
+	{
+		$groupStateList = GroupStateTable::getList([
+			'select' => [
+				'GROUP_ID',
+				'FILTER_ID',
+				'ENDPOINT',
+			],
+			'filter' => [
+				'!@STATE' => [
+						GroupStateTable::STATES['COMPLETED'],
+						GroupStateTable::STATES['HALTED'],
+					]
+			],
+		]);
+
+		while ($groupState = $groupStateList->fetch())
+		{
+			$segmentBuilder = new SegmentDataBuilder(
+				(int)$groupState['GROUP_ID'],
+				$groupState['FILTER_ID'],
+				json_decode($groupState['ENDPOINT'], true)
+			);
+
+			$segmentBuilder->buildData();
+			self::checkIsSegmentPrepared((int)$groupState['GROUP_ID']);
+		}
+	}
+
 	public static function checkNotCompleted(): string
 	{
 		$groupStateList = GroupStateTable::getList([
@@ -804,9 +858,9 @@ class SegmentDataBuilder
 			],
 			'filter' => [
 				'!@STATE' => [
-					GroupStateTable::STATES['COMPLETED'],
-					GroupStateTable::STATES['HALTED'],
-				]
+						GroupStateTable::STATES['COMPLETED'],
+						GroupStateTable::STATES['HALTED'],
+					]
 			],
 		]);
 
@@ -815,6 +869,20 @@ class SegmentDataBuilder
 			self::checkIsSegmentPrepared((int)$groupState['GROUP_ID']);
 		}
 
-		return '';
+		$groupList = GroupTable::getList([
+			'select' => [
+				'ID'
+			],
+			'filter' => [
+				'=STATUS' => GroupTable::STATUS_IN_PROGRESS
+			]
+		]);
+
+		while ($group = $groupList->fetch())
+		{
+			self::checkIsSegmentPrepared((int)$group['ID']);
+		}
+
+		return '\\Bitrix\Sender\\Posting\\SegmentDataBuilder::checkNotCompleted();';
 	}
 }

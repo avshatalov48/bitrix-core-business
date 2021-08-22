@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,im_mixin,im_component_dialog,im_component_textarea,ui_switcher,ui_vue_components_smiles,main_core,ui_forms,im_lib_cookie,im_component_callFeedback,im_lib_desktop,ui_vue,im_lib_logger,main_core_events,im_const,im_lib_utils,ui_vue_vuex,main_popup,im_lib_clipboard,ui_dialogs_messagebox) {
+(function (exports,im_mixin,im_component_dialog,im_component_textarea,ui_switcher,ui_vue_components_smiles,main_core,ui_forms,im_lib_cookie,im_component_callFeedback,im_lib_desktop,ui_vue,im_lib_logger,im_lib_utils,im_const,main_core_events,ui_vue_vuex,main_popup,im_lib_clipboard,ui_dialogs_messagebox) {
 	'use strict';
 
 	var ConferenceSmiles = {
@@ -904,12 +904,13 @@ this.BX = this.BX || {};
 	      renameMode: false,
 	      newName: '',
 	      renameRequested: false,
-	      menuId: 'bx-messenger-context-popup-external-data'
+	      menuId: 'bx-messenger-context-popup-external-data',
+	      onlineStates: [im_const.ConferenceUserState.Ready, im_const.ConferenceUserState.Connected]
 	    };
 	  },
 	  computed: babelHelpers.objectSpread({
 	    user: function user() {
-	      return this.$store.getters['users/get'](this.userId);
+	      return this.$store.getters['users/get'](this.userId, true);
 	    },
 	    // statuses
 	    currentUser: function currentUser() {
@@ -931,9 +932,35 @@ this.BX = this.BX || {};
 	    isMobile: function isMobile() {
 	      return im_lib_utils.Utils.device.isMobile();
 	    },
+	    isDesktop: function isDesktop() {
+	      return im_lib_utils.Utils.platform.isBitrixDesktop();
+	    },
 	    isGuestWithDefaultName: function isGuestWithDefaultName() {
 	      var guestDefaultName = this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_DEFAULT_USER_NAME');
 	      return this.user.id === this.currentUser && this.user.extranet && this.user.name === guestDefaultName;
+	    },
+	    userCallStatus: function userCallStatus() {
+	      return this.$store.getters['call/getUser'](this.user.id);
+	    },
+	    isUserInCall: function isUserInCall() {
+	      return this.onlineStates.includes(this.userCallStatus.state);
+	    },
+	    userInCallCount: function userInCallCount() {
+	      var _this = this;
+
+	      var usersInCall = Object.values(this.call.users).filter(function (user) {
+	        return _this.onlineStates.includes(user.state);
+	      });
+	      return usersInCall.length;
+	    },
+	    isBroadcast: function isBroadcast() {
+	      return this.conference.common.isBroadcast;
+	    },
+	    presentersList: function presentersList() {
+	      return this.conference.common.presenters;
+	    },
+	    isUserPresenter: function isUserPresenter() {
+	      return this.presentersList.includes(this.user.id);
 	    },
 	    // end statuses
 	    formattedSubtitle: function formattedSubtitle() {
@@ -957,59 +984,135 @@ this.BX = this.BX || {};
 	      return this.getMenuItems.length > 0;
 	    },
 	    menuItems: function menuItems() {
-	      var _this = this;
+	      var _this2 = this;
 
-	      var items = [];
+	      var items = []; // for self
 
-	      if (this.isCurrentUserExternal && this.user.id === this.currentUser) {
-	        items.push({
-	          text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_RENAME_SELF'),
-	          onclick: function onclick() {
-	            _this.closeMenu();
+	      if (this.user.id === this.currentUser) {
+	        // self-rename
+	        if (this.isCurrentUserExternal) {
+	          items.push({
+	            text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_RENAME_SELF'),
+	            onclick: function onclick() {
+	              _this2.closeMenu();
 
-	            _this.onRenameStart();
-	          }
-	        });
-	      }
+	              _this2.onRenameStart();
+	            }
+	          });
+	        } // change background
 
-	      if (this.isCurrentUserOwner && this.user.externalAuthId === 'call') {
-	        items.push({
-	          text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_RENAME'),
-	          onclick: function onclick() {
-	            _this.closeMenu();
 
-	            _this.onRenameStart();
-	          }
-	        });
-	      }
+	        if (this.isDesktop) {
+	          items.push({
+	            text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_CHANGE_BACKGROUND'),
+	            onclick: function onclick() {
+	              _this2.closeMenu();
 
-	      if (this.isCurrentUserOwner && this.user.id !== this.currentUser) {
-	        items.push({
-	          text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_KICK'),
-	          onclick: function onclick() {
-	            _this.closeMenu();
+	              _this2.$emit('userChangeBackground');
+	            }
+	          });
+	        }
+	      } // for other users
+	      else {
+	          // force-rename
+	          if (this.isCurrentUserOwner && this.user.externalAuthId === 'call') {
+	            items.push({
+	              text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_RENAME'),
+	              onclick: function onclick() {
+	                _this2.closeMenu();
 
-	            _this.$emit('userKick', {
-	              user: _this.user
+	                _this2.onRenameStart();
+	              }
+	            });
+	          } // kick
+
+
+	          if (this.isCurrentUserOwner && !this.isUserPresenter) {
+	            items.push({
+	              text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_KICK'),
+	              onclick: function onclick() {
+	                _this2.closeMenu();
+
+	                _this2.$emit('userKick', {
+	                  user: _this2.user
+	                });
+	              }
 	            });
 	          }
-	        });
-	      }
 
-	      if (this.user.id !== this.currentUser) {
-	        items.push({
-	          text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_INSERT_NAME'),
-	          onclick: function onclick() {
-	            _this.closeMenu();
+	          if (this.isUserInCall && this.userCallStatus.cameraState && this.userInCallCount > 2) {
+	            // pin
+	            if (!this.userCallStatus.pinned) {
+	              items.push({
+	                text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_PIN'),
+	                onclick: function onclick() {
+	                  _this2.closeMenu();
 
-	            _this.$emit('userInsertName', {
-	              user: _this.user
+	                  _this2.$emit('userPin', {
+	                    user: _this2.user
+	                  });
+	                }
+	              });
+	            } // unpin
+	            else {
+	                items.push({
+	                  text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_UNPIN'),
+	                  onclick: function onclick() {
+	                    _this2.closeMenu();
+
+	                    _this2.$emit('userUnpin');
+	                  }
+	                });
+	              }
+	          } // open 1-1 chat and profile
+
+
+	          if (this.isDesktop && !this.user.extranet) {
+	            items.push({
+	              text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_OPEN_CHAT'),
+	              onclick: function onclick() {
+	                _this2.closeMenu();
+
+	                _this2.$emit('userOpenChat', {
+	                  user: _this2.user
+	                });
+	              }
 	            });
-	          }
-	        });
-	      }
+	            items.push({
+	              text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_OPEN_PROFILE'),
+	              onclick: function onclick() {
+	                _this2.closeMenu();
+
+	                _this2.$emit('userOpenProfile', {
+	                  user: _this2.user
+	                });
+	              }
+	            });
+	          } // insert name
+
+
+	          items.push({
+	            text: this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_MENU_INSERT_NAME'),
+	            onclick: function onclick() {
+	              _this2.closeMenu();
+
+	              _this2.$emit('userInsertName', {
+	                user: _this2.user
+	              });
+	            }
+	          });
+	        }
 
 	      return items;
+	    },
+	    avatarWrapClasses: function avatarWrapClasses() {
+	      var classes = ['bx-im-component-call-user-list-item-avatar-wrap'];
+
+	      if (this.userCallStatus.talking) {
+	        classes.push('bx-im-component-call-user-list-item-avatar-wrap-talking');
+	      }
+
+	      return classes;
 	    },
 	    avatarClasses: function avatarClasses() {
 	      var classes = ['bx-im-component-call-user-list-item-avatar'];
@@ -1032,6 +1135,55 @@ this.BX = this.BX || {};
 	      }
 
 	      return style;
+	    },
+	    isCallStatusPanelNeeded: function isCallStatusPanelNeeded() {
+	      if (this.isBroadcast) {
+	        return this.conference.common.state === im_const.ConferenceStateType.call && this.isUserInCall && this.isUserPresenter;
+	      } else {
+	        return this.conference.common.state === im_const.ConferenceStateType.call && this.isUserInCall;
+	      }
+	    },
+	    callLeftIconClasses: function callLeftIconClasses() {
+	      var classes = ['bx-im-component-call-user-list-item-icons-icon bx-im-component-call-user-list-item-icons-left'];
+
+	      if (this.userCallStatus.floorRequestState) {
+	        classes.push('bx-im-component-call-user-list-item-icons-floor-request');
+	      } else if (this.userCallStatus.screenState) {
+	        classes.push('bx-im-component-call-user-list-item-icons-screen');
+	      }
+
+	      return classes;
+	    },
+	    callCenterIconClasses: function callCenterIconClasses() {
+	      var classes = ['bx-im-component-call-user-list-item-icons-icon bx-im-component-call-user-list-item-icons-center'];
+
+	      if (this.userCallStatus.microphoneState) {
+	        classes.push('bx-im-component-call-user-list-item-icons-mic-on');
+	      } else {
+	        classes.push('bx-im-component-call-user-list-item-icons-mic-off');
+	      }
+
+	      return classes;
+	    },
+	    callRightIconClasses: function callRightIconClasses() {
+	      var classes = ['bx-im-component-call-user-list-item-icons-icon bx-im-component-call-user-list-item-icons-right'];
+
+	      if (this.userCallStatus.cameraState) {
+	        classes.push('bx-im-component-call-user-list-item-icons-camera-on');
+	      } else {
+	        classes.push('bx-im-component-call-user-list-item-icons-camera-off');
+	      }
+
+	      return classes;
+	    },
+	    bodyClasses: function bodyClasses() {
+	      var classes = ['bx-im-component-call-user-list-item-body'];
+
+	      if (!this.isUserInCall) {
+	        classes.push('bx-im-component-call-user-list-item-body-offline');
+	      }
+
+	      return classes;
 	    }
 	  }, ui_vue_vuex.Vuex.mapState({
 	    application: function application(state) {
@@ -1040,14 +1192,16 @@ this.BX = this.BX || {};
 	    conference: function conference(state) {
 	      return state.conference;
 	    },
+	    call: function call(state) {
+	      return state.call;
+	    },
 	    dialog: function dialog(state) {
 	      return state.dialogues.collection[state.application.dialog.dialogId];
 	    }
 	  })),
-	  watch: {},
 	  methods: {
 	    openMenu: function openMenu() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      if (this.menuPopup) {
 	        this.closeMenu();
@@ -1067,10 +1221,10 @@ this.BX = this.BX || {};
 	        items: this.menuItems,
 	        events: {
 	          onPopupClose: function onPopupClose() {
-	            return _this2.menuPopup.destroy();
+	            return _this3.menuPopup.destroy();
 	          },
 	          onPopupDestroy: function onPopupDestroy() {
-	            return _this2.menuPopup = null;
+	            return _this3.menuPopup = null;
 	          }
 	        }
 	      });
@@ -1081,14 +1235,14 @@ this.BX = this.BX || {};
 	      this.menuPopup = null;
 	    },
 	    onRenameStart: function onRenameStart() {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      this.newName = this.user.name;
 	      this.renameMode = true;
 	      this.$nextTick(function () {
-	        _this3.$refs['rename-input'].focus();
+	        _this4.$refs['rename-input'].focus();
 
-	        _this3.$refs['rename-input'].select();
+	        _this4.$refs['rename-input'].select();
 	      });
 	    },
 	    onRenameKeyDown: function onRenameKeyDown(event) {
@@ -1101,7 +1255,7 @@ this.BX = this.BX || {};
 	        }
 	    },
 	    changeName: function changeName() {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      if (this.user.name === this.newName.trim() || this.newName === '') {
 	        this.renameMode = false;
@@ -1113,11 +1267,18 @@ this.BX = this.BX || {};
 	        newName: this.newName
 	      });
 	      this.$nextTick(function () {
-	        _this4.renameMode = false;
+	        _this5.renameMode = false;
 	      });
+	    },
+	    onFocus: function onFocus(event) {
+	      main_core_events.EventEmitter.emit(im_const.EventType.conference.userRenameFocus, event);
+	    },
+	    onBlur: function onBlur(event) {
+	      main_core_events.EventEmitter.emit(im_const.EventType.conference.userRenameBlur, event);
 	    }
 	  },
-	  template: "\n\t\t<div class=\"bx-im-component-call-user-list-item\">\n\t\t\t<!-- Avatar -->\n\t\t\t<div :class=\"avatarClasses\" :style=\"avatarStyle\"></div>\n\t\t\t<!-- Introduce yourself blinking mode -->\n\t\t\t<template v-if=\"!renameMode && isGuestWithDefaultName\">\n\t\t\t\t<div @click=\"onRenameStart\" class=\"bx-im-component-call-user-list-introduce-yourself\">\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-introduce-yourself-text\">{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_INTRODUCE_YOURSELF') }}</div>\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t\t<!-- Rename mode -->\n\t\t\t<template v-else-if=\"renameMode\">\n\t\t\t\t<div class=\"bx-im-component-call-user-list-change-name-container\">\n\t\t\t\t\t<div @click=\"renameMode = false\" class=\"bx-im-component-call-user-list-change-name-cancel\"></div>\n\t\t\t\t\t<input @keydown=\"onRenameKeyDown\" v-model=\"newName\" :ref=\"'rename-input'\" type=\"text\" class=\"bx-im-component-call-user-list-change-name-input\">\n\t\t\t\t\t<div v-if=\"!renameRequested\" @click=\"changeName\" class=\"bx-im-component-call-user-list-change-name-confirm\"></div>\n\t\t\t\t\t<div v-else class=\"bx-im-component-call-user-list-change-name-loader\">\n\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-change-name-loader-icon\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t\t<!-- Body -->\n\t\t\t<template v-else>\n\t\t\t\t<div class=\"bx-im-component-call-user-list-item-body\">\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-item-name-wrap\">\n\t\t\t\t\t\t<!-- Name -->\n\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-item-name\">{{ user.name }}</div>\n\t\t\t\t\t\t<!-- Status subtitle -->\n\t\t\t\t\t\t<div v-if=\"formattedSubtitle !== ''\" class=\"bx-im-component-call-user-list-item-name-subtitle\">{{ formattedSubtitle }}</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<!-- Context menu icon -->\n\t\t\t\t\t<div v-if=\"menuItems.length > 0 && !isMobile\" @click=\"openMenu\" ref=\"user-menu\" class=\"bx-im-component-call-user-list-item-menu\"></div>\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-item-icons\"></div>\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t</div>\n\t"
+	  //language=Vue
+	  template: "\n\t\t<div class=\"bx-im-component-call-user-list-item\">\n\t\t\t<!-- Avatar -->\n\t\t\t<div :class=\"avatarWrapClasses\">\n\t\t\t\t<div :class=\"avatarClasses\" :style=\"avatarStyle\"></div>\n\t\t\t</div>\n\t\t\t<!-- Body -->\n\t\t\t<div :class=\"bodyClasses\">\n\t\t\t\t<!-- Introduce yourself blinking mode -->\n\t\t\t\t<template v-if=\"!renameMode && isGuestWithDefaultName\">\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-item-body-left\">\n\t\t\t\t\t\t<div @click=\"onRenameStart\" class=\"bx-im-component-call-user-list-introduce-yourself\">\n\t\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-introduce-yourself-text\">{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_INTRODUCE_YOURSELF') }}</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Rename mode -->\n\t\t\t\t<template v-else-if=\"renameMode\">\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-item-body-left\">\n\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-change-name-container\">\n\t\t\t\t\t\t\t<div @click=\"renameMode = false\" class=\"bx-im-component-call-user-list-change-name-cancel\"></div>\n\t\t\t\t\t\t\t<input @keydown=\"onRenameKeyDown\" @focus=\"onFocus\" @blur=\"onBlur\" v-model=\"newName\" :ref=\"'rename-input'\" type=\"text\" class=\"bx-im-component-call-user-list-change-name-input\">\n\t\t\t\t\t\t\t<div v-if=\"!renameRequested\" @click=\"changeName\" class=\"bx-im-component-call-user-list-change-name-confirm\"></div>\n\t\t\t\t\t\t\t<div v-else class=\"bx-im-component-call-user-list-change-name-loader\">\n\t\t\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-change-name-loader-icon\"></div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<template v-if=\"!renameMode && !isGuestWithDefaultName\">\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-item-body-left\">\n\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-item-name-wrap\">\n\t\t\t\t\t\t\t<!-- Name -->\n\t\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-item-name\">{{ user.name }}</div>\n\t\t\t\t\t\t\t<!-- Status subtitle -->\n\t\t\t\t\t\t\t<div v-if=\"formattedSubtitle !== ''\" class=\"bx-im-component-call-user-list-item-name-subtitle\">{{ formattedSubtitle }}</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<!-- Context menu icon -->\n\t\t\t\t\t\t<div v-if=\"menuItems.length > 0 && !isMobile\" @click=\"openMenu\" ref=\"user-menu\" class=\"bx-im-component-call-user-list-item-menu\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<template v-if=\"isCallStatusPanelNeeded\">\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-item-icons\">\n\t\t\t\t\t\t<div :class=\"callLeftIconClasses\"></div>\n\t\t\t\t\t\t<div :class=\"callCenterIconClasses\"></div>\n\t\t\t\t\t\t<div :class=\"callRightIconClasses\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t</div>\n\t\t</div>\n\t"
 	};
 
 	var UserList = {
@@ -1177,6 +1338,9 @@ this.BX = this.BX || {};
 	    conference: function conference(state) {
 	      return state.conference;
 	    },
+	    call: function call(state) {
+	      return state.call;
+	    },
 	    dialog: function dialog(state) {
 	      return state.dialogues.collection[state.application.dialog.dialogId];
 	    }
@@ -1219,9 +1383,40 @@ this.BX = this.BX || {};
 	      });
 	    },
 	    onUserMenuKick: function onUserMenuKick(_ref2) {
+	      var user = _ref2.user;
+	      this.showUserKickConfirm(user);
+	    },
+	    showUserKickConfirm: function showUserKickConfirm(user) {
 	      var _this3 = this;
 
-	      var user = _ref2.user;
+	      if (this.userKickConfirm) {
+	        this.userKickConfirm.close();
+	      }
+
+	      var confirmMessage = this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_KICK_INTRANET_USER_CONFIRM_TEXT');
+
+	      if (user.extranet) {
+	        confirmMessage = this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_KICK_GUEST_USER_CONFIRM_TEXT');
+	      }
+
+	      this.userKickConfirm = ui_dialogs_messagebox.MessageBox.create({
+	        message: confirmMessage,
+	        modal: true,
+	        buttons: ui_dialogs_messagebox.MessageBoxButtons.OK_CANCEL,
+	        onOk: function onOk() {
+	          _this3.kickUser(user);
+
+	          _this3.userKickConfirm.close();
+	        },
+	        onCancel: function onCancel() {
+	          _this3.userKickConfirm.close();
+	        }
+	      });
+	      this.userKickConfirm.show();
+	    },
+	    kickUser: function kickUser(user) {
+	      var _this4 = this;
+
 	      this.$store.dispatch('conference/removeUsers', {
 	        users: [user.id]
 	      });
@@ -1231,7 +1426,7 @@ this.BX = this.BX || {};
 	      }).catch(function (error) {
 	        im_lib_logger.Logger.error('Conference: removing user from chat error', error);
 
-	        _this3.$store.dispatch('conference/setUsers', {
+	        _this4.$store.dispatch('conference/setUsers', {
 	          users: [user.id]
 	        });
 	      });
@@ -1251,7 +1446,7 @@ this.BX = this.BX || {};
 	      });
 	    },
 	    onUserChangeName: function onUserChangeName(_ref4) {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      var user = _ref4.user,
 	          newName = _ref4.newName;
@@ -1271,13 +1466,13 @@ this.BX = this.BX || {};
 	      }).then(function () {
 	        im_lib_logger.Logger.warn('Conference: rename completed', user.id, newName);
 
-	        if (oldName === _this4.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_DEFAULT_USER_NAME')) {
-	          _this4.getApplication().setUserWasRenamed();
+	        if (oldName === _this5.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_DEFAULT_USER_NAME')) {
+	          _this5.getApplication().setUserWasRenamed();
 	        }
 	      }).catch(function (error) {
 	        im_lib_logger.Logger.error('Conference: renaming error', error);
 
-	        _this4.$store.dispatch('users/update', {
+	        _this5.$store.dispatch('users/update', {
 	          id: user.id,
 	          fields: {
 	            name: oldName,
@@ -1286,9 +1481,27 @@ this.BX = this.BX || {};
 	        });
 	      });
 	    },
+	    onUserMenuPin: function onUserMenuPin(_ref5) {
+	      var user = _ref5.user;
+	      this.getApplication().pinUser(user);
+	    },
+	    onUserMenuUnpin: function onUserMenuUnpin() {
+	      this.getApplication().unpinUser();
+	    },
+	    onUserMenuChangeBackground: function onUserMenuChangeBackground() {
+	      this.getApplication().changeBackground();
+	    },
+	    onUserMenuOpenChat: function onUserMenuOpenChat(_ref6) {
+	      var user = _ref6.user;
+	      this.getApplication().openChat(user);
+	    },
+	    onUserMenuOpenProfile: function onUserMenuOpenProfile(_ref7) {
+	      var user = _ref7.user;
+	      this.getApplication().openProfile(user);
+	    },
 	    // Helpers
 	    getLoaderObserver: function getLoaderObserver() {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      var options = {
 	        root: document.querySelector('.bx-im-component-call-right-users'),
@@ -1300,19 +1513,39 @@ this.BX = this.BX || {};
 	          if (entry.isIntersecting && entry.intersectionRatio > 0.01) {
 	            im_lib_logger.Logger.warn('Conference: UserList: I see loader! Load next page!');
 
-	            _this5.requestUsers();
+	            _this6.requestUsers();
 	          }
 	        });
 	      };
 
 	      return new IntersectionObserver(callback, options);
 	    },
-	    userSortFunction: function userSortFunction(user) {
-	      if (user === this.userId) {
+	    userSortFunction: function userSortFunction(userA, userB) {
+	      if (userA === this.userId) {
 	        return -1;
-	      } else {
-	        return 0;
 	      }
+
+	      if (userB === this.userId) {
+	        return 1;
+	      }
+
+	      if (this.call.users[userA] && (this.call.users[userA].floorRequestState || this.call.users[userA].screenState)) {
+	        return -1;
+	      }
+
+	      if (this.call.users[userB] && (this.call.users[userB].floorRequestState || this.call.users[userB].screenState)) {
+	        return 1;
+	      }
+
+	      if (this.call.users[userA] && [im_const.ConferenceUserState.Ready, im_const.ConferenceUserState.Connected].includes(this.call.users[userA].state)) {
+	        return -1;
+	      }
+
+	      if (this.call.users[userB] && [im_const.ConferenceUserState.Ready, im_const.ConferenceUserState.Connected].includes(this.call.users[userB].state)) {
+	        return 1;
+	      }
+
+	      return 0;
 	    },
 	    getApplication: function getApplication() {
 	      return this.$Bitrix.Application.get();
@@ -1326,12 +1559,15 @@ this.BX = this.BX || {};
 	        return true;
 	      },
 	      unbind: function unbind(element, bindings, vnode) {
-	        vnode.context.loaderObserver.unobserve(element);
+	        if (vnode.context.loaderObserver) {
+	          vnode.context.loaderObserver.unobserve(element);
+	        }
+
 	        return true;
 	      }
 	    }
 	  },
-	  template: "\n\t\t<div class=\"bx-im-component-call-user-list\">\n\t\t\t<!-- Loading first page -->\n\t\t\t<div v-if=\"!firstPageLoaded\">{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_LOADING') }}</div>\n\t\t\t<!-- Loading completed -->\n\t\t\t<template v-else>\n\t\t\t\t<!-- Speakers list section (if broadcast) -->\n\t\t\t\t<template v-if=\"isBroadcast\">\n\t\t\t\t\t<!-- Speakers category title -->\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-category\">\n\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-category-text\">\n\t\t\t\t\t\t\t{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_CATEGORY_PRESENTERS') }}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-category-counter\">\n\t\t\t\t\t\t\t{{ presentersList.length }}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<!-- Speakers list -->\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-items\">\n\t\t\t\t\t\t<template v-for=\"presenter in presentersList\">\n\t\t\t\t\t\t\t<UserListItem @userChangeName=\"onUserChangeName\" @userKick=\"onUserMenuKick\" @userInsertName=\"onUserMenuInsertName\" :userId=\"presenter\" :key=\"presenter\" />\n\t\t\t\t\t\t</template>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Participants list section (if there are any users) -->\n\t\t\t\t<template v-if=\"usersList.length > 0\">\n\t\t\t\t\t<!-- Show participants category title if broadcast -->\n\t\t\t\t\t<div v-if=\"isBroadcast\" class=\"bx-im-component-call-user-list-category bx-im-component-call-user-list-category-participants\">\n\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-category-text\">\n\t\t\t\t\t\t\t{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_CATEGORY_PARTICIPANTS') }}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-category-counter\">\n\t\t\t\t\t\t\t{{ usersList.length }}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<!-- Participants list -->\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-items\">\n\t\t\t\t\t\t<template v-for=\"user in usersList\">\n\t\t\t\t\t\t\t<UserListItem @userChangeName=\"onUserChangeName\" @userKick=\"onUserMenuKick\" @userInsertName=\"onUserMenuInsertName\" :userId=\"user\" :key=\"user\" />\n\t\t\t\t\t\t</template>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Next page loader -->\n\t\t\t\t<div v-if=\"hasMoreToLoad\" v-bx-im-directive-user-list-observer class=\"bx-im-component-call-user-list-next-page-loader\">\n\t\t\t\t\t{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_LOADING') }}\n\t\t\t\t</div>\n\t\t\t</template>\t\n\t\t</div>\n\t"
+	  template: "\n\t\t<div class=\"bx-im-component-call-user-list\">\n\t\t\t<!-- Loading first page -->\n\t\t\t<div v-if=\"!firstPageLoaded\" class=\"bx-im-component-call-user-list-loader\">\n\t\t\t\t<div class=\"bx-im-component-call-user-list-loader-icon\"></div>\n\t\t\t\t<div class=\"bx-im-component-call-user-list-loader-text\">\n\t\t\t\t\t{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_LOADING_USERS') }}\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<!-- Loading completed -->\n\t\t\t<template v-else>\n\t\t\t\t<!-- Speakers list section (if broadcast) -->\n\t\t\t\t<template v-if=\"isBroadcast\">\n\t\t\t\t\t<!-- Speakers category title -->\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-category\">\n\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-category-text\">\n\t\t\t\t\t\t\t{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_CATEGORY_PRESENTERS') }}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-category-counter\">\n\t\t\t\t\t\t\t{{ presentersList.length }}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<!-- Speakers list -->\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-items\">\n\t\t\t\t\t\t<template v-for=\"presenter in presentersList\">\n\t\t\t\t\t\t\t<UserListItem\n\t\t\t\t\t\t\t\t@userChangeName=\"onUserChangeName\"\n\t\t\t\t\t\t\t\t@userKick=\"onUserMenuKick\"\n\t\t\t\t\t\t\t\t@userInsertName=\"onUserMenuInsertName\"\n\t\t\t\t\t\t\t\t@userPin=\"onUserMenuPin\"\n\t\t\t\t\t\t\t\t@userUnpin=\"onUserMenuUnpin\"\n\t\t\t\t\t\t\t\t@userChangeBackground=\"onUserMenuChangeBackground\"\n\t\t\t\t\t\t\t\t@userOpenChat=\"onUserMenuOpenChat\"\n\t\t\t\t\t\t\t\t@userOpenProfile=\"onUserMenuOpenProfile\"\n\t\t\t\t\t\t\t\t:userId=\"presenter\"\n\t\t\t\t\t\t\t\t:key=\"presenter\"\n\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Participants list section (if there are any users) -->\n\t\t\t\t<template v-if=\"usersList.length > 0\">\n\t\t\t\t\t<!-- Show participants category title if broadcast -->\n\t\t\t\t\t<div v-if=\"isBroadcast\" class=\"bx-im-component-call-user-list-category bx-im-component-call-user-list-category-participants\">\n\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-category-text\">\n\t\t\t\t\t\t\t{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_CATEGORY_PARTICIPANTS') }}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"bx-im-component-call-user-list-category-counter\">\n\t\t\t\t\t\t\t{{ usersList.length }}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<!-- Participants list -->\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-items\">\n\t\t\t\t\t\t<template v-for=\"user in usersList\">\n\t\t\t\t\t\t\t<UserListItem\n\t\t\t\t\t\t\t\t@userChangeName=\"onUserChangeName\"\n\t\t\t\t\t\t\t\t@userKick=\"onUserMenuKick\"\n\t\t\t\t\t\t\t\t@userInsertName=\"onUserMenuInsertName\" \n\t\t\t\t\t\t\t\t@userPin=\"onUserMenuPin\"\n\t\t\t\t\t\t\t\t@userUnpin=\"onUserMenuUnpin\"\n\t\t\t\t\t\t\t\t@userChangeBackground=\"onUserMenuChangeBackground\"\n\t\t\t\t\t\t\t\t@userOpenChat=\"onUserMenuOpenChat\"\n\t\t\t\t\t\t\t\t@userOpenProfile=\"onUserMenuOpenProfile\"\n\t\t\t\t\t\t\t\t:userId=\"user\"\n\t\t\t\t\t\t\t\t:key=\"user\" />\n\t\t\t\t\t\t</template>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Next page loader -->\n\t\t\t\t<div v-if=\"hasMoreToLoad\" v-bx-im-directive-user-list-observer class=\"bx-im-component-call-user-list-loader\">\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-loader-icon\"></div>\n\t\t\t\t\t<div class=\"bx-im-component-call-user-list-loader-text\">\n\t\t\t\t\t\t{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_USER_LIST_LOADING_USERS') }}\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</template>\t\n\t\t</div>\n\t"
 	};
 
 	var UserListHeader = {
@@ -1417,7 +1653,7 @@ this.BX = this.BX || {};
 	      return items;
 	    },
 	    onMenuCopyLink: function onMenuCopyLink() {
-	      var publicLink = "".concat(this.application.common.host, "/video/").concat(this.conference.common.alias);
+	      var publicLink = this.dialog.public.link;
 	      im_lib_clipboard.Clipboard.copy(publicLink);
 	      var notificationText = this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_LINK_COPIED');
 	      BX.UI.Notification.Center.notify({
@@ -1428,11 +1664,6 @@ this.BX = this.BX || {};
 	    onMenuChangeLink: function onMenuChangeLink() {
 	      var _this3 = this;
 
-	      if (this.changeLinkConfirm) {
-	        this.changeLinkConfirm.show();
-	        return true;
-	      }
-
 	      var confirmMessage = this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_CHANGE_LINK_CONFIRM_TEXT');
 	      this.changeLinkConfirm = ui_dialogs_messagebox.MessageBox.create({
 	        message: confirmMessage,
@@ -1441,10 +1672,10 @@ this.BX = this.BX || {};
 	        onOk: function onOk() {
 	          _this3.changeLink();
 
-	          _this3.changeLinkConfirm.close();
+	          _this3.changeLinkConfirm.getPopupWindow().destroy();
 	        },
 	        onCancel: function onCancel() {
-	          _this3.changeLinkConfirm.close();
+	          _this3.changeLinkConfirm.getPopupWindow().destroy();
 	        }
 	      });
 	      this.changeLinkConfirm.show();
@@ -1644,6 +1875,15 @@ this.BX = this.BX || {};
 	    },
 	    callContainerClasses: function callContainerClasses() {
 	      return [this.conference.common.callEnded ? 'with-clouds' : ''];
+	    },
+	    wrapClasses: function wrapClasses() {
+	      var classes = ['bx-im-component-call-wrap'];
+
+	      if (this.isMobile() && this.isBroadcast && !this.isCurrentUserPresenter && this.isPreparationStep) {
+	        classes.push('bx-im-component-call-mobile-viewer-mode');
+	      }
+
+	      return classes;
 	    },
 	    localize: function localize() {
 	      return ui_vue.BitrixVue.getFilteredPhrases(['BX_IM_COMPONENT_CALL_', 'IM_DIALOG_CLIPBOARD_']);
@@ -1847,8 +2087,8 @@ this.BX = this.BX || {};
 	    /* endregion 03. Helpers */
 
 	  },
-	  template: "\n\t<div class=\"bx-im-component-call-wrap\">\n\t\t<div class=\"bx-im-component-call\">\n\t\t\t<div class=\"bx-im-component-call-left\">\n\t\t\t\t<div id=\"bx-im-component-call-container\" :class=\"callContainerClasses\"></div>\n\t\t\t\t<div v-if=\"isPreparationStep\" class=\"bx-im-component-call-left-preparation\">\n\t\t\t\t\t<!-- Step 1: Errors page -->\n\t\t\t\t\t<Error v-if=\"errorCode\"/>\n\t\t\t\t\t<!-- Step 2: Password page -->\n\t\t\t\t\t<PasswordCheck v-else-if=\"!passwordChecked\"/>\n\t\t\t\t\t<template v-else-if=\"!errorCode && passwordChecked\">\n\t\t\t\t\t\t<!-- Step 3: Loading page -->\n\t\t\t\t\t\t<LoadingStatus v-if=\"!userInited\"/>\n\t\t\t\t\t\t<template v-else-if=\"userInited\">\n\t\t\t\t\t\t\t<!-- BROADCAST MODE -->\n\t\t\t\t\t\t  \t<template v-if=\"isBroadcast\">\n\t\t\t\t\t\t  \t\t<template v-if=\"!isDesktop() && !permissionsRequested && isCurrentUserPresenter\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions>\n\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t</RequestPermissions>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Skip permissions request for desktop and show button with loader  -->\n\t\t\t\t\t\t\t\t<template v-if=\"isDesktop() && (!permissionsRequested || !user) && isCurrentUserPresenter\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions :skipRequest=\"true\"/>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Step 5: Page with video and mic check -->\n\t\t\t\t\t\t\t\t<div v-if=\"permissionsRequested || !isCurrentUserPresenter\" class=\"bx-im-component-call-video-step-container\">\n\t\t\t\t\t\t\t\t\t<!-- Compact conference info -->\n\t\t\t\t\t\t\t\t\t<ConferenceInfo :compactMode=\"true\"/>\n\t\t\t\t\t\t\t\t\t<CheckDevices v-if=\"isCurrentUserPresenter\" />\n\t\t\t\t\t\t\t\t\t<!-- Bottom part of interface -->\n\t\t\t\t\t\t\t\t\t<div class=\"bx-im-component-call-bottom-container\">\n\t\t\t\t\t\t\t\t\t\t<UserForm v-if=\"!waitingForStart\"/>\n\t\t\t\t\t\t\t\t\t\t<WaitingForStart v-else>\n\t\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t\t</WaitingForStart>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t<!-- END BROADCAST MODE -->\n\t\t\t\t\t\t\t<!-- NORMAL MODE (NOT BROADCAST) -->\n\t\t\t\t\t\t  \t<template v-else-if=\"!isBroadcast\">\n\t\t\t\t\t\t\t\t<!-- Step 4: Permissions page -->\n\t\t\t\t\t\t\t\t<template v-if=\"!isDesktop() && !permissionsRequested\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions>\n\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t</RequestPermissions>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Skip permissions request for desktop and show button with loader  -->\n\t\t\t\t\t\t\t\t<template v-if=\"isDesktop() && (!permissionsRequested || !user)\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions :skipRequest=\"true\"/>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Step 5: Page with video and mic check -->\n\t\t\t\t\t\t\t\t<div v-else-if=\"permissionsRequested\" class=\"bx-im-component-call-video-step-container\">\n\t\t\t\t\t\t\t\t\t<!-- Compact conference info -->\n\t\t\t\t\t\t\t\t\t<ConferenceInfo :compactMode=\"true\"/>\n\t\t\t\t\t\t\t\t\t<CheckDevices/>\n\t\t\t\t\t\t\t\t\t<!-- Bottom part of interface -->\n\t\t\t\t\t\t\t\t\t<div class=\"bx-im-component-call-bottom-container\">\n\t\t\t\t\t\t\t\t\t\t<UserForm v-if=\"!waitingForStart\"/>\n\t\t\t\t\t\t\t\t\t\t<WaitingForStart v-else>\n\t\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t\t</WaitingForStart>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t<!-- END NORMAL MODE (NOT BROADCAST) -->\n\t\t\t\t\t\t</template>\n\t\t\t\t\t</template>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<template v-if=\"userInited && !errorCode\">\n\t\t\t\t<transition :name=\"!isMobile()? 'videoconf-chat-slide': ''\">\n\t\t\t\t\t<div v-show=\"rightPanelMode !== RightPanelMode.hidden\" class=\"bx-im-component-call-right\">\n\t\t\t\t\t\t<!-- Start users list -->\n\t\t\t\t\t\t<div v-show=\"rightPanelMode === RightPanelMode.split || rightPanelMode === RightPanelMode.users\" :class=\"userListClasses\" :style=\"userListStyles\">\n\t\t\t\t\t\t\t<UserListHeader />\n\t\t\t\t\t\t\t<div class=\"bx-im-component-call-right-users\">\n\t\t\t\t\t\t\t\t<UserList />\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<!-- End users list -->\n\t\t\t\t\t\t<!-- Start chat -->\n\t\t\t\t\t\t<div v-show=\"rightPanelMode === RightPanelMode.split || rightPanelMode === RightPanelMode.chat\" :class=\"chatClasses\" :style=\"chatStyles\">\n\t\t\t\t\t\t\t<!-- Resize handler -->\n\t\t\t\t\t\t\t<div\n\t\t\t\t\t\t\t\tv-if=\"rightPanelMode === RightPanelMode.split\"\n\t\t\t\t\t\t\t\t@mousedown=\"onChatStartDrag\"\n\t\t\t\t\t\t\t\tclass=\"bx-im-component-call-right-bottom-resize-handle\"\n\t\t\t\t\t\t\t></div>\n\t\t\t\t\t\t\t<ChatHeader />\n\t\t\t\t\t\t\t<div class=\"bx-im-component-call-right-chat\">\n\t\t\t\t\t\t\t\t<bx-im-component-dialog\n\t\t\t\t\t\t\t\t\t:userId=\"userId\"\n\t\t\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t\t<keep-alive include=\"bx-im-component-call-smiles\">\n\t\t\t\t\t\t\t\t\t<ConferenceSmiles\n\t\t\t\t\t\t\t\t\t\tv-if=\"conference.common.showSmiles\"\n\t\t\t\t\t\t\t\t\t\t@selectSmile=\"onSmilesSelectSmile\"\n\t\t\t\t\t\t\t\t\t\t@selectSet=\"onSmilesSelectSet\"\n\t\t\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t\t</keep-alive>\n\t\t\t\t\t\t\t\t<div v-if=\"user\" class=\"bx-im-component-call-textarea\">\n\t\t\t\t\t\t\t\t\t<bx-im-component-textarea\n\t\t\t\t\t\t\t\t\t\t:userId=\"userId\"\n\t\t\t\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t\t\t\t:writesEventLetter=\"3\"\n\t\t\t\t\t\t\t\t\t\t:enableFile=\"true\"\n\t\t\t\t\t\t\t\t\t\t:enableEdit=\"true\"\n\t\t\t\t\t\t\t\t\t\t:enableCommand=\"false\"\n\t\t\t\t\t\t\t\t\t\t:enableMention=\"false\"\n\t\t\t\t\t\t\t\t\t\t:autoFocus=\"true\"\n\t\t\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<!-- End chat -->\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</transition>\n\t\t\t</template>\n\t\t</div>\n\t</div>\n\t"
+	  template: "\n\t<div :class=\"wrapClasses\">\n\t\t<div class=\"bx-im-component-call\">\n\t\t\t<div class=\"bx-im-component-call-left\">\n\t\t\t\t<div id=\"bx-im-component-call-container\" :class=\"callContainerClasses\"></div>\n\t\t\t\t<div v-if=\"isPreparationStep\" class=\"bx-im-component-call-left-preparation\">\n\t\t\t\t\t<!-- Step 1: Errors page -->\n\t\t\t\t\t<Error v-if=\"errorCode\"/>\n\t\t\t\t\t<!-- Step 2: Password page -->\n\t\t\t\t\t<PasswordCheck v-else-if=\"!passwordChecked\"/>\n\t\t\t\t\t<template v-else-if=\"!errorCode && passwordChecked\">\n\t\t\t\t\t\t<!-- Step 3: Loading page -->\n\t\t\t\t\t\t<LoadingStatus v-if=\"!userInited\"/>\n\t\t\t\t\t\t<template v-else-if=\"userInited\">\n\t\t\t\t\t\t\t<!-- BROADCAST MODE -->\n\t\t\t\t\t\t  \t<template v-if=\"isBroadcast\">\n\t\t\t\t\t\t  \t\t<template v-if=\"!isDesktop() && !permissionsRequested && isCurrentUserPresenter\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions>\n\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t</RequestPermissions>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Skip permissions request for desktop and show button with loader  -->\n\t\t\t\t\t\t\t\t<template v-if=\"isDesktop() && (!permissionsRequested || !user) && isCurrentUserPresenter\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions :skipRequest=\"true\"/>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Step 5: Page with video and mic check -->\n\t\t\t\t\t\t\t\t<div v-if=\"permissionsRequested || !isCurrentUserPresenter\" class=\"bx-im-component-call-video-step-container\">\n\t\t\t\t\t\t\t\t\t<!-- Compact conference info -->\n\t\t\t\t\t\t\t\t\t<ConferenceInfo :compactMode=\"true\"/>\n\t\t\t\t\t\t\t\t\t<CheckDevices v-if=\"isCurrentUserPresenter\" />\n\t\t\t\t\t\t\t\t\t<!-- Bottom part of interface -->\n\t\t\t\t\t\t\t\t\t<div class=\"bx-im-component-call-bottom-container\">\n\t\t\t\t\t\t\t\t\t\t<UserForm v-if=\"!waitingForStart\"/>\n\t\t\t\t\t\t\t\t\t\t<WaitingForStart v-else>\n\t\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t\t</WaitingForStart>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t<!-- END BROADCAST MODE -->\n\t\t\t\t\t\t\t<!-- NORMAL MODE (NOT BROADCAST) -->\n\t\t\t\t\t\t  \t<template v-else-if=\"!isBroadcast\">\n\t\t\t\t\t\t\t\t<!-- Step 4: Permissions page -->\n\t\t\t\t\t\t\t\t<template v-if=\"!isDesktop() && !permissionsRequested\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions>\n\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t</RequestPermissions>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Skip permissions request for desktop and show button with loader  -->\n\t\t\t\t\t\t\t\t<template v-if=\"isDesktop() && (!permissionsRequested || !user)\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions :skipRequest=\"true\"/>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Step 5: Page with video and mic check -->\n\t\t\t\t\t\t\t\t<div v-else-if=\"permissionsRequested\" class=\"bx-im-component-call-video-step-container\">\n\t\t\t\t\t\t\t\t\t<!-- Compact conference info -->\n\t\t\t\t\t\t\t\t\t<ConferenceInfo :compactMode=\"true\"/>\n\t\t\t\t\t\t\t\t\t<CheckDevices/>\n\t\t\t\t\t\t\t\t\t<!-- Bottom part of interface -->\n\t\t\t\t\t\t\t\t\t<div class=\"bx-im-component-call-bottom-container\">\n\t\t\t\t\t\t\t\t\t\t<UserForm v-if=\"!waitingForStart\"/>\n\t\t\t\t\t\t\t\t\t\t<WaitingForStart v-else>\n\t\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t\t</WaitingForStart>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t<!-- END NORMAL MODE (NOT BROADCAST) -->\n\t\t\t\t\t\t</template>\n\t\t\t\t\t</template>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<template v-if=\"userInited && !errorCode\">\n\t\t\t\t<transition :name=\"!isMobile()? 'videoconf-chat-slide': ''\">\n\t\t\t\t\t<div v-show=\"rightPanelMode !== RightPanelMode.hidden\" class=\"bx-im-component-call-right\">\n\t\t\t\t\t\t<!-- Start users list -->\n\t\t\t\t\t\t<div v-show=\"rightPanelMode === RightPanelMode.split || rightPanelMode === RightPanelMode.users\" :class=\"userListClasses\" :style=\"userListStyles\">\n\t\t\t\t\t\t\t<UserListHeader />\n\t\t\t\t\t\t\t<div class=\"bx-im-component-call-right-users\">\n\t\t\t\t\t\t\t\t<UserList />\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<!-- End users list -->\n\t\t\t\t\t\t<!-- Start chat -->\n\t\t\t\t\t\t<div v-show=\"rightPanelMode === RightPanelMode.split || rightPanelMode === RightPanelMode.chat\" :class=\"chatClasses\" :style=\"chatStyles\">\n\t\t\t\t\t\t\t<!-- Resize handler -->\n\t\t\t\t\t\t\t<div\n\t\t\t\t\t\t\t\tv-if=\"rightPanelMode === RightPanelMode.split\"\n\t\t\t\t\t\t\t\t@mousedown=\"onChatStartDrag\"\n\t\t\t\t\t\t\t\tclass=\"bx-im-component-call-right-bottom-resize-handle\"\n\t\t\t\t\t\t\t></div>\n\t\t\t\t\t\t\t<ChatHeader />\n\t\t\t\t\t\t\t<div class=\"bx-im-component-call-right-chat\">\n\t\t\t\t\t\t\t\t<bx-im-component-dialog\n\t\t\t\t\t\t\t\t\t:userId=\"userId\"\n\t\t\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t\t<keep-alive include=\"bx-im-component-call-smiles\">\n\t\t\t\t\t\t\t\t\t<ConferenceSmiles\n\t\t\t\t\t\t\t\t\t\tv-if=\"conference.common.showSmiles\"\n\t\t\t\t\t\t\t\t\t\t@selectSmile=\"onSmilesSelectSmile\"\n\t\t\t\t\t\t\t\t\t\t@selectSet=\"onSmilesSelectSet\"\n\t\t\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t\t</keep-alive>\n\t\t\t\t\t\t\t\t<div v-if=\"user\" class=\"bx-im-component-call-textarea\">\n\t\t\t\t\t\t\t\t\t<bx-im-component-textarea\n\t\t\t\t\t\t\t\t\t\t:userId=\"userId\"\n\t\t\t\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t\t\t\t:writesEventLetter=\"3\"\n\t\t\t\t\t\t\t\t\t\t:enableFile=\"true\"\n\t\t\t\t\t\t\t\t\t\t:enableEdit=\"true\"\n\t\t\t\t\t\t\t\t\t\t:enableCommand=\"false\"\n\t\t\t\t\t\t\t\t\t\t:enableMention=\"false\"\n\t\t\t\t\t\t\t\t\t\t:autoFocus=\"true\"\n\t\t\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<!-- End chat -->\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</transition>\n\t\t\t</template>\n\t\t</div>\n\t</div>\n\t"
 	});
 
-}((this.BX.Messenger = this.BX.Messenger || {}),BX.Messenger.Mixin,BX.Messenger,window,BX,window,BX,BX,BX.Messenger.Lib,BX.Messenger,BX.Messenger.Lib,BX,BX.Messenger.Lib,BX.Event,BX.Messenger.Const,BX.Messenger.Lib,BX,BX.Main,BX.Messenger.Lib,BX.UI.Dialogs));
+}((this.BX.Messenger = this.BX.Messenger || {}),BX.Messenger.Mixin,BX.Messenger,window,BX,window,BX,BX,BX.Messenger.Lib,BX.Messenger,BX.Messenger.Lib,BX,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Const,BX.Event,BX,BX.Main,BX.Messenger.Lib,BX.UI.Dialogs));
 //# sourceMappingURL=conference-public.bundle.js.map

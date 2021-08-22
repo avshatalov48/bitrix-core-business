@@ -17,6 +17,16 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 if (isset($item))
 {
+	$name = !empty($item['IPROPERTY_VALUES']['ELEMENT_PAGE_TITLE'])
+		? $item['IPROPERTY_VALUES']['ELEMENT_PAGE_TITLE']
+		: $item['NAME'];
+	$title = !empty($item['IPROPERTY_VALUES']['ELEMENT_DETAIL_PICTURE_FILE_TITLE'])
+		? $item['IPROPERTY_VALUES']['ELEMENT_DETAIL_PICTURE_FILE_TITLE']
+		: $item['NAME'];
+	$alt = !empty($item['IPROPERTY_VALUES']['ELEMENT_DETAIL_PICTURE_FILE_ALT'])
+		? $item['IPROPERTY_VALUES']['ELEMENT_DETAIL_PICTURE_FILE_ALT']
+		: $item['NAME'];
+
 	$actualItem = $item;
 
 	$morePhoto = null;
@@ -40,7 +50,8 @@ if (isset($item))
 	}
 	?>
 	<div class="catalog-section-item" id="<?=$areaId?>" data-entity="item">
-		<?//region COVER
+		<?php
+		//region COVER
 		$percent = '';
 		if ($photosExist)
 		{
@@ -51,7 +62,7 @@ if (isset($item))
 		<div class="catalog-section-item-slider-container">
 			<span class="catalog-section-item-slider-close" data-entity="close-popup"></span>
 			<div class="catalog-section-item-slider-block" data-entity="images-slider-block" style="<?=$percent; ?>">
-				<?
+				<?php
 				//region LABEL
 				if (($item['LABEL']) && (!empty($item['LABEL_ARRAY_VALUE'])))
 				{
@@ -65,7 +76,7 @@ if (isset($item))
 				//endregion
 				?>
 				<div class="catalog-section-item-slider-images-container" data-entity="images-container" id="<?=$itemIds['PICT_SLIDER']?>">
-					<?
+					<?php
 					if ($photosExist)
 					{
 						foreach ($morePhoto as $key => $photo)
@@ -78,28 +89,28 @@ if (isset($item))
 								<img src="<?= $photo['SRC'] ?>" alt="<?= $alt ?>" title="<?= $title ?>">
 							</a>
 							<div class="d-none d-sm-block catalog-section-item-slider-image-overlay" style="background-image: url(<?= $photo['SRC'] ?>);"></div>
-							<?
+							<?php
 						}
 					}
 					?>
 				</div>
-				<? //region SLIDER PAGER ?>
+				<?php //region SLIDER PAGER ?>
 				<a href="<?=$item["DETAIL_PAGE_URL"]; ?>" class="catalog-section-item-slider-images-slider-pager d-none d-sm-flex" id="<?=$itemIds['PICT_SLIDER']?>_pager">
-					<?
+					<?php
 					if ($photosExist)
 					{
 						foreach ($morePhoto as $key => $photo)
 						{
-						?><div class="catalog-section-item-slider-images-slider-pager-item" data-entity="slider-control" data-value="<?=$photo['ID']?>" data-go-to="<?=$key; ?>"></div><?
+						?><div class="catalog-section-item-slider-images-slider-pager-item" data-entity="slider-control" data-value="<?=$photo['ID']?>" data-go-to="<?=$key; ?>"></div><?php
 						}
 					}
 					?>
 				</a>
-				<? //endregion ?>
+				<?php //endregion ?>
 			</div>
-			<? //region SLIDER CONTROLS ?>
+			<?php //region SLIDER CONTROLS ?>
 			<div class="catalog-section-item-slider-controls-block" id="<?=$itemIds['PICT_SLIDER']?>_indicator" <?=($photosExist && count($morePhoto) > 1 ? '' : 'style="display: none;"')?>>
-				<?
+				<?php
 				if ($photosExist)
 				{
 					foreach ($morePhoto as $key => $photo)
@@ -108,14 +119,14 @@ if (isset($item))
 						<div class="catalog-section-item-slider-controls-image<?=($key == $activePhoto ? ' active' : '')?>" data-entity="slider-control" data-value="<?=$photo['ID']?>" data-go-to="<?=$key; ?>">
 							<div class="catalog-section-item-slider-controls-dot" data-entity="slider-control-dot" data-go-to="<?=$key; ?>"></div>
 						</div>
-						<?
+						<?php
 					}
 				}
 				?>
 			</div>
-			<? //endregion ?>
+			<?php //endregion ?>
 		</div>
-		<?
+		<?php
 		//endregion
 		?>
 		<div class="catalog-section-item-description">
@@ -132,14 +143,17 @@ if (isset($item))
 				<div>
 					<?php
 					//region PRICE
-					if ($arParams['SHOW_OLD_PRICE'] === 'Y' && $price['RATIO_PRICE'] < $price['RATIO_BASE_PRICE'])
+					if ($arParams['SHOW_OLD_PRICE'] === 'Y')
 					{
+						$showblock = $price['RATIO_PRICE'] < $price['RATIO_BASE_PRICE'];
 						?>
-						<div class="catalog-section-item-price-discount-container d-flex justify-content-between align-items-center">
-							<span class="catalog-section-item-price-discount"><?=$price['PRINT_RATIO_BASE_PRICE']?></span>
-							<span class="catalog-section-item-price-discount-diff"><?=$price['PRINT_RATIO_DISCOUNT']?></span>
+						<div class="catalog-section-item-price-discount-container d-flex justify-content-between align-items-center"
+							id="<?=$itemIds['BLOCK_PRICE_OLD_TWIN']; ?>" style="display: <?=$showblock ? '' : 'none'; ?>;">
+							<span class="catalog-section-item-price-discount" id="<?=$itemIds['PRICE_OLD_TWIN']; ?>"><?=($showblock ? $price['PRINT_RATIO_BASE_PRICE'] : '');?></span>
+							<span class="catalog-section-item-price-discount-diff" id="<?=$itemIds['PRICE_DISCOUNT_TWIN']; ?>"><?=($showblock ? $price['PRINT_RATIO_DISCOUNT'] : '');?></span>
 						</div>
 						<?php
+						unset($showblock);
 					}
 					?><div class="catalog-section-item-price" id="<?=$itemIds['PRICE_TWIN']; ?>"><?php
 						if (!empty($price))
@@ -176,8 +190,7 @@ if (isset($item))
 					?>
 				</div>
 			</div>
-
-			<?//region DETAIL POPUP?>
+			<?php //region DETAIL POPUP ?>
 				<div class="catalog-section-item-detail-wrapper closed" data-attr-simple id="<?=$itemIds['PREBUY']?>" >
 					<div class="catalog-section-item-detail-cover" id="<?=$itemIds['PREBUY_OVERLAY']?>"></div>
 					<div class="catalog-section-item-detail-container" id="<?=$itemIds['PREBUY_CONTAINER']?>">
@@ -196,33 +209,33 @@ if (isset($item))
 						<div class="catalog-section-item-detail">
 							<section class="catalog-section-item-detail-props-container">
 								<div class="d-flex align-items-center justify-content-start" style="margin-bottom: 19px;">
-									<?
+									<?php
 									if (isset($item['PREVIEW_PICTURE']['SRC']))
 									{
 										?>
 										<div style="padding-right: 15px;">
 											<img src="<?=$item['PREVIEW_PICTURE']['SRC']?>"
 												id="<?=$itemIds['PREBUY_PICT']; ?>"
-												alt="<?=$item["NAME"]?>"
+												alt="<?=$alt?>" title="<?=$title?>"
 												class="catalog-section-item-detail-preview-image"
 											/>
 										</div>
-										<?
+										<?php
 									}
 									?>
 									<div class="catalog-section-item-detail-title" id="<?=$itemIds['PREBUY_NAME']?>"><?=$item["NAME"]?></div>
-								</div><?
+								</div><?php
 								if (!empty($item['DISPLAY_PROPERTIES']) || ($arParams['ADD_PROPERTIES_TO_BASKET'] === 'Y' && !empty($item['PRODUCT_PROPERTIES'])))
 								{
 								?><div class="catalog-section-item-detail-props-container-inner">
-									<?
+									<?php
 									//region PROPS
 									if (!empty($item['DISPLAY_PROPERTIES']))
 									{
 										?>
 										<div class="catalog-section-item-info-container" data-entity="props-block">
 											<div class="catalog-section-item-properties">
-												<?
+												<?php
 												foreach ($item['DISPLAY_PROPERTIES'] as $code => $displayProperty)
 												{
 													?>
@@ -234,19 +247,19 @@ if (isset($item))
 																: $displayProperty['DISPLAY_VALUE'])?>
 														</span>
 													</div>
-													<?
+													<?php
 												}
 												?>
 											</div>
 										</div>
-										<?
+										<?php
 									}
 
 									if ($arParams['ADD_PROPERTIES_TO_BASKET'] === 'Y' && !empty($item['PRODUCT_PROPERTIES']))
 									{
 										?>
 										<div id="<?=$itemIds['BASKET_PROP_DIV']?>" style="display: none;">
-											<?
+											<?php
 											if (!empty($item['PRODUCT_PROPERTIES_FILL']))
 											{
 												foreach ($item['PRODUCT_PROPERTIES_FILL'] as $propID => $propInfo)
@@ -254,7 +267,7 @@ if (isset($item))
 													?>
 													<input type="hidden" name="<?=$arParams['PRODUCT_PROPS_VARIABLE']?>[<?=$propID?>]"
 														value="<?=htmlspecialcharsbx($propInfo['ID'])?>">
-													<?
+													<?php
 													unset($item['PRODUCT_PROPERTIES'][$propID]);
 												}
 											}
@@ -263,14 +276,14 @@ if (isset($item))
 											{
 												?>
 												<table>
-													<?
+													<?php
 													foreach ($item['PRODUCT_PROPERTIES'] as $propID => $propInfo)
 													{
 														?>
 														<tr>
 															<td><?=$item['PROPERTIES'][$propID]['NAME']?></td>
 															<td>
-																<?
+																<?php
 																if (
 																	$item['PROPERTIES'][$propID]['PROPERTY_TYPE'] === 'L'
 																	&& $item['PROPERTIES'][$propID]['LIST_TYPE'] === 'C'
@@ -280,20 +293,20 @@ if (isset($item))
 																	{
 																		?>
 																		<label>
-																			<? $checked = $valueID === $propInfo['SELECTED'] ? 'checked' : ''; ?>
+																			<?php $checked = $valueID === $propInfo['SELECTED'] ? 'checked' : ''; ?>
 																			<input type="radio" name="<?=$arParams['PRODUCT_PROPS_VARIABLE']?>[<?=$propID?>]"
 																				value="<?=$valueID?>" <?=$checked?>>
 																			<?=$value?>
 																		</label>
 																		<br />
-																		<?
+																		<?php
 																	}
 																}
 																else
 																{
 																	?>
 																	<select name="<?=$arParams['PRODUCT_PROPS_VARIABLE']?>[<?=$propID?>]">
-																		<?
+																		<?php
 																		foreach ($propInfo['VALUES'] as $valueID => $value)
 																		{
 																			$selected = $valueID === $propInfo['SELECTED'] ? 'selected' : '';
@@ -301,29 +314,29 @@ if (isset($item))
 																			<option value="<?=$valueID?>" <?=$selected?>>
 																				<?=$value?>
 																			</option>
-																			<?
+																			<?php
 																		}
 																		?>
 																	</select>
-																	<?
+																	<?php
 																}
 																?>
 															</td>
 														</tr>
-														<?
+														<?php
 													}
 													?>
 												</table>
-												<?
+												<?php
 											}
 											?>
 										</div>
-										<?
+										<?php
 									}
 									//endregion
 									?>
 								</div>
-								<?
+									<?php
 								}
 								?>
 							</section>
@@ -358,14 +371,14 @@ if (isset($item))
 									?>
 								</div>
 								<div>
-									<?
+									<?php
 									//region QUANTITY
 									if ($actualItem['CAN_BUY'] && $arParams['USE_PRODUCT_QUANTITY'])
 									{
 										?>
 										<div class="catalog-section-item-quantity-container" data-entity="quantity-block">
 											<div class="catalog-section-item-quantity-field-container">
-												<?//.product-item-detail-quantity-btn-disabled ?>
+												<?php //.product-item-detail-quantity-btn-disabled ?>
 												<div class="catalog-section-item-quantity-btn-minus no-select" id="<?=$itemIds['QUANTITY_DOWN']?>"></div>
 												<div class="catalog-section-item-quantity-field-block">
 													<input class="catalog-section-item-quantity-field" id="<?=$itemIds['QUANTITY']?>" type="number" name="<?=$arParams['PRODUCT_QUANTITY_VARIABLE']?>" value="<?=$measureRatio?>">
@@ -378,14 +391,14 @@ if (isset($item))
 												<span class="catalog-item-quantity-description-price" id="<?=$itemIds['PRICE_TOTAL']?>"></span>
 											</span>
 										</div>
-										<?
+										<?php
 									}
 									//endregion
 									?>
 								</div>
 							</div>
 							<div class="d-flex mt-3 flex-column justify-content-center">
-								<?
+								<?php
 								//region BUTTONS
 								if ($actualItem['CAN_BUY'])
 								{
@@ -417,10 +430,10 @@ if (isset($item))
 
 					</div>
 				</div>
-			<?//endregion?>
+			<?php //endregion?>
 		</div>
 	</div>
-	<?
+	<?php
 	$arrayData = array(
 		"@context" => "https://schema.org/",
 		"@type" => "Product",

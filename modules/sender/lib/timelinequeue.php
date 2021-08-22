@@ -13,6 +13,22 @@ use Bitrix\Main\Type as MainType;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class TimeLineQueueTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_TimeLineQueue_Query query()
+ * @method static EO_TimeLineQueue_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_TimeLineQueue_Result getById($id)
+ * @method static EO_TimeLineQueue_Result getList(array $parameters = array())
+ * @method static EO_TimeLineQueue_Entity getEntity()
+ * @method static \Bitrix\Sender\EO_TimeLineQueue createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\EO_TimeLineQueue_Collection createCollection()
+ * @method static \Bitrix\Sender\EO_TimeLineQueue wakeUpObject($row)
+ * @method static \Bitrix\Sender\EO_TimeLineQueue_Collection wakeUpCollection($rows)
+ */
 class TimeLineQueueTable extends DataManager
 {
 	const STATUS_NEW = 'N';

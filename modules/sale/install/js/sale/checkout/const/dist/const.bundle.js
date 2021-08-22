@@ -17,7 +17,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
         backdropClose: 'EventType.basket.backdropClose',
         backdropOpen: 'EventType.basket.backdropOpen',
         backdropTotalClose: 'EventType.basket.backdropTotalClose',
-        backdropTotalOpen: 'EventType.basket.backdropTotalOpen'
+        backdropTotalOpen: 'EventType.basket.backdropTotalOpen',
+        needRefresh: 'EventType.basket.needRefresh',
+        refreshAfter: 'EventType.basket.refreshAfter'
       },
       consent: {
         refused: 'EventType.consent.refused',

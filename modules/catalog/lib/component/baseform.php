@@ -397,7 +397,12 @@ abstract class BaseForm
 				if ($formatMethod && is_callable($formatMethod))
 				{
 					$formattedValues = $formatMethod($value);
-					$amount = (float)($formattedValues['AMOUNT'] . '.' . $formattedValues['DECIMALS']);
+
+					$amount = $formattedValues['AMOUNT'];
+					if ($formattedValues['AMOUNT'] !== '' && $formattedValues['DECIMALS'] !== '')
+					{
+						$amount .= '.' . $formattedValues['DECIMALS'];
+					}
 					$currency = $formattedValues['CURRENCY'];
 
 					$additionalValues[$descriptionData['currencyCode']] = $currency;

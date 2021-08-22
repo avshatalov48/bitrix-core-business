@@ -422,7 +422,12 @@ class CCloudStorage
 					unlink($cacheImageFileTmp);
 					@rmdir(mb_substr($cacheImageFileTmp, 0, -mb_strlen(bx_basename($cacheImageFileTmp))));
 
-					// $cacheImageFile not clear what to do
+					$obSourceBucket = new CCloudStorageBucket(intval($arFile["HANDLER_ID"]));
+					if ($obSourceBucket->Init())
+					{
+						$cacheImageFile = $obSourceBucket->GetFileSRC($arFile);
+					}
+
 					return false;
 				}
 			}
@@ -835,7 +840,11 @@ class CCloudStorage
 		foreach (CCloudStorageBucket::GetAllBuckets() as $bucket)
 		{
 			$obBucket = new CCloudStorageBucket($bucket["ID"]);
-			if ($obBucket->Init())
+			if (
+				$obBucket->Init()
+				&& ($bucket->READ_ONLY == "N")
+				&& ($bucket->ACTIVE == "Y")
+			)
 			{
 				$arCloudFiles = $obBucket->ListFiles($path, true);
 				if (is_array($arCloudFiles["file"]))
@@ -977,14 +986,14 @@ class CCloudStorage
 			return CCloudStorage::FILE_SKIPPED;
 		}
 
-		if ($bucket->FileExists($bucket->GetFileSRC($arFile)))
+		$filePath = "/".$arFile["SUBDIR"]."/".$arFile["FILE_NAME"];
+		$filePath = preg_replace("#[\\\\\\/]+#", "/", $filePath);
+
+		if ($bucket->FileExists($filePath))
 		{
 			self::$file_skip_reason = 'CLOUD_FILE_EXISTS';
 			return CCloudStorage::FILE_SKIPPED;
 		}
-
-		$filePath = "/".$arFile["SUBDIR"]."/".$arFile["FILE_NAME"];
-		$filePath = preg_replace("#[\\\\\\/]+#", "/", $filePath);
 
 		if ($arFile["FILE_SIZE"] > $bucket->GetService()->GetMinUploadPartSize())
 		{
@@ -1195,7 +1204,7 @@ class CCloudStorage
 		{
 			if (array_key_exists("content", $arFile))
 			{
-				$arFile["tmp_name"] = CTempFile::GetFileName($arFile["name"]);
+				$arFile["tmp_name"] = CTempFile::GetFileName(bx_basename($arFile["name"]));
 				CheckDirPath($arFile["tmp_name"]);
 				$fp = fopen($arFile["tmp_name"], "ab");
 				if ($fp)
@@ -1232,7 +1241,7 @@ class CCloudStorage
 					$dir_add = md5(mt_rand());
 					$dir_add = mb_substr($dir_add, 0, 3)."/".$dir_add;
 
-					$subDir = trim($strSavePath, "/")."/".$dir_add;
+					$subDir = trim(trim($strSavePath, "/")."/".$dir_add, "/");
 					$filePath = "/".$subDir."/".$newName;
 
 					if (!$bucket->FileExists($filePath))
@@ -1241,7 +1250,7 @@ class CCloudStorage
 			}
 			else
 			{
-				$subDir = trim($strSavePath, "/")."/".$dir_add;
+				$subDir = trim(trim($strSavePath, "/")."/".$dir_add, "/");
 				$filePath = "/".$subDir."/".$newName;
 			}
 

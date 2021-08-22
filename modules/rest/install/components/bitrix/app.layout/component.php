@@ -208,12 +208,48 @@ if(
 		$filter['=APP_ID'] = $arApp['ID'];
 		$filter['=PLACEMENT'] = $arParams['PLACEMENT'];
 
-		$dbRes = \Bitrix\Rest\PlacementTable::getList(array(
-			'filter' => $filter,
-			'select' => array('PLACEMENT_HANDLER')
-		));
-		$placementHandlerInfo = $dbRes->fetch();
-		if(!$placementHandlerInfo)
+		$res = \Bitrix\Rest\PlacementTable::getList(
+			[
+				'filter' => $filter,
+				'select' => [
+					'ID',
+					'PLACEMENT_HANDLER',
+					'OPTIONS',
+					'LANG_ALL',
+				],
+			]
+		);
+		if ($res->getSelectedRowsCount() > 0)
+		{
+			foreach ($res->fetchCollection() as $handler)
+			{
+				$placementHandlerInfo = [
+					'ID' => $handler->getId(),
+					'OPTIONS' => $handler->getOptions(),
+					'PLACEMENT_HANDLER' => $handler->getPlacementHandler(),
+					'LANG_ALL' => [],
+				];
+				if (!is_null($handler->getLangAll()))
+				{
+					foreach ($handler->getLangAll() as $lang)
+					{
+						$placementHandlerInfo['LANG_ALL'][$lang->getLanguageId()] = [
+							'TITLE' => $lang->getTitle(),
+							'DESCRIPTION' => $lang->getDescription(),
+							'GROUP_NAME' => $lang->getGroupName(),
+						];
+					}
+				}
+				$placementHandlerInfo = \Bitrix\Rest\Lang::mergeFromLangAll($placementHandlerInfo);
+
+				$arResult['PRESET_OPTIONS'] = $placementHandlerInfo['OPTIONS'];
+				if (trim($placementHandlerInfo['TITLE']) !== '')
+				{
+					$arResult['APP_NAME'] = $placementHandlerInfo['TITLE'];
+				}
+			}
+		}
+		else
 		{
 			$componentPage = 'error';
 			$arResult['ERROR_MESSAGE'] = GetMessage('REST_AL_ERROR_APP_PLACEMENT_NOT_INSTALLED');
@@ -221,13 +257,16 @@ if(
 			return;
 		}
 
-		if($placementHandlerInfo['TITLE'] <> '')
+		if (!trim($arResult['APP_NAME']))
 		{
-			$arResult['APP_NAME'] = $placementHandlerInfo['TITLE'];
-		}
-		elseif($arResult['APP_NAME'] == '')
-		{
-			$arResult['APP_NAME'] = $arApp['APP_NAME'];
+			if (trim($arApp['APP_NAME']) !== '')
+			{
+				$arResult['APP_NAME'] = $arApp['APP_NAME'];
+			}
+			elseif ((int) $placementHandlerInfo['ID'] > 0)
+			{
+				$arResult['APP_NAME'] = \Bitrix\Rest\PlacementTable::getDefaultTitle((int) $placementHandlerInfo['ID']);
+			}
 		}
 	}
 	elseif(isset($arParams['LAZYLOAD']) || $arResult['APP_NAME'] == '')
@@ -240,7 +279,8 @@ if(
 			$bHasAccess
 			|| $arParams['PLACEMENT'] === \Bitrix\Rest\Api\UserFieldType::PLACEMENT_UF_TYPE
 		)
-		&& $arResult['APP_NAME'] <> '')
+		&& $arResult['APP_NAME'] <> ''
+	)
 	{
 		$arResult['ID'] = $arApp['ID'];
 		$arResult['APP_ID'] = $arApp['CLIENT_ID'];

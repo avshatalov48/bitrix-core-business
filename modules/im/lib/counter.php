@@ -6,7 +6,7 @@ use Bitrix\Main\Localization\Loc;
 
 class Counter
 {
-	const CACHE_TTL = 2678400; // 1 month
+	const CACHE_TTL = 86400; // 1 month
 	const CACHE_NAME = 'counter_v3'; // 1 month
 	const CACHE_PATH = '/bx/im/counter/';
 
@@ -38,7 +38,7 @@ class Counter
 		}
 
 		$cache = \Bitrix\Main\Data\Cache::createInstance();
-		if($cache->initCache(self::CACHE_TTL, self::CACHE_NAME.'_'.$userId, self::CACHE_PATH))
+		if ($cache->initCache(self::CACHE_TTL, self::CACHE_NAME.'_'.$userId, self::CACHE_PATH))
 		{
 			$result = $cache->getVars();
 			if (isset($options['JSON']))
@@ -53,12 +53,14 @@ class Counter
 				R1.CHAT_ID,
 				R1.MESSAGE_TYPE, 
 				IF(RC.ITEM_TYPE = '".IM_MESSAGE_PRIVATE."', RC.ITEM_ID, 0) PRIVATE_USER_ID,
+				U.ACTIVE PRIVATE_USER_ACTIVE,
 				R1.COUNTER,
 				R1.NOTIFY_BLOCK MUTED,
 				IF(RC.USER_ID > 0, 'Y', 'N') IN_RECENT,
 				RC.UNREAD
 			FROM b_im_relation R1 
 			LEFT JOIN b_im_recent RC ON RC.ITEM_RID = R1.ID
+			LEFT JOIN b_user U ON RC.ITEM_TYPE = '".IM_MESSAGE_PRIVATE."' AND U.ID = RC.ITEM_ID
 			WHERE R1.USER_ID = ".intval($userId)." AND (R1.STATUS <> ".IM_STATUS_READ." OR RC.UNREAD = 'Y')
 		";
 		$counters = \Bitrix\Main\Application::getInstance()->getConnection()->query($query)->fetchAll();
@@ -78,6 +80,11 @@ class Counter
 				}
 				if ($entity['MESSAGE_TYPE'] == IM_MESSAGE_PRIVATE)
 				{
+					if ($entity['PRIVATE_USER_ACTIVE'] === 'N')
+					{
+						continue;
+					}
+
 					if ($entity['COUNTER'] > 0)
 					{
 						$result['TYPE']['ALL'] += (int)$entity['COUNTER'];

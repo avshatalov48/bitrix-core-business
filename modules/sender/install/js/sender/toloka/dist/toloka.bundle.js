@@ -569,6 +569,8 @@ this.BX = this.BX || {};
 
 	var _filter = new WeakMap();
 
+	var _isAvailable = new WeakMap();
+
 	var _ajaxAction = new WeakMap();
 
 	var _messageFields = new WeakMap();
@@ -698,6 +700,11 @@ this.BX = this.BX || {};
 	      value: void 0
 	    });
 
+	    _isAvailable.set(this, {
+	      writable: true,
+	      value: void 0
+	    });
+
 	    _ajaxAction.set(this, {
 	      writable: true,
 	      value: void 0
@@ -813,6 +820,7 @@ this.BX = this.BX || {};
 	      babelHelpers.classPrivateFieldSet(this, _isSaved, params.isSaved || false);
 	      babelHelpers.classPrivateFieldSet(this, _isRegistered, params.isRegistered || false);
 	      babelHelpers.classPrivateFieldSet(this, _isOutside, params.isOutside || false);
+	      babelHelpers.classPrivateFieldSet(this, _isAvailable, params.isAvailable || true);
 	      babelHelpers.classPrivateFieldSet(this, _mess, params.mess);
 	      babelHelpers.classPrivateFieldSet(this, _letterTile, params.letterTile || {});
 	      babelHelpers.classPrivateFieldSet(this, _templateData, []);
@@ -1230,6 +1238,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "applyChanges",
 	    value: function applyChanges(event) {
+	      if (!babelHelpers.classPrivateFieldGet(this, _isAvailable)) {
+	        BX.UI.InfoHelper.show('limit_crm_marketing_toloka');
+	        return;
+	      }
+
 	      this.createProject();
 	    }
 	  }, {

@@ -158,11 +158,7 @@ if ($arParams['SUCCESS_SAVE'])
 	<input type="hidden" name="fields[CODE]" value="<?= $row['CODE']['CURRENT'] ?>"/>
 	<input type="hidden" name="fields[TITLE]" value="<?= $row['TITLE']['CURRENT'] ?>"/>
 	<input type="hidden" name="fields[LANDING_ID_INDEX]" value="<?= $row['LANDING_ID_INDEX']['CURRENT'];?>" />
-
-	<?php if (false): ?>
-		<input type="hidden" name="fields[ID]" value="<?= htmlspecialcharsbx($row['ID']['CURRENT']) ?>">
-		<input type="hidden" name="fields[TPL_ID]" value="<?= $row['TPL_ID']['CURRENT'] ?>"/>
-	<?php endif; ?>
+	<input type="hidden" name="fields[TPL_ID]" value="<?= $row['TPL_ID']['CURRENT'] ?>"/>
 
 	<!--Theme color-->
 	<?php if (isset($hooks['THEME'])): ?>
@@ -265,8 +261,8 @@ if ($arParams['SUCCESS_SAVE'])
 	<!--Typo -->
 	<?php
 	if (isset($hooks['THEMEFONTS'])): ?>
-		<?php
-		$pageFields = $hooks['THEMEFONTS']->getPageFields(); ?>
+		<?php $pageFields = $hooks['THEMEFONTS']->getPageFields(); ?>
+		<?php $fontFields = $hooks['FONTS']->getPageFields(); ?>
 		<div class="ui-form-row">
 			<div class="ui-form-label">
 				<div class="ui-ctl-label-text">
@@ -475,7 +471,7 @@ if ($arParams['SUCCESS_SAVE'])
 					textColor: {
 						control: BX('field-themefonts_color'),
 					},
-					textFont: {
+					font: {
 						control: BX('field-themefonts_code'),
 						defaultValue: '<?= $themeFontsFields['CODE']->getValue() ?>',
 					},
@@ -520,7 +516,7 @@ if ($arParams['SUCCESS_SAVE'])
 				}
 			},
 			{
-				title: <?=CUtil::PhpToJSObject(Loc::getMessage('LANDING_SITE_FORM_TITLE'))?>,
+				title: <?=CUtil::PhpToJSObject(Loc::getMessage('LANDING_SITE_FORM_TITLE_2'))?>,
 				subtitle: <?=CUtil::PhpToJSObject(Loc::getMessage('LANDING_SITE_FORM_SUBTITLE'))?>,
 				text1: <?=CUtil::PhpToJSObject(Loc::getMessage(
 					'LANDING_SITE_FORM_TEXT_1',

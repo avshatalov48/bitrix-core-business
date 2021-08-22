@@ -30,6 +30,7 @@ $MESS["REST_INTEGRATION_EDIT_APPLICATION_OPEN"] = "Перейти к прило�
 
 $MESS['REST_INTEGRATION_EDIT_TAB_WIDGET_HANDLER_URL_TITLE'] = 'URL обработчика виджета';
 $MESS['REST_INTEGRATION_EDIT_TAB_WIDGET_LIST_TITLE'] = 'Места вывода виджета';
+$MESS['REST_INTEGRATION_EDIT_TAB_WIDGET_TITLE_NAME'] = 'Заголовок виджета';
 $MESS['REST_INTEGRATION_EDIT_TAB_WIDGET_DOWNLOAD_EXAMPLE_BTN'] = 'скачать пример виджета';
 
 $MESS['REST_INTEGRATION_EDIT_BOT_HANDLER_URL_TITLE'] = 'URL обработчика бота';
@@ -59,6 +60,7 @@ $MESS['REST_INTEGRATION_EDIT_TAB_APPLICATION_ZIP_NO_FILE'] = 'Пожалуйст
 $MESS['REST_INTEGRATION_EDIT_TAB_APPLICATION_MODE_SERVER_LABEL'] = 'Серверное';
 $MESS['REST_INTEGRATION_EDIT_TAB_APPLICATION_MODE_ZIP_LABEL'] = 'Статичное';
 
+$MESS['REST_INTEGRATION_EDIT_SHOW_MORE_BTN'] = 'показать ещё';
 $MESS["REST_INTEGRATION_EDIT_CLOSE_SLIDER_CLOSE_TITLE"] = "Вы пытаетесь закрыть страницу?";
 $MESS["REST_INTEGRATION_EDIT_CLOSE_SLIDER_CLOSE"] = "Все несохраненные изменения будут потеряны.";
 $MESS["REST_INTEGRATION_EDIT_CLOSE_SLIDER_YES"] = "Да";

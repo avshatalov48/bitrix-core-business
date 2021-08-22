@@ -14,6 +14,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
 use Bitrix\Blog\Item\Permissions;
+use Bitrix\Socialnetwork\Item\Helper;
 use Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\ComponentHelper;
@@ -529,41 +530,28 @@ if(
 		{
 			if (check_bitrix_sessid())
 			{
-				if ($arResult["PostPerm"] >= Permissions::FULL)
+				try
 				{
-					CBlogPost::DeleteLog($arParams["ID"]);
-
-					if (CBlogPost::Delete($arParams["ID"]))
-					{
-						BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
-							'TYPE' => 'posts_popular',
-							'SITE_ID' => SITE_ID
-						)));
-						$url = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("blog" => $arBlog["URL"], "user_id" => $arBlog["OWNER_ID"], "group_id" => $arBlog["SOCNET_GROUP_ID"]));
-						if(mb_strpos($url, "?") === false)
-							$url .= "?";
-						else
-							$url .= "&";
-						$url .= "del_id=".$arParams["ID"]."&success=Y";
-						BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
-							'TYPE' => 'post',
-							'POST_ID' => $arParams["ID"]
-						)));
-						BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
-							'TYPE' => 'post_general',
-							'POST_ID' => $arParams["ID"]
-						)));
-						BXClearCache(true, CComponentEngine::MakeComponentPath("bitrix:socialnetwork.blog.blog"));
-
-						LocalRedirect($url);
-					}
-					else
-						$arResult["ERROR_MESSAGE"] .= GetMessage("BLOG_BLOG_BLOG_MES_DEL_ERROR").'<br />';
+					Helper::deleteBlogPost([
+						'POST_ID' => $arParams['ID'],
+					]);
+					$url = CComponentEngine::makePathFromTemplate($arParams['PATH_TO_BLOG'], [
+						'blog' => $arBlog['URL'],
+						'user_id' => $arBlog['OWNER_ID'],
+						'group_id' => $arBlog['SOCNET_GROUP_ID']
+					]);
+					$url .= (mb_strpos($url, '?') === false ? '?' : '&') . 'del_id=' . $arParams['ID'] . '&success=Y';
+					LocalRedirect($url);
 				}
-				$arResult["ERROR_MESSAGE"] .= GetMessage("BLOG_BLOG_BLOG_MES_DEL_NO_RIGHTS").'<br />';
+				catch (Exception $e)
+				{
+					$arResult["ERROR_MESSAGE"] .= $e->getMessage().'<br />';
+				}
 			}
 			else
+			{
 				$arResult["ERROR_MESSAGE"] .= GetMessage("BLOG_BLOG_SESSID_WRONG").'<br />';
+			}
 		}
 
 		if (

@@ -57,7 +57,6 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 			'URL' => $this->getUrl($payment, 'pay'),
 			'PS_MODE' => $this->service->getField('PS_MODE'),
 			'SIGNATURE_VALUE' => $this->getSignatureValue($payment, $receipt),
-			'BX_PAYSYSTEM_CODE' => $payment->getPaymentSystemId(),
 			'ROBOXCHANGE_ORDERDESCR' => $this->getOrderDescription($payment),
 			'PAYMENT_ID' => $this->getBusinessValue($payment, 'PAYMENT_ID'),
 			'SUM' => PriceMaths::roundPrecision($payment->getSum()),
@@ -81,7 +80,7 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 
 		$additionalUserFields = [
 			'SHP_BX_PAYMENT_CODE' => $payment->getField('XML_ID'),
-			'SHP_BX_PAYSYSTEM_CODE' => $payment->getPaymentSystemId(),
+			'SHP_BX_PAYSYSTEM_CODE' => $this->service->getField('ID'),
 			'SHP_HANDLER' => 'ROBOXCHANGE',
 			'SHP_PARTNER' => $countryCode === 'RU' ? self::ANALYTICS_LABEL_RU_VALUE : self::ANALYTICS_LABEL_KZ_VALUE,
 		];

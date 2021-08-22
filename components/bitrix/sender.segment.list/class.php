@@ -43,18 +43,21 @@ class SenderSegmentListComponent extends Bitrix\Sender\Internals\CommonSenderCom
 		$this->arParams['GRID_ID'] =
 			isset($this->arParams['GRID_ID']) ? $this->arParams['GRID_ID'] : 'SENDER_SEGMENT_GRID';
 
-		if (\COption::GetOptionInt("sender", "group_agent_added") === 0)
+		if (
+			\COption::GetOptionInt("sender", "group_agent_added") === 0
+			|| \COption::GetOptionInt("sender", "group_agent_added") === 1
+		)
 		{
 			\CAgent::AddAgent(
 				'\\Bitrix\Sender\\Posting\\SegmentDataBuilder::checkNotCompleted();',
 				"sender",
-				"N",
-				60,
+				"Y",
+				60*60,
 				"",
 				"Y",
 				\ConvertTimeStamp(time()+\CTimeZone::GetOffset()+450, "FULL"));
 
-				\COption::SetOptionInt("sender", "group_agent_added", 1);
+				\COption::SetOptionInt("sender", "group_agent_added", 2);
 		}
 
 		parent::initParams();

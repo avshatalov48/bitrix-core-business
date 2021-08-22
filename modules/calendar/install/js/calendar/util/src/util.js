@@ -711,6 +711,7 @@ export class Util
 		Util.REQUEST_ID_LIST.push(requestUid);
 		return requestUid;
 	}
+
 	static unregisterRequestId(requestUid)
 	{
 		Util.REQUEST_ID_LIST = Util.REQUEST_ID_LIST.filter((uid) => {return uid !== requestUid});

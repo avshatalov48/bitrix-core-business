@@ -2,8 +2,15 @@ export const config = Object.freeze({
 	databaseConfig: {
 		name: 'catalog.product-form',
 	},
-	templateName: 'bx-product-form',
-	templateProductAddName: 'bx-product-add',
-	templateProductRowName: 'bx-product-form-row',
+	templateName: 'bx-form',
+	templatePanelButtons: 'bx-panel-buttons',
+	templatePanelCompilation: 'bx-panel-compilation',
+	templateRowName: 'bx-form-row',
+	templateFieldInlineSelector: 'bx-field-inline-selector',
+	templateFieldPrice: 'bx-field-price',
+	templateFieldQuantity: 'bx-field-quantity',
+	templateFieldDiscount: 'bx-field-discount',
+	templateFieldTax: 'bx-field-tax',
+	templateFieldBrand: 'bx-field-brand',
 	moduleId: 'catalog',
 });

@@ -15,6 +15,7 @@ use Bitrix\Iblock\PropertyTable;
 use Bitrix\Iblock\SectionTable;
 use Bitrix\Main\FileTable;
 use Bitrix\Main\ORM\Entity;
+use Bitrix\Main\ORM\Fields\FloatField;
 use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\StringField;
@@ -45,7 +46,7 @@ class PropertyToField
 
 			case PropertyTable::TYPE_NUMBER:
 
-				$propertyValueEntity->addField(new IntegerField('VALUE'));
+				$propertyValueEntity->addField(new FloatField('VALUE'));
 				break;
 
 			case PropertyTable::TYPE_FILE:

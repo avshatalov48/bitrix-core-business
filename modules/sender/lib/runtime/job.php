@@ -83,4 +83,18 @@ abstract class Job
 			$agent->delete($row["ID"]);
 		}
 	}
+
+	protected function agentExists($agentName)
+	{
+		if (!$agentName || !is_string($agentName))
+		{
+			return false;
+		}
+
+		$agent = new \CAllAgent();
+		return (bool)$agent->getList(
+			["ID" => "DESC"],
+			["MODULE_ID" => "sender", "NAME" => $agentName]
+		)->fetch();
+	}
 }

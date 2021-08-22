@@ -72,7 +72,7 @@ export default class SyncButton
 				connections: connections,
 				withUpdateButton: true,
 				node: button.getContainer(),
-				id: 'calendar-syncPanel-status',
+				id: 'calendar-syncButton-status',
 			});
 			this.popup.show();
 
@@ -109,6 +109,12 @@ export default class SyncButton
 	{
 		clearTimeout(this.buttonEnterTimeout);
 		(window.top.BX || window.BX).Runtime.loadExtension('calendar.sync.interface').then((exports) => {
+			BX.ajax.runAction('calendar.api.calendarajax.analytical', {
+				analyticsLabel: {
+					sync_button_click: 'Y',
+					has_active_connection: this.status === 'not_connected' ? 'N' : 'Y'
+				}
+			});
 			this.syncPanel = new exports.SyncPanel({
 				connectionsProviders: this.connectionsProviders,
 				userId: this.userId,
@@ -116,8 +122,6 @@ export default class SyncButton
 			});
 			this.syncPanel.openSlider();
 		});
-
-		// this.refreshData();
 	}
 
 	handlerMouseEnter(button)

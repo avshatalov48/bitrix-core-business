@@ -1,9 +1,11 @@
 <?php
 
+use Bitrix\Calendar\Sync\Google\Dictionary;
 use Bitrix\Calendar\Sync\GoogleApiSync;
 use Bitrix\Calendar\Sync\GoogleApiPush;
 use Bitrix\Calendar\PushTable;
 use Bitrix\Calendar\UserSettings;
+use Bitrix\Calendar\Util;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type;
 use Bitrix\Main\Config\Option;
@@ -11,10 +13,10 @@ use Bitrix\Calendar\Internals;
 
 class CCalendarSync
 {
+	public const SYNC_TIME = 259200;//3 days
 	public static $handleExchangeMeeting;
 	public static $doNotSendToGoogle = false;
 	private static $mobileBannerDisplay;
-	const MINIMAL_LIMIT = 1;
 
 	public static function doSync()
 	{
@@ -43,13 +45,8 @@ class CCalendarSync
 			{
 				GoogleApiPush::createWatchChannels($connectionData['ID'] - 1);
 			}
-			$forceSync = false;
-			if (isset($connectionData['forceSync']))
-			{
-				$forceSync = $connectionData['forceSync'];
-			}
 
-			$bShouldClearCache = (self::syncConnection($connectionData, $forceSync)) ? true : $bShouldClearCache;
+			$bShouldClearCache = (self::syncConnection($connectionData)) ? true : $bShouldClearCache;
 		}
 		else
 		{
@@ -157,13 +154,13 @@ class CCalendarSync
 						'OWNER_ID' => $connectionData["ENTITY_ID"],
 						'CAL_TYPE' => 'user',
 						'CAL_DAV_CON' => $connectionData["ID"],
-						'EXTERNAL_TYPE' => \Bitrix\Calendar\Sync\Google\Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE[$externalCalendar['accessRole']],
+						'EXTERNAL_TYPE' => Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE[$externalCalendar['accessRole']],
 					);
-					$localSections[] = array_merge($arFields, array('ID' => CCalendarSect::Edit(array('arFields' => $arFields))));
+					$localSections[] = array_merge($arFields, ['ID' => CCalendarSect::Edit(['arFields' => $arFields])]);
 				}
 				elseif (empty($externalCalendar['deleted']) || !$externalCalendar['deleted'])
 				{
-					$arFields = array(
+					$arFields = [
 						// TODO: mantis #0124678
 //						'COLOR' => $externalCalendar['backgroundColor'],
 						'TEXT_COLOR' => $externalCalendar['textColor'],
@@ -174,8 +171,8 @@ class CCalendarSync
 						'CAL_TYPE' => 'user',
 						'CAL_DAV_CON' => $connectionData["ID"],
 						'ID' => $localSections[$localCalendarIndex]['ID'],
-						'EXTERNAL_TYPE' => \Bitrix\Calendar\Sync\Google\Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE[$externalCalendar['accessRole']],
-					);
+						'EXTERNAL_TYPE' => Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE[$externalCalendar['accessRole']],
+					];
 					CCalendarSect::Edit(array('arFields' => $arFields));
 				}
 				elseif (!empty($externalCalendar['deleted']) && $externalCalendar['deleted'])
@@ -183,7 +180,20 @@ class CCalendarSync
 					CCalendarSect::Edit(array('arFields' => array('ID' => $localSections[$localCalendarIndex]['ID'], 'ACTIVE' => 'N')));
 				}
 			}
+
 			CDavConnection::SetLastResult($connectionData["ID"], "[200] OK");
+
+			Util::addPullEvent('refresh_sync_status', $connectionData['ENTITY_ID'], [
+				'syncInfo' => [
+					'google' => [
+						'syncTimestamp' => time(),
+						'status' => true,
+						'type' => 'google',
+						'connected' => true,
+					],
+				],
+				'requestUid' => Util::getRequestUid(),
+			]);
 		}
 
 		$pushOptionEnabled = COption::GetOptionString('calendar', 'sync_by_push', false) || CCalendar::IsBitrix24();
@@ -269,7 +279,7 @@ class CCalendarSync
 
 	public static function ModifyEvent($calendarId, $arFields, $params = array())
 	{
-		list($sectionId, $entityType, $entityId) = $calendarId;
+		[$sectionId, $entityType, $entityId] = $calendarId;
 		$userId = $entityType == 'user' ? $entityId : 0;
 		$eventId = false;
 
@@ -777,7 +787,7 @@ class CCalendarSync
 		return true;
 	}
 
-	public static function syncCalendarSections($connectionType, $arCalendars, $entityType, $entityId, $connectionId = null)
+	public static function syncCalendarSections($connectionType, $arCalendars, $entityType, $entityId, $connectionId = null): array
 	{
 		//Array(
 		//	[0] => Array(
@@ -794,11 +804,11 @@ class CCalendarSync
 		//)
 
 		$result = [];
-		if ($connectionType == 'exchange' || $connectionType == 'caldav')
+		if ($connectionType === 'exchange' || $connectionType === 'caldav')
 		{
 			CCalendar::SetSilentErrorMode();
 			$entityType = mb_strtolower($entityType);
-			$entityId = intval($entityId);
+			$entityId = (int)$entityId;
 
 			$tempUser = CCalendar::TempUser(false, true);
 			$calendarNames = [];
@@ -807,41 +817,41 @@ class CCalendarSync
 				$calendarNames[$value["XML_ID"]] = $value;
 			}
 
-			if ($connectionType == 'caldav')
+			if ($connectionType === 'caldav')
 			{
-				$arFilter = array(
+				$arFilter = [
 					'CAL_TYPE' => $entityType,
 					'OWNER_ID' => $entityId,
 					'!CAL_DAV_CAL' => false,
 					'CAL_DAV_CON' => $connectionId
-				);
+				];
 				$xmlIdField = "CAL_DAV_CAL";
 				$xmlIdModLabel = "CAL_DAV_MOD";
 			}
  			else // Exchange
 			{
-				$arFilter = array(
+				$arFilter = [
 					'CAL_TYPE' => $entityType,
 					'OWNER_ID' => $entityId,
 					'!DAV_EXCH_CAL' => false,
 					'IS_EXCHANGE' => 1
-				);
+				];
 				$xmlIdField = "DAV_EXCH_CAL";
 				$xmlIdModLabel = "DAV_EXCH_MOD";
 			}
 
-			$res = CCalendarSect::GetList(array(
+			$res = CCalendarSect::GetList([
 				'arFilter' => $arFilter,
 				'checkPermissions' => false,
 				'getPermissions' => false
-			));
+			]);
 
 			foreach($res as $section)
 			{
 				$xmlId = $section[$xmlIdField];
 				$modificationLabel = $section[$xmlIdModLabel];
 
-				if (empty($xmlId) || ($connectionType == 'caldav' && $section['DAV_EXCH_CAL']))
+				if (empty($xmlId) || ($connectionType === 'caldav' && $section['DAV_EXCH_CAL']))
 				{
 					continue;
 				}
@@ -852,27 +862,27 @@ class CCalendarSync
 				}
 				else
 				{
-					if ($modificationLabel != $calendarNames[$xmlId]["MODIFICATION_LABEL"])
+					if ($modificationLabel !== $calendarNames[$xmlId]["MODIFICATION_LABEL"])
 					{
-						CCalendarSect::Edit(array(
-							'arFields' => array(
+						CCalendarSect::Edit([
+							'arFields' => [
 								"ID" => $section["ID"],
 								"NAME" => $calendarNames[$xmlId]["NAME"],
-								"OWNER_ID" => $entityType == 'user' ? $entityId : 0,
-								"CREATED_BY" => $entityType == 'user' ? $entityId : 0,
+								"OWNER_ID" => $entityType === 'user' ? $entityId : 0,
+								"CREATED_BY" => $entityType === 'user' ? $entityId : 0,
 								"DESCRIPTION" => $calendarNames[$xmlId]["DESCRIPTION"],
 								"COLOR" => $calendarNames[$xmlId]["COLOR"],
 								$xmlIdModLabel => $calendarNames[$xmlId]["MODIFICATION_LABEL"],
-							)
-						));
+							]
+						]);
 					}
 
-					if (empty($modificationLabel) || ($modificationLabel != $calendarNames[$xmlId]["MODIFICATION_LABEL"]))
+					if (empty($modificationLabel) || ($modificationLabel !== $calendarNames[$xmlId]["MODIFICATION_LABEL"]))
 					{
-						$result[] = array(
+						$result[] = [
 							"XML_ID" => $xmlId,
-							"CALENDAR_ID" => array($section["ID"], $entityType, $entityId)
-						);
+							"CALENDAR_ID" => [$section["ID"], $entityType, $entityId]
+						];
 					}
 
 					unset($calendarNames[$xmlId]);
@@ -881,29 +891,45 @@ class CCalendarSync
 
 			foreach($calendarNames as $key => $value)
 			{
-				$arFields = Array(
+				$arFields = [
 					'CAL_TYPE' => $entityType,
 					'OWNER_ID' => $entityId,
 					'NAME' => $value["NAME"],
 					'DESCRIPTION' => $value["DESCRIPTION"],
 					'COLOR' => $value["COLOR"],
-					'EXPORT' => array('ALLOW' => false),
-					"CREATED_BY" => $entityType == 'user' ? $entityId : 0,
-					'ACCESS' => array(),
+					'EXPORT' => ['ALLOW' => false],
+					"CREATED_BY" => $entityType === 'user' ? $entityId : 0,
+					'ACCESS' => [],
 					$xmlIdField => $key,
 					$xmlIdModLabel => $value["MODIFICATION_LABEL"]
-				);
+				];
 
-				if ($connectionType == 'caldav')
+				if ($connectionType === 'caldav')
+				{
 					$arFields["CAL_DAV_CON"] = $connectionId;
-				if ($entityType == 'user')
+				}
+				if ($entityType === 'user')
+				{
 					$arFields["CREATED_BY"] = $entityId;
-				if ($connectionType == 'exchange')
+				}
+				if ($connectionType === 'exchange')
+				{
 					$arFields["IS_EXCHANGE"] = 1;
+				}
 
-				$id = intval(CCalendar::SaveSection(array('arFields' => $arFields, 'bAffectToDav' => false)));
+				$id = (int)CCalendar::SaveSection(['arFields' => $arFields, 'bAffectToDav' => false]);
 				if ($id)
-					$result[] = array("XML_ID" => $key, "CALENDAR_ID" => array($id, $entityType, $entityId));
+				{
+					$result[] =
+						[
+							"XML_ID" => $key,
+							"CALENDAR_ID" => [
+								$id,
+								$entityType,
+								$entityId
+							]
+						];
+				}
 			}
 
 			CCalendar::TempUser($tempUser, false);
@@ -1152,7 +1178,7 @@ class CCalendarSync
 			]);
 		}
 
-		return self::$mobileBannerDisplay === 'Y' || \Bitrix\Calendar\Util::isShowDailyBanner();
+		return self::$mobileBannerDisplay === 'Y' || Util::isShowDailyBanner();
 	}
 
 	/**
@@ -1167,7 +1193,7 @@ class CCalendarSync
 			return $description;
 		}
 
-		$deleteParts = \Bitrix\Calendar\Util::getAttendees($attendeesCodes, "%");
+		$deleteParts = Util::getAttendees($attendeesCodes, "%");
 		$countSeparators = count($attendeesCodes) - 1;
 		$deleteParts[] = '%' . GetMessage('EC_ATTENDEES_EVENT_TITLE_DESCRIPTION') . ':%';
 		$description = preg_replace($deleteParts, '', $description, 1);
@@ -1372,7 +1398,7 @@ class CCalendarSync
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	private static function getUserOffset(int $userId): int
+	public static function getUserOffset(int $userId): int
 	{
 		$userDb = \Bitrix\Main\UserTable::getList([
 			'filter' => [
@@ -1485,10 +1511,10 @@ class CCalendarSync
 		return $hash;
 	}
 
-	private static function getTimestampWithUserOffset($userId): Closure
+	public static function getTimestampWithUserOffset($userId): Closure
 	{
 		$offset = self::getUserOffset($userId);
-		return function($date) use ($offset){
+		return function($date) use ($offset) {
 			return \CCalendar::Timestamp($date, false, true) - $offset;
 		};
 	}
@@ -1506,7 +1532,7 @@ class CCalendarSync
 		$bExchange = false;
 		if (Loader::includeModule('dav'))
 		{
-			$bExchange = \CCalendar::IsExchangeEnabled() && $params['type'] == 'user';
+			$bExchange = \CCalendar::IsExchangeEnabled() && $params['type'] === 'user';
 			$bExchangeConnected = $bExchange && \CDavExchangeCalendar::IsExchangeEnabledForUser($userId);
 		}
 
@@ -1564,7 +1590,7 @@ class CCalendarSync
 			];
 		}
 
-		$caldavConnections = CCalendarSync::GetCaldavItemsInfo($userId, $params['type'], $calculateTimestamp);
+		$caldavConnections = self::GetCaldavItemsInfo($userId, $params['type'], $calculateTimestamp);
 		if (is_array($caldavConnections))
 		{
 			$syncInfo = array_merge($syncInfo, $caldavConnections);
@@ -1573,16 +1599,21 @@ class CCalendarSync
 		return $syncInfo;
 	}
 
-	public static function GetSyncInfoItem($userId, $syncType)
+	/**
+	 * @param $userId
+	 * @param $syncType
+	 * @return false[]
+	 */
+	public static function GetSyncInfoItem($userId, $syncType): array
 	{
-		$activeSyncPeriod = 604800; // 3600 * 24 * 7 - one week
+		$activeSyncPeriod = self::SYNC_TIME;
 		$syncTypes = array('iphone', 'android', 'mac', 'exchange', 'office365');
 		$result = [
 			'connected' => false,
 			'status' => false,
 			];
 
-		if (in_array($syncType, $syncTypes))
+		if (in_array($syncType, $syncTypes, true))
 		{
 			$result['date'] = CUserOptions::GetOption("calendar", "last_sync_".$syncType, false, $userId);
 		}
@@ -1602,17 +1633,22 @@ class CCalendarSync
 		return $result;
 	}
 
-	public static function GetMultipleSyncInfoItem($userId, $syncType)
+	/**
+	 * @param $userId
+	 * @param $syncType
+	 * @return false[]
+	 */
+	public static function GetMultipleSyncInfoItem($userId, $syncType): array
 	{
 		$activeSyncPeriod = 604800; // 3600 * 24 * 7 - one week
-		$syncTypes = array('outlook');
+		$syncTypes = ['outlook'];
 		$lastSync = null;
 		$result = [
 			'connected' => false,
 			'status' => false,
 		];
 
-		if (in_array($syncType, $syncTypes))
+		if (in_array($syncType, $syncTypes, true))
 		{
 			$options = CUserOptions::GetOption("calendar", "last_sync_".$syncType, false, $userId);
 		}
@@ -1657,7 +1693,13 @@ class CCalendarSync
 		return $result;
 	}
 
-	public static function GetCaldavItemsInfo($userId, $type, $calculateTimestamp)
+	/**
+	 * @param $userId
+	 * @param $type
+	 * @param $calculateTimestamp
+	 * @return array|null
+	 */
+	public static function GetCaldavItemsInfo($userId, $type, $calculateTimestamp): ?array
 	{
 		$connections = [];
 		$bCalDAV = CCalendar::IsCalDAVEnabled() && $type === 'user';
@@ -1672,12 +1714,12 @@ class CCalendarSync
 					'ENTITY_ID' => $userId,
 					'ACCOUNT_TYPE' => array('caldav_google_oauth', 'google_api_oauth', 'caldav')
 				), false, false);
-			$isRussian = \Bitrix\Calendar\Util::checkRuZone();
+			$isRussian = Util::checkRuZone();
 			while ($connection = $res->Fetch())
 			{
 				if ($connection['ACCOUNT_TYPE'] === 'caldav')
 				{
-					if ($connection['SERVER_HOST'] === 'caldav.yandex.ru' && $isRussian)
+					if (self::isYandex($connection['SERVER_HOST']) && $isRussian)
 					{
 						$connections['yandex' . $connection['ID']] = [
 							'id' => $connection['ID'],
@@ -1708,7 +1750,7 @@ class CCalendarSync
 						];
 					}
 				}
-				else if(\Bitrix\Calendar\Util::isGoogleConnection($connection['ACCOUNT_TYPE']))
+				else if(Util::isGoogleConnection($connection['ACCOUNT_TYPE']))
 				{
 					$googleAccountInfo = CCalendarSync::GetGoogleAccountInfo($bGoogleApi, $userId, $type);
 					$connections['google'] = [
@@ -1731,7 +1773,13 @@ class CCalendarSync
 		return null;
 	}
 
-	private static function GetGoogleAccountInfo($isGoogleApiEnabled, $userId, $type)
+	/**
+	 * @param $isGoogleApiEnabled
+	 * @param $userId
+	 * @param $type
+	 * @return array
+	 */
+	private static function GetGoogleAccountInfo($isGoogleApiEnabled, $userId, $type): array
 	{
 		$googleApiStatus = [];
 
@@ -1749,16 +1797,25 @@ class CCalendarSync
 		return $googleApiStatus;
 	}
 
-	public static function GetSyncLinks($params = [])
+	/**
+	 * @param array $params
+	 * @return string[]
+	 */
+	public static function GetSyncLinks($params = []): array
 	{
 		$userId = $params['userId'];
 		$type = $params['type'];
-		$googleAuthLink = CCalendarSync::GetGoogleAuthLink($userId, $type);
+		$googleAuthLink = self::GetGoogleAuthLink($userId, $type);
 
 		return ['google' => $googleAuthLink];
 	}
 
-	public static function GetGoogleAuthLink($userId, $type)
+	/**
+	 * @param $userId
+	 * @param $type
+	 * @return string
+	 */
+	public static function GetGoogleAuthLink($userId, $type): string
 	{
 		$isCaldavEnabled = CCalendar::IsCalDAVEnabled() && $type === 'user';
 		$isGoogleApiEnabled = CCalendar::isGoogleApiEnabled() && $type === 'user';
@@ -1784,31 +1841,40 @@ class CCalendarSync
 		return $googleAuthLink;
 	}
 
-	public static function SetSectionStatus($userId = 0, $sectionsStatus = [])
+	/**
+	 * @param int|null $userId
+	 * @param array|null $sectionsStatus
+	 */
+	public static function SetSectionStatus(?int $userId = 0, ?array $sectionsStatus = []): void
 	{
-		$sectionId = [];
-		$sectionStatus = [];
-
-		foreach ($sectionsStatus as $id => $status)
+		if (is_array($sectionsStatus))
 		{
-			$sectionId[] = $id;
-			$section = CCalendarSect::GetById($id);
-
-			if ((int)$section['OWNER_ID'] === $userId)
+			foreach ($sectionsStatus as $id => $status)
 			{
-				$sectionStatus = [
-					'ID' => $id,
-					'ACTIVE' => $status ? 'Y' : 'N',
-				];
+				$section = CCalendarSect::GetById($id);
 
-				$params['arFields'] = $sectionStatus;
-				$params['userId'] = $userId;
-				\CCalendarSect::Edit($params);
+				if ((int)$section['OWNER_ID'] === $userId)
+				{
+					$sectionStatus = [
+						'ID' => $id,
+						'ACTIVE' => $status
+							? 'Y'
+							: 'N',
+					];
+
+					$params['arFields'] = $sectionStatus;
+					$params['userId'] = $userId;
+					\CCalendarSect::Edit($params);
+				}
 			}
 		}
 	}
 
-	public static function UpdateUserConnections()
+	/**
+	 * @return bool
+	 * @throws \Bitrix\Main\LoaderException
+	 */
+	public static function UpdateUserConnections(): bool
 	{
 		$userId = \CCalendar::getCurUserId();
 		if(Loader::includeModule('dav'))
@@ -1846,8 +1912,21 @@ class CCalendarSync
 		return true;
 	}
 
-	private static function isConnectionSuccess(string $lastResult = null): bool
+	/**
+	 * @param string|null $lastResult
+	 * @return bool
+	 */
+	public static function isConnectionSuccess(string $lastResult = null): bool
 	{
 		return (!is_null($lastResult) && preg_match("/^\[(2\d\d|0)\][a-z0-9 _]*/i", $lastResult));
+	}
+
+	/**
+		 * @param string|null $serverHost
+		 * @return bool
+	 */
+	public static function isYandex(?string $serverHost): bool
+	{
+		return $serverHost === 'caldav.yandex.ru';
 	}
 }

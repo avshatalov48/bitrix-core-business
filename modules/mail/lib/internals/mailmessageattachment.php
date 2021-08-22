@@ -4,6 +4,22 @@ namespace Bitrix\Mail\Internals;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class MailMessageAttachmentTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MailMessageAttachment_Query query()
+ * @method static EO_MailMessageAttachment_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MailMessageAttachment_Result getById($id)
+ * @method static EO_MailMessageAttachment_Result getList(array $parameters = array())
+ * @method static EO_MailMessageAttachment_Entity getEntity()
+ * @method static \Bitrix\Mail\Internals\EO_MailMessageAttachment createObject($setDefaultValues = true)
+ * @method static \Bitrix\Mail\Internals\EO_MailMessageAttachment_Collection createCollection()
+ * @method static \Bitrix\Mail\Internals\EO_MailMessageAttachment wakeUpObject($row)
+ * @method static \Bitrix\Mail\Internals\EO_MailMessageAttachment_Collection wakeUpCollection($rows)
+ */
 class MailMessageAttachmentTable extends Entity\DataManager
 {
 

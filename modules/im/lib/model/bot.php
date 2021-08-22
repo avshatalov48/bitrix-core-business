@@ -18,7 +18,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Im
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Bot_Query query()
+ * @method static EO_Bot_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Bot_Result getById($id)
+ * @method static EO_Bot_Result getList(array $parameters = array())
+ * @method static EO_Bot_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_Bot createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_Bot_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_Bot wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_Bot_Collection wakeUpCollection($rows)
+ */
 
 class BotTable extends Main\Entity\DataManager
 {

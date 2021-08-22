@@ -685,7 +685,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 <?
 $tabControl->EndCustomField("PASSWORD");
 
-$tabControl->AddCheckBoxField("PASSWORD_EXPIRED", GetMessage("main_user_edit_pass_expired"), false, "Y", ($str_PASSWORD_EXPIRED == "Y"));
+$tabControl->AddCheckBoxField("PASSWORD_EXPIRED", GetMessage("main_user_edit_pass_expired"), false, array("Y","N"), ($str_PASSWORD_EXPIRED == "Y"));
 ?>
 <?if($USER->CanDoOperation('view_all_users')):?>
 <?

@@ -45,7 +45,7 @@ class CIMMessenger
 		{
 			if (\Bitrix\Im\Common::isChatId($arFields['DIALOG_ID']))
 			{
-				$arFields['TO_CHAT_ID'] = mb_substr($arFields['DIALOG_ID'], 4);
+				$arFields['TO_CHAT_ID'] = \Bitrix\Im\Dialog::getChatId($arFields['DIALOG_ID']);
 				if (!isset($arFields['MESSAGE_TYPE']))
 				{
 					$arFields['MESSAGE_TYPE'] = IM_MESSAGE_CHAT;
@@ -304,44 +304,23 @@ class CIMMessenger
 				{
 					$isSelfChat = true;
 				}
-
-				if (!IsModuleInstalled('intranet'))
-				{
-					if (CIMSettings::GetPrivacy(CIMSettings::PRIVACY_MESSAGE) == CIMSettings::PRIVACY_RESULT_CONTACT && CModule::IncludeModule('socialnetwork') && CSocNetUser::IsFriendsAllowed() && !CSocNetUserRelations::IsFriends($arFields['FROM_USER_ID'], $arFields['TO_USER_ID']))
-					{
-						$GLOBALS["APPLICATION"]->ThrowException(GetMessage('IM_ERROR_MESSAGE_PRIVACY_SELF'), "ERROR_FROM_PRIVACY_SELF");
-						return false;
-					}
-					else if (CIMSettings::GetPrivacy(CIMSettings::PRIVACY_MESSAGE, $arFields['TO_USER_ID']) == CIMSettings::PRIVACY_RESULT_CONTACT && CModule::IncludeModule('socialnetwork') && CSocNetUser::IsFriendsAllowed() && !CSocNetUserRelations::IsFriends($arFields['FROM_USER_ID'], $arFields['TO_USER_ID']))
-					{
-						$GLOBALS["APPLICATION"]->ThrowException(GetMessage('IM_ERROR_MESSAGE_PRIVACY'), "ERROR_FROM_PRIVACY");
-						return false;
-					}
-				}
 			}
 			else
 			{
 				$arFields['FROM_USER_ID'] = intval($arFields['FROM_USER_ID']);
 				$arFields['TO_USER_ID'] = intval($arFields['TO_USER_ID']);
 
-				if (!IsModuleInstalled('intranet'))
-				{
-					if (CIMSettings::GetPrivacy(CIMSettings::PRIVACY_MESSAGE) == CIMSettings::PRIVACY_RESULT_CONTACT && CModule::IncludeModule('socialnetwork') && CSocNetUser::IsFriendsAllowed() && !CSocNetUserRelations::IsFriends($arFields['FROM_USER_ID'], $arFields['TO_USER_ID']))
-					{
-						$GLOBALS["APPLICATION"]->ThrowException(GetMessage('IM_ERROR_MESSAGE_PRIVACY_SELF'), "ERROR_FROM_PRIVACY_SELF");
-						return false;
-					}
-					else if (CIMSettings::GetPrivacy(CIMSettings::PRIVACY_MESSAGE, $arFields['TO_USER_ID']) == CIMSettings::PRIVACY_RESULT_CONTACT && CModule::IncludeModule('socialnetwork') && CSocNetUser::IsFriendsAllowed() && !CSocNetUserRelations::IsFriends($arFields['FROM_USER_ID'], $arFields['TO_USER_ID']))
-					{
-						$GLOBALS["APPLICATION"]->ThrowException(GetMessage('IM_ERROR_MESSAGE_PRIVACY'), "ERROR_FROM_PRIVACY");
-						return false;
-					}
-				}
 				$chatId = CIMMessage::GetChatId($arFields['FROM_USER_ID'], $arFields['TO_USER_ID']);
 				if ($arFields['FROM_USER_ID'] == $arFields['TO_USER_ID'])
 				{
 					$isSelfChat = true;
 				}
+			}
+
+			if (!\Bitrix\Im\Dialog::hasAccess($arFields['TO_USER_ID'], $arFields['FROM_USER_ID']))
+			{
+				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_MESSAGE_PRIVACY"), "ERROR_FROM_PRIVACY");
+				return false;
 			}
 
 			if ($chatId > 0)
@@ -3106,6 +3085,7 @@ class CIMMessenger
 		$bitrixPaid = true;
 		if (\Bitrix\Main\Loader::includeModule('bitrix24'))
 		{
+			$bitrix24Enabled = true;
 			$bitrixPaid = CBitrix24::IsLicensePaid();
 			if (CIMMessenger::IsBitrix24UserRestricted())
 			{

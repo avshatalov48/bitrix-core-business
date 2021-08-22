@@ -345,7 +345,15 @@ class CAllIBlockSection
 
 		$strWarning = '';
 
-		$arIBlock = CIBlock::GetArrayByID($arFields["IBLOCK_ID"]);
+		if ($this->iblock !== null && $this->iblock['ID'] === (int)$arFields["IBLOCK_ID"])
+		{
+			$arIBlock = $this->iblock;
+		}
+		else
+		{
+			$arIBlock = CIBlock::GetArrayByID($arFields["IBLOCK_ID"]);
+		}
+
 		if($bResizePictures && is_array($arIBlock))
 		{
 			$arDef = $arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"];
@@ -757,7 +765,15 @@ class CAllIBlockSection
 
 		$strWarning = '';
 
-		$arIBlock = CIBlock::GetArrayByID($db_record["IBLOCK_ID"]);
+		if ($this->iblock !== null && $this->iblock['ID'] === (int)$db_record["IBLOCK_ID"])
+		{
+			$arIBlock = $this->iblock;
+		}
+		else
+		{
+			$arIBlock = CIBlock::GetArrayByID($db_record["IBLOCK_ID"]);
+		}
+
 		if($bResizePictures)
 		{
 			$arDef = $arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"];
@@ -1438,7 +1454,7 @@ class CAllIBlockSection
 		global $DB, $APPLICATION;
 		$this->LAST_ERROR = "";
 
-		if(($ID===false || is_set($arFields, "NAME")) && $arFields["NAME"] == '')
+		if(($ID===false || array_key_exists("NAME", $arFields)) && (string)$arFields["NAME"] === '')
 			$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_SECTION")."<br>";
 
 		if(

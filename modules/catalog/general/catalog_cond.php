@@ -3795,6 +3795,8 @@ class CCatalogCondCtrlIBlockProps extends CCatalogCondCtrlComplex
 
 class CGlobalCondTree
 {
+	protected const PARAM_TITLE_MASK = '/^[A-Za-z_][A-Za-z01-9_]*$/';
+
 	protected $intMode = BT_COND_MODE_DEFAULT;			// work mode
 	protected $arEvents = array();						// events ID
 	protected $arInitParams = array();					// start params
@@ -4366,18 +4368,43 @@ class CGlobalCondTree
 		if (!is_array($arParams))
 			$arParams = array();
 
+		$parsedValues = [];
 		if (BT_COND_MODE_DEFAULT == $this->intMode)
 		{
 			if (!empty($arParams) && is_array($arParams))
 			{
-				if (isset($arParams['FORM_NAME']) && !empty($arParams['FORM_NAME']))
+				if (
+					isset($arParams['FORM_NAME'])
+					&& is_string($arParams['FORM_NAME'])
+					&& preg_match(self::PARAM_TITLE_MASK, $arParams['FORM_NAME'], $parsedValues)
+				)
+				{
 					$this->strFormName = $arParams['FORM_NAME'];
-				if (isset($arParams['FORM_ID']) && !empty($arParams['FORM_ID']))
+				}
+				if (
+					isset($arParams['FORM_ID'])
+					&& is_string($arParams['FORM_ID'])
+					&& preg_match(self::PARAM_TITLE_MASK, $arParams['FORM_ID'], $parsedValues)
+				)
+				{
 					$this->strFormID = $arParams['FORM_ID'];
-				if (isset($arParams['CONT_ID']) && !empty($arParams['CONT_ID']))
+				}
+				if (
+					isset($arParams['CONT_ID'])
+					&& is_string($arParams['CONT_ID'])
+					&& preg_match(self::PARAM_TITLE_MASK, $arParams['CONT_ID'], $parsedValues)
+				)
+				{
 					$this->strContID = $arParams['CONT_ID'];
-				if (isset($arParams['JS_NAME']) && !empty($arParams['JS_NAME']))
+				}
+				if (
+					isset($arParams['JS_NAME'])
+					&& is_string($arParams['JS_NAME'])
+					&& preg_match(self::PARAM_TITLE_MASK, $arParams['JS_NAME'], $parsedValues)
+				)
+				{
 					$this->strJSName = $arParams['JS_NAME'];
+				}
 
 				$this->boolCreateForm = (isset($arParams['CREATE_FORM']) && 'Y' == $arParams['CREATE_FORM']);
 				$this->boolCreateCont = (isset($arParams['CREATE_CONT']) && 'Y' == $arParams['CREATE_CONT']);
@@ -4400,10 +4427,22 @@ class CGlobalCondTree
 		{
 			if (!empty($arParams) && is_array($arParams))
 			{
-				if (isset($arParams['PREFIX']) && !empty($arParams['PREFIX']))
+				if (
+					isset($arParams['PREFIX'])
+					&& is_string($arParams['PREFIX'])
+					&& preg_match(self::PARAM_TITLE_MASK, $arParams['PREFIX'], $parsedValues)
+				)
+				{
 					$this->strPrefix = $arParams['PREFIX'];
-				if (isset($arParams['SEP_ID']) && !empty($arParams['SEP_ID']))
+				}
+				if (
+					isset($arParams['SEP_ID'])
+					&& is_string($arParams['SEP_ID'])
+					&& preg_match(self::PARAM_TITLE_MASK, $arParams['SEP_ID'], $parsedValues)
+				)
+				{
 					$this->strSepID = $arParams['SEP_ID'];
+				}
 			}
 		}
 

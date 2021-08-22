@@ -55,16 +55,6 @@ this.BX.Landing = this.BX.Landing || {};
 	  return Control;
 	}();
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>\n\t\t\t\t<link\n\t\t\t\t\trel=\"stylesheet\"\n\t\t\t\t\thref=\"https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700,900\"\n\t\t\t\t>\n\t\t\t\t<link\n\t\t\t\t\trel=\"stylesheet\"\n\t\t\t\t\thref=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500,600,700,900\"\n\t\t\t\t>\n\t\t\t\t<link\n\t\t\t\t\trel=\"stylesheet\"\n\t\t\t\t\thref=\"https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,500,600,700,900\"\n\t\t\t\t>\n\t\t\t\t<link\n\t\t\t\t\trel=\"stylesheet\"\n\t\t\t\t\thref=\"https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700,900\"\n\t\t\t\t>\n\t\t\t\t<link\n\t\t\t\t\trel=\"stylesheet\"\n\t\t\t\t\thref=\"https://fonts.googleapis.com/css?family=Alegreya+Sans:300,400,500,600,700,900\"\n\t\t\t\t>\n\t\t\t\t<link\n\t\t\t\t\trel=\"stylesheet\"\n\t\t\t\t\thref=\"https://fonts.googleapis.com/css?family=Cormorant+Infant:300,400,500,600,700,900\"\n\t\t\t\t>\n\t\t\t\t<link\n\t\t\t\t\trel=\"stylesheet\"\n\t\t\t\t\thref=\"https://fonts.googleapis.com/css?family=PT+Sans+Caption:300,400,500,600,700,900\"\n\t\t\t\t>\n\t\t\t\t<link\n\t\t\t\t\trel=\"stylesheet\"\n\t\t\t\t\thref=\"https://fonts.googleapis.com/css?family=PT+Sans+Narrow:300,400,500,600,700,900\"\n\t\t\t\t>\n\t\t\t\t<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=PT+Sans:300,400,500,600,700,900\">\n\t\t\t\t<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Lobster:300,400,500,600,700,900\">\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
 	function _templateObject() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-design-preview-wrap\">\n\t\t\t\t<div class=\"landing-design-preview\">\n\t\t\t\t\t<h2 class=\"landing-design-preview-title\">", "</h2>\n\t\t\t\t\t<h4 class=\"landing-design-preview-subtitle\">", "</h4>\n\t\t\t\t\t<p class=\"landing-design-preview-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</p>\n\t\t\t\t\t<p class=\"landing-design-preview-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</p>\n\t\t\t\t\t<div class=\"\">\n\t\t\t\t\t\t<a href=\"#\" class=\"landing-design-preview-button\">", "</a>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
 
@@ -93,11 +83,9 @@ this.BX.Landing = this.BX.Landing || {};
 	      var _this = this;
 
 	      this.layout = DesignPreview.createLayout(this.phrase);
-	      this.fonts = DesignPreview.loadFonts();
 	      this.styleNode = document.createElement("style");
 	      main_core.Dom.append(this.styleNode, this.layout);
 	      main_core.Dom.append(this.layout, this.form);
-	      main_core.Dom.append(this.fonts, this.form);
 	      var paramsObserver = {
 	        threshold: 1
 	      };
@@ -183,6 +171,30 @@ this.BX.Landing = this.BX.Landing || {};
 	      BX.addCustomEvent('BX.Landing.ColorPicker:onSelectColor', this.onApplyStyles.bind(this));
 	      BX.addCustomEvent('BX.Landing.ColorPicker:onClearColorPicker', this.onApplyStyles.bind(this));
 	      BX.addCustomEvent('BX.Landing.UI.Field.Image:onChangeImage', this.onApplyStyles.bind(this));
+	      BX.addCustomEvent('BX.Landing.UI.Panel.GoogleFonts:onSelectFont', this.onApplyStyles.bind(this));
+	      var fieldCode = BX('field-themefonts_code');
+	      var fieldCodeH = BX('field-themefonts_code_h');
+	      var panel = BX.Landing.UI.Panel.GoogleFonts.getInstance();
+	      BX.Dom.append(panel.layout, document.body);
+	      fieldCode.setAttribute("value", this.convertFont(fieldCode.value));
+	      fieldCodeH.setAttribute("value", this.convertFont(fieldCodeH.value));
+	      this.showFontPanel(panel, fieldCode);
+	      this.showFontPanel(panel, fieldCodeH);
+	    }
+	  }, {
+	    key: "showFontPanel",
+	    value: function showFontPanel(panel, element) {
+	      element.onclick = function () {
+	        panel.show({
+	          hideOverlay: true,
+	          targetWindow: 'window'
+	        }).then(function (font) {
+	          if (!this.response) {
+	            element.setAttribute("value", font.family);
+	            BX.onCustomEvent('BX.Landing.UI.Panel.GoogleFonts:onSelectFont');
+	          }
+	        }.bind(this));
+	      };
 	    }
 	  }, {
 	    key: "generateSelectorStart",
@@ -229,8 +241,8 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getCSSPart2",
 	    value: function getCSSPart2(css) {
 	      var textColor = this.controls.typo.textColor.node.value;
-	      var font = this.convertFont(this.controls.typo.textFont.node.value);
-	      var hFont = this.convertFont(this.controls.typo.hFont.node.value);
+	      var font = this.controls.typo.font.node.value;
+	      var hFont = this.controls.typo.hFont.node.value;
 	      var textSize = Math.round(this.controls.typo.textSize.node.value * DesignPreview.DEFAULT_FONT_SIZE) + 'px';
 	      var fontWeight = this.controls.typo.textWeight.node.value;
 	      var fontLineHeight = this.controls.typo.textLineHeight.node.value;
@@ -240,8 +252,8 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (this.controls.typo.use.node) {
 	        if (this.controls.typo.use.node.checked === false) {
 	          textColor = this.controls.typo.textColor.defaultValue;
-	          font = this.convertFont(this.controls.typo.textFont.defaultValue);
-	          hFont = this.convertFont(this.controls.typo.hFont.defaultValue);
+	          font = this.controls.typo.font.defaultValue;
+	          hFont = this.controls.typo.hFont.defaultValue;
 	          textSize = Math.round(this.controls.typo.textSize.defaultValue * DesignPreview.DEFAULT_FONT_SIZE) + 'px';
 	          fontWeight = this.controls.typo.textWeight.defaultValue;
 	          fontLineHeight = this.controls.typo.textLineHeight.defaultValue;
@@ -250,8 +262,12 @@ this.BX.Landing = this.BX.Landing || {};
 	        }
 	      }
 
+	      var link = this.createLink(font);
+	      main_core.Dom.append(link, this.form);
+	      var linkH = this.createLink(hFont);
+	      main_core.Dom.append(linkH, this.form);
 	      css += "--design-preview-color: ".concat(textColor, ";");
-	      css += "--design-preview-font: ".concat(font, ";");
+	      css += "--design-preview-font-theme: ".concat(font, ";");
 	      css += "--design-preview-font-size: ".concat(textSize, ";");
 	      css += "--design-preview-font-weight: ".concat(fontWeight, ";");
 	      css += "--design-preview-line-height: ".concat(fontLineHeight, ";");
@@ -269,9 +285,9 @@ this.BX.Landing = this.BX.Landing || {};
 	      }
 
 	      if (this.controls.typo.hFont.node.value) {
-	        css += "--design-preview-font-h: ".concat(hFont, ";");
+	        css += "--design-preview-font-h-theme: ".concat(hFont, ";");
 	      } else {
-	        css += "--design-preview-font-h: ".concat(font, ";");
+	        css += "--design-preview-font-h-theme: ".concat(font, ";");
 	      }
 
 	      return css;
@@ -329,6 +345,16 @@ this.BX.Landing = this.BX.Landing || {};
 	      return css;
 	    }
 	  }, {
+	    key: "createLink",
+	    value: function createLink(font) {
+	      var link = document.createElement('link');
+	      link.rel = 'stylesheet';
+	      link.href = 'https://fonts.googleapis.com/css2?family=';
+	      link.href += font.replace(' ', '+');
+	      link.href += ':wght@300;400;500;600;700;900';
+	      return link;
+	    }
+	  }, {
 	    key: "generateCss",
 	    value: function generateCss() {
 	      var css;
@@ -348,56 +374,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "applyStyles",
 	    value: function applyStyles() {
 	      this.styleNode.innerHTML = this.generateCss();
-	    }
-	  }, {
-	    key: "convertFont",
-	    value: function convertFont(font) {
-	      switch (font) {
-	        case 'g-font-open-sans':
-	          font = '"Open Sans", Helvetica, Arial, sans-serif';
-	          break;
-
-	        case 'g-font-roboto':
-	          font = '"Roboto", Arial, sans-serif';
-	          break;
-
-	        case 'g-font-roboto-slab':
-	          font = '"Roboto Slab", Helvetica, Arial, sans-serif';
-	          break;
-
-	        case 'g-font-montserrat':
-	          font = '"Montserrat", Arial, sans-serif';
-	          break;
-
-	        case 'g-font-alegreya-sans':
-	          font = '"Alegreya Sans", sans-serif';
-	          break;
-
-	        case 'g-font-cormorant-infant':
-	          font = '"Cormorant Infant", serif';
-	          break;
-
-	        case 'g-font-pt-sans-caption':
-	          font = '"PT Sans Caption", sans-serif';
-	          break;
-
-	        case 'g-font-pt-sans-narrow':
-	          font = '"PT Sans Narrow", sans-serif';
-	          break;
-
-	        case 'g-font-pt-sans':
-	          font = '"PT Sans", sans-serif';
-	          break;
-
-	        case 'g-font-lobster':
-	          font = '"Lobster", cursive';
-	          break;
-
-	        default:
-	          font = '"Montserrat", Arial, sans-serif';
-	      }
-
-	      return font;
 	    }
 	  }, {
 	    key: "fixElement",
@@ -430,15 +406,26 @@ this.BX.Landing = this.BX.Landing || {};
 	      var designPreview = document.querySelector('.landing-design-preview');
 	      designPreview.setAttribute("style", '');
 	    }
+	  }, {
+	    key: "convertFont",
+	    value: function convertFont(font) {
+	      font = font.replace('g-font-', '');
+	      font = font.replaceAll('-', ' ');
+	      font = font.replace('ibm ', 'IBM ');
+	      font = font.replace('pt ', 'PT ');
+	      font = font.replace(/sc(?:(?![a-z]))/i, 'SC');
+	      font = font.replace(/jp(?:(?![a-z]))/i, 'JP');
+	      font = font.replace(/kr(?:(?![a-z]))/i, 'KR');
+	      font = font.replace(/tc(?:(?![a-z]))/i, 'TC');
+	      font = font.replace(/(^|\s)\S/g, function (firstSymbol) {
+	        return firstSymbol.toUpperCase();
+	      });
+	      return font;
+	    }
 	  }], [{
 	    key: "createLayout",
 	    value: function createLayout(phrase) {
 	      return main_core.Tag.render(_templateObject(), phrase.title, phrase.subtitle, phrase.text1, phrase.text2, phrase.button);
-	    }
-	  }, {
-	    key: "loadFonts",
-	    value: function loadFonts() {
-	      return main_core.Tag.render(_templateObject2());
 	    }
 	  }]);
 	  return DesignPreview;

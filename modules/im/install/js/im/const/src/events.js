@@ -56,6 +56,8 @@ export const EventType = Object.freeze({
 		hideSmiles: 'IM.Conference:hideSmiles',
 		requestPermissions: 'IM.Conference:requestPermissions',
 		waitForStart: 'IM.Conference:waitForStart',
+		userRenameFocus: 'IM.Conference:userRenameFocus',
+		userRenameBlur: 'IM.Conference:userRenameBlur',
 	},
 	notification:
 	{

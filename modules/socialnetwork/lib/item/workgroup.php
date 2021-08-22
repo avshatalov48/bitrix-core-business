@@ -10,14 +10,12 @@ namespace Bitrix\Socialnetwork\Item;
 
 use Bitrix\Main;
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\UserToGroupTable;
-use Bitrix\Socialnetwork\FeatureTable;
-use Bitrix\Socialnetwork\FeaturePermTable;
+use Bitrix\Socialnetwork\Helper;
 
 Loc::loadMessages(__FILE__);
 
@@ -37,7 +35,7 @@ class Workgroup
 	{
 		global $USER_FIELD_MANAGER;
 
-		static $cachedFields = array();
+		static $cachedFields = [];
 
 		$groupItem = false;
 		$groupId = (int)$groupId;
@@ -45,7 +43,7 @@ class Workgroup
 		if ($groupId > 0)
 		{
 			$groupItem = new Workgroup;
-			$groupFields = array();
+			$groupFields = [];
 
 			if ($useCache && isset($cachedFields[$groupId]))
 			{
@@ -134,78 +132,6 @@ class Workgroup
 		}
 
 		return 'A';
-	}
-
-	public static function getListSprintDuration(): array
-	{
-		$oneWeek = \DateInterval::createFromDateString('1 week')->format('%d') * 86400;
-		$twoWeek = \DateInterval::createFromDateString('2 weeks')->format('%d') * 86400;
-		$threeWeek = \DateInterval::createFromDateString('3 weeks')->format('%d') * 86400;
-		$fourWeek = \DateInterval::createFromDateString('4 weeks')->format('%d') * 86400;
-
-		return [
-			$oneWeek => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_SPRINT_DURATION_ONE_WEEK'),
-			$twoWeek => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_SPRINT_DURATION_TWO_WEEK'),
-			$threeWeek => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_SPRINT_DURATION_THREE_WEEK'),
-			$fourWeek => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_SPRINT_DURATION_FOUR_WEEK'),
-		];
-	}
-
-	public static function getScrumTaskResponsibleList(): array
-	{
-		return [
-			'A' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_TASK_RESPONSIBLE_AUTHOR'),
-			'M' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_TASK_RESPONSIBLE_MASTER')
-		];
-	}
-
-	private static function getSubDepartments($departmentList = array())
-	{
-		$result = array();
-
-		if (
-			is_array($departmentList)
-			&& Loader::includeModule('iblock')
-		)
-		{
-			foreach ($departmentList as $departmentId)
-			{
-				$res = \CIBlockSection::getList(
-					array(),
-					array(
-						"ID" => intval($departmentId)
-					),
-					false,
-					array("ID", "IBLOCK_ID", "LEFT_MARGIN", "RIGHT_MARGIN")
-				);
-
-				if ($rootSection = $res->fetch())
-				{
-					$filter = array(
-						"IBLOCK_ID" => $rootSection["IBLOCK_ID"],
-						"ACTIVE" => "Y",
-						">=LEFT_MARGIN" => $rootSection["LEFT_MARGIN"],
-						"<=RIGHT_MARGIN" => $rootSection["RIGHT_MARGIN"]
-					);
-
-					$res2 = \CIBlockSection::getList(
-						array("left_margin"=>"asc"),
-						$filter,
-						false,
-						array("ID")
-					);
-
-					while ($section = $res2->fetch())
-					{
-						$result[] = intval($section["ID"]);
-					}
-				}
-			}
-
-			$result = array_unique($result);
-		}
-
-		return $result;
 	}
 
 	public function syncDeptConnection($exclude = false)
@@ -888,9 +814,9 @@ class Workgroup
 		{
 			$result['group-landing'] = [
 				'SORT' => $sort += 10,
-				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING'),
-				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC'),
-				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC'),
+				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING2'),
+				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC2'),
+				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC2'),
 				'VISIBLE' => 'N',
 				'OPENED' => 'N',
 				'PROJECT' => 'N',
@@ -927,72 +853,6 @@ class Workgroup
 				$result = false;
 				break;
 			}
-		}
-
-		return $result;
-	}
-
-	public static function getTypeCodeByParams($params)
-	{
-		$result = false;
-
-		if (empty($params['fields']))
-		{
-			return $result;
-		}
-
-		$typesList = (
-			!empty($params['typesList'])
-				? $params['typesList']
-				: self::getTypes($params)
-		);
-
-		foreach($typesList as $code => $type)
-		{
-			if (
-				$params['fields']['OPENED'] == $type['OPENED']
-				&& (
-					isset($params['fields']['VISIBLE'])
-					&& $params['fields']['VISIBLE'] == $type['VISIBLE']
-				)
-				&& $params['fields']['PROJECT'] == $type['PROJECT']
-				&& $params['fields']['EXTERNAL'] == $type['EXTERNAL']
-			)
-			{
-				$result = $code;
-				break;
-			}
-		}
-
-		return $result;
-	}
-
-	public static function getTypeByCode($params = array())
-	{
-		$result = false;
-
-		if (
-			!is_array($params)
-			|| empty($params['code'])
-		)
-		{
-			return $result;
-		}
-
-		$code = $params['code'];
-		$typesList = (
-			!empty($params['typesList'])
-				? $params['typesList']
-				: self::getTypes($params)
-		);
-
-		if (
-			!empty($typesList)
-			&& is_array($typesList)
-			&& !empty($typesList[$code])
-		)
-		{
-			$result = $typesList[$code];
 		}
 
 		return $result;
@@ -1194,47 +1054,6 @@ class Workgroup
 		);
 	}
 
-	public static function getEditFeaturesAvailability()
-	{
-		static $result = null;
-
-		if ($result !== null)
-		{
-			return $result;
-		}
-
-		$result = true;
-
-		if (!ModuleManager::isModuleInstalled('bitrix24'))
-		{
-			return $result;
-		}
-
-		if (\CBitrix24::isNfrLicense())
-		{
-			return $result;
-		}
-
-		if (\CBitrix24::isDemoLicense())
-		{
-			return $result;
-		}
-
-		if (
-			\CBitrix24::getLicenseType() !== 'project'
-			|| !Option::get('socialnetwork', 'demo_edit_features', false)
-		)
-		{
-
-			return $result;
-		}
-
-		$result = false;
-
-		return $result;
-	}
-
-
 	/**
 	 * returns array of workgroups filtered by access permissions of a user, only for the current site
 	 * @param array $params
@@ -1242,126 +1061,31 @@ class Workgroup
 	 */
 	public static function getByFeatureOperation(array $params = []): array
 	{
-		global $USER;
+		return Helper\Workgroup::getByFeatureOperation($params);
+	}
 
-		$result = [];
+	public static function getListSprintDuration(): array
+	{
+		return Helper\Workgroup::getListSprintDuration();
+	}
 
-		$feature = (isset($params['feature']) ? $params['feature'] : '');
-		$operation = (isset($params['operation']) ? $params['operation'] : '');
-		$userId = (isset($params['userId']) ? (int)$params['userId'] : (is_object($USER) && $USER instanceof \CUser ? $USER->getId() : 0));
+	public static function getScrumTaskResponsibleList(): array
+	{
+		return Helper\Workgroup::getScrumTaskResponsibleList();
+	}
 
-		if (
-			$feature == ''
-			|| $operation == ''
-			|| $userId <= 0
-		)
-		{
-			return $result;
-		}
+	public static function getTypeCodeByParams($params)
+	{
+		return Helper\Workgroup::getTypeCodeByParams($params);
+	}
 
-		$featuresSettings = \CSocNetAllowed::getAllowedFeatures();
-		if (
-			empty($featuresSettings)
-			|| empty($featuresSettings[$feature])
-			|| empty($featuresSettings[$feature]['allowed'])
-			|| !in_array(FeatureTable::FEATURE_ENTITY_TYPE_GROUP, $featuresSettings[$feature]['allowed'])
-			|| empty($featuresSettings[$feature]['operations'])
-			|| empty($featuresSettings[$feature]['operations'][$operation])
-			|| empty($featuresSettings[$feature]['operations'][$operation][FeatureTable::FEATURE_ENTITY_TYPE_GROUP])
-		)
-		{
-			return $result;
-		}
+	public static function getTypeByCode($params = [])
+	{
+		return Helper\Workgroup::getTypeByCode($params);
+	}
 
-		$defaultRole = $featuresSettings[$feature]['operations'][$operation][FeatureTable::FEATURE_ENTITY_TYPE_GROUP];
-
-		$query = new \Bitrix\Main\Entity\Query(WorkgroupTable::getEntity());
-		$query->addFilter('=ACTIVE', 'Y');
-
-		if (
-			(
-				!is_array($featuresSettings[$feature]['minoperation'])
-				|| !in_array($operation, $featuresSettings[$feature]['minoperation'])
-			)
-			&& Option::get('socialnetwork', 'work_with_closed_groups', 'N') !== 'Y'
-		)
-		{
-			$query->addFilter('!=CLOSED', 'Y');
-		}
-
-		$query->addSelect('ID');
-
-		$query->registerRuntimeField(
-			'',
-			new \Bitrix\Main\Entity\ReferenceField('F',
-				FeatureTable::getEntity(),
-				[
-					'=ref.ENTITY_TYPE' => new SqlExpression('?s', FeatureTable::FEATURE_ENTITY_TYPE_GROUP),
-					'=ref.ENTITY_ID' => 'this.ID',
-					'=ref.FEATURE' => new SqlExpression('?s', $feature),
-				],
-				[ 'join_type' => 'LEFT' ]
-			)
-		);
-		$query->addSelect('F.ID', 'FEATURE_ID');
-
-		$query->registerRuntimeField(
-			'',
-			new \Bitrix\Main\Entity\ReferenceField('FP',
-				FeaturePermTable::getEntity(),
-				[
-					'=ref.FEATURE_ID' => 'this.FEATURE_ID',
-					'=ref.OPERATION_ID' => new SqlExpression('?s', $operation),
-				],
-				[ 'join_type' => 'LEFT' ]
-			)
-		);
-
-		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
-			'PERM_ROLE_CALCULATED',
-			'CASE WHEN %s IS NULL THEN \''.$defaultRole.'\' ELSE %s END',
-			[ 'FP.ROLE', 'FP.ROLE' ]
-		));
-
-		$query->registerRuntimeField(
-			'',
-			new \Bitrix\Main\Entity\ReferenceField('UG',
-				UserToGroupTable::getEntity(),
-				[
-					'=ref.GROUP_ID' => 'this.ID',
-					'=ref.USER_ID' => new \Bitrix\Main\DB\SqlExpression($userId),
-				],
-				[ 'join_type' => 'LEFT' ]
-			)
-		);
-
-		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
-			'HAS_ACCESS',
-			'CASE 
-				WHEN 
-					(
-						%s NOT IN (\''.FeaturePermTable::PERM_OWNER.'\', \''.FeaturePermTable::PERM_MODERATOR.'\', \''.FeaturePermTable::PERM_USER.'\')
-						OR %s >= %s
-					) THEN \'Y\' 
-					ELSE \'N\' 
-			END',
-			[
-				'PERM_ROLE_CALCULATED',
-				'PERM_ROLE_CALCULATED', 'UG.ROLE'
-			]
-		));
-
-		$query->addFilter('=HAS_ACCESS', 'Y');
-
-		$res = $query->exec();
-
-		while ($row = $res->fetch())
-		{
-			$result[] = [
-				'ID' => (int) $row['ID']
-			];
-		}
-
-		return $result;
+	public static function getEditFeaturesAvailability()
+	{
+		return Helper\Workgroup::getEditFeaturesAvailability();
 	}
 }

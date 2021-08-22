@@ -9,7 +9,20 @@ use Bitrix\Main\Type\DateTime;
 /**
  * Class AgreementTable
  * @package Bitrix\Sender\Internals\Model
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Agreement_Query query()
+ * @method static EO_Agreement_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Agreement_Result getById($id)
+ * @method static EO_Agreement_Result getList(array $parameters = array())
+ * @method static EO_Agreement_Entity getEntity()
+ * @method static \Bitrix\Sender\Internals\Model\EO_Agreement createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\Internals\Model\EO_Agreement_Collection createCollection()
+ * @method static \Bitrix\Sender\Internals\Model\EO_Agreement wakeUpObject($row)
+ * @method static \Bitrix\Sender\Internals\Model\EO_Agreement_Collection wakeUpCollection($rows)
+ */
 class AgreementTable extends Entity\DataManager
 {
 	/**

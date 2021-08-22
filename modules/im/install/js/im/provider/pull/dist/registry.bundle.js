@@ -250,8 +250,8 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	            });
 	          });
 	        }
-	      } //else - just increase the counter
-	      else {
+	      } //increase the counter if message is not ours
+	      else if (params.message.senderId !== this.controller.application.getUserId()) {
 	          this.store.dispatch('dialogues/increaseCounter', {
 	            dialogId: params.dialogId,
 	            count: 1
@@ -781,6 +781,15 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    key: "handleVideoconfShareUpdate",
 	    value: function handleVideoconfShareUpdate(params) {
 	      if (params.dialogId === this.store.state.application.dialog.dialogId) {
+	        this.store.dispatch('dialogues/update', {
+	          dialogId: params.dialogId,
+	          fields: {
+	            public: {
+	              code: params.newCode,
+	              link: params.newLink
+	            }
+	          }
+	        });
 	        this.application.changeVideoconfUrl(params.newLink);
 	      }
 	    }
@@ -991,13 +1000,19 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	  }, {
 	    key: "handleNotifyDelete",
 	    value: function handleNotifyDelete(params, extra) {
+	      var _this3 = this;
+
 	      if (extra.server_time_ago > 30) {
 	        return false;
 	      }
 
-	      var idToDelete = +Object.keys(params.id)[0];
-	      this.store.dispatch('notifications/delete', {
-	        id: idToDelete
+	      var idsToDelete = Object.keys(params.id).map(function (id) {
+	        return parseInt(id, 10);
+	      });
+	      idsToDelete.forEach(function (id) {
+	        _this3.store.dispatch('notifications/delete', {
+	          id: id
+	        });
 	      });
 	      this.updateRecentListOnDelete(params.counter);
 	      this.store.dispatch('notifications/setCounter', {

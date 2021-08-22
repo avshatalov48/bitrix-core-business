@@ -170,8 +170,8 @@
 			var srcset;
 			if(image.dataset[BX.Landing.CardGallery.DATA_LAZY_IMAGE] === 'Y')
 			{
-				src = image.dataset.src;
-				srcset = image.dataset.srcset;
+				src = image.dataset.src || image.src;
+				srcset = image.dataset.srcset || image.srcset;
 			}
 			else
 			{

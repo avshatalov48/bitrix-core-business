@@ -151,18 +151,6 @@ namespace Bitrix\Mail {
 }
 namespace Bitrix\Mail {
 	/**
-	 * @method static EO_Blacklist_Query query()
-	 * @method static EO_Blacklist_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Blacklist_Result getById($id)
-	 * @method static EO_Blacklist_Result getList(array $parameters = array())
-	 * @method static EO_Blacklist_Entity getEntity()
-	 * @method static \Bitrix\Mail\Internals\Entity\BlacklistEmail createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\EO_Blacklist_Collection createCollection()
-	 * @method static \Bitrix\Mail\Internals\Entity\BlacklistEmail wakeUpObject($row)
-	 * @method static \Bitrix\Mail\EO_Blacklist_Collection wakeUpCollection($rows)
-	 */
-	class BlacklistTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -284,18 +272,6 @@ namespace Bitrix\Mail\Internals {
 	}
 }
 namespace Bitrix\Mail\Internals {
-	/**
-	 * @method static EO_DomainEmail_Query query()
-	 * @method static EO_DomainEmail_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DomainEmail_Result getById($id)
-	 * @method static EO_DomainEmail_Result getList(array $parameters = array())
-	 * @method static EO_DomainEmail_Entity getEntity()
-	 * @method static \Bitrix\Mail\Internals\EO_DomainEmail createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\Internals\EO_DomainEmail_Collection createCollection()
-	 * @method static \Bitrix\Mail\Internals\EO_DomainEmail wakeUpObject($row)
-	 * @method static \Bitrix\Mail\Internals\EO_DomainEmail_Collection wakeUpCollection($rows)
-	 */
-	class DomainEmailTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -641,18 +617,6 @@ namespace Bitrix\Mail\Internals {
 }
 namespace Bitrix\Mail\Internals {
 	/**
-	 * @method static EO_MailboxDirectory_Query query()
-	 * @method static EO_MailboxDirectory_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MailboxDirectory_Result getById($id)
-	 * @method static EO_MailboxDirectory_Result getList(array $parameters = array())
-	 * @method static EO_MailboxDirectory_Entity getEntity()
-	 * @method static \Bitrix\Mail\Internals\Entity\MailboxDirectory createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\Internals\EO_MailboxDirectory_Collection createCollection()
-	 * @method static \Bitrix\Mail\Internals\Entity\MailboxDirectory wakeUpObject($row)
-	 * @method static \Bitrix\Mail\Internals\EO_MailboxDirectory_Collection wakeUpCollection($rows)
-	 */
-	class MailboxDirectoryTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -805,18 +769,6 @@ namespace Bitrix\Mail\Internals {
 }
 namespace Bitrix\Mail\Internals {
 	/**
-	 * @method static EO_UserSignature_Query query()
-	 * @method static EO_UserSignature_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UserSignature_Result getById($id)
-	 * @method static EO_UserSignature_Result getList(array $parameters = array())
-	 * @method static EO_UserSignature_Entity getEntity()
-	 * @method static \Bitrix\Mail\Internals\Entity\UserSignature createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\Internals\EO_UserSignature_Collection createCollection()
-	 * @method static \Bitrix\Mail\Internals\Entity\UserSignature wakeUpObject($row)
-	 * @method static \Bitrix\Mail\Internals\EO_UserSignature_Collection wakeUpCollection($rows)
-	 */
-	class UserSignatureTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -968,18 +920,6 @@ namespace Bitrix\Mail\Internals {
 	}
 }
 namespace Bitrix\Mail\Internals {
-	/**
-	 * @method static EO_MailboxAccess_Query query()
-	 * @method static EO_MailboxAccess_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MailboxAccess_Result getById($id)
-	 * @method static EO_MailboxAccess_Result getList(array $parameters = array())
-	 * @method static EO_MailboxAccess_Entity getEntity()
-	 * @method static \Bitrix\Mail\Internals\EO_MailboxAccess createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\Internals\EO_MailboxAccess_Collection createCollection()
-	 * @method static \Bitrix\Mail\Internals\EO_MailboxAccess wakeUpObject($row)
-	 * @method static \Bitrix\Mail\Internals\EO_MailboxAccess_Collection wakeUpCollection($rows)
-	 */
-	class MailboxAccessTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1168,18 +1108,6 @@ namespace Bitrix\Mail\Internals {
 	}
 }
 namespace Bitrix\Mail\Internals {
-	/**
-	 * @method static EO_MailContact_Query query()
-	 * @method static EO_MailContact_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MailContact_Result getById($id)
-	 * @method static EO_MailContact_Result getList(array $parameters = array())
-	 * @method static EO_MailContact_Entity getEntity()
-	 * @method static \Bitrix\Mail\Internals\EO_MailContact createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\Internals\EO_MailContact_Collection createCollection()
-	 * @method static \Bitrix\Mail\Internals\EO_MailContact wakeUpObject($row)
-	 * @method static \Bitrix\Mail\Internals\EO_MailContact_Collection wakeUpCollection($rows)
-	 */
-	class MailContactTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1392,18 +1320,6 @@ namespace Bitrix\Mail\Internals {
 	}
 }
 namespace Bitrix\Mail\Internals {
-	/**
-	 * @method static EO_MailMessageAttachment_Query query()
-	 * @method static EO_MailMessageAttachment_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MailMessageAttachment_Result getById($id)
-	 * @method static EO_MailMessageAttachment_Result getList(array $parameters = array())
-	 * @method static EO_MailMessageAttachment_Entity getEntity()
-	 * @method static \Bitrix\Mail\Internals\EO_MailMessageAttachment createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\Internals\EO_MailMessageAttachment_Collection createCollection()
-	 * @method static \Bitrix\Mail\Internals\EO_MailMessageAttachment wakeUpObject($row)
-	 * @method static \Bitrix\Mail\Internals\EO_MailMessageAttachment_Collection wakeUpCollection($rows)
-	 */
-	class MailMessageAttachmentTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1618,18 +1534,6 @@ namespace Bitrix\Mail\Internals {
 }
 namespace Bitrix\Mail\Internals {
 	/**
-	 * @method static EO_MessageAccess_Query query()
-	 * @method static EO_MessageAccess_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MessageAccess_Result getById($id)
-	 * @method static EO_MessageAccess_Result getList(array $parameters = array())
-	 * @method static EO_MessageAccess_Entity getEntity()
-	 * @method static \Bitrix\Mail\Internals\EO_MessageAccess createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\Internals\EO_MessageAccess_Collection createCollection()
-	 * @method static \Bitrix\Mail\Internals\EO_MessageAccess wakeUpObject($row)
-	 * @method static \Bitrix\Mail\Internals\EO_MessageAccess_Collection wakeUpCollection($rows)
-	 */
-	class MessageAccessTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1751,18 +1655,6 @@ namespace Bitrix\Mail\Internals {
 	}
 }
 namespace Bitrix\Mail\Internals {
-	/**
-	 * @method static EO_MessageClosure_Query query()
-	 * @method static EO_MessageClosure_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MessageClosure_Result getById($id)
-	 * @method static EO_MessageClosure_Result getList(array $parameters = array())
-	 * @method static EO_MessageClosure_Entity getEntity()
-	 * @method static \Bitrix\Mail\Internals\EO_MessageClosure createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\Internals\EO_MessageClosure_Collection createCollection()
-	 * @method static \Bitrix\Mail\Internals\EO_MessageClosure wakeUpObject($row)
-	 * @method static \Bitrix\Mail\Internals\EO_MessageClosure_Collection wakeUpCollection($rows)
-	 */
-	class MessageClosureTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1903,18 +1795,6 @@ namespace Bitrix\Mail\Internals {
 	}
 }
 namespace Bitrix\Mail\Internals {
-	/**
-	 * @method static EO_MessageDeleteQueue_Query query()
-	 * @method static EO_MessageDeleteQueue_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MessageDeleteQueue_Result getById($id)
-	 * @method static EO_MessageDeleteQueue_Result getList(array $parameters = array())
-	 * @method static EO_MessageDeleteQueue_Entity getEntity()
-	 * @method static \Bitrix\Mail\Internals\EO_MessageDeleteQueue createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\Internals\EO_MessageDeleteQueue_Collection createCollection()
-	 * @method static \Bitrix\Mail\Internals\EO_MessageDeleteQueue wakeUpObject($row)
-	 * @method static \Bitrix\Mail\Internals\EO_MessageDeleteQueue_Collection wakeUpCollection($rows)
-	 */
-	class MessageDeleteQueueTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2073,18 +1953,6 @@ namespace Bitrix\Mail\Internals {
 	}
 }
 namespace Bitrix\Mail\Internals {
-	/**
-	 * @method static EO_MessageUploadQueue_Query query()
-	 * @method static EO_MessageUploadQueue_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MessageUploadQueue_Result getById($id)
-	 * @method static EO_MessageUploadQueue_Result getList(array $parameters = array())
-	 * @method static EO_MessageUploadQueue_Entity getEntity()
-	 * @method static \Bitrix\Mail\Internals\EO_MessageUploadQueue createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\Internals\EO_MessageUploadQueue_Collection createCollection()
-	 * @method static \Bitrix\Mail\Internals\EO_MessageUploadQueue wakeUpObject($row)
-	 * @method static \Bitrix\Mail\Internals\EO_MessageUploadQueue_Collection wakeUpCollection($rows)
-	 */
-	class MessageUploadQueueTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2261,18 +2129,6 @@ namespace Bitrix\Mail\Internals {
 	}
 }
 namespace Bitrix\Mail\Internals {
-	/**
-	 * @method static EO_OAuth_Query query()
-	 * @method static EO_OAuth_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OAuth_Result getById($id)
-	 * @method static EO_OAuth_Result getList(array $parameters = array())
-	 * @method static EO_OAuth_Entity getEntity()
-	 * @method static \Bitrix\Mail\Internals\EO_OAuth createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\Internals\EO_OAuth_Collection createCollection()
-	 * @method static \Bitrix\Mail\Internals\EO_OAuth wakeUpObject($row)
-	 * @method static \Bitrix\Mail\Internals\EO_OAuth_Collection wakeUpCollection($rows)
-	 */
-	class OAuthTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2739,18 +2595,6 @@ namespace Bitrix\Mail {
 }
 namespace Bitrix\Mail {
 	/**
-	 * @method static EO_Mailbox_Query query()
-	 * @method static EO_Mailbox_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Mailbox_Result getById($id)
-	 * @method static EO_Mailbox_Result getList(array $parameters = array())
-	 * @method static EO_Mailbox_Entity getEntity()
-	 * @method static \Bitrix\Mail\EO_Mailbox createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\EO_Mailbox_Collection createCollection()
-	 * @method static \Bitrix\Mail\EO_Mailbox wakeUpObject($row)
-	 * @method static \Bitrix\Mail\EO_Mailbox_Collection wakeUpCollection($rows)
-	 */
-	class MailboxTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3131,18 +2975,6 @@ namespace Bitrix\Mail {
 }
 namespace Bitrix\Mail {
 	/**
-	 * @method static EO_MailFilter_Query query()
-	 * @method static EO_MailFilter_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MailFilter_Result getById($id)
-	 * @method static EO_MailFilter_Result getList(array $parameters = array())
-	 * @method static EO_MailFilter_Entity getEntity()
-	 * @method static \Bitrix\Mail\EO_MailFilter createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\EO_MailFilter_Collection createCollection()
-	 * @method static \Bitrix\Mail\EO_MailFilter wakeUpObject($row)
-	 * @method static \Bitrix\Mail\EO_MailFilter_Collection wakeUpCollection($rows)
-	 */
-	class MailFilterTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3382,18 +3214,6 @@ namespace Bitrix\Mail {
 }
 namespace Bitrix\Mail {
 	/**
-	 * @method static EO_MailLog_Query query()
-	 * @method static EO_MailLog_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MailLog_Result getById($id)
-	 * @method static EO_MailLog_Result getList(array $parameters = array())
-	 * @method static EO_MailLog_Entity getEntity()
-	 * @method static \Bitrix\Mail\EO_MailLog createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\EO_MailLog_Collection createCollection()
-	 * @method static \Bitrix\Mail\EO_MailLog wakeUpObject($row)
-	 * @method static \Bitrix\Mail\EO_MailLog_Collection wakeUpCollection($rows)
-	 */
-	class MailLogTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3419,7 +3239,7 @@ namespace Bitrix\Mail {
 	 */
 	class EO_MailLog_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Mail\MailMessageTable:mail/lib/mailmessage.php:42733a2fcc96b154985628d830f21bdd */
+/* ORMENTITYANNOTATION:Bitrix\Mail\MailMessageTable:mail/lib/mailmessage.php:2a397498218b667a496efffc013d68b5 */
 namespace Bitrix\Mail {
 	/**
 	 * EO_MailMessage
@@ -3883,18 +3703,6 @@ namespace Bitrix\Mail {
 }
 namespace Bitrix\Mail {
 	/**
-	 * @method static EO_MailMessage_Query query()
-	 * @method static EO_MailMessage_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MailMessage_Result getById($id)
-	 * @method static EO_MailMessage_Result getList(array $parameters = array())
-	 * @method static EO_MailMessage_Entity getEntity()
-	 * @method static \Bitrix\Mail\EO_MailMessage createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\EO_MailMessage_Collection createCollection()
-	 * @method static \Bitrix\Mail\EO_MailMessage wakeUpObject($row)
-	 * @method static \Bitrix\Mail\EO_MailMessage_Collection wakeUpCollection($rows)
-	 */
-	class MailMessageTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3920,7 +3728,7 @@ namespace Bitrix\Mail {
 	 */
 	class EO_MailMessage_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Mail\MailMessageUidTable:mail/lib/mailmessageuid.php:d22bbb28ad42f8a8905fc1cd47a2ba3d */
+/* ORMENTITYANNOTATION:Bitrix\Mail\MailMessageUidTable:mail/lib/mailmessageuid.php:134ecb9f9f39e39a363c1d7cde87f929 */
 namespace Bitrix\Mail {
 	/**
 	 * EO_MailMessageUid
@@ -4174,18 +3982,6 @@ namespace Bitrix\Mail {
 	}
 }
 namespace Bitrix\Mail {
-	/**
-	 * @method static EO_MailMessageUid_Query query()
-	 * @method static EO_MailMessageUid_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MailMessageUid_Result getById($id)
-	 * @method static EO_MailMessageUid_Result getList(array $parameters = array())
-	 * @method static EO_MailMessageUid_Entity getEntity()
-	 * @method static \Bitrix\Mail\EO_MailMessageUid createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\EO_MailMessageUid_Collection createCollection()
-	 * @method static \Bitrix\Mail\EO_MailMessageUid wakeUpObject($row)
-	 * @method static \Bitrix\Mail\EO_MailMessageUid_Collection wakeUpCollection($rows)
-	 */
-	class MailMessageUidTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -4532,18 +4328,6 @@ namespace Bitrix\Mail {
 }
 namespace Bitrix\Mail {
 	/**
-	 * @method static EO_MailServices_Query query()
-	 * @method static EO_MailServices_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MailServices_Result getById($id)
-	 * @method static EO_MailServices_Result getList(array $parameters = array())
-	 * @method static EO_MailServices_Entity getEntity()
-	 * @method static \Bitrix\Mail\EO_MailServices createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\EO_MailServices_Collection createCollection()
-	 * @method static \Bitrix\Mail\EO_MailServices wakeUpObject($row)
-	 * @method static \Bitrix\Mail\EO_MailServices_Collection wakeUpCollection($rows)
-	 */
-	class MailServicesTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4768,18 +4552,6 @@ namespace Bitrix\Mail\User {
 }
 namespace Bitrix\Mail\User {
 	/**
-	 * @method static EO_Message_Query query()
-	 * @method static EO_Message_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Message_Result getById($id)
-	 * @method static EO_Message_Result getList(array $parameters = array())
-	 * @method static EO_Message_Entity getEntity()
-	 * @method static \Bitrix\Mail\User\EO_Message createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\User\EO_Message_Collection createCollection()
-	 * @method static \Bitrix\Mail\User\EO_Message wakeUpObject($row)
-	 * @method static \Bitrix\Mail\User\EO_Message_Collection wakeUpCollection($rows)
-	 */
-	class MessageTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4980,18 +4752,6 @@ namespace Bitrix\Mail {
 	}
 }
 namespace Bitrix\Mail {
-	/**
-	 * @method static EO_UserRelations_Query query()
-	 * @method static EO_UserRelations_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UserRelations_Result getById($id)
-	 * @method static EO_UserRelations_Result getList(array $parameters = array())
-	 * @method static EO_UserRelations_Entity getEntity()
-	 * @method static \Bitrix\Mail\EO_UserRelations createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Mail\EO_UserRelations_Collection createCollection()
-	 * @method static \Bitrix\Mail\EO_UserRelations wakeUpObject($row)
-	 * @method static \Bitrix\Mail\EO_UserRelations_Collection wakeUpCollection($rows)
-	 */
-	class UserRelationsTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

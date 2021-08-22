@@ -150,6 +150,10 @@ class CCloudStorageService_Yandex extends CCloudStorageService_S3
 	function SendRequest($arSettings, $verb, $bucket, $file_name='/', $params='', $content='', $additional_headers=/*.(array[string]string).*/array())
 	{
 		$file_name = str_replace("+", "%20", $file_name);
+		if (isset($additional_headers["x-amz-copy-source"]))
+		{
+			$additional_headers["x-amz-copy-source"] = str_replace("+", "%20", $additional_headers["x-amz-copy-source"]);
+		}
 		return parent::SendRequest($arSettings, $verb, $bucket, $file_name, $params, $content, $additional_headers);
 	}
 	/**
@@ -206,5 +210,21 @@ class CCloudStorageService_Yandex extends CCloudStorageService_S3
 			return false;
 
 		return parent::DeleteBucket($arBucket);
+	}
+
+	function FileCopy($arBucket, $arFile, $filePath)
+	{
+		$this->streamTimeout = 3600;
+		return parent::FileCopy($arBucket, $arFile, $filePath);
+	}
+	/**
+	 * @param array[string]string $arBucket
+	 * @param mixed & $NS
+	 * @return bool
+	*/
+	function CompleteMultipartUpload($arBucket, &$NS)
+	{
+		$this->streamTimeout = 3600;
+		return parent::CompleteMultipartUpload($arBucket, $NS);
 	}
 }

@@ -74,7 +74,18 @@ class Network
 		{
 			if(\CSocServAuthManager::GetAuthorizedServiceId() !== \CSocServBitrix24Net::ID)
 			{
-				return false;
+				if(Loader::includeModule('replica'))
+				{
+					global $USER;
+					if(is_object($USER) && $USER->GetID() > 0 && \Bitrix\Replica\Client\User::getGuid($USER->GetID()) === false)
+					{
+						return false;
+					}
+				}
+				else
+				{
+					return false;
+				}
 			}
 		}
 		else

@@ -602,22 +602,41 @@ Loc::loadMessages(__FILE__);
 												<?=Loc::getMessage('REST_INTEGRATION_EDIT_TAB_APPLICATION_MOBILE')?>
 											</span>
 										</label>
-										<? foreach ($arResult['APPLICATION_LANG'] as $lid => $lang):
-											$required = in_array($lid, $arResult['LANG_LIST'], true);?>
-											<div class="integration-row-input-title">
-												<?=Loc::getMessage(
-													'REST_INTEGRATION_EDIT_TAB_APPLICATION_MENU_NAME'
-												)?> <?=$lang?> (<?=$lid?>)<?=$required ? ' *' : ''?>
+										<?php
+										$needShowMoreBtn = false;
+										foreach ($arResult['LANG_LIST_AVAILABLE'] as $lid => $lang):
+											$value = $arResult['APPLICATION_LANG_DATA'][$lid];
+											$required = in_array($lid, $arResult['LANG_LIST'], true);
+											$hidden = empty($value) && !$required;
+											if ($hidden)
+											{
+												$needShowMoreBtn = true;
+											}
+											?>
+											<div class="integration-application-lang-block<?=$hidden ? ' hidden' : ''?>">
+												<div class="integration-row-input-title">
+													<?=Loc::getMessage(
+														'REST_INTEGRATION_EDIT_TAB_APPLICATION_MENU_NAME'
+													)?> <?=$lang?> (<?=$lid?>)<?=$required ? ' *' : ''?>
+												</div>
+												<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
+													<input
+														type="text"
+														name="APPLICATION_LANG_NAME[<?=$lid?>]"
+														class="ui-ctl-element<?=$required ? ' integration-required-lang' : ''?>"
+														value="<?=htmlspecialcharsbx($value);?>"
+													>
+												</div>
 											</div>
-											<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
-												<input
-													type="text"
-													name="APPLICATION_LANG_NAME[<?=$lid?>]"
-													class="ui-ctl-element<?=$required ? ' integration-required-lang' : ''?>"
-													value="<?=htmlspecialcharsbx($arResult['APPLICATION_LANG_DATA'][$lid]);?>"
-												>
-											</div>
-										<? endforeach; ?>
+										<?php endforeach; ?>
+										<?php if ($needShowMoreBtn):?>
+											<span
+												data-id="applicationLang"
+												data-selector="integration-application-lang-block"
+												data-required="integration-required-lang"
+												class="integration-webhook-param-control-item integration-btn-dropdown integration-action-dropdown"
+											><?=Loc::getMessage('REST_INTEGRATION_EDIT_SHOW_MORE_BTN')?></span>
+										<?php endif;?>
 									</div>
 									<? if ($arResult['DESCRIPTION_' . $block]): ?>
 										<div class="integration-row integration-row-padding-right">
@@ -682,6 +701,48 @@ Loc::loadMessages(__FILE__);
 							<? endif; ?>
 							<div class="integration-tab-wrapper">
 								<div class="integration-tab-container">
+									<div
+										id="widgetLang"
+										class="integration-row integration-row-padding-right integration-row-no-margin"
+									>
+										<?php
+										$needShowMoreBtn = false;
+										foreach ($arResult['LANG_LIST_AVAILABLE'] as $lid => $lang):
+											$value = $arResult['WIDGET_LANG_LIST'][$lid]['TITLE'];
+											$required = in_array($lid, $arResult['LANG_LIST'], true);
+											$hidden = empty($value) && !$required;
+											if ($hidden)
+											{
+												$needShowMoreBtn = true;
+											}
+											?>
+											<div class="integration-widget-lang-block<?=$hidden ? ' hidden' : ''?>">
+												<div class="integration-row-input-title">
+													<?=Loc::getMessage(
+														'REST_INTEGRATION_EDIT_TAB_WIDGET_TITLE_NAME'
+													)?> <?=$lang?> (<?=$lid?>)<?=$required ? ' *' : ''?>
+												</div>
+												<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
+													<input
+														type="text"
+														name="WIDGET_LANG_LIST[<?=$lid?>][TITLE]"
+														class="ui-ctl-element<?=$required ? ' integration-required-lang' : ''?>"
+														value="<?=htmlspecialcharsbx($value);?>"
+													>
+												</div>
+											</div>
+										<?php endforeach; ?>
+										<?php if ($needShowMoreBtn):?>
+											<span
+												data-id="widgetLang"
+												data-selector="integration-widget-lang-block"
+												data-required="integration-required-lang"
+												class="integration-webhook-param-control-item integration-btn-dropdown integration-action-dropdown"
+											>
+												<?=Loc::getMessage('REST_INTEGRATION_EDIT_SHOW_MORE_BTN')?>
+											</span>
+										<?php endif;?>
+									</div>
 									<div class="integration-row-input-title">
 										<?=Loc::getMessage('REST_INTEGRATION_EDIT_TAB_WIDGET_HANDLER_URL_TITLE')?>*
 									</div>
@@ -692,7 +753,8 @@ Loc::loadMessages(__FILE__);
 												name="WIDGET_HANDLER_URL"
 												class="ui-ctl-element integration-required integration-required"
 												placeholder="https://example.com/handler.php"
-												value="<?=($arResult['WIDGET_HANDLER_URL']) ? htmlspecialcharsbx($arResult['WIDGET_HANDLER_URL']) : ''?>">
+												value="<?=($arResult['WIDGET_HANDLER_URL']) ? htmlspecialcharsbx($arResult['WIDGET_HANDLER_URL']) : ''?>"
+											>
 										</div>
 									</div>
 									<? if (!empty($arResult[$block . '_DOWNLOAD_EXAMPLE_URL'])): ?>
@@ -755,6 +817,7 @@ Loc::loadMessages(__FILE__);
 											false
 										);
 										?>
+
 									</div>
 								</div>
 							</div>

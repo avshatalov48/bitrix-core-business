@@ -33,7 +33,7 @@ if ($arParams['PARENT_FATAL_ERROR'] !== 'Y' && $arParams['SHOW_CONTROLS'] === 'Y
 	?><noindex>
 	<div class="photo-top-controls">
 		<a rel="nofollow" href="<?= htmlspecialcharsbx($arResult['GALLERY']['LINK']['NEW']) ?>" onclick="EditAlbum('<?= CUtil::JSEscape($arResult['GALLERY']['LINK']['NEW']) ?>'); return false;"><?= Loc::getMessage('P_ADD_ALBUM') ?></a>
-		<a rel="nofollow" href="<?= htmlspecialcharsbx($arResult['GALLERY']['LINK']['UPLOAD']) ?>" target="_top"><?= Loc::getMessage('P_UPLOAD') ?></a>
+		<a rel="nofollow" href="<?= htmlspecialcharsbx($arResult['GALLERY']['LINK']['UPLOAD']) ?>" target="<?= (\Bitrix\Main\Context::getCurrent()->getRequest()->get('IFRAME') !== 'Y' ? '_top' : '') ?>"><?= Loc::getMessage('P_UPLOAD') ?></a>
 	</div>
 	</noindex>
 	<?php

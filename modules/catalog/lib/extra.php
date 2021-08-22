@@ -16,7 +16,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Catalog
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Extra_Query query()
+ * @method static EO_Extra_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Extra_Result getById($id)
+ * @method static EO_Extra_Result getList(array $parameters = array())
+ * @method static EO_Extra_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_Extra createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_Extra_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_Extra wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_Extra_Collection wakeUpCollection($rows)
+ */
 
 class ExtraTable extends Main\Entity\DataManager
 {

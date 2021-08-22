@@ -470,6 +470,7 @@ class EditorMail
 							<tr>
 								<td valign="top" class="bxBlockPadding bxBlockContentText" style="text-align: center;">
 									<br><a href="#UNSUBSCRIBE_LINK#">' . Loc::getMessage('BLOCK_EDITOR_BLOCK_FOOTER_EXAMPLE') . '</a>
+									<br><a href="#CONSENT_LINK#">' . Loc::getMessage('BLOCK_EDITOR_BLOCK_FOOTER_CONSENT_EXAMPLE') . '</a>
 								</td>
 							</tr>
 						</tbody>

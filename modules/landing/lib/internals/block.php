@@ -6,6 +6,22 @@ use \Bitrix\Main\Entity;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class BlockTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Block_Query query()
+ * @method static EO_Block_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Block_Result getById($id)
+ * @method static EO_Block_Result getList(array $parameters = array())
+ * @method static EO_Block_Entity getEntity()
+ * @method static \Bitrix\Landing\Internals\EO_Block createObject($setDefaultValues = true)
+ * @method static \Bitrix\Landing\Internals\EO_Block_Collection createCollection()
+ * @method static \Bitrix\Landing\Internals\EO_Block wakeUpObject($row)
+ * @method static \Bitrix\Landing\Internals\EO_Block_Collection wakeUpCollection($rows)
+ */
 class BlockTable extends Entity\DataManager
 {
 	/**

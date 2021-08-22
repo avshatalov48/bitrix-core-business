@@ -104,7 +104,7 @@ CModule::AddAutoloadClasses(
 	)
 );
 
-$jsCoreRel = array('resize_observer', 'im_common', 'im_phone_call_view', 'im.lib.localstorage', 'clipboard', 'sidepanel', 'loader', 'ui.notification', 'ui.alerts', 'ui.vue', 'ui.buttons', 'ui.switcher', 'ui.hint', 'im.application.notifications');
+$jsCoreRel = array('im_desktop_utils', 'resize_observer', 'im_common', 'im_phone_call_view', 'im.lib.localstorage', 'clipboard', 'sidepanel', 'loader', 'ui.notification', 'ui.alerts', 'ui.vue', 'ui.buttons', 'ui.switcher', 'ui.hint', 'im.application.notifications');
 $jsCoreRelMobile = array('im_common', 'uploader', 'mobile.pull.client');
 if (IsModuleInstalled('voximplant'))
 {
@@ -114,6 +114,10 @@ if (IsModuleInstalled('voximplant'))
 if (IsModuleInstalled('disk'))
 {
 	$jsCoreRel[] = 'file_dialog';
+}
+if (IsModuleInstalled('calendar'))
+{
+	$jsCoreRel[] = 'calendar.sliderloader';
 }
 if (IsModuleInstalled('pull'))
 {
@@ -251,6 +255,10 @@ CJSCore::RegisterExt('im_desktop', array(
 	'js' => '/bitrix/js/im/desktop.js',
 	'lang' => '/bitrix/modules/im/js_desktop.php',
 	'rel' => array('im_page', 'socnetlogdest', 'im.lib.logger'),
+));
+
+CJSCore::RegisterExt('im_desktop_utils', array(
+	'js' => '/bitrix/js/im/desktop_utils.js',
 ));
 
 CJSCore::RegisterExt('im_timecontrol', array(

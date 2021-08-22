@@ -135,7 +135,7 @@ class Zoom
 			return true;
 		}
 
-		return \CBitrix24::IsLicensePaid() || \CBitrix24::IsNfrLicense() || \CBitrix24::IsDemoLicense();
+		return \Bitrix\Bitrix24\Feature::isFeatureEnabled("im_zoom_integration");
 	}
 
 	/**
@@ -306,7 +306,7 @@ class Zoom
 	/**
 	 * Gets array of a message fields for IM to post a rich message with conference URL.
 	 *
-	 * @param string $chat Chat id.
+	 * @param string $dialogId Chat id.
 	 * @param string $link URL to Zoom conference.
 	 * @param integer $userId User Id who sends the message (private chat).
 	 * @return array
@@ -315,9 +315,9 @@ class Zoom
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
 	 */
-	public function getRichMessageFields($chat, string $link, int $userId): array
+	public function getRichMessageFields($dialogId, string $link, int $userId): array
 	{
-		$chatId = Dialog::getChatId($chat);
+		$chatId = Dialog::getChatId($dialogId);
 		$attach = new \CIMMessageParamAttach(null, \CIMMessageParamAttach::CHAT);
 
 		$messageFields = [
@@ -327,7 +327,7 @@ class Zoom
 		];
 
 		//chat
-		if (Common::isChatId($chat))
+		if (Common::isChatId($dialogId))
 		{
 			$chatData = \Bitrix\Im\Chat::getById($chatId);
 			$richChatData = [
@@ -338,13 +338,13 @@ class Zoom
 			$attach->AddDelimiter(['SIZE' => 300, 'COLOR' => '#c6c6c6']);
 
 			$messageFields['FROM_USER_ID'] = 0;
-			$messageFields['DIALOG_ID'] = $chat;
+			$messageFields['DIALOG_ID'] = $dialogId;
 			$messageFields['MESSAGE_TYPE'] = IM_MESSAGE_CHAT;
 		}
 		else //dialog
 		{
 			$messageFields['FROM_USER_ID'] = $userId;
-			$messageFields['TO_USER_ID'] = $chat;
+			$messageFields['TO_USER_ID'] = $dialogId;
 			$messageFields['TO_CHAT_ID'] = $chatId;
 			$messageFields['MESSAGE_TYPE'] = IM_MESSAGE_PRIVATE;
 		}
@@ -356,17 +356,17 @@ class Zoom
 		return $messageFields;
 	}
 
-	private function prepareZoomChatName($chatId): string
+	private function prepareZoomChatName($dialogId): string
 	{
 		//chat
-		if (\Bitrix\Im\Common::isChatId($chatId))
+		if (\Bitrix\Im\Common::isChatId($dialogId))
 		{
 			$chatInfo = \Bitrix\Im\Chat::getById($this->chatId);
 			$zoomChatName = "Bitrix24: " . $chatInfo['NAME'];
 		}
 		else //dialog
 		{
-			$chatUsers = \Bitrix\Im\Chat::getUsers(Dialog::getChatId($chatId));
+			$chatUsers = \Bitrix\Im\Chat::getUsers(Dialog::getChatId($dialogId));
 			foreach ($chatUsers as $chatUser)
 			{
 				$usersLastNames[] = $chatUser["last_name"];

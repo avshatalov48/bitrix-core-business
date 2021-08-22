@@ -1,6 +1,10 @@
-<?
+<?php
 $MESS["BT_MOD_CATALOG_ERR_BEFORE_DEL_TITLE"] = "Deletion error in ";
+$MESS["BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_CODE"] = "Cannot change the \"Brand\" system property ID because it is used by Open Channels to send products.";
+$MESS["BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_MULTIPLE"] = "Cannot make the \"Brand\" system property non-multiple because it is used by Open Channels to send products.";
+$MESS["BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_NAME"] = "Cannot change the \"Brand\" system property name because it is used by Open Channels to send products.";
 $MESS["BT_MOD_CATALOG_ERR_CANNOT_DEACTIVE_SKU_PROPERTY"] = "Property ##SKU_PROPERTY_ID# cannot be deactivated because it binds product information block ##PRODUCT_IBLOCK_ID# to SKU information block ##IBLOCK_ID#";
+$MESS["BT_MOD_CATALOG_ERR_CANNOT_DELETE_BRAND_PROPERTY"] = "Cannot delete the \"Brand\" system property because it is used by Open Channels to send products.";
 $MESS["BT_MOD_CATALOG_ERR_CANNOT_DELETE_OFFERS"] = "SKU's cannot be deleted.";
 $MESS["BT_MOD_CATALOG_ERR_CANNOT_DELETE_PRODUCTS_INFO"] = "Commerce related information of the catalog elements cannot be deleted.";
 $MESS["BT_MOD_CATALOG_ERR_CANNOT_DELETE_PRODUCT_IBLOCK"] = "An information block containing SKU's cannot be deleted.";
@@ -24,4 +28,3 @@ $MESS["BT_MOD_CATALOG_ERR_SKU_PROP_ID_INVALID"] = "Invalid product information b
 $MESS["BT_MOD_CATALOG_ERR_SKU_PROP_NOT_FOUND"] = "The specified binding property does not exist or is inactive.";
 $MESS["BT_MOD_CATALOG_ERR_SKU_PROP_WITHOUT_PRODUCT"] = "The product information block binding property ID is specified, but the product information block ID is missing.";
 $MESS["BT_MOD_CATALOG_ERR_UPDATE_BAD_ID"] = "Invalid catalog ID.";
-?>

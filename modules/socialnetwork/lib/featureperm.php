@@ -9,6 +9,22 @@ namespace Bitrix\Socialnetwork;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class FeaturePermTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_FeaturePerm_Query query()
+ * @method static EO_FeaturePerm_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_FeaturePerm_Result getById($id)
+ * @method static EO_FeaturePerm_Result getList(array $parameters = array())
+ * @method static EO_FeaturePerm_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_FeaturePerm createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_FeaturePerm_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_FeaturePerm wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_FeaturePerm_Collection wakeUpCollection($rows)
+ */
 class FeaturePermTable extends Entity\DataManager
 {
 	const PERM_OWNER = SONET_ROLES_OWNER;

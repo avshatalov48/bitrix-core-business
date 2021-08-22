@@ -133,7 +133,7 @@ if (!$dbHblock->Fetch())
 			)
 		);
 		$arLanguages = Array();
-		$rsLanguage = CLanguage::GetList($by, $order, array());
+		$rsLanguage = CLanguage::GetList();
 		while($arLanguage = $rsLanguage->Fetch())
 			$arLanguages[] = $arLanguage["LID"];
 
@@ -290,7 +290,7 @@ if (!$dbHblock->Fetch())
 			)
 		);
 		$arLanguages = Array();
-		$rsLanguage = CLanguage::GetList($by, $order, array());
+		$rsLanguage = CLanguage::GetList();
 		while($arLanguage = $rsLanguage->Fetch())
 			$arLanguages[] = $arLanguage["LID"];
 

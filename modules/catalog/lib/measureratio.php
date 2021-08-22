@@ -17,7 +17,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Catalog
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MeasureRatio_Query query()
+ * @method static EO_MeasureRatio_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MeasureRatio_Result getById($id)
+ * @method static EO_MeasureRatio_Result getList(array $parameters = array())
+ * @method static EO_MeasureRatio_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_MeasureRatio createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_MeasureRatio_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_MeasureRatio wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_MeasureRatio_Collection wakeUpCollection($rows)
+ */
 
 class MeasureRatioTable extends Main\Entity\DataManager
 {

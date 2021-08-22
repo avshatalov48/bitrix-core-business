@@ -7,6 +7,7 @@
 
 	var VOLUME_THRESHOLD = 0.1;
 	var INACTIVITY_TIME = 2000;
+	var AVERAGING_COEFFICIENT = 0.5; // from 0 to 1;
 
 	/**
 	 * Naive voice activity detection
@@ -40,6 +41,8 @@
 		this.measureInterval = 0;
 		this.inactivityTimeout = 0;
 
+		this.currentVolume = 0;
+
 		this.callbacks = {
 			voiceStarted: BX.type.isFunction(config.onVoiceStarted) ? config.onVoiceStarted : BX.DoNothing,
 			voiceStopped: BX.type.isFunction(config.onVoiceStopped) ? config.onVoiceStopped : BX.DoNothing
@@ -71,9 +74,9 @@
 	BX.SimpleVAD.prototype.analyzeAudioStream = function()
 	{
 		this.analyserNode.getFloatTimeDomainData(this.audioTimeDomainData);
-		var volume = this.getAverageVolume(this.audioTimeDomainData);
+		this.updateCurrentVolume(this.audioTimeDomainData);
 
-		this.setVoiceState(volume >= VOLUME_THRESHOLD);
+		this.setVoiceState(this.currentVolume >= VOLUME_THRESHOLD);
 	};
 
 	BX.SimpleVAD.prototype.setVoiceState = function(voiceState)
@@ -106,7 +109,7 @@
 		this.callbacks.voiceStopped();
 	};
 
-	BX.SimpleVAD.prototype.getAverageVolume = function(audioTimeDomainData)
+	BX.SimpleVAD.prototype.updateCurrentVolume = function(audioTimeDomainData)
 	{
 		var sum = 0;
 
@@ -115,7 +118,8 @@
 			sum += audioTimeDomainData[i] * audioTimeDomainData[i];
 		}
 
-		return Math.sqrt(sum / audioTimeDomainData.length);
+		var rms = Math.sqrt(sum / audioTimeDomainData.length);
+		this.currentVolume = Math.max(rms, this.currentVolume * AVERAGING_COEFFICIENT);
 	};
 
 	BX.SimpleVAD.prototype.destroy = function()

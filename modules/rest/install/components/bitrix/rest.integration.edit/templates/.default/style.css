@@ -10,6 +10,10 @@
 	padding-top: 5px;
 }
 
+.integration .hidden {
+	display: none;
+}
+
 .integration-row-padding-right {
 	padding-right: 39px;
 }
@@ -524,4 +528,34 @@
 
 #rest-integration-form .integration-no-padding {
 	padding: 0;
+}
+
+.integration-btn-dropdown {
+	position: relative;
+	margin: 10px 0 10px 0;
+}
+
+.integration-btn-dropdown:before {
+	position: absolute;
+	top: 50%;
+	right: -13px;
+	display: block;
+	box-sizing: border-box;
+	margin-top: -1px;
+	width: 8px;
+	height: 8px;
+	border-bottom: 2px solid;
+	border-left: 2px solid;
+	content: '';
+	transform: translateY(-50%) rotate(
+		-45deg
+	);
+}
+
+.integration-btn-dropdown.active:before {
+	top: 75%;
+	border-bottom: none;
+	border-left: none;
+	border-top: 2px solid;
+	border-right: 2px solid;
 }

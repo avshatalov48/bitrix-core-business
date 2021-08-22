@@ -335,13 +335,6 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 						$data
 					);
 				}
-				if (
-					$site['ACTIVE']['STORED'] === 'Y' &&
-					Manager::getOption('public_hook_on_save') === 'Y'
-				)
-				{
-					Hook::publicationSite($primary['ID']);
-				}
 				// rights
 				if (Rights::isAdmin() && Rights::isExtendedMode())
 				{

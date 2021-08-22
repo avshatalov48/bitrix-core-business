@@ -34,7 +34,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Calendar
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Resource_Query query()
+ * @method static EO_Resource_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Resource_Result getById($id)
+ * @method static EO_Resource_Result getList(array $parameters = array())
+ * @method static EO_Resource_Entity getEntity()
+ * @method static \Bitrix\Calendar\Internals\EO_Resource createObject($setDefaultValues = true)
+ * @method static \Bitrix\Calendar\Internals\EO_Resource_Collection createCollection()
+ * @method static \Bitrix\Calendar\Internals\EO_Resource wakeUpObject($row)
+ * @method static \Bitrix\Calendar\Internals\EO_Resource_Collection wakeUpCollection($rows)
+ */
 
 class ResourceTable extends Main\Entity\DataManager
 {

@@ -6,4 +6,5 @@ $MESS['LANDING_ADMIN_ACTION_ADD_STORE'] = 'Шаблоны Интернет-Ма�
 $MESS['LANDING_ADMIN_SITE_NOT_FOUND'] = 'Сайт не найден';
 $MESS['LANDING_ADMIN_SITE_ACCESS_DENIED'] = 'Доступ запрещен';
 $MESS['LANDING_ADMIN_ACTION_SETTINGS'] = 'Настройки сайта';
+$MESS['LANDING_ADMIN_ACTION_DESIGN'] = 'Дизайн сайта';
 $MESS['LANDING_ADMIN_ACTION_CATALOG'] = 'Настройки каталога';

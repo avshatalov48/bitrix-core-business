@@ -54,9 +54,6 @@ if($arResult["delete_blog_post"] === "Y")
 	if (!empty($arResult["ERROR_MESSAGE"]))
 	{
 		?>
-		<script bxrunfirst="yes">
-			top.deletePostEr = 'Y';
-		</script>
 		<div class="feed-add-error">
 			<span class="feed-add-info-icon"></span><span class="feed-add-info-text"><?=$arResult["ERROR_MESSAGE"]?></span>
 		</div>
@@ -595,6 +592,7 @@ HTML;
 							],
 							"DEST_SORT" => $arResult["DEST_SORT"],
 							"SELECTOR_CONTEXT" => "BLOG_POST",
+							'SELECTOR_VERSION' => $arResult['SELECTOR_VERSION'],
 							"TAGS" => [
 								"ID" => "TAGS",
 								"NAME" => "TAGS",
@@ -833,33 +831,7 @@ HTML;
 
 				if (in_array('calendar', $arResult['tabs']))
 				{
-					?>
-					<div id="feed-add-post-content-calendar" style="display: none;">
-						<?
-						$APPLICATION->IncludeComponent("bitrix:calendar.livefeed.edit", '',
-							[
-								"EVENT_ID" => '',
-								"UPLOAD_FILE" => (!empty($arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_FILE"]) ? false : $arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_DOC"]),
-								"UPLOAD_WEBDAV_ELEMENT" => $arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_FILE"],
-								"UPLOAD_FILE_PARAMS" => [ 'width' => $arParams["IMAGE_MAX_WIDTH"], 'height' => $arParams["IMAGE_MAX_HEIGHT"] ],
-								"FILES" => [
-									"VALUE" => $arResult["Images"],
-									"POSTFIX" => "file",
-								],
-								"DESTINATION" => [
-									"VALUE" => (isset($arResult["PostToShow"]["FEED_DESTINATION_CALENDAR"]) ? $arResult["PostToShow"]["FEED_DESTINATION_CALENDAR"] : $arResult["PostToShow"]["FEED_DESTINATION"]),
-									"SHOW" => "Y"
-								],
-								"DEST_SORT" => (isset($arResult["DEST_SORT_CALENDAR"]) ? $arResult["DEST_SORT_CALENDAR"] : $arResult["DEST_SORT"]),
-								"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"]
-
-							],
-							null,
-							[ "HIDE_ICONS" => "Y" ]
-						);
-						?>
-					</div>
-					<?
+					?><div id="feed-add-post-content-calendar" style="display: none;"></div><?
 				}
 
 				if(in_array('lists', $arResult['tabs']))

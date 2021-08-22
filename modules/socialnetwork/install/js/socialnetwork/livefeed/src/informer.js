@@ -118,7 +118,7 @@ class Informer
 
 		if (this.counterValue <= 0)
 		{
-			this.decrementStack = 0;
+			this.counterDecrementStack = 0;
 		}
 
 		const valueToShow = this.counterValue - this.counterDecrementStack;

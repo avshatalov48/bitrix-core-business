@@ -942,7 +942,7 @@ export class MessagesModel extends VuexBuilderModel
 				readCounter++;
 			}
 
-			if (count >= StorageLimit.messages && readCounter === 50)
+			if (count >= StorageLimit.messages && readCounter >= 50)
 			{
 				break;
 			}

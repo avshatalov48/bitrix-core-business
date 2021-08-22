@@ -31,5 +31,5 @@ interface IncrementallyConnector
 	 *
 	 * @return \Bitrix\Main\DB\Result
 	 */
-	public function getLimitedData(int $offset, int $limit): \Bitrix\Main\DB\Result;
+	public function getLimitedData(int $offset, int $limit): ?\Bitrix\Main\DB\Result;
 }

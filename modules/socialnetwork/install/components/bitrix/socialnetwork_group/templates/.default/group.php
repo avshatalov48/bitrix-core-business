@@ -115,7 +115,6 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $arResult['VARIABLES']['group_id'],
 		'POPUP_COMPONENT_PARENT' => $this->getComponent(),
 		'USE_UI_TOOLBAR' => 'Y',
-		'UI_TOOLBAR_FAVORITES_URL' => (!empty($arResult['PATH_TO_GROUP_GENERAL']) ? str_replace('#group_id#', $arResult['VARIABLES']['group_id'], $arResult['PATH_TO_GROUP_GENERAL']) : ''),
 		'UI_TOOLBAR_FAVORITES_TITLE_TEMPLATE' => $arResult['PAGES_TITLE_TEMPLATE'],
 	]
 );

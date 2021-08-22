@@ -46,7 +46,7 @@ $this->addExternalCss($this->GetFolder().'/themes/'.$arParams['TEMPLATE_THEME'].
 						src="https://w.soundcloud.com/player/?url=<?echo urlencode($arItem["SOUND_CLOUD"])?>&amp;color=ff5500&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false"
 						></iframe>
 				</div>
-			<?elseif ($arItem["SLIDER"] && count($arItem["SLIDER"]) > 1):?>
+			<?elseif (($arItem["SLIDER"] ?? false) && count($arItem["SLIDER"]) > 1):?>
 				<div class="bx-newslist-slider">
 					<div class="bx-newslist-slider-container" style="width: <?echo count($arItem["SLIDER"])*100?>%;left: 0;">
 						<?foreach ($arItem["SLIDER"] as $file):?>
@@ -74,7 +74,7 @@ $this->addExternalCss($this->GetFolder().'/themes/'.$arParams['TEMPLATE_THEME'].
 						});
 					});
 				</script>
-			<?elseif ($arItem["SLIDER"]):?>
+			<?elseif ($arItem["SLIDER"] ?? false):?>
 				<div class="bx-newslist-img">
 					<?if(!$arParams["HIDE_LINK_WHEN_NO_DETAIL"] || ($arItem["DETAIL_TEXT"] && $arResult["USER_HAVE_ACCESS"])):?>
 						<a href="<?=$arItem["DETAIL_PAGE_URL"]?>"><img

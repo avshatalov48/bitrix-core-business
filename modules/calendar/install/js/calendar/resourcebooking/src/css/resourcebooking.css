@@ -496,6 +496,10 @@
 	position: relative;
 }
 
+.popup-window-resource-select{
+	max-height: 350px;
+	overflow: auto;
+}
 .popup-window-resource-select .calendar-resourcebook-content-block-control-delete {
 	width: 25px;
 }
@@ -1984,6 +1988,11 @@ input.calendar-resbook-webform-settings-popup-field-subtitle-text {
 
 .calendar-resbook-webform-wrapper-form .calendar-resbook-webform-block-date-item-select .calendar-resbook-webform-block-date-item-inner {
 	border-color: transparent;
+}
+
+.calendar-resbook-form-popup {
+	max-height: 350px;
+	overflow: auto;
 }
 
 .calendar-resbook-form-popup .menu-popup-item-text {

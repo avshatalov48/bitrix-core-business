@@ -82,7 +82,9 @@ else
 		{
 			$arResult["Group"] = $arGroup;
 
-			$arResult["CurrentUserPerms"] = CSocNetUserToGroup::InitUserPerms($USER->GetID(), $arResult["Group"], CSocNetUser::IsCurrentUserModuleAdmin());
+			$arResult['CurrentUserPerms'] = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
+				'groupId' => $arGroup['ID'],
+			]);
 
 			$arResult["Urls"]["Group"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $arResult["Group"]["ID"]));
 			$arResult["Urls"]["GroupsList"] = ComponentHelper::getWorkgroupSEFUrl();

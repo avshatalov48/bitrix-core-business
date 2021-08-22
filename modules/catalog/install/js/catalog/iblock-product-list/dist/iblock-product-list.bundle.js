@@ -16,10 +16,13 @@ this.BX = this.BX || {};
 	    babelHelpers.classCallCheck(this, IblockProductList);
 	    babelHelpers.defineProperty(this, "variations", new Map());
 	    babelHelpers.defineProperty(this, "variationsEditData", new Map());
+	    babelHelpers.defineProperty(this, "editedVariations", new Map());
+	    babelHelpers.defineProperty(this, "morePhotoChangedInputs", new Map());
 	    babelHelpers.defineProperty(this, "onSettingsWindowSaveHandler", this.handleOnSettingsWindowSave.bind(this));
 	    babelHelpers.defineProperty(this, "onChangeVariationHandler", this.handleOnChangeVariation.bind(this));
 	    babelHelpers.defineProperty(this, "onBeforeGridRequestHandler", this.handleOnBeforeGridRequest.bind(this));
 	    babelHelpers.defineProperty(this, "onFilterApplyHandler", this.handleOnFilterApply.bind(this));
+	    babelHelpers.defineProperty(this, "onSaveImageHandler", this.handleOnSaveImage.bind(this));
 	    this.gridId = options.gridId;
 	    this.rowIdMask = options.rowIdMask || '#ID#';
 	    this.variationFieldNames = options.variationFieldNames || [];
@@ -32,6 +35,7 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.subscribe('SkuProperty::onChange', this.onChangeVariationHandler);
 	    main_core_events.EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
 	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:apply', this.onFilterApplyHandler);
+	    main_core_events.EventEmitter.subscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
 	  }
 
 	  babelHelpers.createClass(IblockProductList, [{
@@ -63,12 +67,15 @@ this.BX = this.BX || {};
 	    value: function clearAllVariationCache() {
 	      this.variations.clear();
 	      this.variationsEditData.clear();
+	      this.editedVariations.clear();
+	      this.morePhotoChangedInputs.clear();
 	    }
 	  }, {
 	    key: "clearVariationCache",
 	    value: function clearVariationCache(variationId) {
 	      this.variations.delete(variationId);
 	      this.variationsEditData.delete(variationId);
+	      this.editedVariations.delete(variationId);
 	    }
 	    /**
 	     * @returns {?BX.Main.grid}
@@ -109,6 +116,23 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
+	      var productRow = this.getProductRow(productId);
+
+	      if (productRow.isEdit()) {
+	        var values = this.getEditedVariationValues(productRow);
+	        var currentVariationId = this.getCurrentVariationIdByProduct(productId);
+	        this.editedVariations.set(currentVariationId, values);
+	      }
+
+	      if (productRow.isEdit() && this.editedVariations.has(variationId)) {
+	        var editData = Object.assign(productRow.getEditData(), this.editedVariations.get(variationId));
+	        productRow.setEditData(editData);
+	        productRow.editCancel();
+	        productRow.edit();
+	        this.productVariationMap[productId] = variationId;
+	        return;
+	      }
+
 	      this.getVariation(productId, variationId).then(function (variationNode) {
 	        _this2.updateProductRow(productId, variationId, variationNode);
 
@@ -116,19 +140,67 @@ this.BX = this.BX || {};
 	      });
 	    }
 	  }, {
+	    key: "getEditedVariationValues",
+	    value: function getEditedVariationValues(row) {
+	      var _this3 = this;
+
+	      var currentEditorValues = row.getEditorValue();
+	      var headRow = this.getHeadRow();
+	      var values = {};
+	      var morePhotoHtml = null;
+	      babelHelpers.toConsumableArray(row.getCells()).forEach(function (cell, index) {
+	        var cellName = headRow.getCellNameByCellIndex(index);
+
+	        if (cellName !== 'MORE_PHOTO') {
+	          return;
+	        }
+
+	        var editorContainer = row.getEditorContainer(cell);
+
+	        if (editorContainer) {
+	          var imageBlock = editorContainer.querySelector('.catalog-image-input-wrapper');
+	          var id = imageBlock.id;
+
+	          if (_this3.morePhotoChangedInputs.has(id)) {
+	            morePhotoHtml = _this3.morePhotoChangedInputs.get(id);
+	          } else {
+	            morePhotoHtml = imageBlock.outerHTML;
+	          }
+	        }
+	      });
+
+	      for (var name in currentEditorValues) {
+	        if (!currentEditorValues.hasOwnProperty(name) || !this.variationFieldNames.includes(name)) {
+	          continue;
+	        }
+
+	        if (name === 'MORE_PHOTO' && !main_core.Type.isNil(morePhotoHtml)) {
+	          values[name] = morePhotoHtml;
+	        } else {
+	          values[name] = currentEditorValues[name];
+	        }
+	      }
+
+	      return values;
+	    }
+	  }, {
 	    key: "getVariation",
 	    value: function getVariation(productId, variationId) {
-	      var _this3 = this;
+	      var _this4 = this;
+
+	      if (this.getProductRow(productId).isEdit() && this.editedVariations.has(variationId)) {
+	        return Promise.resolve(this.editedVariations.get(variationId));
+	      }
 
 	      if (this.variations.has(variationId)) {
 	        return Promise.resolve(this.variations.get(variationId));
 	      }
 
 	      return new Promise(function (resolve) {
-	        _this3.loadVariation(productId, variationId, resolve);
+	        _this4.loadVariation(productId, variationId, resolve);
 	      }).then(function (variation) {
 	        if (main_core.Type.isDomNode(variation)) {
-	          _this3.variations.set(variationId, variation);
+	          _this4.variations.set(variationId, variation);
 
 	          return variation;
 	        }
@@ -191,7 +263,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "updateProductRow",
 	    value: function updateProductRow(productId, variationId, variationNode) {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      if (!productId || !main_core.Type.isDomNode(variationNode)) {
 	        return;
@@ -202,7 +274,7 @@ this.BX = this.BX || {};
 	      babelHelpers.toConsumableArray(variationNode.cells).forEach(function (cell, index) {
 	        var cellName = headRow.getCellNameByCellIndex(index);
 
-	        if (_this4.variationFieldNames.includes(cellName)) {
+	        if (_this5.variationFieldNames.includes(cellName)) {
 	          var columnCell = productRow.getCellByIndex(index);
 
 	          if (columnCell) {
@@ -227,6 +299,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "handleOnBeforeGridRequest",
 	    value: function handleOnBeforeGridRequest(event) {
+	      var _this6 = this;
+
 	      var _event$getData3 = event.getData(),
 	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 2),
 	          gridData = _event$getData4[1];
@@ -238,6 +312,33 @@ this.BX = this.BX || {};
 	      }
 
 	      if (submitData.FIELDS) {
+	        this.editedVariations.forEach(function (editFields, variationId) {
+	          var rowId = _this6.getRowIdByProductId(variationId);
+
+	          submitData.FIELDS[rowId] = submitData.FIELDS[rowId] || {};
+	          Object.keys(editFields).map(function (cellName) {
+	            if (cellName.indexOf('CATALOG_GROUP_') >= 0) {
+	              var groupPriceId = cellName.replace('CATALOG_GROUP_', '');
+
+	              if (!main_core.Type.isNil(editFields[cellName]['PRICE'])) {
+	                submitData['CATALOG_PRICE'] = submitData['CATALOG_PRICE'] || {};
+	                submitData['CATALOG_PRICE'][variationId] = submitData['CATALOG_PRICE'][variationId] || {};
+	                submitData['CATALOG_PRICE'][variationId][groupPriceId] = editFields[cellName]['PRICE']['VALUE'];
+	              }
+
+	              if (!main_core.Type.isNil(editFields[cellName]['CURRENCY'])) {
+	                submitData['CATALOG_CURRENCY'] = submitData['CATALOG_CURRENCY'] || {};
+	                submitData['CATALOG_CURRENCY'][variationId] = submitData['CATALOG_CURRENCY'][variationId] || {};
+	                submitData['CATALOG_CURRENCY'][variationId][groupPriceId] = editFields[cellName]['CURRENCY']['VALUE'];
+	              }
+	            } else if (cellName !== 'MORE_PHOTO' && cellName !== 'MORE_PHOTO_custom') {
+	              submitData.FIELDS[rowId][cellName] = editFields[cellName];
+	            }
+	          });
+
+	          _this6.clearVariationCache(variationId);
+	        });
+
 	        for (var rowId in submitData.FIELDS) {
 	          if (!submitData.FIELDS.hasOwnProperty(rowId)) {
 	            continue;
@@ -307,6 +408,8 @@ this.BX = this.BX || {};
 	            }
 	          }
 	        }
+
+	        this.morePhotoChangedInputs.clear();
 	      }
 	    }
 	  }, {
@@ -339,6 +442,17 @@ this.BX = this.BX || {};
 
 	        this.setNewProductButtonHrefSectionId(sectionId);
 	      }
+	    }
+	  }, {
+	    key: "handleOnSaveImage",
+	    value: function handleOnSaveImage(event) {
+	      var _event$getData5 = event.getData(),
+	          _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 3),
+	          id = _event$getData6[0],
+	          inputId = _event$getData6[1],
+	          response = _event$getData6[2];
+
+	      this.morePhotoChangedInputs.set(id, response.data.input);
 	    }
 	  }, {
 	    key: "getFilterFields",

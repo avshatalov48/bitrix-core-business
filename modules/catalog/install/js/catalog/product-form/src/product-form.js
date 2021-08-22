@@ -1,8 +1,7 @@
-import {Vue} from 'ui.vue';
+import {BitrixVue} from 'ui.vue';
 import {VuexBuilder} from 'ui.vue.vuex';
-import {Type, Text, Tag, ajax, Extension} from 'main.core';
+import {Loc, Type, Text, Tag, ajax, Extension} from 'main.core';
 import 'ui.notification';
-
 import {ProductList} from './models/product-list';
 import {config} from "./config";
 import './templates/form';
@@ -12,13 +11,21 @@ import {CurrencyCore} from "currency.currency-core";
 import type {FormOption} from "./types/form-option";
 import {FormElementPosition} from "./types/form-element-position";
 import {DiscountType} from "catalog.product-calculator";
+import {FormInputCode} from "./types/form-input-code";
+import type {BasketItemScheme} from "./types/basket-item-scheme";
+import {FormErrorCode} from "./types/form-error-code";
+import {FormMode} from "./types/form-mode";
+import {FormCompilationType} from "./types/form-compilation-type";
 
 export class ProductForm
 {
 	constructor(options: FormOption = {})
 	{
 		this.options = this.prepareOptions(options);
+		this.defaultOptions = Object.assign({}, this.options);
+
 		this.editable = true;
+		this.#setMode(FormMode.REGULAR);
 
 		this.wrapper = Tag.render`<div class=""></div>`;
 
@@ -39,7 +46,6 @@ export class ProductForm
 
 		return builder
 			.addModel(ProductList.create())
-			.useNamespace(true)
 			.build();
 	}
 
@@ -54,6 +60,7 @@ export class ProductForm
 			taxList: [],
 			singleProductMode: false,
 			showResults: true,
+			showCompilationModeSwitcher: false,
 			enableEmptyProductError: true,
 			pricePrecision: 2,
 			currency: settingsCollection.get('currency'),
@@ -62,14 +69,48 @@ export class ProductForm
 			showDiscountBlock: settingsCollection.get('showDiscountBlock'),
 			showTaxBlock: settingsCollection.get('showTaxBlock'),
 			allowedDiscountTypes: [DiscountType.PERCENTAGE, DiscountType.MONETARY],
+			visibleBlocks: [
+				FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE,
+				FormInputCode.QUANTITY, FormInputCode.RESULT,
+				FormInputCode.DISCOUNT,
+			],
+			requiredFields: [],
+			editableFields: [],
 			newItemPosition: FormElementPosition.TOP,
 			buttonsPosition: FormElementPosition.TOP,
 			urlBuilderContext: 'SHOP',
 			hideUnselectedProperties: false,
+			compilationFormType: FormCompilationType.REGULAR,
+			compilationFormOption: {},
 		};
+
+		if (options.visibleBlocks && !Type.isArray(options.visibleBlocks))
+		{
+			delete(options.visibleBlocks);
+		}
+
+		if (options.requiredFields && !Type.isArray(options.requiredFields))
+		{
+			delete(options.requiredFields);
+		}
 
 		options = {...defaultOptions, ...options};
 		options.showTaxBlock = 'N';
+
+		if (settingsCollection.get('isEnabledLanding'))
+		{
+			options.compilationFormOption = {
+				type: options.compilationFormType,
+				hasStore: settingsCollection.get('hasLandingStore'),
+				isLimitedStore: settingsCollection.get('isLimitedLandingStore'),
+				disabledSwitcher: settingsCollection.get('isLimitedLandingStore'),
+				hiddenInfoMessage: settingsCollection.get('hiddenCompilationInfoMessage'),
+			};
+		}
+		else
+		{
+			options.showCompilationModeSwitcher = false;
+		}
 
 		options.defaultDiscountType = '';
 		if (Type.isArray(options.allowedDiscountTypes))
@@ -99,11 +140,12 @@ export class ProductForm
 			const context = this;
 			this.store = result.store;
 
-			this.templateEngine = Vue.create({
+			this.templateEngine = BitrixVue.createApp({
 				el: this.wrapper,
 				store: this.store,
 				data: {
-					options: this.options
+					options: this.options,
+					mode: this.mode,
 				},
 				created()
 				{
@@ -113,7 +155,7 @@ export class ProductForm
 				{
 					resolve();
 				},
-				template: `<${config.templateName} :options="options"/>`,
+				template: `<${config.templateName} :options="options" :mode="mode"/>`,
 			});
 
 			if (Type.isStringFilled(this.options.currency))
@@ -169,12 +211,61 @@ export class ProductForm
 
 	changeProduct(product): void
 	{
+		const fields = product.fields;
+		const result = this.#checkRequiredFields(fields);
+		fields.errors = result?.errors || [];
+
 		this.store.dispatch('productList/changeItem', {
 			index: product.index,
-			fields: product.fields
+			fields
 		}).then(() => {
 			this.#onBasketChange();
 		});
+	}
+
+	#checkRequiredFields(fields: BasketItemScheme): {}
+	{
+		const result = {};
+		if (this.options.requiredFields.length === 0)
+		{
+			return result;
+		}
+
+		result.errors = [];
+		this.options.requiredFields.forEach((code) => {
+			switch (code)
+			{
+				case FormInputCode.PRICE:
+					if (fields.price <= 0)
+					{
+						result.errors.push({
+							code: FormErrorCode.EMPTY_PRICE,
+							message: Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_PRICE'),
+						});
+					}
+					break;
+				case FormInputCode.QUANTITY:
+					if (fields.quantity <= 0)
+					{
+						result.errors.push({
+							code: FormErrorCode.EMPTY_QUANTITY,
+							message: Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_QUANTITY'),
+						});
+					}
+					break;
+				case FormInputCode.BRAND:
+					if (!Type.isArray(fields.brands) || fields.brands.length === 0)
+					{
+						result.errors.push({
+							code: FormErrorCode.EMPTY_BRAND,
+							message: Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_BRAND'),
+						});
+					}
+					break;
+			}
+		});
+
+		return result;
 	}
 
 	removeProduct(product): void
@@ -248,27 +339,44 @@ export class ProductForm
 	changeFormOption(optionName, value): void
 	{
 		value = (value === 'Y') ? 'Y' : 'N';
-		this.options[optionName] = value;
-		const basket = this.store.getters['productList/getBasket']();
-		basket.forEach((item, index) => {
-			if (optionName === 'showDiscountBlock')
+
+		if (optionName === 'isCompilationMode')
+		{
+			if (!this.options.showCompilationModeSwitcher)
 			{
-				item.showDiscountBlock = value;
-			}
-			else if (optionName === 'showTaxBlock')
-			{
-				item.showTaxBlock = value;
-			}
-			else if (optionName === 'taxIncluded')
-			{
-				item.fields.taxIncluded = value;
+				return;
 			}
 
-			this.store.dispatch('productList/changeItem', {
-				index,
-				fields: item
+			const mode = (value === 'Y') ? FormMode.COMPILATION : FormMode.REGULAR;
+			this.#changeCompilationModeSetting(mode);
+
+			return;
+		}
+
+		this.options[optionName] = value;
+		if (optionName !== 'hiddenCompilationInfoMessage')
+		{
+			const basket = this.store.getters['productList/getBasket']();
+			basket.forEach((item, index) => {
+				if (optionName === 'showDiscountBlock')
+				{
+					item.showDiscountBlock = value;
+				}
+				else if (optionName === 'showTaxBlock')
+				{
+					item.showTaxBlock = value;
+				}
+				else if (optionName === 'taxIncluded')
+				{
+					item.fields.taxIncluded = value;
+				}
+
+				this.store.dispatch('productList/changeItem', {
+					index,
+					fields: item
+				});
 			});
-		});
+		}
 
 		ajax.runAction(
 			'catalog.productForm.setConfig',
@@ -281,6 +389,30 @@ export class ProductForm
 		);
 	}
 
+	#changeCompilationModeSetting(mode: FormMode)
+	{
+		this.options.requiredFields = [];
+		if (mode === FormMode.COMPILATION)
+		{
+			const compilationRequiredFields = [
+				FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.BRAND,
+			];
+			this.options.requiredFields = this.options.visibleBlocks.filter(
+				item => compilationRequiredFields.includes(item)
+			);
+		}
+
+		this.#setMode(mode)
+
+		const basket = this.store.getters['productList/getBasket']();
+
+		basket.forEach((item, index) => this.changeProduct({
+				index,
+				fields: item.fields
+			})
+		);
+	}
+
 	getTotal(): void
 	{
 		this.store.dispatch('productList/getTotal');
@@ -289,6 +421,75 @@ export class ProductForm
 	setEditable(value): void
 	{
 		this.editable = value;
+		if (!value)
+		{
+			this.#setMode(FormMode.READ_ONLY);
+		}
+		else
+		{
+			this.#setMode(FormMode.REGULAR);
+		}
+	}
+
+	#setMode(mode: FormMode): void
+	{
+		this.mode = mode;
+		if (mode === FormMode.READ_ONLY)
+		{
+			this.options.editableFields = [];
+		}
+		else if (mode === FormMode.COMPILATION)
+		{
+			this.options.editableFields = [
+				FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.BRAND,
+			];
+
+			this.options.visibleBlocks = [
+				FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE,
+			];
+
+			if (this.options.compilationFormType === FormCompilationType.FACEBOOK)
+			{
+				this.options.visibleBlocks.push(FormInputCode.BRAND);
+			}
+
+			this.options.showResults = false;
+		}
+		else
+		{
+			mode = FormMode.REGULAR;
+			this.options.visibleBlocks = this.defaultOptions.visibleBlocks;
+			this.options.showResults = this.defaultOptions.showResults;
+
+			const visibleBlocks = this.options.visibleBlocks.slice(0);
+			if (visibleBlocks.includes(FormInputCode.RESULT))
+			{
+				visibleBlocks.splice(visibleBlocks.indexOf(FormInputCode.RESULT), 1);
+			}
+			this.options.editableFields = visibleBlocks;
+		}
+
+		if (this.templateEngine)
+		{
+			this.templateEngine.mode = mode;
+		}
+
+		EventEmitter.emit(this, 'ProductForm:onModeChange', { mode });
+	}
+
+	hasErrors()
+	{
+		if (!this.store)
+		{
+			return false;
+		}
+
+		const basket = this.store.getters['productList/getBasket']();
+		const errorItems = basket.filter(
+			item => item.errors.length > 0
+		);
+
+		return errorItems.length > 0;
 	}
 
 	static showError(error): void

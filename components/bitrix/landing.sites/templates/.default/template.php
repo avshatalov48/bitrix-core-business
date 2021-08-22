@@ -272,23 +272,24 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 		if (
 			$lastPage &&
 			!$arResult['IS_DELETED'] &&
-			$arParams['TYPE'] == 'PAGE' &&
+			($arParams['TYPE'] === 'PAGE' || $arParams['TYPE'] === 'KNOWLEDGE') &&
 			(!isset($arResult['LICENSE']) || $arResult['LICENSE'] != 'nfr')
 		)
 		{
+			$formCode = ($arParams['TYPE'] === 'KNOWLEDGE') ? 'knowledge' : 'developer';
 			?>
 			<div style="display: none">
 				<?$APPLICATION->includeComponent(
 					'bitrix:ui.feedback.form',
 					'',
-					$component->getFeedbackParameters('developer')
+					$component->getFeedbackParameters($formCode)
 				);?>
 			</div>
-			<div class="landing-item landing-item-dev" onclick="BX.fireEvent(BX('landing-feedback-developer-button'), 'click');">
+			<div class="landing-item landing-item-dev" onclick="BX.fireEvent(BX('landing-feedback-<?= $formCode?>-button'), 'click');">
 				<span class="landing-item-inner">
-					<span class="landing-item-dev-title"><?= Loc::getMessage('LANDING_TPL_DEV_HELP');?></span>
-					<span class="landing-item-dev-subtitle"><?= Loc::getMessage('LANDING_TPL_DEV_ORDER');?></span>
-					<button class="ui-btn ui-btn-primary"><?= Loc::getMessage('LANDING_TPL_DEV_BTN');?></button>
+					<span class="landing-item-dev-title"><?= $component->getMessageType('LANDING_TPL_DEV_HELP');?></span>
+					<span class="landing-item-dev-subtitle"><?= $component->getMessageType('LANDING_TPL_DEV_ORDER');?></span>
+					<button class="ui-btn ui-btn-primary"><?= $component->getMessageType('LANDING_TPL_DEV_BTN');?></button>
 				</span>
 			</div>
 			<?
@@ -519,7 +520,7 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 					}
 				},
 				{
-					text: '<?= CUtil::jsEscape($this->__component->getMessageType('LANDING_TPL_ACTION_EDIT_DESIGN'))?>',
+					text: '<?= CUtil::jsEscape($this->__component->getMessageType('LANDING_TPL_ACTION_EDIT_DESIGN_2'))?>',
 					href: params.editSiteDesign,
 					target: '_blank',
 					disabled: params.isDeleted || params.isSettingsDisabled,

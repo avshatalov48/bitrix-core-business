@@ -6,6 +6,7 @@ $MESS["SENDER_START_CONFIGURATION_NEED_HELP"] = "Потрібна допомог
 $MESS["SENDER_START_CONFIGURATION_ORDER"] = "Отримати";
 $MESS["SENDER_START_CREATE_AD"] = "Створити рекламну кампанію";
 $MESS["SENDER_START_CREATE_AUDIENCE"] = "Створити рекламну аудиторію";
+$MESS["SENDER_START_CREATE_FACEBOOK_CONVERSION"] = "Надіслати дії клієнтів";
 $MESS["SENDER_START_CREATE_LETTER"] = "Створити розсилку";
 $MESS["SENDER_START_CREATE_RC"] = "Генератор продажів";
 $MESS["SENDER_START_CREATE_TOLOKA"] = "Яндекс.Толока";

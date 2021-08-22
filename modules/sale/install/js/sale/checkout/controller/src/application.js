@@ -59,7 +59,9 @@ export class Application
         Event.EventEmitter.subscribe(EventType.basket.buttonPlusProduct, (e) => this.basket.handlerQuantityPlus(e));
         Event.EventEmitter.subscribe(EventType.basket.buttonMinusProduct, (e) => this.basket.handlerQuantityMinus(e));
         Event.EventEmitter.subscribe(EventType.basket.buttonRestoreProduct, Runtime.debounce((e) => this.basket.handlerRestore(e), 500, this));
-
+        Event.EventEmitter.subscribe(EventType.basket.needRefresh, (e) => this.basket.handlerNeedRefreshY(e));
+        Event.EventEmitter.subscribe(EventType.basket.refreshAfter, (e) => this.basket.handlerNeedRefreshN(e));
+        
         // Event.EventEmitter.subscribe(EventType.property.validate,           (e) => this.handlerValidateProperty(e));
 
         Event.EventEmitter.subscribe(EventType.consent.refused, () => this.handlerConsentRefused());
@@ -79,14 +81,14 @@ export class Application
 
     subscribeToStoreChanges()
     {
-        this.store.subscribe((mutation, state) => {
-            // const { payload, type } = mutation;
-            // if (type === 'basket/updateItem')
-            // {
-            // 	alert('@@');
-            // 	this.getData();
-            // }
-        });
+        // this.store.subscribe((mutation, state) => {
+        //     const { payload, type } = mutation;
+        //     if (type === 'basket/setNeedRefresh')
+        //     {
+        //     	alert('@@');
+        //     	this.getData();
+        //     }
+        // });
 
         return new Promise((resolve, reject) => resolve());
     }

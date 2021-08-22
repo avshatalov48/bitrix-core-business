@@ -19,7 +19,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Catalog
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_StoreProduct_Query query()
+ * @method static EO_StoreProduct_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_StoreProduct_Result getById($id)
+ * @method static EO_StoreProduct_Result getList(array $parameters = array())
+ * @method static EO_StoreProduct_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_StoreProduct createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_StoreProduct_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_StoreProduct wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_StoreProduct_Collection wakeUpCollection($rows)
+ */
 
 class StoreProductTable extends Main\Entity\DataManager
 {

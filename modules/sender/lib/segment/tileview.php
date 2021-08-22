@@ -8,9 +8,11 @@
 namespace Bitrix\Sender\Segment;
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sender\GroupConnectorTable;
 use Bitrix\Sender\GroupTable;
 use Bitrix\Sender\Entity;
 use Bitrix\Sender\Dispatch;
+use Bitrix\Sender\Integration\Sender\Connectors\Contact;
 use Bitrix\Sender\Message;
 
 Loc::loadMessages(__FILE__);
@@ -185,8 +187,8 @@ class TileView
 	 */
 	public function getTiles(array $parameters = array())
 	{
-		$result = array();
-		$ids = array();
+		$result = [];
+		$ids = [];
 
 		$prefix = $this->isInclude ? '' : '_EXCLUDE';
 		$fieldDateUse = "DATE_USE$prefix";
@@ -202,6 +204,7 @@ class TileView
 		}
 
 		$segments = GroupTable::getList($parameters);
+
 		foreach ($segments as $segment)
 		{
 			$item = array(
@@ -213,6 +216,7 @@ class TileView
 					'case' => mb_substr($segment['CODE'], 0, 5) == 'case_',
 					'hidden' => $segment['HIDDEN'] == 'Y',
 					'system' => $segment['IS_SYSTEM'] == 'Y',
+					'hasStatic' => false,
 					'count' => array()
 				),
 			);
@@ -222,8 +226,23 @@ class TileView
 			$ids[] = $item['id'];
 		}
 
+
+
 		if (count($ids) > 0)
 		{
+			$connectors = GroupConnectorTable::getList([
+				'filter' => [
+					'@GROUP_ID' => $ids
+				]
+			]);
+
+			$hasStatic = [];
+			foreach ($connectors as $connector)
+			{
+				$entityConnector = \Bitrix\Sender\Connector\Manager::getConnector($connector['ENDPOINT']);
+				$hasStatic[$connector['GROUP_ID']] = $entityConnector instanceof Contact && $connector['ADDRESS_COUNT'] > 0;
+			}
+
 			$duration = null;
 			$messageTypes = array();
 			if ($this->message)
@@ -242,6 +261,7 @@ class TileView
 
 				// set count
 				$item['data']['count'] = $counters[$item['id']];
+				$item['data']['hasStatic'] = $hasStatic[$item['id']];
 
 				// set duration
 				foreach ($item['data']['count'] as $typeId => $count)

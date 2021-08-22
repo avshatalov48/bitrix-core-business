@@ -3512,7 +3512,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			(!$updated && !Landing::getEditMode())
 		)
 		{
-			$cache->abortDataCache();
+			if ($cache)
+			{
+				$cache->abortDataCache();
+			}
 			$this->deleted = true;
 		}
 	}

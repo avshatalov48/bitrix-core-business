@@ -40,6 +40,8 @@ class SenderSegmentSelectorComponent extends \Bitrix\Sender\Internals\CommonSend
 		$this->arParams['SHOW_COUNTERS'] = isset($this->arParams['SHOW_COUNTERS']) ? $this->arParams['SHOW_COUNTERS'] : true;
 
 		$this->arParams['INPUT_NAME'] = isset($this->arParams['INPUT_NAME']) ? $this->arParams['INPUT_NAME'] : '';
+		$this->arParams['CHECK_ON_STATIC'] = $this->arParams['CHECK_ON_STATIC'] ?? false;
+
 		if (!isset($this->arParams['INCLUDE']) || !is_array($this->arParams['INCLUDE']))
 		{
 			$this->arParams['INCLUDE'] = array();

@@ -106,6 +106,7 @@ create table if not exists b_landing_domain
     XML_ID varchar(255) default null,
     PROTOCOL varchar(10) not null,
     PROVIDER varchar(50) default null,
+	FAIL_COUNT int(2) default null,
     CREATED_BY_ID int(18) not null,
     MODIFIED_BY_ID int(18) not null,
     DATE_CREATE timestamp null,

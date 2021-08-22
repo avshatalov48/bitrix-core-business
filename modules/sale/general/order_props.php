@@ -920,29 +920,36 @@ class CSaleOrderProps
 		$strUpdate = "";
 		$arFields = array();
 
-		foreach ($arEntityIDs as &$id)
+		if (is_array($arEntityIDs))
 		{
-			$id = $DB->ForSql($id);
+			foreach ($arEntityIDs as &$id)
+			{
+				$id = $DB->ForSql($id);
+			}
 		}
+
 		unset($id);
 
 		$entityType = $DB->ForSql($entityType, 1);
 
 		$DB->Query("DELETE FROM b_sale_order_props_relation WHERE PROPERTY_ID = '".$DB->ForSql($ID)."' AND ENTITY_TYPE = '".$entityType."'");
 
-		foreach ($arEntityIDs as $val)
+		if (is_array($arEntityIDs))
 		{
-			if (strval(trim($val)) == '')
-				continue;
+			foreach ($arEntityIDs as $val)
+			{
+				if (strval(trim($val)) == '')
+					continue;
 
-			$arTmp = array("ENTITY_ID" => $val, "ENTITY_TYPE" => $entityType);
-			$arInsert = $DB->PrepareInsert("b_sale_order_props_relation", $arTmp);
+				$arTmp = array("ENTITY_ID" => $val, "ENTITY_TYPE" => $entityType);
+				$arInsert = $DB->PrepareInsert("b_sale_order_props_relation", $arTmp);
 
-			$strSql =
-				"INSERT INTO b_sale_order_props_relation (PROPERTY_ID, ".$arInsert[0].") ".
-				"VALUES('".$ID."', ".$arInsert[1].")";
+				$strSql =
+					"INSERT INTO b_sale_order_props_relation (PROPERTY_ID, ".$arInsert[0].") ".
+					"VALUES('".$ID."', ".$arInsert[1].")";
 
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			}
 		}
 
 		return true;

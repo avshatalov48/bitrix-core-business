@@ -6,6 +6,22 @@ use \Bitrix\Main\Entity;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class SyspageTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Syspage_Query query()
+ * @method static EO_Syspage_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Syspage_Result getById($id)
+ * @method static EO_Syspage_Result getList(array $parameters = array())
+ * @method static EO_Syspage_Entity getEntity()
+ * @method static \Bitrix\Landing\Internals\EO_Syspage createObject($setDefaultValues = true)
+ * @method static \Bitrix\Landing\Internals\EO_Syspage_Collection createCollection()
+ * @method static \Bitrix\Landing\Internals\EO_Syspage wakeUpObject($row)
+ * @method static \Bitrix\Landing\Internals\EO_Syspage_Collection wakeUpCollection($rows)
+ */
 class SyspageTable extends Entity\DataManager
 {
 	/**

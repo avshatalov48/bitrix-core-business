@@ -10,6 +10,22 @@ use Bitrix\Main\ORM\Query\Query;
 
 Localization\Loc::loadMessages(__FILE__);
 
+/**
+ * Class BlacklistTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Blacklist_Query query()
+ * @method static EO_Blacklist_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Blacklist_Result getById($id)
+ * @method static EO_Blacklist_Result getList(array $parameters = array())
+ * @method static EO_Blacklist_Entity getEntity()
+ * @method static \Bitrix\Mail\Internals\Entity\BlacklistEmail createObject($setDefaultValues = true)
+ * @method static \Bitrix\Mail\EO_Blacklist_Collection createCollection()
+ * @method static \Bitrix\Mail\Internals\Entity\BlacklistEmail wakeUpObject($row)
+ * @method static \Bitrix\Mail\EO_Blacklist_Collection wakeUpCollection($rows)
+ */
 class BlacklistTable extends Entity\DataManager
 {
 

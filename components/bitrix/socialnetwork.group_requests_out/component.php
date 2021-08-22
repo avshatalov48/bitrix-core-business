@@ -112,7 +112,9 @@ else
 		{
 			$arResult["Group"] = $arGroup;
 
-			$arResult["CurrentUserPerms"] = CSocNetUserToGroup::InitUserPerms($USER->GetID(), $arResult["Group"], CSocNetUser::IsCurrentUserModuleAdmin());
+			$arResult['CurrentUserPerms'] = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
+				'groupId' => $arGroup['ID'],
+			]);
 			
 			if (!$arResult["CurrentUserPerms"] || !$arResult["CurrentUserPerms"]["UserCanViewGroup"])
 				$arResult["FatalError"] = GetMessage("SONET_C12_NO_PERMS").". ";

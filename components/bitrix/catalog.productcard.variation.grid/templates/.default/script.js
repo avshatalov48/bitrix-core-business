@@ -1,8 +1,18 @@
 (function (exports,main_core,main_core_events,main_popup,ui_dialogs_messagebox) {
 	'use strict';
 
-	function _templateObject2() {
+	function _templateObject3() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"main-grid-delete-button\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></span>\n\t\t\t"]);
+
+	  _templateObject3 = function _templateObject3() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<li data-role=\"createItem\"\n\t\t\t\t\t\t class=\"catalog-productcard-popup-select-item catalog-productcard-popup-select-item-new\"\n\t\t\t\t\t\t onclick=\"BX.Catalog.VariationGrid.firePropertyModification(", ")\">\n\t\t\t\t\t\t<label class=\"catalog-productcard-popup-select-label\">\n\t\t\t\t\t\t\t<span class=\"catalog-productcard-popup-select-add\"></span>\n\t\t\t\t\t\t\t<span class=\"catalog-productcard-popup-select-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</label>\n\t\t\t\t\t</li>"]);
 
 	  _templateObject2 = function _templateObject2() {
 	    return data;
@@ -12,7 +22,7 @@
 	}
 
 	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<li data-role=\"createItem\"\n\t\t\t\t\t\t class=\"catalog-productcard-popup-select-item catalog-productcard-popup-select-item-new\"\n\t\t\t\t\t\t onclick=\"BX.Catalog.VariationGrid.firePropertyModification(", ")\">\n\t\t\t\t\t\t<label class=\"catalog-productcard-popup-select-label\">\n\t\t\t\t\t\t\t<span class=\"catalog-productcard-popup-select-add\"></span>\n\t\t\t\t\t\t\t<span class=\"catalog-productcard-popup-select-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</label>\n\t\t\t\t\t</li>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"catalog-productcard-popup-select-item catalog-productcard-popup-multi-select-item-new\">\n\t\t\t\t<label \n\t\t\t\t\tclass=\"catalog-productcard-popup-select-label main-dropdown-item\">\n\t\t\t\t\t<span class=\"catalog-productcard-popup-select-add\"></span>\n\t\t\t\t\t<span class=\"catalog-productcard-popup-select-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t</label>\n\t\t\t</div>\n\t\t"]);
 
 	  _templateObject = function _templateObject() {
 	    return data;
@@ -86,6 +96,8 @@
 	      main_core_events.EventEmitter.subscribe('VariationGrid::propertyModify', this.showPropertySettingsSliderHandler);
 	      this.onPrepareDropDownItemsHandler = this.onPrepareDropDownItems.bind(this);
 	      main_core_events.EventEmitter.subscribe('Dropdown::onPrepareItems', this.onPrepareDropDownItemsHandler);
+	      this.onCreatePopupHandler = this.onCreatePopup.bind(this);
+	      main_core_events.EventEmitter.subscribe('UiSelect::onCreatePopup', this.onCreatePopupHandler);
 	    }
 	  }, {
 	    key: "unsubscribeCustomEvents",
@@ -118,6 +130,11 @@
 	      if (this.onAllRowsUnselectHandler) {
 	        main_core_events.EventEmitter.unsubscribe('Grid::allRowsUnselected', this.onAllRowsUnselectHandler);
 	        this.onAllRowsUnselectHandler = null;
+	      }
+
+	      if (this.onCreatePopupHandler) {
+	        main_core_events.EventEmitter.unsubscribe('UiSelect::onCreatePopup', this.onCreatePopupHandler);
+	        this.onCreatePopupHandler = null;
 	      }
 	    }
 	  }, {
@@ -196,6 +213,30 @@
 	        var popup = document.getElementById('menu-popup-' + menuId);
 	        main_core.Dom.addClass(popup, 'catalog-productcard-popup-list');
 	      });
+	    }
+	  }, {
+	    key: "onCreatePopup",
+	    value: function onCreatePopup(event) {
+	      var _popup$bindElement;
+
+	      var _event$getData3 = event.getData(),
+	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
+	          popup = _event$getData4[0];
+
+	      var bindElementId = popup === null || popup === void 0 ? void 0 : (_popup$bindElement = popup.bindElement) === null || _popup$bindElement === void 0 ? void 0 : _popup$bindElement.id;
+
+	      if (!main_core.Type.isStringFilled(bindElementId)) {
+	        return;
+	      }
+
+	      if (bindElementId.indexOf('SKU_GRID_PROPERTY_') === -1) {
+	        return;
+	      }
+
+	      var propertyId = bindElementId.replace('SKU_GRID_PROPERTY_', '').replace('_control', '');
+	      var addButton = main_core.Tag.render(_templateObject(), main_core.Loc.getMessage('C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON'));
+	      main_core.Event.bind(addButton, 'mousedown', BX.Catalog.VariationGrid.firePropertyModification.bind(this, propertyId));
+	      popup.contentContainer.appendChild(addButton);
 	    }
 	  }, {
 	    key: "clearGridSettingsPopupStuff",
@@ -429,7 +470,7 @@
 	      node.querySelectorAll('[data-role="dropdownContent"] ul').forEach(function (listNode) {
 	        if (!listNode.querySelector('[data-role="createItem"]')) {
 	          var propertyId = listNode.getAttribute('data-propertyId');
-	          var createItem = main_core.Tag.render(_templateObject(), propertyId, BX.message('C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON'));
+	          var createItem = main_core.Tag.render(_templateObject2(), propertyId, BX.message('C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON'));
 	          listNode.appendChild(createItem);
 	        }
 	      });
@@ -481,7 +522,7 @@
 	      var rowId = row === null || row === void 0 ? void 0 : (_row$dataset = row.dataset) === null || _row$dataset === void 0 ? void 0 : _row$dataset.id;
 
 	      if (rowId) {
-	        var deleteButton = main_core.Tag.render(_templateObject2(), this.removeNewRowFromGrid.bind(this, rowId));
+	        var deleteButton = main_core.Tag.render(_templateObject3(), this.removeNewRowFromGrid.bind(this, rowId));
 	        main_core.Dom.append(deleteButton, actionCellContentContainer);
 	      }
 	    }
@@ -506,7 +547,11 @@
 	  }, {
 	    key: "removeRowFromGrid",
 	    value: function removeRowFromGrid(skuId) {
-	      this.getGrid().removeRow(skuId);
+	      var data = {
+	        'id': skuId,
+	        'action': 'deleteRow'
+	      };
+	      this.getGrid().reloadTable('POST', data);
 	    }
 	  }, {
 	    key: "getGridEditData",
@@ -666,9 +711,9 @@
 	  }, {
 	    key: "showPropertySettingsSlider",
 	    value: function showPropertySettingsSlider(event) {
-	      var _event$getData3 = event.getData(),
-	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
-	          propertyId = _event$getData4[0];
+	      var _event$getData5 = event.getData(),
+	          _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 1),
+	          propertyId = _event$getData6[0];
 
 	      var link = this.modifyPropertyLink.replace('#PROPERTY_ID#', propertyId);
 	      this.askToLossGridData(function () {

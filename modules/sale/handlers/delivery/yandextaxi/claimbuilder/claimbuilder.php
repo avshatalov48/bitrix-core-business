@@ -2,8 +2,8 @@
 
 namespace Sale\Handlers\Delivery\YandexTaxi\ClaimBuilder;
 
-use Bitrix\Location\Entity\Address\Converter\StringConverter;
-use Bitrix\Location\Service\FormatService;
+use Bitrix\Location\Entity\Address\FieldCollection;
+use Bitrix\Location\Entity\Location;
 use Bitrix\Location\Entity;
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
@@ -28,6 +28,8 @@ use Sale\Handlers\Delivery\YandexTaxi\Common\OrderEntitiesCodeDictionary;
 use Sale\Handlers\Delivery\YandexTaxi\Common\ReferralSourceBuilder;
 use Sale\Handlers\Delivery\YandexTaxi\Common\ShipmentDataExtractor;
 use Bitrix\Main\PhoneNumber;
+use Sale\Handlers\Delivery\YandexTaxi;
+use Bitrix\Location\Entity\Address\Field;
 
 /**
  * Class ClaimBuilder
@@ -534,19 +536,74 @@ final class ClaimBuilder
 		}
 
 		$address = Entity\Address::fromArray($addressArray);
+		$addressFieldCollection = $address->getFieldCollection();
+
+		/** @var Field $countryField */
+		$countryField = $addressFieldCollection->getItemByType(Location\Type::COUNTRY);
+
+		/** @var Field $cityField */
+		$cityField = $addressFieldCollection->getItemByType(Location\Type::LOCALITY);
+
+		/** @var Field $streetField */
+		$streetField = $addressFieldCollection->getItemByType(Location\Type::STREET);
+
+		/** @var Field $buildingField */
+		$buildingField = $addressFieldCollection->getItemByType(Location\Type::BUILDING);
 
 		return $result->setData(
 			[
-				'ADDRESS' => (new Address())
+				'ADDRESS' => (new YandexTaxi\Api\RequestEntity\Address())
+					->setCountry($countryField ? $countryField->getValue() : '')
+					->setCity($cityField ? $cityField->getValue() : '')
+					->setStreet($streetField ? $streetField->getValue() : '')
+					->setBuilding($buildingField ? $buildingField->getValue() : '')
+					->setComment(
+						$this->getAddressFieldValues(
+							$addressFieldCollection,
+							function (Field $field)
+							{
+								return (
+									$field->getType() > Location\Type::ADDRESS_LINE_1
+								);
+							}
+						)
+					)
 					->setFullName(
-						$address->toString(
-							FormatService::getInstance()->findDefault(LANGUAGE_ID),
-							StringConverter::STRATEGY_TYPE_FIELD_SORT,
-							StringConverter::CONTENT_TYPE_TEXT
+						$this->getAddressFieldValues(
+							$addressFieldCollection,
+							function (Field $field)
+							{
+								return (
+									$field->getType() >= Location\Type::COUNTRY
+									&& $field->getType() <= Location\Type::ADDRESS_LINE_1
+								);
+							}
 						)
 					)
 					->setCoordinates([(float)$address->getLongitude(), (float)$address->getLatitude()])
 			]
+		);
+	}
+
+	/**
+	 * @param FieldCollection $addressFieldCollection
+	 * @param \Closure $fieldsFilter
+	 * @return string
+	 */
+	private function getAddressFieldValues(FieldCollection $addressFieldCollection, \Closure $fieldsFilter): string
+	{
+		return implode(
+			', ',
+			array_map(
+				static function (Field $field)
+				{
+					return $field->getValue();
+				},
+				array_filter(
+					$addressFieldCollection->getSortedItems(),
+					$fieldsFilter
+				)
+			)
 		);
 	}
 

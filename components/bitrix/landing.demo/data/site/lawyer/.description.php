@@ -14,8 +14,8 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'lawyer',
-			'THEMEFONTS_CODE' => 'g-font-roboto',
-			'THEMEFONTS_CODE_H' => 'g-font-open-sans',
+			'THEMEFONTS_CODE' => 'Roboto',
+			'THEMEFONTS_CODE_H' => 'Open Sans',
 			'THEMEFONTS_SIZE' => '1',
 			'THEMEFONTS_USE' => 'Y',
 			'UP_SHOW' => 'Y',

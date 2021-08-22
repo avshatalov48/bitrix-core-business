@@ -252,6 +252,22 @@ class GroupConnectorTable extends Entity\DataManager
 
 
 
+/**
+ * Class GroupDealCategoryTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_GroupDealCategory_Query query()
+ * @method static EO_GroupDealCategory_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_GroupDealCategory_Result getById($id)
+ * @method static EO_GroupDealCategory_Result getList(array $parameters = array())
+ * @method static EO_GroupDealCategory_Entity getEntity()
+ * @method static \Bitrix\Sender\EO_GroupDealCategory createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\EO_GroupDealCategory_Collection createCollection()
+ * @method static \Bitrix\Sender\EO_GroupDealCategory wakeUpObject($row)
+ * @method static \Bitrix\Sender\EO_GroupDealCategory_Collection wakeUpCollection($rows)
+ */
 class GroupDealCategoryTable extends Entity\DataManager
 {
 	/**

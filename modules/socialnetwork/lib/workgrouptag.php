@@ -10,6 +10,22 @@ namespace Bitrix\Socialnetwork;
 use Bitrix\Main\Entity;
 use Bitrix\Main\DB\SqlQueryException;
 
+/**
+ * Class WorkgroupTagTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_WorkgroupTag_Query query()
+ * @method static EO_WorkgroupTag_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_WorkgroupTag_Result getById($id)
+ * @method static EO_WorkgroupTag_Result getList(array $parameters = array())
+ * @method static EO_WorkgroupTag_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupTag createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupTag wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection wakeUpCollection($rows)
+ */
 class WorkgroupTagTable extends Entity\DataManager
 {
 	public static function getTableName()

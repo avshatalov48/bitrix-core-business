@@ -24,7 +24,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Clouds
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_FileUpload_Query query()
+ * @method static EO_FileUpload_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_FileUpload_Result getById($id)
+ * @method static EO_FileUpload_Result getList(array $parameters = array())
+ * @method static EO_FileUpload_Entity getEntity()
+ * @method static \Bitrix\Clouds\EO_FileUpload createObject($setDefaultValues = true)
+ * @method static \Bitrix\Clouds\EO_FileUpload_Collection createCollection()
+ * @method static \Bitrix\Clouds\EO_FileUpload wakeUpObject($row)
+ * @method static \Bitrix\Clouds\EO_FileUpload_Collection wakeUpCollection($rows)
+ */
 
 class FileUploadTable extends Main\Entity\DataManager
 {

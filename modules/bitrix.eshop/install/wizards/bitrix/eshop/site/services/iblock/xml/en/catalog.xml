@@ -152,7 +152,7 @@
 				<BitrixNumberOfInputs>5</BitrixNumberOfInputs>
 				<BitrixLinkedInformationBlock></BitrixLinkedInformationBlock>
 				<BitrixWithDescription>false</BitrixWithDescription>
-				<BitrixUsedInSearch>true</BitrixUsedInSearch>
+				<BitrixUsedInSearch>false</BitrixUsedInSearch>
 				<BitrixFilterAllowed>true</BitrixFilterAllowed>
 				<BitrixUserType></BitrixUserType>
 				<BitrixRequired>false</BitrixRequired>
@@ -182,7 +182,7 @@
 				<BitrixNumberOfInputs>5</BitrixNumberOfInputs>
 				<BitrixLinkedInformationBlock></BitrixLinkedInformationBlock>
 				<BitrixWithDescription>false</BitrixWithDescription>
-				<BitrixUsedInSearch>true</BitrixUsedInSearch>
+				<BitrixUsedInSearch>false</BitrixUsedInSearch>
 				<BitrixFilterAllowed>true</BitrixFilterAllowed>
 				<BitrixUserType></BitrixUserType>
 				<BitrixRequired>false</BitrixRequired>
@@ -1608,7 +1608,7 @@
 					<PropertyValues>
 						<Id>CML2_DETAIL_TEXT</Id>
 						<Value>Available with an upholstered seat or an optional wood saddle style seat.
-        
+
       </Value>
 						<Type>text</Type>
 					</PropertyValues>
@@ -2600,7 +2600,7 @@ Height: 83 cm
 					</PropertyValues>
 					<PropertyValues>
 						<Id>CML2_DETAIL_TEXT</Id>
-						<Value>Classic execution with the option of leather or fabric. 
+						<Value>Classic execution with the option of leather or fabric.
  </Value>
 						<Type>text</Type>
 					</PropertyValues>
@@ -11025,7 +11025,7 @@ Wipe dry with a clean cloth.</Value>
 					</PropertyValues>
 					<PropertyValues>
 						<Id>CML2_PREVIEW_TEXT</Id>
-						<Value>The Home Office Furniture is a great way to add contemporary style to your home office or study. 
+						<Value>The Home Office Furniture is a great way to add contemporary style to your home office or study.
  </Value>
 						<Type>text</Type>
 					</PropertyValues>
@@ -11228,7 +11228,7 @@ Wipe dry with a clean cloth.</Value>
 					</PropertyValues>
 					<PropertyValues>
 						<Id>CML2_PREVIEW_TEXT</Id>
-						<Value>This table is suitable for boardroom and conference settings. 
+						<Value>This table is suitable for boardroom and conference settings.
       </Value>
 						<Type>text</Type>
 					</PropertyValues>
@@ -11429,7 +11429,7 @@ Wipe dry with a clean cloth.</Value>
 					</PropertyValues>
 					<PropertyValues>
 						<Id>CML2_DETAIL_TEXT</Id>
-						<Value>        
+						<Value>
       </Value>
 						<Type>html</Type>
 					</PropertyValues>
@@ -11628,9 +11628,9 @@ Wipe dry with a clean cloth.</Value>
 					</PropertyValues>
 					<PropertyValues>
 						<Id>CML2_DETAIL_TEXT</Id>
-						<Value>The design of the chair is strictly classical. Hand-finishing on the armrests make each one unique. Each design is a limited edition, with no more than 10 per year produced. 
-The boss’s chair at the head of a great round table reproduces the effect of a legendary meeting room. This isn’t just office furniture, it’s a throne for administration, problem-solving, and the exchange of important information. 
-        
+						<Value>The design of the chair is strictly classical. Hand-finishing on the armrests make each one unique. Each design is a limited edition, with no more than 10 per year produced.
+The boss’s chair at the head of a great round table reproduces the effect of a legendary meeting room. This isn’t just office furniture, it’s a throne for administration, problem-solving, and the exchange of important information.
+
       </Value>
 						<Type>text</Type>
 					</PropertyValues>
@@ -11826,7 +11826,7 @@ The boss’s chair at the head of a great round table reproduces the effect of a
 					<PropertyValues>
 						<Id>CML2_DETAIL_TEXT</Id>
 						<Value>Mid Back Chair with pneumatic tilt control mechanism.
-        
+
       </Value>
 						<Type>text</Type>
 					</PropertyValues>

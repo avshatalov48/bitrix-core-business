@@ -9,6 +9,22 @@ namespace Bitrix\Socialnetwork;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class LogTagTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_LogTag_Query query()
+ * @method static EO_LogTag_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_LogTag_Result getById($id)
+ * @method static EO_LogTag_Result getList(array $parameters = array())
+ * @method static EO_LogTag_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_LogTag createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_LogTag_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_LogTag wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_LogTag_Collection wakeUpCollection($rows)
+ */
 class LogTagTable extends Entity\DataManager
 {
 	const ITEM_TYPE_LOG = 'L';

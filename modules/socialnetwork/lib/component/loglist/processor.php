@@ -399,10 +399,10 @@ class Processor
 
 			if (
 				isset($result['Group'])
-				&& $result['Group']['OPENED'] == 'Y'
+				&& $result['Group']['OPENED'] === 'Y'
 			)
 			{
-				$this->setFilterKey('LOG_RIGHTS_SG', 'OSG'.$params['GROUP_ID'].'_'.(Util::checkUserAuthorized() ? SONET_ROLES_AUTHORIZED : SONET_ROLES_ALL));
+				$this->setFilterKey('LOG_RIGHTS_SG', 'OSG' . $params['GROUP_ID'].'_' . (Util::checkUserAuthorized() ? SONET_ROLES_AUTHORIZED : SONET_ROLES_ALL));
 			}
 
 			$result['SHOW_FOLLOW_CONTROL'] = 'N';

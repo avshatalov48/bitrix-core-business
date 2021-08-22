@@ -88,7 +88,7 @@ class Tools
 		$ipropertyKey = (string)$ipropertyKey;
 		foreach ($keys as $fieldName)
 		{
-			if (!isset($item[$fieldName]) || is_array($item[$fieldName]))
+			if (!array_key_exists($fieldName, $item) || is_array($item[$fieldName]))
 				continue;
 			$imageData = false;
 			$imageId = (int)$item[$fieldName];

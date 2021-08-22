@@ -75,7 +75,7 @@ class Recent
 			}
 		}
 
-		if (!isset($options['LAST_UPDATE']))
+		if (!isset($options['LAST_SYNC_DATE']))
 		{
 			if (isset($options['OFFSET']))
 			{

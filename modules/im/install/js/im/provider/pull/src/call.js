@@ -86,6 +86,15 @@ export class ImCallPullHandler
 	{
 		if (params.dialogId === this.store.state.application.dialog.dialogId)
 		{
+			this.store.dispatch('dialogues/update', {
+				dialogId: params.dialogId,
+				fields: {
+					public: {
+						code: params.newCode,
+						link:  params.newLink
+					}
+				}
+			});
 			this.application.changeVideoconfUrl(params.newLink);
 		}
 	}

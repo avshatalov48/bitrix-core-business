@@ -17,6 +17,7 @@ return [
 		'RULE' => NULL,
 		'ADDITIONAL_FIELDS' => [
 			'B24BUTTON_CODE' => 'N',
+			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/store_v3/payment/preview.jpg',
 		],
 	],
 	'layout' => [

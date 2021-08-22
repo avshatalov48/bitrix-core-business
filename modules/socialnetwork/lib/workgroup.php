@@ -13,6 +13,22 @@ use Bitrix\Main\NotImplementedException;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class WorkgroupTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Workgroup_Query query()
+ * @method static EO_Workgroup_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Workgroup_Result getById($id)
+ * @method static EO_Workgroup_Result getList(array $parameters = array())
+ * @method static EO_Workgroup_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_Workgroup createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_Workgroup_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_Workgroup wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_Workgroup_Collection wakeUpCollection($rows)
+ */
 class WorkgroupTable extends Entity\DataManager
 {
 	const AUTO_MEMBERSHIP_YES = 'Y';

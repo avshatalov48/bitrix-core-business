@@ -1,4 +1,5 @@
 import { PopupManager } from "main.popup";
+import { NotificationTypesCodes } from 'im.const';
 
 export const NotificationCore = {
 	data()
@@ -26,8 +27,7 @@ export const NotificationCore = {
 			{
 				placeholders.push({
 					id: `placeholder${this.placeholderCount}`,
-					templateId: `placeholder${this.placeholderCount}`,
-					template: 'placeholder'
+					type: NotificationTypesCodes.placeholder
 				});
 				this.placeholderCount++;
 			}

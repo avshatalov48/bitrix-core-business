@@ -23,7 +23,6 @@ $MESS["MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_BODY"] = "Кількіст
 <br><br>
 На вашому тарифі доступно поштових скриньок для кожного співробітника: #LIMIT#
 ";
-$MESS["MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_TITLE"] = "Підключення поштових скриньок в Бітрікс24";
 $MESS["MAIL_MESSAGE_ATTACHES"] = "Файли";
 $MESS["MAIL_MESSAGE_BAD_SENDER"] = "Недопустимий відправник";
 $MESS["MAIL_MESSAGE_BTN_DEL"] = "Видалити";

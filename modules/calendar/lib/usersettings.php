@@ -274,21 +274,33 @@ class UserSettings
 		\CUserOptions::setOption("calendar", "superpose_tracking_groups", serialize($value), false, $userId);
 	}
 
-	public static function getHiddenSections($userId = false)
+	public static function getHiddenSections($userId = false, $options = [])
 	{
 		$res = [];
-
 		if (class_exists('CUserOptions') && $userId > 0)
 		{
-			//CUserOptions::DeleteOption("calendar", "hidden_sections");
-			$res = \CUserOptions::getOption("calendar", "hidden_sections", false, $userId);
-			if ($res !== false && is_array($res) && isset($res['hidden_sections']))
-				$res = explode(',', $res['hidden_sections']);
-		}
-		if (!is_array($res))
-			$res = [];
+			$optionName = $options['isPersonalCalendarContext'] ? 'hidden_sections' : 'hidden_sections_'.$options['type'];
+			$res = \CUserOptions::getOption('calendar', $optionName, false, $userId);
 
-		return $res;
+			if (is_array($res) && isset($res[$optionName]))
+			{
+				$res = explode(',', $res[$optionName]);
+			}
+
+			if ($res === false && is_array($options['defaultHiddenSections']))
+			{
+				$res = $options['defaultHiddenSections'];
+			}
+
+			if (is_array($res))
+			{
+				$res = array_values(array_filter(array_unique($res), function($k) {
+					return $k === 'tasks' || is_numeric($k);
+				}));
+			}
+		}
+
+		return is_array($res) ? $res : [];
 	}
 
 	public static function getSectionCustomization($userId = false)

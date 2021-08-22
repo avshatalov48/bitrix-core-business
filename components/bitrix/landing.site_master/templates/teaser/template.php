@@ -61,7 +61,11 @@ $teaserParams = [
 				<form class="landing-sm-teaser-inline" data-role="landing-sm-form"  action="<?= $component->getUri(['action' => 'create']);?>" method="post">
 					<input type="hidden" name="param" value="store_v3" />
 					<?= bitrix_sessid_post();?>
-					<input class="ui-btn ui-btn-lg ui-btn-primary" data-role="landing-sm-create" type="button" value="<?= Loc::getMessage('LANDING_TPL_SUBMIT');?>" />
+					<?if (\Bitrix\Landing\Domain::canRegisterInBitrix24()):?>
+						<input class="ui-btn ui-btn-lg ui-btn-primary" data-role="landing-sm-create" type="button" value="<?= Loc::getMessage('LANDING_TPL_SUBMIT');?>" />
+					<?else:?>
+						<span style="color: red;"><?= Loc::getMessage('LANDING_TPL_ALERT_DISABLE')?></span>
+					<?endif;?>
 				</form>
 			</div>
 			<div class="landing-sm-teaser-loader-wrapper">

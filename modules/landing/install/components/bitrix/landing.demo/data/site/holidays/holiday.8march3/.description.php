@@ -15,8 +15,8 @@ return array(
 		'ADDITIONAL_FIELDS' => array(
 			'UP_SHOW' => 'Y',
 			'THEME_CODE' => 'wedding',
-			'THEMEFONTS_CODE' => 'g-font-cormorant-infant',
-			'THEMEFONTS_CODE_H' => 'g-font-open-sans',
+			'THEMEFONTS_CODE' => 'Cormorant Infant',
+			'THEMEFONTS_CODE_H' => 'Open Sans',
 			'THEMEFONTS_SIZE' => '1',
 			'THEMEFONTS_USE' => 'Y',
 		)

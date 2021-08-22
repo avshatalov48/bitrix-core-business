@@ -1,7 +1,7 @@
 import {Vue} from 'ui.vue';
 import {Text, Type} from 'main.core';
 import {VuexBuilderModel} from 'ui.vue.vuex';
-import {DiscountType, FieldScheme} from "catalog.product-calculator";
+import {DiscountType} from "catalog.product-calculator";
 import {FormElementPosition} from "../types/form-element-position";
 import {CurrencyCore} from "currency.currency-core";
 import type {FormScheme} from "../types/form-scheme";
@@ -63,6 +63,7 @@ export class ProductList extends VuexBuilderModel
 				isCustomPrice: 'N',
 				additionalFields: [],
 				properties: [],
+				brands: [],
 			},
 			calculatedFields: [],
 			showDiscount: 'N',

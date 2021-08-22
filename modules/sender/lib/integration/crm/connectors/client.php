@@ -153,14 +153,14 @@ class Client extends Connector\BaseFilter implements Connector\IncrementallyConn
 		];
 	}
 
-	public function getLimitedData(int $offset, int $limit): Result
+	public function getLimitedData(int $offset, int $limit): ?Result
 	{
 		$entityInfo = $this->getEntityLimitInfo();
 		$excludedClass = $offset > $entityInfo['lastContactId'] ? \CCrmOwnerType::ContactName : null;
 		$excludedClass = $offset > $entityInfo['lastCompanyId'] ? \CCrmOwnerType::CompanyName : $excludedClass;
 
 		$query = QueryData::getUnionizedQuery($this->getLimitedQueries($offset, $limit, $excludedClass));
-		return QueryData::getUnionizedData($query);
+		return !$query ? null : QueryData::getUnionizedData($query);
 	}
 
 	protected function prepareQueryForType(Query $query, int $from, int $to, array &$queries)

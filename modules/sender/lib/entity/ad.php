@@ -11,7 +11,7 @@ namespace Bitrix\Sender\Entity;
 use Bitrix\Main\Localization\Loc;
 
 use Bitrix\Sender\Integration;
-
+use Bitrix\Sender\Message\iMarketing;
 
 Loc::loadMessages(__FILE__);
 
@@ -47,9 +47,25 @@ class Ad extends Letter
 	 */
 	protected function saveData($id = null, array $data)
 	{
-		if (!Integration\Seo\Ads\Service::isAvailable())
+		$isAvailable = Integration\Seo\Ads\Service::isAvailable();
+		$code = null;
+		if ($isAvailable)
 		{
-			$this->addError(Loc::getMessage('SENDER_ENTITY_AD_ERROR_NO_ACCESS'));
+			if ($this instanceof iMarketing)
+			{
+				$isAvailable = Integration\Bitrix24\Service::isFbAdAvailable();
+				$code = 'feature:sender_fb_ads';
+			}
+			elseif ($isAvailable)
+			{
+				$isAvailable = Integration\Bitrix24\Service::isAdAvailable();
+				$code = 'feature:sender_ad';
+			}
+		}
+
+		if (!$isAvailable)
+		{
+			$this->addError(Loc::getMessage('SENDER_ENTITY_AD_ERROR_NO_ACCESS'), $code);
 			return $id;
 		}
 

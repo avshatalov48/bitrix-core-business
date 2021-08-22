@@ -289,7 +289,7 @@ while ($arCCard = $dbRes->NavNext(false))
 			"ICON" => "delete",
 			"TEXT" => GetMessage("SALE_DELETE"),
 			"TITLE" => GetMessage("SALE_DELETE_DESCR"),
-			"ACTION" => "if(confirm('".GetMessage('SALE_CONFIRM_DEL_MESSAGE')."')) ".$lAdmin->ActionDoGroup($arCCard["ID"], "delete"),
+			"ACTION" => "if(confirm('" . CUtil::JSEscape(GetMessage('SALE_CONFIRM_DEL_MESSAGE')) . "')) ".$lAdmin->ActionDoGroup($arCCard["ID"], "delete"),
 		);
 	}
 

@@ -69,17 +69,8 @@ if (!$groupId || CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $groupId, 
 		}
 		$state = $state->getState();
 
-
-		$sprintId = -1;
 		$kanbanIsTimelineMode = 'N';
 		$isPersonalKanban = 'N';
-
-		// temporary we show agile parts only by option
-		$scrumBacklog = \Bitrix\Main\Config\Option::get(
-			'tasks',
-			'agile_enabled_group_'.$groupId,
-			'N'
-		);
 
 		switch ($state['VIEW_SELECTED']['CODENAME'])
 		{
@@ -100,11 +91,6 @@ if (!$groupId || CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $groupId, 
 				$componentName = 'bitrix:tasks.kanban';
 				$kanbanIsTimelineMode = 'Y';
 				$isPersonalKanban = 'Y';
-				break;
-
-			case 'VIEW_MODE_SPRINT':
-				$componentName = 'bitrix:tasks.kanban';
-				$sprintId = 0;
 				break;
 
 			case 'VIEW_MODE_CALENDAR':
@@ -142,7 +128,6 @@ if (!$groupId || CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $groupId, 
 			"PERSONAL" => $isPersonalKanban,
 			"TIMELINE_MODE" => $kanbanIsTimelineMode,
 			"KANBAN_SHOW_VIEW_MODE" => 'Y',
-			"SPRINT_ID" => $sprintId,
 			"GROUP_ID" => $groupId,
 			"PROJECT_VIEW" => 'Y',
 			"USER_ID" => $userId,
@@ -187,7 +172,6 @@ if (!$groupId || CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $groupId, 
 			"USE_PAGINATION" => 'Y',
 			"HIDE_OWNER_IN_TITLE" => $arParams['HIDE_OWNER_IN_TITLE'],
 			// "TASKS_ALWAYS_EXPANDED" => 'Y',
-			"SCRUM_BACKLOG" => $scrumBacklog,
 		],
 		$component,
 		["HIDE_ICONS" => "Y"]

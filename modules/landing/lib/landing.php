@@ -975,7 +975,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 					);
 				}
 			}
-			if ($this->siteRow['LANDING_ID_INDEX'] != $this->id)
+			else if ($this->siteRow['LANDING_ID_INDEX'] != $this->id)
 			{
 				Manager::getApplication()->addChainItem(
 					$this->title,
@@ -1064,7 +1064,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		// implode content and templates parts
 		if ($content && mb_strpos($content, '#CONTENT#') !== false)
 		{
-			$replace = ['#CONTENT#' => $contentMain];
+			$replace = ['#CONTENT#' => '<a id="workarea"></a>' . $contentMain];
 
 			// crm replace
 			if (self::$siteCode === 'STORE' && mb_strpos($content, '#crm') !== false)
@@ -2587,6 +2587,32 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			return $result;
 		}
 
+		// get landing if specified
+		if ($fields['ID'] ?? null)
+		{
+			$res = self::getList([
+				'select' => [
+					'ID', 'FOLDER_ID', 'FOLDER', 'ACTIVE'
+				],
+				'filter' => [
+					'SITE_ID' => $siteId,
+					'ID' => $fields['ID']
+				]
+			]);
+			if (!($landing = $res->fetch()))
+			{
+				$result->addError(new \Bitrix\Main\Error(
+					'LANDING_ERROR',
+					Loc::getMessage('LANDING_NOT_FOUND')
+				));
+				return $result;
+			}
+			if ($landing['FOLDER'] === 'Y')
+			{
+				$landing['FOLDER_ID'] = $landing['ID'];
+			}
+		}
+
 		// include the component
 		$componentName = 'bitrix:landing.demo';
 		$className = \CBitrixComponent::includeComponentClass($componentName);
@@ -2597,6 +2623,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			'SITE_ID' => $siteId,
 			'SITE_WORK_MODE' => 'N',
 			'DISABLE_REDIRECT' => 'Y',
+			'FOLDER_ID' => $landing['FOLDER_ID'] ?? 0,
 			'META' => $fields
 		];
 
@@ -2607,6 +2634,10 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		if ($landingId)
 		{
 			$result->setId($landingId);
+			if (($landing['ACTIVE'] ?? 'N') === 'Y')
+			{
+				Landing::createInstance($landingId)->publication();
+			}
 		}
 		else
 		{

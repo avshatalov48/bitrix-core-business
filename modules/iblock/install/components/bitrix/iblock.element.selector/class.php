@@ -109,12 +109,16 @@ class IblockElementSelector extends CBitrixComponent
 		$this->arResult['LAST_ELEMENTS'] = [];
 		if($this->arResult['ACCESS_DENIED'] == 'Y')
 			return;
+		if ($this->arParams['IBLOCK_ID'] <= 0)
+		{
+			return;
+		}
 
-		$filter = [];
-		if ($this->arParams['IBLOCK_ID'] > 0)
-			$filter['IBLOCK_ID'] = $this->arParams['IBLOCK_ID'];
-		$filter['CHECK_PERMISSIONS'] = 'Y';
-		$filter['MIN_PERMISSION'] = $this->arResult['MIN_PERMISSION'];
+		$filter = [
+			'IBLOCK_ID' => $this->arParams['IBLOCK_ID'],
+			'CHECK_PERMISSIONS' => 'Y',
+			'MIN_PERMISSION' => $this->arResult['MIN_PERMISSION'],
+		];
 
 		$queryObject = CIBlockElement::GetList(
 			['ID' => 'DESC'],

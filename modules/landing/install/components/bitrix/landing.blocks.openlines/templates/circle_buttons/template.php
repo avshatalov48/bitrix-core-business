@@ -37,7 +37,7 @@ if (!empty($arParams['ERRORS']))
 
 foreach ($arParams['WIDGETS'] as $widget) :?>
 	<?php if (is_array($widget['show']) && isset($widget['show']['url'])): ?>
-		<a class="<?= $widget['classList'] ?>openlines-style-circle g-pointer-events-none--edit-mode" target="_blank" href="<?= $widget['show']['url'] ?>">
+		<a class="<?= $widget['classList'] ?> openlines-style-circle g-pointer-events-none--edit-mode" target="_blank" href="<?= $widget['show']['url'] ?>">
 		</a>
 
 	<?php else: ?>

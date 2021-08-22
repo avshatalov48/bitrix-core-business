@@ -177,6 +177,13 @@ if (Loader::includeModule('replica'))
 						)),
 						'extra' => \Bitrix\Im\Common::getPullExtra()
 					);
+					$relations = \Bitrix\Im\Chat::getRelation($chatId, Array(
+						'REAL_COUNTERS' => 'Y',
+						'USER_DATA' => 'Y',
+					));
+					$pullMessage['params']['dialogId'] = $arFields['FROM_USER_ID'];
+					$pullMessage['params']['counter'] = $relations[$arFields['TO_USER_ID']]['COUNTER'];
+
 					$pullMessageTo = $pullMessage;
 
 					if (\CPullOptions::GetPushStatus())
@@ -191,7 +198,6 @@ if (Loader::includeModule('replica'))
 					}
 
 					\Bitrix\Pull\Event::add($arFields['TO_USER_ID'], $pullMessageTo);
-					\Bitrix\Pull\Event::add($arFields['FROM_USER_ID'], $pullMessage);
 
 					\CPushManager::DeleteFromQueueBySubTag($arFields['FROM_USER_ID'], 'IM_MESS');
 				}

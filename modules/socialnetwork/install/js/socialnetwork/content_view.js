@@ -51,18 +51,6 @@ BX.UserContentView.init = function(params)
 		return;
 	}
 
-	var observerOptions = {
-		rootMargin: '-10% 0% -10% 0%',
-		threshold: 0.10
-	};
-
-	this.observer = new IntersectionObserver(this.onIntersection.bind(this), observerOptions);
-	this.checkerMap = new WeakMap();
-	this.viewAreaMap = new WeakMap();
-	this.viewAreaReadList = {};
-
-	this.inited = true;
-
 	if (BX.type.isPlainObject(params))
 	{
 		if (BX.type.isBoolean(params.mobile))
@@ -90,6 +78,18 @@ BX.UserContentView.init = function(params)
 			this.commentsFullContentClassName = params.commentsFullContentClassName;
 		}
 	}
+
+	var observerOptions = {
+		rootMargin: (this.mobile ? '0%' : '-10% 0% -10% 0%'),
+		threshold: 0.10
+	};
+
+	this.observer = new IntersectionObserver(this.onIntersection.bind(this), observerOptions);
+	this.checkerMap = new WeakMap();
+	this.viewAreaMap = new WeakMap();
+	this.viewAreaReadList = {};
+
+	this.inited = true;
 
 	if (BX.browser.SupportLocalStorage())
 	{

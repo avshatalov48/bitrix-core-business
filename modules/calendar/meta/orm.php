@@ -1,6 +1,6 @@
 <?php
 
-/* ORMENTITYANNOTATION:Bitrix\Calendar\Internals\EventTable:calendar/lib/internals/event.php:9d5a4f8daaf8f22a729db08d21a74877 */
+/* ORMENTITYANNOTATION:Bitrix\Calendar\Internals\EventTable:calendar/lib/internals/event.php:0ccfde935d259ff4cf49da998e75702f */
 namespace Bitrix\Calendar\Internals {
 	/**
 	 * EO_Event
@@ -607,18 +607,6 @@ namespace Bitrix\Calendar\Internals {
 }
 namespace Bitrix\Calendar\Internals {
 	/**
-	 * @method static EO_Event_Query query()
-	 * @method static EO_Event_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Event_Result getById($id)
-	 * @method static EO_Event_Result getList(array $parameters = array())
-	 * @method static EO_Event_Entity getEntity()
-	 * @method static \Bitrix\Calendar\Internals\EO_Event createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Calendar\Internals\EO_Event_Collection createCollection()
-	 * @method static \Bitrix\Calendar\Internals\EO_Event wakeUpObject($row)
-	 * @method static \Bitrix\Calendar\Internals\EO_Event_Collection wakeUpCollection($rows)
-	 */
-	class EventTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -974,18 +962,6 @@ namespace Bitrix\Calendar\Internals {
 	}
 }
 namespace Bitrix\Calendar\Internals {
-	/**
-	 * @method static EO_Resource_Query query()
-	 * @method static EO_Resource_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Resource_Result getById($id)
-	 * @method static EO_Resource_Result getList(array $parameters = array())
-	 * @method static EO_Resource_Entity getEntity()
-	 * @method static \Bitrix\Calendar\Internals\EO_Resource createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Calendar\Internals\EO_Resource_Collection createCollection()
-	 * @method static \Bitrix\Calendar\Internals\EO_Resource wakeUpObject($row)
-	 * @method static \Bitrix\Calendar\Internals\EO_Resource_Collection wakeUpCollection($rows)
-	 */
-	class ResourceTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1391,18 +1367,6 @@ namespace Bitrix\Calendar\Internals {
 }
 namespace Bitrix\Calendar\Internals {
 	/**
-	 * @method static EO_Section_Query query()
-	 * @method static EO_Section_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Section_Result getById($id)
-	 * @method static EO_Section_Result getList(array $parameters = array())
-	 * @method static EO_Section_Entity getEntity()
-	 * @method static \Bitrix\Calendar\Internals\EO_Section createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Calendar\Internals\EO_Section_Collection createCollection()
-	 * @method static \Bitrix\Calendar\Internals\EO_Section wakeUpObject($row)
-	 * @method static \Bitrix\Calendar\Internals\EO_Section_Collection wakeUpCollection($rows)
-	 */
-	class SectionTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1566,18 +1530,6 @@ namespace Bitrix\Calendar\Internals {
 	}
 }
 namespace Bitrix\Calendar\Internals {
-	/**
-	 * @method static EO_Type_Query query()
-	 * @method static EO_Type_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Type_Result getById($id)
-	 * @method static EO_Type_Result getList(array $parameters = array())
-	 * @method static EO_Type_Entity getEntity()
-	 * @method static \Bitrix\Calendar\Internals\EO_Type createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Calendar\Internals\EO_Type_Collection createCollection()
-	 * @method static \Bitrix\Calendar\Internals\EO_Type wakeUpObject($row)
-	 * @method static \Bitrix\Calendar\Internals\EO_Type_Collection wakeUpCollection($rows)
-	 */
-	class TypeTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1760,18 +1712,6 @@ namespace Bitrix\Calendar {
 	}
 }
 namespace Bitrix\Calendar {
-	/**
-	 * @method static EO_Push_Query query()
-	 * @method static EO_Push_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Push_Result getById($id)
-	 * @method static EO_Push_Result getList(array $parameters = array())
-	 * @method static EO_Push_Entity getEntity()
-	 * @method static \Bitrix\Calendar\EO_Push createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Calendar\EO_Push_Collection createCollection()
-	 * @method static \Bitrix\Calendar\EO_Push wakeUpObject($row)
-	 * @method static \Bitrix\Calendar\EO_Push_Collection wakeUpCollection($rows)
-	 */
-	class PushTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

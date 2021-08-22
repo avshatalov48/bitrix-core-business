@@ -224,6 +224,12 @@ export class CompactEventForm extends EventEmitter
 				})
 			);
 
+			// For testing purposes
+			if (Type.isElementNode(buttons[0].button))
+			{
+				buttons[0].button.setAttribute('data-role', 'saveButton');
+			}
+
 			buttons.push(
 				new BX.UI.Button({
 					text : Loc.getMessage('CALENDAR_EVENT_DO_CANCEL'),
@@ -326,6 +332,12 @@ export class CompactEventForm extends EventEmitter
 						}}
 				})
 			);
+
+			// For testing purposes
+			if (Type.isElementNode(buttons[buttons.length - 1].button))
+			{
+				buttons[buttons.length - 1].button.setAttribute('data-role', 'openButton');
+			}
 
 			if (this.entry.isMeeting()
 				&& this.entry.getCurrentStatus() === 'N')

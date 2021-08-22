@@ -736,6 +736,13 @@ class RestService extends \IRestService
 			throw new RestException('Template not found', self::ERROR_WRONG_WORKFLOW_ID);
 		}
 
+		//hotfix #0120474
+		$getParams = array_change_key_case($_GET, CASE_UPPER);
+		if (isset($getParams['DOCUMENT_ID']) && is_array($getParams['DOCUMENT_ID']))
+		{
+			$params['DOCUMENT_ID'] = $getParams['DOCUMENT_ID'];
+		}
+
 		$documentId = self::getDocumentId($params['DOCUMENT_ID']);
 
 		if (!$documentId)

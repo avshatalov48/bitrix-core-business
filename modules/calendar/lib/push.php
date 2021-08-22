@@ -20,7 +20,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Calendar
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Push_Query query()
+ * @method static EO_Push_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Push_Result getById($id)
+ * @method static EO_Push_Result getList(array $parameters = array())
+ * @method static EO_Push_Entity getEntity()
+ * @method static \Bitrix\Calendar\EO_Push createObject($setDefaultValues = true)
+ * @method static \Bitrix\Calendar\EO_Push_Collection createCollection()
+ * @method static \Bitrix\Calendar\EO_Push wakeUpObject($row)
+ * @method static \Bitrix\Calendar\EO_Push_Collection wakeUpCollection($rows)
+ */
 
 class PushTable extends Main\Entity\DataManager
 {

@@ -62,8 +62,7 @@ $APPLICATION->SetPageProperty("BodyClass", $bodyClass);
 		BLOG_POST_VOTE_EXPORT: '<?=GetMessageJS("BLOG_POST_VOTE_EXPORT")?>',
 		BLOG_POST_MOD_PUB: '<?=GetMessageJS("BLOG_POST_MOD_PUB")?>',
 		BLOG_MES_HIDE: '<?=GetMessageJS("BLOG_MES_HIDE")?>',
-		BLOG_MES_HIDE_POST_CONFIRM: '<?=GetMessageJS("BLOG_MES_HIDE_POST_CONFIRM")?>',
-		sonetBPDeletePath: '<?=CUtil::JSEscape($arResult["urlToDelete"])?>'
+		BLOG_MES_HIDE_POST_CONFIRM: '<?=GetMessageJS("BLOG_MES_HIDE_POST_CONFIRM")?>'
 		<?
 		if (!$arResult["bFromList"])
 		{
@@ -436,10 +435,10 @@ else
 				$avatar = $arResult["arUser"]["PERSONAL_PHOTO_resized"]["src"];
 			}
 
-			$style = ($avatar ? "background: url('".\CHTTP::urnEncode($avatar)."'); background-size: cover;" : "");
+			$style = ($avatar ? "background: url('" . $avatar . "'); background-size: cover;" : "");
 
 			?><div class="<?=implode(' ', $aditStylesList)?>" id="blg-post-img-<?=$arResult["Post"]["ID"]?>">
-				<div class="ui-icon ui-icon-common-user feed-user-avatar"><i style="<?=$style?>"></i></div><?
+				<div class="ui-icon ui-icon-common-user feed-user-avatar"><i style="<?= $style ?>"></i></div><?
 				?><div class="feed-post-pinned-block"><?
 
 					?><div class="feed-post-pinned-title"><?

@@ -37,7 +37,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    var headersForm = new landing_ui_form_formsettingsform.FormSettingsForm({
 	      id: 'headers',
 	      title: main_core.Loc.getMessage('LANDING_HEADER_AND_BUTTONS_HEADERS_FORM_TITLE'),
-	      toggleable: true,
 	      fields: [new landing_ui_field_variablesfield.VariablesField({
 	        selector: 'title',
 	        title: main_core.Loc.getMessage('LANDING_HEADER_AND_BUTTONS_HEADERS_FORM_HEADER_FIELD_TITLE'),
@@ -362,15 +361,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	var googleIcon = "/bitrix/js/landing/ui/panel/formsettingspanel/dist/internal/content/analytics/images/google.svg";
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-content-table-cell\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	var ContentTableCell = /*#__PURE__*/function () {
 	  function ContentTableCell() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -381,21 +372,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  babelHelpers.createClass(ContentTableCell, [{
 	    key: "render",
 	    value: function render() {
-	      return main_core.Tag.render(_templateObject(), this.options.content);
+	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-content-table-cell\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.options.content);
 	    }
 	  }]);
 	  return ContentTableCell;
 	}();
 
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-content-table-row", "\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1;
 	var ContentTableRow = /*#__PURE__*/function () {
 	  function ContentTableRow(options) {
 	    babelHelpers.classCallCheck(this, ContentTableRow);
@@ -406,7 +389,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "render",
 	    value: function render() {
 	      var headClass = this.options.head ? ' landing-ui-content-table-row-head' : '';
-	      return main_core.Tag.render(_templateObject$1(), headClass, this.options.columns.map(function (cell) {
+	      return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-content-table-row", "\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), headClass, this.options.columns.map(function (cell) {
 	        return cell.render();
 	      }));
 	    }
@@ -414,25 +397,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return ContentTableRow;
 	}();
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-content-table-wrapper\">\n\t\t\t\t\n\t\t\t\t<div class=\"landing-ui-content-table\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-content-table-title\">", "</div>\n\t\t\t"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$2, _templateObject2;
 	var ContentTable = /*#__PURE__*/function () {
 	  function ContentTable(options) {
 	    babelHelpers.classCallCheck(this, ContentTable);
@@ -456,7 +421,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getTitleLayout",
 	    value: function getTitleLayout() {
 	      if (Type.isStringFilled(this.options.title)) {
-	        return main_core.Tag.render(_templateObject$2(), this.options.title);
+	        return main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-content-table-title\">", "</div>\n\t\t\t"])), this.options.title);
 	      }
 
 	      return '';
@@ -464,7 +429,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "render",
 	    value: function render() {
-	      return main_core.Tag.render(_templateObject2(), this.headRow.render(), this.rows.map(function (row) {
+	      return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-content-table-wrapper\">\n\t\t\t\t\n\t\t\t\t<div class=\"landing-ui-content-table\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.headRow.render(), this.rows.map(function (row) {
 	        return row.render();
 	      }));
 	    }
@@ -862,15 +827,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return FieldsRulesContent;
 	}(landing_ui_panel_basepresetpanel.ContentWrapper);
 
-	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", " ", "-", "\">\n\t\t\t\t<div class=\"", "-title\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "-inner\">\n\t\t\t\t\t<div class=\"", "-header\">\n\t\t\t\t\t\t<span class=\"", "-header-view\" onclick=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "-icon\"></div>\n\t\t\t\t\t<div class=\"", "-text\" onclick=\"", "\" oninput=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "-footer\">\n\t\t\t\t\t\t<span class=\"", "-footer-edit\" onclick=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject$3 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$3;
 	var ActionPagesField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(ActionPagesField, _BaseField);
 
@@ -986,7 +943,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        }
 	      };
 
-	      return main_core.Tag.render(_templateObject$3(), classPrefix, classPrefix, options.type, classPrefix, options.title, classPrefix, classPrefix, classPrefix, onViewClick, landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_EDIT_PAGE_SHOW'), classPrefix, classPrefix, onEditorClick, options.onInput, main_core.Text.encode(options.text), classPrefix, classPrefix, onEditClick, landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_EDIT_PAGE_EDIT'));
+	      return main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", " ", "-", "\">\n\t\t\t\t<div class=\"", "-title\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "-inner\">\n\t\t\t\t\t<div class=\"", "-header\">\n\t\t\t\t\t\t<span class=\"", "-header-view\" onclick=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "-icon\"></div>\n\t\t\t\t\t<div class=\"", "-text\" onclick=\"", "\" oninput=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "-footer\">\n\t\t\t\t\t\t<span class=\"", "-footer-edit\" onclick=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), classPrefix, classPrefix, options.type, classPrefix, options.title, classPrefix, classPrefix, classPrefix, onViewClick, landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_EDIT_PAGE_SHOW'), classPrefix, classPrefix, onEditorClick, options.onInput, main_core.Text.encode(options.text), classPrefix, classPrefix, onEditClick, landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_EDIT_PAGE_EDIT'));
 	    }
 	  }]);
 	  return ActionPagesField;
@@ -1209,15 +1166,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return ActionsContent;
 	}(landing_ui_panel_basepresetpanel.ContentWrapper);
 
-	function _templateObject$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-embed-header\">\n\t\t\t\t\t<div class=\"landing-ui-field-embed-header-button\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject$4 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$4;
 	var EmbedField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(EmbedField, _BaseField);
 
@@ -1282,7 +1231,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('header', function () {
-	        return main_core.Tag.render(_templateObject$4(), _this3.getCopyButton().render());
+	        return main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-embed-header\">\n\t\t\t\t\t<div class=\"landing-ui-field-embed-header-button\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), _this3.getCopyButton().render());
 	      });
 	    }
 	  }, {
@@ -1295,15 +1244,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return EmbedField;
 	}(landing_ui_field_basefield.BaseField);
 
-	function _templateObject$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-filed-widget-wrapper\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject$5 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$5;
 
 	var WidgetField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(WidgetField, _BaseField);
@@ -1328,7 +1269,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('inputWrapper', function () {
-	        return main_core.Tag.render(_templateObject$5(), _this2.input, _this2.getSettingsButton().render());
+	        return main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-filed-widget-wrapper\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this2.input, _this2.getSettingsButton().render());
 	      });
 	    }
 	  }, {
@@ -1346,15 +1287,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return WidgetField;
 	}(landing_ui_field_basefield.BaseField);
 
-	function _templateObject$6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-copy-link-preview\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject$6 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$6;
 
 	var CopyLinkField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(CopyLinkField, _BaseField);
@@ -1384,7 +1317,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          href: _this2.options.link,
 	          target: '_blank'
 	        });
-	        return main_core.Tag.render(_templateObject$6(), link.getLayout());
+	        return main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-copy-link-preview\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), link.getLayout());
 	      });
 	    }
 	  }, {
@@ -1422,15 +1355,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return CopyLinkField;
 	}(landing_ui_field_basefield.BaseField);
 
-	function _templateObject$7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-position-fields-inner\"></div>\n\t\t\t"]);
-
-	  _templateObject$7 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$7;
 	var PositionField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(PositionField, _BaseField);
 
@@ -1486,7 +1411,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getFieldsInner",
 	    value: function getFieldsInner() {
 	      return this.cache.remember('fieldsInner', function () {
-	        return main_core.Tag.render(_templateObject$7());
+	        return main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-position-fields-inner\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
@@ -2012,15 +1937,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return Identify;
 	}(landing_ui_panel_basepresetpanel.ContentWrapper);
 
-	function _templateObject$8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-stages\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
+	var _templateObject$8;
 
-	  _templateObject$8 = function _templateObject() {
-	    return data;
-	  };
+	var fetchId = function fetchId(item) {
+	  return !main_core.Type.isNil(item.ID) ? item.ID : item.id;
+	};
 
-	  return data;
-	}
+	var fetchName = function fetchName(item) {
+	  return !main_core.Type.isNil(item.NAME) ? item.NAME : item.name;
+	};
 
 	var StageField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(StageField, _BaseField);
@@ -2040,7 +1965,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('inner', function () {
-	        return main_core.Tag.render(_templateObject$8(), _this2.getCategoriesDropdown().getLayout());
+	        return main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-stages\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this2.getCategoriesDropdown().getLayout());
 	      });
 	    }
 	  }, {
@@ -2054,8 +1979,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          content: _this3.options.value.category,
 	          items: _this3.options.categories.map(function (category) {
 	            return {
-	              name: category.NAME || category.name,
-	              value: category.ID || category.id
+	              name: fetchName(category),
+	              value: fetchId(category)
 	            };
 	          }),
 	          onChange: _this3.onCategoryChange.bind(_this3)
@@ -2067,48 +1992,20 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function getCurrentCategory() {
 	      var currentCategoryId = this.getCategoriesDropdown().getValue();
 	      return this.options.categories.find(function (category) {
-	        return String(category.ID || category.id) === String(currentCategoryId);
+	        return String(fetchId(category)) === String(currentCategoryId);
 	      });
 	    }
 	  }, {
 	    key: "onCategoryChange",
 	    value: function onCategoryChange() {
-	      var oldStagesDropdown = this.getStagesDropdown();
-	      this.cache.delete('stagesDropdown');
-
-	      if (oldStagesDropdown.popup) {
-	        oldStagesDropdown.popup.destroy();
-	      }
-
-	      var newStagesDropdown = this.getStagesDropdown();
-	      main_core.Dom.replace(oldStagesDropdown.getLayout(), newStagesDropdown.getLayout());
 	      this.emit('onChange');
-	    }
-	  }, {
-	    key: "getStagesDropdown",
-	    value: function getStagesDropdown() {
-	      var _this4 = this;
-
-	      return this.cache.remember('stagesDropdown', function () {
-	        var stages = _this4.getCurrentCategory().STAGES || _this4.getCurrentCategory().stages;
-
-	        return new BX.Landing.UI.Field.Dropdown({
-	          title: _this4.options.listTitle || landing_loc.Loc.getMessage('LANDING_FORM_SETTINGS_STAGES_FIELD_TITLE'),
-	          items: stages.map(function (stage) {
-	            return {
-	              name: stage.NAME || stage.name,
-	              value: stage.ID || stage.id
-	            };
-	          })
-	        });
-	      });
 	    }
 	  }, {
 	    key: "getValue",
 	    value: function getValue() {
 	      return {
 	        category: this.getCategoriesDropdown().getValue(),
-	        stage: this.getStagesDropdown().getValue()
+	        stage: ''
 	      };
 	    }
 	  }]);
@@ -3669,15 +3566,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  soon: true
 	})];
 
-	function _templateObject$9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-access-error-message\">\n\t\t\t\t\t<div class=\"landing-ui-access-error-message-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject$9 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$9;
 
 	/**
 	 * @memberOf BX.Landing.UI.Panel
@@ -3940,25 +3829,39 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          _this6.setFormOptions(_formOptions);
 	        }
 
-	        if (options.state === 'presets' && formOptions.templateId !== 'callback') {
-	          _this6.onPresetFieldClick();
+	        if (options.state === 'presets') {
+	          var presetFromRequest = _this6.getPresetIdFromRequest();
 
-	          _this6.activatePreset(formOptions.templateId);
+	          var preset = false;
+
+	          if (presetFromRequest) {
+	            preset = _this6.getPresets().find(function (item) {
+	              return item.options.id === presetFromRequest;
+	            });
+	          }
+
+	          if (preset) {
+	            _this6.applyPreset(preset);
+	          } else if (formOptions.templateId !== 'callback') {
+	            _this6.onPresetFieldClick();
+
+	            _this6.activatePreset(formOptions.templateId);
+	          }
 	        } else {
-	          var preset = _this6.getPresets().find(function (item) {
+	          var _preset = _this6.getPresets().find(function (item) {
 	            return item.options.id === formOptions.templateId;
 	          });
 
-	          if (!preset) {
-	            preset = _this6.getPresets().find(function (item) {
+	          if (!_preset) {
+	            _preset = _this6.getPresets().find(function (item) {
 	              return item.options.id === 'expert';
 	            });
 	          }
 
 	          if (_this6.isFormCreated() && formOptions.templateId !== 'callback') {
-	            _this6.applyPreset(preset);
+	            _this6.applyPreset(_preset);
 	          } else {
-	            _this6.applyPreset(preset, true);
+	            _this6.applyPreset(_preset, true);
 	          }
 	        }
 
@@ -3989,8 +3892,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getAccessError",
 	    value: function getAccessError() {
 	      return this.cache.remember('accessErrorMessage', function () {
-	        return main_core.Tag.render(_templateObject$9(), landing_loc.Loc.getMessage('LANDING_CRM_ACCESS_ERROR_MESSAGE'));
+	        return main_core.Tag.render(_templateObject$9 || (_templateObject$9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-access-error-message\">\n\t\t\t\t\t<div class=\"landing-ui-access-error-message-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), landing_loc.Loc.getMessage('LANDING_CRM_ACCESS_ERROR_MESSAGE'));
 	      });
+	    } // eslint-disable-next-line class-methods-use-this
+
+	  }, {
+	    key: "getPresetIdFromRequest",
+	    value: function getPresetIdFromRequest() {
+	      var uri = new main_core.Uri(window.top.location.href);
+	      return uri.getQueryParam('preset');
 	    } // eslint-disable-next-line class-methods-use-this
 
 	  }, {

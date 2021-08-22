@@ -1,8 +1,10 @@
-<?
+<?php
 
-use Bitrix\Main\Localization\Loc;
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -12,6 +14,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
+
+use Bitrix\Main\Localization\Loc;
 
 if (!CModule::IncludeModule("blog"))
 {
@@ -106,26 +110,36 @@ if($user_id > 0 && $user_id == intval($arParams["USER_ID"]))
 				if (check_bitrix_sessid())
 				{
 					$del_id = intval($_GET["del_id"]);
-					if($arPost = CBlogPost::GetByID($del_id))
+					if ($arPost = CBlogPost::GetByID($del_id))
 					{
-						if($arPost["AUTHOR_ID"] == $user_id)
+						if ($arPost['AUTHOR_ID'] == $user_id)
 						{
-							CBlogPost::DeleteLog($del_id);
-							if (CBlogPost::Delete($del_id))
+							try
 							{
-								LocalRedirect($APPLICATION->GetCurPageParam("del_id=".$del_id."&success=Y", Array("del_id", "pub_id", "sessid", "success")));
+								\Bitrix\Socialnetwork\Item\Helper::deleteBlogPost([
+									'POST_ID' => $del_id,
+								]);
+								LocalRedirect($APPLICATION->getCurPageParam('del_id=' . $del_id . '&success=Y', [ 'del_id', 'pub_id', 'sessid', 'success' ]));
 							}
-							else
-								$arResult["ERROR_MESSAGE"][] = GetMessage("BLOG_BLOG_BLOG_MES_DEL_ERROR");
+							catch (Exception $e)
+							{
+								$arResult["ERROR_MESSAGE"][] = Loc::getMessage('BLOG_BLOG_BLOG_MES_DEL_ERROR');
+							}
 						}
 						else
+						{
 							$arResult["ERROR_MESSAGE"][] = GetMessage("BLOG_BLOG_BLOG_MES_DEL_NO_RIGHTS");
+						}
 					}
 					else
+					{
 						$arResult["ERROR_MESSAGE"][] = GetMessage("BLOG_BLOG_BLOG_MES_DEL_NO_RIGHTS");
+					}
 				}
 				else
+				{
 					$arResult["ERROR_MESSAGE"][] = GetMessage("BLOG_BLOG_SESSID_WRONG");
+				}
 			}
 		}
 		elseif (intval($_GET["pub_id"]) > 0)
@@ -265,4 +279,3 @@ if($user_id > 0 && $user_id == intval($arParams["USER_ID"]))
 else
 	$arResult["ERROR_MESSAGE"][] = GetMessage("BLOG_DR_ANOTHER_USER_DRAFT");
 $this->IncludeComponentTemplate();
-?>

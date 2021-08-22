@@ -16,6 +16,7 @@ return array(
 	'cards' => array(
 		'.landing-block-node-card' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_54_COVER_SLIDER_BGVIDEO--LANDINGBLOCKNODECARD'),
+			'label' => ['.landing-block-node-title'],
 		),
 	),
 	'nodes' => array(

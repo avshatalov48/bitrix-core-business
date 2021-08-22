@@ -16,6 +16,11 @@ class PropertyCreationForm extends BX.Catalog.IblockFieldConfigurator
 		return (!this.isCreationMode()) ? this._field.getTitle() : '';
 	}
 
+	isAllowedMultipleCheckBox()
+	{
+		return !this.isCreationMode() && super.isAllowedMultipleCheckBox();
+	}
+
 	isCreationMode()
 	{
 		return this._field === null;
@@ -147,6 +152,7 @@ class PropertyCreationForm extends BX.Catalog.IblockFieldConfigurator
 				});
 				break;
 			case 'list':
+			case 'multilist':
 				formatted.PROPERTY_TYPE = 'L';
 				fields.enumeration = fields.enumeration || [];
 				fields.enumeration.forEach((enumItem, key) => {
@@ -172,6 +178,11 @@ class PropertyCreationForm extends BX.Catalog.IblockFieldConfigurator
 	onFormCancel()
 	{
 		BX.SidePanel.Instance.close();
+	}
+
+	isAllowedShowAlwaysCheckBox()
+	{
+		return false;
 	}
 }
 

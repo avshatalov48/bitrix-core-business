@@ -87,6 +87,35 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		}
 		else
 		{
+			if (Loader::includeModule('extranet')
+				&& !\CExtranet::IsIntranetUser(SITE_ID, $userId))
+			{
+				if ($type === 'group'
+					&& Loader::includeModule('socialnetwork'))
+				{
+					$r = \Bitrix\Socialnetwork\UserToGroupTable::getList([
+						'filter' => [
+							'@ROLE' => \Bitrix\Socialnetwork\UserToGroupTable::getRolesMember(),
+							'=GROUP_ID' => $ownerId,
+							'=USER_ID' => $userId,
+						],
+					]);
+
+					if (!$group = $r->Fetch())
+					{
+						$this->addError(
+							new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_extranet_01')
+						);
+					}
+				}
+				else
+				{
+					$this->addError(
+						new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_extranet_02')
+					);
+				}
+			}
+
 			if($isNew) // For new sections
 			{
 				if($type === 'group')
@@ -94,21 +123,27 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 					// It's for groups
 					if(!\CCalendarType::CanDo('calendar_type_edit_section', 'group'))
 					{
-						$this->addError(new Error('[se01]'.Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied'));
+						$this->addError(
+							new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_01')
+						);
 					}
 				}
 				else if($type === 'user')
 				{
 					if (!$isPersonal)
 					{
-						$this->addError(new Error('[se02]'.Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied'));
+						$this->addError(
+							new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_02')
+						);
 					}
 				}
 				else // other types
 				{
 					if (!\CCalendarType::CanDo('calendar_type_edit_section', $type))
 					{
-						$this->addError(new Error('[se03]'.Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied'));
+						$this->addError(
+							new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_03')
+						);
 					}
 				}
 
@@ -119,36 +154,47 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 				$section = \CCalendarSect::GetById($id);
 				if (!$section && !$isPersonal && !\CCalendarSect::CanDo('calendar_edit_section', $id, $userId))
 				{
-					$this->addError(new Error('[se04]'.Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied'));
+					$this->addError(
+						new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_04')
+					);
 				}
 
 				$fields['CAL_TYPE'] = $section['CAL_TYPE'];
 				$fields['OWNER_ID'] = $section['OWNER_ID'];
 			}
 
-			$id = \CCalendar::SaveSection(['arFields' => $fields]);
-			if ((int)$id > 0)
+			if(empty($this->getErrors()))
 			{
-				\CCalendarSect::SetClearOperationCache(true);
-				$response['section'] =  \CCalendarSect::GetById($id, true, true);
-				if (!$response['section'])
+				$id = \CCalendar::SaveSection(['arFields' => $fields]);
+				if ((int)$id > 0)
 				{
-					$this->addError(new Error('[se05]'.Loc::getMessage('EC_CALENDAR_SAVE_ERROR'), 'saving_error'));
-				}
-				$response['accessNames'] = \CCalendar::GetAccessNames();
+					\CCalendarSect::SetClearOperationCache(true);
+					$response['section'] = \CCalendarSect::GetById($id, true, true);
+					if (!$response['section'])
+					{
+						$this->addError(
+							new Error(Loc::getMessage('EC_CALENDAR_SAVE_ERROR'), 'saving_error_05')
+						);
+					}
+					$response['accessNames'] = \CCalendar::GetAccessNames();
 
-				$response['sectionList'] = \CCalendar::getSectionList([
-					'CAL_TYPE' => $type,
-					'OWNER_ID' => $ownerId,
-					'ADDITIONAL_IDS' => UserSettings::getFollowedSectionIdList($userId),
-					'checkPermissions' => true,
-					'getPermissions' => true,
-					'getImages' => true
-				]);
-			}
-			else
-			{
-				$this->addError(new Error('[se06]'.Loc::getMessage('EC_CALENDAR_SAVE_ERROR'), 'saving_error'));
+					$response['sectionList'] = \CCalendar::getSectionList(
+						[
+							'CAL_TYPE' => $type,
+							'OWNER_ID' => $ownerId,
+							'ADDITIONAL_IDS' => UserSettings::getFollowedSectionIdList($userId),
+							'checkPermissions' => true,
+							'getPermissions' => true,
+							'getImages' => true
+						]
+					);
+				}
+				else
+				{
+					$this->addError(
+						new Error(Loc::getMessage('EC_CALENDAR_SAVE_ERROR'), 'saving_error_06')
+					);
+				}
 			}
 		}
 
@@ -432,7 +478,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		}
 		else
 		{
-			$this->addError(new Error('[se06] No \'entryId\' given. No entry found'));
+			$this->addError(new Error(Loc::getMessage('EC_EVENT_NOT_FOUND'), 'EVENT_NOT_FOUND_01'));
 		}
 
 		if ($entry)
@@ -446,8 +492,8 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			$additionalResponseParams['entryUrl'] = \CHTTP::urlAddParams(
 				\CCalendar::GetPath($entry['CAL_TYPE'], $entry['OWNER_ID'], true),
 				[
-					'EVENT_ID' => $entry['ID'],
-					'EVENT_DATE' => $entry['DATE_FROM']
+					'EVENT_ID' => (int)$entry['ID'],
+					'EVENT_DATE' => urlencode($entry['DATE_FROM'])
 				]);
 
 			$sections = \CCalendarSect::GetList([
@@ -478,7 +524,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		}
 		else
 		{
-			$this->addError(new Error('[se05] No entry found'));
+			$this->addError(new Error(Loc::getMessage('EC_EVENT_NOT_FOUND'), 'EVENT_NOT_FOUND_02'));
 		}
 
 		return [];
@@ -1235,7 +1281,10 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 	}
 
-	public function addConnectionAction()
+	/**
+	 * @throws \Bitrix\Main\LoaderException
+	 */
+	public function addConnectionAction(): void
 	{
 		$request = $this->getRequest();
 		$params['user_id'] = \CCalendar::getCurUserId();
@@ -1279,7 +1328,15 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		$request = $this->getRequest();
 		$params['type'] = $request->getPost('type');
 		$params['userId'] = \CCalendar::getCurUserId();
+		$requestUid = $request->getPost('requestUid');
+		if (!empty($requestUid))
+		{
+			Util::setRequestUid($requestUid);
+		}
+
 		\CCalendarSync::UpdateUserConnections();
+
+		Util::setRequestUid();
 
 		return \CCalendarSync::GetSyncInfo($params);
 	}
@@ -1291,9 +1348,14 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 	public function getAuthLinkAction()
 	{
+		$type = $this->getRequest()->getPost('type');
+		$type = in_array($type, ['slider', 'banner'], true)
+			? $type
+			: 'banner'
+		;
 		if (\Bitrix\Main\Loader::includeModule("mobile"))
 		{
-			return ['link' => \Bitrix\Mobile\Deeplink::getAuthLink("calendar_sync")];
+			return ['link' => \Bitrix\Mobile\Deeplink::getAuthLink("calendar_sync_".$type)];
 		}
 		return null;
 	}
@@ -1434,12 +1496,11 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 	{
 		$userId = \CCalendar::GetCurUserId();
 		\CCalendar::UpdateCounter([$userId]);
-		$counters = [
-			'invitation' => \CUserCounter::GetValue($userId, 'calendar')
-		];
 
 		return [
-			'counters' => $counters
+			'counters' => [
+				'invitation' => \CUserCounter::GetValue($userId, 'calendar')
+			]
 		];
 	}
 
@@ -1454,4 +1515,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			UserSettings::set($userSettings, $userId);
 		}
 	}
+
+	public function analyticalAction(): void
+	{}
 }

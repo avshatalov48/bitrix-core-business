@@ -42,19 +42,19 @@ const MessageList = {
 	 */
 	props:
 	{
-		userId: { default: 0 },
-		dialogId: { default: 0 },
-		messageLimit: { default: 50 },
-		enableReadMessages: { default: true },
-		enableReactions: { default: true },
-		enableDateActions: { default: true },
-		enableCreateContent: { default: true },
-		enableGestureQuote: { default: true },
-		enableGestureQuoteFromRight: { default: true },
-		enableGestureMenu: { default: false },
-		showMessageUserName: { default: true },
-		showMessageAvatar: { default: true },
-		showMessageMenu: { default: true },
+		userId: { type: Number, default: 0 },
+		dialogId: { type: String, default: "0" },
+		messageLimit: { type: Number, default: 50 },
+		enableReadMessages: { type: Boolean, default: true },
+		enableReactions: { type: Boolean, default: true },
+		enableDateActions: { type: Boolean, default: true },
+		enableCreateContent: { type: Boolean, default: true },
+		enableGestureQuote: { type: Boolean, default: true },
+		enableGestureQuoteFromRight: { type: Boolean, default: true },
+		enableGestureMenu: { type: Boolean, default: false },
+		showMessageUserName: { type: Boolean, default: true },
+		showMessageAvatar: { type: Boolean, default: true },
+		showMessageMenu: { type: Boolean, default: true },
 	},
 	components: {Placeholder1, Placeholder2, Placeholder3},
 	mixins: [DialogCore, DialogReadMessages],
@@ -64,33 +64,21 @@ const MessageList = {
 			messagesSet: false,
 			scrollAnimating: false,
 			showScrollButton: false,
-			TemplateType: TemplateType,
-			ObserverType: ObserverType,
-			DialogReferenceClassName: DialogReferenceClassName,
 			captureMove: false,
 			capturedMoveEvent: null,
 			lastMessageId: null,
 
-			historyMessageLimit: 50,
-			unreadMessageLimit: 50,
 			isRequestingHistory: false,
 			historyPagesRequested: 0,
 			stopHistoryLoading: false,
 			isRequestingUnread: false,
 			unreadPagesRequested: 0,
-			placeholdersComposition: [],
 			placeholderCount: 0,
-			lastScroll: 0,
-			scrollingDownThreshold: 1000,
-			scrollingUpThreshold: 1000,
-			messageScrollOffset: 20,
 			pagesLoaded: 0
 		}
 	},
 	created()
 	{
-		this.count = 1;
-		this.placeholdersComposition = this.getPlaceholdersComposition();
 		Logger.warn('MessageList component is created');
 		this.initParams();
 		this.initEvents();
@@ -122,6 +110,9 @@ const MessageList = {
 	},
 	computed:
 	{
+		TemplateType: () => TemplateType,
+		ObserverType: () => ObserverType,
+		DialogReferenceClassName: () => DialogReferenceClassName,
 		localize()
 		{
 			return BitrixVue.getFilteredPhrases('IM_MESSENGER_DIALOG_', this);
@@ -337,8 +328,16 @@ const MessageList = {
 		/* region 01. Init and destroy */
 		initParams()
 		{
+			this.placeholdersComposition = this.getPlaceholdersComposition();
+			this.historyMessageLimit = 50;
+			this.unreadMessageLimit = 50;
 			this.showScrollButton = this.unreadCounter > 0;
 
+			this.scrollingDownThreshold = 1000;
+			this.scrollingUpThreshold = 1000;
+			this.messageScrollOffset = 20;
+
+			this.lastScroll = 0;
 			this.scrollChangedByUser = false;
 			this.scrollButtonDiff = 100;
 			this.scrollButtonShowTimeout = null;
@@ -398,7 +397,7 @@ const MessageList = {
 		/* region 02. Event handlers */
 		onReadMessage()
 		{
-			//reassign method to ignore handler from ReadMessages mixin
+			//redeclare method to ignore handler from ReadMessages mixin
 		},
 		onDialogClick(event)
 		{

@@ -17,7 +17,20 @@ use Bitrix\Main;
  * </ul>
  *
  * @package Bitrix\Rest
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_AppLog_Query query()
+ * @method static EO_AppLog_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_AppLog_Result getById($id)
+ * @method static EO_AppLog_Result getList(array $parameters = array())
+ * @method static EO_AppLog_Entity getEntity()
+ * @method static \Bitrix\Rest\EO_AppLog createObject($setDefaultValues = true)
+ * @method static \Bitrix\Rest\EO_AppLog_Collection createCollection()
+ * @method static \Bitrix\Rest\EO_AppLog wakeUpObject($row)
+ * @method static \Bitrix\Rest\EO_AppLog_Collection wakeUpCollection($rows)
+ */
 
 class AppLogTable extends Main\Entity\DataManager
 {

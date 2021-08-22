@@ -7,6 +7,22 @@ use \Bitrix\Landing\Manager;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class UrlRewriteTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UrlRewrite_Query query()
+ * @method static EO_UrlRewrite_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UrlRewrite_Result getById($id)
+ * @method static EO_UrlRewrite_Result getList(array $parameters = array())
+ * @method static EO_UrlRewrite_Entity getEntity()
+ * @method static \Bitrix\Landing\Internals\EO_UrlRewrite createObject($setDefaultValues = true)
+ * @method static \Bitrix\Landing\Internals\EO_UrlRewrite_Collection createCollection()
+ * @method static \Bitrix\Landing\Internals\EO_UrlRewrite wakeUpObject($row)
+ * @method static \Bitrix\Landing\Internals\EO_UrlRewrite_Collection wakeUpCollection($rows)
+ */
 class UrlRewriteTable extends Entity\DataManager
 {
 	/**

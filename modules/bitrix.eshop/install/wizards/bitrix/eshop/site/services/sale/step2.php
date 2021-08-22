@@ -488,7 +488,7 @@ $dbResult = CTask::GetList(Array(), Array("NAME" => "main_change_profile"));
 if ($arTask = $dbResult->Fetch())
 	$editProfileTask = $arTask["ID"];
 //Registered users group
-$dbResult = CGroup::GetList($by, $order, Array("STRING_ID" => "REGISTERED_USERS"));
+$dbResult = CGroup::GetList('', '', Array("STRING_ID" => "REGISTERED_USERS"));
 if (!$dbResult->Fetch())
 {
 	$group = new CGroup;
@@ -508,7 +508,7 @@ if (!$dbResult->Fetch())
 	}
 }
 
-$rsGroups = CGroup::GetList(($by="c_sort"), ($order="desc"), array("ACTIVE"=>"Y", "ADMIN"=>"N", "ANONYMOUS"=>"N")); 
+$rsGroups = CGroup::GetList("c_sort", "desc", array("ACTIVE"=>"Y", "ADMIN"=>"N", "ANONYMOUS"=>"N"));
 if(!($rsGroups->Fetch()))
 {
 	$group = new CGroup;
@@ -529,7 +529,7 @@ if(!($rsGroups->Fetch()))
 }
 
 $userGroupID = "";
-$dbGroup = CGroup::GetList($by = "", $order = "", Array("STRING_ID" => "sale_administrator"));
+$dbGroup = CGroup::GetList('', '', Array("STRING_ID" => "sale_administrator"));
 if($arGroup = $dbGroup -> Fetch())
 {
 	$userGroupID = $arGroup["ID"];
@@ -617,7 +617,7 @@ if(intval($userGroupID) > 0)
 }
 
 $userGroupID = "";
-$dbGroup = CGroup::GetList($by = "", $order = "", Array("STRING_ID" => "content_editor"));
+$dbGroup = CGroup::GetList('', '', Array("STRING_ID" => "content_editor"));
 
 if($arGroup = $dbGroup -> Fetch())
 {

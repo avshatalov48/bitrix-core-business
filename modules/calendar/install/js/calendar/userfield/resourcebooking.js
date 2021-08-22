@@ -3348,7 +3348,7 @@
 			}));
 
 			// Adjust outer wrap max height
-			this.serviceListOuterWrap.style.maxHeight = Math.max(600, this.serviceListRowsWrap.childNodes.length * 40 + 100) + 'px';
+			this.serviceListOuterWrap.style.maxHeight = Math.max(500, this.serviceListRowsWrap.childNodes.length * 45 + 100) + 'px';
 		},
 
 		checkDurationTitlePosition: function(timeout)

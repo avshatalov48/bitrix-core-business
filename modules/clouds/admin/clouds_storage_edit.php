@@ -300,10 +300,14 @@ $tabControl->BeginNextTab();
 			<td><?echo GetMessage("CLO_STORAGE_EDIT_LOCATION")?>:</td>
 			<td>
 			<?
-			foreach(CCloudStorage::GetServiceLocationList($arRes["SERVICE_ID"]) as $LOCATION_ID => $LOCATION_NAME)
+			$locationList = CCloudStorage::GetServiceLocationList($arRes["SERVICE_ID"]);
+			if (is_array($locationList))
 			{
-				if($arRes["LOCATION"] == $LOCATION_ID)
-					echo htmlspecialcharsex($LOCATION_NAME);
+				foreach($locationList as $LOCATION_ID => $LOCATION_NAME)
+				{
+					if($arRes["LOCATION"] == $LOCATION_ID)
+						echo htmlspecialcharsex($LOCATION_NAME);
+				}
 			}
 			?>
 			<input type="hidden" name="LOCATION[<?echo htmlspecialcharsbx($arRes["SERVICE_ID"]);?>]" value="<?echo htmlspecialcharsbx($arRes["LOCATION"]);?>">

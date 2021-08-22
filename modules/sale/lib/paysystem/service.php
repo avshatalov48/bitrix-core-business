@@ -365,6 +365,14 @@ class Service
 			$serviceResult->setResultApplied(false);
 			$processResult->addErrors($serviceResult->getErrors());
 
+			$markerClassName = $registry->getEntityMarkerClassName();
+			$markerResult = new Result();
+			$markerResult->addWarnings($serviceResult->getErrors());
+			$markerClassName::addMarker($order, $payment, $markerResult);
+			$payment->setField('MARKED', 'Y');
+
+			$order->save();
+
 			$error = implode("\n", $serviceResult->getErrorMessages());
 			Logger::addError(get_class($this->handler).'. ProcessRequest Error: '.$error);
 		}

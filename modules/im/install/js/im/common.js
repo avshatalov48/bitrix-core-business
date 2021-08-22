@@ -119,6 +119,16 @@
 		return typeof(this.BXIM.messenger.bot[botId]) != 'undefined';
 	}
 
+	MessengerCommon.prototype.isChatId = function(dialogId)
+	{
+		return /^(chat|sg|crm)[0-9]{1,}/i.test(dialogId);
+	}
+
+	MessengerCommon.prototype.isDialogId = function(dialogId)
+	{
+		return /^([0-9]{1,}|(chat|sg|crm)[0-9]{1,})/i.test(dialogId);
+	}
+
 	MessengerCommon.prototype.applyViewCommonUsers = function(active)
 	{
 		if (typeof active === 'boolean')
@@ -374,7 +384,13 @@
 		}
 
 		this.BXIM.messenger.userChatBlockStatus[chatId][this.BXIM.userId] = mute;
-		this.BXIM.messenger.chat[chatId].mute_list[this.BXIM.userId] = mute;
+		if (
+			this.BXIM.messenger.chat[chatId]
+			&& this.BXIM.messenger.chat[chatId].mute_list
+		)
+		{
+			this.BXIM.messenger.chat[chatId].mute_list[this.BXIM.userId] = mute;
+		}
 
 		this.userListRedraw();
 		this.BXIM.messenger.dialogStatusRedraw();
@@ -1503,7 +1519,7 @@
 			var chatId = userId.toString().substr(0, 4) == 'chat'? userId.toString().substr(4): userId;
 			if (reset || !(this.BXIM.messenger.chat[chatId] && this.BXIM.messenger.chat[chatId].id))
 			{
-				this.BXIM.messenger.chat[chatId] = {'id': chatId, 'name': BX.message('IM_M_LOAD_USER'), 'owner': 0, work_position: '', 'avatar': this.BXIM.pathToBlankImage, 'type': 'chat', color: '#556574', 'fake': true, date_create: false};
+				this.BXIM.messenger.chat[chatId] = {'id': chatId, 'name': BX.message('IM_M_LOAD_USER'), 'owner': 0, work_position: '', 'avatar': this.BXIM.pathToBlankImage, 'type': 'chat', color: '#556574', mute_list: {}, 'fake': true, date_create: false};
 				if (reset)
 				{
 					this.BXIM.messenger.chat[chatId].fake = false;
@@ -3853,6 +3869,7 @@
 			if (
 				params.userIsChat
 				&& this.BXIM.messenger.chat[params.id.substr(4)]
+				&& this.BXIM.messenger.chat[params.id.substr(4)].mute_list
 				&& this.BXIM.messenger.chat[params.id.substr(4)].mute_list[this.BXIM.userId]
 			)
 			{
@@ -5102,8 +5119,25 @@
 		{
 			if (search == '' || commandList[i].command.indexOf(search) === 1)
 			{
-				if (this.BXIM.userExtranet && !commandList[i].extranet)
+				if (commandList[i].command == '/>>')
+				{
+					commandList[i].command = '>>';
+				}
+				if (
+					this.BXIM.messenger.openLinesFlag
+					&& (
+						commandList[i].command == '/me'
+						|| commandList[i].command == '/loud'
+					)
+				)
+				{
 					continue;
+				}
+
+				if (this.BXIM.userExtranet && !commandList[i].extranet)
+				{
+					continue;
+				}
 
 				if (!commandList[i].common)
 				{
@@ -5150,10 +5184,7 @@
 						'title': categoryName
 					});
 				}
-				if (commandList[i].command == '/>>')
-				{
-					commandList[i].command = '>>';
-				}
+
 				commandList[i].type = 'item';
 				list.push(commandList[i]);
 			}
@@ -6493,7 +6524,11 @@
 					{
 						this.readMessage('chat'+data.CHAT_ID, true, false);
 
-						if (this.BXIM.messenger.chat[data.CHAT_ID].type != 'open' || this.BXIM.messenger.users[this.BXIM.userId].extranet)
+						if (
+							!this.BXIM.messenger.chat[data.CHAT_ID]
+							|| this.BXIM.messenger.chat[data.CHAT_ID].type != 'open'
+							|| this.BXIM.messenger.users[this.BXIM.userId].extranet
+						)
 						{
 							delete this.BXIM.messenger.showMessage[data.CHAT_ID];
 							delete this.BXIM.messenger.userInChat[data.CHAT_ID];
@@ -7397,6 +7432,14 @@
 					if (externalListMessage && BX.MessengerExternalList)
 					{
 						BX.MessengerExternalList.showMessage(externalListMessage);
+					}
+
+					if (
+						this.BXIM.messenger.currentTab == params.dialogId
+						&& this.BXIM.isFocus()
+					)
+					{
+						this.readMessage(params.dialogId, true, true);
 					}
 				}
 			}
@@ -10469,7 +10512,7 @@
 				unread: false
 			});
 			this.recentListRedraw();
-			
+
 			BX.rest.callMethod('im.recent.unread', {'DIALOG_ID': dialogId, 'ACTION': 'N'});
 		}
 
@@ -11769,7 +11812,17 @@
 				BX.MessengerCommon.clearProgessMessage(id);
 
 				if (data.ERROR)
+				{
+					if (type === 'POST')
+					{
+						BX.UI.Notification.Center.notify({
+							content: BX.message('IM_SHARE_POST_ERROR'),
+							autoHideDelay: 2000
+						});
+					}
+
 					return false;
+				}
 			}, this),
 			onfailure: BX.delegate(function() {
 				BX.MessengerCommon.clearProgessMessage(id);
@@ -13037,9 +13090,6 @@
 
 			if (command == 'invite')
 			{
-				if (this.isMobile() && params['PULL_TIME_AGO'] && params['PULL_TIME_AGO'] > 30)
-					return false;
-
 				if(!this.BXIM.webrtc.phoneSupport())
 					return false;
 
@@ -13084,15 +13134,6 @@
 
 						params.callerId = this.BXIM.messenger.users[params.portalCallUserId].name;
 						params.phoneNumber = '';
-
-						if (this.isMobile())
-						{
-							this.BXIM.webrtc.phoneCrm.FOUND = 'Y';
-							this.BXIM.webrtc.phoneCrm.CONTACT = {
-								'NAME': params.portalCallData.users[params.portalCallUserId].name,
-								'PHOTO': params.portalCallData.users[params.portalCallUserId].avatar
-							};
-						}
 					}
 
 					this.BXIM.webrtc.phoneCallConfig = params.config? params.config: {};
@@ -13143,14 +13184,7 @@
 				this.BXIM.webrtc.callInit = false;
 				this.BXIM.webrtc.phoneCallFinish();
 				this.BXIM.webrtc.callAbort();
-				if(this.isMobile())
-				{
-					this.BXIM.webrtc.callOverlayClose();
-				}
-				else
-				{
-					this.BXIM.webrtc.phoneCallView.close();
-				}
+				this.BXIM.webrtc.phoneCallView.close();
 
 				this.BXIM.webrtc.callInit = true;
 				this.BXIM.webrtc.phoneCallId = params.callId;
@@ -13187,13 +13221,7 @@
 
 				if (external && params.failedCode == 486)
 				{
-					if (this.isMobile())
-					{
-						this.BXIM.webrtc.callOverlayProgress('offline');
-						this.BXIM.webrtc.callOverlayStatus(BX.message('IM_PHONE_ERROR_BUSY_PHONE'));
-						this.BXIM.webrtc.callOverlayState(BX.MobileCallUI.form.state.CALLBACK);
-					}
-					else if (this.BXIM.webrtc.phoneCallView)
+					if (this.BXIM.webrtc.phoneCallView)
 					{
 						this.BXIM.webrtc.phoneCallView.setProgress('offline');
 						this.BXIM.webrtc.phoneCallView.setStatusText(BX.message('IM_PHONE_ERROR_BUSY_PHONE'));
@@ -13202,13 +13230,7 @@
 				}
 				else if (external && params.failedCode == 480)
 				{
-					if (this.isMobile())
-					{
-						this.BXIM.webrtc.callOverlayProgress('error');
-						this.BXIM.webrtc.callOverlayStatus(BX.message('IM_PHONE_ERROR_NA_PHONE'));
-						this.BXIM.webrtc.callOverlayState(BX.MobileCallUI.form.state.FINISHED);
-					}
-					else if (this.BXIM.webrtc.phoneCallView)
+					if (this.BXIM.webrtc.phoneCallView)
 					{
 						this.BXIM.webrtc.phoneCallView.setProgress('error');
 						this.BXIM.webrtc.phoneCallView.setStatusText(BX.message('IM_PHONE_ERROR_NA_PHONE'));
@@ -13217,13 +13239,7 @@
 				}
 				else
 				{
-					if (this.isMobile())
-					{
-						this.BXIM.webrtc.callOverlayProgress('error');
-						this.BXIM.webrtc.callOverlayStatus(BX.message('IM_PHONE_DECLINE'));
-						this.BXIM.webrtc.callOverlayState(BX.MobileCallUI.form.state.FINISHED);
-					}
-					else if (this.BXIM.webrtc.phoneCallView)
+					if (this.BXIM.webrtc.phoneCallView)
 					{
 						if(this.BXIM.webrtc.isCallListMode())
 						{
@@ -13241,13 +13257,10 @@
 			}
 			else if (command == 'outgoing')
 			{
-				if (this.isMobile() && params['PULL_TIME_AGO'] && params['PULL_TIME_AGO'] > 30)
-					return false;
-
 				if (this.BXIM.webrtc.callInit && (this.BXIM.webrtc.phoneNumber == params.phoneNumber || params.phoneNumber.indexOf(this.BXIM.webrtc.phoneNumber) >= 0))
 				{
 					this.BXIM.webrtc.phoneCallDevice = params.callDevice == 'PHONE'? 'PHONE': 'WEBRTC';
-					this.BXIM.webrtc.phonePortalCall = params.portalCall? true: false;
+					this.BXIM.webrtc.phonePortalCall = !!params.portalCall;
 
 					this.BXIM.webrtc.phoneNumber = params.phoneNumber;
 
@@ -13261,50 +13274,33 @@
 					this.BXIM.webrtc.phoneCallId = params.callId;
 					this.BXIM.webrtc.phoneCallTime = 0;
 					this.BXIM.webrtc.phoneCrm = params.CRM;
-					if(this.isMobile())
+					if(this.BXIM.webrtc.phoneCallView && params.showCrmCard)
 					{
-						this.BXIM.webrtc.callOverlayDrawCrm();
-					}
-					else if(this.BXIM.webrtc.phoneCallView)
-					{
-						if (params.showCrmCard)
-						{
-							this.BXIM.webrtc.phoneCallView.setCrmData(params.CRM);
-							this.BXIM.webrtc.phoneCallView.setCrmEntity({
-								type: params.crmEntityType,
-								id: params.crmEntityId,
-								activityId: params.crmActivityId,
-								activityEditUrl: params.crmActivityEditUrl,
-								bindings: params.crmBindings
-							});
-							this.BXIM.webrtc.phoneCallView.setConfig(params.config);
-							this.BXIM.webrtc.phoneCallView.setCallId(params.callId);
-							if(params.lineNumber)
-								this.BXIM.webrtc.phoneCallView.setLineNumber(params.lineNumber);
+						this.BXIM.webrtc.phoneCallView.setCrmData(params.CRM);
+						this.BXIM.webrtc.phoneCallView.setCrmEntity({
+							type: params.crmEntityType,
+							id: params.crmEntityId,
+							activityId: params.crmActivityId,
+							activityEditUrl: params.crmActivityEditUrl,
+							bindings: params.crmBindings
+						});
+						this.BXIM.webrtc.phoneCallView.setConfig(params.config);
+						this.BXIM.webrtc.phoneCallView.setCallId(params.callId);
+						if(params.lineNumber)
+							this.BXIM.webrtc.phoneCallView.setLineNumber(params.lineNumber);
 
-							if(params.lineName)
-								this.BXIM.webrtc.phoneCallView.setCompanyPhoneNumber(params.lineName);
+						if(params.lineName)
+							this.BXIM.webrtc.phoneCallView.setCompanyPhoneNumber(params.lineName);
 
-							this.BXIM.webrtc.phoneCallView.reloadCrmCard();
-						}
+						this.BXIM.webrtc.phoneCallView.reloadCrmCard();
 					}
 
-					if (this.BXIM.webrtc.phonePortalCall && this.BXIM.messenger.users[params.portalCallUserId])
+					if (this.BXIM.webrtc.phoneCallView && this.BXIM.webrtc.phonePortalCall)
 					{
-						if (this.isMobile())
-						{
-							this.BXIM.webrtc.phoneCrm.FOUND = 'Y';
-							this.BXIM.webrtc.phoneCrm.CONTACT = {
-								'NAME': params.portalCallData.users[params.portalCallUserId].name,
-								'PHOTO': params.portalCallData.users[params.portalCallUserId].avatar
-							};
-						}
-						else if(this.BXIM.webrtc.phoneCallView)
-						{
-							this.BXIM.webrtc.phoneCallView.setPortalCall(true);
-							this.BXIM.webrtc.phoneCallView.setPortalCallData(params.portalCallData);
-							this.BXIM.webrtc.phoneCallView.setPortalCallUserId(params.portalCallUserId);
-						}
+						this.BXIM.webrtc.phoneCallView.setPortalCall(true);
+						this.BXIM.webrtc.phoneCallView.setPortalCallData(params.portalCallData);
+						this.BXIM.webrtc.phoneCallView.setPortalCallUserId(params.portalCallUserId);
+						this.BXIM.webrtc.phoneCallView.setPortalCallQueueName(params.portalCallQueueName);
 					}
 
 				}
@@ -13326,6 +13322,7 @@
 							portalCall: params.portalCall,
 							portalCallUserId: params.portalCallUserId,
 							portalCallData: params.portalCallData,
+							portalCallQueueName: params.portalCallQueueName,
 							showCrmCard: params.showCrmCard,
 							crmEntityType: params.crmEntityType,
 							crmEntityId: params.crmEntityId
@@ -13409,6 +13406,15 @@
 					}
 				}
 			}
+			else if (command === 'updatePortalUser')
+			{
+				if (this.BXIM.webrtc.phoneCallId == params.callId && this.BXIM.webrtc.phoneCallView)
+				{
+					this.BXIM.webrtc.phoneCallView.setPortalCall(true);
+					this.BXIM.webrtc.phoneCallView.setPortalCallData(params.portalCallData);
+					this.BXIM.webrtc.phoneCallView.setPortalCallUserId(params.portalCallUserId);
+				}
+			}
 			else if (command == 'completeTransfer')
 			{
 				if (this.BXIM.webrtc.phoneCallId != params.callId)
@@ -13448,32 +13454,22 @@
 				if (params.CRM)
 				{
 					this.BXIM.webrtc.phoneCrm = params.CRM;
-					if(this.isMobile())
+					this.BXIM.webrtc.phoneCallView.setCrmData(params.CRM);
+					if(params.showCrmCard)
 					{
-						this.BXIM.webrtc.callOverlayDrawCrm();
-					}
-					else if(this.BXIM.webrtc.phoneCallView)
-					{
-						this.BXIM.webrtc.phoneCallView.setCrmData(params.CRM);
-						if(params.showCrmCard)
-						{
-							this.BXIM.webrtc.phoneCallView.setCrmEntity({
-								type: params.crmEntityType,
-								id: params.crmEntityId,
-								activityId: params.crmActivityId,
-								activityEditUrl: params.crmActivityEditUrl,
-								bindings: params.crmBindings
-							});
-							this.BXIM.webrtc.phoneCallView.reloadCrmCard();
-						}
+						this.BXIM.webrtc.phoneCallView.setCrmEntity({
+							type: params.crmEntityType,
+							id: params.crmEntityId,
+							activityId: params.crmActivityId,
+							activityEditUrl: params.crmActivityEditUrl,
+							bindings: params.crmBindings
+						});
+						this.BXIM.webrtc.phoneCallView.reloadCrmCard();
 					}
 				}
 			}
 			else if (command == 'showExternalCall')
 			{
-				if (this.isMobile())
-					return false;
-
 				if (this.BXIM.callController && this.BXIM.callController.hasActiveCall())
 					return false;
 
@@ -13504,6 +13500,7 @@
 						showCrmCard: params.showCrmCard,
 						crmEntityType: params.crmEntityType,
 						crmEntityId: params.crmEntityId,
+						crmBindings: params.crmBindings,
 						crmActivityId: params.crmActivityId,
 						crmActivityEditUrl: params.crmActivityEditUrl,
 						config: params.config,
@@ -13525,14 +13522,8 @@
 				}
 			}
 		}, this);
-		if(this.isMobile())
-		{
-			BXMobileApp.addCustomEvent("onPull-voximplant", pullPhoneEventHandler);
-		}
-		else
-		{
-			BX.addCustomEvent("onPullEvent-voximplant",pullPhoneEventHandler);
-		}
+
+		BX.addCustomEvent("onPullEvent-voximplant", pullPhoneEventHandler);
 	}
 
 	MessengerCommon.prototype.phoneCommand = function(command, params, async, successCallback)
@@ -13559,13 +13550,23 @@
 		async = async != false;
 		params = typeof(params) == 'object' ? params: {};
 
+		try
+		{
+			params = JSON.stringify(params);
+		}
+		catch (e)
+		{
+			console.error("Could not convert params to JSON, error: ", e);
+			return;
+		}
+
 		BX.ajax({
 			url: this.BXIM.pathToCallAjax+'?PHONE_SHARED&V='+this.BXIM.revision,
 			method: 'POST',
 			dataType: 'json',
 			timeout: 30,
 			async: async,
-			data: {'IM_PHONE' : 'Y', 'COMMAND': command, 'PARAMS' : JSON.stringify(params), 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()},
+			data: {'IM_PHONE' : 'Y', 'COMMAND': command, 'PARAMS' : params, 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()},
 			onsuccess: function(response)
 			{
 				if(promiseMode)
@@ -13576,7 +13577,6 @@
 				{
 					successCallback(response)
 				}
-
 			}
 		});
 

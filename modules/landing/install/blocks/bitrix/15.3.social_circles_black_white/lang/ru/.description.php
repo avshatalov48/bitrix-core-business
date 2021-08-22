@@ -1,5 +1,5 @@
 <?php
-$MESS['LANDING_BLOCK_15.3.SOCIAL_NAME'] = 'МАГАЗИН 3.0 - Круглые кнопки социальных сетей ч/б';
+$MESS['LANDING_BLOCK_15.3.SOCIAL_NAME_2'] = 'Цветные кнопки социальных сетей';
 $MESS['LANDING_BLOCK_15.3.SOCIAL_NODES_LANDINGBLOCKNODELIST'] = 'Кнопки соцсети';
 $MESS['LANDING_BLOCK_15.3.SOCIAL_NODES_LANDINGBLOCKNODELIST_ITEM'] = 'Кнопка соцсети';
 $MESS['LANDING_BLOCK_15.3.SOCIAL_NODES_LANDINGBLOCKNODELIST_TYPE'] = 'Тип соцсети';

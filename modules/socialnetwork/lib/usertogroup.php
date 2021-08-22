@@ -10,6 +10,22 @@ namespace Bitrix\Socialnetwork;
 use Bitrix\Main\Entity;
 use Bitrix\Main\NotImplementedException;
 
+/**
+ * Class UserToGroupTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserToGroup_Query query()
+ * @method static EO_UserToGroup_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserToGroup_Result getById($id)
+ * @method static EO_UserToGroup_Result getList(array $parameters = array())
+ * @method static EO_UserToGroup_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_UserToGroup createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_UserToGroup_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_UserToGroup wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_UserToGroup_Collection wakeUpCollection($rows)
+ */
 class UserToGroupTable extends Entity\DataManager
 {
 	const ROLE_OWNER = SONET_ROLES_OWNER;

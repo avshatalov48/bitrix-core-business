@@ -6,3 +6,4 @@ $MESS["REST_INTEGRATION_EDIT_ERROR_CREAT"] = "Fehler beim Erstellen einer Integr
 $MESS["REST_INTEGRATION_EDIT_ERROR_NOT_FOUND"] = "Integration wurde nicht gefunden";
 $MESS["REST_INTEGRATION_EDIT_ERROR_NO_HTTPS"] = "<strong>Achtung!</strong> Diese Technologie muss über HTTPS genutzt werden.";
 $MESS["REST_INTEGRATION_EDIT_ERROR_REQUIRED_MODULES"] = "Diese Integration erfordert das Modul: #MODULE_CODE#";
+$MESS["REST_INTEGRATION_EDIT_HOLD_DUE_TO_OVERLOAD"] = "<strong>Achtung!</strong> Diese Lösung wurde blockiert, weil sie übermäßige Last verursacht hat. Wenden Sie sich bitte an den Helpdesk, um das Problem zu lösen.";

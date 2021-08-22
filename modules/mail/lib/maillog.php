@@ -7,6 +7,22 @@ use Bitrix\Main\Localization;
 
 Localization\Loc::loadMessages(__FILE__);
 
+/**
+ * Class MailLogTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MailLog_Query query()
+ * @method static EO_MailLog_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MailLog_Result getById($id)
+ * @method static EO_MailLog_Result getList(array $parameters = array())
+ * @method static EO_MailLog_Entity getEntity()
+ * @method static \Bitrix\Mail\EO_MailLog createObject($setDefaultValues = true)
+ * @method static \Bitrix\Mail\EO_MailLog_Collection createCollection()
+ * @method static \Bitrix\Mail\EO_MailLog wakeUpObject($row)
+ * @method static \Bitrix\Mail\EO_MailLog_Collection wakeUpCollection($rows)
+ */
 class MailLogTable extends Entity\DataManager
 {
 

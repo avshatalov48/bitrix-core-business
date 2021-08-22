@@ -312,7 +312,10 @@ class CBitrixCatalogImportHl extends CBitrixComponent
 			switch ($this->NS["FM"][$xmlValueId])
 			{
 				case "datetime":
-					if ($xmlValue === "0001-01-01T00:00:00")
+					if (
+						$xmlValue === "0001-01-01T00:00:00"
+						|| $xmlValue === ""
+					)
 					{
 						$xmlValue = false;
 					}

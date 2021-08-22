@@ -143,24 +143,40 @@ function deleteBlogPost(id)
 		BX(el.parentNode.parentNode).appendChild(BX('form_c_del')); // Move form
 	}
 
-	BX.ajax.get(BX.message('sonetBPDeletePath').replace('#del_post_id#', id), function(data){
-		if(
-			window.deletePostEr
-			&& window.deletePostEr == "Y"
-		)
-		{
-			BX.findChild(el, {className: 'feed-post-cont-wrap'}, true, false).insertBefore(
-				BX.create('SPAN', {
-					html: data
-				}),
-				BX.findChild(el, {className: 'feed-user-avatar'}, true, false)
-			);
-		}
-		else
-		{
-			__logDeleteSuccess(BX('blg-post-'+id));
-		}
-	});
+	BX.ajax.runAction('socialnetwork.api.livefeed.blogpost.delete', {
+		data: {
+			id: id,
+		},
+	}).then(function () {
+		__logDeleteSuccess(document.getElementById('blg-post-' + id));
+	}.bind(this), function (response) {
+
+		BX.findChild(el, {className: 'feed-post-cont-wrap'}, true, false).insertBefore(
+			BX.create('span', {
+				children: [
+					BX.create('div', {
+						props: {
+							className: 'feed-add-error',
+						},
+						children: [
+							BX.create('span', {
+								props: {
+									className: 'feed-add-info-icon',
+								}
+							}),
+							BX.create('span', {
+								props: {
+									className: 'feed-add-info-text',
+								},
+								html: response.errors[0].message
+							}),
+						]
+					})
+				],
+			}),
+			BX.findChild(el, {className: 'feed-user-avatar'}, true, false)
+		);
+	}.bind(this));
 
 	return false;
 }

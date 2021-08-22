@@ -2,6 +2,7 @@
 
 use Bitrix\Main\Component\ParameterSigner;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Web\Json;
 
 define('NO_KEEP_STATISTIC', 'Y');
 define('NO_AGENT_STATISTIC', 'Y');
@@ -66,5 +67,20 @@ if ($component->initComponent($componentName))
 
 	$component->executeComponent();
 }
+$errors = $component->getErrors();
+if (!empty($errors))
+{
+	$messages = [];
 
+	foreach ($errors as $error)
+	{
+		$messages[] = [
+			'TYPE' => Bitrix\Main\Grid\MessageType::ERROR,
+			'TEXT' => $error->getMessage(),
+		];
+	}
+
+	$APPLICATION->RestartBuffer();
+	CMain::FinalActions(Json::encode(['messages' => $messages]));
+}
 CMain::FinalActions();

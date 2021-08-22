@@ -19,8 +19,8 @@ include("util_group_profile.php");
 
 $ownerId = $arResult["VARIABLES"]["group_id"];
 if (
-	CSocNetGroup::GetByID($ownerId)
-	&& CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $ownerId, "calendar")
+	!empty($arResult['groupFields'])
+	&& \CSocNetFeatures::isActiveFeature(SONET_ENTITY_GROUP, $ownerId, 'calendar')
 )
 {
 	$calendar2 = (

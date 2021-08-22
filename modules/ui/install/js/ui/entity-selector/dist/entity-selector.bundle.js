@@ -4603,14 +4603,12 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.locked = flag;
 
-	        if (this.isRendered()) {
-	          if (flag) {
-	            main_core.Dom.addClass(this.getOuterContainer(), 'ui-tag-selector-container-locked');
-	            this.getTextBox().disabled = true;
-	          } else {
-	            main_core.Dom.removeClass(this.getOuterContainer(), 'ui-tag-selector-container-locked');
-	            this.getTextBox().disabled = false;
-	          }
+	        if (flag) {
+	          main_core.Dom.addClass(this.getOuterContainer(), 'ui-tag-selector-container-locked');
+	          this.getTextBox().disabled = true;
+	        } else {
+	          main_core.Dom.removeClass(this.getOuterContainer(), 'ui-tag-selector-container-locked');
+	          this.getTextBox().disabled = false;
 	        }
 	      }
 	    }

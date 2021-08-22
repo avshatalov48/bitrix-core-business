@@ -132,7 +132,12 @@ class Property extends EO_Property
 			$this->valueEntity->getField('VALUE')->configureColumnName($realValueColumnName);
 
 			// add generic value field
-			if ($elementEntity instanceof ElementV1Entity && $realValueColumnName !== 'VALUE')
+			if ($realValueColumnName !== 'VALUE'
+				&& (
+					$elementEntity instanceof ElementV1Entity // all v1 props
+					|| $this->getMultiple() // multiple v2 props
+				)
+			)
 			{
 				$this->valueEntity->addField(
 					(new StringField(ValueStorageTable::GENERIC_VALUE_FIELD_NAME))->configureColumnName('VALUE')

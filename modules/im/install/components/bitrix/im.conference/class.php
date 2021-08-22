@@ -241,13 +241,6 @@ class ImComponentConference extends CBitrixComponent
 	{
 		global $USER;
 
-		if ($this->userCount + 1 > $this->userLimit)
-		{
-			$this->startupErrorCode = Conference::ERROR_USER_LIMIT_REACHED;
-
-			return true;
-		}
-
 		$chat = new \CIMChat(0);
 		$addingResult = $chat->AddUser($this->chatId, $USER->GetID());
 
@@ -262,36 +255,42 @@ class ImComponentConference extends CBitrixComponent
 		return true;
 	}
 
-	protected function checkLoggedInUser(): void
+	protected function checkLoggedInUser(): ?bool
 	{
 		global $USER;
 
-		if (Util::isIntranetUser() || Util::isExtranetUser())
-		{
-			$this->userId = $USER->GetID();
-			$this->isIntranetOrExtranet = true;
-
-			$isUserInChat = Chat::isUserInChat($this->chatId);
-			if (!$isUserInChat)
-			{
-				$this->addUserToChat();
-			}
-		}
 		//if not intranet/extranet/call-user - it is different external type, log him out and treat as guest
-		else if (!Util::isIntranetUser() && !Util::isExtranetUser() && $USER->GetParam('EXTERNAL_AUTH_ID') !== 'call')
+		if (!Util::isIntranetUser() && !Util::isExtranetUser() && $USER->GetParam('EXTERNAL_AUTH_ID') !== 'call')
 		{
 			$USER->Logout();
 		}
 		else
 		{
+			if (Util::isIntranetUser() || Util::isExtranetUser())
+			{
+				$this->isIntranetOrExtranet = true;
+			}
+
 			$this->userId = $USER->GetID();
 
 			$isUserInChat = Chat::isUserInChat($this->chatId);
 			if (!$isUserInChat)
 			{
-				$this->addUserToChat();
+				if ($this->userCount + 1 > $this->userLimit)
+				{
+					$this->startupErrorCode = Conference::ERROR_USER_LIMIT_REACHED;
+
+					return false;
+				}
+
+				if (!$this->isPasswordRequired)
+				{
+					$this->addUserToChat();
+				}
 			}
 		}
+
+		return true;
 	}
 
 	protected function getLoginCookies(): string

@@ -25,7 +25,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Catalog
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Rounding_Query query()
+ * @method static EO_Rounding_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Rounding_Result getById($id)
+ * @method static EO_Rounding_Result getList(array $parameters = array())
+ * @method static EO_Rounding_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_Rounding createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_Rounding_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_Rounding wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_Rounding_Collection wakeUpCollection($rows)
+ */
 
 class RoundingTable extends Main\Entity\DataManager
 {

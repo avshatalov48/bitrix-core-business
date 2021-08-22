@@ -15,14 +15,15 @@ Extension::load(
 	[
 		"ui.icons",
 		"ui.info-helper",
-		'ui.feedback.form'
+		'ui.feedback.form',
+		'crm.ads.conversion'
 	]
 );
 
 $containerId = 'sender-start-container';
 ?>
 <div id="<?= htmlspecialcharsbx($containerId) ?>" class="sender-start-wrap">
-	
+
 	<? if (!empty($arResult['MESSAGES']['MAILING']['TILES'])): ?>
 		<div class="sender-start-block">
 			<div class="sender-start-title">
@@ -34,7 +35,7 @@ $containerId = 'sender-start-container';
 			]); ?>
 		</div>
 	<? endif; ?>
-	
+
 	<? if (!empty($arResult['MESSAGES']['ADS']['TILES'])): ?>
 		<div class="sender-start-block">
 			<div class="sender-start-title">
@@ -46,7 +47,7 @@ $containerId = 'sender-start-container';
 			]); ?>
 		</div>
 	<? endif; ?>
-	
+
 	<? if (!empty($arResult['MESSAGES']['MARKETING']['TILES'])): ?>
 		<div class="sender-start-block">
 			<div class="sender-start-title">
@@ -58,7 +59,7 @@ $containerId = 'sender-start-container';
 			]); ?>
 		</div>
 	<? endif; ?>
-	
+
 	<? if (!empty($arResult['MESSAGES']['RC']['TILES'])): ?>
 		<div class="sender-start-block">
 			<div class="sender-start-title">
@@ -70,9 +71,24 @@ $containerId = 'sender-start-container';
 			]); ?>
 		</div>
 	<? endif; ?>
-	
-	
+
+
 	<? if (!empty($arResult['MESSAGES']['TOLOKA']['TILES'])): ?>
+	<?endif;?>
+
+	<?if (!empty($arResult['MESSAGES']['CONVERSION']['TILES'])):?>
+		<div class="sender-start-block">
+			<div class="sender-start-title">
+				<?=Loc::getMessage('SENDER_START_CREATE_FACEBOOK_CONVERSION')?>
+			</div>
+			<?$APPLICATION->IncludeComponent("bitrix:ui.tile.list", "", [
+				'ID' => 'sender-start-conversion',
+				'LIST' => $arResult['MESSAGES']['CONVERSION']['TILES'],
+			]);?>
+		</div>
+	<?endif;?>
+
+	<?if (!empty($arResult['MESSAGES']['TOLOKA']['TILES'])):?>
 		<div class="sender-start-block">
 			<div class="sender-start-title">
 				<?= Loc::getMessage('SENDER_START_CREATE_TOLOKA') ?>
@@ -95,7 +111,7 @@ $containerId = 'sender-start-container';
 					style=""
 					onclick="BX.UI.Feedback.Form.open(
 						{
-						title:'<?= Loc::getMessage('SENDER_START_CONFIGURATION_NEED_HELP') ?>',
+						title:'<?= CUtil::addslashes(Loc::getMessage('SENDER_START_CONFIGURATION_NEED_HELP')) ?>',
 						forms: [
 						{zones: ['en', 'eu', 'in', 'uk'], id: 986, lang: 'en', sec: 'bb83fq'},
 						{zones: ['de'], id: 988, lang: 'de', sec: 'c59qtl'},

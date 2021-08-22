@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Socialnetwork\Integration\UI\EntitySelector;
 
@@ -11,6 +11,8 @@ use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\Search\Content;
 use Bitrix\Socialnetwork\EO_Workgroup;
 use Bitrix\Socialnetwork\EO_Workgroup_Collection;
+use Bitrix\Socialnetwork\FeaturePermTable;
+use Bitrix\Socialnetwork\FeatureTable;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\WorkgroupSiteTable;
 use Bitrix\Socialnetwork\WorkgroupTable;
@@ -109,7 +111,7 @@ class ProjectProvider extends BaseProvider
 		$limit = 100;
 		$projects = $this->getProjectCollection(['limit' => $limit]);
 		$dialog->addItems($this->makeProjectItems($projects, ['tabs' => 'projects']));
-
+/*
 		if ($projects->count() < $limit)
 		{
 			$entity = $dialog->getEntity('project');
@@ -118,7 +120,7 @@ class ProjectProvider extends BaseProvider
 				$entity->setDynamicSearch(false);
 			}
 		}
-
+*/
 		$icon =
 			'data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2223%22%20height%3D%2223%22%20'.
 			'fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M11'.
@@ -323,8 +325,8 @@ class ProjectProvider extends BaseProvider
 		$projectIds = [];
 		$projectFilter = (
 			isset($options['projectId'])
-			? 'projectId'
-			: (isset($options['!projectId']) ? '!projectId' : null)
+				? 'projectId'
+				: (isset($options['!projectId']) ? '!projectId' : null)
 		);
 
 		if (isset($options[$projectFilter]))
@@ -333,7 +335,7 @@ class ProjectProvider extends BaseProvider
 			{
 				foreach ($options[$projectFilter] as $id)
 				{
-					$id = intval($id);
+					$id = (int)$id;
 					if ($id > 0)
 					{
 						$projectIds[] = $id;
@@ -358,11 +360,11 @@ class ProjectProvider extends BaseProvider
 			{
 				if ($projectFilter === 'projectId')
 				{
-					$query->where('ID', intval($options[$projectFilter]));
+					$query->where('ID', (int)$options[$projectFilter]);
 				}
 				else
 				{
-					$query->whereNot('ID', intval($options[$projectFilter]));
+					$query->whereNot('ID', (int)$options[$projectFilter]);
 				}
 			}
 		}
@@ -371,7 +373,7 @@ class ProjectProvider extends BaseProvider
 		{
 			$query->registerRuntimeField(
 				new ExpressionField(
-					'ID_SEQUENCE', 'FIELD(%s, '.join(',', $projectIds).')', 'ID'
+					'ID_SEQUENCE', 'FIELD(%s, ' . implode(',', $projectIds) . ')', 'ID'
 				)
 			);
 
@@ -386,6 +388,32 @@ class ProjectProvider extends BaseProvider
 			$query->setOrder(['NAME' => 'asc']);
 		}
 
+		$isUserModuleAdmin = \CSocNetUser::isUserModuleAdmin($currentUserId, $siteId);
+
+		if (isset($options['features']) && is_array($options['features']) && !empty($options['features']))
+		{
+			$alias = $query->getInitAlias();
+			foreach (array_keys($options['features']) as $feature)
+			{
+				$featureQuery = self::getFeatureQuery($alias, $feature);
+				if ($featureQuery === false)
+				{
+					return new EO_Workgroup_Collection();
+				}
+
+				$query->whereNotExists($featureQuery);
+			}
+
+			if (!$isUserModuleAdmin)
+			{
+				$featuresPermissionsQuery = self::getFeaturesPermissionsQuery($currentUserId, $options['features']);
+				if ($featuresPermissionsQuery)
+				{
+					$query->whereIn('ID', $featuresPermissionsQuery);
+				}
+			}
+		}
+
 		if (isset($options['limit']) && is_int($options['limit']))
 		{
 			$query->setLimit($options['limit']);
@@ -395,16 +423,178 @@ class ProjectProvider extends BaseProvider
 			$query->setLimit(100);
 		}
 
-		//echo '<pre>'.$query->getQuery().'</pre>';
+		return $query->exec()->fetchCollection();
+	}
 
-		$projects = $query->exec()->fetchCollection();
+	public static function getFeatureQuery($alias, $feature = '')
+	{
+		static $globalFeatures = null;
 
-		if (isset($options['features']) && is_array($options['features']))
+		if ($globalFeatures === null)
 		{
-			return self::filterByFeatures($projects, $options['features'], $currentUserId, $siteId);
+			$globalFeatures = \CSocNetAllowed::getAllowedFeatures();
 		}
 
-		return $projects;
+		if (
+			!isset($globalFeatures[$feature]['allowed'])
+			|| !is_array($globalFeatures[$feature]['allowed'])
+			|| !in_array(SONET_ENTITY_GROUP, $globalFeatures[$feature]['allowed'], true)
+			|| mb_strlen($feature) <= 0
+		)
+		{
+			return false;
+		}
+
+		$subQuery = FeatureTable::query();
+		$subQuery->where('ENTITY_TYPE', FeatureTable::FEATURE_ENTITY_TYPE_GROUP);
+		$subQuery->where('FEATURE', $feature);
+		$subQuery->where('ACTIVE', 'N');
+		$subQuery->registerRuntimeField(
+			new ExpressionField(
+				'IS_INACTIVE_IN_GROUP', "CASE WHEN {$alias}.ID = %s THEN 1 ELSE 0 END", 'ENTITY_ID'
+			)
+		);
+		$subQuery->where('IS_INACTIVE_IN_GROUP', 1);
+
+		return $subQuery;
+	}
+
+	public static function getFeaturesPermissionsQuery($currentUserId, $featuresList = [])
+	{
+		$helper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
+		$globalFeatures = \CSocNetAllowed::getAllowedFeatures();
+
+		$workWithClosedGroups = (Option::get('socialnetwork', 'work_with_closed_groups', 'N') === 'Y');
+
+		$query = new \Bitrix\Main\Entity\Query(WorkgroupTable::getEntity());
+		$query->addSelect('ID');
+
+		if ($currentUserId > 0)
+		{
+			$query->registerRuntimeField(new Reference(
+				'UG',
+				UserToGroupTable::getEntity(),
+				Join::on('this.ID', 'ref.GROUP_ID')
+					->where('ref.USER_ID', $currentUserId),
+				[ 'join_type' => 'INNER' ]
+			));
+		}
+
+		$hasFilter = false;
+
+		$featureEntity = clone FeatureTable::getEntity();
+
+		foreach ($featuresList as $feature => $operationsList)
+		{
+			if (empty($operationsList))
+			{
+				continue;
+			}
+
+			$hasFilter = true;
+
+			$defaultPerm = 'A';
+			foreach ($globalFeatures[$feature]['operations'] as $operation => $perms)
+			{
+				if (
+					!in_array($operation, $operationsList, true)
+					|| !is_set($perms[FeatureTable::FEATURE_ENTITY_TYPE_GROUP])
+				)
+				{
+					continue;
+				}
+
+				if ($perms[FeatureTable::FEATURE_ENTITY_TYPE_GROUP] > $defaultPerm)
+				{
+					$defaultPerm = $perms[FeatureTable::FEATURE_ENTITY_TYPE_GROUP];
+				}
+			}
+
+			$query->registerRuntimeField(new Reference(
+				"F_{$feature}",
+				$featureEntity,
+				Join::on('this.ID', 'ref.ENTITY_ID')
+					->where('ref.ENTITY_TYPE', FeatureTable::FEATURE_ENTITY_TYPE_GROUP)
+					->where('ref.FEATURE', $feature),
+				[ 'join_type' => 'LEFT' ]
+			));
+
+			$featureEntity->addField(new Reference(
+				"FP_{$feature}",
+				FeaturePermTable::class,
+				Join::on('this.ID', 'ref.FEATURE_ID'),
+				[ 'join_type' => 'LEFT' ]
+			));
+
+			$query->where(\Bitrix\Main\Entity\Query::filter()
+				->logic('or')
+				->whereIn("F_{$feature}.FP_{$feature}.OPERATION_ID", $operationsList)
+				->whereNull("F_{$feature}.FP_{$feature}.OPERATION_ID")
+			);
+
+			if ($currentUserId > 0)
+			{
+				$minOperationsList = ($globalFeatures[$feature]['minoperation'] ?? []);
+				if (!is_array($minOperationsList))
+				{
+					$minOperationsList = [ $minOperationsList ];
+				}
+
+				$conditionsList = [];
+				$substitutes = [];
+
+				if (!$workWithClosedGroups && !empty($minOperationsList))
+				{
+					$minOperations = implode(', ', array_map(static function($operation) use ($helper) { return "'" . $helper->forSql($operation) . "'"; }, $minOperationsList));
+					$conditionsList[] = "WHEN %s = 'Y' AND %s NOT IN ({$minOperations}) THEN 'A'";
+					$substitutes[] = 'CLOSED';
+					$substitutes[] = "F_{$feature}.FP_{$feature}.OPERATION_ID";
+				}
+
+				$conditionsList[] = "WHEN %s = 'N' AND %s IN ('N', 'L') THEN 'K'";
+				$substitutes[] = 'VISIBLE';
+				$substitutes[] = "F_{$feature}.FP_{$feature}.ROLE";
+
+				$conditionsList[] = 'WHEN %s IS NOT NULL THEN %s';
+				$substitutes[] = "F_{$feature}.FP_{$feature}.ROLE";
+				$substitutes[] = "F_{$feature}.FP_{$feature}.ROLE";
+
+				$conditions = implode(' ', $conditionsList);
+
+				$query->registerRuntimeField(new ExpressionField(
+					"MIN_PERMISSION_{$feature}",
+					"CASE {$conditions} ELSE '{$defaultPerm}' END",
+					$substitutes
+				));
+
+				$query->registerRuntimeField(
+					new ExpressionField(
+						"HAS_ACCESS_{$feature}",
+						'CASE WHEN %s <= %s THEN 1 ELSE 0 END',
+						[
+							'UG.ROLE',
+							"MIN_PERMISSION_{$feature}",
+						]
+					)
+				);
+				$query->where("HAS_ACCESS_{$feature}", 1);
+			}
+			else
+			{
+				$query->registerRuntimeField(new ExpressionField(
+					"MIN_PERMISSION_{$feature}",
+					"CASE WHEN %s IS NOT NULL THEN %s ELSE '{$defaultPerm}' END",
+					[
+						"F_{$feature}.FP_{$feature}.ROLE",
+						"F_{$feature}.FP_{$feature}.ROLE"
+					]
+				));
+
+				$query->where("MIN_PERMISSION_{$feature}", 'N');
+			}
+		}
+
+		return ($hasFilter ? $query : false);
 	}
 
 	public static function filterByFeatures(
@@ -422,8 +612,7 @@ class ProjectProvider extends BaseProvider
 			$availableIds = \CSocNetFeatures::isActiveFeature(SONET_ENTITY_GROUP, $projectIds, $feature);
 			if (!is_array($availableIds))
 			{
-				unset($features[$feature]); // bad feature
-				continue;
+				return new EO_Workgroup_Collection();
 			}
 
 			$hasUnavailableId = false;
@@ -458,6 +647,11 @@ class ProjectProvider extends BaseProvider
 			$ids = $projectIds;
 			foreach ($operations as $operation)
 			{
+				if (empty($ids))
+				{
+					break;
+				}
+
 				$availableIds = \CSocNetFeaturesPerms::canPerformOperation(
 					$userId,
 					SONET_ENTITY_GROUP,

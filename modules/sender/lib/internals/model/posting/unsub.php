@@ -14,6 +14,19 @@ use Bitrix\Sender\Internals\Model;
  * Class UnsubTable
  *
  * @package Bitrix\Sender\Internals\Model\Posting
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Unsub_Query query()
+ * @method static EO_Unsub_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Unsub_Result getById($id)
+ * @method static EO_Unsub_Result getList(array $parameters = array())
+ * @method static EO_Unsub_Entity getEntity()
+ * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Unsub createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Unsub_Collection createCollection()
+ * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Unsub wakeUpObject($row)
+ * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Unsub_Collection wakeUpCollection($rows)
  */
 class UnsubTable extends Main\Entity\DataManager
 {

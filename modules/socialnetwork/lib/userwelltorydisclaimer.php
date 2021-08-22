@@ -10,6 +10,22 @@ namespace Bitrix\Socialnetwork;
 use Bitrix\Main\Entity;
 use Bitrix\Main\NotImplementedException;
 
+/**
+ * Class UserWelltoryDisclaimerTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserWelltoryDisclaimer_Query query()
+ * @method static EO_UserWelltoryDisclaimer_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserWelltoryDisclaimer_Result getById($id)
+ * @method static EO_UserWelltoryDisclaimer_Result getList(array $parameters = array())
+ * @method static EO_UserWelltoryDisclaimer_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection wakeUpCollection($rows)
+ */
 class UserWelltoryDisclaimerTable extends Entity\DataManager
 {
 	/**

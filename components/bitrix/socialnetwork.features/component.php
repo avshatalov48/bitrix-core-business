@@ -88,11 +88,11 @@ else
 			&& Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\TaskLimit::isLimitExceeded()
 		);
 
-		if ($arParams["PAGE_ID"] == "group_features")
+		if ($arParams["PAGE_ID"] === 'group_features')
 		{
 			$arGroup = CSocNetGroup::GetByID($arParams["GROUP_ID"]);
 
-			if (!\Bitrix\Socialnetwork\Item\Workgroup::getEditFeaturesAvailability())
+			if (!\Bitrix\Socialnetwork\Helper\Workgroup::getEditFeaturesAvailability())
 			{
 				$arResult["FatalError"] = GetMessage("SONET_C3_PERMS").".";
 			}
@@ -104,9 +104,11 @@ else
 				)
 			)
 			{
-				$arResult["CurrentUserPerms"] = CSocNetUserToGroup::InitUserPerms($USER->GetID(), $arGroup, CSocNetUser::IsCurrentUserModuleAdmin());
+				$arResult["CurrentUserPerms"] = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
+					'groupId' => $arParams['GROUP_ID'],
+				]);
 				$arResult["InitiatePermsList"] = \Bitrix\Socialnetwork\Item\Workgroup::getInitiatePermOptionsList(array(
-					'project' => ($arGroup["PROJECT"] == 'Y')
+					'project' => ($arGroup['PROJECT'] === 'Y')
 				));
 
 				if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"])

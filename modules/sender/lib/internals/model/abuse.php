@@ -9,7 +9,20 @@ use Bitrix\Main\Type\DateTime;
 /**
  * Class AbuseTable
  * @package Bitrix\Sender\Internals\Model
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Abuse_Query query()
+ * @method static EO_Abuse_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Abuse_Result getById($id)
+ * @method static EO_Abuse_Result getList(array $parameters = array())
+ * @method static EO_Abuse_Entity getEntity()
+ * @method static \Bitrix\Sender\Internals\Model\EO_Abuse createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\Internals\Model\EO_Abuse_Collection createCollection()
+ * @method static \Bitrix\Sender\Internals\Model\EO_Abuse wakeUpObject($row)
+ * @method static \Bitrix\Sender\Internals\Model\EO_Abuse_Collection wakeUpCollection($rows)
+ */
 class AbuseTable extends Entity\DataManager
 {
 	const COUNTER_CODE_ABUSES = 'abuses';

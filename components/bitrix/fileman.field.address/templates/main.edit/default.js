@@ -43,6 +43,7 @@ this.BX.Default.Field = this.BX.Default.Field || {};
 	      }
 
 	      node.innerHTML = html;
+	      BX.onCustomEvent(window, 'onCrmEntityEditorUserFieldExternalChanged', [control.fieldNameJs]);
 	    });
 	  }
 	};

@@ -1,4 +1,12 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Localization\Loc;
+
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -195,21 +203,22 @@ if ((intval($_GET["del_id"]) > 0 || intval($_GET["hide_id"]) > 0) && CModule::In
 				"id" => "ACCESS_DENIED",
 				"text" => GetMessage("BLOG_BLOG_BLOG_MES_DEL_NO_RIGHTS"));
 		}
-		elseif(CBlogPost::GetByID($del_id))
+		elseif (CBlogPost::GetByID($del_id))
 		{
-			CBlogPost::DeleteLog($del_id);
-			if (CBlogPost::Delete($del_id))
+			try
 			{
-				if ($bGroupMode)
-					CSocNetGroup::SetLastActivity($arParams["SOCNET_GROUP_ID"]);
-				LocalRedirect($APPLICATION->GetCurPageParam("del_id=".$del_id."&success=Y", Array("del_id", "hide_id", "sessid", "success")));
+				\Bitrix\Socialnetwork\Item\Helper::deleteBlogPost([
+					'POST_ID' => $del_id,
+					'ACTIVITY_SONET_GROUP_ID' => $arParams['SOCNET_GROUP_ID'],
+				]);
+				LocalRedirect($APPLICATION->getCurPageParam('del_id=' . $del_id . '&success=Y', [ 'del_id', 'hide_id', 'sessid', 'success' ]));
 			}
-			else
+			catch (Exception $e)
 			{
-				$arResult["ERROR_MESSAGE"][] = array(
-					"id" => "DELETE",
-					"text" => GetMessage("BLOG_BLOG_BLOG_MES_DEL_ERROR")
-				);
+				$arResult['ERROR_MESSAGE'][] = [
+					'id' => 'DELETE',
+					'text' => Loc::getMessage('BLOG_BLOG_BLOG_MES_DEL_ERROR'),
+				];
 			}
 		}
 	}

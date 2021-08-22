@@ -1,4 +1,4 @@
-import {Text, Type} from "main.core";
+import {Loc, Text, Type} from "main.core";
 import {Base} from './base';
 
 export class Product extends Base
@@ -40,5 +40,23 @@ export class Product extends Base
 		}
 
 		return false;
+	}
+
+	setMorePhotoValues(values)
+	{
+		super.setMorePhotoValues(values);
+
+		if (this.isEnabledEmptyImageError() && this.morePhoto.length === 0)
+		{
+			this.setError(
+				'EMPTY_IMAGE',
+				Loc.getMessage('CATALOG_SELECTOR_EMPTY_IMAGE_ERROR')
+			);
+		}
+	}
+
+	isEnabledEmptyImageError(): boolean
+	{
+		return this.getConfig('ENABLE_EMPTY_IMAGES_ERROR', false);
 	}
 }

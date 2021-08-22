@@ -4,6 +4,22 @@ namespace Bitrix\Sender\Internals\Model;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class PostingThreadTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_PostingThread_Query query()
+ * @method static EO_PostingThread_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_PostingThread_Result getById($id)
+ * @method static EO_PostingThread_Result getList(array $parameters = array())
+ * @method static EO_PostingThread_Entity getEntity()
+ * @method static \Bitrix\Sender\Internals\Model\EO_PostingThread createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\Internals\Model\EO_PostingThread_Collection createCollection()
+ * @method static \Bitrix\Sender\Internals\Model\EO_PostingThread wakeUpObject($row)
+ * @method static \Bitrix\Sender\Internals\Model\EO_PostingThread_Collection wakeUpCollection($rows)
+ */
 class PostingThreadTable extends Entity\DataManager
 {
 	const STATUS_NEW         = 'N';

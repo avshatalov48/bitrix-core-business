@@ -1,5 +1,10 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -11,6 +16,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @global CMain $APPLICATION */
 /** @global CCacheManager $CACHE_MANAGER */
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
+
 global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
 use Bitrix\Main\Loader;
@@ -259,7 +265,10 @@ else
 			$arResult["Group"]["CLOSED"] == "Y" &&
 			COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") != "Y";
 
-		$arResult["CurrentUserPerms"] = CSocNetUserToGroup::InitUserPerms($USER->GetID(), $arResult["Group"], CSocNetUser::IsCurrentUserModuleAdmin());
+		$arResult['CurrentUserPerms'] = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
+			'groupId' => $arGroup['ID'],
+		]);
+
 		if (in_array($arResult["CurrentUserPerms"]["UserRole"], array(SONET_ROLES_OWNER, SONET_ROLES_MODERATOR, SONET_ROLES_USER)))
 			$arResult["bSubscribed"] = CSocNetSubscription::IsUserSubscribed($USER->GetID(), "SG".$arParams["GROUP_ID"]);
 		else
@@ -603,7 +612,9 @@ else
 	}
 }
 
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+$arResult['IS_IFRAME'] = ($request->get('IFRAME') === 'Y');
+
 $this->IncludeComponentTemplate();
 
 return $arResult["Group"];
-?>

@@ -283,7 +283,7 @@ class CAllIBlock
 		$bWorkflow = self::$workflowIncluded && ($arIBlock["WORKFLOW"] !== "N");
 		$s = $bWorkflow? "&WF=Y": "";
 
-		$arLabels = $arOptions["LABELS"];
+		$arLabels = ($arOptions["LABELS"] ?? []);
 
 		if($ELEMENT_ID > 0 && CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $ELEMENT_ID, "element_edit"))
 		{
@@ -303,8 +303,8 @@ class CAllIBlock
 			);
 
 			$arButton = array(
-				"TEXT" => ($arLabels["ELEMENT_EDIT_TEXT"] <> ''? $arLabels["ELEMENT_EDIT_TEXT"] : $arIBlock["ELEMENT_EDIT"]),
-				"TITLE" => ($arLabels["ELEMENT_EDIT_TITLE"] <> ''? $arLabels["ELEMENT_EDIT_TITLE"] : $arIBlock["ELEMENT_EDIT"]),
+				"TEXT" => (($arLabels["ELEMENT_EDIT_TEXT"] ?? '') <> ''? $arLabels["ELEMENT_EDIT_TEXT"] : $arIBlock["ELEMENT_EDIT"]),
+				"TITLE" => (($arLabels["ELEMENT_EDIT_TITLE"] ?? '') <> ''? $arLabels["ELEMENT_EDIT_TITLE"] : $arIBlock["ELEMENT_EDIT"]),
 				"ACTION" => 'javascript:'.$action,
 				"ACTION_URL" => $url,
 				"ONCLICK" => $action,
@@ -360,8 +360,8 @@ class CAllIBlock
 					)
 				);
 				$arButton = array(
-					"TEXT" => ($arLabels["ELEMENT_ADD_TEXT"] <> ''? $arLabels["ELEMENT_ADD_TEXT"] : $arIBlock["ELEMENT_ADD"]),
-					"TITLE" => ($arLabels["ELEMENT_ADD_TITLE"] <> ''? $arLabels["ELEMENT_ADD_TITLE"] : $arIBlock["ELEMENT_ADD"]),
+					"TEXT" => (($arLabels["ELEMENT_ADD_TEXT"] ?? '') <> ''? $arLabels["ELEMENT_ADD_TEXT"] : $arIBlock["ELEMENT_ADD"]),
+					"TITLE" => (($arLabels["ELEMENT_ADD_TITLE"] ?? '') <> ''? $arLabels["ELEMENT_ADD_TITLE"] : $arIBlock["ELEMENT_ADD"]),
 					"ACTION" => 'javascript:'.$action,
 					"ACTION_URL" => $url,
 					"ONCLICK" => $action,
@@ -401,8 +401,8 @@ class CAllIBlock
 			$url .= '&ID='.(preg_match('/^iblock_list_admin\.php/', $url)? "E": "").$ELEMENT_ID."&return_url=".UrlEncode($return_url["delete_element"]);
 			$url = "/bitrix/admin/".$url;
 			$arButton = array(
-				"TEXT" => ($arLabels["ELEMENT_DELETE_TEXT"] <> ''? $arLabels["ELEMENT_DELETE_TEXT"] : $arIBlock["ELEMENT_DELETE"]),
-				"TITLE" => ($arLabels["ELEMENT_DELETE_TITLE"] <> ''? $arLabels["ELEMENT_DELETE_TITLE"] : $arIBlock["ELEMENT_DELETE"]),
+				"TEXT" => (($arLabels["ELEMENT_DELETE_TEXT"] ?? '') <> ''? $arLabels["ELEMENT_DELETE_TEXT"] : $arIBlock["ELEMENT_DELETE"]),
+				"TITLE" => (($arLabels["ELEMENT_DELETE_TITLE"] ?? '') <> ''? $arLabels["ELEMENT_DELETE_TITLE"] : $arIBlock["ELEMENT_DELETE"]),
 				"ACTION"=>"javascript:if(confirm('".GetMessageJS("IBLOCK_PANEL_ELEMENT_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 				"ACTION_URL" => $url,
 				"ONCLICK"=>"if(confirm('".GetMessageJS("IBLOCK_PANEL_ELEMENT_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
@@ -481,8 +481,8 @@ class CAllIBlock
 					);
 
 					$arButton = array(
-						"TEXT" => ($arLabels["SECTION_ADD_TEXT"] <> ''? $arLabels["SECTION_ADD_TEXT"] : $arIBlock["SECTION_ADD"]),
-						"TITLE" => ($arLabels["SECTION_ADD_TITLE"] <> ''? $arLabels["SECTION_ADD_TITLE"] : $arIBlock["SECTION_ADD"]),
+						"TEXT" => (($arLabels["SECTION_ADD_TEXT"] ?? '') <> ''? $arLabels["SECTION_ADD_TEXT"] : $arIBlock["SECTION_ADD"]),
+						"TITLE" => (($arLabels["SECTION_ADD_TITLE"] ?? '') <> ''? $arLabels["SECTION_ADD_TITLE"] : $arIBlock["SECTION_ADD"]),
 						"ACTION" => 'javascript:'.$action,
 						"ACTION_URL" => $url,
 						"ICON" => "bx-context-toolbar-create-icon",
@@ -536,8 +536,8 @@ class CAllIBlock
 					'find_el_y'=>'Y', 'clear_filter'=>'Y', 'apply_filter'=>'Y'));
 
 			$arButton = array(
-				"TEXT" => ($arLabels["ELEMENTS_NAME_TEXT"] <> ''? $arLabels["ELEMENTS_NAME_TEXT"] : $arIBlock["ELEMENTS_NAME"]),
-				"TITLE" => ($arLabels["ELEMENTS_NAME_TITLE"] <> ''? $arLabels["ELEMENTS_NAME_TITLE"] : $arIBlock["ELEMENTS_NAME"]),
+				"TEXT" => (($arLabels["ELEMENTS_NAME_TEXT"] ?? '') <> ''? $arLabels["ELEMENTS_NAME_TEXT"] : $arIBlock["ELEMENTS_NAME"]),
+				"TITLE" => (($arLabels["ELEMENTS_NAME_TITLE"] ?? '') <> ''? $arLabels["ELEMENTS_NAME_TITLE"] : $arIBlock["ELEMENTS_NAME"]),
 				"ACTION" => "javascript:jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 				"ACTION_URL" => $url,
 				"ONCLICK" => "jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
@@ -555,8 +555,8 @@ class CAllIBlock
 
 			$url = "/bitrix/admin/".CIBlock::GetAdminSectionListLink($IBLOCK_ID, array('find_section_section'=>$SECTION_ID));
 			$arButton = array(
-				"TEXT" => ($arLabels["SECTIONS_NAME_TEXT"] <> ''? $arLabels["SECTIONS_NAME_TEXT"] : $arIBlock["SECTIONS_NAME"]),
-				"TITLE" => ($arLabels["SECTIONS_NAME_TITLE"] <> ''? $arLabels["SECTIONS_NAME_TITLE"] : $arIBlock["SECTIONS_NAME"]),
+				"TEXT" => (($arLabels["SECTIONS_NAME_TEXT"] ?? '') <> ''? $arLabels["SECTIONS_NAME_TEXT"] : $arIBlock["SECTIONS_NAME"]),
+				"TITLE" => (($arLabels["SECTIONS_NAME_TITLE"] ?? '') <> ''? $arLabels["SECTIONS_NAME_TITLE"] : $arIBlock["SECTIONS_NAME"]),
 				"ACTION" => "javascript:jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 				"ACTION_URL" => $url,
 				"ONCLICK" => "jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
@@ -1240,10 +1240,10 @@ class CAllIBlock
 		global $APPLICATION;
 		$this->LAST_ERROR = "";
 
-		$NAME = isset($arFields["NAME"])? $arFields["NAME"]: "";
+		$NAME = $arFields["NAME"] ?? "";
 		if(
 			($ID===false || array_key_exists("NAME", $arFields))
-			&& $NAME == ''
+			&& (string)$NAME === ''
 		)
 			$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_NAME")."<br>";
 
@@ -2804,7 +2804,7 @@ REQ
 
 		if($server_name)
 		{
-			$url = str_replace("#LANG#", $arr["LANG_DIR"], $url);
+			$url = str_replace("#LANG#", ($arr["LANG_DIR"] ?? ''), $url);
 			if((defined("ADMIN_SECTION") && ADMIN_SECTION===true) || !defined("BX_STARTED"))
 			{
 				static $cache = array();
@@ -2849,14 +2849,14 @@ REQ
 			"#SECTION_CODE_PATH#",
 		);
 		$arReplace = array(
-			$arr["LANG_DIR"],
+			($arr["LANG_DIR"] ?? ''),
 			$preparedId,
-			rawurlencode(isset($arr["~CODE"])? $arr["~CODE"]: $arr["CODE"]),
-			rawurlencode(isset($arr["~EXTERNAL_ID"])? $arr["~EXTERNAL_ID"]: $arr["EXTERNAL_ID"]),
-			rawurlencode(isset($arr["~IBLOCK_TYPE_ID"])? $arr["~IBLOCK_TYPE_ID"]: $arr["IBLOCK_TYPE_ID"]),
-			intval($arr["IBLOCK_ID"]) > 0? intval($arr["IBLOCK_ID"]): "",
-			rawurlencode(isset($arr["~IBLOCK_CODE"])? $arr["~IBLOCK_CODE"]: $arr["IBLOCK_CODE"]),
-			rawurlencode(isset($arr["~IBLOCK_EXTERNAL_ID"])? $arr["~IBLOCK_EXTERNAL_ID"]: $arr["IBLOCK_EXTERNAL_ID"]),
+			rawurlencode($arr["~CODE"] ?? $arr["CODE"] ?? ''),
+			rawurlencode($arr["~EXTERNAL_ID"] ?? $arr["EXTERNAL_ID"] ?? ''),
+			rawurlencode($arr["~IBLOCK_TYPE_ID"] ?? $arr["IBLOCK_TYPE_ID"]),
+			intval(($arr["IBLOCK_ID"] ?? 0)) > 0 ? intval($arr["IBLOCK_ID"]) : "",
+			rawurlencode($arr["~IBLOCK_CODE"] ?? $arr["IBLOCK_CODE"]),
+			rawurlencode($arr["~IBLOCK_EXTERNAL_ID"] ?? $arr["IBLOCK_EXTERNAL_ID"] ?? ''),
 		);
 
 		if($arrType === "E")
@@ -2907,10 +2907,10 @@ REQ
 		}
 		else
 		{
-			$arReplace[] = intval($arr["ELEMENT_ID"]) > 0? intval($arr["ELEMENT_ID"]): "";
-			$arReplace[] = rawurlencode(isset($arr["~ELEMENT_CODE"])? $arr["~ELEMENT_CODE"]: $arr["ELEMENT_CODE"]);
-			$arReplace[] = intval($arr["IBLOCK_SECTION_ID"]) > 0? intval($arr["IBLOCK_SECTION_ID"]): "";
-			$arReplace[] = rawurlencode(isset($arr["~SECTION_CODE"])? $arr["~SECTION_CODE"]: $arr["SECTION_CODE"]);
+			$arReplace[] = intval(($arr["ELEMENT_ID"] ?? 0)) > 0? intval($arr["ELEMENT_ID"]): "";
+			$arReplace[] = rawurlencode($arr["~ELEMENT_CODE"] ?? $arr["ELEMENT_CODE"] ?? '');
+			$arReplace[] = intval(($arr["IBLOCK_SECTION_ID"] ?? 0)) > 0? intval($arr["IBLOCK_SECTION_ID"]): "";
+			$arReplace[] = rawurlencode($arr["~SECTION_CODE"] ?? $arr["SECTION_CODE"] ?? '');
 			$arReplace[] = "";
 		}
 

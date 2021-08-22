@@ -393,7 +393,6 @@ export class ProductSearchInput
 
 		this.resetModel(item.getTitle());
 
-		this.selector.getFileInput().unsubscribeImageInputEvents();
 		this.selector.clearLayout();
 		this.selector.layout();
 

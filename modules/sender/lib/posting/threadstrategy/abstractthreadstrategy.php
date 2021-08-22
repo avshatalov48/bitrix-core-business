@@ -202,7 +202,7 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 			EXPIRE_AT = \''.$expireAt.'\'
 			WHERE 
 			THREAD_ID = '.$this->threadId.' 
-			AND POSTING_ID = '.$this->postingId;;
+			AND POSTING_ID = '.$this->postingId;
 			Application::getConnection()->query($updateQuery);
 		}
 		catch (\Exception $e)

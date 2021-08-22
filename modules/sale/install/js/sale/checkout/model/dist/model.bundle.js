@@ -126,6 +126,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           return {
             basket: [],
             status: sale_checkout_const.Loader.status.none,
+            needRefresh: 'N',
             currency: null,
             discount: Basket.getDiscountItem(),
             total: Basket.getTotalItem(),
@@ -180,6 +181,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 
           if (main_core.Type.isString(fields.status)) {
             result.status = fields.status.toString();
+          }
+
+          if (main_core.Type.isString(fields.needRefresh)) {
+            result.needRefresh = fields.needRefresh.toString() === 'Y' ? 'Y' : 'N';
           }
 
           if (main_core.Type.isString(fields.currency)) {
@@ -397,41 +402,46 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             setStatus: function setStatus(_ref2, payload) {
               var commit = _ref2.commit;
               payload = _this2.validate(payload);
-              var status = [sale_checkout_const.Loader.status.none, sale_checkout_const.Loader.status.wait];
-              payload.status = status.includes(payload.status) ? payload.status : sale_checkout_const.Loader.status.none;
+              var allowed = Object.values(sale_checkout_const.Loader.status);
+              payload.status = allowed.includes(payload.status) ? payload.status : sale_checkout_const.Loader.status.none;
               commit('setStatus', payload);
             },
-            addItem: function addItem(_ref3, payload) {
+            setNeedRefresh: function setNeedRefresh(_ref3, payload) {
               var commit = _ref3.commit;
+              payload = _this2.validate(payload);
+              commit('setNeedRefresh', payload);
+            },
+            addItem: function addItem(_ref4, payload) {
+              var commit = _ref4.commit;
               payload.fields = _this2.validateBasket(payload.fields);
               commit('addItem', payload);
             },
-            changeItem: function changeItem(_ref4, payload) {
-              var commit = _ref4.commit;
+            changeItem: function changeItem(_ref5, payload) {
+              var commit = _ref5.commit;
               payload.fields = _this2.validateBasket(payload.fields);
               commit('updateItem', payload);
             },
-            removeItem: function removeItem(_ref5, payload) {
-              var commit = _ref5.commit;
+            removeItem: function removeItem(_ref6, payload) {
+              var commit = _ref6.commit;
               commit('deleteItem', payload);
             },
-            setFUserId: function setFUserId(_ref6, payload) {
-              var commit = _ref6.commit;
+            setFUserId: function setFUserId(_ref7, payload) {
+              var commit = _ref7.commit;
               payload = _this2.validate(payload);
               commit('setFUserId', payload);
             },
-            setCurrency: function setCurrency(_ref7, payload) {
-              var commit = _ref7.commit;
+            setCurrency: function setCurrency(_ref8, payload) {
+              var commit = _ref8.commit;
               payload = _this2.validate(payload);
               commit('setCurrency', payload);
             },
-            setDiscount: function setDiscount(_ref8, payload) {
-              var commit = _ref8.commit;
+            setDiscount: function setDiscount(_ref9, payload) {
+              var commit = _ref9.commit;
               payload = _this2.validateDiscount(payload);
               commit('setDiscount', payload);
             },
-            setTotal: function setTotal(_ref9, payload) {
-              var commit = _ref9.commit;
+            setTotal: function setTotal(_ref10, payload) {
+              var commit = _ref10.commit;
               payload = _this2.validateTotal(payload);
               commit('setTotal', payload);
             }
@@ -445,6 +455,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           return {
             getStatus: function getStatus(state) {
               return state.status;
+            },
+            getNeedRefresh: function getNeedRefresh(state) {
+              return state.needRefresh;
             },
             get: function get(state) {
               return function (id) {
@@ -484,6 +497,13 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
               };
               item = Object.assign(item, payload);
               state.status = item.status;
+            },
+            setNeedRefresh: function setNeedRefresh(state, payload) {
+              var item = {
+                needRefresh: 'N'
+              };
+              item = Object.assign(item, payload);
+              state.needRefresh = item.needRefresh;
             },
             setCurrency: function setCurrency(state, payload) {
               var item = {

@@ -5,13 +5,17 @@ namespace Bitrix\Catalog\Component;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\Image\MorePhotoImage;
 use Bitrix\Main\Engine\Response;
+use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\UI\Viewer\ItemAttributes;
 
 class ImageInput
 {
+	public const FILE_ID_SALT = 'catalog.image.input.file.id';
+
 	/** @var BaseIblockElementEntity $entity */
 	private $entity;
 
+	private $autoSavingEnabled = true;
 	private $morePhotoPropertyId;
 	private $inputName;
 	private $inputId;
@@ -27,6 +31,13 @@ class ImageInput
 		$this->inputName = $name;
 	}
 
+	public function disableAutoSaving(): self
+	{
+		$this->autoSavingEnabled = false;
+
+		return $this;
+	}
+
 	public function isEmpty(): bool
 	{
 		return count($this->getValues()) === 0;
@@ -35,10 +46,11 @@ class ImageInput
 	public function getFormattedField(): array
 	{
 		$fileValues = $this->getValues();
+		$signedFileValues = $this->getSignedValues();
 
 		return [
 			'id' => 'bx_file_'.$this->getInputId(),
-			'values' => $fileValues,
+			'values' => $signedFileValues,
 			'isEmpty' => empty($fileValues),
 			'preview' => $this->getPreview(),
 			'input' => $this->getHtml($this->getImageParams(), $fileValues, [
@@ -53,12 +65,16 @@ class ImageInput
 	public function getComponentResponse(): ?Response\Component
 	{
 		return new Response\Component(
-			'bitrix:ui.image.input',
+			'bitrix:catalog.image.input',
 			'',
 			[
 				'FILE_SETTINGS' => $this->getImageParams(),
 				'FILE_VALUES' => $this->getValues(),
+				'FILE_SIGNED_VALUES' => $this->getSignedValues(),
 				'LOADER_PREVIEW' => $this->getPreview(),
+				'ENABLE_AUTO_SAVING' => $this->autoSavingEnabled,
+				'PRODUCT_ENTITY' => $this->entity,
+				'INPUT_ID' => 'bx_file_'.$this->getInputId(),
 			]
 		);
 	}
@@ -71,7 +87,7 @@ class ImageInput
 			'description' => 'Y',
 			'allowUpload' => 'I',
 			'allowUploadExt' => null,
-			'maxCount' => null,
+			'maxCount' => !$this->isMorePhotoEnabled() ? 1 : null,
 			'upload' => true,
 			'medialib' => false,
 			'fileDialog' => true,
@@ -81,7 +97,8 @@ class ImageInput
 
 	private function getInputName(): string
 	{
-		return $this->inputName ?? 'PROPERTY_'.$this->getMorePhotoPropertyId().'_n#IND#';
+		$defaultName = $this->isMorePhotoEnabled() ? 'PROPERTY_'.$this->getMorePhotoPropertyId().'_n#IND#' : 'DETAIL_PICTURE';
+		return $this->inputName ?? $defaultName;
 	}
 
 	private function getInputId(): string
@@ -135,16 +152,43 @@ class ImageInput
 		return $this->values;
 	}
 
+	private function getSignedValues(): array
+	{
+		$signedValues = [];
+
+		foreach ($this->getValues() as $name => $fileId)
+		{
+			if ($fileId !== null && is_numeric($fileId))
+			{
+				static $signer = null;
+				if ($signer === null)
+				{
+					$signer = new Signer;
+				}
+
+				$signedValues[$name] = $signer->sign((string)$fileId, self::FILE_ID_SALT);
+			}
+		}
+
+		return $signedValues;
+	}
+
+	private function isMorePhotoEnabled(): bool
+	{
+		return (int)$this->getMorePhotoPropertyId() > 0;
+	}
+
 	private function getMorePhotoPropertyId(): ?int
 	{
-		if (empty($this->morePhotoPropertyId))
+		if ($this->morePhotoPropertyId === null)
 		{
+			$this->morePhotoPropertyId = 0;
 			$propertyRaw = \Bitrix\Iblock\PropertyTable::getList([
 				'select' => ['ID'],
 				'filter' => [
 					'=IBLOCK_ID' => $this->getIblockId(),
 					'=ACTIVE' => 'Y',
-					'=CODE' => 'MORE_PHOTO',
+					'=CODE' => MorePhotoImage::CODE,
 				],
 				'limit' => 1,
 			]);
@@ -163,13 +207,17 @@ class ImageInput
 		ob_start();
 
 		$GLOBALS['APPLICATION']->includeComponent(
-			'bitrix:ui.image.input',
+			'bitrix:catalog.image.input',
 			'',
 			[
 				'FILE_SETTINGS' => $settings,
 				'FILE_VALUES' => $values,
+				'FILE_SIGNED_VALUES' => $this->getSignedValues(),
 				'LOADER_PREVIEW' => (string)($options['preview'] ?? ''),
 				'DISABLED' => (bool)($options['disabled'] ?? false),
+				'ENABLE_AUTO_SAVING' => $this->autoSavingEnabled,
+				'PRODUCT_ENTITY' => $this->entity,
+				'INPUT_ID' => 'bx_file_'.$this->getInputId(),
 			]
 		);
 

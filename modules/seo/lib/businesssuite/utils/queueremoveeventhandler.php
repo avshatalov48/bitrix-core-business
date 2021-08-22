@@ -82,7 +82,7 @@ final class QueueRemoveEventHandler
 				'select' => ['ID'],
 				'filter' => [
 					'CLIENT_ID' => $this->clientId,
-					'SERVICE_TYPE' => $this->code,
+					'=SERVICE_TYPE' => $this->code,
 				]
 			]);
 			if ($row)

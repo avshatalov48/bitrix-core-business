@@ -132,7 +132,9 @@ else
 			$arResult["Urls"]["Group"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $arResult["Group"]["ID"]));
 			$arResult["Urls"]["Search"] = $arParams["PATH_TO_SEARCH"];
 
-			$arResult["CurrentUserPerms"] = CSocNetUserToGroup::InitUserPerms($USER->GetID(), $arResult["Group"], CSocNetUser::IsCurrentUserModuleAdmin());
+			$arResult['CurrentUserPerms'] = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
+				'groupId' => $arGroup['ID'],
+			]);
 
 			if ($arParams["SET_TITLE"] == "Y")
 				$APPLICATION->SetTitle($arResult["Group"]["NAME"].": ".GetMessage("SONET_C33_PAGE_TITLE"));

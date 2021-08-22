@@ -17,7 +17,6 @@ use Bitrix\Sender\Posting\SegmentDataBuilder;
 Extension::load([
 	"pull.client",
 	'ui.notification',
-	'ui.notification',
 	'ui',
 	'ui.alerts',
 ]);

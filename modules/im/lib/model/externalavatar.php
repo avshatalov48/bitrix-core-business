@@ -16,7 +16,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Im
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ExternalAvatar_Query query()
+ * @method static EO_ExternalAvatar_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ExternalAvatar_Result getById($id)
+ * @method static EO_ExternalAvatar_Result getList(array $parameters = array())
+ * @method static EO_ExternalAvatar_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_ExternalAvatar createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_ExternalAvatar_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_ExternalAvatar wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_ExternalAvatar_Collection wakeUpCollection($rows)
+ */
 
 class ExternalAvatarTable extends Main\Entity\DataManager
 {

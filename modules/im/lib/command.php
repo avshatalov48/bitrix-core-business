@@ -469,7 +469,7 @@ class Command
 
 		if (Common::isChatId($messageFields['DIALOG_ID']))
 		{
-			$chatId = intval(mb_substr($messageFields['DIALOG_ID'], 4));
+			$chatId = \Bitrix\Im\Dialog::getChatId($messageFields['DIALOG_ID']);
 			if ($chatId <= 0)
 				return false;
 

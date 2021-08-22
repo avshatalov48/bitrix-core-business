@@ -432,13 +432,6 @@ class LandingEditComponent extends LandingBaseFormComponent
 					$primary['ID'],
 					$data
 				);
-				if (
-					$landing['ACTIVE']['STORED'] === 'Y' &&
-					Manager::getOption('public_hook_on_save') == 'Y'
-				)
-				{
-					Hook::publicationLanding($primary['ID']);
-				}
 			}
 		);
 

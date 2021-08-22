@@ -27,6 +27,13 @@ return [
 						'className' => '\\Bitrix\\Catalog\\v2\\Integration\\UI\\EntitySelector\\SectionProvider',
 					],
 				],
+				[
+					'entityId' => 'brand',
+					'provider' => [
+						'moduleId' => 'catalog',
+						'className' => '\\Bitrix\\Catalog\\v2\\Integration\\UI\\EntitySelector\\BrandProvider',
+					],
+				],
 			],
 			'extensions' => ['catalog.entity-selector'],
 		],

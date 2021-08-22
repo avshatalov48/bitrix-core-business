@@ -1,4 +1,5 @@
-<?
+<?php
+
 if (!function_exists("__wd_check_uf_use_bp_property"))
 {
 	function __wd_check_uf_use_bp_property($iblock_id)
@@ -17,8 +18,7 @@ if (!function_exists("__wd_check_uf_use_bp_property"))
 			$arFieldName = array();
 			$rsLanguage = CLanguage::GetList();
 			while($arLanguage = $rsLanguage->Fetch()):
-//				GetMessage("SONET_UF_USE_BP");
-				$dir = str_replace(array("\\", "//"), "/", dirname(__FILE__)); 
+				$dir = str_replace(array("\\", "//"), "/", dirname(__FILE__));
 				$dirs = explode("/", $dir); 
 				array_pop($dirs); 
 				$file = trim(implode("/", $dirs)."/lang/".$arLanguage["LID"]."/include/webdav_settings.php");
@@ -43,11 +43,6 @@ if (!function_exists("__wd_get_root_section"))
 		{
 			return $result;
 		}
-		//elseif ($arParams["PERMISSION"] < "W" || ($object == "user" && $arResult["VARIABLES"]["user_id"] != $USER->GetID()))
-		//{
-			//$arParams["ERROR_MESSAGE"] = GetMessage("SONET_WEBDAV_NOT_EXISTS");
-			//return 0;
-		//}
 		else // create new
 		{
 			__wd_check_uf_use_bp_property($arParams["IBLOCK_ID"]); 
@@ -79,15 +74,7 @@ if (!function_exists("__wd_get_root_section"))
 			}
 			else 
 			{
-		/*		$res = CSocNetGroup::GetByID($arResult["VARIABLES"]["group_id"]);
-				if (!$res)
-				{
-					$arParams["ERROR_MESSAGE"] = GetMessage("SONET_GROUP_NOT_EXISTS");
-					return 0;
-				} */
-
 				$arFields["SOCNET_GROUP_ID"] = $object_id;
-				//$arGroup = CSocNetGroup::GetByID($object_id);
 
 				$arFields["NAME"] = GetMessage("SONET_GROUP_PREFIX").$object_id;
 
@@ -141,12 +128,6 @@ if (!function_exists("__wd_get_root_section"))
 				"webdav.section.list"));
 			
 			return true;
-		/*
-			if ($ob->workflow == 'bizproc')
-			{
-				__wd_create_default_bp_user_and_groups($arBizProcParameters);
-			}
-		*/	
 		}
 	}
 }

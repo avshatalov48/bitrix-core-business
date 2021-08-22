@@ -229,6 +229,19 @@ li.catalog-entity-section-tab-disabled:hover .catalog-entity-section-tab-link {
 	margin-bottom: -2px;
 }
 
+.catalog-multi-list-dictionary-select-icon {
+	line-height: 24px;
+	border-radius: 2px;
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	vertical-align: middle;
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .05);
+	-webkit-background-size: cover;
+	background-size: cover;
+	margin-bottom: 1px;
+}
+
 img.catalog-image {
 	max-width:100%;
 	height:auto;

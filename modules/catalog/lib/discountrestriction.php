@@ -19,7 +19,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Catalog
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_DiscountRestriction_Query query()
+ * @method static EO_DiscountRestriction_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_DiscountRestriction_Result getById($id)
+ * @method static EO_DiscountRestriction_Result getList(array $parameters = array())
+ * @method static EO_DiscountRestriction_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_DiscountRestriction createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_DiscountRestriction_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_DiscountRestriction wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_DiscountRestriction_Collection wakeUpCollection($rows)
+ */
 
 class DiscountRestrictionTable extends Main\Entity\DataManager
 {

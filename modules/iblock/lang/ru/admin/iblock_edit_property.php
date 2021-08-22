@@ -58,4 +58,5 @@ $MESS["BT_ADM_IEP_PROPERTY_USER_TYPE_GROUP"] = "Пользовательские
 $MESS["BT_ADM_IEP_PROP_FILTER_HINT"] = "Подсказка в умном фильтре для посетителей";
 $MESS["BT_ADM_IEP_ERR_CODE_ALREADY_EXIST"] = "Свойство с символьным кодом #CODE# уже существует в этом инфоблоке";
 $MESS["BT_ADM_IEP_SECTION_TITLE_PROPERTY_FEATURES"] = "Параметры свойства";
+$MESS["BT_ADM_IEP_DELETE_ERROR"] = "Ошибка удаления.";
 ?>

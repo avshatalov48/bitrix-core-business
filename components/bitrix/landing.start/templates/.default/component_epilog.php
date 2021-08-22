@@ -4,6 +4,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
+/** @var \CMain $APPLICATION */
+/** @var array $arParams */
+
 if (in_array($this->getTemplatePage(), ['site_domain', 'site_domain_switch', 'site_cookies', 'notes']))
 {
 	\CMain::finalActions();
@@ -16,7 +19,8 @@ $request = $context->getRequest();
 
 Loc::loadMessages(dirname(__FILE__) . '/template.php');
 
-$disableFrame = $this->getTemplatePage() == 'landing_view';
+$templatePage = $this->getTemplatePage();
+$disableFrame = $templatePage === 'landing_view';
 
 // iframe footer
 if ($request->get('IFRAME') == 'Y' && !$disableFrame)
@@ -51,18 +55,30 @@ $menuItems = [
 		'COUNTER_ID' => 'default'
 	]
 ];
-if (\Bitrix\Landing\Rights::isAdmin())
-{
-	$menuItems[] = [
-		'TEXT' => Loc::getMessage('LANDING_TPL_MENU_RIGHTS'),
-		'URL' => $arParams['PAGE_URL_ROLES'],
-		'ID' => 'roles',
-		'IS_ACTIVE' => 0,
-		'COUNTER' => 0,
-		'COUNTER_ID' => 'roles',
-		'PAGE' => ['roles', 'role_edit']
-	];
-}
+$menuItems[] = [
+	'TEXT' => Loc::getMessage('LANDING_TPL_MENU_FORMS'),
+	'URL' => SITE_DIR . 'crm/webform/',
+	'ID' => 'webform',
+	'IS_ACTIVE' => 0,
+	'COUNTER' => 0,
+	'COUNTER_ID' => 'webform'
+];
+$menuItems[] = [
+	'TEXT' => Loc::getMessage('LANDING_TPL_MENU_TRACKING'),
+	'URL' => SITE_DIR . 'crm/tracking/',
+	'ID' => 'tracking',
+	'IS_ACTIVE' => 0,
+	'COUNTER' => 0,
+	'COUNTER_ID' => 'tracking'
+];
+$menuItems[] = [
+	'TEXT' => Loc::getMessage('LANDING_TPL_MENU_MARKETING'),
+	'URL' => SITE_DIR . 'marketing/?marketing_title=Y',
+	'ID' => 'marketing',
+	'IS_ACTIVE' => 0,
+	'COUNTER' => 0,
+	'COUNTER_ID' => 'marketing'
+];
 $menuItems[] = [
 	'TEXT' => Loc::getMessage('LANDING_TPL_MENU_AGREEMENT'),
 	'URL' => '#',
@@ -72,6 +88,19 @@ $menuItems[] = [
 	'COUNTER' => 0,
 	'COUNTER_ID' => 'agreement'
 ];
+if (\Bitrix\Landing\Rights::isAdmin())
+{
+	$menuItems[] = [
+		'TEXT' => Loc::getMessage('LANDING_TPL_MENU_RIGHTS'),
+		'URL' => $arParams['PAGE_URL_ROLES'],
+		'ID' => 'roles',
+		'IS_ACTIVE' => 0,
+		'COUNTER' => 0,
+		'COUNTER_ID' => 'roles',
+		'PAGE' => ['roles', 'role_edit'],
+		'IS_DISABLED' => true
+	];
+}
 $page = $this->getTemplatePage();
 $menuItems = array_values($menuItems);
 
@@ -102,8 +131,31 @@ $APPLICATION->IncludeComponent(
 	'bitrix:main.interface.buttons',
 	'',
 	array(
-		'ID' => 'sites',
+		'ID' => 'sites_v2',
 		'ITEMS' => $menuItems
 	)
 );
 $this->getTemplate()->endViewTarget();
+
+if ($templatePage === 'landing_view')
+{
+	return;
+}
+
+\Bitrix\Main\UI\Extension::load(['sidepanel']);
+?>
+<script>
+	BX.ready(function()
+	{
+		BX.SidePanel.Instance.bindAnchors({
+			rules: [
+				{
+					condition: ['<?= SITE_DIR?>marketing/'],
+					options: {
+						allowChangeHistory: false
+					}
+				}
+			]
+		});
+	});
+</script>

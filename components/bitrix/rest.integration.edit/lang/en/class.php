@@ -6,3 +6,4 @@ $MESS["REST_INTEGRATION_EDIT_ERROR_CREAT"] = "Error creating an integration: #ER
 $MESS["REST_INTEGRATION_EDIT_ERROR_NOT_FOUND"] = "Integration was not found";
 $MESS["REST_INTEGRATION_EDIT_ERROR_NO_HTTPS"] = "<strong>Attention!</strong> This technology must be used over HTTPS.";
 $MESS["REST_INTEGRATION_EDIT_ERROR_REQUIRED_MODULES"] = "This integration requires module: #MODULE_CODE#";
+$MESS["REST_INTEGRATION_EDIT_HOLD_DUE_TO_OVERLOAD"] = "<strong>Attention!</strong> This solution has been blocked due to excess load. Please contact the Helpdesk to fix the issue.";

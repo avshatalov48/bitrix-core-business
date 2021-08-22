@@ -144,23 +144,20 @@ class PaymentCollection extends Internals\EntityCollection
 			break;
 
 			case "PRICE":
-				if ($this->isAllowAutoEdit())
+				$payment = $this->getItemForAutoEdit($oldValue);
+				if ($payment !== null)
 				{
-					$payment = $this->getItemForAutoEdit();
-					if ($payment !== null)
+					$r = $payment->setField("SUM", $value);
+					if (!$r->isSuccess())
 					{
-						$r = $payment->setField("SUM", $value);
-						if (!$r->isSuccess())
-						{
-							$result->addErrors($r->getErrors());
-						}
+						$result->addErrors($r->getErrors());
+					}
 
-						$service = $payment->getPaySystem();
-						if ($service)
-						{
-							$price = $service->getPaymentPrice($payment);
-							$payment->setField('PRICE_COD', $price);
-						}
+					$service = $payment->getPaySystem();
+					if ($service)
+					{
+						$price = $service->getPaymentPrice($payment);
+						$payment->setField('PRICE_COD', $price);
 					}
 				}
 			break;
@@ -184,8 +181,6 @@ class PaymentCollection extends Internals\EntityCollection
 					!$payment->isPaid()
 					&&
 					!$payment->isReturn()
-					&&
-					!$payment->getFields()->isChanged('SUM')
 				;
 
 				if ($isAllowEditPayment)
@@ -203,14 +198,17 @@ class PaymentCollection extends Internals\EntityCollection
 		return false;
 	}
 
-	private function getItemForAutoEdit()
+	private function getItemForAutoEdit($previousOrderSum) :? Payment
 	{
 		if ($this->isAllowAutoEdit())
 		{
 			/** @var Payment $payment */
 			foreach ($this as $payment)
 			{
-				return $payment;
+				if ($payment->getSum() === $previousOrderSum)
+				{
+					return $payment;
+				}
 			}
 		}
 

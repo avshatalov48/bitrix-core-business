@@ -6,6 +6,22 @@ use Bitrix\Mail\Internals\Entity\UserSignature;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\Entity;
 
+/**
+ * Class UserSignatureTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserSignature_Query query()
+ * @method static EO_UserSignature_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserSignature_Result getById($id)
+ * @method static EO_UserSignature_Result getList(array $parameters = array())
+ * @method static EO_UserSignature_Entity getEntity()
+ * @method static \Bitrix\Mail\Internals\Entity\UserSignature createObject($setDefaultValues = true)
+ * @method static \Bitrix\Mail\Internals\EO_UserSignature_Collection createCollection()
+ * @method static \Bitrix\Mail\Internals\Entity\UserSignature wakeUpObject($row)
+ * @method static \Bitrix\Mail\Internals\EO_UserSignature_Collection wakeUpCollection($rows)
+ */
 class UserSignatureTable extends DataManager
 {
 	const TYPE_ADDRESS = 'address';

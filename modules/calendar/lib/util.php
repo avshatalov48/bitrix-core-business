@@ -17,6 +17,7 @@ class Util
 	public const LIMIT_NUMBER_BANNER_IMPRESSIONS = 3;
 	public const DATETIME_PHP_FORMAT = 'Y-m-d H:i:sP';
 
+	private static $requestUid = '';
 	private static $userAccessCodes = array();
 
 	/**
@@ -76,7 +77,7 @@ class Util
 	 * @param string|null $tz
 	 * @return \DateTimeZone
 	 */
-	public static function prepareTimezone(?string $tz): \DateTimeZone
+	public static function prepareTimezone(?string $tz = null): \DateTimeZone
 	{
 		if (!$tz)
 		{
@@ -93,7 +94,7 @@ class Util
 			return new \DateTimeZone($timezones[0]);
 		}
 
-		return new \DateTimeZone("UTC");
+		return new \DateTimeZone(self::getServerTimezoneName());
 	}
 
 	/**
@@ -109,7 +110,7 @@ class Util
 		if ($date)
 		{
 			$timestamp = \CCalendar::Timestamp($date, false, !$fullDay);
-			$preparedDate = \CCalendar::Date($timestamp);
+			$preparedDate = \CCalendar::Date($timestamp, !$fullDay);
 		}
 
 		return $fullDay
@@ -279,7 +280,7 @@ class Util
 
 		foreach ($codeAttendees as $codeAttend)
 		{
-			if (mb_substr($codeAttend, 0, 1) === 'U')
+			if (mb_strpos($codeAttend, 'U') === 0)
 			{
 				$userId = (int)(mb_substr($codeAttend, 1));
 				$userIdList[] = $userId;
@@ -297,7 +298,7 @@ class Util
 
 			while ($user = $res->fetch())
 			{
-				$userList[] = $stringWrapper . $user['NAME'].' '.$user['LAST_NAME'] . $stringWrapper;
+				$userList[] = addcslashes($stringWrapper . $user['NAME'].' '.$user['LAST_NAME'] . $stringWrapper, "()");
 			}
 		}
 
@@ -373,12 +374,12 @@ class Util
 	}
 
 	/**
-	 * @param string $accountType
+	 * @param string|null $accountType
 	 * @return bool
 	 */
-	public static function isGoogleConnection(string $accountType): bool
+	public static function isGoogleConnection(?string $accountType): bool
 	{
-		return in_array($accountType, ['caldav_google_oauth', 'google_api_oauth']);
+		return in_array($accountType, ['caldav_google_oauth', 'google_api_oauth'], true);
 	}
 
 	/**
@@ -504,6 +505,14 @@ class Util
 	}
 
 	/**
+	 * @return string
+	 */
+	public static function getServerTimezoneName(): string
+	{
+		return (new \DateTime())->getTimezone()->getName();
+	}
+
+	/**
 	 * @return int
 	 */
 	public static function getServerOffsetUTC(): int
@@ -512,11 +521,12 @@ class Util
 	}
 
 	/**
-	 * @param string $tz
+	 * @param string|null $tz
+	 * @param null $date
 	 * @return int
 	 * @throws \Exception
 	 */
-	public static function getTimezoneOffsetFromServer(string $tz = 'UTC', $date = null): int
+	public static function getTimezoneOffsetFromServer(?string $tz = 'UTC', $date = null): int
 	{
 		if ($date instanceof Date)
 		{
@@ -531,8 +541,24 @@ class Util
 			$timestamp = "@".(int)$date;
 		}
 
-		$date = new \DateTime($timestamp, new \DateTimeZone($tz));
+		$date = new \DateTime($timestamp, self::prepareTimezone($tz));
 
 		return $date->getOffset() - self::getServerOffsetUTC();
+	}
+
+	/**
+	 * @param string $requestUid
+	 */
+	public static function setRequestUid(string $requestUid = ''): void
+	{
+		self::$requestUid = $requestUid;
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getRequestUid(): string
+	{
+		return self::$requestUid;
 	}
 }

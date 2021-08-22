@@ -269,6 +269,7 @@ if ($arParams['SUCCESS_SAVE'])
 	<!--Typo -->
 	<?php if (isset($hooks['THEMEFONTS'])): ?>
 		<?php $pageFields = $hooks['THEMEFONTS']->getPageFields(); ?>
+		<?php $fontFields = $hooks['FONTS']->getPageFields(); ?>
 		<div class="ui-form-row">
 			<div class="ui-form-label">
 				<div class="ui-ctl-label-text"><?= Loc::getMessage('LANDING_DSGN_TPL_FONTS_PAGE') ?></div>
@@ -490,7 +491,7 @@ if ($arParams['SUCCESS_SAVE'])
 						control: BX('field-themefonts_color'),
 						defaultValue: '<?= $themeFontsFields['COLOR']->getValue() ?>',
 					},
-					textFont: {
+					font: {
 						control: BX('field-themefonts_code'),
 						defaultValue: '<?= $themeFontsFields['CODE']->getValue() ?>',
 					},

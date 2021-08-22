@@ -1335,10 +1335,15 @@ $tabControl->Begin(array(
 ));
 
 $tabControl->BeginNextFormTab();
-	if($ID > 0 && !$bSubCopy):
+	if($ID > 0 && !$bSubCopy)
+	{
 		$p = CIblockElement::GetByID($ID);
 		$pr = $p->ExtractFields("prn_");
-	endif;
+	}
+	else
+	{
+		$pr = array();
+	}
 	$tabControl->BeginCustomField("SUB_ID", "ID:");
 	if ($ID > 0 && !$bSubCopy)
 	{

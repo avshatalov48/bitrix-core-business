@@ -8,9 +8,9 @@ use Bitrix\Seo\BusinessSuite\AuthAdapter\Facebook\BusinessAuthAdapter;
 
 class Service implements Retargeting\IService, IInternalService
 {
-	const GROUP = 'business';
-	const FACEBOOK_TYPE = "facebook";
-	const INSTAGRAM_TYPE = 'instagram';
+	public const GROUP = 'business';
+	public const FACEBOOK_TYPE = "facebook";
+	public const INSTAGRAM_TYPE = 'instagram';
 
 	/** @var BusinessAuthAdapter[] $authAdapterPool*/
 	private static $authAdapterPool = [];
@@ -34,7 +34,7 @@ class Service implements Retargeting\IService, IInternalService
 	 *
 	 * @return Config
 	 */
-	public function getConfig($type): Config
+	public function getConfig(string $type): Config
 	{
 		return Config::create($type)->setService($this);
 	}
@@ -44,9 +44,29 @@ class Service implements Retargeting\IService, IInternalService
 	 *
 	 * @return Extension
 	 */
-	public function getExtension($type) : Extension
+	public function getExtension(string $type) : Extension
 	{
 		return Extension::create($type)->setService($this);
+	}
+
+	/**
+	 * @param $type
+	 *
+	 * @return Conversion
+	 */
+	public function getConversion(string $type) : Conversion
+	{
+		return Conversion::create($type)->setService($this);
+	}
+
+	/**
+	 * @param string $type
+	 *
+	 * @return Account
+	 */
+	public function getAccount(string $type) : Account
+	{
+		return Account::create($type)->setService($this);
 	}
 
 	/**

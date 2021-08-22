@@ -22,6 +22,19 @@ use Bitrix\Main\NotImplementedException;
  * </ul>
  *
  * @package Bitrix\Socialnetwork
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserTag_Query query()
+ * @method static EO_UserTag_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserTag_Result getById($id)
+ * @method static EO_UserTag_Result getList(array $parameters = array())
+ * @method static EO_UserTag_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_UserTag createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_UserTag_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_UserTag wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_UserTag_Collection wakeUpCollection($rows)
  */
 class UserTagTable extends Entity\DataManager
 {

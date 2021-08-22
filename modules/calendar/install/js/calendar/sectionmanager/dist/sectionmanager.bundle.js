@@ -33,11 +33,15 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "show",
 	    value: function show() {
+	      var _this = this;
+
 	      if (!this.isShown()) {
 	        var hiddenSections = this.calendarContext.sectionManager.getHiddenSections();
-	        hiddenSections = BX.util.deleteFromArray(hiddenSections, BX.util.array_search(this.id, hiddenSections));
+	        hiddenSections = hiddenSections.filter(function (sectionId) {
+	          return sectionId !== _this.id;
+	        }, this);
 	        this.calendarContext.sectionManager.setHiddenSections(hiddenSections);
-	        BX.userOptions.save('calendar', 'hidden_sections', 'hidden_sections', hiddenSections);
+	        this.calendarContext.sectionManager.saveHiddenSections();
 	      }
 	    }
 	  }, {
@@ -47,13 +51,13 @@ this.BX = this.BX || {};
 	        var hiddenSections = this.calendarContext.sectionManager.getHiddenSections();
 	        hiddenSections.push(this.id);
 	        this.calendarContext.sectionManager.setHiddenSections(hiddenSections);
-	        BX.userOptions.save('calendar', 'hidden_sections', 'hidden_sections', hiddenSections);
+	        this.calendarContext.sectionManager.saveHiddenSections();
 	      }
 	    }
 	  }, {
 	    key: "remove",
 	    value: function remove() {
-	      var _this = this;
+	      var _this2 = this;
 
 	      if (confirm(BX.message('EC_SEC_DELETE_CONFIRM'))) {
 	        var EventAlias = calendar_util.Util.getBX().Event;
@@ -74,7 +78,7 @@ this.BX = this.BX || {};
 	          for (var i = 0; i < sectionManager.sections.length; i++) {
 	            section = sectionManager.sections[i];
 
-	            if (section.id !== _this.id && section.belongsToView()) {
+	            if (section.id !== _this2.id && section.belongsToView()) {
 	              reload = false;
 	              break;
 	            }
@@ -317,7 +321,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "setConfig",
 	    value: function setConfig(config) {
-	      this.hiddenSections = config.hiddenSections || [];
+	      this.setHiddenSections(config.hiddenSections);
 	      this.calendarType = config.type;
 	      this.ownerId = config.ownerId;
 	      this.userId = config.userId;
@@ -509,12 +513,27 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getHiddenSections",
 	    value: function getHiddenSections() {
-	      return this.hiddenSections || [];
+	      return this.hiddenSections;
 	    }
 	  }, {
 	    key: "setHiddenSections",
 	    value: function setHiddenSections(hiddenSections) {
-	      this.hiddenSections = hiddenSections;
+	      var _this5 = this;
+
+	      this.hiddenSections = [];
+
+	      if (main_core.Type.isArray(hiddenSections)) {
+	        hiddenSections.forEach(function (id) {
+	          _this5.hiddenSections.push(id === 'tasks' ? id : parseInt(id));
+	        });
+	      }
+	    }
+	  }, {
+	    key: "saveHiddenSections",
+	    value: function saveHiddenSections() {
+	      var calendarContext = calendar_util.Util.getCalendarContext();
+	      var optionName = calendarContext.util.userIsOwner() ? 'hidden_sections' : 'hidden_sections_' + calendarContext.util.type;
+	      BX.userOptions.save('calendar', optionName, optionName, this.hiddenSections);
 	    }
 	  }, {
 	    key: "getSectionsInfo",

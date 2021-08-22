@@ -11,6 +11,22 @@ use Bitrix\Main;
 use Bitrix\Main\Entity;
 use Bitrix\Main\NotImplementedException;
 
+/**
+ * Class WorkgroupViewTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_WorkgroupView_Query query()
+ * @method static EO_WorkgroupView_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_WorkgroupView_Result getById($id)
+ * @method static EO_WorkgroupView_Result getList(array $parameters = array())
+ * @method static EO_WorkgroupView_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupView createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupView_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupView wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_WorkgroupView_Collection wakeUpCollection($rows)
+ */
 class WorkgroupViewTable extends Entity\DataManager
 {
 	public static function getTableName()

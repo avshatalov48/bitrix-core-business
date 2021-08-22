@@ -10,8 +10,10 @@ use Bitrix\Rest\AppTable;
 use Bitrix\Rest\AuthTypeException;
 use Bitrix\Rest\HandlerHelper;
 use Bitrix\Rest\OAuth\Auth;
+use Bitrix\Rest\PlacementLangTable;
 use Bitrix\Rest\PlacementTable;
 use Bitrix\Rest\RestException;
+use Bitrix\Rest\Lang;
 
 class Placement extends \IRestService
 {
@@ -87,20 +89,6 @@ class Placement extends \IRestService
 		return $result;
 	}
 
-	/**
-	 * Clears placement's cache in other modules.
-	 * @return void
-	 */
-	protected static function clearPlacementCache(): void
-	{
-		if (defined('BX_COMP_MANAGED_CACHE'))
-		{
-			global $CACHE_MANAGER;
-			$CACHE_MANAGER->clearByTag('intranet_menu_binding');
-		}
-	}
-
-
 	public static function bind($params, $n, \CRestServer $server)
 	{
 		static::checkPermission($server);
@@ -134,28 +122,54 @@ class Placement extends \IRestService
 		$placementList = static::getPlacementList($server, $scopeList);
 		$placementInfo = $placementList[$placement];
 
-		if(is_array($placementInfo) && !$placementInfo['private'])
+		if (is_array($placementInfo) && !$placementInfo['private'])
 		{
+			$placementLangList = [];
 			$placementBind = array(
 				'APP_ID' => $appInfo['ID'],
 				'PLACEMENT' => $placement,
 				'PLACEMENT_HANDLER' => $placementHandler,
 			);
 
-			if(!empty($params['TITLE']))
+			$langList = Lang::listLanguage();
+			$langDefault = reset($langList);
+
+			if (empty($params['LANG_ALL']))
 			{
-				$placementBind['TITLE'] = trim($params['TITLE']);
+				if (!empty($params['TITLE']))
+				{
+					$placementLangList[$langDefault]['TITLE'] = trim($params['TITLE']);
+				}
+
+				if (!empty($params['DESCRIPTION']))
+				{
+					$placementLangList[$langDefault]['DESCRIPTION'] = trim($params['DESCRIPTION']);
+				}
+
+				if (!empty($params['GROUP_NAME']))
+				{
+					$placementLangList[$langDefault]['GROUP_NAME'] = trim($params['GROUP_NAME']);
+				}
+			}
+			else
+			{
+				$fieldList = [
+					'TITLE',
+					'DESCRIPTION',
+					'GROUP_NAME',
+				];
+				foreach ($params['LANG_ALL'] as $langCode => $langItem)
+				{
+					foreach ($fieldList as $field)
+					{
+						$placementLangList[$langCode][$field] = trim($langItem[$field] ?? '');
+					}
+				}
 			}
 
-			if(!empty($params['DESCRIPTION']))
-			{
-				$placementBind['COMMENT'] = trim($params['DESCRIPTION']);
-			}
-
-			if(!empty($params['GROUP_NAME']))
-			{
-				$placementBind['GROUP_NAME'] = trim($params['GROUP_NAME']);
-			}
+			$placementBind['LANG_ALL'] = $placementLangList;
+			$placementBind = Lang::mergeFromLangAll($placementBind);
+			unset($placementBind['LANG_ALL']);
 
 			if($placementInfo['max_count'] > 0)
 			{
@@ -195,16 +209,42 @@ class Placement extends \IRestService
 			}
 
 			$result = PlacementTable::add($placementBind);
-			if(!$result->isSuccess())
+			if ($result->isSuccess())
+			{
+				$placementId = $result->getId();
+				if (empty($placementLangList))
+				{
+					$app = AppTable::getByClientId($placementBind['APP_ID']);
+					if (!empty($app['APP_NAME']))
+					{
+						$placementLangList[$langDefault] = [
+							'TITLE' => $app['APP_NAME']
+						];
+					}
+				}
+				foreach ($placementLangList as $langId => $data)
+				{
+					$data['PLACEMENT_ID'] = $placementId;
+					$data['LANGUAGE_ID'] = $langId;
+					$res = PlacementLangTable::add($data);
+					if (!$res->isSuccess())
+					{
+						$errorMessage = $res->getErrorMessages();
+						throw new RestException(
+							'Unable to set placements language: ' . implode(', ', $errorMessage),
+							RestException::ERROR_CORE
+						);
+					}
+				}
+			}
+			else
 			{
 				$errorMessage = $result->getErrorMessages();
 				throw new RestException(
-					'Unable to set placement handler: '.implode(', ', $errorMessage),
+					'Unable to set placement handler: ' . implode(', ', $errorMessage),
 					RestException::ERROR_CORE
 				);
 			}
-
-			self::clearPlacementCache();
 
 			return true;
 		}
@@ -263,11 +303,6 @@ class Placement extends \IRestService
 			}
 		}
 
-		if ($cnt > 0)
-		{
-			self::clearPlacementCache();
-		}
-
 		return array('count' => $cnt);
 	}
 
@@ -291,15 +326,32 @@ class Placement extends \IRestService
 
 		$placementList = static::getPlacementList($server);
 
-		while($placement = $dbRes->fetch())
+		foreach ($dbRes->fetchCollection() as $placement)
 		{
-			if(array_key_exists($placement['PLACEMENT'], $placementList) && !$placementList[$placement['PLACEMENT']]['private'])
+			if (
+				array_key_exists($placement->getPlacement(), $placementList)
+				&& !$placementList[$placement->getPlacement()]['private']
+			)
 			{
+				$langList = [];
+				$placement->fillLangAll();
+				if (!is_null($placement->getLangAll()))
+				{
+					foreach ($placement->getLangAll() as $lang)
+					{
+						$langList[$lang->getLanguageId()] = [
+							'TITLE' => $lang->getTitle(),
+							'DESCRIPTION' => $lang->getDescription(),
+							'GROUP_NAME' => $lang->getGroupName(),
+						];
+					}
+				}
 				$result[] = array(
-					"placement" => $placement['PLACEMENT'],
-					"handler" => $placement['PLACEMENT_HANDLER'],
-					"title" => $placement['TITLE'],
-					"description" => $placement['COMMENT'],
+					'placement' => $placement->getPlacement(),
+					'handler' => $placement->getPlacementHandler(),
+					'title' => $placement->getTitle(),
+					'description' => $placement->getComment(),
+					'langAll' => $langList,
 				);
 			}
 		}

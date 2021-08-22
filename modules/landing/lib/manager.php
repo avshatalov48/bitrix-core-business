@@ -836,6 +836,24 @@ class Manager
 	}
 
 	/**
+	 * Returns language code by ISO 639-1.
+	 * @return string
+	 */
+	public static function getLangISO(): string
+	{
+		$transform = [
+			'br' => 'pt-BR',
+			'la' => 'es',
+			'sc' => 'zh-Hans',
+			'tc' => 'zh-Hant',
+			'vn' => 'vi',
+			'ua' => 'uk'
+		];
+
+		return $transform[LANGUAGE_ID] ?? LANGUAGE_ID;
+	}
+
+	/**
 	 * Check if something is available in current country.
 	 * @param string $zone Zone code.
 	 * @return bool

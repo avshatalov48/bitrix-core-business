@@ -296,8 +296,8 @@ export class ImBasePullHandler
 				});
 			}
 		}
-		//else - just increase the counter
-		else
+		//increase the counter if message is not ours
+		else if (params.message.senderId !== this.controller.application.getUserId())
 		{
 			this.store.dispatch('dialogues/increaseCounter', {
 				dialogId: params.dialogId,

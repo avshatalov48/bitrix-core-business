@@ -816,7 +816,8 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 		$arRes = array();
 		$arFields = array();
 
-		if ((int)$arParams["PRODUCT_ID"] <= 0)
+		$arParams["PRODUCT_ID"] = (int)$arParams["PRODUCT_ID"];
+		if ($arParams["PRODUCT_ID"] <= 0)
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("RSRV_INCORRECT_ID"), "NO_ORDER_ID");
 			$arRes["RESULT"] = false;
@@ -825,18 +826,13 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 
 		$disableReservation = !static::isReservationEnabled();
 
-
 		if ((string)$arParams["UNDO_RESERVATION"] != "Y")
 			$arParams["UNDO_RESERVATION"] = "N";
 
-		$arParams["QUANTITY_ADD"] = doubleval($arParams["QUANTITY_ADD"]);
+		$arParams["QUANTITY_ADD"] = (float)$arParams["QUANTITY_ADD"];
 
-		$rsProducts = CCatalogProduct::GetList(
-			array(),
-			array('ID' => $arParams["PRODUCT_ID"]),
-			false,
-			false,
-			array(
+		$iterator = Catalog\Model\Product::getList([
+			'select' => [
 				'ID',
 				'CAN_BUY_ZERO',
 				'QUANTITY_TRACE',
@@ -847,11 +843,12 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 				'LENGTH',
 				'BARCODE_MULTI',
 				'TYPE',
-				'QUANTITY_RESERVED'
-			)
-		);
-
-		$arProduct = $rsProducts->Fetch();
+				'QUANTITY_RESERVED',
+			],
+			'filter' => ['=ID' => $arParams["PRODUCT_ID"]],
+		]);
+		$arProduct = $iterator->fetch();
+		unset($iterator);
 		if (empty($arProduct))
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("RSRV_ID_NOT_FOUND", array("#PRODUCT_ID#" => $arParams["PRODUCT_ID"])), "ID_NOT_FOUND");
@@ -861,14 +858,15 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 
 		if (
 			($arProduct['TYPE'] == Catalog\ProductTable::TYPE_SKU || $arProduct['TYPE'] == Catalog\ProductTable::TYPE_EMPTY_SKU)
-			&& (string)Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') != 'Y'
+			&& Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') != 'Y'
 		)
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("RSRV_SKU_FOUND", array("#PRODUCT_ID#" => $arParams["PRODUCT_ID"])), "SKU_FOUND");
 			$arRes["RESULT"] = false;
 			return $arRes;
 		}
-
+		$arProduct["QUANTITY"] = (float)$arProduct["QUANTITY"];
+		$arProduct["QUANTITY_RESERVED"] = (float)$arProduct["QUANTITY_RESERVED"];
 
 		if ($disableReservation)
 		{
@@ -879,7 +877,12 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 			else
 				$arFields = array("QUANTITY" => $arProduct["QUANTITY"] + $arParams["QUANTITY_ADD"]);
 
-			$arRes["RESULT"] = CCatalogProduct::Update($arParams["PRODUCT_ID"], $arFields);
+			$internalResult = Catalog\Model\Product::update(
+				$arParams["PRODUCT_ID"],
+				$arFields
+			);
+			$arRes["RESULT"] = $internalResult->isSuccess();
+			unset($internalResult);
 
 			if (self::isNeedClearPublicCache(
 				$arProduct['QUANTITY'],
@@ -926,7 +929,12 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 							$arFields["QUANTITY"] = $arProduct["QUANTITY"] - $arParams["QUANTITY_ADD"];
 						}
 
-						$arRes["RESULT"] = CCatalogProduct::Update($arParams["PRODUCT_ID"], $arFields);
+						$internalResult = Catalog\Model\Product::update(
+							$arParams["PRODUCT_ID"],
+							$arFields
+						);
+						$arRes["RESULT"] = $internalResult->isSuccess();
+						unset($internalResult);
 					}
 					else //CAN_BUY_ZERO = N
 					{
@@ -962,22 +970,45 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 							);
 							self::clearPublicCache($arProduct['ID'], $productInfo);
 						}
-						$arRes["RESULT"] = CCatalogProduct::Update($arParams["PRODUCT_ID"], $arFields);
+						$internalResult = Catalog\Model\Product::update(
+							$arParams["PRODUCT_ID"],
+							$arFields
+						);
+						$arRes["RESULT"] = $internalResult->isSuccess();
+						unset($internalResult);
 					}
 				}
 				else //undo reservation
 				{
+					if ($arParams["QUANTITY_ADD"] > $arProduct["QUANTITY_RESERVED"])
+					{
+						$APPLICATION->ThrowException(
+							Loc::getMessage(
+								"DDCT_DEDUCTION_UNDO_ERROR_RESERVE_QUANTITY",
+								self::GetProductCatalogInfo($arParams["PRODUCT_ID"])
+							),
+							"RESERVATION_ERROR"
+						);
+						$arRes["RESULT"] = false;
+
+						static::clearHitCache(self::CACHE_PRODUCT);
+
+						$arRes['CAN_RESERVE'] = "Y";
+
+						return $arRes;
+					}
 					$arFields["QUANTITY"] = $arProduct["QUANTITY"] + $arParams["QUANTITY_ADD"];
 
 					$needReserved = $arProduct["QUANTITY_RESERVED"] - $arParams["QUANTITY_ADD"];
-					if ($arParams["QUANTITY_ADD"] > $arProduct["QUANTITY_RESERVED"])
-					{
-						$needReserved = $arProduct["QUANTITY_RESERVED"];
-					}
 
 					$arFields["QUANTITY_RESERVED"] = $needReserved;
 
-					$arRes["RESULT"] = CCatalogProduct::Update($arParams["PRODUCT_ID"], $arFields);
+					$internalResult = Catalog\Model\Product::update(
+						$arParams["PRODUCT_ID"],
+						$arFields
+					);
+					$arRes["RESULT"] = $internalResult->isSuccess();
+					unset($internalResult);
 					if (self::isNeedClearPublicCache(
 						$arProduct['QUANTITY'],
 						$arFields['QUANTITY'],
@@ -1000,7 +1031,6 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 
 		if ($arRes["RESULT"])
 		{
-
 			$needReserved = $arFields["QUANTITY_RESERVED"] - $startReservedQuantity;
 			if ($startReservedQuantity > $arFields["QUANTITY_RESERVED"])
 			{

@@ -28,6 +28,7 @@ export class ProductSelector extends EventEmitter
 	skuTreeInstance: ?SkuTree;
 
 	variationChangeHandler = this.handleVariationChange.bind(this);
+	onSaveImageHandler = this.onSaveImage.bind(this);
 	onChangeFieldsHandler = Runtime.debounce(this.onChangeFields, 500, this);
 
 	static getById(id: string): ?ProductSelector
@@ -67,6 +68,7 @@ export class ProductSelector extends EventEmitter
 		this.layout();
 
 		EventEmitter.subscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
+		EventEmitter.subscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
 
 		instances.set(this.id, this);
 	}
@@ -198,6 +200,11 @@ export class ProductSelector extends EventEmitter
 	isEnabledEmptyProductError(): boolean
 	{
 		return this.getConfig('ENABLE_EMPTY_PRODUCT_ERROR', false);
+	}
+
+	isEnabledChangesRendering(): boolean
+	{
+		return this.getConfig('ENABLE_CHANGES_RENDERING', true);
 	}
 
 	isInputDetailLinkEnabled(): boolean
@@ -354,8 +361,6 @@ export class ProductSelector extends EventEmitter
 	unsubscribeEvents()
 	{
 		this.unsubscribeToVariationChange();
-		this.getFileInput().unsubscribeImageInputEvents();
-		this.getFileInput().unsubscribeEvents();
 
 		EventEmitter.unsubscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
 	}
@@ -551,47 +556,22 @@ export class ProductSelector extends EventEmitter
 		);
 	}
 
-	saveFiles(rebuild)
+	onSaveImage(event)
 	{
-		if (this.isEmptyModel() || this.isSimpleModel())
+		const [, inputId, response] = event.getData();
+		if (this.isEmptyModel() || this.isSimpleModel() || inputId !== this.getFileInput().getId())
 		{
 			return;
 		}
 
-		const imageValues = this.getModel().getMorePhotoValues();
-		if (this.submitFileTimeOut)
+		this.getFileInput().setId(response.data.id);
+		this.getFileInput().setInputHtml(response.data.input);
+		this.getFileInput().setView(response.data.preview);
+		this.getModel().setMorePhotoValues(response.data.values);
+		if (this.isImageFieldEnabled())
 		{
-			clearTimeout(this.submitFileTimeOut);
+			this.layoutImage();
 		}
-
-		const requestId = Text.getRandom(20);
-		this.refreshImageSelectorId = requestId;
-		this.submitFileTimeOut = setTimeout(() => {
-			ajax.runAction(
-				'catalog.productSelector.saveMorePhoto',
-				{
-					json: {
-						productId: this.model.getProductId(),
-						variationId: this.model.getId(),
-						iblockId: this.getIblockId(),
-						imageValues
-					}
-				}
-			).then((response) => {
-				if (!rebuild && this.refreshImageSelectorId === requestId)
-				{
-					return;
-				}
-				this.getFileInput().setId(response.data.id);
-				this.getFileInput().setInputHtml(response.data.input);
-				this.getFileInput().setView(response.data.preview);
-				this.getModel().setMorePhotoValues(response.data.values);
-				if (this.isImageFieldEnabled())
-				{
-					this.layoutImage();
-				}
-			});
-		}, 500);
 	}
 
 	onProductSelect(productId, itemConfig)
@@ -632,7 +612,6 @@ export class ProductSelector extends EventEmitter
 	{
 		const data = response?.data || null;
 
-		this.getFileInput().unsubscribeImageInputEvents();
 		if (data)
 		{
 			this.changeSelectedElement(data, config);
@@ -648,8 +627,11 @@ export class ProductSelector extends EventEmitter
 
 		this.unsubscribeToVariationChange();
 
-		this.clearLayout();
-		this.layout();
+		if (this.isEnabledChangesRendering())
+		{
+			this.clearLayout();
+			this.layout();
+		}
 
 		const fields = data?.fields || null;
 

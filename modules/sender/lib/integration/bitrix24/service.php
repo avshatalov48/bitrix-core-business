@@ -45,14 +45,18 @@ class Service
 	public static function isAvailable()
 	{
 		return
+			self::isRcAvailable()
+			||
 			self::isMailingsAvailable()
 			||
 			self::isAdAvailable()
 			||
-			self::isRcAvailable()
-			||
 			self::isEmailAvailable()
-			;
+			||
+			self::isTolokaAvailable()
+			||
+			self::isFbAdAvailable()
+		;
 	}
 
 	/**
@@ -63,6 +67,26 @@ class Service
 	public static function isAdAvailable()
 	{
 		return !self::isCloud() || Feature::isFeatureEnabled('sender_ad');
+	}
+
+	/**
+	 * Return true if Fb Ad is available.
+	 *
+	 * @return bool
+	 */
+	public static function isFbAdAvailable()
+	{
+		return !self::isCloud() || Feature::isFeatureEnabled('sender_fb_ads');
+	}
+
+	/**
+	 * Return true if Toloka is available.
+	 *
+	 * @return bool
+	 */
+	public static function isTolokaAvailable()
+	{
+		return !self::isCloud() || Feature::isFeatureEnabled('sender_toloka');
 	}
 
 	/**

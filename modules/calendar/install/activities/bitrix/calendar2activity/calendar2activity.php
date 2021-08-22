@@ -1,8 +1,11 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-class CBPCalendar2Activity
-	extends CBPActivity
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+class CBPCalendar2Activity extends CBPActivity
 {
 	public function __construct($name)
 	{
@@ -28,7 +31,6 @@ class CBPCalendar2Activity
 
 		$rootActivity = $this->GetRootActivity();
 		$documentId = $rootActivity->GetDocumentId();
-		$documentService = $this->workflow->GetService("DocumentService");
 
 		$fromTs = CCalendar::Timestamp($this->CalendarFrom);
 		$toTs = $this->CalendarTo == '' ? $fromTs : CCalendar::Timestamp($this->CalendarTo);
@@ -86,10 +88,12 @@ class CBPCalendar2Activity
 				}
 
 				CCalendar::SaveEvent(
-					array(
+					[
+						'userId' => $calendarUser,
 						'arFields' => $arFields,
-						'autoDetectSection' => true
-					)
+						'autoDetectSection' => true,
+						'autoCreateSection' => true,
+					]
 				);
 			}
 		}

@@ -122,16 +122,32 @@ export class ResourcebookingUserfield
 		{
 			switch (langId)
 			{
-				case 'de':
-				case 'en':
-					pluralForm = ((number !== 1) ? 1 : 0);
-					break;
 				case 'ru':
 				case 'ua':
-					pluralForm = (((number%10 === 1) && (number%100 !== 11)) ? 0 : (((number%10 >= 2) && (number%10 <= 4) && ((number%100 < 10) || (number%100 >= 20))) ? 1 : 2));
+
+					if ((number % 10 === 1) && (number % 100 !== 11))
+					{
+						pluralForm = 0;
+					}
+					else
+					{
+						pluralForm = ((number%10 >= 2) && (number%10 <= 4) && ((number%100 < 10) || (number%100 >= 20)))
+							? 1
+							: 2;
+					}
 					break;
-				default:
-					pluralForm = 1;
+				case 'pl':
+					if (number <= 4)
+					{
+						pluralForm = number === 1 ? 0 : 1;
+					}
+					else
+					{
+						pluralForm = 2;
+					}
+					break;
+				default: // en, de and other languages
+					pluralForm = (number !== 1) ? 1 : 0;
 					break;
 			}
 		}

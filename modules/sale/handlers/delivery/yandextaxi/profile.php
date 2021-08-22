@@ -13,6 +13,7 @@ use Bitrix\Sale\Delivery\Services\Taxi\Taxi;
 use Bitrix\Sale\Shipment;
 use Bitrix\Sale\Delivery\Services\Crm\Activity;
 use Bitrix\Sale\Delivery\Services\Crm\EstimationMessage;
+use Sale\Handlers\Delivery\YandexTaxi\Common\OrderEntitiesCodeDictionary;
 use Sale\Handlers\Delivery\YandexTaxi\RateCalculator;
 use Sale\Handlers\Delivery\YandexTaxi\ServiceContainer;
 use Sale\Handlers\Delivery\YandexTaxi\TariffsChecker;
@@ -179,5 +180,27 @@ final class YandextaxiProfile extends Taxi implements ICrmActivityProvider, ICrm
 	public function isCompatible(Shipment $shipment)
 	{
 		return (bool)$this->tariffsChecker->isTariffAvailableByShipment($this->profileType, $shipment);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getCompatibleExtraServiceIds(Shipment $shipment): ?array
+	{
+		$supportedRequirements = $this->tariffsChecker->getSupportedRequirementsByTariff($this->profileType, $shipment);
+
+		return array_column(
+			array_filter(
+				\Bitrix\Sale\Delivery\ExtraServices\Manager::getExtraServicesList($this->getId()),
+				function ($extraService) use ($supportedRequirements)
+				{
+					return (
+						$extraService['CODE'] === OrderEntitiesCodeDictionary::DOOR_DELIVERY_EXTRA_SERVICE_CODE
+						|| in_array($extraService['CODE'], $supportedRequirements, true)
+					);
+				}
+			),
+			'ID'
+		);
 	}
 }

@@ -529,6 +529,22 @@ class PostingUnsubTable extends Entity\DataManager
 	}
 }
 
+/**
+ * Class PostingRecipientTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_PostingRecipient_Query query()
+ * @method static EO_PostingRecipient_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_PostingRecipient_Result getById($id)
+ * @method static EO_PostingRecipient_Result getList(array $parameters = array())
+ * @method static EO_PostingRecipient_Entity getEntity()
+ * @method static \Bitrix\Sender\EO_PostingRecipient createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\EO_PostingRecipient_Collection createCollection()
+ * @method static \Bitrix\Sender\EO_PostingRecipient wakeUpObject($row)
+ * @method static \Bitrix\Sender\EO_PostingRecipient_Collection wakeUpCollection($rows)
+ */
 class PostingRecipientTable extends Entity\DataManager
 {
 	const SEND_RESULT_NONE = 'Y';

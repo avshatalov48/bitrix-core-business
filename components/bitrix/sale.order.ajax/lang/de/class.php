@@ -13,6 +13,7 @@ $MESS["SOA_DELIVERY_CALCULATE_ERROR"] = "Lieferkosten können nicht berechnet we
 $MESS["SOA_DISCOUNT_DEFAULT_COLUMN"] = "Rabatt";
 $MESS["SOA_ERROR_EMAIL"] = "Die angegebene E-Mail Adresse ist falsch.";
 $MESS["SOA_ERROR_ORDER"] = "Beim Speichern der Bestellung ist ein Fehler aufgetreten";
+$MESS["SOA_ERROR_PAY_SYSTEM"] = "Keine Zahlungssysteme";
 $MESS["SOA_ERROR_PERSON_TYPE"] = "Es wurde keine Kundengruppe ausgewählt.";
 $MESS["SOA_ERROR_REQUIRE"] = "Füllen Sie das Feld aus";
 $MESS["SOA_FROM"] = "von";

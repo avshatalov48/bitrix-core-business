@@ -205,11 +205,9 @@ else
 			$arGroup = CSocNetGroup::GetByID($arParams["GROUP_ID"]);
 			if ($arGroup)
 			{
-				$arResult["CurrentUserPerms"] = CSocNetUserToGroup::InitUserPerms(
-					$GLOBALS["USER"]->GetID(),
-					$arGroup,
-					CSocNetUser::IsCurrentUserModuleAdmin()
-				);
+				$arResult["CurrentUserPerms"] = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
+					'groupId' => $arGroup['ID'],
+				]);
 
 				$arResult["Group"] = $arGroup;
 				$arResult["Subscribe"] = array();

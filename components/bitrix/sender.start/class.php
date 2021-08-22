@@ -293,6 +293,9 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 
 			$this->arResult['MESSAGES'][$section] = $data;
 		}
+
+		$this->arResult['MESSAGES']['CONVERSION'] = \Bitrix\Sender\Integration\Crm\CrmTileMap::getFacebookConversion();
+
 		Integration\Bitrix24\Service::initLicensePopup();
 
 		return true;

@@ -249,18 +249,6 @@ namespace Bitrix\Clouds {
 }
 namespace Bitrix\Clouds {
 	/**
-	 * @method static EO_CopyQueue_Query query()
-	 * @method static EO_CopyQueue_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CopyQueue_Result getById($id)
-	 * @method static EO_CopyQueue_Result getList(array $parameters = array())
-	 * @method static EO_CopyQueue_Entity getEntity()
-	 * @method static \Bitrix\Clouds\EO_CopyQueue createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Clouds\EO_CopyQueue_Collection createCollection()
-	 * @method static \Bitrix\Clouds\EO_CopyQueue wakeUpObject($row)
-	 * @method static \Bitrix\Clouds\EO_CopyQueue_Collection wakeUpCollection($rows)
-	 */
-	class CopyQueueTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -425,18 +413,6 @@ namespace Bitrix\Clouds {
 	}
 }
 namespace Bitrix\Clouds {
-	/**
-	 * @method static EO_DeleteQueue_Query query()
-	 * @method static EO_DeleteQueue_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DeleteQueue_Result getById($id)
-	 * @method static EO_DeleteQueue_Result getList(array $parameters = array())
-	 * @method static EO_DeleteQueue_Entity getEntity()
-	 * @method static \Bitrix\Clouds\EO_DeleteQueue createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Clouds\EO_DeleteQueue_Collection createCollection()
-	 * @method static \Bitrix\Clouds\EO_DeleteQueue wakeUpObject($row)
-	 * @method static \Bitrix\Clouds\EO_DeleteQueue_Collection wakeUpCollection($rows)
-	 */
-	class DeleteQueueTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -783,18 +759,6 @@ namespace Bitrix\Clouds {
 }
 namespace Bitrix\Clouds {
 	/**
-	 * @method static EO_FileBucket_Query query()
-	 * @method static EO_FileBucket_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_FileBucket_Result getById($id)
-	 * @method static EO_FileBucket_Result getList(array $parameters = array())
-	 * @method static EO_FileBucket_Entity getEntity()
-	 * @method static \Bitrix\Clouds\EO_FileBucket createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Clouds\EO_FileBucket_Collection createCollection()
-	 * @method static \Bitrix\Clouds\EO_FileBucket wakeUpObject($row)
-	 * @method static \Bitrix\Clouds\EO_FileBucket_Collection wakeUpCollection($rows)
-	 */
-	class FileBucketTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -819,6 +783,164 @@ namespace Bitrix\Clouds {
 	 * @method \Bitrix\Clouds\EO_FileBucket_Collection wakeUpCollection($rows)
 	 */
 	class EO_FileBucket_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Clouds\FileHashTable:clouds/lib/filehash.php:d4ac34d8953167e754bb4c5782f6287a */
+namespace Bitrix\Clouds {
+	/**
+	 * EO_FileHash
+	 * @see \Bitrix\Clouds\FileHashTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getBucketId()
+	 * @method \Bitrix\Clouds\EO_FileHash setBucketId(\int|\Bitrix\Main\DB\SqlExpression $bucketId)
+	 * @method bool hasBucketId()
+	 * @method bool isBucketIdFilled()
+	 * @method bool isBucketIdChanged()
+	 * @method \string getFilePath()
+	 * @method \Bitrix\Clouds\EO_FileHash setFilePath(\string|\Bitrix\Main\DB\SqlExpression $filePath)
+	 * @method bool hasFilePath()
+	 * @method bool isFilePathFilled()
+	 * @method bool isFilePathChanged()
+	 * @method \int getFileSize()
+	 * @method \Bitrix\Clouds\EO_FileHash setFileSize(\int|\Bitrix\Main\DB\SqlExpression $fileSize)
+	 * @method bool hasFileSize()
+	 * @method bool isFileSizeFilled()
+	 * @method bool isFileSizeChanged()
+	 * @method \int remindActualFileSize()
+	 * @method \int requireFileSize()
+	 * @method \Bitrix\Clouds\EO_FileHash resetFileSize()
+	 * @method \Bitrix\Clouds\EO_FileHash unsetFileSize()
+	 * @method \int fillFileSize()
+	 * @method \Bitrix\Main\Type\DateTime getFileMtime()
+	 * @method \Bitrix\Clouds\EO_FileHash setFileMtime(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $fileMtime)
+	 * @method bool hasFileMtime()
+	 * @method bool isFileMtimeFilled()
+	 * @method bool isFileMtimeChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualFileMtime()
+	 * @method \Bitrix\Main\Type\DateTime requireFileMtime()
+	 * @method \Bitrix\Clouds\EO_FileHash resetFileMtime()
+	 * @method \Bitrix\Clouds\EO_FileHash unsetFileMtime()
+	 * @method \Bitrix\Main\Type\DateTime fillFileMtime()
+	 * @method \string getFileHash()
+	 * @method \Bitrix\Clouds\EO_FileHash setFileHash(\string|\Bitrix\Main\DB\SqlExpression $fileHash)
+	 * @method bool hasFileHash()
+	 * @method bool isFileHashFilled()
+	 * @method bool isFileHashChanged()
+	 * @method \string remindActualFileHash()
+	 * @method \string requireFileHash()
+	 * @method \Bitrix\Clouds\EO_FileHash resetFileHash()
+	 * @method \Bitrix\Clouds\EO_FileHash unsetFileHash()
+	 * @method \string fillFileHash()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Clouds\EO_FileHash set($fieldName, $value)
+	 * @method \Bitrix\Clouds\EO_FileHash reset($fieldName)
+	 * @method \Bitrix\Clouds\EO_FileHash unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Clouds\EO_FileHash wakeUp($data)
+	 */
+	class EO_FileHash {
+		/* @var \Bitrix\Clouds\FileHashTable */
+		static public $dataClass = '\Bitrix\Clouds\FileHashTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Clouds {
+	/**
+	 * EO_FileHash_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getBucketIdList()
+	 * @method \string[] getFilePathList()
+	 * @method \int[] getFileSizeList()
+	 * @method \int[] fillFileSize()
+	 * @method \Bitrix\Main\Type\DateTime[] getFileMtimeList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillFileMtime()
+	 * @method \string[] getFileHashList()
+	 * @method \string[] fillFileHash()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Clouds\EO_FileHash $object)
+	 * @method bool has(\Bitrix\Clouds\EO_FileHash $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Clouds\EO_FileHash getByPrimary($primary)
+	 * @method \Bitrix\Clouds\EO_FileHash[] getAll()
+	 * @method bool remove(\Bitrix\Clouds\EO_FileHash $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Clouds\EO_FileHash_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Clouds\EO_FileHash current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_FileHash_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Clouds\FileHashTable */
+		static public $dataClass = '\Bitrix\Clouds\FileHashTable';
+	}
+}
+namespace Bitrix\Clouds {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_FileHash_Result exec()
+	 * @method \Bitrix\Clouds\EO_FileHash fetchObject()
+	 * @method \Bitrix\Clouds\EO_FileHash_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_FileHash_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Clouds\EO_FileHash fetchObject()
+	 * @method \Bitrix\Clouds\EO_FileHash_Collection fetchCollection()
+	 */
+	class EO_FileHash_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Clouds\EO_FileHash createObject($setDefaultValues = true)
+	 * @method \Bitrix\Clouds\EO_FileHash_Collection createCollection()
+	 * @method \Bitrix\Clouds\EO_FileHash wakeUpObject($row)
+	 * @method \Bitrix\Clouds\EO_FileHash_Collection wakeUpCollection($rows)
+	 */
+	class EO_FileHash_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Clouds\FileResizeTable:clouds/lib/fileresize.php:90d8fef504afcfd054d55550fb5df15f */
 namespace Bitrix\Clouds {
@@ -995,18 +1117,6 @@ namespace Bitrix\Clouds {
 	}
 }
 namespace Bitrix\Clouds {
-	/**
-	 * @method static EO_FileResize_Query query()
-	 * @method static EO_FileResize_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_FileResize_Result getById($id)
-	 * @method static EO_FileResize_Result getList(array $parameters = array())
-	 * @method static EO_FileResize_Entity getEntity()
-	 * @method static \Bitrix\Clouds\EO_FileResize createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Clouds\EO_FileResize_Collection createCollection()
-	 * @method static \Bitrix\Clouds\EO_FileResize wakeUpObject($row)
-	 * @method static \Bitrix\Clouds\EO_FileResize_Collection wakeUpCollection($rows)
-	 */
-	class FileResizeTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1195,18 +1305,6 @@ namespace Bitrix\Clouds {
 	}
 }
 namespace Bitrix\Clouds {
-	/**
-	 * @method static EO_FileSave_Query query()
-	 * @method static EO_FileSave_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_FileSave_Result getById($id)
-	 * @method static EO_FileSave_Result getList(array $parameters = array())
-	 * @method static EO_FileSave_Entity getEntity()
-	 * @method static \Bitrix\Clouds\EO_FileSave createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Clouds\EO_FileSave_Collection createCollection()
-	 * @method static \Bitrix\Clouds\EO_FileSave wakeUpObject($row)
-	 * @method static \Bitrix\Clouds\EO_FileSave_Collection wakeUpCollection($rows)
-	 */
-	class FileSaveTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1444,18 +1542,6 @@ namespace Bitrix\Clouds {
 	}
 }
 namespace Bitrix\Clouds {
-	/**
-	 * @method static EO_FileUpload_Query query()
-	 * @method static EO_FileUpload_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_FileUpload_Result getById($id)
-	 * @method static EO_FileUpload_Result getList(array $parameters = array())
-	 * @method static EO_FileUpload_Entity getEntity()
-	 * @method static \Bitrix\Clouds\EO_FileUpload createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Clouds\EO_FileUpload_Collection createCollection()
-	 * @method static \Bitrix\Clouds\EO_FileUpload wakeUpObject($row)
-	 * @method static \Bitrix\Clouds\EO_FileUpload_Collection wakeUpCollection($rows)
-	 */
-	class FileUploadTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

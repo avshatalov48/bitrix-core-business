@@ -78,7 +78,8 @@ div.pagetitle-container.pagetitle-align-right-container {
 	display: inline-block;
 	padding: 0 10px 0 0;
 	min-width: 0;
-	height: 30px;
+	min-height: 30px;
+	max-height: 40px;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;

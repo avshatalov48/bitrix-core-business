@@ -31,3 +31,4 @@ $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_APPLE_PAY'] = 'Настройки 
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_SKB'] = 'Настройки подключения СКБ банк';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_BEPAID'] = 'Настройки подключения BePaid';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_WOOPPAY'] = 'Настройки подключения Wooppay';
+$MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_PLATON'] = 'Настройки подключения Platon';

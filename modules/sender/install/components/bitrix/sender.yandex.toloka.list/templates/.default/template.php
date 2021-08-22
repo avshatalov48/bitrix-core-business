@@ -4,7 +4,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 
-\Bitrix\Main\UI\Extension::load(['ui.hint', 'sender.error_handler']);
+\Bitrix\Main\UI\Extension::load(['ui.hint', 'sender.error_handler', 'ui.info-helper']);
 
 /** @var CAllMain $APPLICATION */
 /** @var array $arParams */
@@ -246,7 +246,8 @@ $APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' 
 				'type' => 'add',
 				'id' => 'SENDER_LETTER_BUTTON_ADD',
 				'caption' => Loc::getMessage('SENDER_YANDEX_TOLOKA_TASK_ADD'),
-				'href' => $arParams['PATH_TO_ADD']
+				'href' => $arResult['IS_AVAILABLE'] ? $arParams['PATH_TO_ADD'] : '#',
+                'onclick' => $arResult['IS_AVAILABLE'] ? '': "BX.UI.InfoHelper.show('limit_crm_marketing_toloka')"
 			]
 			:
 			null

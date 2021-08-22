@@ -6,6 +6,22 @@ use Bitrix\Main;
 use Bitrix\Main\ORM;
 use Bitrix\Mail;
 
+/**
+ * Class MessageDeleteQueueTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MessageDeleteQueue_Query query()
+ * @method static EO_MessageDeleteQueue_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MessageDeleteQueue_Result getById($id)
+ * @method static EO_MessageDeleteQueue_Result getList(array $parameters = array())
+ * @method static EO_MessageDeleteQueue_Entity getEntity()
+ * @method static \Bitrix\Mail\Internals\EO_MessageDeleteQueue createObject($setDefaultValues = true)
+ * @method static \Bitrix\Mail\Internals\EO_MessageDeleteQueue_Collection createCollection()
+ * @method static \Bitrix\Mail\Internals\EO_MessageDeleteQueue wakeUpObject($row)
+ * @method static \Bitrix\Mail\Internals\EO_MessageDeleteQueue_Collection wakeUpCollection($rows)
+ */
 class MessageDeleteQueueTable extends ORM\Data\DataManager
 {
 

@@ -127,18 +127,6 @@ namespace Bitrix\Sender\Access\Permission {
 }
 namespace Bitrix\Sender\Access\Permission {
 	/**
-	 * @method static EO_Permission_Query query()
-	 * @method static EO_Permission_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Permission_Result getById($id)
-	 * @method static EO_Permission_Result getList(array $parameters = array())
-	 * @method static EO_Permission_Entity getEntity()
-	 * @method static \Bitrix\Sender\Access\Permission\EO_Permission createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Access\Permission\EO_Permission_Collection createCollection()
-	 * @method static \Bitrix\Sender\Access\Permission\EO_Permission wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Access\Permission\EO_Permission_Collection wakeUpCollection($rows)
-	 */
-	class PermissionTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -291,18 +279,6 @@ namespace Bitrix\Sender\Access\Role {
 }
 namespace Bitrix\Sender\Access\Role {
 	/**
-	 * @method static EO_Role_Query query()
-	 * @method static EO_Role_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Role_Result getById($id)
-	 * @method static EO_Role_Result getList(array $parameters = array())
-	 * @method static EO_Role_Entity getEntity()
-	 * @method static \Bitrix\Sender\Access\Role\EO_Role createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Access\Role\EO_Role_Collection createCollection()
-	 * @method static \Bitrix\Sender\Access\Role\EO_Role wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Access\Role\EO_Role_Collection wakeUpCollection($rows)
-	 */
-	class RoleTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -443,18 +419,6 @@ namespace Bitrix\Sender\Access\Role {
 }
 namespace Bitrix\Sender\Access\Role {
 	/**
-	 * @method static EO_RoleRelation_Query query()
-	 * @method static EO_RoleRelation_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_RoleRelation_Result getById($id)
-	 * @method static EO_RoleRelation_Result getList(array $parameters = array())
-	 * @method static EO_RoleRelation_Entity getEntity()
-	 * @method static \Bitrix\Sender\Access\Role\EO_RoleRelation createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Access\Role\EO_RoleRelation_Collection createCollection()
-	 * @method static \Bitrix\Sender\Access\Role\EO_RoleRelation wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Access\Role\EO_RoleRelation_Collection wakeUpCollection($rows)
-	 */
-	class RoleRelationTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -480,7 +444,7 @@ namespace Bitrix\Sender\Access\Role {
 	 */
 	class EO_RoleRelation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\ContactTable:sender/lib/contact.php:42733a33857b3548843b0a0b16f206c9 */
+/* ORMENTITYANNOTATION:Bitrix\Sender\ContactTable:sender/lib/contact.php:65e3c9e68b5fe229dfa241633b67ff37 */
 namespace Bitrix\Sender {
 	/**
 	 * EO_Contact
@@ -766,18 +730,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_Contact_Query query()
-	 * @method static EO_Contact_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Contact_Result getById($id)
-	 * @method static EO_Contact_Result getList(array $parameters = array())
-	 * @method static EO_Contact_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_Contact createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_Contact_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_Contact wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_Contact_Collection wakeUpCollection($rows)
-	 */
-	class ContactTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -926,18 +878,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_ContactList_Query query()
-	 * @method static EO_ContactList_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ContactList_Result getById($id)
-	 * @method static EO_ContactList_Result getList(array $parameters = array())
-	 * @method static EO_ContactList_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_ContactList createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_ContactList_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_ContactList wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_ContactList_Collection wakeUpCollection($rows)
-	 */
-	class ContactListTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -963,7 +903,7 @@ namespace Bitrix\Sender {
 	 */
 	class EO_ContactList_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\GroupTable:sender/lib/group.php:46ad6fbbf1c01d50410b9c4ec23054cc */
+/* ORMENTITYANNOTATION:Bitrix\Sender\GroupTable:sender/lib/group.php:fbee1b14c95edd1b74a29b0a4b8cf4e7 */
 namespace Bitrix\Sender {
 	/**
 	 * EO_Group
@@ -1147,6 +1087,16 @@ namespace Bitrix\Sender {
 	 * @method bool isDealCategoryFilled()
 	 * @method bool isDealCategoryChanged()
 	 * @method \Bitrix\Sender\EO_GroupDealCategory fillDealCategory()
+	 * @method \string getStatus()
+	 * @method \Bitrix\Sender\EO_Group setStatus(\string|\Bitrix\Main\DB\SqlExpression $status)
+	 * @method bool hasStatus()
+	 * @method bool isStatusFilled()
+	 * @method bool isStatusChanged()
+	 * @method \string remindActualStatus()
+	 * @method \string requireStatus()
+	 * @method \Bitrix\Sender\EO_Group resetStatus()
+	 * @method \Bitrix\Sender\EO_Group unsetStatus()
+	 * @method \string fillStatus()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -1228,6 +1178,8 @@ namespace Bitrix\Sender {
 	 * @method \Bitrix\Sender\EO_GroupDealCategory[] getDealCategoryList()
 	 * @method \Bitrix\Sender\EO_Group_Collection getDealCategoryCollection()
 	 * @method \Bitrix\Sender\EO_GroupDealCategory_Collection fillDealCategory()
+	 * @method \string[] getStatusList()
+	 * @method \string[] fillStatus()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -1261,18 +1213,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_Group_Query query()
-	 * @method static EO_Group_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Group_Result getById($id)
-	 * @method static EO_Group_Result getList(array $parameters = array())
-	 * @method static EO_Group_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_Group createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_Group_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_Group wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_Group_Collection wakeUpCollection($rows)
-	 */
-	class GroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1298,7 +1238,7 @@ namespace Bitrix\Sender {
 	 */
 	class EO_Group_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\GroupConnectorTable:sender/lib/group.php:46ad6fbbf1c01d50410b9c4ec23054cc */
+/* ORMENTITYANNOTATION:Bitrix\Sender\GroupConnectorTable:sender/lib/group.php:fbee1b14c95edd1b74a29b0a4b8cf4e7 */
 namespace Bitrix\Sender {
 	/**
 	 * EO_GroupConnector
@@ -1352,6 +1292,16 @@ namespace Bitrix\Sender {
 	 * @method bool isGroupFilled()
 	 * @method bool isGroupChanged()
 	 * @method \Bitrix\Sender\EO_Group fillGroup()
+	 * @method \string getFilterId()
+	 * @method \Bitrix\Sender\EO_GroupConnector setFilterId(\string|\Bitrix\Main\DB\SqlExpression $filterId)
+	 * @method bool hasFilterId()
+	 * @method bool isFilterIdFilled()
+	 * @method bool isFilterIdChanged()
+	 * @method \string remindActualFilterId()
+	 * @method \string requireFilterId()
+	 * @method \Bitrix\Sender\EO_GroupConnector resetFilterId()
+	 * @method \Bitrix\Sender\EO_GroupConnector unsetFilterId()
+	 * @method \string fillFilterId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -1405,6 +1355,8 @@ namespace Bitrix\Sender {
 	 * @method \Bitrix\Sender\EO_Group[] getGroupList()
 	 * @method \Bitrix\Sender\EO_GroupConnector_Collection getGroupCollection()
 	 * @method \Bitrix\Sender\EO_Group_Collection fillGroup()
+	 * @method \string[] getFilterIdList()
+	 * @method \string[] fillFilterId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -1438,18 +1390,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_GroupConnector_Query query()
-	 * @method static EO_GroupConnector_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_GroupConnector_Result getById($id)
-	 * @method static EO_GroupConnector_Result getList(array $parameters = array())
-	 * @method static EO_GroupConnector_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_GroupConnector createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_GroupConnector_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_GroupConnector wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_GroupConnector_Collection wakeUpCollection($rows)
-	 */
-	class GroupConnectorTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1475,7 +1415,7 @@ namespace Bitrix\Sender {
 	 */
 	class EO_GroupConnector_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\GroupDealCategoryTable:sender/lib/group.php:46ad6fbbf1c01d50410b9c4ec23054cc */
+/* ORMENTITYANNOTATION:Bitrix\Sender\GroupDealCategoryTable:sender/lib/group.php:fbee1b14c95edd1b74a29b0a4b8cf4e7 */
 namespace Bitrix\Sender {
 	/**
 	 * EO_GroupDealCategory
@@ -1584,18 +1524,6 @@ namespace Bitrix\Sender {
 	}
 }
 namespace Bitrix\Sender {
-	/**
-	 * @method static EO_GroupDealCategory_Query query()
-	 * @method static EO_GroupDealCategory_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_GroupDealCategory_Result getById($id)
-	 * @method static EO_GroupDealCategory_Result getList(array $parameters = array())
-	 * @method static EO_GroupDealCategory_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_GroupDealCategory createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_GroupDealCategory_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_GroupDealCategory wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_GroupDealCategory_Collection wakeUpCollection($rows)
-	 */
-	class GroupDealCategoryTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1730,18 +1658,6 @@ namespace Bitrix\Sender\Integration\VoxImplant {
 	}
 }
 namespace Bitrix\Sender\Integration\VoxImplant {
-	/**
-	 * @method static EO_CallLog_Query query()
-	 * @method static EO_CallLog_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CallLog_Result getById($id)
-	 * @method static EO_CallLog_Result getList(array $parameters = array())
-	 * @method static EO_CallLog_Entity getEntity()
-	 * @method static \Bitrix\Sender\Integration\VoxImplant\EO_CallLog createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Integration\VoxImplant\EO_CallLog_Collection createCollection()
-	 * @method static \Bitrix\Sender\Integration\VoxImplant\EO_CallLog wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Integration\VoxImplant\EO_CallLog_Collection wakeUpCollection($rows)
-	 */
-	class CallLogTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1919,18 +1835,6 @@ namespace Bitrix\Sender\Internals\Model {
 }
 namespace Bitrix\Sender\Internals\Model {
 	/**
-	 * @method static EO_Abuse_Query query()
-	 * @method static EO_Abuse_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Abuse_Result getById($id)
-	 * @method static EO_Abuse_Result getList(array $parameters = array())
-	 * @method static EO_Abuse_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Abuse createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Abuse_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Abuse wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Abuse_Collection wakeUpCollection($rows)
-	 */
-	class AbuseTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2107,18 +2011,6 @@ namespace Bitrix\Sender\Internals\Model {
 }
 namespace Bitrix\Sender\Internals\Model {
 	/**
-	 * @method static EO_Agreement_Query query()
-	 * @method static EO_Agreement_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Agreement_Result getById($id)
-	 * @method static EO_Agreement_Result getList(array $parameters = array())
-	 * @method static EO_Agreement_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Agreement createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Agreement_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Agreement wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Agreement_Collection wakeUpCollection($rows)
-	 */
-	class AgreementTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2258,18 +2150,6 @@ namespace Bitrix\Sender\Internals\Model {
 	}
 }
 namespace Bitrix\Sender\Internals\Model {
-	/**
-	 * @method static EO_Counter_Query query()
-	 * @method static EO_Counter_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Counter_Result getById($id)
-	 * @method static EO_Counter_Result getList(array $parameters = array())
-	 * @method static EO_Counter_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Counter createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Counter_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Counter wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Counter_Collection wakeUpCollection($rows)
-	 */
-	class CounterTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2435,18 +2315,6 @@ namespace Bitrix\Sender\Internals\Model {
 }
 namespace Bitrix\Sender\Internals\Model {
 	/**
-	 * @method static EO_DailyCounter_Query query()
-	 * @method static EO_DailyCounter_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DailyCounter_Result getById($id)
-	 * @method static EO_DailyCounter_Result getList(array $parameters = array())
-	 * @method static EO_DailyCounter_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_DailyCounter createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_DailyCounter_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_DailyCounter wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_DailyCounter_Collection wakeUpCollection($rows)
-	 */
-	class DailyCounterTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2471,6 +2339,196 @@ namespace Bitrix\Sender\Internals\Model {
 	 * @method \Bitrix\Sender\Internals\Model\EO_DailyCounter_Collection wakeUpCollection($rows)
 	 */
 	class EO_DailyCounter_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sender\Internals\Model\GroupContactTable:sender/lib/internals/model/groupcontact.php:3c612dc818b1f7b9245ae5681ff14991 */
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * EO_GroupContact
+	 * @see \Bitrix\Sender\Internals\Model\GroupContactTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \Bitrix\Main\Type\DateTime getDateInsert()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact setDateInsert(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateInsert)
+	 * @method bool hasDateInsert()
+	 * @method bool isDateInsertFilled()
+	 * @method bool isDateInsertChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime requireDateInsert()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact resetDateInsert()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact unsetDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime fillDateInsert()
+	 * @method \Bitrix\Sender\EO_Contact getContact()
+	 * @method \Bitrix\Sender\EO_Contact remindActualContact()
+	 * @method \Bitrix\Sender\EO_Contact requireContact()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact setContact(\Bitrix\Sender\EO_Contact $object)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact resetContact()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact unsetContact()
+	 * @method bool hasContact()
+	 * @method bool isContactFilled()
+	 * @method bool isContactChanged()
+	 * @method \Bitrix\Sender\EO_Contact fillContact()
+	 * @method \int getContactId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact setContactId(\int|\Bitrix\Main\DB\SqlExpression $contactId)
+	 * @method bool hasContactId()
+	 * @method bool isContactIdFilled()
+	 * @method bool isContactIdChanged()
+	 * @method \int remindActualContactId()
+	 * @method \int requireContactId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact resetContactId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact unsetContactId()
+	 * @method \int fillContactId()
+	 * @method \int getGroupId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
+	 * @method bool hasGroupId()
+	 * @method bool isGroupIdFilled()
+	 * @method bool isGroupIdChanged()
+	 * @method \int getTypeId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact setTypeId(\int|\Bitrix\Main\DB\SqlExpression $typeId)
+	 * @method bool hasTypeId()
+	 * @method bool isTypeIdFilled()
+	 * @method bool isTypeIdChanged()
+	 * @method \int getCnt()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact setCnt(\int|\Bitrix\Main\DB\SqlExpression $cnt)
+	 * @method bool hasCnt()
+	 * @method bool isCntFilled()
+	 * @method bool isCntChanged()
+	 * @method \int remindActualCnt()
+	 * @method \int requireCnt()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact resetCnt()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact unsetCnt()
+	 * @method \int fillCnt()
+	 * @method \Bitrix\Sender\EO_Group getGroup()
+	 * @method \Bitrix\Sender\EO_Group remindActualGroup()
+	 * @method \Bitrix\Sender\EO_Group requireGroup()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact setGroup(\Bitrix\Sender\EO_Group $object)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact resetGroup()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact unsetGroup()
+	 * @method bool hasGroup()
+	 * @method bool isGroupFilled()
+	 * @method bool isGroupChanged()
+	 * @method \Bitrix\Sender\EO_Group fillGroup()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact set($fieldName, $value)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact reset($fieldName)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sender\Internals\Model\EO_GroupContact wakeUp($data)
+	 */
+	class EO_GroupContact {
+		/* @var \Bitrix\Sender\Internals\Model\GroupContactTable */
+		static public $dataClass = '\Bitrix\Sender\Internals\Model\GroupContactTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * EO_GroupContact_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateInsertList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateInsert()
+	 * @method \Bitrix\Sender\EO_Contact[] getContactList()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact_Collection getContactCollection()
+	 * @method \Bitrix\Sender\EO_Contact_Collection fillContact()
+	 * @method \int[] getContactIdList()
+	 * @method \int[] fillContactId()
+	 * @method \int[] getGroupIdList()
+	 * @method \int[] getTypeIdList()
+	 * @method \int[] getCntList()
+	 * @method \int[] fillCnt()
+	 * @method \Bitrix\Sender\EO_Group[] getGroupList()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact_Collection getGroupCollection()
+	 * @method \Bitrix\Sender\EO_Group_Collection fillGroup()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sender\Internals\Model\EO_GroupContact $object)
+	 * @method bool has(\Bitrix\Sender\Internals\Model\EO_GroupContact $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact getByPrimary($primary)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact[] getAll()
+	 * @method bool remove(\Bitrix\Sender\Internals\Model\EO_GroupContact $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sender\Internals\Model\EO_GroupContact_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_GroupContact_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sender\Internals\Model\GroupContactTable */
+		static public $dataClass = '\Bitrix\Sender\Internals\Model\GroupContactTable';
+	}
+}
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_GroupContact_Result exec()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact fetchObject()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_GroupContact_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact fetchObject()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact_Collection fetchCollection()
+	 */
+	class EO_GroupContact_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact_Collection createCollection()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact wakeUpObject($row)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupContact_Collection wakeUpCollection($rows)
+	 */
+	class EO_GroupContact_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Sender\Internals\Model\GroupCounterTable:sender/lib/internals/model/groupcounter.php:b33b4e16baece3124a310d03287dce59 */
 namespace Bitrix\Sender\Internals\Model {
@@ -2594,18 +2652,6 @@ namespace Bitrix\Sender\Internals\Model {
 }
 namespace Bitrix\Sender\Internals\Model {
 	/**
-	 * @method static EO_GroupCounter_Query query()
-	 * @method static EO_GroupCounter_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_GroupCounter_Result getById($id)
-	 * @method static EO_GroupCounter_Result getList(array $parameters = array())
-	 * @method static EO_GroupCounter_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_GroupCounter createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_GroupCounter_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_GroupCounter wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_GroupCounter_Collection wakeUpCollection($rows)
-	 */
-	class GroupCounterTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2631,7 +2677,542 @@ namespace Bitrix\Sender\Internals\Model {
 	 */
 	class EO_GroupCounter_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\Internals\Model\LetterTable:sender/lib/internals/model/letter.php:ecc37df48ffac86bd7d1837bb6c3efd7 */
+/* ORMENTITYANNOTATION:Bitrix\Sender\Internals\Model\GroupQueueTable:sender/lib/internals/model/groupqueue.php:f1b1483d086d5fd4a4ddaa4b8db2fa0a */
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * EO_GroupQueue
+	 * @see \Bitrix\Sender\Internals\Model\GroupQueueTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \Bitrix\Main\Type\DateTime getDateInsert()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue setDateInsert(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateInsert)
+	 * @method bool hasDateInsert()
+	 * @method bool isDateInsertFilled()
+	 * @method bool isDateInsertChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime requireDateInsert()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue resetDateInsert()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue unsetDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime fillDateInsert()
+	 * @method \int getType()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue setType(\int|\Bitrix\Main\DB\SqlExpression $type)
+	 * @method bool hasType()
+	 * @method bool isTypeFilled()
+	 * @method bool isTypeChanged()
+	 * @method \int remindActualType()
+	 * @method \int requireType()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue resetType()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue unsetType()
+	 * @method \int fillType()
+	 * @method \int getEntityId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
+	 * @method bool hasEntityId()
+	 * @method bool isEntityIdFilled()
+	 * @method bool isEntityIdChanged()
+	 * @method \int remindActualEntityId()
+	 * @method \int requireEntityId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue resetEntityId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue unsetEntityId()
+	 * @method \int fillEntityId()
+	 * @method \int getGroupId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
+	 * @method bool hasGroupId()
+	 * @method bool isGroupIdFilled()
+	 * @method bool isGroupIdChanged()
+	 * @method \int remindActualGroupId()
+	 * @method \int requireGroupId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue resetGroupId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue unsetGroupId()
+	 * @method \int fillGroupId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue set($fieldName, $value)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue reset($fieldName)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sender\Internals\Model\EO_GroupQueue wakeUp($data)
+	 */
+	class EO_GroupQueue {
+		/* @var \Bitrix\Sender\Internals\Model\GroupQueueTable */
+		static public $dataClass = '\Bitrix\Sender\Internals\Model\GroupQueueTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * EO_GroupQueue_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateInsertList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateInsert()
+	 * @method \int[] getTypeList()
+	 * @method \int[] fillType()
+	 * @method \int[] getEntityIdList()
+	 * @method \int[] fillEntityId()
+	 * @method \int[] getGroupIdList()
+	 * @method \int[] fillGroupId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sender\Internals\Model\EO_GroupQueue $object)
+	 * @method bool has(\Bitrix\Sender\Internals\Model\EO_GroupQueue $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue getByPrimary($primary)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue[] getAll()
+	 * @method bool remove(\Bitrix\Sender\Internals\Model\EO_GroupQueue $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sender\Internals\Model\EO_GroupQueue_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_GroupQueue_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sender\Internals\Model\GroupQueueTable */
+		static public $dataClass = '\Bitrix\Sender\Internals\Model\GroupQueueTable';
+	}
+}
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_GroupQueue_Result exec()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue fetchObject()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_GroupQueue_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue fetchObject()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue_Collection fetchCollection()
+	 */
+	class EO_GroupQueue_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue_Collection createCollection()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue wakeUpObject($row)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupQueue_Collection wakeUpCollection($rows)
+	 */
+	class EO_GroupQueue_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sender\Internals\Model\GroupStateTable:sender/lib/internals/model/groupstate.php:cf44eb450438a927dab649cbb8b92f00 */
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * EO_GroupState
+	 * @see \Bitrix\Sender\Internals\Model\GroupStateTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \Bitrix\Main\Type\DateTime getDateInsert()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState setDateInsert(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateInsert)
+	 * @method bool hasDateInsert()
+	 * @method bool isDateInsertFilled()
+	 * @method bool isDateInsertChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime requireDateInsert()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState resetDateInsert()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState unsetDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime fillDateInsert()
+	 * @method \int getState()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState setState(\int|\Bitrix\Main\DB\SqlExpression $state)
+	 * @method bool hasState()
+	 * @method bool isStateFilled()
+	 * @method bool isStateChanged()
+	 * @method \int remindActualState()
+	 * @method \int requireState()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState resetState()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState unsetState()
+	 * @method \int fillState()
+	 * @method \string getFilterId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState setFilterId(\string|\Bitrix\Main\DB\SqlExpression $filterId)
+	 * @method bool hasFilterId()
+	 * @method bool isFilterIdFilled()
+	 * @method bool isFilterIdChanged()
+	 * @method \string remindActualFilterId()
+	 * @method \string requireFilterId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState resetFilterId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState unsetFilterId()
+	 * @method \string fillFilterId()
+	 * @method \string getEndpoint()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState setEndpoint(\string|\Bitrix\Main\DB\SqlExpression $endpoint)
+	 * @method bool hasEndpoint()
+	 * @method bool isEndpointFilled()
+	 * @method bool isEndpointChanged()
+	 * @method \string remindActualEndpoint()
+	 * @method \string requireEndpoint()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState resetEndpoint()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState unsetEndpoint()
+	 * @method \string fillEndpoint()
+	 * @method \Bitrix\Sender\EO_Group getGroup()
+	 * @method \Bitrix\Sender\EO_Group remindActualGroup()
+	 * @method \Bitrix\Sender\EO_Group requireGroup()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState setGroup(\Bitrix\Sender\EO_Group $object)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState resetGroup()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState unsetGroup()
+	 * @method bool hasGroup()
+	 * @method bool isGroupFilled()
+	 * @method bool isGroupChanged()
+	 * @method \Bitrix\Sender\EO_Group fillGroup()
+	 * @method \int getGroupId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
+	 * @method bool hasGroupId()
+	 * @method bool isGroupIdFilled()
+	 * @method bool isGroupIdChanged()
+	 * @method \int remindActualGroupId()
+	 * @method \int requireGroupId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState resetGroupId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState unsetGroupId()
+	 * @method \int fillGroupId()
+	 * @method \int getOffset()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState setOffset(\int|\Bitrix\Main\DB\SqlExpression $offset)
+	 * @method bool hasOffset()
+	 * @method bool isOffsetFilled()
+	 * @method bool isOffsetChanged()
+	 * @method \int remindActualOffset()
+	 * @method \int requireOffset()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState resetOffset()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState unsetOffset()
+	 * @method \int fillOffset()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState set($fieldName, $value)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState reset($fieldName)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sender\Internals\Model\EO_GroupState wakeUp($data)
+	 */
+	class EO_GroupState {
+		/* @var \Bitrix\Sender\Internals\Model\GroupStateTable */
+		static public $dataClass = '\Bitrix\Sender\Internals\Model\GroupStateTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * EO_GroupState_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateInsertList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateInsert()
+	 * @method \int[] getStateList()
+	 * @method \int[] fillState()
+	 * @method \string[] getFilterIdList()
+	 * @method \string[] fillFilterId()
+	 * @method \string[] getEndpointList()
+	 * @method \string[] fillEndpoint()
+	 * @method \Bitrix\Sender\EO_Group[] getGroupList()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState_Collection getGroupCollection()
+	 * @method \Bitrix\Sender\EO_Group_Collection fillGroup()
+	 * @method \int[] getGroupIdList()
+	 * @method \int[] fillGroupId()
+	 * @method \int[] getOffsetList()
+	 * @method \int[] fillOffset()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sender\Internals\Model\EO_GroupState $object)
+	 * @method bool has(\Bitrix\Sender\Internals\Model\EO_GroupState $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState getByPrimary($primary)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState[] getAll()
+	 * @method bool remove(\Bitrix\Sender\Internals\Model\EO_GroupState $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sender\Internals\Model\EO_GroupState_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_GroupState_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sender\Internals\Model\GroupStateTable */
+		static public $dataClass = '\Bitrix\Sender\Internals\Model\GroupStateTable';
+	}
+}
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_GroupState_Result exec()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState fetchObject()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_GroupState_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState fetchObject()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState_Collection fetchCollection()
+	 */
+	class EO_GroupState_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState_Collection createCollection()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState wakeUpObject($row)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupState_Collection wakeUpCollection($rows)
+	 */
+	class EO_GroupState_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sender\Internals\Model\GroupThreadTable:sender/lib/internals/model/groupthread.php:3c41e4cd0968a5e41a36a3a614f3168b */
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * EO_GroupThread
+	 * @see \Bitrix\Sender\Internals\Model\GroupThreadTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getThreadId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread setThreadId(\int|\Bitrix\Main\DB\SqlExpression $threadId)
+	 * @method bool hasThreadId()
+	 * @method bool isThreadIdFilled()
+	 * @method bool isThreadIdChanged()
+	 * @method \int getGroupStateId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread setGroupStateId(\int|\Bitrix\Main\DB\SqlExpression $groupStateId)
+	 * @method bool hasGroupStateId()
+	 * @method bool isGroupStateIdFilled()
+	 * @method bool isGroupStateIdChanged()
+	 * @method \int getStep()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread setStep(\int|\Bitrix\Main\DB\SqlExpression $step)
+	 * @method bool hasStep()
+	 * @method bool isStepFilled()
+	 * @method bool isStepChanged()
+	 * @method \int remindActualStep()
+	 * @method \int requireStep()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread resetStep()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread unsetStep()
+	 * @method \int fillStep()
+	 * @method \string getStatus()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread setStatus(\string|\Bitrix\Main\DB\SqlExpression $status)
+	 * @method bool hasStatus()
+	 * @method bool isStatusFilled()
+	 * @method bool isStatusChanged()
+	 * @method \string remindActualStatus()
+	 * @method \string requireStatus()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread resetStatus()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread unsetStatus()
+	 * @method \string fillStatus()
+	 * @method \string getThreadType()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread setThreadType(\string|\Bitrix\Main\DB\SqlExpression $threadType)
+	 * @method bool hasThreadType()
+	 * @method bool isThreadTypeFilled()
+	 * @method bool isThreadTypeChanged()
+	 * @method \string remindActualThreadType()
+	 * @method \string requireThreadType()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread resetThreadType()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread unsetThreadType()
+	 * @method \string fillThreadType()
+	 * @method \Bitrix\Main\Type\DateTime getExpireAt()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread setExpireAt(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $expireAt)
+	 * @method bool hasExpireAt()
+	 * @method bool isExpireAtFilled()
+	 * @method bool isExpireAtChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualExpireAt()
+	 * @method \Bitrix\Main\Type\DateTime requireExpireAt()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread resetExpireAt()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread unsetExpireAt()
+	 * @method \Bitrix\Main\Type\DateTime fillExpireAt()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread set($fieldName, $value)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread reset($fieldName)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sender\Internals\Model\EO_GroupThread wakeUp($data)
+	 */
+	class EO_GroupThread {
+		/* @var \Bitrix\Sender\Internals\Model\GroupThreadTable */
+		static public $dataClass = '\Bitrix\Sender\Internals\Model\GroupThreadTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * EO_GroupThread_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getThreadIdList()
+	 * @method \int[] getGroupStateIdList()
+	 * @method \int[] getStepList()
+	 * @method \int[] fillStep()
+	 * @method \string[] getStatusList()
+	 * @method \string[] fillStatus()
+	 * @method \string[] getThreadTypeList()
+	 * @method \string[] fillThreadType()
+	 * @method \Bitrix\Main\Type\DateTime[] getExpireAtList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillExpireAt()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sender\Internals\Model\EO_GroupThread $object)
+	 * @method bool has(\Bitrix\Sender\Internals\Model\EO_GroupThread $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread getByPrimary($primary)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread[] getAll()
+	 * @method bool remove(\Bitrix\Sender\Internals\Model\EO_GroupThread $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sender\Internals\Model\EO_GroupThread_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_GroupThread_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sender\Internals\Model\GroupThreadTable */
+		static public $dataClass = '\Bitrix\Sender\Internals\Model\GroupThreadTable';
+	}
+}
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_GroupThread_Result exec()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread fetchObject()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_GroupThread_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread fetchObject()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread_Collection fetchCollection()
+	 */
+	class EO_GroupThread_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread_Collection createCollection()
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread wakeUpObject($row)
+	 * @method \Bitrix\Sender\Internals\Model\EO_GroupThread_Collection wakeUpCollection($rows)
+	 */
+	class EO_GroupThread_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sender\Internals\Model\LetterTable:sender/lib/internals/model/letter.php:07f6f280d8bd1a5c675b2859e2ad08cb */
 namespace Bitrix\Sender\Internals\Model {
 	/**
 	 * EO_Letter
@@ -2895,6 +3476,16 @@ namespace Bitrix\Sender\Internals\Model {
 	 * @method \Bitrix\Sender\Internals\Model\EO_Letter resetSearchContent()
 	 * @method \Bitrix\Sender\Internals\Model\EO_Letter unsetSearchContent()
 	 * @method \string fillSearchContent()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message getMessage()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message remindActualMessage()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message requireMessage()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Letter setMessage(\Bitrix\Sender\Internals\Model\EO_Message $object)
+	 * @method \Bitrix\Sender\Internals\Model\EO_Letter resetMessage()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Letter unsetMessage()
+	 * @method bool hasMessage()
+	 * @method bool isMessageFilled()
+	 * @method bool isMessageChanged()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message fillMessage()
 	 * @method \Bitrix\Sender\EO_Mailing getCampaign()
 	 * @method \Bitrix\Sender\EO_Mailing remindActualCampaign()
 	 * @method \Bitrix\Sender\EO_Mailing requireCampaign()
@@ -2935,6 +3526,16 @@ namespace Bitrix\Sender\Internals\Model {
 	 * @method bool isCreatedByUserFilled()
 	 * @method bool isCreatedByUserChanged()
 	 * @method \Bitrix\Main\EO_User fillCreatedByUser()
+	 * @method \boolean getWaitingRecipient()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Letter setWaitingRecipient(\boolean|\Bitrix\Main\DB\SqlExpression $waitingRecipient)
+	 * @method bool hasWaitingRecipient()
+	 * @method bool isWaitingRecipientFilled()
+	 * @method bool isWaitingRecipientChanged()
+	 * @method \boolean remindActualWaitingRecipient()
+	 * @method \boolean requireWaitingRecipient()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Letter resetWaitingRecipient()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Letter unsetWaitingRecipient()
+	 * @method \boolean fillWaitingRecipient()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -3029,6 +3630,9 @@ namespace Bitrix\Sender\Internals\Model {
 	 * @method \string[] fillErrorMessage()
 	 * @method \string[] getSearchContentList()
 	 * @method \string[] fillSearchContent()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message[] getMessageList()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Letter_Collection getMessageCollection()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message_Collection fillMessage()
 	 * @method \Bitrix\Sender\EO_Mailing[] getCampaignList()
 	 * @method \Bitrix\Sender\Internals\Model\EO_Letter_Collection getCampaignCollection()
 	 * @method \Bitrix\Sender\EO_Mailing_Collection fillCampaign()
@@ -3041,6 +3645,8 @@ namespace Bitrix\Sender\Internals\Model {
 	 * @method \Bitrix\Main\EO_User[] getCreatedByUserList()
 	 * @method \Bitrix\Sender\Internals\Model\EO_Letter_Collection getCreatedByUserCollection()
 	 * @method \Bitrix\Main\EO_User_Collection fillCreatedByUser()
+	 * @method \boolean[] getWaitingRecipientList()
+	 * @method \boolean[] fillWaitingRecipient()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -3073,18 +3679,6 @@ namespace Bitrix\Sender\Internals\Model {
 	}
 }
 namespace Bitrix\Sender\Internals\Model {
-	/**
-	 * @method static EO_Letter_Query query()
-	 * @method static EO_Letter_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Letter_Result getById($id)
-	 * @method static EO_Letter_Result getList(array $parameters = array())
-	 * @method static EO_Letter_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Letter createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Letter_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Letter wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Letter_Collection wakeUpCollection($rows)
-	 */
-	class LetterTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -3246,18 +3840,6 @@ namespace Bitrix\Sender\Internals\Model {
 }
 namespace Bitrix\Sender\Internals\Model {
 	/**
-	 * @method static EO_LetterSegment_Query query()
-	 * @method static EO_LetterSegment_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_LetterSegment_Result getById($id)
-	 * @method static EO_LetterSegment_Result getList(array $parameters = array())
-	 * @method static EO_LetterSegment_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_LetterSegment createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_LetterSegment_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_LetterSegment wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_LetterSegment_Collection wakeUpCollection($rows)
-	 */
-	class LetterSegmentTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3283,7 +3865,7 @@ namespace Bitrix\Sender\Internals\Model {
 	 */
 	class EO_LetterSegment_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\Internals\Model\MessageTable:sender/lib/internals/model/message.php:b89a0eb8a292abd03afa50118be02152 */
+/* ORMENTITYANNOTATION:Bitrix\Sender\Internals\Model\MessageTable:sender/lib/internals/model/message.php:f416d8f5a65383423f7466363509fc74 */
 namespace Bitrix\Sender\Internals\Model {
 	/**
 	 * EO_Message
@@ -3307,6 +3889,16 @@ namespace Bitrix\Sender\Internals\Model {
 	 * @method \Bitrix\Sender\Internals\Model\EO_Message resetCode()
 	 * @method \Bitrix\Sender\Internals\Model\EO_Message unsetCode()
 	 * @method \string fillCode()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm getUtm()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm remindActualUtm()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm requireUtm()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message setUtm(\Bitrix\Sender\Internals\Model\EO_MessageUtm $object)
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message resetUtm()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message unsetUtm()
+	 * @method bool hasUtm()
+	 * @method bool isUtmFilled()
+	 * @method bool isUtmChanged()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm fillUtm()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -3353,6 +3945,9 @@ namespace Bitrix\Sender\Internals\Model {
 	 * @method \int[] getIdList()
 	 * @method \string[] getCodeList()
 	 * @method \string[] fillCode()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm[] getUtmList()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message_Collection getUtmCollection()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm_Collection fillUtm()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -3385,18 +3980,6 @@ namespace Bitrix\Sender\Internals\Model {
 	}
 }
 namespace Bitrix\Sender\Internals\Model {
-	/**
-	 * @method static EO_Message_Query query()
-	 * @method static EO_Message_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Message_Result getById($id)
-	 * @method static EO_Message_Result getList(array $parameters = array())
-	 * @method static EO_Message_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Message createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Message_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Message wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Message_Collection wakeUpCollection($rows)
-	 */
-	class MessageTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -3544,18 +4127,6 @@ namespace Bitrix\Sender\Internals\Model {
 }
 namespace Bitrix\Sender\Internals\Model {
 	/**
-	 * @method static EO_MessageField_Query query()
-	 * @method static EO_MessageField_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MessageField_Result getById($id)
-	 * @method static EO_MessageField_Result getList(array $parameters = array())
-	 * @method static EO_MessageField_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_MessageField createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_MessageField_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_MessageField wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_MessageField_Collection wakeUpCollection($rows)
-	 */
-	class MessageFieldTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3580,6 +4151,153 @@ namespace Bitrix\Sender\Internals\Model {
 	 * @method \Bitrix\Sender\Internals\Model\EO_MessageField_Collection wakeUpCollection($rows)
 	 */
 	class EO_MessageField_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sender\Internals\Model\MessageUtmTable:sender/lib/internals/model/messageutm.php:9049c840187708f6ae2378cefd165bf6 */
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * EO_MessageUtm
+	 * @see \Bitrix\Sender\Internals\Model\MessageUtmTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getMessageId()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm setMessageId(\int|\Bitrix\Main\DB\SqlExpression $messageId)
+	 * @method bool hasMessageId()
+	 * @method bool isMessageIdFilled()
+	 * @method bool isMessageIdChanged()
+	 * @method \string getCode()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm setCode(\string|\Bitrix\Main\DB\SqlExpression $code)
+	 * @method bool hasCode()
+	 * @method bool isCodeFilled()
+	 * @method bool isCodeChanged()
+	 * @method \string getValue()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm setValue(\string|\Bitrix\Main\DB\SqlExpression $value)
+	 * @method bool hasValue()
+	 * @method bool isValueFilled()
+	 * @method bool isValueChanged()
+	 * @method \string remindActualValue()
+	 * @method \string requireValue()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm resetValue()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm unsetValue()
+	 * @method \string fillValue()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message getMessage()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message remindActualMessage()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message requireMessage()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm setMessage(\Bitrix\Sender\Internals\Model\EO_Message $object)
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm resetMessage()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm unsetMessage()
+	 * @method bool hasMessage()
+	 * @method bool isMessageFilled()
+	 * @method bool isMessageChanged()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message fillMessage()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm set($fieldName, $value)
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm reset($fieldName)
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sender\Internals\Model\EO_MessageUtm wakeUp($data)
+	 */
+	class EO_MessageUtm {
+		/* @var \Bitrix\Sender\Internals\Model\MessageUtmTable */
+		static public $dataClass = '\Bitrix\Sender\Internals\Model\MessageUtmTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * EO_MessageUtm_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getMessageIdList()
+	 * @method \string[] getCodeList()
+	 * @method \string[] getValueList()
+	 * @method \string[] fillValue()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message[] getMessageList()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm_Collection getMessageCollection()
+	 * @method \Bitrix\Sender\Internals\Model\EO_Message_Collection fillMessage()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sender\Internals\Model\EO_MessageUtm $object)
+	 * @method bool has(\Bitrix\Sender\Internals\Model\EO_MessageUtm $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm getByPrimary($primary)
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm[] getAll()
+	 * @method bool remove(\Bitrix\Sender\Internals\Model\EO_MessageUtm $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sender\Internals\Model\EO_MessageUtm_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_MessageUtm_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sender\Internals\Model\MessageUtmTable */
+		static public $dataClass = '\Bitrix\Sender\Internals\Model\MessageUtmTable';
+	}
+}
+namespace Bitrix\Sender\Internals\Model {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_MessageUtm_Result exec()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm fetchObject()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_MessageUtm_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm fetchObject()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm_Collection fetchCollection()
+	 */
+	class EO_MessageUtm_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm_Collection createCollection()
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm wakeUpObject($row)
+	 * @method \Bitrix\Sender\Internals\Model\EO_MessageUtm_Collection wakeUpCollection($rows)
+	 */
+	class EO_MessageUtm_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Sender\Internals\Model\Posting\ClickTable:sender/lib/internals/model/posting/click.php:008c29077f145f70a58d6f3c90ea3b1b */
 namespace Bitrix\Sender\Internals\Model\Posting {
@@ -3733,18 +4451,6 @@ namespace Bitrix\Sender\Internals\Model\Posting {
 }
 namespace Bitrix\Sender\Internals\Model\Posting {
 	/**
-	 * @method static EO_Click_Query query()
-	 * @method static EO_Click_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Click_Result getById($id)
-	 * @method static EO_Click_Result getList(array $parameters = array())
-	 * @method static EO_Click_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Click createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Click_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Click wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Click_Collection wakeUpCollection($rows)
-	 */
-	class ClickTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3896,18 +4602,6 @@ namespace Bitrix\Sender\Internals\Model\Posting {
 	}
 }
 namespace Bitrix\Sender\Internals\Model\Posting {
-	/**
-	 * @method static EO_Read_Query query()
-	 * @method static EO_Read_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Read_Result getById($id)
-	 * @method static EO_Read_Result getList(array $parameters = array())
-	 * @method static EO_Read_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Read createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Read_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Read wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Read_Collection wakeUpCollection($rows)
-	 */
-	class ReadTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -4222,18 +4916,6 @@ namespace Bitrix\Sender\Internals\Model\Posting {
 }
 namespace Bitrix\Sender\Internals\Model\Posting {
 	/**
-	 * @method static EO_Recipient_Query query()
-	 * @method static EO_Recipient_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Recipient_Result getById($id)
-	 * @method static EO_Recipient_Result getList(array $parameters = array())
-	 * @method static EO_Recipient_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Recipient createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Recipient_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Recipient wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Recipient_Collection wakeUpCollection($rows)
-	 */
-	class RecipientTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4412,18 +5094,6 @@ namespace Bitrix\Sender\Internals\Model\Posting {
 }
 namespace Bitrix\Sender\Internals\Model\Posting {
 	/**
-	 * @method static EO_Unsub_Query query()
-	 * @method static EO_Unsub_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Unsub_Result getById($id)
-	 * @method static EO_Unsub_Result getList(array $parameters = array())
-	 * @method static EO_Unsub_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Unsub createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Unsub_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Unsub wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\Posting\EO_Unsub_Collection wakeUpCollection($rows)
-	 */
-	class UnsubTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4449,7 +5119,7 @@ namespace Bitrix\Sender\Internals\Model\Posting {
 	 */
 	class EO_Unsub_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\Internals\Model\PostingTable:sender/lib/internals/model/posting.php:31f1766fe5d6acb1f3cc11553548ef44 */
+/* ORMENTITYANNOTATION:Bitrix\Sender\Internals\Model\PostingTable:sender/lib/internals/model/posting.php:8a4d774513d9ea84616941d50154f2fb */
 namespace Bitrix\Sender\Internals\Model {
 	/**
 	 * EO_Posting
@@ -4823,18 +5493,6 @@ namespace Bitrix\Sender\Internals\Model {
 }
 namespace Bitrix\Sender\Internals\Model {
 	/**
-	 * @method static EO_Posting_Query query()
-	 * @method static EO_Posting_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Posting_Result getById($id)
-	 * @method static EO_Posting_Result getList(array $parameters = array())
-	 * @method static EO_Posting_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Posting createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Posting_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Posting wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Posting_Collection wakeUpCollection($rows)
-	 */
-	class PostingTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4993,18 +5651,6 @@ namespace Bitrix\Sender\Internals\Model {
 }
 namespace Bitrix\Sender\Internals\Model {
 	/**
-	 * @method static EO_PostingThread_Query query()
-	 * @method static EO_PostingThread_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PostingThread_Result getById($id)
-	 * @method static EO_PostingThread_Result getList(array $parameters = array())
-	 * @method static EO_PostingThread_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_PostingThread createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_PostingThread_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_PostingThread wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_PostingThread_Collection wakeUpCollection($rows)
-	 */
-	class PostingThreadTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -5138,18 +5784,6 @@ namespace Bitrix\Sender\Internals\Model {
 	}
 }
 namespace Bitrix\Sender\Internals\Model {
-	/**
-	 * @method static EO_Queue_Query query()
-	 * @method static EO_Queue_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Queue_Result getById($id)
-	 * @method static EO_Queue_Result getList(array $parameters = array())
-	 * @method static EO_Queue_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Queue createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Queue_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Queue wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\EO_Queue_Collection wakeUpCollection($rows)
-	 */
-	class QueueTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -5303,18 +5937,6 @@ namespace Bitrix\Sender\Internals\Model\Role {
 	}
 }
 namespace Bitrix\Sender\Internals\Model\Role {
-	/**
-	 * @method static EO_Access_Query query()
-	 * @method static EO_Access_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Access_Result getById($id)
-	 * @method static EO_Access_Result getList(array $parameters = array())
-	 * @method static EO_Access_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\Role\EO_Access createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\Role\EO_Access_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\Role\EO_Access wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\Role\EO_Access_Collection wakeUpCollection($rows)
-	 */
-	class AccessTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -5506,18 +6128,6 @@ namespace Bitrix\Sender\Internals\Model\Role {
 }
 namespace Bitrix\Sender\Internals\Model\Role {
 	/**
-	 * @method static EO_Permission_Query query()
-	 * @method static EO_Permission_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Permission_Result getById($id)
-	 * @method static EO_Permission_Result getList(array $parameters = array())
-	 * @method static EO_Permission_Entity getEntity()
-	 * @method static \Bitrix\Sender\Internals\Model\Role\EO_Permission createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\Internals\Model\Role\EO_Permission_Collection createCollection()
-	 * @method static \Bitrix\Sender\Internals\Model\Role\EO_Permission wakeUpObject($row)
-	 * @method static \Bitrix\Sender\Internals\Model\Role\EO_Permission_Collection wakeUpCollection($rows)
-	 */
-	class PermissionTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -5682,18 +6292,6 @@ namespace Bitrix\Sender {
 	}
 }
 namespace Bitrix\Sender {
-	/**
-	 * @method static EO_List_Query query()
-	 * @method static EO_List_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_List_Result getById($id)
-	 * @method static EO_List_Result getList(array $parameters = array())
-	 * @method static EO_List_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_List createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_List_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_List wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_List_Collection wakeUpCollection($rows)
-	 */
-	class ListTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -6021,18 +6619,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_Mailing_Query query()
-	 * @method static EO_Mailing_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Mailing_Result getById($id)
-	 * @method static EO_Mailing_Result getList(array $parameters = array())
-	 * @method static EO_Mailing_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_Mailing createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_Mailing_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_Mailing wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_Mailing_Collection wakeUpCollection($rows)
-	 */
-	class MailingTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -6192,18 +6778,6 @@ namespace Bitrix\Sender {
 	}
 }
 namespace Bitrix\Sender {
-	/**
-	 * @method static EO_MailingGroup_Query query()
-	 * @method static EO_MailingGroup_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MailingGroup_Result getById($id)
-	 * @method static EO_MailingGroup_Result getList(array $parameters = array())
-	 * @method static EO_MailingGroup_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_MailingGroup createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_MailingGroup_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_MailingGroup wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_MailingGroup_Collection wakeUpCollection($rows)
-	 */
-	class MailingGroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -6377,18 +6951,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_MailingSubscription_Query query()
-	 * @method static EO_MailingSubscription_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MailingSubscription_Result getById($id)
-	 * @method static EO_MailingSubscription_Result getList(array $parameters = array())
-	 * @method static EO_MailingSubscription_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_MailingSubscription createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_MailingSubscription_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_MailingSubscription wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_MailingSubscription_Collection wakeUpCollection($rows)
-	 */
-	class MailingSubscriptionTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -6414,7 +6976,7 @@ namespace Bitrix\Sender {
 	 */
 	class EO_MailingSubscription_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\MailingChainTable:sender/lib/mailingchain.php:1f4140a9ee9fb5b35bf21fd53960dd11 */
+/* ORMENTITYANNOTATION:Bitrix\Sender\MailingChainTable:sender/lib/mailingchain.php:032ebed36d36e539c06b2d69900272e8 */
 namespace Bitrix\Sender {
 	/**
 	 * EO_MailingChain
@@ -6723,6 +7285,16 @@ namespace Bitrix\Sender {
 	 * @method bool isCreatedByUserFilled()
 	 * @method bool isCreatedByUserChanged()
 	 * @method \Bitrix\Main\EO_User fillCreatedByUser()
+	 * @method \boolean getWaitingRecipient()
+	 * @method \Bitrix\Sender\EO_MailingChain setWaitingRecipient(\boolean|\Bitrix\Main\DB\SqlExpression $waitingRecipient)
+	 * @method bool hasWaitingRecipient()
+	 * @method bool isWaitingRecipientFilled()
+	 * @method bool isWaitingRecipientChanged()
+	 * @method \boolean remindActualWaitingRecipient()
+	 * @method \boolean requireWaitingRecipient()
+	 * @method \Bitrix\Sender\EO_MailingChain resetWaitingRecipient()
+	 * @method \Bitrix\Sender\EO_MailingChain unsetWaitingRecipient()
+	 * @method \boolean fillWaitingRecipient()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -6831,6 +7403,8 @@ namespace Bitrix\Sender {
 	 * @method \Bitrix\Main\EO_User[] getCreatedByUserList()
 	 * @method \Bitrix\Sender\EO_MailingChain_Collection getCreatedByUserCollection()
 	 * @method \Bitrix\Main\EO_User_Collection fillCreatedByUser()
+	 * @method \boolean[] getWaitingRecipientList()
+	 * @method \boolean[] fillWaitingRecipient()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -6864,18 +7438,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_MailingChain_Query query()
-	 * @method static EO_MailingChain_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MailingChain_Result getById($id)
-	 * @method static EO_MailingChain_Result getList(array $parameters = array())
-	 * @method static EO_MailingChain_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_MailingChain createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_MailingChain_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_MailingChain wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_MailingChain_Collection wakeUpCollection($rows)
-	 */
-	class MailingChainTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -6901,7 +7463,7 @@ namespace Bitrix\Sender {
 	 */
 	class EO_MailingChain_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\MailingAttachmentTable:sender/lib/mailingchain.php:1f4140a9ee9fb5b35bf21fd53960dd11 */
+/* ORMENTITYANNOTATION:Bitrix\Sender\MailingAttachmentTable:sender/lib/mailingchain.php:032ebed36d36e539c06b2d69900272e8 */
 namespace Bitrix\Sender {
 	/**
 	 * EO_MailingAttachment
@@ -6998,18 +7560,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_MailingAttachment_Query query()
-	 * @method static EO_MailingAttachment_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MailingAttachment_Result getById($id)
-	 * @method static EO_MailingAttachment_Result getList(array $parameters = array())
-	 * @method static EO_MailingAttachment_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_MailingAttachment createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_MailingAttachment_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_MailingAttachment wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_MailingAttachment_Collection wakeUpCollection($rows)
-	 */
-	class MailingAttachmentTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -7035,7 +7585,7 @@ namespace Bitrix\Sender {
 	 */
 	class EO_MailingAttachment_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\MailingTriggerTable:sender/lib/mailingtrigger.php:6e858d635f4c376b46c92ea29211a918 */
+/* ORMENTITYANNOTATION:Bitrix\Sender\MailingTriggerTable:sender/lib/mailingtrigger.php:dac5b4e6594d665ef20e014ce2c585ec */
 namespace Bitrix\Sender {
 	/**
 	 * EO_MailingTrigger
@@ -7175,18 +7725,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_MailingTrigger_Query query()
-	 * @method static EO_MailingTrigger_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MailingTrigger_Result getById($id)
-	 * @method static EO_MailingTrigger_Result getList(array $parameters = array())
-	 * @method static EO_MailingTrigger_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_MailingTrigger createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_MailingTrigger_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_MailingTrigger wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_MailingTrigger_Collection wakeUpCollection($rows)
-	 */
-	class MailingTriggerTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -7212,7 +7750,7 @@ namespace Bitrix\Sender {
 	 */
 	class EO_MailingTrigger_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\PostingTable:sender/lib/posting.php:6303f978419b94ea5fb37055a0b81b0d */
+/* ORMENTITYANNOTATION:Bitrix\Sender\PostingTable:sender/lib/posting.php:3797f5ef67589dbec288368f284a86b2 */
 namespace Bitrix\Sender {
 	/**
 	 * EO_Posting
@@ -7574,18 +8112,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_Posting_Query query()
-	 * @method static EO_Posting_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Posting_Result getById($id)
-	 * @method static EO_Posting_Result getList(array $parameters = array())
-	 * @method static EO_Posting_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_Posting createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_Posting_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_Posting wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_Posting_Collection wakeUpCollection($rows)
-	 */
-	class PostingTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -7611,7 +8137,7 @@ namespace Bitrix\Sender {
 	 */
 	class EO_Posting_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\PostingReadTable:sender/lib/posting.php:6303f978419b94ea5fb37055a0b81b0d */
+/* ORMENTITYANNOTATION:Bitrix\Sender\PostingReadTable:sender/lib/posting.php:3797f5ef67589dbec288368f284a86b2 */
 namespace Bitrix\Sender {
 	/**
 	 * EO_PostingRead
@@ -7726,18 +8252,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_PostingRead_Query query()
-	 * @method static EO_PostingRead_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PostingRead_Result getById($id)
-	 * @method static EO_PostingRead_Result getList(array $parameters = array())
-	 * @method static EO_PostingRead_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_PostingRead createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_PostingRead_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_PostingRead wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_PostingRead_Collection wakeUpCollection($rows)
-	 */
-	class PostingReadTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -7763,7 +8277,7 @@ namespace Bitrix\Sender {
 	 */
 	class EO_PostingRead_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\PostingClickTable:sender/lib/posting.php:6303f978419b94ea5fb37055a0b81b0d */
+/* ORMENTITYANNOTATION:Bitrix\Sender\PostingClickTable:sender/lib/posting.php:3797f5ef67589dbec288368f284a86b2 */
 namespace Bitrix\Sender {
 	/**
 	 * EO_PostingClick
@@ -7903,18 +8417,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_PostingClick_Query query()
-	 * @method static EO_PostingClick_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PostingClick_Result getById($id)
-	 * @method static EO_PostingClick_Result getList(array $parameters = array())
-	 * @method static EO_PostingClick_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_PostingClick createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_PostingClick_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_PostingClick wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_PostingClick_Collection wakeUpCollection($rows)
-	 */
-	class PostingClickTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -7940,7 +8442,7 @@ namespace Bitrix\Sender {
 	 */
 	class EO_PostingClick_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\PostingUnsubTable:sender/lib/posting.php:6303f978419b94ea5fb37055a0b81b0d */
+/* ORMENTITYANNOTATION:Bitrix\Sender\PostingUnsubTable:sender/lib/posting.php:3797f5ef67589dbec288368f284a86b2 */
 namespace Bitrix\Sender {
 	/**
 	 * EO_PostingUnsub
@@ -8081,18 +8583,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_PostingUnsub_Query query()
-	 * @method static EO_PostingUnsub_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PostingUnsub_Result getById($id)
-	 * @method static EO_PostingUnsub_Result getList(array $parameters = array())
-	 * @method static EO_PostingUnsub_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_PostingUnsub createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_PostingUnsub_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_PostingUnsub wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_PostingUnsub_Collection wakeUpCollection($rows)
-	 */
-	class PostingUnsubTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -8118,7 +8608,7 @@ namespace Bitrix\Sender {
 	 */
 	class EO_PostingUnsub_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sender\PostingRecipientTable:sender/lib/posting.php:6303f978419b94ea5fb37055a0b81b0d */
+/* ORMENTITYANNOTATION:Bitrix\Sender\PostingRecipientTable:sender/lib/posting.php:3797f5ef67589dbec288368f284a86b2 */
 namespace Bitrix\Sender {
 	/**
 	 * EO_PostingRecipient
@@ -8394,18 +8884,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_PostingRecipient_Query query()
-	 * @method static EO_PostingRecipient_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PostingRecipient_Result getById($id)
-	 * @method static EO_PostingRecipient_Result getList(array $parameters = array())
-	 * @method static EO_PostingRecipient_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_PostingRecipient createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_PostingRecipient_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_PostingRecipient wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_PostingRecipient_Collection wakeUpCollection($rows)
-	 */
-	class PostingRecipientTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -8430,6 +8908,315 @@ namespace Bitrix\Sender {
 	 * @method \Bitrix\Sender\EO_PostingRecipient_Collection wakeUpCollection($rows)
 	 */
 	class EO_PostingRecipient_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sender\SegmentDataTable:sender/lib/segmentdata.php:1fa939b9fc4452c6fea62929b9b0c98e */
+namespace Bitrix\Sender {
+	/**
+	 * EO_SegmentData
+	 * @see \Bitrix\Sender\SegmentDataTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sender\EO_SegmentData setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getGroupId()
+	 * @method \Bitrix\Sender\EO_SegmentData setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
+	 * @method bool hasGroupId()
+	 * @method bool isGroupIdFilled()
+	 * @method bool isGroupIdChanged()
+	 * @method \int remindActualGroupId()
+	 * @method \int requireGroupId()
+	 * @method \Bitrix\Sender\EO_SegmentData resetGroupId()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetGroupId()
+	 * @method \int fillGroupId()
+	 * @method \Bitrix\Main\Type\DateTime getDateInsert()
+	 * @method \Bitrix\Sender\EO_SegmentData setDateInsert(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateInsert)
+	 * @method bool hasDateInsert()
+	 * @method bool isDateInsertFilled()
+	 * @method bool isDateInsertChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime requireDateInsert()
+	 * @method \Bitrix\Sender\EO_SegmentData resetDateInsert()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime fillDateInsert()
+	 * @method \int getCrmEntityId()
+	 * @method \Bitrix\Sender\EO_SegmentData setCrmEntityId(\int|\Bitrix\Main\DB\SqlExpression $crmEntityId)
+	 * @method bool hasCrmEntityId()
+	 * @method bool isCrmEntityIdFilled()
+	 * @method bool isCrmEntityIdChanged()
+	 * @method \int remindActualCrmEntityId()
+	 * @method \int requireCrmEntityId()
+	 * @method \Bitrix\Sender\EO_SegmentData resetCrmEntityId()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetCrmEntityId()
+	 * @method \int fillCrmEntityId()
+	 * @method \string getFilterId()
+	 * @method \Bitrix\Sender\EO_SegmentData setFilterId(\string|\Bitrix\Main\DB\SqlExpression $filterId)
+	 * @method bool hasFilterId()
+	 * @method bool isFilterIdFilled()
+	 * @method bool isFilterIdChanged()
+	 * @method \string remindActualFilterId()
+	 * @method \string requireFilterId()
+	 * @method \Bitrix\Sender\EO_SegmentData resetFilterId()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetFilterId()
+	 * @method \string fillFilterId()
+	 * @method \string getName()
+	 * @method \Bitrix\Sender\EO_SegmentData setName(\string|\Bitrix\Main\DB\SqlExpression $name)
+	 * @method bool hasName()
+	 * @method bool isNameFilled()
+	 * @method bool isNameChanged()
+	 * @method \string remindActualName()
+	 * @method \string requireName()
+	 * @method \Bitrix\Sender\EO_SegmentData resetName()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetName()
+	 * @method \string fillName()
+	 * @method \string getCrmEntityType()
+	 * @method \Bitrix\Sender\EO_SegmentData setCrmEntityType(\string|\Bitrix\Main\DB\SqlExpression $crmEntityType)
+	 * @method bool hasCrmEntityType()
+	 * @method bool isCrmEntityTypeFilled()
+	 * @method bool isCrmEntityTypeChanged()
+	 * @method \string remindActualCrmEntityType()
+	 * @method \string requireCrmEntityType()
+	 * @method \Bitrix\Sender\EO_SegmentData resetCrmEntityType()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetCrmEntityType()
+	 * @method \string fillCrmEntityType()
+	 * @method \int getCrmEntityTypeId()
+	 * @method \Bitrix\Sender\EO_SegmentData setCrmEntityTypeId(\int|\Bitrix\Main\DB\SqlExpression $crmEntityTypeId)
+	 * @method bool hasCrmEntityTypeId()
+	 * @method bool isCrmEntityTypeIdFilled()
+	 * @method bool isCrmEntityTypeIdChanged()
+	 * @method \int remindActualCrmEntityTypeId()
+	 * @method \int requireCrmEntityTypeId()
+	 * @method \Bitrix\Sender\EO_SegmentData resetCrmEntityTypeId()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetCrmEntityTypeId()
+	 * @method \int fillCrmEntityTypeId()
+	 * @method \int getContactId()
+	 * @method \Bitrix\Sender\EO_SegmentData setContactId(\int|\Bitrix\Main\DB\SqlExpression $contactId)
+	 * @method bool hasContactId()
+	 * @method bool isContactIdFilled()
+	 * @method bool isContactIdChanged()
+	 * @method \int remindActualContactId()
+	 * @method \int requireContactId()
+	 * @method \Bitrix\Sender\EO_SegmentData resetContactId()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetContactId()
+	 * @method \int fillContactId()
+	 * @method \int getCompanyId()
+	 * @method \Bitrix\Sender\EO_SegmentData setCompanyId(\int|\Bitrix\Main\DB\SqlExpression $companyId)
+	 * @method bool hasCompanyId()
+	 * @method bool isCompanyIdFilled()
+	 * @method bool isCompanyIdChanged()
+	 * @method \int remindActualCompanyId()
+	 * @method \int requireCompanyId()
+	 * @method \Bitrix\Sender\EO_SegmentData resetCompanyId()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetCompanyId()
+	 * @method \int fillCompanyId()
+	 * @method \string getEmail()
+	 * @method \Bitrix\Sender\EO_SegmentData setEmail(\string|\Bitrix\Main\DB\SqlExpression $email)
+	 * @method bool hasEmail()
+	 * @method bool isEmailFilled()
+	 * @method bool isEmailChanged()
+	 * @method \string remindActualEmail()
+	 * @method \string requireEmail()
+	 * @method \Bitrix\Sender\EO_SegmentData resetEmail()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetEmail()
+	 * @method \string fillEmail()
+	 * @method \string getIm()
+	 * @method \Bitrix\Sender\EO_SegmentData setIm(\string|\Bitrix\Main\DB\SqlExpression $im)
+	 * @method bool hasIm()
+	 * @method bool isImFilled()
+	 * @method bool isImChanged()
+	 * @method \string remindActualIm()
+	 * @method \string requireIm()
+	 * @method \Bitrix\Sender\EO_SegmentData resetIm()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetIm()
+	 * @method \string fillIm()
+	 * @method \string getPhone()
+	 * @method \Bitrix\Sender\EO_SegmentData setPhone(\string|\Bitrix\Main\DB\SqlExpression $phone)
+	 * @method bool hasPhone()
+	 * @method bool isPhoneFilled()
+	 * @method bool isPhoneChanged()
+	 * @method \string remindActualPhone()
+	 * @method \string requirePhone()
+	 * @method \Bitrix\Sender\EO_SegmentData resetPhone()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetPhone()
+	 * @method \string fillPhone()
+	 * @method \string getHasEmail()
+	 * @method \Bitrix\Sender\EO_SegmentData setHasEmail(\string|\Bitrix\Main\DB\SqlExpression $hasEmail)
+	 * @method bool hasHasEmail()
+	 * @method bool isHasEmailFilled()
+	 * @method bool isHasEmailChanged()
+	 * @method \string remindActualHasEmail()
+	 * @method \string requireHasEmail()
+	 * @method \Bitrix\Sender\EO_SegmentData resetHasEmail()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetHasEmail()
+	 * @method \string fillHasEmail()
+	 * @method \string getHasImol()
+	 * @method \Bitrix\Sender\EO_SegmentData setHasImol(\string|\Bitrix\Main\DB\SqlExpression $hasImol)
+	 * @method bool hasHasImol()
+	 * @method bool isHasImolFilled()
+	 * @method bool isHasImolChanged()
+	 * @method \string remindActualHasImol()
+	 * @method \string requireHasImol()
+	 * @method \Bitrix\Sender\EO_SegmentData resetHasImol()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetHasImol()
+	 * @method \string fillHasImol()
+	 * @method \string getHasPhone()
+	 * @method \Bitrix\Sender\EO_SegmentData setHasPhone(\string|\Bitrix\Main\DB\SqlExpression $hasPhone)
+	 * @method bool hasHasPhone()
+	 * @method bool isHasPhoneFilled()
+	 * @method bool isHasPhoneChanged()
+	 * @method \string remindActualHasPhone()
+	 * @method \string requireHasPhone()
+	 * @method \Bitrix\Sender\EO_SegmentData resetHasPhone()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetHasPhone()
+	 * @method \string fillHasPhone()
+	 * @method \Bitrix\Sender\EO_Group getGroup()
+	 * @method \Bitrix\Sender\EO_Group remindActualGroup()
+	 * @method \Bitrix\Sender\EO_Group requireGroup()
+	 * @method \Bitrix\Sender\EO_SegmentData setGroup(\Bitrix\Sender\EO_Group $object)
+	 * @method \Bitrix\Sender\EO_SegmentData resetGroup()
+	 * @method \Bitrix\Sender\EO_SegmentData unsetGroup()
+	 * @method bool hasGroup()
+	 * @method bool isGroupFilled()
+	 * @method bool isGroupChanged()
+	 * @method \Bitrix\Sender\EO_Group fillGroup()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sender\EO_SegmentData set($fieldName, $value)
+	 * @method \Bitrix\Sender\EO_SegmentData reset($fieldName)
+	 * @method \Bitrix\Sender\EO_SegmentData unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sender\EO_SegmentData wakeUp($data)
+	 */
+	class EO_SegmentData {
+		/* @var \Bitrix\Sender\SegmentDataTable */
+		static public $dataClass = '\Bitrix\Sender\SegmentDataTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sender {
+	/**
+	 * EO_SegmentData_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getGroupIdList()
+	 * @method \int[] fillGroupId()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateInsertList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateInsert()
+	 * @method \int[] getCrmEntityIdList()
+	 * @method \int[] fillCrmEntityId()
+	 * @method \string[] getFilterIdList()
+	 * @method \string[] fillFilterId()
+	 * @method \string[] getNameList()
+	 * @method \string[] fillName()
+	 * @method \string[] getCrmEntityTypeList()
+	 * @method \string[] fillCrmEntityType()
+	 * @method \int[] getCrmEntityTypeIdList()
+	 * @method \int[] fillCrmEntityTypeId()
+	 * @method \int[] getContactIdList()
+	 * @method \int[] fillContactId()
+	 * @method \int[] getCompanyIdList()
+	 * @method \int[] fillCompanyId()
+	 * @method \string[] getEmailList()
+	 * @method \string[] fillEmail()
+	 * @method \string[] getImList()
+	 * @method \string[] fillIm()
+	 * @method \string[] getPhoneList()
+	 * @method \string[] fillPhone()
+	 * @method \string[] getHasEmailList()
+	 * @method \string[] fillHasEmail()
+	 * @method \string[] getHasImolList()
+	 * @method \string[] fillHasImol()
+	 * @method \string[] getHasPhoneList()
+	 * @method \string[] fillHasPhone()
+	 * @method \Bitrix\Sender\EO_Group[] getGroupList()
+	 * @method \Bitrix\Sender\EO_SegmentData_Collection getGroupCollection()
+	 * @method \Bitrix\Sender\EO_Group_Collection fillGroup()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sender\EO_SegmentData $object)
+	 * @method bool has(\Bitrix\Sender\EO_SegmentData $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sender\EO_SegmentData getByPrimary($primary)
+	 * @method \Bitrix\Sender\EO_SegmentData[] getAll()
+	 * @method bool remove(\Bitrix\Sender\EO_SegmentData $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sender\EO_SegmentData_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sender\EO_SegmentData current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_SegmentData_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sender\SegmentDataTable */
+		static public $dataClass = '\Bitrix\Sender\SegmentDataTable';
+	}
+}
+namespace Bitrix\Sender {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_SegmentData_Result exec()
+	 * @method \Bitrix\Sender\EO_SegmentData fetchObject()
+	 * @method \Bitrix\Sender\EO_SegmentData_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_SegmentData_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sender\EO_SegmentData fetchObject()
+	 * @method \Bitrix\Sender\EO_SegmentData_Collection fetchCollection()
+	 */
+	class EO_SegmentData_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sender\EO_SegmentData createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sender\EO_SegmentData_Collection createCollection()
+	 * @method \Bitrix\Sender\EO_SegmentData wakeUpObject($row)
+	 * @method \Bitrix\Sender\EO_SegmentData_Collection wakeUpCollection($rows)
+	 */
+	class EO_SegmentData_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Sender\TemplateTable:sender/lib/template.php:8327a7dad0ccceddf675001f494c4dec */
 namespace Bitrix\Sender {
@@ -8594,18 +9381,6 @@ namespace Bitrix\Sender {
 }
 namespace Bitrix\Sender {
 	/**
-	 * @method static EO_Template_Query query()
-	 * @method static EO_Template_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Template_Result getById($id)
-	 * @method static EO_Template_Result getList(array $parameters = array())
-	 * @method static EO_Template_Entity getEntity()
-	 * @method static \Bitrix\Sender\EO_Template createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sender\EO_Template_Collection createCollection()
-	 * @method static \Bitrix\Sender\EO_Template wakeUpObject($row)
-	 * @method static \Bitrix\Sender\EO_Template_Collection wakeUpCollection($rows)
-	 */
-	class TemplateTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -8630,4 +9405,216 @@ namespace Bitrix\Sender {
 	 * @method \Bitrix\Sender\EO_Template_Collection wakeUpCollection($rows)
 	 */
 	class EO_Template_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sender\TimeLineQueueTable:sender/lib/timelinequeue.php:7a32758da1c8e24b0c1f11f28a168b1f */
+namespace Bitrix\Sender {
+	/**
+	 * EO_TimeLineQueue
+	 * @see \Bitrix\Sender\TimeLineQueueTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getPostingId()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue setPostingId(\int|\Bitrix\Main\DB\SqlExpression $postingId)
+	 * @method bool hasPostingId()
+	 * @method bool isPostingIdFilled()
+	 * @method bool isPostingIdChanged()
+	 * @method \int remindActualPostingId()
+	 * @method \int requirePostingId()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue resetPostingId()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue unsetPostingId()
+	 * @method \int fillPostingId()
+	 * @method \int getEntityId()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
+	 * @method bool hasEntityId()
+	 * @method bool isEntityIdFilled()
+	 * @method bool isEntityIdChanged()
+	 * @method \int remindActualEntityId()
+	 * @method \int requireEntityId()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue resetEntityId()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue unsetEntityId()
+	 * @method \int fillEntityId()
+	 * @method \int getRecipientId()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue setRecipientId(\int|\Bitrix\Main\DB\SqlExpression $recipientId)
+	 * @method bool hasRecipientId()
+	 * @method bool isRecipientIdFilled()
+	 * @method bool isRecipientIdChanged()
+	 * @method \int remindActualRecipientId()
+	 * @method \int requireRecipientId()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue resetRecipientId()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue unsetRecipientId()
+	 * @method \int fillRecipientId()
+	 * @method \int getContactTypeId()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue setContactTypeId(\int|\Bitrix\Main\DB\SqlExpression $contactTypeId)
+	 * @method bool hasContactTypeId()
+	 * @method bool isContactTypeIdFilled()
+	 * @method bool isContactTypeIdChanged()
+	 * @method \int remindActualContactTypeId()
+	 * @method \int requireContactTypeId()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue resetContactTypeId()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue unsetContactTypeId()
+	 * @method \int fillContactTypeId()
+	 * @method \string getContactCode()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue setContactCode(\string|\Bitrix\Main\DB\SqlExpression $contactCode)
+	 * @method bool hasContactCode()
+	 * @method bool isContactCodeFilled()
+	 * @method bool isContactCodeChanged()
+	 * @method \string remindActualContactCode()
+	 * @method \string requireContactCode()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue resetContactCode()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue unsetContactCode()
+	 * @method \string fillContactCode()
+	 * @method \string getFields()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue setFields(\string|\Bitrix\Main\DB\SqlExpression $fields)
+	 * @method bool hasFields()
+	 * @method bool isFieldsFilled()
+	 * @method bool isFieldsChanged()
+	 * @method \string remindActualFields()
+	 * @method \string requireFields()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue resetFields()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue unsetFields()
+	 * @method \string fillFields()
+	 * @method \Bitrix\Main\Type\DateTime getDateInsert()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue setDateInsert(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateInsert)
+	 * @method bool hasDateInsert()
+	 * @method bool isDateInsertFilled()
+	 * @method bool isDateInsertChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime requireDateInsert()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue resetDateInsert()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue unsetDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime fillDateInsert()
+	 * @method \string getStatus()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue setStatus(\string|\Bitrix\Main\DB\SqlExpression $status)
+	 * @method bool hasStatus()
+	 * @method bool isStatusFilled()
+	 * @method bool isStatusChanged()
+	 * @method \string remindActualStatus()
+	 * @method \string requireStatus()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue resetStatus()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue unsetStatus()
+	 * @method \string fillStatus()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sender\EO_TimeLineQueue set($fieldName, $value)
+	 * @method \Bitrix\Sender\EO_TimeLineQueue reset($fieldName)
+	 * @method \Bitrix\Sender\EO_TimeLineQueue unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sender\EO_TimeLineQueue wakeUp($data)
+	 */
+	class EO_TimeLineQueue {
+		/* @var \Bitrix\Sender\TimeLineQueueTable */
+		static public $dataClass = '\Bitrix\Sender\TimeLineQueueTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sender {
+	/**
+	 * EO_TimeLineQueue_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getPostingIdList()
+	 * @method \int[] fillPostingId()
+	 * @method \int[] getEntityIdList()
+	 * @method \int[] fillEntityId()
+	 * @method \int[] getRecipientIdList()
+	 * @method \int[] fillRecipientId()
+	 * @method \int[] getContactTypeIdList()
+	 * @method \int[] fillContactTypeId()
+	 * @method \string[] getContactCodeList()
+	 * @method \string[] fillContactCode()
+	 * @method \string[] getFieldsList()
+	 * @method \string[] fillFields()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateInsertList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateInsert()
+	 * @method \string[] getStatusList()
+	 * @method \string[] fillStatus()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sender\EO_TimeLineQueue $object)
+	 * @method bool has(\Bitrix\Sender\EO_TimeLineQueue $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sender\EO_TimeLineQueue getByPrimary($primary)
+	 * @method \Bitrix\Sender\EO_TimeLineQueue[] getAll()
+	 * @method bool remove(\Bitrix\Sender\EO_TimeLineQueue $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sender\EO_TimeLineQueue_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sender\EO_TimeLineQueue current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_TimeLineQueue_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sender\TimeLineQueueTable */
+		static public $dataClass = '\Bitrix\Sender\TimeLineQueueTable';
+	}
+}
+namespace Bitrix\Sender {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_TimeLineQueue_Result exec()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue fetchObject()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_TimeLineQueue_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sender\EO_TimeLineQueue fetchObject()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue_Collection fetchCollection()
+	 */
+	class EO_TimeLineQueue_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sender\EO_TimeLineQueue createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sender\EO_TimeLineQueue_Collection createCollection()
+	 * @method \Bitrix\Sender\EO_TimeLineQueue wakeUpObject($row)
+	 * @method \Bitrix\Sender\EO_TimeLineQueue_Collection wakeUpCollection($rows)
+	 */
+	class EO_TimeLineQueue_Entity extends \Bitrix\Main\ORM\Entity {}
 }

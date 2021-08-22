@@ -13,6 +13,7 @@ $MESS["SOA_DELIVERY_CALCULATE_ERROR"] = "Cannot calculate delivery cost.";
 $MESS["SOA_DISCOUNT_DEFAULT_COLUMN"] = "Discount";
 $MESS["SOA_ERROR_EMAIL"] = "The e-mail address specified is incorrect.";
 $MESS["SOA_ERROR_ORDER"] = "Error creating an order.";
+$MESS["SOA_ERROR_PAY_SYSTEM"] = "No payment systems detected.";
 $MESS["SOA_ERROR_PERSON_TYPE"] = "Payer type is not specified.";
 $MESS["SOA_ERROR_REQUIRE"] = "The field is required:";
 $MESS["SOA_FROM"] = "from";

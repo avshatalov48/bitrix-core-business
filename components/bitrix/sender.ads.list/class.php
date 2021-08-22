@@ -518,6 +518,8 @@ class SenderAdsListComponent extends Bitrix\Sender\Internals\CommonSenderCompone
 			),
 			true, false
 		);
+
+		$data['USER'] = htmlspecialcharsbx($data['USER']);
 	}
 
 	protected function printErrors()

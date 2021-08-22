@@ -2,9 +2,9 @@
 
 namespace Sale\Handlers\Delivery\YandexTaxi;
 
-use Bitrix\Location\Entity\Address;
 use Bitrix\Sale\Shipment;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Api;
+use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\TariffsResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\TariffsOptions;
 use Sale\Handlers\Delivery\YandexTaxi\Common\ShipmentDataExtractor;
 
@@ -21,8 +21,8 @@ final class TariffsChecker
 	/** @var ShipmentDataExtractor */
 	protected $shipmentDataExtractor;
 
-	/** @var array|null */
-	private $availableTariffs;
+	/** @var array */
+	private $results = [];
 
 	/**
 	 * TariffsChecker constructor.
@@ -37,42 +37,98 @@ final class TariffsChecker
 
 	/**
 	 * @param array $coordinates
-	 * @return array|null
-	 * @throws \Bitrix\Main\ArgumentException
+	 * @return TariffsResult
 	 */
-	public function getAvailableTariffs(array $coordinates): ?array
+	private function getTariffsResult(array $coordinates): TariffsResult
 	{
-		if (!is_null($this->availableTariffs))
+		$resultHash = $this->getCoordinatesHash($coordinates);
+		if (isset($this->results[$resultHash]))
 		{
-			return $this->availableTariffs;
+			return $this->results[$resultHash];
 		}
 
-		$tariffsResult = $this->api->getTariffs(
+		$this->results[$resultHash] = $this->api->getTariffs(
 			(new TariffsOptions)->setStartPoint(
 				array_map('floatval', $coordinates)
 			)
 		);
 
+		return $this->results[$resultHash];
+	}
+
+	/**
+	 * @param array $coordinates
+	 * @return array|null
+	 */
+	public function getAvailableTariffs(array $coordinates): ?array
+	{
+		$tariffsResult = $this->getTariffsResult($coordinates);
 		if (!$tariffsResult->isSuccess())
 		{
 			return null;
 		}
 
-		$this->availableTariffs = $tariffsResult->getTariffs();
+		return array_map(
+			function ($tariff)
+			{
+				return $tariff->getCode();
+			},
+			$tariffsResult->getTariffs()
+		);
+	}
 
-		return $this->availableTariffs;
+	/**
+	 * @param string $tariffCode
+	 * @param Shipment $shipment
+	 * @return array
+	 */
+	public function getSupportedRequirementsByTariff(string $tariffCode, Shipment $shipment): array
+	{
+		$result = [];
+
+		$coordinates = $this->getSourceCoordinatesByShipment($shipment);
+		if (!$coordinates)
+		{
+			return $result;
+		}
+
+		$tariffsResult = $this->getTariffsResult($coordinates);
+		if (!$tariffsResult->isSuccess())
+		{
+			return $result;
+		}
+
+		$tariffs = $tariffsResult->getTariffs();
+		foreach ($tariffs as $tariff)
+		{
+			if ($tariff->getCode() === $tariffCode)
+			{
+				$supportedRequirements = $tariff->getSupportedRequirements();
+				foreach ($supportedRequirements as $supportedRequirement)
+				{
+					$result[] = $supportedRequirement;
+				}
+				break;
+			}
+		}
+
+		return $result;
 	}
 
 	/**
 	 * @param string $tariff
-	 * @param array $coordinates
+	 * @param Shipment $shipment
 	 * @return bool|null
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
-	public function isTariffAvailable(string $tariff, array $coordinates): ?bool
+	public function isTariffAvailableByShipment(string $tariff, Shipment $shipment): ?bool
 	{
-		$tariffs = $this->getAvailableTariffs($coordinates);
+		$coordinates = $this->getSourceCoordinatesByShipment($shipment);
+		if (!$coordinates)
+		{
+			return null;
+		}
 
+		$tariffs = $this->getAvailableTariffs($coordinates);
 		if (is_null($tariffs))
 		{
 			return null;
@@ -82,45 +138,34 @@ final class TariffsChecker
 	}
 
 	/**
-	 * @param string $tariff
 	 * @param Shipment $shipment
-	 * @return bool|null
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\LoaderException
-	 * @throws \Bitrix\Main\NotImplementedException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
+	 * @return array|null
 	 */
-	public function isTariffAvailableByShipment(string $tariff, Shipment $shipment): ?bool
+	private function getSourceCoordinatesByShipment(Shipment $shipment): ?array
 	{
-		$addressFrom = $this->shipmentDataExtractor->getAddressFrom($shipment);
-		if (is_null($addressFrom))
+		$address = $this->shipmentDataExtractor->getAddressFrom($shipment);
+		if (is_null($address))
 		{
 			return null;
 		}
 
-		return $this->isTariffAvailableByAddress($tariff, $addressFrom);
-	}
-
-	/**
-	 * @param string $tariff
-	 * @param Address $address
-	 * @return bool|null
-	 * @throws \Bitrix\Main\ArgumentException
-	 */
-	public function isTariffAvailableByAddress(string $tariff, Address $address): ?bool
-	{
 		if (!$address->getLatitude() || !$address->getLongitude())
 		{
 			return null;
 		}
 
-		return $this->isTariffAvailable(
-			$tariff,
-			[
-				$address->getLongitude(),
-				$address->getLatitude(),
-			]
-		);
+		return [
+			$address->getLongitude(),
+			$address->getLatitude(),
+		];
+	}
+
+	/**
+	 * @param array $coordinates
+	 * @return string
+	 */
+	private function getCoordinatesHash(array $coordinates): string
+	{
+		return md5(implode(';', $coordinates));
 	}
 }

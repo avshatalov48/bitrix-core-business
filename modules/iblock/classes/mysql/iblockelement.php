@@ -1,7 +1,7 @@
-<?
+<?php
+
 use Bitrix\Main;
 use Bitrix\Main\Loader;
-use Bitrix\Main\ModuleManager;
 
 class CIBlockElement extends CAllIBlockElement
 {
@@ -860,7 +860,15 @@ class CIBlockElement extends CAllIBlockElement
 		if(!($ar_element = $db_element->Fetch()))
 			return false;
 
-		$arIBlock = CIBlock::GetArrayByID($ar_element["IBLOCK_ID"]);
+		if ($this->iblock !== null && $this->iblock['ID'] === (int)$ar_element["IBLOCK_ID"])
+		{
+			$arIBlock = $this->iblock;
+		}
+		else
+		{
+			$arIBlock = CIBlock::GetArrayByID($ar_element["IBLOCK_ID"]);
+		}
+
 		$bWorkFlow = $bWorkFlow && is_array($arIBlock) && ($arIBlock["WORKFLOW"] != "N") && $this->workflowIncluded;
 
 		$ar_wf_element = $ar_element;
@@ -1565,7 +1573,7 @@ class CIBlockElement extends CAllIBlockElement
 
 			$newFields = $arFields;
 			$newFields["ID"] = $ID;
-			$IBLOCK_SECTION_ID = $arFields["IBLOCK_SECTION_ID"];
+			$IBLOCK_SECTION_ID = $arFields["IBLOCK_SECTION_ID"] ?? null;
 			unset($arFields["IBLOCK_ID"], $arFields["WF_NEW"], $arFields["IBLOCK_SECTION_ID"]);
 
 			$bTimeStampNA = false;
@@ -2706,7 +2714,7 @@ class CIBlockElement extends CAllIBlockElement
 	 * @param mixed $order
 	 * @return string
 	 */
-	protected function getIdOrder($order)
+	protected function getIdOrder($order): string
 	{
 		if (is_array($order))
 		{

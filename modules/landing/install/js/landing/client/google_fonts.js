@@ -16,7 +16,7 @@
 	{
 		this.key = "AIzaSyCqOG-HakgzOQh9prxtkuWLA16lnkNZvsg";
 		this.patch = "https://www.googleapis.com/webfonts/v1/webfonts?sort=popularity&key=";
-		this.fontUrl = "https://fonts.googleapis.com/css";
+		this.fontUrl = "https://fonts.googleapis.com/css2";
 		this.response = {};
 	};
 

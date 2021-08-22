@@ -6,6 +6,22 @@ use \Bitrix\Main\Entity;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class CookiesAgreementTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CookiesAgreement_Query query()
+ * @method static EO_CookiesAgreement_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CookiesAgreement_Result getById($id)
+ * @method static EO_CookiesAgreement_Result getList(array $parameters = array())
+ * @method static EO_CookiesAgreement_Entity getEntity()
+ * @method static \Bitrix\Landing\Internals\EO_CookiesAgreement createObject($setDefaultValues = true)
+ * @method static \Bitrix\Landing\Internals\EO_CookiesAgreement_Collection createCollection()
+ * @method static \Bitrix\Landing\Internals\EO_CookiesAgreement wakeUpObject($row)
+ * @method static \Bitrix\Landing\Internals\EO_CookiesAgreement_Collection wakeUpCollection($rows)
+ */
 class CookiesAgreementTable extends Entity\DataManager
 {
 	/**

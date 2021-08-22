@@ -146,11 +146,16 @@ class LandingBaseComponent extends \CBitrixComponent
 	/**
 	 * Returns feedback parameters.
 	 * @param string $id Feedback code.
+	 * @param array $presets Additional params.
 	 * @return array|null
 	 */
-	public function getFeedbackParameters(string $id): ?array
+	public function getFeedbackParameters(string $id, array $presets = []): ?array
 	{
 		$id = 'landing-feedback-' . $id;
+		$tariffTtl = \Bitrix\Main\Config\Option::get('main', '~controller_group_till');
+		$tariffDate = $tariffTtl ? (string)\Bitrix\Main\Type\Date::createFromTimestamp((int)$tariffTtl) : null;
+		$partnerId = \Bitrix\Main\Config\Option::get('bitrix24', 'partner_id', 0);
+		$b24 = Loader::includeModule('bitrix24');
 
 		$data = [
 			'landing-feedback-designblock' => [
@@ -210,15 +215,46 @@ class LandingBaseComponent extends \CBitrixComponent
 				],
 				'PRESETS' => [
 					'url' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME'],
-					'tarif' => ($b24 = Loader::includeModule('bitrix24')) ? \CBitrix24::getLicenseType() : '',
+					'tarif' => $b24 ? \CBitrix24::getLicenseType() : '',
 					'city' => $b24 ? implode(' / ', $this->getUserGeoData()) : '',
-					'partner_id' => \Bitrix\Main\Config\Option::get('bitrix24', 'partner_id', 0)
+					'partner_id' => $partnerId,
+					'date_to' => $tariffDate ?: null
+				],
+				'PORTAL_URI' => 'https://cp.bitrix.ru'
+			],
+			'landing-feedback-knowledge' => [
+				'ID' => 'landing-feedback-knowledge',
+				'VIEW_TARGET' => null,
+				'FORMS' => [
+					['zones' => ['en'], 'id' => '1399','lang' => 'en', 'sec' => 'fkonbt'],
+					['zones' => ['de'], 'id' => '1398','lang' => 'de', 'sec' => 'zvchw9'],
+					['zones' => ['es'], 'id' => '1396','lang' => 'la', 'sec' => 'vb62o3'],
+					['zones' => ['fr'], 'id' => '1401','lang' => 'fr', 'sec' => 'ungyc0'],
+					['zones' => ['pl'], 'id' => '1392','lang' => 'pl', 'sec' => 'ib6p6u'],
+					['zones' => ['pt'], 'id' => '1394','lang' => 'pt', 'sec' => 'sfzq02'],
+					['zones' => ['ua'], 'id' => '1373','lang' => 'ua', 'sec' => 'p4xpwb'],
+					['zones' => ['ru'], 'id' => '1368','lang' => 'ru', 'sec' => '0rb92n'],
+					['zones' => ['kz'], 'id' => '1372','lang' => 'ru', 'sec' => 'o32l7z'],
+					['zones' => ['by'], 'id' => '1378','lang' => 'ru', 'sec' => 'naegic']
+				],
+				'PRESETS' => [
+					'url' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME'],
+					'tarif' => $b24 ? \CBitrix24::getLicenseType() : '',
+					'city' => $b24 ? implode(' / ', $this->getUserGeoData()) : '',
+					'partner_id' => $partnerId,
+					'date_to' => $tariffDate ?: null
 				],
 				'PORTAL_URI' => 'https://cp.bitrix.ru'
 			]
 		];
 
-		return array_key_exists($id, $data) ? $data[$id] : null;
+		$data = array_key_exists($id, $data) ? $data[$id] : null;
+		if ($presets)
+		{
+			$data['PRESETS'] += $presets;
+		}
+
+		return $data;
 	}
 
 	/**

@@ -1,3 +1,5 @@
+import { NotificationTypesCodes } from 'im.const';
+
 export const NotificationItemHeader = {
 	props: ['listItem'],
 	computed:
@@ -17,14 +19,14 @@ export const NotificationItemHeader = {
 		},
 		isAbleToDelete()
 		{
-			return this.listItem.sectionCode === 'notification';
+			return this.listItem.sectionCode === NotificationTypesCodes.simple;
 		},
 	},
 	methods:
 	{
 		onDeleteClick(event)
 		{
-			if (event.item.sectionCode === 'notification')
+			if (event.item.sectionCode === NotificationTypesCodes.simple)
 			{
 				this.$emit('deleteClick', event);
 			}

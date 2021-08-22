@@ -97,18 +97,6 @@ else
 			?><script type="text/javascript">
 			BX.Timeman.Monitor.init(<?=\Bitrix\Timeman\Monitor\Config::json()?>);
 			</script><?
-
-			if (\Bitrix\Timeman\Monitor\Config::isMonitorEnabledForCurrentUser())
-			{
-				//tmp hack to close day in desktop app vie old popup.
-				$APPLICATION->IncludeComponent(
-					'bitrix:timeman',
-					'desktop',
-					[],
-					false,
-					["HIDE_ICONS" => "Y"]
-				);
-			}
 		}
 	}
 }

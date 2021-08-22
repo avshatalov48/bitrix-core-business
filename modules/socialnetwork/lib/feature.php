@@ -25,6 +25,22 @@ create table b_sonet_features
 );
 
 */
+/**
+ * Class FeatureTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Feature_Query query()
+ * @method static EO_Feature_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Feature_Result getById($id)
+ * @method static EO_Feature_Result getList(array $parameters = array())
+ * @method static EO_Feature_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_Feature createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_Feature_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_Feature wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_Feature_Collection wakeUpCollection($rows)
+ */
 class FeatureTable extends Entity\DataManager
 {
 	const FEATURE_ENTITY_TYPE_GROUP = 'G';

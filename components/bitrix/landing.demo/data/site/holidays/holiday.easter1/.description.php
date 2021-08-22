@@ -14,8 +14,8 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'accounting',
-			'THEMEFONTS_CODE' => 'g-font-open-sans',
-			'THEMEFONTS_CODE_H' => 'g-font-montserrat',
+			'THEMEFONTS_CODE' => 'Open Sans',
+			'THEMEFONTS_CODE_H' => 'Montserrat',
 			'THEMEFONTS_SIZE' => '1',
 			'THEMEFONTS_USE' => 'Y',
 			'UP_SHOW' => 'Y',

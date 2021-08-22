@@ -8,8 +8,10 @@ use Bitrix\Catalog\v2\PropertyValue\PropertyValueFactory;
 use Bitrix\Catalog\v2\Section\HasSectionCollection;
 use Bitrix\Iblock\PropertyEnumerationTable;
 use Bitrix\Iblock\PropertyTable;
+use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
+use Bitrix\Main\Type\Collection;
 
 /**
  * Class PropertyRepository
@@ -224,29 +226,27 @@ class PropertyRepository implements PropertyRepositoryContract
 
 	protected function createCollection(array $entityFields, BaseIblockElementEntity $parent): PropertyCollection
 	{
-		$collection = $this->factory->createCollection();
+		$propertySettings = [];
 
-		$propertySettings = null;
-		// ToDo if has no section collection - check parents? (in case when SKU)
 		if ($parent instanceof HasSectionCollection)
 		{
-			$linkedProperties = $this->getLinkedProperties($parent->getIblockId(), $parent);
-
-			if (!empty($linkedProperties))
+			$linkedPropertyIds = $this->getLinkedPropertyIds($parent->getIblockId(), $parent);
+			if (!empty($linkedPropertyIds))
 			{
 				$propertySettings = $this->getPropertiesSettingsByFilter([
-					'@ID' => array_keys($linkedProperties),
+					'@ID' => $linkedPropertyIds,
 				]);
 			}
 		}
-
-		if ($propertySettings === null)
+		else
 		{
+			// variation properties don't use any section links right now
 			$propertySettings = $this->getPropertiesSettingsByFilter([
 				'=IBLOCK_ID' => $parent->getIblockId(),
 			]);
 		}
 
+		$collection = $this->factory->createCollection();
 		$propertySettings = $this->loadEnumSettings($propertySettings);
 
 		foreach ($propertySettings as $settings)
@@ -268,17 +268,55 @@ class PropertyRepository implements PropertyRepositoryContract
 		return $collection;
 	}
 
-	protected function getLinkedProperties(int $iblockId, HasSectionCollection $parent): array
+	protected function getLinkedPropertyIds(int $iblockId, HasSectionCollection $parent): array
 	{
-		$linkedProperties = \CIBlockSectionPropertyLink::getArray($iblockId, 0);
+		$linkedPropertyIds = [$this->loadPropertyIdsWithoutAnyLink($iblockId)];
+
+		if ($parent->getSectionCollection()->isEmpty())
+		{
+			$linkedPropertyIds[] = array_keys(\CIBlockSectionPropertyLink::getArray($iblockId));
+		}
 
 		/** @var \Bitrix\Catalog\v2\Section\Section $section */
 		foreach ($parent->getSectionCollection() as $section)
 		{
-			$linkedProperties += \CIBlockSectionPropertyLink::getArray($iblockId, $section->getValue());
+			$linkedPropertyIds[] = array_keys(\CIBlockSectionPropertyLink::getArray($iblockId, $section->getValue()));
 		}
 
-		return $linkedProperties;
+		if (!empty($linkedPropertyIds))
+		{
+			$linkedPropertyIds = array_merge(...$linkedPropertyIds);
+			Collection::normalizeArrayValuesByInt($linkedPropertyIds, false);
+			$linkedPropertyIds = array_unique($linkedPropertyIds);
+		}
+
+		return $linkedPropertyIds;
+	}
+
+	private function loadPropertyIdsWithoutAnyLink(int $iblockId): array
+	{
+		$propertyIds = PropertyTable::getList([
+			'select' => ['ID'],
+			'filter' => [
+				'=IBLOCK_ID' => $iblockId,
+				'==SECTION_LINK.SECTION_ID' => null,
+			],
+			'runtime' => [
+				new ReferenceField(
+					'SECTION_LINK',
+					'\Bitrix\Iblock\SectionPropertyTable',
+					[
+						'=this.ID' => 'ref.PROPERTY_ID',
+						'=this.IBLOCK_ID' => 'ref.IBLOCK_ID',
+					],
+					['join_type' => 'LEFT']
+				),
+			],
+		])
+			->fetchAll()
+		;
+
+		return array_column($propertyIds, 'ID');
 	}
 
 	private function getPropertiesSettingsByFilter(array $filter): array

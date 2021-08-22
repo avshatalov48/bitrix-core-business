@@ -76,6 +76,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      babelHelpers.get(babelHelpers.getPrototypeOf(FormSettingsForm.prototype), "addField", this).call(this, field);
 	    }
 	  }, {
+	    key: "replaceField",
+	    value: function replaceField(oldField, newField) {
+	      if (main_core.Type.isFunction(newField.subscribe)) {
+	        newField.subscribe('onChange', this.onFieldChange.bind(this));
+	      }
+
+	      babelHelpers.get(babelHelpers.getPrototypeOf(FormSettingsForm.prototype), "replaceField", this).call(this, oldField, newField);
+	    }
+	  }, {
 	    key: "onFieldChange",
 	    value: function onFieldChange(event) {
 	      this.emit('onChange', event.getData());

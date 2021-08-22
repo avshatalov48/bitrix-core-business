@@ -12,6 +12,22 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class GroupCounterTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_GroupCounter_Query query()
+ * @method static EO_GroupCounter_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_GroupCounter_Result getById($id)
+ * @method static EO_GroupCounter_Result getList(array $parameters = array())
+ * @method static EO_GroupCounter_Entity getEntity()
+ * @method static \Bitrix\Sender\Internals\Model\EO_GroupCounter createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\Internals\Model\EO_GroupCounter_Collection createCollection()
+ * @method static \Bitrix\Sender\Internals\Model\EO_GroupCounter wakeUpObject($row)
+ * @method static \Bitrix\Sender\Internals\Model\EO_GroupCounter_Collection wakeUpCollection($rows)
+ */
 class GroupCounterTable extends Entity\DataManager
 {
 	/**

@@ -385,6 +385,8 @@ if($USER->CanDoOperation("clouds_upload") && is_array($arID))
 				$filePath = preg_replace("#[\\\\\\/]+#", "/", $filePath);
 
 				$f = $io->GetFile(preg_replace("#[\\\\\\/]+#", "/", $_SERVER["DOCUMENT_ROOT"]."/".$path."/".mb_substr($ID, 1)));
+				if ($f && !$f->IsExists())
+					break;
 			}
 			elseif(isset($_REQUEST["filePath"]))
 			{
@@ -464,7 +466,7 @@ if($USER->CanDoOperation("clouds_upload") && is_array($arID))
 					{
 						fseek($fp, $pos);
 						$part = fread($fp, $obUpload->getPartSize());
-						$bytes = $pos + $part;
+						$bytes = $pos + strlen($part);
 						$moveResult = CCloudStorage::FILE_SKIPPED;
 						while($obUpload->hasRetries())
 						{
@@ -747,7 +749,7 @@ while(is_array($arRes = $rsData->NavNext()))
 		if($arRes["NAME"] === "..")
 		{
 			$row->bReadOnly = true;
-			$row->AddViewField("FILE_NAME", '<a href="'.htmlspecialcharsbx('clouds_file_list.php?lang='.urlencode(LANGUAGE_ID).'&bucket='.urlencode($obBucket->ID).'&path='.urlencode(preg_replace('#([^/]+)/$#', '', $path))).'" class="adm-list-table-icon-link"><span class="adm-submenu-item-link-icon adm-list-table-icon clouds-up-icon"></span><span class="adm-list-table-link">'.htmlspecialcharsex($arRes["NAME"]).'</span></a>');
+			$row->AddViewField("FILE_NAME", '<a href="'.htmlspecialcharsbx('clouds_file_list.php?lang='.urlencode(LANGUAGE_ID).'&bucket='.urlencode($obBucket->ID).'&path='.urlencode(preg_replace('#[^/]*/$#', '', $path))).'" class="adm-list-table-icon-link"><span class="adm-submenu-item-link-icon adm-list-table-icon clouds-up-icon"></span><span class="adm-list-table-link">'.htmlspecialcharsex($arRes["NAME"]).'</span></a>');
 		}
 		else
 		{

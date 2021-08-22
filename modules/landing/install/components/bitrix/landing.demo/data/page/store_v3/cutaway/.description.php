@@ -17,6 +17,7 @@ return [
 		'ADDITIONAL_FIELDS' => [
 			'CSSBLOCK_USE' => 'Y',
 			'CSSBLOCK_CODE' => '.b24-widget-button-wrapper{display:none!important;}',
+			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/store_v3/cutaway/preview.jpg',
 		],
 	],
 	'layout' => [

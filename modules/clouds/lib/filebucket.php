@@ -33,7 +33,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Clouds
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_FileBucket_Query query()
+ * @method static EO_FileBucket_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_FileBucket_Result getById($id)
+ * @method static EO_FileBucket_Result getList(array $parameters = array())
+ * @method static EO_FileBucket_Entity getEntity()
+ * @method static \Bitrix\Clouds\EO_FileBucket createObject($setDefaultValues = true)
+ * @method static \Bitrix\Clouds\EO_FileBucket_Collection createCollection()
+ * @method static \Bitrix\Clouds\EO_FileBucket wakeUpObject($row)
+ * @method static \Bitrix\Clouds\EO_FileBucket_Collection wakeUpCollection($rows)
+ */
 
 class FileBucketTable extends Main\Entity\DataManager
 {

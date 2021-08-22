@@ -66,9 +66,42 @@
 						items: [
 							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
 							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
-						]
+						],
+						onChange: onAutoplayChange
 					})
 				);
+
+				function onAutoplayChange(value) {
+					if (value === 1)
+					{
+						muteField.setValue(1);
+						muteField.disable();
+						if (!muteField.descriptionText)
+						{
+							muteField.setDescription(
+								BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_SOUND_ALERT")
+							);
+						}
+					}
+					else if (value === 0)
+					{
+						muteField.removeDescription();
+						muteField.enable();
+						muteField.setValue(0);
+					}
+				}
+
+				var muteField = new BX.Landing.UI.Field.Dropdown({
+					title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_SOUND"),
+					selector: "muted",
+					content: settings.muted,
+					items: [
+						{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 0},
+						{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 1}
+					]
+				});
+				this.form.addField(muteField);
+				onAutoplayChange(parseInt(settings.autoplay));
 
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
@@ -106,18 +139,6 @@
 						items: [
 							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
 							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
-						]
-					})
-				);
-
-				this.form.addField(
-					new BX.Landing.UI.Field.Dropdown({
-						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_SOUND"),
-						selector: "muted",
-						content: settings.muted,
-						items: [
-							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 0},
-							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 1}
 						]
 					})
 				);

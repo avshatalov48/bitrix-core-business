@@ -10,6 +10,7 @@ use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Rest\Engine\Access;
+use Bitrix\Rest\Engine\Access\HoldEntity;
 use Bitrix\Main\Loader;
 use Bitrix\Rest\Preset\Data\Element;
 use Bitrix\Rest\Preset\Provider;
@@ -229,18 +230,6 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 		}
 		if ($presetData['OPTIONS']['APPLICATION_NEEDED'] !== 'D')
 		{
-			$result['APPLICATION_LANG'] = [];
-			$dbRes = LanguageTable::getList(
-				[
-					'order' => ['DEF' => 'DESC', 'NAME' => 'ASC'],
-					'filter' => ['=ACTIVE' => 'Y'],
-					'select' => ['LID', 'NAME']
-				]
-			);
-			while ($lang = $dbRes->fetch())
-			{
-				$result['APPLICATION_LANG'][$lang['LID']] = $lang['NAME'];
-			}
 			$blockList[] = 'APPLICATION';
 
 			$result['ALLOW_ZIP_APPLICATION'] = \Bitrix\Main\ModuleManager::isModuleInstalled("bitrix24");
@@ -252,6 +241,30 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 		$result['BLOCK_LIST'] = $blockList;
 
 		$result['SCOPE_NEEDED'] = $presetData['OPTIONS']['SCOPE_NEEDED'] !== 'D' ? 'Y' : 'N';
+
+		if ($presetData['OPTIONS']['APPLICATION_NEEDED'] !== 'D' || $presetData['OPTIONS']['WIDGET_NEEDED'] !== 'D')
+		{
+			$result['LANG_LIST_AVAILABLE'] = [];
+			$dbRes = LanguageTable::getList(
+				[
+					'order' => [
+						'DEF' => 'DESC',
+						'NAME' => 'ASC',
+					],
+					'filter' => [
+						'=ACTIVE' => 'Y',
+					],
+					'select' => [
+						'LID',
+						'NAME',
+					],
+				]
+			);
+			while ($lang = $dbRes->fetch())
+			{
+				$result['LANG_LIST_AVAILABLE'][$lang['LID']] = $lang['NAME'];
+			}
+		}
 
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
@@ -272,6 +285,21 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 		$result['LANG_LIST'] = $this->getLanguageList();
 		$result['URI_METHOD_INFO'] = Provider::URI_METHOD_INFO . '?lang=' . $lang . '&method=';
 		$result['URI_EXAMPLE_DOWNLOAD'] = Provider::URI_EXAMPLE_DOWNLOAD . '?encode=' . SITE_CHARSET . '&type=';
+
+		if (
+				(
+					!empty($result['PASSWORD_DATA_PASSWORD'])
+					&& HoldEntity::is(HoldEntity::TYPE_WEBHOOK, $result['PASSWORD_DATA_PASSWORD'])
+				)
+				|| (
+					!empty($result['APPLICATION_DATA_CLIENT_ID'])
+					&& HoldEntity::is(HoldEntity::TYPE_APP, $result['APPLICATION_DATA_CLIENT_ID'])
+				)
+		)
+		{
+			$result['ERROR_MESSAGE'][] = Loc::getMessage('REST_INTEGRATION_EDIT_HOLD_DUE_TO_OVERLOAD');
+		}
+
 		$this->arResult = $result;
 
 		return true;

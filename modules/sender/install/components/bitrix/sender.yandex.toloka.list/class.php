@@ -117,6 +117,7 @@ class SenderYandexTolokaListComponent extends CBitrixComponent
 		unset($this->arResult['STATE_LIST'][Dispatch\State::WAITING]);
 
 		$this->arResult['MESSAGES']  = $this->getSenderMessages();
+		$this->arResult['IS_AVAILABLE']  = \Bitrix\Sender\Integration\Bitrix24\Service::isTolokaAvailable();
 		$this->arResult['CAMPAIGNS'] = [];
 		$campaigns                   = Entity\Campaign::getList(['select' => ['ID', 'NAME']]);
 		foreach ($campaigns as $campaign)

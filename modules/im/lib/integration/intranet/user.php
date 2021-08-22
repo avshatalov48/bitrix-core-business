@@ -390,7 +390,7 @@ class User
 
 	public static function getBirthdayForToday()
 	{
-		if (!IsModuleInstalled('intranet'))
+		if (!\Bitrix\Main\ModuleManager::isModuleInstalled('intranet'))
 		{
 			return [];
 		}
@@ -428,6 +428,10 @@ class User
 		if ($option === 'department')
 		{
 			$filter['=UF_DEPARTMENT'] = $user['UF_DEPARTMENT'];
+		}
+		else
+		{
+			$filter['!=UF_DEPARTMENT'] = false;
 		}
 
 		$result = [];

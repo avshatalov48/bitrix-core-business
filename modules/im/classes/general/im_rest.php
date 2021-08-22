@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Im\Chat;
+
 if(!CModule::IncludeModule('rest'))
 	return;
 
@@ -79,6 +82,7 @@ class CIMRestService extends IRestService
 				'im.disk.file.commit' => array(__CLASS__, 'diskFileCommit'),
 				'im.disk.file.delete' => array(__CLASS__, 'diskFileDelete'),
 				'im.disk.file.save' => array(__CLASS__, 'diskFileSave'),
+				'im.disk.record.share' => array(__CLASS__, 'diskRecordShare'),
 
 				'im.counters.get' =>  array(__CLASS__, 'counterGet'),
 
@@ -2475,7 +2479,7 @@ class CIMRestService extends IRestService
 	{
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
-		if (isset($arParams['ID']) && intval($arParams['ID']) > 0)
+		if (isset($arParams['ID']))
 		{
 			$CIMNotify = new CIMNotify();
 			return $CIMNotify->DeleteWithCheck($arParams['ID']);
@@ -2579,7 +2583,7 @@ class CIMRestService extends IRestService
 		return true;
 	}
 
-	public static function notifyConfirm($arParams, $n, CRestServer $server): bool
+	public static function notifyConfirm($arParams, $n, CRestServer $server): array
 	{
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
@@ -2600,12 +2604,10 @@ class CIMRestService extends IRestService
 
 		$CIMNotify = new CIMNotify();
 		$result = $CIMNotify->Confirm($arParams['NOTIFY_ID'], $arParams['NOTIFY_VALUE']);
-		if (empty($result))
-		{
-			throw new Bitrix\Rest\RestException("Incorrect params", "PARAMS_ERROR", CRestServer::STATUS_WRONG_REQUEST);
-		}
 
-		return true;
+		return [
+			'result_message' => $result
+		];
 	}
 
 	public static function notifyAnswer($arParams, $n, CRestServer $server): array
@@ -2711,8 +2713,9 @@ class CIMRestService extends IRestService
 				$moduleName = $notifyTypes['NAME'];
 			}
 
-			$schemaResult[] = [
+			$schemaResult[$moduleId] = [
 				'NAME' => $moduleName,
+				'MODULE_ID' => $moduleId,
 				'LIST' => $list,
 			];
 		}
@@ -2865,6 +2868,42 @@ class CIMRestService extends IRestService
 			'FILE_TEMPLATE_ID' => $arParams['FILE_TEMPLATE_ID']?:'',
 			'SYMLINK' => $arParams['SYMLINK']?:false,
 		]);
+	}
+
+	public static function diskRecordShare($arParams, $n, CRestServer $server)
+	{
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+
+		$dialogId = $arParams['DIALOG_ID'];
+		if (!\Bitrix\Im\Common::isDialogId($dialogId))
+		{
+			throw new Bitrix\Rest\RestException("Dialog ID can't be empty", "DIALOG_ID_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (!\Bitrix\Im\Dialog::hasAccess($dialogId))
+		{
+			throw new Bitrix\Rest\RestException("You don't have access to this chat", "ACCESS_ERROR", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chatId = \Bitrix\Im\Dialog::getChatId($dialogId);
+		if ($chatId <= 0)
+		{
+			throw new Bitrix\Rest\RestException("Chat ID isn't found", "CHAT_NOT_FOUND", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$diskId = (int)$arParams['DISK_ID'];
+		if ($diskId <= 0)
+		{
+			throw new Bitrix\Rest\RestException("Disk ID can't be empty", "DISK_ID_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$result = \CIMDisk::RecordShare($chatId, $diskId);
+		if (!$result)
+		{
+			throw new Bitrix\Rest\RestException("Error during record share", "EXECUTE_ERROR", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		return true;
 	}
 
 
@@ -5729,6 +5768,7 @@ class CIMRestService extends IRestService
 				'module_id' => 'im',
 				'command' => 'videoconfShareUpdate',
 				'params' => [
+					'newCode' => $newCode,
 					'newLink' => $newLink,
 					'dialogId' => $params['DIALOG_ID']
 				],
@@ -5760,6 +5800,19 @@ class CIMRestService extends IRestService
 			//create cache for current confId and sessId
 			$storage = \Bitrix\Main\Application::getInstance()->getLocalSession('conference_check_' . $conference->getId());
 			$storage->set('checked', true);
+
+			//add user to chat
+			$isUserInChat = Chat::isUserInChat($conference->getChatId());
+			if (!$isUserInChat)
+			{
+				$chat = new \CIMChat(0);
+				$currentUserId = \Bitrix\Main\Engine\CurrentUser::get()->getId();
+				$addingResult = $chat->AddUser($conference->getChatId(), $currentUserId);
+				if (!$addingResult)
+				{
+					throw new Bitrix\Rest\RestException("Error during adding user to chat", "ADDING_TO_CHAT_ERROR", CRestServer::STATUS_WRONG_REQUEST);
+				}
+			}
 
 			return true;
 		}

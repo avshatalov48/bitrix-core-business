@@ -665,14 +665,7 @@ class CatalogProductDetailsComponent
 
 		if ($productName !== '')
 		{
-			$fields['CODE'] = mb_strtolower(CUtil::translit(
-					$productName,
-					LANGUAGE_ID,
-					[
-						'replace_space' => '_',
-						'replace_other' => '',
-					]
-				)).'_'.random_int(0, 1000);
+			$fields['CODE'] = (new CIBlockElement())->generateMnemonicCode($productName, $this->getIblockId());
 		}
 	}
 
@@ -896,10 +889,10 @@ class CatalogProductDetailsComponent
 		$this->prepareDescriptionFields($fields);
 		$this->preparePictureFields($fields);
 
-		if (
-			(!isset($fields['CODE']) || $fields['CODE'] === '')
-			&& $product->isNew()
-		)
+		// if (
+		// 	// (!isset($fields['CODE']) || $fields['CODE'] === '')
+		// 	// && $product->isNew()
+		// )
 		{
 			$this->prepareProductCode($fields);
 		}

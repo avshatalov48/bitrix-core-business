@@ -74,8 +74,8 @@
 		this._onCallUserVideoPausedHandler = this._onCallUserVideoPaused.bind(this);
 		this._onCallLocalMediaReceivedHandler = this._onCallLocalMediaReceived.bind(this);
 		this._onCallLocalMediaStoppedHandler = this._onCallLocalMediaStopped.bind(this);
-		this._onCallUserStreamReceivedHandler = this._onCallUserStreamReceived.bind(this);
-		this._onCallUserStreamRemovedHandler = this._onCallUserStreamRemoved.bind(this);
+		this._onCallRemoteMediaReceivedHandler = this._onCallRemoteMediaReceived.bind(this);
+		this._onCallRemoteMediaStoppedHandler = this._onCallRemoteMediaStopped.bind(this);
 		this._onCallUserVoiceStartedHandler = this._onCallUserVoiceStarted.bind(this);
 		this._onCallUserVoiceStoppedHandler = this._onCallUserVoiceStopped.bind(this);
 		this._onCallUserScreenStateHandler = this._onCallUserScreenState.bind(this);
@@ -83,6 +83,7 @@
 		this.onCallUserFloorRequestHandler = this._onCallUserFloorRequest.bind(this);
 		this._onCallFailureHandler = this._onCallFailure.bind(this);
 		this._onNetworkProblemHandler = this._onNetworkProblem.bind(this);
+		this._onMicrophoneLevelHandler = this._onMicrophoneLevel.bind(this);
 		this._onCallLeaveHandler = this._onCallLeave.bind(this);
 		this._onCallJoinHandler = this._onCallJoin.bind(this);
 
@@ -90,7 +91,7 @@
 		this._onImTabChangeHandler = this._onImTabChange.bind(this);
 		this._onUpdateChatCounterHandler = this._onUpdateChatCounter.bind(this);
 
-		this._onChildCallFirstStreamHandler = this._onChildCallFirstStream.bind(this);
+		this._onChildCallFirstMediaHandler = this._onChildCallFirstMedia.bind(this);
 
 		this._onWindowFocusHandler = this._onWindowFocus.bind(this);
 		this._onWindowBlurHandler = this._onWindowBlur.bind(this);
@@ -398,12 +399,13 @@
 			this.currentCall.addEventListener(BX.Call.Event.onUserFloorRequest, this.onCallUserFloorRequestHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onLocalMediaReceived, this._onCallLocalMediaReceivedHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onLocalMediaStopped, this._onCallLocalMediaStoppedHandler);
-			this.currentCall.addEventListener(BX.Call.Event.onStreamReceived, this._onCallUserStreamReceivedHandler);
-			this.currentCall.addEventListener(BX.Call.Event.onStreamRemoved, this._onCallUserStreamRemovedHandler);
+			this.currentCall.addEventListener(BX.Call.Event.onRemoteMediaReceived, this._onCallRemoteMediaReceivedHandler);
+			this.currentCall.addEventListener(BX.Call.Event.onRemoteMediaStopped, this._onCallRemoteMediaStoppedHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onUserVoiceStarted, this._onCallUserVoiceStartedHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onUserVoiceStopped, this._onCallUserVoiceStoppedHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onCallFailure, this._onCallFailureHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onNetworkProblem, this._onNetworkProblemHandler);
+			this.currentCall.addEventListener(BX.Call.Event.onMicrophoneLevel, this._onMicrophoneLevelHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onJoin, this._onCallJoinHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onLeave, this._onCallLeaveHandler);
 		},
@@ -421,12 +423,13 @@
 			this.currentCall.removeEventListener(BX.Call.Event.onUserFloorRequest, this.onCallUserFloorRequestHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onLocalMediaReceived, this._onCallLocalMediaReceivedHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onLocalMediaStopped, this._onCallLocalMediaStoppedHandler);
-			this.currentCall.removeEventListener(BX.Call.Event.onStreamReceived, this._onCallUserStreamReceivedHandler);
-			this.currentCall.removeEventListener(BX.Call.Event.onStreamRemoved, this._onCallUserStreamRemovedHandler);
+			this.currentCall.removeEventListener(BX.Call.Event.onRemoteMediaReceived, this._onCallRemoteMediaReceivedHandler);
+			this.currentCall.removeEventListener(BX.Call.Event.onRemoteMediaStopped, this._onCallRemoteMediaStoppedHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onUserVoiceStarted, this._onCallUserVoiceStartedHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onUserVoiceStopped, this._onCallUserVoiceStoppedHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onCallFailure, this._onCallFailureHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onNetworkProblem, this._onNetworkProblemHandler);
+			this.currentCall.removeEventListener(BX.Call.Event.onMicrophoneLevel, this._onMicrophoneLevelHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onJoin, this._onCallJoinHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onLeave, this._onCallLeaveHandler);
 		},
@@ -521,7 +524,7 @@
 		{
 			this.removeCallEvents();
 			this.removeVideoStrategy();
-			this.childCall.addEventListener(BX.Call.Event.onStreamReceived, this._onChildCallFirstStreamHandler);
+			this.childCall.addEventListener(BX.Call.Event.onRemoteMediaReceived, this._onChildCallFirstMediaHandler);
 			this.childCall.addEventListener(BX.Call.Event.onLocalMediaReceived, this._onCallLocalMediaReceivedHandler);
 
 			this.childCall.answer({
@@ -529,7 +532,7 @@
 			});
 		},
 
-		_onChildCallFirstStream: function (e)
+		_onChildCallFirstMedia: function (e)
 		{
 			this.log("Finishing one-to-one call, switching to group call");
 
@@ -549,13 +552,13 @@
 
 			if (this.callView)
 			{
-				if ("stream" in e)
+				if ("track" in e)
 				{
-					this.callView.setStream(e.userId, e.stream);
+					this.callView.setUserMedia(e.userId, e.kind, e.track);
 				}
 				if ("mediaRenderer" in e && e.mediaRenderer.kind === "audio")
 				{
-					this.callView.setStream(e.userId, e.mediaRenderer.stream);
+					this.callView.setUserMedia(e.userId, 'audio', e.mediaRenderer.stream.getAudioTracks()[0]);
 				}
 				if ("mediaRenderer" in e && (e.mediaRenderer.kind === "video" || e.mediaRenderer.kind === "sharing"))
 				{
@@ -563,7 +566,7 @@
 				}
 			}
 
-			this.childCall.removeEventListener(BX.Call.Event.onStreamReceived, this._onChildCallFirstStreamHandler);
+			this.childCall.removeEventListener(BX.Call.Event.onRemoteMediaReceived, this._onChildCallFirstMediaHandler);
 
 			this.removeCallEvents();
 			var oldCall = this.currentCall;
@@ -1579,6 +1582,7 @@
 				onSelect: this._onInvitePopupSelect.bind(this)
 			});
 
+			this.callView.setHotKeyTemporaryBlock(true);
 			this.invitePopup.show();
 		},
 
@@ -2065,43 +2069,40 @@
 			// do nothing
 		},
 
-		_onCallUserStreamReceived: function (e)
+		_onCallRemoteMediaReceived: function (e)
 		{
-			var tracks = e.stream instanceof MediaStream ?
-				e.stream.getTracks().map(function (track)
-				{
-					return track.kind + ": " + track.id;
-				})
-				: [];
-
 			if (this.callView)
 			{
-				if ("stream" in e)
+				if ('track' in e)
 				{
-					this.callView.setStream(e.userId, e.stream);
+					this.callView.setUserMedia(e.userId, e.kind, e.track)
 				}
-				if ("mediaRenderer" in e && e.mediaRenderer.kind === "audio")
+				if ('mediaRenderer' in e && e.mediaRenderer.kind === 'audio')
 				{
-					this.callView.setStream(e.userId, e.mediaRenderer.stream);
+					this.callView.setUserMedia(e.userId, 'audio', e.mediaRenderer.stream.getAudioTracks()[0]);
 				}
-				if ("mediaRenderer" in e && (e.mediaRenderer.kind === "video" || e.mediaRenderer.kind === "sharing"))
+				if ('mediaRenderer' in e && (e.mediaRenderer.kind === 'video' || e.mediaRenderer.kind === 'sharing'))
 				{
 					this.callView.setVideoRenderer(e.userId, e.mediaRenderer);
 				}
 			}
-
-			/*if(this.floatingWindow && this.floatingWindowUser == e.userId)
-			{
-				this.floatingWindow.setStream(e.stream);
-			}*/
 		},
 
-		_onCallUserStreamRemoved: function (e)
+		_onCallRemoteMediaStopped: function (e)
 		{
-			if ("mediaRenderer" in e && (e.mediaRenderer.kind === "video" || e.mediaRenderer.kind === "sharing"))
+			if (this.callView)
 			{
-				this.log("_onCallUserStreamRemoved, kind:", (e && e.mediaRenderer ? e.mediaRenderer.kind : ""));
-				this.callView.setVideoRenderer(e.userId, null);
+				if ('mediaRenderer' in e)
+				{
+					if (e.kind === 'video' || e.kind === 'sharing')
+					{
+						this.callView.setVideoRenderer(e.userId, null);
+					}
+				}
+				else
+				{
+					this.callView.setUserMedia(e.userId, e.kind, null);
+				}
 			}
 		},
 
@@ -2161,6 +2162,40 @@
 			{
 				this.callView.setUserScreenState(e.userId, e.screenState);
 			}
+			if (e.userId == BX.CallEngine.getCurrentUserId())
+			{
+				this.callView.setButtonActive("screen", e.screenState);
+				if (e.screenState)
+				{
+					if (!BX.desktop)
+					{
+						this.showWebScreenSharePopup();
+					}
+					this.callView.blockSwitchCamera();
+				}
+				else
+				{
+					if (this.floatingScreenShareWindow)
+					{
+						this.floatingScreenShareWindow.close();
+					}
+					if (this.webScreenSharePopup)
+					{
+						this.webScreenSharePopup.close();
+					}
+					if (this.isRecording())
+					{
+						BXDesktopSystem.CallRecordStopSharing();
+					}
+
+					if(!this.currentCall.callFromMobile)
+					{
+						this.callView.unblockSwitchCamera();
+						this.callView.updateButtons();
+					}
+				}
+				this.callView.updateButtons();
+			}
 		},
 
 		_onCallUserRecordState: function (event)
@@ -2211,6 +2246,7 @@
 					muted: this.currentCall.isMuted(),
 					cropTop: 72,
 					cropBottom: 73,
+					shareMethod: 'im.disk.record.share'
 				});
 			}
 			else if (event.recordState.state === BX.Call.View.RecordState.Stopped)
@@ -2300,6 +2336,14 @@
 		_onNetworkProblem: function(e)
 		{
 			this.showNetworkProblemNotification(BX.message("IM_M_CALL_TURN_UNAVAILABLE"));
+		},
+
+		_onMicrophoneLevel: function(e)
+		{
+			if (this.callView)
+			{
+				this.callView.setMicrophoneLevel(e.level)
+			}
 		},
 
 		_onCallJoin: function (e)
@@ -2428,6 +2472,7 @@
 
 		_onInvitePopupDestroy: function (e)
 		{
+			this.callView.setHotKeyTemporaryBlock(false);
 			this.invitePopup = null;
 		},
 
@@ -2455,7 +2500,7 @@
 				{
 					this.childCall = e.call;
 
-					this.childCall.addEventListener(BX.Call.Event.onStreamReceived, this._onChildCallFirstStreamHandler);
+					this.childCall.addEventListener(BX.Call.Event.onRemoteMediaReceived, this._onChildCallFirstMediaHandler);
 					this.childCall.addEventListener(BX.Call.Event.onLocalMediaReceived, this._onCallLocalMediaReceivedHandler);
 
 					this.childCall.useHdVideo(BX.Call.Hardware.preferHdQuality);
@@ -2760,7 +2805,7 @@
 			var stream2;
 			users = typeof (users) == "undefined" ? [473, 464] : users;
 			videoOptions = typeof (videoOptions) == "undefined" ? {width: 320, height: 180} : videoOptions;
-			audioOptions = typeof (audioOptions) == "undefined" ? false : audioOptions;
+			audioOptions = typeof (audioOptions) == "undefined" ? true : audioOptions;
 
 			this._openMessenger().then(function ()
 			{
@@ -2821,6 +2866,14 @@
 							this.callViewState = ViewState.Folded;
 							break;
 
+						case "toggleScreenSharing":
+							this.callView.setUserMedia(464, 'screen', stream2.getVideoTracks()[0]);
+
+							/*setTimeout(function()
+							{
+								this.callView.setUserScreenState(464, true);
+							}.bind(this), 0);*/
+
 						case "returnToCall":
 
 
@@ -2832,7 +2885,7 @@
 					if (!e.stream)
 					{
 						this.callView.setUserState(e.userId, BX.Call.UserState.Connected);
-						this.callView.setStream(e.userId, stream2);
+						this.callView.setUserMedia(e.userId, 'video', stream2.getVideoTracks()[0]);
 					}
 				}.bind(this));
 				this.callView.setUiState(BX.Call.View.UiState.Connected);
@@ -2865,6 +2918,18 @@
 				{
 					this.callView.addUser(userId, BX.Call.UserState.Connected);
 				}, this);
+
+				if (audioOptions !== false)
+				{
+					this.vad = new BX.SimpleVAD({
+						mediaStream: stream
+					});
+					setInterval(function()
+					{
+						this.callView.setMicrophoneLevel(this.vad.currentVolume)
+					}.bind(this), 100)
+				}
+
 				return navigator.mediaDevices.getUserMedia({
 					audio: false,
 					video: {
@@ -2877,10 +2942,10 @@
 				stream2 = s2;
 				/*users.forEach(function(userId)
 				 {
-					this.callView.setStream(userId, stream2);
+					this.callView.setUserMedia(userId, 'video', stream2.getVideoTracks()[0]);
 				},this);*/
 
-				this.callView.setStream(users[0], stream2);
+				this.callView.setUserMedia(users[0], 'video', stream2.getVideoTracks()[0]);
 
 				BX.rest.callMethod('im.user.list.get', {
 					'ID': users.concat(BXIM.userId),
@@ -2889,6 +2954,8 @@
 				{
 					this.callView.updateUserData(response.data())
 				}.bind(this));
+
+
 			}.bind(this));
 		},
 

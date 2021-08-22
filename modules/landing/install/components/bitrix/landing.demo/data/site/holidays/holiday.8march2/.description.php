@@ -15,8 +15,8 @@ return array(
 		'ADDITIONAL_FIELDS' => array(
 			'UP_SHOW' => 'Y',
 			'THEME_CODE' => 'travel',
-			'THEMEFONTS_CODE' => 'g-font-open-sans',
-			'THEMEFONTS_CODE_H' => 'g-font-cormorant-infant',
+			'THEMEFONTS_CODE' => 'Open Sans',
+			'THEMEFONTS_CODE_H' => 'Cormorant Infant',
 			'THEMEFONTS_SIZE' => '1',
 			'THEMEFONTS_USE' => 'Y',
 		)

@@ -21,6 +21,13 @@ class Notification
 	private const OPTION_ACCESS_NOTIFICATION = 'rest_access_notification';
 	private const OPTION_LAST_CHECK_ACCESS_NOTIFICATION = 'last_check_rest_access_notify';
 	private const OPTION_LAST_CHECK_NOTIFICATION = 'last_check_rest_notify';
+	private const OPTION_NOTIFICATION_URL = 'rest_notify_url';
+	private const CODE_CHECK_BY_AGENT = [
+		'REST_BUY',
+		'SUBSCRIPTION_MARKET_DEMO_END',
+		'SUBSCRIPTION_MARKET_TARIFF_MARKET',
+		'SUBSCRIPTION_MARKET_TRIAL_END',
+	];
 	private static $timestampNotifyDays = 259200; // 3 * 86400
 	private static $codeToNotification = [
 		'rest_buy' => 'REST_BUY',
@@ -36,87 +43,110 @@ class Notification
 	{
 		$result = false;
 		$option = Option::get(static::MODULE_ID, static::OPTION_ACCESS_NOTIFICATION, '');
-		if ($option !== '' && !empty(static::$codeToNotification[$option]))
+
+		if (static::$codeToNotification[$option])
 		{
-			$url = Loc::getMessage('REST_MARKETPLACE_NOTIFICATION_'.static::$codeToNotification[$option].'_URL');
-			if ($option === 'rest_buy' && Loader::includeModule('bitrix24'))
+			$option = static::$codeToNotification[$option];
+		}
+
+		if ($option !== '')
+		{
+			$url = Option::get(static::MODULE_ID, static::OPTION_NOTIFICATION_URL, '');
+			if ($url === '')
 			{
-				$prefix = \CBitrix24::getLicensePrefix();
-				if ($prefix === 'by')
+				$url = Loc::getMessage('REST_MARKETPLACE_NOTIFICATION_' . $option . '_URL');
+				if ($option === 'REST_BUY' && Loader::includeModule('bitrix24'))
 				{
-					$url = 'https://goodbye-2020.bitrix24.site/';
+					$prefix = \CBitrix24::getLicensePrefix();
+					if ($prefix === 'by')
+					{
+						$url = 'https://goodbye-2020.bitrix24.site/';
+					}
+					elseif ($prefix === 'kz')
+					{
+						$url = 'https://goodbye2020.bitrix24.site/';
+					}
+					elseif ($prefix === 'ua')
+					{
+						$url = 'https://skilky-mozhna.bitrix24site.ua/';
+					}
+					elseif ($prefix === 'ru')
+					{
+						$url = 'https://goodbye2020.bitrix24.tech/';
+					}
+					elseif ($prefix === 'en')
+					{
+						$url = 'https://www.bitrix24.com/promo/sales/holiday-sale/';
+					}
+					elseif ($prefix === 'jp')
+					{
+						$url = 'https://www.bitrix24.jp/promo/sales/holiday-sale/';
+					}
+					elseif ($prefix === 'pl')
+					{
+						$url = 'https://www.bitrix24.pl/promo/sales/holiday-sale/';
+					}
+					elseif ($prefix === 'it')
+					{
+						$url = 'https://www.bitrix24.it/promo/sales/holiday-sale/';
+					}
+					elseif ($prefix === 'br')
+					{
+						$url = 'https://www.bitrix24.com.br/promo/sales/holiday-sale/';
+					}
+					elseif ($prefix === 'fr')
+					{
+						$url = 'https://www.bitrix24.fr/promo/sales/holiday-sale/';
+					}
+					elseif ($prefix === 'de')
+					{
+						$url = 'https://www.bitrix24.de/promo/sales/holiday-sale/';
+					}
+					elseif ($prefix === 'in')
+					{
+						$url = 'https://www.bitrix24.in/promo/sales/holiday-sale/';
+					}
+					elseif ($prefix === 'eu')
+					{
+						$url = 'https://www.bitrix24.eu/promo/sales/holiday-sale/';
+					}
+					elseif ($prefix === 'es' || $prefix === 'la')
+					{
+						$url = 'https://www.bitrix24.es/promo/sales/holiday-sale/';
+					}
 				}
-				elseif ($prefix === 'kz')
+
+				if ($option === 'SUBSCRIPTION_MARKET_TRIAL_END')
 				{
-					$url = 'https://goodbye2020.bitrix24.site/';
-				}
-				elseif ($prefix === 'ua')
-				{
-					$url = 'https://skilky-mozhna.bitrix24site.ua/';
-				}
-				elseif ($prefix === 'ru')
-				{
-					$url = 'https://goodbye2020.bitrix24.tech/';
-				}
-				elseif ($prefix === 'en')
-				{
-					$url = 'https://www.bitrix24.com/promo/sales/holiday-sale/';
-				}
-				elseif ($prefix === 'jp')
-				{
-					$url = 'https://www.bitrix24.jp/promo/sales/holiday-sale/';
-				}
-				elseif ($prefix === 'pl')
-				{
-					$url = 'https://www.bitrix24.pl/promo/sales/holiday-sale/';
-				}
-				elseif ($prefix === 'it')
-				{
-					$url = 'https://www.bitrix24.it/promo/sales/holiday-sale/';
-				}
-				elseif ($prefix === 'br')
-				{
-					$url = 'https://www.bitrix24.com.br/promo/sales/holiday-sale/';
-				}
-				elseif ($prefix === 'fr')
-				{
-					$url = 'https://www.bitrix24.fr/promo/sales/holiday-sale/';
-				}
-				elseif ($prefix === 'de')
-				{
-					$url = 'https://www.bitrix24.de/promo/sales/holiday-sale/';
-				}
-				elseif ($prefix === 'in')
-				{
-					$url = 'https://www.bitrix24.in/promo/sales/holiday-sale/';
-				}
-				elseif ($prefix === 'eu')
-				{
-					$url = 'https://www.bitrix24.eu/promo/sales/holiday-sale/';
-				}
-				elseif ($prefix === 'es' || $prefix === 'la')
-				{
-					$url = 'https://www.bitrix24.es/promo/sales/holiday-sale/';
+					$url = \Bitrix\Rest\Marketplace\Url::getSubscriptionBuyUrl();
 				}
 			}
-
-			if (static::$codeToNotification[$option] === 'SUBSCRIPTION_MARKET_TRIAL_END')
+			$urlBtn = '';
+			if ($url !== '')
 			{
-				$url = \Bitrix\Rest\Marketplace\Url::getSubscriptionBuyUrl();
+				$urlBtn = '<a target="_blank" href="'
+					. $url
+					. '">'
+					. Loc::getMessage('REST_MARKETPLACE_NOTIFICATION_' . $option . '_BTN')
+					. '</a>';
 			}
 
-			$result = [
-				'PANEL_MESSAGE' => Loc::getMessage(
-					'REST_MARKETPLACE_NOTIFICATION_'.static::$codeToNotification[$option].'_MESS',
-					[
-						'#BTN#' => '<a target="_blank" href="'
-								. $url
-								. '">'
-								. Loc::getMessage('REST_MARKETPLACE_NOTIFICATION_'.static::$codeToNotification[$option].'_BTN')
-								. '</a>'
-					]
-				)
-			];
+			$message = Loc::getMessage(
+				'REST_MARKETPLACE_NOTIFICATION_' . $option . '_MESS',
+				[
+					'#BTN#' => $urlBtn
+				]
+			);
+			if ($message !== '')
+			{
+				$result = [
+					'PANEL_MESSAGE' => $message
+				];
+			}
+			else
+			{
+				static::reset();
+			}
 		}
 
 		return $result;
@@ -138,6 +168,37 @@ class Notification
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Sets notification for admin
+	 *
+	 * @param string $code
+	 * @param string $url
+	 *
+	 * @return bool
+	 */
+	public static function set(string $code, string $url = '') : bool
+	{
+		Option::set(static::MODULE_ID, static::OPTION_ACCESS_NOTIFICATION, $code);
+		Option::set(static::MODULE_ID, static::OPTION_LAST_CHECK_ACCESS_NOTIFICATION, time());
+		Option::set(static::MODULE_ID, static::OPTION_NOTIFICATION_URL, $url);
+
+		return true;
+	}
+
+	/**
+	 * Resets notification
+	 *
+	 * @return bool
+	 */
+	public static function reset()
+	{
+		Option::delete(static::MODULE_ID, ['name' => static::OPTION_ACCESS_NOTIFICATION]);
+		Option::delete(static::MODULE_ID, ['name' => static::OPTION_LAST_CHECK_ACCESS_NOTIFICATION]);
+		Option::delete(static::MODULE_ID, ['name' => static::OPTION_NOTIFICATION_URL]);
+
+		return true;
 	}
 
 	/**
@@ -168,28 +229,30 @@ class Notification
 						&& static::getLastCheckTimestamp() > time()
 					)
 					{
-						$code = 'limit_subscription_market_tarifwithmarket';
+						$code = 'SUBSCRIPTION_MARKET_TARIFF_MARKET';
 					}
 					elseif ($isSubscriptionFinish)
 					{
-						$code = 'limit_subscription_market_demomarket_end';
+						$code = 'SUBSCRIPTION_MARKET_DEMO_END';
 					}
 				}
 				elseif (Access::isFeatureEnabled() && $isSubscriptionFinish)
 				{
-					$code = 'limit_subscription_market_marketpaid_trialend';
+					$code = 'SUBSCRIPTION_MARKET_TRIAL_END';
 				}
 			}
 
 			if ($code !== '')
 			{
-				Option::set(static::MODULE_ID, static::OPTION_ACCESS_NOTIFICATION, $code);
-				Option::set(static::MODULE_ID, static::OPTION_LAST_CHECK_ACCESS_NOTIFICATION, time());
+				static::set($code);
 			}
-			elseif(Option::get(static::MODULE_ID, static::OPTION_ACCESS_NOTIFICATION, false) !== false)
+			else
 			{
-				Option::delete(static::MODULE_ID, ['name' => static::OPTION_ACCESS_NOTIFICATION]);
-				Option::delete(static::MODULE_ID, ['name' => static::OPTION_LAST_CHECK_ACCESS_NOTIFICATION]);
+				$lastCode = Option::get(static::MODULE_ID, static::OPTION_ACCESS_NOTIFICATION, null);
+				if (!is_null($lastCode) && in_array($lastCode, static::CODE_CHECK_BY_AGENT))
+				{
+					static::reset();
+				}
 			}
 		}
 

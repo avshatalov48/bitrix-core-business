@@ -4,14 +4,17 @@ if (!defined ('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+/** @var \CMain $APPLICATION */
+
 if (!\Bitrix\Main\Loader::includeModule('landing'))
 {
 	return;
 }
 
 \Bitrix\Landing\Connector\Mobile::prologMobileHit();
+$language= \Bitrix\Landing\Manager::getLangISO();
 ?><!DOCTYPE html>
-<html xml:lang="<?= LANGUAGE_ID;?>" lang="<?= LANGUAGE_ID;?>" class="<?$APPLICATION->ShowProperty('HtmlClass');?>">
+<html xml:lang="<?= $language;?>" lang="<?= $language;?>" class="<?$APPLICATION->ShowProperty('HtmlClass');?>">
 <head>
 	<?$APPLICATION->ShowProperty('AfterHeadOpen');?>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">

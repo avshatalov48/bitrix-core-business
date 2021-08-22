@@ -81,7 +81,7 @@ const UserListHeader = {
 		},
 		onMenuCopyLink()
 		{
-			const publicLink = `${this.application.common.host}/video/${this.conference.common.alias}`;
+			const publicLink = this.dialog.public.link;
 			Clipboard.copy(publicLink);
 
 			const notificationText = this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_LINK_COPIED');
@@ -92,13 +92,6 @@ const UserListHeader = {
 		},
 		onMenuChangeLink()
 		{
-			if (this.changeLinkConfirm)
-			{
-				this.changeLinkConfirm.show();
-
-				return true;
-			}
-
 			const confirmMessage = this.$Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_CHANGE_LINK_CONFIRM_TEXT');
 			this.changeLinkConfirm = MessageBox.create({
 				message: confirmMessage,
@@ -106,10 +99,10 @@ const UserListHeader = {
 				buttons: MessageBoxButtons.OK_CANCEL,
 				onOk: () => {
 					this.changeLink();
-					this.changeLinkConfirm.close();
+					this.changeLinkConfirm.getPopupWindow().destroy();
 				},
 				onCancel: () => {
-					this.changeLinkConfirm.close();
+					this.changeLinkConfirm.getPopupWindow().destroy();
 				}
 			});
 			this.changeLinkConfirm.show();

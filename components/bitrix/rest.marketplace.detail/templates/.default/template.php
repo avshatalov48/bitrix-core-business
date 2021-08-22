@@ -72,14 +72,17 @@ if ($arResult['CAN_INSTALL'])
 			// buttons for installed apps
 			if ($arResult['APP']['BY_SUBSCRIPTION'] === 'Y')
 			{
-				$buttonList[] = [
-					'TAGS' => [
-						'href' => $arResult['SUBSCRIPTION_BUY_URL'],
-						'target' => '_blank',
-						'class' => 'ui-btn ui-btn-md ui-btn-primary ui-btn-round',
-					],
-					'TEXT' => GetMessage('MARKETPLACE_APP_PROLONG'),
-				];
+				if ($arResult['APP']['APP_STATUS']['PAYMENT_NOTIFY'] === 'Y')
+				{
+					$buttonList[] = [
+						'TAGS' => [
+							'href' => $arResult['SUBSCRIPTION_BUY_URL'],
+							'target' => '_blank',
+							'class' => 'ui-btn ui-btn-md ui-btn-primary ui-btn-round',
+						],
+						'TEXT' => GetMessage('MARKETPLACE_APP_PROLONG'),
+					];
+				}
 			}
 			elseif (
 				$arResult['APP']['FREE'] === 'N'

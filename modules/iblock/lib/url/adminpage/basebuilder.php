@@ -298,7 +298,7 @@ abstract class BaseBuilder
 		$this->weight = static::TYPE_WEIGHT;
 		$this->setLanguageId(LANGUAGE_ID);
 		$this->setPrefix(static::PATH_PREFIX);
-		$this->sliderMode = $this->request->get('IFRAME') === 'Y';
+		$this->setSliderMode($this->request->get('IFRAME') === 'Y');
 	}
 
 	protected function initConfig(): void

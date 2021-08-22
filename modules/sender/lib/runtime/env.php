@@ -11,6 +11,7 @@ namespace Bitrix\Sender\Runtime;
 use Bitrix\Main\Config\Option;
 use Bitrix\Sender\Posting\ThreadStrategy\IThreadStrategy;
 use Bitrix\Sender\Posting\ThreadStrategy\ThreadStrategyContext;
+use Bitrix\Sender\Posting\SegmentThreadStrategy;
 
 /**
  * Class Env
@@ -73,5 +74,15 @@ class Env
 	public static function getThreadContext()
 	{
 		return ThreadStrategyContext::buildStrategy(Option::get('sender', 'thread_type'));
+	}
+
+	/**
+	 * Get execution item limit.
+
+	 * @return SegmentThreadStrategy\ThreadStrategy
+	 */
+	public static function getGroupThreadContext()
+	{
+		return SegmentThreadStrategy\ThreadStrategyContext::buildStrategy(Option::get('sender', 'thread_type'));
 	}
 }

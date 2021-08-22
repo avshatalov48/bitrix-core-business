@@ -305,6 +305,7 @@ class Access
 
 		$license = $isB24 ? \CBitrix24::getLicenseFamily() : '';
 		$isDemo = $license === "demo";
+		$isMinLicense = $isB24 && mb_strpos($license, 'project') === 0;
 		$isMaxLicense = $isB24 && mb_strpos($license, 'company') === 0;
 
 		$isMaxApplication = false;
@@ -390,6 +391,20 @@ class Access
 				}
 			}
 		}
+		elseif (!$isSubscriptionAccess)
+		{
+			if ($isMinLicense)
+			{
+				if ($isUsedDemoLicense)
+				{
+					$code = 'limit_free_rest_hold_no_demo';
+				}
+				else
+				{
+					$code = 'limit_free_rest_hold';
+				}
+			}
+		}
 		elseif (!static::isAvailable())
 		{
 			if ($hasPaidApplication || !$isFreeEntity)
@@ -399,12 +414,12 @@ class Access
 					// activate demo subscription
 					$code = 'limit_subscription_market_access';
 				}
-				elseif (!$isB24 && $isSubscriptionAccess)
+				elseif (!$isB24)
 				{
 					// choose subscription
 					$code = 'limit_subscription_market_marketpaid_trialend';
 				}
-				elseif ($isB24 && $isSubscriptionAccess)
+				else
 				{
 					// choose license with subscription
 					$code = 'limit_subscription_market_tarifwithmarket';
@@ -412,11 +427,6 @@ class Access
 					{
 						$code = 'limit_free_apps_buy_license_with_plus';
 					}
-				}
-				else
-				{
-					// choose license
-					$code = 'limit_free_rest_hold_no_demo';
 				}
 			}
 			elseif ($isB24 && !$isUsedDemoLicense)

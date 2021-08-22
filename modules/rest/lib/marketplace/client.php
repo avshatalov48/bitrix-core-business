@@ -603,7 +603,7 @@ class Client
 			$used = Option::get('main', '~mp24_used_trial', 'N') === 'Y';
 		}
 
-		return !$used;
+		return !$used && static::isSubscriptionAccess();
 	}
 
 	/**

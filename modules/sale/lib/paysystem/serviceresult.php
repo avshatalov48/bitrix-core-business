@@ -55,7 +55,7 @@ class ServiceResult extends Result
 	}
 
 	/**
-	 * @return null
+	 * @return null|string
 	 */
 	public function getOperationType()
 	{

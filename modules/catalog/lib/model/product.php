@@ -1,11 +1,11 @@
 <?php
 namespace Bitrix\Catalog\Model;
 
-use Bitrix\Main,
-	Bitrix\Main\ORM,
-	Bitrix\Main\Loader,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Catalog;
+use Bitrix\Main;
+use Bitrix\Main\ORM;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
 
 Loc::loadMessages(__FILE__);
 
@@ -89,7 +89,9 @@ class Product extends Entity
 			return;
 
 		if (self::$separateSkuMode === null)
-			self::$separateSkuMode = (string)Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+		{
+			self::$separateSkuMode = Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+		}
 
 		static $defaultValues = null,
 			$blackList = null,
@@ -222,7 +224,6 @@ class Product extends Entity
 			$fields['TMP_ID'] = mb_substr($fields['TMP_ID'], 0, 40);
 
 		/* purchasing price */
-		$purchasingPrice = null;
 		$purchasingCurrency = null;
 		$purchasingPrice = static::checkPriceValue($fields['PURCHASING_PRICE']);
 		if ($purchasingPrice !== null)
@@ -324,7 +325,9 @@ class Product extends Entity
 			return;
 
 		if (self::$separateSkuMode === null)
-			self::$separateSkuMode = (string)Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+		{
+			self::$separateSkuMode = Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+		}
 
 		static $quantityFields = null,
 			$paymentPeriods = null,
@@ -761,7 +764,7 @@ class Product extends Entity
 	}
 
 	//TODO: remove after create \Bitrix\Catalog\Model\CatalogIblock
-	private static function getProductTypes($catalogType)
+	private static function getProductTypes($catalogType): array
 	{
 		$result = [];
 
@@ -799,7 +802,7 @@ class Product extends Entity
 	}
 
 	//TODO: remove after create \Bitrix\Catalog\Model\CatalogIblock
-	private static function getDefaultProductType($catalogType)
+	private static function getDefaultProductType($catalogType): ?int
 	{
 		$result = null;
 

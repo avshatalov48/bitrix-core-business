@@ -7,6 +7,7 @@ use Bitrix\Im\Call\CallUser;
 use Bitrix\Im\Common;
 use Bitrix\Im\Dialog;
 use Bitrix\Main\Application;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UserTable;
 
@@ -26,10 +27,14 @@ class Chat extends AbstractEntity
 		{
 			$chatId = \Bitrix\Im\Dialog::getChatId($entityId, $this->userId);
 		}
-		else
+		else if ((int)$entityId > 0)
 		{
 			$otherUserId = $this->userId == $entityId ? $this->call->getInitiatorId() : $entityId;
 			$chatId = \Bitrix\Im\Dialog::getChatId($otherUserId , $this->userId);
+		}
+		else
+		{
+			throw new ArgumentException("Ivalid chat id {$entityId}");
 		}
 
 		$result = \CIMChat::GetChatData([

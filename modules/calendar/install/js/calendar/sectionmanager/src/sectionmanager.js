@@ -57,7 +57,7 @@ export class SectionManager
 
 	setConfig(config)
 	{
-		this.hiddenSections = config.hiddenSections || [];
+		this.setHiddenSections(config.hiddenSections);
 		this.calendarType = config.type;
 		this.ownerId = config.ownerId;
 		this.userId = config.userId;
@@ -294,12 +294,28 @@ export class SectionManager
 
 	getHiddenSections()
 	{
-		return this.hiddenSections || [];
+		return this.hiddenSections;
 	}
 
-	setHiddenSections(hiddenSections)
+	setHiddenSections(hiddenSections): void
 	{
-		this.hiddenSections = hiddenSections;
+		this.hiddenSections = [];
+		if (Type.isArray(hiddenSections))
+		{
+			hiddenSections.forEach((id) => {
+				this.hiddenSections.push(id === 'tasks' ? id : parseInt(id));
+			});
+		}
+	}
+
+	saveHiddenSections()
+	{
+		const calendarContext = Util.getCalendarContext();
+		const optionName = calendarContext.util.userIsOwner()
+			? 'hidden_sections'
+			: 'hidden_sections_' + calendarContext.util.type;
+
+		BX.userOptions.save('calendar', optionName, optionName, this.hiddenSections);
 	}
 
 	getSectionsInfo()

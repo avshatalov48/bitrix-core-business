@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult;
 
 use Bitrix\Main\Result;
@@ -12,10 +11,14 @@ use Bitrix\Main\Result;
  */
 final class TariffsResult extends Result
 {
-	/** @var array */
+	/** @var Tariff[] */
 	private $tariffs = [];
 
-	public function addTariff(string $tariff)
+	/**
+	 * @param Tariff $tariff
+	 * @return $this
+	 */
+	public function addTariff(Tariff $tariff): TariffsResult
 	{
 		$this->tariffs[] = $tariff;
 
@@ -23,7 +26,7 @@ final class TariffsResult extends Result
 	}
 
 	/**
-	 * @return array
+	 * @return Tariff[]
 	 */
 	public function getTariffs(): array
 	{

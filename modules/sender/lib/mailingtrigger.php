@@ -13,6 +13,22 @@ use Bitrix\Main\Type\DateTime;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class MailingTriggerTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MailingTrigger_Query query()
+ * @method static EO_MailingTrigger_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MailingTrigger_Result getById($id)
+ * @method static EO_MailingTrigger_Result getList(array $parameters = array())
+ * @method static EO_MailingTrigger_Entity getEntity()
+ * @method static \Bitrix\Sender\EO_MailingTrigger createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\EO_MailingTrigger_Collection createCollection()
+ * @method static \Bitrix\Sender\EO_MailingTrigger wakeUpObject($row)
+ * @method static \Bitrix\Sender\EO_MailingTrigger_Collection wakeUpCollection($rows)
+ */
 class MailingTriggerTable extends Entity\DataManager
 {
 	/**

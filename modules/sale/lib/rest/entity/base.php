@@ -29,21 +29,24 @@ abstract class Base
 	public function prepareFieldInfos($fields)
 	{
 		$result = [];
-		foreach($fields as $name => $info)
+		if (is_array($fields))
 		{
-			$attributs = isset($info['ATTRIBUTES']) ? $info['ATTRIBUTES'] : [];
-
-			if(in_array(Attributes::Hidden, $attributs, true))
+			foreach($fields as $name => $info)
 			{
-				continue;
-			}
+				$attributs = isset($info['ATTRIBUTES']) ? $info['ATTRIBUTES'] : [];
 
-			$result[$name] = array(
-				'TYPE' => $info['TYPE'],
-				'IS_REQUIRED' => in_array(Attributes::Required, $attributs, true),
-				'IS_READ_ONLY' => in_array(Attributes::ReadOnly, $attributs, true),
-				'IS_IMMUTABLE' => in_array(Attributes::Immutable, $attributs, true)
-			);
+				if(in_array(Attributes::Hidden, $attributs, true))
+				{
+					continue;
+				}
+
+				$result[$name] = array(
+					'TYPE' => $info['TYPE'],
+					'IS_REQUIRED' => in_array(Attributes::Required, $attributs, true),
+					'IS_READ_ONLY' => in_array(Attributes::ReadOnly, $attributs, true),
+					'IS_IMMUTABLE' => in_array(Attributes::Immutable, $attributs, true)
+				);
+			}
 		}
 
 		return $result;

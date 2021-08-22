@@ -2,11 +2,28 @@
 namespace Bitrix\Landing\Internals;
 
 use \Bitrix\Landing\Manager;
+use \Bitrix\Landing\Domain as DomainCore;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Entity;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class DomainTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Domain_Query query()
+ * @method static EO_Domain_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Domain_Result getById($id)
+ * @method static EO_Domain_Result getList(array $parameters = array())
+ * @method static EO_Domain_Entity getEntity()
+ * @method static \Bitrix\Landing\Internals\EO_Domain createObject($setDefaultValues = true)
+ * @method static \Bitrix\Landing\Internals\EO_Domain_Collection createCollection()
+ * @method static \Bitrix\Landing\Internals\EO_Domain wakeUpObject($row)
+ * @method static \Bitrix\Landing\Internals\EO_Domain_Collection wakeUpCollection($rows)
+ */
 class DomainTable extends Entity\DataManager
 {
 	/**
@@ -58,6 +75,9 @@ class DomainTable extends Entity\DataManager
 			)),
 			'PROVIDER' => new Entity\StringField('PROVIDER', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_PROVIDER')
+			)),
+			'FAIL_COUNT' => new Entity\IntegerField('FAIL_COUNT', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_FAIL_COUNT')
 			)),
 			'CREATED_BY_ID' => new Entity\IntegerField('CREATED_BY_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CREATED_BY_ID'),
@@ -116,12 +136,25 @@ class DomainTable extends Entity\DataManager
 	 * @param Entity\Event $event Event instance.
 	 * @return Entity\EventResult
 	 */
-	protected static function prepareChange(Entity\Event $event)
+	protected static function prepareChange(Entity\Event $event): Entity\EventResult
 	{
 		$result = new Entity\EventResult();
 		$fields = $event->getParameter('fields');
 		$primary = $event->getParameter('primary');
 		$update = array();
+
+		if ($fields['DOMAIN'] ?? null)
+		{
+			if (
+				Manager::isB24() &&
+				!Manager::isExtendedSMN() &&
+				mb_strtolower($fields['DOMAIN']) !== Manager::getHttpHost() &&
+				!DomainCore::getBitrix24Subdomain($fields['DOMAIN'])
+			)
+			{
+				\Bitrix\Landing\Agent::addUniqueAgent('removeBadDomain', [], 86400);
+			}
+		}
 
 		// prepare CODE - base part of URL
 		if (array_key_exists('DOMAIN', $fields))

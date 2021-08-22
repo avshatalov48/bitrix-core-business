@@ -53,6 +53,16 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      });
+
+	      if (params.command === 'set_meeting_status') {
+	        top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
+	      } else if (params.command === 'delete_event' || params.command === 'edit_event') {
+	        var _params$fields3, _params$fields4;
+
+	        if (!params.fields || (params === null || params === void 0 ? void 0 : (_params$fields3 = params.fields) === null || _params$fields3 === void 0 ? void 0 : _params$fields3.IS_MEETING) && (params === null || params === void 0 ? void 0 : (_params$fields4 = params.fields) === null || _params$fields4 === void 0 ? void 0 : _params$fields4.MEETING_STATUS) === 'Q') {
+	          top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
+	        }
+	      }
 	    }
 	  }], [{
 	    key: "getNewEntry",

@@ -282,6 +282,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.addCard(newCard);
 	    }
 	  }, {
+	    key: "replaceField",
+	    value: function replaceField(oldField, newField) {
+	      if (main_core.Type.isObject(oldField) && main_core.Type.isObject(newField)) {
+	        main_core.Dom.replace(oldField.getNode(), newField.getNode());
+	        this.fields.remove(oldField);
+	        this.fields.add(newField);
+	      }
+	    }
+	  }, {
 	    key: "isCheckboxChecked",
 	    value: function isCheckboxChecked() {
 	      var checkbox = this.header.querySelector('input');

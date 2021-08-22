@@ -132,7 +132,12 @@ class SiteSettingsStep extends CSiteSettingsWizardStep
 		$siteID = $wizard->GetVar("siteID");
 		$isWizardInstalled = COption::GetOptionString("eshop", "wizard_installed", "N", $siteID) == "Y";
 
-		if((COption::GetOptionString("eshop", "wizard_installed", "N", $siteID) == "Y" && !WIZARD_INSTALL_DEMO_DATA)
+		if(
+			(
+				COption::GetOptionString("eshop", "wizard_installed", "N", $siteID) == "Y"
+				&& defined('WIZARD_INSTALL_DEMO_DATA')
+				&& !WIZARD_INSTALL_DEMO_DATA
+			)
 			|| defined("ADDITIONAL_INSTALL")
 		)
 		{
@@ -328,7 +333,7 @@ class CatalogSettings extends CWizardStep
 		$siteID = $wizard->GetVar("siteID");
 
 		$subscribe = COption::GetOptionString("sale", "subscribe_prod", "");
-		$arSubscribe = unserialize($subscribe);
+		$arSubscribe = unserialize($subscribe, ["allowed_classes" => false]);
 
 		$wizard->SetDefaultVars(
 			Array(
@@ -386,15 +391,6 @@ class ShopSettings extends CWizardStep
 		$this->SetPrevStep("catalog_settings");
 		$this->SetNextCaption(GetMessage("NEXT_BUTTON"));
 		$this->SetPrevCaption(GetMessage("PREVIOUS_BUTTON"));
-
-		if (defined("ADDITIONAL_INSTALL"))
-		{
-			$this->SetNextStep("data_install");
-			if (defined("NEED_PERSON_TYPE"))
-			{
-				$this->SetNextStep("person_type");
-			}
-		}
 
 		$wizard =& $this->GetWizard();
 

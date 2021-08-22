@@ -7,6 +7,22 @@ use Bitrix\Main\Localization;
 
 Localization\Loc::loadMessages(__FILE__);
 
+/**
+ * Class MailFilterTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MailFilter_Query query()
+ * @method static EO_MailFilter_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MailFilter_Result getById($id)
+ * @method static EO_MailFilter_Result getList(array $parameters = array())
+ * @method static EO_MailFilter_Entity getEntity()
+ * @method static \Bitrix\Mail\EO_MailFilter createObject($setDefaultValues = true)
+ * @method static \Bitrix\Mail\EO_MailFilter_Collection createCollection()
+ * @method static \Bitrix\Mail\EO_MailFilter wakeUpObject($row)
+ * @method static \Bitrix\Mail\EO_MailFilter_Collection wakeUpCollection($rows)
+ */
 class MailFilterTable extends Entity\DataManager
 {
 

@@ -13,7 +13,7 @@ class CCloudFailover
 	{
 		return (COption::GetOptionString("clouds", "failover_enabled") === "Y");
 	}
-	
+
 	public static function queueDelete($obBucket, $FILE_PATH)
 	{
 		if (
@@ -128,7 +128,7 @@ class CCloudFailover
 			}
 		}
 	}
-	
+
 	public static function executeDeleteQueue()
 	{
 		$deleteTask = \Bitrix\Clouds\DeleteQueueTable::getList(array(
@@ -202,7 +202,7 @@ class CCloudFailover
 			{
 				\Bitrix\Clouds\CopyQueueTable::delete($task["ID"]);
 			}
-			
+
 			return CCloudFailover::ST_CONTINUE;
 		}
 		else
@@ -210,7 +210,7 @@ class CCloudFailover
 			return CCloudFailover::ST_END;
 		}
 	}
-	
+
 	public static function executeCopyTask($copyTask, $overwrite)
 	{
 		//Check if failover condition is active
@@ -290,7 +290,9 @@ class CCloudFailover
 		$CLOchunkSize = $targetBucket->GetService()->GetMinUploadPartSize();
 		if ($copyTask["FILE_SIZE"] <= $CLOchunkSize)
 		{
-			$http = new \Bitrix\Main\Web\HttpClient();
+			$http = new \Bitrix\Main\Web\HttpClient(array(
+				"streamTimeout" => 0,
+			));
 			$arFile = array(
 				"type" => $CONTENT_TYPE,
 				"content" => false,
@@ -471,7 +473,7 @@ class CCloudFailover
 						break;
 					}
 				}
-				
+
 				if ($copyStatus === CCloudFailover::ST_CONTINUE)
 				{
 					$copyStatus = static::executeCopyQueue();
@@ -480,7 +482,7 @@ class CCloudFailover
 						break;
 					}
 				}
-				
+
 				if (
 					($deleteStatus !== CCloudFailover::ST_CONTINUE)
 					&& ($copyStatus !== CCloudFailover::ST_CONTINUE)
@@ -495,7 +497,7 @@ class CCloudFailover
 
 		return 'CCloudFailover::queueAgent();';
 	}
-	
+
 	public static function syncAgent($bucketFrom, $bucketTo, $limit = 100)
 	{
 		$bucketFrom = intval($bucketFrom);
@@ -584,7 +586,7 @@ class CCloudFailover
 		}
 		return false;
 	}
-	
+
 	public static function unlock()
 	{
 		if (static::$lock)
@@ -594,7 +596,7 @@ class CCloudFailover
 			static::$lock = false;
 		}
 	}
-	
+
 	protected static function _lock_by_id($lockId)
 	{
 		$lock_file_template = CTempFile::GetAbsoluteRoot()."/clouds-%d.lock";

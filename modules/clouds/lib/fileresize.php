@@ -21,7 +21,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Clouds
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_FileResize_Query query()
+ * @method static EO_FileResize_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_FileResize_Result getById($id)
+ * @method static EO_FileResize_Result getList(array $parameters = array())
+ * @method static EO_FileResize_Entity getEntity()
+ * @method static \Bitrix\Clouds\EO_FileResize createObject($setDefaultValues = true)
+ * @method static \Bitrix\Clouds\EO_FileResize_Collection createCollection()
+ * @method static \Bitrix\Clouds\EO_FileResize wakeUpObject($row)
+ * @method static \Bitrix\Clouds\EO_FileResize_Collection wakeUpCollection($rows)
+ */
 
 class FileResizeTable extends Main\Entity\DataManager
 {

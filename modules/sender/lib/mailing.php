@@ -710,6 +710,22 @@ class MailingGroupTable extends Entity\DataManager
 	}
 }
 
+/**
+ * Class MailingSubscriptionTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MailingSubscription_Query query()
+ * @method static EO_MailingSubscription_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MailingSubscription_Result getById($id)
+ * @method static EO_MailingSubscription_Result getList(array $parameters = array())
+ * @method static EO_MailingSubscription_Entity getEntity()
+ * @method static \Bitrix\Sender\EO_MailingSubscription createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\EO_MailingSubscription_Collection createCollection()
+ * @method static \Bitrix\Sender\EO_MailingSubscription wakeUpObject($row)
+ * @method static \Bitrix\Sender\EO_MailingSubscription_Collection wakeUpCollection($rows)
+ */
 class MailingSubscriptionTable extends Entity\DataManager
 {
 	/**

@@ -110,10 +110,10 @@ export const NotificationSearchResult = {
 					if (date instanceof Date)
 					{
 						// compare dates excluding time.
-						item.date.setHours(0,0,0,0);
-						date.setHours(0,0,0,0);
+						const itemDateForCompare = (new Date(item.date.getTime())).setHours(0,0,0,0);
+						const dateFromInput = date.setHours(0,0,0,0);
 
-						result = item.date.getTime() === date.getTime();
+						result = itemDateForCompare === dateFromInput;
 					}
 				}
 
@@ -199,6 +199,7 @@ export const NotificationSearchResult = {
 
 					return this.onAfterLoadNextPageRequest();
 				}).catch(result => {
+					this.$store.dispatch('notifications/clearPlaceholders');
 					Logger.warn('History request error', result);
 				});
 		},
@@ -231,7 +232,7 @@ export const NotificationSearchResult = {
 			};
 			if (BX.parseDate(this.searchDate) instanceof Date)
 			{
-				params['SEARCH_DATE'] = this.searchDate;
+				params['SEARCH_DATE'] = BX.parseDate(this.searchDate).toISOString();
 			}
 			if (this.lastId > 0)
 			{
@@ -247,6 +248,7 @@ export const NotificationSearchResult = {
 			this.lastId = 0;
 			this.isLoadingNewPage = true;
 			this.placeholderCount = 0;
+			this.searchPageLoaded = 0;
 		},
 		drawPlaceholders(amount = 0)
 		{

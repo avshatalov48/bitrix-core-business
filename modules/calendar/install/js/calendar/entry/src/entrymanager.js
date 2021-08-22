@@ -490,6 +490,22 @@ export class EntryManager {
 				}
 			}
 		});
+
+		if (params.command === 'set_meeting_status')
+		{
+			top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
+		}
+		else if (params.command === 'delete_event' || params.command === 'edit_event')
+		{
+			if (
+				!params.fields
+				||
+				(params?.fields?.IS_MEETING && params?.fields?.MEETING_STATUS === 'Q')
+			)
+			{
+				top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
+			}
+		}
 	}
 
 	static registerDeleteTimeout(params)

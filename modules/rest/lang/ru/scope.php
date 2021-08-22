@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["REST_SCOPE_LISTS"] = "Списки";
 $MESS["REST_SCOPE_LISTS_DESCRIPTION"] = "полный доступ: чтение, добавление, изменение и удаление списков, разделов списков, полей элементов, элементов";
 $MESS["REST_SCOPE_BIZPROC"] = "Бизнес-процессы";
@@ -13,6 +13,12 @@ $MESS["REST_SCOPE_TASK"] = "Задачи";
 $MESS["REST_SCOPE_TASK_DESCRIPTION"] = "полный доступ: чтение, добавление, изменение и удаление задач, чек-листов, комментариев, файлов, зависимостей, трудозатрат; чтение, добавление, изменение и удаление стадий плана";
 $MESS["REST_SCOPE_USER"] = "Пользователи";
 $MESS["REST_SCOPE_USER_DESCRIPTION"] = "полный доступ: чтение, добавление, изменение и удаление пользователей";
+$MESS["REST_SCOPE_USER.USERFIELD"] = "Пользовательские поля пользователя";
+$MESS["REST_SCOPE_USER.USERFIELD_DESCRIPTION"] = "полный доступ: чтение, добавление, изменение и удаление пользовательских полей в профиле пользователей";
+$MESS["REST_SCOPE_USER_BASIC"] = "Пользователи (базовый)";
+$MESS["REST_SCOPE_USER_BASIC_DESCRIPTION"] = "доступ на чтение списка пользователей, их контактной информации";
+$MESS["REST_SCOPE_USER_BRIEF"] = "Пользователи (минимальный)";
+$MESS["REST_SCOPE_USER_BRIEF_DESCRIPTION"] = "доступ на чтение списка пользователей, информации об именах без контактной информации";
 $MESS["REST_SCOPE_USERCONSENT"] = "Соглашения";
 $MESS["REST_SCOPE_USERCONSENT_DESCRIPTION"] = "базовый доступ: чтение соглашений, добавление согласий пользователей";
 $MESS["REST_SCOPE_DEPARTMENT"] = "Структура компании";
@@ -75,4 +81,5 @@ $MESS["REST_SCOPE_SOCIALNETWORK"] = "Социальная сеть";
 $MESS["REST_SCOPE_SOCIALNETWORK_DESCRIPTION"] = "не используется в приложениях";
 $MESS["REST_SCOPE_RPA"] = "Роботизация бизнеса";
 $MESS["REST_SCOPE_RPA_DESCRIPTION"] = "полный доступ: чтение, добавление, изменение и удаление процессов, стадий, элементов, записей таймлайна. Можно выполнять задания";
-?>
+$MESS["REST_SCOPE_USERFIELDCONFIG"] = "Настройки пользовательских полей";
+$MESS["REST_SCOPE_USERFIELDCONFIG_DESCRIPTION"] = "полный доступ: чтение, добавление, изменение и удаление настроек пользовательских полей некоторых модулей";

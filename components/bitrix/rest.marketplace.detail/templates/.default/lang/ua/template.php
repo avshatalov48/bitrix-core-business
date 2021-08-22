@@ -1,6 +1,6 @@
 <?php
 $MESS["MARKETPLACE_APP_BUY"] = "Купити";
-$MESS["MARKETPLACE_APP_BY_SUBSCRIPTION"] = "За підпискою";
+$MESS["MARKETPLACE_APP_BY_SUBSCRIPTION"] = "За передплатою";
 $MESS["MARKETPLACE_APP_DELETE"] = "Видалити";
 $MESS["MARKETPLACE_APP_DELETE_CONFIRM"] = "Ви впевнені, що хочете видалити застосунок?";
 $MESS["MARKETPLACE_APP_DELETE_ERROR"] = "Помилка! Застосунок не було видалено";
@@ -36,7 +36,7 @@ $MESS["MARKETPLACE_LICENSE_TOS_ERROR_2"] = "Для установки засто
 $MESS["MARKETPLACE_MORE_BUTTON"] = "Ще";
 $MESS["REST_MARKETPLACE_EXTERNAL_PAYMENT"] = "потрібна оплата зовнішнього сервісу";
 $MESS["REST_MARKETPLACE_HIDDEN_BUY"] = "містить вбудовані покупки";
-$MESS["REST_MARKETPLACE_SUBSCRIPTION_EXPANDS"] = "розширений функціонал по підписці на Бітрікс24.Маркет";
-$MESS["REST_MARKETPLACE_SUBSCRIPTION_REQUIRED"] = "потрібна підписка";
+$MESS["REST_MARKETPLACE_SUBSCRIPTION_EXPANDS"] = "розширений функціонал за передплатою на Бітрікс24.Маркет";
+$MESS["REST_MARKETPLACE_SUBSCRIPTION_REQUIRED"] = "потрібна передплата";
 $MESS["REST_MP_APP_INSTALL_REQUEST"] = "Відправити";
 $MESS["REST_MP_INSTALL_REQUEST_CONFIRM"] = "Недостатньо прав на встановлення цього застосунку.<br/>Відправити запит на встановлення адміністраторам?";

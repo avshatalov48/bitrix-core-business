@@ -15,6 +15,22 @@ use Bitrix\Sender\Message\iBase;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class LetterTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Letter_Query query()
+ * @method static EO_Letter_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Letter_Result getById($id)
+ * @method static EO_Letter_Result getList(array $parameters = array())
+ * @method static EO_Letter_Entity getEntity()
+ * @method static \Bitrix\Sender\Internals\Model\EO_Letter createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\Internals\Model\EO_Letter_Collection createCollection()
+ * @method static \Bitrix\Sender\Internals\Model\EO_Letter wakeUpObject($row)
+ * @method static \Bitrix\Sender\Internals\Model\EO_Letter_Collection wakeUpCollection($rows)
+ */
 class LetterTable extends Entity\DataManager
 {
 	const STATUS_NEW = 'N';

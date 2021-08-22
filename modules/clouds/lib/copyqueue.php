@@ -26,7 +26,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Clouds
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CopyQueue_Query query()
+ * @method static EO_CopyQueue_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CopyQueue_Result getById($id)
+ * @method static EO_CopyQueue_Result getList(array $parameters = array())
+ * @method static EO_CopyQueue_Entity getEntity()
+ * @method static \Bitrix\Clouds\EO_CopyQueue createObject($setDefaultValues = true)
+ * @method static \Bitrix\Clouds\EO_CopyQueue_Collection createCollection()
+ * @method static \Bitrix\Clouds\EO_CopyQueue wakeUpObject($row)
+ * @method static \Bitrix\Clouds\EO_CopyQueue_Collection wakeUpCollection($rows)
+ */
 
 class CopyQueueTable extends Main\Entity\DataManager
 {

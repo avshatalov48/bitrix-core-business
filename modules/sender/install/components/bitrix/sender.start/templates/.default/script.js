@@ -32,11 +32,35 @@
 			if (tileList)
 				tileList.getTiles().forEach(this.initTile, this);
 		}
+		// conversion init
+		var tileManager = BX.UI.TileList.Manager.getById('sender-start-conversion');
+		if (tileManager)
+		{
+			tileManager.getTiles().forEach(
+				function(tile) {
+					BX.bind(tile.node, 'click',this.onConversionClick.bind(this,tile));
+				},
+				this
+			)
+		}
 	};
+
+	Manager.prototype.onConversionClick = function(tile)
+	{
+
+		if (!tile.selected && BX.Sender.B24License)
+		{
+			BX.Sender.B24License.showPopup('Ad');
+			return;
+		}
+		BX.Crm.Ads.Registry.conversion(tile.data.code).show();
+	};
+
 	Manager.prototype.initTile = function (tile)
 	{
 		BX.bind(tile.node, 'click', this.onClick.bind(this, tile));
 	};
+
 	Manager.prototype.onClick = function (tile)
 	{
 		if (!tile.selected && BX.Sender.B24License)

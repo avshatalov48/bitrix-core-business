@@ -14,7 +14,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 if(!isset($arParams["CACHE_TIME"]))
 	$arParams["CACHE_TIME"] = 36000000;
 
-$arParams["ID"] = intval($arParams["ID"]);
+$arParams["ID"] = intval(($arParams["ID"] ?? 0));
 $arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
 
 $arParams["DEPTH_LEVEL"] = intval($arParams["DEPTH_LEVEL"]);

@@ -8,17 +8,25 @@
  */
 namespace Bitrix\Socialnetwork\Item;
 
+use Bitrix\Blog\Item\Blog;
+use Bitrix\Blog\Item\Permissions;
+use Bitrix\Blog\Item\Post;
+use Bitrix\Main\AccessDeniedException;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Loader;
+use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\SystemException;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\Controller\Livefeed;
 use Bitrix\Disk\Uf\FileUserType;
 
 class Helper
 {
-	public static function addBlogPost($params, $scope = \Bitrix\Main\Engine\Controller::SCOPE_AJAX, &$resultFields = [])
+	public static function addBlogPost($params, $scope = Controller::SCOPE_AJAX, &$resultFields = [])
 	{
 		global $USER, $CACHE_MANAGER, $APPLICATION;
 
@@ -39,14 +47,14 @@ class Helper
 
 		if (!Loader::includeModule('blog'))
 		{
-			$APPLICATION->throwException('No blog module installed', 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_MODULE_BLOG_NOT_INSTALLED');
+			$APPLICATION->throwException(Loc::getMessage('SOCIALNETWORK_ITEM_HELPER_BLOG_MODULE_NOT_INSTALLED'), 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_MODULE_BLOG_NOT_INSTALLED');
 			return false;
 		}
 
 		$blogGroupId = Option::get('socialnetwork', 'userbloggroup_id', false, $siteId);
 		if (empty($blogGroupId))
 		{
-			$blogGroupIdList = \Bitrix\Socialnetwork\ComponentHelper::getSonetBlogGroupIdList([
+			$blogGroupIdList = ComponentHelper::getSonetBlogGroupIdList([
 				'SITE_ID' => $siteId
 			]);
 			if (!empty($blogGroupIdList))
@@ -55,7 +63,7 @@ class Helper
 			}
 		}
 
-		$blog = \Bitrix\Blog\Item\Blog::getByUser([
+		$blog = Blog::getByUser([
 			'GROUP_ID' => $blogGroupId,
 			'SITE_ID' => $siteId,
 			'USER_ID' => $authorId,
@@ -134,7 +142,7 @@ class Helper
 		}
 		elseif (
 			!empty($params['SPERM'])
-			&& $scope === \Bitrix\Main\Engine\Controller::SCOPE_REST
+			&& $scope === Controller::SCOPE_REST
 		)
 		{
 			if ($emailUserAllowed)
@@ -192,7 +200,7 @@ class Helper
 			return false;
 		}
 
-		if ($postFields['TITLE'] == '')
+		if ((string)$postFields['TITLE'] === '')
 		{
 			$postFields['MICRO'] = 'Y';
 			$postFields['TITLE'] = preg_replace([ "/\n+/is" . BX_UTF_PCRE_MODIFIER, "/\s+/is" . BX_UTF_PCRE_MODIFIER ], ' ', \blogTextParser::killAllTags($postFields['DETAIL_TEXT']));
@@ -216,10 +224,7 @@ class Helper
 			}
 		}
 
-		if (
-			isset($params['GRATITUDE_MEDAL'])
-			&& isset($params['GRATITUDE_EMPLOYEES'])
-		)
+		if (isset($params['GRATITUDE_MEDAL'], $params['GRATITUDE_EMPLOYEES']))
 		{
 			$gratitudeElementId = \Bitrix\Socialnetwork\Helper\Gratitude::create([
 				'medal' => $params['GRATITUDE_MEDAL'],
@@ -263,7 +268,7 @@ class Helper
 			return false;
 		}
 
-		$socnetPerms = \Bitrix\Socialnetwork\ComponentHelper::getBlogPostSocNetPerms([
+		$socnetPerms = ComponentHelper::getBlogPostSocNetPerms([
 			'postId' => $result,
 			'authorId' => $postFields['AUTHOR_ID']
 		]);
@@ -353,7 +358,7 @@ class Helper
 
 			if (
 				isset($params['FILES'])
-				&& $scope === \Bitrix\Main\Engine\Controller::SCOPE_REST
+				&& $scope === Controller::SCOPE_REST
 			)
 			{
 				foreach ($params['FILES'] as $fileData)
@@ -419,18 +424,18 @@ class Helper
 			];
 
 			$logId = \CBlogPost::notify($postFields, $blog, $paramsNotify);
-			if ($logId)
+			if (
+				$logId
+				&& ($post = Post::getById($result))
+			)
 			{
-				if ($post = \Bitrix\Blog\Item\Post::getById($result))
-				{
-					\CSocNetLog::update((int)$logId, [
-						'EVENT_ID' => self::getBlogPostEventId([
-							'postId' => $post->getId()
-						]),
-						'SOURCE_ID' => $result, // table column field
-						'TAG' => $post->getTags(),
-					]);
-				}
+				\CSocNetLog::update($logId, [
+					'EVENT_ID' => self::getBlogPostEventId([
+						'postId' => $post->getId()
+					]),
+					'SOURCE_ID' => $result, // table column field
+					'TAG' => $post->getTags(),
+				]);
 			}
 
 			BXClearCache(true, ComponentHelper::getBlogPostCacheDir([
@@ -448,7 +453,7 @@ class Helper
 				],
 				'siteId' => $siteId,
 				'postUrl' => $postUrl,
-				'socnetRights' => ($logId ? \Bitrix\Socialnetwork\Item\LogRight::get($logId) : $postFields['SOCNET_RIGHTS']),
+				'socnetRights' => ($logId ? LogRight::get($logId) : $postFields['SOCNET_RIGHTS']),
 				'socnetRightsOld' => [],
 				'mentionListOld' => [],
 				'mentionList' => $mentionList
@@ -482,7 +487,7 @@ class Helper
 		return $result;
 	}
 
-	public static function updateBlogPost($params = [], $scope = \Bitrix\Main\Engine\Controller::SCOPE_AJAX, &$resultFields = [])
+	public static function updateBlogPost($params = [], $scope = Controller::SCOPE_AJAX, &$resultFields = [])
 	{
 		global $USER, $USER_FIELD_MANAGER, $APPLICATION, $CACHE_MANAGER;
 
@@ -496,7 +501,7 @@ class Helper
 
 		if (!Loader::includeModule('blog'))
 		{
-			$APPLICATION->throwException('Blog module not installed', 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_UPDATE_ERROR');
+			$APPLICATION->throwException(Loc::getMessage('SOCIALNETWORK_ITEM_HELPER_BLOG_MODULE_NOT_INSTALLED'), 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_UPDATE_ERROR');
 			return false;
 		}
 
@@ -520,20 +525,20 @@ class Helper
 			'POST_ID' => $postId
 		]);
 
-		if ($currentUserPerm <= \Bitrix\Blog\Item\Permissions::WRITE)
+		if ($currentUserPerm <= Permissions::WRITE)
 		{
 			$APPLICATION->throwException('No write perms', 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_UPDATE_ERROR');
 			return false;
 		}
 
-		$postFields = \Bitrix\Blog\Item\Post::getById($postId)->getFields();
+		$postFields = Post::getById($postId)->getFields();
 		if (empty($postFields))
 		{
 			$APPLICATION->throwException('No post found', 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_UPDATE_ERROR');
 			return false;
 		}
 
-		$blog = \Bitrix\Blog\Item\Blog::getByUser([
+		$blog = Blog::getByUser([
 			'GROUP_ID' => Option::get('socialnetwork', 'userbloggroup_id', false, $siteId),
 			'SITE_ID' => $siteId,
 			'USER_ID' => $postFields['AUTHOR_ID']
@@ -558,12 +563,12 @@ class Helper
 		}
 
 		if (
-			$updateFields['TITLE'] == ''
+			(string)$updateFields['TITLE'] === ''
 			&& isset($params['POST_MESSAGE'])
 		)
 		{
 			$updateFields['MICRO'] = 'Y';
-			$updateFields['TITLE'] = preg_replace([ "/\n+/is" . BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER ], ' ', \blogTextParser::killAllTags($params['POST_MESSAGE']));
+			$updateFields['TITLE'] = preg_replace([ "/\n+/is" . BX_UTF_PCRE_MODIFIER, "/\s+/is" . BX_UTF_PCRE_MODIFIER ], ' ', \blogTextParser::killAllTags($params['POST_MESSAGE']));
 			$updateFields['TITLE'] = trim($updateFields['TITLE'], " \t\n\r\0\x0B\xA0");
 		}
 
@@ -708,7 +713,7 @@ class Helper
 						!empty($params['FILES'])
 						|| !empty($params['UF_BLOG_POST_FILE'])
 					)
-					&& $scope === \Bitrix\Main\Engine\Controller::SCOPE_REST
+					&& $scope === Controller::SCOPE_REST
 				)
 				{
 					$postUF = $USER_FIELD_MANAGER->getUserFields('BLOG_POST', $postId, LANGUAGE_ID);
@@ -779,7 +784,7 @@ class Helper
 						}
 						else
 						{
-							$filesList = array_unique(array_merge($filesList, array_map(function($value) {
+							$filesList = array_unique(array_merge($filesList, array_map(static function($value) {
 								return (
 									preg_match('/^' . FileUserType::NEW_FILE_PREFIX . '(\d+)$/i', $value)
 										? $value
@@ -791,10 +796,10 @@ class Helper
 				}
 				elseif (
 					!empty($params['UF_BLOG_POST_FILE'])
-					&& $scope === \Bitrix\Main\Engine\Controller::SCOPE_AJAX
+					&& $scope === Controller::SCOPE_AJAX
 				)
 				{
-					$filesList = array_unique(array_merge($filesList, array_map(function($value) {
+					$filesList = array_unique(array_merge($filesList, array_map(static function($value) {
 						return (
 						preg_match('/^' . FileUserType::NEW_FILE_PREFIX . '(\d+)$/i', $value)
 							? $value
@@ -862,17 +867,99 @@ class Helper
 		return $result;
 	}
 
+	/**
+	 * @param array $params
+	 * @return bool
+	 * @throws \Exception
+	 * @throws \Bitrix\Main\SystemException
+ 	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\AccessDeniedException
+	 */
+	public static function deleteBlogPost(array $params = []): bool
+	{
+		global $USER;
+
+		$postId = (int)$params['POST_ID'];
+
+		if ($postId <= 0)
+		{
+			throw new ArgumentException('Wrong post ID');
+		}
+
+		if (!Loader::includeModule('blog'))
+		{
+			throw new LoaderException(Loc::getMessage('SOCIALNETWORK_ITEM_HELPER_BLOG_MODULE_NOT_INSTALLED'));
+		}
+
+		$currentUserId = (
+			isset($params['USER_ID'])
+			&& (int)$params['USER_ID'] > 0
+			&& Livefeed::isAdmin()
+				? $params['USER_ID']
+				: $USER->getId()
+		);
+
+		$siteId = (
+			is_set($params, 'SITE_ID')
+			&& !empty($params['SITE_ID'])
+				? $params['SITE_ID']
+				: SITE_ID
+		);
+
+		$currentUserPerm = self::getBlogPostPerm([
+			'USER_ID' => $currentUserId,
+			'POST_ID' => $postId
+		]);
+
+		if ($currentUserPerm < Permissions::FULL)
+		{
+			throw new AccessDeniedException(Loc::getMessage('SOCIALNETWORK_ITEM_HELPER_DELETE_NO_RIGHTS'));
+		}
+
+		\CBlogPost::DeleteLog($postId);
+
+		BXClearCache(true, ComponentHelper::getBlogPostCacheDir([
+			'TYPE' => 'posts_popular',
+			'SITE_ID' => $siteId,
+		]));
+		BXClearCache(true, ComponentHelper::getBlogPostCacheDir([
+			'TYPE' => 'post',
+			'POST_ID' => $postId,
+		]));
+		BXClearCache(true, ComponentHelper::getBlogPostCacheDir([
+			'TYPE' => 'post_general',
+			'POST_ID' => $postId,
+		]));
+		BXClearCache(true, ComponentHelper::getBlogPostCacheDir([
+			'TYPE' => 'posts_last_blog',
+			'SITE_ID' => $siteId,
+		]));
+		BXClearCache(true, \CComponentEngine::makeComponentPath('bitrix:socialnetwork.blog.blog'));
+
+		if (!\CBlogPost::delete($postId))
+		{
+			throw new SystemException(Loc::getMessage('SOCIALNETWORK_ITEM_HELPER_DELETE_ERROR'));
+		}
+
+		$sonetGroupId = (int)($params['ACTIVITY_SONET_GROUP_ID'] ?? 0);
+		if ($sonetGroupId > 0)
+		{
+			\CSocNetGroup::setLastActivity($sonetGroupId);
+		}
+
+		return true;
+	}
+
 	public static function getBlogPostPerm(array $params = [])
 	{
 		global $USER, $APPLICATION;
 
 		if (!Loader::includeModule('blog'))
 		{
-			$APPLICATION->throwException('Blog module not installed', 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_UPDATE_ERROR');
+			$APPLICATION->throwException(Loc::getMessage('SOCIALNETWORK_ITEM_HELPER_BLOG_MODULE_NOT_INSTALLED'), 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_ERROR');
 			return false;
 		}
-
-		$postId = $params['POST_ID'];
 
 		$currentUserId = (
 			isset($params['USER_ID'])
@@ -882,32 +969,40 @@ class Helper
 				: (int)$USER->getId()
 		);
 
-		$arPost = self::getBlogPostFields($postId);
-
-		if ((int)$arPost['AUTHOR_ID'] === $currentUserId)
+		$postId = (int)($params['POST_ID'] ?? 0);
+		if ($postId <= 0)
 		{
-			$result = \Bitrix\Blog\Item\Permissions::FULL;
+			$APPLICATION->throwException('Wrong post ID', 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_ERROR');
+			return false;
+		}
+
+		if (
+			\CSocNetUser::isUserModuleAdmin($currentUserId, SITE_ID)
+			|| \CMain::getGroupRight('blog') >= 'W'
+		)
+		{
+			return Permissions::FULL;
+		}
+
+		$postItem = Post::getById($postId);
+		$postFields = $postItem->getFields();
+
+		if ((int)$postFields['AUTHOR_ID'] === $currentUserId)
+		{
+			$result = Permissions::FULL;
 		}
 		else
 		{
-			if (\CSocNetUser::isUserModuleAdmin($currentUserId, SITE_ID))
+			$permsResult = $postItem->getSonetPerms([
+				'CHECK_FULL_PERMS' => true
+			]);
+			$result = $permsResult['PERM'];
+			if (
+				$result <= Permissions::READ
+				&& $permsResult['READ_BY_OSG']
+			)
 			{
-				$result = \Bitrix\Blog\Item\Permissions::FULL;
-			}
-			else
-			{
-				$postItem = \Bitrix\Blog\Item\Post::getById($postId);
-				$permsResult = $postItem->getSonetPerms([
-					'CHECK_FULL_PERMS' => true
-				]);
-				$result = $permsResult['PERM'];
-				if (
-					$result <= \Bitrix\Blog\Item\Permissions::READ
-					&& $permsResult['READ_BY_OSG']
-				)
-				{
-					$result = \Bitrix\Blog\Item\Permissions::READ;
-				}
+				$result = Permissions::READ;
 			}
 		}
 
@@ -928,7 +1023,7 @@ class Helper
 
 		if (!Loader::includeModule('blog'))
 		{
-			$APPLICATION->throwException('Blog module not installed', 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_MODULE_ERROR');
+			$APPLICATION->throwException(Loc::getMessage('SOCIALNETWORK_ITEM_HELPER_BLOG_MODULE_NOT_INSTALLED'), 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_MODULE_ERROR');
 			return false;
 		}
 
@@ -936,13 +1031,13 @@ class Helper
 		if ($cache->initCache($cacheTtl, $cacheId, $cacheDir))
 		{
 			$postFields = $cache->getVars();
-			$postItem = new \Bitrix\Blog\Item\Post;
+			$postItem = new Post;
 			$postItem->setFields($postFields);
 		}
 		else
 		{
 			$cache->startDataCache();
-			$postItem = \Bitrix\Blog\Item\Post::getById($postId);
+			$postItem = Post::getById($postId);
 			$postFields = $postItem->getFields();
 			$cache->endDataCache($postFields);
 		}
@@ -950,43 +1045,40 @@ class Helper
 		return $postFields;
 	}
 
-	public static function getBlogPostEventId(array $params = [])
+	public static function getBlogPostEventId(array $params = []): string
 	{
 		global $USER_FIELD_MANAGER;
 
 		if (!Loader::includeModule('blog'))
 		{
-			throw new \Bitrix\Main\SystemException('No blog module installed', 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_MODULE_BLOG_NOT_INSTALLED');
+			throw new SystemException(Loc::getMessage('SOCIALNETWORK_ITEM_HELPER_BLOG_MODULE_NOT_INSTALLED'), 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_MODULE_BLOG_NOT_INSTALLED');
 		}
 
 		$postId = (isset($params['postId']) && (int)$params['postId'] > 0 ? (int)$params['postId'] : 0);
 		if ($postId <= 0)
 		{
-			throw new \Bitrix\Main\SystemException('Empty post ID', 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_EMPTY_POST_ID');
+			throw new SystemException('Empty post ID', 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_EMPTY_POST_ID');
 		}
 
 		$eventId = \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST;
 		$postUserFields = $USER_FIELD_MANAGER->getUserFields('BLOG_POST', $postId, LANGUAGE_ID);
 
 		if (
-			isset($postUserFields['UF_BLOG_POST_IMPRTNT'])
-			&& isset($postUserFields['UF_BLOG_POST_IMPRTNT']['VALUE'])
+			isset($postUserFields['UF_BLOG_POST_IMPRTNT']['VALUE'])
 			&& (int)$postUserFields['UF_BLOG_POST_IMPRTNT']['VALUE'] > 0
 		)
 		{
 			$eventId = \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST_IMPORTANT;
 		}
 		elseif (
-			isset($postUserFields['UF_BLOG_POST_VOTE'])
-			&& isset($postUserFields['UF_BLOG_POST_VOTE']['VALUE'])
+			isset($postUserFields['UF_BLOG_POST_VOTE']['VALUE'])
 			&& (int)$postUserFields['UF_BLOG_POST_VOTE']['VALUE'] > 0
 		)
 		{
 			$eventId = \Bitrix\Blog\Integration\Socialnetwork\Log::EVENT_ID_POST_VOTE;
 		}
 		elseif (
-			isset($postUserFields['UF_GRATITUDE'])
-			&& isset($postUserFields['UF_GRATITUDE']['VALUE'])
+			isset($postUserFields['UF_GRATITUDE']['VALUE'])
 			&& (int)$postUserFields['UF_GRATITUDE']['VALUE'] > 0
 		)
 		{

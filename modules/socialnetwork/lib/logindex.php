@@ -11,6 +11,22 @@ use Bitrix\Main\Entity;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Application;
 
+/**
+ * Class LogIndexTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_LogIndex_Query query()
+ * @method static EO_LogIndex_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_LogIndex_Result getById($id)
+ * @method static EO_LogIndex_Result getList(array $parameters = array())
+ * @method static EO_LogIndex_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_LogIndex createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_LogIndex_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_LogIndex wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_LogIndex_Collection wakeUpCollection($rows)
+ */
 class LogIndexTable extends Entity\DataManager
 {
 	const ITEM_TYPE_LOG = 'L';

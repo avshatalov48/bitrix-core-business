@@ -463,7 +463,11 @@
 				var hiddenSections = this.calendar.sectionController.getHiddenSections();
 				hiddenSections = BX.util.deleteFromArray(hiddenSections, BX.util.array_search(this.id, hiddenSections));
 				this.calendar.sectionController.setHiddenSections(hiddenSections);
-				BX.userOptions.save('calendar', 'hidden_sections', 'hidden_sections', hiddenSections);
+
+				if (this.calendarContext.util.userIsOwner())
+				{
+					BX.userOptions.save('calendar', 'hidden_sections', 'hidden_sections', hiddenSections);
+				}
 			}
 		},
 
@@ -474,7 +478,11 @@
 				var hiddenSections = this.calendar.sectionController.getHiddenSections();
 				hiddenSections.push(this.id);
 				this.calendar.sectionController.setHiddenSections(hiddenSections);
-				BX.userOptions.save('calendar', 'hidden_sections', 'hidden_sections', hiddenSections);
+
+				if (this.calendarContext.util.userIsOwner())
+				{
+					BX.userOptions.save('calendar', 'hidden_sections', 'hidden_sections', hiddenSections);
+				}
 			}
 		},
 

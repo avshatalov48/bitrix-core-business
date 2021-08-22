@@ -1,5 +1,19 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var CBitrixComponent $component */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var array $arDefaultUrlTemplates404 */
+/** @var string $componentPage */
+/** @global CDatabase $DB */
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
+
 $arParams["SEARCH_FILTER_NAME"] = (
 	isset($arParams["SEARCH_FILTER_NAME"])
 	&& $arParams["SEARCH_FILTER_NAME"] <> ''
@@ -116,8 +130,11 @@ class CSocNetSearchComponent
 
 if (mb_strpos($componentPage, "user_content_search") === false)
 {
-	$arGroup = CSocNetGroup::GetByID($arResult["VARIABLES"]["group_id"]);
-	$APPLICATION->AddChainItem($arGroup["NAME"], CComponentEngine::MakePathFromTemplate(htmlspecialcharsbx($arResult["PATH_TO_GROUP"]), array("group_id" => $arGroup["ID"])));
+	$APPLICATION->addChainItem(
+		$arResult['groupFields']['NAME'],
+		\CComponentEngine::makePathFromTemplate(htmlspecialcharsbx($arResult['PATH_TO_GROUP']), [
+			'group_id' => $arResult['groupFields']['ID'],
+		]));
 }
 else
 {

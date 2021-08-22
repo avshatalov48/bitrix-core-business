@@ -7,11 +7,11 @@
  * @copyright 2001-2021 Bitrix
  */
 
-
-import {Vue} from 'ui.vue';
-import {VuexBuilderModel} from 'ui.vue.vuex';
-import {Utils} from 'im.lib.utils';
-import {Type} from 'main.core';
+import { Vue } from 'ui.vue';
+import { VuexBuilderModel } from 'ui.vue.vuex';
+import { Utils } from 'im.lib.utils';
+import { Type } from 'main.core';
+import { NotificationTypesCodes } from 'im.const';
 
 class NotificationsModel extends VuexBuilderModel
 {
@@ -29,7 +29,7 @@ class NotificationsModel extends VuexBuilderModel
 			total: 0,
 			host: this.getVariable('host', location.protocol+'//'+location.host),
 			unreadCounter: 0,
-			schema: []
+			schema: {}
 		}
 	}
 
@@ -40,14 +40,11 @@ class NotificationsModel extends VuexBuilderModel
 			authorId: 0,
 			date: new Date(),
 			text: '',
-			sectionCode: 'notification',
+			sectionCode: NotificationTypesCodes.simple,
 			textConverted: '',
 			unread: false,
-			template: 'item',
-			templateId: 0,
 			display: true,
 			settingName: 'im|default',
-			type: 0
 		};
 	}
 
@@ -245,7 +242,8 @@ class NotificationsModel extends VuexBuilderModel
 			{
 				store.commit('readAll');
 			},
-			delete: (store, payload) => {
+			delete: (store, payload) =>
+			{
 				const existingItem = this.findItemInArr(store.state.collection, payload.id);
 				if (existingItem.element)
 				{
@@ -269,7 +267,8 @@ class NotificationsModel extends VuexBuilderModel
 					}
 				}
 			},
-			deleteAll: (store, payload) => {
+			deleteAll: (store, payload) =>
+			{
 				store.commit('deleteAll');
 			},
 			setSchema: (store, payload) =>
@@ -277,7 +276,7 @@ class NotificationsModel extends VuexBuilderModel
 				store.commit('setSchema', {
 					data: payload.data,
 				});
-			}
+			},
 		}
 	}
 
@@ -303,6 +302,13 @@ class NotificationsModel extends VuexBuilderModel
 					}
 					else
 					{
+						// we trust unread status of existing item to prevent notifications blinking while init loading.
+						if (element.unread !== state.collection[existingItem.index].unread)
+						{
+							element.unread = state.collection[existingItem.index].unread;
+							state.unreadCounter = (element.unread === true ? state.unreadCounter + 1 : state.unreadCounter - 1);
+						}
+
 						state.collection[existingItem.index] = Object.assign(
 							state.collection[existingItem.index],
 							element
@@ -342,16 +348,16 @@ class NotificationsModel extends VuexBuilderModel
 			add: (state, payload) =>
 			{
 				let firstNotificationIndex = null;
-				if (payload.data.sectionCode === 'confirm')
+				if (payload.data.sectionCode === NotificationTypesCodes.confirm)
 				{
 					//new confirms should always add to the beginning of the collection
 					state.collection.unshift(payload.data);
 				}
-				else //if (payload.data.sectionCode === 'notification')
+				else //if (payload.data.sectionCode === NotificationTypesCodes.simple)
 				{
 					for (let index = 0; state.collection.length > index; index++)
 					{
-						if (state.collection[index].sectionCode === 'notification')
+						if (state.collection[index].sectionCode === NotificationTypesCodes.simple)
 						{
 							firstNotificationIndex = index;
 							break;
@@ -368,6 +374,8 @@ class NotificationsModel extends VuexBuilderModel
 						state.collection.splice(firstNotificationIndex, 0, payload.data);
 					}
 				}
+
+				state.collection.sort(this.sortByType);
 			},
 			update: (state, payload) =>
 			{
@@ -393,7 +401,7 @@ class NotificationsModel extends VuexBuilderModel
 			{
 				for (let index = 0; state.collection.length > index; index++)
 				{
-					if (state.collection[index].sectionCode === 'notification')
+					if (state.collection[index].sectionCode === NotificationTypesCodes.simple)
 					{
 						state.collection[index].unread = false;
 					}
@@ -430,6 +438,8 @@ class NotificationsModel extends VuexBuilderModel
 						);
 					}
 				});
+
+				state[collectionName].sort(this.sortByType);
 			},
 			clearPlaceholders: (state, payload) =>
 			{
@@ -452,7 +462,7 @@ class NotificationsModel extends VuexBuilderModel
 			setSchema: (state, payload) =>
 			{
 				state.schema = payload.data;
-			},
+			}
 		}
 	}
 
@@ -551,15 +561,13 @@ class NotificationsModel extends VuexBuilderModel
 				};
 			});
 		}
-
-		if (fields.notify_type === 1 || fields.type === 1)
+		if (fields.notify_type === NotificationTypesCodes.confirm || fields.type === NotificationTypesCodes.confirm)
 		{
-			result.sectionCode = 'confirm';
+			result.sectionCode = NotificationTypesCodes.confirm;
 		}
-
-		if (Type.isNumber(fields.notify_type))
+		else if (fields.type === NotificationTypesCodes.placeholder)
 		{
-			result.type = fields.notify_type;
+			result.sectionCode = NotificationTypesCodes.placeholder;
 		}
 
 		if (!Type.isNil(fields.notify_read))
@@ -571,16 +579,6 @@ class NotificationsModel extends VuexBuilderModel
 		if (!Type.isNil(fields.read))
 		{
 			result.unread = fields.read === 'N'; //?
-		}
-
-		if (Type.isString(fields.templateId))
-		{
-			result.templateId = fields.templateId;
-		}
-
-		if (Type.isString(fields.template))
-		{
-			result.template = fields.template;
 		}
 
 		if (Type.isString(fields.setting_name))
@@ -686,17 +684,17 @@ class NotificationsModel extends VuexBuilderModel
 
 	sortByType(a, b)
 	{
-		if (a.sectionCode === 'confirm' && b.sectionCode !== 'confirm')
+		if (a.sectionCode === NotificationTypesCodes.confirm && b.sectionCode !== NotificationTypesCodes.confirm)
 		{
 			return -1;
 		}
-		else if (a.sectionCode !== 'confirm' && b.sectionCode === 'confirm')
+		else if (a.sectionCode !== NotificationTypesCodes.confirm && b.sectionCode === NotificationTypesCodes.confirm)
 		{
 			return 1;
 		}
 		else
 		{
-			return 0;
+			return b.id - a.id;
 		}
 	}
 	/* endregion Internal helpers */

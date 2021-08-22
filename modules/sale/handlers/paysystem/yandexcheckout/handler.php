@@ -795,13 +795,16 @@ class YandexCheckoutHandler
 			}
 			else
 			{
-				$error = Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ERROR_STATUS').': '.$response['status'];
-				$result->addError(PaySystem\Error::create($error));
-
-				$verificationYandexPaymentResult = $this->verifyYandexPayment($response);
-				if (!$verificationYandexPaymentResult->isSuccess())
+				if ($response['id'] === $payment->getField('PS_INVOICE_ID'))
 				{
-					$result->addErrors($verificationYandexPaymentResult->getErrors());
+					$error = Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ERROR_STATUS').': '.$response['status'];
+					$result->addError(PaySystem\Error::create($error));
+
+					$verificationYandexPaymentResult = $this->verifyYandexPayment($response);
+					if (!$verificationYandexPaymentResult->isSuccess())
+					{
+						$result->addErrors($verificationYandexPaymentResult->getErrors());
+					}
 				}
 			}
 		}

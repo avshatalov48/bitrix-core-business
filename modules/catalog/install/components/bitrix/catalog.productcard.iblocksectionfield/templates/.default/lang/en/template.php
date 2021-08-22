@@ -1,4 +1,5 @@
 <?php
 $MESS["CATALOG_IBLOCKSECTIONFIELD_IS_EMPTY_SUBTITLE"] = "Create new section?";
 $MESS["CATALOG_IBLOCKSECTIONFIELD_IS_EMPTY_TITLE"] = "Section is not found";
+$MESS["CATALOG_IBLOCKSECTIONFIELD_PLACEHOLDER"] = "Find a section or create a new one";
 $MESS["CATALOG_IBLOCKSECTIONFIELD_SELECT"] = "select section";

@@ -237,6 +237,55 @@
 		});
 	};
 
+	BX.rest.AppLayout.openPath = function(applicationCode, params, callback)
+	{
+		var path = BX.type.isString(params['path']) ? params['path'] : '';
+		var availablePath = /^\/(crm\/(deal|lead|contact|company)|marketplace|company\/personal\/user\/[0-9]+|workgroups\/group\/[0-9]+)\//;
+
+		if (path !== '' && availablePath.test(path))
+		{
+			var from = 'from=rest_placement&from_app=' + applicationCode;
+			path += (path.indexOf('?') === -1 ? '?' : '&') + from;
+			var link = {
+				url : path,
+				anchor : null,
+				target : null,
+			};
+			var rule = BX.SidePanel.Instance.getUrlRule(path, link);
+			var options = rule && rule.options ? BX.clone(rule.options) : {};
+			options["cacheable"] = false;
+
+			if (!('events' in options))
+			{
+				options['events'] = {};
+			}
+			options["events"]["onClose"] = function()
+			{
+				if(!!callback && BX.type.isFunction(callback))
+				{
+					callback(
+						{
+							'result': 'close',
+						}
+					);
+				}
+			};
+			BX.SidePanel.Instance.open(path, options);
+		}
+		else
+		{
+			if (!!callback && BX.type.isFunction(callback))
+			{
+				callback(
+					{
+						'result': 'error',
+						'errorCode': 'PATH_NOT_AVAILABLE'
+					}
+				);
+			}
+		}
+	};
+
 	BX.rest.AppLayout.prototype = {
 		init: function()
 		{
@@ -847,6 +896,11 @@
 		openApplication: function(params, cb)
 		{
 			BX.rest.AppLayout.openApplication(this.params.id, params, {}, cb);
+		},
+
+		openPath: function(params, callback)
+		{
+			BX.rest.AppLayout.openPath(this.params.appId, params, callback);
 		},
 
 		closeApplication: function(params, cb)

@@ -60,3 +60,4 @@ $MESS["SPS_ELSEARCH_ELEMENT_EDIT"] = "Перейти на страницу ре�
 $MESS["SPS_FIELD_ACTION"] = "Действие";
 $MESS["SKU_EMPTY"] = "Отсутствует";
 $MESS["SKU_EMPTY_TITLE"] = "Нет активных торговых предложений";
+$MESS["SPS_OFFER"] = "SKU";

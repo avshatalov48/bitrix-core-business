@@ -175,9 +175,15 @@ class ContactRecipientSenderComponent extends Bitrix\Sender\Internals\CommonSend
 			{
 				$item[$key] = $item[$key] === 'Y' ? Loc::getMessage('SENDER_LETTER_RCP_UI_YES') : null;
 			}
-			if (!$item['CONTACT.CODE'])
+
+			if (!$item['NAME'])
 			{
-				$item['CONTACT.CODE'] = Loc::getMessage('SENDER_LETTER_CONTACT_LIST_ITEM_DELETED');
+				$item['NAME'] = Loc::getMessage('SENDER_LETTER_CONTACT_LIST_ITEM_DELETED');
+			}
+
+			if (!$item['CODE'])
+			{
+				$item['CODE'] = Loc::getMessage('SENDER_LETTER_CONTACT_LIST_ITEM_DELETED');
 			}
 
 			$item['STATUS'] = $statusList[$item['STATUS']];

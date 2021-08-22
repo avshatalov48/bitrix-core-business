@@ -175,18 +175,6 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * @method static EO_Feature_Query query()
-	 * @method static EO_Feature_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Feature_Result getById($id)
-	 * @method static EO_Feature_Result getList(array $parameters = array())
-	 * @method static EO_Feature_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_Feature createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_Feature_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_Feature wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_Feature_Collection wakeUpCollection($rows)
-	 */
-	class FeatureTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -352,18 +340,6 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * @method static EO_FeaturePerm_Query query()
-	 * @method static EO_FeaturePerm_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_FeaturePerm_Result getById($id)
-	 * @method static EO_FeaturePerm_Result getList(array $parameters = array())
-	 * @method static EO_FeaturePerm_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_FeaturePerm createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_FeaturePerm_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_FeaturePerm wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_FeaturePerm_Collection wakeUpCollection($rows)
-	 */
-	class FeaturePermTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -389,7 +365,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_FeaturePerm_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogTable:socialnetwork/lib/log.php:c674ed146b21368d3c901762d5764646 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogTable:socialnetwork/lib/log.php:b2dba024e0cb748c3084cfac2e8918f2 */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_Log
@@ -697,18 +673,6 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * @method static EO_Log_Query query()
-	 * @method static EO_Log_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Log_Result getById($id)
-	 * @method static EO_Log_Result getList(array $parameters = array())
-	 * @method static EO_Log_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_Log createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_Log_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_Log wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_Log_Collection wakeUpCollection($rows)
-	 */
-	class LogTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -734,7 +698,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_Log_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogCommentTable:socialnetwork/lib/logcomment.php:11cd8328127438f5db476134e50a02bb */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogCommentTable:socialnetwork/lib/logcomment.php:b0680dab81babffde568c7a4efaf247a */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_LogComment
@@ -946,18 +910,6 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * @method static EO_LogComment_Query query()
-	 * @method static EO_LogComment_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_LogComment_Result getById($id)
-	 * @method static EO_LogComment_Result getList(array $parameters = array())
-	 * @method static EO_LogComment_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_LogComment createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_LogComment_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_LogComment wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_LogComment_Collection wakeUpCollection($rows)
-	 */
-	class LogCommentTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1079,18 +1031,6 @@ namespace Bitrix\Socialnetwork {
 	}
 }
 namespace Bitrix\Socialnetwork {
-	/**
-	 * @method static EO_LogFavorites_Query query()
-	 * @method static EO_LogFavorites_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_LogFavorites_Result getById($id)
-	 * @method static EO_LogFavorites_Result getList(array $parameters = array())
-	 * @method static EO_LogFavorites_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_LogFavorites createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_LogFavorites_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_LogFavorites wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_LogFavorites_Collection wakeUpCollection($rows)
-	 */
-	class LogFavoritesTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1225,18 +1165,6 @@ namespace Bitrix\Socialnetwork {
 	}
 }
 namespace Bitrix\Socialnetwork {
-	/**
-	 * @method static EO_LogFollow_Query query()
-	 * @method static EO_LogFollow_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_LogFollow_Result getById($id)
-	 * @method static EO_LogFollow_Result getList(array $parameters = array())
-	 * @method static EO_LogFollow_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_LogFollow createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_LogFollow_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_LogFollow wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_LogFollow_Collection wakeUpCollection($rows)
-	 */
-	class LogFollowTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1407,18 +1335,6 @@ namespace Bitrix\Socialnetwork {
 	}
 }
 namespace Bitrix\Socialnetwork {
-	/**
-	 * @method static EO_LogIndex_Query query()
-	 * @method static EO_LogIndex_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_LogIndex_Result getById($id)
-	 * @method static EO_LogIndex_Result getList(array $parameters = array())
-	 * @method static EO_LogIndex_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_LogIndex createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_LogIndex_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_LogIndex wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_LogIndex_Collection wakeUpCollection($rows)
-	 */
-	class LogIndexTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1608,18 +1524,6 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * @method static EO_LogPage_Query query()
-	 * @method static EO_LogPage_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_LogPage_Result getById($id)
-	 * @method static EO_LogPage_Result getList(array $parameters = array())
-	 * @method static EO_LogPage_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_LogPage createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_LogPage_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_LogPage wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_LogPage_Collection wakeUpCollection($rows)
-	 */
-	class LogPageTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1644,6 +1548,140 @@ namespace Bitrix\Socialnetwork {
 	 * @method \Bitrix\Socialnetwork\EO_LogPage_Collection wakeUpCollection($rows)
 	 */
 	class EO_LogPage_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogPinnedTable:socialnetwork/lib/logpinned.php:bec3a07eb78acd2e3105c3f1b46c7111 */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogPinned
+	 * @see \Bitrix\Socialnetwork\LogPinnedTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getLogId()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned setLogId(\int|\Bitrix\Main\DB\SqlExpression $logId)
+	 * @method bool hasLogId()
+	 * @method bool isLogIdFilled()
+	 * @method bool isLogIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \Bitrix\Main\Type\DateTime getPinnedDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned setPinnedDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $pinnedDate)
+	 * @method bool hasPinnedDate()
+	 * @method bool isPinnedDateFilled()
+	 * @method bool isPinnedDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualPinnedDate()
+	 * @method \Bitrix\Main\Type\DateTime requirePinnedDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned resetPinnedDate()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned unsetPinnedDate()
+	 * @method \Bitrix\Main\Type\DateTime fillPinnedDate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\EO_LogPinned wakeUp($data)
+	 */
+	class EO_LogPinned {
+		/* @var \Bitrix\Socialnetwork\LogPinnedTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogPinnedTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogPinned_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getLogIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \Bitrix\Main\Type\DateTime[] getPinnedDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillPinnedDate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\EO_LogPinned $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_LogPinned $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogPinned $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\EO_LogPinned_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_LogPinned_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\LogPinnedTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogPinnedTable';
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_LogPinned_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_LogPinned_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned_Collection fetchCollection()
+	 */
+	class EO_LogPinned_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_LogPinned_Collection wakeUpCollection($rows)
+	 */
+	class EO_LogPinned_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogRightTable:socialnetwork/lib/logright.php:0e0fbd7154007f3d9184ffcaddcc9e50 */
 namespace Bitrix\Socialnetwork {
@@ -1779,18 +1817,6 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * @method static EO_LogRight_Query query()
-	 * @method static EO_LogRight_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_LogRight_Result getById($id)
-	 * @method static EO_LogRight_Result getList(array $parameters = array())
-	 * @method static EO_LogRight_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_LogRight createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_LogRight_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_LogRight wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_LogRight_Collection wakeUpCollection($rows)
-	 */
-	class LogRightTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1815,6 +1841,141 @@ namespace Bitrix\Socialnetwork {
 	 * @method \Bitrix\Socialnetwork\EO_LogRight_Collection wakeUpCollection($rows)
 	 */
 	class EO_LogRight_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogSiteTable:socialnetwork/lib/logsite.php:b876ad120c7e126e694ebb9d36d72299 */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogSite
+	 * @see \Bitrix\Socialnetwork\LogSiteTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getLogId()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite setLogId(\int|\Bitrix\Main\DB\SqlExpression $logId)
+	 * @method bool hasLogId()
+	 * @method bool isLogIdFilled()
+	 * @method bool isLogIdChanged()
+	 * @method \Bitrix\Socialnetwork\EO_Log getLog()
+	 * @method \Bitrix\Socialnetwork\EO_Log remindActualLog()
+	 * @method \Bitrix\Socialnetwork\EO_Log requireLog()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite setLog(\Bitrix\Socialnetwork\EO_Log $object)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite resetLog()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite unsetLog()
+	 * @method bool hasLog()
+	 * @method bool isLogFilled()
+	 * @method bool isLogChanged()
+	 * @method \Bitrix\Socialnetwork\EO_Log fillLog()
+	 * @method \string getSiteId()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
+	 * @method bool hasSiteId()
+	 * @method bool isSiteIdFilled()
+	 * @method bool isSiteIdChanged()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\EO_LogSite wakeUp($data)
+	 */
+	class EO_LogSite {
+		/* @var \Bitrix\Socialnetwork\LogSiteTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogSiteTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_LogSite_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getLogIdList()
+	 * @method \Bitrix\Socialnetwork\EO_Log[] getLogList()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection getLogCollection()
+	 * @method \Bitrix\Socialnetwork\EO_Log_Collection fillLog()
+	 * @method \string[] getSiteIdList()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\EO_LogSite $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_LogSite $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_LogSite $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\EO_LogSite_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_LogSite current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_LogSite_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\LogSiteTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\LogSiteTable';
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_LogSite_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_LogSite_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogSite fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection fetchCollection()
+	 */
+	class EO_LogSite_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_LogSite createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_LogSite wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_LogSite_Collection wakeUpCollection($rows)
+	 */
+	class EO_LogSite_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogSubscribeTable:socialnetwork/lib/logsubscribe.php:ce5137a7e1696fc55311a553a8ef5c84 */
 namespace Bitrix\Socialnetwork {
@@ -1930,18 +2091,6 @@ namespace Bitrix\Socialnetwork {
 	}
 }
 namespace Bitrix\Socialnetwork {
-	/**
-	 * @method static EO_LogSubscribe_Query query()
-	 * @method static EO_LogSubscribe_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_LogSubscribe_Result getById($id)
-	 * @method static EO_LogSubscribe_Result getList(array $parameters = array())
-	 * @method static EO_LogSubscribe_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_LogSubscribe createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_LogSubscribe_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_LogSubscribe wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_LogSubscribe_Collection wakeUpCollection($rows)
-	 */
-	class LogSubscribeTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2096,18 +2245,6 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * @method static EO_LogTag_Query query()
-	 * @method static EO_LogTag_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_LogTag_Result getById($id)
-	 * @method static EO_LogTag_Result getList(array $parameters = array())
-	 * @method static EO_LogTag_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_LogTag createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_LogTag_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_LogTag wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_LogTag_Collection wakeUpCollection($rows)
-	 */
-	class LogTagTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2241,18 +2378,6 @@ namespace Bitrix\Socialnetwork {
 	}
 }
 namespace Bitrix\Socialnetwork {
-	/**
-	 * @method static EO_LogView_Query query()
-	 * @method static EO_LogView_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_LogView_Result getById($id)
-	 * @method static EO_LogView_Result getList(array $parameters = array())
-	 * @method static EO_LogView_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_LogView createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_LogView_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_LogView wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_LogView_Collection wakeUpCollection($rows)
-	 */
-	class LogViewTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2418,18 +2543,6 @@ namespace Bitrix\Socialnetwork {
 	}
 }
 namespace Bitrix\Socialnetwork {
-	/**
-	 * @method static EO_UserContentView_Query query()
-	 * @method static EO_UserContentView_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UserContentView_Result getById($id)
-	 * @method static EO_UserContentView_Result getList(array $parameters = array())
-	 * @method static EO_UserContentView_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_UserContentView createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_UserContentView_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_UserContentView wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_UserContentView_Collection wakeUpCollection($rows)
-	 */
-	class UserContentViewTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2657,18 +2770,6 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * @method static EO_UserRelations_Query query()
-	 * @method static EO_UserRelations_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UserRelations_Result getById($id)
-	 * @method static EO_UserRelations_Result getList(array $parameters = array())
-	 * @method static EO_UserRelations_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_UserRelations createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_UserRelations_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_UserRelations wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_UserRelations_Collection wakeUpCollection($rows)
-	 */
-	class UserRelationsTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2694,7 +2795,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_UserRelations_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserTagTable:socialnetwork/lib/usertag.php:829af4e8e6443c5370b2f15a0ec57bde */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserTagTable:socialnetwork/lib/usertag.php:9bb4e0eeed5e17981637ec1fbc9a7b07 */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_UserTag
@@ -2803,18 +2904,6 @@ namespace Bitrix\Socialnetwork {
 	}
 }
 namespace Bitrix\Socialnetwork {
-	/**
-	 * @method static EO_UserTag_Query query()
-	 * @method static EO_UserTag_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UserTag_Result getById($id)
-	 * @method static EO_UserTag_Result getList(array $parameters = array())
-	 * @method static EO_UserTag_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_UserTag createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_UserTag_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_UserTag wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_UserTag_Collection wakeUpCollection($rows)
-	 */
-	class UserTagTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -3079,18 +3168,6 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * @method static EO_UserToGroup_Query query()
-	 * @method static EO_UserToGroup_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UserToGroup_Result getById($id)
-	 * @method static EO_UserToGroup_Result getList(array $parameters = array())
-	 * @method static EO_UserToGroup_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_UserToGroup createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_UserToGroup_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_UserToGroup wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_UserToGroup_Collection wakeUpCollection($rows)
-	 */
-	class UserToGroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3292,18 +3369,6 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * @method static EO_UserWelltory_Query query()
-	 * @method static EO_UserWelltory_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UserWelltory_Result getById($id)
-	 * @method static EO_UserWelltory_Result getList(array $parameters = array())
-	 * @method static EO_UserWelltory_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_UserWelltory createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_UserWelltory_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_UserWelltory wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_UserWelltory_Collection wakeUpCollection($rows)
-	 */
-	class UserWelltoryTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3457,18 +3522,6 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * @method static EO_UserWelltoryDisclaimer_Query query()
-	 * @method static EO_UserWelltoryDisclaimer_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UserWelltoryDisclaimer_Result getById($id)
-	 * @method static EO_UserWelltoryDisclaimer_Result getList(array $parameters = array())
-	 * @method static EO_UserWelltoryDisclaimer_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection wakeUpCollection($rows)
-	 */
-	class UserWelltoryDisclaimerTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3494,7 +3547,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_UserWelltoryDisclaimer_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupTable:socialnetwork/lib/workgroup.php:df61a93c89359bbf6ffafb7ce5b931e9 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupTable:socialnetwork/lib/workgroup.php:4872af51978dcaea4c1036aa9c34eac7 */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_Workgroup
@@ -3688,6 +3741,16 @@ namespace Bitrix\Socialnetwork {
 	 * @method \Bitrix\Socialnetwork\EO_Workgroup resetNumberOfMembers()
 	 * @method \Bitrix\Socialnetwork\EO_Workgroup unsetNumberOfMembers()
 	 * @method \int fillNumberOfMembers()
+	 * @method \int getNumberOfModerators()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup setNumberOfModerators(\int|\Bitrix\Main\DB\SqlExpression $numberOfModerators)
+	 * @method bool hasNumberOfModerators()
+	 * @method bool isNumberOfModeratorsFilled()
+	 * @method bool isNumberOfModeratorsChanged()
+	 * @method \int remindActualNumberOfModerators()
+	 * @method \int requireNumberOfModerators()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup resetNumberOfModerators()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup unsetNumberOfModerators()
+	 * @method \int fillNumberOfModerators()
 	 * @method \boolean getProject()
 	 * @method \Bitrix\Socialnetwork\EO_Workgroup setProject(\boolean|\Bitrix\Main\DB\SqlExpression $project)
 	 * @method bool hasProject()
@@ -3768,6 +3831,16 @@ namespace Bitrix\Socialnetwork {
 	 * @method \Bitrix\Socialnetwork\EO_Workgroup resetScrumSprintDuration()
 	 * @method \Bitrix\Socialnetwork\EO_Workgroup unsetScrumSprintDuration()
 	 * @method \int fillScrumSprintDuration()
+	 * @method \string getScrumTaskResponsible()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup setScrumTaskResponsible(\string|\Bitrix\Main\DB\SqlExpression $scrumTaskResponsible)
+	 * @method bool hasScrumTaskResponsible()
+	 * @method bool isScrumTaskResponsibleFilled()
+	 * @method bool isScrumTaskResponsibleChanged()
+	 * @method \string remindActualScrumTaskResponsible()
+	 * @method \string requireScrumTaskResponsible()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup resetScrumTaskResponsible()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup unsetScrumTaskResponsible()
+	 * @method \string fillScrumTaskResponsible()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -3850,6 +3923,8 @@ namespace Bitrix\Socialnetwork {
 	 * @method \string[] fillInitiatePerms()
 	 * @method \int[] getNumberOfMembersList()
 	 * @method \int[] fillNumberOfMembers()
+	 * @method \int[] getNumberOfModeratorsList()
+	 * @method \int[] fillNumberOfModerators()
 	 * @method \boolean[] getProjectList()
 	 * @method \boolean[] fillProject()
 	 * @method \Bitrix\Main\Type\DateTime[] getProjectDateStartList()
@@ -3866,6 +3941,8 @@ namespace Bitrix\Socialnetwork {
 	 * @method \int[] fillScrumMasterId()
 	 * @method \int[] getScrumSprintDurationList()
 	 * @method \int[] fillScrumSprintDuration()
+	 * @method \string[] getScrumTaskResponsibleList()
+	 * @method \string[] fillScrumTaskResponsible()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -3898,18 +3975,6 @@ namespace Bitrix\Socialnetwork {
 	}
 }
 namespace Bitrix\Socialnetwork {
-	/**
-	 * @method static EO_Workgroup_Query query()
-	 * @method static EO_Workgroup_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Workgroup_Result getById($id)
-	 * @method static EO_Workgroup_Result getList(array $parameters = array())
-	 * @method static EO_Workgroup_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_Workgroup createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_Workgroup_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_Workgroup wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_Workgroup_Collection wakeUpCollection($rows)
-	 */
-	class WorkgroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -4071,18 +4136,6 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * @method static EO_WorkgroupFavorites_Query query()
-	 * @method static EO_WorkgroupFavorites_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_WorkgroupFavorites_Result getById($id)
-	 * @method static EO_WorkgroupFavorites_Result getList(array $parameters = array())
-	 * @method static EO_WorkgroupFavorites_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupFavorites createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupFavorites_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupFavorites wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupFavorites_Collection wakeUpCollection($rows)
-	 */
-	class WorkgroupFavoritesTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4230,18 +4283,6 @@ namespace Bitrix\Socialnetwork {
 	}
 }
 namespace Bitrix\Socialnetwork {
-	/**
-	 * @method static EO_WorkgroupSite_Query query()
-	 * @method static EO_WorkgroupSite_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_WorkgroupSite_Result getById($id)
-	 * @method static EO_WorkgroupSite_Result getList(array $parameters = array())
-	 * @method static EO_WorkgroupSite_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite_Collection wakeUpCollection($rows)
-	 */
-	class WorkgroupSiteTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -4402,18 +4443,6 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * @method static EO_WorkgroupSubject_Query query()
-	 * @method static EO_WorkgroupSubject_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_WorkgroupSubject_Result getById($id)
-	 * @method static EO_WorkgroupSubject_Result getList(array $parameters = array())
-	 * @method static EO_WorkgroupSubject_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubject createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubject wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubject_Collection wakeUpCollection($rows)
-	 */
-	class WorkgroupSubjectTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4562,18 +4591,6 @@ namespace Bitrix\Socialnetwork {
 }
 namespace Bitrix\Socialnetwork {
 	/**
-	 * @method static EO_WorkgroupSubjectSite_Query query()
-	 * @method static EO_WorkgroupSubjectSite_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_WorkgroupSubjectSite_Result getById($id)
-	 * @method static EO_WorkgroupSubjectSite_Result getList(array $parameters = array())
-	 * @method static EO_WorkgroupSubjectSite_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupSubjectSite_Collection wakeUpCollection($rows)
-	 */
-	class WorkgroupSubjectSiteTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4714,18 +4731,6 @@ namespace Bitrix\Socialnetwork {
 	}
 }
 namespace Bitrix\Socialnetwork {
-	/**
-	 * @method static EO_WorkgroupTag_Query query()
-	 * @method static EO_WorkgroupTag_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_WorkgroupTag_Result getById($id)
-	 * @method static EO_WorkgroupTag_Result getList(array $parameters = array())
-	 * @method static EO_WorkgroupTag_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupTag createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupTag wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection wakeUpCollection($rows)
-	 */
-	class WorkgroupTagTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -4886,18 +4891,6 @@ namespace Bitrix\Socialnetwork {
 	}
 }
 namespace Bitrix\Socialnetwork {
-	/**
-	 * @method static EO_WorkgroupView_Query query()
-	 * @method static EO_WorkgroupView_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_WorkgroupView_Result getById($id)
-	 * @method static EO_WorkgroupView_Result getList(array $parameters = array())
-	 * @method static EO_WorkgroupView_Entity getEntity()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupView createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupView_Collection createCollection()
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupView wakeUpObject($row)
-	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupView_Collection wakeUpCollection($rows)
-	 */
-	class WorkgroupViewTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

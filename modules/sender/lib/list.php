@@ -14,6 +14,22 @@ use Bitrix\Main\DB\SqlExpression;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class ListTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_List_Query query()
+ * @method static EO_List_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_List_Result getById($id)
+ * @method static EO_List_Result getList(array $parameters = array())
+ * @method static EO_List_Entity getEntity()
+ * @method static \Bitrix\Sender\EO_List createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\EO_List_Collection createCollection()
+ * @method static \Bitrix\Sender\EO_List wakeUpObject($row)
+ * @method static \Bitrix\Sender\EO_List_Collection wakeUpCollection($rows)
+ */
 class ListTable extends Entity\DataManager
 {
 	/**

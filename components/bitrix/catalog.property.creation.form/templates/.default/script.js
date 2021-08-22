@@ -35,6 +35,11 @@
 	      return !this.isCreationMode() ? this._field.getTitle() : '';
 	    }
 	  }, {
+	    key: "isAllowedMultipleCheckBox",
+	    value: function isAllowedMultipleCheckBox() {
+	      return !this.isCreationMode() && babelHelpers.get(babelHelpers.getPrototypeOf(PropertyCreationForm.prototype), "isAllowedMultipleCheckBox", this).call(this);
+	    }
+	  }, {
 	    key: "isCreationMode",
 	    value: function isCreationMode() {
 	      return this._field === null;
@@ -156,6 +161,7 @@
 	          break;
 
 	        case 'list':
+	        case 'multilist':
 	          formatted.PROPERTY_TYPE = 'L';
 	          fields.enumeration = fields.enumeration || [];
 	          fields.enumeration.forEach(function (enumItem, key) {
@@ -186,6 +192,11 @@
 	    key: "onFormCancel",
 	    value: function onFormCancel() {
 	      BX.SidePanel.Instance.close();
+	    }
+	  }, {
+	    key: "isAllowedShowAlwaysCheckBox",
+	    value: function isAllowedShowAlwaysCheckBox() {
+	      return false;
 	    }
 	  }]);
 	  return PropertyCreationForm;

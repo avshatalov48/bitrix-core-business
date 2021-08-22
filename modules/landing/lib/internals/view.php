@@ -6,6 +6,22 @@ use \Bitrix\Main\Entity;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class ViewTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_View_Query query()
+ * @method static EO_View_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_View_Result getById($id)
+ * @method static EO_View_Result getList(array $parameters = array())
+ * @method static EO_View_Entity getEntity()
+ * @method static \Bitrix\Landing\Internals\EO_View createObject($setDefaultValues = true)
+ * @method static \Bitrix\Landing\Internals\EO_View_Collection createCollection()
+ * @method static \Bitrix\Landing\Internals\EO_View wakeUpObject($row)
+ * @method static \Bitrix\Landing\Internals\EO_View_Collection wakeUpCollection($rows)
+ */
 class ViewTable extends Entity\DataManager
 {
 	/**

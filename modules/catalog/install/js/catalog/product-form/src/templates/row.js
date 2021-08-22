@@ -1,17 +1,25 @@
 import {config} from "../config";
 import {Vue} from "ui.vue";
 import {Text, Type, Runtime} from "main.core";
-import {Menu} from 'main.popup';
-import {Popup} from 'main.popup';
 
 import "catalog.product-selector";
 import "ui.common";
 import "ui.alerts";
-import {type BaseEvent, EventEmitter} from 'main.core.events';
-import {ProductSelector} from "catalog.product-selector";
+import {EventEmitter} from 'main.core.events';
 import {ProductCalculator, DiscountType, TaxForPriceStrategy} from "catalog.product-calculator";
+import {FormInputCode} from "../types/form-input-code";
+import {FormErrorCode} from "../types/form-error-code";
+import {FormMode} from "../types/form-mode";
+import "./fields/quantity";
+import "./fields/price";
+import "./fields/discount";
+import "./fields/tax";
+import "./fields/inline-selector";
+import "./fields/brand";
+import type {BasketItemScheme} from "../types/basket-item-scheme";
+import {FormOption} from "../types/form-option";
 
-Vue.component(config.templateProductRowName,
+Vue.component(config.templateRowName,
 	{
 		/**
 		 * @emits 'changeProduct' {index: number, fields: object}
@@ -20,7 +28,13 @@ Vue.component(config.templateProductRowName,
 		 * @emits 'removeItem' {index: number}
 		 */
 
-		props: ['basketItem', 'basketItemIndex', 'countItems', 'options', 'editable'],
+		props: {
+			basketItem: Object,
+			basketItemIndex: Number,
+			countItems: Number,
+			options: Object,
+			mode: String,
+		},
 		data()
 		{
 			return {
@@ -28,13 +42,29 @@ Vue.component(config.templateProductRowName,
 				productSelector: null,
 				imageControlId: null,
 				selectorId: this.basketItem.selectorId,
+				blocks: {
+					productSelector: FormInputCode.PRODUCT_SELECTOR,
+					quantity: FormInputCode.QUANTITY,
+					price: FormInputCode.PRICE,
+					result: FormInputCode.RESULT,
+					discount: FormInputCode.DISCOUNT,
+					tax: FormInputCode.TAX,
+					brand: FormInputCode.BRAND,
+				},
+				errorCodes: {
+					emptyProductSelector: FormErrorCode.EMPTY_PRODUCT_SELECTOR,
+					emptyImage: FormErrorCode.EMPTY_IMAGE,
+					emptyQuantity: FormErrorCode.EMPTY_QUANTITY,
+					emptyPrice: FormErrorCode.EMPTY_PRICE,
+					emptyBrand: FormErrorCode.EMPTY_BRAND,
+				}
 			};
 		},
 		created()
 		{
 			const defaultFields = this.basketItem.fields;
 			const defaultPrice = Text.toNumber(defaultFields.price);
-			const basePrice = this.basketItem.fields.basePrice || defaultPrice;
+			const basePrice = defaultFields.basePrice || defaultPrice;
 			const calculatorFields = {
 				'QUANTITY': Text.toNumber(defaultFields.quantity),
 				'BASE_PRICE': basePrice,
@@ -84,17 +114,7 @@ Vue.component(config.templateProductRowName,
 				});
 			}
 
-			EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.onProductChange.bind(this));
-			EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.onProductClear.bind(this));
-
-			this.onInputPrice = Runtime.debounce(this.changePrice, 500, this);
-			this.onInputQuantity = Runtime.debounce(this.changeQuantity, 500, this);
 			this.onInputDiscount = Runtime.debounce(this.changeDiscount, 500, this);
-		},
-		mounted()
-		{
-			this.productSelector = new ProductSelector(this.selectorId, this.prepareSelectorParams());
-			this.productSelector.renderTo(this.$refs.selectorWrapper);
 		},
 		updated()
 		{
@@ -116,63 +136,6 @@ Vue.component(config.templateProductRowName,
 		},
 		methods:
 			{
-				prepareSelectorParams(): Object
-				{
-					const selectorOptions = {
-						iblockId: this.options.iblockId,
-						basePriceId: this.options.basePriceId,
-						productId: this.getField('productId'),
-						skuId: this.getField('skuId'),
-						skuTree: this.getDefaultSkuTree(),
-						fileInputId: '',
-						morePhotoValues: [],
-						fileInput: '',
-						imageValues: [],
-						config: {
-							DETAIL_PATH: this.basketItem.detailUrl || '',
-							ENABLE_SEARCH: true,
-							ENABLE_INPUT_DETAIL_LINK: true,
-							ENABLE_IMAGE_CHANGE_SAVING: true,
-							ENABLE_EMPTY_PRODUCT_ERROR: this.options.enableEmptyProductError,
-							ROW_ID: this.selectorId,
-							ENABLE_SKU_SELECTION: this.editable,
-							HIDE_UNSELECTED_ITEMS: this.options.hideUnselectedProperties,
-							URL_BUILDER_CONTEXT: this.options.urlBuilderContext
-						},
-						mode: this.editable ? ProductSelector.MODE_EDIT : ProductSelector.MODE_VIEW,
-						isSimpleModel:
-							this.getField('name', '') !== ''
-							&& this.getField('productId') <= 0
-							&& this.getField('skuId') <= 0
-						,
-						fields: {
-							NAME: this.getField('name') || '',
-							PRICE: this.getField('basePrice') || 0,
-							CURRENCY: this.options.currency,
-						},
-					};
-
-					const formImage = this.basketItem.image;
-					if (Type.isObject(formImage))
-					{
-						selectorOptions.fileView = formImage.preview;
-						selectorOptions.fileInput = formImage.input;
-						selectorOptions.fileInputId = formImage.id;
-						selectorOptions.morePhotoValues = formImage.values;
-					}
-
-					return selectorOptions;
-				},
-				getDefaultSkuTree(): Object
-				{
-					let skuTree = this.basketItem.skuTree || {};
-					if (Type.isStringFilled(skuTree))
-					{
-						skuTree = JSON.parse(skuTree);
-					}
-
-					return skuTree;
-				},
 				getField(name, defaultValue = null)
 				{
 					return this.basketItem.fields[name] || defaultValue;
@@ -215,7 +178,7 @@ Vue.component(config.templateProductRowName,
 					{
 						productFields.priceExclusive = Text.toNumber(fields.PRICE);
 					}
-					if (Text.toNumber(fields.QUANTITY) > 0)
+					if (Text.toNumber(fields.QUANTITY) >= 0)
 					{
 						productFields.quantity = Text.toNumber(fields.QUANTITY);
 					}
@@ -256,6 +219,16 @@ Vue.component(config.templateProductRowName,
 						productFields.properties = fields.PROPERTIES;
 					}
 
+					if (!Type.isNil(fields.BRANDS))
+					{
+						productFields.brands = fields.BRANDS;
+					}
+
+					if (!Type.isNil(fields.TAX_ID))
+					{
+						productFields.taxId = fields.TAX_ID;
+					}
+
 					this.changeRowData(map);
 					this.changeProduct(productFields);
 				},
@@ -274,59 +247,33 @@ Vue.component(config.templateProductRowName,
 						fields
 					});
 				},
-				onProductChange(event: BaseEvent)
+				onProductChange(fields: {})
 				{
-					const data = event.getData();
-					if (Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId())
-					{
-						const basePrice = Text.toNumber(data.fields.PRICE);
+					fields = Object.assign(
+						this.getCalculator().calculatePrice(fields.BASE_PRICE),
+						fields
+					);
 
-						let fields = {
-							BASE_PRICE: basePrice,
-							MODULE: 'catalog',
-							NAME: data.fields.NAME,
-							ID: data.fields.ID,
-							PRODUCT_ID: data.fields.PRODUCT_ID,
-							SKU_ID: data.fields.SKU_ID,
-							PROPERTIES: data.fields.PROPERTIES,
-							URL_BUILDER_CONTEXT: this.options.urlBuilderContext,
-							CUSTOMIZED: Type.isNil(data.fields.PRICE) ? 'Y' : 'N',
-							MEASURE_CODE: data.fields.MEASURE_CODE,
-							MEASURE_NAME: data.fields.MEASURE_NAME,
-						};
-
-						fields = Object.assign(
-							this.getCalculator().calculatePrice(basePrice),
-							fields
-						);
-
-						this.getCalculator().setFields(fields);
-						this.setCalculatedFields(fields);
-					}
+					this.getCalculator().setFields(fields);
+					this.setCalculatedFields(fields);
 				},
-				onProductClear(event: BaseEvent)
+				onProductClear()
 				{
-					const data = event.getData();
+					const fields = this.getCalculator().calculatePrice(0);
 
-					if (Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId())
-					{
+					fields.BASE_PRICE = 0;
+					fields.NAME = '';
+					fields.ID = 0;
+					fields.PRODUCT_ID = 0;
+					fields.SKU_ID = 0;
+					fields.MODULE = '';
 
-						const fields = this.getCalculator().calculatePrice(0);
-
-						fields.BASE_PRICE = 0;
-						fields.NAME = '';
-						fields.ID = 0;
-						fields.PRODUCT_ID = 0;
-						fields.SKU_ID = 0;
-						fields.MODULE = '';
-
-						this.getCalculator().setFields(fields);
-						this.setCalculatedFields(fields);
-					}
+					this.getCalculator().setFields(fields);
+					this.setCalculatedFields(fields);
 				},
 				toggleDiscount(value: string): void
 				{
-					if (!this.editable)
+					if (this.isReadOnly)
 					{
 						return;
 					}
@@ -335,7 +282,12 @@ Vue.component(config.templateProductRowName,
 						{showDiscount: value}
 					);
 
-					value === 'Y' ? setTimeout(() => this.$refs.discountInput.focus()) : null;
+					if (value === 'Y')
+					{
+						setTimeout(
+							() => this.$refs?.discountWrapper?.$refs?.discountInput?.focus()
+						);
+					}
 				},
 				toggleTax(value: string): void
 				{
@@ -343,96 +295,58 @@ Vue.component(config.templateProductRowName,
 						{showTax: value}
 					);
 				},
-				changeQuantity(event: BaseEvent): void
+				changeBrand(values): void
 				{
-					if (!this.editable)
-					{
-						return;
-					}
-
-					event.target.value = event.target.value.replace(/[^.\d]/g,'.');
-					let newQuantity = parseFloat(event.target.value);
-					let lastSymbol = event.target.value.substr(-1);
-
-					if (!newQuantity || lastSymbol === '.')
-					{
-						return;
-					}
-
-					const calculatedFields = this.getCalculator().calculateQuantity(newQuantity);
-					this.setCalculatedFields(calculatedFields);
-					this.getCalculator().setFields(calculatedFields);
+					const fields = this.getCalculator().getFields();
+					fields.BRANDS = Type.isArray(values) ? values : [];
+					this.setCalculatedFields(fields);
 				},
-				changePrice(event: BaseEvent): void
+				processFields(fields: {}): void
 				{
-					if (!this.editable)
-					{
-						return;
-					}
-
-					event.target.value = event.target.value.replace(/[^.,\d]/g,'');
-					if (event.target.value === '')
-					{
-						event.target.value = 0;
-					}
-					let lastSymbol = event.target.value.substr(-1);
-					if (lastSymbol === ',')
-					{
-						event.target.value = event.target.value.replace(',', ".");
-					}
-					let newPrice = parseFloat(event.target.value);
-					if (newPrice < 0|| lastSymbol === '.' || lastSymbol === ',')
-					{
-						return;
-					}
-
-					const calculatedFields = this.getCalculator().calculatePrice(newPrice);
-					calculatedFields.BASE_PRICE = newPrice;
-					this.getCalculator().setFields(calculatedFields);
-					this.setCalculatedFields(calculatedFields);
+					this.setCalculatedFields(fields);
+					this.getCalculator().setFields(fields);
 				},
-				/**
-				 *
-				 * @param discountType {string}
-				 */
-				changeDiscountType(discountType)
+				changeQuantity(quantity: number): void
 				{
-					if (!this.editable)
-					{
-						return;
-					}
-
-					let type = (Text.toNumber(discountType) === DiscountType.MONETARY) ?  DiscountType.MONETARY : DiscountType.PERCENTAGE;
-					const calculatedFields = this.getCalculator().calculateDiscountType(type);
-					this.getCalculator().setFields(calculatedFields);
-					this.setCalculatedFields(calculatedFields);
+					this.processFields(
+						this.getCalculator().calculateQuantity(quantity)
+					);
 				},
-				changeDiscount(event)
+				changeMeasure(measure: {}): void
 				{
-					let discountValue = Text.toNumber(event.target.value) || 0;
-					if (discountValue === Text.toNumber(this.basketItem.discount) || !this.editable)
-					{
-						return;
-					}
-
-					const calculatedFields = this.getCalculator().calculateDiscount(discountValue);
-					this.getCalculator().setFields(calculatedFields);
-					this.setCalculatedFields(calculatedFields);
+					const productFields = this.basketItem.fields;
+					productFields['measureCode'] = measure.code;
+					productFields['measureName'] = measure.name;
+					this.changeProduct(productFields);
 				},
-				changeTax(taxValue)
+				changePrice(price: number): void
 				{
-					if (taxValue === Text.toNumber(this.basketItem.tax) || !this.editable)
-					{
-						return;
-					}
-
-					const calculatedFields = this.getCalculator().calculateTax(taxValue);
-					this.getCalculator().setFields(calculatedFields);
-					this.setCalculatedFields(calculatedFields);
+					const calculatedFields = this.getCalculator().calculatePrice(price);
+					calculatedFields.BASE_PRICE = price;
+					this.processFields(calculatedFields);
+				},
+				changeDiscountType(discountType: string)
+				{
+					const type = (Text.toNumber(discountType) === DiscountType.MONETARY) ?  DiscountType.MONETARY : DiscountType.PERCENTAGE;
+					this.processFields(
+						this.getCalculator().calculateDiscountType(type)
+					);
+				},
+				changeDiscount(discount: number)
+				{
+					this.processFields(
+						this.getCalculator().calculateDiscount(discount)
+					);
+				},
+				changeTax(fields)
+				{
+					const calculatedFields = this.getCalculator().calculateTax(fields.taxValue);
+					calculatedFields.TAX_ID = fields.taxId;
+					this.processFields(calculatedFields)
 				},
 				changeTaxIncluded(taxIncluded)
 				{
-					if (taxIncluded === this.basketItem.taxIncluded || !this.editable)
+					if (taxIncluded === this.basketItem.taxIncluded || !this.isEditableField(this.blocks.tax))
 					{
 						return;
 					}
@@ -447,162 +361,31 @@ Vue.component(config.templateProductRowName,
 						index: this.basketItemIndex
 					});
 				},
-				openDiscountEditor(e, url)
+				isRequiredField(code: string): boolean
 				{
-					if(!(window.top.BX.SidePanel && window.top.BX.SidePanel.Instance))
-					{
-						return;
-					}
-
-					window.top.BX.SidePanel.Instance.open (
-						BX.util.add_url_param( url, { "IFRAME": "Y", "IFRAME_TYPE": "SIDE_SLIDER", "publicSidePanel": "Y" } ),
-						{ allowChangeHistory: false }
-					);
-
-					e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+					return Type.isArray(this.options.requiredFields) && this.options.requiredFields.includes(code);
 				},
-				isEmptyProductName()
+				isVisibleBlock(code): boolean
 				{
-					return (this.basketItem.name.length === 0);
+					return Type.isArray(this.options.visibleBlocks) && this.options.visibleBlocks.includes(code)
 				},
-				calculateCorrectionFactor(quantity, measureRatio)
+				hasError(code)
 				{
-					let factoredQuantity = quantity;
-					let factoredRatio = measureRatio;
-					let correctionFactor = 1;
-
-					while (!(Number.isInteger(factoredQuantity) && Number.isInteger(factoredRatio)))
+					if (this.basketItem.errors.length === 0)
 					{
-						correctionFactor *= 10;
-						factoredQuantity = quantity * correctionFactor;
-						factoredRatio = measureRatio * correctionFactor;
+						return false;
 					}
 
-					return correctionFactor;
+					const filteredErrors = this.basketItem.errors.filter((error) => {
+						return error.code === code
+					});
+
+					return filteredErrors.length > 0;
 				},
-				incrementQuantity()
+				isEditableField(code)
 				{
-					if (!this.editable)
-					{
-						return;
-					}
-
-					let correctionFactor = this.calculateCorrectionFactor(this.basketItem.quantity, this.basketItem.measureRatio);
-					const quantity = (this.basketItem.quantity * correctionFactor + this.basketItem.measureRatio * correctionFactor) / correctionFactor;
-					this.changeQuantity(quantity);
+					return this.options?.editableFields.includes(code);
 				},
-				decrementQuantity()
-				{
-					if (this.basketItem.quantity > this.basketItem.measureRatio && this.editable)
-					{
-						let correctionFactor = this.calculateCorrectionFactor(this.basketItem.quantity, this.basketItem.measureRatio);
-						const quantity = (this.basketItem.quantity * correctionFactor - this.basketItem.measureRatio * correctionFactor) / correctionFactor;
-						this.changeQuantity(quantity);
-					}
-				},
-				showPopupMenu(target, array, type)
-				{
-					if (!this.editable)
-					{
-						return;
-					}
-
-					const menuItems = [];
-					const setItem = (ev, param) => {
-						if (type === 'tax')
-						{
-							this.changeTax(Text.toNumber(param.options.item));
-						}
-						else if (type === 'measures')
-						{
-							const productFields = this.basketItem.fields;
-							productFields['measureCode'] = param.options.item.CODE;
-							productFields['measureName'] = param.options.item.SYMBOL;
-							this.changeProduct(productFields);
-						}
-						else
-						{
-							target.innerHTML = ev.target.innerHTML;
-
-							if(type === 'discount')
-							{
-								this.changeDiscountType(param.options.type);
-							}
-						}
-
-						this.popupMenu.close();
-					};
-
-					if(type === 'discount')
-					{
-						array = [];
-						if (Type.isArray(this.options.allowedDiscountTypes))
-						{
-							if (this.options.allowedDiscountTypes.includes(DiscountType.PERCENTAGE))
-							{
-								array[DiscountType.PERCENTAGE] = '%';
-							}
-							if (this.options.allowedDiscountTypes.includes(DiscountType.MONETARY))
-							{
-								array[DiscountType.MONETARY] = this.currencySymbol;
-							}
-						}
-					}
-
-					if(array)
-					{
-						for(let item in array)
-						{
-							let text = array[item];
-
-							if (type === 'measures')
-							{
-								text = array[item].SYMBOL;
-							}
-							else if (type === 'tax')
-							{
-								text = text + '%';
-							}
-
-							menuItems.push({
-								text: text,
-								item: array[item],
-								onclick: setItem.bind({ value: 'settswguy' }),
-								type: type === 'discount' ? item : null
-							})
-						}
-					}
-
-					if (menuItems.length > 0)
-					{
-						this.popupMenu = new Menu({
-							bindElement: target,
-							items: menuItems
-						});
-
-						this.popupMenu.show();
-					}
-				},
-				showProductTooltip(e)
-				{
-					if(!this.productTooltip)
-					{
-						this.productTooltip = new Popup({
-							bindElement: e.target,
-							maxWidth: 400,
-							darkMode: true,
-							innerHTML: e.target.value,
-							animation: 'fading-slide'
-						});
-					}
-
-					this.productTooltip.setContent(e.target.value);
-					e.target.value.length > 0 ? this.productTooltip.show() : null;
-				},
-				hideProductTooltip()
-				{
-					this.productTooltip ? this.productTooltip.close() : null;
-				}
 			},
 		watch:
 			{
@@ -619,47 +402,36 @@ Vue.component(config.templateProductRowName,
 				{
 					return Vue.getFilteredPhrases('CATALOG_FORM_');
 				},
-				showDiscount()
+				showDiscount(): boolean
 				{
 					return this.showDiscountBlock && this.basketItem.showDiscount === 'Y';
 				},
-				getDiscountSymbol()
+				getBrandsSelectorId(): string
 				{
-					return Text.toNumber(this.basketItem.fields.discountType) === DiscountType.PERCENTAGE ? '%' : this.currencySymbol;
+					return this.basketItem.selectorId + '_brands';
 				},
-				getDiscountInputValue()
-				{
-					if (Text.toNumber(this.basketItem.fields.discountType) === DiscountType.PERCENTAGE)
-					{
-						return Text.toNumber(this.basketItem.fields.discountRate);
-					}
-
-					return Text.toNumber(this.basketItem.fields.discount);
-				},
-				getPriceExclusive()
+				getPriceExclusive(): ?number
 				{
 					return this.basketItem.fields.priceExclusive || this.basketItem.fields.price
 				},
-				showDiscountBlock()
+				showDiscountBlock(): boolean
 				{
 					return this.options.showDiscountBlock === 'Y'
-						&& (
-							this.editable
-							|| (!this.editable && this.basketItem.fields.discount > 0)
-						);
+						&& this.isVisibleBlock(this.blocks.discount)
+						&& !this.isReadOnly
+					;
 				},
-				showTaxBlock()
+				showTaxBlock(): boolean
 				{
 					return this.options.showTaxBlock === 'Y'
 						&& this.getTaxList.length > 0
-						&& (
-							this.editable
-							|| (!this.editable && this.showBasePrice)
-						);
+						&& this.isVisibleBlock(this.blocks.tax)
+						&& !this.isReadOnly
+					;
 				},
-				showRemoveIcon()
+				showRemoveIcon(): boolean
 				{
-					if (!this.editable)
+					if (this.isReadOnly)
 					{
 						return false;
 					}
@@ -671,110 +443,142 @@ Vue.component(config.templateProductRowName,
 
 					return this.basketItem.offerId !== null;
 				},
-				showTaxSelector()
+				showTaxSelector(): boolean
 				{
 					return this.basketItem.showTax === 'Y';
 				},
-				showBasePrice()
+				showBasePrice(): boolean
 				{
 					return this.basketItem.fields.discount > 0
 						|| (Text.toNumber(this.basketItem.fields.price) !== Text.toNumber(this.basketItem.fields.basePrice))
 					;
 				},
-				getMeasureName()
+				getMeasureName(): string
 				{
 					return this.basketItem.fields.measureName || this.defaultMeasure.name;
 				},
-				getMeasureCode()
+				getMeasureCode(): string
 				{
 					return this.basketItem.fields.measureCode || this.defaultMeasure.code;
 				},
-				getTaxList()
+				getTaxList(): []
 				{
 					return Type.isArray(this.options.taxList) ? this.options.taxList : [];
 				},
-				taxIncluded()
+				taxIncluded(): string
 				{
 					return this.basketItem.fields.taxIncluded;
 				},
-				isTaxIncluded()
+				isTaxIncluded(): boolean
 				{
 					return this.taxIncluded === 'Y';
 				},
-				isNotEnoughQuantity()
+				isReadOnly(): boolean
 				{
-					return this.basketItem.errors.includes('SALE_BASKET_AVAILABLE_QUANTITY');
+					return this.mode === FormMode.READ_ONLY
 				},
-				hasPriceError()
-				{
-					return this.basketItem.errors.includes('SALE_BASKET_ITEM_WRONG_PRICE');
-				}
 			},
+		// language=Vue
 		template: `
-		<div class="catalog-pf-product-item" v-bind:class="{ 'catalog-pf-product-item--borderless': !editable && basketItemIndex === 0 }">
+		<div class="catalog-pf-product-item" v-bind:class="{ 'catalog-pf-product-item--borderless': !isReadOnly && basketItemIndex === 0 }">
 			<div class="catalog-pf-product-item--remove" @click="removeItem" v-if="showRemoveIcon"></div>
 			<div class="catalog-pf-product-item--num">
 				<div class="catalog-pf-product-index">{{basketItemIndex + 1}}</div>
 			</div>
 			<div class="catalog-pf-product-item--left">
-				<div class="catalog-pf-product-item-section">
-					<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_NAME}}</div>
+				<div v-if="isVisibleBlock(blocks.productSelector)">
+					<div class="catalog-pf-product-item-section">
+						<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_NAME}}</div>
+					</div>
+					<${config.templateFieldInlineSelector} 
+						:basketItem="basketItem" 
+						:options="options"
+						:editable="isEditableField(blocks.productSelector)"
+						@onProductChange="onProductChange" 
+					/>
 				</div>
-				<div class="catalog-pf-product-item-section" :id="selectorId" ref="selectorWrapper"></div>
+				<div v-if="isVisibleBlock(blocks.brand)" class="catalog-pf-product-input-brand-wrapper">
+					<div class="catalog-pf-product-item-section">
+						<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_BRAND_TITLE}}</div>
+					</div>
+					<${config.templateFieldBrand} 
+						:brands="basketItem.fields.brands"
+						:selectorId="getBrandsSelectorId"
+						:hasError="hasError(errorCodes.emptyBrand)"
+						:options="options"
+						:editable="isEditableField(blocks.brand)"
+						@changeBrand="changeBrand" 
+					/>
+				</div>
+				
 			</div>
 			<div class="catalog-pf-product-item--right">
 				<div class="catalog-pf-product-item-section">
-					<div class="catalog-pf-product-label" style="width: 94px">{{localize.CATALOG_FORM_PRICE}}</div>
-					<div class="catalog-pf-product-label" style="width: 72px">{{localize.CATALOG_FORM_QUANTITY}}</div>
-					<div class="catalog-pf-product-label" style="width: 94px">{{localize.CATALOG_FORM_RESULT}}</div>
+					<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-label" style="width: 94px">
+						{{localize.CATALOG_FORM_PRICE}}
+					</div>
+					<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-label" style="width: 72px">
+						{{localize.CATALOG_FORM_QUANTITY}}
+					</div>
+					<div v-if="isVisibleBlock(blocks.result)" class="catalog-pf-product-label" style="width: 94px">
+						{{localize.CATALOG_FORM_RESULT}}
+					</div>
 				</div>
 				<div class="catalog-pf-product-item-section">
-					<div class="catalog-pf-product-control" style="width: 94px">
-						<div class="catalog-pf-product-input-wrapper">
-							<input 	type="text" class="catalog-pf-product-input catalog-pf-product-input--align-right"
-									v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
-									:value="basketItem.fields.basePrice"
-									@input="onInputPrice"
-									:disabled="!editable">
-							<div class="catalog-pf-product-input-info" v-html="currencySymbol"></div>
-						</div>	
+				
+					<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-control" style="width: 94px">
+						<${config.templateFieldPrice} 
+							:basePrice="basketItem.fields.basePrice"
+							:options="options"
+							:editable="isEditableField(blocks.price)"
+							:hasError="hasError(errorCodes.emptyPrice)"
+							@changePrice="changePrice"
+						/>
 					</div>
-					<div class="catalog-pf-product-control" style="width: 72px">
-						<div class="catalog-pf-product-input-wrapper">
-							<input 	type="text" class="catalog-pf-product-input"
-									v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
-									:value="basketItem.fields.quantity"
-									@input="onInputQuantity"
-									:disabled="!editable">
-							<div 	class="catalog-pf-product-input-info catalog-pf-product-input-info--action" 
-									@click="showPopupMenu($event.target, options.measures, 'measures')"><span>{{ getMeasureName }}</span></div>
-						</div>
+					
+					<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-control" style="width: 72px">
+						<${config.templateFieldQuantity} 
+							:quantity="basketItem.fields.quantity"
+							:measureCode="getMeasureCode"
+							:measureRatio="basketItem.fields.measureRatio"
+							:measureName="getMeasureName"
+							:hasError="hasError(errorCodes.emptyQuantity)"
+							:options="options"
+							:editable="isEditableField(blocks.quantity)"
+							@changeQuantity="changeQuantity" 
+							@changeMeasure="changeMeasure" 
+						/>
 					</div>
-					<div class="catalog-pf-product-control" style="width: 94px">
+					
+					<div v-if="isVisibleBlock(blocks.result)" class="catalog-pf-product-control" style="width: 94px">
 						<div class="catalog-pf-product-input-wrapper">
 							<input disabled type="text" class="catalog-pf-product-input catalog-pf-product-input--disabled catalog-pf-product-input--gray catalog-pf-product-input--align-right" :value="basketItem.sum">
 							<div class="catalog-pf-product-input-info catalog-pf-product-input--disabled catalog-pf-product-input--gray" v-html="currencySymbol"></div>
 						</div>
 					</div>
 				</div>
+				<div v-if="hasError(errorCodes.emptyQuantity)" class="catalog-pf-product-item-section">
+					<div class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_QUANTITY}}</div>
+				</div>
+				<div v-if="hasError(errorCodes.emptyPrice)" class="catalog-pf-product-item-section">
+					<div class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_PRICE}}</div>
+				</div>
 				<div v-if="showDiscountBlock" class="catalog-pf-product-item-section">
 					<div v-if="showDiscount" class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide" @click="toggleDiscount('N')">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>
 					<div v-else class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show" @click="toggleDiscount('Y')">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>
 				</div>
+				
 				<div v-if="showDiscount" class="catalog-pf-product-item-section">
-					<div class="catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--left">
-						<input class="catalog-pf-product-input catalog-pf-product-input--align-right catalog-pf-product-input--right"
-								v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
-								ref="discountInput" 
-								:value="getDiscountInputValue"
-								@input="onInputDiscount"
-								placeholder="0"
-								:disabled="!editable">
-						<div class="catalog-pf-product-input-info catalog-pf-product-input-info--action" 
-							@click="showPopupMenu($event.target, null, 'discount')">
-							<span v-html="getDiscountSymbol"></span>
-						</div>
-					</div>
+					<${config.templateFieldDiscount} 
+						:discount="basketItem.fields.discount"
+						:discountType="basketItem.fields.discountType"
+						:discountRate="basketItem.fields.discountRate"
+						:options="options"
+						:editable="isEditableField(blocks.discount)"
+						ref="discountWrapper"
+						@changeDiscount="changeDiscount" 
+						@changeDiscountType="changeDiscountType" 
+					/>
 				</div>
 				
 				<div v-if="showTaxBlock" class="catalog-pf-product-item-section catalog-pf-product-item-section--dashed">
@@ -782,14 +586,13 @@ Vue.component(config.templateProductRowName,
 					<div v-else class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show" @click="toggleTax('Y')">{{localize.CATALOG_FORM_TAX_TITLE}}</div>
 				</div>
 				<div v-if="showTaxSelector && showTaxBlock" class="catalog-pf-product-item-section">
-					<div 
-						class="catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--right"
-						@click="showPopupMenu($event.target, getTaxList, 'tax')"
-					>
-						<div class="catalog-pf-product-input">{{basketItem.fields.tax}}%</div>
-						<div class="catalog-pf-product-input-info catalog-pf-product-input-info--dropdown"></div>
-					</div>
-				</div>
+					<${config.templateFieldTax} 
+						:taxId="basketItem.fields.taxId"
+						:options="options"
+						:editable="isEditableField(blocks.tax)"
+						@changeProduct="changeProduct" 
+					/>
+				</div>				
 				<div class="catalog-pf-product-item-section catalog-pf-product-item-section--dashed"></div>
 			</div>
 		</div>

@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Sender\Posting\ThreadStrategy;
 

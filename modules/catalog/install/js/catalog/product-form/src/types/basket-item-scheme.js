@@ -24,4 +24,5 @@ export type BasketItemScheme = {
 	isCustomPrice: 'Y' | 'N',
 	additionalFields: Array<any>,
 	properties: Array<any>,
+	brands: Array<any>,
 }

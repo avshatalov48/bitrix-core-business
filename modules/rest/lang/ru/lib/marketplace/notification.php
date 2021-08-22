@@ -14,3 +14,6 @@ $MESS["REST_MARKETPLACE_NOTIFICATION_SUBSCRIPTION_MARKET_TARIFF_MARKET_URL"] = '
 $MESS["REST_MARKETPLACE_NOTIFICATION_SUBSCRIPTION_MARKET_TRIAL_END_MESS"] = 'Деморежим подписки закончился. Оформите подписку, чтобы продолжить пользоваться всеми приложениями. #BTN#';
 $MESS["REST_MARKETPLACE_NOTIFICATION_SUBSCRIPTION_MARKET_TRIAL_END_BTN"] = 'Купить подписку';
 $MESS["REST_MARKETPLACE_NOTIFICATION_SUBSCRIPTION_MARKET_TRIAL_END_URL"] = '/settings/license_buy.php?product=subscr';
+
+$MESS["REST_MARKETPLACE_NOTIFICATION_HOLD_REST_OVERLOAD_MESS"] = 'REST API был частично заблокирован. Пожалуйста, обратитесь в поддержку для решения данной проблемы. #BTN#';
+$MESS["REST_MARKETPLACE_NOTIFICATION_HOLD_REST_OVERLOAD_BTN"] = 'Посмотреть';

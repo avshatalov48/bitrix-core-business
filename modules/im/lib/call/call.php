@@ -773,6 +773,7 @@ class Call
 		{
 			return;
 		}
+		$call->finish();
 		$call->setLogUrl($logUrl);
 		$call->save();
 	}

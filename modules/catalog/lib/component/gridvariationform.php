@@ -42,19 +42,25 @@ class GridVariationForm extends VariationForm
 	{
 		$description = parent::getPropertyDescription($property);
 
-		$propertyFeatureOfferTree = $property->getPropertyFeatureCollection()->findByFeatureId('OFFER_TREE');
-		$offerTreeParams = $propertyFeatureOfferTree ? $propertyFeatureOfferTree->getSettings() : null;
-
-		if ($offerTreeParams)
-		{
-			$description['isEnabledOfferTree'] = $offerTreeParams['IS_ENABLED'] === 'Y';
-		}
-
 		if ($description['editable'])
 		{
 			switch ($description['type'])
 			{
 				case 'multilist':
+					$dropdownItems = [];
+
+					if (!empty($description['data']['items']) && is_array($description['data']['items']))
+					{
+						$dropdownItems = $description['data']['items'];
+					}
+
+					$description['editable'] = [
+						'TYPE' => Types::MULTISELECT,
+						'DATA' => [
+							'ITEMS' => $dropdownItems,
+						]
+					];
+					break;
 				case 'list':
 					$dropdownItems = [];
 
@@ -128,10 +134,16 @@ class GridVariationForm extends VariationForm
 					if (is_array($currentValue))
 					{
 						$formatted = [];
+						$items = [];
+
+						foreach ($description['editable']['DATA']['ITEMS'] as $item)
+						{
+							$items[$item['VALUE']] = $item['HTML'] ?? HtmlFilter::encode($item['NAME']);
+						}
 
 						foreach ($currentValue as $multipleItemValue)
 						{
-							$formatted[] = HtmlFilter::encode($description['editable']['items'][$multipleItemValue]);
+							$formatted[] = $items[$multipleItemValue];
 						}
 
 						$values[$name] = $formatted;
@@ -442,23 +454,9 @@ class GridVariationForm extends VariationForm
 		foreach ($this->getDescriptions() as $description)
 		{
 			$name = $description['name'];
-			$currentValue = $values[$name] ?? '';
 
 			switch ($description['type'])
 			{
-				case 'multilist':
-					if (is_array($currentValue))
-					{
-						$formatted = [];
-
-						foreach ($currentValue as $multipleItemValue)
-						{
-							$formatted[] = $description['editable']['items'][$multipleItemValue];
-						}
-
-						$values[$name] = implode(', ', $formatted);
-					}
-					break;
 				case 'custom':
 					$values[$name] = $values[$description['data']['view']];
 					break;
@@ -475,11 +473,6 @@ class GridVariationForm extends VariationForm
 						],
 					];
 					break;
-				default:
-					if (is_array($values[$name]))
-					{
-						$values[$name] = implode(', ', $values[$name]);
-					}
 			}
 		}
 

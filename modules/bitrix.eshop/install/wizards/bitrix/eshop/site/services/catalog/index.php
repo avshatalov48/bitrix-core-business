@@ -5,7 +5,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 $catalogSubscribe = $wizard->GetVar("catalogSubscribe");
 $curSiteSubscribe = ($catalogSubscribe == "Y") ? array("use" => "Y", "del_after" => "100") : array("del_after" => "100");
 $subscribe = COption::GetOptionString("sale", "subscribe_prod", "");
-$arSubscribe = unserialize($subscribe);
+$arSubscribe = unserialize($subscribe, ["allowed_classes" => false]);
 $arSubscribe[WIZARD_SITE_ID] = $curSiteSubscribe;
 COption::SetOptionString("sale", "subscribe_prod", serialize($arSubscribe));
 

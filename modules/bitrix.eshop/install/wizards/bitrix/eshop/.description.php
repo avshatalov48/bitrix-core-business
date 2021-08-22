@@ -19,11 +19,7 @@ $arWizardDescription = [
 
 if (defined("ADDITIONAL_INSTALL"))
 {
-	$arWizardDescription["STEPS"] = ["SelectTemplateStep", "SelectThemeStep", "SiteSettingsStep", "ShopSettings", "DataInstallStep" ,"FinishStep"];
-	if (defined("NEED_PERSON_TYPE"))
-	{
-		$arWizardDescription["STEPS"] = ["SelectTemplateStep", "SelectThemeStep", "SiteSettingsStep", "ShopSettings", "PersonType", "DataInstallStep" ,"FinishStep"];
-	}
+	$arWizardDescription["STEPS"] = ["SelectTemplateStep", "SelectThemeStep", "SiteSettingsStep", "ShopSettings", "PersonType", "DataInstallStep" ,"FinishStep"];
 }
 elseif (defined("WIZARD_DEFAULT_SITE_ID"))
 {

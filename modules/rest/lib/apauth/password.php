@@ -26,7 +26,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Rest
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Password_Query query()
+ * @method static EO_Password_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Password_Result getById($id)
+ * @method static EO_Password_Result getList(array $parameters = array())
+ * @method static EO_Password_Entity getEntity()
+ * @method static \Bitrix\Rest\APAuth\EO_Password createObject($setDefaultValues = true)
+ * @method static \Bitrix\Rest\APAuth\EO_Password_Collection createCollection()
+ * @method static \Bitrix\Rest\APAuth\EO_Password wakeUpObject($row)
+ * @method static \Bitrix\Rest\APAuth\EO_Password_Collection wakeUpCollection($rows)
+ */
 class PasswordTable extends Main\Entity\DataManager
 {
 	const ACTIVE = 'Y';

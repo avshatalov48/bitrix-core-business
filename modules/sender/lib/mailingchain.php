@@ -751,6 +751,22 @@ class MailingChainTable extends Entity\DataManager
 	}
 }
 
+/**
+ * Class MailingAttachmentTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MailingAttachment_Query query()
+ * @method static EO_MailingAttachment_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MailingAttachment_Result getById($id)
+ * @method static EO_MailingAttachment_Result getList(array $parameters = array())
+ * @method static EO_MailingAttachment_Entity getEntity()
+ * @method static \Bitrix\Sender\EO_MailingAttachment createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\EO_MailingAttachment_Collection createCollection()
+ * @method static \Bitrix\Sender\EO_MailingAttachment wakeUpObject($row)
+ * @method static \Bitrix\Sender\EO_MailingAttachment_Collection wakeUpCollection($rows)
+ */
 class MailingAttachmentTable extends Entity\DataManager
 {
 

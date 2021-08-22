@@ -155,7 +155,6 @@ $MESS['MAIL_MESSAGE_LIST_CONFIRM_DELETE_ALL'] = "Вы действительно
 
 $MESS['MAIL_MESSAGE_LIST_ATTACH_ICON_HINT'] = "Письмо с вложениями";
 
-$MESS["MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_TITLE"] = "Подключение почтовых ящиков в Битрикс24";
 $MESS["MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_BODY"] = "Количество почтовых ящиков на сотрудника зависит от тарифного плана Битрикс24.
 <br><br>
 На вашем тарифе доступно почтовых ящиков для каждого сотрудника: #LIMIT#";

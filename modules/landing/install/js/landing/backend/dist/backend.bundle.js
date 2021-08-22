@@ -96,10 +96,11 @@ this.BX = this.BX || {};
 	          BX.Landing.UI.Panel.StatusPanel.getInstance().update();
 	        }
 
+	        BX.onCustomEvent(BX.Landing.PageObject.getRootWindow(), 'BX.Landing.Backend:action', [_action, data]);
 	        return response.result;
 	      }).catch(function (err) {
 	        if (requestBody.action !== 'Landing::downBlock' && requestBody.action !== 'Landing::upBlock') {
-	          if (requestBody.action !== 'Block::getById' && requestBody.action !== 'Landing::move' && requestBody.action !== 'Landing::copy' && requestBody.action !== 'Site::moveFolder') {
+	          if (requestBody.action !== 'Block::getById' && requestBody.action !== 'Block::publication' && requestBody.action !== 'Landing::move' && requestBody.action !== 'Landing::copy' && requestBody.action !== 'Landing::publication' && requestBody.action !== 'Site::publication' && requestBody.action !== 'Site::moveFolder') {
 	            var error = main_core.Type.isString(err) ? {
 	              type: 'error'
 	            } : err;
@@ -136,6 +137,7 @@ this.BX = this.BX || {};
 	      }).then(function (response) {
 	        // eslint-disable-next-line
 	        BX.Landing.UI.Panel.StatusPanel.getInstance().update();
+	        BX.onCustomEvent(BX.Landing.PageObject.getRootWindow(), 'BX.Landing.Backend:batch', [action, data]);
 	        return response;
 	      }).catch(function (err) {
 	        if (requestBody.action !== 'Landing::downBlock' && requestBody.action !== 'Landing::upBlock') {

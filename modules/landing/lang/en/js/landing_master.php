@@ -164,6 +164,7 @@ $MESS["LANDING_DOMAIN_INCORRECT__KNOWLEDGE"] = "The knowledge base address is in
 $MESS["LANDING_DOMAIN_LIMIT_LENGTH"] = "Maximum domain length exceeded";
 $MESS["LANDING_EDITOR_PIN_RIGHT"] = "Pin to right";
 $MESS["LANDING_EDITOR_PIN_TOP"] = "Pin to top";
+$MESS["LANDING_EDIT_BLOCK_DEFAULT_FONT"] = "Restore default font";
 $MESS["LANDING_EDIT_LINK"] = "Edit link";
 $MESS["LANDING_EMBED_ERROR_TEXT"] = "Enter a fully qualified video URL. HTML code or other embedding methods are not supported.";
 $MESS["LANDING_EMBED_ERROR_WRONG_SOURCE_TEXT"] = "Incorrect link. Only full or shortened links to Youtube, Facebook, Vimeo and Vine are supported.";

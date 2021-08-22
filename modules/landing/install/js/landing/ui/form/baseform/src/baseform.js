@@ -228,6 +228,16 @@ export class BaseForm extends EventEmitter
 		this.addCard(newCard);
 	}
 
+	replaceField(oldField, newField)
+	{
+		if (Type.isObject(oldField) && Type.isObject(newField))
+		{
+			Dom.replace(oldField.getNode(), newField.getNode());
+			this.fields.remove(oldField);
+			this.fields.add(newField);
+		}
+	}
+
 	isCheckboxChecked(): boolean
 	{
 		const checkbox = this.header.querySelector('input');

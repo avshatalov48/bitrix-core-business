@@ -9,6 +9,22 @@ use Bitrix\Main\Entity;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
 
+/**
+ * Class CallTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Call_Query query()
+ * @method static EO_Call_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Call_Result getById($id)
+ * @method static EO_Call_Result getList(array $parameters = array())
+ * @method static EO_Call_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_Call createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_Call_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_Call wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_Call_Collection wakeUpCollection($rows)
+ */
 class CallTable extends Entity\DataManager
 {
 	public static function getTableName()

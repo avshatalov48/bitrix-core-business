@@ -8,12 +8,16 @@ import "ui.forms";
 import "ui.buttons";
 
 import "./row";
-import "./item-add";
+import "./elements/panel-buttons";
 import {FormElementPosition} from "../types/form-element-position";
+import {FormMode} from "../types/form-mode";
 
 Vue.component(config.templateName,
 {
-	props: ['options'],
+	props: {
+		options: Object,
+		mode: String,
+	},
 	created()
 	{
 		BX.ajax.runAction(
@@ -27,19 +31,23 @@ Vue.component(config.templateName,
 		{
 			this.$store.dispatch('productList/refreshBasket');
 		},
+
 		changeProduct(item)
 		{
 			this.$root.$app.changeProduct(item);
 		},
+
 		changeRowData(item)
 		{
 			delete(item.fields.fields);
 			this.$store.dispatch('productList/changeItem', item);
 		},
+
 		removeItem(item)
 		{
 			this.$root.$app.removeProduct(item);
 		},
+
 		addItem()
 		{
 			this.$root.$app.addProduct();
@@ -50,10 +58,6 @@ Vue.component(config.templateName,
 		localize()
 		{
 			return Vue.getFilteredPhrases('CATALOG_');
-		},
-		editable()
-		{
-			return this.$root.$app.editable;
 		},
 
 		showTaxResult()
@@ -69,7 +73,7 @@ Vue.component(config.templateName,
 		showButtonsTop()
 		{
 			return this.options.singleProductMode !== true
-				&& this.editable
+				&& this.mode !== FormMode.READ_ONLY
 				&& this.options.buttonsPosition !== FormElementPosition.BOTTOM
 			;
 		},
@@ -77,7 +81,7 @@ Vue.component(config.templateName,
 		showButtonsBottom()
 		{
 			return this.options.singleProductMode !== true
-				&& this.editable
+				&& this.mode !== FormMode.READ_ONLY
 				&& this.options.buttonsPosition === FormElementPosition.BOTTOM
 			;
 		},
@@ -103,10 +107,12 @@ Vue.component(config.templateName,
 			productList: state => state.productList,
 		})
 	},
+	// language=Vue
 	template: `
 	<div class="catalog-product-form-container">
-		<${config.templateProductAddName}
+		<${config.templatePanelButtons}
 			:options="options" 
+			:mode="mode" 
 			@refreshBasket="refreshBasket" 
 			@addItem="addItem"
 			@changeRowData="changeRowData"
@@ -114,25 +120,31 @@ Vue.component(config.templateName,
 			v-if="showButtonsTop"
 		/>
 		<div v-for="(item, index) in productList.basket" :key="item.selectorId">
-			<${config.templateProductRowName} 
+			<${config.templateRowName} 
 				:basketItem="item" 
 				:basketItemIndex="index"  
 				:countItems="countItems"
 				:options="options"
-				:editable="editable"
+				:mode="mode"
 				@changeProduct="changeProduct" 
 				@changeRowData="changeRowData" 
 				@removeItem="removeItem" 
 				@refreshBasket="refreshBasket" 
 			/>
 		</div>
-		<${config.templateProductAddName}
+		<${config.templatePanelButtons}
 			:options="options" 
+			:mode="mode"
 			@refreshBasket="refreshBasket" 
 			@addItem="addItem"
 			@changeRowData="changeRowData"
 			@changeProduct="changeProduct" 
 			v-if="showButtonsBottom"
+		/>
+		<${config.templatePanelCompilation}  
+			v-if="options.showCompilationModeSwitcher"
+			:compilationOptions="options.compilationFormOption" 
+			:mode="mode" 
 		/>
 		<div class="catalog-pf-result-line"></div>
 		<div class="catalog-pf-result-wrapper" v-if="showResultBlock">

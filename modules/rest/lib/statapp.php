@@ -16,7 +16,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Rest
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_StatApp_Query query()
+ * @method static EO_StatApp_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_StatApp_Result getById($id)
+ * @method static EO_StatApp_Result getList(array $parameters = array())
+ * @method static EO_StatApp_Entity getEntity()
+ * @method static \Bitrix\Rest\EO_StatApp createObject($setDefaultValues = true)
+ * @method static \Bitrix\Rest\EO_StatApp_Collection createCollection()
+ * @method static \Bitrix\Rest\EO_StatApp wakeUpObject($row)
+ * @method static \Bitrix\Rest\EO_StatApp_Collection wakeUpCollection($rows)
+ */
 
 class StatAppTable extends Main\Entity\DataManager
 {

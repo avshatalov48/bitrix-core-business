@@ -1333,7 +1333,7 @@ this.BX = this.BX || {};
 	      this.counterValue = parseInt(count);
 
 	      if (this.counterValue <= 0) {
-	        this.decrementStack = 0;
+	        this.counterDecrementStack = 0;
 	      }
 
 	      var valueToShow = this.counterValue - this.counterDecrementStack;

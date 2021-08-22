@@ -28,30 +28,117 @@ class CCloudStorageService_RackSpaceCloudFiles extends CCloudStorageService_Open
 		}
 		else
 		{
-			$obRequest = new CHTTP;
-			$obRequest->additional_headers["X-Auth-User"] = $user;
-			$obRequest->additional_headers["X-Auth-Key"] = $key;
-			$obRequest->Query("GET", $host, 80, "/v1.0");
+			$this->status = 0;
+			$this->host = $host;
+			$this->verb = "GET";
+			$this->url =  "http://".$host."/v1.0";
+			$this->headers = array();
+			$this->errno = 0;
+			$this->errstr = '';
+			$this->result = '';
 
-			if($obRequest->status == 301 && $obRequest->headers["Location"] <> '')
+			$logRequest = false;
+			if (defined("BX_CLOUDS_TRACE") && $verb !== "GET" && $verb !== "HEAD")
 			{
-				if(preg_match("#^https://(.*?)(/.*)\$#", $obRequest->headers["Location"], $arNewLocation))
-				{
-					$obRequest = new CHTTP;
-					$obRequest->additional_headers["X-Auth-User"] = $user;
-					$obRequest->additional_headers["X-Auth-Key"] = $key;
-					@$obRequest->Query("GET", $arNewLocation[1], 443, "/v1.0", false, "ssl://");
+				$stime = microtime(1);
+				$logRequest = array(
+					"request_id" => md5((string)mt_rand()),
+					"portal" => (CModule::IncludeModule('replica')? getNameByDomain(): $_SERVER["HTTP_HOST"]),
+					"verb" => $this->verb,
+					"url" => $this->url,
+				);
+				AddMessage2Log(json_encode($logRequest), 'clouds', 20);
+			}
 
-					if($obRequest->status == 204)
+			$request = new Bitrix\Main\Web\HttpClient(array(
+				"redirect" => false,
+				"streamTimeout" => $this->streamTimeout,
+			));
+			$request->setHeader("X-Auth-User", $user);
+			$request->setHeader("X-Auth-Key", $key);
+			$request->query($this->verb, $this->url);
+
+			$this->status = $request->getStatus();
+			foreach($request->getHeaders() as $key => $value)
+			{
+				$this->headers[$key] = $value;
+			}
+			$this->errstr = implode("\n", $request->getError());
+			$this->errno = $this->errstr? 255: 0;
+			$this->result = $request->getResult();
+
+			if ($logRequest)
+			{
+				$logRequest["status"] = $this->status;
+				$logRequest["time"] = round(microtime(true) - $stime, 6);
+				$logRequest["headers"] = $this->headers;
+				AddMessage2Log(json_encode($logRequest), 'clouds', 0);
+			}
+
+			if (
+				$this->status == 301
+				&& $this->headers["Location"] <> ''
+				&& preg_match("#^https://(.*?)(/.*)\$#", $this->headers["Location"], $arNewLocation)
+			)
+			{
+				$APPLICATION->ResetException();
+
+				$this->status = 0;
+				$this->host = $arNewLocation[1];
+				$this->verb = "GET";
+				$this->url =  "https://".$arNewLocation[1]."/v1.0";
+				$this->headers = array();
+				$this->errno = 0;
+				$this->errstr = '';
+				$this->result = '';
+
+				$logRequest = false;
+				if (defined("BX_CLOUDS_TRACE") && $verb !== "GET" && $verb !== "HEAD")
+				{
+					$stime = microtime(1);
+					$logRequest = array(
+						"request_id" => md5((string)mt_rand()),
+						"portal" => (CModule::IncludeModule('replica')? getNameByDomain(): $_SERVER["HTTP_HOST"]),
+						"verb" => $this->verb,
+						"url" => $this->url,
+					);
+					AddMessage2Log(json_encode($logRequest), 'clouds', 20);
+				}
+
+				$request = new Bitrix\Main\Web\HttpClient(array(
+					"redirect" => false,
+					"streamTimeout" => $this->streamTimeout,
+				));
+				$request->setHeader("X-Auth-User", $user);
+				$request->setHeader("X-Auth-Key", $key);
+				$request->query($this->verb, $this->url);
+
+				$this->status = $request->getStatus();
+				foreach($request->getHeaders() as $key => $value)
+				{
+					$this->headers[$key] = $value;
+				}
+				$this->errstr = implode("\n", $request->getError());
+				$this->errno = $this->errstr? 255: 0;
+				$this->result = $request->getResult();
+
+				if ($logRequest)
+				{
+					$logRequest["status"] = $this->status;
+					$logRequest["time"] = round(microtime(true) - $stime, 6);
+					$logRequest["headers"] = $this->headers;
+					AddMessage2Log(json_encode($logRequest), 'clouds', 0);
+				}
+
+				if($this->status == 204)
+				{
+					if(preg_match("#^https://(.*?)(/.*)\$#", $this->headers["X-Storage-Url"], $arStorage))
 					{
-						if(preg_match("#^https://(.*?)(/.*)\$#", $obRequest->headers["X-Storage-Url"], $arStorage))
-						{
-							$result = $obRequest->headers;
-							$result["X-Storage-Host"] = $arStorage[1];
-							$result["X-Storage-Port"] = 443;
-							$result["X-Storage-Urn"] = $arStorage[2];
-							$result["X-Storage-Proto"] = "ssl://";
-						}
+						$result = $this->headers;
+						$result["X-Storage-Host"] = $arStorage[1];
+						$result["X-Storage-Port"] = 443;
+						$result["X-Storage-Urn"] = $arStorage[2];
+						$result["X-Storage-Proto"] = "ssl://";
 					}
 				}
 			}
@@ -77,16 +164,16 @@ class CCloudStorageService_RackSpaceCloudFiles extends CCloudStorageService_Open
 			if(preg_match("#^http://(.*?)(|:\d+)(/.*)\$#", $arToken["X-CDN-Management-Url"], $arCDN))
 			{
 				$Host = $arCDN[1];
-				$Port = $arCDN[2]? mb_substr($arCDN[2], 1) : 80;
+				$Port = $arCDN[2];
 				$Urn = $arCDN[3];
-				$Proto = "";
+				$Proto = "http://";
 			}
 			elseif(preg_match("#^https://(.*?)(|:\d+)(/.*)\$#", $arToken["X-CDN-Management-Url"], $arCDN))
 			{
 				$Host = $arCDN[1];
-				$Port = $arCDN[2]? mb_substr($arCDN[2], 1) : 443;
+				$Port = $arCDN[2];
 				$Urn = $arCDN[3];
-				$Proto = "ssl://";
+				$Proto = "https://";
 			}
 			else
 			{
@@ -98,20 +185,57 @@ class CCloudStorageService_RackSpaceCloudFiles extends CCloudStorageService_Open
 			return false;
 		}
 
-		$obRequest = new CHTTP;
-		$obRequest->additional_headers["X-Auth-Token"] = $arToken["X-Auth-Token"];
-		foreach($additional_headers as $key => $value)
-			$obRequest->additional_headers[$key] = $value;
+		$this->status = 0;
+		$this->host = $Host;
+		$this->verb = $verb;
+		$this->url =  $Proto.$Host.($Port? $Port: '').$Urn.CCloudUtil::URLEncode("/".$bucket.$file_name.$params, "UTF-8");
+		$this->headers = array();
+		$this->errno = 0;
+		$this->errstr = '';
+		$this->result = '';
 
-		$obRequest->Query(
-			$verb,
-			$Host,
-			$Port,
-			$Urn.CCloudUtil::URLEncode("/".$bucket.$file_name.$params, "UTF-8"),
-			$content,
-			$Proto
-		);
-		return $obRequest;
+		$logRequest = false;
+		if (defined("BX_CLOUDS_TRACE") && $verb !== "GET" && $verb !== "HEAD")
+		{
+			$stime = microtime(1);
+			$logRequest = array(
+				"request_id" => md5((string)mt_rand()),
+				"portal" => (CModule::IncludeModule('replica')? getNameByDomain(): $_SERVER["HTTP_HOST"]),
+				"verb" => $this->verb,
+				"url" => $this->url,
+			);
+			AddMessage2Log(json_encode($logRequest), 'clouds', 20);
+		}
+
+		$request = new Bitrix\Main\Web\HttpClient(array(
+			"redirect" => false,
+			"streamTimeout" => $this->streamTimeout,
+		));
+		$request->setHeader("X-Auth-Token", $arToken["X-Auth-Token"]);
+		foreach($additional_headers as $key => $value)
+		{
+			$request->setHeader($key, $value);
+		}
+		$request->query($this->verb, $this->url);
+
+		$this->status = $request->getStatus();
+		foreach($request->getHeaders() as $key => $value)
+		{
+			$this->headers[$key] = $value;
+		}
+		$this->errstr = implode("\n", $request->getError());
+		$this->errno = $this->errstr? 255: 0;
+		$this->result = $request->getResult();
+
+		if ($logRequest)
+		{
+			$logRequest["status"] = $this->status;
+			$logRequest["time"] = round(microtime(true) - $stime, 6);
+			$logRequest["headers"] = $this->headers;
+			AddMessage2Log(json_encode($logRequest), 'clouds', 0);
+		}
+
+		return $request;
 	}
 
 	function CreateBucket($arBucket)
@@ -127,7 +251,7 @@ class CCloudStorageService_RackSpaceCloudFiles extends CCloudStorageService_Open
 		//CDN Enable
 		if($this->status == 201)
 		{
-			$obCDNRequest = $this->SendCDNRequest(
+			$this->SendCDNRequest(
 				$arBucket["SETTINGS"],
 				"PUT",
 				$arBucket["BUCKET"],
@@ -167,19 +291,16 @@ class CCloudStorageService_RackSpaceCloudFiles extends CCloudStorageService_Open
 			}
 			else
 			{
-				$obCDNRequest = $this->SendCDNRequest(
+				$this->SendCDNRequest(
 					$arBucket["SETTINGS"],
 					"HEAD",
 					$arBucket["BUCKET"]
 				);
-				if(is_object($obCDNRequest))
+				if($this->status == 204)
 				{
-					if($obCDNRequest->status == 204)
-					{
-						$result = array();
-						foreach($obCDNRequest->headers as $key => $value)
-							$result[mb_strtolower($key)] = $value;
-					}
+					$result = array();
+					foreach($this->headers as $key => $value)
+						$result[mb_strtolower($key)] = $value;
 				}
 			}
 

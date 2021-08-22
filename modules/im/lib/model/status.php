@@ -21,7 +21,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Im
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Status_Query query()
+ * @method static EO_Status_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Status_Result getById($id)
+ * @method static EO_Status_Result getList(array $parameters = array())
+ * @method static EO_Status_Entity getEntity()
+ * @method static \Bitrix\Im\Model\EO_Status createObject($setDefaultValues = true)
+ * @method static \Bitrix\Im\Model\EO_Status_Collection createCollection()
+ * @method static \Bitrix\Im\Model\EO_Status wakeUpObject($row)
+ * @method static \Bitrix\Im\Model\EO_Status_Collection wakeUpCollection($rows)
+ */
 
 class StatusTable extends Entity\DataManager
 {

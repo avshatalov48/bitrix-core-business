@@ -199,6 +199,91 @@
 .notifications-read-all-fade-enter, .notifications-read-all-fade-leave-to {
 	opacity: 0;
 }
+
+.bx-im-notifications-scroll-button {
+	background: #fff;
+	border: 1px solid #ececec;
+	-webkit-box-shadow: 0 2px 1px 0 rgba(0,0,0,0.2);
+	        box-shadow: 0 2px 1px 0 rgba(0,0,0,0.2);
+	border-radius: 50%;
+	width: 34px;
+	height: 34px;
+	margin-top: 10px;
+	margin-left: 7px;
+	cursor: pointer;
+	-webkit-transition: background-color .2s;
+	-o-transition: background-color .2s;
+	transition: background-color .2s;
+	text-align: center;
+}
+
+.bx-im-notifications-scroll-button-enter-active, .bx-im-notifications-scroll-button-leave-active {
+	-webkit-transition: bottom .2s ease-out;
+	-o-transition: bottom .2s ease-out;
+	transition: bottom .2s ease-out;
+}
+.bx-im-notifications-scroll-button-enter, .bx-im-notifications-scroll-button-leave-to {
+	bottom: -60px;
+}
+
+.bx-im-notifications-scroll-button-box {
+	position: absolute;
+	right: 15px;
+	bottom: 10px;
+	width: 55px;
+	height: 55px;
+	z-index: 1;
+	-webkit-tap-highlight-color: transparent;
+	outline: none;
+}
+.bx-im-notifications-scroll-button:hover {
+	background-color: #f9f9f9;
+}
+
+.bx-im-notifications-scroll-button-counter {
+	width: 100%;
+	text-align: center;
+	margin-top:-7px;
+	position: absolute;
+}
+.bx-im-notifications-scroll-button-counter-digit {
+	display: inline-block;
+	font: 11px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #fff;
+	padding: 0 5px 0 5px;
+	border: 2px solid #fff;
+	border-radius: 10px;
+	background-color: #17b0e1;
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	    -ms-user-select: none;
+	        user-select: none;
+}
+
+.bx-im-notifications-scroll-button-arrow {
+	display: inline-block;
+	width: 7px;
+	height: 7px;
+	border-top: 3px solid #bbb8b8;
+	border-right: 3px solid #bbb8b8;
+	cursor: pointer;
+	-webkit-box-sizing: content-box;
+	        box-sizing: content-box;
+}
+
+.bx-im-notifications-scroll-button-arrow-down {
+	-webkit-transform: rotate(135deg);
+	    -ms-transform: rotate(135deg);
+	        transform: rotate(135deg);
+	margin-top: 11px;
+}
+
+.bx-im-notifications-scroll-button-arrow-up {
+	-webkit-transform: rotate(315deg);
+	    -ms-transform: rotate(315deg);
+	        transform: rotate(315deg);
+	margin-top: 14px;
+}
 .bx-im-notifications-item {
 	padding: 12px 15px;
 	display: -webkit-box;

@@ -58,7 +58,9 @@ else
 
 if (check_bitrix_sessid())
 {
-	$currentUserPerms = CSocNetUserToGroup::initUserPerms($USER->GetId(), $group, CSocNetUser::isCurrentUserModuleAdmin());
+	$currentUserPerms = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
+		'groupId' => $groupId,
+	]);
 
 	if (!$currentUserPerms["UserCanViewGroup"])
 	{

@@ -5,10 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
 use \Bitrix\Main\Localization\Loc;
 
-Loc::loadMessages(
-	\Bitrix\Landing\Manager::getDocRoot() .
-	'/bitrix/modules/landing/blocks/.components.php'
-);
+Loc::loadMessages(\Bitrix\Landing\Manager::getDocRoot() . '/bitrix/modules/landing/blocks/.components.php');
 
 \CBitrixComponent::includeComponentClass('bitrix:landing.blocks.cmpfilter');
 
@@ -75,16 +72,10 @@ $return = [
 					'DATA_LAYER_NAME' => [],
 					'BRAND_PROPERTY' => [],
 					// visual
-					'PRODUCT_ROW_VARIANTS' => [
-						'style' => true,
-					],
 					'LABEL_PROP_POSITION' => [
 						'style' => true,
 					],
 					'DISCOUNT_PERCENT_POSITION' => [
-						'style' => true,
-					],
-					'PRODUCT_BLOCKS_ORDER' => [
 						'style' => true,
 					],
 					'DEFERRED_LOAD' => [

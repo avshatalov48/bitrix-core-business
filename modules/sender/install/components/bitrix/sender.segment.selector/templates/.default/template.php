@@ -48,7 +48,8 @@ $containerId = 'sender-segment-selector';
 		'LIST' => $arResult['SEGMENTS']['INCLUDE'],
 		'SHOW_BUTTON_ADD' => $arParams['CAN_EDIT'],
 		'BUTTON_SELECT_CAPTION' => Loc::getMessage('SENDER_SEGMENT_SELECTOR_BUTTON_SELECT'),
-		'READONLY' => $arParams['READONLY']
+		'READONLY' => $arParams['READONLY'],
+		'CHECK_ON_STATIC' => $arParams['CHECK_ON_STATIC'],
 	));
 	?>
 	<div class="sender-segment-selector-main">

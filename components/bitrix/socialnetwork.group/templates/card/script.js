@@ -1,599 +1,477 @@
-;(function(){
+this.BX = this.BX || {};
+(function (exports,main_core_events,main_core,main_popup) {
+	'use strict';
 
-if (typeof SonetGroupCardSlider != 'undefined')
-{
-	return;
-}
+	function _templateObject() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"sonet-sgm-error-text-block\">", "</div>"]);
 
-SonetGroupCardSlider = function()
-{
-	this.instance = null;
-	this.currentUserId = null;
-	this.userRole = null;
-	this.canInitiate = null;
-	this.canModify = null;
-	this.groupId = null;
-	this.isProject = null;
-	this.waitPopup = null;
-	this.waitTimeout = null;
-	this.notifyHintPopup = null;
-	this.notifyHintTimeout = null;
-	this.notifyHintTime = 3000;
-	this.favoritesValue = null;
-	this.styles = null;
-	this.urls = null;
-	this.containerNodeId = null;
-	this.subscribeButtonNodeId = null;
-	this.menuButtonNodeId = null;
-	this.editFeaturesAllowed = true;
-};
+	  _templateObject = function _templateObject() {
+	    return data;
+	  };
 
-SonetGroupCardSlider.getInstance = function()
-{
-	if (SonetGroupCardSlider.instance == null)
-	{
-		SonetGroupCardSlider.instance = new SonetGroupCardSlider();
+	  return data;
 	}
 
-	return SonetGroupCardSlider.instance;
-};
+	var WorkgroupCardUtil = /*#__PURE__*/function () {
+	  function WorkgroupCardUtil() {
+	    babelHelpers.classCallCheck(this, WorkgroupCardUtil);
+	  }
 
-SonetGroupCardSlider.prototype = {
+	  babelHelpers.createClass(WorkgroupCardUtil, null, [{
+	    key: "processAJAXError",
+	    value: function processAJAXError(errorCode) {
+	      if (errorCode.indexOf('SESSION_ERROR', 0) === 0) {
+	        this.showError(main_core.Loc.getMessage('SGMErrorSessionWrong'));
+	      } else if (errorCode.indexOf('CURRENT_USER_NOT_AUTH', 0) === 0) {
+	        this.showError(main_core.Loc.getMessage('SGMErrorCurrentUserNotAuthorized'));
+	      } else if (errorCode.indexOf('SONET_MODULE_NOT_INSTALLED', 0) === 0) {
+	        this.showError(main_core.Loc.getMessage('SGMErrorModuleNotInstalled'));
+	      } else {
+	        this.showError(errorCode);
+	      }
 
-	init: function(params)
-	{
-		if (
-			typeof params == 'undefined'
-			|| typeof params.groupId == 'undefined'
-			|| parseInt(params.groupId) <= 0
-		)
-		{
-			return;
-		}
+	      return false;
+	    }
+	  }, {
+	    key: "showError",
+	    value: function showError(errorText) {
+	      new main_popup.Popup('sgm-error' + Math.random(), null, {
+	        autoHide: true,
+	        lightShadow: false,
+	        zIndex: 2,
+	        content: main_core.Tag.render(_templateObject(), errorText),
+	        closeByEsc: true,
+	        closeIcon: true
+	      }).show();
+	    }
+	  }]);
+	  return WorkgroupCardUtil;
+	}();
 
-		this.currentUserId = parseInt(params.currentUserId);
-		this.groupId = parseInt(params.groupId);
-		this.groupType = params.groupType;
-		this.isProject = !!params.isProject;
-		this.isOpened = !!params.isOpened;
-		this.favoritesValue = !!params.favoritesValue;
-		this.canInitiate = !!params.canInitiate;
-		this.canProcessRequestsIn = !!params.canProcessRequestsIn;
-		this.canModify = !!params.canModify;
-		this.userRole = params.userRole;
-		this.userIsMember = !!params.userIsMember;
-		this.userIsAutoMember = !!params.userIsAutoMember;
-		this.containerNodeId = (BX.type.isNotEmptyString(params.containerNodeId) ? params.containerNodeId : null);
-		this.subscribeButtonNodeId = (BX.type.isNotEmptyString(params.subscribeButtonNodeId) ? params.subscribeButtonNodeId : null);
-		this.menuButtonNodeId = (BX.type.isNotEmptyString(params.menuButtonNodeId) ? params.menuButtonNodeId : null);
-		this.editFeaturesAllowed = (typeof params.editFeaturesAllowed != 'undefined' ? !!params.editFeaturesAllowed : true);
+	var WorkgroupCardFavorites = /*#__PURE__*/function () {
+	  function WorkgroupCardFavorites(params) {
+	    var _this = this;
 
-		if (
-			this.containerNodeId
-			&& BX(this.containerNodeId)
-			&& typeof params.styles != 'undefined'
-		)
-		{
-			this.styles = params.styles;
-			var i = null;
+	    babelHelpers.classCallCheck(this, WorkgroupCardFavorites);
+	    this.value = !!params.value;
+	    this.containerNode = params.containerNode;
+	    this.styles = params.styles;
+	    this.groupId = parseInt(params.groupId);
 
-			if (
-				typeof params.styles.tags != 'undefined'
-				&& BX.type.isNotEmptyString(params.styles.tags.box)
-				&& BX.type.isNotEmptyString(params.styles.tags.item)
-			)
-			{
-				var tagBlockList = BX.findChildren(BX(this.containerNodeId), {
-					className: params.styles.tags.box
-				}, true);
+	    if (this.containerNode) {
+	      if (main_core.Type.isPlainObject(this.styles) && main_core.Type.isStringFilled(this.styles.switch)) {
+	        this.containerNode.querySelectorAll(".".concat(this.styles.switch)).forEach(function (node) {
+	          node.addEventListener('click', function (e) {
+	            _this.set(e);
+	          }, true);
+	        });
+	      }
 
-				for (i = 0, length = tagBlockList.length; i < length; i++)
-				{
-					BX(tagBlockList[i]).addEventListener('click', BX.delegate(function(e) {
-						var tagValue = BX.getEventTarget(e).getAttribute('bx-tag-value');
-						if (BX.type.isNotEmptyString(tagValue))
-						{
-							this.clickTag(tagValue);
-						}
-						e.preventDefault();
-					}, this), true);
-				}
-			}
+	      main_core_events.EventEmitter.subscribe('BX.Socialnetwork.WorkgroupMenu:onSetFavorites', function (event) {
+	        var _event$getCompatData = event.getCompatData(),
+	            _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
+	            params = _event$getCompatData2[0];
 
-			if (
-				typeof params.styles.users != 'undefined'
-				&& BX.type.isNotEmptyString(params.styles.users.box)
-				&& BX.type.isNotEmptyString(params.styles.users.item)
-			)
-			{
-				var userBlockList = BX.findChildren(BX(this.containerNodeId), {
-					className: params.styles.users.box
-				}, true);
+	        _this.setValue(params.value);
 
-				var userNode = null;
-				var userId = null;
+	        if (parseInt(params.groupId) === _this.groupId) {
+	          var targetNode = _this.containerNode.querySelector(".".concat(_this.styles.switch));
 
-				for (i = 0, length = userBlockList.length; i < length; i++)
-				{
-					userBlockList[i].addEventListener('click', function(e) {
-						userNode = e.target;
+	          if (targetNode) {
+	            _this.switch(targetNode, params.value);
+	          }
+	        }
+	      });
+	    }
+	  }
 
-						if (!userNode.hasAttribute('bx-user-id'))
-						{
-							userNode = BX.findParent(userNode, { className: params.styles.users.item }, BX(this.containerNodeId));
-						}
-						userId = userNode.getAttribute('bx-user-id');
-						if (parseInt(userId) > 0)
-						{
-							this.clickUser(userId);
-						}
-						e.preventDefault();
-					}.bind(this), true);
-				}
-			}
+	  babelHelpers.createClass(WorkgroupCardFavorites, [{
+	    key: "setValue",
+	    value: function setValue(value) {
+	      this.value = value;
+	    }
+	  }, {
+	    key: "getValue",
+	    value: function getValue() {
+	      return this.value;
+	    }
+	  }, {
+	    key: "set",
+	    value: function set(event) {
+	      var _this2 = this;
 
-			if (
-				typeof params.styles.fav != 'undefined'
-				&& BX.type.isNotEmptyString(params.styles.fav.switch)
-			)
-			{
-				var favBlockList = BX.findChildren(BX(this.containerNodeId), {
-					className: params.styles.fav.switch
-				}, true);
+	      var currentValue = this.getValue();
+	      var newValue = !currentValue;
+	      var sonetGroupMenu = BX.SocialnetworkUICommon.SonetGroupMenu.getInstance();
+	      this.setValue(newValue);
+	      sonetGroupMenu.favoritesValue = newValue;
+	      sonetGroupMenu.setItemTitle(newValue);
+	      var targetNode = event.target.classList.contains(this.styles.switch) ? event.target : null;
 
-				for (i = 0, length = favBlockList.length; i < length; i++)
-				{
-					BX(favBlockList[i]).addEventListener('click', BX.delegate(function(e) {
-						this.setFavorites(e);
-					}, this), true);
-				}
-			}
-		}
+	      if (!targetNode) {
+	        targetNode = this.containerNode.querySelector(".".concat(this.styles.switch));
+	      }
 
-		if (typeof params.urls != 'undefined')
-		{
-			this.urls = params.urls;
-		}
+	      if (targetNode) {
+	        this.switch(targetNode, newValue);
+	      }
 
-		if (
-			this.subscribeButtonNodeId
-			&& BX(this.subscribeButtonNodeId)
-		)
-		{
-			BX.bind(BX(this.subscribeButtonNodeId), 'click', BX.delegate(function(event) {
-				this.setSubscribe();
-				event.preventDefault();
-			}, this));
-		}
+	      BX.SocialnetworkUICommon.setFavoritesAjax({
+	        groupId: this.groupId,
+	        favoritesValue: currentValue,
+	        callback: {
+	          success: function success(data) {
+	            var eventData = {
+	              code: 'afterSetFavorites',
+	              data: {
+	                groupId: data.ID,
+	                value: data.RESULT == 'Y'
+	              }
+	            };
+	            window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', eventData);
 
-		if (
-			this.menuButtonNodeId
-			&& BX(this.menuButtonNodeId)
-		)
-		{
-			var sonetGroupMenu = BX.SocialnetworkUICommon.SonetGroupMenu.getInstance();
-			sonetGroupMenu.favoritesValue = this.favoritesValue;
+	            if (main_core.Type.isStringFilled(data.NAME) && main_core.Type.isStringFilled(data.URL)) {
+	              main_core_events.EventEmitter.emit('BX.Socialnetwork.WorkgroupFavorites:onSet', new main_core_events.BaseEvent({
+	                compatData: [{
+	                  id: _this2.groupId,
+	                  name: data.NAME,
+	                  url: data.URL,
+	                  extranet: main_core.Type.isStringFilled(data.EXTRANET) ? data.EXTRANET : 'N'
+	                }, newValue]
+	              }));
+	            }
+	          },
+	          failure: function failure(data) {
+	            _this2.setValue(currentValue);
 
-			BX.bind(BX(this.menuButtonNodeId), 'click', BX.delegate(function(event) {
+	            sonetGroupMenu.favoritesValue = currentValue;
+	            sonetGroupMenu.setItemTitle(currentValue);
 
-				BX.SocialnetworkUICommon.showGroupMenuPopup({
-					bindElement: BX(this.menuButtonNodeId),
-					groupId: this.groupId,
-					groupType: this.groupType,
-					userIsMember: this.userIsMember,
-					userIsAutoMember: this.userIsAutoMember,
-					userRole: this.userRole,
-					editFeaturesAllowed: this.editFeaturesAllowed,
-					isProject: this.isProject,
-					isOpened: this.isOpened,
-					perms: {
-						canInitiate: this.canInitiate,
-						canProcessRequestsIn: this.canProcessRequestsIn,
-						canModify: this.canModify
-					},
-					urls: {
-						requestUser: BX.message('SGCSPathToRequestUser'),
-						edit: BX.message('SGCSPathToEdit'),
-						delete: BX.message('SGCSPathToDelete'),
-						features: BX.message('SGCSPathToFeatures'),
-						members: BX.message('SGCSPathToMembers'),
-						requests: BX.message('SGCSPathToRequests'),
-						requestsOut: BX.message('SGCSPathToRequestsOut'),
-						userRequestGroup: BX.message('SGCSPathToUserRequestGroup'),
-						userLeaveGroup: BX.message('SGCSPathToUserLeaveGroup'),
-						copy: BX.message('SGCSPathToCopy')
-					}
-				});
+	            if (main_core.Type.isStringFilled(data.ERROR)) {
+	              WorkgroupCardUtil.processAJAXError(data.ERROR);
+	            }
 
-				event.preventDefault();
-			}, this));
-		}
+	            _this2.switch(targetNode, currentValue);
+	          }
+	        }
+	      });
+	      event.preventDefault();
+	    }
+	  }, {
+	    key: "switch",
+	    value: function _switch(node, active) {
+	      if (!main_core.Type.isDomNode(node) || !main_core.Type.isPlainObject(this.styles) || !main_core.Type.isStringFilled(this.styles.activeSwitch)) {
+	        return;
+	      }
 
-		BX.addCustomEvent('SidePanel.Slider:onMessage', BX.delegate(function(event){
-			if (event.getEventId() == 'sonetGroupEvent')
-			{
-				var eventData = event.getData();
-				if (
-					BX.type.isNotEmptyString(eventData.code)
-					&& typeof eventData.data != 'undefined'
-				)
-				{
-					if (
-						eventData.code == 'afterEdit'
-						&& typeof eventData.data.group != 'undefined'
-						&& parseInt(eventData.data.group.ID) == this.groupId
-					)
-					{
-						BX.SocialnetworkUICommon.reload();
-					}
-					else if (
-						BX.util.in_array(eventData.code, [ 'afterDelete', 'afterLeave' ])
-						&& typeof eventData.data.groupId != 'undefined'
-						&& parseInt(eventData.data.groupId) == this.groupId
-					)
-					{
-						if (window !== top.window) // frame
-						{
-							top.BX.SidePanel.Instance.getSliderByWindow(window).close();
-						}
-						top.location.href = this.urls.groupsList;
-					}
-				}
-			}
-		}, this));
+	      if (active) {
+	        node.classList.add(this.styles.activeSwitch);
+	      } else {
+	        node.classList.remove(this.styles.activeSwitch);
+	      }
+	    }
+	  }]);
+	  return WorkgroupCardFavorites;
+	}();
 
-		BX.addCustomEvent(window, "BX.Socialnetwork.WorkgroupMenu:onSetFavorites", BX.delegate(function(eventParams) {
-			this.favoritesValue = eventParams.value;
-			if (eventParams.groupId = this.groupId)
-			{
-				var targetNode = BX.findChild(BX(this.containerNodeId), {
-					className: this.styles.fav.switch
-				}, true);
+	function _templateObject$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"sonet-sgm-notify-hint-content\" style=\"display: none;\"><span id=\"sgm_notify_hint_text\">", "</span></div>"]);
 
-				this.switchFavorites(targetNode, eventParams.value)
-			}
-		}, this));
-	},
+	  _templateObject$1 = function _templateObject() {
+	    return data;
+	  };
 
-	setSubscribe: function()
-	{
-		var action = (!BX.hasClass(this.subscribeButtonNodeId, "ui-btn-active") ? "set" : "unset");
-		this.switchSubscribe(this.subscribeButtonNodeId, (action == 'set'));
-
-		BX.ajax({
-			url: '/bitrix/components/bitrix/socialnetwork.group_menu/ajax.php',
-			method: 'POST',
-			dataType: 'json',
-			data: {
-				groupID: this.groupId,
-				action: (action == 'set' ? 'set' : 'unset'),
-				sessid: BX.bitrix_sessid()
-			},
-			onsuccess: BX.delegate(function(data) {
-				if (
-					typeof data.SUCCESS != 'undefined'
-					&& data.SUCCESS == "Y"
-				)
-				{
-					var eventData = {
-						code: 'afterSetSubscribe',
-						data: {
-							groupId: this.groupId,
-							value: (data.RESULT == 'Y')
-						}
-					};
-
-					window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', eventData);
-				}
-				else if (BX.type.isNotEmptyString(data.ERROR))
-				{
-					this.switchSubscribe(this.subscribeButtonNodeId, !(action == 'set'));
-					this.processAJAXError(data.ERROR);
-				}
-			}, this),
-			onerror: BX.delegate(function(data) {
-				this.switchSubscribe(this.subscribeButtonNodeId, !(action == 'set'));
-			}, this)
-		});
-	},
-
-	setFavorites: function(event)
-	{
-		var _this = this;
-
-		var currentValue = _this.favoritesValue;
-		var newValue = !currentValue;
-		var sonetGroupMenu = BX.SocialnetworkUICommon.SonetGroupMenu.getInstance();
-
-		_this.favoritesValue = newValue;
-
-		sonetGroupMenu.favoritesValue = newValue;
-		sonetGroupMenu.setItemTitle(newValue);
-
-		var targetNode = (
-			BX.hasClass(BX.getEventTarget(event), 'socialnetwork-group-fav-switch') // star block
-				? BX.getEventTarget(event)
-				: null
-		);
-
-		if (!targetNode)
-		{
-			targetNode = BX.findChild(BX(this.containerNodeId), {
-				className: this.styles.fav.switch
-			}, true);
-		}
-
-		if (targetNode)
-		{
-			BX.delegate(function() {
-				this.switchFavorites(targetNode, newValue)
-			}, _this)();
-		}
-
-		BX.SocialnetworkUICommon.setFavoritesAjax({
-			groupId: _this.groupId,
-			favoritesValue: currentValue,
-			callback: {
-				success: function(data) {
-
-					var eventData = {
-						code: 'afterSetFavorites',
-						data: {
-							groupId: data.ID,
-							value: (data.RESULT == 'Y')
-						}
-					};
-					window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', eventData);
-
-					if (
-						typeof data.NAME != 'undefined'
-						&& typeof data.URL != 'undefined'
-					)
-					{
-						BX.onCustomEvent(window, 'BX.Socialnetwork.WorkgroupFavorites:onSet', [{
-							id: _this.groupId,
-							name: data.NAME,
-							url: data.URL,
-							extranet: (typeof data.EXTRANET != 'undefined' ? data.EXTRANET : 'N')
-						}, newValue]);
-					}
-				},
-				failure: function(data) {
-
-					_this.favoritesValue = currentValue;
-					sonetGroupMenu.favoritesValue = currentValue;
-					sonetGroupMenu.setItemTitle(currentValue);
-
-					if (BX.type.isNotEmptyString(data.ERROR))
-					{
-						_this.processAJAXError(data.ERROR);
-					}
-
-					BX.delegate(function() {
-						_this.switchFavorites(targetNode, currentValue)
-					}, _this);
-				}
-			}
-		});
-
-		event.preventDefault();
-	},
-
-	switchFavorites: function(node, active)
-	{
-		if (
-			BX(node)
-			&& typeof this.styles.fav != 'undefined'
-			&& BX.type.isNotEmptyString(this.styles.fav.activeSwitch)
-		)
-		{
-			if (active)
-			{
-				BX.addClass(BX(node), this.styles.fav.activeSwitch);
-			}
-			else
-			{
-				BX.removeClass(BX(node), this.styles.fav.activeSwitch);
-			}
-		}
-	},
-
-	switchSubscribe: function(node, active)
-	{
-		if (BX(node))
-		{
-			if (!!active)
-			{
-				BX.addClass(BX(node), 'ui-btn-active');
-				BX.removeClass(BX(node), 'ui-btn-icon-follow');
-				BX.addClass(BX(node), 'ui-btn-icon-unfollow');
-				BX(node).innerHTML = BX.message('SGCSSubscribeTitleY');
-
-				this.showNotifyHint(BX(node), BX.message('SGCSSubscribeButtonHintOn'));
-			}
-			else
-			{
-				BX.removeClass(BX(node), 'ui-btn-active');
-				BX.removeClass(BX(node), 'ui-btn-icon-unfollow');
-				BX.addClass(BX(node), 'ui-btn-icon-follow');
-				BX(node).innerHTML = BX.message('SGCSSubscribeTitleN');
-
-				this.showNotifyHint(BX(node), BX.message('SGCSSubscribeButtonHintOff'));
-			}
-		}
-	},
-
-	processAJAXError: function(errorCode)
-	{
-		var _this = this;
-
-		if (errorCode.indexOf("SESSION_ERROR", 0) === 0)
-		{
-			_this.showError(BX.message('SGMErrorSessionWrong'));
-			return false;
-		}
-		else if (errorCode.indexOf("CURRENT_USER_NOT_AUTH", 0) === 0)
-		{
-			_this.showError(BX.message('SGMErrorCurrentUserNotAuthorized'));
-			return false;
-		}
-		else if (errorCode.indexOf("SONET_MODULE_NOT_INSTALLED", 0) === 0)
-		{
-			_this.showError(BX.message('SGMErrorModuleNotInstalled'));
-			return false;
-		}
-		else
-		{
-			_this.showError(errorCode);
-			return false;
-		}
-	},
-
-	showWait : function(timeout)
-	{
-		var _this = this;
-
-		if (timeout !== 0)
-		{
-			return (_this.waitTimeout = setTimeout(function(){
-				_this.showWait(0)
-			}, 300));
-		}
-
-		if (!_this.waitPopup)
-		{
-			_this.waitPopup = new BX.PopupWindow('socialnetwork-group-wait', window, {
-				autoHide: true,
-				lightShadow: true,
-				zIndex: 2,
-				content: BX.create('DIV', {
-					props: {
-						className: 'socialnetwork-group-wait-cont'
-					},
-					children: [
-						BX.create('DIV', {
-							props: {
-								className: 'socialnetwork-group-wait-icon'
-							}
-						}),
-						BX.create('DIV', {
-							props: {
-								className: 'socialnetwork-group-wait-text'
-							},
-							html: BX.message('SGCSWaitTitle')
-						})
-					]
-				})
-			});
-		}
-		else
-		{
-			_this.waitPopup.setBindElement(window);
-		}
-
-		_this.waitPopup.show();
-	},
-
-	closeWait: function()
-	{
-		if (this.waitTimeout)
-		{
-			clearTimeout(this.waitTimeout);
-			this.waitTimeout = null;
-		}
-
-		if (this.waitPopup)
-		{
-			this.waitPopup.close();
-		}
-	},
-
-	showNotifyHint: function(el, hint_text)
-	{
-		var _this = this;
-
-		if (_this.notifyHintTimeout)
-		{
-			clearTimeout(_this.notifyHintTimeout);
-			_this.notifyHintTimeout = null;
-		}
-
-		if (_this.notifyHintPopup == null)
-		{
-			_this.notifyHintPopup = new BX.PopupWindow('sgm_notify_hint', el, {
-				autoHide: true,
-				lightShadow: true,
-				zIndex: 2,
-				content: BX.create('DIV', {
-					props: {
-						className: 'sonet-sgm-notify-hint-content'
-					},
-					style: {
-						display: 'none'
-					},
-					children: [
-						BX.create('SPAN', {
-							props: {
-								id: 'sgm_notify_hint_text'
-							},
-							html: hint_text
-						})
-					]
-				}),
-				closeByEsc: true,
-				closeIcon: false,
-				offsetLeft: 21,
-				offsetTop: 2
-			});
-
-			_this.notifyHintPopup.TEXT = BX('sgm_notify_hint_text');
-			_this.notifyHintPopup.setBindElement(el);
-		}
-		else
-		{
-			_this.notifyHintPopup.TEXT.innerHTML = hint_text;
-			_this.notifyHintPopup.setBindElement(el);
-		}
-
-		_this.notifyHintPopup.setAngle({});
-		_this.notifyHintPopup.show();
-
-		_this.notifyHintTimeout = setTimeout(function() {
-			_this.notifyHintPopup.close();
-		}, _this.notifyHintTime);
-	},
-
-	showError: function(errorText)
-	{
-		this.closeWait();
-
-		var errorPopup = new BX.PopupWindow('sgm-error' + Math.random(), window, {
-			autoHide: true,
-			lightShadow: false,
-			zIndex: 2,
-			content: BX.create('DIV', {props: {'className': 'sonet-sgm-error-text-block'}, html: errorText}),
-			closeByEsc: true,
-			closeIcon: true
-		});
-		errorPopup.show();
-	},
-
-	clickTag: function(tagValue)
-	{
-		if (tagValue.length > 0)
-		{
-			top.location.href = BX.message('SGCSPathToGroupTag').replace('#tag#', tagValue);
-		}
-	},
-
-	clickUser: function(userId)
-	{
-		if (parseInt(userId) > 0)
-		{
-			top.location.href = BX.message('SGCSPathToUserProfile').replace('#user_id#', userId);
-		}
+	  return data;
 	}
 
-};
+	var WorkgroupCardSubscription = /*#__PURE__*/function () {
+	  function WorkgroupCardSubscription(params) {
+	    var _this = this;
 
-})();
+	    babelHelpers.classCallCheck(this, WorkgroupCardSubscription);
+	    this.groupId = parseInt(params.groupId);
+	    this.buttonNode = params.buttonNode;
+	    this.notifyHintTimeout = null;
+	    this.notifyHintPopup = null;
+	    this.notifyHintTime = 3000;
+
+	    if (this.buttonNode) {
+	      this.buttonNode.addEventListener('click', function () {
+	        _this.set();
+	      }, true);
+	    }
+	  }
+
+	  babelHelpers.createClass(WorkgroupCardSubscription, [{
+	    key: "set",
+	    value: function set() {
+	      var _this2 = this;
+
+	      var action = !this.buttonNode.classList.contains('ui-btn-active') ? 'set' : 'unset';
+	      this.switch(this.buttonNode, action === 'set');
+	      main_core.ajax.runAction('socialnetwork.api.workgroup.setSubscription', {
+	        data: {
+	          params: {
+	            groupId: this.groupId,
+	            value: action === 'set' ? 'Y' : 'N'
+	          }
+	        }
+	      }).then(function (data) {
+	        var eventData = {
+	          code: 'afterSetSubscribe',
+	          data: {
+	            groupId: _this2.groupId,
+	            value: data.RESULT == 'Y'
+	          }
+	        };
+	        window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', eventData);
+	      }).catch(function (response) {
+	        _this2.switch(_this2.buttonNode, !(action === 'set'));
+
+	        WorkgroupCardUtil.processAJAXError(response.errors[0].message);
+	      });
+	    }
+	  }, {
+	    key: "switch",
+	    value: function _switch(node, active) {
+	      if (!main_core.Type.isDomNode(node)) {
+	        return;
+	      }
+
+	      if (!!active) {
+	        node.classList.add('ui-btn-active');
+	        node.classList.remove('ui-btn-icon-follow');
+	        node.classList.add('ui-btn-icon-unfollow');
+	        node.innerHTML = main_core.Loc.getMessage('SGCSSubscribeTitleY');
+	        this.showNotifyHint(node, main_core.Loc.getMessage('SGCSSubscribeButtonHintOn'));
+	      } else {
+	        node.classList.remove('ui-btn-active');
+	        node.classList.add('ui-btn-icon-follow');
+	        node.classList.remove('ui-btn-icon-unfollow');
+	        node.innerHTML = main_core.Loc.getMessage('SGCSSubscribeTitleN');
+	        this.showNotifyHint(node, main_core.Loc.getMessage('SGCSSubscribeButtonHintOff'));
+	      }
+	    }
+	  }, {
+	    key: "showNotifyHint",
+	    value: function showNotifyHint(node, hintText) {
+	      var _this3 = this;
+
+	      if (this.notifyHintTimeout) {
+	        clearTimeout(this.notifyHintTimeout);
+	        this.notifyHintTimeout = null;
+	      }
+
+	      if (main_core.Type.isNull(this.notifyHintPopup)) {
+	        this.notifyHintPopup = new main_popup.Popup('sgm_notify_hint', node, {
+	          autoHide: true,
+	          lightShadow: true,
+	          zIndex: 2,
+	          content: main_core.Tag.render(_templateObject$1(), hintText),
+	          closeByEsc: true,
+	          closeIcon: false,
+	          offsetLeft: 21,
+	          offsetTop: 2
+	        });
+	        this.notifyHintPopup.TEXT = document.getElementById('sgm_notify_hint_text');
+	        this.notifyHintPopup.setBindElement(node);
+	      } else {
+	        this.notifyHintPopup.TEXT.innerHTML = hintText;
+	        this.notifyHintPopup.setBindElement(node);
+	      }
+
+	      this.notifyHintPopup.setAngle({});
+	      this.notifyHintPopup.show();
+	      this.notifyHintTimeout = setTimeout(function () {
+	        _this3.notifyHintPopup.close();
+	      }, this.notifyHintTime);
+	    }
+	  }]);
+	  return WorkgroupCardSubscription;
+	}();
+
+	var WorkgroupCard = /*#__PURE__*/function () {
+	  function WorkgroupCard() {
+	    babelHelpers.classCallCheck(this, WorkgroupCard);
+	    this.instance = null;
+	    this.currentUserId = null;
+	    this.userRole = null;
+	    this.canInitiate = null;
+	    this.canModify = null;
+	    this.groupId = null;
+	    this.isProject = null;
+	    this.styles = null;
+	    this.urls = null;
+	    this.containerNode = null;
+	    this.menuButtonNode = null;
+	    this.editFeaturesAllowed = true;
+	    this.favoritesInstance = null;
+	  }
+
+	  babelHelpers.createClass(WorkgroupCard, [{
+	    key: "init",
+	    value: function init(params) {
+	      var _this = this;
+
+	      if (main_core.Type.isUndefined(params) || main_core.Type.isUndefined(params.groupId) || parseInt(params.groupId) <= 0) {
+	        return;
+	      }
+
+	      this.currentUserId = parseInt(params.currentUserId);
+	      this.groupId = parseInt(params.groupId);
+	      this.groupType = params.groupType;
+	      this.isProject = !!params.isProject;
+	      this.isOpened = !!params.isOpened;
+	      this.canInitiate = !!params.canInitiate;
+	      this.canProcessRequestsIn = !!params.canProcessRequestsIn;
+	      this.canModify = !!params.canModify;
+	      this.userRole = params.userRole;
+	      this.userIsMember = !!params.userIsMember;
+	      this.userIsAutoMember = !!params.userIsAutoMember;
+	      this.containerNode = main_core.Type.isStringFilled(params.containerNodeId) ? document.getElementById(params.containerNodeId) : null;
+	      this.menuButtonNode = main_core.Type.isStringFilled(params.menuButtonNodeId) ? document.getElementById(params.menuButtonNodeId) : null;
+	      this.editFeaturesAllowed = !main_core.Type.isUndefined(params.editFeaturesAllowed) ? !!params.editFeaturesAllowed : true;
+	      this.favoritesInstance = new WorkgroupCardFavorites({
+	        groupId: this.groupId,
+	        value: !!params.favoritesValue,
+	        containerNode: this.containerNode,
+	        styles: params.styles.fav
+	      });
+	      this.subscriptionInstance = new WorkgroupCardSubscription({
+	        groupId: this.groupId,
+	        buttonNode: main_core.Type.isStringFilled(params.subscribeButtonNodeId) ? document.getElementById(params.subscribeButtonNodeId) : null
+	      });
+
+	      if (this.containerNode && main_core.Type.isPlainObject(params.styles)) {
+	        this.styles = params.styles;
+
+	        if (main_core.Type.isPlainObject(params.styles.tags) && main_core.Type.isStringFilled(params.styles.tags.box)) {
+	          this.containerNode.querySelectorAll(".".concat(params.styles.tags.box)).forEach(function (node) {
+	            node.addEventListener('click', function (e) {
+	              var tagValue = e.target.getAttribute('bx-tag-value');
+
+	              if (main_core.Type.isStringFilled(tagValue)) {
+	                _this.clickTag(tagValue);
+	              }
+
+	              e.preventDefault();
+	            }, true);
+	          });
+	        }
+
+	        if (main_core.Type.isPlainObject(params.styles.users) && main_core.Type.isStringFilled(params.styles.users.box) && main_core.Type.isStringFilled(params.styles.users.item)) {
+	          this.containerNode.querySelectorAll(".".concat(params.styles.users.box)).forEach(function (node) {
+	            node.addEventListener('click', function (e) {
+	              var userNode = e.target;
+
+	              if (!userNode.hasAttribute('bx-user-id')) {
+	                userNode = userNode.closest(".".concat(params.styles.users.item));
+	              }
+
+	              var userId = userNode.getAttribute('bx-user-id');
+
+	              if (parseInt(userId) > 0) {
+	                _this.clickUser(userId);
+	              }
+
+	              e.preventDefault();
+	            }, true);
+	          });
+	        }
+	      }
+
+	      if (main_core.Type.isPlainObject(params.urls)) {
+	        this.urls = params.urls;
+	      }
+
+	      if (main_core.Type.isDomNode(this.menuButtonNode)) {
+	        var sonetGroupMenu = BX.SocialnetworkUICommon.SonetGroupMenu.getInstance();
+	        sonetGroupMenu.favoritesValue = this.favoritesInstance.getValue();
+	        this.menuButtonNode.addEventListener('click', function () {
+	          BX.SocialnetworkUICommon.showGroupMenuPopup({
+	            bindElement: _this.menuButtonNode,
+	            groupId: _this.groupId,
+	            groupType: _this.groupType,
+	            userIsMember: _this.userIsMember,
+	            userIsAutoMember: _this.userIsAutoMember,
+	            userRole: _this.userRole,
+	            editFeaturesAllowed: _this.editFeaturesAllowed,
+	            isProject: _this.isProject,
+	            isOpened: _this.isOpened,
+	            perms: {
+	              canInitiate: _this.canInitiate,
+	              canProcessRequestsIn: _this.canProcessRequestsIn,
+	              canModify: _this.canModify
+	            },
+	            urls: {
+	              requestUser: main_core.Loc.getMessage('SGCSPathToRequestUser'),
+	              edit: main_core.Loc.getMessage('SGCSPathToEdit'),
+	              delete: main_core.Loc.getMessage('SGCSPathToDelete'),
+	              features: main_core.Loc.getMessage('SGCSPathToFeatures'),
+	              members: main_core.Loc.getMessage('SGCSPathToMembers'),
+	              requests: main_core.Loc.getMessage('SGCSPathToRequests'),
+	              requestsOut: main_core.Loc.getMessage('SGCSPathToRequestsOut'),
+	              userRequestGroup: main_core.Loc.getMessage('SGCSPathToUserRequestGroup'),
+	              userLeaveGroup: main_core.Loc.getMessage('SGCSPathToUserLeaveGroup'),
+	              copy: main_core.Loc.getMessage('SGCSPathToCopy')
+	            }
+	          });
+	        }, true);
+	      }
+
+	      main_core_events.EventEmitter.subscribe('SidePanel.Slider:onMessage', this.onSliderMessage.bind(this));
+	    }
+	  }, {
+	    key: "clickTag",
+	    value: function clickTag(tagValue) {
+	      if (!main_core.Type.isStringFilled(tagValue.length)) {
+	        return;
+	      }
+
+	      top.location.href = main_core.Loc.getMessage('SGCSPathToGroupTag').replace('#tag#', tagValue);
+	    }
+	  }, {
+	    key: "clickUser",
+	    value: function clickUser(userId) {
+	      if (parseInt(userId) <= 0) {
+	        return;
+	      }
+
+	      top.location.href = main_core.Loc.getMessage('SGCSPathToUserProfile').replace('#user_id#', userId);
+	    }
+	  }, {
+	    key: "onSliderMessage",
+	    value: function onSliderMessage(event) {
+	      var _event$getCompatData = event.getCompatData(),
+	          _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
+	          sliderEvent = _event$getCompatData2[0];
+
+	      if (sliderEvent.getEventId() !== 'sonetGroupEvent') {
+	        return;
+	      }
+
+	      var eventData = sliderEvent.getData();
+
+	      if (!main_core.Type.isStringFilled(eventData.code) || !main_core.Type.isPlainObject(eventData.data)) {
+	        return;
+	      }
+
+	      if (eventData.code === 'afterEdit' && main_core.Type.isPlainObject(eventData.data.group) && parseInt(eventData.data.group.ID) === this.groupId) {
+	        BX.SocialnetworkUICommon.reload();
+	      } else if (['afterDelete', 'afterLeave'].includes(eventData.code) && !main_core.Type.isUndefined(eventData.data.groupId) && parseInt(eventData.data.groupId) === this.groupId) {
+	        if (window !== top.window) // frame
+	          {
+	            top.BX.SidePanel.Instance.getSliderByWindow(window).close();
+	          }
+
+	        top.location.href = this.urls.groupsList;
+	      }
+	    }
+	  }]);
+	  return WorkgroupCard;
+	}();
+
+	exports.WorkgroupCard = WorkgroupCard;
+
+}((this.BX.Socialnetwork = this.BX.Socialnetwork || {}),BX.Event,BX,BX.Main));
+//# sourceMappingURL=script.js.map

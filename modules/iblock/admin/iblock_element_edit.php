@@ -924,7 +924,7 @@ do{ //one iteration loop
 						$arDETAIL_PICTURE["COPY_FILE"] = "Y";
 
 					$arFields = array(
-						"ACTIVE" => (isset($_POST["ACTIVE"]) ? $_POST["ACTIVE"] : 'N'),
+						"ACTIVE" => ($_POST["ACTIVE"] ?? 'N'),
 						"MODIFIED_BY" => $USER->GetID(),
 						"IBLOCK_ID" => $IBLOCK_ID,
 						"ACTIVE_FROM" => $_POST["ACTIVE_FROM"],
@@ -946,11 +946,19 @@ do{ //one iteration loop
 					if(isset($_POST["IBLOCK_SECTION"]) && is_array($_POST["IBLOCK_SECTION"]))
 					{
 						$arFields["IBLOCK_SECTION"] = $_POST["IBLOCK_SECTION"];
+						Main\Type\Collection::normalizeArrayValuesByInt($arFields["IBLOCK_SECTION"], true);
 					}
 
 					if($arIBlock["FIELDS"]["IBLOCK_SECTION"]["DEFAULT_VALUE"]["KEEP_IBLOCK_SECTION_ID"] === "Y")
 					{
 						$arFields["IBLOCK_SECTION_ID"] = intval($_POST["IBLOCK_ELEMENT_SECTION_ID"]);
+						if (
+							!empty($arFields["IBLOCK_SECTION"])
+							&& !in_array($arFields["IBLOCK_SECTION_ID"], $arFields["IBLOCK_SECTION"])
+						)
+						{
+							$arFields["IBLOCK_SECTION_ID"] = min($arFields["IBLOCK_SECTION"]);
+						}
 					}
 
 					if(COption::GetOptionString("iblock", "show_xml_id")=="Y" && is_set($_POST, "XML_ID"))

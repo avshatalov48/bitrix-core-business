@@ -2,20 +2,19 @@
 	position: relative;
 	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
 	font-size: 15px;
-	color: #000;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
 }
 
-.landing-ui-field-dropdown::after {
+.landing-ui-field-dropdown .landing-ui-field-input::after {
 	position: absolute;
 	content: '';
 	width: 8px;
 	height: 8px;
 	right: 10px;
-	top: 68%;
+	top: 50%;
 	transform: translate3d(-50%, -50%, 0) rotate(135deg);
 	transform-origin: center center;
 	border-top: 2px #535C69 solid;
@@ -28,8 +27,10 @@
 }
 
 .landing-ui-field-dropdown .landing-ui-field-input {
+	color: #000;
 	background: #ffffff;
 	cursor: pointer;
+	position: relative;
 }
 
 .landing-ui-field-dropdown-sep {

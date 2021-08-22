@@ -1,6 +1,5 @@
 this.BX = this.BX || {};
-this.BX.Im = this.BX.Im || {};
-(function (exports,ui_forms,im_view_element_attach,im_view_element_keyboard,ui_vue,main_core,ui_vue_vuex,im_lib_logger,ui_vue_portal,im_view_popup,main_popup,im_lib_utils,im_const,im_lib_timer,main_core_events) {
+(function (exports,im_lib_animation,ui_forms,im_view_element_attach,im_view_element_keyboard,ui_vue,main_core,ui_vue_vuex,im_lib_logger,ui_vue_portal,im_view_popup,main_popup,im_lib_utils,im_const,im_lib_timer,main_core_events) {
 	'use strict';
 
 	var NotificationQuickAnswer = {
@@ -74,12 +73,12 @@ this.BX.Im = this.BX.Im || {};
 	      return this.listItem.params.hasOwnProperty('USERS') && this.listItem.params.USERS.length > 0;
 	    },
 	    isAbleToDelete: function isAbleToDelete() {
-	      return this.listItem.sectionCode === 'notification';
+	      return this.listItem.sectionCode === im_const.NotificationTypesCodes.simple;
 	    }
 	  },
 	  methods: {
 	    onDeleteClick: function onDeleteClick(event) {
-	      if (event.item.sectionCode === 'notification') {
+	      if (event.item.sectionCode === im_const.NotificationTypesCodes.simple) {
 	        this.$emit('deleteClick', event);
 	      }
 	    },
@@ -118,18 +117,16 @@ this.BX.Im = this.BX.Im || {};
 	  props: ['rawListItem', 'searchMode'],
 	  data: function data() {
 	    return {
-	      itemTypes: {
-	        default: 'default',
-	        placeholder: 'placeholder'
-	      },
 	      menuId: 'popup-window-content-bx-messenger-popup-notify'
 	    };
 	  },
 	  computed: {
+	    NotificationTypesCodes: function NotificationTypesCodes() {
+	      return im_const.NotificationTypesCodes;
+	    },
 	    listItem: function listItem() {
 	      return {
 	        id: this.rawListItem.id,
-	        template: this.rawListItem.template,
 	        type: this.rawListItem.type,
 	        sectionCode: this.rawListItem.sectionCode,
 	        authorId: this.rawListItem.authorId,
@@ -154,7 +151,7 @@ this.BX.Im = this.BX.Im || {};
 	      };
 	    },
 	    isRealItem: function isRealItem() {
-	      return this.rawListItem.template === 'item';
+	      return this.rawListItem.sectionCode !== im_const.NotificationTypesCodes.placeholder;
 	    },
 	    isNeedQuickAnswer: function isNeedQuickAnswer() {
 	      return this.listItem.params.CAN_ANSWER && this.listItem.params.CAN_ANSWER === 'Y';
@@ -199,7 +196,7 @@ this.BX.Im = this.BX.Im || {};
 	  methods: {
 	    //events
 	    onDoubleClick: function onDoubleClick(event) {
-	      if (!this.searchMode && event.item.sectionCode === 'notification') {
+	      if (!this.searchMode && event.item.sectionCode === im_const.NotificationTypesCodes.simple) {
 	        this.$emit('dblclick', event);
 	      }
 	    },
@@ -293,7 +290,7 @@ this.BX.Im = this.BX.Im || {};
 	    }
 	  },
 	  //language=Vue
-	  template: "\n\t\t<div \n\t\t\tclass=\"bx-im-notifications-item\"\n\t\t\t:class=\"[listItem.unread && !searchMode ? 'bx-im-notifications-item-unread' : '', 'bx-im-notifications-item']\"\n\t\t\t@dblclick=\"onDoubleClick({item: listItem, event: $event})\"\n\t\t\t@contextmenu=\"onRightClick\"\n\t\t>\n\t\t\t<template v-if=\"listItem.template !== itemTypes.placeholder\">\n\t\t\t\t<div v-if=\"listItem.avatar\" class=\"bx-im-notifications-item-image-wrap\">\n\t\t\t\t\t<div \n\t\t\t\t\t\tv-if=\"listItem.avatar.url\" \n\t\t\t\t\t\tclass=\"bx-im-notifications-item-image\"\n\t\t\t\t\t\t:style=\"avatarStyles\"\n\t\t\t\t\t></div>\n\t\t\t\t\t<div v-else-if=\"listItem.systemType\" class=\"bx-im-notifications-item-image bx-im-notifications-image-system\"></div>\n\t\t\t\t\t<div \n\t\t\t\t\t\tv-else-if=\"!listItem.avatar.url\" \n\t\t\t\t\t\tclass=\"bx-im-notifications-item-image bx-im-notifications-item-image-default\"\n\t\t\t\t\t\t:style=\"{backgroundColor: listItem.avatar.color}\"\n\t\t\t\t\t\t>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-notifications-item-content\" @click=\"onContentClick\">\n\t\t\t\t\t<NotificationItemHeader \n\t\t\t\t\t\t:listItem=\"listItem\"\n\t\t\t\t\t\t@deleteClick=\"onDeleteClick\"\n\t\t\t\t\t\t@moreUsersClick=\"onMoreUsersClick\"\n\t\t\t\t\t/>\n\t\t\t\t\t<div v-if=\"listItem.subtitle.value.length > 0\" class=\"bx-im-notifications-item-content-bottom\">\n\t\t\t\t\t\t<div class=\"bx-im-notifications-item-bottom-subtitle\">\n\t\t\t\t\t\t\t<span v-if=\"!listItem.systemType\" class=\"bx-im-notifications-item-bottom-subtitle-text\" v-html=\"listItem.subtitle.value\"></span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<NotificationQuickAnswer v-if=\"isNeedQuickAnswer\" :listItem=\"listItem\"/>\n\t\t\t\t\t<div v-if=\"listItem.params['ATTACH']\" class=\"bx-im-notifications-item-content-additional\">\n\t\t\t\t\t\t<div v-for=\"attach in listItem.params['ATTACH']\">\n\t\t\t\t\t\t\t<bx-im-view-element-attach :config=\"attach\"/>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div v-if=\"listItem.notifyButtons\">\n\t\t\t\t\t\t<bx-im-view-element-keyboard @click=\"onButtonsClick\" :buttons=\"listItem.notifyButtons\"/>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t\t<NotificationPlaceholder v-else-if=\"listItem.template === itemTypes.placeholder\"/>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div \n\t\t\tclass=\"bx-im-notifications-item\"\n\t\t\t:class=\"[listItem.unread && !searchMode ? 'bx-im-notifications-item-unread' : '']\"\n\t\t\t@dblclick=\"onDoubleClick({item: listItem, event: $event})\"\n\t\t\t@contextmenu=\"onRightClick\"\n\t\t>\n\t\t\t<template v-if=\"listItem.sectionCode !== NotificationTypesCodes.placeholder\">\n\t\t\t\t<div v-if=\"listItem.avatar\" class=\"bx-im-notifications-item-image-wrap\">\n\t\t\t\t\t<div \n\t\t\t\t\t\tv-if=\"listItem.avatar.url\" \n\t\t\t\t\t\tclass=\"bx-im-notifications-item-image\"\n\t\t\t\t\t\t:style=\"avatarStyles\"\n\t\t\t\t\t></div>\n\t\t\t\t\t<div v-else-if=\"listItem.systemType\" class=\"bx-im-notifications-item-image bx-im-notifications-image-system\"></div>\n\t\t\t\t\t<div \n\t\t\t\t\t\tv-else-if=\"!listItem.avatar.url\" \n\t\t\t\t\t\tclass=\"bx-im-notifications-item-image bx-im-notifications-item-image-default\"\n\t\t\t\t\t\t:style=\"{backgroundColor: listItem.avatar.color}\"\n\t\t\t\t\t\t>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-notifications-item-content\" @click=\"onContentClick\">\n\t\t\t\t\t<NotificationItemHeader \n\t\t\t\t\t\t:listItem=\"listItem\"\n\t\t\t\t\t\t@deleteClick=\"onDeleteClick\"\n\t\t\t\t\t\t@moreUsersClick=\"onMoreUsersClick\"\n\t\t\t\t\t/>\n\t\t\t\t\t<div v-if=\"listItem.subtitle.value.length > 0\" class=\"bx-im-notifications-item-content-bottom\">\n\t\t\t\t\t\t<div class=\"bx-im-notifications-item-bottom-subtitle\">\n\t\t\t\t\t\t\t<span v-if=\"!listItem.systemType\" class=\"bx-im-notifications-item-bottom-subtitle-text\" v-html=\"listItem.subtitle.value\"></span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<NotificationQuickAnswer v-if=\"isNeedQuickAnswer\" :listItem=\"listItem\"/>\n\t\t\t\t\t<div v-if=\"listItem.params['ATTACH']\" class=\"bx-im-notifications-item-content-additional\">\n\t\t\t\t\t\t<div v-for=\"attach in listItem.params['ATTACH']\">\n\t\t\t\t\t\t\t<bx-im-view-element-attach :config=\"attach\"/>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div v-if=\"listItem.notifyButtons\">\n\t\t\t\t\t\t<bx-im-view-element-keyboard @click=\"onButtonsClick\" :buttons=\"listItem.notifyButtons\"/>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t\t<NotificationPlaceholder v-else-if=\"listItem.sectionCode === NotificationTypesCodes.placeholder\"/>\n\t\t</div>\n\t"
 	};
 
 	var NotificationCore = {
@@ -316,8 +313,7 @@ this.BX.Im = this.BX.Im || {};
 	      for (var i = 0; i < amount; i++) {
 	        placeholders.push({
 	          id: "placeholder".concat(this.placeholderCount),
-	          templateId: "placeholder".concat(this.placeholderCount),
-	          template: 'placeholder'
+	          type: im_const.NotificationTypesCodes.placeholder
 	        });
 	        this.placeholderCount++;
 	      }
@@ -479,9 +475,9 @@ this.BX.Im = this.BX.Im || {};
 
 	          if (date instanceof Date) {
 	            // compare dates excluding time.
-	            item.date.setHours(0, 0, 0, 0);
-	            date.setHours(0, 0, 0, 0);
-	            result = item.date.getTime() === date.getTime();
+	            var itemDateForCompare = new Date(item.date.getTime()).setHours(0, 0, 0, 0);
+	            var dateFromInput = date.setHours(0, 0, 0, 0);
+	            result = itemDateForCompare === dateFromInput;
 	          }
 	        }
 
@@ -566,6 +562,8 @@ this.BX.Im = this.BX.Im || {};
 	        _this3.searchPageLoaded++;
 	        return _this3.onAfterLoadNextPageRequest();
 	      }).catch(function (result) {
+	        _this3.$store.dispatch('notifications/clearPlaceholders');
+
 	        im_lib_logger.Logger.warn('History request error', result);
 	      });
 	    },
@@ -592,7 +590,7 @@ this.BX.Im = this.BX.Im || {};
 	      };
 
 	      if (BX.parseDate(this.searchDate) instanceof Date) {
-	        params['SEARCH_DATE'] = this.searchDate;
+	        params['SEARCH_DATE'] = BX.parseDate(this.searchDate).toISOString();
 	      }
 
 	      if (this.lastId > 0) {
@@ -607,6 +605,7 @@ this.BX.Im = this.BX.Im || {};
 	      this.lastId = 0;
 	      this.isLoadingNewPage = true;
 	      this.placeholderCount = 0;
+	      this.searchPageLoaded = 0;
 	    },
 	    drawPlaceholders: function drawPlaceholders() {
 	      var amount = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
@@ -724,19 +723,6 @@ this.BX.Im = this.BX.Im || {};
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-	var _ItemTypes = Object.freeze({
-	  confirm: 'confirm',
-	  notification: 'notification'
-	});
-
-	var _ItemTypesCodes = Object.freeze({
-	  confirm: 1,
-	  unreadNotification: 2,
-	  simpleNotification: 3,
-	  placeholder: 4
-	});
-
 	var ObserverType = Object.freeze({
 	  read: 'read',
 	  none: 'none'
@@ -796,11 +782,13 @@ this.BX.Im = this.BX.Im || {};
 	      pagesRequested: 0,
 	      pagesLoaded: 0,
 	      lastId: 0,
-	      lastType: 1,
-	      //confirm
+	      lastType: im_const.NotificationTypesCodes.confirm,
 	      ObserverType: ObserverType,
+	      notificationsOnScreen: [],
 	      notificationsToRead: [],
+	      notificationsToDelete: [],
 	      changeReadStatusBlockTimeout: {},
+	      firstUnreadNotificationOnInit: null,
 	      contentPopupType: '',
 	      contentPopupValue: '',
 	      popupInstance: null,
@@ -814,11 +802,8 @@ this.BX.Im = this.BX.Im || {};
 	    };
 	  },
 	  computed: babelHelpers.objectSpread({
-	    ItemTypes: function ItemTypes() {
-	      return _ItemTypes;
-	    },
-	    ItemTypesCodes: function ItemTypesCodes() {
-	      return _ItemTypesCodes;
+	    NotificationTypesCodes: function NotificationTypesCodes() {
+	      return im_const.NotificationTypesCodes;
 	    },
 	    remainingPages: function remainingPages() {
 	      return Math.ceil((this.total - this.notification.length) / this.perPage);
@@ -840,7 +825,7 @@ this.BX.Im = this.BX.Im || {};
 	      var isNeedToReadAll = false;
 
 	      for (var index = 0; this.notification.length > index; index++) {
-	        if (this.notification[index].sectionCode !== 'confirm' && this.notification[index].unread === true) {
+	        if (this.notification[index].sectionCode !== im_const.NotificationTypesCodes.confirm && this.notification[index].unread === true) {
 	          isNeedToReadAll = true;
 	          break;
 	        }
@@ -849,7 +834,7 @@ this.BX.Im = this.BX.Im || {};
 	      return isNeedToReadAll;
 	    },
 	    panelStyles: function panelStyles() {
-	      if (this.callViewState === BX.Call.Controller.ViewState.Folded) {
+	      if (this.callViewState === BX.Call.Controller.ViewState.Folded && !this.showSearch) {
 	        return {
 	          paddingBottom: '60px' // height of .bx-messenger-videocall-panel-folded
 
@@ -857,6 +842,137 @@ this.BX.Im = this.BX.Im || {};
 	      }
 
 	      return {};
+	    },
+	    filterBoxStyles: function filterBoxStyles() {
+	      if (this.callViewState === BX.Call.Controller.ViewState.Folded && this.showSearch) {
+	        return {
+	          paddingTop: '70px' // height of .bx-messenger-videocall-panel-folded + 10px for space
+
+	        };
+	      }
+
+	      return {};
+	    },
+	    firstUnreadNotification: function firstUnreadNotification() {
+	      var unreadNotification = null;
+	      var maxNotificationIndex = this.notification.length - 1;
+
+	      for (var i = 0; i <= maxNotificationIndex; i++) {
+	        if (this.notification[i].unread && this.notification[i].sectionCode !== im_const.NotificationTypesCodes.placeholder) {
+	          unreadNotification = this.notification[i];
+	          break;
+	        }
+	      }
+
+	      return unreadNotification;
+	    },
+	    firstUnreadNotificationBelowVisible: function firstUnreadNotificationBelowVisible() {
+	      var minIdOnScreen = Math.max.apply(Math, babelHelpers.toConsumableArray(this.notificationsOnScreen));
+	      var unreadId = null;
+	      var maxNotificationIndex = this.notification.length - 1;
+
+	      for (var i = 0; i <= maxNotificationIndex; i++) {
+	        if (this.notification[i].unread && minIdOnScreen > this.notification[i].id && this.notification[i].sectionCode === im_const.NotificationTypesCodes.simple) {
+	          unreadId = this.notification[i].id;
+	          break;
+	        }
+	      }
+
+	      return unreadId;
+	    },
+	    isUnreadNotificationVisible: function isUnreadNotificationVisible() {
+	      var _this = this;
+
+	      var unreadOnScreen = Array.from(this.notificationsOnScreen).filter(function (idOnScreen) {
+	        var notificationOnScreen = _this.$store.getters['notifications/getById'](idOnScreen);
+
+	        return notificationOnScreen ? notificationOnScreen.unread : false;
+	      });
+	      return unreadOnScreen.length > 0;
+	    },
+	    showScrollButton: function showScrollButton() {
+	      if (!this.initialDataReceived) {
+	        return false;
+	      }
+
+	      if (this.unreadCounter <= 0 || !BXIM.settings.notifyAutoRead) {
+	        return false;
+	      }
+
+	      if (this.notificationsOnScreen.length === 0) {
+	        return false;
+	      }
+
+	      if (this.isUnreadNotificationVisible) {
+	        return false;
+	      }
+
+	      return true;
+	    },
+	    hasUnreadBelowVisible: function hasUnreadBelowVisible() {
+	      var unreadCounterBeforeVisible = 0;
+
+	      for (var i = 0; i <= this.notification.length - 1; i++) {
+	        if (this.notification[i].unread && this.notification[i].sectionCode !== im_const.NotificationTypesCodes.placeholder) {
+	          ++unreadCounterBeforeVisible;
+	        } // In this case we decide that there is no more unread notifications below visible notifications,
+	        // so we show arrow up on scroll button.
+
+
+	        if (this.notificationsOnScreen.includes(this.notification[i].id) && this.unreadCounter === unreadCounterBeforeVisible) {
+	          return false;
+	        }
+	      }
+
+	      return true;
+	    },
+	    arrowButtonClass: function arrowButtonClass() {
+	      var arrowUp = !this.hasUnreadBelowVisible;
+	      return {
+	        'bx-im-notifications-scroll-button-arrow-down': !arrowUp,
+	        'bx-im-notifications-scroll-button-arrow-up': arrowUp,
+	        'bx-im-notifications-scroll-button-arrow': true
+	      };
+	    },
+	    filterTypes: function filterTypes() {
+	      var originalSchema = Object.assign({}, this.schema); // get rid of some subcategories
+
+	      var modulesToReduceListItems = ['timeman', 'mail', 'disk', 'bizproc', 'voximplant', 'sender', 'blog', 'vote', 'socialnetwork', 'imopenlines', 'photogallery', 'intranet', 'forum'];
+	      modulesToReduceListItems.forEach(function (moduleId) {
+	        if (originalSchema.hasOwnProperty(moduleId)) {
+	          delete originalSchema[moduleId].LIST;
+	        }
+	      }); // rename some groups
+
+	      if (originalSchema.hasOwnProperty('calendar')) {
+	        originalSchema['calendar'].NAME = this.localize['IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_CALENDAR'];
+	      }
+
+	      if (originalSchema.hasOwnProperty('sender')) {
+	        originalSchema['sender'].NAME = this.localize['IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_SENDER'];
+	      }
+
+	      if (originalSchema.hasOwnProperty('blog')) {
+	        originalSchema['blog'].NAME = this.localize['IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_BLOG'];
+	      }
+
+	      if (originalSchema.hasOwnProperty('socialnetwork')) {
+	        originalSchema['socialnetwork'].NAME = this.localize['IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_SOCIALNETWORK'];
+	      }
+
+	      if (originalSchema.hasOwnProperty('intranet')) {
+	        originalSchema['intranet'].NAME = this.localize['IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_INTRANET'];
+	      } // we need only this modules in this order!
+
+
+	      var modulesToShowInFilter = ['tasks', 'calendar', 'crm', 'timeman', 'mail', 'disk', 'bizproc', 'voximplant', 'sender', 'blog', 'vote', 'socialnetwork', 'imopenlines', 'photogallery', 'intranet', 'forum'];
+	      var notificationFilterTypes = [];
+	      modulesToShowInFilter.forEach(function (moduleId) {
+	        if (originalSchema.hasOwnProperty(moduleId)) {
+	          notificationFilterTypes.push(originalSchema[moduleId]);
+	        }
+	      });
+	      return notificationFilterTypes;
 	    }
 	  }, ui_vue_vuex.Vuex.mapState({
 	    notification: function notification(state) {
@@ -873,10 +989,10 @@ this.BX.Im = this.BX.Im || {};
 	    }
 	  })),
 	  created: function created() {
-	    var _this = this;
+	    var _this2 = this;
 
 	    this.drawPlaceholders().then(function () {
-	      _this.getInitialData();
+	      _this2.getInitialData();
 	    });
 	    main_core_events.EventEmitter.subscribe(im_const.EventType.notification.updateState, this.onUpdateState);
 	    window.addEventListener('focus', this.onWindowFocus);
@@ -888,7 +1004,7 @@ this.BX.Im = this.BX.Im || {};
 	    }
 
 	    this.timer = new im_lib_timer.Timer();
-	    this.readNotificationsQueue = [];
+	    this.readNotificationsQueue = new Set();
 	    this.readNotificationsNodes = {};
 	    this.observers = {};
 	    this.readVisibleNotificationsDelayed = im_lib_utils.Utils.debounce(this.readVisibleNotifications, 50, this);
@@ -907,6 +1023,23 @@ this.BX.Im = this.BX.Im || {};
 	    }
 	  },
 	  methods: {
+	    getFirstUnreadNotificationOnInit: function getFirstUnreadNotificationOnInit() {
+	      if (this.unreadCounter <= 0) {
+	        return null;
+	      }
+
+	      var unreadId = null;
+	      var maxNotificationIndex = this.notification.length - 1;
+
+	      for (var i = 0; i <= maxNotificationIndex; i++) {
+	        if (this.notification[i].unread) {
+	          unreadId = this.notification[i].id;
+	          break;
+	        }
+	      }
+
+	      return unreadId;
+	    },
 	    onCallViewStateChange: function onCallViewStateChange(_ref) {
 	      var data = _ref.data;
 	      this.callViewState = data.callViewState;
@@ -919,7 +1052,7 @@ this.BX.Im = this.BX.Im || {};
 	      }
 	    },
 	    readVisibleNotifications: function readVisibleNotifications() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      //todo: replace legacy chat API
 	      if (!this.windowFocused || !BXIM.settings.notifyAutoRead) {
@@ -927,23 +1060,18 @@ this.BX.Im = this.BX.Im || {};
 	        return false;
 	      }
 
-	      this.readNotificationsQueue = this.readNotificationsQueue.filter(function (notificationId) {
-	        if (_this2.readNotificationsNodes[notificationId]) {
-	          if (_this2.observers[ObserverType.read]) {
-	            _this2.observers[ObserverType.read].unobserve(_this2.readNotificationsNodes[notificationId]);
-	          }
-
-	          delete _this2.readNotificationsNodes[notificationId];
+	      this.readNotificationsQueue.forEach(function (notificationId) {
+	        if (_this3.readNotificationsNodes[notificationId]) {
+	          delete _this3.readNotificationsNodes[notificationId];
 	        }
 
-	        _this2.readNotifications(parseInt(notificationId));
-
-	        return false;
+	        _this3.readNotifications(parseInt(notificationId, 10));
 	      });
+	      this.readNotificationsQueue.clear();
 	    },
 	    getInitialData: function getInitialData() {
 	      var _queryParams,
-	          _this3 = this;
+	          _this4 = this;
 
 	      this.isLoadingInitialData = true;
 	      var queryParams = (_queryParams = {}, babelHelpers.defineProperty(_queryParams, im_const.RestMethodHandler.imNotifyGet, [im_const.RestMethod.imNotifyGet, {
@@ -953,12 +1081,13 @@ this.BX.Im = this.BX.Im || {};
 	      this.getRestClient().callBatch(queryParams, function (response) {
 	        im_lib_logger.Logger.warn('im.notify.get: initial result', response[im_const.RestMethodHandler.imNotifyGet].data());
 
-	        _this3.processInitialData(response[im_const.RestMethodHandler.imNotifyGet].data());
+	        _this4.processInitialData(response[im_const.RestMethodHandler.imNotifyGet].data());
 
-	        _this3.processSchemaData(response[im_const.RestMethodHandler.imNotifySchemaGet].data());
+	        _this4.processSchemaData(response[im_const.RestMethodHandler.imNotifySchemaGet].data());
 
-	        _this3.pagesLoaded++;
-	        _this3.isLoadingInitialData = false;
+	        _this4.pagesLoaded++;
+	        _this4.isLoadingInitialData = false;
+	        _this4.firstUnreadNotificationOnInit = _this4.getFirstUnreadNotificationOnInit();
 	      }, false, false);
 	    },
 	    processInitialData: function processInitialData(data) {
@@ -973,13 +1102,13 @@ this.BX.Im = this.BX.Im || {};
 
 	      this.lastId = this.getLastItemId(data.notifications);
 	      this.lastType = this.getLastItemType(data.notifications);
-	      this.$store.dispatch('notifications/deleteAll');
+	      this.$store.dispatch('notifications/clearPlaceholders');
+	      this.$store.dispatch('notifications/setCounter', {
+	        unreadTotal: data.total_unread_count
+	      });
 	      this.$store.dispatch('notifications/set', {
 	        notification: data.notifications,
 	        total: data.total_count
-	      });
-	      this.$store.dispatch('notifications/setCounter', {
-	        unreadTotal: data.total_unread_count
 	      });
 	      this.$store.dispatch('users/set', data.users);
 	      this.updateRecentList(data.total_unread_count, true);
@@ -997,7 +1126,7 @@ this.BX.Im = this.BX.Im || {};
 	      });
 	    },
 	    loadNextPage: function loadNextPage() {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      im_lib_logger.Logger.warn("Loading more notifications!");
 	      var queryParams = {
@@ -1012,29 +1141,29 @@ this.BX.Im = this.BX.Im || {};
 	        var newItems = result.data().notifications; //if we got empty data - clear all placeholders
 
 	        if (!newItems || newItems.length === 0) {
-	          _this4.$store.dispatch('notifications/clearPlaceholders');
+	          _this5.$store.dispatch('notifications/clearPlaceholders');
 
-	          _this4.$store.dispatch('notifications/setTotal', {
-	            total: _this4.notification.length
+	          _this5.$store.dispatch('notifications/setTotal', {
+	            total: _this5.notification.length
 	          });
 
 	          return false;
 	        }
 
-	        _this4.lastId = _this4.getLastItemId(newItems);
-	        _this4.lastType = _this4.getLastItemType(newItems);
+	        _this5.lastId = _this5.getLastItemId(newItems);
+	        _this5.lastType = _this5.getLastItemType(newItems);
 
-	        _this4.$store.dispatch('users/set', newUsers); //change temp data in models to real data, we need new items, first item to update and section
+	        _this5.$store.dispatch('users/set', newUsers); //change temp data in models to real data, we need new items, first item to update and section
 
 
-	        return _this4.$store.dispatch('notifications/updatePlaceholders', {
+	        return _this5.$store.dispatch('notifications/updatePlaceholders', {
 	          items: newItems,
-	          firstItem: _this4.pagesLoaded * _this4.perPage
+	          firstItem: _this5.pagesLoaded * _this5.perPage
 	        });
 	      }).then(function () {
-	        _this4.pagesLoaded++;
-	        im_lib_logger.Logger.warn('Page loaded. Total loaded - ', _this4.pagesLoaded);
-	        return _this4.onAfterLoadNextPageRequest();
+	        _this5.pagesLoaded++;
+	        im_lib_logger.Logger.warn('Page loaded. Total loaded - ', _this5.pagesLoaded);
+	        return _this5.onAfterLoadNextPageRequest();
 	      }).catch(function (result) {
 	        im_lib_logger.Logger.warn('Request history error', result);
 	      });
@@ -1054,7 +1183,7 @@ this.BX.Im = this.BX.Im || {};
 	      }
 	    },
 	    changeReadStatus: function changeReadStatus(item) {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      this.$store.dispatch('notifications/read', {
 	        ids: [item.id],
@@ -1069,7 +1198,7 @@ this.BX.Im = this.BX.Im || {};
 	      });
 	      clearTimeout(this.changeReadStatusBlockTimeout[item.id]);
 	      this.changeReadStatusBlockTimeout[item.id] = setTimeout(function () {
-	        _this5.getRestClient().callMethod('im.notify.read', {
+	        _this6.getRestClient().callMethod('im.notify.read', {
 	          id: item.id,
 	          action: item.unread ? 'Y' : 'N',
 	          only_current: 'Y'
@@ -1078,24 +1207,25 @@ this.BX.Im = this.BX.Im || {};
 	        }).catch(function (error) {
 	          console.error(error);
 
-	          _this5.$store.dispatch('notifications/read', {
+	          _this6.$store.dispatch('notifications/read', {
 	            ids: [item.id],
 	            action: !item.unread
 	          }); // restore the unread counter in case of an error
 
 
-	          _this5.updateRecentList(originalCounterBeforeUpdate);
+	          _this6.updateRecentList(originalCounterBeforeUpdate);
 
-	          _this5.$store.dispatch('notifications/setCounter', {
+	          _this6.$store.dispatch('notifications/setCounter', {
 	            unreadTotal: originalCounterBeforeUpdate
 	          });
 	        });
 	      }, 1500);
 	    },
 	    delete: function _delete(item) {
-	      var _this6 = this;
+	      var _this7 = this;
 
 	      var itemId = +item.id;
+	      this.notificationsToDelete.push(itemId);
 	      var notification = this.$store.getters['notifications/getById'](itemId);
 	      this.$store.dispatch('notifications/update', {
 	        id: itemId,
@@ -1110,32 +1240,40 @@ this.BX.Im = this.BX.Im || {};
 	      this.$store.dispatch('notifications/setCounter', {
 	        unreadTotal: counterValue
 	      });
-	      this.getRestClient().callMethod('im.notify.delete', {
-	        id: itemId
-	      }).then(function () {
-	        _this6.$store.dispatch('notifications/delete', {
-	          id: itemId
-	        });
-	      }).catch(function (error) {
-	        console.error(error);
+	      this.timer.stop('deleteNotificationServer', 'notifications', true);
+	      this.timer.start('deleteNotificationServer', 'notifications', .5, function () {
+	        var idsToDelete = _this7.notificationsToDelete;
+	        _this7.notificationsToDelete = [];
 
-	        _this6.$store.dispatch('notifications/update', {
-	          id: itemId,
-	          fields: {
-	            display: true
-	          }
-	        }); // restore the unread counter in case of an error
+	        _this7.getRestClient().callMethod('im.notify.delete', {
+	          id: idsToDelete
+	        }).then(function () {
+	          idsToDelete.forEach(function (id) {
+	            _this7.$store.dispatch('notifications/delete', {
+	              id: id
+	            });
+	          });
+	        }).catch(function (error) {
+	          console.error(error);
+	          idsToDelete.forEach(function (id) {
+	            _this7.$store.dispatch('notifications/update', {
+	              id: id,
+	              fields: {
+	                display: true
+	              }
+	            });
+	          }); // restore the unread counter in case of an error
 
+	          _this7.updateRecentList(originalCounterBeforeUpdate, true);
 
-	        _this6.updateRecentList(originalCounterBeforeUpdate, true);
-
-	        _this6.$store.dispatch('notifications/setCounter', {
-	          unreadTotal: originalCounterBeforeUpdate
+	          _this7.$store.dispatch('notifications/setCounter', {
+	            unreadTotal: originalCounterBeforeUpdate
+	          });
 	        });
 	      });
 	    },
 	    getObserver: function getObserver(config) {
-	      var _this7 = this;
+	      var _this8 = this;
 
 	      if (typeof window.IntersectionObserver === 'undefined' || config.type === ObserverType.none) {
 	        return {
@@ -1144,37 +1282,47 @@ this.BX.Im = this.BX.Im || {};
 	        };
 	      }
 
-	      var observerCallback, observerOptions;
-
-	      observerCallback = function observerCallback(entries) {
+	      var observerCallback = function observerCallback(entries) {
 	        entries.forEach(function (entry) {
 	          var sendReadEvent = false;
+	          var entryNotificationId = parseInt(entry.target.dataset.id, 10);
 
 	          if (entry.isIntersecting) {
 	            //on Windows with interface scaling intersectionRatio will never be 1
 	            if (entry.intersectionRatio >= 0.99) {
 	              sendReadEvent = true;
+
+	              _this8.notificationsOnScreen.push(entryNotificationId);
 	            } else if (entry.intersectionRatio > 0 && entry.intersectionRect.height > entry.rootBounds.height / 2) {
 	              sendReadEvent = true;
+
+	              _this8.notificationsOnScreen.push(entryNotificationId);
+	            } else {
+	              _this8.notificationsOnScreen = _this8.notificationsOnScreen.filter(function (notificationId) {
+	                return notificationId !== entryNotificationId;
+	              });
 	            }
+	          } else {
+	            _this8.notificationsOnScreen = _this8.notificationsOnScreen.filter(function (notificationId) {
+	              return notificationId !== entryNotificationId;
+	            });
 	          }
 
 	          if (sendReadEvent) {
-	            _this7.readNotificationsQueue.push(entry.target.dataset.id);
+	            _this8.readNotificationsQueue.add(entryNotificationId);
 
-	            _this7.readNotificationsNodes[entry.target.dataset.id] = entry.target;
+	            _this8.readNotificationsNodes[entryNotificationId] = entry.target;
 	          } else {
-	            _this7.readNotificationsQueue = _this7.readNotificationsQueue.filter(function (notificationId) {
-	              return notificationId !== entry.target.dataset.id;
-	            });
-	            delete _this7.readNotificationsNodes[entry.target.dataset.id];
+	            _this8.readNotificationsQueue.delete(entryNotificationId);
+
+	            delete _this8.readNotificationsNodes[entryNotificationId];
 	          }
 
-	          _this7.readVisibleNotificationsDelayed();
+	          _this8.readVisibleNotificationsDelayed();
 	        });
 	      };
 
-	      observerOptions = {
+	      var observerOptions = {
 	        root: this.$refs['listNotifications'],
 	        threshold: new Array(101).fill(0).map(function (zero, index) {
 	          return index * 0.01;
@@ -1184,7 +1332,7 @@ this.BX.Im = this.BX.Im || {};
 	    },
 	    //events
 	    onScroll: function onScroll(event) {
-	      var _this8 = this;
+	      var _this9 = this;
 
 	      if (!this.isReadyToLoadNewPage(event)) {
 	        return;
@@ -1196,15 +1344,15 @@ this.BX.Im = this.BX.Im || {};
 
 	      if (this.isLoadingNewPage) {
 	        this.drawPlaceholders().then(function () {
-	          _this8.pagesRequested++;
-	          im_lib_logger.Logger.warn('Already loading! Draw placeholders and add request, total - ', _this8.pagesRequested);
+	          _this9.pagesRequested++;
+	          im_lib_logger.Logger.warn('Already loading! Draw placeholders and add request, total - ', _this9.pagesRequested);
 	        });
 	      } else //if (!this.isLoadingNewPage)
 	        {
 	          im_lib_logger.Logger.warn('Starting new request');
 	          this.isLoadingNewPage = true;
 	          this.drawPlaceholders().then(function () {
-	            _this8.loadNextPage();
+	            _this9.loadNextPage();
 	          });
 	        }
 	    },
@@ -1219,7 +1367,7 @@ this.BX.Im = this.BX.Im || {};
 	      this.changeReadStatus(event.item);
 	    },
 	    onButtonsClick: function onButtonsClick(event) {
-	      var _this9 = this;
+	      var _this10 = this;
 
 	      var params = this.getConfirmRequestParams(event);
 	      var itemId = +params.NOTIFY_ID;
@@ -1237,11 +1385,11 @@ this.BX.Im = this.BX.Im || {};
 	        unreadTotal: counterValue
 	      });
 	      this.getRestClient().callMethod('im.notify.confirm', params).then(function () {
-	        _this9.$store.dispatch('notifications/delete', {
+	        _this10.$store.dispatch('notifications/delete', {
 	          id: itemId
 	        });
 	      }).catch(function () {
-	        _this9.$store.dispatch('notifications/update', {
+	        _this10.$store.dispatch('notifications/update', {
 	          id: itemId,
 	          fields: {
 	            display: true
@@ -1249,27 +1397,27 @@ this.BX.Im = this.BX.Im || {};
 	        }); // restore the unread counter in case of an error
 
 
-	        _this9.updateRecentList(counterValueBeforeUpdate, true);
+	        _this10.updateRecentList(counterValueBeforeUpdate, true);
 
-	        _this9.$store.dispatch('notifications/setCounter', {
+	        _this10.$store.dispatch('notifications/setCounter', {
 	          unreadTotal: counterValueBeforeUpdate
 	        });
 	      });
 	    },
 	    onDeleteClick: function onDeleteClick(event) {
-	      var _this10 = this;
+	      var _this11 = this;
 
 	      this.delete(event.item); //we need to load more, if we are on the first page and we have more elements.
 
 	      if (!this.isLoadingNewPage && this.remainingPages > 0 && this.notification.length === this.perPage - 1) {
 	        this.isLoadingNewPage = true;
 	        this.drawPlaceholders().then(function () {
-	          _this10.loadNextPage();
+	          _this11.loadNextPage();
 	        });
 	      }
 	    },
 	    onRightClick: function onRightClick(event) {
-	      var _this11 = this;
+	      var _this12 = this;
 
 	      if (this.contextPopupInstance !== null) {
 	        this.closeContextMenuPopup();
@@ -1282,17 +1430,17 @@ this.BX.Im = this.BX.Im || {};
 	        items: items,
 	        events: {
 	          onPopupClose: function onPopupClose() {
-	            return _this11.contextPopupInstance.destroy();
+	            return _this12.contextPopupInstance.destroy();
 	          },
 	          onPopupDestroy: function onPopupDestroy() {
-	            return _this11.contextPopupInstance = null;
+	            return _this12.contextPopupInstance = null;
 	          }
 	        }
 	      });
 	      this.contextPopupInstance.show();
 	    },
 	    onDateFilterClick: function onDateFilterClick(event) {
-	      var _this12 = this;
+	      var _this13 = this;
 
 	      if (typeof BX !== 'undefined' && BX.calendar && BX.calendar.get().popup) {
 	        BX.calendar.get().popup.close();
@@ -1303,36 +1451,36 @@ this.BX.Im = this.BX.Im || {};
 	        field: event.target,
 	        bTime: false,
 	        callback_after: function callback_after() {
-	          _this12.searchDate = event.target.value;
+	          _this13.searchDate = event.target.value;
 	        }
 	      });
 	      return false;
 	    },
 	    getContextMenu: function getContextMenu(notification) {
-	      var _this13 = this;
+	      var _this14 = this;
 
 	      var unreadMenuItemText = notification.unread ? this.localize['IM_NOTIFICATIONS_CONTEXT_POPUP_SET_READ'] : this.localize['IM_NOTIFICATIONS_CONTEXT_POPUP_SET_UNREAD'];
 	      var blockMenuItemText = main_core.Type.isUndefined(BXIM.settingsNotifyBlocked[notification.settingName]) ? this.localize['IM_NOTIFICATIONS_CONTEXT_POPUP_DONT_NOTIFY'] : this.localize['IM_NOTIFICATIONS_CONTEXT_POPUP_NOTIFY'];
 	      return [{
 	        text: unreadMenuItemText,
 	        onclick: function onclick(event, item) {
-	          _this13.changeReadStatus(notification);
+	          _this14.changeReadStatus(notification);
 
-	          _this13.closeContextMenuPopup();
+	          _this14.closeContextMenuPopup();
 	        }
 	      }, {
 	        text: this.localize['IM_NOTIFICATIONS_CONTEXT_POPUP_DELETE_NOTIFICATION'],
 	        onclick: function onclick(event, item) {
-	          _this13.delete(notification);
+	          _this14.delete(notification);
 
-	          _this13.closeContextMenuPopup();
+	          _this14.closeContextMenuPopup();
 	        }
 	      }, {
 	        text: blockMenuItemText,
 	        onclick: function onclick(event, item) {
 	          console.log(notification);
 
-	          _this13.closeContextMenuPopup();
+	          _this14.closeContextMenuPopup();
 	        }
 	      }];
 	    },
@@ -1352,57 +1500,69 @@ this.BX.Im = this.BX.Im || {};
 	      return null;
 	    },
 	    readNotifications: function readNotifications(notificationId) {
-	      var _this14 = this;
+	      var _this15 = this;
 
-	      var counterValueBeforeUpdate = this.unreadCounter;
 	      var notification = this.$store.getters['notifications/getById'](notificationId);
 
-	      if (notification.unread === false) {
+	      if (notification.unread === false || notification.sectionCode === im_const.NotificationTypesCodes.confirm) {
 	        return false;
-	      } else {
-	        this.$store.dispatch('notifications/read', {
-	          ids: [notificationId],
-	          action: true
-	        }); // change the unread counter
-
-	        var counterValue = this.unreadCounter - 1;
-	        this.$store.dispatch('notifications/setCounter', {
-	          unreadTotal: counterValue
-	        });
-	        this.updateRecentList(counterValue);
 	      }
 
-	      if (notificationId) {
-	        this.notificationsToRead.push(notificationId);
-	      }
+	      this.notificationsToRead.push(notificationId); // read on front
 
+	      this.$store.dispatch('notifications/read', {
+	        ids: [notificationId],
+	        action: true
+	      }); // change the unread counter
+
+	      var counterValueBeforeUpdate = this.unreadCounter;
+	      var counterValue = this.unreadCounter - 1;
+	      this.$store.dispatch('notifications/setCounter', {
+	        unreadTotal: counterValue
+	      }); // update recent counter
+
+	      this.updateRecentList(counterValue);
 	      this.timer.stop('readNotificationServer', 'notifications', true);
-
-	      if (this.notificationsToRead.length <= 0) {
-	        return false;
-	      }
-
 	      this.timer.start('readNotificationServer', 'notifications', .5, function () {
-	        var ids = _this14.notificationsToRead;
-	        _this14.notificationsToRead = [];
+	        var idsToRead = _this15.notificationsToRead;
+	        _this15.notificationsToRead = []; // we can read all notifications from some ID, only if we have not received new notifications
+	        // (otherwise we will read notifications at the top that we are not actually seeing)
 
-	        _this14.getRestClient().callMethod('im.notify.read.list', {
-	          ids: ids,
+	        var canReadFromId = false;
+
+	        if (_this15.firstUnreadNotificationOnInit !== null) {
+	          canReadFromId = Math.max.apply(Math, babelHelpers.toConsumableArray(idsToRead)) <= _this15.firstUnreadNotificationOnInit;
+	        }
+
+	        var restMethod = 'im.notify.read.list';
+	        var requestParams = {
+	          ids: idsToRead,
 	          action: 'Y'
-	        }).then(function () {
-	          im_lib_logger.Logger.warn('I have read the notifications with ids =', ids.toString());
+	        };
+
+	        if (canReadFromId) {
+	          var readFromId = Math.min.apply(Math, babelHelpers.toConsumableArray(idsToRead));
+	          restMethod = 'im.notify.read';
+	          requestParams = {
+	            id: readFromId,
+	            action: 'Y'
+	          };
+	        }
+
+	        _this15.getRestClient().callMethod(restMethod, requestParams).then(function () {
+	          im_lib_logger.Logger.warn('I have read the notifications', requestParams);
 	        }).catch(function () {
-	          _this14.$store.dispatch('notifications/read', {
-	            ids: ids,
+	          _this15.$store.dispatch('notifications/read', {
+	            ids: idsToRead,
 	            action: false
 	          }); // restore the unread counter in case of an error
 
 
-	          _this14.$store.dispatch('notifications/setCounter', {
+	          _this15.$store.dispatch('notifications/setCounter', {
 	            unreadTotal: counterValueBeforeUpdate
 	          });
 
-	          _this14.updateRecentList(counterValueBeforeUpdate);
+	          _this15.updateRecentList(counterValueBeforeUpdate);
 	        });
 	      });
 	    },
@@ -1410,12 +1570,10 @@ this.BX.Im = this.BX.Im || {};
 	      return this.getItemType(collection[collection.length - 1]);
 	    },
 	    getItemType: function getItemType(item) {
-	      if (item.notify_type === _ItemTypesCodes.confirm) {
-	        return _ItemTypesCodes.confirm;
-	      } else if (item.notify_read === 'N') {
-	        return _ItemTypesCodes.unreadNotification;
+	      if (item.notify_type === im_const.NotificationTypesCodes.confirm) {
+	        return im_const.NotificationTypesCodes.confirm;
 	      } else {
-	        return _ItemTypesCodes.simpleNotification;
+	        return im_const.NotificationTypesCodes.simple;
 	      }
 	    },
 	    getLatest: function getLatest() {
@@ -1465,7 +1623,7 @@ this.BX.Im = this.BX.Im || {};
 	      })]);
 	    },
 	    readAll: function readAll() {
-	      var _this15 = this;
+	      var _this16 = this;
 
 	      if (this.notification.lastId <= 0) {
 	        return;
@@ -1478,7 +1636,7 @@ this.BX.Im = this.BX.Im || {};
 	      this.$store.dispatch('notifications/readAll'); //we need to count "confirms" because its always "unread"
 
 	      var confirms = this.notification.filter(function (notificationItem) {
-	        return notificationItem.sectionCode === 'confirm';
+	        return notificationItem.sectionCode === im_const.NotificationTypesCodes.confirm;
 	      });
 	      this.$store.dispatch('notifications/setCounter', {
 	        unreadTotal: confirms.length
@@ -1488,7 +1646,7 @@ this.BX.Im = this.BX.Im || {};
 	        id: 0,
 	        action: 'Y'
 	      }).catch(function (result) {
-	        _this15.getInitialData();
+	        _this16.getInitialData();
 
 	        console.error(result);
 	      });
@@ -1512,11 +1670,98 @@ this.BX.Im = this.BX.Im || {};
 	        id: 'notify',
 	        fields: fields
 	      });
+	    },
+	    onScrollButtonClick: function onScrollButtonClick(event) {
+	      if (this.isLoadingNewPage || !this.initialDataReceived) {
+	        return false;
+	      }
+
+	      var notificationIdToScroll = null;
+
+	      if (this.firstUnreadNotificationBelowVisible !== null) {
+	        notificationIdToScroll = this.firstUnreadNotificationBelowVisible;
+	      } else if (!this.hasUnreadBelowVisible) {
+	        notificationIdToScroll = this.firstUnreadNotification.id;
+	      }
+
+	      var firstUnreadNotificationNode = null;
+
+	      if (notificationIdToScroll !== null) {
+	        var selector = ".bx-im-notifications-item[data-id=\"".concat(notificationIdToScroll, "\"]");
+	        firstUnreadNotificationNode = document.querySelector(selector);
+	      }
+
+	      if (firstUnreadNotificationNode) {
+	        this.animatedScrollToPosition({
+	          start: this.$refs['listNotifications'].scrollTop,
+	          end: firstUnreadNotificationNode.offsetTop
+	        });
+	      } else {
+	        var latestNotification = this.notification[this.notification.length - 1];
+
+	        var _selector = ".bx-im-notifications-item[data-id=\"".concat(latestNotification.id, "\"]");
+
+	        var latestNotificationNode = document.querySelector(_selector);
+	        this.animatedScrollToPosition({
+	          start: this.$refs['listNotifications'].scrollTop,
+	          end: latestNotificationNode.offsetTop
+	        });
+	      }
+	    },
+	    animatedScrollToPosition: function animatedScrollToPosition() {
+	      var _this17 = this;
+
+	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+	      if (this.animateScrollId) {
+	        im_lib_animation.Animation.cancel(this.animateScrollId);
+	        this.scrollAnimating = false;
+	      }
+
+	      if (typeof params === 'function') {
+	        params = {
+	          callback: params
+	        };
+	      }
+
+	      var container = this.$refs.listNotifications;
+	      var _params = params,
+	          _params$start = _params.start,
+	          start = _params$start === void 0 ? container.scrollTop : _params$start,
+	          _params$end = _params.end,
+	          end = _params$end === void 0 ? container.scrollHeight - container.clientHeight : _params$end,
+	          _params$increment = _params.increment,
+	          increment = _params$increment === void 0 ? 20 : _params$increment,
+	          _callback = _params.callback,
+	          _params$duration = _params.duration,
+	          duration = _params$duration === void 0 ? 500 : _params$duration;
+
+	      if (container && end - start > container.offsetHeight * 3) {
+	        start = end - container.offsetHeight * 3;
+	      }
+
+	      this.scrollAnimating = true;
+	      this.animateScrollId = im_lib_animation.Animation.start({
+	        start: start,
+	        end: end,
+	        increment: increment,
+	        duration: duration,
+	        element: container,
+	        elementProperty: 'scrollTop',
+	        callback: function callback() {
+	          _this17.animateScrollId = null;
+	          _this17.scrollAnimating = false;
+
+	          if (_callback && typeof _callback === 'function') {
+	            _callback();
+	          }
+	        }
+	      });
 	    }
 	  },
 	  //language=Vue
-	  template: "\n\t\t<div class=\"bx-messenger-next-notify\">\n\t\t\t<div class=\"bx-messenger-panel-next-wrapper\" :style=\"panelStyles\">\n\t\t\t\t<div class=\"bx-messenger-panel-next\">\n\t\t\t\t\t<div>\n\t\t\t\t\t\t<span \n\t\t\t\t\t\t\tclass=\"bx-messenger-panel-avatar bx-im-notifications-image-system bx-im-notifications-header-image\"\n\t\t\t\t\t\t></span>\n\t\t\t\t\t\t<span class=\"bx-messenger-panel-title bx-messenger-panel-title-middle\" style=\"flex-shrink: 0;\">\n\t\t\t\t\t\t\t{{ $Bitrix.Loc.getMessage('IM_NOTIFICATIONS_HEADER') }}\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div v-if=\"notification.length > 0\" class=\"bx-im-notifications-header-buttons\">\n\t\t\t\t\t\t<transition name=\"notifications-read-all-fade\">\n\t\t\t\t\t\t\t<div v-if=\"isNeedToReadAll\" class=\"bx-im-notifications-header-read-all\">\n\t\t\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t\tclass='bx-messenger-panel-button bx-im-notifications-header-read-all-icon'\n\t\t\t\t\t\t\t\t\t@click=\"showConfirmPopupOnReadAll\"\n\t\t\t\t\t\t\t\t\t:title=\"$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_READ_ALL_BUTTON')\"\n\t\t\t\t\t\t\t\t></span>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</transition>\n\t\t\t\t\t\t<div class=\"bx-im-notifications-header-filter\">\n\t\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t:class=\"['bx-messenger-panel-button bx-messenger-panel-history bx-im-notifications-header-filter-icon', (showSearch? 'bx-im-notifications-header-filter-active': '')]\"\n\t\t\t\t\t\t\t\t@click=\"showSearch = !showSearch\"\n\t\t\t\t\t\t\t\t:title=\"$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_OPEN_BUTTON')\"\n\t\t\t\t\t\t\t></span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showSearch\" class=\"bx-im-notifications-header-filter-box\">\n\t\t\t\t\t<div class=\"ui-ctl ui-ctl-after-icon ui-ctl-dropdown ui-ctl-xs ui-ctl-w25\">\n\t\t\t\t\t\t<div class=\"ui-ctl-after ui-ctl-icon-angle\"></div>\n\t\t\t\t\t\t<select class=\"ui-ctl-element\" v-model=\"searchType\">\n\t\t\t\t\t\t\t<option value=\"\">\n\t\t\t\t\t\t\t\t{{ $Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_PLACEHOLDER') }}\n\t\t\t\t\t\t\t</option>\n\t\t\t\t\t\t\t<optgroup v-for=\"group in schema\" :label=\"group.NAME\">\n\t\t\t\t\t\t\t\t<option v-for=\"option in group.LIST\" :value=\"option.ID\">\n\t\t\t\t\t\t\t\t\t{{ option.NAME }}\n\t\t\t\t\t\t\t\t</option>\n\t\t\t\t\t\t\t</optgroup>\n\t\t\t\t\t\t</select>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-after-icon ui-ctl-xs ui-ctl-w50\"> \n\t\t\t\t\t\t<button class=\"ui-ctl-after ui-ctl-icon-clear\" @click.prevent=\"searchQuery=''\"></button>\n\t\t\t\t\t\t<input\n\t\t\t\t\t\t\tautofocus\n\t\t\t\t\t\t\ttype=\"text\" \n\t\t\t\t\t\t\tclass=\"ui-ctl-element\" \n\t\t\t\t\t\t\tv-model=\"searchQuery\" \n\t\t\t\t\t\t\t:placeholder=\"$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_TEXT_PLACEHOLDER')\"\n\t\t\t\t\t\t>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-ctl ui-ctl-after-icon ui-ctl-before-icon ui-ctl-xs ui-ctl-w25\">\n\t\t\t\t\t\t<div class=\"ui-ctl-before ui-ctl-icon-calendar\"></div>\n\t\t\t\t\t\t<input \n\t\t\t\t\t\t\ttype=\"text\" \n\t\t\t\t\t\t\tclass=\"ui-ctl-element ui-ctl-textbox\" \n\t\t\t\t\t\t\tv-model=\"searchDate\"\n\t\t\t\t\t\t\t@focus.prevent.stop=\"onDateFilterClick\"\n\t\t\t\t\t\t\t@click.prevent.stop=\"onDateFilterClick\"\n\t\t\t\t\t\t\t:placeholder=\"$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_DATE_PLACEHOLDER')\"\n\t\t\t\t\t\t\treadonly\n\t\t\t\t\t\t>\n\t\t\t\t\t\t<button class=\"ui-ctl-after ui-ctl-icon-clear\" @click.prevent=\"searchDate=''\"></button>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div \n\t\t\t\tv-if=\"showSearch && (searchQuery.length >= 3 || searchType !== '' || searchDate !== '')\" \n\t\t\t\tclass=\"bx-messenger-list-notifications-wrap\"\n\t\t\t>\n\t\t\t\t<NotificationSearchResult :searchQuery=\"searchQuery\" :searchType=\"searchType\" :searchDate=\"searchDate\"/>\n\t\t\t</div>\n\t\t\t<div v-else class=\"bx-messenger-list-notifications-wrap\">\n\t\t\t\t<div :class=\"[ darkTheme ? 'bx-messenger-dark' : '', 'bx-messenger-list-notifications']\" @scroll.passive=\"onScroll\" ref=\"listNotifications\">\n\t\t\t\t\t<notification-item\n\t\t\t\t\t\tv-for=\"listItem in visibleNotifications\"\n\t\t\t\t\t\t:key=\"listItem.id\"\n\t\t\t\t\t\t:data-id=\"listItem.id\"\n\t\t\t\t\t\t:rawListItem=\"listItem\"\n\t\t\t\t\t\t@dblclick=\"onDoubleClick\"\n\t\t\t\t\t\t@buttonsClick=\"onButtonsClick\"\n\t\t\t\t\t\t@deleteClick=\"onDeleteClick\"\n\t\t\t\t\t\t@contentClick=\"onContentClick\"\n\t\t\t\t\t\tv-bx-im-directive-notifications-observer=\"\n\t\t\t\t\t\t\t(listItem.sectionCode === ItemTypes.notification && listItem.template !== 'placeholder')\n\t\t\t\t\t\t\t? ObserverType.read \n\t\t\t\t\t\t\t: ObserverType.none\n\t\t\t\t\t\t\"\n\t\t\t\t\t/>\n\t\t\t\t\t<div\n\t\t\t\t\t\tv-if=\"notification.length <= 0\"\n\t\t\t\t\t\tstyle=\"padding-top: 210px; margin-bottom: 20px;\"\n\t\t\t\t\t\tclass=\"bx-messenger-box-empty bx-notifier-content-empty\"\n\t\t\t\t\t>\n\t\t\t\t\t\t{{ $Bitrix.Loc.getMessage('IM_NOTIFICATIONS_NO_ITEMS_30_DAYS') }}\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t\n\t\t\t\t<mounting-portal :mount-to=\"popupIdSelector\" append v-if=\"popupInstance\">\n\t\t\t\t\t<popup :type=\"contentPopupType\" :value=\"contentPopupValue\" :popupInstance=\"popupInstance\"/>\n\t\t\t\t</mounting-portal>\n\t\t\t</div>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div class=\"bx-messenger-next-notify\">\n\t\t\t<div class=\"bx-messenger-panel-next-wrapper\" :style=\"panelStyles\">\n\t\t\t\t<div class=\"bx-messenger-panel-next\">\n\t\t\t\t\t<div>\n\t\t\t\t\t\t<span \n\t\t\t\t\t\t\tclass=\"bx-messenger-panel-avatar bx-im-notifications-image-system bx-im-notifications-header-image\"\n\t\t\t\t\t\t></span>\n\t\t\t\t\t\t<span class=\"bx-messenger-panel-title bx-messenger-panel-title-middle\" style=\"flex-shrink: 0;\">\n\t\t\t\t\t\t\t{{ $Bitrix.Loc.getMessage('IM_NOTIFICATIONS_HEADER') }}\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div v-if=\"notification.length > 0\" class=\"bx-im-notifications-header-buttons\">\n\t\t\t\t\t\t<transition name=\"notifications-read-all-fade\">\n\t\t\t\t\t\t\t<div v-if=\"isNeedToReadAll\" class=\"bx-im-notifications-header-read-all\">\n\t\t\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t\tclass='bx-messenger-panel-button bx-im-notifications-header-read-all-icon'\n\t\t\t\t\t\t\t\t\t@click=\"showConfirmPopupOnReadAll\"\n\t\t\t\t\t\t\t\t\t:title=\"$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_READ_ALL_BUTTON')\"\n\t\t\t\t\t\t\t\t></span>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</transition>\n\t\t\t\t\t\t<div class=\"bx-im-notifications-header-filter\">\n\t\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t:class=\"['bx-messenger-panel-button bx-messenger-panel-history bx-im-notifications-header-filter-icon', (showSearch? 'bx-im-notifications-header-filter-active': '')]\"\n\t\t\t\t\t\t\t\t@click=\"showSearch = !showSearch\"\n\t\t\t\t\t\t\t\t:title=\"$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_OPEN_BUTTON')\"\n\t\t\t\t\t\t\t></span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showSearch\" class=\"bx-im-notifications-header-filter-box\" :style=\"filterBoxStyles\">\n\t\t\t\t\t<div class=\"ui-ctl ui-ctl-after-icon ui-ctl-dropdown ui-ctl-xs ui-ctl-w25\">\n\t\t\t\t\t\t<div class=\"ui-ctl-after ui-ctl-icon-angle\"></div>\n\t\t\t\t\t\t<select class=\"ui-ctl-element\" v-model=\"searchType\">\n\t\t\t\t\t\t\t<option value=\"\">\n\t\t\t\t\t\t\t\t{{ $Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_TYPE_PLACEHOLDER') }}\n\t\t\t\t\t\t\t</option>\n\t\t\t\t\t\t\t<template v-for=\"group in filterTypes\">\n\t\t\t\t\t\t\t\t<template v-if=\"group.LIST\">\n\t\t\t\t\t\t\t\t\t<optgroup :label=\"group.NAME\">\n\t\t\t\t\t\t\t\t\t\t<option v-for=\"option in group.LIST\" :value=\"option.ID\">\n\t\t\t\t\t\t\t\t\t\t\t{{ option.NAME }}\n\t\t\t\t\t\t\t\t\t\t</option>\n\t\t\t\t\t\t\t\t\t</optgroup>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<template v-else>   \n\t\t\t\t\t\t\t\t\t<option :value=\"group.MODULE_ID\">\n\t\t\t\t\t\t\t\t\t\t{{ group.NAME }}\n\t\t\t\t\t\t\t\t\t</option>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t</select>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-after-icon ui-ctl-xs ui-ctl-w50\"> \n\t\t\t\t\t\t<button class=\"ui-ctl-after ui-ctl-icon-clear\" @click.prevent=\"searchQuery=''\"></button>\n\t\t\t\t\t\t<input\n\t\t\t\t\t\t\tautofocus\n\t\t\t\t\t\t\ttype=\"text\" \n\t\t\t\t\t\t\tclass=\"ui-ctl-element\" \n\t\t\t\t\t\t\tv-model=\"searchQuery\" \n\t\t\t\t\t\t\t:placeholder=\"$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_TEXT_PLACEHOLDER')\"\n\t\t\t\t\t\t>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-ctl ui-ctl-after-icon ui-ctl-before-icon ui-ctl-xs ui-ctl-w25\">\n\t\t\t\t\t\t<div class=\"ui-ctl-before ui-ctl-icon-calendar\"></div>\n\t\t\t\t\t\t<input \n\t\t\t\t\t\t\ttype=\"text\" \n\t\t\t\t\t\t\tclass=\"ui-ctl-element ui-ctl-textbox\" \n\t\t\t\t\t\t\tv-model=\"searchDate\"\n\t\t\t\t\t\t\t@focus.prevent.stop=\"onDateFilterClick\"\n\t\t\t\t\t\t\t@click.prevent.stop=\"onDateFilterClick\"\n\t\t\t\t\t\t\t:placeholder=\"$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_DATE_PLACEHOLDER')\"\n\t\t\t\t\t\t\treadonly\n\t\t\t\t\t\t>\n\t\t\t\t\t\t<button class=\"ui-ctl-after ui-ctl-icon-clear\" @click.prevent=\"searchDate=''\"></button>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div \n\t\t\t\tv-if=\"showSearch && (searchQuery.length >= 3 || searchType !== '' || searchDate !== '')\" \n\t\t\t\tclass=\"bx-messenger-list-notifications-wrap\"\n\t\t\t>\n\t\t\t\t<NotificationSearchResult :searchQuery=\"searchQuery\" :searchType=\"searchType\" :searchDate=\"searchDate\"/>\n\t\t\t</div>\n\t\t\t<div v-else class=\"bx-messenger-list-notifications-wrap\">\n\t\t\t\t<div :class=\"[ darkTheme ? 'bx-messenger-dark' : '', 'bx-messenger-list-notifications']\" @scroll.passive=\"onScroll\" ref=\"listNotifications\">\n\t\t\t\t\t<notification-item\n\t\t\t\t\t\tv-for=\"listItem in visibleNotifications\"\n\t\t\t\t\t\t:key=\"listItem.id\"\n\t\t\t\t\t\t:data-id=\"listItem.id\"\n\t\t\t\t\t\t:rawListItem=\"listItem\"\n\t\t\t\t\t\t@dblclick=\"onDoubleClick\"\n\t\t\t\t\t\t@buttonsClick=\"onButtonsClick\"\n\t\t\t\t\t\t@deleteClick=\"onDeleteClick\"\n\t\t\t\t\t\t@contentClick=\"onContentClick\"\n\t\t\t\t\t\tv-bx-im-directive-notifications-observer=\"\n\t\t\t\t\t\t\tlistItem.sectionCode !== NotificationTypesCodes.placeholder\n\t\t\t\t\t\t\t? ObserverType.read \n\t\t\t\t\t\t\t: ObserverType.none\n\t\t\t\t\t\t\"\n\t\t\t\t\t/>\n\t\t\t\t\t<div\n\t\t\t\t\t\tv-if=\"notification.length <= 0\"\n\t\t\t\t\t\tstyle=\"padding-top: 210px; margin-bottom: 20px;\"\n\t\t\t\t\t\tclass=\"bx-messenger-box-empty bx-notifier-content-empty\"\n\t\t\t\t\t>\n\t\t\t\t\t\t{{ $Bitrix.Loc.getMessage('IM_NOTIFICATIONS_NO_ITEMS') }}\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<!-- Scroll button -->\n\t\t\t\t<transition name=\"bx-im-notifications-scroll-button\">\n\t\t\t\t\t<div v-show=\"showScrollButton\" class=\"bx-im-notifications-scroll-button-box\" @click=\"onScrollButtonClick\">\n\t\t\t\t\t\t<div class=\"bx-im-notifications-scroll-button\">\n\t\t\t\t\t\t\t<div class=\"bx-im-notifications-scroll-button-counter\">\n\t\t\t\t\t\t\t\t<div class=\"bx-im-notifications-scroll-button-counter-digit\">{{ unreadCounter }}</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t<div :class=\"arrowButtonClass\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</transition>\n\t\t\t\t\n\t\t\t\t<mounting-portal :mount-to=\"popupIdSelector\" append v-if=\"popupInstance\">\n\t\t\t\t\t<popup :type=\"contentPopupType\" :value=\"contentPopupValue\" :popupInstance=\"popupInstance\"/>\n\t\t\t\t</mounting-portal>\n\t\t\t</div>\n\t\t</div>\n\t"
 	});
 
-}((this.BX.Im.Component = this.BX.Im.Component || {}),BX,window,window,BX,BX,BX,BX.Messenger.Lib,BX.Vue,BX.Im.View,BX.Main,BX.Messenger.Lib,BX.Messenger.Const,BX.Messenger.Lib,BX.Event));
+}((this.BX.Messenger = this.BX.Messenger || {}),BX.Messenger.Lib,BX,window,window,BX,BX,BX,BX.Messenger.Lib,BX.Vue,BX.Messenger.View,BX.Main,BX.Messenger.Lib,BX.Messenger.Const,BX.Messenger.Lib,BX.Event));
 //# sourceMappingURL=notifications.bundle.js.map

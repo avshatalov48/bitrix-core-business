@@ -22,6 +22,16 @@ $componentParameters = [
 ];
 
 $APPLICATION->IncludeComponent(
+	'bitrix:socialnetwork.group.card.menu',
+	'',
+	[
+		'GROUP_ID' => $arResult['VARIABLES']['group_id'],
+		'TAB' => 'copy',
+		'URLS' => \Bitrix\Socialnetwork\ComponentHelper::getWorkgroupSliderMenuUrlList($arResult),
+	]
+);
+
+$APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
 	'',
 	[

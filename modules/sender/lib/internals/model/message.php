@@ -15,6 +15,19 @@ Loc::loadMessages(__FILE__);
 /**
  * Class MessageTable
  * @package Bitrix\Sender\Internals\Model
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Message_Query query()
+ * @method static EO_Message_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Message_Result getById($id)
+ * @method static EO_Message_Result getList(array $parameters = array())
+ * @method static EO_Message_Entity getEntity()
+ * @method static \Bitrix\Sender\Internals\Model\EO_Message createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\Internals\Model\EO_Message_Collection createCollection()
+ * @method static \Bitrix\Sender\Internals\Model\EO_Message wakeUpObject($row)
+ * @method static \Bitrix\Sender\Internals\Model\EO_Message_Collection wakeUpCollection($rows)
  */
 class MessageTable extends Entity\DataManager
 {

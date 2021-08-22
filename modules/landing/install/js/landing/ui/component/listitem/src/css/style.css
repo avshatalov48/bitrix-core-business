@@ -21,6 +21,7 @@
 .landing-ui-component-list-item-text {
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	flex-grow: 1;
+	max-width: calc(100% - 70px);
 }
 
 .landing-ui-component-list-item-text-title {
@@ -104,8 +105,13 @@
 	height: 34px;
 	line-height: 34px;
 	padding-left: 34px;
+	padding-right: 10px;
 	border-radius: 17px;
 	position: relative;
+	max-width: calc(100% - 10px);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .landing-ui-component-list-item[data-style="separator"] .landing-ui-component-list-item-text-description::before {

@@ -83,7 +83,6 @@ return [
 									'bgColor' => '#fff599',
 								]
 							],
-							'link' => '',
 						],
 						'inactive' => [
 							'badges' => [
@@ -181,6 +180,18 @@ return [
 						]
 					]
 				]
+			],
+			[
+				'id' => 'project-tag',
+				'options' => [
+					'dynamicLoad' => true,
+					'dynamicSearch' => false,
+					'itemOptions' => [
+						'default' => [
+							'avatar' => '/bitrix/js/socialnetwork/entity-selector/src/images/default-tag.svg',
+						],
+					],
+				],
 			],
 		],
 	]

@@ -2,6 +2,7 @@
 
 namespace Bitrix\Catalog\Component;
 
+use Bitrix\Catalog\v2\Property\Property;
 use Bitrix\Currency\CurrencyManager;
 use Bitrix\Main\Component\ParameterSigner;
 use Bitrix\Main\Localization\Loc;
@@ -36,6 +37,21 @@ class VariationForm extends BaseForm
 		];
 
 		return $controllers;
+	}
+
+	protected function getPropertyDescription(Property $property): array
+	{
+		$description = parent::getPropertyDescription($property);
+
+		$propertyFeatureOfferTree = $property->getPropertyFeatureCollection()->findByFeatureId('OFFER_TREE');
+		$offerTreeParams = $propertyFeatureOfferTree ? $propertyFeatureOfferTree->getSettings() : null;
+
+		if ($offerTreeParams)
+		{
+			$description['isEnabledOfferTree'] = $offerTreeParams['IS_ENABLED'] === 'Y';
+		}
+
+		return $description;
 	}
 
 	public function collectFieldConfigs(): array

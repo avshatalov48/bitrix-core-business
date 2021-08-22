@@ -7,8 +7,6 @@ use Bitrix\Socialservices\UserTable;
 
 class ZoomUser extends BaseReceiver
 {
-	protected $zoomSocServ;
-
 	public function deauthorizeAction(string $socServLogin, array $payload): void
 	{
 		$result = UserTable::getList([
@@ -27,13 +25,6 @@ class ZoomUser extends BaseReceiver
 			$cacheId = 'zoom' . '|' . $user['USER_ID'];
 			$cache = \Bitrix\Main\Data\Cache::createInstance();
 			$cache->clean($cacheId, \CZoomInterface::CACHE_DIR_CONNECT_INFO);
-		}
-
-		//we send compliance request only once, even if a zoom user was connected on several Bitrix24.
-		if (!empty($payload) && isset($deleteResult) && $deleteResult->isSuccess())
-		{
-			$this->zoomSocServ = new \CSocServZoom();
-			$this->zoomSocServ->sendComplianceRequest($payload);
 		}
 	}
 }

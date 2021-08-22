@@ -13,7 +13,11 @@
 
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
-
+Bitrix\Main\UI\Extension::load(
+	[
+		'ui.notification',
+	]
+);
 $getTileTemplate = function () use ($arParams)
 {
 	$inputName = $arParams['INPUT_NAME'] ?: '';
@@ -44,7 +48,9 @@ $containerId .= $arParams['ID'] ?: 'def';
 			'duplicates' => $arParams['DUPLICATES'],
 			'readonly' => $arParams['READONLY'],
 			'multiple' => $arParams['MULTIPLE'],
-			'manualInputEnd' => $arParams['MANUAL_INPUT_END']
+			'manualInputEnd' => $arParams['MANUAL_INPUT_END'],
+			'checkOnStatic' => $arParams['CHECK_ON_STATIC'],
+			'notifyContent' => Loc::getMessage('SENDER_UI_STATIC_SELECTOR_SELECTED', ['%INSTRUCTION%' => 'javascript:top.BX.Helper.show("redirect=detail&code=1488298")']),
 		))?>);
 	});
 </script>

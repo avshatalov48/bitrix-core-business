@@ -1586,3 +1586,22 @@
 	color: #c2c2c2;
 	background-color: #303030;
 }
+
+.bx-messenger-dark .bx-im-notifications-scroll-button {
+	background-color: #77828e;
+	border-color: #77828e;
+}
+
+.bx-messenger-dark .bx-im-notifications-scroll-button:hover {
+	background-color: #77828e;
+}
+
+.bx-messenger-dark .bx-im-notifications-scroll-button-counter-digit {
+	color: #fff;
+	border-color: #17b0e1;
+	background-color: #17b0e1;
+}
+
+.bx-messenger-dark .bx-im-notifications-scroll-button-arrow {
+	border-color: #fff;
+}

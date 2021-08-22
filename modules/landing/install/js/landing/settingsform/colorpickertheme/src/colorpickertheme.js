@@ -58,9 +58,16 @@ export class ColorPickerTheme
 
 		if (this.currentColor)
 		{
-			color = (this.isBaseColor())
-				? ColorPickerTheme.DEFAULT_COLOR_PICKER_COLOR
-				: this.currentColor;
+			if (this.isHex(this.currentColor))
+			{
+				color = (this.isBaseColor())
+					? ColorPickerTheme.DEFAULT_COLOR_PICKER_COLOR
+					: this.currentColor;
+			}
+			else
+			{
+				color = ColorPickerTheme.DEFAULT_COLOR_PICKER_COLOR;
+			}
 		}
 		else
 		{
@@ -72,7 +79,7 @@ export class ColorPickerTheme
 
 	isActive(): boolean
 	{
-		if (this.currentColor === '')
+		if (!this.isHex(this.currentColor))
 		{
 			return false;
 		}

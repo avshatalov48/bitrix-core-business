@@ -593,6 +593,18 @@ abstract class Base
 	}
 
 	/**
+	 * Returns array of extra service ids available for the specified shipment
+	 * OR null in case all extra services are available
+	 *
+	 * @param Shipment $shipment
+	 * @return array|null
+	 */
+	public function getCompatibleExtraServiceIds(Shipment $shipment): ?array
+	{
+		return null;
+	}
+
+	/**
 	 * @return array Profiles list
 	 */
 	public function getProfilesList()

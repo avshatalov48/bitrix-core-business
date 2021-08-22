@@ -9,6 +9,22 @@ namespace Bitrix\Socialnetwork;
 
 use Bitrix\Main\ORM;
 
+/**
+ * Class LogSiteTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_LogSite_Query query()
+ * @method static EO_LogSite_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_LogSite_Result getById($id)
+ * @method static EO_LogSite_Result getList(array $parameters = array())
+ * @method static EO_LogSite_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_LogSite createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_LogSite_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_LogSite wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_LogSite_Collection wakeUpCollection($rows)
+ */
 class LogSiteTable extends ORM\Data\DataManager
 {
 	public static function getTableName()
@@ -23,6 +39,10 @@ class LogSiteTable extends ORM\Data\DataManager
 				'data_type' => 'integer',
 				'primary' => true
 			],
+			'LOG' => array(
+				'data_type' => '\Bitrix\Socialnetwork\Log',
+				'reference' => array('=this.LOG_ID' => 'ref.ID')
+			),
 			'SITE_ID' => [
 				'data_type' => 'string',
 				'primary' => true

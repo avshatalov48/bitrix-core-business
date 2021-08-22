@@ -65,7 +65,7 @@ class Workgroup extends \Bitrix\Socialnetwork\Controller\Base
 		{
 			$res = \Bitrix\Socialnetwork\Item\WorkgroupFavorites::set([
 				'GROUP_ID' => $groupId,
-				'USER_ID' => $this->getCurrentUser(),
+				'USER_ID' => $this->getCurrentUser()->getId(),
 				'VALUE' => $value,
 			]);
 		}
@@ -86,7 +86,7 @@ class Workgroup extends \Bitrix\Socialnetwork\Controller\Base
 			$groupItem = \Bitrix\Socialnetwork\Item\Workgroup::getById($groupId);
 			$groupFields = $groupItem->getFields();
 			$groupUrlData = $groupItem->getGroupUrlData([
-				'USER_ID' => $this->getCurrentUser(),
+				'USER_ID' => $this->getCurrentUser()->getId(),
 			]);
 
 			$groupSiteList = [];
@@ -121,5 +121,47 @@ class Workgroup extends \Bitrix\Socialnetwork\Controller\Base
 		}
 
 		return $result;
+	}
+
+	public function setSubscriptionAction(array $params = [])
+	{
+		$groupId = (int)($params['groupId'] ?? 0);
+		$value = (isset($params['value']) && in_array($params['value'], [ 'Y', 'N' ]) ? $params['value'] : false);
+
+		if ($groupId <= 0)
+		{
+			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_WORKGROUP_EMPTY'), 'SONET_CONTROLLER_WORKGROUP_EMPTY'));
+			return null;
+		}
+
+		if ($value === false)
+		{
+			$this->addError(new Error('SONET_CONTROLLER_WORKGROUP_INCORRECT_VALUE', 'SONET_CONTROLLER_WORKGROUP_INCORRECT_VALUE'));
+			return null;
+		}
+
+		if (!Loader::includeModule('socialnetwork'))
+		{
+			$this->addError(new Error('SONET_CONTROLLER_MODULE_NOT_INSTALLED', 'SONET_CONTROLLER_MODULE_NOT_INSTALLED'));
+			return null;
+		}
+
+		try
+		{
+			$res = \Bitrix\Socialnetwork\Item\Subscription::set([
+				'GROUP_ID' => $groupId,
+				'USER_ID' => $this->getCurrentUser()->getId(),
+				'VALUE' => $value,
+			]);
+		}
+		catch (\Exception $e)
+		{
+			$this->addError(new Error($e->getMessage(), $e->getCode()));
+			return null;
+		}
+
+		return [
+			'RESULT' => ($res ? 'Y' : 'N'),
+		];
 	}
 }

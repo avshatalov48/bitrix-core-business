@@ -13,6 +13,22 @@ use Bitrix\Sender;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class GroupContactTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_GroupContact_Query query()
+ * @method static EO_GroupContact_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_GroupContact_Result getById($id)
+ * @method static EO_GroupContact_Result getList(array $parameters = array())
+ * @method static EO_GroupContact_Entity getEntity()
+ * @method static \Bitrix\Sender\Internals\Model\EO_GroupContact createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\Internals\Model\EO_GroupContact_Collection createCollection()
+ * @method static \Bitrix\Sender\Internals\Model\EO_GroupContact wakeUpObject($row)
+ * @method static \Bitrix\Sender\Internals\Model\EO_GroupContact_Collection wakeUpCollection($rows)
+ */
 class GroupContactTable extends Entity\DataManager
 {
 	/**

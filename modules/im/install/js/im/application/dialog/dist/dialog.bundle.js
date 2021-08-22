@@ -217,5 +217,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 
     exports.DialogApplication = DialogApplication;
 
-}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX.Messenger.Application,BX.Messenger.Provider.Rest,BX,BX,BX,BX.Messenger.Lib,BX.Messenger.Lib,BX.Im.Component,BX.Messenger,window,window,BX.Messenger.Const,BX.Messenger.Mixin,BX.Event));
+}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX.Messenger.Application,BX.Messenger.Provider.Rest,BX,BX,BX,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger,BX.Messenger,window,window,BX.Messenger.Const,BX.Messenger.Mixin,BX.Event));
 //# sourceMappingURL=dialog.bundle.js.map

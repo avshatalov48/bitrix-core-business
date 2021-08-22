@@ -450,6 +450,10 @@ $QUANTITY = intval($QUANTITY);
 if($QUANTITY <= 0)
 	$QUANTITY = 1;
 
+$arProps = [];
+$arPrices = [];
+$arSKUProps = [];
+
 if(!$bBadBlock)
 {
 	$arFilterFields = array(
@@ -490,7 +494,6 @@ if(!$bBadBlock)
 		)
 	);
 
-	$arProps = $arPrices = array();
 	while ($arProp = $dbrFProps->GetNext())
 	{
 		$arProp["PROPERTY_USER_TYPE"] = (!empty($arProp["USER_TYPE"]) ? CIBlockProperty::GetUserType($arProp["USER_TYPE"]) : array());
@@ -498,7 +501,6 @@ if(!$bBadBlock)
 	}
 
 	//filter sku props
-	$arSKUProps = array();
 	$arCatalog = CCatalogSKU::GetInfoByProductIBlock($iblockId);
 
 	if (!empty($arCatalog))
@@ -1644,7 +1646,7 @@ foreach($arCatalog as $submenu)
 					{
 						?>
 						<tr>
-							<td><? echo ('' != $strSKUName ? $strSKUName.' - ' : ''); ?><? echo $arProp["NAME"]?>:</td>
+							<td><? echo $arProp["NAME"]?> (<?=GetMessage("SPS_OFFER")?>):</td>
 							<td>
 								<?if(array_key_exists("GetAdminFilterHTML", $arProp["PROPERTY_USER_TYPE"])):
 									echo "<script type='text/javascript'>var arClearHiddenFields = [];</script>";
@@ -1702,4 +1704,4 @@ foreach($arCatalog as $submenu)
 	</td>
 </tr>
 </table>
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_popup_admin.php");?>
+<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_popup_admin.php");

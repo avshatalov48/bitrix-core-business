@@ -116,7 +116,7 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 	private function getTemplateParams(Payment $payment, array $paymentTokenData): array
 	{
 		$params = [
-			'sum' => PriceMaths::roundPrecision($payment->getSum()),
+			'sum' => (string)(PriceMaths::roundPrecision($payment->getSum())),
 			'currency' => $payment->getField('CURRENCY'),
 		];
 
@@ -129,7 +129,7 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 				'test' => $this->isTestMode($payment),
 				'transaction_type' => 'payment',
 				'order' => [
-					'amount' => $payment->getSum() * 100,
+					'amount' => (string)(PriceMaths::roundPrecision($payment->getSum()) * 100),
 					'currency' => $payment->getField('CURRENCY'),
 					'description' => $this->getPaymentDescription($payment),
 					'tracking_id' => $payment->getId().self::TRACKING_ID_DELIMITER.$this->service->getField('ID'),
@@ -170,7 +170,7 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 				'test' => $this->isTestMode($payment),
 				'transaction_type' => 'payment',
 				'order' => [
-					'amount' => $payment->getSum() * 100,
+					'amount' => (string)(PriceMaths::roundPrecision($payment->getSum()) * 100),
 					'currency' => $payment->getField('CURRENCY'),
 					'description' => $this->getPaymentDescription($payment),
 					'tracking_id' => $payment->getId().self::TRACKING_ID_DELIMITER.$this->service->getField('ID'),
@@ -274,7 +274,7 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 		$params = [
 			'request' => [
 				'parent_uid' => $bePaidPaymentData['checkout']['gateway_response']['payment']['uid'],
-				'amount' => $refundableSum * 100,
+				'amount' => (string)(PriceMaths::roundPrecision($refundableSum) * 100),
 				'reason' => $payment->getField('PAY_RETURN_COMMENT') ?: Loc::getMessage('SALE_HPS_BEPAID_REFUND_REASON'),
 			],
 		];

@@ -113,9 +113,6 @@ $MESS["MAIL_CLIENT_CONFIG_LAST_MAIL_CHECK_SUCCESS"] = "Успешно";
 $MESS["MAIL_CLIENT_CONFIG_LAST_MAIL_CHECK_ERROR"] = "Ошибка";
 
 $MESS["MAIL_MAILBOX_LICENSE_AGE_LIMIT_TITLE"] = "Загрузка почты из почтового ящика";
-$MESS["MAIL_MAILBOX_LICENSE_AGE_LIMIT_DESCR"] = "Объем почты, забираемый при подключении каждого почтового ящика, зависит от тарифного плана Битрикс24.
-<br><br>
-На вашем тарифе можно забрать почту за #LIMIT# #DAYS#.";
 
 $MESS["MAIL_MAILBOX_DAYS_PLURAL_1"] = "день";
 $MESS["MAIL_MAILBOX_DAYS_PLURAL_2"] = "дня";

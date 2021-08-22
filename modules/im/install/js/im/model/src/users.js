@@ -417,38 +417,6 @@ export class UsersModel extends VuexBuilderModel
 		{
 			fields.name = Utils.text.htmlspecialcharsback(fields.name.toString());
 			result.name = fields.name;
-
-			if (
-				typeof fields.firstName === "undefined"
-				|| typeof fields.firstName !== "undefined" && !fields.firstName
-			)
-			{
-				let elementsOfName = fields.name.split(' ');
-				if (elementsOfName.length > 1)
-				{
-					delete elementsOfName[elementsOfName.length-1];
-					fields.firstName = elementsOfName.join(' ').trim();
-				}
-				else
-				{
-					fields.firstName = result.name;
-				}
-			}
-
-			if (
-				typeof fields.lastName === "undefined"
-				|| typeof fields.lastName !== "undefined" && !fields.lastName)
-			{
-				let elementsOfName = fields.name.split(' ');
-				if (elementsOfName.length > 1)
-				{
-					fields.lastName = elementsOfName[elementsOfName.length-1];
-				}
-				else
-				{
-					fields.lastName = '';
-				}
-			}
 		}
 
 		if (typeof fields.firstName === "string" || typeof fields.firstName === "number")

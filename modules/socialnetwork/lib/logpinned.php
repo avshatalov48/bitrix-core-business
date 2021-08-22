@@ -14,6 +14,22 @@ use Bitrix\Main\NotImplementedException;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class LogPinnedTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_LogPinned_Query query()
+ * @method static EO_LogPinned_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_LogPinned_Result getById($id)
+ * @method static EO_LogPinned_Result getList(array $parameters = array())
+ * @method static EO_LogPinned_Entity getEntity()
+ * @method static \Bitrix\Socialnetwork\EO_LogPinned createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\EO_LogPinned_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\EO_LogPinned wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\EO_LogPinned_Collection wakeUpCollection($rows)
+ */
 class LogPinnedTable extends Entity\DataManager
 {
 	public static function getTableName()

@@ -589,9 +589,8 @@ class Hook
 	 * @param array $data Data array.
 	 * @return void
 	 */
-	public static function saveForSite($id, array $data)
+	public static function saveForSite(int $id, array $data): void
 	{
-		$id = intval($id);
 		$check = Site::getList([
 			'select' => [
 				'ID'
@@ -602,7 +601,14 @@ class Hook
 		])->fetch();
 		if ($check)
 		{
+			$editModeBack = self::$editMode;
+			self::$editMode = true;
 			self::saveData($id, self::ENTITY_TYPE_SITE, $data);
+			if (Manager::getOption('public_hook_on_save') === 'Y')
+			{
+				Hook::publicationSite($id);
+			}
+			self::$editMode = $editModeBack;
 		}
 	}
 
@@ -612,9 +618,8 @@ class Hook
 	 * @param array $data Data array.
 	 * @return void
 	 */
-	public static function saveForLanding($id, array $data)
+	public static function saveForLanding(int $id, array $data): void
 	{
-		$id = intval($id);
 		$check = Landing::getList([
 			'select' => [
 				'ID'
@@ -625,8 +630,15 @@ class Hook
 		])->fetch();
 		if ($check)
 		{
+			$editModeBack = self::$editMode;
+			self::$editMode = true;
 			self::saveData($id, self::ENTITY_TYPE_LANDING, $data);
 			self::indexContent($id, self::ENTITY_TYPE_LANDING);
+			if (Manager::getOption('public_hook_on_save') === 'Y')
+			{
+				Hook::publicationLanding($id);
+			}
+			self::$editMode = $editModeBack;
 		}
 	}
 

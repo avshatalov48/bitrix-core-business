@@ -728,7 +728,6 @@
 			{
 				case 'addToCart':
 					info = {
-						'event': 'addToCart',
 						'ecommerce': {
 							'currencyCode': this.currentPrices[this.currentPriceSelected] && this.currentPrices[this.currentPriceSelected].CURRENCY || '',
 							'add': {
@@ -1005,7 +1004,7 @@
 		quantitySet: function(index)
 		{
 			var resetQuantity, strLimit;
-			
+
 			var newOffer = this.offers[index],
 				oldOffer = this.offers[this.offerNum];
 

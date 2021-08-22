@@ -262,8 +262,14 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }, {
 	    key: "getMobileSyncUrl",
 	    value: function getMobileSyncUrl() {
+	      var _this2 = this;
+
 	      return new Promise(function (resolve, reject) {
-	        BX.ajax.runAction('calendar.api.calendarajax.getAuthLink').then(function (response) {
+	        BX.ajax.runAction('calendar.api.calendarajax.getAuthLink', {
+	          data: {
+	            type: _this2.type ? 'slider' : 'banner'
+	          }
+	        }).then(function (response) {
 	          resolve(response.data.link);
 	        }, reject);
 	      });
@@ -735,6 +741,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      var buttonWrapper = formObject.getButtonWrapper();
 	      var bodyHeader = this.getContentInfoBodyHeader();
 	      button.addEventListener('click', function (event) {
+	        BX.ajax.runAction('calendar.api.calendarajax.analytical', {
+	          analyticsLabel: {
+	            click_to_connection_button: 'Y',
+	            connection_type: _this.provider.getType()
+	          }
+	        });
 	        main_core.Dom.addClass(button, ['ui-btn-clock', 'ui-btn-disabled']);
 	        event.preventDefault();
 
@@ -970,6 +982,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  babelHelpers.createClass(GoogleTemplate, [{
 	    key: "createConnection",
 	    value: function createConnection() {
+	      BX.ajax.runAction('calendar.api.calendarajax.analytical', {
+	        analyticsLabel: {
+	          click_to_connection_button: 'Y',
+	          connection_type: 'google'
+	        }
+	      });
 	      BX.util.popup(this.provider.getSyncLink(), 500, 600);
 	    }
 	  }, {
@@ -1253,7 +1271,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }, {
 	    key: "getContentActiveBodyHeader",
 	    value: function getContentActiveBodyHeader() {
-	      return main_core.Tag.render(_templateObject3$5(), this.sliderIconClass, this.titleActiveHeader, main_core.Loc.getMessage('CAL_SYNC_LAST_SYNC_DATE'), calendar_util.Util.formatDateUsable(this.connection.getSyncTimestamp()) + ' ' + calendar_util.Util.formatTime(this.connection.getSyncTimestamp()), main_core.Loc.getMessage('CAL_SYNC_DISABLE'), this.showHelp.bind(this), main_core.Loc.getMessage('CAL_TEXT_ABOUT_WORK_SYNC'));
+	      return main_core.Tag.render(_templateObject3$5(), this.sliderIconClass, this.titleActiveHeader, main_core.Loc.getMessage('CAL_SYNC_LAST_SYNC_DATE'), calendar_util.Util.formatDateUsable(this.connection.getSyncTimestamp()) + ' ' + BX.date.format(calendar_util.Util.getTimeFormatShort(), this.connection.getSyncTimestamp()), main_core.Loc.getMessage('CAL_SYNC_DISABLE'), this.showHelp.bind(this), main_core.Loc.getMessage('CAL_TEXT_ABOUT_WORK_SYNC'));
 	    }
 	  }, {
 	    key: "getContentBodyConnect",
@@ -1315,8 +1333,18 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  return IphoneTemplate;
 	}(MobileInterfaceTemplate);
 
-	function _templateObject6$2() {
+	function _templateObject7$1() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-sync-title\">", "</div>\n\t\t"]);
+
+	  _templateObject7$1 = function _templateObject7() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject6$2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-sync-title\">", "</div>\n\t\t\t"]);
 
 	  _templateObject6$2 = function _templateObject6() {
 	    return data;
@@ -1326,7 +1354,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	}
 
 	function _templateObject5$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-sync-title\">", "</div>\n\t\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div id=\"calendar-sync-web\" class=\"calendar-sync-web\"></div>\n\t\t\t"]);
 
 	  _templateObject5$4 = function _templateObject5() {
 	    return data;
@@ -1336,7 +1364,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	}
 
 	function _templateObject4$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div id=\"calendar-sync-web\" class=\"calendar-sync-web\"></div>\n\t\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"calendar-sync-mobile\" class=\"calendar-sync-mobile\"></div>\n\t\t"]);
 
 	  _templateObject4$4 = function _templateObject4() {
 	    return data;
@@ -1346,7 +1374,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	}
 
 	function _templateObject3$6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"calendar-sync-mobile\" class=\"calendar-sync-mobile\"></div>\n\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"calendar-sync-header-text\">", "</span>\n\t\t\t"]);
 
 	  _templateObject3$6 = function _templateObject3() {
 	    return data;
@@ -1356,7 +1384,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	}
 
 	function _templateObject2$8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-sync-wrap\">\n\t\t\t\t<div class=\"calendar-sync-header\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-sync-header\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
 
 	  _templateObject2$8 = function _templateObject2() {
 	    return data;
@@ -1366,7 +1394,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	}
 
 	function _templateObject$8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"calendar-sync-header-text\">", "</span>\n\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-sync-wrap\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
 
 	  _templateObject$8 = function _templateObject() {
 	    return data;
@@ -1423,36 +1451,46 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }, {
 	    key: "getContent",
 	    value: function getContent() {
-	      var mainHeader = main_core.Tag.render(_templateObject$8(), main_core.Loc.getMessage('SYNC_CALENDAR_HEADER'));
-	      this.blockStatusContent = this.getStatusBlockContent(this.getConnections());
-	      return main_core.Tag.render(_templateObject2$8(), mainHeader, this.blockStatusContent, this.getMobileHeader(), this.getMobileContentWrapper(), this.getWebHeader(), this.getWebContentWrapper());
+	      return main_core.Tag.render(_templateObject$8(), this.getHeader(), this.getMobileHeader(), this.getMobileContentWrapper(), this.getWebHeader(), this.getWebContentWrapper());
+	    }
+	  }, {
+	    key: "getHeader",
+	    value: function getHeader() {
+	      return main_core.Tag.render(_templateObject2$8(), this.getMainHeader(), this.getStatusBlockContent(this.getConnections()));
+	    }
+	  }, {
+	    key: "getMainHeader",
+	    value: function getMainHeader() {
+	      return this.cache.remember('calendar-syncPanel-mainHeader', function () {
+	        return main_core.Tag.render(_templateObject3$6(), main_core.Loc.getMessage('SYNC_CALENDAR_HEADER'));
+	      });
 	    }
 	  }, {
 	    key: "getMobileContentWrapper",
 	    value: function getMobileContentWrapper() {
 	      return this.cache.remember('calendar-syncPanel-mobileContentWrapper', function () {
-	        return main_core.Tag.render(_templateObject3$6());
+	        return main_core.Tag.render(_templateObject4$4());
 	      });
 	    }
 	  }, {
 	    key: "getWebContentWrapper",
 	    value: function getWebContentWrapper() {
 	      return this.cache.remember('calendar-syncPanel-webContentWrapper', function () {
-	        return main_core.Tag.render(_templateObject4$4());
+	        return main_core.Tag.render(_templateObject5$4());
 	      });
 	    }
 	  }, {
 	    key: "getMobileHeader",
 	    value: function getMobileHeader() {
 	      return this.cache.remember('calendar-syncPanel-mobileHeader', function () {
-	        return main_core.Tag.render(_templateObject5$4(), main_core.Loc.getMessage('SYNC_MOBILE_HEADER'));
+	        return main_core.Tag.render(_templateObject6$2(), main_core.Loc.getMessage('SYNC_MOBILE_HEADER'));
 	      });
 	    }
 	  }, {
 	    key: "getWebHeader",
 	    value: function getWebHeader() {
 	      return this.cache.remember('calendar-syncPanel-webHeader', function () {
-	        return main_core.Tag.render(_templateObject6$2(), main_core.Loc.getMessage('SYNC_WEB_HEADER'));
+	        return main_core.Tag.render(_templateObject7$1(), main_core.Loc.getMessage('SYNC_WEB_HEADER'));
 	      });
 	    }
 	  }, {
@@ -1465,7 +1503,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        popupWithUpdateButton: true,
 	        popupId: 'calendar-syncPanel-status'
 	      });
-	      return this.statusBlock.getContent();
+	      this.statusBlockContent = this.statusBlock.getContent();
+	      return this.statusBlockContent;
 	    }
 	  }, {
 	    key: "getConnections",
@@ -1538,6 +1577,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      this.connectionsProviders = connectionsProviders;
 	      this.blockStatusContent = this.statusBlock.refresh(status, this.getConnections()).getContent();
 	      main_core.Dom.replace(document.querySelector('#calendar-sync-status-block'), this.blockStatusContent);
+	      this.setGridContent();
 	    }
 	  }]);
 	  return SyncPanel;
@@ -1657,6 +1697,14 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }, {
 	    key: "onClick",
 	    value: function onClick() {
+	      BX.ajax.runAction('calendar.api.calendarajax.analytical', {
+	        analyticsLabel: {
+	          open_connection_slider: 'Y',
+	          sync_connection_type: this.item.getType(),
+	          sync_connection_status: this.item.getSyncStatus() ? 'Y' : 'N'
+	        }
+	      });
+
 	      if (this.item.hasMenu()) {
 	        this.item.showMenu(this.gridUnit);
 	      } else if (this.item.getConnectStatus()) {

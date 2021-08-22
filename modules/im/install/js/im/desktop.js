@@ -268,7 +268,7 @@
 			BX.create("div", { props : { className : "bx-desktop-update-box-btn" }, events : { click :  BX.delegate(function(){
 				if (BXIM.bitrixIntranet)
 				{
-					BX.Helper.show("redirect=detail&HD_ID=12715116");
+					BX.Helper.show("redirect=detail&code=12715116");
 				}
 				else
 				{

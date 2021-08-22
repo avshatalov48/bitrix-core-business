@@ -128,7 +128,11 @@ export default class MobileSyncBanner
 	getMobileSyncUrl()
 	{
 		return new Promise((resolve, reject) => {
-			BX.ajax.runAction('calendar.api.calendarajax.getAuthLink')
+			BX.ajax.runAction('calendar.api.calendarajax.getAuthLink', {
+				data: {
+					type: this.type ? 'slider' : 'banner',
+				}
+			})
 			.then(
 				(response) => {
 					resolve(response.data.link);

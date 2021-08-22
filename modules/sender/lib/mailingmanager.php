@@ -255,7 +255,7 @@ class MailingManager
 		$chainDb = MailingChainTable::getList(array(
 			'select' => array(
 				'ID', 'LAST_EXECUTED', 'POSTING_ID',
-				'DAYS_OF_MONTH', 'DAYS_OF_WEEK', 'TIMES_OF_DAY'
+				'MONTHS_OF_YEAR', 'DAYS_OF_MONTH', 'DAYS_OF_WEEK', 'TIMES_OF_DAY'
 			),
 			'filter' => array(
 				'=REITERATE' => 'Y',
@@ -279,7 +279,8 @@ class MailingManager
 				$dateTodayPhp,
 				$arMailingChain["DAYS_OF_MONTH"],
 				$arMailingChain["DAYS_OF_WEEK"],
-				$arMailingChain["TIMES_OF_DAY"]
+				$arMailingChain["TIMES_OF_DAY"],
+				$arMailingChain["MONTHS_OF_YEAR"]
 			);
 
 			if($timeOfExecute)
@@ -321,25 +322,35 @@ class MailingManager
 
 	/**
 	 * @param \DateTime $date
-	 * @param $daysOfMonth
-	 * @param $dayOfWeek
-	 * @param $timesOfDay
+	 * @param string|null $daysOfMonth
+	 * @param string|null $dayOfWeek
+	 * @param string|null $timesOfDay
+	 * @param string|null $monthsOfYear
 	 * @return \DateTime|null
 	 */
-	protected static function getDateExecute(\DateTime $date, $daysOfMonth, $dayOfWeek, $timesOfDay)
+	protected static function getDateExecute(
+		\DateTime $date,
+		?string $daysOfMonth = '',
+		?string $dayOfWeek = '',
+		?string $timesOfDay = '',
+		?string $monthsOfYear = ''
+	)
 	{
 		$timeOfExecute = null;
 
+		$months = MethodSchedule::parseMonthsOfYear($monthsOfYear);
 		$arDay = MethodSchedule::parseDaysOfMonth($daysOfMonth);
 		$arWeek = MethodSchedule::parseDaysOfWeek($dayOfWeek);
 		$arTime = MethodSchedule::parseTimesOfDay($timesOfDay);
+
 		if(!$arTime)
 			$arTime = array(0,0);
 
 		$day = $date->format('j');
 		$week = $date->format('N');
+		$month = $date->format('n');
 
-		if( (!$arDay || in_array($day, $arDay)) && (!$arWeek || in_array($week, $arWeek)) )
+		if( (!$arDay || in_array($day, $arDay)) && (!$arWeek || in_array($week, $arWeek)) && (!$months || in_array($month, $months)) )
 			$timeOfExecute = $date->setTime($arTime[0], $arTime[1]);
 
 		return $timeOfExecute;

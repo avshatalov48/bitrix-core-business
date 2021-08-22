@@ -20,6 +20,19 @@ Loc::loadMessages(__FILE__);
  * Class ContactTable
  *
  * @package Bitrix\Sender
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Contact_Query query()
+ * @method static EO_Contact_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Contact_Result getById($id)
+ * @method static EO_Contact_Result getList(array $parameters = array())
+ * @method static EO_Contact_Entity getEntity()
+ * @method static \Bitrix\Sender\EO_Contact createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\EO_Contact_Collection createCollection()
+ * @method static \Bitrix\Sender\EO_Contact wakeUpObject($row)
+ * @method static \Bitrix\Sender\EO_Contact_Collection wakeUpCollection($rows)
  */
 class ContactTable extends Entity\DataManager
 {
@@ -66,6 +79,8 @@ class ContactTable extends Entity\DataManager
 			),
 			'NAME' => array(
 				'data_type' => 'string',
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'USER_ID' => array(
 				'data_type' => 'integer',

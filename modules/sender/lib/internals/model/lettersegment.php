@@ -15,6 +15,19 @@ Loc::loadMessages(__FILE__);
 /**
  * Class LetterSegmentTable
  * @package Bitrix\Sender
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_LetterSegment_Query query()
+ * @method static EO_LetterSegment_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_LetterSegment_Result getById($id)
+ * @method static EO_LetterSegment_Result getList(array $parameters = array())
+ * @method static EO_LetterSegment_Entity getEntity()
+ * @method static \Bitrix\Sender\Internals\Model\EO_LetterSegment createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\Internals\Model\EO_LetterSegment_Collection createCollection()
+ * @method static \Bitrix\Sender\Internals\Model\EO_LetterSegment wakeUpObject($row)
+ * @method static \Bitrix\Sender\Internals\Model\EO_LetterSegment_Collection wakeUpCollection($rows)
  */
 class LetterSegmentTable extends Entity\DataManager
 {

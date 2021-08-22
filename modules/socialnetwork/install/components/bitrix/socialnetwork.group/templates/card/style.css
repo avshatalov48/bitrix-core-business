@@ -152,3 +152,7 @@
 .socialnetwork-group-wait-cont { height: 31px; }
 .socialnetwork-group-wait-icon { height: 31px; width: 31px; background: url('images/wait.gif') no-repeat 0 0; display: inline-block; position: relative; left: 1px; top: 1px; }
 .socialnetwork-group-wait-text { height: 31px; display: inline-block; position: relative; padding: 0 10px 0 5px; left: 1px; top: -11px; color: #7F7F7F; }
+
+.socialnetwork-group-title-buttons {
+	margin-right: 45px;
+}

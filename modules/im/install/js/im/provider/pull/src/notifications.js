@@ -42,7 +42,7 @@ export class ImNotificationsPullHandler
 			return false;
 		}
 
-		const user = this.store.getters['users/get'](params.userId)
+		const user = this.store.getters['users/get'](params.userId);
 		if (!user)
 		{
 			const users = [];
@@ -109,6 +109,7 @@ export class ImNotificationsPullHandler
 				counter: params.counter
 			}
 		});
+
 	}
 
 	handleNotifyUnread(params, extra)
@@ -141,9 +142,10 @@ export class ImNotificationsPullHandler
 			return false;
 		}
 
-		const idToDelete = +Object.keys(params.id)[0];
-		this.store.dispatch('notifications/delete', {
-			id: idToDelete
+		const idsToDelete = Object.keys(params.id).map(id => parseInt(id, 10));
+
+		idsToDelete.forEach(id => {
+			this.store.dispatch('notifications/delete', { id: id });
 		});
 
 		this.updateRecentListOnDelete(params.counter)

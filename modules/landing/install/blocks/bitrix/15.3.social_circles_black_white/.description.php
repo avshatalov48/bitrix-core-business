@@ -8,7 +8,7 @@ use \Bitrix\Main\Localization\Loc;
 
 return array(
 	'block' => array(
-		'name' => Loc::getMessage('LANDING_BLOCK_15.3.SOCIAL_NAME'),
+		'name' => Loc::getMessage('LANDING_BLOCK_15.3.SOCIAL_NAME_2'),
 		'section' => array('social'),
 		'dynamic' => false,
 	),

@@ -1,4 +1,19 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var CBitrixComponent $component */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var array $arDefaultUrlTemplates404 */
+/** @var string $componentPage */
+/** @global CDatabase $DB */
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
+
 $UID = ($arResult["VARIABLES"]["user_id"] > 0 ? $arResult["VARIABLES"]["user_id"] : $GLOBALS["USER"]->GetID());
 foreach ($arDefaultUrlTemplates404 as $url => $value)
 {
@@ -123,16 +138,18 @@ endif;
 $feature = "forum";
 $arEntityActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames(((mb_strpos($componentPage, "user_forum") === false) ? SONET_ENTITY_GROUP : SONET_ENTITY_USER), ((mb_strpos($componentPage, "user_forum") === false) ? $arResult["VARIABLES"]["group_id"] : $arResult["VARIABLES"]["user_id"]));
 $strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && $arEntityActiveFeatures[$feature] <> '') ? $arEntityActiveFeatures[$feature] : (mb_strpos($componentPage, "user_forum") === false ? GetMessage("FL_FORUM_GROUP_CHAIN") : GetMessage("FL_FORUM_USER_CHAIN")));
-$title = $strFeatureTitle;
 
 $url = "";
 if (mb_strpos($componentPage, "user_forum") === false)
 {
-	$arGroup = CSocNetGroup::GetByID($arResult["VARIABLES"]["group_id"]);
-	$APPLICATION->AddChainItem($arGroup["NAME"], CComponentEngine::MakePathFromTemplate($arResult["~PATH_TO_GROUP"], array("GID" => $arGroup["ID"])));
-	$title_short = $title;
-	$title = $arGroup["NAME"].": ".$title;
-	$url = CComponentEngine::MakePathFromTemplate($arResult["~PATH_TO_GROUP_FORUM"], array("GID" => $arGroup["ID"]));
+	$APPLICATION->AddChainItem($arResult['groupFields']['NAME'], \CComponentEngine::makePathFromTemplate($arResult['~PATH_TO_GROUP'], array(
+		'GID' => $arResult['groupFields']['ID'],
+	)));
+	$title_short = $strFeatureTitle;
+	$title = str_replace('#PAGE_TITLE#', $strFeatureTitle, $arResult['PAGES_TITLE_TEMPLATE']);
+	$url = \CComponentEngine::makePathFromTemplate($arResult['~PATH_TO_GROUP_FORUM'], [
+		'GID' => $arResult['groupFields']['ID'],
+	]);
 }
 else
 {
@@ -151,12 +168,9 @@ else
 	$bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
 	$strTitleFormatted = CUser::FormatName($arParams['TITLE_NAME_TEMPLATE'], $arUser, $bUseLogin);
 
-//	$arUserName = trim($arUser["NAME"]." ".$arUser["LAST_NAME"]);
-//	$arUserName = empty($arUserName) ? $arUser["LOGIN"] : $arUserName;
-
 	$APPLICATION->AddChainItem($strTitleFormatted, CComponentEngine::MakePathFromTemplate($arResult["~PATH_TO_USER"], array("UID" => $arUser["ID"])));
-	$title_short = $title;
-	$title = $strTitleFormatted.": ".$title;
+	$title_short = $strFeatureTitle;
+	$title = $strTitleFormatted.": ".$strFeatureTitle;
 	$url = CComponentEngine::MakePathFromTemplate($arResult["~PATH_TO_USER_FORUM"], array("UID" => $arUser["ID"]));
 }
 $APPLICATION->AddChainItem($strFeatureTitle, $url);
@@ -172,5 +186,5 @@ if ($arParams["SET_TITLE"] != "N")
 		$APPLICATION->SetTitle($title);
 	}
 }
+
 return 1;
-?>

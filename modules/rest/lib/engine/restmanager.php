@@ -70,6 +70,37 @@ class RestManager extends \IRestService
 		return $moduleId;
 	}
 
+	private static function getAlternativeScope($scope): ?array
+	{
+		if ($scope === \Bitrix\Rest\Api\User::SCOPE_USER)
+		{
+			return [
+				\Bitrix\Rest\Api\User::SCOPE_USER_BRIEF,
+				\Bitrix\Rest\Api\User::SCOPE_USER_BASIC,
+			];
+		}
+
+		return null;
+	}
+
+	public static function fillAlternativeScope($scope, $scopeList)
+	{
+		if (!in_array($scope, $scopeList, true))
+		{
+			$altScopeList = static::getAlternativeScope($scope);
+			if (is_array($altScopeList))
+			{
+				$hasScope = array_intersect($scopeList, $altScopeList);
+				if (count($hasScope) > 0)
+				{
+					$scopeList[] = $scope;
+				}
+			}
+		}
+
+		return $scopeList;
+	}
+
 	/**
 	 * Processes method to services.
 	 *
@@ -97,7 +128,7 @@ class RestManager extends \IRestService
 		$router = new Engine\Router($request);
 
 		/** @var Controller $controller */
-		list ($controller, $action) = Resolver::getControllerAndAction(
+		[$controller, $action] = Resolver::getControllerAndAction(
 			$router->getVendor(),
 			$router->getModule(),
 			$router->getAction(),

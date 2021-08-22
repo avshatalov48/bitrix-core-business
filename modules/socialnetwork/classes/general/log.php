@@ -786,8 +786,10 @@ class CAllSocNetLog
 		}
 		else // for all, mysql only
 		{
+
 			$tag = time();
 
+			// don't send to pull for all records
 			CUserCounter::IncrementWithSelect(
 				CSocNetLogCounter::GetSubSelect2(
 					$entityId,
@@ -807,6 +809,7 @@ class CAllSocNetLog
 				)
 			);
 
+			// send to pull discreet records (not for all)
 			CUserCounter::IncrementWithSelect(
 				CSocNetLogCounter::GetSubSelect2(
 					$entityId,
@@ -824,9 +827,10 @@ class CAllSocNetLog
 					"TAG_CHECK" => $tag
 				)
 			);
+
 		}
 
-		if ($event_id == "blog_post_important")
+		if ($event_id === "blog_post_important")
 		{
 			CUserCounter::IncrementWithSelect(
 				CSocNetLogCounter::GetSubSelect2(

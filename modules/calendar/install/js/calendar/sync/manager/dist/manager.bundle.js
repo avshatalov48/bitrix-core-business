@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
 this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
-(function (exports,main_popup,main_core_events,main_core) {
+(function (exports,main_popup,main_core_events,main_core,calendar_util) {
 	'use strict';
 
 	function _templateObject5() {
@@ -309,7 +309,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	          connections: connections,
 	          withUpdateButton: true,
 	          node: button.getContainer(),
-	          id: 'calendar-syncPanel-status'
+	          id: 'calendar-syncButton-status'
 	        });
 	        this.popup.show();
 	        this.popup.getPopup().getPopupContainer().addEventListener('mouseenter', function (e) {
@@ -346,6 +346,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 
 	      clearTimeout(this.buttonEnterTimeout);
 	      (window.top.BX || window.BX).Runtime.loadExtension('calendar.sync.interface').then(function (exports) {
+	        BX.ajax.runAction('calendar.api.calendarajax.analytical', {
+	          analyticsLabel: {
+	            sync_button_click: 'Y',
+	            has_active_connection: _this3.status === 'not_connected' ? 'N' : 'Y'
+	          }
+	        });
 	        _this3.syncPanel = new exports.SyncPanel({
 	          connectionsProviders: _this3.connectionsProviders,
 	          userId: _this3.userId,
@@ -353,7 +359,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        });
 
 	        _this3.syncPanel.openSlider();
-	      }); // this.refreshData();
+	      });
 	    }
 	  }, {
 	    key: "handlerMouseEnter",
@@ -528,6 +534,18 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    key: "setAdditionalParams",
 	    value: function setAdditionalParams(options) {
 	      this.additionalParams = options;
+	    }
+	  }, {
+	    key: "setSyncTimestamp",
+	    value: function setSyncTimestamp(timestamp) {
+	      this.syncTimestamp = timestamp;
+	      return this;
+	    }
+	  }, {
+	    key: "setStatus",
+	    value: function setStatus(status) {
+	      this.status = status;
+	      return this;
 	    }
 	  }, {
 	    key: "getGridTitle",
@@ -1306,22 +1324,25 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      var activePopup = event.getTarget();
 	      BX.ajax.runAction('calendar.api.calendarajax.updateConnection', {
 	        data: {
-	          type: 'user'
+	          type: 'user',
+	          requestUid: calendar_util.Util.registerRequestId()
 	        }
 	      }).then(function (response) {
 	        _this3.syncInfo = response.data;
 	        _this3.status = _this3.STATUS_SUCCESS;
 
-	        _this3.init();
-
-	        _this3.refreshCalendarGrid();
-
-	        _this3.refreshSyncButton();
-
-	        _this3.refreshActivePopup(activePopup);
-
-	        _this3.refreshOpenSliders(activePopup);
+	        _this3.refreshContent(activePopup);
 	      });
+	    }
+	  }, {
+	    key: "refreshContent",
+	    value: function refreshContent() {
+	      var activePopup = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      this.init();
+	      this.refreshCalendarGrid();
+	      this.refreshSyncButton();
+	      this.refreshActivePopup(activePopup);
+	      this.refreshOpenSliders(activePopup);
 	    }
 	  }, {
 	    key: "refreshCalendarGrid",
@@ -1336,15 +1357,18 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }, {
 	    key: "refreshActivePopup",
 	    value: function refreshActivePopup(activePopup) {
-	      if (activePopup.getId() === 'calendar-syncPanel-status') {
+	      if (activePopup instanceof SyncStatusPopup && activePopup.getId() === 'calendar-syncPanel-status') {
 	        activePopup.refresh(this.getConnections());
+	      } else if (this.syncButton.popup instanceof SyncStatusPopup && this.syncButton.popup.getId() === 'calendar-syncButton-status') {
+	        this.syncButton.popup.refresh(this.getConnections());
 	      }
 	    }
 	  }, {
 	    key: "refreshOpenSliders",
-	    value: function refreshOpenSliders(activePopup) {
+	    value: function refreshOpenSliders() {
 	      var _this4 = this;
 
+	      var activePopup = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	      var openSliders = BX.SidePanel.Instance.getOpenSliders();
 
 	      if (openSliders.length > 0) {
@@ -1352,7 +1376,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        openSliders.forEach(function (slider) {
 	          if (slider.getUrl() === 'calendar:sync-slider') {
 	            _this4.refreshMainSlider(syncPanel, slider);
-	          } else {
+	          } else if (slider.getUrl().indexOf('calendar:item-sync-') !== -1) {
 	            _this4.refreshConnectionSlider(slider, activePopup);
 	          }
 	        });
@@ -1361,18 +1385,28 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }, {
 	    key: "refreshConnectionSlider",
 	    value: function refreshConnectionSlider(slider, activePopup) {
+	      var updatedConnection = undefined;
 	      var itemInterface = slider.getData().get('itemInterface');
 	      var connection = slider.getData().get('connection');
-	      var updatedConnection = this.connectionsProviders[connection.getType()].getConnectionById(connection.getId());
-	      activePopup.refresh([updatedConnection]);
-	      itemInterface.refresh(updatedConnection);
+
+	      if (connection) {
+	        updatedConnection = this.connectionsProviders[connection.getType()].getConnectionById(connection.getId());
+	      }
+
+	      if (activePopup instanceof SyncStatusPopup && updatedConnection) {
+	        activePopup.refresh([updatedConnection]);
+	      }
+
+	      if (itemInterface && updatedConnection) {
+	        itemInterface.refresh(updatedConnection);
+	      }
+
 	      slider.reload();
 	    }
 	  }, {
 	    key: "refreshMainSlider",
 	    value: function refreshMainSlider(syncPanel, slider) {
 	      syncPanel.refresh(this.status, this.connectionsProviders);
-	      slider.reload();
 	    }
 	  }, {
 	    key: "getConnections",
@@ -1397,6 +1431,56 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    value: function reDrawCalendarGrid() {
 	      this.calendarInstance.reload();
 	    }
+	  }, {
+	    key: "updateSyncStatus",
+	    value: function updateSyncStatus(params) {
+	      if (!BX.Calendar.Util.checkRequestId(params.requestUid)) {
+	        return;
+	      }
+
+	      for (var connectionName in params.syncInfo) {
+	        if (this.syncInfo[connectionName]) {
+	          this.syncInfo[connectionName] = babelHelpers.objectSpread({}, this.syncInfo[connectionName], params.syncInfo[connectionName]);
+	        }
+	      }
+
+	      this.status = this.STATUS_SUCCESS;
+	      this.refreshContent();
+	    }
+	  }, {
+	    key: "addSyncConnection",
+	    value: function addSyncConnection(params) {
+	      for (var connectionName in params.syncInfo) {
+	        if (['yandex', 'caldav', 'google'].includes(params.syncInfo[connectionName].type)) {
+	          BX.reload();
+	        }
+
+	        if (BX.Calendar.Util.checkRequestId(params.requestUid)) {
+	          if (this.syncInfo[connectionName]) {
+	            this.syncInfo[connectionName] = babelHelpers.objectSpread({}, this.syncInfo[connectionName], params.syncInfo[connectionName]);
+	          }
+	        }
+	      }
+
+	      this.status = this.STATUS_SUCCESS;
+	      this.refreshContent();
+	    }
+	  }, {
+	    key: "deleteSyncConnection",
+	    value: function deleteSyncConnection(params) {
+	      if (!BX.Calendar.Util.checkRequestId(params.requestUid)) {
+	        return;
+	      }
+
+	      for (var connectionName in params.syncInfo) {
+	        if (this.syncInfo[connectionName]) {
+	          delete this.syncInfo[connectionName];
+	        }
+	      }
+
+	      this.status = this.STATUS_SUCCESS;
+	      this.refreshContent();
+	    }
 	  }]);
 	  return Manager;
 	}(main_core_events.EventEmitter);
@@ -1406,5 +1490,5 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	exports.SyncStatusPopup = SyncStatusPopup;
 	exports.ConnectionItem = ConnectionItem;
 
-}((this.BX.Calendar.Sync.Manager = this.BX.Calendar.Sync.Manager || {}),BX.Main,BX.Event,BX));
+}((this.BX.Calendar.Sync.Manager = this.BX.Calendar.Sync.Manager || {}),BX.Main,BX.Event,BX,BX.Calendar));
 //# sourceMappingURL=manager.bundle.js.map

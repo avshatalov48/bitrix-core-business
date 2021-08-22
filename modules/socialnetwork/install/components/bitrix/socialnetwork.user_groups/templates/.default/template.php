@@ -1,4 +1,10 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -11,7 +17,10 @@ use Bitrix\Main\Update\Stepper;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
 
-\Bitrix\Main\UI\Extension::load(["ui.fonts.opensans", "ui.icons.b24"]);
+\Bitrix\Main\UI\Extension::load([
+	'ui.fonts.opensans',
+	'ui.icons.b24',
+]);
 
 UI\Extension::load("socialnetwork.common");
 
@@ -271,44 +280,20 @@ else
 									?><span class="sonet-groups-group-title-text"><?
 										?><a href="<?=$group["GROUP_URL"]?>" class="sonet-groups-group-link" target="_top"><?=$group["GROUP_NAME"]?></a><?
 										?><?=($group["IS_EXTRANET"] == "Y" && SITE_TEMPLATE_ID != "bitrix24" ? '<span class="sonet-groups-group-signature">'.GetMessage("SONET_C33_T_IS_EXTRANET").'</span>' : '')?><?
-									?></span><?
+									?></span><?php
 
-									$isFav = (isset($group['IN_FAVORITES']) && $group['IN_FAVORITES'] == 'Y');
-									?><span title="<?=GetMessage('SONET_C33_T_ACT_FAVORITES_'.($isFav ? 'REMOVE' : 'ADD'))?>" id="bx-sonet-groups-favorites-<?=intval($group['GROUP_ID'])?>" class="sonet-groups-group-title-favorites<?=($isFav ? ' sonet-groups-group-title-favorites-active' : '')?>"></span><?
-									?><script>
-										BX.bind(BX('bx-sonet-groups-favorites-<?=intval($group['GROUP_ID'])?>'), 'click', function(e) {
-											var star = BX('bx-sonet-groups-favorites-<?=intval($group['GROUP_ID'])?>');
-											var isActive = BX.hasClass(BX('bx-sonet-groups-favorites-<?=intval($group['GROUP_ID'])?>'), 'sonet-groups-group-title-favorites-active');
+									$isFav = (isset($group['IN_FAVORITES']) && $group['IN_FAVORITES'] === 'Y');
+									$classList = [ 'sonet-groups-group-title-favorites' ];
+									if ($isFav)
+									{
+										$classList[] = 'sonet-groups-group-title-favorites-active';
+									}
 
-											oSUG.setFavorites(star, !isActive);
-
-											oSUG.sendRequest({
-												action: 'FAVORITES',
-												groupId: <?=intval($group['GROUP_ID'])?>,
-												value: (isActive ? 'N' : 'Y'),
-												callback_success: function(data)
-												{
-													if (
-														typeof data.NAME != 'undefined'
-														&& typeof data.URL != 'undefined'
-													)
-													{
-														BX.onCustomEvent(window, 'BX.Socialnetwork.WorkgroupFavorites:onSet', [{
-															id: <?=intval($group['GROUP_ID'])?>,
-															name: data.NAME,
-															url: data.URL,
-															extranet: (typeof data.EXTRANET != 'undefined' ? data.EXTRANET : 'N')
-														}, !isActive]);
-													}
-												},
-												callback_failure: function(errorText)
-												{
-													oSUG.setFavorites(star, isActive);
-												}
-											});
-											return BX.PreventDefault(e);
-										});
-									</script><?
+									?><span
+										title="<?= Loc::getMessage('SONET_C33_T_ACT_FAVORITES_' . ($isFav ? 'REMOVE' : 'ADD')) ?>"
+										class="<?= implode(' ', $classList)?>"
+										data-bx-group-id="<?=(int)$group['GROUP_ID']?>"
+									></span><?php
 								?></span><?
 								?><?=($group["GROUP_DESCRIPTION_FULL"] <> '' ? '<span class="sonet-groups-group-description">'.$group["GROUP_DESCRIPTION_FULL"].'</span>' : "")?><?
 								$membersCount = $group["NUMBER_OF_MEMBERS"];

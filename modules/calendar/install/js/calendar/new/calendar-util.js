@@ -512,21 +512,28 @@
 
 		getScrollbarWidth: function()
 		{
-			// add outer div
-			var
-				outer = this.calendar.mainCont.appendChild(BX.create('DIV', {props: {className: 'calendar-tmp-outer'}})),
-				widthNoScroll = outer.offsetWidth;
+			if (BX.browser.IsMac())
+			{
+				result = 17;
+			}
+			else
+			{
+				// add outer div
+				var
+					outer = this.calendar.mainCont.appendChild(BX.create('DIV', {props: {className: 'calendar-tmp-outer'}})),
+					widthNoScroll = outer.offsetWidth;
 
-			// force scrollbars
-			outer.style.overflow = "scroll";
+				// force scrollbars
+				outer.style.overflow = "scroll";
 
-			// add inner div
-			var
-				inner = outer.appendChild(BX.create('DIV', {props: {className: 'calendar-tmp-inner'}})),
-				widthWithScroll = inner.offsetWidth,
-				result = widthNoScroll - widthWithScroll;
+				// add inner div
+				var
+					inner = outer.appendChild(BX.create('DIV', {props: {className: 'calendar-tmp-inner'}})),
+					widthWithScroll = inner.offsetWidth,
+					result = widthNoScroll - widthWithScroll;
 
-			BX.cleanNode(outer, true);
+				BX.cleanNode(outer, true);
+			}
 
 			this.getScrollbarWidth = function(){return result;};
 			return result;

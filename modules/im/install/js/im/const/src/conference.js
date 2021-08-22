@@ -39,3 +39,16 @@ export const ConferenceRightPanelMode = Object.freeze({
 	users: 'users',
 	split: 'split'
 });
+
+//BX.Call.UserState sync
+export const ConferenceUserState = Object.freeze({
+	Idle: 'Idle',
+	Busy: 'Busy',
+	Calling: 'Calling',
+	Unavailable: 'Unavailable',
+	Declined: 'Declined',
+	Ready: 'Ready',
+	Connecting: 'Connecting',
+	Connected: 'Connected',
+	Failed: 'Failed'
+});

@@ -19,7 +19,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Catalog
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_GroupLang_Query query()
+ * @method static EO_GroupLang_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_GroupLang_Result getById($id)
+ * @method static EO_GroupLang_Result getList(array $parameters = array())
+ * @method static EO_GroupLang_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_GroupLang createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_GroupLang_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_GroupLang wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_GroupLang_Collection wakeUpCollection($rows)
+ */
 
 class GroupLangTable extends Main\Entity\DataManager
 {

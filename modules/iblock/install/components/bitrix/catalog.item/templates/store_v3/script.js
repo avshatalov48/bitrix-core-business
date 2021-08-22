@@ -363,7 +363,14 @@
 						}
 					}
 
-					this.viewedParams.skuId = parseInt(this.offers[this.offerNum].ID);
+					if (BX.type.isPlainObject(this.offers[this.offerNum]))
+					{
+						this.viewedParams.skuId = parseInt(this.offers[this.offerNum].ID);
+					}
+					else
+					{
+						this.viewedParams.skuId = 0;
+					}
 					this.viewedParams.productId = parseInt(arParams.PRODUCT.ID);
 
 					break;
@@ -823,7 +830,6 @@
 			{
 				case 'addToCart':
 					info = {
-						'event': 'addToCart',
 						'ecommerce': {
 							'currencyCode': this.currentPrices[this.currentPriceSelected] && this.currentPrices[this.currentPriceSelected].CURRENCY || '',
 							'add': {
@@ -2912,7 +2918,7 @@
 
 			if (successful && this.basketMode === 'BUY')
 			{
-				this.prebuyPopupClose();
+				// this.prebuyPopupClose();
 				this.basketRedirect();
 			}
 			else

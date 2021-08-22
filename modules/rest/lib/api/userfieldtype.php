@@ -8,9 +8,11 @@ use Bitrix\Rest\AppTable;
 use Bitrix\Rest\AuthTypeException;
 use Bitrix\Rest\HandlerHelper;
 use Bitrix\Rest\OAuth\Auth;
+use Bitrix\Rest\PlacementLangTable;
 use Bitrix\Rest\PlacementTable;
 use Bitrix\Rest\RestException;
 use Bitrix\Rest\UserField\Callback;
+use Bitrix\Rest\Lang;
 
 class UserFieldType extends \IRestService
 {
@@ -84,6 +86,21 @@ class UserFieldType extends \IRestService
 		);
 	}
 
+	private static function prepareOption($option): array
+	{
+		$result = [];
+		if (is_array($option))
+		{
+			$option = array_change_key_case($option, CASE_LOWER);
+			if ($option['height'])
+			{
+				$result['height'] = (int)$option['height'];
+			}
+		}
+
+		return $result;
+	}
+
 	public static function add($param, $n, \CRestServer $server)
 	{
 		static::checkPermission($server);
@@ -113,17 +130,28 @@ class UserFieldType extends \IRestService
 			'PLACEMENT_HANDLER' => $placementHandler,
 			'TITLE' => $userTypeId,
 			'ADDITIONAL' => $userTypeId,
+			'OPTIONS' => static::prepareOption($param['OPTIONS']),
 		);
 
-		if(!empty($param['TITLE']))
+		$placementBind = array_merge(
+			$placementBind,
+			Lang::fillCompatibility(
+				$param,
+				[
+					'TITLE',
+					'DESCRIPTION',
+				],
+				[
+					'TITLE' => $placementBind['TITLE']
+				]
+			)
+		);
+		$langAll = [];
+		if ($placementBind['LANG_ALL'])
 		{
-			$placementBind['TITLE'] = trim($param['TITLE']);
+			$langAll = $placementBind['LANG_ALL'];
 		}
-
-		if(!empty($param['DESCRIPTION']))
-		{
-			$placementBind['COMMENT'] = trim($param['DESCRIPTION']);
-		}
+		unset($placementBind['LANG_ALL']);
 
 		$result = PlacementTable::add($placementBind);
 		if(!$result->isSuccess())
@@ -136,8 +164,22 @@ class UserFieldType extends \IRestService
 		}
 		else
 		{
+			$placementId = $result->getId();
+			foreach ($langAll as $lang => $item)
+			{
+				$item['PLACEMENT_ID'] = $placementId;
+				$item['LANGUAGE_ID'] = $lang;
+				$res = PlacementLangTable::add($item);
+				if (!$res->isSuccess())
+				{
+					throw new RestException(
+						'Error: ' . implode(', ', $res->getErrorMessages()),
+						RestException::ERROR_CORE
+					);
+				}
+			}
 			Callback::bind(array(
-				'ID' => $result->getId(),
+				'ID' => $placementId,
 				'APP_ID' => $appInfo['ID'],
 				'ADDITIONAL' => $userTypeId,
 			));
@@ -168,15 +210,30 @@ class UserFieldType extends \IRestService
 			$updateFields['PLACEMENT_HANDLER'] = $param['HANDLER'];
 		}
 
-		if(!empty($param['TITLE']))
+		if (array_key_exists('OPTIONS', $param))
 		{
-			$updateFields['TITLE'] = trim($param['TITLE']);
+			$updateFields['OPTIONS'] = static::prepareOption($param['OPTIONS']);
 		}
 
-		if(!empty($param['DESCRIPTION']))
+		$updateFields = array_merge(
+			$updateFields,
+			Lang::fillCompatibility(
+				$param,
+				[
+					'TITLE',
+					'DESCRIPTION',
+				],
+				[
+					'TITLE' => $updateFields['TITLE']
+				]
+			)
+		);
+		$langAll = [];
+		if ($updateFields['LANG_ALL'])
 		{
-			$updateFields['COMMENT'] = trim($param['DESCRIPTION']);
+			$langAll = $updateFields['LANG_ALL'];
 		}
+		unset($updateFields['LANG_ALL']);
 
 		if(count($updateFields) > 0)
 		{
@@ -193,6 +250,20 @@ class UserFieldType extends \IRestService
 				$updateResult = PlacementTable::update($placementInfo['ID'], $updateFields);
 				if($updateResult->isSuccess())
 				{
+					PlacementLangTable::deleteByPlacement($placementInfo['ID']);
+					foreach ($langAll as $lang => $item)
+					{
+						$item['PLACEMENT_ID'] = $placementInfo['ID'];
+						$item['LANGUAGE_ID'] = $lang;
+						$res = PlacementLangTable::add($item);
+						if (!$res->isSuccess())
+						{
+							throw new RestException(
+								'Error: ' . implode(', ', $res->getErrorMessages()),
+								RestException::ERROR_CORE
+							);
+						}
+					}
 					// rebind handler for failover reasons
 					Callback::bind($placementInfo);
 				}

@@ -14,8 +14,8 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'photography',
-			'THEMEFONTS_CODE' => 'g-font-roboto',
-			'THEMEFONTS_CODE_H' => 'g-font-roboto',
+			'THEMEFONTS_CODE' => 'Roboto',
+			'THEMEFONTS_CODE_H' => 'Roboto',
 			'THEMEFONTS_SIZE' => '0.92857',
 			'THEMEFONTS_USE' => 'Y',
 			'UP_SHOW' => 'Y',

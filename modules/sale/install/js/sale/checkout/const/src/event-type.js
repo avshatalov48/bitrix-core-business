@@ -13,7 +13,9 @@ export const EventType = Object.freeze({
             backdropClose: 'EventType.basket.backdropClose',
             backdropOpen: 'EventType.basket.backdropOpen',
             backdropTotalClose: 'EventType.basket.backdropTotalClose',
-            backdropTotalOpen: 'EventType.basket.backdropTotalOpen'
+            backdropTotalOpen: 'EventType.basket.backdropTotalOpen',
+            needRefresh: 'EventType.basket.needRefresh',
+            refreshAfter: 'EventType.basket.refreshAfter'
         },
     consent:
         {

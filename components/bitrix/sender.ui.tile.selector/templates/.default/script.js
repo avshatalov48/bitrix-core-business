@@ -64,6 +64,8 @@
 		this.multiple = params.multiple;
 		this.readonly = params.readonly;
 		this.manualInputEnd = params.manualInputEnd;
+		this.checkOnStatic = params.checkOnStatic;
+		this.notifyContent = params.notifyContent;
 
 		this.attributeId = 'data-bx-id';
 		this.attributeData = 'data-bx-data';
@@ -141,6 +143,8 @@
 				'id': this.id,
 				'caller': this,
 				'context': this.context,
+				'notifyContent': this.notifyContent,
+				'checkOnStatic': this.checkOnStatic,
 				'title': title || ''
 			});
 		}
@@ -540,6 +544,8 @@
 		this.id = params.id;
 		this.context = params.context;
 		this.caller = params.caller;
+		this.checkOnStatic = params.checkOnStatic;
+		this.notifyContent = params.notifyContent;
 
 		this.categories = [];
 		this.items = [];
@@ -572,6 +578,14 @@
 	};
 	Searcher.prototype.onTileAdd = function (tile)
 	{
+		if (tile.data.hasStatic && this.checkOnStatic)
+		{
+			BX.UI.Notification.Center.notify({
+				content: this.notifyContent,
+				position: 'top-right',
+				autoHideDelay: 5000,
+			});
+		}
 		var item = Helper.getObjectByKey(this.items, 'id', tile.id);
 		if (!item)
 		{

@@ -72,14 +72,7 @@ export class BaseField extends EventEmitter
 			Dom.addClass(this.layout, this.className);
 		}
 
-		if (
-			Type.isString(this.descriptionText)
-			&& this.descriptionText !== ''
-		)
-		{
-			this.description = BaseField.createDescription(this.descriptionText);
-			Dom.append(this.description, this.layout);
-		}
+		this.setDescription(this.descriptionText);
 
 		if (this.data.disabled === true)
 		{
@@ -94,6 +87,32 @@ export class BaseField extends EventEmitter
 	setTitle(title: string)
 	{
 		this.header.innerHTML = Text.encode(title);
+	}
+
+	getDescription(): ?HTMLDivElement
+	{
+		return this.layout.querySelector('.landing-ui-field-description');
+	}
+
+	setDescription(description: string)
+	{
+		if (
+			Type.isString(description)
+			&& description !== ''
+		)
+		{
+			this.descriptionText = description;
+			this.description = BaseField.createDescription(this.descriptionText);
+			Dom.remove(this.getDescription());
+			Dom.append(this.description, this.layout);
+		}
+	}
+
+	removeDescription()
+	{
+		Dom.remove(this.getDescription());
+		this.description = null;
+		this.descriptionText = '';
 	}
 
 	createInput(): HTMLDivElement

@@ -187,18 +187,6 @@ namespace Bitrix\Rest\APAuth {
 }
 namespace Bitrix\Rest\APAuth {
 	/**
-	 * @method static EO_Password_Query query()
-	 * @method static EO_Password_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Password_Result getById($id)
-	 * @method static EO_Password_Result getList(array $parameters = array())
-	 * @method static EO_Password_Entity getEntity()
-	 * @method static \Bitrix\Rest\APAuth\EO_Password createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\APAuth\EO_Password_Collection createCollection()
-	 * @method static \Bitrix\Rest\APAuth\EO_Password wakeUpObject($row)
-	 * @method static \Bitrix\Rest\APAuth\EO_Password_Collection wakeUpCollection($rows)
-	 */
-	class PasswordTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -339,18 +327,6 @@ namespace Bitrix\Rest\APAuth {
 }
 namespace Bitrix\Rest\APAuth {
 	/**
-	 * @method static EO_Permission_Query query()
-	 * @method static EO_Permission_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Permission_Result getById($id)
-	 * @method static EO_Permission_Result getList(array $parameters = array())
-	 * @method static EO_Permission_Entity getEntity()
-	 * @method static \Bitrix\Rest\APAuth\EO_Permission createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\APAuth\EO_Permission_Collection createCollection()
-	 * @method static \Bitrix\Rest\APAuth\EO_Permission wakeUpObject($row)
-	 * @method static \Bitrix\Rest\APAuth\EO_Permission_Collection wakeUpCollection($rows)
-	 */
-	class PermissionTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -376,7 +352,7 @@ namespace Bitrix\Rest\APAuth {
 	 */
 	class EO_Permission_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Rest\AppTable:rest/lib/app.php:985747c7ba6118857eb55879fa29e737 */
+/* ORMENTITYANNOTATION:Bitrix\Rest\AppTable:rest/lib/app.php:12fd3fca385d44ac5a31f831845b270f */
 namespace Bitrix\Rest {
 	/**
 	 * EO_App
@@ -748,18 +724,6 @@ namespace Bitrix\Rest {
 }
 namespace Bitrix\Rest {
 	/**
-	 * @method static EO_App_Query query()
-	 * @method static EO_App_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_App_Result getById($id)
-	 * @method static EO_App_Result getList(array $parameters = array())
-	 * @method static EO_App_Entity getEntity()
-	 * @method static \Bitrix\Rest\EO_App createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\EO_App_Collection createCollection()
-	 * @method static \Bitrix\Rest\EO_App wakeUpObject($row)
-	 * @method static \Bitrix\Rest\EO_App_Collection wakeUpCollection($rows)
-	 */
-	class AppTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -924,18 +888,6 @@ namespace Bitrix\Rest {
 	}
 }
 namespace Bitrix\Rest {
-	/**
-	 * @method static EO_AppLang_Query query()
-	 * @method static EO_AppLang_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_AppLang_Result getById($id)
-	 * @method static EO_AppLang_Result getList(array $parameters = array())
-	 * @method static EO_AppLang_Entity getEntity()
-	 * @method static \Bitrix\Rest\EO_AppLang createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\EO_AppLang_Collection createCollection()
-	 * @method static \Bitrix\Rest\EO_AppLang wakeUpObject($row)
-	 * @method static \Bitrix\Rest\EO_AppLang_Collection wakeUpCollection($rows)
-	 */
-	class AppLangTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1112,18 +1064,6 @@ namespace Bitrix\Rest {
 	}
 }
 namespace Bitrix\Rest {
-	/**
-	 * @method static EO_AppLog_Query query()
-	 * @method static EO_AppLog_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_AppLog_Result getById($id)
-	 * @method static EO_AppLog_Result getList(array $parameters = array())
-	 * @method static EO_AppLog_Entity getEntity()
-	 * @method static \Bitrix\Rest\EO_AppLog createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\EO_AppLog_Collection createCollection()
-	 * @method static \Bitrix\Rest\EO_AppLog wakeUpObject($row)
-	 * @method static \Bitrix\Rest\EO_AppLog_Collection wakeUpCollection($rows)
-	 */
-	class AppLogTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1302,18 +1242,6 @@ namespace Bitrix\Rest\Configuration {
 }
 namespace Bitrix\Rest\Configuration {
 	/**
-	 * @method static EO_OwnerEntity_Query query()
-	 * @method static EO_OwnerEntity_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OwnerEntity_Result getById($id)
-	 * @method static EO_OwnerEntity_Result getList(array $parameters = array())
-	 * @method static EO_OwnerEntity_Entity getEntity()
-	 * @method static \Bitrix\Rest\Configuration\EO_OwnerEntity createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\Configuration\EO_OwnerEntity_Collection createCollection()
-	 * @method static \Bitrix\Rest\Configuration\EO_OwnerEntity wakeUpObject($row)
-	 * @method static \Bitrix\Rest\Configuration\EO_OwnerEntity_Collection wakeUpCollection($rows)
-	 */
-	class OwnerEntityTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1339,7 +1267,171 @@ namespace Bitrix\Rest\Configuration {
 	 */
 	class EO_OwnerEntity_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Rest\EventTable:rest/lib/event.php:6828824ff4939eec17b319ffda4b935e */
+/* ORMENTITYANNOTATION:Bitrix\Rest\Configuration\StorageTable:rest/lib/configuration/storage.php:4630dd6c62590272b3c343f107ad3b66 */
+namespace Bitrix\Rest\Configuration {
+	/**
+	 * EO_Storage
+	 * @see \Bitrix\Rest\Configuration\StorageTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \Bitrix\Main\Type\DateTime getCreateTime()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage setCreateTime(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $createTime)
+	 * @method bool hasCreateTime()
+	 * @method bool isCreateTimeFilled()
+	 * @method bool isCreateTimeChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualCreateTime()
+	 * @method \Bitrix\Main\Type\DateTime requireCreateTime()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage resetCreateTime()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage unsetCreateTime()
+	 * @method \Bitrix\Main\Type\DateTime fillCreateTime()
+	 * @method \string getContext()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage setContext(\string|\Bitrix\Main\DB\SqlExpression $context)
+	 * @method bool hasContext()
+	 * @method bool isContextFilled()
+	 * @method bool isContextChanged()
+	 * @method \string remindActualContext()
+	 * @method \string requireContext()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage resetContext()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage unsetContext()
+	 * @method \string fillContext()
+	 * @method \string getCode()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage setCode(\string|\Bitrix\Main\DB\SqlExpression $code)
+	 * @method bool hasCode()
+	 * @method bool isCodeFilled()
+	 * @method bool isCodeChanged()
+	 * @method \string remindActualCode()
+	 * @method \string requireCode()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage resetCode()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage unsetCode()
+	 * @method \string fillCode()
+	 * @method array getData()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage setData(array|\Bitrix\Main\DB\SqlExpression $data)
+	 * @method bool hasData()
+	 * @method bool isDataFilled()
+	 * @method bool isDataChanged()
+	 * @method array remindActualData()
+	 * @method array requireData()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage resetData()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage unsetData()
+	 * @method array fillData()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Rest\Configuration\EO_Storage set($fieldName, $value)
+	 * @method \Bitrix\Rest\Configuration\EO_Storage reset($fieldName)
+	 * @method \Bitrix\Rest\Configuration\EO_Storage unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Rest\Configuration\EO_Storage wakeUp($data)
+	 */
+	class EO_Storage {
+		/* @var \Bitrix\Rest\Configuration\StorageTable */
+		static public $dataClass = '\Bitrix\Rest\Configuration\StorageTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Rest\Configuration {
+	/**
+	 * EO_Storage_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \Bitrix\Main\Type\DateTime[] getCreateTimeList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillCreateTime()
+	 * @method \string[] getContextList()
+	 * @method \string[] fillContext()
+	 * @method \string[] getCodeList()
+	 * @method \string[] fillCode()
+	 * @method array[] getDataList()
+	 * @method array[] fillData()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Rest\Configuration\EO_Storage $object)
+	 * @method bool has(\Bitrix\Rest\Configuration\EO_Storage $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Rest\Configuration\EO_Storage getByPrimary($primary)
+	 * @method \Bitrix\Rest\Configuration\EO_Storage[] getAll()
+	 * @method bool remove(\Bitrix\Rest\Configuration\EO_Storage $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Rest\Configuration\EO_Storage_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Rest\Configuration\EO_Storage current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_Storage_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Rest\Configuration\StorageTable */
+		static public $dataClass = '\Bitrix\Rest\Configuration\StorageTable';
+	}
+}
+namespace Bitrix\Rest\Configuration {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Storage_Result exec()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage fetchObject()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_Storage_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Rest\Configuration\EO_Storage fetchObject()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage_Collection fetchCollection()
+	 */
+	class EO_Storage_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Rest\Configuration\EO_Storage createObject($setDefaultValues = true)
+	 * @method \Bitrix\Rest\Configuration\EO_Storage_Collection createCollection()
+	 * @method \Bitrix\Rest\Configuration\EO_Storage wakeUpObject($row)
+	 * @method \Bitrix\Rest\Configuration\EO_Storage_Collection wakeUpCollection($rows)
+	 */
+	class EO_Storage_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Rest\EventTable:rest/lib/event.php:6d150f7d0ef0c58f291cd9e597a39eaf */
 namespace Bitrix\Rest {
 	/**
 	 * EO_Event
@@ -1453,6 +1545,16 @@ namespace Bitrix\Rest {
 	 * @method \Bitrix\Rest\EO_Event resetIntegrationId()
 	 * @method \Bitrix\Rest\EO_Event unsetIntegrationId()
 	 * @method \int fillIntegrationId()
+	 * @method array getOptions()
+	 * @method \Bitrix\Rest\EO_Event setOptions(array|\Bitrix\Main\DB\SqlExpression $options)
+	 * @method bool hasOptions()
+	 * @method bool isOptionsFilled()
+	 * @method bool isOptionsChanged()
+	 * @method array remindActualOptions()
+	 * @method array requireOptions()
+	 * @method \Bitrix\Rest\EO_Event resetOptions()
+	 * @method \Bitrix\Rest\EO_Event unsetOptions()
+	 * @method array fillOptions()
 	 * @method \Bitrix\Rest\EO_App getRestApp()
 	 * @method \Bitrix\Rest\EO_App remindActualRestApp()
 	 * @method \Bitrix\Rest\EO_App requireRestApp()
@@ -1537,6 +1639,8 @@ namespace Bitrix\Rest {
 	 * @method \string[] fillConnectorId()
 	 * @method \int[] getIntegrationIdList()
 	 * @method \int[] fillIntegrationId()
+	 * @method array[] getOptionsList()
+	 * @method array[] fillOptions()
 	 * @method \Bitrix\Rest\EO_App[] getRestAppList()
 	 * @method \Bitrix\Rest\EO_Event_Collection getRestAppCollection()
 	 * @method \Bitrix\Rest\EO_App_Collection fillRestApp()
@@ -1576,18 +1680,6 @@ namespace Bitrix\Rest {
 }
 namespace Bitrix\Rest {
 	/**
-	 * @method static EO_Event_Query query()
-	 * @method static EO_Event_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Event_Result getById($id)
-	 * @method static EO_Event_Result getList(array $parameters = array())
-	 * @method static EO_Event_Entity getEntity()
-	 * @method static \Bitrix\Rest\EO_Event createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\EO_Event_Collection createCollection()
-	 * @method static \Bitrix\Rest\EO_Event wakeUpObject($row)
-	 * @method static \Bitrix\Rest\EO_Event_Collection wakeUpCollection($rows)
-	 */
-	class EventTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1613,7 +1705,7 @@ namespace Bitrix\Rest {
 	 */
 	class EO_Event_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Rest\EventOfflineTable:rest/lib/eventoffline.php:c77476b385795095c236237f64279af1 */
+/* ORMENTITYANNOTATION:Bitrix\Rest\EventOfflineTable:rest/lib/eventoffline.php:5d551050bb67bb53f0e50e0cc648a608 */
 namespace Bitrix\Rest {
 	/**
 	 * EO_EventOffline
@@ -1812,18 +1904,6 @@ namespace Bitrix\Rest {
 }
 namespace Bitrix\Rest {
 	/**
-	 * @method static EO_EventOffline_Query query()
-	 * @method static EO_EventOffline_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_EventOffline_Result getById($id)
-	 * @method static EO_EventOffline_Result getList(array $parameters = array())
-	 * @method static EO_EventOffline_Entity getEntity()
-	 * @method static \Bitrix\Rest\EO_EventOffline createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\EO_EventOffline_Collection createCollection()
-	 * @method static \Bitrix\Rest\EO_EventOffline wakeUpObject($row)
-	 * @method static \Bitrix\Rest\EO_EventOffline_Collection wakeUpCollection($rows)
-	 */
-	class EventOfflineTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1849,7 +1929,7 @@ namespace Bitrix\Rest {
 	 */
 	class EO_EventOffline_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Rest\LogTable:rest/lib/log.php:68521f9117780a582524253682b5d5ca */
+/* ORMENTITYANNOTATION:Bitrix\Rest\LogTable:rest/lib/log.php:95ea101677b274711810d5e12ab4522c */
 namespace Bitrix\Rest {
 	/**
 	 * EO_Log
@@ -2072,18 +2152,6 @@ namespace Bitrix\Rest {
 }
 namespace Bitrix\Rest {
 	/**
-	 * @method static EO_Log_Query query()
-	 * @method static EO_Log_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Log_Result getById($id)
-	 * @method static EO_Log_Result getList(array $parameters = array())
-	 * @method static EO_Log_Entity getEntity()
-	 * @method static \Bitrix\Rest\EO_Log createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\EO_Log_Collection createCollection()
-	 * @method static \Bitrix\Rest\EO_Log wakeUpObject($row)
-	 * @method static \Bitrix\Rest\EO_Log_Collection wakeUpCollection($rows)
-	 */
-	class LogTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2109,7 +2177,7 @@ namespace Bitrix\Rest {
 	 */
 	class EO_Log_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Rest\PlacementTable:rest/lib/placement.php:8780463cd8242ed4e21f0ed663097dce */
+/* ORMENTITYANNOTATION:Bitrix\Rest\PlacementTable:rest/lib/placement.php:69a814c3e5eacd2650e2640e7e2d521e */
 namespace Bitrix\Rest {
 	/**
 	 * EO_Placement
@@ -2163,6 +2231,16 @@ namespace Bitrix\Rest {
 	 * @method \Bitrix\Rest\EO_Placement resetGroupName()
 	 * @method \Bitrix\Rest\EO_Placement unsetGroupName()
 	 * @method \string fillGroupName()
+	 * @method \int getIconId()
+	 * @method \Bitrix\Rest\EO_Placement setIconId(\int|\Bitrix\Main\DB\SqlExpression $iconId)
+	 * @method bool hasIconId()
+	 * @method bool isIconIdFilled()
+	 * @method bool isIconIdChanged()
+	 * @method \int remindActualIconId()
+	 * @method \int requireIconId()
+	 * @method \Bitrix\Rest\EO_Placement resetIconId()
+	 * @method \Bitrix\Rest\EO_Placement unsetIconId()
+	 * @method \int fillIconId()
 	 * @method \string getTitle()
 	 * @method \Bitrix\Rest\EO_Placement setTitle(\string|\Bitrix\Main\DB\SqlExpression $title)
 	 * @method bool hasTitle()
@@ -2203,6 +2281,16 @@ namespace Bitrix\Rest {
 	 * @method \Bitrix\Rest\EO_Placement resetAdditional()
 	 * @method \Bitrix\Rest\EO_Placement unsetAdditional()
 	 * @method \string fillAdditional()
+	 * @method array getOptions()
+	 * @method \Bitrix\Rest\EO_Placement setOptions(array|\Bitrix\Main\DB\SqlExpression $options)
+	 * @method bool hasOptions()
+	 * @method bool isOptionsFilled()
+	 * @method bool isOptionsChanged()
+	 * @method array remindActualOptions()
+	 * @method array requireOptions()
+	 * @method \Bitrix\Rest\EO_Placement resetOptions()
+	 * @method \Bitrix\Rest\EO_Placement unsetOptions()
+	 * @method array fillOptions()
 	 * @method \Bitrix\Rest\EO_App getRestApp()
 	 * @method \Bitrix\Rest\EO_App remindActualRestApp()
 	 * @method \Bitrix\Rest\EO_App requireRestApp()
@@ -2213,6 +2301,17 @@ namespace Bitrix\Rest {
 	 * @method bool isRestAppFilled()
 	 * @method bool isRestAppChanged()
 	 * @method \Bitrix\Rest\EO_App fillRestApp()
+	 * @method \Bitrix\Rest\EO_PlacementLang_Collection getLangAll()
+	 * @method \Bitrix\Rest\EO_PlacementLang_Collection requireLangAll()
+	 * @method \Bitrix\Rest\EO_PlacementLang_Collection fillLangAll()
+	 * @method bool hasLangAll()
+	 * @method bool isLangAllFilled()
+	 * @method bool isLangAllChanged()
+	 * @method void addToLangAll(\Bitrix\Rest\EO_PlacementLang $placementLang)
+	 * @method void removeFromLangAll(\Bitrix\Rest\EO_PlacementLang $placementLang)
+	 * @method void removeAllLangAll()
+	 * @method \Bitrix\Rest\EO_Placement resetLangAll()
+	 * @method \Bitrix\Rest\EO_Placement unsetLangAll()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -2265,6 +2364,8 @@ namespace Bitrix\Rest {
 	 * @method \string[] fillPlacementHandler()
 	 * @method \string[] getGroupNameList()
 	 * @method \string[] fillGroupName()
+	 * @method \int[] getIconIdList()
+	 * @method \int[] fillIconId()
 	 * @method \string[] getTitleList()
 	 * @method \string[] fillTitle()
 	 * @method \string[] getCommentList()
@@ -2273,9 +2374,14 @@ namespace Bitrix\Rest {
 	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
 	 * @method \string[] getAdditionalList()
 	 * @method \string[] fillAdditional()
+	 * @method array[] getOptionsList()
+	 * @method array[] fillOptions()
 	 * @method \Bitrix\Rest\EO_App[] getRestAppList()
 	 * @method \Bitrix\Rest\EO_Placement_Collection getRestAppCollection()
 	 * @method \Bitrix\Rest\EO_App_Collection fillRestApp()
+	 * @method \Bitrix\Rest\EO_PlacementLang_Collection[] getLangAllList()
+	 * @method \Bitrix\Rest\EO_PlacementLang_Collection getLangAllCollection()
+	 * @method \Bitrix\Rest\EO_PlacementLang_Collection fillLangAll()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -2309,18 +2415,6 @@ namespace Bitrix\Rest {
 }
 namespace Bitrix\Rest {
 	/**
-	 * @method static EO_Placement_Query query()
-	 * @method static EO_Placement_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Placement_Result getById($id)
-	 * @method static EO_Placement_Result getList(array $parameters = array())
-	 * @method static EO_Placement_Entity getEntity()
-	 * @method static \Bitrix\Rest\EO_Placement createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\EO_Placement_Collection createCollection()
-	 * @method static \Bitrix\Rest\EO_Placement wakeUpObject($row)
-	 * @method static \Bitrix\Rest\EO_Placement_Collection wakeUpCollection($rows)
-	 */
-	class PlacementTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2345,6 +2439,195 @@ namespace Bitrix\Rest {
 	 * @method \Bitrix\Rest\EO_Placement_Collection wakeUpCollection($rows)
 	 */
 	class EO_Placement_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Rest\PlacementLangTable:rest/lib/placementlang.php:67b2b69d7f0f8cdd376efa7860f11913 */
+namespace Bitrix\Rest {
+	/**
+	 * EO_PlacementLang
+	 * @see \Bitrix\Rest\PlacementLangTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Rest\EO_PlacementLang setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getPlacementId()
+	 * @method \Bitrix\Rest\EO_PlacementLang setPlacementId(\int|\Bitrix\Main\DB\SqlExpression $placementId)
+	 * @method bool hasPlacementId()
+	 * @method bool isPlacementIdFilled()
+	 * @method bool isPlacementIdChanged()
+	 * @method \int remindActualPlacementId()
+	 * @method \int requirePlacementId()
+	 * @method \Bitrix\Rest\EO_PlacementLang resetPlacementId()
+	 * @method \Bitrix\Rest\EO_PlacementLang unsetPlacementId()
+	 * @method \int fillPlacementId()
+	 * @method \string getLanguageId()
+	 * @method \Bitrix\Rest\EO_PlacementLang setLanguageId(\string|\Bitrix\Main\DB\SqlExpression $languageId)
+	 * @method bool hasLanguageId()
+	 * @method bool isLanguageIdFilled()
+	 * @method bool isLanguageIdChanged()
+	 * @method \string remindActualLanguageId()
+	 * @method \string requireLanguageId()
+	 * @method \Bitrix\Rest\EO_PlacementLang resetLanguageId()
+	 * @method \Bitrix\Rest\EO_PlacementLang unsetLanguageId()
+	 * @method \string fillLanguageId()
+	 * @method \string getTitle()
+	 * @method \Bitrix\Rest\EO_PlacementLang setTitle(\string|\Bitrix\Main\DB\SqlExpression $title)
+	 * @method bool hasTitle()
+	 * @method bool isTitleFilled()
+	 * @method bool isTitleChanged()
+	 * @method \string remindActualTitle()
+	 * @method \string requireTitle()
+	 * @method \Bitrix\Rest\EO_PlacementLang resetTitle()
+	 * @method \Bitrix\Rest\EO_PlacementLang unsetTitle()
+	 * @method \string fillTitle()
+	 * @method \string getDescription()
+	 * @method \Bitrix\Rest\EO_PlacementLang setDescription(\string|\Bitrix\Main\DB\SqlExpression $description)
+	 * @method bool hasDescription()
+	 * @method bool isDescriptionFilled()
+	 * @method bool isDescriptionChanged()
+	 * @method \string remindActualDescription()
+	 * @method \string requireDescription()
+	 * @method \Bitrix\Rest\EO_PlacementLang resetDescription()
+	 * @method \Bitrix\Rest\EO_PlacementLang unsetDescription()
+	 * @method \string fillDescription()
+	 * @method \string getGroupName()
+	 * @method \Bitrix\Rest\EO_PlacementLang setGroupName(\string|\Bitrix\Main\DB\SqlExpression $groupName)
+	 * @method bool hasGroupName()
+	 * @method bool isGroupNameFilled()
+	 * @method bool isGroupNameChanged()
+	 * @method \string remindActualGroupName()
+	 * @method \string requireGroupName()
+	 * @method \Bitrix\Rest\EO_PlacementLang resetGroupName()
+	 * @method \Bitrix\Rest\EO_PlacementLang unsetGroupName()
+	 * @method \string fillGroupName()
+	 * @method \Bitrix\Rest\EO_PlacementLang getPlacement()
+	 * @method \Bitrix\Rest\EO_PlacementLang remindActualPlacement()
+	 * @method \Bitrix\Rest\EO_PlacementLang requirePlacement()
+	 * @method \Bitrix\Rest\EO_PlacementLang setPlacement(\Bitrix\Rest\EO_PlacementLang $object)
+	 * @method \Bitrix\Rest\EO_PlacementLang resetPlacement()
+	 * @method \Bitrix\Rest\EO_PlacementLang unsetPlacement()
+	 * @method bool hasPlacement()
+	 * @method bool isPlacementFilled()
+	 * @method bool isPlacementChanged()
+	 * @method \Bitrix\Rest\EO_PlacementLang fillPlacement()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Rest\EO_PlacementLang set($fieldName, $value)
+	 * @method \Bitrix\Rest\EO_PlacementLang reset($fieldName)
+	 * @method \Bitrix\Rest\EO_PlacementLang unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Rest\EO_PlacementLang wakeUp($data)
+	 */
+	class EO_PlacementLang {
+		/* @var \Bitrix\Rest\PlacementLangTable */
+		static public $dataClass = '\Bitrix\Rest\PlacementLangTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Rest {
+	/**
+	 * EO_PlacementLang_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getPlacementIdList()
+	 * @method \int[] fillPlacementId()
+	 * @method \string[] getLanguageIdList()
+	 * @method \string[] fillLanguageId()
+	 * @method \string[] getTitleList()
+	 * @method \string[] fillTitle()
+	 * @method \string[] getDescriptionList()
+	 * @method \string[] fillDescription()
+	 * @method \string[] getGroupNameList()
+	 * @method \string[] fillGroupName()
+	 * @method \Bitrix\Rest\EO_PlacementLang[] getPlacementList()
+	 * @method \Bitrix\Rest\EO_PlacementLang_Collection getPlacementCollection()
+	 * @method \Bitrix\Rest\EO_PlacementLang_Collection fillPlacement()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Rest\EO_PlacementLang $object)
+	 * @method bool has(\Bitrix\Rest\EO_PlacementLang $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Rest\EO_PlacementLang getByPrimary($primary)
+	 * @method \Bitrix\Rest\EO_PlacementLang[] getAll()
+	 * @method bool remove(\Bitrix\Rest\EO_PlacementLang $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Rest\EO_PlacementLang_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Rest\EO_PlacementLang current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_PlacementLang_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Rest\PlacementLangTable */
+		static public $dataClass = '\Bitrix\Rest\PlacementLangTable';
+	}
+}
+namespace Bitrix\Rest {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_PlacementLang_Result exec()
+	 * @method \Bitrix\Rest\EO_PlacementLang fetchObject()
+	 * @method \Bitrix\Rest\EO_PlacementLang_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_PlacementLang_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Rest\EO_PlacementLang fetchObject()
+	 * @method \Bitrix\Rest\EO_PlacementLang_Collection fetchCollection()
+	 */
+	class EO_PlacementLang_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Rest\EO_PlacementLang createObject($setDefaultValues = true)
+	 * @method \Bitrix\Rest\EO_PlacementLang_Collection createCollection()
+	 * @method \Bitrix\Rest\EO_PlacementLang wakeUpObject($row)
+	 * @method \Bitrix\Rest\EO_PlacementLang_Collection wakeUpCollection($rows)
+	 */
+	class EO_PlacementLang_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Rest\Preset\IntegrationTable:rest/lib/preset/integration.php:a89e67980b3f3f0446acf47020f020a1 */
 namespace Bitrix\Rest\Preset {
@@ -2665,18 +2948,6 @@ namespace Bitrix\Rest\Preset {
 	}
 }
 namespace Bitrix\Rest\Preset {
-	/**
-	 * @method static EO_Integration_Query query()
-	 * @method static EO_Integration_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Integration_Result getById($id)
-	 * @method static EO_Integration_Result getList(array $parameters = array())
-	 * @method static EO_Integration_Entity getEntity()
-	 * @method static \Bitrix\Rest\Preset\EO_Integration createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\Preset\EO_Integration_Collection createCollection()
-	 * @method static \Bitrix\Rest\Preset\EO_Integration wakeUpObject($row)
-	 * @method static \Bitrix\Rest\Preset\EO_Integration_Collection wakeUpCollection($rows)
-	 */
-	class IntegrationTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -3139,18 +3410,6 @@ namespace Bitrix\Rest {
 }
 namespace Bitrix\Rest {
 	/**
-	 * @method static EO_Stat_Query query()
-	 * @method static EO_Stat_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Stat_Result getById($id)
-	 * @method static EO_Stat_Result getList(array $parameters = array())
-	 * @method static EO_Stat_Entity getEntity()
-	 * @method static \Bitrix\Rest\EO_Stat createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\EO_Stat_Collection createCollection()
-	 * @method static \Bitrix\Rest\EO_Stat wakeUpObject($row)
-	 * @method static \Bitrix\Rest\EO_Stat_Collection wakeUpCollection($rows)
-	 */
-	class StatTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3292,18 +3551,6 @@ namespace Bitrix\Rest {
 }
 namespace Bitrix\Rest {
 	/**
-	 * @method static EO_StatApp_Query query()
-	 * @method static EO_StatApp_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_StatApp_Result getById($id)
-	 * @method static EO_StatApp_Result getList(array $parameters = array())
-	 * @method static EO_StatApp_Entity getEntity()
-	 * @method static \Bitrix\Rest\EO_StatApp createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\EO_StatApp_Collection createCollection()
-	 * @method static \Bitrix\Rest\EO_StatApp wakeUpObject($row)
-	 * @method static \Bitrix\Rest\EO_StatApp_Collection wakeUpCollection($rows)
-	 */
-	class StatAppTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3444,18 +3691,6 @@ namespace Bitrix\Rest {
 }
 namespace Bitrix\Rest {
 	/**
-	 * @method static EO_StatMethod_Query query()
-	 * @method static EO_StatMethod_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_StatMethod_Result getById($id)
-	 * @method static EO_StatMethod_Result getList(array $parameters = array())
-	 * @method static EO_StatMethod_Entity getEntity()
-	 * @method static \Bitrix\Rest\EO_StatMethod createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\EO_StatMethod_Collection createCollection()
-	 * @method static \Bitrix\Rest\EO_StatMethod wakeUpObject($row)
-	 * @method static \Bitrix\Rest\EO_StatMethod_Collection wakeUpCollection($rows)
-	 */
-	class StatMethodTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3481,7 +3716,7 @@ namespace Bitrix\Rest {
 	 */
 	class EO_StatMethod_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Rest\UsageEntityTable:rest/lib/usageentity.php:4ac55d86426a8933f939cb78ad0c50ec */
+/* ORMENTITYANNOTATION:Bitrix\Rest\UsageEntityTable:rest/lib/usageentity.php:c64059f28c36ce7d2f6ab7ebcf4ebc8d */
 namespace Bitrix\Rest {
 	/**
 	 * EO_UsageEntity
@@ -3632,18 +3867,6 @@ namespace Bitrix\Rest {
 }
 namespace Bitrix\Rest {
 	/**
-	 * @method static EO_UsageEntity_Query query()
-	 * @method static EO_UsageEntity_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UsageEntity_Result getById($id)
-	 * @method static EO_UsageEntity_Result getList(array $parameters = array())
-	 * @method static EO_UsageEntity_Entity getEntity()
-	 * @method static \Bitrix\Rest\EO_UsageEntity createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\EO_UsageEntity_Collection createCollection()
-	 * @method static \Bitrix\Rest\EO_UsageEntity wakeUpObject($row)
-	 * @method static \Bitrix\Rest\EO_UsageEntity_Collection wakeUpCollection($rows)
-	 */
-	class UsageEntityTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3669,7 +3892,7 @@ namespace Bitrix\Rest {
 	 */
 	class EO_UsageEntity_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Rest\UsageStatTable:rest/lib/usagestat.php:52eb53a6d19479a851bcf393c905b3ac */
+/* ORMENTITYANNOTATION:Bitrix\Rest\UsageStatTable:rest/lib/usagestat.php:6dd488efaa0d9de7832b2c37d933eea6 */
 namespace Bitrix\Rest {
 	/**
 	 * EO_UsageStat
@@ -4078,18 +4301,6 @@ namespace Bitrix\Rest {
 	}
 }
 namespace Bitrix\Rest {
-	/**
-	 * @method static EO_UsageStat_Query query()
-	 * @method static EO_UsageStat_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UsageStat_Result getById($id)
-	 * @method static EO_UsageStat_Result getList(array $parameters = array())
-	 * @method static EO_UsageStat_Entity getEntity()
-	 * @method static \Bitrix\Rest\EO_UsageStat createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Rest\EO_UsageStat_Collection createCollection()
-	 * @method static \Bitrix\Rest\EO_UsageStat wakeUpObject($row)
-	 * @method static \Bitrix\Rest\EO_UsageStat_Collection wakeUpCollection($rows)
-	 */
-	class UsageStatTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

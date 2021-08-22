@@ -20,7 +20,20 @@ use Bitrix\Main\Data\Cache;
  * </ul>
  *
  * @package Bitrix\Rest
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_EventOffline_Query query()
+ * @method static EO_EventOffline_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EventOffline_Result getById($id)
+ * @method static EO_EventOffline_Result getList(array $parameters = array())
+ * @method static EO_EventOffline_Entity getEntity()
+ * @method static \Bitrix\Rest\EO_EventOffline createObject($setDefaultValues = true)
+ * @method static \Bitrix\Rest\EO_EventOffline_Collection createCollection()
+ * @method static \Bitrix\Rest\EO_EventOffline wakeUpObject($row)
+ * @method static \Bitrix\Rest\EO_EventOffline_Collection wakeUpCollection($rows)
+ */
 
 class EventOfflineTable extends Main\Entity\DataManager
 {

@@ -396,7 +396,7 @@ class CIMDisk
 	 * @param string $text
 	 * @param array $options
 	 * @param bool $robot
-	 * @return bool
+	 * @return array|bool
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\LoaderException
 	 * @throws \Bitrix\Main\ObjectException
@@ -849,6 +849,79 @@ class CIMDisk
 		$newFileModel->increaseGlobalContentVersion();
 
 		return $newFileModel;
+	}
+
+	public static function RecordShare(int $chatId, int $fileId, int $userId = null): bool
+	{
+		if (!self::Enabled())
+		{
+			return false;
+		}
+
+		if ($chatId <= 0)
+		{
+			return false;
+		}
+
+		$chat = \Bitrix\Im\Model\ChatTable::getByPrimary($chatId, [
+			'select' => ['TITLE', 'ENTITY_TYPE', 'ENTITY_ID']
+		])->fetch();
+		if (!$chat)
+		{
+			return false;
+		}
+
+		if (!\CIMChat::GetRelationById($chatId, $userId))
+		{
+			return false;
+		}
+
+		if ($fileId <= 0)
+		{
+			return false;
+		}
+
+		$fileModel = \Bitrix\Disk\File::getById($fileId, array('STORAGE'));
+		if (!$fileModel)
+		{
+			return false;
+		}
+
+		$storageModel = $fileModel->getStorage();
+
+		$securityContext = null;
+		if (is_null($userId))
+		{
+			$securityContext = $storageModel->getCurrentUserSecurityContext();
+		}
+		else if ($userId > 0)
+		{
+			$securityContext = $storageModel->getSecurityContext($userId);
+		}
+
+		if ($securityContext && !$fileModel->canRead($securityContext))
+		{
+			return false;
+		}
+
+		\CIMDisk::UploadFileFromDisk($chatId, ['disk'.$fileId]);
+
+		if (!empty($chat['ENTITY_TYPE']) && !empty($chat['ENTITY_ID']))
+		{
+			$event = new \Bitrix\Main\Event('im', 'onDiskRecordShare', [
+				'DISK_ID' => $fileId,
+				'CHAT' => [
+					'ID' => $chatId,
+					'TITLE' => $chat['TITLE'],
+					'ENTITY_TYPE' => $chat['ENTITY_TYPE'],
+					'ENTITY_ID' => $chat['ENTITY_ID']
+				],
+				'USER_ID' => $userId,
+			]);
+			$event->send();
+		}
+
+		return true;
 	}
 
 	public static function UploadAvatar($hash, &$file, &$package, &$upload, &$error)

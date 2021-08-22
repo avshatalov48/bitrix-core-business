@@ -9,9 +9,25 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
         babelHelpers.classCallCheck(this, Basket);
         this.pool = new sale_checkout_lib.Pool();
         this.timer = new sale_checkout_lib.Timer();
+        this.running = 'N';
       }
 
       babelHelpers.createClass(Basket, [{
+        key: "isRunning",
+        value: function isRunning() {
+          return this.running === 'Y';
+        }
+      }, {
+        key: "setRunningY",
+        value: function setRunningY() {
+          this.running = 'Y';
+        }
+      }, {
+        key: "setRunningN",
+        value: function setRunningN() {
+          this.running = 'N';
+        }
+      }, {
         key: "setStore",
         value: function setStore(store) {
           this.store = store;
@@ -203,7 +219,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
                 },
                 signedParameters: _this2.store.getters['application/getSignedParameters']
               }).then(function (result) {
-                return _this2.executeRestAnswer(cmd, result, _this2.pool.get()).then(function () {
+                return _this2.executeRestAnswer(cmd, result, _this2.pool).then(function () {
                   return _this2.commit().then(function () {
                     return resolve();
                   });
@@ -221,12 +237,12 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 
           var index = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'BASKET';
 
-          if (this.getStatus() === sale_checkout_const.Loader.status.none) {
+          if (this.isRunning() === false) {
             this.timer.create(300, index, function () {
-              _this3.setStatusWait();
+              _this3.setRunningY();
 
               _this3.commit().then(function () {
-                return _this3.setStatusNone();
+                return _this3.setRunningN();
               });
             });
           }
@@ -251,6 +267,34 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             status: sale_checkout_const.Loader.status.none
           };
           return this.store.dispatch('basket/setStatus', app);
+        }
+      }, {
+        key: "handlerNeedRefreshY",
+        value: function handlerNeedRefreshY() {
+          this.setNeedRefreshY();
+          this.setStatusWait();
+        }
+      }, {
+        key: "handlerNeedRefreshN",
+        value: function handlerNeedRefreshN() {
+          this.setNeedRefreshN();
+          this.setStatusNone();
+        }
+      }, {
+        key: "setNeedRefreshY",
+        value: function setNeedRefreshY() {
+          var app = {
+            needRefresh: 'Y'
+          };
+          return this.store.dispatch('basket/setNeedRefresh', app);
+        }
+      }, {
+        key: "setNeedRefreshN",
+        value: function setNeedRefreshN() {
+          var app = {
+            needRefresh: 'N'
+          };
+          return this.store.dispatch('basket/setNeedRefresh', app);
         }
       }]);
       return Basket;
@@ -324,7 +368,13 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           });
           main_core.Event.EventEmitter.subscribe(sale_checkout_const.EventType.basket.buttonRestoreProduct, main_core.Runtime.debounce(function (e) {
             return _this2.basket.handlerRestore(e);
-          }, 500, this)); // Event.EventEmitter.subscribe(EventType.property.validate,           (e) => this.handlerValidateProperty(e));
+          }, 500, this));
+          main_core.Event.EventEmitter.subscribe(sale_checkout_const.EventType.basket.needRefresh, function (e) {
+            return _this2.basket.handlerNeedRefreshY(e);
+          });
+          main_core.Event.EventEmitter.subscribe(sale_checkout_const.EventType.basket.refreshAfter, function (e) {
+            return _this2.basket.handlerNeedRefreshN(e);
+          }); // Event.EventEmitter.subscribe(EventType.property.validate,           (e) => this.handlerValidateProperty(e));
 
           main_core.Event.EventEmitter.subscribe(sale_checkout_const.EventType.consent.refused, function () {
             return _this2.handlerConsentRefused();
@@ -353,13 +403,14 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
       }, {
         key: "subscribeToStoreChanges",
         value: function subscribeToStoreChanges() {
-          this.store.subscribe(function (mutation, state) {// const { payload, type } = mutation;
-            // if (type === 'basket/updateItem')
-            // {
-            // 	alert('@@');
-            // 	this.getData();
-            // }
-          });
+          // this.store.subscribe((mutation, state) => {
+          //     const { payload, type } = mutation;
+          //     if (type === 'basket/setNeedRefresh')
+          //     {
+          //     	alert('@@');
+          //     	this.getData();
+          //     }
+          // });
           return new Promise(function (resolve, reject) {
             return resolve();
           });

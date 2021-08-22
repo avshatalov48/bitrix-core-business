@@ -58,7 +58,11 @@ this.BX = this.BX || {};
 	      var color;
 
 	      if (this.currentColor) {
-	        color = this.isBaseColor() ? ColorPickerTheme.DEFAULT_COLOR_PICKER_COLOR : this.currentColor;
+	        if (this.isHex(this.currentColor)) {
+	          color = this.isBaseColor() ? ColorPickerTheme.DEFAULT_COLOR_PICKER_COLOR : this.currentColor;
+	        } else {
+	          color = ColorPickerTheme.DEFAULT_COLOR_PICKER_COLOR;
+	        }
 	      } else {
 	        color = ColorPickerTheme.DEFAULT_COLOR_PICKER_COLOR;
 	      }
@@ -68,7 +72,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "isActive",
 	    value: function isActive() {
-	      if (this.currentColor === '') {
+	      if (!this.isHex(this.currentColor)) {
 	        return false;
 	      }
 

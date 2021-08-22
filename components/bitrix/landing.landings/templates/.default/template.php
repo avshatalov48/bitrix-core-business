@@ -569,7 +569,7 @@ if ($arParams['TILE_MODE'] === 'view')
 					}
 				},
 				{
-					text: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_EDIT'));?>',
+					text: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_EDIT_2'));?>',
 					href: params.editPage,
 					disabled: params.isDeleted || params.isSettingsDisabled,
 					onclick: function()
@@ -578,7 +578,7 @@ if ($arParams['TILE_MODE'] === 'view')
 					}
 				},
 				{
-					text: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_EDIT_DESIGN'));?>',
+					text: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_EDIT_DESIGN_2'));?>',
 					href: params.editPageDesign,
 					disabled: params.isDeleted || params.isSettingsDisabled,
 					onclick: function()

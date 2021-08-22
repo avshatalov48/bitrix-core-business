@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["REST_SCOPE_BIZPROC"] = "Business Processes";
 $MESS["REST_SCOPE_BIZPROC_DESCRIPTION"] = "full access: view, create, edit and delete workflow actions, automation rules and triggers; view task list; run workflows";
 $MESS["REST_SCOPE_CALENDAR"] = "Calendar";
@@ -72,7 +72,12 @@ $MESS["REST_SCOPE_TELEPHONY_DESCRIPTION"] = "restricted access: view, create, ed
 $MESS["REST_SCOPE_TIMEMAN"] = "Working Time Management";
 $MESS["REST_SCOPE_TIMEMAN_DESCRIPTION"] = "restricted access: clock-in and clock-out times; enable and disable reporting; view reports";
 $MESS["REST_SCOPE_USER"] = "Users";
+$MESS["REST_SCOPE_USER.USERFIELD"] = "User custom fields";
+$MESS["REST_SCOPE_USER.USERFIELD_DESCRIPTION"] = "full access: read, add, edit and delete custom fields inside user profiles";
 $MESS["REST_SCOPE_USERCONSENT"] = "Agreements";
 $MESS["REST_SCOPE_USERCONSENT_DESCRIPTION"] = "restricted access: view agreements and add user consents";
+$MESS["REST_SCOPE_USER_BASIC"] = "Users (basic)";
+$MESS["REST_SCOPE_USER_BASIC_DESCRIPTION"] = "read user list and contact information";
+$MESS["REST_SCOPE_USER_BRIEF"] = "Users (minimum)";
+$MESS["REST_SCOPE_USER_BRIEF_DESCRIPTION"] = "read user list and names without contact information";
 $MESS["REST_SCOPE_USER_DESCRIPTION"] = "full access: view, create, edit and delete users";
-?>

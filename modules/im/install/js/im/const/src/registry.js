@@ -6,8 +6,9 @@ import {EventType} from "./events";
 import {DialogType, DialogCrmType, DialogReferenceClassName, DialogTemplateType, DialogState} from "./dialog";
 import {FileStatus, FileType} from "./file";
 import {MessageType} from "./message";
-import {ConferenceFieldState, ConferenceStateType, ConferenceErrorCode, ConferenceRightPanelMode} from "./conference";
+import {ConferenceFieldState, ConferenceStateType, ConferenceErrorCode, ConferenceRightPanelMode, ConferenceUserState} from "./conference";
 import {ChatTypes, TemplateTypes, RecentSection, MessageStatus} from "./recent";
+import {NotificationTypesCodes} from "./notification";
 
 export {
 	DateFormat,
@@ -18,6 +19,7 @@ export {
 	DialogType, DialogCrmType, DialogReferenceClassName, DialogTemplateType, DialogState,
 	FileStatus, FileType,
 	MessageType,
-	ConferenceFieldState, ConferenceStateType, ConferenceErrorCode, ConferenceRightPanelMode,
-	ChatTypes, TemplateTypes, RecentSection, MessageStatus
+	ConferenceFieldState, ConferenceStateType, ConferenceErrorCode, ConferenceRightPanelMode, ConferenceUserState,
+	ChatTypes, TemplateTypes, RecentSection, MessageStatus,
+	NotificationTypesCodes
 }

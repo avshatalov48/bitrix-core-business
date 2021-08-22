@@ -1,6 +1,18 @@
 (function (exports,mail_avatar,mail_messagegrid,mail_directorymenu,main_core_events,main_core,ui_buttons) {
 	'use strict';
 
+	var _node = /*#__PURE__*/new WeakMap();
+
+	var _errorTitleNode = /*#__PURE__*/new WeakMap();
+
+	var _errorTextNode = /*#__PURE__*/new WeakMap();
+
+	var _errorBoxNode = /*#__PURE__*/new WeakMap();
+
+	var _syncButton = /*#__PURE__*/new WeakMap();
+
+	var _errorHintNode = /*#__PURE__*/new WeakMap();
+
 	var ProgressBar = /*#__PURE__*/function () {
 	  function ProgressBar(node) {
 	    babelHelpers.classCallCheck(this, ProgressBar);
@@ -118,17 +130,7 @@
 	  return ProgressBar;
 	}();
 
-	var _node = new WeakMap();
-
-	var _errorTitleNode = new WeakMap();
-
-	var _errorTextNode = new WeakMap();
-
-	var _errorBoxNode = new WeakMap();
-
-	var _syncButton = new WeakMap();
-
-	var _errorHintNode = new WeakMap();
+	var _name = /*#__PURE__*/new WeakMap();
 
 	var Counters = /*#__PURE__*/function () {
 	  function Counters(name) {
@@ -297,8 +299,6 @@
 	  return Counters;
 	}();
 
-	var _name = new WeakMap();
-
 	var LeftMenu = function LeftMenu() {
 	  var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
 	    dirsWithUnseenMailCounters: {},
@@ -335,7 +335,6 @@
 	    this.mailboxId = options.mailboxId;
 	    this.canMarkSpam = options.canMarkSpam;
 	    this.canDelete = options.canDelete;
-	    this.connectedMailboxesLicenseInfo = options.connectedMailboxesLicenseInfo;
 	    this.ERROR_CODE_CAN_NOT_DELETE = options.ERROR_CODE_CAN_NOT_DELETE;
 	    this.ERROR_CODE_CAN_NOT_MARK_SPAM = options.ERROR_CODE_CAN_NOT_MARK_SPAM;
 	    this.disabledClassName = 'js-disabled';
@@ -537,11 +536,6 @@
 	          menuItem.showSubMenu();
 	        }
 	      }.bind(this), function (response) {}.bind(this));
-	    }
-	  }, {
-	    key: "showLicensePopup",
-	    value: function showLicensePopup(code) {
-	      B24.licenseInfoPopup.show(code, main_core.Loc.getMessage('MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_TITLE'), this.connectedMailboxesLicenseInfo);
 	    }
 	  }, {
 	    key: "onCrmClick",

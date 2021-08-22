@@ -588,7 +588,7 @@
 }
 
 .catalog-pf-product-item-section.catalog-product-edit .catalog-product-img {
-	margin-right: 27px;
+	margin-right: 32px;
 }
 
 .catalog-pf-product-item-section--dashed {
@@ -667,6 +667,14 @@
 
 .catalog-pf-product-input--right {
 	padding-right: 0;
+}
+
+.catalog-pf-product-input--border-right-visible {
+	border-right: 1px solid #c6cdd3;
+}
+
+.catalog-pf-product-input-brand-wrapper {
+	margin-top: 15px;
 }
 
 .catalog-pf-product-input--after:after {
@@ -805,6 +813,7 @@
 	display: flex;
 }
 
+.catalog-pf-product-panel-compilation-wrapper,
 .catalog-pf-product-add-wrapper {
 	flex: 1;
 }
@@ -833,6 +842,113 @@
 	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2216px%22%20height%3D%2216px%22%20viewBox%3D%220%200%2016%2016%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20transform%3D%22translate%28-4.000000%2C%20-4.000000%29%22%20fill%3D%22%23525C69%22%20d%3D%22M12.691272%2C15.0779291%20C10.4151847%2C15.561991%208.43795534%2C13.5841867%208.92211446%2C11.308592%20C9.15107628%2C10.2325476%2010.2323767%2C9.15117084%2011.3084244%2C8.92216475%20C13.5840774%2C8.43781009%2015.5620771%2C10.4151746%2015.077904%2C12.6913799%20C14.8239394%2C13.8852057%2013.8850923%2C14.824047%2012.691272%2C15.0779291%20Z%20M17.8296133%2C10.57054%20C17.7170133%2C10.1101933%2017.554%2C9.66968667%2017.3424133%2C9.25791333%20C17.33352%2C9.24058933%2017.3355867%2C9.219748%2017.3478133%2C9.20459067%20L18.3423333%2C7.97143467%20C18.5581333%2C7.70554267%2018.5483333%2C7.322992%2018.3208267%2C7.06639067%20L17.6904667%2C6.35694%20C17.4619733%2C6.10059467%2017.0830667%2C6.04638667%2016.79404%2C6.228988%20L15.4386133%2C7.08106%20C14.8510133%2C6.67052%2014.18652%2C6.365788%2013.4700133%2C6.18623733%20C13.4510133%2C6.181464%2013.4366%2C6.165956%2013.43336%2C6.14660533%20L13.1735067%2C4.584968%20C13.1178533%2C4.24756667%2012.82588%2C4%2012.4831467%2C4%20L11.5332133%2C4%20C11.1911733%2C4%2010.8982%2C4.24756667%2010.8437867%2C4.584968%20L10.5824933%2C6.147188%20C10.5792533%2C6.16649067%2010.5648667%2C6.181952%2010.5458933%2C6.18670267%20C9.96604%2C6.33202533%209.4214%2C6.56138267%208.92248%2C6.861248%20C8.90566667%2C6.87135467%208.88454667%2C6.87060933%208.86857333%2C6.8592%20L7.60581333%2C5.957996%20C7.32801333%2C5.75951467%206.94642667%2C5.79055333%206.70398667%2C6.03248533%20L6.03289333%2C6.70407467%20C5.79096%2C6.94651867%205.75992%2C7.32811467%205.95893333%2C7.60592933%20L6.86225333%2C8.87121733%20C6.87364%2C8.887168%206.87442667%2C8.90828667%206.86434667%2C8.92509867%20C6.5674%2C9.420164%206.34042667%2C9.96156533%206.19525333%2C10.536148%20C6.19045333%2C10.5551253%206.175%2C10.5694693%206.15572%2C10.5726827%20L4.58493333%2C10.8349893%20C4.24805333%2C10.8906173%204%2C11.1826347%204%2C11.525392%20L4%2C12.474608%20C4%2C12.8173413%204.24805333%2C13.1093827%204.58493333%2C13.1650107%20L6.15566667%2C13.4272947%20C6.17497333%2C13.4305307%206.19045333%2C13.4448987%206.19522667%2C13.4638987%20C6.31332%2C13.933%206.48153333%2C14.3817267%206.70266667%2C14.7994387%20C6.71188%2C14.816856%206.70993333%2C14.8380213%206.69754667%2C14.8533667%20L5.70793333%2C16.0790467%20C5.49288%2C16.344684%205.50190667%2C16.7274907%205.72942667%2C16.9838587%20L6.35929333%2C17.693332%20C6.5878%2C17.950144%206.96692%2C18.0033733%207.25597333%2C17.8212373%20L8.60374667%2C16.974568%20C8.62026667%2C16.9641827%208.64132%2C16.9646027%208.65748%2C16.9755467%20C9.23272%2C17.3642907%209.88164%2C17.6505573%2010.5771867%2C17.8212373%20L10.8438133%2C19.4149853%20C10.8982267%2C19.7524093%2011.1911733%2C20%2011.5332133%2C20%20L12.4831467%2C20%20C12.8258933%2C20%2013.1178533%2C19.7524333%2013.1735067%2C19.4150093%20L13.4338%2C17.853068%20C13.43704%2C17.8337413%2013.4514533%2C17.8182573%2013.4704533%2C17.8135067%20C14.0428133%2C17.6701867%2014.5803733%2C17.44488%2015.0745867%2C17.1503013%20C15.0914%2C17.140288%2015.11244%2C17.14108%2015.1283467%2C17.1524427%20L16.44492%2C18.0927653%20C16.72224%2C18.2919693%2017.1040933%2C18.26072%2017.34628%2C18.01802%20L18.0176667%2C17.3466413%20C18.2593067%2C17.1049413%2018.2920267%2C16.7235547%2018.09136%2C16.445228%20L17.15412%2C15.1311347%20C17.1427333%2C15.115184%2017.14196%2C15.094088%2017.15204%2C15.0772987%20C17.4498667%2C14.5805587%2017.6780533%2C14.0381093%2017.8224267%2C13.4609413%20C17.8271733%2C13.4419413%2017.8426533%2C13.427528%2017.86196%2C13.4242907%20L19.4150667%2C13.1649653%20C19.7529467%2C13.1093133%2020%2C12.8172947%2020%2C12.4745613%20L20%2C11.5253453%20C19.9994933%2C11.1826347%2019.75244%2C10.8906173%2019.4145333%2C10.8349653%20L17.8296133%2C10.57054%20Z%22%3E%3C/path%3E%3C/svg%3E') center no-repeat;
 }
 
+.catalog-pf-product-qr-popup {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	padding: 0 30px;
+	min-height: 430px;
+}
+
+.catalog-pf-product-qr-popup-content {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	padding: 35px 0 25px 0;
+}
+
+.catalog-pf-product-qr-popup-text {
+	display: block;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	color: #333;
+	text-align: center;
+	line-height: 20px;
+}
+
+.catalog-pf-product-qr-popup-image {
+	display: block;
+	overflow: hidden;
+	position: relative;
+	width: 156px;
+	height: 156px;
+}
+
+.catalog-pf-product-qr-popup-image img {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+	display: block;
+	max-width: 100%;
+	max-height: 100%;
+}
+
+.catalog-pf-product-qr-popup-bottom {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	overflow: hidden;
+	height: 65px;
+	border-top: 1px solid rgba(82,92,105,.1);
+}
+
+.catalog-pf-product-qr-popup--url,
+.catalog-pf-product-qr-popup--url:hover,
+.catalog-pf-product-qr-popup-copy {
+	height: 18px;
+	line-height: 18px;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	color: rgba(82,92,105,1);
+	white-space: nowrap;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.catalog-pf-product-qr-popup--url {
+	flex: 1;
+	text-overflow: ellipsis;
+	margin-right: 20px;
+}
+
+.catalog-pf-product-qr-popup--url:before {
+	content: '';
+	display: inline-block;
+	vertical-align: top;
+	width: 14px;
+	height: 14px;
+	margin: 2px 5px 0 0;
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Cpath fill='%23525C69' fill-rule='evenodd' d='M12.912 6.343L10.284 8.97a3.715 3.715 0 01-5.255 0 3.712 3.712 0 01-.564-.749L5.686 7c.058-.059.13-.092.199-.132.084.289.231.562.458.789a1.86 1.86 0 002.627 0l2.628-2.627a1.86 1.86 0 000-2.628 1.86 1.86 0 00-2.628 0l-.934.935a4.662 4.662 0 00-2.37-.258l1.99-1.99a3.716 3.716 0 015.256 5.254zm-6.948 4.32l-.935.936a1.861 1.861 0 01-2.627 0 1.86 1.86 0 010-2.629l2.627-2.627a1.859 1.859 0 012.628 0c.226.227.374.5.459.788.069-.04.14-.073.197-.131l1.222-1.22a3.652 3.652 0 00-.565-.75 3.716 3.716 0 00-5.255 0L1.088 7.657a3.716 3.716 0 005.255 5.255l1.992-1.991a4.659 4.659 0 01-2.37-.258z'/%3E%3C/svg%3E") center no-repeat;
+	opacity: .5;
+	-webkit-transition: .25s;
+	-o-transition: .25s;
+	transition: .25s;
+}
+
+.catalog-pf-product-qr-popup--url:hover:before {
+	opacity: .8;
+	-webkit-transition: .1s;
+	-o-transition: .1s;
+	transition: .1s;
+}
+
+.catalog-pf-product-qr-popup-copy {
+	color: rgba(82,92,105,.5);
+	border-bottom: 1px dashed rgba(82,92,105,.3);
+	transition: .25s;
+}
+
+.catalog-pf-product-qr-popup-copy:hover {
+	color: rgba(82,92,105,.8);
+	border-bottom: 1px dashed rgba(82,92,105,.5);
+	-webkit-transition: .1s;
+	-o-transition: .1s;
+	transition: .1s;
+}
+
 .catalog-pf-product-config-popup{
 	padding: 10px;
 	max-width: 500px;
@@ -844,12 +960,14 @@
 	margin-left: 12px;
 }
 
+.catalog-pf-product-panel-compilation,
 .catalog-pf-product-add {
 	display: flex;
 	align-items: center;
 	margin-bottom: 18px;
 }
 
+.catalog-pf-product-panel-compilation-link,
 .catalog-pf-product-configure-link,
 .catalog-pf-product-add-link {
 	display: inline-block;
@@ -858,6 +976,25 @@
 	color: #2066b0;
 	border-bottom: 1px dashed rgba(39,107,179,.4);
 	cursor: pointer;
+}
+
+.catalog-pf-product-panel-compilation-link {
+	border-bottom: none;
+}
+
+.catalog-pf-product-panel-compilation-link.--icon-qr {
+	display: flex;
+	align-items: center;
+	margin-bottom: 7px;
+}
+
+.catalog-pf-product-panel-compilation-link.--icon-qr:before {
+	content: '';
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	margin-right: 5px;
+	background: url("data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8'?%3E%3Csvg width='14px' height='14px' viewBox='0 0 14 14' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3EGroup 2 Copy 3%3C/title%3E%3Cg id='Group-2-Copy-3' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='qr-icon' fill='%232066B0'%3E%3Cg id='Group-3'%3E%3Cpath d='M3.675,4.14483263e-15 L1.225,4.14483263e-15 C0.5481875,4.14483263e-15 7.04621546e-14,0.5481875 7.04621546e-14,1.225 L7.04621546e-14,3.675 C7.04621546e-14,4.3518125 0.5481875,4.9 1.225,4.9 L3.675,4.9 C4.3518125,4.9 4.9,4.3518125 4.9,3.675 L4.9,1.225 C4.9,0.5481875 4.3518125,4.14483263e-15 3.675,4.14483263e-15 Z M3.675,3.675 L1.225,3.675 L1.225,1.225 L3.675,1.225 L3.675,3.675 Z M3.0625,3.0625 L1.8375,3.0625 L1.8375,1.8375 L3.0625,1.8375 L3.0625,3.0625 Z' id='Shape' fill-rule='nonzero'%3E%3C/path%3E%3Cpath d='M3.675,9.1 L1.225,9.1 C0.5481875,9.1 7.04621546e-14,9.6481875 7.04621546e-14,10.325 L7.04621546e-14,12.775 C7.04621546e-14,13.4518125 0.5481875,14 1.225,14 L3.675,14 C4.3518125,14 4.9,13.4518125 4.9,12.775 L4.9,10.325 C4.9,9.6481875 4.3518125,9.1 3.675,9.1 Z M3.675,12.775 L1.225,12.775 L1.225,10.325 L3.675,10.325 L3.675,12.775 Z M3.0625,12.1625 L1.8375,12.1625 L1.8375,10.9375 L3.0625,10.9375 L3.0625,12.1625 Z' id='Shape' fill-rule='nonzero'%3E%3C/path%3E%3Cpath d='M12.775,4.14483263e-15 L10.325,4.14483263e-15 C9.6481875,4.14483263e-15 9.1,0.5481875 9.1,1.225 L9.1,3.675 C9.1,4.3518125 9.6481875,4.9 10.325,4.9 L12.775,4.9 C13.4518125,4.9 14,4.3518125 14,3.675 L14,1.225 C14,0.5481875 13.4518125,4.14483263e-15 12.775,4.14483263e-15 Z M12.775,3.675 L10.325,3.675 L10.325,1.225 L12.775,1.225 L12.775,3.675 Z M12.1625,3.0625 L10.9375,3.0625 L10.9375,1.8375 L12.1625,1.8375 L12.1625,3.0625 Z' id='Shape' fill-rule='nonzero'%3E%3C/path%3E%3Crect id='Rectangle' fill-rule='nonzero' x='6.65' y='1.75' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='6.65' y='3.85' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='6.65' y='6.65' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='3.85' y='6.65' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='1.75' y='6.65' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='9.1' y='6.65' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='11.2' y='6.65' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='7.7' y='7.7' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='10.15' y='7.7' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='9.1' y='8.75' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='6.65' y='8.75' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='7.7' y='10.15' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='9.1' y='11.2' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='7.7' y='12.6' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='12.95' y='7.7' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='12.95' y='10.15' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='10.15' y='10.15' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='10.15' y='12.6' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='11.2' y='11.2' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='11.2' y='8.75' width='1.05' height='1.05'%3E%3C/rect%3E%3Crect id='Rectangle' fill-rule='nonzero' x='6.65' y='11.2' width='1.05' height='1.05'%3E%3C/rect%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E") center no-repeat;
 }
 
 .catalog-pf-product-add-link:hover {
@@ -892,6 +1029,10 @@
 	height: 1px;
 	margin: 26px 0 19px 0;
 	background: rgba(82,92,105,.1);
+}
+
+.catalog-pf-result-line:last-of-type {
+	display: none;
 }
 
 .catalog-pf-result {
@@ -981,4 +1122,138 @@
 
 label.ui-ctl-radio-selector {
 	width: auto;
+}
+
+.ui-ctl-danger .catalog-pf-product-input-info,
+.ui-ctl-danger .ui-tag-selector-outer-container,
+.ui-ctl-danger .catalog-pf-product-input,
+.ui-ctl-danger .catalog-pf-product-input-info:hover,
+.ui-ctl-danger .ui-tag-selector-outer-container:hover,
+.ui-ctl-danger .catalog-pf-product-input:hover,
+.ui-ctl-danger .catalog-pf-product-input-info:focus,
+.ui-ctl-danger .ui-tag-selector-outer-container:focus,
+.ui-ctl-danger .catalog-pf-product-input:focus {
+	border-color: var(--ui-field-color-danger);
+}
+
+.catalog-pf-product-add-wrapper .ui-ctl-checkbox {
+	width: auto;
+}
+
+.catalog-pf-product-panel-compilation-wrapper .ui-ctl-checkbox {
+	width: fit-content;
+}
+
+.catalog-pf-label-text {
+	text-align: center;
+	padding: 0 8px;
+	height: 15px;
+	border-radius: 7.5px;
+	background-color: #c4f1ff;
+	display: inline-block;
+	color: rgba(82, 92, 105, 0.82);
+	font: bold 7px/10px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	vertical-align: middle;
+	text-transform: uppercase;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+}
+
+.catalog-pf-product-panel-compilation {
+	margin-bottom: 0;
+}
+
+.catalog-pf-product-panel-message-arrow-target {
+	position: relative;
+}
+
+.catalog-pf-product-panel-compilation-wrapper .catalog-pf-product-panel-message-arrow-target::after {
+	content: '';
+	display: block;
+	background-color: #ebfaff;
+	width: 20px;
+	height: 20px;
+	position: absolute;
+	bottom: -25px;
+	left: 4px;
+	z-index: 1;
+	-webkit-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+
+.catalog-product-form-popup--creating-shop .catalog-product-form-popup--container {
+	display: flex;
+	flex-direction: column;
+	padding: 0 3px 4px 3px;
+}
+
+.catalog-product-form-popup--creating-shop .catalog-product-form-popup--title {
+	order: -1;
+	font: bold 14px/17px 'HelveticaNeue', Helvetica, Arial, sans-serif;
+	color: #535C69;
+	margin-bottom: 25px;
+}
+
+.catalog-product-form-popup--creating-shop .catalog-product-form-popup--loader-block {
+	height: 36px;
+	width: 36px;
+	border: 3px solid transparent;
+	border-radius: 50%;
+	position: relative;
+	margin: 0 auto 26px auto;
+	transition: .4s;
+	overflow: hidden;
+}
+
+.catalog-product-form-popup--creating-shop .catalog-product-form-popup--loader-block.catalog-product-form-popup--done {
+	border: 3px solid #9cd002;
+}
+
+.catalog-product-form-popup--creating-shop .catalog-product-form-popup--loader-block.catalog-product-form-popup--done::after,
+.catalog-product-form-popup--creating-shop .catalog-product-form-popup--loader-block.catalog-product-form-popup--done::before {
+	content: '';
+	display: block;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-repeat: no-repeat;
+	background-position: center;
+	transition: .4s;
+}
+
+.catalog-product-form-popup--creating-shop .catalog-product-form-popup--loader-block.catalog-product-form-popup--done::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='23' height='18' viewBox='0 0 23 18'%3E%3Cpath fill='%239DCF00' fill-rule='evenodd' d='M2.58190097,6.65951572 L7.71162054,11.7898728 L19.5017408,0 L22.0836418,2.58190097 L7.71206302,16.9534797 L0,9.2414167 L2.58190097,6.65951572 Z' transform='translate(.239 .202)'/%3E%3C/svg%3E");
+}
+
+.catalog-product-form-popup--creating-shop .catalog-product-form-popup--loader-block.catalog-product-form-popup--done::after {
+	background: #fff;
+	animation-name: done;
+	animation-duration: .8s;
+	animation-fill-mode: both;
+}
+
+@keyframes done {
+	0% {
+		left: 0;
+	}
+
+	100% {
+		left: 100%;
+	}
+}
+
+.catalog-product-form-popup--creating-shop .catalog-product-form-popup--text {
+	line-height: 17px;
+	color: #535c69;
+}
+
+.catalog-product-form-popup--creating-shop .main-ui-loader-svg-circle {
+	stroke-width: 3px;
 }

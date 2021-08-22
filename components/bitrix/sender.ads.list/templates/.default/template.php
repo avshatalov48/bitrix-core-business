@@ -163,7 +163,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 		ob_start();
 		?>
 		<div class="sender-letter-list-desc-normal-black">
-			<?=htmlspecialcharsbx($data['STATE_NAME'])?>
+			<span><?=htmlspecialcharsbx($data['STATE_NAME'])?></span>
 			<?if ($data['STATE']['isSendingLimitExceeded']):?>
 				<span class="sender-letter-list-icon-speedo" title="<?=Loc::getMessage('SENDER_LETTER_LIST_SPEED_TITLE')?>"></span>
 			<?endif;?>

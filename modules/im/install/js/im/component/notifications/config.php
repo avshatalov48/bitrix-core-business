@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/notifications.bundle.css',
 	'js' => 'dist/notifications.bundle.js',
 	'rel' => [
+		'im.lib.animation',
 		'ui.forms',
 		'im.view.element.attach',
 		'im.view.element.keyboard',

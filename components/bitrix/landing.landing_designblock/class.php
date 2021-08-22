@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\EventManager;
 use \Bitrix\Landing\Manager;
+use \Bitrix\Landing\Block;
 use \Bitrix\Landing\Block\Designer;
 use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Hook;
@@ -77,8 +78,9 @@ class LandingDesignBlockComponent extends LandingBaseComponent
 			$landing = Landing::createInstance(
 				$this->arParams['LANDING_ID']
 			);
+			$blockInstance = $landing->getBlockById($designBlockId);
 
-			if ($landing->exist() && $landing->getBlockById($designBlockId))
+			if ($landing->exist() && $blockInstance)
 			{
 				// disable optimisation
 				if (\Bitrix\Landing\Manager::isB24())
@@ -105,7 +107,10 @@ class LandingDesignBlockComponent extends LandingBaseComponent
 						);
 						$landingZero->addBlockToCollection($designer->getBlock());
 						$this->arResult['LANDING_ZERO'] = $landingZero;
+						$this->arResult['LANDING'] = $landing;
 						$this->arResult['DESIGNER'] = $designer;
+						$this->arResult['BLOCK_INSTANCE'] = $blockInstance;
+						$this->arResult['BLOCK_MANIFEST'] = Block::getManifestFile($blockInstance->getCode());
 						$this->onLandingView();
 						$this->onEpilog();
 					}

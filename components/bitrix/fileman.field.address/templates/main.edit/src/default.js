@@ -45,6 +45,8 @@ BX.Default.Field.Address.prototype = {
 			}
 
 			node.innerHTML = html;
+
+			BX.onCustomEvent(window, 'onCrmEntityEditorUserFieldExternalChanged', [control.fieldNameJs]);
 		});
 	},
 };

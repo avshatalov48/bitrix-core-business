@@ -16,6 +16,9 @@ final class ExtensionFacade
 	/**@var Configuration\Facebook\Installs $setup*/
 	private $installs;
 
+	/**@var ServiceAdapter $adapter*/
+	private $adapter;
+
 	/**@var bool $isExceptionHandled*/
 	private $isExceptionHandled = false;
 
@@ -33,6 +36,7 @@ final class ExtensionFacade
 	{
 		try
 		{
+			$this->adapter = ServiceAdapter::loadFacebookService();
 			$this->config = Configuration\Facebook\Config::load();
 			$this->setup = Configuration\Facebook\Setup::load();
 			$this->installs = Configuration\Facebook\Installs::load();
@@ -48,7 +52,7 @@ final class ExtensionFacade
 	 */
 	public function isInstalled() : bool
 	{
-		return (!$this->isExceptionHandled) && $this->setup && $this->installs && $this->config;
+		return (!$this->isExceptionHandled) && $this->setup && $this->installs && $this->config && $this->adapter;
 	}
 
 	/**
@@ -73,5 +77,10 @@ final class ExtensionFacade
 	public function getCurrentInstalls() : ?Configuration\Facebook\Installs
 	{
 		return $this->installs;
+	}
+
+	public function getServiceAdapter() : ?ServiceAdapter
+	{
+		return $this->adapter;
 	}
 }

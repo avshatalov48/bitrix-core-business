@@ -1,10 +1,11 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Main\Type\DateTime;
+
 class Notify
 {
 	private const CONFIRM_TYPE = 1;
-	private const UNREAD_TYPE = 2;
 	private const SIMPLE_TYPE = 3;
 	private const ALL_TYPES = 4;
 
@@ -148,16 +149,10 @@ class Notify
 		// fetching confirm notifications
 		$confirmCollection = $this->fetchConfirms();
 
-		// fetching unread notifications
-		$offset = count($confirmCollection);
-		$unreadCollection = $this->fetchUnread($offset);
-		$notifications = array_merge($confirmCollection, $unreadCollection);
-
 		// fetching simple notifications
-		$offset = count($notifications);
+		$offset = count($confirmCollection);
 		$simpleCollection = $this->fetchSimple($offset);
-
-		$notifications = array_merge($notifications, $simpleCollection);
+		$notifications = array_merge($confirmCollection, $simpleCollection);
 
 		$unreadCount = \Bitrix\Im\Model\MessageTable::getList(
 			[
@@ -182,7 +177,7 @@ class Notify
 
 		foreach ($result['NOTIFICATIONS'] as $key => $value)
 		{
-			if ($value['DATE'] instanceof \Bitrix\Main\Type\DateTime)
+			if ($value['DATE'] instanceof DateTime)
 			{
 				$result['NOTIFICATIONS'][$key]['DATE'] = date('c', $value['DATE']->getTimestamp());
 			}
@@ -309,28 +304,14 @@ class Notify
 		return $confirmCollection;
 	}
 
-	private function fetchUnread(int $offset): array
-	{
-		$unreadCollection = [];
-		$nextPageIsUnread = $this->lastType === self::UNREAD_TYPE;
-		$needMoreOnFirstPage = $this->firstPage && $offset < $this->pageLimit;
-		$notEnoughFromPreviousStep = $this->lastType === self::CONFIRM_TYPE && $offset < $this->pageLimit;
-
-		if ($needMoreOnFirstPage || $notEnoughFromPreviousStep || $nextPageIsUnread)
-		{
-			$unreadCollection = $this->requestData(self::UNREAD_TYPE, $this->pageLimit - $offset);
-		}
-
-		return $unreadCollection;
-	}
-
 	private function fetchSimple(int $offset): array
 	{
 		$simpleCollection = [];
 		$nextPageIsSimple = $this->lastType === self::SIMPLE_TYPE;
-		$notEnoughFromPreviousStep = $offset < $this->pageLimit;
+		$needMoreOnFirstPage = $this->firstPage && $offset < $this->pageLimit;
+		$notEnoughFromPreviousStep = $this->lastType === self::CONFIRM_TYPE && $offset < $this->pageLimit;
 
-		if ($nextPageIsSimple || $notEnoughFromPreviousStep)
+		if ($needMoreOnFirstPage || $notEnoughFromPreviousStep || $nextPageIsSimple)
 		{
 			$simpleCollection = $this->requestData(self::SIMPLE_TYPE, $this->pageLimit - $offset);
 		}
@@ -372,7 +353,7 @@ class Notify
 
 		foreach ($result['NOTIFICATIONS'] as $key => $value)
 		{
-			if ($value['DATE'] instanceof \Bitrix\Main\Type\DateTime)
+			if ($value['DATE'] instanceof DateTime)
 			{
 				$result['NOTIFICATIONS'][$key]['DATE'] = date('c', $value['DATE']->getTimestamp());
 			}
@@ -388,28 +369,46 @@ class Notify
 
 	public static function cleanNotifyAgent()
 	{
-		$dayCount = 90;
-		$step = 1500;
+		$dayCount = 60;
+		$limit = 2000;
+		$step = 1000;
 
+		$batches = [];
 		$result = \Bitrix\Im\Model\MessageTable::getList(array(
 			'select' => ['ID', 'CHAT_ID'],
 			'filter' => [
 				'=NOTIFY_TYPE' => [IM_NOTIFY_CONFIRM, IM_NOTIFY_FROM, IM_NOTIFY_SYSTEM],
 				'<DATE_CREATE' => ConvertTimeStamp((time() - 86400 * $dayCount), 'FULL')
 			],
-			'limit' => $step
+			'limit' => $limit
 		));
+
+		$batch = [];
+		$i = 0;
+
 		while ($row = $result->fetch())
 		{
-			\Bitrix\Im\Model\MessageTable::delete($row['ID']);
-			if ($row['CHAT_ID'])
+			if ($i++ === $step)
 			{
-				\Bitrix\IM\Model\ChatTable::update(
-					$row['CHAT_ID'],
-					['MESSAGE_COUNT' => new \Bitrix\Main\DB\SqlExpression('?# - 1', 'MESSAGE_COUNT')]
-				);
+				$i = 0;
+				$batches[] = $batch;
+				$batch = [];
 			}
-			\CIMMessageParam::DeleteAll($row['ID'], true);
+			$batch[] = intval($row['ID']);
+		}
+		if (!empty($batch))
+		{
+			$batches[] = $batch;
+		}
+
+		foreach ($batches as $batch)
+		{
+			\Bitrix\Im\Model\MessageTable::deleteBatch([
+				'=ID' => $batch
+			]);
+			\Bitrix\Im\Model\MessageParamTable::deleteBatch([
+				'=MESSAGE_ID' => $batch
+			]);
 		}
 
 		return '\Bitrix\Im\Notify::cleanNotifyAgent();';
@@ -434,16 +433,26 @@ class Notify
 		if ($this->searchType)
 		{
 			$options = explode('|', $this->searchType);
-			if ($options)
+			$ormParams['filter']['=NOTIFY_MODULE'] = $options[0];
+			if (isset($options[1]))
 			{
-				$ormParams['filter']['=NOTIFY_MODULE'] = $options[0];
 				$ormParams['filter']['=NOTIFY_EVENT'] = $options[1];
 			}
 		}
 		if ($this->searchDate)
 		{
-			$dateStart = \Bitrix\Main\Type\DateTime::createFromUserTime($this->searchDate);
-			$dateEnd = \Bitrix\Main\Type\DateTime::createFromUserTime($this->searchDate)->add('1 DAY');
+			$dateStart = new DateTime(
+				$this->searchDate,
+				\DateTimeInterface::RFC3339,
+				new \DateTimeZone('UTC')
+			);
+			$dateEnd = (
+				new DateTime(
+					$this->searchDate,
+					\DateTimeInterface::RFC3339,
+					new \DateTimeZone('UTC')
+				)
+			)->add('1 DAY');
 
 			$ormParams['filter']['><DATE_CREATE'] = [$dateStart, $dateEnd];
 		}
@@ -495,15 +504,9 @@ class Notify
 		{
 			$ormParams['filter']['=NOTIFY_TYPE'] = IM_NOTIFY_CONFIRM;
 		}
-		elseif ($requestType === self::UNREAD_TYPE)
-		{
-			$ormParams['filter']['!=NOTIFY_TYPE'] = IM_NOTIFY_CONFIRM;
-			$ormParams['filter']['=NOTIFY_READ'] = 'N';
-		}
 		elseif ($requestType === self::SIMPLE_TYPE)
 		{
 			$ormParams['filter']['!=NOTIFY_TYPE'] = IM_NOTIFY_CONFIRM;
-			$ormParams['filter']['=NOTIFY_READ'] = 'Y';
 		}
 		elseif ($requestType === self::ALL_TYPES)
 		{
@@ -514,17 +517,26 @@ class Notify
 			if ($this->searchType)
 			{
 				$options = explode('|', $this->searchType);
-				if ($options)
+				$ormParams['filter']['=NOTIFY_MODULE'] = $options[0];
+				if (isset($options[1]))
 				{
-					$ormParams['filter']['=NOTIFY_MODULE'] = $options[0];
 					$ormParams['filter']['=NOTIFY_EVENT'] = $options[1];
 				}
 			}
 			if ($this->searchDate)
 			{
-				$dateStart = \Bitrix\Main\Type\DateTime::createFromUserTime($this->searchDate);
-				$dateEnd = \Bitrix\Main\Type\DateTime::createFromUserTime($this->searchDate)->add('1 DAY');
-
+				$dateStart = new DateTime(
+					$this->searchDate,
+					\DateTimeInterface::RFC3339,
+					new \DateTimeZone('UTC')
+				);
+				$dateEnd = (
+					new DateTime(
+						$this->searchDate,
+						\DateTimeInterface::RFC3339,
+						new \DateTimeZone('UTC')
+					)
+				)->add('1 DAY');
 				$ormParams['filter']['><DATE_CREATE'] = [$dateStart, $dateEnd];
 			}
 		}
@@ -533,7 +545,6 @@ class Notify
 		{
 			if (
 				$requestType === self::CONFIRM_TYPE
-				|| ($requestType === self::UNREAD_TYPE && $this->lastType === self::UNREAD_TYPE)
 				|| ($requestType === self::SIMPLE_TYPE && $this->lastType === self::SIMPLE_TYPE)
 				|| ($requestType === self::ALL_TYPES && $this->lastType === self::ALL_TYPES)
 			)

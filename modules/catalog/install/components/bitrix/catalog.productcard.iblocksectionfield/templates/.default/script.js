@@ -19,6 +19,8 @@
 	        this.selector = new BX.UI.EntitySelector.TagSelector({
 	          id: this.selectorId,
 	          multiple: true,
+	          placeholder: main_core.Loc.getMessage('CATALOG_IBLOCKSECTIONFIELD_PLACEHOLDER'),
+	          textBoxWidth: '100%',
 	          dialogOptions: {
 	            height: 300,
 	            id: this.selectorId,

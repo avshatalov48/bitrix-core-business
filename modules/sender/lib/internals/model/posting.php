@@ -14,6 +14,19 @@ use Bitrix\Sender;
  * Class PostingTable
  *
  * @package Bitrix\Sender\Internals\Model
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Posting_Query query()
+ * @method static EO_Posting_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Posting_Result getById($id)
+ * @method static EO_Posting_Result getList(array $parameters = array())
+ * @method static EO_Posting_Entity getEntity()
+ * @method static \Bitrix\Sender\Internals\Model\EO_Posting createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\Internals\Model\EO_Posting_Collection createCollection()
+ * @method static \Bitrix\Sender\Internals\Model\EO_Posting wakeUpObject($row)
+ * @method static \Bitrix\Sender\Internals\Model\EO_Posting_Collection wakeUpCollection($rows)
  */
 class PostingTable extends Main\Entity\DataManager
 {

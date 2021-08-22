@@ -233,6 +233,12 @@ export class Backend
 					BX.Landing.UI.Panel.StatusPanel.getInstance().update();
 				}
 
+				BX.onCustomEvent(
+					BX.Landing.PageObject.getRootWindow(),
+					'BX.Landing.Backend:action',
+					[action, data]
+				);
+
 				return response.result;
 			})
 			.catch((err) => {
@@ -243,8 +249,11 @@ export class Backend
 				{
 					if (
 						requestBody.action !== 'Block::getById'
+						&& requestBody.action !== 'Block::publication'
 						&& requestBody.action !== 'Landing::move'
 						&& requestBody.action !== 'Landing::copy'
+						&& requestBody.action !== 'Landing::publication'
+						&& requestBody.action !== 'Site::publication'
 						&& requestBody.action !== 'Site::moveFolder'
 					)
 					{
@@ -285,6 +294,11 @@ export class Backend
 			.then((response) => {
 				// eslint-disable-next-line
 				BX.Landing.UI.Panel.StatusPanel.getInstance().update();
+				BX.onCustomEvent(
+					BX.Landing.PageObject.getRootWindow(),
+					'BX.Landing.Backend:batch',
+					[action, data]
+				);
 				return response;
 			})
 			.catch((err) => {

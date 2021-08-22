@@ -1,0 +1,14 @@
+<?
+$MESS["MS_TIMEZONE_PAGO_PAGO"] = "Pago_Pago";
+$MESS["MS_TIMEZONE_NIUE"] = "Niue";
+$MESS["MS_TIMEZONE_MIDWAY"] = "Midway";
+$MESS["MS_TIMEZONE_ADAK"] = "Adak";
+$MESS["MS_TIMEZONE_HONOLULU"] = "Honolulu";
+$MESS["MS_TIMEZONE_RAROTONGA"] = "Rarotonga";
+$MESS["MS_TIMEZONE_TAHITI"] = "Tahiti";
+$MESS['MS_TIMEZONE_MARQUESAS'] = 'Marquesas';
+$MESS['MS_TIMEZONE_GAMBIER'] = 'Gambier';
+$MESS['MS_TIMEZONE_PITCAIRN'] = 'Pitcairn';
+$MESS['MS_TIMEZONE_GALAPAGOS'] = 'Galapagos';
+$MESS['MS_TIMEZONE_ROTHERA'] = 'Rothera';
+?>

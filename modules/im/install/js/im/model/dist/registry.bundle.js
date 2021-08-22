@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
-(function (exports,im_lib_logger,main_core_events,im_const,ui_vue,ui_vue_vuex,im_lib_utils,main_core) {
+(function (exports,im_lib_logger,main_core_events,im_lib_utils,ui_vue,ui_vue_vuex,main_core,im_const) {
 	'use strict';
 
 	/**
@@ -1524,7 +1524,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          readCounter++;
 	        }
 
-	        if (count >= im_const.StorageLimit.messages && readCounter === 50) {
+	        if (count >= im_const.StorageLimit.messages && readCounter >= 50) {
 	          break;
 	        }
 
@@ -3345,27 +3345,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      if (typeof fields.name === "string" || typeof fields.name === "number") {
 	        fields.name = im_lib_utils.Utils.text.htmlspecialcharsback(fields.name.toString());
 	        result.name = fields.name;
-
-	        if (typeof fields.firstName === "undefined" || typeof fields.firstName !== "undefined" && !fields.firstName) {
-	          var elementsOfName = fields.name.split(' ');
-
-	          if (elementsOfName.length > 1) {
-	            delete elementsOfName[elementsOfName.length - 1];
-	            fields.firstName = elementsOfName.join(' ').trim();
-	          } else {
-	            fields.firstName = result.name;
-	          }
-	        }
-
-	        if (typeof fields.lastName === "undefined" || typeof fields.lastName !== "undefined" && !fields.lastName) {
-	          var _elementsOfName = fields.name.split(' ');
-
-	          if (_elementsOfName.length > 1) {
-	            fields.lastName = _elementsOfName[_elementsOfName.length - 1];
-	          } else {
-	            fields.lastName = '';
-	          }
-	        }
 	      }
 
 	      if (typeof fields.firstName === "string" || typeof fields.firstName === "number") {
@@ -4776,7 +4755,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        total: 0,
 	        host: this.getVariable('host', location.protocol + '//' + location.host),
 	        unreadCounter: 0,
-	        schema: []
+	        schema: {}
 	      };
 	    }
 	  }, {
@@ -4787,14 +4766,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        authorId: 0,
 	        date: new Date(),
 	        text: '',
-	        sectionCode: 'notification',
+	        sectionCode: im_const.NotificationTypesCodes.simple,
 	        textConverted: '',
 	        unread: false,
-	        template: 'item',
-	        templateId: 0,
 	        display: true,
-	        settingName: 'im|default',
-	        type: 0
+	        settingName: 'im|default'
 	      };
 	    }
 	  }, {
@@ -5051,6 +5027,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	              if (!existingItem.element) {
 	                state.collection.push(element);
 	              } else {
+	                // we trust unread status of existing item to prevent notifications blinking while init loading.
+	                if (element.unread !== state.collection[existingItem.index].unread) {
+	                  element.unread = state.collection[existingItem.index].unread;
+	                  state.unreadCounter = element.unread === true ? state.unreadCounter + 1 : state.unreadCounter - 1;
+	                }
+
 	                state.collection[existingItem.index] = Object.assign(state.collection[existingItem.index], element);
 	              }
 	            }
@@ -5093,13 +5075,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        add: function add(state, payload) {
 	          var firstNotificationIndex = null;
 
-	          if (payload.data.sectionCode === 'confirm') {
+	          if (payload.data.sectionCode === im_const.NotificationTypesCodes.confirm) {
 	            //new confirms should always add to the beginning of the collection
 	            state.collection.unshift(payload.data);
-	          } else //if (payload.data.sectionCode === 'notification')
+	          } else //if (payload.data.sectionCode === NotificationTypesCodes.simple)
 	            {
 	              for (var index = 0; state.collection.length > index; index++) {
-	                if (state.collection[index].sectionCode === 'notification') {
+	                if (state.collection[index].sectionCode === im_const.NotificationTypesCodes.simple) {
 	                  firstNotificationIndex = index;
 	                  break;
 	                }
@@ -5113,6 +5095,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	                  state.collection.splice(firstNotificationIndex, 0, payload.data);
 	                }
 	            }
+
+	          state.collection.sort(_this3.sortByType);
 	        },
 	        update: function update(state, payload) {
 	          var collectionName = payload.searchCollection ? 'searchCollection' : 'collection';
@@ -5127,7 +5111,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        },
 	        readAll: function readAll(state, payload) {
 	          for (var index = 0; state.collection.length > index; index++) {
-	            if (state.collection[index].sectionCode === 'notification') {
+	            if (state.collection[index].sectionCode === im_const.NotificationTypesCodes.simple) {
 	              state.collection[index].unread = false;
 	            }
 	          }
@@ -5150,6 +5134,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	              state[collectionName].splice(existingPlaceholderIndex, 1, Object.assign({}, element));
 	            }
 	          });
+	          state[collectionName].sort(_this3.sortByType);
 	        },
 	        clearPlaceholders: function clearPlaceholders(state, payload) {
 	          state.collection = state.collection.filter(function (element) {
@@ -5252,12 +5237,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        });
 	      }
 
-	      if (fields.notify_type === 1 || fields.type === 1) {
-	        result.sectionCode = 'confirm';
-	      }
-
-	      if (main_core.Type.isNumber(fields.notify_type)) {
-	        result.type = fields.notify_type;
+	      if (fields.notify_type === im_const.NotificationTypesCodes.confirm || fields.type === im_const.NotificationTypesCodes.confirm) {
+	        result.sectionCode = im_const.NotificationTypesCodes.confirm;
+	      } else if (fields.type === im_const.NotificationTypesCodes.placeholder) {
+	        result.sectionCode = im_const.NotificationTypesCodes.placeholder;
 	      }
 
 	      if (!main_core.Type.isNil(fields.notify_read)) {
@@ -5267,14 +5250,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	      if (!main_core.Type.isNil(fields.read)) {
 	        result.unread = fields.read === 'N'; //?
-	      }
-
-	      if (main_core.Type.isString(fields.templateId)) {
-	        result.templateId = fields.templateId;
-	      }
-
-	      if (main_core.Type.isString(fields.template)) {
-	        result.template = fields.template;
 	      }
 
 	      if (main_core.Type.isString(fields.setting_name)) {
@@ -5365,12 +5340,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }, {
 	    key: "sortByType",
 	    value: function sortByType(a, b) {
-	      if (a.sectionCode === 'confirm' && b.sectionCode !== 'confirm') {
+	      if (a.sectionCode === im_const.NotificationTypesCodes.confirm && b.sectionCode !== im_const.NotificationTypesCodes.confirm) {
 	        return -1;
-	      } else if (a.sectionCode !== 'confirm' && b.sectionCode === 'confirm') {
+	      } else if (a.sectionCode !== im_const.NotificationTypesCodes.confirm && b.sectionCode === im_const.NotificationTypesCodes.confirm) {
 	        return 1;
 	      } else {
-	        return 0;
+	        return b.id - a.id;
 	      }
 	    }
 	    /* endregion Internal helpers */
@@ -5462,6 +5437,170 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  return NotificationsModel;
 	}(ui_vue_vuex.VuexBuilderModel);
 
+	/**
+	 * Bitrix Messenger
+	 * Call Application model (Vuex Builder model)
+	 *
+	 * @package bitrix
+	 * @subpackage im
+	 * @copyright 2001-2020 Bitrix
+	 */
+	var CallModel = /*#__PURE__*/function (_VuexBuilderModel) {
+	  babelHelpers.inherits(CallModel, _VuexBuilderModel);
+
+	  function CallModel() {
+	    babelHelpers.classCallCheck(this, CallModel);
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(CallModel).apply(this, arguments));
+	  }
+
+	  babelHelpers.createClass(CallModel, [{
+	    key: "getName",
+	    value: function getName() {
+	      return 'call';
+	    }
+	  }, {
+	    key: "getState",
+	    value: function getState() {
+	      return {
+	        users: {}
+	      };
+	    }
+	  }, {
+	    key: "getElementState",
+	    value: function getElementState() {
+	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      return {
+	        id: params.id ? params.id : 0,
+	        state: im_const.ConferenceUserState.Idle,
+	        talking: false,
+	        pinned: false,
+	        cameraState: false,
+	        microphoneState: false,
+	        screenState: false,
+	        floorRequestState: false
+	      };
+	    }
+	  }, {
+	    key: "getGetters",
+	    value: function getGetters() {
+	      var _this = this;
+
+	      return {
+	        getUser: function getUser(state) {
+	          return function (userId) {
+	            userId = parseInt(userId, 10);
+
+	            if (!state.users[userId]) {
+	              return _this.getElementState({
+	                id: userId
+	              });
+	            }
+
+	            return state.users[userId];
+	          };
+	        },
+	        getBlankUser: function getBlankUser(state) {
+	          return function (userId) {
+	            userId = parseInt(userId, 10);
+	            return _this.getElementState({
+	              id: userId
+	            });
+	          };
+	        }
+	      };
+	    }
+	  }, {
+	    key: "getActions",
+	    value: function getActions() {
+	      var _this2 = this;
+
+	      return {
+	        updateUser: function updateUser(store, payload) {
+	          payload.id = parseInt(payload.id, 10);
+	          payload.fields = Object.assign({}, _this2.validate(payload.fields));
+	          store.commit('updateUser', payload);
+	        },
+	        unpinUser: function unpinUser(store, payload) {
+	          store.commit('unpinUser');
+	        }
+	      };
+	    }
+	  }, {
+	    key: "getMutations",
+	    value: function getMutations() {
+	      var _this3 = this;
+
+	      return {
+	        updateUser: function updateUser(state, payload) {
+	          if (!state.users[payload.id]) {
+	            ui_vue.Vue.set(state.users, payload.id, Object.assign(_this3.getElementState(), payload.fields, {
+	              id: payload.id
+	            }));
+	          } else {
+	            state.users[payload.id] = Object.assign(state.users[payload.id], payload.fields);
+	          }
+	        },
+	        unpinUser: function unpinUser(state, payload) {
+	          var pinnedUser = Object.values(state.users).find(function (user) {
+	            return user.pinned === true;
+	          });
+
+	          if (pinnedUser) {
+	            state.users[pinnedUser.id].pinned = false;
+	          }
+	        }
+	      };
+	    }
+	  }, {
+	    key: "validate",
+	    value: function validate(payload) {
+	      var result = {};
+
+	      if (main_core.Type.isNumber(payload.id) || main_core.Type.isString(payload.id)) {
+	        result.id = parseInt(payload.id, 10);
+	      }
+
+	      if (im_const.ConferenceUserState[payload.state]) {
+	        result.state = payload.state;
+	      }
+
+	      if (main_core.Type.isBoolean(payload.talking)) {
+	        result.talking = payload.talking;
+	      }
+
+	      if (main_core.Type.isBoolean(payload.pinned)) {
+	        result.pinned = payload.pinned;
+	      }
+
+	      if (main_core.Type.isBoolean(payload.cameraState)) {
+	        result.cameraState = payload.cameraState;
+	      }
+
+	      if (main_core.Type.isBoolean(payload.microphoneState)) {
+	        result.microphoneState = payload.microphoneState;
+	      }
+
+	      if (main_core.Type.isBoolean(payload.screenState)) {
+	        result.screenState = payload.screenState;
+	      }
+
+	      if (main_core.Type.isBoolean(payload.floorRequestState)) {
+	        result.floorRequestState = payload.floorRequestState;
+	      }
+
+	      return result;
+	    }
+	  }, {
+	    key: "getStateSaveException",
+	    value: function getStateSaveException() {
+	      return {
+	        users: false
+	      };
+	    }
+	  }]);
+	  return CallModel;
+	}(ui_vue_vuex.VuexBuilderModel);
+
 	exports.ApplicationModel = ApplicationModel;
 	exports.ConferenceModel = ConferenceModel;
 	exports.MessagesModel = MessagesModel;
@@ -5470,6 +5609,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	exports.FilesModel = FilesModel;
 	exports.RecentModel = RecentModel;
 	exports.NotificationsModel = NotificationsModel;
+	exports.CallModel = CallModel;
 
-}((this.BX.Messenger.Model = this.BX.Messenger.Model || {}),BX.Messenger.Lib,BX.Event,BX.Messenger.Const,BX,BX,BX.Messenger.Lib,BX));
+}((this.BX.Messenger.Model = this.BX.Messenger.Model || {}),BX.Messenger.Lib,BX.Event,BX.Messenger.Lib,BX,BX,BX,BX.Messenger.Const));
 //# sourceMappingURL=registry.bundle.js.map

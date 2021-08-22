@@ -12,6 +12,22 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class GroupQueueTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_GroupQueue_Query query()
+ * @method static EO_GroupQueue_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_GroupQueue_Result getById($id)
+ * @method static EO_GroupQueue_Result getList(array $parameters = array())
+ * @method static EO_GroupQueue_Entity getEntity()
+ * @method static \Bitrix\Sender\Internals\Model\EO_GroupQueue createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sender\Internals\Model\EO_GroupQueue_Collection createCollection()
+ * @method static \Bitrix\Sender\Internals\Model\EO_GroupQueue wakeUpObject($row)
+ * @method static \Bitrix\Sender\Internals\Model\EO_GroupQueue_Collection wakeUpCollection($rows)
+ */
 class GroupQueueTable extends Entity\DataManager
 {
 	const TYPE = [

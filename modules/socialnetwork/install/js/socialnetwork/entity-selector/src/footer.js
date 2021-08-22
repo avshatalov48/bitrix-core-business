@@ -18,6 +18,11 @@ export default class Footer extends DefaultFooter
 	getContent(): HTMLElement | HTMLElement[] | string | null
 	{
 		return this.cache.remember('content', () => {
+			if (this.getOption('tagCreationLabel', false))
+			{
+				return this.createTagCreationLabel();
+			}
+
 			const inviteEmployeeLink = this.getOption('inviteEmployeeLink');
 			const inviteGuestLink = this.getOption('inviteGuestLink');
 			const createProjectLink = this.getOption('createProjectLink');
@@ -112,6 +117,11 @@ export default class Footer extends DefaultFooter
 
 			return null;
 		});
+	}
+
+	createTagCreationLabel()
+	{
+		return Loc.getMessage('SOCNET_ENTITY_SELECTOR_TAG_FOOTER_LABEL');
 	}
 
 	createInviteEmployeeLink(text: string, icon: boolean): string

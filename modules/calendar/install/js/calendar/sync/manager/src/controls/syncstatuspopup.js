@@ -68,11 +68,11 @@ export default class SyncStatusPopup extends EventEmitter
 
 			const options = {};
 
-			$
 			options.syncTime = this.getTime(connection.getSyncTimestamp());
 			options.classStatus = connection.getSyncStatus()
 				? 'calendar-sync-popup-item-status-success'
-				: 'calendar-sync-popup-item-status-fail';
+				: 'calendar-sync-popup-item-status-fail'
+			;
 			options.classLable = 'calendar-sync-popup-item-text-' + connection.getClassLabel();
 			options.title = connection.getConnectionName();
 			const block = this.getSyncElement(options);

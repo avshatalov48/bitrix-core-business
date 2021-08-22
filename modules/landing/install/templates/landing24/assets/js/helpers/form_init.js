@@ -11,6 +11,8 @@
 		this.forms = [];
 	}
 
+	BX.Landing.EmbedForms.formsData = {};
+
 	BX.Landing.EmbedForms.prototype = {
 		add: function(formNode)
 		{
@@ -129,14 +131,14 @@
 
 		loadParamsById: function(formId)
 		{
-			if(!BX.Landing.EmbedForms.formsData)
+			if(!(formId in BX.Landing.EmbedForms.formsData))
 			{
-				BX.Landing.EmbedForms.formsData = BX.Landing.Backend.getInstance().action(
+				BX.Landing.EmbedForms.formsData[formId] = BX.Landing.Backend.getInstance().action(
 					"Form::getById",
 					{formId: formId}
 				);
 			}
-			return BX.Landing.EmbedForms.formsData
+			return BX.Landing.EmbedForms.formsData[formId]
 				.then(function(result) {
 					if (Object.keys(result).length > 0)
 					{

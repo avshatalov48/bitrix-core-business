@@ -444,6 +444,7 @@ create table b_sender_group_state
 );
 
 create index IX_SENDER_GROUP_STATE_GROUP_ID_FILTER_ID on b_sender_group_state (GROUP_ID, FILTER_ID);
+create index IX_SENDER_GROUP_STATE_STATE on b_sender_group_state (STATE);
 
 create table b_sender_group_queue
 (
@@ -456,3 +457,16 @@ create table b_sender_group_queue
 
 create index IX_SENDER_GROUP_QUEUE_TYPE_ENTITY_ID_GROUP_ID
     on b_sender_group_queue (TYPE, ENTITY_ID, GROUP_ID);
+
+CREATE TABLE b_sender_group_thread
+(
+  `THREAD_ID`   INT UNSIGNED NOT NULL,
+  `GROUP_STATE_ID`  INT UNSIGNED NOT NULL,
+  `STATUS`      VARCHAR(1)   NOT NULL DEFAULT 'N',
+  `STEP`      INT UNSIGNED NOT NULL DEFAULT 0,
+  `THREAD_TYPE` TEXT         NOT NULL,
+  `EXPIRE_AT`   DATETIME     NOT NULL,
+CONSTRAINT `IX_SENDER_GROUP_THREAD_INFO_THREAD_ID_GROUP_STATE` UNIQUE
+(`THREAD_ID`, `GROUP_STATE_ID`)
+);
+

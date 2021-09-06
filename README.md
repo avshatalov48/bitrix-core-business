@@ -38,11 +38,15 @@
 
 * Вы всегда можете оперативно переключиться на нужную доступную версию ядра.
 
-## Подключение в PHPStorm
+## Подключение в PHPStorm (рекомендуемый)
 
 * 'Меню' > 'File' > 'Settings' > 'Languages & Frameworks' > 'PHP' > 'Include Path' > '+' > 'Путь к каталогу modules'
 
 ![PHPStorm](./images/phpstorm.png "Подключение в PHPStorm")
+
+## Composer
+
+* `composer require avshatalov48/bitrix-core-business:dev-master --dev`
 
 ## Разное
 

@@ -1,0 +1,27 @@
+{
+  "name": "avshatalov48/bitrix-core-business",
+  "description": "1C-Bitrix: Site Management Core. Business",
+  "license": "MIT",
+  "keywords": [
+    "php",
+    "core",
+    "bitrix",
+    "1c-bitrix",
+    "bitrix24",
+    "autocomplete",
+    "ide-helper"
+  ],
+  "support": {
+    "issues": "https://github.com/avshatalov48/bitrix-core-business/issues",
+    "source": "https://github.com/avshatalov48/bitrix-core-business"
+  },
+  "authors": [
+    {
+      "name": "Alexander Shatalov",
+      "email": "alexander.shataloff@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.0"
+  }
+}

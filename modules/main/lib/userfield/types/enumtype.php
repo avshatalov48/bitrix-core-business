@@ -17,14 +17,13 @@ Loc::loadMessages(__FILE__);
  */
 class EnumType extends BaseType
 {
-	public const
-		USER_TYPE_ID = 'enumeration',
-		RENDER_COMPONENT = 'bitrix:main.field.enum';
+	public const USER_TYPE_ID = 'enumeration';
+	public const RENDER_COMPONENT = 'bitrix:main.field.enum';
 
-	public const
-		DISPLAY_LIST = 'LIST',
-		DISPLAY_CHECKBOX = 'CHECKBOX',
-		DISPLAY_UI = 'UI';
+	public const DISPLAY_LIST = 'LIST';
+	public const DISPLAY_CHECKBOX = 'CHECKBOX';
+	public const DISPLAY_UI = 'UI';
+	public const DISPLAY_DIALOG = 'DIALOG';
 
 	/**
 	 * @return array
@@ -150,17 +149,23 @@ class EnumType extends BaseType
 	public static function prepareSettings(array $userField): array
 	{
 		$height = (int)$userField['SETTINGS']['LIST_HEIGHT'];
-		$disp = $userField['SETTINGS']['DISPLAY'];
+		$display = $userField['SETTINGS']['DISPLAY'];
 		$caption_no_value = trim($userField['SETTINGS']['CAPTION_NO_VALUE']);
 		$show_no_value = ($userField['SETTINGS']['SHOW_NO_VALUE'] === 'N' ? 'N' : 'Y');
 
-		if($disp !== self::DISPLAY_CHECKBOX && $disp !== self::DISPLAY_UI)
+		$displays = [
+			self::DISPLAY_CHECKBOX,
+			self::DISPLAY_UI,
+			self::DISPLAY_DIALOG,
+		];
+
+		if (!in_array($display, $displays, true))
 		{
-			$disp = self::DISPLAY_LIST;
+			$display = self::DISPLAY_LIST;
 		}
 
 		return [
-			'DISPLAY' => $disp,
+			'DISPLAY' => $display,
 			'LIST_HEIGHT' => ($height < 1 ? 1 : $height),
 			'CAPTION_NO_VALUE' => $caption_no_value, // no default value - only in output
 			'SHOW_NO_VALUE' => $show_no_value, // no default value - only in output

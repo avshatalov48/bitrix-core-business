@@ -170,7 +170,7 @@ class CSocServVKontakte extends CSocServAuth
 		$aRemove = array("logout", "auth_service_error", "auth_service_id", "code", "error_reason", "error", "error_description", "check_key", "current_fieldset");
 
 
-		if (isset($_REQUEST['backurl']) || isset($_REQUEST['redirect_url']))
+		if ($bSuccess === true && (isset($_REQUEST['backurl']) || isset($_REQUEST['redirect_url'])))
 		{
 			$parseUrl = parse_url(isset($_REQUEST['redirect_url']) ? $_REQUEST['redirect_url'] : $_REQUEST['backurl']);
 

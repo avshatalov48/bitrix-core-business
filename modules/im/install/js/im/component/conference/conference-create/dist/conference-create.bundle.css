@@ -192,6 +192,11 @@
 	        flex-direction: column;
 }
 
+.bx-conference-quick-create-error-wrap a {
+    cursor: pointer;
+    color: #2067b0;
+}
+
 .bx-conference-quick-create-error-wrap .ui-alert-message + .ui-alert-message {
 	margin-top: 10px;
 }

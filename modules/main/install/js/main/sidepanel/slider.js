@@ -597,8 +597,11 @@ BX.SidePanel.Slider.prototype =
 	 */
 	closeLoader: function()
 	{
-		this.layout.loader.style.display = "none";
-		this.layout.loader.style.opacity = 0;
+		if (this.layout.loader)
+		{
+			this.layout.loader.style.display = "none";
+			this.layout.loader.style.opacity = 0;
+		}
 	},
 
 	/**

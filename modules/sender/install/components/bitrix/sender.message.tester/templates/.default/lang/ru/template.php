@@ -11,4 +11,6 @@ $MESS["SENDER_MESSAGE_TESTER_TMPL_TEST_RECIPIENTS"] = "Получатели те
 $MESS["SENDER_MESSAGE_TESTER_TMPL_TEST_CAT_LAST"] = "Последние";
 $MESS["SENDER_MESSAGE_TESTER_TMPL_TEST_TITLE_MAIL"] = "Email адреса";
 $MESS["SENDER_MESSAGE_TESTER_TMPL_TEST_TITLE_PHONE"] = "Номера телефонов";
+$MESS["SENDER_MESSAGE_TESTER_TMPL_VALIDATION_TEST_SEND"] = "Отправить согласие на рассылку";
+$MESS["SENDER_MESSAGE_TESTER_TMPL_VALIDATION_TEST_SUCCESS"] = "Согласие на рассылку успешно отправлено! Проверьте почту.";
 ?>

@@ -1,6 +1,6 @@
-import { Vue } from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 
-Vue.component('sale-checkout-view-product-measure', {
+BitrixVue.component('sale-checkout-view-product-measure', {
 	props: ['item'],
 	// language=Vue
 	template: `

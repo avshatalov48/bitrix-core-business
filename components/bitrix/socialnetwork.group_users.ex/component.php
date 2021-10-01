@@ -199,5 +199,8 @@ else
 	}
 }
 
+$group = Bitrix\Socialnetwork\Item\Workgroup::getById($arResult['Group']['ID']);
+$arResult['isScrumProject'] = $group && $group->isScrumProject();
+
 $this->IncludeComponentTemplate();
 ?>

@@ -4,6 +4,22 @@ namespace Bitrix\Main;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class UserAccessTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserAccess_Query query()
+ * @method static EO_UserAccess_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserAccess_Result getById($id)
+ * @method static EO_UserAccess_Result getList(array $parameters = array())
+ * @method static EO_UserAccess_Entity getEntity()
+ * @method static \Bitrix\Main\EO_UserAccess createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EO_UserAccess_Collection createCollection()
+ * @method static \Bitrix\Main\EO_UserAccess wakeUpObject($row)
+ * @method static \Bitrix\Main\EO_UserAccess_Collection wakeUpCollection($rows)
+ */
 class UserAccessTable extends Entity\DataManager
 {
 	public static function getTableName()

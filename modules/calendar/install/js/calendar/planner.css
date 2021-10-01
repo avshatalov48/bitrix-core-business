@@ -282,12 +282,21 @@
 	overflow-y: hidden;
 }
 
+.calendar-planner-timeline-wrapper.--lock {
+	display: flex;
+	overflow: hidden;
+}
+
 .calendar-planner-readonly .calendar-planner-timeline-wrapper{
 	overflow: hidden;
 }
 
 .calendar-planner-timeline-inner-wrapper{
 	overflow: hidden;
+}
+
+.calendar-planner-timeline-wrapper.--lock .calendar-planner-timeline-inner-wrapper {
+	pointer-events: none;
 }
 
 .calendar-planner-acc-wrap {
@@ -1133,7 +1142,49 @@
 	left: 140px;
 }
 
-.calendar-planner-user .ui-icon-common-user-mail > i
-{
+.calendar-planner-user .ui-icon-common-user-mail > i {
 	background-color: #f7a700;
+}
+
+.calendar-planner-timeline-locker {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background: rgba(255,255,255,.92);
+	z-index: 9;
+}
+
+.calendar-planner-timeline-locker-container {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	max-width: 250px;
+	white-space: normal;
+}
+
+.calendar-planner-timeline-locker-icon {
+	display: block;
+	min-width: 23px;
+	height: 23px;
+	margin-right: 12px;
+	background: #2fc6f6 url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='8.932' height='11.963' viewBox='0 0 8.932 11.963'%3E%3Cpath fill='%23FFF' fill-rule='evenodd' d='M4.98103365,10.134027 L3.9514285,10.134027 L3.9514285,8.8514095 C3.76612808,8.70242223 3.64750414,8.47479057 3.64750414,8.21958149 C3.64750414,7.77070154 4.01408221,7.40681791 4.46624691,7.40681791 C4.91837993,7.40681791 5.28495801,7.77070154 5.28495801,8.21958149 C5.28495801,8.47479057 5.16636574,8.70242223 4.98103365,8.8514095 L4.98103365,10.134027 Z M2.22471367,3.40123649 C2.22471367,2.17226451 3.22828173,1.17598686 4.46621524,1.17598686 C5.70418041,1.17598686 6.70774848,2.17226451 6.70774848,3.40123649 L6.70774848,5.01077952 L2.22471367,5.01077952 L2.22471367,3.40123649 Z M7.8923408,5.01077952 L7.8923408,3.40123649 C7.8923408,1.52276431 6.35840176,0 4.46621524,0 C2.57406039,0 1.04012135,1.52276431 1.04012135,3.40123649 L1.04012135,5.01077952 L-2.54019028e-13,5.01077952 L-2.54019028e-13,11.9630988 L8.93246215,11.9630988 L8.93246215,5.01077952 L7.8923408,5.01077952 Z'/%3E%3C/svg%3E") center no-repeat;
+	border-radius: 100%;
+}
+
+.calendar-planner-timeline-locker-top {
+	display: flex;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.calendar-planner-timeline-text {
+	font-family: "OpenSans-Regular", Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	color: #333;
+	line-height: 19px;
 }

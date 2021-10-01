@@ -38,6 +38,7 @@
 		this.templateNameNode = Helper.getNode('template-name', this.editorNode);
 		this.templateTypeNode = Helper.getNode('template-type', this.editorNode);
 		this.templateIdNode = Helper.getNode('template-id', this.editorNode);
+		this.consentPreviewNodes = Helper.getNodes('consent-preview', this.editorNode);
 
 		if (BX.Sender.Template && BX.Sender.Template.Selector)
 		{
@@ -49,6 +50,13 @@
 		if (this.templateChangeButton)
 		{
 			BX.bind(this.templateChangeButton, 'click', this.showTemplateSelector.bind(this));
+		}
+
+		if(this.consentPreviewNodes)
+		{
+			this.consentPreviewNodes.forEach((function(element) {
+				BX.bind(element, 'click', this.showConsentPreview.bind(this));
+			}).bind(this));
 		}
 
 		if (this.isFrame)
@@ -190,6 +198,15 @@
 	Letter.prototype.showTemplateSelector = function ()
 	{
 		this.changeDisplayingTemplateSelector(true);
+	};
+	Letter.prototype.showConsentPreview = function (event)
+	{
+		event.preventDefault();
+		var element = event.target;
+
+		var consent = document.getElementsByName(element.dataset.bxInputName)[0];
+		var consentId = consent.value;
+		BX.Sender.ConsentPreview.open(consentId);
 	};
 	Letter.prototype.changeDisplayingTemplateSelector = function (isShow)
 	{

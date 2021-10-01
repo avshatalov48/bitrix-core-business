@@ -16,7 +16,20 @@ use Bitrix\Main\Entity;
  * <li> CONFIRM_CODE string(32) mandatory
  * <li> ATTEMPTS int
  * </ul>
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserFieldConfirm_Query query()
+ * @method static EO_UserFieldConfirm_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserFieldConfirm_Result getById($id)
+ * @method static EO_UserFieldConfirm_Result getList(array $parameters = array())
+ * @method static EO_UserFieldConfirm_Entity getEntity()
+ * @method static \Bitrix\Main\EO_UserFieldConfirm createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EO_UserFieldConfirm_Collection createCollection()
+ * @method static \Bitrix\Main\EO_UserFieldConfirm wakeUpObject($row)
+ * @method static \Bitrix\Main\EO_UserFieldConfirm_Collection wakeUpCollection($rows)
+ */
 
 class UserFieldConfirmTable extends Entity\DataManager
 {

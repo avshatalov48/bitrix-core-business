@@ -13,6 +13,22 @@ class SiteTemplate
 	}
 }
 
+/**
+ * Class SiteTemplateTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SiteTemplate_Query query()
+ * @method static EO_SiteTemplate_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_SiteTemplate_Result getById($id)
+ * @method static EO_SiteTemplate_Result getList(array $parameters = array())
+ * @method static EO_SiteTemplate_Entity getEntity()
+ * @method static \Bitrix\Main\EO_SiteTemplate createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EO_SiteTemplate_Collection createCollection()
+ * @method static \Bitrix\Main\EO_SiteTemplate wakeUpObject($row)
+ * @method static \Bitrix\Main\EO_SiteTemplate_Collection wakeUpCollection($rows)
+ */
 class SiteTemplateTable extends Entity\DataManager
 {
 	public static function getTableName()

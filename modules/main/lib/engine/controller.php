@@ -148,6 +148,14 @@ class Controller implements Errorable, Controllerable
 		return getModuleId($this->getFilePath());
 	}
 
+	final public function isLocatedUnderPsr4(): bool
+	{
+		// do not lower if probably psr4
+		$firstLetter = mb_substr(basename($this->getFilePath()), 0, 1);
+
+		return $firstLetter !== mb_strtolower($firstLetter);
+	}
+
 	final protected function getFilePath()
 	{
 		if (!$this->filePath)
@@ -414,8 +422,8 @@ class Controller implements Errorable, Controllerable
 		}
 		catch (\Throwable $e)
 		{
-			$this->processExceptionInDebug($e);
 			$this->runProcessingThrowable($e);
+			$this->processExceptionInDebug($e);
 		}
 
 		$this->logDebugInfo();
@@ -850,7 +858,11 @@ class Controller implements Errorable, Controllerable
 
 	protected function runProcessingThrowable(\Throwable $throwable)
 	{
-		if ($throwable instanceof \Exception)
+		if ($throwable instanceof BinderArgumentException)
+		{
+			$this->runProcessingBinderThrowable($throwable);
+		}
+		elseif ($throwable instanceof \Exception)
 		{
 			$this->runProcessingException($throwable);
 		}
@@ -875,6 +887,28 @@ class Controller implements Errorable, Controllerable
 	{
 		//		throw $error;
 		$this->errorCollection[] = $this->buildErrorFromPhpError($error);
+	}
+
+	protected function runProcessingBinderThrowable(BinderArgumentException $e): void
+	{
+		$currentControllerErrors = $this->getErrors();
+		$errors = $e->getErrors();
+		if ($errors)
+		{
+			foreach ($errors as $error)
+			{
+				if (in_array($error, $currentControllerErrors, true))
+				{
+					continue;
+				}
+
+				$this->addError($error);
+			}
+		}
+		else
+		{
+			$this->runProcessingException($e);
+		}
 	}
 
 	protected function buildErrorFromException(\Exception $e)

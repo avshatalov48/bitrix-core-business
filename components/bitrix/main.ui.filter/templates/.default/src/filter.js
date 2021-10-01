@@ -72,6 +72,8 @@
 				listener
 			);
 		}.bind(this);
+		this.enableFieldsSearch = null;
+		this.enableHeadersSections = null;
 
 		this.init();
 	};
@@ -105,6 +107,9 @@
 			BX.addCustomEvent('Grid::ready', BX.delegate(this._onGridReady, this));
 
 			this.getSearch().updatePreset(this.getParam('CURRENT_PRESET'));
+
+			this.enableFieldsSearch = this.getParam('ENABLE_FIELDS_SEARCH', false);
+			this.enableHeadersSections = this.getParam('HEADERS_SECTIONS', false);
 		},
 
 		getEmitter: function()
@@ -628,90 +633,96 @@
 				fieldKeys.forEach(function(current) {
 					current = current
 						.replace('_datesel', '')
-						.replace('_numsel', '');
+						.replace('_numsel', '')
+						.replace('_' + BX.Filter.AdditionalFilter.Type.IS_EMPTY, '')
+						.replace('_' + BX.Filter.AdditionalFilter.Type.HAS_ANY_VALUE, '');
 					field = BX.clone(this.getFieldByName(current));
 
 					if (BX.type.isPlainObject(field))
 					{
-						if (field.TYPE === this.types.STRING)
+						field.ADDITIONAL_FILTER = BX.Filter.AdditionalFilter.fetchAdditionalFilter(current, dataFields);
+						if (!BX.Type.isStringFilled(field.ADDITIONAL_FILTER))
 						{
-							field.VALUE = dataFields[current];
-						}
-
-						if (field.TYPE === this.types.TEXTAREA)
-						{
-							field.VALUE = dataFields[current];
-						}
-
-						if (field.TYPE === this.types.MULTI_SELECT)
-						{
-							field.VALUE = this.prepareMultiSelectValue(dataFields[current], field.ITEMS);
-						}
-
-						if (field.TYPE === this.types.SELECT || field.TYPE === this.types.CHECKBOX)
-						{
-							field.VALUE = this.prepareSelectValue(dataFields[current], field.ITEMS);
-						}
-
-						if (field.TYPE === this.types.DATE)
-						{
-							field.SUB_TYPE = this.prepareSelectValue(dataFields[current + '_datesel'], field.SUB_TYPES);
-
-							field.VALUES = {
-								'_from': dataFields[current + '_from'],
-								'_to': dataFields[current + '_to'],
-								'_days': dataFields[current + '_days'],
-								'_month': dataFields[current + '_month'],
-								'_quarter': dataFields[current + '_quarter'],
-								'_year': dataFields[current + '_year'],
-								'_allow_year': dataFields[current + '_allow_year']
-							};
-						}
-
-						if (field.TYPE === this.types.CUSTOM_DATE)
-						{
-							field.VALUE = {
-								'days': Object.keys(dataFields[current + '_days'] || {}).map(function(index) {
-									return dataFields[current + '_days'][index];
-								}),
-								'months': Object.keys(dataFields[current + '_months'] || {}).map(function(index) {
-									return dataFields[current + '_months'][index];
-								}),
-								'years': Object.keys(dataFields[current + '_years'] || {}).map(function(index) {
-									return dataFields[current + '_years'][index];
-								})
-							};
-						}
-
-						if (field.TYPE === this.types.NUMBER)
-						{
-							field.SUB_TYPE = this.prepareSelectValue(dataFields[current + '_numsel'], field.SUB_TYPES);
-							field.VALUES = {
-								'_from': dataFields[current + '_from'],
-								'_to': dataFields[current + '_to']
-							};
-						}
-
-						if (
-							field.TYPE === this.types.DEST_SELECTOR
-							|| field.TYPE === this.types.ENTITY_SELECTOR
-							|| field.TYPE === this.types.CUSTOM_ENTITY
-						)
-						{
-							if (typeof dataFields[current + '_label'] !== 'undefined')
+							if (field.TYPE === this.types.STRING)
 							{
-								field.VALUES._label = dataFields[current + '_label'];
+								field.VALUE = dataFields[current];
 							}
 
-							if (typeof dataFields[current] !== 'undefined')
+							if (field.TYPE === this.types.TEXTAREA)
 							{
-								field.VALUES._value = dataFields[current];
+								field.VALUE = dataFields[current];
 							}
-						}
 
-						if (field.TYPE === this.types.CUSTOM)
-						{
-							field._VALUE = dataFields[current];
+							if (field.TYPE === this.types.MULTI_SELECT)
+							{
+								field.VALUE = this.prepareMultiSelectValue(dataFields[current], field.ITEMS);
+							}
+
+							if (field.TYPE === this.types.SELECT || field.TYPE === this.types.CHECKBOX)
+							{
+								field.VALUE = this.prepareSelectValue(dataFields[current], field.ITEMS);
+							}
+
+							if (field.TYPE === this.types.DATE)
+							{
+								field.SUB_TYPE = this.prepareSelectValue(dataFields[current + '_datesel'], field.SUB_TYPES);
+
+								field.VALUES = {
+									'_from': dataFields[current + '_from'],
+									'_to': dataFields[current + '_to'],
+									'_days': dataFields[current + '_days'],
+									'_month': dataFields[current + '_month'],
+									'_quarter': dataFields[current + '_quarter'],
+									'_year': dataFields[current + '_year'],
+									'_allow_year': dataFields[current + '_allow_year']
+								};
+							}
+
+							if (field.TYPE === this.types.CUSTOM_DATE)
+							{
+								field.VALUE = {
+									'days': Object.keys(dataFields[current + '_days'] || {}).map(function(index) {
+										return dataFields[current + '_days'][index];
+									}),
+									'months': Object.keys(dataFields[current + '_months'] || {}).map(function(index) {
+										return dataFields[current + '_months'][index];
+									}),
+									'years': Object.keys(dataFields[current + '_years'] || {}).map(function(index) {
+										return dataFields[current + '_years'][index];
+									})
+								};
+							}
+
+							if (field.TYPE === this.types.NUMBER)
+							{
+								field.SUB_TYPE = this.prepareSelectValue(dataFields[current + '_numsel'], field.SUB_TYPES);
+								field.VALUES = {
+									'_from': dataFields[current + '_from'],
+									'_to': dataFields[current + '_to']
+								};
+							}
+
+							if (
+								field.TYPE === this.types.DEST_SELECTOR
+								|| field.TYPE === this.types.ENTITY_SELECTOR
+								||field.TYPE === this.types.CUSTOM_ENTITY
+							)
+							{
+								if (typeof dataFields[current + '_label'] !== 'undefined')
+								{
+									field.VALUES._label = dataFields[current + '_label'];
+								}
+
+								if (typeof dataFields[current] !== 'undefined')
+								{
+									field.VALUES._value = dataFields[current];
+								}
+							}
+
+							if (field.TYPE === this.types.CUSTOM)
+							{
+								field._VALUE = dataFields[current];
+							}
 						}
 
 						fields.push(field);
@@ -1103,6 +1114,8 @@
 				{
 					this.fieldsPopupItems = BX.Filter.Utils.getByClass(popup.contentContainer, this.settings.classMenuItem, true);
 				}
+
+				this.prepareAnimation();
 			}
 
 			return this.fieldsPopupItems;
@@ -1146,6 +1159,7 @@
 					id: 'ID' in item ? item.ID : '',
 					name: 'NAME' in item ? item.NAME : '',
 					item: item,
+					sectionId: 'SECTION_ID' in item ? item.SECTION_ID : '',
 					onClick: BX.delegate(this._clickOnFieldListItem, this)
 				};
 			}, this);
@@ -1185,15 +1199,12 @@
 
 			if (this.getParam('LAZY_LOAD'))
 			{
-				var callback = function(response) {
-
-					var containerDecl = {
-						block: this.settings.classPopupFieldList,
-						mix: this.getFieldListContainerClassName(response.length),
-						content: this.prepareFieldsDecl(response)
-					};
-
-					p.fulfill(BX.decl(containerDecl));
+				const callback = function(response) {
+					p.fulfill(this.getPopupContent(
+						this.settings.classPopupFieldList,
+						this.getFieldListContainerClassName(response.length),
+						this.prepareFieldsDecl(response)
+					));
 				}.bind(this);
 
 				if (BX.type.isNotEmptyObject(this.getParam('LAZY_LOAD')['CONTROLLER']))
@@ -1220,16 +1231,270 @@
 				return p;
 			}
 
-			var containerDecl = {
-				block: this.settings.classPopupFieldList,
-				mix: this.getFieldListContainerClassName(fieldsCount),
-				content: this.prepareFieldsDecl(fields)
-			};
-
-			p.fulfill(BX.decl(containerDecl));
+			p.fulfill(this.getPopupContent(
+				this.settings.classPopupFieldList,
+				this.getFieldListContainerClassName(fieldsCount),
+				this.prepareFieldsDecl(fields)
+			));
 			return p;
 		},
 
+		getPopupContent: function(block: string, mix: string, content: Object[]): HTMLElement
+		{
+			const wrapper = BX.Tag.render`<div></div>`;
+			if (!this.enableHeadersSections)
+			{
+				const fieldsContent = BX.decl({
+					content: content,
+					block: block,
+					mix: mix,
+				});
+				wrapper.appendChild(fieldsContent);
+
+				if (this.enableFieldsSearch)
+				{
+					this.preparePopupContentHeader(wrapper);
+				}
+
+				return wrapper;
+			}
+
+			const defaultHeaderSection = this.getDefaultHeaderSection();
+			const sections = {};
+
+			content.forEach((item: Object) => {
+				const sectionId = (item.sectionId.length ? item.sectionId : defaultHeaderSection.id);
+				if (sections[sectionId] === undefined)
+				{
+					sections[sectionId] = [];
+				}
+				sections[sectionId].push(item);
+			});
+
+			this.preparePopupContentHeader(wrapper);
+			this.preparePopupContentFields(wrapper, sections, block, mix);
+
+			return wrapper;
+		},
+
+		preparePopupContentHeader: function(wrapper: HTMLElement): void
+		{
+			const headerWrapper = BX.Tag.render`
+				<div class="main-ui-filter-popup-search-header-wrapper">
+					<div class="ui-form-row-inline"></div>
+				</div>
+			`;
+
+			wrapper.prepend(headerWrapper);
+
+			this.preparePopupContentHeaderSections(headerWrapper);
+			this.preparePopupContentHeaderSearch(headerWrapper);
+		},
+
+		preparePopupContentHeaderSections: function(headerWrapper): void
+		{
+			if (!this.enableHeadersSections)
+			{
+				return;
+			}
+
+			const headerSectionsWrapper = BX.Tag.render`
+				<div class="ui-form-row">
+					<div class="ui-form-content main-ui-filter-popup-search-section-wrapper"></div>
+				</div>
+			`;
+
+			headerWrapper.firstElementChild.appendChild(headerSectionsWrapper);
+
+			const headersSections = this.getHeadersSections();
+			for (let key in headersSections)
+			{
+				const itemClass = this.settings.classPopupSearchSectionItemIcon
+				 + (headersSections[key].selected ? ` ${this.settings.classPopupSearchSectionItemIconActive}` : '');
+
+				const headerSectionItem = BX.Tag.render`
+					<div class="main-ui-filter-popup-search-section-item" data-ui-popup-filter-section-button="${key}">
+						<div class="${itemClass}">
+							${BX.Text.encode(headersSections[key].name)}
+						</div>
+					</div>
+				`;
+				BX.bind(headerSectionItem, 'click', this.onFilterSectionClick.bind(this, headerSectionItem));
+
+				headerSectionsWrapper.firstElementChild.appendChild(headerSectionItem);
+			}
+		},
+
+		onFilterSectionClick: function(item: HTMLElement): void
+		{
+			const activeClass = this.settings.classPopupSearchSectionItemIconActive;
+			const sectionId = item.dataset.uiPopupFilterSectionButton;
+			const section = document.querySelectorAll("[data-ui-popup-filter-section='"+sectionId+"']");
+			if (BX.Dom.hasClass(item.firstElementChild, activeClass))
+			{
+				BX.Dom.removeClass(item.firstElementChild, activeClass);
+				BX.Dom.hide(section[0]);
+			}
+			else
+			{
+				BX.Dom.addClass(item.firstElementChild, activeClass);
+				BX.Dom.show(section[0]);
+			}
+		},
+
+		preparePopupContentHeaderSearch: function(headerWrapper: HTMLElement): void
+		{
+			if (!this.enableFieldsSearch)
+			{
+				return;
+			}
+
+			const searchForm = BX.Tag.render`
+				<div class="ui-form-row">
+					<div class="ui-form-content main-ui-filter-popup-search-input-wrapper">
+						<div class="ui-ctl ui-ctl-textbox ui-ctl-before-icon ui-ctl-after-icon">
+							<div class="ui-ctl-before ui-ctl-icon-search"></div>
+							<button class="ui-ctl-after ui-ctl-icon-clear"></button>
+							<input type="text" class="ui-ctl-element ${this.settings.classPopupSearchSectionItem}">
+						</div>
+					</div>
+				</div>
+			`;
+			headerWrapper.firstElementChild.appendChild(searchForm);
+			const inputs = searchForm.getElementsByClassName(this.settings.classPopupSearchSectionItem);
+			if (inputs.length)
+			{
+				const input = inputs[0];
+				BX.bind(input, 'input', this.onFilterSectionSearchInput.bind(this, input));
+				BX.bind(input.previousElementSibling, 'click', this.onFilterSectionSearchInputClear.bind(this, input));
+			}
+		},
+
+		preparePopupContentFields: function(wrapper: HTMLElement, sections, block: string, mix): void
+		{
+			if (!this.enableHeadersSections)
+			{
+				return;
+			}
+
+			const sectionsWrapper = BX.Tag.render`<div class="main-ui-filter-popup-search-sections-wrapper"></div>`;
+			wrapper.appendChild(sectionsWrapper);
+
+			for (let key in sections)
+			{
+				const sectionWrapper = BX.Tag.render`
+					<div class="main-ui-filter-popup-section-wrapper" data-ui-popup-filter-section="${key}"></div>
+				`;
+
+				if (!this.getHeadersSectionParam(key, 'selected'))
+				{
+					sectionWrapper.setAttribute('hidden', '');
+				}
+
+				const sectionTitle = BX.Tag.render`
+					<h3 class="main-ui-filter-popup-title">
+						${BX.Text.encode(this.getHeadersSectionParam(key, 'name'))}
+					</h3>
+				`;
+
+				const fieldsBlock = BX.decl({
+					block: block,
+					mix: mix,
+					content: sections[key]
+				});
+
+				sectionWrapper.appendChild(sectionTitle);
+				sectionWrapper.appendChild(fieldsBlock);
+
+				sectionsWrapper.appendChild(sectionWrapper);
+			}
+		},
+
+		prepareAnimation: function(): void
+		{
+			if (this.enableFieldsSearch)
+			{
+				this.fieldsPopupItems.forEach(item =>
+				{
+					BX.bind(item, 'animationend', this.onAnimationEnd.bind(this, item));
+				});
+			}
+		},
+
+		onAnimationEnd: function(item: HTMLElement): void
+		{
+			item.style.display = (
+				BX.Dom.hasClass(item, this.settings.classPopupSearchFieldListItemHidden)
+				? 'none'
+				: 'inline-block'
+			);
+		},
+
+		onFilterSectionSearchInput: function(input: HTMLElement): void
+		{
+			let search = input.value;
+			if (search.length)
+			{
+				search = search.toLowerCase();
+			}
+
+			this.getFieldsPopupItems().forEach(function (item){
+				const title = item.innerText.toLowerCase();
+
+				if (search.length && title.indexOf(search) === -1)
+				{
+					BX.Dom.removeClass(item,this.settings.classPopupSearchFieldListItemVisible);
+					BX.Dom.addClass(item,this.settings.classPopupSearchFieldListItemHidden);
+				}
+				else
+				{
+					BX.Dom.removeClass(item, this.settings.classPopupSearchFieldListItemHidden);
+					BX.Dom.addClass(item, this.settings.classPopupSearchFieldListItemVisible);
+					item.style.display = 'inline-block';
+				}
+			}.bind(this));
+		},
+
+		onFilterSectionSearchInputClear: function(input: HTMLElement): void
+		{
+			if (input.value.length)
+			{
+				input.value = '';
+				this.onFilterSectionSearchInput(input);
+			}
+		},
+
+		getDefaultHeaderSection: function(): Object|null
+		{
+			const headersSections = this.getHeadersSections();
+
+			for (let key in headersSections)
+			{
+				if ('selected' in headersSections[key] && headersSections[key].selected)
+				{
+					return headersSections[key];
+				}
+			}
+
+			return null;
+		},
+
+		getHeadersSections: function(): Array
+		{
+			return this.getParam('HEADERS_SECTIONS');
+		},
+
+		getHeadersSectionParam: function(sectionId: string, paramName: string, defaultValue: any): any
+		{
+			if (
+				this.getHeadersSections()[sectionId] !== undefined
+				&& this.getHeadersSections()[sectionId][paramName] !== undefined
+			)
+			{
+				return this.getHeadersSections()[sectionId][paramName];
+			}
+			return defaultValue;
+		},
 
 		/**
 		 * Gets field loader
@@ -1260,6 +1525,23 @@
 				try {
 					data = JSON.parse(BX.data(target, 'item'));
 				} catch (err) {}
+
+				let isChecked = BX.hasClass(target, this.settings.classMenuItemChecked);
+				let event = new BX.Event.BaseEvent({
+					data
+				});
+				this.emitter.emit(
+					isChecked
+						? 'onBeforeRemoveFilterItem'
+						: 'onBeforeAddFilterItem'
+					,
+					event
+				);
+
+				if (event.isDefaultPrevented())
+				{
+					return;
+				}
 
 				var p = new BX.Promise();
 
@@ -1777,6 +2059,13 @@
 			if (BX.type.isArray(fields) && fields.length)
 			{
 				fields.forEach(function(current) {
+					var additionalFilter = BX.Filter.AdditionalFilter.getInstance().getFilter(current);
+					if (additionalFilter)
+					{
+						Object.assign(values, additionalFilter);
+						return;
+					}
+
 					type = BX.data(current, 'type');
 					name = BX.data(current, 'name');
 

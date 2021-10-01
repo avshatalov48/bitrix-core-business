@@ -1,9 +1,10 @@
-import {ajax, Browser, Cache, Dom, Event, Loc, Tag, Text, Type} from 'main.core';
+import {ajax, Browser, Cache, Dom, Event, Extension, Loc, Tag, Text, Type} from 'main.core';
 import {Dialog} from 'ui.entity-selector';
 import './component.css';
 import {EventEmitter} from 'main.core.events';
 import {Base} from './models/base';
 import {ProductSelector} from 'catalog.product-selector';
+import ProductCreationLimitedFooter from "./product-creation-limited-footer";
 
 export class ProductSearchInput
 {
@@ -200,7 +201,7 @@ export class ProductSearchInput
 	getDialog(): ?Dialog
 	{
 		return this.cache.remember('dialog', () => {
-			return new Dialog({
+			const params = {
 				id: this.id,
 				height: 300,
 				context: 'catalog-products',
@@ -216,9 +217,6 @@ export class ProductSearchInput
 						arrow: true
 					}
 				},
-				searchOptions: {
-					allowCreateItem: true
-				},
 				events: {
 					'Item:onSelect': this.onProductSelect.bind(this),
 					'Search:onItemCreateAsync': this.createProduct.bind(this)
@@ -232,7 +230,19 @@ export class ProductSearchInput
 						}
 					}
 				]
-			});
+			};
+
+			const settingsCollection = Extension.getSettings('catalog.product-selector');
+			if (Type.isObject(settingsCollection.get('limitInfo')))
+			{
+				params.footer = ProductCreationLimitedFooter;
+			}
+			else
+			{
+				params.searchOptions = { allowCreateItem: true };
+			}
+
+			return new Dialog(params);
 		});
 	}
 
@@ -461,7 +471,10 @@ export class ProductSearchInput
 						dialog.hide();
 						resolve();
 					})
-					.catch(() => reject());
+					.catch(() => {
+						dialog.hide();
+						reject();
+					});
 			});
 	}
 

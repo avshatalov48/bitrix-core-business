@@ -8,6 +8,19 @@ use Bitrix\Main\Entity\TextField;
 
 /**
  * Class DashboardRowTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_DashboardRow_Query query()
+ * @method static EO_DashboardRow_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_DashboardRow_Result getById($id)
+ * @method static EO_DashboardRow_Result getList(array $parameters = array())
+ * @method static EO_DashboardRow_Entity getEntity()
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_DashboardRow createObject($setDefaultValues = true)
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_DashboardRow_Collection createCollection()
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_DashboardRow wakeUpObject($row)
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_DashboardRow_Collection wakeUpCollection($rows)
  */
 class DashboardRowTable extends DataManager
 {

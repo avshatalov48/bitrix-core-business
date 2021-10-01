@@ -39,10 +39,19 @@ export class Basket extends VuexBuilderModel
             basePrice: 0.0,     // basePrice,   basket price without discounts and taxes => basketItem->getBasePrice()
             discount: Basket.getDiscountItem(),
             props: [],
+            sku: Basket.getSkuItem(),
             product: this.getProductItem(),
             deleted: "N",
             status: LoaderConst.status.none,
         };
+    }
+    
+    static getSkuItem()
+    {
+        return {
+            parentProductId: 0,
+            tree: {}
+        }
     }
 
     static getPropsItem()
@@ -218,12 +227,34 @@ export class Basket extends VuexBuilderModel
                 result.props.push(fields);
             })
         }
+    
+        if (Type.isObject(fields.sku))
+        {
+            result.sku = this.validateSku(fields.sku);
+        }
 
         if (Type.isObject(fields.discount))
         {
             result.discount = this.validateDiscount(fields.discount);
         }
 
+        return result;
+    }
+    
+    validateSku(fields)
+    {
+        const result = {};
+        
+        if (Type.isObject(fields.tree))
+        {
+            result.tree = fields.tree;
+        }
+    
+        if (Type.isNumber(fields.parentProductId) || Type.isString(fields.parentProductId))
+        {
+            result.parentProductId = parseInt(fields.parentProductId);
+        }
+        
         return result;
     }
 
@@ -363,7 +394,7 @@ export class Basket extends VuexBuilderModel
         
         return result;
     }
-
+    
     getActions()
     {
         return {
@@ -526,6 +557,13 @@ export class Basket extends VuexBuilderModel
                         item.props[index] = prop;
                     })
                 }
+    
+                if (Type.isObject(payload.fields.sku))
+                {
+                    let item = Basket.getSkuItem();
+                    item = Object.assign(item, payload.fields.sku);
+                    payload.fields.sku = item;
+                }
 
                 state.basket.push(item);
                 state.basket.forEach((item, index) => {
@@ -557,6 +595,13 @@ export class Basket extends VuexBuilderModel
                     })
                 }
     
+                if (Type.isObject(payload.fields.sku))
+                {
+                    let item = Basket.getSkuItem();
+                    item = Object.assign(item, payload.fields.sku);
+                    payload.fields.sku = item;
+                }
+
                 state.basket[payload.index] = Object.assign(
                     state.basket[payload.index],
                     payload.fields

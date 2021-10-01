@@ -7,6 +7,22 @@
  */
 namespace Bitrix\Sale\Location;
 
+/**
+ * Class SiteLocationTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SiteLocation_Query query()
+ * @method static EO_SiteLocation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_SiteLocation_Result getById($id)
+ * @method static EO_SiteLocation_Result getList(array $parameters = array())
+ * @method static EO_SiteLocation_Entity getEntity()
+ * @method static \Bitrix\Sale\Location\EO_SiteLocation createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Location\EO_SiteLocation_Collection createCollection()
+ * @method static \Bitrix\Sale\Location\EO_SiteLocation wakeUpObject($row)
+ * @method static \Bitrix\Sale\Location\EO_SiteLocation_Collection wakeUpCollection($rows)
+ */
 class SiteLocationTable extends Connector
 {
 	const ALL_SITES = '*';

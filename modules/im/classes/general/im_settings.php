@@ -62,7 +62,7 @@ class CIMSettings
 		{
 			\Bitrix\Pull\Event::add($userId, Array(
 				'module_id' => 'im',
-				'command' => 'updateSettings',
+				'command' => 'settingsUpdate',
 				'expiry' => 5,
 				'params' => Array(
 					'openDesktopFromPanel' => $value['openDesktopFromPanel'],
@@ -113,7 +113,7 @@ class CIMSettings
 		{
 			\Bitrix\Pull\Event::add($userId, Array(
 				'module_id' => 'im',
-				'command' => 'updateSettings',
+				'command' => 'settingsUpdate',
 				'expiry' => 5,
 				'params' => Array(
 					'openDesktopFromPanel' => $value['openDesktopFromPanel'],

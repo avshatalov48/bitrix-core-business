@@ -142,7 +142,7 @@ if($arParams["PATH_TO_POST"] == '')
 $arParams["PATH_TO_POST_CURRENT"] = $arParams["PATH_TO_POST"];
 if ($arParams["bPublicPage"])
 {
-	$arParams["PATH_TO_POST"] = COption::GetOptionString("socialnetwork", "userblogpost_page", "/company/personal/user/#user_id#/blog/#post_id#/", SITE_ID)."";
+	$arParams["PATH_TO_POST"] = \Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page');
 }
 
 $arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]) == '' ? false : trim($arParams["PATH_TO_SMILE"]);
@@ -1471,7 +1471,7 @@ if (
 											),
 											array(
 												"PATH_TO_USER" => COption::GetOptionString("main", "TOOLTIP_PATH_TO_USER", '/company/personal/user/#user_id#/', SITE_ID),
-												"PATH_TO_POST" => COption::GetOptionString("socialnetwork", "userblogpost_page", '/company/personal/user/#user_id#/blog/#post_id#', SITE_ID),
+												"PATH_TO_POST" => \Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page'),
 												"NAME_TEMPLATE" => CSite::GetNameFormat(),
 												"SHOW_LOGIN" => "Y",
 												"LIVE" => "N",

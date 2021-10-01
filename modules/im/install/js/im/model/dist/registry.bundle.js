@@ -1798,8 +1798,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          image = _params$image === void 0 ? true : _params$image,
 	          _params$text = params.text,
 	          text = _params$text === void 0 ? '' : _params$text,
-	          _params$highlightText = params.highlightText,
-	          highlightText = _params$highlightText === void 0 ? '' : _params$highlightText,
 	          _params$isConverted = params.isConverted,
 	          isConverted = _params$isConverted === void 0 ? false : _params$isConverted,
 	          _params$enableBigSmil = params.enableBigSmile,
@@ -1865,10 +1863,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 	      }
 
-	      if (highlightText) {
-	        text = text.replace(new RegExp("(" + highlightText.replace(/[\-\[\]\/{}()*+?.\\^$|]/g, "\\$&") + ")", 'ig'), '<span class="bx-messenger-highlight">$1</span>');
-	      }
-
 	      if (enableBigSmile) {
 	        text = text.replace(/^(\s*<img\s+src=[^>]+?data-code=[^>]+?data-definition="UHD"[^>]+?style="width:)(\d+)(px[^>]+?height:)(\d+)(px[^>]+?class="bx-smile"\s*\/?>\s*)$/, function doubleSmileSize(match, start, width, middle, height, end) {
 	          return start + parseInt(width, 10) * 1.7 + middle + parseInt(height, 10) * 1.7 + end;
@@ -1926,11 +1920,23 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          textOnly = _params$textOnly === void 0 ? false : _params$textOnly,
 	          _params$enableBigSmil2 = params.enableBigSmile,
 	          enableBigSmile = _params$enableBigSmil2 === void 0 ? true : _params$enableBigSmil2;
+	      var putReplacement = [];
+	      text = text.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/ig, function (whole) {
+	        var id = putReplacement.length;
+	        putReplacement.push(whole);
+	        return '####REPLACEMENT_PUT_' + id + '####';
+	      });
+	      var sendReplacement = [];
+	      text = text.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/ig, function (whole) {
+	        var id = sendReplacement.length;
+	        sendReplacement.push(whole);
+	        return '####REPLACEMENT_SEND_' + id + '####';
+	      });
 	      var codeReplacement = [];
 	      text = text.replace(/\[CODE\]\n?([\s\S]*?)\[\/CODE\]/ig, function (whole, text) {
 	        var id = codeReplacement.length;
 	        codeReplacement.push(text);
-	        return '####REPLACEMENT_MARK_' + id + '####';
+	        return '####REPLACEMENT_CODE_' + id + '####';
 	      });
 	      text = text.replace(/\[url=([^\]]+)\](.*?)\[\/url\]/ig, function (whole, link, text) {
 	        var tag = document.createElement('a');
@@ -1979,37 +1985,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        return text;
 	      }); // TODO tag PCH
 
-	      text = text.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/ig, function (whole, command, text) {
-	        var html = '';
-	        text = text ? text : command;
-	        command = (command ? command : text).replace('<br />', '\n');
-
-	        if (!textOnly && text) {
-	          text = text.replace(/<([\w]+)[^>]*>(.*?)<\\1>/i, "$2", text);
-	          text = text.replace(/\[([\w]+)[^\]]*\](.*?)\[\/\1\]/i, "$2", text);
-	          html = '<span class="bx-im-message-command-wrap">' + '<span class="bx-im-message-command" data-entity="send">' + text + '</span>' + '<span class="bx-im-message-command-data">' + command + '</span>' + '</span>';
-	        } else {
-	          html = text;
-	        }
-
-	        return html;
-	      });
-	      text = text.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/ig, function (whole, command, text) {
-	        var html = '';
-	        text = text ? text : command;
-	        command = (command ? command : text).replace('<br />', '\n');
-
-	        if (!textOnly && text) {
-	          text = text.replace(/<([\w]+)[^>]*>(.*?)<\/\1>/i, "$2", text);
-	          text = text.replace(/\[([\w]+)[^\]]*\](.*?)\[\/\1\]/i, "$2", text);
-	          html = '<span class="bx-im-message-command" data-entity="put">' + text + '</span>';
-	          html += '<span class="bx-im-message-command-data">' + command + '</span>';
-	        } else {
-	          html = text;
-	        }
-
-	        return html;
-	      });
 	      var textElementSize = 0;
 
 	      if (enableBigSmile) {
@@ -2098,9 +2073,69 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	        return '<img class="bx-smile bx-icon" ' + attributes + '>';
 	      });
-	      codeReplacement.forEach(function (code, index) {
-	        text = text.replace('####REPLACEMENT_MARK_' + index + '####', !textOnly ? '<div class="bx-im-message-content-code">' + code + '</div>' : code);
+	      sendReplacement.forEach(function (value, index) {
+	        text = text.replace('####REPLACEMENT_SEND_' + index + '####', value);
 	      });
+	      text = text.replace(/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/ig, function (match) {
+	        return match.replace(/\[SEND(?:=(.+))?\](.+?)?\[\/SEND]/ig, function (whole, command, text) {
+	          var html = '';
+	          text = text ? text : command;
+	          command = (command ? command : text).replace('<br />', '\n');
+
+	          if (!textOnly && text) {
+	            text = text.replace(/<([\w]+)[^>]*>(.*?)<\\1>/i, "$2", text);
+	            text = text.replace(/\[([\w]+)[^\]]*\](.*?)\[\/\1\]/i, "$2", text);
+	            command = command.split('####REPLACEMENT_PUT_').join('####REPLACEMENT_SP_');
+	            html = '<!--IM_COMMAND_START-->' + '<span class="bx-im-message-command-wrap">' + '<span class="bx-im-message-command" data-entity="send">' + text + '</span>' + '<span class="bx-im-message-command-data">' + command + '</span>' + '</span>' + '<!--IM_COMMAND_END-->';
+	          } else {
+	            html = text;
+	          }
+
+	          return html;
+	        });
+	      });
+	      putReplacement.forEach(function (value, index) {
+	        text = text.replace('####REPLACEMENT_PUT_' + index + '####', value);
+	      });
+	      text = text.replace(/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/ig, function (match) {
+	        return match.replace(/\[PUT(?:=(.+))?\](.+?)?\[\/PUT]/ig, function (whole, command, text) {
+	          var html = '';
+	          text = text ? text : command;
+	          command = (command ? command : text).replace('<br />', '\n');
+
+	          if (!textOnly && text) {
+	            text = text.replace(/<([\w]+)[^>]*>(.*?)<\/\1>/i, "$2", text);
+	            text = text.replace(/\[([\w]+)[^\]]*\](.*?)\[\/\1\]/i, "$2", text);
+	            html = '<!--IM_COMMAND_START-->' + '<span class="bx-im-message-command-wrap">' + '<span class="bx-im-message-command" data-entity="put">' + text + '</span>' + '<span class="bx-im-message-command-data">' + command + '</span>' + '</span>' + '<!--IM_COMMAND_END-->';
+	          } else {
+	            html = text;
+	          }
+
+	          return html;
+	        });
+	      });
+	      codeReplacement.forEach(function (code, index) {
+	        text = text.replace('####REPLACEMENT_CODE_' + index + '####', !textOnly ? '<div class="bx-im-message-content-code">' + code + '</div>' : code);
+	      });
+
+	      if (sendReplacement.length > 0) {
+	        do {
+	          sendReplacement.forEach(function (value, index) {
+	            text = text.replace('####REPLACEMENT_SEND_' + index + '####', value);
+	          });
+	        } while (text.includes('####REPLACEMENT_SEND_'));
+	      }
+
+	      text = text.split('####REPLACEMENT_SP_').join('####REPLACEMENT_PUT_');
+
+	      if (putReplacement.length > 0) {
+	        do {
+	          putReplacement.forEach(function (value, index) {
+	            text = text.replace('####REPLACEMENT_PUT_' + index + '####', value);
+	          });
+	        } while (text.includes('####REPLACEMENT_PUT_'));
+	      }
+
 	      return text;
 	    }
 	  }, {
@@ -4502,6 +4537,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            return false;
 	          }
 
+	          payload.fields = _this2.validate(Object.assign({}, payload.fields));
 	          store.commit('update', {
 	            index: existingItem.index,
 	            fields: payload.fields
@@ -4644,7 +4680,15 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 
 	        if (main_core.Type.isString(fields.message.text)) {
-	          message.text = fields.message.text;
+	          var _options = {};
+
+	          if (fields.message.withAttach) {
+	            _options.WITH_ATTACH = true;
+	          } else if (fields.message.withFile) {
+	            _options.WITH_FILE = true;
+	          }
+
+	          message.text = im_lib_utils.Utils.text.purify(fields.message.text, _options);
 	        }
 
 	        if (main_core.Type.isDate(fields.message.date) || main_core.Type.isString(fields.message.date)) {

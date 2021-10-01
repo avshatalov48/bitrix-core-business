@@ -5,7 +5,7 @@ namespace Sale\Handlers\Delivery\YandexTaxi\EventJournal;
 use Bitrix\Main\Error;
 use Bitrix\Sale\Delivery\Services\Manager;
 use Bitrix\Sale\Delivery\Services\Table;
-use Bitrix\Sale\Internals\LocalDeliveryRequestTable;
+use Bitrix\Sale\Delivery\Requests\RequestTable;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Api;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\Journal\Event;
 
@@ -32,10 +32,6 @@ final class EventReader
 	 * @param int $deliveryServiceId
 	 * @param string|null $prevCursor
 	 * @return EventCollectionResult
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function read(int $deliveryServiceId, $prevCursor): EventCollectionResult
 	{
@@ -84,9 +80,6 @@ final class EventReader
 	 * @param int $deliveryServiceId
 	 * @param Event[] $events
 	 * @return Event[]
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	private function filterEvents(int $deliveryServiceId, array $events): array
 	{
@@ -102,11 +95,11 @@ final class EventReader
 		$deliveryServiceIds[] = $deliveryServiceId;
 
 		$claimIds =	array_column(
-			LocalDeliveryRequestTable::getList(
+			RequestTable::getList(
 				[
 					'filter' => [
-						'DELIVERY_SERVICE_ID' => $deliveryServiceIds,
-						'EXTERNAL_ID' => array_map(
+						'=DELIVERY_ID' => $deliveryServiceIds,
+						'=EXTERNAL_ID' => array_map(
 							function ($event)
 							{
 								return $event->getClaimId();
@@ -131,9 +124,6 @@ final class EventReader
 	/**
 	 * @param int $deliveryServiceId
 	 * @param string $cursor
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	private function updateCursor(int $deliveryServiceId, string $cursor): void
 	{

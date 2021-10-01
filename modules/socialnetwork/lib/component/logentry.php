@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Component;
 
 use Bitrix\Main\Config\Option;
@@ -512,11 +513,13 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 
 		if ($commentAuxProvider)
 		{
-			$commentAuxProvider->setOptions(array(
+			$commentAuxProvider->setOptions([
 				'suffix' => (!empty($params['COMMENT_ENTITY_SUFFIX']) ? $params['COMMENT_ENTITY_SUFFIX'] : ''),
 				'logId' => $comment['LOG_ID'],
-				'cache' => true
-			));
+				'cache' => true,
+				'parseBBCode' => true,
+				'uf' => $comment['UF'],
+			]);
 
 			$formattedFields["EVENT_FORMATTED"]["FULL_MESSAGE_CUT"] = nl2br($commentAuxProvider->getText());
 		}
@@ -696,5 +699,3 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 		return $commentEventFields;
 	}
 }
-
-?>

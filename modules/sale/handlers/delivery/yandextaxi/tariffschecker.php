@@ -2,11 +2,11 @@
 
 namespace Sale\Handlers\Delivery\YandexTaxi;
 
+use Bitrix\Location\Entity\Address;
 use Bitrix\Sale\Shipment;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Api;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\TariffsResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\TariffsOptions;
-use Sale\Handlers\Delivery\YandexTaxi\Common\ShipmentDataExtractor;
 
 /**
  * Class TariffsChecker
@@ -18,21 +18,16 @@ final class TariffsChecker
 	/** @var Api */
 	protected $api;
 
-	/** @var ShipmentDataExtractor */
-	protected $shipmentDataExtractor;
-
 	/** @var array */
 	private $results = [];
 
 	/**
 	 * TariffsChecker constructor.
 	 * @param Api $api
-	 * @param ShipmentDataExtractor $shipmentDataExtractor
 	 */
-	public function __construct(Api $api, ShipmentDataExtractor $shipmentDataExtractor)
+	public function __construct(Api $api)
 	{
 		$this->api = $api;
-		$this->shipmentDataExtractor = $shipmentDataExtractor;
 	}
 
 	/**
@@ -143,12 +138,19 @@ final class TariffsChecker
 	 */
 	private function getSourceCoordinatesByShipment(Shipment $shipment): ?array
 	{
-		$address = $this->shipmentDataExtractor->getAddressFrom($shipment);
-		if (is_null($address))
+		$addressFrom = $shipment->getPropertyCollection()->getAddressFrom();
+		if (!$addressFrom)
 		{
 			return null;
 		}
 
+		$addressFromValue = $addressFrom->getValue();
+		if (!$addressFromValue)
+		{
+			return null;
+		}
+
+		$address = Address::fromArray($addressFromValue);
 		if (!$address->getLatitude() || !$address->getLongitude())
 		{
 			return null;

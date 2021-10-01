@@ -8,6 +8,22 @@ use Bitrix\Main;
 use Bitrix\Main\Entity\AddResult;
 use Bitrix\Main\Entity\ScalarField;
 
+/**
+ * Class RouteTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Route_Query query()
+ * @method static EO_Route_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Route_Result getById($id)
+ * @method static EO_Route_Result getList(array $parameters = array())
+ * @method static EO_Route_Entity getEntity()
+ * @method static \Bitrix\Main\UrlPreview\EO_Route createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\UrlPreview\EO_Route_Collection createCollection()
+ * @method static \Bitrix\Main\UrlPreview\EO_Route wakeUpObject($row)
+ * @method static \Bitrix\Main\UrlPreview\EO_Route_Collection wakeUpCollection($rows)
+ */
 class RouteTable extends Entity\DataManager
 {
 

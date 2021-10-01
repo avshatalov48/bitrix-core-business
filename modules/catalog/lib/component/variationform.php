@@ -137,7 +137,7 @@ class VariationForm extends BaseForm
 		{
 			foreach ($priceTypeList as $priceType)
 			{
-				$title = htmlspecialcharsbx(!empty($priceType['NAME_LANG']) ? $priceType['NAME_LANG'] : $priceType['NAME']);
+				$title = !empty($priceType['NAME_LANG']) ? $priceType['NAME_LANG'] : $priceType['NAME'];
 				$priceFieldName = static::formatFieldName(BaseForm::PRICE_FIELD_PREFIX.$priceType['ID']);
 
 				$descriptions[] = $this->preparePriceDescription([

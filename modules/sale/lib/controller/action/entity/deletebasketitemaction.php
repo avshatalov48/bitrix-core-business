@@ -9,8 +9,9 @@ use Bitrix\Sale;
  * Class DeleteBasketItemAction
  * @package Bitrix\Sale\Controller\Action\Entity
  * @example BX.ajax.runAction("sale.entity.deleteBasketItem", { data: { id: 1 }});
+ * @internal
  */
-class DeleteBasketItemAction extends BaseAction
+final class DeleteBasketItemAction extends BaseAction
 {
 	public function run(int $id)
 	{

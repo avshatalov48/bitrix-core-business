@@ -1204,7 +1204,20 @@ class OrderRulesTable extends Main\Entity\DataManager
  * </ul>
  *
  * @package Bitrix\Sale\Internals
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_OrderRulesDescr_Query query()
+ * @method static EO_OrderRulesDescr_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_OrderRulesDescr_Result getById($id)
+ * @method static EO_OrderRulesDescr_Result getList(array $parameters = array())
+ * @method static EO_OrderRulesDescr_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_OrderRulesDescr createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_OrderRulesDescr_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_OrderRulesDescr wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_OrderRulesDescr_Collection wakeUpCollection($rows)
+ */
 
 class OrderRulesDescrTable extends Main\Entity\DataManager
 {

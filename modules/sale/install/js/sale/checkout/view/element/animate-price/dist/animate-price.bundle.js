@@ -5,7 +5,7 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 (function (exports,ui_vue,main_core,currency_currencyCore) {
 	'use strict';
 
-	ui_vue.Vue.component('sale-checkout-view-element-animate_price', {
+	ui_vue.BitrixVue.component('sale-checkout-view-element-animate_price', {
 	  props: ['sum', 'currency', 'prefix'],
 	  data: function data() {
 	    return {

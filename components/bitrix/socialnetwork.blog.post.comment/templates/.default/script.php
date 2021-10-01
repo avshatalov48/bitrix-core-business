@@ -175,7 +175,6 @@ BX.ready(function(){
 
 	if (!!window["UC"]["f<?=$formParams["FORM_ID"]?>"].eventNode)
 	{
-		BX.addCustomEvent(window["UC"]["f<?=$formParams["FORM_ID"]?>"].eventNode, 'OnUCFormClear', __blogOnUCFormClear);
 		BX.addCustomEvent(window["UC"]["f<?=$formParams["FORM_ID"]?>"].eventNode, 'OnUCFormAfterShow', __blogOnUCFormAfterShow);
 		BX.addCustomEvent(window["UC"]["f<?=$formParams["FORM_ID"]?>"].eventNode, 'OnUCFormSubmit', __blogOnUCFormSubmit);
 	}

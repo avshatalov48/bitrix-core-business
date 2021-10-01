@@ -695,7 +695,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        event.preventDefault();
 	        options.fieldController.showSettingsPopup();
 	        setTimeout(function () {
-	          options.fieldController.settingsPopupsettingsPopup.subscribeOnce('onClose', function () {
+	          options.fieldController.settingsPopup.subscribeOnce('onClose', function () {
 	            options.sourceOptions.booking.settings_data = options.fieldController.getSettings().data; // eslint-disable-next-line camelcase
 
 	            var settings_data = options.sourceOptions.booking.settings_data;

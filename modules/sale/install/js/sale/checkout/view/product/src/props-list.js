@@ -1,6 +1,6 @@
-import {Vue} from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 
-Vue.component('sale-checkout-view-product-props_list', {
+BitrixVue.component('sale-checkout-view-product-props_list', {
 	props: ['list'],
 	methods:
 		{
@@ -12,7 +12,7 @@ Vue.component('sale-checkout-view-product-props_list', {
 	// language=Vue
 	template: `
 		<div>
-			<div  v-for="(item, index) in list" v-if="isShow(item)" class="checkout-basket-item-props" :key="index">{{item.name}}: {{item.value}}</div>
+		<div  v-for="(item, index) in list" v-if="isShow(item)" class="checkout-basket-item-props" :key="index">{{item.name}}: <strong>{{item.value}}</strong></div>
 		</div>
 	`
 });

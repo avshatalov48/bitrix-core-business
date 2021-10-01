@@ -263,18 +263,6 @@ namespace Bitrix\Currency {
 }
 namespace Bitrix\Currency {
 	/**
-	 * @method static EO_Currency_Query query()
-	 * @method static EO_Currency_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Currency_Result getById($id)
-	 * @method static EO_Currency_Result getList(array $parameters = array())
-	 * @method static EO_Currency_Entity getEntity()
-	 * @method static \Bitrix\Currency\EO_Currency createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Currency\EO_Currency_Collection createCollection()
-	 * @method static \Bitrix\Currency\EO_Currency wakeUpObject($row)
-	 * @method static \Bitrix\Currency\EO_Currency_Collection wakeUpCollection($rows)
-	 */
-	class CurrencyTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -568,18 +556,6 @@ namespace Bitrix\Currency {
 }
 namespace Bitrix\Currency {
 	/**
-	 * @method static EO_CurrencyLang_Query query()
-	 * @method static EO_CurrencyLang_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CurrencyLang_Result getById($id)
-	 * @method static EO_CurrencyLang_Result getList(array $parameters = array())
-	 * @method static EO_CurrencyLang_Entity getEntity()
-	 * @method static \Bitrix\Currency\EO_CurrencyLang createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Currency\EO_CurrencyLang_Collection createCollection()
-	 * @method static \Bitrix\Currency\EO_CurrencyLang wakeUpObject($row)
-	 * @method static \Bitrix\Currency\EO_CurrencyLang_Collection wakeUpCollection($rows)
-	 */
-	class CurrencyLangTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -811,18 +787,6 @@ namespace Bitrix\Currency {
 	}
 }
 namespace Bitrix\Currency {
-	/**
-	 * @method static EO_CurrencyRate_Query query()
-	 * @method static EO_CurrencyRate_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CurrencyRate_Result getById($id)
-	 * @method static EO_CurrencyRate_Result getList(array $parameters = array())
-	 * @method static EO_CurrencyRate_Entity getEntity()
-	 * @method static \Bitrix\Currency\EO_CurrencyRate createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Currency\EO_CurrencyRate_Collection createCollection()
-	 * @method static \Bitrix\Currency\EO_CurrencyRate wakeUpObject($row)
-	 * @method static \Bitrix\Currency\EO_CurrencyRate_Collection wakeUpCollection($rows)
-	 */
-	class CurrencyRateTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

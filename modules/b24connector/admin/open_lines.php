@@ -48,11 +48,7 @@ if(!empty($errorMsgs))
 		</p>
 		<p class="connector-description"><?=Loc::getMessage('B24C_OL_DESCR23')?></p>
 		<p class="connector-description"><?=Loc::getMessage('B24C_OL_DESCR3')?></p>
-		<div class="connector-video-container">
-			<div class="connector-video-block">
-				<iframe class="connector-video" src="https://www.youtube.com/embed/73fueozs53M?rel=0" frameborder="0" allowfullscreen></iframe>
-			</div>
-		</div>
+		<img src="/bitrix/images/b24connector/img-5.png" alt="" class="connector-img">
 		<p class="connector-description"><?=Loc::getMessage('B24C_OL_DESCR4')?></p>
 		<p class="connector-description"><?=Loc::getMessage('B24C_OL_DESCR5')?></p>
 	</div>

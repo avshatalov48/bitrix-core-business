@@ -12,6 +12,22 @@ use Bitrix\Main\ORM;
 use Bitrix\Main\ORM\Data;
 use Bitrix\Main\ORM\Fields;
 
+/**
+ * Class ApplicationPasswordTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ApplicationPassword_Query query()
+ * @method static EO_ApplicationPassword_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ApplicationPassword_Result getById($id)
+ * @method static EO_ApplicationPassword_Result getList(array $parameters = array())
+ * @method static EO_ApplicationPassword_Entity getEntity()
+ * @method static \Bitrix\Main\Authentication\EO_ApplicationPassword createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Authentication\EO_ApplicationPassword_Collection createCollection()
+ * @method static \Bitrix\Main\Authentication\EO_ApplicationPassword wakeUpObject($row)
+ * @method static \Bitrix\Main\Authentication\EO_ApplicationPassword_Collection wakeUpCollection($rows)
+ */
 class ApplicationPasswordTable extends Data\DataManager
 {
 	protected const PASSWORD_ALPHABET = "qwertyuiopasdfghjklzxcvbnm";

@@ -2,8 +2,10 @@
 namespace Bitrix\Im;
 
 use Bitrix\Im\Model\BlockUserTable;
-use Bitrix\Main\Application,
-	Bitrix\Main\Loader;
+use Bitrix\Main\Application;
+use Bitrix\Main\Localization\Loc;
+
+Loc::loadMessages(__FILE__);
 
 class Chat
 {
@@ -49,7 +51,7 @@ class Chat
 			$result = $messageType == IM_MESSAGE_OPEN? 'open': 'chat';
 		}
 
-		return $result;
+		return htmlspecialcharsbx($result);
 	}
 
 	public static function getRelation($chatId, $params = [])
@@ -463,7 +465,8 @@ class Chat
 		$fileSort = 'ASC';
 		$startFromUnread = false;
 		if (
-			!isset($options['LAST_ID']) && !isset($options['FIRST_ID'])
+			!isset($options['LAST_ID'])
+			&& !isset($options['FIRST_ID'])
 			&& $chatData['RELATION_STATUS'] != \Bitrix\Im\Chat::STATUS_READ
 		)
 		{
@@ -579,7 +582,19 @@ class Chat
 		$fileIds = Array();
 		foreach ($params as $messageId => $param)
 		{
-			$messages[$messageId]['PARAMS'] = empty($param)? null: $param;
+			$messages[$messageId]['PARAMS'] = empty($param)? []: $param;
+
+			if (
+				empty($messages[$messageId]['TEXT'])
+				&& !isset($param['FILE_ID'])
+				&& !isset($param['KEYBOARD'])
+				&& !isset($param['ATTACH'])
+			)
+			{
+				$messages[$messageId]['TEXT'] = Loc::getMessage('IM_CHAT_MESSAGE_DELETED');
+				$messages[$messageId]['TEXT_CONVERTED'] = $messages[$messageId]['TEXT'];
+				$messages[$messageId]['PARAMS']['IS_DELETED'] = 'Y';
+			}
 
 			if (isset($param['FILE_ID']))
 			{
@@ -1077,5 +1092,10 @@ class Chat
 		)->fetch();
 
 		return (bool)$result['ID'];
+	}
+
+	public static function checkReplicaDeprecatedAgent(): string
+	{
+		return \Bitrix\Im\Replica\Status::checkAgent();
 	}
 }

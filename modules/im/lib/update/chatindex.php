@@ -22,13 +22,16 @@ final class ChatIndex extends Stepper
 	public function execute(array &$result)
 	{
 		if (!Loader::includeModule(self::$moduleId))
+		{
 			return false;
+		}
 
 		$return = false;
 
 		$params = Option::get(self::$moduleId, self::OPTION_NAME, "");
 		$params = ($params !== "" ? @unserialize($params, ['allowed_classes' => false]) : array());
 		$params = (is_array($params) ? $params : array());
+
 		if (empty($params))
 		{
 			$params = array(

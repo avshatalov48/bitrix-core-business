@@ -93,7 +93,8 @@ class Action implements Errorable
 			}
 
 			$controller = $this->getController();
-			$this->binder = AutoWire\Binder::buildForMethod($this, 'run')
+			$this->binder = AutoWire\ControllerBinder::buildForMethod($this, 'run')
+				->setController($controller)
 				->setSourcesParametersToMap($controller->getSourceParametersList())
 				->setAutoWiredParameters(
 					array_filter(array_merge(

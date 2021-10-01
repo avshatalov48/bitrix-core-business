@@ -406,6 +406,8 @@ class Options
 			$dateselId = $id."_datesel";
 			$numselId = $id."_numsel";
 			$type = $field["type"];
+			$isEmpty = $id."_isEmpty";
+			$hasAnyValue = $id."_hasAnyValue";
 
 			if ($type == "date")
 			{
@@ -463,6 +465,18 @@ class Options
 					$result["fields"][$id] = $request[$id];
 					$result["rows"][] = $id;
 				}
+			}
+
+			if (isset($request[$isEmpty]))
+			{
+				$result['fields'][$isEmpty] = $request[$isEmpty];
+				$result["rows"][] = $id;
+			}
+
+			if (isset($request[$hasAnyValue]))
+			{
+				$result['fields'][$hasAnyValue] = $request[$hasAnyValue];
+				$result["rows"][] = $id;
 			}
 		}
 
@@ -702,7 +716,19 @@ class Options
 
 				elseif (mb_substr($key, -5) !== "_from" && mb_substr($key, -3) !== "_to")
 				{
-					$resultFields[$key] = $field;
+					if  (mb_substr($key, -8) === "_isEmpty")
+					{
+						$resultFields[substr($key, 0, -8)] = false;
+					}
+					elseif  (mb_substr($key, -12) === "_hasAnyValue")
+					{
+
+						$resultFields['!'.substr($key, 0, -12)] = false;
+					}
+					else
+					{
+						$resultFields[$key] = $field;
+					}
 				}
 			}
 		}
@@ -975,6 +1001,25 @@ class Options
 			$this->options["filter_rows"] = implode(",", $aCols);
 	}
 
+	public function removeRowFromPreset(string $presetId, string $rowName): bool
+	{
+		$rowsString = $this->options["filters"][$presetId]["filter_rows"] ?? '';
+		if ($rowsString === '')
+		{
+			return false;
+		}
+		$rows = explode(",", $rowsString);
+		$pos = array_search($rowName, $rows,true);
+		if ($pos !== false)
+		{
+			unset($rows[$pos]);
+			$this->options["filters"][$presetId]["filter_rows"] = implode(",", $rows);
+
+			return true;
+		}
+
+		return false;
+	}
 
 	/**
 	 * Restores filter options to default
@@ -1660,7 +1705,9 @@ class Options
 					"_value",
 					"_days",
 					"_months",
-					"_years"
+					"_years",
+					"_isEmpty",
+					"_hasAnyValue",
 				),
 				"",
 				$key

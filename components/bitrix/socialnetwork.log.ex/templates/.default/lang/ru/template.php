@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SONET_C30_T_USER"] = "Пользователь";
 $MESS["SONET_C30_T_MESSAGE_HIDE"] = "Скрыть";
 $MESS["SONET_C30_T_MESSAGE_SHOW"] = "Показать";
@@ -22,7 +22,6 @@ $MESS["SONET_C30_MENU_TITLE_HREF"] = "Перейти к сообщению";
 $MESS["SONET_C30_MENU_TITLE_DELETE"] = "Удалить из Живой ленты";
 $MESS["SONET_C30_MENU_TITLE_DELETE2"] = "Удалить из ленты новостей";
 $MESS["SONET_C30_MENU_TITLE_CREATETASK"] = "Создать задачу";
-$MESS["SONET_ERROR_SESSION"] = "Ваша сессия истекла. Пожалуйста, попробуйте еще раз.";
 $MESS["SONET_C30_MENU_TITLE_DELETE_CONFIRM"] = "Вы уверены, что хотите удалить запись и все её комментарии?";
 $MESS["SONET_C30_MENU_TITLE_DELETE_FAILURE"] = "Ошибка удаления записи";
 $MESS["SONET_C30_T_LINK_COPIED"] = "Ссылка скопирована";
@@ -36,4 +35,3 @@ $MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_BUTTON_MORE"] = "подробнее";
 $MESS["SONET_C30_FEED_PINNED_COLLAPSED_POSTS"] = "Закрепленных постов:";
 $MESS["SONET_C30_FEED_PINNED_COLLAPSED_NEW_COMMENTS"] = "Новых комментариев:";
 $MESS["SONET_C30_FEED_PINNED_COLLAPSED_EXPAND"] = "Развернуть";
-?>

@@ -203,6 +203,10 @@ class Parser
 			$isInternational = true;
 			$hasPlus = true;
 			$countryMetadata = $this->getMetadataByCountryCode($countryCode);
+			if(!$countryMetadata)
+			{
+				return $result;
+			}
 
 			/*
 				$country will be set later, because, for example, for NANPA countries
@@ -216,13 +220,13 @@ class Parser
 			// Number in national format or in international format without + sign.
 			$country = $defaultCountry;
 			$countryMetadata = $this->getCountryMetadata($country);
+			if(!$countryMetadata)
+			{
+				return $result;
+			}
+
 			$countryCode = $countryMetadata['countryCode'];
 			$isInternational = $this->stripCountryCode($localNumber, $countryMetadata);
-		}
-
-		if(!$countryMetadata)
-		{
-			return $result;
 		}
 
 		$nationalPrefix = $this->stripNationalPrefix($localNumber, $countryMetadata);

@@ -28,4 +28,5 @@ $MESS["B24C_BL_LIST_VIEW"] = "Настройки отображения";
 $MESS["B24C_BL_WIDGET_EDIT"] = "Перейти к редактированию виджета в Битрикс24";
 $MESS["B24C_BL_WIDGETS"] = "Виджеты";
 $MESS["B24C_BL_CREATE_B24"] = "Создать новый Битрикс24";
-
+$MESS["B24C_BL_SHOW_ON_SPECIFIED_SITES_ONLY"] = "Показывать на сайтах:";
+$MESS["B24C_BL_SAVED_LABEL"] = "Сохранено";

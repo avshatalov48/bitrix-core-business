@@ -917,6 +917,7 @@ BX.BXGCE.recalcFormPartProject = function (isChecked) {
 	BX.BXGCE.recalcFormPartProjectBlock('GROUP_ADD_DEPT_HINT_block', isChecked);
 	BX.BXGCE.recalcFormPartProjectBlock('GROUP_MODERATORS_LABEL_block', isChecked);
 	BX.BXGCE.recalcFormPartProjectBlock('GROUP_MODERATORS_SWITCH_LABEL_block', isChecked);
+	BX.BXGCE.recalcFormPartProjectBlock('GROUP_EMPLOYEE_LABEL_block', isChecked);
 	BX.BXGCE.recalcFormPartProjectBlock('GROUP_TYPE_LABEL_block', isChecked);
 	BX.BXGCE.recalcFormPartProjectBlock('GROUP_SUBJECT_ID_LABEL_block', isChecked);
 	BX.BXGCE.recalcFormPartProjectBlock('GROUP_INVITE_PERMS_block', isChecked);
@@ -1017,6 +1018,24 @@ BX.BXGCE.hideScrumBlocks = function ()
 	{
 		BX.addClass(scrumBlock, 'sgcp-hide-scrum-project');
 	});
+
+	if (
+		BX('GROUP_MODERATORS_switch')
+		&& BX('GROUP_MODERATORS_PROJECT_switch')
+	)
+	{
+		BX.addClass(BX('GROUP_MODERATORS_PROJECT_switch'), 'sgcp-inlineblock-project');
+		BX('GROUP_MODERATORS_PROJECT_switch').style.display = 'block';
+	}
+
+	if (BX('GROUP_MODERATORS_block_container'))
+	{
+		BX('GROUP_MODERATORS_block_container').style.display = 'none';
+		BX.addClass(BX('GROUP_MODERATORS_block_container'), 'invisible');
+
+		BX.removeClass(BX('GROUP_MODERATORS_LABEL_block'), 'sgcp-switch-scrum-project');
+		BX.removeClass(BX('GROUP_EMPLOYEE_LABEL_block'), 'sgcp-switch-scrum-project');
+	}
 };
 
 BX.BXGCE.showScrumBlocks = function ()
@@ -1025,6 +1044,24 @@ BX.BXGCE.showScrumBlocks = function ()
 	{
 		BX.removeClass(scrumBlock, 'sgcp-hide-scrum-project');
 	});
+
+	if (
+		BX('GROUP_MODERATORS_switch')
+		&& BX('GROUP_MODERATORS_PROJECT_switch')
+	)
+	{
+		BX.removeClass(BX('GROUP_MODERATORS_PROJECT_switch'), 'sgcp-inlineblock-project');
+		BX('GROUP_MODERATORS_PROJECT_switch').style.display = 'none';
+	}
+
+	if (BX('GROUP_MODERATORS_block_container'))
+	{
+		BX('GROUP_MODERATORS_block_container').style.display = 'block';
+		BX.removeClass(BX('GROUP_MODERATORS_block_container'), 'invisible');
+
+		BX.addClass(BX('GROUP_MODERATORS_LABEL_block'), 'sgcp-switch-scrum-project');
+		BX.addClass(BX('GROUP_EMPLOYEE_LABEL_block'), 'sgcp-switch-scrum-project');
+	}
 };
 
 BX.BXGCE.createHiddenInputs = function ()

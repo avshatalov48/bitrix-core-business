@@ -3,6 +3,7 @@ namespace Bitrix\Sale\Delivery\Requests;
 
 use Bitrix\Sale\Delivery\Services;
 use Bitrix\Sale\Internals;
+use Bitrix\Sale\Repository\ShipmentRepository;
 use Bitrix\Sale\Shipment;
 use Bitrix\Sale;
 
@@ -44,7 +45,7 @@ class Helper
 			'&shipment_id='.intval($shipmentId).
 			'&lang='.htmlspecialcharsbx($languageId).
 			'">'.
-				htmlspecialcharsbx($text).
+			htmlspecialcharsbx($text).
 			'</a>';
 	}
 
@@ -66,7 +67,7 @@ class Helper
 			'?ID='.intval($deliveryId).
 			'&lang='.htmlspecialcharsbx($languageId).
 			'">'.
-				htmlspecialcharsbx($deliveryName).
+			htmlspecialcharsbx($deliveryName).
 			'</a>';
 	}
 
@@ -85,7 +86,7 @@ class Helper
 			'?ID='.intval($requestId).
 			'&lang='.htmlspecialcharsbx($languageId).
 			'">'.
-				htmlspecialcharsbx($text).
+			htmlspecialcharsbx($text).
 			'</a>';
 	}
 
@@ -128,6 +129,38 @@ class Helper
 				$result[$shp['ID']] = $shipment;
 				break;
 			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param int $requestId
+	 * @return Shipment[]
+	 */
+	public static function getShipmentsByRequestId(int $requestId): ?array
+	{
+		$deliveryRequest = RequestTable::getByPrimary(
+			$requestId,
+			[
+				'select' => ['*', 'SHIPMENTS']
+			]
+		)->fetchObject();
+
+		if (is_null($deliveryRequest))
+		{
+			return null;
+		}
+
+		$result = [];
+
+		foreach ($deliveryRequest->getShipments() as $requestShipment)
+		{
+			$shipment = ShipmentRepository::getInstance()->getById(
+				$requestShipment->getShipmentId()
+			);
+
+			$result[] = $shipment;
 		}
 
 		return $result;

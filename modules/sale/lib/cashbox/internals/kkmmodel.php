@@ -5,6 +5,22 @@ use Bitrix\Main\Application;
 use Bitrix\Main\Entity\DataManager;
 use Bitrix\Sale\Cashbox\Cashbox1C;
 
+/**
+ * Class KkmModelTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_KkmModel_Query query()
+ * @method static EO_KkmModel_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_KkmModel_Result getById($id)
+ * @method static EO_KkmModel_Result getList(array $parameters = array())
+ * @method static EO_KkmModel_Entity getEntity()
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_KkmModel createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_KkmModel_Collection createCollection()
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_KkmModel wakeUpObject($row)
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_KkmModel_Collection wakeUpCollection($rows)
+ */
 class KkmModelTable extends DataManager
 {
 	public static function getTableName()

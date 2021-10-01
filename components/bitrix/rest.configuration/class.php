@@ -136,7 +136,7 @@ class RestConfigurationComponent extends CBitrixComponent
 					$manifestList,
 					function($manifest) use ($code)
 					{
-						return in_array($code, $manifest['PLACEMENT']);
+						return in_array($code, $manifest['PLACEMENT']) && $manifest['ACTIVE'] === 'Y';
 					}
 				);
 				if(!$manifestList)

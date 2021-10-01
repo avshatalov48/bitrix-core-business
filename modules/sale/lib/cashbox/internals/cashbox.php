@@ -10,6 +10,19 @@ Loc::loadMessages(__FILE__);
 /**
  * Class CashboxTable
  * @package Bitrix\Sale\Cashbox\Internals
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Cashbox_Query query()
+ * @method static EO_Cashbox_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Cashbox_Result getById($id)
+ * @method static EO_Cashbox_Result getList(array $parameters = array())
+ * @method static EO_Cashbox_Entity getEntity()
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_Cashbox createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_Cashbox_Collection createCollection()
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_Cashbox wakeUpObject($row)
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_Cashbox_Collection wakeUpCollection($rows)
  */
 class CashboxTable extends DataManager
 {

@@ -64,8 +64,25 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
       }
     };
 
+    var productItemEdit = {
+      computed: {
+        getSrc: function getSrc() {
+          return encodeURI(this.item.product.picture);
+        }
+      },
+      methods: {
+        hasSkyTree: function hasSkyTree() {
+          return Object.keys(this.item.sku.tree).length > 0;
+        },
+        hasProps: function hasProps() {
+          return this.item.props.length > 0;
+        }
+      }
+    };
+
     exports.MixinLoader = loader;
     exports.MixinButtonWait = buttonWait;
+    exports.MixinProductItemEdit = productItemEdit;
 
 }((this.BX.Sale.Checkout.View.Mixins = this.BX.Sale.Checkout.View.Mixins || {}),BX.Sale.Checkout.Const,BX));
 //# sourceMappingURL=registry.bundle.js.map

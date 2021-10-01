@@ -12,7 +12,6 @@ use Bitrix\Catalog\v2\Sku\BaseSku;
  * @package Bitrix\Catalog\v2\Iblock
  *
  * * !!! This API is in alpha stage and is not stable. This is subject to change at any time without notice.
-
  * @internal
  */
 final class PropertyValue
@@ -86,12 +85,8 @@ final class PropertyValue
 		\CIBlockElement::GetPropertyValuesArray(
 			$propertyValues,
 			$skuIblockId,
-			[
-				'ID' => $skuIds
-			],
-			[
-				'ID' => PropertyCatalogFeature::getOfferTreePropertyCodes($skuIblockId),
-			]
+			['ID' => $skuIds],
+			['ID' => PropertyCatalogFeature::getOfferTreePropertyCodes($skuIblockId)]
 		);
 
 		return $propertyValues;

@@ -1,11 +1,11 @@
-import {Vue} from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 
-Vue.component('sale-checkout-view-successful-call', {
+BitrixVue.component('sale-checkout-view-successful-call', {
 	computed:
 		{
 			localize() {
 				return Object.freeze(
-					Vue.getFilteredPhrases('CHECKOUT_VIEW_SUCCESSFUL_CALL_'))
+					BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_SUCCESSFUL_CALL_'))
 			},
 		},
 	// language=Vue

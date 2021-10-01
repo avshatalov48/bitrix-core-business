@@ -404,6 +404,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      if (tabsList) {
 	        for (var i = 0; i < tabsList.length; i++) {
 	          var id = tabsList[i].getAttribute('id').replace('feed-add-post-form-tab-', '');
+	          var limited = tabsList[i].getAttribute('limited');
 	          this.tabs[id] = tabsList[i];
 
 	          if (this.tabs[id].style.display === 'none') {
@@ -411,7 +412,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	              tabId: id,
 	              text: tabsList[i].getAttribute('data-name'),
 	              className: "menu-popup-no-icon feed-add-post-form-".concat(id, " feed-add-post-form-").concat(id, "-more"),
-	              onclick: this.createOnClick(id, tabsList[i].getAttribute('data-name'), tabsList[i].getAttribute('data-onclick'))
+	              onclick: this.createOnClick(id, tabsList[i].getAttribute('data-name'), tabsList[i].getAttribute('data-onclick'), tabsList[i].getAttribute('data-limited') === 'Y')
 	            });
 	            this.tabs[id] = this.tabs[id].parentNode;
 	          }
@@ -502,20 +503,23 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    }
 	  }, {
 	    key: "createOnClick",
-	    value: function createOnClick(id, name, onclick) {
+	    value: function createOnClick(id, name, onclick, limited) {
 	      var _this3 = this;
 
 	      return function () {
 	        var btn = document.getElementById('feed-add-post-form-link-more');
 	        var btnText = document.getElementById('feed-add-post-form-link-text');
-	        btnText.innerHTML = name;
 
-	        if (id !== _this3.config.id.listItem) {
-	          btn.className = "feed-add-post-form-link feed-add-post-form-link-more feed-add-post-form-link-active feed-add-post-form-".concat(id, "-link");
+	        if (!limited) {
+	          btnText.innerHTML = name;
 
-	          _this3.changePostFormTab(id);
-	        } else {
-	          btn.className = "feed-add-post-form-link feed-add-post-form-link-more feed-add-post-form-".concat(id, "-link");
+	          if (id !== _this3.config.id.listItem) {
+	            btn.className = "feed-add-post-form-link feed-add-post-form-link-more feed-add-post-form-link-active feed-add-post-form-".concat(id, "-link");
+
+	            _this3.changePostFormTab(id, false);
+	          } else {
+	            btn.className = "feed-add-post-form-link feed-add-post-form-link-more feed-add-post-form-".concat(id, "-link");
+	          }
 	        }
 
 	        if (main_core.Type.isStringFilled(onclick)) {
@@ -900,7 +904,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 
 	            _this6.endAnimation();
 
-	            throw new Error();
+	            throw new Error(result.getErrors().getMessages().join(' '));
 	          }
 	        }, function (reason) {
 	          _this6.closeWait(contentContainer);

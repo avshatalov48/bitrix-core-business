@@ -238,12 +238,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})](.*?)[\/CHAT]/ig, function (whole, imol, chatId, text) {
 	        return text;
 	      });
-	      text = text.replace(/\[SEND(?:=(.+?))?](.+?)?\[\/SEND]/ig, function (whole, command, text) {
-	        return text ? text : command;
-	      });
-	      text = text.replace(/\[PUT(?:=(.+?))?](.+?)?\[\/PUT]/ig, function (whole, command, text) {
-	        return text ? text : command;
-	      });
 	      text = text.replace(/\[CALL(?:=(.+?))?](.+?)?\[\/CALL]/ig, function (whole, command, text) {
 	        return text ? text : command;
 	      });
@@ -308,8 +302,23 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	      text = text.replace(/<br><br \/>/ig, '<br />');
 	      text = text.replace(/<br \/><br>/ig, '<br />');
+	      var codeReplacement = [];
+	      text = text.replace(/\[CODE\]\n?([\0-\uFFFF]*?)\[\/CODE\]/ig, function (whole, text) {
+	        var id = codeReplacement.length;
+	        codeReplacement.push(text);
+	        return '####REPLACEMENT_CODE_' + id + '####';
+	      });
+	      text = text.replace(/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/ig, function (match) {
+	        return match.replace(/\[PUT(?:=(.+))?\](.+?)?\[\/PUT]/ig, function (whole, command, text) {
+	          return text ? text : command;
+	        });
+	      });
+	      text = text.replace(/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/ig, function (match) {
+	        return match.replace(/\[SEND(?:=(.+))?\](.+?)?\[\/SEND]/ig, function (whole, command, text) {
+	          return text ? text : command;
+	        });
+	      });
 	      text = text.replace(/\[[buis]](.*?)\[\/[buis]]/ig, '$1');
-	      text = text.replace(/\[CODE]\n?([\0-\uFFFF]*?)\[\/CODE]/ig, '$1');
 	      text = text.replace(/\[url](.*?)\[\/url]/ig, '$1');
 	      text = text.replace(/\[RATING=([1-5]{1})]/ig, function () {
 	        return '[' + localize['IM_UTILS_TEXT_RATING'] + '] ';
@@ -319,8 +328,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      });
 	      text = text.replace(/\[USER=([0-9]{1,})](.*?)\[\/USER]/ig, '$2');
 	      text = text.replace(/\[CHAT=([0-9]{1,})](.*?)\[\/CHAT]/ig, '$2');
-	      text = text.replace(/\[SEND=([0-9]{1,})](.*?)\[\/SEND]/ig, '$2');
-	      text = text.replace(/\[PUT=([0-9]{1,})](.*?)\[\/PUT]/ig, '$2');
+	      text = text.replace(/\[SEND(?:=(?:.+?))?\](.+?)?\[\/SEND]/ig, '$1');
+	      text = text.replace(/\[PUT(?:=(?:.+?))?\](.+?)?\[\/PUT]/ig, '$1');
 	      text = text.replace(/\[CALL=([0-9]{1,})](.*?)\[\/CALL]/ig, '$2');
 	      text = text.replace(/\[PCH=([0-9]{1,})](.*?)\[\/PCH]/ig, '$2');
 	      text = text.replace(/<img.*?data-code="([^"]*)".*?>/ig, '$1');
@@ -358,31 +367,39 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	        return title;
 	      });
+	      codeReplacement.forEach(function (element, index) {
+	        text = text.replace('####REPLACEMENT_CODE_' + index + '####', element);
+	      });
 	      text = text.replace(/\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D([\s\S]*?)\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D\x2D/gmi, "[" + localize["IM_UTILS_TEXT_QUOTE"] + "] ");
-	      text = text.replace(/^(>>(.*)\n)/gi, "[" + localize["IM_UTILS_TEXT_QUOTE"] + "] ");
+	      text = text.replace(/^(>>(.*)(\n)?)/gmi, "[" + localize["IM_UTILS_TEXT_QUOTE"] + "] ");
 	      text = text.replace(/<\/?[^>]+>/gi, '');
 
 	      if (params && params.FILE_ID && params.FILE_ID.length > 0) {
 	        var filesText = [];
-	        params.FILE_ID.forEach(function (fileId) {
-	          if (files[fileId].type === 'image') {
-	            filesText.push(localize['IM_UTILS_TEXT_IMAGE']);
-	          } else if (files[fileId].type === 'audio') {
-	            filesText.push(localize['IM_UTILS_TEXT_AUDIO']);
-	          } else if (files[fileId].type === 'video') {
-	            filesText.push(localize['IM_UTILS_TEXT_VIDEO']);
-	          } else {
-	            filesText.push(files[fileId].name);
-	          }
-	        });
+
+	        if (babelHelpers.typeof(files) === 'object') {
+	          params.FILE_ID.forEach(function (fileId) {
+	            if (typeof files[fileId] === 'undefined') ; else if (files[fileId].type === 'image') {
+	              filesText.push(localize['IM_UTILS_TEXT_IMAGE']);
+	            } else if (files[fileId].type === 'audio') {
+	              filesText.push(localize['IM_UTILS_TEXT_AUDIO']);
+	            } else if (files[fileId].type === 'video') {
+	              filesText.push(localize['IM_UTILS_TEXT_VIDEO']);
+	            } else {
+	              filesText.push(files[fileId].name);
+	            }
+	          });
+	        }
 
 	        if (filesText.length <= 0) {
 	          filesText.push(localize['IM_UTILS_TEXT_FILE']);
 	        }
 
 	        text = filesText.join(' ') + text;
-	      } else if (params && params.ATTACH && params.ATTACH.length > 0) {
+	      } else if (params && (params.WITH_ATTACH || params.ATTACH && params.ATTACH.length > 0)) {
 	        text = '[' + localize['IM_UTILS_TEXT_ATTACH'] + '] ' + text;
+	      } else if (params && params.WITH_FILE) {
+	        text = '[' + localize['IM_UTILS_TEXT_FILE'] + '] ' + text;
 	      }
 
 	      if (text.length <= 0) {
@@ -403,7 +420,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        return text;
 	      }
 
-	      return text.replace(/\&quot;/g, '"').replace(/&#39;/g, "'").replace(/\&lt;/g, '<').replace(/\&gt;/g, '>').replace(/\&amp;/g, '&').replace(/\&nbsp;/g, ' ');
+	      return text.replace(/\&quot;/g, '"').replace(/&#039;/g, "'").replace(/\&lt;/g, '<').replace(/\&gt;/g, '>').replace(/\&amp;/g, '&').replace(/\&nbsp;/g, ' ');
 	    },
 	    getLocalizeForNumber: function getLocalizeForNumber(phrase, number) {
 	      var language = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'en';

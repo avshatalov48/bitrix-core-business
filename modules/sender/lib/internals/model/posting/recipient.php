@@ -36,6 +36,7 @@ class RecipientTable extends Main\Entity\DataManager
 	const SEND_RESULT_ERROR = 'E';
 	const SEND_RESULT_WAIT = 'W';
 	const SEND_RESULT_DENY = 'D';
+	const SEND_RESULT_WAIT_ACCEPT = 'A';
 
 	/**
 	 * Get table name.

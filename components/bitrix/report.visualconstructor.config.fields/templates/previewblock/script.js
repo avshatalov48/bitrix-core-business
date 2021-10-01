@@ -231,7 +231,8 @@
 						className: 'report-preview-block-miniature-name-wrapper'
 					},
 					html: miniatureTitle
-				})
+				}),
+				targetContainer: document.body
 			});
 
 			this.miniatureNameHighlightPopup.show();

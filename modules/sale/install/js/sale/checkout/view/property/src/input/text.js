@@ -1,8 +1,8 @@
-import {Vue} from 'ui.vue';
-import {Event} from 'main.core'
-import {Property as Const, EventType} from 'sale.checkout.const';
+import { BitrixVue } from 'ui.vue';
+import { Event } from 'main.core'
+import { Property as Const, EventType} from 'sale.checkout.const';
 
-Vue.component('sale-checkout-view-property-input-text', {
+BitrixVue.component('sale-checkout-view-property-input-text', {
     props: ['item', 'index', 'autocomplete'],
     methods:
         {

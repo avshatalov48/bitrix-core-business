@@ -5,6 +5,22 @@ namespace Bitrix\Sale\Exchange\Internals;
 use Bitrix\Main;
 use Bitrix\Sale\Exchange\EntityType;
 
+/**
+ * Class ExchangeLogTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ExchangeLog_Query query()
+ * @method static EO_ExchangeLog_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ExchangeLog_Result getById($id)
+ * @method static EO_ExchangeLog_Result getList(array $parameters = array())
+ * @method static EO_ExchangeLog_Entity getEntity()
+ * @method static \Bitrix\Sale\Exchange\Internals\EO_ExchangeLog createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Exchange\Internals\EO_ExchangeLog_Collection createCollection()
+ * @method static \Bitrix\Sale\Exchange\Internals\EO_ExchangeLog wakeUpObject($row)
+ * @method static \Bitrix\Sale\Exchange\Internals\EO_ExchangeLog_Collection wakeUpCollection($rows)
+ */
 class ExchangeLogTable extends Main\Entity\DataManager
 {
 	public static function getTableName()

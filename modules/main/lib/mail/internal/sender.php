@@ -6,6 +6,22 @@ use Bitrix\Main\Entity;
 use Bitrix\Main\Config;
 use Bitrix\Main\Security;
 
+/**
+ * Class SenderTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Sender_Query query()
+ * @method static EO_Sender_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Sender_Result getById($id)
+ * @method static EO_Sender_Result getList(array $parameters = array())
+ * @method static EO_Sender_Entity getEntity()
+ * @method static \Bitrix\Main\Mail\Internal\EO_Sender createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Mail\Internal\EO_Sender_Collection createCollection()
+ * @method static \Bitrix\Main\Mail\Internal\EO_Sender wakeUpObject($row)
+ * @method static \Bitrix\Main\Mail\Internal\EO_Sender_Collection wakeUpCollection($rows)
+ */
 class SenderTable extends Entity\DataManager
 {
 

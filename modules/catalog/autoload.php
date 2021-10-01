@@ -48,6 +48,7 @@ Loader::registerAutoLoadClasses(
 		'CCatalogProductProvider' => 'general/product_provider.php',
 		'CCatalogStoreBarCode' => $DBType.'/store_barcode.php',
 		'CCatalogContractor' => $DBType.'/contractor.php',
+		'CCatalogDocsTypes' => 'general/store_docs_type.php',
 		'CCatalogArrivalDocs' => 'general/store_docs_type.php',
 		'CCatalogMovingDocs' => 'general/store_docs_type.php',
 		'CCatalogDeductDocs' => 'general/store_docs_type.php',

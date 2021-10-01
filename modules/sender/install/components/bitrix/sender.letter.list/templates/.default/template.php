@@ -283,6 +283,24 @@ foreach ($arResult['ROWS'] as $index => $data)
 	}
 	$data['STATS'] = ob_get_clean();
 
+	if(isset($data['CONSENT_SUPPORT']))
+	{
+		ob_start();
+		?>
+		<span title="<?=(
+			$data['CONSENT_SUPPORT']?
+				Loc::getMessage("SENDER_LETTER_LIST_COMP_UI_ROW_CONSENT_TITLE_Y"):
+				Loc::getMessage("SENDER_LETTER_LIST_COMP_UI_ROW_CONSENT_TITLE_N")
+		)?>">
+			<?=($data['CONSENT_SUPPORT']?
+				Loc::getMessage("SENDER_LETTER_LIST_COMP_UI_ROW_CONSENT_SUPPORT_Y"):
+				Loc::getMessage("SENDER_LETTER_LIST_COMP_UI_ROW_CONSENT_SUPPORT_N")
+			)
+			?>
+		</span>
+		<?
+		$data['CONSENT_SUPPORT'] = ob_get_clean();
+	}
 	$actions = array();
 	$actions[] = array(
 		'TITLE' => $arParams['CAN_EDIT'] ? Loc::getMessage('SENDER_LETTER_LIST_BTN_EDIT_TITLE') : Loc::getMessage('SENDER_LETTER_LIST_BTN_VIEW_TITLE'),
@@ -368,7 +386,6 @@ foreach ($arResult['ROWS'] as $index => $data)
 			'ONCLICK' => "BX.Sender.Page.open('".CUtil::JSEscape($data['URLS']['RECIPIENT'])."')",
 		);
 	}
-
 
 	$arResult['ROWS'][$index] = array(
 		'id' => $data['ID'],

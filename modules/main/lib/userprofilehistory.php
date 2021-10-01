@@ -14,6 +14,19 @@ use Bitrix\Main\Entity;
  * @internal
  * Class UserProfileHistoryTable
  * @package Bitrix\Main
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserProfileHistory_Query query()
+ * @method static EO_UserProfileHistory_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserProfileHistory_Result getById($id)
+ * @method static EO_UserProfileHistory_Result getList(array $parameters = array())
+ * @method static EO_UserProfileHistory_Entity getEntity()
+ * @method static \Bitrix\Main\EO_UserProfileHistory createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EO_UserProfileHistory_Collection createCollection()
+ * @method static \Bitrix\Main\EO_UserProfileHistory wakeUpObject($row)
+ * @method static \Bitrix\Main\EO_UserProfileHistory_Collection wakeUpCollection($rows)
  */
 class UserProfileHistoryTable extends Entity\DataManager
 {

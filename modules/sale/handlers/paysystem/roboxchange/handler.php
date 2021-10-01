@@ -55,7 +55,7 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 
 		$params = [
 			'URL' => $this->getUrl($payment, 'pay'),
-			'PS_MODE' => $this->service->getField('PS_MODE'),
+			'PS_MODE' => self::getHandlerModeAlias($this->service->getField('PS_MODE')),
 			'SIGNATURE_VALUE' => $this->getSignatureValue($payment, $receipt),
 			'ROBOXCHANGE_ORDERDESCR' => $this->getOrderDescription($payment),
 			'PAYMENT_ID' => $this->getBusinessValue($payment, 'PAYMENT_ID'),
@@ -362,10 +362,24 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 	{
 		return [
 			'bank_card' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_BANKCARD_MODE'),
-			'alfa_bank' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_ALFABANK_MODE'),
 			'apple_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_APPLEPAY_MODE'),
+			'google_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_GOOGLEPAY_MODE'),
 			'samsung_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_SAMSUNGPAY_MODE'),
 		];
+	}
+
+	private static function getHandlerModeAlias(string $psMode): string
+	{
+		$defaultAlias = 'BankCard';
+
+		$aliases = [
+			'bank_card' => 'BankCard',
+			'apple_pay' => 'ApplePay',
+			'google_pay' => 'GooglePay',
+			'samsung_pay' => 'SamsungPay',
+		];
+
+		return $aliases[$psMode] ?? $defaultAlias;
 	}
 
 	private function getReceipt(Payment $payment): PaySystem\ServiceResult

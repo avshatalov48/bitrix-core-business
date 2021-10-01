@@ -6,6 +6,7 @@ use \Bitrix\Landing\File;
 use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Assets;
+use \Bitrix\Landing\Restriction;
 use \Bitrix\Landing\Block as BlockCore;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Landing\PublicActionResult;
@@ -670,6 +671,14 @@ class Block
 		$error = new \Bitrix\Landing\Error;
 
 		Landing::setEditMode();
+
+		if (Utils::isTrue($designed))
+		{
+			if (!Restriction\Manager::isAllowed('limit_crm_free_superblock1'))
+			{
+				return $result;
+			}
+		}
 
 		$landing = Landing::createInstance($lid, [
 			'blocks_id' => $block

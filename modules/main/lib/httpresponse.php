@@ -212,9 +212,13 @@ class HttpResponse extends Response
 	protected function flushHeader($header)
 	{
 		if (is_array($header))
+		{
 			header(sprintf("%s: %s", $header[0], $header[1]));
+		}
 		else
+		{
 			header($header);
+		}
 
 		return $this;
 	}
@@ -223,14 +227,23 @@ class HttpResponse extends Response
 	{
 		if ($cookie->getSpread() & Web\Cookie::SPREAD_DOMAIN)
 		{
+			$params = [
+				'expires' => $cookie->getExpires(),
+				'path' => $cookie->getPath(),
+				'domain' => $cookie->getDomain(),
+				'secure' => $cookie->getSecure(),
+				'httponly' => $cookie->getHttpOnly(),
+			];
+
+			if (($sameSite = $cookie->getSameSite()) !== null)
+			{
+				$params['samesite'] = $sameSite;
+			}
+
 			setcookie(
 				$cookie->getName(),
 				$cookie->getValue(),
-				$cookie->getExpires(),
-				$cookie->getPath(),
-				$cookie->getDomain(),
-				$cookie->getSecure(),
-				$cookie->getHttpOnly()
+				$params
 			);
 		}
 

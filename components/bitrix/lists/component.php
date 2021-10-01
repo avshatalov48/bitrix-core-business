@@ -1,4 +1,9 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
 /** @global CDatabase $DB */
@@ -13,6 +18,13 @@
 /** @var string $parentComponentTemplate */
 
 $this->setFrameMode(false);
+
+if (!CModule::IncludeModule('lists'))
+{
+	ShowError(GetMessage("CC_BLL_MODULE_NOT_INSTALLED"));
+
+	return;
+}
 
 $arDefaultUrlTemplates404 = array(
 	"lists" => "",
@@ -32,40 +44,14 @@ $arDefaultUrlTemplates404 = array(
 	"list_export_excel" => "#list_id#/excel/",
 );
 
-$processes = false;
-if($arParams["IBLOCK_TYPE_ID"] == COption::GetOptionString("lists", "livefeed_iblock_type_id"))
-{
-	$processes = true;
-	$arDefaultUrlTemplates404["catalog_processes"] = "catalog_processes/";
-}
+$processes = CLists::isListProcesses($arParams["IBLOCK_TYPE_ID"]);
+$arDefaultUrlTemplates404["catalog_processes"] = "catalog_processes/";
 
 $featureName = ($processes ? "lists_processes" : "lists");
 
 if (CModule::IncludeModule("lists") && !CLists::isFeatureEnabled($featureName))
 {
-	\Bitrix\Main\UI\Extension::load("ui.alerts");
-
-	//TODO Change when the analog system.show_message appears in UI module.
-	?>
-    <div class="ui-alert ui-alert-md">
-        <div class="ui-alert-message">
-			<?=GetMessage("CC_BLL_ACCESS_DENIDED_FULL")?>
-            <a id="listsShowHelpDesk" href="#"><?=GetMessage("CC_BLL_ACCESS_DENIDED_MORE")?></a>
-        </div>
-    </div>
-    <script>
-		BX.ready(function () {
-			BX.bind(BX("listsShowHelpDesk"), "click", function () {
-				if (top.BX.Helper)
-				{
-					top.BX.Helper.show("redirect=detail&code=5316091");
-					event.preventDefault();
-				}
-			});
-		});
-    </script>
-    <div style="text-align: center"><?\CBitrix24::showTariffRestrictionButtons("lists"); ?></div>
-	<?
+	ShowError(GetMessage("CC_BLL_ACCESS_DENIDED"));
 
 	return;
 }
@@ -356,7 +342,7 @@ if(
 	isset($arVariables["document_state_id"])
 	&& !isset($arVariables["element_id"])
 	&& CModule::IncludeModule("bizproc")
-	&& CBPRuntime::isFeatureEnabled()
+	&& CLists::isBpFeatureEnabled($arParams["IBLOCK_TYPE_ID"])
 )
 {
 	$arWorkflowState = CBPStateService::GetWorkflowState($arVariables["document_state_id"]);
@@ -365,4 +351,3 @@ if(
 }
 
 $this->IncludeComponentTemplate($componentPage);
-?>

@@ -194,7 +194,11 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 		elseif ($name === 'DETAIL_PICTURE' || $name === 'PREVIEW_PICTURE')
 		{
 			$imageCollection = $this->getImageCollection();
-			$image = ($name === 'DETAIL_PICTURE') ? $imageCollection->getDetailImage() : $imageCollection->getPreviewImage();
+			$image =
+				$name === 'DETAIL_PICTURE'
+					? $imageCollection->getDetailImage()
+					: $imageCollection->getPreviewImage();
+
 			if (is_numeric($value))
 			{
 				$value = \CFile::MakeFileArray($value);

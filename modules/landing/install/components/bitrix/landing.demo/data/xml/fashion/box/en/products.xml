@@ -88,10 +88,10 @@
 				<Sections>
 					<Section>
 						<Id>dresses</Id>
-						<Title>Dresses</Title>
+						<Title>Summer dresses</Title>
 						<BitrixActive>true</BitrixActive>
 						<BitrixSort>100</BitrixSort>
-						<BitrixCode>dresses</BitrixCode>
+						<BitrixCode>summer-dresses</BitrixCode>
 						<BitrixPicture>product_images/sections/dresses.jpg</BitrixPicture>
 						<BitrixDetailPicture></BitrixDetailPicture>
 						<Sections>

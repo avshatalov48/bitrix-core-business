@@ -6,6 +6,19 @@ use Bitrix\Main\Entity\DataManager;
 /**
  * Class Check2EntitiesTable
  * @package Bitrix\Sale\Cashbox\Internals
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CheckRelatedEntities_Query query()
+ * @method static EO_CheckRelatedEntities_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CheckRelatedEntities_Result getById($id)
+ * @method static EO_CheckRelatedEntities_Result getList(array $parameters = array())
+ * @method static EO_CheckRelatedEntities_Entity getEntity()
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_CheckRelatedEntities createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_CheckRelatedEntities_Collection createCollection()
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_CheckRelatedEntities wakeUpObject($row)
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_CheckRelatedEntities_Collection wakeUpCollection($rows)
  */
 class CheckRelatedEntitiesTable extends DataManager
 {

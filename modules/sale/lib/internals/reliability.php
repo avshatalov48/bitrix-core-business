@@ -9,6 +9,19 @@ use Bitrix\Main\ORM\Fields;
  * Class Table
  * @package Bitrix\Sale\Internals
  * @internal
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Reliability_Query query()
+ * @method static EO_Reliability_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Reliability_Result getById($id)
+ * @method static EO_Reliability_Result getList(array $parameters = array())
+ * @method static EO_Reliability_Entity getEntity()
+ * @method static \Sale\Handlers\Delivery\Additional\RusPost\Reliability\Reliability createObject($setDefaultValues = true)
+ * @method static \Sale\Handlers\Delivery\Additional\RusPost\Reliability\ReliabilityCollection createCollection()
+ * @method static \Sale\Handlers\Delivery\Additional\RusPost\Reliability\Reliability wakeUpObject($row)
+ * @method static \Sale\Handlers\Delivery\Additional\RusPost\Reliability\ReliabilityCollection wakeUpCollection($rows)
  */
 class ReliabilityTable extends DataManager
 {

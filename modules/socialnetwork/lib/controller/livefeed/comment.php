@@ -1,16 +1,18 @@
-<?
+<?php
+
 namespace Bitrix\Socialnetwork\Controller\Livefeed;
 
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\Controller\Base;
 use Bitrix\Socialnetwork\LogCommentTable;
 
-class Comment extends \Bitrix\Socialnetwork\Controller\Base
+class Comment extends Base
 {
-	public function getSourceAction(array $params = [])
+	public function getSourceAction(array $params = []): ?array
 	{
-		$postId = (isset($params['postId']) ? intval($params['postId']) : 0);
-		$commentId = (isset($params['commentId']) ? intval($params['commentId']) : 0);
+		$postId = (int)($params['postId'] ?? 0);
+		$commentId = (int)($params['commentId'] ?? 0);
 
 		if ($commentId <= 0)
 		{
@@ -28,7 +30,7 @@ class Comment extends \Bitrix\Socialnetwork\Controller\Base
 			]);
 			if ($logComment = $res->fetch())
 			{
-				$postId = intval($logComment['LOG_ID']);
+				$postId = (int)$logComment['LOG_ID'];
 			}
 		}
 
@@ -44,12 +46,12 @@ class Comment extends \Bitrix\Socialnetwork\Controller\Base
 		if ($commentData)
 		{
 			$result = [
-				'id' => intval($commentData['ID']),
+				'id' => (int)$commentData['ID'],
 				'message' => str_replace("<br />", "\n", $commentData['MESSAGE']),
 				'sourceId' => (
-					intval($commentData['SOURCE_ID']) > 0 ?
-						intval($commentData['SOURCE_ID'])
-						: intval($commentData['ID'])
+					(int)$commentData['SOURCE_ID'] > 0
+						? (int)$commentData['SOURCE_ID']
+						: (int)$commentData['ID']
 				),
 				'UF' => (
 					!empty($commentData['UF'])
@@ -67,4 +69,3 @@ class Comment extends \Bitrix\Socialnetwork\Controller\Base
 		return $result;
 	}
 }
-

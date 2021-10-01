@@ -19,11 +19,32 @@
 
 		if ('label' in data && BX.type.isNotEmptyString(data.label))
 		{
+			let labelContent = data.label;
+
+			if ('icon' in data && BX.Type.isPlainObject(data.icon))
+			{
+				labelContent = [
+					{
+						block: 'main-ui-control-field-label-icon',
+						tag: 'img',
+						attrs: {
+							title: data.icon.title ? data.icon.title : '',
+							src: data.icon.url
+						}
+					},
+					{
+						block: 'main-ui-control-field-label-text',
+						tag: 'span',
+						content: labelContent
+					}
+				];
+			}
+
 			label = {
 				block: 'main-ui-control-field-label',
 				tag: 'span',
 				attrs: {title: data.label},
-				content: data.label
+				content: labelContent
 			};
 
 			field.content.push(label);

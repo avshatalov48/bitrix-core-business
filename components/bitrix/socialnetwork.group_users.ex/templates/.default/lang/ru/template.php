@@ -56,5 +56,5 @@ $MESS["SONET_GUE_T_BUTTON_UNBAN"] = "разблокировать";
 $MESS["SONET_GUE_T_BUTTON_UNCONNECT"] = "удалить";
 $MESS["SONET_GRE_T_ERROR"] = "Произошла ошибка обработки запроса";
 $MESS["SONET_GUE_T_STEPPER_TITLE"] = "Синхронизация участников";
-
+$MESS["SONET_GUE_T_MODS_SUBTITLE_SCRUM_PROJECT"] = "Руководитель и команда";
 ?>

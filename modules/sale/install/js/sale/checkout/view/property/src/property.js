@@ -1,17 +1,17 @@
-import {Vue} from 'ui.vue';
-import {Application} from 'sale.checkout.const';
+import { BitrixVue } from 'ui.vue';
+import { Application } from 'sale.checkout.const';
 
-import "sale.checkout.view.property";
+import 'sale.checkout.view.property';
 
-Vue.component('sale-checkout-view-property', {
+BitrixVue.component('sale-checkout-view-property', {
     props: ['items', 'mode', 'order', 'errors'],
     computed:
+    {
+        getConstMode()
         {
-            getConstMode()
-            {
-                return Application.mode
-            }
-        },
+            return Application.mode
+        }
+    },
     template: `
 		<div>
 		    <template v-if="mode === getConstMode.edit">

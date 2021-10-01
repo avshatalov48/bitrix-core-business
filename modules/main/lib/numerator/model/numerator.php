@@ -18,6 +18,19 @@ use Bitrix\Main\Web\Json;
 /**
  * Class NumeratorTable
  * @package Bitrix\Main\Numerator\Model
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Numerator_Query query()
+ * @method static EO_Numerator_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Numerator_Result getById($id)
+ * @method static EO_Numerator_Result getList(array $parameters = array())
+ * @method static EO_Numerator_Entity getEntity()
+ * @method static \Bitrix\Main\Numerator\Model\EO_Numerator createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Numerator\Model\EO_Numerator_Collection createCollection()
+ * @method static \Bitrix\Main\Numerator\Model\EO_Numerator wakeUpObject($row)
+ * @method static \Bitrix\Main\Numerator\Model\EO_Numerator_Collection wakeUpCollection($rows)
  */
 class NumeratorTable extends DataManager
 {

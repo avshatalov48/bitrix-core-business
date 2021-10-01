@@ -16,6 +16,7 @@ class Property extends Base
 	const PROPERTY_TYPE_FILE = 'FILE';
 	const PROPERTY_TYPE_DATE = 'DATE';
 	const PROPERTY_TYPE_LOCATION = 'LOCATION';
+	const PROPERTY_TYPE_ADDRESS = 'ADDRESS';
 
 	public function prepareFieldInfos($fields)
 	{
@@ -101,41 +102,50 @@ class Property extends Base
 					'TYPE'=>self::TYPE_DATATYPE,
 					//'ATTRIBUTES'=>[Attributes::ReadOnly]
 				],
-				'ENTITY_TYPE' => [
-					'TYPE' => self::TYPE_STRING,
-				],
 			],
 			$this->getFieldsByTypeString(),
-			$this->getFieldsByTypeLocation()
+			$this->getFieldsByTypeLocation(),
+			$this->getFieldsByTypeAddress()
 		);
 	}
 
 	public function getFieldsByType($type)
 	{
-		if($type == self::PROPERTY_TYPE_STRING)
-		{
-			$r = array_filter(
-				$this->getFields(),
-				function ($k){ return is_set($this->getFieldsByTypeLocation(), $k) === false;},
-				ARRAY_FILTER_USE_KEY
-			);
-		}
-		elseif($type == self::PROPERTY_TYPE_LOCATION)
-		{
-			$r = array_filter(
-				$this->getFields(),
-				function ($k){ return is_set($this->getFieldsByTypeString(), $k) === false;},
-				ARRAY_FILTER_USE_KEY
-			);
-		}
-		else
-		{
-			$r = array_filter(
-				$this->getFields(),
-				function ($k){ return (is_set($this->getFieldsByTypeString(), $k) === false && is_set($this->getFieldsByTypeLocation(), $k) === false);},
-				ARRAY_FILTER_USE_KEY
-			);
-		}
+		$filterMap = [
+			self::PROPERTY_TYPE_STRING => function ($k)
+			{
+				return (
+					is_set($this->getFieldsByTypeLocation(), $k) === false
+					&& is_set($this->getFieldsByTypeAddress(), $k) === false
+				);
+			},
+			self::PROPERTY_TYPE_LOCATION => function ($k)
+			{
+				return (
+					is_set($this->getFieldsByTypeString(), $k) === false
+					&& is_set($this->getFieldsByTypeAddress(), $k) === false
+				);
+			},
+			self::PROPERTY_TYPE_ADDRESS => function ($k)
+			{
+				return (
+					is_set($this->getFieldsByTypeString(), $k) === false
+					&& is_set($this->getFieldsByTypeLocation(), $k) === false
+				);
+			},
+			'DEFAULT' => function ($k)
+			{
+				return (
+					is_set($this->getFieldsByTypeString(), $k) === false
+					&& is_set($this->getFieldsByTypeLocation(), $k) === false
+					&& is_set($this->getFieldsByTypeAddress(), $k) === false
+				);
+			},
+		];
+
+		$filter = isset($filterMap[$type]) ? $filterMap[$type] : $filterMap['DEFAULT'];
+
+		$r = array_filter($this->getFields(), $filter, ARRAY_FILTER_USE_KEY);
 
 		$r['SETTINGS']['FIELDS'] = $this->getFieldsSettingsByType($type);
 
@@ -198,7 +208,19 @@ class Property extends Base
 			],
 			'IS_ADDRESS'=>[
 				'TYPE'=>self::TYPE_CHAR
-			]
+			],
+		];
+	}
+
+	protected function getFieldsByTypeAddress()
+	{
+		return [
+			'IS_ADDRESS_FROM'=>[
+				'TYPE'=>self::TYPE_CHAR
+			],
+			'IS_ADDRESS_TO'=>[
+				'TYPE'=>self::TYPE_CHAR
+			],
 		];
 	}
 

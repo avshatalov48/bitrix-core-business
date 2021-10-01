@@ -10,9 +10,12 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\UI;
 
-UI\Extension::load("ui.buttons");
-UI\Extension::load("ui.alerts");
-UI\Extension::load("socialnetwork.common");
+UI\Extension::load([
+	'socialnetwork.common',
+	'ui.buttons',
+	'ui.alerts',
+	'ui.info-helper',
+]);
 
 if ($arResult["NEED_AUTH"] == "Y")
 {
@@ -87,6 +90,7 @@ else
 					if (
 						$arResult["ENTITY_TYPE"] == "G"
 						&& !isset($arFeature["note"])
+						&& !isset($arFeature["limit"])
 						&& (
 							empty($arFeature["Operations"])
 							|| (
@@ -109,14 +113,14 @@ else
 
 						if (
 							$feature == 'tasks'
-							&& $arResult['tasksLimitExceeded']
+							&& $arResult["Features"][$feature]['limit']
 						)
 						{
 							$APPLICATION->IncludeComponent('bitrix:ui.info.helper', '', []);
 
 							$featureBlockClass .= ' sn-features-lock';
 							$featureSubTitleText = Loc::getMessage('SONET_C4_TASK_FEATURE_DISABLED', [
-								'#LINK_START#' => '<a href="#" onclick="BX.UI.InfoHelper.show(\'limit_tasks_access_permissions\');">',
+								'#LINK_START#' => '<a href="#" onclick="BX.UI.InfoHelper.show(\'' . $arResult["Features"][$feature]['limit'] . '\');">',
 								'#LINK_END#' => '</a>',
 							]);
 						}
@@ -175,8 +179,9 @@ else
 							}
 
 							$displayValue = ($arFeature["Active"] ? 'block' : 'none');
+							$onClick = (!empty($arFeature['limit']) ? "onclick=\"BX.UI.InfoHelper.show('" . CUtil::JSescape($arFeature['limit']) . "');\"" : '');
 
-							?><div id="<?=$feature?>_body" style="display: <?=$displayValue?>"><?
+							?><div id="<?=$feature?>_body" style="display: <?=$displayValue?>" <?= $onClick ?>><?php
 								if (isset($arFeature["note"]))
 								{
 									?><div class="settings-blocks-note"><?=htmlspecialcharsbx($arFeature['note'])?></div><?
@@ -210,9 +215,11 @@ else
 													: Loc::getMessage("SONET_FEATURES_".$feature."_".$operation)
 											);
 
+											$disabled = (!empty($arFeature['limit']) ? 'disabled' : '');
+
 											?><div class="sn-features-input-box">
 												<div class="sn-features-caption"><?=$title?></div>
-												<select name="<?=$feature?>_<?=$operation?>_perm" class="sn-features-select"><?
+												<select name="<?=$feature?>_<?=$operation?>_perm" class="sn-features-select" <?= $disabled ?>><?php
 
 													foreach ($arResult["PermsVar"] as $key => $value)
 													{
@@ -240,17 +247,26 @@ else
 
 			if ($hasActiveFeatures)
 			{
-				?><div class="sonet-slider-footer-fixed">
-					<input type="hidden" name="ajax_request" value="Y">
-					<input type="hidden" name="save" value="Y">
-					<input type="hidden" name="SONET_USER_ID" value="<?=$arParams["USER_ID"]?>">
-					<input type="hidden" name="SONET_GROUP_ID" value="<?=$arParams["GROUP_ID"]?>">
-					<?=bitrix_sessid_post()?>
-					<span class="sonet-ui-btn-cont sonet-ui-btn-cont-center"><?
-						?><button class="ui-btn ui-btn-success" id="sonet_group_features_form_button_submit"><?=Loc::getMessage("SONET_C4_SUBMIT") ?></button><?
-						?><button class="ui-btn ui-btn-light-border" id="sonet_group_features_form_button_cancel" bx-url="<?=htmlspecialcharsbx($arResult["ENTITY_TYPE"] == "G" ? $arResult["Urls"]["Group"] : $arResult["Urls"]["User"])?>"><?=Loc::getMessage("SONET_C4_T_CANCEL") ?></button><?
-					?></span><? // class="sonet-ui-btn-cont"
-				?></div><? // sonet-slider-footer-fixed
+				$buttons = [
+					[
+						'TYPE' => 'custom',
+						'LAYOUT' => '<button class="ui-btn ui-btn-success" id="sonet_group_features_form_button_submit">' . Loc::getMessage('SONET_C4_SUBMIT') . '</button>',
+					],
+					[
+						'TYPE' => 'custom',
+						'LAYOUT' => '<button class="ui-btn ui-btn-light-border" id="sonet_group_features_form_button_cancel" bx-url="' . htmlspecialcharsbx($arResult['ENTITY_TYPE'] === 'G' ? $arResult['Urls']['Group'] : $arResult['Urls']['User']) . '">' . Loc::getMessage('SONET_C4_T_CANCEL') . '</button>',
+					],
+				];
+
+				$APPLICATION->IncludeComponent('bitrix:ui.button.panel', '', [
+					'BUTTONS' => $buttons,
+				]);
+
+				?><input type="hidden" name="ajax_request" value="Y">
+				<input type="hidden" name="save" value="Y">
+				<input type="hidden" name="SONET_USER_ID" value="<?=$arParams["USER_ID"]?>">
+				<input type="hidden" name="SONET_GROUP_ID" value="<?=$arParams["GROUP_ID"]?>">
+				<?=bitrix_sessid_post()?><?php
 			}
 			else
 			{

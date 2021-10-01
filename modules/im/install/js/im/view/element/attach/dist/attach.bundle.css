@@ -176,9 +176,6 @@
 	-webkit-box-align: center;
 	    -ms-flex-align: center;
 	        align-items: center;
-    -webkit-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center;
 	overflow: hidden;
 	min-width: 100px;
 	min-height: 100px;
@@ -186,6 +183,8 @@
 .bx-im-element-attach-type-image-source {
 	display: inline-block;
 	max-width: 100%;
+	border: 1px solid #dedede;
+	border-radius: 10px;
 }
 .bx-im-element-attach-type-image-source.bx-lazyload-loading,
 .bx-im-element-attach-type-image-source.bx-lazyload-hidden {

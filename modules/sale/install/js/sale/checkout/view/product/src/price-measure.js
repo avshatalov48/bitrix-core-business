@@ -1,7 +1,7 @@
-import { Vue } from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 import { CurrencyCore } from 'currency.currency-core';
 
-Vue.component('sale-checkout-view-product-price_measure', {
+BitrixVue.component('sale-checkout-view-product-price_measure', {
 	props: ['item'],
 	computed:
 		{

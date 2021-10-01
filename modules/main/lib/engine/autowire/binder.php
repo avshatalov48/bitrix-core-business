@@ -2,9 +2,9 @@
 
 namespace Bitrix\Main\Engine\AutoWire;
 
-use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Result;
 
-final class Binder
+class Binder
 {
 	const STATUS_FOUND     = true;
 	const STATUS_NOT_FOUND = false;
@@ -129,14 +129,14 @@ final class Binder
 	 */
 	public static function registerGlobalAutoWiredParameter(Parameter $parameter)
 	{
-		if (static::$globalAutoWiredParameters === null)
+		if (self::$globalAutoWiredParameters === null)
 		{
-			static::$globalAutoWiredParameters = new \SplObjectStorage();
+			self::$globalAutoWiredParameters = new \SplObjectStorage();
 		}
 
-		if (!static::$globalAutoWiredParameters->contains($parameter))
+		if (!self::$globalAutoWiredParameters->contains($parameter))
 		{
-			static::$globalAutoWiredParameters[$parameter] = $parameter;
+			self::$globalAutoWiredParameters[$parameter] = $parameter;
 		}
 	}
 
@@ -146,14 +146,14 @@ final class Binder
 	 */
 	public static function unRegisterGlobalAutoWiredParameter(Parameter $parameter): void
 	{
-		if (static::$globalAutoWiredParameters === null)
+		if (self::$globalAutoWiredParameters === null)
 		{
 			return;
 		}
 
-		if (static::$globalAutoWiredParameters->contains($parameter))
+		if (self::$globalAutoWiredParameters->contains($parameter))
 		{
-			static::$globalAutoWiredParameters->detach($parameter);
+			self::$globalAutoWiredParameters->detach($parameter);
 		}
 	}
 
@@ -305,12 +305,25 @@ final class Binder
 	private function getAllAutoWiredParameters()
 	{
 		$list = $this->getAutoWiredParameters();
-		foreach (static::$globalAutoWiredParameters as $globalAutoWiredParameter)
+		foreach (self::$globalAutoWiredParameters as $globalAutoWiredParameter)
 		{
 			$list[] = $globalAutoWiredParameter;
 		}
 
 		return $list;
+	}
+
+	protected function constructValue(\ReflectionParameter $parameter, Parameter $autoWireParameter, Result $captureResult): Result
+	{
+		$result = new Result();
+
+		$constructedValue = $autoWireParameter->constructValue($parameter, $captureResult);
+
+		$result->setData([
+			'value' => $constructedValue,
+		]);
+
+		return $result;
 	}
 
 	private function getParameterValue(\ReflectionParameter $parameter)
@@ -320,13 +333,19 @@ final class Binder
 		{
 			foreach ($this->getAutoWiredByClass($parameter) as $autoWireParameter)
 			{
-				$result = $autoWireParameter->captureData($parameter, $sourceParameters);
+				$result = $autoWireParameter->captureData($parameter, $sourceParameters, $this->getAllAutoWiredParameters());
 				if (!$result->isSuccess())
 				{
 					continue;
 				}
 
-				$constructedValue = $autoWireParameter->constructValue($parameter, $result);
+				$constructedValue = null;
+				$constructResult = $this->constructValue($parameter, $autoWireParameter, $result);
+				if ($constructResult->isSuccess())
+				{
+					['value' => $constructedValue] = $constructResult->getData();
+				}
+
 				if ($constructedValue === null)
 				{
 					if ($parameter->isDefaultValueAvailable())
@@ -336,7 +355,8 @@ final class Binder
 
 					throw new BinderArgumentException(
 						"Could not construct parameter {{$parameter->getName()}}",
-						$parameter
+						$parameter,
+						$constructResult->getErrors(),
 					);
 				}
 

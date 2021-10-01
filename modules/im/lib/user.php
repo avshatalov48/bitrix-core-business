@@ -544,35 +544,35 @@ class User
 	 * @param string $avatarUrl
 	 * @param string $hash
 	 *
-	 * @return int|string
+	 * @return int
 	 */
 	public static function uploadAvatar($avatarUrl = '', $hash = '')
 	{
 		if (!$ar = parse_url($avatarUrl))
 		{
-			return '';
+			return 0;
 		}
 
 		if (!preg_match('#\.(png|jpg|jpeg|gif|webp)$#i', $ar['path'], $matches))
 		{
-			return '';
+			return 0;
 		}
 
-		$hash = md5($hash.$avatarUrl);
+		$hash = md5($hash. $avatarUrl);
 
-		$orm = \Bitrix\Im\Model\ExternalAvatarTable::getList(Array(
-			'select' => Array('*', 'FILE_EXISTS' => 'FILE.ID'),
-			'filter' => Array('=LINK_MD5' => $hash)
-		));
+		$orm = \Bitrix\Im\Model\ExternalAvatarTable::getList([
+			'select' => ['*', 'FILE_EXISTS' => 'FILE.ID'],
+			'filter' => ['=LINK_MD5' => $hash]
+		]);
 		if ($cache = $orm->fetch())
 		{
-			if ($cache['FILE_EXISTS'])
+			if ((int)$cache['FILE_EXISTS'] > 0)
 			{
-				return $cache['AVATAR_ID'];
+				return (int)$cache['AVATAR_ID'];
 			}
 			else
 			{
-				\Bitrix\Im\Model\ExternalAvatarTable::delete($cache['ID']);
+				\Bitrix\Im\Model\ExternalAvatarTable::delete((int)$cache['ID']);
 			}
 		}
 
@@ -581,29 +581,32 @@ class User
 			$tempPath =  \CFile::GetTempName('', $hash.'.'.$matches[1]);
 
 			$http = new \Bitrix\Main\Web\HttpClient();
-			$http->setPrivateIp(false);
+			if (!defined('BOT_CLIENT_URL'))
+			{
+				$http->setPrivateIp(false);
+			}
 			if ($http->download($avatarUrl, $tempPath))
 			{
 				$recordFile = \CFile::MakeFileArray($tempPath);
 			}
 			else
 			{
-				return '';
+				return 0;
 			}
 		}
 		catch (\Bitrix\Main\IO\IoException $exception)
 		{
-			return '';
+			return 0;
 		}
 
 		if (!\CFile::IsImage($recordFile['name'], $recordFile['type']))
 		{
-			return '';
+			return 0;
 		}
 
 		if (is_array($recordFile) && $recordFile['size'] && $recordFile['size'] > 0 && $recordFile['size'] < 1000000)
 		{
-			$recordFile = array_merge($recordFile, array('MODULE_ID' => 'imbot'));
+			$recordFile = array_merge($recordFile, ['MODULE_ID' => 'imbot']);
 		}
 		else
 		{
@@ -615,12 +618,12 @@ class User
 			$recordFile = \CFile::SaveFile($recordFile, 'botcontroller', true);
 		}
 
-		if ($recordFile > 0)
+		if ((int)$recordFile > 0)
 		{
-			\Bitrix\Im\Model\ExternalAvatarTable::add(Array(
+			\Bitrix\Im\Model\ExternalAvatarTable::add([
 				'LINK_MD5' => $hash,
-				'AVATAR_ID' => intval($recordFile)
-			));
+				'AVATAR_ID' => (int)$recordFile
+			]);
 		}
 
 		return $recordFile;

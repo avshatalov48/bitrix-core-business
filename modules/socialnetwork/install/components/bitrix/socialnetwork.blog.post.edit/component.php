@@ -2578,28 +2578,33 @@ if (
 					continue;
 				}
 
-				foreach ($ar as $value => $ar2)
+				foreach ($ar as $id => $value)
 				{
-					if (
-						$type === 'U'
-						&& $value === 'A'
-						&& $bAllowToAll
-					)
+					if ($type === 'U')
 					{
-						$arResult['PostToShow']['FEED_DESTINATION']['SELECTED']['UA'] = 'groups';
-					}
-					elseif ($type === 'U')
-					{
-						$arResult['PostToShow']['FEED_DESTINATION']['SELECTED']['U' . $value] = 'users';
-						$arDestUser['SELECTED'][] = $value;
+						if (
+							$id === 'A'
+							|| $value === 'A'
+						)
+						{
+							if ($bAllowToAll)
+							{
+								$arResult['PostToShow']['FEED_DESTINATION']['SELECTED']['UA'] = 'groups';
+							}
+						}
+						else
+						{
+							$arResult['PostToShow']['FEED_DESTINATION']['SELECTED']['U' . $id] = 'users';
+							$arDestUser['SELECTED'][] = $id;
+						}
 					}
 					elseif ($type === 'SG')
 					{
-						$arResult['PostToShow']['FEED_DESTINATION']['SELECTED']['SG' . $value] = 'sonetgroups';
+						$arResult['PostToShow']['FEED_DESTINATION']['SELECTED']['SG' . $id] = 'sonetgroups';
 					}
 					elseif ($type === 'DR')
 					{
-						$arResult['PostToShow']['FEED_DESTINATION']['SELECTED']['DR' . $value] = 'department';
+						$arResult['PostToShow']['FEED_DESTINATION']['SELECTED']['DR' . $id] = 'department';
 					}
 				}
 			}

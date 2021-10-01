@@ -1489,11 +1489,21 @@ class AjaxProcessor
 	{
 		$columns = isset($this->request['columns']) ? $this->request['columns'] : array();
 		$idPrefix = isset($this->request['idPrefix']) ? $this->request['idPrefix'] : "";
+		$showProps = isset($this->request['showProperties']) ? ($this->request['showProperties'] === 'Y') : null;
 
-		if(\CUserOptions::SetOption($idPrefix."order_basket_table", "table_columns", array("columns" => implode(",", $columns))))
+		if (\CUserOptions::SetOption($idPrefix."order_basket_table", "table_columns", array("columns" => implode(",", $columns))))
+		{
 			$this->addResultData("RESULT", "OK");
+		}
 		else
+		{
 			$this->addResultError("Can't save columns!");
+		}
+
+		if ($showProps !== null)
+		{
+			Admin\Blocks\OrderBasketSettings::saveIsShowPropsVisible($showProps);
+		}
 	}
 
 	protected function updateShipmentStatusAction()

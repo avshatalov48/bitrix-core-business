@@ -25,3 +25,4 @@ export * from './field/field';
 export * from './api';
 export * from './fields';
 export * from './presets';
+export * from './additional-filter';

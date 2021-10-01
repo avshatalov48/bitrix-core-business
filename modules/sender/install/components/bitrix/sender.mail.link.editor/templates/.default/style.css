@@ -13,7 +13,7 @@
 	display: inline-block;
 	height: 18px;
 	border-bottom: 1px dashed rgba(128,134,142,.5);
-	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 700 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #80868E;
 	transition: border-bottom .3s;
 	cursor: pointer;
@@ -21,6 +21,7 @@
 
 .sender-mail-text-editor-utm:hover {
 	border-bottom: 1px dashed transparent;
+	color: #80868E;
 }
 
 .sender-mail-link-editor-textarea {

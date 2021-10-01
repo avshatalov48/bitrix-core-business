@@ -78,7 +78,7 @@ class Path
 				: SITE_DIR.'workgroups/'
 		);
 
-		$result['pathToUserBlogPost'] = Option::get('socialnetwork', 'userblogpost_page', false, SITE_ID);
+		$result['pathToUserBlogPost'] = \Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page');
 		$result['pathToUserBlogPost'] = (
 			$result['pathToUserBlogPost']
 				? $result['pathToUserBlogPost']

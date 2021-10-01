@@ -14,10 +14,13 @@ use Bitrix\Main\IO\File;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail;
 use Bitrix\Main\Result;
+use Bitrix\Sender\Consent;
 use Bitrix\Sender\Integration;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Recipient;
+use Bitrix\Sender\Runtime\Env;
 use Bitrix\Sender\Transport;
+use Bitrix\Sender\Security;
 
 Loc::loadMessages(__FILE__);
 
@@ -25,7 +28,7 @@ Loc::loadMessages(__FILE__);
  * Class TransportMail
  * @package Bitrix\Sender\Integration\Sender\Mail
  */
-class TransportMail implements Transport\iBase, Transport\iDuration, Transport\iLimitation
+class TransportMail implements Transport\iBase, Transport\iDuration, Transport\iLimitation, Transport\iConsent
 {
 	const CODE = self::CODE_MAIL;
 
@@ -122,7 +125,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 		$headers = $message->getConfiguration()->get('HEADERS');
 		$headers = is_array($headers) ? $headers : array();
 		$fields = $message->getFields();
-
+		$preparedConsentLink = '';
 		$unsubLink = $message->getUnsubTracker()->getLink();
 		if (!isset($fields['UNSUBSCRIBE_LINK']))
 		{
@@ -203,6 +206,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 			}
 		}
 
+		$canTrackMail = $message->getConfiguration()->get('TRACK_MAIL', $this->canTrackMails());
 		$mailMessageParams = array(
 			'EVENT' => [],
 			'FIELDS' => $fields,
@@ -212,7 +216,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 				'EMAIL_TO' => '#EMAIL_TO#',
 				'PRIORITY' => $message->getConfiguration()->get('PRIORITY'),
 				'SUBJECT' => $message->getConfiguration()->get('SUBJECT'),
-				'MESSAGE' => $message->getConfiguration()->get('BODY'),
+				'MESSAGE' => str_replace('#CONSENT_LINK#', $preparedConsentLink, $message->getConfiguration()->get('BODY')),
 				'MESSAGE_PHP' => $message->getConfiguration()->get('BODY_PHP'),
 				'FILE' => $messageAttachment
 			),
@@ -238,8 +242,8 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 			'ATTACHMENT' => $mailAttachment,
 			'LINK_PROTOCOL' => $this->getSenderLinkProtocol(),
 			'LINK_DOMAIN' => $message->getSiteServerName(),
-			'TRACK_READ' => $this->canTrackMails() ? $message->getReadTracker()->getArray() : null,
-			'TRACK_CLICK' => $this->canTrackMails() ? $message->getClickTracker()->getArray() : null,
+			'TRACK_READ' => $canTrackMail ? $message->getReadTracker()->getArray() : null,
+			'TRACK_CLICK' => $canTrackMail ? $message->getClickTracker()->getArray() : null,
 			'CONTEXT' => $this->getMailContext(),
 		);
 		$linkDomain = $message->getReadTracker()->getLinkDomain();
@@ -349,8 +353,12 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 
 		return $this->mailAddress->set($address)->get();
 	}
-
-	public static function replaceTemplate($str)
+	
+	/**
+	 * @param string|null $str
+	 * @return array|string|string[]|null
+	 */
+	public static function replaceTemplate(?string $str)
 	{
 		preg_match_all("/#([0-9a-zA-Z_.|]+?)#/", $str, $matchesFindPlaceHolders);
 		if(!empty($matchesFindPlaceHolders) && isset($matchesFindPlaceHolders[1]))
@@ -363,5 +371,102 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 
 		return $str;
 	}
+	
+	/**
+	 * send Consent Message to Recipient
+	 * @param Message\Adapter $message
+	 * @param Consent\AbstractConsentMessageBuilder $builder
+	 *
+	 * @return bool
+	 */
+	public function sendConsent(Message\Adapter $message, Consent\AbstractConsentMessageBuilder $builder)
+	{
+		$agreement = $this->getAgreement((int)$message->getConfiguration()->get('APPROVE_CONFIRMATION_CONSENT'));
+		
+		if (!$agreement)
+		{
+			return false;
+		}
 
+		$builder->set('POSTING_ID', $message->getId());
+		$builder->set('CONSENT_ID', $agreement->getId());
+		$buildedMessage = $builder->buildMessage();
+
+		$contentBody = Security\Sanitizer::fixReplacedStyles($agreement->getText());
+		$contentBody = Security\Sanitizer::sanitizeHtml($contentBody, $agreement->getText());
+
+		$template = \Bitrix\Sender\Preset\Templates\Consent::getTemplateHtml();
+		$body = \Bitrix\Sender\Preset\Templates\Consent::replaceTemplateHtml($template, [
+			'APPROVE_BTN_TEXT' => $agreement->getLabelText(),
+			'CONSENT_BODY' => $contentBody,
+			'CONSENT_FOOTER' => '',
+			'APPLY_URL' => $buildedMessage['C_FIELDS']['SENDER_CONSENT_APPLY'],
+			'REJECT_URL' => $buildedMessage['C_FIELDS']['SENDER_CONSENT_REJECT'],
+		]);
+		
+		$mailMessageParams = array(
+			'EVENT' => [],
+			'FIELDS' => [],
+			'MESSAGE' => array(
+				'BODY_TYPE' => 'html',
+				'EMAIL_FROM' => $this->getCleanMailAddress($message->getConfiguration()->get('EMAIL_FROM')),
+				'EMAIL_TO' => $buildedMessage['C_FIELDS']['EMAIL'],
+				'PRIORITY' => $message->getConfiguration()->get('PRIORITY'),
+				'SUBJECT' => Loc::getMessage('SENDER_INTEGRATION_MAIL_CONSENT_SUBJECT'),
+				'MESSAGE' => $body,
+				'MESSAGE_PHP' => $message->getConfiguration()->get('BODY_PHP'),
+			),
+			'SITE' => $message->getSiteId(),
+			'CHARSET' => $message->getCharset(),
+		);
+		$mailMessage = Mail\EventMessageCompiler::createInstance($mailMessageParams);
+		$mailMessage->compile();
+		
+		$mailParams = array(
+			'TO' => $mailMessage->getMailTo(),
+			'SUBJECT' => static::replaceTemplate($mailMessage->getMailSubject()),
+			'BODY' => $mailMessage->getMailBody(),
+			'HEADER' => $mailMessage->getMailHeaders(),
+			'CHARSET' => $mailMessage->getMailCharset(),
+			'CONTENT_TYPE' => $mailMessage->getMailContentType(),
+			'MESSAGE_ID' => '',
+			'CONTEXT' => $this->getMailContext(),
+		);
+		
+		return Mail\Mail::send($mailParams);
+	}
+
+	private function getAgreement(int $agreementId): ?Main\UserConsent\Agreement
+	{
+		$agreement = new Main\UserConsent\Agreement($agreementId, ['fields' => ['IP']]);
+		if (!$agreement->isActive() || !$agreement->isExist())
+		{
+			return null;
+		}
+		
+		return $agreement;
+	}
+
+	private function getAgreementUri(int $agreementId): ?string
+	{
+		return (string)\Bitrix\Main\UserConsent\AgreementLink::getUri($agreementId, [], '/pub/agreement.php');
+	}
+
+	/**
+	 * check if consent Option is turn on
+	 * @return bool
+	 */
+	public function isConsentNeed()
+	{
+		return Env::isTransportNeedConsent(static::CODE);
+	}
+
+	/**
+	 * get max consent request num
+	 * @return int
+	 */
+	public function getConsentMaxRequests(): int
+	{
+		return Env::getMaxConsentRequests(static::CODE);
+	}
 }

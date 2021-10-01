@@ -82,6 +82,8 @@
 		onRemoteMediaReceived: 'onRemoteMediaReceived',
 		onRemoteMediaStopped: 'onRemoteMediaStopped',
 		onNetworkProblem: 'onNetworkProblem',
+		onReconnecting: 'onReconnecting',
+		onReconnected: 'onReconnected',
 		onJoin: 'onJoin',
 		onLeave: 'onLeave',
 		onDestroy: 'onDestroy',

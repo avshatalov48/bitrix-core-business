@@ -1,11 +1,12 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Controller;
 
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
-class Workgroup extends \Bitrix\Socialnetwork\Controller\Base
+class Workgroup extends Base
 {
 	public function getAction(array $params = [])
 	{

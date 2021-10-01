@@ -96,9 +96,6 @@ CREATE TABLE b_sec_redirect_url
 	URL VARCHAR(250) NOT NULL,
 	PARAMETER_NAME VARCHAR(250) NOT NULL
 );
-insert into b_sec_redirect_url values ('Y', 10, '/bitrix/redirect.php', 'goto');
-insert into b_sec_redirect_url values ('Y', 20, '/bitrix/rk.php', 'goto');
-insert into b_sec_redirect_url values ('Y', 30, '/bitrix/click.php', 'goto');
 
 CREATE TABLE b_sec_white_list
 (

@@ -12,6 +12,22 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class OrderTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Order_Query query()
+ * @method static EO_Order_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Order_Result getById($id)
+ * @method static EO_Order_Result getList(array $parameters = array())
+ * @method static EO_Order_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_Order createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_Order_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_Order wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_Order_Collection wakeUpCollection($rows)
+ */
 class OrderTable extends Main\Entity\DataManager
 {
 	/**

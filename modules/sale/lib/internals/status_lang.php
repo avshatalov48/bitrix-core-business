@@ -12,6 +12,22 @@ use	Bitrix\Main,
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class StatusLangTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_StatusLang_Query query()
+ * @method static EO_StatusLang_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_StatusLang_Result getById($id)
+ * @method static EO_StatusLang_Result getList(array $parameters = array())
+ * @method static EO_StatusLang_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_StatusLang createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_StatusLang_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_StatusLang wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_StatusLang_Collection wakeUpCollection($rows)
+ */
 class StatusLangTable extends Main\Entity\DataManager
 {
 	public static function getFilePath()

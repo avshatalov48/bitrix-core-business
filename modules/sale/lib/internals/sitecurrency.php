@@ -10,6 +10,22 @@ namespace Bitrix\Sale\Internals;
 use	Bitrix\Main,
 	Bitrix\Main\Application;
 
+/**
+ * Class SiteCurrencyTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SiteCurrency_Query query()
+ * @method static EO_SiteCurrency_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_SiteCurrency_Result getById($id)
+ * @method static EO_SiteCurrency_Result getList(array $parameters = array())
+ * @method static EO_SiteCurrency_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_SiteCurrency createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_SiteCurrency_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_SiteCurrency wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_SiteCurrency_Collection wakeUpCollection($rows)
+ */
 class SiteCurrencyTable extends Main\Entity\DataManager
 {
 	private static $cache = array();

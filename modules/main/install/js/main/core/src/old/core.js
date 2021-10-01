@@ -2826,7 +2826,14 @@
 			back_url = null;
 		}
 
-		var topWindow = BX.PageObject.getRootWindow();
+		var topWindow = (function() {
+			if (BX.PageObject && BX.PageObject.getRootWindow)
+			{
+				return BX.PageObject.getRootWindow();
+			}
+
+			return window.top;
+		})();
 		var new_href = back_url || topWindow.location.href;
 
 		var hashpos = new_href.indexOf('#'), hash = '';

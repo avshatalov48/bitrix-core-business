@@ -12,7 +12,9 @@
  * @global CMain $APPLICATION
  * @global CDatabase $DB
  */
+
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Authentication\Policy;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -71,6 +73,27 @@ if($_SERVER["REQUEST_METHOD"] == "GET" && $USER->CanDoOperation('edit_other_sett
 	}
 }
 
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_passwords']) && $USER->CanDoOperation('edit_php') && check_bitrix_sessid())
+{
+	$customWeakPasswords = (isset($_POST['custom_weak_passwords']) && $_POST['custom_weak_passwords'] === 'Y' ? 'Y' : 'N');
+	COption::SetOptionString('main', 'custom_weak_passwords', $customWeakPasswords);
+
+	if (isset($_FILES['passwords']['tmp_name']) && $_FILES['passwords']['tmp_name'] != '')
+	{
+		$uploadDir = COption::GetOptionString('main', 'upload_dir', 'upload');
+		$path = "{$_SERVER['DOCUMENT_ROOT']}/{$uploadDir}/main/weak_passwords";
+
+		if (Policy\WeakPassword::createIndex($_FILES['passwords']['tmp_name'], $path))
+		{
+			CAdminMessage::ShowNote(GetMessage("main_options_upload_success"));
+		}
+		else
+		{
+			CAdminMessage::ShowMessage(GetMessage("main_options_upload_error"));
+		}
+	}
+}
+
 $arSmileGallery = CSmileGallery::getListForForm();
 foreach ($arSmileGallery as $key => $value)
 	$arSmileGallery[$key] = htmlspecialcharsback($value);
@@ -126,11 +149,15 @@ $arAllOptions = array(
 	"main" => Array(
 		Array("site_name", GetMessage("MAIN_OPTION_SITENAME"), $SERVER_NAME, Array("text", 30)),
 		Array("server_name", GetMessage("MAIN_OPTION_SERVERNAME"), $SERVER_NAME, Array("text", 30)),
-		Array("cookie_name", GetMessage("MAIN_PREFIX"), "BITRIX_SM", Array("text", 30)),
-		Array("ALLOW_SPREAD_COOKIE", GetMessage("MAIN_OPTION_ALLOW_SPREAD_COOKIE"), "Y", Array("checkbox", "Y")),
 		Array("error_reporting", GetMessage("MAIN_ERROR_REPORTING"), E_COMPILE_ERROR|E_ERROR|E_CORE_ERROR|E_PARSE, Array("selectbox", Array(E_COMPILE_ERROR|E_ERROR|E_CORE_ERROR|E_PARSE=>GetMessage("MAIN_OPTION_ERROR1"), E_ALL^E_NOTICE=>GetMessage("MAIN_OPTION_ERROR2"), 0=>GetMessage("MAIN_OPTION_ERROR3")))),
 		Array("use_hot_keys", GetMessage("main_options_use_hot_keys"), "Y", Array("checkbox", "Y")),
 		Array("smile_gallery_id", GetMessage("MAIN_OPTIONS_SMILE_GALLERY_ID"), 0, Array("selectbox", $arSmileGallery)),
+
+		GetMessage("MAIN_OPTIONS_COOKIES"),
+		Array("cookie_name", GetMessage("MAIN_PREFIX"), "BITRIX_SM", Array("text", 30)),
+		Array("ALLOW_SPREAD_COOKIE", GetMessage("MAIN_OPTION_ALLOW_SPREAD_COOKIE1"), "Y", Array("checkbox", "Y")),
+		Array("use_secure_password_cookies", GetMessage("MAIN_OPTION_USE_SECURE_PASSWORD_COOKIE1"), "N", Array("checkbox", "Y")),
+		Array("auth_multisite", GetMessage("MAIN_OPTION_AUTH_TO_ALL_DOM1"), "N", Array("checkbox", "Y")),
 
 		GetMessage("main_options_files"),
 		Array("disk_space", GetMessage("MAIN_DISK_SPACE"), "", Array("text", 30)),
@@ -197,8 +224,6 @@ $arAllOptions = array(
 	"auth" => Array(
 		GetMessage("MAIN_OPTION_CTRL_LOC"),
 		Array("store_password", GetMessage("MAIN_REMEMBER"), "Y", Array("checkbox", "Y")),
-		Array("use_secure_password_cookies", GetMessage("MAIN_OPTION_USE_SECURE_PASSWORD_COOKIE"), "N", Array("checkbox", "Y")),
-		Array("auth_multisite", GetMessage("MAIN_OPTION_AUTH_TO_ALL_DOM"), "N", Array("checkbox", "Y")),
 		Array("allow_socserv_authorization", GetMessage("MAIN_OPTION_SOCSERV_AUTH"), "Y", Array("checkbox", "Y")),
 		Array("use_digest_auth", GetMessage("MAIN_OPT_HTTP_DIGEST"), "N", Array("checkbox", "Y")),
 		Array("note"=>GetMessage("MAIN_OPT_DIGEST_NOTE")),
@@ -1007,7 +1032,6 @@ if($message)
 ?>
 <h2><?=GetMessage("MAIN_SUB2")?></h2>
 <?
-$aTabs = Array();
 $aTabs = array(
 	array("DIV" => "fedit2", "TAB" => GetMessage("MAIN_TAB_4"), "ICON" => "main_settings", "TITLE" => GetMessage("MAIN_OPTION_PUBL"))
 );
@@ -1020,6 +1044,8 @@ if ($diskSpace > 0)
 {
 	$aTabs[] = array("DIV" => "fedit3", "TAB" => GetMessage("MAIN_TAB_7"), "ICON" => "main_settings", "TITLE" => GetMessage("MAIN_OPTION_DISC_SPACE"));
 }
+
+$aTabs[] = array("DIV" => "fedit5", "TAB" => GetMessage("main_options_weak_pass"), "ICON" => "main_settings", "TITLE" => GetMessage("main_options_weak_pass_title"));
 
 $tabControl = new CAdminTabControl("tabControl2", $aTabs, true, true);
 
@@ -1171,10 +1197,7 @@ if(COption::GetOptionString("main", "controller_member", "N")!="Y"):
 </form>
 <?endif; //if(IsModuleInstalled("controller"))?>
 
-<?if ($diskSpace <= 0):?>
-<?$tabControl->End();?>
-<?else: ?>
-<?$tabControl->EndTab();?>
+<?if ($diskSpace > 0):?>
 <?$tabControl->BeginNextTab();?>
 <tr>
 <td align="left">
@@ -1222,7 +1245,7 @@ if(COption::GetOptionString("main", "controller_member", "N")!="Y"):
 	<input type="button" id="butt_stop" value="<?=GetMessage("MAIN_OPTION_SIZE_STOP")?>" disabled="disabled" <?=((!$USER->CanDoOperation('edit_other_settings')) ? "disabled": "onclick=\"StopReCount()\"")?> />
 	</td>
 </tr>
-<?$tabControl->End();?>
+
 <?if ($USER->CanDoOperation('edit_other_settings')):?>
 <script language="JavaScript">
 var result = {'stop':false, 'done':true, 'error':false, 'db':{'size': <?=intval($arParam["db"]["size"])?>}, 'files':{'size':<?=intval($arParam["files"]["size"])?>}};
@@ -1357,4 +1380,47 @@ function DoNext(name, id, recount)
 CheckButtons();
 </script>
 <?endif;?>
+
+<?$tabControl->EndTab();?>
 <?endif;?>
+
+<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialcharsbx($mid)?>&amp;lang=<?echo LANG?>" enctype="multipart/form-data">
+<?=bitrix_sessid_post()?>
+<input type="hidden" name="tabControl2_active_tab" value="fedit5">
+
+<?$tabControl->BeginNextTab();?>
+<?
+$customWeakPasswords = COption::GetOptionString('main', 'custom_weak_passwords', 'N');
+?>
+<tr>
+	<td>
+		<label><input type="radio" name="custom_weak_passwords" value="N"<?= ($customWeakPasswords !== 'Y' ? ' checked' : '')?>><?echo GetMessage("main_options_weak_pass_use_default")?></label>
+	</td>
+</tr>
+<tr>
+	<td>
+		<label><input type="radio" name="custom_weak_passwords" value="Y"<?= ($customWeakPasswords === 'Y' ? ' checked' : '')?>><?echo GetMessage("main_options_weak_pass_use_custom")?></label>
+	</td>
+</tr>
+<tr>
+	<td>
+		<br>
+		<input type="file" name="passwords">
+	</td>
+</tr>
+<tr>
+	<td>
+		<?= BeginNote()?>
+		<?echo GetMessage("main_options_weak_pass_note")?>
+		<?= EndNote()?>
+	</td>
+</tr>
+<tr>
+	<td>
+		<input type="submit" <?if (!$USER->CanDoOperation('edit_php')) echo "disabled" ?> name="save_passwords" value="<?echo GetMessage("MAIN_SAVE")?>" class="adm-btn-save">
+	</td>
+</tr>
+<?$tabControl->EndTab();?>
+</form>
+
+<?$tabControl->End();?>

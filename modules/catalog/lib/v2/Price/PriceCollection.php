@@ -134,7 +134,6 @@ class PriceCollection extends BaseCollection
 				{
 					unset($fields['CURRENCY']);
 				}
-
 			}
 
 			if (!empty($fields))

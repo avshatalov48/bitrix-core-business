@@ -22,6 +22,7 @@ use Bitrix\Rest;
  * SaveOrderAction - 022
  * GetBasketAction - 023
  * UserConsentRequestAction - 024
+ * AddBasketItemAction - 025
  *
  * # code category (xxx) - http status
  *

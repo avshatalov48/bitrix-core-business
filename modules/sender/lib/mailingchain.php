@@ -217,14 +217,17 @@ class MailingChainTable extends Entity\DataManager
 		else
 			return Loc::getMessage('SENDER_ENTITY_MAILING_CHAIN_VALID_EMAIL_FROM');
 	}
-
+	
 	/**
 	 * Copy mailing chain.
 	 *
-	 * @param integer $id Chain id
+	 * @param int|null $id Chain id
 	 * @return int|null Copied chain id
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function copy($id)
+	public static function copy(?int $id): ?int
 	{
 		$dataDb = static::getList(array('filter' => array('ID' => $id)));
 		if (!$data = $dataDb->fetch())
@@ -269,24 +272,23 @@ class MailingChainTable extends Entity\DataManager
 
 		return $copiedId;
 	}
-
+	
 	/**
-	 * @param integer $mailingChainId
-	 * @param bool $prepareFields
-	 *
+	 * @param int|null $mailingChainId
 	 * @return int|null
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function initPosting($mailingChainId)
+	public static function initPosting(?int $mailingChainId): ?int
 	{
 		$postingId = null;
 		$chainPrimary = array('ID' => $mailingChainId);
 		$mailingChain = static::getRowById($chainPrimary);
+		
 		if(!$mailingChain)
 		{
-			return $postingId;
+			return null;
 		}
 
 		$needAddPosting = true;
@@ -315,6 +317,7 @@ class MailingChainTable extends Entity\DataManager
 			$postingAddDb = PostingTable::add(array(
 				'MAILING_ID' => $mailingChain['MAILING_ID'],
 				'MAILING_CHAIN_ID' => $mailingChain['ID'],
+				'CONSENT_SUPPORT' => Transport\Adapter::create($mailingChain['MESSAGE_CODE'])->isConsentSupported()
 			));
 			if ($postingAddDb->isSuccess())
 			{

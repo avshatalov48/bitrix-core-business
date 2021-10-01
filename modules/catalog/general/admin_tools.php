@@ -88,14 +88,13 @@ class CCatalogAdminToolsAll
 		$productLimits = Catalog\Config\State::getExceedingProductLimit($intIBlockID);
 		if (!empty($productLimits))
 		{
-			$helpLink = Catalog\Config\Feature::getProductLimitHelpLink();
-			if (!empty($helpLink))
+			if (!empty($productLimits['HELP_MESSAGE']))
 			{
 				$arItems[] = [
 					'ICON' => 'btn_lock',
 					'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD'),
 					'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD'),
-					$helpLink['TYPE'] => $helpLink['LINK'],
+					$productLimits['HELP_MESSAGE']['TYPE'] => $productLimits['HELP_MESSAGE']['LINK'],
 				];
 			}
 		}

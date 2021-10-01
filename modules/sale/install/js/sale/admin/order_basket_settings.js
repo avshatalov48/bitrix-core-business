@@ -3,6 +3,7 @@ BX.namespace("BX.Sale.Admin.OrderBasket.SettingsDialog");
 BX.Sale.Admin.OrderBasket.SettingsDialog = function(params)
 {
 	this.basket = params.basket;
+	this.showProps = params.showProps || false;
 
 	this.idPrefix = this.basket.idPrefix || "sale_order_basket";
 	this.formId = this.idPrefix+"_settings_dialog_form";
@@ -157,7 +158,8 @@ BX.Sale.Admin.OrderBasket.SettingsDialog.prototype.setButtons = function(dialog)
 			'action': function() {
 				BX.showWait();
 				_this.save(
-					_this.getVisibleColumns()
+					_this.getVisibleColumns(),
+					_this.getShowProperties()
 				);
 				this.parentWindow.Close();
 			}
@@ -168,7 +170,6 @@ BX.Sale.Admin.OrderBasket.SettingsDialog.prototype.setButtons = function(dialog)
 
 BX.Sale.Admin.OrderBasket.SettingsDialog.prototype.changeColumns = function()
 {
-	console.log("changeColumns");
 	BX.closeWait();
 };
 
@@ -180,32 +181,37 @@ BX.Sale.Admin.OrderBasket.SettingsDialog.prototype.onAddColumn = function()
 	jsSelectUtils.deleteSelectedOptions(this.form.allColumns);
 };
 
-BX.Sale.Admin.OrderBasket.SettingsDialog.prototype.save = function(columns)
+BX.Sale.Admin.OrderBasket.SettingsDialog.prototype.save = function(columns, showProperties)
 {
 	BX.Sale.Admin.OrderEditPage.blockForm();
-	BX.Sale.Admin.OrderAjaxer.sendRequest(
+	var request = {
+		action: "saveBasketVisibleColumns",
+		columns: columns,
+		idPrefix: this.idPrefix,
+		callback: function(result)
 		{
-			action: "saveBasketVisibleColumns",
-			columns: columns,
-			idPrefix: this.idPrefix,
-			callback: function(result)
+			if(result && result.RESULT && result.RESULT === "OK")
 			{
-				if(result && result.RESULT && result.RESULT == "OK")
-				{
-					var form = BX.Sale.Admin.OrderEditPage.getForm();
-					form.submit();
-				}
-				else if(result && result.ERROR)
-				{
-					BX.debug("Error saving settings: " + result.ERROR);
-				}
-				else
-				{
-					BX.debug("Error saving settings!");
-				}
+				var form = BX.Sale.Admin.OrderEditPage.getForm();
+				form.submit();
+			}
+			else if(result && result.ERROR)
+			{
+				BX.debug("Error saving settings: " + result.ERROR);
+			}
+			else
+			{
+				BX.debug("Error saving settings!");
 			}
 		}
-	);
+	};
+
+	if(showProperties)
+	{
+		request.showProperties = showProperties;
+	}
+
+	BX.Sale.Admin.OrderAjaxer.sendRequest(request);
 };
 
 BX.Sale.Admin.OrderBasket.SettingsDialog.prototype.getVisibleColumns = function()
@@ -218,4 +224,17 @@ BX.Sale.Admin.OrderBasket.SettingsDialog.prototype.getVisibleColumns = function(
 		result.push(select.options[i].value);
 
 	return result;
+};
+
+BX.Sale.Admin.OrderBasket.SettingsDialog.prototype.getShowProperties = function()
+{
+	var form = this.getForm();
+	var checkbox = form.elements.show_properties ? form.elements.show_properties : null;
+
+	if(!checkbox)
+	{
+		return null;
+	}
+
+	return checkbox.checked ? 'Y' : 'N';
 };

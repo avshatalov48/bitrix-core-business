@@ -42,6 +42,19 @@ class EventManager
 		return self::$instance;
 	}
 
+	/**
+	 * @static
+	 * @param EventManager $instance
+	 */
+	public static function setInstance($instance)
+	{
+		$c = __CLASS__;
+		if ($instance instanceof $c)
+		{
+			self::$instance = $instance;
+		}
+	}
+
 	protected function addEventHandlerInternal($fromModuleId, $eventType, $callback, $includeFile, $sort, $version)
 	{
 		$arEvent = array(

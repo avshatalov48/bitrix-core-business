@@ -1,9 +1,9 @@
-import {Vue} from 'ui.vue';
-import {Type} from 'main.core';
-import {CurrencyCore} from 'currency.currency-core';
+import { BitrixVue } from 'ui.vue';
+import { Type } from 'main.core';
+import { CurrencyCore } from 'currency.currency-core';
 import 'sale.checkout.view.element.animate-price'
 
-Vue.component('sale-checkout-view-element-animate_price', {
+BitrixVue.component('sale-checkout-view-element-animate_price', {
 	props: ['sum', 'currency', 'prefix'],
 	data()
 	{

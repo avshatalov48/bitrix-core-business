@@ -28,14 +28,14 @@ use Bitrix\Main\NotImplementedException;
  */
 class UserToGroupTable extends Entity\DataManager
 {
-	const ROLE_OWNER = SONET_ROLES_OWNER;
-	const ROLE_MODERATOR = SONET_ROLES_MODERATOR;
-	const ROLE_USER = SONET_ROLES_USER;
-	const ROLE_BAN = SONET_ROLES_BAN;
-	const ROLE_REQUEST = SONET_ROLES_REQUEST;
+	public const ROLE_OWNER = SONET_ROLES_OWNER;
+	public const ROLE_MODERATOR = SONET_ROLES_MODERATOR;
+	public const ROLE_USER = SONET_ROLES_USER;
+	public const ROLE_BAN = SONET_ROLES_BAN;
+	public const ROLE_REQUEST = SONET_ROLES_REQUEST;
 
-	const INITIATED_BY_USER = SONET_INITIATED_BY_USER;
-	const INITIATED_BY_GROUP = SONET_INITIATED_BY_GROUP;
+	public const INITIATED_BY_USER = SONET_INITIATED_BY_USER;
+	public const INITIATED_BY_GROUP = SONET_INITIATED_BY_GROUP;
 
 	/**
 	 * Returns DB table name for entity

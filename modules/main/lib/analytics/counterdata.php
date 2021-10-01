@@ -10,6 +10,22 @@ namespace Bitrix\Main\Analytics;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Security\Random;
 
+/**
+ * Class CounterDataTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CounterData_Query query()
+ * @method static EO_CounterData_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CounterData_Result getById($id)
+ * @method static EO_CounterData_Result getList(array $parameters = array())
+ * @method static EO_CounterData_Entity getEntity()
+ * @method static \Bitrix\Main\Analytics\EO_CounterData createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Analytics\EO_CounterData_Collection createCollection()
+ * @method static \Bitrix\Main\Analytics\EO_CounterData wakeUpObject($row)
+ * @method static \Bitrix\Main\Analytics\EO_CounterData_Collection wakeUpCollection($rows)
+ */
 class CounterDataTable extends Entity\DataManager
 {
 	public static function getTableName()

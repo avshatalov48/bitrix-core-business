@@ -377,9 +377,9 @@ abstract class CAllMain
 				$arUser = $rsUser->Fetch();
 				if($arUser)
 				{
-					$arPolicy = CUser::GetGroupPolicy($arUser["ID"]);
-					$POLICY_ATTEMPTS = intval($arPolicy["LOGIN_ATTEMPTS"]);
-					$USER_ATTEMPTS = intval($arUser["LOGIN_ATTEMPTS"]);
+					$policy = CUser::getPolicy($arUser["ID"]);
+					$POLICY_ATTEMPTS = (int)$policy->getLoginAttempts();
+					$USER_ATTEMPTS = (int)$arUser["LOGIN_ATTEMPTS"];
 				}
 			}
 			$session["BX_LOGIN_NEED_CAPTCHA_LOGIN"] = [
@@ -2836,23 +2836,27 @@ abstract class CAllMain
 	// Returns string with images to spread cookies
 	public function GetSpreadCookieHTML()
 	{
-		$res = "";
-		if(
-			!$this->HoldSpreadCookieHTML()
+		$res = '';
+		$request = Main\Context::getCurrent()->getRequest();
+
+		if (
+			$request->isHttps()
+			&& !$this->HoldSpreadCookieHTML()
 			&& COption::GetOptionString("main", "ALLOW_SPREAD_COOKIE", "Y") == "Y"
 		)
 		{
-			foreach($this->GetSpreadCookieUrls() as $url)
+			foreach ($this->GetSpreadCookieUrls() as $url)
 			{
-				$res .= "new Image().src='".CUtil::JSEscape($url)."';\n";
+				$res .= "new Image().src='" . CUtil::JSEscape($url) . "';\n";
 				$this->HoldSpreadCookieHTML(true);
 			}
 		}
 
 		if ($res)
-			return "<script>".$res."</script>";
-		else
-			return "";
+		{
+			return '<script>' . $res . '</script>';
+		}
+		return '';
 	}
 
 	/**

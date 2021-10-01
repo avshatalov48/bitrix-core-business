@@ -17,3 +17,4 @@ $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_PRESENTERS"] = "Speakers";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_PUSH_ERROR"] = "Please update your Push server to use conferencing";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_USERS_LOADING"] = "Loading...";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_VOXIMPLANT_ERROR"] = "Please install and configure the Telephony module to use conferencing";
+$MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_VOXIMPLANT_ERROR_WITH_LINK"] = "You have to configure environment to use conferencing feature. <a onclick=\"top.BX.Helper.show('redirect=detail&code=11392174')\"> Learn more</a>";

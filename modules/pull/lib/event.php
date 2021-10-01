@@ -52,7 +52,7 @@ class Event
 	{
 		if (!is_array($recipient))
 		{
-			$recipient = Array($recipient);
+			$recipient = [$recipient];
 		}
 
 		$entities = self::getEntitiesByType($recipient);
@@ -480,28 +480,25 @@ class Event
 		return $result;
 	}
 
-	public static function getUserIds($channels)
+	public static function getUserIds(array $channels)
 	{
-		if (!is_array($channels))
-		{
-			$channels = Array($channels);
-		}
-
-		$result = Array();
-		$orm = \Bitrix\Pull\Model\ChannelTable::getList(array(
-			'select' => Array('USER_ID', 'CHANNEL_ID', 'USER_ACTIVE' => 'USER.ACTIVE'),
-			'filter' => Array(
+		$result = array_fill_keys($channels, null);
+		$orm = \Bitrix\Pull\Model\ChannelTable::getList([
+			'select' => ['USER_ID', 'CHANNEL_ID', 'USER_ACTIVE' => 'USER.ACTIVE'],
+			'filter' => [
 				'=CHANNEL_ID' => $channels
-			)
-		));
+			]
+		]);
 		while ($row = $orm->fetch())
 		{
-			if ($row['USER_ID'] > 0 && $row['USER_ACTIVE'] == 'N')
+			if ($row['USER_ID'] > 0 && $row['USER_ACTIVE'] !== 'N')
 			{
-				continue;
+				$result[$row['CHANNEL_ID']] = $row['USER_ID'];
 			}
-
-			$result[$row['CHANNEL_ID']] = $row['USER_ID'];
+			else
+			{
+				unset($result[$row['CHANNEL_ID']]);
+			}
 		}
 
 		return $result;
@@ -668,7 +665,12 @@ class Event
 		);
 		foreach ($recipient as $entity)
 		{
-			if (self::isChannelEntity($entity))
+			if ($entity instanceof \Bitrix\Pull\Model\Channel)
+			{
+				$result['channels'][] = $entity->getPrivateId();
+				$result['count']++;
+			}
+			else if (self::isChannelEntity($entity))
 			{
 				$result['channels'][] = $entity;
 				$result['count']++;

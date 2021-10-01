@@ -13,7 +13,7 @@ Loc::loadMessages(__FILE__);
 	<div class="mb-4 mt-4" id="payButtonWrapper">
 		<div class="apple-pay-button apple-pay-button-black" id="payButton" style="display: none;"></div>
 	</div>
-	<p><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_APPLE_PAY_WARNING_RETURN');?></p>
+	<div class="alert alert-info"><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_APPLE_PAY_WARNING_RETURN');?></div>
 </div>
 
 <script>

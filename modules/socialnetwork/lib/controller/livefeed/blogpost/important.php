@@ -1,12 +1,14 @@
-<?
+<?php
+
 namespace Bitrix\Socialnetwork\Controller\Livefeed\BlogPost;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\Controller\Base;
 
-class Important extends \Bitrix\Socialnetwork\Controller\Base
+class Important extends Base
 {
 	public function getUsersAction(array $params = [])
 	{
@@ -20,7 +22,7 @@ class Important extends \Bitrix\Socialnetwork\Controller\Base
 		];
 
 		$pageSize = 10;
-		$postId = (isset($params['POST_ID']) && intval($params['POST_ID']) > 0 ? intval($params['POST_ID']) : 0);
+		$postId = (isset($params['POST_ID']) && (int)$params['POST_ID'] > 0 ? (int)$params['POST_ID'] : 0);
 		$propertyName = (isset($params['NAME']) && $params['NAME'] <> '' ? trim($params['NAME']) : 'BLOG_POST_IMPRTNT');
 		$propertyValue = (isset($params['VALUE']) && $params['VALUE'] <> '' ? trim($params['VALUE']) : 'Y');
 		$pathToUser = (isset($params['PATH_TO_USER']) && $params['PATH_TO_USER'] <> '' ? $params['PATH_TO_USER'] : SITE_DIR.'company/personal/user/#USER_ID#/');

@@ -51,9 +51,16 @@ $actions[] = Controller\Action::create('createProject')
 			$project = ProjectAssembler::toDTO($request);
 			$content = $response->initContentJson();
 
-			$content->set(
-				is_null($project->getId())? $apiRequest->createProject($project) : $apiRequest->editProject($project)
-			);
+			try
+			{
+				$content->set(
+					is_null($project->getId())? $apiRequest->createProject($project) : $apiRequest->editProject($project)
+				);
+			}
+			catch (\Bitrix\Sender\Integration\Yandex\Toloka\Exception\AccessDeniedException $e)
+			{
+				$content->addPermissionError(Loc::getMessage('SENDER_TOLOKA_WRONG_OAUTH'));
+			}
 		}
 	);
 

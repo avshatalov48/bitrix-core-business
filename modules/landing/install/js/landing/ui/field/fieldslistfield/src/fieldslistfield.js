@@ -849,7 +849,7 @@ export class FieldsListField extends BaseField
 			event.preventDefault();
 			options.fieldController.showSettingsPopup();
 			setTimeout(() => {
-				options.fieldController.settingsPopupsettingsPopup.subscribeOnce('onClose', () => {
+				options.fieldController.settingsPopup.subscribeOnce('onClose', () => {
 					options.sourceOptions.booking.settings_data = options.fieldController.getSettings().data;
 
 					// eslint-disable-next-line camelcase

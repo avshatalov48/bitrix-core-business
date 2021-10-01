@@ -2,11 +2,9 @@
 namespace Bitrix\Catalog\Config;
 
 use Bitrix\Bitrix24;
+use Bitrix\Main;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
 
 /**
  * Class Feature
@@ -212,7 +210,6 @@ final class Feature
 	 */
 	public static function initUiHelpScope(): void
 	{
-		global $APPLICATION;
 		if (!self::isBitrix24())
 		{
 			return;
@@ -221,12 +218,11 @@ final class Feature
 		{
 			return;
 		}
-		self::$initUi = true;
-		$APPLICATION->IncludeComponent(
-			'bitrix:ui.info.helper',
-			'',
-			[]
-		);
+		if (Loader::includeModule('ui'))
+		{
+			self::$initUi = true;
+			Main\UI\Extension::load('ui.info-helper');
+		}
 	}
 
 	/**
@@ -278,7 +274,8 @@ final class Feature
 		self::$helpCodesCounter++;
 		return [
 			'TYPE' => 'ONCLICK',
-			'LINK' => 'BX.UI.InfoHelper.show(\''.self::$bitrix24helpCodes[$featureId].'\');'
+			'LINK' => 'BX.UI.InfoHelper.show(\''.self::$bitrix24helpCodes[$featureId].'\');',
+			'FEATURE_CODE' => self::$bitrix24helpCodes[$featureId],
 		];
 	}
 

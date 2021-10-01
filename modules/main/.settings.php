@@ -6,6 +6,13 @@ return [
 			'namespaces' => [
 				'\\Bitrix\\Main\\Controller' => 'api',
 			],
+			'restIntegration' => [
+				'enabled' => true,
+				'hideModuleScope' => true,
+				'scopes' => [
+					'userfieldconfig',
+				],
+			],
 		],
 		'readonly' => true,
 	],

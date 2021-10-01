@@ -25,7 +25,7 @@ $url->addParams([
 			'#SUM#' => SaleFormatCurrency($params['sum'], $params['currency']),
 		]
 	); ?></p>
-	<p><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_TEMPLATE_IFRAME_WOOPPAY_WARNING_RETURN'); ?></p>
+	<div class="alert alert-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_TEMPLATE_IFRAME_WOOPPAY_WARNING_RETURN'); ?></div>
 	<div class="d-flex align-items-center mb-3">
 		<iframe src="<?= $url->getLocator(); ?>" class="wooppay-iframe-payment" id="wooppay-iframe-payment"></iframe>
 	</div>

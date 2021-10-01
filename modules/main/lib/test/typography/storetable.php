@@ -17,6 +17,19 @@ use Bitrix\Main\ORM\Fields\StringField;
  * Class description
  * @package    bitrix
  * @subpackage main
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Store_Query query()
+ * @method static EO_Store_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Store_Result getById($id)
+ * @method static EO_Store_Result getList(array $parameters = array())
+ * @method static EO_Store_Entity getEntity()
+ * @method static \Bitrix\Main\Test\Typography\EO_Store createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Test\Typography\EO_Store_Collection createCollection()
+ * @method static \Bitrix\Main\Test\Typography\EO_Store wakeUpObject($row)
+ * @method static \Bitrix\Main\Test\Typography\EO_Store_Collection wakeUpCollection($rows)
  */
 class StoreTable extends DataManager
 {

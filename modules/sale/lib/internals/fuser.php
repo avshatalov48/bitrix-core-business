@@ -12,6 +12,22 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class FuserTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Fuser_Query query()
+ * @method static EO_Fuser_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Fuser_Result getById($id)
+ * @method static EO_Fuser_Result getList(array $parameters = array())
+ * @method static EO_Fuser_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_Fuser createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_Fuser_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_Fuser wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_Fuser_Collection wakeUpCollection($rows)
+ */
 class FuserTable extends Main\Entity\DataManager
 {
 	/**

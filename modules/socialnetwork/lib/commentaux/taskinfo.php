@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\CommentAux;
 
 use Bitrix\Forum\MessageTable;
@@ -7,12 +8,12 @@ use Bitrix\Main\Web\Json;
 
 final class TaskInfo extends Base
 {
-	const TYPE = 'TASKINFO';
-	const POST_TEXT = 'commentAuxTaskInfo';
+	public const TYPE = 'TASKINFO';
+	public const POST_TEXT = 'commentAuxTaskInfo';
 
 	protected static $forumMessageTableClass = MessageTable::class;
 
-	public function getParamsFromFields($fields = array())
+	public function getParamsFromFields($fields = []): array
 	{
 		static $cacheData = [];
 
@@ -20,7 +21,7 @@ final class TaskInfo extends Base
 
 		if (!empty($fields['SHARE_DEST'])) // old
 		{
-			$paramsList = unserialize(htmlspecialcharsback($fields['SHARE_DEST']), ['allowed_classes' => false]);
+			$paramsList = unserialize(htmlspecialcharsback($fields['SHARE_DEST']), [ 'allowed_classes' => false ]);
 			if (!empty($paramsList))
 			{
 				$params = $paramsList;
@@ -30,10 +31,10 @@ final class TaskInfo extends Base
 				$paramsList = explode('|', $fields['SHARE_DEST']);
 				if (!empty($paramsList))
 				{
-					foreach($paramsList as $pair)
+					foreach ($paramsList as $pair)
 					{
-						list($key, $value) = explode('=', $pair);
-						if (isset($key) && isset($value))
+						[ $key, $value ] = explode('=', $pair);
+						if (isset($key, $value))
 						{
 							$params[$key] = $value;
 						}
@@ -137,14 +138,13 @@ final class TaskInfo extends Base
 		return $params;
 	}
 
-	public function getText()
+	public function getText(): string
 	{
 		$result = '';
 		$params = $this->params;
 
 		if (
-			isset($params['auxData'])
-			&& isset($params['text'])
+			isset($params['auxData'], $params['text'])
 			&& $params['text'] <> ''
 		)
 		{
@@ -171,72 +171,25 @@ final class TaskInfo extends Base
 		return $result;
 	}
 
-	public function canDelete()
+	public function canDelete(): bool
 	{
 		return false;
 	}
 
-	public function checkRecalcNeeded($fields, $params)
+	public function checkRecalcNeeded($fields, $params): bool
 	{
 		return true;
 	}
 
-	public function sendRatingNotification($fields = array(), $ratingVoteParams = array())
+	protected function getRatingNotificationEntityMessage(): string
 	{
-		$userId = (
-			is_array($ratingVoteParams)
-			&& isset($ratingVoteParams['OWNER_ID'])
-				? (int)$ratingVoteParams['OWNER_ID']
-				: 0
-		);
+		$CBXSanitizer = new \CBXSanitizer;
+		$CBXSanitizer->delAllTags();
+		return strip_tags(str_replace('<br>', ' ', $CBXSanitizer->sanitizeHtml($this->getText())));
+	}
 
-		if (
-			$userId > 0
-			&& is_array($fields)
-			&& Loader::includeModule('im')
-		)
-		{
-			$params = $this->getParamsFromFields($fields);
-			if (!empty($params))
-			{
-				$this->setParams($params);
-
-				$followValue = \CSocNetLogFollow::getExactValueByRating(
-					$userId,
-					$ratingVoteParams['ENTITY_TYPE_ID'],
-					$ratingVoteParams['ENTITY_ID']
-				);
-
-				if ($followValue !== "N")
-				{
-					$ratingVoteParams['ENTITY_LINK'] = $this->getRatingCommentLink(array(
-						'commentId' => $fields['ID'],
-						'commentAuthorId' => $ratingVoteParams['OWNER_ID'],
-						'ratingEntityTypeId' => $ratingVoteParams['ENTITY_TYPE_ID'],
-						'ratingEntityId' => $ratingVoteParams['ENTITY_ID']
-					));
-
-					$ratingVoteParams["ENTITY_PARAM"] = 'COMMENT';
-
-					$CBXSanitizer = new \CBXSanitizer;
-					$CBXSanitizer->delAllTags();
-					$ratingVoteParams["ENTITY_TITLE"] = $ratingVoteParams["ENTITY_MESSAGE"] = strip_tags(str_replace('<br>', ' ', $CBXSanitizer->sanitizeHtml($this->getText())));
-
-					$messageFields = array(
-						"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
-						"TO_USER_ID" => $userId,
-						"FROM_USER_ID" => (int)$ratingVoteParams['USER_ID'],
-						"NOTIFY_TYPE" => IM_NOTIFY_FROM,
-						"NOTIFY_MODULE" => "main",
-						"NOTIFY_EVENT" => "rating_vote",
-						"NOTIFY_TAG" => "RATING|".($ratingVoteParams['VALUE'] >= 0 ? "" : "DL|")."FORUM_POST|".$fields['SOURCE_ID'],
-						"NOTIFY_MESSAGE" => \CIMEvent::getMessageRatingVote($ratingVoteParams),
-						"NOTIFY_MESSAGE_OUT" => \CIMEvent::getMessageRatingVote($ratingVoteParams, true)
-					);
-
-					\CIMNotify::add($messageFields);
-				}
-			}
-		}
+	protected function getRatingNotificationNotigyTag(array $ratingVoteParams = [], array $fields = []): string
+	{
+		return 'RATING|' . ($ratingVoteParams['VALUE'] >= 0 ? '' : 'DL|') . 'FORUM_POST|' . $fields['SOURCE_ID'];
 	}
 }

@@ -226,7 +226,7 @@ class App
 		{
 			\CPullStack::AddShared(Array(
 				'module_id' => 'im',
-				'command' => 'deleteAppIcon',
+				'command' => 'appDeleteIcon',
 				'params' => Array(
 					'iconId' => $appId
 				),
@@ -383,7 +383,7 @@ class App
 			{
 				\CPullStack::AddShared(Array(
 					'module_id' => 'im',
-					'command' => 'updateAppIcon',
+					'command' => 'appUpdateIcon',
 					'params' => Array(
 						'iconId' => $appId,
 						'userId' => $userId,
@@ -405,7 +405,7 @@ class App
 			{
 				\CPullStack::AddShared(Array(
 					'module_id' => 'im',
-					'command' => 'deleteAppIcon',
+					'command' => 'appDeleteIcon',
 					'params' => Array(
 						'iconId' => $appId
 					),
@@ -717,10 +717,10 @@ class App
 			$result[] = Array(
 				'id' => $app['ID'],
 				'botId' => $app['BOT_ID'],
-				'botCode' => $botData['CODE'],
+				'botCode' => htmlspecialcharsbx($botData['CODE']),
 				'domainHash' => self::getDomainHash($app['HASH']),
 				'userHash' => self::getUserHash($userId, $app['HASH']),
-				'code' => $app['CODE'],
+				'code' => htmlspecialcharsbx($app['CODE']),
 				'url' => $app['ICON_URL'],
 				'iframe' => $app['IFRAME'],
 				'iframeWidth' => $app['IFRAME_WIDTH'],

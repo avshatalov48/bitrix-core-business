@@ -2,7 +2,7 @@ this.BX = this.BX || {};
 (function (exports,ui_vue_vuex,im_lib_utils,im_const,ui_vue,main_core_events) {
 	'use strict';
 
-	var RecentItem = {
+	var RecentItem = ui_vue.BitrixVue.localComponent('bx-im-component-recent-item', {
 	  props: ['itemData'],
 	  methods: {
 	    onClick: function onClick(event) {
@@ -19,7 +19,7 @@ this.BX = this.BX || {};
 	    },
 	    formatDate: function formatDate(date) {
 	      var weekDays = [this.localize['IM_RECENT_WEEKDAY_0'], this.localize['IM_RECENT_WEEKDAY_1'], this.localize['IM_RECENT_WEEKDAY_2'], this.localize['IM_RECENT_WEEKDAY_3'], this.localize['IM_RECENT_WEEKDAY_4'], this.localize['IM_RECENT_WEEKDAY_5'], this.localize['IM_RECENT_WEEKDAY_6']];
-	      date = new Date(date);
+	      date = date ? new Date(date) : new Date();
 	      var currentDate = new Date();
 	      var dateWeekDay = date.getDay() - (date.getDay() === 0 ? -6 : 1);
 	      var currentDayOfWeek = currentDate.getDay() - (currentDate.getDay() === 0 ? -6 : 1);
@@ -81,7 +81,7 @@ this.BX = this.BX || {};
 	        message: this.rawItem.message,
 	        date: {
 	          leftIcon: this.dateLeftIcon,
-	          value: this.formatDate(this.rawItem.message.date)
+	          value: this.formatDate(this.rawItem.message ? this.rawItem.message.date : 0)
 	        },
 	        counter: {
 	          value: this.rawItem.counter,
@@ -172,16 +172,18 @@ this.BX = this.BX || {};
 	      if (this.isUser && !this.isBot) {
 	        if (this.isSomeoneTyping) {
 	          return 'typing';
-	        } else if (this.userData.isMobileOnline) {
-	          return 'mobile-online';
-	        } else if (this.userData.isOnline && (this.userData.status === 'away' || this.userData.status === 'dnd')) {
-	          return this.userData.status;
-	        } else if (this.userData.isOnline) {
-	          return 'online';
-	        } else {
-	          return 'offline';
+	        } else if (this.userData) {
+	          if (this.userData.isMobileOnline) {
+	            return 'mobile-online';
+	          } else if (this.userData.isOnline) {
+	            return this.userData.status;
+	          } else {
+	            return 'offline';
+	          }
 	        }
 	      }
+
+	      return 'none';
 	    },
 	    //Title left icon
 	    //For users:
@@ -196,13 +198,15 @@ this.BX = this.BX || {};
 	          return 'extranet';
 	        } else if (this.isNetwork) {
 	          return 'network';
-	        } else if (this.userData.isAbsent) {
-	          return 'absent';
-	        } else if (this.userData.isBirthday) {
-	          return 'birthday';
-	        } else {
-	          return '';
+	        } else if (this.userData) {
+	          if (this.userData.isAbsent) {
+	            return 'absent';
+	          } else if (this.userData.isBirthday) {
+	            return 'birthday';
+	          }
 	        }
+
+	        return '';
 	      }
 
 	      if (this.isChat) {
@@ -222,6 +226,8 @@ this.BX = this.BX || {};
 	      if (this.isNotificationChat) {
 	        return this.rawItem.title;
 	      }
+
+	      return this.rawItem.title;
 	    },
 	    //muted notifications icon for chats
 	    titleRightIcon: function titleRightIcon() {
@@ -250,12 +256,24 @@ this.BX = this.BX || {};
 	        }
 	      }
 
+	      if (!this.rawItem.message || !this.rawItem.message.text) {
+	        return this.userData.workPosition;
+	      }
+
 	      return this.rawItem.message.text;
 	    },
 	    //message read status icon (if current user's message was read by someone in chat)
 	    dateLeftIcon: function dateLeftIcon() {
 	      if (!this.isLastMessageAuthor || this.isBot || this.isNotificationChat) {
 	        return '';
+	      }
+
+	      if (!this.rawItem.message) {
+	        return '';
+	      }
+
+	      if (this.rawItem.message.status === im_const.MessageStatus.error) {
+	        return 'error';
 	      }
 
 	      var wasRead = this.rawItem.message.status === im_const.MessageStatus.delivered;
@@ -341,6 +359,10 @@ this.BX = this.BX || {};
 	      return false;
 	    },
 	    isLastMessageAuthor: function isLastMessageAuthor() {
+	      if (!this.rawItem.message) {
+	        return false;
+	      }
+
 	      return this.currentUserId === this.rawItem.message.senderId;
 	    },
 	    isChatMuted: function isChatMuted() {
@@ -360,7 +382,7 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  template: "\n\t\t<div class=\"bx-im-recent-item\" :style=\"listItemStyle\" @click=\"onClick\" @click.right=\"onRightClick\">\n\t\t\t<template v-if=\"item.template !== ItemTypes.placeholder\">\n\t\t\t\t<div v-if=\"item.avatar\" class=\"bx-im-recent-item-image-wrap\">\n\t\t\t\t\t<img v-if=\"item.avatar.url\" :src=\"item.avatar.url\" :style=\"imageStyle\" :class=\"imageClass\" alt=\"\">\n\t\t\t\t\t<div v-else-if=\"!item.avatar.url\" :style=\"imageStyle\" class=\"bx-im-recent-item-image-text\">{{ avatarText }}</div>\t\n\t\t\t\t\t<div v-if=\"item.avatar.topLeftIcon\" :class=\"'bx-im-recent-icon-avatar-top-left bx-im-recent-avatar-top-left-' + item.avatar.topLeftIcon\"></div>\n\t\t\t\t\t<div v-if=\"item.avatar.bottomRightIcon\" :class=\"'bx-im-recent-icon-avatar-bottom-right bx-im-recent-avatar-bottom-right-' + item.avatar.bottomRightIcon\"></div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-recent-item-content\">\n\t\t\t\t\t<div class=\"bx-im-recent-item-content-header\">\n\t\t\t\t\t\t<div v-if=\"item.title\" class=\"bx-im-recent-item-header-title\">\n\t\t\t\t\t\t\t<div v-if=\"item.title.leftIcon\" :class=\"'bx-im-recent-icon-title-left bx-im-recent-icon-title-left-' + item.title.leftIcon\"></div>\n\t\t\t\t\t\t\t<span class=\"bx-im-recent-item-header-title-text\">{{ item.title.value }}</span>\n\t\t\t\t\t\t\t<div v-if=\"item.title.rightIcon\" :class=\"'bx-im-recent-icon-title-right bx-im-recent-icon-title-right-' + item.title.rightIcon\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div v-if=\"item.date\" class=\"bx-im-recent-item-header-date\">\n\t\t\t\t\t\t\t<div v-if=\"item.date.leftIcon\" :class=\"'bx-im-recent-icon-date-left bx-im-recent-icon-date-left-' + item.date.leftIcon\"></div>\n\t\t\t\t\t\t\t{{ item.date.value }}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"bx-im-recent-item-content-bottom\">\n\t\t\t\t\t\t<div v-if=\"item.subtitle\" class=\"bx-im-recent-item-bottom-subtitle\">\n\t\t\t\t\t\t\t<div v-if=\"item.subtitle.leftIcon\" :class=\"'bx-im-recent-icon-subtitle-left bx-im-recent-icon-subtitle-left-' + item.subtitle.leftIcon\"></div>\n\t\t\t\t\t\t\t<span class=\"bx-im-recent-item-bottom-subtitle-text\">{{ item.subtitle.value }}</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"bx-im-recent-item-bottom-counter\">\n\t\t\t\t\t\t\t<div v-if=\"item.counter.leftIcon\" :class=\"'bx-im-recent-icon-counter-left bx-im-recent-icon-counter-left-' + item.counter.leftIcon\"></div>\n\t\t\t\t\t\t\t<div v-if=\"item.counter.value > 0\" :class=\"counterClasses\">{{ formattedCounter }}</div>\n\t\t\t\t\t\t\t<div v-else-if=\"item.notification\" class=\"bx-im-recent-item-bottom-counter-notification\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"item.template === ItemTypes.placeholder\">\n\t\t\t\t<div class=\"bx-im-recent-item-image-wrap\">\n\t\t\t\t\t<div class=\"bx-im-recent-item-image bx-im-recent-item-placeholder-image\"></div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-recent-item-content\">\n\t\t\t\t\t<div class=\"bx-im-recent-item-content-header\">\n\t\t\t\t\t\t<div class=\"bx-im-recent-item-placeholder-title\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"bx-im-recent-item-content-bottom\">\n\t\t\t\t\t\t<div class=\"bx-im-recent-item-bottom-subtitle\">\n\t\t\t\t\t\t\t<div class=\"bx-im-recent-item-placeholder-subtitle\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t</div>\n\t"
-	};
+	});
 
 	/**
 	 * Bitrix im

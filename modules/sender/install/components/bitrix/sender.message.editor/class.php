@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Main\Context;
 use Bitrix\Main\Error;
@@ -46,6 +46,17 @@ class SenderMessageEditorComponent extends CommonSenderComponent
 									$this->getAccessController()->check(
 										MailingAction::getMap()[$this->arParams['MESSAGE_CODE']]
 										);
+
+		$isBus = !Bitrix\Main\Loader::includeModule('intranet');
+
+		$baseUri = $isBus ? '/bitrix/admin/agreement_edit.php' : '/settings/configs/userconsent/';
+
+		$this->arParams['CONSENT_PARAMS'] = [
+			'PATH_TO_ADD' => $baseUri . ($isBus ? '?ID=0' : 'edit/0/'),
+			'PATH_TO_EDIT' =>  $baseUri . ($isBus ? '?ID=#id#' : 'edit/#id#/') ,
+			'PATH_TO_CONSENT_LIST' => $isBus ? '/bitrix/admin/agreement_consents.php?AGREEMENT_ID=#id#&apply_filter=Y' :
+				$baseUri . 'consents/#id#/?AGREEMENT_ID=#id#&apply_filter=Y'
+		];
 	}
 
 	protected function prepareResult()

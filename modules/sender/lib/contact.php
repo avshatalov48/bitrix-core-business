@@ -36,6 +36,10 @@ Loc::loadMessages(__FILE__);
  */
 class ContactTable extends Entity\DataManager
 {
+	const CONSENT_STATUS_WAIT = 'W';
+	const CONSENT_STATUS_NEW = 'N';
+	const CONSENT_STATUS_DENY = 'D';
+	const CONSENT_STATUS_ACCEPT = 'A';
 	/**
 	 * Get table name.
 	 *
@@ -115,6 +119,16 @@ class ContactTable extends Entity\DataManager
 				'default_value' => 'N',
 				'required' => true,
 			),
+			'CONSENT_STATUS' => array(
+				'data_type' => 'string',
+				'default_value' => static::CONSENT_STATUS_NEW,
+				'required' => true,
+			),
+			'CONSENT_REQUEST' => array(
+				'data_type' => 'integer',
+				'required' => true,
+				'default_value' => 0
+			),
 			'IP' => array(
 				'data_type' => 'string',
 			),
@@ -142,7 +156,7 @@ class ContactTable extends Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function validateEmail()
+	public static function validateEmail(): array
 	{
 		return array(
 			new Entity\Validator\Length(1, 255),
@@ -150,13 +164,14 @@ class ContactTable extends Entity\DataManager
 			new Entity\Validator\Unique
 		);
 	}
-
+	
 	/**
 	 * Check email.
 	 *
+	 * @param string|null $value
 	 * @return bool|string
 	 */
-	public static function checkEmail($value)
+	public static function checkEmail(?string $value)
 	{
 		if(empty($value) || check_email($value))
 		{
@@ -174,7 +189,7 @@ class ContactTable extends Entity\DataManager
 	 * @param Entity\Event $event Event object.
 	 * @return Entity\EventResult
 	 */
-	public static function onBeforeAdd(Entity\Event $event)
+	public static function onBeforeAdd(Entity\Event $event): Entity\EventResult
 	{
 		$result = new Entity\EventResult;
 		$data = $event->getParameters();
@@ -185,7 +200,7 @@ class ContactTable extends Entity\DataManager
 
 		if(isset($data['fields']['CODE']))
 		{
-			$typeId = isset($data['fields']['TYPE_ID']) ? $data['fields']['TYPE_ID'] : null;
+			$typeId = $data['fields']['TYPE_ID'] ?? null;
 			$isValid = Recipient\Validator::validate($data['fields']['CODE'], $typeId);
 			if (!$isValid)
 			{
@@ -208,18 +223,21 @@ class ContactTable extends Entity\DataManager
 	 * @param Entity\Event $event Event object.
 	 * @return Entity\EventResult
 	 */
-	public static function onBeforeUpdate(Entity\Event $event)
+	public static function onBeforeUpdate(Entity\Event $event): Entity\EventResult
 	{
 		$result = new Entity\EventResult;
 		$data = $event->getParameters();
+		$modify = [];
 		if(isset($data['fields']['EMAIL']))
 		{
-			$result->modifyFields(array('EMAIL' => Recipient\Normalizer::normalizeEmail($data['fields']['EMAIL'])));
+			$modify += array('EMAIL' => Recipient\Normalizer::normalizeEmail($data['fields']['EMAIL']));
+			$modify += array('CONSENT_STATUS' => 'N');
 		}
 
 		if(isset($data['fields']['CODE']))
 		{
-			$typeId = isset($data['fields']['TYPE_ID']) ? $data['fields']['TYPE_ID'] : null;
+			$modify += array( 'CONSENT_STATUS' => 'N' );
+			$typeId = $data['fields']['TYPE_ID'] ?? null;
 			if (!$typeId)
 			{
 				$row = static::getRowById($data['primary']['ID']);
@@ -232,22 +250,22 @@ class ContactTable extends Entity\DataManager
 			}
 			else
 			{
-				$result->modifyFields(array(
-					'CODE' => Recipient\Normalizer::normalize($data['fields']['CODE'], $typeId)
-				));
+				$modify += array('CODE' => Recipient\Normalizer::normalize($data['fields']['CODE'], $typeId));
 			}
 		}
+		$result->modifyFields($modify);
 
 		return $result;
 	}
-
+	
 	/**
 	 * On after delete.
 	 *
 	 * @param Entity\Event $event Event.
 	 * @return Entity\EventResult
+	 * @throws \Exception
 	 */
-	public static function onAfterDelete(Entity\Event $event)
+	public static function onAfterDelete(Entity\Event $event): Entity\EventResult
 	{
 		$result = new Entity\EventResult;
 		$data = $event->getParameters();
@@ -258,16 +276,31 @@ class ContactTable extends Entity\DataManager
 
 		return $result;
 	}
-
-
+	
+	/**
+	 * @param mixed $primary
+	 * @param string $contactStatus
+	 * @throws \Exception
+	 */
+	public static function updateConsentStatus($primary, string $contactStatus)
+	{
+		ContactTable::update($primary,[
+			'CONSENT_STATUS' => $contactStatus,
+			'DATE_UPDATE' => new MainType\DateTime(),
+			'CONSENT_REQUEST' => new SqlExpression("`CONSENT_REQUEST`+1"),
+		]);
+	}
+	
 	/**
 	 * Add if not exist.
 	 *
 	 * @param array $ar Data.
 	 * @return bool|int
 	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function addIfNotExist($ar)
+	public static function addIfNotExist(array $ar)
 	{
 		$id = false;
 		$listId = false;
@@ -308,11 +341,12 @@ class ContactTable extends Entity\DataManager
 
 		return $id;
 	}
-
+	
 	/**
 	 * Check connectors.
 	 *
 	 * @return void
+	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function checkConnectors()
 	{
@@ -331,9 +365,9 @@ class ContactTable extends Entity\DataManager
 	 * @param null|integer $pageNumber Page number.
 	 * @param int $timeout Timeout.
 	 * @return array
-	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ArgumentException|\Bitrix\Main\SystemException
 	 */
-	public static function addFromConnector(Connector\Base $connector, $pageNumber = null, $timeout = 0)
+	public static function addFromConnector(Connector\Base $connector, ?int $pageNumber = null, int $timeout = 0): array
 	{
 		$startTime = getmicrotime();
 		$withoutNav = empty($pageNumber);
@@ -469,16 +503,21 @@ class ContactTable extends Entity\DataManager
 			'COUNT_ERROR' => $countError,
 		);
 	}
-
+	
 	/**
 	 * Upload contacts.
 	 *
 	 * @param array $list List of contacts.
 	 * @param bool $isBlacklist Is blacklist.
-	 * @param int $listId List ID.
+	 * @param int|null $listId List ID.
 	 * @return bool|int
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ArgumentTypeException
+	 * @throws \Bitrix\Main\DB\SqlQueryException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function upload(array $list, $isBlacklist = false, $listId = null)
+	public static function upload(array $list, bool $isBlacklist = false, ?int $listId = null)
 	{
 		$sqlHelper = Application::getConnection()->getSqlHelper();
 		$dateInsert = new MainType\DateTime();

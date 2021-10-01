@@ -1,6 +1,5 @@
 <?php
 
-use Bitrix\Main;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Localization\Loc;
 
@@ -18,15 +17,12 @@ Loc::loadMessages(__FILE__);
  * @var string $templateFolder
  */
 
-Extension::load('sale.checkout.application.form');
+Extension::load('sale.checkout.application');
 CJSCore::Init('phone_number');
 
 $model = $arResult['JSON_DATA']['MODEL'];
 $scheme = $arResult['JSON_DATA']['SCHEME'];
 $parameters = $arResult['JSON_DATA']['PARAMETERS'];
-
-$context = Main\Application::getInstance()->getContext();
-$request = $context->getRequest();
 
 if ($arResult['IS_NEW_ORDER'])
 {
@@ -88,19 +84,43 @@ $containerId = 'sale-order-checkout-form';
 ?>
 <style>
 	.form-control + .form-control {margin-top: 12px;}
-	body { min-width: 0 !important;} /* todo: del Filippov N. */
+	body { min-width: 0 !important;}
 </style>
 
 <div id="<?= $containerId ?>" class="checkout-container">
 	<script>
 		BX.ready(function() {
+
 			BX.Currency.CurrencyCore.setCurrencyFormat(
 				'<?= $arResult['CURRENCY'] ?>',
 				<?= \CUtil::PhpToJSObject(\CCurrencyLang::GetFormatDescription($arResult['CURRENCY']), false, true) ?>
 			);
 
-			let form = new BX.Sale.Checkout.Application.FormApplication(<?= CUtil::PhpToJSObject($options) ?>);
+			let form = new BX.Sale.Checkout.Application(<?= \Bitrix\Main\Web\Json::encode($options)?>);
 			document.getElementById('<?= $containerId ?>').appendChild(form.layout());
+
+			function isOverflown(element) {
+				return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+			}
+
+			// let el = document.querySelectorAll('.checkout-item-price-block');
+			//
+			// for (var i = 0; i < el.length; i++)
+			// {
+			// 	let item = el[i];
+			// 	let fontSize = parseInt(item.style.fontSize);
+			// 	for (let i = fontSize; i >= 0; i--)
+			// 	{
+			// 		let overflow = isOverflown(item);
+			// 		if (overflow)
+			// 		{
+			// 			fontSize--;
+			// 			item.style.fontSize = fontSize + "px";
+			// 		}
+			// 		console.log('el:',item);
+			// 	}
+			// 	console.log('item:', item);
+			// }
 		});
 	</script>
 </div>

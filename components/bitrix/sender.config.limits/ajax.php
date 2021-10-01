@@ -49,6 +49,20 @@ $actions[] = Controller\Action::create('switchTrackMailOption')->setHandler(
 		));
 	}
 );
+$actions[] = Controller\Action::create('switchMailConsentOption')->setHandler(
+	function (HttpRequest $request, Controller\Response $response)
+	{
+		$content = $response->initContentJson();
+
+		$mailConsent = $request->get('mailConsent') === "true";
+
+		Option::set('sender', 'mail_consent', $mailConsent ? 'Y' : 'N');
+
+		$content->set(array(
+			'mailConsent' => $mailConsent,
+		));
+	}
+);
 $checker = CommonAjax\Checker::getModifySettingsPermissionChecker();
 
 Controller\Listener::create()->addChecker($checker)->setActions($actions)->run();

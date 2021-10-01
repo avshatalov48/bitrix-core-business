@@ -7,6 +7,22 @@ use Bitrix\Main\DB\MysqlCommonConnection;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Type;
 
+/**
+ * Class UserSessionTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserSession_Query query()
+ * @method static EO_UserSession_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserSession_Result getById($id)
+ * @method static EO_UserSession_Result getList(array $parameters = array())
+ * @method static EO_UserSession_Entity getEntity()
+ * @method static \Bitrix\Main\Session\Handlers\Table\EO_UserSession createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Session\Handlers\Table\EO_UserSession_Collection createCollection()
+ * @method static \Bitrix\Main\Session\Handlers\Table\EO_UserSession wakeUpObject($row)
+ * @method static \Bitrix\Main\Session\Handlers\Table\EO_UserSession_Collection wakeUpCollection($rows)
+ */
 class UserSessionTable extends Entity\DataManager
 {
 	/** @var string Connection name used for SQL queries */

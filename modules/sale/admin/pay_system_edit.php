@@ -345,7 +345,13 @@ if ($server->getRequestMethod() == "POST"
 			$result = PaySystem\Manager::update($id, $fields);
 
 			if (!$result->isSuccess())
+			{
 				$errorMessage .= join(',', $result->getErrorMessages()).".<br>";
+			}
+			else
+			{
+				AddEventToStatFile('sale', 'updatePaysystem', $id, $actionFile);
+			}
 		}
 		else
 		{
@@ -359,6 +365,8 @@ if ($server->getRequestMethod() == "POST"
 				$id = $result->getId();
 				if ($id > 0)
 				{
+					AddEventToStatFile('sale', 'addPaysystem', $id, $actionFile);
+
 					$fields = array(
 						'PARAMS' => serialize(array('BX_PAY_SYSTEM_ID' => $id)),
 						'PAY_SYSTEM_ID' => $id

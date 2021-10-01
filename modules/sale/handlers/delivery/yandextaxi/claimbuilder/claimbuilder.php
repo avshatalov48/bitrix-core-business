@@ -6,13 +6,11 @@ use Bitrix\Location\Entity\Address\FieldCollection;
 use Bitrix\Location\Entity\Location;
 use Bitrix\Location\Entity;
 use Bitrix\Main\Error;
-use Bitrix\Main\Event;
-use Bitrix\Main\EventResult;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Bitrix\Sale\Delivery\ExtraServices\Manager;
-use Bitrix\Sale\Delivery\Services\OrderPropsDictionary;
+use Bitrix\Sale\Delivery\Services\RecipientDataProvider;
 use Bitrix\Sale\Property;
 use Bitrix\Sale\Shipment;
 use Bitrix\Sale\ShipmentItem;
@@ -26,7 +24,6 @@ use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\TransportClassification;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Tariffs\Repository;
 use Sale\Handlers\Delivery\YandexTaxi\Common\OrderEntitiesCodeDictionary;
 use Sale\Handlers\Delivery\YandexTaxi\Common\ReferralSourceBuilder;
-use Sale\Handlers\Delivery\YandexTaxi\Common\ShipmentDataExtractor;
 use Bitrix\Main\PhoneNumber;
 use Sale\Handlers\Delivery\YandexTaxi;
 use Bitrix\Location\Entity\Address\Field;
@@ -40,9 +37,6 @@ final class ClaimBuilder
 {
 	public const NEED_CONTACT_TO_EVENT_CODE = 'OnDeliveryYandexTaxiNeedContactTo';
 
-	/** @var ShipmentDataExtractor */
-	protected $extractor;
-
 	/** @var Repository */
 	protected $tariffsRepository;
 
@@ -54,17 +48,14 @@ final class ClaimBuilder
 
 	/**
 	 * ClaimBuilder constructor.
-	 * @param ShipmentDataExtractor $extractor
 	 * @param Repository $tariffsRepository
 	 * @param ReferralSourceBuilder $referralSourceBuilder
 	 */
 	public function __construct(
-		ShipmentDataExtractor $extractor,
 		Repository $tariffsRepository,
 		ReferralSourceBuilder $referralSourceBuilder
 	)
 	{
-		$this->extractor = $extractor;
 		$this->tariffsRepository = $tariffsRepository;
 		$this->referralSourceBuilder = $referralSourceBuilder;
 	}
@@ -72,10 +63,6 @@ final class ClaimBuilder
 	/**
 	 * @param Shipment $shipment
 	 * @return Result
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ObjectNotFoundException
 	 */
 	public function build(Shipment $shipment): Result
 	{
@@ -92,30 +79,8 @@ final class ClaimBuilder
 			return $this->result;
 		}
 
-		/**
-		 * Building Contact To
-		 */
-		$event = new Event('sale', static::NEED_CONTACT_TO_EVENT_CODE, ['SHIPMENT' => $shipment]);
-		$event->send();
-
-		$eventResults = $event->getResults();
-
-		if (is_array($eventResults) && !empty($eventResults))
-		{
-			foreach ($eventResults as &$eventResult)
-			{
-				if ($eventResult->getType() == EventResult::ERROR)
-				{
-					$this->result->addError(new Error($eventResult->getParameters()));
-				}
-				elseif ($eventResult->getType() == EventResult::SUCCESS)
-				{
-					/** @var Contact $contactTo */
-					$contactTo = $eventResult->getParameters();
-				}
-			}
-		}
-		if (!$this->result->isSuccess())
+		$contactTo = $this->buildContactTo($shipment);
+		if (is_null($contactTo))
 		{
 			return $this->result;
 		}
@@ -206,10 +171,6 @@ final class ClaimBuilder
 	/**
 	 * @param Shipment $shipment
 	 * @return ShippingItemCollection
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ObjectNotFoundException
 	 */
 	public function getShippingItemCollection(Shipment $shipment): ShippingItemCollection
 	{
@@ -239,7 +200,6 @@ final class ClaimBuilder
 	/**
 	 * @param Shipment $shipment
 	 * @return array
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	private function getExtraServiceValues(Shipment $shipment): array
 	{
@@ -266,7 +226,6 @@ final class ClaimBuilder
 	/**
 	 * @param Shipment $shipment
 	 * @return bool
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function isDoorDeliveryRequired(Shipment $shipment)
 	{
@@ -288,7 +247,6 @@ final class ClaimBuilder
 	/**
 	 * @param Shipment $shipment
 	 * @return Result
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function buildClientRequirements(Shipment $shipment): Result
 	{
@@ -382,9 +340,9 @@ final class ClaimBuilder
 	 * @param Shipment $shipment
 	 * @return Contact|null
 	 */
-	protected function buildContactFrom(Shipment $shipment)
+	protected function buildContactFrom(Shipment $shipment): ?Contact
 	{
-		$responsibleUser = $this->extractor->getResponsibleUser($shipment);
+		$responsibleUser = $this->getResponsibleUser($shipment);
 
 		if (!$responsibleUser)
 		{
@@ -440,6 +398,67 @@ final class ClaimBuilder
 	}
 
 	/**
+	 * @param Shipment $shipment
+	 * @return Contact|null
+	 */
+	protected function buildContactTo(Shipment $shipment): ?Contact
+	{
+		$recipientContact = RecipientDataProvider::getContact($shipment);
+
+		if (is_null($recipientContact))
+		{
+			$this->result->addError(
+				new Error(
+					Loc::getMessage('SALE_YANDEX_TAXI_CLIENT_CLIENT_CONTACT_NOT_FOUND')
+				)
+			);
+			return null;
+		}
+
+		if (!$recipientContact->getName())
+		{
+			$this->result->addError(
+				new Error(
+					Loc::getMessage('SALE_YANDEX_TAXI_CLIENT_FULL_NAME_NOT_SPECIFIED')
+				)
+			);
+			return null;
+		}
+
+		$recipientContactPhones = $recipientContact->getPhones();
+		if (empty($recipientContactPhones))
+		{
+			$this->result->addError(
+				new Error(
+					Loc::getMessage('SALE_YANDEX_TAXI_CLIENT_PHONE_NOT_SPECIFIED')
+				)
+			);
+			return null;
+		}
+		else
+		{
+			$oPhone = PhoneNumber\Parser::getInstance()->parse($recipientContactPhones[0]->getValue());
+			if (!$oPhone->isValid())
+			{
+				$this->result->addError(
+					new Error(
+						sprintf(
+							'%s: %s',
+							Loc::getMessage('SALE_YANDEX_TAXI_CLIENT_PHONE_NOT_VALID'),
+							(string)$oPhone->format()
+						)
+					)
+				);
+				return null;
+			}
+		}
+
+		return (new Contact())
+			->setName($recipientContact->getName())
+			->setPhone(PhoneNumber\Formatter::format($oPhone, PhoneNumber\Format::E164));
+	}
+
+	/**
 	 * @param array $responsibleUser
 	 * @return string
 	 */
@@ -485,10 +504,7 @@ final class ClaimBuilder
 	 */
 	public function buildAddressFrom(Shipment $shipment): Result
 	{
-		return $this->buildAddress(
-			$shipment,
-			OrderPropsDictionary::ADDRESS_FROM_PROPERTY_CODE
-		);
+		return $this->buildAddress($shipment, 'IS_ADDRESS_FROM');
 	}
 
 	/**
@@ -497,19 +513,15 @@ final class ClaimBuilder
 	 */
 	public function buildAddressTo(Shipment $shipment): Result
 	{
-		return $this->buildAddress(
-			$shipment,
-			OrderPropsDictionary::ADDRESS_TO_PROPERTY_CODE
-		);
+		return $this->buildAddress($shipment, 'IS_ADDRESS_TO');
 	}
 
 	/**
 	 * @param Shipment $shipment
-	 * @param string $propertyCode
+	 * @param string $attribute
 	 * @return Result
-	 * @throws \Bitrix\Main\LoaderException
 	 */
-	private function buildAddress(Shipment $shipment, string $propertyCode)
+	private function buildAddress(Shipment $shipment, string $attribute)
 	{
 		$result = new Result();
 
@@ -520,7 +532,8 @@ final class ClaimBuilder
 			);
 		}
 
-		$addressArray = $this->getPropertyValue($shipment, $propertyCode);
+		$property = $shipment->getPropertyCollection()->getAttribute($attribute);
+		$addressArray = $property ? $property->getValue() : null;
 		if (!is_array($addressArray) || empty($addressArray))
 		{
 			return $result->addError(
@@ -528,7 +541,7 @@ final class ClaimBuilder
 					Loc::getMessage(
 						'SALE_YANDEX_TAXI_FIELD_VALUE_NOT_SPECIFIED',
 						[
-							'#FIELD_NAME#' => $this->getPropertyName($shipment, $propertyCode)
+							'#FIELD_NAME#' => $this->getPropertyName($shipment, $attribute)
 						]
 					)
 				)
@@ -611,10 +624,6 @@ final class ClaimBuilder
 	 * @param Shipment $shipment
 	 * @param string $propertyCode
 	 * @return array|string|null
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\NotImplementedException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	private function getPropertyValue(Shipment $shipment, string $propertyCode)
 	{
@@ -631,10 +640,6 @@ final class ClaimBuilder
 	 * @param Shipment $shipment
 	 * @param string $propertyCode
 	 * @return mixed|null
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\NotImplementedException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	private function getPropertyName(Shipment $shipment, string $propertyCode)
 	{
@@ -654,10 +659,6 @@ final class ClaimBuilder
 	 * @param Shipment $shipment
 	 * @param string $propertyCode
 	 * @return \Bitrix\Sale\PropertyValue|null
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\NotImplementedException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	private function getPropertyValueObject(Shipment $shipment, string $propertyCode)
 	{
@@ -678,5 +679,28 @@ final class ClaimBuilder
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param Shipment $shipment
+	 * @return array|null
+	 */
+	private function getResponsibleUser(Shipment $shipment): ?array
+	{
+		$result = null;
+
+		$userId = (int)$shipment->getField('RESPONSIBLE_ID');
+		if (!$userId && is_object($GLOBALS['USER']))
+		{
+			$userId = (int)$GLOBALS['USER']->getId();
+		}
+
+		$result = \CUser::GetList(
+			'id',
+			'asc',
+			['ID' => $userId]
+		)->fetch();
+
+		return $result ?? null;
 	}
 }

@@ -12,6 +12,7 @@ use Bitrix\Main\Security\Sign\TimeSigner;
 use Bitrix\Main\Security\Random;
 use Bitrix\Main\Text\Base32;
 use Bitrix\Main\Security\Mfa\OtpAlgorithm;
+use Bitrix\Main\Authentication\Policy;
 
 Loc::loadMessages(__FILE__);
 
@@ -42,7 +43,8 @@ class Otp
 
 	protected $userId = null;
 	protected $userLogin = null;
-	protected $userGroupPolicy = array();
+	/* @var Policy\RulesCollection*/
+	protected $userGroupPolicy;
 	protected $active = null;
 	protected $userActive = null;
 	protected $secret = null;
@@ -913,7 +915,7 @@ class Otp
 		if (!$this->isActivated())
 			return 0;
 
-		return (int) $this->getPolicy('LOGIN_ATTEMPTS');
+		return (int) $this->getPolicy()->getLoginAttempts();
 	}
 
 	/**
@@ -926,7 +928,7 @@ class Otp
 		if (!$this->isActivated())
 			return 0;
 
-		return ((int) $this->getPolicy('STORE_TIMEOUT')) * 60;
+		return ((int) $this->getPolicy()->getStoreTimeout()) * 60;
 	}
 
 	/**
@@ -939,7 +941,7 @@ class Otp
 		if (!$this->isActivated())
 			return '255.255.255.255';
 
-		return $this->getPolicy('STORE_IP_MASK');
+		return $this->getPolicy()->getStoreIpMask();
 	}
 
 	/**
@@ -1076,18 +1078,16 @@ class Otp
 	/**
 	 * Return needed group security policy
 	 *
-	 * @param string $name Name of policy.
-	 * @return null
+	 * @return Policy\RulesCollection
 	 */
-	protected function getPolicy($name)
+	protected function getPolicy()
 	{
 		if (!$this->userGroupPolicy)
-			$this->userGroupPolicy = \CUser::getGroupPolicy($this->getUserId());
+		{
+			$this->userGroupPolicy = \CUser::getPolicy($this->getUserId());
+		}
 
-		if (isset($this->userGroupPolicy[$name]))
-			return $this->userGroupPolicy[$name];
-		else
-			return null;
+		return $this->userGroupPolicy;
 	}
 
 	/**

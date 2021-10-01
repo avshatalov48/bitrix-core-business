@@ -27,7 +27,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Rating
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Rating_Query query()
+ * @method static EO_Rating_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Rating_Result getById($id)
+ * @method static EO_Rating_Result getList(array $parameters = array())
+ * @method static EO_Rating_Entity getEntity()
+ * @method static \Bitrix\Main\Rating\EO_Rating createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Rating\EO_Rating_Collection createCollection()
+ * @method static \Bitrix\Main\Rating\EO_Rating wakeUpObject($row)
+ * @method static \Bitrix\Main\Rating\EO_Rating_Collection wakeUpCollection($rows)
+ */
 
 class RatingTable extends Main\Entity\DataManager
 {

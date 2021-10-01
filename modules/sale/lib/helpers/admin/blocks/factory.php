@@ -56,7 +56,14 @@ class Factory
 			$createProductBasement = isset($params['createProductBasement']) ? $params['createProductBasement']: true;
 			$mode = isset($params['mode']) ? $params['mode']: OrderBasket::EDIT_MODE;
 
-			return new OrderBasket($order, $jsObjName, $idPrefix, $createProductBasement, $mode);
+			$result = new OrderBasket($order, $jsObjName, $idPrefix, $createProductBasement, $mode);
+
+			if($params['setSettingsShowPropsVisible'])
+			{
+				$result->setSettingsShowPropsVisible((bool)$params['setSettingsShowPropsVisible']);
+			}
+
+			return $result;
 		}
 		elseif ($type == BlockType::MARKER)
 		{

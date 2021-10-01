@@ -19,11 +19,13 @@ class ListExportExcelComponent extends CBitrixComponent
 
 	protected function checkModules()
 	{
-		if(!Loader::includeModule('lists'))
+		if (!Loader::includeModule('lists'))
+		{
 			throw new SystemException(Loc::getMessage('CC_BLL_MODULE_NOT_INSTALLED'));
+		}
 
-		$this->arResult['BIZPROC'] = (bool)Loader::includeModule('bizproc') && CBPRuntime::isFeatureEnabled();
-		$this->arResult['DISK'] = (bool)Loader::includeModule('disk');
+		$this->arResult['BIZPROC'] = Loader::includeModule('bizproc');
+		$this->arResult['DISK'] = Loader::includeModule('disk');
 	}
 
 	public function onPrepareComponentParams($params)

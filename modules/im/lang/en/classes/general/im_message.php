@@ -5,4 +5,5 @@ $MESS["IM_ERROR_EMPTY_MESSAGE"] = "The message text is empty.";
 $MESS["IM_ERROR_EMPTY_USER_ID"] = "No user ID specified.";
 $MESS["IM_MESSAGE_FORMAT_DATE"] = "g:i a, d F Y";
 $MESS["IM_MESSAGE_FORMAT_TIME"] = "g:i a";
+$MESS["IM_MESSAGE_DELETED"] = "This message has been deleted.";
 ?>

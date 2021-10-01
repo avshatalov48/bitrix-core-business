@@ -164,10 +164,13 @@
 .bx-messenger-dark .bx-messenger-panel-call-video:before {
 	filter: brightness(0.7);
 }
+.bx-messenger-dark .bx-messenger-panel-call-audio:before {
+	filter: brightness(0.7);
+}
 
 .bx-messenger-dark .bx-messenger-panel-call-menu {
 	border: 1px solid #272727;
-	background: url("./../images/im-sprite-v37.png") -81px -380px #272727
+	background-color: #272727
 }
 
 .bx-messenger-dark .bx-messenger-panel-button {
@@ -237,8 +240,8 @@
 .popup-window-dark .bx-messenger-content-group-title,
 .bx-messenger-dark .bx-messenger-content-group-title {
 	color: #e2e2e2 !important;
-    background-color: rgba(105, 105, 105, 0.42);
-    border: 1px solid rgba(212, 212, 212, 0.1);
+	background-color: rgba(105, 105, 105, 0.42);
+	border: 1px solid rgba(212, 212, 212, 0.1);
 }
 
 .popup-window-dark .bx-messenger-content-group-float .bx-messenger-content-group-title,
@@ -262,7 +265,7 @@
 .popup-window-dark .im-messenger-image-uploader-preview-box {
 	background-color: #313131;
 	border-color: #7f8c8d !important;
-    color: #bdc3c7 !important;
+	color: #bdc3c7 !important;
 }
 
 #bx-messenger-popup-status.popup-window-dark,
@@ -310,8 +313,8 @@
 
 .bx-messenger-dark .bx-messenger-content-item-system .bx-messenger-content-item-content {
 	background-color: transparent;
-    opacity: 0.75;
-    border-color: #7b7979;
+	opacity: 0.75;
+	border-color: #7b7979;
 }
 
 .bx-messenger-dark .bx-messenger-cl-status {
@@ -444,8 +447,8 @@
 
 .bx-messenger-dark .bx-desktop-tab-counter-digit {
 	background-color: #94979B;
-    color: #3D3D3D;
-    font-weight: bold;
+	color: #3D3D3D;
+	font-weight: bold;
 	border-color: #3D3D3D;
 }
 .bx-messenger-dark .bx-desktop-tab-active .bx-desktop-tab-counter-digit,
@@ -555,12 +558,20 @@
 
 .bx-messenger-dark .bx-messenger-cl-count {
 	color: #f1f1f1;
-    font-weight: bold;
+	font-weight: bold;
 	border-color: #3D3D3D;
 }
 
 .bx-messenger-dark .bx-messenger-cl-status-support24 .bx-messenger-cl-user-title,
-.bx-messenger-dark .bx-messenger-user-support24 {
+.bx-messenger-dark .bx-messenger-user-support24,
+.bx-messenger-dark .bx-messenger-cl-item-chat-support24Notifier .bx-messenger-cl-user-title,
+.bx-messenger-dark .bx-messenger-context-chat-support24Notifier .bx-messenger-panel-title {
+	color: #0490f7!important;
+}
+.bx-messenger-dark .bx-notifier-popup-avatar-status-support24 {
+	border-color: #0490f7!important;
+}
+.bx-messenger-dark .bx-notifier-popup-avatar-status-support24+.bx-notifier-popup-user-name {
 	color: #0490f7!important;
 }
 
@@ -570,13 +581,13 @@
 }
 
 .bx-messenger-dark .bx-messenger-cl-notify-wrap {
-    border-top: 1px solid #4f5152;
+	border-top: 1px solid #4f5152;
 }
 
 .bx-messenger-dark .bx-messenger-textarea,
 .bx-messenger-dark .bx-messenger-textarea-place {
 	background-color: #313131 !important;
-    border-top: 1px solid #505152;
+	border-top: 1px solid #505152;
 }
 
 .bx-messenger-dark .bx-messenger-record {
@@ -703,45 +714,12 @@
 	border-bottom-color: #505152;
 }
 
-.bx-messenger-dark .bx-messenger-birthday-icon {
-	width: 17px;
-	height: 20px;
-	background: url(./../images/im-sprite-v37.png) -46px -164px no-repeat;
-}
-
-.bx-messenger-dark .bx-messenger-panel-avatar-img,
-.bx-messenger-dark .bx-messenger-cl-avatar-img {
-	background-color: transparent;
-}
-
 .bx-messenger-dark .bx-messenger-cl-item-user-invited .bx-messenger-cl-avatar-img-default {
 	background-color: #00c8fb;
 }
 
-.bx-messenger-dark .bx-messenger-textarea-icons>div:not(.bx-messenger-textarea-icon-box) {
-	filter: brightness(4);
-}
-.bx-messenger-dark .bx-messenger-textarea-file div {
-	filter: brightness(.5);
-}
 .bx-messenger-dark .bx-messenger-textarea-file .bx-messenger-menu-hr {
 	display: none;
-}
-
-.bx-messenger-dark .bx-messenger-textarea-file:hover,
-.bx-messenger-dark .bx-messenger-textarea-file-active {
-	filter: none;
-}
-
-.bx-messenger-dark .bx-messenger-textarea-icon-marketplace,
-.bx-messenger-dark .bx-messenger-textarea-icon-marketplace-2,
-.bx-messenger-dark .bx-messenger-textarea-icon-context-all {
-	filter: brightness(0.6);
-}
-
-.bx-messenger-dark .bx-messenger-textarea-file {
-	background: url(./../images/im-sprite-v37.png) no-repeat scroll 5px -520px;
-	height: 31px;
 }
 
 .popup-window-dark .bx-notifier-popup-avatar-status-icon,
@@ -752,19 +730,18 @@
 .bx-messenger-dark .bx-messenger-file-download-link:hover {
 	color: #d6d6d6;
 }
-
-.bx-messenger-dark .bx-messenger-textarea-file:hover,
-.bx-messenger-dark .bx-messenger-textarea-file-active {
-	background-position: -86px -519px;
+.bx-messenger-dark .bx-messenger-textarea-icon,
+.bx-messenger-dark .bx-messenger-textarea-icon-marketplace {
+	opacity: .4;
+}
+.bx-messenger-dark .bx-messenger-textarea-icon:hover,
+.bx-messenger-dark .bx-messenger-textarea-icon-marketplace:hover {
+	opacity: 1;
 }
 
 .bx-messenger-dark .bx-notifier-popup-avatar,
 .popup-window-dark.bx-messenger-mark .bx-notifier-popup-avatar {
 	background: #757575;
-}
-
-.bx-messenger-dark .bx-messenger-textarea-icon-marketplace:hover {
-	filter: none;
 }
 
 .bx-messenger-dark .bx-messenger-attach-rich-links .bx-messenger-attach-rich-link-panel {
@@ -862,8 +839,8 @@
 
 .bx-messenger-dark.bx-messenger-mark .bx-messenger-panel-call-disabled .bx-messenger-panel-button,
 .bx-messenger-dark.bx-messenger-mark .bx-messenger-panel-call-disabled .bx-messenger-panel-button:hover {
-    background-color: #6d6d6d;
-    border-color: #848484;
+	background-color: #6d6d6d;
+	border-color: #848484;
 }
 
 .bx-messenger-dark.bx-messenger-mark #bx-messenger-image-uploader .popup-window-titlebar-text,
@@ -920,8 +897,11 @@
 
 .bx-messenger-dark.bx-messenger-mark .bx-messenger-input-date,
 .popup-window-dark.bx-messenger-mark .bx-messenger-input-date {
-	border-radius: 20px;
-	background: #313131 url(./../images/im-sprite-v37.png) no-repeat scroll -25px -304px;
+	opacity: .4;
+}
+
+.bx-messenger-dark .bx-messenger-chat-lines .bx-messenger-content-item-system .bx-messenger-content-item-date:after {
+	background-color: transparent;
 }
 
 .bx-messenger-dark.bx-messenger-mark .bx-messenger-input-close,
@@ -1102,7 +1082,7 @@
 .bx-messenger-dark .bx-messenger-cl-item-message-status-received:before,
 .bx-messenger-dark .bx-messenger-cl-item-message-status-delivered:before
 {
-    opacity: .4;
+	opacity: .4;
 }
 
 .bx-messenger-dark .bx-messenger-chatlist-group-add {
@@ -1334,6 +1314,10 @@
 	background: url(./../images/im-sprite-v37.png) no-repeat scroll -14px -62px #3D3D3D;
 }
 
+.bx-messenger-dark .bx-messenger-cl-search-wrap:before {
+	opacity: .4;
+}
+
 .bx-messenger-dark .bx-messenger-cl-search-wrap .bx-messenger-input-close:hover {
 	background-position: 5px -62px;
 }
@@ -1343,7 +1327,7 @@
 }
 
 .bx-messenger-dark .bx-messenger-message-edited .bx-messenger-content-item-date:before {
-	margin-top: 6px;
+	opacity: 1;
 }
 
 .bx-messenger-dark .bx-messenger-file-image-src {
@@ -1504,9 +1488,11 @@
 .bx-messenger-dark .bx-messenger-content-item-liked .bx-messenger-content-like-digit {
 	color: #fff!important;
 }
+.bx-messenger-dark .bx-messenger-content-like-button {
+	background-image: url(data:image/svg+xml,%3Csvg%20width%3D%2210%22%20height%3D%2210%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M8.671%203.687H6.48a.16.16%200%2001-.148-.094.995.995%200%2001.014-.77c.181-.53.202-1.1.06-1.64C6.254.81%206.215.13%205.528.1a.709.709%200%2000-.511.35.224.224%200%2000-.028.11c.021.44.021.813%200%201.119-.031.458-.909%201.626-1.466%202.367a.217.217%200%2001-.143.088c-.21.03-.608.084-.752.103-.034.004-.053.047-.053.066v4.16c0%20.015.018.048.051.054.113.018.394.07.679.161.357.115.654.386%201.25.587.031.01.066.016.099.016h2.796a.792.792%200%2000.648-.743%201.372%201.372%200%2000-.12-.599c-.012-.027.004-.055.033-.06.358-.066.807-.746.254-1.294-.014-.015-.012-.034.008-.04a.842.842%200%2000.609-.623.671.671%200%2000-.017-.35%201.186%201.186%200%2000-.19-.375c-.021-.029-.01-.066.025-.077a.756.756%200%2000.51-.722c.034-.323-.225-.711-.54-.711zm-6.953.175H.133a.131.131%200%2000-.131.152l.92%205.171c.015.08.085.138.167.138h.586c.09%200%20.164-.072.164-.16l.013-5.17a.132.132%200%2000-.134-.131%22%20fill%3D%22%239A9A9A%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E);
+}
 .bx-messenger-dark .bx-messenger-content-item-liked .bx-messenger-content-like-button {
-	background-position: -129px -1073px;
-	filter: brightness(2);
+	background-image: url(data:image/svg+xml,%3Csvg%20width%3D%2210%22%20height%3D%2210%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M8.671%203.687H6.48a.16.16%200%2001-.148-.094.995.995%200%2001.014-.77c.181-.53.202-1.1.06-1.64C6.254.81%206.215.13%205.528.1a.709.709%200%2000-.511.35.224.224%200%2000-.028.11c.021.44.021.813%200%201.119-.031.458-.909%201.626-1.466%202.367a.217.217%200%2001-.143.088c-.21.03-.608.084-.752.103-.034.004-.053.047-.053.066v4.16c0%20.015.018.048.051.054.113.018.394.07.679.161.357.115.654.386%201.25.587.031.01.066.016.099.016h2.796a.792.792%200%2000.648-.743%201.372%201.372%200%2000-.12-.599c-.012-.027.004-.055.033-.06.358-.066.807-.746.254-1.294-.014-.015-.012-.034.008-.04a.842.842%200%2000.609-.623.671.671%200%2000-.017-.35%201.186%201.186%200%2000-.19-.375c-.021-.029-.01-.066.025-.077a.756.756%200%2000.51-.722c.034-.323-.225-.711-.54-.711zm-6.953.175H.133a.131.131%200%2000-.131.152l.92%205.171c.015.08.085.138.167.138h.586c.09%200%20.164-.072.164-.16l.013-5.17a.132.132%200%2000-.134-.131%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E);
 }
 .popup-window-dark .bx-messenger-title,
 .bx-messenger-dark .bx-messenger-title {
@@ -1549,10 +1535,6 @@
 
 .popup-window-dark .bx-lines-comment-head-textarea {
 	background-color: #232323;
-}
-
-.bx-messenger-dark .bx-messenger-content-item-vote-comment-add {
-	color: #929292;
 }
 
 .bx-messenger-dark .bx-messenger-input-search-create {

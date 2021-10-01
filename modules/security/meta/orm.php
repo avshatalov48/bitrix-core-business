@@ -164,18 +164,6 @@ namespace Bitrix\Security\Mfa {
 }
 namespace Bitrix\Security\Mfa {
 	/**
-	 * @method static EO_RecoveryCodes_Query query()
-	 * @method static EO_RecoveryCodes_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_RecoveryCodes_Result getById($id)
-	 * @method static EO_RecoveryCodes_Result getList(array $parameters = array())
-	 * @method static EO_RecoveryCodes_Entity getEntity()
-	 * @method static \Bitrix\Security\Mfa\EO_RecoveryCodes createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Security\Mfa\EO_RecoveryCodes_Collection createCollection()
-	 * @method static \Bitrix\Security\Mfa\EO_RecoveryCodes wakeUpObject($row)
-	 * @method static \Bitrix\Security\Mfa\EO_RecoveryCodes_Collection wakeUpCollection($rows)
-	 */
-	class RecoveryCodesTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -401,18 +389,6 @@ namespace Bitrix\Security\Mfa {
 }
 namespace Bitrix\Security\Mfa {
 	/**
-	 * @method static EO_User_Query query()
-	 * @method static EO_User_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_User_Result getById($id)
-	 * @method static EO_User_Result getList(array $parameters = array())
-	 * @method static EO_User_Entity getEntity()
-	 * @method static \Bitrix\Security\Mfa\EO_User createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Security\Mfa\EO_User_Collection createCollection()
-	 * @method static \Bitrix\Security\Mfa\EO_User wakeUpObject($row)
-	 * @method static \Bitrix\Security\Mfa\EO_User_Collection wakeUpCollection($rows)
-	 */
-	class UserTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -552,18 +528,6 @@ namespace Bitrix\Security {
 	}
 }
 namespace Bitrix\Security {
-	/**
-	 * @method static EO_Session_Query query()
-	 * @method static EO_Session_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Session_Result getById($id)
-	 * @method static EO_Session_Result getList(array $parameters = array())
-	 * @method static EO_Session_Entity getEntity()
-	 * @method static \Bitrix\Security\EO_Session createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Security\EO_Session_Collection createCollection()
-	 * @method static \Bitrix\Security\EO_Session wakeUpObject($row)
-	 * @method static \Bitrix\Security\EO_Session_Collection wakeUpCollection($rows)
-	 */
-	class SessionTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

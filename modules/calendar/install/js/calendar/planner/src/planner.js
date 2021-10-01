@@ -33,6 +33,7 @@ export class Planner extends EventEmitter
 	scrollStep = 10;
 	shown = false;
 	built = false;
+	locked = false;
 	shownScaleTimeFrom = 24;
 	shownScaleTimeTo = 0;
 	timelineCellWidthOrig = false;
@@ -278,6 +279,11 @@ export class Planner extends EventEmitter
 				&& params.allowAdjustCellWidth !== false;
 		}
 
+		if (params.locked !== undefined)
+		{
+			this.locked = params.locked;
+		}
+
 		this.adjustCellWidth();
 
 		// Scale params
@@ -442,11 +448,15 @@ export class Planner extends EventEmitter
 		this.DOM.entrieListWrap = this.DOM.entriesOuterWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-user-container-inner'}}));
 
 		// Fixed cont with specific width and height
-		this.DOM.timelineFixedWrap = this.DOM.mainWrap.appendChild(BX.create("DIV", {
-			props: {className: 'calendar-planner-timeline-wrapper'}, style: {
-				height: this.height + 'px'
-			}
-		}));
+		this.DOM.timelineFixedWrap = this.DOM.mainWrap.appendChild(
+			Tag.render`
+				<div class="calendar-planner-timeline-wrapper" style="height: ${this.height}px"></div>
+		`);
+
+		if (this.isLocked())
+		{
+			this.lock();
+		}
 
 		// Movable cont - used to move scale and data containers easy and at the same time
 		this.DOM.timelineInnerWrap = this.DOM.timelineFixedWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-timeline-inner-wrapper'}}));
@@ -707,147 +717,6 @@ export class Planner extends EventEmitter
 	{
 		return this.scaleType === '1day';
 	}
-
-	/**
-	 * Updates data on scale of planner
-	 *
-	 * @params array array of parameters
-	 * @params[entries] - array of entries to display on scale
-	 * @params[accessibility] - object contains informaton about accessibility for entries
-	 * @return null
-	 */
-	// UpdateData(params)
-	// {
-	// 	if (!params.accessibility)
-	// 	{
-	// 		params.accessibility = {};
-	// 	}
-	//
-	// 	this.accessibility = params.accessibility;
-	// 	this.entries = params.entries;
-	//
-	// 	let i, k, entry, acc, userId = this.userId;
-	// 	// Compact mode
-	// 	if (this.compactMode)
-	// 	{
-	// 		let data = [];
-	// 		for (k in params.accessibility)
-	// 		{
-	// 			if (params.accessibility.hasOwnProperty(k) && params.accessibility[k] && params.accessibility[k].length > 0)
-	// 			{
-	// 				for (i = 0; i < params.accessibility[k].length; i++)
-	// 				{
-	// 					data.push(Planner.prepareAccessibilityItem(params.accessibility[k][i]));
-	// 				}
-	// 			}
-	// 		}
-	//
-	// 		// Fuse access
-	// 		//data = this.FuseAccessibility(data);
-	// 		this.compactRowWrap = this.DOM.accessibilityWrap.appendChild(BX.create("DIV", {
-	// 			props: {className: 'calendar-planner-timeline-space'},
-	// 			style: {}
-	// 		}));
-	//
-	// 		// this.currentData = [data];
-	// 		// for (i = 0; i < data.length; i++)
-	// 		// {
-	// 		// 	this.addAccessibilityItem(data[i], this.compactRowWrap);
-	// 		// }
-	// 	}
-	// 	else
-	// 	{
-	// 		// sort entries list by amount of accessibilities data
-	// 		// Enties without accessibilitity data should be in the end of the array
-	// 		// But first in the list will be meeting room
-	// 		// And second (or first) will be owner-host of the event
-	//
-	// 		if (params.entries && params.entries.length)
-	// 		{
-	// 			params.entries.sort(function(a, b)
-	// 			{
-	// 				if (b.status === 'h' || b.id == userId && a.status !== 'h')
-	// 				{
-	// 					return 1;
-	// 				}
-	// 				if (a.status === 'h' || a.id == userId && b.status !== 'h')
-	// 				{
-	// 					return  -1;
-	// 				}
-	// 				return 0;
-	// 			});
-	//
-	// 			if (this.selectedEntriesWrap)
-	// 			{
-	// 				Dom.clean(this.selectedEntriesWrap);
-	//
-	// 				if (this.selector && this.selector.controlWrap)
-	// 				{
-	// 					Dom.clean(this.selector.controlWrap);
-	// 				}
-	// 			}
-	//
-	// 			let
-	// 				cutData = [],
-	// 				usersCount = 0,
-	// 				cutAmount = 0,
-	// 				dispDataCount = 0,
-	// 				cutDataTitle = [];
-	//
-	// 			for (i = 0; i < params.entries.length; i++)
-	// 			{
-	// 				entry = params.entries[i];
-	// 				acc = params.accessibility[entry.id] || [];
-	// 				entry.uid = this.getEntryUniqueId(entry);
-	//
-	// 				if (entry.type === 'user')
-	// 					usersCount++;
-	//
-	// 				if (this.MIN_ENTRY_ROWS && (i < this.MIN_ENTRY_ROWS || params.entries.length === this.MIN_ENTRY_ROWS + 1))
-	// 				{
-	// 					dispDataCount++;
-	// 					this.displayEntryRow(entry, acc);
-	// 				}
-	// 				else
-	// 				{
-	// 					cutAmount++;
-	// 					cutDataTitle.push(entry.name);
-	// 					if (acc.length > 0)
-	// 					{
-	// 						for (k = 0; k < acc.length; k++)
-	// 						{
-	// 							cutData.push(Planner.prepareAccessibilityItem(acc[k]));
-	// 						}
-	// 					}
-	// 				}
-	// 			}
-	//
-	// 			// Update entries title count
-	// 			if (this.entriesListTitleCounter)
-	// 			{
-	// 				this.entriesListTitleCounter.innerHTML = usersCount > this.MAX_ENTRY_ROWS ? '(' + usersCount + ')' : '';
-	// 			}
-	//
-	// 			if (cutAmount > 0)
-	// 			{
-	// 				if (dispDataCount === this.MAX_ENTRY_ROWS)
-	// 				{
-	// 					this.displayEntryRow({name: Loc.getMessage('EC_PL_ATTENDEES_LAST') + ' (' + cutAmount + ')', type: 'lastUsers', title: cutDataTitle.join(', ')}, cutData);
-	// 				}
-	// 				else
-	// 				{
-	// 					this.displayEntryRow({name: Loc.getMessage('EC_PL_ATTENDEES_SHOW_MORE') + ' (' + cutAmount + ')', type: 'moreLink'}, cutData);
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// 	this.adjustHeight();
-	//
-	// 	BX.onCustomEvent('OnCalendarPlannerUpdated', [this, {
-	// 		plannerId: this.id,
-	// 		entries: this.entries
-	// 	}]);
-	// }
 
 	static prepareAccessibilityItem(entry)
 	{
@@ -2524,5 +2393,33 @@ export class Planner extends EventEmitter
 	isBuilt()
 	{
 		return this.built;
+	}
+
+	isLocked()
+	{
+		return this.locked;
+	}
+
+	lock()
+	{
+		if (!this.DOM.lockScreen)
+		{
+			this.DOM.lockScreen = Tag.render`
+				<div class="calendar-planner-timeline-locker">
+					<div class="calendar-planner-timeline-locker-container">
+						<div class="calendar-planner-timeline-locker-top">
+							<div class="calendar-planner-timeline-locker-icon"></div>
+							<div class="calendar-planner-timeline-text">${Loc.getMessage('EC_PL_LOCKED_TITLE')}</div>
+						</div>
+						<div class="calendar-planner-timeline-locker-button">
+							<a href="javascript:void(0)" onclick="top.BX.UI.InfoHelper.show('limit_crm_calender_planner');" class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round">${Loc.getMessage('EC_PL_UNLOCK_FEATURE')}</a>
+						</div>
+					</div>
+				</div>
+			`;
+		}
+
+		Dom.addClass(this.DOM.timelineFixedWrap, '--lock');
+		this.DOM.timelineFixedWrap.appendChild(this.DOM.lockScreen);
 	}
 }

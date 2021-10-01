@@ -11,7 +11,6 @@ import {PullClient} from "pull.client";
 import {VuexBuilderModel} from 'ui.vue.vuex';
 import {EventType} from "im.const";
 import {Logger} from "im.lib.logger";
-
 import {EventEmitter} from 'main.core.events';
 
 export class ImBasePullHandler
@@ -175,9 +174,11 @@ export class ImBasePullHandler
 				fields: {
 					lines: params.lines || {id: 0},message: {
 						id: params.message.id,
-						text: params.message.text,
+						text: params.message.textOriginal,
 						date: params.message.date,
-						senderId: params.message.senderId
+						senderId: params.message.senderId,
+						withFile: typeof params.message.params['FILE_ID'] !== 'undefined',
+						withAttach: typeof params.message.params['ATTACH'] !== 'undefined',
 					},
 					counter: params.counter
 				}
@@ -725,9 +726,11 @@ export class ImBasePullHandler
 			userId: userId,
 			message: {
 				id: params.message.id,
-				text: params.message.text,
+				text: params.message.textOriginal,
 				date: params.message.date,
-				senderId: params.message.senderId
+				senderId: params.message.senderId,
+				withFile: typeof params.message.params['FILE_ID'] !== 'undefined',
+				withAttach: typeof params.message.params['ATTACH'] !== 'undefined',
 			}
 		};
 	}

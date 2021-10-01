@@ -822,7 +822,7 @@
 				}
 				else
 				{
-					result.moreSquares.push({type: 'control', name: current.value, title: current.title});
+					result.moreSquares.push({type: 'control', name: current.value, title: current.title, icon: current.icon});
 				}
 			}, this);
 
@@ -861,7 +861,20 @@
 					block: 'main-ui-search-square',
 					name: this.parent.getParam('MAIN_UI_FILTER__AND') + ' ' + this.parent.getParam('MAIN_UI_FILTER__MORE') + ' ' + moreSquares.moreSquares.length,
 					item: moreSquares.moreSquares,
-					title: moreSquares.moreSquares.map(function(curr) { return curr.title; }).join(', \n')
+					title: moreSquares.moreSquares
+						.map(
+							function(curr) {
+								let title = curr.title;
+								if ('icon' in curr && BX.Type.isPlainObject(curr.icon))
+								{
+									let iconTitle = curr.icon.title;
+									title = title.length ? (iconTitle + ': ' + title) : '';
+								}
+
+								return title;
+							}
+						)
+						.join(', \n')
 				};
 
 				square = BX.decl(square);
@@ -994,247 +1007,269 @@
 			fields.map(function(current) {
 				value = null;
 
-				switch (current.TYPE)
+				if (!BX.Type.isStringFilled(current.ADDITIONAL_FILTER))
 				{
-					case this.parent.types.DATE : {
-						value = current.LABEL + ': ' + current.SUB_TYPE.NAME;
+					switch (current.TYPE)
+					{
+						case this.parent.types.DATE : {
+							value = current.LABEL + ': ' + current.SUB_TYPE.NAME;
 
-						if (current.SUB_TYPE.VALUE === this.parent.dateTypes.QUARTER &&
-							BX.type.isNotEmptyString(current.VALUES._quarter))
-						{
-							var quarter = current.QUARTERS.filter(function(curr) {
-								return curr.VALUE == current.VALUES._quarter;
-							}).map(function(curr) {
-								return curr.NAME;
-							});
-
-							quarter = quarter.length ? quarter.join('') : '';
-
-							value = current.LABEL + ': ' + quarter + ' ' +
-								this.parent.getParam('MAIN_UI_FILTER__QUARTER').toLocaleLowerCase() + ' ' +
-								current.VALUES._year;
-						}
-
-						if (current.SUB_TYPE.VALUE === this.parent.dateTypes.YEAR &&
-							BX.type.isNotEmptyString(current.VALUES._year))
-						{
-							value = current.LABEL + ': ' + current.VALUES._year;
-						}
-
-						if (current.SUB_TYPE.VALUE === this.parent.dateTypes.MONTH &&
-							BX.type.isNotEmptyString(current.VALUES._month))
-						{
-							var month = current.MONTHS.filter(function(curr) {
-								return curr.VALUE == current.VALUES._month;
-							}).map(function(curr) {
-								return curr.NAME;
-							});
-
-							month = month.length ? month.join('') : '';
-
-							value = current.LABEL + ': ' + month + ' ' + current.VALUES._year;
-						}
-
-						if (current.SUB_TYPE.VALUE === this.parent.dateTypes.EXACT &&
-							BX.type.isNotEmptyString(current.VALUES._from))
-						{
-							value = current.LABEL + ': ' + current.VALUES._from;
-						}
-
-						if (current.SUB_TYPE.VALUE === this.parent.dateTypes.RANGE)
-						{
-							if (BX.type.isNotEmptyString(current.VALUES._from) && BX.type.isNotEmptyString(current.VALUES._to))
+							if (current.SUB_TYPE.VALUE === this.parent.dateTypes.QUARTER &&
+								BX.type.isNotEmptyString(current.VALUES._quarter))
 							{
-								value = current.LABEL + ': ' + current.VALUES._from + '-' + current.VALUES._to;
-							}
-							else if (!BX.type.isNotEmptyString(current.VALUES._from) && BX.type.isNotEmptyString(current.VALUES._to))
-							{
-								value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__BEFORE') + ' ' + current.VALUES._to;
-							}
-							else if (BX.type.isNotEmptyString(current.VALUES._from) && !BX.type.isNotEmptyString(current.VALUES._to))
-							{
-								value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__AFTER') + ' ' + current.VALUES._from;
-							}
-						}
-
-
-						if ((current.SUB_TYPE.VALUE === this.parent.dateTypes.NEXT_DAYS ||
-							current.SUB_TYPE.VALUE === this.parent.dateTypes.PREV_DAYS) &&
-							!BX.type.isNumber(parseInt(current.VALUES._days)))
-						{
-							value = null;
-						}
-
-						if (current.SUB_TYPE.VALUE === this.parent.dateTypes.NEXT_DAYS &&
-							BX.type.isNumber(parseInt(current.VALUES._days)))
-						{
-							value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__DATE_NEXT_DAYS_LABEL').replace('#N#', current.VALUES._days);
-						}
-
-						if (current.SUB_TYPE.VALUE === this.parent.dateTypes.PREV_DAYS &&
-							BX.type.isNumber(parseInt(current.VALUES._days)))
-						{
-							value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__DATE_PREV_DAYS_LABEL').replace('#N#', current.VALUES._days);
-						}
-
-						if (current.SUB_TYPE.VALUE === this.parent.dateTypes.NONE)
-						{
-							value = null;
-						}
-
-						break;
-					}
-
-					case this.parent.types.CUSTOM_DATE : {
-						if (
-							(BX.type.isArray(current.VALUE.days) && current.VALUE.days.length) ||
-							(BX.type.isArray(current.VALUE.months) && current.VALUE.months.length) ||
-							(BX.type.isArray(current.VALUE.years) && current.VALUE.years.length)
-						)
-						{
-							value = current.LABEL;
-						}
-						break;
-					}
-
-					case this.parent.types.SELECT : {
-						if ((BX.type.isPlainObject(current.VALUE) && current.VALUE.VALUE) || current.STRICT)
-						{
-							value = current.LABEL + ': ' + current.VALUE.NAME;
-						}
-						break;
-					}
-
-					case this.parent.types.MULTI_SELECT : {
-						if (BX.type.isArray(current.VALUE) && current.VALUE.length)
-						{
-							tmpValues = [];
-							value = current.LABEL + ': ';
-							current.VALUE.forEach(function(val, index) {
-								if (index < 2)
-								{
-									tmpValues.push(val.NAME);
-								}
-							});
-
-							value += tmpValues.join(', ');
-
-							if (current.VALUE.length > 2)
-							{
-								title = [];
-
-								current.VALUE.forEach(function(val) {
-									title.push(val.NAME);
+								var quarter = current.QUARTERS.filter(function(curr) {
+									return curr.VALUE == current.VALUES._quarter;
+								}).map(function(curr) {
+									return curr.NAME;
 								});
 
-								value = title.join(', ');
-							}
-						}
-						break;
-					}
+								quarter = quarter.length ? quarter.join('') : '';
 
-					case this.parent.types.NUMBER : {
-						if (current.SUB_TYPE.VALUE === 'exact')
-						{
-							if (BX.type.isNotEmptyString(current.VALUES._from))
+								value = current.LABEL + ': ' + quarter + ' ' +
+									this.parent.getParam('MAIN_UI_FILTER__QUARTER').toLocaleLowerCase() + ' ' +
+									current.VALUES._year;
+							}
+
+							if (current.SUB_TYPE.VALUE === this.parent.dateTypes.YEAR &&
+								BX.type.isNotEmptyString(current.VALUES._year))
+							{
+								value = current.LABEL + ': ' + current.VALUES._year;
+							}
+
+							if (current.SUB_TYPE.VALUE === this.parent.dateTypes.MONTH &&
+								BX.type.isNotEmptyString(current.VALUES._month))
+							{
+								var month = current.MONTHS.filter(function(curr) {
+									return curr.VALUE == current.VALUES._month;
+								}).map(function(curr) {
+									return curr.NAME;
+								});
+
+								month = month.length ? month.join('') : '';
+
+								value = current.LABEL + ': ' + month + ' ' + current.VALUES._year;
+							}
+
+							if (current.SUB_TYPE.VALUE === this.parent.dateTypes.EXACT &&
+								BX.type.isNotEmptyString(current.VALUES._from))
 							{
 								value = current.LABEL + ': ' + current.VALUES._from;
 							}
-							else
+
+							if (current.SUB_TYPE.VALUE === this.parent.dateTypes.RANGE)
+							{
+								if (BX.type.isNotEmptyString(current.VALUES._from) && BX.type.isNotEmptyString(current.VALUES._to))
+								{
+									value = current.LABEL + ': ' + current.VALUES._from + '-' + current.VALUES._to;
+								}
+								else if (!BX.type.isNotEmptyString(current.VALUES._from) && BX.type.isNotEmptyString(current.VALUES._to))
+								{
+									value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__BEFORE') + ' ' + current.VALUES._to;
+								}
+								else if (BX.type.isNotEmptyString(current.VALUES._from) && !BX.type.isNotEmptyString(current.VALUES._to))
+								{
+									value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__AFTER') + ' ' + current.VALUES._from;
+								}
+							}
+
+
+							if ((current.SUB_TYPE.VALUE === this.parent.dateTypes.NEXT_DAYS ||
+								current.SUB_TYPE.VALUE === this.parent.dateTypes.PREV_DAYS) &&
+								!BX.type.isNumber(parseInt(current.VALUES._days)))
 							{
 								value = null;
 							}
-						}
 
-						if (current.SUB_TYPE.VALUE === 'range')
-						{
-							if (BX.type.isNotEmptyString(current.VALUES._from) && BX.type.isNotEmptyString(current.VALUES._to))
+							if (current.SUB_TYPE.VALUE === this.parent.dateTypes.NEXT_DAYS &&
+								BX.type.isNumber(parseInt(current.VALUES._days)))
 							{
-								value = current.LABEL + ': ' + current.VALUES._from + '-' + current.VALUES._to;
+								value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__DATE_NEXT_DAYS_LABEL').replace('#N#', current.VALUES._days);
 							}
-							else if (!BX.type.isNotEmptyString(current.VALUES._from) && BX.type.isNotEmptyString(current.VALUES._to))
+
+							if (current.SUB_TYPE.VALUE === this.parent.dateTypes.PREV_DAYS &&
+								BX.type.isNumber(parseInt(current.VALUES._days)))
 							{
-								value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__NUMBER_LESS') + ' ' + current.VALUES._to;
+								value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__DATE_PREV_DAYS_LABEL').replace('#N#', current.VALUES._days);
 							}
-							else if (BX.type.isNotEmptyString(current.VALUES._from) && !BX.type.isNotEmptyString(current.VALUES._to))
-							{
-								value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__NUMBER_MORE') + ' ' + current.VALUES._from;
-							}
-							else
+
+							if (current.SUB_TYPE.VALUE === this.parent.dateTypes.NONE)
 							{
 								value = null;
 							}
+
+							break;
 						}
 
-						if (current.SUB_TYPE.VALUE === 'more')
-						{
-							if (BX.type.isNotEmptyString(current.VALUES._from))
+						case this.parent.types.CUSTOM_DATE : {
+							if (
+								(BX.type.isArray(current.VALUE.days) && current.VALUE.days.length) ||
+								(BX.type.isArray(current.VALUE.months) && current.VALUE.months.length) ||
+								(BX.type.isArray(current.VALUE.years) && current.VALUE.years.length)
+							)
 							{
-								value = current.LABEL + ': > ';
-								value += current.VALUES._from;
+								value = current.LABEL;
 							}
+							break;
 						}
 
-						if (current.SUB_TYPE.VALUE === 'less')
-						{
-							if (BX.type.isNotEmptyString(current.VALUES._to))
+						case this.parent.types.SELECT : {
+							if ((BX.type.isPlainObject(current.VALUE) && current.VALUE.VALUE) || current.STRICT)
 							{
-								value = current.LABEL + ': < ';
-								value += current.VALUES._to;
+								value = current.LABEL + ': ' + current.VALUE.NAME;
 							}
+							break;
 						}
-						break;
-					}
 
-					case this.parent.types.CUSTOM_ENTITY :
-					case this.parent.types.DEST_SELECTOR :
-					case this.parent.types.ENTITY_SELECTOR : {
-						if (current.MULTIPLE)
-						{
-							var label = !!current.VALUES._label ? current.VALUES._label : [];
-
-							if (BX.type.isPlainObject(label))
+						case this.parent.types.MULTI_SELECT : {
+							if (BX.type.isArray(current.VALUE) && current.VALUE.length)
 							{
-								label = Object.keys(label).map(function(key) {
-									return label[key];
+								tmpValues = [];
+								value = current.LABEL + ': ';
+								current.VALUE.forEach(function(val, index) {
+									if (index < 2)
+									{
+										tmpValues.push(val.NAME);
+									}
 								});
+
+								value += tmpValues.join(', ');
+
+								if (current.VALUE.length > 2)
+								{
+									title = [];
+
+									current.VALUE.forEach(function(val) {
+										title.push(val.NAME);
+									});
+
+									value = title.join(', ');
+								}
+							}
+							break;
+						}
+
+						case this.parent.types.NUMBER : {
+							if (current.SUB_TYPE.VALUE === 'exact')
+							{
+								if (BX.type.isNotEmptyString(current.VALUES._from))
+								{
+									value = current.LABEL + ': ' + current.VALUES._from;
+								}
+								else
+								{
+									value = null;
+								}
 							}
 
-							if (!BX.type.isArray(label))
+							if (current.SUB_TYPE.VALUE === 'range')
 							{
-								label = [ label ];
+								if (BX.type.isNotEmptyString(current.VALUES._from) && BX.type.isNotEmptyString(current.VALUES._to))
+								{
+									value = current.LABEL + ': ' + current.VALUES._from + '-' + current.VALUES._to;
+								}
+								else if (!BX.type.isNotEmptyString(current.VALUES._from) && BX.type.isNotEmptyString(current.VALUES._to))
+								{
+									value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__NUMBER_LESS') + ' ' + current.VALUES._to;
+								}
+								else if (BX.type.isNotEmptyString(current.VALUES._from) && !BX.type.isNotEmptyString(current.VALUES._to))
+								{
+									value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__NUMBER_MORE') + ' ' + current.VALUES._from;
+								}
+								else
+								{
+									value = null;
+								}
 							}
 
-							if (label.length > 0)
+							if (current.SUB_TYPE.VALUE === 'more')
 							{
-								value = current.LABEL + ': ';
-								value += label.join(', ');
+								if (BX.type.isNotEmptyString(current.VALUES._from))
+								{
+									value = current.LABEL + ': > ';
+									value += current.VALUES._from;
+								}
 							}
-						}
-						else
-						{
-							if (BX.type.isNotEmptyString(current.VALUES._value) &&
-								BX.type.isNotEmptyString(current.VALUES._label))
+
+							if (current.SUB_TYPE.VALUE === 'less')
 							{
-								value = current.LABEL + ': ';
-								value += current.VALUES._label;
+								if (BX.type.isNotEmptyString(current.VALUES._to))
+								{
+									value = current.LABEL + ': < ';
+									value += current.VALUES._to;
+								}
 							}
+							break;
 						}
-						break;
+
+						case this.parent.types.CUSTOM_ENTITY :
+						case this.parent.types.DEST_SELECTOR :
+						case this.parent.types.ENTITY_SELECTOR : {
+							if (current.MULTIPLE)
+							{
+								var label = !!current.VALUES._label ? current.VALUES._label : [];
+
+								if (BX.type.isPlainObject(label))
+								{
+									label = Object.keys(label).map(function(key) {
+										return label[key];
+									});
+								}
+
+								if (!BX.type.isArray(label))
+								{
+									label = [ label ];
+								}
+
+								if (label.length > 0)
+								{
+									value = current.LABEL + ': ';
+									value += label.join(', ');
+								}
+							}
+							else
+							{
+								if (BX.type.isNotEmptyString(current.VALUES._value) &&
+									BX.type.isNotEmptyString(current.VALUES._label))
+								{
+									value = current.LABEL + ': ';
+									value += current.VALUES._label;
+								}
+							}
+							break;
+						}
+
+						case this.parent.types.CUSTOM : {
+							value = '_VALUE' in current && BX.type.isNotEmptyString(current._VALUE) ? current.LABEL : null;
+							break;
+						}
+
+						default : {
+							if (BX.type.isNotEmptyString(current.VALUE))
+							{
+								value = current.LABEL + ': ' + current.VALUE;
+							}
+							break;
+						}
+					}
+				}
+				else
+				{
+					var squareItem = {
+						block: 'main-ui-search-square',
+						name: current.LABEL + ': ' + BX.Loc.getMessage('MAIN_UI_FILTER__ADDITIONAL_FILTER_PLACEHOLDER_IS_EMPTY'),
+						value: current.NAME,
+						icon: ('ICON' in current ? current.ICON : null),
+						item: {type: 'control', name: current.NAME},
+						title: current.LABEL + ': ' + BX.Loc.getMessage('MAIN_UI_FILTER__ADDITIONAL_FILTER_PLACEHOLDER_IS_EMPTY')
+					};
+
+					if (current.ADDITIONAL_FILTER === BX.Filter.AdditionalFilter.Type.HAS_ANY_VALUE)
+					{
+						squareItem.name = current.LABEL + ': ' + BX.Loc.getMessage('MAIN_UI_FILTER__ADDITIONAL_FILTER_PLACEHOLDER_HAS_ANY_VALUE');
+						squareItem.title = current.LABEL + ': ' + BX.Loc.getMessage('MAIN_UI_FILTER__ADDITIONAL_FILTER_PLACEHOLDER_HAS_ANY_VALUE');
 					}
 
-					case this.parent.types.CUSTOM : {
-						value = '_VALUE' in current && BX.type.isNotEmptyString(current._VALUE) ? current.LABEL : null;
-						break;
-					}
-
-					default : {
-						if (BX.type.isNotEmptyString(current.VALUE))
-						{
-							value = current.LABEL + ': ' + current.VALUE;
-						}
-						break;
-					}
+					result.push(squareItem);
 				}
 
 				if (value !== null)
@@ -1243,6 +1278,7 @@
 						block: 'main-ui-search-square',
 						name: value,
 						value: current.NAME,
+						icon: ('ICON' in current ? current.ICON : null),
 						item: {type: 'control', name: current.NAME},
 						title: value
 					});

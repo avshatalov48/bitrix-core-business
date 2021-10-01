@@ -236,11 +236,11 @@ if(!$arResult['IS_AVAILABLE'] )
 {
 	$APPLICATION->IncludeComponent("bitrix:ui.info.helper", "", array());
 	?>
-    <script>
-        BX.ready(function (){
-            BX.UI.InfoHelper.show('limit_crm_marketing_email');
-        });
-    </script>
+	<script>
+		BX.ready(function () {
+			BX.UI.InfoHelper.show('limit_crm_marketing_email');
+		});
+	</script>
 	<?
 }
 

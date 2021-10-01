@@ -82,6 +82,10 @@ function CrmWebFormListItem(params)
 	this.nodeCopyToClipboard = this.node.querySelector('.copy-to-clipboard-node');
 	this.nodeCopyToClipboardButton = this.node.querySelector('.copy-to-clipboard-button');
 
+	this.nodeSiteList = this.node.querySelector('.intranet-button-list-site-restriction-list');
+	this.nodeSiteListSaved = this.node.querySelector('.intranet-button-list-site-restriction-saved');
+	this.siteListSavedTimeout = null;
+
 	this.nodeDelete = this.node.querySelector('[data-bx-crm-webform-item-delete]');
 	this.nodeSettings = this.node.querySelector('[data-bx-crm-webform-item-settings]');
 	this.nodeViewSettings = this.node.querySelector('[data-bx-crm-webform-item-view-settings]');
@@ -213,6 +217,72 @@ CrmWebFormListItem.prototype =
 		);
 	},
 
+	saveSiteRestrictions: function(event)
+	{
+		var siteIds = this.getSelectedSites();
+		var self = this;
+
+		if (siteIds.length === 0)
+		{
+			return false;
+		}
+
+		var action = 'saveSiteRestrictions';
+		var reqData = {
+			'BUTTON_ID': this.id,
+			'SITE_ID': siteIds
+		};
+
+		clearTimeout(this.siteListSavedTimeout);
+		this.nodeSiteListSaved.classList.remove('active');
+
+		this.sendActionRequest(
+			action,
+			reqData,
+			function(data)
+			{
+				this.nodeSiteListSaved.classList.add('active');
+				this.siteListSavedTimeout = setTimeout(function() {
+					self.nodeSiteListSaved.classList.remove('active');
+				}, 3000);
+			},
+			function(data)
+			{
+				data = data || {'error': true, 'text': ''};
+				this.showErrorPopup(data);
+			}
+		);
+	},
+
+	preventDeselectLastSite: function(event)
+	{
+		var siteIds = this.getSelectedSites();
+
+		if (siteIds.length === 0)
+		{
+			event.target.selected = true;
+			return false;
+		}
+	},
+
+	getSelectedSites: function()
+	{
+		var siteIds = [];
+		if (this.nodeSiteList.options)
+		{
+			for (var i = 0; i < this.nodeSiteList.options.length; i++)
+			{
+				opt = this.nodeSiteList.options[i];
+
+				if (opt.selected)
+				{
+					siteIds.push(opt.value || opt.text);
+				}
+			}
+		}
+		return siteIds;
+	},
+
 	redirectToDetailPage: function (formId)
 	{
 		window.location = this.detailPageUrlTemplate.replace('#id#', formId).replace('#form_id#', formId);
@@ -296,6 +366,12 @@ CrmWebFormListItem.prototype =
 		BX.bind(this.activeController.nodeActiveControl, 'click', BX.proxy(this.changeActive, this));
 		BX.bind(this.nodeSettings, 'click', BX.proxy(this.showSettings, this));
 		BX.bind(this.nodeViewSettings, 'click', BX.proxy(this.showViewSettings, this));
+
+		BX.bind(this.nodeSiteList, 'change', BX.proxy(this.saveSiteRestrictions, this));
+
+		this.nodeSiteList.querySelectorAll('option').forEach(BX.proxy(function(item){
+			BX.bind(item, 'click', BX.proxy(this.preventDeselectLastSite, this));
+		}, this));
 	},
 	changeClass: function (node, className, isAdd)
 	{

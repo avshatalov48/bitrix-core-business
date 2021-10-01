@@ -11,8 +11,9 @@ use Bitrix\Crm;
  * Class SaveOrderAction
  * @package Bitrix\Sale\Controller\Action\Entity
  * @example BX.ajax.runAction("sale.entity.saveOrder", { data: { fields: { siteId:'s1', [userId:1, personTypeId:1] properties: {...}}}});
+ * @internal
  */
-class SaveOrderAction extends BaseAction
+final class SaveOrderAction extends BaseAction
 {
 	/**
 	 * @param array $fields
@@ -456,7 +457,7 @@ class SaveOrderAction extends BaseAction
 		if ((int)$addResult <= 0)
 		{
 			$errors = explode('<br>', $user->LAST_ERROR);
-			TrimArr($errors);
+			TrimArr($errors, true);
 			foreach ($errors as $error)
 			{
 				$result->addError(new Main\Error($error));
@@ -470,7 +471,7 @@ class SaveOrderAction extends BaseAction
 		return $result;
 	}
 
-	public function generateUserData(array $userProps = []): array
+	private function generateUserData(array $userProps = []): array
 	{
 		$userEmail = isset($userProps['EMAIL']) ? trim((string)$userProps['EMAIL']) : '';
 		$newLogin = $userEmail;

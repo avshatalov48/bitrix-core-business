@@ -12,6 +12,22 @@ use	Bitrix\Main\Entity\DataManager,
 use Bitrix\Main\ORM\Fields\Validators\EnumValidator;
 use Bitrix\Sale\Registry;
 
+/**
+ * Class OrderPropsValueTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_OrderPropsValue_Query query()
+ * @method static EO_OrderPropsValue_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_OrderPropsValue_Result getById($id)
+ * @method static EO_OrderPropsValue_Result getList(array $parameters = array())
+ * @method static EO_OrderPropsValue_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_OrderPropsValue createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_OrderPropsValue_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_OrderPropsValue wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_OrderPropsValue_Collection wakeUpCollection($rows)
+ */
 class OrderPropsValueTable extends DataManager
 {
 	public static function getFilePath()

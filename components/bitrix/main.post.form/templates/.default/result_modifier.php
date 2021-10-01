@@ -50,37 +50,34 @@ if(isset($userOption["showBBCode"]) && $userOption["showBBCode"] == "Y")
 
 $arParams["PIN_EDITOR_PANEL"] = (isset($userOption["pinEditorPanel"]) && $userOption["pinEditorPanel"] == "Y") ? "Y" : "N";
 
-$arParams["ADDITIONAL"] = (is_array($arParams["~ADDITIONAL"]) ? $arParams["~ADDITIONAL"] : array());
-
 $arResult["SELECTOR_VERSION"] = (!empty($arParams["SELECTOR_VERSION"]) ? intval($arParams["SELECTOR_VERSION"]) : 1);
 
-$addSpan = true;
-if (!empty($arParams["ADDITIONAL"]))
+$arParams["ADDITIONAL"] = isset($arParams["~ADDITIONAL"]) ? $arParams["~ADDITIONAL"] : [];
+$arParams["ADDITIONAL_TYPE"] = 'html';
+if (is_array($arParams["ADDITIONAL"]))
 {
-	$res = reset($arParams["ADDITIONAL"]);
-	$res = trim($res);
-	$addSpan = (mb_substr($res, 0, 1) == "<");
-}
-$arParams["ADDITIONAL_TYPE"] = ($addSpan ? "html" : "popup");
-if ($arParams["TEXT"]["~SHOW"] != "Y")
-{
-	if ($addSpan)
+	if (!empty($arParams["ADDITIONAL"]))
 	{
-		array_unshift(
-			$arParams["ADDITIONAL"],
-			"<span ".
-				"onclick=\"LHEPostForm.getHandler('".$arParams["LHE"]["id"]."').showPanelEditor();\" ".
-				"class=\"feed-add-post-form-editor-btn".($arParams["TEXT"]["SHOW"] == "Y" ? " feed-add-post-form-btn-active" : "")."\" ".
-				"id=\"lhe_button_editor_".$arParams["FORM_ID"]."\" ".
+		if (mb_substr(trim(reset($arParams["ADDITIONAL"])), 0, 1) !== "<")
+		{
+			$arParams["ADDITIONAL_TYPE"] =  'popup';
+		}
+	}
+	if ($arParams["TEXT"]["SHOW"] !== "N")
+	{
+		if ($arParams["ADDITIONAL_TYPE"] === 'html')
+		{
+			array_unshift(
+				$arParams["ADDITIONAL"],
+				"<span class='feed-add-post-form-editor-btn' data-bx-role='button-show-panel-editor' ".
 				"title=\"".GetMessage("MPF_EDITOR")."\"></span>");
-	}
-	else
-	{
-		$arParams["ADDITIONAL"][] =
-			"{ text : '".GetMessage("MPF_EDITOR")."', onclick : function() {LHEPostForm.getHandler('".$arParams["LHE"]["id"]."').showPanelEditor(); this.popupWindow.close();}, className: 'blog-post-popup-menu', id: 'bx-html'}";
+		}
+		else
+		{
+			$arParams["ADDITIONAL"][] = "{ text : '".GetMessage("MPF_EDITOR")."', onclick : function() {LHEPostForm.getHandler('".$arParams["LHE"]["id"]."').showPanelEditor(); this.popupWindow.close();}, className: 'blog-post-popup-menu', id: 'bx-html'}";
+		}
 	}
 }
-
 /**
  * @var string $arParams["HTML_BEFORE_TEXTAREA"]
  * @var string $arParams["HTML_AFTER_TEXTAREA"]

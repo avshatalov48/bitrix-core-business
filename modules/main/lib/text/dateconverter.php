@@ -7,7 +7,7 @@ class DateConverter
 {
 	/**
 	 * Creates Date object from Text (return array of result object)
-	 * 
+	 *
 	 * Examples: "end of next week", "tomorrow morning", "friday 25.10"
 	 *
 	 * @param string $text
@@ -24,18 +24,18 @@ class DateConverter
 
 		$metrics = Array();
 		$date = new \Bitrix\Main\Type\DateTime();
-		
+
 		if ($limit > 0 && mb_strlen($text) > $limit)
 		{
 			$text = mb_substr($text, 0, $limit);
 		}
-		
+
 		$originalText = $text;
 		$text = ToLower($text);
-		
+
 		$workTimeStart = explode('.', \Bitrix\Main\Config\Option::get('calendar', 'work_time_start', '9'));
 		$timeOfStartDate = str_pad(intval($workTimeStart[0]), 2, "0", STR_PAD_LEFT).':'.str_pad(intval($workTimeStart[1]), 2, "0", STR_PAD_LEFT);
-		
+
 		$workTimeEnd = explode('.', \Bitrix\Main\Config\Option::get('calendar', 'work_time_end', '18'));
 		$timeOfEndDate = str_pad(intval($workTimeEnd[0]), 2, "0", STR_PAD_LEFT).':'.str_pad(intval($workTimeEnd[1]), 2, "0", STR_PAD_LEFT);
 
@@ -91,7 +91,7 @@ class DateConverter
 				{
 					$position = defined("BX_UTF")? mb_strlen(substr($text, 0, $matchPattern[1])) : $matchPattern[1];
 					$matchWord = self::getMatchWord($originalText, $position);
-					
+
 					$metrics[1][] = Array(
 						'TYPE' => $matchType,
 						'COUNT' => mb_strlen($matchWord),
@@ -167,7 +167,7 @@ class DateConverter
 				{
 					$position = defined("BX_UTF")? mb_strlen(substr($text, 0, $matchPattern[1])) : $matchPattern[1];
 					$matchWord = self::getMatchWord($originalText, $position);
-					
+
 					$metrics[2][] = Array(
 						'TYPE' => $matchType,
 						'COUNT' => mb_strlen($matchWord),
@@ -220,7 +220,7 @@ class DateConverter
 						$matchType = 'THIS';
 					break;
 				}
-				
+
 				if (in_array($matchType, Array('BEFORE', 'AFTER')) && isset($metrics[1]))
 				{
 					foreach ($metrics[1] as $key => $metric)
@@ -254,7 +254,7 @@ class DateConverter
 				{
 					$position = defined("BX_UTF")? mb_strlen(substr($text, 0, $matchPattern[1])) : $matchPattern[1];
 					$matchWord = self::getMatchWord($originalText, $position);
-					
+
 					$metrics[3][] = Array(
 						'TYPE' => $matchType,
 						'COUNT' => mb_strlen($matchWord),
@@ -269,8 +269,8 @@ class DateConverter
 			foreach ($match[0] as $matchPattern)
 			{
 				$position = defined("BX_UTF")? mb_strlen(substr($text, 0, $matchPattern[1])) : $matchPattern[1];
-				$matchWord = self::getMatchWord($originalText, $position);	
-				
+				$matchWord = self::getMatchWord($originalText, $position);
+
 				$metrics[3][] = Array(
 					'TYPE' => 'HHMM',
 					'VALUE' => $matchPattern[0],
@@ -312,7 +312,7 @@ class DateConverter
 					{
 						continue;
 					}
-					
+
 					$matchType = '';
 					$matchLength = '';
 					switch(mb_strlen($matchPattern[0]))
@@ -341,10 +341,10 @@ class DateConverter
 							$matchLength = $patternLength[3];
 							break;
 					}
-	
+
 					$position = defined("BX_UTF")? mb_strlen(substr($text, 0, $matchPattern[1])) : $matchPattern[1];
 					$matchWord = mb_substr($originalText, $position, $matchLength);
-					
+
 					$metrics[4][] = Array(
 						'TYPE' => $matchType,
 						'VALUE' => $matchPattern[0],
@@ -409,7 +409,7 @@ class DateConverter
 				{
 					$position = defined("BX_UTF")? mb_strlen(substr($text, 0, $matchPattern[1])) : $matchPattern[1];
 					$matchWord = self::getMatchWord($originalText, $position);
-					
+
 					$metrics[5][] = Array(
 						'TYPE' => $matchType,
 						'VALUE' => $matchValue,
@@ -420,7 +420,7 @@ class DateConverter
 				}
 			}
 		}
-		
+
 		$countOfMetrics = 0;
 		foreach ($metrics as $values)
 		{
@@ -498,7 +498,7 @@ class DateConverter
 		{
 			$useDefault = true;
 		}
-		
+
 		if ($useDefault)
 		{
 			$modificators = isset($metrics[3])? $metrics[3]: array();
@@ -571,10 +571,10 @@ class DateConverter
 
 		$workTimeStart = explode('.', \Bitrix\Main\Config\Option::get('calendar', 'work_time_start', '9'));
 		$timeOfStartDate = str_pad(intval($workTimeStart[0]), 2, "0", STR_PAD_LEFT).':'.str_pad(intval($workTimeStart[1]), 2, "0", STR_PAD_LEFT);
-		
+
 		$workTimeEnd = explode('.', \Bitrix\Main\Config\Option::get('calendar', 'work_time_end', '18'));
 		$timeOfEndDate = str_pad(intval($workTimeEnd[0]), 2, "0", STR_PAD_LEFT).':'.str_pad(intval($workTimeEnd[1]), 2, "0", STR_PAD_LEFT);
-		
+
 		$result = null;
 		switch($type)
 		{
@@ -598,9 +598,9 @@ class DateConverter
 
 				$modificator = '';
 				$metricTime = $timeOfEndDate;
-				
+
 				$metricModificator = self::checkModifierPosition($metric, $metricModificator);
-				
+
 				foreach ($metricModificator as $currentModificator)
 				{
 					if ($metric['TYPE'] == 'WEEK')
@@ -726,7 +726,7 @@ class DateConverter
 						}
 						$modificator = true;
 					}
-					
+
 					if (in_array($currentModificator['TYPE'], Array('MORNING', 'LUNCH', 'EVENING', 'HHMM')))
 					{
 						$metricTime = $currentModificator['VALUE'];
@@ -789,9 +789,9 @@ class DateConverter
 				$metricDate = $defaultDate;
 				$modificator = '';
 				$metricTime = $timeOfEndDate;
-				
+
 				$metricModificator = self::checkModifierPosition($metric, $metricModificator);
-				
+
 				foreach ($metricModificator as $currentModificator)
 				{
 					$metricDate = self::getDateOfDayOfCurrentWeek($metric['TYPE'], $metricDate);
@@ -874,9 +874,9 @@ class DateConverter
 			case 4:
 				$modificator = '';
 				$metricTime = $timeOfEndDate;
-				
+
 				$metricModificator = self::checkModifierPosition($metric, $metricModificator);
-				
+
 				foreach ($metricModificator as $currentModificator)
 				{
 					if (in_array($currentModificator['TYPE'], Array('MORNING', 'LUNCH', 'EVENING', 'HHMM')))
@@ -893,9 +893,9 @@ class DateConverter
 				$metricDate = $defaultDate;
 				$modificator = '';
 				$metricTime = $metric['VALUE'];
-				
+
 				$metricModificator = self::checkModifierPosition($metric, $metricModificator);
-				
+
 				foreach ($metricModificator as $currentModificator)
 				{
 					if ($currentModificator['TYPE'] == 'BEFORE')
@@ -930,7 +930,7 @@ class DateConverter
 						$metricTime = $currentModificator['VALUE'];
 					}
 					$modificator = true;
-				
+
 				}
 
 				if (!$modificator)
@@ -945,7 +945,7 @@ class DateConverter
 
 		return $result;
 	}
-	
+
 	/**
 	 * Creates Date object of the day of the method week (private function for self::createDateUsingMetrics)
 	 *
@@ -988,7 +988,7 @@ class DateConverter
 	 */
 	private static function getMatchWord($text, $position)
 	{
-		$letters = array_merge(Array(" ", "\n", "\t", "\r"), str_split('"\'-.,?!#$%^&*();:<>\|{}-=^@[]`'));
+		$letters = array_merge(Array(" ", "\n", "\t", "\r"), str_split('"-.,?!#$%^&*();:<>\|{}-=^@[]`'));
 		$spaceFound = self::findFirstOccurrence($text, $letters, $position);
 		if ($spaceFound !== false)
 		{
@@ -1000,21 +1000,21 @@ class DateConverter
 		}
 		return $result;
 	}
-	
+
 	private static function getTextForReplace($text, $metrics, $metricModifier)
 	{
 		$found = false;
-		
+
 		$minStartPosition = null;
 		$maxEndPosition = null;
-		
+
 		if (!empty($metrics))
 		{
 			$minStartPosition = $metrics['POSITION'];
 			$maxEndPosition = $metrics['POSITION'] + $metrics['COUNT'];
 			$found = true;
 		}
-		
+
 		if (is_array($metricModifier))
 		{
 			foreach ($metricModifier as $metrics)
@@ -1038,7 +1038,7 @@ class DateConverter
 				}
 			}
 		}
-		
+
 		if (is_null($minStartPosition) || is_null($maxEndPosition))
 		{
 			$result = false;
@@ -1048,16 +1048,16 @@ class DateConverter
 			$result = mb_substr($text, $minStartPosition, $maxEndPosition - $minStartPosition);
 			$result = Array('TEXT' => $result, 'POSITION' => $minStartPosition, 'LENGTH' => mb_strlen($result));
 		}
-		
+
 		return $result;
 	}
-	
+
 	private static function checkModifierPosition($metrics, $metricModifier)
 	{
 		$newMetrics = $metrics;
-		
+
 		$stackMetrics = Array();
-		
+
 		$while = true;
 		$maxWhile = 100;
 		while ($while && $maxWhile > 0)
@@ -1087,10 +1087,10 @@ class DateConverter
 			}
 			$maxWhile--;
 		}
-		
+
 		return $stackMetrics;
 	}
-	
+
 	private static function findFirstOccurrence($haystack, $needle, $offset=0)
 	{
 		$haystack = mb_substr($haystack, 0, 25 + $offset);
@@ -1098,9 +1098,9 @@ class DateConverter
 		{
 			$needle = array($needle);
 		}
-		
+
 		$positions = array();
-		foreach($needle as $query) 
+		foreach($needle as $query)
 		{
 			$result = mb_strpos($haystack, $query, $offset);
 			if ($result !== false)
@@ -1108,7 +1108,7 @@ class DateConverter
 				$positions[] = $result;
 			}
 		}
-		
+
 		return empty($positions)? false: min($positions);
 	}
 }

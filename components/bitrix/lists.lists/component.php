@@ -1,5 +1,10 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
 /** @global CDatabase $DB */
@@ -12,12 +17,31 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var string $parentComponentName */
 /** @var string $parentComponentPath */
 /** @var string $parentComponentTemplate */
+
 $this->setFrameMode(false);
 
-if($arParams["IBLOCK_TYPE_ID"] == COption::GetOptionString("lists", "livefeed_iblock_type_id"))
-	$APPLICATION->SetTitle(GetMessage("CC_BLL_TITLE_TEXT_CLAIM"));
+if ($arParams["IBLOCK_TYPE_ID"] === COption::GetOptionString("lists", "livefeed_iblock_type_id"))
+{
+	$title = GetMessage('CC_BLL_TITLE_TEXT_CLAIM');
+}
 else
-	$APPLICATION->SetTitle(GetMessage("CC_BLL_TITLE_TEXT_LISTS"));
+{
+	$title = GetMessage('CC_BLL_TITLE_TEXT_LISTS');
+}
+
+$APPLICATION->SetTitle($title);
+
+if (
+	(int)$arParams['SOCNET_GROUP_ID'] > 0
+	&& \Bitrix\Main\Loader::includeModule('socialnetwork')
+	&& method_exists(Bitrix\Socialnetwork\ComponentHelper::class, 'getWorkgroupPageTitle')
+)
+{
+	$APPLICATION->SetPageProperty('title', \Bitrix\Socialnetwork\ComponentHelper::getWorkgroupPageTitle([
+		'WORKGROUP_ID' => (int)$this->arParams['SOCNET_GROUP_ID'],
+		'TITLE' => $title
+	]));
+}
 
 if(!CModule::IncludeModule('lists'))
 {

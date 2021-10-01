@@ -64,6 +64,8 @@ class EventActions
 
 	const EVENT_ON_ORDER_BEFORE_ARCHIVED = "OnSaleOrderBeforeArchived";
 
+	const EVENT_ON_NEED_DELIVERY_RECIPIENT_CONTACT = "OnNeedDeliveryRecipientContact";
+
 	/**
 	 * @return array
 	 * @throws \Bitrix\Main\ArgumentException

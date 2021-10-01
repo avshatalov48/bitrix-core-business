@@ -1,10 +1,10 @@
-import {Vue} from 'ui.vue';
-import {Event} from "main.core";
-import {PhoneFilter as Filter, PhoneFormatter as Formatter} from "ui.type";
+import { BitrixVue } from 'ui.vue';
+import { Event } from "main.core";
+import { PhoneFilter as Filter, PhoneFormatter as Formatter} from "ui.type";
 
 import {Property as Const, EventType} from 'sale.checkout.const';
 
-Vue.component('sale-checkout-view-property-input-phone', {
+BitrixVue.component('sale-checkout-view-property-input-phone', {
 	props: ['item', 'index'],
 	methods:
 	{

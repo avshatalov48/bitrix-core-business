@@ -67,6 +67,13 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 		{
 			$this->checkModules();
 
+			if (!$this->isFeatureEnabled())
+			{
+				$this->includeComponentTemplate('limit');
+
+				return;
+			}
+
 			$executiveUserId = $this->getUser()->getID();
 
 			if ($executiveUserId)
@@ -92,6 +99,13 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 	{
 		try
 		{
+			$this->checkModules();
+
+			if (!$this->isFeatureEnabled())
+			{
+				return null;
+			}
+
 			$request = Context::getCurrent()->getRequest();
 			$post = $request->getPostList()->toArray();
 
@@ -106,7 +120,6 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 			$groupId = $post["id"];
 			$groupIdsToCopy = [$groupId];
 
-			$this->checkModules();
 			$this->checkAccess($executiveUserId, $groupId);
 
 			$features = $this->getFeaturesFromRequest($post["features"]);
@@ -132,6 +145,11 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 		{
 			return $this->setErrors($exception);
 		}
+	}
+
+	private function isFeatureEnabled(): bool
+	{
+		return \Bitrix\Socialnetwork\Helper\Workgroup::isGroupCopyFeatureEnabled();
 	}
 
 	private function setFeatures(GroupManager $copyManager, $executiveUserId, array $features, array $post)

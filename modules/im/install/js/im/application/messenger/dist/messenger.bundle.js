@@ -1,7 +1,127 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
-(function (exports,im_application_core,im_provider_rest,promise,ui_vue,im_lib_logger,im_lib_utils,im_component_recent,im_component_dialog,im_component_textarea,pull_component_status,im_const,im_mixin,main_core_events,main_core) {
+(function (exports,im_application_core,im_provider_rest,promise,ui_vue,im_lib_logger,im_lib_utils,ui_entitySelector,im_component_recent,im_component_dialog,im_component_textarea,pull_component_status,im_const,im_mixin,main_core_events,main_core) {
 	'use strict';
+
+	var Search = /*#__PURE__*/function () {
+	  function Search() {
+	    var _this = this;
+
+	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	    babelHelpers.classCallCheck(this, Search);
+
+	    if (babelHelpers.typeof(params.store) === 'object' && params.store) {
+	      this.store = params.store;
+	    }
+
+	    this.dialog = new BX.UI.EntitySelector.Dialog({
+	      targetNode: params.targetNode,
+	      enableSearch: true,
+	      context: 'IM_NEXT_SEARCH',
+	      multiple: false,
+	      entities: [{
+	        id: 'user',
+	        filters: [{
+	          id: 'im.userDataFilter'
+	        }]
+	      }, {
+	        id: 'department'
+	      }, {
+	        id: 'im-chat',
+	        options: {
+	          searchableChatTypes: ['C', 'L', 'O']
+	        }
+	      }, {
+	        id: 'im-bot',
+	        options: {
+	          searchableBotTypes: ['H', 'B', 'S', 'N']
+	        }
+	      }],
+	      events: {
+	        'Item:onSelect': function ItemOnSelect(event) {
+	          return _this.onItemSelect(event);
+	        },
+	        'onLoad': function onLoad(event) {
+	          return _this.fillStore(event);
+	        }
+	      }
+	    });
+	  }
+
+	  babelHelpers.createClass(Search, [{
+	    key: "onItemSelect",
+	    value: function onItemSelect(event) {
+	      this.dialog.deselectAll();
+	      var item = event.getData().item;
+	      var dialogId = this.getDialogIdByItem(item);
+
+	      if (!dialogId) {
+	        return;
+	      }
+
+	      main_core_events.EventEmitter.emit('openMessenger', {
+	        id: dialogId,
+	        $event: event
+	      });
+	    }
+	  }, {
+	    key: "fillStore",
+	    value: function fillStore(event) {
+	      var dialog = event.getTarget();
+	      var items = dialog.getItems();
+	      var users = [];
+	      var dialogues = [];
+	      items.forEach(function (item) {
+	        var customData = item.getCustomData();
+	        var entityId = item.getEntityId();
+
+	        if (entityId === 'user' || entityId === 'im-bot') {
+	          var dialogId = customData.get('imUser')['ID'];
+
+	          if (!dialogId) {
+	            return;
+	          }
+
+	          users.push(babelHelpers.objectSpread({
+	            dialogId: dialogId
+	          }, customData.get('imUser')));
+	        } else if (entityId === 'im-chat') {
+	          var _dialogId = 'chat' + customData.get('imChat')['ID'];
+
+	          if (!_dialogId) {
+	            return;
+	          }
+
+	          dialogues.push(babelHelpers.objectSpread({
+	            dialogId: _dialogId
+	          }, customData.get('imChat')));
+	        }
+	      });
+	      this.store.dispatch('users/set', users);
+	      this.store.dispatch('dialogues/set', dialogues);
+	    }
+	  }, {
+	    key: "getDialogIdByItem",
+	    value: function getDialogIdByItem(item) {
+	      switch (item.getEntityId()) {
+	        case 'user':
+	        case 'im-bot':
+	          return item.getCustomData().get('imUser')['ID'];
+
+	        case 'im-chat':
+	          return 'chat' + item.getCustomData().get('imChat')['ID'];
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "open",
+	    value: function open() {
+	      this.dialog.show();
+	    }
+	  }]);
+	  return Search;
+	}();
 
 	/**
 	 * Bitrix Im
@@ -28,7 +148,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      textareaDrag: false,
 	      textareaHeight: 120,
 	      textareaMinimumHeight: 120,
-	      textareaMaximumHeight: im_lib_utils.Utils.device.isMobile() ? 200 : 400
+	      textareaMaximumHeight: im_lib_utils.Utils.device.isMobile() ? 200 : 400,
+	      search: null
 	    };
 	  },
 	  created: function created() {
@@ -61,16 +182,30 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    }
 	  },
 	  methods: {
-	    onOpenMessenger: function onOpenMessenger(_ref) {
-	      var event = _ref.data;
+	    openSearch: function openSearch() {
+	      if (!this.search) {
+	        this.search = new Search({
+	          targetNode: document.getElementById('bx-im-next-layout-recent-search-input'),
+	          store: this.$store
+	        });
+	      }
 
-	      if (event.id === 'notify') {
+	      this.search.open();
+	    },
+	    openMessenger: function openMessenger(dialogId) {
+	      dialogId = dialogId.toString();
+
+	      if (dialogId === 'notify') {
 	        this.dialogId = 0;
 	        this.notify = true;
 	      } else {
 	        this.notify = false;
-	        this.dialogId = event.id;
+	        this.dialogId = dialogId;
 	      }
+	    },
+	    onOpenMessenger: function onOpenMessenger(_ref) {
+	      var event = _ref.data;
+	      this.openMessenger(event.id);
 	    },
 	    onTextareaStartDrag: function onTextareaStartDrag(event) {
 	      if (this.textareaDrag) {
@@ -138,7 +273,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    }
 	  },
 	  // language=Vue
-	  template: "\n\t  \t<div class=\"bx-im-next-layout\">\n\t\t\t<div class=\"bx-im-next-layout-recent\">\n\t\t\t\t<bx-im-component-recent/>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-dialog\" v-if=\"dialogId\">\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-header\">\n\t\t\t\t\t<div class=\"bx-im-header-title\">Dialog: {{dialogId}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-messages\">\n\t\t\t\t  \t<bx-pull-component-status/>\n\t\t\t\t\t<bx-im-component-dialog\n\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t:enableGestureMenu=\"isEnableGesture\"\n\t\t\t\t\t\t:enableGestureQuote=\"isEnableGesture\"\n\t\t\t\t\t\t:enableGestureQuoteFromRight=\"isEnableGestureQuoteFromRight\"\n\t\t\t\t\t\t:showMessageUserName=\"isDialog\"\n\t\t\t\t\t\t:showMessageAvatar=\"isDialog\"\n\t\t\t\t\t />\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-textarea\" :style=\"textareaHeightStyle\" ref=\"textarea\">\n\t\t\t\t  \t<div class=\"bx-im-next-layout-dialog-textarea-handle\" @mousedown=\"onTextareaStartDrag\" @touchstart=\"onTextareaStartDrag\"></div>\n\t\t\t\t\t<bx-im-component-textarea\n\t\t\t\t\t\t:siteId=\"application.common.siteId\"\n\t\t\t\t\t\t:userId=\"userId\"\n\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t:writesEventLetter=\"3\"\n\t\t\t\t\t\t:enableEdit=\"true\"\n\t\t\t\t\t\t:enableCommand=\"false\"\n\t\t\t\t\t\t:enableMention=\"false\"\n\t\t\t\t\t\t:enableFile=\"true\"\n\t\t\t\t\t\t:autoFocus=\"application.device.type !== DeviceType.mobile\"\n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-notify\" v-else-if=\"notify\">\n\t\t\t\t<bx-im-component-notifications :darkTheme=\"false\"/>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-notify\" v-else>\n\t\t\t\t<div class=\"bx-messenger-box-hello-wrap\">\n\t\t\t\t  <div class=\"bx-messenger-box-hello\">{{localizeEmptyChat}}</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\n\t\t</div>\n\t"
+	  template: "\n\t  \t<div class=\"bx-im-next-layout\">\n\t\t\t<div class=\"bx-im-next-layout-recent\">\n\t\t\t\t<div class=\"bx-im-next-layout-recent-search\">\n\t\t\t\t\t<div class=\"bx-im-next-layout-recent-search-input\" id=\"bx-im-next-layout-recent-search-input\" @click=\"openSearch\">Search</div>  \n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-next-layout-recent-list\">\n\t\t\t\t\t<bx-im-component-recent/>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-dialog\" v-if=\"dialogId\">\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-header\">\n\t\t\t\t\t<div class=\"bx-im-header-title\">Dialog: {{dialogId}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-messages\">\n\t\t\t\t  \t<bx-pull-component-status/>\n\t\t\t\t\t<bx-im-component-dialog\n\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t:enableGestureMenu=\"isEnableGesture\"\n\t\t\t\t\t\t:enableGestureQuote=\"isEnableGesture\"\n\t\t\t\t\t\t:enableGestureQuoteFromRight=\"isEnableGestureQuoteFromRight\"\n\t\t\t\t\t\t:showMessageUserName=\"isDialog\"\n\t\t\t\t\t\t:showMessageAvatar=\"isDialog\"\n\t\t\t\t\t />\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-textarea\" :style=\"textareaHeightStyle\" ref=\"textarea\">\n\t\t\t\t  \t<div class=\"bx-im-next-layout-dialog-textarea-handle\" @mousedown=\"onTextareaStartDrag\" @touchstart=\"onTextareaStartDrag\"></div>\n\t\t\t\t\t<bx-im-component-textarea\n\t\t\t\t\t\t:siteId=\"application.common.siteId\"\n\t\t\t\t\t\t:userId=\"userId\"\n\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t:writesEventLetter=\"3\"\n\t\t\t\t\t\t:enableEdit=\"true\"\n\t\t\t\t\t\t:enableCommand=\"false\"\n\t\t\t\t\t\t:enableMention=\"false\"\n\t\t\t\t\t\t:enableFile=\"true\"\n\t\t\t\t\t\t:autoFocus=\"application.device.type !== DeviceType.mobile\"\n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-notify\" v-else-if=\"notify\">\n\t\t\t\t<bx-im-component-notifications :darkTheme=\"false\"/>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-notify\" v-else>\n\t\t\t\t<div class=\"bx-messenger-box-hello-wrap\">\n\t\t\t\t  <div class=\"bx-messenger-box-hello\">{{localizeEmptyChat}}</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\n\t\t</div>\n\t"
 	});
 
 	/**
@@ -294,5 +429,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	exports.MessengerApplication = MessengerApplication;
 
-}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX.Messenger.Application,BX.Messenger.Provider.Rest,BX,BX,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger,BX.Messenger,window,window,BX.Messenger.Const,BX.Messenger.Mixin,BX.Event,BX));
+}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX.Messenger.Application,BX.Messenger.Provider.Rest,BX,BX,BX.Messenger.Lib,BX.Messenger.Lib,BX.UI.EntitySelector,BX.Messenger,BX.Messenger,window,window,BX.Messenger.Const,BX.Messenger.Mixin,BX.Event,BX));
 //# sourceMappingURL=messenger.bundle.js.map

@@ -17,7 +17,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Sale\Internals
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ShipmentExtraService_Query query()
+ * @method static EO_ShipmentExtraService_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ShipmentExtraService_Result getById($id)
+ * @method static EO_ShipmentExtraService_Result getList(array $parameters = array())
+ * @method static EO_ShipmentExtraService_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_ShipmentExtraService createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_ShipmentExtraService_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_ShipmentExtraService wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_ShipmentExtraService_Collection wakeUpCollection($rows)
+ */
 
 class ShipmentExtraServiceTable extends Main\Entity\DataManager
 {

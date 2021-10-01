@@ -9,6 +9,7 @@
 	 */
 	BX.Report.VisualConstructor.Widget.Config.Fields.SelectWithPopup = function(options)
 	{
+		console.trace("new SelectWithPopup");
 		this.fieldScope = options.fieldScope;
 		this.selectControl = this.fieldScope.querySelector('[data-role="visualconstructor-field-custom-select"]');
 		this.selectControlValue = this.fieldScope.querySelector('[data-role="visualconstructor-field-custom-select-value"]');
@@ -54,7 +55,8 @@
 				autoHide: true,
 				zIndex: 9999,
 				offsetTop: 0,
-				content: content
+				content: content,
+				targetContainer: document.querySelector('[data-role="report-configuration-page-wrapper"]'),
 			});
 		},
 		getSelectableOptionListContainer: function(items, clickCallback)

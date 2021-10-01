@@ -49,8 +49,10 @@ class PinnedPanel
 		this.handlePostClick = this.handlePostClick.bind(this);
 		this.options = {};
 
-		/* for detail page without pinned panel */
-		this.initPosts();
+		Event.ready(() => {
+			/* for detail page without pinned panel */
+			this.initPosts();
+		});
 	}
 
 	resetFlags()

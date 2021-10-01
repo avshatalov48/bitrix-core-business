@@ -41,6 +41,8 @@
 	 * @param {string} arParams.CONFIRM_MESSAGE
 	 * @param {string} arParams.CONFIRM_FOR_ALL_MESSAGE
 	 * @param {string} arParams.CONFIRM_RESET_MESSAGE
+	 * @param {object} arParams.COLUMNS_ALL_WITH_SECTIONS
+	 * @param {boolean} arParams.ENABLE_FIELDS_SEARCH
 	 * @param {string} arParams.RESET_DEFAULT
 	 * @param {object} userOptions
 	 * @param {object} userOptionsActions
@@ -992,6 +994,17 @@
 
 				if (cell && self.isSortableHeader(cell) && !self.preventSortableClick)
 				{
+					var onBeforeSortEvent = new BX.Event.BaseEvent({
+						data: {
+							grid: self,
+							columnName: BX.data(cell, 'name')
+						},
+					});
+					BX.Event.EventEmitter.emit('BX.Main.grid:onBeforeSort', onBeforeSortEvent);
+					if (onBeforeSortEvent.isDefaultPrevented())
+					{
+						return;
+					}
 					self.preventSortableClick = false;
 					self._clickOnSortableHeader(cell, event);
 				}
@@ -1287,7 +1300,6 @@
 
 						self.bindOnMoreButtonEvents();
 						self.bindOnClickPaginationLinks();
-						self.bindOnClickHeader();
 						self.bindOnCheckAll();
 						self.updateCounterDisplayed();
 						self.updateCounterSelected();
@@ -1760,7 +1772,6 @@
 					self.bindOnRowEvents();
 					self.bindOnMoreButtonEvents();
 					self.bindOnClickPaginationLinks();
-					self.bindOnClickHeader();
 					self.bindOnCheckAll();
 					self.updateCounterDisplayed();
 					self.updateCounterSelected();
@@ -1809,7 +1820,6 @@
 
 				self.bindOnMoreButtonEvents();
 				self.bindOnClickPaginationLinks();
-				self.bindOnClickHeader();
 				self.bindOnCheckAll();
 				self.updateCounterDisplayed();
 				self.updateCounterSelected();

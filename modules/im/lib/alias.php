@@ -10,6 +10,7 @@ class Alias
 	const ENTITY_TYPE_OPEN_LINE = 'LINES';
 	const ENTITY_TYPE_LIVECHAT = 'LIVECHAT';
 	const ENTITY_TYPE_VIDEOCONF = 'VIDEOCONF';
+	const ENTITY_TYPE_JITSICONF = 'JITSICONF';
 	const ENTITY_TYPE_OTHER = 'OTHER';
 
 	const CACHE_TTL = 31536000;
@@ -182,7 +183,7 @@ class Alias
 	{
 		$path = '/online/';
 
-		if ($type === self::ENTITY_TYPE_VIDEOCONF)
+		if ($type === self::ENTITY_TYPE_VIDEOCONF || $type === self::ENTITY_TYPE_JITSICONF)
 		{
 			$path = '/video/';
 		}

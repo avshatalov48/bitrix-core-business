@@ -8,22 +8,24 @@
 
 namespace Bitrix\Sender\Trigger;
 
-use Bitrix\Main\Diag\Debug;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\Diag\Debug;
+
 use Bitrix\Sender\ContactTable;
-use Bitrix\Sender\Integration;
-use Bitrix\Sender\Internals\Model;
-use Bitrix\Sender\MailEventHandler;
-use Bitrix\Sender\MailingChainTable;
-use Bitrix\Sender\MailingTable;
-use Bitrix\Sender\MailingTriggerTable;
-use Bitrix\Sender\PostingRecipientTable;
-use Bitrix\Sender\PostingTable;
 use Bitrix\Sender\Recipient;
 use Bitrix\Sender\Subscription;
+use Bitrix\Sender\MailEventHandler;
+use Bitrix\Sender\MailingTable;
+use Bitrix\Sender\MailingChainTable;
+use Bitrix\Sender\MailingTriggerTable;
+use Bitrix\Sender\PostingTable;
+use Bitrix\Sender\PostingRecipientTable;
+use Bitrix\Sender\Integration;
+use Bitrix\Sender\Internals\Model;
+use Bitrix\Sender\Transport\Adapter;
 
 class Manager
 {
@@ -381,6 +383,7 @@ class Manager
 				$postingAddDb = PostingTable::add(array(
 					'MAILING_ID' => $chain['MAILING_ID'],
 					'MAILING_CHAIN_ID' => $chain['ID'],
+					'CONSENT_SUPPORT' => Adapter::create($chain['MESSAGE_CODE'])->isConsentSupported()
 				));
 				if(!$postingAddDb->isSuccess()) return;
 
@@ -530,7 +533,7 @@ class Manager
 		{
 			$resultList[$endpoint['MODULE_ID']][$endpoint['CODE']][] = $endpoint['FIELDS'];
 		}
-		
+
 		return $resultList;
 	}
 
@@ -670,7 +673,7 @@ class Manager
 						continue;
 					}
 
-					$connectorCode = (new $connectorClassName)->getCode();
+					$connectorCode = call_user_func(array($connectorClassName, 'getCode'));
 					if($moduleConnectorFilter && !in_array($connectorCode, $moduleConnectorFilter[$eventResult->getModuleId()]))
 					{
 						continue;
@@ -680,8 +683,8 @@ class Manager
 					if(is_subclass_of($connectorClassName,  '\Bitrix\Sender\TriggerConnectorClosed'))
 						$isClosedTrigger = true;
 
-					$connectorName = (new $connectorClassName)->getName();
-					$connectorRequireConfigure = (new $connectorClassName)->requireConfigure();
+					$connectorName = call_user_func(array($connectorClassName, 'getName'));
+					$connectorRequireConfigure = call_user_func(array($connectorClassName, 'requireConfigure'));
 					$resultList[] = array(
 						'MODULE_ID' => $eventResult->getModuleId(),
 						'CLASS_NAME' => $connectorClassName,
@@ -920,6 +923,7 @@ class Manager
 				$postingAddDb = PostingTable::add(array(
 					'MAILING_ID' => $childChain['MAILING_ID'],
 					'MAILING_CHAIN_ID' => $childChain['ID'],
+					'CONSENT_STATUS' => Adapter::create($childChain['MESSAGE_CODE'])->isConsentSupported()
 				));
 				if(!$postingAddDb->isSuccess())
 				{

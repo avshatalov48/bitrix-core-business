@@ -10,6 +10,19 @@ use Bitrix\Main\Entity\StringField;
 /**
  * Class ReportTable
  * @package Bitrix\Intranet\Reports\Entity
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Report_Query query()
+ * @method static EO_Report_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Report_Result getById($id)
+ * @method static EO_Report_Result getList(array $parameters = array())
+ * @method static EO_Report_Entity getEntity()
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Report createObject($setDefaultValues = true)
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Report_Collection createCollection()
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Report wakeUpObject($row)
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Report_Collection wakeUpCollection($rows)
  */
 class ReportTable extends DataManager
 {

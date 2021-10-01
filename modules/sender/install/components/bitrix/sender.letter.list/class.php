@@ -188,6 +188,7 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 					'COUNT_READ' => 'CURRENT_POSTING.COUNT_READ',
 					'COUNT_CLICK' => 'CURRENT_POSTING.COUNT_CLICK',
 					'COUNT_UNSUB' => 'CURRENT_POSTING.COUNT_UNSUB',
+					'CONSENT_SUPPORT' => 'CURRENT_POSTING.CONSENT_SUPPORT',
 				]
 			)
 		);
@@ -209,7 +210,7 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 				$letter->loadByArray($item);
 				$item['MESSAGE_CODE'] = $letter->getMessage()->getCode();
 				$item['MESSAGE_NAME'] = $letter->getMessage()->getName();
-
+				$item['CONSENT_SUPPORT'] = $letter->get('CONSENT_SUPPORT') === 'Y';
 				$message = $letter->getMessage();
 				$options = $message->getConfiguration()->getOptions();
 				foreach ($options as $option)
@@ -471,7 +472,7 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			array(
 				"id" => "ACTIONS",
 				"name" => Loc::getMessage('SENDER_LETTER_LIST_COMP_UI_COLUMN_ACTIONS'),
-				"sort" => "ID",
+				"sort" => "DATE_UPDATE",
 				"default" => true
 			),
 			array(
@@ -486,7 +487,15 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 				"default" => true
 			),
 		);
-
+		if (Integration\Bitrix24\Service::isCloud())
+		{
+			$list[] = [
+				"id" => "CONSENT_SUPPORT",
+				"name"=> Loc::getMessage('SENDER_LETTER_LIST_COMP_UI_COLUMN_CONSENT_SUPPORT'),
+				"sort"=> "CONSENT_SUPPORT",
+				"default" => true
+			];
+		}
 		if ($this->arParams['SHOW_CAMPAIGNS'])
 		{
 			$list[] = [

@@ -13,7 +13,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 
 	  return data;
 	}
-	ui_vue.Vue.component('sale-checkout-view-user_consent', {
+	ui_vue.BitrixVue.component('sale-checkout-view-user_consent', {
 	  props: ['item'],
 	  methods: {
 	    getBlockHtml: function getBlockHtml() {

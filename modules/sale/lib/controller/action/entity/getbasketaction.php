@@ -10,8 +10,9 @@ use Bitrix\Sale\Helpers;
  * Class GetBasketAction
  * @package Bitrix\Sale\Controller\Action\Entity
  * @example BX.ajax.runAction("sale.entity.getBasket", { data: { fields: { siteId:'s1', fuserId:1 }}});
+ * @internal
  */
-class GetBasketAction extends BaseAction
+final class GetBasketAction extends BaseAction
 {
 	private function checkParams(array $fields): Sale\Result
 	{

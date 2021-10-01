@@ -63,7 +63,6 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 	  }, {
 	    key: "isEmpty",
 	    value: function isEmpty() {
-	      // console.log('empty', Object.keys(this.pool));
 	      return Object.keys(this.pool).length === 0;
 	    }
 	  }]);
@@ -166,6 +165,31 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 	      }
 
 	      return quantity;
+	    } // isRatioFloat(value)
+	    // {
+	    // 	return parseInt(value) !== parseFloat(value)
+	    // }
+
+	  }, {
+	    key: "isValueFloat",
+	    value: function isValueFloat(value) {
+	      return parseInt(value) !== parseFloat(value);
+	    }
+	  }, {
+	    key: "roundValue",
+	    value: function roundValue(value) {
+	      if (Basket.isValueFloat(value)) {
+	        return Basket.roundFloatValue(value);
+	      } else {
+	        return parseInt(value, 10);
+	      }
+	    }
+	  }, {
+	    key: "roundFloatValue",
+	    value: function roundFloatValue(value) {
+	      var precision = 6;
+	      var precisionFactor = Math.pow(10, precision);
+	      return Math.round(parseFloat(value) * precisionFactor) / precisionFactor;
 	    }
 	  }]);
 	  return Basket;

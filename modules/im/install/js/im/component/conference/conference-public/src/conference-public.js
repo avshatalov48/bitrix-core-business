@@ -16,8 +16,9 @@ import {
 	ConferenceErrorCode,
 	ConferenceRightPanelMode as RightPanelMode
 } from "im.const";
-import {DialogCore, DialogReadMessages, DialogSetMessageReaction, TextareaCore, TextareaUploadFile, DialogClickOnKeyboardButton} from 'im.mixin';
+import {DialogCore, DialogReadMessages, DialogSetMessageReaction, TextareaCore, TextareaUploadFile, DialogClickOnKeyboardButton, DialogClickOnCommand} from 'im.mixin';
 import {EventEmitter} from "main.core.events";
+import {Tag} from "main.core";
 
 //global components
 import "im.component.dialog";
@@ -51,7 +52,7 @@ const popupModes = Object.freeze({
 BitrixVue.component('bx-im-component-conference-public',
 {
 	props: ['dialogId', 'test'],
-	mixins: [DialogCore, TextareaCore, TextareaUploadFile, DialogReadMessages, DialogSetMessageReaction, DialogClickOnKeyboardButton],
+	mixins: [DialogCore, TextareaCore, TextareaUploadFile, DialogReadMessages, DialogSetMessageReaction, DialogClickOnKeyboardButton, DialogClickOnCommand],
 	components: {
 		Error, CheckDevices, OrientationDisabled, PasswordCheck, LoadingStatus,
 		RequestPermissions, MobileChatButton, ConferenceInfo, UserForm, ChatHeader, WaitingForStart, UserList, UserListHeader,

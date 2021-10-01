@@ -25,6 +25,9 @@ class Entity extends \Bitrix\Main\Engine\Controller
 			'updatebasketitem' => [
 				'class' => Action\Entity\UpdateBasketItemAction::class,
 			],
+			'changebasketitem' => [
+				'class' => Action\Entity\ChangeBasketItemAction::class,
+			],
 			'userconsentrequest' => [
 				'class' => Action\Entity\UserConsentRequestAction::class,
 			],

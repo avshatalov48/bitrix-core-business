@@ -3,7 +3,6 @@
 namespace Bitrix\Sale\Delivery\Internals\Analytics;
 
 use Bitrix\Sale\Delivery\Internals\Analytics\OrderProviders\IOrderProvider;
-use Bitrix\Sale\Delivery\Internals\Analytics\OrderProviders\YandexTaxiOrderProvider;
 use Bitrix\Sale\Internals\Analytics;
 use Bitrix\Main\Type\DateTime;
 use Sale\Handlers\Delivery\YandexTaxi\Internals\OrderAnalyticsProvider;

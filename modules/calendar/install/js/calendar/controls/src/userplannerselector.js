@@ -53,6 +53,7 @@ export class UserPlannerSelector extends EventEmitter
 		this.ownerId = params.ownerId;
 		this.zIndex = params.zIndex || this.zIndex;
 
+		this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
 		this.create();
 	}
 
@@ -117,7 +118,8 @@ export class UserPlannerSelector extends EventEmitter
 			wrap: this.DOM.plannerOuterWrap,
 			minWidth: UserPlannerSelector.PLANNER_WIDTH,
 			width: UserPlannerSelector.PLANNER_WIDTH,
-			showEntryName: false
+			showEntryName: false,
+			locked: !this.plannerFeatureEnabled
 		});
 
 		Event.bind(this.DOM.informWrap, 'click', () => {

@@ -421,7 +421,7 @@ class LocationMultiExclude extends LocationMulti
 
 Input\Manager::register('LOCATION_MULTI_EXCLUDE', array(
 	'CLASS' => __NAMESPACE__.'\\LocationMultiExclude',
-	'NAME' => Loc::getMessage('INPUT_DELIVERY_LOCATION_MULTI')
+	'NAME' => Loc::getMessage('INPUT_DELIVERY_LOCATION_MULTI_EXCLUDE')
 ));
 
 class ProductCategories extends Input\Base
@@ -592,4 +592,3 @@ Input\Manager::register('DELIVERY_BUTTON_SELECTOR', array(
 	'CLASS' => __NAMESPACE__.'\\ButtonSelector',
 	'NAME' => Loc::getMessage('INPUT_DELIVERY_BUTTON_SELECTOR')
 ));
-

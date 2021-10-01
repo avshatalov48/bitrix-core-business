@@ -13,128 +13,100 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
  * @var array $arParams
  * @var array $arResult
  * @var CBitrixComponent $component
+ * @var string $templateFolder
  */
 
-use Bitrix\Main\UI;
+use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 
-UI\Extension::load([
+Main\UI\Extension::load([
 	'ui.entity-selector',
 	'ui.buttons'
 ]);
-
-include_once($_SERVER["DOCUMENT_ROOT"].$templateFolder."/functions.php");
-include_once($_SERVER["DOCUMENT_ROOT"].$templateFolder."/message.php");
-include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/file.php");
-include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/urlpreview.php");
+Main\Page\Asset::getInstance()->addJs($templateFolder."/index.js");
+include_once(__DIR__."/functions.php");
+include_once(__DIR__."/message.php");
+include(__DIR__."/file.php");
+include(__DIR__."/urlpreview.php");
 $array = (((!empty($arParams["DESTINATION"]) || in_array("MentionUser", $arParams["BUTTONS"])) && ModuleManager::isModuleInstalled('socialnetwork')) ?
 	array('socnetlogdest') : array());
 $array[] = "fx";
+$array[] = "ui.cnt";
 CUtil::InitJSCore($array);
+$controlId = htmlspecialcharsbx($arParams["divId"]);
 
-$arButtonsHTML = array();
-
-foreach($arParams["BUTTONS"] as $val)
-{
-	switch($val)
-	{
-		case "CreateLink":
-			$arButtonsHTML[] = '<span class="feed-add-post-form-but-cnt" id="bx-b-link-'.$arParams["FORM_ID"].'"></span>';
-			break;
-		case "UploadImage":
-		case "UploadFile":
-			$arButtonsHTML["Upload"] = '<span class="feed-add-post-form-but feed-add-file" id="bx-b-uploadfile-'.$arParams["FORM_ID"].'" '.
-					'title="'.GetMessage('MPF_FILE_TITLE').'"></span>';
-			break;
-		case "InputVideo":
-			$arButtonsHTML[] = '<span class="feed-add-post-form-but-cnt" id="bx-b-video-'.$arParams["FORM_ID"].'"></span>';
-			break;
-		case "InputTag":
-			$arButtonsHTML[] = '<span class="feed-add-post-form-but feed-add-tag" id="bx-b-tag-input-'.$arParams["FORM_ID"].'" '.
-				'title="'.GetMessage("MPF_TAG_TITLE").'"></span>';
-			break;
-		case "MentionUser":
-			$arButtonsHTML[] = '<span class="feed-add-post-form-but feed-add-mention" id="bx-b-mention-'.$arParams["FORM_ID"].'" '.
-				'title="'.GetMessage("MPF_MENTION_TITLE").'"></span>';
-			break;
-		case "Quote":
-			$arButtonsHTML[] = '<span class="feed-add-post-form-but-cnt" id="bx-b-quote-'.$arParams["FORM_ID"].'"></span>';
-			break;
-		case "Important":
-			$arButtonsHTML[] = '<span class="feed-add-post-form-but feed-add-important" id="bx-b-important-'.$arParams["FORM_ID"].'" '.
-				'title="'.GetMessage("MPF_IMPORTANT_TITLE").'"></span>'.
-				'<span id="bx-b-important-'.$arParams["FORM_ID"].'-active" class="feed-add-important-active-block" style="display: none;"><span class="feed-add-post-form-but feed-add-important-active"></span><span class="feed-add-important-text">'.GetMessage('MPF_IMPORTANT_TITLE').'</span></span>';
-			break;
-		default:
-			if (isset($arParams["~BUTTONS_HTML"]) && is_array($arParams["~BUTTONS_HTML"]) && is_array($arParams["~BUTTONS_HTML"]) && array_key_exists($val, $arParams["~BUTTONS_HTML"]))
-				$arButtonsHTML[] = $arParams["~BUTTONS_HTML"][$val];
-			break;
-	}
-}
-
-?><div class="feed-add-post" id="div<?=$arParams["divId"]?>" <?if($arParams["LHE"]["lazyLoad"]):?> style="display:none;"<? endif; ?>><?
-	?><div class="feed-add-post-dnd">
-		<div class="feed-add-post-dnd-inner">
-			<span class="feed-add-post-dnd-icon"></span>
-			<span class="feed-add-post-dnd-text"><?=GetMessage("MPF_SELECT_ATTACHMENTS")?><span><?=GetMessage("MPF_DROP_ATTACHMENTS")?></span></span>
-		</div>
-	</div><?
-	?><div class="feed-add-post-dnd-notice">
+?><div class="feed-add-post" id="div<?=$controlId?>" <?=($arParams["LHE"]["lazyLoad"] ? ' style="display:none;"' : '')?>>
+	<div class="feed-add-post-dnd-notice">
 		<div class="feed-add-post-dnd-inner">
 			<span class="feed-add-post-dnd-icon"></span>
 			<span class="feed-add-post-dnd-text"><?=GetMessage("MPF_DRAG_ATTACHMENTS")?></span>
 		</div>
-	</div><?
-	?><div class="feed-add-post-form feed-add-post-edit-form">
+	</div>
+	<div class="feed-add-post-form feed-add-post-edit-form">
 		<?= $arParams["~HTML_BEFORE_TEXTAREA"]?>
 		<div class="feed-add-post-text">
-			<script type="text/javascript">
-				<?
-				if (is_array($GLOBALS["arExtranetGroupID"]))
-				{
-					?>
-					if (typeof window['arExtranetGroupID'] == 'undefined')
-					{
-						window['arExtranetGroupID'] = <?=CUtil::PhpToJSObject($GLOBALS["arExtranetGroupID"])?>;
-					}
-					<?
-				}
-				?>
-				BX.ready(function()
-				{
-					if (!LHEPostForm.getHandler('<?=$arParams["LHE"]["id"]?>'))
-					{
-						<?if ($arParams["JS_OBJECT_NAME"] !== ""): ?>window['<?=$arParams["JS_OBJECT_NAME"]?>'] = <? endif; ?>new LHEPostForm(
-							'<?=$arParams["FORM_ID"]?>',
-							<?=CUtil::PhpToJSObject(
-								array(
-									"LHEJsObjId" => $arParams["LHE"]["id"],
-									"LHEJsObjName" => $arParams["LHE"]["jsObjName"],
-									"arSize" => $arParams["UPLOAD_FILE_PARAMS"],
-									"CID" => $arParams["UPLOADS_CID"],
-									'parsers' => $arParams["PARSER"],
-									'showPanelEditor' => ($arParams["TEXT"]["SHOW"] == "Y"),
-									'pinEditorPanel' => ($arParams["PIN_EDITOR_PANEL"] == "Y"),
-									'formID' => $arParams["FORM_ID"],
-									'lazyLoad' => !!$arParams["LHE"]['lazyLoad'],
-									'ctrlEnterHandler' => $arParams["LHE"]['ctrlEnterHandler'],
-									'urlPreviewId' => $arParams['urlPreviewId']
-								));?>
-						);
-					}
-					else
-					{
-						BX.debug('LHEPostForm <?=$arParams["LHE"]["id"]?> has already existed.');
-					}
-				});
-			</script>
-			<?
-			include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/lhe.php");
-			?>
+<script type="text/javascript">
+<?
+if (is_array($GLOBALS["arExtranetGroupID"]))
+{
+	?>
+	if (typeof window['arExtranetGroupID'] == 'undefined')
+	{
+		window['arExtranetGroupID'] = <?=CUtil::PhpToJSObject($GLOBALS["arExtranetGroupID"])?>;
+	}
+	<?
+}
+?>
+BX.ready(function()
+{
+	<?if ($arParams["JS_OBJECT_NAME"] !== ""): ?>window['<?=$arParams["JS_OBJECT_NAME"]?>'] = <? endif; ?>
+	new BX.Main.PostForm(
+		{
+			id: '<?=CUtil::JSEscape($arParams["LHE"]["id"])?>',
+			name: '<?=CUtil::JSEscape($arParams["LHE"]["jsObjName"])?>',
+			formId: '<?=CUtil::JSEscape($arParams["FORM_ID"])?>',
+			eventNode: BX('div<?=CUtil::JSEscape($controlId)?>')
+		},
+		<?=CUtil::PhpToJSObject([
+			'ctrlEnterHandler' => $arParams["LHE"]['ctrlEnterHandler'],
+			'showPanelEditor' => ($arParams["TEXT"]["SHOW"] == "Y"),
+			'pinEditorPanel' => ($arParams["PIN_EDITOR_PANEL"] == "Y"),
+			'lazyLoad' => !!$arParams["LHE"]['lazyLoad'],
+			'urlPreviewId' => $arParams['urlPreviewId'],
+			'parsers' => $arParams["PARSER"],
+		]);?>,
+		<?=CUtil::PhpToJSObject(
+			array(
+				"arSize" => $arParams["UPLOAD_FILE_PARAMS"],
+				"CID" => $arParams["UPLOADS_CID"],
+			));?>
+	);
+});
+</script>
+<?php
+$visibleButtons = include(__DIR__.'/lhe.php');
+?>
 			<div style="display:none;"><input type="text" tabindex="<?=($arParams["TEXT"]["TABINDEX"]++)?>" onFocus="LHEPostForm.getEditor('<?=$arParams["LHE"]["id"]?>').Focus()" name="hidden_focus" /></div>
 		</div>
-		<div class="feed-add-post-form-but-wrap" id="post-buttons-bottom"><?=implode("", $arButtonsHTML);
+		<div class="main-post-form-toolbar">
+			<div class="main-post-form-toolbar-buttons">
+				<div class="main-post-form-toolbar-buttons-container" data-bx-role="toolbar"><?php
+				foreach ($visibleButtons as $key => $item)
+				{
+					?><div class="main-post-form-toolbar-button"
+					       data-bx-role="toolbar-item"
+					       id="mpf-<?=$item["ID"]?>-<?=$arParams["FORM_ID"]?>"
+					       data-id="<?=$item["ID"]?>">
+						<?=$item["HTML"]?>
+					</div><?php
+				}
+					?>
+				</div>
+				<div class="main-post-form-toolbar-button main-post-form-toolbar-button-more" data-bx-role="toolbar-item-more" style="display: none;"></div>
+			</div>
+			<?
+
 			if(!empty($arParams["ADDITIONAL"]))
 			{
 				if ($arParams["ADDITIONAL_TYPE"] == "popup")
@@ -166,122 +138,18 @@ foreach($arParams["BUTTONS"] as $val)
 				}
 			}
 		?></div>
-	</div>
-	<?=$arParams["~HTML_AFTER_TEXTAREA"]?><?
-	if($arParams["DESTINATION_SHOW"] === "Y" || !empty($arParams["TAGS"]))
-	{
-		?><ol class="feed-add-post-strings-blocks"><?
-	}
+	</div><?php
 
-	if($arParams["DESTINATION_SHOW"] === "Y")
-	{
-		?><li class="feed-add-post-destination-block">
-			<input type="hidden" id="entity-selector-data-<?=htmlspecialcharsbx($arParams["divId"])?>" name="DEST_DATA" value="<?=htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($arResult['DESTINATION']['ENTITIES_PRESELECTED']))?>" />
-			<div class="feed-add-post-destination-title"><?=GetMessage("MPF_DESTINATION")?></div>
-			<div id="entity-selector-<?=htmlspecialcharsbx($arParams["divId"])?>"></div>
-			<script>
-				BX.ready(function()
-				{
-					new MPFEntitySelector({
-						id: '<?=CUtil::JSescape($arParams["divId"])?>',
-						context: '<?=CUtil::JSescape(
-								!empty($arParams['SELECTOR_CONTEXT'])
-									? $arParams['SELECTOR_CONTEXT']
-									: (
-										!empty($arParams['DEST_CONTEXT'])
-											? $arParams['DEST_CONTEXT']
-											: 'BLOG_POST'
-									)
-						)?>',
-						tagNodeId: 'entity-selector-<?=CUtil::JSescape($arParams["divId"])?>',
-						inputNodeId: 'entity-selector-data-<?=CUtil::JSescape($arParams["divId"])?>',
-						preselectedItems: <?=CUtil::PhpToJSObject($arResult['DESTINATION']['ENTITIES_PRESELECTED'])?>,
-						allowSearchEmailUsers: <?=($arResult['ALLOW_EMAIL_INVITATION'] ? 'true' : 'false')?>,
-						allowToAll: <?=($arResult['ALLOW_TO_ALL'] ? 'true' : 'false')?>,
-						messages: {
-							allUsersTitle: '<?= CUtil::JSescape(ModuleManager::isModuleInstalled('intranet') ? Loc::getMessage('MPF_DESTINATION_3') : Loc::getMessage('MPF_DESTINATION_4')) ?>',
-						},
-					});
-				});
-			</script>
-			<?
-		?></li><?
+	echo $arParams["~HTML_AFTER_TEXTAREA"];
 
-		echo $APPLICATION->GetViewContent("mpl_input_additional");
-	}
-
-	if (!empty($arParams["TAGS"]))
+	if (in_array('socnetlogdest', $array) && isset($visibleButtons['MentionUser']))
 	{
-		$tags = "";
-		$tagsInput = "";
-		foreach($arParams["TAGS"]["VALUE"] as $val)
+		if (defined("BITRIX24_INDEX_COMPOSITE"))
 		{
-			$val = trim($val);
-			if($val <> '')
-			{
-				$tags .= '<span class="feed-add-post-tags" data-tag="'.htmlspecialcharsbx($val).'">'.htmlspecialcharsEx($val);
-				$tags .= '<span class="feed-add-post-del-but"></span></span>';
-
-				if ($tagsInput != "")
-				{
-					$tagsInput .= ",";
-				}
-				$tagsInput .= htmlspecialcharsbx($val);
-			}
+			$dynamicArea = new \Bitrix\Main\Page\FrameStatic("blogpostform-init");
+			$dynamicArea->startDynamicArea();
+			$dynamicArea->setStub('');
 		}
-		?>
-		<li id="post-tags-block-<?=$arParams["FORM_ID"]?>" class="feed-add-post-tags-block"<?if ($tags !== ""):?> style="display:block"<?endif?>>
-			<div class="feed-add-post-tags-title"><?=GetMessage("MPF_TAGS")?></div>
-			<div class="feed-add-post-tags-wrap" id="post-tags-container-<?=$arParams["FORM_ID"]?>">
-				<?=$tags?>
-				<span class="feed-add-post-tags-add" id="post-tags-add-new-<?=$arParams["FORM_ID"]?>"><?=GetMessage("MPF_ADD_TAG")?></span>
-				<input type="hidden" name="<?=$arParams["TAGS"]["NAME"]?>" id="post-tags-hidden-<?=$arParams["FORM_ID"]?>" value="<?=$tagsInput?>,">
-			</div>
-		<div id="post-tags-popup-content-<?=$arParams["FORM_ID"]?>" style="display:none;">
-		<?if($arParams["TAGS"]["USE_SEARCH"] == "Y" && ModuleManager::isModuleInstalled('search'))
-		{
-			$APPLICATION->IncludeComponent(
-				"bitrix:search.tags.input",
-				".default",
-				Array(
-					"NAME"	=>	$arParams["TAGS"]["NAME"]."_".$arParams["FORM_ID"],
-					"VALUE"	=>	"",
-					"arrFILTER"	=>	$arParams["TAGS"]["FILTER"],
-					"PAGE_ELEMENTS"	=>	"10",
-					"SORT_BY_CNT"	=>	"Y",
-					"TEXT" => 'size="30" tabindex="'.($arParams["TEXT"]["TABINDEX"]++).'"',
-					"ID" => "post-tags-popup-input-".$arParams["FORM_ID"]
-				),
-				false,
-				array("HIDE_ICONS" => "Y")
-			);
-		}
-		else
-		{
-			?><input type="text" id="post-tags-popup-input-<?=$arParams["FORM_ID"]?>" tabindex="<?=($arParams["TEXT"]["TABINDEX"]++)?>" name="<?=$arParams["TAGS"]["NAME"]."_".$arParams["FORM_ID"]?>" size="30" value=""><?
-		}?>
-		</div>
-		<script type="text/javascript">
-			var BXPostFormTags_<?=$arParams["FORM_ID"]?> = new BXPostFormTags("<?=$arParams["FORM_ID"]?>", "bx-b-tag-input-<?=$arParams["FORM_ID"]?>");
-			var BXPostFormImportant_<?=$arParams["FORM_ID"]?> = new BXPostFormImportant("<?=$arParams["FORM_ID"]?>", "bx-b-important-<?=$arParams["FORM_ID"]?>", <?=(isset($arParams["IMPORTANT"]) && isset($arParams["IMPORTANT"]["INPUT_NAME"]) ? '"'.$arParams["IMPORTANT"]["INPUT_NAME"].'"' : 'false')?>);
-		</script>
-		</li>
-		<?
-	}
-	if($arParams["DESTINATION_SHOW"] == "Y" || !empty($arParams["TAGS"]))
-	{
-		?></ol><?
-	}
-
-	if (defined("BITRIX24_INDEX_COMPOSITE"))
-	{
-		$dynamicArea = new \Bitrix\Main\Page\FrameStatic("blogpostform-init");
-		$dynamicArea->startDynamicArea();
-		$dynamicArea->setStub('');
-	}
-
-	if (in_array('socnetlogdest', $array))
-	{
 		CModule::IncludeModule('intranet'); // for gov/public messages
 
 		$mentionSelectorId = 'mention_'.randString(6);
@@ -294,7 +162,7 @@ foreach($arParams["BUTTONS"] as $val)
 			array(
 				'API_VERSION' => 3,
 				'ID' => $mentionSelectorId,
-				'BIND_ID' => 'bx-b-mention-'.$arParams["FORM_ID"],
+				'BIND_ID' => "mpf-{$visibleButtons['MentionUser']['ID']}-{$arParams["FORM_ID"]}",
 				'ITEMS_SELECTED' => array(),
 				'CALLBACK' => array(
 					'select' => "window['BXfpdSelectCallbackMent".$arParams["FORM_ID"]."']",
@@ -322,7 +190,7 @@ foreach($arParams["BUTTONS"] as $val)
 						'departmentSelectDisable' => 'Y',
 						'allowAddCrmContact' => 'N',
 						'allowAddSocNetGroup' => 'N',
-						'allowSearchEmailUsers' => 'N',
+						'allowSearchEmailUsers' => ($arParams['ALLOW_MENTION_EMAIL_USER'] ?? 'N'),
 						'allowSearchCrmEmailUsers' => 'N',
 						'allowSearchNetworkUsers' => 'N'
 					]
@@ -331,28 +199,124 @@ foreach($arParams["BUTTONS"] as $val)
 			array("HIDE_ICONS" => "Y")
 		);
 
-	?><script type="text/javascript">
-		BX.ready(function(){
-			window.MPFMentionInit('<?=$arParams["FORM_ID"]?>', {
-				editorId: '<?= $arParams["LHE"]["id"]?>',
-				id: '<?=$this->randString(6)?>',
-				initDestination: <?=($arParams["DESTINATION_SHOW"] == "Y" ? "true" : "false")?>
-			});
+?><script type="text/javascript">
+	BX.ready(function(){
+		window.MPFMentionInit('<?=$arParams["FORM_ID"]?>', {
+			editorId: '<?= $arParams["LHE"]["id"]?>',
+			id: '<?=$this->randString(6)?>',
+			initDestination: <?=($arParams["DESTINATION_SHOW"] == "Y" ? "true" : "false")?>
 		});
-	</script>
-	<?
-
-
+	});
+</script>
+<?
+		if (defined("BITRIX24_INDEX_COMPOSITE"))
+		{
+			$dynamicArea->finishDynamicArea();
+		}
 	}
 
-	if (defined("BITRIX24_INDEX_COMPOSITE"))
-	{
-		$dynamicArea->finishDynamicArea();
-	}
 	/***************** Upload files ************************************/
-	?><?=$arParams["UPLOADS_HTML"]?><?
-	?><?=$arParams["~AT_THE_END_HTML"]?><?
-	?><?=$arParams["URL_PREVIEW_HTML"]?><?
+	echo $arParams["UPLOADS_HTML"];
+
+	if (!empty($arParams["TAGS"]))
+	{
+		$tagsInput = [];
+		$tags = array_map(function($val) use ($tagsInput) {
+			if (($val = trim($val)) <> '')
+			{
+				$val = htmlspecialcharsbx($val);
+				$tagsInput[] = $val;
+				return '<span class="feed-add-post-tags" data-tag="'.$val.'">'
+					.$val.'<span class="feed-add-post-del-but"></span></span>';
+			}
+			return null;
+		}, $arParams["TAGS"]["VALUE"]);
+
+		?>
+		<div id="post-tags-block-<?=$arParams["FORM_ID"]?>" class="feed-add-post-strings-blocks feed-add-post-tags-block"<?if (sizeof($tagsInput) > 0):?> style="display:block"<?endif?>>
+			<div class="feed-add-post-tags-title"><?=GetMessage("MPF_TAGS")?></div>
+			<div class="feed-add-post-tags-wrap" id="post-tags-container-<?=$arParams["FORM_ID"]?>">
+				<?=implode('', $tags)?>
+				<span class="feed-add-post-tags-add" id="post-tags-add-new-<?=$arParams["FORM_ID"]?>"><?=GetMessage("MPF_ADD_TAG")?></span>
+				<input type="hidden" name="<?=$arParams["TAGS"]["NAME"]?>" id="post-tags-hidden-<?=$arParams["FORM_ID"]?>" value="<?=implode(",", $tagsInput)?>,">
+			</div>
+			<div id="post-tags-popup-content-<?=$arParams["FORM_ID"]?>" style="display:none;">
+				<?php
+				if($arParams["TAGS"]["USE_SEARCH"] == "Y" && ModuleManager::isModuleInstalled('search'))
+				{
+					$APPLICATION->IncludeComponent(
+						"bitrix:search.tags.input",
+						".default",
+						Array(
+							"NAME"	=>	$arParams["TAGS"]["NAME"]."_".$arParams["FORM_ID"],
+							"VALUE"	=>	"",
+							"arrFILTER"	=>	$arParams["TAGS"]["FILTER"],
+							"PAGE_ELEMENTS"	=>	"10",
+							"SORT_BY_CNT"	=>	"Y",
+							"TEXT" => 'size="30" tabindex="'.($arParams["TEXT"]["TABINDEX"]++).'"',
+							"ID" => "post-tags-popup-input-".$arParams["FORM_ID"]
+						),
+						false,
+						array("HIDE_ICONS" => "Y")
+					);
+				}
+				else
+				{
+					?><input type="text" id="post-tags-popup-input-<?=$arParams["FORM_ID"]?>" tabindex="<?=($arParams["TEXT"]["TABINDEX"]++)?>" name="<?=$arParams["TAGS"]["NAME"]."_".$arParams["FORM_ID"]?>" size="30" value=""><?
+				}?>
+			</div>
+		</div>
+		<?
+	}
+
+	if($arParams["DESTINATION_SHOW"] === "Y")
+	{
+		?>
+		<div class="feed-add-post-strings-blocks feed-add-post-destination-block">
+			<input type="hidden" id="entity-selector-data-<?=$controlId?>" name="DEST_DATA" value="<?=htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($arResult['DESTINATION']['ENTITIES_PRESELECTED']))?>" />
+			<div class="feed-add-post-destination-title"><?=GetMessage("MPF_DESTINATION")?></div>
+			<div id="entity-selector-<?=$controlId?>"></div>
+<script>
+	BX.ready(function()
+	{
+		new MPFEntitySelector({
+			id: '<?=CUtil::JSescape($arParams["divId"])?>',
+			context: '<?=CUtil::JSescape(
+				!empty($arParams['SELECTOR_CONTEXT'])
+					? $arParams['SELECTOR_CONTEXT']
+					: (
+				!empty($arParams['DEST_CONTEXT'])
+					? $arParams['DEST_CONTEXT']
+					: 'BLOG_POST'
+				)
+			)?>',
+			tagNodeId: 'entity-selector-<?=CUtil::JSescape($arParams["divId"])?>',
+			inputNodeId: 'entity-selector-data-<?=CUtil::JSescape($arParams["divId"])?>',
+			preselectedItems: <?=CUtil::PhpToJSObject($arResult['DESTINATION']['ENTITIES_PRESELECTED'])?>,
+			allowSearchEmailUsers: <?=($arResult['ALLOW_EMAIL_INVITATION'] ? 'true' : 'false')?>,
+			allowToAll: <?=($arResult['ALLOW_TO_ALL'] ? 'true' : 'false')?>,
+			messages: {
+				allUsersTitle: '<?= CUtil::JSescape(ModuleManager::isModuleInstalled('intranet') ? Loc::getMessage('MPF_DESTINATION_3') : Loc::getMessage('MPF_DESTINATION_4')) ?>',
+			},
+		});
+	});
+</script>
+		</div><?
+
+		echo $APPLICATION->GetViewContent("mpl_input_additional");
+	}
+
+	echo $arParams["~AT_THE_END_HTML"];
+	echo $arParams["URL_PREVIEW_HTML"];
+
+	if (isset($arParams["IMPORTANT"]) && isset($arParams["IMPORTANT"]["INPUT_NAME"]))
+	{
+?>
+<script type="text/javascript">
+	var BXPostFormImportant_<?=$arParams["FORM_ID"]?> = new BXPostFormImportant("<?=$arParams["IMPORTANT"]["INPUT_NAME"]?>");
+</script>
+	<?php
+	}
 	?>
 	<div class="feed-add-post-buttons" id="lhe_buttons_<?=$arParams["FORM_ID"]?>">
 		<button class="ui-btn ui-btn-sm ui-btn-primary" id="lhe_button_submit_<?=$arParams["FORM_ID"]?>"><?=GetMessage("MPF_BUTTON_SEND")?></button>

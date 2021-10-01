@@ -19,7 +19,20 @@ Main\Localization\Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Sale\Delivery
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_OrderDeliveryReq_Query query()
+ * @method static EO_OrderDeliveryReq_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_OrderDeliveryReq_Result getById($id)
+ * @method static EO_OrderDeliveryReq_Result getList(array $parameters = array())
+ * @method static EO_OrderDeliveryReq_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_OrderDeliveryReq createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_OrderDeliveryReq_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_OrderDeliveryReq wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_OrderDeliveryReq_Collection wakeUpCollection($rows)
+ */
 
 class OrderDeliveryReqTable extends Main\Entity\DataManager
 {

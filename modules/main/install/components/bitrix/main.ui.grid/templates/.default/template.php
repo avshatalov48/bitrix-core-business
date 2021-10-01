@@ -1,4 +1,4 @@
-<?
+<?php
 
 /**
  * @var $arParams
@@ -27,6 +27,7 @@ Extension::load([
 	'ui.hint',
 	'ui.cnt',
 	'ui.label',
+	'ui.layout-form',
 ]);
 
 global $APPLICATION;
@@ -76,28 +77,125 @@ $displayedCount = count(
 	)
 );
 
+$adjustColumnItem = static function(array $column, array $arParams, array $arResult): string
+{
+	$columnId = Text\HtmlFilter::encode($column['id']);
+	$stickedClass = (
+		$arParams['ALLOW_STICKED_COLUMNS']
+		&& $column['sticked']
+		&& array_key_exists($column['id'], $arResult['COLUMNS'])
+			? 'main-grid-settings-window-list-item-sticked' : ''
+	);
+
+	$result = '<div 
+		data-name="'. $columnId .'" 
+		class="main-grid-settings-window-list-item ' . $stickedClass . '" 
+		data-sticked-default="' . $column['sticked_default'] .'"
+	>';
+
+	$checked = (array_key_exists($column['id'], $arResult['COLUMNS']) ? ' checked' : '');
+	$result .= '<input 
+		id="' . $columnId . '-checkbox" 
+		type="checkbox" 
+		class="main-grid-settings-window-list-item-checkbox"'
+		. $checked
+		. '>';
+
+	$result .= '<label 
+		for="' . $columnId . '-checkbox" 
+		class="main-grid-settings-window-list-item-label">'
+		. htmlspecialcharsbx(htmlspecialcharsback($column['name']))
+		.'</label>';
+
+	$spanStickedClass = (!$arParams['ALLOW_STICKED_COLUMNS'] ? ' main-grid-reset-right' : '');
+	$result .= '<span class="main-grid-settings-window-list-item-edit-button' . $spanStickedClass . '"></span>';
+
+	if ($arParams['ALLOW_STICKED_COLUMNS'])
+	{
+		$result .= '<span class="main-grid-settings-window-list-item-sticky-button"></span>';
+	}
+
+	$result .= '</div>';
+
+	return $result;
+}
 ?>
 
 <div class="main-grid<?=$arResult["IS_AJAX"] ? " main-grid-load-animation" : ""?><?=!$arParams["ALLOW_HORIZONTAL_SCROLL"] ? " main-grid-full" : ""?><?=$arParams["ALLOW_ROWS_SORT"] ? " main-grid-rows-sort-enable" : ""?>" id="<?=$arParams["GRID_ID"]?>" data-ajaxid="<?=$arParams["AJAX_ID"]?>"<?=$arResult['IS_AJAX'] ? " style=\"display: none;\"" : ""?>><?
 	?><form name="form_<?=$arParams["GRID_ID"]?>" action="<?=POST_FORM_ACTION_URI; ?>" method="POST"><?
 		?><?=bitrix_sessid_post() ?><?
-		?><div class="main-grid-settings-window"><?
-			?><div class="main-grid-settings-window-select-links"><?
-				?><span class="main-grid-settings-window-select-link main-grid-settings-window-select-all"><?=Loc::getMessage("interface_grid_settings_select_all_columns")?></span><?
-				?><span class="main-grid-settings-window-select-link main-grid-settings-window-unselect-all"><?=Loc::getMessage("interface_grid_settings_unselect_all_columns")?></span><?
-			?></div><?
-			?><div class="main-grid-settings-window-list"><?
-				foreach ($arResult["COLUMNS_ALL"] as $key => $column) : ?><?
-					?><div data-name="<?=Text\HtmlFilter::encode($column["id"])?>" class="main-grid-settings-window-list-item <?=$arParams["ALLOW_STICKED_COLUMNS"] && $column["sticked"] && array_key_exists($column["id"], $arResult["COLUMNS"]) ? "main-grid-settings-window-list-item-sticked" : ""?>" data-sticked-default="<?=$column["sticked_default"]?>"><?
-						?><input id="<?=Text\HtmlFilter::encode($column["id"])?>-checkbox" type="checkbox" class="main-grid-settings-window-list-item-checkbox" <?=array_key_exists($column["id"], $arResult["COLUMNS"]) ? " checked" : ""?>><?
-						?><label for="<?=Text\HtmlFilter::encode($column["id"])?>-checkbox" class="main-grid-settings-window-list-item-label"><?=htmlspecialcharsbx(htmlspecialcharsback($column["name"]))?></label><?
-						?><span class="main-grid-settings-window-list-item-edit-button<?=!$arParams["ALLOW_STICKED_COLUMNS"] ? " main-grid-reset-right" : ""?>"></span><?
-						if ($arParams["ALLOW_STICKED_COLUMNS"]) :
-							?><span class="main-grid-settings-window-list-item-sticky-button"></span><?
+		?><div class="main-grid-settings-window"><?php
+			$headersSectionsEnabled = !empty($arResult['HEADERS_SECTIONS']) && is_array($arParams['HEADERS_SECTIONS']);
+			if ($headersSectionsEnabled || !empty($arResult['ENABLE_FIELDS_SEARCH']))
+			{
+			?><div class="main-grid-settings-window-search-wrapper"><?php
+				?><div class="main-grid-settings-window-search-entities"><?php
+					?><div class="ui-form-row-inline"><?php
+						if ($headersSectionsEnabled)
+						{
+						?><div class="ui-form-row"><?php
+							?><div class="ui-form-content main-grid-settings-window-search-section-wrapper"><?php
+								foreach ($arResult['HEADERS_SECTIONS'] as $headerSection)
+								{
+									$activeClass = (
+										$headerSection['selected']
+											? ' main-grid-settings-window-search-section-item-icon-active'
+											: ''
+									);
+									?><div class="main-grid-settings-window-search-section-item" data-ui-grid-filter-section-button="<?= $headerSection['id'] ?>"><?php
+										?><div class="main-grid-settings-window-search-section-item-icon <?= $activeClass ?>"><?php
+											print Text\HtmlFilter::encode($headerSection['name']);
+										?></div><?php
+									?></div><?php
+								}
+							?></div><?php
+						?></div><?php
+						}
+						if ($arResult["ENABLE_FIELDS_SEARCH"]):
+						?><div class="ui-form-row"><?php
+							?><div class="ui-form-content main-grid-settings-window-search-input-wrapper"><?php
+								?><div class="ui-ctl ui-ctl-textbox ui-ctl-before-icon ui-ctl-after-icon"><?php
+									?><div class="ui-ctl-before ui-ctl-icon-search"></div><?php
+									?><button class="ui-ctl-after ui-ctl-icon-clear"></button><?php
+									?><input type="text" class="ui-ctl-element main-grid-settings-window-search-section-input"><?php
+								?></div><?php
+							?></div><?php
+						?></div><?php
 						endif;
-					?></div><?
-				endforeach;
-			?></div><?
+					?></div><?php
+
+				?></div><?php //main-grid-settings-window-search-entities
+			?></div><?php // grid-search-wrapper
+				if ($headersSectionsEnabled)
+				{
+					foreach ($arResult["HEADERS_SECTIONS"] as $headerSection)
+					{
+						$sectionId = $headerSection['id'];
+						$isHiddenSection = empty($headerSection['selected']);
+						?><div <?= $isHiddenSection ? 'hidden' : '' ?> data-ui-grid-filter-section="<?= $sectionId ?>"><?php
+							?><h3 class="main-grid-settings-window-section-title"><?= Text\HtmlFilter::encode($headerSection['name']) ?></h3><?
+							?><div class="main-grid-settings-window-list"><?php
+								if (!empty($arResult['COLUMNS_ALL_WITH_SECTIONS'][$sectionId]))
+								{
+									foreach ($arResult['COLUMNS_ALL_WITH_SECTIONS'][$sectionId] as $column)
+									{
+										print $adjustColumnItem($column, $arParams, $arResult);
+									}
+								}
+							?></div><? //main-grid-settings-window-list
+						?></div><?php
+					}
+				}
+			}
+			if (!$headersSectionsEnabled)
+			{
+				?><div class="main-grid-settings-window-list"><?
+				foreach ($arResult["COLUMNS_ALL"] as $column)
+				{
+					print $adjustColumnItem($column, $arParams, $arResult);
+				}
+				?></div><?
+			}
 			?><div class="popup-window-buttons"><?
 				?><span class="main-grid-settings-window-buttons-wrapper"><?
 					?><span class="main-grid-settings-window-actions-item-button main-grid-settings-window-actions-item-reset" id="<?=$arParams["GRID_ID"]?>-grid-settings-reset-button"><?=Loc::getMessage("interface_grid_restore_to_default")?></span><?
@@ -110,6 +208,10 @@ $displayedCount = count(
 				?></span><?
 				?><span class="ui-btn ui-btn-success main-grid-settings-window-actions-item-button" id="<?=$arParams["GRID_ID"]?>-grid-settings-apply-button"><?=Loc::getMessage("interface_grid_apply_settings")?></span><?
 				?><span class="ui-btn ui-btn-link main-grid-settings-window-actions-item-button" id="<?=$arParams["GRID_ID"]?>-grid-settings-cancel-button"><?=Loc::getMessage("interface_grid_cancel_settings")?></span><?
+				?><div class="main-grid-settings-window-select-links"><?
+					?><span class="main-grid-settings-window-select-link main-grid-settings-window-select-all"><?=Loc::getMessage("interface_grid_settings_select_all_columns")?></span><?
+					?><span class="main-grid-settings-window-select-link main-grid-settings-window-unselect-all"><?=Loc::getMessage("interface_grid_settings_unselect_all_columns")?></span><?
+				?></div><?
 			?></div><?
 		?></div><?
 		?><div class="main-grid-wrapper<?=!$arParams["ALLOW_HORIZONTAL_SCROLL"] ? " main-grid-full" : "" ?>"><?
@@ -157,6 +259,10 @@ $displayedCount = count(
 													?><span class="main-grid-cell-counter main-grid-cell-counter-left-aligned"></span><?
 												endif;
 												?><span class="main-grid-cell-head-container"><?
+												if (!empty($header['iconUrl'])) :
+													$iconTitle = Text\HtmlFilter::encode($header['iconTitle'] ?? '');
+													?><span class="main-grid-head-icon"><img src="<?= Text\HtmlFilter::encode($header['iconUrl']) ?>" title="<?= $iconTitle ?>" alt=""></span><?
+												endif;
 												?><span class="main-grid-head-title<?=$arParams['DISABLE_HEADERS_TRANSFORM'] ? " main-grid-head-title-without-transform" : ""?>"><?
 												echo Text\HtmlFilter::encode($header["showname"] ? $header["name"] : "");
 												if (isset($header["hint"])) :
@@ -807,6 +913,8 @@ endif; ?>
                             "ACTION_COLUMN_ENABLED" => ($arParams["SHOW_ROW_ACTIONS_MENU"] || $arParams["SHOW_GRID_SETTINGS_MENU"]),
                             "ADVANCED_EDIT_MODE" => $arParams["ADVANCED_EDIT_MODE"],
 							"SETTINGS_WINDOW_TITLE" => $arParams["SETTINGS_WINDOW_TITLE"],
+							"COLUMNS_ALL_WITH_SECTIONS" => ($arResult["COLUMNS_ALL_WITH_SECTIONS"] ?? []),
+							"ENABLE_FIELDS_SEARCH" => ($arResult["ENABLE_FIELDS_SEARCH"] ?? false),
 						)
 					)?>,
 					<?=CUtil::PhpToJSObject($arResult["OPTIONS"])?>,

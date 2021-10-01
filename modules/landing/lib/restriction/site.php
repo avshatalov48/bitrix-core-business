@@ -8,6 +8,126 @@ use \Bitrix\Landing\Domain;
 class Site
 {
 	/**
+	 * Allowed days for use free domain after downgrade plan.
+	 */
+	const FREE_DOMAIN_GRACE_DAYS = 14;
+
+	/**
+	 * When limit is minimal we allow public within these limits.
+	 */
+	private const LIMIT_BY_TEMPLATES_MINIMAL = [
+		'store_v3' => 1,
+		'store-chats' => 1,
+		'%' => 1 // any template
+	];
+
+	/**
+	 * Checks limits by template's limits.
+	 * @param array $filter filter array.
+	 * @param int $limit Current limit.
+	 * @return bool
+	 */
+	private static function checkLimitByTemplates(array $filter, int $limit): bool
+	{
+		$templates = [];
+		$sites = [];
+		$currentSiteId = null;
+		$templatesLimits = self::LIMIT_BY_TEMPLATES_MINIMAL;
+		$templatesLimits['%'] = max($limit, 1);
+
+		if (isset($filter['!ID']))
+		{
+			$currentSiteId = $filter['!ID'];
+		}
+
+		// get all sites (active) and group by templates
+		$res = \Bitrix\Landing\Site::getList([
+			'select' => [
+				'ID', 'XML_ID', 'TPL_CODE'
+			],
+			'filter' => $filter
+		]);
+		while ($row = $res->fetch())
+		{
+			$sites[] = $row;
+		}
+
+		// current site
+		if ($currentSiteId)
+		{
+			$res = \Bitrix\Landing\Site::getList([
+				'select' => [
+					'ID', 'XML_ID', 'TPL_CODE'
+				],
+				'filter' => [
+					'CHECK_PERMISSIONS' => 'N',
+					'ID' => $currentSiteId
+				]
+			]);
+			if ($row = $res->fetch())
+			{
+				$sites[] = $row;
+			}
+		}
+
+		// calc templates
+		foreach ($sites as $row)
+		{
+			if (!$row['TPL_CODE'])
+			{
+				if (mb_strpos($row['XML_ID'], '|') !== false)
+				{
+					[, $row['TPL_CODE']] = explode('|', $row['XML_ID']);
+				}
+			}
+
+			$exactMatch = false;
+			foreach ($templatesLimits as $code => $cnt)
+			{
+				if (strpos($row['TPL_CODE'], $code) === 0)
+				{
+					$exactMatch = true;
+					$row['TPL_CODE'] = $code;
+					break;
+				}
+			}
+
+			if (!$exactMatch)
+			{
+				$row['TPL_CODE'] = '%';
+			}
+
+			if (!($templates[$row['TPL_CODE']] ?? null))
+			{
+				$templates[$row['TPL_CODE']] = 0;
+			}
+			$templates[$row['TPL_CODE']]++;
+		}
+
+		// calc limits
+		if ($templates)
+		{
+			foreach ($templates as $code => $cnt)
+			{
+				if (isset($templatesLimits[$code]))
+				{
+					if ($templatesLimits[$code] < $cnt)
+					{
+						return false;
+					}
+				}
+
+				if ($templatesLimits['%'] < $cnt)
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Checks restriction for creating and publication site.
 	 * @param string $code Restriction code (not used here).
 	 * @param array $params Additional params.
@@ -46,10 +166,9 @@ class Site
 					$params['filter']
 				);
 			}
-			//@fixme: tmp
-			if ($params['action_type'] == 'publication')
+			if ($params['action_type'] === 'publication' && $params['type'] === 'STORE')
 			{
-				$filter['!XML_ID'] = '%|store-chats-%';
+				return self::checkLimitByTemplates($filter, $limit);
 			}
 			$check = \Bitrix\Landing\Site::getList([
 				'select' => [

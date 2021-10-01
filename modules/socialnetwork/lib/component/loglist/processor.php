@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Component\LogList;
 
 use Bitrix\Main\Config\Option;
@@ -39,7 +40,7 @@ class Processor
 		}
 		else
 		{
-			$this->request = Util::getRequest();;
+			$this->request = Util::getRequest();
 		}
 	}
 
@@ -223,9 +224,9 @@ class Processor
 
 		$this->eventsList[$type][] = $value;
 	}
-	public function unsetEventsListKey($key = '', $type = 'main')
+	public function unsetEventsListKey($key = '', $type = 'main'): void
 	{
-		if ($key == '')
+		if ($key === '')
 		{
 			return;
 		}
@@ -281,7 +282,7 @@ class Processor
 			$siteDateFormatFull = \CSite::getDateFormat('FULL');
 		}
 
-		return makeTimeStamp($value, ($type == 'SHORT' ? $siteDateFormatShort : $siteDateFormatFull));
+		return makeTimeStamp($value, ($type === 'SHORT' ? $siteDateFormatShort : $siteDateFormatFull));
 	}
 
 	public function prepareContextData(&$result)
@@ -289,8 +290,8 @@ class Processor
 		$params = $this->getComponent()->arParams;
 
 		if (
-			$params['SET_TITLE'] == 'Y'
-			|| $params['SET_NAV_CHAIN'] != 'N'
+			$params['SET_TITLE'] === 'Y'
+			|| $params['SET_NAV_CHAIN'] !== 'N'
 			|| $params['GROUP_ID'] > 0
 		)
 		{
@@ -302,8 +303,9 @@ class Processor
 			elseif ($params['ENTITY_TYPE'] == SONET_ENTITY_GROUP)
 			{
 				$result['Group'] = \CSocNetGroup::getById($params['GROUP_ID']);
+
 				if (
-					$result['Group']['OPENED'] == 'Y'
+					$result['Group']['OPENED'] === 'Y'
 					&& Util::checkUserAuthorized()
 					&& !$this->getComponent()->getCurrentUserAdmin()
 					&& !in_array(\CSocNetUserToGroup::getUserRole($result['currentUserId'], $result['Group']['ID']), \Bitrix\Socialnetwork\UserToGroupTable::getRolesMember())
@@ -385,9 +387,9 @@ class Processor
 			}
 
 			if (
-				$params['MODE'] == 'LANDING'
+				$params['MODE'] === 'LANDING'
 				&& !empty($params['DESTINATION_AUTHOR_ID'])
-				&& intval($params['DESTINATION_AUTHOR_ID']) > 0
+				&& (int)$params['DESTINATION_AUTHOR_ID'] > 0
 			) // landing author filter
 			{
 				$this->setFilterKey('USER_ID', intval($params['DESTINATION_AUTHOR_ID']));
@@ -449,12 +451,6 @@ class Processor
 		{
 			$operation = \Bitrix\Socialnetwork\LogIndexTable::getEntity()->fullTextIndexEnabled('CONTENT') ? '*' : '*%';
 			$this->setFilterKey($operation.'CONTENT', \Bitrix\Socialnetwork\Item\LogIndex::prepareToken($params['FIND']));
-			/*
-			$this->setListParamsKey('FILTER_BY_CONTENT', [
-				$operation.'CONTENT' => \Bitrix\Socialnetwork\Item\LogIndex::prepareToken($params['FIND'])
-			]);
-			*/
-			$turnFollowModeOff = true;
 			$this->showPinnedPanel = false;
 		}
 
@@ -750,7 +746,7 @@ class Processor
 				{
 					$this->setFilterKey('LOG_RIGHTS', 'DR'.intval($matches[1]));
 				}
-				elseif ($filterData['TO'] == 'UA')
+				elseif ($filterData['TO'] === 'UA')
 				{
 					$this->setFilterKey('LOG_RIGHTS', 'G2');
 				}
@@ -793,7 +789,7 @@ class Processor
 
 			if (
 				!empty($filterData['FAVORITES_USER_ID'])
-				&& $filterData['FAVORITES_USER_ID'] == 'Y'
+				&& $filterData['FAVORITES_USER_ID'] === 'Y'
 			)
 			{
 				$filtered = true;
@@ -822,7 +818,7 @@ class Processor
 
 			if (
 				!empty($filterData['EXTRANET'])
-				&& $filterData['EXTRANET'] == 'Y'
+				&& $filterData['EXTRANET'] === 'Y'
 				&& Loader::includeModule('extranet')
 			)
 			{
@@ -881,7 +877,7 @@ class Processor
 				defined('SITE_TEMPLATE_ID')
 				&& SITE_TEMPLATE_ID === 'bitrix24'
 			)
-			|| $params['MODE'] == 'LANDING'
+			|| $params['MODE'] === 'LANDING'
 		)
 		{
 			$filterOption = new \Bitrix\Main\UI\Filter\Options($result['FILTER_ID']);
@@ -965,11 +961,11 @@ class Processor
 					: [ 'LOG_UPDATE' => 'DESC' ]
 			);
 		}
-		elseif ($params['USE_FOLLOW'] == 'Y')
+		elseif ($params['USE_FOLLOW'] === 'Y')
 		{
 			$this->setOrder([ 'DATE_FOLLOW' => 'DESC' ]);
 		}
-		elseif ($params['USE_COMMENTS'] == 'Y')
+		elseif ($params['USE_COMMENTS'] === 'Y')
 		{
 			$this->setOrder(
 				!empty($this->getFilterContent())
@@ -1023,7 +1019,7 @@ class Processor
 	{
 		$params = $this->getComponent()->arParams;
 
-		if ($params['IS_CRM'] == 'Y')
+		if ($params['IS_CRM'] === 'Y')
 		{
 			$this->setListParams([
 				'IS_CRM' => 'Y',
@@ -1059,11 +1055,11 @@ class Processor
 		{
 			if (
 				ModuleManager::isModuleInstalled('crm')
-				&& $params['PUBLIC_MODE'] != 'Y'
+				&& $params['PUBLIC_MODE'] !== 'Y'
 			)
 			{
 				$this->setFilterKey('!MODULE_ID', (  // can't use !@MODULE_ID because of null
-					Option::get('crm', 'enable_livefeed_merge', 'N') == 'Y'
+					Option::get('crm', 'enable_livefeed_merge', 'N') === 'Y'
 					|| (
 						!empty($this->getFilterKey('LOG_RIGHTS'))
 						&& !is_array($this->getFilterKey('LOG_RIGHTS'))
@@ -1074,10 +1070,10 @@ class Processor
 				));
 			}
 
-			$this->setListParamsKey('CHECK_RIGHTS', ($params['MODE'] != 'LANDING' ? 'Y' : 'N'));
+			$this->setListParamsKey('CHECK_RIGHTS', ($params['MODE'] !== 'LANDING' ? 'Y' : 'N'));
 
 			if (
-				$params['MODE'] != 'LANDING'
+				$params['MODE'] !== 'LANDING'
 				&& $params['LOG_ID'] <= 0
 				&& empty($this->getFilterDataKey('EVENT_ID'))
 			)
@@ -1087,14 +1083,14 @@ class Processor
 		}
 
 		if (
-			$params['USE_FOLLOW'] != 'N'
+			$params['USE_FOLLOW'] !== 'N'
 			&& !ModuleManager::isModuleInstalled('intranet')
 			&& Util::checkUserAuthorized()
 		) // BSM
 		{
 			$result['USE_SMART_FILTER'] = 'Y';
 			$this->setListParamsKey('MY_GROUPS_ONLY', (
-				\CSocNetLogSmartFilter::getDefaultValue($result['currentUserId']) == 'Y'
+				\CSocNetLogSmartFilter::getDefaultValue($result['currentUserId']) === 'Y'
 					? 'Y'
 					: 'N'
 			));
@@ -1102,8 +1098,8 @@ class Processor
 
 		if (
 			$result['isExtranetSite']
-			|| $this->getComponent()->getPresetFilterIdValue() == 'extranet'
-			|| $this->getFilterDataKey('EXTRANET') == 'Y'
+			|| $this->getComponent()->getPresetFilterIdValue() === 'extranet'
+			|| $this->getFilterDataKey('EXTRANET') === 'Y'
 		)
 		{
 			$this->setListParamsKey('MY_GROUPS_ONLY', 'Y');
@@ -1172,7 +1168,7 @@ class Processor
 
 		if (
 			!isset($params['USE_FAVORITES'])
-			|| $params['USE_FAVORITES'] != 'N'
+			|| $params['USE_FAVORITES'] !== 'N'
 		)
 		{
 			$select[] = 'FAVORITES_USER_ID';
@@ -1298,7 +1294,7 @@ class Processor
 		$eventsList = $this->getEventsList($type);
 
 		$prevPageLogIdList = [];
-		if ($type == 'main')
+		if ($type === 'main')
 		{
 			$logPageProcessorInstance = $this->getLogPageProcessorInstance();
 			if (!$logPageProcessorInstance)
@@ -1312,7 +1308,7 @@ class Processor
 		foreach ($eventsList as $key => $eventFields)
 		{
 			if (
-				$eventFields['EVENT_ID'] == 'crm_activity_add'
+				$eventFields['EVENT_ID'] === 'crm_activity_add'
 				&& !empty($activity2LogList)
 				&& !in_array($eventFields['ID'], $activity2LogList)
 			)
@@ -1321,22 +1317,22 @@ class Processor
 			}
 			elseif (
 				empty($prevPageLogIdList)
-				|| !in_array($eventFields['ID'], $prevPageLogIdList)
+				|| !in_array((int)$eventFields['ID'], $prevPageLogIdList, true)
 			)
 			{
 				$eventFields['EVENT_ID_FULLSET'] = \CSocNetLogTools::findFullSetEventIDByEventID($eventFields['EVENT_ID']);
 				$this->setEventsListKey($key, $eventFields, $type);
 
 				if (
-					$type == 'main'
-					&& $eventFields['EVENT_ID'] == 'tasks'
+					$type === 'main'
+					&& $eventFields['EVENT_ID'] === 'tasks'
 				)
 				{
 					$this->incrementTasksCount();
 				}
 
 				if (
-					$type == 'main'
+					$type === 'main'
 					&& $key == 0
 				)
 				{
@@ -1345,7 +1341,7 @@ class Processor
 						$logPageProcessorInstance->setDateFirstPageTimestamp($this->makeTimeStampFromDateTime($eventFields['DATE_FOLLOW'], 'FULL'));
 					}
 					elseif (
-						$params['USE_FOLLOW'] == 'N'
+						$params['USE_FOLLOW'] === 'N'
 						&& $eventFields['LOG_UPDATE']
 					)
 					{
@@ -1487,7 +1483,7 @@ class Processor
 
 		if (
 			Util::checkUserAuthorized()
-			&& $params['USE_TASKS'] == 'Y'
+			&& $params['USE_TASKS'] === 'Y'
 		)
 		{
 			$result['EXPERT_MODE'] = 'N';
@@ -1496,13 +1492,13 @@ class Processor
 				'order' => [],
 				'filter' => [
 					'USER_ID' => $result['currentUserId'],
-					'EVENT_ID' => 'tasks'
+					'=EVENT_ID' => 'tasks'
 				],
 				'select' => [ 'TYPE' ]
 			]);
 			if ($logViewFields = $res->fetch())
 			{
-				$result['EXPERT_MODE'] = ($logViewFields['TYPE'] == 'N' ? 'Y' : 'N');
+				$result['EXPERT_MODE'] = ($logViewFields['TYPE'] === 'N' ? 'Y' : 'N');
 			}
 		}
 	}
@@ -1532,4 +1528,4 @@ class Processor
 		]);
 	}
 }
-?>
+

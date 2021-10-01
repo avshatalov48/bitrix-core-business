@@ -2,10 +2,7 @@
 
 namespace Bitrix\Sale\Repository;
 
-use Bitrix\Sale\Internals\ShipmentTable;
-use Bitrix\Sale\Order;
-use Bitrix\Sale\Registry;
-use Bitrix\Sale\Shipment;
+use Bitrix\Sale;
 
 /**
  * Class ShipmentRepository
@@ -39,24 +36,69 @@ final class ShipmentRepository
 	/**
 	 * @param int $id
 	 * @return \Bitrix\Sale\Shipment|null
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function getById(int $id): ?Shipment
+	public function getById(int $id): ?Sale\Shipment
 	{
-		$shipmentRow = ShipmentTable::getById($id)->fetch();
+		/** @var Sale\Shipment $shipmentClass */
+		$shipmentClass = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER)->getShipmentClassName();
+
+		$shipmentRow = $shipmentClass::getList([
+			'select' => ['ID', 'ORDER_ID'],
+			'filter' => [
+				'=ID' => $id
+			]
+		])->fetch();
 		if (!$shipmentRow)
 		{
 			return null;
 		}
 
-		$orderClassName = Registry::getInstance(Registry::ENTITY_ORDER)->getOrderClassName();
+		return static::getInstance()->getByRow($shipmentRow);
+	}
 
-		/** @var Order $orderClassName */
-		$order = $orderClassName::load($shipmentRow['ORDER_ID']);
-		if (is_null($order))
+	/**
+	 * @param array $ids
+	 * @return array
+	 */
+	public function getByIds(array $ids): array
+	{
+		$result = [];
+
+		/** @var Sale\Shipment $shipmentClass */
+		$shipmentClass = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER)->getShipmentClassName();
+
+		$shipmentList = $shipmentClass::getList([
+			'select' => ['ID', 'ORDER_ID'],
+			'filter' => [
+				'=ID' => $ids
+			]
+		]);
+
+		while ($shipmentRow = $shipmentList->fetch())
+		{
+			$shipment = static::getInstance()->getByRow($shipmentRow);
+			if (is_null($shipment))
+			{
+				continue;
+			}
+
+			$result[] = $shipment;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param array $shipmenRow
+	 * @return Sale\Shipment|null
+	 */
+	private function getByRow(array $shipmenRow): ?Sale\Shipment
+	{
+		$orderClassName = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER)->getOrderClassName();
+
+		/** @var Sale\Order $orderClassName */
+		$order = $orderClassName::load($shipmenRow['ORDER_ID']);
+		if ($order === null)
 		{
 			return null;
 		}
@@ -66,7 +108,7 @@ final class ShipmentRepository
 		/** @var \Bitrix\Sale\Shipment $shipment */
 		foreach ($shipmentCollection as $shipment)
 		{
-			if ($shipment->getId() !== $id)
+			if ($shipment->getId() !== (int)$shipmenRow['ID'])
 			{
 				continue;
 			}

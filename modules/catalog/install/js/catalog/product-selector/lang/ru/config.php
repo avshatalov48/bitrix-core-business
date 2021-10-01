@@ -6,3 +6,5 @@ $MESS["CATALOG_SELECTOR_IS_EMPTY_SUBTITLE"] = "Создать новый тов�
 $MESS["CATALOG_SELECTOR_NEW_TAG_TITLE"] = "новый";
 $MESS["CATALOG_SELECTOR_SELECTED_PRODUCT_TITLE"] = "Выберите или создайте товар";
 $MESS["CATALOG_SELECTOR_EMPTY_IMAGE_ERROR"] = "Загрузите изображение товара";
+$MESS["CATALOG_SELECTOR_LICENSE_EXPLODE"] = "Расширить тариф";
+$MESS["CATALOG_SELECTOR_LIMITED_PRODUCT_CREATION"] = "У вас кончился лимит на создание товаров.";

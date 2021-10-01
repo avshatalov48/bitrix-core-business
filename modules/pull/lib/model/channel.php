@@ -1,117 +1,70 @@
 <?php
+
 namespace Bitrix\Pull\Model;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Type\DateTime;
 
-/**
- * Class ChannelTable
- *
- * Fields:
- * <ul>
- * <li> ID int mandatory
- * <li> USER_ID int mandatory
- * <li> CHANNEL_TYPE string(50) optional
- * <li> CHANNEL_ID string(50) mandatory
- * <li> LAST_ID int optional
- * <li> DATE_CREATE datetime mandatory
- * <li> USER reference to {@link \Bitrix\User\UserTable}
- * </ul>
- *
- * @package Bitrix\Pull
- **/
-
-class ChannelTable extends Main\Entity\DataManager
+class Channel
 {
-	/**
-	 * Returns DB table name for entity.
-	 *
-	 * @return string
-	 */
-	public static function getTableName()
+	protected $id;
+	protected $userId;
+	protected $privateId;
+	protected $publicId;
+	protected $type = \CPullChannel::TYPE_PRIVATE;
+	protected $dateCreate;
+
+	public static function createWithTag(string $tag)
 	{
-		return 'b_pull_channel';
+		$instance = new static();
+		$instance->privateId = \CPullChannel::GetNewChannelIdByTag($tag);
+		$instance->publicId = \CPullChannel::GetNewChannelIdByTag($tag,'public');
+		$instance->dateCreate = new DateTime();
+
+		return $instance;
 	}
 
-	/**
-	 * Returns entity map definition.
-	 *
-	 * @return array
-	 */
-	public static function getMap()
+	public static function createRandom()
 	{
-		return array(
-			'ID' => array(
-				'data_type' => 'integer',
-				'primary' => true,
-				'autocomplete' => true,
-			),
-			'USER_ID' => array(
-				'data_type' => 'integer',
-				'required' => true,
-			),
-			'CHANNEL_TYPE' => array(
-				'data_type' => 'string',
-				'validation' => array(__CLASS__, 'validateChannelType'),
-			),
-			'CHANNEL_ID' => array(
-				'data_type' => 'string',
-				'required' => true,
-				'validation' => array(__CLASS__, 'validateChannelId'),
-			),
-			'CHANNEL_PUBLIC_ID' => array(
-				'data_type' => 'string',
-				'required' => true,
-				'validation' => array(__CLASS__, 'validateChannelId'),
-			),
-			'LAST_ID' => array(
-				'data_type' => 'integer',
-			),
-			'DATE_CREATE' => array(
-				'data_type' => 'datetime',
-				'required' => true,
-				'default_value' => array(__CLASS__, 'getCurrentDate'),
-			),
-			'USER' => array(
-				'data_type' => 'Bitrix\Main\UserTable',
-				'reference' => array('=this.USER_ID' => 'ref.ID'),
-				'join_type' => 'INNER',
-			),
-		);
-	}
-	/**
-	 * Returns validators for CHANNEL_TYPE field.
-	 *
-	 * @return array
-	 */
-	public static function validateChannelType()
-	{
-		return array(
-			new Main\Entity\Validator\Length(null, 50),
-		);
-	}
-	/**
-	 * Returns validators for CHANNEL_ID field.
-	 *
-	 * @return array
-	 */
-	public static function validateChannelId()
-	{
-		return array(
-			new Main\Entity\Validator\Length(null, 50),
-		);
+		$instance = new static();
+		$instance->privateId = \CPullChannel::GetNewChannelId();
+		$instance->publicId = \CPullChannel::GetNewChannelId('public');
+		$instance->dateCreate = new DateTime();
+
+		return $instance;
 	}
 
-	/**
-	 * Return current date for DATE_CREATE field.
-	 *
-	 * @return array
-	 */
-	public static function getCurrentDate()
+	public function getId(): ?int
 	{
-		return new \Bitrix\Main\Type\DateTime();
+		return $this->id;
+	}
+
+	public function getUserId(): ?int
+	{
+		return $this->userId;
+	}
+
+	public function getPrivateId(): string
+	{
+		return $this->privateId;
+	}
+
+	public function getPublicId(): string
+	{
+		return $this->publicId;
+	}
+
+	public function getSignedPublicId(): string
+	{
+		return \CPullChannel::SignPublicChannel($this->publicId);
+	}
+
+	public function getType(): string
+	{
+		return $this->type;
+	}
+
+	public function getDateCreate(): DateTime
+	{
+		return $this->dateCreate;
 	}
 }
-
-class_alias("Bitrix\\Pull\\Model\\ChannelTable", "Bitrix\\Pull\\ChannelTable", false);

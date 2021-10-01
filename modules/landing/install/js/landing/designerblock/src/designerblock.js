@@ -1,5 +1,6 @@
 import {Dom, Event, Tag, Text} from 'main.core';
 import {Backend} from 'landing.backend';
+import {Env} from 'landing.env';
 import {Metrika} from 'landing.metrika';
 import {Highlight} from 'landing.ui.highlight';
 
@@ -79,6 +80,7 @@ export class DesignerBlock
 		this.nodes = options.manifest.nodes;
 		this.highlight = new Highlight();
 		this.cardSelectors = options.manifest.cards ? Object.keys(options.manifest.cards) : [];
+		this.designAllowed = !!Env.getInstance().getOptions().design_block_allowed;
 		this.cardSelectors.push('');// for without cards elements
 		this.nodeMap = new WeakMap();
 		this.metrika = new Metrika(true);
@@ -184,6 +186,12 @@ export class DesignerBlock
 				this.highlight.hide();
 				if (!this.changed)
 				{
+					finishCallback();
+					return;
+				}
+				if (!this.designAllowed)
+				{
+					top.BX.UI.InfoHelper.show('limit_crm_free_superblock1');
 					return;
 				}
 				this.saving = true;

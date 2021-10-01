@@ -233,8 +233,6 @@
 
 .main-mail-form-quote-button-wrapper {
 	display: block;
-	margin: 0 0 10px -10px;
-	border-bottom: 1px solid rgba(198,205,211,0.25);
 }
 
 .main-mail-form-quote-button {
@@ -404,11 +402,6 @@
 	padding: 0;
 	border: none;
 }
-
-.main-mail-form-wrapper .main-mail-form-editor-wrapper .feed-add-post-form-but-more-open {
-	display: none;
-}
-
 .main-mail-form-wrapper .main-mail-form-editor-wrapper .diskuf-selectdialog {
 	margin: 5px 0 0 0;
 	padding: 15px 0;

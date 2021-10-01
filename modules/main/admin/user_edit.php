@@ -10,6 +10,9 @@
  * @global CDatabase $DB
  * @global CUserTypeManager $USER_FIELD_MANAGER
  */
+
+use \Bitrix\Main\Authentication\Policy;
+
 require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 define("HELP_FILE", "users/user_edit.php");
@@ -96,7 +99,10 @@ $aTabs = array();
 $aTabs[] = array("DIV" => "edit1", "TAB" => GetMessage("MAIN_USER_TAB1"), "ICON"=>"main_user_edit", "TITLE"=>GetMessage("MAIN_USER_TAB1_TITLE"));
 
 if($showGroupTabs)
+{
 	$aTabs[] = array("DIV" => "edit2", "TAB" => GetMessage("GROUPS"), "ICON"=>"main_user_edit", "TITLE"=>GetMessage("MAIN_USER_TAB2_TITLE"));
+	$aTabs[] = array("DIV" => "edit_policy", "TAB" => GetMessage("main_user_edit_policy"), "ICON"=>"main_user_edit", "TITLE"=>GetMessage("main_user_edit_policy_title"));
+}
 $aTabs[] = array("DIV" => "edit3", "TAB" => GetMessage("USER_PERSONAL_INFO"), "ICON"=>"main_user_edit", "TITLE"=>GetMessage("USER_PERSONAL_INFO"));
 $aTabs[] = array("DIV" => "edit4", "TAB" => GetMessage("MAIN_USER_TAB4"), "ICON"=>"main_user_edit", "TITLE"=>GetMessage("USER_WORK_INFO"));
 $aTabs[] = array("DIV" => "edit_rating", "TAB" => GetMessage("USER_RATING_INFO"), "ICON"=>"main_user_edit", "TITLE"=>GetMessage("USER_RATING_INFO"));
@@ -631,6 +637,7 @@ $tabControl->BeginCustomField("BLOCKED", GetMessage("main_user_edit_blocked"));
 			<input type="checkbox" <?if($str_BLOCKED == "Y") echo " checked"?> disabled>
 			<input type="hidden" name="BLOCKED" value="<?=$str_BLOCKED;?>">
 		<?endif;?>
+		</td>
 	</tr>
 <?
 $tabControl->EndCustomField("BLOCKED", '<input type="hidden" name="BLOCKED" value="'.$str_BLOCKED.'">');
@@ -808,6 +815,33 @@ if($showGroupTabs):
 	</tr>
 <?
 	$tabControl->EndCustomField("GROUP_ID");
+
+	$tabControl->BeginNextFormTab();
+
+	$tabControl->BeginCustomField("GROUP_POLICY", GetMessage("main_user_edit_policy_field"));
+
+	foreach (CUser::getPolicy($ID) as $rule):
+?>
+	<tr>
+		<td width="50%">
+			<?= htmlspecialcharsbx($rule->getTitle()) ?><?php if ($rule->getGroupId() > 0): ?>
+				[<a href="group_edit.php?ID=<?= (int)$rule->getGroupId() ?>&amp;lang=<?= LANGUAGE_ID ?>" title="<?= GetMessage("MAIN_VIEW_GROUP")?> "><?= (int)$rule->getGroupId()?></a>]<?php endif ?>:</td>
+		<td><b>
+			<?php
+				if ($rule instanceof Policy\BooleanRule)
+				{
+					echo ($rule->getValue() ? GetMessage("main_user_edit_policy_yes") : GetMessage("main_user_edit_policy_no"));
+				}
+				else
+				{
+					echo htmlspecialcharsbx($rule->getValue());
+				}
+			?></b>
+		</td>
+	</tr>
+<?php
+	endforeach;
+	$tabControl->EndCustomField("GROUP_POLICY");
 endif;
 ?>
 <?
@@ -1060,8 +1094,7 @@ $tabControl->ShowWarnings($tabControl->GetName(), $message);
 
 <?if(!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1):?>
 <?echo BeginNote();?>
-<span class="required">1</span> <?$GROUP_POLICY = CUser::GetGroupPolicy($ID);echo $GROUP_POLICY["PASSWORD_REQUIREMENTS"];?><br>
-<span class="required">2</span> <?echo GetMessage("RATING_BONUS_NOTICE")?><br>
+<span class="required">1</span> <?echo GetMessage("RATING_BONUS_NOTICE")?><br>
 <?echo EndNote();?>
 <?endif;?>
 

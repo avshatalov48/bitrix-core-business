@@ -27,6 +27,9 @@ class CRestProvider
 		"tf" => "tf",
 		"crm" => "crm",
 		"tasks" => "tasks",
+		"basic" => "basic",
+		"std" => "std",
+		"pro" => "pro",
 	);
 
 	protected static $arApp = null;

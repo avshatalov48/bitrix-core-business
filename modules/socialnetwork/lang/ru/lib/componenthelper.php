@@ -15,3 +15,4 @@ $MESS["BLOG_BPE_EXTRANET_ERROR"] = "Вы не можете написать со
 $MESS["BLOG_BPE_DESTINATION_EMPTY"] = "Укажите хотя бы одного получателя";
 $MESS["SONET_HELPER_VIDEO_CONVERSION_COMPLETED"] = "Видео в вашем сообщении \"#POST_TITLE#\" прошло конвертацию, теперь сообщение доступно его получателям";
 $MESS["SONET_HELPER_NO_PERMISSIONS"] = "Нет доступа к одному или нескольким адресатам сообщения";
+$MESS["SONET_HELPER_PAGE_TITLE_WORKGROUP_TEMPLATE"] = "#WORKGROUP#: #TITLE#";

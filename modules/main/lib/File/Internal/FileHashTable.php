@@ -11,6 +11,22 @@ use Bitrix\Main\ORM\Data;
 use Bitrix\Main\ORM\Fields;
 use Bitrix\Main\ORM\Query;
 
+/**
+ * Class FileHashTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_FileHash_Query query()
+ * @method static EO_FileHash_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_FileHash_Result getById($id)
+ * @method static EO_FileHash_Result getList(array $parameters = array())
+ * @method static EO_FileHash_Entity getEntity()
+ * @method static \Bitrix\Main\File\Internal\EO_FileHash createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\File\Internal\EO_FileHash_Collection createCollection()
+ * @method static \Bitrix\Main\File\Internal\EO_FileHash wakeUpObject($row)
+ * @method static \Bitrix\Main\File\Internal\EO_FileHash_Collection wakeUpCollection($rows)
+ */
 class FileHashTable extends Data\DataManager
 {
 	public static function getTableName()

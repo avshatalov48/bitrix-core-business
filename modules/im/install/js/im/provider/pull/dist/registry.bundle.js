@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
-(function (exports,ui_vue_vuex,im_lib_logger,main_core_events,im_const,pull_client) {
+(function (exports,ui_vue_vuex,im_const,im_lib_logger,main_core_events,pull_client) {
 	'use strict';
 
 	/**
@@ -152,9 +152,11 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	              },
 	              message: {
 	                id: params.message.id,
-	                text: params.message.text,
+	                text: params.message.textOriginal,
 	                date: params.message.date,
-	                senderId: params.message.senderId
+	                senderId: params.message.senderId,
+	                withFile: typeof params.message.params['FILE_ID'] !== 'undefined',
+	                withAttach: typeof params.message.params['ATTACH'] !== 'undefined'
 	              },
 	              counter: params.counter
 	            }
@@ -669,9 +671,11 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        userId: userId,
 	        message: {
 	          id: params.message.id,
-	          text: params.message.text,
+	          text: params.message.textOriginal,
 	          date: params.message.date,
-	          senderId: params.message.senderId
+	          senderId: params.message.senderId,
+	          withFile: typeof params.message.params['FILE_ID'] !== 'undefined',
+	          withAttach: typeof params.message.params['ATTACH'] !== 'undefined'
 	        }
 	      };
 	    }
@@ -796,25 +800,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	  }, {
 	    key: "handleMessageChat",
 	    value: function handleMessageChat(params) {
-	      var rightPanelMode = this.store.state.conference.common.rightPanelMode;
-
-	      if (params.chatId === this.application.getChatId() && rightPanelMode !== im_const.ConferenceRightPanelMode.chat && rightPanelMode !== im_const.ConferenceRightPanelMode.split && params.message.senderId !== this.controller.getUserId() && !this.store.state.conference.common.error) {
-	        var text = '';
-
-	        if (params.message.senderId === 0 || params.message.system === 'Y') {
-	          text = params.message.text;
-	        } else {
-	          var userName = params.users[params.message.senderId].name;
-
-	          if (params.message.text === '' && Object.keys(params.files).length > 0) {
-	            text = "".concat(userName, ": ").concat(this.controller.localize['BX_IM_COMPONENT_CALL_FILE']);
-	          } else if (params.message.text !== '') {
-	            text = "".concat(userName, ": ").concat(params.message.text);
-	          }
-	        }
-
-	        this.application.sendNewMessageNotify(text);
-	      }
+	      this.application.sendNewMessageNotify(params);
 	    }
 	  }, {
 	    key: "handleChatRename",
@@ -1097,5 +1083,5 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	exports.ImCallPullHandler = ImCallPullHandler;
 	exports.ImNotificationsPullHandler = ImNotificationsPullHandler;
 
-}((this.BX.Messenger.Provider.Pull = this.BX.Messenger.Provider.Pull || {}),BX,BX.Messenger.Lib,BX.Event,BX.Messenger.Const,BX));
+}((this.BX.Messenger.Provider.Pull = this.BX.Messenger.Provider.Pull || {}),BX,BX.Messenger.Const,BX.Messenger.Lib,BX.Event,BX));
 //# sourceMappingURL=registry.bundle.js.map

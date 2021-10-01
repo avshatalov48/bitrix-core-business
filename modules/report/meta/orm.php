@@ -140,18 +140,6 @@ namespace Bitrix\Report\Internals {
 }
 namespace Bitrix\Report\Internals {
 	/**
-	 * @method static EO_Sharing_Query query()
-	 * @method static EO_Sharing_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Sharing_Result getById($id)
-	 * @method static EO_Sharing_Result getList(array $parameters = array())
-	 * @method static EO_Sharing_Entity getEntity()
-	 * @method static \Bitrix\Report\Internals\EO_Sharing createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Report\Internals\EO_Sharing_Collection createCollection()
-	 * @method static \Bitrix\Report\Internals\EO_Sharing wakeUpObject($row)
-	 * @method static \Bitrix\Report\Internals\EO_Sharing_Collection wakeUpCollection($rows)
-	 */
-	class SharingTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -365,18 +353,6 @@ namespace Bitrix\Report {
 }
 namespace Bitrix\Report {
 	/**
-	 * @method static EO_Report_Query query()
-	 * @method static EO_Report_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Report_Result getById($id)
-	 * @method static EO_Report_Result getList(array $parameters = array())
-	 * @method static EO_Report_Entity getEntity()
-	 * @method static \Bitrix\Report\EO_Report createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Report\EO_Report_Collection createCollection()
-	 * @method static \Bitrix\Report\EO_Report wakeUpObject($row)
-	 * @method static \Bitrix\Report\EO_Report_Collection wakeUpCollection($rows)
-	 */
-	class ReportTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -577,18 +553,6 @@ namespace Bitrix\Report\VisualConstructor\Internal {
 }
 namespace Bitrix\Report\VisualConstructor\Internal {
 	/**
-	 * @method static EO_ConfigurationSetting_Query query()
-	 * @method static EO_ConfigurationSetting_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ConfigurationSetting_Result getById($id)
-	 * @method static EO_ConfigurationSetting_Result getList(array $parameters = array())
-	 * @method static EO_ConfigurationSetting_Entity getEntity()
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ConfigurationSetting createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ConfigurationSetting_Collection createCollection()
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ConfigurationSetting wakeUpObject($row)
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ConfigurationSetting_Collection wakeUpCollection($rows)
-	 */
-	class ConfigurationSettingTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -776,18 +740,6 @@ namespace Bitrix\Report\VisualConstructor\Internal {
 	}
 }
 namespace Bitrix\Report\VisualConstructor\Internal {
-	/**
-	 * @method static EO_Dashboard_Query query()
-	 * @method static EO_Dashboard_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Dashboard_Result getById($id)
-	 * @method static EO_Dashboard_Result getList(array $parameters = array())
-	 * @method static EO_Dashboard_Entity getEntity()
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Dashboard createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Dashboard_Collection createCollection()
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Dashboard wakeUpObject($row)
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Dashboard_Collection wakeUpCollection($rows)
-	 */
-	class DashboardTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -990,18 +942,6 @@ namespace Bitrix\Report\VisualConstructor\Internal {
 }
 namespace Bitrix\Report\VisualConstructor\Internal {
 	/**
-	 * @method static EO_DashboardRow_Query query()
-	 * @method static EO_DashboardRow_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DashboardRow_Result getById($id)
-	 * @method static EO_DashboardRow_Result getList(array $parameters = array())
-	 * @method static EO_DashboardRow_Entity getEntity()
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_DashboardRow createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_DashboardRow_Collection createCollection()
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_DashboardRow wakeUpObject($row)
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_DashboardRow_Collection wakeUpCollection($rows)
-	 */
-	class DashboardRowTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1203,18 +1143,6 @@ namespace Bitrix\Report\VisualConstructor\Internal {
 }
 namespace Bitrix\Report\VisualConstructor\Internal {
 	/**
-	 * @method static EO_Report_Query query()
-	 * @method static EO_Report_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Report_Result getById($id)
-	 * @method static EO_Report_Result getList(array $parameters = array())
-	 * @method static EO_Report_Entity getEntity()
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Report createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Report_Collection createCollection()
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Report wakeUpObject($row)
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Report_Collection wakeUpCollection($rows)
-	 */
-	class ReportTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1362,18 +1290,6 @@ namespace Bitrix\Report\VisualConstructor\Internal {
 	}
 }
 namespace Bitrix\Report\VisualConstructor\Internal {
-	/**
-	 * @method static EO_ReportConfiguration_Query query()
-	 * @method static EO_ReportConfiguration_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ReportConfiguration_Result getById($id)
-	 * @method static EO_ReportConfiguration_Result getList(array $parameters = array())
-	 * @method static EO_ReportConfiguration_Entity getEntity()
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ReportConfiguration createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ReportConfiguration_Collection createCollection()
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ReportConfiguration wakeUpObject($row)
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ReportConfiguration_Collection wakeUpCollection($rows)
-	 */
-	class ReportConfigurationTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1661,18 +1577,6 @@ namespace Bitrix\Report\VisualConstructor\Internal {
 }
 namespace Bitrix\Report\VisualConstructor\Internal {
 	/**
-	 * @method static EO_Widget_Query query()
-	 * @method static EO_Widget_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Widget_Result getById($id)
-	 * @method static EO_Widget_Result getList(array $parameters = array())
-	 * @method static EO_Widget_Entity getEntity()
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Widget createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Widget_Collection createCollection()
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Widget wakeUpObject($row)
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Widget_Collection wakeUpCollection($rows)
-	 */
-	class WidgetTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1820,18 +1724,6 @@ namespace Bitrix\Report\VisualConstructor\Internal {
 	}
 }
 namespace Bitrix\Report\VisualConstructor\Internal {
-	/**
-	 * @method static EO_WidgetConfiguration_Query query()
-	 * @method static EO_WidgetConfiguration_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_WidgetConfiguration_Result getById($id)
-	 * @method static EO_WidgetConfiguration_Result getList(array $parameters = array())
-	 * @method static EO_WidgetConfiguration_Entity getEntity()
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_WidgetConfiguration createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_WidgetConfiguration_Collection createCollection()
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_WidgetConfiguration wakeUpObject($row)
-	 * @method static \Bitrix\Report\VisualConstructor\Internal\EO_WidgetConfiguration_Collection wakeUpCollection($rows)
-	 */
-	class WidgetConfigurationTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

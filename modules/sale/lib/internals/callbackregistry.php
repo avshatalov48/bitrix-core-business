@@ -7,6 +7,19 @@ use Bitrix\Main;
 /**
  * Class CallbackRegistryTable
  * @package Bitrix\Sale\Internals
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CallbackRegistry_Query query()
+ * @method static EO_CallbackRegistry_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CallbackRegistry_Result getById($id)
+ * @method static EO_CallbackRegistry_Result getList(array $parameters = array())
+ * @method static EO_CallbackRegistry_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_CallbackRegistry createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_CallbackRegistry_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_CallbackRegistry wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_CallbackRegistry_Collection wakeUpCollection($rows)
  */
 class CallbackRegistryTable extends Main\Entity\DataManager
 {

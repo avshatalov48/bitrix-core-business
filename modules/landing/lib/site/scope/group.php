@@ -4,6 +4,7 @@ namespace Bitrix\Landing\Site\Scope;
 use \Bitrix\Landing\Domain;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Role;
+use \Bitrix\Landing\Restriction;
 use \Bitrix\Landing\Site\Scope;
 
 class Group extends Scope
@@ -15,6 +16,10 @@ class Group extends Scope
 	 */
 	public static function init(array $params = [])
 	{
+		if (!Restriction\Manager::isAllowed('limit_crm_free_knowledge_base_project'))
+		{
+			return;
+		}
 		parent::init($params);
 		Role::setExpectedType(self::$currentScopeId);
 	}

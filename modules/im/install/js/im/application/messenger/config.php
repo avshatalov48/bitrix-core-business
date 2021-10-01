@@ -18,6 +18,7 @@ return [
 		'ui.vue',
 		'im.lib.logger',
 		'im.lib.utils',
+		'ui.entity-selector',
 		'im.component.recent',
 		'im.component.dialog',
 		'im.component.textarea',

@@ -1,25 +1,27 @@
-<?
+<?php
+
 namespace Bitrix\Socialnetwork\Controller\User;
 
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\UserWelltoryTable;
+use Bitrix\Socialnetwork\Controller\Base;
 
-class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
+class StressLevel extends Base
 {
-	private function isCurrentUserAdmin()
+	private function isCurrentUserAdmin(): bool
 	{
 		Loader::includeModule('socialnetwork');
 
 		return \CSocNetUser::isCurrentUserModuleAdmin(SITE_ID, false);
 	}
 
-	public function addAction(array $fields = [])
+	public function addAction(array $fields = []): ?array
 	{
 		$value = (
 			isset($fields['value'])
-				? intval($fields['value'])
+				? (int)$fields['value']
 				: false
 		);
 
@@ -29,16 +31,16 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 			return null;
 		}
 
-		$userId = (
+		$userId = (int)(
 			isset($fields['userId'])
 			&& $this->isCurrentUserAdmin()
-				? intval($fields['userId'])
+				? $fields['userId']
 				: $this->getCurrentUser()->getId()
 		);
 
 		if (
-			$userId != $this->getCurrentUser()->getId()
-			&& !$this->isCurrentUserAdmin()
+			!$this->isCurrentUserAdmin()
+			&& $userId !== (int)$this->getCurrentUser()->getId()
 		)
 		{
 			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_USER_STRESSLEVEL_NO_PERMISSIONS'), 'SONET_CONTROLLER_USER_STRESSLEVEL_NO_PERMISSIONS'));
@@ -59,10 +61,10 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 		UserWelltoryTable::add([
 			'USER_ID' => $userId,
 			'STRESS' => $value,
-			'STRESS_TYPE' => (isset($fields['type']) ? $fields['type'] : ''),
-			'STRESS_COMMENT' => (isset($fields['comment']) ? $fields['comment'] : ''),
+			'STRESS_TYPE' => ($fields['type'] ?? ''),
+			'STRESS_COMMENT' => ($fields['comment'] ?? ''),
 			'DATE_MEASURE' => new \Bitrix\Main\DB\SqlExpression(\Bitrix\Main\Application::getConnection()->getSqlHelper()->getCurrentDateTimeFunction()),
-			'HASH' => (isset($fields['hash']) ? $fields['hash'] : '')
+			'HASH' => ($fields['hash'] ?? '')
 		]);
 
 		return [
@@ -74,11 +76,7 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 	{
 		$result = [];
 
-		$userId = (
-			isset($fields['userId'])
-				? intval($fields['userId'])
-				: $this->getCurrentUser()->getId()
-		);
+		$userId = (int)($fields['userId'] ?? $this->getCurrentUser()->getId());
 
 		if ($userId <= 0)
 		{
@@ -87,10 +85,10 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 		}
 
 		if (
-			$userId != $this->getCurrentUser()->getId()
-			&& $this->getAccess([
+			$this->getAccess([
 				'userId' => $userId
-			]) != 'Y'
+			]) !== 'Y'
+			&& $userId !== (int)$this->getCurrentUser()->getId()
 		)
 		{
 			return $result;
@@ -130,11 +128,7 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 
 	public function getAccess(array $fields = [])
 	{
-		$userId = (
-			isset($fields['userId'])
-				? intval($fields['userId'])
-				: $this->getCurrentUser()->getId()
-		);
+		$userId = (int)($fields['userId'] ?? $this->getCurrentUser()->getId());
 
 		return \Bitrix\Socialnetwork\Item\UserWelltory::getAccess([
 			'userId' => $userId
@@ -145,13 +139,13 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 	{
 		$userId = (
 			isset($fields['userId'])
-				? intval($fields['userId'])
+				? (int)$fields['userId']
 				: $this->getCurrentUser()->getId()
 		);
 
 		$value = (
 			isset($fields['value'])
-			&& $fields['value'] == 'Y'
+			&& $fields['value'] === 'Y'
 				? 'Y'
 				: 'N'
 		);
@@ -162,13 +156,9 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 		]);
 	}
 
-	public function getAccessAction(array $fields = [])
+	public function getAccessAction(array $fields = []): ?array
 	{
-		$userId = (
-			isset($fields['userId'])
-				? intval($fields['userId'])
-				: false
-			);
+		$userId = (int)($fields['userId'] ?? 0);
 
 		if ($userId <= 0)
 		{
@@ -177,8 +167,9 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 		}
 
 		if (
-			$userId != $this->getCurrentUser()->getId()
-			&& !$this->isCurrentUserAdmin()
+			!$this->isCurrentUserAdmin()
+			&& $userId !== (int)$this->getCurrentUser()->getId()
+
 		)
 		{
 			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_USER_STRESSLEVEL_NO_PERMISSIONS'), 'SONET_CONTROLLER_USER_STRESSLEVEL_NO_PERMISSIONS'));
@@ -192,17 +183,13 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 		];
 	}
 
-	public function setAccessAction(array $fields = [])
+	public function setAccessAction(array $fields = []): ?array
 	{
-		$userId = (
-			isset($fields['userId'])
-				? intval($fields['userId'])
-				: false
-		);
+		$userId = (int)($fields['userId'] ?? 0);
 
 		$value = (
 			isset($fields['value'])
-			&& $fields['value'] == 'Y'
+			&& $fields['value'] === 'Y'
 				? 'Y'
 				: 'N'
 		);
@@ -214,8 +201,8 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 		}
 
 		if (
-			$userId != $this->getCurrentUser()->getId()
-			&& !$this->isCurrentUserAdmin()
+			!$this->isCurrentUserAdmin()
+			&& $userId !== (int)$this->getCurrentUser()->getId()
 		)
 		{
 			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_USER_STRESSLEVEL_NO_PERMISSIONS'), 'SONET_CONTROLLER_USER_STRESSLEVEL_NO_PERMISSIONS'));
@@ -230,11 +217,11 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 		];
 	}
 
-	public function getValueDescriptionAction($type = '', $value = false)
+	public function getValueDescriptionAction($type = '', $value = false): ?array
 	{
 		if ($value !== false)
 		{
-			$value = intval($value);
+			$value = (int)$value;
 		}
 		else
 		{
@@ -242,10 +229,7 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 			return null;
 		}
 
-		if (Loader::includeModule('intranet'))
-		{
-			$result = \Bitrix\Intranet\Component\UserProfile\StressLevel::getValueDescription($type, $value);
-		}
+		$result = (Loader::includeModule('intranet') ? \Bitrix\Intranet\Component\UserProfile\StressLevel::getValueDescription($type, $value) : '');
 
 		return [
 			'description' => $result
@@ -255,11 +239,7 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 	private function getDisclaimer(array $fields = [])
 	{
 		$result = [];
-		$userId = (
-			isset($fields['userId'])
-				? intval($fields['userId'])
-				: false
-		);
+		$userId = (int)($fields['userId'] ?? 0);
 
 		if ($userId <= 0)
 		{
@@ -313,6 +293,7 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 	public function getDisclaimerAction()
 	{
 		$result = [];
+
 		$res = \Bitrix\Socialnetwork\UserWelltoryDisclaimerTable::getList([
 			'filter' => [
 				'USER_ID' => $this->getCurrentUser()->getId()
@@ -331,7 +312,5 @@ class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 
 		return $result;
 	}
-
-
 }
 

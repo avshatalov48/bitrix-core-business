@@ -61,20 +61,28 @@ else
 					<td class="sonet-user-request-group-description-left-col" nowrap><?= GetMessage("SONET_C39_T_MESSAGE") ?>:</td>
 					<td class="sonet-user-request-group-description"><textarea id="sonet_group_user_request_message" name="MESSAGE" class="sonet-user-request-group-message-text" rows="5"><?= htmlspecialcharsex($_POST["MESSAGE"]); ?></textarea></td>
 				</tr>
-			</table>
+			</table><?php
 
-			<div class="sonet-slider-footer-fixed">
-				<input type="hidden" name="SONET_GROUP_ID" value="<?=$arResult["Group"]["ID"] ?>">
-				<input type="hidden" name="ajax_request" value="Y">
-				<input type="hidden" name="save" value="Y">
-				<?=bitrix_sessid_post()?>
-				<span class="sonet-ui-btn-cont sonet-ui-btn-cont-center"><?
-					?><button class="ui-btn ui-btn-success" id="sonet_group_user_request_button_submit"><?=Loc::getMessage("SONET_C39_T_SEND_BUTTON_TITLE") ?></button><?
-					?><button class="ui-btn ui-btn-light-border" id="sonet_group_user_request_button_cancel"><?=Loc::getMessage("SONET_C39_T_CANCEL_BUTTON_TITLE") ?></button><?
-				?></span><? // class="sonet-ui-btn-cont"
+			$buttons = [
+				[
+					'TYPE' => 'custom',
+					'LAYOUT' => '<button class="ui-btn ui-btn-success" id="sonet_group_user_request_button_submit">' . Loc::getMessage('SONET_C39_T_SEND_BUTTON_TITLE'). '</button>',
+				],
+				[
+					'TYPE' => 'custom',
+					'LAYOUT' => '<button class="ui-btn ui-btn-light-border" id="sonet_group_user_request_button_cancel">' . Loc::getMessage('SONET_C39_T_CANCEL_BUTTON_TITLE') . '</button>',
+				],
 
-			?></div><? // sonet-slider-footer-fixed
+			];
 
+			$APPLICATION->IncludeComponent('bitrix:ui.button.panel', '', [
+				'BUTTONS' => $buttons,
+			]);
+
+			?><input type="hidden" name="SONET_GROUP_ID" value="<?=$arResult["Group"]["ID"] ?>">
+			<input type="hidden" name="ajax_request" value="Y">
+			<input type="hidden" name="save" value="Y">
+			<?=bitrix_sessid_post()?><?php
 		?></form>
 		<?
 	}

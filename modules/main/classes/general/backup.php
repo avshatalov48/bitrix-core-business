@@ -432,7 +432,7 @@ class CBackup
 		return true;
 	}
 
-	public function QueryUnbuffered($q)
+	public static function QueryUnbuffered($q)
 	{
 		global $DB;
 		if (defined('BX_USE_MYSQLI') && BX_USE_MYSQLI === true)
@@ -444,7 +444,7 @@ class CBackup
 		return $rsSource;
 	}
 
-	public function FreeResult()
+	public static function FreeResult()
 	{
 		global $DB;
 		if (defined('BX_USE_MYSQLI') && BX_USE_MYSQLI === true)

@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
@@ -258,18 +259,17 @@ class CSocNetLogDestination
 
 		static $resultCache = array();
 
-		$userId = intval($USER->getID());
+		$userId = (int)$USER->getID();
 
 		if(!isset($resultCache[$userId]))
 		{
 			$arUsers = Array();
 
-			$arFilter = Array();
 			if (CModule::IncludeModule('extranet') && !CExtranet::IsIntranetUser())
 			{
 				$cacheTtl = 3153600;
 				$cacheId = 'socnet_destination_getusers_'.md5(serialize($arParams)).'_'.$userId;
-				$cacheDir = '/socnet/dest_extranet/'.intval($userId / 100).'/';
+				$cacheDir = '/socnet/dest_extranet/' . (int)($userId / 100) . '/' . $userId . '/';
 
 				$obCache = new CPHPCache;
 				if($obCache->initCache($cacheTtl, $cacheId, $cacheDir))
@@ -290,7 +290,7 @@ class CSocNetLogDestination
 					}
 
 					$workgroupIdList = [];
-					$res = \CSocNetUserToGroup::getList(
+					$res = CSocNetUserToGroup::getList(
 						array(),
 						array(
 							"USER_ID" => $userId,
@@ -473,7 +473,7 @@ class CSocNetLogDestination
 			isset($arParams['id'])
 				? 'user'
 				: 'dept'
-		).'/';
+		) . '/' . mb_substr(md5($cacheId), 0, 2) . '/';
 
 		$obCache = new CPHPCache;
 		if($obCache->InitCache($cacheTtl, $cacheId, $cacheDir))
@@ -838,7 +838,7 @@ class CSocNetLogDestination
 		$bEmailUsersAll = ($bMailEnabled && \Bitrix\Main\Config\Option::get('socialnetwork', 'email_users_all', 'N') === 'Y');
 		$bExtranetUser = ($bExtranetEnabled && !CExtranet::IsIntranetUser());
 
-		$current_user_id = intval($USER->GetID());
+		$current_user_id = (int)$USER->getId();
 
 		if ($bExtranetEnabled)
 		{
@@ -1112,7 +1112,7 @@ class CSocNetLogDestination
 				$queryResultCnt++;
 				if (
 					!$bSelf
-					&& $current_user_id == $arUser['ID']
+					&& $current_user_id === (int)$arUser['ID']
 				)
 				{
 					continue;
@@ -1216,7 +1216,7 @@ class CSocNetLogDestination
 				: SITE_ID
 		);
 
-		$currentUserAdmin = \CSocNetUser::isCurrentUserModuleAdmin($siteId);
+		$currentUserAdmin = CSocNetUser::isCurrentUserModuleAdmin($siteId);
 
 		$tmpList = array();
 
@@ -1239,7 +1239,7 @@ class CSocNetLogDestination
 			$filter["CHECK_PERMISSIONS"] = $USER->getId();
 		}
 
-		$res = \CSocnetGroup::getList(
+		$res = CSocnetGroup::getList(
 			array("NAME" => "ASC"),
 			$filter,
 			false,
@@ -1588,22 +1588,20 @@ class CSocNetLogDestination
 		global $USER;
 		static $staticCache = array();
 
-		$userId = intval($USER->GetID());
+		$userId = (int)$USER->GetID();
 
-		$arSocnetGroups = array();
-		$arSelect = Array();
+		$arSocnetGroups = [];
+		$arSelect = [];
 		if (isset($arParams['id']))
 		{
 			if (empty($arParams['id']))
 			{
 				return $arSocnetGroups;
 			}
-			else
+
+			foreach ($arParams['id'] as $value)
 			{
-				foreach ($arParams['id'] as $value)
-				{
-					$arSelect[] = intval($value);
-				}
+				$arSelect[] = intval($value);
 			}
 		}
 
@@ -1636,7 +1634,7 @@ class CSocNetLogDestination
 				$filter = array(
 					"USER_ID" => $userId,
 					"GROUP_ID" => $arSelect,
-					"<=ROLE" => \Bitrix\Socialnetwork\UserToGroupTable::ROLE_USER,
+					"<=ROLE" => UserToGroupTable::ROLE_USER,
 					"GROUP_SITE_ID" => $siteId,
 					"GROUP_ACTIVE" => "Y"
 				);
@@ -1718,7 +1716,7 @@ class CSocNetLogDestination
 
 			$limitReached = (count($tmpList) == $limit);
 
-			foreach ($tmpList as $key => $group)
+			foreach ($tmpList as $group)
 			{
 				if($group["imageId"])
 				{
@@ -1728,8 +1726,8 @@ class CSocNetLogDestination
 						$arFileTmp = CFile::ResizeImageGet(
 							$imageFile,
 							array(
-								"width" => (intval($arParams["THUMBNAIL_SIZE_WIDTH"]) > 0 ? $arParams["THUMBNAIL_SIZE_WIDTH"] : 100),
-								"height" => (intval($arParams["THUMBNAIL_SIZE_HEIGHT"]) > 0 ? $arParams["THUMBNAIL_SIZE_HEIGHT"] : 100)
+								"width" => ((int)$arParams["THUMBNAIL_SIZE_WIDTH"] > 0 ? $arParams["THUMBNAIL_SIZE_WIDTH"] : 100),
+								"height" => ((int)$arParams["THUMBNAIL_SIZE_HEIGHT"] > 0 ? $arParams["THUMBNAIL_SIZE_HEIGHT"] : 100)
 							),
 							BX_RESIZE_IMAGE_PROPORTIONAL,
 							false
@@ -1833,7 +1831,7 @@ class CSocNetLogDestination
 			$arGroupsIDs[] = $value["id"];
 		}
 
-		if (sizeof($arGroupsIDs) <= 0)
+		if (count($arGroupsIDs) <= 0)
 		{
 			return;
 		}
@@ -1882,7 +1880,7 @@ class CSocNetLogDestination
 			$arGroupsIDs[] = $value["id"];
 		}
 
-		if (sizeof($arGroupsIDs) <= 0)
+		if (count($arGroupsIDs) <= 0)
 		{
 			return;
 		}
@@ -1913,7 +1911,7 @@ class CSocNetLogDestination
 			);
 		}
 
-		$res = \Bitrix\Socialnetwork\UserToGroupTable::getList(array(
+		$res = UserToGroupTable::getList(array(
 			'filter' => array(
 				'USER_ID' => $USER->getId(),
 				'@GROUP_ID' => $arGroupsIDs
@@ -1935,26 +1933,26 @@ class CSocNetLogDestination
 			$canInitiate = (
 				(
 					isset($groupsList[$groupId])
-					&& $groupsList[$groupId]["INITIATE_PERMS"] == \Bitrix\Socialnetwork\UserToGroupTable::ROLE_OWNER
+					&& $groupsList[$groupId]["INITIATE_PERMS"] == UserToGroupTable::ROLE_OWNER
 					&& $userId == $groupsList[$groupId]["OWNER_ID"]
 				)
 				|| (
 					isset($groupsList[$groupId])
-					&& $groupsList[$groupId]["INITIATE_PERMS"] == \Bitrix\Socialnetwork\UserToGroupTable::ROLE_MODERATOR
+					&& $groupsList[$groupId]["INITIATE_PERMS"] == UserToGroupTable::ROLE_MODERATOR
 					&& isset($userRolesList[$groupId])
 					&& in_array($userRolesList[$groupId], array(
-						\Bitrix\Socialnetwork\UserToGroupTable::ROLE_OWNER,
-						\Bitrix\Socialnetwork\UserToGroupTable::ROLE_MODERATOR
+						UserToGroupTable::ROLE_OWNER,
+						UserToGroupTable::ROLE_MODERATOR
 					))
 				)
 				|| (
 					isset($groupsList[$groupId])
-					&& $groupsList[$groupId]["INITIATE_PERMS"] == \Bitrix\Socialnetwork\UserToGroupTable::ROLE_USER
+					&& $groupsList[$groupId]["INITIATE_PERMS"] == UserToGroupTable::ROLE_USER
 					&& isset($userRolesList[$groupId])
 					&& in_array($userRolesList[$groupId], array(
-						\Bitrix\Socialnetwork\UserToGroupTable::ROLE_OWNER,
-						\Bitrix\Socialnetwork\UserToGroupTable::ROLE_MODERATOR,
-						\Bitrix\Socialnetwork\UserToGroupTable::ROLE_USER
+						UserToGroupTable::ROLE_OWNER,
+						UserToGroupTable::ROLE_MODERATOR,
+						UserToGroupTable::ROLE_USER
 					))
 				)
 			);
@@ -2195,7 +2193,7 @@ class CSocNetLogDestination
 
 		$arFields = $arFieldsStatic;
 		$arFields["IS_ONLINE"] = Array(
-			"FIELD" => "IF(U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".\CUser::getSecondsForLimitOnline()." SECOND), 'Y', 'N')"
+			"FIELD" => "IF(U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL " . CUser::getSecondsForLimitOnline() . " SECOND), 'Y', 'N')"
 		);
 
 		$currentUserId = $USER->GetId();
@@ -2672,9 +2670,6 @@ class CSocNetLogDestination
 	{
 		static $siteNameFormat = false;
 
-		$result = array();
-		$userParams = array();
-
 		if ($siteNameFormat === false)
 		{
 			$siteNameFormat = (
@@ -2784,4 +2779,3 @@ class CSocNetLogDestination
 		);
 	}
 }
-?>

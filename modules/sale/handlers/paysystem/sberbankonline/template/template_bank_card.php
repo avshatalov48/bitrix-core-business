@@ -27,5 +27,5 @@ Loc::loadMessages(__FILE__);
 		</div>
 
 	</form>
-	<p><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SBERBANK_WARNING_RETURN'); ?></p>
+	<div class="alert alert-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SBERBANK_WARNING_RETURN'); ?></div>
 </div>

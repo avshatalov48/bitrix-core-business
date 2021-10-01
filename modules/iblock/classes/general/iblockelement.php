@@ -3659,6 +3659,8 @@ class CAllIBlockElement
 
 		CIBlock::clearIblockTagCache($arIBlock['ID']);
 
+		Iblock\ElementTable::getEntity()->cleanCache();
+
 		return $Result;
 	}
 
@@ -4060,6 +4062,9 @@ class CAllIBlockElement
 					ExecuteModuleEventEx($arEvent, array($zr));
 
 				CIBlock::clearIblockTagCache($zr['IBLOCK_ID']);
+
+				Iblock\ElementTable::getEntity()->cleanCache();
+
 				unset($elementId);
 			}
 		}

@@ -11,6 +11,8 @@ return [
 		'main.core',
 		'catalog.sku-tree',
 		'main.core.events',
+		'ui.forms',
+		'ui.buttons',
 	],
 	'skip_core' => false,
 ];

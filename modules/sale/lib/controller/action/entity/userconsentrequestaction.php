@@ -7,7 +7,12 @@ use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\Json;
 use Bitrix\Sale;
 
-class UserConsentRequestAction extends BaseAction
+/**
+ * Class UserConsentRequestAction
+ * @package Bitrix\Sale\Controller\Action\Entity
+ * @internal
+ */
+final class UserConsentRequestAction extends BaseAction
 {
 	private function checkParams(array $fields): Sale\Result
 	{

@@ -13,6 +13,22 @@ use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Data;
 use Bitrix\Main\ORM\Fields;
 
+/**
+ * Class UserPasswordTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserPassword_Query query()
+ * @method static EO_UserPassword_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserPassword_Result getById($id)
+ * @method static EO_UserPassword_Result getList(array $parameters = array())
+ * @method static EO_UserPassword_Entity getEntity()
+ * @method static \Bitrix\Main\Authentication\Internal\EO_UserPassword createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Authentication\Internal\EO_UserPassword_Collection createCollection()
+ * @method static \Bitrix\Main\Authentication\Internal\EO_UserPassword wakeUpObject($row)
+ * @method static \Bitrix\Main\Authentication\Internal\EO_UserPassword_Collection wakeUpCollection($rows)
+ */
 class UserPasswordTable extends Data\DataManager
 {
 	public static function getTableName()

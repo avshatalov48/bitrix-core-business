@@ -97,11 +97,17 @@ class HostRestriction
 	 */
 	public function isValidHost($host)
 	{
-		return (bool) (
-			is_string($host)
-			&& $host !== ''
-			&& preg_match($this->getValidationRegExp(), $host) > 0
-		);
+		if (is_string($host) && $host !== '')
+		{
+			$count = 0;
+			preg_replace($this->getValidationRegExp(), '', $host, 1, $count);
+			//var_dump($count);
+			if ($count)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -311,19 +317,19 @@ class HostRestriction
 	 */
 	public function getValidationRegExp()
 	{
-		if ($this->validationRegExp)
-			return $this->validationRegExp;
-
-		$cache = Data\Cache::createInstance();
-		if($cache->initCache($this->cacheTtl, $this->cacheId, $this->cacheInitPath) )
+		if ($this->validationRegExp === null)
 		{
-			$this->validationRegExp = $cache->getVars();
-		}
-		else
-		{
-			$this->validationRegExp = $this->genValidationRegExp($this->hosts);
-			$cache->startDataCache();
-			$cache->endDataCache($this->validationRegExp);
+			$cache = Data\Cache::createInstance();
+			if($cache->initCache($this->cacheTtl, $this->cacheId, $this->cacheInitPath) )
+			{
+				$this->validationRegExp = $cache->getVars();
+			}
+			else
+			{
+				$this->validationRegExp = $this->genValidationRegExp($this->hosts);
+				$cache->startDataCache();
+				$cache->endDataCache($this->validationRegExp);
+			}
 		}
 
 		return $this->validationRegExp;
@@ -434,15 +440,18 @@ class HostRestriction
 	 */
 	protected function genValidationRegExp($hosts)
 	{
-		$hosts = trim($hosts);
+		$hosts = trim($hosts, " \t\n\r");
 		$hosts = preg_quote($hosts);
-		$hosts = preg_replace(
-			array('~\#.*~', '~\\\\\*~', '~\s+~s'),
-			array('',       '.*',       '|'),
+		$hosts = preg_split('~\s+~s', preg_replace(
+			array('~\#.*~', '~\\\\\*~'),
+			array('',       '.*'),
 			$hosts
-		);
-
-		return "#^\s*($hosts)(:\d+)?\s*$#iD";
+		));
+		foreach ($hosts as $i => $host)
+		{
+			$hosts[$i] = "#^\s*($host)(:\d+)?\s*$#iD";
+		}
+		return $hosts;
 	}
 
 	/**
@@ -456,10 +465,14 @@ class HostRestriction
 	{
 		$this->validationRegExp = $this->genValidationRegExp($hosts);
 
-		if (!preg_match($this->validationRegExp, $this->getTargetHost()))
+		$count = 0;
+		preg_replace($this->validationRegExp, '', $this->getTargetHost(), 1, $count);
+		if (!$count)
 			throw new LogicException('Current host blocked', 'SECURITY_HOSTS_SELF_BLOCK');
 
-		if (preg_match($this->validationRegExp, 'some-invalid-host.com'))
+		$count = 0;
+		preg_replace($this->validationRegExp, '', 'some-invalid-host.com', 1, $count);
+		if ($count)
 			throw new LogicException('Any host passed restrictions', 'SECURITY_HOSTS_ANY_HOST');
 
 		return $this;

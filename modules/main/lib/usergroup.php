@@ -12,6 +12,22 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class UserGroupTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserGroup_Query query()
+ * @method static EO_UserGroup_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserGroup_Result getById($id)
+ * @method static EO_UserGroup_Result getList(array $parameters = array())
+ * @method static EO_UserGroup_Entity getEntity()
+ * @method static \Bitrix\Main\EO_UserGroup createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EO_UserGroup_Collection createCollection()
+ * @method static \Bitrix\Main\EO_UserGroup wakeUpObject($row)
+ * @method static \Bitrix\Main\EO_UserGroup_Collection wakeUpCollection($rows)
+ */
 class UserGroupTable extends Entity\DataManager
 {
 	public static function getTableName()

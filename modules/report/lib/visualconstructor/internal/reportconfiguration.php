@@ -8,6 +8,19 @@ use Bitrix\Main\Entity\ReferenceField;
 /**
  * Class ReportConfigurationTable
  * @package Bitrix\Report\VisualConstructor\Internal
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ReportConfiguration_Query query()
+ * @method static EO_ReportConfiguration_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ReportConfiguration_Result getById($id)
+ * @method static EO_ReportConfiguration_Result getList(array $parameters = array())
+ * @method static EO_ReportConfiguration_Entity getEntity()
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ReportConfiguration createObject($setDefaultValues = true)
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ReportConfiguration_Collection createCollection()
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ReportConfiguration wakeUpObject($row)
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ReportConfiguration_Collection wakeUpCollection($rows)
  */
 class ReportConfigurationTable extends DataManager
 {

@@ -1,4 +1,5 @@
 <?
+$MESS["IM_MESSAGE_CODE"] = "Code block";
 $MESS["IM_ERROR_IMPORT_ID"] = "The ID of the message to be imported is incorrect.";
 $MESS["IM_ERROR_MESSAGE_CREATE"] = "Error creating a message";
 $MESS["IM_ERROR_MESSAGE_DATE"] = "The message time stamp format is incorrect.";

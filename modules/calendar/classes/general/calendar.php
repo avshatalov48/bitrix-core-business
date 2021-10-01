@@ -10,7 +10,7 @@ use Bitrix\Calendar\Sync\GoogleApiSync;
 use Bitrix\Main\Loader;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Main\Type;
-use \Bitrix\Calendar\Integration\Bitrix24\Limitation;
+use \Bitrix\Calendar\Integration\Bitrix24Manager;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -354,9 +354,10 @@ class CCalendar
 			'userTimezoneName' => $userTimezoneName,
 			'userTimezoneDefault' => $userTimezoneDefault,
 			'sectionCustomization' => UserSettings::getSectionCustomization(self::$userId),
-			'locationFeatureEnabled' => !self::IsBitrix24() || \Bitrix\Bitrix24\Feature::isFeatureEnabled("calendar_location"),
-			'eventWithEmailGuestLimit'=> Limitation::getEventWithEmailGuestLimit(),
-			'countEventWithEmailGuestAmount'=> Limitation::getCountEventWithEmailGuestAmount()
+			'locationFeatureEnabled' => Bitrix24Manager::isFeatureEnabled("calendar_location"),
+			'plannerFeatureEnabled' => Bitrix24Manager::isPlannerFeatureEnabled(),
+			'eventWithEmailGuestLimit'=> Bitrix24Manager::getEventWithEmailGuestLimit(),
+			'countEventWithEmailGuestAmount'=> Bitrix24Manager::getCountEventWithEmailGuestAmount()
 		);
 
 		if(self::$type == 'user' && self::$userId != self::$ownerId)
@@ -1716,7 +1717,7 @@ class CCalendar
 					}
 				}
 
-				if (!self::IsBitrix24() || (Loader::includeModule('bitrix24') && \Bitrix\Bitrix24\Feature::isFeatureEnabled("calendar_location")))
+				if (Bitrix24Manager::isFeatureEnabled("calendar_location"))
 				{
 					$locationList = CCalendarLocation::GetList();
 					foreach($locationList as $room)
@@ -4698,13 +4699,6 @@ class CCalendar
 		if (!isset(self::$bExtranet))
 			self::$bExtranet = Loader::includeModule('extranet') && CExtranet::IsExtranetSite();
 		return self::$bExtranet;
-	}
-
-	public static function IsAbsenceEnabled()
-	{
-		return !self::IsBitrix24()
-		|| COption::GetOptionString("bitrix24",  "absence_limits_enabled", "") != "Y"
-		|| \Bitrix\Bitrix24\Feature::isFeatureEnabled("absence");
 	}
 
 	public static function GetMeetingRoomList($params = [])

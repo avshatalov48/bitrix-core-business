@@ -125,17 +125,8 @@ class CSecurityRedirect
 							$url
 					);
 
-				if(
-					COption::GetOptionString("security", "redirect_action") == "show_message"
-					|| COption::GetOptionString("security", "redirect_action") == "show_message_and_stay"
-				)
+				if(COption::GetOptionString("security", "redirect_action") == "show_message_and_stay")
 				{
-					if (COption::GetOptionString("security", "redirect_action") == "show_message")
-						$timeout = intval(COption::GetOptionString("security",
-						"redirect_message_timeout"));
-					else
-						$timeout = 0;
-
 					$mess = COption::GetOptionString("security", "redirect_message_warning_".LANGUAGE_ID);
 					if($mess == '')
 						$mess = COption::GetOptionString("security", "redirect_message_warning");
@@ -177,9 +168,6 @@ class CSecurityRedirect
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=<?echo $charset?>" />
-<?if ($timeout > 0):?>
-<meta http-equiv="Refresh" content="<?=$timeout?>; URL=<?=htmlspecialcharsbx($url_e)?>">
-<?endif?>
 <meta name="robots" content="noindex, nofollow" />
 <link rel="stylesheet" type="text/css" href="/bitrix/themes/.default/adminstyles.css" />
 <link rel="stylesheet" type="text/css" href="/bitrix/themes/.default/404.css" />

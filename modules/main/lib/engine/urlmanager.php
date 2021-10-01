@@ -81,7 +81,11 @@ final class UrlManager
 	 */
 	public function createByController(Controller $controller, $action, $params = array(), $absolute = false)
 	{
-		$name = mb_strtolower(Resolver::getNameByController($controller));
+		$name = Resolver::getNameByController($controller);
+		if (!$controller->isLocatedUnderPsr4())
+		{
+			$name = mb_strtolower($name);
+		}
 
 		list($vendor) = $this->getVendorAndModule($controller->getModuleId());
 		if ($vendor === 'bitrix')

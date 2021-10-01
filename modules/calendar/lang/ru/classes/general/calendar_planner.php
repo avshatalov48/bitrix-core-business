@@ -20,4 +20,6 @@ $MESS["EC_PL_GOTO_NOW"] = "Перейти к текущей дате";
 $MESS["EC_PL_PROPOSE"] = "Свободное время";
 $MESS["EC_PL_PROPOSE_NO_RESULT"] = "К сожалению не удалось подобрать подходящее время встречи в ближайшем будущем";
 $MESS["EC_PL_RESOURCE_TITLE"] = "Ресурсы";
+$MESS["EC_PL_LOCKED_TITLE"] = "Подбор свободного времени недоступен на вашем тарифе";
+$MESS["EC_PL_UNLOCK_FEATURE"] = "расширить тариф";
 ?>

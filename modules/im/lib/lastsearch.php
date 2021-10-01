@@ -209,7 +209,7 @@ class LastSearch
 				}
 				else
 				{
-					$avatar = \CIMChat::GetAvatarImage($row['CHAT_AVATAR'], 100, false);
+					$avatar = \CIMChat::GetAvatarImage($row['CHAT_AVATAR'], 200, false);
 					$color = $row['CHAT_COLOR'] <> ''? Color::getColor($row['CHAT_COLOR']): Color::getColorByNumber($row['ITEM_ID']);
 					$chatType = \Bitrix\Im\Chat::getType($row);
 

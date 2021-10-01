@@ -52,6 +52,7 @@ class BasketBuilder implements \IteratorAggregate, \Countable
 				}
 			}
 		}
+
 		return $this;
 	}
 

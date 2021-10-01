@@ -365,8 +365,12 @@ class Informer
 				counter: 0,
 			});
 		}
-	};
+	}
 
+	getWrap()
+	{
+		return this.wrap;
+	}
 }
 
 export {

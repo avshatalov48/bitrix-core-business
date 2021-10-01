@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CSocNetSearch
 {
 	var $_params;
@@ -66,33 +67,33 @@ class CSocNetSearch
 
 	public static function SetFeaturePermissions($entity_type, $entity_id, $feature, $operation, $new_perm)
 	{
-		if(mb_substr($operation, 0, 4) == "view")//This kind of extremely dangerous optimization
+		if(mb_substr($operation, 0, 4) === "view")//This kind of extremely dangerous optimization
 		{
+			global $arSonetFeaturesPermsCache;
+			unset($arSonetFeaturesPermsCache[$entity_type."_".$entity_id]);
+
 			if(CModule::IncludeModule('search'))
 			{
-				global $arSonetFeaturesPermsCache;
-				unset($arSonetFeaturesPermsCache[$entity_type."_".$entity_id]);
-
-				$arGroups = CSocNetSearch::GetSearchGroups($entity_type, $entity_id, $feature, $operation);
-				$arParams = CSocNetSearch::GetSearchParams($entity_type, $entity_id, $feature, $operation);
+				$arGroups = self::GetSearchGroups($entity_type, $entity_id, $feature, $operation);
+				$arParams = self::GetSearchParams($entity_type, $entity_id, $feature, $operation);
 
 				CSearch::ChangePermission(false, $arGroups, false, false, false, false, $arParams);
 			}
 		}
 		if (
-			$feature == "blog"
+			$feature === "blog"
 			&& in_array($operation, Array("view_post", "view_comment"))
 			&& CModule::IncludeModule('blog')
 		)
 		{
-			if($operation == "view_post")
+			if($operation === "view_post")
 			{
 				CBlogPost::ChangeSocNetPermission($entity_type, $entity_id, $operation);
 			}
 
 			if(CModule::IncludeModule('search'))
 			{
-				if($operation == "view_post")
+				if($operation === "view_post")
 				{
 					$arPost = CBlogPost::GetSocNetPostsPerms($entity_type, $entity_id);
 					foreach($arPost as $id => $perms)
@@ -118,7 +119,7 @@ class CSocNetSearch
 									{
 										if(in_array($v["TYPE"], Array("SG", "U")))
 										{
-											$type = $v["TYPE"] == "SG" ? "G" : "U";
+											$type = $v["TYPE"] === "SG" ? "G" : "U";
 											if(array_key_exists($type.$v["ID"], $arTmpCache))
 											{
 												$spt = $arTmpCache[$type.$v["ID"]];
@@ -154,7 +155,7 @@ class CSocNetSearch
 	{
 		return array(
 			"feature_id" => "S".$entity_type."_".$entity_id."_".$feature."_".$operation,
-			($entity_type == "G"? "socnet_group": "socnet_user") => $entity_id,
+			($entity_type === "G"? "socnet_group": "socnet_user") => $entity_id,
 		);
 	}
 
@@ -162,7 +163,7 @@ class CSocNetSearch
 	{
 		$arResult = array();
 
-		if($entity_type == "G")
+		if($entity_type === "G")
 		{
 			$prefix = "SG".$entity_id."_";
 			$letter = CSocNetFeaturesPerms::GetOperationPerm(SONET_ENTITY_GROUP, $entity_id, $feature, $operation);
@@ -219,10 +220,14 @@ class CSocNetSearch
 		global $DB;
 		$arResult = array();
 
-		if ($NS["MODULE"]=="socialnetwork" && $NS["ID"] <> '')
-			$id = intval($NS["ID"]);
+		if ($NS["MODULE"] === "socialnetwork" && $NS["ID"] <> '')
+		{
+			$id = (int)$NS["ID"];
+		}
 		else
+		{
 			$id = 0;//very first id
+		}
 
 		$strNSJoin1 = "";
 		$strNSFilter1 = "";
@@ -272,7 +277,7 @@ class CSocNetSearch
 				"PARAM2" => $ar["ID"],
 				"PARAM3" => "GROUP",
 				"PERMISSIONS" => (
-					$ar["VISIBLE"] == "Y"?
+					$ar["VISIBLE"] === "Y"?
 						array('G2')://public
 						array(
 							'SG'.$ar["ID"].'_A',//admins
@@ -310,7 +315,7 @@ class CSocNetSearch
 		if(defined("BX_COMP_MANAGED_CACHE") && in_array($field, array("SOCIAL_NETWORK_USER", "SOCIAL_NETWORK_GROUP")))
 		{
 			$tag_val = (is_array($val) ? serialize($val) : $val);
-			$tag_field = ($field == "SOCIAL_NETWORK_GROUP" ? SONET_ENTITY_GROUP : SONET_ENTITY_USER);
+			$tag_field = ($field === "SOCIAL_NETWORK_GROUP" ? SONET_ENTITY_GROUP : SONET_ENTITY_USER);
 			$CACHE_MANAGER->RegisterTag("sonet_search_".$tag_field."_".$tag_val);
 		}
 	}
@@ -319,40 +324,47 @@ class CSocNetSearch
 	{
 		global $USER;
 
-		$user_id = intval($USER->GetID());
+		$currentUserId = (int)$USER->GetID();
 		$arResult = array();
 
-		if($user_id > 0)
+		if ($currentUserId > 0)
 		{
-			$arResult[] = "SU".$user_id."_Z";
+			$arResult[] = "SU".$currentUserId."_Z";
 			$rsFriends = CSocNetUserRelations::GetList(
 				array(),
 				array(
-					"USER_ID" => $user_id,
+					"USER_ID" => $currentUserId,
 					"RELATION" => SONET_RELATIONS_FRIEND
 				),
 				false,
 				false,
 				array("ID", "FIRST_USER_ID", "SECOND_USER_ID", "DATE_CREATE", "DATE_UPDATE", "INITIATED_BY")
 			);
-			while($arFriend = $rsFriends->Fetch())
+			while ($arFriend = $rsFriends->Fetch())
 			{
-				if($arFriend["FIRST_USER_ID"] != $user_id)
+				if ((int)$arFriend["FIRST_USER_ID"] !== $currentUserId)
+				{
 					$arResult[] = "SU".$arFriend["FIRST_USER_ID"]."_M";
-				if($arFriend["SECOND_USER_ID"] != $user_id)
+				}
+
+				if ((int)$arFriend["SECOND_USER_ID"] !== $currentUserId)
+				{
 					$arResult[] = "SU".$arFriend["SECOND_USER_ID"]."_M";
+				}
 			}
 		}
 
 		$rsGroups = CSocNetUserToGroup::GetList(
 			array(),
-			array("USER_ID" => $user_id),
+			array("USER_ID" => $currentUserId),
 			false,
 			false,
 			array("GROUP_ID", "ROLE")
 		);
 		while($arGroup = $rsGroups->Fetch())
+		{
 			$arResult[] = "SG".$arGroup["GROUP_ID"]."_".$arGroup["ROLE"];
+		}
 
 		return $arResult;
 	}
@@ -398,18 +410,17 @@ class CSocNetSearch
 				$arSiteData = CSocNetLogTools::GetSiteData();
 			}
 
-			foreach($arSiteData as $siteId => $arUrl)
+			foreach($arSiteData as $arUrl)
 			{
-				if (
-					$entity_type == SONET_ENTITY_GROUP
-					&& mb_strpos($path_template, $arUrl["GROUPS_PATH"]) === 0
-				)
+				if($entity_type === SONET_ENTITY_GROUP
+				&& mb_strpos($path_template, $arUrl["GROUPS_PATH"]) === 0)
 				{
 					$path_template = str_replace($arUrl["GROUPS_PATH"], "#GROUP_PATH#", $path_template);
 					break;
 				}
-				elseif (
-					$entity_type == SONET_ENTITY_USER
+
+				if (
+					$entity_type === SONET_ENTITY_USER
 					&& mb_strpos($path_template, $arUrl["USER_PATH"]) === 0
 				)
 				{
@@ -441,7 +452,7 @@ class CSocNetSearch
 					$arFields["PARAM2"],
 					$arFields["ITEM_ID"],
 					"view",
-					($entity_type=="G"? "group_": "user_").$entity_id,
+					($entity_type === "G" ? "group_" : "user_") . $entity_id,
 					$SECTION_ID,
 					$ELEMENT_ID,
 					$ELEMENT_ID,
@@ -453,7 +464,7 @@ class CSocNetSearch
 		}
 
 		if (
-			$feature == 'tasks'
+			$feature === 'tasks'
 			&& $arFields["PARAM1"] == COption::GetOptionString("tasks", "task_forum_id", 0)
 			&& CModule::IncludeModule('tasks')
 		)
@@ -469,14 +480,14 @@ class CSocNetSearch
 		}
 		else
 		{
-			$arFields["PERMISSIONS"] = $this->GetSearchGroups(
+			$arFields["PERMISSIONS"] = self::GetSearchGroups(
 				$entity_type,
 				$entity_id,
 				$feature,
 				$operation
 			);
 
-			$paramsTmp = $this->GetSearchParams(
+			$paramsTmp = self::GetSearchParams(
 				$entity_type,
 				$entity_id,
 				$feature,
@@ -533,8 +544,8 @@ class CSocNetSearch
 		if($this->_group_id)
 		{
 			if(
-				$arFields["MODULE_ID"] == "forum" 
-				&& intval($arFields["PARAM1"]) == intval($this->_params["FORUM_ID"])
+				$arFields["MODULE_ID"] === "forum"
+				&& (int)$arFields["PARAM1"] === (int)$this->_params["FORUM_ID"]
 			)
 			{
 				// forum feature
@@ -552,8 +563,8 @@ class CSocNetSearch
 				);
 			}
 			elseif(
-				$arFields["MODULE_ID"] == "forum" 
-				&& intval($arFields["PARAM1"]) == intval($this->_params["FILES_FORUM_ID"])
+				$arFields["MODULE_ID"] === "forum"
+				&& (int)$arFields["PARAM1"] === (int)$this->_params["FILES_FORUM_ID"]
 				&& isModuleInstalled("webdav")
 			)
 			{
@@ -564,28 +575,14 @@ class CSocNetSearch
 				);
 			}
 			elseif(
-				$arFields["MODULE_ID"] == "forum" 
-				&& intval($arFields["PARAM1"]) == intval($this->_params["TASK_FORUM_ID"])
+				$arFields["MODULE_ID"] === "forum"
+				&& (int)$arFields["PARAM1"] === (int)$this->_params["TASK_FORUM_ID"]
 				&& !preg_match('/^EVENT_[0-9]+/', $arFields["TITLE"], $match) // calendar comments live in the same TASK_FORUM_ID :(
 			)
 			{
-/*				$arFields = $this->BeforeIndexForum(
-					$arFields,
-					SONET_ENTITY_GROUP,
-					$this->_group_id,
-					"tasks",
-					"view",
-					$this->Url(
-						$this->_params["PATH_TO_GROUP_TASK_ELEMENT"], 
-						array(
-							"MID"=>"#message_id#"
-						),
-						"message#message_id#"
-					)
-				);
-*/			}
-			elseif(
-				$arFields["MODULE_ID"] == "forum" 
+			}
+			elseif (
+				$arFields["MODULE_ID"] === "forum"
 				&& preg_match('/^EVENT_[0-9]+/', $arFields["TITLE"], $match)
 			)
 			{
@@ -594,9 +591,9 @@ class CSocNetSearch
 					"BODY" => ""
 				);
 			}
-			elseif(
-				$arFields["MODULE_ID"] == "forum" 
-				&& intval($arFields["PARAM1"]) == intval($this->_params["PHOTO_FORUM_ID"])
+			elseif (
+				$arFields["MODULE_ID"] === "forum"
+				&& (int)$arFields["PARAM1"] === (int)$this->_params["PHOTO_FORUM_ID"]
 			)
 			{
 				$arFields = $this->BeforeIndexForum($arFields,
@@ -605,39 +602,12 @@ class CSocNetSearch
 					$this->Url($this->_params["PATH_TO_GROUP_PHOTO_ELEMENT"], array("MID"=>"#message_id#"), "message#message_id#")
 				);
 			}
-			elseif(
-				$arFields["MODULE_ID"] == "blog"
-				&& ($arFields["PARAM1"] == "POST" || $arFields["PARAM1"] == "MICROBLOG")
-			)
-			{
-/*
-				$paramsTmp = $this->GetSearchParams(
-					SONET_ENTITY_GROUP, $this->_group_id,
-					'blog', 'view_post'
-				);
-
-				$arFields["PARAMS"] = (!empty($arFields["PARAMS"]) ? array_merge($paramsTmp, $arFields["PARAMS"]) : $paramsTmp);
-*/
-			}
-			elseif(
-				$arFields["MODULE_ID"] == "blog"
-				&& $arFields["PARAM1"] == "COMMENT"
-			)
-			{
-/*
-				$paramsTmp = $this->GetSearchParams(
-					SONET_ENTITY_GROUP, $this->_group_id,
-					'blog', 'view_comment'
-				);
-				$arFields["PARAMS"] = (!empty($arFields["PARAMS"]) ? array_merge($paramsTmp, $arFields["PARAMS"]) : $paramsTmp);
-*/
-			}
 		}
 		elseif($this->_user_id)
 		{
 			if(
-				$arFields["MODULE_ID"] == "forum" 
-				&& intval($arFields["PARAM1"]) == intval($this->_params["FORUM_ID"])
+				$arFields["MODULE_ID"] === "forum"
+				&& (int)$arFields["PARAM1"] === (int)$this->_params["FORUM_ID"]
 			)
 			{
 				// forum feature
@@ -650,8 +620,8 @@ class CSocNetSearch
 				);
 			}
 			elseif(
-				$arFields["MODULE_ID"] == "forum"
-				&& intval($arFields["PARAM1"]) == intval($this->_params["FILES_FORUM_ID"])
+				$arFields["MODULE_ID"] === "forum"
+				&& (int)$arFields["PARAM1"] === (int)$this->_params["FILES_FORUM_ID"]
 				&& isModuleInstalled("webdav")
 			)
 			{
@@ -662,21 +632,13 @@ class CSocNetSearch
 				);
 			}
 			elseif(
-				$arFields["MODULE_ID"] == "forum"
-				&& intval($arFields["PARAM1"]) == intval($this->_params["TASK_FORUM_ID"])
+				$arFields["MODULE_ID"] === "forum"
+				&& (int)$arFields["PARAM1"] === (int)$this->_params["TASK_FORUM_ID"]
 			)
 			{
-/*				if (!preg_match('/^EVENT_[0-9]+/', $arFields["TITLE"], $match)) // calendar comments live in the same TASK_FORUM_ID :(
-				{
-					$arFields = $this->BeforeIndexForum($arFields,
-						SONET_ENTITY_USER, $this->_user_id,
-						"tasks", "view_all",
-						$this->Url($this->_params["PATH_TO_USER_TASK_ELEMENT"], array("MID"=>"#message_id#"), "message#message_id#")
-					);
-				}
-*/			}
+			}
 			elseif(
-				$arFields["MODULE_ID"] == "forum" 
+				$arFields["MODULE_ID"] === "forum"
 				&& preg_match('/^EVENT_[0-9]+/', $arFields["TITLE"], $match)
 			) // don't index calendar comments!
 			{
@@ -686,8 +648,8 @@ class CSocNetSearch
 				);
 			}
 			elseif(
-				$arFields["MODULE_ID"] == "forum" 
-				&& intval($arFields["PARAM1"]) == intval($this->_params["PHOTO_FORUM_ID"])
+				$arFields["MODULE_ID"] === "forum"
+				&& (int)$arFields["PARAM1"] === (int)$this->_params["PHOTO_FORUM_ID"]
 			)
 			{
 				$arFields = $this->BeforeIndexForum(
@@ -704,25 +666,25 @@ class CSocNetSearch
 				);
 			}
 			elseif(
-				$arFields["MODULE_ID"] == "blog"
+				$arFields["MODULE_ID"] === "blog"
 				&& (
-					$arFields["PARAM1"] == "POST" 
-					|| $arFields["PARAM1"] == "MICROBLOG"
+					$arFields["PARAM1"] === "POST"
+					|| $arFields["PARAM1"] === "MICROBLOG"
 				)
 			)
 			{
-				$paramsTmp = $this->GetSearchParams(
+				$paramsTmp = self::GetSearchParams(
 					SONET_ENTITY_USER, $this->_user_id,
 					'blog', 'view_post'
 				);
 				$arFields["PARAMS"] = (!empty($arFields["PARAMS"]) ? array_merge($paramsTmp, $arFields["PARAMS"]) : $paramsTmp);
 			}
 			elseif(
-				$arFields["MODULE_ID"] == "blog"
-				&& $arFields["PARAM1"] == "COMMENT"
+				$arFields["MODULE_ID"] === "blog"
+				&& $arFields["PARAM1"] === "COMMENT"
 			)
 			{
-				$paramsTmp = $this->GetSearchParams(
+				$paramsTmp = self::GetSearchParams(
 					SONET_ENTITY_USER, $this->_user_id,
 					'blog', 'view_comment'
 				);
@@ -745,8 +707,8 @@ class CSocNetSearch
 	public static function BeforeIndexLast($arFields)
 	{
 		if(
-			$arFields["MODULE_ID"] == "blog"
-			&& $arFields["PARAM1"] == "USER"
+			$arFields["MODULE_ID"] === "blog"
+			&& $arFields["PARAM1"] === "USER"
 		)
 		{
 			$arFields = array(
@@ -762,35 +724,46 @@ class CSocNetSearch
 	{
 		global $CACHE_MANAGER;
 
-		$ID = intval($arFields["ID"]);
-		$IBLOCK_ID = intval($arFields["IBLOCK_ID"]);
+		$ID = (int)$arFields["ID"];
+		$IBLOCK_ID = (int)$arFields["IBLOCK_ID"];
 		$IBLOCK_SECTION_ID = (is_array($arFields["IBLOCK_SECTION"])) ? $arFields["IBLOCK_SECTION"][0] : $arFields["IBLOCK_SECTION"];
-		$arItem = array();
 
-		if($entity_type == "G")
+		if($entity_type === "G")
+		{
 			$url = str_replace(
 				array("#group_id#", "#user_alias#", "#section_id#", "#element_id#", "#action#", "#task_id#", "#name#"),
 				array($entity_id, "group_".$entity_id, $IBLOCK_SECTION_ID, $arFields["ID"], "view", $arFields["ID"], rawurlencode($arFields["NAME"])),
 				$path_template
 			);
+		}
 		else
+		{
 			$url = str_replace(
 				array("#user_id#", "#user_alias#", "#section_id#", "#element_id#", "#action#", "#task_id#"),
 				array($entity_id, "user_".$entity_id, $IBLOCK_SECTION_ID, $arFields["ID"], "view", $arFields["ID"]),
 				$path_template
 			);
+		}
 
 		$body = "";
-		if($feature == "wiki")
+		if ($feature === "wiki")
+		{
 			$CWikiParser = new CWikiParser();
+		}
+
 		foreach($arFieldList as $field)
 		{
-			if($field == "PREVIEW_TEXT" || $field == "DETAIL_TEXT")
+			if($field === "PREVIEW_TEXT" || $field === "DETAIL_TEXT")
 			{
-				if(isset($CWikiParser))
+				$key = $field . "_TYPE";
+				if (isset($CWikiParser))
+				{
 					$arFields[$field] = HTMLToTxt($CWikiParser->parseForSearch($arFields[$field]));
-				elseif(isset($arFields[$field."_TYPE"]) && $arFields[$field."_TYPE"] === "html")
+				}
+				elseif (isset($arFields[$key]) && $arFields[$key] === "html")
+				{
 					$arFields[$field] = HTMLToTxt($arFields[$field]);
+				}
 			}
 
 			$body .= $arFields[$field]."\n\r";
@@ -801,20 +774,20 @@ class CSocNetSearch
 		else
 			$title = $arFields["NAME"];
 
-		$arPermissions = $this->GetSearchGroups(
+		$arPermissions = self::GetSearchGroups(
 			$entity_type,
 			$entity_id,
 			$feature,
 			$operation
 		);
 
-		if (CIBlock::GetArrayByID($IBLOCK_ID, "RIGHTS_MODE") == "E")
+		if (CIBlock::GetArrayByID($IBLOCK_ID, "RIGHTS_MODE") === "E")
 		{
 			$obElementRights = new CIBlockElementRights($IBLOCK_ID, $arFields["ID"]);
 			$arPermissions = $obElementRights->GetGroups(array("element_read"));
 		}
 
-		$arSearchIndexParams = $this->GetSearchParams(
+		$arSearchIndexParams = self::GetSearchParams(
 			$entity_type,
 			$entity_id,
 			$feature,
@@ -985,20 +958,18 @@ class CSocNetSearch
 	{
 		global $CACHE_MANAGER;
 
-		$rSection = CIBlockSection::GetByID($arFields['ID']);
-		$arSection = $rSection->Fetch();
-
 		$path = array();
 		$rsPath = CIBlockSection::GetNavChain($arFields["IBLOCK_ID"], $arFields['ID']);
-		while($arPath = $rsPath->Fetch())
+		while ($arPath = $rsPath->Fetch())
+		{
 			$path[] = $arPath['NAME'];
+		}
 		$path = implode("/", array_slice($path, 1));
 
-		$ID = intval($arFields["ID"]);
-		$IBLOCK_ID = intval($arFields["IBLOCK_ID"]);
-		$arItem = array();
+		$ID = (int)$arFields["ID"];
+		$IBLOCK_ID = (int)$arFields["IBLOCK_ID"];
 
-		if($entity_type == "G")
+		if($entity_type === "G")
 			$url = str_replace(
 				array("#group_id#", "#user_alias#", "#section_id#", "#element_id#", "#action#", "#task_id#", "#name#", "#path#"),
 				array($entity_id, "group_".$entity_id, $arFields["IBLOCK_SECTION"], $arFields["ID"], "view", $arFields["ID"], rawurlencode($arFields["NAME"]), $path),
@@ -1015,20 +986,20 @@ class CSocNetSearch
 
 		$title = $arFields["NAME"];
 
-		$arPermissions = $this->GetSearchGroups(
+		$arPermissions = self::GetSearchGroups(
 			$entity_type,
 			$entity_id,
 			$feature,
 			$operation
 		);
 
-		if (CIBlock::GetArrayByID($IBLOCK_ID, "RIGHTS_MODE") == "E")
+		if (CIBlock::GetArrayByID($IBLOCK_ID, "RIGHTS_MODE") === "E")
 		{
 			$obSectionRights = new CIBlockSectionRights($IBLOCK_ID, $arFields["ID"]);
 			$arPermissions = $obSectionRights->GetGroups(array("section_read"));
 		}
 
-		$arSearchIndexParams = $this->GetSearchParams(
+		$arSearchIndexParams = self::GetSearchParams(
 			$entity_type,
 			$entity_id,
 			$feature,
@@ -1110,4 +1081,3 @@ class CSocNetSearch
 		}
 	}
 }
-?>

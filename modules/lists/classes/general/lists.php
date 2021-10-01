@@ -453,7 +453,7 @@ class CLists
 
 	public static function OnAfterIBlockElementDelete($fields)
 	{
-		if(CModule::includeModule('bizproc') && CBPRuntime::isFeatureEnabled())
+		if (CModule::includeModule('bizproc'))
 		{
 			$errors = array();
 
@@ -499,7 +499,7 @@ class CLists
 	 */
 	public static function completeWorkflow($workflowId, $iblockType, $elementId, $iblockId, $action)
 	{
-		if(!Loader::includeModule('bizproc') || !CBPRuntime::isFeatureEnabled())
+		if (!Loader::includeModule('bizproc'))
 		{
 			return Loc::getMessage('LISTS_MODULE_BIZPROC_NOT_INSTALLED');
 		}
@@ -1768,6 +1768,25 @@ class CLists
 		$result = $queryObject->fetch();
 
 		return intval($result["COUNT"]);
+	}
+
+	public static function isListProcesses(string $iblockTypeId): bool
+	{
+		return $iblockTypeId == COption::GetOptionString('lists', 'livefeed_iblock_type_id');
+	}
+
+	public static function isBpFeatureEnabled(string $iblockTypeId): bool
+	{
+		$processes = CLists::isListProcesses($iblockTypeId);
+
+		return ($processes ? CLists::isFeatureEnabled() : CBPRuntime::isFeatureEnabled());
+	}
+
+	public static function isListFeatureEnabled(string $iblockTypeId): bool
+	{
+		$processes = CLists::isListProcesses($iblockTypeId);
+
+		return ($processes ? CLists::isFeatureEnabled('lists_processes') : CLists::isFeatureEnabled('lists'));
 	}
 
 	public static function isFeatureEnabled($featureName = '')

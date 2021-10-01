@@ -3,6 +3,7 @@ namespace Bitrix\Landing\Block;
 
 use \Bitrix\Landing\Block;
 use \Bitrix\Landing\Hook;
+use \Bitrix\Landing\Restriction;
 use \Bitrix\Main\EventManager;
 use \Bitrix\Main\Localization\Loc;
 
@@ -63,6 +64,7 @@ class Designer
 				$result = new \Bitrix\Main\Entity\EventResult;
 				$options = $event->getParameter('options');
 				$options['design_block'] = $flag;
+				$options['design_block_allowed'] = Restriction\Manager::isAllowed('limit_crm_free_superblock1');
 				$result->modifyFields([
 					'options' => $options
 				]);

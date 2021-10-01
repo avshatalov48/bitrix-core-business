@@ -5,8 +5,60 @@ if (!CModule::IncludeModule("fileman"))
  * @var array $arResult
  * @var array $arParams
  */
-$controlsInGroup = array();
-$controlsLHE = array(
+
+$possibleButtons = [
+	'UploadFile' => [ //Custom button
+		'aliases' => ['UploadImage', 'UploadFile'],
+		// id is here just for compatibility and shoud be deleted at an opportunity
+		'HTML' => '<i id="bx-b-uploadfile-'.$arParams['FORM_ID'].'"></i><span class="main-post-form-toolbar-button-file">'.GetMessage('MPF_FILE')."</span>",
+		'ID' => 'file',
+	],
+	'MentionUser' => [//Custom button
+		// id is here just for compatibility and shoud be deleted at an opportunity
+		'HTML' => '<span id="bx-b-mention-'.$arParams['FORM_ID'].'"><i></i><span>'.GetMessage('MPF_MENTION')."</span></span>",
+		'ID' => 'mention',
+	],
+	'Quote' => [ //LHE Proxy Button
+		'HTML' => '<i id="bx-b-quote-'.$arParams['FORM_ID'].'"></i><span>'.GetMessage('MPF_QUOTE')."</span>",
+		'LHE_ID' => 'bx-b-quote-'.$arParams['FORM_ID'],
+		'ID' => 'quote',
+	],
+	'SearchTag' => [//Custom button
+		'aliases' => ['InputTag', 'SearchTag'],
+		'HTML' => '<i></i><span>'.GetMessage('MPF_TAG_TITLE')."</span>",
+		'ID' => 'search-tag',
+	],
+	/*	'CreateLink' => [ //LHE Proxy Button
+			'HTML' => '<i id="bx-b-link-'.$arParams['FORM_ID'].'"></i>Link',
+			'LHE_ID' => 'bx-b-link-'.$arParams['FORM_ID'],
+			'ID' => 'create-link',
+		],
+		'InputVideo' => [ //LHE Proxy Button
+			'HTML' => '<i id="bx-b-video-'.$arParams['FORM_ID'].'"></i>Video',
+			'LHE_ID' => 'bx-b-video-'.$arParams['FORM_ID'],
+			'ID' => 'video',
+		],
+	*/
+
+];
+
+$actualButtons = array_filter($possibleButtons, function ($value, $key) use ($arParams) {
+	$keys = array_merge([$key], (array_key_exists('aliases', $value) ? $value['aliases'] : []));
+	return sizeof(array_intersect($keys, $arParams['BUTTONS'])) > 0;
+}, ARRAY_FILTER_USE_BOTH);
+
+if (is_array($arParams['~BUTTONS_HTML']))
+{
+	foreach ($arParams['~BUTTONS_HTML'] as $key => $val)
+	{
+		$actualButtons[$key] = [
+			'ID' => $key,
+			'HTML' => $val,
+		];
+	}
+}
+
+$possibleControls = array(
 	"Bold" => array("group" => "bui", 'id' => 'Bold',  'compact' => true, 'sort' => 80),
 	"Italic" => array("group" => "bui", 'id' => 'Italic',  'compact' => true, 'sort' => 90),
 	"Underline" => array("group" => "bui", 'id' => 'Underline',  'compact' => true, 'sort' => 100),
@@ -25,44 +77,47 @@ $controlsLHE = array(
 	"UnorderedList" => array("group" => "format", 'id' => 'UnorderedList',  'compact' => true, 'sort' => 160),
 	"Justify" => array("group" => "format", 'id' => 'AlignList', 'compact' => false, 'sort' => 190),
 	"AlignList" => array("group" => "format", 'id' => 'AlignList', 'compact' => false, 'sort' => 190),
-	"CreateLink" => array("group" => "insert", 'id' => 'InsertLink',  'compact' => true, 'sort' => 210, 'wrap' => 'bx-b-link-'.$arParams["FORM_ID"]),
-	"InsertLink" => array("group" => "insert", 'id' => 'InsertLink',  'compact' => true, 'sort' => 210, 'wrap' => 'bx-b-link-'.$arParams["FORM_ID"]),
+	"CreateLink" => array("group" => "insert", 'id' => 'InsertLink',  'compact' => true, 'sort' => 210, 'wrap' => $possibleButtons['CreateLink']['LHE_ID']),
+	"InsertLink" => array("group" => "insert", 'id' => 'InsertLink',  'compact' => true, 'sort' => 210, 'wrap' => $possibleButtons['CreateLink']['LHE_ID']),
 	"Image" => array("group" => "insert", 'id' => 'InsertImage',  'compact' => false, 'sort' => 220),
 	"InsertImage" => array("group" => "insert", 'id' => 'InsertImage',  'compact' => false, 'sort' => 220),
-	"InputVideo" => array("group" => "insert", 'id' => 'InsertVideo',  'compact' => true, 'sort' => 230, 'wrap' => 'bx-b-video-'.$arParams["FORM_ID"]),
-	"InsertVideo" => array("group" => "insert", 'id' => 'InsertVideo',  'compact' => true, 'sort' => 230, 'wrap' => 'bx-b-video-'.$arParams["FORM_ID"]),
+	"InputVideo" => array("group" => "insert", 'id' => 'InsertVideo',  'compact' => true, 'sort' => 230, 'wrap' => $possibleButtons['InputVideo']['LHE_ID']),
+	"InsertVideo" => array("group" => "insert", 'id' => 'InsertVideo',  'compact' => true, 'sort' => 230, 'wrap' => $possibleButtons['InputVideo']['LHE_ID']),
 	"Table" => array("group" => "insert", 'id' => 'InsertTable',  'compact' => false, 'sort' => 250),
 	"InsertTable" => array("group" => "insert", 'id' => 'InsertTable',  'compact' => false, 'sort' => 250),
 	"Code" => array("group" => "insert", 'id' => 'Code',  'compact' => true, 'sort' => 260),
-	"Quote" => array("group" => "insert", 'id' => 'Quote',  'compact' => true, 'sort' => 270, 'wrap' => 'bx-b-quote-'.$arParams["FORM_ID"]),
+	"Quote" => array("group" => "insert", 'id' => 'Quote',  'compact' => true, 'sort' => 270, 'wrap' => $possibleButtons['Quote']['LHE_ID']),
 	"SmileList" => array("group" => "insert", 'id' => 'Smile',  'compact' => false, 'sort' => 280),
 	"Smile" => array("group" => "insert", 'id' => 'Smile',  'compact' => false, 'sort' => 280),
 );
-
-foreach ($arParams["PARSER"] as $k)
+$actualControls = array_filter($possibleControls, function($key) use ($arParams) {
+	return in_array($key, $arParams['PARSER']);
+}, ARRAY_FILTER_USE_KEY);
+$groupedControls = [];
+foreach ($actualControls as $k)
 {
-	if (is_string($k) && array_key_exists($k, $controlsLHE))
-	{
-		$k = $controlsLHE[$k];
-		if (!isset($controlsInGroup[$k["group"]]))
-			$controlsInGroup[$k["group"]] = array();
-		$controlsInGroup[$k["group"]][] = $k;
-	}
+	$groupId = $k["group"];
+	$groupedControls[$groupId] = ($groupedControls[$groupId] ?? []);
+	$groupedControls[$groupId][] = $k;
 }
 $f = function($max, $item) {
-	$max = max($item["sort"], $max);
-	return $max;
+	return max($item["sort"], $max);
 };
-$controls = array();
-foreach ($controlsInGroup as $group => $c)
+$finalControls = [];
+foreach ($groupedControls as $groupId => $controls)
 {
-	$controls = array_merge($controls, $c, array(array('separator' => true, 'compact' => false, 'sort' => array_reduce($c, $f) + 10)));
+	$finalControls = array_merge(
+		$finalControls,
+		$controls,
+		[['separator' => true, 'compact' => false, 'sort' => (array_reduce($controls, $f) + 10)]]
+	);
 }
-$controls = array_merge($controls, array(
+$finalControls = array_merge($finalControls, array(
 	array('id' => 'Fullscreen',  'compact' => false, 'sort' => 310),
 	array('id' => 'BbCode',  'compact' => true, 'sort' => 340),
 	array('id' => 'More',  'compact' => true, 'sort' => 400)
 ));
+
 $Editor = new CHTMLEditor;
 $res = array_merge(
 	array(
@@ -79,7 +134,7 @@ $res = array_merge(
 		'autoResize' => true,
 		'autoResizeOffset' => 40,
 		'saveOnBlur' => true,
-		'controlsMap' => $controls
+		'controlsMap' => $finalControls
 	),
 	(is_array($arParams["LHE"]) ? $arParams["LHE"] : array()),
 	array(
@@ -101,4 +156,5 @@ if((string) $arParams["TEXT"]["INPUT_NAME"] != '')
 }
 
 $Editor->Show($res);
-?>
+
+return $actualButtons;

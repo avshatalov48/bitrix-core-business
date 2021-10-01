@@ -3,7 +3,6 @@
 namespace Bitrix\Sale\Repository;
 
 use Bitrix\Sale;
-use Bitrix\Main;
 
 /**
  * Class PaymentRepository
@@ -37,20 +36,14 @@ final class PaymentRepository
 	/**
 	 * @param int $id
 	 * @return Sale\Payment|null
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
-	public function getById(int $id): ? Sale\Payment
+	public function getById(int $id): ?Sale\Payment
 	{
-		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
-
 		/** @var Sale\Payment $paymentClass */
-		$paymentClass = $registry->getPaymentClassName();
+		$paymentClass = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER)->getPaymentClassName();
 
 		$paymentRow = $paymentClass::getList([
-			'select' => ['ORDER_ID'],
+			'select' => ['ID', 'ORDER_ID'],
 			'filter' => [
 				'=ID' => $id
 			]
@@ -60,7 +53,48 @@ final class PaymentRepository
 			return null;
 		}
 
-		$orderClassName = $registry->getOrderClassName();
+		return static::getInstance()->getByRow($paymentRow);
+	}
+
+	/**
+	 * @param array $ids
+	 * @return array
+	 */
+	public function getByIds(array $ids): array
+	{
+		$result = [];
+
+		/** @var Sale\Payment $paymentClass */
+		$paymentClass = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER)->getPaymentClassName();
+
+		$paymentList = $paymentClass::getList([
+			'select' => ['ID', 'ORDER_ID'],
+			'filter' => [
+				'=ID' => $ids
+			]
+		]);
+
+		while ($paymentRow = $paymentList->fetch())
+		{
+			$payment = static::getInstance()->getByRow($paymentRow);
+			if (is_null($payment))
+			{
+				continue;
+			}
+
+			$result[] = $payment;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param array $paymentRow
+	 * @return Sale\Payment|null
+	 */
+	private function getByRow(array $paymentRow): ?Sale\Payment
+	{
+		$orderClassName = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER)->getOrderClassName();
 
 		/** @var Sale\Order $orderClassName */
 		$order = $orderClassName::load($paymentRow['ORDER_ID']);
@@ -74,7 +108,7 @@ final class PaymentRepository
 		/** @var Sale\Payment $payment */
 		foreach ($paymentCollection as $payment)
 		{
-			if ($payment->getId() !== $id)
+			if ($payment->getId() !== (int)$paymentRow['ID'])
 			{
 				continue;
 			}

@@ -47,6 +47,7 @@ class SenderConfigLimitsComponent extends Bitrix\Sender\Internals\CommonSenderCo
 		}
 
 		$this->arResult['CAN_TRACK_MAIL'] = Option::get('sender', 'track_mails') === 'Y';
+		$this->arResult['USE_MAIL_CONSENT'] = Option::get('sender', 'mail_consent') === 'Y';
 		$this->arResult['ACTION_URI'] = $this->getPath() . '/ajax.php';
 
 		$list = array();

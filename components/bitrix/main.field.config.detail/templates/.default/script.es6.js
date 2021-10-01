@@ -337,6 +337,7 @@ class Config
 		this.getLoader().hide();
 		setTimeout(() => {
 			this.saveButton.setWaiting(false);
+			Dom.removeClass(this.saveButton.getContainer(), 'ui-btn-wait');
 			if(this.deleteButton)
 			{
 				this.deleteButton.setWaiting(false);

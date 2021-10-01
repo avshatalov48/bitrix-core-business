@@ -26,6 +26,22 @@ use Bitrix\Main\Search\MapBuilder;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class UserTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_User_Query query()
+ * @method static EO_User_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_User_Result getById($id)
+ * @method static EO_User_Result getList(array $parameters = array())
+ * @method static EO_User_Entity getEntity()
+ * @method static \Bitrix\Main\EO_User createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EO_User_Collection createCollection()
+ * @method static \Bitrix\Main\EO_User wakeUpObject($row)
+ * @method static \Bitrix\Main\EO_User_Collection wakeUpCollection($rows)
+ */
 class UserTable extends DataManager
 {
 	public static function getTableName()

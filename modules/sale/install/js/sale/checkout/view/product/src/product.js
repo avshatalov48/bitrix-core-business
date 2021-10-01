@@ -1,11 +1,11 @@
-import {Vue} from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 import { Application, Loader as LoaderConst } from 'sale.checkout.const';
 import { MixinLoader } from "sale.checkout.view.mixins";
 
 import './list'
 import './summary'
 
-Vue.component('sale-checkout-view-product', {
+BitrixVue.component('sale-checkout-view-product', {
 	props: ['items', 'total', 'mode', 'config'],
 	mixins:[MixinLoader],
 	computed:

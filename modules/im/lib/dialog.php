@@ -147,29 +147,63 @@ class Dialog
 		{
 			return true;
 		}
+		else if (
+			\Bitrix\Im\User::getInstance($userId)->isBot()
+			&& \Bitrix\Im\User::getInstance($dialogId)->isExtranet()
+		)
+		{
+			return true;
+		}
 		else
 		{
 			if (\Bitrix\Main\ModuleManager::isModuleInstalled('intranet'))
 			{
 				if (
+					!\Bitrix\Im\User::getInstance($userId)->isExtranet()
+					&& \Bitrix\Im\User::getInstance($dialogId)->isNetwork()
+				)
+				{
+					return true;
+				}
+				else if (
 					\Bitrix\Im\User::getInstance($userId)->isExtranet()
 					|| \Bitrix\Im\User::getInstance($dialogId)->isExtranet()
 				)
 				{
-					if (
-						!\Bitrix\Im\User::getInstance($userId)->isExtranet()
-						&& \Bitrix\Im\User::getInstance($dialogId)->isNetwork()
-					)
+					$inGroup = \Bitrix\Im\Integration\Socialnetwork\Extranet::isUserInGroup($dialogId, $userId);
+					if ($inGroup)
 					{
 						return true;
 					}
 
-					return \Bitrix\Im\Integration\Socialnetwork\Extranet::isUserInGroup($dialogId, $userId);
+					global $USER;
+					if (
+						\Bitrix\Im\User::getInstance($userId)->isExtranet()
+						&& \Bitrix\Im\User::getInstance($dialogId)->isBot()
+						&& $userId == $USER->GetID()
+					)
+					{
+						if ($USER->IsAdmin())
+						{
+							return true;
+						}
+						else if (\CModule::IncludeModule('bitrix24'))
+						{
+							if (\CBitrix24::IsPortalAdmin($userId))
+							{
+								return true;
+							}
+							else if (\Bitrix\Bitrix24\Integrator::isIntegrator($userId))
+							{
+								return true;
+							}
+						}
+					}
+
+					return false;
 				}
-				else
-				{
-					return true;
-				}
+
+				return true;
 			}
 			else
 			{

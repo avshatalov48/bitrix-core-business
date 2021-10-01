@@ -1679,7 +1679,11 @@ class CSocNetLogTools
 			$album_tmp_24_mobile = ($section_name ? $album_default_24_mobile.': '.$section_name : $album_default_24_mobile);
 		}
 		else
+		{
 			$album_tmp = ($section_name ? $album_default.' '.$section_name : $album_default);
+			$album_tmp_24 = ($section_name ? $album_default_24.': ' . $section_name : $album_default_24);
+			$album_tmp_24_mobile = ($section_name ? $album_default_24_mobile.': '.$section_name : $album_default_24_mobile);
+		}
 
 		if ($bMail)
 			$title_tmp = GetMessage("SONET_GL_EVENT_TITLE_".($arFields["ENTITY_TYPE"] == SONET_SUBSCRIBE_ENTITY_GROUP ? "GROUP" : "USER")."_PHOTO_MAIL");
@@ -1709,11 +1713,13 @@ class CSocNetLogTools
 		);
 
 		if (!$bMail)
+		{
 			$title_24 = str_replace(
 				array("#ALBUM#", "#COUNT#", "#ENTITY#", "#CREATED_BY#"),
 				array(($arParams["MOBILE"] == "Y" ? $album_tmp_24_mobile : $album_tmp_24), $count_tmp, $arResult["ENTITY"]["FORMATTED"], ($bMail ? $arResult["CREATED_BY"]["FORMATTED"] : "")),
 				$title_tmp_24
 			);
+		}
 
 		if ($arParams["MOBILE"] == "Y")
 			$arResult["EVENT_FORMATTED"] = array(
@@ -7162,8 +7168,8 @@ class CSocNetLogComponent
 	{
 		global $USER_FIELD_MANAGER;
 
-		$commentId = intval($commentId);
-		$postId = intval($postId);
+		$commentId = (int)$commentId;
+		$postId = (int)$postId;
 
 		$arOrder = array();
 
@@ -7234,7 +7240,7 @@ class CSocNetLogComponent
 				}
 				else
 				{
-					if ($action == "edit") // data needed only for edit
+					if ($action === "edit") // data needed only for edit
 					{
 						$arUFMeta = $USER_FIELD_MANAGER->GetUserFields("SONET_COMMENT", 0, LANGUAGE_ID);
 						$arRes["UF"] = array();

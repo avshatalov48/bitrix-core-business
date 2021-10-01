@@ -4,6 +4,22 @@ namespace Bitrix\Main;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class TaskTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Task_Query query()
+ * @method static EO_Task_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Task_Result getById($id)
+ * @method static EO_Task_Result getList(array $parameters = array())
+ * @method static EO_Task_Entity getEntity()
+ * @method static \Bitrix\Main\EO_Task createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EO_Task_Collection createCollection()
+ * @method static \Bitrix\Main\EO_Task wakeUpObject($row)
+ * @method static \Bitrix\Main\EO_Task_Collection wakeUpCollection($rows)
+ */
 class TaskTable extends Entity\DataManager
 {
 	public static function getTableName()

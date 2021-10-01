@@ -10,6 +10,7 @@ use Bitrix\Main;
 use Bitrix\Main\IO;
 use Bitrix\Main\UI\Viewer;
 use Bitrix\Main\File;
+use Bitrix\Main\Web;
 use Bitrix\Main\File\Image;
 use Bitrix\Main\File\Image\Rectangle;
 use Bitrix\Main\File\Internal;
@@ -1220,7 +1221,7 @@ class CFile extends CAllFile
 		{
 			if(in_array($ext, explode(",", static::GetImageExtensions())))
 			{
-				if($mime_type === false || strpos($mime_type, "image/") === 0)
+				if($mime_type === false || Web\MimeType::isImage($mime_type))
 				{
 					return true;
 				}
@@ -1781,7 +1782,7 @@ function ImgShw(ID, width, height, alt)
 
 			if(!$bExternalStorage)
 			{
-				$http = new \Bitrix\Main\Web\HttpClient();
+				$http = new Web\HttpClient();
 				$http->setPrivateIp(false);
 				$temp_path = static::GetTempName('', 'tmp.'.md5(mt_rand()));
 				if($http->download($path, $temp_path))
@@ -2563,7 +2564,7 @@ function ImgShw(ID, width, height, alt)
 			}
 		}
 
-		$content_type = static::NormalizeContentType($content_type);
+		$content_type = Web\MimeType::normalize($content_type);
 
 		if($force_download)
 		{
@@ -2597,7 +2598,7 @@ function ImgShw(ID, width, height, alt)
 		{
 			if(!$fastDownload)
 			{
-				$src = new \Bitrix\Main\Web\HttpClient();
+				$src = new Web\HttpClient();
 			}
 			elseif(intval($arFile['HANDLER_ID']) > 0)
 			{
@@ -2784,7 +2785,7 @@ function ImgShw(ID, width, height, alt)
 					}
 					else
 					{
-						/** @var \Bitrix\Main\Web\HttpClient $src */
+						/** @var Web\HttpClient $src */
 						echo htmlspecialcharsbx($src->get($filename));
 					}
 					echo "<", "/pre", ">";
@@ -2808,7 +2809,7 @@ function ImgShw(ID, width, height, alt)
 					else
 					{
 						$fp = fopen("php://output", "wb");
-						/** @var \Bitrix\Main\Web\HttpClient $src */
+						/** @var Web\HttpClient $src */
 						$src->setOutputStream($fp);
 						$src->get($filename);
 					}
@@ -2937,21 +2938,14 @@ function ImgShw(ID, width, height, alt)
 		return (new File\Image($src))->getExifData();
 	}
 
+	/**
+	 * @deprecated Use Web\MimeType::normalize()
+	 * @param $contentType
+	 * @return string
+	 */
 	public static function NormalizeContentType($contentType)
 	{
-		$ct = strtolower($contentType);
-		$ct = str_replace(array("\r", "\n", "\0"), "", $ct);
-
-		if (strpos($ct, "excel") !== false)
-		{
-			$ct = "application/vnd.ms-excel";
-		}
-		elseif (strpos($ct, "word") !== false && strpos($ct, "vnd.openxmlformats") === false)
-		{
-			$ct = "application/msword";
-		}
-
-		return $ct;
+		return Web\MimeType::normalize($contentType);
 	}
 
 	public static function GetContentType($path, $bPhysicalName = false)
@@ -2983,7 +2977,7 @@ function ImgShw(ID, width, height, alt)
 
 		if ($type == "")
 		{
-			$type = Main\Web\MimeType::getByFileExtension(substr($pathX, bxstrrpos($pathX, ".") + 1));
+			$type = Web\MimeType::getByFileExtension(substr($pathX, bxstrrpos($pathX, ".") + 1));
 		}
 
 		return $type;

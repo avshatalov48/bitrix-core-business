@@ -198,7 +198,7 @@ class CSocServFacebook extends CSocServAuth
 		$url = ($APPLICATION->GetCurDir() == "/login/") ? "" : $APPLICATION->GetCurDir();
 		$aRemove = array("logout", "auth_service_error", "auth_service_id", "code", "error_reason", "error", "error_description", "check_key", "current_fieldset");
 
-		if(isset($_REQUEST["state"]))
+		if(isset($_REQUEST["state"]) && $bSuccess)
 		{
 			$arState = array();
 			parse_str($_REQUEST["state"], $arState);

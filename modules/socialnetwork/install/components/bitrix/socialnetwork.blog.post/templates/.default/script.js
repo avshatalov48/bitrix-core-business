@@ -148,7 +148,7 @@ function deleteBlogPost(id)
 			id: id,
 		},
 	}).then(function () {
-		__logDeleteSuccess(document.getElementById('blg-post-' + id));
+		BX.Livefeed.FeedInstance.deleteSuccess(document.getElementById('blg-post-' + id));
 	}.bind(this), function (response) {
 
 		BX.findChild(el, {className: 'feed-post-cont-wrap'}, true, false).insertBefore(
@@ -448,7 +448,7 @@ function __blogPostSetFollow(log_id)
 				if (BX.type.isNotEmptyString(postData.backgroundCode))
 				{
 					editParams.onclick = function() {
-						BX.Livefeed.PostInstance.showBackgroundWarning({
+						BX.Livefeed.Post.showBackgroundWarning({
 							urlToEdit: urlToEdit,
 							menuPopupWindow: this.popupWindow
 						});
@@ -486,11 +486,9 @@ function __blogPostSetFollow(log_id)
 					menuItems.push({
 						text: BX.message('BLOG_POST_CREATE_TASK'),
 						onclick: function(e) {
-							var target = e.target || e.srcElement;
-
-							oLF.createTask({
+							BX.Livefeed.TaskCreator.create({
 								entityType: 'BLOG_POST',
-								entityId: postId
+								entityId: postId,
 							});
 							this.popupWindow.close();
 							return e.preventDefault();
@@ -1075,6 +1073,9 @@ function __blogPostSetFollow(log_id)
 			BX.unbindAll(res);
 		}
 	}
+
+	window.entitySelectorRepo = {};
+
 })(window);
 
 window.showSharing = function(postId, userId)
@@ -1098,7 +1099,7 @@ window.showSharing = function(postId, userId)
 
 	BX.clean(tagNodeId);
 
-	var entitySelector = new SBPEntitySelector({
+	window.entitySelectorRepo[postId] = new SBPEntitySelector({
 		id: selectorId + postId,
 		context: 'BLOG_POST',
 		tagNodeId: tagNodeId,
@@ -1234,7 +1235,7 @@ window.sharingPost = function()
 		}
 	}
 
-	var newNodes = renderSharingPost(postId);
+	var newNodes = renderSharingPost(postId, s.DEST_DATA);
 
 	BX.ajax.runAction('socialnetwork.api.livefeed.blogpost.share', {
 		data: {
@@ -1323,92 +1324,133 @@ window.sharingPostError = function(params)
 	errorPopup.show();
 };
 
-window.renderSharingPost = function(postId)
+window.renderSharingPost = function(postId, destData)
 {
-	var res = [];
-	var nodeId = '';
-
-	var elements = BX.findChildren(BX('feed-add-post-destination-item-post'), {className : 'feed-add-post-destination'}, true);
-	if (elements != null)
+	if (!BX.type.isNotEmptyString(destData))
 	{
-		var hiddenDest = BX('blog-destination-hidden-'+postId);
-		if(!hiddenDest)
+		return;
+	}
+
+	var res = [];
+
+	try
+	{
+		destData = JSON.parse(destData);
+		if (!BX.type.isArray(destData))
 		{
-			var el = BX.findChildren(BX('blg-post-img-'+postId), {className : 'feed-add-post-destination-new'}, true);
-			var lastDest = el[el.length-1];
-		}
-
-		for (var j = 0; j < elements.length; j++)
-		{
-			if(!BX.hasClass(elements[j], 'feed-add-post-destination-undelete'))
-			{
-				var name = BX.findChild(elements[j], {className: 'feed-add-post-destination-text' }, false, false).innerHTML;
-				var obj = BX.findChild(elements[j], {tag: 'input' }, false, false);
-				var id = obj.value;
-				var elementClassName = 'feed-add-post-destination-new';
-
-				if(BX.hasClass(elements[j], 'feed-add-post-destination-email'))
-				{
-					elementClassName += ' feed-add-post-destination-new-email';
-				}
-				else if (BX.hasClass(elements[j], 'feed-add-post-destination-extranet'))
-				{
-					elementClassName += ' feed-add-post-destination-new-extranet';
-				}
-
-				var type;
-				if(obj.name == "SPERM[SG][]")
-					type = 'sonetgroups';
-				else if(obj.name == "SPERM[DR][]")
-					type = 'department';
-				else if(obj.name == "SPERM[G][]")
-					type = 'groups';
-				else if(obj.name == "SPERM[U][]")
-					type = 'users';
-				else if(obj.name == "SPERM[UE][]")
-					type = 'users';
-				else if(obj.name == "SPERM[UA][]")
-					type = 'groups';
-
-				if (type.length > 0)
-				{
-					window["postDest" + postId].push({
-						id: id,
-						name: name,
-						type: type
-					});
-					nodeId = 'post_' + postId + '_dest_' + id;
-					res.push(nodeId);
-
-					var destText = BX.create("span", {
-						props: {
-							id: nodeId
-						},
-						children: [
-							BX.create("span", {
-								html : ', '
-							}),
-							BX.create("a", {
-								props: {
-									className: elementClassName
-								},
-								href: '',
-								html : name
-							})
-						]}
-					);
-					if(hiddenDest)
-					{
-						hiddenDest.appendChild(destText);
-					}
-					else if(lastDest)
-					{
-						BX(lastDest.parentNode).insertBefore(destText, lastDest.nextSibling);
-					}
-				}
-			}
+			destData = [];
 		}
 	}
+	catch(e)
+	{
+		destData = [];
+	}
+
+	if (
+		destData.length <= 0
+		|| !window.entitySelectorRepo[postId]
+		|| !window.entitySelectorRepo[postId].selector
+	)
+	{
+		return;
+	}
+
+	var entitySelector = window.entitySelectorRepo[postId].selector;
+	var lastDest = null;
+	var hiddenDest = document.getElementById('blog-destination-hidden-' + postId);
+	if (!hiddenDest)
+	{
+		var destinationList = document.getElementById('blg-post-img-' + postId).querySelectorAll('.feed-add-post-destination-new');
+		if (destinationList)
+		{
+			lastDest = destinationList[destinationList.length - 1];
+		}
+	}
+
+	destData.forEach(function (item) {
+
+		var found = false;
+		window['postDest' + postId].forEach(function(existingItem) {
+			if (found)
+			{
+				return;
+			}
+
+			found = (existingItem[0] == item[0] && existingItem[1] == item[1]);
+		});
+
+		if (found)
+		{
+			return;
+		}
+
+		var tag = entitySelector.getTag({
+			id: item[1],
+			entityId: item[0],
+		})
+
+		var elementClassName = 'feed-add-post-destination-new';
+
+		if (tag.getEntityType() === 'email')
+		{
+			elementClassName += ' feed-add-post-destination-new-email';
+		}
+		else if (tag.getEntityType() === 'extranet')
+		{
+			elementClassName += ' feed-add-post-destination-new-extranet';
+		}
+
+		var link = tag.getLink();
+		var nodeId = 'post_' + postId + '_dest_' + tag.getEntityId() + '_' + tag.getId();
+		res.push(nodeId);
+
+		var destText = null;
+		if (BX.type.isNotEmptyString(link))
+		{
+			destText = BX.create('a', {
+				props: {
+					className: elementClassName,
+				},
+				attrs: {
+					href: link,
+					'bx-tooltip-user-id': (tag.getEntityId() === 'user' ? tag.getId() : ''),
+				},
+				text: tag.getTitle(),
+			});
+		}
+		else
+		{
+			destText = BX.create('span', {
+				props: {
+					className: elementClassName,
+				},
+				text: tag.getTitle(),
+			});
+		}
+
+		destText = BX.create('span', {
+			attrs: {
+				id: nodeId,
+			},
+			children: [
+				BX.create('span', {
+					html: ', '
+				}),
+				destText,
+			]}
+		);
+
+		if (hiddenDest)
+		{
+			hiddenDest.appendChild(destText);
+		}
+		else if (lastDest)
+		{
+			lastDest.parentNode.insertBefore(destText, lastDest.nextSibling);
+		}
+	});
+
+	window['postDest' + postId] = BX.clone(destData);
 
 	return res;
 };

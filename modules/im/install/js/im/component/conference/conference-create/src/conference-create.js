@@ -81,6 +81,12 @@ BitrixVue.component('bx-im-component-conference-create',
 			{
 				classes.push('ui-btn-disabled');
 			}
+
+			if (this.errors.length > 0)
+			{
+				classes.push('ui-btn-disabled', 'ui-btn-icon-lock');
+			}
+
 			return classes;
 		},
 		localize()
@@ -223,14 +229,12 @@ BitrixVue.component('bx-im-component-conference-create',
 		{
 			if (!BX.PULL.isPublishingEnabled())
 			{
-				this.disableButton();
 				this.addError(this.localize['BX_IM_COMPONENT_CONFERENCE_CREATE_PUSH_ERROR']);
 			}
 
 			if (!BX.Call.Util.isCallServerAllowed())
 			{
-				this.disableButton();
-				this.addError(this.localize['BX_IM_COMPONENT_CONFERENCE_CREATE_VOXIMPLANT_ERROR']);
+				this.addError(this.localize['BX_IM_COMPONENT_CONFERENCE_CREATE_VOXIMPLANT_ERROR_WITH_LINK']);
 			}
 		},
 		addError(errorText)
@@ -240,10 +244,6 @@ BitrixVue.component('bx-im-component-conference-create',
 		clearErrors()
 		{
 			this.errors = [];
-		},
-		disableButton()
-		{
-			this.startButtonClasses.push('ui-btn-disabled', 'ui-btn-icon-lock');
 		},
 		onUserSelect(event)
 		{
@@ -319,7 +319,7 @@ BitrixVue.component('bx-im-component-conference-create',
 				<!-- Errors -->
 				<template v-if="errors.length > 0">
 					<div class="ui-alert ui-alert-danger bx-conference-quick-create-error-wrap">
-						<span v-for="error in errors" class="ui-alert-message">{{ error }}</span>
+						<span v-for="error in errors" class="ui-alert-message" v-html="error"></span>
 					</div>
 				</template>
 				<!-- Title field -->

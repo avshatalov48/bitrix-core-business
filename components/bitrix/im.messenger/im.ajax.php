@@ -12,6 +12,8 @@ header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 
 IncludeModuleLangFile(__FILE__);
 
+$APPLICATION->RestartBuffer();
+
 // NOTICE
 // Before execute next code, execute file /module/im/ajax_hit.php
 // for skip onProlog events
@@ -120,7 +122,8 @@ if ($_POST['IM_AVATAR_UPDATE'] == 'Y')
 	{
 		$uploader = new \Bitrix\Main\UI\Uploader\Uploader(array(
 			"allowUpload" => "I",
-			"events" => array("onFileIsUploaded" => array("CIMDisk", "UploadAvatar"))
+			"events" => array("onFileIsUploaded" => array("CIMDisk", "UploadAvatar")),
+			"storage" => array("moduleId" => "im")
 		));
 		if (!$uploader->checkPost())
 		{
@@ -137,6 +140,9 @@ else if ($_POST['IM_FILE_UPLOAD'] == 'Y')
 		"allowUpload" => "A",
 		"events" => array(
 			"onFileIsUploaded" => array("CIMDisk", "UploadFile")
+		),
+		"storage" => array(
+			"moduleId" => "im"
 		)
 	));
 	if (!$uploader->checkPost())
@@ -218,7 +224,10 @@ else if ($_POST['IM_FILE_UPLOAD_FROM_DISK'] == 'Y')
 	CUtil::decodeURIComponent($_POST);
 	$_POST['FILES'] = CUtil::JsObjectToPhp($_POST['FILES']);
 
-	$result = CIMDisk::UploadFileFromDisk($_POST['CHAT_ID'], $_POST['FILES'], $_POST['MESSAGE'], ['LINES_SILENT_MODE' => $_POST['OL_SILENT'] == 'Y']);
+	$result = CIMDisk::UploadFileFromDisk($_POST['CHAT_ID'], $_POST['FILES'], $_POST['MESSAGE'], [
+		'LINES_SILENT_MODE' => $_POST['OL_SILENT'] == 'Y',
+		'SYMLINK' => true
+	]);
 	if (!$result)
 	{
 		$errorMessage = 'ERROR';

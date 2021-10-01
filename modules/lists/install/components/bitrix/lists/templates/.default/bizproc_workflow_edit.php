@@ -1,14 +1,20 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-if (!CModule::IncludeModule('bizproc') || !CBPRuntime::isFeatureEnabled())
+if (!CModule::IncludeModule('bizproc') || !CLists::isBpFeatureEnabled($arParams["IBLOCK_TYPE_ID"]))
 {
 	ShowError(GetMessage('BIZPROC_MODULE_NOT_INSTALLED'));
+
 	return;
 }
 
 if (!CModule::IncludeModule('bizprocdesigner'))
 {
 	ShowError(GetMessage('BIZPROCDESIGNER_MODULE_NOT_INSTALLED'));
+
 	return;
 }
 
@@ -56,4 +62,3 @@ $APPLICATION->IncludeComponent("bitrix:bizproc.workflow.edit", ".default", array
 	$component,
 	array("HIDE_ICONS" => "Y")
 );
-?>

@@ -11,6 +11,22 @@ use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UserTable;
 
+/**
+ * Class EntityUsageTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_EntityUsage_Query query()
+ * @method static EO_EntityUsage_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EntityUsage_Result getById($id)
+ * @method static EO_EntityUsage_Result getList(array $parameters = array())
+ * @method static EO_EntityUsage_Entity getEntity()
+ * @method static \Bitrix\Main\UI\EntitySelector\EO_EntityUsage createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection createCollection()
+ * @method static \Bitrix\Main\UI\EntitySelector\EO_EntityUsage wakeUpObject($row)
+ * @method static \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection wakeUpCollection($rows)
+ */
 class EntityUsageTable extends Main\Entity\DataManager
 {
 	/**

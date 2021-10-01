@@ -1,6 +1,7 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 /**
+ * @deprecated
  * @var array $arParams
  * @var array $arResult
  */
@@ -21,7 +22,7 @@ if (is_array($arParams["UPLOAD_FILE"]) && !empty($arParams["UPLOAD_FILE"]))
 	else if (array_key_exists("INPUT_NAME", $arParams["UPLOAD_FILE"]))
 	{
 		if (isset($arParams["UPLOAD_FILE"]["TAG"]))
-			$arParams["PARSER"]["file"] = $arParams["UPLOAD_FILE"]["TAG"];
+			$arParams["PARSER"][] = ["file" => $arParams["UPLOAD_FILE"]["TAG"]];
 		$arParams["UPLOADS"][] = $arParams["UPLOAD_FILE"];
 	}
 	unset($arParams["UPLOAD_FILE"]);
@@ -42,7 +43,7 @@ if (is_array($arParams["PROPERTIES"]))
 			{
 				if (array_key_exists("TAG", $val["USER_TYPE"]) )
 				{
-					$arParams["PARSER"][$val["USER_TYPE_ID"]] = $val["USER_TYPE"]["TAG"];
+					$arParams["PARSER"][] = [$val["USER_TYPE_ID"] => $val["USER_TYPE"]["TAG"]];
 				}
 
 				if ($val["USER_TYPE_ID"] == "file")
@@ -70,12 +71,23 @@ foreach ($arParams["UPLOADS"] as $v)
 	if (in_array($v["USER_TYPE_ID"], array("file", "webdav_element", "disk_file")))
 	{
 		$additionalParameters = [
-			"arUserField" => $v,
-			"DISABLE_CREATING_FILE_BY_CLOUD" => (isset($arParams["DISABLE_CREATING_FILE_BY_CLOUD"]) ? $arParams["DISABLE_CREATING_FILE_BY_CLOUD"] : $v["DISABLE_CREATING_FILE_BY_CLOUD"]),
-			"DISABLE_LOCAL_EDIT" => (isset($arParams["DISABLE_LOCAL_EDIT"]) ? $arParams["DISABLE_LOCAL_EDIT"] : $v["DISABLE_LOCAL_EDIT"]),
-			"HIDE_CHECKBOX_ALLOW_EDIT" => (isset($arParams["HIDE_CHECKBOX_ALLOW_EDIT"]) ? $arParams["HIDE_CHECKBOX_ALLOW_EDIT"] : $v["HIDE_CHECKBOX_ALLOW_EDIT"]),
+			'arUserField' => $v,
+			'DISABLE_CREATING_FILE_BY_CLOUD' => $arParams['DISABLE_CREATING_FILE_BY_CLOUD'] ?? $v['DISABLE_CREATING_FILE_BY_CLOUD'],
+			'DISABLE_LOCAL_EDIT' => $arParams['DISABLE_LOCAL_EDIT'] ?? $v['DISABLE_LOCAL_EDIT'],
+			'HIDE_CHECKBOX_ALLOW_EDIT' => $arParams['HIDE_CHECKBOX_ALLOW_EDIT'] ?? $v['HIDE_CHECKBOX_ALLOW_EDIT'],
 		];
-		if ($v['USER_TYPE_ID'] === 'file')
+		if ($v['USER_TYPE_ID'] === 'disk_file'
+			&& isset($v['USER_TYPE'])
+			&& isset($v['USER_TYPE']['TAG'])
+			&& isset($v['USER_TYPE']['REGEXP'])
+		)
+		{
+			$additionalParameters['PARSER_PARAMS'] = [
+				'TAG' => $v['USER_TYPE']['TAG'],
+				'REGEXP' => $v['USER_TYPE']['REGEXP'],
+			];
+		}
+		elseif ($v['USER_TYPE_ID'] === 'file')
 		{
 			$additionalParameters['mode'] = 'main.drag_n_drop';
 		}
@@ -91,6 +103,7 @@ foreach ($arParams["UPLOADS"] as $v)
 			"value" => ($v["USER_TYPE_ID"] == "file" ? $v["VALUE"] : array()),
 			"postfix" => $v["POSTFIX"]
 		);
+		$arParams['BUTTONS'][] = 'UploadFile';
 	}
 	else if (!empty($v["INPUT_NAME"]))
 	{

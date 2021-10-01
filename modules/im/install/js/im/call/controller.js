@@ -84,6 +84,8 @@
 		this._onCallFailureHandler = this._onCallFailure.bind(this);
 		this._onNetworkProblemHandler = this._onNetworkProblem.bind(this);
 		this._onMicrophoneLevelHandler = this._onMicrophoneLevel.bind(this);
+		this._onReconnectingHandler = this._onReconnecting.bind(this);
+		this._onReconnectedHandler = this._onReconnected.bind(this);
 		this._onCallLeaveHandler = this._onCallLeave.bind(this);
 		this._onCallJoinHandler = this._onCallJoin.bind(this);
 
@@ -406,6 +408,8 @@
 			this.currentCall.addEventListener(BX.Call.Event.onCallFailure, this._onCallFailureHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onNetworkProblem, this._onNetworkProblemHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onMicrophoneLevel, this._onMicrophoneLevelHandler);
+			this.currentCall.addEventListener(BX.Call.Event.onReconnecting, this._onReconnectingHandler);
+			this.currentCall.addEventListener(BX.Call.Event.onReconnected, this._onReconnectedHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onJoin, this._onCallJoinHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onLeave, this._onCallLeaveHandler);
 		},
@@ -430,6 +434,8 @@
 			this.currentCall.removeEventListener(BX.Call.Event.onCallFailure, this._onCallFailureHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onNetworkProblem, this._onNetworkProblemHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onMicrophoneLevel, this._onMicrophoneLevelHandler);
+			this.currentCall.removeEventListener(BX.Call.Event.onReconnecting, this._onReconnectingHandler);
+			this.currentCall.removeEventListener(BX.Call.Event.onReconnected, this._onReconnectedHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onJoin, this._onCallJoinHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onLeave, this._onCallLeaveHandler);
 		},
@@ -446,6 +452,7 @@
 			this.callView.setCallback(BX.Call.View.Event.onSetCentralUser, this._onCallViewSetCentralUser.bind(this));
 			this.callView.setCallback(BX.Call.View.Event.onChangeHdVideo, this._onCallViewChangeHdVideo.bind(this));
 			this.callView.setCallback(BX.Call.View.Event.onChangeMicAutoParams, this._onCallViewChangeMicAutoParams.bind(this));
+			this.callView.setCallback(BX.Call.View.Event.onChangeFaceImprove, this._onCallViewChangeFaceImprove.bind(this));
 			this.callView.setCallback(BX.Call.View.Event.onReplaceSpeaker, this._onCallViewReplaceSpeaker.bind(this));
 		},
 
@@ -1447,6 +1454,7 @@
 			{
 				this.floatingScreenShareWindow.close();
 			}
+			this._closeReconnectionBaloon();
 		},
 
 		_onCallViewDestroy: function (e)
@@ -1561,6 +1569,15 @@
 			return result;
 		},
 
+		_closeReconnectionBaloon: function()
+		{
+			if (this.reconnectionBaloon)
+			{
+				this.reconnectionBaloon.close();
+				this.reconnectionBaloon = null;
+			}
+		},
+
 		_onCallViewInviteUserButtonClick: function (e)
 		{
 			if (this.invitePopup)
@@ -1628,9 +1645,10 @@
 
 				if (this.canRecord())
 				{
-					if (event.forceRecord !== BX.Call.View.RecordType.None)
+					var forceRecord = BX.prop.getBoolean(event, "forceRecord", BX.Call.View.RecordType.None);
+					if (forceRecord !== BX.Call.View.RecordType.None)
 					{
-						this._startRecordCall(event.forceRecord);
+						this._startRecordCall(forceRecord);
 					}
 					else if (BX.desktop && BX.desktop.enableInVersion(55))
 					{
@@ -1823,6 +1841,16 @@
 			BX.Call.Hardware.enableMicAutoParameters = e.allowMicAutoParams;
 		},
 
+		_onCallViewChangeFaceImprove: function (e)
+		{
+			if (typeof (BX.desktop) === 'undefined')
+			{
+				return;
+			}
+
+			BX.desktop.cameraSmoothingStatus(e.faceImproveEnabled);
+		},
+
 		_onCallViewSetCentralUser: function (e)
 		{
 			if (e.stream && this.floatingWindow)
@@ -1895,6 +1923,7 @@
 				this.mutePopup.close();
 			}
 			this.allowMutePopup = true;
+			this._closeReconnectionBaloon();
 
 			window.BXIM.messenger.dialogStatusRedraw();
 			window.BXIM.stopRepeatSound('dialtone');
@@ -2346,6 +2375,32 @@
 			}
 		},
 
+		_onReconnecting: function()
+		{
+			// todo: restore after fixing balloon resurrection issue
+			return false;
+
+			if (this.reconnectionBaloon)
+			{
+				return;
+			}
+
+			this.reconnectionBaloon = BX.UI.Notification.Center.notify({
+				content: BX.util.htmlspecialchars(BX.message('IM_CALL_RECONNECTING')),
+				autoHide: false,
+				position: "top-right",
+				closeButton: false,
+			})
+		},
+
+		_onReconnected: function()
+		{
+			// todo: restore after fixing balloon resurrection issue
+			return false;
+
+			this._closeReconnectionBaloon();
+		},
+
 		_onCallJoin: function (e)
 		{
 			if (e.local)
@@ -2459,6 +2514,8 @@
 				this.mutePopup.close();
 			}
 			this.allowMutePopup = true;
+
+			this._closeReconnectionBaloon();
 
 			window.BXIM.messenger.dialogStatusRedraw();
 			window.BXIM.stopRepeatSound('dialtone');

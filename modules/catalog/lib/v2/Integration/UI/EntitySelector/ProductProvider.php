@@ -541,7 +541,10 @@ class ProductProvider extends BaseProvider
 		$skuTreeProperties = null;
 		if ($iblockInfo->getSkuIblockId() === $iblockId)
 		{
-			$skuTreeProperties = array_map('intval', PropertyCatalogFeature::getOfferTreePropertyCodes($iblockId) ?? []);
+			$skuTreeProperties = array_map(
+				'intval',
+				PropertyCatalogFeature::getOfferTreePropertyCodes($iblockId) ?? []
+			);
 			if (!empty($skuTreeProperties))
 			{
 				$propertyIds = array_merge($propertyIds, $skuTreeProperties);

@@ -285,6 +285,14 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
                     index: index
                   });
                 });
+              } else if (action === sale_checkout_const.Pool.action.offer) {
+                item = null; //not refresh
+
+                var _exists = _classPrivateMethodGet(_this6, _hasActionInPool, _hasActionInPool2).call(_this6, index, sale_checkout_const.Pool.action.offer, poolList);
+
+                if (_exists === false) {
+                  item = _classPrivateMethodGet(_this6, _findItemById, _findItemById2).call(_this6, fields.id, items);
+                }
               }
 
               if (main_core.Type.isObject(item)) {
@@ -378,6 +386,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           price: item.discountPrice
         },
         props: item.props,
+        sku: item.sku,
         product: {
           id: item.catalogProduct.id,
           detailPageUrl: item.detailPageUrl,

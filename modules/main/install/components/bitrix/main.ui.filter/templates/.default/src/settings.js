@@ -87,6 +87,11 @@
 		this.classShow = 'main-ui-show';
 		this.classFocus = 'main-ui-focus';
 		this.classPresetField = 'main-ui-filter-preset-field';
+		this.classPopupSearchFieldListItemHidden = 'main-ui-filter-field-list-item-hidden';
+		this.classPopupSearchFieldListItemVisible = 'main-ui-filter-field-list-item-visible';
+		this.classPopupSearchSectionItem = 'main-ui-filter-popup-search-section-input';
+		this.classPopupSearchSectionItemIcon = 'main-ui-filter-popup-search-section-item-icon';
+		this.classPopupSearchSectionItemIconActive = 'main-ui-filter-popup-search-section-item-icon-active';
 		this.numberPostfix = '_numsel';
 		this.datePostfix = '_datesel';
 		this.toPostfix = '_to';

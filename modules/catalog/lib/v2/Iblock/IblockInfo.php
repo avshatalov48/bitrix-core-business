@@ -42,7 +42,10 @@ class IblockInfo
 	// ToDo all these wrappers
 	public function getProductIblockId(): int
 	{
-		return $this->canHaveSku() ? (int)$this->iblock->get('PRODUCT_IBLOCK_ID') : (int)$this->iblock->get('IBLOCK_ID');
+		return
+			$this->canHaveSku()
+				? (int)$this->iblock->get('PRODUCT_IBLOCK_ID')
+				: (int)$this->iblock->get('IBLOCK_ID');
 	}
 
 	public function hasSubscription(): bool

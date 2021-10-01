@@ -13,6 +13,22 @@ use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Data;
 use Bitrix\Main\ORM\Fields;
 
+/**
+ * Class UserAuthCodeTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserAuthCode_Query query()
+ * @method static EO_UserAuthCode_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserAuthCode_Result getById($id)
+ * @method static EO_UserAuthCode_Result getList(array $parameters = array())
+ * @method static EO_UserAuthCode_Entity getEntity()
+ * @method static \Bitrix\Main\Authentication\Internal\EO_UserAuthCode createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Authentication\Internal\EO_UserAuthCode_Collection createCollection()
+ * @method static \Bitrix\Main\Authentication\Internal\EO_UserAuthCode wakeUpObject($row)
+ * @method static \Bitrix\Main\Authentication\Internal\EO_UserAuthCode_Collection wakeUpCollection($rows)
+ */
 class UserAuthCodeTable extends Data\DataManager
 {
 	const TYPE_EMAIL = 'email';

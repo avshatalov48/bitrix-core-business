@@ -17,6 +17,19 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Sale\Internals
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_OrderConverterCrmError_Query query()
+ * @method static EO_OrderConverterCrmError_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_OrderConverterCrmError_Result getById($id)
+ * @method static EO_OrderConverterCrmError_Result getList(array $parameters = array())
+ * @method static EO_OrderConverterCrmError_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_OrderConverterCrmError createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_OrderConverterCrmError_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_OrderConverterCrmError wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_OrderConverterCrmError_Collection wakeUpCollection($rows)
  */
 class OrderConverterCrmErrorTable extends Main\Entity\DataManager
 {

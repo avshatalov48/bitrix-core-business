@@ -15,6 +15,7 @@ use Bitrix\Lists\Security\RightParam;
 use Bitrix\Lists\Security\SectionRight;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
+use Bitrix\Rest\AccessException;
 use Bitrix\Rest\RestException;
 
 Loader::includeModule("rest");
@@ -83,6 +84,11 @@ class RestService extends \IRestService
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
 
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
+
 		$right = new Right($rightParam, new IblockRight($rightParam));
 		$right->checkPermission(IblockRight::EDIT);
 		if ($right->hasErrors())
@@ -106,6 +112,11 @@ class RestService extends \IRestService
 		global $USER;
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
+
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
 
 		$right = new Right($rightParam, new IblockRight($rightParam));
 		$right->checkPermission(IblockRight::READ);
@@ -140,6 +151,11 @@ class RestService extends \IRestService
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
 
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
+
 		$right = new Right($rightParam, new IblockRight($rightParam));
 		$right->checkPermission(IblockRight::EDIT);
 		if ($right->hasErrors())
@@ -171,6 +187,11 @@ class RestService extends \IRestService
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
 
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
+
 		$right = new Right($rightParam, new IblockRight($rightParam));
 		$right->checkPermission(IblockRight::EDIT);
 		if ($right->hasErrors())
@@ -198,6 +219,11 @@ class RestService extends \IRestService
 		$rightParam->setUser($USER);
 		$rightParam->setEntityId($params["IBLOCK_SECTION_ID"]);
 
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
+
 		$right = new Right($rightParam, new SectionRight($rightParam));
 		$right->checkPermission(SectionRight::ADD);
 		if ($right->hasErrors())
@@ -224,6 +250,11 @@ class RestService extends \IRestService
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
 		$rightParam->setEntityId($params["IBLOCK_SECTION_ID"]);
+
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
 
 		$right = new Right($rightParam, new SectionRight($rightParam));
 		$right->checkPermission(SectionRight::READ);
@@ -260,6 +291,11 @@ class RestService extends \IRestService
 		$rightParam->setUser($USER);
 		$rightParam->setEntityId($params["IBLOCK_SECTION_ID"]);
 
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
+
 		$right = new Right($rightParam, new SectionRight($rightParam));
 		$right->checkPermission(SectionRight::EDIT);
 		if ($right->hasErrors())
@@ -293,6 +329,11 @@ class RestService extends \IRestService
 		$rightParam->setUser($USER);
 		$rightParam->setEntityId($params["IBLOCK_SECTION_ID"]);
 
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
+
 		$right = new Right($rightParam, new SectionRight($rightParam));
 		$right->checkPermission(SectionRight::DELETE);
 		if ($right->hasErrors())
@@ -323,6 +364,11 @@ class RestService extends \IRestService
 		global $USER;
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
+
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
 
 		$right = new Right($rightParam, new IblockRight($rightParam));
 		$right->checkPermission(IblockRight::EDIT);
@@ -357,6 +403,11 @@ class RestService extends \IRestService
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
 
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
+
 		$right = new Right($rightParam, new IblockRight($rightParam));
 		$right->checkPermission();
 		if ($right->hasErrors())
@@ -381,6 +432,11 @@ class RestService extends \IRestService
 		global $USER;
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
+
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
 
 		$right = new Right($rightParam, new IblockRight($rightParam));
 		$right->checkPermission(IblockRight::EDIT);
@@ -414,6 +470,11 @@ class RestService extends \IRestService
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
 
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
+
 		$right = new Right($rightParam, new IblockRight($rightParam));
 		$right->checkPermission(IblockRight::EDIT);
 		if ($right->hasErrors())
@@ -441,6 +502,11 @@ class RestService extends \IRestService
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
 
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
+
 		$right = new Right($rightParam, new IblockRight($rightParam));
 		$right->checkPermission(IblockRight::EDIT);
 		if ($right->hasErrors())
@@ -467,6 +533,11 @@ class RestService extends \IRestService
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
 		$rightParam->setEntityId($params["IBLOCK_SECTION_ID"]);
+
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
 
 		$elementRight = new ElementRight($rightParam);
 		$right = new Right($rightParam, $elementRight);
@@ -506,6 +577,11 @@ class RestService extends \IRestService
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
 		$rightParam->setEntityId(Utils::getElementId($param->getParams()));
+
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
 
 		$elementRight = new ElementRight($rightParam);
 		$param->setParam(["CAN_FULL_EDIT" => ($elementRight->canFullEdit() ? "Y" : "N")]);
@@ -550,6 +626,11 @@ class RestService extends \IRestService
 		$rightParam->setUser($USER);
 		$rightParam->setEntityId(Utils::getElementId($param->getParams()));
 
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
+
 		$elementRight = new ElementRight($rightParam);
 		$right = new Right($rightParam, $elementRight);
 		$right->checkPermission(ElementRight::EDIT);
@@ -588,6 +669,11 @@ class RestService extends \IRestService
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
 		$rightParam->setEntityId(Utils::getElementId($param->getParams()));
+
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
 
 		$elementRight = new ElementRight($rightParam);
 		$right = new Right($rightParam, $elementRight);
@@ -633,6 +719,11 @@ class RestService extends \IRestService
 		$rightParam = new RightParam($param);
 		$rightParam->setUser($USER);
 		$rightParam->setEntityId(Utils::getElementId($param->getParams()));
+
+		if (!\CLists::isListFeatureEnabled($rightParam->getIblockTypeId()))
+		{
+			throw new AccessException('Available only on extended plans');
+		}
 
 		$elementRight = new ElementRight($rightParam);
 		$right = new Right($rightParam, $elementRight);
@@ -701,7 +792,7 @@ class RestService extends \IRestService
 				}
 				return $value;
 			},
-			["", "!%", ">=", "><", "!><", ">", "<=", "<", "%", "=", "*"]
+			["", "!%", ">=", "><", "!><", ">", "<=", "<", "%", "=", "*", "!"]
 		);
 	}
 

@@ -10,6 +10,19 @@ use Bitrix\Main\Type\DateTime;
  * Class BlacklistTable
  *
  * @package Bitrix\Main\Mail\Internal
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Blacklist_Query query()
+ * @method static EO_Blacklist_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Blacklist_Result getById($id)
+ * @method static EO_Blacklist_Result getList(array $parameters = array())
+ * @method static EO_Blacklist_Entity getEntity()
+ * @method static \Bitrix\Main\Mail\Internal\EO_Blacklist createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Mail\Internal\EO_Blacklist_Collection createCollection()
+ * @method static \Bitrix\Main\Mail\Internal\EO_Blacklist wakeUpObject($row)
+ * @method static \Bitrix\Main\Mail\Internal\EO_Blacklist_Collection wakeUpCollection($rows)
  */
 class BlacklistTable extends Entity\DataManager
 {

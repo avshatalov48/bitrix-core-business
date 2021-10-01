@@ -46,6 +46,7 @@ class CTextParser
 		"TABLE" => "Y",
 		"CUT_ANCHOR" => "N",
 		"SHORT_ANCHOR" => "N",
+		"TEXT_ANCHOR" => "Y",
 		"ALIGN" => "Y",
 		"USERFIELDS" => "N",
 		"USER" => "Y",
@@ -383,22 +384,25 @@ class CTextParser
 
 			$text = preg_replace_callback($patt, array($this, "preconvertAnchor"), $text);
 
-			$patt = array();
-			if (mb_strpos($text, "&lt;") !== false)
-				$patt[] = "/(?<=\\&lt\\;)((((".$this->getAnchorSchemes()."):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=\\&gt\\;)/is".BX_UTF_PCRE_MODIFIER;
+			if (($this->allow["TEXT_ANCHOR"] ?? "Y") == "Y")
+			{
+				$patt = array();
+				if (mb_strpos($text, "&lt;") !== false)
+					$patt[] = "/(?<=\\&lt\\;)((((".$this->getAnchorSchemes()."):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=\\&gt\\;)/is".BX_UTF_PCRE_MODIFIER;
 
-			$word_separator = str_replace("?", "", $this->wordSeparator);
-			if (self::strpos($text, "(") !== false)
-				$patt[] = "/(?<=\\()(?<!\\[nomodify\\]|<nomodify>)((((".$this->getAnchorSchemes()."):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=\\))/is".BX_UTF_PCRE_MODIFIER;
-			if (self::strpos($text, "“") !== false)
-				$patt[] = "/(?<=[".self::chr("“")."])(?<!\\[nomodify\\]|<nomodify>)((((".$this->getAnchorSchemes()."):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=[".self::chr("”")."])/is".BX_UTF_PCRE_MODIFIER;
-			if (self::strpos($text, "‘") !== false)
-				$patt[] = "/(?<=[".self::chr("‘")."])(?<!\\[nomodify\\]|<nomodify>)((((".$this->getAnchorSchemes()."):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=[".self::chr("’")."])/is".BX_UTF_PCRE_MODIFIER;
-			if (self::strpos($text, "«") !== false)
-				$patt[] = "/(?<=[".self::chr("«")."])(?<!\\[nomodify\\]|<nomodify>)((((".$this->getAnchorSchemes()."):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=[".self::chr("»")."])/is".BX_UTF_PCRE_MODIFIER;
+				$word_separator = str_replace("?", "", $this->wordSeparator);
+				if (self::strpos($text, "(") !== false)
+					$patt[] = "/(?<=\\()(?<!\\[nomodify\\]|<nomodify>)((((".$this->getAnchorSchemes()."):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=\\))/is".BX_UTF_PCRE_MODIFIER;
+				if (self::strpos($text, "“") !== false)
+					$patt[] = "/(?<=[".self::chr("“")."])(?<!\\[nomodify\\]|<nomodify>)((((".$this->getAnchorSchemes()."):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=[".self::chr("”")."])/is".BX_UTF_PCRE_MODIFIER;
+				if (self::strpos($text, "‘") !== false)
+					$patt[] = "/(?<=[".self::chr("‘")."])(?<!\\[nomodify\\]|<nomodify>)((((".$this->getAnchorSchemes()."):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=[".self::chr("’")."])/is".BX_UTF_PCRE_MODIFIER;
+				if (self::strpos($text, "«") !== false)
+					$patt[] = "/(?<=[".self::chr("«")."])(?<!\\[nomodify\\]|<nomodify>)((((".$this->getAnchorSchemes()."):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=[".self::chr("»")."])/is".BX_UTF_PCRE_MODIFIER;
 
-			$patt[] = "/(?<=^|[".$word_separator."]|\\s)(?<!\\[nomodify\\]|<nomodify>)((((".$this->getAnchorSchemes()."):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=[\\s'\"{}\\[\\]]|&quot;|\$)/is".BX_UTF_PCRE_MODIFIER;
-			$text = preg_replace_callback($patt, array($this, "preconvertUrl"), $text);
+				$patt[] = "/(?<=^|[".$word_separator."]|\\s)(?<!\\[nomodify\\]|<nomodify>)((((".$this->getAnchorSchemes()."):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=[\\s'\"{}\\[\\]]|&quot;|\$)/is".BX_UTF_PCRE_MODIFIER;
+				$text = preg_replace_callback($patt, array($this, "preconvertUrl"), $text);
+			}
 		}
 		else if (!empty($patt))
 		{

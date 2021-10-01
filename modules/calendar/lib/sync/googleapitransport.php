@@ -175,7 +175,7 @@ final class GoogleApiTransport
 	{
 		$this->currentMethod = __METHOD__;
 		$requestBody = Web\Json::encode($patchData, JSON_UNESCAPED_SLASHES);
-		return $this->doRequest(Web\HttpClient::HTTP_PATCH, self::API_BASE_URL . 'calendars/' . $calendarId . '/events/' . $eventId, $requestBody);
+		return $this->doRequest(Web\HttpClient::HTTP_PUT, self::API_BASE_URL . '/calendars/' . $calendarId . '/events/' . $eventId, $requestBody);
 	}
 
 	/**
@@ -293,7 +293,7 @@ final class GoogleApiTransport
 	{
 		if (!is_array($this->errors))
 		{
-			return array();
+			return [];
 		}
 
 		$errorsByCode = array_filter($this->errors, function($error) use ($code)
@@ -305,10 +305,8 @@ final class GoogleApiTransport
 		{
 			return end($errorsByCode);
 		}
-		else
-		{
-			return array();
-		}
+
+		return [];
 	}
 
 	/**

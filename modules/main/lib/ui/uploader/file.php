@@ -1,13 +1,15 @@
 <?php
 namespace Bitrix\Main\UI\Uploader;
+
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Result;
-use \Bitrix\Main\UI\FileInputUtility;
-use \Bitrix\Main\Web\HttpClient;
-use \Bitrix\Main\Web\Uri;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\Application;
+use Bitrix\Main\UI\FileInputUtility;
+use Bitrix\Main\Web;
+use Bitrix\Main\Web\HttpClient;
+use Bitrix\Main\Web\Uri;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Application;
 
 class File
 {
@@ -755,7 +757,7 @@ class File
 		else
 			$attachment_name = $name;
 
-		$content_type = \CFile::NormalizeContentType($content_type);
+		$content_type = Web\MimeType::normalize($content_type);
 
 		$src = null;
 		$file = null;

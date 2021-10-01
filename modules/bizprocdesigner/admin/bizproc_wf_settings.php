@@ -1,5 +1,9 @@
-<?
+<?php
+
 define("NOT_CHECK_FILE_PERMISSIONS", true);
+define("NO_KEEP_STATISTIC", true);
+define("BX_STATISTIC_BUFFER_USED", false);
+
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 \Bitrix\Main\Loader::includeModule('bizproc');
@@ -1080,4 +1084,3 @@ $tabControl->End();
 </form>
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-?>

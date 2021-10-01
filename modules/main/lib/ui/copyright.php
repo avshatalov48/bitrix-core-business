@@ -531,7 +531,7 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 			(new static("FancyBox v3.2.5"))
 				->setProductUrl("http://fancyapps.com/fancybox/")
 				->setCopyright("Copyright 2017 fancyApps")
-				->setLicence(static::LICENCE_COMMERCIAL)
+				->setLicence(static::LICENCE_COMMERCIAL),
 
 			(new static("Simple Line Icons"))
 				->setProductUrl("https://simplelineicons.github.io/")
@@ -564,8 +564,8 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setProductUrl("https://kimmobrunfeldt.github.io/progressbar.js")
 				->setLicence(static::LICENCE_MIT),
 
-			(new static("Vue.js v2.6.12"))
-				->setCopyright("Copyright 2014-2020, Evan You")
+			(new static("Vue.js v2.6.14"))
+				->setCopyright("Copyright 2014-2021, Evan You")
 				->setProductUrl("https://vuejs.org")
 				->setLicence(static::LICENCE_MIT),
 
@@ -648,6 +648,12 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setCopyright("Copyright OpenJS Foundation and other contributors <https://openjsf.org/>")
 				->setProductUrl('https://lodash.com/')
 				->setLicence(static::LICENCE_MIT),
+
+			(new static("SecLists"))
+				->setCopyright("Copyright (c) 2018 Daniel Miessler")
+				->setProductUrl('https://github.com/danielmiessler/SecLists')
+				->setLicence(static::LICENCE_MIT)
+				->setLicenceUrl('https://github.com/danielmiessler/SecLists/blob/master/LICENSE'),
 		];
 	}
 }

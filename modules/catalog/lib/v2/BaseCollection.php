@@ -204,7 +204,7 @@ abstract class BaseCollection implements \IteratorAggregate, \Countable
 
 			if ($entity->isNew())
 			{
-				$result['n'.$counter++] = $fields;
+				$result['n' . $counter++] = $fields;
 			}
 			else
 			{

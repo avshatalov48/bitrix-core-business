@@ -2,35 +2,40 @@
 
 namespace Sale\Handlers\Delivery;
 
-use Bitrix\Main,
-	Bitrix\Main\ArgumentNullException,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Web\HttpClient,
-	Bitrix\Main\Web\Json,
-	Bitrix\Sale,
-	Bitrix\Sale\Delivery\CalculationResult,
-	Bitrix\Sale\Delivery\Services\Base,
-	Bitrix\Sale\Delivery\Services\Manager;
+use Bitrix\Main;
+use Bitrix\Main\ArgumentNullException;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale;
+use Bitrix\Sale\Delivery\CalculationResult;
+use Bitrix\Sale\Delivery\Services\Base;
+use Bitrix\Sale\Delivery\Services\Manager;
+use Sale\Handlers\Delivery\Rest\DataProviders;
+use Sale\Handlers\Delivery\Rest\RequestHandler;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class RestProfile
+ * @package Sale\Handlers\Delivery
+ */
 class RestProfile extends Base
 {
 	/** @var RestHandler Parent service. */
-	protected $restHandler = null;
+	protected $restHandler;
+
 	/** @var string Service type */
 	protected $profileType = '';
 
+	/** @var bool */
 	protected static $whetherAdminExtraServicesShow = true;
 
 	/** @var bool This handler is profile */
 	protected static $isProfile = true;
 
 	/**
+	 * RestProfile constructor.
 	 * @param array $initParams
 	 * @throws ArgumentNullException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\SystemException
 	 */
 	public function __construct(array $initParams)
 	{
@@ -86,19 +91,27 @@ class RestProfile extends Base
 	/**
 	 * @param Sale\Shipment $shipment
 	 * @return CalculationResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	protected function calculateConcrete(Sale\Shipment $shipment): CalculationResult
 	{
 		$result = new CalculationResult;
 
 		$handlerParams = $this->getHandlerParams();
-		$calculateUrl = $handlerParams['SETTINGS']['CALCULATE_URL'];
-		$requestParams = $this->getRequestParams($shipment);
+		if (
+			!isset($handlerParams['SETTINGS']['CALCULATE_URL'])
+			|| !is_array($handlerParams['SETTINGS']['CALCULATE_URL'])
+			|| empty($handlerParams['SETTINGS']['CALCULATE_URL'])
+		)
+		{
+			return $result->addError(new Main\Error('Calculate URL is not specified'));
+		}
 
-		$sendRequestResult = Sale\Helpers\Rest\Http::sendRequest($calculateUrl, $requestParams);
+		$sendRequestResult = Sale\Helpers\Rest\Http::sendRequest(
+			$handlerParams['SETTINGS']['CALCULATE_URL'],
+			[
+				'SHIPMENT' => DataProviders\Shipment::getData($shipment),
+			]
+		);
 		if ($sendRequestResult->isSuccess())
 		{
 			$calculatedData = $sendRequestResult->getData();
@@ -138,120 +151,6 @@ class RestProfile extends Base
 	}
 
 	/**
-	 * @param Sale\Shipment $shipment
-	 * @return array
-	 * @throws ArgumentNullException
-	 * @throws Main\ArgumentException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\ObjectNotFoundException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
-	private function getRequestParams(Sale\Shipment $shipment): array
-	{
-		$basketItems = [];
-		foreach ($shipment->getShipmentItemCollection() as $shipmentItem)
-		{
-			if ($basketItem = $shipmentItem->getBasketItem())
-			{
-				$dimension = $basketItem->getField('DIMENSIONS');
-				if($dimension && is_string($dimension) && \CheckSerializedData($dimension))
-				{
-					$dimension = unserialize($dimension, ['allowed_classes' => false]);
-				}
-
-				$basketItems[] = [
-					'PRICE' => $basketItem->getPrice(),
-					'WEIGHT' => $basketItem->getWeight(),
-					'CURRENCY' => $basketItem->getCurrency(),
-					'QUANTITY' => $shipmentItem->getQuantity(),
-					'DIMENSIONS' => $dimension,
-				];
-			}
-		}
-
-		$extraServiceManager = new Sale\Delivery\ExtraServices\Manager($shipment->getDeliveryId());
-		$extraServiceManager->setOperationCurrency($shipment->getField('CURRENCY'));
-		$extraServiceManager->setValues($shipment->getExtraServices());
-		$extraServiceList = [];
-		foreach ($extraServiceManager->getItems() as $extraService)
-		{
-			$extraServiceList[] = [
-				'CODE' => $extraService->getCode(),
-				'NAME' => $extraService->getName(),
-				'VALUE' => $extraService->getValue(),
-				'PRICE' => $extraService->getPriceShipment(),
-			];
-		}
-
-		$orderProps = [];
-		if ($order = $shipment->getOrder())
-		{
-			$propertyCollection = $order->getPropertyCollection();
-			if (($address = $propertyCollection->getAddress())
-				&& $address->getValue()
-			)
-			{
-				$orderProps['ADDRESS'] = $address->getValue();
-			}
-
-			if (($deliveryLocation = $propertyCollection->getDeliveryLocation())
-				&& $deliveryLocation->getValue()
-			)
-			{
-				$res = Sale\Location\LocationTable::getList(array(
-					'filter' => array(
-						'=CODE' => $deliveryLocation->getValue(),
-						'=PARENTS.NAME.LANGUAGE_ID' => LANGUAGE_ID,
-						'=PARENTS.TYPE.NAME.LANGUAGE_ID' => LANGUAGE_ID,
-					),
-					'select' => array(
-						'LOCATION' => 'PARENTS.NAME.NAME',
-						'TYPE_CODE' => 'PARENTS.TYPE.CODE',
-						'TYPE_NAME' => 'PARENTS.TYPE.NAME.NAME'
-					),
-					'order' => array(
-						'PARENTS.DEPTH_LEVEL' => 'asc'
-					)
-				));
-				while($item = $res->fetch())
-				{
-					$orderProps['DELIVERY_LOCATION'][] = $item;
-				}
-			}
-
-			if (($deliveryLocationZip = $propertyCollection->getDeliveryLocationZip())
-				&& $deliveryLocationZip->getValue()
-			)
-			{
-				$orderProps['DELIVERY_LOCATION_ZIP'] = $deliveryLocationZip->getValue();
-			}
-		}
-
-		$deliverConfig = [];
-		$delivery = Sale\Delivery\Services\Manager::getObjectById($shipment->getDeliveryId());
-		if ($delivery)
-		{
-			$deliverConfig['PROFILE_CONFIG'] = $delivery->getConfigValues();
-			$parentDelivery = $delivery->getParentService();
-			if ($parentDelivery)
-			{
-				$deliverConfig['PARENT_CONFIG'] = $parentDelivery->getConfigValues();
-			}
-		}
-
-		return [
-			'PRICE' => $shipment->getShipmentItemCollection()->getPrice(),
-			'CURRENCY' => $shipment->getCurrency(),
-			'WEIGHT' => $shipment->getWeight(),
-			'BASKET_ITEMS' => $basketItems,
-			'EXTRA_SERVICES' => $extraServiceList,
-			'ORDER_PROPS' => $orderProps,
-			'DELIVERY_CONFIG' => $deliverConfig,
-		];
-	}
-
-	/**
 	 * @return mixed|string
 	 */
 	private function getProfileType()
@@ -261,9 +160,6 @@ class RestProfile extends Base
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	private function getProfileParams()
 	{
@@ -275,9 +171,6 @@ class RestProfile extends Base
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	private function getHandlerParams()
 	{
@@ -297,13 +190,11 @@ class RestProfile extends Base
 
 	/**
 	 * @return array Handler's configuration
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	protected function getConfigStructure(): array
 	{
 		$result = [];
+
 		$configParams = $this->getProfileParams();
 
 		if (!empty($configParams['CONFIG']))
@@ -351,5 +242,62 @@ class RestProfile extends Base
 	public static function whetherAdminExtraServicesShow(): bool
 	{
 		return self::$whetherAdminExtraServicesShow;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getDeliveryRequestHandler()
+	{
+		$handlerParams = $this->getHandlerParams();
+
+		if (
+			!isset($handlerParams['SETTINGS']['CREATE_DELIVERY_REQUEST_URL'])
+			|| !is_string($handlerParams['SETTINGS']['CREATE_DELIVERY_REQUEST_URL'])
+			|| empty($handlerParams['SETTINGS']['CREATE_DELIVERY_REQUEST_URL'])
+		)
+		{
+			return null;
+		}
+
+		$handler = (new RequestHandler($this))
+			->setCreateRequestUrl($handlerParams['SETTINGS']['CREATE_DELIVERY_REQUEST_URL']);
+
+		if (
+			isset($handlerParams['SETTINGS']['CANCEL_DELIVERY_REQUEST_URL'])
+			&& is_string($handlerParams['SETTINGS']['CANCEL_DELIVERY_REQUEST_URL'])
+			&& !empty($handlerParams['SETTINGS']['CANCEL_DELIVERY_REQUEST_URL'])
+		)
+		{
+			$handler->setCancelRequestUrl($handlerParams['SETTINGS']['CANCEL_DELIVERY_REQUEST_URL']);
+		}
+
+		if (
+			isset($handlerParams['SETTINGS']['CANCEL_ACTION_NAME'])
+			&& is_string($handlerParams['SETTINGS']['CANCEL_ACTION_NAME'])
+			&& !empty($handlerParams['SETTINGS']['CANCEL_ACTION_NAME'])
+		)
+		{
+			$handler->setCancelActionName($handlerParams['SETTINGS']['CANCEL_ACTION_NAME']);
+		}
+
+		if (
+			isset($handlerParams['SETTINGS']['DELETE_DELIVERY_REQUEST_URL'])
+			&& is_string($handlerParams['SETTINGS']['DELETE_DELIVERY_REQUEST_URL'])
+			&& !empty($handlerParams['SETTINGS']['DELETE_DELIVERY_REQUEST_URL'])
+		)
+		{
+			$handler->setDeleteRequestUrl($handlerParams['SETTINGS']['DELETE_DELIVERY_REQUEST_URL']);
+		}
+
+		if (
+			isset($handlerParams['SETTINGS']['HAS_CALLBACK_TRACKING_SUPPORT'])
+			&& $handlerParams['SETTINGS']['HAS_CALLBACK_TRACKING_SUPPORT'] === 'Y'
+		)
+		{
+			$handler->setHasCallbackTrackingSupport(true);
+		}
+
+		return $handler;
 	}
 }

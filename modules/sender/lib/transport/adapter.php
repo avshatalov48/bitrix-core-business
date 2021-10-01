@@ -9,6 +9,8 @@
 namespace Bitrix\Sender\Transport;
 
 use Bitrix\Main\ArgumentException;
+use Bitrix\Sender\Consent\AbstractConsentMessageBuilder;
+use Bitrix\Sender\Consent\ConsentMessageBuilderFactory as ConsentFactory;
 use Bitrix\Sender\Message;
 
 /**
@@ -151,7 +153,14 @@ class Adapter implements iBase, iLimitation
 	{
 		$this->transport->saveConfiguration($configuration);
 	}
-
+	public function getConsentMaxRequests()
+	{
+		if($this->isConsentSupported())
+		{
+			return $this->transport->getConsentMaxRequests();
+		}
+		return null;
+	}
 	/**
 	 * Start.
 	 */
@@ -192,7 +201,6 @@ class Adapter implements iBase, iLimitation
 		\Bitrix\Sender\Log::stat('item_sent', $message->getId(), $result ? 'Y' : 'N');
 		return $result;
 	}
-
 	/**
 	 * End.
 	 */
@@ -231,6 +239,68 @@ class Adapter implements iBase, iLimitation
 		return $this->transport->getDuration($message);
 	}
 
+	/**
+	 * check if consent supported by transport and check is consent need
+	 * @return bool
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 */
+	public function isConsentAvailable()
+	{
+		return $this->isConsentSupported();
+	}
+
+	/**
+	 * check if consent messaging supported by this transport
+	 * @return bool
+	 */
+	public function isConsentSupported()
+	{
+		return 	$this->transport instanceof iConsent;
+	}
+
+	/**
+	 * Send consent message to contact
+	 *
+	 * @param array $data
+	 *
+	 * @return bool|null
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 */
+	public function sendConsent($message, $data) : ?bool
+	{
+		if(!$this->isConsentAvailable())
+		{
+			return false;
+		}
+
+		$builder = ConsentFactory::getConsentBuilder($this->transport::CODE)->setFields($data);
+		return $this->sendConsentByBuilder($message, $builder);
+	}
+
+	/**
+	 * Send Test Consent Message
+	 * @param $data
+	 *
+	 * @return bool
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 */
+	public function sendTestConsent($message, $data): bool
+	{
+		if(!$this->isConsentSupported())
+		{
+			return false;
+		}
+		$builder = ConsentFactory::getTestMessageConsentBuilder($this->transport::CODE)->setFields($data);
+		return $this->sendConsentByBuilder($message, $builder);
+	}
+
+	protected function sendConsentByBuilder(Message\Adapter $message,  AbstractConsentMessageBuilder $builder): bool
+	{
+		return $builder? $this->transport->sendConsent($message, $builder) : false;
+	}
 	/**
 	 * Has limiters.
 	 *

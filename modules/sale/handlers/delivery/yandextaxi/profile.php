@@ -4,26 +4,25 @@ namespace Sale\Handlers\Delivery;
 
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Sale\Delivery\Services\Crm\ICrmActivityProvider;
-use Bitrix\Sale\Delivery\Services\Crm\ICrmEstimationMessageProvider;
+use Bitrix\Sale\Delivery\Services\Base;
 use Bitrix\Sale\Delivery\Services\Manager;
-use Bitrix\Sale\Delivery\Services\Taxi\CancellationRequestResult;
-use Bitrix\Sale\Delivery\Services\Taxi\CreationExternalRequestResult;
-use Bitrix\Sale\Delivery\Services\Taxi\Taxi;
 use Bitrix\Sale\Shipment;
-use Bitrix\Sale\Delivery\Services\Crm\Activity;
-use Bitrix\Sale\Delivery\Services\Crm\EstimationMessage;
 use Sale\Handlers\Delivery\YandexTaxi\Common\OrderEntitiesCodeDictionary;
 use Sale\Handlers\Delivery\YandexTaxi\RateCalculator;
 use Sale\Handlers\Delivery\YandexTaxi\ServiceContainer;
 use Sale\Handlers\Delivery\YandexTaxi\TariffsChecker;
+use Sale\Handlers\Delivery\YandexTaxi\RequestHandler;
 
 /**
  * Class YandextaxiProfile
  * @package Sale\Handlers\Delivery
  */
-final class YandextaxiProfile extends Taxi implements ICrmActivityProvider, ICrmEstimationMessageProvider
+final class YandextaxiProfile extends Base
 {
+	private const PROFILE_COURIER = 'courier';
+	private const PROFILE_EXPRESS = 'express';
+	private const PROFILE_CARGO = 'cargo';
+
 	/** @var YandextaxiHandler */
 	protected $yandextaxiHandler;
 
@@ -121,38 +120,6 @@ final class YandextaxiProfile extends Taxi implements ICrmActivityProvider, ICrm
 	/**
 	 * @inheritdoc
 	 */
-	protected function createTaxiExternalRequest(Shipment $shipment): CreationExternalRequestResult
-	{
-		return $this->yandextaxiHandler->createTaxiExternalRequest($shipment);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	protected function cancelTaxiExternalRequest(string $externalRequestId): CancellationRequestResult
-	{
-		return $this->yandextaxiHandler->cancelTaxiExternalRequest($externalRequestId);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function provideCrmActivity(\Bitrix\Crm\Order\Shipment $shipment): Activity
-	{
-		return $this->yandextaxiHandler->provideCrmActivity($shipment);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function provideCrmEstimationMessage(\Bitrix\Crm\Order\Shipment $shipment): EstimationMessage
-	{
-		return $this->yandextaxiHandler->provideCrmEstimationMessage($shipment);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
 	public function getParentService()
 	{
 		return $this->yandextaxiHandler;
@@ -202,5 +169,23 @@ final class YandextaxiProfile extends Taxi implements ICrmActivityProvider, ICrm
 			),
 			'ID'
 		);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getDeliveryRequestHandler()
+	{
+		return new RequestHandler($this);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getTags(): array
+	{
+		return $this->profileType === self::PROFILE_COURIER
+			? [static::TAG_PROFITABLE]
+			: [];
 	}
 }

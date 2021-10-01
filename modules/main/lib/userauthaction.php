@@ -9,6 +9,22 @@ namespace Bitrix\Main;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class UserAuthActionTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserAuthAction_Query query()
+ * @method static EO_UserAuthAction_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserAuthAction_Result getById($id)
+ * @method static EO_UserAuthAction_Result getList(array $parameters = array())
+ * @method static EO_UserAuthAction_Entity getEntity()
+ * @method static \Bitrix\Main\EO_UserAuthAction createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EO_UserAuthAction_Collection createCollection()
+ * @method static \Bitrix\Main\EO_UserAuthAction wakeUpObject($row)
+ * @method static \Bitrix\Main\EO_UserAuthAction_Collection wakeUpCollection($rows)
+ */
 class UserAuthActionTable extends Entity\DataManager
 {
 	const PRIORITY_HIGH = 100;

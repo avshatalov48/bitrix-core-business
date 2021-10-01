@@ -272,18 +272,6 @@ namespace Bitrix\MessageService\Internal\Entity {
 }
 namespace Bitrix\MessageService\Internal\Entity {
 	/**
-	 * @method static EO_Message_Query query()
-	 * @method static EO_Message_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Message_Result getById($id)
-	 * @method static EO_Message_Result getList(array $parameters = array())
-	 * @method static EO_Message_Entity getEntity()
-	 * @method static \Bitrix\MessageService\Internal\Entity\EO_Message createObject($setDefaultValues = true)
-	 * @method static \Bitrix\MessageService\Internal\Entity\EO_Message_Collection createCollection()
-	 * @method static \Bitrix\MessageService\Internal\Entity\EO_Message wakeUpObject($row)
-	 * @method static \Bitrix\MessageService\Internal\Entity\EO_Message_Collection wakeUpCollection($rows)
-	 */
-	class MessageTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -485,18 +473,6 @@ namespace Bitrix\MessageService\Internal\Entity {
 }
 namespace Bitrix\MessageService\Internal\Entity {
 	/**
-	 * @method static EO_RestApp_Query query()
-	 * @method static EO_RestApp_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_RestApp_Result getById($id)
-	 * @method static EO_RestApp_Result getList(array $parameters = array())
-	 * @method static EO_RestApp_Entity getEntity()
-	 * @method static \Bitrix\MessageService\Internal\Entity\EO_RestApp createObject($setDefaultValues = true)
-	 * @method static \Bitrix\MessageService\Internal\Entity\EO_RestApp_Collection createCollection()
-	 * @method static \Bitrix\MessageService\Internal\Entity\EO_RestApp wakeUpObject($row)
-	 * @method static \Bitrix\MessageService\Internal\Entity\EO_RestApp_Collection wakeUpCollection($rows)
-	 */
-	class RestAppTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -672,18 +648,6 @@ namespace Bitrix\MessageService\Internal\Entity {
 	}
 }
 namespace Bitrix\MessageService\Internal\Entity {
-	/**
-	 * @method static EO_RestAppLang_Query query()
-	 * @method static EO_RestAppLang_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_RestAppLang_Result getById($id)
-	 * @method static EO_RestAppLang_Result getList(array $parameters = array())
-	 * @method static EO_RestAppLang_Entity getEntity()
-	 * @method static \Bitrix\MessageService\Internal\Entity\EO_RestAppLang createObject($setDefaultValues = true)
-	 * @method static \Bitrix\MessageService\Internal\Entity\EO_RestAppLang_Collection createCollection()
-	 * @method static \Bitrix\MessageService\Internal\Entity\EO_RestAppLang wakeUpObject($row)
-	 * @method static \Bitrix\MessageService\Internal\Entity\EO_RestAppLang_Collection wakeUpCollection($rows)
-	 */
-	class RestAppLangTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

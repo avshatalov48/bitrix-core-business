@@ -6,6 +6,12 @@ IncludeModuleLangFile(__DIR__.'\\store_docs.php');
 
 abstract class CCatalogDocsTypes
 {
+	public const TYPE_ARRIVAL = 'A';
+	public const TYPE_MOVING = 'M';
+	public const TYPE_RETURN = 'R';
+	public const TYPE_DEDUCT = 'D';
+	public const TYPE_UNDO_RESERVE = 'U';
+
 	protected static $clearAutoCache = array();
 
 	/** The method of conducting a document, distributes products to warehouses, according to the document type.

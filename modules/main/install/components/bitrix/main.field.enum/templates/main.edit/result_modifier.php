@@ -1,49 +1,32 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\UserField\Types\EnumType;
-use Bitrix\Main\Web\Json;
 use Bitrix\Main\Page\Asset;
+
+/**
+ * @var $arResult array
+ */
 
 $fieldName = $arResult['fieldName'];
 $value = $arResult['value'];
 
 $arResult['isEnabled'] = ($arResult['userField']['EDIT_IN_LIST'] === 'Y');
+$isMultiple = $this->getComponent()->isMultiple();
+$arResult['isMultiple'] = $isMultiple;
 $isMobileMode = $this->getComponent()->isMobileMode();
 
 if($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI && !$isMobileMode)
 {
-	$value = $arResult['value'];
-
 	\CJSCore::Init('ui');
 
-	$startValue = [];
-	$itemList = [];
-
-	foreach($arResult['userField']['USER_TYPE']['~FIELDS'] as $key => $val)
-	{
-		if($key === '' && $arResult['userField']['MULTIPLE'] === 'Y')
-		{
-			continue;
-		}
-
-		$item = [
-			'NAME' => $val,
-			'VALUE' => $key,
-		];
-
-		if(in_array($key, $value))
-		{
-			$startValue[] = $item;
-		}
-
-		$itemList[] = $item;
-	}
-
 	$arResult['params'] = [
-		'isMulti' => ($arResult['userField']['MULTIPLE'] === 'Y'),
-		'fieldName' => $arResult['fieldName']
+		'isMulti' => $isMultiple,
+		'fieldName' => $arResult['fieldName'],
 	];
 
 	$arResult['valueContainerId'] = $arResult['fieldName'] . '_value_';
@@ -55,38 +38,39 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI && !$i
 
 	$arResult['controlNodeId'] = $arResult['userField']['FIELD_NAME'] . '_control_';
 
+	$arResult['items'] = $this->getComponent()->getItems();
+
 	$arResult['attrList'] = [];
+	$i = 0;
 
-	for($i = 0, $n = count($startValue); $i < $n; $i++)
+	$arResult['selectedItems'] = [];
+	foreach($arResult['items'] as $item)
 	{
-		$attrList = [
-			'type' => 'hidden',
-			'name' => $arResult['fieldName'],
-			'value' => $startValue[$i]['VALUE'],
-		];
+		if ($item['IS_SELECTED'])
+		{
+			$arResult['selectedItems'][] = $item;
 
-		$arResult['attrList'][] = $attrList;
+			$attrList = [
+				'type' => 'hidden',
+				'name' => $fieldName,
+				'value' => $item['VALUE'],
+			];
+
+			$arResult['attrList'][] = $attrList;
+		}
 	}
 
-	if($arResult['userField']['MULTIPLE'] !== 'Y')
+	if (!$isMultiple && count($arResult['selectedItems']))
 	{
-		$startValue = $startValue[0];
+		$arResult['selectedItems'] = array_shift($arResult['selectedItems']);
 	}
-
-	$arResult['items'] = $itemList;
-	$arResult['currentValue'] = $startValue;
-
-	$block = (
-	$arResult['userField']['MULTIPLE'] === 'Y'
-		? 'main-ui-multi-select'
-		: 'main-ui-select'
-	);
+	$block = ($isMultiple ? 'main-ui-multi-select' : 'main-ui-select');
 
 	$arResult['block'] = $block;
-	$arResult['fieldNameJs'] = \CUtil::JSEscape($arResult['fieldName']);
+	$arResult['fieldNameJs'] = \CUtil::JSEscape($fieldName);
 
 	Asset::getInstance()->addJs(
-		'/bitrix/components/bitrix/main.field.enum/templates/main.edit/desktop.js'
+		'/bitrix/components/bitrix/main.field.enum/templates/main.edit/dist/display.bundle.js'
 	);
 }
 elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_LIST && !$isMobileMode)
@@ -101,12 +85,22 @@ elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_LIST 
 		$attrList['size'] = (int)$arResult['userField']['SETTINGS']['LIST_HEIGHT'];
 	}
 
-	if($arResult['userField']['MULTIPLE'] === 'Y')
+	if($isMultiple)
 	{
 		$attrList['multiple'] = 'multiple';
 	}
 
 	$arResult['attrList'] = $attrList;
+}
+elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_DIALOG && !$isMobileMode)
+{
+	$arResult['targetNodeId'] = $fieldName . '_value';
+	$arResult['fieldName'] = \CUtil::JSEscape($fieldName);
+	$arResult['items'] = $this->getComponent()->getItems(true);
+
+	Asset::getInstance()->addJs(
+		'/bitrix/components/bitrix/main.field.enum/templates/main.edit/dist/display.bundle.js'
+	);
 }
 
 if($this->getComponent()->isMobileMode())

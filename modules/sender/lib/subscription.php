@@ -16,6 +16,7 @@ use Bitrix\Main\EventResult;
 use Bitrix\Sender\Internals\Model\AbuseTable;
 use Bitrix\Sender\Recipient;
 use Bitrix\Sender\Integration;
+use Bitrix\Sender\Runtime\Env;
 
 class Subscription
 {
@@ -679,14 +680,16 @@ class Subscription
 	public static function isUnsubscibed($mailingId, $code, $typeId = Recipient\Type::EMAIL)
 	{
 		$code = Recipient\Normalizer::normalize($code, $typeId);
-		$unSubDb = MailingSubscriptionTable::getUnSubscriptionList(array(
+		$filter = [
+			'=MAILING_ID' => $mailingId,
+			'=CONTACT.CODE' => $code,
+			'=CONTACT.TYPE_ID' => $typeId,
+			'=IS_UNSUB' => 'Y'
+		];
+		$unSubDb = MailingSubscriptionTable::getList([
 			'select' => array('MAILING_ID'),
-			'filter' => array(
-				'=MAILING_ID' => $mailingId,
-				'=CONTACT.CODE' => $code,
-				'=CONTACT.TYPE_ID' => $typeId,
-			)
-		));
+			'filter' => $filter,
+		]);
 		if($unSubDb->fetch())
 		{
 			return true;

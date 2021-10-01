@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\CommentAux;
 
 use Bitrix\Disk\Configuration;
@@ -10,24 +11,24 @@ Loc::loadMessages(__FILE__);
 
 final class FileVersion extends Base
 {
-	const TYPE = 'FILEVERSION';
-	const POST_TEXT = 'commentAuxFileVersion';
+	public const TYPE = 'FILEVERSION';
+	public const POST_TEXT = 'commentAuxFileVersion';
 
-	public function getParamsFromFields($fields = array())
+	public function getParamsFromFields($fields = []): array
 	{
-		$params = array();
+		$params = [];
 
 		if (!empty($fields['AUTHOR_ID']))
 		{
-			$params['userId'] = intval($fields['AUTHOR_ID']);
+			$params['userId'] = (int)$fields['AUTHOR_ID'];
 		}
 
 		return $params;
 	}
 
-	public function getText()
+	public function getText(): string
 	{
-		static $userCache = array();
+		static $userCache = [];
 
 		$params = $this->params;
 
@@ -35,25 +36,21 @@ final class FileVersion extends Base
 
 		if (
 			!empty($params['userId'])
-			&& intval($params['userId']) > 0
+			&& (int)$params['userId'] > 0
 		)
 		{
-			if (
-				isset($userCache[intval($params['userId'])])
-				&& is_array($userCache[intval($params['userId'])])
-				&& isset($userCache[intval($params['userId'])]['PERSONAL_GENDER'])
-			)
+			if (isset($userCache[(int)$params['userId']]['PERSONAL_GENDER']))
 			{
-				$gender = $userCache[intval($params['userId'])]['PERSONAL_GENDER'];
+				$gender = $userCache[(int)$params['userId']]['PERSONAL_GENDER'];
 			}
 			else
 			{
-				$res = UserTable::getList(array(
-					'filter' => array(
-						'=ID' => intval($params['userId'])
-					),
-					'select' => array('ID', 'PERSONAL_GENDER')
-				));
+				$res = UserTable::getList([
+					'filter' => [
+						'=ID' => (int)$params['userId'],
+					],
+					'select' => [ 'ID', 'PERSONAL_GENDER' ],
+				]);
 
 				if ($user = $res->fetch())
 				{
@@ -63,72 +60,25 @@ final class FileVersion extends Base
 			}
 		}
 
-		if(Loader::includeModule('disk') && !Configuration::isEnabledKeepVersion())
+		if (Loader::includeModule('disk') && !Configuration::isEnabledKeepVersion())
 		{
-			return Loc::getMessage('SONET_COMMENTAUX_HEAD_FILEVERSION_TEXT'.(!empty($gender) ? '_'.$gender : ''));
+			return Loc::getMessage('SONET_COMMENTAUX_HEAD_FILEVERSION_TEXT' . (!empty($gender) ? '_' . $gender : ''));
 		}
 
-		return Loc::getMessage('SONET_COMMENTAUX_FILEVERSION_TEXT'.(!empty($gender) ? '_'.$gender : ''));
+		return Loc::getMessage('SONET_COMMENTAUX_FILEVERSION_TEXT' . (!empty($gender) ? '_' . $gender : ''));
 	}
 
-	public function sendRatingNotification($fields = array(), $ratingVoteParams = array())
+	protected function getRatingNotificationFollowValue(int $userId = 0, array $ratingVoteParams = [], array $fields = [])
 	{
-		$userId = (
-			is_array($ratingVoteParams)
-			&& isset($ratingVoteParams['OWNER_ID'])
-				? intval($ratingVoteParams['OWNER_ID'])
-				: 0
+		return \CSocNetLogFollow::getExactValueByRating(
+			$userId,
+			'BLOG_COMMENT',
+			$fields['ID']
 		);
-
-		if (
-			$userId > 0
-			&& is_array($fields)
-			&& Loader::includeModule('im')
-		)
-		{
-			$params = $this->getParamsFromFields($fields);
-			if (!empty($params))
-			{
-				$this->setParams($params);
-
-				$followValue = \CSocNetLogFollow::getExactValueByRating(
-					$userId,
-					'BLOG_COMMENT',
-					$fields['ID']
-				);
-
-				if ($followValue != "N")
-				{
-					$ratingVoteParams['ENTITY_LINK'] = $this->getRatingCommentLink(array(
-						'commentId' => $fields['ID'],
-						'commentAuthorId' => $ratingVoteParams['OWNER_ID'],
-						'ratingEntityTypeId' => $ratingVoteParams['ENTITY_TYPE_ID'],
-						'ratingEntityId' => $ratingVoteParams['ENTITY_ID']
-					));
-
-					$ratingVoteParams["ENTITY_PARAM"] = 'COMMENT';
-					$ratingVoteParams["ENTITY_MESSAGE"] = $this->getText();
-
-					$messageFields = array(
-						"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
-						"TO_USER_ID" => $userId,
-						"FROM_USER_ID" => intval($ratingVoteParams['USER_ID']),
-						"NOTIFY_TYPE" => IM_NOTIFY_FROM,
-						"NOTIFY_MODULE" => "main",
-						"NOTIFY_EVENT" => "rating_vote",
-						"NOTIFY_TAG" => "RATING|".($ratingVoteParams['VALUE'] >= 0 ? "" : "DL|")."BLOG_COMMENT|".$fields['ID'],
-						"NOTIFY_MESSAGE" => \CIMEvent::getMessageRatingVote($ratingVoteParams),
-						"NOTIFY_MESSAGE_OUT" => \CIMEvent::getMessageRatingVote($ratingVoteParams, true)
-					);
-
-					\CIMNotify::add($messageFields);
-				}
-			}
-		}
 	}
 
-	public function checkRecalcNeeded($fields, $params)
+	protected function getRatingNotificationNotigyTag(array $ratingVoteParams = [], array $fields = []): string
 	{
-		return false;
+		return 'RATING|' . ($ratingVoteParams['VALUE'] >= 0 ? '' : 'DL|') . 'BLOG_COMMENT|' . $fields['ID'];
 	}
 }

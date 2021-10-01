@@ -197,7 +197,10 @@ class UserDataProvider extends EntityDataProvider
 				'items' => $countriesList
 			];
 		}
-		elseif ($fieldID === 'DEPARTMENT')
+		elseif (
+			$fieldID === 'DEPARTMENT'
+			|| $fieldID === 'DEPARTMENT_FLAT'
+		)
 		{
 			return [
 				'params' => [
@@ -206,7 +209,7 @@ class UserDataProvider extends EntityDataProvider
 					'multiple' => 'N',
 					'contextCode' => 'DR',
 					'enableDepartments' => 'Y',
-					'departmentFlatEnable' => 'Y',
+					'departmentFlatEnable' => ($fieldID === 'DEPARTMENT_FLAT' ? 'Y' : 'N'),
 					'enableAll' => 'N',
 					'enableUsers' => 'N',
 					'enableSonetgroups' => 'N',
@@ -214,7 +217,6 @@ class UserDataProvider extends EntityDataProvider
 					'allowSearchEmailUsers' => 'N',
 					'departmentSelectDisable' => 'N',
 					'isNumeric' => 'N',
-//					'prefix' => 'DR',
 				]
 			];
 		}

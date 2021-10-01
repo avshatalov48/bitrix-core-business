@@ -1053,7 +1053,8 @@ class AdditionalHandler extends Base
 
 		return in_array(
 			\Bitrix\Sale\Delivery\Helper::getPortalZone(),
-			['ru', 'kz', 'by']
+			['', 'ru', 'kz', 'by'],
+			true
 		);
 	}
 }

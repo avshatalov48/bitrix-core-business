@@ -22,7 +22,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Sale
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_OrderRound_Query query()
+ * @method static EO_OrderRound_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_OrderRound_Result getById($id)
+ * @method static EO_OrderRound_Result getList(array $parameters = array())
+ * @method static EO_OrderRound_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_OrderRound createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_OrderRound_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_OrderRound wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_OrderRound_Collection wakeUpCollection($rows)
+ */
 
 class OrderRoundTable extends Main\Entity\DataManager
 {

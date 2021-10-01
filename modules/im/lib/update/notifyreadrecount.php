@@ -32,6 +32,7 @@ final class NotifyReadRecount  extends Stepper
 		$params = Option::get(self::$moduleId, self::OPTION_NAME);
 		$params = ($params !== '' ? @unserialize($params, ['allowed_classes' => false]) : []);
 		$params = (is_array($params) ? $params : []);
+
 		if (empty($params))
 		{
 			$params = [
@@ -67,6 +68,7 @@ final class NotifyReadRecount  extends Stepper
 					UPDATE b_im_message M
 					SET M.NOTIFY_READ = 'Y'
 					WHERE M.CHAT_ID = " . $row['CHAT_ID'] . "
+					AND M.NOTIFY_READ <> 'Y'
 					AND M.DATE_CREATE < DATE_SUB(NOW(), INTERVAL 30 DAY)
 				");
 
@@ -93,6 +95,7 @@ final class NotifyReadRecount  extends Stepper
 			}
 			else
 			{
+				\Bitrix\Im\Counter::clearCache();
 				Option::delete(self::$moduleId, ['name' => self::OPTION_NAME]);
 			}
 

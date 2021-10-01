@@ -45,7 +45,7 @@ if(
 <script>
 	BX.ready(function ()
 	{
-		new BX.Desktop.Field.Enum({$scriptParams});
+		new BX.Desktop.Field.Enum.Ui({$scriptParams});
 	});
 </script>
 EOT;

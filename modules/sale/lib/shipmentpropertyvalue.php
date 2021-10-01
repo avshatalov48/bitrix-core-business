@@ -50,6 +50,16 @@ class ShipmentPropertyValue extends EntityPropertyValue
 		return [$shipment->getDeliveryId()];
 	}
 
+	protected static function extractTpLandingIdList(Entity $entity) : array
+	{
+		if (!$entity instanceof Shipment)
+		{
+			return [];
+		}
+
+		return $entity->getOrder()->getTradeBindingCollection()->getTradingPlatformIdList();
+	}
+
 	/**
 	 * @param array|null $property
 	 * @param array $value

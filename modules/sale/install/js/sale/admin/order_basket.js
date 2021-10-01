@@ -18,6 +18,7 @@ BX.Sale.Admin.OrderBasket = function (params)
 	this.visibleColumns = params.visibleColumns;
 	this.isShowXmlId = params.isShowXmlId;
 	this.weightUnit = params.weightUnit;
+	this.showProps = (typeof params.showProps !== 'undefined') ? (!!params.showProps) : true;
 
 	this.productsCount = 0;
 	this.customPrices = {};
@@ -33,6 +34,7 @@ BX.Sale.Admin.OrderBasket = function (params)
 	this.qantityUpdaterDelay = 750;
 	this.canSendUpdateQuantityRequest = true;
 	this.lastChangedQuantity = false;
+
 
 	if(params.iblocksSkuParams)
 	{
@@ -507,7 +509,8 @@ BX.Sale.Admin.OrderBasket.prototype.createProductRowBasement = function(basketCo
 
 BX.Sale.Admin.OrderBasket.prototype.createProductBasementSkuCell = function(basketCode, product)
 {
-	var tbl = this.createSkuPropsTable(basketCode, product),
+	var showProps = this.showProps;
+	var tbl = this.createSkuPropsTable(basketCode, product, showProps),
 		result = null;
 
 	if(tbl)
@@ -984,10 +987,10 @@ BX.Sale.Admin.OrderBasket.prototype.onToggleBundleChildren = function(oldParentI
 
 BX.Sale.Admin.OrderBasket.prototype.createFieldSkuProps = function(basketCode, product, fieldId)
 {
-	return this.createSkuPropsTable(basketCode, product);
+	return this.createSkuPropsTable(basketCode, product, true);
 };
 
-BX.Sale.Admin.OrderBasket.prototype.createSkuPropsTable = function(basketCode, product)
+BX.Sale.Admin.OrderBasket.prototype.createSkuPropsTable = function(basketCode, product, showProps)
 {
 	var table = BX.create('table'),
 			html,
@@ -1041,7 +1044,7 @@ BX.Sale.Admin.OrderBasket.prototype.createSkuPropsTable = function(basketCode, p
 		}
 	}
 
-	if(product.PROPS)
+	if(product.PROPS && showProps)
 	{
 		for(var i in product.PROPS)
 		{
@@ -1210,7 +1213,8 @@ BX.Sale.Admin.OrderBasketEdit = function(params)
 	BX.Sale.Admin.OrderBasket.call(this, params);
 
 	this.settingsDialog = new BX.Sale.Admin.OrderBasket.SettingsDialog({
-		basket: this
+		basket: this,
+		showProps: true
 	});
 };
 

@@ -411,3 +411,23 @@
 	border-top: 1px solid #E8E9EC;
 	padding-top: 15px;
 }
+.feed-create-task-popup-content {
+	width: 300px;
+	padding: 10px;
+}
+
+.feed-create-task-popup-title, .feed-create-task-popup-description {
+	text-align: center;
+	color: #80868e !important;
+}
+
+.feed-create-task-popup-title {
+	font-size: 16px;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+.feed-create-task-popup-description {
+	font-size: 13px;
+	font-weight: normal;
+}

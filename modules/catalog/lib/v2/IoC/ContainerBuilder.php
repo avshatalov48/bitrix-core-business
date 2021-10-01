@@ -21,14 +21,14 @@ final class ContainerBuilder
 		$paths = [];
 		$root = Application::getDocumentRoot();
 
-		if (File::isFileExists($root.'/bitrix/'.$path))
+		if (File::isFileExists($root . '/bitrix/' . $path))
 		{
-			$paths[] = $root.'/bitrix/'.$path;
+			$paths[] = $root . '/bitrix/' . $path;
 		}
 
-		if (File::isFileExists($root.'/local/'.$path))
+		if (File::isFileExists($root . '/local/' . $path))
 		{
-			$paths[] = $root.'local/'.$path;
+			$paths[] = $root . 'local/' . $path;
 		}
 
 		return $paths;

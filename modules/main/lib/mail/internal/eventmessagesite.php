@@ -10,6 +10,22 @@ namespace Bitrix\Main\Mail\Internal;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class EventMessageSiteTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_EventMessageSite_Query query()
+ * @method static EO_EventMessageSite_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EventMessageSite_Result getById($id)
+ * @method static EO_EventMessageSite_Result getList(array $parameters = array())
+ * @method static EO_EventMessageSite_Entity getEntity()
+ * @method static \Bitrix\Main\Mail\Internal\EO_EventMessageSite createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Mail\Internal\EO_EventMessageSite_Collection createCollection()
+ * @method static \Bitrix\Main\Mail\Internal\EO_EventMessageSite wakeUpObject($row)
+ * @method static \Bitrix\Main\Mail\Internal\EO_EventMessageSite_Collection wakeUpCollection($rows)
+ */
 class EventMessageSiteTable extends Entity\DataManager
 {
 

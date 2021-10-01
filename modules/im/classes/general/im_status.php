@@ -3,7 +3,7 @@ use Bitrix\Im as IM;
 
 class CIMStatus
 {
-	public static $AVAILABLE_STATUSES = Array('online', 'dnd', 'away');
+	public static $AVAILABLE_STATUSES = Array('online', 'dnd', 'away', 'break');
 	public static $CACHE_USERS = null;
 	public static $CACHE_RECENT = null;
 
@@ -495,7 +495,7 @@ class CIMStatus
 		if ($result && $result['STATUS'] === 'mobile')
 		{
 		}
-		else if (in_array($status['STATUS'], Array('dnd', 'away')))
+		else if (in_array($status['STATUS'], Array('dnd', 'away', 'break', 'video')))
 		{
 			$result['STATUS'] = $status['STATUS'];
 			$result['STATUS_TEXT'] = GetMessage('IM_STATUS_'.mb_strtoupper($status['STATUS']));

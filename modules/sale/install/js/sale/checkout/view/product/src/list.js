@@ -1,8 +1,8 @@
-import {Vue} from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 
 import './row'
 
-Vue.component('sale-checkout-view-product-list', {
+BitrixVue.component('sale-checkout-view-product-list', {
 	props: ['items', 'mode'],
 	// language=Vue
 	template: `

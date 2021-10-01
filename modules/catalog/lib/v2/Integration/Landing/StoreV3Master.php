@@ -125,7 +125,8 @@ final class StoreV3Master
 
 	private static function hasUnusedStores(): bool
 	{
-		return !empty(self::getUnusedStoresList());
+		// return !empty(self::getUnusedStoresList());
+		return false;
 	}
 
 	private static function deactivateUnusedStore(): Result

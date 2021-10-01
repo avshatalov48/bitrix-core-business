@@ -24,7 +24,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Sale
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CashboxRestHandler_Query query()
+ * @method static EO_CashboxRestHandler_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CashboxRestHandler_Result getById($id)
+ * @method static EO_CashboxRestHandler_Result getList(array $parameters = array())
+ * @method static EO_CashboxRestHandler_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_CashboxRestHandler createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_CashboxRestHandler_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_CashboxRestHandler wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_CashboxRestHandler_Collection wakeUpCollection($rows)
+ */
 
 class CashboxRestHandlerTable extends DataManager
 {

@@ -2,7 +2,7 @@
 namespace Bitrix\Main\Type;
 
 class Dictionary
-	implements \ArrayAccess, \Iterator, \Countable
+	implements \ArrayAccess, \Iterator, \Countable, \JsonSerializable
 {
 	/**
 	 * @var array
@@ -183,4 +183,13 @@ class Dictionary
 	{
 		return empty($this->values);
 	}
+
+	/**
+	 * JsonSerializable::jsonSerialize — Specify data which should be serialized to JSON
+	 * @return array
+	 */
+	public function jsonSerialize()
+	{
+		return $this->values;
+    }
 }

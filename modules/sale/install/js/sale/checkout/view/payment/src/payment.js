@@ -1,9 +1,9 @@
-import { Vue } from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 import { Component, RestMethod, EventType } from 'sale.checkout.const';
 import { ajax, Event } from 'main.core';
 import { MixinLoader } from "sale.checkout.view.mixins";
 
-Vue.component('sale-checkout-view-payment', {
+BitrixVue.component('sale-checkout-view-payment', {
 	props: ['order', 'config'],
 	mixins:[MixinLoader],
 	methods:

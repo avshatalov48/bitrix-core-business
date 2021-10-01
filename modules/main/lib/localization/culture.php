@@ -10,6 +10,22 @@ namespace Bitrix\Main\Localization;
 use Bitrix\Main\ORM;
 use Bitrix\Main\ORM\Data;
 
+/**
+ * Class CultureTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Culture_Query query()
+ * @method static EO_Culture_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Culture_Result getById($id)
+ * @method static EO_Culture_Result getList(array $parameters = array())
+ * @method static EO_Culture_Entity getEntity()
+ * @method static \Bitrix\Main\Context\Culture createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Localization\EO_Culture_Collection createCollection()
+ * @method static \Bitrix\Main\Context\Culture wakeUpObject($row)
+ * @method static \Bitrix\Main\Localization\EO_Culture_Collection wakeUpCollection($rows)
+ */
 class CultureTable extends Data\DataManager
 {
 	const LEFT_TO_RIGHT = 'Y';

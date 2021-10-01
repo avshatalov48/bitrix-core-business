@@ -256,7 +256,7 @@ class GridVariationForm extends VariationForm
 		{
 			foreach ($priceTypeList as $priceType)
 			{
-				$columnName = htmlspecialcharsbx(!empty($priceType['NAME_LANG']) ? $priceType['NAME_LANG'] : $priceType['NAME']);
+				$columnName = !empty($priceType['NAME_LANG']) ? $priceType['NAME_LANG'] : $priceType['NAME'];
 
 				$priceId = static::formatFieldName(BaseForm::PRICE_FIELD_PREFIX.$priceType['ID'].'_FIELD');
 				$headers[] = [

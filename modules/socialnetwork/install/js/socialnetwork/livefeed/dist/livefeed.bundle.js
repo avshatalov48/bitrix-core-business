@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_popup,ui_buttons,main_core,main_core_events) {
+(function (exports,ui_buttons,main_popup,main_core,main_core_events) {
 	'use strict';
 
 	var Utils = /*#__PURE__*/function () {
@@ -22,18 +22,12 @@ this.BX = this.BX || {};
 	  return Utils;
 	}();
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"", "\" bx-data-log-id=\"", "\">\n\t\t\t\t\t<div class=\"feed-post-cancel-pinned-panel-inner\">\n\t\t\t\t\t\t<div class=\"feed-post-cancel-pinned-content\">\n\t\t\t\t\t\t\t<span class=\"", "\">", "</span>\n\t\t\t\t\t\t\t<span class=\"feed-post-cancel-pinned-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<button class=\"ui-btn ui-btn-light-border ui-btn-round ui-btn-sm ", "\">", "</button>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\t\n\t\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 
 	var PinnedPanel = /*#__PURE__*/function () {
 	  function PinnedPanel() {
+	    var _this = this;
+
 	    babelHelpers.classCallCheck(this, PinnedPanel);
 	    this.class = {
 	      pin: 'feed-post-pin',
@@ -69,9 +63,10 @@ this.BX = this.BX || {};
 	    this.postsInitialized = false;
 	    this.handlePostClick = this.handlePostClick.bind(this);
 	    this.options = {};
-	    /* for detail page without pinned panel */
-
-	    this.initPosts();
+	    main_core.Event.ready(function () {
+	      /* for detail page without pinned panel */
+	      _this.initPosts();
+	    });
 	  }
 
 	  babelHelpers.createClass(PinnedPanel, [{
@@ -101,7 +96,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "initPanel",
 	    value: function initPanel() {
-	      var _this = this;
+	      var _this2 = this;
 
 	      if (this.panelInitialized) {
 	        return;
@@ -116,7 +111,7 @@ this.BX = this.BX || {};
 	      this.panelInitialized = true;
 	      this.adjustCollapsedPostsPanel();
 	      main_core.Event.bind(this.getCollapsedPanelNode(), 'click', function () {
-	        var pinnedPanelNode = _this.getPanelNode();
+	        var pinnedPanelNode = _this2.getPanelNode();
 
 	        if (!pinnedPanelNode) {
 	          return;
@@ -131,14 +126,14 @@ this.BX = this.BX || {};
 	          pinnedPanelNode.style = '';
 	        }, 550);
 
-	        _this.hideCollapsedPanel();
+	        _this2.hideCollapsedPanel();
 	      });
 	      main_core.Event.bind(pinnedPanelNode, 'click', function (event) {
 	        var likeClicked = event.target.classList.contains('feed-inform-ilike') || event.target.closest('.feed-inform-ilike') !== null;
 	        var followClicked = event.target.classList.contains('feed-inform-follow') || event.target.closest('.feed-inform-follow') !== null;
 	        var menuClicked = event.target.classList.contains('feed-post-more-link') || event.target.closest('.feed-post-more-link') !== null || event.target.classList.contains('feed-post-right-top-menu');
 	        var contentViewClicked = event.target.classList.contains('feed-inform-contentview') || event.target.closest('.feed-inform-contentview') !== null;
-	        var pinClicked = event.target.classList.contains("".concat(_this.class.pin)) || event.target.closest(".".concat(_this.class.pin)) !== null;
+	        var pinClicked = event.target.classList.contains("".concat(_this2.class.pin)) || event.target.closest(".".concat(_this2.class.pin)) !== null;
 	        var collapseClicked = event.target.classList.contains('feed-post-pinned-link-collapse');
 	        var commentsClicked = event.target.classList.contains('feed-inform-comments-pinned') || event.target.closest('.feed-inform-comments-pinned') !== null;
 	        var postNode = null;
@@ -153,9 +148,9 @@ this.BX = this.BX || {};
 	          return;
 	        }
 
-	        if (postNode.classList.contains("".concat(_this.class.postPinned))) {
+	        if (postNode.classList.contains("".concat(_this2.class.postPinned))) {
 	          if (!likeClicked && !followClicked && !menuClicked && !contentViewClicked && !pinClicked) {
-	            postNode.classList.remove("".concat(_this.class.postPinned));
+	            postNode.classList.remove("".concat(_this2.class.postPinned));
 	            var menuId = postNode.getAttribute('data-menu-id');
 
 	            if (menuId) {
@@ -175,7 +170,7 @@ this.BX = this.BX || {};
 	          }
 
 	          if (commentsClicked) {
-	            var anchorNode = postNode.querySelector(".".concat(_this.class.postComments, " a[name=comments]"));
+	            var anchorNode = postNode.querySelector(".".concat(_this2.class.postComments, " a[name=comments]"));
 
 	            if (anchorNode) {
 	              var position = main_core.Dom.getPosition(anchorNode);
@@ -186,7 +181,7 @@ this.BX = this.BX || {};
 	          event.stopPropagation();
 	          event.preventDefault();
 	        } else if (collapseClicked) {
-	          postNode.classList.add("".concat(_this.class.postPinned));
+	          postNode.classList.add("".concat(_this2.class.postPinned));
 	          event.stopPropagation();
 	          event.preventDefault();
 	        }
@@ -195,7 +190,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "initPosts",
 	    value: function initPosts() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      if (this.postsInitialized) {
 	        return;
@@ -208,8 +203,8 @@ this.BX = this.BX || {};
 	      }
 
 	      Array.from(postList).forEach(function (post) {
-	        main_core.Event.unbind(post, 'click', _this2.handlePostClick);
-	        main_core.Event.bind(post, 'click', _this2.handlePostClick);
+	        main_core.Event.unbind(post, 'click', _this3.handlePostClick);
+	        main_core.Event.bind(post, 'click', _this3.handlePostClick);
 	      });
 	    }
 	  }, {
@@ -241,7 +236,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "initEvents",
 	    value: function initEvents() {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      main_core_events.EventEmitter.subscribe('OnUCCommentWasRead', function (event) {
 	        var _event$getData = event.getData(),
@@ -250,12 +245,12 @@ this.BX = this.BX || {};
 	            id = _event$getData2[1],
 	            options = _event$getData2[2];
 
-	        var _this3$getCommentsDat = _this3.getCommentsData(xmlId),
-	            oldValue = _this3$getCommentsDat.oldValue,
-	            newValue = _this3$getCommentsDat.newValue;
+	        var _this4$getCommentsDat = _this4.getCommentsData(xmlId),
+	            oldValue = _this4$getCommentsDat.oldValue,
+	            newValue = _this4$getCommentsDat.newValue;
 
 	        if (!!options.new) {
-	          _this3.setCommentsData(xmlId, {
+	          _this4.setCommentsData(xmlId, {
 	            newValue: main_core.Type.isInteger(newValue) ? newValue - 1 : 0,
 	            oldValue: main_core.Type.isInteger(oldValue) ? oldValue + 1 : 1
 	          });
@@ -273,11 +268,11 @@ this.BX = this.BX || {};
 	            xmlId = _id[0],
 	            commentId = _id[1];
 
-	        var _this3$getCommentsDat2 = _this3.getCommentsData(xmlId),
-	            newValue = _this3$getCommentsDat2.newValue,
-	            oldValue = _this3$getCommentsDat2.oldValue,
-	            allValue = _this3$getCommentsDat2.allValue,
-	            follow = _this3$getCommentsDat2.follow;
+	        var _this4$getCommentsDat2 = _this4.getCommentsData(xmlId),
+	            newValue = _this4$getCommentsDat2.newValue,
+	            oldValue = _this4$getCommentsDat2.oldValue,
+	            allValue = _this4$getCommentsDat2.allValue,
+	            follow = _this4$getCommentsDat2.follow;
 
 	        var commentsData = {
 	          allValue: main_core.Type.isInteger(allValue) ? allValue + 1 : 1
@@ -289,7 +284,7 @@ this.BX = this.BX || {};
 	          commentsData.oldValue = main_core.Type.isInteger(oldValue) ? oldValue + 1 : 1;
 	        }
 
-	        _this3.setCommentsData(xmlId, commentsData);
+	        _this4.setCommentsData(xmlId, commentsData);
 	      });
 	      main_core_events.EventEmitter.subscribe('OnUCommentWasDeleted', function (event) {
 	        var _event$getData5 = event.getData(),
@@ -298,11 +293,11 @@ this.BX = this.BX || {};
 	            id = _event$getData6[1],
 	            data = _event$getData6[2];
 
-	        var _this3$getCommentsDat3 = _this3.getCommentsData(xmlId),
-	            oldValue = _this3$getCommentsDat3.oldValue,
-	            allValue = _this3$getCommentsDat3.allValue;
+	        var _this4$getCommentsDat3 = _this4.getCommentsData(xmlId),
+	            oldValue = _this4$getCommentsDat3.oldValue,
+	            allValue = _this4$getCommentsDat3.allValue;
 
-	        _this3.setCommentsData(xmlId, {
+	        _this4.setCommentsData(xmlId, {
 	          allValue: main_core.Type.isInteger(allValue) ? allValue - 1 : 0,
 	          oldValue: main_core.Type.isInteger(oldValue) ? oldValue - 1 : 0
 	        });
@@ -311,7 +306,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "changePinned",
 	    value: function changePinned(params) {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      var logId = params.logId ? parseInt(params.logId) : 0;
 	      var event = params.event ? params.event : null;
@@ -328,11 +323,11 @@ this.BX = this.BX || {};
 	      }
 
 	      return new Promise(function (resolve, reject) {
-	        if (!!_this4.getOption('pinBlocked') || !node || !newState) {
+	        if (!!_this5.getOption('pinBlocked') || !node || !newState) {
 	          return resolve();
 	        }
 
-	        _this4.setPostState({
+	        _this5.setPostState({
 	          node: node,
 	          state: newState
 	        });
@@ -348,14 +343,14 @@ this.BX = this.BX || {};
 	          }
 	        }).then(function (response) {
 	          if (!response.data.success) {
-	            _this4.setPostState({
+	            _this5.setPostState({
 	              node: node,
 	              state: newState === 'Y' ? 'N' : 'Y'
 	            });
 
 	            return resolve();
 	          } else {
-	            _this4.movePost({
+	            _this5.movePost({
 	              node: node,
 	              state: newState
 	            }).then(function () {
@@ -363,7 +358,7 @@ this.BX = this.BX || {};
 	            });
 	          }
 	        }, function (response) {
-	          _this4.setPostState({
+	          _this5.setPostState({
 	            node: node,
 	            state: newState === 'Y' ? 'N' : 'Y'
 	          });
@@ -433,7 +428,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "movePost",
 	    value: function movePost(params) {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      var state = params.state ? params.state : null;
 	      var node = params.node ? params.node : null;
@@ -454,24 +449,24 @@ this.BX = this.BX || {};
 	          return resolve();
 	        }
 
-	        var pinnedPanelNode = _this5.getPanelNode();
+	        var pinnedPanelNode = _this6.getPanelNode();
 
 	        if (!pinnedPanelNode) {
 	          return resolve();
 	        }
 
-	        var postToMove = post.parentNode.classList.contains("".concat(_this5.class.post)) ? post.parentNode : post;
+	        var postToMove = post.parentNode.classList.contains("".concat(_this6.class.post)) ? post.parentNode : post;
 
 	        if (state === 'Y') {
 	          var originalPostHeight = postToMove.offsetHeight;
 	          postToMove.setAttribute('bx-data-height', originalPostHeight);
 
-	          _this5.getPinnedData({
+	          _this6.getPinnedData({
 	            logId: logId
 	          }).then(function (data) {
 	            var pinnedPanelTitleNode = post.querySelector('.feed-post-pinned-title');
 	            var pinnedPanelDescriptionNode = post.querySelector('.feed-post-pinned-desc');
-	            var pinnedPanelPinNode = post.querySelector(".".concat(_this5.class.pin));
+	            var pinnedPanelPinNode = post.querySelector(".".concat(_this6.class.pin));
 
 	            if (pinnedPanelTitleNode) {
 	              pinnedPanelTitleNode.innerHTML = data.TITLE;
@@ -485,16 +480,16 @@ this.BX = this.BX || {};
 	              pinnedPanelPinNode.title = main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PIN_TITLE_Y');
 	            }
 
-	            post.classList.add("".concat(_this5.class.postPinnedHide));
+	            post.classList.add("".concat(_this6.class.postPinnedHide));
 
-	            var cancelPinnedPanel = _this5.getCancelPinnedPanel({
+	            var cancelPinnedPanel = _this6.getCancelPinnedPanel({
 	              logId: logId
 	            });
 
 	            var anchor = postToMove.nextSibling;
 	            anchor.parentNode.insertBefore(cancelPinnedPanel, anchor);
 
-	            _this5.centerCancelPinnedPanelElements({
+	            _this6.centerCancelPinnedPanelElements({
 	              cancelPinnedPanel: cancelPinnedPanel
 	            });
 
@@ -511,17 +506,17 @@ this.BX = this.BX || {};
 	              opacity: 0
 	            });
 
-	            var panelNode = _this5.getPanelNode();
+	            var panelNode = _this6.getPanelNode();
 
 	            if (panelNode) {
-	              _this5.setOptions({
+	              _this6.setOptions({
 	                panelHeight: panelNode.offsetHeight
 	              });
 	            } // list.post::hide.start, cancelPanel::show.start
 
 
 	            setTimeout(function () {
-	              postToMove.classList.add("".concat(_this5.class.postHide));
+	              postToMove.classList.add("".concat(_this6.class.postHide));
 	              Utils.setStyle(cancelPinnedPanel, {
 	                height: '53px'
 	              });
@@ -530,33 +525,33 @@ this.BX = this.BX || {};
 	                opacity: 0
 	              });
 
-	              _this5.setOptions({
+	              _this6.setOptions({
 	                pinBlocked: true
 	              });
 	            }, 100); // list.post::hide.end
 
 	            main_core.Event.unbindAll(postToMove, 'transitionend');
 	            main_core.Event.bind(postToMove, 'transitionend', function (event) {
-	              if (!_this5.checkTransitionProperty(event, 'height')) {
+	              if (!_this6.checkTransitionProperty(event, 'height')) {
 	                return;
 	              }
 
 	              main_core.Event.unbindAll(postToMove, 'transitionend');
-	              var panelPostsNode = pinnedPanelNode.querySelector(".".concat(_this5.class.panelPosts));
+	              var panelPostsNode = pinnedPanelNode.querySelector(".".concat(_this6.class.panelPosts));
 	              panelPostsNode.insertBefore(postToMove, panelPostsNode.firstChild);
 
-	              _this5.adjustCollapsedPostsPanel();
+	              _this6.adjustCollapsedPostsPanel();
 
-	              postToMove.classList.remove("".concat(_this5.class.postHide));
-	              post.classList.remove("".concat(_this5.class.postPinnedHide));
+	              postToMove.classList.remove("".concat(_this6.class.postHide));
+	              post.classList.remove("".concat(_this6.class.postPinnedHide));
 
-	              _this5.adjustPanel();
+	              _this6.adjustPanel();
 
-	              _this5.showCollapsedPostsPanel(); // pinnedPanel.post::show.start
+	              _this6.showCollapsedPostsPanel(); // pinnedPanel.post::show.start
 
 
 	              setTimeout(function () {
-	                post.classList.add("".concat(_this5.class.postPinned));
+	                post.classList.add("".concat(_this6.class.postPinned));
 	                Utils.setStyle(postToMove, {
 	                  position: '',
 	                  width: '',
@@ -565,12 +560,12 @@ this.BX = this.BX || {};
 	                  opacity: 1
 	                });
 
-	                _this5.setOptions({
+	                _this6.setOptions({
 	                  pinBlocked: false
 	                });
 
 	                setTimeout(function () {
-	                  postToMove.classList.remove("".concat(_this5.class.postHide));
+	                  postToMove.classList.remove("".concat(_this6.class.postHide));
 	                  Utils.setStyle(postToMove, {
 	                    position: '',
 	                    width: '',
@@ -589,7 +584,7 @@ this.BX = this.BX || {};
 	          Utils.setStyle(postToMove, {
 	            transition: ''
 	          });
-	          var cancelPinnedPanel = document.querySelector(".".concat(_this5.class.cancelPanel, "[bx-data-log-id=\"").concat(logId, "\"]"));
+	          var cancelPinnedPanel = document.querySelector(".".concat(_this6.class.cancelPanel, "[bx-data-log-id=\"").concat(logId, "\"]"));
 
 	          if (main_core.Type.isDomNode(cancelPinnedPanel)) {
 	            Utils.setStyle(postToMove, {
@@ -597,8 +592,8 @@ this.BX = this.BX || {};
 	            }); // pinnedPanel.post::hide.start, cancelPanel::show.start
 
 	            requestAnimationFrame(function () {
-	              postToMove.classList.add("".concat(_this5.class.postExpanding));
-	              cancelPinnedPanel.classList.add("".concat(_this5.class.postExpanding));
+	              postToMove.classList.add("".concat(_this6.class.postExpanding));
+	              cancelPinnedPanel.classList.add("".concat(_this6.class.postExpanding));
 	              Utils.setStyle(postToMove, {
 	                opacity: 0,
 	                height: 0
@@ -608,25 +603,25 @@ this.BX = this.BX || {};
 	                height: 0
 	              });
 	            });
-	            var collapsed = pinnedPanelNode.classList.contains("".concat(_this5.class.panelCollapsed));
+	            var collapsed = pinnedPanelNode.classList.contains("".concat(_this6.class.panelCollapsed));
 
 	            if (collapsed) {
 	              cancelPinnedPanel.parentNode.insertBefore(postToMove, cancelPinnedPanel.nextSibling);
 
-	              _this5.adjustCollapsedPostsPanel();
+	              _this6.adjustCollapsedPostsPanel();
 
-	              _this5.adjustPanel();
+	              _this6.adjustPanel();
 	            }
 
-	            var showCollapsed = _this5.getCollapsedPanelNode().classList.contains("".concat(_this5.class.collapsedPanelShow));
+	            var showCollapsed = _this6.getCollapsedPanelNode().classList.contains("".concat(_this6.class.collapsedPanelShow));
 
 	            if (showCollapsed) {
-	              _this5.hideCollapsedPostsPanel(); // cancelPanel::show.end
+	              _this6.hideCollapsedPostsPanel(); // cancelPanel::show.end
 
 
 	              main_core.Event.unbindAll(cancelPinnedPanel, 'transitionend');
 	              main_core.Event.bind(cancelPinnedPanel, 'transitionend', function (event) {
-	                if (!_this5.checkTransitionProperty(event, 'height')) {
+	                if (!_this6.checkTransitionProperty(event, 'height')) {
 	                  return;
 	                }
 
@@ -635,7 +630,7 @@ this.BX = this.BX || {};
 	                  display: 'block'
 	                });
 
-	                _this5.animateCancel({
+	                _this6.animateCancel({
 	                  post: post,
 	                  postToMove: postToMove,
 	                  cancelPinnedPanel: cancelPinnedPanel,
@@ -647,19 +642,19 @@ this.BX = this.BX || {};
 
 	            main_core.Event.unbindAll(postToMove, 'transitionend');
 	            main_core.Event.bind(postToMove, 'transitionend', function (event) {
-	              if (!_this5.checkTransitionProperty(event, 'opacity')) {
+	              if (!_this6.checkTransitionProperty(event, 'opacity')) {
 	                return;
 	              }
 
 	              if (!collapsed) {
 	                cancelPinnedPanel.parentNode.insertBefore(postToMove, cancelPinnedPanel.nextSibling);
 
-	                _this5.adjustCollapsedPostsPanel();
+	                _this6.adjustCollapsedPostsPanel();
 
-	                _this5.adjustPanel();
+	                _this6.adjustPanel();
 	              }
 
-	              _this5.animateCancel({
+	              _this6.animateCancel({
 	                post: post,
 	                postToMove: postToMove,
 	                cancelPinnedPanel: cancelPinnedPanel,
@@ -667,10 +662,10 @@ this.BX = this.BX || {};
 	              });
 	            });
 	          } else {
-	            post.classList.remove("".concat(_this5.class.postPinned));
+	            post.classList.remove("".concat(_this6.class.postPinned));
 	            pinnedPanelNode.parentNode.insertBefore(postToMove, pinnedPanelNode.nextSibling);
 
-	            _this5.adjustPanel();
+	            _this6.adjustPanel();
 
 	            var _originalPostHeight = postToMove.scrollHeight;
 	            postToMove.setAttribute('bx-data-height', _originalPostHeight);
@@ -688,7 +683,7 @@ this.BX = this.BX || {};
 
 	            main_core.Event.unbindAll(postToMove, 'transitionend');
 	            main_core.Event.bind(postToMove, 'transitionend', function (event) {
-	              if (!_this5.checkTransitionProperty(event, 'height')) {
+	              if (!_this6.checkTransitionProperty(event, 'height')) {
 	                return;
 	              }
 
@@ -705,7 +700,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "animateCancel",
 	    value: function animateCancel(_ref) {
-	      var _this6 = this;
+	      var _this7 = this;
 
 	      var post = _ref.post,
 	          postToMove = _ref.postToMove,
@@ -728,11 +723,11 @@ this.BX = this.BX || {};
 
 	      main_core.Event.unbindAll(postToMove, 'transitionend');
 	      main_core.Event.bind(postToMove, 'transitionend', function (event) {
-	        if (!_this6.checkTransitionProperty(event, 'height')) {
+	        if (!_this7.checkTransitionProperty(event, 'height')) {
 	          return;
 	        }
 
-	        post.classList.remove("".concat(_this6.class.postPinnedHide));
+	        post.classList.remove("".concat(_this7.class.postPinnedHide));
 	        Utils.setStyle(postToMove, {
 	          marginBottom: '',
 	          height: ''
@@ -741,14 +736,14 @@ this.BX = this.BX || {};
 	          marginBottom: '',
 	          height: ''
 	        });
-	        postToMove.classList.remove("".concat(_this6.class.postExpanding));
-	        cancelPinnedPanel.classList.remove("".concat(_this6.class.postExpanding));
+	        postToMove.classList.remove("".concat(_this7.class.postExpanding));
+	        cancelPinnedPanel.classList.remove("".concat(_this7.class.postExpanding));
 	      });
 	    }
 	  }, {
 	    key: "getCancelPinnedPanel",
 	    value: function getCancelPinnedPanel(params) {
-	      var _this7 = this;
+	      var _this8 = this;
 
 	      var logId = params.logId ? parseInt(params.logId) : 0;
 
@@ -759,9 +754,9 @@ this.BX = this.BX || {};
 	      var cancelPinnedPanel = document.querySelector(".".concat(this.class.cancelPanel, "[bx-data-log-id=\"").concat(logId, "\"]"));
 
 	      if (!main_core.Type.isDomNode(cancelPinnedPanel)) {
-	        cancelPinnedPanel = main_core.Tag.render(_templateObject(), this.class.cancelPanel, logId, this.class.cancelPanelLabel, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_TITLE'), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_DESCRIPTION'), this.class.cancelPanelButton, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_BUTTON'));
+	        cancelPinnedPanel = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"", "\" bx-data-log-id=\"", "\">\n\t\t\t\t\t<div class=\"feed-post-cancel-pinned-panel-inner\">\n\t\t\t\t\t\t<div class=\"feed-post-cancel-pinned-content\">\n\t\t\t\t\t\t\t<span class=\"", "\">", "</span>\n\t\t\t\t\t\t\t<span class=\"feed-post-cancel-pinned-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<button class=\"ui-btn ui-btn-light-border ui-btn-round ui-btn-sm ", "\">", "</button>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\t\n\t\t\t\t"])), this.class.cancelPanel, logId, this.class.cancelPanelLabel, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_TITLE'), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_DESCRIPTION'), this.class.cancelPanelButton, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_BUTTON'));
 	        main_core.Event.bind(cancelPinnedPanel.querySelector(".".concat(this.class.cancelPanelButton)), 'click', function () {
-	          _this7.changePinned({
+	          _this8.changePinned({
 	            logId: logId,
 	            newState: 'N'
 	          }).then(function () {
@@ -803,7 +798,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "hidePinnedItems",
 	    value: function hidePinnedItems() {
-	      var _this8 = this;
+	      var _this9 = this;
 
 	      var pinnedPanelNode = this.getPanelNode();
 
@@ -835,7 +830,7 @@ this.BX = this.BX || {};
 
 	        main_core.Event.unbindAll(item, 'transitionend');
 	        main_core.Event.bind(item, 'transitionend', function (event) {
-	          if (!_this8.checkTransitionProperty(event, 'transform')) {
+	          if (!_this9.checkTransitionProperty(event, 'transform')) {
 	            return;
 	          }
 
@@ -855,7 +850,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "showPinnedItems",
 	    value: function showPinnedItems() {
-	      var _this9 = this;
+	      var _this10 = this;
 
 	      var pinnedPanelNode = this.getPanelNode();
 
@@ -881,7 +876,7 @@ this.BX = this.BX || {};
 
 	        main_core.Event.unbindAll(item, 'transitionend');
 	        main_core.Event.bind(item, 'transitionend', function (event) {
-	          if (!_this9.checkTransitionProperty(event, 'transform')) {
+	          if (!_this10.checkTransitionProperty(event, 'transform')) {
 	            return;
 	          }
 
@@ -906,11 +901,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "animateCollapsedPanel",
 	    value: function animateCollapsedPanel() {
-	      var _this10 = this;
+	      var _this11 = this;
 
 	      // collapsedPanel::hide.start
 	      requestAnimationFrame(function () {
-	        var collapsedPanel = _this10.getCollapsedPanelNode();
+	        var collapsedPanel = _this11.getCollapsedPanelNode();
 
 	        Utils.setStyle(collapsedPanel, {
 	          position: 'absolute',
@@ -918,8 +913,8 @@ this.BX = this.BX || {};
 	          width: '100%',
 	          opacity: 0
 	        });
-	        collapsedPanel.classList.remove("".concat(_this10.class.collapsedPanelHide));
-	        collapsedPanel.classList.add("".concat(_this10.class.collapsedPanelShow)); // collapsedPanel::show.start
+	        collapsedPanel.classList.remove("".concat(_this11.class.collapsedPanelHide));
+	        collapsedPanel.classList.add("".concat(_this11.class.collapsedPanelShow)); // collapsedPanel::show.start
 
 	        requestAnimationFrame(function () {
 	          Utils.setStyle(collapsedPanel, {
@@ -932,7 +927,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "adjustCollapsedPostsPanel",
 	    value: function adjustCollapsedPostsPanel() {
-	      var _this11 = this;
+	      var _this12 = this;
 
 	      var postsCounter = this.getPostsCount();
 	      var postsCounterNode = this.getCollapsedPanelNode().querySelector(".".concat(this.class.collapsedPanelCounterPostsValue));
@@ -947,7 +942,7 @@ this.BX = this.BX || {};
 
 	      if (commentsCounterNode && commentsCounterValueNode && panelNode) {
 	        var newCommentCounter = Array.from(panelNode.querySelectorAll(".".concat(this.class.collapsedPanelCounterCommentsValueNewValue))).reduce(function (acc, node) {
-	          return acc + (node.closest(".".concat(_this11.class.postUnfollowed)) ? 0 : parseInt(node.innerHTML));
+	          return acc + (node.closest(".".concat(_this12.class.postUnfollowed)) ? 0 : parseInt(node.innerHTML));
 	        }, 0);
 	        commentsCounterValueNode.innerHTML = newCommentCounter;
 
@@ -961,7 +956,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "adjustPanel",
 	    value: function adjustPanel() {
-	      var _this12 = this;
+	      var _this13 = this;
 
 	      var panelNode = this.getPanelNode();
 
@@ -970,10 +965,10 @@ this.BX = this.BX || {};
 	      }
 
 	      setTimeout(function () {
-	        if (_this12.getPostsCount() > 0) {
-	          panelNode.classList.add("".concat(_this12.class.panelNonEmpty));
+	        if (_this13.getPostsCount() > 0) {
+	          panelNode.classList.add("".concat(_this13.class.panelNonEmpty));
 	        } else {
-	          panelNode.classList.remove("".concat(_this12.class.panelNonEmpty));
+	          panelNode.classList.remove("".concat(_this13.class.panelNonEmpty));
 	        }
 	      }, 0);
 	    }
@@ -1164,28 +1159,198 @@ this.BX = this.BX || {};
 	  return PinnedPanel;
 	}();
 
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	var Post = /*#__PURE__*/function () {
-	  function Post() {
-	    babelHelpers.classCallCheck(this, Post);
+	var _templateObject$1, _templateObject2, _templateObject3;
+	var TaskCreator = /*#__PURE__*/function () {
+	  function TaskCreator() {
+	    babelHelpers.classCallCheck(this, TaskCreator);
 	  }
 
-	  babelHelpers.createClass(Post, [{
+	  babelHelpers.createClass(TaskCreator, null, [{
+	    key: "create",
+	    value: function create(params) {
+	      var _this = this;
+
+	      this.createTaskPopup = new main_popup.Popup('BXCTP', null, {
+	        autoHide: false,
+	        zIndex: 0,
+	        offsetLeft: 0,
+	        offsetTop: 0,
+	        overlay: false,
+	        lightShadow: true,
+	        closeIcon: {
+	          right: '12px',
+	          top: '10px'
+	        },
+	        draggable: {
+	          restrict: true
+	        },
+	        closeByEsc: false,
+	        contentColor: 'white',
+	        contentNoPaddings: true,
+	        buttons: [],
+	        content: main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div id=\"BXCTP_content\" class=\"", "\"></div>"])), this.cssClass.popupContent),
+	        events: {
+	          onAfterPopupShow: function onAfterPopupShow() {
+	            _this.createTaskSetContent(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"])), _this.cssClass.popupTitle, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_WAIT')));
+
+	            main_core.ajax.runAction('socialnetwork.api.livefeed.getRawEntryData', {
+	              data: {
+	                params: {
+	                  entityType: params.entityType,
+	                  entityId: params.entityId,
+	                  logId: main_core.Type.isNumber(params.logId) ? params.logId : null,
+	                  additionalParams: {
+	                    getSonetGroupAvailable: 'Y',
+	                    getLivefeedUrl: 'Y',
+	                    checkPermissions: {
+	                      feature: 'tasks',
+	                      operation: 'create_tasks'
+	                    }
+	                  }
+	                }
+	              }
+	            }).then(function (response) {
+	              var entryTitle = main_core.Type.isStringFilled(response.data.TITLE) ? response.data.TITLE : '';
+	              var entryDescription = main_core.Type.isStringFilled(response.data.DESCRIPTION) ? response.data.DESCRIPTION : '';
+	              var entryDiskObjects = main_core.Type.isPlainObject(response.data.DISK_OBJECTS) ? response.data.DISK_OBJECTS : [];
+	              var entryUrl = main_core.Type.isStringFilled(response.data.LIVEFEED_URL) ? response.data.LIVEFEED_URL : '';
+	              var entrySuffix = main_core.Type.isStringFilled(response.data.SUFFIX) ? response.data.SUFFIX : '';
+	              var groupsAvailable = main_core.Type.isPlainObject(response.data.GROUPS_AVAILABLE) ? response.data.GROUPS_AVAILABLE : [];
+	              var logId = !main_core.Type.isUndefined(response.data.LOG_ID) ? parseInt(response.data.LOG_ID) : 0;
+
+	              if ((main_core.Type.isStringFilled(entryTitle) || main_core.Type.isStringFilled(entryDescription)) && main_core.Type.isStringFilled(entryUrl)) {
+	                var taskDescription = _this.formatTaskDescription(entryDescription, entryUrl, params.entityType, entrySuffix);
+
+	                var taskData = {
+	                  TITLE: entryTitle,
+	                  DESCRIPTION: taskDescription,
+	                  RESPONSIBLE_ID: main_core.Loc.getMessage('USER_ID'),
+	                  CREATED_BY: main_core.Loc.getMessage('USER_ID'),
+	                  UF_TASK_WEBDAV_FILES: entryDiskObjects
+	                };
+	                var sonetGroupIdList = [];
+
+	                for (var _i = 0, _Object$entries = Object.entries(groupsAvailable); _i < _Object$entries.length; _i++) {
+	                  var _Object$entries$_i = babelHelpers.slicedToArray(_Object$entries[_i], 2),
+	                      key = _Object$entries$_i[0],
+	                      value = _Object$entries$_i[1];
+
+	                  sonetGroupIdList.push(value);
+	                }
+
+	                if (sonetGroupIdList.length == 1) {
+	                  taskData.GROUP_ID = parseInt(sonetGroupIdList[0]);
+	                }
+
+	                BX.Tasks.Util.Query.runOnce('task.add', {
+	                  data: taskData
+	                }).then(function (result) {
+	                  var resultData = result.getData();
+
+	                  if (main_core.Type.isPlainObject(resultData) && main_core.Type.isPlainObject(resultData.DATA) && !main_core.Type.isUndefined(resultData.DATA.ID) && parseInt(resultData.DATA.ID) > 0) {
+	                    _this.createTaskSetContentSuccess(resultData.DATA.ID);
+
+	                    main_core.ajax.runAction('socialnetwork.api.livefeed.createEntityComment', {
+	                      data: {
+	                        params: {
+	                          postEntityType: main_core.Type.isStringFilled(params.postEntityType) ? params.postEntityType : params.entityType,
+	                          sourceEntityType: params.entityType,
+	                          sourceEntityId: params.entityId,
+	                          entityType: 'TASK',
+	                          entityId: resultData.DATA.ID,
+	                          logId: main_core.Type.isNumber(params.logId) ? params.logId : logId > 0 ? logId : null
+	                        }
+	                      }
+	                    }).then(function () {}, function () {});
+	                  } else {
+	                    _this.createTaskSetContentFailure(result.getErrors().getMessages());
+	                  }
+	                });
+	              } else {
+	                _this.createTaskSetContentFailure([main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_ERROR_GET_DATA')]);
+	              }
+	            }, function () {
+	              _this.createTaskSetContentFailure([main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_ERROR_GET_DATA')]);
+	            });
+	          },
+	          onPopupClose: function onPopupClose() {
+	            _this.createTaskPopup.destroy();
+	          }
+	        }
+	      });
+	      this.createTaskPopup.show();
+	    }
+	  }, {
+	    key: "createTaskSetContentSuccess",
+	    value: function createTaskSetContentSuccess(taskId) {
+	      var taskLink = main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_PATH').replace('#user_id#', main_core.Loc.getMessage('USER_ID')).replace('#task_id#', taskId);
+	      this.createTaskPopup.destroy();
+	      window.top.BX.UI.Notification.Center.notify({
+	        content: main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_SUCCESS_TITLE'),
+	        actions: [{
+	          title: main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_VIEW'),
+	          events: {
+	            click: function click(event, balloon, action) {
+	              balloon.close();
+	              window.top.BX.SidePanel.Instance.open(taskLink);
+	            }
+	          }
+	        }]
+	      });
+	    }
+	  }, {
+	    key: "createTaskSetContentFailure",
+	    value: function createTaskSetContentFailure(errors) {
+	      this.createTaskSetContent(main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t<div class=\"", "\">", "</div>\n\t\t\t<div class=\"", "\">", "</div>\n\t\t</div>"])), this.cssClass.popupTitle, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_FAILURE_TITLE'), this.cssClass.popupDescription, errors.join('<br>')));
+	    }
+	  }, {
+	    key: "createTaskSetContent",
+	    value: function createTaskSetContent(contentNode) {
+	      var containerNode = document.getElementById('BXCTP_content');
+
+	      if (!containerNode) {
+	        return;
+	      }
+
+	      main_core.Dom.clean(containerNode);
+	      containerNode.appendChild(contentNode);
+	    }
+	  }, {
+	    key: "formatTaskDescription",
+	    value: function formatTaskDescription(taskDescription, livefeedUrl, entityType, suffix) {
+	      var result = taskDescription;
+	      suffix = main_core.Type.isStringFilled(suffix) ? "_".concat(suffix) : '';
+
+	      if (!!livefeedUrl && !!entityType && livefeedUrl.length > 0) {
+	        result += "\n\n" + main_core.Loc.getMessage("SONET_EXT_COMMENTAUX_CREATE_TASK_".concat(entityType).concat(suffix)).replace('#A_BEGIN#', "[URL=".concat(livefeedUrl, "]")).replace('#A_END#', '[/URL]');
+	      }
+
+	      return result;
+	    }
+	  }]);
+	  return TaskCreator;
+	}();
+	babelHelpers.defineProperty(TaskCreator, "createTaskPopup", null);
+	babelHelpers.defineProperty(TaskCreator, "cssClass", {
+	  popupContent: 'feed-create-task-popup-content',
+	  popupTitle: 'feed-create-task-popup-title',
+	  popupDescription: 'feed-create-task-popup-description'
+	});
+
+	var _templateObject$2;
+
+	var Post$$1 = /*#__PURE__*/function () {
+	  function Post$$1() {
+	    babelHelpers.classCallCheck(this, Post$$1);
+	  }
+
+	  babelHelpers.createClass(Post$$1, null, [{
 	    key: "showBackgroundWarning",
 	    value: function showBackgroundWarning(_ref) {
 	      var urlToEdit = _ref.urlToEdit,
 	          menuPopupWindow = _ref.menuPopupWindow;
-	      var content = main_core.Tag.render(_templateObject$1(), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_DESCRIPTION'));
-	      var dialog = new main_popup.Popup('create id here', null, {
+	      var content = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"])), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_DESCRIPTION'));
+	      var dialog = new main_popup.Popup('backgroundWarning', null, {
 	        autoHide: true,
 	        closeByEsc: true,
 	        offsetLeft: 0,
@@ -1228,8 +1393,307 @@ this.BX = this.BX || {};
 	      dialog.show();
 	      return false;
 	    }
+	  }, {
+	    key: "showMenu",
+	    value: function showMenu(params) {
+	      var _this = this;
+
+	      if (!main_core.Type.isPlainObject(params)) {
+	        params = {};
+	      }
+
+	      var menuElement = params.menuElement;
+	      var ind = params.ind;
+	      var menuId = this.getMenuId(ind);
+	      main_popup.MenuManager.destroy(menuId);
+	      var log_id = !main_core.Type.isUndefined(params.log_id) ? parseInt(params.log_id) : 0;
+
+	      if (log_id <= 0) {
+	        log_id = parseInt(menuElement.getAttribute('data-log-entry-log-id'));
+	      }
+
+	      if (log_id <= 0) {
+	        return false;
+	      }
+
+	      var bFavorites = params.bFavorites;
+
+	      if (main_core.Type.isUndefined(bFavorites)) {
+	        bFavorites = menuElement.getAttribute('data-log-entry-favorites') === 'Y';
+	      }
+
+	      var arMenuItemsAdditional = params.arMenuItemsAdditional;
+
+	      if (main_core.Type.isUndefined(arMenuItemsAdditional)) {
+	        arMenuItemsAdditional = menuElement.getAttribute('data-bx-items');
+
+	        try {
+	          arMenuItemsAdditional = JSON.parse(arMenuItemsAdditional);
+
+	          if (!main_core.Type.isPlainObject(arMenuItemsAdditional)) {
+	            arMenuItemsAdditional = {};
+	          }
+	        } catch (e) {
+	          arMenuItemsAdditional = {};
+	        }
+	      }
+
+	      var bindElement = params.bindElement;
+	      var itemPinned = null;
+	      var pinnedPostNode = bindElement.closest('[data-livefeed-post-pinned]');
+
+	      if (pinnedPostNode) {
+	        var pinnedState = pinnedPostNode.getAttribute('data-livefeed-post-pinned') === 'Y';
+	        itemPinned = {
+	          text: pinnedState ? main_core.Loc.getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_PINNED_Y') : main_core.Loc.getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_PINNED_N'),
+	          className: 'menu-popup-no-icon',
+	          onclick: function onclick(e) {
+	            exports.PinnedPanelInstance.changePinned({
+	              logId: log_id,
+	              newState: pinnedState ? 'N' : 'Y',
+	              event: e,
+	              node: bindElement
+	            });
+	            main_popup.MenuManager.getMenuById(_this.getMenuId(ind)).popupWindow.close();
+	            e.preventDefault();
+	          }
+	        };
+	      }
+
+	      var itemFavorites = main_core.Loc.getMessage('sonetLbUseFavorites') !== 'N' ? {
+	        text: bFavorites ? main_core.Loc.getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y') : main_core.Loc.getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N'),
+	        className: 'menu-popup-no-icon',
+	        onclick: function onclick(e) {
+	          __logChangeFavorites(log_id, "log_entry_favorites_".concat(log_id), bFavorites ? 'N' : 'Y', true, e);
+
+	          e.preventDefault();
+	          e.stopPropagation();
+	        }
+	      } : null;
+	      var arItems = [itemPinned, itemFavorites, main_core.Type.isStringFilled(menuElement.getAttribute('data-log-entry-url')) ? {
+	        html: "<span id=\"".concat(menuId, "-href-text\">").concat(main_core.Loc.getMessage('sonetLMenuHref'), "</span>"),
+	        className: 'menu-popup-no-icon feed-entry-popup-menu feed-entry-popup-menu-href',
+	        href: menuElement.getAttribute('data-log-entry-url')
+	      } : null, main_core.Type.isStringFilled(menuElement.getAttribute('data-log-entry-url')) ? {
+	        html: "<span id=\"".concat(menuId, "-link-text\">").concat(main_core.Loc.getMessage('sonetLMenuLink'), "</span>") + "<span id=\"".concat(menuId, "-link-icon-animate\" class=\"post-menu-link-icon-wrap\">") + "<span class=\"post-menu-link-icon\" id=\"".concat(menuId, "-link-icon-done\" style=\"display: none;\">") + '</span>' + '</span>',
+	        className: 'menu-popup-no-icon feed-entry-popup-menu feed-entry-popup-menu-link',
+	        onclick: function onclick(e) {
+	          var menuItemText = document.getElementById("".concat(menuId, "-link-text"));
+	          var menuItemIconDone = document.getElementById("".concat(menuId, "-link-icon-done"));
+
+	          if (BX.clipboard.isCopySupported()) {
+	            if (menuItemText && menuItemText.getAttribute('data-block-click') === 'Y') {
+	              return;
+	            }
+
+	            BX.clipboard.copy(menuElement.getAttribute('data-log-entry-url'));
+
+	            if (menuItemText && menuItemIconDone) {
+	              menuItemIconDone.style.display = 'inline-block';
+	              document.getElementById("".concat(menuId, "-link-icon-animate")).classList.remove('post-menu-link-icon-animate');
+	              main_core.Dom.adjust(document.getElementById("".concat(menuId, "-link-text")), {
+	                attrs: {
+	                  'data-block-click': 'Y'
+	                }
+	              });
+	              setTimeout(function () {
+	                document.getElementById("".concat(menuId, "-link-icon-animate")).classList.add('post-menu-link-icon-animate');
+	              }, 1);
+	              setTimeout(function () {
+	                main_core.Dom.adjust(document.getElementById("".concat(menuId, "-link-text")), {
+	                  attrs: {
+	                    'data-block-click': 'N'
+	                  }
+	                });
+	              }, 500);
+	            }
+
+	            return;
+	          }
+
+	          var it = e.currentTarget;
+	          var height = parseInt(!!it.getAttribute('bx-height') ? it.getAttribute('bx-height') : it.offsetHeight);
+
+	          if (it.getAttribute('bx-status') !== 'shown') {
+	            it.setAttribute('bx-status', 'shown');
+	            var node = document.getElementById("".concat(menuId, "-link-text"));
+
+	            if (!document.getElementById("".concat(menuId, "-link")) && !!node) {
+	              var pos = BX.pos(node);
+	              var pos2 = BX.pos(node.parentNode);
+	              var pos3 = BX.pos(node.closest('.menu-popup-item'));
+	              pos.height = pos2.height - 1;
+	              main_core.Dom.adjust(it, {
+	                attrs: {
+	                  'bx-height': it.offsetHeight
+	                },
+	                style: {
+	                  overflow: 'hidden',
+	                  display: 'block'
+	                },
+	                children: [main_core.Dom.create('BR'), main_core.Dom.create('DIV', {
+	                  attrs: {
+	                    id: "".concat(menuId, "-link")
+	                  },
+	                  children: [main_core.Dom.create('SPAN', {
+	                    attrs: {
+	                      className: 'menu-popup-item-left'
+	                    }
+	                  }), main_core.Dom.create('SPAN', {
+	                    attrs: {
+	                      className: 'menu-popup-item-icon'
+	                    }
+	                  }), main_core.Dom.create('SPAN', {
+	                    attrs: {
+	                      className: 'menu-popup-item-text'
+	                    },
+	                    children: [main_core.Dom.create('INPUT', {
+	                      attrs: {
+	                        id: "".concat(menuId, "-link-input"),
+	                        type: 'text',
+	                        value: menuElement.getAttribute('data-log-entry-url')
+	                      },
+	                      style: {
+	                        height: "".concat(pos.height, "px"),
+	                        width: "".concat(pos3.width - 21, "px")
+	                      },
+	                      events: {
+	                        click: function click(e) {
+	                          e.currentTarget.select();
+	                          e.stopPropagation();
+	                          e.preventDefault();
+	                        }
+	                      }
+	                    })]
+	                  })]
+	                }), main_core.Dom.create('SPAN', {
+	                  attrs: {
+	                    className: 'menu-popup-item-right'
+	                  }
+	                })]
+	              });
+	              Event.bind(document.getElementById("".concat(menuId, "-link-input")), 'click', function (e) {
+	                e.currentTarget.select();
+	                e.preventDefault();
+	                e.stopPropagation();
+	              });
+	            }
+
+	            new BX.fx({
+	              time: 0.2,
+	              step: 0.05,
+	              type: 'linear',
+	              start: height,
+	              finish: height * 2,
+	              callback: function (height) {
+	                this.style.height = "".concat(height, "px");
+	              }.bind(it)
+	            }).start();
+	            BX.fx.show(document.getElementById("".concat(menuId, "-link")), 0.2);
+	            document.getElementById("".concat(menuId, "-link-input")).select();
+	          } else {
+	            it.setAttribute('bx-status', 'hidden');
+	            new BX.fx({
+	              time: 0.2,
+	              step: 0.05,
+	              type: 'linear',
+	              start: it.offsetHeight,
+	              finish: height,
+	              callback: function (height) {
+	                this.style.height = "".concat(height, "px");
+	              }.bind(it)
+	            }).start();
+	            BX.fx.hide(document.getElementById("".concat(menuId, "-link")), 0.2);
+	          }
+	        }
+	      } : null, main_core.Loc.getMessage('sonetLCanDelete') === 'Y' ? {
+	        text: main_core.Loc.getMessage('sonetLMenuDelete'),
+	        className: 'menu-popup-no-icon',
+	        onclick: function onclick(e) {
+	          if (confirm(main_core.Loc.getMessage('sonetLMenuDeleteConfirm'))) {
+	            exports.FeedInstance.delete({
+	              logId: log_id,
+	              nodeId: "log-entry-".concat(log_id),
+	              ind: ind
+	            });
+	          }
+
+	          e.stopPropagation();
+	          e.preventDefault();
+	        }
+	      } : null, menuElement.getAttribute('data-log-entry-createtask') === "Y" ? {
+	        text: main_core.Loc.getMessage('sonetLMenuCreateTask'),
+	        className: 'menu-popup-no-icon',
+	        onclick: function onclick(e) {
+	          TaskCreator.create({
+	            entryEntityType: menuElement.getAttribute('data-log-entry-entity-type'),
+	            entityType: menuElement.getAttribute('data-log-entry-entity-type'),
+	            entityId: menuElement.getAttribute('data-log-entry-entity-id'),
+	            logId: parseInt(menuElement.getAttribute('data-log-entry-log-id'))
+	          });
+	          main_popup.MenuManager.getMenuById(_this.getMenuId(ind)).popupWindow.close();
+	          return e.preventDefault();
+	        }
+	      } : null];
+
+	      if (!!arMenuItemsAdditional && main_core.Type.isArray(arMenuItemsAdditional)) {
+	        arMenuItemsAdditional.forEach(function (item) {
+	          if (main_core.Type.isUndefined(item.className)) {
+	            item.className = 'menu-popup-no-icon';
+	          }
+	        });
+	        arItems = arItems.concat(arMenuItemsAdditional);
+	      }
+
+	      var arParams = {
+	        offsetLeft: -14,
+	        offsetTop: 4,
+	        lightShadow: false,
+	        angle: {
+	          position: 'top',
+	          offset: 50
+	        },
+	        events: {
+	          onPopupShow: function onPopupShow(ob) {
+	            if (document.getElementById("log_entry_favorites_".concat(log_id))) {
+	              var favoritesMenuItem = null;
+	              var menuItems = ob.contentContainer.querySelectorAll('.menu-popup-item-text');
+	              menuItems.forEach(function (menuItem) {
+	                if (menuItem.innerHTML === main_core.Loc.getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y') || menuItem.innerHTML === main_core.Loc.getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N')) {
+	                  favoritesMenuItem = menuItem;
+	                }
+	              });
+
+	              if (main_core.Type.isDomNode(favoritesMenuItem)) {
+	                favoritesMenuItem.innerHTML = document.getElementById("log_entry_favorites_".concat(log_id)).classList.contains('feed-post-important-switch-active') ? main_core.Loc.getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y') : main_core.Loc.getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N');
+	              }
+	            }
+
+	            if (document.getElementById("".concat(menuId, "-link"))) {
+	              var linkMenuItem = ob.popupContainer.querySelector('.feed-entry-popup-menu-link');
+
+	              if (linkMenuItem) {
+	                var height = parseInt(!!linkMenuItem.getAttribute('bx-height') ? linkMenuItem.getAttribute('bx-height') : 0);
+
+	                if (height > 0) {
+	                  document.getElementById("".concat(menuId, "-link")).style.display = 'none';
+	                  linkMenuItem.setAttribute('bx-status', 'hidden');
+	                  linkMenuItem.style.height = "".concat(height, "px");
+	                }
+	              }
+	            }
+	          }
+	        }
+	      };
+	      main_popup.MenuManager.show(this.getMenuId(ind), bindElement, arItems, arParams);
+	    }
+	  }, {
+	    key: "getMenuId",
+	    value: function getMenuId(ind) {
+	      return "post-menu-".concat(ind);
+	    }
 	  }]);
-	  return Post;
+	  return Post$$1;
 	}();
 
 	var Informer = /*#__PURE__*/function () {
@@ -1535,18 +1999,1153 @@ this.BX = this.BX || {};
 	        });
 	      }
 	    }
+	  }, {
+	    key: "getWrap",
+	    value: function getWrap() {
+	      return this.wrap;
+	    }
 	  }]);
 	  return Informer;
 	}();
+
+	var Loader = /*#__PURE__*/function () {
+	  function Loader() {
+	    babelHelpers.classCallCheck(this, Loader);
+	  }
+
+	  babelHelpers.createClass(Loader, null, [{
+	    key: "showRefreshFade",
+	    value: function showRefreshFade() {
+	      var _this = this;
+
+	      var feedContainer = document.getElementById('log_internal_container');
+
+	      if (feedContainer) {
+	        feedContainer.classList.add(this.cssClass.feedMask);
+	        feedContainer.classList.remove(this.cssClass.feedNoMask);
+	      }
+
+	      var loaderContainer = document.getElementById('feed-loader-container');
+
+	      if (loaderContainer) {
+	        loaderContainer.style.display = 'block';
+	        loaderContainer.classList.remove(this.cssClass.hideLoader);
+	        setTimeout(function () {
+	          loaderContainer.classList.add(_this.cssClass.showLoader);
+	        }, 0);
+	      }
+	    }
+	  }, {
+	    key: "hideRefreshFade",
+	    value: function hideRefreshFade() {
+	      var feedContainer = document.getElementById('log_internal_container');
+
+	      if (feedContainer) {
+	        feedContainer.classList.remove(this.cssClass.feedMask);
+	        feedContainer.classList.add(this.cssClass.feedNoMask);
+	      }
+
+	      var loaderContainer = document.getElementById('feed-loader-container');
+
+	      if (loaderContainer) {
+	        loaderContainer.classList.remove(this.cssClass.showLoader);
+	        loaderContainer.classList.add(this.cssClass.hideLoader);
+	      }
+	    }
+	  }]);
+	  return Loader;
+	}();
+	babelHelpers.defineProperty(Loader, "cssClass", {
+	  feedMask: 'log-internal-mask',
+	  feedNoMask: 'log-internal-nomask',
+	  showLoader: 'livefeed-show-loader',
+	  hideLoader: 'livefeed-hide-loader'
+	});
+	babelHelpers.defineProperty(Loader, "onAnimationEnd", function (event) {
+	  if ('animationName' in event && event.animationName && event.animationName === 'hideLoader') {
+	    var loaderContainer = document.getElementById('feed-loader-container');
+
+	    if (!loaderContainer) {
+	      return;
+	    }
+
+	    loaderContainer.classList.remove(Loader.cssClass.showLoader);
+	    loaderContainer.classList.remove(Loader.cssClass.hideLoader);
+	    loaderContainer.style.display = '';
+	  }
+	});
+
+	var MoreButton$$1 = /*#__PURE__*/function () {
+	  function MoreButton$$1() {
+	    babelHelpers.classCallCheck(this, MoreButton$$1);
+	  }
+
+	  babelHelpers.createClass(MoreButton$$1, null, [{
+	    key: "recalcPost",
+	    value: function recalcPost(params) {
+	      if (!main_core.Type.isDomNode(params.informerBlock)) {
+	        return;
+	      }
+
+	      var blockHeight = !main_core.Type.isUndefined(params.arPos) ? params.arPos.height : params.bodyBlock.offsetHeight;
+	      var postBlock = params.informerBlock.closest(".".concat(this.cssClass.post));
+
+	      if (!postBlock) {
+	        return;
+	      }
+
+	      if (blockHeight <= 284) {
+	        postBlock.classList.add(this.cssClass.postShort);
+	        postBlock.classList.add(this.cssClass.postSeparator);
+	      } else {
+	        postBlock.classList.remove(this.cssClass.postShort);
+	      }
+	    }
+	  }, {
+	    key: "recalcPostsList",
+	    value: function recalcPostsList() {
+	      var _this = this;
+
+	      var buttonsList = exports.FeedInstance.getMoreButtons();
+	      buttonsList.forEach(function (buttonData, index, object) {
+	        if (!main_core.Type.isPlainObject(buttonData) || !main_core.Type.isStringFilled(buttonData.bodyBlockID)) {
+	          return;
+	        }
+
+	        var bodyNode = document.getElementById(buttonData.bodyBlockID);
+
+	        if (!bodyNode) {
+	          return;
+	        }
+
+	        if (main_core.Type.isStringFilled(buttonData.outerBlockID)) {
+	          var outerNode = document.getElementById(buttonData.outerBlockID);
+
+	          if (outerNode) {
+	            if (outerNode.offsetWidth < bodyNode.offsetWidth) {
+	              var innerNode = outerNode.querySelector("div.".concat(_this.cssClass.postTextInner));
+	              innerNode.style.overflowX = 'scroll';
+	            }
+	          }
+	        }
+
+	        _this.recalcPost({
+	          arPos: {
+	            height: bodyNode.offsetHeight
+	          },
+	          informerBlock: main_core.Type.isStringFilled(buttonData.informerBlockID) ? document.getElementById(buttonData.informerBlockID) : null
+	        });
+
+	        object.splice(index, 1);
+	      });
+	      var feedContainer = document.getElementById('log_internal_container');
+
+	      if (!feedContainer) {
+	        return;
+	      }
+
+	      var onLoadImageList = feedContainer.querySelectorAll('[data-bx-onload="Y"]');
+	      onLoadImageList.forEach(function (imageNode) {
+	        imageNode.addEventListener('load', function (e) {
+	          var outerBlock = e.currentTarget.closest(".".concat(_this.cssClass.comment));
+
+	          if (!outerBlock) // post
+	            {
+	              outerBlock = e.currentTarget.closest(".".concat(_this.cssClass.post));
+
+	              if (outerBlock) {
+	                var bodyBlock = outerBlock.querySelector(".".concat(_this.cssClass.postTextInnerInner));
+
+	                if (bodyBlock) {
+	                  _this.recalcPost({
+	                    bodyBlock: bodyBlock,
+	                    informerBlock: outerBlock.querySelector(".".concat(_this.cssClass.more))
+	                  });
+	                }
+	              }
+	            }
+
+	          e.currentTarget.setAttribute('data-bx-onload', 'N');
+	        });
+	      });
+	    }
+	  }, {
+	    key: "recalcCommentsList",
+	    value: function recalcCommentsList() {
+	      main_core_events.EventEmitter.emit('OnUCMoreButtonListRecalc', new main_core_events.BaseEvent({
+	        compatData: []
+	      }));
+	    }
+	  }, {
+	    key: "clearCommentsList",
+	    value: function clearCommentsList() {
+	      main_core_events.EventEmitter.emit('OnUCMoreButtonListClear', new main_core_events.BaseEvent({
+	        compatData: []
+	      }));
+	    }
+	  }, {
+	    key: "expand",
+	    value: function expand(textBlock) {
+	      if (!main_core.Type.isDomNode(textBlock)) {
+	        return;
+	      }
+
+	      var postBlock = textBlock.closest(".".concat(this.cssClass.post));
+
+	      if (!postBlock) {
+	        return;
+	      }
+
+	      postBlock.classList.add(this.cssClass.postShort);
+	      postBlock.classList.add(this.cssClass.postSeparator);
+	    }
+	    /*
+	    is not used actually by disk uf
+	    */
+
+	  }, {
+	    key: "lazyLoadCheckVisibility",
+	    value: function lazyLoadCheckVisibility(image) {
+	      if (!main_core.Type.isPlainObject(image) || !main_core.Type.isDomNode(image.node)) {
+	        return true;
+	      }
+
+	      var imageNode = image.node;
+	      var textType = 'comment';
+	      var textBlock = imageNode.closest(".".concat(this.cssClass.comment));
+
+	      if (!textBlock) {
+	        textType = 'post';
+	        textBlock = imageNode.closest(".".concat(this.cssClass.postText));
+	      }
+
+	      if (!textBlock) {
+	        return true;
+	      }
+
+	      var moreBlock = textBlock.querySelector("div.".concat(this.cssClass.more));
+
+	      if (!moreBlock || moreBlock.style.display === 'none') {
+	        return true;
+	      }
+
+	      return imageNode.parentNode.parentNode.offsetTop < (textType === 'comment' ? 220 : 270);
+	    }
+	  }]);
+	  return MoreButton$$1;
+	}();
+	babelHelpers.defineProperty(MoreButton$$1, "cssClass", {
+	  post: 'feed-post-block',
+	  postShort: 'feed-post-block-short',
+	  postSeparator: 'feed-post-block-separator',
+	  postText: 'feed-post-text-block',
+	  postTextInner: 'feed-post-text-block-inner',
+	  postTextInnerInner: 'feed-post-text-block-inner-inner',
+	  more: 'feed-post-text-more',
+	  comment: 'feed-com-text'
+	});
+
+	var Forum = /*#__PURE__*/function () {
+	  function Forum() {
+	    babelHelpers.classCallCheck(this, Forum);
+	  }
+
+	  babelHelpers.createClass(Forum, null, [{
+	    key: "processSpoilerToggle",
+	    value: function processSpoilerToggle(params) {
+	      if (!main_core.Type.isPlainObject(params)) {
+	        params = {};
+	      }
+
+	      if (!main_core.Type.isDomNode(params.node)) {
+	        return;
+	      }
+
+	      var outerBlock = params.node.closest('.feed-post-block');
+
+	      if (!outerBlock) {
+	        return;
+	      }
+
+	      var bodyBlock = outerBlock.querySelector('.feed-post-text-block-inner-inner');
+
+	      if (!bodyBlock) {
+	        return;
+	      }
+
+	      var moreBlock = outerBlock.querySelector('.feed-post-text-more');
+	      MoreButton$$1.recalcPost({
+	        bodyBlock: bodyBlock,
+	        informerBlock: moreBlock
+	      });
+	    }
+	  }]);
+	  return Forum;
+	}();
+	babelHelpers.defineProperty(Forum, "cssClass", {});
+
+	var Filter = /*#__PURE__*/function () {
+	  function Filter() {
+	    babelHelpers.classCallCheck(this, Filter);
+	    this.filterId = '';
+	    this.filterApi = null;
+	  }
+
+	  babelHelpers.createClass(Filter, [{
+	    key: "init",
+	    value: function init(params) {
+	      if (!main_core.Type.isPlainObject(params)) {
+	        params = {};
+	      }
+
+	      if (main_core.Type.isStringFilled(params.filterId) && !main_core.Type.isUndefined(BX.Main) && !main_core.Type.isUndefined(BX.Main.filterManager)) {
+	        var filterManager = BX.Main.filterManager.getById(params.filterId);
+	        this.filterId = params.filterId;
+
+	        if (filterManager) {
+	          this.filterApi = filterManager.getApi();
+	        }
+	      }
+
+	      this.initEvents();
+	    }
+	  }, {
+	    key: "initEvents",
+	    value: function initEvents() {
+	      main_core_events.EventEmitter.subscribe('BX.Livefeed.Filter:beforeApply', function (event) {
+	        Loader.showRefreshFade();
+	      });
+	      main_core_events.EventEmitter.subscribe('BX.Livefeed.Filter:apply', function (event) {
+	        var _event$getCompatData = event.getCompatData(),
+	            _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 3),
+	            filterValues = _event$getCompatData2[0],
+	            filterPromise = _event$getCompatData2[1],
+	            filterParams = _event$getCompatData2[2];
+
+	        if (typeof filterParams != 'undefined') {
+	          filterParams.autoResolve = false;
+	        }
+
+	        exports.PageInstance.refresh({
+	          useBXMainFilter: 'Y'
+	        }, filterPromise);
+	      });
+	      main_core_events.EventEmitter.subscribe('BX.Livefeed.Filter:searchInput', function (event) {
+	        var _event$getCompatData3 = event.getCompatData(),
+	            _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 1),
+	            searchString = _event$getCompatData4[0];
+
+	        if (main_core.Type.isStringFilled(searchString)) {
+	          Loader.showRefreshFade();
+	        } else {
+	          Loader.hideRefreshFade();
+	        }
+	      });
+	    }
+	  }, {
+	    key: "initEventsCrm",
+	    value: function initEventsCrm() {
+	      main_core_events.EventEmitter.subscribe('BX.Livefeed.Filter:searchInput', function () {
+	        exports.PageInstance.refresh();
+	      });
+	    }
+	  }, {
+	    key: "clickTag",
+	    value: function clickTag(tagValue) {
+	      if (!main_core.Type.isStringFilled(tagValue) || !this.filterApi) {
+	        return false;
+	      }
+
+	      this.filterApi.setFields({
+	        TAG: tagValue
+	      });
+	      this.filterApi.apply();
+
+	      if (main_core.Type.isStringFilled(this.filterId) && !main_core.Type.isUndefined(BX.Main) && !main_core.Type.isUndefined(BX.Main.filterManager)) {
+	        var filterContainer = document.getElementById("".concat(this.filterId, "_filter_container"));
+
+	        if (filterContainer && BX.Main.filterManager.getById(this.filterId) && (BX.Main.filterManager.getById(this.filterId).getSearch().getSquares().length > 0 || BX.Main.filterManager.getById(this.filterId).getSearch().getSearchString().length > 0)) {
+	          var pagetitleContainer = filterContainer.closest('.pagetitle-wrap');
+
+	          if (pagetitleContainer) {
+	            pagetitleContainer.classList.add('pagetitle-wrap-filter-opened');
+	          }
+	        }
+	      }
+
+	      new BX.easing({
+	        duration: 500,
+	        start: {
+	          scroll: window.pageYOffset
+	        },
+	        finish: {
+	          scroll: 0
+	        },
+	        transition: BX.easing.makeEaseOut(BX.easing.transitions.quart),
+	        step: function step(state) {
+	          window.scrollTo(0, state.scroll);
+	        },
+	        complete: function complete() {}
+	      }).animate();
+	      return true;
+	    }
+	  }]);
+	  return Filter;
+	}();
+
+	var ContentView = /*#__PURE__*/function () {
+	  function ContentView() {
+	    babelHelpers.classCallCheck(this, ContentView);
+	  }
+
+	  babelHelpers.createClass(ContentView, null, [{
+	    key: "registerAreaList",
+	    value: function registerAreaList() {
+	      var container = BX('log_internal_container'),
+	          fullContentArea = null;
+
+	      if (container) {
+	        var viewAreaList = BX.findChildren(container, {
+	          tag: 'div',
+	          className: 'feed-post-contentview'
+	        }, true);
+
+	        for (var i = 0, length = viewAreaList.length; i < length; i++) {
+	          if (viewAreaList[i].id.length > 0) {
+	            fullContentArea = BX.findChild(viewAreaList[i], {
+	              tag: 'div',
+	              className: 'feed-post-text-block-inner-inner'
+	            });
+	            BX.UserContentView.registerViewArea(viewAreaList[i].id, fullContentArea ? fullContentArea : null);
+	          }
+	        }
+	      }
+	    }
+	  }]);
+	  return ContentView;
+	}();
+
+	var _templateObject$3, _templateObject2$1;
+
+	var Page = /*#__PURE__*/function () {
+	  function Page() {
+	    var _this = this;
+
+	    babelHelpers.classCallCheck(this, Page);
+	    this.loadStarted = null;
+	    this.stopTrackNextPage = null;
+	    this.requestMode = null;
+	    this.nextPageFirst = null;
+	    this.nextPageUrl = null;
+	    this.scrollInitialized = null;
+	    this.firstPageLastTS = 0;
+	    this.firstPageLastId = 0;
+	    this.useBXMainFilter = 'N';
+	    this.signedParameters = '';
+	    this.componentName = '';
+	    this.class = {};
+	    main_core.Event.ready(function () {
+	      _this.init();
+	    });
+	  }
+
+	  babelHelpers.createClass(Page, [{
+	    key: "init",
+	    value: function init() {
+	      this.loadStarted = false;
+	      this.stopTrackNextPage = false;
+	      this.requestMode = false;
+	      this.nextPageFirst = true;
+	      this.nextPageUrl = false;
+	      this.scrollInitialized = false;
+	    }
+	  }, {
+	    key: "refresh",
+	    value: function refresh(params, filterPromise) {
+	      var _this2 = this;
+
+	      if (this.loadStarted) {
+	        return;
+	      }
+
+	      params = main_core.Type.isPlainObject(params) ? params : {};
+	      params.siteTemplateId = main_core.Loc.getMessage('SONET_EXT_LIVEFEED_SITE_TEMPLATE_ID');
+	      params.assetsCheckSum = main_core.Loc.getMessage('sonetLAssetsCheckSum');
+	      this.loadStarted = true;
+	      Loader.showRefreshFade();
+	      MoreButton$$1.clearCommentsList();
+	      exports.FeedInstance.clearMoreButtons();
+
+	      if (!main_core.Type.isStringFilled(params.useBXMainFilter) || params.useBXMainFilter !== 'Y') {
+	        main_core_events.EventEmitter.emit('BX.Livefeed:refresh', new main_core_events.BaseEvent({
+	          compatData: []
+	        }));
+	      }
+
+	      exports.InformerInstance.hideReloadNode();
+	      exports.InformerInstance.lockCounterAnimation = true;
+	      this.loadStarted = false;
+	      main_core.ajax.runAction('socialnetwork.api.livefeed.refresh', {
+	        signedParameters: this.getSignedParameters(),
+	        data: {
+	          c: this.getComponentName(),
+	          logajax: 'Y',
+	          // compatibility
+	          RELOAD: 'Y',
+	          // compatibility
+	          params: params
+	        }
+	      }).then(function (response) {
+	        var responseData = main_core.Type.isPlainObject(response.data) ? response.data : {};
+	        _this2.loadStarted = false;
+	        Loader.hideRefreshFade();
+
+	        if (filterPromise) {
+	          filterPromise.fulfill();
+	        }
+
+	        var emptyLivefeed = main_core.Type.isPlainObject(responseData.componentResult) && main_core.Type.isStringFilled(responseData.componentResult.EMPTY) ? responseData.componentResult.EMPTY : 'N';
+	        var forcePageRefresh = main_core.Type.isPlainObject(responseData.componentResult) && main_core.Type.isStringFilled(responseData.componentResult.FORCE_PAGE_REFRESH) ? responseData.componentResult.FORCE_PAGE_REFRESH : 'N';
+
+	        if (forcePageRefresh === 'Y') {
+	          top.window.location.reload();
+	          return;
+	        }
+
+	        var loaderContainer = document.getElementById('feed-loader-container');
+	        exports.InformerInstance.lockCounterAnimation = false;
+	        var feedContainer = document.getElementById('log_internal_container');
+
+	        if (!feedContainer) {
+	          return;
+	        }
+
+	        main_core.Dom.clean(feedContainer);
+	        var emptyBlock = emptyLivefeed === 'Y' && document.getElementById('feed-empty-wrap') ? document.getElementById('feed-empty-wrap') : null;
+
+	        if (emptyBlock) {
+	          feedContainer.appendChild(main_core.Dom.create('div', {
+	            props: {
+	              className: 'feed-wrap'
+	            },
+	            children: [emptyBlock]
+	          }));
+	          emptyBlock.style.display = 'block';
+	          var emptyTextNode = emptyBlock.querySelector('.feed-wrap-empty');
+
+	          if (emptyTextNode) {
+	            emptyTextNode.innerHTML = main_core.Loc.getMessage('SONET_C30_T_EMPTY_SEARCH');
+	          }
+	        }
+
+	        if (loaderContainer) {
+	          feedContainer.appendChild(loaderContainer);
+	        }
+
+	        if (responseData.html.length > 0) {
+	          _this2.clearContainerExternal(false);
+
+	          BX.LazyLoad.clearImages();
+	          var pageNode = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["<div id=\"content_block_", "\" class=\"feed-wrap\" style=\"display: block;\">", "</div>"])), Math.floor(Math.random() * 1000), responseData.html);
+	          feedContainer.appendChild(pageNode);
+	          main_core.Runtime.html(pageNode, responseData.html).then(function () {
+	            MoreButton$$1.recalcPostsList();
+	            MoreButton$$1.recalcCommentsList();
+	            ContentView.registerAreaList();
+	            exports.PinnedPanelInstance.resetFlags();
+	            exports.PinnedPanelInstance.initPanel();
+	            exports.PinnedPanelInstance.initPosts();
+	          });
+	          _this2.stopTrackNextPage = false;
+	          MoreButton$$1.clearCommentsList();
+	          var informerWrap = exports.InformerInstance.getWrap();
+
+	          if (informerWrap && informerWrap.classList.contains(exports.InformerInstance.class.informerFixed)) {
+	            new BX.easing({
+	              duration: 500,
+	              start: {
+	                scroll: window.pageYOffset
+	              },
+	              finish: {
+	                scroll: 0
+	              },
+	              transition: BX.easing.makeEaseOut(BX.easing.transitions.quart),
+	              step: function step(state) {
+	                window.scrollTo(0, state.scroll);
+	              },
+	              complete: function complete() {
+	                main_core_events.EventEmitter.emit('onGoUp', []);
+	              }
+	            }).animate();
+	          }
+	        }
+	      }, function () {
+	        _this2.loadStarted = false;
+
+	        if (filterPromise) {
+	          filterPromise.reject();
+	        }
+
+	        Loader.hideRefreshFade();
+
+	        _this2.showRefreshError();
+	      });
+	      return false;
+	    }
+	  }, {
+	    key: "getNextPage",
+	    value: function getNextPage() {
+	      var _this3 = this;
+
+	      var stubContainer = document.getElementById('feed-new-message-inf-wrap');
+	      var stubFirstContainer = document.getElementById('feed-new-message-inf-wrap-first');
+
+	      if (this.loadStarted) {
+	        return false;
+	      }
+
+	      this.loadStarted = true;
+	      exports.InformerInstance.lockCounterAnimation = true;
+	      exports.FeedInstance.clearMoreButtons();
+
+	      if (!this.nextPageFirst && stubContainer) {
+	        stubContainer.style.display = 'block';
+	      } else if (this.nextPageFirst && stubFirstContainer) {
+	        stubFirstContainer.classList.add('feed-new-message-inf-wrap-first-visible');
+	      }
+
+	      var nextUrlParamsList = new main_core.Uri(this.getNextPageUrl()).getQueryParams();
+	      var pageNumber = 1;
+	      var prevPageLogId = '';
+	      var ts = 0;
+	      var noblog = 'N';
+	      Object.entries(nextUrlParamsList).forEach(function (_ref) {
+	        var _ref2 = babelHelpers.slicedToArray(_ref, 2),
+	            key = _ref2[0],
+	            value = _ref2[1];
+
+	        if (key.match(/^PAGEN_(\d+)$/i)) {
+	          pageNumber = parseInt(value);
+	        } else if (key === 'pplogid') {
+	          prevPageLogId = decodeURI(value);
+	        } else if (key === 'ts') {
+	          ts = value;
+	        } else if (key === 'noblog') {
+	          noblog = value;
+	        }
+	      });
+	      var queryParams = {
+	        PAGE_NUMBER: pageNumber,
+	        LAST_LOG_TIMESTAMP: ts,
+	        PREV_PAGE_LOG_ID: prevPageLogId,
+	        siteTemplateId: main_core.Loc.getMessage('SONET_EXT_LIVEFEED_SITE_TEMPLATE_ID'),
+	        useBXMainFilter: this.useBXMainFilter,
+	        preset_filter_top_id: main_core.Type.isStringFilled(nextUrlParamsList.preset_filter_top_id) && nextUrlParamsList.preset_filter_top_id !== '0' ? nextUrlParamsList.preset_filter_top_id : '',
+	        preset_filter_id: main_core.Type.isStringFilled(nextUrlParamsList.preset_filter_id) && nextUrlParamsList.preset_filter_id !== '0' ? nextUrlParamsList.preset_filter_id : ''
+	      };
+	      var queryData = {
+	        c: this.getComponentName(),
+	        logajax: 'Y',
+	        // compatibility with socialnetwork.blog.post.comment
+	        noblog: noblog,
+	        // compatibility with socialnetwork.blog.post.comment
+	        params: queryParams
+	      };
+
+	      if (!main_core.Type.isUndefined(nextUrlParamsList.CREATED_BY_ID)) {
+	        queryData.flt_created_by_id = parseInt(nextUrlParamsList.CREATED_BY_ID);
+	      }
+
+	      if (!main_core.Type.isUndefined(nextUrlParamsList.flt_date_datesel)) {
+	        queryData.flt_date_datesel = nextUrlParamsList.flt_date_datesel;
+	      }
+
+	      if (!main_core.Type.isUndefined(nextUrlParamsList.flt_date_from)) {
+	        queryData.flt_date_from = decodeURIComponent(nextUrlParamsList.flt_date_from);
+	      }
+
+	      if (!main_core.Type.isUndefined(nextUrlParamsList.flt_date_to)) {
+	        queryData.flt_date_to = decodeURIComponent(nextUrlParamsList.flt_date_to);
+	      }
+
+	      main_core.ajax.runAction('socialnetwork.api.livefeed.getNextPage', {
+	        signedParameters: this.getSignedParameters(),
+	        data: queryData
+	      }).then(function (response) {
+	        var responseData = main_core.Type.isPlainObject(response.data) ? response.data : {};
+	        _this3.loadStarted = false;
+	        var stubContainer = document.getElementById('feed-new-message-inf-wrap');
+
+	        if (stubContainer) {
+	          main_core.Dom.clean(stubContainer);
+	          main_core.Dom.remove(stubContainer);
+	        }
+
+	        exports.InformerInstance.lockCounterAnimation = false;
+	        var lastEntryTimestamp = main_core.Type.isPlainObject(responseData.componentResult) && !main_core.Type.isUndefined(responseData.componentResult.LAST_TS) ? parseInt(responseData.componentResult.LAST_TS) : 0;
+	        var lastEntryId = main_core.Type.isPlainObject(responseData.componentResult) && !main_core.Type.isUndefined(responseData.componentResult.LAST_ID) ? parseInt(responseData.componentResult.LAST_ID) : null;
+
+	        if (responseData.html.length > 0 && lastEntryTimestamp > 0 && (parseInt(_this3.firstPageLastTS) <= 0 || lastEntryTimestamp < parseInt(_this3.firstPageLastTS) || lastEntryTimestamp == parseInt(_this3.firstPageLastTS) && !main_core.Type.isNull(lastEntryId) && lastEntryId < parseInt(_this3.firstPageLastId))) {
+	          MoreButton$$1.clearCommentsList();
+	          var contentBlockId = "content_block_".concat(Math.floor(Math.random() * 1000));
+	          var pageNode = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"feed-wrap\" style=\"display:", ";\">", "</div>"])), contentBlockId, _this3.nextPageFirst ? 'none' : 'block', responseData.html);
+	          var feedContainer = document.getElementById('log_internal_container');
+
+	          if (!feedContainer) {
+	            return;
+	          }
+
+	          feedContainer.appendChild(pageNode);
+	          main_core.Runtime.html(pageNode, responseData.html).then(function () {
+	            if (pageNumber > 2) {
+	              _this3.stopTrackNextPage = false;
+	              MoreButton$$1.recalcPostsList();
+	              ContentView.registerAreaList();
+	              MoreButton$$1.recalcCommentsList();
+	              exports.PinnedPanelInstance.resetFlags();
+	              exports.PinnedPanelInstance.initPosts();
+	            }
+	          });
+
+	          _this3.clearContainerExternal(false);
+
+	          if (pageNumber === 2) {
+	            document.getElementById('feed-new-message-inf-text-first').style.display = 'block';
+	            document.getElementById('feed-new-message-inf-loader-first').style.display = 'none';
+	            stubFirstContainer.classList.add('feed-new-message-inf-wrap-first-active');
+
+	            var f = function f() {
+	              _this3.stopTrackNextPage = false;
+
+	              if (pageNode) {
+	                pageNode.style.display = 'block';
+	              }
+
+	              main_core.Event.unbind(document.getElementById('sonet_log_more_container_first'), 'click', f);
+	              stubFirstContainer.style.display = 'none';
+	              MoreButton$$1.recalcPostsList();
+	              ContentView.registerAreaList();
+	              MoreButton$$1.recalcCommentsList();
+	              main_core_events.EventEmitter.emit('BX.Livefeed:recalculateComments', new main_core_events.BaseEvent({
+	                compatData: [{
+	                  rootNode: pageNode
+	                }]
+	              }));
+	              exports.PinnedPanelInstance.resetFlags();
+	              exports.PinnedPanelInstance.initPosts();
+	            };
+
+	            main_core.Event.bind(document.getElementById('sonet_log_more_container_first'), 'click', f);
+	          } else {
+	            if (pageNode) {
+	              pageNode.style.display = 'block';
+	            }
+	          }
+
+	          _this3.nextPageFirst = false;
+	        } else if (document.getElementById('feed-new-message-inf-wrap-first')) {
+	          document.getElementById('feed-new-message-inf-wrap-first').style.display = 'none';
+	        }
+	      }, function () {
+	        _this3.loadStarted = false;
+	        _this3.stopTrackNextPage = false;
+	        var stubContainer = document.getElementById('feed-new-message-inf-wrap');
+
+	        if (stubContainer) {
+	          stubContainer.style.display = 'none';
+	        }
+
+	        exports.InformerInstance.lockCounterAnimation = false;
+
+	        _this3.clearContainerExternal(false);
+	      });
+	      return false;
+	    }
+	  }, {
+	    key: "clearContainerExternal",
+	    value: function clearContainerExternal(mode) {
+	      exports.InformerInstance.hideWrapAnimation();
+	      exports.InformerInstance.hideReloadAnimation();
+	      exports.InformerInstance.recover();
+	      var counterPreset = document.getElementById('sonet_log_counter_preset');
+
+	      if (counterPreset && this.requestMode === 'new') {
+	        counterPreset.style.display = 'none';
+	      }
+	    }
+	  }, {
+	    key: "clearContainerExternalNew",
+	    value: function clearContainerExternalNew() {
+	      this.requestMode = 'new';
+	    }
+	  }, {
+	    key: "clearContainerExternalMore",
+	    value: function clearContainerExternalMore() {
+	      this.requestMode = 'more';
+	    }
+	  }, {
+	    key: "showRefreshError",
+	    value: function showRefreshError() {
+	      exports.InformerInstance.lockCounterAnimation = false;
+	      this.clearContainerExternal(false);
+	    }
+	  }, {
+	    key: "setSignedParameters",
+	    value: function setSignedParameters(value) {
+	      this.signedParameters = value;
+	    }
+	  }, {
+	    key: "getSignedParameters",
+	    value: function getSignedParameters() {
+	      return this.signedParameters;
+	    }
+	  }, {
+	    key: "setComponentName",
+	    value: function setComponentName(value) {
+	      this.componentName = value;
+	    }
+	  }, {
+	    key: "getComponentName",
+	    value: function getComponentName() {
+	      return this.componentName;
+	    }
+	  }, {
+	    key: "setNextPageUrl",
+	    value: function setNextPageUrl(value) {
+	      this.nextPageUrl = value;
+	    }
+	  }, {
+	    key: "getNextPageUrl",
+	    value: function getNextPageUrl() {
+	      return this.nextPageUrl;
+	    }
+	  }, {
+	    key: "initScroll",
+	    value: function initScroll() {
+	      if (this.scrollInitialized) {
+	        return;
+	      }
+
+	      this.scrollInitialized = true;
+	      document.addEventListener('scroll', main_core.Runtime.throttle(this.onFeedScroll.bind(this), 100));
+	    }
+	  }, {
+	    key: "onFeedScroll",
+	    value: function onFeedScroll() {
+	      if (!this.stopTrackNextPage) {
+	        var maxScroll = document.documentElement.scrollHeight - window.innerHeight - 500;
+
+	        if (window.pageYOffset >= maxScroll && this.getNextPageUrl()) {
+	          this.stopTrackNextPage = true;
+	          this.getNextPage();
+	        }
+	      }
+
+	      exports.InformerInstance.onFeedScroll();
+	    }
+	  }]);
+	  return Page;
+	}();
+
+	var _templateObject$4;
+	var CommentForm = /*#__PURE__*/function () {
+	  function CommentForm() {
+	    babelHelpers.classCallCheck(this, CommentForm);
+	  }
+
+	  babelHelpers.createClass(CommentForm, null, [{
+	    key: "onAfterShow",
+	    value: function onAfterShow(obj, text, data) {
+	      if (!main_core.Type.isPlainObject(data)) {
+	        data = {};
+	      }
+
+	      var _obj$entitiesCorrespo = babelHelpers.slicedToArray(obj.entitiesCorrespondence[obj.id.join('-')], 2),
+	          entityId = _obj$entitiesCorrespo[0],
+	          commentId = _obj$entitiesCorrespo[1];
+
+	      document.getElementById("feed_comments_block_".concat(entityId)).style.display = 'block';
+	      main_core_events.EventEmitter.emit('OnBeforeSocialnetworkCommentShowedUp', new main_core_events.BaseEvent({
+	        compatData: ['socialnetwork']
+	      }));
+	      obj.form.action = obj.url.replace(/\#eId\#/, entityId).replace(/\#id\#/, commentId);
+	      var postData = {
+	        ENTITY_XML_ID: obj.id[0],
+	        ENTITY_TYPE: obj.entitiesId[obj.id[0]][0],
+	        ENTITY_ID: obj.entitiesId[obj.id[0]][1],
+	        parentId: obj.id[1],
+	        comment_post_id: obj.entitiesId[obj.id[0]][1],
+	        edit_id: obj.id[1],
+	        act: obj.id[1] > 0 ? 'edit' : 'add',
+	        logId: obj.entitiesId[obj.id[0]][2]
+	      };
+	      Object.entries(postData).forEach(function (_ref) {
+	        var _ref2 = babelHelpers.slicedToArray(_ref, 2),
+	            key = _ref2[0],
+	            value = _ref2[1];
+
+	        if (!obj.form[key]) {
+	          obj.form.appendChild(main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"", "\">"])), key));
+	        }
+
+	        obj.form[key].value = value;
+	      });
+	      this.onLightEditorShow(text, data);
+	    }
+	  }, {
+	    key: "onLightEditorShow",
+	    value: function onLightEditorShow(content, data) {
+	      if (!main_core.Type.isPlainObject(data)) {
+	        data = {};
+	      }
+
+	      var result = {};
+
+	      if (data.arFiles) {
+	        var value = {};
+	        data.arFiles.forEach(function (fileId, index) {
+	          var container = document.getElementById("wdif-doc-".concat(fileId));
+	          var name = container.querySelector('.feed-com-file-name');
+	          var size = container.querySelector('.feed-con-file-size');
+	          value["F".concat(index)] = {
+	            FILE_ID: fileId,
+	            FILE_NAME: name ? name.innerHTML : 'noname',
+	            FILE_SIZE: size ? size.innerHTML : 'unknown',
+	            CONTENT_TYPE: 'notimage/xyz'
+	          };
+	        });
+	        result.UF_SONET_COM_DOC = {
+	          USER_TYPE_ID: 'file',
+	          FIELD_NAME: 'UF_SONET_COM_FILE[]',
+	          VALUE: value
+	        };
+	      }
+
+	      if (data.arDocs) {
+	        result.UF_SONET_COM_FILE = {
+	          USER_TYPE_ID: 'webdav_element',
+	          FIELD_NAME: 'UF_SONET_COM_DOC[]',
+	          VALUE: main_core.Runtime.clone(data.arDocs)
+	        };
+	      }
+
+	      if (data.arDFiles) {
+	        result.UF_SONET_COM_FILE = {
+	          USER_TYPE_ID: 'disk_file',
+	          FIELD_NAME: 'UF_SONET_COM_DOC[]',
+	          VALUE: main_core.Runtime.clone(data.arDFiles)
+	        };
+	      }
+
+	      LHEPostForm.reinitData(window.SLEC.editorId, content, result);
+	    }
+	  }, {
+	    key: "onSubmit",
+	    value: function onSubmit(obj, post_data) {
+	      post_data.r = Math.floor(Math.random() * 1000);
+	      post_data.sessid = main_core.Loc.getMessage('bitrix_sessid');
+	      post_data.log_id = obj.entitiesCorrespondence[obj.id.join('-')][0];
+	      post_data.p_smile = main_core.Loc.getMessage('sonetLPathToSmile');
+	      post_data.p_ubp = main_core.Loc.getMessage('sonetLPathToUserBlogPost');
+	      post_data.p_gbp = main_core.Loc.getMessage('sonetLPathToGroupBlogPost');
+	      post_data.p_umbp = main_core.Loc.getMessage('sonetLPathToUserMicroblogPost');
+	      post_data.p_gmbp = main_core.Loc.getMessage('sonetLPathToGroupMicroblogPost');
+	      post_data.p_user = main_core.Loc.getMessage('sonetLPathToUser');
+	      post_data.p_le = main_core.Loc.getMessage('sonetLEPath');
+	      post_data.f_id = main_core.Loc.getMessage('sonetLForumID');
+	      post_data.bapc = main_core.Loc.getMessage('sonetLBlogAllowPostCode');
+	      post_data.site = main_core.Loc.getMessage('SITE_ID');
+	      post_data.lang = main_core.Loc.getMessage('LANGUAGE_ID');
+	      post_data.nt = main_core.Loc.getMessage('sonetLNameTemplate');
+	      post_data.sl = main_core.Loc.getMessage('sonetLShowLogin');
+	      post_data.as = main_core.Loc.getMessage('sonetLAvatarSizeComment');
+	      post_data.dtf = main_core.Loc.getMessage('sonetLDateTimeFormat');
+	      post_data.message = post_data.REVIEW_TEXT;
+	      post_data.action = 'add_comment';
+	      post_data.RATING_TYPE = main_core.Loc.getMessage('sonetRatingType');
+	      post_data.pull = 'Y';
+	      post_data.crm = main_core.Loc.getMessage('sonetLIsCRM');
+	      obj.form['bx-action'] = obj.form.action;
+	      obj.form.action = main_core.Loc.getMessage('sonetLESetPath');
+	    }
+	  }, {
+	    key: "onResponse",
+	    value: function onResponse(obj, data) {
+	      obj.form.action = obj.form['bx-action'];
+	      var returnData = {
+	        errorMessage: data
+	      };
+
+	      if (!(!!data && main_core.Type.isPlainObject(data))) ; else if (data[0] === '*') {
+	        returnData = {
+	          errorMessage: main_core.Loc.getMessage('SONET_EXT_ERROR_SESSION')
+	        };
+	      } else if (data.status === 'error') {
+	        returnData.errorMessage = data.message;
+	      } else {
+	        if (!(data["commentID"] > 0) || !!data["strMessage"]) {
+	          returnData['errorMessage'] = data["strMessage"];
+	        } else if (data['return_data']) {
+	          returnData = data['return_data'];
+	        } else {
+	          var formattedCommentFields = data.arCommentFormatted;
+	          var commentFields = data.arComment;
+	          var ratingNode = !!window.__logBuildRating ? window.__logBuildRating(data['arComment'], data['arCommentFormatted']) : null;
+	          var thisId = !!commentFields.SOURCE_ID ? commentFields.SOURCE_ID : commentFields.ID;
+	          var res = {
+	            ID: thisId,
+	            // integer
+	            ENTITY_XML_ID: obj.id[0],
+	            // string
+	            FULL_ID: [obj.id[0], thisId],
+	            NEW: 'N',
+	            //"Y" | "N"
+	            APPROVED: 'Y',
+	            //"Y" | "N"
+	            POST_TIMESTAMP: data.timestamp - main_core.Loc.getMessage('USER_TZ_OFFSET'),
+	            POST_TIME: formattedCommentFields.LOG_TIME_FORMAT,
+	            POST_DATE: formattedCommentFields.LOG_TIME_FORMAT,
+	            '~POST_MESSAGE_TEXT': formattedCommentFields.MESSAGE,
+	            POST_MESSAGE_TEXT: formattedCommentFields.MESSAGE_FORMAT,
+	            PANELS: {
+	              MODERATE: false
+	            },
+	            URL: {
+	              LINK: main_core.Type.isStringFilled(commentFields.URL) ? commentFields.URL : "".concat(main_core.Loc.getMessage('sonetLEPath').replace('#log_id#', commentFields.LOG_ID), "?commentId=").concat(commentFields.ID, "#com").concat(thisId)
+	            },
+	            AUTHOR: {
+	              ID: formattedCommentFields.USER_ID,
+	              NAME: formattedCommentFields.CREATED_BY.FORMATTED,
+	              URL: formattedCommentFields.CREATED_BY.URL,
+	              AVATAR: formattedCommentFields.AVATAR_SRC
+	            },
+	            BEFORE_ACTIONS: !!ratingNode ? ratingNode : '',
+	            AFTER: formattedCommentFields.UF
+	          };
+
+	          if (main_core.Type.isStringFilled(data.hasEditCallback) && data.hasEditCallback === 'Y') {
+	            res.PANELS.EDIT = 'Y';
+	            re.URL.EDIT = "__logEditComment('".concat(obj.id[0], "', '").concat(commentFields.ID, "', '").concat(commentFields.LOG_ID, "');");
+	          }
+
+	          if (main_core.Type.isStringFilled(data.hasDeleteCallback) && data.hasDeleteCallback === 'Y') {
+	            res.PANELS.DELETE = 'Y';
+	            res.URL.DELETE = "".concat(main_core.Loc.getMessage('sonetLESetPath'), "?lang=").concat(main_core.Loc.getMessage('LANGUAGE_ID'), "&action=delete_comment&delete_comment_id=").concat(commentFields.ID, "&post_id=").concat(commentFields.LOG_ID, "&site=").concat(main_core.Loc.getMessage('SITE_ID'));
+	          }
+
+	          returnData = {
+	            errorMessage: '',
+	            okMessage: '',
+	            status: true,
+	            message: '',
+	            messageCode: formattedCommentFields["MESSAGE"],
+	            messageId: [obj.id[0], thisId],
+	            '~message': '',
+	            messageFields: res
+	          };
+	        }
+
+	        var entityId = obj.entitiesCorrespondence[obj.id.join('-')][0];
+	        var followNode = document.getElementById("log_entry_follow_".concat(entityId));
+	        var currentFollowValue = !!followNode ? followNode.getAttribute('data-follow') === 'Y' ? 'Y' : 'N' : false;
+
+	        if (currentFollowValue === 'N') {
+	          var followTitleNode = followNode.querySelector('a');
+
+	          if (followTitleNode) {
+	            followTitleNode.innerHTML = main_core.Loc.getMessage('sonetLFollowY');
+	          }
+
+	          followNode.setAttribute('data-follow', 'Y');
+	        }
+
+	        var commentsCounterNode = document.getElementById("feed-comments-all-cnt-".concat(entityId));
+	        var counterValue = !!commentsCounterNode ? commentsCounterNode.innerHTML.length > 0 ? parseInt(commentsCounterNode.innerHTML) : 0 : false;
+
+	        if (counterValue !== false) {
+	          commentsCounterNode.innerHTML = counterValue + 1;
+	        }
+	      }
+
+	      obj.OnUCFormResponseData = returnData;
+	    }
+	  }, {
+	    key: "onInit",
+	    value: function onInit(obj) {
+	      main_core.Dom.remove(document.getElementById("micro".concat(obj.editorName)));
+	    }
+	  }]);
+	  return CommentForm;
+	}();
+
+	var _templateObject$5, _templateObject2$2;
 
 	var Feed = /*#__PURE__*/function () {
 	  function Feed() {
 	    babelHelpers.classCallCheck(this, Feed);
 	    this.entryData = {};
 	    this.feedInitialized = false;
+	    this.moreButtonDataList = [];
 	  }
 
 	  babelHelpers.createClass(Feed, [{
+	    key: "initOnce",
+	    value: function initOnce(params) {
+	      var loaderContainer = document.getElementById('feed-loader-container');
+
+	      if (!main_core.Type.isPlainObject(params)) {
+	        params = {};
+	      }
+
+	      if (main_core.Type.isStringFilled(params.signedParameters)) {
+	        exports.PageInstance.setSignedParameters(params.signedParameters);
+	      }
+
+	      if (main_core.Type.isStringFilled(params.componentName)) {
+	        exports.PageInstance.setComponentName(params.componentName);
+	      }
+
+	      if (loaderContainer) {
+	        main_core.Event.bind(loaderContainer, 'animationend', Loader.onAnimationEnd);
+	        main_core.Event.bind(loaderContainer, 'webkitAnimationEnd', Loader.onAnimationEnd);
+	        main_core.Event.bind(loaderContainer, 'oanimationend', Loader.onAnimationEnd);
+	        main_core.Event.bind(loaderContainer, 'MSAnimationEnd', Loader.onAnimationEnd);
+	      }
+
+	      main_core_events.EventEmitter.subscribe('BX.Forum.Spoiler:toggle', Forum.processSpoilerToggle);
+	      exports.FilterInstance.init({
+	        filterId: params.filterId
+	      });
+
+	      if (main_core.Type.isStringFilled(params.crmEntityTypeName) && !main_core.Type.isUndefined(params.crmEntityId) && parseInt(params.crmEntityId) > 0) {
+	        exports.FilterInstance.initEventsCrm();
+	      }
+
+	      BX.UserContentView.init();
+	      document.getElementById('log_internal_container').addEventListener('click', function (e) {
+	        var tagValue = e.target.getAttribute('bx-tag-value');
+
+	        if (!main_core.Type.isStringFilled(tagValue)) {
+	          return;
+	        }
+
+	        if (exports.FilterInstance.clickTag(tagValue)) {
+	          e.preventDefault();
+	          e.stopPropagation();
+	        }
+	      }, true);
+	      var noTasksNotificationCloseIcon = document.getElementById('feed-notification-notasks-close-btn');
+	      var noTasksNotificationReadButton = document.getElementById('feed-notification-notasks-read-btn');
+
+	      if (noTasksNotificationCloseIcon) {
+	        main_core.Event.bind(noTasksNotificationCloseIcon, 'click', this.setNoTasksNotificationRead.bind(this));
+	      }
+
+	      if (noTasksNotificationReadButton) {
+	        main_core.Event.bind(noTasksNotificationReadButton, 'click', this.setNoTasksNotificationRead.bind(this));
+	      }
+	    }
+	  }, {
 	    key: "init",
 	    value: function init() {
 	      if (this.feedInitialized) {
@@ -1698,7 +3297,7 @@ this.BX = this.BX || {};
 	        _this2.adjustFavoritesControlItem(nodeToAdjust, response.data.newValue);
 
 	        _this2.adjustFavoritesMenuItem(menuItem, response.data.newValue);
-	      }, function (response) {
+	      }, function () {
 	        _this2.entryData[logId].favorites = !_this2.entryData[logId].favorites;
 	      });
 	    }
@@ -1731,20 +3330,138 @@ this.BX = this.BX || {};
 	    value: function getMenuTitle(state) {
 	      return main_core.Loc.getMessage("SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_".concat(state ? 'Y' : 'N'));
 	    }
+	  }, {
+	    key: "delete",
+	    value: function _delete(params) {
+	      var _this3 = this;
+
+	      var logId = params.logId ? parseInt(params.logId) : 0;
+	      var node = main_core.Type.isStringFilled(params.nodeId) ? document.getElementById(params.nodeId) : null;
+	      var ind = params.ind ? params.ind : '';
+
+	      if (logId <= 0 || !node) {
+	        return;
+	      }
+
+	      main_core.ajax.runAction('socialnetwork.api.livefeed.deleteEntry', {
+	        data: {
+	          logId: logId
+	        },
+	        analyticsLabel: {
+	          b24statAction: 'deleteLogEntry'
+	        }
+	      }).then(function (response) {
+	        if (response.data.success) {
+	          if (!main_core.Type.isUndefined(ind)) {
+	            main_popup.MenuManager.destroy(Post$$1.getMenuId(ind));
+	          }
+
+	          _this3.deleteSuccess(node);
+	        } else {
+	          _this3.deleteFailure(node);
+	        }
+	      }, function () {
+	        _this3.deleteFailure(node);
+	      });
+	    }
+	  }, {
+	    key: "deleteSuccess",
+	    value: function deleteSuccess(node) {
+	      if (!main_core.Type.isDomNode(node)) {
+	        return;
+	      }
+
+	      new BX.fx({
+	        time: 0.5,
+	        step: 0.05,
+	        type: 'linear',
+	        start: node.offsetHeight,
+	        finish: 56,
+	        callback: function callback(height) {
+	          node.style.height = "".concat(height, "px");
+	        },
+	        callback_start: function callback_start() {
+	          node.style.overflow = 'hidden';
+	          node.style.minHeight = 0;
+	        },
+	        callback_complete: function callback_complete() {
+	          node.style.marginBottom = 0;
+	          main_core.Dom.clean(node);
+	          node.classList.add('feed-post-block-deleted');
+	          node.appendChild(main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["<div class=\"feed-add-successfully\"><span class=\"feed-add-info-text\"><span class=\"feed-add-info-icon\"></span><span>", "</span></span></span></div>"])), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_DELETE_SUCCESS')));
+	        }
+	      }).start();
+	    }
+	  }, {
+	    key: "deleteFailure",
+	    value: function deleteFailure(node) {
+	      if (!main_core.Type.isDomNode(node)) {
+	        return;
+	      }
+
+	      node.insertBefore(main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"feed-add-error\" style=\"margin: 18px 37px 4px 84px;\"><span class=\"feed-add-info-text\"><span class=\"feed-add-info-icon\"></span><span>", "</span></span></div>"])), main_core.Loc.getMessage('sonetLMenuDeleteFailure')), node.firstChild);
+	    }
+	  }, {
+	    key: "getMoreButtons",
+	    value: function getMoreButtons() {
+	      return this.moreButtonDataList;
+	    }
+	  }, {
+	    key: "clearMoreButtons",
+	    value: function clearMoreButtons() {
+	      this.moreButtonDataList = [];
+	    }
+	  }, {
+	    key: "addMoreButton",
+	    value: function addMoreButton(data) {
+	      this.moreButtonDataList.push(data);
+	    }
+	  }, {
+	    key: "setNoTasksNotificationRead",
+	    value: function setNoTasksNotificationRead(event) {
+	      var notificationNode = event.currentTarget.closest('.feed-notification-container');
+
+	      if (!notificationNode) {
+	        return;
+	      }
+
+	      main_core.ajax.runAction('socialnetwork.api.livefeed.readNoTasksNotification', {
+	        data: {}
+	      }).then(function (response) {
+	        if (!response.data.success) {
+	          return;
+	        }
+
+	        notificationNode.style.height = notificationNode.offsetHeight + 'px';
+	        setTimeout(function () {
+	          notificationNode.classList.add('feed-notification-container-collapsed');
+	        }, 10);
+	        setTimeout(function () {
+	          notificationNode.parentNode.removeChild(notificationNode);
+	        }, 250);
+	      }, function () {});
+	    }
 	  }]);
 	  return Feed;
 	}();
 
 	exports.FeedInstance = null;
 	exports.PinnedPanelInstance = null;
-	exports.PostInstance = null;
 	exports.InformerInstance = null;
-	main_core.Event.ready(function () {
-	  exports.FeedInstance = new Feed();
-	  exports.PinnedPanelInstance = new PinnedPanel();
-	  exports.PostInstance = new Post();
-	  exports.InformerInstance = new Informer();
-	});
+	exports.FilterInstance = null;
+	exports.PageInstance = null;
+	exports.FeedInstance = new Feed();
+	exports.PinnedPanelInstance = new PinnedPanel();
+	exports.InformerInstance = new Informer();
+	exports.FilterInstance = new Filter();
+	exports.PageInstance = new Page();
 
-}((this.BX.Livefeed = this.BX.Livefeed || {}),BX.Main,BX.UI,BX,BX.Event));
+	exports.Post = Post$$1;
+	exports.TaskCreator = TaskCreator;
+	exports.Loader = Loader;
+	exports.MoreButton = MoreButton$$1;
+	exports.ContentView = ContentView;
+	exports.CommentForm = CommentForm;
+
+}((this.BX.Livefeed = this.BX.Livefeed || {}),BX.UI,BX.Main,BX,BX.Event));
 //# sourceMappingURL=livefeed.bundle.js.map

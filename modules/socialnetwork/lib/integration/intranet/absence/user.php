@@ -13,13 +13,13 @@ use Bitrix\Main\ModuleManager;
 
 class User
 {
-	public static function getVacationList()
+	public static function getVacationList(): array
 	{
 		global $CACHE_MANAGER;
 
-		$result = array();
+		$result = [];
 
-		$cacheTTL = 3600*24*30;
+		$cacheTTL = 3600 * 24 * 30;
 		$cacheDir = '/sonet/user_absence';
 
 		$cache = new \CPHPCache();
@@ -35,64 +35,54 @@ class User
 			if (
 				ModuleManager::isModuleInstalled('intranet')
 				&& Loader::includeModule('iblock')
-				&& ($absenceIblockId = intval(Option::get('intranet', 'iblock_absence')))
+				&& ($absenceIblockId = (int)Option::get('intranet', 'iblock_absence'))
 			)
 			{
 				$CACHE_MANAGER->registerTag('iblock_id_'.$absenceIblockId);
 
 				$res = \CIBlockProperty::getList(
-					array(),
-					array(
+					[],
+					[
 						'IBLOCK_ID' => $absenceIblockId,
 						'ACTIVE' => 'Y',
-						'CODE' => 'ABSENCE_TYPE'
-					)
+						'CODE' => 'ABSENCE_TYPE',
+					]
 				);
 
 				if (
 					($property = $res->fetch())
-					&& ($absenceTypePropertyId = intval($property['ID']))
+					&& ($absenceTypePropertyId = (int)$property['ID'])
 				)
 				{
-					$vacationXMLIdList = array();
+					$vacationXMLIdList = [];
 					$res = \CIBlockPropertyEnum::getList(
-						array(),
-						array(
+						[],
+						[
 							'PROPERTY_ID' => $absenceTypePropertyId,
-							'XML_ID' => array('VACATION', 'LEAVEMATERINITY')
-						)
+							'XML_ID' => [ 'VACATION', 'LEAVEMATERINITY' ],
+						]
 					);
 
-					while($enum = $res->fetch())
+					while ($enum = $res->fetch())
 					{
-						$vacationXMLIdList[] = intval($enum['ID']);
+						$vacationXMLIdList[$enum['XML_ID']] = (int)$enum['ID'];
 					}
 
-					if (!empty($vacationXMLIdList))
+					if (isset($vacationXMLIdList['LEAVEMATERINITY']))
 					{
-						$filter = array(
-							'IBLOCK_ID' => $absenceIblockId,
-							'PROPERTY_ABSENCE_TYPE' => $vacationXMLIdList,
-							'ACTIVE' => 'Y',
-						);
+						$result = array_merge($result, self::getVacationListOfType([
+							'absenceIblockId' => $absenceIblockId,
+							'absenceTypeId' => $vacationXMLIdList['LEAVEMATERINITY'],
+						]));
+					}
 
-						$res = \CIBlockElement::getList(
-							array(),
-							$filter,
-							false,
-							false,
-							array('ID', 'DATE_ACTIVE_FROM', 'DATE_ACTIVE_TO', 'PROPERTY_ABSENCE_TYPE', 'PROPERTY_USER')
-						);
-
-						while ($absence = $res->fetch())
-						{
-							$result[] = array(
-								'USER_ID' => $absence['PROPERTY_USER_VALUE'],
-								'DATE_FROM' =>  $absence['DATE_ACTIVE_FROM'],
-								'DATE_TO' =>  $absence['DATE_ACTIVE_TO'],
-								'ABSENCE_TYPE' =>  $absence['PROPERTY_ABSENCE_TYPE_ENUM_ID']
-							);
-						}
+					if (isset($vacationXMLIdList['VACATION']))
+					{
+						$result = array_merge($result, self::getVacationListOfType([
+							'absenceIblockId' => $absenceIblockId,
+							'absenceTypeId' => $vacationXMLIdList['VACATION'],
+							'fromTimestamp' => time() - (3600 * 24 * 120),
+						]));
 					}
 				}
 			}
@@ -104,9 +94,59 @@ class User
 		return $result;
 	}
 
-	public static function getDayVacationList($params = array())
+	private static function getVacationListOfType(array $params = []): array
 	{
-		$result = array();
+		$result = [];
+
+		$absenceIblockId = (int)($params['absenceIblockId'] ?? 0);
+		$absenceTypeId = (int)($params['absenceTypeId'] ?? 0);
+		$fromTimestamp = ($params['fromTimestamp'] ?? false);
+
+		if (
+			$absenceIblockId <= 0
+			|| $absenceTypeId <= 0
+			|| !Loader::includeModule('iblock')
+		)
+		{
+			return $result;
+		}
+
+		$filter = [
+			'IBLOCK_ID' => $absenceIblockId,
+			'PROPERTY_ABSENCE_TYPE' => $absenceTypeId,
+			'ACTIVE' => 'Y',
+		];
+
+		if ($fromTimestamp)
+		{
+			$filter['>=DATE_ACTIVE_FROM'] = Date(\Bitrix\Main\Type\Date::convertFormatToPhp(FORMAT_DATETIME), $fromTimestamp);
+		}
+
+		$res = \CIBlockElement::getList(
+			[],
+			$filter,
+			false,
+			false,
+			[ 'ID', 'DATE_ACTIVE_FROM', 'DATE_ACTIVE_TO', 'PROPERTY_ABSENCE_TYPE', 'PROPERTY_USER' ]
+		);
+
+		while ($absence = $res->fetch())
+		{
+			$result[] = [
+				'USER_ID' => $absence['PROPERTY_USER_VALUE'],
+				'DATE_FROM' =>  $absence['DATE_ACTIVE_FROM'],
+				'DATE_TO' =>  $absence['DATE_ACTIVE_TO'],
+				'ABSENCE_TYPE' =>  $absence['PROPERTY_ABSENCE_TYPE_ENUM_ID'],
+			];
+		}
+
+		return $result;
+	}
+
+	public static function getDayVacationList($params = array()): array
+	{
+		$result = [];
+
 		$userList = (isset($params['userList']) && is_array($params['userList']) ? $params['userList'] : []);
 		$vacationList = self::getVacationList();
 
@@ -117,7 +157,7 @@ class User
 
 		$ts = time();
 
-		foreach($vacationList as $vacation)
+		foreach ($vacationList as $vacation)
 		{
 			if (
 				!empty($userList)
@@ -143,4 +183,3 @@ class User
 		return $result;
 	}
 }
-?>

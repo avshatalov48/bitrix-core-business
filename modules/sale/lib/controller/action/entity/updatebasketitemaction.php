@@ -9,8 +9,9 @@ use Bitrix\Sale;
  * Class UpdateBasketItemAction
  * @package Bitrix\Sale\Controller\Action\Entity
  * @example BX.ajax.runAction("sale.entity.updateBasketItem", { data: { id: 1, fields: { quantity: 2 }}});
+ * @internal
  */
-class UpdateBasketItemAction extends BaseAction
+final class UpdateBasketItemAction extends BaseAction
 {
 	public function run(int $id, array $fields)
 	{

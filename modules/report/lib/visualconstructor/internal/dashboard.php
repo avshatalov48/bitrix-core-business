@@ -6,6 +6,19 @@ use Bitrix\Main\Entity\StringField;
 
 /**
  * Class DashboardRowTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Dashboard_Query query()
+ * @method static EO_Dashboard_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Dashboard_Result getById($id)
+ * @method static EO_Dashboard_Result getList(array $parameters = array())
+ * @method static EO_Dashboard_Entity getEntity()
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Dashboard createObject($setDefaultValues = true)
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Dashboard_Collection createCollection()
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Dashboard wakeUpObject($row)
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Dashboard_Collection wakeUpCollection($rows)
  */
 class DashboardTable extends DataManager
 {

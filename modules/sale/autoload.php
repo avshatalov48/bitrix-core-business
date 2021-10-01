@@ -568,6 +568,10 @@ CModule::AddAutoloadClasses(
 	'Sale\Handlers\Delivery\YandexTaxi\\',
 	\Bitrix\Main\Loader::getDocumentRoot().'/bitrix/modules/sale/handlers/delivery/yandextaxi'
 );
+\Bitrix\Main\Loader::registerNamespace(
+	'Sale\Handlers\Delivery\Rest\\',
+	\Bitrix\Main\Loader::getDocumentRoot().'/bitrix/modules/sale/handlers/delivery/rest'
+);
 
 class_alias('Bitrix\Sale\TradingPlatform\YMarket\YandexMarket', 'Bitrix\Sale\TradingPlatform\YandexMarket');
 class_alias('\Bitrix\Sale\PaySystem\Logger', '\Bitrix\Sale\PaySystem\ErrorLog');

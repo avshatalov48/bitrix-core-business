@@ -78,11 +78,11 @@ class Page
 		return $this->lastPageData;
 	}
 
-	public function setPrevPageLogIdList($value = [])
+	public function setPrevPageLogIdList($value = []): void
 	{
 		$this->prevPageLogIdList = $value;
 	}
-	public function getPrevPageLogIdList()
+	public function getPrevPageLogIdList(): array
 	{
 		return $this->prevPageLogIdList;
 	}
@@ -96,7 +96,7 @@ class Page
 		return $this->dateFirstPageTS;
 	}
 
-	public function preparePrevPageLogId()
+	public function preparePrevPageLogId(): void
 	{
 		$request = $this->getRequest();
 		$params = $this->getComponent()->arParams;
@@ -122,7 +122,7 @@ class Page
 					unset($prevPageLogIdList[$key]);
 				}
 			}
-			$prevPageLogIdList = array_unique($prevPageLogIdList);
+			$prevPageLogIdList = array_map(static function($logId) { return (int)$logId; }, array_unique($prevPageLogIdList));
 			$this->setPrevPageLogIdList($prevPageLogIdList);
 		}
 	}

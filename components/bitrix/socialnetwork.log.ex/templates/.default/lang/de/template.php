@@ -35,4 +35,3 @@ $MESS["SONET_C30_T_MORE_WAIT"] = "Nachrichten werden geladen&hellip;";
 $MESS["SONET_C30_T_RELOAD_NEEDED"] = "Den Activity Stream neu laden";
 $MESS["SONET_C30_T_RELOAD_NEEDED2"] = "Aktualisieren Sie den Feed";
 $MESS["SONET_C30_T_USER"] = "Nutzer";
-$MESS["SONET_ERROR_SESSION"] = "Ihre Sitzung ist abgelaufen. Bitte senden Sie den Kommentar erneut ab.";

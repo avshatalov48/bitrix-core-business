@@ -289,7 +289,7 @@ $componentPage = "";
 $arComponentVariables = array("user_id", "group_id", "page", "message_id", "subject_id", "path", "section_id", "element_id", "action", "post_id", "category", "topic_id", "task_id", "view_id", "type", "report_id", "placement_id");
 
 if (
-	$_REQUEST["auth"]=="Y" 
+	$_REQUEST["auth"]=="Y"
 	&& $USER->IsAuthorized()
 )
 {
@@ -321,7 +321,7 @@ if (!array_key_exists("PATH_TO_USER_LOG_ENTRY", $arParams))
 		$arParams["PATH_TO_USER_LOG_ENTRY"] = $arParams["~PATH_TO_USER_LOG_ENTRY"] = SITE_DIR."company/personal/log/#log_id#/";
 	}
 }
-	
+
 if (!is_array($arParams["VARIABLE_ALIASES"]))
 {
 	$arParams["VARIABLE_ALIASES"] = array();
@@ -646,7 +646,7 @@ else
 
 if ($arParams["PATH_TO_USER_BLOG_POST"] == '')
 {
-	$arParams["PATH_TO_USER_BLOG_POST"] = COption::GetOptionString("socialnetwork", "userblogpost_page", false, SITE_ID);
+	$arParams["PATH_TO_USER_BLOG_POST"] = \Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page');
 }
 
 if (
@@ -831,7 +831,7 @@ if(check_bitrix_sessid() || $_SERVER['REQUEST_METHOD'] == "PUT")
 		}
 
 		$bxSocNetSearch = new CSocNetSearch(
-			$arResult["VARIABLES"]["user_id"], 
+			$arResult["VARIABLES"]["user_id"],
 			$arResult["VARIABLES"]["group_id"],
 			$arSocNetSearchParams
 		);
@@ -1015,7 +1015,7 @@ if (
 				$arForumTopic = CForumTopic::GetByID($arIBlockElement["PROPERTY_FORUM_TOPIC_ID_VALUE"]);
 				$arParams["FILES_FORUM_ID"] = $arForumTopic["FORUM_ID"];
 			}
-			
+
 			if (is_object($cache))
 			{
 				$arCacheData = Array(

@@ -136,7 +136,8 @@ CREATE TABLE b_calendar_push (
   EXPIRES datetime NOT NULL,
   NOT_PROCESSED varchar(1) NOT NULL DEFAULT 'N',
   FIRST_PUSH_DATE datetime DEFAULT NULL,
-  PRIMARY KEY (ENTITY_TYPE,ENTITY_ID)
+  PRIMARY KEY (ENTITY_TYPE,ENTITY_ID),
+  INDEX ix_cal_google_push_expires (EXPIRES)
 );
 
 create table b_calendar_access

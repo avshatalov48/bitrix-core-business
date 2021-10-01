@@ -2,13 +2,21 @@
 
 namespace Sale\Handlers\Delivery\YandexTaxi\EventJournal;
 
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Sale\Delivery\Requests\RequestTable;
+use Bitrix\Sale\Repository\ShipmentRepository;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Api;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\Journal\Event;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\Journal\PriceChanged;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\Journal\StatusChanged;
+use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Claim;
+use Sale\Handlers\Delivery\YandexTaxi\Api\StatusDictionary;
 use Sale\Handlers\Delivery\YandexTaxi\Internals\ClaimsTable;
-use Sale\Handlers\Delivery\YandextaxiHandler;
+use Bitrix\Sale\Delivery\Services;
+use Bitrix\Sale\Delivery\Requests;
+use Bitrix\Sale\Delivery\Requests\Message;
+use Bitrix\Main;
 
 /**
  * Class EventProcessor
@@ -17,8 +25,6 @@ use Sale\Handlers\Delivery\YandextaxiHandler;
  */
 final class EventProcessor
 {
-	public const CLAIM_UPDATED_EVENT_CODE = 'OnDeliveryYandexTaxiClaimUpdated';
-
 	/** @var Api */
 	protected $api;
 
@@ -29,7 +35,7 @@ final class EventProcessor
 	private $events = [];
 
 	/**
-	 * Processor constructor.
+	 * EventProcessor constructor.
 	 * @param Api $api
 	 */
 	public function __construct(Api $api)
@@ -38,14 +44,15 @@ final class EventProcessor
 	}
 
 	/**
+	 * @param int $serviceId
 	 * @param array $events
 	 */
-	public function process(array $events)
+	public function process(int $serviceId, array $events)
 	{
 		$this->prepareClaims($events);
 		$this->prepareEvents($events);
 		$this->findChanges();
-		$this->applyChanges();
+		$this->applyChanges($serviceId);
 	}
 
 	/**
@@ -160,9 +167,9 @@ final class EventProcessor
 	}
 
 	/**
-	 * @return void
+	 * @param int $serviceId
 	 */
-	private function applyChanges()
+	private function applyChanges(int $serviceId): void
 	{
 		foreach ($this->claims as $claimId => $claimItem)
 		{
@@ -191,6 +198,7 @@ final class EventProcessor
 			}
 
 			$this->updateClaim(
+				$serviceId,
 				$claimItem['CURRENT_ITEM']['ID'],
 				$newUpdatedTs,
 				$fields
@@ -199,11 +207,12 @@ final class EventProcessor
 	}
 
 	/**
+	 * @param int $serviceId
 	 * @param int $id
 	 * @param string $newUpdatedTs
 	 * @param array $fields
 	 */
-	private function updateClaim(int $id, string $newUpdatedTs, array $fields)
+	private function updateClaim(int $serviceId, int $id, string $newUpdatedTs, array $fields)
 	{
 		$fields = array_merge(
 			$fields,
@@ -216,15 +225,282 @@ final class EventProcessor
 		$updateResult = ClaimsTable::update($id, $fields);
 		if ($updateResult->isSuccess())
 		{
-			(new \Bitrix\Main\Event(
-				'sale',
-				static::CLAIM_UPDATED_EVENT_CODE,
-				[
-					'ID' => $id,
-					'FIELDS' => $fields,
-				]
-			))->send();
+			$this->onClaimUpdated($serviceId, $id, $fields);
 		}
+	}
+
+	/**
+	 * @param int $serviceId
+	 * @param int $id
+	 * @param array $fields
+	 */
+	private function onClaimUpdated(int $serviceId, int $id, array $fields)
+	{
+		$claim = ClaimsTable::getById($id)->fetch();
+		if (!$claim)
+		{
+			return;
+		}
+
+		$deliveryServiceIds = array_column(
+			Services\Manager::getList([
+				'select' => ['ID'],
+				'filter' => ['PARENT_ID' => $serviceId]
+			])->fetchAll(),
+			'ID'
+		);
+		$deliveryServiceIds[] = $serviceId;
+
+		$request = RequestTable::getList([
+			'filter' => [
+				'=DELIVERY_ID' => $deliveryServiceIds,
+				'=EXTERNAL_ID' => $claim['EXTERNAL_ID'],
+			],
+		])->fetch();
+		if (!$request)
+		{
+			return;
+		}
+
+		$shipment = ShipmentRepository::getInstance()->getById($claim['SHIPMENT_ID']);
+		if (!$shipment)
+		{
+			return;
+		}
+
+		/**
+		 * Accept claim automatically
+		 */
+		if (
+			isset($fields['EXTERNAL_STATUS'])
+			&& $fields['EXTERNAL_STATUS'] == StatusDictionary::READY_FOR_APPROVAL
+		)
+		{
+			$remoteClaim = $this->requestClaim($claim['EXTERNAL_ID']);
+			if (
+				$remoteClaim
+				&& ($pricing = $remoteClaim->getPricing())
+				&& ($offer = $pricing->getOffer())
+			)
+			{
+				$price = $offer->getPrice();
+				$currency = $pricing->getCurrency();
+			}
+			else
+			{
+				$price = null;
+				$currency = null;
+			}
+
+			$result = $this->api->acceptClaim($claim['EXTERNAL_ID'], 1);
+			$message = (new Message\Message())->setSubject(Loc::getMessage('SALE_YANDEX_TAXI_ACCEPTING_CLAIM'));
+
+			if ($result->isSuccess())
+			{
+				if ($price && $currency)
+				{
+					$message
+						->setBody(
+							sprintf(
+								'%s: %s',
+								Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_CALCULATION_RECEIVED_SUCCESSFULLY'),
+								Message\Message::MESSAGE_TEXT_MONEY_PLACEHOLDER
+							)
+						)
+						->setCurrency($currency)
+						->addMoneyValue($price);
+				}
+				else
+				{
+					$message->setBody(Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_CALCULATION_FAILED'));
+					$message->setStatus(new Message\Status(Loc::getMessage('SALE_YANDEX_TAXI_ERROR_STATUS'), Message\Status::getErrorSemantic()));
+				}
+			}
+			else
+			{
+				$message
+					->setBody(Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_ACCEPT_CLAIM_ERROR'))
+					->setStatus(new Message\Status(
+						Loc::getMessage('SALE_YANDEX_TAXI_ERROR_STATUS'),
+						Message\Status::getErrorSemantic()
+					));
+			}
+
+			Requests\Manager::sendMessage(
+				Requests\Manager::MESSAGE_MANAGER_ADDRESSEE,
+				$message,
+				$request['ID'],
+				$shipment->getId()
+			);
+		}
+
+		switch ($claim['EXTERNAL_STATUS'])
+		{
+			case StatusDictionary::PERFORMER_FOUND:
+				Requests\Manager::updateDeliveryRequest(
+					$request['ID'],
+					[
+						'EXTERNAL_STATUS' => Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_IN_PROCESS'),
+						'EXTERNAL_STATUS_SEMANTIC' => Requests\Manager::EXTERNAL_STATUS_SEMANTIC_PROCESS,
+						'EXTERNAL_PROPERTIES' => $this->getPerformer($claim),
+					]
+				);
+				break;
+			case StatusDictionary::PICKUPED:
+				Requests\Manager::sendMessage(
+					Requests\Manager::MESSAGE_RECIPIENT_ADDRESSEE,
+					(new Message\Message())
+						->setBody(Loc::getMessage('SALE_YANDEX_TAXI_YOUR_ORDER_IS_ON_ITS_WAY'))
+						->setType(Message\Message::TYPE_SHIPMENT_PICKUPED),
+					$request['ID'],
+					$shipment->getId()
+				);
+				break;
+			case StatusDictionary::PERFORMER_NOT_FOUND:
+			case StatusDictionary::FAILED:
+			case StatusDictionary::ESTIMATING_FAILED:
+				Requests\Manager::sendMessage(
+					Requests\Manager::MESSAGE_MANAGER_ADDRESSEE,
+					(new Message\Message())
+						->setSubject(Loc::getMessage('SALE_YANDEX_TAXI_PERFORMER_NOT_FOUND'))
+						->setStatus(
+							new Message\Status(
+								Loc::getMessage('SALE_YANDEX_TAXI_ERROR_STATUS'),
+								Message\Status::getErrorSemantic()
+							)
+						),
+					$request['ID'],
+					$shipment->getId()
+				);
+				Requests\Manager::deleteDeliveryRequest($request['ID']);
+				break;
+			case StatusDictionary::CANCELLED_BY_TAXI:
+				Requests\Manager::sendMessage(
+					Requests\Manager::MESSAGE_MANAGER_ADDRESSEE,
+					(new Message\Message())
+						->setSubject(Loc::getMessage('SALE_YANDEX_TAXI_CANCELLED_BY_PERFORMER'))
+						->setStatus(
+							new Message\Status(
+								Loc::getMessage('SALE_YANDEX_TAXI_CANCELLATION'),
+								Message\Status::getProcessSemantic()
+							)
+						),
+					$request['ID'],
+					$shipment->getId()
+				);
+				Requests\Manager::deleteDeliveryRequest($request['ID']);
+				break;
+			case StatusDictionary::RETURNED_FINISH:
+				Requests\Manager::sendMessage(
+					Requests\Manager::MESSAGE_MANAGER_ADDRESSEE,
+					(new Message\Message())
+						->setSubject(Loc::getMessage('SALE_YANDEX_TAXI_PERFORMER_RETURNED_CARGO'))
+						->setStatus(
+							new Message\Status(
+								Loc::getMessage('SALE_YANDEX_TAXI_RETURN'),
+								Message\Status::getProcessSemantic()
+							)
+						),
+					$request['ID'],
+					$shipment->getId()
+				);
+				Requests\Manager::deleteDeliveryRequest($request['ID']);
+				break;
+			case StatusDictionary::DELIVERED_FINISH:
+				Requests\Manager::updateDeliveryRequest(
+					$request['ID'],
+					[
+						'STATUS' => Requests\Manager::STATUS_PROCESSED,
+						'EXTERNAL_STATUS' => Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_FINISHED'),
+						'EXTERNAL_STATUS_SEMANTIC' => Requests\Manager::EXTERNAL_STATUS_SEMANTIC_SUCCESS,
+					]
+				);
+				break;
+		}
+
+		/**
+		 * Finalize
+		 */
+		if (
+			!is_null($claim['EXTERNAL_RESOLUTION'])
+			|| $claim['EXTERNAL_STATUS'] === StatusDictionary::PERFORMER_NOT_FOUND)
+		{
+			ClaimsTable::update($claim['ID'], ['FURTHER_CHANGES_EXPECTED' => 'N']);
+
+			if (isset($claim['EXTERNAL_RESOLUTION'])
+				&& $claim['EXTERNAL_RESOLUTION'] === ClaimsTable::EXTERNAL_STATUS_SUCCESS
+			)
+			{
+				if ($shipment->setField('DEDUCTED', 'Y')->isSuccess())
+				{
+					$shipment->getOrder()->save();
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param array $claim
+	 * @return array
+	 */
+	private function getPerformer(array $claim): array
+	{
+		$result = [];
+
+		$remoteClaim = $this->requestClaim($claim['EXTERNAL_ID']);
+		if ($remoteClaim)
+		{
+			$performerInfo = $remoteClaim->getPerformerInfo();
+			if ($performerInfo)
+			{
+				$result[] = [
+					'NAME' => Loc::getMessage('SALE_YANDEX_TAXI_PERFORMER'),
+					'VALUE' => $performerInfo->getCourierName(),
+				];
+				$result[] = [
+					'NAME' => Loc::getMessage('SALE_YANDEX_TAXI_CAR'),
+					'VALUE' => sprintf(
+						'%s %s',
+						$performerInfo->getCarModel(),
+						$performerInfo->getCarNumber()
+					),
+				];
+			}
+		}
+
+		$getPhoneResult = $this->api->getPhone($claim['EXTERNAL_ID']);
+		if ($getPhoneResult->isSuccess())
+		{
+			$result[] = [
+				'NAME' => Loc::getMessage('SALE_YANDEX_TAXI_DRIVER_PHONE'),
+				'VALUE' => $getPhoneResult->getPhone(),
+				'TAGS' => ['phone'],
+			];
+			$result[] = [
+				'NAME' => Loc::getMessage('SALE_YANDEX_TAXI_DRIVER_PHONE_EXT'),
+				'VALUE' => $getPhoneResult->getExt(),
+			];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param string $externalId
+	 * @return Claim|null
+	 * @throws Main\ArgumentException
+	 */
+	private function requestClaim(string $externalId): ?Claim
+	{
+		$getClaimResult = $this->api->getClaim($externalId);
+		$remoteClaim = $getClaimResult->getClaim();
+
+		if ($getClaimResult->isSuccess() && !is_null($remoteClaim))
+		{
+			return $remoteClaim;
+		}
+
+		return null;
 	}
 
 	/**

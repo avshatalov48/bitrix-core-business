@@ -1,4 +1,5 @@
-<?
+<?php
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -6,14 +7,15 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-/*use \Bitrix\Main\UI;*/
 
 Loader::includeModule('socialnetwork');
 
 $langAdditional = [
 	'SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y' => Loc::getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y'),
 	'SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N' => Loc::getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N'),
-	'SONET_EXT_LIVEFEED_COLLAPSED_PINNED_PANEL_ITEMS_LIMIT' => \Bitrix\Socialnetwork\Component\LogList\Util::getCollapsedPinnedPanelItemsLimit()
+	'SONET_EXT_LIVEFEED_COLLAPSED_PINNED_PANEL_ITEMS_LIMIT' => \Bitrix\Socialnetwork\Component\LogList\Util::getCollapsedPinnedPanelItemsLimit(),
+	'SONET_EXT_LIVEFEED_CREATE_TASK_PATH' => \Bitrix\Main\Config\Option::get('socialnetwork', 'user_page', SITE_DIR . 'company/personal/') . 'user/#user_id#/tasks/task/view/#task_id#/',
+	'SONET_EXT_LIVEFEED_SITE_TEMPLATE_ID' => (defined('SITE_TEMPLATE_ID') ? CUtil::JSEscape(SITE_TEMPLATE_ID) : ''),
 ];
 
 return [
@@ -25,6 +27,7 @@ return [
 		'ui.buttons',
 		'main.core',
 		'main.core.events',
+		'socialnetwork.commentaux',
 	],
 	'skip_core' => false,
 ];

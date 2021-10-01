@@ -8,6 +8,9 @@
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
+use Bitrix\Main\HttpResponse;
+use Bitrix\Main\Application;
+
 IncludeModuleLangFile(__FILE__);
 
 define("ADMIN_THEMES_PATH", "/bitrix/themes");
@@ -417,9 +420,6 @@ var phpVars = {
 	}
 }
 
-use Bitrix\Main\HttpResponse;
-use Bitrix\Main\Application;
-
 class CAdminAjaxHelper
 {
 	/** @var  \Bitrix\Main\Context */
@@ -505,6 +505,33 @@ class CAdminAjaxHelper
 
 class CAdminSidePanelHelper extends CAdminAjaxHelper
 {
+	/** @var bool */
+	protected $publicPageProcessMode;
+
+	public function __construct()
+	{
+		parent::__construct();
+		$this->initPublicPageProcessMode();
+	}
+
+	protected function initPublicPageProcessMode()
+	{
+		$this->setPublicPageProcessMode(
+			$this->isPublicSidePanel()
+			|| (defined("PUBLIC_MODE") && PUBLIC_MODE == 1)
+		);
+	}
+
+	public function setPublicPageProcessMode(bool $mode): void
+	{
+		$this->publicPageProcessMode = $mode;
+	}
+
+	public function getPublicPageProcessMode(): bool
+	{
+		return $this->publicPageProcessMode;
+	}
+
 	public function setSkipResponse($skip)
 	{
 		$this->skipResponse = $skip;
@@ -631,7 +658,7 @@ class CAdminSidePanelHelper extends CAdminAjaxHelper
 
 	public function editUrlToPublicPage($url)
 	{
-		if ($this->isPublicSidePanel() || (defined("PUBLIC_MODE") && PUBLIC_MODE == 1))
+		if ($this->getPublicPageProcessMode())
 		{
 			$url = str_replace(".php", "/", $url);
 		}

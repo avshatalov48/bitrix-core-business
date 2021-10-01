@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Pull;
 
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Pull\SharedServer\Client;
 
@@ -8,35 +9,55 @@ Loc::loadMessages(__FILE__);
 
 class Config
 {
-	public static function get($params = array())
+	public const ONE_YEAR = 31536000; //60 * 60 * 24 * 365;
+
+	public static function get(array $params = [])
 	{
 		if (!\CPullOptions::GetQueueServerStatus())
 			return false;
 
 		$userId = (int)$params['USER_ID'];
-		if ($userId == 0)
+		if (isset($params['CHANNEL']) && !($params['CHANNEL'] instanceof \Bitrix\Pull\Model\Channel))
+		{
+			throw new ArgumentException('$params["CHANNEL"] should be instance of \Bitrix\Pull\Model\Channel');
+		}
+
+		if ($userId === 0 && !isset($params['CHANNEL']))
 		{
 			global $USER;
 			$userId = (int)$USER->GetID();
-		}
-		if ($userId == 0)
-		{
-			return false;
+			if ($userId === 0)
+			{
+				return false;
+			}
 		}
 
 		$cache = $params['CACHE'] !== false;
 		$reopen = $params['REOPEN'] !== false;
 
-		$privateChannelType = isset($params['CUSTOM_TYPE'])? $params['CUSTOM_TYPE']: \CPullChannel::TYPE_PRIVATE;
-		$sharedChannelType = isset($params['CUSTOM_TYPE'])? $params['CUSTOM_TYPE']: \CPullChannel::TYPE_SHARED;
+		if ($userId !== 0)
+		{
+			$privateChannelType = isset($params['CUSTOM_TYPE'])? $params['CUSTOM_TYPE']: \CPullChannel::TYPE_PRIVATE;
+			$sharedChannelType = isset($params['CUSTOM_TYPE'])? $params['CUSTOM_TYPE']: \CPullChannel::TYPE_SHARED;
 
-		$privateChannel = \CPullChannel::Get($userId, $cache, $reopen, $privateChannelType);
-		$sharedChannel = \CPullChannel::GetShared($cache, $reopen, $sharedChannelType);
+			$privateChannel = \CPullChannel::Get($userId, $cache, $reopen, $privateChannelType);
+			$sharedChannel = \CPullChannel::GetShared($cache, $reopen, $sharedChannelType);
+		}
+		else // isset($params['CHANNEL'])
+		{
+			$privateChannel = [
+				'CHANNEL_ID' => $params['CHANNEL']->getPrivateId(),
+				'CHANNEL_PUBLIC_ID' => $params['CHANNEL']->getPublicId(),
+				'CHANNEL_DT' => $params['CHANNEL']->getDateCreate()->getTimestamp(),
+				'CHANNEL_DT_END' => $params['CHANNEL']->getDateCreate()->getTimestamp() + static::ONE_YEAR,
+			];
+			$sharedChannel = null;
+		}
 
 		$domain = defined('BX24_HOST_NAME')? BX24_HOST_NAME: $_SERVER['SERVER_NAME'];
 
 		$isSharedMode = \CPullOptions::IsServerShared();
-		$serverConfig = Array(
+		$serverConfig = [
 			'VERSION' => $isSharedMode ? \Bitrix\Pull\SharedServer\Config::getServerVersion(): \CPullOptions::GetQueueServerVersion(),
 			'SERVER_ENABLED' => \CPullOptions::GetQueueServerStatus(),
 			'MODE' => \CPullOptions::GetQueueServerMode(),
@@ -49,7 +70,7 @@ class Config
 			'PUBLISH' => $isSharedMode ? \Bitrix\Pull\SharedServer\Config::getWebPublishUrl() : \CPullOptions::GetPublishWebUrl(),
 			'PUBLISH_SECURE' => $isSharedMode ? \Bitrix\Pull\SharedServer\Config::getWebPublishUrl() : \CPullOptions::GetPublishWebSecureUrl(),
 			'CONFIG_TIMESTAMP' => \CPullOptions::GetConfigTimestamp(),
-		);
+		];
 		foreach ($serverConfig as $key => $value)
 		{
 			if(is_string($value) && mb_strpos($value, '#DOMAIN#') !== false)
@@ -68,36 +89,39 @@ class Config
 			'REVISION_MOBILE' => PULL_REVISION_MOBILE,
 		);
 
-		$config['CHANNELS'] = Array();
+		$config['CHANNELS'] = [];
 		if ($sharedChannel)
 		{
-			$config['CHANNELS']['SHARED'] = Array(
+			$config['CHANNELS']['SHARED'] = [
 				'ID' => \CPullChannel::SignChannel($sharedChannel["CHANNEL_ID"]),
 				'START' => $sharedChannel['CHANNEL_DT'],
 				'END' => $sharedChannel['CHANNEL_DT']+\CPullChannel::CHANNEL_TTL,
-			);
+			];
 		}
 		if ($privateChannel)
 		{
 			if (\CPullOptions::GetQueueServerVersion() > 3)
 			{
-				$privateId = $privateChannel["CHANNEL_PUBLIC_ID"]? $privateChannel["CHANNEL_ID"].":".$privateChannel["CHANNEL_PUBLIC_ID"]: $privateChannel["CHANNEL_ID"];
+				$privateId = $privateChannel['CHANNEL_PUBLIC_ID']
+					? "{$privateChannel['CHANNEL_ID']}:{$privateChannel['CHANNEL_PUBLIC_ID']}"
+					: $privateChannel['CHANNEL_ID']
+				;
 				$privateId = \CPullChannel::SignChannel($privateId);
 
-				$publicId = \CPullChannel::SignPublicChannel($privateChannel["CHANNEL_PUBLIC_ID"]);
+				$publicId = \CPullChannel::SignPublicChannel($privateChannel['CHANNEL_PUBLIC_ID']);
 			}
 			else
 			{
-				$privateId = \CPullChannel::SignChannel($privateChannel["CHANNEL_ID"]);
+				$privateId = \CPullChannel::SignChannel($privateChannel['CHANNEL_ID']);
 				$publicId = '';
 			}
 
-			$config['CHANNELS']['PRIVATE'] = Array(
+			$config['CHANNELS']['PRIVATE'] = [
 				'ID' => $privateId,
 				'PUBLIC_ID' => $publicId,
 				'START' => $privateChannel['CHANNEL_DT'],
-				'END' => $privateChannel['CHANNEL_DT']+\CPullChannel::CHANNEL_TTL,
-			);
+				'END' => $privateChannel['CHANNEL_DT_END'] ?? $privateChannel['CHANNEL_DT']+\CPullChannel::CHANNEL_TTL,
+			];
 		}
 
 		$config['PUBLIC_CHANNELS'] = \Bitrix\Pull\Channel::getPublicIds(['JSON' => (bool)$params['JSON']]);

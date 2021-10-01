@@ -862,7 +862,8 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 
 		return in_array(
 			\Bitrix\Sale\Delivery\Helper::getPortalZone(),
-			['ru', 'kz', 'by']
+			['', 'ru', 'kz', 'by'],
+			true
 		);
 	}
 }

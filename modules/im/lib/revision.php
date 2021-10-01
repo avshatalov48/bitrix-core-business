@@ -22,7 +22,7 @@ class Revision
 	/**
 	 * Desktop Api revision
 	 */
-	const DESKTOP = 3;
+	const DESKTOP = 5;
 
 	/**
 	 * Rest Api revision

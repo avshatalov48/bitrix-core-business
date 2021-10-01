@@ -5,6 +5,22 @@ namespace Bitrix\Sale\Internals;
 use Bitrix\Main;
 
 
+/**
+ * Class CompanyResponsibleGroupTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CompanyResponsibleGroup_Query query()
+ * @method static EO_CompanyResponsibleGroup_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CompanyResponsibleGroup_Result getById($id)
+ * @method static EO_CompanyResponsibleGroup_Result getList(array $parameters = array())
+ * @method static EO_CompanyResponsibleGroup_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_CompanyResponsibleGroup createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_CompanyResponsibleGroup_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_CompanyResponsibleGroup wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_CompanyResponsibleGroup_Collection wakeUpCollection($rows)
+ */
 class CompanyResponsibleGroupTable extends Main\Entity\DataManager
 {
 	public static function getTableName()

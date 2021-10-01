@@ -3,6 +3,22 @@ namespace Bitrix\MessageService\Internal\Entity;
 
 use Bitrix\Main;
 
+/**
+ * Class RestAppTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_RestApp_Query query()
+ * @method static EO_RestApp_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_RestApp_Result getById($id)
+ * @method static EO_RestApp_Result getList(array $parameters = array())
+ * @method static EO_RestApp_Entity getEntity()
+ * @method static \Bitrix\MessageService\Internal\Entity\EO_RestApp createObject($setDefaultValues = true)
+ * @method static \Bitrix\MessageService\Internal\Entity\EO_RestApp_Collection createCollection()
+ * @method static \Bitrix\MessageService\Internal\Entity\EO_RestApp wakeUpObject($row)
+ * @method static \Bitrix\MessageService\Internal\Entity\EO_RestApp_Collection wakeUpCollection($rows)
+ */
 class RestAppTable extends Main\Entity\DataManager
 {
 	/**

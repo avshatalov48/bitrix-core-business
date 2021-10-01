@@ -21,18 +21,6 @@ class SessionExpander
 	{
 		global $USER;
 
-		$policy = $USER->GetSecurityPolicy();
-
-		$phpSessTimeout = ini_get("session.gc_maxlifetime");
-		if($policy["SESSION_TIMEOUT"] > 0)
-		{
-			$sessTimeout = min($policy["SESSION_TIMEOUT"]*60, $phpSessTimeout);
-		}
-		else
-		{
-			$sessTimeout = $phpSessTimeout;
-		}
-
 		$sessid = bitrix_sessid();
 
 		$signer = new Sign\Signer();
@@ -45,7 +33,8 @@ class SessionExpander
 		$showMess = ($USER->IsAuthorized() && Config\Option::get("main", "session_show_message", "Y") <> "N");
 		if($showMess)
 		{
-			$message = \CUtil::JSEscape(Loc::getMessage("MAIN_SESS_MESS", array("#TIMEOUT#" => round($sessTimeout / 60))));
+			$policy = $USER->GetSecurityPolicy();
+			$message = \CUtil::JSEscape(Loc::getMessage("MAIN_SESS_MESS", array("#TIMEOUT#" => (int)$policy["SESSION_TIMEOUT"])));
 			$jsCode .= 'BX.message({"SessExpired": \''.$message.'\'});'."\n";
 		}
 

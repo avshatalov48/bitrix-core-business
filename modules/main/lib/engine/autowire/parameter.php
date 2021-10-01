@@ -46,17 +46,39 @@ class Parameter
 		return 2;
 	}
 
-	public function constructValue(\ReflectionParameter $parameter, Result $captureResult)
+	public function constructValue(\ReflectionParameter $parameter, Result $captureResult, $newThis = null)
 	{
 		$paramsToInvoke = array_merge(
 			[$parameter->getClass()->getName()],
 			$captureResult->getData()
 		);
 
-		return call_user_func_array($this->getConstructor(), $paramsToInvoke);
+		return $this->callConstructor(
+			$this->getConstructor(),
+			$paramsToInvoke,
+			$newThis,
+		);
 	}
 
-	public function captureData(\ReflectionParameter $parameter, array $sourceParameters)
+	protected function callConstructor(\Closure $constructor, array $params, $newThis = null)
+	{
+		if ($newThis && $this->isBindable($constructor))
+		{
+			$constructor->bindTo($newThis);
+		}
+
+		return call_user_func_array($constructor, $params);
+	}
+
+	private function isBindable(\Closure $closure): bool
+	{
+		$reflectionClosure = new \ReflectionFunction($closure);
+		$isBindable = ($reflectionClosure->getClosureThis() !== null || $reflectionClosure->getClosureScopeClass() === null);
+
+		return $isBindable;
+	}
+
+	public function captureData(\ReflectionParameter $parameter, array $sourceParameters, array $autoWiredParameters = [])
 	{
 		if (!$this->needToMapExternalData())
 		{

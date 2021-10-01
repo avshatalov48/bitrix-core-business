@@ -480,7 +480,7 @@ BitrixVue.component('bx-im-component-conference-edit',
 			if (!top.BX.Call.Util.isCallServerAllowed())
 			{
 				this.disableButton();
-				this.addError(this.localize['BX_IM_COMPONENT_CONFERENCE_VOXIMPLANT_ERROR']);
+				this.addError(this.localize['BX_IM_COMPONENT_CONFERENCE_VOXIMPLANT_ERROR_WITH_LINK']);
 			}
 		},
 		disableButton()
@@ -574,7 +574,7 @@ BitrixVue.component('bx-im-component-conference-edit',
 		<div>
 			<template v-if="errors.length > 0">
 				<div class="ui-alert ui-alert-danger" id="im-conference-create-errors">
-					<span v-for="error in errors" class="ui-alert-message">{{ error }}</span>
+					<span v-for="error in errors" class="ui-alert-message" v-html="error"></span>
 				</div>
 			</template>
 			<div class="im-conference-create-block im-conference-create-fields-wrapper">

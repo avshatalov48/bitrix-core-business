@@ -35,7 +35,7 @@ import { VueVendorV2 } from "ui.vue";
 import { VuexBuilder } from "ui.vue.vuex";
 
 // core
-import { Loc } from "main.core";
+import { Loc, Tag, Dom } from "main.core";
 import "promise";
 import 'main.date';
 import { EventEmitter } from 'main.core.events'
@@ -380,6 +380,7 @@ class ConferenceApplication
 				this.callView.subscribe(BX.Call.View.Event.onReplaceSpeaker, this.onCallReplaceSpeaker.bind(this));
 				this.callView.subscribe(BX.Call.View.Event.onChangeHdVideo, this.onCallViewChangeHdVideo.bind(this));
 				this.callView.subscribe(BX.Call.View.Event.onChangeMicAutoParams, this.onCallViewChangeMicAutoParams.bind(this));
+				this.callView.subscribe(BX.Call.View.Event.onChangeFaceImprove, this.onCallViewChangeFaceImprove.bind(this));
 				this.callView.subscribe(BX.Call.View.Event.onUserRename, this.onCallViewUserRename.bind(this));
 				this.callView.subscribe(BX.Call.View.Event.onUserPinned, this.onCallViewUserPinned.bind(this));
 
@@ -392,7 +393,10 @@ class ConferenceApplication
 				}
 
 				resolve()
-			}).catch((error) => reject(error));
+			}).catch((error) => {
+				console.warn(error);
+				reject(error)
+			});
 		}
 
 		initUserComplete()
@@ -1261,6 +1265,16 @@ class ConferenceApplication
 		BX.Call.Hardware.enableMicAutoParameters = event.data.allowMicAutoParams;
 	}
 
+	onCallViewChangeFaceImprove(event)
+	{
+		if (typeof (BX.desktop) === 'undefined')
+		{
+			return;
+		}
+
+		BX.desktop.cameraSmoothingStatus(event.data.faceImproveEnabled);
+	}
+
 	onCallViewUserRename(event)
 	{
 		const newName = event.data.newName;
@@ -1433,6 +1447,9 @@ class ConferenceApplication
 
 			if (this.canRecord())
 			{
+				// TODO: create popup menu with choice type of record - im/install/js/im/call/controller.js:1635
+				// BX.Call.View.RecordType.Video / BX.Call.View.RecordType.Audio
+
 				this.callView.setButtonActive('record', true);
 			}
 			else
@@ -2086,49 +2103,79 @@ class ConferenceApplication
 			window.history.pushState("", "", newUrl);
 		}
 
-		sendNewMessageNotify(text)
+		sendNewMessageNotify(params)
 		{
-			if (Utils.device.isMobile())
-			{
-				return true;
-			}
-
 			const MAX_LENGTH = 40;
 			const AUTO_HIDE_TIME = 4000;
 
-			text = text.replace(/<br \/>/gi, ' ');
+			if (!this.checkIfMessageNotifyIsNeeded(params))
+			{
+				return false;
+			}
 
-			text = text.replace(/\[USER=([0-9]+)](.*?)\[\/USER]/ig, (whole, userId, text) => text);
-			text = text.replace(/\[CHAT=(imol\|)?([0-9]+)](.*?)\[\/CHAT]/ig, (whole, imol, chatId, text) => text);
-			text = text.replace(/\[PCH=([0-9]+)](.*?)\[\/PCH]/ig, (whole, historyId, text) => text);
-			text = text.replace(/\[SEND(?:=(.+?))?](.+?)?\[\/SEND]/ig, (whole, command, text) => text? text: command);
-			text = text.replace(/\[PUT(?:=(.+?))?](.+?)?\[\/PUT]/ig, (whole, command, text) => text? text: command);
-			text = text.replace(/\[CALL(?:=(.+?))?](.+?)?\[\/CALL]/ig, (whole, command, text) => text? text: command);
-			text = text.replace(/\[ATTACH=([0-9]+)]/ig, (whole, historyId, text) => '');
-
+			let text = Utils.text.purify(params.message.text, params.message.params, params.files);
 			if (text.length > MAX_LENGTH)
 			{
 				text = text.substring(0, MAX_LENGTH - 1) + '...';
 			}
 
-			const notifyNode = BX.create("div", {
-				props: {
-					className: 'bx-im-application-call-notify-new-message'
-				},
-				html: text
-			});
+			let avatar = '';
+			let userName = '';
+
+			// avatar and username only for non-system messages
+			if (params.message.senderId > 0 && params.message.system !== 'Y')
+			{
+				const messageAuthor = this.controller.getStore().getters['users/get'](params.message.senderId, true);
+				userName = Tag.render`
+					<div class="bx-im-application-call-notify-new-message-username">${messageAuthor.name}:</div>
+				`;
+				if (messageAuthor.avatar)
+				{
+					avatar = Tag.render`
+						<div class="bx-im-application-call-notify-new-message-avatar-wrap">
+							<img class="bx-im-application-call-notify-new-message-avatar" src="${messageAuthor.avatar}" alt=""/>
+						</div>
+					`;
+				}
+			}
+
+			const content = Tag.render`
+				<div class="bx-im-application-call-notify-new-message">
+					<div class="bx-im-application-call-notify-new-message-text">${text}</div>
+				</div>
+			`;
+
+			if (avatar)
+			{
+				Dom.prepend(avatar, content);
+			}
+			else if (userName)
+			{
+				Dom.prepend(userName, content)
+			}
 
 			const notify = BX.UI.Notification.Center.notify({
-				content: notifyNode,
+				content: content,
+				width: 'auto',
 				autoHideDelay: AUTO_HIDE_TIME
 			});
 
-			notifyNode.addEventListener('click', (event) => {
+			notify.getContent().addEventListener('click', () => {
 				notify.close();
 				this.toggleChat();
-			});
+			})
 
 			return true;
+		}
+
+		checkIfMessageNotifyIsNeeded(params)
+		{
+			const rightPanelMode = this.getConference().common.rightPanelMode;
+			return !Utils.device.isMobile()
+				&& params.chatId === this.getChatId()
+				&& (rightPanelMode !== RightPanelMode.chat || rightPanelMode !== RightPanelMode.split)
+				&& params.message.senderId !== this.controller.getUserId()
+				&& !this.getConference().common.error;
 		}
 
 		onInputFocus(e)

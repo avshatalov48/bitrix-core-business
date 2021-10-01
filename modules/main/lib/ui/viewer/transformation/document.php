@@ -13,10 +13,11 @@ class Document extends Transformation
 	{
 		return [
 			'text/html',
-			'text/html',
 			'text/plain',
 			'application/xml',
 			'application/pdf',
+			'application/rtf',
+			'text/rtf',
 			'application/msword',
 			'application/vnd.ms-excel',
 			'application/vnd.ms-powerpoint',
@@ -39,12 +40,8 @@ class Document extends Transformation
 			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 			'application/vnd.ms-excel.template.macroEnabled.12',
 			'application/vnd.openxmlformats-officedocument.spreadsheetml.template',
-			'application/msword',
-			'application/vnd.ms-excel',
-			'application/xml',
 			'image/vnd.djvu',
 			'application/epub+zip',
-			'message/rfc822',
 			'message/rfc822',
 			'application/vnd.oasis.opendocument.text',
 		];

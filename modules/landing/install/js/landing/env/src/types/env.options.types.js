@@ -90,6 +90,8 @@ interface EnvOptions
 	xml_id: string,
 	default_section: string,
 	specialType: string,
+	design_block: string,
+	design_block_allowed: boolean
 }
 
 export {

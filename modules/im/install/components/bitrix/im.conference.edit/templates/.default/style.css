@@ -74,6 +74,11 @@
 	flex-direction: column;
 }
 
+#im-conference-create-errors a {
+    cursor: pointer;
+    color: #2067b0;
+}
+
 #im-conference-create-errors .ui-alert-message + .ui-alert-message {
 	margin-top: 10px;
 }

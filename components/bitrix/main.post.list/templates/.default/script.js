@@ -3,9 +3,7 @@
 	if (window["FCList"])
 		return;
 
-	var safeEditing = true, // Why?
-		safeEditingCurrentObj = null,  // Why?
-		quoteData = null,
+	var quoteData = null,
 		repo = {
 			listById : new Map(),
 			listByXmlId : new Map()
@@ -396,17 +394,34 @@
 			this.hideWriter = this.hideWriter.bind(this);
 			this.quoteShow = this.quoteShow.bind(this);
 
-			this.bindEvents.unshift([
-				this.eventNode,
-				"mouseup",
-				this.privateEvents["onQuote"]
-			]);
-			// dnd
-			this.bindEvents.unshift([
-				this.node.formHolder,
-				"dragenter",
-				this.reply.bind(this)
-			]);
+			this.bindEvents.unshift([this.eventNode, "mouseup", this.privateEvents["onQuote"]]);
+			//region dnd
+			var timerListenEnter = 0;
+			var stopListenEnter = function() {
+				if (timerListenEnter > 0)
+				{
+					clearTimeout(timerListenEnter);
+					timerListenEnter = 0;
+				}
+				this.node.formHolder.classList.remove('feed-com-add-box-dnd-over')
+			}.bind(this);
+			var fireDragEnter = function() {
+				stopListenEnter();
+				this.reply.apply(this, arguments);
+			}.bind(this);
+			var startListenEnter = function() {
+				if (timerListenEnter <= 0)
+				{
+					timerListenEnter = setTimeout(fireDragEnter, 3000);
+					this.node.formHolder.classList.add('feed-com-add-box-dnd-over')
+				}
+			}.bind(this);
+			this.bindEvents.unshift([this.node.main, "dragover", startListenEnter]);
+			this.bindEvents.unshift([this.node.main, "dragenter", startListenEnter]);
+			this.bindEvents.unshift([this.node.main, "dragleave", stopListenEnter]);
+			this.bindEvents.unshift([this.node.main, "dragexit", stopListenEnter]);
+			this.bindEvents.unshift([this.node.main, "drop", stopListenEnter]);
+			//region
 		},
 		url : {
 			activity : '/bitrix/components/bitrix/main.post.list/activity.php'
@@ -533,7 +548,6 @@
 					}
 					else
 					{
-						safeEditingCurrentObj = safeEditing;
 						BX.onCustomEvent(
 							window,
 							"OnUCQuote",
@@ -541,7 +555,7 @@
 								this.ENTITY_XML_ID,
 								params["author"],
 								params["text"],
-								safeEditingCurrentObj
+								true
 							]
 						);
 					}
@@ -800,9 +814,8 @@
 			}
 			else
 			{
-				safeEditingCurrentObj = safeEditing;
 				var eventResult = {caught : false};
-				BX.onCustomEvent(window, "OnUCReply", [this.ENTITY_XML_ID, author.id, author.name, safeEditingCurrentObj, eventResult]);
+				BX.onCustomEvent(window, "OnUCReply", [this.ENTITY_XML_ID, author.id, author.name, true, eventResult]);
 			}
 		},
 		getPlaceholder : function(messageId) {
@@ -2713,7 +2726,7 @@
 	BX.ready(function() {
 		//region for pull events
 		BX.addCustomEvent(window, "onPullEvent-unicomments", function(command, params) {
-			if (params["AUX"] && !BX.util.in_array(params["AUX"], [ 'createentity', 'createtask', 'fileversion', 'TASKINFO' ]) ||
+			if (params["AUX"] && !BX.util.in_array(params["AUX"].toLowerCase(), BX.CommentAux.getLiveTypesList()) ||
 				getActiveEntitiesByXmlId(params["ENTITY_XML_ID"]).size <= 0)
 			{
 				return;

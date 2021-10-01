@@ -1,4 +1,4 @@
-import {ajax, Cache, Dom, Event, Loc, Reflection, Runtime, Tag, Text, Type} from 'main.core';
+import {ajax, Cache, Dom, Event, Extension, Loc, Reflection, Runtime, Tag, Text, Type} from 'main.core';
 import {EventEmitter} from 'main.core.events';
 import {SkuTree} from 'catalog.sku-tree';
 import {ProductSearchInput} from "./product-search-input";

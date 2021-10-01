@@ -766,8 +766,28 @@ this.BX = this.BX || {};
 	  return Selector;
 	}(main_core_events.EventEmitter);
 
-	function _templateObject5() {
+	function _templateObject7() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<div bx-tooltip-user-id=\"", "\" bx-tooltip-classname=\"calendar-planner-user-tooltip\" title=\"", "\" class=\"ui-icon calendar-planner-user-image-icon\"><i style=\"background-image: url('", "')\"></i></div>"]);
+
+	  _templateObject7 = function _templateObject7() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject6() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div bx-tooltip-user-id=\"", "\" bx-tooltip-classname=\"calendar-planner-user-tooltip\" title=\"", "\" class=\"ui-icon calendar-planner-user-image-icon ", "\"><i></i></div>"]);
+
+	  _templateObject6 = function _templateObject6() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject5() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-timeline-locker\">\n\t\t\t\t\t<div class=\"calendar-planner-timeline-locker-container\">\n\t\t\t\t\t\t<div class=\"calendar-planner-timeline-locker-top\">\n\t\t\t\t\t\t\t<div class=\"calendar-planner-timeline-locker-icon\"></div>\n\t\t\t\t\t\t\t<div class=\"calendar-planner-timeline-text\">", "</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"calendar-planner-timeline-locker-button\">\n\t\t\t\t\t\t\t<a href=\"javascript:void(0)\" onclick=\"top.BX.UI.InfoHelper.show('limit_crm_calender_planner');\" class=\"ui-btn ui-btn-sm ui-btn-light-border ui-btn-round\">", "</a>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
 
 	  _templateObject5 = function _templateObject5() {
 	    return data;
@@ -777,7 +797,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div bx-tooltip-user-id=\"", "\" bx-tooltip-classname=\"calendar-planner-user-tooltip\" title=\"", "\" class=\"ui-icon calendar-planner-user-image-icon ", "\"><i></i></div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-planner-option-tab ", "\" data-bx-planner-scale=\"", "\">", "</span>"]);
 
 	  _templateObject4 = function _templateObject4() {
 	    return data;
@@ -787,7 +807,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-planner-option-tab ", "\" data-bx-planner-scale=\"", "\">", "</span>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-planner-timeline-space\" style=\"top:", "px\" data-bx-planner-entry=\"", "\"></div>"]);
 
 	  _templateObject3$1 = function _templateObject3() {
 	    return data;
@@ -797,7 +817,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-planner-timeline-space\" style=\"top:", "px\" data-bx-planner-entry=\"", "\"></div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-planner-settings-icon-container\" title=\"", "\"><span class=\"calendar-planner-settings-title\">", "</span><span class=\"calendar-planner-settings-icon\"></span></div>"]);
 
 	  _templateObject2$1 = function _templateObject2() {
 	    return data;
@@ -807,7 +827,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-planner-settings-icon-container\" title=\"", "\"><span class=\"calendar-planner-settings-title\">", "</span><span class=\"calendar-planner-settings-icon\"></span></div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-timeline-wrapper\" style=\"height: ", "px\"></div>\n\t\t"]);
 
 	  _templateObject$1 = function _templateObject() {
 	    return data;
@@ -855,6 +875,7 @@ this.BX = this.BX || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "scrollStep", 10);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "shown", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "built", false);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "locked", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "shownScaleTimeFrom", 24);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "shownScaleTimeTo", 0);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "timelineCellWidthOrig", false);
@@ -1042,6 +1063,10 @@ this.BX = this.BX || {};
 	        this.allowAdjustCellWidth = this.readonly && this.compactMode && params.allowAdjustCellWidth !== false;
 	      }
 
+	      if (params.locked !== undefined) {
+	        this.locked = params.locked;
+	      }
+
 	      this.adjustCellWidth(); // Scale params
 
 	      this.setScaleLimits(params.scaleDateFrom, params.scaleDateTo);
@@ -1195,14 +1220,12 @@ this.BX = this.BX || {};
 	        }
 	      })); // Fixed cont with specific width and height
 
-	      this.DOM.timelineFixedWrap = this.DOM.mainWrap.appendChild(BX.create("DIV", {
-	        props: {
-	          className: 'calendar-planner-timeline-wrapper'
-	        },
-	        style: {
-	          height: this.height + 'px'
-	        }
-	      })); // Movable cont - used to move scale and data containers easy and at the same time
+	      this.DOM.timelineFixedWrap = this.DOM.mainWrap.appendChild(main_core.Tag.render(_templateObject$1(), this.height));
+
+	      if (this.isLocked()) {
+	        this.lock();
+	      } // Movable cont - used to move scale and data containers easy and at the same time
+
 
 	      this.DOM.timelineInnerWrap = this.DOM.timelineFixedWrap.appendChild(BX.create("DIV", {
 	        props: {
@@ -1278,7 +1301,7 @@ this.BX = this.BX || {};
 	      }
 
 	      if (!this.compactMode) {
-	        this.DOM.settingsButton = this.DOM.mainWrap.appendChild(main_core.Tag.render(_templateObject$1(), main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE'), main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE')));
+	        this.DOM.settingsButton = this.DOM.mainWrap.appendChild(main_core.Tag.render(_templateObject2$1(), main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE'), main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE')));
 	        main_core.Event.bind(this.DOM.settingsButton, 'click', this.showSettingsPopup.bind(this));
 	      }
 
@@ -1465,147 +1488,6 @@ this.BX = this.BX || {};
 	    value: function isOneDayScale() {
 	      return this.scaleType === '1day';
 	    }
-	    /**
-	     * Updates data on scale of planner
-	     *
-	     * @params array array of parameters
-	     * @params[entries] - array of entries to display on scale
-	     * @params[accessibility] - object contains informaton about accessibility for entries
-	     * @return null
-	     */
-	    // UpdateData(params)
-	    // {
-	    // 	if (!params.accessibility)
-	    // 	{
-	    // 		params.accessibility = {};
-	    // 	}
-	    //
-	    // 	this.accessibility = params.accessibility;
-	    // 	this.entries = params.entries;
-	    //
-	    // 	let i, k, entry, acc, userId = this.userId;
-	    // 	// Compact mode
-	    // 	if (this.compactMode)
-	    // 	{
-	    // 		let data = [];
-	    // 		for (k in params.accessibility)
-	    // 		{
-	    // 			if (params.accessibility.hasOwnProperty(k) && params.accessibility[k] && params.accessibility[k].length > 0)
-	    // 			{
-	    // 				for (i = 0; i < params.accessibility[k].length; i++)
-	    // 				{
-	    // 					data.push(Planner.prepareAccessibilityItem(params.accessibility[k][i]));
-	    // 				}
-	    // 			}
-	    // 		}
-	    //
-	    // 		// Fuse access
-	    // 		//data = this.FuseAccessibility(data);
-	    // 		this.compactRowWrap = this.DOM.accessibilityWrap.appendChild(BX.create("DIV", {
-	    // 			props: {className: 'calendar-planner-timeline-space'},
-	    // 			style: {}
-	    // 		}));
-	    //
-	    // 		// this.currentData = [data];
-	    // 		// for (i = 0; i < data.length; i++)
-	    // 		// {
-	    // 		// 	this.addAccessibilityItem(data[i], this.compactRowWrap);
-	    // 		// }
-	    // 	}
-	    // 	else
-	    // 	{
-	    // 		// sort entries list by amount of accessibilities data
-	    // 		// Enties without accessibilitity data should be in the end of the array
-	    // 		// But first in the list will be meeting room
-	    // 		// And second (or first) will be owner-host of the event
-	    //
-	    // 		if (params.entries && params.entries.length)
-	    // 		{
-	    // 			params.entries.sort(function(a, b)
-	    // 			{
-	    // 				if (b.status === 'h' || b.id == userId && a.status !== 'h')
-	    // 				{
-	    // 					return 1;
-	    // 				}
-	    // 				if (a.status === 'h' || a.id == userId && b.status !== 'h')
-	    // 				{
-	    // 					return  -1;
-	    // 				}
-	    // 				return 0;
-	    // 			});
-	    //
-	    // 			if (this.selectedEntriesWrap)
-	    // 			{
-	    // 				Dom.clean(this.selectedEntriesWrap);
-	    //
-	    // 				if (this.selector && this.selector.controlWrap)
-	    // 				{
-	    // 					Dom.clean(this.selector.controlWrap);
-	    // 				}
-	    // 			}
-	    //
-	    // 			let
-	    // 				cutData = [],
-	    // 				usersCount = 0,
-	    // 				cutAmount = 0,
-	    // 				dispDataCount = 0,
-	    // 				cutDataTitle = [];
-	    //
-	    // 			for (i = 0; i < params.entries.length; i++)
-	    // 			{
-	    // 				entry = params.entries[i];
-	    // 				acc = params.accessibility[entry.id] || [];
-	    // 				entry.uid = this.getEntryUniqueId(entry);
-	    //
-	    // 				if (entry.type === 'user')
-	    // 					usersCount++;
-	    //
-	    // 				if (this.MIN_ENTRY_ROWS && (i < this.MIN_ENTRY_ROWS || params.entries.length === this.MIN_ENTRY_ROWS + 1))
-	    // 				{
-	    // 					dispDataCount++;
-	    // 					this.displayEntryRow(entry, acc);
-	    // 				}
-	    // 				else
-	    // 				{
-	    // 					cutAmount++;
-	    // 					cutDataTitle.push(entry.name);
-	    // 					if (acc.length > 0)
-	    // 					{
-	    // 						for (k = 0; k < acc.length; k++)
-	    // 						{
-	    // 							cutData.push(Planner.prepareAccessibilityItem(acc[k]));
-	    // 						}
-	    // 					}
-	    // 				}
-	    // 			}
-	    //
-	    // 			// Update entries title count
-	    // 			if (this.entriesListTitleCounter)
-	    // 			{
-	    // 				this.entriesListTitleCounter.innerHTML = usersCount > this.MAX_ENTRY_ROWS ? '(' + usersCount + ')' : '';
-	    // 			}
-	    //
-	    // 			if (cutAmount > 0)
-	    // 			{
-	    // 				if (dispDataCount === this.MAX_ENTRY_ROWS)
-	    // 				{
-	    // 					this.displayEntryRow({name: Loc.getMessage('EC_PL_ATTENDEES_LAST') + ' (' + cutAmount + ')', type: 'lastUsers', title: cutDataTitle.join(', ')}, cutData);
-	    // 				}
-	    // 				else
-	    // 				{
-	    // 					this.displayEntryRow({name: Loc.getMessage('EC_PL_ATTENDEES_SHOW_MORE') + ' (' + cutAmount + ')', type: 'moreLink'}, cutData);
-	    // 				}
-	    // 			}
-	    // 		}
-	    // 	}
-	    // 	this.adjustHeight();
-	    //
-	    // 	BX.onCustomEvent('OnCalendarPlannerUpdated', [this, {
-	    // 		plannerId: this.id,
-	    // 		entries: this.entries
-	    // 	}]);
-	    // }
-
 	  }, {
 	    key: "addAccessibilityItem",
 	    value: function addAccessibilityItem(entry, wrap) {
@@ -1856,7 +1738,7 @@ this.BX = this.BX || {};
 	      }
 
 	      var top = rowWrap.offsetTop + 13;
-	      var dataRowWrap = this.DOM.accessibilityWrap.appendChild(main_core.Tag.render(_templateObject2$1(), top, entry.uid || 0));
+	      var dataRowWrap = this.DOM.accessibilityWrap.appendChild(main_core.Tag.render(_templateObject3$1(), top, entry.uid || 0));
 
 	      if (this.selectMode) {
 	        entry.selectorControlWrap = this.selector.controlWrap.appendChild(BX.create("DIV", {
@@ -2892,7 +2774,7 @@ this.BX = this.BX || {};
 	      }
 
 	      this.scaleTypes.forEach(function (scale) {
-	        scaleWrap.appendChild(main_core.Tag.render(_templateObject3$1(), scale === _this12.scaleType ? ' calendar-planner-option-tab-active' : '', scale, main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE_' + scale.toUpperCase())));
+	        scaleWrap.appendChild(main_core.Tag.render(_templateObject4(), scale === _this12.scaleType ? ' calendar-planner-option-tab-active' : '', scale, main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE_' + scale.toUpperCase())));
 	      }); // Create and show settings popup
 
 	      var popup = main_popup.PopupWindowManager.create(this.id + "-settings-popup", this.DOM.settingsButton, {
@@ -3054,6 +2936,21 @@ this.BX = this.BX || {};
 	    value: function isBuilt() {
 	      return this.built;
 	    }
+	  }, {
+	    key: "isLocked",
+	    value: function isLocked() {
+	      return this.locked;
+	    }
+	  }, {
+	    key: "lock",
+	    value: function lock() {
+	      if (!this.DOM.lockScreen) {
+	        this.DOM.lockScreen = main_core.Tag.render(_templateObject5(), main_core.Loc.getMessage('EC_PL_LOCKED_TITLE'), main_core.Loc.getMessage('EC_PL_UNLOCK_FEATURE'));
+	      }
+
+	      main_core.Dom.addClass(this.DOM.timelineFixedWrap, '--lock');
+	      this.DOM.timelineFixedWrap.appendChild(this.DOM.lockScreen);
+	    }
 	  }], [{
 	    key: "prepareAccessibilityItem",
 	    value: function prepareAccessibilityItem(entry) {
@@ -3095,9 +2992,9 @@ this.BX = this.BX || {};
 	      var img = entry.avatar;
 
 	      if (!img || img === "/bitrix/images/1.gif") {
-	        imageNode = main_core.Tag.render(_templateObject4(), entry.id, main_core.Text.encode(entry.name), entry.emailUser ? 'ui-icon-common-user-mail' : 'ui-icon-common-user');
+	        imageNode = main_core.Tag.render(_templateObject6(), entry.id, main_core.Text.encode(entry.name), entry.emailUser ? 'ui-icon-common-user-mail' : 'ui-icon-common-user');
 	      } else {
-	        imageNode = main_core.Tag.render(_templateObject5(), entry.id, main_core.Text.encode(entry.name), entry.avatar);
+	        imageNode = main_core.Tag.render(_templateObject7(), entry.id, main_core.Text.encode(entry.name), entry.avatar);
 	      }
 
 	      return imageNode;

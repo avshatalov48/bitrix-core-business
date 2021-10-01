@@ -1,4 +1,10 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponentTemplate $this */
 /** @var string $templateFolder */
 /** @var array $arParams */
@@ -19,7 +25,7 @@ $error = false;
 
 $this->setFrameMode(true);
 
-if ($arResult["NEED_AUTH"] == "Y")
+if ($arResult["NEED_AUTH"] === "Y")
 {
 	$APPLICATION->AuthForm("");
 }
@@ -35,7 +41,7 @@ elseif (
 	}
 	else
 	{
-		?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
+		?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?php
 		return;
 	}
 }
@@ -46,13 +52,13 @@ UI\Extension::load([
 	'socialnetwork.commentaux'
 ]);
 
-Asset::getInstance()->setUnique('PAGE', 'live_feed_v2'.($arParams["IS_CRM"] != "Y" ? "" : "_crm"));
+Asset::getInstance()->setUnique('PAGE', 'live_feed_v2'.($arParams["IS_CRM"] !== "Y" ? "" : "_crm"));
 Asset::getInstance()->addJs("/bitrix/js/main/rating_like.js");
 
 if (
 	defined('SITE_TEMPLATE_ID')
-	&& SITE_TEMPLATE_ID == "bitrix24"
-	&& $arResult['PAGE_MODE'] == 'first'
+	&& SITE_TEMPLATE_ID === "bitrix24"
+	&& $arResult['PAGE_MODE'] === 'first'
 )
 {
 	$bodyClass = $APPLICATION->GetPageProperty("BodyClass");
@@ -61,7 +67,7 @@ if (
 
 if (
 	$arParams["IS_CRM"] !== "Y"
-	&& $arResult['PAGE_MODE'] == 'first'
+	&& $arResult['PAGE_MODE'] === 'first'
 )
 {
 	$bodyClass = $APPLICATION->GetPageProperty("BodyClass");
@@ -70,11 +76,11 @@ if (
 
 	if (
 		defined('SITE_TEMPLATE_ID')
-		&& SITE_TEMPLATE_ID == "bitrix24"
+		&& SITE_TEMPLATE_ID === "bitrix24"
 		&& (
 			(
 				ModuleManager::isModuleInstalled('bitrix24')
-				&& \CBitrix24::isPortalAdmin($arResult["currentUserId"])
+				&& CBitrix24::isPortalAdmin($arResult["currentUserId"])
 			)
 			|| (
 				!ModuleManager::isModuleInstalled('bitrix24')
@@ -105,7 +111,7 @@ $stub = '<div class="bx-placeholder-wrap">'.str_repeat($stub, 4).'</div>';
 
 if (
 	!$error
-	&& $arResult['PAGE_MODE'] == 'first'
+	&& $arResult['PAGE_MODE'] === 'first'
 )
 {
 	Asset::getInstance()->addJs('/bitrix/components/bitrix/socialnetwork.log.entry/templates/.default/scripts.js');
@@ -154,15 +160,15 @@ if (
 				</div>
 			</div>
 			<div id="feed-notification-notasks-close-btn" class="feed-notification-close-btn" onclick=""></div>
-		</div><?
+		</div><?php
 	}
 
-	?><div id="log_internal_container"><?
-		?><div class="feed-loader-container" id="feed-loader-container"><?
-			?><svg class="feed-loader-circular" viewBox="25 25 50 50"><?
-				?><circle class="feed-loader-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/><?
-			?></svg><?
-		?></div><?
+	?><div id="log_internal_container"><?php
+		?><div class="feed-loader-container" id="feed-loader-container"><?php
+			?><svg class="feed-loader-circular" viewBox="25 25 50 50"><?php
+				?><circle class="feed-loader-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/><?php
+			?></svg><?php
+		?></div><?php
 }
 elseif (
 	!$error
@@ -180,9 +186,9 @@ if (
 )
 {
 
-	if ($arResult['PAGE_MODE'] == 'first')
+	if ($arResult['PAGE_MODE'] === 'first')
 	{
-		?><div class="feed-wrap"><?
+		?><div class="feed-wrap"><?php
 	}
 
 	/*
@@ -191,8 +197,8 @@ if (
 	ob_start();
 
 	?><script>
-		<?
-		if ($arResult['PAGE_MODE'] == 'first')
+			<?php
+		if ($arResult['PAGE_MODE'] === 'first')
 		{
 			?>
 			BX.message({
@@ -201,24 +207,22 @@ if (
 				sonetLESetPath: '<?=CUtil::JSEscape('/bitrix/components/bitrix/socialnetwork.log.entry/ajax.php')?>',
 				sonetLEPath: '<?=CUtil::JSEscape($arParams["PATH_TO_LOG_ENTRY"])?>',
 				sonetLSessid: '<?=bitrix_sessid_get()?>',
-				sonetLSiteTemplateId: '<?=(defined('SITE_TEMPLATE_ID') ? CUtil::JSEscape(SITE_TEMPLATE_ID) : '')?>',
 				sonetLAssetsCheckSum: '<?=(!empty($arResult['ASSETS_CHECKSUM']) ? CUtil::JSEscape($arResult['ASSETS_CHECKSUM']) : '')?>',
 				sonetLNoSubscriptions: '<?=GetMessageJS("SONET_C30_NO_SUBSCRIPTIONS")?>',
 				sonetLInherited: '<?=GetMessageJS("SONET_C30_INHERITED")?>',
 				sonetLDialogClose: '<?=GetMessageJS("SONET_C30_DIALOG_CLOSE_BUTTON")?>',
 				sonetLDialogSubmit: '<?=GetMessageJS("SONET_C30_DIALOG_SUBMIT_BUTTON")?>',
 				sonetLDialogCancel: '<?=GetMessageJS("SONET_C30_DIALOG_CANCEL_BUTTON")?>',
-				sonetLbUseFavorites: '<?=(!isset($arParams["USE_FAVORITES"]) || $arParams["USE_FAVORITES"] != "N" ? "Y" : "N")?>',
+				sonetLbUseFavorites: '<?=(!isset($arParams["USE_FAVORITES"]) || $arParams["USE_FAVORITES"] !== "N" ? "Y" : "N")?>',
 				sonetLMenuLink: '<?=GetMessageJS("SONET_C30_MENU_TITLE_LINK2")?>',
 				sonetLMenuHref: '<?=GetMessageJS("SONET_C30_MENU_TITLE_HREF")?>',
-				sonetLMenuDelete: '<?=GetMessageJS(\Bitrix\Main\ModuleManager::isModuleInstalled('intranet') ? "SONET_C30_MENU_TITLE_DELETE2" : "SONET_C30_MENU_TITLE_DELETE")?>',
+				sonetLMenuDelete: '<?=GetMessageJS(ModuleManager::isModuleInstalled('intranet') ? "SONET_C30_MENU_TITLE_DELETE2" : "SONET_C30_MENU_TITLE_DELETE")?>',
 				sonetLMenuDeleteConfirm: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_CONFIRM")?>',
 				sonetLMenuDeleteFailure: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_FAILURE")?>',
 				sonetLMenuCreateTask: '<?=GetMessageJS("SONET_C30_MENU_TITLE_CREATETASK")?>',
 				sonetLCounterType: '<?=CUtil::JSEscape($arResult["COUNTER_TYPE"])?>',
-				sonetLIsB24: '<?=(defined('SITE_TEMPLATE_ID') && SITE_TEMPLATE_ID == "bitrix24" ? "Y" : "N")?>',
+				sonetLIsB24: '<?=(defined('SITE_TEMPLATE_ID') && SITE_TEMPLATE_ID === "bitrix24" ? "Y" : "N")?>',
 				sonetRatingType : '<?=CUtil::JSEscape($arParams["RATING_TYPE"])?>',
-				sonetLErrorSessid : '<?=GetMessageJS("SONET_ERROR_SESSION")?>',
 				sonetLIsCRM : '<?=CUtil::JSEscape($arParams["IS_CRM"])?>',
 				sonetLCanDelete : '<?=($arResult["CAN_DELETE"] ? 'Y' : 'N')?>',
 				sonetLForumID : <?=intval($arParams["FORUM_ID"])?>,
@@ -229,20 +233,21 @@ if (
 
 			BX.ready(function(){
 
-				if (BX.Livefeed && BX.Livefeed.FeedInstance) { BX.Livefeed.FeedInstance.init(); }
+				BX.Livefeed.FeedInstance.init();
+
 				BX.addCustomEvent('onFrameDataProcessed', function() {
-					if (BX.Livefeed && BX.Livefeed.FeedInstance) { BX.Livefeed.FeedInstance.init(); }
+					BX.Livefeed.FeedInstance.init();
 				});
 
-				oLF.initOnce({
-					crmEntityTypeName: '<?=(!empty($arResult['CRM_ENTITY_TYPE_NAME']) ? CUtil::JSEscape($arResult['CRM_ENTITY_TYPE_NAME']) : '')?>',
-					crmEntityId: <?=(!empty($arResult['CRM_ENTITY_ID']) ? intval($arResult['CRM_ENTITY_ID']) : 0)?>,
-					filterId: '<?=(!empty($arResult['FILTER_ID']) ? CUtil::JSEscape($arResult["FILTER_ID"]) : '')?>',
-					signedParameters: '<?=$this->getComponent()->getSignedParameters()?>',
-					componentName: '<?=$this->getComponent()->getName()?>'
+				BX.Livefeed.FeedInstance.initOnce({
+					crmEntityTypeName: '<?= (!empty($arResult['CRM_ENTITY_TYPE_NAME']) ? CUtil::JSEscape($arResult['CRM_ENTITY_TYPE_NAME']) : '') ?>',
+					crmEntityId: <?= (!empty($arResult['CRM_ENTITY_ID']) ? (int)$arResult['CRM_ENTITY_ID'] : 0) ?>,
+					filterId: '<?= (!empty($arResult['FILTER_ID']) ? CUtil::JSEscape($arResult["FILTER_ID"]) : '') ?>',
+					signedParameters: '<?= $this->getComponent()->getSignedParameters() ?>',
+					componentName: '<?= $this->getComponent()->getName() ?>'
 				});
 			});
-			<?
+			<?php
 		}
 
 		if (in_array($arResult['PAGE_MODE'], [ 'first', 'refresh' ]))
@@ -252,10 +257,10 @@ if (
 				oLF.init({
 					firstPageLastTS : <?=intval($arResult["dateLastPageTS"])?>,
 					firstPageLastId : <?=intval($arResult["dateLastPageId"])?>,
-					useBXMainFilter: '<?=(isset($arParams["useBXMainFilter"]) && $arParams["useBXMainFilter"] == 'Y' ? 'Y' : 'N')?>'
+					useBXMainFilter: '<?=(isset($arParams["useBXMainFilter"]) && $arParams["useBXMainFilter"] === 'Y' ? 'Y' : 'N')?>'
 				});
 			});
-			<?
+			<?php
 		}
 
 		if (
@@ -264,7 +269,7 @@ if (
 		)
 		{
 			$likeTemplate = (
-				\Bitrix\Main\ModuleManager::isModuleInstalled('intranet')
+				ModuleManager::isModuleInstalled('intranet')
 					? 'like_react'
 					: 'like'
 			);
@@ -286,7 +291,7 @@ if (
 					__logOnReload(<?=intval($arResult["LOG_COUNTER"])?>);
 				});
 			}
-			<?
+			<?php
 		}
 		elseif (
 			$arParams["IS_CRM"] === "Y"
@@ -300,14 +305,14 @@ if (
 					__logOnReload(<?=(int)$arResult["LOG_COUNTER"]?>);
 				});
 			}
-			<?
+			<?php
 		}
 
 		if (in_array($arResult['PAGE_MODE'], ['first', 'refresh' ]))
 		{
 			?>
 			BX.ready(function() {
-				<?
+				<?php
 				if (
 					$arParams["SET_LOG_COUNTER"] !== "N"
 					&& !(isset($arResult["EXPERT_MODE_SET"]) && $arResult["EXPERT_MODE_SET"])
@@ -315,7 +320,7 @@ if (
 				{
 					?>
 					BX.onCustomEvent(window, 'onSonetLogCounterClear', [BX.message('sonetLCounterType')]);
-					<?
+				<?php
 				}
 
 				if ($arResult['PAGE_MODE'] === 'first')
@@ -327,52 +332,54 @@ if (
 							top.location = top.location.href;
 						}
 					});
-					<?
+				<?php
 				}
 				?>
 			});
 
-			<?
+			<?php
 			if ($arResult['PAGE_MODE'] === 'first')
 			{
 				if(\Bitrix\Main\Page\Frame::isAjaxRequest())
 				{
 					?>
 					setTimeout(function() {
-						oLF.recalcMoreButton();
-						oLF.registerViewAreaList();
+						BX.Livefeed.MoreButton.recalcPostsList()
+						BX.Livefeed.ContentView.registerAreaList();
 					}, 1000);
-					<?
+			<?php
 				}
 				elseif (!empty($arParams["CRM_ENTITY_ID"]))
 				{
 					?>
 					BX.bind(window, 'load', function() {
 						setTimeout(function() {
-							oLF.recalcMoreButton();
+							BX.Livefeed.MoreButton.recalcPostsList();
 						}, 1000);
-						oLF.registerViewAreaList();
+						BX.Livefeed.ContentView.registerAreaList();
 					});
-					<?
+			<?php
 				}
 				else
 				{
 				?>
 					BX.ready(function() {
-						setTimeout(BX.proxy(oLF.recalcMoreButton, oLF), 1);
+						setTimeout(function() {
+							BX.Livefeed.MoreButton.recalcPostsList();
+						}, 1);
 					});
 					BX.bind(window, 'load', function() {
-						oLF.registerViewAreaList();
+						BX.Livefeed.ContentView.registerAreaList();
 					});
-					<?
+			<?php
 				}
 			}
 		}
 		?>
 		BX.ready(function()
 		{
-			oLF.arMoreButtonID = [];
-			BX.bind(BX('sonet_log_counter_2_container'), 'click', oLF.clearContainerExternalNew);
+			BX.Livefeed.FeedInstance.clearMoreButtons();
+			BX.bind(BX('sonet_log_counter_2_container'), 'click', BX.Livefeed.PageInstance.clearContainerExternalNew);
 
 			if (BX('sonet_log_comment_text'))
 			{
@@ -380,12 +387,11 @@ if (
 			}
 		});
 
-	</script><?
+	</script><?php
 
-	$blockContent = ob_get_contents();
-	ob_end_clean();
+	$blockContent = ob_get_clean();
 
-	if (in_array($arResult['PAGE_MODE'],  ['refresh', 'next' ]))
+		if (in_array($arResult['PAGE_MODE'],  ['refresh', 'next' ]))
 	{
 		$targetHtml .= $blockContent;
 	}
@@ -402,7 +408,7 @@ if (
 		&& $arResult["ErrorMessage"] <> ''
 	)
 	{
-		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?
+		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?php
 	}
 
 	$hasBlogEvent = (
@@ -469,20 +475,19 @@ if (
 		$arResult["IS_FILTERED"]
 		&& (
 			empty($arParams["GROUP_ID"])
-			|| intval($arParams["GROUP_ID"]) <= 0
+			|| (int)$arParams["GROUP_ID"] <= 0
 		)
 			? Loc::getMessage('SONET_C30_T_EMPTY_SEARCH')
 			: Loc::getMessage('SONET_C30_T_EMPTY')
 	);
 
-	?><div class="feed-wrap-empty-wrap" id="feed-empty-wrap" style="display: <?=(!is_array($arResult["Events"]) || empty($arResult["Events"]) ? 'block' : 'none')?>"><?
-		?><div class="feed-wrap-empty"><?=$emptyMessage?></div><?
-	?></div><?
+	?><div class="feed-wrap-empty-wrap" id="feed-empty-wrap" style="display: <?=(!is_array($arResult["Events"]) || empty($arResult["Events"]) ? 'block' : 'none')?>"><?php
+		?><div class="feed-wrap-empty"><?=$emptyMessage?></div><?php
+	?></div><?php
 
-	$blockContent = ob_get_contents();
-	ob_end_clean();
+	$blockContent = ob_get_clean();
 
-	if (in_array($arResult['PAGE_MODE'], ['refresh', 'next' ]))
+		if (in_array($arResult['PAGE_MODE'], ['refresh', 'next' ]))
 	{
 		$targetHtml .= $blockContent;
 	}
@@ -571,24 +576,23 @@ if (
 		?>
 		<script>
 			BX.ready(function() {
-				oLF.nextURL = '<?=CUtil::JSEscape(htmlspecialcharsEx($uri->getUri()))?>';
+				BX.Livefeed.PageInstance.setNextPageUrl('<?= CUtil::JSEscape(htmlspecialcharsEx($uri->getUri())) ?>');
 
-				<?
+				<?php
 				if (
 					$arResult["PAGE_NUMBER"] == 1
 					&& in_array($arResult['PAGE_MODE'], [ 'first', 'refresh' ])
 				)
 				{
 					?>
-					oLF.initScroll();
-					<?
+					BX.Livefeed.PageInstance.initScroll();
+					<?php
 				}
 				?>
 			});
-		</script><?
+		</script><?php
 
-		$blockContent = ob_get_contents();
-		ob_end_clean();
+		$blockContent = ob_get_clean();
 
 		if (in_array($arResult['PAGE_MODE'], ['refresh', 'next' ]))
 		{
@@ -606,20 +610,19 @@ if (
 		{
 			ob_start();
 
-			?><div class="feed-new-message-inf-wrap-first" id="feed-new-message-inf-wrap-first"><?
-				?><a href="javascript:void(0);" id="sonet_log_more_container_first" class="feed-new-message-inf-bottom"><?
-				?><span class="feed-new-message-inf-text" id="feed-new-message-inf-text-first" style="display: none;"><?
-					?><?=GetMessage("SONET_C30_MORE")?><?
-					?><span class="feed-new-message-icon"></span><?
-				?></span><?
-				?><span class="feed-new-message-inf-loader-first-cont" id="feed-new-message-inf-loader-first"><?
-					?><svg class="feed-new-message-inf-loader-first-loader" viewBox="25 25 50 50"><circle class="feed-new-message-inf-loader-first-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"></circle><circle class="feed-new-message-inf-loader-first-inner-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"></circle></svg><?
-				?></span><?
-				?></a><?
-			?></div><?
+			?><div class="feed-new-message-inf-wrap-first" id="feed-new-message-inf-wrap-first"><?php
+				?><a href="javascript:void(0);" id="sonet_log_more_container_first" class="feed-new-message-inf-bottom"><?php
+				?><span class="feed-new-message-inf-text" id="feed-new-message-inf-text-first" style="display: none;"><?php
+					?><?=GetMessage("SONET_C30_MORE")?><?php
+					?><span class="feed-new-message-icon"></span><?php
+				?></span><?php
+				?><span class="feed-new-message-inf-loader-first-cont" id="feed-new-message-inf-loader-first"><?php
+					?><svg class="feed-new-message-inf-loader-first-loader" viewBox="25 25 50 50"><circle class="feed-new-message-inf-loader-first-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"></circle><circle class="feed-new-message-inf-loader-first-inner-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"></circle></svg><?php
+				?></span><?php
+				?></a><?php
+			?></div><?php
 
-			$blockContent = ob_get_contents();
-			ob_end_clean();
+			$blockContent = ob_get_clean();
 
 			if ($arResult['PAGE_MODE'] === 'refresh')
 			{
@@ -634,13 +637,13 @@ if (
 		* next page loader block end
 		*/
 
-		?><div class="feed-new-message-inf-wrap feed-new-message-active" id="feed-new-message-inf-wrap" style="display: none;"><?=$stub?></div><?
+		?><div class="feed-new-message-inf-wrap feed-new-message-active" id="feed-new-message-inf-wrap" style="display: none;"><?=$stub?></div><?php
 	}
 
 	if ($arResult['PAGE_MODE'] === 'first')
 	{
-			?></div><? // feed-wrap
-		?></div><? // log_internal_container
+			?></div><?php // feed-wrap
+		?></div><?php // log_internal_container
 
 		CUtil::InitJSCore(array("ajax"));
 
@@ -653,16 +656,13 @@ if (
 			CUtil::PhpToJSObject($component->arResult["ENTITIES_XML_ID"]).', '.
 			CUtil::PhpToJSObject($component->arResult["ENTITIES_CORRESPONDENCE"]).');';
 		$inlineJs .= '</script>';
-		$inlineJs .= \Bitrix\Main\Page\Asset::getInstance()->getJs();
+		$inlineJs .= Asset::getInstance()->getJs();
 
 		$strText = ob_get_clean();
 
 		ob_start();
 		echo  $inlineJs.$strText;
-		$targetHtml .= ob_get_contents();
-		ob_end_clean();
-
-		// die() was here
+		$targetHtml .= ob_get_clean();
 	}
 }
 
@@ -676,4 +676,3 @@ if (defined("BITRIX24_INDEX_COMPOSITE"))
 {
 	$dynamicArea->finishDynamicArea();
 }
-?>

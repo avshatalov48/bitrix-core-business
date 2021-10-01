@@ -10,9 +10,9 @@ use Bitrix\Socialnetwork\Helper\ServiceComment;
 use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Socialnetwork\CommentAux;
 
-class Livefeed extends \Bitrix\Main\Engine\Controller
+class Livefeed extends Base
 {
-	public function configureActions()
+	public function configureActions(): array
 	{
 		$configureActions = parent::configureActions();
 		$configureActions['getNextPage'] = [
@@ -34,10 +34,8 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		return $configureActions;
 	}
 
-	public function deleteEntryAction($logId = 0)
+	public function deleteEntryAction($logId = 0): ?array
 	{
-		global $APPLICATION;
-
 		$logId = (int)$logId;
 		if ($logId <= 0)
 		{
@@ -62,7 +60,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		];
 	}
 
-	public function getRawEntryDataAction(array $params = [])
+	public function getRawEntryDataAction(array $params = []): ?array
 	{
 		$entityType = (isset($params['entityType']) && $params['entityType'] <> '' ? preg_replace("/[^a-z0-9_]/i", '', $params['entityType']) : false);
 		$entityId = (isset($params['entityId']) && (int)$params['entityId'] > 0 ? (int)$params['entityId'] : false);
@@ -109,11 +107,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		)
 		{
 			$feature = $operation = false;
-			if (
-				isset($additionalParams['checkPermissions'])
-				&& isset($additionalParams['checkPermissions']['feature'])
-				&& isset($additionalParams['checkPermissions']['operation'])
-			)
+			if (isset($additionalParams['checkPermissions']['operation'], $additionalParams['checkPermissions']['feature']))
 			{
 				$feature = $additionalParams['checkPermissions']['feature'];
 				$operation = $additionalParams['checkPermissions']['operation'];
@@ -155,11 +149,9 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 			$result['LOG_ID'] = $logId;
 		}
 
-		$result = array_filter($result, function ($key) use ($returnFields) {
-			return in_array($key, $returnFields);
+		return array_filter($result, static function ($key) use ($returnFields) {
+			return in_array($key, $returnFields, true);
 		}, ARRAY_FILTER_USE_KEY);
-
-		return $result;
 	}
 
 	public function createEntityCommentAction(array $params = []): void
@@ -182,7 +174,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 			return;
 		}
 
-		if (in_array($sourceEntityType, [ CommentAux\CreateEntity::SOURCE_TYPE_BLOG_POST, CommentAux\CreateEntity::SOURCE_TYPE_BLOG_COMMENT ]))
+		if (in_array($sourceEntityType, [CommentAux\CreateEntity::SOURCE_TYPE_BLOG_POST, CommentAux\CreateEntity::SOURCE_TYPE_BLOG_COMMENT], true))
 		{
 			ServiceComment::processBlogCreateEntity([
 				'ENTITY_TYPE' => $entityType,
@@ -239,7 +231,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		]);
 	}
 
-	public function changeFavoritesAction($logId, $value)
+	public function changeFavoritesAction($logId, $value): ?array
 	{
 		global $APPLICATION;
 
@@ -292,7 +284,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		return $result;
 	}
 
-	public function changeFollowAction($logId, $value)
+	public function changeFollowAction($logId, $value): ?array
 	{
 		$result = [
 			'success' => false
@@ -331,7 +323,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		return $result;
 	}
 
-	public function changeFollowDefaultAction($value)
+	public function changeFollowDefaultAction($value): ?array
 	{
 		if (!Loader::includeModule('socialnetwork'))
 		{
@@ -344,7 +336,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		];
 	}
 
-	public function changeExpertModeAction($value)
+	public function changeExpertModeAction($value): ?array
 	{
 		$result = [
 			'success' => false
@@ -362,7 +354,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		return $result;
 	}
 
-	public function readNoTasksNotificationAction()
+	public function readNoTasksNotificationAction(): array
 	{
 		$result = [
 			'success' => false
@@ -376,7 +368,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		return $result;
 	}
 
-	public function mobileLogErrorAction($message, $url, $lineNumber)
+	public function mobileLogErrorAction($message, $url, $lineNumber): array
 	{
 		if (!\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
 		{
@@ -388,7 +380,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		];
 	}
 
-	public function mobileGetDetailAction($logId)
+	public function mobileGetDetailAction($logId): ?\Bitrix\Main\Engine\Response\Component
 	{
 		$logId = (int)$logId;
 		if ($logId <= 0)
@@ -405,7 +397,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		]);
 	}
 
-	public static function isAdmin()
+	public static function isAdmin(): bool
 	{
 		global $USER;
 
@@ -418,12 +410,12 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		);
 	}
 
-	private function getComponentReturnWhiteList()
+	private function getComponentReturnWhiteList(): array
 	{
 		return [ 'LAST_TS', 'LAST_ID', 'EMPTY', 'FORCE_PAGE_REFRESH' ];
 	}
 
-	public function getNextPageAction(array $params = [])
+	public function getNextPageAction(array $params = []): \Bitrix\Main\Engine\Response\Component
 	{
 		$componentParameters = $this->getUnsignedParameters();
 		if (!is_array($componentParameters))
@@ -435,19 +427,17 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 			'TARGET' => 'page',
 			'PAGE_NUMBER' => (isset($params['PAGE_NUMBER']) && (int)$params['PAGE_NUMBER'] >= 1 ? (int)$params['PAGE_NUMBER'] : 1),
 			'LAST_LOG_TIMESTAMP' => (isset($params['LAST_LOG_TIMESTAMP']) && (int)$params['LAST_LOG_TIMESTAMP'] > 0 ? (int)$params['LAST_LOG_TIMESTAMP'] : 0),
-			'PREV_PAGE_LOG_ID' => (isset($params['PREV_PAGE_LOG_ID']) ? $params['PREV_PAGE_LOG_ID'] : ''),
-			'useBXMainFilter' =>  (isset($params['useBXMainFilter']) ? $params['useBXMainFilter'] : 'N'),
-			'siteTemplateId' =>  (isset($params['siteTemplateId']) ? $params['siteTemplateId'] : 'bitrix24'),
-			'preset_filter_top_id' =>  (isset($params['preset_filter_top_id']) ? $params['preset_filter_top_id'] : ''),
-			'preset_filter_id' =>  (isset($params['preset_filter_id']) ? $params['preset_filter_id'] : '')
+			'PREV_PAGE_LOG_ID' => ($params['PREV_PAGE_LOG_ID'] ?? ''),
+			'useBXMainFilter' =>  ($params['useBXMainFilter'] ?? 'N'),
+			'siteTemplateId' =>  ($params['siteTemplateId'] ?? 'bitrix24'),
+			'preset_filter_top_id' =>  ($params['preset_filter_top_id'] ?? ''),
+			'preset_filter_id' =>  ($params['preset_filter_id'] ?? '')
 		];
 
-		$componentResponse = new \Bitrix\Main\Engine\Response\Component('bitrix:socialnetwork.log.ex', '', array_merge($componentParameters, $requestParameters), [], $this->getComponentReturnWhiteList());
-
-		return $componentResponse;
+		return new \Bitrix\Main\Engine\Response\Component('bitrix:socialnetwork.log.ex', '', array_merge($componentParameters, $requestParameters), [], $this->getComponentReturnWhiteList());
 	}
 
-	public function refreshAction(array $params = [])
+	public function refreshAction(array $params = []): \Bitrix\Main\Engine\Response\Component
 	{
 		$componentParameters = $this->getUnsignedParameters();
 		if (!is_array($componentParameters))
@@ -464,9 +454,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 			'assetsCheckSum' => ($params['assetsCheckSum'] ?? '')
 		];
 
-		$componentResponse = new \Bitrix\Main\Engine\Response\Component('bitrix:socialnetwork.log.ex', '', array_merge($componentParameters, $requestParameters), [], $this->getComponentReturnWhiteList());
-
-		return $componentResponse;
+		return new \Bitrix\Main\Engine\Response\Component('bitrix:socialnetwork.log.ex', '', array_merge($componentParameters, $requestParameters), [], $this->getComponentReturnWhiteList());
 	}
 
 	public function mobileCreateNotificationLinkAction($tag): string

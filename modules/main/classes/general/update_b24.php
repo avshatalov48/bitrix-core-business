@@ -46,10 +46,10 @@ class CB24Updater
 		$sqlHelper = $con->getSqlHelper();
 
 		$query = "
-			SELECT VALUE 
-			FROM b_option 
+			SELECT VALUE
+			FROM b_option
 			WHERE MODULE_ID = 'main'
-				AND NAME = '{$sqlHelper->forSql($name)}' 
+				AND NAME = '{$sqlHelper->forSql($name)}'
 		";
 
 		$res = $con->query($query);
@@ -338,7 +338,9 @@ class CB24Updater
 	public function UpdateFromVersion($moduleId, $dbVersion)
 	{
 		if ($moduleId == '')
+		{
 			return;
+		}
 
 		$errorMessage = "";
 
@@ -351,7 +353,9 @@ class CB24Updater
 				while (false !== ($dir = readdir($handle)))
 				{
 					if ($dir == "." || $dir == "..")
+					{
 						continue;
+					}
 
 					if (substr($dir, 0, 7) == "updater")
 					{
@@ -359,7 +363,9 @@ class CB24Updater
 						{
 							$num = substr($dir, 7, strlen($dir) - 11);
 							if (substr($dir, strlen($dir) - 9) == "_post.php")
+							{
 								$num = substr($dir, 7, strlen($dir) - 16);
+							}
 
 							$arUpdaters[] = array("/".$dir, Trim($num));
 						}
@@ -367,7 +373,9 @@ class CB24Updater
 						{
 							$num = substr($dir, 7);
 							if (substr($dir, strlen($dir) - 5) == "_post")
+							{
 								$num = substr($dir, 7, strlen($dir) - 12);
+							}
 
 							$arUpdaters[] = array("/".$dir."/index.php", Trim($num));
 						}
@@ -393,7 +401,9 @@ class CB24Updater
 			for ($i1 = 0; $i1 < $ni1; $i1++)
 			{
 				if (CUpdateClient::CompareVersions($arUpdaters[$i1][1], $dbVersion) <= 0)
+				{
 					continue;
+				}
 
 				$errorMessageTmp = "";
 
@@ -404,16 +414,26 @@ class CB24Updater
 				syslog(LOG_INFO, $_SERVER["HTTP_HOST"]."\tend\t".$moduleId.$arUpdaters[$i1][0]."\t".$errorMessageTmp);
 
 				if ($errorMessageTmp <> '')
+				{
 					$errorMessage .= str_replace("#MODULE#", $moduleId, str_replace("#VER#", $arUpdaters[$i1][1], GetMessage("SUPP_UK_UPDN_ERR"))).": ".$errorMessageTmp.".";
+				}
 
 				$this->CollectDatabaseVersions("MODULE", $moduleId, $arUpdaters[$i1][1]);
 			}
 		}
 
 		if ($errorMessage <> '')
-			CUpdateClient::AddMessage2Log("Database update error (".$moduleId."-".$dbVersion."): ".$errorMessage, "DUE");
+		{
+			$message = "Database update error (".$moduleId."-".$dbVersion."): ".$errorMessage;
+			CUpdateClient::AddMessage2Log($message, "DUE");
+			syslog(LOG_INFO, $_SERVER["HTTP_HOST"] . "\terror\t" . $message);
+		}
 		else
-			CUpdateClient::AddMessage2Log("Database updated successfully (".$moduleId."-".$dbVersion.")", "DUS");
+		{
+			$message = "Database updated successfully (".$moduleId."-".$dbVersion.")";
+			CUpdateClient::AddMessage2Log($message, "DUS");
+			syslog(LOG_INFO, $_SERVER["HTTP_HOST"] . "\tok\t" . $message);
+		}
 	}
 
 	public function CollectDatabaseVersions($type, $moduleId = null, $version = null)

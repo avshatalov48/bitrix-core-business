@@ -299,14 +299,14 @@ class Access
 
 		$isSubscriptionFinished = $dateFinish && $dateFinish < (new Date());
 		$isSubscriptionAccess = Client::isSubscriptionAccess();
-		$isSubscriptionDemoAvailable = Client::isSubscriptionDemoAvailable();
+		$isSubscriptionDemoAvailable = Client::isSubscriptionDemoAvailable() && !$dateFinish;
 		$isSubscriptionAvailable = Client::isSubscriptionAvailable();
 		$canBuySubscription = Client::canBuySubscription();
 
 		$license = $isB24 ? \CBitrix24::getLicenseFamily() : '';
-		$isDemo = $license === "demo";
+		$isDemo = $license === 'demo';
 		$isMinLicense = $isB24 && mb_strpos($license, 'project') === 0;
-		$isMaxLicense = $isB24 && mb_strpos($license, 'company') === 0;
+		$isMaxLicense = $isB24 && ($license === 'pro' || mb_strpos($license, 'company') === 0);
 
 		$isMaxApplication = false;
 		if ($maxCount >= 0 && $entity[static::ENTITY_COUNT] >= $maxCount)
@@ -338,6 +338,7 @@ class Access
 		{
 			if (
 				$entityData['ID'] > 0
+				&& $entityData['ACTIVE']
 				&& (
 					$entityData['STATUS'] === AppTable::STATUS_FREE
 					|| $entityData['STATUS'] === AppTable::STATUS_LOCAL
@@ -347,8 +348,8 @@ class Access
 				$isFreeEntity = true;
 			}
 			elseif (
-				!$entityData['ID']
-				&& (
+				!$entityData['ACTIVE']
+				&& !(
 					$entityData['BY_SUBSCRIPTION'] === 'Y'
 					|| ($entityData['FREE'] === 'N' && !empty($entityData['PRICE']))
 				)

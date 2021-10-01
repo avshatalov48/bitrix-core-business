@@ -331,7 +331,7 @@ else
 			$country = 'RU';
 		}
 
-		$cashboxesByCountry[$country][] = $cashbox['NAME'];
+		$cashboxesByCountry[$country][] = htmlspecialcharsbx($cashbox['NAME']);
 	}
 
 	if (!(empty($cashboxesByCountry['RU']) || empty($cashboxesByCountry['UA'])))

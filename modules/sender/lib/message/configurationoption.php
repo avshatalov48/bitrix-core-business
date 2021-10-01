@@ -16,6 +16,8 @@ class ConfigurationOption
 	const TYPE_PRESET_STRING = 'preset-string';
 	const TYPE_STRING = 'string';
 	const TYPE_CHECKBOX = 'checkbox';
+	const TYPE_CONSENT = 'user-consent';
+	const TYPE_CONSENT_CONTENT = 'user-consent-content';
 	const TYPE_EMAIL = 'email';
 	const TYPE_LIST = 'list';
 	const TYPE_HTML = 'html';
@@ -70,6 +72,12 @@ class ConfigurationOption
 
 	/** @var boolean $showInFilter Show option value in filter. */
 	protected $showInFilter = false;
+
+	/** @var boolean $showPreview Show preview button in consent. */
+	protected $showPreview = false;
+
+	/** @var boolean $showHelper Show helper block in consent. */
+	protected $showHelper = false;
 
 	/** @var int $maxLength max length of string field */
 	protected $maxLength;
@@ -138,6 +146,14 @@ class ConfigurationOption
 		{
 			$this->setShowInFilter($data['show_in_filter']);
 		}
+		if (isset($data['show_preview']))
+		{
+			$this->setShowPreview($data['show_preview']);
+		}
+		if (isset($data['show_helper']))
+		{
+			$this->setShowHelper($data['show_helper']);
+		}
 		if (isset($data['max_length']))
 		{
 			$this->setMaxLength($data['max_length']);
@@ -173,6 +189,9 @@ class ConfigurationOption
 			'max_length' => $this->getMaxLength(),
 			'min_value' => $this->getMinValue(),
 			'max_value' => $this->getMaxValue(),
+			'show_in_list' => $this->getShowInList(),
+			'show_preview' => $this->getShowPreview(),
+			'show_helper' => $this->getShowHelper(),
 		);
 	}
 
@@ -533,4 +552,42 @@ class ConfigurationOption
 
 		return $this;
 	}
+
+	/**
+	 * @return bool
+	 */
+	public function getShowPreview(): bool
+	{
+		return $this->showPreview;
+	}
+
+	/**
+	 * @param bool $showPreview
+	 * @return ConfigurationOption
+	 */
+	public function setShowPreview(bool $showPreview): ConfigurationOption
+	{
+		$this->showPreview = $showPreview;
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getShowHelper(): bool
+	{
+		return $this->showHelper;
+	}
+
+	/**
+	 * @param bool $showHelper
+	 * @return ConfigurationOption
+	 */
+	public function setShowHelper(bool $showHelper): ConfigurationOption
+	{
+		$this->showHelper = $showHelper;
+		return $this;
+	}
+
+
 }

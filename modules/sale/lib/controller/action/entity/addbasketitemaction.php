@@ -10,8 +10,9 @@ use Bitrix\Catalog;
  * Class AddBasketItemAction
  * @package Bitrix\Sale\Controller\Action\Entity
  * @example BX.ajax.runAction("sale.entity.addBasketItem", { data: { fields: { siteId:'s1', product: {..}}}});
+ * @internal
  */
-class AddBasketItemAction extends BaseAction
+final class AddBasketItemAction extends BaseAction
 {
 	private function checkParams(array $fields): Sale\Result
 	{

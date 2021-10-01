@@ -3693,6 +3693,7 @@
 					if (node)
 					{
 						var valuePromise = node.setValue(data[selector], true, true);
+						node.preventSave(false);
 						if (valuePromise)
 						{
 							valuePromises.push(valuePromise);
@@ -3864,6 +3865,7 @@
 											}
 
 											var nodePromise = node.setValue(card[key], true, true) || Promise.resolve();
+											node.preventSave(false);
 												nodePromise.then(function(selectorKey, mapKey, cardKey) {
 													card[join(selectorKey, "@", mapKey)] = node.getValue();
 

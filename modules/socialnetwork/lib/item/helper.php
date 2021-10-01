@@ -404,7 +404,7 @@ class Helper
 			}
 		}
 
-		$pathToPost = Option::get('socialnetwork', 'userblogpost_page', false, $siteId);
+		$pathToPost = \Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page', $siteId);
 
 		$postFields['ID'] = $result;
 

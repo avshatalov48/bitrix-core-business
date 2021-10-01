@@ -11,9 +11,10 @@ class SingleThreadStrategy extends AbstractThreadStrategy
 
 	protected function setFilter():void
 	{
-		$this->filter = [
+		parent::setFilter();
+		$this->filter += [
 			'=POSTING_ID' => $this->postingId,
-			'=STATUS'     => PostingRecipientTable::SEND_RESULT_NONE
+			'=STATUS'     => [PostingRecipientTable::SEND_RESULT_NONE,PostingRecipientTable::SEND_RESULT_WAIT_ACCEPT],
 		];
 	}
 

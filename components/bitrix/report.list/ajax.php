@@ -38,6 +38,12 @@ class ReportListAjaxController extends Controller
 
 	protected function processActionShowSharing()
 	{
+		if ($this->isRestricted())
+		{
+			$this->sendJsonErrorResponse();
+			return;
+		}
+
 		$this->checkRequiredPostParams(array('reportId'));
 		if($this->errorCollection->count())
 		{
@@ -103,6 +109,12 @@ class ReportListAjaxController extends Controller
 
 	protected function processActionChangeSharing()
 	{
+		if ($this->isRestricted())
+		{
+			$this->sendJsonErrorResponse();
+			return;
+		}
+
 		$this->checkRequiredPostParams(array('reportId'));
 		if($this->errorCollection->count())
 			$this->sendJsonErrorResponse();
@@ -127,6 +139,19 @@ class ReportListAjaxController extends Controller
 			$this->sendJsonErrorResponse();
 
 		$this->sendJsonSuccessResponse();
+	}
+
+	private function isRestricted(): bool
+	{
+		if (
+			\Bitrix\Main\Loader::includeModule('bitrix24')
+			&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('report')
+		)
+		{
+			return true;
+		}
+
+		return false;
 	}
 }
 

@@ -113,7 +113,11 @@ $arTabs = array(
 	array("id" => "tab_se", "name" => $arResult["IBLOCK"]["SECTION_NAME"], "icon" => "", "fields" => $tabSection)
 );
 
-if(CModule::IncludeModule("bizproc") && CBPRuntime::isFeatureEnabled() && $arResult["IBLOCK"]["BIZPROC"] != "N")
+if (
+	CModule::IncludeModule("bizproc")
+	&& CLists::isBpFeatureEnabled($arParams["IBLOCK_TYPE_ID"])
+	&& $arResult["IBLOCK"]["BIZPROC"] != "N"
+)
 {
 	$arCurrentUserGroups = $GLOBALS["USER"]->GetUserGroupArray();
 	if(!$arResult["ELEMENT_FIELDS"] || $arResult["ELEMENT_FIELDS"]["CREATED_BY"] == $GLOBALS["USER"]->GetID())

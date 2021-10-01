@@ -1,6 +1,9 @@
 <?php
 
 define("NOT_CHECK_FILE_PERMISSIONS", true);
+define("NO_KEEP_STATISTIC", true);
+define("BX_STATISTIC_BUFFER_USED", false);
+
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
@@ -304,7 +307,7 @@ setTimeout("document.getElementById('bpastitle').focus();", 100);
 
 <input type="hidden" name="save" value="Y" />
 <input type="hidden" name="postback" value="Y" />
-<?
+<?php
 $popupWindow->EndContent();
 $popupWindow->StartButtons();
 $popupWindow->ShowStandardButtons();

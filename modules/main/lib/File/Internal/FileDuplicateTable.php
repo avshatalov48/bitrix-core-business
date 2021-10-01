@@ -10,6 +10,22 @@ namespace Bitrix\Main\File\Internal;
 use Bitrix\Main\ORM\Data;
 use Bitrix\Main\ORM\Fields;
 
+/**
+ * Class FileDuplicateTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_FileDuplicate_Query query()
+ * @method static EO_FileDuplicate_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_FileDuplicate_Result getById($id)
+ * @method static EO_FileDuplicate_Result getList(array $parameters = array())
+ * @method static EO_FileDuplicate_Entity getEntity()
+ * @method static \Bitrix\Main\File\Internal\EO_FileDuplicate createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\File\Internal\EO_FileDuplicate_Collection createCollection()
+ * @method static \Bitrix\Main\File\Internal\EO_FileDuplicate wakeUpObject($row)
+ * @method static \Bitrix\Main\File\Internal\EO_FileDuplicate_Collection wakeUpCollection($rows)
+ */
 class FileDuplicateTable extends Data\DataManager
 {
 	public static function getTableName()

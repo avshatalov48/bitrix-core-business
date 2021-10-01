@@ -554,7 +554,7 @@ class Conference
 
 			if (strlen($fields['PASSWORD']) < 3)
 			{
-				return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_PASSWORD_LENGTH')));
+				return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_PASSWORD_LENGTH_NEW')));
 			}
 
 			$validatedFields['VIDEOCONF']['PASSWORD'] = $fields['PASSWORD'];

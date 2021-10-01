@@ -20,7 +20,7 @@ class Api
 {
 	private $accessToken = NULL;
 	public static $apiUrl = 'https://api.vk.com/method/';
-	public static $apiVersion = "5.52";
+	public static $apiVersion = "5.131";
 	private $exportId;
 	private $response;
 	

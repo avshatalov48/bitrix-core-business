@@ -2927,7 +2927,7 @@ class ComponentHelper
 				'NAME_TEMPLATE' => $nameTemplate,
 				'SHOW_LOGIN' => $showLogin,
 				'DATE_TIME_FORMAT' => $dateTimeFormat,
-				'LAZYLOAD' => 'Y',
+				'LAZYLOAD' => 'N',
 				'NOTIFY_TAG' => '',
 				'NOTIFY_TEXT' => '',
 				'SHOW_MINIMIZED' => 'Y',
@@ -3722,7 +3722,7 @@ class ComponentHelper
 			}
 
 			$postUrl = \CComponentEngine::makePathFromTemplate(
-				Option::get('socialnetwork', 'userblogpost_page', '/company/personal/user/#user_id#/blog/#post_id#/', $siteId),
+				\Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page', $siteId),
 				array(
 					"post_id" => $postId,
 					"user_id" => $postFields["AUTHOR_ID"]
@@ -4904,7 +4904,7 @@ class ComponentHelper
 		);
 	}
 
-	public static function getLFCommentsParams($eventFields = array())
+	public static function getLFCommentsParams($eventFields = array()): array
 	{
 		$forumMetaData = \CSocNetLogTools::getForumCommentMetaData($eventFields["EVENT_ID"]);
 
@@ -5215,5 +5215,28 @@ class ComponentHelper
 			'REQUESTS_OUT' => (string)($componentResult['PATH_TO_GROUP_REQUESTS_OUT'] ?? ''),
 			'FEATURES' => (string)($componentResult['PATH_TO_GROUP_FEATURES'] ?? ''),
 		];
+	}
+
+	public static function getWorkgroupPageTitle(array $params = []): string
+	{
+		$workgroupName = (string)($params['WORKGROUP_NAME'] ?? '');
+		$workgroupId = (int)($params['WORKGROUP_ID'] ?? 0);
+
+		if (
+			$workgroupName === ''
+			&& $workgroupId > 0
+		)
+		{
+			$groupFields = \CSocNetGroup::getById($workgroupId, true);
+			if (!empty($groupFields))
+			{
+				$workgroupName = $groupFields['NAME'];
+			}
+		}
+
+		return Loc::getMessage('SONET_HELPER_PAGE_TITLE_WORKGROUP_TEMPLATE', [
+			'#WORKGROUP#' => $workgroupName,
+			'#TITLE#' => ($params['TITLE'] ?? ''),
+		]);
 	}
 }

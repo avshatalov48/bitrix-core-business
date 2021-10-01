@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,catalog_skuTree,ui_entitySelector,main_core_events,catalog_productSelector,main_core) {
+(function (exports,catalog_skuTree,ui_entitySelector,ui_infoHelper,main_core_events,catalog_productSelector,main_core) {
 	'use strict';
 
 	var Base = /*#__PURE__*/function () {
@@ -123,7 +123,157 @@ this.BX = this.BX || {};
 	  return Base;
 	}();
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10;
+	function _templateObject3() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-selector-search-footer-box\">\n\t\t\t\t<div class=\"ui-selector-search-footer-box\">\n\t\t\t\t\t<div class=\"tariff-lock\"></div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\t\t\t\t\n\t\t\t</div>\n\t\t"]);
+
+	  _templateObject3 = function _templateObject3() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a class=\"ui-btn ui-btn-sm ui-btn-primary ui-btn-hover ui-btn-round\">\n\t\t\t\t", "\n\t\t\t</a>\n\t\t"]);
+
+	  _templateObject2 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>", "</div>\n\t\t"]);
+
+	  _templateObject = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	var ProductCreationLimitedFooter = /*#__PURE__*/function (_DefaultFooter) {
+	  babelHelpers.inherits(ProductCreationLimitedFooter, _DefaultFooter);
+
+	  function ProductCreationLimitedFooter() {
+	    babelHelpers.classCallCheck(this, ProductCreationLimitedFooter);
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ProductCreationLimitedFooter).apply(this, arguments));
+	  }
+
+	  babelHelpers.createClass(ProductCreationLimitedFooter, [{
+	    key: "getContent",
+	    value: function getContent() {
+	      var phrase = main_core.Tag.render(_templateObject(), main_core.Loc.getMessage('CATALOG_SELECTOR_LIMITED_PRODUCT_CREATION'));
+	      var infoButton = main_core.Tag.render(_templateObject2(), main_core.Loc.getMessage('CATALOG_SELECTOR_LICENSE_EXPLODE'));
+	      main_core.Event.bind(infoButton, 'click', function () {
+	        BX.UI.InfoHelper.show('limit_shop_products');
+	      });
+	      return main_core.Tag.render(_templateObject3(), phrase, infoButton);
+	    }
+	  }]);
+	  return ProductCreationLimitedFooter;
+	}(ui_entitySelector.DefaultFooter);
+
+	function _templateObject10() {
+	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
+
+	  _templateObject10 = function _templateObject10() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject9() {
+	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
+
+	  _templateObject9 = function _templateObject9() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject8() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-ctl ui-ctl-w100 ui-ctl-after-icon\"></div>"]);
+
+	  _templateObject8 = function _templateObject8() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject7() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button\n\t\t\t\t\tclass=\"ui-ctl-after ui-ctl-icon-search\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></button>\n\t\t\t"]);
+
+	  _templateObject7 = function _templateObject7() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject6() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a\n\t\t\t\t\thref=\"", "\"\n\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\tclass=\"ui-ctl-after ui-ctl-icon-forward\"\n\t\t\t\t></button>\n\t\t\t"]);
+
+	  _templateObject6 = function _templateObject6() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject5() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button\n\t\t\t\t\tclass=\"ui-ctl-after ui-ctl-icon-clear\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></button>\n\t\t\t"]);
+
+	  _templateObject5 = function _templateObject5() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject4() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t \ttype=\"hidden\" \n\t\t\t\t\tname=\"", "\" \n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t>\n\t\t\t"]);
+
+	  _templateObject4 = function _templateObject4() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject3$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"text\" \n\t\t\t\t\tclass=\"ui-ctl-element ui-ctl-textbox\" \n\t\t\t\t\tautocomplete=\"off\"\n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\tplaceholder=\"", "\"\n\t\t\t\t\tonchange=\"", "\"\n\t\t\t\t>\n\t\t\t"]);
+
+	  _templateObject3$1 = function _templateObject3() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject2$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-ctl-tag\">", "</div>\n\t\t"]);
+
+	  _templateObject2$1 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-w100\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
+
+	  _templateObject$1 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 	var ProductSearchInput = /*#__PURE__*/function () {
 	  function ProductSearchInput(id) {
 	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -176,7 +326,7 @@ this.BX = this.BX || {};
 	      var _this = this;
 
 	      return this.cache.remember('nameBlock', function () {
-	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-w100\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this.getNameTag(), _this.getNameInput(), _this.getHiddenNameInput());
+	        return main_core.Tag.render(_templateObject$1(), _this.getNameTag(), _this.getNameInput(), _this.getHiddenNameInput());
 	      });
 	    }
 	  }, {
@@ -186,7 +336,7 @@ this.BX = this.BX || {};
 	        return '';
 	      }
 
-	      return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-ctl-tag\">", "</div>\n\t\t"])), main_core.Loc.getMessage('CATALOG_SELECTOR_NEW_TAG_TITLE'));
+	      return main_core.Tag.render(_templateObject2$1(), main_core.Loc.getMessage('CATALOG_SELECTOR_NEW_TAG_TITLE'));
 	    }
 	  }, {
 	    key: "getNameInput",
@@ -194,7 +344,7 @@ this.BX = this.BX || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('nameInput', function () {
-	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"text\" \n\t\t\t\t\tclass=\"ui-ctl-element ui-ctl-textbox\" \n\t\t\t\t\tautocomplete=\"off\"\n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\tplaceholder=\"", "\"\n\t\t\t\t\tonchange=\"", "\"\n\t\t\t\t>\n\t\t\t"])), main_core.Text.encode(_this2.getValue()), main_core.Text.encode(_this2.getPlaceholder()), _this2.handleNameInputHiddenChange.bind(_this2));
+	        return main_core.Tag.render(_templateObject3$1(), main_core.Text.encode(_this2.getValue()), main_core.Text.encode(_this2.getPlaceholder()), _this2.handleNameInputHiddenChange.bind(_this2));
 	      });
 	    }
 	  }, {
@@ -203,7 +353,7 @@ this.BX = this.BX || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('hiddenNameInput', function () {
-	        return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t \ttype=\"hidden\" \n\t\t\t\t\tname=\"", "\" \n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t>\n\t\t\t"])), main_core.Text.encode(_this3.inputName), main_core.Text.encode(_this3.getValue()));
+	        return main_core.Tag.render(_templateObject4(), main_core.Text.encode(_this3.inputName), main_core.Text.encode(_this3.getValue()));
 	      });
 	    }
 	  }, {
@@ -217,7 +367,7 @@ this.BX = this.BX || {};
 	      var _this4 = this;
 
 	      return this.cache.remember('closeIcon', function () {
-	        return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button\n\t\t\t\t\tclass=\"ui-ctl-after ui-ctl-icon-clear\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></button>\n\t\t\t"])), _this4.handleClearIconClick.bind(_this4));
+	        return main_core.Tag.render(_templateObject5(), _this4.handleClearIconClick.bind(_this4));
 	      });
 	    }
 	  }, {
@@ -226,7 +376,7 @@ this.BX = this.BX || {};
 	      var _this5 = this;
 
 	      return this.cache.remember('arrowIcon', function () {
-	        return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a\n\t\t\t\t\thref=\"", "\"\n\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\tclass=\"ui-ctl-after ui-ctl-icon-forward\"\n\t\t\t\t></button>\n\t\t\t"])), _this5.model.getDetailPath());
+	        return main_core.Tag.render(_templateObject6(), _this5.model.getDetailPath());
 	      });
 	    }
 	  }, {
@@ -235,13 +385,13 @@ this.BX = this.BX || {};
 	      var _this6 = this;
 
 	      return this.cache.remember('searchIcon', function () {
-	        return main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button\n\t\t\t\t\tclass=\"ui-ctl-after ui-ctl-icon-search\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></button>\n\t\t\t"])), _this6.handleSearchIconClick.bind(_this6));
+	        return main_core.Tag.render(_templateObject7(), _this6.handleSearchIconClick.bind(_this6));
 	      });
 	    }
 	  }, {
 	    key: "layout",
 	    value: function layout() {
-	      var block = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-ctl ui-ctl-w100 ui-ctl-after-icon\"></div>"])));
+	      var block = main_core.Tag.render(_templateObject8());
 
 	      if (!main_core.Type.isStringFilled(this.getValue())) {
 	        this.toggleIcon(this.getClearIcon(), 'none');
@@ -286,7 +436,7 @@ this.BX = this.BX || {};
 	      var _this7 = this;
 
 	      return this.cache.remember('dialog', function () {
-	        return new ui_entitySelector.Dialog({
+	        var params = {
 	          id: _this7.id,
 	          height: 300,
 	          context: 'catalog-products',
@@ -297,13 +447,10 @@ this.BX = this.BX || {};
 	          searchTabOptions: {
 	            stub: true,
 	            stubOptions: {
-	              title: main_core.Tag.message(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["", ""])), 'CATALOG_SELECTOR_IS_EMPTY_TITLE'),
-	              subtitle: main_core.Tag.message(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["", ""])), 'CATALOG_SELECTOR_IS_EMPTY_SUBTITLE'),
+	              title: main_core.Tag.message(_templateObject9(), 'CATALOG_SELECTOR_IS_EMPTY_TITLE'),
+	              subtitle: main_core.Tag.message(_templateObject10(), 'CATALOG_SELECTOR_IS_EMPTY_SUBTITLE'),
 	              arrow: true
 	            }
-	          },
-	          searchOptions: {
-	            allowCreateItem: true
 	          },
 	          events: {
 	            'Item:onSelect': _this7.onProductSelect.bind(_this7),
@@ -316,7 +463,18 @@ this.BX = this.BX || {};
 	              basePriceId: _this7.selector.getBasePriceId()
 	            }
 	          }]
-	        });
+	        };
+	        var settingsCollection = main_core.Extension.getSettings('catalog.product-selector');
+
+	        if (main_core.Type.isObject(settingsCollection.get('limitInfo'))) {
+	          params.footer = ProductCreationLimitedFooter;
+	        } else {
+	          params.searchOptions = {
+	            allowCreateItem: true
+	          };
+	        }
+
+	        return new ui_entitySelector.Dialog(params);
 	      });
 	    }
 	  }, {
@@ -531,7 +689,8 @@ this.BX = this.BX || {};
 	          dialog.hide();
 	          resolve();
 	        }).catch(function () {
-	          return reject();
+	          dialog.hide();
+	          reject();
 	        });
 	      });
 	    }
@@ -544,7 +703,15 @@ this.BX = this.BX || {};
 	  return ProductSearchInput;
 	}();
 
-	var _templateObject$1;
+	function _templateObject$2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div></div>"]);
+
+	  _templateObject$2 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 	var ProductImageInput = /*#__PURE__*/function () {
 	  function ProductImageInput(id) {
 	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -607,7 +774,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "layout",
 	    value: function layout() {
-	      var imageContainer = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div></div>"])));
+	      var imageContainer = main_core.Tag.render(_templateObject$2());
 	      main_core.Runtime.html(imageContainer, this.isViewMode() ? this.view : this.inputHtml);
 	      return imageContainer;
 	    }
@@ -719,7 +886,75 @@ this.BX = this.BX || {};
 	  return Simple;
 	}(Base);
 
-	var _templateObject$2, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6$1, _templateObject7$1;
+	function _templateObject7$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-product-field-input\"></div>"]);
+
+	  _templateObject7$1 = function _templateObject7() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject6$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<span title=\"", "\">", "</span>"]);
+
+	  _templateObject6$1 = function _templateObject6() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject5$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a href=\"", "\" title=\"", "\">", "</a>\n\t\t\t"]);
+
+	  _templateObject5$1 = function _templateObject5() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject4$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-product-error-item\">", "</div>"]);
+
+	  _templateObject4$1 = function _templateObject4() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject3$2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-product-error\"></div>"]);
+
+	  _templateObject3$2 = function _templateObject3() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject2$2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-product-img\"></div>"]);
+
+	  _templateObject2$2 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject$3() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-product-field-inner\"></div>"]);
+
+	  _templateObject$3 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 	var instances = new Map();
 	var ProductSelector = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(ProductSelector, _EventEmitter);
@@ -943,7 +1178,7 @@ this.BX = this.BX || {};
 	      }
 
 	      this.defineWrapperClass(wrapper);
-	      var block = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-product-field-inner\"></div>"])));
+	      var block = main_core.Tag.render(_templateObject$3());
 	      wrapper.appendChild(block);
 	      block.appendChild(this.layoutNameBlock());
 
@@ -994,14 +1229,14 @@ this.BX = this.BX || {};
 	    key: "getImageContainer",
 	    value: function getImageContainer() {
 	      return this.cache.remember('imageContainer', function () {
-	        return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-product-img\"></div>"])));
+	        return main_core.Tag.render(_templateObject2$2());
 	      });
 	    }
 	  }, {
 	    key: "getErrorContainer",
 	    value: function getErrorContainer() {
 	      return this.cache.remember('errorContainer', function () {
-	        return main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-product-error\"></div>"])));
+	        return main_core.Tag.render(_templateObject3$2());
 	      });
 	    }
 	  }, {
@@ -1016,7 +1251,7 @@ this.BX = this.BX || {};
 	      var errors = this.model.getErrors();
 
 	      for (var code in errors) {
-	        this.getErrorContainer().appendChild(main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-product-error-item\">", "</div>"])), errors[code]));
+	        this.getErrorContainer().appendChild(main_core.Tag.render(_templateObject4$1(), errors[code]));
 	      }
 
 	      if (this.searchInput) {
@@ -1075,15 +1310,15 @@ this.BX = this.BX || {};
 	      var namePlaceholder = main_core.Loc.getMessage('CATALOG_SELECTOR_VIEW_NAME_TITLE');
 
 	      if (this.getModel().getDetailPath()) {
-	        return main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a href=\"", "\" title=\"", "\">", "</a>\n\t\t\t"])), this.getModel().getDetailPath(), namePlaceholder, productName);
+	        return main_core.Tag.render(_templateObject5$1(), this.getModel().getDetailPath(), namePlaceholder, productName);
 	      }
 
-	      return main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["<span title=\"", "\">", "</span>"])), namePlaceholder, productName);
+	      return main_core.Tag.render(_templateObject6$1(), namePlaceholder, productName);
 	    }
 	  }, {
 	    key: "layoutNameBlock",
 	    value: function layoutNameBlock() {
-	      var block = main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-product-field-input\"></div>"])));
+	      var block = main_core.Tag.render(_templateObject7$1());
 
 	      if (this.isViewMode()) {
 	        block.appendChild(this.getNameBlockView());
@@ -1366,5 +1601,5 @@ this.BX = this.BX || {};
 
 	exports.ProductSelector = ProductSelector;
 
-}((this.BX.Catalog = this.BX.Catalog || {}),BX.Catalog.SkuTree,BX.UI.EntitySelector,BX.Event,BX.Catalog,BX));
+}((this.BX.Catalog = this.BX.Catalog || {}),BX.Catalog.SkuTree,BX.UI.EntitySelector,BX,BX.Event,BX.Catalog,BX));
 //# sourceMappingURL=product-selector.bundle.js.map

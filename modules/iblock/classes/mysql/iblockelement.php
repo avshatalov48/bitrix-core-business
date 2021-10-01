@@ -2,6 +2,7 @@
 
 use Bitrix\Main;
 use Bitrix\Main\Loader;
+use Bitrix\Iblock;
 
 class CIBlockElement extends CAllIBlockElement
 {
@@ -1734,6 +1735,9 @@ class CIBlockElement extends CAllIBlockElement
 					);
 				}
 			}
+
+			Iblock\ElementTable::getEntity()->cleanCache();
+
 			$Result = true;
 
 			/************* QUOTA *************/

@@ -1,5 +1,7 @@
 class Basket
 {
+
+
 	static toFixed(quantity, measureRatio, availableQuantity = 0)
 	{
 		let precisionFactor =  Math.pow(10, 6);
@@ -35,6 +37,36 @@ class Basket
 		}
 		
 		return quantity;
+	}
+
+	// isRatioFloat(value)
+	// {
+	// 	return parseInt(value) !== parseFloat(value)
+	// }
+
+	static isValueFloat(value)
+	{
+		return parseInt(value) !== parseFloat(value)
+	}
+
+	static roundValue(value)
+	{
+		if(Basket.isValueFloat(value))
+		{
+			return Basket.roundFloatValue(value)
+		}
+		else
+		{
+			return parseInt(value, 10)
+		}
+	}
+
+	static roundFloatValue(value)
+	{
+		let precision = 6;
+		let precisionFactor = Math.pow(10, precision);
+
+		return Math.round(parseFloat(value) * precisionFactor) / precisionFactor;
 	}
 }
 

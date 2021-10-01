@@ -8,7 +8,6 @@
  */
 
 import {PullClient} from "pull.client";
-import {ConferenceRightPanelMode as RightPanelMode} from 'im.const';
 
 export class ImCallPullHandler
 {
@@ -101,36 +100,7 @@ export class ImCallPullHandler
 
 	handleMessageChat(params)
 	{
-		const rightPanelMode = this.store.state.conference.common.rightPanelMode;
-		if (
-			params.chatId === this.application.getChatId() &&
-			(rightPanelMode !== RightPanelMode.chat && rightPanelMode !== RightPanelMode.split) &&
-			params.message.senderId !== this.controller.getUserId() &&
-			!this.store.state.conference.common.error
-		)
-		{
-			let text = '';
-
-			if (params.message.senderId === 0 || params.message.system === 'Y')
-			{
-				text = params.message.text;
-			}
-			else
-			{
-				const userName = params.users[params.message.senderId].name;
-
-				if (params.message.text === '' && Object.keys(params.files).length > 0)
-				{
-					text = `${userName}: ${this.controller.localize['BX_IM_COMPONENT_CALL_FILE']}`;
-				}
-				else if (params.message.text !== '')
-				{
-					text = `${userName}: ${params.message.text}`;
-				}
-			}
-
-			this.application.sendNewMessageNotify(text);
-		}
+		this.application.sendNewMessageNotify(params);
 	}
 
 	handleChatRename(params)

@@ -170,4 +170,35 @@ $containerId = 'sender-start-container';
 			</div>
 		</div>
 	</div>
+	<?php if (!\Bitrix\Sender\Integration\Bitrix24\Service::isCloudRegionMayTrackMails()): ?>
+		<h4 class="sender-config-limits-title">
+			<?=htmlspecialcharsbx(Loc::getMessage('SENDER_MAIL_CONSENT_NAME'))?>
+
+			<?php if (Loc::getMessage('SENDER_MAIL_CONSENT_HELP')):?>
+				<span class="sender-config-limits-info">
+							<?=(htmlspecialcharsbx($item['HELP_CAPTION']) ?:
+								Loc::getMessage('SENDER_MAIL_CONSENT_HELP', array(
+									'%link_start%' => '<a href="javascript:BX.Helper.show(\'redirect=detail&code=13170876\')" class="sender-config-limits-setup-link">',
+									'%link_end%' => '</a>'
+								))
+							)?>
+						</span>
+			<?php endif;?>
+		</h4>
+
+		<div class="sender-config-limits-block">
+			<div class="sender-config-limits-bottom">
+				<div class="sender-config-limits-bottom-left">
+					<label for="sender-mail-consent-option">
+						<input type="checkbox"
+							<?php if ($arResult['USE_MAIL_CONSENT']): ?>
+								checked="checked"
+							<?php endif;?>
+								class="sender-mail-consent-option" id="sender-mail-consent-option" />
+						<?=Loc::getMessage('SENDER_MAIL_CONSENT_OPTION')?>
+					</label>
+				</div>
+			</div>
+		</div>
+	<?php endif;?>
 </div>

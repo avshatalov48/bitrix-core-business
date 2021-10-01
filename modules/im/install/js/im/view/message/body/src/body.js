@@ -228,10 +228,24 @@ BitrixVue.component('bx-im-view-message-body',
 
 			let message = this.message.textConverted;
 
+			let replacement = [];
+			message = message.replace(/<!--IM_COMMAND_START-->([\0-\uFFFF]+?)<!--IM_COMMAND_END-->/ig, function(whole, text) {
+				let id = replacement.length;
+				replacement.push(text);
+				return '####REPLACEMENT_'+id+'####';
+			});
+
 			message = message.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, (whole, userId, userName) => {
-				const user = this.$store.getters['users/get'](userId);
-				userName = user? Utils.text.htmlspecialchars(user.name): userName;
+				if (!userName)
+				{
+					const user = this.$store.getters['users/get'](userId);
+					userName = user? Utils.text.htmlspecialchars(user.name): 'User '+userId;
+				}
 				return '<span class="bx-im-mention" data-type="USER" data-value="'+userId+'">'+userName+'</span>'
+			});
+
+			replacement.forEach((value, index) => {
+				message = message.replace('####REPLACEMENT_'+index+'####', value);
 			});
 
 			return message;

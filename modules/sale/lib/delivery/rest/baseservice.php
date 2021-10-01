@@ -12,6 +12,11 @@ if (!Main\Loader::includeModule('rest'))
 
 class BaseService extends \IRestService
 {
+	protected const ALLOW_HANDLERS = [
+		'\\' . \Sale\Handlers\Delivery\RestHandler::class,
+		'\\' . \Sale\Handlers\Delivery\RestProfile::class,
+	];
+
 	/**
 	 * @return string[]
 	 */

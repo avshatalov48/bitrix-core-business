@@ -3,6 +3,22 @@ namespace Bitrix\Sale\Exchange\Integration\Entity;
 
 use Bitrix\Main;
 
+/**
+ * Class B24IntegrationRelationTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_B24IntegrationRelation_Query query()
+ * @method static EO_B24IntegrationRelation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_B24IntegrationRelation_Result getById($id)
+ * @method static EO_B24IntegrationRelation_Result getList(array $parameters = array())
+ * @method static EO_B24IntegrationRelation_Entity getEntity()
+ * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationRelation createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationRelation_Collection createCollection()
+ * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationRelation wakeUpObject($row)
+ * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationRelation_Collection wakeUpCollection($rows)
+ */
 class B24IntegrationRelationTable extends Main\Entity\DataManager
 {
 	public static function getTableName()

@@ -2595,10 +2595,6 @@ $iblockElementAdd = $boolIBlockElementAdd;
 if (!empty($productLimits))
 {
 	$boolIBlockElementAdd = false;
-	if (!method_exists('\Bitrix\Catalog\Config\Feature', 'getProductLimitHelpLink'))
-	{
-		$iblockElementAdd = false;
-	}
 }
 
 $quantityTraceStatus = array();
@@ -5059,13 +5055,7 @@ if (!empty($productLimits))
 	Loader::includeModule('ui');
 	Extension::load("ui.alerts");
 	?><div class="ui-alert ui-alert-warning">
-	<span class="ui-alert-message"><?=GetMessage(
-			'IBLIST_A_ERR_PRODUCT_LIMIT',
-			[
-				'#COUNT#' => $productLimits['COUNT'],
-				'#LIMIT#' => $productLimits['LIMIT']
-			]
-		); ?></span>
+	<span class="ui-alert-message"><?php echo $productLimits['MESSAGE']; ?></span>
 	</div><?
 }
 $lAdmin->EndPrologContent();

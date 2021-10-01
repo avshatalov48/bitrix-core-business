@@ -2,6 +2,7 @@
 $MESS["SOC_ACCESS_DENIED"] = "Доступ заборонено";
 $MESS["SOC_ADD_BASKET_ITEM"] = "Помилка додавання товару";
 $MESS["SOC_BASKER_REFRESH_ERROR"] = "Помилка оновлення кошика";
+$MESS["SOC_CHANGE_BASKET_ITEM"] = "Помилка зміни товару";
 $MESS["SOC_DELETE_BASKET_ITEM"] = "Помилка видалення товару";
 $MESS["SOC_MODULE_CATALOG_NOT_INSTALLED"] = "Модуль \"Торговий каталог\" не встановлений.";
 $MESS["SOC_MODULE_IBLOCK_NOT_INSTALLED"] = "Модуль \"Інформаційні\" блоки не встановлений.";

@@ -14,7 +14,7 @@ class ExactParameter extends Parameter
 	{
 		if (!$this->validateConstructor($constructor))
 		{
-			throw new BinderArgumentException('$constructor closure must have more than one argument');
+			throw new BinderArgumentException('$constructor closure must have one argument to bind class name.');
 		}
 
 		parent::__construct($className, $constructor);
@@ -24,7 +24,7 @@ class ExactParameter extends Parameter
 	protected function validateConstructor(\Closure $constructor)
 	{
 		$reflectionFunction = new \ReflectionFunction($constructor);
-		if ($reflectionFunction->getNumberOfParameters() < 2)
+		if ($reflectionFunction->getNumberOfParameters() < 1)
 		{
 			return false;
 		}
@@ -32,12 +32,16 @@ class ExactParameter extends Parameter
 		return true;
 	}
 
-	public function constructValue(\ReflectionParameter $parameter, Result $captureResult)
+	public function constructValue(\ReflectionParameter $parameter, Result $captureResult, $newThis = null)
 	{
-		return call_user_func_array($this->getConstructor(), $captureResult->getData());
+		return $this->callConstructor(
+			$this->getConstructor(),
+			$captureResult->getData(),
+			$newThis,
+		);
 	}
 
-	public function captureData(\ReflectionParameter $parameter, array $sourceParameters)
+	public function captureData(\ReflectionParameter $parameter, array $sourceParameters, array $autoWiredParameters = [])
 	{
 		$result = new Result();
 
@@ -47,6 +51,8 @@ class ExactParameter extends Parameter
 		}
 
 		$binder = Binder::buildForFunction($this->getConstructor());
+		$binder->setAutoWiredParameters($autoWiredParameters);
+
 		array_unshift($sourceParameters, ['className' => $parameter->getClass()->getName()]);
 		$binder->setSourcesParametersToMap($sourceParameters);
 		try

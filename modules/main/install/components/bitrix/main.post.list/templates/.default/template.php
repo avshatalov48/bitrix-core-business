@@ -396,6 +396,9 @@ if ($arParams["SHOW_POST_FORM"] == "Y")
 				<div class="feed-com-writers-pen"></div>
 			</div>
 		</div>
+		<div class="feed-com-add-box-dnd-notice">
+			<div class="feed-com-add-box-dnd-notice-inner"></div>
+		</div>
 	</div>
 <?
 }

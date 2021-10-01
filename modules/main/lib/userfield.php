@@ -17,6 +17,19 @@ use Bitrix\Main\Type;
  * Entity representation of UserFields.
  * @package bitrix
  * @subpackage main
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserField_Query query()
+ * @method static EO_UserField_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserField_Result getById($id)
+ * @method static EO_UserField_Result getList(array $parameters = array())
+ * @method static EO_UserField_Entity getEntity()
+ * @method static \Bitrix\Main\EO_UserField createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EO_UserField_Collection createCollection()
+ * @method static \Bitrix\Main\EO_UserField wakeUpObject($row)
+ * @method static \Bitrix\Main\EO_UserField_Collection wakeUpCollection($rows)
  */
 class UserFieldTable extends ORM\Data\DataManager
 {
@@ -681,7 +694,7 @@ class UserFieldTable extends ORM\Data\DataManager
 	{
 		if($value <> '')
 		{
-			$value = unserialize($value);
+			$value = unserialize($value, ["allowed_classes" => false]);
 
 			foreach($value as &$singleValue)
 			{
@@ -734,7 +747,7 @@ class UserFieldTable extends ORM\Data\DataManager
 	{
 		if($value <> '')
 		{
-			$value = unserialize($value);
+			$value = unserialize($value, ["allowed_classes" => false]);
 
 			foreach($value as &$singleValue)
 			{

@@ -27,4 +27,29 @@ class EnumUfComponent extends BaseUfComponent
 			EnumType::getFieldValue(($this->userField ?: []), $this->additionalParameters)
 		);
 	}
+
+	/**
+	 * @param bool $withoutEmptyValue
+	 * @return array[]
+	 */
+	public function getItems(bool $withoutEmptyValue = false): array
+	{
+		$items = [];
+
+		foreach($this->userField['USER_TYPE']['~FIELDS'] as $key => $value)
+		{
+			if($key === '' && ($this->isMultiple() || $withoutEmptyValue))
+			{
+				continue;
+			}
+
+			$items[] = [
+				'NAME' => $value,
+				'VALUE' => $key,
+				'IS_SELECTED' => in_array($key, $this->arResult['value']),
+			];
+		}
+
+		return $items;
+	}
 }

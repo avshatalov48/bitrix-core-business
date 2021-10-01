@@ -100,26 +100,28 @@ class CCalendarSync
 		if ($error = $googleApiConnection->getTransportConnectionError())
 		{
 			CDavConnection::Update(
-				$connectionData["ID"], array(
+				$connectionData["ID"],
+				[
 					"LAST_RESULT" => $error,
 					"SYNCHRONIZED" => ConvertTimeStamp(time(), "FULL")
-				));
+				]
+			);
 			return false;
 		}
 		$googleCalendars = $googleApiConnection->getCalendarItems();
 
-		$localCalendars = CCalendarSect::GetList(array(
-			'arFilter' => array(
+		$localCalendars = CCalendarSect::GetList([
+			'arFilter' => [
 				'OWNER_ID' => $connectionData['ENTITY_ID'],
 				'CAL_TYPE' => 'user',
-			),
-			'arOrder' => array('ID' => 'DESC'),
+			],
+			'arOrder' => ['ID' => 'DESC'],
 			'checkPermissions' => false,
 			'getPermissions' => false
-		));
+		]);
 
-		$localSections = array();
-		$localSectionIndex = array();
+		$localSections = [];
+		$localSectionIndex = [];
 		foreach ($localCalendars as $section)
 		{
 			if ($section['GAPI_CALENDAR_ID'])
@@ -132,7 +134,9 @@ class CCalendarSync
 				else
 				{
 					CCalendarSect::Delete($section["ID"], false);
-					PushTable::delete(array('ENTITY_TYPE' => 'SECTION', 'ENTITY_ID' => $section["ID"]));
+					PushTable::delete(
+						['ENTITY_TYPE' => 'SECTION', 'ENTITY_ID' => $section["ID"]]
+					);
 				}
 			}
 		}
@@ -145,7 +149,7 @@ class CCalendarSync
 
 				if ($localCalendarIndex === false)
 				{
-					$arFields = array(
+					$arFields = [
 						'COLOR' => $externalCalendar['backgroundColor'],
 						'TEXT_COLOR' => $externalCalendar['textColor'],
 						'GAPI_CALENDAR_ID' => $externalCalendar['id'],
@@ -155,8 +159,12 @@ class CCalendarSync
 						'CAL_TYPE' => 'user',
 						'CAL_DAV_CON' => $connectionData["ID"],
 						'EXTERNAL_TYPE' => Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE[$externalCalendar['accessRole']],
+					];
+
+					$localSections[] = array_merge(
+						$arFields,
+						['ID' => CCalendarSect::Edit(['arFields' => $arFields])]
 					);
-					$localSections[] = array_merge($arFields, ['ID' => CCalendarSect::Edit(['arFields' => $arFields])]);
 				}
 				elseif (empty($externalCalendar['deleted']) || !$externalCalendar['deleted'])
 				{
@@ -183,34 +191,39 @@ class CCalendarSync
 
 			CDavConnection::SetLastResult($connectionData["ID"], "[200] OK");
 
-			Util::addPullEvent('refresh_sync_status', $connectionData['ENTITY_ID'], [
-				'syncInfo' => [
-					'google' => [
-						'syncTimestamp' => time(),
-						'status' => true,
-						'type' => 'google',
-						'connected' => true,
+			Util::addPullEvent(
+				'refresh_sync_status',
+				$connectionData['ENTITY_ID'],
+				[
+					'syncInfo' => [
+						'google' => [
+							'syncTimestamp' => time(),
+							'status' => true,
+							'type' => 'google',
+							'connected' => true,
+						],
 					],
-				],
-				'requestUid' => Util::getRequestUid(),
-			]);
+					'requestUid' => Util::getRequestUid(),
+				]
+			);
 		}
 
 		$pushOptionEnabled = COption::GetOptionString('calendar', 'sync_by_push', false) || CCalendar::IsBitrix24();
 		if ($pushOptionEnabled)
 		{
-			$pushResult = PushTable::getByPrimary(array('ENTITY_TYPE' => 'CONNECTION', 'ENTITY_ID' => $connectionData['ID']));
+			$pushResult = PushTable::getByPrimary([
+				'ENTITY_TYPE' => 'CONNECTION',
+				'ENTITY_ID' => $connectionData['ID'],
+			]);
 
-			if ($row = $pushResult->fetch())
+			if (($row = $pushResult->fetch()) && !GoogleApiPush::isConnectionError($connectionData['LAST_RESULT']))
 			{
-				if (!GoogleApiPush::isConnectionError($connectionData['LAST_RESULT']))
+				if (!GoogleApiPush::checkSectionsPush($localSections, $connectionData['ENTITY_ID'], $connectionData['ID']))
 				{
-					if (!GoogleApiPush::checkSectionsPush($localSections, $connectionData['ENTITY_ID'], $connectionData['ID']))
-					{
-						return false;
-					}
-					$bShouldClearCache = true;
+					return false;
 				}
+
+				$bShouldClearCache = true;
 			}
 		}
 
@@ -223,7 +236,9 @@ class CCalendarSync
 				return false;
 			}
 
-			CCalendarSect::Edit(array('arFields' => array('ID' => $localCalendar['ID'], 'SYNC_TOKEN' => $eventsSyncToken)));
+			CCalendarSect::Edit(
+				['arFields' => ['ID' => $localCalendar['ID'], 'SYNC_TOKEN' => $eventsSyncToken]]
+			);
 		}
 
 		if ($tzEnabled)
@@ -296,7 +311,7 @@ class CCalendarSync
 				"CAL_DAV_LABEL" => (isset($arFields['PROPERTY_BXDAVCD_LABEL']) && $arFields['PROPERTY_BXDAVCD_LABEL'] <> '') ? $arFields['PROPERTY_BXDAVCD_LABEL'] : '',
 				"DAV_EXCH_LABEL" => (isset($arFields['PROPERTY_BXDAVEX_LABEL']) && $arFields['PROPERTY_BXDAVEX_LABEL'] <> '') ? $arFields['PROPERTY_BXDAVEX_LABEL'] : '',
 				"ID" => $eventId,
-				'NAME' => $arFields["NAME"] ? $arFields["NAME"] : GetMessage('EC_NONAME_EVENT'),
+				'NAME' => $arFields["NAME"] ?: GetMessage('EC_NONAME_EVENT'),
 				'CAL_TYPE' => $section['CAL_TYPE'],
 				'OWNER_ID' => $section['OWNER_ID'],
 				'DESCRIPTION' => isset($arFields['DESCRIPTION']) ? $arFields['DESCRIPTION'] : '',
@@ -304,9 +319,9 @@ class CCalendarSync
 				'ACCESSIBILITY' => isset($arFields['ACCESSIBILITY']) ? $arFields['ACCESSIBILITY'] : 'busy',
 				'IMPORTANCE' => isset($arFields['IMPORTANCE']) ? $arFields['IMPORTANCE'] : 'normal',
 				"REMIND" => is_array($arFields['REMIND']) ? $arFields['REMIND'] : array(),
-				"RRULE" => is_array($arFields['RRULE']) ? is_array($arFields['RRULE']) : array(),
-				"VERSION" => isset($arFields['VERSION']) ? intval($arFields['VERSION']) : 1,
-				"PRIVATE_EVENT" => !!$arFields['PRIVATE_EVENT']
+				"RRULE" => is_array($arFields['RRULE']) ? $arFields['RRULE'] : array(),
+				"VERSION" => isset($arFields['VERSION']) ? (int)$arFields['VERSION'] : 1,
+				"PRIVATE_EVENT" => (bool)$arFields['PRIVATE_EVENT']
 			);
 
 			$currentEvent = CCalendarEvent::getList([
@@ -327,7 +342,9 @@ class CCalendarSync
 			$arNewFields["SKIP_TIME"] = $arFields['SKIP_TIME'];
 
 			if (isset($arFields['RECURRENCE_ID']))
+			{
 				$arNewFields['RECURRENCE_ID'] = $arFields['RECURRENCE_ID'];
+			}
 
 			if ($arNewFields["SKIP_TIME"])
 			{
@@ -342,15 +359,27 @@ class CCalendarSync
 					foreach ($arFields['PROPERTY_REMIND_SETTINGS'] as $remindSetting)
 					{
 						$ar = explode("_", $remindSetting);
-						if(count($ar) == 2)
-							$arNewFields["REMIND"][] = array('type' => $ar[1],'count' => floatVal($ar[0]));
+						if(count($ar) === 2)
+						{
+							$arNewFields["REMIND"][] =
+								[
+									'type' => $ar[1],
+									'count' => floatVal($ar[0])
+								];
+						}
 					}
 				}
 				else
 				{
 					$ar = explode("_", $arFields["PROPERTY_REMIND_SETTINGS"]);
-					if(count($ar) == 2)
-						$arNewFields["REMIND"][] = array('type' => $ar[1],'count' => floatVal($ar[0]));
+					if(count($ar) === 2)
+					{
+						$arNewFields["REMIND"][] =
+							[
+								'type' => $ar[1],
+								'count' => floatVal($ar[0])
+							];
+					}
 				}
 			}
 

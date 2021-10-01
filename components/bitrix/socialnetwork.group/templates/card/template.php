@@ -12,6 +12,7 @@ use Bitrix\Main\UI;
 UI\Extension::load([
 	'socialnetwork.common',
 	'ui.icons.b24',
+	'ui.info-helper',
 ]);
 
 if($arResult["FatalError"] <> '')
@@ -64,7 +65,8 @@ else
 				urls: {
 					groupsList: '<?= CUtil::JSUrlEscape($arParams["PATH_TO_GROUPS_LIST"]) ?>'
 				},
-				editFeaturesAllowed: <?= (\Bitrix\Socialnetwork\Helper\Workgroup::getEditFeaturesAvailability() ? 'true' : 'false') ?>
+				editFeaturesAllowed: <?= (\Bitrix\Socialnetwork\Helper\Workgroup::getEditFeaturesAvailability() ? 'true' : 'false') ?>,
+				copyFeatureAllowed: <?=(\Bitrix\Socialnetwork\Helper\Workgroup::isGroupCopyFeatureEnabled() ? 'true' : 'false')?>,
 			})
 		});
 
@@ -136,7 +138,17 @@ else
 			</div>
 		</div>
 		<div class="socialnetwork-group-box">
-			<div class="socialnetwork-group-left"><?=Loc::getMessage($arResult['Group']['PROJECT'] == 'Y' ? 'SONET_C6_CARD_MOD_PROJECT' : 'SONET_C6_CARD_MOD')?> (<?=intval($arResult["Group"]["NUMBER_OF_MODERATORS"])?>)</div>
+			<div class="socialnetwork-group-left">
+				<?=
+					Loc::getMessage(
+						$arResult['Group']['PROJECT'] == 'Y'
+						? $arResult['isScrumProject']
+							? 'SONET_C6_CARD_MOD_SCRUM_PROJECT'
+							: 'SONET_C6_CARD_MOD_PROJECT'
+						: 'SONET_C6_CARD_MOD'
+					)
+				?> (<?=intval($arResult["Group"]["NUMBER_OF_MODERATORS"])?>)
+			</div>
 			<div class="socialnetwork-group-right">
 				<div class="socialnetwork-group-user-box"><?
 					$counter = 0;

@@ -3,6 +3,22 @@ namespace Bitrix\Sale\Internals;
 
 use Bitrix\Sale;
 
+/**
+ * Class CompanyLocationTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CompanyLocation_Query query()
+ * @method static EO_CompanyLocation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CompanyLocation_Result getById($id)
+ * @method static EO_CompanyLocation_Result getList(array $parameters = array())
+ * @method static EO_CompanyLocation_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_CompanyLocation createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_CompanyLocation_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_CompanyLocation wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_CompanyLocation_Collection wakeUpCollection($rows)
+ */
 final class CompanyLocationTable extends Sale\Location\Connector
 {
 	public static function getFilePath()

@@ -72,17 +72,17 @@ $APPLICATION->IncludeComponent(
 			</label>
 		</div>
 		<input type="text"
-			   name="toloka-oauth-code"
-			   id="toloka-oauth-code"
-			   data-role="toloka-oauth-code"
-			   size="50"
-			   class="sender-toloka-field-control-input">
+			name="toloka-oauth-code"
+			id="toloka-oauth-code"
+			data-role="toloka-oauth-code"
+			size="50"
+			class="sender-toloka-field-control-input">
 
 		<div class="sender-toloka-step-text">
 			<input type="button"
-				   onclick="window.Toloka.register();"
-				   class="webform-small-button webform-small-button-accept"
-				   value="<?=Loc::getMessage('SENDER_TOLOKA_CONNECT')?>">
+				onclick="window.Toloka.register();"
+				class="webform-small-button webform-small-button-accept"
+				value="<?=Loc::getMessage('SENDER_TOLOKA_CONNECT')?>">
 		</div>
 
 	</div>
@@ -93,7 +93,7 @@ $APPLICATION->IncludeComponent(
 			</div>
 			<div class="sender-toloka-field-button-box">
 				<a onclick="top.BX.Helper.show('redirect=detail&code=11572528');"
-				   class="sender-toloka-field-button sender-toloka-field-button-connect">
+					class="sender-toloka-field-button sender-toloka-field-button-connect">
 					<div class="sender-toloka-field-button-icon"></div>
 					<div class="sender-toloka-field-button-text">
 						<div class="sender-toloka-field-button-subtitle">

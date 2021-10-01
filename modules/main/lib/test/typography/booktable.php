@@ -22,6 +22,19 @@ use Bitrix\Main\ORM\Fields\StringField;
  * Test entity.
  * @package    bitrix
  * @subpackage main
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Book_Query query()
+ * @method static EO_Book_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Book_Result getById($id)
+ * @method static EO_Book_Result getList(array $parameters = array())
+ * @method static EO_Book_Entity getEntity()
+ * @method static \Bitrix\Main\Test\Typography\Book createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Test\Typography\Books createCollection()
+ * @method static \Bitrix\Main\Test\Typography\Book wakeUpObject($row)
+ * @method static \Bitrix\Main\Test\Typography\Books wakeUpCollection($rows)
  */
 class BookTable extends DataManager
 {

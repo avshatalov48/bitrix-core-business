@@ -742,6 +742,7 @@ this.BX = this.BX || {};
 	      this.locationFeatureEnabled = !!params.locationFeatureEnabled;
 	      this.locationList = params.locationList || [];
 	      this.iblockMeetingRoomList = params.iblockMeetingRoomList || [];
+	      this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
 	      this.setSections(params.sections, params.trackingUserList);
 	    }
 	  }, {
@@ -937,7 +938,8 @@ this.BX = this.BX || {};
 	        userId: this.userId,
 	        type: this.type,
 	        ownerId: this.ownerId,
-	        zIndex: this.zIndex + 10
+	        zIndex: this.zIndex + 10,
+	        plannerFeatureEnabled: this.plannerFeatureEnabled
 	      });
 	      this.userPlannerSelector.subscribe('onDateChange', this.handlePlannerSelectorChanges.bind(this));
 	      this.userPlannerSelector.subscribe('onNotifyChange', this.checkForChanges); // this.subscribe('onLoad', this.userPlannerSelector.checkEmployment.bind(this.userPlannerSelector));
@@ -1254,7 +1256,7 @@ this.BX = this.BX || {};
 
 	      this.state = this.STATE.REQUEST;
 	      this.freezePopup();
-	      this.BX.ajax.runAction('calendar.api.calendarajax.editEntry', {
+	      this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', {
 	        data: data,
 	        analyticsLabel: {
 	          calendarAction: this.isNewEntry() ? 'create_event' : 'edit_event',

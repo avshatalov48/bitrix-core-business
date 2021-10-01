@@ -353,7 +353,7 @@ class CIMNotify
 		return false;
 	}
 
-	public static function GetFormatNotify($arFields)
+	public static function GetFormatNotify(array $arFields): array
 	{
 		$messageText = \Bitrix\Im\Text::parse(
 			$arFields['MESSAGE'],
@@ -366,23 +366,29 @@ class CIMNotify
 			]
 		);
 
-		$arNotify = Array(
-			'templateId' => $arFields['TEMPLATE_ID']? $arFields['TEMPLATE_ID']: '',
+		$textInBbCode =
+			empty($arFields['MESSAGE'])
+				? null
+				: (new \Bitrix\Im\Notify())->convertHtmlToBbCode($arFields['MESSAGE'])
+		;
+
+		$arNotify = [
 			'id' => $arFields['ID'],
 			'type' => $arFields['NOTIFY_TYPE'],
 			'date' => \Bitrix\Main\Type\DateTime::createFromTimestamp($arFields['DATE_CREATE']),
-			'silent' => $arFields['NOTIFY_SILENT']? 'Y': 'N',
+			'silent' => $arFields['NOTIFY_SILENT'] ? 'Y' : 'N',
 			'onlyFlash' => (bool)$arFields['NOTIFY_ONLY_FLASH'],
 			'link' => (string)$arFields['NOTIFY_LINK'],
-			'text' => $messageText,
-			'tag' => $arFields['NOTIFY_TAG'] <> ''? md5($arFields['NOTIFY_TAG']): '',
+			'text_converted' => $messageText,
+			'text' => $textInBbCode,
+			'tag' => $arFields['NOTIFY_TAG'] != '' ? md5($arFields['NOTIFY_TAG']): '',
 			'originalTag' => $arFields['NOTIFY_TAG'],
 			'original_tag' => $arFields['NOTIFY_TAG'],
 			'read' => $arFields['NOTIFY_READ'],
-			'settingName' => $arFields['NOTIFY_MODULE'].'|'.$arFields['NOTIFY_EVENT'],
-			'params' => isset($arFields['PARAMS'])? $arFields['PARAMS']: Array(),
-			'counter' => isset($arFields['COUNTER'])? (int)$arFields['COUNTER']: 0,
-		);
+			'settingName' => $arFields['NOTIFY_MODULE'] . '|' . $arFields['NOTIFY_EVENT'],
+			'params' => $arFields['PARAMS'] ?? [],
+			'counter' => isset($arFields['COUNTER']) ? (int)$arFields['COUNTER'] : 0,
+		];
 		if (!isset($arFields["FROM_USER_DATA"]))
 		{
 			$arUsers = CIMContactList::GetUserData(Array('ID' => $arFields['FROM_USER_ID'], 'DEPARTMENT' => 'N', 'USE_CACHE' => 'Y', 'CACHE_TTL' => 86400));
@@ -905,6 +911,8 @@ class CIMNotify
 
 	public static function Delete($id)
 	{
+		global $DB;
+
 		$id = (int)$id;
 		$notification = self::getNotificationById($id);
 		if (!$notification)
@@ -933,7 +941,12 @@ class CIMNotify
 
 		self::deleteInternal($id);
 		$counter = self::GetRealCounter($notification['CHAT_ID']);
-		self::updateStateAfterDelete($notification['CHAT_ID'], $notification['RELATION_USER_ID'], $counter, $needToUpdateRecent);
+		$chatId = (int)$notification['CHAT_ID'];
+		// update unread counter
+		$DB->Query("UPDATE b_im_relation SET COUNTER = {$counter} WHERE CHAT_ID = ".$chatId);
+		\Bitrix\Im\Counter::clearCache($notification['RELATION_USER_ID']);
+
+		self::updateStateAfterDelete($chatId, $notification['RELATION_USER_ID'], $needToUpdateRecent);
 
 		foreach(GetModuleEvents("im", "OnAfterDeleteNotify", true) as $arEvent)
 		{
@@ -970,6 +983,8 @@ class CIMNotify
 	 */
 	private static function deleteList(array $ids): bool
 	{
+		global $DB;
+
 		$cnt = count($ids);
 		if ($cnt <= 0)
 		{
@@ -1038,7 +1053,12 @@ class CIMNotify
 		}
 
 		$counter = self::GetRealCounter($chatId);
-		self::updateStateAfterDelete($chatId, $relationUserId, $counter, $needToUpdateRecent);
+		$chatId = (int)$chatId;
+		// update unread counter
+		$DB->Query("UPDATE b_im_relation SET COUNTER = {$counter} WHERE CHAT_ID = ".$chatId);
+		\Bitrix\Im\Counter::clearCache($relationUserId);
+
+		self::updateStateAfterDelete($chatId, $relationUserId, $needToUpdateRecent);
 
 		if (CModule::IncludeModule("pull"))
 		{
@@ -1063,14 +1083,14 @@ class CIMNotify
 	/*
 	 * Updates counters (unread and total) and last message for recent list.
 	 */
-	private static function updateStateAfterDelete(int $chatId, int $userId, int $counter, bool $needToUpdateRecent): void
+	private static function updateStateAfterDelete(int $chatId, int $userId, bool $needToUpdateRecent): void
 	{
 		global $DB;
 		CIMMessenger::SpeedFileDelete($userId, IM_SPEED_NOTIFY);
 
 		// update total amount of notifications
 		$date = new DateTime();
-		$date->add('-60 days');
+		$date->add('-60 days'); // sync with \Bitrix\Im\Notify::cleanNotifyAgent
 		$messageCount = \Bitrix\Im\Model\MessageTable::getList([
 			'select' => ['CNT'],
 			'filter' => [
@@ -1098,27 +1118,20 @@ class CIMNotify
 				'limit' => 1,
 			];
 			$lastNotification = \Bitrix\Im\Model\MessageTable::getRow($ormParams);
-			if (!$lastNotification)
+			if ($lastNotification !== null)
 			{
-				return;
+				$DB->Query("
+					UPDATE b_im_recent 
+						SET ITEM_MID = {$lastNotification['ID']}
+					WHERE
+						USER_ID = {$userId}
+					AND
+						ITEM_TYPE = 'S'
+					AND
+						ITEM_ID = {$userId}
+				");
 			}
-
-			$DB->Query("
-				UPDATE b_im_recent 
-					SET ITEM_MID = {$lastNotification['ID']}
-				WHERE
-					USER_ID = {$userId}
-				AND
-					ITEM_TYPE = 'S'
-				AND
-					ITEM_ID = {$userId}
-			");
 		}
-
-		// update unread counter
-		$DB->Query("UPDATE b_im_relation SET COUNTER = {$counter} WHERE CHAT_ID = ".$chatId);
-
-		\Bitrix\Im\Counter::clearCache($userId);
 	}
 
 	private static function deleteInternal(int $id): void

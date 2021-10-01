@@ -22,6 +22,23 @@ class Config extends \Bitrix\Main\Engine\Controller
 		return $config;
 	}
 
+	public function getWithChannelId(string $channelId, string $channelPublicId = '')
+	{
+		$config = \Bitrix\Pull\Config::get([
+			'CHANNEL_ID' => $channelId,
+			'CHANNEL_PUBLIC_ID' => $channelPublicId,
+			'JSON' => true
+		]);
+
+		if (!$config)
+		{
+			$this->errorCollection[] = new Error("Push & Pull server is not configured", "SERVER_ERROR");
+			return null;
+		}
+
+		return $config;
+	}
+
 	public function extendWatchAction(array $tags)
 	{
 		$currentUserId = $this->getCurrentUser()->getId();

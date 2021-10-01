@@ -178,7 +178,7 @@ class SkuRepository extends BaseIblockElementRepository implements SkuRepository
 		}
 		elseif (!$product->isNew())
 		{
-			$params['filter']['PROPERTY_'.$this->iblockInfo->getSkuPropertyId()] = $product->getId();
+			$params['filter']['PROPERTY_' . $this->iblockInfo->getSkuPropertyId()] = $product->getId();
 			$params['order']['ID'] = 'DESC';
 
 			foreach ($this->getList($params) as $item)

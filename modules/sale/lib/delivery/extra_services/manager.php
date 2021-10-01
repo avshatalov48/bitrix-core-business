@@ -404,6 +404,8 @@ class Manager
 				$extraService->getId(),
 				[
 					'NAME' => $extraService->getName(),
+					'CODE' => $extraService->getCode(),
+					'INIT_VALUE' => $extraService->getInitValue(),
 					'PARAMS' => $extraService->getParams()
 				],
 				$currency,

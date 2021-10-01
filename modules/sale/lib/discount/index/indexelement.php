@@ -7,6 +7,22 @@ use Bitrix\Main\DB\OracleConnection;
 use Bitrix\Main\Entity\DataManager;
 
 
+/**
+ * Class IndexElementTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_IndexElement_Query query()
+ * @method static EO_IndexElement_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_IndexElement_Result getById($id)
+ * @method static EO_IndexElement_Result getList(array $parameters = array())
+ * @method static EO_IndexElement_Entity getEntity()
+ * @method static \Bitrix\Sale\Discount\Index\EO_IndexElement createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Discount\Index\EO_IndexElement_Collection createCollection()
+ * @method static \Bitrix\Sale\Discount\Index\EO_IndexElement wakeUpObject($row)
+ * @method static \Bitrix\Sale\Discount\Index\EO_IndexElement_Collection wakeUpCollection($rows)
+ */
 final class IndexElementTable extends DataManager
 {
 	const MAX_LENGTH_BATCH_MYSQL_QUERY = 2048;

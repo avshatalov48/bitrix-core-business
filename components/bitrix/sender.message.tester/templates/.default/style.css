@@ -145,13 +145,15 @@
 .sender-test-button-bottom {
 	display: flex;
 	align-items: center;
+	flex-direction: column;
+	margin: 0 10px 0 0;
 }
 
 .sender-test-result-line {
 	display: flex;
 	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #525C69;
-	margin: 0 0 0 10px;
+	margin: 0;
 }
 
 .sender-test-result-line-icon {
@@ -172,4 +174,19 @@
 
 .sender-message-tester-right {
 	width: 100%;
+}
+.sender-test-button-container{
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: flex-start;
+
+}
+.sender-test-container{
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+.result-container{
+	padding: 10px 10px 10px 0;
 }

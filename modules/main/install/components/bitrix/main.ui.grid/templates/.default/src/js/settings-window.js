@@ -18,6 +18,8 @@
 		this.applyButton = null;
 		this.resetButton = null;
 		this.cancelButton = null;
+		this.filterSections = null;
+		this.filterSectionsSearchInput = null;
 		this.init(parent);
 		BX.onCustomEvent(window, 'BX.Grid.SettingsWindow:init', [this]);
 	};
@@ -678,6 +680,7 @@
 
 				this.getItems().forEach(function(item) {
 					BX.bind(item.getNode(), 'click', BX.delegate(this.onItemClick, this));
+					BX.bind(item.getNode(), 'animationend', this.onAnimationEnd.bind(this, item.getNode()));
 				}, this);
 
 				BX.bind(this.getResetButton(), 'click', BX.proxy(this.onResetButtonClick, this));
@@ -685,6 +688,19 @@
 				BX.bind(this.getCancelButton(), 'click', BX.proxy(this.popup.close, this.popup));
 				BX.bind(this.getSelectAllButton(), 'click', BX.delegate(this.onSelectAll, this));
 				BX.bind(this.getUnselectAllButton(), 'click', BX.delegate(this.onUnselectAll, this));
+
+				if (
+					this.parent.arParams['COLUMNS_ALL_WITH_SECTIONS']
+					&& Object.keys(this.parent.arParams['COLUMNS_ALL_WITH_SECTIONS']).length
+				)
+				{
+					this.prepareFilterSections();
+				}
+
+				if (this.parent.arParams['ENABLE_FIELDS_SEARCH'])
+				{
+					this.prepareFilterSectionsSearchInput();
+				}
 			}
 
 			return this.popup;
@@ -695,6 +711,124 @@
 			this.adjustActionButtonsState();
 		},
 
+		onAnimationEnd: function(node: HTMLElement)
+		{
+			node.style.display = (
+				BX.Dom.hasClass(node, this.parent.settings.get('classSettingsWindowSearchSectionItemHidden'))
+				? 'none'
+				: 'inline-block'
+			);
+		},
+
+		prepareFilterSections: function()
+		{
+			var filterSections = this.getFilterSections();
+			for (var item of filterSections) {
+				BX.bind(item, 'click', this.onFilterSectionClick.bind(this, item));
+			}
+		},
+
+		/**
+		 * Gets all filter section items
+		 * @return {HTMLCollection}
+		 */
+		getFilterSections: function()
+		{
+				if (!this.filterSections)
+				{
+					var wrapper = BX.Grid.Utils.getByClass(
+						this.getPopup().contentContainer,
+						this.parent.settings.get('classSettingsWindowSearchSectionsWrapper'),
+						true
+					);
+
+					this.filterSections = (wrapper.children ?? new HTMLCollection());
+				}
+
+				return this.filterSections;
+		},
+
+		onFilterSectionClick: function(item: HTMLElement)
+		{
+			var activeClass = this.parent.settings.get('classSettingsWindowSearchActiveSectionIcon');
+			var sectionId = item.dataset.uiGridFilterSectionButton;
+			var section = document.querySelectorAll("[data-ui-grid-filter-section='"+sectionId+"']");
+
+			if (BX.Dom.hasClass(item.firstChild, activeClass))
+			{
+				BX.Dom.removeClass(item.firstChild, activeClass);
+				BX.Dom.hide(section[0]);
+			}
+			else
+			{
+				BX.Dom.addClass(item.firstChild, activeClass);
+				BX.Dom.show(section[0]);
+			}
+		},
+
+		prepareFilterSectionsSearchInput: function()
+		{
+			var input = this.getFilterSectionsSearchInput();
+			BX.bind(input, 'input', this.onFilterSectionSearchInput.bind(this));
+			BX.bind(input.previousElementSibling, 'click', this.onFilterSectionSearchInputClear.bind(this));
+		},
+
+		getFilterSectionsSearchInput: function()
+		{
+			if (!this.filterSectionsSearchInput)
+			{
+				this.filterSectionsSearchInput = BX.Grid.Utils.getByClass(
+					this.getPopup().contentContainer,
+					this.parent.settings.get('classSettingsWindowSearchSectionInput'),
+					true
+				);
+			}
+
+			return this.filterSectionsSearchInput;
+		},
+
+		onFilterSectionSearchInput: function()
+		{
+			var search = this.filterSectionsSearchInput.value;
+			if (search.length)
+			{
+				search = search.toLowerCase();
+			}
+
+			this.items.forEach(function (item){
+				var title = item.lastTitle.toLowerCase();
+
+				if (search.length && title.indexOf(search) === -1)
+				{
+					BX.Dom.removeClass(
+						item.getNode(),
+						this.parent.settings.get('classSettingsWindowSearchSectionItemVisible')
+					);
+					BX.Dom.addClass(
+						item.getNode(),
+						this.parent.settings.get('classSettingsWindowSearchSectionItemHidden')
+					);
+				}
+				else
+				{
+					BX.Dom.removeClass(
+						item.getNode(),
+						this.parent.settings.get('classSettingsWindowSearchSectionItemHidden')
+					);
+					BX.Dom.addClass(
+						item.getNode(),
+						this.parent.settings.get('classSettingsWindowSearchSectionItemVisible')
+					);
+					item.getNode().style.display = 'inline-block';
+				}
+			}.bind(this));
+		},
+
+		onFilterSectionSearchInputClear: function()
+		{
+			this.filterSectionsSearchInput.value = '';
+			this.onFilterSectionSearchInput();
+		},
 
 		/**
 		 * Gets columns collection

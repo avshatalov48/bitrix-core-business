@@ -5,6 +5,7 @@ use Bitrix\Main\Config\Option;
 
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
+use Bitrix\Main\Loader;
 use Bitrix\Main\ORM\Data\AddResult;
 use Bitrix\Sale\Internals\Pool;
 use Bitrix\Sale\Result;
@@ -818,13 +819,31 @@ class Manager
 
 		$res = \Bitrix\Sale\Delivery\Services\Table::update($id, $fields);
 
-		if($res->isSuccess())
+		if ($res->isSuccess())
 		{
-			if(!empty($fields["CLASS_NAME"]) && class_exists($fields["CLASS_NAME"]))
+			if (!empty($fields["CLASS_NAME"]) && class_exists($fields["CLASS_NAME"]))
+			{
 				$fields["CLASS_NAME"]::onAfterUpdate($res->getId(), $fields);
+			}
 
-			if(isset($fields['CODE']))
+			if (isset($fields['CODE']))
+			{
 				self::cleanIdCodeCached($id);
+			}
+
+			if (Loader::includeModule('pull'))
+			{
+				\CPullWatch::AddToStack(
+					'SALE_DELIVERY_SERVICE',
+					[
+						'module_id' => 'sale',
+						'command' => 'onDeliveryServiceSave',
+						'params' => [
+							'ID' => $id,
+						]
+					]
+				);
+			}
 		}
 
 		return $res;

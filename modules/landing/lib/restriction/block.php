@@ -110,4 +110,18 @@ class Block
 
 		return false;
 	}
+
+	/**
+	 * Checks restriction for Designer Block (Superblock).
+	 * @return bool
+	 */
+	public static function isDesignerAllowed(): bool
+	{
+		if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+		{
+			return Feature::isFeatureEnabled('landing_designerblock');
+		}
+
+		return true;
+	}
 }

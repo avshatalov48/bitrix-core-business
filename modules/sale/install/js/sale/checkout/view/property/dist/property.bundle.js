@@ -4,7 +4,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 (function (exports,ui_type,main_core,ui_vue,sale_checkout_const) {
     'use strict';
 
-    ui_vue.Vue.component('sale-checkout-view-property-input-text', {
+    ui_vue.BitrixVue.component('sale-checkout-view-property-input-text', {
       props: ['item', 'index', 'autocomplete'],
       methods: {
         validate: function validate() {
@@ -25,7 +25,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
       template: "\n        <input class=\"form-control form-control-lg\" :class=\"checkedClassObject\"\n            @blur=\"validate\"\n            type=\"text\" \n            :placeholder=\"item.name\"\n            :autocomplete=\"autocomplete\"\n            v-model=\"item.value\"\n        />\n\t"
     });
 
-    ui_vue.Vue.component('sale-checkout-view-property-input-phone', {
+    ui_vue.BitrixVue.component('sale-checkout-view-property-input-phone', {
       props: ['item', 'index'],
       methods: {
         validate: function validate() {
@@ -78,16 +78,16 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
       template: "\n      <input class=\"form-control form-control-lg\" :class=\"checkedClassObject\"\n             @blur=\"validate\"\n             @input=\"onInput\"\n\t\t\t @keydown=\"onKeyDown\"\n             v-model=\"value\"\n             autocomplete=\"tel\"\n\t\t\t :placeholder=\"item.name\"\n      />\n\t"
     });
 
-    ui_vue.Vue.component('sale-checkout-view-property-note_error', {
+    ui_vue.BitrixVue.component('sale-checkout-view-property-note_error', {
       props: ['message'],
       template: "\n        <div class=\"invalid-feedback\">\n            {{message}}\n        </div>\n\t"
     });
 
-    ui_vue.Vue.component('sale-checkout-view-property-list_edit', {
+    ui_vue.BitrixVue.component('sale-checkout-view-property-list_edit', {
       props: ['items', 'errors'],
       computed: {
         localize: function localize() {
-          return Object.freeze(ui_vue.Vue.getFilteredPhrases('CHECKOUT_VIEW_PROPERTY_LIST_'));
+          return Object.freeze(ui_vue.BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_PROPERTY_LIST_'));
         }
       },
       methods: {
@@ -114,11 +114,11 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
       template: "\n\t\t<div class=\"checkout-basket-section checkout-basket-section-personal-form\">\n\t\t\t<h2 class=\"checkout-basket-title\">{{localize.CHECKOUT_VIEW_PROPERTY_LIST_VIEW_SHIPPING_CONTACTS}}</h2>\n\t\t\t\t<template v-for=\"(item, index) in items\">\n\t\t\t\t  <div class=\"form-group\" v-if=\"isName(item)\">\n\t\t\t\t\t<sale-checkout-view-property-input-text :item=\"item\" :index=\"index\" :autocomplete=\"'name'\"/>\n\t\t\t\t\t<sale-checkout-view-property-note_error v-if=\"isFailure(item)\"\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t:message=\"getErrorMessage(item)\"/>\n\t\t\t\t  </div>\n\t\t\t\t</template>\n\t\t\t\t<template v-for=\"(item, index) in items\">\n\t\t\t\t  <div class=\"form-group\" v-if=\"isPhone(item)\">\n\t\t\t\t\t<sale-checkout-view-property-input-phone :item=\"item\" :index=\"index\"/>\n\t\t\t\t\t<sale-checkout-view-property-note_error v-if=\"isFailure(item)\"\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t:message=\"getErrorMessage(item)\"/>\n\t\t\t\t  </div>\n\t\t\t\t</template>\n\t\t\t\t<template v-for=\"(item, index) in items\">\n\t\t\t\t  <div class=\"form-group\" v-if=\"isEmail(item)\">\n\t\t\t\t\t<sale-checkout-view-property-input-text :item=\"item\" :index=\"index\" :autocomplete=\"'email'\" />\n\t\t\t\t\t<sale-checkout-view-property-note_error v-if=\"isFailure(item)\"\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t:message=\"getErrorMessage(item)\"/>\n\t\t\t\t  </div>\n\t\t\t\t</template>\n\t\n\t\t\t\t<template v-for=\"(item, index) in items\">\n\t\t\t\t  <div class=\"form-group\" v-if=\"isPhone(item) === false && isName(item) === false && isEmail(item) === false\">\n\t\t\t\t\t<sale-checkout-view-property-input-text :item=\"item\" :index=\"index\" :autocomplete=\"'off'\"/>\n\t\t\t\t\t<sale-checkout-view-property-note_error v-if=\"isFailure(item)\"\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t:message=\"getErrorMessage(item)\"/>\n\t\t\t\t  </div>\n\t\t\t\t</template>\n\t\t</div>\n\t"
     });
 
-    ui_vue.Vue.component('sale-checkout-view-property-list_view', {
+    ui_vue.BitrixVue.component('sale-checkout-view-property-list_view', {
       props: ['items', 'number'],
       computed: {
         localize: function localize() {
-          return Object.freeze(ui_vue.Vue.getFilteredPhrases('CHECKOUT_VIEW_PROPERTY_LIST_VIEW_'));
+          return Object.freeze(ui_vue.BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_PROPERTY_LIST_VIEW_'));
         },
         getTitle: function getTitle() {
           var message = this.localize.CHECKOUT_VIEW_PROPERTY_LIST_VIEW_ORDER_TITLE;
@@ -139,7 +139,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
       template: "\n\t\t<div class=\"checkout-basket-section\">\n\t\t<h2 class=\"checkout-basket-title\">{{localize.CHECKOUT_VIEW_PROPERTY_LIST_VIEW_SHIPPING_CONTACTS}}</h2>\n\t\n\t\t\t\t\t\t<div class=\"checkout-item-personal-order-info\">\n\t\t\t\t\t\t\t<div class=\"checkout-item-personal-order-payment\">\n<!--\t\t\t\t\t\t\t\t<div v-for=\"(item, index) in items\" :key=\"index\">{{item.name}}: <b>{{item.value}}</b></div>-->\n\t\t\t\t\t\t\t\t<div>{{getPropertiesShort}}</div>\n\t\t\t\t\t\t\t</div>\n<!--\t\t\t\t\t\t\t<div class=\"checkout-item-personal-order-shipping\">-->\n<!--\t\t\t\t\t\t\t\t<strong>{{localize.CHECKOUT_VIEW_PROPERTY_LIST_VIEW_SHIPPING_METHOD}}</strong>-->\n<!--\t\t\t\t\t\t\t\t<div>{{localize.CHECKOUT_VIEW_PROPERTY_LIST_VIEW_SHIPPING_METHOD_DESCRIPTION}}</div>-->\n<!--\t\t\t\t\t\t\t</div>-->\n\t\t\t\t\t\t</div>\n\t\t\t\n\t\t</div>\n\t"
     });
 
-    ui_vue.Vue.component('sale-checkout-view-property', {
+    ui_vue.BitrixVue.component('sale-checkout-view-property', {
       props: ['items', 'mode', 'order', 'errors'],
       computed: {
         getConstMode: function getConstMode() {

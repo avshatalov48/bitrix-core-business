@@ -260,4 +260,26 @@ final class MimeType
 
 		return $mimeType?: 'application/octet-stream';
 	}
+
+	public static function isImage($mime)
+	{
+		return preg_match('#^image/[a-z0-9.-]+$#i', $mime);
+	}
+
+	public static function normalize($contentType)
+	{
+		$ct = strtolower($contentType);
+		$ct = str_replace(array("\r", "\n", "\0"), "", $ct);
+
+		if (strpos($ct, "excel") !== false)
+		{
+			$ct = "application/vnd.ms-excel";
+		}
+		elseif (strpos($ct, "word") !== false && strpos($ct, "vnd.openxmlformats") === false)
+		{
+			$ct = "application/msword";
+		}
+
+		return $ct;
+	}
 }

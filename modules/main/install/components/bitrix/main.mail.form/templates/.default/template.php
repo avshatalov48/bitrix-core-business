@@ -380,23 +380,22 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 					'CreateLink', 'Image', 'UploadImage',
 					'Justify', 'InsertOrderedList', 'InsertUnorderedList',
 				),
-				'BUTTONS' => array_merge(
-					!empty($arParams['FOLD_QUOTE']) ? array('ReplyQuote') : array(),
-					array('UploadImage', 'UploadFile', 'Panel')
-				),
-				'BUTTONS_HTML' => array(
-					'ReplyQuote' => '<span class="main-mail-form-quote-button-wrapper"><span class="main-mail-form-quote-button">...</span></span>',
-					'Panel' => '<span class="feed-add-post-form-but-cnt"><span class="bxhtmled-top-bar-btn feed-add-post-form-editor-btn"></span></span>',
+				'BUTTONS' => ['UploadImage', 'UploadFile'],
+				'BUTTONS_HTML' => (!empty($arParams['FOLD_QUOTE']) ?
+					['ReplyQuote' => '<span class="main-mail-form-quote-button-wrapper"><span class="main-mail-form-quote-button">...</span></span>'] : []
 				),
 				'TEXT' => array(
 					'INPUT_NAME' => 'dummy_'.$arParams['EDITOR']['name'],
 					'VALUE' => $editorValue,
-					'SHOW' => !empty($arParams['EDITOR_TOOLBAR']) ? 'Y' : 'N',
+					'SHOW' => 'Y',
 				),
 				'PROPERTIES' => array(
 					array(
 						'USER_TYPE_ID' => 'disk_file',
-						'USER_TYPE'    => array('TAG' => 'ATTACHMENT'),
+						'USER_TYPE' => array(
+							'TAG' => 'bxacid:#id#',
+							'REGEXP' => '/(?:bxacid):(n?\d+)/ig'
+						),
 						'FIELD_NAME'   => $arParams['FILES']['name'].'[]',
 						'VALUE'        => $arParams['FILES']['value'],
 						'HIDE_CHECKBOX_ALLOW_EDIT' => 'Y',
@@ -532,5 +531,5 @@ BX.ready(function()
 		form.init();
 	<? endif ?>
 });
-	
+
 </script>

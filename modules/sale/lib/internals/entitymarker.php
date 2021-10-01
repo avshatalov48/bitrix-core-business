@@ -9,7 +9,20 @@ Loc::loadMessages(__FILE__);
 /**
  * Class EntityMarkerTable
  * @package Bitrix\Sale
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_EntityMarker_Query query()
+ * @method static EO_EntityMarker_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EntityMarker_Result getById($id)
+ * @method static EO_EntityMarker_Result getList(array $parameters = array())
+ * @method static EO_EntityMarker_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_EntityMarker createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_EntityMarker_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_EntityMarker wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_EntityMarker_Collection wakeUpCollection($rows)
+ */
 
 class EntityMarkerTable extends Main\Entity\DataManager
 {

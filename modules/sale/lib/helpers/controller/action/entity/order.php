@@ -12,8 +12,9 @@ use Bitrix\Iblock;
 /**
  * Class Order
  * @package Bitrix\Sale\Helpers\Controller\Action\Entity
+ * @internal
  */
-class Order
+final class Order
 {
 	/**
 	 * @param Sale\Order $order
@@ -416,6 +417,42 @@ class Order
 			foreach ($imageCollection as $imageItem)
 			{
 				$result['IMAGE_COLLECTION'][] = $imageItem->getFields();
+			}
+
+			$result['SKU'] = self::getSkuTree($product->getIblockId(), $product->getId());
+		}
+
+		return $result;
+	}
+
+	private static function getSkuTree(int $iblockId, int $productId): array
+	{
+		$result = [];
+
+		$skuRepository = Catalog\v2\IoC\ServiceContainer::getSkuRepository($iblockId);
+		if ($skuRepository)
+		{
+			$sku = $skuRepository->getEntityById($productId);
+			if ($sku)
+			{
+				$parentProduct = $sku->getParent();
+				if ($parentProduct)
+				{
+					/** @var Catalog\Component\SkuTree $skuTree */
+					$skuTree = Catalog\v2\IoC\ServiceContainer::make('sku.tree', ['iblockId' => $iblockId]);
+
+					$parentProductId = $parentProduct->getId();
+					$skuId = $sku->getId();
+
+					$tree = $skuTree->loadWithSelectedOffers([$parentProductId => $skuId]);
+					if (isset($tree[$parentProductId][$skuId]))
+					{
+						$result = [
+							'TREE' => $tree[$parentProductId][$skuId],
+							'PARENT_PRODUCT_ID' => $parentProductId,
+						];
+					}
+				}
 			}
 		}
 

@@ -1,9 +1,57 @@
 this.BX = this.BX || {};
 this.BX.SocialNetwork = this.BX.SocialNetwork || {};
-(function (exports,main_core,main_core_events,ui_entitySelector) {
+(function (exports,main_core_events,ui_entitySelector,main_core) {
 	'use strict';
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
+	function _templateObject5() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"", "\" onclick=\"", "\">", "</span>\n\t\t"]);
+
+	  _templateObject5 = function _templateObject5() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject4() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"", "\" onclick=\"", "\">", "</span>\n\t\t"]);
+
+	  _templateObject4 = function _templateObject4() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject3() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"", "\" onclick=\"", "\">", "</span>\n\t\t"]);
+
+	  _templateObject3 = function _templateObject3() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-selector-footer-conjunction\">", "</span>"]);
+
+	  _templateObject2 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"]);
+
+	  _templateObject = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 
 	var Footer = /*#__PURE__*/function (_DefaultFooter) {
 	  babelHelpers.inherits(Footer, _DefaultFooter);
@@ -47,7 +95,7 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	        var complexPhrase = complexPhrases[complexCode] ? complexPhrases[complexCode] : null;
 
 	        if (complexPhrase) {
-	          var phrase = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"])), main_core.Loc.getMessage(complexPhrase));
+	          var phrase = main_core.Tag.render(_templateObject(), main_core.Loc.getMessage(complexPhrase));
 	          var employee = phrase.querySelector('employee');
 	          var guest = phrase.querySelector('guest');
 	          var project = phrase.querySelector('project');
@@ -79,7 +127,7 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	          }
 
 	          spans.forEach(function (span) {
-	            phrase.replaceChild(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-selector-footer-conjunction\">", "</span>"])), span.innerHTML), span);
+	            phrase.replaceChild(main_core.Tag.render(_templateObject2(), span.innerHTML), span);
 	          }); // Get rid of the outer <div>
 
 	          var fragment = document.createDocumentFragment();
@@ -111,19 +159,19 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	    key: "createInviteEmployeeLink",
 	    value: function createInviteEmployeeLink(text, icon) {
 	      var className = "ui-selector-footer-link".concat(icon ? ' ui-selector-footer-link-add' : '');
-	      return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"", "\" onclick=\"", "\">", "</span>\n\t\t"])), className, this.handleInviteEmployeeClick.bind(this), text);
+	      return main_core.Tag.render(_templateObject3(), className, this.handleInviteEmployeeClick.bind(this), text);
 	    }
 	  }, {
 	    key: "createInviteGuestLink",
 	    value: function createInviteGuestLink(text, icon) {
 	      var className = "ui-selector-footer-link".concat(icon ? ' ui-selector-footer-link-add' : '');
-	      return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"", "\" onclick=\"", "\">", "</span>\n\t\t"])), className, this.handleInviteGuestClick.bind(this), text);
+	      return main_core.Tag.render(_templateObject4(), className, this.handleInviteGuestClick.bind(this), text);
 	    }
 	  }, {
 	    key: "createProjectLink",
 	    value: function createProjectLink(text, icon) {
 	      var className = "ui-selector-footer-link".concat(icon ? ' ui-selector-footer-link-add' : '');
-	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"", "\" onclick=\"", "\">", "</span>\n\t\t"])), className, this.handleCreateProjectClick.bind(this), text);
+	      return main_core.Tag.render(_templateObject5(), className, this.handleCreateProjectClick.bind(this), text);
 	    }
 	  }, {
 	    key: "createHint",
@@ -338,7 +386,35 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	  return Footer;
 	}(ui_entitySelector.DefaultFooter);
 
-	exports.Footer = Footer;
+	function _templateObject$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-selector-footer-default ui-selector-footer-long-text\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
 
-}((this.BX.SocialNetwork.EntitySelector = this.BX.SocialNetwork.EntitySelector || {}),BX,BX.Event,BX.UI.EntitySelector));
+	  _templateObject$1 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	var TextFooter = /*#__PURE__*/function (_DefaultFooter) {
+	  babelHelpers.inherits(TextFooter, _DefaultFooter);
+
+	  function TextFooter() {
+	    babelHelpers.classCallCheck(this, TextFooter);
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TextFooter).apply(this, arguments));
+	  }
+
+	  babelHelpers.createClass(TextFooter, [{
+	    key: "render",
+	    value: function render() {
+	      return main_core.Tag.render(_templateObject$1(), this.getContent() ? this.getContent() : '');
+	    }
+	  }]);
+	  return TextFooter;
+	}(ui_entitySelector.DefaultFooter);
+
+	exports.Footer = Footer;
+	exports.TextFooter = TextFooter;
+
+}((this.BX.SocialNetwork.EntitySelector = this.BX.SocialNetwork.EntitySelector || {}),BX.Event,BX.UI.EntitySelector,BX));
 //# sourceMappingURL=sonet-entity-selector.bundle.js.map

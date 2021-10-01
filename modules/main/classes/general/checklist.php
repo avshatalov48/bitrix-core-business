@@ -7,6 +7,7 @@
  */
 
 use Bitrix\Main;
+use Bitrix\Main\Authentication\Policy;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -323,9 +324,9 @@ class CCheckList
 
 				$arFields["COMMENTS"] = $arPoint["STATE"]["COMMENTS"];
 				$arFields["COMMENTS"]["SYSTEM"] = array();
-				if (array_key_exists("PREVIEW", $result["MESSAGE"]))
+				if (isset($result["MESSAGE"]["PREVIEW"]))
 					$arFields["COMMENTS"]["SYSTEM"]["PREVIEW"]= $result["MESSAGE"]["PREVIEW"];
-				if (array_key_exists("DETAIL", $result["MESSAGE"]))
+				if (isset($result["MESSAGE"]["DETAIL"]))
 					$arFields["COMMENTS"]["SYSTEM"]["DETAIL"]= $result["MESSAGE"]["DETAIL"];
 
 				if ($this->PointUpdate($arTestID, $arFields))
@@ -718,16 +719,22 @@ class CAutoCheck
 							preg_match('/\$APPLICATION->ShowHead\(/im', $arHeader, $arShowHead);
 							preg_match('/\$APPLICATION->ShowTitle\(/im', $arHeader, $arShowTitle);
 							preg_match('/\$APPLICATION->ShowPanel\(/im', $arHeader, $arShowPanel);
-							if (count($arShowHead) == 0)
+							if (!in_array($dir, array('mail_join')) && count($arShowHead) == 0)
 							{
 								preg_match_all('/\$APPLICATION->(ShowCSS|ShowHeadScripts|ShowHeadStrings)\(/im', $arHeader, $arShowHead);
 								if (!$arShowHead[0] || count($arShowHead[0]) != 3)
+								{
 									$arMessage .= GetMessage("NO_SHOWHEAD", array("#template#" => $dir))."\n";
+								}
 							}
-							if (!in_array($dir, array('empty')) && count($arShowTitle) == 0)
+							if (!in_array($dir, array('empty', 'mail_join')) && count($arShowTitle) == 0)
+							{
 								$arMessage .= GetMessage("NO_SHOWTITLE", array("#template#" => $dir))."\n";
-							if (!in_array($dir, array('mobile_app', 'desktop_app', 'empty', 'learning_10_0_0', 'call_app')) && count($arShowPanel) == 0)
+							}
+							if (!in_array($dir, array('mobile_app', 'desktop_app', 'empty', 'learning_10_0_0', 'call_app', 'mail_join')) && count($arShowPanel) == 0)
+							{
 								$arMessage .= GetMessage("NO_SHOWPANEL", array("#template#" => $dir))."\n";
+							}
 						}
 					}
 
@@ -1385,163 +1392,27 @@ class CCheckListTools
 		}
 	}
 
+	/**
+	 * @return string 'low', 'middle', 'high'
+	 */
 	public static function AdminPolicyLevel()
 	{
-		$arGroupPolicy = array(
-			"parent" => array(
-				"SESSION_TIMEOUT" => "",
-				"SESSION_IP_MASK" => "",
-				"MAX_STORE_NUM" => "",
-				"STORE_IP_MASK" => "",
-				"STORE_TIMEOUT" => "",
-				"CHECKWORD_TIMEOUT" => "",
-				"PASSWORD_LENGTH" => "",
-				"PASSWORD_UPPERCASE" => "N",
-				"PASSWORD_LOWERCASE" => "N",
-				"PASSWORD_DIGITS" => "N",
-				"PASSWORD_PUNCTUATION" => "N",
-				"LOGIN_ATTEMPTS" => "",
-			),
-			"low" => array(
-				"SESSION_TIMEOUT" => 30, //minutes
-				"SESSION_IP_MASK" => "0.0.0.0",
-				"MAX_STORE_NUM" => 20,
-				"STORE_IP_MASK" => "255.0.0.0",
-				"STORE_TIMEOUT" => 60*24*93, //minutes
-				"CHECKWORD_TIMEOUT" => 60*24*185,  //minutes
-				"PASSWORD_LENGTH" => 6,
-				"PASSWORD_UPPERCASE" => "N",
-				"PASSWORD_LOWERCASE" => "N",
-				"PASSWORD_DIGITS" => "N",
-				"PASSWORD_PUNCTUATION" => "N",
-				"LOGIN_ATTEMPTS" => 0,
-			),
-			"middle" => array(
-				"SESSION_TIMEOUT" => 20, //minutes
-				"SESSION_IP_MASK" => "255.255.0.0",
-				"MAX_STORE_NUM" => 10,
-				"STORE_IP_MASK" => "255.255.0.0",
-				"STORE_TIMEOUT" => 60*24*30, //minutes
-				"CHECKWORD_TIMEOUT" => 60*24*1,  //minutes
-				"PASSWORD_LENGTH" => 8,
-				"PASSWORD_UPPERCASE" => "Y",
-				"PASSWORD_LOWERCASE" => "Y",
-				"PASSWORD_DIGITS" => "Y",
-				"PASSWORD_PUNCTUATION" => "N",
-				"LOGIN_ATTEMPTS" => 0,
-			),
-			"high" => array(
-				"SESSION_TIMEOUT" => 15, //minutes
-				"SESSION_IP_MASK" => "255.255.255.255",
-				"MAX_STORE_NUM" => 1,
-				"STORE_IP_MASK" => "255.255.255.255",
-				"STORE_TIMEOUT" => 60*24*3, //minutes
-				"CHECKWORD_TIMEOUT" => 60,  //minutes
-				"PASSWORD_LENGTH" => 10,
-				"PASSWORD_UPPERCASE" => "Y",
-				"PASSWORD_LOWERCASE" => "Y",
-				"PASSWORD_DIGITS" => "Y",
-				"PASSWORD_PUNCTUATION" => "Y",
-				"LOGIN_ATTEMPTS" => 3,
-			),
-		);
-		$arAdminPolicy = CUser::GetGroupPolicy(1);
-		$level = 'high';
-		if (is_array($arGroupPolicy))
+		$policy = CUser::getPolicy(1);
+
+		$preset = Policy\RulesCollection::createByPreset(Policy\RulesCollection::PRESET_MIDDLE);
+		if ($policy->compare($preset))
 		{
-			foreach($arGroupPolicy['parent'] as $key => $value)
-			{
-				$el2_value = $arAdminPolicy[$key];
-				$el2_checked = $arAdminPolicy[$key] === "Y";
-				$clevel = '';
-
-				switch($key)
-				{
-				case "SESSION_TIMEOUT":
-				case "MAX_STORE_NUM":
-				case "STORE_TIMEOUT":
-				case "CHECKWORD_TIMEOUT":
-					if(intval($el2_value) <= intval($arGroupPolicy['high'][$key]))
-						$clevel = 'high';
-					elseif(intval($el2_value) <= intval($arGroupPolicy['middle'][$key]))
-						$clevel = 'middle';
-					else
-						$clevel = 'low';
-					break;
-				case "PASSWORD_LENGTH":
-					if(intval($el2_value) >= intval($arGroupPolicy['high'][$key]))
-						$clevel = 'high';
-					elseif(intval($el2_value) >= intval($arGroupPolicy['middle'][$key]))
-						$clevel = 'middle';
-					else
-						$clevel = 'low';
-					break;
-				case "LOGIN_ATTEMPTS":
-					if(intval($el2_value) > 0)
-					{
-						if(intval($el2_value) <= intval($arGroupPolicy['high'][$key]))
-							$clevel = 'high';
-						elseif(intval($el2_value) <= intval($arGroupPolicy['middle'][$key]))
-							$clevel = 'middle';
-						else
-							$clevel = 'low';
-					}
-					else
-					{
-						if(intval($arGroupPolicy['high'][$key]) <= 0)
-							$clevel = 'high';
-						elseif(intval($arGroupPolicy['middle'][$key]) <= 0)
-							$clevel = 'middle';
-						else
-							$clevel = 'low';
-					}
-					break;
-				case "PASSWORD_UPPERCASE":
-				case "PASSWORD_LOWERCASE":
-				case "PASSWORD_DIGITS":
-				case "PASSWORD_PUNCTUATION":
-					if($el2_checked)
-					{
-						if($arGroupPolicy['high'][$key] == 'Y')
-							$clevel = 'high';
-						elseif($arGroupPolicy['middle'][$key] == 'Y')
-							$clevel = 'middle';
-						else
-							$clevel = 'low';
-					}
-					else
-					{
-						if($arGroupPolicy['high'][$key] == 'N')
-							$clevel = 'high';
-						elseif($arGroupPolicy['middle'][$key] == 'N')
-							$clevel = 'middle';
-						else
-							$clevel = 'low';
-					}
-					break;
-					case "SESSION_IP_MASK":
-					case "STORE_IP_MASK":
-						$gp_ip = ip2long($el2_value);
-						$high_ip = ip2long($arGroupPolicy['high'][$key]);
-						$middle_ip = ip2long($arGroupPolicy['middle'][$key]);
-						if(($gp_ip & $high_ip) == (0xFFFFFFFF & $high_ip))
-							$clevel = 'high';
-						elseif(($gp_ip & $middle_ip) == (0xFFFFFFFF & $middle_ip))
-							$clevel = 'middle';
-						else
-							$clevel = 'low';
-					break;
-					default:
-					break;
-				}
-
-				if($clevel == 'low')
-					$level = $clevel;
-				elseif($clevel == 'middle' && $level == 'high')
-					$level = $clevel;
-			}
+			// middle preset is stronger than the current
+			return 'low';
 		}
 
-		return $level;
+		$preset = Policy\RulesCollection::createByPreset(Policy\RulesCollection::PRESET_HIGH);
+		if ($policy->compare($preset))
+		{
+			// high preset is stronger than the current
+			return 'middle';
+		}
+
+		return 'high';
 	}
 }

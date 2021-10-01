@@ -1,8 +1,7 @@
 .product-item-scu-wrapper {
 	overflow: hidden;
 	padding-top: 8px;
-	width: calc(100% - 140px);
-	margin-left: 140px;
+	width: 100%;
 }
 
 .product-item-scu-wrapper:empty {

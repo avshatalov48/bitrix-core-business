@@ -9,6 +9,22 @@ namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main;
 
+/**
+ * Class BasketArchiveTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_BasketArchive_Query query()
+ * @method static EO_BasketArchive_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_BasketArchive_Result getById($id)
+ * @method static EO_BasketArchive_Result getList(array $parameters = array())
+ * @method static EO_BasketArchive_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_BasketArchive createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_BasketArchive_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_BasketArchive wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_BasketArchive_Collection wakeUpCollection($rows)
+ */
 class BasketArchiveTable extends Main\Entity\DataManager
 {
 	/**

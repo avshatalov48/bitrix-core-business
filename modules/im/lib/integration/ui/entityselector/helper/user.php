@@ -40,4 +40,9 @@ class User
 
 		return !empty($avatar['src']) ? $avatar['src'] : null;
 	}
+
+	public static function getCurrentUserId(): int
+	{
+		return is_object($GLOBALS['USER']) ? (int)$GLOBALS['USER']->getId() : 0;
+	}
 }

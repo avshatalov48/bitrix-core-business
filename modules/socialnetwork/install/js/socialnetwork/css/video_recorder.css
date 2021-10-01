@@ -273,17 +273,12 @@
 }
 
 .feed-add-videomessage {
-	color: #ABB1B8;
 	cursor: pointer;
 	display: inline-block;
 	font-size: 13px;
 	margin-top: 5px;
 	vertical-align: top;
 	transition: color .3s;
-}
-
-.feed-add-videomessage:hover {
-	color: #828B95;
 }
 
 .bx-videomessage-lock-scroll {
@@ -343,11 +338,7 @@
 	text-align: left;
 	box-sizing: border-box;
 	overflow: hidden;
-	-webkit-transition: right 0.4s;
-	-moz-transition: right 0.4s;
-	-ms-transition: right 0.4s;
-	-o-transition: right 0.4s;
-	transition: right 0.4s;
+	transition: right .4s;
 }
 
 .bx-videomessage-transform-time-tip {

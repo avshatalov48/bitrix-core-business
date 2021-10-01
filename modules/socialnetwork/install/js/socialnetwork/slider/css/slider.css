@@ -21,6 +21,10 @@
 	position: static;
 }
 
+.main-grid-settings-window .popup-window-buttons {
+	position: relative !important;
+}
+
 .sonet-slider-frame-popup .popup-window .popup-window-buttons,
 .ui-page-slider-wrapper .popup-window .popup-window-buttons {
 	padding: 15px;
@@ -36,20 +40,6 @@
 .ui-page-slider-wrapper .popup-window-button-link-cancel:hover{
 	color: #80868e;
 	border: 0;
-}
-
-.sonet-slider-frame-popup .sonet-slider-footer-fixed,
-.ui-page-slider-wrapper .sonet-slider-footer-fixed{
-	box-shadow: 0 -2px 4px 0 #c6c9cb;
-	overflow: hidden;
-	position: fixed;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	z-index: 99;
-	padding: 15px;
-	background: #fff;
-	text-align: left;
 }
 
 .sonet-slider-frame-popup .pagetitle-inner-container,

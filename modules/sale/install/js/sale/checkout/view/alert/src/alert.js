@@ -1,6 +1,6 @@
-import {Vue} from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 
-Vue.component('sale-checkout-view-alert', {
+BitrixVue.component('sale-checkout-view-alert', {
 	props: ['error'],
 	// language=Vue
 	template: `

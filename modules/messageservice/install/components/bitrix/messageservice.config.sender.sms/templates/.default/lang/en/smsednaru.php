@@ -1,0 +1,26 @@
+<?php
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_ACCOUNT_INFORMATION"] = "Account information";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_ACTION_SAVE"] = "Save";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTIONS"] = "Reset settings";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTION_CONFIRM_TEXT"] = "Are you sure you want to delete all account information?";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTION_CONFIRM_TITLE"] = "Confirm";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_ERROR_EMPTY_FIELDS"] = "Complete the required fields";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_1"] = "Try it out right now! Powered by";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_2"] = "Only a few steps to see Bitrix24 SMS notifications in action. Activate now to see how easy it is.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_2_ADMIN"] = "Only a few steps to see Bitrix24 SMS notifications in action. Activate now to see how easy it is.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_2_REGISTRATION_TEXT"] = "Learn more and connect Edna SMS messaging";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_1"] = "Send messages directly from a lead, deal, contact or quote.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_2"] = "Create rules to send SMS messages to a customer or employee at a specified time or when a specified task is completed.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_3"] = "Bulk send SMS messages from a list of contacts, deals, leads or other CRM entities.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION"] = "Bitrix24 provides easy and hassle free SMS messaging";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION_ADMIN"] = "Bitrix24 provides easy and hassle free SMS messaging.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_TITLE"] = "Explore possibilities of SMS marketing";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_REGISTRATION"] = "You have to create an account to use the service:";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_SUBJECT"] = "Sender ID's";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_MANAGE_ACCOUNT"] = "Manage account";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_REGISTRATION_TITLE"] = "Register with Edna";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_1"] = "Easy connectivity";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_2"] = "Instant delivery";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_3"] = "Pay only for delivered messages";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE"] = "SMS notifications";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE_2"] = "Powered by Edna";

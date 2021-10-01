@@ -18,7 +18,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Sale\Internals
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_DiscountModule_Query query()
+ * @method static EO_DiscountModule_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_DiscountModule_Result getById($id)
+ * @method static EO_DiscountModule_Result getList(array $parameters = array())
+ * @method static EO_DiscountModule_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_DiscountModule createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_DiscountModule_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_DiscountModule wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_DiscountModule_Collection wakeUpCollection($rows)
+ */
 
 class DiscountModuleTable extends Main\Entity\DataManager
 {

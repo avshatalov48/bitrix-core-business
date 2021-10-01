@@ -19,7 +19,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Sale
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_BasketProperty_Query query()
+ * @method static EO_BasketProperty_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_BasketProperty_Result getById($id)
+ * @method static EO_BasketProperty_Result getList(array $parameters = array())
+ * @method static EO_BasketProperty_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_BasketProperty createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_BasketProperty_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_BasketProperty wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_BasketProperty_Collection wakeUpCollection($rows)
+ */
 
 class BasketPropertyTable
 	extends Main\Entity\DataManager

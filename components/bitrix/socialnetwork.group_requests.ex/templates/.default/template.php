@@ -138,17 +138,26 @@ else
 
 			if ($arResult["Requests"] && $arResult["Requests"]["List"])
 			{
-				?><div class="sonet-slider-footer-fixed">
-					<input type="hidden" name="ajax_request" value="Y">
-					<input type="hidden" name="max_count" value="<?= $ind ?>">
-					<input type="hidden" name="type" value="in">
-					<input type="hidden" name="action" id="requests_action_in" value="">
-					<?=bitrix_sessid_post()?>
-					<span class="sonet-ui-btn-cont sonet-ui-btn-cont-center"><?
-						?><button class="ui-btn ui-btn-success" id="sonet_group_requests_in_form_button_submit"><?=Loc::getMessage("SONET_GRE_T_DO_SAVE") ?></button><?
-						?><button class="ui-btn ui-btn-danger" id="sonet_group_requests_in_form_button_reject"><?=Loc::getMessage("SONET_GRE_T_REJECT") ?></button><?
-					?></span><? // class="sonet-ui-btn-cont"
-				?></div><? // sonet-slider-footer-fixed
+				$buttons = [
+					[
+						'TYPE' => 'custom',
+						'LAYOUT' => '<button class="ui-btn ui-btn-success" id="sonet_group_requests_in_form_button_submit">' . Loc::getMessage('SONET_GRE_T_DO_SAVE') . '</button>',
+					],
+					[
+						'TYPE' => 'custom',
+						'LAYOUT' => '<button class="ui-btn ui-btn-danger" id="sonet_group_requests_in_form_button_reject">' . Loc::getMessage('SONET_GRE_T_REJECT') . '</button>',
+					],
+				];
+
+				$APPLICATION->IncludeComponent('bitrix:ui.button.panel', '', [
+					'BUTTONS' => $buttons,
+				]);
+
+				?><input type="hidden" name="ajax_request" value="Y">
+				<input type="hidden" name="max_count" value="<?= $ind ?>">
+				<input type="hidden" name="type" value="in">
+				<input type="hidden" name="action" id="requests_action_in" value="">
+				<?=bitrix_sessid_post()?><?php
 			}
 
 			?></form><?
@@ -231,16 +240,22 @@ else
 
 			if ($arResult["RequestsOut"] && $arResult["RequestsOut"]["List"])
 			{
-				?><div class="sonet-slider-footer-fixed">
-					<input type="hidden" name="ajax_request" value="Y">
-					<input type="hidden" name="max_count" value="<?= $ind ?>">
-					<input type="hidden" name="type" value="out">
-					<input type="hidden" name="action" id="requests_action_out" value="">
-					<?=bitrix_sessid_post()?>
-					<span class="sonet-ui-btn-cont sonet-ui-btn-cont-center"><?
-						?><button class="ui-btn ui-btn-danger" id="sonet_group_requests_out_form_button_reject"><?=Loc::getMessage("SONET_GRE_T_REJECT_OUT") ?></button><?
-					?></span><? // class="sonet-ui-btn-cont"
-				?></div><? // sonet-slider-footer-fixed
+				$buttons = [
+					[
+						'TYPE' => 'custom',
+						'LAYOUT' => '<button class="ui-btn ui-btn-danger" id="sonet_group_requests_out_form_button_reject">' . Loc::getMessage('SONET_GRE_T_REJECT_OUT'). '</button>',
+					],
+				];
+
+				$APPLICATION->IncludeComponent('bitrix:ui.button.panel', '', [
+					'BUTTONS' => $buttons,
+				]);
+
+				?><input type="hidden" name="ajax_request" value="Y">
+				<input type="hidden" name="max_count" value="<?= $ind ?>">
+				<input type="hidden" name="type" value="out">
+				<input type="hidden" name="action" id="requests_action_out" value="">
+				<?=bitrix_sessid_post()?><?php
 			}
 
 			?></form><?

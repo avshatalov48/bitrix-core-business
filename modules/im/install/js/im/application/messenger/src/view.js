@@ -10,6 +10,7 @@
 import {BitrixVue} from "ui.vue";
 import {Logger} from "im.lib.logger";
 import {Utils} from "im.lib.utils";
+import {Search} from './search';
 import "im.component.recent";
 import "im.component.dialog";
 import "im.component.textarea";
@@ -50,6 +51,7 @@ BitrixVue.component('bx-im-application-messenger',
 			textareaHeight: 120,
 			textareaMinimumHeight: 120,
 			textareaMaximumHeight: Utils.device.isMobile()? 200: 400,
+			search: null,
 		}
 	},
 
@@ -96,9 +98,24 @@ BitrixVue.component('bx-im-application-messenger',
 	},
 	methods:
 	{
-		onOpenMessenger({data: event})
+		openSearch()
 		{
-			if (event.id === 'notify')
+			if (!this.search)
+			{
+				this.search = new Search({
+					targetNode: document.getElementById('bx-im-next-layout-recent-search-input'),
+					store: this.$store,
+				});
+			}
+
+			this.search.open();
+		},
+
+		openMessenger(dialogId)
+		{
+			dialogId = dialogId.toString();
+
+			if (dialogId === 'notify')
 			{
 				this.dialogId = 0;
 				this.notify = true;
@@ -106,8 +123,13 @@ BitrixVue.component('bx-im-application-messenger',
 			else
 			{
 				this.notify = false;
-				this.dialogId = event.id;
+				this.dialogId = dialogId;
 			}
+		},
+
+		onOpenMessenger({data: event})
+		{
+			this.openMessenger(event.id);
 		},
 
 		onTextareaStartDrag(event)
@@ -194,7 +216,12 @@ BitrixVue.component('bx-im-application-messenger',
 	template: `
 	  	<div class="bx-im-next-layout">
 			<div class="bx-im-next-layout-recent">
-				<bx-im-component-recent/>
+				<div class="bx-im-next-layout-recent-search">
+					<div class="bx-im-next-layout-recent-search-input" id="bx-im-next-layout-recent-search-input" @click="openSearch">Search</div>  
+				</div>
+				<div class="bx-im-next-layout-recent-list">
+					<bx-im-component-recent/>
+				</div>
 			</div>
 			<div class="bx-im-next-layout-dialog" v-if="dialogId">
 				<div class="bx-im-next-layout-dialog-header">

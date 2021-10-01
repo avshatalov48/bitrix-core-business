@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,landing_backend,landing_metrika,landing_ui_highlight,landing_loc,landing_ui_panel_content,main_core) {
+(function (exports,landing_backend,landing_env,landing_metrika,landing_ui_highlight,landing_loc,landing_ui_panel_content,main_core) {
 	'use strict';
 
 	var Node = /*#__PURE__*/function () {
@@ -260,6 +260,7 @@ this.BX = this.BX || {};
 	    this.nodes = options.manifest.nodes;
 	    this.highlight = new landing_ui_highlight.Highlight();
 	    this.cardSelectors = options.manifest.cards ? Object.keys(options.manifest.cards) : [];
+	    this.designAllowed = !!landing_env.Env.getInstance().getOptions().design_block_allowed;
 	    this.cardSelectors.push(''); // for without cards elements
 
 	    this.nodeMap = new WeakMap();
@@ -352,6 +353,12 @@ this.BX = this.BX || {};
 	        _this3.highlight.hide();
 
 	        if (!_this3.changed) {
+	          finishCallback();
+	          return;
+	        }
+
+	        if (!_this3.designAllowed) {
+	          top.BX.UI.InfoHelper.show('limit_crm_free_superblock1');
 	          return;
 	        }
 
@@ -676,5 +683,5 @@ this.BX = this.BX || {};
 
 	exports.DesignerBlock = DesignerBlock;
 
-}((this.BX.Landing = this.BX.Landing || {}),BX.Landing,BX.Landing,BX.Landing.UI,BX.Landing,BX.Landing.UI.Panel,BX));
+}((this.BX.Landing = this.BX.Landing || {}),BX.Landing,BX.Landing,BX.Landing,BX.Landing.UI,BX.Landing,BX.Landing.UI.Panel,BX));
 //# sourceMappingURL=designerblock.bundle.js.map

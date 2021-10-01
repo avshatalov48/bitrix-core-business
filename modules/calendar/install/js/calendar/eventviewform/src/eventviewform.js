@@ -122,6 +122,12 @@ export class EventViewForm {
 						this.uid = params.uniqueId;
 						this.entryUrl = params.entryUrl;
 						this.userTimezone = params.userTimezone;
+						this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
+						if (this.planner && !this.plannerFeatureEnabled)
+						{
+							this.planner.lock();
+						}
+
 						this.handleEntryData(params.entry, params.userIndex, params.section);
 					}
 					resolve(html);
@@ -317,7 +323,8 @@ export class EventViewForm {
 			wrap: this.DOM.plannerWrap,
 			minWidth: parseInt(this.DOM.plannerWrap.offsetWidth),
 			solidStatus: true,
-			readonly: true
+			readonly: true,
+			locked: !this.plannerFeatureEnabled
 		});
 
 		this.planner.show();

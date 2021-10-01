@@ -45,6 +45,16 @@ $type = $arResult['default_value_type'];
 			<span class="adm-detail-label-text"><?= Loc::getMessage('USER_TYPE_ENUM_UI') ?></span>
 		</label>
 		<br>
+		<label class="adm-detail-label">
+			<input
+				type="radio"
+				name="<?= $name ?>[DISPLAY]"
+				value="<?= EnumType::DISPLAY_DIALOG ?>"
+				<?= ($arResult['display'] === EnumType::DISPLAY_DIALOG ? 'checked="checked"' : '') ?>
+			>
+			<span class="adm-detail-label-text"><?= Loc::getMessage('USER_TYPE_ENUM_DIALOG') ?></span>
+		</label>
+		<br>
 	</td>
 </tr>
 <tr>

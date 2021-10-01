@@ -290,7 +290,7 @@ export class EventEditForm
 			`);
 		});
 
-		this.BX.ajax.runAction('calendar.api.calendarajax.editEntry', {
+		this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', {
 			data: new FormData(this.DOM.form),
 			analyticsLabel: {
 				calendarAction: this.entry.id ? 'edit_event' : 'create_event',
@@ -508,6 +508,11 @@ export class EventEditForm
 						Util.setEventWithEmailGuestLimit(params.eventWithEmailGuestLimit);
 						this.handleSections(params.sections, params.trackingUsersList);
 						this.handleLocationData(params.locationFeatureEnabled, params.locationList, params.iblockMeetingRoomList);
+						this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
+						if (this.planner && !this.plannerFeatureEnabled)
+						{
+							this.planner.lock();
+						}
 
 						if (!entry.id && !entry.sectionId)
 						{
@@ -1135,6 +1140,7 @@ export class EventEditForm
 		this.planner = new Planner({
 			wrap: this.DOM.plannerOuterWrap,
 			minWidth: parseInt(this.DOM.plannerOuterWrap.offsetWidth),
+			locked: !this.plannerFeatureEnabled
 		});
 
 		this.planner.subscribe('onDateChange', this.handlePlannerSelectorChanges.bind(this));

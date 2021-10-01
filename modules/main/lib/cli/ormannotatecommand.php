@@ -8,39 +8,20 @@
 
 namespace Bitrix\Main\Cli;
 
-use Bitrix\Iblock\IblockTable;
 use Bitrix\Main\Application;
-use Bitrix\Main\Authentication\Context;
-use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Loader;
+use Bitrix\Main\ORM\Annotations\AnnotationInterface;
 use Bitrix\Main\ORM\Annotations\AnnotationTrait;
-use Bitrix\Main\ORM\Data\AddResult;
-use Bitrix\Main\ORM\Data\Result;
-use Bitrix\Main\ORM\Data\UpdateResult;
 use Bitrix\Main\ORM\Fields\ArrayField;
 use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Entity;
-use Bitrix\Main\ORM\Fields\FieldTypeMask;
-use Bitrix\Main\ORM\Fields\UserTypeField;
-use Bitrix\Main\ORM\Objectify\EntityObject;
 use Bitrix\Main\ORM\Fields\DateField;
 use Bitrix\Main\ORM\Fields\DatetimeField;
-use Bitrix\Main\ORM\Fields\ExpressionField;
-use Bitrix\Main\ORM\Fields\Relations\ManyToMany;
-use Bitrix\Main\ORM\Fields\Relations\OneToMany;
 use Bitrix\Main\ORM\Fields\FloatField;
 use Bitrix\Main\ORM\Fields\IntegerField;
-use Bitrix\Main\ORM\Objectify\Collection;
-use Bitrix\Main\ORM\Fields\Relations\Reference;
-use Bitrix\Main\ORM\Fields\ScalarField;
-use Bitrix\Main\ORM\Objectify\State;
-use Bitrix\Main\ORM\Query\Query;
-use Bitrix\Main\Text\StringHelper;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
-use Bitrix\Main\Type\Dictionary;
-use ReflectionMethod;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -53,7 +34,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * @package    bitrix
  * @subpackage main
  */
-class OrmAnnotateCommand extends Command
+class OrmAnnotateCommand extends Command implements AnnotationInterface
 {
 	use AnnotationTrait;
 
@@ -71,8 +52,6 @@ class OrmAnnotateCommand extends Command
 		'main/lib/composite/compatibility/aliases.php',
 		'sale/lib/delivery/extra_services/string.php',
 	];
-
-	const ANNOTATION_MARKER = 'ORMENTITYANNOTATION';
 
 	protected function configure()
 	{
@@ -129,7 +108,10 @@ class OrmAnnotateCommand extends Command
 
 		// handle already known classes (but we don't know their modules)
 		// as long as there are no any Table by default, we can ignore it
-		$this->handleClasses($this->getDeclaredClassesDiff(), $input, $output);
+		//$this->handleClasses($this->getDeclaredClassesDiff(), $input, $output);
+
+		// skip already defined classes
+		$this->getDeclaredClassesDiff();
 
 		// scan dirs
 		$inputModules = [];
@@ -146,6 +128,9 @@ class OrmAnnotateCommand extends Command
 		{
 			$this->scanDir($dir, $input, $output);
 		}
+
+		// scan for bitrix entities
+		$this->scanBitrixEntities($inputModules, $input, $output);
 
 		// get classes from outside regular filesystem (e.g. iblock, hlblock)
 		try
@@ -185,14 +170,21 @@ class OrmAnnotateCommand extends Command
 		}
 
 		// add/rewrite new entities
-		foreach ($this->entitiesFound as $entityClass)
+		foreach ($this->entitiesFound as $entityMeta)
 		{
 			try
 			{
+				$entityClass = $entityMeta['class'];
+				$annotateUfOnly = $entityMeta['ufOnly'];
+
 				$entity = Entity::getInstance($entityClass);
-				$entityAnnotation = static::annotateEntity($entity, $input,$output);
-				$annotations[$entityClass] = "/* ".static::ANNOTATION_MARKER.":{$entityClass} */".PHP_EOL;
-				$annotations[$entityClass] .= $entityAnnotation;
+				$entityAnnotation = static::annotateEntity($entity, $annotateUfOnly);
+
+				if (!empty($entityAnnotation))
+				{
+					$annotations[$entityClass] = "/* ".static::ANNOTATION_MARKER.":{$entityClass} */".PHP_EOL;
+					$annotations[$entityClass] .= $entityAnnotation;
+				}
 			}
 			catch (\Exception $e)
 			{
@@ -232,7 +224,7 @@ class OrmAnnotateCommand extends Command
 	protected function getDirsToScan($inputModules, InputInterface $input, OutputInterface $output)
 	{
 		$basePaths = [
-			Application::getDocumentRoot().Application::getPersonalRoot().'/modules/',
+			//Application::getDocumentRoot().Application::getPersonalRoot().'/modules/',
 			Application::getDocumentRoot().'/local/modules/'
 		];
 
@@ -286,6 +278,53 @@ class OrmAnnotateCommand extends Command
 		}
 
 		return $dirs;
+	}
+
+	protected function scanBitrixEntities($inputModules, InputInterface $input, OutputInterface $output)
+	{
+		$basePath = Application::getDocumentRoot().Application::getPersonalRoot().'/modules/';
+
+		// get all available modules
+		$moduleList = [];
+
+		foreach (new \DirectoryIterator($basePath) as $item)
+		{
+			if($item->isDir() && !$item->isDot())
+			{
+				$moduleList[] = $item->getFilename();
+			}
+		}
+
+		// filter for input modules
+		if (!empty($inputModules))
+		{
+			$moduleList = array_intersect($moduleList, $inputModules);
+		}
+
+		// collect classes
+		foreach ($moduleList as $moduleName)
+		{
+			$ufPath = $basePath.$moduleName.'/meta/'.static::ANNOTATION_UF_FILENAME;
+
+			if (file_exists($ufPath))
+			{
+				$classes = include $ufPath;
+
+				foreach ($classes as $class)
+				{
+					if (class_exists($class))
+					{
+						$this->entitiesFound[] = [
+							'class' => $class,
+							'ufOnly' => true,
+						];
+					}
+				}
+			}
+		}
+
+		// clear diff buffer
+		$this->getDeclaredClassesDiff();
 	}
 
 	protected function registerFallbackAutoload()
@@ -367,7 +406,10 @@ class OrmAnnotateCommand extends Command
 				}
 
 				$debugMsg .= ' found!';
-				$this->entitiesFound[] = $class;
+				$this->entitiesFound[] = [
+					'class' => $class,
+					'ufOnly' => false,
+				];
 			}
 
 			$this->debug($output, $debugMsg);

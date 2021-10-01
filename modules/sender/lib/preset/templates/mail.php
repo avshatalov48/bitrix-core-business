@@ -71,7 +71,6 @@ class Mail
 				'%TEXT%',
 				'%IMAGE_PATH%',
 				'%BUTTON_TEXT%',
-
 				'%UNSUB_LINK%',
 			),
 			array(

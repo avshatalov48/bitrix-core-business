@@ -528,7 +528,7 @@
 	 * @caller {BX.Uploader}
 	 * You should work with params["fields"] in case you want to change visual part
 	 */
-var mobileNames = {};
+	var mobileNames = {};
 	BX.UploaderFile = function (file, params, limits, caller)
 	{
 		this.dialogName = (this.dialogName ? this.dialogName : "BX.UploaderFile");

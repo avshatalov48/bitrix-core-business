@@ -894,8 +894,13 @@ if(($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "P")
 		);
 	}
 
+	if ($by === 'USER_EMAIL')
+	{
+		$by = 'USER.EMAIL';
+	}
+
 	$dbOrderList = \Bitrix\Sale\Internals\OrderTable::getList(array(
-		'order' => array($by => $order),
+		'order' => [$by => $order],
 		'filter' => $filter,
 		'select' => array_merge(["ID", "PERSON_TYPE_ID", "PAYED", "CANCELED", "DEDUCTED", "STATUS_ID"], $arSelectFields),
 		'runtime' => $runtimeFields

@@ -7,6 +7,17 @@ $arParams['REPORT_ID'] = isset($arParams['REPORT_ID']) ? (int)$arParams['REPORT_
 
 $requiredModules = array('report');
 
+$arResult['IS_RESTRICTED'] = false;
+if (
+	\Bitrix\Main\Loader::includeModule('bitrix24')
+	&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('report')
+)
+{
+	$arResult['IS_RESTRICTED'] = true;
+	$this->IncludeComponentTemplate('restrict');
+	return 1;
+}
+
 foreach ($requiredModules as $requiredModule)
 {
 	if (!CModule::IncludeModule($requiredModule))

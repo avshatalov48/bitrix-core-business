@@ -2,6 +2,8 @@ import {Tag, Type} from 'main.core';
 import SkuProperty from './sku-property';
 import './sku-tree.css';
 import {EventEmitter} from 'main.core.events';
+import 'ui.forms';
+import 'ui.buttons';
 
 export class SkuTree extends EventEmitter
 {

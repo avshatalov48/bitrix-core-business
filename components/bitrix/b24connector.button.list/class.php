@@ -1,9 +1,13 @@
-<?
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+{
 	die();
+}
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\B24Connector\Button;
+use Bitrix\B24Connector\ButtonSiteTable;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Loader;
@@ -21,9 +25,11 @@ class B24CButtonsListComponent extends \CBitrixComponent
 
 		$this->arResult['ITEMS'] = array();
 		$this->arResult['TYPE_LIST'] = Button::getTypeList();
+		$this->arResult['SITES'] = $this->getSites();
 		$locationList = Button::getLocationList();
 		$localData = $this->getLocalData();
 		$remoteData = $this->getRemoteData();
+		$buttonSiteRestrictions = ButtonSiteTable::getAllRestrictions();
 		$this->arResult['LOCAL_DATA'] = $localData;
 		$this->arResult['REMOTE_DATA'] = $remoteData;
 
@@ -67,6 +73,16 @@ class B24CButtonsListComponent extends \CBitrixComponent
 
 			$buttonData['ACTIVE_CHANGE_BY_DISPLAY'] = $this->getUserInfo($buttonData['LOCAL_ADD_BY']);
 			$buttonData['ACTIVE_CHANGE_BY_NOW_DISPLAY'] = $this->getUserInfo($USER->GetID());
+
+			if (isset($buttonSiteRestrictions[$buttonData['ID']]))
+			{
+				$buttonData['SITES'] = $buttonSiteRestrictions[$buttonData['ID']];
+			}
+			else
+			{
+				$buttonData['SITES'] = array_keys($this->arResult['SITES']);
+			}
+
 			$this->arResult['ITEMS'][] = $buttonData;
 		}
 
@@ -211,6 +227,22 @@ class B24CButtonsListComponent extends \CBitrixComponent
 
 		foreach($this->errors as $error)
 			ShowError($error);
+	}
+
+	/**
+	 * Returns list of active sites
+	 * @return array<string, array>
+	 */
+	protected function getSites()
+	{
+		$result = [];
+		$rows = \CSite::GetList('sort', 'asc', ['ACTIVE' => 'Y']);
+		while ($row = $rows->Fetch())
+		{
+			$row['DISPLAY_NAME'] = sprintf('[%s] %s', $row['LID'], $row['NAME']);
+			$result[$row['LID']] = $row;
+		}
+		return $result;
 	}
 
 	protected function getLocalData()

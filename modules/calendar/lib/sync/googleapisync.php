@@ -77,6 +77,7 @@ final class GoogleApiSync
 	 * Creates watch channel for connection
 	 * @param $name
 	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public function startWatchCalendarList($name)
 	{
@@ -86,16 +87,14 @@ final class GoogleApiSync
 			$channel['expiration'] = Type\DateTime::createFromTimestamp($channel['expiration']/1000);
 			return $channel;
 		}
-		else
+
+		$error = $this->getTransportConnectionError();
+		if (is_string($error))
 		{
-			$error = $this->getTransportConnectionError();
-			if (is_string($error))
-			{
-				$this->updateLastResultConnection($error);
-			}
+			$this->updateLastResultConnection($error);
 		}
 
-		return array();
+		return [];
 	}
 
 	private function makeChannelParams($inputSecretWord, $type)
@@ -129,7 +128,11 @@ final class GoogleApiSync
 	 */
 	public function startWatchEventsChannel($calendarId = 'primary')
 	{
-		$channel = $this->syncTransport->openEventsWatchChannel($calendarId, $this->makeChannelParams($calendarId, self::SECTION_CHANNEL_TYPE));
+		$channel = $this->syncTransport->openEventsWatchChannel(
+			$calendarId,
+			$this->makeChannelParams($calendarId, self::SECTION_CHANNEL_TYPE)
+		);
+
 		if (!$this->syncTransport->getErrors())
 		{
 			$channel['expiration'] = Type\DateTime::createFromTimestamp($channel['expiration']/1000);
@@ -270,7 +273,8 @@ final class GoogleApiSync
 		{
 			return $connectionError['message'];
 		}
-		return array();
+
+		return [];
 	}
 
 	/**
@@ -916,7 +920,7 @@ final class GoogleApiSync
 		{
 			if (!empty($params['gEventId']))
 			{
-				$externalEvent = $this->syncTransport->patchEvent($newEvent, urlencode($params['calendarId']), $params['gEventId']);
+				$externalEvent = $this->syncTransport->updateEvent($newEvent, urlencode($params['calendarId']), $params['gEventId']);
 			}
 			else
 			{

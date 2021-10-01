@@ -4,6 +4,22 @@ namespace Bitrix\Main;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class OperationTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Operation_Query query()
+ * @method static EO_Operation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Operation_Result getById($id)
+ * @method static EO_Operation_Result getList(array $parameters = array())
+ * @method static EO_Operation_Entity getEntity()
+ * @method static \Bitrix\Main\EO_Operation createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EO_Operation_Collection createCollection()
+ * @method static \Bitrix\Main\EO_Operation wakeUpObject($row)
+ * @method static \Bitrix\Main\EO_Operation_Collection wakeUpCollection($rows)
+ */
 class OperationTable extends Entity\DataManager
 {
 	public static function getTableName()

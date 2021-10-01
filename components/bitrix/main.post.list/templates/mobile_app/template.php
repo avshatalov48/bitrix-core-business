@@ -96,7 +96,9 @@ ob_start();
 	</div>
 	#AFTER_RECORD#<?
 	?><script>BX.ready(function() { BX.onCustomEvent(BX('<?=$eventNodeIdTemplate?>'), 'OnUCCommentIsInDOM', ['#ID#', BX('<?=$eventNodeIdTemplate?>')]);});</script><?
-?></div><? // post-comment-block
+?></div>
+<!--RCRD_END_#FULL_ID#-->
+<? // post-comment-block
 $template = preg_replace("/[\t\n]/", "", ob_get_clean());
 
 ob_start();

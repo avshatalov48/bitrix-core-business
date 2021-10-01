@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Sale\Helpers\Admin\Blocks;
 
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -10,7 +11,7 @@ class OrderBasketSettings
 	protected $idPrefix = "";
 	protected $allColumns = array();
 	protected $visibleColumns = array();
-
+	protected $isShowPropsRawVisible = false;
 
 	protected static $jsInited = false;
 
@@ -107,6 +108,7 @@ class OrderBasketSettings
 										<div style="margin-bottom:5px"><input type="button" name="down_btn" value="'.Loc::getMessage("SALE_ORDER_BASKET_SETTINGS_DOWN").'" title="'.Loc::getMessage("SALE_ORDER_BASKET_SETTINGS_MOVE_DOWN").'" class="bx-grid-btn" style="width:60px;" disabled onclick="jsSelectUtils.moveOptionsDown(this.form.columns)"></div>
 									</td>
 								</tr>
+								' . ($this->isShowPropsRawVisible ? $this->getShowPropsRowHtml() : '') . '								
 							</table>
 						</td>
 					</tr>
@@ -114,5 +116,36 @@ class OrderBasketSettings
 			</div>';
 
 		return $settingsTemplate;
+	}
+
+	public function setShowPropsVisible(bool $isVisible): void
+	{
+		$this->isShowPropsRawVisible = $isVisible;
+	}
+
+	protected function getShowPropsRowHtml(): string
+	{
+		$isShowPropVisible = static::loadIsShowPropsVisible();
+
+		return '
+			<tr id="adm-sale-basket-sett-show-props">
+				<td colspan="3">
+					<div style="margin-top: 15px;">
+						' . Loc::getMessage("SALE_ORDER_BASKET_SETTINGS_SHOW_PROPERTIES")
+						. ': <input type="checkbox" name="show_properties"'
+						. ($isShowPropVisible ? ' checked' : '').'>
+					</div>
+				</td>
+			</tr>';
+	}
+
+	public static function loadIsShowPropsVisible(): bool
+	{
+		return (Option::get('sale', 'order_basket_settings_show_props_visible', 'Y') === 'Y');
+	}
+
+	public static function saveIsShowPropsVisible(bool $isVisible): void
+	{
+		Option::set('sale', 'order_basket_settings_show_props_visible', ($isVisible ? 'Y' : 'N'));
 	}
 }

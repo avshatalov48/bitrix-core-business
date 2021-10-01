@@ -1,7 +1,7 @@
-import {Vue} from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 import 'sale.checkout.view.element.animate-price'
 
-Vue.component('sale-checkout-view-product-price', {
+BitrixVue.component('sale-checkout-view-product-price', {
 	props: ['item'],
 	computed:
 		{

@@ -38,12 +38,23 @@ $hint = $hint ?: Loc::getMessage('SENDER_MESSAGE_TESTER_TMPL_TEST_HINT');
 				'BUTTON_SELECT_CAPTION' => Loc::getMessage('SENDER_MESSAGE_TESTER_TMPL_TEST_SPECIFY')
 			))?>
 		</div>
+		<div class="sender-test-container">
+			<div class="sender-test-button-container">
+				<div class="sender-test-button-bottom">
+					<span data-role="test-button" class="ui-btn ui-btn-primary">
+						<?=Loc::getMessage('SENDER_MESSAGE_TESTER_TMPL_TEST_SEND')?>
+					</span>
 
-		<div>
-			<div class="sender-test-button-bottom">
-				<span data-role="test-button" class="ui-btn ui-btn-primary">
-					<?=Loc::getMessage('SENDER_MESSAGE_TESTER_TMPL_TEST_SEND')?>
-				</span>
+				</div>
+				<?php if($arResult['VALIDATION_TEST']):?>
+					<div class="sender-test-button-bottom">
+					<span data-role="test-validation-button" class="ui-btn ui-btn-light-border">
+						<?=Loc::getMessage('SENDER_MESSAGE_TESTER_TMPL_VALIDATION_TEST_SEND')?>
+					</span>
+					</div>
+				<?php endif;?>
+			</div>
+			<div class="result-container">
 				<span data-role="test-result" class="sender-test-result-line">
 					<!--
 					<span class="sender-test-result-line-icon"></span>
@@ -71,6 +82,7 @@ $hint = $hint ?: Loc::getMessage('SENDER_MESSAGE_TESTER_TMPL_TEST_HINT');
 				'categoryLast' => Loc::getMessage('SENDER_MESSAGE_TESTER_TMPL_TEST_CAT_LAST'),
 				'searchTitleMail' => Loc::getMessage('SENDER_MESSAGE_TESTER_TMPL_TEST_TITLE_MAIL'),
 				'searchTitlePhone' => Loc::getMessage('SENDER_MESSAGE_TESTER_TMPL_TEST_TITLE_PHONE'),
+				'consentSuccess' => Loc::getMessage('SENDER_MESSAGE_TESTER_TMPL_VALIDATION_TEST_SUCCESS'),
 			)
 		))?>);
 	});

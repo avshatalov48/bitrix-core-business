@@ -2363,10 +2363,8 @@ function htmlspecialcharsbx($string, $flags = ENT_COMPAT, $doubleEncode = true)
 	return htmlspecialchars($string, $flags, (defined("BX_UTF")? "UTF-8" : "ISO-8859-1"), $doubleEncode);
 }
 
-function CheckDirPath($path, $bPermission = true)
+function CheckDirPath($path)
 {
-	$path = str_replace(array("\\", "//"), "/", $path);
-
 	//remove file name
 	if(mb_substr($path, -1) != "/")
 	{
@@ -4203,9 +4201,9 @@ function DeleteParam($ParamNames)
 	return http_build_query($aParams, "", "&");
 }
 
-function check_email($email, $bStrict=false)
+function check_email($email, $strict = false, $domainCheck = false)
 {
-	if(!$bStrict)
+	if(!$strict)
 	{
 		$email = trim($email);
 		if(preg_match("#.*?[<\\[\\(](.*?)[>\\]\\)].*#i", $email, $arr) && $arr[1] <> '')
@@ -4227,9 +4225,10 @@ function check_email($email, $bStrict=false)
 	{
 		$encoding = strtolower(Context::getCurrent()->getCulture()->getCharset());
 	}
+	$encodedEmail = $email;
 	if($encoding <> "utf-8")
 	{
-		$email = Text\Encoding::convertEncoding($email, $encoding, "UTF-8");
+		$encodedEmail = Text\Encoding::convertEncoding($email, $encoding, "UTF-8");
 	}
 
 	//http://tools.ietf.org/html/rfc2822#section-3.2.4
@@ -4240,14 +4239,21 @@ function check_email($email, $bStrict=false)
 
 	//"." can't be in the beginning or in the end of local-part
 	//dot-atom-text = 1*atext *("." 1*atext)
-	if(preg_match("#^[{$atom}]+(\\.[{$atom}]+)*@(([{$domain}]+\\.)+)([{$domain}]{2,20})$#ui", $email))
+	if(preg_match("#^[{$atom}]+(\\.[{$atom}]+)*@(([{$domain}]+\\.)+)([{$domain}]{2,20})$#ui", $encodedEmail))
 	{
+		if ($domainCheck)
+		{
+			$email = Main\Mail\Mail::toPunycode($email);
+			$parts = explode('@', $email);
+			$host = $parts[1] . '.';
+
+			return (checkdnsrr($host, 'MX') || checkdnsrr($host, 'A'));
+		}
+
 		return true;
 	}
-	else
-	{
-		return false;
-	}
+
+	return false;
 }
 
 function initvar($varname, $value='')

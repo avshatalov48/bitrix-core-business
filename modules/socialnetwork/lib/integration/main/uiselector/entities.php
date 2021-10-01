@@ -329,17 +329,17 @@ class Entities
 		return $result;
 	}
 
-	public static function getDepartmentData($requestFields = array())
+	public static function getDepartmentData($requestFields = []): array
 	{
-		return array(
-			'USERS' => \CSocNetLogDestination::getUsers(
-				array(
-					'deportament_id' => $requestFields['DEPARTMENT_ID'],
-					"NAME_TEMPLATE" => Handler::getNameTemplate($requestFields)
-				)
-			),
+		$allowSearchSelf = (!isset($requestFields['allowSearchSelf']) || $requestFields['allowSearchSelf'] !== 'N');
+
+		return [
+			'USERS' => \CSocNetLogDestination::getUsers([
+				'deportament_id' => $requestFields['DEPARTMENT_ID'],
+				'NAME_TEMPLATE' => Handler::getNameTemplate($requestFields),
+			], $allowSearchSelf),
 			'leafEntityType' => 'USERS',
-			'dataOnly' => true
-		);
+			'dataOnly' => true,
+		];
 	}
 }

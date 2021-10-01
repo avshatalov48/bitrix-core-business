@@ -17,6 +17,22 @@ use Bitrix\Sale\Location\Util\Assert;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class GroupTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Group_Query query()
+ * @method static EO_Group_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Group_Result getById($id)
+ * @method static EO_Group_Result getList(array $parameters = array())
+ * @method static EO_Group_Entity getEntity()
+ * @method static \Bitrix\Sale\Location\EO_Group createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Location\EO_Group_Collection createCollection()
+ * @method static \Bitrix\Sale\Location\EO_Group wakeUpObject($row)
+ * @method static \Bitrix\Sale\Location\EO_Group_Collection wakeUpCollection($rows)
+ */
 class GroupTable extends Entity\DataManager
 {
 	const PROJECT_USES_GROUPS_OPT = 'project_uses_groups';

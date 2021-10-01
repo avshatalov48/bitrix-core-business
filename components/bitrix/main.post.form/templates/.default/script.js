@@ -1,2147 +1,2499 @@
+this.BX = this.BX || {};
+(function (exports,main_core,main_popup,main_core_events) {
+	'use strict';
+
+	var Default = /*#__PURE__*/function () {
+	  function Default(editor, htmlEditor) {
+	    babelHelpers.classCallCheck(this, Default);
+	    babelHelpers.defineProperty(this, "id", 'SomeParser');
+	    babelHelpers.defineProperty(this, "buttonParams", {
+	      name: 'Some parser name',
+	      iconClassName: 'some-parser-class',
+	      disabledForTextarea: false,
+	      src: '/icon.png',
+	      toolbarSort: 205
+	    });
+	    this.editor = editor;
+	    this.htmlEditor = htmlEditor;
+	    this.handler = this.handler.bind(this);
+	  }
+
+	  babelHelpers.createClass(Default, [{
+	    key: "handler",
+	    value: function handler() {}
+	  }, {
+	    key: "parse",
+	    value: function parse(text) {
+	      return text;
+	    }
+	  }, {
+	    key: "unparse",
+	    value: function unparse(bxTag, oNode) {
+	      return '';
+	    }
+	  }, {
+	    key: "hasButton",
+	    value: function hasButton() {
+	      return this.buttonParams !== null;
+	    }
+	  }, {
+	    key: "getButton",
+	    value: function getButton() {
+	      if (this.buttonParams === null) {
+	        return null;
+	      }
+
+	      return {
+	        id: this.id,
+	        name: this.buttonParams.name,
+	        iconClassName: this.buttonParams.iconClassName,
+	        disabledForTextarea: this.buttonParams.disabledForTextarea,
+	        src: this.buttonParams.src,
+	        toolbarSort: this.buttonParams.toolbarSort,
+	        handler: this.handler
+	      };
+	    }
+	  }, {
+	    key: "getParser",
+	    value: function getParser() {
+	      var _this = this;
+
+	      return {
+	        name: this.id,
+	        obj: {
+	          Parse: function Parse(parserId, text) {
+	            return _this.parse(text);
+	          },
+	          UnParse: this.unparse.bind(this)
+	        }
+	      };
+	    }
+	  }]);
+	  return Default;
+	}();
+
+	var Spoiler = /*#__PURE__*/function (_Default) {
+	  babelHelpers.inherits(Spoiler, _Default);
+
+	  function Spoiler() {
+	    var _babelHelpers$getProt;
+
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, Spoiler);
+
+	    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+	      args[_key] = arguments[_key];
+	    }
+
+	    _this = babelHelpers.possibleConstructorReturn(this, (_babelHelpers$getProt = babelHelpers.getPrototypeOf(Spoiler)).call.apply(_babelHelpers$getProt, [this].concat(args)));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "id", 'spoiler');
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "buttonParams", {
+	      name: main_core.Loc.getMessage('MPF_SPOILER'),
+	      iconClassName: 'spoiler',
+	      disabledForTextarea: false,
+	      src: main_core.Loc.getMessage('MPF_TEMPLATE_FOLDER') + '/images/lhespoiler.png',
+	      toolbarSort: 205
+	    });
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(Spoiler, [{
+	    key: "handler",
+	    value: function handler() {
+	      var result; // Iframe
+
+	      if (!this.htmlEditor.bbCode || !this.htmlEditor.synchro.IsFocusedOnTextarea()) {
+	        result = this.htmlEditor.action.actions.formatBlock.exec('formatBlock', 'blockquote', 'bx-spoiler', false, {
+	          bxTagParams: {
+	            tag: "spoiler"
+	          }
+	        });
+	      } else // bbcode + textarea
+	        {
+	          result = this.htmlEditor.action.actions.formatBbCode.exec('quote', {
+	            tag: 'SPOILER'
+	          });
+	        }
+
+	      return result;
+	    }
+	  }, {
+	    key: "parse",
+	    value: function parse(content, pLEditor) {
+	      if (/\[spoiler(([^\]])*)\]/gi.test(content)) {
+	        content = content.replace(/[\x01-\x02]/gi, '').replace(/\[spoiler([^\]]*)\]/gi, '\x01$1\x01').replace(/\[\/spoiler]/gi, '\x02');
+	        var reg2 = /(?:\x01([^\x01]*)\x01)([^\x01-\x02]+)\x02/gi;
+
+	        while (content.match(reg2)) {
+	          content = content.replace(reg2, function (str, title, body) {
+	            title = title.replace(/^(="|='|=)/gi, '').replace(/("|')?$/gi, '');
+	            return "<blockquote class=\"bx-spoiler\" id=\"".concat(this.htmlEditor.SetBxTag(false, {
+	              tag: "spoiler"
+	            }), "\" title=\"").concat(title, "\">").concat(body, "</blockquote>");
+	          }.bind(this));
+	        }
+	      }
+
+	      content = content.replace(/\001([^\001]*)\001/gi, '[spoiler$1]').replace(/\002/gi, '[/spoiler]');
+	      return content;
+	    }
+	  }, {
+	    key: "unparse",
+	    value: function unparse(bxTag, oNode) {
+	      var name = '';
+
+	      for (var i = 0; i < oNode.node.childNodes.length; i++) {
+	        name += this.htmlEditor.bbParser.GetNodeHtml(oNode.node.childNodes[i]);
+	      }
+
+	      name = name.trim();
+
+	      if (name !== '') {
+	        return "[SPOILER" + (oNode.node.hasAttribute("title") ? '=' + oNode.node.getAttribute("title") : '') + "]" + name + "[/SPOILER]";
+	      }
+
+	      return "";
+	    }
+	  }]);
+	  return Spoiler;
+	}(Default);
+
+	var PostUser = /*#__PURE__*/function (_Default) {
+	  babelHelpers.inherits(PostUser, _Default);
+
+	  function PostUser(editor, htmlEditor) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, PostUser);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(PostUser).call(this, editor, htmlEditor));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "id", 'postuser');
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "buttonParams", null);
+	    main_core_events.EventEmitter.subscribe(htmlEditor, 'OnIframeKeydown', function (_ref) {
+	      var _ref$compatData = babelHelpers.slicedToArray(_ref.compatData, 1),
+	          event = _ref$compatData[0];
+
+	      if (window.onKeyDownHandler) {
+	        window.onKeyDownHandler(event, htmlEditor, htmlEditor.formID);
+	      }
+	    });
+	    main_core_events.EventEmitter.subscribe(htmlEditor, 'OnIframeKeyup', function (_ref2) {
+	      var _ref2$compatData = babelHelpers.slicedToArray(_ref2.compatData, 1),
+	          event = _ref2$compatData[0];
+
+	      if (window.onKeyUpHandler) {
+	        window.onKeyUpHandler(event, htmlEditor, htmlEditor.formID);
+	      }
+	    });
+	    main_core_events.EventEmitter.subscribe(htmlEditor, 'OnIframeClick', function () {
+	      if (window['BXfpdStopMent' + htmlEditor.formID]) {
+	        window['BXfpdStopMent' + htmlEditor.formID]();
+	      }
+	    });
+	    main_core_events.EventEmitter.subscribe(htmlEditor, 'OnTextareaKeyup', function (_ref3) {
+	      var _ref3$compatData = babelHelpers.slicedToArray(_ref3.compatData, 1),
+	          event = _ref3$compatData[0];
+
+	      if (htmlEditor.textareaView && htmlEditor.textareaView.GetCursorPosition && window.onTextareaKeyUpHandler) {
+	        window.onTextareaKeyUpHandler(event, htmlEditor, htmlEditor.formID);
+	      }
+	    });
+	    main_core_events.EventEmitter.subscribe(htmlEditor, 'OnTextareaKeydown', function (_ref4) {
+	      var _ref4$compatData = babelHelpers.slicedToArray(_ref4.compatData, 1),
+	          event = _ref4$compatData[0];
+
+	      if (htmlEditor.textareaView && htmlEditor.textareaView.GetCursorPosition && window.onTextareaKeyDownHandler) {
+	        window.onTextareaKeyDownHandler(event, htmlEditor, htmlEditor.formID);
+	      }
+	    });
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(PostUser, [{
+	    key: "parse",
+	    value: function parse(content, pLEditor) {
+	      content = content.replace(/\[USER\s*=\s*(\d+)\](.*?)\[\/USER\]/ig, function (str, id, name) {
+	        name = name.trim();
+
+	        if (name === '') {
+	          return '';
+	        }
+
+	        var tagId = this.htmlEditor.SetBxTag(false, {
+	          tag: this.id,
+	          userId: id,
+	          userName: name
+	        });
+	        return "<span id=\"".concat(tagId, "\" class=\"bxhtmled-metion\">").concat(name, "</span>");
+	      }.bind(this));
+	      return content;
+	    }
+	  }, {
+	    key: "unparse",
+	    value: function unparse(bxTag, oNode) {
+	      var _this2 = this;
+
+	      var text = '';
+	      oNode.node.childNodes.forEach(function (node) {
+	        text += _this2.htmlEditor.bbParser.GetNodeHtml(node);
+	      });
+	      var result = String(text).trim();
+
+	      if (main_core.Type.isStringFilled(result) && !main_core.Type.isUndefined(bxTag.userId)) {
+	        result = "[USER=".concat(bxTag.userId, "]").concat(result, "[/USER]");
+	      }
+
+	      return result;
+	    }
+	  }]);
+	  return PostUser;
+	}(Default);
+
+	var Controller = /*#__PURE__*/function () {
+	  function Controller(cid, container, editor) {
+	    babelHelpers.classCallCheck(this, Controller);
+	    babelHelpers.defineProperty(this, "actionPool", []);
+	    this.cid = cid;
+	    this.container = container;
+	    this.editor = editor;
+	    main_core_events.EventEmitter.subscribe(editor.getEventObject(), 'onShowControllers', function (_ref) {
+	      var data = _ref.data;
+	      main_core_events.EventEmitter.emit(container.parentNode, 'BFileDLoadFormController', new main_core_events.BaseEvent({
+	        compatData: [data]
+	      }));
+	    });
+	    main_core_events.EventEmitter.subscribe(editor.getEventObject(), 'onCollectControllers', function (event) {
+	      event.data[cid] = {
+	        values: []
+	      };
+	    });
+	  }
+
+	  babelHelpers.createClass(Controller, [{
+	    key: "exec",
+	    value: function exec() {
+	      var callback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+	      if (callback) {
+	        this.actionPool.push(callback);
+	      }
+
+	      if (this.isReady) {
+	        try {
+	          var action;
+
+	          while ((action = this.actionPool.shift()) && action) {
+	            action.apply(this);
+	          }
+	        } catch (e) {
+	          console.log('error in attachments controllers: ', e);
+	        }
+	      }
+	    }
+	  }, {
+	    key: "getId",
+	    value: function getId() {
+	      return this.cid;
+	    }
+	  }, {
+	    key: "getFieldName",
+	    value: function getFieldName() {
+	      return null;
+	    }
+	  }, {
+	    key: "reinitFrom",
+	    value: function reinitFrom(data) {
+	      var _this = this;
+
+	      this.exec(function () {
+	        if (!_this.getFieldName()) {
+	          return;
+	        }
+
+	        _this.container.querySelector("inptut[name=\"".concat(_this.getFieldName(), "\"]")).forEach(function (inputFile) {
+	          inputFile.parentNode.removeChild(inputFile);
+	        });
+	      });
+	    }
+	  }, {
+	    key: "isReady",
+	    get: function get() {
+	      return true;
+	    }
+	  }]);
+	  return Controller;
+	}();
+
+	var DiskController = /*#__PURE__*/function (_Controller) {
+	  babelHelpers.inherits(DiskController, _Controller);
+
+	  function DiskController(cid, container, editor) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, DiskController);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DiskController).call(this, cid, container, editor));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "diskUfUploader", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "diskUfHandler", null);
+
+	    var _catchHandler = function _catchHandler(diskUfUploader) {
+	      _this.diskUfUploader = diskUfUploader;
+
+	      _this.exec();
+
+	      var func = function func(BaseEvent) {
+	        main_core_events.EventEmitter.emit(editor.getEventObject(), 'onUploadsHasBeenChanged', BaseEvent);
+	      };
+
+	      main_core_events.EventEmitter.subscribe(_this.diskUfUploader, 'onFileIsInited', func); // new diskUfUploader
+
+	      main_core_events.EventEmitter.subscribe(_this.diskUfUploader, 'ChangeFileInput', func); // old diskUfUploader
+	    };
+
+	    if (BX.UploaderManager.getById(cid)) {
+	      _catchHandler(BX.UploaderManager.getById(cid));
+	    }
+
+	    main_core_events.EventEmitter.subscribeOnce(container.parentNode, 'DiskDLoadFormControllerInit', function (_ref) {
+	      var _ref$compatData = babelHelpers.slicedToArray(_ref.compatData, 1),
+	          diskUfHandler = _ref$compatData[0];
+
+	      _this.diskUfHandler = diskUfHandler;
+
+	      if (cid === diskUfHandler.CID && !_this.diskUfUploader) {
+	        _catchHandler(diskUfHandler.agent);
+	      }
+	    });
+	    main_core_events.EventEmitter.subscribe(editor.getEventObject(), 'onShowControllers', function (_ref2) {
+	      var data = _ref2.data;
+	      main_core_events.EventEmitter.emit(container.parentNode, 'DiskLoadFormController', new main_core_events.BaseEvent({
+	        compatData: [data]
+	      }));
+	    });
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(DiskController, [{
+	    key: "getFieldName",
+	    value: function getFieldName() {
+	      if (this.diskUfHandler) {
+	        return this.diskUfHandler.params.controlName;
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "reinitFrom",
+	    value: function reinitFrom(data) {
+	      var _this2 = this;
+
+	      this.exec(function () {
+	        if (!_this2.getFieldName()) {
+	          return;
+	        }
+
+	        Array.from(_this2.container.querySelectorAll("inptut[name=\"".concat(_this2.getFieldName(), "\"]"))).forEach(function (inputFile) {
+	          inputFile.parentNode.removeChild(inputFile);
+	        });
+	        var values = null;
+
+	        for (var ii in data) {
+	          if (data.hasOwnProperty(ii) && data[ii] && data[ii]['USER_TYPE_ID'] === 'disk_file' && data[ii]['FIELD_NAME'] === _this2.getFieldName()) {
+	            values = data[ii]['VALUE'];
+	          }
+	        }
+
+	        if (values) {
+	          var files = {};
+	          values.forEach(function (id) {
+	            var node = document.querySelector('#disk-attach-' + id);
+
+	            if (node.tagName !== "A") {
+	              node = node.querySelector('img');
+	            }
+
+	            if (node) {
+	              files['E' + id] = {
+	                type: 'file',
+	                id: id,
+	                name: node.getAttribute("data-bx-title") || node.getAttribute("data-title"),
+	                size: node.getAttribute("data-bx-size") || '',
+	                sizeInt: node.getAttribute("data-bx-size") || '',
+	                width: node.getAttribute("data-bx-width"),
+	                height: node.getAttribute("data-bx-height"),
+	                storage: 'disk',
+	                previewUrl: node.tagName === "A" ? '' : node.getAttribute("data-bx-src") || node.getAttribute("data-src"),
+	                fileId: node.getAttribute("bx-attach-file-id")
+	              };
+	              if (node.hasAttribute("bx-attach-xml-id")) files['E' + id]["xmlId"] = node.getAttribute("bx-attach-xml-id");
+	              if (node.hasAttribute("bx-attach-file-type")) files['E' + id]["fileType"] = node.getAttribute("bx-attach-file-type");
+	            }
+	          });
+
+	          _this2.diskUfHandler.selectFile({}, {}, files);
+	        }
+	      });
+	    }
+	  }, {
+	    key: "isReady",
+	    get: function get() {
+	      return !!this.diskUfUploader;
+	    }
+	  }]);
+	  return DiskController;
+	}(Controller);
+
+	function _templateObject() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n<span type=\"button\" onclick=\"", "\" data-role=\"button-insert\" class=\"insert-btn\">\n\t<span data-role=\"insert-btn\" class=\"insert-btn-text\">", "</span>\n\t<span data-role=\"in-text-btn\" class=\"insert-btn-text\">", "</span>\n</span>"]);
+
+	  _templateObject = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
+	/*
+	* @deprecated
+	* */
+
+	var UploadFile = /*#__PURE__*/function (_Default) {
+	  babelHelpers.inherits(UploadFile, _Default);
+
+	  function UploadFile(editor, htmlEditor) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, UploadFile);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(UploadFile).call(this, editor, htmlEditor));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "id", 'uploadfile');
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "buttonParams", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "regexp", /\[FILE ID=((?:\s|\S)*?)?\]/ig);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "values", new Map());
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "controllers", new Map());
+	    _this.checkButtonsDebounced = main_core.Runtime.debounce(_this.checkButtons, 500, babelHelpers.assertThisInitialized(_this));
+
+	    _this.init();
+
+	    main_core_events.EventEmitter.subscribe(editor.getEditor(), 'OnContentChanged', _this.checkButtons.bind(babelHelpers.assertThisInitialized(_this)));
+	    main_core_events.EventEmitter.subscribe(editor.getEventObject(), 'onReinitializeBefore', function (_ref) {
+	      var _ref$data = babelHelpers.slicedToArray(_ref.data, 2),
+	          text = _ref$data[0],
+	          data = _ref$data[1];
+
+	      _this.reinit(text, data);
+	    });
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(UploadFile, [{
+	    key: "init",
+	    value: function init() {
+	      var _this2 = this;
+
+	      Array.from(this.editor.getContainer().querySelectorAll('.file-selectdialog')).forEach(function (selectorNode) {
+	        var cid = selectorNode.id.replace('file-selectdialog-', '');
+
+	        var controller = _this2.controllers.get(cid);
+
+	        if (!controller) {
+	          controller = new Controller(cid, selectorNode, _this2.editor);
+	          main_core_events.EventEmitter.subscribe(selectorNode.parentNode, 'OnFileUploadSuccess', function (_ref2) {
+	            var _ref2$data = babelHelpers.slicedToArray(_ref2.data, 2),
+	                element_id = _ref2$data[0].element_id,
+	                _ref2$data$ = _ref2$data[1],
+	                id = _ref2$data$.id,
+	                doc_prefix = _ref2$data$.doc_prefix,
+	                CID = _ref2$data$.CID;
+
+	            if (cid === id) {
+	              var securityNode = document.querySelector('#' + _this2.editor.getFormId()) ? document.querySelector('#' + _this2.editor.getFormId()).querySelector('#upload-cid') : null;
+
+	              if (securityNode) {
+	                securityNode.value = CID;
+	              }
+
+	              var _this2$parseFile = _this2.parseFile(selectorNode.querySelector('#' + doc_prefix + element_id)),
+	                  _this2$parseFile2 = babelHelpers.slicedToArray(_this2$parseFile, 2),
+	                  _id = _this2$parseFile2[0],
+	                  file = _this2$parseFile2[1];
+
+	              _this2.values.set(_id, file);
+	            }
+	          });
+	          main_core_events.EventEmitter.subscribe(selectorNode.parentNode, 'OnFileUploadRemove', function (_ref3) {
+	            var _ref3$compatData = babelHelpers.slicedToArray(_ref3.compatData, 2),
+	                fileId = _ref3$compatData[0],
+	                id = _ref3$compatData[1].id;
+
+	            if (cid === id && _this2.values.has(fileId)) {
+	              _this2.values.delete(fileId);
+
+	              _this2.deleteFile([fileId]);
+	            }
+	          });
+	        }
+
+	        if (selectorNode.querySelector('table.files-list')) {
+	          Array.from(selectorNode.querySelector('table.files-list').querySelectorAll('tr')).forEach(function (tr) {
+	            var _this2$parseFile3 = _this2.parseFile(tr),
+	                _this2$parseFile4 = babelHelpers.slicedToArray(_this2$parseFile3, 2),
+	                id = _this2$parseFile4[0],
+	                file = _this2$parseFile4[1];
+
+	            _this2.values.set(id, file);
+	          });
+	        }
+	      });
+	    }
+	  }, {
+	    key: "parseFile",
+	    value: function parseFile(tr) {
+	      var _this3 = this;
+
+	      var id = tr.id.replace('wd-doc', '');
+	      var data = {
+	        id: id,
+	        name: tr.querySelector('[data-role="name"]') ? tr.querySelector('[data-role="name"]').innerHTML : tr.querySelector('span.f-wrap').innerHTML,
+	        node: tr,
+	        buttonNode: tr.querySelector('[data-role="button-insert"]'),
+	        image: {
+	          src: null,
+	          lowsrc: null,
+	          width: null,
+	          height: null
+	        }
+	      };
+
+	      var insertFile = function insertFile() {
+	        _this3.insertFile(id, tr);
+	      };
+
+	      var nameNode = tr.querySelector('.f-wrap');
+
+	      if (nameNode) {
+	        nameNode.addEventListener('click', insertFile);
+	        nameNode.style.cursor = 'pointer';
+	        nameNode.title = main_core.Loc.getMessage('MPF_FILE');
+	      }
+
+	      var imageNode = tr.querySelector('img');
+
+	      if (imageNode) {
+	        imageNode.addEventListener('click', insertFile);
+	        imageNode.title = main_core.Loc.getMessage('MPF_FILE');
+	        imageNode.style.cursor = 'pointer';
+	        data.image.lowsrc = imageNode.lowsrc || imageNode.src;
+	        data.image.src = imageNode.rel || imageNode.src;
+	        data.image.width = imageNode.getAttribute('data-bx-full-width');
+	        data.image.height = imageNode.getAttribute('data-bx-full-height');
+	      }
+
+	      if (tr instanceof HTMLTableRowElement && tr.querySelector('.files-info')) {
+	        if (!data.buttonNode) {
+	          data.buttonNode = main_core.Tag.render(_templateObject(), insertFile, main_core.Loc.getMessage('MPF_FILE_INSERT_IN_TEXT'), main_core.Loc.getMessage('MPF_FILE_IN_TEXT'));
+	          tr.querySelector('.files-info').appendChild(data.buttonNode);
+	          this.checkButtonsDebounced();
+	        }
+	      }
+
+	      return [id, data];
+	    }
+	  }, {
+	    key: "buildHTML",
+	    value: function buildHTML(id, data) {
+	      var htmlData = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+	      var tagId = this.htmlEditor.SetBxTag(false, {
+	        tag: this.id,
+	        fileId: id
+	      });
+	      var html = "<span data-bx-file-id=\"".concat(id, "\" id=\"").concat(tagId, "\" style=\"color: #2067B0; border-bottom: 1px dashed #2067B0; margin:0 2px;\">").concat(data.name, "</span>");
+
+	      if (data.image.src) {
+	        var additional = [];
+
+	        if (htmlData) {
+	          additional.push("style=\"width:".concat(htmlData.width, "px;height:").concat(htmlData.height, "px;\""));
+	        } else if (data.image.width && data.image.height) {
+	          additional.push("style=\"width:".concat(data.image.width, "px;height:").concat(data.image.height, "px;\" "));
+	          additional.push("onload=\"this.style.width='auto';this.style.height='auto';\"");
+	        }
+
+	        html = "<img style=\"max-width: 90%;\"  data-bx-file-id=\"".concat(id, "\" id=\"").concat(tagId, "\" src=\"").concat(data.image.src, "\" lowsrc=\"").concat(data.image.lowsrc, "\" ").concat(additional.join(' '), "/>");
+	      }
+
+	      return html;
+	    }
+	  }, {
+	    key: "buildText",
+	    value: function buildText(id, params) {
+	      return "[FILE ID=".concat(id).concat(params || '', "]");
+	    }
+	  }, {
+	    key: "insertFile",
+	    value: function insertFile(id, node) {
+	      var data = this.values.get(String(id));
+
+	      if (data) {
+	        main_core_events.EventEmitter.emit(this.editor.getEventObject(), 'OnInsertContent', [this.buildText(id), this.buildHTML(id, data)]);
+	      }
+	    }
+	  }, {
+	    key: "deleteFile",
+	    value: function deleteFile(fileIds) {
+	      var content = this.htmlEditor.GetContent();
+
+	      if (this.htmlEditor.GetViewMode() === 'wysiwyg') {
+	        var doc = this.htmlEditor.GetIframeDoc();
+
+	        for (var ii in this.htmlEditor.bxTags) {
+	          if (this.htmlEditor.bxTags.hasOwnProperty(ii) && babelHelpers.typeof(this.htmlEditor.bxTags[ii]) === 'object' && this.htmlEditor.bxTags[ii]['tag'] === this.id && fileIds.indexOf(String(this.htmlEditor.bxTags[ii]['fileId'])) >= 0 && doc.getElementById(ii)) {
+	            var node = doc.getElementById(ii);
+	            node.parentNode.removeChild(node);
+	          }
+	        }
+
+	        this.htmlEditor.SaveContent();
+	      } else
+	        /* if (this.regexp.test(content))*/
+	        {
+	          var content2 = content.replace(this.regexp, function (str, foundId) {
+	            return fileIds.indexOf(foundId) >= 0 ? '' : str;
+	          });
+	          this.htmlEditor.SetContent(content2);
+	          this.htmlEditor.Focus();
+	        }
+	    }
+	  }, {
+	    key: "checkButtons",
+	    value: function checkButtons(event) {
+	      var content = event ? event.compatData[0] : this.htmlEditor.GetContent();
+	      var matches = babelHelpers.toConsumableArray(content.matchAll(this.regexp)).map(function (_ref4) {
+	        var _ref5 = babelHelpers.slicedToArray(_ref4, 2),
+	            match = _ref5[0],
+	            id = _ref5[1];
+
+	        return id;
+	      });
+	      this.values.forEach(function (data, id) {
+	        if (!data.buttonNode) {
+	          return;
+	        }
+
+	        var mark = matches.indexOf(id) >= 0;
+
+	        if (mark === true && data.buttonNode.className !== 'insert-text') {
+	          data.buttonNode.className = 'insert-text';
+	          data.buttonNode.querySelector('[data-role="insert-btn"]').style.display = 'none';
+	          data.buttonNode.querySelector('[data-role="in-text-btn"]').style.display = '';
+	        } else if (mark !== true && data.buttonNode.className !== 'insert-btn') {
+	          data.buttonNode.className = 'insert-btn';
+	          data.buttonNode.querySelector('[data-role="insert-btn"]').style.display = '';
+	          data.buttonNode.querySelector('[data-role="in-text-btn"]').style.display = 'none';
+	        }
+	      });
+	    }
+	  }, {
+	    key: "reinit",
+	    value: function reinit(text, data) {
+	      this.values.forEach(function (file, id) {
+	        if (file.node && file.node.parentNode) {
+	          file.node.parentNode.removeChild(file.node);
+	        }
+	      });
+	      this.values.clear();
+	      this.controllers.forEach(function (controller) {
+	        controller.reinitFrom(data);
+	      });
+	    }
+	  }, {
+	    key: "parse",
+	    value: function parse(content) {
+	      if (!this.regexp.test(content)) {
+	        return content;
+	      }
+
+	      content = content.replace(this.regexp, function (str, id, width, height) {
+	        if (this.values.has(id)) {
+	          return this.buildHTML(id, this.values.get(id), width > 0 && height > 0 ? {
+	            width: width,
+	            height: height
+	          } : null);
+	        }
+
+	        return str;
+	      }.bind(this));
+	      return content;
+	    }
+	  }, {
+	    key: "unparse",
+	    value: function unparse(bxTag, _ref6) {
+	      var node = _ref6.node;
+	      var width = parseInt(node.hasAttribute('width') ? node.getAttribute('width') : 0);
+	      var height = parseInt(node.hasAttribute('height') ? node.getAttribute('height') : 0);
+	      var params = '';
+
+	      if (width > 0 && height > 0) {
+	        params = ' WIDTH=' + width + ' HEIGHT=' + height;
+	      }
+
+	      var id = node.getAttribute('data-bx-file-id');
+	      return this.buildText(id, params);
+	    }
+	  }]);
+	  return UploadFile;
+	}(Default);
+
+	/*
+	* @deprecated
+	* */
+
+	var UploadImage = /*#__PURE__*/function (_Default) {
+	  babelHelpers.inherits(UploadImage, _Default);
+
+	  function UploadImage(editor, htmlEditor) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, UploadImage);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(UploadImage).call(this, editor, htmlEditor));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "id", 'uploadimage');
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "buttonParams", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "regexp", /\[IMAGE ID=((?:\s|\S)*?)?\]/ig);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "values", new Map());
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "controllers", new Map());
+
+	    _this.init();
+
+	    console.log('PostImage: ');
+	    main_core_events.EventEmitter.subscribe(editor.getEventObject(), 'onReinitializeBefore', function (_ref) {
+	      var _ref$data = babelHelpers.slicedToArray(_ref.data, 2),
+	          text = _ref$data[0],
+	          data = _ref$data[1];
+
+	      _this.reinit(text, data);
+	    });
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(UploadImage, [{
+	    key: "init",
+	    value: function init() {
+	      var _this2 = this;
+
+	      Array.from(this.editor.getContainer().querySelectorAll('.file-selectdialog')).forEach(function (selectorNode) {
+	        var cid = selectorNode.id.replace('file-selectdialog-', '');
+
+	        var controller = _this2.controllers.get(cid);
+
+	        if (!controller) {
+	          controller = new Controller(cid, selectorNode, _this2.editor);
+	          main_core_events.EventEmitter.subscribe(selectorNode.parentNode, 'OnFileUploadSuccess', function (_ref2) {
+	            var _ref2$data = babelHelpers.slicedToArray(_ref2.data, 2),
+	                element_id = _ref2$data[0].element_id,
+	                _ref2$data$ = _ref2$data[1],
+	                id = _ref2$data$.id,
+	                doc_prefix = _ref2$data$.doc_prefix,
+	                CID = _ref2$data$.CID;
+
+	            if (cid === id) {
+	              var securityNode = document.querySelector('#' + _this2.editor.getFormId()) ? document.querySelector('#' + _this2.editor.getFormId()).querySelector('#upload-cid') : null;
+
+	              if (securityNode) {
+	                securityNode.value = CID;
+	              }
+
+	              var _this2$parseFile = _this2.parseFile(selectorNode.querySelector('#' + doc_prefix + element_id)),
+	                  _this2$parseFile2 = babelHelpers.slicedToArray(_this2$parseFile, 2),
+	                  _id = _this2$parseFile2[0],
+	                  file = _this2$parseFile2[1];
+
+	              _this2.values.set(_id, file);
+	            }
+	          });
+	          main_core_events.EventEmitter.subscribe(selectorNode.parentNode, 'OnFileUploadRemove', function (_ref3) {
+	            var _ref3$compatData = babelHelpers.slicedToArray(_ref3.compatData, 2),
+	                fileId = _ref3$compatData[0],
+	                id = _ref3$compatData[1].id;
+
+	            if (cid === id && _this2.values.has(fileId)) {
+	              _this2.values.delete(fileId);
+	            }
+	          });
+	        }
+
+	        if (selectorNode.querySelector('table.files-list')) {
+	          Array.from(selectorNode.querySelector('table.files-list').querySelectorAll('tr')).forEach(function (tr) {
+	            var _this2$parseFile3 = _this2.parseFile(tr),
+	                _this2$parseFile4 = babelHelpers.slicedToArray(_this2$parseFile3, 2),
+	                id = _this2$parseFile4[0],
+	                file = _this2$parseFile4[1];
+
+	            _this2.values.set(id, file);
+	          });
+	        }
+	      });
+	    }
+	  }, {
+	    key: "parseFile",
+	    value: function parseFile(tr) {
+	      var id = tr.id.replace('wd-doc', '');
+	      var data = {
+	        id: id,
+	        name: tr.querySelector('[data-role="name"]') ? tr.querySelector('[data-role="name"]').innerHTML : tr.querySelector('span.f-wrap').innerHTML,
+	        node: tr,
+	        image: {
+	          src: null,
+	          lowsrc: null,
+	          width: null,
+	          height: null
+	        }
+	      };
+	      return [id, data];
+	    }
+	  }, {
+	    key: "reinit",
+	    value: function reinit(text, data) {
+	      this.values.forEach(function (file, id) {
+	        if (file.node && file.node.parentNode) {
+	          file.node.parentNode.removeChild(file.node);
+	        }
+	      });
+	      this.values.clear();
+	      this.controllers.forEach(function (controller) {
+	        controller.reinitFrom(data);
+	      });
+	    }
+	  }, {
+	    key: "parse",
+	    value: function parse(content) {
+	      return content;
+	    }
+	  }, {
+	    key: "unparse",
+	    value: function unparse(bxTag, _ref4) {
+	      var node = _ref4.node;
+	      return '';
+	    }
+	  }]);
+	  return UploadImage;
+	}(Default);
+
+	function _templateObject$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n<span class=\"insert-btn\" data-role=\"button-insert\" onclick=\"", "\">\n\t<span data-role=\"insert-btn\" class=\"insert-btn-text\">", "</span>\n\t<span data-role=\"in-text-btn\" class=\"insert-btn-text\" style=\"display: none;\">", "</span>\n</span>"]);
+
+	  _templateObject$1 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
+	/*
+	* @deprecated
+	* */
+
+	var DiskFile = /*#__PURE__*/function (_UploadFile) {
+	  babelHelpers.inherits(DiskFile, _UploadFile);
+
+	  function DiskFile() {
+	    var _babelHelpers$getProt;
+
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, DiskFile);
+
+	    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+	      args[_key] = arguments[_key];
+	    }
+
+	    _this = babelHelpers.possibleConstructorReturn(this, (_babelHelpers$getProt = babelHelpers.getPrototypeOf(DiskFile)).call.apply(_babelHelpers$getProt, [this].concat(args)));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "id", 'diskfile');
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "regexp", /\[(?:DOCUMENT ID|DISK FILE ID)=([n0-9]+)\]/ig);
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(DiskFile, [{
+	    key: "init",
+	    value: function init() {
+	      var _this2 = this;
+
+	      Array.from(this.editor.getContainer().querySelectorAll('.diskuf-selectdialog')).forEach(function (selectorNode, index) {
+	        var cid = selectorNode.id.replace('diskuf-selectdialog-', '');
+
+	        var controller = _this2.controllers.get(cid);
+
+	        if (!controller) {
+	          controller = new DiskController(cid, selectorNode, _this2.editor);
+
+	          _this2.controllers.set(cid, controller);
+
+	          main_core_events.EventEmitter.subscribe(selectorNode.parentNode, 'OnFileUploadSuccess', function (_ref) {
+	            var _ref$data = babelHelpers.slicedToArray(_ref.data, 3),
+	                element_id = _ref$data[0].element_id,
+	                CID = _ref$data[1].CID,
+	                blob = _ref$data[2];
+
+	            if (controller.getId() !== CID || _this2.values.has(element_id)) {
+	              return;
+	            }
+
+	            var _this2$parseFile = _this2.parseFile(selectorNode.querySelector('#disk-edit-attach' + element_id)),
+	                _this2$parseFile2 = babelHelpers.slicedToArray(_this2$parseFile, 3),
+	                id = _this2$parseFile2[0],
+	                fileId = _this2$parseFile2[1],
+	                file = _this2$parseFile2[2];
+
+	            _this2.values.set(id, file);
+
+	            if (id !== fileId) {
+	              _this2.values.set(fileId, file);
+	            }
+
+	            if (blob && blob['insertImageAfterUpload'] && file.image.src) {
+	              _this2.insertFile(id, file.node);
+	            }
+	          });
+	          main_core_events.EventEmitter.subscribe(selectorNode.parentNode, 'OnFileUploadRemove', function (_ref2) {
+	            var _ref2$compatData = babelHelpers.slicedToArray(_ref2.compatData, 2),
+	                fileId = _ref2$compatData[0],
+	                CID = _ref2$compatData[1].CID;
+
+	            if (controller.getId() === CID && _this2.values.has(fileId)) {
+	              var file = _this2.values.get(fileId);
+
+	              _this2.values.delete(file.id);
+
+	              _this2.values.delete(file.fileId);
+
+	              _this2.deleteFile([file.id, file.fileId]);
+	            }
+	          });
+	          main_core_events.EventEmitter.subscribe(selectorNode.parentNode, 'OnFileUploadFailed', function (_ref3) {
+	            var _ref3$compatData = babelHelpers.slicedToArray(_ref3.compatData, 3),
+	                file = _ref3$compatData[0],
+	                CID = _ref3$compatData[1].CID,
+	                blob = _ref3$compatData[2];
+
+	            if (controller.getId() === CID && blob && blob["referrerToEditor"]) {
+	              BX.onCustomEvent(blob["referrerToEditor"], "OnImageDataUriCaughtFailed", []);
+	              BX.onCustomEvent(_this2.editor, "OnImageDataUriCaughtFailed", [blob["referrerToEditor"]]);
+	            }
+	          });
+
+	          if (index === 0) {
+	            initVideoReceptionForTheFirstController(_this2, controller, selectorNode, _this2.editor);
+	            initImageReceptionForTheFirstController(_this2, controller, selectorNode, _this2.editor);
+	            main_core_events.EventEmitter.subscribe(_this2.editor.getEventObject(), 'onFilesHaveCaught', function (event) {
+	              event.stopImmediatePropagation();
+	              controller.diskUfUploader.onChange(babelHelpers.toConsumableArray(event.getData()));
+	            });
+	          }
+	        }
+
+	        if (selectorNode.querySelector('table.files-list')) {
+	          Array.from(selectorNode.querySelector('table.files-list').querySelectorAll('tr')).forEach(function (tr) {
+	            var _this2$parseFile3 = _this2.parseFile(tr),
+	                _this2$parseFile4 = babelHelpers.slicedToArray(_this2$parseFile3, 3),
+	                id = _this2$parseFile4[0],
+	                fileId = _this2$parseFile4[1],
+	                file = _this2$parseFile4[2];
+
+	            _this2.values.set(id, file);
+
+	            if (id !== fileId) {
+	              _this2.values.set(fileId, file);
+	            }
+	          });
+	        }
+	      });
+	    }
+	  }, {
+	    key: "parseFile",
+	    value: function parseFile(tr) {
+	      var _this3 = this;
+
+	      var id = String(tr.id.replace('disk-edit-attach', ''));
+	      var data = {
+	        id: id,
+	        name: tr.querySelector('[data-role="name"]') ? tr.querySelector('[data-role="name"]').innerHTML : tr.querySelector('span.f-wrap').innerHTML,
+	        fileId: tr.getAttribute('bx-attach-file-id'),
+	        node: tr,
+	        buttonNode: tr.querySelector('[data-role="button-insert"]'),
+	        image: {
+	          src: null,
+	          lowsrc: null,
+	          width: null,
+	          height: null
+	        }
+	      };
+	      var nameNode = tr.querySelector('.f-wrap');
+
+	      var insertFile = function insertFile() {
+	        _this3.insertFile(id, tr);
+	      };
+
+	      if (nameNode) {
+	        nameNode.addEventListener('click', insertFile);
+	        nameNode.style.cursor = 'pointer';
+	        nameNode.title = main_core.Loc.getMessage('MPF_FILE');
+	      }
+
+	      var imageNode = tr.querySelector('img.files-preview');
+
+	      if (imageNode && (imageNode.src.indexOf('bitrix/tools/disk/uf.php') >= 0 || imageNode.src.indexOf('/disk/showFile/') >= 0)) {
+	        imageNode.addEventListener('click', insertFile);
+	        imageNode.title = main_core.Loc.getMessage('MPF_FILE');
+	        imageNode.style.cursor = 'pointer';
+	        data.image.lowsrc = imageNode.lowsrc || imageNode.src;
+	        data.image.src = (imageNode.rel || imageNode.getAttribute('data-bx-src') || imageNode.src).replace(/&(width|height)=\d+/gi, '');
+
+	        var handler = function handler() {
+	          data.image.width = imageNode.getAttribute('data-bx-full-width');
+	          data.image.height = imageNode.getAttribute('data-bx-full-height');
+	        };
+
+	        imageNode.addEventListener('load', handler);
+
+	        if (imageNode.complete) {
+	          handler();
+	        }
+	      }
+
+	      if (tr instanceof HTMLTableRowElement && !data.buttonNode) {
+	        data.buttonNode = main_core.Tag.render(_templateObject$1(), insertFile, main_core.Loc.getMessage('MPF_FILE_INSERT_IN_TEXT'), main_core.Loc.getMessage('MPF_FILE_IN_TEXT'));
+	        setTimeout(function () {
+	          if (tr.querySelector('.files-info')) {
+	            tr.querySelector('.files-info').appendChild(data.buttonNode);
+
+	            _this3.checkButtonsDebounced();
+	          }
+	        });
+	      }
+
+	      return [id, data.fileId, data];
+	    }
+	  }, {
+	    key: "buildText",
+	    value: function buildText(id, params) {
+	      return "[DISK FILE ID=".concat(id).concat(params || '', "]");
+	    }
+	  }]);
+	  return DiskFile;
+	}(UploadFile);
+
+	function initVideoReceptionForTheFirstController(diskFileParser, controller, selectorNode, editor) {
+	  main_core_events.EventEmitter.subscribe(editor.getEventObject(), 'OnVideoHasCaught', function (event) {
+	    var fileToUpload = event.getData();
+
+	    var onSuccess = function onSuccess(_ref4) {
+	      var _ref4$data = babelHelpers.slicedToArray(_ref4.data, 3),
+	          element_id = _ref4$data[0].element_id;
+
+	      babelHelpers.objectDestructuringEmpty(_ref4$data[1]);
+	      var blob = _ref4$data[2];
+
+	      if (fileToUpload === blob && diskFileParser.values.has(element_id)) {
+	        main_core_events.EventEmitter.unsubscribe(selectorNode.parentNode, 'OnFileUploadSuccess', onSuccess);
+	        diskFileParser.insertFile(element_id, diskFileParser.values.get(element_id).node);
+	      }
+	    };
+
+	    main_core_events.EventEmitter.subscribe(selectorNode.parentNode, 'OnFileUploadSuccess', onSuccess);
+	    controller.exec(function () {
+	      controller.diskUfUploader.onChange([fileToUpload]);
+	    });
+	    event.stopImmediatePropagation();
+	  });
+	}
+
+	function initImageReceptionForTheFirstController(diskFileParser, controller, selectorNode, editor) {
+	  main_core_events.EventEmitter.subscribe(editor.getEventObject(), 'OnImageHasCaught', function (event) {
+	    event.stopImmediatePropagation();
+	    var fileToUpload = event.getData();
+	    return new Promise(function (resolve, reject) {
+	      var onSuccess = function onSuccess(_ref5) {
+	        var _ref5$data = babelHelpers.slicedToArray(_ref5.data, 3),
+	            element_id = _ref5$data[0].element_id;
+
+	        babelHelpers.objectDestructuringEmpty(_ref5$data[1]);
+	        var blob = _ref5$data[2];
+
+	        if (fileToUpload === blob && diskFileParser.values.has(element_id)) {
+	          main_core_events.EventEmitter.unsubscribe(selectorNode.parentNode, 'OnFileUploadSuccess', onSuccess);
+	          main_core_events.EventEmitter.unsubscribe(selectorNode.parentNode, 'OnFileUploadFailed', onFailed);
+	          var file = diskFileParser.values.get(element_id);
+	          var html = diskFileParser.buildHTML(element_id, file);
+	          resolve({
+	            image: file.image,
+	            html: html
+	          });
+	        }
+	      };
+
+	      var onFailed = function onFailed(_ref6) {
+	        var _ref6$data = babelHelpers.slicedToArray(_ref6.data, 3),
+	            file = _ref6$data[0];
+
+	        babelHelpers.objectDestructuringEmpty(_ref6$data[1]);
+	        var blob = _ref6$data[2];
+
+	        if (fileToUpload === blob) {
+	          main_core_events.EventEmitter.unsubscribe(selectorNode.parentNode, 'OnFileUploadSuccess', onSuccess);
+	          main_core_events.EventEmitter.unsubscribe(selectorNode.parentNode, 'OnFileUploadFailed', onFailed);
+	          reject();
+	        }
+	      };
+
+	      main_core_events.EventEmitter.subscribe(selectorNode.parentNode, 'OnFileUploadSuccess', onSuccess);
+	      main_core_events.EventEmitter.subscribe(selectorNode.parentNode, 'OnFileUploadFailed', onFailed);
+	      controller.exec(function () {
+	        controller.diskUfUploader.onChange([event.getData()]);
+	      });
+	    });
+	  });
+	}
+
+	function getKnownParser(parserId, editor, htmlEditor) {
+	  if (parserId === 'Spoiler') {
+	    return new Spoiler(editor, htmlEditor);
+	  } else if (parserId === 'MentionUser') {
+	    return new PostUser(editor, htmlEditor);
+	  } else if (parserId === 'UploadImage') {
+	    return new UploadImage(editor, htmlEditor);
+	  } else if (parserId === 'UploadFile') {
+	    return new UploadFile(editor, htmlEditor);
+	  } else if (babelHelpers.typeof(parserId) === 'object' && parserId['disk_file']) {
+	    return new DiskFile(editor, htmlEditor);
+	  }
+
+	  return null;
+	}
+
+	function showPinButton(htmlEditor, editorParams) {
+	  if (!document.querySelector('#lhe_button_editor_' + htmlEditor.formID)) {
+	    return;
+	  }
+
+	  editorParams.pinEditorPanel = editorParams.pinEditorPanel === true;
+	  var pinId = 'toolbar_pin';
+
+	  var but = function but(editor, wrap) {
+	    // Call parrent constructor
+	    but.superclass.constructor.apply(this, arguments);
+	    this.id = pinId;
+	    this.title = main_core.Loc.getMessage('MPF_PIN_EDITOR_PANNEL');
+	    this.className += ' ' + (editorParams.pinEditorPanel ? 'bxhtmled-button-toolbar-pined' : 'bxhtmled-button-toolbar-pin');
+	    this.Create();
+	    if (wrap) wrap.appendChild(this.GetCont());
+	  };
+
+	  BX.extend(but, window.BXHtmlEditor.Button);
+
+	  but.prototype.OnClick = function () {
+	    BX.removeClass(this.pCont, 'bxhtmled-button-toolbar-pined');
+	    BX.removeClass(this.pCont, 'bxhtmled-button-toolbar-pin');
+
+	    if (editorParams.pinEditorPanel) {
+	      editorParams.pinEditorPanel = false;
+	      BX.addClass(this.pCont, 'bxhtmled-button-toolbar-pin');
+	    } else {
+	      editorParams.pinEditorPanel = true;
+	      BX.addClass(this.pCont, 'bxhtmled-button-toolbar-pined');
+	    }
+
+	    BX.userOptions.save('main.post.form', 'postEdit', 'pinEditorPanel', editorParams.pinEditorPanel ? "Y" : "N");
+	  };
+
+	  window.BXHtmlEditor.Controls[pinId] = but;
+	  BX.addCustomEvent(htmlEditor, "GetControlsMap", function (controlsMap) {
+	    controlsMap.push({
+	      id: pinId,
+	      compact: true,
+	      hidden: false,
+	      sort: 500,
+	      checkWidth: true,
+	      offsetWidth: 32,
+	      wrap: 'right'
+	    });
+	  });
+	}
+
+	function bindAutoSave(htmlEditor, formNode) {
+	  if (!formNode) {
+	    return;
+	  }
+
+	  BX.addCustomEvent(formNode, 'onAutoSavePrepare', function (ob) {
+	    ob.FORM.setAttribute("bx-lhe-autosave-prepared", "Y");
+	    setTimeout(function () {
+	      BX.addCustomEvent(htmlEditor, 'OnContentChanged', function (text) {
+	        ob["mpfTextContent"] = text;
+	        ob.Init();
+	      });
+	    }, 1500);
+	  });
+	  BX.addCustomEvent(formNode, 'onAutoSave', function (ob, form_data) {
+	    if (BX.type.isNotEmptyString(ob['mpfTextContent'])) form_data['text'] = ob['mpfTextContent'];
+	  });
+	  BX.addCustomEvent(formNode, 'onAutoSaveRestore', function (ob, form_data) {
+	    if (form_data['text'] && /[^\s]+/gi.test(form_data['text'])) {
+	      htmlEditor.CheckAndReInit(form_data['text']);
+	    }
+	  });
+
+	  if (formNode.hasAttribute("bx-lhe-autosave-prepared") && formNode.BXAUTOSAVE) {
+	    formNode.removeAttribute("bx-lhe-autosave-prepared");
+	    setTimeout(formNode.BXAUTOSAVE.Prepare, 100);
+	  }
+	}
+
+	function showPanelEditor(editor, htmlEditor, editorParams) {
+	  var save = false;
+
+	  if (editorParams.pinEditorPanel === true || editorParams.showPanelEditor === true) {
+	    editorParams.showPanelEditor = true;
+	  } else if (editorParams.showPanelEditor === false) {
+	    editorParams.showPanelEditor = false;
+	  } else {
+	    editorParams.showPanelEditor = !htmlEditor.toolbar.IsShown();
+	    save = true;
+	  }
+
+	  editor.exec(function () {
+	    var buttonNode = editor.getContainer().querySelector('[data-bx-role="button-show-panel-editor"]');
+
+	    if (editorParams.showPanelEditor) {
+	      htmlEditor.dom.toolbarCont.style.opacity = 'inherit';
+	      htmlEditor.toolbar.Show();
+
+	      if (buttonNode) {
+	        buttonNode.classList.add('feed-add-post-form-btn-active');
+	      }
+	    } else {
+	      htmlEditor.toolbar.Hide();
+
+	      if (buttonNode) {
+	        buttonNode.classList.remove('feed-add-post-form-btn-active');
+	      }
+	    }
+	  });
+
+	  if (save !== false) {
+	    BX.userOptions.save('main.post.form', 'postEdit', 'showBBCode', editorParams.showPanelEditor ? 'Y' : 'N');
+	  }
+	}
+
+	function showUrlPreview(htmlEditor, editorParams) {
+	  if (!(editorParams.urlPreviewId && window['BXUrlPreview'] && BX(editorParams.urlPreviewId))) {
+	    return;
+	  }
+
+	  var urlPreview = new BXUrlPreview(BX(editorParams.urlPreviewId));
+
+	  var OnAfterUrlConvert = function OnAfterUrlConvert(url) {
+	    urlPreview.attachUrlPreview({
+	      url: url
+	    });
+	  };
+
+	  var OnBeforeCommandExec = function OnBeforeCommandExec(isContentAction, action, oAction, value) {
+	    if (action === 'createLink' && BX.type.isPlainObject(value) && value.hasOwnProperty('href')) {
+	      urlPreview.attachUrlPreview({
+	        url: value.href
+	      });
+	    }
+	  };
+
+	  BX.addCustomEvent(htmlEditor, 'OnAfterUrlConvert', OnAfterUrlConvert);
+	  BX.addCustomEvent(htmlEditor, 'OnAfterLinkInserted', OnAfterUrlConvert);
+	  BX.addCustomEvent(htmlEditor, 'OnBeforeCommandExec', OnBeforeCommandExec);
+	  BX.addCustomEvent(htmlEditor, 'OnReinitialize', function (text, data) {
+	    urlPreview.detachUrlPreview();
+	    var urlPreviewId;
+
+	    for (var uf in data) {
+	      if (data.hasOwnProperty(uf) && data[uf].hasOwnProperty('USER_TYPE_ID') && data[uf]['USER_TYPE_ID'] === 'url_preview') {
+	        urlPreviewId = data[uf]['VALUE'];
+	        break;
+	      }
+	    }
+
+	    if (urlPreviewId) {
+	      urlPreview.attachUrlPreview({
+	        id: urlPreviewId
+	      });
+	    }
+	  });
+	}
+
+	function customizeHTMLEditor(editor, htmlEditor) {
+	  editor.exec(function () {
+	    // Contextmenu changing for images/files
+	    htmlEditor.contextMenu.items['postimage'] = htmlEditor.contextMenu.items['postdocument'] = htmlEditor.contextMenu.items['postfile'] = [{
+	      TEXT: main_core.Loc.getMessage('BXEdDelFromText'),
+	      bbMode: true,
+	      ACTION: function ACTION() {
+	        var node = htmlEditor.contextMenu.GetTargetItem('postimage');
+	        if (!node) node = htmlEditor.contextMenu.GetTargetItem('postdocument');
+	        if (!node) node = htmlEditor.contextMenu.GetTargetItem('postfile');
+
+	        if (node && node.element) {
+	          htmlEditor.selection.RemoveNode(node.element);
+	        }
+
+	        htmlEditor.contextMenu.Hide();
+	      }
+	    }];
+
+	    if (htmlEditor.toolbar.controls && htmlEditor.toolbar.controls.FontSelector) {
+	      htmlEditor.toolbar.controls.FontSelector.SetWidth(45);
+	    }
+	  });
+	}
+
+	function bindHTML(editor) {
+	  var submitButton = document.querySelector('#lhe_button_submit_' + editor.getFormId());
+
+	  if (submitButton) {
+	    submitButton.addEventListener('click', function (event) {
+	      main_core_events.EventEmitter.emit(editor.getEventObject(), 'OnButtonClick', ['submit']);
+	      event.preventDefault();
+	      event.stopPropagation();
+	    });
+	  }
+
+	  var cancelButton = document.querySelector('#lhe_button_cancel_' + editor.getFormId());
+
+	  if (cancelButton) {
+	    cancelButton.addEventListener('click', function (event) {
+	      main_core_events.EventEmitter.emit(editor.getEventObject(), 'OnButtonClick', ['cancel']);
+	      event.preventDefault();
+	      event.stopPropagation();
+	    });
+	  }
+	}
+
+	function bindToolbar(editor, htmlEditor) {
+	  var toolbar = editor.getContainer().querySelector('[data-bx-role="toolbar"]');
+
+	  if (toolbar.querySelector('[data-id="file"]')) {
+	    var fileButton = toolbar.querySelector('[data-id="file"]');
+
+	    if (fileButton) {
+	      fileButton.addEventListener('click', function () {
+	        main_core_events.EventEmitter.emit(editor.getEventObject(), 'onShowControllers', fileButton.hasAttribute('data-bx-button-status') ? 'hide' : 'show');
+	      });
+	      main_core_events.EventEmitter.subscribe(editor.getEventObject(), 'onShowControllers', function (_ref) {
+	        var data = _ref.data;
+
+	        if (data.toString() === 'show') {
+	          fileButton.setAttribute('data-bx-button-status', 'active');
+	        } else {
+	          fileButton.removeAttribute('data-bx-button-status');
+	        }
+	      });
+	      fileButton.setAttribute('data-bx-files-count', 0);
+	      main_core_events.EventEmitter.subscribe(editor.getEventObject(), 'onShowControllers:File:Increment', function (_ref2) {
+	        var data = _ref2.data;
+	        var count = data > 0 ? data : 1;
+	        var filesCount = Math.max(parseInt(fileButton.getAttribute('data-bx-files-count') || 0) + count, 0);
+
+	        if (filesCount > 0) {
+	          if (!fileButton['counterObject']) {
+	            fileButton['counterObject'] = new BX.UI.Counter({
+	              value: filesCount,
+	              color: BX.UI.Counter.Color.GRAY,
+	              animate: true
+	            });
+	            var container = fileButton.querySelector('span');
+	            container.appendChild(fileButton['counterObject'].getContainer());
+	          } else {
+	            fileButton['counterObject'].update(filesCount);
+	          }
+	        }
+
+	        fileButton.setAttribute('data-bx-files-count', filesCount);
+	      });
+	      main_core_events.EventEmitter.subscribe(editor.getEventObject(), 'onShowControllers:File:Decrement', function (_ref3) {
+	        var data = _ref3.data;
+	        var count = data > 0 ? data : 1;
+	        var filesCount = Math.max(parseInt(fileButton.getAttribute('data-bx-files-count') || 0) - count, 0);
+	        fileButton.setAttribute('data-bx-files-count', filesCount);
+
+	        if (fileButton['counterObject']) {
+	          fileButton['counterObject'].update(filesCount);
+	        }
+	      });
+	    }
+	  }
+
+	  if (toolbar.querySelector('[data-id="search-tag"]')) {
+	    window['BXPostFormTags_' + editor.getFormId()] = new BXPostFormTags(editor.getFormId(), toolbar.querySelector('[data-id="search-tag"]'));
+	  }
+
+	  if (toolbar.querySelector('[data-id="create-link"]')) {
+	    toolbar.querySelector('[data-id="create-link"]').addEventListener('click', function (event) {
+	      htmlEditor.toolbar.controls.InsertLink.OnClick(event);
+	    });
+	  }
+
+	  if (toolbar.querySelector('[data-id="video"]')) {
+	    toolbar.querySelector('[data-id="video"]').addEventListener('click', function (event) {
+	      htmlEditor.toolbar.controls.InsertVideo.OnClick(event);
+	    });
+	  }
+
+	  if (toolbar.querySelector('[data-id="quote"]')) {
+	    var quoteNode = toolbar.querySelector('[data-id="quote"]');
+	    quoteNode.setAttribute('data-bx-type', 'action');
+	    quoteNode.setAttribute('data-bx-action', 'quote');
+	    quoteNode.addEventListener('mousedown', function (event) {
+	      htmlEditor.toolbar.controls.Quote.OnMouseDown.apply(htmlEditor.toolbar.controls.Quote, [event]);
+	      htmlEditor.CheckCommand(quoteNode);
+	    });
+	  }
+
+	  if (editor.getContainer().querySelector('[data-bx-role="button-show-panel-editor"]')) {
+	    editor.getContainer().querySelector('[data-bx-role="button-show-panel-editor"]').addEventListener('click', function () {
+	      editor.showPanelEditor();
+	    });
+	  }
+	}
+
+	function _templateObject$2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"main-post-form-toolbar-button\" data-bx-role=\"toolbar-item\"></div>"]);
+
+	  _templateObject$2 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
+	var intersectionObserver;
+
+	function observeIntersection(entity, callback) {
+	  if (!intersectionObserver) {
+	    intersectionObserver = new IntersectionObserver(function (entries) {
+	      entries.forEach(function (entry) {
+	        if (entry.isIntersecting) {
+	          intersectionObserver.unobserve(entry.target);
+	          var observedCallback = entry.target.observedCallback;
+	          delete entry.target.observedCallback;
+	          setTimeout(observedCallback);
+	        }
+	      });
+	    }, {
+	      threshold: 0
+	    });
+	  }
+
+	  entity.observedCallback = callback;
+	  intersectionObserver.observe(entity);
+	}
+
+	var justCounter = 0;
+
+	var Toolbar = /*#__PURE__*/function () {
+	  function Toolbar(eventObject, container) {
+	    babelHelpers.classCallCheck(this, Toolbar);
+	    this.container = container.querySelector('[data-bx-role="toolbar"]');
+	    this.adjustMorePosition = this.adjustMorePosition.bind(this);
+	    this.moreItem = container.querySelector('[data-bx-role="toolbar-item-more"]');
+	    this.moreItem.addEventListener('click', this.showSubmenu.bind(this));
+	    observeIntersection(this.container, this.adjustMorePosition);
+	    window.addEventListener('resize', this.adjustMorePosition);
+	  }
+
+	  babelHelpers.createClass(Toolbar, [{
+	    key: "insertAfter",
+	    value: function insertAfter(button, buttonId) {
+	      if (!main_core.Type.isElementNode(button['BODY']) && !main_core.Type.isStringFilled(button['BODY'])) {
+	        return;
+	      }
+
+	      var item = main_core.Tag.render(_templateObject$2());
+
+	      if (main_core.Type.isElementNode(button['BODY'])) {
+	        item.appendChild(button['BODY']);
+	      } else {
+	        item.innerHTML = button['BODY'];
+	      }
+
+	      if (button['ID']) {
+	        item.setAttribute('data-id', button['ID']);
+	      }
+
+	      if (buttonId !== null) {
+	        var found = false;
+	        var itemBefore = null;
+	        Array.from(this.container.querySelectorAll('[data-bx-role="toolbar-item"]')).forEach(function (toolbarItem) {
+	          if (found === true && itemBefore === null) {
+	            itemBefore = toolbarItem;
+	          } else if (found === false && toolbarItem && toolbarItem.dataset && toolbarItem.dataset.id === buttonId) {
+	            found = true;
+	          }
+	        });
+
+	        if (itemBefore) {
+	          itemBefore.parentNode.insertBefore(item, itemBefore);
+	        }
+	      }
+
+	      if (!item.parentNode) {
+	        this.container.appendChild(item);
+	      }
+
+	      this.adjustMorePosition();
+	    }
+	  }, {
+	    key: "getItems",
+	    value: function getItems() {
+	      return Array.from(this.container.querySelectorAll('[data-bx-role="toolbar-item"]'));
+	    }
+	  }, {
+	    key: "getVisibleItems",
+	    value: function getVisibleItems() {
+	      var _this = this;
+
+	      var visibleItems = [];
+	      Array.from(this.container.querySelectorAll('[data-bx-role="toolbar-item"]')).forEach(function (item) {
+	        if (item.offsetTop > _this.container.clientHeight / 2) {
+	          visibleItems.push(item);
+	        }
+	      });
+	      return visibleItems;
+	    }
+	  }, {
+	    key: "getHiddenItems",
+	    value: function getHiddenItems() {
+	      var hiddenItems = [];
+	      Array.from(this.container.querySelectorAll('[data-bx-role="toolbar-item"]')).forEach(function (item) {
+	        if (item.offsetTop > 0) {
+	          hiddenItems.push(item);
+	        }
+	      });
+	      return hiddenItems;
+	    }
+	  }, {
+	    key: "adjustMorePosition",
+	    value: function adjustMorePosition() {
+	      var visibleItemsLength = this.getVisibleItems().length;
+
+	      if (visibleItemsLength <= 0 || visibleItemsLength >= this.getItems().length) {
+	        this.moreItem.style.display = 'none';
+	      } else {
+	        this.moreItem.style.display = '';
+	      }
+	    }
+	  }, {
+	    key: "getPopup",
+	    value: function getPopup() {
+	      var _this2 = this;
+
+	      if (!this.popup) {
+	        this.popup = main_popup.PopupManager.create({
+	          id: 'main_post_form_toolbar_' + justCounter++,
+	          className: 'main-post-form-toolbar-popup',
+	          cacheable: false,
+	          content: this.getPopupContainer(),
+	          closeByEsc: true,
+	          autoHide: true,
+	          angle: true,
+	          bindElement: this.moreItem,
+	          offsetTop: -5,
+	          offsetLeft: 5,
+	          events: {
+	            onClose: function onClose() {
+	              Array.from(_this2.getPopupContainer().querySelectorAll('[data-bx-role="toolbar-item"]')).forEach(function (item) {
+	                _this2.container.appendChild(item);
+	              });
+	              delete _this2.popup;
+	            }
+	          }
+	        });
+	      }
+
+	      return this.popup;
+	    }
+	  }, {
+	    key: "getPopupContainer",
+	    value: function getPopupContainer() {
+	      if (!this.popupContainer) {
+	        this.popupContainer = document.createElement('DIV');
+	      }
+
+	      return this.popupContainer;
+	    }
+	  }, {
+	    key: "showSubmenu",
+	    value: function showSubmenu() {
+	      var _this3 = this;
+
+	      var hiddenItems = this.getHiddenItems();
+
+	      if (hiddenItems.length <= 0) {
+	        return;
+	      }
+
+	      hiddenItems.forEach(function (item) {
+	        _this3.getPopupContainer().appendChild(item);
+	      });
+	      this.getPopup().show();
+	    }
+	  }]);
+	  return Toolbar;
+	}();
+
+	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+
+	var Editor = /*#__PURE__*/function () {
+	  function Editor(options, editorParams) {
+	    var _this = this;
+
+	    babelHelpers.classCallCheck(this, Editor);
+	    babelHelpers.defineProperty(this, "jobs", new Map());
+	    babelHelpers.defineProperty(this, "editorParams", {
+	      height: 100,
+	      ctrlEnterHandler: null,
+	      parsers: null,
+	      showPanelEditor: false,
+	      showPinButton: false,
+	      pinEditorPanel: false,
+	      lazyLoad: true,
+	      urlPreviewId: null
+	    });
+	    babelHelpers.defineProperty(this, "actionQueue", []);
+	    this.id = options['id'];
+	    this.name = options['name'];
+	    this.formId = options['formId'];
+	    this.eventNode = options.eventNode || document.querySelector('#div' + (this.name || this.id));
+	    this.eventNode.dataset.bxHtmlEditable = 'Y';
+	    Editor.repo.set(this.getId(), this);
+	    this.setEditorParams(editorParams);
+	    this.bindEvents(window['BXHtmlEditor'] ? window['BXHtmlEditor'].Get(this.getId()) : null);
+	    this.toolbar = new Toolbar(this.getEventObject(), this.getContainer());
+	    this.inited = true;
+
+	    if (this.name !== null) {
+	      window[this.name] = this;
+	    }
+
+	    BX.onCustomEvent(this, 'onInitialized', [this, this.getFormId()]); //region Compatibility for crm.timeline
+
+	    main_core_events.EventEmitter.subscribe(this.getEventObject(), 'OnFileUploadSuccess', function (_ref) {
+	      var compatData = _ref.compatData;
+	      BX.onCustomEvent(_this.getEventObject(), 'onFileIsAdded', compatData);
+	    }); //endregion
+
+	    main_core_events.EventEmitter.subscribe(this.getEventObject(), 'onBusy', function (_ref2) {
+	      var handler = _ref2.data;
+
+	      if (_this.jobs.size <= 0) {
+	        main_core_events.EventEmitter.emit(_this.getEventObject(), 'onLHEIsBusy');
+	      }
+
+	      _this.jobs.set(handler, (_this.jobs.get(handler) || 0) + 1);
+	    });
+	    main_core_events.EventEmitter.subscribe(this.getEventObject(), 'onReady', function (_ref3) {
+	      var handler = _ref3.data;
+
+	      if (_this.jobs.size <= 0 || !_this.jobs.has(handler)) {
+	        return;
+	      }
+
+	      var counter = _this.jobs.get(handler);
+
+	      if (counter <= 1) {
+	        _this.jobs.delete(handler);
+
+	        if (_this.jobs.size <= 0) {
+	          main_core_events.EventEmitter.emit(_this.getEventObject(), 'onLHEIsReady');
+	        }
+	      } else {
+	        _this.jobs.set(handler, --counter);
+	      }
+	    });
+	  }
+
+	  babelHelpers.createClass(Editor, [{
+	    key: "setEditorParams",
+	    value: function setEditorParams(editorParams) {
+	      this.editorParams = Object.assign(this.editorParams, editorParams);
+	    }
+	  }, {
+	    key: "bindEvents",
+	    value: function bindEvents() {
+	      var _this2 = this;
+
+	      var htmlEditor = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+	      this.events = {};
+	      [['OnEditorInitedBefore', this.OnEditorInitedBefore.bind(this)], ['OnCreateIframeAfter', this.OnCreateIframeAfter.bind(this)], ['OnEditorInitedAfter', this.OnEditorInitedAfter.bind(this)]].forEach(function (_ref4) {
+	        var _ref5 = babelHelpers.slicedToArray(_ref4, 2),
+	            eventName = _ref5[0],
+	            closure = _ref5[1];
+
+	        if (!htmlEditor) {
+	          _this2.events[eventName] = function (htmlEditor) {
+	            if (htmlEditor.id === _this2.getId()) {
+	              //!it important to use deprecated eventEmitter
+	              BX.removeCustomEvent(eventName, _this2.events[eventName]);
+	              delete _this2.events[eventName];
+	              closure(htmlEditor);
+	            }
+	          }; //!it important to use deprecated eventEmitter
+
+
+	          BX.addCustomEvent(eventName, _this2.events[eventName]);
+	        } else {
+	          closure(htmlEditor);
+	        }
+	      });
+	      main_core_events.EventEmitter.subscribe(this.getEventObject(), 'OnShowLHE', this.OnShowLHE.bind(this));
+	      main_core_events.EventEmitter.subscribe(this.getEventObject(), 'OnButtonClick', this.OnButtonClick.bind(this));
+	      main_core_events.EventEmitter.subscribe(this.getEventObject(), 'OnParserRegister', function (_ref6) {
+	        var parser = _ref6.data;
+
+	        _this2.addParser(parser);
+	      });
+	      main_core_events.EventEmitter.subscribe(this.getEventObject(), 'OnGetHTMLEditor', function (_ref7) {
+	        var someObjectToReceiveHTMLEditor = _ref7.data;
+	        someObjectToReceiveHTMLEditor.htmlEditor = _this2.getEditor();
+	      });
+	      main_core_events.EventEmitter.subscribe(this.getEventObject(), 'OnInsertContent', function (_ref8) {
+	        var _ref8$data = babelHelpers.slicedToArray(_ref8.data, 2),
+	            text = _ref8$data[0],
+	            html = _ref8$data[1];
+
+	        _this2.insertContent(text, html);
+	      });
+	      main_core_events.EventEmitter.subscribe(this.getEventObject(), 'OnAddButton', function (_ref9) {
+	        var _ref9$data = babelHelpers.slicedToArray(_ref9.data, 2),
+	            button = _ref9$data[0],
+	            beforeButton = _ref9$data[1];
+
+	        _this2.getToolbar().insertAfter(button, beforeButton);
+	      });
+	      bindHTML(this);
+	    }
+	  }, {
+	    key: "getId",
+	    value: function getId() {
+	      return this.id;
+	    }
+	  }, {
+	    key: "setEditor",
+	    value: function setEditor(htmlEditor) {
+	      var _this3 = this;
+
+	      if (this.htmlEditor === htmlEditor) {
+	        return;
+	      }
+
+	      this.htmlEditor = htmlEditor;
+	      htmlEditor.formID = this.getFormId();
+	      main_core_events.EventEmitter.subscribe(htmlEditor, 'OnCtrlEnter', function () {
+	        htmlEditor.SaveContent();
+
+	        if (main_core.Type.isFunction(_this3.editorParams.ctrlEnterHandler)) {
+	          _this3.editorParams.ctrlEnterHandler();
+	        } else if (main_core.Type.isStringFilled(_this3.editorParams.ctrlEnterHandler) && window[_this3.editorParams.ctrlEnterHandler]) {
+	          window[_this3.editorParams.ctrlEnterHandler]();
+	        } else if (document.forms[_this3.getFormId()]) {
+	          BX.submit(document.forms[_this3.getFormId()]);
+	        }
+	      });
+	      this.editorParams['height'] = htmlEditor.config['height'];
+	      console.groupCollapsed('main.post.form: parsers: ', this.getId());
+	      this.editorParams.parsers.forEach(function (parserId) {
+	        var parser = getKnownParser(parserId, _this3, htmlEditor);
+
+	        if (parser) {
+	          console.groupCollapsed(parserId);
+	          console.log(parser);
+
+	          if (parser.hasButton()) {
+	            htmlEditor.AddButton(parser.getButton());
+	          }
+
+	          htmlEditor.AddParser(parser.getParser());
+	          console.groupEnd(parserId);
+	        }
+	      });
+	      console.groupEnd('main.post.form: parsers: ', this.getId()); //region Catching external files
+	      // paste an image from IO buffer into editor
+
+	      main_core_events.EventEmitter.subscribe(htmlEditor, 'OnImageDataUriHandle', function (_ref10) {
+	        var _ref10$compatData = babelHelpers.slicedToArray(_ref10.compatData, 2),
+	            editor = _ref10$compatData[0],
+	            imageBase64 = _ref10$compatData[1];
+
+	        var blob = BX.UploaderUtils.dataURLToBlob(imageBase64.src);
+
+	        if (blob && blob.size > 0 && blob.type.indexOf('image/') === 0) {
+	          main_core_events.EventEmitter.emit(_this3.getEventObject(), 'onShowControllers', 'show');
+	          blob.name = blob.name || imageBase64.title || 'image.' + blob.type.substr(6);
+	          blob.referrerToEditor = imageBase64;
+	          main_core_events.EventEmitter.emit(_this3.getEventObject(), 'OnImageHasCaught', new main_core_events.BaseEvent({
+	            data: blob
+	          })).forEach(function (result) {
+	            result.then(function (_ref11) {
+	              var image = _ref11.image,
+	                  html = _ref11.html;
+	              main_core_events.EventEmitter.emit(htmlEditor, 'OnImageDataUriCaughtUploaded', new main_core_events.BaseEvent({
+	                compatData: [imageBase64, image, {
+	                  replacement: html
+	                }]
+	              }));
+	            }).catch(function () {
+	              main_core_events.EventEmitter.emit(htmlEditor, 'OnImageDataUriCaughtFailed', new main_core_events.BaseEvent({
+	                compatData: [imageBase64]
+	              }));
+	            });
+	          });
+	        }
+	      }); // paste a video into editor
+
+	      main_core_events.EventEmitter.subscribe(main_core_events.EventEmitter.GLOBAL_TARGET, 'onAddVideoMessage', function (_ref12) {
+	        var _ref12$compatData = babelHelpers.slicedToArray(_ref12.compatData, 2),
+	            file = _ref12$compatData[0],
+	            formID = _ref12$compatData[1];
+
+	        if (!formID || _this3.getFormId() !== formID) {
+	          return;
+	        }
+
+	        main_core_events.EventEmitter.emit(_this3.getEventObject(), 'onShowControllers', 'show');
+	        main_core_events.EventEmitter.emit(_this3.getEventObject(), 'OnVideoHasCaught', new main_core_events.BaseEvent({
+	          data: file
+	        }));
+	      }); // DnD
+
+	      (function () {
+	        var placeHolder = BX('micro' + (_this3.name || _this3.id));
+	        var active = false;
+	        var timeoutId = 0;
+
+	        var activate = function activate(e) {
+	          e.preventDefault();
+	          e.stopPropagation();
+
+	          if (timeoutId > 0) {
+	            clearTimeout(timeoutId);
+	            timeoutId = 0;
+	          }
+
+	          if (active === true) {
+	            return;
+	          }
+
+	          var isFileTransfer = e && e['dataTransfer'] && e['dataTransfer']['types'] && e['dataTransfer']['types'].indexOf('Files') >= 0;
+
+	          if (isFileTransfer) {
+	            active = true;
+
+	            _this3.getContainer().classList.add('feed-add-post-dnd-over');
+
+	            if (placeHolder) {
+	              placeHolder.classList.add('feed-add-post-micro-dnd-ready');
+	            }
+	          }
+
+	          return true;
+	        };
+
+	        var disActivate = function disActivate(e) {
+	          e.preventDefault();
+	          e.stopPropagation();
+
+	          if (timeoutId > 0) {
+	            clearTimeout(timeoutId);
+	          }
+
+	          timeoutId = setTimeout(function () {
+	            active = false;
+
+	            _this3.getContainer().classList.remove('feed-add-post-dnd-over');
+
+	            if (placeHolder) {
+	              placeHolder.classList.remove('feed-add-post-micro-dnd-ready');
+	            }
+	          }, 100);
+	          return false;
+	        };
+
+	        var catchFiles = function catchFiles(e) {
+	          disActivate(e);
+
+	          if (e && e['dataTransfer'] && e['dataTransfer']['types'] && e['dataTransfer']['types'].indexOf('Files') >= 0 && e['dataTransfer']['files'] && e['dataTransfer']['files'].length > 0) {
+	            main_core_events.EventEmitter.emit(_this3.getEventObject(), 'OnShowLHE', new main_core_events.BaseEvent({
+	              compatData: ['justShow', {
+	                onShowControllers: 'show'
+	              }]
+	            }));
+	            main_core_events.EventEmitter.emit(_this3.getEventObject(), 'onFilesHaveCaught', new main_core_events.BaseEvent({
+	              data: e['dataTransfer']['files']
+	            }));
+	          }
+
+	          return false;
+	        };
+
+	        _this3.getContainer().addEventListener('dragover', activate);
+
+	        _this3.getContainer().addEventListener('dragenter', activate);
+
+	        _this3.getContainer().addEventListener('dragleave', disActivate);
+
+	        _this3.getContainer().addEventListener('dragexit', disActivate);
+
+	        _this3.getContainer().addEventListener('drop', catchFiles);
+
+	        _this3.getContainer().setAttribute('dropzone', 'copy f:*\/*');
+
+	        if (!document.body.hasAttribute('dropzone')) {
+	          document.body.setAttribute('dropzone', 'copy f:*/*');
+	          document.body.addEventListener('dragover', function (e) {
+	            e.preventDefault();
+	            e.stopPropagation();
+	            return true;
+	          });
+	          document.body.addEventListener('drop', function (e) {
+	            e.preventDefault();
+	            e.stopPropagation();
+
+	            if (e && e['dataTransfer'] && e['dataTransfer']['types'] && e['dataTransfer']['types'].indexOf('Files') >= 0 && e['dataTransfer']['files'] && e['dataTransfer']['files'].length > 0) {
+	              var lhe;
+	              var iteratorBuffer;
+
+	              var iterator = _classStaticPrivateFieldSpecGet(this.constructor, Editor, _shownForms).keys();
+
+	              while ((iteratorBuffer = iterator.next()) && iteratorBuffer.done !== true && iteratorBuffer.value) {
+	                lhe = iteratorBuffer.value;
+	              }
+
+	              if (lhe) {
+	                main_core_events.EventEmitter.emit(lhe.getEventObject(), 'OnShowLHE', new main_core_events.BaseEvent({
+	                  compatData: ['justShow', {
+	                    onShowControllers: 'show'
+	                  }]
+	                }));
+	                main_core_events.EventEmitter.emit(lhe.getEventObject(), 'onFilesHaveCaught', new main_core_events.BaseEvent({
+	                  data: e['dataTransfer']['files']
+	                }));
+	              }
+	            }
+
+	            return false;
+	          }.bind(_this3));
+	        }
+
+	        if (placeHolder) {
+	          placeHolder.addEventListener('dragenter', function (e) {
+	            activate(e);
+	            main_core_events.EventEmitter.emit(_this3.getEventObject(), 'OnShowLHE', new main_core_events.BaseEvent({
+	              compatData: ['justShow', {
+	                onShowControllers: 'show'
+	              }]
+	            }));
+	          });
+	        }
+
+	        main_core_events.EventEmitter.subscribe(_this3.getEditor(), 'OnIframeDrop', function (_ref13) {
+	          var _ref13$data = babelHelpers.slicedToArray(_ref13.data, 1),
+	              e = _ref13$data[0];
+
+	          return catchFiles(e);
+	        });
+	        main_core_events.EventEmitter.subscribe(_this3.getEditor(), 'OnIframeDragOver', function (_ref14) {
+	          var _ref14$data = babelHelpers.slicedToArray(_ref14.data, 1),
+	              e = _ref14$data[0];
+
+	          return activate(e);
+	        });
+	        main_core_events.EventEmitter.subscribe(_this3.getEditor(), 'OnIframeDragLeave', function (_ref15) {
+	          var _ref15$data = babelHelpers.slicedToArray(_ref15.data, 1),
+	              e = _ref15$data[0];
+
+	          return disActivate(e);
+	        });
+	      })(); //endregion
+
+
+	      main_core_events.EventEmitter.subscribe(htmlEditor, 'OnInsertContent', function (_ref16) {
+	        var _ref16$data = babelHelpers.slicedToArray(_ref16.data, 2),
+	            text = _ref16$data[0],
+	            html = _ref16$data[1];
+
+	        _this3.insertContent(text, html);
+	      }); //region Visible customization
+
+	      showPinButton(htmlEditor, this.editorParams);
+
+	      showPanelEditor(this, htmlEditor, this.editorParams);
+
+	      showUrlPreview(htmlEditor, this.editorParams);
+	      customizeHTMLEditor(this, htmlEditor);
+	      bindAutoSave(htmlEditor, BX(this.getFormId()));
+	      bindToolbar(this, htmlEditor); //endregion
+
+	      main_core_events.EventEmitter.subscribe(this.getEventObject(), 'OnAfterShowLHE', function () {
+	        _this3.getEditor().AllowBeforeUnloadHandler();
+	      });
+	      main_core_events.EventEmitter.subscribe(this.getEventObject(), 'OnAfterHideLHE', function () {
+	        _this3.getEditor().DenyBeforeUnloadHandler();
+	      });
+	    }
+	  }, {
+	    key: "getEditor",
+	    value: function getEditor() {
+	      return this.htmlEditor;
+	    }
+	  }, {
+	    key: "getFormId",
+	    value: function getFormId() {
+	      return this.formId;
+	    }
+	  }, {
+	    key: "getEventObject",
+	    value: function getEventObject() {
+	      return this.eventNode;
+	    }
+	  }, {
+	    key: "getContainer",
+	    value: function getContainer() {
+	      return this.eventNode;
+	    }
+	  }, {
+	    key: "getToolbar",
+	    value: function getToolbar() {
+	      return this.toolbar;
+	    }
+	  }, {
+	    key: "OnEditorInitedBefore",
+	    value: function OnEditorInitedBefore(htmlEditor) {
+	      this.setEditor(htmlEditor);
+	    }
+	  }, {
+	    key: "OnCreateIframeAfter",
+	    value: function OnCreateIframeAfter() {
+	      if (this.editorIsLoaded !== true) {
+	        this.editorIsLoaded = true;
+	        this.exec();
+	        main_core_events.EventEmitter.emit(this, 'OnEditorIsLoaded', []);
+	      }
+	    }
+	  }, {
+	    key: "OnEditorInitedAfter",
+	    value: function OnEditorInitedAfter(htmlEditor) {
+	      if (!this.editorParams.lazyLoad) {
+	        main_core_events.EventEmitter.emit(this.getEventObject(), 'OnShowLHE', new main_core_events.BaseEvent({
+	          compatData: ['justShow', htmlEditor, false]
+	        }));
+	      }
+
+	      if (htmlEditor.sandbox && htmlEditor.sandbox.inited) {
+	        this.OnCreateIframeAfter();
+	      }
+	    }
+	  }, {
+	    key: "addParser",
+	    value: function addParser(parser) {
+	      var _this4 = this;
+
+	      this.exec(function () {
+	        parser.init(_this4.getEditor());
+
+	        _this4.getEditor().AddParser({
+	          name: parser.id,
+	          obj: {
+	            Parse: function Parse(parserId, text) {
+	              return parser.parse(text);
+	            },
+	            UnParse: parser.unparse
+	          }
+	        });
+
+	        if (!_this4['addParserAfterDebounced']) {
+	          _this4.addParserAfterDebounced = main_core.Runtime.debounce(function () {
+	            _this4.getEditor().SetContent(_this4.getEditor().GetContent().replace(/&#91;/ig, "[").replace(/&#93;/ig, "]"), true);
+	          }, 100);
+	        }
+
+	        _this4.addParserAfterDebounced();
+	      });
+	    }
+	  }, {
+	    key: "insertContent",
+	    value: function insertContent(text) {
+	      var _this5 = this;
+
+	      var html = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+	      this.exec(function () {
+	        var editorMode = _this5.getEditor().GetViewMode();
+
+	        if (editorMode === 'wysiwyg') {
+	          _this5.getEditor().InsertHtml(html || text);
+
+	          setTimeout(_this5.getEditor().AutoResizeSceleton.bind(_this5.getEditor()), 500);
+	          setTimeout(_this5.getEditor().AutoResizeSceleton.bind(_this5.getEditor()), 1000);
+	        } else {
+	          _this5.getEditor().textareaView.Focus();
+
+	          if (!_this5.getEditor().bbCode) {
+	            var doc = _this5.getEditor().GetIframeDoc();
+
+	            var dummy = doc.createElement('DIV');
+	            dummy.style.display = 'none';
+	            dummy.innerHTML = text;
+	            doc.body.appendChild(dummy);
+	            text = _this5.getEditor().Parse(text, true, false);
+	            dummy.parentNode.removeChild(dummy);
+	          }
+
+	          _this5.getEditor().textareaView.WrapWith('', '', text);
+	        }
+	      });
+	    }
+	  }, {
+	    key: "reinit",
+	    value: function reinit(text, data) {
+	      var showControllers = 'hide';
+
+	      if (main_core.Type.isPlainObject(data) && Object.values(data).length) {
+	        Object.values(data).forEach(function (property) {
+	          if (property && property['VALUE']) {
+	            showControllers = 'show';
+	          }
+	        });
+	      }
+
+	      main_core_events.EventEmitter.emit(this.getEventObject(), 'onShowControllers', showControllers);
+	      main_core_events.EventEmitter.emit(this.getEventObject(), 'onReinitializeBefore', [text, data]);
+	      this.getEditor().CheckAndReInit(main_core.Type.isString(text) ? text : '');
+	      BX.onCustomEvent(this.getEditor(), 'onReinitialize', [this, text, data]);
+
+	      if (this.editorParams['height']) {
+	        this.oEditor.SetConfigHeight(this.editorParams['height']);
+	        this.oEditor.ResizeSceleton();
+	      }
+	    }
+	  }, {
+	    key: "OnShowLHE",
+	    value: function OnShowLHE(_ref17) {
+	      var _this6 = this;
+
+	      var data = _ref17.data,
+	          compatData = _ref17.compatData;
+
+	      var _ref18 = data || compatData,
+	          _ref19 = babelHelpers.slicedToArray(_ref18, 2),
+	          show = _ref19[0],
+	          setFocus = _ref19[1];
+
+	      if (!this.getEditor() && window['BXHtmlEditor']) {
+	        window['BXHtmlEditor'].Get(this.getId()).Init();
+	      }
+
+	      show = show === false || show === 'hide' || show === 'justShow' ? show : true;
+	      var placeHolder = BX('micro' + (this.name || this.id));
+
+	      if (placeHolder) {
+	        placeHolder.style.display = show === true || show === 'justShow' ? 'none' : 'block';
+	      }
+
+	      if (show === 'hide') {
+	        _classStaticPrivateFieldSpecGet(this.constructor, Editor, _shownForms).delete(this);
+
+	        main_core_events.EventEmitter.emit(this.getEventObject(), 'OnBeforeHideLHE');
+
+	        if (this.getContainer().style.display === 'none') {
+	          main_core_events.EventEmitter.emit(this.getEventObject(), 'OnAfterHideLHE');
+	          main_core_events.EventEmitter.emit(this.getEventObject(), 'onShowControllers', 'hide');
+	        } else {
+	          new BX['easing']({
+	            duration: 200,
+	            start: {
+	              opacity: 100,
+	              height: this.getContainer().scrollHeight
+	            },
+	            finish: {
+	              opacity: 0,
+	              height: 20
+	            },
+	            transition: BX.easing.makeEaseOut(BX.easing.transitions.quad),
+	            step: function step(state) {
+	              _this6.getContainer().style.height = state.height + 'px';
+	              _this6.getContainer().style.opacity = state.opacity / 100;
+	            },
+	            complete: function complete() {
+	              _this6.getContainer().style.cssText = '';
+	              _this6.getContainer().style.display = 'none';
+	              main_core_events.EventEmitter.emit(_this6.getEventObject(), 'OnAfterHideLHE');
+	              main_core_events.EventEmitter.emit(_this6.getEventObject(), 'onShowControllers', 'hide');
+	            }
+	          }).animate();
+	        }
+	      } else if (show) {
+	        _classStaticPrivateFieldSpecGet(this.constructor, Editor, _shownForms).set(this);
+
+	        if (setFocus && main_core.Type.isPlainObject(setFocus)) {
+	          if (setFocus['onShowControllers']) {
+	            main_core_events.EventEmitter.emit(this.getEventObject(), 'onShowControllers', setFocus['onShowControllers']);
+	          }
+	        }
+
+	        main_core_events.EventEmitter.emit(this.getEventObject(), 'OnBeforeShowLHE');
+
+	        if (show === 'justShow' || this.getContainer().style.display === 'block') {
+	          this.getContainer().style.display = 'block';
+	          main_core_events.EventEmitter.emit(this.getEventObject(), 'OnAfterShowLHE'); //To remember: Here is set a text -> reinitData-> reinit -> editor.CheckAndReInit()
+
+	          if (setFocus !== false) {
+	            this.getEditor().Focus();
+	          }
+	        } else {
+	          main_core.Dom.adjust(this.getContainer(), {
+	            style: {
+	              display: 'block',
+	              overflow: 'hidden',
+	              height: '20px',
+	              opacity: 0.1
+	            }
+	          });
+	          new BX['easing']({
+	            duration: 200,
+	            start: {
+	              opacity: 10,
+	              height: 20
+	            },
+	            finish: {
+	              opacity: 100,
+	              height: this.getContainer().scrollHeight
+	            },
+	            transition: BX.easing.makeEaseOut(BX.easing.transitions.quad),
+	            step: function step(state) {
+	              _this6.getContainer().style.height = state.height + 'px';
+	              _this6.getContainer().style.opacity = state.opacity / 100;
+	            },
+	            complete: function complete() {
+	              main_core_events.EventEmitter.emit(_this6.getEventObject(), 'OnAfterShowLHE'); //To remember: Here is set a text -> reinitData-> reinit -> editor.CheckAndReInit()
+
+	              _this6.getEditor().Focus();
+
+	              _this6.getContainer().style.cssText = "";
+	            }
+	          }).animate();
+	        }
+	      } else {
+	        _classStaticPrivateFieldSpecGet(this.constructor, Editor, _shownForms).delete(this);
+
+	        main_core_events.EventEmitter.emit(this.getEventObject(), 'OnBeforeHideLHE');
+	        main_core_events.EventEmitter.emit(this.getEventObject(), 'onShowControllers', 'hide');
+	        this.getContainer().style.display = 'none';
+	        main_core_events.EventEmitter.emit(this.getEventObject(), 'OnAfterHideLHE');
+	      }
+	    }
+	  }, {
+	    key: "OnButtonClick",
+	    value: function OnButtonClick(_ref20) {
+	      var _ref20$data = babelHelpers.slicedToArray(_ref20.data, 1),
+	          action = _ref20$data[0];
+
+	      if (action !== 'cancel') {
+	        var res = {
+	          result: true
+	        };
+	        main_core_events.EventEmitter.emit(this.getEventObject(), 'OnClickBeforeSubmit', new main_core_events.BaseEvent({
+	          compatData: [this, res]
+	        }));
+
+	        if (res['result'] !== false) {
+	          main_core_events.EventEmitter.emit(this.getEventObject(), 'OnClickSubmit', new main_core_events.BaseEvent({
+	            compatData: [this]
+	          }));
+	        }
+	      } else {
+	        main_core_events.EventEmitter.emit(this.getEventObject(), 'OnClickCancel', new main_core_events.BaseEvent({
+	          compatData: [this]
+	        }));
+	        main_core_events.EventEmitter.emit(this.getEventObject(), 'OnShowLHE', new main_core_events.BaseEvent({
+	          compatData: ['hide']
+	        }));
+	      }
+	    } //region compatibility
+
+	  }, {
+	    key: "exec",
+	    value: function exec(func, args) {
+	      if (typeof func == 'function') {
+	        this.actionQueue.push([func, args]);
+	      }
+
+	      if (this.editorIsLoaded === true) {
+	        var res;
+
+	        while ((res = this.actionQueue.shift()) && res) {
+	          res[0].apply(this, res[1]);
+	        }
+	      }
+	    }
+	  }, {
+	    key: "showPanelEditor",
+	    value: function showPanelEditor$$1() {
+	      showPanelEditor(this, this.getEditor(), {});
+	    }
+	  }, {
+	    key: "getContent",
+	    value: function getContent() {
+	      return this.oEditor ? this.oEditor.GetContent() : '';
+	    }
+	  }, {
+	    key: "setContent",
+	    value: function setContent(text) {
+	      if (this.getEditor()) {
+	        this.getEditor().SetContent(text);
+	      }
+	    }
+	  }, {
+	    key: "controllerInit",
+	    value: function controllerInit(status) {
+	      main_core_events.EventEmitter.emit(this.getEventObject(), 'onShowControllers', status === 'hide' ? 'hide' : 'show');
+	    }
+	  }, {
+	    key: "isReady",
+	    get: function get() {
+	      return this.editorIsLoaded;
+	    }
+	  }, {
+	    key: "oEditor",
+	    get: function get() {
+	      return this.getEditor();
+	    }
+	  }, {
+	    key: "oEditorId",
+	    get: function get() {
+	      return this.getId();
+	    }
+	  }, {
+	    key: "formID",
+	    get: function get() {
+	      return this.getFormId();
+	    }
+	  }, {
+	    key: "params",
+	    get: function get() {
+	      return {
+	        formID: this.getFormId()
+	      };
+	    }
+	  }, {
+	    key: "controllers",
+	    get: function get() {
+	      var event = new main_core_events.BaseEvent();
+	      var data = {};
+	      event.setData(data);
+	      main_core_events.EventEmitter.emit(this.getEventObject(), 'onCollectControllers', event);
+	      var result = {};
+	      Object.keys(data).forEach(function (fieldName) {
+	        result[fieldName] = Object.assign({}, data[fieldName]);
+	        result[fieldName]['values'] = {};
+
+	        if (main_core.Type.isArray(data[fieldName]['values'])) {
+	          data[fieldName]['values'].forEach(function (id) {
+	            result[fieldName]['values'][id] = {
+	              id: id
+	            };
+	          });
+	        } else if (main_core.Type.isPlainObject(data[fieldName]['values'])) {
+	          result[fieldName]['values'] = Object.assign({}, data[fieldName]['values']);
+	        }
+	      });
+	      return result;
+	    }
+	  }, {
+	    key: "arFiles",
+	    get: function get() {
+	      var event = new main_core_events.BaseEvent();
+	      var data = {};
+	      event.setData(data);
+	      main_core_events.EventEmitter.emit(this.getEventObject(), 'onCollectControllers', event);
+	      var result = {};
+	      Object.keys(data).forEach(function (fieldName) {
+	        if (data[fieldName]['values']) {
+	          data[fieldName]['values'].forEach(function (id) {
+	            result[id] = [fieldName];
+	          });
+	        }
+	      });
+	      return result;
+	    } //endregion
+
+	  }]);
+	  return Editor;
+	}();
+
+	babelHelpers.defineProperty(Editor, "repo", new Map());
+	var _shownForms = {
+	  writable: true,
+	  value: new Map()
+	};
+
+	window['LHEPostForm'] = {
+	  //region compatibility
+	  getEditor: function getEditor(editor) {
+	    return window["BXHtmlEditor"] ? window["BXHtmlEditor"].Get(babelHelpers.typeof(editor) == "object" ? editor.id : editor) : null;
+	  },
+	  getHandler: function getHandler(editor) {
+	    var id = main_core.Type.isStringFilled(editor) ? editor : editor.id;
+	    return Editor.repo.get(id);
+	  },
+	  getHandlerByFormId: function getHandlerByFormId(formId) {
+	    var result = null;
+	    Editor.repo.forEach(function (editor) {
+	      if (editor.getFormId() === formId) {
+	        result = editor;
+	      }
+	    });
+	    return result;
+	  },
+	  reinitData: function reinitData(editorID, text, data) {
+	    var files = {};
+	    Object.entries(data).forEach(function (_ref) {
+	      var _ref2 = babelHelpers.slicedToArray(_ref, 2),
+	          userFieldName = _ref2[0],
+	          userField = _ref2[1];
+
+	      if (main_core.Type.isPlainObject(userField) && userField['USER_TYPE_ID'] && userField['VALUE'] && Object.values(userField['VALUE']).length > 0) {
+	        files[userFieldName] = userField;
+	      }
+	    });
+	    var handler = this.getHandler(editorID);
+
+	    if (handler && (handler.isReady || main_core.Type.isStringFilled(text) || Object.values(files).length > 0)) {
+	      handler.exec(handler.reinit, [text, files]);
+	    }
+
+	    return false;
+	  },
+	  reinitDataBefore: function reinitDataBefore(editorID) {
+	    var handler = Editor.repo.get(editorID);
+
+	    if (handler && handler.getEventObject()) {
+	      main_core_events.EventEmitter.emit(handler.getEventObject(), 'onReinitializeBefore', [handler]);
+	    }
+	  } //endregion
+
+	};
+
+	exports.PostForm = Editor;
+
+}((this.BX.Main = this.BX.Main || {}),BX,BX.Main,BX.Event));
+
+
+
 ;(function(){
-	if (window["LHEPostForm"])
+	if (window["BXPostFormTags"])
 		return;
 var repo = {
-	controller : {},
-	handler : {},
-	form : {},
 	selector : {}
 };
-BX.addCustomEvent(window, "BFileDLoadFormControllerWasBound", function(obj) { repo.controller[obj.id] = true;});
-BX.addCustomEvent(window, "WDLoadFormControllerInit", function(obj) { repo.controller[obj.CID] = obj; });
-BX.addCustomEvent(window, "WDLoadFormControllerWasBound", function(obj) { repo.controller[obj.CID] = true; });
-BX.addCustomEvent(window, "DiskDLoadFormControllerInit", function(obj) { repo.controller[obj.CID] = obj; });
-BX.addCustomEvent(window, "DiskLoadFormControllerWasBound", function(obj) { repo.controller[obj.CID] = true; });
-BX.addCustomEvent(window, 'OnEditorInitedBefore', function(editor) {
-	if (repo.handler[editor.id])
-	{
-		editor.__lhe_flags = ['OnEditorInitedBefore'];
-		if (repo.handler[editor.id]["params"] && repo.handler[editor.id]["params"]['LHEJsObjName']) // for custom templates
-			window[repo.handler[editor.id].params['LHEJsObjName']] = editor;
-		repo.handler[editor.id].OnEditorInitedBefore(editor);
-	}
-});
-var OnCreateIframeAfter = function(editor){
-	if (repo.handler[editor.id] && repo.handler[editor.id].editorIsLoaded !== true)
-	{
-		repo.handler[editor.id].editorIsLoaded = true;
-		repo.handler[editor.id].exec();
-		BX.onCustomEvent(repo.handler[editor.id], 'OnEditorIsLoaded', [repo.handler[editor.id], editor]);
-	}
-};
-BX.addCustomEvent(window, 'OnCreateIframeAfter', OnCreateIframeAfter);
 
-BX.addCustomEvent(window, 'OnEditorInitedAfter', function(editor, forced){
-	if (repo.handler[editor.id])
-	{
-		editor.__lhe_flags.push('OnEditorInitedAfter');
-		repo.handler[editor.id].OnEditorInitedAfter(editor);
-
-		if (repo.handler[editor.id].editorIsLoaded !== true && forced && editor.sandbox && editor.sandbox.inited)
-			OnCreateIframeAfter.apply(editor, [editor]);
-	}
-});
-BX.util.object_search = function(needle, haystack)
-{
-	for(var i in haystack)
-	{
-		if (haystack.hasOwnProperty(i))
-		{
-			if (haystack[i] == needle)
-				return true;
-			else if (typeof haystack[i] == "object" && haystack[i] !== null)
-			{
-				var result = BX.util.object_search_key(needle, haystack[i]);
-				if (result !== false)
-					return result;
-			}
-		}
-	}
-	return false;
-};
-var parserClass = function(bxTag, tag, additionalTags)
-{
-	additionalTags = (additionalTags && additionalTags.length > 0 ? additionalTags : []);
-	if (typeof tag == "object" && tag.length > 0)
-	{
-		var res;
-		while((res = tag.pop()) && res && tag.length > 0)
-		{
-			additionalTags.push(res);
-		}
-		tag = res;
-	}
-	additionalTags.push(tag);
-	this.exist = true;
-	this.bxTag = bxTag;
-	this.tag = tag;
-	this.tags = additionalTags;
-	this.regexp = new RegExp("\\[(" + additionalTags.join("|") + ")=((?:\\s|\\S)*?)(?:\\s*?WIDTH=(\\d+)\\s*?HEIGHT=(\\d+))?\\]", "ig");
-	this.code = '[' + tag + '=#ID##ADDITIONAL#]';
-	this.wysiwyg = '<span style="color: #2067B0; border-bottom: 1px dashed #2067B0; margin:0 2px;" id="#ID#"#ADDITIONAL#>#NAME#</span>';
-},
-diskController = function(manager, id, params)
-{
-	this.CID = this.id = id;
-	this.parser = (manager.parser['disk_file'] || null);
-	this.params = params;
-	this.node = BX('diskuf-selectdialog-' + id);
-	this.handler = repo.controller[id]; // BX.Disk.UF
-	this.manager = manager;
-	this.eventNode = this.manager.eventNode;
-	this.parserName = 'disk_file';
-	this.prefixNode = 'disk-edit-attach';
-	this.prefixHTMLNode = 'disk-attach-';
-	this.props = {
-		valueEditClassName : 'wd-inline-file',
-		securityCID : 'disk-upload-cid'
-	};
-	this.storage = 'disk';
-	this.fileToAttach = {};
-	this.xmlToAttach = {};
-	this.events = {
-		onInit : 'DiskDLoadFormControllerInit',
-		onShow : 'DiskLoadFormController',
-		onBound : 'DiskLoadFormControllerWasBound'};
-};
-diskController.prototype = {
-	parser : false,
-	eventNode : null,
-	values : {},
-	initialized : false,
-	functionsToExec : [],
-	exec : function(func, args)
-	{
-		if (typeof func == "function")
-			this.functionsToExec.push([func, args]);
-		if (this.handler && this.handler !== true)
-		{
-			var res;
-			while((res = this.functionsToExec.shift()) && res)
-				res[0].apply(this, res[1]);
-		}
-	},
-	init : function()
-	{
-		if (this.initialized !== true)
-		{
-			this.values = {};
-			this.functionsToExec = [];
-			this.initialized = true;
-			this.bindMainEvents(this.manager);
-			if (this.parser !== null)
-			{
-				this.bindEvents(this.manager);
-				return this.initValues();
-			}
-		}
-		return false;
-	},
-	initValues : function()
-	{
-		var values = BX.findChildren(this.node, {'className' : this.props.valueEditClassName}, true);
-		if (values && values.length > 0)
-		{
-			this.exec(this.runCheckText);
-			return true;
-		}
-		return false;
-	},
-	bindMainEvents : function(manager)
-	{
-		var __status = null;
-		BX.addCustomEvent(manager.eventNode, 'onReinitializeBefore', BX.proxy(this.clean, this));
-		// Pass event to show/hide controller
-		BX.addCustomEvent(manager.eventNode, 'onShowControllers', BX.proxy(function(status) {
-			__status = status;
-			BX.onCustomEvent(manager.eventNode, this.events.onShow, [status]);
-		}, this));
-
-		if (!repo.controller[this.id]) // in case controller has not bound yet
-		{
-			var func = BX.delegate(function(obj) {
-				if (obj["UID"] == this.id || obj["id"] == this.id)
-				{
-					if (__status === 'show' || __status === 'hide')
-					{
-						BX.onCustomEvent(manager.eventNode, this.events.onShow, [__status]);
-						__status = null;
-					}
-					BX.removeCustomEvent(window, this.events.onBound, func);
-				}
-			}, this);
-			BX.addCustomEvent(window, this.events.onBound, func);
-		}
-		if (BX["DD"] && this.storage == 'disk')
-		{
-			var dndF = BX.delegate(function(params)
-			{
-				if ((params["UID"] == this.id || params["id"] == this.id) &&
-					this.manager["dropZoneExists"] !== true)
-				{
-					BX.removeCustomEvent(window, this.events.onBound, dndF);
-					this.manager["dropZoneExists"] = true;
-
-					var controller = this.eventNode,
-						id = this.id;
-
-					diskController.dndCatcher = (diskController.dndCatcher || {});
-					diskController.dndCatcher[id] = {
-						"catch" : true,
-						files : [],
-						dropZone : null,
-						dropZoneMicro : null,
-						initdrag : BX.delegate(function()
-						{
-							diskController.dndCatcher[id].dropZone = new BX.DD.dropFiles(manager.eventNode);
-
-							BX.addCustomEvent(manager.eventNode, "OnImageDataUriHandle", function(editor, imageBase64)
-							{
-								if (BX["UploaderUtils"])
-								{
-									var blob = BX.UploaderUtils.dataURLToBlob(imageBase64.src);
-									if (blob && blob.size > 0 && blob.type.indexOf("image/") == 0)
-									{
-										blob.name = (blob.name || imageBase64.title || ("image." + blob.type.substr(6)));
-										blob.referrerToEditor = imageBase64;
-										if (diskController.dndCatcher[id]["catch"] === true)
-											diskController.dndCatcher[id]["drop"]([blob]);
-										else if (this.handler && this.handler["addFile"])
-											this.handler.addFile(blob);
-
-										BX.onCustomEvent(editor, "OnImageDataUriCaught", [imageBase64]);
-									}
-								}
-							}.bind(this));
-
-							BX.addCustomEvent(diskController.dndCatcher[id].dropZone, "dropFiles", diskController.dndCatcher[id]["drop"]);
-							BX.addCustomEvent(diskController.dndCatcher[id].dropZone, "dragEnter", diskController.dndCatcher[id]["dragover"]);
-							BX.addCustomEvent(diskController.dndCatcher[id].dropZone, "dragLeave", diskController.dndCatcher[id]["dragleave"]);
-
-							if (BX('micro' + manager.__divId))
-							{
-								diskController.dndCatcher[id].dropZoneMicro = new BX.DD.dropFiles(BX('micro' + manager.__divId));
-								BX.addCustomEvent(diskController.dndCatcher[id].dropZoneMicro, "dragEnter", function(){
-									BX.onCustomEvent(manager.eventNode, 'OnShowLHE', ['justShow'])
-								});
-							}
-							BX.unbind(document, "dragover", diskController.dndCatcher[id]["initdrag"]);
-
-							BX.onCustomEvent(manager.eventNode, "onDropZoneExists", []);
-						}, this),
-						dragover : BX.delegate(function() {
-							BX.addClass(manager.eventNode, "feed-add-post-dnd-over");
-							BX.onCustomEvent(manager.eventNode, "dragover", []);
-						}, this),
-						dragleave : BX.delegate(function() {
-							BX.removeClass(manager.eventNode, "feed-add-post-dnd-over");
-							BX.onCustomEvent(manager.eventNode, "dragleave", []);
-						}, this),
-						dragenterwindow : BX.delegate(function() {
-							BX.addClass(manager.eventNode, "feed-add-post-dnd-ready");
-							if (BX('micro' + manager.__divId)) {
-								BX.addClass(BX('micro' + manager.__divId), "feed-add-post-micro-dnd-ready");
-							}
-							BX.onCustomEvent(manager.eventNode, "dragenterwindow", []);
-						}, this),
-						dragleavewindow : BX.delegate(function(e) {
-							BX.removeClass(manager.eventNode, "feed-add-post-dnd-ready");
-							if (BX('micro' + manager.__divId)) {
-								BX.removeClass(BX('micro' + manager.__divId), "feed-add-post-micro-dnd-ready");
-							}
-							BX.onCustomEvent(manager.eventNode, "dragleavewindow", []);
-						}, this),
-						drop : BX.delegate(function(files)
-						{
-							BX.onCustomEvent(manager.eventNode, "drop", []);
-							BX.onCustomEvent(window, "dragWindowLeave");
-							BX.onCustomEvent(window, "__dragWindowLeave");
-							var result = 0;
-							if (files && files.length > 0)
-							{
-								if (diskController.dndCatcher[id]["catch"] === true)
-								{
-									diskController.dndCatcher[id].files = files;
-									result = 1
-								}
-								else
-								{
-									result = 2;
-								}
-								BX.onCustomEvent(manager.eventNode, this.events.onShow, ['show']);
-								BX.removeClass(manager.eventNode, "feed-add-post-dnd-ready feed-add-post-dnd-over");
-							}
-							return result;
-						}, this)
-					};
-
-					BX.ready(function(){ diskController.dndCatcher[id]["initdrag"](); } );
-
-					BX.addCustomEvent(controller, "OnIframeDrop", BX.delegate(function(e) {
-						BX.PreventDefault(e);
-						if (e["dataTransfer"] && e["dataTransfer"]["files"])
-						{
-							if (diskController.dndCatcher[id].drop(e["dataTransfer"]["files"]) === 2)
-							{
-								this.handler.agent.onChange(e["dataTransfer"]["files"]);
-							}
-						}
-					}, this));
-					BX.addCustomEvent(controller, "OnIframeDragOver", diskController.dndCatcher[id].dragover);
-					BX.addCustomEvent(controller, "OnIframeDragLeave", diskController.dndCatcher[id].dragleave);
-					if (!window["bxMpfDndCatcher"])
-					{
-						window["bxMpfDndCatcher"] = true;
-						var
-							isStarted = false,
-							start = function()
-							{
-								if (isStarted === false)
-								{
-									isStarted = true;
-									BX.bind(document, "dragleave", mousemove);
-									BX.bind(document, "dragover", mousemove);
-									BX.bind(document, "mouseout", stop);
-									BX.onCustomEvent(window, "dragWindowEnter");
-								}
-							},
-							stop = function(e)
-							{
-								BX.unbind(document, "dragleave", mousemove);
-								BX.unbind(document, "dragover", mousemove);
-								BX.unbind(document, "mouseout", stop);
-								isStarted = false;
-								BX.onCustomEvent(window, "dragWindowLeave");
-							},
-							mousemove = function(e)
-						{
-							if (mouseTimeout > 0)
-							{
-								clearTimeout(mouseTimeout);
-								mouseTimeout = 0;
-							}
-							BX.fixEventPageXY(e);
-							var fire = true;
-							if (e.pageX > 0 && e.pageY > 0)
-							{
-								var pos = BX.GetWindowSize();
-								if (e.pageY < pos.scrollHeight && e.pageX < pos.scrollWidth)
-								{
-									var top = (e.pageY - pos.scrollTop),
-										left = (e.pageX - pos.scrollLeft);
-									if (0 < top && top < (pos.innerHeight - 20) &&
-										0 < left && left < (pos.innerWidth - 20))
-									{
-										fire = false;
-									}
-								}
-							}
-							if (fire)
-							{
-								stop(e);
-							}
-							else
-							{
-								mouseTimeout = setTimeout(function(){mousemove({type : 'intervalLimit'});}, 100);
-							}
-						},
-							mouseTimeout = 0;
-						BX.bind(document, "dragenter", function(e)
-						{
-							if (window["bxMpfDndCatcher"] > 0)
-							{
-								clearTimeout(window["bxMpfDndCatcher"]);
-							}
-							var isFileTransfer = true;
-							if (e && e["dataTransfer"] && e["dataTransfer"]["types"])
-							{
-								for (var i = 0; i < e["dataTransfer"]["types"].length; i++)
-								{
-									if (e["dataTransfer"]["types"][i] == "Files")
-									{
-										isFileTransfer = true;
-										break;
-									}
-								}
-							}
-							if (isFileTransfer)
-							{
-								start();
-							}
-						});
-						BX.addCustomEvent(window, "__dragWindowLeave", stop);
-						BX.bind(document, "dragover", function(e)
-						{
-							return BX.PreventDefault(e);
-						});
-						BX.bind(document, "drop", function(e)
-						{
-							stop(e);
-							return BX.PreventDefault(e);
-						});
-					}
-					BX.addCustomEvent(window, "dragWindowEnter", diskController.dndCatcher[id].dragenterwindow);
-					BX.addCustomEvent(window, "dragWindowLeave", diskController.dndCatcher[id].dragleavewindow);
-
-					this.__initCatcher = BX.delegate(function(id, uploader) {
-						if (id == this.id)
-						{
-							BX.removeCustomEvent(manager.eventNode, 'onControllerInitialized', this.__initCatcher);
-							uploader.agent.initDropZone(manager.eventNode);
-							if (diskController.dndCatcher[id].files.length > 0)
-							{
-								uploader.agent.onChange(diskController.dndCatcher[id].files);
-								diskController.dndCatcher[id].files = [];
-							}
-							diskController.dndCatcher[id]["catch"] = false;
-
-							this.__initCatcher = null;
-
-						}
-					}, this);
-					BX.addCustomEvent(manager.eventNode, 'onControllerInitialized', this.__initCatcher);
-				}
-			}, this);
-			BX.addCustomEvent(window, this.events.onBound, dndF);
-			if (repo.controller[this.id])
-				dndF(repo.controller[this.id]);
-		}
-
-	},
-	bindEvents : function(manager)
-	{
-		this._catchHandler = BX.delegate(function(handler)
-		{
-			BX.removeCustomEvent(this.eventNode, this.events.onInit, this._catchHandler);
-			this.handler = handler;
-			var node = BX.findChild(BX(manager.formID), {attr: {id: this.props.securityCID}}, true, false);
-			if (node)
-				node.value = this.handler.CID;
-			this.exec();
-			var func = BX.delegate(function() { BX.onCustomEvent(manager.eventNode, "onUploadsHasBeenChanged", arguments); }, this);
-			BX.addCustomEvent(this.handler.agent, "onFileIsInited", func); // new uploader
-			BX.addCustomEvent(this.handler.agent, "ChangeFileInput", func); // old uploader
-			BX.onCustomEvent(manager.eventNode, 'onControllerInitialized', [this.id, handler]);
-		}, this);
-		if (typeof this.handler != "object" || !this.handler)
-			BX.addCustomEvent(manager.eventNode, this.events.onInit, this._catchHandler);
-		else
-			this._catchHandler(this.handler);
-
-		BX.addCustomEvent(manager.eventNode, 'OnFileUploadSuccess', BX.delegate(function(result, obj, blob) {if (this.id == obj.CID || this.id == obj.id) { blob = (blob || {}); blob.usePostfix = true; this.addFile(result, blob, obj); } }, this));
-		BX.addCustomEvent(manager.eventNode, 'OnFileUploadFailed', BX.delegate(function(result, obj, blob) { if (this.id == obj.CID || this.id == obj.id) { this.failFile(result, blob, obj); } }, this));
-		BX.addCustomEvent(manager.eventNode, 'OnFileUploadRemove', BX.delegate(function(result, obj) { if (this.id == obj.CID || this.id == obj.id) { this.deleteFile(result, {usePostfix : true}, obj); } }, this));
-		BX.addCustomEvent(this, "onFileIsInText", BX.proxy(function(file, inText) { this.adjustFile(this.checkFile(file), inText) }, this));
-	},
-	addFile : function(result, blob, obj)
-	{
-		var file = this.checkFile(result.element_id, result, blob);
-		if (file)
-		{
-			setTimeout(BX.proxy(function(){
-				this.bindFile(file);
-				this.adjustFile(file, false);
-			}, this), 100);
-			BX.onCustomEvent(this.eventNode, 'onFileIsAdded', [file, this, obj, blob]);
-		}
-		else
-		{
-			this.failFile(this, blob, obj);
-		}
-		return true;
-	},
-	failFile : function(node, blob, obj)
-	{
-		BX.onCustomEvent(this.eventNode, 'onFileIsFailed', [this, obj, blob]);
-	},
-	checkFile : function(id, result)
-	{
-		id = '' + (typeof id == "object" ? id.id : id);
-		if (typeof result == "object" &&
-			result !== null && id &&
-			result.element_name &&
-			BX(result.place))
-		{
-			var data = {
-					id : id,
-					name : result.element_name,
-					url : result.element_url,
-					type : 'isnotimage/xyz',
-					isImage : false,
-					place : BX(result.place, true),
-					xmlID : BX(result.place, true).getAttribute("bx-attach-xml-id"),
-					fileID : BX(result.place, true).getAttribute("bx-attach-file-id"),
-					fileType: BX(result.place, true).getAttribute("bx-attach-file-type")
-				},
-				preview;
-			if (/(\.png|\.jpg|\.jpeg|\.gif|\.bmp|\.webp)$/i.test(result.element_name) &&
-				(preview = BX.findChild(data.place, {'className': 'files-preview', 'tagName' : 'IMG'}, true, false)) && preview)
-			{
-				data.type = 'image/xyz';
-				data.lowsrc = preview.src;
-				data.element_url = data.src = preview.src.replace(/\Wwidth=(\d+)/, '').replace(/\Wheight=(\d+)/, '');
-				data.isImage = true;
-				data.width = parseInt(preview.getAttribute("data-bx-full-width") || preview.getAttribute("data-bx-width"));
-				data.height = parseInt(preview.getAttribute("data-bx-full-height") || preview.getAttribute("data-bx-height"));
-			}
-			if (data.xmlID)
-				this.xmlToAttach[data.xmlID + ''] = id;
-			if (data.fileID)
-				this.fileToAttach[data.fileID + ''] = id;
-
-			this.values[id] = data;
-		}
-		return (this.values[id] || false);
-	},
-	bindFile : function(file)
-	{
-		var node = file.place;
-		if (typeof file == "object" && node && !node.hasAttribute("bx-file-is-bound"))
-		{
-			var name_wrap = BX.findChild(node, {className: 'f-wrap'}, true, false),
-				img_wrap = BX.findChild(node, {className: 'files-preview'}, true, false);
-			if (name_wrap)
-			{
-				BX.bind(name_wrap, "click", BX.delegate(function(){this.insertFile(file.id);}, this));
-				name_wrap.style.cursor = "pointer";
-				name_wrap.title = BX.message('MPF_FILE');
-			}
-			if (img_wrap)
-			{
-				BX.bind(img_wrap, "click", BX.delegate(function(){this.insertFile(file.id);}, this));
-			}
-		}
-	},
-	adjustFile : function(file, inText)
-	{
-		var node = file.place;
-		if (inText === true || inText === false)
-		{
-			if (!file.info)
-				file.info = BX.findChild(file.place, {className: 'files-info'}, true, false);
-			node = file.info;
-			if (BX.type.isDomNode(node))
-			{
-				var id = 'check-in-text-' + file.id,
-					button = BX(id),
-					props = (inText === false ? {
-						attrs : {
-							'bx-file-is-in-text' : "N"
-						},
-						props : {
-							className : 'insert-btn'
-						},
-						html : '<span class="insert-btn-text">' + BX.message("MPF_FILE_INSERT_IN_TEXT") + '</span>'
-					} : {
-						attrs : {
-							'bx-file-is-in-text' : "Y"
-						},
-						props : {
-							className : 'insert-text'
-						},
-						html : '<span class="insert-btn-text">' + BX.message("MPF_FILE_IN_TEXT") + '</span>'
-					});
-				if (!button)
-				{
-					props.attrs.id = id;
-					props.events = {
-						click : BX.proxy(function(){this.insertFile(file.id);}, this)
-					};
-					node.appendChild(BX.create('SPAN', props));
-				}
-				else
-				{
-					BX.adjust(button, props);
-				}
-			}
-		}
-	},
-	insertFile : function(file)
-	{
-		BX.onCustomEvent(this.eventNode, 'onFileIsInserted', [this.checkFile(file), this]);
-	},
-	deleteFile : function(file, params)
-	{
-		file = this.checkFile(file, params);
-		if (file)
-		{
-			BX.onCustomEvent(this.eventNode, 'onFileIsDeleted', [file, this]);
-			this.values[file.id].place = null;
-			delete this.values[file.id].place;
-			this.values[file.id] = null;
-			delete this.values[file.id];
-			file = null;
-			return true;
-		}
-		return false;
-	},
-	reinitValues : function(text, files) // when data needs to be generated
-	{
-		var id, node, data = {};
-		while ((id = files.pop()) && id)
-		{
-			node = BX(this.prefixHTMLNode + id);
-			node = (node ? (node.tagName == "A" ? node : BX.findChild(node, {tagName : "IMG"}, true)) : null);
-			if (node)
-			{
-				data['E' + id] = {
-					type: 'file',
-					id: id,
-					name: node.getAttribute("data-bx-title") || node.getAttribute("data-title"),
-					size: node.getAttribute("data-bx-size") || '',
-					sizeInt: node.getAttribute("data-bx-size") || '',
-					width: node.getAttribute("data-bx-width"),
-					height: node.getAttribute("data-bx-height"),
-					storage: 'disk',
-					previewUrl: (node.tagName == "A" ? '' : node.getAttribute("data-bx-src") || node.getAttribute("data-src")),
-					fileId: node.getAttribute("bx-attach-file-id")
-				};
-				if (node.hasAttribute("bx-attach-xml-id"))
-					data['E' + id]["xmlId"] = node.getAttribute("bx-attach-xml-id");
-				if (node.hasAttribute("bx-attach-file-type"))
-					data['E' + id]["fileType"] = node.getAttribute("bx-attach-file-type");
-			}
-		}
-		this.handler.selectFile({}, {}, data);
-		this.runCheckText();
-	},
-	runCheckText : function()
-	{
-		if (!this._checkText)
-			this._checkText = BX.delegate(this.checkText, this);
-		this.manager.exec(this._checkText);
-	},
-	checkText : function()
-	{
-		var
-			text1, text = this.manager.getContent(),
-			needToReparse = [], reg, ii;
-		if (text != '')
-		{
-			text1 = text;
-			for (ii in this.xmlToAttach)
-			{
-				if (this.xmlToAttach.hasOwnProperty(ii))
-				{
-					text = text.
-						replace(
-							new RegExp('\\&\\#91\\;DOCUMENT ID=(' + ii + ')([WIDTHHEIGHT=0-9 ]*)\\&\\#93\\;','gim'),
-							'[' + this.parser["tag"] + '=' + this.xmlToAttach[ii] + "$2]").
-						replace(
-							new RegExp('\\[DOCUMENT ID=(' + ii + ')([WIDTHHEIGHT=0-9 ]*)\\]','gim'),
-							'[' + this.parser["tag"] + '=' + this.xmlToAttach[ii] + "$2]");
-				}
-			}
-			for (ii in this.fileToAttach)
-			{
-				if (this.fileToAttach.hasOwnProperty(ii))
-				{
-					text = text.
-						replace(
-							new RegExp('\\&\\#91\\;' + this.parser["tag"] + '=(' + ii + ')([WIDTHHEIGHT=0-9 ]*)\\&\\#93\\;','gim'),
-							'[' + this.parser["tag"] + '=' + this.fileToAttach[ii] + "$2]").
-						replace(
-							new RegExp('\\[' + this.parser["tag"] + '=(' + ii + ')([WIDTHHEIGHT=0-9 ]*)\\]','gim'),
-							'[' + this.parser["tag"] + '=' + this.fileToAttach[ii] + "$2]");
-				}
-			}
-			reg = new RegExp('(?:\\&\\#91\\;)(' + this.parser["tags"].join("|") + ')=([a-z=0-9 ]+)(?:\\&\\#93\\;)','gim');
-			if (reg.test(text))
-			{
-				for (ii in this.values)
-				{
-					if (this.values.hasOwnProperty(ii))
-					{
-						needToReparse.push(ii);
-					}
-				}
-				if (needToReparse.length > 0)
-				{
-					reg = new RegExp('(?:\\&\\#91\\;|\\[)(' + this.parser["tags"].join("|") + ')=(' + needToReparse.join("|") + ')([WIDTHHEIGHT=0-9 ]*)(?:\\&\\#93\\;|\\])','gim');
-					if (reg.test(text))
-						text = text.replace(reg, BX.delegate(function(str, tagName, id, add) { return '[' + tagName + '=' + id + add + ']'; }, this));
-				}
-			}
-
-			if (text1 != text)
-				BX.onCustomEvent(this.eventNode, 'onFileIsDetected', [text, this]);
-		}
-		return text;
-	},
-	clean : function()
-	{
-		if (this.handler && this.handler.values)
-		{
-			var res;
-			while ((res = this.handler.values.pop()) && res)
-			{
-				BX.remove(res);
-			}
-			if (this.handler.params && this.handler.params.controlName)
-			{
-				var node = (BX(this.manager.formID) || this.handler.controller);
-				if (node)
-				{
-					node.querySelectorAll('input[name="' + this.handler.params.controlName + '"]')
-						.forEach(function(inputFile) {
-							inputFile.parentNode.removeChild(inputFile);
-						}
-					);
-				}
-			}
-		}
-		this.values = {};
-	},
-	reinit : function(text, data)
-	{
-		var files = [], name, ii;
-		for (name in data)
-		{
-			if (data.hasOwnProperty(name))
-			{
-				if (data[name]['USER_TYPE_ID'] == this.parserName && data[name]['VALUE'])
-				{
-					for (ii in data[name]['VALUE'])
-					{
-						if (data[name]['VALUE'].hasOwnProperty(ii))
-						{
-							files.push(data[name]['VALUE'][ii]);
-						}
-					}
-				}
-			}
-		}
-		if (files.length > 0)
-		{
-			this.exec(this.reinitValues, [text, files]);
-			return true;
-		}
-		return false;
-	}
-};
-var webdavController = function(manager, id, params)
-{
-	webdavController.superclass.constructor.apply(this, arguments);
-	this.parser = (manager.parser['webdav_element'] || null);
-	this.node = BX('wduf-selectdialog-' + id);
-	this.manager = manager;
-	this.parserName = 'webdav_element';
-	this.prefixNode = 'wd-doc';
-	this.prefixHTMLNode = 'wdif-doc-';
-	this.storage = 'webdav';
-	this.events = {
-		onInit : 'WDLoadFormControllerInit',
-		onShow : 'WDLoadFormController',
-		onBound : 'WDLoadFormControllerWasBound'};
-};
-BX.extend(webdavController, diskController);
-webdavController.prototype.reinitValues = function(text, files) // when data needs to be generated
-{
-	var id, node, data = {};
-	this.waitAnswerFromServer = [];
-	while ((id = files.pop()) && id)
-	{
-		node = BX(this.prefixHTMLNode + id);
-		node = (node ? (node.tagName == "A" ? node : BX.findChild(node, {tagName : "IMG"}, true)) : null);
-		if (node)
-		{
-			data['E' + id] = {
-				type: 'file',
-				id: id,
-				name: node.getAttribute("alt"),
-				storage: 'webdav',
-				size: node.getAttribute("data-bx-size"),
-				sizeInt: 1,
-				ext: '',
-				link: node.getAttribute("data-bx-document")
-			};
-			if (node.hasAttribute("bx-attach-xml-id"))
-				data['E' + id]["xmlId"] = node.getAttribute("bx-attach-xml-id");
-			this.waitAnswerFromServer.push(id);
-		}
-	}
-	if (this.waitAnswerFromServer.length > 0)
-	{
-		if (!this._defferCheckText)
-			this._defferCheckText = BX.delegate(this.defferCheckText, this);
-		BX.addCustomEvent(this.eventNode, 'OnFileUploadSuccess', this._defferCheckText);
-		this.handler.WDFD_SelectFile({}, {}, data);
-	}
-};
-webdavController.prototype.defferCheckText = function(result)
-{
-	var key = BX.util.array_search(result.element_id, this.waitAnswerFromServer);
-	if (key >= 0)
-	{
-		this.runCheckText();
-		this.waitAnswerFromServer = BX.util.deleteFromArray(this.waitAnswerFromServer, key);
-	}
-	if (this.waitAnswerFromServer.length <= 0)
-		BX.removeCustomEvent(this.eventNode, 'OnFileUploadSuccess', this._defferCheckText);
-};
-var fileController = function(manager, id, params)
-{
-	fileController.superclass.constructor.apply(this, arguments);
-	this.parser = (manager.parser['file'] ? manager.parser['file'] : (manager.parser['postimage']['exist'] ? manager.parser['postimage'] : null));
-	this.postfix = (params['postfix'] || '');
-	this.node = BX('file-selectdialog-' + id);
-	this.parserName = 'file';
-	this.prefixNode = 'wd-doc';
-	this.prefixHTMLNode = 'file-doc-';
-	this.props = {
-		valueEditClassName : 'file-inline-file',
-		securityCID : 'upload-cid'
-	};
-	this.storage = 'bfile';
-	this.events = {
-		onInit : 'BFileDLoadFormControllerInit',
-		onShow : 'BFileDLoadFormController',
-		onBound : 'BFileDLoadFormControllerWasBound'};
-};
-BX.extend(fileController, diskController);
-fileController.prototype.initValues = function(result)
-{
-	var values;
-	if (result !== true)
-	{
-		values = BX.findChildren(this.node, {'className' : this.props.valueEditClassName}, true);
-		if (values && values.length > 1)
-		{
-			this.exec(this.initValues, [true]);
-			return true;
-		}
-		return false;
-	}
-	values = (this.handler.agent.values || []);
-	var
-		file, node, data, id,
-		ID = {},
-		url = '/bitrix/components/bitrix/main.file.input/file.php?mfi_mode=down&cid='+this.handler.CID + '&sessid='+BX.bitrix_sessid();
-	for (var ii = 0; ii < values.length; ii++)
-	{
-		id = parseInt(values[ii].getAttribute("id").replace(this.prefixNode, ""));
-		if (ID['id' + id])
-			continue;
-		ID['id' + id] = "Y";
-		if (id > 0)
-		{
-			node = BX.findChild(values[ii], {'className': 'f-wrap'}, true, false);
-			if(!node)
-				continue;
-			data = {
-				element_id : id,
-				element_name : node.innerHTML,
-				parser : this.parser.bxTag,
-				storage : 'bfile',
-				element_url : (url + '&fileID=' + id)
-			};
-			file = this.addFile(data, {usePostfix : true, hasPreview : false});
-		}
-	}
-	this.runCheckText();
-	return true;
-};
-fileController.prototype.checkFile = function(id, result, param)
-{
-	id = '' + (typeof id == "object" ? id.id : id);
-	id = id + (param && param["usePostfix"] === true ? this.postfix : '');
-	if (typeof result == "object" &&
-		result !== null && id &&
-		result.element_name &&
-		BX(this.prefixNode + result.element_id, true))
-	{
-		var data = {
-				id : id,
-				name : result.element_name,
-				url : result.element_url,
-				type : 'isnotimage/xyz',
-				isImage : false,
-				place : BX(this.prefixNode + result.element_id, true)
-			},
-			preview;
-		if ((result['element_type'] && result['element_type'].indexOf('image/') === 0 || /(\.png|\.jpg|\.jpeg|\.gif|\.bmp|\.webp)$/i.test(result.element_name)) &&
-			((preview = BX.findChild(data.place, {'tagName' : 'IMG'}, true, false)) && preview || (param && param["hasPreview"] === false)))
-		{
-			data.type = 'image/xyz';
-			data.src = (result['element_thumbnail'] || result['element_url']);
-			data.isImage = true;
-			data.hasPreview = false;
-			data.lowsrc = '';
-			data.width = '';
-			data.height = '';
-			if (BX(preview))
-			{
-				data.hasPreview = true;
-				data.lowsrc = (result['element_thumbnail'] || preview['src']);
-				data.width = parseInt(preview.getAttribute("data-bx-full-width"));
-				data.height = parseInt(preview.getAttribute("data-bx-full-height"));
-			}
-		}
-		else if (this.parser.bxTag == 'postimage')
-		{
-			return false;
-		}
-		if(BX(data.place, true).getAttribute("bx-attach-file-type"))
-		{
-			data.fileType = BX(data.place, true).getAttribute("bx-attach-file-type");
-		}
-
-		this.values[id] = data;
-	}
-	return (this.values[id] || false);
-};
-fileController.prototype.bindFile = function(file)
-{
-	var node = (file && file['place'] ? file['place'] : null);
-	if (typeof file == "object" && node && !node.hasAttribute("bx-file-is-bound"))
-	{
-		if (file.isImage && file.hasPreview)
-		{
-			var
-				img_title = BX.findChild(node, {className: 'feed-add-img-title'}, true, false),
-				img_wrap = BX.findChild(node, {className: 'feed-add-img-wrap'}, true, false);
-			if (img_wrap)
-			{
-				BX.bind(img_wrap, "click", BX.proxy(function(){this.insertFile(file);}, this));
-				img_wrap.style.cursor = "pointer";
-				img_wrap.title = BX.message('MPF_IMAGE');
-			}
-			if (img_title)
-			{
-				BX.bind(img_title, "click", BX.delegate(function(){this.insertFile(file);}, this));
-				img_title.style.cursor = "pointer";
-				img_title.title = BX.message('MPF_IMAGE');
-			}
-		}
-		else
-			fileController.superclass.bindFile.apply(this, arguments);
-	}
-};
-fileController.prototype.clean = function()
-{
-	fileController.superclass.clean.apply(this, arguments);
-	if (this["handler"] && this.handler["agent"] && this.handler.agent["inputName"])
-	{
-		var files, ii, form = BX(this.manager.formID);
-		files = BX.findChildren(form, {
-			tagName : "INPUT",
-			attribute : {
-				name : this.handler.agent.inputName + "[]"
-			}
-		}, true);
-		if (files)
-		{
-			for (ii = 0; ii < files.length; ii++)
-			{
-				BX.remove(files[ii]);
-			}
-		}
-	}
-};
-
-var LHEPostForm = function(formID, params)
-{
-	this.params = params;
-	this.formID = formID;
-	this.showPinButton = !!BX('lhe_button_editor_' + this.formID);
-	if(this.showPinButton)
-	{
-		this.params.showPanelEditor = !!this.params.pinEditorPanel;
-	}
-	this.oEditorId = params['LHEJsObjId'];
-	this.__divId = (params['LHEJsObjName'] || params['LHEJsObjId']);
-	repo.handler[this.oEditorId] = this;
-	repo.form[this.formID] = this;
-	this.oEditor = LHEPostForm.getEditor(this.oEditorId);
-	this.urlPreview = this.initUrlPreview(params);
-
-	this.eventNode = BX('div' + this.__divId);
-	BX.addCustomEvent(this.eventNode, 'OnShowLHE', BX.delegate(this.OnShowLHE, this));
-	BX.addCustomEvent(this.eventNode, 'OnButtonClick', BX.delegate(this.OnButtonClick, this));
-	BX.addCustomEvent(this.eventNode, 'OnAfterShowLHE', function(status, handler) {
-		if (handler.oEditor && handler.oEditor["AllowBeforeUnloadHandler"])
-			handler.oEditor.AllowBeforeUnloadHandler();
-		if (handler.monitoringWakeUp === true)
-			handler.monitoringStart();
-	});
-	BX.addCustomEvent(this.eventNode, 'OnAfterHideLHE', function(status, handler) {
-		handler.monitoringWakeUp = handler.monitoringStop();
-		if (handler.oEditor && handler.oEditor["DenyBeforeUnloadHandler"])
-			handler.oEditor.DenyBeforeUnloadHandler();
-	});
-	this.initParsers(params);
-	this.initFiles(formID, params);
-
-	BX.ready(
-		BX.delegate(
-			function()
-			{
-				if (BX('lhe_button_submit_' + formID, true))
-				{
-					BX.bind(BX('lhe_button_submit_' + formID, true), 'click', BX.proxy(function(e){
-						BX.onCustomEvent(this.eventNode, 'OnButtonClick', ['submit']);
-						return BX.PreventDefault(e);
-					}, this));
-				}
-				if (BX('lhe_button_cancel_' + formID, true))
-				{
-					BX.bind(BX('lhe_button_cancel_' + formID, true), 'click', BX.proxy(function(e){
-						BX.onCustomEvent(this.eventNode, 'OnButtonClick', ['cancel']);
-						return BX.PreventDefault(e);
-					}, this));
-				}
-			},
-			this
-		)
-	);
-
-	this.inited = true;
-
-	if (BX(this.formID))
-	{
-		BX.addCustomEvent(BX(this.formID), 'onAutoSavePrepare', function(ob) { ob.FORM.setAttribute("bx-lhe-autosave-prepared", "Y"); });
-	}
-
-	BX.onCustomEvent(this, "onInitialized", [this, formID, params, this.parsers]);
-	BX.onCustomEvent(this.eventNode, "onInitialized", [this, formID, params, this.parsers]);
-	if (this.oEditor && this.oEditor.inited && !this.oEditor['__lhe_flags'])
-	{
-		BX.onCustomEvent(this.oEditor, "OnEditorInitedBefore", [this.oEditor]);
-		BX.onCustomEvent(this.oEditor, "OnEditorInitedAfter", [this.oEditor, true]);
-	}
-};
-LHEPostForm.prototype = {
-	editorIsLoaded : false,
-	arFiles : {},
-	parser : {},
-	controllers : {},
-	exec : function(func, args)
-	{
-		this.functionsToExec = (this.functionsToExec || []);
-		if (typeof func == "function")
-			this.functionsToExec.push([func, args]);
-		if (this.editorIsLoaded === true)
-		{
-			var res;
-			while((res = this.functionsToExec.shift()) && res)
-				res[0].apply(this, res[1]);
-		}
-	},
-	initParsers : function(params)
-	{
-		this.parser = {
-			postimage : {
-				exist : false,
-				bxTag : 'postimage',
-				tag : "IMG ID",
-				tags : ["IMG ID"],
-				regexp : /\[(IMG ID)=((?:\s|\S)*?)(?:\s*?WIDTH=(\d+)\s*?HEIGHT=(\d+))?\]/ig,
-				code : '[IMG ID=#ID##ADDITIONAL#]',
-				wysiwyg : '<img id="#ID#" src="' + '#SRC#" lowsrc="' + '#LOWSRC#" title=""#ADDITIONAL# />'
-			},
-			player : {
-				exist : false,
-				bxTag : 'player',
-				tag : "FILE ID",
-				tags : ["FILE ID"],
-				regexp : /\[(FILE ID)=((?:\s|\S)*?)?\]/ig,
-				code : '[FILE ID=#ID##ADDITIONAL#]',
-				wysiwyg : '<img class="bxhtmled-player-surrogate" id="#ID#" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" contenteditable="false" title=""#ADDITIONAL# />'
-			}
-		};
-		var parsers = (params["parsers"] ? params["parsers"] : {});
-		for (var ii in parsers)
-		{
-			if (parsers.hasOwnProperty(ii) && /[a-z]/gi.test(ii+''))
-			{
-				this.parser[ii] = new parserClass(ii, parsers[ii]);
-			}
-		}
-		if (BX.util.object_search('UploadImage', parsers))
-		{
-			this.parser['postimage']['exist'] = true;
-		}
-		if (typeof params['arSize'] == "object")
-		{
-			var style = '';
-			if (params['arSize']['width'])
-				style += 'max-width:' + params['arSize']['width'] + 'px;';
-			if (params['arSize']['height'])
-				style += 'max-height:' + params['arSize']['height'] + 'px;';
-			if (style !== '')
-				this.parser['postimage']['wysiwyg'] = this.parser['postimage']['wysiwyg'].replace('#ADDITIONAL#', ' style="' + style + '" #ADDITIONAL#');
-		}
-	},
-	initFiles : function(formID, params)
-	{
-		this.arFiles = {};
-		this.controllers = {
-			common : {
-				postfix : "",
-				storage : "bfile",
-				parser : "postimage",
-				node : window,
-				obj : null,
-				init : false
-			}
-		};
-		this.monitoring = {
-			interval : null,
-			text : '',
-			savedText : '',
-			files : [],
-			savedFiles : []
-		};
-		if (!params["CID"] || typeof params["CID"] !== "object")
-			return;
-
-		BX.addCustomEvent(this.eventNode, 'onFileIsAdded', BX.delegate(this.OnFileUploadSuccess, this));
-		BX.addCustomEvent(this.eventNode, 'onFileIsFailed', BX.delegate(this.OnFileUploadFailed, this));
-		BX.addCustomEvent(this.eventNode, 'onFileIsDeleted', BX.delegate(this.OnFileUploadRemove, this));
-		BX.addCustomEvent(this.eventNode, 'onFileIsDetected', BX.delegate(this.setContent, this));
-		BX.addCustomEvent(this.eventNode, 'onFileIsInserted', BX.delegate(this.insertFile, this));
-
-		var parser, cid, init;
-
-		for (cid in params["CID"])
-		{
-			if (params["CID"].hasOwnProperty(cid))
-			{
-				parser = params["CID"][cid]["parser"];
-				if (parser == 'disk_file')
-					this.controllers[cid] = new diskController(this, cid, params["CID"][cid]);
-				else if (parser == 'webdav_element')
-					this.controllers[cid] = new webdavController(this, cid, params["CID"][cid]);
-				else if (parser == 'file')
-					this.controllers[cid] = new fileController(this, cid, params["CID"][cid]);
-				if (this.controllers[cid] && this.controllers[cid].init() && !init)
-					init = true;
-			}
-		}
-
-		BX.ready(
-			BX.delegate(
-				function()
-				{
-					BX.bind(BX('bx-b-uploadfile-' + formID), 'click', BX.proxy(this.controllerInit, this));
-					if (init)
-						this.controllerInit('show');
-				},
-				this
-			)
-		);
-	},
-	controllerInit : function(status)
-	{
-		this.controllerInitStatus = (status == 'show' || status == 'hide' ? status : (this.controllerInitStatus == 'show' ? 'hide' : 'show'));
-		BX.onCustomEvent(this.eventNode, "onShowControllers", [this.controllerInitStatus]);
-	},
-	initUrlPreview: function()
-	{
-		if(this.params['urlPreviewId'] && window['BXUrlPreview'] && BX(this.params['urlPreviewId']))
-		{
-			return new BXUrlPreview(BX(this.params['urlPreviewId']));
-		}
-		return null;
-	},
-	getContent : function()
-	{
-		return (this.oEditor ? this.oEditor.GetContent() : '');
-	},
-	setContent : function(text)
-	{
-		if (this.oEditor)
-			this.oEditor.SetContent(text);
-	},
-	OnFileUploadSuccess : function(file, controller, uploaded, blob)
-	{
-		if (this.controllers[controller.id])
-		{
-			var id = controller.parser.bxTag + file.id;
-			this.arFiles[id] = (this.arFiles[id] || []);
-			this.arFiles[id].push(controller.id);
-
-			if (blob && blob["referrerToEditor"])
-			{
-				var regs = this.getFileToInsert(file, controller);
-				BX.onCustomEvent(blob["referrerToEditor"], "OnImageDataUriCaughtUploaded", [regs]);
-				BX.onCustomEvent(this.oEditor, "OnImageDataUriCaughtUploaded", [blob["referrerToEditor"], file, regs]);
-			}
-			else if (uploaded === true && file.isImage && this.insertImageAfterUpload)
-			{
-				if (!this._insertFile)
-					this._insertFile = BX.delegate(this.insertFile, this);
-				this.exec(this._insertFile, arguments);
-			}
-		}
-	},
-	OnFileUploadFailed : function(file, controller, blob)
-	{
-		if (blob && blob["referrerToEditor"])
-		{
-			BX.onCustomEvent(blob["referrerToEditor"], "OnImageDataUriCaughtFailed", []);
-			BX.onCustomEvent(this.editor, "OnImageDataUriCaughtFailed", [blob["referrerToEditor"]]);
-		}
-	},
-	OnFileUploadRemove : function(file, controller)
-	{
-		if (this.controllers[controller.id])
-		{
-			var id = controller.parser.bxTag + file.id;
-			if (this.arFiles[id])
-			{
-				var key = BX.util.array_search(controller.id, this.arFiles[id]);
-				this.arFiles[id] = BX.util.deleteFromArray(this.arFiles[id], key);
-				if (!this.arFiles[id] || this.arFiles[id].length <= 0)
-				{
-					this.arFiles[id] = null;
-					delete this.arFiles[id];
-					if (!this._deleteFile)
-						this._deleteFile = BX.delegate(this.deleteFile, this);
-					this.exec(this._deleteFile, arguments);
-				}
-			}
-		}
-	},
-
-	showPanelEditor : function(show, save)
-	{
-		if (show == undefined)
-			show = !this.oEditor.toolbar.IsShown();
-
-		this.params.showPanelEditor = show;
-		var
-			button = BX('lhe_button_editor_' + this.formID),
-			panelClose = BX('panel-close' + this.__divId);
-
-		if (panelClose)
-		{
-			this.oEditor.dom.cont.appendChild(panelClose);
-		}
-
-		if(show)
-		{
-			this.oEditor.dom.toolbarCont.style.opacity = 'inherit';
-			this.oEditor.toolbar.Show();
-
-			if (button)
-				BX.addClass(button, 'feed-add-post-form-btn-active');
-
-			if (panelClose)
-				panelClose.style.display = '';
-		}
-		else
-		{
-			this.oEditor.toolbar.Hide();
-
-			if (button)
-				BX.removeClass(button, 'feed-add-post-form-btn-active');
-
-			if (panelClose)
-				panelClose.style.display = 'none';
-		}
-		if (save !== false)
-			BX.userOptions.save('main.post.form', 'postEdit', 'showBBCode', show ? "Y" : "N");
-	},
-	monitoring : {},
-	monitoringStart : function()
-	{
-		if (this.monitoring.interval === null)
-		{
-			if (!this._monitoringStart)
-			{
-				this._monitoringStart = BX.delegate(this.checkFilesInText, this);
-				BX.addCustomEvent(this.oEditor, 'OnContentChanged', BX.proxy(function(text) {
-					this.monitoring.text = text;
-				}, this));
-			}
-			this.monitoring.interval = setInterval(this._monitoringStart, 1000);
-		}
-	},
-	monitoringStop : function()
-	{
-		var ret = (this.monitoring.interval !== null);
-		if (this.monitoring.interval !== null)
-			clearInterval(this.monitoring.interval);
-		this.monitoring.interval = null;
-		return ret;
-	},
-	monitoringSetStatus: function(parser, file, inText)
-	{
-		if (this.arFiles[parser + file])
-		{
-			var cid;
-			for (var ii = 0; ii < this.arFiles[parser + file].length; ii++)
-			{
-				//this.monitoring.files.push([parser, file].join('/'));
-				cid = this.arFiles[parser + file][ii];
-				BX.onCustomEvent(this.controllers[cid], "onFileIsInText", [file, inText]);
-			}
-		}
-	},
-	checkFilesInText: function()
-	{
-		if (this.monitoring.text !== this.monitoring.savedText)
-		{
-			this.monitoring.savedText = this.monitoring.text;
-			this.monitoring.files = [];
-			var text = this.monitoring.savedText,
-				ii, closure = function(a,parser) {return function(str, tagName, id) { a.monitoring.files.push([parser, id].join('/')); } };
-			for (ii in this.parser)
-			{
-				if (this.parser.hasOwnProperty(ii))
-				{
-					if (!this.parser[ii]["checkFilesInText"])
-					{
-						this.parser[ii]["checkFilesInText"] = closure(this, ii);
-					}
-					text.replace(
-						this.parser[ii]["regexp"],
-						this.parser[ii]["checkFilesInText"]
-					);
-				}
-			}
-			if (this.monitoring.savedFiles.join(',') !== this.monitoring.files.join(','))
-			{
-				var files = {}, id;
-				while (id = this.monitoring.savedFiles.pop())
-				{
-					files[id] = null;
-				}
-				for (ii = 0; ii < this.monitoring.files.length; ii++)
-				{
-					id = this.monitoring.files[ii];
-					files[id] = (files[id] >= 0 ? (files[id] + 1) : 1);
-				}
-				for (ii in files)
-				{
-					if (files.hasOwnProperty(ii))
-					{
-						id = ii.split('/');
-						this.monitoringSetStatus(id[0], id[1], (files[ii] > 0));
-					}
-				}
-			}
-			this.monitoring.savedFiles = this.monitoring.files;
-			if (this.monitoring.savedFiles.length <= 0)
-				this.monitoringStop();
-		}
-	},
-	checkFile : function(file, controller) // or fileId and controller or fileId and parser
-	{
-		var r = false;
-		if (typeof file == 'string')
-		{
-			var parser = (typeof controller == 'string' ? controller : controller.parser);
-
-			if (!!this.arFiles[parser + file])
-			{
-				var fileController = this.arFiles[parser + file][0];
-				controller = this.controllers[fileController];
-				r = {
-					file : controller.values[file],
-					controller : controller
-				};
-			}
-		}
-		else if (this.controllers[controller.id])
-		{
-			r = {
-				file : file,
-				controller : controller
-			};
-		}
-		return r
-	},
-	insertFile : function(file, controller)
-	{
-		var editor = this.oEditor;
-		if (editor && file)
-		{
-			var editorMode = editor.GetViewMode(),
-				res = this.getFileToInsert(file, controller);
-
-			if (editorMode == 'wysiwyg') // WYSIWYG
-			{
-				editor.InsertHtml(res.replacement);
-				setTimeout(BX.delegate(editor.AutoResizeSceleton, editor), 500);
-				setTimeout(BX.delegate(editor.AutoResizeSceleton, editor), 1000);
-			}
-			else if (editorMode == 'code')
-			{
-				editor.textareaView.Focus();
-
-				if (!editor.bbCode)
-				{
-					var editorDoc = editor.GetIframeDoc();
-					var dummy = editorDoc.createElement('DIV');
-					dummy.style.display = 'none';
-					dummy.innerHTML = res.replacement;
-					editorDoc.body.appendChild(dummy);
-
-					res.replacement = editor.Parse(res.replacement, true, false);
-
-					dummy.parentNode.removeChild(dummy);
-				}
-
-				editor.textareaView.WrapWith('', '', res.replacement);
-			}
-			else
-			{
-				return;
-			}
-			res["callback"]();
-		}
-	},
-	getFileToInsert : function(file, controller)
-	{
-		var editor = this.oEditor;
-		if (editor && file)
-		{
-			var
-				fileID = file['id'],
-				params = '',
-				parser = controller.parser,
-				editorMode = editor.bbCode ? editor.GetViewMode() : 'wysiwyg',
-				pattern = this.parser[parser.bxTag][editorMode];
-
-			if (file['fileType'] && this.parser[file['fileType']] && editorMode == "wysiwyg")
-			{
-				pattern = this.parser[file['fileType']][editorMode];
-			}
-			if (file['isImage'])
-			{
-				pattern = (editorMode == "wysiwyg" ? this.parser["postimage"][editorMode] : pattern);
-				if (file.width > 0 && file.height > 0 && editor.sEditorMode == "html" )
-				{
-					params = ' style="width:' + file.width + 'px;height:' + file.height + 'px;" onload="this.style.width=\'auto\';this.style.height=\'auto\';"';
-				}
-			}
-			if (editorMode == 'wysiwyg') // WYSIWYG
-			{
-				pattern = pattern.
-					replace("#ID#", editor.SetBxTag(false, {'tag': parser.bxTag, params: {'value' : fileID}})).
-					replace("#SRC#", file.src).replace("#URL#", file.url).
-					replace("#LOWSRC#", (file.lowsrc || '')).
-					replace("#NAME#", file.name).replace("#ADDITIONAL#", params) + '<span>&nbsp;</span>';
-			}
-			else if (editorMode == 'code' && editor.bbCode) // BB Codes
-			{
-				pattern = pattern.replace("#ID#", fileID).replace("#ADDITIONAL#", "");
-			}
-			return {
-				replacement : pattern,
-				"callback" : BX.proxy(function(){
-					this.monitoringSetStatus(controller.parser.bxTag, file.id, true);
-					this.monitoringStart();
-				}, this)
-			}
-		}
-		return {
-			replacement : "",
-			"callback" : BX.DoNothing
-		};
-	},
-
-	deleteFile: function(file, controller)
-	{
-		var
-			editor = this.oEditor,
-			parser = controller.parser,
-			id = file.id,
-			content = editor.GetContent();
-
-		if (parser && content.indexOf('=' + id) >= 0)
-		{
-			if(editor.GetViewMode() == 'wysiwyg') // WYSIWYG
-			{
-				var doc = editor.GetIframeDoc(), ii, n;
-				for (ii in editor["bxTags"])
-				{
-					if (editor["bxTags"].hasOwnProperty(ii))
-					{
-						if (typeof editor.bxTags[ii] == "object" &&
-							editor.bxTags[ii]["params"] &&
-							editor.bxTags[ii]["params"]["value"] == file.id)
-						{
-							n = doc.getElementById(ii);
-							if (n)
-								n.parentNode.removeChild(n);
-						}
-					}
-				}
-				editor.SaveContent();
-			}
-			else
-			{
-				content = content.replace(parser.regexp, function(str, tagName, id) { return (id == file.id ? '' : str); } );
-				editor.SetContent(content);
-				editor.Focus();
-			}
-			this.monitoringSetStatus(parser.bxTag, file.id, false);
-		}
-	},
-	reinit : function(text, data)
-	{
-		BX.onCustomEvent(this.eventNode, "onReinitializeBefore", [this, text, data]);
-		this.arFiles = {};
-
-		delete this.monitoringWakeUp;
-		this.monitoringStop();
-		this.oEditor.CheckAndReInit(text || '');
-
-		BX.onCustomEvent(this.eventNode, "onReinitialize", [this, text, data]);
-		var cid, needsToInit = false;
-		for (cid in this.controllers)
-		{
-			if (this.controllers.hasOwnProperty(cid))
-			{
-				if (this.controllers[cid]['init'] && this.controllers[cid].reinit(text, data))
-					needsToInit = true;
-			}
-		}
-
-		this.controllerInit((needsToInit ? 'show' : 'hide'));
-
-		if (this.params["~height"])
-		{
-			this.oEditor.SetConfigHeight(this.params["~height"]);
-			this.oEditor.ResizeSceleton();
-		}
-
-		if (this.urlPreview)
-		{
-			this.urlPreview.detachUrlPreview();
-			var urlPreviewId;
-			for(var uf in data)
-			{
-				if(data.hasOwnProperty(uf) && data[uf].hasOwnProperty('USER_TYPE_ID') && data[uf]['USER_TYPE_ID'] === 'url_preview')
-				{
-					urlPreviewId = data[uf]['VALUE'];
-				}
-			}
-			if(urlPreviewId)
-				this.urlPreview.attachUrlPreview({id: urlPreviewId});
-		}
-	},
-	Parse : function(parser, content, editor)
-	{
-		var
-			arParser = this.parser[parser],
-			obj = this;
-
-		if (arParser)
-		{
-			content = content.replace(
-				arParser.regexp,
-				function(str, tagName, id, width, height)
-				{
-					var file = obj.checkFile(id, parser);
-					if (file && (file = file.file) && file)
-					{
-						var
-							strAdditional = "",
-							template = (file.isImage ? obj.parser.postimage.wysiwyg : arParser.wysiwyg);
-						obj.monitoringStart();
-
-						if (file.fileType && obj.parser[file.fileType] && obj.parser[file.fileType].wysiwyg)
-						{
-							template = obj.parser[file.fileType].wysiwyg;
-						}
-
-						if (file.isImage)
-						{
-							width = parseInt(width);
-							height = parseInt(height);
-
-							strAdditional = ((width && height) ?
-								(" width=\"" + width + "\" height=\"" + height + "\"") : "");
-
-							if (strAdditional === "" && file["width"] > 0 && file["height"] > 0)
-							{
-								strAdditional = ' style="width:' + file["width"] + 'px;height:' + file["height"] + 'px;" onload="this.style.width=\'auto\';this.style.height=\'auto\';"';
-							}
-						}
-
-						return template.
-							replace("#ID#", editor.SetBxTag(false, {tag: parser, params: {value : id}})).
-							replace("#NAME#", file.name).
-							replace("#SRC#", file.src).
-							replace("#LOWSRC#", file.lowsrc).
-							replace("#ADDITIONAL#", strAdditional).
-							replace("#WIDTH#", parseInt(width)).
-							replace("#HEIGHT#", parseInt(height));
-					}
-					return str;
-				}
-			)
-		}
-		return content;
-	},
-
-	/**
-	 * @return {string}
-	 */
-	Unparse: function(bxTag, oNode/*, editor*/)
-	{
-		var res = "", parser = bxTag.tag;
-		if (this.parser[parser])
-		{
-			var
-				width = parseInt(oNode.node.hasAttribute("width") ? oNode.node.getAttribute("width") : 0),
-				height = parseInt(oNode.node.hasAttribute("height") ? oNode.node.getAttribute("height") : 0),
-				strSize = "";
-
-			if (width > 0 && height > 0)
-			{
-				strSize = ' WIDTH=' + width + ' HEIGHT=' + height;
-			}
-
-			res = this.parser[parser]["code"].
-				replace("#ID#", bxTag.params.value).
-				replace("#ADDITIONAL#", strSize).
-				replace("#WIDTH#", width).
-				replace("#HEIGHT#", height);
-		}
-
-		return res;
-	},
-
-	OnShowLHE : function(show, editor, setFocus)
-	{
-		var lheName = this.__divId;
-		show = (show === false ? false : (show === 'hide' ? 'hide' : (show === 'justShow' ? 'justShow' : true)));
-
-		this.oEditor = (this.oEditor || LHEPostForm.getEditor(this.oEditorId));
-		if (!this.oEditor)
-			return;
-		this.oEditor.Init();
-
-		var
-			micro = BX('micro' + lheName),
-			div = this.eventNode;
-
-		if (micro)
-		{
-			micro.style.display = ((show === true || show === 'justShow') ? "none" : "block");
-		}
-
-		if (show == 'hide')
-		{
-			BX.onCustomEvent(this.eventNode, 'OnBeforeHideLHE', [show, this]);
-			if (this.eventNode.style.display == "none")
-			{
-				BX.onCustomEvent(this.eventNode, 'OnAfterHideLHE', [show, this]);
-			}
-			else
-			{
-				(new BX["easing"]({
-					duration : 200,
-					start : { opacity: 100, height : this.eventNode.scrollHeight},
-					finish : { opacity : 0, height : 20},
-					transition : BX.easing.makeEaseOut(BX.easing.transitions.quad),
-					step : function(state)
-					{
-						div.style.height = state.height + "px";
-						div.style.opacity = state.opacity / 100;
-					},
-					complete : BX.proxy(function()
-					{
-						this.eventNode.style.cssText = "";
-						this.eventNode.style.display = "none";
-						BX.onCustomEvent(div, 'OnAfterHideLHE', [show, this]);
-					}, this)
-				})).animate();
-			}
-		}
-		else if (show)
-		{
-			BX.onCustomEvent(this.eventNode, 'OnBeforeShowLHE', [show, this]);
-			if (show == "justShow")
-			{
-				this.eventNode.style.display = "block";
-				BX.onCustomEvent(this.eventNode, 'OnAfterShowLHE', [show, this]);
-				if (setFocus !== false)
-					this.oEditor.Focus();
-			}
-			else if (this.eventNode.style.display == "block")
-			{
-				BX.onCustomEvent(this.eventNode, 'OnAfterShowLHE', [show, this]);
-				if (setFocus !== false)
-					this.oEditor.Focus();
-			}
-			else
-			{
-				BX.adjust(this.eventNode, {style:{display:"block", overflow:"hidden", height:"20px", opacity:0.1}});
-				(new BX["easing"]({
-					duration : 200,
-					start : { opacity : 10, height : 20 },
-					finish : { opacity: 100, height : div.scrollHeight},
-					transition : BX["easing"].makeEaseOut(BX.easing.transitions.quad),
-					step : function(state)
-					{
-						div.style.height = state.height + "px";
-						div.style.opacity = state.opacity / 100;
-					},
-					complete : BX.proxy(function()
-					{
-						BX.onCustomEvent(div, 'OnAfterShowLHE', [show, this]);
-						this.oEditor.Focus();
-						this.eventNode.style.cssText = "";
-					}, this)
-				})).animate();
-			}
-		}
-		else
-		{
-			BX.onCustomEvent(this.eventNode, 'OnBeforeHideLHE', [show, this]);
-			this.eventNode.style.display = "none";
-			BX.onCustomEvent(this.eventNode, 'OnAfterHideLHE', [show, this]);
-		}
-	},
-
-	OnButtonClick : function(type)
-	{
-		if(type !== 'cancel')
-		{
-			var res = {result : true};
-			BX.onCustomEvent(this.eventNode, 'OnClickBeforeSubmit', [this, res]);
-			if (res["result"] !== false)
-				BX.onCustomEvent(this.eventNode, 'OnClickSubmit', [this]);
-		}
-		else
-		{
-			MPFMention.node = null;
-			BX.onCustomEvent(this.eventNode, 'OnClickCancel', [this]);
-			BX.onCustomEvent(this.eventNode, 'OnShowLHE', ['hide']);
-		}
-	},
-	OnEditorInitedBefore : function(editor)
-	{
-		var _this = this;
-		this.oEditor = editor;
-		editor.formID = this.formID;
-		if (this.params)
-			this.params["~height"] = editor.config["height"];
-
-		BX.addCustomEvent(editor, 'OnCtrlEnter', function() {
-			editor.SaveContent();
-			if (BX.type.isNotEmptyString(_this.params['ctrlEnterHandler']) && typeof window[_this.params['ctrlEnterHandler']] == 'function')
-				window[_this.params['ctrlEnterHandler']]();
-			else if (BX.type.isFunction(_this.params['ctrlEnterHandler']))
-				_this.params['ctrlEnterHandler']();
-			else
-				BX.submit(BX(_this.formID));
-		});
-
-		var parsers = (this.params.parsers ? this.params.parsers : []);
-
-		if (BX.util.object_search('Spoiler', parsers))
-		{
-			editor.AddButton({
-				id : 'spoiler',
-				name : BX.message('spoilerText'),
-				iconClassName : 'spoiler',
-				disabledForTextarea : false,
-				src : BX.message('MPF_TEMPLATE_FOLDER') + '/images/lhespoiler.png',
-				toolbarSort : 205,
-				handler : function()
-				{
-					var
-						_this = this,
-						res = false;
-
-					// Iframe
-					if (!_this.editor.bbCode || !_this.editor.synchro.IsFocusedOnTextarea())
-					{
-						res = _this.editor.action.actions.formatBlock.exec('formatBlock', 'blockquote', 'bx-spoiler', false, {bxTagParams : {tag: "spoiler"}});
-					}
-					else // bbcode + textarea
-					{
-						res = _this.editor.action.actions.formatBbCode.exec('quote', {tag: 'SPOILER'});
-					}
-					return res;
-				}
-			});
-			editor.AddParser({
-				name : 'spoiler',
-				obj : {
-					Parse: function(sName, content, pLEditor)
-					{
-						if (/\[(cut|spoiler)(([^\]])*)\]/gi.test(content))
-						{
-							content = content.
-								replace(/[\001-\006]/gi, '').
-								replace(/\[cut(((?:=)[^\]]*)|)\]/gi, '\001$1\001').
-								replace(/\[\/cut]/gi, '\002').
-								replace(/\[spoiler([^\]]*)\]/gi, '\003$1\003').
-								replace(/\[\/spoiler]/gi, '\004');
-							var
-								reg1 = /(?:\001([^\001]*)\001)([^\001-\004]+)\002/gi,
-								reg2 = /(?:\003([^\003]*)\003)([^\001-\004]+)\004/gi,
-								__replace_reg = function(title, body){
-									title = title.replace(/^(="|='|=)/gi, '').replace(/("|')?$/gi, '');
-									return '<blockquote class="bx-spoiler" id="' + pLEditor.SetBxTag(false, {tag: "spoiler"}) + '" title="' + title + '">' + body + '</blockquote>';
-								},
-								func = function(str, title, body){return __replace_reg(title, body);};
-							while (content.match(reg1) || content.match(reg2))
-							{
-								content = content.
-									replace(reg1, func).
-									replace(reg2, func);
-							}
-						}
-						content = content.
-							replace(/\001([^\001]*)\001/gi, '[cut$1]').
-							replace(/\003([^\003]*)\003/gi, '[spoiler$1]').
-							replace(/\002/gi, '[/cut]').
-							replace(/\004/gi, '[/spoiler]');
-						return content;
-					},
-					/**
-					 * @return {string}
-					 */
-					UnParse: function(bxTag, oNode)
-					{
-						if (bxTag.tag == 'spoiler')
-						{
-							var name = '', i;
-							// Handle childs
-							for (i = 0; i < oNode.node.childNodes.length; i++)
-							{
-								name += editor.bbParser.GetNodeHtml(oNode.node.childNodes[i]);
-							}
-							name = BX.util.trim(name);
-							if (name != '')
-								return "[SPOILER" + (oNode.node.hasAttribute("title") ? '=' + oNode.node.getAttribute("title") : '')+ "]" + name +"[/SPOILER]";
-						}
-						return "";
-					}
-				}
-			});
-		}
-		if (BX.util.object_search('MentionUser', parsers))
-		{
-			editor.AddParser(
-				{
-					name: 'postuser',
-					obj: {
-						Parse: function(parserName, content)
-						{
-							content = content.replace(/\[USER\s*=\s*(\d+)\]((?:\s|\S)*?)\[\/USER\]/ig,
-								function(str, id, name)
-								{
-									name = BX.util.trim(name);
-									if (name == '')
-										return '';
-									return '<span id="' + editor.SetBxTag(false, {tag: "postuser", params: {value : parseInt(id)}}) + '" class="bxhtmled-metion">' + name + '</span>';
-								});
-							return content;
-						},
-						/**
-						 * @return {string}
-						 */
-						UnParse: function(bxTag, oNode)
-						{
-							if (bxTag.tag == 'postuser')
-							{
-								var name = '', i;
-								// Handle childs
-								for (i = 0; i < oNode.node.childNodes.length; i++)
-								{
-									name += editor.bbParser.GetNodeHtml(oNode.node.childNodes[i]);
-								}
-								name = BX.util.trim(name);
-								if (name != '')
-									return "[USER=" + bxTag.params.value + "]" + name +"[/USER]";
-							}
-							return "";
-						}
-					}
-				}
-			);
-		}
-		var funcParse = function(parserName, content) {
-				return _this.Parse(parserName, content, editor);
-			},
-			funcUnparse = function(bxTag, oNode) {
-				return _this.Unparse(bxTag, oNode/*, editor*/);
-			};
-		for (var parser in this.parser)
-		{
-			if (this.parser.hasOwnProperty(parser))
-			{
-				editor.AddParser({
-					name: parser,
-					obj: {
-						Parse: funcParse,
-						UnParse: funcUnparse
-					}
-				});
-			}
-		}
-
-		if (this.showPinButton)
-		{
-			this.pinEditorPanel = this.params && this.params.pinEditorPanel === true;
-			var pinId = 'toolbar_pin';
-			var but = function (editor, wrap)
-			{
-				// Call parrent constructor
-				but.superclass.constructor.apply(this, arguments);
-				this.id = pinId;
-				this.title = BX.message('MPF_PIN_EDITOR_PANNEL');
-				this.className += ' ' + (_this.pinEditorPanel ? 'bxhtmled-button-toolbar-pined' : 'bxhtmled-button-toolbar-pin');
-				this.Create();
-				if (wrap)
-					wrap.appendChild(this.GetCont());
-			};
-
-			BX.extend(but, window.BXHtmlEditor.Button);
-			but.prototype.OnClick = function ()
-			{
-				BX.removeClass(this.pCont, 'bxhtmled-button-toolbar-pined');
-				BX.removeClass(this.pCont, 'bxhtmled-button-toolbar-pin');
-				if (_this.pinEditorPanel)
-				{
-					_this.pinEditorPanel = false;
-					BX.addClass(this.pCont, 'bxhtmled-button-toolbar-pin');
-				}
-				else
-				{
-					_this.pinEditorPanel = true;
-					BX.addClass(this.pCont, 'bxhtmled-button-toolbar-pined');
-				}
-				BX.userOptions.save('main.post.form', 'postEdit', 'pinEditorPanel', _this.pinEditorPanel ? "Y" : "N");
-			};
-
-			window.BXHtmlEditor.Controls[pinId] = but;
-			BX.addCustomEvent(editor, "GetControlsMap", function (controlsMap)
-			{
-				controlsMap.push({
-					id: pinId, compact: true, hidden: false, sort: 500, checkWidth: true, offsetWidth: 32, wrap: 'right'
-				});
-			});
-		}
-	},
-	OnEditorInitedAfter : function(editor)
-	{
-		BX.addCustomEvent(editor, "OnIframeDrop", BX.proxy(function(){BX.onCustomEvent(this.eventNode, "OnIframeDrop", arguments);}, this));
-		BX.addCustomEvent(editor, "OnIframeDragOver", BX.proxy(function(){BX.onCustomEvent(this.eventNode, "OnIframeDragOver", arguments);}, this));
-		BX.addCustomEvent(editor, "OnIframeDragLeave", BX.proxy(function(){BX.onCustomEvent(this.eventNode, "OnIframeDragLeave", arguments);}, this));
-		BX.addCustomEvent(editor, "OnImageDataUriHandle", function() { BX.onCustomEvent(this.eventNode, "OnImageDataUriHandle", Array.prototype.slice.call(arguments)); }.bind(this));
-
-		BX.addCustomEvent(editor, "OnAfterUrlConvert", this.OnAfterUrlConvert.bind(this));
-		BX.addCustomEvent(editor, "OnAfterLinkInserted", this.OnAfterUrlConvert.bind(this));
-		BX.addCustomEvent(editor, "OnBeforeCommandExec", this.OnBeforeCommandExec.bind(this));
-		// Contextmenu changing for images/files
-		editor.contextMenu.items['postimage'] =
-			editor.contextMenu.items['postdocument'] =
-				editor.contextMenu.items['postfile'] =
-					[
-						{
-							TEXT: BX.message('BXEdDelFromText'),
-							bbMode: true,
-							ACTION: function()
-							{
-								var node = editor.contextMenu.GetTargetItem('postimage');
-								if (!node)
-									node = editor.contextMenu.GetTargetItem('postdocument');
-								if (!node)
-									node = editor.contextMenu.GetTargetItem('postfile');
-
-								if (node && node.element)
-								{
-									editor.selection.RemoveNode(node.element);
-								}
-								editor.contextMenu.Hide();
-							}
-						}
-					];
-		if (!this.params["lazyLoad"])
-		{
-			BX.onCustomEvent(this.eventNode, 'OnShowLHE', ["justShow", editor, false])
-		}
-
-		if (editor.toolbar.controls && editor.toolbar.controls.FontSelector)
-		{
-			editor.toolbar.controls.FontSelector.SetWidth(45);
-		}
-
-		if (BX(this.formID))
-		{
-			BX.addCustomEvent(BX(this.formID), 'onAutoSavePrepare', function (ob) {
-				var _ob=ob;
-				setTimeout(function() {
-					BX.addCustomEvent(editor, 'OnContentChanged', BX.proxy(function(text) {
-						this["mpfTextContent"] = text;
-						this.Init();
-					}, _ob));
-				},1500);
-			});
-			BX.addCustomEvent(BX(this.formID), 'onAutoSave', BX.proxy(function(ob, form_data)
-			{
-				if (BX.type.isNotEmptyString(ob['mpfTextContent']))
-					form_data['text' + this.formID] = ob['mpfTextContent'];
-			}, this));
-			BX.addCustomEvent(BX(this.formID), 'onAutoSaveRestore', BX.proxy(function(ob, form_data)
-			{
-				if (repo.handler[editor.id])
-				{
-					for (var ii in repo.handler[editor.id].controllers)
-					{
-						if (repo.handler[editor.id].controllers.hasOwnProperty(ii) &&
-							repo.handler[editor.id].controllers[ii].handler &&
-							repo.handler[editor.id].controllers[ii].handler.params &&
-							repo.handler[editor.id].controllers[ii].handler.params.controlName &&
-							repo.handler[editor.id].controllers[ii].handler.params.controlName)
-						{
-							delete form_data[repo.handler[editor.id].controllers[ii].handler.params.controlName];
-						}
-					}
-				}
-				if (form_data['text' + this.formID] && /[^\s]+/gi.test(form_data['text' + this.formID]))
-				{
-					editor.CheckAndReInit(form_data['text' + this.formID]);
-				}
-			}, this));
-
-			if (BX(this.formID).hasAttribute("bx-lhe-autosave-prepared") && BX(this.formID).BXAUTOSAVE)
-			{
-				BX(this.formID).removeAttribute("bx-lhe-autosave-prepared");
-				setTimeout(BX.proxy(function(){ BX(this.formID).BXAUTOSAVE.Prepare(); }, this), 100);
-			}
-		}
-		var
-			formID = this.formID,
-			settings = this.params;
-
-		this.showPanelEditor(settings.showPanelEditor, false);
-
-		if (!editor.mainPostFormCustomized)
-		{
-			editor.mainPostFormCustomized = true;
-
-			BX.addCustomEvent(
-				editor,
-				'OnIframeKeydown',
-				function(e)
-				{
-					if (window.onKeyDownHandler)
-					{
-						window.onKeyDownHandler(e, editor, formID);
-					}
-				}
-			);
-
-			BX.addCustomEvent(
-				editor,
-				'OnIframeKeyup',
-				function(e)
-				{
-					if (window.onKeyUpHandler)
-					{
-						window.onKeyUpHandler(e, editor, formID);
-					}
-				}
-			);
-
-			if (window['BXfpdStopMent' + formID])
-			{
-				BX.addCustomEvent(
-					editor,
-					'OnIframeClick',
-					function()
-					{
-						window['BXfpdStopMent' + formID]();
-					}
-				);
-			}
-
-			// Just to avoid version dependence from fileman
-			if (editor && editor.textareaView.GetCursorPosition)
-			{
-				BX.addCustomEvent(
-					editor,
-					'OnTextareaKeyup',
-					function(e)
-					{
-						if (window.onTextareaKeyUpHandler)
-						{
-							window.onTextareaKeyUpHandler(e, editor, formID);
-						}
-					}
-				);
-
-				BX.addCustomEvent(
-					editor,
-					'OnTextareaKeydown',
-					function(e)
-					{
-						if (window.onTextareaKeyDownHandler)
-						{
-							window.onTextareaKeyDownHandler(e, editor, formID);
-						}
-					}
-				);
-			}
-		}
-	},
-	OnAfterUrlConvert: function(url)
-	{
-		if(this.urlPreview)
-		{
-			this.urlPreview.attachUrlPreview({url: url});
-		}
-	},
-	OnBeforeCommandExec: function(isContentAction, action, oAction, value)
-	{
-		if(this.urlPreview && action == 'createLink' && BX.type.isPlainObject(value) && value.hasOwnProperty('href'))
-		{
-			this.urlPreview.attachUrlPreview({url: value.href});
-		}
-	}
-};
-LHEPostForm.getEditor = function(editor)
-{
-	return (window["BXHtmlEditor"] ? window["BXHtmlEditor"].Get((typeof editor == "object" ? editor.id : editor)) : null);
-};
-LHEPostForm.getHandler = function(editor)
-{
-	return repo.handler[(typeof editor == "object" ? editor.id : editor)];
-};
-LHEPostForm.getHandlerByFormId = function(formId)
-{
-	return repo.form[formId];
-};
-LHEPostForm.unsetHandler = function(editor)
-{
-	var editorId = (typeof editor == "object" ? editor.id : editor);
-
-	if (!repo.handler[editorId])
-		return;
-
-	if (repo.handler[editorId].oEditor)
-		repo.handler[editorId].oEditor.Destroy();
-
-	// TODO: unregister event handlers here
-
-	repo.handler[editorId] = null;
-};
-LHEPostForm.reinitData = function(editorID, text, data)
-{
-	var handler = LHEPostForm.getHandler(editorID);
-	if (handler)
-		handler.exec(handler.reinit, [text, data]);
-	return false;
-};
-LHEPostForm.reinitDataBefore = function(editorID)
-{
-	var handler = LHEPostForm.getHandler(editorID);
-	if (handler && handler["eventNode"])
-		BX.onCustomEvent(handler.eventNode, "onReinitializeBefore", [handler]);
-};
-window.LHEPostForm = LHEPostForm;
 window.BXPostFormTags = function(formID, buttonID)
 {
 	this.popup = null;
@@ -2375,39 +2727,6 @@ window.MPFbuttonShowWait = function(el)
 	}
 };
 
-window.MPFbuttonCloseWait = function(el)
-{
-	if (el && !BX.type.isElementNode(el))
-		el = null;
-	el = el || lastWaitElement || this;
-	if (el)
-	{
-		el.disabled = false ;
-		BX.removeClass(el, 'ui-btn-clock');
-		lastWaitElement = null;
-	}
-};
-
-window.__mpf_wd_getinfofromnode = function(result, obj)
-{
-	var preview = BX.findChild(BX((result["prefixNode"] || 'wd-doc') + result.element_id), {'className': 'files-preview', 'tagName' : 'IMG'}, true, false);
-	if (preview)
-	{
-		result.lowsrc = preview.src;
-		result.element_url = preview.src.replace(/\Wwidth=(\d+)/, '').replace(/\Wheight\=(\d+)/, '');
-		result.width = parseInt(preview.getAttribute("data-bx-full-width"));
-		result.height = parseInt(preview.getAttribute("data-bx-full-height"));
-	}
-	else if (obj.urlGet)
-	{
-		result.element_url = obj.urlGet.
-			replace("#element_id#", result.element_id).
-			replace("#ELEMENT_ID#", result.element_id).
-			replace("#element_name#", result.element_name).
-			replace("#ELEMENT_NAME#", result.element_name);
-	}
-};
-
 var MPFMention = {
 	listen: false,
 	plus : false,
@@ -2416,7 +2735,14 @@ var MPFMention = {
 	node: null,
 	mode: null
 };
-
+BX.addCustomEvent(window, 'onInitialized', function(someObject) {
+	if (someObject && someObject.eventNode)
+	{
+		BX.onCustomEvent(someObject.eventNode, 'OnClickCancel', function(){
+			MPFMention.node = null;
+		});
+	}
+});
 window.onKeyDownHandler = function(e, editor, formID)
 {
 	var keyCode = e.keyCode;
@@ -2871,7 +3197,15 @@ window.BxInsertMention = function (params)
 		editor = LHEPostForm.getEditor(editorId),
 		spaceNode;
 
-	if(type == 'users' && item && item.entityId > 0 && editor)
+		if(
+		(
+			type === 'users'
+			|| type === 'emailusers'
+		)
+		&& item
+		&& item.entityId > 0
+		&& editor
+	)
 	{
 		if(editor.GetViewMode() == 'wysiwyg') // WYSIWYG
 		{
@@ -2886,7 +3220,7 @@ window.BxInsertMention = function (params)
 				// &nbsp; - for chrome
 			spaceNode = BX.create('SPAN', {html: (bNeedComa ? ',&nbsp;' : '&nbsp;')}, doc);
 
-			editor.SetBxTag(mention, {tag: "postuser", params: {value : item.entityId}});
+			editor.SetBxTag(mention, {tag: 'postuser', userId: item.entityId, userName: item.name, params: {value : item.entityId}});
 
 			if (
 				BX(MPFMention.node)
@@ -3101,24 +3435,17 @@ window.MPFMentionInit = function(formId, params)
 			selectorInstance.bindOptions.zIndex = 2200;
 		});
 	}
+	LHEPostForm.getHandlerByFormId(formId).exec(function() {
+		var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id');
 
-	if (
-		repo.form[formId]
-		&& BX('div' + repo.form[formId].__divId)
-	)
-	{
-		BX.addCustomEvent(repo.handler[repo.form[formId].oEditorId], 'OnEditorIsLoaded', function() {
-			var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id');
-
-			if (selectorId)
-			{
-				BX.onCustomEvent(window, 'BX.MPF.MentionSelector:init', [{
-					id: selectorId,
-					openDialogWhenInit: false
-				}]);
-			}
-		});
-	}
+		if (selectorId)
+		{
+			BX.onCustomEvent(window, 'BX.MPF.MentionSelector:init', [{
+				id: selectorId,
+				openDialogWhenInit: false
+			}]);
+		}
+	});
 
 	BX.ready(function() {
 			var ment = BX('bx-b-mention-' + formId);
@@ -3388,3 +3715,4 @@ window.BXfpdOnDialogClose = function (params)
 	window.MPFEntitySelector = MPFEntitySelector;
 
 })();
+//# sourceMappingURL=script.js.map

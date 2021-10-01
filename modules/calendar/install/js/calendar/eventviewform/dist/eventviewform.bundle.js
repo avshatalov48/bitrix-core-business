@@ -112,6 +112,11 @@ this.BX = this.BX || {};
 	            _this.uid = params.uniqueId;
 	            _this.entryUrl = params.entryUrl;
 	            _this.userTimezone = params.userTimezone;
+	            _this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
+
+	            if (_this.planner && !_this.plannerFeatureEnabled) {
+	              _this.planner.lock();
+	            }
 
 	            _this.handleEntryData(params.entry, params.userIndex, params.section);
 	          }
@@ -286,7 +291,8 @@ this.BX = this.BX || {};
 	        wrap: this.DOM.plannerWrap,
 	        minWidth: parseInt(this.DOM.plannerWrap.offsetWidth),
 	        solidStatus: true,
-	        readonly: true
+	        readonly: true,
+	        locked: !this.plannerFeatureEnabled
 	      });
 	      this.planner.show();
 	      this.planner.showLoader();

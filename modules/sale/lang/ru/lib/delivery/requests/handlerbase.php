@@ -8,4 +8,4 @@ $MESS["SALE_DLVR_REQ_BASE_SHIPMENT_DELETE_NOT_SUPPORT"] = "Данный обра
 $MESS["SALE_DLVR_REQ_BASE_VIEW_NOT_SUPPORT"] = "Данный обработчик службы доставки не поддерживает показ содержимого транспортной заявки";
 $MESS["SALE_DLVR_REQ_BASE_SHIPMENT_VIEW_NOT_SUPPORT"] = "Данный обработчик службы доставки не может предоставить содержимое отгрузки";
 $MESS["SALE_DLVR_REQ_BASE_SHIPMENT_UPDATE_NOT_SUPPORTED"] = "Данный обработчик службы доставки не поддерживает изменение отгрузок в транспортных заявках";
-?>
+$MESS["SALE_DLVR_REQ_BASE_CANCEL_REQUEST"] = "Отменить заявку";

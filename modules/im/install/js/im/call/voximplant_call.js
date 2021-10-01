@@ -67,6 +67,8 @@
 
 	var connectionRestoreTime = 15000;
 
+	var MAX_USERS_WITHOUT_SIMULCAST = 6;
+
 	// screensharing workaround
 	if(window["BXDesktopSystem"])
 	{
@@ -153,10 +155,14 @@
 		this.__onLocalMediaRendererAddedHandler = this.__onLocalMediaRendererAdded.bind(this);
 		this.__onBeforeLocalMediaRendererRemovedHandler = this.__onBeforeLocalMediaRendererRemoved.bind(this);
 		this.__onMicAccessResultHandler = this.__onMicAccessResult.bind(this);
+		this.__onClientReconnectingHandler = this.__onClientReconnecting.bind(this);
+		this.__onClientReconnectedHandler = this.__onClientReconnected.bind(this);
 
 		this.__onCallDisconnectedHandler = this.__onCallDisconnected.bind(this);
 		this.__onCallMessageReceivedHandler = this.__onCallMessageReceived.bind(this);
 		this.__onCallEndpointAddedHandler = this.__onCallEndpointAdded.bind(this);
+		this.__onCallReconnectingHandler = this.__onCallReconnecting.bind(this);
+		this.__onCallReconnectedHandler = this.__onCallReconnected.bind(this);
 
 		this.__onWindowUnloadHandler = this.__onWindowUnload.bind(this);
 		window.addEventListener("unload", this.__onWindowUnloadHandler);
@@ -170,6 +176,28 @@
 		this.lastSelfPingReceivedTimeout = null;
 
 		this.reinviteTimeout = null;
+
+		// There are two kinds of reconnection events: from call (for media connection) and from client (for signaling).
+		// So we have to use counter to convert these two events to one
+		this._reconnectionEventCount = 0;
+		Object.defineProperty(this, 'reconnectionEventCount', {
+			get: function()
+			{
+				return this._reconnectionEventCount;
+			},
+			set: function(newValue)
+			{
+				if (this._reconnectionEventCount === 0 && newValue > 0)
+				{
+					this.runCallback(BX.Call.Event.onReconnecting);
+				}
+				if (newValue === 0)
+				{
+					this.runCallback(BX.Call.Event.onReconnected);
+				}
+				this._reconnectionEventCount = newValue;
+			}
+		})
 	};
 
 	BX.extend(BX.Call.VoximplantCall, BX.Call.AbstractCall);
@@ -252,8 +280,23 @@
 				console.log("onMediaRemoved: ", e);
 				this.runCallback(BX.Call.Event.onRemoteMediaStopped, e);
 			}.bind(this),
+			onVoiceStarted: function(e)
+			{
+				// todo: uncomment to switch to SDK VAD events
+				/*this.runCallback(BX.Call.Event.onUserVoiceStarted, {
+					userId: userId
+				});*/
+			}.bind(this),
+			onVoiceEnded: function(e)
+			{
+				// todo: uncomment to switch to SDK VAD events
+				/*this.runCallback(BX.Call.Event.onUserVoiceStopped, {
+					userId: userId
+				});*/
+			}.bind(this),
 			onStateChanged: this.__onPeerStateChanged.bind(this),
-			onInviteTimeout: this.__onPeerInviteTimeout.bind(this)
+			onInviteTimeout: this.__onPeerInviteTimeout.bind(this),
+
 		})
 	};
 
@@ -267,6 +310,11 @@
 		return result;
 	};
 
+	BX.Call.VoximplantCall.prototype.getUserCount = function ()
+	{
+		return Object.keys(this.peers).length;
+	};
+
 	BX.Call.VoximplantCall.prototype.getClient = function()
 	{
 		return new Promise(function(resolve, reject)
@@ -278,7 +326,8 @@
 				{
 					this.log(e.label + ": " + e.message);
 				}.bind(this));
-				this.log("Voximplant SDK version: " + VoxImplant.version)
+				this.log("User agent: " + navigator.userAgent);
+				this.log("Voximplant SDK version: " + VoxImplant.version);
 
 				this.bindClientEvents();
 
@@ -294,6 +343,12 @@
 		if(!this.clientEventsBound)
 		{
 			VoxImplant.getInstance().on(VoxImplant.Events.MicAccessResult, this.__onMicAccessResultHandler);
+			if (VoxImplant.Events.Reconnecting)
+			{
+				VoxImplant.getInstance().on(VoxImplant.Events.Reconnecting, this.__onClientReconnectingHandler);
+				VoxImplant.getInstance().on(VoxImplant.Events.Reconnected, this.__onClientReconnectedHandler);
+			}
+
 			streamManager.on(VoxImplant.Hardware.HardwareEvents.DevicesUpdated, this.__onLocalDevicesUpdatedHandler);
 			streamManager.on(VoxImplant.Hardware.HardwareEvents.MediaRendererAdded, this.__onLocalMediaRendererAddedHandler);
 			streamManager.on(VoxImplant.Hardware.HardwareEvents.MediaRendererUpdated, this.__onLocalMediaRendererAddedHandler);
@@ -309,8 +364,14 @@
 			return;
 		}
 
-		var streamManager = VoxImplant.Hardware.StreamManager.get();
 		VoxImplant.getInstance().off(VoxImplant.Events.MicAccessResult, this.__onMicAccessResultHandler);
+		if (VoxImplant.Events.Reconnecting)
+		{
+			VoxImplant.getInstance().off(VoxImplant.Events.Reconnecting, this.__onClientReconnectingHandler);
+			VoxImplant.getInstance().off(VoxImplant.Events.Reconnected, this.__onClientReconnectedHandler);
+		}
+
+		var streamManager = VoxImplant.Hardware.StreamManager.get();
 		streamManager.off(VoxImplant.Hardware.HardwareEvents.DevicesUpdated, this.__onLocalDevicesUpdatedHandler);
 		streamManager.off(VoxImplant.Hardware.HardwareEvents.MediaRendererAdded, this.__onLocalMediaRendererAddedHandler);
 		streamManager.off(VoxImplant.Hardware.HardwareEvents.BeforeMediaRendererRemoved, this.__onBeforeLocalMediaRendererRemovedHandler);
@@ -891,7 +952,8 @@
 						self.voximplantCall = voximplantClient.callConference({
 							number: "bx_conf_" + self.id,
 							video: {sendVideo: self.videoEnabled, receiveVideo: true},
-							simulcast: true,
+							simulcast: (self.getUserCount() > MAX_USERS_WITHOUT_SIMULCAST),
+							simulcastProfileName: 'b24',
 							customData: JSON.stringify({
 								cameraState: self.videoEnabled,
 							})
@@ -991,6 +1053,11 @@
 		this.voximplantCall.addEventListener(VoxImplant.CallEvents.MessageReceived, this.__onCallMessageReceivedHandler);
 
 		this.voximplantCall.addEventListener(VoxImplant.CallEvents.EndpointAdded, this.__onCallEndpointAddedHandler);
+		if (VoxImplant.CallEvents.Reconnecting)
+		{
+			this.voximplantCall.addEventListener(VoxImplant.CallEvents.Reconnecting, this.__onCallReconnectingHandler);
+			this.voximplantCall.addEventListener(VoxImplant.CallEvents.Reconnected, this.__onCallReconnectedHandler);
+		}
 	};
 
 	BX.Call.VoximplantCall.prototype.removeCallEvents = function()
@@ -1000,6 +1067,11 @@
 			this.voximplantCall.removeEventListener(VoxImplant.CallEvents.Disconnected, this.__onCallDisconnectedHandler);
 			this.voximplantCall.removeEventListener(VoxImplant.CallEvents.MessageReceived, this.__onCallMessageReceivedHandler);
 			this.voximplantCall.removeEventListener(VoxImplant.CallEvents.EndpointAdded, this.__onCallEndpointAddedHandler);
+			if (VoxImplant.CallEvents.Reconnecting)
+			{
+				this.voximplantCall.removeEventListener(VoxImplant.CallEvents.Reconnecting, this.__onCallReconnectingHandler);
+				this.voximplantCall.removeEventListener(VoxImplant.CallEvents.Reconnected, this.__onCallReconnectedHandler);
+			}
 		}
 	};
 
@@ -1399,6 +1471,26 @@
 		}
 	};
 
+	BX.Call.VoximplantCall.prototype.__onCallReconnecting = function(e)
+	{
+		this.reconnectionEventCount++;
+	};
+
+	BX.Call.VoximplantCall.prototype.__onCallReconnected = function(e)
+	{
+		this.reconnectionEventCount--;
+	};
+
+	BX.Call.VoximplantCall.prototype.__onClientReconnecting = function(e)
+	{
+		this.reconnectionEventCount++;
+	};
+
+	BX.Call.VoximplantCall.prototype.__onClientReconnected = function(e)
+	{
+		this.reconnectionEventCount--;
+	};
+
 	BX.Call.VoximplantCall.prototype.__onCallDisconnected = function(e)
 	{
 		this.log("__onCallDisconnected", (e && e.headers ? {headers: e.headers} : null));
@@ -1540,12 +1632,14 @@
 		var eventName = message.eventName;
 		if(eventName === clientEvents.voiceStarted)
 		{
+			// todo: remove after switching to SDK VAD events
 			this.runCallback(BX.Call.Event.onUserVoiceStarted, {
 				userId: message.senderId
 			});
 		}
 		else if(eventName === clientEvents.voiceStopped)
 		{
+			// todo: remove after switching to SDK VAD events
 			this.runCallback(BX.Call.Event.onUserVoiceStopped, {
 				userId: message.senderId
 			});
@@ -1677,18 +1771,6 @@
 
 		window.removeEventListener("unload", this.__onWindowUnloadHandler);
 		this.superclass.destroy.apply(this, arguments);
-
-		//workaround to force camera release in the end of the call
-		if ('VoxImplant' in window)
-		{
-			window.VoxImplant.Hardware.StreamManager.umCache.forEach(function(stream)
-			{
-				stream.getTracks().forEach(function(track)
-				{
-					track.stop();
-				})
-			})
-		}
 	};
 
 	BX.Call.VoximplantCall.Signaling = function(params)
@@ -1904,12 +1986,16 @@
 			onStateChanged: BX.type.isFunction(params.onStateChanged) ? params.onStateChanged : BX.DoNothing,
 			onInviteTimeout: BX.type.isFunction(params.onInviteTimeout) ? params.onInviteTimeout : BX.DoNothing,
 			onMediaReceived: BX.type.isFunction(params.onMediaReceived) ? params.onMediaReceived : BX.DoNothing,
-			onMediaRemoved: BX.type.isFunction(params.onMediaRemoved) ? params.onMediaRemoved : BX.DoNothing
+			onMediaRemoved: BX.type.isFunction(params.onMediaRemoved) ? params.onMediaRemoved : BX.DoNothing,
+			onVoiceStarted: BX.type.isFunction(params.onVoiceStarted) ? params.onVoiceStarted : BX.DoNothing,
+			onVoiceEnded: BX.type.isFunction(params.onVoiceEnded) ? params.onVoiceEnded : BX.DoNothing,
 		};
 
 		// event handlers
 		this.__onEndpointRemoteMediaAddedHandler = this.__onEndpointRemoteMediaAdded.bind(this);
 		this.__onEndpointRemoteMediaRemovedHandler = this.__onEndpointRemoteMediaRemoved.bind(this);
+		this.__onEndpointVoiceStartHandler = this.__onEndpointVoiceStart.bind(this);
+		this.__onEndpointVoiceEndHandler = this.__onEndpointVoiceEnd.bind(this);
 		this.__onEndpointRemovedHandler = this.__onEndpointRemoved.bind(this);
 
 		this.calculatedState = this.calculateState();
@@ -2062,6 +2148,8 @@
 		{
 			this.endpoint.addEventListener(VoxImplant.EndpointEvents.RemoteMediaAdded, this.__onEndpointRemoteMediaAddedHandler);
 			this.endpoint.addEventListener(VoxImplant.EndpointEvents.RemoteMediaRemoved, this.__onEndpointRemoteMediaRemovedHandler);
+			this.endpoint.addEventListener(VoxImplant.EndpointEvents.VoiceStart, this.__onEndpointVoiceStartHandler);
+			this.endpoint.addEventListener(VoxImplant.EndpointEvents.VoiceEnd, this.__onEndpointVoiceEndHandler);
 			this.endpoint.addEventListener(VoxImplant.EndpointEvents.Removed, this.__onEndpointRemovedHandler);
 		},
 
@@ -2069,6 +2157,8 @@
 		{
 			this.endpoint.removeEventListener(VoxImplant.EndpointEvents.RemoteMediaAdded, this.__onEndpointRemoteMediaAddedHandler);
 			this.endpoint.removeEventListener(VoxImplant.EndpointEvents.RemoteMediaRemoved, this.__onEndpointRemoteMediaRemovedHandler);
+			this.endpoint.removeEventListener(VoxImplant.EndpointEvents.VoiceStart, this.__onEndpointVoiceStartHandler);
+			this.endpoint.removeEventListener(VoxImplant.EndpointEvents.VoiceEnd, this.__onEndpointVoiceEndHandler);
 			this.endpoint.removeEventListener(VoxImplant.EndpointEvents.Removed, this.__onEndpointRemovedHandler);
 		},
 
@@ -2191,6 +2281,16 @@
 			console.log("VoxImplant.EndpointEvents.RemoteMediaRemoved, ", e.mediaRenderer)
 			//this.log("VoxImplant.EndpointEvents.RemoteMediaRemoved, ", e);
 			this.removeMediaRenderer(e.mediaRenderer);
+		},
+
+		__onEndpointVoiceStart: function(e)
+		{
+			this.callbacks.onVoiceStarted();
+		},
+
+		__onEndpointVoiceEnd: function(e)
+		{
+			this.callbacks.onVoiceEnded();
 		},
 
 		__onEndpointRemoved: function(e)

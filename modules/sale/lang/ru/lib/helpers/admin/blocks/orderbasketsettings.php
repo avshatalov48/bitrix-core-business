@@ -9,4 +9,5 @@ $MESS["SALE_ORDER_BASKET_SETTINGS_UP"] = "Выше";
 $MESS["SALE_ORDER_BASKET_SETTINGS_DOWN"] = "Ниже";
 $MESS["SALE_ORDER_BASKET_SETTINGS_MOVE_UP"] = "Переместить выше в списке";
 $MESS["SALE_ORDER_BASKET_SETTINGS_MOVE_DOWN"] = "Переместить ниже в списке";
+$MESS["SALE_ORDER_BASKET_SETTINGS_SHOW_PROPERTIES"] = "Показывать свойства товара под изображением в режиме просмотра";
 ?>

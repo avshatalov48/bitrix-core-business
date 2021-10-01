@@ -3,6 +3,22 @@ namespace Bitrix\MessageService\Internal\Entity;
 
 use Bitrix\Main;
 
+/**
+ * Class RestAppLangTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_RestAppLang_Query query()
+ * @method static EO_RestAppLang_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_RestAppLang_Result getById($id)
+ * @method static EO_RestAppLang_Result getList(array $parameters = array())
+ * @method static EO_RestAppLang_Entity getEntity()
+ * @method static \Bitrix\MessageService\Internal\Entity\EO_RestAppLang createObject($setDefaultValues = true)
+ * @method static \Bitrix\MessageService\Internal\Entity\EO_RestAppLang_Collection createCollection()
+ * @method static \Bitrix\MessageService\Internal\Entity\EO_RestAppLang wakeUpObject($row)
+ * @method static \Bitrix\MessageService\Internal\Entity\EO_RestAppLang_Collection wakeUpCollection($rows)
+ */
 class RestAppLangTable extends Main\Entity\DataManager
 {
 	/**

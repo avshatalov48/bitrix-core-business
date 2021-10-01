@@ -380,7 +380,7 @@ this.BX = this.BX || {};
 
 	        _this2.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_templateObject4(), index, entity.id));
 	      });
-	      this.BX.ajax.runAction('calendar.api.calendarajax.editEntry', {
+	      this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', {
 	        data: new FormData(this.DOM.form),
 	        analyticsLabel: {
 	          calendarAction: this.entry.id ? 'edit_event' : 'create_event',
@@ -570,6 +570,12 @@ this.BX = this.BX || {};
 	          _this4.handleSections(params.sections, params.trackingUsersList);
 
 	          _this4.handleLocationData(params.locationFeatureEnabled, params.locationList, params.iblockMeetingRoomList);
+
+	          _this4.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
+
+	          if (_this4.planner && !_this4.plannerFeatureEnabled) {
+	            _this4.planner.lock();
+	          }
 
 	          if (!entry.id && !entry.sectionId) {
 	            _this4.setCurrentEntry();
@@ -1130,7 +1136,8 @@ this.BX = this.BX || {};
 	      this.DOM.plannerOuterWrap = this.DOM.content.querySelector("#".concat(uid, "_planner_outer_wrap"));
 	      this.planner = new calendar_planner.Planner({
 	        wrap: this.DOM.plannerOuterWrap,
-	        minWidth: parseInt(this.DOM.plannerOuterWrap.offsetWidth)
+	        minWidth: parseInt(this.DOM.plannerOuterWrap.offsetWidth),
+	        locked: !this.plannerFeatureEnabled
 	      });
 	      this.planner.subscribe('onDateChange', this.handlePlannerSelectorChanges.bind(this));
 	      this.planner.subscribe('onExpandTimeline', this.handleExpandPlannerTimeline.bind(this));

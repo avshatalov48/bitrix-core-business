@@ -22,7 +22,9 @@ $arAllOptions = array(
 	array("sub_link", GetMessage("opt_sub_link"), array("text", 35)),
 	array("address_from", GetMessage("opt_address_from"), array("text-list", 3, 20)),
 	array("address_send_to_me", GetMessage("opt_address_send_to_me"), array("text-list", 3, 20)),
-	array("mail_headers", GetMessage("opt_mail_headers"), array("srlz-list", 3, 20))
+	array("mail_headers", GetMessage("opt_mail_headers"), array("srlz-list", 3, 20)),
+	array("mail_consent",GetMessage("mail_need_consent"),array("checkbox")),
+	array("~mail_max_consent_requests",GetMessage("mail_max_consent_requests"),array("text", 10)),
 );
 $aTabs = array(
 	array("DIV" => "edit1", "TAB" => GetMessage("MAIN_TAB_SET"), "ICON" => "sender_settings", "TITLE" => GetMessage("MAIN_TAB_TITLE_SET")),
@@ -70,7 +72,6 @@ if($REQUEST_METHOD=="POST" && $Update.$Apply.$RestoreDefaults <> '' && $POST_RIG
 		}
 	}
 
-	CModule::IncludeModule('sender');
 	\Bitrix\Sender\Runtime\Job::actualizeAll();
 
 	$Update = $Update.$Apply;

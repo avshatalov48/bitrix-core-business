@@ -107,6 +107,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			"/configs/editor/?ENTITY_TYPE_ID=#ENTITY_TYPE_ID_VALUE#&MODULE_ID=#MODULE_ID#"
 		);
 		this.moduleId = null;
+		this._restrictions = {};
 	};
 	BX.UI.EntityEditor.prototype =
 	{
@@ -168,6 +169,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				this.initializeAjaxForm();
 			}
 			//endregion
+
+			this._restrictions = BX.prop.getObject(this._settings, "restrictions", {});
 
 			this.initializeManagers();
 
@@ -3148,6 +3151,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		isExternalLayoutResolversEnabled: function()
 		{
 			return !!this._enableExternalLayoutResolvers;
+		},
+		getRestriction: function(id)
+		{
+			return BX.prop.getObject(this._restrictions, id, null);
 		}
 	};
 	BX.UI.EntityEditor.defaultInstance = null;

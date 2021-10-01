@@ -1,7 +1,10 @@
 <?php
 namespace Bitrix\B24Connector;
 
-use \Bitrix\Main\Localization\Loc;
+use Bitrix\B24connector\ButtonSiteTable;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Page\Asset;
+use Bitrix\Main\Page\AssetLocation;
 
 Loc::loadMessages(__FILE__);
 
@@ -114,7 +117,7 @@ class Helper
 	{
 		global $APPLICATION;
 
-		if(defined("ADMIN_SECTION") && ADMIN_SECTION === true)
+		if(defined('ADMIN_SECTION') && ADMIN_SECTION === true)
 			return;
 
 		if (defined('B24CONNECTOR_SKIP') && B24CONNECTOR_SKIP === true)
@@ -126,28 +129,34 @@ class Helper
 		{
 			$result = '';
 
+			$restrictions = ButtonSiteTable::getAllRestrictions();
+
 			$dbRes = ButtonTable::getList(array(
 				'filter' => array(
 					'=APP_ID' => $connection['ID']
 				)
 			));
 
-			while($row = $dbRes->fetch())
+			while ($button = $dbRes->fetch())
 			{
-				if($row['SCRIPT'] <> '')
-					$result .= $row['SCRIPT']."\n";
+				$allowedSites = $restrictions[$button['ID']] ?? [SITE_ID];
+
+				if($button['SCRIPT'] !== '' && in_array(SITE_ID, $allowedSites))
+				{
+					$result .= $button['SCRIPT']."\n";
+				}
 			}
 
-			if($result <> '')
+			if ($result !== '')
 			{
-				\Bitrix\Main\Page\Asset::getInstance()->addString($result, false, \Bitrix\Main\Page\AssetLocation::BODY_END);
+				Asset::getInstance()->addString($result, false, AssetLocation::BODY_END);
 
 				ob_start();
-				$APPLICATION->IncludeComponent("bitrix:b24connector.openline.info", "", Array("COMPOSITE_FRAME_TYPE" => "STATIC"));
+				$APPLICATION->IncludeComponent('bitrix:b24connector.openline.info', '', ['COMPOSITE_FRAME_TYPE' => 'STATIC']);
 				$saoRes = ob_get_contents();
 				ob_end_clean();
 
-				\Bitrix\Main\Page\Asset::getInstance()->addString($saoRes, false, \Bitrix\Main\Page\AssetLocation::BODY_END);
+				Asset::getInstance()->addString($saoRes, false, AssetLocation::BODY_END);
 			}
 		}
 	}

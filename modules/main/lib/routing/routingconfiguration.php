@@ -33,7 +33,7 @@ class RoutingConfiguration
 	protected $options;
 
 	public static $configurationList = [
-		'get', 'post', 'any', 'group'
+		'get', 'post',  'put', 'patch', 'options', 'delete', 'any', 'group'
 	];
 
 	public function __call($method, $arguments)
@@ -68,7 +68,7 @@ class RoutingConfiguration
 
 	public function get($uri, $controller)
 	{
-		$this->options->methods(['GET']);
+		$this->options->methods(['GET', 'HEAD']);
 
 		$route = new Route($uri, $controller);
 		$this->routeContainer = $route;
@@ -86,8 +86,58 @@ class RoutingConfiguration
 		return $this;
 	}
 
+	public function put($uri, $controller)
+	{
+		$this->options->methods(['PUT']);
+
+		$route = new Route($uri, $controller);
+		$this->routeContainer = $route;
+
+		return $this;
+	}
+
+	public function patch($uri, $controller)
+	{
+		$this->options->methods(['PATCH']);
+
+		$route = new Route($uri, $controller);
+		$this->routeContainer = $route;
+
+		return $this;
+	}
+
+	public function options($uri, $controller)
+	{
+		$this->options->methods(['OPTIONS']);
+
+		$route = new Route($uri, $controller);
+		$this->routeContainer = $route;
+
+		return $this;
+	}
+
+	public function delete($uri, $controller)
+	{
+		$this->options->methods(['DELETE']);
+
+		$route = new Route($uri, $controller);
+		$this->routeContainer = $route;
+
+		return $this;
+	}
+
 	public function any($uri, $controller)
 	{
+		$route = new Route($uri, $controller);
+		$this->routeContainer = $route;
+
+		return $this;
+	}
+
+	public function match($methods, $uri, $controller)
+	{
+		$this->options->methods($methods);
+
 		$route = new Route($uri, $controller);
 		$this->routeContainer = $route;
 

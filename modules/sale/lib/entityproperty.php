@@ -298,9 +298,17 @@ abstract class EntityProperty
 
 		$dbRes = static::getList([
 			'select' => [
-				'ID', 'IS_LOCATION', 'IS_EMAIL', 'IS_PROFILE_NAME',
-				'IS_PAYER', 'IS_LOCATION4TAX', 'IS_ZIP', 'IS_PHONE',
+				'ID',
+				'IS_LOCATION',
+				'IS_EMAIL',
+				'IS_PROFILE_NAME',
+				'IS_PAYER',
+				'IS_LOCATION4TAX',
+				'IS_ZIP',
+				'IS_PHONE',
 				'IS_ADDRESS',
+				'IS_ADDRESS_FROM',
+				'IS_ADDRESS_TO',
 			],
 			'filter' => [
 				'=ACTIVE' => 'Y',

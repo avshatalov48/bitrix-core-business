@@ -5,6 +5,7 @@ use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\B24connector\ButtonTable;
+use Bitrix\B24connector\ButtonSiteTable;
 
 define('STOP_STATISTICS', true);
 define('BX_SECURITY_SHOW_MESSAGE', true);
@@ -32,7 +33,8 @@ class B24CButtonListAjaxController
 	{
 		return array(
 			'activate',
-			'deactivate'
+			'deactivate',
+			'saveSiteRestrictions',
 		);
 	}
 
@@ -91,6 +93,43 @@ class B24CButtonListAjaxController
 		if(!$dbRes->isSuccess())
 			foreach($dbRes->getErrorMessages() as $error)
 				$this->errors[] = $error;
+	}
+
+	protected function saveSiteRestrictions()
+	{
+		$buttonId = (int)$this->requestData['BUTTON_ID'];
+		if ($buttonId <= 0)
+		{
+			return;
+		}
+
+		$allowedSites = [];
+		$rows = \CSite::GetList('sort', 'asc', ['ACTIVE' => 'Y']);
+		while ($row = $rows->Fetch())
+		{
+			$allowedSites[] = $row['LID'];
+		}
+
+		ButtonSiteTable::deleteByButtonId($buttonId);
+
+		foreach ($this->requestData['SITE_ID'] as $siteId)
+		{
+			if (in_array($siteId, $allowedSites))
+			{
+				$result = ButtonSiteTable::add([
+					'BUTTON_ID' => $buttonId,
+					'SITE_ID' => $siteId,
+				]);
+				if (!$result->isSuccess())
+				{
+					foreach($result->getErrorMessages() as $error)
+					{
+						$this->errors[] = $error;
+					}
+					return;
+				}
+			}
+		}
 	}
 
 	protected function checkPermissions()

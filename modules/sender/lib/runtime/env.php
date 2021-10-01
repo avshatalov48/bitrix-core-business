@@ -9,6 +9,7 @@
 namespace Bitrix\Sender\Runtime;
 
 use Bitrix\Main\Config\Option;
+use Bitrix\Sender\Integration\Bitrix24\Service;
 use Bitrix\Sender\Posting\ThreadStrategy\IThreadStrategy;
 use Bitrix\Sender\Posting\ThreadStrategy\ThreadStrategyContext;
 use Bitrix\Sender\Posting\SegmentThreadStrategy;
@@ -64,6 +65,16 @@ class Env
 		{
 			return (int) Option::get('sender', 'max_emails_per_hit');
 		}
+	}
+
+	public static function isTransportNeedConsent(string $code) : bool
+	{
+		return Option::get('sender', "{$code}_consent") === 'Y';
+	}
+
+	public static function getMaxConsentRequests(string $code) : bool
+	{
+		return (int) Option::get('sender','~' . $code . '_max_consent_requests',0);
 	}
 
 	/**

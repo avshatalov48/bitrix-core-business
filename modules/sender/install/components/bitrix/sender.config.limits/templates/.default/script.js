@@ -99,7 +99,9 @@
 		this.ajaxAction = new BX.AjaxAction(this.actionUri);
 
 		this.canTrackMailNode = document.querySelector('.sender-track-mail-option');
+		this.mailConsentNode = document.querySelector('.sender-mail-consent-option');
 		BX.bind(this.canTrackMailNode, 'change', this.switchCanTrackMail.bind(this));
+		BX.bind(this.mailConsentNode, 'change', this.switchMailConsentOption.bind(this));
 
 	};
 	Limits.prototype.initPercentage = function (context)
@@ -130,6 +132,18 @@
 			},
 			data: {
 				'canTrackMail': this.canTrackMailNode.checked
+			}
+		});
+	};
+	Limits.prototype.switchMailConsentOption = function ()
+	{
+		this.ajaxAction.request({
+			action: 'switchMailConsentOption',
+			onsuccess: function (response)
+			{
+			},
+			data: {
+				'mailConsent': this.mailConsentNode.checked
 			}
 		});
 	};

@@ -13,6 +13,22 @@ use Bitrix\Main\Config as Config;
 use Bitrix\Main\ORM\Fields\ArrayField;
 use Bitrix\Main\Type as Type;
 
+/**
+ * Class EventTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Event_Query query()
+ * @method static EO_Event_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Event_Result getById($id)
+ * @method static EO_Event_Result getList(array $parameters = array())
+ * @method static EO_Event_Entity getEntity()
+ * @method static \Bitrix\Main\Mail\Internal\EO_Event createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Mail\Internal\EO_Event_Collection createCollection()
+ * @method static \Bitrix\Main\Mail\Internal\EO_Event wakeUpObject($row)
+ * @method static \Bitrix\Main\Mail\Internal\EO_Event_Collection wakeUpCollection($rows)
+ */
 class EventTable extends Entity\DataManager
 {
 	/**

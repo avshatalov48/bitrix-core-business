@@ -6269,6 +6269,11 @@
 	      classSettingsWindowShow: 'main-grid-settings-window-show',
 	      classSettingsWindowSelectAll: 'main-grid-settings-window-select-all',
 	      classSettingsWindowUnselectAll: 'main-grid-settings-window-unselect-all',
+	      classSettingsWindowSearchSectionsWrapper: 'main-grid-settings-window-search-section-wrapper',
+	      classSettingsWindowSearchActiveSectionIcon: 'main-grid-settings-window-search-section-item-icon-active',
+	      classSettingsWindowSearchSectionInput: 'main-grid-settings-window-search-section-input',
+	      classSettingsWindowSearchSectionItemHidden: 'main-grid-settings-window-list-item-hidden',
+	      classSettingsWindowSearchSectionItemVisible: 'main-grid-settings-window-list-item-visible',
 	      classSettingsButton: 'main-grid-interface-settings-icon',
 	      classSettingsButtonActive: 'main-grid-interface-settings-icon-active',
 	      classSettingsWindowClose: 'main-grid-settings-window-actions-item-close',
@@ -6334,6 +6339,12 @@
 	  };
 	})();
 
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+
+	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 	(function () {
 
 	  BX.namespace('BX.Grid');
@@ -6351,6 +6362,8 @@
 	    this.applyButton = null;
 	    this.resetButton = null;
 	    this.cancelButton = null;
+	    this.filterSections = null;
+	    this.filterSectionsSearchInput = null;
 	    this.init(parent);
 	    BX.onCustomEvent(window, 'BX.Grid.SettingsWindow:init', [this]);
 	  };
@@ -6847,18 +6860,111 @@
 	        });
 	        this.getItems().forEach(function (item) {
 	          BX.bind(item.getNode(), 'click', BX.delegate(this.onItemClick, this));
+	          BX.bind(item.getNode(), 'animationend', this.onAnimationEnd.bind(this, item.getNode()));
 	        }, this);
 	        BX.bind(this.getResetButton(), 'click', BX.proxy(this.onResetButtonClick, this));
 	        BX.bind(this.getApplyButton(), 'click', BX.proxy(this.onApplyButtonClick, this));
 	        BX.bind(this.getCancelButton(), 'click', BX.proxy(this.popup.close, this.popup));
 	        BX.bind(this.getSelectAllButton(), 'click', BX.delegate(this.onSelectAll, this));
 	        BX.bind(this.getUnselectAllButton(), 'click', BX.delegate(this.onUnselectAll, this));
+
+	        if (this.parent.arParams['COLUMNS_ALL_WITH_SECTIONS'] && Object.keys(this.parent.arParams['COLUMNS_ALL_WITH_SECTIONS']).length) {
+	          this.prepareFilterSections();
+	        }
+
+	        if (this.parent.arParams['ENABLE_FIELDS_SEARCH']) {
+	          this.prepareFilterSectionsSearchInput();
+	        }
 	      }
 
 	      return this.popup;
 	    },
 	    onItemClick: function onItemClick() {
 	      this.adjustActionButtonsState();
+	    },
+	    onAnimationEnd: function onAnimationEnd(node) {
+	      node.style.display = BX.Dom.hasClass(node, this.parent.settings.get('classSettingsWindowSearchSectionItemHidden')) ? 'none' : 'inline-block';
+	    },
+	    prepareFilterSections: function prepareFilterSections() {
+	      var filterSections = this.getFilterSections();
+
+	      var _iterator = _createForOfIteratorHelper(filterSections),
+	          _step;
+
+	      try {
+	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	          var item = _step.value;
+	          BX.bind(item, 'click', this.onFilterSectionClick.bind(this, item));
+	        }
+	      } catch (err) {
+	        _iterator.e(err);
+	      } finally {
+	        _iterator.f();
+	      }
+	    },
+
+	    /**
+	     * Gets all filter section items
+	     * @return {HTMLCollection}
+	     */
+	    getFilterSections: function getFilterSections() {
+	      if (!this.filterSections) {
+	        var _wrapper$children;
+
+	        var wrapper = BX.Grid.Utils.getByClass(this.getPopup().contentContainer, this.parent.settings.get('classSettingsWindowSearchSectionsWrapper'), true);
+	        this.filterSections = (_wrapper$children = wrapper.children) !== null && _wrapper$children !== void 0 ? _wrapper$children : new HTMLCollection();
+	      }
+
+	      return this.filterSections;
+	    },
+	    onFilterSectionClick: function onFilterSectionClick(item) {
+	      var activeClass = this.parent.settings.get('classSettingsWindowSearchActiveSectionIcon');
+	      var sectionId = item.dataset.uiGridFilterSectionButton;
+	      var section = document.querySelectorAll("[data-ui-grid-filter-section='" + sectionId + "']");
+
+	      if (BX.Dom.hasClass(item.firstChild, activeClass)) {
+	        BX.Dom.removeClass(item.firstChild, activeClass);
+	        BX.Dom.hide(section[0]);
+	      } else {
+	        BX.Dom.addClass(item.firstChild, activeClass);
+	        BX.Dom.show(section[0]);
+	      }
+	    },
+	    prepareFilterSectionsSearchInput: function prepareFilterSectionsSearchInput() {
+	      var input = this.getFilterSectionsSearchInput();
+	      BX.bind(input, 'input', this.onFilterSectionSearchInput.bind(this));
+	      BX.bind(input.previousElementSibling, 'click', this.onFilterSectionSearchInputClear.bind(this));
+	    },
+	    getFilterSectionsSearchInput: function getFilterSectionsSearchInput() {
+	      if (!this.filterSectionsSearchInput) {
+	        this.filterSectionsSearchInput = BX.Grid.Utils.getByClass(this.getPopup().contentContainer, this.parent.settings.get('classSettingsWindowSearchSectionInput'), true);
+	      }
+
+	      return this.filterSectionsSearchInput;
+	    },
+	    onFilterSectionSearchInput: function onFilterSectionSearchInput() {
+	      var search = this.filterSectionsSearchInput.value;
+
+	      if (search.length) {
+	        search = search.toLowerCase();
+	      }
+
+	      this.items.forEach(function (item) {
+	        var title = item.lastTitle.toLowerCase();
+
+	        if (search.length && title.indexOf(search) === -1) {
+	          BX.Dom.removeClass(item.getNode(), this.parent.settings.get('classSettingsWindowSearchSectionItemVisible'));
+	          BX.Dom.addClass(item.getNode(), this.parent.settings.get('classSettingsWindowSearchSectionItemHidden'));
+	        } else {
+	          BX.Dom.removeClass(item.getNode(), this.parent.settings.get('classSettingsWindowSearchSectionItemHidden'));
+	          BX.Dom.addClass(item.getNode(), this.parent.settings.get('classSettingsWindowSearchSectionItemVisible'));
+	          item.getNode().style.display = 'inline-block';
+	        }
+	      }.bind(this));
+	    },
+	    onFilterSectionSearchInputClear: function onFilterSectionSearchInputClear() {
+	      this.filterSectionsSearchInput.value = '';
+	      this.onFilterSectionSearchInput();
 	    },
 
 	    /**
@@ -8035,6 +8141,8 @@
 	   * @param {string} arParams.CONFIRM_MESSAGE
 	   * @param {string} arParams.CONFIRM_FOR_ALL_MESSAGE
 	   * @param {string} arParams.CONFIRM_RESET_MESSAGE
+	   * @param {object} arParams.COLUMNS_ALL_WITH_SECTIONS
+	   * @param {boolean} arParams.ENABLE_FIELDS_SEARCH
 	   * @param {string} arParams.RESET_DEFAULT
 	   * @param {object} userOptions
 	   * @param {object} userOptionsActions
@@ -8771,6 +8879,18 @@
 	        }, true, false);
 
 	        if (cell && self.isSortableHeader(cell) && !self.preventSortableClick) {
+	          var onBeforeSortEvent = new BX.Event.BaseEvent({
+	            data: {
+	              grid: self,
+	              columnName: BX.data(cell, 'name')
+	            }
+	          });
+	          BX.Event.EventEmitter.emit('BX.Main.grid:onBeforeSort', onBeforeSortEvent);
+
+	          if (onBeforeSortEvent.isDefaultPrevented()) {
+	            return;
+	          }
+
 	          self.preventSortableClick = false;
 
 	          self._clickOnSortableHeader(cell, event);
@@ -8979,7 +9099,6 @@
 	            self.bindOnRowEvents();
 	            self.bindOnMoreButtonEvents();
 	            self.bindOnClickPaginationLinks();
-	            self.bindOnClickHeader();
 	            self.bindOnCheckAll();
 	            self.updateCounterDisplayed();
 	            self.updateCounterSelected();
@@ -9323,7 +9442,6 @@
 	          self.bindOnRowEvents();
 	          self.bindOnMoreButtonEvents();
 	          self.bindOnClickPaginationLinks();
-	          self.bindOnClickHeader();
 	          self.bindOnCheckAll();
 	          self.updateCounterDisplayed();
 	          self.updateCounterSelected();
@@ -9361,7 +9479,6 @@
 	        self.bindOnRowEvents();
 	        self.bindOnMoreButtonEvents();
 	        self.bindOnClickPaginationLinks();
-	        self.bindOnClickHeader();
 	        self.bindOnCheckAll();
 	        self.updateCounterDisplayed();
 	        self.updateCounterSelected();

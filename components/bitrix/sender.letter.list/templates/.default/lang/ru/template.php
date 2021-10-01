@@ -34,5 +34,9 @@ $MESS["SENDER_LETTER_LIST_BTN_COPY"] = "Копировать";
 $MESS["SENDER_LETTER_LIST_BTN_COPY_TITLE"] = "Копировать";
 $MESS["SENDER_LETTER_LIST_SPEED_TITLE"] = "Достигнуто максимальное количество отправок за день. Отправка продолжится завтра.";
 $MESS["SENDER_LETTER_LIST_ROW_STATS_VIEWS"] = "просмотры: #COUNT#";
-$MESS["SENDER_LETTER_LIST_ROW_STATS_CLICKS"] = "переходы: #COUNT# / -#UNSUB#";
-$MESS["SENDER_DISPATCH_STATE_M"] = "Идет подготовка сегмента";
+$MESS["SENDER_LETTER_LIST_ROW_STATS_CLICKS"] = "переходы: #COUNT#";
+$MESS["SENDER_LETTER_LIST_COMP_UI_ROW_CONSENT_SUPPORT_Y"] = "Да";
+$MESS["SENDER_LETTER_LIST_COMP_UI_ROW_CONSENT_SUPPORT_N"] = "Нет";
+$MESS["SENDER_LETTER_LIST_COMP_UI_ROW_CONSENT_TITLE_Y"] = "Для отправки этой рассылки необходимо согласие получателей";
+$MESS["SENDER_LETTER_LIST_COMP_UI_ROW_CONSENT_TITLE_N"] = "Для отправки этой рассылки согласие получателей не нужно";
+?>

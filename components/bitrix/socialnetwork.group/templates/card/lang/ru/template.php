@@ -45,4 +45,5 @@ $MESS["SONET_C6_CARD_SUBJECT"] = "Тематика";
 $MESS["SONET_C6_CARD_FAVORITES_N"] = "Добавить в избранное";
 $MESS["SONET_C6_CARD_FAVORITES_Y"] = "Убрать из избранного";
 $MESS["SONET_C6_CARD_WAIT"] = "Пожалуйста, подождите&hellip;";
+$MESS["SONET_C6_CARD_MOD_SCRUM_PROJECT"] = "Команда разработки";
 ?>

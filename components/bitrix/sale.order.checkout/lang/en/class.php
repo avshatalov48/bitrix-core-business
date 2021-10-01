@@ -2,6 +2,7 @@
 $MESS["SOC_ACCESS_DENIED"] = "Access denied";
 $MESS["SOC_ADD_BASKET_ITEM"] = "Error adding item";
 $MESS["SOC_BASKER_REFRESH_ERROR"] = "Error updating shopping cart";
+$MESS["SOC_CHANGE_BASKET_ITEM"] = "Error updating item";
 $MESS["SOC_DELETE_BASKET_ITEM"] = "Error deleting item";
 $MESS["SOC_MODULE_CATALOG_NOT_INSTALLED"] = "The \"Commercial Catalog\" module is not installed.";
 $MESS["SOC_MODULE_IBLOCK_NOT_INSTALLED"] = "The Information Blocks module is not installed.";

@@ -272,7 +272,7 @@ class Provider
 				);
 			}
 
-			if (!empty($item['BOT_DATA_APP_ID']))
+			if (!empty($item['BOT_DATA_APP_ID']) && mb_strpos($item['BOT_DATA_APP_ID'], 'custom') === 0)
 			{
 				//clear 'custom' prefix only for webhook bot
 				$item['BOT_DATA_APP_ID'] = mb_substr($item['BOT_DATA_APP_ID'], 6);
@@ -510,11 +510,6 @@ class Provider
 								'NAME' => $requestData['BOT_NAME']
 							]
 						];
-						$events = [
-							'onImBotMessageAdd' => $saveData['BOT_HANDLER_URL'],
-							'onImBotJoinChat' => $saveData['BOT_HANDLER_URL'],
-							'onImBotDelete' => $saveData['BOT_HANDLER_URL'],
-						];
 
 						if ($integrationData['BOT_ID'] > 0)
 						{
@@ -530,18 +525,28 @@ class Provider
 								$params = array_merge($bot, $params);
 							}
 						}
-
+						$clientId = $params['APP_ID'];
 						if (!$params['APP_ID'])
 						{
-							$params['APP_ID'] = 'custom' . Random::getString(32);
+							$clientId = Random::getString(32);
+							$params['APP_ID'] = 'custom' . $clientId;
 							$params['CODE'] = Random::getString(16);
 						}
+						elseif (mb_stripos($clientId, 'custom') === 0)
+						{
+							$clientId = mb_substr($clientId, 6);
+						}
 
+						$uriWithClientId = $saveData['BOT_HANDLER_URL']
+							. (mb_strpos($saveData['BOT_HANDLER_URL'], '?') === false ? '?' : '&')
+							. 'CLIENT_ID=' . $clientId;
+						$events = [
+							'onImBotMessageAdd' => $uriWithClientId,
+							'onImBotJoinChat' => $uriWithClientId,
+							'onImBotDelete' => $uriWithClientId,
+						];
 						if (in_array($requestData['BOT_TYPE'], ['S', 'O']))
 						{
-							$uriWithClientId = $saveData['BOT_HANDLER_URL']
-								. (mb_strpos($saveData['BOT_HANDLER_URL'], '?') === false ? '?' : '&')
-								. 'CLIENT_ID=' . $params['APP_ID'];
 							$events['onImBotMessageUpdate'] = $uriWithClientId;
 							$events['onImBotMessageDelete'] = $uriWithClientId;
 							$params['EVENT_MESSAGE_UPDATE'] = $uriWithClientId;
@@ -571,7 +576,10 @@ class Provider
 										'filter' => [
 											'=APP_ID' => '',
 											'=EVENT_NAME' => array_keys($allEvents),
-											'=APPLICATION_TOKEN' => $params['APP_ID'],
+											'=APPLICATION_TOKEN' => [
+												$clientId,
+												$params['APP_ID'],
+											],
 										],
 										'select' => [
 											'ID',
@@ -602,13 +610,13 @@ class Provider
 											'APP_ID' => '',
 											'EVENT_NAME' => toUpper($event),
 											'EVENT_HANDLER' => $eventHandler,
-											'APPLICATION_TOKEN' => $params['APP_ID'],
+											'APPLICATION_TOKEN' => $clientId,
 											'USER_ID' => 0,
 										]
 									);
 									if ($result['status'] = $res->isSuccess())
 									{
-										Sender::bind('im', $eventHandler);
+										Sender::bind('im', $event);
 									}
 									else
 									{

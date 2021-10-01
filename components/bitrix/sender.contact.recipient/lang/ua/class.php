@@ -1,4 +1,7 @@
 <?php
+$MESS["SENDER_CONTACT_CONSENT_APPLY"] = "Контакт погодився на розсилки, очікується відправка";
+$MESS["SENDER_CONTACT_CONSENT_REJECT"] = "Контакт відмовився від розсилки";
+$MESS["SENDER_CONTACT_CONSENT_WAIT"] = "Згода відправлена";
 $MESS["SENDER_LETTER_CONTACT_LIST_ITEM_DELETED"] = "Одержувач видалений";
 $MESS["SENDER_LETTER_RCP_LIST_TITLE"] = "Отримувачі";
 $MESS["SENDER_LETTER_RCP_LIST_TITLE_CONTACT"] = "Відправлені розсилки";
@@ -13,9 +16,11 @@ $MESS["SENDER_LETTER_RCP_UI_COLUMN_STATUS"] = "Статус";
 $MESS["SENDER_LETTER_RCP_UI_COLUMN_UNSUB"] = "Відписався";
 $MESS["SENDER_LETTER_RCP_UI_NO"] = "Ні";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_ALL"] = "Всі";
+$MESS["SENDER_LETTER_RCP_UI_PRESET_APPLY"] = "Погодилися";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_CLICK"] = "Ті, хто клікнули";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_ERROR"] = "З помилкою";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_READ"] = "Ті, хто прочитали";
+$MESS["SENDER_LETTER_RCP_UI_PRESET_REJECT"] = "Відмовилися";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_SENT"] = "Відправлені";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_UNSENT"] = "Невідправлені";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_UNSUB"] = "Ті, хто відписалися";

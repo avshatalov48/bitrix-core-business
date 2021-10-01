@@ -235,11 +235,6 @@
 	display: inline-block;
 }
 
-.bx-im-notifications-item .bx-im-element-attach-type-image-block {
-	border: 1px solid #dedede;
-	border-radius: 10px;
-}
-
 .bx-messenger-ajax-self {
 	display: inline-block;
 	background-color: #ffe686;

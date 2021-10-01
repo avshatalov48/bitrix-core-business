@@ -9,6 +9,7 @@
 use Bitrix\Main;
 use Bitrix\Main\Authentication\ApplicationPasswordTable;
 use Bitrix\Main\Authentication\Internal\UserPasswordTable;
+use Bitrix\Main\Authentication\Policy;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Security\Random;
 use Bitrix\Main\Security\Password;
@@ -20,25 +21,6 @@ IncludeModuleLangFile(__FILE__);
  */
 class CAllUser extends CDBResult
 {
-	public static $GROUP_POLICY = [
-		"SESSION_TIMEOUT"	=>	0, //minutes
-		"SESSION_IP_MASK"	=>	"0.0.0.0",
-		"MAX_STORE_NUM"		=>	10,
-		"STORE_IP_MASK"		=>	"0.0.0.0",
-		"STORE_TIMEOUT"		=>	60*24*365, //minutes
-		"CHECKWORD_TIMEOUT"	=>	60*24*365,  //minutes
-		"PASSWORD_LENGTH"	=>	false,
-		"PASSWORD_UPPERCASE"	=>	"N",
-		"PASSWORD_LOWERCASE"	=>	"N",
-		"PASSWORD_DIGITS"	=>	"N",
-		"PASSWORD_PUNCTUATION"	=>	"N",
-		"PASSWORD_CHANGE_DAYS" => 0,
-		"PASSWORD_UNIQUE_COUNT" => 0,
-		"LOGIN_ATTEMPTS"	=>	0,
-		"BLOCK_LOGIN_ATTEMPTS" => 0,
-		"BLOCK_TIME" => 0,
-	];
-
 	var $LAST_ERROR = "";
 	var $bLoginByHash = false;
 	protected $admin = null;
@@ -83,7 +65,7 @@ class CAllUser extends CDBResult
 	{
 		if(!is_array($this->GetParam("POLICY")))
 		{
-			$this->SetParam("POLICY", static::GetGroupPolicy($this->GetID()));
+			$this->SetParam("POLICY", static::getPolicy($this->GetID())->getValues());
 		}
 		return $this->GetParam("POLICY");
 	}
@@ -1177,10 +1159,10 @@ class CAllUser extends CDBResult
 			$hash = Main\Security\Random::getString(32);
 			$arFields = array(
 				'USER_ID' => $user_id,
-				'URL' => $DB->ForSqlLike(trim($url), 500),
+				'URL' => trim($url),
 				'HASH' => $hash,
-				'SITE_ID' => $DB->ForSQL(trim($site_id), 2),
-				'~TIMESTAMP_X'=>$DB->CurrentTimeFunction()
+				'SITE_ID' => trim($site_id),
+				'~TIMESTAMP_X' => $DB->CurrentTimeFunction(),
 			);
 			$DB->Add("b_user_hit_auth", $arFields);
 		}
@@ -1268,7 +1250,7 @@ class CAllUser extends CDBResult
 				"EXTERNAL_AUTH_ID" => $arUser["EXTERNAL_AUTH_ID"],
 				"XML_ID" => $arUser["XML_ID"],
 				"ADMIN" => false,
-				"POLICY" => static::GetGroupPolicy($arUser["ID"]),
+				"POLICY" => static::getPolicy($arUser["ID"])->getValues(),
 				"AUTO_TIME_ZONE" => trim($arUser["AUTO_TIME_ZONE"]),
 				"TIME_ZONE" => $arUser["TIME_ZONE"],
 				"TIME_ZONE_OFFSET" => $arUser["TIME_ZONE_OFFSET"],
@@ -1563,7 +1545,7 @@ class CAllUser extends CDBResult
 			{
 				//internal authentication OR application password for external user
 
-				$user_id = self::LoginInternal($arParams, $result_message, $applicationId, $applicationPassId);
+				$user_id = static::LoginInternal($arParams, $result_message, $applicationId, $applicationPassId);
 
 				if($user_id <= 0)
 				{
@@ -1712,17 +1694,17 @@ class CAllUser extends CDBResult
 		if(($arUser = $result->Fetch()))
 		{
 			$passwordCorrect = false;
-			$policy = [];
+			$policy = null;
 			$original = ($arParams["PASSWORD_ORIGINAL"] == "Y");
 			$loginAttempts = intval($arUser["LOGIN_ATTEMPTS"]) + 1;
 
 			if($arUser["BLOCKED"] <> "Y")
 			{
-				$policy = static::GetGroupPolicy($arUser["ID"]);
+				$policy = static::getPolicy($arUser["ID"]);
 
 				//show captcha after a serial of incorrect login attempts
 				$correctCaptcha = true;
-				$policyLoginAttempts = intval($policy["LOGIN_ATTEMPTS"]);
+				$policyLoginAttempts = (int)$policy->getLoginAttempts();
 				if($policyLoginAttempts > 0 && $loginAttempts > $policyLoginAttempts)
 				{
 					$APPLICATION->SetNeedCAPTHA(true);
@@ -1766,8 +1748,8 @@ class CAllUser extends CDBResult
 				if(!$passwordCorrect)
 				{
 					//block the user after numerous incorrect login attempts
-					$policyBlockAttempts = intval($policy["BLOCK_LOGIN_ATTEMPTS"]);
-					$policyBlockTime = intval($policy["BLOCK_TIME"]);
+					$policyBlockAttempts = (int)$policy->getBlockLoginAttempts();
+					$policyBlockTime = (int)$policy->getBlockTime();
 					if($policyBlockAttempts > 0 && $policyBlockTime > 0 && $loginAttempts >= $policyBlockAttempts)
 					{
 						if($arUser["ACTIVE"] == "Y")
@@ -1806,9 +1788,18 @@ class CAllUser extends CDBResult
 						//require to change the password right now
 						$passwordExpired = true;
 					}
-					else
+					if (!$passwordExpired && $original && $policy->getPasswordCheckPolicy())
 					{
-						$policyChangeDays = (int)$policy["PASSWORD_CHANGE_DAYS"];
+						$passwordErrors = static::CheckPasswordAgainstPolicy($arParams["PASSWORD"], $policy->getValues());
+						if (!empty($passwordErrors))
+						{
+							//require to change the password because it doesn't match the group policy
+							$passwordExpired = true;
+						}
+					}
+					if (!$passwordExpired)
+					{
+						$policyChangeDays = (int)$policy->getPasswordChangeDays();
 						if($policyChangeDays > 0)
 						{
 							//require to change the password after N days
@@ -2056,7 +2047,7 @@ class CAllUser extends CDBResult
 		$res = [];
 		if($phoneAuth)
 		{
-			$userId = self::VerifyPhoneCode($arParams["PHONE_NUMBER"], $arParams["CHECKWORD"]);
+			$userId = static::VerifyPhoneCode($arParams["PHONE_NUMBER"], $arParams["CHECKWORD"]);
 
 			if(!$userId)
 			{
@@ -2090,9 +2081,10 @@ class CAllUser extends CDBResult
 			$userId = $res["ID"];
 		}
 
-		$arPolicy = static::GetGroupPolicy($userId);
+		$policy = static::getPolicy($userId);
+		$arPolicy = $policy->getValues();
 
-		$passwordErrors = self::CheckPasswordAgainstPolicy($arParams["PASSWORD"], $arPolicy);
+		$passwordErrors = static::CheckPasswordAgainstPolicy($arParams["PASSWORD"], $arPolicy);
 		if (!empty($passwordErrors))
 		{
 			return array("MESSAGE" => implode("<br>", $passwordErrors)."<br>", "TYPE" => "ERROR");
@@ -2109,7 +2101,7 @@ class CAllUser extends CDBResult
 				}
 
 				$site_format = CSite::GetDateFormat();
-				if(time()-$arPolicy["CHECKWORD_TIMEOUT"]*60 > MakeTimeStamp($res["CHECKWORD_TIME"], $site_format))
+				if(time() - $policy->getCheckwordTimeout() * 60 > MakeTimeStamp($res["CHECKWORD_TIME"], $site_format))
 				{
 					return array("MESSAGE" => GetMessage("CHECKWORD_EXPIRE")."<br>", "TYPE"=>"ERROR", "FIELD"=>"CHECKWORD_EXPIRE");
 				}
@@ -2120,7 +2112,7 @@ class CAllUser extends CDBResult
 				$loginAttempts = intval($res["LOGIN_ATTEMPTS"]) + 1;
 
 				//show captcha after a serial of incorrect login attempts
-				$policyLoginAttempts = intval($arPolicy["LOGIN_ATTEMPTS"]);
+				$policyLoginAttempts = (int)$policy->getLoginAttempts();
 				if($policyLoginAttempts > 0 && $loginAttempts > $policyLoginAttempts)
 				{
 					$APPLICATION->SetNeedCAPTHA(true);
@@ -2139,8 +2131,8 @@ class CAllUser extends CDBResult
 					if(!$passwordCorrect)
 					{
 						//block the user after numerous incorrect login attempts
-						$policyBlockAttempts = intval($arPolicy["BLOCK_LOGIN_ATTEMPTS"]);
-						$policyBlockTime = intval($arPolicy["BLOCK_TIME"]);
+						$policyBlockAttempts = (int)$policy->getBlockLoginAttempts();
+						$policyBlockTime = (int)$policy->getBlockTime();
 						if($policyBlockAttempts > 0 && $policyBlockTime > 0 && $loginAttempts >= $policyBlockAttempts)
 						{
 							if($res["ACTIVE"] == "Y")
@@ -2152,7 +2144,7 @@ class CAllUser extends CDBResult
 
 					if($passwordCorrect)
 					{
-						$passwordErrors = self::CheckPasswordAgainstPolicy($arParams["PASSWORD"], $arPolicy, $res["ID"]);
+						$passwordErrors = static::CheckPasswordAgainstPolicy($arParams["PASSWORD"], $arPolicy, $res["ID"]);
 						if (!empty($passwordErrors))
 						{
 							return array("MESSAGE" => implode("<br>", $passwordErrors)."<br>", "TYPE" => "ERROR");
@@ -2203,54 +2195,79 @@ class CAllUser extends CDBResult
 
 	public static function GeneratePasswordByPolicy(array $groups)
 	{
-		$policy = self::GetGroupPolicy($groups);
-
-		$passwordLength = intval($policy["PASSWORD_LENGTH"]);
-		if($passwordLength <= 0)
-		{
-			$passwordLength = 6;
-		}
+		$policy = static::getPolicy($groups);
 
 		$passwordChars = Random::ALPHABET_NUM | Random::ALPHABET_ALPHALOWER | Random::ALPHABET_ALPHAUPPER;
-		if($policy["PASSWORD_PUNCTUATION"] === "Y")
+		if ($policy->getPasswordPunctuation())
 		{
 			$passwordChars |= Random::ALPHABET_SPECIAL;
 		}
 
-		return Random::getStringByAlphabet($passwordLength, $passwordChars, true);
+		$length = (int)$policy->getPasswordLength();
+
+		return Random::getStringByAlphabet($length, $passwordChars, true);
 	}
 
 	public static function CheckPasswordAgainstPolicy($password, $arPolicy, $userId = null)
 	{
-		$errors = array();
+		$errors = [];
 
-		$password_min_length = intval($arPolicy["PASSWORD_LENGTH"]);
-		if($password_min_length <= 0)
-			$password_min_length = 6;
-		if(mb_strlen($password) < $password_min_length)
-			$errors[] = GetMessage("MAIN_FUNCTION_REGISTER_PASSWORD_LENGTH", array("#LENGTH#" => $arPolicy["PASSWORD_LENGTH"]));
-
-		if(($arPolicy["PASSWORD_UPPERCASE"] === "Y") && !preg_match("/[A-Z]/", $password))
-			$errors[] = GetMessage("MAIN_FUNCTION_REGISTER_PASSWORD_UPPERCASE");
-
-		if(($arPolicy["PASSWORD_LOWERCASE"] === "Y") && !preg_match("/[a-z]/", $password))
-			$errors[] = GetMessage("MAIN_FUNCTION_REGISTER_PASSWORD_LOWERCASE");
-
-		if(($arPolicy["PASSWORD_DIGITS"] === "Y") && !preg_match("/[0-9]/", $password))
-			$errors[] = GetMessage("MAIN_FUNCTION_REGISTER_PASSWORD_DIGITS");
-
-		if(($arPolicy["PASSWORD_PUNCTUATION"] === "Y") && !preg_match("/[".preg_quote(static::PASSWORD_SPECIAL_CHARS, "/")."]/", $password))
-			$errors[] = GetMessage("MAIN_FUNCTION_REGISTER_PASSWORD_PUNCTUATION", ["#SPECIAL_CHARS#" => static::PASSWORD_SPECIAL_CHARS]);
-
-		if($userId !== null && $arPolicy["PASSWORD_UNIQUE_COUNT"] > 0)
+		$passwordMinLength = intval($arPolicy['PASSWORD_LENGTH']);
+		if ($passwordMinLength <= 0)
 		{
-			$passwords = UserPasswordTable::getUserPasswords($userId, $arPolicy["PASSWORD_UNIQUE_COUNT"]);
+			$passwordMinLength = 6;
+		}
+		if (mb_strlen($password) < $passwordMinLength)
+		{
+			$errors[] = GetMessage('MAIN_FUNCTION_REGISTER_PASSWORD_LENGTH', array('#LENGTH#' => $arPolicy['PASSWORD_LENGTH']));
+		}
 
-			foreach($passwords as $previousPassword)
+		if (($arPolicy['PASSWORD_UPPERCASE'] === 'Y') && !preg_match('/[A-Z]/', $password))
+		{
+			$errors[] = GetMessage('MAIN_FUNCTION_REGISTER_PASSWORD_UPPERCASE');
+		}
+
+		if (($arPolicy['PASSWORD_LOWERCASE'] === 'Y') && !preg_match('/[a-z]/', $password))
+		{
+			$errors[] = GetMessage('MAIN_FUNCTION_REGISTER_PASSWORD_LOWERCASE');
+		}
+
+		if (($arPolicy['PASSWORD_DIGITS'] === 'Y') && !preg_match('/[0-9]/', $password))
+		{
+			$errors[] = GetMessage('MAIN_FUNCTION_REGISTER_PASSWORD_DIGITS');
+		}
+
+		if (($arPolicy['PASSWORD_PUNCTUATION'] === 'Y') && !preg_match('/[' . preg_quote(static::PASSWORD_SPECIAL_CHARS, '/') . ']/', $password))
+		{
+			$errors[] = GetMessage('MAIN_FUNCTION_REGISTER_PASSWORD_PUNCTUATION', ['#SPECIAL_CHARS#' => static::PASSWORD_SPECIAL_CHARS]);
+		}
+
+		if (($arPolicy['PASSWORD_CHECK_WEAK'] === 'Y'))
+		{
+			if (COption::GetOptionString('main', 'custom_weak_passwords') === 'Y')
 			{
-				if(Password::equals($previousPassword["PASSWORD"], $password))
+				$uploadDir = COption::GetOptionString('main', 'upload_dir', 'upload');
+				$path = "{$_SERVER['DOCUMENT_ROOT']}/{$uploadDir}/main/weak_passwords";
+			}
+			else
+			{
+				$path = "{$_SERVER['DOCUMENT_ROOT']}/bitrix/modules/main/data/weak_passwords";
+			}
+			if (Policy\WeakPassword::exists($password, $path))
+			{
+				$errors[] = GetMessage('main_check_password_weak');
+			}
+		}
+
+		if ($userId !== null && $arPolicy['PASSWORD_UNIQUE_COUNT'] > 0)
+		{
+			$passwords = UserPasswordTable::getUserPasswords($userId, $arPolicy['PASSWORD_UNIQUE_COUNT']);
+
+			foreach ($passwords as $previousPassword)
+			{
+				if (Password::equals($previousPassword['PASSWORD'], $password))
 				{
-					$errors[] = GetMessage("MAIN_FUNCTION_REGISTER_PASSWORD_UNIQUE");
+					$errors[] = GetMessage('MAIN_FUNCTION_REGISTER_PASSWORD_UNIQUE');
 					break;
 				}
 			}
@@ -2778,7 +2795,7 @@ class CAllUser extends CDBResult
 		{
 			$arFields["GROUP_ID"] = array();
 		}
-		$arFields["PASSWORD"] = $arFields["CONFIRM_PASSWORD"] = self::GeneratePasswordByPolicy($arFields["GROUP_ID"]);
+		$arFields["PASSWORD"] = $arFields["CONFIRM_PASSWORD"] = static::GeneratePasswordByPolicy($arFields["GROUP_ID"]);
 
 		$bOk = true;
 		$result_message = false;
@@ -3083,7 +3100,7 @@ class CAllUser extends CDBResult
 		return $res;
 	}
 
-	public function CheckFields(&$arFields, $ID=false)
+	public function CheckFields(&$arFields, $ID = false)
 	{
 		/**
 		 * @global CMain $APPLICATION
@@ -3118,7 +3135,7 @@ class CAllUser extends CDBResult
 
 		if($bInternal)
 		{
-			$this->LAST_ERROR .= self::CheckInternalFields($arFields, $ID);
+			$this->LAST_ERROR .= static::CheckInternalFields($arFields, $ID);
 		}
 		else
 		{
@@ -3132,7 +3149,9 @@ class CAllUser extends CDBResult
 		}
 
 		if(is_set($arFields, "PERSONAL_PHOTO") && $arFields["PERSONAL_PHOTO"]["name"] == '' && $arFields["PERSONAL_PHOTO"]["del"] == '')
+		{
 			unset($arFields["PERSONAL_PHOTO"]);
+		}
 
 		$maxWidth = COption::GetOptionInt("main", "profile_image_width", 0);
 		$maxHeight = COption::GetOptionInt("main", "profile_image_height", 0);
@@ -3142,42 +3161,57 @@ class CAllUser extends CDBResult
 		{
 			$res = CFile::CheckImageFile($arFields["PERSONAL_PHOTO"], $maxSize, $maxWidth, $maxHeight);
 			if($res <> '')
+			{
 				$this->LAST_ERROR .= $res."<br>";
+			}
 		}
 
 		if(is_set($arFields, "PERSONAL_BIRTHDAY") && $arFields["PERSONAL_BIRTHDAY"] <> '' && !CheckDateTime($arFields["PERSONAL_BIRTHDAY"]))
+		{
 			$this->LAST_ERROR .= GetMessage("WRONG_PERSONAL_BIRTHDAY")."<br>";
+		}
 
 		if(is_set($arFields, "WORK_LOGO") && $arFields["WORK_LOGO"]["name"] == '' && $arFields["WORK_LOGO"]["del"] == '')
+		{
 			unset($arFields["WORK_LOGO"]);
+		}
 
 		if(is_set($arFields, "WORK_LOGO"))
 		{
 			$res = CFile::CheckImageFile($arFields["WORK_LOGO"], $maxSize, $maxWidth, $maxHeight);
 			if($res <> '')
+			{
 				$this->LAST_ERROR .= $res."<br>";
+			}
 		}
 
-		if(is_set($arFields, "LOGIN"))
+		if (is_set($arFields, 'LOGIN'))
 		{
 			$res = $DB->Query(
-				"SELECT 'x' ".
-				"FROM b_user ".
-				"WHERE LOGIN='".$DB->ForSql($arFields["LOGIN"], 50)."'	".
-				"	".($ID===false ? "" : " AND ID<>".intval($ID)).
-				"	".(!$bInternal ? "	AND EXTERNAL_AUTH_ID='".$DB->ForSql($arFields["EXTERNAL_AUTH_ID"])."' " : " AND (EXTERNAL_AUTH_ID IS NULL OR ".$DB->Length("EXTERNAL_AUTH_ID")."<=0)")
-				);
+				"SELECT 'x' FROM b_user "
+				. "WHERE LOGIN = '{$DB->ForSql($arFields["LOGIN"], 50)}' "
+				. ($ID === false ? '' : ' AND ID <> ' . (int)$ID)
+				. (
+					!$bInternal
+						? " AND EXTERNAL_AUTH_ID = '{$DB->ForSql($arFields["EXTERNAL_AUTH_ID"])}' "
+						: " AND (EXTERNAL_AUTH_ID IS NULL OR {$DB->Length("EXTERNAL_AUTH_ID")} <= 0)"
+				)
+			);
 
-			if($res->Fetch())
-				$this->LAST_ERROR .= str_replace("#LOGIN#", htmlspecialcharsbx($arFields["LOGIN"]), GetMessage("USER_EXIST"))."<br>";
+			if ($res->Fetch())
+			{
+				$this->LAST_ERROR .= str_replace('#LOGIN#', htmlspecialcharsbx($arFields['LOGIN']), GetMessage('USER_EXIST')) . '<br>';
+			}
 		}
 
 		if(is_object($APPLICATION))
 		{
 			$APPLICATION->ResetException();
 
-			if($ID===false)
+			if($ID === false)
+			{
 				$events = GetModuleEvents("main", "OnBeforeUserAdd", true);
+			}
 			else
 			{
 				$arFields["ID"] = $ID;
@@ -3187,10 +3221,12 @@ class CAllUser extends CDBResult
 			foreach($events as $arEvent)
 			{
 				$bEventRes = ExecuteModuleEventEx($arEvent, array(&$arFields));
-				if($bEventRes===false)
+				if($bEventRes === false)
 				{
 					if($err = $APPLICATION->GetException())
+					{
 						$this->LAST_ERROR .= $err->GetString()." ";
+					}
 					else
 					{
 						$APPLICATION->ThrowException("Unknown error");
@@ -3202,7 +3238,9 @@ class CAllUser extends CDBResult
 		}
 
 		if(is_object($APPLICATION))
+		{
 			$APPLICATION->ResetException();
+		}
 		if (!$USER_FIELD_MANAGER->CheckFields("USER", $ID, $arFields))
 		{
 			if(is_object($APPLICATION) && $APPLICATION->GetException())
@@ -3218,7 +3256,9 @@ class CAllUser extends CDBResult
 		}
 
 		if($this->LAST_ERROR <> '')
+		{
 			return false;
+		}
 
 		return true;
 	}
@@ -3295,18 +3335,18 @@ class CAllUser extends CDBResult
 							}
 						}
 					}
-					$arPolicy = self::GetGroupPolicy($arGroups);
+					$policy = static::getPolicy($arGroups);
 				}
 				elseif($ID !== false)
 				{
-					$arPolicy = self::GetGroupPolicy($ID);
+					$policy = static::getPolicy($ID);
 				}
 				else
 				{
-					$arPolicy = self::GetGroupPolicy(array());
+					$policy = static::getPolicy([]);
 				}
 
-				$passwordErrors = self::CheckPasswordAgainstPolicy($arFields["PASSWORD"], $arPolicy, ($ID !== false? $ID : null));
+				$passwordErrors = static::CheckPasswordAgainstPolicy($arFields["PASSWORD"], $policy->getValues(), ($ID !== false? $ID : null));
 				if(!empty($passwordErrors))
 				{
 					$resultError .= implode("<br>", $passwordErrors)."<br>";
@@ -3450,6 +3490,11 @@ class CAllUser extends CDBResult
 		global $DB, $USER_FIELD_MANAGER, $CACHE_MANAGER, $USER;
 
 		$ID = intval($ID);
+
+		if ($ID <= 0)
+		{
+			return false;
+		}
 
 		if(!$this->CheckFields($arFields, $ID))
 		{
@@ -3793,7 +3838,7 @@ class CAllUser extends CDBResult
 				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 			}
 		}
-		self::clearUserGroupCache($USER_ID);
+		static::clearUserGroupCache($USER_ID);
 
 		foreach (GetModuleEvents("main", "OnAfterSetUserGroup", true) as $arEvent)
 		{
@@ -3979,7 +4024,7 @@ class CAllUser extends CDBResult
 			$CACHE_MANAGER->ClearByTag($isRealUser? "USER_NAME": "EXTERNAL_USER_CARD");
 		}
 
-		self::clearUserGroupCache($ID);
+		static::clearUserGroupCache($ID);
 
 		Main\UserAuthActionTable::addLogoutAction($ID);
 
@@ -4021,17 +4066,54 @@ class CAllUser extends CDBResult
 
 	public static function GetGroupPolicy($iUserId)
 	{
+		$policy = static::getPolicy($iUserId);
+
+		$arPolicy = $policy->getValues();
+
+		$ar = [
+			GetMessage("MAIN_GP_PASSWORD_LENGTH", ["#LENGTH#" => (int)$arPolicy["PASSWORD_LENGTH"]])
+		];
+		if ($arPolicy["PASSWORD_UPPERCASE"] === "Y")
+		{
+			$ar[] = GetMessage("MAIN_GP_PASSWORD_UPPERCASE");
+		}
+		if ($arPolicy["PASSWORD_LOWERCASE"] === "Y")
+		{
+			$ar[] = GetMessage("MAIN_GP_PASSWORD_LOWERCASE");
+		}
+		if ($arPolicy["PASSWORD_DIGITS"] === "Y")
+		{
+			$ar[] = GetMessage("MAIN_GP_PASSWORD_DIGITS");
+		}
+		if ($arPolicy["PASSWORD_PUNCTUATION"] === "Y")
+		{
+			$ar[] = GetMessage("MAIN_GP_PASSWORD_PUNCTUATION", ["#SPECIAL_CHARS#" => static::PASSWORD_SPECIAL_CHARS]);
+		}
+		$arPolicy["PASSWORD_REQUIREMENTS"] = implode(", ", $ar).".";
+
+		return $arPolicy;
+	}
+
+	/**
+	 * @param mixed $userId User ID or array of groups
+	 * @return Policy\RulesCollection
+	 */
+	public static function getPolicy($userId)
+	{
 		global $DB, $CACHE_MANAGER;
-		static $arPOLICY_CACHE = array();
 
-		$CACHE_ID = md5(serialize($iUserId));
-		if (array_key_exists($CACHE_ID, $arPOLICY_CACHE))
-			return $arPOLICY_CACHE[$CACHE_ID];
+		static $cache = [];
 
-		$arPolicies = array();
+		$cacheId = md5(serialize($userId));
+		if (isset($cache[$cacheId]))
+		{
+			return $cache[$cacheId];
+		}
+
+		$arPolicies = [];
 
 		/* Group 2 managed cache */
-		$sql = "SELECT G.SECURITY_POLICY FROM b_group G WHERE G.ID=2";
+		$sql = "SELECT G.ID GROUP_ID, G.SECURITY_POLICY FROM b_group G WHERE G.ID=2";
 		if (CACHED_b_group === false)
 		{
 			$res = $DB->Query($sql);
@@ -4053,10 +4135,10 @@ class CAllUser extends CDBResult
 			$arPolicies[] = $group2Policy;
 		}
 
-		if (is_array($iUserId))
+		if (is_array($userId))
 		{
 			$arGroups = array();
-			foreach ($iUserId as $value)
+			foreach ($userId as $value)
 			{
 				$value = intval($value);
 				if ($value > 0 && $value != 2)
@@ -4076,12 +4158,12 @@ class CAllUser extends CDBResult
 				}
 			}
 		}
-		elseif (intval($iUserId) > 0)
+		elseif (intval($userId) > 0)
 		{
 			$sql =
 				"SELECT UG.GROUP_ID, G.SECURITY_POLICY ".
 				"FROM b_user_group UG, b_group G ".
-				"WHERE UG.USER_ID = ".intval($iUserId)." ".
+				"WHERE UG.USER_ID = ".intval($userId)." ".
 				"AND UG.GROUP_ID = G.ID ".
 				"AND ((UG.DATE_ACTIVE_FROM IS NULL) OR (UG.DATE_ACTIVE_FROM <= ".$DB->CurrentTimeFunction().")) ".
 				"AND ((UG.DATE_ACTIVE_TO IS NULL) OR (UG.DATE_ACTIVE_TO >= ".$DB->CurrentTimeFunction().")) "
@@ -4093,85 +4175,50 @@ class CAllUser extends CDBResult
 			}
 		}
 
-		$arPolicy = static::$GROUP_POLICY;
-		if($arPolicy["SESSION_TIMEOUT"]<=0)
-			$arPolicy["SESSION_TIMEOUT"] = ini_get("session.gc_maxlifetime")/60;
+		// default policy
+		$policy = new Policy\RulesCollection();
 
 		foreach($arPolicies as $ar)
 		{
 			if($ar["SECURITY_POLICY"])
-				$arGroupPolicy = unserialize($ar["SECURITY_POLICY"], ['allowed_classes' => false]);
-			else
-				continue;
-
-			if(!is_array($arGroupPolicy))
-				continue;
-
-			foreach($arGroupPolicy as $key=>$val)
 			{
-				switch($key)
-				{
-				case "STORE_IP_MASK":
-				case "SESSION_IP_MASK":
-				case "BLOCK_TIME":
-				case "PASSWORD_UNIQUE_COUNT":
-					if($arPolicy[$key]<$val)
-						$arPolicy[$key] = $val;
-					break;
-				case "SESSION_TIMEOUT":
-					if($arPolicy[$key]<=0 || $arPolicy[$key]>$val)
-						$arPolicy[$key] = $val;
-					break;
-				case "PASSWORD_LENGTH":
-					if($arPolicy[$key]<=0 || $arPolicy[$key] < $val)
-						$arPolicy[$key] = $val;
-					break;
-				case "PASSWORD_UPPERCASE":
-				case "PASSWORD_LOWERCASE":
-				case "PASSWORD_DIGITS":
-				case "PASSWORD_PUNCTUATION":
-					if($val === "Y")
-						$arPolicy[$key] = "Y";
-					break;
-				case "LOGIN_ATTEMPTS":
-				case "BLOCK_LOGIN_ATTEMPTS":
-				case "PASSWORD_CHANGE_DAYS":
-					if($val > 0 && ($arPolicy[$key] <= 0 || $arPolicy[$key] > $val))
-						$arPolicy[$key] = $val;
-					break;
-				default:
-					if($arPolicy[$key]>$val)
-						$arPolicy[$key] = $val;
-				}
+				$arGroupPolicy = unserialize($ar["SECURITY_POLICY"], ['allowed_classes' => false]);
+			}
+			else
+			{
+				continue;
 			}
 
-			if($arPolicy["PASSWORD_LENGTH"] === false)
-				$arPolicy["PASSWORD_LENGTH"] = 6;
+			if(!is_array($arGroupPolicy))
+			{
+				continue;
+			}
+
+			foreach ($arGroupPolicy as $key => $val)
+			{
+				$rule = $policy[$key];
+				if ($rule !== null)
+				{
+					if ($rule->assignValue($val))
+					{
+						// now we know from which group the rule was last applied
+						$rule->setGroupId((int)$ar['GROUP_ID']);
+					}
+				}
+			}
 		}
 
-		$ar = array(
-			GetMessage("MAIN_GP_PASSWORD_LENGTH", array("#LENGTH#" => intval($arPolicy["PASSWORD_LENGTH"])))
-		);
-		if($arPolicy["PASSWORD_UPPERCASE"] === "Y")
-			$ar[] = GetMessage("MAIN_GP_PASSWORD_UPPERCASE");
-		if($arPolicy["PASSWORD_LOWERCASE"] === "Y")
-			$ar[] = GetMessage("MAIN_GP_PASSWORD_LOWERCASE");
-		if($arPolicy["PASSWORD_DIGITS"] === "Y")
-			$ar[] = GetMessage("MAIN_GP_PASSWORD_DIGITS");
-		if($arPolicy["PASSWORD_PUNCTUATION"] === "Y")
-			$ar[] = GetMessage("MAIN_GP_PASSWORD_PUNCTUATION", ["#SPECIAL_CHARS#" => static::PASSWORD_SPECIAL_CHARS]);
-		$arPolicy["PASSWORD_REQUIREMENTS"] = implode(", ", $ar).".";
+		if (count($cache) <= 10)
+		{
+			$cache[$cacheId] = $policy;
+		}
 
-		if(count($arPOLICY_CACHE)<=10)
-			$arPOLICY_CACHE[$CACHE_ID] = $arPolicy;
-
-		return $arPolicy;
+		return $policy;
 	}
 
-	public static function CheckStoredHash($iUserId, $sHash, $bTempHashOnly=false)
+	public static function CheckStoredHash($userId, $sHash, $bTempHashOnly=false)
 	{
 		global $DB;
-		$arPolicy = static::GetGroupPolicy($iUserId);
 
 		$cnt = 0;
 		$auth_id = false;
@@ -4183,31 +4230,46 @@ class CAllUser extends CDBResult
 			"	".$DB->DateToCharFunction("A.DATE_REG", "FULL")." as DATE_REG, ".
 			"	".$DB->DateToCharFunction("A.LAST_AUTH", "FULL")." as LAST_AUTH ".
 			"FROM b_user_stored_auth A ".
-			"WHERE A.USER_ID = ".intval($iUserId)." ".
+			"WHERE A.USER_ID = ".intval($userId)." ".
 			"ORDER BY A.LAST_AUTH DESC";
 		$res = $DB->Query($strSql);
 		CTimeZone::Enable();
 
+		$policy = static::getPolicy($userId);
+
+		$maxStoreNum = $policy->getMaxStoreNum();
+		$storeTimeout = $policy->getStoreTimeout();
+		$sessionTimeout = $policy->getSessionTimeout();
+		$storeIpMask = ip2long($policy->getStoreIpMask());
+
 		while($ar = $res->Fetch())
 		{
-			if($ar["TEMP_HASH"]=="N")
+			if ($ar["TEMP_HASH"] == "N")
+			{
 				$cnt++;
-			if($arPolicy["MAX_STORE_NUM"] < $cnt
-				|| ($ar["TEMP_HASH"]=="N" && time()-$arPolicy["STORE_TIMEOUT"]*60 > MakeTimeStamp($ar["LAST_AUTH"], $site_format))
-				|| ($ar["TEMP_HASH"]=="Y" && time()-$arPolicy["SESSION_TIMEOUT"]*60 > MakeTimeStamp($ar["LAST_AUTH"], $site_format))
+			}
+
+			$lastAuthTime = MakeTimeStamp($ar["LAST_AUTH"], $site_format);
+
+			if (
+				$cnt > $maxStoreNum
+				|| ($ar["TEMP_HASH"] == "N" && time() - ($storeTimeout * 60) > $lastAuthTime)
+				|| ($ar["TEMP_HASH"] == "Y" && time() - ($sessionTimeout * 60) > $lastAuthTime)
 			)
 			{
 				$DB->Query("DELETE FROM b_user_stored_auth WHERE ID=".$ar["ID"]);
 			}
-			elseif(!$auth_id)
+			elseif (!$auth_id)
 			{
 				//for domain spreaded external auth we should check only temporary hashes
 				if($bTempHashOnly == false || $ar["TEMP_HASH"] == "Y")
 				{
-					$remote_net = ip2long($arPolicy["STORE_IP_MASK"]) & ip2long($_SERVER["REMOTE_ADDR"]);
-					$stored_net = ip2long($arPolicy["STORE_IP_MASK"]) & (float)$ar["IP_ADDR"];
+					$remote_net = $storeIpMask & ip2long($_SERVER["REMOTE_ADDR"]);
+					$stored_net = $storeIpMask & (float)$ar["IP_ADDR"];
 					if($sHash === $ar["STORED_HASH"] && $remote_net == $stored_net)
+					{
 						$auth_id = $ar["ID"];
+					}
 				}
 			}
 		}
@@ -4522,7 +4584,7 @@ class CAllUser extends CDBResult
 			$USER->SetParam('SET_LAST_ACTIVITY', time());
 		}
 
-		self::SetLastActivityDateByArray(array($userId), $_SERVER['REMOTE_ADDR']);
+		static::SetLastActivityDateByArray(array($userId), $_SERVER['REMOTE_ADDR']);
 
 		return true;
 	}
@@ -4617,13 +4679,13 @@ class CAllUser extends CDBResult
 			return $result;
 		}
 
-		$result['IS_ONLINE'] = $now - $lastseen <= self::GetSecondsForLimitOnline();
+		$result['IS_ONLINE'] = $now - $lastseen <= static::GetSecondsForLimitOnline();
 		$result['STATUS'] = $result['IS_ONLINE']? self::STATUS_ONLINE: self::STATUS_OFFLINE;
 		$result['STATUS_TEXT'] = GetMessage('USER_STATUS_'.strtoupper($result['STATUS']));
 
 		if ($lastseen && $now - $lastseen > 300)
 		{
-			$result['LAST_SEEN_TEXT'] = self::FormatLastActivityDate($lastseen, $now);
+			$result['LAST_SEEN_TEXT'] = static::FormatLastActivityDate($lastseen, $now);
 		}
 
 		if ($userId > 0)

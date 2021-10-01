@@ -831,6 +831,33 @@ div.intranet-button-list-widget-content {
 	opacity: 1;
 }
 
+/* Site restriction */
+.intranet-button-list-site-restriction-container {
+	margin: 15px 0 0 10px;
+	position: relative;
+	max-width: 300px;
+}
+
+.intranet-button-list-site-restriction-label {
+	margin-bottom: 5px;
+}
+
+.intranet-button-list-site-restriction-saved {
+	position: absolute;
+    top: 0;
+    right: 0;
+	color: #729e00;
+	opacity: 0;
+	transition: opacity .3s linear;
+}
+
+.intranet-button-list-site-restriction-saved.active {
+	opacity: 1;
+}
+
+.intranet-button-list-site-restriction-list {
+	width: 100%;
+}
 
 
 /* POPUPS */

@@ -2,6 +2,7 @@
 namespace Bitrix\Im\Integration\UI\EntitySelector;
 
 use Bitrix\Im\User;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\UI\EntitySelector\BaseFilter;
 use Bitrix\UI\EntitySelector\Dialog;
 use Bitrix\UI\EntitySelector\Item;
@@ -52,6 +53,13 @@ class UserDataFilter extends BaseFilter
 			if (!($item instanceof Item))
 			{
 				continue;
+			}
+
+			if ($item->getId() === Helper\User::getCurrentUserId())
+			{
+				$item->addBadges([[
+					'title' => Loc::getMessage('IM_UI_ENTITY_SELECTOR_IT_IS_YOU'),
+				]]);
 			}
 
 			$customData = $item->getCustomData();

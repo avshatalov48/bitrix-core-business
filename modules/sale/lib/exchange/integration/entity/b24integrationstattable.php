@@ -6,6 +6,22 @@ use Bitrix\Main\Application;
 use Bitrix\Main\ORM\Data\AddResult;
 use Bitrix\Sale\Exchange\Integration\EntityType;
 
+/**
+ * Class B24integrationStatTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_B24integrationStat_Query query()
+ * @method static EO_B24integrationStat_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_B24integrationStat_Result getById($id)
+ * @method static EO_B24integrationStat_Result getList(array $parameters = array())
+ * @method static EO_B24integrationStat_Entity getEntity()
+ * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24integrationStat createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24integrationStat_Collection createCollection()
+ * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24integrationStat wakeUpObject($row)
+ * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24integrationStat_Collection wakeUpCollection($rows)
+ */
 class B24integrationStatTable extends Main\Entity\DataManager
 {
 	public static function getTableName()

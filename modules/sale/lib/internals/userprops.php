@@ -10,6 +10,22 @@ namespace Bitrix\Sale\Internals;
 use	Bitrix\Main\Entity\DataManager,
 	Bitrix\Main\Entity\Validator;
 
+/**
+ * Class UserPropsTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserProps_Query query()
+ * @method static EO_UserProps_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserProps_Result getById($id)
+ * @method static EO_UserProps_Result getList(array $parameters = array())
+ * @method static EO_UserProps_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_UserProps createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_UserProps_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_UserProps wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_UserProps_Collection wakeUpCollection($rows)
+ */
 class UserPropsTable extends DataManager
 {
 	public static function getFilePath()

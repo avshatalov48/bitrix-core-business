@@ -19,7 +19,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Sale\Delivery\Requests
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Shipment_Query query()
+ * @method static EO_Shipment_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Shipment_Result getById($id)
+ * @method static EO_Shipment_Result getList(array $parameters = array())
+ * @method static EO_Shipment_Entity getEntity()
+ * @method static \Bitrix\Sale\Delivery\Requests\EO_Shipment createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Delivery\Requests\EO_Shipment_Collection createCollection()
+ * @method static \Bitrix\Sale\Delivery\Requests\EO_Shipment wakeUpObject($row)
+ * @method static \Bitrix\Sale\Delivery\Requests\EO_Shipment_Collection wakeUpCollection($rows)
+ */
 
 class ShipmentTable extends Entity\DataManager
 {

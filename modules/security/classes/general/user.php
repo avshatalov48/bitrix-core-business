@@ -263,10 +263,8 @@ class CSecurityUser
 		if (!intval($userId))
 			return false;
 
-		$isOtpMandatory = self::IsOtpMandatory();
-
 		if (
-			!$isOtpMandatory && $userId == $USER->GetID()
+			self::IsUserSkipMandatoryRights($userId) && $userId === $USER->GetID()
 			|| $USER->CanDoOperation('security_edit_user_otp')
 		)
 		{

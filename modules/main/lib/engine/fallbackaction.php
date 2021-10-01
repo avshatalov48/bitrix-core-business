@@ -21,7 +21,8 @@ final class FallbackAction extends Action
 		if ($this->binder === null)
 		{
 			$controller = $this->getController();
-			$this->binder = AutoWire\Binder::buildForMethod($controller, self::ACTION_METHOD)
+			$this->binder = AutoWire\ControllerBinder::buildForMethod($controller, self::ACTION_METHOD)
+				->setController($controller)
 				->setSourcesParametersToMap([
 					['actionName' => $this->originalActionName]
 				])

@@ -7,6 +7,19 @@ use Bitrix\Main;
 /**
  * Class CustomFieldsTable
  * @package Bitrix\Sale\Internals
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CustomFields_Query query()
+ * @method static EO_CustomFields_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CustomFields_Result getById($id)
+ * @method static EO_CustomFields_Result getList(array $parameters = array())
+ * @method static EO_CustomFields_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_CustomFields createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_CustomFields_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_CustomFields wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_CustomFields_Collection wakeUpCollection($rows)
  */
 class CustomFieldsTable extends Main\Entity\DataManager
 {

@@ -23,6 +23,11 @@ use Bitrix\Main\SystemException;
  *
  * @method RoutingConfiguration get($uri, $controller)
  * @method RoutingConfiguration post($uri, $controller)
+ * @method RoutingConfiguration put($uri, $controller)
+ * @method RoutingConfiguration patch($uri, $controller)
+ * @method RoutingConfiguration options($uri, $controller)
+ * @method RoutingConfiguration delete($uri, $controller)
+ * @method RoutingConfiguration head($uri, $controller)
  * @method RoutingConfiguration any($uri, $controller)
  *
  * @method RoutingConfiguration group($callback)

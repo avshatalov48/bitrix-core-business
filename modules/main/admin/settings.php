@@ -121,9 +121,13 @@ function __AdmSettingsSaveOption($module_id, $arOption)
 			{
 				$val = $_REQUEST[$name."_".$site["LID"]];
 				if($arOption[3][0] == "checkbox" && $val != "Y")
+				{
 					$val = "N";
-				if($arOption[3][0] == "multiselectbox")
-					$val = @implode(",", $val);
+				}
+				if($arOption[3][0] == "multiselectbox" && is_array($val))
+				{
+					$val = implode(",", $val);
+				}
 				COption::SetOptionString($module_id, $name, $val, $arOption[1], $site["LID"]);
 			}
 			else
@@ -145,9 +149,13 @@ function __AdmSettingsSaveOption($module_id, $arOption)
 		$val = $_REQUEST[$name];
 
 		if($arOption[3][0] == "checkbox" && $val != "Y")
+		{
 			$val = "N";
-		if($arOption[3][0] == "multiselectbox")
-			$val = @implode(",", $val);
+		}
+		if($arOption[3][0] == "multiselectbox" && is_array($val))
+		{
+			$val = implode(",", $val);
+		}
 
 		COption::SetOptionString($module_id, $name, $val, $arOption[1]);
 	}

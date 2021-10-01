@@ -4,13 +4,13 @@ IncludeModuleLangFile(__FILE__);
 
 class CAllCatalogDocs
 {
-	static $types = array(
-		"A" => "CCatalogArrivalDocs",
-		"M" => "CCatalogMovingDocs",
-		"R" => "CCatalogReturnsDocs",
-		"D" => "CCatalogDeductDocs",
-		"U" => "CCatalogUnReservedDocs",
-	);
+	static $types = [
+		CCatalogDocsTypes::TYPE_ARRIVAL => "CCatalogArrivalDocs",
+		CCatalogDocsTypes::TYPE_MOVING => "CCatalogMovingDocs",
+		CCatalogDocsTypes::TYPE_RETURN => "CCatalogReturnsDocs",
+		CCatalogDocsTypes::TYPE_DEDUCT => "CCatalogDeductDocs",
+		CCatalogDocsTypes::TYPE_UNDO_RESERVE => "CCatalogUnReservedDocs",
+	];
 
 	/**
 	 * @param $id
@@ -157,6 +157,7 @@ class CAllCatalogDocs
 		{
 			if ('Y' != $arDocType['STATUS'])
 			{
+				/** @var \CCatalogDocsTypes $documentClass */
 				$documentClass = self::$types[$arDocType["DOC_TYPE"]];
 				if($arDocType["CURRENCY"] <> '')
 					$currency = $arDocType["CURRENCY"];

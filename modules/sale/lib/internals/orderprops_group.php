@@ -10,6 +10,22 @@ namespace Bitrix\Sale\Internals;
 use	Bitrix\Main\Entity\DataManager,
 	Bitrix\Main\Entity\Validator;
 
+/**
+ * Class OrderPropsGroupTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_OrderPropsGroup_Query query()
+ * @method static EO_OrderPropsGroup_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_OrderPropsGroup_Result getById($id)
+ * @method static EO_OrderPropsGroup_Result getList(array $parameters = array())
+ * @method static EO_OrderPropsGroup_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_OrderPropsGroup createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_OrderPropsGroup_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_OrderPropsGroup wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_OrderPropsGroup_Collection wakeUpCollection($rows)
+ */
 class OrderPropsGroupTable extends DataManager
 {
 	public static function getFilePath()

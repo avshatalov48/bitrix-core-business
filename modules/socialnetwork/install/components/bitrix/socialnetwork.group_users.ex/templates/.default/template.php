@@ -253,7 +253,14 @@ else
 		)
 		{
 			?><div class="sonet-members-item"><?
-				?><span class="sonet-members-item-name"><?=GetMessage($arResult["Group"]["PROJECT"] == 'Y' ? "SONET_GUE_T_MODS_SUBTITLE_PROJECT" : "SONET_GUE_T_MODS_SUBTITLE")?></span><?
+				?><span class="sonet-members-item-name">
+					<?=
+						GetMessage($arResult["Group"]["PROJECT"] == 'Y'
+							? $arResult["isScrumProject"]
+								? "SONET_GUE_T_MODS_SUBTITLE_SCRUM_PROJECT"
+								: "SONET_GUE_T_MODS_SUBTITLE_PROJECT"
+							: "SONET_GUE_T_MODS_SUBTITLE")
+					?></span><?
 				?><div class="sonet-members-separator"></div><?
 
 				if (

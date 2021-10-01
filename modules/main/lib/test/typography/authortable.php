@@ -16,6 +16,19 @@ use Bitrix\Main\ORM\Fields\StringField;
 /**
  * @package    bitrix
  * @subpackage main
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Author_Query query()
+ * @method static EO_Author_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Author_Result getById($id)
+ * @method static EO_Author_Result getList(array $parameters = array())
+ * @method static EO_Author_Entity getEntity()
+ * @method static \Bitrix\Main\Test\Typography\EO_Author createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Test\Typography\EO_Author_Collection createCollection()
+ * @method static \Bitrix\Main\Test\Typography\EO_Author wakeUpObject($row)
+ * @method static \Bitrix\Main\Test\Typography\EO_Author_Collection wakeUpCollection($rows)
  */
 class AuthorTable extends DataManager
 {

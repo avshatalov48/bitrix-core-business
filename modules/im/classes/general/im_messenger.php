@@ -1,4 +1,5 @@
 <?
+use Bitrix\Im\Integration\Imopenlines;
 IncludeModuleLangFile(__FILE__);
 
 class CIMMessenger
@@ -321,6 +322,25 @@ class CIMMessenger
 			{
 				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_MESSAGE_PRIVACY"), "ERROR_FROM_PRIVACY");
 				return false;
+			}
+
+			// TODO: temporary, remove this after 22.0.0 release
+			if (
+				\Bitrix\Im\User::getInstance($arFields['TO_USER_ID'])->isNetwork()
+				&& !\Bitrix\Im\User::getInstance($arFields['TO_USER_ID'])->isBot()
+				&& $arFields['SYSTEM'] != 'Y'
+				&& \Bitrix\Im\Replica\Status::isDeprecated()
+			)
+			{
+				self::Add([
+					'TO_USER_ID' => $arFields['TO_USER_ID'],
+					'FROM_USER_ID' => $arFields['FROM_USER_ID'],
+					'MESSAGE_TYPE' => 'P',
+					'SYSTEM' => 'Y',
+					'MESSAGE' => \Bitrix\Im\Replica\Status::getMessageDialog()
+				]);
+
+				return true;
 			}
 
 			if ($chatId > 0)
@@ -1264,7 +1284,7 @@ class CIMMessenger
 					}
 
 					$DB->Query("
-						UPDATE b_im_relation 
+						UPDATE b_im_relation
 						SET STATUS = '".IM_STATUS_UNREAD."', COUNTER = {$counter}
 						WHERE USER_ID = ".intval($arFields['TO_USER_ID'])." AND MESSAGE_TYPE = '".IM_MESSAGE_SYSTEM."' AND CHAT_ID = ".$chatId
 					);
@@ -1310,51 +1330,80 @@ class CIMMessenger
 				foreach(GetModuleEvents("im", "OnAfterNotifyAdd", true) as $arEvent)
 					ExecuteModuleEventEx($arEvent, array(intval($messageID), $arFields));
 
-				if (CModule::IncludeModule("pull"))
+				if (CModule::IncludeModule('pull'))
 				{
-					\Bitrix\Pull\Push::add($arFields['TO_USER_ID'], Array(
-						'module_id' => $arParams['NOTIFY_MODULE'],
-						'push' => Array(
-							'type' => $arFields['NOTIFY_EVENT'],
-							'message' => $arFields['PUSH_MESSAGE'],
-							'params' => isset($arFields['PUSH_PARAMS'])? $arFields['PUSH_PARAMS']: '',
-							'advanced_params' => isset($arFields['PUSH_PARAMS']) && isset($arFields['PUSH_PARAMS']['ADVANCED_PARAMS']) ? $arFields['PUSH_PARAMS']['ADVANCED_PARAMS']: array(),
-							'important' => isset($arFields['PUSH_IMPORTANT']) && $arFields['PUSH_IMPORTANT'] === 'Y' ? 'Y': 'N',
-							'tag' => $arParams['NOTIFY_TAG'],
-							'sub_tag' => $arParams['NOTIFY_SUB_TAG'],
-							'app_id' => isset($arParams['PUSH_APP_ID'])? $arParams['PUSH_APP_ID']: '',
-						)
-					));
+					$pullNotificationParams = CIMNotify::GetFormatNotify(
+						[
+							'ID' => $messageID,
+							'DATE_CREATE' => time(),
+							'FROM_USER_ID' => (int)$arFields['FROM_USER_ID'],
+							'MESSAGE' => $arParams['MESSAGE'],
+							'PARAMS' => self::PrepareParamsForPull($arFields['PARAMS']),
+							'NOTIFY_ONLY_FLASH' => $skipAdd,
+							'NOTIFY_LINK' => $arFields['NOTIFY_LINK'],
+							'NOTIFY_MODULE' => $arParams['NOTIFY_MODULE'],
+							'NOTIFY_EVENT' => $arParams['NOTIFY_EVENT'],
+							'NOTIFY_TAG' => $arParams['NOTIFY_TAG'],
+							'NOTIFY_TYPE' => $arParams['NOTIFY_TYPE'],
+							'NOTIFY_BUTTONS' => $arParams['NOTIFY_BUTTONS'] ?? serialize([]),
+							'NOTIFY_TITLE' => $arParams['NOTIFY_TITLE'] ?? '',
+							'COUNTER' => $counter,
+						]
+					);
+
+					// We shouldn't send push, if it is disabled in notification settings.
+					$needPush = CIMSettings::GetNotifyAccess(
+						$arFields['TO_USER_ID'],
+						$arFields['NOTIFY_MODULE'],
+						$arFields['NOTIFY_EVENT'],
+						CIMSettings::CLIENT_PUSH
+					);
+
+					if ($needPush)
+					{
+						// we prepare push params ONLY if there are no ADVANCED_PARAMS from outside.
+						// If ADVANCED_PARAMS exists we must not change them.
+						if (isset($arFields['PUSH_PARAMS']['ADVANCED_PARAMS']))
+						{
+							$advancedParams = $arFields['PUSH_PARAMS']['ADVANCED_PARAMS'];
+						}
+						else
+						{
+							$advancedParams = self::prepareAdvancedParamsForNotificationPush(
+								$pullNotificationParams,
+								$arFields['PUSH_MESSAGE']
+							);
+						}
+
+						\Bitrix\Pull\Push::add(
+							$arFields['TO_USER_ID'],
+							[
+								'module_id' => $arParams['NOTIFY_MODULE'],
+								'push' => [
+									'type' => $arFields['NOTIFY_EVENT'],
+									'message' => $arFields['PUSH_MESSAGE'],
+									'params' => $arFields['PUSH_PARAMS'] ?? '',
+									'advanced_params' => $advancedParams,
+									'important' => isset($arFields['PUSH_IMPORTANT']) && $arFields['PUSH_IMPORTANT'] === 'Y' ? 'Y': 'N',
+									'tag' => $arParams['NOTIFY_TAG'],
+									'sub_tag' => $arParams['NOTIFY_SUB_TAG'],
+									'app_id' => $arParams['PUSH_APP_ID'] ?? '',
+								]
+							]
+						);
+					}
 
 					if (!$skipFlash)
 					{
-						$params = CIMNotify::GetFormatNotify(
+						\Bitrix\Pull\Event::add(
+							$arFields['TO_USER_ID'],
 							[
-								'TEMPLATE_ID' => $arFields['TEMPLATE_ID'],
-								'ID' => $messageID,
-								'DATE_CREATE' => time(),
-								'FROM_USER_ID' => (int)$arFields['FROM_USER_ID'],
-								'MESSAGE' => $arParams['MESSAGE'],
-								'PARAMS' => self::PrepareParamsForPull($arFields['PARAMS']),
-								'NOTIFY_ONLY_FLASH' => $skipAdd,
-								'NOTIFY_LINK' => $arFields['NOTIFY_LINK'],
-								'NOTIFY_MODULE' => $arParams['NOTIFY_MODULE'],
-								'NOTIFY_EVENT' => $arParams['NOTIFY_EVENT'],
-								'NOTIFY_TAG' => $arParams['NOTIFY_TAG'],
-								'NOTIFY_TYPE' => $arParams['NOTIFY_TYPE'],
-								'NOTIFY_BUTTONS' => $arParams['NOTIFY_BUTTONS'] ?? serialize([]),
-								'NOTIFY_TITLE' => $arParams['NOTIFY_TITLE'] ?? '',
-								'SKIP_ADD' => $skipAdd? 'Y': 'N',
-								'COUNTER' => $counter,
+								'module_id' => 'im',
+								'command' => 'notifyAdd',
+								'params' => $pullNotificationParams,
+								'extra' => \Bitrix\Im\Common::getPullExtra()
 							]
 						);
-
-						\Bitrix\Pull\Event::add($arFields['TO_USER_ID'], Array(
-							'module_id' => 'im',
-							'command' => 'notifyAdd',
-							'params' => $params,
-							'extra' => \Bitrix\Im\Common::getPullExtra()
-						));
 					}
 				}
 
@@ -3075,9 +3124,9 @@ class CIMMessenger
 				$olConfig['queue'][] = array_change_key_case($config, CASE_LOWER);
 			}
 
-			$olConfig['canUseVoteHead'] = \Bitrix\Im\Integration\Imopenlines\Limit::canUseVoteHead();
-			$olConfig['canJoinChatUser'] = \Bitrix\Im\Integration\Imopenlines\Limit::canJoinChatUser();
-			$olConfig['canTransferToLine'] = \Bitrix\Im\Integration\Imopenlines\Limit::canTransferToLine();
+			$olConfig['canUseVoteHead'] = Imopenlines\Limit::canUseVoteHead();
+			$olConfig['canJoinChatUser'] = Imopenlines\Limit::canJoinChatUser();
+			$olConfig['canTransferToLine'] = Imopenlines\Limit::canTransferToLine();
 		}
 
 		$bitrix24blocked = false;
@@ -3105,7 +3154,7 @@ class CIMMessenger
 
 		$userColor = isset($arTemplate['CONTACT_LIST']['users'][$USER->GetID()]['color']) ? $arTemplate['CONTACT_LIST']['users'][$USER->GetID()]['color']: '';
 
-		$isOperator = \Bitrix\Im\Integration\Imopenlines\User::isOperator();
+		$isOperator = Imopenlines\User::isOperator();
 
 		$recentLastUpdate = (new \Bitrix\Main\Type\DateTime())->format(\DateTimeInterface::RFC3339);
 		$recent = \Bitrix\Im\Recent::getList(null, [
@@ -3134,7 +3183,6 @@ class CIMMessenger
 					'isLinesOperator': ".($isOperator? 'true': 'false').",
 					'isUtfMode': ".(\Bitrix\Main\Application::getInstance()->isUtfMode()? 'true': 'false').",
 					'bitrixNetwork': ".(CIMMessenger::CheckNetwork()? 'true': 'false').",
-					'bitrixNetwork2': ".(CIMMessenger::CheckNetwork2()? 'true': 'false').",
 					'bitrix24': ".($bitrix24Enabled? 'true': 'false').",
 					'bitrix24blocked': ".($bitrix24blocked? $bitrix24blocked: 'false').",
 					'bitrix24net': ".(IsModuleInstalled('b24network')? 'true': 'false').",
@@ -3185,20 +3233,20 @@ class CIMMessenger
 					'user': ".($arTemplate['CURRENT_USER']? \Bitrix\Im\Common::objectEncode($arTemplate['CURRENT_USER']): '{}').",
 					'userBirthday': ".(!empty($userBirthday)? \Bitrix\Im\Common::objectEncode($userBirthday): '[]').",
 					'webrtc': {
-						'turnServer' : '".CUtil::JSEscape($arTemplate['TURN_SERVER'])."', 
-						'turnServerFirefox' : '".CUtil::JSEscape($arTemplate['TURN_SERVER_FIREFOX'])."', 
-						'turnServerLogin' : '".CUtil::JSEscape($arTemplate['TURN_SERVER_LOGIN'])."', 
-						'turnServerPassword' : '".CUtil::JSEscape($arTemplate['TURN_SERVER_PASSWORD'])."', 
-						'mobileSupport': false, 
-						'phoneEnabled': ".($phoneEnabled? 'true': 'false').", 
-						'phoneDeviceActive': '".($phoneDeviceActive? 'Y': 'N')."', 
-						'phoneCanPerformCalls': '".($phoneCanPerformCalls? 'Y': 'N')."', 
-						'phoneCanCallUserNumber': '".($phoneCanCallUserNumber? 'Y': 'N')."', 
-						'phoneCanInterceptCall': ".($phoneCanInterceptCall? 'true': 'false').", 
+						'turnServer' : '".CUtil::JSEscape($arTemplate['TURN_SERVER'])."',
+						'turnServerFirefox' : '".CUtil::JSEscape($arTemplate['TURN_SERVER_FIREFOX'])."',
+						'turnServerLogin' : '".CUtil::JSEscape($arTemplate['TURN_SERVER_LOGIN'])."',
+						'turnServerPassword' : '".CUtil::JSEscape($arTemplate['TURN_SERVER_PASSWORD'])."',
+						'mobileSupport': false,
+						'phoneEnabled': ".($phoneEnabled? 'true': 'false').",
+						'phoneDeviceActive': '".($phoneDeviceActive? 'Y': 'N')."',
+						'phoneCanPerformCalls': '".($phoneCanPerformCalls? 'Y': 'N')."',
+						'phoneCanCallUserNumber': '".($phoneCanCallUserNumber? 'Y': 'N')."',
+						'phoneCanInterceptCall': ".($phoneCanInterceptCall? 'true': 'false').",
 						'phoneCallCardRestApps': ".\Bitrix\Im\Common::objectEncode(self::GetCallCardRestApps()).",
 						'phoneDefaultLineId': '".self::GetDefaultTelephonyLine()."',
 						'availableLines': ".\Bitrix\Im\Common::objectEncode(self::GetTelephonyAvailableLines()).",
-						'formatRecordDate': '".\Bitrix\Main\Context::getCurrent()->getCulture()->getShortDateFormat()."'						
+						'formatRecordDate': '".\Bitrix\Main\Context::getCurrent()->getCulture()->getShortDateFormat()."'
 					},
 					'openlines': ".\Bitrix\Im\Common::objectEncode($olConfig).",
 					'options': {'contactListLoad' : ".($contactListLoad? 'true': 'false').", 'contactListBirthday' : '".$contactListBirthday."', 'chatExtendShowHistory' : ".($chatExtendShowHistory? 'true': 'false').", 'frameMode': ".($_REQUEST['IFRAME'] == 'Y'? 'true': 'false').", 'frameType': '".($_REQUEST['IFRAME_TYPE'] == 'SIDE_SLIDER'? 'SIDE_SLIDER': 'NONE')."', 'showRecent': ".($_REQUEST['IM_RECENT'] == 'N'? 'false': 'true').", 'showMenu': ".($_REQUEST['IM_MENU'] == 'N'? 'false': 'true')."},
@@ -3286,7 +3334,6 @@ class CIMMessenger
 			'xmppStatus' => (bool)CIMMessenger::CheckXmppStatusOnline(),
 			'isAdmin' => (bool)self::IsAdmin(),
 			'bitrixNetwork' => (bool)CIMMessenger::CheckNetwork(),
-			'bitrixNetwork2' => (bool)CIMMessenger::CheckNetwork2(),
 			'bitrix24' => (bool)IsModuleInstalled('bitrix24'),
 			'bitrix24net' => (bool)IsModuleInstalled('b24network'),
 			'bitrixIntranet' => (bool)IsModuleInstalled('intranet'),
@@ -3873,6 +3920,34 @@ class CIMMessenger
 		return $result;
 	}
 
+	private static function prepareAdvancedParamsForNotificationPush(array $params, string $pushMessage = null): array
+	{
+		if ($params['date'] instanceof \Bitrix\Main\Type\DateTime)
+		{
+			$params['date'] = date('c', $params['date']->getTimestamp());
+		}
+
+		$params['text'] = self::PrepareMessageForPush(['message' => ['text' => $params['text']]]);
+
+		$advancedParams = [
+			'id' => 'im_notify',
+			'group' => 'im_notify',
+			'data' => self::prepareNotificationEventForPush($params, $pushMessage)
+		];
+
+		if (isset($params['userName']))
+		{
+			$advancedParams['senderName'] = $params['userName'];
+			if (isset($params['userAvatar']))
+			{
+				$advancedParams['avatarUrl'] = $params['userAvatar'];
+			}
+			$advancedParams['senderMessage'] = $pushMessage ?: $params['text'];
+		}
+
+		return $advancedParams;
+	}
+
 	public static function PrepareParamsForPush($params)
 	{
 		if (!isset($params['MESSAGE']))
@@ -3893,19 +3968,22 @@ class CIMMessenger
 
 		$hasAttach = mb_strpos($params['MESSAGE'], '[ATTACH=') !== false;
 
+		$params['MESSAGE'] = preg_replace("/\[CODE\](.*?)\[\/CODE\]/si", " [".GetMessage('IM_MESSAGE_CODE')."] ", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace("/\[s\].*?\[\/s\]/i", "-", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace("/\[[bui]\](.*?)\[\/[bui]\]/i", "$1", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace("/\\[url\\](.*?)\\[\\/url\\]/i".BX_UTF_PCRE_MODIFIER, "$1", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace("/\\[url\\s*=\\s*((?:[^\\[\\]]++|\\[ (?: (?>[^\\[\\]]+) | (?:\\1) )* \\])+)\\s*\\](.*?)\\[\\/url\\]/ixs".BX_UTF_PCRE_MODIFIER, "$2", $params['MESSAGE']);
-		$params['MESSAGE'] = preg_replace("/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/i", "$2", $params['MESSAGE']);
+		$params['MESSAGE'] = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $params['MESSAGE']);
+		$params['MESSAGE'] = preg_replace("/\[USER=([0-9]{1,})\](.+?)\[\/USER\]/i", "$2", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace("/\[CHAT=([0-9]{1,})\](.*?)\[\/CHAT\]/i", "$2", $params['MESSAGE']);
-		$params['MESSAGE'] = preg_replace("/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/i", "$2", $params['MESSAGE']);
-		$params['MESSAGE'] = preg_replace("/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/i", "$2", $params['MESSAGE']);
+		$params['MESSAGE'] = preg_replace_callback("/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/i", Array("CIMMessenger", "PrepareMessageForPushSendPutCallBack"), $params['MESSAGE']);
+		$params['MESSAGE'] = preg_replace_callback("/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/i", Array("CIMMessenger", "PrepareMessageForPushSendPutCallBack"), $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace("/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/i", "$2", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace("/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/i", "$2", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace("/\[ATTACH=([0-9]{1,})\]/i", " [".GetMessage('IM_MESSAGE_ATTACH')."] ", $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace_callback("/\[ICON\=([^\]]*)\]/i", Array("CIMMessenger", "PrepareMessageForPushIconCallBack"), $params['MESSAGE']);
 		$params['MESSAGE'] = preg_replace('#\-{54}.+?\-{54}#s', " [".GetMessage('IM_QUOTE')."] ", str_replace(array("#BR#"), Array(" "), $params['MESSAGE']));
+		$params['MESSAGE'] = preg_replace('/^(>>(.*)(\n)?)/mi', " [".GetMessage('IM_QUOTE')."] ", str_replace(array("#BR#"), Array(" "), $params['MESSAGE']));
 
 		if (!$pushFiles && !$hasAttach && $params['ATTACH'])
 		{
@@ -3949,20 +4027,22 @@ class CIMMessenger
 
 		$hasAttach = mb_strpos($message['message']['text'], '[ATTACH=') !== false;
 
+		$message['message']['text'] = preg_replace("/\[CODE\](.*?)\[\/CODE\]/si", " [".GetMessage('IM_MESSAGE_CODE')."] ", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\[s\].*?\[\/s\]/i", "-", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\[[bui]\](.*?)\[\/[bui]\]/i", "$1", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\\[url\\](.*?)\\[\\/url\\]/i".BX_UTF_PCRE_MODIFIER, "$1", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\\[url\\s*=\\s*((?:[^\\[\\]]++|\\[ (?: (?>[^\\[\\]]+) | (?:\\1) )* \\])+)\\s*\\](.*?)\\[\\/url\\]/ixs".BX_UTF_PCRE_MODIFIER, "$2", $message['message']['text']);
 		$message['message']['text'] = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $message['message']['text']);
-		$message['message']['text'] = preg_replace("/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/i", "$2", $message['message']['text']);
+		$message['message']['text'] = preg_replace("/\[USER=([0-9]{1,})\](.+?)\[\/USER\]/i", "$2", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\[CHAT=([0-9]{1,})\](.*?)\[\/CHAT\]/i", "$2", $message['message']['text']);
-		$message['message']['text'] = preg_replace("/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/i", "$2", $message['message']['text']);
-		$message['message']['text'] = preg_replace("/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/i", "$2", $message['message']['text']);
+		$message['message']['text'] = preg_replace_callback("/\[SEND(?:=(?:.+?))?\](?:.+?)?\[\/SEND]/i", Array("CIMMessenger", "PrepareMessageForPushSendPutCallBack"), $message['message']['text']);
+		$message['message']['text'] = preg_replace_callback("/\[PUT(?:=(?:.+?))?\](?:.+?)?\[\/PUT]/i", Array("CIMMessenger", "PrepareMessageForPushSendPutCallBack"), $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/i", "$2", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/i", "$2", $message['message']['text']);
 		$message['message']['text'] = preg_replace("/\[ATTACH=([0-9]{1,})\]/i", " [".GetMessage('IM_MESSAGE_ATTACH')."] ", $message['message']['text']);
 		$message['message']['text'] = preg_replace_callback("/\[ICON\=([^\]]*)\]/i", Array("CIMMessenger", "PrepareMessageForPushIconCallBack"), $message['message']['text']);
 		$message['message']['text'] = preg_replace('#\-{54}.+?\-{54}#s', " [".GetMessage('IM_QUOTE')."] ", str_replace(array("#BR#"), Array(" "), $message['message']['text']));
+		$message['message']['text'] = preg_replace('/^(>>(.*)(\n)?)/mi', " [".GetMessage('IM_QUOTE')."] ", str_replace(array("#BR#"), Array(" "), $message['message']['text']));
 
 		if (!$pushFiles && !$hasAttach && isset($message['message']['params']['ATTACH']))
 		{
@@ -4229,6 +4309,68 @@ class CIMMessenger
 		return self::PrepareEventForPushChangeKeys($result, $indexToNameMap);
 	}
 
+	/**
+	 * Prepares data for push with encoding fields to numbers. Should be the same structure as for p&p event.
+	 * Decoding is located on mobile side (extension "chat/dataconverter").
+	 *
+	 * @param array $event Array with the same data as for p&p event.
+	 * @param string|null $pushMessage Push notification text.
+	 *
+	 * @return array
+	 */
+	private static function prepareNotificationEventForPush(array $event, string $pushMessage = null): array
+	{
+		$result = [
+			'cmd' => 'notifyAdd',
+			'id' => (int)$event['id'],
+			'type' => (int)$event['type'],
+			'date' => (string)$event['date'],
+			'tag' => (string)$event['tag'],
+			'onlyFlash' => $event['onlyFlash'],
+			'originalTag' => (string)$event['originalTag'],
+			'settingName' => (string)$event['settingName'],
+			'counter' => (int)$event['counter'],
+			'userId' => (int)$event['userId'],
+			'userName' => (string)$event['userName'],
+			'userColor' => (string)$event['userColor'],
+			'userAvatar' => (string)$event['userAvatar'],
+			'userLink' => (string)$event['userLink'],
+			'params' => $event['params'],
+		];
+		if (isset($event['buttons']))
+		{
+			$result['buttons'] = $event['buttons'];
+		}
+
+		// We need to save original text ("long") in result only if we have push text ("short").
+		// "Long" text will be used to render push in notifications list.
+		if (isset($pushMessage))
+		{
+			$result['text'] = $event['text'];
+		}
+
+		$fieldToIndex = [
+			'id' => 1,
+			'type' => 2,
+			'date' => 3,
+			'text' => 4,
+			'tag' => 6,
+			'onlyFlash' => 7,
+			'originalTag' => 8,
+			'settingName' => 9,
+			'counter' => 10,
+			'userId' => 11,
+			'userName' => 12,
+			'userColor' => 13,
+			'userAvatar' => 14,
+			'userLink' => 15,
+			'params' => 16,
+			'buttons' => 17,
+		];
+
+		return self::PrepareEventForPushChangeKeys($result, $fieldToIndex);
+	}
+
 	private static function PrepareEventForPushChangeKeys($object, $map)
 	{
 		$result = [];
@@ -4251,6 +4393,12 @@ class CIMMessenger
 		}
 
 		return $result;
+	}
+
+	public static function PrepareMessageForPushSendPutCallBack($params)
+	{
+		$code = mb_strpos(mb_strtoupper($params[0]), '[SEND') === 0? 'SEND': 'PUT';
+		return preg_replace("/\[$code(?:=(.+))?\](.+?)?\[\/$code\]/i", "$2", $params[0]);
 	}
 
 	public static function PrepareMessageForPushIconCallBack($params)

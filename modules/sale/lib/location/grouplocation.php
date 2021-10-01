@@ -7,6 +7,22 @@
  */
 namespace Bitrix\Sale\Location;
 
+/**
+ * Class GroupLocationTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_GroupLocation_Query query()
+ * @method static EO_GroupLocation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_GroupLocation_Result getById($id)
+ * @method static EO_GroupLocation_Result getList(array $parameters = array())
+ * @method static EO_GroupLocation_Entity getEntity()
+ * @method static \Bitrix\Sale\Location\EO_GroupLocation createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Location\EO_GroupLocation_Collection createCollection()
+ * @method static \Bitrix\Sale\Location\EO_GroupLocation wakeUpObject($row)
+ * @method static \Bitrix\Sale\Location\EO_GroupLocation_Collection wakeUpCollection($rows)
+ */
 class GroupLocationTable extends Connector
 {
 	public static function getFilePath()

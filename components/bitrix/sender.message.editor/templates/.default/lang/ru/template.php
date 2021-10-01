@@ -1,3 +1,5 @@
 <?
 $MESS["SENDER_MESSAGE_EDITOR_ADDITIONAL"] = "Дополнительно";
+$MESS["SENDER_MESSAGE_EDITOR_CONSENT_PREVIEW"] = "Предпросмотр";
+$MESS["SENDER_MESSAGE_EDITOR_UNSUB"] = "Отписаться";
 ?>

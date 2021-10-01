@@ -165,14 +165,35 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  return CallRestClient;
 	}();
 
-	/**
-	 * Bitrix Im
-	 * Conference application
-	 *
-	 * @package bitrix
-	 * @subpackage mobile
-	 * @copyright 2001-2021 Bitrix
-	 */
+	function _templateObject3() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"bx-im-application-call-notify-new-message\">\n\t\t\t\t\t<div class=\"bx-im-application-call-notify-new-message-text\">", "</div>\n\t\t\t\t</div>\n\t\t\t"]);
+
+	  _templateObject3 = function _templateObject3() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<div class=\"bx-im-application-call-notify-new-message-avatar-wrap\">\n\t\t\t\t\t\t\t<img class=\"bx-im-application-call-notify-new-message-avatar\" src=\"", "\" alt=\"\"/>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t"]);
+
+	  _templateObject2 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"bx-im-application-call-notify-new-message-username\">", ":</div>\n\t\t\t\t"]);
+
+	  _templateObject = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 
 	var ConferenceApplication = /*#__PURE__*/function () {
 	  /* region 01. Initialize */
@@ -520,6 +541,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	        _this6.callView.subscribe(BX.Call.View.Event.onChangeMicAutoParams, _this6.onCallViewChangeMicAutoParams.bind(_this6));
 
+	        _this6.callView.subscribe(BX.Call.View.Event.onChangeFaceImprove, _this6.onCallViewChangeFaceImprove.bind(_this6));
+
 	        _this6.callView.subscribe(BX.Call.View.Event.onUserRename, _this6.onCallViewUserRename.bind(_this6));
 
 	        _this6.callView.subscribe(BX.Call.View.Event.onUserPinned, _this6.onCallViewUserPinned.bind(_this6));
@@ -534,7 +557,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	        resolve();
 	      }).catch(function (error) {
-	        return reject(error);
+	        console.warn(error);
+	        reject(error);
 	      });
 	    }
 	  }, {
@@ -1379,6 +1403,15 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      BX.Call.Hardware.enableMicAutoParameters = event.data.allowMicAutoParams;
 	    }
 	  }, {
+	    key: "onCallViewChangeFaceImprove",
+	    value: function onCallViewChangeFaceImprove(event) {
+	      if (typeof BX.desktop === 'undefined') {
+	        return;
+	      }
+
+	      BX.desktop.cameraSmoothingStatus(event.data.faceImproveEnabled);
+	    }
+	  }, {
 	    key: "onCallViewUserRename",
 	    value: function onCallViewUserRename(event) {
 	      var newName = event.data.newName;
@@ -1532,6 +1565,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 
 	        if (this.canRecord()) {
+	          // TODO: create popup menu with choice type of record - im/install/js/im/call/controller.js:1635
+	          // BX.Call.View.RecordType.Video / BX.Call.View.RecordType.Audio
 	          this.callView.setButtonActive('record', true);
 	        } else {
 	          if (window.BX.Helper) {
@@ -2142,58 +2177,59 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    }
 	  }, {
 	    key: "sendNewMessageNotify",
-	    value: function sendNewMessageNotify(text) {
+	    value: function sendNewMessageNotify(params) {
 	      var _this21 = this;
-
-	      if (im_lib_utils.Utils.device.isMobile()) {
-	        return true;
-	      }
 
 	      var MAX_LENGTH = 40;
 	      var AUTO_HIDE_TIME = 4000;
-	      text = text.replace(/<br \/>/gi, ' ');
-	      text = text.replace(/\[USER=([0-9]+)](.*?)\[\/USER]/ig, function (whole, userId, text) {
-	        return text;
-	      });
-	      text = text.replace(/\[CHAT=(imol\|)?([0-9]+)](.*?)\[\/CHAT]/ig, function (whole, imol, chatId, text) {
-	        return text;
-	      });
-	      text = text.replace(/\[PCH=([0-9]+)](.*?)\[\/PCH]/ig, function (whole, historyId, text) {
-	        return text;
-	      });
-	      text = text.replace(/\[SEND(?:=(.+?))?](.+?)?\[\/SEND]/ig, function (whole, command, text) {
-	        return text ? text : command;
-	      });
-	      text = text.replace(/\[PUT(?:=(.+?))?](.+?)?\[\/PUT]/ig, function (whole, command, text) {
-	        return text ? text : command;
-	      });
-	      text = text.replace(/\[CALL(?:=(.+?))?](.+?)?\[\/CALL]/ig, function (whole, command, text) {
-	        return text ? text : command;
-	      });
-	      text = text.replace(/\[ATTACH=([0-9]+)]/ig, function (whole, historyId, text) {
-	        return '';
-	      });
+
+	      if (!this.checkIfMessageNotifyIsNeeded(params)) {
+	        return false;
+	      }
+
+	      var text = im_lib_utils.Utils.text.purify(params.message.text, params.message.params, params.files);
 
 	      if (text.length > MAX_LENGTH) {
 	        text = text.substring(0, MAX_LENGTH - 1) + '...';
 	      }
 
-	      var notifyNode = BX.create("div", {
-	        props: {
-	          className: 'bx-im-application-call-notify-new-message'
-	        },
-	        html: text
-	      });
+	      var avatar = '';
+	      var userName = ''; // avatar and username only for non-system messages
+
+	      if (params.message.senderId > 0 && params.message.system !== 'Y') {
+	        var messageAuthor = this.controller.getStore().getters['users/get'](params.message.senderId, true);
+	        userName = main_core.Tag.render(_templateObject(), messageAuthor.name);
+
+	        if (messageAuthor.avatar) {
+	          avatar = main_core.Tag.render(_templateObject2(), messageAuthor.avatar);
+	        }
+	      }
+
+	      var content = main_core.Tag.render(_templateObject3(), text);
+
+	      if (avatar) {
+	        main_core.Dom.prepend(avatar, content);
+	      } else if (userName) {
+	        main_core.Dom.prepend(userName, content);
+	      }
+
 	      var notify = BX.UI.Notification.Center.notify({
-	        content: notifyNode,
+	        content: content,
+	        width: 'auto',
 	        autoHideDelay: AUTO_HIDE_TIME
 	      });
-	      notifyNode.addEventListener('click', function (event) {
+	      notify.getContent().addEventListener('click', function () {
 	        notify.close();
 
 	        _this21.toggleChat();
 	      });
 	      return true;
+	    }
+	  }, {
+	    key: "checkIfMessageNotifyIsNeeded",
+	    value: function checkIfMessageNotifyIsNeeded(params) {
+	      var rightPanelMode = this.getConference().common.rightPanelMode;
+	      return !im_lib_utils.Utils.device.isMobile() && params.chatId === this.getChatId() && (rightPanelMode !== im_const.ConferenceRightPanelMode.chat || rightPanelMode !== im_const.ConferenceRightPanelMode.split) && params.message.senderId !== this.controller.getUserId() && !this.getConference().common.error;
 	    }
 	  }, {
 	    key: "onInputFocus",
@@ -2441,5 +2477,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	exports.ConferenceApplication = ConferenceApplication;
 
-}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX,BX,BX.Messenger.Application,BX.Messenger,BX.Messenger.Model,BX.Messenger,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Const,BX,BX.UI,BX,BX,BX,BX,BX,BX,BX,BX.Event,BX,BX.Messenger.Provider.Pull,BX,BX.Messenger.Lib));
+}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX,BX,BX.Messenger.Application,BX.Messenger,BX.Messenger.Model,BX.Messenger,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Const,BX,BX.UI,BX.UI,BX,BX,BX,BX,BX,BX,BX.Event,BX,BX.Messenger.Provider.Pull,BX,BX.Messenger.Lib));
 //# sourceMappingURL=conference.bundle.js.map

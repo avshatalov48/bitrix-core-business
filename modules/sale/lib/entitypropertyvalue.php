@@ -59,6 +59,11 @@ abstract class EntityPropertyValue extends CollectableEntity
 		return [];
 	}
 
+	protected static function extractTpLandingIdList(Entity $entity) : array
+	{
+		return [];
+	}
+
 	/**
 	 * @param Entity $entity
 	 * @return array
@@ -114,6 +119,8 @@ abstract class EntityPropertyValue extends CollectableEntity
 				'IS_ZIP',
 				'IS_PHONE',
 				'IS_ADDRESS',
+				'IS_ADDRESS_FROM',
+				'IS_ADDRESS_TO',
 				'ACTIVE',
 				'UTIL',
 				'INPUT_FIELD_LOCATION',
@@ -204,6 +211,26 @@ abstract class EntityPropertyValue extends CollectableEntity
 		return $filter;
 	}
 
+	protected static function hasPresetForLanding(Entity $entity) : bool
+	{
+		$tpLandingList = static::extractTpLandingIdList($entity);
+
+		if ($tpLandingList)
+		{
+			$dbRes = Internals\OrderPropsRelationTable::getList([
+				'filter' => [
+					'@ENTITY_ID' => $tpLandingList,
+					'=ENTITY_TYPE' => 'L'
+				],
+				'limit' => 1
+			]);
+
+			return (bool)$dbRes->fetch();
+		}
+
+		return false;
+	}
+
 	/**
 	 * @param Entity $entity
 	 * @return array
@@ -230,6 +257,29 @@ abstract class EntityPropertyValue extends CollectableEntity
 		}
 
 		$result[] = $dlvFilter;
+
+		if (self::hasPresetForLanding($entity))
+		{
+			$result[] = [
+				'LOGIC' => 'OR',
+				'!RELATION_PS.ENTITY_ID' => null,
+				'!RELATION_DLV.ENTITY_ID' => null,
+			];
+
+			$result = [
+				'LOGIC' => 'OR',
+				'@RELATION_TP_LANDING.ENTITY_ID' => static::extractTpLandingIdList($entity),
+				$result,
+			];
+		}
+		else
+		{
+			$result = [
+				'=RELATION_TP_LANDING.ENTITY_ID' => null,
+				$result,
+			];
+		}
+
 		return $result;
 	}
 
@@ -251,6 +301,15 @@ abstract class EntityPropertyValue extends CollectableEntity
 				[
 					'=this.ID' => 'ref.PROPERTY_ID',
 					'ref.ENTITY_TYPE' => new SqlExpression('?', 'D')
+				],
+				'left_join'
+			),
+			new Main\Entity\ReferenceField(
+				'RELATION_TP_LANDING',
+				'\Bitrix\Sale\Internals\OrderPropsRelation',
+				[
+					'=this.ID' => 'ref.PROPERTY_ID',
+					'ref.ENTITY_TYPE' => new Main\DB\SqlExpression('?', 'L')
 				],
 				'left_join'
 			)

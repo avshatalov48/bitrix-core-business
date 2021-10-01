@@ -57,4 +57,5 @@ $MESS["IM_VIDEOCONF_SHARE_UPDATED_LINK"] = "#USER_NAME# изменил ссыл�
 $MESS["IM_VIDEOCONF_LINK_TITLE"] = "Публичная ссылка";
 $MESS["IM_VIDEOCONF_NEW_GUEST"] = "К конференции \"#CHAT_TITLE#\" подключился гость.";
 $MESS["IM_VIDEOCONF_JOIN_LINK"] = "Перейти в конференцию";
+$MESS["IM_MESSAGE_DELETED"] = "Это сообщение было удалено.";
 ?>

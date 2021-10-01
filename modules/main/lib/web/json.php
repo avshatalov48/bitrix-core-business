@@ -80,7 +80,8 @@ class Json
 		{
 			$data = $data->jsonSerialize();
 		}
-		else if (is_iterable($data))
+
+		if (is_iterable($data))
 		{
 			foreach ($data as $key => $value)
 			{

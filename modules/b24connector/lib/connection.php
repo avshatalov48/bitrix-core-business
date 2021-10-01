@@ -6,6 +6,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Result;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialservices\ApClient;
 use Bitrix\Socialservices\ApTable;
 
 Loc::loadMessages(__FILE__);
@@ -16,6 +17,8 @@ Loc::loadMessages(__FILE__);
  */
 class Connection
 {
+	const DEFAULT_CACHE_TTL = 3600;
+
 	/**
 	 * @return bool|string
 	 * @throws \Bitrix\Main\LoaderException
@@ -252,6 +255,40 @@ class Connection
 	}
 
 	/**
+	 * Check that connection with remote Bitrix24 exists and REST API is available according current tariff
+	 * Result is cached for 1 hour.
+	 * @return bool
+	 */
+	public static function isRestAvailable(): bool
+	{
+		static $result = null;
+
+		if ($result === null)
+		{
+			if (!Loader::includeModule('socialservices'))
+			{
+				$result = false;
+			}
+			elseif (!$client = ApClient::init())
+			{
+				$result = false;
+			}
+			else
+			{
+				$cacheId = 'b24connector_rest_status';
+				$cached = Cache::remember($cacheId, self::DEFAULT_CACHE_TTL, function () use ($client)
+				{
+					$response = $client->call('app.info');
+					return (isset($response['result']) && empty($response['error']));
+				});
+				$result = (bool)$cached;
+			}
+		}
+
+		return $result;
+	}
+
+	/**
 	 * @param $host
 	 * @return string
 	 * @throws \Bitrix\Main\LoaderException
@@ -379,7 +416,7 @@ class Connection
 
 		$result = '';
 
-		if($client = \Bitrix\Socialservices\ApClient::init())
+		if($client = ApClient::init())
 		{
 			$result = $client->call($method);
 

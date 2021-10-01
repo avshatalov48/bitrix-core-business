@@ -33,5 +33,5 @@ Loc::loadMessages(__FILE__);
 		</div>
 		<div class="col pr-0"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_TEMPLATE_PLATON_REDIRECT_MESS') ?></div>
 	</div>
-	<p><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_TEMPLATE_PLATON_WARNING_RETURN') ?></p>
+	<div class="alert alert-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_TEMPLATE_PLATON_WARNING_RETURN') ?></div>
 </div>

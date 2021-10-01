@@ -83,28 +83,13 @@
 				return;
 			}
 			// region change Submit handlers
-			if (this.getLHE().__mpl_changed_binding !== true)
-			{
-				this.getLHE().params["ctrlEnterHandler"] = function() {
+			this.getLHE().exec(function() {
+				BX.removeAllCustomEvents(this.getLHE().oEditor, "OnCtrlEnter");
+				BX.addCustomEvent(this.getLHE().oEditor, "OnCtrlEnter", function() {
 					this.getLHE().oEditor.SaveContent();
 					BX.onCustomEvent(eventNode, "OnButtonClick", ["submit"]);
-				}.bind(this);
-				if (this.getLHE().oEditor)
-				{
-					setTimeout(function() {
-						if (this.getLHE().__mpl_changed_binding !== true)
-						{
-							this.getLHE().__mpl_changed_binding = true;
-							BX.removeAllCustomEvents(this.getLHE().oEditor, "OnCtrlEnter");
-							BX.addCustomEvent(this.getLHE().oEditor, "OnCtrlEnter", this.getLHE().params["ctrlEnterHandler"]);
-						}
-					}.bind(this), 1000);
-				}
-				else
-				{
-					this.getLHE().__mpl_changed_binding = true;
-				}
-			}
+				}.bind(this));
+			}.bind(this));
 			//endregion
 
 			var eventNode = this.getLHEEventNode();
@@ -209,7 +194,8 @@
 					{
 						if (author.id > 0)
 						{
-							author = '<span id="' + this.getLHE().oEditor.SetBxTag(false, {tag: "postuser", params: {value : author.id}}) + '" class="bxhtmled-metion">' + author.name.replace(/</gi, "&lt;").replace(/>/gi, "&gt;") + "</span>";
+							author = '<span id="' + this.getLHE().oEditor.SetBxTag(false, {tag: "postuser", userId: author.id, userName: author.name}) +
+								'" class="bxhtmled-metion">' + author.name.replace(/</gi, "&lt;").replace(/>/gi, "&gt;") + "</span>";
 						}
 						else
 						{
@@ -369,8 +355,6 @@
 				this.clearNotification(res, "feed-add-error");
 			}
 			BX.onCustomEvent(this.form, "OnUCFormClear", [this]);
-			// clear visual editor data
-			BX.onCustomEvent(this.getLHEEventNode(), "onReinitializeBefore", [this.getLHE()]);
 
 			var filesForm = BX.findChild(this.form, {"className": "wduf-placeholder-tbody" }, true, false);
 			if (filesForm !== null && typeof filesForm != "undefined")
@@ -396,7 +380,7 @@
 				}, 100);
 				return true;
 			}
-			
+
 			this.hide(true);
 
 			this.setCurrentEntity(entity, messageId);
@@ -406,7 +390,7 @@
 			placeholderNode.appendChild(this.form);
 			BX.onCustomEvent(this.form, "OnUCFormBeforeShow", [this, text, data]);
 			BX.show(placeholderNode);
-			BX.onCustomEvent(this.getLHEEventNode(), "OnShowLHE", ["show"]);
+			BX.onCustomEvent(this.getLHEEventNode(), "OnShowLHE", ["show", null, this.id]);
 			BX.onCustomEvent(this.form, "OnUCFormAfterShow", [this, text, data]);
 			return true;
 		},
@@ -448,12 +432,15 @@
 				{
 					message = data["data"]["ajaxRejectData"]["message"];
 				}
-				else if (BX.type.isArray(data["errors"]))
+				else if (
+					BX.type.isPlainObject(data["data"]) &&
+					BX.type.isArray(data["data"]["errors"]
+				))
 				{
 					message = "";
-					for (var ii = 0; ii < data["errors"].length; ii++)
+					for (var ii = 0; ii < data["data"]["errors"].length; ii++)
 					{
-						message += data["errors"][ii]["message"];
+						message += data["data"]["errors"][ii]["message"];
 					}
 				}
 				this.showError(message);

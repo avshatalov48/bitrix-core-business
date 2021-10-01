@@ -4,6 +4,22 @@ namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main;
 
+/**
+ * Class BusinessValueCode1CTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_BusinessValueCode1C_Query query()
+ * @method static EO_BusinessValueCode1C_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_BusinessValueCode1C_Result getById($id)
+ * @method static EO_BusinessValueCode1C_Result getList(array $parameters = array())
+ * @method static EO_BusinessValueCode1C_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_BusinessValueCode1C createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_BusinessValueCode1C_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_BusinessValueCode1C wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_BusinessValueCode1C_Collection wakeUpCollection($rows)
+ */
 class BusinessValueCode1CTable extends Main\Entity\DataManager
 {
 	public static function getFilePath()

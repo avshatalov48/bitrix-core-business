@@ -4,6 +4,22 @@ namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main;
 
+/**
+ * Class BusinessValuePersonDomainTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_BusinessValuePersonDomain_Query query()
+ * @method static EO_BusinessValuePersonDomain_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_BusinessValuePersonDomain_Result getById($id)
+ * @method static EO_BusinessValuePersonDomain_Result getList(array $parameters = array())
+ * @method static EO_BusinessValuePersonDomain_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_BusinessValuePersonDomain createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_BusinessValuePersonDomain_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_BusinessValuePersonDomain wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_BusinessValuePersonDomain_Collection wakeUpCollection($rows)
+ */
 class BusinessValuePersonDomainTable extends Main\Entity\DataManager
 {
 	public static function getFilePath()

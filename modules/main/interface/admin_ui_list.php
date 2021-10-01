@@ -1,4 +1,4 @@
-<?
+<?php
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Grid\Editor\Types;
 use Bitrix\Main\Grid\Panel;
@@ -6,6 +6,7 @@ use Bitrix\Main\UI\Filter\Options;
 use Bitrix\Main\Grid\Context;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Main\Grid;
+use Bitrix\Main\Security;
 
 class CAdminUiList extends CAdminList
 {
@@ -56,15 +57,14 @@ class CAdminUiList extends CAdminList
 		$pageNum = 1;
 
 		if (!Context::isInternalRequest()
-			&& !(isset($_REQUEST["clear_nav"]) && $_REQUEST["clear_nav"] === "Y")
-			&& isset(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_PAGINATION_DATA"])
-			&& isset(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_PAGINATION_DATA"][$this->table_id])
+			&& !($this->request->get('clear_nav') === 'Y')
+			&& isset($this->session['ADMIN_PAGINATION_DATA'][$this->table_id])
 		)
 		{
-			$paginationData = \Bitrix\Main\Application::getInstance()->getSession()["ADMIN_PAGINATION_DATA"][$this->table_id];
-			if (isset($paginationData["PAGE_NUM"]))
+			$paginationData = $this->session['ADMIN_PAGINATION_DATA'][$this->table_id];
+			if (isset($paginationData['PAGE_NUM']))
 			{
-				$pageNum = (int)$paginationData["PAGE_NUM"];
+				$pageNum = (int)$paginationData['PAGE_NUM'];
 			}
 		}
 
@@ -75,11 +75,11 @@ class CAdminUiList extends CAdminList
 
 		if (Context::isInternalRequest())
 		{
-			if (!isset(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_PAGINATION_DATA"]))
+			if (!isset($this->session['ADMIN_PAGINATION_DATA']))
 			{
-				\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_PAGINATION_DATA"] = array();
+				$this->session['ADMIN_PAGINATION_DATA'] = [];
 			}
-			\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_PAGINATION_DATA"][$this->table_id] = array("PAGE_NUM" => $nav->getCurrentPage());
+			$this->session['ADMIN_PAGINATION_DATA'][$this->table_id] = ['PAGE_NUM' => $nav->getCurrentPage()];
 		}
 
 		return $nav;
@@ -457,14 +457,14 @@ class CAdminUiList extends CAdminList
 			{
 				$pageParam = (!empty($_GET) ? http_build_query($_GET, "", "&") : "");
 				$pagePath = $this->contextSettings["pagePath"]."?".$pageParam;
-				$pageParams = ["mode" => "excel"];
+				$pageParams = static::getModeExportParam();
 				if ($this->isPublicMode)
 					$pageParams["public"] = "y";
 				$link = CHTTP::urlAddParams($pagePath, $pageParams);
 			}
 			else
 			{
-				$link = CHTTP::urlAddParams($APPLICATION->GetCurPageParam(), ["mode" => "excel"]);
+				$link = CHTTP::urlAddParams($APPLICATION->GetCurPageParam(), static::getModeExportParam());
 			}
 			$link = CHTTP::urlDeleteParams($link, ["apply_filter"]);
 			$result[] = [
@@ -496,9 +496,10 @@ class CAdminUiList extends CAdminList
 	public function &AddRow($id = false, $arRes = Array(), $link = false, $title = false)
 	{
 		$row = new CAdminUiListRow($this->aHeaders, $this->table_id);
-		$row->id = ($id ? $id : randString(4));
+		$row->id = ($id ?: Security\Random::getString(4));
 		$row->arRes = $arRes;
-		if ($this->isPublicMode)
+		$publicMode = $this->getPublicModeState();
+		if ($publicMode)
 		{
 			$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
 			$reqValue = "/".str_replace("/", "\/", $selfFolderUrl)."/i";
@@ -511,6 +512,8 @@ class CAdminUiList extends CAdminList
 		$row->title = $title;
 		$row->pList = &$this;
 		$row->bEditMode = true;
+		$row->setPublicModeState($publicMode);
+
 		$this->aRows[] = &$row;
 		return $row;
 	}
@@ -806,7 +809,7 @@ class CAdminUiList extends CAdminList
 			"HANDLE_RESPONSE_ERRORS" => true
 		);
 
-		$actionPanel = (isset($arParams["ACTION_PANEL"]) ? $arParams["ACTION_PANEL"] : $this->GetGroupAction());
+		$actionPanel = ($arParams["ACTION_PANEL"] ?? $this->GetGroupAction());
 		if ($actionPanel)
 		{
 			$gridParameters["ACTION_PANEL"] = $actionPanel;
@@ -874,45 +877,56 @@ class CAdminUiList extends CAdminList
 				"actions" => $row->getPreparedActions()
 			);
 
-			if ($arParams["DEFAULT_ACTION"])
+			$gridRow["default_action"] = array();
+			if ($row->title)
 			{
-				if ($this->isPublicMode)
-				{
-					if (!empty($row->link))
-					{
-						$row->link = str_replace("/bitrix/admin/", $selfFolderUrl, $row->link);
-					}
-				}
-				$gridRow["default_action"] = array();
-				$gridRow["default_action"]["href"] = htmlspecialcharsback($row->link);
-				if ($row->title)
-					$gridRow["default_action"]["title"] = $row->title;
+				$gridRow["default_action"]["title"] = $row->title;
 			}
-			elseif ($row->link)
+			$defaultActionType = $row->getConfigValue(CAdminUiListRow::DEFAULT_ACTION_TYPE_FIELD);
+			switch ($defaultActionType)
 			{
-				$gridRow["default_action"] = array();
-				if ($this->isPublicMode)
-				{
-					$skipUrlModificationEnabled = ($arParams['SKIP_URL_MODIFICATION'] ?? false) === true;
-					$skipUrlModification = $skipUrlModificationEnabled && mb_strpos($row->link, '/bitrix/admin/') === false
+				case CAdminUiListRow::LINK_TYPE_SLIDER:
+					$skipUrlModify = $row->getConfigValue(CAdminUiListRow::SKIP_URL_MODIFY_FIELD) === true
 						? 'true'
-						: 'false';
-					$gridRow["default_action"]["onclick"] = "BX.adminSidePanel.onOpenPage('".$row->link."', ".$skipUrlModification.");";
-				}
-				else
-				{
+						: 'false'
+					;
+					$gridRow["default_action"]["onclick"] = "BX.adminSidePanel.onOpenPage('".$row->link."', ".$skipUrlModify.");";
+					break;
+				case CAdminUiListRow::LINK_TYPE_URL:
 					$gridRow["default_action"]["href"] = htmlspecialcharsback($row->link);
-				}
-
-				if ($row->title)
-				{
-					$gridRow["default_action"]["title"] = $row->title;
-				}
-			}
-			else
-			{
-				$gridRow["default_action"] = array();
-				$gridRow["default_action"]["onclick"] = "";
+					break;
+				default:
+					if ($arParams["DEFAULT_ACTION"])
+					{
+						if ($this->isPublicMode)
+						{
+							if (!empty($row->link))
+							{
+								$row->link = str_replace("/bitrix/admin/", $selfFolderUrl, $row->link);
+							}
+						}
+						$gridRow["default_action"]["href"] = htmlspecialcharsback($row->link);
+					}
+					elseif ($row->link)
+					{
+						if ($this->isPublicMode)
+						{
+							$skipUrlModificationEnabled = ($arParams['SKIP_URL_MODIFICATION'] ?? false) === true;
+							$skipUrlModification = $skipUrlModificationEnabled && mb_strpos($row->link, '/bitrix/admin/') === false
+								? 'true'
+								: 'false';
+							$gridRow["default_action"]["onclick"] = "BX.adminSidePanel.onOpenPage('".$row->link."', ".$skipUrlModification.");";
+						}
+						else
+						{
+							$gridRow["default_action"]["href"] = htmlspecialcharsback($row->link);
+						}
+					}
+					else
+					{
+						$gridRow["default_action"]["onclick"] = "";
+					}
+					break;
 			}
 
 			foreach ($row->aFields as $fieldId => $field)
@@ -1040,7 +1054,7 @@ class CAdminUiList extends CAdminList
 		$jsParams = [];
 		$jsParams["publicMode"] = $this->isPublicMode;
 		$jsParams["showTotalCountHtml"] = $showTotalCountHtml;
-		$jsParams["serviceUrl"] = (isset($arParams["SERVICE_URL"]) ? $arParams["SERVICE_URL"] : "");
+		$jsParams["serviceUrl"] = ($arParams["SERVICE_URL"] ?? "");
 
 		?>
 		<script type="text/javascript">
@@ -1389,8 +1403,7 @@ class CAdminUiListActionPanel
 		{
 			self::prepareAction($action);
 			$type = $action["type"];
-			$actionSection = isset($this->mapTypesAndSections[$type]) ?
-				$this->mapTypesAndSections[$type] : "list";
+			$actionSection = $this->mapTypesAndSections[$type] ?? "list";
 
 			$method = "get".$type."ActionData";
 			if ($this->mapTypesAndHandlers[$type] && is_callable($this->mapTypesAndHandlers[$type]))
@@ -1687,6 +1700,11 @@ class CAdminUiListActionPanel
 
 class CAdminUiListRow extends CAdminListRow
 {
+	public const LINK_TYPE_URL = 'url';
+	public const DEFAULT_ACTION_TYPE_FIELD = 'DEFAULT_ACTION_TYPE';
+	public const SKIP_URL_MODIFY_FIELD = 'SKIP_URL_MODIFICATION';
+	public const LINK_TYPE_SLIDER = 'slider';
+
 	/**
 	 * @return array
 	 */

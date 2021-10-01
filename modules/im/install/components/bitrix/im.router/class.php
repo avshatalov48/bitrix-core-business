@@ -45,6 +45,17 @@ class ImRouterComponent extends \CBitrixComponent
 		return true;
 	}
 
+	private function showJitsiConf()
+	{
+		$this->arResult['ALIAS'] = $this->aliasData['ALIAS'];
+		$this->arResult['CHAT_ID'] = $this->aliasData['ENTITY_ID'];
+
+		$this->setTemplateName("jitsiconf");
+		$this->includeComponentTemplate();
+
+		return true;
+	}
+
 	private function showCall()
 	{
 		define('SKIP_TEMPLATE_AUTH_ERROR', true);
@@ -89,6 +100,10 @@ class ImRouterComponent extends \CBitrixComponent
 				$this->showLiveChat();
 			}
 			//wrong alias
+			else if ($this->aliasData['ENTITY_TYPE'] === \Bitrix\Im\Alias::ENTITY_TYPE_JITSICONF)
+			{
+				$this->showJitsiConf();
+			}
 			else if (isset($videoconfFlag) && !$this->aliasData)
 			{
 				$this->showNonExistentCall();

@@ -19,7 +19,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\B24connector
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Button_Query query()
+ * @method static EO_Button_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Button_Result getById($id)
+ * @method static EO_Button_Result getList(array $parameters = array())
+ * @method static EO_Button_Entity getEntity()
+ * @method static \Bitrix\B24connector\EO_Button createObject($setDefaultValues = true)
+ * @method static \Bitrix\B24connector\EO_Button_Collection createCollection()
+ * @method static \Bitrix\B24connector\EO_Button wakeUpObject($row)
+ * @method static \Bitrix\B24connector\EO_Button_Collection wakeUpCollection($rows)
+ */
 
 class ButtonTable extends Entity\DataManager
 {

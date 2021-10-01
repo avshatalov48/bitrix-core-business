@@ -68,6 +68,7 @@ class SenderMessageTestComponent extends CBitrixComponent
 
 		$this->arResult['TYPE_ID'] = $message->getTester()->getRecipientType();
 		$this->arResult['TYPE_CODE'] = Recipient\Type::getCode($this->arResult['TYPE_ID']);
+		$this->arResult['VALIDATION_TEST'] = $message->getTransport()->isConsentSupported();
 		$this->arResult['TYPE_CODE'] = mb_strtolower($this->arResult['TYPE_CODE']);
 
 			// dict

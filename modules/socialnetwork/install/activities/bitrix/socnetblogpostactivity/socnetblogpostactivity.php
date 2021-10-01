@@ -1,5 +1,9 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 class CBPSocnetBlogPostActivity
 	extends CBPActivity
@@ -36,7 +40,7 @@ class CBPSocnetBlogPostActivity
 			return CBPActivityExecutionStatus::Closed;
 		}
 
-		$pathToPost = COption::GetOptionString("socialnetwork", "userblogpost_page", false, $siteId);
+		$pathToPost = \Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page', $siteId);
 		$pathToSmile = COption::GetOptionString("socialnetwork", "smile_page", false, $siteId);
 		$blogGroupID = COption::GetOptionString("socialnetwork", "userbloggroup_id", false, $siteId);
 

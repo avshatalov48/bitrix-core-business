@@ -1715,7 +1715,7 @@ this.BX = this.BX || {};
 	});
 	ui_vue.BitrixVue.component('bx-im-component-conference-public', {
 	  props: ['dialogId', 'test'],
-	  mixins: [im_mixin.DialogCore, im_mixin.TextareaCore, im_mixin.TextareaUploadFile, im_mixin.DialogReadMessages, im_mixin.DialogSetMessageReaction, im_mixin.DialogClickOnKeyboardButton],
+	  mixins: [im_mixin.DialogCore, im_mixin.TextareaCore, im_mixin.TextareaUploadFile, im_mixin.DialogReadMessages, im_mixin.DialogSetMessageReaction, im_mixin.DialogClickOnKeyboardButton, im_mixin.DialogClickOnCommand],
 	  components: {
 	    Error: Error,
 	    CheckDevices: CheckDevices,

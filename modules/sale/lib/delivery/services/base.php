@@ -52,6 +52,8 @@ abstract class Base
 
 	const EVENT_ON_CALCULATE = "onSaleDeliveryServiceCalculate";
 
+	public const TAG_PROFITABLE = 'profitable';
+
 	/** @var bool  */
 	protected $isClone = false;
 
@@ -872,5 +874,13 @@ abstract class Base
 			['', 'ru', 'kz', 'by', 'ua'],
 			true
 		);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getTags(): array
+	{
+		return [];
 	}
 }

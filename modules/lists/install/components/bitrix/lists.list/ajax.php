@@ -227,7 +227,13 @@ class ListAjaxController extends Controller
 		$this->sectionId = $this->request->getPost('sectionId');
 
 		$this->checkPermission();
-		if($this->errorCollection->hasErrors())
+
+		if (!CLists::isBpFeatureEnabled($this->iblockTypeId))
+		{
+			$this->errorCollection->add([new Error(Loc::getMessage('LISTS_LAC_ACCESS_DENIED'))]);
+		}
+
+		if ($this->errorCollection->hasErrors())
 		{
 			$this->sendJsonErrorResponse();
 		}
@@ -333,7 +339,7 @@ class ListAjaxController extends Controller
 		}
 
 		$rebuildedData = Option::get('lists', 'rebuild_seachable_content');
-		$rebuildedData = unserialize($rebuildedData);
+		$rebuildedData = unserialize($rebuildedData, ['allowed_classes' => false]);
 		if(isset($rebuildedData[$this->iblockId]))
 		{
 			$agentName = 'CLists::runRebuildSeachableContent('.$this->iblockId.');';

@@ -182,26 +182,41 @@ class sender extends CModule
 
 		return true;
 	}
-
-	function InstallEvents()
+	function GetEventCountByName($eventName)
 	{
 		global $DB;
-		$sIn = "'SENDER_SUBSCRIBE_CONFIRM'";
-		$rs = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$ar = $rs->Fetch();
-		if($ar["C"] <= 0)
+		$result = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN ('".$DB->ForSql($eventName)."') ",
+			false,
+			"File: ".__FILE__."<br>Line: ".__LINE__
+		);
+		$array = $result->Fetch();
+		return $array['C'];
+	}
+	function InstallEvents()
+	{
+		$senderSubscribeEventCount = $this->getEventCountByName("SENDER_SUBSCRIBE_CONFIRM") ?? 0;
+		$senderSubscribeEvent =  $senderSubscribeEventCount <= 0? true : false;
+
+		$senderConsentEventCount = $this->getEventCountByName("SENDER_CONSENT") ?? 0;
+		$senderConsentEvent =  $senderConsentEventCount <= 0? true : false;
+
+		if($senderSubscribeEvent || $senderConsentEvent)
 		{
 			include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/events.php");
 		}
 		return true;
 	}
-
-	function UnInstallEvents()
+	function DeleteEventByName($name)
 	{
 		global $DB;
-		$sIn = "'SENDER_SUBSCRIBE_CONFIRM'";
-		$DB->Query("DELETE FROM b_event_message WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$DB->Query("DELETE FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$realEscapeName = $DB->ForSql($name);
+		$DB->Query("DELETE FROM b_event_message WHERE EVENT_NAME IN ('".$realEscapeName."') ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query("DELETE FROM b_event_type WHERE EVENT_NAME IN ('".$realEscapeName."') ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+	}
+	function UnInstallEvents()
+	{
+		$this->DeleteEventByName("SENDER_SUBSCRIBE_CONFIRM");
+		$this->DeleteEventByName("SENDER_CONSENT");
 		return true;
 	}
 

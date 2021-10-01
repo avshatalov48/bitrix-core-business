@@ -1,20 +1,20 @@
-import {Vue} from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 import {CurrencyCore} from 'currency.currency-core';
 
-Vue.component('sale-checkout-view-total-basket', {
+BitrixVue.component('sale-checkout-view-total-basket', {
     props: ['total'],
     computed:
+    {
+        localize()
         {
-            localize()
-            {
-                return Object.freeze(
-                    Vue.getFilteredPhrases('CHECKOUT_VIEW_TOTAL_'))
-            },
-            basePriceFormatted()
-            {
-                return CurrencyCore.currencyFormat(this.total.basePrice, this.total.currency, true);
-            }
+            return Object.freeze(
+                BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_TOTAL_'))
         },
+        basePriceFormatted()
+        {
+            return CurrencyCore.currencyFormat(this.total.basePrice, this.total.currency, true);
+        }
+    },
     // language=Vue
     template: `
       <tr class="checkout-basket-total-item checkout-basket-total-item-subtotal">

@@ -152,11 +152,10 @@ $formParams = [
 
 			if (!!window["UC"]["f<?=$arParams["FORM_ID"]?>"].eventNode)
 			{
-				BX.addCustomEvent(window["UC"]["f<?=$arParams["FORM_ID"]?>"].eventNode, 'OnUCFormClear', __socOnUCFormClear);
-				BX.addCustomEvent(window["UC"]["f<?=$arParams["FORM_ID"]?>"].eventNode, 'OnUCFormAfterShow', __socOnUCFormAfterShow);
-				BX.addCustomEvent(window["UC"]["f<?=$arParams["FORM_ID"]?>"].eventNode, 'OnUCFormSubmit', __socOnUCFormSubmit);
-				BX.addCustomEvent(window["UC"]["f<?=$arParams["FORM_ID"]?>"].eventNode, 'OnUCFormResponse', __socOnUCFormResponse);
-				BX.addCustomEvent(window["UC"]["f<?=$arParams["FORM_ID"]?>"].eventNode, 'OnUCFormInit', function(obj){BX.remove(BX('micro' + obj.editorName));});
+				BX.addCustomEvent(window["UC"]["f<?=$arParams["FORM_ID"]?>"].eventNode, 'OnUCFormAfterShow', BX.Livefeed.CommentForm.onAfterShow.bind(BX.Livefeed.CommentForm));
+				BX.addCustomEvent(window["UC"]["f<?=$arParams["FORM_ID"]?>"].eventNode, 'OnUCFormSubmit', BX.Livefeed.CommentForm.onSubmit);
+				BX.addCustomEvent(window["UC"]["f<?=$arParams["FORM_ID"]?>"].eventNode, 'OnUCFormResponse', BX.Livefeed.CommentForm.onResponse);
+				BX.addCustomEvent(window["UC"]["f<?=$arParams["FORM_ID"]?>"].eventNode, 'OnUCFormInit', BX.Livefeed.CommentForm.onInit);
 			}
 
 			BX.addCustomEvent(window, "OnBeforeSocialnetworkCommentShowedUp", function(entity) {
@@ -192,7 +191,7 @@ $formParams = [
 				BX.LazyLoad.showImages(true);
 			});
 
-			window["SLEC"] = {
+			window.SLEC = {
 				form : BX('<?=$formParams["FORM_ID"]?>'),
 				actionUrl : '/bitrix/urlrewrite.php?SEF_APPLICATION_CUR_PAGE_URL=<?=str_replace("%23", "#", urlencode($arResult["urlToPost"]))?>',
 				editorId : '<?=$formParams["LHE"]["id"]?>',

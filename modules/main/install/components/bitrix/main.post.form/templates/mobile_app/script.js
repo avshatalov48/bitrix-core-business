@@ -241,46 +241,32 @@
 				prepareToSaveUF : function(attachments, queue) {
 					if (attachments.length > 0)
 					{
-						var ii,
-							file,
-							files = [];
-
-						for (ii = 0; ii < attachments.length; ii++)
-						{
-							file = attachments[ii];
-							if (!file["propertyName"] && (!file["disk"] || file["base64"])) // I am sorry
+						var files = [];
+						attachments.forEach(function(file) {
+							file["propertyName"] = (file["propertyName"] || this.propertyName);
+							file["fieldName"] = (file["fieldName"] || (file["propertyName"] + (this.params["MULTIPLE"] === "Y" ? "[]" : "")));
+							if (!file["fieldValue"])
 							{
-								file["propertyName"] = this.propertyName;
-								files.push(file);
+								var f = (file["VALUE"] ? file : (file["dataAttributes"] && file["dataAttributes"]["VALUE"]) ? file["dataAttributes"] : null);
+								if (f)
+								{
+									file["name"] = f["NAME"];
+									file["ext"] = file["name"].split('.').pop();
+									file["ext"] = (file["ext"] === file["name"] ? '' : file["ext"]);
+									file["id"] = f["ID"];
+									file["fileId"] = f["ID"];
+									file["xmlID"] = 0;
+									file["type"] = file["ext"];
+									file["fieldValue"] = f["VALUE"];
+									file["url"] = f["URL"]["URL"];
+								}
+								else if (!file["base64"])
+								{
+									return;
+								}
 							}
-							else if (!file["propertyName"] && file["VALUE"]) // I am sorry
-							{
-								file["name"] = file["NAME"];
-								file["ext"] = (file["name"].lastIndexOf('.') > 0 ? file["name"].substr(file["name"].lastIndexOf('.') + 1).toLowerCase() : "");
-								file["id"] = file["ID"];
-								file["fileId"] = file["ID"];
-								file["xmlID"] = 0;
-								file["type"] = file["ext"];
-								file["propertyName"] = this.propertyName;
-								file["fieldName"] = this.propertyName + (this.params["MULTIPLE"] == "Y" ? "[]" : "");
-								file["fieldValue"] = file["VALUE"];
-								file["url"] = file["URL"]["URL"];
-							}
-							else if (!file["propertyName"] && file["dataAttributes"] && file["dataAttributes"]["VALUE"]) // I am sorry
-							{
-								var f = file["dataAttributes"];
-								file["name"] = f["NAME"];
-								file["ext"] = (file["name"].lastIndexOf('.') > 0 ? file["name"].substr(file["name"].lastIndexOf('.') + 1).toLowerCase() : "");
-								file["id"] = f["ID"];
-								file["fileId"] = f["ID"];
-								file["xmlID"] = 0;
-								file["type"] = file["ext"];
-								file["propertyName"] = this.propertyName;
-								file["fieldName"] = this.propertyName + (this.params["MULTIPLE"] == "Y" ? "[]" : "");
-								file["fieldValue"] = f["VALUE"];
-								file["url"] = f["URL"]["URL"];
-							}
-						}
+							files.push(file);
+						}.bind(this));
 
 						if (files.length > 0)
 						{

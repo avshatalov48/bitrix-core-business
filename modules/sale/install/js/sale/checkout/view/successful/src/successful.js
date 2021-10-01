@@ -1,18 +1,18 @@
-import { Vue } from 'ui.vue';
-import "sale.checkout.view.element.button.shipping";
+import { BitrixVue } from 'ui.vue';
+import 'sale.checkout.view.element.button';
 
 import './call'
 import './property-list';
 
-Vue.component('sale-checkout-view-successful', {
+BitrixVue.component('sale-checkout-view-successful', {
 	props: ['items', 'order', 'config'],
 	computed:
-		{
-			localize() {
-				return Object.freeze(
-					Vue.getFilteredPhrases('CHECKOUT_VIEW_SUCCESSFUL_'))
-			},
+	{
+		localize() {
+			return Object.freeze(
+				BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_SUCCESSFUL_'))
 		},
+	},
 	// language=Vue
 	template: `
       <div class="checkout-order-status-successful">

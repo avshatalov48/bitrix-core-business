@@ -19,7 +19,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Sale\Internals
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserGroupRestriction_Query query()
+ * @method static EO_UserGroupRestriction_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserGroupRestriction_Result getById($id)
+ * @method static EO_UserGroupRestriction_Result getList(array $parameters = array())
+ * @method static EO_UserGroupRestriction_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_UserGroupRestriction createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_UserGroupRestriction_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_UserGroupRestriction wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_UserGroupRestriction_Collection wakeUpCollection($rows)
+ */
 
 class UserGroupRestrictionTable extends Main\ORM\Data\DataManager
 {

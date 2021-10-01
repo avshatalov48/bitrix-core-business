@@ -6,6 +6,7 @@ use Bitrix\Crm\Integration\UserConsent;
 use Bitrix\Crm\Settings\LeadSettings;
 use Bitrix\Crm\UI\Webpack;
 use Bitrix\Crm\WebForm;
+use Bitrix\Landing\Landing;
 use Bitrix\Landing\Block;
 use Bitrix\Landing\Internals\BlockTable;
 use Bitrix\Landing\Manager;
@@ -48,6 +49,7 @@ class Form
 	];
 
 	// region replaces for view and public
+
 	/**
 	 * Replace form markers in block, put true scripts. Run on publication action
 	 * @param string $content - content of block
@@ -55,10 +57,9 @@ class Form
 	 */
 	public static function prepareFormsToPublication(string $content): string
 	{
-		if (!self::isCrm() && Manager::isB24Connector())
-		{
-			$content = self::replaceFormMarkers($content);
-		}
+		// change - replace markers always, not only if connector
+		$content = self::replaceFormMarkers($content);
+
 		return $content;
 	}
 
@@ -89,13 +90,12 @@ class Form
 			static function ($matches)
 			{
 				if (
-					!($forms = self::getForms())
-					|| !array_key_exists($matches['id'], $forms)
+					!(int)$matches['id']
+					|| !($form = self::getFormById((int)$matches['id']))
 				)
 				{
 					return $matches[0];
 				}
-				$form = $forms[$matches['id']];
 
 				if (strtolower($matches['type']) === 'inline')
 				{
@@ -131,21 +131,23 @@ class Form
 	public static function clearCache(): void
 	{
 		$sites = [];
-		$res = BlockTable::getList([
-			'select' => [
-				'SITE_ID' => 'LANDING.SITE_ID'
-			],
-			'filter' => [
-				'=LANDING.ACTIVE' => 'Y',
-				'=LANDING.SITE.ACTIVE' => 'Y',
-				'=PUBLIC' => 'Y',
-				'=DELETED' => 'N',
-				'CONTENT' => '%bitrix24forms%'
-			],
-			'group' => [
-				'LANDING.SITE_ID'
+		$res = BlockTable::getList(
+			[
+				'select' => [
+					'SITE_ID' => 'LANDING.SITE_ID',
+				],
+				'filter' => [
+					'=LANDING.ACTIVE' => 'Y',
+					'=LANDING.SITE.ACTIVE' => 'Y',
+					'=PUBLIC' => 'Y',
+					'=DELETED' => 'N',
+					'CONTENT' => '%bitrix24forms%',
+				],
+				'group' => [
+					'LANDING.SITE_ID',
+				],
 			]
-		]);
+		);
 		while ($row = $res->fetch())
 		{
 			if (!in_array($row['SITE_ID'], $sites))
@@ -200,18 +202,20 @@ class Form
 
 	protected static function getFormsForPortal(array $filter = []): array
 	{
-		$res = Webform\Internals\FormTable::getList([
-			'select' => self::AVAILABLE_FORM_FIELDS,
-			'filter' => $filter,
-			'order' => [
-				'ID' => 'ASC',
-			],
-		]);
+		$res = Webform\Internals\FormTable::getList(
+			[
+				'select' => self::AVAILABLE_FORM_FIELDS,
+				'filter' => $filter,
+				'order' => [
+					'ID' => 'ASC',
+				],
+			]
+		);
 
 		$forms = [];
 		while ($form = $res->fetch())
 		{
-			$form['ID'] = (int) $form['ID'];
+			$form['ID'] = (int)$form['ID'];
 			$webpack = Webpack\Form::instance($form['ID']);
 			if (!$webpack->isBuilt())
 			{
@@ -234,9 +238,9 @@ class Form
 			$res = $client->call('crm.webform.list', ['GET_INACTIVE' => 'Y']);
 			if (isset($res['result']) && is_array($res['result']))
 			{
-				foreach($res['result'] as $form)
+				foreach ($res['result'] as $form)
 				{
-					$form['ID'] = (int) $form['ID'];
+					$form['ID'] = (int)$form['ID'];
 					$forms[$form['ID']] = $form;
 				}
 			}
@@ -248,7 +252,7 @@ class Form
 	/**
 	 * Find just one form by ID. Return array of form fields, or empty array if not found
 	 * @return array
-	*/
+	 */
 	public static function getFormById(int $id): array
 	{
 		$forms = self::getFormsByFilter(['ID' => $id]);
@@ -294,7 +298,7 @@ class Form
 						break;
 					}
 				}
-				if($filtred)
+				if ($filtred)
 				{
 					$forms[$form['ID']] = $form;
 				}
@@ -388,8 +392,13 @@ class Form
 				}
 				else
 				{
-					$forms = self::getForms();
+					$forms = self::getForms(true);  // force to preserve cycle when create form landing block
 					$forms = self::prepareFormsToAttrs($forms);
+					if (empty($forms))
+					{
+						$forms = self::createDefaultForm();
+						$forms = self::prepareFormsToAttrs($forms);
+					}
 
 					if (!empty($forms))
 					{
@@ -422,7 +431,12 @@ class Form
 		{
 			$manifest['attrs'] = [];
 		}
-		$manifest['attrs'][self::SELECTOR_FORM_NODE] = self::getAttrs();
+
+		// hard operation getAttrs is only FOR EDITOR, in public set fake array for saveAttributes later
+		$manifest['attrs'][self::SELECTOR_FORM_NODE] =
+			Landing::getEditMode()
+				? self::getAttrs()
+				: [['attribute' => self::ATTR_FORM_PARAMS]];
 
 		return $manifest;
 	}
@@ -586,14 +600,17 @@ class Form
 			$landingIds = [$landingIds];
 		}
 
-		return BlockTable::getList([
-			'select' => ['ID', 'LID'],
-			'filter' => [
-				'=LID' => $landingIds,
-				'=DELETED' => 'N',
-				'CONTENT' => '%data-b24form=%',
-			],
-		])->fetchAll();
+		return BlockTable::getList(
+			[
+				'select' => ['ID', 'LID'],
+				'filter' => [
+					'=LID' => $landingIds,
+					'=DELETED' => 'N',
+					'CONTENT' => '%data-b24form=%',
+				],
+			]
+		)->fetchAll()
+			;
 	}
 
 	/**
@@ -604,7 +621,7 @@ class Form
 	public static function getFormByBlock(int $blockId): ?int
 	{
 		$block = new Block($blockId);
-		if(preg_match(self::REGEXP_FORM_ID_INLINE, $block->getContent(), $matches))
+		if (preg_match(self::REGEXP_FORM_ID_INLINE, $block->getContent(), $matches))
 		{
 			return (int)$matches[1];
 		}
@@ -620,13 +637,8 @@ class Form
 	public static function setFormIdToBlock(int $blockId, int $formId): bool
 	{
 		$block = new Block($blockId);
-		// on form create need forced get forms!
-		$forms = self::getForms(true);
-		if (array_key_exists($formId, $forms))
-		{
-			self::setFormIdParam($block, $formId);
-			$block->save();
-		}
+		self::setFormIdParam($block, $formId);
+		$block->save();
 
 		return $block->getError()->isEmpty();
 	}
@@ -638,12 +650,10 @@ class Form
 	 */
 	protected static function setFormIdParam(Block $block, int $formId): void
 	{
-		$forms = self::getForms();
-		if (($form = $forms[$formId]))
+		if (($form = self::getFormById($formId)))
 		{
-			$newParam = $block->isPublic() && !self::isCrm() && Manager::isB24Connector()
-				? "{$form['ID']}|{$form['SECURITY_CODE']}|{$form['URL']}"
-				: self::INLINE_MARKER_PREFIX . $form['ID'];
+			// todo: can add force public flag for replaces, when we know exactly that block is public
+			$newParam = self::INLINE_MARKER_PREFIX . $form['ID'];
 
 			$block->setAttributes([
 				self::SELECTOR_FORM_NODE => [self::ATTR_FORM_PARAMS => $newParam],
@@ -652,18 +662,76 @@ class Form
 	}
 
 	/**
+	 * Create form with default params
+	 * @return array - array with once item, fields equal getForms()
+	 */
+	protected static function createDefaultForm()
+	{
+		if ($formId = self::createForm([]))
+		{
+			return self::getFormsByFilter(['ID' => $formId]);
+		}
+	}
+
+	/**
+	 * @param array $formData
+	 * @return int|null - id of created form or null if errors
+	 */
+	protected static function createForm(array $formData): ?int
+	{
+		if (self::isCrm())
+		{
+			$form = new WebForm\Form;
+
+			$defaultData = WebForm\Preset::getById('crm_preset_cd');
+
+			$defaultData['XML_ID'] = '';
+			$defaultData['ACTIVE'] = 'Y';
+			$defaultData['IS_SYSTEM'] = 'N';
+			$defaultData['IS_CALLBACK_FORM'] = 'N';
+			$defaultData['BUTTON_CAPTION'] = $form->getButtonCaption();
+
+			$agreementId = UserConsent::getDefaultAgreementId();
+			$defaultData['USE_LICENCE'] = $agreementId ? 'Y' : 'N';
+			if ($agreementId)
+			{
+				$defaultData['LICENCE_BUTTON_IS_CHECKED'] = 'Y';
+				$defaultData['AGREEMENT_ID'] = $agreementId;
+			}
+
+			$isLeadEnabled = LeadSettings::getCurrent()->isEnabled();
+			$defaultData['ENTITY_SCHEME'] = (string)(
+			$isLeadEnabled
+				? WebForm\Entity::ENUM_ENTITY_SCHEME_LEAD
+				: WebForm\Entity::ENUM_ENTITY_SCHEME_DEAL
+			);
+
+			$currentUserId = is_object($GLOBALS['USER']) ? $GLOBALS['USER']->getId() : null;
+			$defaultData['ACTIVE_CHANGE_BY'] = $currentUserId;
+			$defaultData['ASSIGNED_BY_ID'] = $currentUserId;
+
+			$formData = array_merge($defaultData, $formData);
+			$form->merge($formData);
+			$form->save();
+
+			return !$form->hasErrors() ? $form->getId() : null;
+		}
+
+		return null;
+	}
+
+	/**
 	 * @param Block $block
 	 * @param string $xmlId
 	 */
 	public static function setSpecialFormToBlock(Block $block, string $xmlId): void
 	{
-		// todo: if not crm or connector - break
 		if (($formData = self::getSpecialFormsData()[$xmlId]))
 		{
 			$formId = null;
-			foreach(self::getForms() as $form)
+			foreach (self::getForms() as $form)
 			{
-				if(
+				if (
 					array_key_exists('XML_ID', $form)
 					&& $form['XML_ID'] === $xmlId
 				)
@@ -673,23 +741,9 @@ class Form
 				}
 			}
 
-			if(!$formId)
-			{// todo: find xmlid in getForms
-				if (self::isCrm())
-				{
-					$form = new WebForm\Form;
-					$formData['BUTTON_CAPTION'] = $form->getButtonCaption();
-					$form->merge($formData);
-					$form->save();
-					if(!$form->hasErrors())
-					{
-						$formId = $form->getId();
-					}
-				}
-				elseif (Manager::isB24Connector())
-				{
-					// todo: rest
-				}
+			if (!$formId)
+			{
+				$formId = self::createForm($formData);
 			}
 
 			if ($formId)
@@ -700,100 +754,61 @@ class Form
 		}
 	}
 
-	protected static function getSpecialFormsData(): array
+	protected static function getSpecialFormsData(): ?array
 	{
-		// todo: clear comments
-		// todo: params from \Bitrix\Crm\WebForm\Preset::addForm
-		$data = [
-			'crm_preset_store_v3' => [
-				'XML_ID' => 'crm_preset_store_v3',
-				'NAME' => Loc::getMessage('LANDING_FORM_SPECIAL_STOREV3_NAME'),
-				'IS_SYSTEM' => 'N',
-				'ACTIVE' => 'Y',
-				// 'CAPTION' => Loc::getMessage('LANDING_FORM_SPECIAL_STOREV3_CAPTION'),
-				// 'DESCRIPTION' => Loc::getMessage('LANDING_FORM_SPECIAL_STOREV3_DESC'),
-				'RESULT_SUCCESS_TEXT' => Loc::getMessage('LANDING_FORM_SPECIAL_STOREV3_RESULT_SUCCESS'),
-				'RESULT_FAILURE_TEXT' => Loc::getMessage('LANDING_FORM_SPECIAL_STOREV3_RESULT_FAILURE'),
-				// 'ENTITY_SCHEME' => (string)(self::isLeadEnabled() ? Entity::ENUM_ENTITY_SCHEME_LEAD : Entity::ENUM_ENTITY_SCHEME_DEAL),
-				'COPYRIGHT_REMOVED' => 'N',
-				'IS_PAY' => 'N',
-				'FORM_SETTINGS' => [
-					'DEAL_DC_ENABLED' => 'Y',
-				],
-				'BUTTON_CAPTION' => '',
-				'FIELDS' => [
-					[
-						'TYPE' => 'string',
-						// 'CODE' => self::isLeadEnabled() ? 'LEAD_NAME' : 'CONTACT_NAME',
-						'CODE' => 'CONTACT_NAME',
-						'CAPTION' => Loc::getMessage('LANDING_FORM_SPECIAL_STOREV3_FIELD_NAME'),
-						'SORT' => 100,
-						'REQUIRED' => 'N',
-						'MULTIPLE' => 'N',
-						'PLACEHOLDER' => '',
-					],
-					[
-						'TYPE' => 'phone',
-						// 'CODE' => self::isLeadEnabled() ? 'LEAD_PHONE' : 'CONTACT_PHONE',
-						'CODE' => 'CONTACT_PHONE',
-						'CAPTION' => Loc::getMessage('LANDING_FORM_SPECIAL_STOREV3_FIELD_PHONE'),
-						'SORT' => 200,
-						'REQUIRED' => 'N',
-						'MULTIPLE' => 'N',
-						'PLACEHOLDER' => '',
-					],
-					[
-						'TYPE' => 'text',
-						// 'CODE' => self::isLeadEnabled() ? 'LEAD_COMMENTS' : 'DEAL_COMMENTS',
-						'CODE' => 'DEAL_COMMENTS',
-						'CAPTION' => Loc::getMessage('LANDING_FORM_SPECIAL_STOREV3_FIELD_COMMENT'),
-						'SORT' => 300,
-						'REQUIRED' => 'N',
-						'MULTIPLE' => 'N',
-						'PLACEHOLDER' => '',
-					],
-				],
-			],
-		];
-
 		if (self::isCrm())
 		{
-			$isLeadEnabled = static function()
+			$data = [
+				'crm_preset_store_v3' => [
+					'XML_ID' => 'crm_preset_store_v3',
+					'NAME' => Loc::getMessage('LANDING_FORM_SPECIAL_STOREV3_NAME'),
+					'IS_SYSTEM' => 'N',
+					'ACTIVE' => 'Y',
+					'RESULT_SUCCESS_TEXT' => Loc::getMessage('LANDING_FORM_SPECIAL_STOREV3_RESULT_SUCCESS'),
+					'RESULT_FAILURE_TEXT' => Loc::getMessage('LANDING_FORM_SPECIAL_STOREV3_RESULT_FAILURE'),
+					'COPYRIGHT_REMOVED' => 'N',
+					'IS_PAY' => 'N',
+					'FORM_SETTINGS' => [
+						'DEAL_DC_ENABLED' => 'Y',
+					],
+					'BUTTON_CAPTION' => '',
+					'FIELDS' => [
+						[
+							'TYPE' => 'string',
+							'CODE' => 'CONTACT_NAME',
+							'CAPTION' => Loc::getMessage('LANDING_FORM_SPECIAL_STOREV3_FIELD_NAME'),
+							'SORT' => 100,
+							'REQUIRED' => 'N',
+							'MULTIPLE' => 'N',
+							'PLACEHOLDER' => '',
+						],
+						[
+							'TYPE' => 'phone',
+							'CODE' => 'CONTACT_PHONE',
+							'CAPTION' => Loc::getMessage('LANDING_FORM_SPECIAL_STOREV3_FIELD_PHONE'),
+							'SORT' => 200,
+							'REQUIRED' => 'N',
+							'MULTIPLE' => 'N',
+							'PLACEHOLDER' => '',
+						],
+						[
+							'TYPE' => 'text',
+							'CODE' => 'DEAL_COMMENTS',
+							'CAPTION' => Loc::getMessage('LANDING_FORM_SPECIAL_STOREV3_FIELD_COMMENT'),
+							'SORT' => 300,
+							'REQUIRED' => 'N',
+							'MULTIPLE' => 'N',
+							'PLACEHOLDER' => '',
+						],
+					],
+				],
+			];
+
+			$isLeadEnabled = LeadSettings::getCurrent()->isEnabled();
+
+			foreach ($data as $id => $form)
 			{
-				return LeadSettings::getCurrent()->isEnabled();
-			};
-
-			$getCurrentUserId = static function()
-			{
-				static $userId = null;
-				if($userId === null)
-				{
-					global $USER;
-					$userId = (is_object($USER) && $USER->GetID()) ? $USER->GetID() : 1;
-				}
-
-				return $userId;
-			};
-
-			foreach($data as $id => $form)
-			{
-				$data[$id]['DUPLICATE_MODE'] = WebForm\ResultEntity::DUPLICATE_CONTROL_MODE_MERGE;
-				$data[$id]['ENTITY_SCHEME'] = (string)($isLeadEnabled()
-					? WebForm\Entity::ENUM_ENTITY_SCHEME_LEAD
-					: WebForm\Entity::ENUM_ENTITY_SCHEME_DEAL)
-				;
-				$data[$id]['ACTIVE_CHANGE_BY'] = $getCurrentUserId();
-				$data[$id]['ASSIGNED_BY_ID'] = $getCurrentUserId();
-
-				$agreementId = UserConsent::getDefaultAgreementId();
-				$data[$id]['USE_LICENCE'] = $agreementId ? 'Y': 'N';
-				if ($agreementId)
-				{
-					$data[$id]['LICENCE_BUTTON_IS_CHECKED'] = 'Y';
-					$data[$id]['AGREEMENT_ID'] = $agreementId;
-				}
-
-				if($isLeadEnabled())
+				if ($isLeadEnabled)
 				{
 					foreach ($data[$id]['FIELDS'] as $key => $field)
 					{
@@ -802,13 +817,11 @@ class Form
 					}
 				}
 			}
-		}
-		// else
-		// {
-			// todo: is connector - get by rest
-		// }
 
-		return $data;
+			return $data;
+		}
+
+		return null;
 	}
 
 	// endregion
@@ -820,15 +833,17 @@ class Form
 	 */
 	public static function updateLandingToEmbedForms(int $landingId): void
 	{
-		$res = BlockTable::getList([
-			'select' => [
-				'ID',
-			],
-			'filter' => [
-				'LID' => $landingId,
-				'=DELETED' => 'N',
-			],
-		]);
+		$res = BlockTable::getList(
+			[
+				'select' => [
+					'ID',
+				],
+				'filter' => [
+					'LID' => $landingId,
+					'=DELETED' => 'N',
+				],
+			]
+		);
 		while ($row = $res->fetch())
 		{
 			$block = new Block($row['ID']);

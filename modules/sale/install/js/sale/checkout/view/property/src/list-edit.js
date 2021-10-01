@@ -1,44 +1,43 @@
-import {Vue} from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 import {Property as Const} from 'sale.checkout.const';
 
-import './list-edit.css'
 import './input/text'
 import './input/phone'
 import './note-error'
 
-Vue.component('sale-checkout-view-property-list_edit', {
+BitrixVue.component('sale-checkout-view-property-list_edit', {
 	props: ['items', 'errors'],
 	computed:
-		{
-			localize() {
-				return Object.freeze(
-					Vue.getFilteredPhrases('CHECKOUT_VIEW_PROPERTY_LIST_'))
-			}
-		},
+	{
+		localize() {
+			return Object.freeze(
+				BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_PROPERTY_LIST_'))
+		}
+	},
 	methods:
+	{
+		getErrorMessage(item)
 		{
-			getErrorMessage(item)
-			{
-				let error = this.errors.find(error => error.propertyId === item.id);
-				return typeof error !== 'undefined' ? error.message:null
-			},
-			isPhone(item)
-			{
-				return item.type === Const.type.phone
-			},
-			isName(item)
-			{
-				return item.type === Const.type.name
-			},
-			isEmail(item)
-			{
-				return item.type === Const.type.email
-			},
-			isFailure(item)
-			{
-				return item.validated === Const.validate.failure
-			}
+			let error = this.errors.find(error => error.propertyId === item.id);
+			return typeof error !== 'undefined' ? error.message:null
 		},
+		isPhone(item)
+		{
+			return item.type === Const.type.phone
+		},
+		isName(item)
+		{
+			return item.type === Const.type.name
+		},
+		isEmail(item)
+		{
+			return item.type === Const.type.email
+		},
+		isFailure(item)
+		{
+			return item.validated === Const.validate.failure
+		}
+	},
 	// language=Vue
 	template: `
 		<div class="checkout-basket-section checkout-basket-section-personal-form">

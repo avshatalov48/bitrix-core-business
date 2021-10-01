@@ -137,7 +137,6 @@ drop table if exists b_sale_b24integration_relation;
 drop table if exists b_sale_b24integration_token;
 drop table if exists b_sale_delivery_yandex_taxi_claims;
 drop table if exists b_sale_delivery_rest_handler;
-drop table if exists b_sale_local_delivery_requests;
 drop table if exists b_sale_cashbox_rest_handler;
 drop table if exists b_sale_cashbox_check_correction;
 drop table if exists b_sale_order_payment_basket;

@@ -18,9 +18,9 @@ Main\Localization\Loc::loadMessages(__DIR__ . '/class.php');
  */
 class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 {
-	protected $params;
-	protected $actionName;
-	protected $config;
+	private $params;
+	private $actionName;
+	private $config;
 
 	protected function processBeforeAction(Main\Engine\Action $action)
 	{
@@ -65,14 +65,55 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 
 	protected function processAfterAction(Main\Engine\Action $action, $result)
 	{
-		if (empty($action->getErrors()))
+		if (empty($this->getErrors()))
 		{
+			$result = self::prepareJsonData($result);
+
 			if (\is_array($result) && Main\Loader::includeModule('rest'))
 			{
 				$result = Rest\Integration\Externalizer::multiSortKeysArray($result);
 			}
+		}
 
-			$result = Main\Engine\Response\Converter::toJson()->process($result);
+		return $result;
+	}
+
+	private static function prepareJsonData(?array $result): ?array
+	{
+		if (!empty($result['BASKET_ITEMS']))
+		{
+			$basketItems = $result['BASKET_ITEMS'];
+
+			$sku = [];
+			foreach ($basketItems as $index => $item)
+			{
+				if (empty($item['CATALOG_PRODUCT']['SKU']))
+				{
+					$sku[$index] = [];
+				}
+				else
+				{
+					$sku[$index]['tree'] = $item['CATALOG_PRODUCT']['SKU']['TREE'];
+					$sku[$index]['parentProductId'] = $item['CATALOG_PRODUCT']['SKU']['PARENT_PRODUCT_ID'];
+				}
+
+				unset($basketItems[$index]['CATALOG_PRODUCT']['SKU']);
+			}
+
+			$result['BASKET_ITEMS'] = $basketItems;
+		}
+
+		$result = (array)Main\Engine\Response\Converter::toJson()->process($result);
+
+		if (!empty($result['basketItems']) && isset($sku))
+		{
+			$basketItems = $result['basketItems'];
+			foreach ($basketItems as $index => $item)
+			{
+				$basketItems[$index]['catalogProduct']['sku'] = $sku[$index];
+			}
+
+			$result['basketItems'] = $basketItems;
 		}
 
 		return $result;
@@ -124,7 +165,7 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 		];
 	}
 
-	protected function fillBasketItems(array $basketItems): array
+	private function fillBasketItems(array $basketItems): array
 	{
 		$urlPathToDetailProduct = $this->params['URL_PATH_TO_DETAIL_PRODUCT'] ?? '';
 		if ($urlPathToDetailProduct)
@@ -357,14 +398,13 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 		$errors = $action->getErrors();
 		if ($errors)
 		{
-			$isPropertyError = false;
 			foreach ($errors as $error)
 			{
 				$errorCode = $error->getCode();
+
+				// property errors
 				if ($errorCode >= 202250003000 && $errorCode <= 202250003999)
 				{
-					$isPropertyError = true;
-
 					$this->addError(
 						new Main\Error(
 							$error->getMessage(),
@@ -373,9 +413,15 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 						)
 					);
 				}
+
+				// user errors
+				if ($errorCode === 202250005000)
+				{
+					$this->addError(new Main\Error($error->getMessage()));
+				}
 			}
 
-			if (!$isPropertyError)
+			if (empty($this->getErrors()))
 			{
 				$this->addError(new Main\Error(Main\Localization\Loc::getMessage('SOC_SAVE_ORDER')));
 			}
@@ -468,6 +514,31 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 		{
 			switch ($actionName)
 			{
+				case 'OFFER':
+					$offerItems = [];
+
+					foreach ($actionValues as $index => $offerFields)
+					{
+						$offerItems[] = $offerFields['BASKET_ID'];
+
+						$changeBasketItemResult = $this->changeBasketItem($offerFields['BASKET_ID'], $offerFields['PRODUCT_ID']);
+						if ($changeBasketItemResult->isSuccess())
+						{
+							$result['ACTIONS'][$index] = [
+								'TYPE' => 'offer',
+								'FIELDS' => ['ID' => $offerFields['BASKET_ID']],
+							];
+						}
+						else
+						{
+							$result['ACTIONS'][$index] = [
+								'TYPE' => 'offer',
+								'ERRORS' => $changeBasketItemResult->getErrorMessages(),
+							];
+						}
+					}
+					break;
+
 				case 'DELETE':
 					foreach ($actionValues as $index => $basketItemId)
 					{
@@ -551,6 +622,17 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 
 		$basketHashAfterRecalculation = self::getBasketHash(self::getBasket());
 
+		if (isset($offerItems))
+		{
+			foreach ($offerItems as $offerItem)
+			{
+				unset(
+					$basketHashBeforeRecalculation[$offerItem],
+					$basketHashAfterRecalculation[$offerItem]
+				);
+			}
+		}
+
 		$result['BASKET_ITEMS'] = $basketData['BASKET_ITEMS'];
 		$result['ORDER_PRICE_TOTAL'] = $basketData['ORDER_PRICE_TOTAL'];
 
@@ -598,14 +680,14 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 
 				if ($actionName === 'DELETE')
 				{
-					$deleteList[] = $data['ID'];
+					$deleteList[] = (int)$data['ID'];
 
-					$value = $data['ID'];
+					$value = (int)$data['ID'];
 				}
 				elseif ($actionName === 'QUANTITY')
 				{
 					$value = [
-						'BASKET_ID' => $data['ID'],
+						'BASKET_ID' => (int)$data['ID'],
 						'QUANTITY' => $data['VALUE'],
 					];
 				}
@@ -617,6 +699,13 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 						'MODULE' => $data['MODULE'],
 						'PRODUCT_PROVIDER_CLASS' => $data['PRODUCT_PROVIDER_CLASS'],
 						'PROPS' => $data['PROPS'],
+					];
+				}
+				elseif ($actionName === 'OFFER')
+				{
+					$value = [
+						'BASKET_ID' => (int)$data['ID'],
+						'PRODUCT_ID' => (int)$data['FIELDS']['OFFER_ID'],
 					];
 				}
 
@@ -697,6 +786,32 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 		else
 		{
 			$result->addError(new Main\Error(Main\Localization\Loc::getMessage('SOC_RESTORE_BASKET_ITEM')));
+		}
+
+		return $result;
+	}
+
+	private function changeBasketItem(int $basketId, int $productId): Sale\Result
+	{
+		$result = new Sale\Result();
+
+		$action = new Sale\Controller\Action\Entity\ChangeBasketItemAction($this->actionName, $this, $this->config);
+
+		$fields = [
+			'BASKET_ID' => $basketId,
+			'PRODUCT_ID' => $productId,
+			'FUSER_ID' => Sale\Fuser::getId(),
+			'SITE_ID' => Main\Application::getInstance()->getContext()->getSite(),
+		];
+
+		$changeBasketItemResult = $action->changeBasketItem($fields);
+		if ($changeBasketItemResult->isSuccess())
+		{
+			$result->setData($changeBasketItemResult->getData());
+		}
+		else
+		{
+			$result->addError(new Main\Error(Main\Localization\Loc::getMessage('SOC_CHANGE_BASKET_ITEM')));
 		}
 
 		return $result;

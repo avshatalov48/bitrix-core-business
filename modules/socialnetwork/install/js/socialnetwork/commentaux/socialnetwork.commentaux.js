@@ -26,7 +26,14 @@ BX.CommentAux = {
 		'BLOG_COMMENT',
 		'FORUM_POST',
 		'LOG_COMMENT'
-	]
+	],
+	typesList: {
+		share: 'share',
+		createentity: 'createentity',
+		createtask: 'createtask',
+		fileversion: 'fileversion',
+		taskinfo: 'taskinfo',
+	},
 };
 
 BX.onCustomEvent('BX.CommentAux.initialize', []);
@@ -46,10 +53,25 @@ BX.CommentAux.isSourceComment = function(eventType)
 	return BX.util.in_array(eventType, this.commentEventTypeList);
 };
 
+BX.CommentAux.getTypesList = function()
+{
+	return Object.values(this.typesList);
+};
+
+BX.CommentAux.getLiveTypesList = function()
+{
+	return [
+		this.typesList.createentity,
+		this.typesList.createtask,
+		this.typesList.fileversion,
+		this.typesList.taskinfo,
+	];
+};
+
 BX.CommentAux.getLiveText = function(type, params)
 {
 	var result = '';
-	if (type === 'share')
+	if (type.toLowerCase() === this.typesList.share)
 	{
 		if (
 			typeof params == 'object'
@@ -60,16 +82,16 @@ BX.CommentAux.getLiveText = function(type, params)
 			result = result.replace('#SHARE_LIST#', this.getShareList(params));
 		}
 	}
-	else if (type === 'createentity')
+	else if (type.toLowerCase() === this.typesList.createentity)
 	{
 		if (
 			BX.type.isNotEmptyObject(params)
 			&& BX.type.isNotEmptyString(params.entityType)
-			&& typeof params.entityId != 'undefined'
+			&& !BX.type.isUndefined(params.entityId)
 			&& parseInt(params.entityId) > 0
 			&& BX.type.isNotEmptyString(params.entityName)
 			&& BX.type.isNotEmptyString(params.sourceEntityType)
-			&& typeof params.sourceEntityId != 'undefined'
+			&& !BX.type.isUndefined(params.sourceEntityId)
 			&& parseInt(params.sourceEntityId) > 0
 		)
 		{
@@ -105,15 +127,15 @@ BX.CommentAux.getLiveText = function(type, params)
 			}
 		}
 	}
-	else if (type === 'createtask')
+	else if (type.toLowerCase() === this.typesList.createtask)
 	{
 		if (
 			BX.type.isNotEmptyObject(params)
-			&& typeof params.taskId != 'undefined'
+			&& !BX.type.isUndefined(params.taskId)
 			&& parseInt(params.taskId) > 0
 			&& BX.type.isNotEmptyString(params.taskName)
 			&& BX.type.isNotEmptyString(params.sourceEntityType)
-			&& typeof params.sourceEntityId != 'undefined'
+			&& !BX.type.isUndefined(params.sourceEntityId)
 			&& parseInt(params.sourceEntityId) > 0
 		)
 		{
@@ -150,7 +172,7 @@ BX.CommentAux.getLiveText = function(type, params)
 			}
 		}
 	}
-	else if (type === 'fileversion')
+	else if (type.toLowerCase() === this.typesList.fileversion)
 	{
 		var messageType = (
 			typeof params == 'object'
@@ -161,7 +183,7 @@ BX.CommentAux.getLiveText = function(type, params)
 		);
 		var userGender = (
 			typeof params == 'object'
-			&& typeof params.userGender != 'undefined'
+			&& BX.type.isNotEmptyString(params.userGender)
 				? params.userGender
 				: ''
 		);

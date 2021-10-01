@@ -273,7 +273,8 @@ class CIMChat
 					'senderId' => $arRes['AUTHOR_ID'],
 					'recipientId' => $arRes['CHAT_ID'],
 					'date' => \Bitrix\Main\Type\DateTime::createFromTimestamp($arRes['DATE_CREATE']),
-					'text' => \Bitrix\Im\Text::parse($arRes['MESSAGE'])
+					'text' => \Bitrix\Im\Text::parse($arRes['MESSAGE']),
+					'textOriginal' => $arRes['MESSAGE']
 				);
 
 				$arMessageId[] = $arRes['ID'];
@@ -321,6 +322,18 @@ class CIMChat
 		foreach ($params as $messageId => $param)
 		{
 			$arMessages[$messageId]['params'] = $param;
+
+			if (
+				empty($arMessages[$messageId]['text'])
+				&& !isset($param['FILE_ID'])
+				&& !isset($param['KEYBOARD'])
+				&& !isset($param['ATTACH'])
+			)
+			{
+				$arMessages[$messageId]['text'] = GetMessage('IM_MESSAGE_DELETED');
+				$arMessages[$messageId]['params']['IS_DELETED'] = 'Y';
+			}
+
 			if (isset($param['FILE_ID']))
 			{
 				foreach ($param['FILE_ID'] as $fileId)
@@ -659,7 +672,7 @@ class CIMChat
 		$arResult = Array();
 
 		$strSql = "
-			SELECT 
+			SELECT
 				R.*,
 				".$DB->DatetimeToTimestampFunction('R.LAST_READ')." LAST_READ,
 				U.EXTERNAL_AUTH_ID
@@ -753,8 +766,8 @@ class CIMChat
 		$silentInstall = false;
 
 		$sqlCounter = "
-			SELECT COUNT(ID) as CNT 
-			FROM b_user 
+			SELECT COUNT(ID) as CNT
+			FROM b_user
 			WHERE ACTIVE = 'Y' AND (EXTERNAL_AUTH_ID NOT IN ('".implode("','", $types)."') OR EXTERNAL_AUTH_ID IS NULL OR b_user.EXTERNAL_AUTH_ID = '')";
 		$dbRes = $DB->Query($sqlCounter, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		if ($row = $dbRes->Fetch())
@@ -1482,8 +1495,8 @@ class CIMChat
 				'$lastId' START_ID,
 				C.ID CHAT_ID,
 				C.ENTITY_TYPE CHAT_ENTITY_TYPE,
-				C.ENTITY_ID CHAT_ENTITY_ID, 
-				R1.NOTIFY_BLOCK, 
+				C.ENTITY_ID CHAT_ENTITY_ID,
+				R1.NOTIFY_BLOCK,
 				R1.MESSAGE_TYPE
 			FROM b_im_message M
 			INNER JOIN b_im_relation R1 ON M.ID >= ".$lastId." AND M.CHAT_ID = R1.CHAT_ID
@@ -2705,6 +2718,8 @@ class CIMChat
 					));
 				}
 			}
+
+			self::index($chatId);
 		}
 		else
 		{
@@ -3691,7 +3706,8 @@ class CIMChat
 		global $USER;
 
 		self::$entityOption = Array(
-			'GENERAL' => Array('AVATAR' => false, 'RENAME' => false, 'EXTEND' => false, 'LEAVE' => false)
+			'GENERAL' => Array('AVATAR' => false, 'RENAME' => false, 'EXTEND' => false, 'LEAVE' => false),
+			'SUPPORT24_NOTIFIER' => Array('AVATAR' => false, 'RENAME' => false, 'LEAVE_OWNER' => false),
 		);
 
 		if (IsModuleInstalled('socialnetwork'))
@@ -3707,7 +3723,7 @@ class CIMChat
 			$path = CTasksTools::GetOptionPathTaskUserEntry(SITE_ID, "/company/personal/user/#user_id#/tasks/task/view/#task_id#/");
 			$path = str_replace(Array('#user_id#', '#task_id#'), Array($USER->GetId(), '#ID#'), mb_strtolower($path));
 
-			self::$entityOption['TASKS'] = Array('AVATAR' => false, 'RENAME' => true, 'EXTEND' => true, 'LEAVE' => true, 'LEAVE_OWNER' => true, 'PATH' => $path, 'PATH_TITLE' => GetMessage('IM_PATH_TITLE_TASKS'));
+			self::$entityOption['TASKS'] = Array('AVATAR' => true, 'RENAME' => true, 'EXTEND' => true, 'LEAVE' => true, 'LEAVE_OWNER' => true, 'PATH' => $path, 'PATH_TITLE' => GetMessage('IM_PATH_TITLE_TASKS'));
 		}
 
 		if (CModule::IncludeModule('calendar'))
@@ -3715,7 +3731,7 @@ class CIMChat
 			$path = CCalendar::GetPathForCalendarEx($USER->GetId());
 			$path = \CHTTP::urlAddParams($path, ['EVENT_ID' => '#ID#']);
 
-			self::$entityOption[CCalendar::CALENDAR_CHAT_ENTITY_TYPE] = Array('AVATAR' => false, 'RENAME' => true, 'EXTEND' => true, 'LEAVE' => true, 'LEAVE_OWNER' => true, 'PATH' => $path, 'PATH_TITLE' => GetMessage('IM_PATH_TITLE_CALENDAR_EVENT'));
+			self::$entityOption[CCalendar::CALENDAR_CHAT_ENTITY_TYPE] = Array('AVATAR' => true, 'RENAME' => true, 'EXTEND' => true, 'LEAVE' => true, 'LEAVE_OWNER' => true, 'PATH' => $path, 'PATH_TITLE' => GetMessage('IM_PATH_TITLE_CALENDAR_EVENT'));
 		}
 
 		if (CModule::IncludeModule('crm'))

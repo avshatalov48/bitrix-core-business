@@ -465,7 +465,8 @@ class CIMMessage
 					'recipientId' => $arRes['TO_USER_ID'],
 					'system' => $arRes['NOTIFY_EVENT'] == 'private'? 'N': 'Y',
 					'date' => \Bitrix\Main\Type\DateTime::createFromTimestamp($arRes['DATE_CREATE']),
-					'text' => \Bitrix\Im\Text::parse($arRes['MESSAGE'])
+					'text' => \Bitrix\Im\Text::parse($arRes['MESSAGE']),
+					'textOriginal' => $arRes['MESSAGE'],
 				);
 
 				$arMessageId[] = $arRes['ID'];
@@ -482,6 +483,18 @@ class CIMMessage
 		foreach ($params as $messageId => $param)
 		{
 			$arMessages[$messageId]['params'] = $param;
+
+			if (
+				empty($arMessages[$messageId]['text'])
+				&& !isset($param['FILE_ID'])
+				&& !isset($param['KEYBOARD'])
+				&& !isset($param['ATTACH'])
+			)
+			{
+				$arMessages[$messageId]['text'] = GetMessage('IM_MESSAGE_DELETED');
+				$arMessages[$messageId]['params']['IS_DELETED'] = 'Y';
+			}
+
 			if (isset($param['FILE_ID']))
 			{
 				foreach ($param['FILE_ID'] as $fileId)

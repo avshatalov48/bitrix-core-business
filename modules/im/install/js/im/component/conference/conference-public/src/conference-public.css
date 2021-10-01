@@ -832,8 +832,22 @@
 }
 
 .bx-im-application-call-notify-new-message {
+	display: flex;
+	align-items: center;
 	padding: 15px;
 	margin: -15px;
+	/*margin: -9px -20px;*/
+}
+
+.bx-im-application-call-notify-new-message-avatar {
+	margin-right: 7px;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+}
+
+.bx-im-application-call-notify-new-message-username {
+	margin-right: 7px;
 }
 
 /*Popup*/

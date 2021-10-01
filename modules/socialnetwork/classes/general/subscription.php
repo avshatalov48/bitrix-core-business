@@ -566,7 +566,7 @@ class CAllSocNetSubscription
 		if (
 			!is_array($fields)
 			|| empty($fields['USER_ID'])
-			|| empty($fields['MUTE'])
+			|| !isset($fields['MUTE'])
 			|| empty($fields['CHAT'])
 			|| !isset($fields['CHAT']['ENTITY_TYPE'])
 			|| $fields['CHAT']['ENTITY_TYPE'] != Integration\Im\Chat\Workgroup::CHAT_ENTITY_TYPE
@@ -579,6 +579,6 @@ class CAllSocNetSubscription
 		$groupId = intval($fields['CHAT']['ENTITY_ID']);
 		$userId = intval($fields['USER_ID']);
 
-		return self::set($userId, "SG".$groupId, ($fields['MUTE'] != "Y" ? "Y" : "N"));
+		return self::set($userId, "SG".$groupId, ($fields['MUTE'] ? "N" : "Y"));
 	}
 }

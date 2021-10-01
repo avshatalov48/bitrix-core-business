@@ -77,6 +77,7 @@
 .bx-messenger-call-window-background-blur {
 	position: absolute;
 	background: transparent;
+	-webkit-backdrop-filter: blur(20px);
 	backdrop-filter: blur(20px);
 	top: 0;
 	left: 0;

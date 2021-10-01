@@ -1,27 +1,29 @@
 <?
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/calendar/classes/general/calendar.php");
 
-use Bitrix\Calendar\ICal\Basic\ICalUtil;
-use Bitrix\Calendar\Util;
 use Bitrix\Calendar\ICal\
-{IncomingEventManager,
+{Builder,
 	Builder\Attendee,
 	Builder\AttendeesCollection,
+	IncomingEventManager,
 	MailInvitation\Context as IcalMailContext,
-	MailInvitation\MailReceiver,
+	MailInvitation\Helper,
 	MailInvitation\MailAddresser,
 	MailInvitation\MailInvitationManager,
+	MailInvitation\MailReceiver,
 	MailInvitation\SenderCancelInvitation,
 	MailInvitation\SenderEditInvitation,
-	MailInvitation\SenderRequestInvitation,
-	Builder,
-	MailInvitation\Helper};
-use \Bitrix\Main\Loader;
-use \Bitrix\Main\UserTable;
-use \Bitrix\Disk\Uf\FileUserType;
-use \Bitrix\Disk\AttachedObject;
+	MailInvitation\SenderRequestInvitation};
+use Bitrix\Calendar\ICal\Basic\ICalUtil;
 use Bitrix\Calendar\Internals;
-use \Bitrix\Calendar\Integration\Bitrix24\Limitation;
+use Bitrix\Calendar\Util;
+use Bitrix\Disk\AttachedObject;
+use Bitrix\Disk\Uf\FileUserType;
+use Bitrix\Main\EventManager;
+use Bitrix\Main\Loader;
+use Bitrix\Main\UserTable;
+use Bitrix\Calendar\Integration\Bitrix24Manager;
+
 
 class CCalendarEvent
 {
@@ -263,7 +265,9 @@ class CCalendarEvent
 			{
 				if (!isset($entryFields['CREATED_BY']))
 				{
-					$entryFields['CREATED_BY'] = ($entryFields['IS_MEETING'] && $entryFields['CAL_TYPE'] == 'user' && $entryFields['OWNER_ID']) ? $entryFields['OWNER_ID'] : $userId;
+					$entryFields['CREATED_BY'] = ($entryFields['IS_MEETING']
+						&& $entryFields['CAL_TYPE'] === 'user'
+						&& $entryFields['OWNER_ID']) ? $entryFields['OWNER_ID'] : $userId;
 				}
 
 				if (!isset($entryFields['DATE_CREATE']))
@@ -513,6 +517,11 @@ class CCalendarEvent
 				foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("calendar", "OnAfterCalendarEntryAdd") as $event)
 				{
 					ExecuteModuleEventEx($event, array($eventId, $entryFields));
+				}
+
+				if ($entryFields['PARENT_ID'] === $eventId && $entryFields['CAL_TYPE'] !== 'location')
+				{
+					Bitrix24Manager::increaseEventsAmount();
 				}
 			}
 			else
@@ -2391,9 +2400,9 @@ class CCalendarEvent
 					&& !$isIncreaseMailLimit
 				)
 				{
-					if (Limitation::isEventWithEmailGuestAllowed())
+					if (Bitrix24Manager::isEventWithEmailGuestAllowed())
 					{
-						Limitation::increaseEventWithEmailGuestAmount();
+						Bitrix24Manager::increaseEventWithEmailGuestAmount();
 						$isIncreaseMailLimit = true;
 					}
 					else

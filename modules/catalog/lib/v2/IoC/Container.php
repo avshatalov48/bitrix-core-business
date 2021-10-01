@@ -229,6 +229,6 @@ final class Container implements ContainerContract
 			$argString .= "|$key=$argument";
 		}
 
-		return $id.$argString;
+		return $id . $argString;
 	}
 }

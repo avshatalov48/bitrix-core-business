@@ -17,6 +17,9 @@ class Field
 	protected $data = null;
 	/** @var bool  */
 	protected $isPartial = false;
+	/** @var string  */
+	protected $sectionId = '';
+	protected $iconParams = [];
 
 	public function __construct(DataProvider $dataProvider, $id, array $params = null)
 	{
@@ -160,6 +163,42 @@ class Field
 	{
 		return $this->data !== null && isset($this->data[$key]) ? $this->data[$key] : null;
 	}
+
+	/**
+	 * Get field section id
+	 * @return string
+	 */
+	public function getSectionId(): string
+	{
+		return $this->sectionId;
+	}
+
+	/**
+	 * Set field section id
+	 * @param string $sectionId
+	 */
+	public function setSectionId(string $sectionId): void
+	{
+		$this->sectionId = $sectionId;
+	}
+	/**
+	 * Get field icon url and title
+	 * @return array
+	 */
+	public function getIconParams(): array
+	{
+		return $this->iconParams;
+	}
+
+	/**
+	 * Set field icon url and title
+	 * @param array $iconParams
+	 */
+	public function setIconParams(array $iconParams): void
+	{
+		$this->iconParams = $iconParams;
+	}
+
 	/**
 	 * Assemble field data.
 	 * This method will complete initialization of partially initialized field.
@@ -205,6 +244,15 @@ class Field
 		if($this->isDefault)
 		{
 			$result['default'] = true;
+		}
+
+		if ($this->sectionId !== '')
+		{
+			$result['sectionId'] = $this->sectionId;
+		}
+		if (!empty($this->iconParams))
+		{
+			$result['icon'] = $this->iconParams;
 		}
 
 		if(isset($options['lightweight']) && $options['lightweight'])

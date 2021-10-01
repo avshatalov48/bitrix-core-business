@@ -29,17 +29,24 @@ use Bitrix\UI\EntitySelector\SearchQuery;
 
 class UserProvider extends BaseProvider
 {
-	private const EXTRANET_ROLES = [
+	protected const EXTRANET_ROLES = [
 		UserToGroupTable::ROLE_USER,
 		UserToGroupTable::ROLE_OWNER,
 		UserToGroupTable::ROLE_MODERATOR,
 		UserToGroupTable::ROLE_REQUEST
 	];
+	protected const MAX_USERS_IN_RECENT_TAB = 50;
+
+	protected const ENTITY_ID = 'user';
 
 	public function __construct(array $options = [])
 	{
 		parent::__construct();
+		$this->prepareOptions($options);
+	}
 
+	protected function prepareOptions(array $options = []): void
+	{
 		if (isset($options['nameTemplate']) && is_string($options['nameTemplate']))
 		{
 			preg_match_all(
@@ -186,18 +193,13 @@ class UserProvider extends BaseProvider
 
 	public function fillDialog(Dialog $dialog): void
 	{
-		$maxUsersInRecentTab = 50;
-
 		// Preload first 50 users ('doSearch' method has to have the same filter).
-		$preloadedUsers = $this->getUserCollection([
-			'order' => ['ID' => 'asc'],
-			'limit' => $maxUsersInRecentTab
-		]);
+		$preloadedUsers = $this->getPreloadedUsersCollection();
 
-		if ($preloadedUsers->count() < $maxUsersInRecentTab)
+		if ($preloadedUsers->count() < self::MAX_USERS_IN_RECENT_TAB)
 		{
 			// Turn off the user search
-			$entity = $dialog->getEntity('user');
+			$entity = $dialog->getEntity(static::ENTITY_ID);
 			if ($entity)
 			{
 				$entity->setDynamicSearch(false);
@@ -207,21 +209,21 @@ class UserProvider extends BaseProvider
 		$recentUsers = new EO_User_Collection();
 
 		// Recent Items
-		$recentItems = $dialog->getRecentItems()->getEntityItems('user');
+		$recentItems = $dialog->getRecentItems()->getEntityItems(static::ENTITY_ID);
 		$recentIds = array_map('intval', array_keys($recentItems));
 		$this->fillRecentUsers($recentUsers, $recentIds, $preloadedUsers);
 
 		// Global Recent Items
-		if ($recentUsers->count() < $maxUsersInRecentTab)
+		if ($recentUsers->count() < self::MAX_USERS_IN_RECENT_TAB)
 		{
-			$recentGlobalItems = $dialog->getGlobalRecentItems()->getEntityItems('user');
+			$recentGlobalItems = $dialog->getGlobalRecentItems()->getEntityItems(static::ENTITY_ID);
 			$recentGlobalIds = [];
 
 			if (!empty($recentGlobalItems))
 			{
 				$recentGlobalIds = array_map('intval', array_keys($recentGlobalItems));
 				$recentGlobalIds = array_values(array_diff($recentGlobalIds, $recentUsers->getIdList()));
-				$recentGlobalIds = array_slice($recentGlobalIds, 0, $maxUsersInRecentTab - $recentUsers->count());
+				$recentGlobalIds = array_slice($recentGlobalIds, 0, self::MAX_USERS_IN_RECENT_TAB - $recentUsers->count());
 			}
 
 			$this->fillRecentUsers($recentUsers, $recentGlobalIds, $preloadedUsers);
@@ -272,6 +274,14 @@ class UserProvider extends BaseProvider
 				$dialog->setFooter('BX.SocialNetwork.EntitySelector.Footer', $footerOptions);
 			}
 		}
+	}
+
+	protected function getPreloadedUsersCollection(): EO_User_Collection
+	{
+		return $this->getUserCollection([
+			'order' => ['ID' => 'asc'],
+			'limit' => self::MAX_USERS_IN_RECENT_TAB
+		]);
 	}
 
 	private function fillRecentUsers(
@@ -352,7 +362,7 @@ class UserProvider extends BaseProvider
 	{
 		$options = array_merge($this->getOptions(), $options);
 
-		return self::getUsers($options);
+		return static::getUsers($options);
 	}
 
 	public function getUserItems(array $options = []): array
@@ -567,6 +577,16 @@ class UserProvider extends BaseProvider
 
 	public static function getUsers(array $options = []): EO_User_Collection
 	{
+		$query = static::getQuery($options);
+		//echo '<pre>'.$query->getQuery().'</pre>';
+
+		$result = $query->exec();
+
+		return $result->fetchCollection();
+	}
+
+	protected static function getQuery(array $options = []): Query
+	{
 		$selectFields = [
 			'ID', 'ACTIVE', 'LAST_NAME', 'NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL', 'TITLE',
 			'PERSONAL_GENDER', 'PERSONAL_PHOTO', 'WORK_POSITION',
@@ -634,9 +654,9 @@ class UserProvider extends BaseProvider
 		}
 
 		$currentUserId = (
-			!empty($options['currentUserId']) && is_int($options['currentUserId'])
-				? $options['currentUserId']
-				: $GLOBALS['USER']->getId()
+		!empty($options['currentUserId']) && is_int($options['currentUserId'])
+			? $options['currentUserId']
+			: $GLOBALS['USER']->getId()
 		);
 
 		$isIntranetUser = $intranetInstalled && self::isIntranetUser($currentUserId);
@@ -846,14 +866,10 @@ class UserProvider extends BaseProvider
 			$query->setLimit(100);
 		}
 
-		//echo '<pre>'.$query->getQuery().'</pre>';
-
-		$result = $query->exec();
-
-		return $result->fetchCollection();
+		return $query;
 	}
 
-	private static function getExtranetUsersQuery(int $currentUserId): ?Query
+	protected static function getExtranetUsersQuery(int $currentUserId): ?Query
 	{
 		$extranetSiteId = Option::get('extranet', 'extranet_site');
 		$extranetSiteId = ($extranetSiteId && ModuleManager::isModuleInstalled('extranet') ? $extranetSiteId : false);
@@ -893,7 +909,7 @@ class UserProvider extends BaseProvider
 	public static function getUser(int $userId, array $options = []): ?EO_User
 	{
 		$options['userId'] = $userId;
-		$users = self::getUsers($options);
+		$users = static::getUsers($options);
 
 		return $users->count() ? $users->getAll()[0] : null;
 	}
@@ -903,7 +919,7 @@ class UserProvider extends BaseProvider
 		$result = [];
 		foreach ($users as $user)
 		{
-			$result[] = self::makeItem($user, $options);
+			$result[] = static::makeItem($user, $options);
 		}
 
 		return $result;
@@ -974,11 +990,12 @@ class UserProvider extends BaseProvider
 
 		$item = new Item([
 			'id' => $user->getId(),
-			'entityId' => 'user',
+			'entityId' => static::ENTITY_ID,
 			'entityType' => $userType,
 			'title' => self::formatUserName($user, $options),
 			'avatar' => self::makeUserAvatar($user),
 			'customData' => $customData,
+			'tabs' => static::getTabsNames(),
 		]);
 
 		if (($userType === 'employee' || $userType === 'integrator') && Loader::includeModule('intranet'))
@@ -991,6 +1008,11 @@ class UserProvider extends BaseProvider
 		}
 
 		return $item;
+	}
+
+	protected static function getTabsNames(): array
+	{
+		return [static::ENTITY_ID];
 	}
 
 	public static function getUserType(EO_User $user): string

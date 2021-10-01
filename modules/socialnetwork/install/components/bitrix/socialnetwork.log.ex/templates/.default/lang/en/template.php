@@ -35,4 +35,3 @@ $MESS["SONET_C30_T_MORE_WAIT"] = "Loading...";
 $MESS["SONET_C30_T_RELOAD_NEEDED"] = "Reload the Activity Stream";
 $MESS["SONET_C30_T_RELOAD_NEEDED2"] = "Update the Feed";
 $MESS["SONET_C30_T_USER"] = "User";
-$MESS["SONET_ERROR_SESSION"] = "Your session has expired. Please post your comment again.";

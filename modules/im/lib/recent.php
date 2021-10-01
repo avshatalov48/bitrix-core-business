@@ -171,11 +171,12 @@ class Recent
 		}
 
 		$viewCommonUsers = (bool)\CIMSettings::GetSetting(\CIMSettings::SETTINGS, 'viewCommonUsers');
+		$withoutCommonUsers = !$viewCommonUsers || $options['ONLY_OPENLINES'] === 'Y';
 
 		$ormParams = self::getOrmParams([
 			'USER_ID' => $userId,
 			'IS_OPERATOR' => $isOperator,
-			'WITHOUT_COMMON_USERS' => !$viewCommonUsers || $options['ONLY_OPENLINES'] === 'Y'
+			'WITHOUT_COMMON_USERS' => $withoutCommonUsers,
 		]);
 
 		if ($options['ONLY_OPENLINES'] === 'Y')
@@ -262,6 +263,7 @@ class Recent
 			$item = self::formatRow($row, [
 				'GENERAL_CHAT_ID' => $generalChatId,
 				'IS_OPERATOR' => $isOperator,
+				'WITHOUT_COMMON_USERS' => $withoutCommonUsers,
 			]);
 			if (!$item)
 			{
@@ -491,6 +493,7 @@ class Recent
 	{
 		$generalChatId = (int)$options['GENERAL_CHAT_ID'];
 		$isOperator = (bool)$options['IS_OPERATOR'];
+		$withoutCommonUsers = $options['WITHOUT_COMMON_USERS'] === true;
 
 		$isUser = $row['ITEM_TYPE'] == IM_MESSAGE_PRIVATE;
 		$isNotification = $row['ITEM_TYPE'] == IM_MESSAGE_SYSTEM;
@@ -501,13 +504,9 @@ class Recent
 			return null;
 		}
 
-		$item = [
-			'ID' => $id,
-			'CHAT_ID' => (int)$row['CHAT_ID'],
-			'TYPE' => $isUser ? 'user' : ($isNotification ? 'notification' : 'chat'),
-			'AVATAR' => [],
-			'TITLE' => [],
-			'MESSAGE' => [
+		if ($row['ITEM_MID'] > 0)
+		{
+			$message = [
 				'ID' => (int)$row['ITEM_MID'],
 				'TEXT' => str_replace(
 					"\n",
@@ -523,7 +522,28 @@ class Recent
 				'ATTACH' => $row['MESSAGE_ATTACH'] > 0,
 				'DATE' => $row['MESSAGE_DATE'] > 0? $row['MESSAGE_DATE']: $row['DATE_UPDATE'],
 				'STATUS' => $row['CHAT_LAST_MESSAGE_STATUS'],
-			],
+			];
+		}
+		else
+		{
+			$message = [
+				'ID' => 0,
+				'TEXT' => "",
+				'FILE' => false,
+				'AUTHOR_ID' =>  0,
+				'ATTACH' => false,
+				'DATE' => $row['MESSAGE_DATE'] > 0? $row['MESSAGE_DATE']: $row['DATE_UPDATE'],
+				'STATUS' => $row['CHAT_LAST_MESSAGE_STATUS'],
+			];
+		}
+
+		$item = [
+			'ID' => $id,
+			'CHAT_ID' => (int)$row['CHAT_ID'],
+			'TYPE' => $isUser ? 'user' : ($isNotification ? 'notification' : 'chat'),
+			'AVATAR' => [],
+			'TITLE' => [],
+			'MESSAGE' => $message,
 			'COUNTER' => (int)$row['COUNTER'],
 			'PINNED' => $row['PINNED'] === 'Y',
 			'UNREAD' => $row['UNREAD'] === 'Y',
@@ -532,6 +552,14 @@ class Recent
 
 		if ($isUser)
 		{
+			if (
+				$withoutCommonUsers
+				&& ($row['USER_ID'] == 0 || $row['MESSAGE_CODE'] === 'USER_JOIN')
+			)
+			{
+				return null;
+			}
+
 			if (!$row['USER_LAST_ACTIVITY_DATE'] && $row['INVITATION_ORIGINATOR_ID'])
 			{
 				$item['INVITED'] = [
@@ -664,11 +692,6 @@ class Recent
 			}
 
 			$item['USER'] = $user;
-
-			if ($item['MESSAGE']['ID'] == 0)
-			{
-				$item['MESSAGE']['TEXT'] = $user['WORK_POSITION'];
-			}
 		}
 
 		$item['OPTIONS'] = [];

@@ -205,7 +205,7 @@ class CSocServApple extends CSocServAuth
 		$url = ($APPLICATION->GetCurDir() == "/login/") ? "" : $APPLICATION->GetCurDir();
 		$aRemove = array("logout", "auth_service_error", "auth_service_id", "code", "error_reason", "error", "error_description", "check_key", "current_fieldset");
 
-		if (isset($_REQUEST["state"]))
+		if (isset($_REQUEST["state"]) && $bSuccess)
 		{
 			$arState = array();
 			parse_str(html_entity_decode($_REQUEST["state"]), $arState);

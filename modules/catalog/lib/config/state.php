@@ -9,6 +9,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
 use Bitrix\Catalog;
 use Bitrix\Landing;
+use Bitrix\Crm;
 
 /**
  * Class State
@@ -28,6 +29,8 @@ final class State
 	private static $elementCount;
 	/** @var array */
 	private static $iblockList = [];
+	/** @var bool */
+	private static $crmIncluded;
 
 	/**
 	 * Returns true if warehouse inventory management is allowed and enabled.
@@ -108,9 +111,10 @@ final class State
 	 * Returns information about exceeding the number of goods in the landing for the information block.
 	 *
 	 * @param int $iblockId		Iblock Id.
+	 * @param int|null $sectionId Current section (can be absent).
 	 * @return array|null
 	 */
-	public static function getExceedingProductLimit(int $iblockId): ?array
+	public static function getExceedingProductLimit(int $iblockId, ?int $sectionId = null): ?array
 	{
 		if ($iblockId <= 0)
 		{
@@ -127,7 +131,37 @@ final class State
 			return null;
 		}
 
-		return self::checkIblockLimit($iblockId);
+		$result = self::checkIblockLimit($iblockId);
+		if ($result !== null && $sectionId !== null)
+		{
+			self::loadIblockSections($iblockId);
+			if (!isset(self::$fullIblockSections[$sectionId]))
+			{
+				$result = null;
+			}
+		}
+		if ($result === null)
+		{
+			$result = self::getCrmCatalogLimit($iblockId);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Returns information about exceeding the number of goods for crm catalog.
+	 *
+	 * @return array|null
+	 */
+	public static function getCrmExceedingProductLimit(): ?array
+	{
+		$crmCatalogId = self::getCrmCatalogId();
+		if ($crmCatalogId > 0)
+		{
+			return self::getExceedingProductLimit($crmCatalogId);
+		}
+
+		return null;
 	}
 
 	/**
@@ -167,7 +201,7 @@ final class State
 		}
 		unset($sections);
 
-		self::setProductLimitError($limit);
+		self::setProductLimitError($limit['MESSAGE']);
 		unset($limit);
 
 		return false;
@@ -259,7 +293,7 @@ final class State
 			return true;
 		}
 
-		self::setProductLimitError($limit);
+		self::setProductLimitError($limit['MESSAGE']);
 		unset($limit);
 
 		return false;
@@ -383,16 +417,15 @@ final class State
 		{
 			return true;
 		}
-
-		$limit = self::getIblockLimit((int)$fields['IBLOCK_ID']);
-		if (($count + $limit['COUNT']) <= $limit['LIMIT'])
+		$limit['COUNT'] += $count;
+		if ($limit['COUNT'] <= $limit['LIMIT'])
 		{
 			return true;
 		}
 
-		$limit['COUNT'] += $count;
+		$limit['MESSAGE_ID'] = 'CATALOG_STATE_ERR_PRODUCT_IN_SECTION_LIMIT';
 
-		self::setProductLimitError($limit, 'CATALOG_STATE_ERR_PRODUCT_IN_SECTION_LIMIT');
+		self::setProductLimitError(self::getProductLimitError($limit));
 		unset($limit);
 
 		return false;
@@ -587,20 +620,46 @@ final class State
 	}
 
 	/**
-	 * @return int
+	 * Returns crm catalog id, if exists.
+	 *
+	 * @return int|null
 	 */
-	private static function getCrmCatalogId(): int
+	private static function getCrmCatalogId(): ?int
 	{
-		$result = 0;
-		if (Loader::includeModule('crm'))
+		$result = null;
+		if (self::$crmIncluded === null)
 		{
-			$result = \CCrmCatalog::GetDefaultID();
+			self::$crmIncluded = Loader::includeModule('crm');
+		}
+		if (self::$crmIncluded)
+		{
+			$result = Crm\Product\Catalog::getDefaultId();
 		}
 
 		return $result;
 	}
 
 	/**
+	 * @param int $iblockId
+	 * @return array|null
+	 */
+	private static function getCrmCatalogLimit(int $iblockId): ?array
+	{
+		if (self::$crmIncluded === null)
+		{
+			self::$crmIncluded = Loader::includeModule('crm');
+		}
+		if (!self::$crmIncluded)
+		{
+			return null;
+		}
+
+		return Crm\Config\State::getExceedingProductLimit($iblockId);
+	}
+
+	/**
+	 * Check crm catalog id.
+	 *
 	 * @param array $fields
 	 * @return bool
 	 */
@@ -633,10 +692,17 @@ final class State
 	}
 
 	/**
-	 * Returns products limit.
+	 * Check products limit.
 	 *
 	 * @param int $iblockId
 	 * @return array|null
+	 * 	keys are case sensitive:
+	 * 		<ul>
+	 * 		<li>int COUNT
+	 * 		<li>int LIMIT
+	 * 		<li>array|null HELP_ACTION
+	 * 		<li>string MESSAGE
+	 * 		</ul>
 	 */
 	private static function checkIblockLimit(int $iblockId): ?array
 	{
@@ -648,24 +714,31 @@ final class State
 		{
 			return null;
 		}
+		$result['MESSAGE'] = self::getProductLimitError($result);
+		unset($result['MESSAGE_ID']);
+		$result['HELP_MESSAGE'] = Feature::getProductLimitHelpLink();
 
 		return $result;
 	}
 
 	/**
+	 * Returns products limit.
+	 *
 	 * @param int $iblockId
 	 * @return array
 	 * 	keys are case sensitive:
-	 *		<ul>
-	 *		<li>int COUNT
+	 * 		<ul>
+	 * 		<li>int COUNT
 	 * 		<li>int LIMIT
-	 *		</ul>
+	 * 		<li>string MESSAGE_ID
+	 * 		</ul>
 	 */
 	private static function getIblockLimit(int $iblockId): array
 	{
 		$result = [
 			'COUNT' => 0,
 			'LIMIT' => (int)Main\Config\Option::get('catalog', 'landing_product_limit'),
+			'MESSAGE_ID' => 'CATALOG_STATE_ERR_PRODUCT_LIMIT'
 		];
 		if ($result['LIMIT'] === 0)
 		{
@@ -677,36 +750,43 @@ final class State
 	}
 
 	/**
-	 * Send error.
+	 * Returns message with error description.
 	 *
 	 * @param array $limit
-	 * @param string $messageId
+	 * @return string|null
+	 */
+	private static function getProductLimitError(array $limit): ?string
+	{
+		if (!isset($limit['COUNT']) || !isset($limit['LIMIT']) || !isset($limit['MESSAGE_ID']))
+		{
+			return null;
+		}
+
+		return Loc::getMessage(
+			$limit['MESSAGE_ID'],
+			[
+				'#COUNT#' => $limit['COUNT'],
+				'#LIMIT#' => $limit['LIMIT']
+			]
+		);
+	}
+
+	/**
+	 * Send error.
+	 *
+	 * @param string $errorMessage
 	 * @return void
 	 */
-	private static function setProductLimitError(array $limit, string $messageId = ''): void
+	private static function setProductLimitError(string $errorMessage): void
 	{
 		global $APPLICATION;
 
-		if ($messageId === '')
-		{
-			$messageId = 'CATALOG_STATE_ERR_PRODUCT_LIMIT';
-		}
-
-		$oldMessages = [
+		$error = new \CAdminException([
 			[
-				'text' => Loc::getMessage(
-					$messageId,
-					[
-						'#COUNT#' => $limit['COUNT'],
-						'#LIMIT#' => $limit['LIMIT']
-					]
-				)
+				'text' => $errorMessage,
 			]
-		];
-
-		$error = new \CAdminException($oldMessages);
+		]);
 		$APPLICATION->ThrowException($error);
-		unset($error, $oldMessages);
 	}
 
 	/**

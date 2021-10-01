@@ -33,10 +33,6 @@ final class JournalProcessor
 	/**
 	 * @param int $serviceId
 	 * @return string|null
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function processJournal(int $serviceId)
 	{
@@ -60,7 +56,7 @@ final class JournalProcessor
 
 		if ($readResult->isSuccess())
 		{
-			$instance->eventProcessor->process($readResult->getEvents());
+			$instance->eventProcessor->process($serviceId, $readResult->getEvents());
 
 			return $instance->hasMore() === false ? null : $agent;
 		}
@@ -79,15 +75,12 @@ final class JournalProcessor
 
 	/**
 	 * @return bool
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	private function hasMore()
 	{
 		$notFinalizedClaim = ClaimsTable::getList(
 			[
-				'filter' => ['FURTHER_CHANGES_EXPECTED' => 'Y'],
+				'filter' => ['=FURTHER_CHANGES_EXPECTED' => 'Y'],
 				'limit' => 1,
 			]
 		)->fetch();

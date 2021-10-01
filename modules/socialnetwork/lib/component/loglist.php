@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Component;
 
 use Bitrix\Main\ErrorCollection;
@@ -358,7 +359,7 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 		$this->getGratitudesInstance()->prepareGratPostFilter($result);
 
 		$result['isExtranetSite'] = $this->getExtranetSiteValue();
-		$result['SHOW_FOLLOW_CONTROL'] = $this->arParams['USE_FOLLOW'];
+		$result['SHOW_FOLLOW_CONTROL'] = 'Y';
 		$result['CAN_DELETE'] = \CSocNetUser::isCurrentUserModuleAdmin(SITE_ID, false);
 		$result['ENTITIES_CORRESPONDENCE'] = [];
 
@@ -378,10 +379,10 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 		$result['bReload'] = (
 			$result['AJAX_CALL']
 			&& (
-				$request->get('RELOAD') == 'Y'
+				$request->get('RELOAD') === 'Y'
 				|| (
 					isset($this->arParams['RELOAD'])
-					&& $this->arParams['RELOAD'] == 'Y'
+					&& $this->arParams['RELOAD'] === 'Y'
 				)
 			)
 		);
@@ -405,14 +406,15 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 
 		if (
 			Util::checkUserAuthorized()
-			|| $this->arParams['AUTH'] == 'Y'
+			|| $this->arParams['AUTH'] === 'Y'
 		)
 		{
 			$result['IS_FILTERED'] = false;
 
-
 			$processorInstance->prepareContextData($result);
-			$this->setTitle();
+			$this->setTitle([
+				'GROUP' => ($result['Group'] ?? []),
+			]);
 
 			$result['Events'] = false;
 
@@ -817,4 +819,3 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 		return LogList\Gratitude::getGratitudesBlogData($params);
 	}
 }
-?>

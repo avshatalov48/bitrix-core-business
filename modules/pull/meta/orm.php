@@ -176,18 +176,6 @@ namespace Bitrix\Pull\Model {
 }
 namespace Bitrix\Pull\Model {
 	/**
-	 * @method static EO_Channel_Query query()
-	 * @method static EO_Channel_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Channel_Result getById($id)
-	 * @method static EO_Channel_Result getList(array $parameters = array())
-	 * @method static EO_Channel_Entity getEntity()
-	 * @method static \Bitrix\Pull\Model\EO_Channel createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Pull\Model\EO_Channel_Collection createCollection()
-	 * @method static \Bitrix\Pull\Model\EO_Channel wakeUpObject($row)
-	 * @method static \Bitrix\Pull\Model\EO_Channel_Collection wakeUpCollection($rows)
-	 */
-	class ChannelTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -213,7 +201,7 @@ namespace Bitrix\Pull\Model {
 	 */
 	class EO_Channel_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Pull\Model\PushTable:pull/lib/model/push.php:e1b13ec28b1e4de1744f57180f46c8cb */
+/* ORMENTITYANNOTATION:Bitrix\Pull\Model\PushTable:pull/lib/model/push.php:53f33844b4a0f9f234fa112dd4052482 */
 namespace Bitrix\Pull\Model {
 	/**
 	 * EO_Push
@@ -449,18 +437,6 @@ namespace Bitrix\Pull\Model {
 }
 namespace Bitrix\Pull\Model {
 	/**
-	 * @method static EO_Push_Query query()
-	 * @method static EO_Push_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Push_Result getById($id)
-	 * @method static EO_Push_Result getList(array $parameters = array())
-	 * @method static EO_Push_Entity getEntity()
-	 * @method static \Bitrix\Pull\Model\EO_Push createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Pull\Model\EO_Push_Collection createCollection()
-	 * @method static \Bitrix\Pull\Model\EO_Push wakeUpObject($row)
-	 * @method static \Bitrix\Pull\Model\EO_Push_Collection wakeUpCollection($rows)
-	 */
-	class PushTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -624,18 +600,6 @@ namespace Bitrix\Pull\Model {
 	}
 }
 namespace Bitrix\Pull\Model {
-	/**
-	 * @method static EO_Watch_Query query()
-	 * @method static EO_Watch_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Watch_Result getById($id)
-	 * @method static EO_Watch_Result getList(array $parameters = array())
-	 * @method static EO_Watch_Entity getEntity()
-	 * @method static \Bitrix\Pull\Model\EO_Watch createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Pull\Model\EO_Watch_Collection createCollection()
-	 * @method static \Bitrix\Pull\Model\EO_Watch wakeUpObject($row)
-	 * @method static \Bitrix\Pull\Model\EO_Watch_Collection wakeUpCollection($rows)
-	 */
-	class WatchTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

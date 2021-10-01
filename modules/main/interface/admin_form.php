@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Main;
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -31,9 +34,14 @@ class CAdminForm extends CAdminTabControl
 
 	var $bShowSettings = true;
 
+	/** @var \Bitrix\Main\Session\SessionInterface */
+	protected $session;
+
 	public function __construct($name, $tabs, $bCanExpand = true, $bDenyAutosave = false)
 	{
 		parent::__construct($name, $tabs, $bCanExpand, $bDenyAutosave);
+		$this->session = Main\Application::getInstance()->getSession();
+
 		$this->tabIndex = 0;
 		foreach($this->tabs as $i => $arTab)
 			$this->tabs[$i]["FIELDS"] = array();
@@ -165,9 +173,13 @@ class CAdminForm extends CAdminTabControl
 					"GLOBAL_ICON"=>"adm-menu-setting"
 				);
 
+				$nameExists = isset($this->session["ADMIN_CUSTOM_FIELDS"])
+					&& is_array($this->session["ADMIN_CUSTOM_FIELDS"])
+					&& array_key_exists($this->name, $this->session["ADMIN_CUSTOM_FIELDS"])
+				;
 				if($this->bCustomFields)
 				{
-					if(is_array(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"]) && array_key_exists($this->name, \Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"]))
+					if ($nameExists)
 					{
 						$aAdditionalMenu[] = array(
 							"TEXT" => GetMessage("admin_lib_sett_sett_enable_text"),
@@ -191,9 +203,7 @@ class CAdminForm extends CAdminTabControl
 				if (count($aAdditionalMenu) > 1)
 				{
 					$sMenuUrl = "BX.adminShowMenu(this, ".htmlspecialcharsbx(CAdminPopup::PhpToJavaScript($aAdditionalMenu)).", {active_class: 'bx-settings-btn-active'});";
-					$bCustomFieldsOff = is_array(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"]) && array_key_exists($this->name, \Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"]);
-
-					$s .= '<span id="'.$this->name.'_settings_btn" class="adm-detail-settings adm-detail-settings-arrow'.($bCustomFieldsOff ? '' : ' adm-detail-settings-active').'" onclick="'.$sMenuUrl.'"></span>';
+					$s .= '<span id="'.$this->name.'_settings_btn" class="adm-detail-settings adm-detail-settings-arrow'.($nameExists ? '' : ' adm-detail-settings-active').'" onclick="'.$sMenuUrl.'"></span>';
 				}
 				else
 				{
@@ -362,7 +372,7 @@ class CAdminForm extends CAdminTabControl
 		if($_REQUEST["mode"] == "settings")
 		{
 			ob_end_clean();
-			$this->ShowSettings($this->arFields);
+			$this->ShowSettings();
 			die();
 		}
 		else
@@ -370,18 +380,23 @@ class CAdminForm extends CAdminTabControl
 			ob_end_flush();
 		}
 
-		if(!is_array(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"]))
-			\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"] = array();
+		if (
+			!isset($this->session["ADMIN_CUSTOM_FIELDS"])
+			|| !is_array($this->session["ADMIN_CUSTOM_FIELDS"])
+		)
+		{
+			$this->session["ADMIN_CUSTOM_FIELDS"] = [];
+		}
 		$arDisabled = CUserOptions::GetOption("form", $this->name."_disabled", "N");
 		if(is_array($arDisabled) && $arDisabled["disabled"] === "Y")
 		{
-			\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"][$this->name] = true;
+			$this->session["ADMIN_CUSTOM_FIELDS"][$this->name] = true;
 			$this->tabs = $this->arSavedTabs;
 			$this->arFields = $this->arSystemFields;
 		}
 		else
 		{
-			unset(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"][$this->name]);
+			unset($this->session["ADMIN_CUSTOM_FIELDS"][$this->name]);
 		}
 
 		if(isset($_REQUEST[$this->name."_active_tab"]))

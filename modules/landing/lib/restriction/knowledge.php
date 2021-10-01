@@ -53,4 +53,18 @@ class Knowledge
 
 		return true;
 	}
+
+	/**
+	 * Checks restriction for Knowledge in Group / Project.
+	 * @return bool
+	 */
+	public static function isAllowedInGroup(): bool
+	{
+		if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+		{
+			return Feature::isFeatureEnabled('landing_knowledge_group');
+		}
+
+		return true;
+	}
 }

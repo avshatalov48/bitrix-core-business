@@ -10,6 +10,22 @@ namespace Bitrix\Main\Mail\Internal;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class EventAttachmentTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_EventAttachment_Query query()
+ * @method static EO_EventAttachment_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EventAttachment_Result getById($id)
+ * @method static EO_EventAttachment_Result getList(array $parameters = array())
+ * @method static EO_EventAttachment_Entity getEntity()
+ * @method static \Bitrix\Main\Mail\Internal\EO_EventAttachment createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Mail\Internal\EO_EventAttachment_Collection createCollection()
+ * @method static \Bitrix\Main\Mail\Internal\EO_EventAttachment wakeUpObject($row)
+ * @method static \Bitrix\Main\Mail\Internal\EO_EventAttachment_Collection wakeUpCollection($rows)
+ */
 class EventAttachmentTable extends Entity\DataManager
 {
 

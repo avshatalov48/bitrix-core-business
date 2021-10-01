@@ -10,6 +10,7 @@ namespace Bitrix\Sender\Posting;
 use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Connector;
+use Bitrix\Sender\Consent\Consent;
 use Bitrix\Sender\ContactTable;
 use Bitrix\Sender\Entity;
 use Bitrix\Sender\GroupTable;
@@ -53,7 +54,7 @@ class Builder
 	 * @var bool $result
 	 */
 	private $result;
-	
+
 	/**
 	 * @var GroupQueueServiceInterface $groupQueueService
 	 */
@@ -133,13 +134,13 @@ class Builder
 		{
 			return true;
 		}
-		
+
 		if ($postingData['MAILING_STATUS'] === Model\LetterTable::STATUS_END)
 		{
 			Model\LetterTable::update($postingData['MAILING_CHAIN_ID'], [
 				'WAITING_RECIPIENT' => 'N'
 			]);
-			
+
 			return true;
 		}
 
@@ -200,7 +201,7 @@ class Builder
 				{
 					continue;
 				}
-		
+
 				$this->typeId = $typeId;
 				$this->runForRecipientType($personalizeFields, $groups);
 			}
@@ -208,8 +209,8 @@ class Builder
 		{
 			return false;
 		}
-		
-		
+
+
 		Model\PostingTable::update(
 			$postingId,
 			array(
@@ -223,7 +224,7 @@ class Builder
 			if ($group['GROUP_ID'] && !isset($usedGroups[$group['GROUP_ID']]))
 			{
 				RecipientBuilderJob::removeAgentFromDB($this->postingId);
-				
+
 				$this->groupQueueService->releaseGroup(
 					Model\GroupQueueTable::TYPE['POSTING'],
 					$this->postingId,
@@ -232,7 +233,7 @@ class Builder
 				$usedGroups[$group['GROUP_ID']] = $group['GROUP_ID'];
 			}
 		}
-		
+
 		$this->postingData['WAITING_RECIPIENT'] = 'N';
 		Model\LetterTable::update($this->postingData['MAILING_CHAIN_ID'], [
 			'WAITING_RECIPIENT' => $this->postingData['WAITING_RECIPIENT']
@@ -467,7 +468,7 @@ class Builder
 		$primariesString = SqlBatch::getInString($codes);
 
 		$recipientDb = $connection->query(
-			"select c.ID, c.NAME, c.CODE, c.BLACKLISTED, s.IS_UNSUB " .
+			"select c.ID, c.NAME, c.CODE, c.BLACKLISTED, c.CONSENT_STATUS, c.CONSENT_REQUEST, s.IS_UNSUB " .
 			"from $tableName c " .
 			"left join $subsTableName s on " .
 				"c.ID = s.CONTACT_ID " .
@@ -478,7 +479,17 @@ class Builder
 		{
 			$existed[] = $row['CODE'];
 
-			if ($row['BLACKLISTED'] === 'Y' || $row['IS_UNSUB'] === 'Y')
+			if ($row['BLACKLISTED'] === 'Y' ||
+				$row['IS_UNSUB'] === 'Y' ||
+				(
+					$this->needConsent &&
+					Consent::isUnsub(
+						$row['CONSENT_STATUS'],
+						$row['CONSENT_REQUEST'],
+						$this->message->getTransport()->getCode()
+					)
+				)
+			)
 			{
 				unset($dataList[$row['CODE']]);
 				continue;

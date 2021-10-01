@@ -275,37 +275,6 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 				$count = $this->getPageSize();
 				$this->items = \Bitrix\Rest\Marketplace\Client::getByTag($tag, $this->curPage, $count);
 			}
-
-			//tmp
-			if(empty($this->items['ITEMS']) && in_array('configuration', $tag))
-			{
-				if(Loader::includeModule('bitrix24') && CBitrix24::getLicensePrefix() === 'ru')
-				{
-					$filterQuery = [
-						'category' => 'vertical_solutions'
-					];
-					$this->items = \Bitrix\Rest\Marketplace\Client::filterApp($filterQuery, $this->curPage);
-					if(!empty($this->items['ITEMS']))
-					{
-						$this->items['ITEMS'] = array_slice($this->items['ITEMS'], 0, $count);
-					}
-				}
-				else
-				{
-					$tag = [ 'crm' ];
-					$this->items = \Bitrix\Rest\Marketplace\Client::getLastByTag($tag, $this->curPage, $count);
-				}
-				$this->items['PAGES'] = 0;
-
-				if(is_array($this->items['ITEMS']))
-				{
-					$this->arResult['SHOW_COMING_SOON'] = 'Y';
-					foreach ($this->items['ITEMS'] as $key => $item)
-					{
-						$this->items['ITEMS'][$key]['INFO_HELPER_CODE'] = 'extensions_coming_soon';
-					}
-				}
-			}
 		}
 	}
 

@@ -938,23 +938,6 @@
 			}
 		);
 
-		var toolbarButton = BX.findChildByClassName(field.params.__row, 'feed-add-post-form-editor-btn', true);
-
-		var toogleToolbar = function(show)
-		{
-			show = show ? true : false;
-
-			editor.toolbar[show?'Show':'Hide']();
-			BX[show?'addClass':'removeClass'](toolbarButton, 'feed-add-post-form-btn-active');
-			BX[show?'removeClass':'addClass'](field.params.__row, 'main-mail-form-editor-no-toolbar');
-		};
-
-		toogleToolbar(editor.toolbar.shown);
-		BX.bind(toolbarButton, 'click', function()
-		{
-			toogleToolbar(!editor.toolbar.shown);
-		});
-
 		// append original message quote
 		var quoteButton = BX.findChildByClassName(field.form.htmlForm, 'main-mail-form-quote-button', true);
 		var quoteHandler = function()
@@ -966,13 +949,7 @@
 				field.setValue(editor.GetContent(), {quote: true, signature: false});
 				editor.Focus(false);
 
-				var height0, height1;
-
-				height0 = quoteButton.parentNode.offsetHeight;
-				BX.hide(quoteButton, 'inline-block');
-				height1 = quoteButton.parentNode.offsetHeight;
-
-				editor.ResizeSceleton(0, editor.config.height+height0-height1);
+				BX.hide(quoteButton.parentNode.parentNode || quoteButton.parentNode)
 			}
 		};
 		BX.bind(quoteButton, 'click', quoteHandler);
@@ -989,12 +966,17 @@
 		BX.addCustomEvent(editor, 'OnSetViewAfter', modeHandler);
 
 		// wysiwyg -> code inline-attachments parser
-		postForm.parser.disk_file.regexp = /(bxacid):(n?\d+)/ig;
-		editor.phpParser.AddBxNode('disk_file', {
+		if (postForm.parser)
+		{
+			postForm.parser.disk_file.regexp = /(bxacid):(n?\d+)/ig;
+		}
+		editor.phpParser.AddBxNode('diskfile0', {
 			Parse: function (params, bxid)
 			{
 				var node = editor.GetIframeDoc().getElementById(bxid) || BX.findChild(field.quoteNode, {attr: {id: bxid}}, true);
-				if (node)
+				var params = editor.GetBxTag(bxid);
+
+				if (node && params)
 				{
 					var dummy = document.createElement('DIV');
 
@@ -1008,7 +990,7 @@
 						node.setAttribute('data-bx-orig-src', node.getAttribute('src'));
 						node.setAttribute('src', image);
 
-						return dummy.innerHTML.replace(image, 'bxacid:'+params.value);
+						return dummy.innerHTML.replace(image, 'bxacid:'+params.fileId);
 					}
 
 					return dummy.innerHTML;
@@ -1027,7 +1009,7 @@
 
 				for (i in editor.bxTags)
 				{
-					if (editor.bxTags[i].params && editor.bxTags[i].params.value == result)
+					if (editor.bxTags[i].fileId && editor.bxTags[i].fileId == result)
 					{
 						var node = editor.GetIframeDoc().getElementById(editor.bxTags[i].id);
 						if (node && node.parentNode)
@@ -1254,7 +1236,7 @@
 				var matches = nodeList[i].getAttribute(types[name])
 					? nodeList[i].getAttribute(types[name]).match(regex)
 					: false;
-				if (matches && postForm.arFiles['disk_file'+matches[1]])
+				if (matches)
 				{
 					nodeList[i].removeAttribute('id');
 					nodeList[i].setAttribute(
@@ -1262,10 +1244,7 @@
 						nodeList[i].getAttribute(types[name]).replace(regex, '')
 					);
 
-					editor.SetBxTag(nodeList[i], {'tag': 'disk_file', params: {'value': matches[1]}});
-
-					postForm.monitoringSetStatus('disk_file', matches[1], true);
-					postForm.monitoringStart();
+					editor.SetBxTag(nodeList[i], {'tag': 'diskfile0', fileId: matches[1]});
 				}
 			}
 		}

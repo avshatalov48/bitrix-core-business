@@ -1,10 +1,10 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Config\Option;
 
 Loc::loadMessages(__FILE__);
 
@@ -295,8 +295,8 @@ class BlogPost extends Provider
 
 class BlogPostService
 {
-	public function getPathToPost()
+	public function getPathToPost(): string
 	{
-		return Option::get('socialnetwork', 'userblogpost_page', '', SITE_ID);
+		return \Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page');
 	}
 }

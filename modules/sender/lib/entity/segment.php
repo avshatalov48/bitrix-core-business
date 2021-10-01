@@ -134,6 +134,11 @@ class Segment extends Base
 		$endpoints = $data['ENDPOINTS'];
 		unset($data['ENDPOINTS']);
 
+		if (!$id)
+		{
+			$data['STATUS'] = GroupTable::STATUS_DONE;
+		}
+
 		$id = $this->saveByEntity(GroupTable::getEntity(), $id, $data);
 		if ($this->hasErrors())
 		{

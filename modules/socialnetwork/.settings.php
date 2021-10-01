@@ -28,6 +28,13 @@ return [
 					],
 				],
 				[
+					'entityId' => 'fired-user',
+					'provider' => [
+						'moduleId' => 'socialnetwork',
+						'className' => '\\Bitrix\\Socialnetwork\\Integration\\UI\\EntitySelector\\FiredUserProvider'
+					],
+				],
+				[
 					'entityId' => 'project',
 					'provider' => [
 						'moduleId' => 'socialnetwork',

@@ -83,6 +83,11 @@ class OrderBasket
 		}
 	}
 
+	public function setSettingsShowPropsVisible(bool $isVisible): void
+	{
+		$this->settingsDialog->setShowPropsVisible($isVisible);
+	}
+
 	/**
 	 * @param bool|false $defTails
 	 * @return string
@@ -454,6 +459,8 @@ class OrderBasket
 		}
 		else
 		{
+			$showProps = OrderBasketSettings::loadIsShowPropsVisible();
+
 			$result .= '
 				BX.ready(function(){
 					var obParams = {
@@ -467,6 +474,7 @@ class OrderBasket
 						discounts: '.\CUtil::phpToJSObject(OrderEdit::getOrderedDiscounts($this->order, false)).',
 						createBasketBottom: true,
 						mode: "view",
+						showProps: '.($showProps ? 'true' : 'false').',
 						formatQuantity: "'.Option::get('sale', 'format_quantity', 'AUTO').'",
 						weightUnit: "'.$this->weightUnit.'",
 						'.$this->getTotalBlockFieldsJs($totalPrices, array("WEIGHT" => $weight)).'

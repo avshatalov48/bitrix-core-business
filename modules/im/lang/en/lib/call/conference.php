@@ -8,6 +8,7 @@ $MESS["IM_CALL_CONFERENCE_ERROR_INVITATION_TYPE"] = "Incorrect invitation";
 $MESS["IM_CALL_CONFERENCE_ERROR_MAX_USERS"] = "Maximum participants exceeded";
 $MESS["IM_CALL_CONFERENCE_ERROR_NO_PRESENTERS"] = "Speakers list cannot be empty";
 $MESS["IM_CALL_CONFERENCE_ERROR_PASSWORD_LENGTH"] = "Video conference password must be two characters or longer";
+$MESS["IM_CALL_CONFERENCE_ERROR_PASSWORD_LENGTH_NEW"] = "Conference password must include three or more characters";
 $MESS["IM_CALL_CONFERENCE_ERROR_PASSWORD_TYPE"] = "Incorrect video conference password";
 $MESS["IM_CALL_CONFERENCE_ERROR_RENAMING_CHAT"] = "Error renaming chat";
 $MESS["IM_CALL_CONFERENCE_ERROR_TITLE_LENGTH"] = "Video conference name must be two characters or longer";

@@ -15,11 +15,16 @@ class ListsSelectElementComponent extends CBitrixComponent
 			$arParams['ERROR'][] = Loc::getMessage('CC_BLL_MODULE_NOT_INSTALLED');
 			return $arParams;
 		}
-		if(!Loader::includeModule('bizproc') || !CBPRuntime::isFeatureEnabled())
+
+		$arParams['IBLOCK_TYPE_ID'] = COption::GetOptionString("lists", "livefeed_iblock_type_id");
+
+		if (!Loader::includeModule('bizproc') || !CLists::isBpFeatureEnabled($arParams["IBLOCK_TYPE_ID"]))
 		{
 			$arParams['ERROR'][] = Loc::getMessage('CC_BLL_BIZPROC_MODULE_NOT_INSTALLED');
+
 			return $arParams;
 		}
+
 		global $USER;
 		$arParams['LIST_PERM'] = CListPermissions::CheckAccess(
 			$USER,
@@ -48,8 +53,6 @@ class ListsSelectElementComponent extends CBitrixComponent
 		{
 			$arParams['ERROR'][] = Loc::getMessage("CC_BLL_ACCESS_DENIED");
 		}
-
-		$arParams['IBLOCK_TYPE_ID'] = COption::GetOptionString("lists", "livefeed_iblock_type_id");
 
 		return $arParams;
 	}

@@ -361,6 +361,8 @@
 	      setTimeout(function () {
 	        _this5.saveButton.setWaiting(false);
 
+	        main_core.Dom.removeClass(_this5.saveButton.getContainer(), 'ui-btn-wait');
+
 	        if (_this5.deleteButton) {
 	          _this5.deleteButton.setWaiting(false);
 

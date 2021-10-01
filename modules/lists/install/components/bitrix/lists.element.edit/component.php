@@ -171,7 +171,11 @@ if ($ELEMENT_ID)
 else
 	$arResult["FORM_ID"] = "lists_element_add_".$arResult["IBLOCK_ID"];
 
-$bBizproc = CModule::IncludeModule("bizproc") && CBPRuntime::isFeatureEnabled() && ($arIBlock["BIZPROC"] != "N");
+$bBizproc = (
+	CModule::IncludeModule("bizproc")
+	&& CLists::isBpFeatureEnabled($arParams["IBLOCK_TYPE_ID"])
+	&& ($arIBlock["BIZPROC"] != "N")
+);
 
 $arResult["~LISTS_URL"] = str_replace(
 	array("#group_id#"),
@@ -873,8 +877,10 @@ if(
 							$arErrorTmp
 						);
 
-						foreach ($arErrorsTmp as $e)
-							$strWarning .= $e["message"]."<br />";
+						foreach ($arErrorTmp as $e)
+						{
+							$strError .= $e["message"]."<br />";
+						}
 					}
 				}
 			}

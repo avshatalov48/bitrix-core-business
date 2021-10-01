@@ -208,11 +208,23 @@
 	      }
 
 	      var message = this.message.textConverted;
+	      var replacement = [];
+	      message = message.replace(/<!--IM_COMMAND_START-->([\0-\uFFFF]+?)<!--IM_COMMAND_END-->/ig, function (whole, text) {
+	        var id = replacement.length;
+	        replacement.push(text);
+	        return '####REPLACEMENT_' + id + '####';
+	      });
 	      message = message.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, function (whole, userId, userName) {
-	        var user = _this2.$store.getters['users/get'](userId);
+	        if (!userName) {
+	          var user = _this2.$store.getters['users/get'](userId);
 
-	        userName = user ? im_lib_utils.Utils.text.htmlspecialchars(user.name) : userName;
+	          userName = user ? im_lib_utils.Utils.text.htmlspecialchars(user.name) : 'User ' + userId;
+	        }
+
 	        return '<span class="bx-im-mention" data-type="USER" data-value="' + userId + '">' + userName + '</span>';
+	      });
+	      replacement.forEach(function (value, index) {
+	        message = message.replace('####REPLACEMENT_' + index + '####', value);
 	      });
 	      return message;
 	    },

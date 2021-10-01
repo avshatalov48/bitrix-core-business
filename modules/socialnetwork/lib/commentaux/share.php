@@ -66,14 +66,8 @@ final class Share extends Base
 		return $params;
 	}
 
-	public function getText()
+	public function getText(): string
 	{
-		static $userNameTemplate = null;
-		static $extranet = null;
-		static $extranetSite = null;
-		static $userPath = null;
-		static $groupPath = null;
-		static $departmentPath = null;
 		static $parser = null;
 		static $availableUsersList = null;
 
@@ -121,7 +115,7 @@ final class Share extends Base
 				if (preg_match('/^(SG|U||UA|DR)(\d*)$/', $destinationCode, $matches))
 				{
 					$entityType = $matches[1];
-					$entityId = (isset($matches[2]) ? $matches[2] : false);
+					$entityId = ($matches[2] ?? false);
 					$hiddenEntity = $renderParts = false;
 
 					switch($entityType)
@@ -222,76 +216,53 @@ final class Share extends Base
 			$parser->pathToUserEntityId = false;
 		}
 
-		$result = $parser->convertText($result);
-
-		return $result;
+		return $parser->convertText($result);
 	}
 
-	public function sendRatingNotification($fields = [], $ratingVoteParams = [])
+	protected function setRatingNotificationParams(array $fields = []): bool
 	{
-		$userId = (
-			is_array($ratingVoteParams)
-			&& isset($ratingVoteParams['OWNER_ID'])
-				? (int)$ratingVoteParams['OWNER_ID']
-				: 0
-		);
+		$dest = explode('|', $fields['SHARE_DEST']);
+		$dest = array_values(array_filter($dest, static function ($item) { return ($item !== 'mention'); }));
+		$dest = explode(',', $dest[0]);
 
-		if (
+		if (empty($dest))
+		{
+			return false;
+		}
+
+		$this->setParams([
+			'destinationList' => $dest,
+			'hiddenDestinationList' => []
+		]);
+
+		return true;
+	}
+
+	protected function checkRatingNotificationData(int $userId = 0, array $fields = []): bool
+	{
+		return (
 			$userId > 0
 			&& is_array($fields)
 			&& isset($fields['SHARE_DEST'])
 			&& Loader::includeModule('im')
-		)
-		{
-			$dest = explode('|', $fields['SHARE_DEST']);
-			$dest = array_values(array_filter($dest, function ($item) { return ($item !== 'mention'); }));
-			$dest = explode(',', $dest[0]);
-
-			if (!empty($dest))
-			{
-				$this->setParams([
-					'destinationList' => $dest,
-					'hiddenDestinationList' => []
-				]);
-
-				$followValue = \CSocNetLogFollow::getExactValueByRating(
-					$userId,
-					((!empty($fields['BLOG_ID'])) ? 'BLOG_COMMENT' : 'LOG_COMMENT'),
-					$fields['ID']
-				);
-
-				if ($followValue !== 'N')
-				{
-					$ratingVoteParams['ENTITY_LINK'] = $this->getRatingCommentLink([
-						'commentId' => $fields['ID'],
-						'commentAuthorId' => $ratingVoteParams['OWNER_ID'],
-						'ratingEntityTypeId' => $ratingVoteParams['ENTITY_TYPE_ID'],
-						'ratingEntityId' => $ratingVoteParams['ENTITY_ID']
-					]);
-
-					$ratingVoteParams['ENTITY_PARAM'] = 'COMMENT';
-					$ratingVoteParams['ENTITY_MESSAGE'] = $this->getText();
-					$ratingVoteParams['ENTITY_TITLE'] = $ratingVoteParams['ENTITY_MESSAGE'];
-
-					$messageFields = [
-						'MESSAGE_TYPE' => IM_MESSAGE_SYSTEM,
-						'TO_USER_ID' => $userId,
-						'FROM_USER_ID' => (int)$ratingVoteParams['USER_ID'],
-						'NOTIFY_TYPE' => IM_NOTIFY_FROM,
-						'NOTIFY_MODULE' => 'main',
-						'NOTIFY_EVENT' => 'rating_vote',
-						'NOTIFY_TAG' => 'RATING|' . ($ratingVoteParams['VALUE'] >= 0 ? '' : 'DL|') . (!empty($fields['BLOG_ID']) ? 'BLOG_COMMENT|' : 'LOG_COMMENT|') . $fields['ID'],
-						'NOTIFY_MESSAGE' => \CIMEvent::getMessageRatingVote($ratingVoteParams),
-						'NOTIFY_MESSAGE_OUT' => \CIMEvent::getMessageRatingVote($ratingVoteParams, true)
-					];
-
-					\CIMNotify::add($messageFields);
-				}
-			}
-		}
+		);
 	}
 
-	public function checkRecalcNeeded($fields, $params)
+	protected function getRatingNotificationFollowValue(int $userId = 0, array $ratingVoteParams = [], array $fields = [])
+	{
+		return \CSocNetLogFollow::getExactValueByRating(
+			$userId,
+			((!empty($fields['BLOG_ID'])) ? 'BLOG_COMMENT' : 'LOG_COMMENT'),
+			$fields['ID']
+		);
+	}
+
+	protected function getRatingNotificationNotigyTag(array $ratingVoteParams = [], array $fields = []): string
+	{
+		return 'RATING|' . ($ratingVoteParams['VALUE'] >= 0 ? '' : 'DL|') . (!empty($fields['BLOG_ID']) ? 'BLOG_COMMENT|' : 'LOG_COMMENT|') . $fields['ID'];
+	}
+
+	public function checkRecalcNeeded($fields, $params): bool
 	{
 		$result = false;
 

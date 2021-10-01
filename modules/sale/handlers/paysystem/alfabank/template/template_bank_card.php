@@ -30,7 +30,6 @@ Loc::loadMessages(__FILE__);
 			</div>
 			<div class="col pr-0"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_ALFABANK_REDIRECT'); ?></div>
 		</div>
-
 	</form>
-	<p><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_ALFABANK_WARNING_RETURN'); ?></p>
+	<div class="alert alert-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_ALFABANK_WARNING_RETURN'); ?></div>
 </div>

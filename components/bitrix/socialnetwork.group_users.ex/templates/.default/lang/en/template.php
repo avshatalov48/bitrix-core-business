@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SONET_GRE_T_ERROR"] = "Error processing request.";
 $MESS["SONET_GUE_T_ACTIONLINK_ADD"] = "Add";
 $MESS["SONET_GUE_T_ACTIONLINK_CHANGE"] = "Change";
@@ -35,6 +35,7 @@ $MESS["SONET_GUE_T_FIRED2_M"] = "dismissed";
 $MESS["SONET_GUE_T_GROUP_ID_NOT_DEFINED"] = "Workgroup was not found.";
 $MESS["SONET_GUE_T_MODS_SUBTITLE"] = "Moderators";
 $MESS["SONET_GUE_T_MODS_SUBTITLE_PROJECT"] = "Owner and moderators";
+$MESS["SONET_GUE_T_MODS_SUBTITLE_SCRUM_PROJECT"] = "Project owner and the team";
 $MESS["SONET_GUE_T_MODULE_NOT_INSTALLED"] = "The Social Network module is not installed.";
 $MESS["SONET_GUE_T_NOT_ATHORIZED"] = "You are not logged in.";
 $MESS["SONET_GUE_T_NO_PERMS"] = "You do not have permission to manage this workgroup.";
@@ -56,4 +57,3 @@ $MESS["SONET_GUE_T_USERS_SUBTITLE"] = "Members";
 $MESS["SONET_GUE_T_USERS_SUBTITLE_PROJECT"] = "People Involved";
 $MESS["SONET_GUE_T_USER_ID_INCORRECT"] = "Select one user.";
 $MESS["SONET_GUE_T_USER_ID_NOT_DEFINED"] = "No users selected.";
-?>

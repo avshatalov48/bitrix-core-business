@@ -392,6 +392,21 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			Security\AccessChecker::addError($this->errors, Security\AccessChecker::ERR_CODE_NOT_FOUND);
 			return false;
 		}
+		$appliedConsents = json_decode(\COption::GetOptionString("sender", "sender_approve_consent_created"), true);
+		if (!$appliedConsents[Context::getCurrent()->getLanguage()])
+		{
+			\CAgent::AddAgent(
+				'\\Bitrix\\Sender\\Preset\\Consent\\ConsentInstaller::run(\''.Context::getCurrent()->getLanguage().'\');',
+				"sender",
+				"N",
+				60,
+				"",
+				"Y",
+				\ConvertTimeStamp(time()+\CTimeZone::GetOffset()+450, "FULL"));
+
+			$appliedConsents[Context::getCurrent()->getLanguage()] = Context::getCurrent()->getLanguage();
+			\COption::SetOptionString("sender", "sender_approve_consent_created", json_encode($appliedConsents));
+		}
 
 		try
 		{

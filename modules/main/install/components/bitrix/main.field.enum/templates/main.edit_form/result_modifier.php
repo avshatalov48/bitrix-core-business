@@ -108,7 +108,7 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI)
 	$arResult['fieldNameJs'] = \CUtil::JSEscape($arResult['fieldName']);
 
 	Asset::getInstance()->addJs(
-		'/bitrix/components/bitrix/main.field.enum/templates/main.edit/desktop.js'
+		'/bitrix/components/bitrix/main.field.enum/templates/main.edit/dist/display.bundle.js'
 	);
 }
 elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_LIST)

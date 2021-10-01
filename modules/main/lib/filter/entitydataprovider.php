@@ -36,4 +36,45 @@ abstract class EntityDataProvider extends DataProvider
 
 		return new Field($this, $fieldID, $params);
 	}
+
+	protected function getUserEntitySelectorParams(string $context, array $params): array
+	{
+		$entities = [
+			[
+				'id' => 'user',
+				'options' => [
+					'inviteEmployeeLink' => false,
+					'intranetUsersOnly' => true,
+				]
+			],
+		];
+
+		if (class_exists(\Bitrix\Socialnetwork\Integration\UI\EntitySelector\FiredUserProvider::class))
+		{
+			$entities[] = [
+				'id' => 'fired-user',
+				'options' => [
+					'inviteEmployeeLink' => false,
+					'intranetUsersOnly' => true,
+					'fieldName' => $params['fieldName'],
+					'referenceClass'  => ($params['referenceClass'] ?? null),
+					'entityTypeId' => ($params['entityTypeId'] ?? null),
+					'module' => ($params['module'] ?? null),
+				]
+			];
+		}
+
+		return [
+			'params' => [
+				'multiple' => 'Y',
+				'dialogOptions' => [
+					'height' => 200,
+					'context' => $context,
+					'entities' => $entities,
+					'showAvatars' => true,
+					'dropdownMode' => false,
+				],
+			],
+		];
+	}
 }

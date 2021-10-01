@@ -1,5 +1,7 @@
-<?
+<?php
 $MESS["MAIN_RESTORE_DEFAULTS"] = "Default";
+$MESS["mail_max_consent_requests"] = "Maximum number of requests for email newsletter consent";
+$MESS["mail_need_consent"] = "Require email newsletter consent";
 $MESS["opt_address_from"] = "Addresses for use in From field:";
 $MESS["opt_address_send_to_me"] = "Addresses to send test messages to:";
 $MESS["opt_auto_agent_interval"] = "Delay between subsequent sending jobs (sec., 0 - don't wait):";
@@ -21,4 +23,3 @@ $MESS["opt_sub_link"] = "Custom subscription page:";
 $MESS["opt_threads_type"] = "Number of sending threads";
 $MESS["opt_track_mails"] = "Track email views and link clicks:";
 $MESS["opt_unsub_link"] = "Custom unsubscription page:";
-?>

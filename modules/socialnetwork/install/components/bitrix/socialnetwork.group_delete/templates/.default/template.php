@@ -44,17 +44,28 @@ else
 
 		<div class="socialnetwork-group-delete-content">
 			<div class="socialnetwork-group-delete-text"><?=Loc::getMessage($arResult["Group"]["PROJECT"] == "Y" ? "SONET_C9_SUBTITLE_PROJECT" : "SONET_C9_SUBTITLE")?></div>
-			<form method="post" name="sonet-group-delete-form" id="sonet-group-delete-form" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data">
-				<div class="sonet-slider-footer-fixed">
-					<input type="hidden" name="SONET_GROUP_ID" value="<?= $arResult["Group"]["ID"] ?>">
-					<input type="hidden" name="ajax_request" value="Y">
-					<input type="hidden" name="save" value="Y">
-					<?=bitrix_sessid_post()?>
-					<span class="sonet-ui-btn-cont sonet-ui-btn-cont-center"><?
-						?><button class="ui-btn ui-btn-danger" id="sonet_group_delete_button_submit"><?=Loc::getMessage($arResult["Group"]["PROJECT"] == "Y" ? "SONET_C9_DO_DEL_PROJECT" : "SONET_C9_DO_DEL") ?></button><?
-						?><button class="ui-btn ui-btn-light-border" id="sonet_group_delete_button_cancel"><?=Loc::getMessage("SONET_C9_DO_CANCEL") ?></button><?
-					?></span><? // class="sonet-ui-btn-cont"
-				?></div><? // sonet-slider-footer-fixed
+			<form method="post" name="sonet-group-delete-form" id="sonet-group-delete-form" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data"><?php
+
+				$buttons = [
+					[
+						'TYPE' => 'custom',
+						'LAYOUT' => '<button class="ui-btn ui-btn-danger" id="sonet_group_delete_button_submit">' . Loc::getMessage($arResult['Group']['PROJECT'] === 'Y' ? 'SONET_C9_DO_DEL_PROJECT' : 'SONET_C9_DO_DEL') . '</button>',
+					],
+					[
+						'TYPE' => 'custom',
+						'LAYOUT' => '<button class="ui-btn ui-btn-light-border" id="sonet_group_delete_button_cancel">' . Loc::getMessage('SONET_C9_DO_CANCEL') . '</button>',
+					],
+
+				];
+
+				$APPLICATION->IncludeComponent('bitrix:ui.button.panel', '', [
+					'BUTTONS' => $buttons,
+				]);
+
+				?><input type="hidden" name="SONET_GROUP_ID" value="<?= $arResult["Group"]["ID"] ?>">
+				<input type="hidden" name="ajax_request" value="Y">
+				<input type="hidden" name="save" value="Y">
+				<?=bitrix_sessid_post()?><?php
 			?></form>
 		</div><?
 	}

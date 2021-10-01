@@ -7,6 +7,22 @@ use Bitrix\Main\ORM\Fields;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Sale\Exchange\Integration\Entity;
 
+/**
+ * Class B24integrationTokenTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_B24integrationToken_Query query()
+ * @method static EO_B24integrationToken_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_B24integrationToken_Result getById($id)
+ * @method static EO_B24integrationToken_Result getList(array $parameters = array())
+ * @method static EO_B24integrationToken_Entity getEntity()
+ * @method static \Bitrix\Sale\Exchange\Integration\Entity\Token createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24integrationToken_Collection createCollection()
+ * @method static \Bitrix\Sale\Exchange\Integration\Entity\Token wakeUpObject($row)
+ * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24integrationToken_Collection wakeUpCollection($rows)
+ */
 class B24integrationTokenTable extends Main\ORM\Data\DataManager
 {
 	public static function getTableName()

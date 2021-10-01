@@ -2,8 +2,21 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Message\ConfigurationOption as ConOpt;
+
+Extension::load([
+	'ui.layout-form',
+	'ui.alerts',
+	'ui.hint',
+	'ui.sidepanel-content',
+	'ui.buttons',
+	'ui.common',
+	'ui.opensans',
+	'sender.rc_editor'
+]);
+
 
 /** @var CAllMain $APPLICATION */
 /** @var array $arParams */
@@ -133,9 +146,11 @@ $fieldPrefix = 'CONFIGURATION_';
 						</div>
 						<div class="sender-message-editor-more-list">
 							<?foreach ($group['options'] as $option):?>
-								<span class="sender-message-editor-more-list-item">
-									<?=htmlspecialcharsbx($option['name'])?>
+								<?php if ($option['show_in_list']): ?>
+									<span class="sender-message-editor-more-list-item">
+									<?= htmlspecialcharsbx($option['name']) ?>
 								</span>
+								<?php endif; ?>
 							<?endforeach;?>
 						</div>
 					</div>
@@ -160,6 +175,7 @@ $fieldPrefix = 'CONFIGURATION_';
 				$inputView
 			);
 			$hint = $getHintHtml($option);
+			$hintUsed = false;
 			$hintText = htmlspecialcharsbx($getHintText($option));
 			$placeholder = strip_tags($getHintText($option));
 
@@ -349,6 +365,83 @@ $fieldPrefix = 'CONFIGURATION_';
 					$isCustomCaption = true;
 					break;
 
+				case ConOpt::TYPE_CONSENT:
+					$hintText = htmlspecialcharsbx($hintText);
+					$value = $inputValue === 'Y' ? 'checked="checked"' : '';
+					$inputHtml .= <<<TEXT
+						<div style="padding: 0; width: 100%;" class="ui-form">
+						<div class="ui-form-row">
+							<div class="ui-form-label">
+								<label class="ui-ctl ui-ctl-checkbox">
+									<input type="checkbox" class="ui-ctl-element"
+										id="{$inputId}"
+										name="{$inputName}"
+										value="Y"
+										{$value}
+									>
+									<div class="ui-ctl-label-text">{$inputCaption}</div>
+									<div data-hint="{$hintText}"></div>
+								</label>
+							</div>
+TEXT;
+
+					$inputHtml .= '</div></div>';
+					$inputDisplay = 'sender-consent-margin';
+
+					$isCustomCaption = true;
+					$hintUsed = true;
+					break;
+				case ConOpt::TYPE_CONSENT_CONTENT:
+					$inputHtml .= '<div class="sender-consent-block">';
+
+					if ($option['show_helper'])
+					{
+						$alertText = Loc::getMessage("SENDER_INTEGRATION_MAIL_MESSAGE_CONSENT_WARNING");
+						$buttonText = Loc::getMessage("SENDER_INTEGRATION_MAIL_MESSAGE_COPY");
+						$contentText = htmlspecialcharsbx(
+							""
+							."<a style=\"color: #0054a5;\" href=\"#UNSUBSCRIBE_LINK#\">"
+							. Loc::getMessage("SENDER_MESSAGE_EDITOR_UNSUB")
+							."</a>");
+
+						$inputHtml .= <<<TEXT
+						<div data-role="consent-block-to-copy" class="main-user-consent-selector-wrapper">
+							<div class="main-user-consent-selector-alert">$alertText</div>	
+							<div class="main-user-consent-selector-block">
+								<span class="sender-footer-to-copy">$contentText</span>
+								<button type="button" id="ui-button-copy" name="copy" value="Y" class="ui-btn ui-btn-success">$buttonText</button>
+							</div>
+						</div>
+TEXT;
+					}
+
+					ob_start();
+					$APPLICATION->IncludeComponent(
+						'bitrix:main.userconsent.selector',
+						'',
+						array_merge($arParams['CONSENT_PARAMS'], [
+							'ID' => $inputValue,
+							'INPUT_NAME' => $inputName
+						])
+					);
+					$inputHtml .= ob_get_clean();
+					if ($option['show_preview'])
+					{
+						$previewText = Loc::getMessage('SENDER_MESSAGE_EDITOR_CONSENT_PREVIEW');
+						$inputHtml .= <<<PREVIEW
+							<div class="main-user-consent-selector-footer">
+								<a class="main-user-consent-selector-block-link" data-role="consent-preview"
+								data-bx-input-name="$inputName"
+								data-bx-slider-href="" data-bx-slider-reload="true" href="#">
+								$previewText
+								</a>
+							</div>
+PREVIEW;
+					}
+
+					$inputHtml .= '</div>';
+					$isCustomCaption = true;
+					break;
 				case ConOpt::TYPE_STRING:
 				default:
 					$inputHtml = "<input type=\"text\" id=\"$inputId\"  name=\"$inputName\" value=\"$inputValue\" class=\"bx-sender-form-control bx-sender-message-editor-field-input\" $maxLength>";
@@ -382,7 +475,7 @@ $fieldPrefix = 'CONFIGURATION_';
 						<?=str_replace("<input", "<input disabled", $inputHtml)?>
 					<?endif;?>
 
-					<?if ($hint):?>
+					<?if ($hint && !$hintUsed):?>
 						<?=$hint?>
 					<?endif;?>
 				</div>

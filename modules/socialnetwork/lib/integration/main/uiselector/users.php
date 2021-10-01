@@ -62,6 +62,8 @@ class Users extends \Bitrix\Main\UI\Selector\EntityBase
 			);
 		}
 
+		$allowSearchSelf = (!isset($options['allowSearchSelf']) || $options['allowSearchSelf'] !== 'N');
+
 		$selected = array();
 		if (!empty($selectedUserList))
 		{
@@ -70,7 +72,7 @@ class Users extends \Bitrix\Main\UI\Selector\EntityBase
 				'CRM_ENTITY' => ModuleManager::isModuleInstalled('crm'),
 				'IGNORE_ACTIVITY' => 'Y',
 				'ALLOW_BOTS' => (isset($options['allowBots']) && $options['allowBots'] === 'Y')
-			]);
+			], $allowSearchSelf);
 		}
 
 		if (Handler::isExtranetUser())
@@ -115,12 +117,12 @@ class Users extends \Bitrix\Main\UI\Selector\EntityBase
 			$items[$entityType] = [];
 			if (!empty($lastUserList))
 			{
-				$items[$entityType] = \CSocNetLogDestination::getUsers(array(
+				$items[$entityType] = \CSocNetLogDestination::getUsers([
 					'id' => $lastUserList,
 					'CRM_ENTITY' => ModuleManager::isModuleInstalled('crm'),
 					'ONLY_WITH_EMAIL' => (isset($options['onlyWithEmail']) && $options['onlyWithEmail'] === 'Y' ? 'Y' : ''),
 					'ALLOW_BOTS' => (isset($options['allowBots']) && $options['allowBots'] === 'Y')
-				));
+				], $allowSearchSelf);
 			}
 
 			$items[$entityType] = array_merge($items[$entityType], $selected);
@@ -174,7 +176,6 @@ class Users extends \Bitrix\Main\UI\Selector\EntityBase
 					unset($lastItems[$entityType][$key]);
 				}
 			}
-
 
 			$result["ITEMS_LAST"] = array_values($lastItems[$entityType]);
 
@@ -233,11 +234,11 @@ class Users extends \Bitrix\Main\UI\Selector\EntityBase
 					$lastUserList[] = $userFields['ID'];
 				}
 
-				$items[$entityType] = array_merge((is_array($items[$entityType]) ? $items[$entityType] : array()), \CSocNetLogDestination::getUsers(array(
+				$items[$entityType] = array_merge((is_array($items[$entityType]) ? $items[$entityType] : array()), \CSocNetLogDestination::getUsers([
 					'id' => $lastUserList,
 					'ONLY_WITH_EMAIL' => (isset($options['onlyWithEmail']) && $options['onlyWithEmail'] === 'Y' ? 'Y' : ''),
 					'ALLOW_BOTS' => (isset($options['allowBots']) && $options['allowBots'] === 'Y')
-				)));
+				], $allowSearchSelf));
 				foreach($items[$entityType] as $item)
 				{
 					$result["ITEMS_LAST"][] = 'U'.$item['entityId'];

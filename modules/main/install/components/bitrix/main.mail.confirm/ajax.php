@@ -133,17 +133,19 @@ class MainMailConfirmAjax
 
 		$pending = array();
 		$expires = array();
+		$toDelete = array();
 
 		$res = Main\Mail\Internal\SenderTable::getList(array(
 			'filter' => array(
 				'=USER_ID' => $USER->getId(),
 				array(
 					'LOGIC' => 'OR',
-					'IS_CONFIRMED' => false,
-					'EMAIL'        => $email,
+					'=IS_CONFIRMED' => false,
+					'=EMAIL'        => $email,
 				),
-			),
+			)
 		));
+
 		while ($item = $res->fetch())
 		{
 			if ($item['IS_CONFIRMED'])
@@ -155,7 +157,16 @@ class MainMailConfirmAjax
 			}
 			else
 			{
-				if (time() - $item['OPTIONS']['confirm_time'] > 60*60*24*7)
+				if (
+					empty($code)
+					&& $item['EMAIL'] == $email
+					&& $item['USER_ID'] == $USER->getId()
+				)
+				{
+					$toDelete[] = $item['ID'];
+				}
+
+				if (time() - $item['OPTIONS']['confirm_time'] > 60*60*24)
 				{
 					$expires[] = $item['ID'];
 				}
@@ -171,7 +182,7 @@ class MainMailConfirmAjax
 			}
 		}
 
-		Main\Mail\Sender::delete($expires);
+		Main\Mail\Sender::delete(array_merge($toDelete,$expires));
 
 		if (empty($code))
 		{

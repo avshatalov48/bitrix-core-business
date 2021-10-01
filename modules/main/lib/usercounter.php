@@ -3,6 +3,22 @@ namespace Bitrix\Main;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class UserCounterTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserCounter_Query query()
+ * @method static EO_UserCounter_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserCounter_Result getById($id)
+ * @method static EO_UserCounter_Result getList(array $parameters = array())
+ * @method static EO_UserCounter_Entity getEntity()
+ * @method static \Bitrix\Main\EO_UserCounter createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EO_UserCounter_Collection createCollection()
+ * @method static \Bitrix\Main\EO_UserCounter wakeUpObject($row)
+ * @method static \Bitrix\Main\EO_UserCounter_Collection wakeUpCollection($rows)
+ */
 class UserCounterTable extends Entity\DataManager
 {
 	public static function getTableName()

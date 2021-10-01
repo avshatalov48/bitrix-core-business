@@ -17,8 +17,7 @@ Loc::loadMessages(__FILE__);
 			<a class="btn btn-lg btn-success pl-4 pr-4" style="border-radius: 32px;" id="paysystem-roboxchange-button-pay" href="#"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_TEMPLATE_ROBOXCHANGE_IFRAME_BUTTON_PAID') ?></a>
 		</div>
 	</div>
-
-	<p><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_TEMPLATE_ROBOXCHANGE_IFRAME_WARNING_RETURN') ?></p>
+	<div class="alert alert-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_TEMPLATE_ROBOXCHANGE_IFRAME_WARNING_RETURN') ?></div>
 </div>
 
 <script type="text/javascript" src="https://auth.robokassa.ru/Merchant/bundle/robokassa_iframe.js"></script>

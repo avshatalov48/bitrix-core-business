@@ -1,6 +1,6 @@
 <?php
 
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderTable:sale/lib/internals/order.php:9844930c1894b9858bfe91f5b18eced8 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderTable:sale/lib/internals/order.php:3d0de89ce4fa6034c18fcb27315a3ef0 */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_Order
@@ -931,6 +931,16 @@ namespace Bitrix\Sale\Internals {
 	 * @method bool isOrderDiscountDataFilled()
 	 * @method bool isOrderDiscountDataChanged()
 	 * @method \Bitrix\Sale\Internals\EO_OrderDiscountData fillOrderDiscountData()
+	 * @method \Bitrix\Sale\Internals\EO_OrderRules getOrderDiscountRules()
+	 * @method \Bitrix\Sale\Internals\EO_OrderRules remindActualOrderDiscountRules()
+	 * @method \Bitrix\Sale\Internals\EO_OrderRules requireOrderDiscountRules()
+	 * @method \Bitrix\Sale\Internals\EO_Order setOrderDiscountRules(\Bitrix\Sale\Internals\EO_OrderRules $object)
+	 * @method \Bitrix\Sale\Internals\EO_Order resetOrderDiscountRules()
+	 * @method \Bitrix\Sale\Internals\EO_Order unsetOrderDiscountRules()
+	 * @method bool hasOrderDiscountRules()
+	 * @method bool isOrderDiscountRulesFilled()
+	 * @method bool isOrderDiscountRulesChanged()
+	 * @method \Bitrix\Sale\Internals\EO_OrderRules fillOrderDiscountRules()
 	 * @method \string getByRecommendation()
 	 * @method \string remindActualByRecommendation()
 	 * @method \string requireByRecommendation()
@@ -1198,6 +1208,9 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_OrderDiscountData[] getOrderDiscountDataList()
 	 * @method \Bitrix\Sale\Internals\EO_Order_Collection getOrderDiscountDataCollection()
 	 * @method \Bitrix\Sale\Internals\EO_OrderDiscountData_Collection fillOrderDiscountData()
+	 * @method \Bitrix\Sale\Internals\EO_OrderRules[] getOrderDiscountRulesList()
+	 * @method \Bitrix\Sale\Internals\EO_Order_Collection getOrderDiscountRulesCollection()
+	 * @method \Bitrix\Sale\Internals\EO_OrderRules_Collection fillOrderDiscountRules()
 	 * @method \string[] getByRecommendationList()
 	 * @method \string[] fillByRecommendation()
 	 * @method \Bitrix\Sale\TradingPlatform\EO_Order[] getTradingPlatformList()
@@ -1235,18 +1248,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_Order_Query query()
-	 * @method static EO_Order_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Order_Result getById($id)
-	 * @method static EO_Order_Result getList(array $parameters = array())
-	 * @method static EO_Order_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_Order createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_Order_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_Order wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_Order_Collection wakeUpCollection($rows)
-	 */
-	class OrderTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1443,18 +1444,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_Fuser_Query query()
-	 * @method static EO_Fuser_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Fuser_Result getById($id)
-	 * @method static EO_Fuser_Result getList(array $parameters = array())
-	 * @method static EO_Fuser_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_Fuser createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_Fuser_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_Fuser wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_Fuser_Collection wakeUpCollection($rows)
-	 */
-	class FuserTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1480,7 +1469,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_Fuser_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\Product2ProductTable:sale/lib/internals/product2product.php:26a9b359eb085e228c252048566a8edf */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\Product2ProductTable:sale/lib/internals/product2product.php:444abf4b53dd95144421471a504840f2 */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_Product2Product
@@ -1607,18 +1596,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_Product2Product_Query query()
-	 * @method static EO_Product2Product_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Product2Product_Result getById($id)
-	 * @method static EO_Product2Product_Result getList(array $parameters = array())
-	 * @method static EO_Product2Product_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_Product2Product createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_Product2Product_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_Product2Product wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_Product2Product_Collection wakeUpCollection($rows)
-	 */
-	class Product2ProductTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1643,196 +1620,6 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_Product2Product_Collection wakeUpCollection($rows)
 	 */
 	class EO_Product2Product_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\StoreProductTable:sale/lib/internals/storeproduct.php:11ec91472f49ded4bd0096981707b380 */
-namespace Bitrix\Sale\Internals {
-	/**
-	 * EO_StoreProduct
-	 * @see \Bitrix\Sale\Internals\StoreProductTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \int getProductId()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct setProductId(\int|\Bitrix\Main\DB\SqlExpression $productId)
-	 * @method bool hasProductId()
-	 * @method bool isProductIdFilled()
-	 * @method bool isProductIdChanged()
-	 * @method \int remindActualProductId()
-	 * @method \int requireProductId()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct resetProductId()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct unsetProductId()
-	 * @method \int fillProductId()
-	 * @method \Bitrix\Sale\Internals\EO_Product getSaleProduct()
-	 * @method \Bitrix\Sale\Internals\EO_Product remindActualSaleProduct()
-	 * @method \Bitrix\Sale\Internals\EO_Product requireSaleProduct()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct setSaleProduct(\Bitrix\Sale\Internals\EO_Product $object)
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct resetSaleProduct()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct unsetSaleProduct()
-	 * @method bool hasSaleProduct()
-	 * @method bool isSaleProductFilled()
-	 * @method bool isSaleProductChanged()
-	 * @method \Bitrix\Sale\Internals\EO_Product fillSaleProduct()
-	 * @method \float getAmount()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct setAmount(\float|\Bitrix\Main\DB\SqlExpression $amount)
-	 * @method bool hasAmount()
-	 * @method bool isAmountFilled()
-	 * @method bool isAmountChanged()
-	 * @method \float remindActualAmount()
-	 * @method \float requireAmount()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct resetAmount()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct unsetAmount()
-	 * @method \float fillAmount()
-	 * @method \int getStoreId()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct setStoreId(\int|\Bitrix\Main\DB\SqlExpression $storeId)
-	 * @method bool hasStoreId()
-	 * @method bool isStoreIdFilled()
-	 * @method bool isStoreIdChanged()
-	 * @method \int remindActualStoreId()
-	 * @method \int requireStoreId()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct resetStoreId()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct unsetStoreId()
-	 * @method \int fillStoreId()
-	 * @method \Bitrix\Catalog\EO_Store getStore()
-	 * @method \Bitrix\Catalog\EO_Store remindActualStore()
-	 * @method \Bitrix\Catalog\EO_Store requireStore()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct setStore(\Bitrix\Catalog\EO_Store $object)
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct resetStore()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct unsetStore()
-	 * @method bool hasStore()
-	 * @method bool isStoreFilled()
-	 * @method bool isStoreChanged()
-	 * @method \Bitrix\Catalog\EO_Store fillStore()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct set($fieldName, $value)
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct reset($fieldName)
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Sale\Internals\EO_StoreProduct wakeUp($data)
-	 */
-	class EO_StoreProduct {
-		/* @var \Bitrix\Sale\Internals\StoreProductTable */
-		static public $dataClass = '\Bitrix\Sale\Internals\StoreProductTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Sale\Internals {
-	/**
-	 * EO_StoreProduct_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getProductIdList()
-	 * @method \int[] fillProductId()
-	 * @method \Bitrix\Sale\Internals\EO_Product[] getSaleProductList()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct_Collection getSaleProductCollection()
-	 * @method \Bitrix\Sale\Internals\EO_Product_Collection fillSaleProduct()
-	 * @method \float[] getAmountList()
-	 * @method \float[] fillAmount()
-	 * @method \int[] getStoreIdList()
-	 * @method \int[] fillStoreId()
-	 * @method \Bitrix\Catalog\EO_Store[] getStoreList()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct_Collection getStoreCollection()
-	 * @method \Bitrix\Catalog\EO_Store_Collection fillStore()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Sale\Internals\EO_StoreProduct $object)
-	 * @method bool has(\Bitrix\Sale\Internals\EO_StoreProduct $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct getByPrimary($primary)
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct[] getAll()
-	 * @method bool remove(\Bitrix\Sale\Internals\EO_StoreProduct $object)
-	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Sale\Internals\EO_StoreProduct_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 */
-	class EO_StoreProduct_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Sale\Internals\StoreProductTable */
-		static public $dataClass = '\Bitrix\Sale\Internals\StoreProductTable';
-	}
-}
-namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_StoreProduct_Query query()
-	 * @method static EO_StoreProduct_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_StoreProduct_Result getById($id)
-	 * @method static EO_StoreProduct_Result getList(array $parameters = array())
-	 * @method static EO_StoreProduct_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_StoreProduct createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_StoreProduct_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_StoreProduct wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_StoreProduct_Collection wakeUpCollection($rows)
-	 */
-	class StoreProductTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_StoreProduct_Result exec()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct fetchObject()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 */
-	class EO_StoreProduct_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct fetchObject()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct_Collection fetchCollection()
-	 */
-	class EO_StoreProduct_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct createObject($setDefaultValues = true)
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct_Collection createCollection()
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct wakeUpObject($row)
-	 * @method \Bitrix\Sale\Internals\EO_StoreProduct_Collection wakeUpCollection($rows)
-	 */
-	class EO_StoreProduct_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PersonTypeTable:sale/lib/internals/persontype.php:e49e769f2b42235a4bf128ad4fb4bd2f */
 namespace Bitrix\Sale\Internals {
@@ -2022,18 +1809,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_PersonType_Query query()
-	 * @method static EO_PersonType_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PersonType_Result getById($id)
-	 * @method static EO_PersonType_Result getList(array $parameters = array())
-	 * @method static EO_PersonType_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_PersonType createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_PersonType_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_PersonType wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_PersonType_Collection wakeUpCollection($rows)
-	 */
-	class PersonTypeTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2058,360 +1833,6 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_PersonType_Collection wakeUpCollection($rows)
 	 */
 	class EO_PersonType_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ProductTable:sale/lib/internals/product.php:66df034332163c0784631dd9fb0064b9 */
-namespace Bitrix\Sale\Internals {
-	/**
-	 * EO_Product
-	 * @see \Bitrix\Sale\Internals\ProductTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Sale\Internals\EO_Product setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \int getTimestampX()
-	 * @method \Bitrix\Sale\Internals\EO_Product setTimestampX(\int|\Bitrix\Main\DB\SqlExpression $timestampX)
-	 * @method bool hasTimestampX()
-	 * @method bool isTimestampXFilled()
-	 * @method bool isTimestampXChanged()
-	 * @method \int remindActualTimestampX()
-	 * @method \int requireTimestampX()
-	 * @method \Bitrix\Sale\Internals\EO_Product resetTimestampX()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetTimestampX()
-	 * @method \int fillTimestampX()
-	 * @method \Bitrix\Main\Type\DateTime getDateUpdated()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateUpdated()
-	 * @method \Bitrix\Main\Type\DateTime requireDateUpdated()
-	 * @method bool hasDateUpdated()
-	 * @method bool isDateUpdatedFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetDateUpdated()
-	 * @method \Bitrix\Main\Type\DateTime fillDateUpdated()
-	 * @method \float getQuantity()
-	 * @method \Bitrix\Sale\Internals\EO_Product setQuantity(\float|\Bitrix\Main\DB\SqlExpression $quantity)
-	 * @method bool hasQuantity()
-	 * @method bool isQuantityFilled()
-	 * @method bool isQuantityChanged()
-	 * @method \float remindActualQuantity()
-	 * @method \float requireQuantity()
-	 * @method \Bitrix\Sale\Internals\EO_Product resetQuantity()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetQuantity()
-	 * @method \float fillQuantity()
-	 * @method \float getPurchasingPrice()
-	 * @method \Bitrix\Sale\Internals\EO_Product setPurchasingPrice(\float|\Bitrix\Main\DB\SqlExpression $purchasingPrice)
-	 * @method bool hasPurchasingPrice()
-	 * @method bool isPurchasingPriceFilled()
-	 * @method bool isPurchasingPriceChanged()
-	 * @method \float remindActualPurchasingPrice()
-	 * @method \float requirePurchasingPrice()
-	 * @method \Bitrix\Sale\Internals\EO_Product resetPurchasingPrice()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetPurchasingPrice()
-	 * @method \float fillPurchasingPrice()
-	 * @method \string getPurchasingCurrency()
-	 * @method \Bitrix\Sale\Internals\EO_Product setPurchasingCurrency(\string|\Bitrix\Main\DB\SqlExpression $purchasingCurrency)
-	 * @method bool hasPurchasingCurrency()
-	 * @method bool isPurchasingCurrencyFilled()
-	 * @method bool isPurchasingCurrencyChanged()
-	 * @method \string remindActualPurchasingCurrency()
-	 * @method \string requirePurchasingCurrency()
-	 * @method \Bitrix\Sale\Internals\EO_Product resetPurchasingCurrency()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetPurchasingCurrency()
-	 * @method \string fillPurchasingCurrency()
-	 * @method \Bitrix\Iblock\EO_Element getIblock()
-	 * @method \Bitrix\Iblock\EO_Element remindActualIblock()
-	 * @method \Bitrix\Iblock\EO_Element requireIblock()
-	 * @method \Bitrix\Sale\Internals\EO_Product setIblock(\Bitrix\Iblock\EO_Element $object)
-	 * @method \Bitrix\Sale\Internals\EO_Product resetIblock()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetIblock()
-	 * @method bool hasIblock()
-	 * @method bool isIblockFilled()
-	 * @method bool isIblockChanged()
-	 * @method \Bitrix\Iblock\EO_Element fillIblock()
-	 * @method \string getName()
-	 * @method \string remindActualName()
-	 * @method \string requireName()
-	 * @method bool hasName()
-	 * @method bool isNameFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetName()
-	 * @method \string fillName()
-	 * @method \string getNameWithIdent()
-	 * @method \string remindActualNameWithIdent()
-	 * @method \string requireNameWithIdent()
-	 * @method bool hasNameWithIdent()
-	 * @method bool isNameWithIdentFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetNameWithIdent()
-	 * @method \string fillNameWithIdent()
-	 * @method \boolean getActive()
-	 * @method \boolean remindActualActive()
-	 * @method \boolean requireActive()
-	 * @method bool hasActive()
-	 * @method bool isActiveFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetActive()
-	 * @method \boolean fillActive()
-	 * @method \float getWeight()
-	 * @method \Bitrix\Sale\Internals\EO_Product setWeight(\float|\Bitrix\Main\DB\SqlExpression $weight)
-	 * @method bool hasWeight()
-	 * @method bool isWeightFilled()
-	 * @method bool isWeightChanged()
-	 * @method \float remindActualWeight()
-	 * @method \float requireWeight()
-	 * @method \Bitrix\Sale\Internals\EO_Product resetWeight()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetWeight()
-	 * @method \float fillWeight()
-	 * @method \float getWeightInSiteUnits()
-	 * @method \float remindActualWeightInSiteUnits()
-	 * @method \float requireWeightInSiteUnits()
-	 * @method bool hasWeightInSiteUnits()
-	 * @method bool isWeightInSiteUnitsFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetWeightInSiteUnits()
-	 * @method \float fillWeightInSiteUnits()
-	 * @method \float getPrice()
-	 * @method \float remindActualPrice()
-	 * @method \float requirePrice()
-	 * @method bool hasPrice()
-	 * @method bool isPriceFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetPrice()
-	 * @method \float fillPrice()
-	 * @method \string getCurrency()
-	 * @method \string remindActualCurrency()
-	 * @method \string requireCurrency()
-	 * @method bool hasCurrency()
-	 * @method bool isCurrencyFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetCurrency()
-	 * @method \string fillCurrency()
-	 * @method \float getSummaryPrice()
-	 * @method \float remindActualSummaryPrice()
-	 * @method \float requireSummaryPrice()
-	 * @method bool hasSummaryPrice()
-	 * @method bool isSummaryPriceFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetSummaryPrice()
-	 * @method \float fillSummaryPrice()
-	 * @method \float getCurrentCurrencyRate()
-	 * @method \float remindActualCurrentCurrencyRate()
-	 * @method \float requireCurrentCurrencyRate()
-	 * @method bool hasCurrentCurrencyRate()
-	 * @method bool isCurrentCurrencyRateFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetCurrentCurrencyRate()
-	 * @method \float fillCurrentCurrencyRate()
-	 * @method \float getCurrentCurrencyRateCnt()
-	 * @method \float remindActualCurrentCurrencyRateCnt()
-	 * @method \float requireCurrentCurrencyRateCnt()
-	 * @method bool hasCurrentCurrencyRateCnt()
-	 * @method bool isCurrentCurrencyRateCntFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetCurrentCurrencyRateCnt()
-	 * @method \float fillCurrentCurrencyRateCnt()
-	 * @method \float getCurrentSiteCurrencyRate()
-	 * @method \float remindActualCurrentSiteCurrencyRate()
-	 * @method \float requireCurrentSiteCurrencyRate()
-	 * @method bool hasCurrentSiteCurrencyRate()
-	 * @method bool isCurrentSiteCurrencyRateFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetCurrentSiteCurrencyRate()
-	 * @method \float fillCurrentSiteCurrencyRate()
-	 * @method \float getCurrentSiteCurrencyRateCnt()
-	 * @method \float remindActualCurrentSiteCurrencyRateCnt()
-	 * @method \float requireCurrentSiteCurrencyRateCnt()
-	 * @method bool hasCurrentSiteCurrencyRateCnt()
-	 * @method bool isCurrentSiteCurrencyRateCntFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetCurrentSiteCurrencyRateCnt()
-	 * @method \float fillCurrentSiteCurrencyRateCnt()
-	 * @method \float getPurchasingCurrencyRate()
-	 * @method \float remindActualPurchasingCurrencyRate()
-	 * @method \float requirePurchasingCurrencyRate()
-	 * @method bool hasPurchasingCurrencyRate()
-	 * @method bool isPurchasingCurrencyRateFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetPurchasingCurrencyRate()
-	 * @method \float fillPurchasingCurrencyRate()
-	 * @method \float getPurchasingCurrencyRateCnt()
-	 * @method \float remindActualPurchasingCurrencyRateCnt()
-	 * @method \float requirePurchasingCurrencyRateCnt()
-	 * @method bool hasPurchasingCurrencyRateCnt()
-	 * @method bool isPurchasingCurrencyRateCntFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetPurchasingCurrencyRateCnt()
-	 * @method \float fillPurchasingCurrencyRateCnt()
-	 * @method \float getPriceInSiteCurrency()
-	 * @method \float remindActualPriceInSiteCurrency()
-	 * @method \float requirePriceInSiteCurrency()
-	 * @method bool hasPriceInSiteCurrency()
-	 * @method bool isPriceInSiteCurrencyFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetPriceInSiteCurrency()
-	 * @method \float fillPriceInSiteCurrency()
-	 * @method \float getPurchasingPriceInSiteCurrency()
-	 * @method \float remindActualPurchasingPriceInSiteCurrency()
-	 * @method \float requirePurchasingPriceInSiteCurrency()
-	 * @method bool hasPurchasingPriceInSiteCurrency()
-	 * @method bool isPurchasingPriceInSiteCurrencyFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetPurchasingPriceInSiteCurrency()
-	 * @method \float fillPurchasingPriceInSiteCurrency()
-	 * @method \float getSummaryPriceInSiteCurrency()
-	 * @method \float remindActualSummaryPriceInSiteCurrency()
-	 * @method \float requireSummaryPriceInSiteCurrency()
-	 * @method bool hasSummaryPriceInSiteCurrency()
-	 * @method bool isSummaryPriceInSiteCurrencyFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Product unsetSummaryPriceInSiteCurrency()
-	 * @method \float fillSummaryPriceInSiteCurrency()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Sale\Internals\EO_Product set($fieldName, $value)
-	 * @method \Bitrix\Sale\Internals\EO_Product reset($fieldName)
-	 * @method \Bitrix\Sale\Internals\EO_Product unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Sale\Internals\EO_Product wakeUp($data)
-	 */
-	class EO_Product {
-		/* @var \Bitrix\Sale\Internals\ProductTable */
-		static public $dataClass = '\Bitrix\Sale\Internals\ProductTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Sale\Internals {
-	/**
-	 * EO_Product_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getTimestampXList()
-	 * @method \int[] fillTimestampX()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateUpdatedList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateUpdated()
-	 * @method \float[] getQuantityList()
-	 * @method \float[] fillQuantity()
-	 * @method \float[] getPurchasingPriceList()
-	 * @method \float[] fillPurchasingPrice()
-	 * @method \string[] getPurchasingCurrencyList()
-	 * @method \string[] fillPurchasingCurrency()
-	 * @method \Bitrix\Iblock\EO_Element[] getIblockList()
-	 * @method \Bitrix\Sale\Internals\EO_Product_Collection getIblockCollection()
-	 * @method \Bitrix\Iblock\EO_Element_Collection fillIblock()
-	 * @method \string[] getNameList()
-	 * @method \string[] fillName()
-	 * @method \string[] getNameWithIdentList()
-	 * @method \string[] fillNameWithIdent()
-	 * @method \boolean[] getActiveList()
-	 * @method \boolean[] fillActive()
-	 * @method \float[] getWeightList()
-	 * @method \float[] fillWeight()
-	 * @method \float[] getWeightInSiteUnitsList()
-	 * @method \float[] fillWeightInSiteUnits()
-	 * @method \float[] getPriceList()
-	 * @method \float[] fillPrice()
-	 * @method \string[] getCurrencyList()
-	 * @method \string[] fillCurrency()
-	 * @method \float[] getSummaryPriceList()
-	 * @method \float[] fillSummaryPrice()
-	 * @method \float[] getCurrentCurrencyRateList()
-	 * @method \float[] fillCurrentCurrencyRate()
-	 * @method \float[] getCurrentCurrencyRateCntList()
-	 * @method \float[] fillCurrentCurrencyRateCnt()
-	 * @method \float[] getCurrentSiteCurrencyRateList()
-	 * @method \float[] fillCurrentSiteCurrencyRate()
-	 * @method \float[] getCurrentSiteCurrencyRateCntList()
-	 * @method \float[] fillCurrentSiteCurrencyRateCnt()
-	 * @method \float[] getPurchasingCurrencyRateList()
-	 * @method \float[] fillPurchasingCurrencyRate()
-	 * @method \float[] getPurchasingCurrencyRateCntList()
-	 * @method \float[] fillPurchasingCurrencyRateCnt()
-	 * @method \float[] getPriceInSiteCurrencyList()
-	 * @method \float[] fillPriceInSiteCurrency()
-	 * @method \float[] getPurchasingPriceInSiteCurrencyList()
-	 * @method \float[] fillPurchasingPriceInSiteCurrency()
-	 * @method \float[] getSummaryPriceInSiteCurrencyList()
-	 * @method \float[] fillSummaryPriceInSiteCurrency()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Sale\Internals\EO_Product $object)
-	 * @method bool has(\Bitrix\Sale\Internals\EO_Product $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Sale\Internals\EO_Product getByPrimary($primary)
-	 * @method \Bitrix\Sale\Internals\EO_Product[] getAll()
-	 * @method bool remove(\Bitrix\Sale\Internals\EO_Product $object)
-	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Sale\Internals\EO_Product_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Sale\Internals\EO_Product current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 */
-	class EO_Product_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Sale\Internals\ProductTable */
-		static public $dataClass = '\Bitrix\Sale\Internals\ProductTable';
-	}
-}
-namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_Product_Query query()
-	 * @method static EO_Product_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Product_Result getById($id)
-	 * @method static EO_Product_Result getList(array $parameters = array())
-	 * @method static EO_Product_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_Product createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_Product_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_Product wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_Product_Collection wakeUpCollection($rows)
-	 */
-	class ProductTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_Product_Result exec()
-	 * @method \Bitrix\Sale\Internals\EO_Product fetchObject()
-	 * @method \Bitrix\Sale\Internals\EO_Product_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 */
-	class EO_Product_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Sale\Internals\EO_Product fetchObject()
-	 * @method \Bitrix\Sale\Internals\EO_Product_Collection fetchCollection()
-	 */
-	class EO_Product_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Sale\Internals\EO_Product createObject($setDefaultValues = true)
-	 * @method \Bitrix\Sale\Internals\EO_Product_Collection createCollection()
-	 * @method \Bitrix\Sale\Internals\EO_Product wakeUpObject($row)
-	 * @method \Bitrix\Sale\Internals\EO_Product_Collection wakeUpCollection($rows)
-	 */
-	class EO_Product_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Sale\Internals\SectionTable:sale/lib/internals/section.php:c44dec5e24b090909fc66d6a7e10f936 */
 namespace Bitrix\Sale\Internals {
@@ -2515,18 +1936,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_Section_Query query()
-	 * @method static EO_Section_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Section_Result getById($id)
-	 * @method static EO_Section_Result getList(array $parameters = array())
-	 * @method static EO_Section_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_Section createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_Section_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_Section wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_Section_Collection wakeUpCollection($rows)
-	 */
-	class SectionTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2681,18 +2090,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_OrderProcessing_Query query()
-	 * @method static EO_OrderProcessing_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderProcessing_Result getById($id)
-	 * @method static EO_OrderProcessing_Result getList(array $parameters = array())
-	 * @method static EO_OrderProcessing_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderProcessing createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderProcessing_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderProcessing wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderProcessing_Collection wakeUpCollection($rows)
-	 */
-	class OrderProcessingTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2718,167 +2115,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderProcessing_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\GoodsSectionTable:sale/lib/internals/goodssection.php:616e923a0177a6cf91573082177b4de1 */
-namespace Bitrix\Sale\Internals {
-	/**
-	 * EO_GoodsSection
-	 * @see \Bitrix\Sale\Internals\GoodsSectionTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getIblockElementId()
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection setIblockElementId(\int|\Bitrix\Main\DB\SqlExpression $iblockElementId)
-	 * @method bool hasIblockElementId()
-	 * @method bool isIblockElementIdFilled()
-	 * @method bool isIblockElementIdChanged()
-	 * @method \Bitrix\Sale\Internals\EO_Product getProduct()
-	 * @method \Bitrix\Sale\Internals\EO_Product remindActualProduct()
-	 * @method \Bitrix\Sale\Internals\EO_Product requireProduct()
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection setProduct(\Bitrix\Sale\Internals\EO_Product $object)
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection resetProduct()
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection unsetProduct()
-	 * @method bool hasProduct()
-	 * @method bool isProductFilled()
-	 * @method bool isProductChanged()
-	 * @method \Bitrix\Sale\Internals\EO_Product fillProduct()
-	 * @method \int getIblockSectionId()
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection setIblockSectionId(\int|\Bitrix\Main\DB\SqlExpression $iblockSectionId)
-	 * @method bool hasIblockSectionId()
-	 * @method bool isIblockSectionIdFilled()
-	 * @method bool isIblockSectionIdChanged()
-	 * @method \Bitrix\Sale\Internals\EO_Section getSect()
-	 * @method \Bitrix\Sale\Internals\EO_Section remindActualSect()
-	 * @method \Bitrix\Sale\Internals\EO_Section requireSect()
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection setSect(\Bitrix\Sale\Internals\EO_Section $object)
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection resetSect()
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection unsetSect()
-	 * @method bool hasSect()
-	 * @method bool isSectFilled()
-	 * @method bool isSectChanged()
-	 * @method \Bitrix\Sale\Internals\EO_Section fillSect()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection set($fieldName, $value)
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection reset($fieldName)
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Sale\Internals\EO_GoodsSection wakeUp($data)
-	 */
-	class EO_GoodsSection {
-		/* @var \Bitrix\Sale\Internals\GoodsSectionTable */
-		static public $dataClass = '\Bitrix\Sale\Internals\GoodsSectionTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Sale\Internals {
-	/**
-	 * EO_GoodsSection_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIblockElementIdList()
-	 * @method \Bitrix\Sale\Internals\EO_Product[] getProductList()
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection_Collection getProductCollection()
-	 * @method \Bitrix\Sale\Internals\EO_Product_Collection fillProduct()
-	 * @method \int[] getIblockSectionIdList()
-	 * @method \Bitrix\Sale\Internals\EO_Section[] getSectList()
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection_Collection getSectCollection()
-	 * @method \Bitrix\Sale\Internals\EO_Section_Collection fillSect()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Sale\Internals\EO_GoodsSection $object)
-	 * @method bool has(\Bitrix\Sale\Internals\EO_GoodsSection $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection getByPrimary($primary)
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection[] getAll()
-	 * @method bool remove(\Bitrix\Sale\Internals\EO_GoodsSection $object)
-	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Sale\Internals\EO_GoodsSection_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 */
-	class EO_GoodsSection_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Sale\Internals\GoodsSectionTable */
-		static public $dataClass = '\Bitrix\Sale\Internals\GoodsSectionTable';
-	}
-}
-namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_GoodsSection_Query query()
-	 * @method static EO_GoodsSection_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_GoodsSection_Result getById($id)
-	 * @method static EO_GoodsSection_Result getList(array $parameters = array())
-	 * @method static EO_GoodsSection_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_GoodsSection createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_GoodsSection_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_GoodsSection wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_GoodsSection_Collection wakeUpCollection($rows)
-	 */
-	class GoodsSectionTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_GoodsSection_Result exec()
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection fetchObject()
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 */
-	class EO_GoodsSection_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection fetchObject()
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection_Collection fetchCollection()
-	 */
-	class EO_GoodsSection_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection createObject($setDefaultValues = true)
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection_Collection createCollection()
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection wakeUpObject($row)
-	 * @method \Bitrix\Sale\Internals\EO_GoodsSection_Collection wakeUpCollection($rows)
-	 */
-	class EO_GoodsSection_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxTable:sale/lib/cashbox/internals/cashbox.php:dae438de3e2168111ab7954ebf63674d */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxTable:sale/lib/cashbox/internals/cashbox.php:f6ee5d33e2850591845d00bef1de38cf */
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
 	 * EO_Cashbox
@@ -2962,16 +2199,16 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 * @method \Bitrix\Sale\Cashbox\Internals\EO_Cashbox resetDateLastCheck()
 	 * @method \Bitrix\Sale\Cashbox\Internals\EO_Cashbox unsetDateLastCheck()
 	 * @method \Bitrix\Main\Type\DateTime fillDateLastCheck()
-	 * @method \int getKkmId()
-	 * @method \Bitrix\Sale\Cashbox\Internals\EO_Cashbox setKkmId(\int|\Bitrix\Main\DB\SqlExpression $kkmId)
+	 * @method \string getKkmId()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_Cashbox setKkmId(\string|\Bitrix\Main\DB\SqlExpression $kkmId)
 	 * @method bool hasKkmId()
 	 * @method bool isKkmIdFilled()
 	 * @method bool isKkmIdChanged()
-	 * @method \int remindActualKkmId()
-	 * @method \int requireKkmId()
+	 * @method \string remindActualKkmId()
+	 * @method \string requireKkmId()
 	 * @method \Bitrix\Sale\Cashbox\Internals\EO_Cashbox resetKkmId()
 	 * @method \Bitrix\Sale\Cashbox\Internals\EO_Cashbox unsetKkmId()
-	 * @method \int fillKkmId()
+	 * @method \string fillKkmId()
 	 * @method \string getOfd()
 	 * @method \Bitrix\Sale\Cashbox\Internals\EO_Cashbox setOfd(\string|\Bitrix\Main\DB\SqlExpression $ofd)
 	 * @method bool hasOfd()
@@ -3090,8 +2327,8 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
 	 * @method \Bitrix\Main\Type\DateTime[] getDateLastCheckList()
 	 * @method \Bitrix\Main\Type\DateTime[] fillDateLastCheck()
-	 * @method \int[] getKkmIdList()
-	 * @method \int[] fillKkmId()
+	 * @method \string[] getKkmIdList()
+	 * @method \string[] fillKkmId()
 	 * @method \string[] getOfdList()
 	 * @method \string[] fillOfd()
 	 * @method \string[] getNumberKkmList()
@@ -3137,18 +2374,6 @@ namespace Bitrix\Sale\Cashbox\Internals {
 }
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
-	 * @method static EO_Cashbox_Query query()
-	 * @method static EO_Cashbox_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Cashbox_Result getById($id)
-	 * @method static EO_Cashbox_Result getList(array $parameters = array())
-	 * @method static EO_Cashbox_Entity getEntity()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_Cashbox createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_Cashbox_Collection createCollection()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_Cashbox wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_Cashbox_Collection wakeUpCollection($rows)
-	 */
-	class CashboxTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3174,7 +2399,7 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 */
 	class EO_Cashbox_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxCheckTable:sale/lib/cashbox/internals/cashboxcheck.php:d9ba2433fc7913bd50ad9eea4eb7080c */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxCheckTable:sale/lib/cashbox/internals/cashboxcheck.php:7d167bc1d092303bc6d4cd3a89125dd7 */
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
 	 * EO_CashboxCheck
@@ -3368,6 +2593,16 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck resetEntityRegistryType()
 	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck unsetEntityRegistryType()
 	 * @method \string fillEntityRegistryType()
+	 * @method \string getErrorMessage()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck setErrorMessage(\string|\Bitrix\Main\DB\SqlExpression $errorMessage)
+	 * @method bool hasErrorMessage()
+	 * @method bool isErrorMessageFilled()
+	 * @method bool isErrorMessageChanged()
+	 * @method \string remindActualErrorMessage()
+	 * @method \string requireErrorMessage()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck resetErrorMessage()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck unsetErrorMessage()
+	 * @method \string fillErrorMessage()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -3451,6 +2686,8 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 * @method \Bitrix\Sale\Cashbox\Internals\EO_Check2Cashbox_Collection fillCheck2cashbox()
 	 * @method \string[] getEntityRegistryTypeList()
 	 * @method \string[] fillEntityRegistryType()
+	 * @method \string[] getErrorMessageList()
+	 * @method \string[] fillErrorMessage()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -3484,18 +2721,6 @@ namespace Bitrix\Sale\Cashbox\Internals {
 }
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
-	 * @method static EO_CashboxCheck_Query query()
-	 * @method static EO_CashboxCheck_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CashboxCheck_Result getById($id)
-	 * @method static EO_CashboxCheck_Result getList(array $parameters = array())
-	 * @method static EO_CashboxCheck_Entity getEntity()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck_Collection createCollection()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck_Collection wakeUpCollection($rows)
-	 */
-	class CashboxCheckTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3520,6 +2745,219 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck_Collection wakeUpCollection($rows)
 	 */
 	class EO_CashboxCheck_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxCheckCorrectionTable:sale/lib/cashbox/internals/cashboxcheckcorrection.php:611d907153030bd83e23ad9e37942976 */
+namespace Bitrix\Sale\Cashbox\Internals {
+	/**
+	 * EO_CashboxCheckCorrection
+	 * @see \Bitrix\Sale\Cashbox\Internals\CashboxCheckCorrectionTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getCheckId()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection setCheckId(\int|\Bitrix\Main\DB\SqlExpression $checkId)
+	 * @method bool hasCheckId()
+	 * @method bool isCheckIdFilled()
+	 * @method bool isCheckIdChanged()
+	 * @method \int remindActualCheckId()
+	 * @method \int requireCheckId()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection resetCheckId()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection unsetCheckId()
+	 * @method \int fillCheckId()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck getCheck()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck remindActualCheck()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck requireCheck()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection setCheck(\Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck $object)
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection resetCheck()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection unsetCheck()
+	 * @method bool hasCheck()
+	 * @method bool isCheckFilled()
+	 * @method bool isCheckChanged()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck fillCheck()
+	 * @method \string getCorrectionType()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection setCorrectionType(\string|\Bitrix\Main\DB\SqlExpression $correctionType)
+	 * @method bool hasCorrectionType()
+	 * @method bool isCorrectionTypeFilled()
+	 * @method bool isCorrectionTypeChanged()
+	 * @method \string remindActualCorrectionType()
+	 * @method \string requireCorrectionType()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection resetCorrectionType()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection unsetCorrectionType()
+	 * @method \string fillCorrectionType()
+	 * @method \string getDocumentNumber()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection setDocumentNumber(\string|\Bitrix\Main\DB\SqlExpression $documentNumber)
+	 * @method bool hasDocumentNumber()
+	 * @method bool isDocumentNumberFilled()
+	 * @method bool isDocumentNumberChanged()
+	 * @method \string remindActualDocumentNumber()
+	 * @method \string requireDocumentNumber()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection resetDocumentNumber()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection unsetDocumentNumber()
+	 * @method \string fillDocumentNumber()
+	 * @method \Bitrix\Main\Type\Date getDocumentDate()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection setDocumentDate(\Bitrix\Main\Type\Date|\Bitrix\Main\DB\SqlExpression $documentDate)
+	 * @method bool hasDocumentDate()
+	 * @method bool isDocumentDateFilled()
+	 * @method bool isDocumentDateChanged()
+	 * @method \Bitrix\Main\Type\Date remindActualDocumentDate()
+	 * @method \Bitrix\Main\Type\Date requireDocumentDate()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection resetDocumentDate()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection unsetDocumentDate()
+	 * @method \Bitrix\Main\Type\Date fillDocumentDate()
+	 * @method \string getDescription()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection setDescription(\string|\Bitrix\Main\DB\SqlExpression $description)
+	 * @method bool hasDescription()
+	 * @method bool isDescriptionFilled()
+	 * @method bool isDescriptionChanged()
+	 * @method \string remindActualDescription()
+	 * @method \string requireDescription()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection resetDescription()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection unsetDescription()
+	 * @method \string fillDescription()
+	 * @method \string getCorrectionPayment()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection setCorrectionPayment(\string|\Bitrix\Main\DB\SqlExpression $correctionPayment)
+	 * @method bool hasCorrectionPayment()
+	 * @method bool isCorrectionPaymentFilled()
+	 * @method bool isCorrectionPaymentChanged()
+	 * @method \string remindActualCorrectionPayment()
+	 * @method \string requireCorrectionPayment()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection resetCorrectionPayment()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection unsetCorrectionPayment()
+	 * @method \string fillCorrectionPayment()
+	 * @method \string getCorrectionVat()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection setCorrectionVat(\string|\Bitrix\Main\DB\SqlExpression $correctionVat)
+	 * @method bool hasCorrectionVat()
+	 * @method bool isCorrectionVatFilled()
+	 * @method bool isCorrectionVatChanged()
+	 * @method \string remindActualCorrectionVat()
+	 * @method \string requireCorrectionVat()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection resetCorrectionVat()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection unsetCorrectionVat()
+	 * @method \string fillCorrectionVat()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection set($fieldName, $value)
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection reset($fieldName)
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection wakeUp($data)
+	 */
+	class EO_CashboxCheckCorrection {
+		/* @var \Bitrix\Sale\Cashbox\Internals\CashboxCheckCorrectionTable */
+		static public $dataClass = '\Bitrix\Sale\Cashbox\Internals\CashboxCheckCorrectionTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sale\Cashbox\Internals {
+	/**
+	 * EO_CashboxCheckCorrection_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getCheckIdList()
+	 * @method \int[] fillCheckId()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck[] getCheckList()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection_Collection getCheckCollection()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck_Collection fillCheck()
+	 * @method \string[] getCorrectionTypeList()
+	 * @method \string[] fillCorrectionType()
+	 * @method \string[] getDocumentNumberList()
+	 * @method \string[] fillDocumentNumber()
+	 * @method \Bitrix\Main\Type\Date[] getDocumentDateList()
+	 * @method \Bitrix\Main\Type\Date[] fillDocumentDate()
+	 * @method \string[] getDescriptionList()
+	 * @method \string[] fillDescription()
+	 * @method \string[] getCorrectionPaymentList()
+	 * @method \string[] fillCorrectionPayment()
+	 * @method \string[] getCorrectionVatList()
+	 * @method \string[] fillCorrectionVat()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection $object)
+	 * @method bool has(\Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection getByPrimary($primary)
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection[] getAll()
+	 * @method bool remove(\Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_CashboxCheckCorrection_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sale\Cashbox\Internals\CashboxCheckCorrectionTable */
+		static public $dataClass = '\Bitrix\Sale\Cashbox\Internals\CashboxCheckCorrectionTable';
+	}
+}
+namespace Bitrix\Sale\Cashbox\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_CashboxCheckCorrection_Result exec()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection fetchObject()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_CashboxCheckCorrection_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection fetchObject()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection_Collection fetchCollection()
+	 */
+	class EO_CashboxCheckCorrection_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection_Collection createCollection()
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection wakeUpObject($row)
+	 * @method \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheckCorrection_Collection wakeUpCollection($rows)
+	 */
+	class EO_CashboxCheckCorrection_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Sale\Cashbox\Internals\CashboxConnectTable:sale/lib/cashbox/internals/cashboxconnect.php:8da9f5dd64d318d7d1d86666ca51971b */
 namespace Bitrix\Sale\Cashbox\Internals {
@@ -3635,18 +3073,6 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	}
 }
 namespace Bitrix\Sale\Cashbox\Internals {
-	/**
-	 * @method static EO_CashboxConnect_Query query()
-	 * @method static EO_CashboxConnect_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CashboxConnect_Result getById($id)
-	 * @method static EO_CashboxConnect_Result getList(array $parameters = array())
-	 * @method static EO_CashboxConnect_Entity getEntity()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxConnect createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxConnect_Collection createCollection()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxConnect wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxConnect_Collection wakeUpCollection($rows)
-	 */
-	class CashboxConnectTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -3799,18 +3225,6 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	}
 }
 namespace Bitrix\Sale\Cashbox\Internals {
-	/**
-	 * @method static EO_CashboxErrLog_Query query()
-	 * @method static EO_CashboxErrLog_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CashboxErrLog_Result getById($id)
-	 * @method static EO_CashboxErrLog_Result getList(array $parameters = array())
-	 * @method static EO_CashboxErrLog_Entity getEntity()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxErrLog createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxErrLog_Collection createCollection()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxErrLog wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxErrLog_Collection wakeUpCollection($rows)
-	 */
-	class CashboxErrLogTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -4072,18 +3486,6 @@ namespace Bitrix\Sale\Cashbox\Internals {
 }
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
-	 * @method static EO_CashboxZReport_Query query()
-	 * @method static EO_CashboxZReport_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CashboxZReport_Result getById($id)
-	 * @method static EO_CashboxZReport_Result getList(array $parameters = array())
-	 * @method static EO_CashboxZReport_Entity getEntity()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxZReport createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxZReport_Collection createCollection()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxZReport wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxZReport_Collection wakeUpCollection($rows)
-	 */
-	class CashboxZReportTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4223,18 +3625,6 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	}
 }
 namespace Bitrix\Sale\Cashbox\Internals {
-	/**
-	 * @method static EO_Check2Cashbox_Query query()
-	 * @method static EO_Check2Cashbox_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Check2Cashbox_Result getById($id)
-	 * @method static EO_Check2Cashbox_Result getList(array $parameters = array())
-	 * @method static EO_Check2Cashbox_Entity getEntity()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_Check2Cashbox createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_Check2Cashbox_Collection createCollection()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_Check2Cashbox wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_Check2Cashbox_Collection wakeUpCollection($rows)
-	 */
-	class Check2CashboxTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -4400,18 +3790,6 @@ namespace Bitrix\Sale\Cashbox\Internals {
 }
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
-	 * @method static EO_CheckRelatedEntities_Query query()
-	 * @method static EO_CheckRelatedEntities_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CheckRelatedEntities_Result getById($id)
-	 * @method static EO_CheckRelatedEntities_Result getList(array $parameters = array())
-	 * @method static EO_CheckRelatedEntities_Entity getEntity()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CheckRelatedEntities createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CheckRelatedEntities_Collection createCollection()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CheckRelatedEntities wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_CheckRelatedEntities_Collection wakeUpCollection($rows)
-	 */
-	class CheckRelatedEntitiesTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4552,18 +3930,6 @@ namespace Bitrix\Sale\Cashbox\Internals {
 }
 namespace Bitrix\Sale\Cashbox\Internals {
 	/**
-	 * @method static EO_KkmModel_Query query()
-	 * @method static EO_KkmModel_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_KkmModel_Result getById($id)
-	 * @method static EO_KkmModel_Result getList(array $parameters = array())
-	 * @method static EO_KkmModel_Entity getEntity()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_KkmModel createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_KkmModel_Collection createCollection()
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_KkmModel wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Cashbox\Internals\EO_KkmModel_Collection wakeUpCollection($rows)
-	 */
-	class KkmModelTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4589,7 +3955,7 @@ namespace Bitrix\Sale\Cashbox\Internals {
 	 */
 	class EO_KkmModel_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\DeliveryLocationTable:sale/lib/delivery/deliverylocation.php:b104f9cfbd2a1bef6da6c20eee008f09 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\DeliveryLocationTable:sale/lib/delivery/deliverylocation.php:eb51306de71764286ed9421a09f26d6a */
 namespace Bitrix\Sale\Delivery {
 	/**
 	 * EO_DeliveryLocation
@@ -4730,18 +4096,6 @@ namespace Bitrix\Sale\Delivery {
 	}
 }
 namespace Bitrix\Sale\Delivery {
-	/**
-	 * @method static EO_DeliveryLocation_Query query()
-	 * @method static EO_DeliveryLocation_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DeliveryLocation_Result getById($id)
-	 * @method static EO_DeliveryLocation_Result getList(array $parameters = array())
-	 * @method static EO_DeliveryLocation_Entity getEntity()
-	 * @method static \Bitrix\Sale\Delivery\EO_DeliveryLocation createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Delivery\EO_DeliveryLocation_Collection createCollection()
-	 * @method static \Bitrix\Sale\Delivery\EO_DeliveryLocation wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Delivery\EO_DeliveryLocation_Collection wakeUpCollection($rows)
-	 */
-	class DeliveryLocationTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -4910,18 +4264,6 @@ namespace Bitrix\Sale\Delivery {
 }
 namespace Bitrix\Sale\Delivery {
 	/**
-	 * @method static EO_DeliveryLocationExclude_Query query()
-	 * @method static EO_DeliveryLocationExclude_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DeliveryLocationExclude_Result getById($id)
-	 * @method static EO_DeliveryLocationExclude_Result getList(array $parameters = array())
-	 * @method static EO_DeliveryLocationExclude_Entity getEntity()
-	 * @method static \Bitrix\Sale\Delivery\EO_DeliveryLocationExclude createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Delivery\EO_DeliveryLocationExclude_Collection createCollection()
-	 * @method static \Bitrix\Sale\Delivery\EO_DeliveryLocationExclude wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Delivery\EO_DeliveryLocationExclude_Collection wakeUpCollection($rows)
-	 */
-	class DeliveryLocationExcludeTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4947,7 +4289,7 @@ namespace Bitrix\Sale\Delivery {
 	 */
 	class EO_DeliveryLocationExclude_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\ExtraServices\Table:sale/lib/delivery/extra_services/table.php:857223e2af63e126fde17604688c0311 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\ExtraServices\Table:sale/lib/delivery/extra_services/table.php:407b8a7cb2bd9ca68162b4199c402ee1 */
 namespace Bitrix\Sale\Delivery\ExtraServices {
 	/**
 	 * EO_NNM_Object
@@ -5001,16 +4343,16 @@ namespace Bitrix\Sale\Delivery\ExtraServices {
 	 * @method \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object resetClassName()
 	 * @method \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object unsetClassName()
 	 * @method \string fillClassName()
-	 * @method \string getParams()
-	 * @method \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object setParams(\string|\Bitrix\Main\DB\SqlExpression $params)
+	 * @method array getParams()
+	 * @method \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object setParams(array|\Bitrix\Main\DB\SqlExpression $params)
 	 * @method bool hasParams()
 	 * @method bool isParamsFilled()
 	 * @method bool isParamsChanged()
-	 * @method \string remindActualParams()
-	 * @method \string requireParams()
+	 * @method array remindActualParams()
+	 * @method array requireParams()
 	 * @method \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object resetParams()
 	 * @method \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object unsetParams()
-	 * @method \string fillParams()
+	 * @method array fillParams()
 	 * @method \string getRights()
 	 * @method \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object setRights(\string|\Bitrix\Main\DB\SqlExpression $rights)
 	 * @method bool hasRights()
@@ -5123,8 +4465,8 @@ namespace Bitrix\Sale\Delivery\ExtraServices {
 	 * @method \string[] fillDescription()
 	 * @method \string[] getClassNameList()
 	 * @method \string[] fillClassName()
-	 * @method \string[] getParamsList()
-	 * @method \string[] fillParams()
+	 * @method array[] getParamsList()
+	 * @method array[] fillParams()
 	 * @method \string[] getRightsList()
 	 * @method \string[] fillRights()
 	 * @method \int[] getDeliveryIdList()
@@ -5170,18 +4512,6 @@ namespace Bitrix\Sale\Delivery\ExtraServices {
 	}
 }
 namespace Bitrix\Sale\Delivery\ExtraServices {
-	/**
-	 * @method static EO__Query query()
-	 * @method static EO__Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO__Result getById($id)
-	 * @method static EO__Result getList(array $parameters = array())
-	 * @method static EO__Entity getEntity()
-	 * @method static \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Delivery\ExtraServices\EO__Collection createCollection()
-	 * @method static \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Delivery\ExtraServices\EO__Collection wakeUpCollection($rows)
-	 */
-	class Table extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -5359,18 +4689,6 @@ namespace Bitrix\Sale\Delivery\Requests {
 	}
 }
 namespace Bitrix\Sale\Delivery\Requests {
-	/**
-	 * @method static EO_Request_Query query()
-	 * @method static EO_Request_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Request_Result getById($id)
-	 * @method static EO_Request_Result getList(array $parameters = array())
-	 * @method static EO_Request_Entity getEntity()
-	 * @method static \Bitrix\Sale\Delivery\Requests\EO_Request createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Delivery\Requests\EO_Request_Collection createCollection()
-	 * @method static \Bitrix\Sale\Delivery\Requests\EO_Request wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Delivery\Requests\EO_Request_Collection wakeUpCollection($rows)
-	 */
-	class RequestTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -5562,18 +4880,6 @@ namespace Bitrix\Sale\Delivery\Requests {
 }
 namespace Bitrix\Sale\Delivery\Requests {
 	/**
-	 * @method static EO_Shipment_Query query()
-	 * @method static EO_Shipment_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Shipment_Result getById($id)
-	 * @method static EO_Shipment_Result getList(array $parameters = array())
-	 * @method static EO_Shipment_Entity getEntity()
-	 * @method static \Bitrix\Sale\Delivery\Requests\EO_Shipment createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Delivery\Requests\EO_Shipment_Collection createCollection()
-	 * @method static \Bitrix\Sale\Delivery\Requests\EO_Shipment wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Delivery\Requests\EO_Shipment_Collection wakeUpCollection($rows)
-	 */
-	class ShipmentTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -5599,7 +4905,7 @@ namespace Bitrix\Sale\Delivery\Requests {
 	 */
 	class EO_Shipment_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\Rest\Internals\DeliveryRestHandlerTable:sale/lib/delivery/rest/internals/deliveryresthandlertable.php:3e8132950d851fe31e1612151a39a0b3 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Delivery\Rest\Internals\DeliveryRestHandlerTable:sale/lib/delivery/rest/internals/deliveryresthandlertable.php:162fe624c72a042aa5c018e32dfc4e52 */
 namespace Bitrix\Sale\Delivery\Rest\Internals {
 	/**
 	 * EO_DeliveryRestHandler
@@ -5673,6 +4979,16 @@ namespace Bitrix\Sale\Delivery\Rest\Internals {
 	 * @method \Bitrix\Sale\Delivery\Rest\Internals\EO_DeliveryRestHandler resetProfiles()
 	 * @method \Bitrix\Sale\Delivery\Rest\Internals\EO_DeliveryRestHandler unsetProfiles()
 	 * @method \string fillProfiles()
+	 * @method \string getAppId()
+	 * @method \Bitrix\Sale\Delivery\Rest\Internals\EO_DeliveryRestHandler setAppId(\string|\Bitrix\Main\DB\SqlExpression $appId)
+	 * @method bool hasAppId()
+	 * @method bool isAppIdFilled()
+	 * @method bool isAppIdChanged()
+	 * @method \string remindActualAppId()
+	 * @method \string requireAppId()
+	 * @method \Bitrix\Sale\Delivery\Rest\Internals\EO_DeliveryRestHandler resetAppId()
+	 * @method \Bitrix\Sale\Delivery\Rest\Internals\EO_DeliveryRestHandler unsetAppId()
+	 * @method \string fillAppId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -5729,6 +5045,8 @@ namespace Bitrix\Sale\Delivery\Rest\Internals {
 	 * @method \string[] fillSettings()
 	 * @method \string[] getProfilesList()
 	 * @method \string[] fillProfiles()
+	 * @method \string[] getAppIdList()
+	 * @method \string[] fillAppId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -5761,18 +5079,6 @@ namespace Bitrix\Sale\Delivery\Rest\Internals {
 	}
 }
 namespace Bitrix\Sale\Delivery\Rest\Internals {
-	/**
-	 * @method static EO_DeliveryRestHandler_Query query()
-	 * @method static EO_DeliveryRestHandler_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DeliveryRestHandler_Result getById($id)
-	 * @method static EO_DeliveryRestHandler_Result getList(array $parameters = array())
-	 * @method static EO_DeliveryRestHandler_Entity getEntity()
-	 * @method static \Bitrix\Sale\Delivery\Rest\Internals\EO_DeliveryRestHandler createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Delivery\Rest\Internals\EO_DeliveryRestHandler_Collection createCollection()
-	 * @method static \Bitrix\Sale\Delivery\Rest\Internals\EO_DeliveryRestHandler wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Delivery\Rest\Internals\EO_DeliveryRestHandler_Collection wakeUpCollection($rows)
-	 */
-	class DeliveryRestHandlerTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -6071,18 +5377,6 @@ namespace Bitrix\Sale\Delivery\Services {
 }
 namespace Bitrix\Sale\Delivery\Services {
 	/**
-	 * @method static EO__Query query()
-	 * @method static EO__Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO__Result getById($id)
-	 * @method static EO__Result getList(array $parameters = array())
-	 * @method static EO__Entity getEntity()
-	 * @method static \Bitrix\Sale\Delivery\Services\EO_NNM_Object createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Delivery\Services\EO__Collection createCollection()
-	 * @method static \Bitrix\Sale\Delivery\Services\EO_NNM_Object wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Delivery\Services\EO__Collection wakeUpCollection($rows)
-	 */
-	class Table extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -6108,7 +5402,7 @@ namespace Bitrix\Sale\Delivery\Services {
 	 */
 	class EO__Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Discount\Gift\RelatedDataTable:sale/lib/discount/gift/relateddata.php:9c2d35270dd003d481a90809a50de492 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Discount\Gift\RelatedDataTable:sale/lib/discount/gift/relateddata.php:8c786b0adde891711b89b16aaaf6812c */
 namespace Bitrix\Sale\Discount\Gift {
 	/**
 	 * EO_RelatedData
@@ -6272,18 +5566,6 @@ namespace Bitrix\Sale\Discount\Gift {
 	}
 }
 namespace Bitrix\Sale\Discount\Gift {
-	/**
-	 * @method static EO_RelatedData_Query query()
-	 * @method static EO_RelatedData_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_RelatedData_Result getById($id)
-	 * @method static EO_RelatedData_Result getList(array $parameters = array())
-	 * @method static EO_RelatedData_Entity getEntity()
-	 * @method static \Bitrix\Sale\Discount\Gift\EO_RelatedData createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Discount\Gift\EO_RelatedData_Collection createCollection()
-	 * @method static \Bitrix\Sale\Discount\Gift\EO_RelatedData wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Discount\Gift\EO_RelatedData_Collection wakeUpCollection($rows)
-	 */
-	class RelatedDataTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -6451,18 +5733,6 @@ namespace Bitrix\Sale\Discount\Index {
 }
 namespace Bitrix\Sale\Discount\Index {
 	/**
-	 * @method static EO_IndexElement_Query query()
-	 * @method static EO_IndexElement_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_IndexElement_Result getById($id)
-	 * @method static EO_IndexElement_Result getList(array $parameters = array())
-	 * @method static EO_IndexElement_Entity getEntity()
-	 * @method static \Bitrix\Sale\Discount\Index\EO_IndexElement createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Discount\Index\EO_IndexElement_Collection createCollection()
-	 * @method static \Bitrix\Sale\Discount\Index\EO_IndexElement wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Discount\Index\EO_IndexElement_Collection wakeUpCollection($rows)
-	 */
-	class IndexElementTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -6629,18 +5899,6 @@ namespace Bitrix\Sale\Discount\Index {
 }
 namespace Bitrix\Sale\Discount\Index {
 	/**
-	 * @method static EO_IndexSection_Query query()
-	 * @method static EO_IndexSection_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_IndexSection_Result getById($id)
-	 * @method static EO_IndexSection_Result getList(array $parameters = array())
-	 * @method static EO_IndexSection_Entity getEntity()
-	 * @method static \Bitrix\Sale\Discount\Index\EO_IndexSection createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Discount\Index\EO_IndexSection_Collection createCollection()
-	 * @method static \Bitrix\Sale\Discount\Index\EO_IndexSection wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Discount\Index\EO_IndexSection_Collection wakeUpCollection($rows)
-	 */
-	class IndexSectionTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -6804,18 +6062,6 @@ namespace Bitrix\Sale\Domain\Verification\Internals {
 	}
 }
 namespace Bitrix\Sale\Domain\Verification\Internals {
-	/**
-	 * @method static EO_DomainVerification_Query query()
-	 * @method static EO_DomainVerification_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DomainVerification_Result getById($id)
-	 * @method static EO_DomainVerification_Result getList(array $parameters = array())
-	 * @method static EO_DomainVerification_Entity getEntity()
-	 * @method static \Bitrix\Sale\Domain\Verification\Internals\EO_DomainVerification createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Domain\Verification\Internals\EO_DomainVerification_Collection createCollection()
-	 * @method static \Bitrix\Sale\Domain\Verification\Internals\EO_DomainVerification wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Domain\Verification\Internals\EO_DomainVerification_Collection wakeUpCollection($rows)
-	 */
-	class DomainVerificationTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -6987,18 +6233,6 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 }
 namespace Bitrix\Sale\Exchange\Integration\Entity {
 	/**
-	 * @method static EO_B24IntegrationBind_Query query()
-	 * @method static EO_B24IntegrationBind_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_B24IntegrationBind_Result getById($id)
-	 * @method static EO_B24IntegrationBind_Result getList(array $parameters = array())
-	 * @method static EO_B24IntegrationBind_Entity getEntity()
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationBind createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationBind_Collection createCollection()
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationBind wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationBind_Collection wakeUpCollection($rows)
-	 */
-	class B24IntegrationBindTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -7157,18 +6391,6 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 }
 namespace Bitrix\Sale\Exchange\Integration\Entity {
 	/**
-	 * @method static EO_B24IntegrationRelation_Query query()
-	 * @method static EO_B24IntegrationRelation_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_B24IntegrationRelation_Result getById($id)
-	 * @method static EO_B24IntegrationRelation_Result getList(array $parameters = array())
-	 * @method static EO_B24IntegrationRelation_Entity getEntity()
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationRelation createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationRelation_Collection createCollection()
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationRelation wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationRelation_Collection wakeUpCollection($rows)
-	 */
-	class B24IntegrationRelationTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -7194,7 +6416,7 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 	 */
 	class EO_B24IntegrationRelation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Exchange\Integration\Entity\B24IntegrationStatProviderTable:sale/lib/exchange/integration/entity/b24Integrationstatprovidertable.php:0dc3b02b9d7042544ee3a89d3a6108fd */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Exchange\Integration\Entity\B24IntegrationStatProviderTable:sale/lib/exchange/integration/entity/b24integrationstatprovidertable.php:0dc3b02b9d7042544ee3a89d3a6108fd */
 namespace Bitrix\Sale\Exchange\Integration\Entity {
 	/**
 	 * EO_B24IntegrationStatProvider
@@ -7344,18 +6566,6 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 	}
 }
 namespace Bitrix\Sale\Exchange\Integration\Entity {
-	/**
-	 * @method static EO_B24IntegrationStatProvider_Query query()
-	 * @method static EO_B24IntegrationStatProvider_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_B24IntegrationStatProvider_Result getById($id)
-	 * @method static EO_B24IntegrationStatProvider_Result getList(array $parameters = array())
-	 * @method static EO_B24IntegrationStatProvider_Entity getEntity()
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationStatProvider createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationStatProvider_Collection createCollection()
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationStatProvider wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24IntegrationStatProvider_Collection wakeUpCollection($rows)
-	 */
-	class B24IntegrationStatProviderTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -7581,18 +6791,6 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 }
 namespace Bitrix\Sale\Exchange\Integration\Entity {
 	/**
-	 * @method static EO_B24integrationStat_Query query()
-	 * @method static EO_B24integrationStat_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_B24integrationStat_Result getById($id)
-	 * @method static EO_B24integrationStat_Result getList(array $parameters = array())
-	 * @method static EO_B24integrationStat_Entity getEntity()
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24integrationStat createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24integrationStat_Collection createCollection()
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24integrationStat wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24integrationStat_Collection wakeUpCollection($rows)
-	 */
-	class B24integrationStatTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -7804,18 +7002,6 @@ namespace Bitrix\Sale\Exchange\Integration\Entity {
 	}
 }
 namespace Bitrix\Sale\Exchange\Integration\Entity {
-	/**
-	 * @method static EO_B24integrationToken_Query query()
-	 * @method static EO_B24integrationToken_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_B24integrationToken_Result getById($id)
-	 * @method static EO_B24integrationToken_Result getList(array $parameters = array())
-	 * @method static EO_B24integrationToken_Entity getEntity()
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\Token createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24integrationToken_Collection createCollection()
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\Token wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Exchange\Integration\Entity\EO_B24integrationToken_Collection wakeUpCollection($rows)
-	 */
-	class B24integrationTokenTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -8077,18 +7263,6 @@ namespace Bitrix\Sale\Exchange\Internals {
 }
 namespace Bitrix\Sale\Exchange\Internals {
 	/**
-	 * @method static EO_ExchangeLog_Query query()
-	 * @method static EO_ExchangeLog_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ExchangeLog_Result getById($id)
-	 * @method static EO_ExchangeLog_Result getList(array $parameters = array())
-	 * @method static EO_ExchangeLog_Entity getEntity()
-	 * @method static \Bitrix\Sale\Exchange\Internals\EO_ExchangeLog createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Exchange\Internals\EO_ExchangeLog_Collection createCollection()
-	 * @method static \Bitrix\Sale\Exchange\Internals\EO_ExchangeLog wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Exchange\Internals\EO_ExchangeLog_Collection wakeUpCollection($rows)
-	 */
-	class ExchangeLogTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -8224,18 +7398,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_BusinessValuePersonDomain_Query query()
-	 * @method static EO_BusinessValuePersonDomain_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_BusinessValuePersonDomain_Result getById($id)
-	 * @method static EO_BusinessValuePersonDomain_Result getList(array $parameters = array())
-	 * @method static EO_BusinessValuePersonDomain_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_BusinessValuePersonDomain createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_BusinessValuePersonDomain_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_BusinessValuePersonDomain wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_BusinessValuePersonDomain_Collection wakeUpCollection($rows)
-	 */
-	class BusinessValuePersonDomainTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -8358,18 +7520,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_PersonTypeSite_Query query()
-	 * @method static EO_PersonTypeSite_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PersonTypeSite_Result getById($id)
-	 * @method static EO_PersonTypeSite_Result getList(array $parameters = array())
-	 * @method static EO_PersonTypeSite_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_PersonTypeSite createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_PersonTypeSite_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_PersonTypeSite wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_PersonTypeSite_Collection wakeUpCollection($rows)
-	 */
-	class PersonTypeSiteTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -8394,888 +7544,6 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_PersonTypeSite_Collection wakeUpCollection($rows)
 	 */
 	class EO_PersonTypeSite_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BasketTable:sale/lib/internals/basket.php:a8b39439cdc74bbbbd9b16cbbf29b248 */
-namespace Bitrix\Sale\Internals {
-	/**
-	 * EO_Basket
-	 * @see \Bitrix\Sale\Internals\BasketTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \string getLid()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setLid(\string|\Bitrix\Main\DB\SqlExpression $lid)
-	 * @method bool hasLid()
-	 * @method bool isLidFilled()
-	 * @method bool isLidChanged()
-	 * @method \string remindActualLid()
-	 * @method \string requireLid()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetLid()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetLid()
-	 * @method \string fillLid()
-	 * @method \int getFuserId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setFuserId(\int|\Bitrix\Main\DB\SqlExpression $fuserId)
-	 * @method bool hasFuserId()
-	 * @method bool isFuserIdFilled()
-	 * @method bool isFuserIdChanged()
-	 * @method \int remindActualFuserId()
-	 * @method \int requireFuserId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetFuserId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetFuserId()
-	 * @method \int fillFuserId()
-	 * @method \Bitrix\Sale\Internals\EO_Fuser getFuser()
-	 * @method \Bitrix\Sale\Internals\EO_Fuser remindActualFuser()
-	 * @method \Bitrix\Sale\Internals\EO_Fuser requireFuser()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setFuser(\Bitrix\Sale\Internals\EO_Fuser $object)
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetFuser()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetFuser()
-	 * @method bool hasFuser()
-	 * @method bool isFuserFilled()
-	 * @method bool isFuserChanged()
-	 * @method \Bitrix\Sale\Internals\EO_Fuser fillFuser()
-	 * @method \Bitrix\Main\EO_User getUser()
-	 * @method \Bitrix\Main\EO_User remindActualUser()
-	 * @method \Bitrix\Main\EO_User requireUser()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setUser(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetUser()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetUser()
-	 * @method bool hasUser()
-	 * @method bool isUserFilled()
-	 * @method bool isUserChanged()
-	 * @method \Bitrix\Main\EO_User fillUser()
-	 * @method \int getOrderId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setOrderId(\int|\Bitrix\Main\DB\SqlExpression $orderId)
-	 * @method bool hasOrderId()
-	 * @method bool isOrderIdFilled()
-	 * @method bool isOrderIdChanged()
-	 * @method \int remindActualOrderId()
-	 * @method \int requireOrderId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetOrderId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetOrderId()
-	 * @method \int fillOrderId()
-	 * @method \Bitrix\Sale\Internals\EO_Order getOrder()
-	 * @method \Bitrix\Sale\Internals\EO_Order remindActualOrder()
-	 * @method \Bitrix\Sale\Internals\EO_Order requireOrder()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setOrder(\Bitrix\Sale\Internals\EO_Order $object)
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetOrder()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetOrder()
-	 * @method bool hasOrder()
-	 * @method bool isOrderFilled()
-	 * @method bool isOrderChanged()
-	 * @method \Bitrix\Sale\Internals\EO_Order fillOrder()
-	 * @method \int getProductId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setProductId(\int|\Bitrix\Main\DB\SqlExpression $productId)
-	 * @method bool hasProductId()
-	 * @method bool isProductIdFilled()
-	 * @method bool isProductIdChanged()
-	 * @method \int remindActualProductId()
-	 * @method \int requireProductId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetProductId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetProductId()
-	 * @method \int fillProductId()
-	 * @method \Bitrix\Sale\Internals\EO_Product getProduct()
-	 * @method \Bitrix\Sale\Internals\EO_Product remindActualProduct()
-	 * @method \Bitrix\Sale\Internals\EO_Product requireProduct()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setProduct(\Bitrix\Sale\Internals\EO_Product $object)
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetProduct()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetProduct()
-	 * @method bool hasProduct()
-	 * @method bool isProductFilled()
-	 * @method bool isProductChanged()
-	 * @method \Bitrix\Sale\Internals\EO_Product fillProduct()
-	 * @method \int getProductPriceId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setProductPriceId(\int|\Bitrix\Main\DB\SqlExpression $productPriceId)
-	 * @method bool hasProductPriceId()
-	 * @method bool isProductPriceIdFilled()
-	 * @method bool isProductPriceIdChanged()
-	 * @method \int remindActualProductPriceId()
-	 * @method \int requireProductPriceId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetProductPriceId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetProductPriceId()
-	 * @method \int fillProductPriceId()
-	 * @method \int getPriceTypeId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setPriceTypeId(\int|\Bitrix\Main\DB\SqlExpression $priceTypeId)
-	 * @method bool hasPriceTypeId()
-	 * @method bool isPriceTypeIdFilled()
-	 * @method bool isPriceTypeIdChanged()
-	 * @method \int remindActualPriceTypeId()
-	 * @method \int requirePriceTypeId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetPriceTypeId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetPriceTypeId()
-	 * @method \int fillPriceTypeId()
-	 * @method \string getName()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setName(\string|\Bitrix\Main\DB\SqlExpression $name)
-	 * @method bool hasName()
-	 * @method bool isNameFilled()
-	 * @method bool isNameChanged()
-	 * @method \string remindActualName()
-	 * @method \string requireName()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetName()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetName()
-	 * @method \string fillName()
-	 * @method \string getNameWithIdent()
-	 * @method \string remindActualNameWithIdent()
-	 * @method \string requireNameWithIdent()
-	 * @method bool hasNameWithIdent()
-	 * @method bool isNameWithIdentFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetNameWithIdent()
-	 * @method \string fillNameWithIdent()
-	 * @method \float getPrice()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setPrice(\float|\Bitrix\Main\DB\SqlExpression $price)
-	 * @method bool hasPrice()
-	 * @method bool isPriceFilled()
-	 * @method bool isPriceChanged()
-	 * @method \float remindActualPrice()
-	 * @method \float requirePrice()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetPrice()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetPrice()
-	 * @method \float fillPrice()
-	 * @method \string getCurrency()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setCurrency(\string|\Bitrix\Main\DB\SqlExpression $currency)
-	 * @method bool hasCurrency()
-	 * @method bool isCurrencyFilled()
-	 * @method bool isCurrencyChanged()
-	 * @method \string remindActualCurrency()
-	 * @method \string requireCurrency()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetCurrency()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetCurrency()
-	 * @method \string fillCurrency()
-	 * @method \float getBasePrice()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setBasePrice(\float|\Bitrix\Main\DB\SqlExpression $basePrice)
-	 * @method bool hasBasePrice()
-	 * @method bool isBasePriceFilled()
-	 * @method bool isBasePriceChanged()
-	 * @method \float remindActualBasePrice()
-	 * @method \float requireBasePrice()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetBasePrice()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetBasePrice()
-	 * @method \float fillBasePrice()
-	 * @method \boolean getVatIncluded()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setVatIncluded(\boolean|\Bitrix\Main\DB\SqlExpression $vatIncluded)
-	 * @method bool hasVatIncluded()
-	 * @method bool isVatIncludedFilled()
-	 * @method bool isVatIncludedChanged()
-	 * @method \boolean remindActualVatIncluded()
-	 * @method \boolean requireVatIncluded()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetVatIncluded()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetVatIncluded()
-	 * @method \boolean fillVatIncluded()
-	 * @method \Bitrix\Main\Type\DateTime getDateInsert()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setDateInsert(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateInsert)
-	 * @method bool hasDateInsert()
-	 * @method bool isDateInsertFilled()
-	 * @method bool isDateInsertChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateInsert()
-	 * @method \Bitrix\Main\Type\DateTime requireDateInsert()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetDateInsert()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDateInsert()
-	 * @method \Bitrix\Main\Type\DateTime fillDateInsert()
-	 * @method \Bitrix\Main\Type\DateTime getDateIns()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateIns()
-	 * @method \Bitrix\Main\Type\DateTime requireDateIns()
-	 * @method bool hasDateIns()
-	 * @method bool isDateInsFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDateIns()
-	 * @method \Bitrix\Main\Type\DateTime fillDateIns()
-	 * @method \Bitrix\Main\Type\DateTime getDateUpdate()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setDateUpdate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateUpdate)
-	 * @method bool hasDateUpdate()
-	 * @method bool isDateUpdateFilled()
-	 * @method bool isDateUpdateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateUpdate()
-	 * @method \Bitrix\Main\Type\DateTime requireDateUpdate()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetDateUpdate()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDateUpdate()
-	 * @method \Bitrix\Main\Type\DateTime fillDateUpdate()
-	 * @method \Bitrix\Main\Type\DateTime getDateUpd()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateUpd()
-	 * @method \Bitrix\Main\Type\DateTime requireDateUpd()
-	 * @method bool hasDateUpd()
-	 * @method bool isDateUpdFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDateUpd()
-	 * @method \Bitrix\Main\Type\DateTime fillDateUpd()
-	 * @method \Bitrix\Main\Type\DateTime getDateRefresh()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setDateRefresh(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateRefresh)
-	 * @method bool hasDateRefresh()
-	 * @method bool isDateRefreshFilled()
-	 * @method bool isDateRefreshChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateRefresh()
-	 * @method \Bitrix\Main\Type\DateTime requireDateRefresh()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetDateRefresh()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDateRefresh()
-	 * @method \Bitrix\Main\Type\DateTime fillDateRefresh()
-	 * @method \Bitrix\Main\Type\DateTime getDateRef()
-	 * @method \Bitrix\Main\Type\DateTime remindActualDateRef()
-	 * @method \Bitrix\Main\Type\DateTime requireDateRef()
-	 * @method bool hasDateRef()
-	 * @method bool isDateRefFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDateRef()
-	 * @method \Bitrix\Main\Type\DateTime fillDateRef()
-	 * @method \float getWeight()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setWeight(\float|\Bitrix\Main\DB\SqlExpression $weight)
-	 * @method bool hasWeight()
-	 * @method bool isWeightFilled()
-	 * @method bool isWeightChanged()
-	 * @method \float remindActualWeight()
-	 * @method \float requireWeight()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetWeight()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetWeight()
-	 * @method \float fillWeight()
-	 * @method \float getQuantity()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setQuantity(\float|\Bitrix\Main\DB\SqlExpression $quantity)
-	 * @method bool hasQuantity()
-	 * @method bool isQuantityFilled()
-	 * @method bool isQuantityChanged()
-	 * @method \float remindActualQuantity()
-	 * @method \float requireQuantity()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetQuantity()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetQuantity()
-	 * @method \float fillQuantity()
-	 * @method \boolean getDelay()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setDelay(\boolean|\Bitrix\Main\DB\SqlExpression $delay)
-	 * @method bool hasDelay()
-	 * @method bool isDelayFilled()
-	 * @method bool isDelayChanged()
-	 * @method \boolean remindActualDelay()
-	 * @method \boolean requireDelay()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetDelay()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDelay()
-	 * @method \boolean fillDelay()
-	 * @method \float getSummaryPrice()
-	 * @method \float remindActualSummaryPrice()
-	 * @method \float requireSummaryPrice()
-	 * @method bool hasSummaryPrice()
-	 * @method bool isSummaryPriceFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetSummaryPrice()
-	 * @method \float fillSummaryPrice()
-	 * @method \boolean getCanBuy()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setCanBuy(\boolean|\Bitrix\Main\DB\SqlExpression $canBuy)
-	 * @method bool hasCanBuy()
-	 * @method bool isCanBuyFilled()
-	 * @method bool isCanBuyChanged()
-	 * @method \boolean remindActualCanBuy()
-	 * @method \boolean requireCanBuy()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetCanBuy()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetCanBuy()
-	 * @method \boolean fillCanBuy()
-	 * @method \string getMarkingCodeGroup()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setMarkingCodeGroup(\string|\Bitrix\Main\DB\SqlExpression $markingCodeGroup)
-	 * @method bool hasMarkingCodeGroup()
-	 * @method bool isMarkingCodeGroupFilled()
-	 * @method bool isMarkingCodeGroupChanged()
-	 * @method \string remindActualMarkingCodeGroup()
-	 * @method \string requireMarkingCodeGroup()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetMarkingCodeGroup()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetMarkingCodeGroup()
-	 * @method \string fillMarkingCodeGroup()
-	 * @method \string getModule()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setModule(\string|\Bitrix\Main\DB\SqlExpression $module)
-	 * @method bool hasModule()
-	 * @method bool isModuleFilled()
-	 * @method bool isModuleChanged()
-	 * @method \string remindActualModule()
-	 * @method \string requireModule()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetModule()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetModule()
-	 * @method \string fillModule()
-	 * @method \string getProductProviderClass()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setProductProviderClass(\string|\Bitrix\Main\DB\SqlExpression $productProviderClass)
-	 * @method bool hasProductProviderClass()
-	 * @method bool isProductProviderClassFilled()
-	 * @method bool isProductProviderClassChanged()
-	 * @method \string remindActualProductProviderClass()
-	 * @method \string requireProductProviderClass()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetProductProviderClass()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetProductProviderClass()
-	 * @method \string fillProductProviderClass()
-	 * @method \string getNotes()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setNotes(\string|\Bitrix\Main\DB\SqlExpression $notes)
-	 * @method bool hasNotes()
-	 * @method bool isNotesFilled()
-	 * @method bool isNotesChanged()
-	 * @method \string remindActualNotes()
-	 * @method \string requireNotes()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetNotes()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetNotes()
-	 * @method \string fillNotes()
-	 * @method \string getDetailPageUrl()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setDetailPageUrl(\string|\Bitrix\Main\DB\SqlExpression $detailPageUrl)
-	 * @method bool hasDetailPageUrl()
-	 * @method bool isDetailPageUrlFilled()
-	 * @method bool isDetailPageUrlChanged()
-	 * @method \string remindActualDetailPageUrl()
-	 * @method \string requireDetailPageUrl()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetDetailPageUrl()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDetailPageUrl()
-	 * @method \string fillDetailPageUrl()
-	 * @method \float getDiscountPrice()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setDiscountPrice(\float|\Bitrix\Main\DB\SqlExpression $discountPrice)
-	 * @method bool hasDiscountPrice()
-	 * @method bool isDiscountPriceFilled()
-	 * @method bool isDiscountPriceChanged()
-	 * @method \float remindActualDiscountPrice()
-	 * @method \float requireDiscountPrice()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetDiscountPrice()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDiscountPrice()
-	 * @method \float fillDiscountPrice()
-	 * @method \string getCatalogXmlId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setCatalogXmlId(\string|\Bitrix\Main\DB\SqlExpression $catalogXmlId)
-	 * @method bool hasCatalogXmlId()
-	 * @method bool isCatalogXmlIdFilled()
-	 * @method bool isCatalogXmlIdChanged()
-	 * @method \string remindActualCatalogXmlId()
-	 * @method \string requireCatalogXmlId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetCatalogXmlId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetCatalogXmlId()
-	 * @method \string fillCatalogXmlId()
-	 * @method \string getProductXmlId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setProductXmlId(\string|\Bitrix\Main\DB\SqlExpression $productXmlId)
-	 * @method bool hasProductXmlId()
-	 * @method bool isProductXmlIdFilled()
-	 * @method bool isProductXmlIdChanged()
-	 * @method \string remindActualProductXmlId()
-	 * @method \string requireProductXmlId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetProductXmlId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetProductXmlId()
-	 * @method \string fillProductXmlId()
-	 * @method \string getDiscountName()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setDiscountName(\string|\Bitrix\Main\DB\SqlExpression $discountName)
-	 * @method bool hasDiscountName()
-	 * @method bool isDiscountNameFilled()
-	 * @method bool isDiscountNameChanged()
-	 * @method \string remindActualDiscountName()
-	 * @method \string requireDiscountName()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetDiscountName()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDiscountName()
-	 * @method \string fillDiscountName()
-	 * @method \string getDiscountValue()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setDiscountValue(\string|\Bitrix\Main\DB\SqlExpression $discountValue)
-	 * @method bool hasDiscountValue()
-	 * @method bool isDiscountValueFilled()
-	 * @method bool isDiscountValueChanged()
-	 * @method \string remindActualDiscountValue()
-	 * @method \string requireDiscountValue()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetDiscountValue()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDiscountValue()
-	 * @method \string fillDiscountValue()
-	 * @method \string getDiscountCoupon()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setDiscountCoupon(\string|\Bitrix\Main\DB\SqlExpression $discountCoupon)
-	 * @method bool hasDiscountCoupon()
-	 * @method bool isDiscountCouponFilled()
-	 * @method bool isDiscountCouponChanged()
-	 * @method \string remindActualDiscountCoupon()
-	 * @method \string requireDiscountCoupon()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetDiscountCoupon()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDiscountCoupon()
-	 * @method \string fillDiscountCoupon()
-	 * @method \float getVatRate()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setVatRate(\float|\Bitrix\Main\DB\SqlExpression $vatRate)
-	 * @method bool hasVatRate()
-	 * @method bool isVatRateFilled()
-	 * @method bool isVatRateChanged()
-	 * @method \float remindActualVatRate()
-	 * @method \float requireVatRate()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetVatRate()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetVatRate()
-	 * @method \float fillVatRate()
-	 * @method \string getVatRatePrc()
-	 * @method \string remindActualVatRatePrc()
-	 * @method \string requireVatRatePrc()
-	 * @method bool hasVatRatePrc()
-	 * @method bool isVatRatePrcFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetVatRatePrc()
-	 * @method \string fillVatRatePrc()
-	 * @method \boolean getSubscribe()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setSubscribe(\boolean|\Bitrix\Main\DB\SqlExpression $subscribe)
-	 * @method bool hasSubscribe()
-	 * @method bool isSubscribeFilled()
-	 * @method bool isSubscribeChanged()
-	 * @method \boolean remindActualSubscribe()
-	 * @method \boolean requireSubscribe()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetSubscribe()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetSubscribe()
-	 * @method \boolean fillSubscribe()
-	 * @method \int getNSubscribe()
-	 * @method \int remindActualNSubscribe()
-	 * @method \int requireNSubscribe()
-	 * @method bool hasNSubscribe()
-	 * @method bool isNSubscribeFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetNSubscribe()
-	 * @method \int fillNSubscribe()
-	 * @method \boolean getReserved()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setReserved(\boolean|\Bitrix\Main\DB\SqlExpression $reserved)
-	 * @method bool hasReserved()
-	 * @method bool isReservedFilled()
-	 * @method bool isReservedChanged()
-	 * @method \boolean remindActualReserved()
-	 * @method \boolean requireReserved()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetReserved()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetReserved()
-	 * @method \boolean fillReserved()
-	 * @method \float getReserveQuantity()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setReserveQuantity(\float|\Bitrix\Main\DB\SqlExpression $reserveQuantity)
-	 * @method bool hasReserveQuantity()
-	 * @method bool isReserveQuantityFilled()
-	 * @method bool isReserveQuantityChanged()
-	 * @method \float remindActualReserveQuantity()
-	 * @method \float requireReserveQuantity()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetReserveQuantity()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetReserveQuantity()
-	 * @method \float fillReserveQuantity()
-	 * @method \boolean getBarcodeMulti()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setBarcodeMulti(\boolean|\Bitrix\Main\DB\SqlExpression $barcodeMulti)
-	 * @method bool hasBarcodeMulti()
-	 * @method bool isBarcodeMultiFilled()
-	 * @method bool isBarcodeMultiChanged()
-	 * @method \boolean remindActualBarcodeMulti()
-	 * @method \boolean requireBarcodeMulti()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetBarcodeMulti()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetBarcodeMulti()
-	 * @method \boolean fillBarcodeMulti()
-	 * @method \boolean getCustomPrice()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setCustomPrice(\boolean|\Bitrix\Main\DB\SqlExpression $customPrice)
-	 * @method bool hasCustomPrice()
-	 * @method bool isCustomPriceFilled()
-	 * @method bool isCustomPriceChanged()
-	 * @method \boolean remindActualCustomPrice()
-	 * @method \boolean requireCustomPrice()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetCustomPrice()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetCustomPrice()
-	 * @method \boolean fillCustomPrice()
-	 * @method \string getDimensions()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setDimensions(\string|\Bitrix\Main\DB\SqlExpression $dimensions)
-	 * @method bool hasDimensions()
-	 * @method bool isDimensionsFilled()
-	 * @method bool isDimensionsChanged()
-	 * @method \string remindActualDimensions()
-	 * @method \string requireDimensions()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetDimensions()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetDimensions()
-	 * @method \string fillDimensions()
-	 * @method \int getType()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setType(\int|\Bitrix\Main\DB\SqlExpression $type)
-	 * @method bool hasType()
-	 * @method bool isTypeFilled()
-	 * @method bool isTypeChanged()
-	 * @method \int remindActualType()
-	 * @method \int requireType()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetType()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetType()
-	 * @method \int fillType()
-	 * @method \int getSetParentId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setSetParentId(\int|\Bitrix\Main\DB\SqlExpression $setParentId)
-	 * @method bool hasSetParentId()
-	 * @method bool isSetParentIdFilled()
-	 * @method bool isSetParentIdChanged()
-	 * @method \int remindActualSetParentId()
-	 * @method \int requireSetParentId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetSetParentId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetSetParentId()
-	 * @method \int fillSetParentId()
-	 * @method \int getMeasureCode()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setMeasureCode(\int|\Bitrix\Main\DB\SqlExpression $measureCode)
-	 * @method bool hasMeasureCode()
-	 * @method bool isMeasureCodeFilled()
-	 * @method bool isMeasureCodeChanged()
-	 * @method \int remindActualMeasureCode()
-	 * @method \int requireMeasureCode()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetMeasureCode()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetMeasureCode()
-	 * @method \int fillMeasureCode()
-	 * @method \string getMeasureName()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setMeasureName(\string|\Bitrix\Main\DB\SqlExpression $measureName)
-	 * @method bool hasMeasureName()
-	 * @method bool isMeasureNameFilled()
-	 * @method bool isMeasureNameChanged()
-	 * @method \string remindActualMeasureName()
-	 * @method \string requireMeasureName()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetMeasureName()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetMeasureName()
-	 * @method \string fillMeasureName()
-	 * @method \string getCallbackFunc()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setCallbackFunc(\string|\Bitrix\Main\DB\SqlExpression $callbackFunc)
-	 * @method bool hasCallbackFunc()
-	 * @method bool isCallbackFuncFilled()
-	 * @method bool isCallbackFuncChanged()
-	 * @method \string remindActualCallbackFunc()
-	 * @method \string requireCallbackFunc()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetCallbackFunc()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetCallbackFunc()
-	 * @method \string fillCallbackFunc()
-	 * @method \string getOrderCallbackFunc()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setOrderCallbackFunc(\string|\Bitrix\Main\DB\SqlExpression $orderCallbackFunc)
-	 * @method bool hasOrderCallbackFunc()
-	 * @method bool isOrderCallbackFuncFilled()
-	 * @method bool isOrderCallbackFuncChanged()
-	 * @method \string remindActualOrderCallbackFunc()
-	 * @method \string requireOrderCallbackFunc()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetOrderCallbackFunc()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetOrderCallbackFunc()
-	 * @method \string fillOrderCallbackFunc()
-	 * @method \string getCancelCallbackFunc()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setCancelCallbackFunc(\string|\Bitrix\Main\DB\SqlExpression $cancelCallbackFunc)
-	 * @method bool hasCancelCallbackFunc()
-	 * @method bool isCancelCallbackFuncFilled()
-	 * @method bool isCancelCallbackFuncChanged()
-	 * @method \string remindActualCancelCallbackFunc()
-	 * @method \string requireCancelCallbackFunc()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetCancelCallbackFunc()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetCancelCallbackFunc()
-	 * @method \string fillCancelCallbackFunc()
-	 * @method \string getPayCallbackFunc()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setPayCallbackFunc(\string|\Bitrix\Main\DB\SqlExpression $payCallbackFunc)
-	 * @method bool hasPayCallbackFunc()
-	 * @method bool isPayCallbackFuncFilled()
-	 * @method bool isPayCallbackFuncChanged()
-	 * @method \string remindActualPayCallbackFunc()
-	 * @method \string requirePayCallbackFunc()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetPayCallbackFunc()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetPayCallbackFunc()
-	 * @method \string fillPayCallbackFunc()
-	 * @method \string getRecommendation()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setRecommendation(\string|\Bitrix\Main\DB\SqlExpression $recommendation)
-	 * @method bool hasRecommendation()
-	 * @method bool isRecommendationFilled()
-	 * @method bool isRecommendationChanged()
-	 * @method \string remindActualRecommendation()
-	 * @method \string requireRecommendation()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetRecommendation()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetRecommendation()
-	 * @method \string fillRecommendation()
-	 * @method \float getAllPrice()
-	 * @method \float remindActualAllPrice()
-	 * @method \float requireAllPrice()
-	 * @method bool hasAllPrice()
-	 * @method bool isAllPriceFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetAllPrice()
-	 * @method \float fillAllPrice()
-	 * @method \float getSummaryPurchasingPrice()
-	 * @method \float remindActualSummaryPurchasingPrice()
-	 * @method \float requireSummaryPurchasingPrice()
-	 * @method bool hasSummaryPurchasingPrice()
-	 * @method bool isSummaryPurchasingPriceFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetSummaryPurchasingPrice()
-	 * @method \float fillSummaryPurchasingPrice()
-	 * @method \float getGrossProfit()
-	 * @method \float remindActualGrossProfit()
-	 * @method \float requireGrossProfit()
-	 * @method bool hasGrossProfit()
-	 * @method bool isGrossProfitFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetGrossProfit()
-	 * @method \float fillGrossProfit()
-	 * @method \float getProfitability()
-	 * @method \float remindActualProfitability()
-	 * @method \float requireProfitability()
-	 * @method bool hasProfitability()
-	 * @method bool isProfitabilityFilled()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetProfitability()
-	 * @method \float fillProfitability()
-	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem getShipmentItem()
-	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem remindActualShipmentItem()
-	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem requireShipmentItem()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setShipmentItem(\Bitrix\Sale\Internals\EO_ShipmentItem $object)
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetShipmentItem()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetShipmentItem()
-	 * @method bool hasShipmentItem()
-	 * @method bool isShipmentItemFilled()
-	 * @method bool isShipmentItemChanged()
-	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem fillShipmentItem()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment getShipment()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment remindActualShipment()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment requireShipment()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setShipment(\Bitrix\Sale\Internals\EO_Shipment $object)
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetShipment()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetShipment()
-	 * @method bool hasShipment()
-	 * @method bool isShipmentFilled()
-	 * @method bool isShipmentChanged()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment fillShipment()
-	 * @method \Bitrix\Sale\Internals\EO_Payment getPayment()
-	 * @method \Bitrix\Sale\Internals\EO_Payment remindActualPayment()
-	 * @method \Bitrix\Sale\Internals\EO_Payment requirePayment()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setPayment(\Bitrix\Sale\Internals\EO_Payment $object)
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetPayment()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetPayment()
-	 * @method bool hasPayment()
-	 * @method bool isPaymentFilled()
-	 * @method bool isPaymentChanged()
-	 * @method \Bitrix\Sale\Internals\EO_Payment fillPayment()
-	 * @method \int getSort()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setSort(\int|\Bitrix\Main\DB\SqlExpression $sort)
-	 * @method bool hasSort()
-	 * @method bool isSortFilled()
-	 * @method bool isSortChanged()
-	 * @method \int remindActualSort()
-	 * @method \int requireSort()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetSort()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetSort()
-	 * @method \int fillSort()
-	 * @method \string getXmlId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket setXmlId(\string|\Bitrix\Main\DB\SqlExpression $xmlId)
-	 * @method bool hasXmlId()
-	 * @method bool isXmlIdFilled()
-	 * @method bool isXmlIdChanged()
-	 * @method \string remindActualXmlId()
-	 * @method \string requireXmlId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket resetXmlId()
-	 * @method \Bitrix\Sale\Internals\EO_Basket unsetXmlId()
-	 * @method \string fillXmlId()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Sale\Internals\EO_Basket set($fieldName, $value)
-	 * @method \Bitrix\Sale\Internals\EO_Basket reset($fieldName)
-	 * @method \Bitrix\Sale\Internals\EO_Basket unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Sale\Internals\EO_Basket wakeUp($data)
-	 */
-	class EO_Basket {
-		/* @var \Bitrix\Sale\Internals\BasketTable */
-		static public $dataClass = '\Bitrix\Sale\Internals\BasketTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Sale\Internals {
-	/**
-	 * EO_Basket_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIdList()
-	 * @method \string[] getLidList()
-	 * @method \string[] fillLid()
-	 * @method \int[] getFuserIdList()
-	 * @method \int[] fillFuserId()
-	 * @method \Bitrix\Sale\Internals\EO_Fuser[] getFuserList()
-	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection getFuserCollection()
-	 * @method \Bitrix\Sale\Internals\EO_Fuser_Collection fillFuser()
-	 * @method \Bitrix\Main\EO_User[] getUserList()
-	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection getUserCollection()
-	 * @method \Bitrix\Main\EO_User_Collection fillUser()
-	 * @method \int[] getOrderIdList()
-	 * @method \int[] fillOrderId()
-	 * @method \Bitrix\Sale\Internals\EO_Order[] getOrderList()
-	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection getOrderCollection()
-	 * @method \Bitrix\Sale\Internals\EO_Order_Collection fillOrder()
-	 * @method \int[] getProductIdList()
-	 * @method \int[] fillProductId()
-	 * @method \Bitrix\Sale\Internals\EO_Product[] getProductList()
-	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection getProductCollection()
-	 * @method \Bitrix\Sale\Internals\EO_Product_Collection fillProduct()
-	 * @method \int[] getProductPriceIdList()
-	 * @method \int[] fillProductPriceId()
-	 * @method \int[] getPriceTypeIdList()
-	 * @method \int[] fillPriceTypeId()
-	 * @method \string[] getNameList()
-	 * @method \string[] fillName()
-	 * @method \string[] getNameWithIdentList()
-	 * @method \string[] fillNameWithIdent()
-	 * @method \float[] getPriceList()
-	 * @method \float[] fillPrice()
-	 * @method \string[] getCurrencyList()
-	 * @method \string[] fillCurrency()
-	 * @method \float[] getBasePriceList()
-	 * @method \float[] fillBasePrice()
-	 * @method \boolean[] getVatIncludedList()
-	 * @method \boolean[] fillVatIncluded()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateInsertList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateInsert()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateInsList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateIns()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateUpdateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateUpdate()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateUpdList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateUpd()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateRefreshList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateRefresh()
-	 * @method \Bitrix\Main\Type\DateTime[] getDateRefList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillDateRef()
-	 * @method \float[] getWeightList()
-	 * @method \float[] fillWeight()
-	 * @method \float[] getQuantityList()
-	 * @method \float[] fillQuantity()
-	 * @method \boolean[] getDelayList()
-	 * @method \boolean[] fillDelay()
-	 * @method \float[] getSummaryPriceList()
-	 * @method \float[] fillSummaryPrice()
-	 * @method \boolean[] getCanBuyList()
-	 * @method \boolean[] fillCanBuy()
-	 * @method \string[] getMarkingCodeGroupList()
-	 * @method \string[] fillMarkingCodeGroup()
-	 * @method \string[] getModuleList()
-	 * @method \string[] fillModule()
-	 * @method \string[] getProductProviderClassList()
-	 * @method \string[] fillProductProviderClass()
-	 * @method \string[] getNotesList()
-	 * @method \string[] fillNotes()
-	 * @method \string[] getDetailPageUrlList()
-	 * @method \string[] fillDetailPageUrl()
-	 * @method \float[] getDiscountPriceList()
-	 * @method \float[] fillDiscountPrice()
-	 * @method \string[] getCatalogXmlIdList()
-	 * @method \string[] fillCatalogXmlId()
-	 * @method \string[] getProductXmlIdList()
-	 * @method \string[] fillProductXmlId()
-	 * @method \string[] getDiscountNameList()
-	 * @method \string[] fillDiscountName()
-	 * @method \string[] getDiscountValueList()
-	 * @method \string[] fillDiscountValue()
-	 * @method \string[] getDiscountCouponList()
-	 * @method \string[] fillDiscountCoupon()
-	 * @method \float[] getVatRateList()
-	 * @method \float[] fillVatRate()
-	 * @method \string[] getVatRatePrcList()
-	 * @method \string[] fillVatRatePrc()
-	 * @method \boolean[] getSubscribeList()
-	 * @method \boolean[] fillSubscribe()
-	 * @method \int[] getNSubscribeList()
-	 * @method \int[] fillNSubscribe()
-	 * @method \boolean[] getReservedList()
-	 * @method \boolean[] fillReserved()
-	 * @method \float[] getReserveQuantityList()
-	 * @method \float[] fillReserveQuantity()
-	 * @method \boolean[] getBarcodeMultiList()
-	 * @method \boolean[] fillBarcodeMulti()
-	 * @method \boolean[] getCustomPriceList()
-	 * @method \boolean[] fillCustomPrice()
-	 * @method \string[] getDimensionsList()
-	 * @method \string[] fillDimensions()
-	 * @method \int[] getTypeList()
-	 * @method \int[] fillType()
-	 * @method \int[] getSetParentIdList()
-	 * @method \int[] fillSetParentId()
-	 * @method \int[] getMeasureCodeList()
-	 * @method \int[] fillMeasureCode()
-	 * @method \string[] getMeasureNameList()
-	 * @method \string[] fillMeasureName()
-	 * @method \string[] getCallbackFuncList()
-	 * @method \string[] fillCallbackFunc()
-	 * @method \string[] getOrderCallbackFuncList()
-	 * @method \string[] fillOrderCallbackFunc()
-	 * @method \string[] getCancelCallbackFuncList()
-	 * @method \string[] fillCancelCallbackFunc()
-	 * @method \string[] getPayCallbackFuncList()
-	 * @method \string[] fillPayCallbackFunc()
-	 * @method \string[] getRecommendationList()
-	 * @method \string[] fillRecommendation()
-	 * @method \float[] getAllPriceList()
-	 * @method \float[] fillAllPrice()
-	 * @method \float[] getSummaryPurchasingPriceList()
-	 * @method \float[] fillSummaryPurchasingPrice()
-	 * @method \float[] getGrossProfitList()
-	 * @method \float[] fillGrossProfit()
-	 * @method \float[] getProfitabilityList()
-	 * @method \float[] fillProfitability()
-	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem[] getShipmentItemList()
-	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection getShipmentItemCollection()
-	 * @method \Bitrix\Sale\Internals\EO_ShipmentItem_Collection fillShipmentItem()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment[] getShipmentList()
-	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection getShipmentCollection()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment_Collection fillShipment()
-	 * @method \Bitrix\Sale\Internals\EO_Payment[] getPaymentList()
-	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection getPaymentCollection()
-	 * @method \Bitrix\Sale\Internals\EO_Payment_Collection fillPayment()
-	 * @method \int[] getSortList()
-	 * @method \int[] fillSort()
-	 * @method \string[] getXmlIdList()
-	 * @method \string[] fillXmlId()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Sale\Internals\EO_Basket $object)
-	 * @method bool has(\Bitrix\Sale\Internals\EO_Basket $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Sale\Internals\EO_Basket getByPrimary($primary)
-	 * @method \Bitrix\Sale\Internals\EO_Basket[] getAll()
-	 * @method bool remove(\Bitrix\Sale\Internals\EO_Basket $object)
-	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Sale\Internals\EO_Basket_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Sale\Internals\EO_Basket current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 */
-	class EO_Basket_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Sale\Internals\BasketTable */
-		static public $dataClass = '\Bitrix\Sale\Internals\BasketTable';
-	}
-}
-namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_Basket_Query query()
-	 * @method static EO_Basket_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Basket_Result getById($id)
-	 * @method static EO_Basket_Result getList(array $parameters = array())
-	 * @method static EO_Basket_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_Basket createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_Basket_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_Basket wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_Basket_Collection wakeUpCollection($rows)
-	 */
-	class BasketTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_Basket_Result exec()
-	 * @method \Bitrix\Sale\Internals\EO_Basket fetchObject()
-	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 */
-	class EO_Basket_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Sale\Internals\EO_Basket fetchObject()
-	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection fetchCollection()
-	 */
-	class EO_Basket_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Sale\Internals\EO_Basket createObject($setDefaultValues = true)
-	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection createCollection()
-	 * @method \Bitrix\Sale\Internals\EO_Basket wakeUpObject($row)
-	 * @method \Bitrix\Sale\Internals\EO_Basket_Collection wakeUpCollection($rows)
-	 */
-	class EO_Basket_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Sale\Internals\BasketArchiveTable:sale/lib/internals/basketarchive.php:f35032566587a53bc12558bf2aaefbc2 */
 namespace Bitrix\Sale\Internals {
@@ -9573,18 +7841,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_BasketArchive_Query query()
-	 * @method static EO_BasketArchive_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_BasketArchive_Result getById($id)
-	 * @method static EO_BasketArchive_Result getList(array $parameters = array())
-	 * @method static EO_BasketArchive_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_BasketArchive createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_BasketArchive_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_BasketArchive wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_BasketArchive_Collection wakeUpCollection($rows)
-	 */
-	class BasketArchiveTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -9712,18 +7968,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_BasketArchivePacked_Query query()
-	 * @method static EO_BasketArchivePacked_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_BasketArchivePacked_Result getById($id)
-	 * @method static EO_BasketArchivePacked_Result getList(array $parameters = array())
-	 * @method static EO_BasketArchivePacked_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_BasketArchivePacked createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_BasketArchivePacked_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_BasketArchivePacked wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_BasketArchivePacked_Collection wakeUpCollection($rows)
-	 */
-	class BasketArchivePackedTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -9926,18 +8170,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_BasketProperty_Query query()
-	 * @method static EO_BasketProperty_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_BasketProperty_Result getById($id)
-	 * @method static EO_BasketProperty_Result getList(array $parameters = array())
-	 * @method static EO_BasketProperty_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_BasketProperty createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_BasketProperty_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_BasketProperty wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_BasketProperty_Collection wakeUpCollection($rows)
-	 */
-	class BasketPropertyTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -10090,18 +8322,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_BusinessValue_Query query()
-	 * @method static EO_BusinessValue_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_BusinessValue_Result getById($id)
-	 * @method static EO_BusinessValue_Result getList(array $parameters = array())
-	 * @method static EO_BusinessValue_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_BusinessValue createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_BusinessValue_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_BusinessValue wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_BusinessValue_Collection wakeUpCollection($rows)
-	 */
-	class BusinessValueTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -10235,18 +8455,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_BusinessValueCode1C_Query query()
-	 * @method static EO_BusinessValueCode1C_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_BusinessValueCode1C_Result getById($id)
-	 * @method static EO_BusinessValueCode1C_Result getList(array $parameters = array())
-	 * @method static EO_BusinessValueCode1C_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_BusinessValueCode1C createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_BusinessValueCode1C_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_BusinessValueCode1C wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_BusinessValueCode1C_Collection wakeUpCollection($rows)
-	 */
-	class BusinessValueCode1CTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -10474,18 +8682,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_BuyerStatistic_Query query()
-	 * @method static EO_BuyerStatistic_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_BuyerStatistic_Result getById($id)
-	 * @method static EO_BuyerStatistic_Result getList(array $parameters = array())
-	 * @method static EO_BuyerStatistic_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_BuyerStatistic createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_BuyerStatistic_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_BuyerStatistic wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_BuyerStatistic_Collection wakeUpCollection($rows)
-	 */
-	class BuyerStatisticTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -10662,18 +8858,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_CallbackRegistry_Query query()
-	 * @method static EO_CallbackRegistry_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CallbackRegistry_Result getById($id)
-	 * @method static EO_CallbackRegistry_Result getList(array $parameters = array())
-	 * @method static EO_CallbackRegistry_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_CallbackRegistry createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_CallbackRegistry_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_CallbackRegistry wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_CallbackRegistry_Collection wakeUpCollection($rows)
-	 */
-	class CallbackRegistryTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -10698,6 +8882,182 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_CallbackRegistry_Collection wakeUpCollection($rows)
 	 */
 	class EO_CallbackRegistry_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CashboxRestHandlerTable:sale/lib/internals/cashboxresthandler.php:b6daadec50ba192da631c48664704dc9 */
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_CashboxRestHandler
+	 * @see \Bitrix\Sale\Internals\CashboxRestHandlerTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getName()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler setName(\string|\Bitrix\Main\DB\SqlExpression $name)
+	 * @method bool hasName()
+	 * @method bool isNameFilled()
+	 * @method bool isNameChanged()
+	 * @method \string remindActualName()
+	 * @method \string requireName()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler resetName()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler unsetName()
+	 * @method \string fillName()
+	 * @method \string getCode()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler setCode(\string|\Bitrix\Main\DB\SqlExpression $code)
+	 * @method bool hasCode()
+	 * @method bool isCodeFilled()
+	 * @method bool isCodeChanged()
+	 * @method \string remindActualCode()
+	 * @method \string requireCode()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler resetCode()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler unsetCode()
+	 * @method \string fillCode()
+	 * @method \int getSort()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler setSort(\int|\Bitrix\Main\DB\SqlExpression $sort)
+	 * @method bool hasSort()
+	 * @method bool isSortFilled()
+	 * @method bool isSortChanged()
+	 * @method \int remindActualSort()
+	 * @method \int requireSort()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler resetSort()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler unsetSort()
+	 * @method \int fillSort()
+	 * @method \string getSettings()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler setSettings(\string|\Bitrix\Main\DB\SqlExpression $settings)
+	 * @method bool hasSettings()
+	 * @method bool isSettingsFilled()
+	 * @method bool isSettingsChanged()
+	 * @method \string remindActualSettings()
+	 * @method \string requireSettings()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler resetSettings()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler unsetSettings()
+	 * @method \string fillSettings()
+	 * @method \string getAppId()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler setAppId(\string|\Bitrix\Main\DB\SqlExpression $appId)
+	 * @method bool hasAppId()
+	 * @method bool isAppIdFilled()
+	 * @method bool isAppIdChanged()
+	 * @method \string remindActualAppId()
+	 * @method \string requireAppId()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler resetAppId()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler unsetAppId()
+	 * @method \string fillAppId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler set($fieldName, $value)
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler reset($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sale\Internals\EO_CashboxRestHandler wakeUp($data)
+	 */
+	class EO_CashboxRestHandler {
+		/* @var \Bitrix\Sale\Internals\CashboxRestHandlerTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\CashboxRestHandlerTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_CashboxRestHandler_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getNameList()
+	 * @method \string[] fillName()
+	 * @method \string[] getCodeList()
+	 * @method \string[] fillCode()
+	 * @method \int[] getSortList()
+	 * @method \int[] fillSort()
+	 * @method \string[] getSettingsList()
+	 * @method \string[] fillSettings()
+	 * @method \string[] getAppIdList()
+	 * @method \string[] fillAppId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sale\Internals\EO_CashboxRestHandler $object)
+	 * @method bool has(\Bitrix\Sale\Internals\EO_CashboxRestHandler $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler getByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler[] getAll()
+	 * @method bool remove(\Bitrix\Sale\Internals\EO_CashboxRestHandler $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sale\Internals\EO_CashboxRestHandler_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_CashboxRestHandler_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sale\Internals\CashboxRestHandlerTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\CashboxRestHandlerTable';
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_CashboxRestHandler_Result exec()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_CashboxRestHandler_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler_Collection fetchCollection()
+	 */
+	class EO_CashboxRestHandler_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler_Collection createCollection()
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler wakeUpObject($row)
+	 * @method \Bitrix\Sale\Internals\EO_CashboxRestHandler_Collection wakeUpCollection($rows)
+	 */
+	class EO_CashboxRestHandler_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CompanyTable:sale/lib/internals/company.php:f1112fa5b0639528eaa626d865aa6f96 */
 namespace Bitrix\Sale\Internals {
@@ -10961,18 +9321,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_Company_Query query()
-	 * @method static EO_Company_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Company_Result getById($id)
-	 * @method static EO_Company_Result getList(array $parameters = array())
-	 * @method static EO_Company_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_Company createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_Company_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_Company wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_Company_Collection wakeUpCollection($rows)
-	 */
-	class CompanyTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -11113,18 +9461,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_CompanyGroup_Query query()
-	 * @method static EO_CompanyGroup_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CompanyGroup_Result getById($id)
-	 * @method static EO_CompanyGroup_Result getList(array $parameters = array())
-	 * @method static EO_CompanyGroup_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyGroup createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyGroup_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyGroup wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyGroup_Collection wakeUpCollection($rows)
-	 */
-	class CompanyGroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -11150,7 +9486,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_CompanyGroup_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CompanyLocationTable:sale/lib/internals/companylocation.php:64110d402de982c9717f4d733eecf73c */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\CompanyLocationTable:sale/lib/internals/companylocation.php:66851e2c5b6aaa311429c3855aa6dc8c */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_CompanyLocation
@@ -11292,18 +9628,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_CompanyLocation_Query query()
-	 * @method static EO_CompanyLocation_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CompanyLocation_Result getById($id)
-	 * @method static EO_CompanyLocation_Result getList(array $parameters = array())
-	 * @method static EO_CompanyLocation_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyLocation createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyLocation_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyLocation wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyLocation_Collection wakeUpCollection($rows)
-	 */
-	class CompanyLocationTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -11444,18 +9768,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_CompanyResponsibleGroup_Query query()
-	 * @method static EO_CompanyResponsibleGroup_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CompanyResponsibleGroup_Result getById($id)
-	 * @method static EO_CompanyResponsibleGroup_Result getList(array $parameters = array())
-	 * @method static EO_CompanyResponsibleGroup_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyResponsibleGroup createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyResponsibleGroup_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyResponsibleGroup wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyResponsibleGroup_Collection wakeUpCollection($rows)
-	 */
-	class CompanyResponsibleGroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -11583,18 +9895,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_CompanyService_Query query()
-	 * @method static EO_CompanyService_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CompanyService_Result getById($id)
-	 * @method static EO_CompanyService_Result getList(array $parameters = array())
-	 * @method static EO_CompanyService_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyService createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyService_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyService wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_CompanyService_Collection wakeUpCollection($rows)
-	 */
-	class CompanyServiceTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -11760,18 +10060,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_CustomFields_Query query()
-	 * @method static EO_CustomFields_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CustomFields_Result getById($id)
-	 * @method static EO_CustomFields_Result getList(array $parameters = array())
-	 * @method static EO_CustomFields_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_CustomFields createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_CustomFields_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_CustomFields wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_CustomFields_Collection wakeUpCollection($rows)
-	 */
-	class CustomFieldsTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -11797,7 +10085,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_CustomFields_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DeliveryPaySystemTable:sale/lib/internals/delivery_paysystem.php:f29afd18141904686a65dfc8afcfab52 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DeliveryPaySystemTable:sale/lib/internals/delivery_paysystem.php:cb6550349a9a3a801dcf2dd5b315126d */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_DeliveryPaySystem
@@ -11926,18 +10214,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_DeliveryPaySystem_Query query()
-	 * @method static EO_DeliveryPaySystem_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DeliveryPaySystem_Result getById($id)
-	 * @method static EO_DeliveryPaySystem_Result getList(array $parameters = array())
-	 * @method static EO_DeliveryPaySystem_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_DeliveryPaySystem createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_DeliveryPaySystem_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_DeliveryPaySystem wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_DeliveryPaySystem_Collection wakeUpCollection($rows)
-	 */
-	class DeliveryPaySystemTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -11963,7 +10239,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_DeliveryPaySystem_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DiscountTable:sale/lib/internals/discount.php:dbf3de8fd2520ae112aaf65601e70140 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DiscountTable:sale/lib/internals/discount.php:e566d48196c1ffef1dbea26d49f49683 */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_Discount
@@ -12538,18 +10814,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_Discount_Query query()
-	 * @method static EO_Discount_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Discount_Result getById($id)
-	 * @method static EO_Discount_Result getList(array $parameters = array())
-	 * @method static EO_Discount_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_Discount createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_Discount_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_Discount wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_Discount_Collection wakeUpCollection($rows)
-	 */
-	class DiscountTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -12575,7 +10839,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_Discount_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DiscountCouponTable:sale/lib/internals/discountcoupon.php:de1cc40aa5d7dfe2e2175a7a379a6eec */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\DiscountCouponTable:sale/lib/internals/discountcoupon.php:c3e6a40e18285b76df039e895b68ab07 */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_DiscountCoupon
@@ -12885,18 +11149,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_DiscountCoupon_Query query()
-	 * @method static EO_DiscountCoupon_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DiscountCoupon_Result getById($id)
-	 * @method static EO_DiscountCoupon_Result getList(array $parameters = array())
-	 * @method static EO_DiscountCoupon_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountCoupon createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountCoupon_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountCoupon wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountCoupon_Collection wakeUpCollection($rows)
-	 */
-	class DiscountCouponTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -13086,18 +11338,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_DiscountEntities_Query query()
-	 * @method static EO_DiscountEntities_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DiscountEntities_Result getById($id)
-	 * @method static EO_DiscountEntities_Result getList(array $parameters = array())
-	 * @method static EO_DiscountEntities_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountEntities createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountEntities_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountEntities wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountEntities_Collection wakeUpCollection($rows)
-	 */
-	class DiscountEntitiesTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -13263,18 +11503,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_DiscountGroup_Query query()
-	 * @method static EO_DiscountGroup_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DiscountGroup_Result getById($id)
-	 * @method static EO_DiscountGroup_Result getList(array $parameters = array())
-	 * @method static EO_DiscountGroup_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountGroup createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountGroup_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountGroup wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountGroup_Collection wakeUpCollection($rows)
-	 */
-	class DiscountGroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -13414,18 +11642,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_DiscountModule_Query query()
-	 * @method static EO_DiscountModule_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DiscountModule_Result getById($id)
-	 * @method static EO_DiscountModule_Result getList(array $parameters = array())
-	 * @method static EO_DiscountModule_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountModule createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountModule_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountModule wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_DiscountModule_Collection wakeUpCollection($rows)
-	 */
-	class DiscountModuleTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -13675,18 +11891,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_EntityMarker_Query query()
-	 * @method static EO_EntityMarker_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_EntityMarker_Result getById($id)
-	 * @method static EO_EntityMarker_Result getList(array $parameters = array())
-	 * @method static EO_EntityMarker_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_EntityMarker createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_EntityMarker_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_EntityMarker wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_EntityMarker_Collection wakeUpCollection($rows)
-	 */
-	class EntityMarkerTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -13864,18 +12068,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_LocalDeliveryRequest_Query query()
-	 * @method static EO_LocalDeliveryRequest_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_LocalDeliveryRequest_Result getById($id)
-	 * @method static EO_LocalDeliveryRequest_Result getList(array $parameters = array())
-	 * @method static EO_LocalDeliveryRequest_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_LocalDeliveryRequest createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_LocalDeliveryRequest_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_LocalDeliveryRequest wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_LocalDeliveryRequest_Collection wakeUpCollection($rows)
-	 */
-	class LocalDeliveryRequestTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -13901,7 +12093,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_LocalDeliveryRequest_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderArchiveTable:sale/lib/internals/orderarchive.php:64c893145c50b9f38c584f291cae5f8d */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderArchiveTable:sale/lib/internals/orderarchive.php:b09453338767921981129d650adc76c3 */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderArchive
@@ -14284,18 +12476,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_OrderArchive_Query query()
-	 * @method static EO_OrderArchive_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderArchive_Result getById($id)
-	 * @method static EO_OrderArchive_Result getList(array $parameters = array())
-	 * @method static EO_OrderArchive_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderArchive createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderArchive_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderArchive wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderArchive_Collection wakeUpCollection($rows)
-	 */
-	class OrderArchiveTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -14423,18 +12603,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_OrderArchivePacked_Query query()
-	 * @method static EO_OrderArchivePacked_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderArchivePacked_Result getById($id)
-	 * @method static EO_OrderArchivePacked_Result getList(array $parameters = array())
-	 * @method static EO_OrderArchivePacked_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderArchivePacked createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderArchivePacked_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderArchivePacked wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderArchivePacked_Collection wakeUpCollection($rows)
-	 */
-	class OrderArchivePackedTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -14648,18 +12816,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_OrderChange_Query query()
-	 * @method static EO_OrderChange_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderChange_Result getById($id)
-	 * @method static EO_OrderChange_Result getList(array $parameters = array())
-	 * @method static EO_OrderChange_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderChange createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderChange_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderChange wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderChange_Collection wakeUpCollection($rows)
-	 */
-	class OrderChangeTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -14799,18 +12955,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_OrderConverterCrmError_Query query()
-	 * @method static EO_OrderConverterCrmError_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderConverterCrmError_Result getById($id)
-	 * @method static EO_OrderConverterCrmError_Result getList(array $parameters = array())
-	 * @method static EO_OrderConverterCrmError_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderConverterCrmError createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderConverterCrmError_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderConverterCrmError wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderConverterCrmError_Collection wakeUpCollection($rows)
-	 */
-	class OrderConverterCrmErrorTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -14987,18 +13131,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_OrderDeliveryReq_Query query()
-	 * @method static EO_OrderDeliveryReq_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderDeliveryReq_Result getById($id)
-	 * @method static EO_OrderDeliveryReq_Result getList(array $parameters = array())
-	 * @method static EO_OrderDeliveryReq_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderDeliveryReq createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderDeliveryReq_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderDeliveryReq wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderDeliveryReq_Collection wakeUpCollection($rows)
-	 */
-	class OrderDeliveryReqTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -15272,18 +13404,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_OrderDiscount_Query query()
-	 * @method static EO_OrderDiscount_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderDiscount_Result getById($id)
-	 * @method static EO_OrderDiscount_Result getList(array $parameters = array())
-	 * @method static EO_OrderDiscount_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderDiscount createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderDiscount_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderDiscount wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderDiscount_Collection wakeUpCollection($rows)
-	 */
-	class OrderDiscountTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -15485,18 +13605,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_OrderCoupons_Query query()
-	 * @method static EO_OrderCoupons_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderCoupons_Result getById($id)
-	 * @method static EO_OrderCoupons_Result getList(array $parameters = array())
-	 * @method static EO_OrderCoupons_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderCoupons createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderCoupons_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderCoupons wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderCoupons_Collection wakeUpCollection($rows)
-	 */
-	class OrderCouponsTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -15636,18 +13744,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_OrderModules_Query query()
-	 * @method static EO_OrderModules_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderModules_Result getById($id)
-	 * @method static EO_OrderModules_Result getList(array $parameters = array())
-	 * @method static EO_OrderModules_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderModules createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderModules_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderModules wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderModules_Collection wakeUpCollection($rows)
-	 */
-	class OrderModulesTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -15824,18 +13920,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_OrderDiscountData_Query query()
-	 * @method static EO_OrderDiscountData_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderDiscountData_Result getById($id)
-	 * @method static EO_OrderDiscountData_Result getList(array $parameters = array())
-	 * @method static EO_OrderDiscountData_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderDiscountData createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderDiscountData_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderDiscountData wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderDiscountData_Collection wakeUpCollection($rows)
-	 */
-	class OrderDiscountDataTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -16099,18 +14183,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_OrderRules_Query query()
-	 * @method static EO_OrderRules_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderRules_Result getById($id)
-	 * @method static EO_OrderRules_Result getList(array $parameters = array())
-	 * @method static EO_OrderRules_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderRules createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderRules_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderRules wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderRules_Collection wakeUpCollection($rows)
-	 */
-	class OrderRulesTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -16287,18 +14359,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_OrderRulesDescr_Query query()
-	 * @method static EO_OrderRulesDescr_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderRulesDescr_Result getById($id)
-	 * @method static EO_OrderRulesDescr_Result getList(array $parameters = array())
-	 * @method static EO_OrderRulesDescr_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderRulesDescr createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderRulesDescr_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderRulesDescr wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderRulesDescr_Collection wakeUpCollection($rows)
-	 */
-	class OrderRulesDescrTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -16324,7 +14384,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderRulesDescr_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsTable:sale/lib/internals/orderprops.php:6fcac6a87a2820b39f4b73662cc46624 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsTable:sale/lib/internals/orderprops.php:410e7229e5c52f345a93690319736a6f */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderProps
@@ -16618,6 +14678,16 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_OrderProps resetXmlId()
 	 * @method \Bitrix\Sale\Internals\EO_OrderProps unsetXmlId()
 	 * @method \string fillXmlId()
+	 * @method \string getEntityType()
+	 * @method \Bitrix\Sale\Internals\EO_OrderProps setEntityType(\string|\Bitrix\Main\DB\SqlExpression $entityType)
+	 * @method bool hasEntityType()
+	 * @method bool isEntityTypeFilled()
+	 * @method bool isEntityTypeChanged()
+	 * @method \string remindActualEntityType()
+	 * @method \string requireEntityType()
+	 * @method \Bitrix\Sale\Internals\EO_OrderProps resetEntityType()
+	 * @method \Bitrix\Sale\Internals\EO_OrderProps unsetEntityType()
+	 * @method \string fillEntityType()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -16720,6 +14790,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method \string[] fillEntityRegistryType()
 	 * @method \string[] getXmlIdList()
 	 * @method \string[] fillXmlId()
+	 * @method \string[] getEntityTypeList()
+	 * @method \string[] fillEntityType()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -16752,18 +14824,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_OrderProps_Query query()
-	 * @method static EO_OrderProps_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderProps_Result getById($id)
-	 * @method static EO_OrderProps_Result getList(array $parameters = array())
-	 * @method static EO_OrderProps_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderProps createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderProps_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderProps wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderProps_Collection wakeUpCollection($rows)
-	 */
-	class OrderPropsTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -16929,18 +14989,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_OrderPropsGroup_Query query()
-	 * @method static EO_OrderPropsGroup_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderPropsGroup_Result getById($id)
-	 * @method static EO_OrderPropsGroup_Result getList(array $parameters = array())
-	 * @method static EO_OrderPropsGroup_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsGroup createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsGroup_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsGroup wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsGroup_Collection wakeUpCollection($rows)
-	 */
-	class OrderPropsGroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -16966,7 +15014,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderPropsGroup_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsRelationTable:sale/lib/internals/orderprops_relation.php:9d8d505490a3ec47b6c6ed406687a378 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsRelationTable:sale/lib/internals/orderprops_relation.php:a498c687e90fd92e318e29e2315ba225 */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderPropsRelation
@@ -16985,8 +15033,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method bool hasEntityId()
 	 * @method bool isEntityIdFilled()
 	 * @method bool isEntityIdChanged()
-	 * @method \boolean getEntityType()
-	 * @method \Bitrix\Sale\Internals\EO_OrderPropsRelation setEntityType(\boolean|\Bitrix\Main\DB\SqlExpression $entityType)
+	 * @method \string getEntityType()
+	 * @method \Bitrix\Sale\Internals\EO_OrderPropsRelation setEntityType(\string|\Bitrix\Main\DB\SqlExpression $entityType)
 	 * @method bool hasEntityType()
 	 * @method bool isEntityTypeFilled()
 	 * @method bool isEntityTypeChanged()
@@ -17045,7 +15093,7 @@ namespace Bitrix\Sale\Internals {
 	 *
 	 * @method \int[] getPropertyIdList()
 	 * @method \string[] getEntityIdList()
-	 * @method \boolean[] getEntityTypeList()
+	 * @method \string[] getEntityTypeList()
 	 * @method \Bitrix\Sale\Internals\EO_OrderProps[] getLpropertyList()
 	 * @method \Bitrix\Sale\Internals\EO_OrderPropsRelation_Collection getLpropertyCollection()
 	 * @method \Bitrix\Sale\Internals\EO_OrderProps_Collection fillLproperty()
@@ -17082,18 +15130,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_OrderPropsRelation_Query query()
-	 * @method static EO_OrderPropsRelation_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderPropsRelation_Result getById($id)
-	 * @method static EO_OrderPropsRelation_Result getList(array $parameters = array())
-	 * @method static EO_OrderPropsRelation_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsRelation createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsRelation_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsRelation wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsRelation_Collection wakeUpCollection($rows)
-	 */
-	class OrderPropsRelationTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -17119,7 +15155,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderPropsRelation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsValueTable:sale/lib/internals/orderprops_value.php:28383b4b016e34e46d79200241930cdd */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\OrderPropsValueTable:sale/lib/internals/orderprops_value.php:ce9cb1c4da947f27fe4923cbbc6f495e */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_OrderPropsValue
@@ -17203,6 +15239,26 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_OrderPropsValue resetXmlId()
 	 * @method \Bitrix\Sale\Internals\EO_OrderPropsValue unsetXmlId()
 	 * @method \string fillXmlId()
+	 * @method \int getEntityId()
+	 * @method \Bitrix\Sale\Internals\EO_OrderPropsValue setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
+	 * @method bool hasEntityId()
+	 * @method bool isEntityIdFilled()
+	 * @method bool isEntityIdChanged()
+	 * @method \int remindActualEntityId()
+	 * @method \int requireEntityId()
+	 * @method \Bitrix\Sale\Internals\EO_OrderPropsValue resetEntityId()
+	 * @method \Bitrix\Sale\Internals\EO_OrderPropsValue unsetEntityId()
+	 * @method \int fillEntityId()
+	 * @method \string getEntityType()
+	 * @method \Bitrix\Sale\Internals\EO_OrderPropsValue setEntityType(\string|\Bitrix\Main\DB\SqlExpression $entityType)
+	 * @method bool hasEntityType()
+	 * @method bool isEntityTypeFilled()
+	 * @method bool isEntityTypeChanged()
+	 * @method \string remindActualEntityType()
+	 * @method \string requireEntityType()
+	 * @method \Bitrix\Sale\Internals\EO_OrderPropsValue resetEntityType()
+	 * @method \Bitrix\Sale\Internals\EO_OrderPropsValue unsetEntityType()
+	 * @method \string fillEntityType()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -17262,6 +15318,10 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_OrderProps_Collection fillProperty()
 	 * @method \string[] getXmlIdList()
 	 * @method \string[] fillXmlId()
+	 * @method \int[] getEntityIdList()
+	 * @method \int[] fillEntityId()
+	 * @method \string[] getEntityTypeList()
+	 * @method \string[] fillEntityType()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -17294,18 +15354,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_OrderPropsValue_Query query()
-	 * @method static EO_OrderPropsValue_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderPropsValue_Result getById($id)
-	 * @method static EO_OrderPropsValue_Result getList(array $parameters = array())
-	 * @method static EO_OrderPropsValue_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsValue createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsValue_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsValue wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsValue_Collection wakeUpCollection($rows)
-	 */
-	class OrderPropsValueTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -17494,18 +15542,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_OrderPropsVariant_Query query()
-	 * @method static EO_OrderPropsVariant_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderPropsVariant_Result getById($id)
-	 * @method static EO_OrderPropsVariant_Result getList(array $parameters = array())
-	 * @method static EO_OrderPropsVariant_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsVariant createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsVariant_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsVariant wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderPropsVariant_Collection wakeUpCollection($rows)
-	 */
-	class OrderPropsVariantTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -17719,18 +15755,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_OrderRound_Query query()
-	 * @method static EO_OrderRound_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_OrderRound_Result getById($id)
-	 * @method static EO_OrderRound_Result getList(array $parameters = array())
-	 * @method static EO_OrderRound_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderRound createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderRound_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_OrderRound wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_OrderRound_Collection wakeUpCollection($rows)
-	 */
-	class OrderRoundTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -17756,7 +15780,204 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_OrderRound_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaymentTable:sale/lib/internals/payment.php:402c700600f0a7c1ea2025e8f606ed5d */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PayableItemTable:sale/lib/internals/payableitem.php:78e73c932cbedc50b4c72e1e7da5124c */
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_PayableItem
+	 * @see \Bitrix\Sale\Internals\PayableItemTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getEntityId()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
+	 * @method bool hasEntityId()
+	 * @method bool isEntityIdFilled()
+	 * @method bool isEntityIdChanged()
+	 * @method \int remindActualEntityId()
+	 * @method \int requireEntityId()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem resetEntityId()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem unsetEntityId()
+	 * @method \int fillEntityId()
+	 * @method \string getEntityType()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem setEntityType(\string|\Bitrix\Main\DB\SqlExpression $entityType)
+	 * @method bool hasEntityType()
+	 * @method bool isEntityTypeFilled()
+	 * @method bool isEntityTypeChanged()
+	 * @method \string remindActualEntityType()
+	 * @method \string requireEntityType()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem resetEntityType()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem unsetEntityType()
+	 * @method \string fillEntityType()
+	 * @method \int getPaymentId()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem setPaymentId(\int|\Bitrix\Main\DB\SqlExpression $paymentId)
+	 * @method bool hasPaymentId()
+	 * @method bool isPaymentIdFilled()
+	 * @method bool isPaymentIdChanged()
+	 * @method \int remindActualPaymentId()
+	 * @method \int requirePaymentId()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem resetPaymentId()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem unsetPaymentId()
+	 * @method \int fillPaymentId()
+	 * @method \Bitrix\Main\Type\DateTime getDateInsert()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem setDateInsert(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateInsert)
+	 * @method bool hasDateInsert()
+	 * @method bool isDateInsertFilled()
+	 * @method bool isDateInsertChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime requireDateInsert()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem resetDateInsert()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem unsetDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime fillDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime getDateInsertShort()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateInsertShort()
+	 * @method \Bitrix\Main\Type\DateTime requireDateInsertShort()
+	 * @method bool hasDateInsertShort()
+	 * @method bool isDateInsertShortFilled()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem unsetDateInsertShort()
+	 * @method \Bitrix\Main\Type\DateTime fillDateInsertShort()
+	 * @method \float getQuantity()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem setQuantity(\float|\Bitrix\Main\DB\SqlExpression $quantity)
+	 * @method bool hasQuantity()
+	 * @method bool isQuantityFilled()
+	 * @method bool isQuantityChanged()
+	 * @method \float remindActualQuantity()
+	 * @method \float requireQuantity()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem resetQuantity()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem unsetQuantity()
+	 * @method \float fillQuantity()
+	 * @method \string getXmlId()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem setXmlId(\string|\Bitrix\Main\DB\SqlExpression $xmlId)
+	 * @method bool hasXmlId()
+	 * @method bool isXmlIdFilled()
+	 * @method bool isXmlIdChanged()
+	 * @method \string remindActualXmlId()
+	 * @method \string requireXmlId()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem resetXmlId()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem unsetXmlId()
+	 * @method \string fillXmlId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem set($fieldName, $value)
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem reset($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sale\Internals\EO_PayableItem wakeUp($data)
+	 */
+	class EO_PayableItem {
+		/* @var \Bitrix\Sale\Internals\PayableItemTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\PayableItemTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_PayableItem_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getEntityIdList()
+	 * @method \int[] fillEntityId()
+	 * @method \string[] getEntityTypeList()
+	 * @method \string[] fillEntityType()
+	 * @method \int[] getPaymentIdList()
+	 * @method \int[] fillPaymentId()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateInsertList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateInsert()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateInsertShortList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateInsertShort()
+	 * @method \float[] getQuantityList()
+	 * @method \float[] fillQuantity()
+	 * @method \string[] getXmlIdList()
+	 * @method \string[] fillXmlId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sale\Internals\EO_PayableItem $object)
+	 * @method bool has(\Bitrix\Sale\Internals\EO_PayableItem $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem getByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem[] getAll()
+	 * @method bool remove(\Bitrix\Sale\Internals\EO_PayableItem $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sale\Internals\EO_PayableItem_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_PayableItem_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sale\Internals\PayableItemTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\PayableItemTable';
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_PayableItem_Result exec()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_PayableItem_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem_Collection fetchCollection()
+	 */
+	class EO_PayableItem_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem_Collection createCollection()
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem wakeUpObject($row)
+	 * @method \Bitrix\Sale\Internals\EO_PayableItem_Collection wakeUpCollection($rows)
+	 */
+	class EO_PayableItem_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaymentTable:sale/lib/internals/payment.php:625ea0bb3d8d354e8406c61a3fe0bf92 */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_Payment
@@ -17950,6 +16171,16 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_Payment resetPsRecurringToken()
 	 * @method \Bitrix\Sale\Internals\EO_Payment unsetPsRecurringToken()
 	 * @method \string fillPsRecurringToken()
+	 * @method \string getPsCardNumber()
+	 * @method \Bitrix\Sale\Internals\EO_Payment setPsCardNumber(\string|\Bitrix\Main\DB\SqlExpression $psCardNumber)
+	 * @method bool hasPsCardNumber()
+	 * @method bool isPsCardNumberFilled()
+	 * @method bool isPsCardNumberChanged()
+	 * @method \string remindActualPsCardNumber()
+	 * @method \string requirePsCardNumber()
+	 * @method \Bitrix\Sale\Internals\EO_Payment resetPsCardNumber()
+	 * @method \Bitrix\Sale\Internals\EO_Payment unsetPsCardNumber()
+	 * @method \string fillPsCardNumber()
 	 * @method \string getPayVoucherNum()
 	 * @method \Bitrix\Sale\Internals\EO_Payment setPayVoucherNum(\string|\Bitrix\Main\DB\SqlExpression $payVoucherNum)
 	 * @method bool hasPayVoucherNum()
@@ -18353,6 +16584,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Main\Type\DateTime[] fillPsResponseDate()
 	 * @method \string[] getPsRecurringTokenList()
 	 * @method \string[] fillPsRecurringToken()
+	 * @method \string[] getPsCardNumberList()
+	 * @method \string[] fillPsCardNumber()
 	 * @method \string[] getPayVoucherNumList()
 	 * @method \string[] fillPayVoucherNum()
 	 * @method \Bitrix\Main\Type\Date[] getPayVoucherDateList()
@@ -18454,18 +16687,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_Payment_Query query()
-	 * @method static EO_Payment_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Payment_Result getById($id)
-	 * @method static EO_Payment_Result getList(array $parameters = array())
-	 * @method static EO_Payment_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_Payment createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_Payment_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_Payment wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_Payment_Collection wakeUpCollection($rows)
-	 */
-	class PaymentTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -18919,18 +17140,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_PaySystemAction_Query query()
-	 * @method static EO_PaySystemAction_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PaySystemAction_Result getById($id)
-	 * @method static EO_PaySystemAction_Result getList(array $parameters = array())
-	 * @method static EO_PaySystemAction_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemAction createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemAction_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemAction wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemAction_Collection wakeUpCollection($rows)
-	 */
-	class PaySystemActionTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -19071,18 +17280,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_PaySystemErrLog_Query query()
-	 * @method static EO_PaySystemErrLog_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PaySystemErrLog_Result getById($id)
-	 * @method static EO_PaySystemErrLog_Result getList(array $parameters = array())
-	 * @method static EO_PaySystemErrLog_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemErrLog createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemErrLog_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemErrLog wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemErrLog_Collection wakeUpCollection($rows)
-	 */
-	class PaySystemErrLogTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -19108,7 +17305,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_PaySystemErrLog_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaySystemRestHandlersTable:sale/lib/internals/paysystemresthandlers.php:d013e8b2a5329fede645f3fe530ccc4f */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\PaySystemRestHandlersTable:sale/lib/internals/paysystemresthandlers.php:3f5ea6c692fb2a594184489099083421 */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_PaySystemRestHandlers
@@ -19162,6 +17359,16 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_PaySystemRestHandlers resetSettings()
 	 * @method \Bitrix\Sale\Internals\EO_PaySystemRestHandlers unsetSettings()
 	 * @method \string fillSettings()
+	 * @method \string getAppId()
+	 * @method \Bitrix\Sale\Internals\EO_PaySystemRestHandlers setAppId(\string|\Bitrix\Main\DB\SqlExpression $appId)
+	 * @method bool hasAppId()
+	 * @method bool isAppIdFilled()
+	 * @method bool isAppIdChanged()
+	 * @method \string remindActualAppId()
+	 * @method \string requireAppId()
+	 * @method \Bitrix\Sale\Internals\EO_PaySystemRestHandlers resetAppId()
+	 * @method \Bitrix\Sale\Internals\EO_PaySystemRestHandlers unsetAppId()
+	 * @method \string fillAppId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -19214,6 +17421,8 @@ namespace Bitrix\Sale\Internals {
 	 * @method \int[] fillSort()
 	 * @method \string[] getSettingsList()
 	 * @method \string[] fillSettings()
+	 * @method \string[] getAppIdList()
+	 * @method \string[] fillAppId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -19246,18 +17455,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_PaySystemRestHandlers_Query query()
-	 * @method static EO_PaySystemRestHandlers_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PaySystemRestHandlers_Result getById($id)
-	 * @method static EO_PaySystemRestHandlers_Result getList(array $parameters = array())
-	 * @method static EO_PaySystemRestHandlers_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemRestHandlers createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemRestHandlers_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemRestHandlers wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemRestHandlers_Collection wakeUpCollection($rows)
-	 */
-	class PaySystemRestHandlersTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -19422,18 +17619,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_PaySystemRestriction_Query query()
-	 * @method static EO_PaySystemRestriction_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PaySystemRestriction_Result getById($id)
-	 * @method static EO_PaySystemRestriction_Result getList(array $parameters = array())
-	 * @method static EO_PaySystemRestriction_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemRestriction createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemRestriction_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemRestriction wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemRestriction_Collection wakeUpCollection($rows)
-	 */
-	class PaySystemRestrictionTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -19648,18 +17833,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_PaySystemService_Query query()
-	 * @method static EO_PaySystemService_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PaySystemService_Result getById($id)
-	 * @method static EO_PaySystemService_Result getList(array $parameters = array())
-	 * @method static EO_PaySystemService_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemService createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemService_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemService wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_PaySystemService_Collection wakeUpCollection($rows)
-	 */
-	class PaySystemServiceTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -19835,18 +18008,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_Reliability_Query query()
-	 * @method static EO_Reliability_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Reliability_Result getById($id)
-	 * @method static EO_Reliability_Result getList(array $parameters = array())
-	 * @method static EO_Reliability_Entity getEntity()
-	 * @method static \Sale\Handlers\Delivery\Additional\RusPost\Reliability\Reliability createObject($setDefaultValues = true)
-	 * @method static \Sale\Handlers\Delivery\Additional\RusPost\Reliability\ReliabilityCollection createCollection()
-	 * @method static \Sale\Handlers\Delivery\Additional\RusPost\Reliability\Reliability wakeUpObject($row)
-	 * @method static \Sale\Handlers\Delivery\Additional\RusPost\Reliability\ReliabilityCollection wakeUpCollection($rows)
-	 */
-	class ReliabilityTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -20024,18 +18185,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_ServiceRestriction_Query query()
-	 * @method static EO_ServiceRestriction_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ServiceRestriction_Result getById($id)
-	 * @method static EO_ServiceRestriction_Result getList(array $parameters = array())
-	 * @method static EO_ServiceRestriction_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_ServiceRestriction createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_ServiceRestriction_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_ServiceRestriction wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_ServiceRestriction_Collection wakeUpCollection($rows)
-	 */
-	class ServiceRestrictionTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -20061,7 +18210,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_ServiceRestriction_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ShipmentTable:sale/lib/internals/shipment.php:f09faa35e7b6e608756f98f6b1e1b962 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ShipmentTable:sale/lib/internals/shipment.php:eb62c02599c542da4598ea06ef2697b9 */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_Shipment
@@ -20162,16 +18311,6 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_Shipment resetPriceDelivery()
 	 * @method \Bitrix\Sale\Internals\EO_Shipment unsetPriceDelivery()
 	 * @method \float fillPriceDelivery()
-	 * @method \float getExpectedPriceDelivery()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment setExpectedPriceDelivery(\float|\Bitrix\Main\DB\SqlExpression $expectedPriceDelivery)
-	 * @method bool hasExpectedPriceDelivery()
-	 * @method bool isExpectedPriceDeliveryFilled()
-	 * @method bool isExpectedPriceDeliveryChanged()
-	 * @method \float remindActualExpectedPriceDelivery()
-	 * @method \float requireExpectedPriceDelivery()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment resetExpectedPriceDelivery()
-	 * @method \Bitrix\Sale\Internals\EO_Shipment unsetExpectedPriceDelivery()
-	 * @method \float fillExpectedPriceDelivery()
 	 * @method \float getWeight()
 	 * @method \Bitrix\Sale\Internals\EO_Shipment setWeight(\float|\Bitrix\Main\DB\SqlExpression $weight)
 	 * @method bool hasWeight()
@@ -20766,8 +18905,6 @@ namespace Bitrix\Sale\Internals {
 	 * @method \float[] fillBasePriceDelivery()
 	 * @method \float[] getPriceDeliveryList()
 	 * @method \float[] fillPriceDelivery()
-	 * @method \float[] getExpectedPriceDeliveryList()
-	 * @method \float[] fillExpectedPriceDelivery()
 	 * @method \float[] getWeightList()
 	 * @method \float[] fillWeight()
 	 * @method \boolean[] getCustomPriceDeliveryList()
@@ -20919,18 +19056,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_Shipment_Query query()
-	 * @method static EO_Shipment_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Shipment_Result getById($id)
-	 * @method static EO_Shipment_Result getList(array $parameters = array())
-	 * @method static EO_Shipment_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_Shipment createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_Shipment_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_Shipment wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_Shipment_Collection wakeUpCollection($rows)
-	 */
-	class ShipmentTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -20956,7 +19081,7 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_Shipment_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ShipmentExtraServiceTable:sale/lib/internals/shipmentextraservice.php:d99a17b0573367a6d787e33184df4fe4 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\ShipmentExtraServiceTable:sale/lib/internals/shipmentextraservice.php:ed970798a32102bf88ce3d6f2a2cf11c */
 namespace Bitrix\Sale\Internals {
 	/**
 	 * EO_ShipmentExtraService
@@ -21000,6 +19125,16 @@ namespace Bitrix\Sale\Internals {
 	 * @method \Bitrix\Sale\Internals\EO_ShipmentExtraService resetValue()
 	 * @method \Bitrix\Sale\Internals\EO_ShipmentExtraService unsetValue()
 	 * @method \string fillValue()
+	 * @method \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object getExtraService()
+	 * @method \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object remindActualExtraService()
+	 * @method \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object requireExtraService()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentExtraService setExtraService(\Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object $object)
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentExtraService resetExtraService()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentExtraService unsetExtraService()
+	 * @method bool hasExtraService()
+	 * @method bool isExtraServiceFilled()
+	 * @method bool isExtraServiceChanged()
+	 * @method \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object fillExtraService()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -21050,6 +19185,9 @@ namespace Bitrix\Sale\Internals {
 	 * @method \int[] fillExtraServiceId()
 	 * @method \string[] getValueList()
 	 * @method \string[] fillValue()
+	 * @method \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object[] getExtraServiceList()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentExtraService_Collection getExtraServiceCollection()
+	 * @method \Bitrix\Sale\Delivery\ExtraServices\EO__Collection fillExtraService()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -21082,18 +19220,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_ShipmentExtraService_Query query()
-	 * @method static EO_ShipmentExtraService_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ShipmentExtraService_Result getById($id)
-	 * @method static EO_ShipmentExtraService_Result getList(array $parameters = array())
-	 * @method static EO_ShipmentExtraService_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_ShipmentExtraService createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_ShipmentExtraService_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_ShipmentExtraService wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_ShipmentExtraService_Collection wakeUpCollection($rows)
-	 */
-	class ShipmentExtraServiceTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -21317,18 +19443,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_ShipmentItem_Query query()
-	 * @method static EO_ShipmentItem_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ShipmentItem_Result getById($id)
-	 * @method static EO_ShipmentItem_Result getList(array $parameters = array())
-	 * @method static EO_ShipmentItem_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_ShipmentItem createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_ShipmentItem_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_ShipmentItem wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_ShipmentItem_Collection wakeUpCollection($rows)
-	 */
-	class ShipmentItemTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -21566,18 +19680,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_ShipmentItemStore_Query query()
-	 * @method static EO_ShipmentItemStore_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ShipmentItemStore_Result getById($id)
-	 * @method static EO_ShipmentItemStore_Result getList(array $parameters = array())
-	 * @method static EO_ShipmentItemStore_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_ShipmentItemStore createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_ShipmentItemStore_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_ShipmentItemStore wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_ShipmentItemStore_Collection wakeUpCollection($rows)
-	 */
-	class ShipmentItemStoreTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -21705,18 +19807,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_SiteCurrency_Query query()
-	 * @method static EO_SiteCurrency_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_SiteCurrency_Result getById($id)
-	 * @method static EO_SiteCurrency_Result getList(array $parameters = array())
-	 * @method static EO_SiteCurrency_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_SiteCurrency createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_SiteCurrency_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_SiteCurrency wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_SiteCurrency_Collection wakeUpCollection($rows)
-	 */
-	class SiteCurrencyTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -21907,18 +19997,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_Status_Query query()
-	 * @method static EO_Status_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Status_Result getById($id)
-	 * @method static EO_Status_Result getList(array $parameters = array())
-	 * @method static EO_Status_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_Status createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_Status_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_Status wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_Status_Collection wakeUpCollection($rows)
-	 */
-	class StatusTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -22086,18 +20164,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_StatusGroupTask_Query query()
-	 * @method static EO_StatusGroupTask_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_StatusGroupTask_Result getById($id)
-	 * @method static EO_StatusGroupTask_Result getList(array $parameters = array())
-	 * @method static EO_StatusGroupTask_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_StatusGroupTask createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_StatusGroupTask_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_StatusGroupTask wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_StatusGroupTask_Collection wakeUpCollection($rows)
-	 */
-	class StatusGroupTaskTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -22257,18 +20323,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_StatusLang_Query query()
-	 * @method static EO_StatusLang_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_StatusLang_Result getById($id)
-	 * @method static EO_StatusLang_Result getList(array $parameters = array())
-	 * @method static EO_StatusLang_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_StatusLang createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_StatusLang_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_StatusLang wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_StatusLang_Collection wakeUpCollection($rows)
-	 */
-	class StatusLangTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -22420,18 +20474,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_SynchronizerLog_Query query()
-	 * @method static EO_SynchronizerLog_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_SynchronizerLog_Result getById($id)
-	 * @method static EO_SynchronizerLog_Result getList(array $parameters = array())
-	 * @method static EO_SynchronizerLog_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_SynchronizerLog createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_SynchronizerLog_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_SynchronizerLog wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_SynchronizerLog_Collection wakeUpCollection($rows)
-	 */
-	class SynchronizerLogTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -22645,18 +20687,6 @@ namespace Bitrix\Sale {
 }
 namespace Bitrix\Sale {
 	/**
-	 * @method static EO_TradingPlatform_Query query()
-	 * @method static EO_TradingPlatform_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_TradingPlatform_Result getById($id)
-	 * @method static EO_TradingPlatform_Result getList(array $parameters = array())
-	 * @method static EO_TradingPlatform_Entity getEntity()
-	 * @method static \Bitrix\Sale\EO_TradingPlatform createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\EO_TradingPlatform_Collection createCollection()
-	 * @method static \Bitrix\Sale\EO_TradingPlatform wakeUpObject($row)
-	 * @method static \Bitrix\Sale\EO_TradingPlatform_Collection wakeUpCollection($rows)
-	 */
-	class TradingPlatformTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -22808,18 +20838,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_UserGroupRestriction_Query query()
-	 * @method static EO_UserGroupRestriction_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UserGroupRestriction_Result getById($id)
-	 * @method static EO_UserGroupRestriction_Result getList(array $parameters = array())
-	 * @method static EO_UserGroupRestriction_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_UserGroupRestriction createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_UserGroupRestriction_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_UserGroupRestriction wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_UserGroupRestriction_Collection wakeUpCollection($rows)
-	 */
-	class UserGroupRestrictionTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -23008,18 +21026,6 @@ namespace Bitrix\Sale\Internals {
 	}
 }
 namespace Bitrix\Sale\Internals {
-	/**
-	 * @method static EO_UserProps_Query query()
-	 * @method static EO_UserProps_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UserProps_Result getById($id)
-	 * @method static EO_UserProps_Result getList(array $parameters = array())
-	 * @method static EO_UserProps_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_UserProps createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_UserProps_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_UserProps wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_UserProps_Collection wakeUpCollection($rows)
-	 */
-	class UserPropsTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -23211,18 +21217,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_UserPropsValue_Query query()
-	 * @method static EO_UserPropsValue_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UserPropsValue_Result getById($id)
-	 * @method static EO_UserPropsValue_Result getList(array $parameters = array())
-	 * @method static EO_UserPropsValue_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_UserPropsValue createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_UserPropsValue_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_UserPropsValue wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_UserPropsValue_Collection wakeUpCollection($rows)
-	 */
-	class UserPropsValueTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -23399,18 +21393,6 @@ namespace Bitrix\Sale\Internals {
 }
 namespace Bitrix\Sale\Internals {
 	/**
-	 * @method static EO_YandexSettings_Query query()
-	 * @method static EO_YandexSettings_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_YandexSettings_Result getById($id)
-	 * @method static EO_YandexSettings_Result getList(array $parameters = array())
-	 * @method static EO_YandexSettings_Entity getEntity()
-	 * @method static \Bitrix\Sale\Internals\EO_YandexSettings createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Internals\EO_YandexSettings_Collection createCollection()
-	 * @method static \Bitrix\Sale\Internals\EO_YandexSettings wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Internals\EO_YandexSettings_Collection wakeUpCollection($rows)
-	 */
-	class YandexSettingsTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -23570,18 +21552,6 @@ namespace Bitrix\Sale\Location {
 	}
 }
 namespace Bitrix\Sale\Location {
-	/**
-	 * @method static EO_DefaultSite_Query query()
-	 * @method static EO_DefaultSite_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_DefaultSite_Result getById($id)
-	 * @method static EO_DefaultSite_Result getList(array $parameters = array())
-	 * @method static EO_DefaultSite_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\EO_DefaultSite createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\EO_DefaultSite_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\EO_DefaultSite wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\EO_DefaultSite_Collection wakeUpCollection($rows)
-	 */
-	class DefaultSiteTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -23761,18 +21731,6 @@ namespace Bitrix\Sale\Location {
 }
 namespace Bitrix\Sale\Location {
 	/**
-	 * @method static EO_External_Query query()
-	 * @method static EO_External_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_External_Result getById($id)
-	 * @method static EO_External_Result getList(array $parameters = array())
-	 * @method static EO_External_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\EO_External createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\EO_External_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\EO_External wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\EO_External_Collection wakeUpCollection($rows)
-	 */
-	class ExternalTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -23913,18 +21871,6 @@ namespace Bitrix\Sale\Location {
 	}
 }
 namespace Bitrix\Sale\Location {
-	/**
-	 * @method static EO_ExternalService_Query query()
-	 * @method static EO_ExternalService_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ExternalService_Result getById($id)
-	 * @method static EO_ExternalService_Result getList(array $parameters = array())
-	 * @method static EO_ExternalService_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\EO_ExternalService createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\EO_ExternalService_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\EO_ExternalService wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\EO_ExternalService_Collection wakeUpCollection($rows)
-	 */
-	class ExternalServiceTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -24092,18 +22038,6 @@ namespace Bitrix\Sale\Location {
 }
 namespace Bitrix\Sale\Location {
 	/**
-	 * @method static EO_Group_Query query()
-	 * @method static EO_Group_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Group_Result getById($id)
-	 * @method static EO_Group_Result getList(array $parameters = array())
-	 * @method static EO_Group_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\EO_Group createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\EO_Group_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\EO_Group wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\EO_Group_Collection wakeUpCollection($rows)
-	 */
-	class GroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -24129,7 +22063,7 @@ namespace Bitrix\Sale\Location {
 	 */
 	class EO_Group_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\GroupLocationTable:sale/lib/location/grouplocation.php:8afdaec2254a868144fb9e709aeccb10 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\GroupLocationTable:sale/lib/location/grouplocation.php:32c29407730fbe486d54133ebe5a6e47 */
 namespace Bitrix\Sale\Location {
 	/**
 	 * EO_GroupLocation
@@ -24261,18 +22195,6 @@ namespace Bitrix\Sale\Location {
 }
 namespace Bitrix\Sale\Location {
 	/**
-	 * @method static EO_GroupLocation_Query query()
-	 * @method static EO_GroupLocation_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_GroupLocation_Result getById($id)
-	 * @method static EO_GroupLocation_Result getList(array $parameters = array())
-	 * @method static EO_GroupLocation_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\EO_GroupLocation createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\EO_GroupLocation_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\EO_GroupLocation wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\EO_GroupLocation_Collection wakeUpCollection($rows)
-	 */
-	class GroupLocationTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -24298,7 +22220,7 @@ namespace Bitrix\Sale\Location {
 	 */
 	class EO_GroupLocation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeTable:sale/lib/location/import/compiler/db/exporttree.php:1862bcea929ecf3eecc18dfe2e8a16f1 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeTable:sale/lib/location/import/compiler/db/exporttree.php:0d32156f43e4188a376114780e01d8c4 */
 namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	/**
 	 * EO_ExportTree
@@ -24545,18 +22467,6 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 }
 namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	/**
-	 * @method static EO_ExportTree_Query query()
-	 * @method static EO_ExportTree_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ExportTree_Result getById($id)
-	 * @method static EO_ExportTree_Result getList(array $parameters = array())
-	 * @method static EO_ExportTree_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTree createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTree_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTree wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTree_Collection wakeUpCollection($rows)
-	 */
-	class ExportTreeTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -24582,7 +22492,7 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	 */
 	class EO_ExportTree_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeBelarusTable:sale/lib/location/import/compiler/db/exporttreebelarus.php:5b8978798a0a5e98858470b30eac18c3 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Import\Compiler\Db\ExportTreeBelarusTable:sale/lib/location/import/compiler/db/exporttreebelarus.php:bb6b8113c28c6397360b7990a8a43e8a */
 namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	/**
 	 * EO_ExportTreeBelarus
@@ -24828,18 +22738,6 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	}
 }
 namespace Bitrix\Sale\Location\Import\Compiler\Db {
-	/**
-	 * @method static EO_ExportTreeBelarus_Query query()
-	 * @method static EO_ExportTreeBelarus_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ExportTreeBelarus_Result getById($id)
-	 * @method static EO_ExportTreeBelarus_Result getList(array $parameters = array())
-	 * @method static EO_ExportTreeBelarus_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTreeBelarus createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTreeBelarus_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTreeBelarus wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTreeBelarus_Collection wakeUpCollection($rows)
-	 */
-	class ExportTreeBelarusTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -25124,18 +23022,6 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	}
 }
 namespace Bitrix\Sale\Location\Import\Compiler\Db {
-	/**
-	 * @method static EO_ExportTreeRussia_Query query()
-	 * @method static EO_ExportTreeRussia_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ExportTreeRussia_Result getById($id)
-	 * @method static EO_ExportTreeRussia_Result getList(array $parameters = array())
-	 * @method static EO_ExportTreeRussia_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTreeRussia createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTreeRussia_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTreeRussia wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTreeRussia_Collection wakeUpCollection($rows)
-	 */
-	class ExportTreeRussiaTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -25457,18 +23343,6 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 }
 namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	/**
-	 * @method static EO_ExportTreeUkrain_Query query()
-	 * @method static EO_ExportTreeUkrain_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ExportTreeUkrain_Result getById($id)
-	 * @method static EO_ExportTreeUkrain_Result getList(array $parameters = array())
-	 * @method static EO_ExportTreeUkrain_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTreeUkrain createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTreeUkrain_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTreeUkrain wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_ExportTreeUkrain_Collection wakeUpCollection($rows)
-	 */
-	class ExportTreeUkrainTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -25698,18 +23572,6 @@ namespace Bitrix\Sale\Location\Import\Compiler\Db {
 	}
 }
 namespace Bitrix\Sale\Location\Import\Compiler\Db {
-	/**
-	 * @method static EO_Fias_Query query()
-	 * @method static EO_Fias_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Fias_Result getById($id)
-	 * @method static EO_Fias_Result getList(array $parameters = array())
-	 * @method static EO_Fias_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_Fias createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_Fias_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_Fias wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\Import\Compiler\Db\EO_Fias_Collection wakeUpCollection($rows)
-	 */
-	class FiasTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -26136,18 +23998,6 @@ namespace Bitrix\Sale\Location {
 }
 namespace Bitrix\Sale\Location {
 	/**
-	 * @method static EO_Location_Query query()
-	 * @method static EO_Location_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Location_Result getById($id)
-	 * @method static EO_Location_Result getList(array $parameters = array())
-	 * @method static EO_Location_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\EO_Location createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\EO_Location_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\EO_Location wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\EO_Location_Collection wakeUpCollection($rows)
-	 */
-	class LocationTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -26173,7 +24023,7 @@ namespace Bitrix\Sale\Location {
 	 */
 	class EO_Location_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Name\GroupTable:sale/lib/location/name/group.php:12f6c01490313cb00870b2ef9f588621 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Name\GroupTable:sale/lib/location/name/group.php:026f090072d576f73975b37cedbdbaca */
 namespace Bitrix\Sale\Location\Name {
 	/**
 	 * EO_Group
@@ -26340,18 +24190,6 @@ namespace Bitrix\Sale\Location\Name {
 }
 namespace Bitrix\Sale\Location\Name {
 	/**
-	 * @method static EO_Group_Query query()
-	 * @method static EO_Group_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Group_Result getById($id)
-	 * @method static EO_Group_Result getList(array $parameters = array())
-	 * @method static EO_Group_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\Name\EO_Group createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\Name\EO_Group_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\Name\EO_Group wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\Name\EO_Group_Collection wakeUpCollection($rows)
-	 */
-	class GroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -26377,7 +24215,7 @@ namespace Bitrix\Sale\Location\Name {
 	 */
 	class EO_Group_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Name\LocationTable:sale/lib/location/name/location.php:d9e3d62e13ae5630ba0f367a01055d67 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Name\LocationTable:sale/lib/location/name/location.php:8182bddd5791d8251b965ad6e5be231d */
 namespace Bitrix\Sale\Location\Name {
 	/**
 	 * EO_Location
@@ -26562,18 +24400,6 @@ namespace Bitrix\Sale\Location\Name {
 }
 namespace Bitrix\Sale\Location\Name {
 	/**
-	 * @method static EO_Location_Query query()
-	 * @method static EO_Location_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Location_Result getById($id)
-	 * @method static EO_Location_Result getList(array $parameters = array())
-	 * @method static EO_Location_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\Name\EO_Location createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\Name\EO_Location_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\Name\EO_Location wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\Name\EO_Location_Collection wakeUpCollection($rows)
-	 */
-	class LocationTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -26599,7 +24425,7 @@ namespace Bitrix\Sale\Location\Name {
 	 */
 	class EO_Location_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Name\TypeTable:sale/lib/location/name/type.php:6fe661fadf5bd5056e266ba4bbe23feb */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Name\TypeTable:sale/lib/location/name/type.php:2d2ce4e8556bcb21cb42d48ee4c0c0ca */
 namespace Bitrix\Sale\Location\Name {
 	/**
 	 * EO_Type
@@ -26748,18 +24574,6 @@ namespace Bitrix\Sale\Location\Name {
 }
 namespace Bitrix\Sale\Location\Name {
 	/**
-	 * @method static EO_Type_Query query()
-	 * @method static EO_Type_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Type_Result getById($id)
-	 * @method static EO_Type_Result getList(array $parameters = array())
-	 * @method static EO_Type_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\Name\EO_Type createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\Name\EO_Type_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\Name\EO_Type wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\Name\EO_Type_Collection wakeUpCollection($rows)
-	 */
-	class TypeTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -26785,7 +24599,7 @@ namespace Bitrix\Sale\Location\Name {
 	 */
 	class EO_Type_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Search\ChainTable:sale/lib/location/search/chain.php:598ef7d7e6e9552f982f2d9c785b0426 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Search\ChainTable:sale/lib/location/search/chain.php:c857b56705954a71fd98073173161afc */
 namespace Bitrix\Sale\Location\Search {
 	/**
 	 * EO_Chain
@@ -26893,18 +24707,6 @@ namespace Bitrix\Sale\Location\Search {
 	}
 }
 namespace Bitrix\Sale\Location\Search {
-	/**
-	 * @method static EO_Chain_Query query()
-	 * @method static EO_Chain_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Chain_Result getById($id)
-	 * @method static EO_Chain_Result getList(array $parameters = array())
-	 * @method static EO_Chain_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\Search\EO_Chain createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\Search\EO_Chain_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\Search\EO_Chain wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\Search\EO_Chain_Collection wakeUpCollection($rows)
-	 */
-	class ChainTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -27028,18 +24830,6 @@ namespace Bitrix\Sale\Location\Search {
 }
 namespace Bitrix\Sale\Location\Search {
 	/**
-	 * @method static EO_SiteLink_Query query()
-	 * @method static EO_SiteLink_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_SiteLink_Result getById($id)
-	 * @method static EO_SiteLink_Result getList(array $parameters = array())
-	 * @method static EO_SiteLink_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\Search\EO_SiteLink createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\Search\EO_SiteLink_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\Search\EO_SiteLink wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\Search\EO_SiteLink_Collection wakeUpCollection($rows)
-	 */
-	class SiteLinkTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -27065,7 +24855,7 @@ namespace Bitrix\Sale\Location\Search {
 	 */
 	class EO_SiteLink_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Search\WordTable:sale/lib/location/search/word.php:0f2e95935afff9ba620d15c7edc9c245 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\Search\WordTable:sale/lib/location/search/word.php:60d979d05ffab129cfbd7866c2fd8967 */
 namespace Bitrix\Sale\Location\Search {
 	/**
 	 * EO_Word
@@ -27189,18 +24979,6 @@ namespace Bitrix\Sale\Location\Search {
 }
 namespace Bitrix\Sale\Location\Search {
 	/**
-	 * @method static EO_Word_Query query()
-	 * @method static EO_Word_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Word_Result getById($id)
-	 * @method static EO_Word_Result getList(array $parameters = array())
-	 * @method static EO_Word_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\Search\EO_Word createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\Search\EO_Word_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\Search\EO_Word wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\Search\EO_Word_Collection wakeUpCollection($rows)
-	 */
-	class WordTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -27226,7 +25004,7 @@ namespace Bitrix\Sale\Location\Search {
 	 */
 	class EO_Word_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Location\SiteLocationTable:sale/lib/location/sitelocation.php:29053269e49baa86e001835133920039 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Location\SiteLocationTable:sale/lib/location/sitelocation.php:3c2f2025c6470a1e522555d9408ee4de */
 namespace Bitrix\Sale\Location {
 	/**
 	 * EO_SiteLocation
@@ -27367,18 +25145,6 @@ namespace Bitrix\Sale\Location {
 	}
 }
 namespace Bitrix\Sale\Location {
-	/**
-	 * @method static EO_SiteLocation_Query query()
-	 * @method static EO_SiteLocation_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_SiteLocation_Result getById($id)
-	 * @method static EO_SiteLocation_Result getList(array $parameters = array())
-	 * @method static EO_SiteLocation_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\EO_SiteLocation createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\EO_SiteLocation_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\EO_SiteLocation wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\EO_SiteLocation_Collection wakeUpCollection($rows)
-	 */
-	class SiteLocationTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -27558,18 +25324,6 @@ namespace Bitrix\Sale\Location {
 }
 namespace Bitrix\Sale\Location {
 	/**
-	 * @method static EO_Type_Query query()
-	 * @method static EO_Type_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Type_Result getById($id)
-	 * @method static EO_Type_Result getList(array $parameters = array())
-	 * @method static EO_Type_Entity getEntity()
-	 * @method static \Bitrix\Sale\Location\EO_Type createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Location\EO_Type_Collection createCollection()
-	 * @method static \Bitrix\Sale\Location\EO_Type wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Location\EO_Type_Collection wakeUpCollection($rows)
-	 */
-	class TypeTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -27686,18 +25440,6 @@ namespace Bitrix\Sale\Tax {
 }
 namespace Bitrix\Sale\Tax {
 	/**
-	 * @method static EO_Rate_Query query()
-	 * @method static EO_Rate_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Rate_Result getById($id)
-	 * @method static EO_Rate_Result getList(array $parameters = array())
-	 * @method static EO_Rate_Entity getEntity()
-	 * @method static \Bitrix\Sale\Tax\EO_Rate createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Tax\EO_Rate_Collection createCollection()
-	 * @method static \Bitrix\Sale\Tax\EO_Rate wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Tax\EO_Rate_Collection wakeUpCollection($rows)
-	 */
-	class RateTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -27723,7 +25465,7 @@ namespace Bitrix\Sale\Tax {
 	 */
 	class EO_Rate_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\Tax\RateLocationTable:sale/lib/tax/ratelocation.php:2060ed06720e62a75d5aa6eb3c787e7f */
+/* ORMENTITYANNOTATION:Bitrix\Sale\Tax\RateLocationTable:sale/lib/tax/ratelocation.php:83228eb57a61f49e5180ed87436d11d5 */
 namespace Bitrix\Sale\Tax {
 	/**
 	 * EO_RateLocation
@@ -27864,18 +25606,6 @@ namespace Bitrix\Sale\Tax {
 	}
 }
 namespace Bitrix\Sale\Tax {
-	/**
-	 * @method static EO_RateLocation_Query query()
-	 * @method static EO_RateLocation_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_RateLocation_Result getById($id)
-	 * @method static EO_RateLocation_Result getList(array $parameters = array())
-	 * @method static EO_RateLocation_Entity getEntity()
-	 * @method static \Bitrix\Sale\Tax\EO_RateLocation createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\Tax\EO_RateLocation_Collection createCollection()
-	 * @method static \Bitrix\Sale\Tax\EO_RateLocation wakeUpObject($row)
-	 * @method static \Bitrix\Sale\Tax\EO_RateLocation_Collection wakeUpCollection($rows)
-	 */
-	class RateLocationTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -28052,18 +25782,6 @@ namespace Bitrix\Sale\TradingPlatform\Ebay {
 	}
 }
 namespace Bitrix\Sale\TradingPlatform\Ebay {
-	/**
-	 * @method static EO_Category_Query query()
-	 * @method static EO_Category_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Category_Result getById($id)
-	 * @method static EO_Category_Result getList(array $parameters = array())
-	 * @method static EO_Category_Entity getEntity()
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\EO_Category createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\EO_Category_Collection createCollection()
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\EO_Category wakeUpObject($row)
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\EO_Category_Collection wakeUpCollection($rows)
-	 */
-	class CategoryTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -28289,18 +26007,6 @@ namespace Bitrix\Sale\TradingPlatform\Ebay {
 }
 namespace Bitrix\Sale\TradingPlatform\Ebay {
 	/**
-	 * @method static EO_CategoryVariation_Query query()
-	 * @method static EO_CategoryVariation_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CategoryVariation_Result getById($id)
-	 * @method static EO_CategoryVariation_Result getList(array $parameters = array())
-	 * @method static EO_CategoryVariation_Entity getEntity()
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\EO_CategoryVariation createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\EO_CategoryVariation_Collection createCollection()
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\EO_CategoryVariation wakeUpObject($row)
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\EO_CategoryVariation_Collection wakeUpCollection($rows)
-	 */
-	class CategoryVariationTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -28440,18 +26146,6 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Feed {
 	}
 }
 namespace Bitrix\Sale\TradingPlatform\Ebay\Feed {
-	/**
-	 * @method static EO_Queue_Query query()
-	 * @method static EO_Queue_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Queue_Result getById($id)
-	 * @method static EO_Queue_Result getList(array $parameters = array())
-	 * @method static EO_Queue_Entity getEntity()
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\Feed\EO_Queue createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\Feed\EO_Queue_Collection createCollection()
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\Feed\EO_Queue wakeUpObject($row)
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\Feed\EO_Queue_Collection wakeUpCollection($rows)
-	 */
-	class QueueTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -28641,18 +26335,6 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Feed {
 }
 namespace Bitrix\Sale\TradingPlatform\Ebay\Feed {
 	/**
-	 * @method static EO_Results_Query query()
-	 * @method static EO_Results_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Results_Result getById($id)
-	 * @method static EO_Results_Result getList(array $parameters = array())
-	 * @method static EO_Results_Entity getEntity()
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\Feed\EO_Results createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\Feed\EO_Results_Collection createCollection()
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\Feed\EO_Results wakeUpObject($row)
-	 * @method static \Bitrix\Sale\TradingPlatform\Ebay\Feed\EO_Results_Collection wakeUpCollection($rows)
-	 */
-	class ResultsTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -28817,18 +26499,6 @@ namespace Bitrix\Sale\TradingPlatform {
 }
 namespace Bitrix\Sale\TradingPlatform {
 	/**
-	 * @method static EO_Map_Query query()
-	 * @method static EO_Map_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Map_Result getById($id)
-	 * @method static EO_Map_Result getList(array $parameters = array())
-	 * @method static EO_Map_Entity getEntity()
-	 * @method static \Bitrix\Sale\TradingPlatform\EO_Map createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\TradingPlatform\EO_Map_Collection createCollection()
-	 * @method static \Bitrix\Sale\TradingPlatform\EO_Map wakeUpObject($row)
-	 * @method static \Bitrix\Sale\TradingPlatform\EO_Map_Collection wakeUpCollection($rows)
-	 */
-	class MapTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -28969,18 +26639,6 @@ namespace Bitrix\Sale\TradingPlatform {
 }
 namespace Bitrix\Sale\TradingPlatform {
 	/**
-	 * @method static EO_MapEntity_Query query()
-	 * @method static EO_MapEntity_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_MapEntity_Result getById($id)
-	 * @method static EO_MapEntity_Result getList(array $parameters = array())
-	 * @method static EO_MapEntity_Entity getEntity()
-	 * @method static \Bitrix\Sale\TradingPlatform\EO_MapEntity createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\TradingPlatform\EO_MapEntity_Collection createCollection()
-	 * @method static \Bitrix\Sale\TradingPlatform\EO_MapEntity wakeUpObject($row)
-	 * @method static \Bitrix\Sale\TradingPlatform\EO_MapEntity_Collection wakeUpCollection($rows)
-	 */
-	class MapEntityTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -29006,7 +26664,7 @@ namespace Bitrix\Sale\TradingPlatform {
 	 */
 	class EO_MapEntity_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\OrderTable:sale/lib/tradingplatform/order.php:e6aab45689425c88998c3c0c87158116 */
+/* ORMENTITYANNOTATION:Bitrix\Sale\TradingPlatform\OrderTable:sale/lib/tradingplatform/order.php:e093e8c5f03ee81d640226b0a25cc19a */
 namespace Bitrix\Sale\TradingPlatform {
 	/**
 	 * EO_Order
@@ -29182,18 +26840,6 @@ namespace Bitrix\Sale\TradingPlatform {
 	}
 }
 namespace Bitrix\Sale\TradingPlatform {
-	/**
-	 * @method static EO_Order_Query query()
-	 * @method static EO_Order_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Order_Result getById($id)
-	 * @method static EO_Order_Result getList(array $parameters = array())
-	 * @method static EO_Order_Entity getEntity()
-	 * @method static \Bitrix\Sale\TradingPlatform\EO_Order createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\TradingPlatform\EO_Order_Collection createCollection()
-	 * @method static \Bitrix\Sale\TradingPlatform\EO_Order wakeUpObject($row)
-	 * @method static \Bitrix\Sale\TradingPlatform\EO_Order_Collection wakeUpCollection($rows)
-	 */
-	class OrderTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -29395,18 +27041,6 @@ namespace Bitrix\Sale\TradingPlatform\Vk {
 }
 namespace Bitrix\Sale\TradingPlatform\Vk {
 	/**
-	 * @method static EO_ExportProfile_Query query()
-	 * @method static EO_ExportProfile_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ExportProfile_Result getById($id)
-	 * @method static EO_ExportProfile_Result getList(array $parameters = array())
-	 * @method static EO_ExportProfile_Entity getEntity()
-	 * @method static \Bitrix\Sale\TradingPlatform\Vk\EO_ExportProfile createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\TradingPlatform\Vk\EO_ExportProfile_Collection createCollection()
-	 * @method static \Bitrix\Sale\TradingPlatform\Vk\EO_ExportProfile wakeUpObject($row)
-	 * @method static \Bitrix\Sale\TradingPlatform\Vk\EO_ExportProfile_Collection wakeUpCollection($rows)
-	 */
-	class ExportProfileTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -29582,18 +27216,6 @@ namespace Bitrix\Sale\TradingPlatform\Vk {
 	}
 }
 namespace Bitrix\Sale\TradingPlatform\Vk {
-	/**
-	 * @method static EO_Log_Query query()
-	 * @method static EO_Log_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Log_Result getById($id)
-	 * @method static EO_Log_Result getList(array $parameters = array())
-	 * @method static EO_Log_Entity getEntity()
-	 * @method static \Bitrix\Sale\TradingPlatform\Vk\EO_Log createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Sale\TradingPlatform\Vk\EO_Log_Collection createCollection()
-	 * @method static \Bitrix\Sale\TradingPlatform\Vk\EO_Log wakeUpObject($row)
-	 * @method static \Bitrix\Sale\TradingPlatform\Vk\EO_Log_Collection wakeUpCollection($rows)
-	 */
-	class LogTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

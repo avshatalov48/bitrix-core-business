@@ -17,6 +17,22 @@ use Bitrix\Sale\Location\DB\Helper;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class SiteLinkTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SiteLink_Query query()
+ * @method static EO_SiteLink_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_SiteLink_Result getById($id)
+ * @method static EO_SiteLink_Result getList(array $parameters = array())
+ * @method static EO_SiteLink_Entity getEntity()
+ * @method static \Bitrix\Sale\Location\Search\EO_SiteLink createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Location\Search\EO_SiteLink_Collection createCollection()
+ * @method static \Bitrix\Sale\Location\Search\EO_SiteLink wakeUpObject($row)
+ * @method static \Bitrix\Sale\Location\Search\EO_SiteLink_Collection wakeUpCollection($rows)
+ */
 final class SiteLinkTable extends Entity\DataManager
 {
 	public static function getFilePath()

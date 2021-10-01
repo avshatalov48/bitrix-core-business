@@ -341,7 +341,7 @@ class OrderCreate extends Base
 			$price = ($shipmentParams['PRICE'] + $shipmentParams['PRICE_DELIVERY']) * 100; //rubles -> kopeck
 
 			if($shipmentParams['DELIVERY_SERVICE_CONFIG']['MAIN']['CATEGORY'] == 2 || $shipmentParams['DELIVERY_SERVICE_CONFIG']['MAIN']['CATEGORY'] == 4)
-				$item['insr-value'] = $shipmentParams['PRICE'] * 100;
+				$item['insr-value'] = $price; // https://www.pochta.ru/support/post-rules/valuable-departure
 
 			if($shipmentParams['DELIVERY_SERVICE_CONFIG']['MAIN']['CATEGORY'] == 4)
 				$item['payment'] = $price;

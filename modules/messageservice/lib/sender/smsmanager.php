@@ -58,6 +58,10 @@ class SmsManager
 			{
 				self::$senders[] = new Sms\ISmsCenter();
 			}
+			if (Sms\SmsEdnaru::isSupported())
+			{
+				self::$senders[] = new Sms\SmsEdnaru();
+			}
 
 			self::fireSendersEvent();
 		}

@@ -29,7 +29,6 @@ class Pool
 
     isEmpty()
     {
-        // console.log('empty', Object.keys(this.pool));
         return Object.keys(this.pool).length === 0;
     }
 }

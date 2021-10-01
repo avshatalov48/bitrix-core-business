@@ -1,0 +1,4 @@
+<?php
+$MESS["SENDER_MESSAGE_EDITOR_ADDITIONAL"] = "Додатково";
+$MESS["SENDER_MESSAGE_EDITOR_CONSENT_PREVIEW"] = "Попередній перегляд";
+$MESS["SENDER_MESSAGE_EDITOR_UNSUB"] = "Відписатися";

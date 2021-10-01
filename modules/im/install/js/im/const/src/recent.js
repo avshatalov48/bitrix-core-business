@@ -26,5 +26,6 @@ export const RecentSection = {
 
 export const MessageStatus = {
 	received: 'received',
-	delivered: 'delivered'
+	delivered: 'delivered',
+	error: 'error'
 }

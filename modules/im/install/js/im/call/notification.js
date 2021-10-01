@@ -162,12 +162,12 @@
 
 	BX.Call.NotificationContent = function(config)
 	{
-		this.video = config.video;
-		this.hasCamera = config.hasCamera;
-		this.callerAvatar = config.callerAvatar;
-		this.callerName = config.callerName;
-		this.callerType = config.callerType;
-		this.callerColor = config.callerColor;
+		this.video = !!config.video;
+		this.hasCamera = !!config.hasCamera;
+		this.callerAvatar = config.callerAvatar || '';
+		this.callerName = config.callerName || BX.message('IM_M_CALL_VIDEO_HD');
+		this.callerType = config.callerType || 'chat';
+		this.callerColor = config.callerColor || '';
 
 		this.elements = {
 			root: null,
@@ -189,41 +189,51 @@
 
 		if (this.video)
 		{
-			if (this.callerType === 'chat')
-			{
-				callerPrefix = BX.message("IM_M_VIDEO_CALL_FROM_CHAT");
-			}
-			else if (this.callerType === 'private')
+			if (this.callerType === 'private')
 			{
 				callerPrefix = BX.message("IM_M_VIDEO_CALL_FROM");
 			}
+			else
+			{
+				callerPrefix = BX.message("IM_M_VIDEO_CALL_FROM_CHAT");
+			}
 		}
 		else
 		{
-			if (this.callerType === 'chat')
-			{
-				callerPrefix = BX.message("IM_M_CALL_FROM_CHAT");
-			}
-			else if (this.callerType === 'private')
+			if (this.callerType === 'private')
 			{
 				callerPrefix = BX.message("IM_M_CALL_FROM");
 			}
+			else
+			{
+				callerPrefix = BX.message("IM_M_CALL_FROM_CHAT");
+			}
 		}
+
+		var avatarClass = '';
+		var avatarImageClass = '';
+		var avatarImageStyles = {};
+
 
 		if (this.callerAvatar)
 		{
-			avatar = this.callerAvatar;
+			avatarImageStyles = {
+				backgroundImage: "url('"+this.callerAvatar+"')",
+				backgroundColor: '#fff',
+				backgroundSize: 'cover',
+			}
 		}
 		else
 		{
-			if (this.callerType === 'chat')
-			{
-				avatar = '/bitrix/js/im/images/default-avatar-chat-big.png';
+			var callerType = this.callerType === 'private'? 'user': this.callerType;
+
+			avatarClass = 'bx-messenger-panel-avatar-'+callerType;
+			avatarImageStyles = {
+				backgroundColor: this.callerColor || '#525252',
+				backgroundSize: '40px',
+				backgroundPosition: 'center center',
 			}
-			else if (this.callerType === 'private')
-			{
-				avatar = '/bitrix/js/im/images/hidef-avatar-v3.png';
-			}
+			avatarImageClass = 'bx-messenger-panel-avatar-img-default';
 		}
 
 		this.elements.root = BX.create("div", {
@@ -257,21 +267,15 @@
 									props: {className: "bx-messenger-call-window-photo"},
 									children: [
 										BX.create("div", {
-											props: {className: "bx-messenger-call-window-photo-left"},
+											props: {
+												className: "bx-messenger-call-window-photo-left "+avatarClass
+											},
 											children: [
-												BX.create("div", {
-													props: {className: "bx-messenger-call-window-photo-block"},
-													children: [
-														this.elements.avatar = BX.create("img", {
-															props: {
-																className: "bx-messenger-call-window-overlay-photo-img",
-																src: avatar
-															},
-															style: {
-																backgroundColor: this.callerColor
-															}
-														}),
-													]
+												this.elements.avatar = BX.create("div", {
+													props: {
+														className: "bx-messenger-call-window-photo-block "+avatarImageClass
+													},
+													style: avatarImageStyles,
 												}),
 											]
 										}),
@@ -361,6 +365,15 @@
 
 	BX.Call.NotificationContent.prototype.showInDesktop = function()
 	{
+		// Workaround to prevent incoming call window from hanging.
+		// Without it, there is a possible scenario, when BXDesktopWindow.ExecuteCommand("close") is executed too early
+		// (if invite window is closed before appearing), which leads to hanging of the window
+		if (!window.opener.BXIM.callController.callNotification)
+		{
+			BXDesktopWindow.ExecuteCommand("close");
+			return;
+		}
+
 		this.render();
 		document.body.appendChild(this.elements.root);
 		BX.desktop.setWindowPosition({X:STP_CENTER, Y:STP_VCENTER, Width: 351, Height: 510});
@@ -370,6 +383,7 @@
 	{
 		if(BX.desktop)
 		{
+			BXDesktopWindow.ExecuteCommand("close");
 			BX.desktop.onCustomEvent("main", Events.onButtonClick, [{
 				button: 'answer',
 				video: false
@@ -392,6 +406,7 @@
 		}
 		if(BX.desktop)
 		{
+			BXDesktopWindow.ExecuteCommand("close");
 			BX.desktop.onCustomEvent("main", Events.onButtonClick, [{
 				button: 'answer',
 				video: true
@@ -410,6 +425,7 @@
 	{
 		if(BX.desktop)
 		{
+			BXDesktopWindow.ExecuteCommand("close");
 			BX.desktop.onCustomEvent("main", Events.onButtonClick, [{
 				button: 'decline',
 			}]);

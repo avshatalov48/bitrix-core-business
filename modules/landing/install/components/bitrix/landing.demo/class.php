@@ -3491,7 +3491,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		{
 			// uniq code
 			$defValueCode = array (
-				'UNIQUE' => 'N',
+				'UNIQUE' => 'Y',
 				'TRANSLITERATION' => 'Y',
 				'TRANS_LEN' => 100,
 				'TRANS_CASE' => 'L',

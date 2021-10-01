@@ -13,7 +13,20 @@ use Bitrix\Main;
  * </ul>
  *
  * @package Bitrix\Main
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserIndexSelector_Query query()
+ * @method static EO_UserIndexSelector_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserIndexSelector_Result getById($id)
+ * @method static EO_UserIndexSelector_Result getList(array $parameters = array())
+ * @method static EO_UserIndexSelector_Entity getEntity()
+ * @method static \Bitrix\Main\EO_UserIndexSelector createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EO_UserIndexSelector_Collection createCollection()
+ * @method static \Bitrix\Main\EO_UserIndexSelector wakeUpObject($row)
+ * @method static \Bitrix\Main\EO_UserIndexSelector_Collection wakeUpCollection($rows)
+ */
 
 class UserIndexSelectorTable extends Main\Entity\DataManager
 {

@@ -72,11 +72,13 @@ Loader::registerAutoLoadClasses(
 		"LPA" => "classes/general/lpa.php",
 		"CAdminFilter" => "interface/admin_filter.php",
 		"CAdminList" => "interface/admin_list.php",
+		"CAdminListRow" => "interface/admin_list.php",
 		"CAdminUiList" => "interface/admin_ui_list.php",
+		"CAdminUiListRow" => "interface/admin_ui_list.php",
 		"CAdminUiResult" => "interface/admin_ui_list.php",
 		"CAdminUiContextMenu" => "interface/admin_ui_list.php",
 		"CAdminUiSorting" => "interface/admin_ui_list.php",
-		"CAdminListRow" => "interface/admin_list.php",
+		"CAdminUiListActionPanel" => "interface/admin_ui_list.php",
 		"CAdminTabControl" => "interface/admin_tabcontrol.php",
 		"CAdminForm" => "interface/admin_form.php",
 		"CAdminFormSettings" => "interface/admin_form.php",
@@ -115,6 +117,7 @@ Loader::registerAutoLoadClasses(
 		"CSpacer" => "classes/general/spacer.php",
 		"UpdateTools" => "classes/general/updatetools.php",
 		"CJSCore" => "classes/general/jscore.php",
+		"CCheckListTools" => "classes/general/checklist.php",
 
 		//deprecated
 		"CUrlRewriter" => "classes/general/urlrewriter.php",

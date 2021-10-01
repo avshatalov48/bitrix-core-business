@@ -21,7 +21,7 @@ if (Loader::includeModule('iblock'))
 		 * @param Main\Event $event		Event data.
 		 * @return Main\EventResult
 		 */
-		public static function handlerPropertyFeatureBuildList(Main\Event $event)
+		public static function handlerPropertyFeatureBuildList(Main\Event $event): Main\EventResult
 		{
 			$list = [];
 
@@ -65,7 +65,7 @@ if (Loader::includeModule('iblock'))
 		 * @throws Main\ObjectPropertyException
 		 * @throws Main\SystemException
 		 */
-		public static function getBasketPropertyCodes($iblockId, array $parameters = [])
+		public static function getBasketPropertyCodes($iblockId, array $parameters = []): ?array
 		{
 			$iblockId = (int)$iblockId;
 			if ($iblockId <= 0)
@@ -141,7 +141,7 @@ if (Loader::includeModule('iblock'))
 		 * @throws Main\ObjectPropertyException
 		 * @throws Main\SystemException
 		 */
-		public static function getOfferTreePropertyCodes($iblockId, array $parameters = [])
+		public static function getOfferTreePropertyCodes($iblockId, array $parameters = []): ?array
 		{
 			$iblockId = (int)$iblockId;
 			if ($iblockId <= 0)
@@ -192,7 +192,7 @@ if (Loader::includeModule('iblock'))
 		 * @throws Main\ObjectPropertyException
 		 * @throws Main\SystemException
 		 */
-		private static function getBasketPropertyByTypes(array $catalog, array $parameters = [])
+		private static function getBasketPropertyByTypes(array $catalog, array $parameters = []): ?array
 		{
 			$result = [];
 
@@ -289,7 +289,7 @@ if (Loader::includeModule('iblock'))
 		 * @throws Main\ObjectPropertyException
 		 * @throws Main\SystemException
 		 */
-		private static function getOfferTreePropertyByTypes(array $catalog, array $parameters = [])
+		private static function getOfferTreePropertyByTypes(array $catalog, array $parameters = []): ?array
 		{
 			$result = [];
 
@@ -334,7 +334,7 @@ if (Loader::includeModule('iblock'))
 		 * @param array $description	Additional description.
 		 * @return bool
 		 */
-		private static function checkBasketProperty(array $property, array $description)
+		private static function checkBasketProperty(array $property, array $description): bool
 		{
 			if (!isset($property['IBLOCK_ID']))
 				return false;
@@ -403,7 +403,7 @@ if (Loader::includeModule('iblock'))
 		 * @param array $description	Additional description.
 		 * @return bool
 		 */
-		private static function checkOfferTreeProperty(array $property, array $description)
+		private static function checkOfferTreeProperty(array $property, array $description): bool
 		{
 			if (!isset($property['IBLOCK_ID']))
 				return false;

@@ -1,4 +1,4 @@
-<?
+<?php
 /** @global CUser $USER */
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
@@ -12,6 +12,17 @@ foreach ($requiredModules as $requiredModule)
 		ShowError(GetMessage("F_NO_MODULE"));
 		return 0;
 	}
+}
+
+$arResult['IS_RESTRICTED'] = false;
+if (
+	\Bitrix\Main\Loader::includeModule('bitrix24')
+	&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('report')
+)
+{
+	$arResult['IS_RESTRICTED'] = true;
+	$this->IncludeComponentTemplate('restrict');
+	return 1;
 }
 
 $isPost = $_SERVER['REQUEST_METHOD'] === 'POST';
@@ -234,5 +245,5 @@ global $DB;
 $arResult['dateFormat'] = $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT"));
 $arResult['randomString'] = $this->randString();
 
-$this->IncludeComponentTemplate();
+$this->IncludeComponentTemplate('template');
 

@@ -328,7 +328,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	};
 	var MessageStatus = {
 	  received: 'received',
-	  delivered: 'delivered'
+	  delivered: 'delivered',
+	  error: 'error'
 	};
 
 	var NotificationTypesCodes = Object.freeze({

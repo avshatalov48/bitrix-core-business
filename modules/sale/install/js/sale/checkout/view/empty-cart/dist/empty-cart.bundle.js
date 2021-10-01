@@ -4,11 +4,11 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 (function (exports,ui_vue) {
 	'use strict';
 
-	ui_vue.Vue.component('sale-checkout-view-empty_cart', {
+	ui_vue.BitrixVue.component('sale-checkout-view-empty_cart', {
 	  props: ['config'],
 	  computed: {
 	    localize: function localize() {
-	      return Object.freeze(ui_vue.Vue.getFilteredPhrases('CHECKOUT_VIEW_EMPTY_CART_'));
+	      return Object.freeze(ui_vue.BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_EMPTY_CART_'));
 	    }
 	  },
 	  // language=Vue

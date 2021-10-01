@@ -25,6 +25,9 @@ export class Application
             .then(() => this.subscribeToStoreChanges())
     }
 
+    /**
+     * @private
+     */
     init(option)
     {
         this.store = option.store;
@@ -32,53 +35,61 @@ export class Application
         return new Promise((resolve, reject) => resolve());
     }
 
+    /**
+     * @private
+     */
     initProvider()
     {
         this.provider = BasketRestHandler.create({store: this.store})
         return new Promise((resolve, reject) => resolve());
     }
 
+    /**
+     * @private
+     */
     iniController()
     {
         this.basket = new Basket().setStore(this.store).setProvider(this.provider);
         return new Promise((resolve, reject) => resolve());
     }
 
+    /**
+     * @private
+     */
     executeRestAnswer(command, result, extra)
     {
         return this.provider.execute(command, result, extra);
     }
 
+    /**
+     * @private
+     */
     subscribeToEvents()
     {
         Event.EventEmitter.subscribe(EventType.order.success, (e)=>this.basket.handlerOrderSuccess(e));
-        
-        // Event.EventEmitter.subscribe(EventType.basket.removeProduct, Runtime.debounce((e)=>this.basket.handlerSuccessRemove(e), 500, this));
+    
         Event.EventEmitter.subscribe(EventType.basket.buttonRemoveProduct, Runtime.debounce((e)=>this.basket.handlerRemove(e), 500, this));
-
         Event.EventEmitter.subscribe(EventType.basket.buttonPlusProduct, (e) => this.basket.handlerQuantityPlus(e));
         Event.EventEmitter.subscribe(EventType.basket.buttonMinusProduct, (e) => this.basket.handlerQuantityMinus(e));
         Event.EventEmitter.subscribe(EventType.basket.buttonRestoreProduct, Runtime.debounce((e) => this.basket.handlerRestore(e), 500, this));
         Event.EventEmitter.subscribe(EventType.basket.needRefresh, (e) => this.basket.handlerNeedRefreshY(e));
         Event.EventEmitter.subscribe(EventType.basket.refreshAfter, (e) => this.basket.handlerNeedRefreshN(e));
+    
+        Event.EventEmitter.subscribe(EventType.basket.changeSku, (e) => this.basket.handlerChangeSku(e));
         
-        // Event.EventEmitter.subscribe(EventType.property.validate,           (e) => this.handlerValidateProperty(e));
-
         Event.EventEmitter.subscribe(EventType.consent.refused, () => this.handlerConsentRefused());
         Event.EventEmitter.subscribe(EventType.consent.accepted, () => this.handlerConsentAccepted());
-
-        // Event.EventEmitter.subscribe(EventType.application.none, () => this.handlerApplicationStatusNone());
-        // Event.EventEmitter.subscribe(EventType.application.wait, () => this.handlerApplicationStatusWait());
-
+    
         Event.EventEmitter.subscribe(EventType.element.buttonCheckout, Runtime.debounce(() => this.handlerCheckout(), 1000, this));
         Event.EventEmitter.subscribe(EventType.element.buttonShipping, Runtime.debounce(() => this.handlerShipping(), 1000, this));
-
-        Event.EventEmitter.subscribe(EventType.paysystem.beforeInitList, ()=>this.paySystemSetStatusWait());
-        Event.EventEmitter.subscribe(EventType.paysystem.afterInitList, ()=>this.paySystemSetStatusNone());
-
-        return new Promise((resolve, reject) => resolve());
+    
+        Event.EventEmitter.subscribe(EventType.paysystem.beforeInitList, () => this.paySystemSetStatusWait());
+        Event.EventEmitter.subscribe(EventType.paysystem.afterInitList, () => this.paySystemSetStatusNone());
     }
 
+    /**
+     * @private
+     */
     subscribeToStoreChanges()
     {
         // this.store.subscribe((mutation, state) => {
@@ -92,41 +103,62 @@ export class Application
 
         return new Promise((resolve, reject) => resolve());
     }
-    
+
+    /**
+     * @private
+     */
     paySystemSetStatusWait()
     {
         let paySystem = { status: LoaderConst.status.wait};
         return this.store.dispatch('pay-system/setStatus', paySystem);
     }
 
+    /**
+     * @private
+     */
     paySystemSetStatusNone()
     {
         let paySystem = { status: LoaderConst.status.none};
         return this.store.dispatch('pay-system/setStatus', paySystem);
     }
 
+    /**
+     * @private
+     */
     appSetStatusWait()
     {
         let app = { status: LoaderConst.status.wait};
         return this.store.dispatch('application/setStatus', app);
     }
 
+    /**
+     * @private
+     */
     appSetStatusNone()
     {
         let app = { status: LoaderConst.status.none};
         return this.store.dispatch('application/setStatus', app);
     }
 
+    /**
+     * @private
+     */
     handlerConsentAccepted()
     {
         this.store.dispatch('consent/setStatus', ConsentConst.status.accepted);
     }
 
+    /**
+     * @private
+     */
     handlerConsentRefused()
     {
         this.store.dispatch('consent/setStatus', ConsentConst.status.refused);
     }
 
+    /**
+     * @private
+     */
     handlerCheckout()
     {
         BX.onCustomEvent(ConsentConst.validate.submit, []);
@@ -139,7 +171,7 @@ export class Application
         {
             // this.propertiesValidate();
             // this.propertiesIsValid() ? alert('propsSuccess'):alert('propsError')
-
+ 
             this.appSetStatusWait();
 
             this.saveOrder()
@@ -167,6 +199,9 @@ export class Application
         }
     }
 
+    /**
+     * @private
+     */
     handlerShipping()
     {
         this.store.dispatch('application/setStage', {stage: ApplicationConst.stage.view});
@@ -174,6 +209,9 @@ export class Application
         delete BX.UserConsent;
     }
 
+    /**
+     * @private
+     */
     saveOrder()
     {
         const component = ComponentConst.bitrixSaleOrderCheckout;
@@ -199,6 +237,9 @@ export class Application
             .catch((result) => this.executeRestAnswer(cmd, {error: result.errors}));
     }
 
+    /**
+     * @private
+     */
     getPropertyList()
     {
         const result = [];
@@ -220,6 +261,9 @@ export class Application
         return result;
     }
 
+    /**
+     * @private
+     */
     preparePropertyFields(list)
     {
         let fields = {};

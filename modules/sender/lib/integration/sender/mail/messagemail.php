@@ -187,7 +187,39 @@ class MessageMail implements Message\iBase, Message\iMailable
 				'group' => Message\ConfigurationOption::GROUP_ADDITIONAL,
 				'value' => '',
 				'items' => array(),
-			),
+			), [
+				'type' => Message\ConfigurationOption::TYPE_CUSTOM,
+				'name' => Loc::getMessage('SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_OTHER'),
+				'group' => Message\ConfigurationOption::GROUP_ADDITIONAL,
+				'show_in_list' => true,
+				'required' => false,
+			], [
+				'type' => Message\ConfigurationOption::TYPE_CHECKBOX,
+				'code' => 'TRACK_MAIL',
+				'name' => Loc::getMessage('SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_TRACK_MAIL'),
+				'hint' => Loc::getMessage('SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_TRACK_MAIL_HINT'),
+				'group' => Message\ConfigurationOption::GROUP_ADDITIONAL,
+				'show_in_list' => false,
+				'required' => false,
+				'value' => Option::get('sender', 'track_mails')
+			],
+			[
+				'type' => Message\ConfigurationOption::TYPE_CONSENT,
+				'code' => 'APPROVE_CONFIRMATION',
+				'name' => Loc::getMessage('SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_APPROVE_CONFIRMATION'),
+				'hint' => Loc::getMessage('SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_APPROVE_CONFIRMATION_HINT'),
+				'group' => Message\ConfigurationOption::GROUP_ADDITIONAL,
+				'show_in_list' => false,
+				'required' => false,
+				'value' => Option::get('sender', 'mail_consent'),
+			], [
+				'type' => Message\ConfigurationOption::TYPE_CONSENT_CONTENT,
+				'code' => 'APPROVE_CONFIRMATION_CONSENT',
+				'group' => Message\ConfigurationOption::GROUP_ADDITIONAL,
+				'show_in_list' => false,
+				'required' => false,
+				'show_preview' => true
+			],
 		));
 
 		$list = array(
@@ -238,6 +270,11 @@ class MessageMail implements Message\iBase, Message\iMailable
 			return $instance->getMailBody();
 		};
 
+		$trackMail = $this->configuration->getOption('TRACK_MAIL')->getValue();
+		if (!$trackMail)
+		{
+			$this->configuration->getOption('TRACK_MAIL')->setValue(Option::get('sender', 'track_mails'));
+		}
 
 		$optionLinkParams = $this->configuration->getOption('LINK_PARAMS');
 		if ($optionLinkParams)
@@ -332,6 +369,16 @@ class MessageMail implements Message\iBase, Message\iMailable
 			{
 				$result = new Result();
 				$result->addError(new Error(Loc::getMessage('SENDER_INTEGRATION_MAIL_MESSAGE_ERR_NO_UNSUB_LINK')));
+			}
+
+			if (
+				$mailBody
+				&& $configuration->getOption('APPROVE_CONFIRMATION')->getValue() === 'Y'
+				&& !$configuration->getOption('APPROVE_CONFIRMATION_CONSENT')->getValue()
+			)
+			{
+				$result = new Result();
+				$result->addError(new Error(Loc::getMessage('SENDER_INTEGRATION_MAIL_MESSAGE_ERR_NO_APPROVE_CONFIRMATION_CONSENT')));
 
 				return $result;
 			}
@@ -442,7 +489,7 @@ class MessageMail implements Message\iBase, Message\iMailable
 		}
 		catch (SystemException $exception)
 		{
-			throw new Posting\StopException($exception->getMessage());
+			throw new Posting\StopException();
 		}
 
 		StyleInliner::inlineDocument($document);

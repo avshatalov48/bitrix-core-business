@@ -2085,13 +2085,23 @@ class CSiteCheckerTest
 		$f = $res->Fetch();
 		$character_set_connection = $f['Value'];
 
-		$res = $DB->Query('SHOW VARIABLES LIKE "collation_connection"');
-		$f = $res->Fetch();
-		$collation_connection = $f['Value'];
+		if ($character_set_connection == 'utf8mb3')
+		{
+			$character_set_connection = 'utf8';
+		}
 
 		$res = $DB->Query('SHOW VARIABLES LIKE "character_set_results"');
 		$f = $res->Fetch();
 		$character_set_results = $f['Value'];
+
+		if ($character_set_results == 'utf8mb3')
+		{
+			$character_set_results = 'utf8';
+		}
+
+		$res = $DB->Query('SHOW VARIABLES LIKE "collation_connection"');
+		$f = $res->Fetch();
+		$collation_connection = $f['Value'];
 
 		$bAllIn1251 = true;
 		$res1 = $DB->Query('SELECT C.CHARSET FROM b_lang L, b_culture C WHERE C.ID=L.CULTURE_ID AND L.ACTIVE="Y"'); // for 'no kernel mode'
@@ -2195,6 +2205,11 @@ class CSiteCheckerTest
 		$f = $res->Fetch();
 		$charset = trim($f['Value']);
 
+		if ($charset == 'utf8mb3')
+		{
+			$charset = 'utf8';
+		}
+
 		$res = $DB->Query('SHOW VARIABLES LIKE "collation_database"');
 		$f = $res->Fetch();
 		$collation = trim($f['Value']);
@@ -2263,6 +2278,11 @@ class CSiteCheckerTest
 				$t_charset = getCharsetByCollation($t_collation);
 			}
 
+			if ($t_charset == 'utf8mb3')
+			{
+				$t_charset = 'utf8';
+			}
+
 			if ($charset != $t_charset)
 			{
 				// table charset differs
@@ -2316,7 +2336,7 @@ class CSiteCheckerTest
 					}
 					elseif ($this->force_repair)
 						$arFix[] = ' MODIFY `'.$f0['Field'].'` '.$f0['Type'].' CHARACTER SET '.$charset.($f0['Null'] == 'YES' ? ' NULL' : ' NOT NULL').
-							($f0['Default'] === NULL ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.$f0['Extra'];
+							($f0['Default'] === NULL ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.str_ireplace('DEFAULT_GENERATED', '', $f0['Extra']);
 				}
 				elseif ($collation != $f_collation)
 				{
@@ -2332,7 +2352,7 @@ class CSiteCheckerTest
 					}
 					else
 						$arFix[] = ' MODIFY `'.$f0['Field'].'` '.$f0['Type'].' COLLATE '.$collation.($f0['Null'] == 'YES' ? ' NULL' : ' NOT NULL').
-							($f0['Default'] === NULL ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.$f0['Extra'];
+							($f0['Default'] === NULL ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.str_ireplace('DEFAULT_GENERATED', '', $f0['Extra']);
 				}
 			}
 
@@ -3067,7 +3087,7 @@ function TableFieldConstruct($f0)
 				'"'.$DB->ForSQL($f0['Default']).'"'
 			)
 		).
-		' '.$f0['Extra'];
+		' '.str_ireplace('DEFAULT_GENERATED', '', $f0['Extra']);
 	return trim($tmp);
 }
 

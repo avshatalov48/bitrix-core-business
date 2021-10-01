@@ -1,13 +1,13 @@
-import { Vue } from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 import { Type } from 'main.core';
 
-Vue.component('sale-checkout-view-property-list_view', {
+BitrixVue.component('sale-checkout-view-property-list_view', {
     props: ['items', 'number'],
 	computed:
 	{
 		localize() {
 			return Object.freeze(
-				Vue.getFilteredPhrases('CHECKOUT_VIEW_PROPERTY_LIST_VIEW_'))
+				BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_PROPERTY_LIST_VIEW_'))
 		},
 		getTitle()
 		{

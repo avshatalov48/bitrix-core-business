@@ -125,6 +125,8 @@ $arResult['destinationContextUsers'] = 'GROUP_INVITE';
 $errorMessage = [];
 $warningMessage = [];
 
+$arResult['isCurrentUserAdmin'] = CSocNetUser::isCurrentUserModuleAdmin();
+
 if (!$USER->IsAuthorized())
 {
 	$arResult["NEED_AUTH"] = "Y";
@@ -233,7 +235,7 @@ else
 		if ($arParams["GROUP_ID"] <= 0)
 		{
 			if (
-				!CSocNetUser::IsCurrentUserModuleAdmin()
+				!$arResult['isCurrentUserAdmin']
 				&& $APPLICATION->GetGroupRight("socialnetwork", false, "Y", "Y", array($this->getSiteId(), false)) < "K"
 			)
 			{
@@ -244,7 +246,7 @@ else
 			empty($errorMessage)
 			&& $arParams["GROUP_ID"] > 0
 			&& $arResult["POST"]["OWNER_ID"] != $arResult["currentUserId"]
-			&& !CSocNetUser::IsCurrentUserModuleAdmin()
+			&& !$arResult['isCurrentUserAdmin']
 		)
 		{
 			$arResult["FatalError"] = GetMessage("SONET_GCE_ERR_SECURITY").". ";
@@ -840,7 +842,7 @@ else
 
 						if (!empty($relationIdList))
 						{
-							CSocNetUserToGroup::TransferModerator2Member($arResult["currentUserId"], $arResult["GROUP_ID"], $relationIdList, CSocNetUser::IsCurrentUserModuleAdmin());
+							CSocNetUserToGroup::TransferModerator2Member($arResult["currentUserId"], $arResult["GROUP_ID"], $relationIdList, $arResult['isCurrentUserAdmin']);
 						}
 					}
 
@@ -1234,7 +1236,7 @@ else
 						&& isset($ownerId)
 						&& $ownerId != $arResult["currentUserId"]
 						&& !in_array($arResult["currentUserId"], $moderatorIdList)
-						&& !CSocNetUser::IsCurrentUserModuleAdmin() // not session admin
+						&& !$arResult['isCurrentUserAdmin'] // not session admin
 					)
 					{
 						if (CSocNetUserToGroup::add(array(
@@ -1266,7 +1268,7 @@ else
 					{
 						foreach($arUserIDs as $user_id)
 						{
-							$canInviteGroup = CSocNetUserPerms::CanPerformOperation($arResult["currentUserId"], $user_id, "invitegroup", CSocNetUser::IsCurrentUserModuleAdmin());
+							$canInviteGroup = CSocNetUserPerms::CanPerformOperation($arResult["currentUserId"], $user_id, "invitegroup", $arResult['isCurrentUserAdmin']);
 							$user2groupRelation = CSocNetUserToGroup::GetUserRole($user_id, $arResult["GROUP_ID"]);
 
 							if (
@@ -1286,7 +1288,7 @@ else
 									{
 										$arErrorUsers[] = array(
 											CUser::FormatName($arParams["NAME_TEMPLATE"], $arUser, $bUseLogin),
-											CSocNetUserPerms::CanPerformOperation($arResult["currentUserId"], $arUser["ID"], "viewprofile", CSocNetUser::IsCurrentUserModuleAdmin())
+											CSocNetUserPerms::CanPerformOperation($arResult["currentUserId"], $arUser["ID"], "viewprofile", $arResult['isCurrentUserAdmin'])
 												? CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arUser["ID"]))
 												: ""
 										);

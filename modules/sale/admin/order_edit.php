@@ -622,6 +622,9 @@ $orderBasket = new Blocks\OrderBasket(
 	"BX.Sale.Admin.OrderBasketObj",
 	$basketPrefix
 );
+
+$orderBasket->setSettingsShowPropsVisible(true);
+
 ///
 
 $defTails = $result->isSuccess() && !$isNeedFieldsRestore;

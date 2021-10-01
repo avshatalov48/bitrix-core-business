@@ -8,6 +8,19 @@ use Bitrix\Main\Entity\ReferenceField;
 /**
  * Class LocalDeliveryRequest
  * @package Bitrix\Sale\Internals
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_LocalDeliveryRequest_Query query()
+ * @method static EO_LocalDeliveryRequest_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_LocalDeliveryRequest_Result getById($id)
+ * @method static EO_LocalDeliveryRequest_Result getList(array $parameters = array())
+ * @method static EO_LocalDeliveryRequest_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_LocalDeliveryRequest createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_LocalDeliveryRequest_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_LocalDeliveryRequest wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_LocalDeliveryRequest_Collection wakeUpCollection($rows)
  */
 class LocalDeliveryRequestTable extends DataManager
 {

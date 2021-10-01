@@ -18,7 +18,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Sale\TradingPlatform
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Map_Query query()
+ * @method static EO_Map_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Map_Result getById($id)
+ * @method static EO_Map_Result getList(array $parameters = array())
+ * @method static EO_Map_Entity getEntity()
+ * @method static \Bitrix\Sale\TradingPlatform\EO_Map createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\TradingPlatform\EO_Map_Collection createCollection()
+ * @method static \Bitrix\Sale\TradingPlatform\EO_Map wakeUpObject($row)
+ * @method static \Bitrix\Sale\TradingPlatform\EO_Map_Collection wakeUpCollection($rows)
+ */
 
 class MapTable extends Entity\DataManager
 {

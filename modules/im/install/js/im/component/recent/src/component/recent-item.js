@@ -4,272 +4,275 @@ import {TemplateTypes as ItemTypes, RecentSection as Section, MessageStatus, Cha
 import "./recent-item.css";
 import { BitrixVue } from "ui.vue";
 
-const RecentItem = {
+const RecentItem = BitrixVue.localComponent('bx-im-component-recent-item', {
 	props: [
 		'itemData'
 	],
 
 	methods:
+	{
+		onClick(event)
 		{
-			onClick(event)
+			this.$emit('click', ({id: this.item.id, $event: event}));
+		},
+		onRightClick(event)
+		{
+			this.$emit('rightClick', {id: this.item.id, $event: event});
+		},
+		formatDate(date)
+		{
+			let weekDays = [
+				this.localize['IM_RECENT_WEEKDAY_0'],
+				this.localize['IM_RECENT_WEEKDAY_1'],
+				this.localize['IM_RECENT_WEEKDAY_2'],
+				this.localize['IM_RECENT_WEEKDAY_3'],
+				this.localize['IM_RECENT_WEEKDAY_4'],
+				this.localize['IM_RECENT_WEEKDAY_5'],
+				this.localize['IM_RECENT_WEEKDAY_6'],
+			];
+
+			date = date? new Date(date): new Date();
+			let currentDate = new Date();
+
+			let dateWeekDay = date.getDay() - (date.getDay() === 0 ? -6 : 1);
+			let currentDayOfWeek = currentDate.getDay() - (currentDate.getDay() === 0 ? -6 : 1);
+
+			let weekStartDate = currentDate.getDate() - currentDayOfWeek;
+			let weekStartTime = new Date(new Date(new Date().setDate(weekStartDate)).setHours(0, 0, 0)).getTime();
+
+			if (
+				date.getFullYear() === currentDate.getFullYear()
+				&& date.getMonth() === currentDate.getMonth()
+				&& date.getDate() === currentDate.getDate()
+			)
 			{
-				this.$emit('click', ({id: this.item.id, $event: event}));
-			},
-			onRightClick(event)
+				return Utils.date.format(date, 'H:i');
+			}
+			else if (date.getTime() > weekStartTime)
 			{
-				this.$emit('rightClick', {id: this.item.id, $event: event});
-			},
-			formatDate(date)
+				return weekDays[dateWeekDay];
+			}
+			else if (date.getFullYear() === currentDate.getFullYear())
 			{
-				let weekDays = [
-					this.localize['IM_RECENT_WEEKDAY_0'],
-					this.localize['IM_RECENT_WEEKDAY_1'],
-					this.localize['IM_RECENT_WEEKDAY_2'],
-					this.localize['IM_RECENT_WEEKDAY_3'],
-					this.localize['IM_RECENT_WEEKDAY_4'],
-					this.localize['IM_RECENT_WEEKDAY_5'],
-					this.localize['IM_RECENT_WEEKDAY_6'],
-				];
-
-				date = new Date(date);
-				let currentDate = new Date();
-
-				let dateWeekDay = date.getDay() - (date.getDay() === 0 ? -6 : 1);
-				let currentDayOfWeek = currentDate.getDay() - (currentDate.getDay() === 0 ? -6 : 1);
-
-				let weekStartDate = currentDate.getDate() - currentDayOfWeek;
-				let weekStartTime = new Date(new Date(new Date().setDate(weekStartDate)).setHours(0, 0, 0)).getTime();
-
-				if (
-					date.getFullYear() === currentDate.getFullYear()
-					&& date.getMonth() === currentDate.getMonth()
-					&& date.getDate() === currentDate.getDate()
-				)
-				{
-					return Utils.date.format(date, 'H:i');
-				}
-				else if (date.getTime() > weekStartTime)
-				{
-					return weekDays[dateWeekDay];
-				}
-				else if (date.getFullYear() === currentDate.getFullYear())
-				{
-					return Utils.date.format(date, 'd.m');
-				}
-				else
-				{
-					return Utils.date.format(date, 'd.m.Y');
-				}
-			},
-			getTypingUsers()
+				return Utils.date.format(date, 'd.m');
+			}
+			else
 			{
-				if (this.isChat && this.dialogData && this.isSomeoneTyping)
-				{
-					return this.dialogData.writingList;
-				}
-
-				if (this.isUser && this.isSomeoneTyping)
-				{
-					const userDialog = this.getUserDialog(this.rawItem.userId);
-
-					return userDialog.writingList;
-				}
-
-				return false;
-			},
-			getUserDialog(userId)
-			{
-				return this.$root.$store.getters['dialogues/get'](userId);
+				return Utils.date.format(date, 'd.m.Y');
 			}
 		},
-	computed:
+		getTypingUsers()
 		{
-			ItemTypes: () => ItemTypes,
-			rawItem()
+			if (this.isChat && this.dialogData && this.isSomeoneTyping)
 			{
-				return this.itemData;
-			},
-			item()
+				return this.dialogData.writingList;
+			}
+
+			if (this.isUser && this.isSomeoneTyping)
+			{
+				const userDialog = this.getUserDialog(this.rawItem.userId);
+
+				return userDialog.writingList;
+			}
+
+			return false;
+		},
+		getUserDialog(userId)
+		{
+			return this.$root.$store.getters['dialogues/get'](userId);
+		}
+	},
+	computed:
+	{
+		ItemTypes: () => ItemTypes,
+		rawItem()
+		{
+			return this.itemData;
+		},
+		item()
+		{
+			return {
+				id: this.rawItem.id,
+				template: this.rawItem.template,
+				type: this.rawItem.chatType,
+				sectionCode: this.rawItem.sectionCode,
+				title: {
+					leftIcon: this.titleLeftIcon,
+					value: this.titleValue,
+					rightIcon: this.titleRightIcon
+				},
+				subtitle: {
+					leftIcon: this.subtitleLeftIcon,
+					value: this.subtitleValue
+				},
+				avatar: {
+					url: this.avatarUrl,
+					bottomRightIcon: this.avatarBottomRightIcon
+				},
+				message: this.rawItem.message,
+				date: {
+					leftIcon: this.dateLeftIcon,
+					value: this.formatDate(this.rawItem.message? this.rawItem.message.date: 0)
+				},
+				counter: {
+					value: this.rawItem.counter,
+					leftIcon: this.counterLeftIcon
+				},
+				notification: false,
+			}
+		},
+
+		//background for pinned item
+		listItemStyle()
+		{
+			if (this.rawItem.sectionCode === Section.pinned)
 			{
 				return {
-					id: this.rawItem.id,
-					template: this.rawItem.template,
-					type: this.rawItem.chatType,
-					sectionCode: this.rawItem.sectionCode,
-					title: {
-						leftIcon: this.titleLeftIcon,
-						value: this.titleValue,
-						rightIcon: this.titleRightIcon
-					},
-					subtitle: {
-						leftIcon: this.subtitleLeftIcon,
-						value: this.subtitleValue
-					},
-					avatar: {
-						url: this.avatarUrl,
-						bottomRightIcon: this.avatarBottomRightIcon
-					},
-					message: this.rawItem.message,
-					date: {
-						leftIcon: this.dateLeftIcon,
-						value: this.formatDate(this.rawItem.message.date)
-					},
-					counter: {
-						value: this.rawItem.counter,
-						leftIcon: this.counterLeftIcon
-					},
-					notification: false,
-				}
-			},
-
-			//background for pinned item
-			listItemStyle()
-			{
-				if (this.rawItem.sectionCode === Section.pinned)
-				{
-					return {
-						backgroundColor: '#f7f7f7'
-					};
-				}
-
-				return {};
-			},
-
-			//avatar background color if no image
-			imageStyle()
-			{
-				let backgroundColor = '';
-				if (!this.item.avatar.url)
-				{
-					backgroundColor = this.imageColor;
-				}
-
-				return {
-					backgroundColor
+					backgroundColor: '#f7f7f7'
 				};
-			},
+			}
 
-			//color of user, chat or notify
-			imageColor()
+			return {};
+		},
+
+		//avatar background color if no image
+		imageStyle()
+		{
+			let backgroundColor = '';
+			if (!this.item.avatar.url)
 			{
-				if (this.isUser && this.userData)
-				{
-					return this.userData.color;
-				}
+				backgroundColor = this.imageColor;
+			}
 
-				if (this.isChat && this.dialogData)
-				{
-					return this.dialogData.color;
-				}
+			return {
+				backgroundColor
+			};
+		},
 
-				if (this.isNotificationChat)
-				{
-					return this.rawItem.color;
-				}
-			},
-
-			//class for general chat icon
-			imageClass()
+		//color of user, chat or notify
+		imageColor()
+		{
+			if (this.isUser && this.userData)
 			{
-				let classes = 'bx-im-recent-item-image ';
+				return this.userData.color;
+			}
 
-				if (this.isGeneralChat)
-				{
-					classes += 'bx-im-recent-item-image-general';
-				}
-
-				return classes;
-			},
-
-			//text on avatar if no image
-			avatarText()
+			if (this.isChat && this.dialogData)
 			{
-				const title = this.item.title.value.replace(/[\.\,\'\"]/g,''); // TODO set special chars entity
-				const words = title.split(' ');
-				if (words.length > 1)
-				{
-					return words[0].charAt(0) + words[1].charAt(0);
-				}
-				else if (words.length === 1)
-				{
-					return words[0].charAt(0);
-				}
-			},
+				return this.dialogData.color;
+			}
 
-			//placeholder for general chat, url for users and chats
-			avatarUrl()
+			if (this.isNotificationChat)
 			{
-				if (this.isGeneralChat)
-				{
-					return '/bitrix/js/im/images/blank.gif';
-				}
+				return this.rawItem.color;
+			}
+		},
 
-				if (this.isUser && this.userData)
-				{
-					return this.userData.avatar;
-				}
+		//class for general chat icon
+		imageClass()
+		{
+			let classes = 'bx-im-recent-item-image ';
 
-				if (this.isChat && this.dialogData)
-				{
-					return this.dialogData.avatar;
-				}
-			},
-
-			//Priority of avatar bottom right icon (only for users)
-			//1.typing
-			//2.mobile online
-			//3.manual set away or dnd
-			//4.online
-			//5.offline
-			avatarBottomRightIcon()
+			if (this.isGeneralChat)
 			{
-				if (this.isUser && !this.isBot)
+				classes += 'bx-im-recent-item-image-general';
+			}
+
+			return classes;
+		},
+
+		//text on avatar if no image
+		avatarText()
+		{
+			const title = this.item.title.value.replace(/[\.\,\'\"]/g,''); // TODO set special chars entity
+			const words = title.split(' ');
+			if (words.length > 1)
+			{
+				return words[0].charAt(0) + words[1].charAt(0);
+			}
+			else if (words.length === 1)
+			{
+				return words[0].charAt(0);
+			}
+		},
+
+		//placeholder for general chat, url for users and chats
+		avatarUrl()
+		{
+			if (this.isGeneralChat)
+			{
+				return '/bitrix/js/im/images/blank.gif';
+			}
+
+			if (this.isUser && this.userData)
+			{
+				return this.userData.avatar;
+			}
+
+			if (this.isChat && this.dialogData)
+			{
+				return this.dialogData.avatar;
+			}
+		},
+
+		//Priority of avatar bottom right icon (only for users)
+		//1.typing
+		//2.mobile online
+		//3.manual set away or dnd
+		//4.online
+		//5.offline
+		avatarBottomRightIcon()
+		{
+			if (this.isUser && !this.isBot)
+			{
+				if (this.isSomeoneTyping)
 				{
-					if (this.isSomeoneTyping)
-					{
-						return 'typing';
-					}
-					else if (this.userData.isMobileOnline)
+					return 'typing';
+				}
+				else if (this.userData)
+				{
+					if (this.userData.isMobileOnline)
 					{
 						return 'mobile-online';
 					}
-					else if (this.userData.isOnline && (this.userData.status === 'away' || this.userData.status === 'dnd'))
-					{
-						return this.userData.status;
-					}
 					else if (this.userData.isOnline)
 					{
-						return 'online';
+						return this.userData.status;
 					}
 					else
 					{
 						return 'offline';
 					}
 				}
-			},
+			}
 
-			//Title left icon
-			//For users:
-			//1.absent
-			//2.birthday
-			//For chats - type of chat
-			titleLeftIcon()
+			return 'none';
+		},
+
+		//Title left icon
+		//For users:
+		//1.absent
+		//2.birthday
+		//For chats - type of chat
+		titleLeftIcon()
+		{
+			if (this.isUser)
 			{
-				if (this.isUser)
+				if (this.isBot)
 				{
-					if (this.isBot)
-					{
-						return 'bot';
-					}
-					else if (this.isExtranet)
-					{
-						return 'extranet';
-					}
-					else if (this.isNetwork)
-					{
-						return 'network';
-					}
-					else if (this.userData.isAbsent)
+					return 'bot';
+				}
+				else if (this.isExtranet)
+				{
+					return 'extranet';
+				}
+				else if (this.isNetwork)
+				{
+					return 'network';
+				}
+				else if (this.userData)
+				{
+					if (this.userData.isAbsent)
 					{
 						return 'absent';
 					}
@@ -277,231 +280,252 @@ const RecentItem = {
 					{
 						return 'birthday';
 					}
-					else
-					{
-						return '';
-					}
-				}
-
-				if (this.isChat)
-				{
-					return this.rawItem.chatType;
-				}
-			},
-
-			//chat name
-			titleValue()
-			{
-				if (this.isUser && this.userData)
-				{
-					return this.userData.name;
-				}
-
-				if (this.isChat && this.dialogData)
-				{
-					return this.dialogData.name;
-				}
-
-				if (this.isNotificationChat)
-				{
-					return this.rawItem.title;
-				}
-			},
-
-			//muted notifications icon for chats
-			titleRightIcon()
-			{
-				return this.isChatMuted ? 'muted': '';
-			},
-
-			//icon if we wrote last message
-			subtitleLeftIcon()
-			{
-				if (this.isLastMessageAuthor)
-				{
-					return 'author';
 				}
 
 				return '';
-			},
+			}
 
-			//subtitle - typing message or last message text
-			subtitleValue()
+			if (this.isChat)
 			{
-				if (this.isSomeoneTyping && this.isUser)
-				{
-					return this.localize['IM_RECENT_USER_TYPING'];
-				}
-				else if (this.isSomeoneTyping && this.isChat)
-				{
-					const typingUsers = this.getTypingUsers();
-
-					if (typingUsers.length === 1)
-					{
-						const nameWords = typingUsers[0].userName.split(' ');
-
-						return `${nameWords[0]} ${this.localize['IM_RECENT_USER_TYPING']}`;
-					}
-					else if (typingUsers.length > 1)
-					{
-						return `${this.localize['IM_RECENT_USERS_TYPING']}`;
-					}
-				}
-
-				return this.rawItem.message.text;
-			},
-
-			//message read status icon (if current user's message was read by someone in chat)
-			dateLeftIcon()
-			{
-				if (!this.isLastMessageAuthor || this.isBot || this.isNotificationChat)
-				{
-					return '';
-				}
-
-				const wasRead = this.rawItem.message.status === MessageStatus.delivered;
-
-				if (wasRead)
-				{
-					return 'read';
-				}
-
-				return 'unread';
-			},
-
-			//pinned icon
-			counterLeftIcon()
-			{
-				return this.rawItem.pinned ? 'pinned' : '';
-			},
-
-			//grey counter style for muted chats
-			counterClasses()
-			{
-				const classes = ['bx-im-recent-item-bottom-counter-value'];
-
-				if (this.isChatMuted)
-				{
-					classes.push('bx-im-recent-item-bottom-counter-value-muted');
-				}
-
-				return classes;
-			},
-
-			formattedCounter()
-			{
-				return this.item.counter.value > 99 ? '99+' : this.item.counter.value;
-			},
-
-			userData()
-			{
-				return this.$root.$store.getters['users/get'](this.rawItem.userId, true);
-			},
-
-			dialogData()
-			{
-				return this.$root.$store.getters['dialogues/getByChatId'](this.rawItem.chatId);
-			},
-
-			currentUserId()
-			{
-				return this.$root.$store.state.application.common.userId;
-			},
-
-			isChat()
-			{
-				return [ChatTypes.chat, ChatTypes.open].includes(this.rawItem.chatType)
-			},
-
-			isUser()
-			{
-				return this.rawItem.chatType === ChatTypes.user;
-			},
-
-			isExtranet()
-			{
-				if (this.isUser && this.userData)
-				{
-					return this.userData.extranet
-				}
-
-				return false;
-			},
-
-			isNetwork()
-			{
-				if (this.isUser && this.userData)
-				{
-					return this.userData.network
-				}
-
-				return false;
-			},
-
-			isBot()
-			{
-				if (this.isUser && this.userData)
-				{
-					return this.userData.bot
-				}
-
-				return false;
-			},
-
-			isNotificationChat()
-			{
-				return this.rawItem.id === 'notify';
-			},
-
-			isGeneralChat()
-			{
-				return this.rawItem.id === 'chat1';
-			},
-
-			isSomeoneTyping()
-			{
-				if (this.isUser)
-				{
-					const userDialog = this.getUserDialog(this.rawItem.userId);
-					if (!userDialog)
-					{
-						return false;
-					}
-
-					return Object.keys(userDialog.writingList).length > 0;
-				}
-				else if (this.isChat && this.dialogData)
-				{
-					return Object.keys(this.dialogData.writingList).length > 0;
-				}
-
-				return false;
-			},
-
-			isLastMessageAuthor()
-			{
-				return this.currentUserId === this.rawItem.message.senderId;
-			},
-
-			isChatMuted()
-			{
-				if (this.isChat && this.dialogData)
-				{
-					const isMuted = this.dialogData.muteList.find(element => {
-						return element === this.currentUserId;
-					});
-
-					return !!isMuted;
-				}
-
-				return false;
-			},
-
-			localize()
-			{
-				return BitrixVue.getFilteredPhrases('IM_RECENT_', this);
-			},
+				return this.rawItem.chatType;
+			}
 		},
+
+		//chat name
+		titleValue()
+		{
+			if (this.isUser && this.userData)
+			{
+				return this.userData.name;
+			}
+
+			if (this.isChat && this.dialogData)
+			{
+				return this.dialogData.name;
+			}
+
+			if (this.isNotificationChat)
+			{
+				return this.rawItem.title;
+			}
+
+			return this.rawItem.title;
+		},
+
+		//muted notifications icon for chats
+		titleRightIcon()
+		{
+			return this.isChatMuted ? 'muted': '';
+		},
+
+		//icon if we wrote last message
+		subtitleLeftIcon()
+		{
+			if (this.isLastMessageAuthor)
+			{
+				return 'author';
+			}
+
+			return '';
+		},
+
+		//subtitle - typing message or last message text
+		subtitleValue()
+		{
+			if (this.isSomeoneTyping && this.isUser)
+			{
+				return this.localize['IM_RECENT_USER_TYPING'];
+			}
+			else if (this.isSomeoneTyping && this.isChat)
+			{
+				const typingUsers = this.getTypingUsers();
+
+				if (typingUsers.length === 1)
+				{
+					const nameWords = typingUsers[0].userName.split(' ');
+
+					return `${nameWords[0]} ${this.localize['IM_RECENT_USER_TYPING']}`;
+				}
+				else if (typingUsers.length > 1)
+				{
+					return `${this.localize['IM_RECENT_USERS_TYPING']}`;
+				}
+			}
+
+			if (!this.rawItem.message || !this.rawItem.message.text)
+			{
+				return this.userData.workPosition;
+			}
+
+			return this.rawItem.message.text;
+		},
+
+		//message read status icon (if current user's message was read by someone in chat)
+		dateLeftIcon()
+		{
+			if (!this.isLastMessageAuthor || this.isBot || this.isNotificationChat)
+			{
+				return '';
+			}
+
+			if (!this.rawItem.message)
+			{
+				return '';
+			}
+
+			if (this.rawItem.message.status === MessageStatus.error)
+			{
+				return 'error';
+			}
+
+			const wasRead = this.rawItem.message.status === MessageStatus.delivered;
+
+			if (wasRead)
+			{
+				return 'read';
+			}
+
+			return 'unread';
+		},
+
+		//pinned icon
+		counterLeftIcon()
+		{
+			return this.rawItem.pinned ? 'pinned' : '';
+		},
+
+		//grey counter style for muted chats
+		counterClasses()
+		{
+			const classes = ['bx-im-recent-item-bottom-counter-value'];
+
+			if (this.isChatMuted)
+			{
+				classes.push('bx-im-recent-item-bottom-counter-value-muted');
+			}
+
+			return classes;
+		},
+
+		formattedCounter()
+		{
+			return this.item.counter.value > 99 ? '99+' : this.item.counter.value;
+		},
+
+		userData()
+		{
+			return this.$root.$store.getters['users/get'](this.rawItem.userId, true);
+		},
+
+		dialogData()
+		{
+			return this.$root.$store.getters['dialogues/getByChatId'](this.rawItem.chatId);
+		},
+
+		currentUserId()
+		{
+			return this.$root.$store.state.application.common.userId;
+		},
+
+		isChat()
+		{
+			return [ChatTypes.chat, ChatTypes.open].includes(this.rawItem.chatType)
+		},
+
+		isUser()
+		{
+			return this.rawItem.chatType === ChatTypes.user;
+		},
+
+		isExtranet()
+		{
+			if (this.isUser && this.userData)
+			{
+				return this.userData.extranet
+			}
+
+			return false;
+		},
+
+		isNetwork()
+		{
+			if (this.isUser && this.userData)
+			{
+				return this.userData.network
+			}
+
+			return false;
+		},
+
+		isBot()
+		{
+			if (this.isUser && this.userData)
+			{
+				return this.userData.bot
+			}
+
+			return false;
+		},
+
+		isNotificationChat()
+		{
+			return this.rawItem.id === 'notify';
+		},
+
+		isGeneralChat()
+		{
+			return this.rawItem.id === 'chat1';
+		},
+
+		isSomeoneTyping()
+		{
+			if (this.isUser)
+			{
+				const userDialog = this.getUserDialog(this.rawItem.userId);
+				if (!userDialog)
+				{
+					return false;
+				}
+
+				return Object.keys(userDialog.writingList).length > 0;
+			}
+			else if (this.isChat && this.dialogData)
+			{
+				return Object.keys(this.dialogData.writingList).length > 0;
+			}
+
+			return false;
+		},
+
+		isLastMessageAuthor()
+		{
+			if (!this.rawItem.message)
+			{
+				return false;
+			}
+
+			return this.currentUserId === this.rawItem.message.senderId;
+		},
+
+		isChatMuted()
+		{
+			if (this.isChat && this.dialogData)
+			{
+				const isMuted = this.dialogData.muteList.find(element => {
+					return element === this.currentUserId;
+				});
+
+				return !!isMuted;
+			}
+
+			return false;
+		},
+
+		localize()
+		{
+			return BitrixVue.getFilteredPhrases('IM_RECENT_', this);
+		},
+	},
 	template: `
 		<div class="bx-im-recent-item" :style="listItemStyle" @click="onClick" @click.right="onRightClick">
 			<template v-if="item.template !== ItemTypes.placeholder">
@@ -553,6 +577,6 @@ const RecentItem = {
 			</template>
 		</div>
 	`
-};
+});
 
 export {RecentItem};

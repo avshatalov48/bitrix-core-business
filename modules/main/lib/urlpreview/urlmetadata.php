@@ -8,6 +8,22 @@ use Bitrix\Main\Entity;
 use Bitrix\Main\Entity\AddResult;
 use Bitrix\Main\Entity\ScalarField;
 
+/**
+ * Class UrlMetadataTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UrlMetadata_Query query()
+ * @method static EO_UrlMetadata_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UrlMetadata_Result getById($id)
+ * @method static EO_UrlMetadata_Result getList(array $parameters = array())
+ * @method static EO_UrlMetadata_Entity getEntity()
+ * @method static \Bitrix\Main\UrlPreview\EO_UrlMetadata createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\UrlPreview\EO_UrlMetadata_Collection createCollection()
+ * @method static \Bitrix\Main\UrlPreview\EO_UrlMetadata wakeUpObject($row)
+ * @method static \Bitrix\Main\UrlPreview\EO_UrlMetadata_Collection wakeUpCollection($rows)
+ */
 class UrlMetadataTable extends Entity\DataManager
 {
 	const TYPE_STATIC = 'S';

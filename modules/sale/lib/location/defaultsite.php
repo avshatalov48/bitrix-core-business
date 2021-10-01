@@ -15,6 +15,22 @@ use Bitrix\Sale\Location\Util\Assert;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class DefaultSiteTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_DefaultSite_Query query()
+ * @method static EO_DefaultSite_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_DefaultSite_Result getById($id)
+ * @method static EO_DefaultSite_Result getList(array $parameters = array())
+ * @method static EO_DefaultSite_Entity getEntity()
+ * @method static \Bitrix\Sale\Location\EO_DefaultSite createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Location\EO_DefaultSite_Collection createCollection()
+ * @method static \Bitrix\Sale\Location\EO_DefaultSite wakeUpObject($row)
+ * @method static \Bitrix\Sale\Location\EO_DefaultSite_Collection wakeUpCollection($rows)
+ */
 class DefaultSiteTable extends Entity\DataManager
 {
 	public static function getFilePath()

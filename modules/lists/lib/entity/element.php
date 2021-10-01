@@ -347,9 +347,9 @@ class Element implements Controllable, Errorable
 		return array($availableFields, $listCustomFields);
 	}
 
-	private function isEnabledBizproc()
+	private function isEnabledBizproc(string $iblockTypeId): bool
 	{
-		return (Loader::includeModule("bizproc") && \CBPRuntime::isFeatureEnabled());
+		return (Loader::includeModule("bizproc") && \CLists::isBpFeatureEnabled($iblockTypeId));
 	}
 
 	private function setUrlTemplate()
@@ -476,6 +476,11 @@ class Element implements Controllable, Errorable
 			$elementFields["MODIFIED_BY"] = $userId;
 		}
 		unset($elementFields["TIMESTAMP_X"]);
+
+		$elementFields["IBLOCK_SECTION_ID"] = (
+			is_numeric($values['IBLOCK_SECTION_ID'])
+			? (int) $values['IBLOCK_SECTION_ID'] : 0
+		);
 
 		return $elementFields;
 	}
@@ -660,9 +665,9 @@ class Element implements Controllable, Errorable
 
 			foreach($value as $k => $v)
 			{
-				if (CheckSerializedData($v) && @unserialize($v))
+				if (CheckSerializedData($v) && @unserialize($v, ['allowed_classes' => false]))
 				{
-					$elementFields["PROPERTY_VALUES"][$fieldData["ID"]][$k]["VALUE"] = unserialize($v);
+					$elementFields["PROPERTY_VALUES"][$fieldData["ID"]][$k]["VALUE"] = unserialize($v, ['allowed_classes' => false]);
 				}
 				else
 				{
@@ -694,7 +699,7 @@ class Element implements Controllable, Errorable
 		$bizprocParameters = [];
 		$startUpTemplate = false;
 
-		if (!$this->isEnabledBizproc())
+		if (!$this->isEnabledBizproc($this->params["IBLOCK_TYPE_ID"]))
 		{
 			return [[], $bizprocParameters, $startUpTemplate];
 		}

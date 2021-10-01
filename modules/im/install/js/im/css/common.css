@@ -586,9 +586,6 @@
 .bx-messenger-content-item-vote-result-row { vertical-align: top;}
 .bx-messenger-content-item-vote-result-name { display: inline-block; padding-right: 10px; line-height: 20px; vertical-align: top;}
 .bx-messenger-content-item-vote-result-value { display: inline-block; padding-right: 10px; line-height: 20px; vertical-align: top; }
-.bx-messenger-content-item-vote-comment-edit { color: #717171; font-weight: normal; cursor: pointer; }
-.bx-messenger-content-item-vote-comment-not-edit { color: #717171; font-weight: normal; }
-.bx-messenger-content-item-vote-comment-add { color: #215ec3; font-weight: normal; cursor: pointer; }
 
 .bx-messenger-content-item-avatar-name { max-width: 55px; }
 .bx-messenger-content-item+.bx-messenger-content-item {

@@ -1,25 +1,27 @@
-<?
+<?php
+
 namespace Bitrix\Socialnetwork\Controller;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
+use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Socialnetwork\Item\UserContentView;
 
 class ContentView extends Base
 {
-	public function configureActions()
+	public function configureActions(): array
 	{
 		$configureActions = parent::configureActions();
 		$configureActions['set'] = [
 			'+prefilters' => [
-				new \Bitrix\Main\Engine\ActionFilter\CloseSession(),
+				new ActionFilter\CloseSession(),
 			]
 		];
 
 		return $configureActions;
 	}
 
-	public function setAction(array $params = [])
+	public function setAction(array $params = []): ?array
 	{
 		$xmlIdList = (
 			isset($params["viewXMLIdList"])
@@ -47,7 +49,7 @@ class ContentView extends Base
 		];
 	}
 
-	public function getListAction(array $params = [])
+	public function getListAction(array $params = []): ?array
 	{
 		$contentId = (
 			isset($params['contentId'])
@@ -58,8 +60,8 @@ class ContentView extends Base
 
 		$page = (
 			isset($params['page'])
-			&& intval($params['page']) > 0
-				? intval($params['page'])
+			&& (int)$params['page'] > 0
+				? (int)$params['page']
 				: 1
 		);
 
@@ -70,7 +72,7 @@ class ContentView extends Base
 				: ''
 		);
 
-		if ($contentId == '')
+		if ($contentId === '')
 		{
 			$this->addError(new Error('Empty Content ID', 'SONET_CONTROLLER_CONTENTVIEW_EMPTY_CONTENT_ID'));
 			return null;

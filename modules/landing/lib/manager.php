@@ -741,7 +741,8 @@ class Manager
 				? 'create' : 'publication';
 			return Restriction\Manager::isAllowed(
 				'limit_sites_number',
-				$params
+				$params,
+				$feature
 			);
 		}
 		else if (
@@ -753,7 +754,8 @@ class Manager
 				? 'create' : 'publication';
 			return Restriction\Manager::isAllowed(
 				'limit_sites_number_page',
-				$params
+				$params,
+				$feature
 			);
 		}
 		elseif ($feature == self::FEATURE_ENABLE_ALL_HOOKS)

@@ -249,11 +249,29 @@ BX.SocialnetworkUICommon = {
 
 			if (params.perms.canModify)
 			{
-				menu.push({
+				var copyGroupItem = {
 					text: BX.message(!!params.isProject ? 'SONET_EXT_COMMON_GROUP_MENU_COPY_PROJECT' : 'SONET_EXT_COMMON_GROUP_MENU_COPY'),
-					title: BX.message(!!params.isProject ? 'SONET_EXT_COMMON_GROUP_MENU_COPY_PROJECT' : 'SONET_EXT_COMMON_GROUP_MENU_COPY'),
-					href: params.urls.copy
-				});
+					title: BX.message(!!params.isProject ? 'SONET_EXT_COMMON_GROUP_MENU_COPY_PROJECT' : 'SONET_EXT_COMMON_GROUP_MENU_COPY')
+				}
+				if (params.copyFeatureAllowed)
+				{
+					copyGroupItem.href = params.urls.copy;
+				}
+				else
+				{
+					copyGroupItem.onclick = function() {
+						if (!!params.isProject)
+						{
+							BX.UI.InfoHelper.show('limit_task_copy_project');
+						}
+						else
+						{
+							BX.UI.InfoHelper.show('limit_task_copy_group');
+						}
+					};
+				}
+
+				menu.push(copyGroupItem);
 			}
 
 			if (

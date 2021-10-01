@@ -6,6 +6,7 @@ use Bitrix\Main\Grid\Options as GridOptions;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Filter\Options as FilterOptions;
 use Bitrix\Sender\Access\ActionDictionary;
+use Bitrix\Sender\ContactTable;
 use Bitrix\Sender\Entity;
 use Bitrix\Sender\Internals\DataExport;
 use Bitrix\Sender\Message;
@@ -68,7 +69,43 @@ class ContactRecipientSenderComponent extends Bitrix\Sender\Internals\CommonSend
 	{
 
 	}
-
+	protected function getCsvClosure()
+	{
+		$statusList = PostingRecipientTable::getStatusList();
+		return function ($item) use ($statusList)
+		{
+			foreach (['IS_READ', 'IS_CLICK', 'IS_UNSUB'] as $key)
+			{
+				$item[$key] = $item[$key] === 'Y' ? Loc::getMessage('SENDER_LETTER_RCP_UI_YES') : null;
+			}
+			if
+			(
+				isset($item['DATE_SENT']) &&
+				$item['STATUS'] === PostingRecipientTable::SEND_RESULT_NONE &&
+				$item['CONSENT_STATUS'] !== ContactTable::CONSENT_STATUS_NEW &&
+				Message\Adapter::create($item['MESSAGE_CODE'])->getTransport()->isConsentAvailable()
+			)
+			{
+				switch ($item['CONSENT_STATUS'])
+				{
+					case ContactTable::CONSENT_STATUS_ACCEPT:
+						$item['STATUS'] = Loc::getMessage("SENDER_CONTACT_CONSENT_APPLY");
+						break;
+					case ContactTable::CONSENT_STATUS_DENY:
+						$item['STATUS'] = Loc::getMessage("SENDER_CONTACT_CONSENT_REJECT");
+						break;
+					case ContactTable::CONSENT_STATUS_WAIT:
+						$item['STATUS'] = Loc::getMessage("SENDER_CONTACT_CONSENT_WAIT");
+						break;
+				}
+			}
+			else
+			{
+				$item['STATUS'] = $statusList[$item['STATUS']];
+			}
+			return $item;
+		};
+	}
 	protected function prepareExport()
 	{
 		$list = PostingRecipientTable::getList([
@@ -76,20 +113,10 @@ class ContactRecipientSenderComponent extends Bitrix\Sender\Internals\CommonSend
 			'filter' => $this->getDataFilter(),
 			'order' => $this->getGridOrder()
 		]);
-		$statusList = PostingRecipientTable::getStatusList();
-
 		DataExport::toCsv(
 			$this->getUiGridColumns(),
 			$list,
-			function ($item) use ($statusList)
-			{
-				foreach (['IS_READ', 'IS_CLICK', 'IS_UNSUB'] as $key)
-				{
-					$item[$key] = $item[$key] === 'Y' ? Loc::getMessage('SENDER_LETTER_RCP_UI_YES') : null;
-				}
-				$item['STATUS'] = $statusList[$item['STATUS']];
-				return $item;
-			}
+			$this->getCsvClosure()
 		);
 	}
 
@@ -175,21 +202,33 @@ class ContactRecipientSenderComponent extends Bitrix\Sender\Internals\CommonSend
 			{
 				$item[$key] = $item[$key] === 'Y' ? Loc::getMessage('SENDER_LETTER_RCP_UI_YES') : null;
 			}
-
-			if (!$item['NAME'])
+			if
+			(
+				isset($item['DATE_SENT']) &&
+				$item['STATUS'] === PostingRecipientTable::SEND_RESULT_NONE &&
+				$item['CONSENT_STATUS'] !== ContactTable::CONSENT_STATUS_NEW &&
+				$this->letter->getMessage()->getTransport()->isConsentAvailable()
+			)
 			{
-				$item['NAME'] = Loc::getMessage('SENDER_LETTER_CONTACT_LIST_ITEM_DELETED');
+				switch ($item['CONSENT_STATUS'])
+				{
+					case ContactTable::CONSENT_STATUS_ACCEPT:
+						$item['STATUS'] = Loc::getMessage("SENDER_CONTACT_CONSENT_APPLY");
+						break;
+					case ContactTable::CONSENT_STATUS_DENY:
+						$item['STATUS'] = Loc::getMessage("SENDER_CONTACT_CONSENT_REJECT");
+						break;
+					case ContactTable::CONSENT_STATUS_WAIT:
+						$item['STATUS'] = Loc::getMessage("SENDER_CONTACT_CONSENT_WAIT");
+						break;
+				}
 			}
-
-			if (!$item['CODE'])
+			else
 			{
-				$item['CODE'] = Loc::getMessage('SENDER_LETTER_CONTACT_LIST_ITEM_DELETED');
+				$item['STATUS'] = $statusList[$item['STATUS']];
 			}
-
-			$item['STATUS'] = $statusList[$item['STATUS']];
 			$message = Message\Factory::getMessage($item['MESSAGE_CODE']);
 			$item['MESSAGE_CODE'] = $message ? $message->getName() : $item['MESSAGE_CODE'];
-
 			$item['URLS'] = [
 				'LETTER_EDIT' => in_array($item['MESSAGE_CODE'], Message\Factory::getMailingMessageCodes())
 					?
@@ -216,6 +255,7 @@ class ContactRecipientSenderComponent extends Bitrix\Sender\Internals\CommonSend
 			'ID', 'NAME' => 'CONTACT.NAME', 'CODE' => 'CONTACT.CODE',
 			'LETTER_TITLE' => 'POSTING.LETTER.TITLE',
 			'LETTER_ID' => 'POSTING.LETTER.ID',
+			'CONSENT_STATUS' => 'CONTACT.CONSENT_STATUS',
 			'MESSAGE_CODE' => 'POSTING.LETTER.MESSAGE_CODE',
 			'DATE_SENT', 'STATUS',
 			'IS_READ', 'IS_CLICK', 'IS_UNSUB'
@@ -248,7 +288,22 @@ class ContactRecipientSenderComponent extends Bitrix\Sender\Internals\CommonSend
 		}
 		if (isset($requestFilter['STATUS']) && $requestFilter['STATUS'])
 		{
-			$filter['=STATUS'] = $requestFilter['STATUS'];
+			if ($requestFilter['STATUS'] === 'APPLY')
+			{
+				$filter['!==DATE_SENT'] = null;
+				$filter['=STATUS'] = PostingRecipientTable::SEND_RESULT_NONE ;
+				$filter['=CONSENT_STATUS'] = ContactTable::CONSENT_STATUS_ACCEPT;
+			}
+			elseif($requestFilter['STATUS'] === 'REJECT')
+			{
+				$filter['!==DATE_SENT'] = null;
+				$filter['=STATUS'] = PostingRecipientTable::SEND_RESULT_NONE;
+				$filter['=CONSENT_STATUS'] = ContactTable::CONSENT_STATUS_DENY;
+			}
+			else
+			{
+				$filter['=STATUS'] = $requestFilter['STATUS'];
+			}
 		}
 		if (isset($requestFilter['IS_READ']) && in_array($requestFilter['IS_READ'], ['Y', 'N']))
 		{
@@ -430,6 +485,12 @@ class ContactRecipientSenderComponent extends Bitrix\Sender\Internals\CommonSend
 				"type" => "list",
 				"default" => false,
 				"items" => PostingRecipientTable::getStatusList()
+				+ (!($this->letter->getMessage()->getTransport()->isConsentAvailable())?
+					[]:
+					[
+						'REJECT' => Loc::getMessage("SENDER_CONTACT_CONSENT_REJECT"),
+						'APPLY' => Loc::getMessage("SENDER_CONTACT_CONSENT_APPLY")
+					])
 			],
 		];
 		if ($this->letter->getMessage()->hasStatistics())
@@ -458,6 +519,21 @@ class ContactRecipientSenderComponent extends Bitrix\Sender\Internals\CommonSend
 	protected function getUiFilterPresets()
 	{
 		$list = [];
+		if ($this->letter->getMessage()->getTransport()->isConsentAvailable())
+		{
+			$list['filter_recipient_apply'] = [
+				'name' => Loc::getMessage('SENDER_LETTER_RCP_UI_PRESET_APPLY'),
+				'fields' => [
+					'STATUS' => 'APPLY',
+				]
+			];
+			$list['filter_recipient_reject'] = [
+				'name' => Loc::getMessage('SENDER_LETTER_RCP_UI_PRESET_REJECT'),
+				'fields' => [
+					'STATUS' => 'REJECT'
+				]
+			];
+		}
 		if ($this->letter->getMessage()->hasStatistics())
 		{
 			$list['filter_recipient_read'] = [

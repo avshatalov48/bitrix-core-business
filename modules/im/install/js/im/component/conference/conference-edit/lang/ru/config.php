@@ -31,6 +31,6 @@ $MESS["BX_IM_COMPONENT_CONFERENCE_DURATION_HOURS"] = "часов";
 $MESS["BX_IM_COMPONENT_CONFERENCE_USER_SELECTOR_LABEL"] = "Внутренние участники";
 $MESS["BX_IM_COMPONENT_CONFERENCE_PRESENTER_SELECTOR_LABEL"] = "Спикеры";
 $MESS["BX_IM_COMPONENT_CONFERENCE_PUSH_ERROR"] = "Для использования конференций обновите используемый на вашем портале Push-сервер";
-$MESS["BX_IM_COMPONENT_CONFERENCE_VOXIMPLANT_ERROR"] = "Для использования конференций на вашем портале должен быть установлен и настроен модуль телефонии";
+$MESS["BX_IM_COMPONENT_CONFERENCE_VOXIMPLANT_ERROR_WITH_LINK"] = 'Для использования конференций необходимо настроить окружение. <a onclick="top.BX.Helper.show(\'redirect=detail&code=11392174\')"> Подробнее</a>';
 $MESS["BX_IM_COMPONENT_CONFERENCE_NETWORK_ERROR"] = "Мы не смогли подключиться к вашему Битрикс24 - возможно, у вас плохое интернет-соединение. Попробуйте выполнить действие позже.";
 ?>

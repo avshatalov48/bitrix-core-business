@@ -23,15 +23,22 @@ function CBXSession()
 
 	this.OnUserInput = function()
 	{
-		var curr = new Date();
-		_this.dateInput.setTime(curr.valueOf());
+		var currentDate = new Date();
+		_this.dateInput.setTime(currentDate.valueOf());
+
+		if ((currentDate - _this.dateHit)/1000 > _this.checkInterval)
+		{
+			// last hit was long time ago, need to recheck immediately
+			_this.dateCheck.setTime(_this.dateHit.valueOf());
+			_this.CheckSession();
+		}
 	};
 
 	this.CheckSession = function()
 	{
 		var currentDate = new Date();
 
-		if((currentDate - _this.dateCheck) < (_this.checkInterval - 1))
+		if((currentDate - _this.dateCheck)/1000 < (_this.checkInterval - 1))
 		{
 			//storm protection, e.g. after PC wake-up
 			return;

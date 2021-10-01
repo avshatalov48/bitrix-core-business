@@ -161,9 +161,10 @@
 .main-ui-control-field .main-ui-delete,
 .main-ui-select .main-ui-delete,
 .main-ui-control-field-group .main-ui-delete {
-	top: 54%;
+	top: calc(50% + 2px);
 	right: -25px;
 	width: 25px;
+	height: 36px!important;
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2210%22%20height%3D%2210%22%20viewBox%3D%220%200%2010%2010%22%3E%3Cpath%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M5.065%203.682L2.377.994%201.01%202.362%203.696%205.05.99%207.757l1.368%201.37%202.708-2.71%202.7%202.703%201.37-1.368-2.702-2.7%202.682-2.684L7.748%201%205.065%203.682z%22/%3E%3C/svg%3E');
 	background-position: center;
 	background-repeat: no-repeat;
@@ -1239,13 +1240,139 @@ select::-ms-expand {
 	        box-sizing: border-box;
 }
 
+.main-ui-filter-popup-search-header-wrapper{
+	padding: 25px 25px 0 25px;
+}
 
+.main-ui-filter-popup-search-sections-wrapper{
+	padding: 10px 25px 25px 25px;
+	width: 630px;
+}
+
+.main-ui-filter-popup-search-section-item{
+	margin-top: 10px;
+	display: inline-block;
+	margin-right: 20px;
+	cursor: pointer;
+	-webkit-transition: all 1000ms;
+	-o-transition: all 1000ms;
+	transition: all 1000ms;
+}
+
+.main-ui-filter-popup-search-section-item-icon{
+	display: block;
+	position: relative;
+	margin: 0 auto;
+	padding: 10px;
+	-webkit-transition: background 200ms ease;
+	-o-transition: background 200ms ease;
+	transition: background 200ms ease;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+	border: 2px solid #c6cdd3;
+	border-radius: 4px;
+}
+
+.main-ui-filter-popup-search-section-item-icon-active{
+	border-color: #2FC6F6;
+}
+
+.main-ui-filter-popup-search-section-item-icon-active::before{
+	background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjIiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGZpbHRlciBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiIgaWQ9ImEiPjxmZUZsb29kIGZsb29kLW9wYWNpdHk9IjAiIHJlc3VsdD0iQmFja2dyb3VuZEltYWdlRml4Ii8+PGZlQ29sb3JNYXRyaXggaW49IlNvdXJjZUFscGhhIiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDEyNyAwIi8+PGZlT2Zmc2V0IGR5PSIyIi8+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMiIvPjxmZUNvbG9yTWF0cml4IHZhbHVlcz0iMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMC4xMTM3MjU0OSAwIi8+PGZlQmxlbmQgaW4yPSJCYWNrZ3JvdW5kSW1hZ2VGaXgiIHJlc3VsdD0iZWZmZWN0MF9kcm9wU2hhZG93Ii8+PGZlQmxlbmQgaW49IlNvdXJjZUdyYXBoaWMiIGluMj0iZWZmZWN0MF9kcm9wU2hhZG93IiByZXN1bHQ9InNoYXBlIi8+PC9maWx0ZXI+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwXzEpIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0xMC45OTkgNWgyLjAwMnEuMTQ3IDAgLjI5NC4wMDd0LjI5NC4wMjJxLjE0Ny4wMTQuMjkyLjAzNi4xNDYuMDIyLjI5LjA1LjE0NS4wMjkuMjg4LjA2NS4xNDIuMDM2LjI4My4wNzguMTQxLjA0My4yOC4wOTMuMTM5LjA1LjI3NS4xMDYuMTM2LjA1Ni4yNjkuMTE5dC4yNjMuMTMycS4xMy4wNy4yNTYuMTQ1LjEyNi4wNzYuMjQ5LjE1OC4xMjIuMDgyLjI0LjE3LjExOS4wODcuMjMzLjE4LjExNC4wOTQuMjIzLjE5M3QuMjEzLjIwM3EuMTA0LjEwNC4yMDMuMjEzLjA5OS4xMS4xOTIuMjIzLjA5NC4xMTQuMTgxLjIzMi4wODguMTE5LjE3LjI0MS4wODIuMTIzLjE1Ny4yNDkuMDc2LjEyNi4xNDYuMjU2LjA3LjEzLjEzMi4yNjMuMDYzLjEzMy4xMi4yNy4wNTYuMTM1LjEwNS4yNzQuMDUuMTM5LjA5My4yOC4wNDIuMTQuMDc4LjI4My4wMzYuMTQzLjA2NS4yODguMDI4LjE0NC4wNS4yOS4wMjIuMTQ1LjAzNi4yOTIuMDE0LjE0Ny4wMjIuMjk0LjAwNy4xNDcuMDA3LjI5NHYxLjAwMnEwIC4xNDctLjAwNy4yOTQtLjAwOC4xNDctLjAyMi4yOTQtLjAxNC4xNDctLjAzNi4yOTItLjAyMi4xNDYtLjA1LjI5LS4wMjkuMTQ1LS4wNjUuMjg4LS4wMzYuMTQyLS4wNzguMjgzLS4wNDMuMTQxLS4wOTMuMjgtLjA1LjEzOS0uMTA2LjI3NS0uMDU2LjEzNi0uMTE5LjI2OXQtLjEzMi4yNjNxLS4wNy4xMy0uMTQ2LjI1Ni0uMDc1LjEyNi0uMTU3LjI0OS0uMDgyLjEyMi0uMTcuMjQtLjA4Ny4xMTktLjE4LjIzMy0uMDk0LjExNC0uMTkzLjIyM3QtLjIwMy4yMTNxLS4xMDQuMTA0LS4yMTMuMjAzLS4xMS4wOTktLjIyMy4xOTItLjExNC4wOTQtLjIzMi4xODEtLjExOS4wODgtLjI0MS4xNy0uMTIzLjA4Mi0uMjQ5LjE1OC0uMTI2LjA3NS0uMjU2LjE0NS0uMTMuMDctLjI2My4xMzItLjEzMy4wNjMtLjI3LjEyLS4xMzUuMDU2LS4yNzQuMTA1LS4xMzkuMDUtLjI4LjA5My0uMTQuMDQyLS4yODMuMDc4LS4xNDMuMDM2LS4yODguMDY1LS4xNDQuMDI4LS4yOS4wNS0uMTQ1LjAyMi0uMjkyLjAzNi0uMTQ3LjAxNC0uMjk0LjAyMi0uMTQ3LjAwNy0uMjk0LjAwN2gtMi4wMDJxLS4xNDcgMC0uMjk0LS4wMDctLjE0Ny0uMDA4LS4yOTQtLjAyMi0uMTQ3LS4wMTQtLjI5Mi0uMDM2LS4xNDYtLjAyMi0uMjktLjA1LS4xNDUtLjAyOS0uMjg4LS4wNjUtLjE0Mi0uMDM2LS4yODMtLjA3OC0uMTQxLS4wNDMtLjI4LS4wOTMtLjEzOS0uMDUtLjI3NS0uMTA2LS4xMzYtLjA1Ni0uMjY5LS4xMTl0LS4yNjMtLjEzMnEtLjEzLS4wNy0uMjU2LS4xNDYtLjEyNi0uMDc1LS4yNDktLjE1Ny0uMTIyLS4wODItLjI0LS4xNy0uMTE5LS4wODctLjIzMy0uMTgtLjExNC0uMDk0LS4yMjMtLjE5M3QtLjIxMy0uMjAzcS0uMTA0LS4xMDQtLjIwMy0uMjEzLS4wOTktLjExLS4xOTItLjIyMy0uMDk0LS4xMTQtLjE4MS0uMjMyLS4wODgtLjExOS0uMTctLjI0MS0uMDgyLS4xMjMtLjE1OC0uMjQ5LS4wNzUtLjEyNi0uMTQ1LS4yNTYtLjA3LS4xMy0uMTMyLS4yNjMtLjA2My0uMTMzLS4xMi0uMjctLjA1Ni0uMTM1LS4xMDUtLjI3NC0uMDUtLjEzOS0uMDkzLS4yOC0uMDQyLS4xNC0uMDc4LS4yODMtLjAzNi0uMTQzLS4wNjUtLjI4OC0uMDI4LS4xNDQtLjA1LS4yOS0uMDIyLS4xNDUtLjAzNi0uMjkyLS4wMTUtLjE0Ny0uMDIyLS4yOTRRNSAxMi4xNDggNSAxMi4wMDF2LTEuMDAycTAtLjE0Ny4wMDctLjI5NHQuMDIyLS4yOTRxLjAxNC0uMTQ3LjAzNi0uMjkyLjAyMi0uMTQ2LjA1LS4yOS4wMjktLjE0NS4wNjUtLjI4OC4wMzYtLjE0Mi4wNzgtLjI4My4wNDMtLjE0MS4wOTMtLjI4LjA1LS4xMzkuMTA2LS4yNzUuMDU2LS4xMzYuMTE5LS4yNjl0LjEzMi0uMjYzcS4wNy0uMTMuMTQ1LS4yNTYuMDc2LS4xMjYuMTU4LS4yNDkuMDgyLS4xMjIuMTctLjI0LjA4Ny0uMTE5LjE4LS4yMzMuMDk0LS4xMTQuMTkzLS4yMjN0LjIwMy0uMjEzcS4xMDQtLjEwNC4yMTMtLjIwMy4xMS0uMDk5LjIyMy0uMTkyLjExNC0uMDk0LjIzMi0uMTgxLjExOS0uMDg4LjI0MS0uMTcuMTIzLS4wODIuMjQ5LS4xNTguMTI2LS4wNzUuMjU2LS4xNDUuMTMtLjA3LjI2My0uMTMyLjEzMy0uMDYzLjI3LS4xMi4xMzUtLjA1Ni4yNzQtLjEwNS4xMzktLjA1LjI4LS4wOTMuMTQtLjA0Mi4yODMtLjA3OC4xNDMtLjAzNi4yODgtLjA2NS4xNDQtLjAyOC4yOS0uMDUuMTQ1LS4wMjIuMjkyLS4wMzYuMTQ3LS4wMTUuMjk0LS4wMjIuMTQ3LS4wMDcuMjk0LS4wMDd6IiBmaWxsPSIjRkZGIi8+PHBhdGggZD0iTTkuOTk5IDBoLjAwMnEuMjQ1IDAgLjQ5LjAxMi4yNDYuMDEyLjQ5LjAzNi4yNDQuMDI0LjQ4Ny4wNnQuNDg0LjA4NHEuMjQuMDQ4LjQ3OS4xMDguMjM4LjA2LjQ3My4xMy4yMzQuMDcyLjQ2Ni4xNTUuMjMuMDgyLjQ1Ny4xNzYuMjI3LjA5NC40NS4xOTkuMjIxLjEwNS40MzguMjIuMjE2LjExNi40MjcuMjQzLjIxLjEyNi40MTQuMjYyLjIwNC4xMzcuNDAxLjI4My4xOTguMTQ2LjM4Ny4zMDIuMTkuMTU1LjM3Mi4zMnQuMzU1LjMzOXEuMTc0LjE3My4zMzkuMzU1LjE2NS4xODIuMzIuMzcyLjE1Ni4xOS4zMDIuMzg3dC4yODMuNHEuMTM2LjIwNS4yNjIuNDE1LjEyNy4yMTEuMjQyLjQyOC4xMTYuMjE2LjIyMS40Mzh0LjE5OS40NDlxLjA5NC4yMjYuMTc3LjQ1Ny4wODIuMjMyLjE1My40NjYuMDcyLjIzNS4xMzEuNDczLjA2LjIzOS4xMDguNDguMDQ4LjI0LjA4NC40ODMuMDM2LjI0My4wNi40ODd0LjAzNi40OXEuMDEyLjI0NS4wMTIuNDl2LjAwMnEwIC4yNDUtLjAxMi40OS0uMDEyLjI0Ni0uMDM2LjQ5LS4wMjQuMjQ0LS4wNi40ODd0LS4wODQuNDg0cS0uMDQ4LjI0LS4xMDguNDc5LS4wNi4yMzgtLjEzLjQ3My0uMDcyLjIzNC0uMTU0LjQ2Ni0uMDgzLjIzLS4xNzcuNDU3LS4wOTQuMjI3LS4xOTkuNDUtLjEwNS4yMjEtLjIyLjQzOC0uMTE2LjIxNi0uMjQzLjQyNy0uMTI2LjIxLS4yNjIuNDE0LS4xMzcuMjA0LS4yODMuNDAxLS4xNDYuMTk4LS4zMDIuMzg3LS4xNTUuMTktLjMyLjM3MnQtLjMzOS4zNTVxLS4xNzMuMTc0LS4zNTUuMzM5LS4xODIuMTY1LS4zNzIuMzItLjE5LjE1Ni0uMzg3LjMwMnQtLjQuMjgzcS0uMjA1LjEzNi0uNDE1LjI2Mi0uMjExLjEyNy0uNDI4LjI0Mi0uMjE2LjExNi0uNDM4LjIyMXQtLjQ0OS4xOTlxLS4yMjYuMDk0LS40NTcuMTc3LS4yMzIuMDgyLS40NjYuMTUzLS4yMzUuMDcyLS40NzMuMTMxLS4yMzguMDYtLjQ4LjEwOC0uMjQuMDQ4LS40ODMuMDg0LS4yNDMuMDM2LS40ODcuMDZ0LS40OS4wMzZxLS4yNDUuMDEyLS40OS4wMTJoLS4wMDJxLS4yNDUgMC0uNDktLjAxMi0uMjQ2LS4wMTItLjQ5LS4wMzYtLjI0NC0uMDI0LS40ODctLjA2dC0uNDg0LS4wODRxLS4yNC0uMDQ4LS40NzktLjEwOC0uMjM4LS4wNi0uNDczLS4xMy0uMjM0LS4wNzItLjQ2Ni0uMTU0LS4yMy0uMDgzLS40NTctLjE3Ny0uMjI3LS4wOTQtLjQ1LS4xOTktLjIyMS0uMTA1LS40MzgtLjIyLS4yMTYtLjExNi0uNDI3LS4yNDMtLjIxLS4xMjYtLjQxNC0uMjYyLS4yMDQtLjEzNy0uNDAxLS4yODMtLjE5OC0uMTQ2LS4zODctLjMwMi0uMTktLjE1NS0uMzcyLS4zMnQtLjM1NS0uMzM5cS0uMTc0LS4xNzMtLjMzOS0uMzU1LS4xNjUtLjE4Mi0uMzItLjM3Mi0uMTU2LS4xOS0uMzAyLS4zODd0LS4yODMtLjRxLS4xMzYtLjIwNS0uMjYyLS40MTUtLjEyNy0uMjExLS4yNDItLjQyOC0uMTE2LS4yMTYtLjIyMS0uNDM4dC0uMTk5LS40NDlxLS4wOTQtLjIyNi0uMTc2LS40NTctLjA4My0uMjMyLS4xNTQtLjQ2Ni0uMDcyLS4yMzUtLjEzMS0uNDczLS4wNi0uMjM4LS4xMDgtLjQ4LS4wNDgtLjI0LS4wODQtLjQ4My0uMDM2LS4yNDMtLjA2LS40ODd0LS4wMzYtLjQ5UTAgMTAuMjQ3IDAgMTAuMDAydi0uMDAycTAtLjI0NS4wMTItLjQ5LjAxMi0uMjQ2LjAzNi0uNDkuMDI0LS4yNDQuMDYtLjQ4N3QuMDg0LS40ODRRLjI0IDcuODA4LjMgNy41N3EuMDYtLjIzOC4xMy0uNDczLjA3Mi0uMjM0LjE1NS0uNDY2LjA4Mi0uMjMuMTc2LS40NTcuMDk0LS4yMjcuMTk5LS40NS4xMDUtLjIyMS4yMi0uNDM4LjExNi0uMjE2LjI0My0uNDI3LjEyNi0uMjEuMjYyLS40MTQuMTM3LS4yMDQuMjgzLS40MDEuMTQ2LS4xOTguMzAyLS4zODcuMTU1LS4xOS4zMi0uMzcydC4zMzktLjM1NXEuMTczLS4xNzQuMzU1LS4zMzkuMTgyLS4xNjUuMzcyLS4zMi4xOS0uMTU2LjM4Ny0uMzAydC40LS4yODNxLjIwNS0uMTM2LjQxNS0uMjYyLjIxMS0uMTI3LjQyOC0uMjQyLjIxNi0uMTE2LjQzOC0uMjIxdC40NDktLjE5OXEuMjI2LS4wOTQuNDU3LS4xNzYuMjMyLS4wODMuNDY2LS4xNTRRNy4zMzEuMzU5IDcuNTcuM3EuMjM5LS4wNi40OC0uMTA4LjI0LS4wNDguNDgzLS4wODQuMjQzLS4wMzYuNDg3LS4wNnQuNDktLjAzNlE5Ljc1MyAwIDkuOTk4IDB6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxIDEpIiBmaWxsPSIjMDBCMEU4IiBmaWx0ZXI9InVybCgjYSkiLz48cGF0aCBkPSJNMTAuMDA1IDEyLjEzNmw1LjI4Mi01LjIxNCAxLjU5OCAxLjYwNy02Ljg1NSA2Ljc5Ni0uMDI1LS4wMjUtLjAyNS4wMjUtNC4xOTMtNC4wNTlMNy4zODUgOS42NmwyLjYyIDIuNDc3eiIgZmlsbD0iI0ZGRiIvPjwvZz48L3N2Zz4=") center no-repeat;
+	position: absolute;
+	content: '';
+	bottom: 14px;
+	top: -12px;
+	right: -13px;
+	width: 28px;
+	height: 28px;
+}
+
+.main-ui-filter-popup-search-input-wrapper{
+	-webkit-box-pack: end;
+	    -ms-flex-pack: end;
+	        justify-content: flex-end;
+	margin-top: 10px;
+}
+
+.main-ui-filter-field-list-item-visible{
+	-webkit-animation: showFieldListItem 300ms both;
+	        animation: showFieldListItem 300ms both;
+}
+
+.main-ui-filter-field-list-item-hidden{
+	-webkit-animation: hideFieldListItem 300ms both;
+	        animation: hideFieldListItem 300ms both;
+}
+
+@-webkit-keyframes hideFieldListItem {
+	0% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0;
+	}
+}
+
+@keyframes hideFieldListItem {
+	0% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0;
+	}
+}
+
+@-webkit-keyframes showFieldListItem {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes showFieldListItem {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+.main-ui-filter-popup-title{
+	color: #56616c;
+	font-size: 18px;
+	font-weight: 300;
+	line-height: 25px;
+	border-bottom: 2px rgba(0, 0, 0, .05) solid;
+	margin-bottom: 10px;
+	padding-bottom: 10px;
+}
+
+.main-ui-filter-popup-section-wrapper,
 .main-ui-filter-popup-field-list {
 	max-width: 630px;
-	padding: 25px;
 	-webkit-box-sizing: border-box;
 	        box-sizing: border-box;
 	/*column-rule: 1px rgba(0,0,0,.03) solid;*/
+}
+
+.main-ui-filter-popup-field-list{
+	padding: 25px;
+}
+
+.main-ui-filter-popup-section-wrapper + .main-ui-filter-popup-section-wrapper{
+	margin-top: 20px;
+}
+
+.main-ui-filter-popup-section-wrapper > .main-ui-filter-popup-field-list{
+	padding: 0;
 }
 
 .main-ui-filter-field-list-1-column {
@@ -1513,6 +1640,18 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 	padding-top: 20px;
 	padding-bottom: 15px;
 	margin-bottom: 0;
+}
+
+.main-ui-control-field-label-icon
+{
+	max-height: 14px;
+	vertical-align: middle;
+	margin-right: 4px;
+}
+.main-ui-control-field-label-text
+{
+	line-height: 14px;
+	vertical-align: middle;
 }
 
 .main-ui-control-string:focus {
@@ -1885,4 +2024,141 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 
 .main-ui-filter-field-with-additional-fields > .main-ui-control-field + .main-ui-control-field {
 	margin-left: 10px;
+}
+
+.main-ui-filter-additional-filters-button {
+	position: absolute;
+	width: 36px;
+	top: calc(50% - 15px);
+	right: 0;
+	cursor: pointer;
+}
+
+.main-ui-filter-additional-filters-button > i {
+	background-color: transparent;
+	background-size: 79%;
+	border-radius: 2px;
+	opacity: .4;
+	-webkit-transition: 200ms opacity ease;
+	-o-transition: 200ms opacity ease;
+	transition: 200ms opacity ease;
+}
+
+.main-ui-filter-additional-filters-button:hover > i {
+	opacity: 1;
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field[data-type="STRING"] .main-ui-control-string,
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field[data-type="TEXTAREA"] .main-ui-control-textarea,
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field[data-type="DEST_SELECTOR"] .main-ui-control-entity,
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field[data-type="MULTI_SELECT"] .main-ui-multi-select,
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field-group[data-type="DATE"],
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field[data-type="SELECT"] .main-ui-select {
+	width: calc(100% - 42px);
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field-group[data-type="NUMBER"] {
+	width: calc(100% - 42px);
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field-group[data-type="DATE"] .main-ui-filter-field-delete {
+	right: -67px;
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field-group[data-type="NUMBER"] .main-ui-filter-field-delete {
+	right: -57px;
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field-group[data-type="DATE"] .main-ui-filter-additional-filters-button {
+	right: -42px;
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field-group[data-type="NUMBER"] .main-ui-filter-additional-filters-button {
+	right: -42px;
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field[data-type="SELECT"] .main-ui-select .main-ui-control-value-delete-item {
+	right: -12px;
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field[data-type="MULTI_SELECT"] .main-ui-multi-select .main-ui-control-value-delete-item {
+	right: 2px;
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field[data-type="STRING"] .main-ui-control-value-delete {
+	right: 43px;
+	background-color: transparent;
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-filter-additional-filters-hide[data-type="STRING"] .main-ui-control-value-delete {
+	right: 1px;
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field-group[data-type="DATE"] > .main-ui-control-field {
+	margin-right: 0;
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-year-switcher {
+	margin-right: 0!important;
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field-group[data-type="DATE"] .main-ui-control-field:not(.main-ui-filter-remove-margin-right) + .main-ui-control-field {
+	margin-left: 10px;
+}
+
+
+.main-ui-filter-additional-filter-placeholder {
+	width: calc(100% - 42px);
+	padding-left: 0;
+	cursor: default;
+}
+
+.main-ui-filter-field-with-additional-filter[data-type="DATE"] .main-ui-filter-additional-filter-placeholder {
+	width: 100%;
+}
+
+.main-ui-filter-additional-filter-placeholder .main-ui-square {
+	margin: 3px;
+}
+
+.main-ui-filter-field-with-additional-filter[data-type="STRING"] > input.main-ui-control-string,
+.main-ui-filter-field-with-additional-filter[data-type="SELECT"] > .main-ui-select,
+.main-ui-filter-field-with-additional-filter[data-type="MULTI_SELECT"] > .main-ui-multi-select,
+.main-ui-filter-field-with-additional-filter[data-type="DATE"] > .main-ui-control-field,
+.main-ui-filter-field-with-additional-filter[data-type="DATE"] > .main-ui-filter-range-group,
+.main-ui-filter-field-with-additional-filter[data-type="DEST_SELECTOR"] > .main-ui-control-entity,
+.main-ui-filter-field-with-additional-filter[data-type="NUMBER"] > .main-ui-control-field,
+.main-ui-filter-field-with-additional-filter[data-type="NUMBER"] > .main-ui-filter-field-line,
+.main-ui-filter-field-with-additional-filter[data-type="TEXTAREA"] > .main-ui-control-textarea {
+	display: none;
+}
+
+.main-ui-filter-additional-filters-hide .main-ui-filter-additional-filters-button {
+	display: none;
+}
+
+.main-ui-filter-field-container-list > .main-ui-filter-additional-filters-hide.main-ui-control-field[data-type="STRING"] .main-ui-control-string,
+.main-ui-filter-field-container-list > .main-ui-filter-additional-filters-hide.main-ui-control-field[data-type="TEXTAREA"] .main-ui-control-textarea,
+.main-ui-filter-field-container-list > .main-ui-filter-additional-filters-hide.main-ui-control-field[data-type="DEST_SELECTOR"] .main-ui-control-entity,
+.main-ui-filter-field-container-list > .main-ui-filter-additional-filters-hide.main-ui-control-field[data-type="MULTI_SELECT"] .main-ui-multi-select,
+.main-ui-filter-field-container-list > .main-ui-filter-additional-filters-hide.main-ui-control-field-group[data-type="DATE"],
+.main-ui-filter-field-container-list > .main-ui-filter-additional-filters-hide.main-ui-control-field[data-type="SELECT"] .main-ui-select {
+	width: 100%;
+}
+
+.main-ui-filter-field-container-list > .main-ui-filter-additional-filters-hide.main-ui-control-field-group[data-type="NUMBER"] {
+	width: 100%;
+}
+
+.main-ui-filter-field-container-list > .main-ui-filter-additional-filters-hide.main-ui-control-field-group[data-type="DATE"] .main-ui-filter-field-delete,
+.main-ui-filter-field-container-list > .main-ui-filter-additional-filters-hide.main-ui-control-field-group[data-type="NUMBER"] .main-ui-filter-field-delete {
+	right: -25px;
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-filter-field-with-additional-filter[data-type="NUMBER"] {
+	width: 100%;
+}
+
+.main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-filter-field-with-additional-filter[data-type="NUMBER"] .main-ui-filter-additional-filters-button {
+	right: 0;
 }

@@ -11,7 +11,6 @@ use Bitrix\Main\Loader;
  * @package Bitrix\Catalog\v2\Integration\UI\ViewedProducts
  *
  * * !!! This API is in alpha stage and is not stable. This is subject to change at any time without notice.
-
  * @internal
  */
 final class Repository
@@ -26,7 +25,7 @@ final class Repository
 	 */
 	public static function getInstance(): Repository
 	{
-		if(is_null(static::$instance))
+		if (is_null(static::$instance))
 		{
 			static::$instance = new static();
 		}
@@ -40,7 +39,7 @@ final class Repository
 	 */
 	public function getList(array $options = []): array
 	{
-		$result  = [];
+		$result = [];
 
 		if (!Loader::includeModule('sale'))
 		{
@@ -55,14 +54,14 @@ final class Repository
 					'=FUSER_ID' => (int)\CSaleBasket::GetBasketUserID(
 						!Catalog\Product\Basket::isNotCrawler()
 					),
-					'=SITE_ID' => SITE_ID
+					'=SITE_ID' => SITE_ID,
 				],
 				'select' => [
 					'ELEMENT_ID',
 					'PRODUCT_ID',
 				],
 				'order' => [
-					'DATE_VISIT' => 'DESC'
+					'DATE_VISIT' => 'DESC',
 				],
 				'limit' => $limit,
 			]
@@ -70,9 +69,10 @@ final class Repository
 
 		while ($viewedProduct = $viewedProductsList->fetch())
 		{
-			$sku = Catalog\v2\IoC\ServiceContainer::getRepositoryFacade()->loadVariation(
-				(int)$viewedProduct['PRODUCT_ID']
-			);
+			$sku =
+				Catalog\v2\IoC\ServiceContainer::getRepositoryFacade()
+					->loadVariation((int)$viewedProduct['PRODUCT_ID'])
+			;
 
 			if (!$sku)
 			{

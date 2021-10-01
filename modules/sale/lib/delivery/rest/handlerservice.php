@@ -64,7 +64,39 @@ class HandlerService extends BaseService
 
 		if (empty($params['SETTINGS']['CALCULATE_URL']))
 		{
-			throw new RestException('Parameter SETTINGS[CALCULATE_URL] is not defined', self::ERROR_CHECK_FAILURE);
+			throw new RestException(
+				'Parameter SETTINGS[CALCULATE_URL] is not defined',
+				self::ERROR_CHECK_FAILURE
+			);
+		}
+		elseif (!is_string($params['SETTINGS']['CALCULATE_URL']))
+		{
+			throw new RestException(
+				'Parameter SETTINGS[CALCULATE_URL] must be of string type',
+				self::ERROR_CHECK_FAILURE
+			);
+		}
+
+		if (
+			!empty($params['SETTINGS']['CREATE_DELIVERY_REQUEST_URL'])
+			&& !is_string($params['SETTINGS']['CREATE_DELIVERY_REQUEST_URL'])
+		)
+		{
+			throw new RestException(
+				'Parameter SETTINGS[CREATE_DELIVERY_REQUEST_URL] must be of string type',
+				self::ERROR_CHECK_FAILURE
+			);
+		}
+
+		if (
+			!empty($params['SETTINGS']['CANCEL_DELIVERY_REQUEST_URL'])
+			&& !is_string($params['SETTINGS']['CANCEL_DELIVERY_REQUEST_URL'])
+		)
+		{
+			throw new RestException(
+				'Parameter SETTINGS[CANCEL_DELIVERY_REQUEST_URL] must be of string type',
+				self::ERROR_CHECK_FAILURE
+			);
 		}
 
 		if (empty($params['SETTINGS']['CONFIG']) || !is_array($params['SETTINGS']['CONFIG']))

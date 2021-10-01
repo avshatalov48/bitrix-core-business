@@ -4,7 +4,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 (function (exports,ui_vue,sale_checkout_const,main_core,sale_checkout_view_mixins) {
 	'use strict';
 
-	ui_vue.Vue.component('sale-checkout-view-payment', {
+	ui_vue.BitrixVue.component('sale-checkout-view-payment', {
 	  props: ['order', 'config'],
 	  mixins: [sale_checkout_view_mixins.MixinLoader],
 	  methods: {

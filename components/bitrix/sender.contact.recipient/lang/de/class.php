@@ -1,4 +1,7 @@
 <?php
+$MESS["SENDER_CONTACT_CONSENT_APPLY"] = "Kontakt hat Einwilligung bestätigt, Newsletter geplant";
+$MESS["SENDER_CONTACT_CONSENT_REJECT"] = "Kontakt hat keine Einwilligung gegeben";
+$MESS["SENDER_CONTACT_CONSENT_WAIT"] = "Einwilligung gesendet";
 $MESS["SENDER_LETTER_CONTACT_LIST_ITEM_DELETED"] = "Empfänger gelöscht";
 $MESS["SENDER_LETTER_RCP_LIST_TITLE"] = "Empfänger";
 $MESS["SENDER_LETTER_RCP_LIST_TITLE_CONTACT"] = "Newsletters senden";
@@ -13,9 +16,11 @@ $MESS["SENDER_LETTER_RCP_UI_COLUMN_STATUS"] = "Status";
 $MESS["SENDER_LETTER_RCP_UI_COLUMN_UNSUB"] = "Abonnement abbestellt";
 $MESS["SENDER_LETTER_RCP_UI_NO"] = "Nein";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_ALL"] = "Alle";
+$MESS["SENDER_LETTER_RCP_UI_PRESET_APPLY"] = "Einwilligung gegeben";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_CLICK"] = "Geklickt";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_ERROR"] = "Fehler";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_READ"] = "Gelesen";
+$MESS["SENDER_LETTER_RCP_UI_PRESET_REJECT"] = "Einwilligung nicht gegeben";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_SENT"] = "Gesendet";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_UNSENT"] = "Nicht gesendet";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_UNSUB"] = "Abonnement abbestellt";

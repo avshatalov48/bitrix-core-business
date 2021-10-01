@@ -15,6 +15,22 @@ use Bitrix\Sale\PaySystem;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class PaySystemActionTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_PaySystemAction_Query query()
+ * @method static EO_PaySystemAction_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_PaySystemAction_Result getById($id)
+ * @method static EO_PaySystemAction_Result getList(array $parameters = array())
+ * @method static EO_PaySystemAction_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_PaySystemAction createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_PaySystemAction_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_PaySystemAction wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_PaySystemAction_Collection wakeUpCollection($rows)
+ */
 class PaySystemActionTable extends \Bitrix\Main\Entity\DataManager
 {
 	public static function getTableName()

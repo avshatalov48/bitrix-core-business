@@ -3793,7 +3793,6 @@
 						"'ppServerStatus': false,"+
 						"'xmppStatus': "+this.BXIM.xmppStatus+","+
 						"'bitrixNetwork': "+this.BXIM.bitrixNetwork+","+
-						"'bitrixNetwork2': "+this.BXIM.bitrixNetwork2+","+
 						"'bitrixOpenLines': "+this.BXIM.bitrixOpenLines+","+
 						"'bitrix24': "+this.BXIM.bitrix24+","+
 						"'bitrixIntranet': "+this.BXIM.bitrixIntranet+","+

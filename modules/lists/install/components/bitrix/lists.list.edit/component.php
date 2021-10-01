@@ -75,7 +75,7 @@ $arParams["CAN_EDIT"] =
 	)
 ;
 
-$bBizProc = CModule::IncludeModule('bizproc') && CBPRuntime::isFeatureEnabled();
+$bBizProc = CModule::IncludeModule('bizproc') && CLists::isBpFeatureEnabled($arParams["IBLOCK_TYPE_ID"]);
 $arIBlock = CIBlock::GetArrayByID(intval($arParams["~IBLOCK_ID"]));
 
 if($arIBlock)
@@ -246,7 +246,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 			if ($_POST["LOCK_FEATURE"] == "Y")
 			{
 				$optionData = Option::get("lists", "iblock_lock_feature");
-				$iblockIdsWithLockFeature = unserialize($optionData);
+				$iblockIdsWithLockFeature = unserialize($optionData, ['allowed_classes' => false]);
 				if (!is_array($iblockIdsWithLockFeature))
 				{
 					$iblockIdsWithLockFeature = [];
@@ -260,7 +260,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 			else
 			{
 				$optionData = Option::get("lists", "iblock_lock_feature");
-				$iblockIdsWithLockFeature = unserialize($optionData);
+				$iblockIdsWithLockFeature = unserialize($optionData, ['allowed_classes' => false]);
 				if (!is_array($iblockIdsWithLockFeature))
 				{
 					$iblockIdsWithLockFeature = [];
@@ -339,9 +339,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 	}
 	elseif(isset($_POST["action"]) && $_POST["action"]==="migrate" && $arResult["IBLOCK_ID"])
 	{
-		if($arParams["IBLOCK_TYPE_ID"] != COption::GetOptionString("lists", "livefeed_iblock_type_id"))
+		if ($arParams["IBLOCK_TYPE_ID"] != COption::GetOptionString("lists", "livefeed_iblock_type_id"))
 		{
-			if(CModule::includeModule('bizproc') && CBPRuntime::isFeatureEnabled())
+			if (CModule::includeModule('bizproc') && CLists::isBpFeatureEnabled($arParams["IBLOCK_TYPE_ID"]))
 			{
 				\Bitrix\Lists\Importer::migrateList($arResult["IBLOCK_ID"]);
 

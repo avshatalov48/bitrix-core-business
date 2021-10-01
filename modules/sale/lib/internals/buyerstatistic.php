@@ -9,6 +9,22 @@ namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main;
 
+/**
+ * Class BuyerStatisticTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_BuyerStatistic_Query query()
+ * @method static EO_BuyerStatistic_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_BuyerStatistic_Result getById($id)
+ * @method static EO_BuyerStatistic_Result getList(array $parameters = array())
+ * @method static EO_BuyerStatistic_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_BuyerStatistic createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_BuyerStatistic_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_BuyerStatistic wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_BuyerStatistic_Collection wakeUpCollection($rows)
+ */
 class BuyerStatisticTable extends Main\Entity\DataManager
 {
 	/**

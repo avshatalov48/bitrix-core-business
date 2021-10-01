@@ -297,9 +297,15 @@
 			return {id: 'none', source: ''};
 		}
 
+		var imagePath = BXDesktopSystem.QuerySettings("bxd_camera_background", "");
+		if (imagePath && !imagePath.startsWith('file://'))
+		{
+			imagePath = 'file://'+imagePath;
+		}
+
 		return {
 			id: BXDesktopSystem.QuerySettings("bxd_camera_background_id") || 'none',
-			source: BXDesktopSystem.QuerySettings("bxd_camera_background") || '',
+			source: imagePath,
 		};
 	}
 
@@ -322,6 +328,18 @@
 			{
 				var url = new URL(source, location.origin);
 				source = url.href;
+
+				if (source)
+				{
+					if (source.startsWith('file:///'))
+					{
+						source = source.substr(8);
+					}
+					else if (source.startsWith('file://'))
+					{
+						source = source.substr(7);
+					}
+				}
 			}
 			catch(e)
 			{
@@ -945,7 +963,37 @@
 			BXDesktopSystem.StoreSettings("bxd_telemetry", value? "1": "0");
 		}
 
-		return this.autorun;
+		return true;
+	};
+
+	Desktop.prototype.cameraSmoothingStatus = function(value)
+	{
+		if (!this.ready()) return false;
+
+		if (typeof(value) !='boolean')
+		{
+			return BXDesktopSystem.QuerySettings("bxd_camera_smoothing", "0") === "1";
+		}
+		else
+		{
+			BXDesktopSystem.StoreSettings("bxd_camera_smoothing", value? "1": "0");
+		}
+
+		return true;
+	};
+
+	Desktop.prototype.cameraSmoothingLambda = function(value)
+	{
+		if (!this.ready()) return false;
+
+		if (typeof(value) === 'undefined')
+		{
+			return BXDesktopSystem.QuerySettings("bxd_camera_smoothing_lambda", "36");
+		}
+
+		BXDesktopSystem.StoreSettings("bxd_camera_smoothing_lambda", value.toString());
+
+		return true;
 	};
 
 	Desktop.prototype.diskAttachStatus = function()
@@ -1163,7 +1211,7 @@
 
 	Desktop.prototype.createWindow = function (name, callback, reuse)
 	{
-		reuse = typeof reuse === "boolean"? reuse: true;
+		reuse = typeof reuse === "boolean"? reuse: false;
 
 		if (reuse)
 		{
@@ -1176,6 +1224,26 @@
 		}
 
 		BXDesktopSystem.GetWindow(name, callback);
+	}
+
+	Desktop.prototype.closeWindow = function (names)
+	{
+		if (!Array.isArray(names))
+		{
+			names = [names];
+		}
+
+		names.forEach(function(name) {
+			var popup = BX.desktop.findWindow(name);
+			if (!popup)
+			{
+				return true;
+			}
+
+			BX.desktop.windowCommand(popup, 'close');
+		});
+
+		return true;
 	}
 
 	Desktop.prototype.getWindowTitle = function (title)

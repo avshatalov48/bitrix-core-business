@@ -17,7 +17,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Main
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_UserIndex_Query query()
+ * @method static EO_UserIndex_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserIndex_Result getById($id)
+ * @method static EO_UserIndex_Result getList(array $parameters = array())
+ * @method static EO_UserIndex_Entity getEntity()
+ * @method static \Bitrix\Main\EO_UserIndex createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EO_UserIndex_Collection createCollection()
+ * @method static \Bitrix\Main\EO_UserIndex wakeUpObject($row)
+ * @method static \Bitrix\Main\EO_UserIndex_Collection wakeUpCollection($rows)
+ */
 
 class UserIndexTable extends Main\Entity\DataManager
 {

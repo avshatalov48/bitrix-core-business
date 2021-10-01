@@ -161,14 +161,14 @@ class Service
 
 		return true;
 	}
-
+	
 	/**
 	 * Return true if toloka is available.
 	 *
-	 * @param string $code Service message code.
 	 * @return bool
+	 * @throws \Bitrix\Main\LoaderException
 	 */
-	public static function isTolokaVisibleInRegion()
+	public static function isTolokaVisibleInRegion(): bool
 	{
 		if (self::isCloud())
 		{
@@ -249,11 +249,11 @@ class Service
 	 * Return tracking uri.
 	 *
 	 * @param int $type Tracker type.
-	 * @param null|String $siteId Site id.
-	 * @return bool
+	 * @param null|string $siteId Site id.
+	 * @return string|null
 	 * @throws \Bitrix\Main\LoaderException
 	 */
-	public static function getTrackingUri($type, $siteId = null)
+	public static function getTrackingUri(int $type, ?string $siteId = null): ?string
 	{
 		switch ($type)
 		{

@@ -110,6 +110,12 @@ class PostingTable extends Entity\DataManager
 				'data_type' => 'integer',
 				'default_value' => 0
 			),
+			'CONSENT_SUPPORT' => array(
+				'data_type' => 'boolean',
+				'values' => array('N', 'Y'),
+				'default_value' => 'N',
+				'required' => true,
+			),
 			'LETTER' => array(
 				'data_type' => 'Bitrix\Sender\Internals\Model\LetterTable',
 				'reference' => array('=this.MAILING_CHAIN_ID' => 'ref.ID'),
@@ -236,20 +242,23 @@ class PostingTable extends Entity\DataManager
 
 	/**
 	 * @param $id
+	 * @param array|null $customFilter
+	 *
 	 * @return array
 	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function getRecipientCountByStatus($id)
+	public static function getRecipientCountByStatus($id, ?array $customFilter = null)
 	{
-		$statusList = array();
-
-		$select = array('CNT', 'STATUS');
-		$filter = array('POSTING_ID' => $id);
-		$postingContactDb = PostingRecipientTable::getList(array(
+		$statusList = [];
+		$select = ['CNT', 'STATUS'];
+		$filter = !$customFilter?['POSTING_ID' => $id] : ['LOGIC' => 'AND',['POSTING_ID' => $id],$customFilter];
+		$postingContactDb = PostingRecipientTable::getList([
 			'select' => $select,
 			'filter' => $filter,
-			'runtime' => array(new Entity\ExpressionField('CNT', 'COUNT(*)')),
-		));
+			'runtime' => [new Entity\ExpressionField('CNT', 'COUNT(*)')],
+		]);
 		while($postingContact = $postingContactDb->fetch())
 			$statusList[$postingContact['STATUS']] = intval($postingContact['CNT']);
 
@@ -552,6 +561,7 @@ class PostingRecipientTable extends Entity\DataManager
 	const SEND_RESULT_ERROR = 'E';
 	const SEND_RESULT_WAIT = 'W';
 	const SEND_RESULT_DENY = 'D';
+	const SEND_RESULT_WAIT_ACCEPT = 'A';
 
 	protected static $personalizeList = null;
 	/**
@@ -632,6 +642,7 @@ class PostingRecipientTable extends Entity\DataManager
 				'data_type' => 'Bitrix\Sender\PostingUnsubTable',
 				'reference' => array('=this.ID' => 'ref.RECIPIENT_ID'),
 			),
+
 		);
 	}
 
@@ -691,7 +702,8 @@ class PostingRecipientTable extends Entity\DataManager
 			self::SEND_RESULT_NONE => Loc::getMessage('SENDER_POSTING_RECIPIENT_STATUS_N'),
 			self::SEND_RESULT_SUCCESS => Loc::getMessage('SENDER_POSTING_RECIPIENT_STATUS_S'),
 			self::SEND_RESULT_ERROR => Loc::getMessage('SENDER_POSTING_RECIPIENT_STATUS_E'),
-			self::SEND_RESULT_DENY => Loc::getMessage('SENDER_POSTING_RECIPIENT_STATUS_D')
+			self::SEND_RESULT_DENY => Loc::getMessage('SENDER_POSTING_RECIPIENT_STATUS_D'),
+			self::SEND_RESULT_WAIT_ACCEPT => Loc::getMessage('SENDER_POSTING_RECIPIENT_STATUS_A')
 		);
 	}
 

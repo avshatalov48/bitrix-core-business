@@ -15,11 +15,11 @@ IncludeModuleLangFile(__FILE__);
 
 $arSyslogFacilities = array(
 	"reference_id" => array_keys(CSecurityEvent::getSyslogFacilities()),
-	"reference" => CSecurityEvent::getSyslogFacilities()
+	"reference" => array_values(CSecurityEvent::getSyslogFacilities()),
 );
 $arSyslogPriorities = array(
 	"reference_id" => array_keys(CSecurityEvent::getSyslogPriorities()),
-	"reference" => CSecurityEvent::getSyslogPriorities(),
+	"reference" => array_values(CSecurityEvent::getSyslogPriorities()),
 );
 
 $arAllOptions = array(

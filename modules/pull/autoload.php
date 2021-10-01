@@ -23,8 +23,8 @@ CModule::AddAutoloadClasses(
 		"CGooglePush" => "classes/general/pushservices/google_push.php",
 		"CGooglePushInteractive" => "classes/general/pushservices/google_push.php",
 
-		"\\Bitrix\\Pull\\PushTable" => "lib/model/push.php",
-		"\\Bitrix\\Pull\\ChannelTable" => "lib/model/channel.php",
+		"\\Bitrix\\Pull\\PushTable" => "lib/model/pushtable.php",
+		"\\Bitrix\\Pull\\ChannelTable" => "lib/model/channeltable.php",
 	)
 );
 

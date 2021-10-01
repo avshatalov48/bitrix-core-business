@@ -24,7 +24,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Sale\TradingPlatform\Ebay
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CategoryVariation_Query query()
+ * @method static EO_CategoryVariation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CategoryVariation_Result getById($id)
+ * @method static EO_CategoryVariation_Result getList(array $parameters = array())
+ * @method static EO_CategoryVariation_Entity getEntity()
+ * @method static \Bitrix\Sale\TradingPlatform\Ebay\EO_CategoryVariation createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\TradingPlatform\Ebay\EO_CategoryVariation_Collection createCollection()
+ * @method static \Bitrix\Sale\TradingPlatform\Ebay\EO_CategoryVariation wakeUpObject($row)
+ * @method static \Bitrix\Sale\TradingPlatform\Ebay\EO_CategoryVariation_Collection wakeUpCollection($rows)
+ */
 
 class CategoryVariationTable extends Entity\DataManager
 {

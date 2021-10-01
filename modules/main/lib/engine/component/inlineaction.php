@@ -40,7 +40,8 @@ final class InlineAction extends Action
 		if ($this->binder === null)
 		{
 			$controller = $this->getController();
-			$this->binder = AutoWire\Binder::buildForMethod($this->controllerable, $this->methodName)
+			$this->binder = AutoWire\ControllerBinder::buildForMethod($this->controllerable, $this->methodName)
+				->setController($controller)
 				->setSourcesParametersToMap($controller->getSourceParametersList())
 				->setAutoWiredParameters(
 					array_filter(array_merge(

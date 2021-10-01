@@ -1417,10 +1417,26 @@ class BizprocDocument extends CIBlockDocument
 			$rootActivity
 			&& $status === \CBPWorkflowStatus::Running
 			&& !$rootActivity->workflow->isNew()
-			&& !\CBPRuntime::isFeatureEnabled()
 		)
 		{
-			throw new \Exception(Loc::getMessage('LISTS_BIZPROC_RESUME_RESTRICTED'));
+			$iblockTypeId = 'lists';
+
+			$elementQuery = CIBlockElement::getList(
+				[],
+				['ID' => $documentId],
+				false,
+				false,
+				['IBLOCK_TYPE_ID']
+			);
+			if ($element = $elementQuery->fetch())
+			{
+				$iblockTypeId = $element['IBLOCK_TYPE_ID'];
+			}
+
+			if (!\CLists::isBpFeatureEnabled($iblockTypeId))
+			{
+				throw new \Exception(Loc::getMessage('LISTS_BIZPROC_RESUME_RESTRICTED'));
+			}
 		}
 	}
 

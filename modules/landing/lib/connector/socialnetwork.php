@@ -8,6 +8,7 @@ use \Bitrix\Landing\Binding;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Site;
+use \Bitrix\Landing\Restriction;
 
 Loc::loadMessages(__FILE__);
 
@@ -75,6 +76,23 @@ class SocialNetwork
 		if (Option::get(Group::MODULE_ID, Group::CHECKER_OPTION . $groupId, '') == 'Y')
 		{
 			return '';
+		}
+
+		// tariff limits
+		if (!Restriction\Manager::isAllowed('limit_crm_free_knowledge_base_project'))
+		{
+			$asset = \Bitrix\Main\Page\Asset::getInstance();
+			$asset->addString(
+				$asset->insertJs(
+					'var KnowledgeCreate = function() 
+						{
+							' . Restriction\Manager::getActionCode('limit_crm_free_knowledge_base_project') . '
+						};',
+					'',
+					true
+				)
+			);
+			return 'javascript:void(KnowledgeCreate());';
 		}
 
 		$link = '';

@@ -1,9 +1,9 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Config\Option;
 
 Loc::loadMessages(__FILE__);
 
@@ -131,7 +131,7 @@ final class BlogComment extends Provider
 
 	public function getLiveFeedUrl()
 	{
-		$pathToPost = Option::get('socialnetwork', 'userblogpost_page', '', $this->getSiteId());
+		$pathToPost = \Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page', $this->getSiteId());
 
 		if (
 			!empty($pathToPost)

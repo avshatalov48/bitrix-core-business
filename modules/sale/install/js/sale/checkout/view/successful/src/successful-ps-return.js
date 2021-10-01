@@ -1,12 +1,12 @@
-import { Vue } from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 import { Url } from 'sale.checkout.lib';
 import { CurrencyCore } from 'currency.currency-core';
-import "sale.checkout.view.element.button.shipping";
+import 'sale.checkout.view.element.button';
 
 import './call'
 import './property-list';
 
-Vue.component('sale-checkout-view-successful_ps_return', {
+BitrixVue.component('sale-checkout-view-successful_ps_return', {
 	props: ['items', 'order', 'total', 'config'],
 	computed:
 	{
@@ -18,7 +18,7 @@ Vue.component('sale-checkout-view-successful_ps_return', {
 		localize()
 		{
 			return Object.freeze(
-				Vue.getFilteredPhrases('CHECKOUT_VIEW_SUCCESSFUL_'))
+				BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_SUCCESSFUL_'))
 		},
 		priceFormatted()
 		{

@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/designerblock.bundle.js',
 	'rel' => [
 		'landing.backend',
+		'landing.env',
 		'landing.metrika',
 		'landing.ui.highlight',
 		'landing.loc',

@@ -1,11 +1,15 @@
 <?php
 namespace Bitrix\Im\Integration\Imopenlines;
 
+use Bitrix\Main\Loader;
+
+use Bitrix\Imopenlines;
+
 class Limit
 {
 	private static function isModuleIncluded()
 	{
-		return \Bitrix\Main\Loader::includeModule('imopenlines');
+		return Loader::includeModule('imopenlines');
 	}
 
 	public static function getLicenseUsersLimit()
@@ -18,7 +22,7 @@ class Limit
 		if (!self::isModuleIncluded())
 			return false;
 
-		return \Bitrix\Imopenlines\Limit::canUseVoteHead();
+		return Imopenlines\Limit::canUseVoteHead();
 	}
 
 	public static function canJoinChatUser()
@@ -26,10 +30,7 @@ class Limit
 		if (!self::isModuleIncluded())
 			return false;
 
-		if (!method_exists('Bitrix\Imopenlines\Limit', 'canJoinChatUser')) // TODO remove this after release imopnline 20.5.0
-			return true;
-
-		return \Bitrix\Imopenlines\Limit::canJoinChatUser();
+		return Imopenlines\Limit::canJoinChatUser();
 	}
 
 	public static function canTransferToLine()
@@ -37,9 +38,6 @@ class Limit
 		if (!self::isModuleIncluded())
 			return false;
 
-		if (!method_exists('Bitrix\Imopenlines\Limit', 'canTransferToLine')) // TODO remove this after release imopnline 20.5.0
-			return true;
-
-		return \Bitrix\Imopenlines\Limit::canTransferToLine();
+		return Imopenlines\Limit::canTransferToLine();
 	}
 }

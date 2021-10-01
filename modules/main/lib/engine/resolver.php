@@ -75,7 +75,7 @@ final class Resolver
 			return $alias . '\\' . implode('\\', $actionParts);
 		}
 
-		$furtherNamespace = mb_strtolower(self::buildClassNameByAction($vendor, $module, $actionParts));
+		$furtherNamespace = self::buildClassNameByAction($vendor, $module, $actionParts);
 		if (self::checkClassUnderAllowedNamespaces($module, $furtherNamespace))
 		{
 			return $furtherNamespace . '\\' . $controllerName;
@@ -231,6 +231,8 @@ final class Resolver
 	{
 		$parts = explode('\\', get_class($controller));
 		$vendor = mb_strtolower(array_shift($parts));
+		//lower case for module name
+		$parts[0] = mb_strtolower($parts[0]);
 
 		return $vendor . ':' . implode('.', $parts);
 	}

@@ -248,7 +248,7 @@ else
 		?><div
 			 class="<?=implode(' ', $classNameList)?>"
 			 id="log-entry-<?=$arEvent["EVENT"]["ID"]?>"
-			 ondragenter="BX('feed_comments_block_<?=$arEvent["EVENT"]["ID"]?>').style.display = 'block';__logShowCommentForm('<?=$arEvent["COMMENTS_PARAMS"]["ENTITY_XML_ID"]?>')"
+			 ondragenter="BX('feed_comments_block_<?=$arEvent["EVENT"]["ID"]?>').style.display = 'block'"
 			 data-livefeed-id="<?=(int)$arEvent["EVENT"]["ID"]?>"
 			 data-menu-id="post-menu-<?=$ind?>"
 			<?
@@ -694,30 +694,35 @@ else
 						if($arParams["FROM_LOG"] === 'Y')
 						{
 							?><div class="feed-post-text-more" onclick="BX.UI.Animations.expand({
-								moreButtonNode: this,
-								type: 'post',
-								classBlock: 'feed-post-text-block',
-								classOuter: 'feed-post-text-block-inner',
-								classInner: 'feed-post-text-block-inner-inner',
-								heightLimit: 300,
-								callback: oLF.expandPost
+									moreButtonNode: this,
+									type: 'post',
+									classBlock: 'feed-post-text-block',
+									classOuter: 'feed-post-text-block-inner',
+									classInner: 'feed-post-text-block-inner-inner',
+									heightLimit: 300,
+									callback: function(textBlock) {
+										if (!BX.type.isUndefined(BX.Livefeed))
+										{
+											BX.Livefeed.MoreButton.expand(textBlock);
+										}
+									}.bind(BX.Livefeed.MoreButton),
 								})" id="log_entry_more_<?=$arEvent["EVENT"]["ID"]?>"><?
 								?><div class="feed-post-text-more-but"></div><?
 							?></div><?
 							?><script>
 								BX.ready(function() {
 									if (
-										typeof oLF != 'undefined'
-										&& BX.type.isNotEmptyObject(oLF)
-										&& BX.type.isArray(oLF.arMoreButtonID)
+										BX.type.isUndefined(BX.Livefeed)
+										|| BX.type.isUndefined(BX.Livefeed.FeedInstance)
 									)
 									{
-										oLF.arMoreButtonID.push({
-											bodyBlockID: 'log_entry_body_<?=$arEvent["EVENT"]["ID"]?>',
-											moreButtonBlockID: 'log_entry_more_<?=$arEvent["EVENT"]["ID"]?>',
-											informerBlockID: 'log_entry_inform_<?=$arEvent["EVENT"]["ID"]?>'
-										});
+										return;
 									}
+
+									BX.Livefeed.FeedInstance.addMoreButton({
+										bodyBlockID: 'log_entry_body_<?= $arEvent["EVENT"]["ID"] ?>',
+										informerBlockID: 'log_entry_inform_<?= $arEvent["EVENT"]["ID"] ?>'
+									});
 								});
 							</script><?
 						}
@@ -984,30 +989,35 @@ else
 						if($arParams["FROM_LOG"] === 'Y')
 						{
 							?><div class="feed-post-text-more" id="log_entry_more_<?=$arEvent["EVENT"]["ID"]?>" onclick="BX.UI.Animations.expand({
-								moreButtonNode: this,
-								type: 'post',
-								classBlock: 'feed-post-text-block',
-								classOuter: 'feed-post-text-block-inner',
-								classInner: 'feed-post-text-block-inner-inner',
-								heightLimit: 300,
-								callback: oLF.expandPost
+									moreButtonNode: this,
+									type: 'post',
+									classBlock: 'feed-post-text-block',
+									classOuter: 'feed-post-text-block-inner',
+									classInner: 'feed-post-text-block-inner-inner',
+									heightLimit: 300,
+									callback: function(textBlock) {
+										if (!BX.type.isUndefined(BX.Livefeed))
+										{
+											BX.Livefeed.MoreButton.expand(textBlock);
+										}
+									}.bind(BX.Livefeed.MoreButton),
 								})"><?
 								?><div class="feed-post-text-more-but"></div><?
 							?></div><?
 							?><script>
 								BX.ready(function() {
 									if (
-										typeof oLF != 'undefined'
-										&& BX.type.isNotEmptyObject(oLF)
-										&& BX.type.isArray(oLF.arMoreButtonID)
+										BX.type.isUndefined(BX.Livefeed)
+										|| BX.type.isUndefined(BX.Livefeed.FeedInstance)
 									)
 									{
-										oLF.arMoreButtonID.push({
-											bodyBlockID : 'log_entry_body_<?=$arEvent["EVENT"]["ID"]?>',
-											moreButtonBlockID : 'log_entry_more_<?=$arEvent["EVENT"]["ID"]?>',
-											informerBlockID: 'log_entry_inform_<?=$arEvent["EVENT"]["ID"]?>'
-										});
+										return;
 									}
+
+									BX.Livefeed.FeedInstance.addMoreButton({
+										bodyBlockID : 'log_entry_body_<?= $arEvent["EVENT"]["ID"] ?>',
+										informerBlockID: 'log_entry_inform_<?= $arEvent["EVENT"]["ID"] ?>'
+									});
 								});
 							</script><?
 						}
@@ -1211,24 +1221,25 @@ else
 							data-log-entry-log-id="<?=(int)$arEvent["EVENT"]["ID"]?>"
 							data-log-entry-favorites="<?=(array_key_exists("FAVORITES", $arEvent) && $arEvent["FAVORITES"] === "Y" ? 'Y' : 'N')?>"
 							data-log-entry-items="<?=htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($arMenuItemsAdditional))?>"
-							onclick="__logShowPostMenu(
-								this,
-								'<?=$ind?>',
-								'<?=$arEvent["EVENT"]["ENTITY_TYPE"] ?>',
-								<?=$arEvent["EVENT"]["ENTITY_ID"] ?>,
-								'<?=$arEvent["EVENT"]["EVENT_ID"] ?>',
-								<?=($arEvent["EVENT"]["EVENT_ID_FULLSET"] ? "'".$arEvent["EVENT"]["EVENT_ID_FULLSET"]."'" : "false")?>,
-								'<?=$arEvent["EVENT"]["USER_ID"] ?>',
-								'<?=$arEvent["EVENT"]["ID"] ?>',
-								<?=(array_key_exists("FAVORITES", $arEvent) && $arEvent["FAVORITES"] === "Y" ? "true" : "false")?>,
-								<?=CUtil::PhpToJSObject($arMenuItemsAdditional)?>
-							); return BX.PreventDefault(this);"
+							onclick="BX.Livefeed.Post.showMenu({
+								bindElement: this,
+								menuElement: this,
+								ind: '<?= $ind ?>',
+								entity_type: '<?= $arEvent["EVENT"]["ENTITY_TYPE"] ?>',
+								entity_id: <?=$arEvent["EVENT"]["ENTITY_ID"] ?>,
+								event_id: '<?=$arEvent["EVENT"]["EVENT_ID"] ?>',
+								fullset_event_id: <?= ($arEvent["EVENT"]["EVENT_ID_FULLSET"] ? "'" . $arEvent["EVENT"]["EVENT_ID_FULLSET"] . "'" : "false") ?>,
+								user_id: '<?=$arEvent["EVENT"]["USER_ID"] ?>',
+								log_id: '<?=$arEvent["EVENT"]["ID"] ?>',
+								bFavotites: <?= (array_key_exists("FAVORITES", $arEvent) && $arEvent["FAVORITES"] === "Y" ? "true" : "false") ?>,
+								arMenuItemsAdditional: <?=CUtil::PhpToJSObject($arMenuItemsAdditional)?>,
+							}); return BX.PreventDefault(this);"
 							class="feed-inform-item feed-post-more-link"><span class="feed-post-more-text"><?=GetMessage("SONET_LOG_T_BUTTON_MORE")?></span><span class="feed-post-more-arrow"></span></a><?
 					}
 
 					?><span class="feed-inform-item feed-post-time-wrap feed-inform-contentview"><?
 						if (
-							$arParams["PUBLIC_MODE"] != 'Y'
+							$arParams["PUBLIC_MODE"] !== 'Y'
 							&& isset($arResult["CONTENT_ID"])
 						)
 						{
@@ -1654,10 +1665,10 @@ else
 					?>
 					<script>
 						BX.bind(BX('feed-logentry-menuanchor-right-<?=$arEvent["EVENT"]["ID"]?>'), 'click', function(e) {
-							__logShowPostMenu({
-								bindElement: BX('feed-logentry-menuanchor-right-<?=$arEvent["EVENT"]["ID"]?>'),
-								menuElement: BX('feed-logentry-menuanchor-<?=$arEvent["EVENT"]["ID"]?>'),
-								ind: '<?=$ind?>'
+							BX.Livefeed.Post.showMenu({
+								bindElement: BX('feed-logentry-menuanchor-right-<?= $arEvent["EVENT"]["ID"] ?>'),
+								menuElement: BX('feed-logentry-menuanchor-<?= $arEvent["EVENT"]["ID"] ?>'),
+								ind: '<?= $ind ?>',
 							});
 							return BX.PreventDefault(e);
 						});

@@ -188,10 +188,11 @@ class CSocNetLog extends CAllSocNetLog
 				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
 				$strSql =
-					"INSERT INTO b_sonet_log_site(LOG_ID, SITE_ID) ".
-					"SELECT ".$ID.", LID ".
-					"FROM b_lang ".
-					"WHERE LID IN (".$str_SiteID.") ";
+					"INSERT INTO b_sonet_log_site(LOG_ID, SITE_ID) " .
+					"SELECT " . $ID . ", LID " .
+					"FROM b_lang " .
+					"WHERE LID IN (" . $str_SiteID . ") " .
+					"ON DUPLICATE KEY UPDATE LOG_ID = " . $ID;
 				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 			}
 

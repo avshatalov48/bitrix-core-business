@@ -34,6 +34,7 @@
 		onLayoutChange: 'onLayoutChange',
 		onChangeHdVideo: 'onChangeHdVideo',
 		onChangeMicAutoParams: 'onChangeMicAutoParams',
+		onChangeFaceImprove: 'onChangeFaceImprove',
 		onUserClick: 'onUserClick',
 		onUserRename: 'onUserRename',
 		onUserPinned: 'onUserPinned',
@@ -108,7 +109,7 @@
 		this.localUser = new CallUser({
 			parentContainer: this.container,
 			userModel: localUserModel,
-			allowBackgroundItem: this.isIntranetOrExtranet,
+			allowBackgroundItem: BX.Call.Hardware.BackgroundDialog.isAvailable() && this.isIntranetOrExtranet,
 			onUserRename: this._onUserRename.bind(this),
 			onUserRenameInputFocus: this._onUserRenameInputFocus.bind(this),
 			onUserRenameInputBlur: this._onUserRenameInputBlur.bind(this),
@@ -325,7 +326,7 @@
 
 		if (BX.browser.IsMac())
 		{
-			this.keyModifier = 'Shift + &#8984;';
+			this.keyModifier = '&#8984; + Shift';
 		}
 		else
 		{
@@ -1565,7 +1566,10 @@
 		}
 		this.container.appendChild(this.elements.root);
 
-		this.startIntersectionObserver();
+		if (this.layout !== Layouts.Mobile)
+		{
+			this.startIntersectionObserver();
+		}
 		this.updateButtons();
 		this.updateUserList();
 
@@ -1637,8 +1641,10 @@
 			speakerEnabled: !this.speakerMuted,
 			speakerId: this.speakerId,
 			allowHdVideo: BX.Call.Hardware.preferHdQuality,
-			allowMicAutoParams: BX.Call.Hardware.enableMicAutoParameters,
-			allowBackground: this.isIntranetOrExtranet,
+			faceImproveEnabled: BX.Call.Util.isDesktop() && typeof (BX.desktop) !== 'undefined' && BX.desktop.cameraSmoothingStatus(),
+			allowFaceImprove: BX.Call.Util.isDesktop() && typeof (BX.desktop) !== 'undefined' && BX.desktop.enableInVersion(64),
+			allowBackground: BX.Call.Hardware.BackgroundDialog.isAvailable() && this.isIntranetOrExtranet,
+			allowAdvancedSettings: typeof (BXIM) !== 'undefined' && this.isIntranetOrExtranet,
 			showCameraBlock: !this.isButtonBlocked('camera'),
 			events: {
 				onMicrophoneSelect: this._onMicrophoneSelected.bind(this),
@@ -1649,6 +1655,7 @@
 				onSpeakerSwitch: this._onSpeakerButtonClick.bind(this),
 				onChangeHdVideo: this._onChangeHdVideo.bind(this),
 				onChangeMicAutoParams: this._onChangeMicAutoParams.bind(this),
+				onChangeFaceImprove: this._onChangeFaceImprove.bind(this),
 				onDestroy: function()
 				{
 					this.deviceSelector = null;
@@ -3152,11 +3159,15 @@
 				if (this.localUser.hasVideo())
 				{
 					this.localUser.mount(this.elements.localUserMobile);
+					this.localUser.visible = true;
 				}
 				else
 				{
 					this.localUser.dismount();
 				}
+
+				this.centralUser.mount(this.elements.center);
+				this.centralUser.visible = true;
 			}
 			return;
 		}
@@ -4034,6 +4045,11 @@
 	BX.Call.View.prototype._onChangeMicAutoParams = function(e)
 	{
 		this.eventEmitter.emit(EventName.onChangeMicAutoParams, e.data);
+	};
+
+	BX.Call.View.prototype._onChangeFaceImprove = function(e)
+	{
+		this.eventEmitter.emit(EventName.onChangeFaceImprove, e.data);
 	};
 
 	BX.Call.View.prototype._onSpeakerSelected = function(e)
@@ -4924,7 +4940,7 @@
 
 	CallUser.prototype.toggleNameInput = function(event)
 	{
-		if (!this.userModel.allowRename)
+		if (!this.userModel.allowRename || !this.elements.root)
 		{
 			return;
 		}
@@ -5125,6 +5141,11 @@
 
 	CallUser.prototype.updateWasRenamed = function()
 	{
+		if (!this.elements.root)
+		{
+			return;
+		}
+
 		if (this.userModel.allowRename)
 		{
 			this.elements.introduceYourselfContainer.classList.add('hidden');
@@ -7113,7 +7134,7 @@
 	 * @param {boolean} config.microphoneEnabled
 	 * @param {boolean} config.speakerEnabled
 	 * @param {boolean} config.allowHdVideo
-	 * @param {boolean} config.allowMicAutoParams
+	 * @param {boolean} config.faceImproveEnabled
 	 * @constructor
 	 */
 	var DeviceSelector = function(config)
@@ -7128,8 +7149,10 @@
 		this.speakerEnabled = BX.prop.getBoolean(config, "speakerEnabled", false);
 		this.speakerId = BX.prop.getString(config, "speakerId", false);
 		this.allowHdVideo = BX.prop.getBoolean(config, "allowHdVideo", false);
-		this.allowMicAutoParams = BX.prop.getBoolean(config, "allowMicAutoParams", false);
+		this.faceImproveEnabled = BX.prop.getBoolean(config, "faceImproveEnabled", false);
+		this.allowFaceImprove = BX.prop.getBoolean(config, "allowFaceImprove", false);
 		this.allowBackground = BX.prop.getBoolean(config, "allowBackground", true);
+		this.allowAdvancedSettings = BX.prop.getBoolean(config, "allowAdvancedSettings", false);
 		this.showCameraBlock = BX.prop.getBoolean(config, "showCameraBlock", true);
 
 		this.popup = null;
@@ -7157,7 +7180,7 @@
 	 * @param {boolean} config.microphoneEnabled
 	 * @param {boolean} config.speakerEnabled
 	 * @param {boolean} config.allowHdVideo
-	 * @param {boolean} config.allowMicAutoParams
+	 * @param {boolean} config.faceImproveEnabled
 	 * @param {object} config.events
 
 	 * @returns {DeviceSelector}
@@ -7176,6 +7199,7 @@
 		onSpeakerSwitch: "onSpeakerSwitch",
 		onChangeHdVideo: "onChangeHdVideo",
 		onChangeMicAutoParams: "onChangeMicAutoParams",
+		onChangeFaceImprove: "onChangeFaceImprove",
 		onDestroy: "onDestroy",
 	};
 
@@ -7298,29 +7322,31 @@
 								}),
 							]
 						}),
-						BX.create("div", {
-							props: {className: "bx-call-view-device-selector-bottom-item"},
-							children: [
-								BX.create("input", {
-									props: {
-										id: "device-selector-mic-auto-params",
-										className: "bx-call-view-device-selector-bottom-item-checkbox"
-									},
-									attrs: {
-										type: "checkbox",
-										checked: this.allowMicAutoParams
-									},
-									events: {
-										change: this.onAllowMicAutoParamsChange.bind(this)
-									}
-								}),
-								BX.create("label", {
-									props: {className: "bx-call-view-device-selector-bottom-item-label"},
-									attrs: {for: "device-selector-mic-auto-params"},
-									text: BX.message("IM_M_CALL_MIC_AUTO_GAIN")
-								}),
-							]
-						}),
+						this.allowFaceImprove ?
+							BX.create("div", {
+								props: {className: "bx-call-view-device-selector-bottom-item"},
+								children: [
+									BX.create("input", {
+										props: {
+											id: "device-selector-mic-auto-params",
+											className: "bx-call-view-device-selector-bottom-item-checkbox"
+										},
+										attrs: {
+											type: "checkbox",
+											checked: this.faceImproveEnabled
+										},
+										events: {
+											change: this.onFaceImproveChange.bind(this)
+										}
+									}),
+									BX.create("label", {
+										props: {className: "bx-call-view-device-selector-bottom-item-label"},
+										attrs: {for: "device-selector-mic-auto-params"},
+										text: BX.message("IM_SETTINGS_HARDWARE_CAMERA_FACE_IMPROVE")
+									}),
+								]
+							})
+							: null,
 						this.allowBackground ?
 							BX.create("div", {
 								props: {className: "bx-call-view-device-selector-bottom-item"},
@@ -7331,6 +7357,23 @@
 										events: {
 											click: function() {
 												BX.Call.Hardware.BackgroundDialog.open();
+												this.popup.close();
+											}.bind(this)
+										}
+									}),
+								]
+							})
+							: null,
+						this.allowAdvancedSettings ?
+							BX.create("div", {
+								props: {className: "bx-call-view-device-selector-bottom-item"},
+								children: [
+									BX.create("span", {
+										props: {className: "bx-call-view-device-selector-bottom-item-action"},
+										text: BX.message("IM_M_CALL_ADVANCED_SETTINGS"),
+										events: {
+											click: function() {
+												BXIM.openSettings({onlyPanel: 'hardware'});
 												this.popup.close();
 											}.bind(this)
 										}
@@ -7397,11 +7440,11 @@
 		})
 	};
 
-	DeviceSelector.prototype.onAllowMicAutoParamsChange = function(e)
+	DeviceSelector.prototype.onFaceImproveChange = function(e)
 	{
-		this.allowMicAutoParams = e.currentTarget.checked;
-		this.eventEmitter.emit(DeviceSelector.Events.onChangeMicAutoParams, {
-			allowMicAutoParams: this.allowMicAutoParams
+		this.faceImproveEnabled = e.currentTarget.checked;
+		this.eventEmitter.emit(DeviceSelector.Events.onChangeFaceImprove, {
+			faceImproveEnabled: this.faceImproveEnabled
 		})
 	};
 

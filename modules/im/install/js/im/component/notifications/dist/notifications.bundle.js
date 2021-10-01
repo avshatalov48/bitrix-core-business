@@ -822,16 +822,10 @@ this.BX = this.BX || {};
 	      }, 0);
 	    },
 	    isNeedToReadAll: function isNeedToReadAll() {
-	      var isNeedToReadAll = false;
-
-	      for (var index = 0; this.notification.length > index; index++) {
-	        if (this.notification[index].sectionCode !== im_const.NotificationTypesCodes.confirm && this.notification[index].unread === true) {
-	          isNeedToReadAll = true;
-	          break;
-	        }
-	      }
-
-	      return isNeedToReadAll;
+	      var confirmCounterInModel = this.notification.filter(function (notificationItem) {
+	        return notificationItem.sectionCode === im_const.NotificationTypesCodes.confirm;
+	      }).length;
+	      return confirmCounterInModel < this.unreadCounter;
 	    },
 	    panelStyles: function panelStyles() {
 	      if (this.callViewState === BX.Call.Controller.ViewState.Folded && !this.showSearch) {

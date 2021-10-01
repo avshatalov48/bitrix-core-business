@@ -154,6 +154,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             // basePrice,   basket price without discounts and taxes => basketItem->getBasePrice()
             discount: Basket.getDiscountItem(),
             props: [],
+            sku: Basket.getSkuItem(),
             product: this.getProductItem(),
             deleted: "N",
             status: sale_checkout_const.Loader.status.none
@@ -275,8 +276,27 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             });
           }
 
+          if (main_core.Type.isObject(fields.sku)) {
+            result.sku = this.validateSku(fields.sku);
+          }
+
           if (main_core.Type.isObject(fields.discount)) {
             result.discount = this.validateDiscount(fields.discount);
+          }
+
+          return result;
+        }
+      }, {
+        key: "validateSku",
+        value: function validateSku(fields) {
+          var result = {};
+
+          if (main_core.Type.isObject(fields.tree)) {
+            result.tree = fields.tree;
+          }
+
+          if (main_core.Type.isNumber(fields.parentProductId) || main_core.Type.isString(fields.parentProductId)) {
+            result.parentProductId = parseInt(fields.parentProductId);
           }
 
           return result;
@@ -539,6 +559,13 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
                 });
               }
 
+              if (main_core.Type.isObject(payload.fields.sku)) {
+                var _item = Basket.getSkuItem();
+
+                _item = Object.assign(_item, payload.fields.sku);
+                payload.fields.sku = _item;
+              }
+
               state.basket.push(item);
               state.basket.forEach(function (item, index) {
                 item.sort = index + 1;
@@ -559,6 +586,12 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
                   item = Object.assign(item, fields);
                   payload.fields.props[index] = item;
                 });
+              }
+
+              if (main_core.Type.isObject(payload.fields.sku)) {
+                var item = Basket.getSkuItem();
+                item = Object.assign(item, payload.fields.sku);
+                payload.fields.sku = item;
               }
 
               state.basket[payload.index] = Object.assign(state.basket[payload.index], payload.fields);
@@ -585,6 +618,14 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           };
         }
       }], [{
+        key: "getSkuItem",
+        value: function getSkuItem() {
+          return {
+            parentProductId: 0,
+            tree: {}
+          };
+        }
+      }, {
         key: "getPropsItem",
         value: function getPropsItem() {
           return {

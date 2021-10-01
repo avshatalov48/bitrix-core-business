@@ -1,7 +1,6 @@
 <?php
 
 use Bitrix\Main;
-use Bitrix\Main\Engine\Response\Converter;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale;
@@ -333,7 +332,7 @@ class SaleOrderCheckout extends \CBitrixComponent
 		}
 	}
 
-	protected function initTradeBinding(Sale\Order $order, $contextSiteId): void
+	private function initTradeBinding(Sale\Order $order, $contextSiteId): void
 	{
 		if (!Loader::includeModule('landing'))
 		{
@@ -438,10 +437,39 @@ class SaleOrderCheckout extends \CBitrixComponent
 			'PARAMETERS' => $this->getParameters(),
 		];
 
+		$sku = [];
+		$basket = $jsonData['SCHEME']['BASKET'];
+		foreach ($basket as $index => $item)
+		{
+			if (empty($item['SKU']))
+			{
+				$sku[$index] = [];
+			}
+			else
+			{
+				$sku[$index]['tree'] = $item['SKU']['TREE'];
+				$sku[$index]['parentProductId'] = $item['SKU']['PARENT_PRODUCT_ID'];
+			}
+
+			unset($basket[$index]['SKU']);
+		}
+
+		$jsonData['SCHEME']['BASKET'] = $basket;
+
 		foreach ($jsonData as $key => $data)
 		{
-			$this->arResult['JSON_DATA'][$key] = Converter::toJson()->process($data);
+			$jsonData[$key] = Main\Engine\Response\Converter::toJson()->process($data);
 		}
+
+		$basket = $jsonData['SCHEME']['basket'];
+		foreach ($sku as $index => $value)
+		{
+			$basket[$index]['sku'] = $value;
+		}
+
+		$jsonData['SCHEME']['basket'] = $basket;
+
+		$this->arResult['JSON_DATA'] = $jsonData;
 	}
 
 	private function getModel(array $aggregateData = []): array
@@ -556,6 +584,7 @@ class SaleOrderCheckout extends \CBitrixComponent
 					'RATIO' => $basketItem['CATALOG_PRODUCT']['RATIO'],
 					'CHECK_MAX_QUANTITY' => $basketItem['CATALOG_PRODUCT']['CHECK_MAX_QUANTITY'],
 				],
+				'SKU' => $basketItem['CATALOG_PRODUCT']['SKU'],
 			];
 		}
 

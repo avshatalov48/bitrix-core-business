@@ -198,6 +198,20 @@ CJSCore::Init(array('clipboard'));
 									</span>
 								</div>
 
+								<div class="intranet-button-list-site-restriction-container">
+									<div class="intranet-button-list-site-restriction-label"><?=Loc::getMessage('B24C_BL_SHOW_ON_SPECIFIED_SITES_ONLY');?></div>
+									<div class="intranet-button-list-site-restriction-saved"><?=Loc::getMessage('B24C_BL_SAVED_LABEL');?></div>
+									<select
+										class="intranet-button-list-site-restriction-list"
+										multiple
+										size="5"
+										<?=($arResult['PERM_CAN_EDIT']) ? '' : 'disabled';?>>
+										<?foreach ($arResult['SITES'] as $site):?>
+											<option value="<?=$site['LID'];?>" <?=in_array($site['LID'], $item['SITES']) ? 'selected' : '';?>><?=$site['DISPLAY_NAME'];?></option>
+										<?endforeach;?>
+									</select>
+								</div>
+
 							</div><!--intranet-button-list-widget-container intranet-button-list-widget-right-->
 						</div><!--intranet-button-list-widget-row-->
 

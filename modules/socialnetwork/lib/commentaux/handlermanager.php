@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\CommentAux;
 
 class HandlerManager
@@ -11,7 +12,7 @@ class HandlerManager
 		$this->buildHandlerList();
 	}
 
-	protected function buildHandlerList()
+	protected function buildHandlerList(): void
 	{
 		/** @var Share $shareClass */
 		$shareClass = Share::className();

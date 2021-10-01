@@ -29,21 +29,6 @@ class BotProvider extends BaseProvider
 		{
 			$this->options['searchableBotTypes'] = $options['searchableBotTypes'];
 		}
-
-		if (isset($options['nameTemplate']) && is_string($options['nameTemplate']))
-		{
-			preg_match_all(
-				'/#NAME#|#LAST_NAME#|#SECOND_NAME#|#NAME_SHORT#|#SECOND_NAME_SHORT#|\s|,/',
-				urldecode($options['nameTemplate']),
-				$matches
-			);
-
-			$this->options['nameTemplate'] = implode('', $matches[0]);
-		}
-		else
-		{
-			$this->options['nameTemplate'] = \CSite::getNameFormat(false);
-		}
 	}
 
 	public function isAvailable(): bool
@@ -204,7 +189,6 @@ class BotProvider extends BaseProvider
 		else
 		{
 			$query->setOrder([
-				'NAME' => 'ASC',
 				'BOT_COUNT_MESSAGE' => 'DESC'
 			]);
 		}
@@ -276,11 +260,11 @@ class BotProvider extends BaseProvider
 		$avatar = Helper\User::makeAvatar($bot);
 		if (!$avatar)
 		{
-			if ($customData['user']['COLOR'] !== '')
+			if ($customData['imUser']['COLOR'] !== '')
 			{
 				$avatar = str_replace(
 					'2FC6F6',
-					explode('#', $customData['user']['COLOR'])[1],
+					explode('#', $customData['imUser']['COLOR'])[1],
 					$defaultIcon
 				);
 			}
@@ -293,6 +277,7 @@ class BotProvider extends BaseProvider
 		return new Item([
 			'id' => $bot->getId(),
 			'entityId' => 'im-bot',
+			'entityType' => Bot::getListForJs()[$bot->getId()]['type'],
 			'title' => Helper\User::formatName($bot, $options),
 			'avatar' => $avatar,
 			'customData' => $customData,
@@ -305,7 +290,7 @@ class BotProvider extends BaseProvider
 
 		// Preload first 50 users ('doSearch' method has to have the same filter).
 		$preloadedBots = $this->getBotCollection([
-			'order' => ['ID' => 'asc'],
+			'order' => ['ID' => 'DESC'],
 			'limit' => $maxBotsInRecentTab
 		]);
 

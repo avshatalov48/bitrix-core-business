@@ -7,6 +7,7 @@ use Bitrix\Currency\Helpers\Editor;
 use Bitrix\Main\Type\RandomSequence;
 use Bitrix\Currency\CurrencyManager;
 use Bitrix\Main\Web\Json;
+use Bitrix\Catalog\Component\BaseForm;
 
 Loc::loadMessages(__FILE__);
 
@@ -590,6 +591,13 @@ class IblockMoneyProperty
 
 	public static function GetUIEntityEditorProperty($settings, $value)
 	{
+		if (method_exists(BaseForm::class, 'getAdditionalMoneyValues'))
+		{
+			return [
+				'type' => $settings['MULTIPLE'] === 'Y' ? 'multimoney' : 'money',
+			];
+		}
+
 		return [
 			'type' => 'money',
 		];

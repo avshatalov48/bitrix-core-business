@@ -8,6 +8,22 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class Product2ProductTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Product2Product_Query query()
+ * @method static EO_Product2Product_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Product2Product_Result getById($id)
+ * @method static EO_Product2Product_Result getList(array $parameters = array())
+ * @method static EO_Product2Product_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_Product2Product createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_Product2Product_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_Product2Product wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_Product2Product_Collection wakeUpCollection($rows)
+ */
 class Product2ProductTable extends Main\Entity\DataManager
 {
 	public static function getTableName()

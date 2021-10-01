@@ -12,7 +12,7 @@ return [
 		'sale.checkout.lib',
 		'currency.currency-core',
 		'ui.vue',
-		'sale.checkout.view.element.button.shipping',
+		'sale.checkout.view.element.button',
 	],
 	'skip_core' => false,
 ];

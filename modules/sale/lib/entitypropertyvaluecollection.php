@@ -248,6 +248,22 @@ abstract class EntityPropertyValueCollection extends EntityCollection
 	}
 
 	/**
+	 * @return EntityPropertyValue
+	 */
+	public function getAddressFrom()
+	{
+		return $this->getAttribute('IS_ADDRESS_FROM');
+	}
+
+	/**
+	 * @return EntityPropertyValue
+	 */
+	public function getAddressTo()
+	{
+		return $this->getAttribute('IS_ADDRESS_TO');
+	}
+
+	/**
 	 * @param bool $refreshData
 	 * @return array
 	 */

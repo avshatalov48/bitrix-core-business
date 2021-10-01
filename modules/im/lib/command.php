@@ -183,7 +183,7 @@ class Command
 		{
 			\CPullStack::AddShared(Array(
 				'module_id' => 'im',
-				'command' => 'deleteCommand',
+				'command' => 'commandDelete',
 				'params' => Array(
 					'commandId' => $commandId
 				),

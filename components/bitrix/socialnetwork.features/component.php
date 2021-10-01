@@ -1,4 +1,5 @@
-<?
+<?php
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
@@ -88,6 +89,15 @@ else
 			&& Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\TaskLimit::isLimitExceeded()
 		);
 
+		$tasksLimited = (
+			$arResult['tasksLimitExceeded']
+			|| (
+				ModuleManager::isModuleInstalled('tasks')
+				&& Loader::includeModule('bitrix24')
+				&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('socialnetwork_project_tasks_perms')
+			)
+		);
+
 		if ($arParams["PAGE_ID"] === 'group_features')
 		{
 			$arGroup = CSocNetGroup::GetByID($arParams["GROUP_ID"]);
@@ -162,6 +172,14 @@ else
 						}
 
 						if (
+							$feature === 'tasks'
+							&& $tasksLimited
+						)
+						{
+							$arResult["Features"][$feature]['limit'] = 'limit_tasks_access_permissions';
+						}
+
+						if (
 							$feature == "blog"
 							&& $arParams["PAGE_ID"] != "group_features"
 						)
@@ -227,7 +245,7 @@ else
 						}
 
 						if (
-							$feature == 'calendar' 
+							$feature == 'calendar'
 							&& (
 								!IsModuleInstalled("intranet")
 								|| COption::GetOptionString("intranet", "calendar_2", "N") == "Y"
@@ -354,7 +372,7 @@ else
 
 				if (
 					$feature == 'tasks'
-					&& $arResult['tasksLimitExceeded']
+					&& $tasksLimited
 				)
 				{
 					continue;
@@ -483,4 +501,3 @@ else
 }
 
 $this->IncludeComponentTemplate();
-?>

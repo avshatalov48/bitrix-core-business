@@ -192,6 +192,7 @@ a.sonet-invitation-dash-link:hover{ color: #696969; border-color: #696969; text-
 .sonet-group-create-popup-form-add-dept { padding-bottom: 10px; }
 
 .sgcp-block-project,
+.sgcp-block-scrum-project,
 .sgcp-inlineblock-project,
 .sgcp-flex-project { display: none!important; }
 
@@ -207,8 +208,12 @@ a.sonet-invitation-dash-link:hover{ color: #696969; border-color: #696969; text-
 .sgcp-switch-project .sgcp-inlineblock-nonproject,
 .sgcp-switch-project .sgcp-flex-nonproject { display: none!important; }
 
+.sgcp-switch-scrum-project .sgcp-block-nonproject,
+.sgcp-switch-scrum-project .sgcp-block-project { display: none!important; }
+.sgcp-switch-scrum-project .sgcp-block-scrum-project { display: block!important; }
+
 .sgcp-hide-scrum-project {
-	display: none!important;;
+	display: none !important;
 }
 
 .social-group-create-container.first-step {

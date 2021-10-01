@@ -168,6 +168,7 @@
 					locationFeatureEnabled: this.calendar.util.isRichLocationEnabled(),
 					locationList: BX.Calendar.Controls.Location.getLocationList(),
 					iblockMeetingRoomList: this.calendar.util.getMeetingRoomList(),
+					plannerFeatureEnabled: this.calendar.util.config.plannerFeatureEnabled
 				});
 			}
 		},
@@ -183,7 +184,8 @@
 				userSettings: this.calendar.util.config.userSettings,
 				locationFeatureEnabled: this.calendar.util.isRichLocationEnabled(),
 				locationList: BX.Calendar.Controls.Location.getLocationList(),
-				iblockMeetingRoomList: this.calendar.util.getMeetingRoomList()
+				iblockMeetingRoomList: this.calendar.util.getMeetingRoomList(),
+				plannerFeatureEnabled: this.calendar.util.config.plannerFeatureEnabled
 			});
 		},
 

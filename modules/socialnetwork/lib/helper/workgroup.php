@@ -10,6 +10,7 @@ namespace Bitrix\Socialnetwork\Helper;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\FeatureTable;
@@ -315,5 +316,16 @@ class Workgroup
 
 		$groupFields = \Bitrix\Socialnetwork\Item\Workgroup::getById($groupId)->getFields();
 		return \CSocNetUserToGroup::initUserPerms($userId, $groupFields, \CSocNetUser::isCurrentUserModuleAdmin());
+	}
+
+	public static function isGroupCopyFeatureEnabled(): bool
+	{
+		return
+			!ModuleManager::isModuleInstalled('bitrix24')
+			|| (
+				Loader::includeModule('bitrix24')
+				&& \Bitrix\Bitrix24\Feature::isFeatureEnabled('socnet_group_copy')
+			)
+		;
 	}
 }

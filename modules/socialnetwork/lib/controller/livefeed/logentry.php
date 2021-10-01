@@ -1,25 +1,27 @@
-<?
+<?php
+
 namespace Bitrix\Socialnetwork\Controller\Livefeed;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\Controller\Base;
 use Bitrix\Socialnetwork\LogPinnedTable;
 use Bitrix\Socialnetwork\LogTable;
 
-class LogEntry extends \Bitrix\Socialnetwork\Controller\Base
+class LogEntry extends Base
 {
-	public function getHiddenDestinationsAction(array $params = [])
+	public function getHiddenDestinationsAction(array $params = []): ?array
 	{
-		$logId = (isset($params['logId']) ? intval($params['logId']) : 0);
-		$createdById = (isset($params['createdById']) ? intval($params['createdById']) : 0);
-		$destinationLimit = (isset($params['destinationLimit']) ? intval($params['destinationLimit']) : 100);
+		$logId = (int)($params['logId'] ?? 0);
+		$createdById = (int)($params['createdById'] ?? 0);
+		$destinationLimit = (int)($params['destinationLimit'] ?? 100);
 
-		$pathToUser = (isset($params['pathToUser']) ? $params['pathToUser'] : '');
-		$pathToWorkgroup = (isset($params['pathToWorkgroup']) ? $params['pathToWorkgroup'] : '');
-		$pathToDepartment = (isset($params['pathToDepartment']) ? $params['pathToDepartment'] : '');
-		$nameTemplate = (isset($params['nameTemplate']) ? $params['nameTemplate'] : \CSite::getNameFormat());
-		$showLogin = (isset($params['showLogin']) ? $params['showLogin'] : (ModuleManager::isModuleInstalled('intranet') ? 'Y' : 'N'));
+		$pathToUser = ($params['pathToUser'] ?? '');
+		$pathToWorkgroup = ($params['pathToWorkgroup'] ?? '');
+		$pathToDepartment = ($params['pathToDepartment'] ?? '');
+		$nameTemplate = ($params['nameTemplate'] ?? \CSite::getNameFormat());
+		$showLogin = ($params['showLogin'] ?? (ModuleManager::isModuleInstalled('intranet') ? 'Y' : 'N'));
 
 		if ($logId <= 0)
 		{
@@ -105,15 +107,14 @@ class LogEntry extends \Bitrix\Socialnetwork\Controller\Base
 		foreach($destinationList as $key => $destinationFields)
 		{
 			if (
-				isset($destinationFields['TYPE'])
-				&& isset($destinationFields['ID'])
+				isset($destinationFields['TYPE'], $destinationFields['ID'])
 				&& (
 					(
-						$destinationFields['TYPE'] == 'SG'
-						&& !in_array(intval($destinationFields['ID']), $availableWorkgroupsIdList)
+						$destinationFields['TYPE'] === 'SG'
+						&& !in_array((int)$destinationFields['ID'], $availableWorkgroupsIdList)
 					)
 					|| (
-						in_array($destinationFields['TYPE'], [ 'CRMCOMPANY', 'CRMLEAD', 'CRMCONTACT', 'CRMDEAL' ])
+						in_array($destinationFields['TYPE'], ['CRMCOMPANY', 'CRMLEAD', 'CRMCONTACT', 'CRMDEAL'])
 						&& Loader::includeModule('crm')
 						&& !\Bitrix\Crm\Security\EntityAuthorization::checkReadPermission(
 							\CCrmLiveFeedEntity::resolveEntityTypeID($destinationFields['TYPE']),
@@ -121,20 +122,20 @@ class LogEntry extends \Bitrix\Socialnetwork\Controller\Base
 						)
 					)
 					|| (
-						in_array($destinationFields['TYPE'], [ 'DR', 'D' ])
+						in_array($destinationFields['TYPE'], ['DR', 'D'])
 						&& $currentExtranetUser
 					)
 					|| (
-						$destinationFields['TYPE'] == 'U'
+						$destinationFields['TYPE'] === 'U'
 						&& is_array($visibleUserIdList)
-						&& !in_array(intval($destinationFields['ID']), $visibleUserIdList)
+						&& !in_array((int)$destinationFields['ID'], $visibleUserIdList)
 					)
 					|| (
-						$destinationFields['TYPE'] == 'U'
+						$destinationFields['TYPE'] === 'U'
 						&& isset($destinationFields['IS_EXTRANET'])
-						&& $destinationFields['IS_EXTRANET'] == 'Y'
+						&& $destinationFields['IS_EXTRANET'] === 'Y'
 						&& is_array($availableExtranetUserIdList)
-						&& !in_array(intval($destinationFields['ID']), $availableExtranetUserIdList)
+						&& !in_array((int)$destinationFields['ID'], $availableExtranetUserIdList)
 					)
 				)
 			)
@@ -150,10 +151,10 @@ class LogEntry extends \Bitrix\Socialnetwork\Controller\Base
 		];
 	}
 
-	public function pinAction(array $params = [])
+	public function pinAction(array $params = []): ?array
 	{
-		$logId = (isset($params['logId']) ? intval($params['logId']) : 0);
-		$userId = (isset($params['userId']) ? intval($params['userId']) : $this->getCurrentUser()->getId());
+		$logId = (int)($params['logId'] ?? 0);
+		$userId = (int)($params['userId'] ?? $this->getCurrentUser()->getId());
 
 		if ($logId <= 0)
 		{
@@ -177,10 +178,10 @@ class LogEntry extends \Bitrix\Socialnetwork\Controller\Base
 		];
 	}
 
-	public function unpinAction(array $params = [])
+	public function unpinAction(array $params = []): ?array
 	{
-		$logId = (isset($params['logId']) ? intval($params['logId']) : 0);
-		$userId = (isset($params['userId']) ? intval($params['userId']) : $this->getCurrentUser()->getId());
+		$logId = (int)($params['logId'] ?? 0);
+		$userId = (int)($params['userId'] ?? $this->getCurrentUser()->getId());
 
 		if ($logId <= 0)
 		{
@@ -210,7 +211,7 @@ class LogEntry extends \Bitrix\Socialnetwork\Controller\Base
 		];
 	}
 
-	public function getPinDataAction(array $params = [])
+	public function getPinDataAction(array $params = []): ?array
 	{
 		$logId = (isset($params['logId']) ? (int)$params['logId'] : 0);
 

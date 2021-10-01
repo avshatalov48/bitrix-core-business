@@ -289,8 +289,7 @@ class Cache
 	{
 		if ($initDir === false)
 		{
-			$request = Main\Context::getCurrent()->getRequest();
-			$initDir = $request->getRequestedPageDirectory();
+			$initDir = 'default';
 		}
 
 		$personalRoot = Main\Application::getPersonalRoot();
@@ -328,10 +327,7 @@ class Cache
 			}
 			elseif ($this->cacheEngine instanceof \ICacheBackend)
 			{
-				/** @noinspection PhpUndefinedFieldInspection */
 				$read = $this->cacheEngine->read;
-
-				/** @noinspection PhpUndefinedFieldInspection */
 				$path = $this->cacheEngine->path;
 			}
 

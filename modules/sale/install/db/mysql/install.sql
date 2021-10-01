@@ -256,6 +256,8 @@ create table if not exists b_sale_order_props
 	INPUT_FIELD_LOCATION INT(11) NOT NULL default '0',
 	MULTIPLE CHAR(1) NOT NULL default 'N',
 	IS_ADDRESS char(1) not null default 'N',
+	IS_ADDRESS_FROM char(1) not null default 'N',
+	IS_ADDRESS_TO char(1) not null default 'N',
 	SETTINGS varchar(500) null,
 	ENTITY_REGISTRY_TYPE varchar(255) null,
 	XML_ID varchar(255) null,
@@ -278,7 +280,7 @@ create table if not exists b_sale_order_props_value
 	ENTITY_TYPE varchar(255) not null,
 	primary key (ID),
 	unique IX_SOPV_ENT_PROP_UNI(ENTITY_ID, ENTITY_TYPE(200), ORDER_PROPS_ID),
-	unique IX_SOPV_ORD_PROP_UNI(ORDER_ID, ORDER_PROPS_ID)
+	index IX_SOPV_ORD_PROP_UNI(ORDER_ID, ORDER_PROPS_ID)
 );
 
 create table if not exists b_sale_order_props_variant
@@ -1774,7 +1776,7 @@ create table if not exists b_sale_cashbox (
 	ACTIVE char(1) not null default 'Y',
 	USE_OFFLINE char(1) not null default 'N',
 	ENABLED char(1) not null default 'N',
-	KKM_ID varchar(20) NULL,
+	KKM_ID varchar(255) NULL,
 	OFD varchar(255) NULL,
 	OFD_SETTINGS text NULL,
 	NUMBER_KKM varchar(64) NULL,
@@ -1883,8 +1885,13 @@ create table if not exists b_sale_delivery_req(
 	DATE TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	DELIVERY_ID INT NOT NULL,
 	STATUS INT NULL,
+	CREATED_BY INT NULL,
 	EXTERNAL_ID VARCHAR(100) NOT NULL,
-	PRIMARY KEY (ID)
+    EXTERNAL_STATUS VARCHAR(255) DEFAULT NULL,
+    EXTERNAL_STATUS_SEMANTIC VARCHAR(50) DEFAULT NULL,
+	EXTERNAL_PROPERTIES longtext NULL,
+	PRIMARY KEY (ID),
+	index IX_SALE_DELIVERY_REQUEST_DELIVERY_ID_EXTERNAL_ID(DELIVERY_ID, EXTERNAL_ID)
 );
 
 create table if not exists b_sale_delivery_req_shp(
@@ -1893,7 +1900,8 @@ create table if not exists b_sale_delivery_req_shp(
 	REQUEST_ID INT NULL,
 	EXTERNAL_ID VARCHAR(50) NULL,
 	ERROR_DESCRIPTION VARCHAR(2048) NULL,
-	PRIMARY KEY (ID)
+	PRIMARY KEY (ID),
+	index IX_SALE_DELIVERY_REQ_SHP_ID_REQUEST_ID_EXTERNAL_ID(REQUEST_ID, EXTERNAL_ID)
 );
 
 create table if not exists b_sale_check_related_entities (
@@ -2053,16 +2061,6 @@ create table if not exists b_sale_b24integration_stat(
 	TIMESTAMP_X DATETIME NULL DEFAULT NULL,
 	PRIMARY KEY (ID),
 	UNIQUE INDEX IX_BSIS_ID_TYPE_ID (ENTITY_ID, ENTITY_TYPE_ID, PROVIDER_ID)
-);
-
-create table if not exists b_sale_local_delivery_requests
-(
-	ID INT AUTO_INCREMENT PRIMARY KEY,
-	CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	SHIPMENT_ID INT NOT NULL,
-	DELIVERY_SERVICE_ID INT NOT NULL,
-	EXTERNAL_ID VARCHAR(255) NOT NULL,
-	UNIQUE INDEX `IX_SERVICE_SHIPMENT_EXTERNAL_ID` (DELIVERY_SERVICE_ID, SHIPMENT_ID, EXTERNAL_ID)
 );
 
 create table if not exists b_sale_cashbox_rest_handler

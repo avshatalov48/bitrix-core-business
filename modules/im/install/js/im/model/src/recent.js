@@ -10,6 +10,7 @@
 import {VuexBuilderModel} from 'ui.vue.vuex';
 import {Type} from 'main.core';
 import {ChatTypes, MessageStatus, RecentSection as Section, TemplateTypes} from "im.const";
+import {Utils} from "im.lib.utils";
 
 export class RecentModel extends VuexBuilderModel
 {
@@ -161,6 +162,8 @@ export class RecentModel extends VuexBuilderModel
 				{
 					return false;
 				}
+
+				payload.fields = this.validate(Object.assign({}, payload.fields));
 
 				store.commit('update', {
 					index: existingItem.index,
@@ -352,7 +355,17 @@ export class RecentModel extends VuexBuilderModel
 			}
 			if (Type.isString(fields.message.text))
 			{
-				message.text = fields.message.text;
+				const options = {}
+				if (fields.message.withAttach)
+				{
+					options.WITH_ATTACH = true;
+				}
+				else if (fields.message.withFile)
+				{
+					options.WITH_FILE = true;
+				}
+
+				message.text = Utils.text.purify(fields.message.text, options);
 			}
 			if (Type.isDate(fields.message.date) || Type.isString(fields.message.date))
 			{

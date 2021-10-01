@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_N"] = "Добавить в избранное";
 $MESS["SONET_EXT_LIVEFEED_MENU_TITLE_FAVORITES_Y"] = "Убрать из избранного";
 $MESS["SONET_EXT_LIVEFEED_MENU_TITLE_PINNED_N"] = "Закрепить";
@@ -15,4 +15,9 @@ $MESS["SONET_EXT_LIVEFEED_PINNED_CANCEL_DESCRIPTION"] = "Теперь он на�
 $MESS["SONET_EXT_LIVEFEED_PINNED_CANCEL_BUTTON"] = "отмена";
 $MESS["SONET_EXT_LIVEFEED_FOLLOW_TITLE_Y"] = "Не следить";
 $MESS["SONET_EXT_LIVEFEED_FOLLOW_TITLE_N"] = "Следить";
-?>
+$MESS["SONET_EXT_LIVEFEED_CREATE_TASK_ERROR_GET_DATA"] = "Не удалось получить данные для создания задачи";
+$MESS["SONET_EXT_LIVEFEED_CREATE_TASK_WAIT"] = "Подождите...";
+$MESS["SONET_EXT_LIVEFEED_CREATE_TASK_SUCCESS_TITLE"] = "Задача создана";
+$MESS["SONET_EXT_LIVEFEED_CREATE_TASK_VIEW"] = "Просмотреть";
+$MESS["SONET_EXT_LIVEFEED_CREATE_TASK_FAILURE_TITLE"] = "Ошибка";
+$MESS["SONET_EXT_ERROR_SESSION"] = "Ваша сессия истекла. Пожалуйста, попробуйте еще раз.";

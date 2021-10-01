@@ -10,6 +10,19 @@ use Bitrix\Main\Application;
 /**
  * Class NumeratorSequenceTable
  * @package Bitrix\Main\Numerator\Model
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_NumeratorSequence_Query query()
+ * @method static EO_NumeratorSequence_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_NumeratorSequence_Result getById($id)
+ * @method static EO_NumeratorSequence_Result getList(array $parameters = array())
+ * @method static EO_NumeratorSequence_Entity getEntity()
+ * @method static \Bitrix\Main\Numerator\Model\EO_NumeratorSequence createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Numerator\Model\EO_NumeratorSequence_Collection createCollection()
+ * @method static \Bitrix\Main\Numerator\Model\EO_NumeratorSequence wakeUpObject($row)
+ * @method static \Bitrix\Main\Numerator\Model\EO_NumeratorSequence_Collection wakeUpCollection($rows)
  */
 class NumeratorSequenceTable extends DataManager
 {

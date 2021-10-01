@@ -12,6 +12,22 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class PaymentTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Payment_Query query()
+ * @method static EO_Payment_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Payment_Result getById($id)
+ * @method static EO_Payment_Result getList(array $parameters = array())
+ * @method static EO_Payment_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_Payment createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_Payment_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_Payment wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_Payment_Collection wakeUpCollection($rows)
+ */
 class PaymentTable extends Main\Entity\DataManager
 {
 	public static function getTableName()

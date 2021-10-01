@@ -14,10 +14,12 @@ use Bitrix\Main\UI\Filter\NumberType;
 Extension::load([
 	"ui.buttons",
 	"ui.fonts.opensans",
+	"ui.layout-form",
 	"ui",
 	"dnd",
 	"loader",
-	"date"
+	"date",
+	"ui.icons.service",
 ]);
 
 global $USER;
@@ -115,6 +117,11 @@ if ($arParams["VALUE_REQUIRED_MODE"] === true)
 if ($arResult["LIMITS_ENABLED"])
 {
 	$filterWrapperClass .= " main-ui-filter-field-limits-active main-ui-filter-field-limits-animate";
+}
+
+if ($arResult["ENABLE_ADDITIONAL_FILTERS"])
+{
+	$filterWrapperClass .= " main-ui-filter-with-additional-filters";
 }
 ?>
 
@@ -216,9 +223,11 @@ if ($arResult["LIMITS_ENABLED"])
 
 <?
     $frame->end();
+    $messages = CUtil::phpToJSObject(Loc::loadLanguageFile(__FILE__), false);
 ?>
 
 <script>
+	BX.Loc.setMessage(<?= $messages ?>);
 	BX.ready(function() {
 		BX.Main.filterManager.push(
 			'<?=\CUtil::jSEscape($arParams["FILTER_ID"])?>',

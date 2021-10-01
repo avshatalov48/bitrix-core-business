@@ -15,6 +15,22 @@ use Bitrix\Sale\Registry;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class OrderPropsTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_OrderProps_Query query()
+ * @method static EO_OrderProps_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_OrderProps_Result getById($id)
+ * @method static EO_OrderProps_Result getList(array $parameters = array())
+ * @method static EO_OrderProps_Entity getEntity()
+ * @method static \Bitrix\Sale\Internals\EO_OrderProps createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Internals\EO_OrderProps_Collection createCollection()
+ * @method static \Bitrix\Sale\Internals\EO_OrderProps wakeUpObject($row)
+ * @method static \Bitrix\Sale\Internals\EO_OrderProps_Collection wakeUpCollection($rows)
+ */
 class OrderPropsTable extends DataManager
 {
 	public static function getFilePath()
@@ -122,6 +138,14 @@ class OrderPropsTable extends DataManager
 				'values' => array('N', 'Y'),
 			),
 			'IS_ADDRESS' => array(
+				'data_type' => 'boolean',
+				'values' => array('N', 'Y'),
+			),
+			'IS_ADDRESS_FROM' => array(
+				'data_type' => 'boolean',
+				'values' => array('N', 'Y'),
+			),
+			'IS_ADDRESS_TO' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y'),
 			),

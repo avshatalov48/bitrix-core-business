@@ -45,6 +45,7 @@ $MESS["IM_GENERAL_DESCRIPTION"] = "A General chat is open to all of your colleag
 $MESS["IM_GENERAL_TITLE"] = "General chat";
 $MESS["IM_MESSAGE_FORMAT_DATE"] = "g:i a, d F Y";
 $MESS["IM_MESSAGE_FORMAT_TIME"] = "g:i a";
+$MESS["IM_MESSAGE_DELETED"] = "This message has been deleted.";
 $MESS["IM_PATH_TITLE_CALENDAR_EVENT"] = "View event";
 $MESS["IM_PATH_TITLE_SONET"] = "View group";
 $MESS["IM_PATH_TITLE_TASKS"] = "View task";

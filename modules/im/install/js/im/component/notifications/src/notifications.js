@@ -148,20 +148,11 @@ BitrixVue.component('bx-im-component-notifications',
 		},
 		isNeedToReadAll()
 		{
-			let isNeedToReadAll = false;
-			for (let index = 0; this.notification.length > index; index++)
-			{
-				if (
-					this.notification[index].sectionCode !== NotificationTypesCodes.confirm
-					&& this.notification[index].unread === true
-				)
-				{
-					isNeedToReadAll = true;
-					break;
-				}
-			}
+			const confirmCounterInModel = this.notification.filter(notificationItem => {
+				return notificationItem.sectionCode === NotificationTypesCodes.confirm
+			}).length;
 
-			return isNeedToReadAll
+			return confirmCounterInModel < this.unreadCounter
 		},
 		panelStyles()
 		{

@@ -76,6 +76,8 @@ export default class PostFormTabs extends EventEmitter
 			for (let i = 0; i < tabsList.length; i++)
 			{
 				const id = tabsList[i].getAttribute('id').replace('feed-add-post-form-tab-', '');
+				const limited = tabsList[i].getAttribute('limited');
+
 				this.tabs[id] = tabsList[i];
 
 				if (this.tabs[id].style.display === 'none')
@@ -84,7 +86,7 @@ export default class PostFormTabs extends EventEmitter
 						tabId : id,
 						text : tabsList[i].getAttribute('data-name'),
 						className : `menu-popup-no-icon feed-add-post-form-${id} feed-add-post-form-${id}-more`,
-						onclick : this.createOnClick(id, tabsList[i].getAttribute('data-name'), tabsList[i].getAttribute('data-onclick'))
+						onclick : this.createOnClick(id, tabsList[i].getAttribute('data-name'), tabsList[i].getAttribute('data-onclick'), (tabsList[i].getAttribute('data-limited') === 'Y'))
 					});
 
 					this.tabs[id] = this.tabs[id].parentNode;
@@ -137,7 +139,6 @@ export default class PostFormTabs extends EventEmitter
 		{
 			this.bodies[this.config.id.listItem] = [ this.bodies[this.config.id.listItem] ];
 		}
-
 
 		if (!!this.tabs[this.config.id.task])
 		{
@@ -202,22 +203,24 @@ export default class PostFormTabs extends EventEmitter
 		});
 	};
 
-	createOnClick(id, name:string, onclick: string)
+	createOnClick(id, name:string, onclick: string, limited: boolean)
 	{
 		return () => {
 			const btn = document.getElementById('feed-add-post-form-link-more');
 			const btnText = document.getElementById('feed-add-post-form-link-text');
 
-			btnText.innerHTML = name;
-
-			if (id !== this.config.id.listItem)
+			if (!limited)
 			{
-				btn.className = `feed-add-post-form-link feed-add-post-form-link-more feed-add-post-form-link-active feed-add-post-form-${id}-link`;
-				this.changePostFormTab(id);
-			}
-			else
-			{
-				btn.className = `feed-add-post-form-link feed-add-post-form-link-more feed-add-post-form-${id}-link`;
+				btnText.innerHTML = name;
+				if (id !== this.config.id.listItem)
+				{
+					btn.className = `feed-add-post-form-link feed-add-post-form-link-more feed-add-post-form-link-active feed-add-post-form-${id}-link`;
+					this.changePostFormTab(id, false);
+				}
+				else
+				{
+					btn.className = `feed-add-post-form-link feed-add-post-form-link-more feed-add-post-form-${id}-link`;
+				}
 			}
 
 			if (Type.isStringFilled(onclick))
@@ -713,7 +716,8 @@ export default class PostFormTabs extends EventEmitter
 					{
 						this.closeWait(contentContainer);
 						this.endAnimation();
-						throw new Error();
+
+						throw new Error(result.getErrors().getMessages().join(' '));
 					}
 				},
 				(reason) => {

@@ -26,11 +26,6 @@ class DeliveryService extends BaseService
 	private const ERROR_DELIVERY_CONFIG_UPDATE = 'ERROR_DELIVERY_CONFIG_UPDATE';
 	private const ERROR_DELIVERY_NOT_FOUND = 'ERROR_DELIVERY_NOT_FOUND';
 
-	private const ALLOW_HANDLERS = [
-		'\\' . \Sale\Handlers\Delivery\RestHandler::class,
-		'\\' . \Sale\Handlers\Delivery\RestProfile::class,
-	];
-
 	/**
 	 * @return string[]
 	 */

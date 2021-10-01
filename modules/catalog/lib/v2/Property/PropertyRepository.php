@@ -132,7 +132,7 @@ class PropertyRepository implements PropertyRepositoryContract
 		{
 			$element = new \CIBlockElement();
 			$res = $element->update($parentEntity->getId(), [
-				'PROPERTY_VALUES' => $props
+				'PROPERTY_VALUES' => $props,
 			]);
 			if (!$res)
 			{

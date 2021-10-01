@@ -28,12 +28,20 @@ class Bot
 	const CACHE_TTL = 31536000;
 	const CACHE_PATH = '/bx/im/bot/';
 
+	/**
+	 * @param array $fields
+	 * @return int|bool
+	 */
 	public static function register(array $fields)
 	{
 		$code = isset($fields['CODE'])? $fields['CODE']: '';
-		$type = in_array($fields['TYPE'], Array(self::TYPE_HUMAN, self::TYPE_BOT, self::TYPE_SUPERVISOR, self::TYPE_NETWORK, self::TYPE_OPENLINE))? $fields['TYPE']: self::TYPE_BOT;
+		$type = in_array($fields['TYPE'], [self::TYPE_HUMAN, self::TYPE_BOT, self::TYPE_SUPERVISOR, self::TYPE_NETWORK, self::TYPE_OPENLINE])
+			? $fields['TYPE']
+			: self::TYPE_BOT;
 		$moduleId = $fields['MODULE_ID'];
-		$installType = in_array($fields['INSTALL_TYPE'], Array(self::INSTALL_TYPE_SYSTEM, self::INSTALL_TYPE_USER, self::INSTALL_TYPE_SILENT))? $fields['INSTALL_TYPE']: self::INSTALL_TYPE_SILENT;
+		$installType = in_array($fields['INSTALL_TYPE'], [self::INSTALL_TYPE_SYSTEM, self::INSTALL_TYPE_USER, self::INSTALL_TYPE_SILENT])
+			? $fields['INSTALL_TYPE']
+			: self::INSTALL_TYPE_SILENT;
 		$botFields = $fields['PROPERTIES'];
 		$language = isset($fields['LANG'])? $fields['LANG']: null;
 
@@ -185,7 +193,7 @@ class Bot
 					\CIMStatus::SetColor($botId, $color);
 				}
 
-				self::sendPullNotify($botId, 'addBot');
+				self::sendPullNotify($botId, 'botAdd');
 
 				if ($installType != self::INSTALL_TYPE_SILENT)
 				{
@@ -227,6 +235,10 @@ class Bot
 		return $botId;
 	}
 
+	/**
+	 * @param array $bot
+	 * @return bool
+	 */
 	public static function unRegister(array $bot)
 	{
 		$botId = intval($bot['BOT_ID']);
@@ -234,17 +246,25 @@ class Bot
 		$appId = isset($bot['APP_ID'])? $bot['APP_ID']: '';
 
 		if (intval($botId) <= 0)
+		{
 			return false;
+		}
 
 		$bots = self::getListCache();
 		if (!isset($bots[$botId]))
+		{
 			return false;
+		}
 
 		if ($moduleId <> '' && $bots[$botId]['MODULE_ID'] != $moduleId)
+		{
 			return false;
+		}
 
 		if ($appId <> '' && $bots[$botId]['APP_ID'] != $appId)
+		{
 			return false;
+		}
 
 		\Bitrix\Im\Model\BotTable::delete($botId);
 
@@ -288,13 +308,18 @@ class Bot
 			\Bitrix\Im\App::unRegister(Array('ID' => $row['ID'], 'FORCE' => 'Y'));
 		}
 
-		self::sendPullNotify($botId, 'deleteBot');
+		self::sendPullNotify($botId, 'botDelete');
 
 		\Bitrix\Main\Application::getInstance()->getTaggedCache()->clearByTag("IM_CONTACT_LIST");
 
 		return true;
 	}
 
+	/**
+	 * @param array $bot
+	 * @param array $updateFields
+	 * @return bool
+	 */
 	public static function update(array $bot, array $updateFields)
 	{
 		$botId = intval($bot['BOT_ID']);
@@ -302,32 +327,46 @@ class Bot
 		$appId = isset($bot['APP_ID'])? $bot['APP_ID']: '';
 
 		if ($botId <= 0)
+		{
 			return false;
+		}
 
 		if (!\Bitrix\Im\User::getInstance($botId)->isExists() || !\Bitrix\Im\User::getInstance($botId)->isBot())
+		{
 			return false;
+		}
 
 		$bots = self::getListCache();
 		if (!isset($bots[$botId]))
+		{
 			return false;
+		}
 
 		if ($moduleId <> '' && $bots[$botId]['MODULE_ID'] != $moduleId)
+		{
 			return false;
+		}
 
 		if ($appId <> '' && $bots[$botId]['APP_ID'] != $appId)
+		{
 			return false;
+		}
 
 		if (isset($updateFields['PROPERTIES']))
 		{
 			$update = $updateFields['PROPERTIES'];
+
 			// update user properties
-			unset($update['ACTIVE']);
-			unset($update['LOGIN']);
-			unset($update['PASSWORD']);
-			unset($update['CONFIRM_PASSWORD']);
-			unset($update['EXTERNAL_AUTH_ID']);
-			unset($update['GROUP_ID']);
-			unset($update['UF_DEPARTMENT']);
+			unset(
+				$update['ACTIVE'],
+				$update['LOGIN'],
+				$update['PASSWORD'],
+				$update['CONFIRM_PASSWORD'],
+				$update['GROUP_ID'],
+				$update['UF_DEPARTMENT']
+			);
+
+			$update['EXTERNAL_AUTH_ID'] = self::EXTERNAL_AUTH_ID;
 
 			if (isset($update['NAME']) && trim($update['NAME']) == '')
 			{
@@ -427,7 +466,7 @@ class Bot
 			$cache->cleanDir(self::CACHE_PATH);
 		}
 
-		self::sendPullNotify($botId, 'updateBot');
+		self::sendPullNotify($botId, 'botUpdate');
 
 		\Bitrix\Main\Application::getInstance()->getTaggedCache()->clearByTag("IM_CONTACT_LIST");
 
@@ -442,42 +481,83 @@ class Bot
 	 */
 	public static function sendPullNotify($botId, $messageType)
 	{
-		if (\Bitrix\Main\Loader::includeModule('pull'))
+		if (!\Bitrix\Main\Loader::includeModule('pull'))
 		{
-			if ($messageType === 'addBot' || $messageType === 'updateBot')
-			{
-				$botForJs = self::getListForJs();
-
-				$userData = \CIMContactList::GetUserData([
-					'ID' => $botId,
-					'DEPARTMENT' => 'Y',
-					'USE_CACHE' => 'N',
-					'SHOW_ONLINE' => 'N',
-					'PHONES' => 'N'
-				]);
-				\CPullStack::AddShared([
-					'module_id' => 'im',
-					'command' => $messageType,
-					'params' => [
-						'bot' => $botForJs[$botId],
-						'user' => $userData['users'][$botId],
-						'userInGroup' => $userData['userInGroup'],
-					],
-					'extra' => \Bitrix\Im\Common::getPullExtra()
-				]);
-			}
-			elseif ($messageType === 'deleteBot')
-			{
-				\CPullStack::AddShared([
-					'module_id' => 'im',
-					'command' => $messageType,
-					'params' => [
-						'botId' => $botId
-					],
-					'extra' => \Bitrix\Im\Common::getPullExtra()
-				]);
-			}
+			return false;
 		}
+
+		$botForJs = self::getListForJs();
+		if (!isset($botForJs[$botId]))
+		{
+			return false;
+		}
+
+		if ($messageType === 'botAdd' || $messageType === 'botUpdate')
+		{
+
+			$userData = \CIMContactList::GetUserData([
+				'ID' => $botId,
+				'DEPARTMENT' => 'Y',
+				'USE_CACHE' => 'N',
+				'SHOW_ONLINE' => 'N',
+				'PHONES' => 'N'
+			]);
+			\CPullStack::AddShared([
+				'module_id' => 'im',
+				'command' => $messageType,
+				'params' => [
+					'bot' => $botForJs[$botId],
+					'user' => $userData['users'][$botId],
+					'userInGroup' => $userData['userInGroup'],
+				],
+				'extra' => \Bitrix\Im\Common::getPullExtra()
+			]);
+		}
+		elseif ($messageType === 'botDelete')
+		{
+			\CPullStack::AddShared([
+				'module_id' => 'im',
+				'command' => $messageType,
+				'params' => [
+					'botId' => $botId
+				],
+				'extra' => \Bitrix\Im\Common::getPullExtra()
+			]);
+		}
+
+		return true;
+	}
+
+	public static function sendPullOpenDialog(int $botId, int $userId = null): bool
+	{
+		if (!\Bitrix\Main\Loader::includeModule('pull'))
+		{
+			return false;
+		}
+
+		$userId = Common::getUserId($userId);
+		if (!$userId)
+		{
+			return false;
+		}
+
+		$botForJs = self::getListForJs();
+		if (!isset($botForJs[$botId]))
+		{
+			return false;
+		}
+
+		\Bitrix\Pull\Event::add($userId, [
+			'module_id' => 'im',
+			'expiry' => 10,
+			'command' => 'dialogChange',
+			'params' => [
+				'dialogId' => $botId
+			],
+			'extra' => \Bitrix\Im\Common::getPullExtra()
+		]);
+
+		return true;
 	}
 
 	public static function onMessageAdd($messageId, $messageFields)

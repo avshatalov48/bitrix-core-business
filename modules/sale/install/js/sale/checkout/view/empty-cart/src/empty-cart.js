@@ -1,12 +1,12 @@
-import {Vue} from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 
-Vue.component('sale-checkout-view-empty_cart', {
+BitrixVue.component('sale-checkout-view-empty_cart', {
 	props: ['config'],
 	computed:
 	{
 		localize() {
 			return Object.freeze(
-				Vue.getFilteredPhrases('CHECKOUT_VIEW_EMPTY_CART_'))
+				BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_EMPTY_CART_'))
 		}
 	},
 	// language=Vue

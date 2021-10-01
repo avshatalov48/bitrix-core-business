@@ -400,6 +400,12 @@
 			{
 				BX.onCustomEvent(this, "onFileinputIsChanged", [fileInput, this]);
 				this.init((fileInput && fileInput["target"] ? fileInput.target : fileInput));
+				Array.prototype.forEach.call(files, function(file) {
+					if (file && file.name && file.name.normalize)
+					{
+						file.name = file.name.normalize();
+					}
+				});
 				this.onAttach(files);
 			}
 
@@ -552,16 +558,13 @@
 			{
 				if (status == statuses["new"])
 				{
-					var chunks = (item.getThumbs("getCount") > 0 ? item.getThumbs("getCount") : 0)
-						+ 2;// props + (default canvas || file)
-
 					item.progress = {
-						percentPerChunk : (100 / chunks),
+						percentPerChunk : parseInt(item.getThumbs("getCount") > 0 ? 100 / item.getThumbs("getCount") : 100),
 						streams : {},
 						uploaded : 0,
 						status : statuses["new"]
 					};
-					item.progress.streams[streamId] = item.progress.percentPerChunk;
+					item.progress.streams[streamId] = 0;
 					text = 'request preparing [start]. Prepared: ' + item.progress.streams[streamId];
 				}
 				else if (status == statuses.preparing)

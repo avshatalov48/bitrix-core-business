@@ -1,5 +1,10 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -11,6 +16,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @global CMain $APPLICATION */
 /** @global CCacheManager $CACHE_MANAGER */
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
+
 global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
 use Bitrix\Blog\Item\Permissions;
@@ -249,7 +255,7 @@ $arResult["ALLOW_EMAIL_INVITATION"] = (
 	&& $arResult["bIntranetInstalled"]
 	&& (
 		!\Bitrix\Main\Loader::includeModule('bitrix24')
-		|| \CBitrix24::isEmailConfirmed()
+		|| CBitrix24::isEmailConfirmed()
 	)
 );
 
@@ -461,7 +467,7 @@ if(
 			$arResult["PostPerm"] = Permissions::READ;
 			if (
 				CSocNetUser::IsCurrentUserModuleAdmin(SITE_ID, (!isset($arParams["MOBILE"]) || $arParams["MOBILE"] !== "Y"))
-				|| $APPLICATION->GetGroupRight("blog") >= "W"
+				|| CMain::GetGroupRight("blog") >= "W"
 			)
 			{
 				$arResult["PostPerm"] = Permissions::FULL;
@@ -475,7 +481,7 @@ if(
 			}
 			elseif (
 				CSocNetUser::IsCurrentUserModuleAdmin(SITE_ID, (!isset($arParams["MOBILE"]) || $arParams["MOBILE"] !== "Y"))
-				|| $APPLICATION->GetGroupRight("blog") >= "W"
+				|| CMain::GetGroupRight("blog") >= "W"
 			)
 			{
 				$arResult["PostPerm"] = Permissions::FULL;
@@ -751,7 +757,7 @@ if(
 					$APPLICATION->restartBuffer();
 					while (ob_end_clean());
 					header('Content-Type:application/json; charset=UTF-8');
-					?><?=\Bitrix\Main\Web\Json::encode($response)?><?
+					?><?= \Bitrix\Main\Web\Json::encode($response) ?><?php
 					CMain::finalActions();
 					die;
 				}
@@ -769,7 +775,7 @@ if(
 				{
 					$strTitle = $arPost["DETAIL_TEXT"];
 					$strTitle = preg_replace("/\\[(\\/?)(url)(.*?)\\]/is".BX_UTF_PCRE_MODIFIER, "", $strTitle);
-					$parser = new \CTextParser();
+					$parser = new CTextParser();
 					$parser->allow = array('CLEAR_SMILES' => 'Y', 'IMG' => 'Y');
 					$strTitle = preg_replace("/&nbsp;/is".BX_UTF_PCRE_MODIFIER, "", $parser->convertText($strTitle));
 					$strTitle = str_replace("<br />", " ", $strTitle);
@@ -1228,7 +1234,7 @@ if(
 				$bAll = false;
 				$bCrmModuleIncluded = CModule::IncludeModule('crm');
 
-				$arResult["Post"]["SPERM"] = Array();
+				$arResult["Post"]["SPERM"] = [];
 				if($arPost["HAS_SOCNET_ALL"] !== "Y")
 				{
 					$arSPERM = CBlogPost::GetSocnetPermsName($arResult["Post"]["ID"]);
@@ -1248,9 +1254,9 @@ if(
 							$name = $link = $id = $CRMPrefix = "";
 							$isExtranet = $isEmail = false;
 
-							if($type === "SG")
+							if ($type === "SG")
 							{
-								if($arSocNetGroup = CSocNetGroup::GetByID($vv["ENTITY_ID"]))
+								if ($arSocNetGroup = CSocNetGroup::GetByID($vv["ENTITY_ID"]))
 								{
 									$SGClosedList[] = $arSocNetGroup["CLOSED"];
 
@@ -1283,9 +1289,12 @@ if(
 									{
 										$CACHE_MANAGER->RegisterTag("sonet_group_".(int)$vv["ENTITY_ID"]);
 									}
+
+									$entityType = 'project';
+									$entityId = $vv['ENTITY_ID'];
 								}
 							}
-							elseif($type === "U")
+							elseif ($type === "U")
 							{
 								if(in_array("US".$vv["ENTITY_ID"], $vv["ENTITY"]))
 								{
@@ -1300,6 +1309,9 @@ if(
 									}
 
 									$bAll = true;
+
+									$entityType = 'meta-user';
+									$entityId = 'all-users';
 								}
 								else
 								{
@@ -1325,6 +1337,9 @@ if(
 										$CACHE_MANAGER->RegisterTag("USER_NAME_".(int)$vv["ENTITY_ID"]);
 									}
 									$arUserId[] = $id;
+
+									$entityType = 'user';
+									$entityId = $vv['ENTITY_ID'];
 								}
 							}
 							elseif($type === "DR")
@@ -1332,6 +1347,8 @@ if(
 								$name = $vv["EL_NAME"];
 								$id = $vv["ENTITY_ID"];
 								$link = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_CONPANY_DEPARTMENT"], array("ID" => $vv["ENTITY_ID"]));
+								$entityType = 'department';
+								$entityId = $vv['ENTITY_ID'];
 							}
 
 							$arDestination = $arRights = array();
@@ -1365,7 +1382,9 @@ if(
 									"ID" => $id,
 									"IS_EXTRANET" => ($isExtranet ? "Y" : "N"),
 									"IS_EMAIL" => ($isEmail ? "Y" : "N"),
-									"CRM_PREFIX" => $CRMPrefix
+									"CRM_PREFIX" => $CRMPrefix,
+									'entityType' => $entityType,
+									'entityId' => $entityId,
 								);
 							}
 						}
@@ -1376,19 +1395,17 @@ if(
 						&& IsModuleInstalled('crm')
 					)
 					{
-						$dbUsers = CUser::GetList(
-							array('id'=> 'asc'),
-							'',
-							array(
-								"ID" => implode('|', $arUserId)
-							),
-							Array(
-								"FIELDS" => array("ID"),
-								"SELECT" => array("UF_USER_CRM_ENTITY")
-							)
-						);
+						$res = \Bitrix\Main\UserTable::getList([
+							'filter' => [
+								'@ID' => $arUserId,
+							],
+							'order' => [
+								'ID'=> 'ASC',
+							],
+							'select' => [ 'ID', 'UF_USER_CRM_ENTITY' ],
+						]);
 
-						while ($arUser = $dbUsers->GetNext())
+						while ($arUser = $res->fetch())
 						{
 							if (
 								!empty($arUser["UF_USER_CRM_ENTITY"])
@@ -1421,7 +1438,9 @@ if(
 								? BITRIX24_PATH_COMPANY_STRUCTURE_VISUAL
 								: ""
 						),
-						"ID" => ""
+						"ID" => "",
+						'entityType' => 'meta-user',
+						'entityId' => 'all-users',
 					);
 				}
 
@@ -1815,7 +1834,7 @@ include_once('destination.php');
 
 if (
 	!isset($arParams["RETURN_ERROR"])
-	|| $arParams["RETURN_ERROR"] != "Y"
+	|| $arParams["RETURN_ERROR"] !== "Y"
 	|| empty($arResult["FATAL_MESSAGE"])
 )
 {
@@ -1829,7 +1848,7 @@ if (
 	$this->IncludeComponentTemplate();
 }
 
-if ($arParams["RETURN_DATA"] == "Y")
+if ($arParams["RETURN_DATA"] === "Y")
 {
 	return array(
 		"BLOG_DATA" => $arResult["Blog"],

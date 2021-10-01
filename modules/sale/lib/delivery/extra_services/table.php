@@ -26,7 +26,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Sale\Delivery\ExtraServices
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO__Query query()
+ * @method static EO__Result getByPrimary($primary, array $parameters = array())
+ * @method static EO__Result getById($id)
+ * @method static EO__Result getList(array $parameters = array())
+ * @method static EO__Entity getEntity()
+ * @method static \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Delivery\ExtraServices\EO__Collection createCollection()
+ * @method static \Bitrix\Sale\Delivery\ExtraServices\EO_NNM_Object wakeUpObject($row)
+ * @method static \Bitrix\Sale\Delivery\ExtraServices\EO__Collection wakeUpCollection($rows)
+ */
 
 class Table extends Entity\DataManager
 {

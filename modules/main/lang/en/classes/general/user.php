@@ -63,6 +63,7 @@ $MESS["main_change_pass_code_error"] = "Incorrect or expired confirmation code. 
 $MESS["main_change_pass_empty_checkword"] = "Verification code or current password is not specified.";
 $MESS["main_change_pass_error"] = "Error changing the password.";
 $MESS["main_change_pass_incorrect_pass"] = "Current password you provided is incorrect.";
+$MESS["main_check_password_weak"] = "Password is too weak (found in the weak passwords list).";
 $MESS["main_login_need_phone_confirmation"] = "You have not confirmed your registration yet (your phone number: #PHONE#). Please use the password recovery form to request another confirmation SMS.";
 $MESS["main_register_no_user"] = "User was not found.";
 $MESS["main_register_sms_sent"] = "A code to change your password has been sent to your phone.";

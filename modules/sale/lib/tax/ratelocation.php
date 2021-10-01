@@ -9,6 +9,22 @@ namespace Bitrix\Sale\Tax;
 
 use Bitrix\Sale;
 
+/**
+ * Class RateLocationTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_RateLocation_Query query()
+ * @method static EO_RateLocation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_RateLocation_Result getById($id)
+ * @method static EO_RateLocation_Result getList(array $parameters = array())
+ * @method static EO_RateLocation_Entity getEntity()
+ * @method static \Bitrix\Sale\Tax\EO_RateLocation createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Tax\EO_RateLocation_Collection createCollection()
+ * @method static \Bitrix\Sale\Tax\EO_RateLocation wakeUpObject($row)
+ * @method static \Bitrix\Sale\Tax\EO_RateLocation_Collection wakeUpCollection($rows)
+ */
 final class RateLocationTable extends Sale\Location\Connector
 {
 	public static function getFilePath()

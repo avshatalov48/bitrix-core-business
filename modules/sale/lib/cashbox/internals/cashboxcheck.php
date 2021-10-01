@@ -3,6 +3,22 @@ namespace Bitrix\Sale\Cashbox\Internals;
 
 use	Bitrix\Main\Entity\DataManager;
 
+/**
+ * Class CashboxCheckTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CashboxCheck_Query query()
+ * @method static EO_CashboxCheck_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CashboxCheck_Result getById($id)
+ * @method static EO_CashboxCheck_Result getList(array $parameters = array())
+ * @method static EO_CashboxCheck_Entity getEntity()
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck_Collection createCollection()
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck wakeUpObject($row)
+ * @method static \Bitrix\Sale\Cashbox\Internals\EO_CashboxCheck_Collection wakeUpCollection($rows)
+ */
 class CashboxCheckTable extends DataManager
 {
 	public static function getTableName()

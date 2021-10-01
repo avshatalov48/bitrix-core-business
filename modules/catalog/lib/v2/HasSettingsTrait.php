@@ -17,6 +17,7 @@ trait HasSettingsTrait
 
 		return $this->settings;
 	}
+
 	/**
 	 * @param array $settings
 	 * @return static

@@ -11,49 +11,85 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
         this.timer = new sale_checkout_lib.Timer();
         this.running = 'N';
       }
+      /**
+       * @private
+       */
+
 
       babelHelpers.createClass(Basket, [{
         key: "isRunning",
         value: function isRunning() {
           return this.running === 'Y';
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "setRunningY",
         value: function setRunningY() {
           this.running = 'Y';
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "setRunningN",
         value: function setRunningN() {
           this.running = 'N';
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "setStore",
         value: function setStore(store) {
           this.store = store;
           return this;
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "setProvider",
         value: function setProvider(provider) {
           this.provider = provider;
           return this;
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "executeRestAnswer",
         value: function executeRestAnswer(command, result, extra) {
           return this.provider.execute(command, result, extra);
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "getItem",
         value: function getItem(index) {
           return this.store.getters['basket/get'](index);
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "getBasket",
         value: function getBasket() {
           return this.store.getters['basket/getBasket'];
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "changeItem",
         value: function changeItem(product) {
@@ -62,6 +98,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             fields: product.fields
           });
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "setQuantity",
         value: function setQuantity(index, quantity) {
@@ -80,6 +120,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           });
           this.shelveCommit();
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "removeItem",
         value: function removeItem(product) {
@@ -87,6 +131,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             index: product.index
           });
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "round",
         value: function round(value) {
@@ -94,11 +142,19 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           var factor = Math.pow(10, precision);
           return Math.round(value * factor) / factor;
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "handlerOrderSuccess",
         value: function handlerOrderSuccess() {
           BX.onCustomEvent('OnBasketChange');
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "handlerRemove",
         value: function handlerRemove(event) {
@@ -118,6 +174,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           });
           this.shelveCommit();
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "handlerSuccessRemove",
         value: function handlerSuccessRemove(event) {
@@ -136,6 +196,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             });
           });
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "handlerRestore",
         value: function handlerRestore(event) {
@@ -147,13 +211,32 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           fields.deleted = 'N';
           fields.status = sale_checkout_const.Loader.status.wait; //todo: send all fields ?
 
-          this.pool.add(sale_checkout_const.Pool.action.restore, index, fields);
+          this.pool.add(sale_checkout_const.Pool.action.restore, index, {
+            basePrice: fields.basePrice,
+            baseSum: fields.baseSum,
+            currency: fields.currency,
+            discount: fields.discount,
+            id: fields.id,
+            measureText: fields.measureText,
+            module: fields.module,
+            name: fields.name,
+            price: fields.price,
+            product: fields.product,
+            productProviderClass: fields.productProviderClass,
+            props: fields.props,
+            quantity: fields.quantity,
+            sum: fields.sum
+          });
           this.changeItem({
             index: index,
             fields: fields
           });
           this.shelveCommit();
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "handlerQuantityPlus",
         value: function handlerQuantityPlus(event) {
@@ -162,7 +245,33 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           var quantity = fields.quantity;
           var ratio = fields.product.ratio;
           var available = fields.product.availableQuantity;
+          quantity = sale_checkout_lib.Basket.roundValue(quantity);
+          ratio = sale_checkout_lib.Basket.roundValue(ratio); // let basket = new Lib();
+          // if(basket.isRatioFloat(ratio))
+          // {
+          //
+          //     quantity = parseFloat(quantity)
+          // }
+          // else
+          // {
+          //     quantity = parseInt(quantity, 10);
+          // }
+          //
+          // if(basket.isRatioFloat(ratio))
+          // {
+          //
+          //     ratio = Math.round(parseFloat(ratio) * basket.precisionFactor) / basket.precisionFactor;
+          // }
+          // else
+          // {
+          //     ratio =  parseInt(ratio, 10)
+          // }
+
           quantity = quantity + ratio;
+
+          if (sale_checkout_lib.Basket.isValueFloat(quantity)) {
+            quantity = sale_checkout_lib.Basket.roundFloatValue(quantity);
+          }
 
           if (available > 0 && quantity > available) {
             quantity = available;
@@ -174,6 +283,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             this.setQuantity(index, quantity);
           }
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "handlerQuantityMinus",
         value: function handlerQuantityMinus(event) {
@@ -182,7 +295,13 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           var quantity = fields.quantity;
           var ratio = fields.product.ratio;
           var available = fields.product.availableQuantity;
+          quantity = sale_checkout_lib.Basket.roundValue(quantity);
+          ratio = sale_checkout_lib.Basket.roundValue(ratio);
           quantity = quantity - ratio;
+
+          if (sale_checkout_lib.Basket.isValueFloat(quantity)) {
+            quantity = sale_checkout_lib.Basket.roundFloatValue(quantity);
+          }
 
           if (ratio > 0 && quantity < ratio) {
             quantity = ratio;
@@ -198,6 +317,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             this.setQuantity(index, quantity);
           }
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "commit",
         value: function commit() {
@@ -230,6 +353,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             }
           });
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "shelveCommit",
         value: function shelveCommit() {
@@ -247,11 +374,19 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             });
           }
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "getStatus",
         value: function getStatus() {
           return this.store.getters['basket/getStatus'];
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "setStatusWait",
         value: function setStatusWait() {
@@ -260,6 +395,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           };
           return this.store.dispatch('basket/setStatus', app);
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "setStatusNone",
         value: function setStatusNone() {
@@ -268,18 +407,30 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           };
           return this.store.dispatch('basket/setStatus', app);
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "handlerNeedRefreshY",
         value: function handlerNeedRefreshY() {
           this.setNeedRefreshY();
           this.setStatusWait();
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "handlerNeedRefreshN",
         value: function handlerNeedRefreshN() {
           this.setNeedRefreshN();
           this.setStatusNone();
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "setNeedRefreshY",
         value: function setNeedRefreshY() {
@@ -288,6 +439,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           };
           return this.store.dispatch('basket/setNeedRefresh', app);
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "setNeedRefreshN",
         value: function setNeedRefreshN() {
@@ -295,6 +450,29 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             needRefresh: 'N'
           };
           return this.store.dispatch('basket/setNeedRefresh', app);
+        }
+        /**
+         * @private
+         */
+
+      }, {
+        key: "handlerChangeSku",
+        value: function handlerChangeSku(event) {
+          var offerId = event.getData().data[0].ID;
+          var index = event.getData().index;
+          var fields = this.getItem(index);
+          fields.status = sale_checkout_const.Loader.status.wait;
+          this.pool.add(sale_checkout_const.Pool.action.offer, index, {
+            id: fields.id,
+            fields: {
+              offerId: offerId
+            }
+          });
+          this.changeItem({
+            index: index,
+            fields: fields
+          });
+          this.shelveCommit();
         }
       }]);
       return Basket;
@@ -315,6 +493,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           return _this.subscribeToStoreChanges();
         });
       }
+      /**
+       * @private
+       */
+
 
       babelHelpers.createClass(Application, [{
         key: "init",
@@ -325,6 +507,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             return resolve();
           });
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "initProvider",
         value: function initProvider() {
@@ -335,6 +521,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             return resolve();
           });
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "iniController",
         value: function iniController() {
@@ -343,11 +533,19 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             return resolve();
           });
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "executeRestAnswer",
         value: function executeRestAnswer(command, result, extra) {
           return this.provider.execute(command, result, extra);
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "subscribeToEvents",
         value: function subscribeToEvents() {
@@ -355,8 +553,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 
           main_core.Event.EventEmitter.subscribe(sale_checkout_const.EventType.order.success, function (e) {
             return _this2.basket.handlerOrderSuccess(e);
-          }); // Event.EventEmitter.subscribe(EventType.basket.removeProduct, Runtime.debounce((e)=>this.basket.handlerSuccessRemove(e), 500, this));
-
+          });
           main_core.Event.EventEmitter.subscribe(sale_checkout_const.EventType.basket.buttonRemoveProduct, main_core.Runtime.debounce(function (e) {
             return _this2.basket.handlerRemove(e);
           }, 500, this));
@@ -374,16 +571,16 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           });
           main_core.Event.EventEmitter.subscribe(sale_checkout_const.EventType.basket.refreshAfter, function (e) {
             return _this2.basket.handlerNeedRefreshN(e);
-          }); // Event.EventEmitter.subscribe(EventType.property.validate,           (e) => this.handlerValidateProperty(e));
-
+          });
+          main_core.Event.EventEmitter.subscribe(sale_checkout_const.EventType.basket.changeSku, function (e) {
+            return _this2.basket.handlerChangeSku(e);
+          });
           main_core.Event.EventEmitter.subscribe(sale_checkout_const.EventType.consent.refused, function () {
             return _this2.handlerConsentRefused();
           });
           main_core.Event.EventEmitter.subscribe(sale_checkout_const.EventType.consent.accepted, function () {
             return _this2.handlerConsentAccepted();
-          }); // Event.EventEmitter.subscribe(EventType.application.none, () => this.handlerApplicationStatusNone());
-          // Event.EventEmitter.subscribe(EventType.application.wait, () => this.handlerApplicationStatusWait());
-
+          });
           main_core.Event.EventEmitter.subscribe(sale_checkout_const.EventType.element.buttonCheckout, main_core.Runtime.debounce(function () {
             return _this2.handlerCheckout();
           }, 1000, this));
@@ -396,10 +593,11 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           main_core.Event.EventEmitter.subscribe(sale_checkout_const.EventType.paysystem.afterInitList, function () {
             return _this2.paySystemSetStatusNone();
           });
-          return new Promise(function (resolve, reject) {
-            return resolve();
-          });
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "subscribeToStoreChanges",
         value: function subscribeToStoreChanges() {
@@ -415,6 +613,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             return resolve();
           });
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "paySystemSetStatusWait",
         value: function paySystemSetStatusWait() {
@@ -423,6 +625,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           };
           return this.store.dispatch('pay-system/setStatus', paySystem);
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "paySystemSetStatusNone",
         value: function paySystemSetStatusNone() {
@@ -431,6 +637,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           };
           return this.store.dispatch('pay-system/setStatus', paySystem);
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "appSetStatusWait",
         value: function appSetStatusWait() {
@@ -439,6 +649,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           };
           return this.store.dispatch('application/setStatus', app);
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "appSetStatusNone",
         value: function appSetStatusNone() {
@@ -447,16 +661,28 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           };
           return this.store.dispatch('application/setStatus', app);
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "handlerConsentAccepted",
         value: function handlerConsentAccepted() {
           this.store.dispatch('consent/setStatus', sale_checkout_const.Consent.status.accepted);
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "handlerConsentRefused",
         value: function handlerConsentRefused() {
           this.store.dispatch('consent/setStatus', sale_checkout_const.Consent.status.refused);
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "handlerCheckout",
         value: function handlerCheckout() {
@@ -489,6 +715,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             });
           }
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "handlerShipping",
         value: function handlerShipping() {
@@ -498,6 +728,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 
           delete BX.UserConsent;
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "saveOrder",
         value: function saveOrder() {
@@ -523,6 +757,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             });
           });
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "getPropertyList",
         value: function getPropertyList() {
@@ -541,6 +779,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 
           return result;
         }
+        /**
+         * @private
+         */
+
       }, {
         key: "preparePropertyFields",
         value: function preparePropertyFields(list) {

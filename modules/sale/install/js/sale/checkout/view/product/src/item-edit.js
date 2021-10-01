@@ -1,30 +1,12 @@
-import { Vue } from 'ui.vue';
-import { EventEmitter } from 'main.core.events';
-import { EventType, Application } from 'sale.checkout.const';
+import { BitrixVue } from 'ui.vue';
+import { MixinProductItemEdit } from 'sale.checkout.view.mixins';
 
 import './price'
 import './props-list'
 
-Vue.component('sale-checkout-view-product-item_edit', {
-	props: ['item', 'index', 'mode'],
-	computed:
-		{
-			getSrc()
-			{
-				return encodeURI(this.item.product.picture)
-			},
-			getConstMode()
-			{
-				return Application.mode
-			}
-		},
-	methods:
-		{
-			backdropOpen()
-			{
-				EventEmitter.emit(EventType.basket.backdropOpen, {index: this.index})
-			}
-		},
+BitrixVue.component('sale-checkout-view-product-item_edit', {
+	props: ['item', 'index'],
+	mixins:[MixinProductItemEdit],
 	// language=Vue
 	template: `
       <div class="checkout-basket-item-container">
@@ -38,16 +20,17 @@ Vue.component('sale-checkout-view-product-item_edit', {
             <a :href="item.product.detailPageUrl" class="checkout-basket-item-name-text">{{item.name}}</a>
           </h2>
           <div class="checkout-basket-item-info-block">
-            <sale-checkout-view-product-props_list :list="item.props"/>
-<!--            <div class="checkout-basket-desktop-only">{{sku}}</div>-->
-<!--            <div class="checkout-basket-mobile-only">-->
-<!--              <span class="checkout-basket-item-change-btn" @click="backdropOpen">{{localize.CHECKOUT_VIEW_ITEM_ITEM_EDIT_CHANGE}}</span>-->
-<!--            </div>-->
+            <sale-checkout-view-product-props_list :list="item.props" v-if="hasProps()"/>
+            <div class="checkout-basket-desktop-only">
+            	<sale-checkout-view-product-sku_tree :tree="item.sku.tree" :index="index" v-if="hasSkyTree()"/>
+            </div>
+            <slot name="button-change-sku"/>
 <!--            <div class="checkout-item-warning-container">-->
 <!--              <div class="text-danger">Available: 344 pcs.</div>-->
 <!--              <div class="text-danger">Unknown error</div>-->
 <!--            </div>-->
-          </div> 
+          </div>
+		  
         </div>
         <div class="checkout-basket-item-summary-info">
           <div class="checkout-item-quantity-block">

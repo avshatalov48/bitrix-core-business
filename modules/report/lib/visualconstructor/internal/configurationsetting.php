@@ -10,6 +10,19 @@ use Bitrix\Main\Entity\TextField;
 /**
  * Class ConfigurationSettingTable
  * @package Bitrix\Report\VisualConstructor\Fields\Valuable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ConfigurationSetting_Query query()
+ * @method static EO_ConfigurationSetting_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ConfigurationSetting_Result getById($id)
+ * @method static EO_ConfigurationSetting_Result getList(array $parameters = array())
+ * @method static EO_ConfigurationSetting_Entity getEntity()
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ConfigurationSetting createObject($setDefaultValues = true)
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ConfigurationSetting_Collection createCollection()
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ConfigurationSetting wakeUpObject($row)
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_ConfigurationSetting_Collection wakeUpCollection($rows)
  */
 class ConfigurationSettingTable extends DataManager
 {

@@ -196,6 +196,7 @@ Class socialnetwork extends CModule
 		$eventManager->registerEventHandler('landing', 'OnBuildSourceList', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Landing\Livefeed', 'onBuildSourceListHandler');
 		$eventManager->registerEventHandler('forum', 'onTaskCommentContentViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Forum', 'onTaskCommentContentViewed');
 		$eventManager->registerEventHandler('tasks', 'onTaskUserOptionChanged', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Tasks\Task', 'onTaskUserOptionChanged');
+		$eventManager->registerEventHandler('im', 'onDiskRecordShare', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Im\Chat\CallRecord', 'onDiskRecordShare');
 
 		CAgent::AddAgent("CSocNetMessages::SendEventAgent();", "socialnetwork", "N", 600);
 
@@ -431,6 +432,7 @@ Class socialnetwork extends CModule
 		$eventManager->unregisterEventHandler('landing', 'OnBuildSourceList', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Landing\Livefeed', 'onBuildSourceListHandler');
 		$eventManager->unregisterEventHandler('forum', 'onTaskCommentContentViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Forum\TaskComment', 'onViewed');
 		$eventManager->unregisterEventHandler('tasks', 'onTaskUserOptionChanged', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Tasks\Task', 'onTaskUserOptionChanged');
+		$eventManager->unregisterEventHandler('im', 'onDiskRecordShare', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Im\Chat\CallRecord', 'onDiskRecordShare');
 
 		UnRegisterModule("socialnetwork");
 		return true;

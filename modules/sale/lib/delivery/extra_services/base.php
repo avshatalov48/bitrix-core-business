@@ -236,4 +236,12 @@ abstract class Base
 	{
 		return is_null($this->value) ? null : (string)$this->value;
 	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getInitial()
+	{
+		return $this->initial;
+	}
 }

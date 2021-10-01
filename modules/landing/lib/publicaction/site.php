@@ -20,7 +20,7 @@ class Site
 	 */
 	protected static function clearDisallowFields(array $fields)
 	{
-		$disallow = ['ACTIVE', 'SPECIAL'];
+		$disallow = ['ACTIVE', 'SPECIAL', 'TPL_CODE'];
 
 		if (is_array($fields))
 		{
@@ -392,14 +392,28 @@ class Site
 			$landing = Landing::createInstance($row['ID'], [
 				'skip_blocks' => true
 			]);
+
 			if ($mark)
 			{
-				$landing->publication();
+				$publicRes = $landing->publication();
 			}
 			else
 			{
-				$landing->unpublic();
+				$publicRes = $landing->unpublic();
 			}
+
+			if (!$publicRes)
+			{
+				$error = new \Bitrix\Landing\Error();
+				$error->addError(
+					'PUBLIC_SITE_REACHED',
+					\Bitrix\Landing\Restriction\Manager::getSystemErrorMessage('limit_sites_number')
+				);
+				$result->setError($error);
+				$wasError = true;
+				break;
+			}
+
 			if (!$landing->getError()->isEmpty())
 			{
 				$result->setError($landing->getError());

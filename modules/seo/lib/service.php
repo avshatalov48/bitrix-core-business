@@ -37,7 +37,9 @@ class Service
 	const REDIRECT_URI = "/bitrix/tools/seo_client.php";
 
 	const SERVICE_AUTH_CACHE_TLL = 86400;
+	const SERVICE_AUTH_CACHE_TLL_ERROR = 3600;
 	const SERVICE_AUTH_CACHE_ID = 'seo|service_auth';
+	const SERVICE_AUTH_CACHE_ID_ERROR = 'seo|service_auth_error';
 
 	const CLIENT_LIST_CACHE_TLL = 86400;
 	const CLIENT_LIST_CACHE_ID = 'seo|client_list|2';
@@ -62,27 +64,41 @@ class Service
 	/**
 	 * Get client info
 	 * @use \Bitrix\Seo\Service::getClientList(...)
+	 *
 	 * @param string $engineCode Provider code.
-	 * @return array
+	 * @return boolean|array
 	 * @deprecated
 	 */
-	public static function getAuth($engineCode)
+	public static function getAuth(string $engineCode)
 	{
 		global $CACHE_MANAGER;
-		if(static::$auth === null)
+		if (static::$auth === null)
 		{
-			if($CACHE_MANAGER->Read(static::SERVICE_AUTH_CACHE_TLL, static::SERVICE_AUTH_CACHE_ID))
+			if ($CACHE_MANAGER->Read(static::SERVICE_AUTH_CACHE_TLL, static::SERVICE_AUTH_CACHE_ID))
 			{
 				static::$auth = $CACHE_MANAGER->Get(static::SERVICE_AUTH_CACHE_ID);
 			}
-			else
+			elseif (!$CACHE_MANAGER->Read(static::SERVICE_AUTH_CACHE_TLL_ERROR, static::SERVICE_AUTH_CACHE_ID_ERROR))
 			{
 				static::$auth = static::getEngine()->getInterface()->getClientInfo();
-				$CACHE_MANAGER->Set(static::SERVICE_AUTH_CACHE_ID, static::$auth);
+				if (!static::$auth)
+				{
+					static::$auth = false;
+					$CACHE_MANAGER->Read(static::SERVICE_AUTH_CACHE_TLL_ERROR, static::SERVICE_AUTH_CACHE_ID_ERROR);
+					$CACHE_MANAGER->Set(static::SERVICE_AUTH_CACHE_ID_ERROR, static::$auth);
+				}
+				else
+				{
+					$CACHE_MANAGER->Set(static::SERVICE_AUTH_CACHE_ID, static::$auth);
+				}
+			}
+			else
+			{
+				static::$auth = false;
 			}
 		}
 
-		if(static::$auth)
+		if (static::$auth)
 		{
 			return static::$auth["engine"][$engineCode];
 		}

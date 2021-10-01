@@ -11,6 +11,19 @@ use Bitrix\Main\Entity\StringField;
 /**
  * Class ReportWidgetTable
  * @package Bitrix\Report\VisualConstructor\Fields\Valuable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Widget_Query query()
+ * @method static EO_Widget_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Widget_Result getById($id)
+ * @method static EO_Widget_Result getList(array $parameters = array())
+ * @method static EO_Widget_Entity getEntity()
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Widget createObject($setDefaultValues = true)
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Widget_Collection createCollection()
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Widget wakeUpObject($row)
+ * @method static \Bitrix\Report\VisualConstructor\Internal\EO_Widget_Collection wakeUpCollection($rows)
  */
 class WidgetTable extends DataManager
 {

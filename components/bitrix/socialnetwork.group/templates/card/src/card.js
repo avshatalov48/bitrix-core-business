@@ -20,6 +20,7 @@ class WorkgroupCard
 		this.containerNode = null;
 		this.menuButtonNode = null;
 		this.editFeaturesAllowed = true;
+		this.copyFeatureAllowed = true;
 
 		this.favoritesInstance = null;
 	}
@@ -49,6 +50,7 @@ class WorkgroupCard
 		this.containerNode = (Type.isStringFilled(params.containerNodeId) ? document.getElementById(params.containerNodeId) : null);
 		this.menuButtonNode = (Type.isStringFilled(params.menuButtonNodeId) ? document.getElementById(params.menuButtonNodeId) : null);
 		this.editFeaturesAllowed = (!Type.isUndefined(params.editFeaturesAllowed) ? !!params.editFeaturesAllowed : true);
+		this.copyFeatureAllowed = (!Type.isUndefined(params.copyFeatureAllowed) ? !!params.copyFeatureAllowed : true);
 
 		this.favoritesInstance = new WorkgroupCardFavorites({
 			groupId: this.groupId,
@@ -132,6 +134,7 @@ class WorkgroupCard
 					userIsAutoMember: this.userIsAutoMember,
 					userRole: this.userRole,
 					editFeaturesAllowed: this.editFeaturesAllowed,
+					copyFeatureAllowed: this.copyFeatureAllowed,
 					isProject: this.isProject,
 					isOpened: this.isOpened,
 					perms: {

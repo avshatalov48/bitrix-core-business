@@ -315,7 +315,19 @@ class EventHandler
 
 		return $list;
 	}
-
+	public static function onSenderConsentMessageBuildersList(): array
+	{
+		$list = [];
+		$list[] = 'Bitrix\Sender\Integration\Sender\Mail\ConsentBuilderMail';
+		$list[] = 'Bitrix\Sender\Integration\Sender\Mail\TestConsentBuilderMail';
+		return $list;
+	}
+	public static function onSenderConsentResponseList(): array
+	{
+		$list = [];
+		$list[] = 'Bitrix\Sender\Integration\Sender\Mail\ConsentResponseMail';
+		return $list;
+	}
 	/**
 	 * Handler of event sender/onSenderTransportList.
 	 *

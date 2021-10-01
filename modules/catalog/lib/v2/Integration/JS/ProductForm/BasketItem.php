@@ -90,8 +90,8 @@ class BasketItem
 			return '';
 		}
 
-		$skuTreeItems =  $skuTree->loadWithSelectedOffers([
-			$product->getId() => $this->sku->getId()
+		$skuTreeItems = $skuTree->loadWithSelectedOffers([
+			$product->getId() => $this->sku->getId(),
 		]);
 
 		if (!$skuTreeItems[$product->getId()][$this->sku->getId()])
@@ -134,6 +134,7 @@ class BasketItem
 		}
 
 		$urlBuilder->setIblockId($parent->getIblockId());
+
 		return $urlBuilder->getElementDetailUrl($parent->getId());
 	}
 
@@ -173,6 +174,7 @@ class BasketItem
 		$this->fields['module'] = 'catalog';
 
 		$this->fillFieldsFromSku();
+
 		return $this;
 	}
 
@@ -233,7 +235,7 @@ class BasketItem
 		if ($formattedValues !== null && !empty($formattedValues['PROPERTY_VALUES']))
 		{
 			$this->fields['brands'] = array_unique(
-				array_column($formattedValues['PROPERTY_VALUES'],  'VALUE')
+				array_column($formattedValues['PROPERTY_VALUES'], 'VALUE')
 			);
 		}
 	}
@@ -260,7 +262,7 @@ class BasketItem
 				->fetchAll()
 			;
 
-			$enumValueMap = array_column($enumSettings, 'VALUE','ID');
+			$enumValueMap = array_column($enumSettings, 'VALUE', 'ID');
 		}
 
 		$propertySettings = $property->getSettings();
@@ -291,6 +293,7 @@ class BasketItem
 
 		$propertySettings = array_intersect_key($propertySettings, $propertyKeys);
 		$propertySettings['PROPERTY_VALUES'] = $formattedValues;
+
 		return $propertySettings;
 	}
 
@@ -300,11 +303,11 @@ class BasketItem
 		if ($measureId > 0)
 		{
 			$measureRow = \CCatalogMeasure::getList(
-				array('CODE' => 'ASC'),
-				array('=ID' => $this->sku->getField('MEASURE')),
+				['CODE' => 'ASC'],
+				['=ID' => $this->sku->getField('MEASURE')],
 				false,
-				array('nTopCount' => 1),
-				array('CODE', 'SYMBOL', 'SYMBOL_INTL')
+				['nTopCount' => 1],
+				['CODE', 'SYMBOL', 'SYMBOL_INTL']
 			);
 
 			if ($measure = $measureRow->Fetch())
@@ -390,8 +393,7 @@ class BasketItem
 		$this->fields['discountType'] =
 			$value === self::DISCOUNT_TYPE_MONETARY
 				? self::DISCOUNT_TYPE_MONETARY
-				: self::DISCOUNT_TYPE_PERCENTAGE
-		;
+				: self::DISCOUNT_TYPE_PERCENTAGE;
 
 		return $this;
 	}

@@ -1,9 +1,9 @@
-import {Vue} from 'ui.vue';
-import 'sale.checkout.view.element.button.resotre'
+import { BitrixVue } from 'ui.vue';
+import 'sale.checkout.view.element.button'
 
 import './props-list'
 
-Vue.component('sale-checkout-view-product-item_deleted', {
+BitrixVue.component('sale-checkout-view-product-item_deleted', {
 	props: ['item', 'index'],
 	methods:
 		{
@@ -16,7 +16,7 @@ Vue.component('sale-checkout-view-product-item_deleted', {
 		{
 			localize() {
 				return Object.freeze(
-					Vue.getFilteredPhrases('CHECKOUT_VIEW_PRODUCT_INFO_DELETED_'))
+					BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_PRODUCT_INFO_DELETED_'))
 			},
 		},
 	// language=Vue

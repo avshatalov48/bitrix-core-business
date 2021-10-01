@@ -236,6 +236,23 @@ class Entity
 	}
 
 	/**
+	 * Reinitializing entity object for another Table class.
+	 * Can be useful for complex inheritance with cloning.
+	 *
+	 * @param $className
+	 *
+	 * @throws Main\SystemException
+	 */
+	public function reinitialize($className)
+	{
+		// reset class
+		$this->className = static::normalizeEntityClass($className);
+
+		$classPath = explode('\\', ltrim($this->className, '\\'));
+		$this->name = substr(end($classPath), 0, -5);
+	}
+
+	/**
 	 * @throws Main\ArgumentException
 	 * @throws Main\SystemException
 	 */
@@ -867,6 +884,13 @@ class Entity
 	public function __clone()
 	{
 		$this->isClone = true;
+
+		// reset entity in fields
+		foreach ($this->fields as $field)
+		{
+			$field->resetEntity();
+			$field->setEntity($this);
+		}
 	}
 
 	/**

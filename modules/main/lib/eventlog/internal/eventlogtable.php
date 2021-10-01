@@ -11,6 +11,22 @@ namespace Bitrix\Main\EventLog\Internal;
 use Bitrix\Main\ORM\Data;
 use Bitrix\Main\ORM\Fields;
 
+/**
+ * Class EventLogTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_EventLog_Query query()
+ * @method static EO_EventLog_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EventLog_Result getById($id)
+ * @method static EO_EventLog_Result getList(array $parameters = array())
+ * @method static EO_EventLog_Entity getEntity()
+ * @method static \Bitrix\Main\EventLog\Internal\EO_EventLog createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EventLog\Internal\EO_EventLog_Collection createCollection()
+ * @method static \Bitrix\Main\EventLog\Internal\EO_EventLog wakeUpObject($row)
+ * @method static \Bitrix\Main\EventLog\Internal\EO_EventLog_Collection wakeUpCollection($rows)
+ */
 class EventLogTable extends Data\DataManager
 {
 	public static function getTableName()

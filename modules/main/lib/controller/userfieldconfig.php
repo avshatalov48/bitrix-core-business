@@ -2,9 +2,11 @@
 
 namespace Bitrix\Main\Controller;
 
+use Bitrix\Intranet\ActionFilter;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Error;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Main\UserField\UserFieldAccess;
@@ -23,6 +25,14 @@ class UserFieldConfig extends Controller
 		parent::init();
 
 		$moduleId = $this->getRequest()->get('moduleId');
+		if (
+			empty($moduleId)
+			&& Loader::includeModule('rest')
+		)
+		{
+			$requestData = \CRestUtil::getRequestData();
+			$moduleId = $requestData['moduleId'] ?? null;
+		}
 		if(empty($moduleId))
 		{
 			$this->addError($this->getEmptyModuleIdError());
@@ -30,6 +40,24 @@ class UserFieldConfig extends Controller
 		}
 
 		$this->access = UserFieldAccess::getInstance($moduleId);
+		$this->moduleId = $moduleId;
+	}
+
+	protected function getDefaultPreFilters()
+	{
+		$defaultPreFilters = parent::getDefaultPreFilters();
+
+		if (Loader::includeModule('intranet'))
+		{
+			$defaultPreFilters[] = new ActionFilter\IntranetUser();
+		}
+
+		if ($this->moduleId)
+		{
+			$defaultPreFilters[] = new \Bitrix\Rest\Engine\ActionFilter\Scope($this->moduleId);
+		}
+
+		return $defaultPreFilters;
 	}
 
 	protected function processBeforeAction(Action $action): bool
@@ -309,6 +337,15 @@ class UserFieldConfig extends Controller
 		if(!$this->access->canAdd($field))
 		{
 			$this->addError($this->getAddAccessDeniedError());
+			return null;
+		}
+
+		$fieldName = $field['FIELD_NAME'] ?? '';
+		$entityId = $field['ENTITY_ID'] ?? '';
+		$prefix = 'UF_' . $entityId . '_';
+		if (strpos($fieldName, $prefix) !== 0)
+		{
+			$this->addError(new Error(Loc::getMessage('MAIN_USER_FIELD_CONTROLLER_FIELD_NAME_ERROR')));
 			return null;
 		}
 

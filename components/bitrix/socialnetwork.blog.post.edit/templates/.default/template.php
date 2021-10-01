@@ -31,7 +31,8 @@ $extensionsList = [
 	'ui.buttons',
 	'ui.alerts',
 	'ui_date',
-	'ui.notification'
+	'ui.notification',
+	'ui.info-helper',
 ];
 
 if (in_array('tasks', $arResult['tabs']))
@@ -198,10 +199,21 @@ else
 
 	if (in_array('vote', $arResult['tabs']))
 	{
+		$limited = (
+			\Bitrix\Main\Loader::includeModule('bitrix24')
+			&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('socialnetwork_livefeed_vote')
+		);
+
 		$arTabs[] = [
 			"ID" => "vote",
 			"NAME" => Loc::getMessage("BLOG_TAB_VOTE"),
-			"ICON" => "feed-add-post-form-polls-link-icon"
+			"ICON" => "feed-add-post-form-polls-link-icon",
+			"ONCLICK" => (
+			$limited
+				? "BX.UI.InfoHelper.show('limit_crm_interview');"
+				: ""
+			),
+			"LIMITED" => $limited ? 'Y' : 'N',
 		];
 	}
 
@@ -221,9 +233,20 @@ else
 		];
 	}
 
+	$limited = (
+		\Bitrix\Main\Loader::includeModule('bitrix24')
+		&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('socialnetwork_livefeed_important')
+	);
+
 	$arTabs[] = [
 		"ID" => "important",
-		"NAME" => Loc::getMessage("SBPE_IMPORTANT_MESSAGE")
+		"NAME" => Loc::getMessage("SBPE_IMPORTANT_MESSAGE"),
+		"ONCLICK" => (
+			$limited
+				? "BX.UI.InfoHelper.show('limit_crm_important_message');"
+				: ""
+		),
+		"LIMITED" => $limited ? 'Y' : 'N',
 	];
 
 	if(in_array('lists', $arResult['tabs']))
@@ -274,22 +297,26 @@ else
 					{
 						?><?=$arTab["ONCLICK_SLIDER"]?><?
 					}
+					elseif ($arTab["LIMITED"] === 'Y')
+					{
+						?><?= (isset($arTab["ONCLICK"]) ? $arTab["ONCLICK"] : "") ?><?php
+					}
 					else
 					{
 						?>
 						BX.Socialnetwork.Livefeed.PostForm.getInstance().get({
 							callback: function() {
 								setTimeout(function() {
-									BX.Socialnetwork.Livefeed.PostFormTabs.getInstance().changePostFormTab('<?=$arTab["ID"]?>');
-									<?=(isset($arTab["ONCLICK"]) ? $arTab["ONCLICK"] : "")?>
+									BX.Socialnetwork.Livefeed.PostFormTabs.getInstance().changePostFormTab('<?= $arTab["ID"] ?>');
+									<?= (isset($arTab["ONCLICK"]) ? $arTab["ONCLICK"] : "") ?>
 								}, 10);
 							}
 						});
-						<?
+						<?php
 					}
 					?>
 				});
-			</script><?
+			</script><?php
 		}
 	}
 
@@ -302,7 +329,7 @@ else
 		for ($i = $maxTabs; $i < $tabsCnt; $i++)
 		{
 			$arTab = $arTabs[$i];
-			$pseudoTabs .= '<span class="feed-add-post-form-link" data-onclick="'.(isset($arTab["ONCLICK"]) ? $arTab["ONCLICK"] : "").'" data-name="'.$arTab["NAME"].'" id="feed-add-post-form-tab-'.$arTab["ID"].'" style="display:none;"></span>';
+			$pseudoTabs .= '<span class="feed-add-post-form-link" data-onclick="'.(isset($arTab["ONCLICK"]) ? $arTab["ONCLICK"] : "").'" data-name="'.$arTab["NAME"].'" data-limited="'.$arTab["LIMITED"].'" id="feed-add-post-form-tab-'.$arTab["ID"].'" style="display:none;"></span>';
 			if (
 				$arResult['tabActive'] == $arTab["ID"]
 				&& $maxTabs > 0

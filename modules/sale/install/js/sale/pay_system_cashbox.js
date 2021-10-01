@@ -79,9 +79,9 @@
 				url: this.ajaxUrl,
 				onsuccess: BX.delegate(function(result) {
 					BX.closeWait();
-					if (result && result.hasOwnProperty('HTML') && BX('cashbox_edit_table'))
+					if (result && result.hasOwnProperty('HTML') && BX('cashbox_edit_edit_table'))
 					{
-						BX.html(BX('cashbox_edit_table'), result.HTML);
+						BX.html(BX('cashbox_edit_edit_table'), result.HTML);
 					}
 				}, this)
 			});

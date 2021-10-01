@@ -9,6 +9,22 @@ namespace Bitrix\Main;
 
 use Bitrix\Main\IO;
 
+/**
+ * Class SiteTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Site_Query query()
+ * @method static EO_Site_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Site_Result getById($id)
+ * @method static EO_Site_Result getList(array $parameters = array())
+ * @method static EO_Site_Entity getEntity()
+ * @method static \Bitrix\Main\EO_Site createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\EO_Site_Collection createCollection()
+ * @method static \Bitrix\Main\EO_Site wakeUpObject($row)
+ * @method static \Bitrix\Main\EO_Site_Collection wakeUpCollection($rows)
+ */
 class SiteTable extends ORM\Data\DataManager
 {
 	private static $documentRootCache = [];

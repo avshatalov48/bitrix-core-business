@@ -305,6 +305,7 @@ this.BX = this.BX || {};
 	    this.containerNode = null;
 	    this.menuButtonNode = null;
 	    this.editFeaturesAllowed = true;
+	    this.copyFeatureAllowed = true;
 	    this.favoritesInstance = null;
 	  }
 
@@ -331,6 +332,7 @@ this.BX = this.BX || {};
 	      this.containerNode = main_core.Type.isStringFilled(params.containerNodeId) ? document.getElementById(params.containerNodeId) : null;
 	      this.menuButtonNode = main_core.Type.isStringFilled(params.menuButtonNodeId) ? document.getElementById(params.menuButtonNodeId) : null;
 	      this.editFeaturesAllowed = !main_core.Type.isUndefined(params.editFeaturesAllowed) ? !!params.editFeaturesAllowed : true;
+	      this.copyFeatureAllowed = !main_core.Type.isUndefined(params.copyFeatureAllowed) ? !!params.copyFeatureAllowed : true;
 	      this.favoritesInstance = new WorkgroupCardFavorites({
 	        groupId: this.groupId,
 	        value: !!params.favoritesValue,
@@ -396,6 +398,7 @@ this.BX = this.BX || {};
 	            userIsAutoMember: _this.userIsAutoMember,
 	            userRole: _this.userRole,
 	            editFeaturesAllowed: _this.editFeaturesAllowed,
+	            copyFeatureAllowed: _this.copyFeatureAllowed,
 	            isProject: _this.isProject,
 	            isOpened: _this.isOpened,
 	            perms: {

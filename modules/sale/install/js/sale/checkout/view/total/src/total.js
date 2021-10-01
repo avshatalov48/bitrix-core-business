@@ -1,4 +1,4 @@
-import { Vue } from 'ui.vue';
+import { BitrixVue } from 'ui.vue';
 import { EventType } from 'sale.checkout.const';
 import { EventEmitter } from "main.core.events";
 
@@ -6,16 +6,14 @@ import './basket'
 import './discount'
 import './summary'
 
-import './total.css'
-
-Vue.component('sale-checkout-view-total', {
+BitrixVue.component('sale-checkout-view-total', {
 	props: ['total', 'showBackdrop'],
 	computed:
 	{
 		localize()
 		{
 			return Object.freeze(
-				Vue.getFilteredPhrases('CHECKOUT_VIEW_TOTAL_CLOSE'))
+				BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_TOTAL_CLOSE'))
 		},
 		hasDiscount()
 		{

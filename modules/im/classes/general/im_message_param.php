@@ -992,8 +992,8 @@ class CIMMessageParamAttach
 		if ($message == '')
 			return false;
 
-		$message = nl2br($message);
-		$message = (str_replace(Array('<br>', '<br/>', '<br />', '#BR#'), '[BR]', $message));
+		$message = str_replace(["\r\n", "\r", "\n"], '<br />', $message);
+		$message = str_replace(['<br>', '<br/>', '<br />', '#BR#'], '[BR]', $message);
 
 		$this->result['BLOCKS'][]['MESSAGE'] = $message;
 
@@ -1038,7 +1038,7 @@ class CIMMessageParamAttach
 
 			$result['NAME'] = self::removeNewLine(trim($grid['NAME']));
 
-			$grid['VALUE'] = nl2br($grid['VALUE']);
+			$grid['VALUE'] = str_replace(array("\r\n", "\r", "\n"), '<br />', $grid['VALUE']);
 			$result['VALUE'] = (str_replace(Array('<br>', '<br/>', '<br />', '#BR#'), '[BR]', trim($grid['VALUE'])));
 
 			if (preg_match('/^#([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?\b$/D', $grid['COLOR']))
@@ -1296,13 +1296,30 @@ class CIMMessageParamAttach
 	public static function PrepareAttach($attach)
 	{
 		if (!is_array($attach))
+		{
 			return $attach;
+		}
 
 		$isCollection = true;
 		if(\Bitrix\Main\Type\Collection::isAssociative($attach))
 		{
 			$isCollection = false;
 			$attach = array($attach);
+		}
+
+		foreach ($attach as $attachKey => $attachBody)
+		{
+			if (isset($attachBody['BLOCKS']) && is_array($attachBody['BLOCKS']))
+			{
+				foreach ($attachBody['BLOCKS'] as $blockKey => $block)
+				{
+					if (isset($block['HTML']))
+					{
+						$text = (new \Bitrix\Im\Notify())->convertHtmlToBbCode($block['HTML']);
+						$attach[$attachKey]['BLOCKS'][$blockKey]['BB_CODE'] = $text;
+					}
+				}
+			}
 		}
 
 		return $isCollection? $attach: $attach[0];

@@ -1143,7 +1143,7 @@ abstract class OrderBuilder
 			$this->formData['PAYMENT'] = [];
 		}
 
-		if (!$this->needCreateDefaultPayment())
+		if ($isEmptyPaymentData && !$this->needCreateDefaultPayment())
 		{
 			return $this;
 		}
@@ -1223,7 +1223,7 @@ abstract class OrderBuilder
 				}
 			}
 
-			$dateFields = ['DATE_PAID', 'DATE_PAY_BEFORE', 'DATE_BILL', 'PAY_RETURN_DATE', 'PAY_VOUCHER_DATE', 'DATE_RESPONSIBLE_ID'];
+			$dateFields = ['DATE_PAID', 'DATE_PAY_BEFORE', 'DATE_BILL', 'PAY_RETURN_DATE', 'PAY_VOUCHER_DATE'];
 
 			foreach($dateFields as $fieldName)
 			{

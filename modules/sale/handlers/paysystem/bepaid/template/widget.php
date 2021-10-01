@@ -19,7 +19,7 @@ $sum = round($params['sum'], 2);
 		</div>
 	</div>
 
-	<p><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_TEMPLATE_BEPAID_WIDGET_WARNING_RETURN') ?></p>
+	<div class="alert alert-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_TEMPLATE_BEPAID_WIDGET_WARNING_RETURN') ?></div>
 </div>
 
 <script type="text/javascript" src="https://js.bepaid.by/widget/be_gateway.js"></script>

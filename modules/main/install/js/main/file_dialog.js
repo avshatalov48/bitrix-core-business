@@ -173,7 +173,10 @@ BXFileDialog.prototype =
 		if (window.fd_site_list && window.fd_site_list.PopupHide)
 			window.fd_site_list.PopupHide();
 
-		oBXDialogTree.UnHighlightElement(oBXDialogTree.curSelectedItem.oTitle);
+		if (oBXDialogTree.curSelectedItem)
+		{
+			oBXDialogTree.UnHighlightElement(oBXDialogTree.curSelectedItem.oTitle);
+		}
 		oBXDialogTree.curSelectedItem = null;
 	},
 

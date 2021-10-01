@@ -10,8 +10,8 @@ Loc::loadMessages(__FILE__);
 
 class CreateTask extends CreateEntity
 {
-	const TYPE = 'CREATETASK';
-	const POST_TEXT = 'commentAuxCreateTask';
+	public const TYPE = 'CREATETASK';
+	public const POST_TEXT = 'commentAuxCreateTask';
 
 	public function getText(): string
 	{
@@ -25,12 +25,10 @@ class CreateTask extends CreateEntity
 		$siteId = (!empty($options['siteId']) ? $options['siteId'] : SITE_ID);
 
 		if (
-			!isset($params['sourcetype'])
-			|| !in_array($params['sourcetype'], $this->getSourceTypeList())
-			|| !isset($params['sourceid'])
+			!isset($params['sourcetype'], $params['sourceid'], $params['taskid'])
 			|| (int)$params['sourceid'] <= 0
-			|| !isset($params['taskid'])
 			|| (int)$params['taskid'] <= 0
+			|| !in_array($params['sourcetype'], $this->getSourceTypeList(), true)
 		)
 		{
 			return $result;
@@ -46,9 +44,9 @@ class CreateTask extends CreateEntity
 			$userPage = Option::get(
 					'socialnetwork',
 					'user_page',
-					SITE_DIR.'company/personal/',
+					SITE_DIR . 'company/personal/',
 					$siteId
-				).'user/#user_id#/';
+				) . 'user/#user_id#/';
 		}
 
 		if ($task = $this->getTask($params['taskid'], false))
@@ -69,7 +67,7 @@ class CreateTask extends CreateEntity
 			$taskTitle = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_NOT_FOUND');
 		}
 
-		if (in_array($params['sourcetype'], $this->getCommentTypeList()))
+		if (in_array($params['sourcetype'], $this->getCommentTypeList(), true))
 		{
 			$sourceData = $this->getSourceCommentData([
 				'userPage' => $userPage,
@@ -87,7 +85,7 @@ class CreateTask extends CreateEntity
 				'#A_END#' => (!empty($sourceData['path']) ? '[/URL]' : '')
 			]);
 		}
-		elseif (in_array($params['sourcetype'], $this->getPostTypeList()))
+		elseif (in_array($params['sourcetype'], $this->getPostTypeList(), true))
 		{
 			$suffix = ($options['suffix'] ?? ($params['sourcetype'] === static::SOURCE_TYPE_BLOG_POST ? '2' : ''));
 
@@ -128,7 +126,7 @@ class CreateTask extends CreateEntity
 				!empty($handlerParams)
 				&& !empty($handlerParams['taskid'])
 				&& (int)$handlerParams['taskid'] > 0
-				&& ($task = $this->getTask((int)$handlerParams['taskid'], true))
+				&& ($this->getTask((int)$handlerParams['taskid']))
 			)
 			{
 				$result = true;
@@ -148,10 +146,7 @@ class CreateTask extends CreateEntity
 		$result = false;
 		$permissionCacheKey = ($checkPermissions ? 'Y' : 'N');
 
-		if (
-			isset($cache[$permissionCacheKey])
-			&& isset($cache[$permissionCacheKey][$taskId])
-		)
+		if (isset($cache[$permissionCacheKey][$taskId]))
 		{
 			$result = $cache[$permissionCacheKey][$taskId];
 		}
@@ -196,8 +191,8 @@ class CreateTask extends CreateEntity
 		{
 			foreach ($paramsList as $pair)
 			{
-				list($key, $value) = explode('=', $pair);
-				if (isset($key) && isset($value))
+				[ $key, $value ] = explode('=', $pair);
+				if (isset($key, $value))
 				{
 					$result[$key] = $value;
 				}

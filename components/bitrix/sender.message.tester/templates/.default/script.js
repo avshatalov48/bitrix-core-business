@@ -32,7 +32,7 @@
 
 		this.button = Helper.getNode('test-button', this.context);
 		this.result = Helper.getNode('test-result', this.context);
-
+		this.buttonValidation = Helper.getNode('test-validation-button', this.context);
 		this.initSelector();
 		/*
 		Helper.getNodes('address-item', Helper.getNode('address-list', this.context))
@@ -45,8 +45,14 @@
 				BX.bind(node, 'click', handler.bind(this, node));
 			}, this);
 		*/
-
-		BX.bind(this.button, 'click', this.send.bind(this));
+		if(this.button && this.result)
+		{
+			BX.bind(this.button, 'click', this.send.bind(this, 'test', this.result, this.button));
+		}
+		if(this.buttonValidation && this.result)
+		{
+			BX.bind(this.buttonValidation, 'click', this.send.bind(this, 'consent', this.result, this.buttonValidation));
+		}
 	};
 	Tester.prototype.validate = function (value)
 	{
@@ -126,7 +132,7 @@
 	{
 		return (null !== value.match(/^[\+]?[\d]{4,25}$/i));
 	};
-	Tester.prototype.printResult = function (data)
+	Tester.prototype.printResult = function (consent, node, button, data)
 	{
 		data = data || {isSuccess: null};
 
@@ -154,28 +160,28 @@
 			}
 			else
 			{
-				mess = data.resultErrors.join("\n");
+				mess = data.resultErrors? data.resultErrors.join("\n") : "";
 			}
 		}
 		else if (this.messageCode === 'mail')
 		{
-			mess = this.mess.testSuccess;
+			mess = consent? this.mess.consentSuccess:this.mess.testSuccess;
 		}
 		else
 		{
 			mess = this.mess.testSuccessPhone;
 		}
 
-		this.result.textContent = mess;
-		this.removeWaitingIndicator();
+		node.textContent = mess;
+		this.removeWaitingIndicator(button);
 	};
-	Tester.prototype.removeWaitingIndicator = function ()
+	Tester.prototype.removeWaitingIndicator = function (button)
 	{
-		BX.removeClass(this.button, this.classNameBtnWait)
+		BX.removeClass(button, this.classNameBtnWait)
 	};
-	Tester.prototype.addWaitingIndicator = function ()
+	Tester.prototype.addWaitingIndicator = function (button)
 	{
-		BX.addClass(this.button, this.classNameBtnWait)
+		BX.addClass(button, this.classNameBtnWait)
 	};
 	Tester.prototype.convertDataFromPostToJson = function (data)
 	{
@@ -225,7 +231,7 @@
 
 		return data;
 	};
-	Tester.prototype.send = function ()
+	Tester.prototype.send = function (action, resultNode, button)
 	{
 		var list = this.selector.getTilesId()
 			.map(function (item) {
@@ -237,20 +243,19 @@
 
 		if (list.length === 0)
 		{
-			this.printResult({isSuccess: false, resultErrors: [this.mess.testEmpty]});
+			this.printResult(null, resultNode, button,{isSuccess: false, resultErrors: [this.mess.testEmpty]});
 			return;
 		}
+		var message = {id: null, data: {}}, consent = action === 'consent';
 
-		var message = {id: null, data: {}};
 		BX.onCustomEvent(this, this.eventNameSend, [message]);
-
-		this.printResult();
-		this.addWaitingIndicator(this.button, this.classNameBtnWait);
+		this.printResult(consent, resultNode, button, null);
+		this.addWaitingIndicator(button);
 
 		this.ajaxAction.request({
-			action: 'test',
-			onsuccess: this.printResult.bind(this),
-			onfailure: this.removeWaitingIndicator.bind(this),
+			action: action,
+			onsuccess: this.printResult.bind(this, consent, resultNode, button),
+			onfailure: this.removeWaitingIndicator.bind(this, button),
 			data: {
 				'list': list,
 				'messageCode': this.messageCode,

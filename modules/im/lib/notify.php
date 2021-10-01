@@ -208,7 +208,7 @@ class Notify
 				'ID' => (int)$notifyItem['ID'],
 				'CHAT_ID' => $this->chatId,
 				'AUTHOR_ID' => (int)$notifyItem['AUTHOR_ID'],
-				'TEXT' => (string)$notifyItem['MESSAGE'],
+				'TEXT' => $this->convertHtmlToBbCode((string)$notifyItem['MESSAGE']),
 				'DATE' => $notifyItem['DATE_CREATE'],
 				'NOTIFY_TYPE' => (int)$notifyItem['NOTIFY_TYPE'],
 				'NOTIFY_MODULE' => $notifyItem['NOTIFY_MODULE'],
@@ -367,34 +367,53 @@ class Notify
 		return $result;
 	}
 
-	public static function cleanNotifyAgent()
+	/**
+	 * Agent for deleting old notifications.
+	 *
+	 * @return string
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function cleanNotifyAgent(): string
 	{
 		$dayCount = 60;
 		$limit = 2000;
 		$step = 1000;
 
 		$batches = [];
-		$result = \Bitrix\Im\Model\MessageTable::getList(array(
-			'select' => ['ID', 'CHAT_ID'],
+		$result = \Bitrix\Im\Model\MessageTable::getList([
+			'select' => ['ID', 'CHAT_ID', 'NOTIFY_READ', 'RELATION_ID' => 'RELATION.ID'],
 			'filter' => [
 				'=NOTIFY_TYPE' => [IM_NOTIFY_CONFIRM, IM_NOTIFY_FROM, IM_NOTIFY_SYSTEM],
 				'<DATE_CREATE' => ConvertTimeStamp((time() - 86400 * $dayCount), 'FULL')
 			],
 			'limit' => $limit
-		));
+		]);
 
+		$relationIdToCounters = [];
 		$batch = [];
 		$i = 0;
 
 		while ($row = $result->fetch())
 		{
+			if ($row['NOTIFY_READ'] === 'N')
+			{
+				$relationId = (int)$row['RELATION_ID'];
+				if (isset($relationIdToCounters[$relationId]))
+				{
+					$relationIdToCounters[$relationId] = 0;
+				}
+				$relationIdToCounters[$relationId]++;
+			}
+
 			if ($i++ === $step)
 			{
 				$i = 0;
 				$batches[] = $batch;
 				$batch = [];
 			}
-			$batch[] = intval($row['ID']);
+			$batch[] = (int)$row['ID'];
 		}
 		if (!empty($batch))
 		{
@@ -409,6 +428,26 @@ class Notify
 			\Bitrix\Im\Model\MessageParamTable::deleteBatch([
 				'=MESSAGE_ID' => $batch
 			]);
+		}
+
+		$countersToRelationIds = [];
+		foreach ($relationIdToCounters as $relationId => $unreadCounter)
+		{
+			$countersToRelationIds[$unreadCounter][] = $relationId;
+		}
+
+		$needToCleanCountersCache = false;
+		$connection = \Bitrix\Main\Application::getConnection();
+		foreach ($countersToRelationIds as $counter => $relationIds)
+		{
+			$needToCleanCountersCache = true;
+			$relationIds = '(' . implode(',', $relationIds) . ')';
+			$sql = "UPDATE b_im_relation SET COUNTER = IF(COUNTER > {$counter}, COUNTER - {$counter}, 0) WHERE ID IN {$relationIds};";
+			$connection->queryExecute($sql);
+		}
+		if ($needToCleanCountersCache)
+		{
+			\Bitrix\Im\Counter::clearCache();
 		}
 
 		return '\Bitrix\Im\Notify::cleanNotifyAgent();';
@@ -470,7 +509,7 @@ class Notify
 	{
 		$ormParams = [
 			'filter' => ['=CHAT_ID' => $this->chatId],
-			'order' => ['ID' => 'DESC']
+			'order' => ['DATE_CREATE' => 'DESC']
 		];
 
 		if ($limit <= 0)
@@ -582,5 +621,72 @@ class Notify
 		}
 
 		return null;
+	}
+
+	/**
+	 * Cleans html from all the tags, except some which we accept in notifications.
+	 *
+	 * @param string $html String with HTML code.
+	 *
+	 * @return string
+	 */
+	private function cleanHtml(string $html): string
+	{
+		$sanitizer = new \CBXSanitizer();
+		$sanitizer->AddTags([
+			'a' => array('href'),
+			'b' => array(),
+			'u' => array(),
+			'i' => array(),
+			's' => array(),
+			'br' => array(),
+			'font' => array('color')
+		]);
+		$sanitizer->ApplyDoubleEncode(false);
+		$html = $sanitizer->SanitizeHtml($html);
+
+		return htmlspecialcharsback($html);
+	}
+
+	/**
+	 * Converts some html tags to BB codes.
+	 *
+	 * @param string $html String with HTML code.
+	 *
+	 * @return string
+	 */
+	public function convertHtmlToBbCode(string $html): string
+	{
+		$html = $this->cleanHtml($html);
+
+		$replaced = 0;
+		do
+		{
+			$html = preg_replace(
+				"/<([busi])[^>a-z]*>(.+?)<\\/(\\1)[^>a-z]*>/is".BX_UTF_PCRE_MODIFIER,
+				"[\\1]\\2[/\\1]",
+				$html, -1, $replaced);
+		}
+		while($replaced > 0);
+
+		$html = preg_replace("/\\<br\s*\\/*\\>/is".BX_UTF_PCRE_MODIFIER,"[br]", $html);
+		$html = preg_replace(
+			[
+				"#<a[^>]+href\\s*=\\s*('|\")(.+?)(?:\\1)[^>]*>(.*?)</a[^>]*>#is".BX_UTF_PCRE_MODIFIER,
+				"#<a[^>]+href(\\s*=\\s*)([^'\">]+)>(.*?)</a[^>]*>#is".BX_UTF_PCRE_MODIFIER
+			],
+			"[url=\\2]\\3[/url]", $html
+		);
+		$html = preg_replace(
+			[
+				"/\\<font[^>]+color\\s*=[\\s'\"]*(\\#[a-f0-9]{6})[^>]*\\>(.+?)\\<\\/font[^>]*>/is".BX_UTF_PCRE_MODIFIER
+			],
+			[
+				"[color=\\1]\\2[/color]",
+			],
+			$html
+		);
+
+		return $html;
 	}
 }

@@ -7,22 +7,35 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
-	/**
-	 * Class ResultsTable
-	 *
-	 * Fields:
-	 * <ul>
-	 * <li> ID int mandatory
-	 * <li> FILENAME string(255) mandatory
-	 * <li> FEED_TYPE string(255) mandatory
-	 * <li> UPLOAD_TIME datetime mandatory
-	 * <li> PROCESSING_REQUEST_ID string(50) optional
-	 * <li> PROCESSING_RESULT string(100) optional
-	 * <li> RESULTS string optional
-	 * </ul>
-	 *
-	 * @package Bitrix\Sale\TradingPlatform\Ebay\Feed
-	 **/
+/**
+ * Class ResultsTable
+ *
+ * Fields:
+ * <ul>
+ * <li> ID int mandatory
+ * <li> FILENAME string(255) mandatory
+ * <li> FEED_TYPE string(255) mandatory
+ * <li> UPLOAD_TIME datetime mandatory
+ * <li> PROCESSING_REQUEST_ID string(50) optional
+ * <li> PROCESSING_RESULT string(100) optional
+ * <li> RESULTS string optional
+ * </ul>
+ *
+ * @package Bitrix\Sale\TradingPlatform\Ebay\Feed
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Results_Query query()
+ * @method static EO_Results_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Results_Result getById($id)
+ * @method static EO_Results_Result getList(array $parameters = array())
+ * @method static EO_Results_Entity getEntity()
+ * @method static \Bitrix\Sale\TradingPlatform\Ebay\Feed\EO_Results createObject($setDefaultValues = true)
+ * @method static \Bitrix\Sale\TradingPlatform\Ebay\Feed\EO_Results_Collection createCollection()
+ * @method static \Bitrix\Sale\TradingPlatform\Ebay\Feed\EO_Results wakeUpObject($row)
+ * @method static \Bitrix\Sale\TradingPlatform\Ebay\Feed\EO_Results_Collection wakeUpCollection($rows)
+ */
 
 class ResultsTable extends Entity\DataManager
 {

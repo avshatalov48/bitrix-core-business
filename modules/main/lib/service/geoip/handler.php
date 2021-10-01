@@ -18,7 +18,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Main\Service\GeoIp
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Handler_Query query()
+ * @method static EO_Handler_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Handler_Result getById($id)
+ * @method static EO_Handler_Result getList(array $parameters = array())
+ * @method static EO_Handler_Entity getEntity()
+ * @method static \Bitrix\Main\Service\GeoIp\EO_Handler createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Service\GeoIp\EO_Handler_Collection createCollection()
+ * @method static \Bitrix\Main\Service\GeoIp\EO_Handler wakeUpObject($row)
+ * @method static \Bitrix\Main\Service\GeoIp\EO_Handler_Collection wakeUpCollection($rows)
+ */
 
 class HandlerTable extends Entity\DataManager
 {

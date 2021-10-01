@@ -12,7 +12,6 @@
 		this.handler = window.LHEPostForm.getHandler(arParams['editorId']);
 		this.editorName = arParams['editorName'];
 		this.editorId = arParams['editorId'];
-
 		this.windowEvents = {
 			OnUCUnlinkForm : BX.delegate(function(entityId) {
 				if (!!entityId && !!this.entitiesId[entityId]) {
@@ -37,106 +36,114 @@
 					}
 				}
 			}, this),
-			OnUCQuote : BX.delegate(function(entityId, author, res, safeEdit, loaded) {
-				var origRes = BX.util.htmlspecialchars(res);
-				if (this.entitiesId[entityId])
+			OnUCQuote : BX.delegate(function(entityId, author, quotedText) {
+				if (
+					!this.entitiesId[entityId]
+					|| !this._checkTextSafety([entityId, 0])
+				)
 				{
-					if (!this._checkTextSafety([entityId, 0], safeEdit))
+					return;
+				}
+
+				this.show([entityId, 0]);
+				var attempts = 0;
+				var quoteHandler = function() {
+					attempts++;
+					if (attempts > 10)
+					{
 						return;
-					this.show([entityId, 0]);
-					if (loaded !== true)
-					{
-						this.handler.exec(this.windowEvents.OnUCQuote, [entityId, author, res, safeEdit, true]);
 					}
-					else if (!this.handler.oEditor.toolbar.controls.Quote)
+					if (!this.handler.oEditor || !this.handler.oEditor.action)
 					{
-						BX.DoNothing();
+						return setTimeout(quoteHandler, 10);
 					}
-					else if (!author && !res)
+					if (!this.handler.oEditor.toolbar.controls.Quote)
 					{
-						this.handler.oEditor.action.Exec('quote');
+						return;
+					}
+					if (!author && !quotedText)
+					{
+						return this.handler.oEditor.action.Exec('quote');
+					}
+
+					var haveWrittenText = '';
+					if (author)
+					{
+						haveWrittenText = author.gender ? BX.message("MPL_HAVE_WRITTEN_"+author.gender) : BX.message("MPL_HAVE_WRITTEN");
+						if (this.handler.oEditor.GetViewMode() === 'wysiwyg') // BB Codes
+						{
+							if (author.id > 0)
+							{
+								author = '<span id="' + this.handler.oEditor.SetBxTag(false, {tag: "postuser", userId: author.id, userName: author.name}) +
+									'" class="bxhtmled-metion">' + author.name.replace(/</gi, '&lt;').replace(/>/gi, '&gt;') + '</span>';
+							}
+							else
+							{
+								author = '<span>' + author.name.replace(/</gi, '&lt;').replace(/>/gi, '&gt;') + '</span>';
+							}
+							haveWrittenText = (author + haveWrittenText + '<br/>');
+						}
+						else if (this.handler.oEditor.bbCode)
+						{
+							if (author.id > 0)
+							{
+								author = "[USER=" + author.id + "]" + author.name + "[/USER]";
+							}
+							else
+							{
+								author = author.name;
+							}
+							haveWrittenText = (author !== '' ? (author + haveWrittenText + '\n') : '');
+						}
+					}
+
+					if (this.handler.oEditor.action.actions.quote.setExternalSelectionFromRange)
+					{
+						// Here we take selected text via editor tools
+						// we don't use "res"
+						this.handler.oEditor.action.actions.quote.setExternalSelectionFromRange();
+						var extSel = this.handler.oEditor.action.actions.quote.getExternalSelection();
+
+						if (extSel === '' && quotedText !== '')
+						{
+							extSel = quotedText;
+						}
+						extSel = haveWrittenText + extSel;
+						if (BX.type.isNotEmptyString(extSel))
+						{
+							this.handler.oEditor.action.actions.quote.setExternalSelection(extSel);
+						}
 					}
 					else
 					{
-						res = origRes;
-						var haveWrittenText = author && author.gender ?
-							BX.message("MPL_HAVE_WRITTEN_"+author.gender) : BX.message("MPL_HAVE_WRITTEN");
-						if (this.handler.oEditor.GetViewMode() == 'wysiwyg') // BB Codes
-						{
-							res = res.replace(/\n/g, '<br/>');
-							if (author)
-							{
-								if (author.id > 0)
-								{
-									author = '<span id="' + this.handler.oEditor.SetBxTag(false, {tag: "postuser", params: {value : author.id}}) + '" class="bxhtmled-metion">' + author.name.replace(/</gi, '&lt;').replace(/>/gi, '&gt;') + '</span>';
-								}
-								else
-								{
-									author = '<span>' + author.name.replace(/</gi, '&lt;').replace(/>/gi, '&gt;') + '</span>';
-								}
-								author = (author !== '' ? (author + haveWrittenText + '<br/>') : '');
-
-								res = author + res;
-							}
-						}
-						else if(this.handler.oEditor.bbCode)
-						{
-							if (author)
-							{
-								if (author.id > 0)
-								{
-									author = "[USER=" + author.id + "]" + author.name + "[/USER]";
-								}
-								else
-								{
-									author = author.name;
-								}
-								author = (author !== '' ? (author + haveWrittenText + '\n') : '');
-								res = author + res;
-							}
-						}
-
-						if (this.handler.oEditor.action.actions.quote.setExternalSelectionFromRange)
-						{
-							// Here we take selected text via editor tools
-							// we don't use "res"
-							this.handler.oEditor.action.actions.quote.setExternalSelectionFromRange();
-							var extSel = this.handler.oEditor.action.actions.quote.getExternalSelection();
-							if (extSel === '' && origRes !== '')
-							{
-								extSel = origRes;
-							}
-							extSel = (BX.type.isNotEmptyString(author) ? author : '') + extSel;
-							if (BX.type.isNotEmptyString(extSel))
-								this.handler.oEditor.action.actions.quote.setExternalSelection(extSel);
-						}
-						else
-						{
-							// For compatibility with old fileman (< 16.0.1)
-							this.handler.oEditor.action.actions.quote.setExternalSelection(res);
-						}
-						this.handler.oEditor.action.Exec('quote');
+						// For compatibility with old fileman (< 16.0.1)
+						this.handler.oEditor.action.actions.quote.setExternalSelection(quotedText);
 					}
-				}
+					this.handler.oEditor.action.Exec('quote');
+				}.bind(this);
+				this.handler.exec(quoteHandler);
 			}, this),
 			OnUCReply : function(entityId, authorId, authorName, safeEdit, eventResult) {
-				if (eventResult.caught === true || !this._checkTextSafety([entityId, 0], safeEdit))
-					return;
-				if (this.entitiesId[entityId])
+				if (!this.entitiesId[entityId]
+					|| !this._checkTextSafety([entityId, 0])
+					|| eventResult.caught === true
+				)
 				{
-					eventResult.caught = true;
-					this.show([entityId, 0]);
-					if (authorId > 0)
-					{
-						this.handler.exec(window.BxInsertMention, [{
-							item: {entityId: authorId, name: authorName},
-							type: 'users',
-							formID: this.form.id,
-							editorId: this.editorId,
-							bNeedComa: true,
-							insertHtml: true
-						}]);
-					}
+					return false;
+				}
+				eventResult.caught = true;
+
+				this.show([entityId, 0]);
+				if (authorId > 0)
+				{
+					this.handler.exec(window.BxInsertMention, [{
+						item: {entityId: authorId, name: authorName},
+						type: 'users',
+						formID: this.form.id,
+						editorId: this.editorId,
+						bNeedComa: true,
+						insertHtml: true
+					}]);
 				}
 			}.bind(this),
 			OnUCAfterRecordEdit : BX.delegate(function(entityId, id, data, act) {
@@ -233,10 +240,10 @@
 					BX.hide(BX('uc-writing-' + this.form.id + '-' + this.id[0] + '-area'));
 				}
 			}, this));
-			BX.addCustomEvent(this.eventNode, 'OnAfterShowLHE', BX.delegate(function(show, obj){
+			BX.addCustomEvent(this.eventNode, 'OnAfterShowLHE', function(show, obj){
 				this._checkWrite(show, obj);
 				BX.onCustomEvent(window, "OnUCFeedChanged", [this.id]);
-			}, this));
+			}.bind(this));
 			BX.addCustomEvent(this.eventNode, 'OnClickSubmit', BX.delegate(this.submit, this));
 			BX.addCustomEvent(this.eventNode, 'OnClickCancel', BX.delegate(this.cancel, this));
 
@@ -266,35 +273,36 @@
 			if (!this.windowEventsSet && !!this.entitiesId)
 			{
 				BX.addCustomEvent(window, 'OnUCUnlinkForm', this.windowEvents.OnUCUnlinkForm);
-				BX.addCustomEvent(window, 'OnUCReply', this.windowEvents.OnUCReply);
-				BX.addCustomEvent(window, 'OnUCQuote', this.windowEvents.OnUCQuote);
+				BX.addCustomEvent(window, 'OnUCReply', BX.debounce(this.windowEvents.OnUCReply, 10));
+				BX.addCustomEvent(window, 'OnUCQuote', BX.debounce(this.windowEvents.OnUCQuote, 10));
 				BX.addCustomEvent(window, 'OnUCAfterRecordEdit', this.windowEvents.OnUCAfterRecordEdit);
 				this.windowEventsSet = true;
 			}
 		},
-		_checkTextSafety : function(id, checkObj) {
-			if (checkObj === true)
+		_checkTextSafety : function(id) {
+			if (
+				this.id
+				&& this.id.join('-') !== id.join('-')
+				&& this.handler.editorIsLoaded
+				&& this.handler.oEditor.IsContentChanged()
+			)
 			{
-				checkObj = id;
-				if (this.id && this.id.join('-') != id.join('-') && this.handler.editorIsLoaded && this.handler.oEditor.IsContentChanged())
-					return window.confirm(BX.message('MPL_SAFE_EDIT'));
-				return true;
+				return window.confirm(BX.message('MPL_SAFE_EDIT'));
 			}
-			return checkObj === false;
+			return true;
 		},
-		_checkWrite : function(show, obj) {
+		_checkWrite : function() {
 			if (this.handler.editorIsLoaded && this._checkWriteTimeout !== false)
 			{
 				this.__content_length = (this.__content_length > 0 ? this.__content_length : 0);
 				var content = this.handler.oEditor.GetContent(),
-					func = BX.delegate(function(){this._checkWrite(show, obj);}, this),
 					time = 2000;
 				if(content.length >= 4 && this.__content_length != content.length && !!this.id)
 				{
 					BX.onCustomEvent(window, 'OnUCUserIsWriting', [this.id[0], {sent : false}]);
 					time = 30000;
 				}
-				this._checkWriteTimeout = setTimeout(func, time);
+				this._checkWriteTimeout = setTimeout(this._checkWrite.bind(this), time);
 				this.__content_length = content.length;
 			}
 		},
@@ -333,7 +341,16 @@
 				var placeholderNode = this._getPlacehoder(id);
 				this.handler.oEditor.Focus();
 				setTimeout(function() {
+					var pos = BX.pos(placeholderNode);
+					var windowPos = BX.GetWindowSize(document);
+					if (windowPos.scrollTop > pos.top)
+					{
+						placeholderNode.scrollIntoView();
+					}
+					else if ((windowPos.scrollTop + windowPos.innerHeight) < pos.top)
+					{
 						placeholderNode.scrollIntoView(false);
+					}
 				}, 100);
 				return true;
 			}
@@ -350,7 +367,7 @@
 			BX.removeClass(node, 'feed-com-add-box-header');
 			node.appendChild(this.form);
 			BX.onCustomEvent(this.eventNode, 'OnUCFormBeforeShow', [this, text, data]);
-			BX.onCustomEvent(this.eventNode, 'OnShowLHE', ['show']);
+			BX.onCustomEvent(this.eventNode, 'OnShowLHE', ['show', null, this.id]);
 			BX.onCustomEvent(this.eventNode, 'OnUCFormAfterShow', [this, text, data]);
 			return true;
 		},

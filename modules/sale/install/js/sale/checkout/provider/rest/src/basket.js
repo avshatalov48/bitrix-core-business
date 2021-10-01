@@ -105,9 +105,15 @@ export class BasketRestHandler extends BaseRestHandler
                             this.#changeBasketItem(fields, index)
                                 .then(()=> Event.EventEmitter.emit(EventType.basket.removeProduct, {index}));
                         }
-                        else // for example: offer
+                        else if(action === PoolConst.action.offer)
                         {
-                            // item = this.#findItemById(fields.id, items)
+                            item = null; //not refresh
+    
+                            let exists = this.#hasActionInPool(index, PoolConst.action.offer, poolList);
+                            if(exists === false)
+                            {
+                                item = this.#findItemById(fields.id, items)
+                            }
                         }
 
                         if(Type.isObject(item))
@@ -204,6 +210,7 @@ export class BasketRestHandler extends BaseRestHandler
                 price: item.discountPrice
             },
             props: item.props,
+            sku: item.sku,
             product: {
                 id: item.catalogProduct.id,
                 detailPageUrl: item.detailPageUrl,

@@ -38,7 +38,7 @@ class CreateEntity extends Base
 	public const ENTITY_TYPE_BLOG_POST = 'BLOG_POST';
 	public const ENTITY_TYPE_CALENDAR_EVENT = 'CALENDAR_EVENT';
 
-	protected $postTypeList = array(
+	protected $postTypeList = [
 		self::SOURCE_TYPE_BLOG_POST,
 		self::SOURCE_TYPE_TASK,
 		self::SOURCE_TYPE_FORUM_TOPIC,
@@ -51,19 +51,19 @@ class CreateEntity extends Base
 		self::SOURCE_TYPE_WIKI,
 		self::SOURCE_TYPE_LISTS_NEW_ELEMENT,
 		self::SOURCE_TYPE_INTRANET_NEW_USER,
-		self::SOURCE_TYPE_BITRIX24_NEW_USER
-	);
-	protected $commentTypeList = array(
+		self::SOURCE_TYPE_BITRIX24_NEW_USER,
+	];
+	protected $commentTypeList = [
 		self::SOURCE_TYPE_BLOG_COMMENT,
 		self::SOURCE_TYPE_FORUM_POST,
-		self::SOURCE_TYPE_LOG_COMMENT
-	);
+		self::SOURCE_TYPE_LOG_COMMENT,
+	];
 
-	protected $entityTypeList = array(
+	protected $entityTypeList = [
 		self::ENTITY_TYPE_BLOG_POST,
 		self::ENTITY_TYPE_TASK,
 		self::ENTITY_TYPE_CALENDAR_EVENT,
-	);
+	];
 
 	protected $postTypeListInited = false;
 	protected $commentTypeListInited = false;
@@ -78,7 +78,7 @@ class CreateEntity extends Base
 			$moduleEvent = new \Bitrix\Main\Event(
 				'socialnetwork',
 				'onCommentAuxGetPostTypeList',
-				array()
+				[]
 			);
 			$moduleEvent->send();
 
@@ -94,7 +94,7 @@ class CreateEntity extends Base
 						&& is_array($moduleEventParams['typeList'])
 					)
 					{
-						foreach($moduleEventParams['typeList'] as $type)
+						foreach ($moduleEventParams['typeList'] as $type)
 						{
 							$this->addPostTypeList($type);
 						}
@@ -115,7 +115,7 @@ class CreateEntity extends Base
 			$moduleEvent = new \Bitrix\Main\Event(
 				'socialnetwork',
 				'onCommentAuxGetCommentTypeList',
-				array()
+				[]
 			);
 			$moduleEvent->send();
 
@@ -252,8 +252,8 @@ class CreateEntity extends Base
 			!isset($params['sourceType'], $params['sourceId'], $params['entityId'], $params['entityType'])
 			|| (int)$params['sourceId'] <= 0
 			|| (int)$params['entityId'] <= 0
-			|| !in_array($params['sourceType'], $this->getSourceTypeList())
-			|| !in_array($params['entityType'], $this->getEntityTypeList())
+			|| !in_array($params['sourceType'], $this->getSourceTypeList(), true)
+			|| !in_array($params['entityType'], $this->getEntityTypeList(), true)
 		)
 		{
 			return $result;
@@ -275,7 +275,7 @@ class CreateEntity extends Base
 				).'user/#user_id#/';
 		}
 
-		if (in_array($params['sourceType'], $this->getCommentTypeList()))
+		if (in_array($params['sourceType'], $this->getCommentTypeList(), true))
 		{
 			$sourceData = $this->getSourceCommentData([
 				'userPage' => $userPage,
@@ -288,11 +288,11 @@ class CreateEntity extends Base
 				'#A_END#' => (!empty($sourceData['path']) ? '[/URL]' : '')
 			]);
 		}
-		elseif (in_array($params['sourceType'], $this->getPostTypeList()))
+		elseif (in_array($params['sourceType'], $this->getPostTypeList(), true))
 		{
 			$suffix = ($options['suffix'] ?? ($params['sourceType'] === static::SOURCE_TYPE_BLOG_POST ? '2' : ''));
 
-			$result = Loc::getMessage('SONET_COMMENTAUX_CREATEENTITY_POST_' . $params['sourceType'] . (!empty($suffix) ? '_'.$suffix : ''), [
+			$result = Loc::getMessage('SONET_COMMENTAUX_CREATEENTITY_POST_' . $params['sourceType'] . (!empty($suffix) ? '_' . $suffix : ''), [
 				'#ENTITY_CREATED#' => $this->getEntityCreatedMessage(),
 				'#ENTITY_NAME#' => $this->getEntityName(),
 			]);
@@ -318,7 +318,7 @@ class CreateEntity extends Base
 		$params = $this->params;
 		if (
 			!isset($params['entityType'])
-			|| !in_array($params['entityType'], $this->getEntityTypeList())
+			|| !in_array($params['entityType'], $this->getEntityTypeList(), true)
 		)
 		{
 			return $result;
@@ -351,7 +351,7 @@ class CreateEntity extends Base
 
 		if (
 			!isset($params['entityType'])
-			|| !in_array($params['entityType'], $this->getEntityTypeList())
+			|| !in_array($params['entityType'], $this->getEntityTypeList(), true)
 		)
 		{
 			return $result;
@@ -428,10 +428,10 @@ class CreateEntity extends Base
 
 	protected function getEntity($checkPermissions = true)
 	{
-		static $cache = array(
+		static $cache = [
 			'Y' => [],
 			'N' => [],
-		);
+		];
 
 		$params = $this->params;
 		$entityType = $params['entityType'];
@@ -488,66 +488,9 @@ class CreateEntity extends Base
 		return $result;
 	}
 
-	public function sendRatingNotification($fields = [], $ratingVoteParams = []): void
+	protected function getRatingNotificationNotigyTag(array $ratingVoteParams = [], array $fields = []): string
 	{
-		$userId = (
-			is_array($ratingVoteParams)
-			&& isset($ratingVoteParams['OWNER_ID'])
-				? (int)$ratingVoteParams['OWNER_ID']
-				: 0
-		);
-
-		if (
-			$userId <= 0
-			|| !is_array($fields)
-			|| !Loader::includeModule('im')
-		)
-		{
-			return;
-		}
-
-		$params = $this->getParamsFromFields($fields);
-		if (empty($params))
-		{
-			return;
-		}
-
-		$this->setParams($params);
-
-		$followValue = \CSocNetLogFollow::getExactValueByRating(
-			$userId,
-			$ratingVoteParams['ENTITY_TYPE_ID'],
-			$ratingVoteParams['ENTITY_ID']
-		);
-
-		if ($followValue === 'N')
-		{
-			return;
-		}
-
-		$ratingVoteParams['ENTITY_LINK'] = $this->getRatingCommentLink(array(
-			'commentId' => $fields['ID'],
-			'commentAuthorId' => $ratingVoteParams['OWNER_ID'],
-			'ratingEntityTypeId' => $ratingVoteParams['ENTITY_TYPE_ID'],
-			'ratingEntityId' => $ratingVoteParams['ENTITY_ID']
-		));
-
-		$ratingVoteParams['ENTITY_PARAM'] = 'COMMENT';
-		$ratingVoteParams['ENTITY_TITLE'] = $ratingVoteParams['ENTITY_MESSAGE'] = $this->getText();
-
-		$messageFields = array(
-			'MESSAGE_TYPE' => IM_MESSAGE_SYSTEM,
-			'TO_USER_ID' => $userId,
-			'FROM_USER_ID' => (int)$ratingVoteParams['USER_ID'],
-			'NOTIFY_TYPE' => IM_NOTIFY_FROM,
-			'NOTIFY_MODULE' => 'main',
-			'NOTIFY_EVENT' => 'rating_vote',
-			'NOTIFY_TAG' => 'RATING|' . ($ratingVoteParams['VALUE'] >= 0 ? '' : 'DL|') . 'BLOG_COMMENT|' . $fields['ID'],
-			'NOTIFY_MESSAGE' => \CIMEvent::getMessageRatingVote($ratingVoteParams),
-			'NOTIFY_MESSAGE_OUT' => \CIMEvent::getMessageRatingVote($ratingVoteParams, true)
-		);
-
-		\CIMNotify::add($messageFields);
+		return 'RATING|' . ($ratingVoteParams['VALUE'] >= 0 ? '' : 'DL|') . 'BLOG_COMMENT|' . $fields['ID'];
 	}
 
 	protected function getForumType(): string

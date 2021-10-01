@@ -209,6 +209,19 @@ class FieldAdapter
 		{
 			$field["HTML"] = $sourceField["html"];
 		}
+		if (!empty($sourceField["additionalFilter"]))
+		{
+			$field["ADDITIONAL_FILTER_ALLOWED"] = $sourceField["additionalFilter"];
+		}
+
+		if (isset($sourceField["sectionId"]) && $sourceField["sectionId"] !== '')
+		{
+			$field["SECTION_ID"] = $sourceField["sectionId"];
+		}
+		if (!empty($sourceField["icon"]))
+		{
+			$field["ICON"] = $sourceField["icon"];
+		}
 
 		return $field;
 	}

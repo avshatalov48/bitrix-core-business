@@ -104,7 +104,6 @@ $MESS["IBEL_CATALOG_WEIGHT"] = "Weight (gram)";
 $MESS["IBEL_CATALOG_WIDTH"] = "Width";
 $MESS["IBEL_DEFAULT_VALUE"] = "default";
 $MESS["IBEL_ERR_BUILDER_ADSENT"] = "Link builder was not found.";
-$MESS["IBEL_LIST_ERR_PRODUCT_LIMIT"] = "Maximum number of products allowed exceeded. Products found in the catalog - #COUNT# (limit allowed - #LIMIT#).";
 $MESS["IBEL_LIST_TITLE"] = "#IBLOCK_NAME#: Products";
 $MESS["IBEL_NO_VALUE"] = "no";
 $MESS["IBEL_PRODUCTS_INSTAGRAM"] = "Instagram Products";

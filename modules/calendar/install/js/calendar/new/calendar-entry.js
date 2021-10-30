@@ -557,82 +557,43 @@
 			this.externalEntryIndex = {};
 		},
 
-		setMeetingStatus: function(entry, status, params)
-		{
-			if (typeof params == 'undefined')
-				params = {};
-
-			if (status === 'N' && !params.confirmed)
-			{
-				if (entry.isRecursive())
-				{
-					this.showConfirmDeclineDialog(entry);
-					return false;
-				}
-			}
-
-			this.calendar.request({
-				type: 'post',
-				data: {
-					action: 'set_meeting_status',
-					event_id: entry.id,
-					parent_id: entry.parentId,
-					status: status,
-					reccurent_mode: params.recursionMode || false,
-					current_date_from: this.calendar.util.formatDate(entry.from)
-				},
-				handler: BX.delegate(function(response)
-				{
-					this.calendar.reload();
-				}, this)
-			});
-			return true;
-		},
-
-		showConfirmDeleteDialog: function(entry)
-		{
-			if (!this.confirmDeleteDialog)
-				this.confirmDeleteDialog = new window.BXEventCalendar.ConfirmDeleteDialog(this.calendar);
-			this.confirmDeleteDialog.show(entry);
-		},
-
-		showConfirmEditDialog: function(params)
-		{
-			if (!this.confirmEditDialog)
-				this.confirmEditDialog = new window.BXEventCalendar.ConfirmEditDialog(this.calendar);
-			this.confirmEditDialog.show(params);
-		},
-
-		showConfirmDeclineDialog: function(entry)
-		{
-			if (!this.confirmDeclineDialog)
-				this.confirmDeclineDialog = new window.BXEventCalendar.ConfirmDeclineDialog(this.calendar);
-			this.confirmDeclineDialog.show(entry);
-		},
-
-		// clientSideDeleteEntry: function(entryId)
+		// setMeetingStatus: function(entry, status, params)
 		// {
-		// 	var entries = [], i;
-		// 	for (i = 0; i < this.calendar.getView().entries.length; i++)
-		// 	{
-		// 		if (this.calendar.getView().entries[i].id !== entryId
-		// 			&& this.calendar.getView().entries[i].data.RECURRENCE_ID !== entryId)
-		// 		{
-		// 			entries.push(this.calendar.getView().entries[i]);
-		// 		}
-		// 	}
-		// 	this.calendar.getView().entries = entries;
+		// 	if (typeof params == 'undefined')
+		// 		params = {};
 		//
-		// 	var entriesRaw = [];
-		// 	for (i = 0; i < this.entriesRaw.length; i++)
+		// 	if (status === 'N' && !params.confirmed)
 		// 	{
-		// 		if (this.entriesRaw[i].ID !== entryId
-		// 			&& this.entriesRaw[i].RECURRENCE_ID !== entryId)
+		// 		if (entry.isRecursive())
 		// 		{
-		// 			entriesRaw.push(this.entriesRaw[i]);
+		// 			this.showConfirmDeclineDialog(entry);
+		// 			return false;
 		// 		}
 		// 	}
-		// 	this.entriesRaw = entriesRaw;
+		//
+		// 	this.calendar.request({
+		// 		type: 'post',
+		// 		data: {
+		// 			action: 'set_meeting_status',
+		// 			event_id: entry.id,
+		// 			parent_id: entry.parentId,
+		// 			status: status,
+		// 			reccurent_mode: params.recursionMode || false,
+		// 			current_date_from: this.calendar.util.formatDate(entry.from)
+		// 		},
+		// 		handler: BX.delegate(function(response)
+		// 		{
+		// 			this.calendar.reload();
+		// 		}, this)
+		// 	});
+		// 	return true;
+		// },
+
+		// showConfirmDeclineDialog: function(entry)
+		// {
+		// 	if (!this.confirmDeclineDialog)
+		// 		this.confirmDeclineDialog = new window.BXEventCalendar.ConfirmDeclineDialog(this.calendar);
+		// 	this.confirmDeclineDialog.show(entry);
 		// },
 
 		checkMeetingByCodes: function(codes)

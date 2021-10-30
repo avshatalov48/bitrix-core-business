@@ -81,19 +81,19 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-container' => [
-					0 => 'landing-block-node-container row g-flex-centered align-items-center',
+					0 => 'landing-block-node-container row g-flex-start align-items-center',
 				],
 				'.landing-block-node-title' => [
 					0 => 'landing-block-node-title h6 g-color-gray-dark-v4 g-mb-5 text-left g-font-size-16 font-weight-normal',
 				],
 				'.landing-block-node-text-container' => [
-					0 => 'landing-block-node-text-container text-left col-8 js-animation animation-none g-px-0',
+					0 => 'landing-block-node-text-container text-left js-animation animation-none g-px-0 g-pr-20',
 				],
 				'.landing-block-node-text' => [
 					0 => 'landing-block-node-text g-color-gray-dark-v1 g-font-size-18',
 				],
 				'.landing-block-node-button-container' => [
-					0 => 'landing-block-node-button-container text-right col-4 js-animation animation-none d-flex justify-content-end',
+					0 => 'landing-block-node-button-container text-right js-animation animation-none d-flex justify-content-end',
 				],
 				'.landing-block-node-button' => [
 					0 => 'landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-text-transform-none g-mb-0 g-btn-black g-rounded-20 g-color-white',
@@ -170,10 +170,13 @@ return [
 			'nodes' => [],
 			'style' => [
 				'#wrapper' => [
-					0 => 'g-bg-white g-pos-rel landing-block g-color-gray-dark-v1 g-pt-0 g-pb-40',
+					0 => 'g-bg-white g-pos-rel landing-block g-color-gray-dark-v1 g-pt-10 g-pl-10 g-pb-40',
 				],
 				'.landing-block-node-form-container' => [
 					0 => 'landing-block-node-form-container row justify-content-start',
+				],
+				'.bitrix24forms' => [
+					0 => 'bitrix24forms u-form-alert-v4 g-brd-1 g-brd-gray-light-v4 g-brd-style-solid',
 				],
 			],
 			'attrs' => [

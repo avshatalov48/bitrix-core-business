@@ -9,6 +9,20 @@
 	font-size: 14px;
 	margin-bottom: 4px;
 	line-height: 17px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+}
+
+.landing-ui-field-header .ui-hint {
+	pointer-events: all;
+}
+
+.landing-ui-field-header .ui-hint-icon {
+    margin: 0;
 }
 
 .landing-ui-field-input {

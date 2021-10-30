@@ -123,9 +123,9 @@ class CIBlockXMLFile
 
 		$res = $DB->DDL("create table ".$this->_table_name."
 			(
-				ID int(11) not null auto_increment,
+				ID bigint not null auto_increment,
 				".($with_sess_id? "SESS_ID varchar(32),": "")."
-				PARENT_ID int(11),
+				PARENT_ID bigint,
 				LEFT_MARGIN int(11),
 				RIGHT_MARGIN int(11),
 				DEPTH_LEVEL int(11),

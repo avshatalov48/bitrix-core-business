@@ -15,7 +15,21 @@ namespace Bitrix\Iblock\Template\Functions;
  */
 class Fabric
 {
-	protected static $functionMap = array();
+	protected static $defaultFunctionMap = [
+		'upper' => FunctionUpper::class,
+		'lower' => FunctionLower::class,
+		'translit' => FunctionTranslit::class,
+		'concat' => FunctionConcat::class,
+		'limit' => FunctionLimit::class,
+		'contrast' => FunctionContrast::class,
+		'min' => FunctionMin::class,
+		'max' => FunctionMax::class,
+		'distinct' => FunctionDistinct::class,
+		'ucfirst' => FunctionUcfirst::class,
+		'ucwords' => FunctionUcwords::class,
+	];
+
+	protected static $functionMap = [];
 	/**
 	 * Instantiates an function object by function name.
 	 *
@@ -26,26 +40,19 @@ class Fabric
 	 */
 	public static function createInstance($functionName, $data = null) //todo rename createInstance
 	{
-		if ($functionName === "upper")
-			return new FunctionUpper($data);
-		elseif ($functionName === "lower")
-			return new FunctionLower($data);
-		elseif ($functionName === "translit")
-			return new FunctionTranslit($data);
-		elseif ($functionName === "concat")
-			return new FunctionConcat($data);
-		elseif ($functionName === "limit")
-			return new FunctionLimit($data);
-		elseif ($functionName === "contrast")
-			return new FunctionContrast($data);
-		elseif ($functionName === "min")
-			return new FunctionMin($data);
-		elseif ($functionName === "max")
-			return new FunctionMax($data);
-		elseif ($functionName === "distinct")
-			return new FunctionDistinct($data);
+		if (!is_string($functionName))
+		{
+			return new FunctionBase($data);
+		}
+		if (isset(self::$defaultFunctionMap[$functionName]))
+		{
+			/** @var FunctionBase $functionClass */
+			$functionClass = self::$defaultFunctionMap[$functionName];
+			return new $functionClass($data);
+		}
 		elseif (isset(self::$functionMap[$functionName]))
 		{
+			/** @var FunctionBase $functionClass */
 			$functionClass = self::$functionMap[$functionName];
 			return new $functionClass($data);
 		}
@@ -74,6 +81,7 @@ class Fabric
 				return new $functionClass($data);
 			}
 		}
+
 		return new FunctionBase($data);
 	}
 }

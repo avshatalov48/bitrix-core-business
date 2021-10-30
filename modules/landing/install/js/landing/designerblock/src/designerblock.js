@@ -89,6 +89,10 @@ export class DesignerBlock
 			onElementSelect: this.addElement.bind(this)
 		});
 
+		this.saveButton = parent.document.getElementById('landing-design-block-save')
+			|| top.document.getElementById('landing-design-block-save')
+			|| document.getElementById('landing-design-block-save');
+
 		this.preventEvents();
 		this.initHistoryEvents();
 		this.initTopPanel();
@@ -102,6 +106,7 @@ export class DesignerBlock
 	{
 		return content
 			.replace(/<div class="[^"]*landing-designer-block-pseudo-last[^"]*"[^>]*>[\s]*<\/div>/g, '')
+			.replace(/<div class="[^"]*landing-highlight-border[^"]*"[^>]*>[\s]*<\/div>/g, '')
 			.replace(/\s*data-(landingwrapper)="[^"]+"\s*/g, ' ')
 			.replace(/\s*[\w-_]+--type-wrapper\s*/g, ' ')
 			.replace(/<div[\s]*>[\s]*<\/div>/g, '')
@@ -180,47 +185,47 @@ export class DesignerBlock
 
 	initTopPanel()
 	{
-		// save block button on the top panel
-		top.BX.addCustomEvent('Landing:onDesignerBlockSave',
-			(finishCallback) => {
-				this.highlight.hide();
-				if (!this.changed)
+		Event.bind(this.saveButton, 'click', () => {
+			this.highlight.hide();
+
+			const finishCallback = () => {
+				if (BX.SidePanel && BX.SidePanel.Instance)
 				{
-					finishCallback();
-					return;
+					BX.SidePanel.Instance.close();
 				}
-				if (!this.designAllowed)
-				{
-					top.BX.UI.InfoHelper.show('limit_crm_free_superblock1');
-					return;
-				}
-				this.saving = true;
-				setTimeout(() => {
-					Backend.getInstance()
-						.action(
-							'Block::updateContent',
-							{
-								lid: this.landingId,
-								block: this.blockId,
-								content: this.clearHtml(this.originalNode.innerHTML).replaceAll(' style="', ' bxstyle="'),
-								designed: 1
-							}
-						).then(() => {
-							if (finishCallback)
-							{
-								this.saving = false;
-								finishCallback();
-							}
-						});
-					this.sendLabel(
-						'designerBlock',
-						'save' +
-						'&designed=' + (this.designed ? 'Y' : 'N') +
-						'&code=' + this.blockCode
-					);
-				}, 300);
+			};
+			if (!this.changed)
+			{
+				finishCallback();
+				return;
 			}
-		);
+			if (!this.designAllowed)
+			{
+				top.BX.UI.InfoHelper.show('limit_crm_free_superblock1');
+				return;
+			}
+
+			this.saving = true;
+			Backend.getInstance()
+				.action(
+					'Block::updateContent',
+					{
+						lid: this.landingId,
+						block: this.blockId,
+						content: this.clearHtml(this.originalNode.innerHTML).replaceAll(' style="', ' bxstyle="'),
+						designed: 1
+					}
+				).then(() => {
+					this.saving = false;
+					finishCallback();
+				});
+			this.sendLabel(
+				'designerBlock',
+				'save' +
+				'&designed=' + (this.designed ? 'Y' : 'N') +
+				'&code=' + this.blockCode
+			);
+		});
 	}
 
 	initNodes()

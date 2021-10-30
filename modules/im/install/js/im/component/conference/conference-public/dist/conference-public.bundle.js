@@ -502,6 +502,7 @@ this.BX = this.BX || {};
 	  template: "\n\t\t<div class=\"bx-im-component-call-loading\">\n\t\t\t<div class=\"bx-im-component-call-loading-text\">{{ localize['BX_IM_COMPONENT_CALL_LOADING'] }}</div>\n\t\t</div>\n\t"
 	};
 
+	var NOT_ALLOWED_ERROR_CODE = 'NotAllowedError';
 	var RequestPermissions = {
 	  props: {
 	    skipRequest: {
@@ -529,15 +530,31 @@ this.BX = this.BX || {};
 	      var _this = this;
 
 	      this.getApplication().initHardware().then(function () {
+	        return navigator.mediaDevices.getUserMedia({
+	          audio: true,
+	          video: true
+	        });
+	      }).then(function () {
 	        _this.$nextTick(function () {
-	          return _this.$store.dispatch('conference/setPermissionsRequested');
+	          return _this.$store.dispatch('conference/setPermissionsRequested', {
+	            status: true
+	          });
 	        });
 	      }).catch(function (error) {
-	        ui_dialogs_messagebox.MessageBox.show({
-	          message: _this.localize['BX_IM_COMPONENT_CALL_HARDWARE_ERROR'],
-	          modal: true,
-	          buttons: ui_dialogs_messagebox.MessageBoxButtons.OK
-	        });
+	        if (error.name && error.name === NOT_ALLOWED_ERROR_CODE) {
+	          _this.showMessageBox(_this.localize['BX_IM_COMPONENT_CALL_NOT_ALLOWED_ERROR']);
+
+	          return false;
+	        }
+
+	        _this.showMessageBox(_this.localize['BX_IM_COMPONENT_CALL_HARDWARE_ERROR']);
+	      });
+	    },
+	    showMessageBox: function showMessageBox(text) {
+	      ui_dialogs_messagebox.MessageBox.show({
+	        message: text,
+	        modal: true,
+	        buttons: ui_dialogs_messagebox.MessageBoxButtons.OK
 	      });
 	    },
 	    getApplication: function getApplication() {
@@ -545,7 +562,7 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  // language=Vue
-	  template: "\n\t\t<div class=\"bx-im-component-call-permissions-container\">\n\t\t\t<template v-if=\"!skipRequest\">\n\t\t\t\t<div class=\"bx-im-component-call-permissions-text\">{{ localize['BX_IM_COMPONENT_CALL_PERMISSIONS_TEXT'] }}</div>\n\t\t\t\t<button @click=\"requestPermissions\" class=\"ui-btn ui-btn-sm ui-btn-primary bx-im-component-call-permissions-button\">\n\t\t\t\t\t{{ localize['BX_IM_COMPONENT_CALL_PERMISSIONS_BUTTON'] }}\n\t\t\t\t</button>\n\t\t\t\t<slot></slot>\n\t\t\t</template>\n\t\t\t<template v-else>\n\t\t\t\t<div class=\"bx-im-component-call-permissions-text\">{{ localize['BX_IM_COMPONENT_CALL_PERMISSIONS_LOADING'] }}</div>\n\t\t\t\t<button class=\"ui-btn ui-btn-sm ui-btn-wait bx-im-component-call-permissions-button\">\n\t\t\t\t\t{{ localize['BX_IM_COMPONENT_CALL_PERMISSIONS_BUTTON'] }}\n\t\t\t\t</button>\n\t\t\t</template>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div class=\"bx-im-component-call-permissions-container\">\n\t\t\t<template v-if=\"!skipRequest\">\n\t\t\t\t<div class=\"bx-im-component-call-permissions-text\">{{ localize['BX_IM_COMPONENT_CALL_PERMISSIONS_TEXT'] }}</div>\n\t\t\t\t<button @click=\"requestPermissions\" class=\"ui-btn ui-btn-sm ui-btn-primary bx-im-component-call-permissions-button\">\n\t\t\t\t\t{{ localize['BX_IM_COMPONENT_CALL_ENABLE_DEVICES_BUTTON'] }}\n\t\t\t\t</button>\n\t\t\t\t<slot></slot>\n\t\t\t</template>\n\t\t\t<template v-else>\n\t\t\t\t<div class=\"bx-im-component-call-permissions-text\">{{ localize['BX_IM_COMPONENT_CALL_PERMISSIONS_LOADING'] }}</div>\n\t\t\t\t<button class=\"ui-btn ui-btn-sm ui-btn-wait bx-im-component-call-permissions-button\">\n\t\t\t\t\t{{ localize['BX_IM_COMPONENT_CALL_PERMISSIONS_BUTTON'] }}\n\t\t\t\t</button>\n\t\t\t</template>\n\t\t</div>\n\t"
 	};
 
 	var MobileChatButton = {

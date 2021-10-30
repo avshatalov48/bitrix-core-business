@@ -14,6 +14,7 @@ $MESS["LANDING_CMP_PAR_SM_ROLES"] = "Roles";
 $MESS["LANDING_CMP_PAR_SM_ROLE_EDIT"] = "Role edit page";
 $MESS["LANDING_CMP_PAR_SM_SITE"] = "Site page (list of landings)";
 $MESS["LANDING_CMP_PAR_SM_SITES"] = "Sites";
+$MESS["LANDING_CMP_PAR_SM_SITE_CONTACTS"] = "Site contacts settings page";
 $MESS["LANDING_CMP_PAR_SM_SITE_COOKIES"] = "Cookies edit page";
 $MESS["LANDING_CMP_PAR_SM_SITE_DESIGN"] = "Site design page";
 $MESS["LANDING_CMP_PAR_SM_SITE_DOMAIN"] = "Site domain edit page";

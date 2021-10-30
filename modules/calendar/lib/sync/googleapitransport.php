@@ -14,17 +14,10 @@ use Bitrix\Main\Web;
  */
 final class GoogleApiTransport
 {
-	const API_BASE_URL = "https://www.googleapis.com/calendar/v3/";
+	private const API_BASE_URL = Google\Helper::GOOGLE_SERVER_PATH_V3;
 	private $client;
 	private $errors;
 	private $currentMethod = '';
-
-
-	/**
-	 * BEGIN PUSH SECTION
-	 *
-	 *
-	 */
 
 	/**
 	 * @param $channelInfo
@@ -34,7 +27,7 @@ final class GoogleApiTransport
 	public function openCalendarListChannel($channelInfo)
 	{
 		$requestBody = Web\Json::encode($channelInfo, JSON_UNESCAPED_SLASHES);
-		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . 'users/me/calendarList/watch', $requestBody);
+		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . '/users/me/calendarList/watch', $requestBody);
 	}
 
 	/**
@@ -47,7 +40,7 @@ final class GoogleApiTransport
 	{
 		$this->currentMethod = __METHOD__;
 		$requestBody = Web\Json::encode($channelInfo, JSON_UNESCAPED_SLASHES);
-		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . 'calendars/' . urlencode($calendarId) . '/events/watch', $requestBody);
+		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . '/calendars/' . urlencode($calendarId) . '/events/watch', $requestBody);
 	}
 
 	/**
@@ -60,13 +53,8 @@ final class GoogleApiTransport
 	{
 		$this->currentMethod = __METHOD__;
 		$requestBody = Web\Json::encode(array('id' => $channelId, 'resourceId' => $resourceId), JSON_UNESCAPED_SLASHES);
-		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . 'channels/stop', $requestBody);
+		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . '/channels/stop', $requestBody);
 	}
-
-
-	/**
-	 * END PUSH SECTION
-	 */
 
 	/**
 	 * GoogleApiTransport constructor.
@@ -160,7 +148,7 @@ final class GoogleApiTransport
 	public function deleteEvent($eventId, $calendarId)
 	{
 		$this->currentMethod = __METHOD__;
-		return $this->doRequest(Web\HttpClient::HTTP_DELETE, self::API_BASE_URL . 'calendars/' . $calendarId . '/events/' . str_replace('@google.com', '', $eventId));
+		return $this->doRequest(Web\HttpClient::HTTP_DELETE, self::API_BASE_URL . '/calendars/' . $calendarId . '/events/' . str_replace('@google.com', '', $eventId));
 	}
 
 	/**
@@ -190,7 +178,7 @@ final class GoogleApiTransport
 	{
 		$this->currentMethod = __METHOD__;
 		$requestBody = Web\Json::encode($eventData, JSON_UNESCAPED_SLASHES);
-		return $this->doRequest(Web\HttpClient::HTTP_PUT, self::API_BASE_URL . 'calendars/' . $calendarId . '/events/' . $eventId, $requestBody);
+		return $this->doRequest(Web\HttpClient::HTTP_PUT, self::API_BASE_URL . '/calendars/' . $calendarId . '/events/' . $eventId, $requestBody);
 	}
 
 	/**
@@ -204,7 +192,7 @@ final class GoogleApiTransport
 	{
 		$this->currentMethod = __METHOD__;
 		$requestBody = Web\Json::encode($eventData, JSON_UNESCAPED_SLASHES);
-		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . 'calendars/' . $calendarId . '/events/', $requestBody);
+		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . '/calendars/' . $calendarId . '/events/', $requestBody);
 	}
 
 	/**
@@ -218,7 +206,7 @@ final class GoogleApiTransport
 	{
 		$this->currentMethod = __METHOD__;
 		$requestBody = Web\Json::encode($eventData, JSON_UNESCAPED_SLASHES);
-		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . 'calendars/' . $calendarId . '/events/import', $requestBody);
+		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . '/calendars/' . $calendarId . '/events/import', $requestBody);
 	}
 
 	/**
@@ -229,7 +217,7 @@ final class GoogleApiTransport
 	{
 		$this->currentMethod = __METHOD__;
 		$params = $syncToken ? '?' . http_build_query(array('syncToken' => $syncToken)) : '';
-		return $this->doRequest(Web\HttpClient::HTTP_GET, self::API_BASE_URL . 'users/me/calendarList' . $params);
+		return $this->doRequest(Web\HttpClient::HTTP_GET, self::API_BASE_URL . '/users/me/calendarList' . $params);
 	}
 
 	/**
@@ -240,7 +228,7 @@ final class GoogleApiTransport
 	public function getColors()
 	{
 		$this->currentMethod = __METHOD__;
-		return $this->doRequest(Web\HttpClient::HTTP_GET, self::API_BASE_URL . 'colors');
+		return $this->doRequest(Web\HttpClient::HTTP_GET, self::API_BASE_URL . '/colors');
 	}
 
 	/**
@@ -254,7 +242,7 @@ final class GoogleApiTransport
 	{
 		$this->currentMethod = __METHOD__;
 		$requestParams = array_filter($requestParams);
-		$url = self::API_BASE_URL . 'calendars/' . urlencode($calendarId) . '/events';
+		$url = self::API_BASE_URL . '/calendars/' . urlencode($calendarId) . '/events';
 		$url .= empty($requestParams) ? '' : '?' . preg_replace('/(%3D)/', '=', http_build_query($requestParams));
 		return $this->doRequest(Web\HttpClient::HTTP_GET, $url);
 	}
@@ -323,7 +311,7 @@ final class GoogleApiTransport
 
 		$requestParameters = ['originalStart' => $originalStart];
 		$requestParameters = array_filter($requestParameters);
-		$url = self::API_BASE_URL . 'calendars/' . urlencode($calendarId) . '/events/'.str_replace('@google.com', '', $eventId).'/instances/';
+		$url = self::API_BASE_URL . '/calendars/' . urlencode($calendarId) . '/events/'.str_replace('@google.com', '', $eventId).'/instances/';
 		$url .= empty($requestParameters) ? '' : '?' . preg_replace('/(%3D)/', '=', http_build_query($requestParameters));
 
 		return $this->doRequest(Web\HttpClient::HTTP_GET, $url);
@@ -339,7 +327,7 @@ final class GoogleApiTransport
 	{
 		$this->currentMethod = __METHOD__;
 		$requestBody = Web\Json::encode($calendarData, JSON_UNESCAPED_SLASHES);
-		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . 'calendars/', $requestBody);
+		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . '/calendars/', $requestBody);
 	}
 
 	public function sendBatchEvents($body, $calendarId, $params)

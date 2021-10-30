@@ -671,6 +671,7 @@
 					if (this.obQuantity)
 					{
 						BX.bind(this.obQuantity, 'change', BX.delegate(this.quantityChange, this));
+						BX.bind(this.obQuantity, 'input', BX.delegate(this.quantityInput, this));
 					}
 				}
 
@@ -1138,6 +1139,44 @@
 				}
 
 				this.setPrice();
+			}
+		},
+
+		quantityInput: function()
+		{
+			var curValue = 0,
+				intCount;
+
+			if (this.errorCode === 0 && this.showQuantity)
+			{
+				if (this.canBuy)
+				{
+					curValue = this.isDblQuantity ? parseFloat(this.obQuantity.value) : Math.round(this.obQuantity.value);
+					if (!isNaN(curValue))
+					{
+						if (this.checkQuantity)
+						{
+							if (curValue > this.maxQuantity)
+							{
+								curValue = this.maxQuantity;
+							}
+						}
+
+						this.checkPriceRange(curValue);
+
+						intCount = Math.floor(
+							Math.round(curValue * this.precisionFactor / this.stepQuantity) / this.precisionFactor
+						) || 1;
+						curValue = (intCount <= 1 ? this.stepQuantity : intCount * this.stepQuantity);
+						curValue = Math.round(curValue * this.precisionFactor) / this.precisionFactor;
+
+						if (curValue < this.minQuantity)
+						{
+							curValue = this.minQuantity;
+						}
+						this.obQuantityCounter.innerText = curValue;
+					}
+				}
 			}
 		},
 

@@ -150,7 +150,7 @@ $arResult['TEXTAREA_ICON'] = \Bitrix\Im\App::getListForJs();
 $arResult['INIT'] = $arParams['INIT'];
 $arResult['DESKTOP'] = $arResult["CONTEXT"] == "DESKTOP"? 'true': 'false';
 $arResult['PHONE_ENABLED'] = CIMMessenger::CheckPhoneStatus() && CIMMessenger::CanUserPerformCalls();
-$arResult['OL_OPERATOR'] = CModule::IncludeModule('imopenlines') && count(\Bitrix\ImOpenLines\Config::getQueueList($USER->GetID())) > 0;
+$arResult['OL_OPERATOR'] = CModule::IncludeModule('imopenlines') && \Bitrix\ImOpenLines\Config::isOperator($USER->GetID());
 $arResult['DESKTOP_LINK_OPEN'] = $arParams['DESKTOP_LINK_OPEN'] == 'Y'? 'true': 'false';
 $arResult['PATH_TO_USER_PROFILE_TEMPLATE'] = CIMContactList::GetUserPath();
 $arResult['PATH_TO_USER_PROFILE'] = CIMContactList::GetUserPath($USER->GetId());

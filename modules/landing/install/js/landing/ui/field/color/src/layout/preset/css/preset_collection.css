@@ -1,0 +1,101 @@
+.landing-ui-field-color-presets {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 7px;
+	width: 100%;
+}
+
+.landing-ui-field-color-presets-title {
+	margin-right: 5px;
+	max-width: 100%;
+	font: 13px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #525c69;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	opacity: .7;
+}
+
+.landing-ui-field-color-presets-open {
+	font: 12px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #525c69;
+	opacity: .34;
+	user-select: none;
+	transition: opacity .3s;
+	white-space: nowrap;
+	cursor: pointer;
+	border-bottom: 1px dashed;
+}
+
+.landing-ui-field-color-presets-open:hover {
+	opacity: 1;
+}
+
+.landing-ui-field-color-presets-preset {
+    margin: 10px 1px;
+    padding: 3px;
+    border-radius: 3px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.landing-ui-field-color-presets-preset-item {
+    flex: 0 0 16.66667%;
+    max-width: 16.66667%;;
+    width: 15px;
+    height: 15px;
+}
+
+.landing-ui-field-color-presets-popup {
+	padding: 4px 6px;
+}
+
+.landing-ui-field-color-presets-popup-title {
+	display: block;
+	padding-bottom: 10px;
+	margin-bottom: 12px;
+	border-bottom: 1px solid rgba(82,92,105,.1);
+	font: bold 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #535c69;
+}
+
+.landing-ui-field-color-presets-popup-inner {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	margin: 0 -9px;
+	max-height: 180px;
+	overflow-y: auto;
+}
+
+.landing-ui-field-color-presets-popup-inner .landing-ui-field-color-presets-preset {
+	position: relative;
+	padding: 4px;
+	margin: 2px 9px;
+	border: 2px solid transparent;
+	transition: border .3s;
+	border-radius: 1px;
+	cursor: pointer;
+}
+
+.landing-ui-field-color-presets-popup-inner .landing-ui-field-color-presets-preset.active,
+.landing-ui-field-color-presets-preset:hover {
+	border: 2px solid rgba(82,92,105,.34);
+}
+
+.landing-ui-field-color-presets-popup-inner .landing-ui-field-color-presets-preset.active:after {
+	content: '';
+	position: absolute;
+	right: -5px;
+	bottom: -4px;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	background-image: url("data:image/svg+xml,%3Csvg width='15' height='15' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Crect fill='%23FFF' width='14.819' height='14.819' rx='7.409'/%3E%3Cpath fill='%232FC6F6' d='M6.593 8.333l4.19-4.141 1.39 1.44-5.559 5.56-.021-.023-.022.023-3.398-3.415 1.39-1.44z'/%3E%3C/g%3E%3C/svg%3E");
+	box-shadow: 0 2px 4px 0 rgba(0,0,0,.11);
+}
+
+.presets-popup .popup-window-content {
+	overflow: hidden!important;
+}

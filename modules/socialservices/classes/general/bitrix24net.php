@@ -733,6 +733,7 @@ class CBitrix24NetTransport
 	const METHOD_PROFILE_DELETE = 'profile.delete';
 	const METHOD_PROFILE_CONTACTS = 'profile.contacts';
 	const METHOD_PROFILE_RESTORE_PASSWORD = 'profile.password.restore';
+	const METHOD_PROFILE_PUSH_QRCODE_AUTH_TOKEN = 'profile.pushqrcodeauthtoken';
 
 	const RESTORE_PASSWORD_METHOD_EMAIL = 'EMAIL';
 	const RESTORE_PASSWORD_METHOD_PHONE = 'PHONE';
@@ -779,10 +780,10 @@ class CBitrix24NetTransport
 		return $result;
 	}
 
-	protected function prepareRequest(array $request)
+	protected function prepareRequest(array $request, $lang = null)
 	{
 		$request["broadcast_last_check"] = Network::getLastBroadcastCheck();
-		$request["user_lang"] = LANGUAGE_ID;
+		$request["user_lang"] = $lang ?? LANGUAGE_ID;
 		$request["auth"] = $this->access_token;
 
 		return $this->convertRequest($request);
@@ -795,19 +796,23 @@ class CBitrix24NetTransport
 		return $APPLICATION->ConvertCharsetArray($request, LANG_CHARSET, 'utf-8');
 	}
 
-	public function call($methodName, $additionalParams = null)
+	public function call($methodName, $additionalParams = null, $lang = null)
 	{
 		if(!is_array($additionalParams))
 		{
-			$additionalParams = array();
+			$additionalParams = [];
 		}
 
-		$request = $this->prepareRequest($additionalParams);
+		$request = $this->prepareRequest($additionalParams, $lang);
 
-		$http = new \Bitrix\Main\Web\HttpClient(array(
+		$http = new \Bitrix\Main\Web\HttpClient([
 			'socketTimeout' => $this->httpTimeout,
 			'streamTimeout' => $this->httpTimeout,
-		));
+		]);
+		if ($lang)
+		{
+			$http->setCookies(['USER_LANG' => $lang]);
+		}
 		$result = $http->post(
 			CBitrix24NetOAuthInterface::NET_URL.self::SERVICE_URL.$methodName,
 			$request
@@ -891,6 +896,16 @@ class CBitrix24NetTransport
 	{
 		return $this->call(self::METHOD_PROFILE_RESTORE_PASSWORD, array("USER_ID" => $userId, 'RESTORE_METHOD' => $restoreMethod, 'LANGUAGE_ID' => LANGUAGE_ID));
 	}
+
+	/**
+	 * Push qr code auth token
+	 * @param array $params
+	 * @return mixed
+	 */
+	public function pushQrCodeAuthToken(array $params)
+	{
+		return $this->call(self::METHOD_PROFILE_PUSH_QRCODE_AUTH_TOKEN, $params, LANGUAGE_ID);
+	}
 }
 
 class CBitrix24NetPortalTransport extends CBitrix24NetTransport
@@ -922,10 +937,14 @@ class CBitrix24NetPortalTransport extends CBitrix24NetTransport
 		return parent::__construct('');
 	}
 
-	protected function prepareRequest(array $request)
+	protected function prepareRequest(array $request, $lang = null)
 	{
 		$request["client_id"] = $this->clientId;
 		$request["client_secret"] = $this->clientSecret;
+		if ($lang)
+		{
+			$request["user_lang"] = $lang;
+		}
 
 		return $this->convertRequest($request);
 	}

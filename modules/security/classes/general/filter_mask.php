@@ -69,12 +69,6 @@ class CSecurityFilterMask
 		global $DB, $CACHE_MANAGER;
 		$bFound = false;
 
-		//Hardcoded white list (to be continue)
-		if (preg_match("#^/bitrix/tools/mail_entry.php#", $uri))
-		{
-			return true;
-		}
-
 		if(CACHED_b_sec_filter_mask !== false && is_object($CACHE_MANAGER))
 		{
 			$cache_id = "b_sec_filter_mask";

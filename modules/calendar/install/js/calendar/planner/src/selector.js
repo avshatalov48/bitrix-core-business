@@ -76,91 +76,48 @@ export class Selector extends EventEmitter
 	update(params = {})
 	{
 		if (!Type.isPlainObject(params))
+		{
 			params = {};
+		}
 
 		params.updateScaleType = !!params.updateScaleType;
 		params.updateScaleLimits = !!params.updateScaleLimits;
 		params.animation = !!params.animation;
 
-		let
-			rebuildTimeline = false,
-			from = Type.isDate(params.from) ? params.from : BX.parseDate(params.from) || this.currentDateFrom,
-			to = Type.isDate(params.to) ? params.to : BX.parseDate(params.to) || this.currentDateTo,
-			fullDay = params.fullDay !== undefined ? params.fullDay : this.currentFullDay;
+		let from = Type.isDate(params.from) ? params.from : BX.parseDate(params.from) || this.currentDateFrom;
+		let to = Type.isDate(params.to) ? params.to : BX.parseDate(params.to) || this.currentDateTo;
+		this.fullDayMode = params.fullDay !== undefined ? params.fullDay : this.currentFullDay;
 
 		if (Type.isDate(from) && Type.isDate(to))
 		{
 			this.currentDateFrom = from;
 			this.currentDateTo = to;
-			this.currentFullDay = fullDay;
+			this.currentFullDay = this.fullDayMode;
 
-			//this.SetFullDayMode(fullDay);
-			if (fullDay)
+			if (this.fullDayMode)
 			{
 				to = new Date(to.getTime() + Util.getDayLength());
 				from.setHours(0, 0, 0,0);
 				to.setHours(0, 0, 0,0);
-
-				// if (this.scaleType !== '1day')
-				// {
-				// 	this.setScaleType('1day');
-				// 	rebuildTimeline = true;
-				// }
 			}
 
-			// Update limits of scale
-			// if (params.updateScaleLimits && this.scaleType !== '1day')
-			// {
-			// 	let timeFrom = parseInt(from.getHours()) + Math.floor(from.getMinutes() / 60);
-			// 	let timeTo = parseInt(to.getHours()) + Math.ceil(to.getMinutes() / 60);
-			//
-			// 	if (Util.formatDate(from) !== Util.formatDate(to))
-			// 	{
-			// 		this.extendScaleTime(0, 24);
-			// 		rebuildTimeline = true;
-			// 	}
-			// 	else
-			// 	{
-			// 		if (timeFrom < this.shownScaleTimeFrom)
-			// 		{
-			// 			this.extendScaleTime(timeFrom, false);
-			// 			rebuildTimeline = true;
-			// 		}
-			//
-			// 		if (timeTo > this.shownScaleTimeTo)
-			// 		{
-			// 			this.extendScaleTime(false, timeTo);
-			// 			rebuildTimeline = true;
-			// 		}
-			//
-			// 		if (rebuildTimeline)
-			// 		{
-			// 			this.adjustCellWidth();
-			// 		}
-			// 	}
-			// }
-
-			//if (params.RRULE)
-			//{
-			//	this.HandleRecursion(params);
-			//}
-
-			// if (rebuildTimeline)
-			// {
-			// 	this.RebuildPlanner({updateSelector: false});
-			// }
-
 			// Update selector
-			this.show(from, to, {animation: params.animation, focus: params.focus});
+			this.show(
+				from,
+				to,
+				{
+					animation: params.animation,
+					focus: params.focus
+				}
+			);
 		}
 	}
 
 	show(from, to, params)
 	{
-		let
-			animation = params.animation && this.useAnimation !== false,
-			focus = params.focus,
-			alignCenter = params.alignCenter !== false;
+		const animation = params.animation && this.useAnimation !== false;
+		const focus = params.focus;
+		const alignCenter = params.alignCenter !== false;
 
 		this.DOM.wrap.style.display = 'block';
 
@@ -185,7 +142,7 @@ export class Selector extends EventEmitter
 				this.DOM.wrap.style.left = fromPos + 'px';
 				this.DOM.wrap.style.width = (toPos - fromPos) + 'px';
 				this.focus(false, 200, alignCenter);
-				this.checkStatus(fromPos);
+				this.checkStatus(fromPos, true);
 			}
 		}
 	}
@@ -389,7 +346,17 @@ export class Selector extends EventEmitter
 				toDate = this.currentDateTo;
 			}
 
-			this.emit('doCheckStatus', new BaseEvent({data: {dateFrom: fromDate,dateTo: toDate}}));
+			this.emit(
+				'doCheckStatus',
+				new BaseEvent(
+				{
+						data: {
+							dateFrom: fromDate,
+							dateTo: toDate
+						}
+					}
+				)
+			);
 		}
 	}
 
@@ -424,21 +391,21 @@ export class Selector extends EventEmitter
 			selectorPos = parseInt(this.getTimelineWidth()) - selectorWidth;
 		}
 
-		let
-			dateFrom = this.getDateByPos(selectorPos),
-			dateTo = this.getDateByPos(selectorPos + selectorWidth, true);
+		let dateFrom = this.getDateByPos(selectorPos);
+		let dateTo = this.getDateByPos(selectorPos + selectorWidth, true);
 
 		if (dateFrom && dateTo)
 		{
 			this.currentDateFrom = dateFrom;
 			this.currentDateTo = dateTo;
+			this.currentFullDay = this.fullDayMode;
 
 			if (this.fullDayMode)
 			{
-				dateTo = new Date(dateTo.getTime() - Util.getDayLength());
+				const dateToTime = dateTo.getTime();
+				this.currentDateTo = new Date(dateToTime - 1000);
+				dateTo = new Date(dateToTime - Util.getDayLength());
 			}
-
-			this.currentFullDay = this.fullDayMode;
 
 			this.emit('onChange', new BaseEvent({data: {
 				dateFrom: dateFrom,
@@ -451,17 +418,15 @@ export class Selector extends EventEmitter
 	checkPosition(fromPos, selectorWidth, toPos)
 	{
 		let scaleInfo = this.getScaleInfo();
-		if (scaleInfo.shownTimeFrom !== 0 || scaleInfo.shownTimeTo !== 24
-		&& (scaleInfo.type !== '1day' || this.fullDayMode))
+		if (
+			(scaleInfo.shownTimeFrom !== 0 || scaleInfo.shownTimeTo !== 24)
+			&&
+			(scaleInfo.type !== '1day' || this.fullDayMode)
+		)
 		{
-			if (!fromPos)
-				fromPos = parseInt(this.DOM.wrap.style.left);
-
-			if (!selectorWidth)
-				selectorWidth = parseInt(this.DOM.wrap.style.width);
-
-			if (!toPos)
-				toPos = fromPos + selectorWidth;
+			fromPos = fromPos || parseInt(this.DOM.wrap.style.left);
+			selectorWidth = selectorWidth || parseInt(this.DOM.wrap.style.width);
+			toPos = toPos || (fromPos + selectorWidth);
 
 			if (toPos > parseInt(this.getTimelineWidth()))
 			{
@@ -495,6 +460,8 @@ export class Selector extends EventEmitter
 					{
 						timeFrom = parseInt(fromDate.getHours()) + Math.round((fromDate.getMinutes() / 60) * 10) / 10;
 						timeTo = parseInt(toDate.getHours()) + Math.round((toDate.getMinutes() / 60) * 10) / 10;
+
+
 						if (Math.abs(scaleTimeTo - timeFrom) > Math.abs(scaleTimeFrom - timeTo))
 						{
 							fromDate.setHours(scaleInfo.shownTimeTo, 0, 0,0);

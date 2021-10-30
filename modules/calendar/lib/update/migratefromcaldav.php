@@ -1,6 +1,7 @@
 <?
 namespace Bitrix\Calendar\Update;
 
+use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Sync\GoogleApiSync;
 
 /**
@@ -114,7 +115,7 @@ final class MigrateFromCaldav
 						//In a case when google api can return data and we have access to it
 						$DB->Query("DELETE FROM b_calendar_tmp_migration WHERE ID = '" . intval($row['ID']) . "'");
 
-						\CDavConnection::Update($connectionId, array('ACCOUNT_TYPE' => 'google_api_oauth', 'SERVER' => 'https://www.googleapis.com/calendar/v3'), false);
+						\CDavConnection::Update($connectionId, ['ACCOUNT_TYPE' => Google\Helper::GOOGLE_ACCOUNT_TYPE_API, 'SERVER' => Google\Helper::GOOGLE_SERVER_PATH_V3], false);
 					}
 					else
 					{
@@ -130,7 +131,7 @@ final class MigrateFromCaldav
 				{
 					//In a case when no tables for migration received.
 					$DB->Query("DELETE FROM b_calendar_tmp_migration WHERE ID = '" . intval($row['ID']) . "'");
-					\CDavConnection::Update($connectionId, array('ACCOUNT_TYPE' => 'google_api_oauth', 'SERVER' => 'https://www.googleapis.com/calendar/v3'), false);
+					\CDavConnection::Update($connectionId, array('ACCOUNT_TYPE' => Google\Helper::GOOGLE_ACCOUNT_TYPE_API, 'SERVER' => Google\Helper::GOOGLE_SERVER_PATH_V3), false);
 				}
 			}
 

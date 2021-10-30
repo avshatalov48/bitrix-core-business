@@ -74,7 +74,7 @@ return [
 			],
 			'.landing-block-node-header' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODEHEADER'),
-				'type' => ['border-color', 'animation', 'heading'],
+				'type' => ['animation', 'heading'],
 			],
 			'.landing-block-node-card-container' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_CARDS_LANDINGBLOCKNODECARD'),

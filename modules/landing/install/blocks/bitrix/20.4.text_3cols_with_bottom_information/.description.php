@@ -52,7 +52,7 @@ return [
 		],
 		'.landing-block-card-block' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_CARD_BLOCK'),
-			'type' => ['background-color', 'background-gradient'],
+			'type' => ['background-color'],
 		],
 		'.landing-block-inner' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_BLOCK'),
@@ -76,7 +76,7 @@ return [
 		],
 		'.landing-block-bottom-block' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_BOTTOM_BLOCK'),
-			'type' => ['border-color'],
+			'type' => ['border-colors'],
 		],
 		'.landing-block-node-author-img' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_20_4_AUTHORIMG'),

@@ -76,7 +76,7 @@ return [
 		],
 		'.landing-block-node-carousel-element-img-hover' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_5_TWO_COLS_FIX_TEXT_AND_IMAGE_SLIDER_STYLE_LANDINGBLOCKNODECAROUSELELEMENTIMGHOVER'),
-			'type' => ['background-color', 'background-gradient'],
+			'type' => ['background-color'],
 		],
 		'.landing-block-node-header' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_5_TWO_COLS_FIX_TEXT_AND_IMAGE_SLIDER_STYLE_LANDINGBLOCKNODEHEADER'),

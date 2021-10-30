@@ -60,6 +60,38 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		return (count($this->getErrors()) === 0);
 	}
 
+	private function getDirIdForMessages($mailboxId, $messagesIds)
+	{
+		$dirWithMessagesId = Mail\Internals\MailboxDirectoryTable::getList([
+			'runtime' => array(
+				new Main\ORM\Fields\Relations\Reference(
+					'UID',
+					'Bitrix\Mail\MailMessageUidTable',
+					[
+						'=this.DIR_MD5' => 'ref.DIR_MD5',
+						'=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
+					],
+					[
+						'join_type' => 'INNER',
+					]
+				),
+			),
+			'select' => [
+				'ID',
+			],
+			'filter' => [
+				'@UID.ID' => $messagesIds,
+				'=MAILBOX_ID' => $mailboxId,
+			],
+			'limit' => 1,
+		])->fetchAll();
+
+		if(isset($dirWithMessagesId[0]['ID']))
+		{
+			return $dirWithMessagesId[0]['ID'];
+		}
+		return false;
+	}
 
 	/**
 	 * Move messages to folder.
@@ -68,16 +100,61 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 	 */
 	public function moveToFolderAction($ids, $folder)
 	{
-		$result = $this->getIds($ids);
-		if ($result->isSuccess())
+		$resultIds = $this->getIds($ids);
+		if ($resultIds->isSuccess())
 		{
-			$data = $result->getData();
+			$data = $resultIds->getData();
 			$mailMarkerManager = new MailsFoldersManager($data['mailboxId'], $data['messagesIds'], $this->getCurrentUser()->getId());
+			$mailboxId = $data['mailboxId'];
+
+			$idsUnseenCount = Mail\MailMessageUidTable::getCount([
+				'!@IS_SEEN' => ['Y', 'S'],
+				'@ID' => $data['messagesIds'],
+				'=MAILBOX_ID' => $mailboxId,
+			]);
+
+			$dirWithMessagesId = false;
+			$dirForMoveMessagesId = [];
+
+			if($idsUnseenCount)
+			{
+				$dirWithMessagesId = $this->getDirIdForMessages($mailboxId,$data['messagesIds']);
+
+				$dirForMoveMessagesId = Mail\Internals\MailboxDirectoryTable::getList([
+					'select' => [
+						'ID',
+					],
+					'filter' => [
+						'=PATH' => $folder,
+						'=MAILBOX_ID' => $mailboxId,
+					],
+					'limit' => 1,
+				])->fetchAll();
+			}
+
 			$result = $mailMarkerManager->moveMails($folder);
+
 			if (!$result->isSuccess())
 			{
 				$errors = $result->getErrors();
 				$this->addError($errors[0]);
+			}
+			else
+			{
+				if($dirWithMessagesId && isset($dirForMoveMessagesId[0]['ID']))
+				{
+					$dirForMoveMessagesId = $dirForMoveMessagesId[0]['ID'];
+
+					$this->decreaseDirCounter($mailboxId, $dirWithMessagesId, $idsUnseenCount);
+
+					$mailboxHelper = \Bitrix\Mail\Helper\Mailbox::createInstance($mailboxId);
+					$dirForMoveMessages = $mailboxHelper->getDirsHelper()->getDirByPath($folder);
+
+					$this->increaseDirCounter($mailboxId, $dirForMoveMessages, $dirForMoveMessagesId, $idsUnseenCount);
+
+					\Bitrix\Mail\Helper::updateMailboxUnseenCounter($mailboxId);
+					$mailboxHelper->updateGlobalCounterForCurrentUser();
+				}
 			}
 		}
 	}
@@ -88,7 +165,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 
 		if (!empty($ids['for_all']))
 		{
-			list($mailboxId, $dir) = explode('-', $ids['for_all']);
+			[$mailboxId, $dir] = explode('-', $ids['for_all']);
 
 			$ids = array();
 
@@ -108,7 +185,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			}
 		}
 
-		$result = $this->getIds($ids);
+		$result = $this->getIds($ids,true);
 		if ($result->isSuccess())
 		{
 			$data = $result->getData();
@@ -150,12 +227,48 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		if ($result->isSuccess())
 		{
 			$data = $result->getData();
+			$mailboxId = $data['mailboxId'];
+			$messagesIds = $data['messagesIds'];
+
+			$idsUnseenCount = Mail\MailMessageUidTable::getCount([
+				'!@IS_SEEN' => ['Y', 'S'],
+				'@ID' => $messagesIds,
+				'=MAILBOX_ID' => $mailboxId,
+			]);
+
 			$mailMarkerManager = new MailsFoldersManager($data['mailboxId'], $data['messagesIds'], $this->getCurrentUser()->getId());
 			$result = $mailMarkerManager->restoreMailsFromSpam();
 			if (!$result->isSuccess())
 			{
 				$errors = $result->getErrors();
 				$this->addError($errors[0]);
+			}
+			else
+			{
+				if($idsUnseenCount)
+				{
+					$dirForMoveMessagesId = Mail\Internals\MailboxDirectoryTable::getList([
+						'select' => [
+							'ID',
+						],
+						'filter' => [
+							'=PATH' => 'INBOX',
+							'=MAILBOX_ID' => $mailboxId,
+						],
+						'limit' => 1,
+					])->fetchAll();
+
+					if(isset($dirForMoveMessagesId[0]['ID']))
+					{
+						$dirForMoveMessagesId = $dirForMoveMessagesId[0]['ID'];
+						$mailboxHelper = \Bitrix\Mail\Helper\Mailbox::createInstance($mailboxId);
+						$dirForMoveMessages = $mailboxHelper->getDirsHelper()->getDirByPath('INBOX');
+						$this->increaseDirCounter($mailboxId, $dirForMoveMessages, $dirForMoveMessagesId, $idsUnseenCount);
+
+						\Bitrix\Mail\Helper::updateMailboxUnseenCounter($mailboxId);
+						$mailboxHelper->updateGlobalCounterForCurrentUser();
+					}
+				}
 			}
 		}
 	}
@@ -174,15 +287,95 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		if ($result->isSuccess())
 		{
 			$data = $result->getData();
-			$mailMarkerManager = new MailsFoldersManager($data['mailboxId'], $data['messagesIds'], $this->getCurrentUser()->getId());
+			$mailboxId = $data['mailboxId'];
+			$messagesIds = $data['messagesIds'];
+
+			$dirWithMessagesId = $this->getDirIdForMessages($mailboxId, $messagesIds);
+			$idsUnseenCount = Mail\MailMessageUidTable::getCount([
+				'!@IS_SEEN' => ['Y', 'S'],
+				'@ID' => $messagesIds,
+				'=MAILBOX_ID' => $mailboxId,
+			]);
+
+			$mailMarkerManager = new MailsFoldersManager($mailboxId, $messagesIds, $this->getCurrentUser()->getId());
 			$result = $mailMarkerManager->sendMailsToSpam();
+
 			if (!$result->isSuccess())
 			{
 				$errors = $result->getErrors();
 				$this->addError($errors[0]);
 			}
+			else
+			{
+				$this->decreaseDirCounter($mailboxId, $dirWithMessagesId, $idsUnseenCount);
+
+				$mailboxHelper = \Bitrix\Mail\Helper\Mailbox::createInstance($mailboxId);
+				\Bitrix\Mail\Helper::updateMailboxUnseenCounter($mailboxId);
+				$mailboxHelper->updateGlobalCounterForCurrentUser();
+			}
 		}
 	}
+
+	private function decreaseDirCounter($mailboxId, $dirWithMessagesId, $idsUnseenCount)
+	{
+		if($dirWithMessagesId)
+		{
+			if(Mail\Internals\MailCounterTable::getCount([
+				'=MAILBOX_ID' => $mailboxId,
+				'=ENTITY_TYPE' => 'DIR',
+				'=ENTITY_ID' => $dirWithMessagesId,
+				'>=VALUE' => $idsUnseenCount
+			]))
+			{
+				Mail\Internals\MailCounterTable::update(
+					[
+						'MAILBOX_ID' => $mailboxId,
+						'ENTITY_TYPE' => 'DIR',
+						'ENTITY_ID' => $dirWithMessagesId
+					],
+					[
+						"VALUE" => new \Bitrix\Main\DB\SqlExpression("?# - $idsUnseenCount", "VALUE")
+					]
+				);
+			}
+		}
+	}
+
+	private function increaseDirCounter($mailboxId, $dirForMoveMessages, $dirForMoveMessagesId, $idsUnseenCount)
+	{
+		if(!is_null($dirForMoveMessages) && !$dirForMoveMessages->isInvisibleToCounters()){
+			if (Mail\Internals\MailCounterTable::getCount([
+				'=MAILBOX_ID' => $mailboxId,
+				'=ENTITY_TYPE' => 'DIR',
+				'=ENTITY_ID' => $dirForMoveMessagesId
+			])
+			)
+			{
+				Mail\Internals\MailCounterTable::update(
+					[
+						'MAILBOX_ID' => $mailboxId,
+						'ENTITY_TYPE' => 'DIR',
+						'ENTITY_ID' => $dirForMoveMessagesId
+					],
+					[
+						"VALUE" => new \Bitrix\Main\DB\SqlExpression("?# + $idsUnseenCount", "VALUE")
+					]
+				);
+			}
+			else
+			{
+				Mail\Internals\MailCounterTable::add([
+					'MAILBOX_ID' => $mailboxId,
+					'ENTITY_TYPE' => 'DIR',
+					'ENTITY_ID' => $dirForMoveMessagesId
+				],
+				[
+					"VALUE" => $idsUnseenCount,
+				]);
+			}
+		}
+	}
+
 
 	/**
 	 * Deletes messages.
@@ -195,12 +388,31 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		if ($result->isSuccess())
 		{
 			$data = $result->getData();
-			$mailMarkerManager = new MailsFoldersManager($data['mailboxId'], $data['messagesIds']);
+			$mailboxId = $data['mailboxId'];
+			$messagesIds = $data['messagesIds'];
+			$mailMarkerManager = new MailsFoldersManager($mailboxId, $messagesIds);
+
+			$dirWithMessagesId = $this->getDirIdForMessages($mailboxId, $messagesIds);
+			$idsUnseenCount = Mail\MailMessageUidTable::getCount([
+				'!@IS_SEEN' => ['Y', 'S'],
+				'@ID' => $messagesIds,
+				'=MAILBOX_ID' => $mailboxId,
+			]);
+
 			$result = $mailMarkerManager->deleteMails($deleteImmediately);
+
 			if (!$result->isSuccess())
 			{
 				$errors = $result->getErrors();
 				$this->addError($errors[0]);
+			}
+			else if($idsUnseenCount)
+			{
+				$this->decreaseDirCounter($mailboxId, $dirWithMessagesId, $idsUnseenCount);
+
+				$mailboxHelper = \Bitrix\Mail\Helper\Mailbox::createInstance($mailboxId);
+				\Bitrix\Mail\Helper::updateMailboxUnseenCounter($mailboxId);
+				$mailboxHelper->updateGlobalCounterForCurrentUser();
 			}
 		}
 	}
@@ -210,7 +422,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 	 *
 	 * @return \Bitrix\Main\Result
 	 */
-	private function getIds($ids)
+	private function getIds($ids, $ignoreOld = false)
 	{
 		$result = new \Bitrix\Main\Result();
 		if (empty($ids))
@@ -220,7 +432,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		$mailboxIds = $messIds = [];
 		foreach ($ids as $id)
 		{
-			list($messId, $mailboxId) = explode('-', $id, 2);
+			[$messId, $mailboxId] = explode('-', $id, 2);
 
 			$mailboxIds[$mailboxId] = $mailboxId;
 			$messIds[$messId] = $messId;
@@ -229,6 +441,27 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		{
 			return $result->addError(new \Bitrix\Main\Error('validation'));
 		}
+
+		if($ignoreOld)
+		{
+			$oldIds = Mail\MailMessageUidTable::getList(array(
+				'select' => array('ID'),
+				'filter' => array(
+					'@ID' => $messIds,
+					'=MAILBOX_ID' => current($mailboxIds),
+					'=IS_OLD' => 'Y',
+				),
+			))->fetchAll();
+
+			foreach ($oldIds as $item)
+			{
+				if(is_set($messIds[$item['ID']]))
+				{
+					unset($messIds[$item['ID']]);
+				}
+			}
+		}
+
 		if (!count($mailboxIds))
 		{
 			return $result->addError(new \Bitrix\Main\Error('validation'));
@@ -510,6 +743,12 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		$ccEncoded = array_unique($ccEncoded);
 		$bccEncoded = array_unique($bccEncoded);
 
+		if (count($to) + count($cc) + count($bcc) > 10)
+		{
+			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_MESSAGE_TO_MANY_RECIPIENTS'));
+			return;
+		}
+
 		if (empty($to))
 		{
 			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_MESSAGE_EMPTY_RCPT'));
@@ -694,7 +933,11 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		{
 			$context = new Main\Mail\Context();
 			$context->setCategory(Main\Mail\Context::CAT_EXTERNAL);
-			$context->setPriority(Main\Mail\Context::PRIORITY_NORMAL);
+			$context->setPriority(
+				isset($addressList) && count($addressList) > 2
+				? Main\Mail\Context::PRIORITY_LOW
+				: Main\Mail\Context::PRIORITY_NORMAL
+			);
 
 			$result = Main\Mail\Mail::send(array_merge(
 				$outgoingParams,

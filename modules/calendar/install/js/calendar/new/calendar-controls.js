@@ -1,102 +1,4 @@
 ;(function(window) {
-
-	function SettingsMenu(params)
-	{
-		this.calendar = params.calendar;
-		this.wrap = params.wrap;
-		this.showMarketPlace = params.showMarketPlace;
-		this.id = this.calendar.id + '_settings_button';
-		this.zIndex = params.zIndex || 3200;
-		this.create();
-	}
-
-	SettingsMenu.prototype = {
-		create: function ()
-		{
-			this.menuItems = [
-				{
-					text: BX.message('EC_SET_SLIDER_SETTINGS_TITLE'),
-					onclick: BX.proxy(this.openSettingsSlider, this)
-				}
-			];
-
-			if (this.showMarketPlace)
-			{
-				this.menuItems.push({
-					text: BX.message('EC_ADD_APPLICATION'),
-					onclick: BX.proxy(this.openApplicationSlider, this)
-				});
-			}
-
-			this.button = this.wrap.appendChild(BX.create("button", {
-				props: {
-					className: "ui-btn ui-btn-icon-setting ui-btn-light-border ui-btn-themes",
-					type: "button"
-				}
-			}));
-
-			if (this.menuItems.length > 1)
-			{
-				BX.bind(this.button, 'click', BX.proxy(this.showPopup, this));
-			}
-			else
-			{
-				BX.bind(this.button, 'click', BX.proxy(this.openSettingsSlider, this));
-			}
-		},
-
-		showPopup: function ()
-		{
-			if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown())
-			{
-				return this.menuPopup.close();
-			}
-
-			this.menuPopup = BX.PopupMenu.create(
-				this.id,
-				this.button,
-				this.menuItems,
-				{
-					closeByEsc : true,
-					autoHide : true,
-					zIndex: this.zIndex
-				}
-			);
-
-			this.menuPopup.show();
-
-			BX.addCustomEvent(this.menuPopup.popupWindow, 'onPopupClose', BX.delegate(function()
-			{
-				BX.PopupMenu.destroy(this.addButtonMorePopupId);
-				BX.PopupMenu.destroy(this.id);
-				this.menuPopup = null;
-				this.addBtnMenu = null;
-			}, this));
-		},
-
-		openSettingsSlider: function()
-		{
-			if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown())
-			{
-				this.menuPopup.close();
-			}
-
-			if (!this.calendar.settingsSlider)
-			{
-				this.calendar.settingsSlider = new window.BXEventCalendar.SettingsSlider({calendar: this.calendar});
-			}
-			this.calendar.settingsSlider.show();
-		},
-
-		openApplicationSlider: function()
-		{
-			if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown())
-			{
-				this.menuPopup.close();
-			}
-		}
-	};
-
 	function SelectInput(params)
 	{
 		this.id = params.id || 'bx-select-input-' + Math.round(Math.random() * 1000000);
@@ -1305,7 +1207,6 @@
 
 	if (window.BXEventCalendar)
 	{
-		window.BXEventCalendar.SettingsMenu = SettingsMenu;
 		window.BXEventCalendar.SelectInput = SelectInput;
 		window.BXEventCalendar.DestinationSelector = DestinationSelector;
 		window.BXEventCalendar.NavigationCalendar = NavigationCalendar;
@@ -1316,7 +1217,6 @@
 	{
 		BX.addCustomEvent(window, "onBXEventCalendarInit", function()
 		{
-			window.BXEventCalendar.SettingsMenu = SettingsMenu;
 			window.BXEventCalendar.SelectInput = SelectInput;
 			window.BXEventCalendar.DestinationSelector = DestinationSelector;
 			window.BXEventCalendar.NavigationCalendar = NavigationCalendar;

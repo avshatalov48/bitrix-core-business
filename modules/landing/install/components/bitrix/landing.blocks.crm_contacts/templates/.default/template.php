@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Main\Text\HtmlFilter;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -39,6 +42,7 @@ if (!empty($arResult['ALERTS']))
 	$alerts .= '</div></div>';
 }
 
+$arResult['CONTACTS']['phones'][0] = HtmlFilter::encode($arResult['CONTACTS']['phones'][0]);
 $textAlign = $arParams['BUTTON_POSITION'] === 'right' ? 'text-left' : 'text-right';
 $textBlock = <<<HTML
 		<div class="crmcontacts-text-block {$textAlign} col-8">

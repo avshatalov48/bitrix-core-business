@@ -17,6 +17,19 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Iblock
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_IblockSite_Query query()
+ * @method static EO_IblockSite_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_IblockSite_Result getById($id)
+ * @method static EO_IblockSite_Result getList(array $parameters = array())
+ * @method static EO_IblockSite_Entity getEntity()
+ * @method static \Bitrix\Iblock\EO_IblockSite createObject($setDefaultValues = true)
+ * @method static \Bitrix\Iblock\EO_IblockSite_Collection createCollection()
+ * @method static \Bitrix\Iblock\EO_IblockSite wakeUpObject($row)
+ * @method static \Bitrix\Iblock\EO_IblockSite_Collection wakeUpCollection($rows)
  */
 class IblockSiteTable extends Entity\DataManager
 {

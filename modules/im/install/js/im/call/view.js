@@ -2589,7 +2589,7 @@
 		{
 			if(this.layout == Layouts.Centered && this.userId == this.centralUser.id || this.layout == Layouts.Mobile)
 			{
-				this.unobserveIntersections(this.localUser);
+				// this.unobserveIntersections(this.localUser);
 				this.localUser.mount(this.elements.center, true);
 				this.localUser.visible = true;
 			}
@@ -2599,7 +2599,7 @@
 				this.localUser.mount(this.elements.userList.container);
 				if(this.layout == Layouts.Centered && this.intersectionObserver)
 				{
-					this.observeIntersections(this.localUser);
+					// this.observeIntersections(this.localUser);
 				}
 				else
 				{
@@ -2612,7 +2612,7 @@
 		else
 		{
 			this.localUser.dismount();
-			this.unobserveIntersections(this.localUser);
+			// this.unobserveIntersections(this.localUser);
 		}
 
 		if (this.layout == Layouts.Grid)
@@ -4875,7 +4875,7 @@
 
 	CallUser.prototype.updateRendererState = function()
 	{
-		if (this.videoRenderer)
+		/*if (this.videoRenderer)
 		{
 			if (this.visible)
 			{
@@ -4884,6 +4884,18 @@
 			else
 			{
 				this.videoRenderer.disable();
+			}
+		}*/
+
+		if (this.elements.video && this.elements.video.srcObject)
+		{
+			if (this.visible)
+			{
+				this.elements.video.pause();
+			}
+			else
+			{
+				this.elements.video.play();
 			}
 		}
 	};
@@ -5230,7 +5242,7 @@
 		{
 			return;
 		}
-		if(this.hasVideo() && this.visible)
+		if(this.hasVideo()/* && this.visible*/)
 		{
 			if (this.videoRenderer)
 			{
@@ -5362,7 +5374,7 @@
 
 	CallUser.prototype.dismount = function()
 	{
-		this.visible = false;
+		// this.visible = false;
 		if(!this.isMounted())
 		{
 			return false;

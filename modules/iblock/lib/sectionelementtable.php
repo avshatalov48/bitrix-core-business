@@ -9,6 +9,22 @@ use Bitrix\Main\ORM\Query\Join;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class SectionElementTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SectionElement_Query query()
+ * @method static EO_SectionElement_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_SectionElement_Result getById($id)
+ * @method static EO_SectionElement_Result getList(array $parameters = array())
+ * @method static EO_SectionElement_Entity getEntity()
+ * @method static \Bitrix\Iblock\EO_SectionElement createObject($setDefaultValues = true)
+ * @method static \Bitrix\Iblock\EO_SectionElement_Collection createCollection()
+ * @method static \Bitrix\Iblock\EO_SectionElement wakeUpObject($row)
+ * @method static \Bitrix\Iblock\EO_SectionElement_Collection wakeUpCollection($rows)
+ */
 class SectionElementTable extends Main\Entity\DataManager
 {
 	/**

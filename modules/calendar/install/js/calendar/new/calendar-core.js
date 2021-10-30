@@ -811,20 +811,34 @@
 						}.bind(this));
 				}.bind(this));
 
-				// new window.BXEventCalendar.SectionSlider({
-				// 	calendar: this,
-				// 	button: this.sectionButton
-				// });
-
 				if (this.util.userIsOwner() || this.util.config.TYPE_ACCESS)
 				{
-					this.addButton = new window.BXEventCalendar.SettingsMenu(
+					this.settingsButton = this.buttonsCont.appendChild(BX.create(
+						"button",
 						{
-							calendar: this,
-							wrap: this.buttonsCont,
-							showMarketPlace: false
+							props: {
+								className: "ui-btn ui-btn-icon-setting ui-btn-light-border ui-btn-themes",
+							}
 						}
-					);
+					));
+
+					BX.Event.bind(this.settingsButton, 'click', function(){
+						this.getSettingsInterface()
+							.then(function(SettingsInterface){
+								if (!this.settingsInterface)
+								{
+									this.settingsInterface = new SettingsInterface(
+										{
+											calendarContext: this,
+											showPersonalSettings: this.util.userIsOwner(),
+											showGeneralSettings: !!(this.util.config.perm && this.util.config.perm.access),
+											settings: this.util.config.settings
+										}
+									);
+								}
+								this.settingsInterface.show();
+							}.bind(this));
+					}.bind(this));
 				}
 
 				var addButtonWrap = BX(this.id + '-add-button-container');
@@ -993,6 +1007,35 @@
 							if (bx.Calendar.SectionInterface)
 							{
 								reslve(bx.Calendar.SectionInterface);
+							}
+							else
+							{
+								console.error('Extension ' + extensionName + ' not found');
+							}
+						}
+					);
+				}
+
+			}.bind(this));
+		},
+
+		getSettingsInterface: function()
+		{
+			return new Promise(function(reslve){
+				var bx = BX.Calendar.Util.getBX();
+				if (bx.Calendar.SettingsInterface)
+				{
+					reslve(bx.Calendar.SettingsInterface);
+				}
+				else
+				{
+					var extensionName = 'calendar.settingsinterface';
+					bx.Runtime.loadExtension(extensionName)
+						.then(function(exports)
+						{
+							if (bx.Calendar.SettingsInterface)
+							{
+								reslve(bx.Calendar.SettingsInterface);
 							}
 							else
 							{

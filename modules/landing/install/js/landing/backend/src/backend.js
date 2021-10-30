@@ -9,7 +9,8 @@ let additionalRequestCompleted = true;
  */
 export class Backend
 {
-	static getInstance()
+	static +instance: Backend = null;
+	static getInstance(): Backend
 	{
 		if (!Backend.instance)
 		{
@@ -75,7 +76,11 @@ export class Backend
 				onsuccess: (sourceResponse) => {
 					const response = Backend.makeResponse(xhr, sourceResponse);
 
-					if (Type.isStringFilled(response.sessid) && additionalRequestCompleted)
+					if (
+						Type.isStringFilled(response.sessid) &&
+						Loc.getMessage('bitrix_sessid') !== response.sessid &&
+						additionalRequestCompleted
+					)
 					{
 						Loc.setMessage('bitrix_sessid', response.sessid);
 						additionalRequestCompleted = false;
@@ -239,6 +244,12 @@ export class Backend
 					[action, data]
 				);
 
+				/*if (!response.result) {
+					BX.Landing.ErrorManager.getInstance().add({
+						type: 'error'
+					});
+				}*/
+
 				return response.result;
 			})
 			.catch((err) => {
@@ -255,6 +266,7 @@ export class Backend
 						&& requestBody.action !== 'Landing::publication'
 						&& requestBody.action !== 'Site::publication'
 						&& requestBody.action !== 'Site::moveFolder'
+						&& requestBody.action !== 'Site::markDelete'
 					)
 					{
 						const error = Type.isString(err) ? {type: 'error'} : err;
@@ -292,13 +304,22 @@ export class Backend
 				data: requestBody,
 			})
 			.then((response) => {
+
 				// eslint-disable-next-line
 				BX.Landing.UI.Panel.StatusPanel.getInstance().update();
+
 				BX.onCustomEvent(
 					BX.Landing.PageObject.getRootWindow(),
 					'BX.Landing.Backend:batch',
 					[action, data]
 				);
+
+				/*if (!response.result) {
+					BX.Landing.ErrorManager.getInstance().add({
+						type: 'error'
+					});
+				}*/
+
 				return response;
 			})
 			.catch((err) => {

@@ -12,6 +12,19 @@ use Bitrix\Main\Entity;
 /**
  * Class SitemapEntityTable
  * @package Bitrix\Seo
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SitemapEntity_Query query()
+ * @method static EO_SitemapEntity_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_SitemapEntity_Result getById($id)
+ * @method static EO_SitemapEntity_Result getList(array $parameters = array())
+ * @method static EO_SitemapEntity_Entity getEntity()
+ * @method static \Bitrix\Seo\EO_SitemapEntity createObject($setDefaultValues = true)
+ * @method static \Bitrix\Seo\EO_SitemapEntity_Collection createCollection()
+ * @method static \Bitrix\Seo\EO_SitemapEntity wakeUpObject($row)
+ * @method static \Bitrix\Seo\EO_SitemapEntity_Collection wakeUpCollection($rows)
  */
 class SitemapEntityTable extends Entity\DataManager
 {

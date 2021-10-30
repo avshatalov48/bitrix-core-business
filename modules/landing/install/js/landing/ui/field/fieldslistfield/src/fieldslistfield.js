@@ -248,7 +248,7 @@ export class FieldsListField extends BaseField
 				listItemOptions.title = this.getFieldItemTitle(options.id);
 
 				const crmField = this.getCrmFieldById(options.id);
-				listItemOptions.description = options.label || crmField.caption;
+				listItemOptions.description = options.label || (crmField ? crmField.caption : '');
 				listItemOptions.editable = true;
 				listItemOptions.isSeparator = false;
 				listItemOptions.fieldController = this.createResourceBookingFieldController(options);

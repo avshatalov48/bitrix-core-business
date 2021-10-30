@@ -25943,7 +25943,7 @@ MessengerSlider.prototype.open = function()
 			animationDuration: 100,
 			customLeftBoundary: 0,
 			loader: loader,
-			width: this.BXIM.fullScreen? undefined: 1200,
+			//width: this.BXIM.fullScreen? undefined: 1200, - test fullscreen mode
 			contentCallback: function(slider) {
 				return BX.MessengerWindow.content;
 			},

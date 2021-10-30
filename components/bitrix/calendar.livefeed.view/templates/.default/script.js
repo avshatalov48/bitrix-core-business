@@ -8,13 +8,16 @@
 		this.viewEventUrl = this.config.viewEventUrlTemplate;
 		this.viewEventUrl = this.viewEventUrl.replace(/#user_id#/ig, this.userId);
 		this.viewEventUrl = this.viewEventUrl.replace(/#event_id#/ig, this.config.eventId);
+		this.bx = window.top.BX || window.BX;
 
 		if (this.config.EVENT.DATE_FROM && this.config.EVENT.RRULE)
 		{
 			this.viewEventUrl += '&EVENT_DATE=' + BX.formatDate(BX.parseDate(this.config.EVENT.DATE_FROM), BX.message('FORMAT_DATE'));
 		}
 
-		BX.ready(BX.proxy(this.Init, this));
+		this.getCalendarUtils().then(function(){
+			this.bx.ready(this.Init.bind(this));
+		}.bind(this));
 	};
 
 	window.ViewEventManager.prototype = {
@@ -23,7 +26,6 @@
 			this.pViewIconLink = BX('feed-event-view-icon-link-' + this.id);
 			this.pViewLink = BX('feed-event-view-link-' + this.id);
 			this.pViewLink.href = this.pViewIconLink.href = this.viewEventUrl;
-
 			this.pFrom = BX('feed-event-view-from-' + this.id);
 
 			var event = this.config.EVENT;
@@ -351,46 +353,55 @@
 			);
 		},
 
-		GetFromHtml: function(DT_FROM_TS, DT_SKIP_TIME)
+		GetFromHtml: function(dateFromTimestamp, isFullDay)
 		{
-			var
-				fromDate = new Date(DT_FROM_TS),
-				dateFormat = BX.date.convertBitrixFormat(BX.message('FORMAT_DATE')),
-				timeFormat = BX.message('FORMAT_DATETIME'),
-				timeFormat2 = BX.util.trim(timeFormat.replace(BX.message('FORMAT_DATE'), '')),
-				html;
+			var dateFormat = this.config.culture
+				? this.config.culture.date_format
+				: this.bx.date.convertBitrixFormat(BX.message('FORMAT_DATE'))
+			;
 
-			if (timeFormat2 == dateFormat)
-				timeFormat = "HH:MI";
-			else
-				timeFormat = timeFormat2.replace(/:SS/ig, '');
-			timeFormat = BX.date.convertBitrixFormat(timeFormat);
+			var fromDate = new Date(dateFromTimestamp);
+			var html = this.bx.date.format([
+				["today", "today"],
+				["tommorow", "tommorow"],
+				["yesterday", "yesterday"],
+				["" , dateFormat]
+			], fromDate);
 
-			if (DT_SKIP_TIME == 'Y')
+			if (isFullDay !== 'Y')
 			{
-				html = BX.date.format([
-					["today", "today"],
-					["tommorow", "tommorow"],
-					["yesterday", "yesterday"],
-					["" , dateFormat]
-				], fromDate);
-			}
-			else
-			{
-				html = BX.date.format([
-					["today", "today"],
-					["tommorow", "tommorow"],
-					["yesterday", "yesterday"],
-					["" , dateFormat]
-				], fromDate);
-
-				html += ', ' + BX.date.format(timeFormat, fromDate);
+				html += ', ' + this.bx.date.format(this.bx.Calendar.Util.getTimeFormatShort(), fromDate);
 			}
 
 			return html;
-		}
+		},
+
+		getCalendarUtils: function()
+		{
+			return new Promise(function(reslve){
+				if (this.bx.Calendar && this.bx.Calendar.Util)
+				{
+					reslve(this.bx.Calendar.Util);
+				}
+				else
+				{
+					var extensionName = 'calendar.util';
+					this.bx.Runtime.loadExtension(extensionName)
+						.then(function()
+							{
+								if (this.bx.Calendar.Util)
+								{
+									reslve(this.bx.Calendar.Util);
+								}
+								else
+								{
+									console.error('Extension ' + extensionName + ' not found');
+								}
+							}.bind(this)
+						);
+				}
+			}.bind(this));
+		},
 	};
 
 })(window);
-
-

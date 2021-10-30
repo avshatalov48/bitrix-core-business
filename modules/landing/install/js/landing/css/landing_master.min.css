@@ -22,4 +22,4 @@ body{padding:0;margin:0}[hidden]{display:none !important}.landing-ui-hide-contro
 	background-image: url(/bitrix/images/landing/ratio/9by16.svg); }
 .landing-ui-ratio-21by9
 {
-	background-image: url(/bitrix/images/landing/ratio/21by9.svg);}
+	background-image: url(/bitrix/images/landing/ratio/21by9.svg);}.landing-ui-field-color .landing-ui-field-header{padding:0 4px;margin-bottom:16px;font:17px 'OpenSans-Light',"Helvetica Neue",Arial,Helvetica,sans-serif;color:#535c69}

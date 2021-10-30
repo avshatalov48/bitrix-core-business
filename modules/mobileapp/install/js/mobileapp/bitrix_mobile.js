@@ -800,7 +800,7 @@
 				var insertCallback = params.TABLE_SETTINGS.callback;
 				params.TABLE_SETTINGS.callback = function (data)
 				{
-					insertCallback(BitrixMobile.Utils.htmlspecialchars(data));
+					insertCallback(data);
 				}
 			}
 		}

@@ -1,6 +1,7 @@
 import { Helper } from './helper';
 import { Event, Loc } from "main.core";
 import {type PostSelectorOptions} from './types/postselectoroptions'
+import { TagSelector } from 'ui.entity-selector';
 
 export class SeoAudience
 {
@@ -118,19 +119,21 @@ export class SeoAudience
 
 	buildSelector()
 	{
-		const selector = new BX.UI.EntitySelector.TagSelector({
+		const selector = new TagSelector({
 			id: 'seo-ads-interests',
 			dialogOptions: {
 				id: 'seo-ads-interests',
 				context: 'SEO_ADS_INTERESTS',
+				dropdownMode: true,
 				searchOptions: {
 					allowCreateItem: false
 				},
+				width: 350,
+				height: 250,
 				recentTabOptions: {
 					stub: true,
 					stubOptions: {
 						title: Loc.getMessage('UI_TAG_SELECTOR_START_INPUT'),
-						arrow: true,
 					}
 				},
 				events: {

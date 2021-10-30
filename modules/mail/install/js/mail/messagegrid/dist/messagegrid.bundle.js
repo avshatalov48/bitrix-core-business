@@ -2,27 +2,24 @@ this.BX = this.BX || {};
 (function (exports,main_core_events,main_core) {
 	'use strict';
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"mail-msg-list-grid-empty\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-empty-inner\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-empty-title\">", "</div>\n\t\t\t\t\t\t<p class=\"mail-msg-list-grid-empty-text\">", "</p>\n\t\t\t\t\t\t<p class=\"mail-msg-list-grid-empty-text\">", "</p>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"mail-msg-list-grid-loader mail-msg-list-grid-loader-animate\">\n\t\t\t\t\t<div class=\"mail-msg-list-grid-loader-inner\">\n\t\t\t\t\t<div class=\"mail-msg-list-grid-loader-img\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-loader-img-inner\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-progressbar-track\">\n\t\t\t\t\t\t<div class=\"ui-progressbar-bar mail-message-grid-bar\" data-role=\"mailGridFirstLoadingUIProgressbar\"></div></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2;
 
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _loadingMessagesStubInGridWrapper = /*#__PURE__*/new WeakMap();
+
+	var _gridWrapper = /*#__PURE__*/new WeakMap();
+
+	var _id = /*#__PURE__*/new WeakMap();
+
+	var _allRowsSelectedStatus = /*#__PURE__*/new WeakMap();
+
+	var _panel = /*#__PURE__*/new WeakMap();
+
+	var _checkboxNodeForCheckAll = /*#__PURE__*/new WeakMap();
+
+	var _compareGrid = /*#__PURE__*/new WeakSet();
+
 	var MessageGrid = /*#__PURE__*/function () {
 	  function MessageGrid() {
 	    var _this = this;
@@ -119,7 +116,7 @@ this.BX = this.BX || {};
 	      var _this2 = this;
 
 	      if (this.getGridWrapper() !== undefined) {
-	        babelHelpers.classPrivateFieldSet(this, _loadingMessagesStubInGridWrapper, this.getGridWrapper().appendChild(main_core.Tag.render(_templateObject())));
+	        babelHelpers.classPrivateFieldSet(this, _loadingMessagesStubInGridWrapper, this.getGridWrapper().appendChild(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"mail-msg-list-grid-loader mail-msg-list-grid-loader-animate\">\n\t\t\t\t\t<div class=\"mail-msg-list-grid-loader-inner\">\n\t\t\t\t\t<div class=\"mail-msg-list-grid-loader-img\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-loader-img-inner\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-progressbar-track\">\n\t\t\t\t\t\t<div class=\"ui-progressbar-bar mail-message-grid-bar\" data-role=\"mailGridFirstLoadingUIProgressbar\"></div></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>"])))));
 	        setTimeout(function () {
 	          babelHelpers.classPrivateFieldGet(_this2, _loadingMessagesStubInGridWrapper).querySelector('[data-role="mailGridFirstLoadingUIProgressbar"]').classList.add('mail-message-grid-filling-bar');
 	        }, 0);
@@ -139,7 +136,7 @@ this.BX = this.BX || {};
 	        var blankEmailStub = blankEmailStubs[0];
 
 	        if (blankEmailStub.firstElementChild.firstElementChild) {
-	          blankEmailStub.firstElementChild.firstElementChild.replaceWith(main_core.Tag.render(_templateObject2(), main_core.Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TITLE"), main_core.Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TEXT_1"), main_core.Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TEXT_2")));
+	          blankEmailStub.firstElementChild.firstElementChild.replaceWith(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"mail-msg-list-grid-empty\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-empty-inner\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-empty-title\">", "</div>\n\t\t\t\t\t\t<p class=\"mail-msg-list-grid-empty-text\">", "</p>\n\t\t\t\t\t\t<p class=\"mail-msg-list-grid-empty-text\">", "</p>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>"])), main_core.Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TITLE"), main_core.Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TEXT_1"), main_core.Loc.getMessage("MAIL_MSG_LIST_GRID_EMPTY_TEXT_2")));
 	        }
 	      }
 	    }
@@ -247,21 +244,7 @@ this.BX = this.BX || {};
 	  return MessageGrid;
 	}();
 
-	var _loadingMessagesStubInGridWrapper = new WeakMap();
-
-	var _gridWrapper = new WeakMap();
-
-	var _id = new WeakMap();
-
-	var _allRowsSelectedStatus = new WeakMap();
-
-	var _panel = new WeakMap();
-
-	var _checkboxNodeForCheckAll = new WeakMap();
-
-	var _compareGrid = new WeakSet();
-
-	var _compareGrid2 = function _compareGrid2(eventWithGrid, grid) {
+	function _compareGrid2(eventWithGrid, grid) {
 	  if (this.getId() !== undefined) {
 	    if (grid === undefined && eventWithGrid.getCompatData()) {
 	      var _eventWithGrid$getCom = eventWithGrid.getCompatData();
@@ -275,7 +258,7 @@ this.BX = this.BX || {};
 	  }
 
 	  return false;
-	};
+	}
 
 	exports.MessageGrid = MessageGrid;
 

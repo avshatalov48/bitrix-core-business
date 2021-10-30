@@ -130,6 +130,12 @@
 	  return ProgressBar;
 	}();
 
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+
+	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 	var _name = /*#__PURE__*/new WeakMap();
 
 	var Counters = /*#__PURE__*/function () {
@@ -153,14 +159,19 @@
 	    }
 	  }, {
 	    key: "setHiddenCountersForTotalCounter",
-	    value: function setHiddenCountersForTotalCounter() {
-	      for (var _len = arguments.length, counterNames = new Array(_len), _key = 0; _key < _len; _key++) {
-	        counterNames[_key] = arguments[_key];
-	      }
+	    value: function setHiddenCountersForTotalCounter(counterNames) {
+	      var _iterator = _createForOfIteratorHelper(counterNames),
+	          _step;
 
-	      for (var _i = 0, _counterNames = counterNames; _i < _counterNames.length; _i++) {
-	        var counter = _counterNames[_i];
-	        this.hiddenCountersForTotalCounter[counter] = 'disabled';
+	      try {
+	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	          var counter = _step.value;
+	          this.hiddenCountersForTotalCounter[counter] = 'disabled';
+	        }
+	      } catch (err) {
+	        _iterator.e(err);
+	      } finally {
+	        _iterator.f();
 	      }
 	    }
 	  }, {
@@ -169,7 +180,10 @@
 	      var counters = 0;
 
 	      for (var name in this.counters) {
-	        if (name in this.hiddenCountersForTotalCounter) continue;
+	        if (name in this.hiddenCountersForTotalCounter) {
+	          continue;
+	        }
+
 	        counters += this.counters[name];
 	      }
 
@@ -228,6 +242,10 @@
 	    value: function increaseCounter(name) {
 	      var count = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 
+	      if (name in this.hiddenCountersForTotalCounter) {
+	        return "hidden counters for total counter";
+	      }
+
 	      if (!this.isExists(name)) {
 	        return "no counter";
 	      }
@@ -238,6 +256,10 @@
 	    key: "lowerCounter",
 	    value: function lowerCounter(name) {
 	      var count = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+
+	      if (name in this.hiddenCountersForTotalCounter) {
+	        return "hidden counters for total counter";
+	      }
 
 	      if (!this.isExists(name)) {
 	        return "no counter";
@@ -796,24 +818,24 @@
 	          action: actionName
 	        });
 	        var currentFolder = this.getCurrentFolder();
+	        var oldMessagesCount = actionName !== 'markAsSeen' ? this.isSelectedRowsHaveClass('mail-msg-list-cell-old') : 0;
+	        var countMessages = resultIds.length - oldMessagesCount;
 
 	        if (actionName === 'markAsSeen') {
-	          var count = resultIds.length;
-
 	          if ('all' === id) {
-	            count = BX.Mail.Home.Counters.getCounter(currentFolder);
+	            countMessages = BX.Mail.Home.Counters.getCounter(currentFolder) - oldMessagesCount;
 	          }
 
 	          BX.Mail.Home.Counters.updateCounters([{
 	            name: currentFolder,
 	            lower: true,
-	            count: count
+	            count: countMessages
 	          }]);
 	        } else {
 	          BX.Mail.Home.Counters.updateCounters([{
 	            name: currentFolder,
 	            increase: true,
-	            count: resultIds.length
+	            count: countMessages
 	          }]);
 	        }
 
@@ -922,6 +944,12 @@
 	          color: BX.UI.Button.Color.DANGER,
 	          text: main_core.Loc.getMessage('MAIL_MESSAGE_LIST_CONFIRM_DELETE_BTN'),
 	          onclick: function (button) {
+	            var unseenRowsIdsCount = this.filterRowsByClassName('mail-msg-list-cell-unseen', options.ids).length;
+	            BX.Mail.Home.Counters.updateCounters([{
+	              name: this.getCurrentFolder(),
+	              lower: true,
+	              count: unseenRowsIdsCount
+	            }]);
 	            this.runAction('delete', options, function () {
 	              return BX.Mail.Home.Grid.reloadTable();
 	            });
@@ -955,6 +983,7 @@
 	      }
 
 	      var ids = selectedIds.length ? selectedIds : id ? [id] : [];
+	      var selectedLinesWithClassNumber = 0;
 
 	      for (var i = 0; i < ids.length; i++) {
 	        var row = this.getGridInstance().getRows().getById(ids[i]);
@@ -963,12 +992,12 @@
 	          var columns = row.node.getElementsByClassName(className);
 
 	          if (columns && columns.length) {
-	            return true;
+	            selectedLinesWithClassNumber++;
 	          }
 	        }
 	      }
 
-	      return false;
+	      return selectedLinesWithClassNumber;
 	    }
 	  }, {
 	    key: "filterRowsByClassName",

@@ -43,7 +43,7 @@ return array(
 			),
 			'.landing-block-node-list-item' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_55_1-LINK'),
-				'type' => ['border-color', 'border-width', 'animation', 'padding-top', 'padding-bottom'],
+				'type' => ['border-colors', 'border-width', 'animation', 'padding-top', 'padding-bottom'],
 			),
 			'.landing-block-node-link' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_55_1-LINK'),

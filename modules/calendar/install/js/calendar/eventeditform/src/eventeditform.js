@@ -280,8 +280,9 @@ export class EventEditForm
 		this.DOM.requestUid.value = Util.registerRequestId();
 
 		// Save attendees from userSelector
+		const attendeesEntityList = this.getUserSelectorEntityList();
 		Dom.clean(this.DOM.userSelectorValueWarp);
-		this.getUserSelectorEntityList().forEach((entity, index) => {
+		attendeesEntityList.forEach((entity, index) => {
 			this.DOM.userSelectorValueWarp.appendChild(Tag.render`
 				<input type="hidden" name="attendeesEntityList[${index}][entityId]" value="${entity.entityId}">
 			`);
@@ -289,6 +290,35 @@ export class EventEditForm
 				<input type="hidden" name="attendeesEntityList[${index}][id]" value="${entity.id}">
 			`);
 		});
+
+		let checkCurrentUsersAccessibility = !this.entry.id || this.checkCurrentUsersAccessibility();
+		if (!checkCurrentUsersAccessibility
+			&& this.getFormDataChanges().includes('codes'))
+		{
+			const previousAttendeesList = this.entry.getAttendeesEntityList();
+			attendeesEntityList.forEach(entity => {
+				if (!previousAttendeesList.find((item) => {
+					return entity.entityId === item.entityId
+						&& parseInt(entity.id) === parseInt(item.id);
+				}))
+				{
+					if (entity.entityId === 'user')
+					{
+						this.DOM.userSelectorValueWarp.appendChild(Tag.render`
+							<input type="hidden" name="newAttendeesList[]" value="${parseInt(entity.id)}">
+						`);
+					}
+					else
+					{
+						checkCurrentUsersAccessibility = true;
+					}
+				}
+			});
+		}
+
+		this.DOM.userSelectorValueWarp.appendChild(Tag.render`
+			<input type="hidden" name="checkCurrentUsersAccessibility" value="${checkCurrentUsersAccessibility ? 'Y' : 'N'}">
+		`);
 
 		this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', {
 			data: new FormData(this.DOM.form),
@@ -1765,6 +1795,11 @@ export class EventEditForm
 		}
 
 		return fields;
+	}
+
+	checkCurrentUsersAccessibility()
+	{
+		return this.getFormDataChanges().includes('date&time');
 	}
 
 	formDataChanged()

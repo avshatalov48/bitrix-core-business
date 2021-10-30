@@ -15,9 +15,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 			class="navbar u-navbar-modal u-navbar-slider g-pa-0 u-navbar-color-gray-dark-v1 u-navbar-color-gray-dark-v1--hover flex-nowrap"
 			data-modal-alert-classes="d-none d-lg-block order-2 w-100"
 		>
-			<div class="landing-block-node-title-container order-1 d-flex w-100 align-items-center g-overflow-hidden g-font-size-25 g-font-weight-700 g-letter-spacing-0_5 text-uppercase">
+			<div class="landing-block-node-title-container order-1 d-flex w-100 align-items-center g-overflow-hidden g-font-weight-700 g-letter-spacing-0_5 text-uppercase">
 				<a
-					class="landing-block-node-title g-font-size-0_8em g-font-size-1em--lg g-text-decoration-none--hover g-nowrap g-text-overflow-ellipsis g-overflow-hidden"
+					class="landing-block-node-title g-font-size-20 g-font-size-25--lg g-text-decoration-none--hover g-nowrap g-text-overflow-ellipsis g-overflow-hidden"
 					href="#system_mainpage"
 				>
 					#crmCompanyTitle
@@ -26,11 +26,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 			<div class="landing-block-node-buttons-container order-3 d-flex align-items-center">
 				<a
-					class="landing-block-node-phone g-px-25"
+					class="landing-block-node-phone g-px-25 d-flex align-items-center"
 					href="tel:#crmPhoneTitle1"
 					data-page-url="#system_mainpage"
 				>
-					<span class="d-block d-md-none">
+					<span class="d-block">
 						<svg width="26" height="32" viewBox="0 0 26 32" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path
 								d="M21.6546 22.8512L17.564 20.2495C16.9982 19.8924 16.2293 19.9816 15.7726 20.4676L13.7451 22.5569C12.098 21.7134 10.9534 20.9013 9.73771 19.4428C8.41705 17.879 7.88308 16.4815 7.41852 14.8316L9.77252 13.259C10.3417 12.9032 10.575 12.1586 10.3115 11.5392L8.49553 7.09295C8.16379 6.30641 7.23888 5.988 6.49621 6.3869L4.23132 7.84375C3.55705 8.19952 3.00675 9.13332 2.98463 9.87785C2.96867 10.6466 2.98533 11.6451 3.08073 12.3329C3.60741 15.4444 4.71319 18.685 7.14344 21.6023C9.57269 24.5198 12.397 26.2401 15.3654 27.3328C16.0364 27.5848 17.0044 27.7604 17.774 27.8812C18.5436 28.0021 19.4755 27.7475 19.9501 27.125L21.9717 24.9313C22.5404 24.2613 22.3761 23.3017 21.6546 22.8512Z"
@@ -38,7 +38,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 							/>
 						</svg>
 					</span>
-					<span class="landing-block-node-text d-none d-md-block g-font-size-17 g-font-weight-500 g-nowrap">
+					<span class="landing-block-node-text d-none d-md-block g-font-size-17 g-font-weight-500 g-nowrap g-pl-10">
 						#crmPhoneTitle1
 					</span>
 				</a>

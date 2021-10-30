@@ -2833,10 +2833,13 @@
 
 					return acc;
 				}, []);
+
 				type.forEach(function(type) {
 					var typeSettings = getTypeSettings(type);
 					var styleNode = this.styles.get(selector);
 					var field = styleFactory.createField({
+						block: this,
+						styleNode: styleNode,
 						selector: !isBlock ? this.makeRelativeSelector(selector) : selector,
 						property: typeSettings.property,
 						multiple: typeSettings.multiple === true,
@@ -2844,85 +2847,165 @@
 						pseudoElement: typeSettings["pseudo-element"],
 						pseudoClass: typeSettings["pseudo-class"],
 						type: typeSettings.type,
+						subtype: typeSettings.subtype,
 						title: typeSettings.name,
 						items: typeSettings.items,
-						onChange: function(value, items, postfix, affect) {
-							var exclude = !!typeSettings.exclude ? getTypeSettings(typeSettings.exclude) : null;
+						help: typeSettings.help,
+						onChange: onChange.bind(this),
+						onReset: onReset.bind(this)
+					});
 
-							if (exclude)
-							{
-								form.fields.forEach(function(field) {
-									if (field.style === typeSettings.exclude)
-									{
-										field.reset();
-									}
-								});
-							}
+					function saveHistory(selector, oldValue, newValue) {
+						BX.Landing.History.getInstance().push(
+							new BX.Landing.History.Entry({
+								block: this.id,
+								command: "updateStyle",
+								selector: selector,
+								undo: oldValue,
+								redo: newValue
+							})
+						);
+					}
+					saveHistory = debounce(saveHistory, 500, this);
 
-							var oldValue = {className: "", style: ""};
-							if (styleNode.node[0])
-							{
-								oldValue.className = styleNode.node[0].className;
-								oldValue.style = styleNode.node[0].style.cssText;
-							}
+					// when field changed
+					function onChange(value, items, postfix, affect) {
+						var exclude = !!typeSettings.exclude ? getTypeSettings(typeSettings.exclude) : null;
 
-
-							var event = this.createEvent({
-								data: {
-									selector: selector,
-									value: value,
-									items: items,
-									postfix: postfix,
-									affect: affect,
-									exclude: exclude
+						if (exclude)
+						{
+							form.fields.forEach(function(field) {
+								if (field.style === typeSettings.exclude)
+								{
+									field.reset();
 								}
 							});
+						}
 
-							fireCustomEvent(window, "BX.Landing.Block:beforeApplyStyleChanges", [event]);
+						// todo: now use just node[0]. Need get node by "group select" and save position in history
+						var oldValue = styleNode.getValueForHistory();
 
-							styleNode.setValue(value, items, postfix, affect, exclude);
-
-							var newValue = {className: "", style: ""};
-							if (styleNode.node[0])
-							{
-								newValue.className = styleNode.node[0].className;
-								newValue.style = styleNode.node[0].style.cssText;
+						var event = this.createEvent({
+							data: {
+								selector: selector,
+								value: value,
+								items: items,
+								postfix: postfix,
+								affect: affect,
+								exclude: exclude
 							}
+						});
 
-							try
-							{
-								if (JSON.stringify(oldValue) !== JSON.stringify(newValue))
-								{
-									BX.Landing.History.getInstance().push(
-										new BX.Landing.History.Entry({
-											block: this.id,
-											command: "updateStyle",
-											selector: !isBlock ? this.makeRelativeSelector(selector) : selector,
-											undo: oldValue,
-											redo: newValue
-										})
-									);
-								}
-							}
-							catch(err) {}
+						fireCustomEvent(window, "BX.Landing.Block:beforeApplyStyleChanges", [event]);
 
-							fireCustomEvent("BX.Landing.Block:updateStyleWithoutDebounce", [
-								this.createEvent({node: styleNode.getNode(), data: styleNode.getValue()})
-							]);
-							this.onStyleInputWithDebounce({node: styleNode.getNode(), data: styleNode.getValue()});
-						}.bind(this)
-					});
+						styleNode.setValue(value, items, postfix, affect, exclude);
 
-					var preventEvent = true;
-					styleNode.getValue().classList.forEach(function(className) {
-						if (typeSettings.items.some(function(item) { return item.value === className}))
+						var newValue = styleNode.getValueForHistory();
+						try
 						{
-							if (field.property !== "display")
+							if (JSON.stringify(oldValue) !== JSON.stringify(newValue))
 							{
-								field.setValue(className, preventEvent);
+								saveHistory(selector, oldValue, newValue);
 							}
 						}
-					});
+						catch(err) {}
+
+						var data = {node: styleNode.getNode(), data: styleNode.getValue()};
+						fireCustomEvent("BX.Landing.Block:updateStyleWithoutDebounce", [
+							this.createEvent(data)
+						]);
+						this.onStyleInputWithDebounce(data);
+					}
+
+					// when field reset
+					function onReset(items, postfix, affect) {
+						// todo: add cache for backend
+						// todo: save history?
+						BX.Landing.Backend.getInstance()
+							.action("Landing\\Block::getContentFromRepository", {
+								code: this.manifest.code
+							})
+							.then(function(response) {
+								var repo = document.createElement('div');
+								repo.id = 'fake';
+								repo.innerHTML = response;
+								repo.style.display = 'none';
+								window.document.body.append(repo);
+
+								var targetNode = null;
+								var targetSelector = null;
+								if (isBlock)
+								{
+									targetSelector = '#fake > :first-child';
+									targetNode = repo.firstElementChild;
+								}
+								else
+								{
+									targetSelector = '#fake ' + selector;
+									var index = styleNode.getElementIndex(styleNode.getTargetElement());
+									targetNode = repo.querySelectorAll(targetSelector)[index];
+								}
+								var fakeStyleNode = new BX.Landing.UI.Style({
+									iframe: window,
+									selector: targetSelector,
+									relativeSelector: targetSelector,
+									node: targetNode
+								});
+								initFieldByStyleNode(fakeStyleNode);
+
+								// match new class list
+								var resetStyleValue = fakeStyleNode.getValue();
+								var resetClasses = [];
+								var currStyleValue = styleNode.getValue();
+								items.forEach(function(item) {
+									if(resetStyleValue.classList.indexOf(item.value) !== -1)
+									{
+										resetClasses.push(item.value);
+									}
+									var currIndex = currStyleValue.classList.indexOf(item.value);
+									if(currIndex !== -1)
+									{
+										delete currStyleValue.classList[currIndex];
+									}
+								});
+								resetStyleValue.classList = currStyleValue.classList.concat(resetClasses);
+								resetStyleValue.className = resetStyleValue.classList;
+								onChange.bind(this)(resetStyleValue, items, postfix, affect);
+								repo.remove();
+							}.bind(this))
+							.catch(function(error){
+								// todo: show err panel
+								console.error("Error on reset", error);
+							});
+					}
+
+					// when field init
+					function initFieldByStyleNode(styleNode)
+					{
+						styleNode.setInlineProperty(field.getInlineProperties());
+						styleNode.setComputedProperty(field.getComputedProperties());
+						styleNode.setPseudoElement(field.getPseudoElement());
+
+						var preventEvent = true;
+						var styleValue = styleNode.getValue(true);
+						if (field.getInlineProperties().length > 0 || field.getComputedProperties().length > 0)
+						{
+							field.setValue(styleValue.style, preventEvent);
+						}
+						else
+						{
+							styleValue.classList.forEach(function (className) {
+								if (typeSettings.items.some(function (item) {return item.value === className;}))
+								{
+									if (field.property !== "display")
+									{
+										field.setValue(className, preventEvent);
+									}
+								}
+							});
+						}
+					}
+					initFieldByStyleNode(styleNode);
 
 					form.addField(field);
 				}, this);
@@ -3255,13 +3338,12 @@
 			{
 				options.type = [
 					"display",
+					"background",
 					"padding-top",
 					"padding-bottom",
 					"padding-left",
 					"padding-right",
-					"margin-top",
-					"background-color",
-					"background-gradient"
+					"margin-top"
 				];
 			}
 
@@ -3514,7 +3596,10 @@
 				BX.Main.MenuManager.destroy(this.sidebarActionsMenu.id);
 			}
 
-			window.localStorage.removeItem("landingBlockId");
+			if (String(window.localStorage.getItem("landingBlockId")) === String(this.id))
+			{
+				window.localStorage.removeItem("landingBlockId");
+			}
 
 			BX.Landing.Backend.getInstance()
 				.action(

@@ -4,6 +4,7 @@ namespace Bitrix\Mail\ImapCommands;
 use Bitrix\Mail;
 use Bitrix\Main;
 use Bitrix\Main\Entity\ReferenceField;
+use Bitrix\Mail\Internals;
 
 class Repository
 {
@@ -46,16 +47,19 @@ class Repository
 	protected function setMessagesSeen($isSeen, $messages, $mailbox)
 	{
 		$messagesIds = [];
+
 		foreach ($this->messagesIds as $index => $messageId)
 		{
 			$messagesIds[$index] = $messageId;
 		}
+
 		if (empty($messagesIds) || empty($messages) || empty($mailbox))
 		{
 			return;
 		}
 
 		$mailsData = [];
+
 		foreach ($messages as $messageData)
 		{
 			$mailsData[] = [
@@ -64,9 +68,12 @@ class Repository
 				'IS_SEEN' => $isSeen,
 			];
 		}
+
+		$mailboxId = intval($this->mailboxId);
+
 		Mail\MailMessageUidTable::updateList(
 			[
-				'=MAILBOX_ID' => intval($this->mailboxId),
+				'=MAILBOX_ID' => $mailboxId,
 				'@ID' => $messagesIds,
 			],
 			[
@@ -74,6 +81,59 @@ class Repository
 			],
 			$mailsData
 		);
+
+		$dirId = Internals\MailboxDirectoryTable::getList([
+			'runtime' => array(
+				new Main\ORM\Fields\Relations\Reference(
+				'UID',
+				'Bitrix\Mail\MailMessageUidTable',
+					[
+						'=this.DIR_MD5' => 'ref.DIR_MD5',
+						'=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
+					],
+					[
+						'join_type' => 'INNER',
+					]
+				),
+			),
+			'select' => [
+				'ID',
+			],
+			'filter' => [
+				'@UID.ID' => $messagesIds,
+				'=MAILBOX_ID' => $mailboxId,
+			],
+			'limit' => 1,
+		])->fetchAll();
+
+		if(isset($dirId[0]['ID']))
+		{
+			$keyRowsForDirAndMailbox = [
+				['MAILBOX_ID' => $mailboxId, 'ENTITY_TYPE' => 'MAILBOX','ENTITY_ID' => $mailboxId],
+				['MAILBOX_ID' => $mailboxId, 'ENTITY_TYPE' => 'DIR','ENTITY_ID' => $dirId[0]['ID']]
+			];
+
+			foreach ($keyRowsForDirAndMailbox as $keyRow)
+			{
+				$filter = [
+					'=MAILBOX_ID' => $keyRow['MAILBOX_ID'],
+					'=ENTITY_TYPE' => $keyRow['ENTITY_TYPE'],
+					'=ENTITY_ID' => $keyRow['ENTITY_ID'],
+				];
+				if(Internals\MailCounterTable::getCount($filter))
+				{
+					$value = (int)Internals\MailCounterTable::getList([
+						'select' => [
+							'VALUE',
+						],
+						'filter' => $filter,
+					])->fetchAll()[0]['VALUE'];
+
+					$rowValue = ['VALUE' => ($isSeen === 'Y' ? $value - count($messagesIds) : $value + count($messagesIds))];
+					Internals\MailCounterTable::update($keyRow, $rowValue);
+				}
+			}
+		}
 	}
 
 	public function updateMessageFieldsAfterMove($messages, $folderNewName, $mailbox)

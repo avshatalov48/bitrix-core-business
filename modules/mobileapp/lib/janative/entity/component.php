@@ -150,6 +150,22 @@ class Component extends Base
 				'extranet' => $isExtranetUser
 			]);
 			$export = <<<JS
+
+		(()=>{
+			let data = {}
+			this.jnExtensionData = {
+			set:function (name, value) {
+				data[name] = value
+			},
+			get:function(name) {
+				if (typeof data[name] !== "undefined") {
+					return data[name];
+				}
+				return {};
+			}
+		}
+		})()
+		
 		this.jnexport = (...exportData) => {
 			exportData.forEach(exportItem=>{
 				if(exportItem instanceof Array)
@@ -182,7 +198,17 @@ $lang
 								
 JS;
 
-			$content = $export. $extensionContent . $inlineContent;
+			$content = $export. $inlineContent. $extensionContent;
+
+			if ($this->isHotreloadEnabled()) {
+				$hotreloadHost = JN_HOTRELOAD_HOST;
+
+				$content .= <<<JS
+(()=>{ let wsclient = startHotReload(this.env.userId, "$hotreloadHost") })();
+JS;
+
+			}
+
 			$file = new File("{$this->path}/{$this->baseFileName}.js");
 			$componentCode = $file->getContents();
 
@@ -283,6 +309,9 @@ JS;
     {
 		$content = '';
 		$deps = $this->getDependencies();
+		if ($this->isHotreloadEnabled()) {
+			array_unshift($deps, 'hotreload');
+		}
 		if ($lazyLoad)
 		{
 			$count = count($deps);
@@ -323,5 +352,9 @@ JS;
         }
 
 		return $content;
+	}
+
+	private function isHotreloadEnabled(): Bool {
+		return (defined('JN_HOTRELOAD_ENABLED') && defined('JN_HOTRELOAD_HOST'));
 	}
 }

@@ -546,12 +546,11 @@
 		}
 	};
 
-	BX.addCustomEvent('BX.Landing.ColorPicker:onSelectColor', function(params)
-	{
+	BX.addCustomEvent('BX.Landing.ColorPickerTheme:onSelectColor', function(params) {
 		var elementSettingCustomColor = BX("landing-template-preview-settings");
 		var elementActive = elementSettingCustomColor.querySelector(".active");
 		elementActive.classList.remove("active");
-		params.node.classList.add("active");
+		params.data.node.classList.add("active");
 
 		function replacePreview() {
 			loader.hide();
@@ -576,7 +575,7 @@
 		{
 			attr = attr.substr(0,attr.length - 6);
 		}
-		attr = attr + params.color.substr(1);
+		attr = attr + params.data.color.substr(1);
 		url.setAttribute('src', attr);
 		setTimeout(replacePreview, 1600);
 	});

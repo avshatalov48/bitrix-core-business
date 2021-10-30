@@ -27,6 +27,7 @@ use Bitrix\Main;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
 use Bitrix\Crm\Integration\UserConsent;
+use Bitrix\Rest\Marketplace\Client;
 
 \CBitrixComponent::includeComponentClass('bitrix:landing.base');
 
@@ -1805,44 +1806,49 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				}
 
 				// fill from zip repository
+				$marketPrefix = 'market';
+				$marketIdDelimetr = '/';
 				if (
-					defined('LANDING_DEMO_ZIP_URL') &&
-					($subDir == $this::DEMO_DIR_SITE || mb_substr($code, 0, 7) == 'bitrix.') &&
-					$this->arParams['TYPE'] == 'PAGE'
+					Loader::includeModule('rest')
+					&& is_callable(['\Bitrix\Rest\Marketplace\Client', 'getSiteList'])
+					&& ($subDir == $this::DEMO_DIR_SITE || mb_strpos($code, $marketPrefix . $marketIdDelimetr) === 0)
+					&& $this->arParams['TYPE'] == 'PAGE'
 				)
 				{
-					$http = new HttpClient;
-					$zip = $http->get(LANDING_DEMO_ZIP_URL);
-					if ($zip)
+					$siteList = Client::getSiteList();
+					if (is_array($siteList))
 					{
-						$zip = Json::decode($zip);
-					}
-					if (is_array($zip))
-					{
-						foreach ($zip as $demoKey => $demoZip)
+						foreach ($siteList as $site)
 						{
-							$demoKey = 'bitrix.' . $demoKey;
-							$data[$demoKey] = [
-								'ID' => $demoKey,
-								'SORT' => 0,
-								'XML_ID' =>'',
+							$key = implode(
+								$marketIdDelimetr,
+								[
+									$marketPrefix,
+									$site['app_code'],
+									$site['id'],
+								]
+							);
+							$data[$key] = [
+								'ID' => $key,
+								'SORT' => (int) $site['sort'],
+								'XML_ID' => '',
 								'TYPE' => $this->arParams['TYPE'],
-								'TITLE' => $demoZip['name'],
+								'TITLE' => $site['name'],
 								'ACTIVE' => true,
 								'AVAILABLE' => true,
-								'SECTION' => [],
-								'DESCRIPTION' => $demoZip['description'] ?? '',
-								'PREVIEW' => $demoZip['preview'] ?? '',
-								'PREVIEW2X' => $demoZip['preview'] ?? '',
-								'PREVIEW3X' => $demoZip['preview'] ?? '',
-								'PREVIEW_URL' => $demoZip['url'] ?? '',
-								'ZIP_ID' => $demoZip['id'] ?? '',
-								'APP_CODE' => $demoZip['app_code'] ?? '',
-								'DATA' => [],
+								'SECTION' => $site['section'] ?? [],
+								'DESCRIPTION' => $site['description'] ?? '',
+								'PREVIEW' => $site['preview'] ?? '',
+								'PREVIEW2X' => $site['preview2x'] ?? '',
+								'PREVIEW3X' => $site['preview3x'] ?? '',
+								'PREVIEW_URL' => $site['url'] ?? '',
+								'ZIP_ID' => $site['id'] ?? '',
+								'APP_CODE' => $site['app_code'] ?? '',
+								'DATA' => $site['data'],
 								'TIMESTAMP' => 0,
-								'DESIGNED_BY' => [],
+								'DESIGNED_BY' => $site['designedBy'] ?? [],
 								'REST' => 0,
-								'LANG' => LANGUAGE_ID
+								'LANG' => $site['lang'] ?? LANGUAGE_ID,
 							];
 						}
 					}

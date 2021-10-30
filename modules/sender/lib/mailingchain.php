@@ -8,6 +8,7 @@
 namespace Bitrix\Sender;
 
 use Bitrix\Main\Application;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
@@ -314,10 +315,19 @@ class MailingChainTable extends Entity\DataManager
 
 		if($needAddPosting)
 		{
+			$consentSupported = false;
+			try
+			{
+				$consentSupported = Transport\Adapter::create($mailingChain['MESSAGE_CODE'])->isConsentSupported();
+			}
+			catch (ArgumentException $e)
+			{
+			}
+
 			$postingAddDb = PostingTable::add(array(
 				'MAILING_ID' => $mailingChain['MAILING_ID'],
 				'MAILING_CHAIN_ID' => $mailingChain['ID'],
-				'CONSENT_SUPPORT' => Transport\Adapter::create($mailingChain['MESSAGE_CODE'])->isConsentSupported()
+				'CONSENT_SUPPORT' => $consentSupported
 			));
 			if ($postingAddDb->isSuccess())
 			{

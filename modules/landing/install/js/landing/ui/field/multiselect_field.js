@@ -196,19 +196,22 @@
 
 		onCheckboxChange: function(checkbox)
 		{
-			var value = checkbox.getValue();
-
-			if (value.length)
+			if (checkbox instanceof BX.Landing.UI.Field.Checkbox)
 			{
-				this.addPlaceholder(checkbox.items[0]);
-				this.adjustPopupPosition();
-			}
-			else
-			{
-				this.onPlaceholderRemoveClick(checkbox.items[0], null, true);
-			}
+				var value = checkbox.getValue();
 
-			this.onValueChangeHandler(this);
+				if (value.length)
+				{
+					this.addPlaceholder(checkbox.items[0]);
+					this.adjustPopupPosition();
+				}
+				else
+				{
+					this.onPlaceholderRemoveClick(checkbox.items[0], null, true);
+				}
+
+				this.onValueChangeHandler(this);
+			}
 		},
 
 
@@ -236,6 +239,7 @@
 				id: (this.selector + "_" + random()),
 				bindElement: this.input,
 				autoHide: true,
+				maxHeight: 142,
 				events: {
 					onPopupClose: function()
 					{
@@ -280,17 +284,20 @@
 			{
 				var offsetParent = findParent(this.input, {className: "landing-ui-panel-content-body-content"});
 
-				var inputTop = offsetTop(this.input, offsetParent);
-				var inputLeft = offsetLeft(this.input, offsetParent);
-				var inputRect = this.input.getBoundingClientRect();
+				if (BX.Type.isDomNode(offsetParent))
+				{
+					var inputTop = offsetTop(this.input, offsetParent);
+					var inputLeft = offsetLeft(this.input, offsetParent);
+					var inputRect = this.input.getBoundingClientRect();
 
-				var offsetY = 2;
+					var offsetY = 2;
 
-				requestAnimationFrame(function() {
-					this.popup.popupContainer.style.top = inputTop + inputRect.height + offsetY + "px";
-					this.popup.popupContainer.style.left = inputLeft + "px";
-					this.popup.popupContainer.style.width = inputRect.width + "px";
-				}.bind(this));
+					requestAnimationFrame(function() {
+						this.popup.popupContainer.style.top = inputTop + inputRect.height + offsetY + "px";
+						this.popup.popupContainer.style.left = inputLeft + "px";
+						this.popup.popupContainer.style.width = inputRect.width + "px";
+					}.bind(this));
+				}
 			}
 		},
 

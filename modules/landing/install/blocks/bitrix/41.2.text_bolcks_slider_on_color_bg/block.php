@@ -6,10 +6,10 @@
 				<!-- Article -->
 				<article class="row flex-items-middle landing-block-node-card-container align-items-center g-mb-30 g-mb-50--lg">
 					<div class="col-md-6 g-mb-30 g-mb-0--md">
-						<div class="text-uppercase text-center g-mb-20">
+						<div class="text-uppercase text-center g-mx-30">
 							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-small g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
 								chef</h6>
-							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white g-bg-white--before u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
+							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
 								Green soup with croutons</h2>
 						</div>
 
@@ -40,10 +40,10 @@
 				<!-- Article -->
 				<article class="row flex-items-middle text-center landing-block-node-card-container align-items-center g-mb-30 g-mb-50--lg">
 					<div class="col-md-6 g-mb-30 g-mb-0--md">
-						<div class="text-uppercase g-mb-20">
+						<div class="text-uppercase text-center g-mx-30">
 							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-small g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
 								chef</h6>
-							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white g-bg-white--before u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
+							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
 								Spaghetti</h2>
 						</div>
 
@@ -74,10 +74,10 @@
 				<!-- Article -->
 				<article class="row flex-items-middle landing-block-node-card-container align-items-center g-mb-30 g-mb-50--lg">
 					<div class="col-md-6 g-mb-30 g-mb-0--md">
-						<div class="text-uppercase text-center g-mb-20">
+						<div class="text-uppercase text-center g-mx-30">
 							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-small g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
 								chef</h6>
-							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white g-bg-white--before u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
+							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
 								Green soup with croutons</h2>
 						</div>
 
@@ -108,10 +108,10 @@
 				<!-- Article -->
 				<article class="row flex-items-middle landing-block-node-card-container align-items-center g-mb-30 g-mb-50--lg">
 					<div class="col-md-6 g-mb-30 g-mb-0--md">
-						<div class="text-uppercase text-center g-mb-20">
+						<div class="text-uppercase text-center g-mx-30">
 							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-small g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
 								chef</h6>
-							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white g-bg-white--before u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
+							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
 								Green soup with croutons</h2>
 						</div>
 
@@ -142,10 +142,10 @@
 				<!-- Article -->
 				<article class="row flex-items-middle landing-block-node-card-container align-items-center g-mb-30 g-mb-50--lg">
 					<div class="col-md-6 g-mb-30 g-mb-0--md">
-						<div class="text-uppercase text-center g-mb-20">
+						<div class="text-uppercase text-center g-mx-30">
 							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-small g-font-weight-700 g-color-white-opacity-0_7 g-mb-15 text-center">From
 								chef</h6>
-							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white g-bg-white--before u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
+							<h2 class="landing-block-node-card-title landing-semantic-title-medium-bg-before js-animation fadeInLeft g-line-height-1_2 g-font-weight-700 h1 g-color-white u-heading-v2-12--1 g-mb-40 g-brd-white text-center">
 								Green soup with croutons</h2>
 						</div>
 

@@ -2,8 +2,12 @@
 namespace Bitrix\Landing\Restriction;
 
 use \Bitrix\Bitrix24\Feature;
+use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Entity;
 use \Bitrix\Landing\Domain;
+use \Bitrix\Landing\Rights;
+use \Bitrix\Landing\Site as SiteCore;
+use \Bitrix\Main\Type\DateTime;
 
 class Site
 {
@@ -152,10 +156,12 @@ class Site
 				'=TYPE' => $params['type'],
 				'=SPECIAL' => 'N'
 			];
+
 			if ($params['action_type'] == 'publication')
 			{
 				$filter['=ACTIVE'] = 'Y';
 			}
+
 			if (
 				isset($params['filter']) &&
 				is_array($params['filter'])
@@ -166,10 +172,12 @@ class Site
 					$params['filter']
 				);
 			}
+
 			if ($params['action_type'] === 'publication' && $params['type'] === 'STORE')
 			{
 				return self::checkLimitByTemplates($filter, $limit);
 			}
+
 			$check = \Bitrix\Landing\Site::getList([
 				'select' => [
 					'CNT' => new Entity\ExpressionField('CNT', 'COUNT(*)')
@@ -188,9 +196,11 @@ class Site
 
 	/**
 	 * Checks restriction for free domain.
+	 * @param string $code Restriction code (not used here).
+	 * @param array $params Additional params.
 	 * @return bool
 	 */
-	public static function isFreeDomainAllowed(): bool
+	public static function isFreeDomainAllowed(string $code, array $params): bool
 	{
 		// free domain is available in cloud version only
 		if (!\Bitrix\Main\Loader::includeModule('bitrix24'))
@@ -204,6 +214,10 @@ class Site
 		if ($availableCount === null)
 		{
 			return false;
+		}
+		if (($params['trueOnNotNull'] ?? false))
+		{
+			return true;
 		}
 		if ($availableCount > 0)
 		{
@@ -222,6 +236,74 @@ class Site
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * System method for deactivate all free domains.
+	 * @param bool $setActive Set domains and sites active / not active.
+	 * @param int $executeAfterSeconds Delayed execution (in seconds).
+	 * @return void
+	 */
+	public static function manageFreeDomains(bool $setActive, int $executeAfterSeconds = 0): void
+	{
+		$methodName = __CLASS__ . '::' . __FUNCTION__ . '(' . ($setActive ? 'true' : 'false') . ');';
+
+		if ($executeAfterSeconds > 0)
+		{
+			$dateTime = new DateTime();
+			\CAgent::addAgent(
+				$methodName,
+				'landing', 'N', 0, '', 'Y',
+				$dateTime->add('+' . $executeAfterSeconds . ' seconds')
+			);
+			return;
+		}
+		if ($setActive)
+		{
+			\CAgent::removeAgent($methodName, 'landing');
+		}
+
+		Rights::setGlobalOff();
+		$res = SiteCore::getList([
+			'select' => [
+				'ID',
+				'ACTIVE',
+				'DOMAIN_ID'
+			],
+			'filter' => [
+				'=DOMAIN.ACTIVE' => $setActive ? 'N' : 'Y',
+				'!DOMAIN.PROVIDER' => null
+			]
+		]);
+		while ($site = $res->fetch())
+		{
+			if ($site['ACTIVE'] === ($setActive ? 'N' : 'Y'))
+			{
+				SiteCore::update($site['ID'], [
+					'ACTIVE' => $setActive ? 'Y' : 'N'
+				])->isSuccess();
+			}
+			Domain::update($site['DOMAIN_ID'], [
+				'ACTIVE' => $setActive ? 'Y' : 'N'
+			])->isSuccess();
+		}
+		Rights::setGlobalOn();
+	}
+
+	/**
+	 * Returns suspended time of free domain.
+	 * @return int
+	 */
+	public static function getFreeDomainSuspendedTime(): int
+	{
+		$tariffTtl = 0;
+		$resetFreeTime = Manager::getOption('reset_to_free_time');
+		if ($resetFreeTime)
+		{
+			$tariffTtl = $resetFreeTime + self::FREE_DOMAIN_GRACE_DAYS * 86400;
+		}
+
+		return $tariffTtl;
 	}
 
 	/**

@@ -67,7 +67,7 @@ return array(
 		),
 		'.landing-block-card-accordeon-element-title-link' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_7_TWO_COLS_FIX_IMG_TEXT_ACCORDEON_NODES_LANDINGBLOCKNODEELEMENTTITLE'),
-			'type' => 'border-color',
+			'type' => 'border-colors',
 		),
 		'.landing-block-node-accordeon-element-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_7_TWO_COLS_FIX_IMG_TEXT_ACCORDEON_NODES_LANDINGBLOCKNODEELEMENTTITLE'),

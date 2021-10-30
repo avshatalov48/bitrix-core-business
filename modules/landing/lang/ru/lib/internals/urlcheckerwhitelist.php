@@ -1,0 +1,2 @@
+<?php
+$MESS['LANDING_TABLE_UCWL_FIELD_DOMAIN'] = 'Домен';

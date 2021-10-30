@@ -535,7 +535,7 @@ class LandingLandingsComponent extends LandingBaseComponent
 			$publicUrls = $landing->getPublicUrl(array_keys($this->arResult['LANDINGS']));
 			foreach ($publicUrls as $id => $url)
 			{
-				$this->arResult['LANDINGS'][$id]['PUBLIC_URL'] = $this->getTimestampUrl($url);
+				$this->arResult['LANDINGS'][$id]['PUBLIC_URL'] = $url;
 				if ($pictureFromCloud)
 				{
 					$this->arResult['LANDINGS'][$id]['PREVIEW'] = $url . 'preview.jpg';

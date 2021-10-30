@@ -11,6 +11,22 @@ use Bitrix\Main\Entity;
 use Bitrix\Main\Security\Random;
 use Bitrix\Main\Type\DateTime;
 
+/**
+ * Class WebHookTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_WebHook_Query query()
+ * @method static EO_WebHook_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_WebHook_Result getById($id)
+ * @method static EO_WebHook_Result getList(array $parameters = array())
+ * @method static EO_WebHook_Entity getEntity()
+ * @method static \Bitrix\Seo\WebHook\Internals\EO_WebHook createObject($setDefaultValues = true)
+ * @method static \Bitrix\Seo\WebHook\Internals\EO_WebHook_Collection createCollection()
+ * @method static \Bitrix\Seo\WebHook\Internals\EO_WebHook wakeUpObject($row)
+ * @method static \Bitrix\Seo\WebHook\Internals\EO_WebHook_Collection wakeUpCollection($rows)
+ */
 class WebHookTable extends Entity\DataManager
 {
 	public static function getTableName()

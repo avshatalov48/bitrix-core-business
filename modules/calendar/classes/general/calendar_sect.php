@@ -1,5 +1,6 @@
 <?
 use Bitrix\Main\Loader;
+use Bitrix\Calendar\Util;
 
 class CCalendarSect
 {
@@ -874,25 +875,33 @@ class CCalendarSect
 	public static function CanDo($operation, $sectId = 0, $userId = false)
 	{
 		global $USER;
-
-		if (!$userId)
-		{
-			$userId = CCalendar::GetCurUserId();
-		}
-
-		if (!isset($USER) || !is_object($USER) || !$sectId || !($USER instanceof \CUser))
-		{
-			return false;
-		}
-
-		if ($userId === CCalendar::GetCurUserId()
-			&& $USER->CanDoOperation('edit_php'))
+		if ((!$USER || !is_object($USER)) || $USER->CanDoOperation('edit_php'))
 		{
 			return true;
 		}
 
-		if ((CCalendar::GetType() == 'group' || CCalendar::GetType() == 'user' || CCalendar::IsBitrix24())
-			&& CCalendar::IsSocNet() && CCalendar::IsSocnetAdmin())
+		if (!is_numeric($userId))
+		{
+			$userId = CCalendar::GetCurUserId();
+		}
+
+		if (
+			CCalendar::IsBitrix24()
+			&& Loader::includeModule('bitrix24')
+			&& \CBitrix24::isPortalAdmin($userId)
+		)
+		{
+			return true;
+		}
+
+		if ((
+				CCalendar::GetType() === 'group'
+				|| CCalendar::GetType() === 'user'
+				|| CCalendar::IsBitrix24()
+			)
+			&& CCalendar::IsSocNet()
+			&& CCalendar::IsSocnetAdmin()
+		)
 		{
 			return true;
 		}
@@ -905,22 +914,14 @@ class CCalendarSect
 
 	public static function GetOperations($sectId, $userId = false)
 	{
-		global $USER;
 		if (!$userId)
-			$userId = CCalendar::GetCurUserId();
+		{
+			$userId = \CCalendar::GetCurUserId();
+		}
 
-		$arCodes = [];
-		$rCodes = CAccess::GetUserCodes($userId);
-		while($code = $rCodes->Fetch())
-			$arCodes[] = $code['ACCESS_CODE'];
+		$codes = Util::getUserAccessCodes($userId);
 
-		if (!in_array('G2', $arCodes))
-			$arCodes[] = 'G2';
-
-		if (!in_array('AU', $arCodes) && $USER && $USER->GetId() == $userId)
-			$arCodes[] = 'AU';
-
-		$key = $sectId.'|'.implode(',', $arCodes);
+		$key = $sectId.'|'.implode(',', $codes);
 		if (self::$bClearOperationCache || !is_array(self::$arOp[$key]))
 		{
 			if (!isset(self::$Permissions[$sectId]))
@@ -932,7 +933,7 @@ class CCalendarSect
 			{
 				foreach ($perms as $code => $taskId)
 				{
-					if (in_array($code, $arCodes))
+					if (in_array($code, $codes))
 					{
 						self::$arOp[$key] = array_merge(self::$arOp[$key], CTask::GetOperations($taskId, true));
 					}

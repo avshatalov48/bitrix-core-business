@@ -34,7 +34,7 @@ return [
 		'nodes' => [
 			'.landing-block-card' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_58_2_CARD'),
-				'type' => ['animation', 'border-color', 'border-width', 'margin-bottom'],
+				'type' => ['animation', 'border-colors', 'border-width', 'margin-bottom'],
 			],
 			'.landing-block-node-title' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_58_2_TITLE'),

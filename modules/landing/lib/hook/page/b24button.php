@@ -236,7 +236,7 @@ class B24button extends \Bitrix\Landing\Hook\Page
 						&& !empty($this->fields['COLOR_VALUE']->getValue())
 					)
 					? Theme::prepareColor($this->fields['COLOR_VALUE']->getValue())
-					: 'var(--theme-color-primary)';
+					: 'var(--primary)';
 
 				Page\Asset::getInstance()->addString(
 					"<style type=\"text/css\">

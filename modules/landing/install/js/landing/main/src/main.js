@@ -78,6 +78,19 @@ export class Main extends Event.EventEmitter
 		{
 			BX.Landing.UI.Panel.StatusPanel.getInstance().show();
 		}
+
+		const pageType = Env.getInstance().getType();
+		if (
+			pageType === 'KNOWLEDGE'
+			|| pageType === 'GROUP'
+		)
+		{
+			const mainArea = document.querySelector('.landing-main');
+			if (Type.isDomNode(mainArea))
+			{
+				Dom.addClass(mainArea, 'landing-ui-collapse');
+			}
+		}
 	}
 
 	isDesignBlockMode()

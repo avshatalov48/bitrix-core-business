@@ -771,6 +771,7 @@
 			this.popup = new BX.PopupMenuWindow({
 				id: "link_list_" + (+new Date()),
 				bindElement: this.button.layout,
+				targetContainer: this.contentRoot,
 				items: buttons,
 				autoHide: true,
 				events: {
@@ -778,7 +779,10 @@
 				}
 			});
 
-			append(this.popup.popupWindow.popupContainer, this.button.layout.parentNode);
+			if (!this.contentRoot)
+			{
+				append(this.popup.popupWindow.popupContainer, this.button.layout.parentNode);
+			}
 
 			return this.popup;
 		},
@@ -1088,7 +1092,13 @@
 		 */
 		getValue: function()
 		{
-			return this.getSelectedHrefType() + (this.value ? this.value : this.input.innerText);
+			var valueText = this.value ? this.value : this.input.innerText;
+			if (valueText.includes(':'))
+			{
+				return valueText;
+			}
+
+			return this.getSelectedHrefType() + valueText;
 		}
 	};
 })();

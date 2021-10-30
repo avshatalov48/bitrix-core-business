@@ -24,7 +24,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Mobileapp
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Config_Query query()
+ * @method static EO_Config_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Config_Result getById($id)
+ * @method static EO_Config_Result getList(array $parameters = array())
+ * @method static EO_Config_Entity getEntity()
+ * @method static \Bitrix\MobileApp\Designer\EO_Config createObject($setDefaultValues = true)
+ * @method static \Bitrix\MobileApp\Designer\EO_Config_Collection createCollection()
+ * @method static \Bitrix\MobileApp\Designer\EO_Config wakeUpObject($row)
+ * @method static \Bitrix\MobileApp\Designer\EO_Config_Collection wakeUpCollection($rows)
+ */
 class ConfigTable extends Entity\DataManager
 {
 	public static function getFilePath()

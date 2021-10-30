@@ -70,13 +70,9 @@ return [
 				'type' => ['color', 'font-size', 'font-family',
 					'text-decoration', 'text-transform', 'line-height', 'letter-spacing', 'text-shadow', 'margin-bottom'],
 			],
-			'.landing-block-bottom-strip' => [
-				'name' => Loc::getMessage('LANDING_BLOCK_8_6_BOTTOM_STRIP'),
-				'type' => ['border-color', 'margin-bottom', 'border-width'],
-			],
 			'.landing-block-bottom-border' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_8_6_BORDER'),
-				'type' => ['border-color', 'border-width', 'padding-bottom'],
+				'type' => ['border-colors', 'border-width', 'padding-bottom'],
 			],
 			'.landing-block-img' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_8_6_IMG'),

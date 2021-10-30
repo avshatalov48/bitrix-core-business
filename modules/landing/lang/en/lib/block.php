@@ -4,6 +4,7 @@ $MESS["LANDING_BLOCK_BAD_ANCHOR"] = "Anchor should start with an alphabetical ch
 $MESS["LANDING_BLOCK_BR1"] = "Catalog";
 $MESS["LANDING_BLOCK_BR2"] = "Product page";
 $MESS["LANDING_BLOCK_CARD_NOT_FOUND"] = "Block card not found";
+$MESS["LANDING_BLOCK_INCORRECT_AFFECTED"] = "Data before and after saving doesn't match";
 $MESS["LANDING_BLOCK_LANDING_NOT_EXIST"] = "Landing page does not exist";
 $MESS["LANDING_BLOCK_MESSAGE_ERROR_DYNAMIC_LIMIT_TITLE"] = "Limit exceeded";
 $MESS["LANDING_BLOCK_MESSAGE_ERROR_EVAL"] = "Error running the block. Please try adding it again.";

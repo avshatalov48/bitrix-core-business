@@ -1,0 +1,82 @@
+.landing-ui-field-color-opacity {
+	background: url('images/opacity.png') left top repeat;
+	background-size: 8px;
+	position: relative;
+	width: 100%;
+	height: 40px;
+	margin-top: 4px;
+	margin-bottom: 10px;
+	border-radius: 2px;
+}
+
+/*opacity border not work with gradient - need hack*/
+.landing-ui-field-color-opacity::before
+{
+	content: '';
+	display: block;
+	position: absolute;
+	top: -1px;
+	bottom: -1px;
+	left: -1px;
+	right: -1px;
+	box-shadow: 0 0 4px rgba(128, 128, 128, .1);
+	border: 1px solid rgba(0, 0, 0, .05);
+}
+
+/*to can click on picker circle*/
+.landing-ui-field-color-opacity::after {
+	content: '';
+	height: 10px;
+	display: block;
+}
+
+.landing-ui-field-color-opacity-color {
+	width: 100%;
+	height: 100%;
+	border-radius: 2px;
+}
+
+.landing-ui-field-color-opacity-picker {
+	position: absolute;
+	width: 4px;
+	top: -2px;
+	margin-left: -2px;
+	bottom: -2px;
+	border: 1px solid rgba(255, 255, 255, .25);
+	border-radius: 2px;
+	background-color: rgba(82, 92, 105, .22);
+	cursor: pointer;
+}
+
+.landing-ui-field-color-opacity-picker-item {
+	position: absolute;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	left: -8px;
+	bottom: -7px;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background-color: #fff;
+	box-shadow: 0 2px 3px 0 rgba(0, 0, 0, .19);
+}
+
+.landing-ui-field-color-opacity-picker-item-circle {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background-color: #2fc6f6;
+}
+
+.landing-ui-field-color-draggable {
+	user-select: none;
+}
+
+.landing-ui-field-color-draggable .landing-ui-field-color-opacity {
+	cursor: pointer;
+}
+
+.landing-ui-field-color-draggable .landing-ui-field-color-opacity-picker {
+	pointer-events: none;
+}

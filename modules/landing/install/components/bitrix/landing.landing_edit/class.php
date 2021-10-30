@@ -35,7 +35,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 	/**
 	 * Default site color (lightblue bitrix color)
 	 */
-	public const DEFAULT_SITE_COLOR = '#6ab8ee';
+	public const DEFAULT_SITE_COLOR = '#2fc6f6';
 
 	/**
 	 * Default color picker color

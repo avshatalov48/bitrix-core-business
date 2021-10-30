@@ -131,7 +131,7 @@ let Utils =
 		{
 			return this.isAndroid() || this.isIos() || this.isBitrixMobile();
 		},
-		isIos()
+		isIos(): boolean
 		{
 			return navigator.userAgent.toLowerCase().includes('iphone') || navigator.userAgent.toLowerCase().includes('ipad');
 		},

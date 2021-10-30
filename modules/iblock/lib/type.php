@@ -21,6 +21,19 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Iblock
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Type_Query query()
+ * @method static EO_Type_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Type_Result getById($id)
+ * @method static EO_Type_Result getList(array $parameters = array())
+ * @method static EO_Type_Entity getEntity()
+ * @method static \Bitrix\Iblock\EO_Type createObject($setDefaultValues = true)
+ * @method static \Bitrix\Iblock\EO_Type_Collection createCollection()
+ * @method static \Bitrix\Iblock\EO_Type wakeUpObject($row)
+ * @method static \Bitrix\Iblock\EO_Type_Collection wakeUpCollection($rows)
  */
 class TypeTable extends ORM\Data\DataManager
 {

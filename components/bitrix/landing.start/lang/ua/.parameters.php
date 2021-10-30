@@ -14,6 +14,7 @@ $MESS["LANDING_CMP_PAR_SM_ROLES"] = "Список ролей";
 $MESS["LANDING_CMP_PAR_SM_ROLE_EDIT"] = "Сторінка редагування ролі";
 $MESS["LANDING_CMP_PAR_SM_SITE"] = "Сторінка сайту (список лендінгів)";
 $MESS["LANDING_CMP_PAR_SM_SITES"] = "Список сайтів";
+$MESS["LANDING_CMP_PAR_SM_SITE_CONTACTS"] = "Сторінка налаштувань контактів сайту";
 $MESS["LANDING_CMP_PAR_SM_SITE_COOKIES"] = "Сторінка редагування Cookies";
 $MESS["LANDING_CMP_PAR_SM_SITE_DESIGN"] = "Сторінка дизайну сайту";
 $MESS["LANDING_CMP_PAR_SM_SITE_DOMAIN"] = "Сторінка редагування домену сайту";

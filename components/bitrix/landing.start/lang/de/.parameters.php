@@ -14,6 +14,7 @@ $MESS["LANDING_CMP_PAR_SM_ROLES"] = "Rollen";
 $MESS["LANDING_CMP_PAR_SM_ROLE_EDIT"] = "Seite der Rollenbearbeitung";
 $MESS["LANDING_CMP_PAR_SM_SITE"] = "Website-Seite (Liste der Landings)";
 $MESS["LANDING_CMP_PAR_SM_SITES"] = "Websites";
+$MESS["LANDING_CMP_PAR_SM_SITE_CONTACTS"] = "Seite der Einstellungen der Kontaktdaten von der Website";
 $MESS["LANDING_CMP_PAR_SM_SITE_COOKIES"] = "Seite der Cookie-Bearbeitung";
 $MESS["LANDING_CMP_PAR_SM_SITE_DESIGN"] = "Seite des Website-Designs";
 $MESS["LANDING_CMP_PAR_SM_SITE_DOMAIN"] = "Seite der Bearbeitung der Website-Domain";

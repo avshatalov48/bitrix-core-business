@@ -456,6 +456,11 @@ div.product-item-detail-quantity-field {
 	margin: 0 auto;
 	max-width: 310px;
 	width: 100%;
+	transition: background-color .3s;
+}
+
+.btn.product-item-detail-buy-button:hover {
+	background-color: #404040;
 }
 
 .product-item-detail-short-card-btn .btn.product-item-detail-buy-button { margin: 0; }

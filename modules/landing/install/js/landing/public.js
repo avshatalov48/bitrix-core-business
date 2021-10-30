@@ -8,7 +8,7 @@
 
 			BX.Landing.getMode = function()
 			{
-				return window.top === window ? "view" : "design";
+				return "view";
 			};
 
 			var blocks = [].slice.call(document.getElementsByClassName("block-wrapper"));

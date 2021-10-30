@@ -1,4 +1,4 @@
-<section class="g-pos-rel landing-block g-bg-primary-dark-v1">
+<section class="g-pos-rel landing-block">
 	<div class="landing-block-node-bgimg landing-semantic-color-overlay g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_3--after g-py-20"
 		 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1732x1155/img1.jpg);">
 

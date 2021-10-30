@@ -4,10 +4,8 @@
 			<div class="text-uppercase g-line-height-1_3">
 				<h6 class="landing-block-node-subtitle landing-semantic-subtitle-small g-font-weight-700 g-mb-15">
 					<span class="g-color-primary">01.</span> About app</h6>
-				<div class="landing-block-header g-mb-20">
-					<h2 class="landing-block-node-title landing-semantic-title-medium js-animation fadeIn g-line-height-1_3 h1 g-ml-5 g-mr-5 g-mb-0">We are
-						<span style="font-weight: bold;">innovators</span></h2>
-				</div>
+				<h2 class="landing-block-node-title landing-semantic-title-medium js-animation fadeIn g-line-height-1_3 h1 g-mb-20">We are
+					<span style="font-weight: bold;">innovators</span></h2>
 			</div>
 			<div class="landing-block-node-text landing-semantic-text-medium js-animation fadeIn g-mb-30">
 				<p>Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut,

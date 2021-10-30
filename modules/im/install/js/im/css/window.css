@@ -409,9 +409,8 @@
 	.bx-im-fullscreen-popup .bx-messenger-box-dialog { margin-left: 300px!important; }
 	.bx-im-fullscreen-popup .bx-messenger-box-extra { margin-left: 300px!important; }
 	.bx-im-fullscreen-popup .bx-messenger-panel-title-chat-input { width: 100%!important;}
-/*
 	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 { text-align: left; }
-	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 .bx-messenger-content-item-arrow { float: right; background: url("./../images/im-sprite-v37.png") no-repeat scroll -11px -307px;}
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 .bx-messenger-content-item-arrow { float: right; background: url("/bitrix/js/im/images/im-sprite-v37.png") no-repeat scroll -11px -307px;}
 	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 .bx-messenger-content-item-avatar { float: left; margin-left: -63px; text-align: left; }
 	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 .bx-messenger-content-item-avatar-name { opacity: 1; }
 	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 .bx-messenger-content-item-status { float: right; margin-left: 0; margin-right: -53px;}
@@ -419,7 +418,6 @@
 
 	.bx-im-fullscreen-adaptive .bx-messenger-body-wrap { margin: 0 0 0 42px; max-width: 1024px; }
 	.bx-im-fullscreen-adaptive .bx-messenger-content-item { max-width: 1024px; }
- */
 }
 
 /* desktop */

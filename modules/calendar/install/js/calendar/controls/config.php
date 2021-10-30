@@ -13,11 +13,11 @@ return [
 		'calendar.planner',
 		'ui.entity-selector',
 		'intranet.control-button',
-		'main.core',
 		'main.core.events',
+		'calendar.util',
+		'main.core',
 		'main.popup',
 		'calendar.controls',
-		'calendar.util',
 	],
 	'skip_core' => false,
 	'lang' => '/bitrix/modules/calendar/classes/general/editeventform_js.php'

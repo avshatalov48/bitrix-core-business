@@ -73,7 +73,7 @@ class Register
 	}
 
 	/**
-	 * Returns true if domain is enable and active now.
+	 * Returns true if domain is enabled and active now.
 	 * @param string $domainName Domain name.
 	 * @return bool
 	 */
@@ -82,6 +82,11 @@ class Register
 		$http = new HttpClient;
 		$status = $http->get(self::B24_SERVICE_DETECT_DOMAIN . $domainName);
 		$status = \CUtil::jsObjectToPhp($status);
-		return isset($status['status']) && $status['status'] == 'ready';
+		// protect from bad answer
+		if (!isset($status['status']))
+		{
+			return true;
+		}
+		return $status['status'] === 'ready';
 	}
 }

@@ -1621,7 +1621,7 @@ abstract class Base extends \CBitrixComponent
 		}
 		elseif ($this->productIdMap === false)
 		{
-			$iblockItems[$this->arParams['IBLOCK_ID']] = $this->arParams['ELEMENT_ID'];
+			$iblockItems[$this->arParams['IBLOCK_ID']] = $this->arParams['ELEMENT_ID'] ?? 0;
 		}
 
 		return $iblockItems;
@@ -2700,7 +2700,7 @@ abstract class Base extends \CBitrixComponent
 					$this->prices[$id]['QUANTITY'][$hash][$row['CATALOG_GROUP_ID']] = $row;
 					unset($hash);
 				}
-				elseif ($row['MEASURE_RATIO_ID'] === null && $row['QUANTITY_FROM'] === null && $row['QUANTITY_TO'] === null)
+				elseif (!isset($row['MEASURE_RATIO_ID']))
 				{
 					$this->prices[$id]['SIMPLE'][$row['CATALOG_GROUP_ID']] = $row;
 				}
@@ -2907,9 +2907,9 @@ abstract class Base extends \CBitrixComponent
 				unset($id);
 			}
 			// prices
-			$items[$index]['ITEM_MEASURE_RATIOS'] = $this->ratios[$itemId];
+			$items[$index]['ITEM_MEASURE_RATIOS'] = $this->ratios[$itemId] ?? [];
 			$items[$index]['ITEM_MEASURE_RATIO_SELECTED'] = $this->searchItemSelectedRatioId($itemId);
-			$items[$index]['ITEM_QUANTITY_RANGES'] = $this->quantityRanges[$itemId];
+			$items[$index]['ITEM_QUANTITY_RANGES'] = $this->quantityRanges[$itemId] ?? [];
 			$items[$index]['ITEM_QUANTITY_RANGE_SELECTED'] = $this->searchItemSelectedQuantityRangeHash($itemId);
 			if (!empty($this->prices[$itemId]))
 			{
@@ -3123,7 +3123,7 @@ abstract class Base extends \CBitrixComponent
 					$priceRow['DISCOUNT'] = $priceRow['BASE_PRICE'] - $priceRow['PRICE'];
 					$priceRow['PERCENT'] = roundEx(100*$priceRow['DISCOUNT']/$priceRow['BASE_PRICE'], 0);
 				}
-				if ($this->arParams['PRICE_VAT_SHOW_VALUE'])
+				if (isset($this->arParams['PRICE_VAT_SHOW_VALUE']) && $this->arParams['PRICE_VAT_SHOW_VALUE'])
 					$priceRow['VAT'] = ($vatRate > 0 ? $priceWithVat['PRICE'] - $priceWithoutVat['PRICE'] : 0);
 
 				if ($this->arParams['FILL_ITEM_ALL_PRICES'])
@@ -3258,7 +3258,7 @@ abstract class Base extends \CBitrixComponent
 			$prepareFields = array(
 				'BASE_PRICE', 'PRICE', 'DISCOUNT'
 			);
-			if ($this->arParams['PRICE_VAT_SHOW_VALUE'])
+			if (isset($this->arParams['PRICE_VAT_SHOW_VALUE']) && $this->arParams['PRICE_VAT_SHOW_VALUE'])
 				$prepareFields[] = 'VAT';
 
 			foreach ($prepareFields as $fieldName)

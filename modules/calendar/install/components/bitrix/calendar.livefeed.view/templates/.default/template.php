@@ -1,5 +1,8 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
+\Bitrix\Main\UI\Extension::load([
+	"calendar.util"
+]);
 $id = $arResult['ID'];
 $event = $arResult['EVENT'];
 $emptyAvatarSrc = "/bitrix/images/1.gif";
@@ -158,11 +161,13 @@ $emptyAvatarSrc = "/bitrix/images/1.gif";
 	<?endif;?>
 </div>
 
+<? $culture = \Bitrix\Main\Context::getCurrent()->getCulture(); ?>
+
 <script>
 	if (!window.oViewEventManager)
 		window.oViewEventManager = {};
 	window.oViewEventManager[('<?= $event['ID']?>' || 0)] = new window.ViewEventManager(<?=CUtil::PhpToJSObject(
-	array(
+	[
 		"id" => $id,
 		"eventId" => $event['ID'],
 		"EVENT" => $event,
@@ -173,12 +178,17 @@ $emptyAvatarSrc = "/bitrix/images/1.gif";
 		'ATTENDEES_SHOWN_COUNT' => $arParams['ATTENDEES_SHOWN_COUNT'],
 		'ATTENDEES_SHOWN_COUNT_MAX' => $arParams['ATTENDEES_SHOWN_COUNT_MAX'],
 		'AVATAR_SIZE' => $arParams['AVATAR_SIZE'],
-		"AJAX_PARAMS" => array(
+		"AJAX_PARAMS" => [
 			'PATH_TO_USER' => $arParams['PATH_TO_USER'],
 			'ATTENDEES_SHOWN_COUNT' => $arParams['ATTENDEES_SHOWN_COUNT'],
 			'ATTENDEES_SHOWN_COUNT_MAX' => $arParams['ATTENDEES_SHOWN_COUNT_MAX'],
-		)
-	));?>
+		],
+		"culture" => [
+			"time_format" => $culture->getShortTimeFormat(),
+			"date_format" => $culture->getFullDateFormat(),
+		]
+	]
+		);?>
 	);
 </script>
 

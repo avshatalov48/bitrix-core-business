@@ -41,16 +41,20 @@ $arComponentParameters = Array(
 			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_SITE_DESIGN'),
 			'TYPE' => 'STRING'
 		),
+		'PAGE_URL_SITE_CONTACTS' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_SITE_CONTACTS'),
+			'TYPE' => 'STRING'
+		),
 		'PAGE_URL_LANDING_EDIT' => array(
 			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_LANDING_EDIT'),
 			'TYPE' => 'STRING'
 		),
-		'PAGE_URL_LANDING_DESIGN' => array(
-			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_LANDING_DESIGN'),
-			'TYPE' => 'STRING'
-		),
 		'PAGE_URL_SITE_DOMAIN_SWITCH' => array(
 			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_SITE_DOMAIN_SWITCH'),
+			'TYPE' => 'STRING'
+		),
+		'PAGE_URL_SITE_DOMAIN' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_SITE_DOMAIN'),
 			'TYPE' => 'STRING'
 		),
 		'SEF' => array(

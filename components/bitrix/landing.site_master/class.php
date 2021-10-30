@@ -41,12 +41,13 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 	/**
 	 * Returns site info by site id (or last created).
 	 * @param int|null $siteId Site id.
+	 * @param string $siteType Site type.
 	 * @return array|null
 	 */
-	protected function getSite(?int $siteId): ?array
+	protected function getSite(?int $siteId, string $siteType): ?array
 	{
 		$filter = [
-			'=TYPE' => 'STORE'
+			'=TYPE' => $siteType
 		];
 		if ($siteId)
 		{
@@ -61,7 +62,8 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 			'filter' => $filter,
 			'order' => [
 				'ID' => 'desc'
-			]
+			],
+			'limit' => 1
 		]);
 		if ($row)
 		{
@@ -70,35 +72,6 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 		}
 
 		return $row;
-	}
-
-	/**
-	 * Updates site's and main page's titles.
-	 * @param int $siteId Site id.
-	 * @param array $update Data array.
-	 * @return void
-	 */
-	protected function updateMainTitles(int $siteId, array $update): void
-	{
-		$res = Site::update($siteId, $update);
-		if ($res->isSuccess())
-		{
-			$res = Site::getList([
-				'select' => [
-					'LANDING_ID_INDEX'
-				],
-				'filter' => [
-					'ID' => $siteId
-				]
-			]);
-			$row = $res->fetch();
-			if (!empty($row['LANDING_ID_INDEX']))
-			{
-				Landing::update($row['LANDING_ID_INDEX'], [
-					'TITLE' => $update['TITLE']
-				]);
-			}
-		}
 	}
 
 	/**
@@ -745,6 +718,7 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 
 		if ($init)
 		{
+			$this->checkParam('TYPE', '');
 			$this->checkParam('SITE_ID', 0);
 			$this->checkParam('GET_DATA', 'Y');
 			$this->checkParam('PAGE_URL_SITE_MASTER', '');
@@ -756,12 +730,21 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 				return;
 			}
 
+			\Bitrix\Landing\Site\Type::setScope(
+				$this->arParams['TYPE']
+			);
+
 			$this->arResult['SITE'] = $this->getSite(
-				$this->arParams['SITE_ID']
+				$this->arParams['SITE_ID'],
+				$this->arParams['TYPE']
 			);
 
 			if ($this->arResult['SITE'])
 			{
+				if ($this->request('redirect_to') === 'products')
+				{
+					\localRedirect($this->getProductUrl($this->arResult['SITE']['ID']));
+				}
 				$this->setSiteMasterUrl(
 					$this->arResult['SITE']['ID']
 				);

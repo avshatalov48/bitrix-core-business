@@ -41,7 +41,7 @@ return [
 	'style' => [
 		'.landing-block-card-border-left' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_7_CONTAINER'),
-			'type' => ['border-color', 'heading-v2', 'margin-bottom'],
+			'type' => ['heading', 'margin-bottom'],
 		],
 		'.landing-block-card-title-left' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_7_TITLE'),

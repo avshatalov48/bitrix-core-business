@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,landing_backend,main_loader,landing_env,landing_ui_panel_stylepanel,ui_dialogs_messagebox,helper,landing_ui_field_agreementslist,landing_ui_field_accordionfield,landing_ui_field_fieldslistfield,landing_ui_field_rulefield,landing_ui_component_actionpanel,landing_ui_component_internal,landing_ui_field_presetfield,landing_ui_field_variablesfield,landing_ui_component_link,landing_ui_field_radiobuttonfield,landing_ui_field_defaultvaluefield,ui_buttons,landing_ui_card_basecard,crm_form_client,landing_ui_card_messagecard,landing_ui_card_headercard,landing_ui_form_formsettingsform,landing_ui_field_textfield,main_core_events,landing_ui_field_basefield,ui_entitySelector,landing_pageobject,main_core,landing_ui_button_sidebarbutton,landing_loc,landing_ui_panel_basepresetpanel) {
+(function (exports,landing_backend,main_loader,landing_env,landing_ui_panel_stylepanel,ui_dialogs_messagebox,ui_alerts,helper,landing_ui_field_agreementslist,landing_ui_field_accordionfield,landing_ui_field_fieldslistfield,landing_ui_field_rulefield,landing_ui_component_actionpanel,landing_ui_component_internal,landing_ui_field_presetfield,landing_ui_field_variablesfield,landing_ui_component_link,landing_ui_field_radiobuttonfield,landing_ui_field_defaultvaluefield,ui_buttons,landing_ui_card_basecard,crm_form_client,landing_ui_card_messagecard,landing_ui_card_headercard,landing_ui_form_formsettingsform,landing_ui_field_textfield,main_core_events,landing_ui_field_basefield,ui_entitySelector,landing_pageobject,main_core,landing_ui_button_sidebarbutton,landing_loc,landing_ui_panel_basepresetpanel) {
 	'use strict';
 
 	var headerAndButtonsIcon = "/bitrix/js/landing/ui/panel/formsettingspanel/dist/internal/content/header-and-buttons/images/header-and-buttons-message-icon.svg";
@@ -218,34 +218,22 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    _this.addItem(captchaTypeForm);
 
-	    _this.addItem(_this.getKeysCheckbox());
+	    if (_this.hasDefaultRecaptchaKeys()) {
+	      _this.addItem(_this.getKeysCheckbox());
+	    }
 
 	    _this.addItem(_this.getKeysForm());
 
 	    var hasKeys = _this.options.values.key && _this.options.values.secret;
 
 	    if (captchaTypeForm.fields[0].getValue() === 'disabled') {
-	      _this.hideKeysCheckbox();
+	      if (_this.hasDefaultRecaptchaKeys()) {
+	        _this.hideKeysCheckbox();
+	      }
 
 	      _this.hideKeysForm();
 	    } else {
-	      _this.showKeysCheckbox();
-
-	      _this.getKeysCheckbox().fields[0].setValue([hasKeys ? 'useCustomKeys' : '']);
-
-	      if (hasKeys) {
-	        _this.showKeysForm();
-	      } else {
-	        _this.hideKeysForm();
-	      }
-	    }
-
-	    captchaTypeForm.subscribe('onChange', function () {
-	      if (captchaTypeForm.fields[0].getValue() === 'disabled') {
-	        _this.hideKeysCheckbox();
-
-	        _this.hideKeysForm();
-	      } else {
+	      if (_this.hasDefaultRecaptchaKeys()) {
 	        _this.showKeysCheckbox();
 
 	        _this.getKeysCheckbox().fields[0].setValue([hasKeys ? 'useCustomKeys' : '']);
@@ -254,6 +242,32 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          _this.showKeysForm();
 	        } else {
 	          _this.hideKeysForm();
+	        }
+	      } else {
+	        _this.showKeysForm();
+	      }
+	    }
+
+	    captchaTypeForm.subscribe('onChange', function () {
+	      if (captchaTypeForm.fields[0].getValue() === 'disabled') {
+	        if (_this.hasDefaultRecaptchaKeys()) {
+	          _this.hideKeysCheckbox();
+	        }
+
+	        _this.hideKeysForm();
+	      } else {
+	        if (_this.hasDefaultRecaptchaKeys()) {
+	          _this.showKeysCheckbox();
+
+	          _this.getKeysCheckbox().fields[0].setValue([hasKeys ? 'useCustomKeys' : '']);
+
+	          if (hasKeys) {
+	            _this.showKeysForm();
+	          } else {
+	            _this.hideKeysForm();
+	          }
+	        } else {
+	          _this.showKeysForm();
 	        }
 	      }
 	    });
@@ -337,10 +351,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "valueReducer",
 	    value: function valueReducer(sourceValue) {
-	      var useCustomKeys = sourceValue.useCustomKeys.length > 0;
+	      var useCustomKeys = !this.hasDefaultRecaptchaKeys() || sourceValue.useCustomKeys.length > 0;
 	      return {
 	        recaptcha: {
-	          use: sourceValue.use === 'hidden',
+	          use: sourceValue.use === 'hidden' && main_core.Type.isStringFilled(sourceValue.key) && main_core.Type.isStringFilled(sourceValue.secret),
 	          key: useCustomKeys ? sourceValue.key : '',
 	          secret: useCustomKeys ? sourceValue.secret : ''
 	        }
@@ -353,6 +367,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        skipPrepare: true
 	      }));
 	    }
+	  }, {
+	    key: "hasDefaultRecaptchaKeys",
+	    value: function hasDefaultRecaptchaKeys() {
+	      return this.options.dictionary.captcha.hasDefaults;
+	    }
 	  }]);
 	  return SpamProtection;
 	}(landing_ui_panel_basepresetpanel.ContentWrapper);
@@ -361,7 +380,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	var googleIcon = "/bitrix/js/landing/ui/panel/formsettingspanel/dist/internal/content/analytics/images/google.svg";
 
-	var _templateObject;
+	function _templateObject() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-content-table-cell\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
+
+	  _templateObject = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 	var ContentTableCell = /*#__PURE__*/function () {
 	  function ContentTableCell() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -372,13 +399,21 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  babelHelpers.createClass(ContentTableCell, [{
 	    key: "render",
 	    value: function render() {
-	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-content-table-cell\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.options.content);
+	      return main_core.Tag.render(_templateObject(), main_core.Text.encode(this.options.content));
 	    }
 	  }]);
 	  return ContentTableCell;
 	}();
 
-	var _templateObject$1;
+	function _templateObject$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-content-table-row", "\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
+
+	  _templateObject$1 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 	var ContentTableRow = /*#__PURE__*/function () {
 	  function ContentTableRow(options) {
 	    babelHelpers.classCallCheck(this, ContentTableRow);
@@ -389,7 +424,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "render",
 	    value: function render() {
 	      var headClass = this.options.head ? ' landing-ui-content-table-row-head' : '';
-	      return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-content-table-row", "\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), headClass, this.options.columns.map(function (cell) {
+	      return main_core.Tag.render(_templateObject$1(), headClass, this.options.columns.map(function (cell) {
 	        return cell.render();
 	      }));
 	    }
@@ -397,7 +432,25 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return ContentTableRow;
 	}();
 
-	var _templateObject$2, _templateObject2;
+	function _templateObject2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-content-table-wrapper\">\n\t\t\t\t\n\t\t\t\t<div class=\"landing-ui-content-table\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
+
+	  _templateObject2 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject$2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-content-table-title\">", "</div>\n\t\t\t"]);
+
+	  _templateObject$2 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 	var ContentTable = /*#__PURE__*/function () {
 	  function ContentTable(options) {
 	    babelHelpers.classCallCheck(this, ContentTable);
@@ -421,7 +474,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getTitleLayout",
 	    value: function getTitleLayout() {
 	      if (Type.isStringFilled(this.options.title)) {
-	        return main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-content-table-title\">", "</div>\n\t\t\t"])), this.options.title);
+	        return main_core.Tag.render(_templateObject$2(), this.options.title);
 	      }
 
 	      return '';
@@ -429,7 +482,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "render",
 	    value: function render() {
-	      return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-content-table-wrapper\">\n\t\t\t\t\n\t\t\t\t<div class=\"landing-ui-content-table\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.headRow.render(), this.rows.map(function (row) {
+	      return main_core.Tag.render(_templateObject2(), this.headRow.render(), this.rows.map(function (row) {
 	        return row.render();
 	      }));
 	    }
@@ -827,7 +880,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return FieldsRulesContent;
 	}(landing_ui_panel_basepresetpanel.ContentWrapper);
 
-	var _templateObject$3;
+	function _templateObject$3() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", " ", "-", "\">\n\t\t\t\t<div class=\"", "-title\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "-inner\">\n\t\t\t\t\t<div class=\"", "-header\">\n\t\t\t\t\t\t<span class=\"", "-header-view\" onclick=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "-icon\"></div>\n\t\t\t\t\t<div class=\"", "-text\" onclick=\"", "\" oninput=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "-footer\">\n\t\t\t\t\t\t<span class=\"", "-footer-edit\" onclick=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
+
+	  _templateObject$3 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 	var ActionPagesField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(ActionPagesField, _BaseField);
 
@@ -943,7 +1004,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        }
 	      };
 
-	      return main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", " ", "-", "\">\n\t\t\t\t<div class=\"", "-title\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "-inner\">\n\t\t\t\t\t<div class=\"", "-header\">\n\t\t\t\t\t\t<span class=\"", "-header-view\" onclick=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "-icon\"></div>\n\t\t\t\t\t<div class=\"", "-text\" onclick=\"", "\" oninput=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "-footer\">\n\t\t\t\t\t\t<span class=\"", "-footer-edit\" onclick=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), classPrefix, classPrefix, options.type, classPrefix, options.title, classPrefix, classPrefix, classPrefix, onViewClick, landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_EDIT_PAGE_SHOW'), classPrefix, classPrefix, onEditorClick, options.onInput, main_core.Text.encode(options.text), classPrefix, classPrefix, onEditClick, landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_EDIT_PAGE_EDIT'));
+	      return main_core.Tag.render(_templateObject$3(), classPrefix, classPrefix, options.type, classPrefix, options.title, classPrefix, classPrefix, classPrefix, onViewClick, landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_EDIT_PAGE_SHOW'), classPrefix, classPrefix, onEditorClick, options.onInput, main_core.Text.encode(options.text), classPrefix, classPrefix, onEditClick, landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_EDIT_PAGE_EDIT'));
 	    }
 	  }]);
 	  return ActionPagesField;
@@ -1166,7 +1227,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return ActionsContent;
 	}(landing_ui_panel_basepresetpanel.ContentWrapper);
 
-	var _templateObject$4;
+	function _templateObject$4() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-embed-header\">\n\t\t\t\t\t<div class=\"landing-ui-field-embed-header-button\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
+
+	  _templateObject$4 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 	var EmbedField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(EmbedField, _BaseField);
 
@@ -1231,7 +1300,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('header', function () {
-	        return main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-embed-header\">\n\t\t\t\t\t<div class=\"landing-ui-field-embed-header-button\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), _this3.getCopyButton().render());
+	        return main_core.Tag.render(_templateObject$4(), _this3.getCopyButton().render());
 	      });
 	    }
 	  }, {
@@ -1244,7 +1313,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return EmbedField;
 	}(landing_ui_field_basefield.BaseField);
 
-	var _templateObject$5;
+	function _templateObject$5() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-filed-widget-wrapper\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
+
+	  _templateObject$5 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 
 	var WidgetField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(WidgetField, _BaseField);
@@ -1269,7 +1346,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('inputWrapper', function () {
-	        return main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-filed-widget-wrapper\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this2.input, _this2.getSettingsButton().render());
+	        return main_core.Tag.render(_templateObject$5(), _this2.input, _this2.getSettingsButton().render());
 	      });
 	    }
 	  }, {
@@ -1287,7 +1364,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return WidgetField;
 	}(landing_ui_field_basefield.BaseField);
 
-	var _templateObject$6;
+	function _templateObject$6() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-copy-link-preview\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
+
+	  _templateObject$6 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 
 	var CopyLinkField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(CopyLinkField, _BaseField);
@@ -1317,7 +1402,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          href: _this2.options.link,
 	          target: '_blank'
 	        });
-	        return main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-copy-link-preview\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), link.getLayout());
+	        return main_core.Tag.render(_templateObject$6(), link.getLayout());
 	      });
 	    }
 	  }, {
@@ -1355,7 +1440,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return CopyLinkField;
 	}(landing_ui_field_basefield.BaseField);
 
-	var _templateObject$7;
+	function _templateObject$7() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-position-fields-inner\"></div>\n\t\t\t"]);
+
+	  _templateObject$7 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 	var PositionField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(PositionField, _BaseField);
 
@@ -1411,7 +1504,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getFieldsInner",
 	    value: function getFieldsInner() {
 	      return this.cache.remember('fieldsInner', function () {
-	        return main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-position-fields-inner\"></div>\n\t\t\t"])));
+	        return main_core.Tag.render(_templateObject$7());
 	      });
 	    }
 	  }, {
@@ -1937,7 +2030,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return Identify;
 	}(landing_ui_panel_basepresetpanel.ContentWrapper);
 
-	var _templateObject$8;
+	function _templateObject$8() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-stages\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
+
+	  _templateObject$8 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 
 	var fetchId = function fetchId(item) {
 	  return !main_core.Type.isNil(item.ID) ? item.ID : item.id;
@@ -1965,7 +2066,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('inner', function () {
-	        return main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-stages\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this2.getCategoriesDropdown().getLayout());
+	        return main_core.Tag.render(_templateObject$8(), _this2.getCategoriesDropdown().getLayout());
 	      });
 	    }
 	  }, {
@@ -2369,8 +2470,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "getSchemeById",
 	    value: function getSchemeById(id) {
+	      var _this12 = this;
+
 	      return this.options.formDictionary.document.schemes.find(function (scheme) {
-	        return String(scheme.id) === String(id) || id === 'smart' && scheme.dynamic;
+	        return String(scheme.id) === String(id) || id === 'smart' && scheme.dynamic && String(scheme.id) === String(_this12.getSelectedSchemeId());
 	      });
 	    }
 	  }, {
@@ -2964,7 +3067,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    var otherForm = new landing_ui_form_formsettingsform.FormSettingsForm({
 	      id: 'other',
 	      description: null,
-	      fields: [_this.getNameField(), _this.getUserSelectorField(), _this.getLanguageField(), _this.getUseSignField()]
+	      fields: [_this.getNameField(), _this.getUserSelectorField(), _this.getCheckWorkTimeField(), _this.getLanguageField(), _this.getUseSignField()]
 	    });
 
 	    _this.addItem(header);
@@ -3030,21 +3133,38 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      });
 	    }
 	  }, {
+	    key: "getCheckWorkTimeField",
+	    value: function getCheckWorkTimeField() {
+	      var _this5 = this;
+
+	      return this.cache.remember('checkWorkTimeField', function () {
+	        return new BX.Landing.UI.Field.Checkbox({
+	          selector: 'checkWorkTime',
+	          compact: true,
+	          value: [_this5.options.values.checkWorkTime],
+	          items: [{
+	            name: landing_loc.Loc.getMessage('LANDING_FORM_OTHER_CHECK_WORK_TIME'),
+	            value: 'Y'
+	          }]
+	        });
+	      });
+	    }
+	  }, {
 	    key: "getLanguageField",
 	    value: function getLanguageField() {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      return this.cache.remember('language', function () {
 	        return new BX.Landing.UI.Field.Dropdown({
 	          selector: 'language',
 	          title: landing_loc.Loc.getMessage('LANDING_CRM_FORM_LANGUAGE'),
-	          items: _this5.options.dictionary.languages.map(function (item) {
+	          items: _this6.options.dictionary.languages.map(function (item) {
 	            return {
 	              name: item.name,
 	              value: item.id
 	            };
 	          }),
-	          content: _this5.options.values.language
+	          content: _this6.options.values.language
 	        });
 	      });
 	    } // eslint-disable-next-line class-methods-use-this
@@ -3064,7 +3184,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          useSign: value.useSign.includes('useSign')
 	        },
 	        responsible: {
-	          users: value.users
+	          users: value.users,
+	          checkWorkTime: value.checkWorkTime[0] === 'Y' ? 'Y' : 'N'
 	        }
 	      };
 	    }
@@ -3566,7 +3687,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  soon: true
 	})];
 
-	var _templateObject$9;
+	function _templateObject$9() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-access-error-message\">\n\t\t\t\t\t<div class=\"landing-ui-access-error-message-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
+
+	  _templateObject$9 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 
 	/**
 	 * @memberOf BX.Landing.UI.Panel
@@ -3772,6 +3901,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return this.cache.get('currentBlock');
 	    }
 	  }, {
+	    key: "getSaveOriginalFileNameAlert",
+	    value: function getSaveOriginalFileNameAlert() {
+	      return this.cache.remember('saveOriginalFileNameAlert', function () {
+	        var alert = new ui_alerts.Alert({
+	          text: landing_loc.Loc.getMessage('LANDING_CRM_FORM_MAIN_OPTION_WARNING'),
+	          color: ui_alerts.AlertColor.WARNING
+	        });
+	        return alert.render();
+	      });
+	    }
+	  }, {
 	    key: "show",
 	    value: function show() {
 	      var _this6 = this;
@@ -3786,6 +3926,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	      if (!this.isFormCreated()) {
 	        this.disableTransparentMode();
+	      }
+
+	      var _Env$getInstance$getO = landing_env.Env.getInstance().getOptions(),
+	          mainOptions = _Env$getInstance$getO.mainOptions;
+
+	      if (mainOptions.saveOriginalFileName === false) {
+	        this.prependContent(this.getSaveOriginalFileNameAlert());
+	        var closeButtonTop = main_core.Text.toNumber(main_core.Dom.style(this.closeButton.getLayout(), 'top'));
+	        var alertHeight = this.getSaveOriginalFileNameAlert().getBoundingClientRect().height;
+	        main_core.Dom.style(this.closeButton.getLayout(), 'top', "".concat(closeButtonTop + alertHeight, "px"));
 	      }
 
 	      this.setCurrentBlock(options.block);
@@ -3892,7 +4042,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getAccessError",
 	    value: function getAccessError() {
 	      return this.cache.remember('accessErrorMessage', function () {
-	        return main_core.Tag.render(_templateObject$9 || (_templateObject$9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-access-error-message\">\n\t\t\t\t\t<div class=\"landing-ui-access-error-message-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), landing_loc.Loc.getMessage('LANDING_CRM_ACCESS_ERROR_MESSAGE'));
+	        return main_core.Tag.render(_templateObject$9(), landing_loc.Loc.getMessage('LANDING_CRM_ACCESS_ERROR_MESSAGE'));
 	      });
 	    } // eslint-disable-next-line class-methods-use-this
 
@@ -4157,6 +4307,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	      if (id === 'spam_protection') {
 	        return new SpamProtection({
+	          dictionary: this.getFormDictionary(),
 	          values: {
 	            key: this.getFormOptions().captcha.key,
 	            secret: this.getFormOptions().captcha.secret,
@@ -4291,6 +4442,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            name: this.getFormOptions().name,
 	            useSign: this.getFormOptions().data.useSign,
 	            users: this.getFormOptions().responsible.users,
+	            checkWorkTime: this.getFormOptions().responsible.checkWorkTime,
 	            language: this.getFormOptions().data.language
 	          }
 	        });
@@ -4529,5 +4681,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.FormSettingsPanel = FormSettingsPanel;
 
-}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX.Landing,BX,BX.Landing,BX.Landing.UI.Panel,BX.UI.Dialogs,BX,BX.Landing.UI.Field,BX.Landing.UI.Field,BX.Landing.UI.Field,BX.Landing.UI.Field,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Landing.UI.Field,BX.Landing.UI.Field,BX.Landing.UI.Component,BX.Landing.UI.Field,BX.Landing.UI.Field,BX.UI,BX.Landing.UI.Card,BX.Crm.Form,BX.Landing.UI.Card,BX.Landing.UI.Card,BX.Landing.UI.Form,BX.Landing.UI.Field,BX.Event,BX.Landing.UI.Field,BX.UI.EntitySelector,BX.Landing,BX,BX.Landing.UI.Button,BX.Landing,BX.Landing.UI.Panel));
+}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX.Landing,BX,BX.Landing,BX.Landing.UI.Panel,BX.UI.Dialogs,BX.UI,BX,BX.Landing.UI.Field,BX.Landing.UI.Field,BX.Landing.UI.Field,BX.Landing.UI.Field,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Landing.UI.Field,BX.Landing.UI.Field,BX.Landing.UI.Component,BX.Landing.UI.Field,BX.Landing.UI.Field,BX.UI,BX.Landing.UI.Card,BX.Crm.Form,BX.Landing.UI.Card,BX.Landing.UI.Card,BX.Landing.UI.Form,BX.Landing.UI.Field,BX.Event,BX.Landing.UI.Field,BX.UI.EntitySelector,BX.Landing,BX,BX.Landing.UI.Button,BX.Landing,BX.Landing.UI.Panel));
 //# sourceMappingURL=formsettingspanel.bundle.js.map

@@ -21,6 +21,7 @@ import {ReinviteUserDialog} from './reinviteuserdialog';
 import {EmailSelectorControl} from './emailselectorcontrol';
 import {ConfirmedEmailDialog} from './confirmedemaildialog';
 import {EmailLimitationDialog} from './emaillimitationdialog';
+import {AttendeesList} from "./attendeeslist";
 
 export {
 	Reminder,
@@ -45,5 +46,6 @@ export {
 	ReinviteUserDialog,
 	EmailSelectorControl,
 	ConfirmedEmailDialog,
-	EmailLimitationDialog
+	EmailLimitationDialog,
+	AttendeesList,
 }

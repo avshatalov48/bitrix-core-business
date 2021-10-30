@@ -29,8 +29,12 @@
 	font-weight: normal;
 	font-size: 18px;
 	line-height: 21px;
-	color: #121212;
+	color: #333;
 	padding: 17px 0;
+}
+
+.catalog-sections-list-menu-item-text:hover {
+	color: #000;
 }
 
 .catalog-sections-list-menu-item-text i{
@@ -47,7 +51,7 @@
 	transform: rotate(-45deg);
 	border-bottom: 1px solid;
 	border-right: 1px solid;
-	color: #121212;
+	color: #333;
 	opacity: 0.6;
 	width: 7px;
 	height: 7px;

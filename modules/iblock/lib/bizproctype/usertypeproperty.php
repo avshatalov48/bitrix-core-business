@@ -101,15 +101,23 @@ if (Loader::requireModule('bizproc'))
 
 				$renderResult = call_user_func_array(
 					$userType['GetPublicEditHTML'],
-					array(
-						array('LINK_IBLOCK_ID' => $fieldType->getOptions()),
-						array('VALUE' => $value),
-						array(
+					[
+						[
+							'LINK_IBLOCK_ID' => $fieldType->getOptions(),
+							'FORMAT_NAME' =>
+								\Bitrix\Main\Application::getInstance()
+									->getContext()
+									->getCulture()
+									->getNameFormat()
+							,
+						],
+						['VALUE' => $value],
+						[
 							'FORM_NAME' => $field['Form'],
 							'VALUE' => static::generateControlName($field)
-						),
+						],
 						true
-					)
+					]
 				);
 			}
 			else

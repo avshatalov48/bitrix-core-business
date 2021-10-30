@@ -1047,3 +1047,10 @@ div[id^="popup-window-content-calendar-resourcebooking-settings-popup"] {
 {
 	background-image: url(/bitrix/images/landing/ratio/21by9.svg);
 }
+
+.landing-ui-field-color .landing-ui-field-header {
+	padding: 0 4px;
+	margin-bottom: 16px;
+	font: 17px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #535c69;
+}

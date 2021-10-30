@@ -1332,6 +1332,7 @@ class CIMMessenger
 
 				if (CModule::IncludeModule('pull'))
 				{
+					//
 					$pullNotificationParams = CIMNotify::GetFormatNotify(
 						[
 							'ID' => $messageID,
@@ -1366,6 +1367,7 @@ class CIMMessenger
 						if (isset($arFields['PUSH_PARAMS']['ADVANCED_PARAMS']))
 						{
 							$advancedParams = $arFields['PUSH_PARAMS']['ADVANCED_PARAMS'];
+							unset($arFields['PUSH_PARAMS']['ADVANCED_PARAMS']);
 						}
 						else
 						{
@@ -3842,7 +3844,8 @@ class CIMMessenger
 			'CATEGORY' => 'ANSWER',
 			'URL' => SITE_DIR.'mobile/ajax.php?mobile_action=im_answer',
 			'PARAMS' => Array(
-				'RECIPIENT_ID' => 'chat'.$params['params']['chatId']
+				'RECIPIENT_ID' => 'chat'.$params['params']['chatId'],
+				'MESSAGE_ID' => $params['params']['message']['id']
 			),
 		);
 
@@ -3913,7 +3916,8 @@ class CIMMessenger
 			'CATEGORY' => 'ANSWER',
 			'URL' => SITE_DIR.'mobile/ajax.php?mobile_action=im_answer',
 			'PARAMS' => Array(
-				'RECIPIENT_ID' => (int)$params['params']['message']['senderId']
+				'RECIPIENT_ID' => (int)$params['params']['message']['senderId'],
+				'MESSAGE_ID' => $params['params']['message']['id']
 			),
 		);
 
@@ -4043,6 +4047,8 @@ class CIMMessenger
 		$message['message']['text'] = preg_replace_callback("/\[ICON\=([^\]]*)\]/i", Array("CIMMessenger", "PrepareMessageForPushIconCallBack"), $message['message']['text']);
 		$message['message']['text'] = preg_replace('#\-{54}.+?\-{54}#s', " [".GetMessage('IM_QUOTE')."] ", str_replace(array("#BR#"), Array(" "), $message['message']['text']));
 		$message['message']['text'] = preg_replace('/^(>>(.*)(\n)?)/mi', " [".GetMessage('IM_QUOTE')."] ", str_replace(array("#BR#"), Array(" "), $message['message']['text']));
+		$message['message']['text'] = preg_replace("/\\[color\\s*=\\s*([^\\]]+)\\](.*?)\\[\\/color\\]/is".BX_UTF_PCRE_MODIFIER, "$2", $message['message']['text']);
+		$message['message']['text'] = preg_replace("/\\[size\\s*=\\s*([^\\]]+)\\](.*?)\\[\\/size\\]/is".BX_UTF_PCRE_MODIFIER, "$2", $message['message']['text']);
 
 		if (!$pushFiles && !$hasAttach && isset($message['message']['params']['ATTACH']))
 		{

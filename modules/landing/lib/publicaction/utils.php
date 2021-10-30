@@ -449,4 +449,23 @@ class Utils
 
 		return false;
 	}
+
+	public static function getUserOption(string $name): ?PublicActionResult
+	{
+		$whiteList = ['color_field_recent_colors'];
+
+		$response = new PublicActionResult();
+		if (in_array($name, $whiteList, true))
+		{
+			$response->setResult(\CUserOptions::getOption('landing', $name, null));
+		}
+		else
+		{
+			$error = new Error;
+			$error->addError('WRONG_OPTION', 'Option name is not allowed');
+			$response->setError($error);
+		}
+
+		return $response;
+	}
 }

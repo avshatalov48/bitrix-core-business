@@ -180,7 +180,9 @@ class MailMessageUidTable extends Entity\DataManager
 	{
 		$entity = static::getEntity();
 		$connection = $entity->getConnection();
-
+		$filter = array_merge($filter , [
+			'=DELETE_TIME' => 'IS NULL',
+		]);
 		// @TODO: make a log optional
 		/*$queryToLog = sprintf(
 			'SELECT
@@ -391,6 +393,10 @@ class MailMessageUidTable extends Entity\DataManager
 				'data_type' => 'enum',
 				'values'    => array('Y', 'N', 'S', 'U'),
 			),
+			'IS_OLD' => array(
+				'data_type' => 'enum',
+				'values'    => array('Y', 'N', 'D'),
+			),
 			'SESSION_ID' => array(
 				'data_type' => 'string',
 				'required'  => true,
@@ -416,6 +422,7 @@ class MailMessageUidTable extends Entity\DataManager
 			),
 			'DELETE_TIME' => array(
 				'data_type' => 'integer',
+				'default' => 0,
 			),
 		);
 	}

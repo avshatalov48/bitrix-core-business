@@ -90,31 +90,6 @@ BX.VideoRecorder = {
 		}
 
 		BX.VideoRecorder.bindedForms.push(handler.params.formID);
-
-		BX.addCustomEvent(handler.eventNode, 'onFileIsAdded', function(file, controller, obj, blob) {
-			setTimeout(function() {
-				if (blob["hasTobeInserted"] === true)
-					controller.insertFile(file.id);
-			}, 1000);
-		});
-
-		BX.addCustomEvent(window, 'onAddVideoMessage', function(file, formID)
-		{
-			if(!formID)
-			{
-				return;
-			}
-			for(var i in handler.controllers)
-			{
-				if (handler.controllers.hasOwnProperty(i) &&
-					handler.controllers[i]["storage"] === "disk" &&
-					formID === handler.params.formID)
-				{
-					handler.controllers[i].handler.agent.onChange([file]);
-					break;
-				}
-			}
-		});
 	},
 	showLayout: function()
 	{

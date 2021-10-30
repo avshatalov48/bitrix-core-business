@@ -171,8 +171,39 @@ this.BX.Landing = this.BX.Landing || {};
 	  return SearchResult;
 	}();
 
+	var TimeStamp = /*#__PURE__*/function () {
+	  /**
+	   * Constructor.
+	   */
+	  function TimeStamp() {
+	    babelHelpers.classCallCheck(this, TimeStamp);
+	    this.removeTimestamp();
+	  }
+	  /**
+	   * Removes 'ts' param from query string.
+	   * @return {void}
+	   */
+
+
+	  babelHelpers.createClass(TimeStamp, [{
+	    key: "removeTimestamp",
+	    value: function removeTimestamp() {
+	      var uri = window.location.toString();
+	      uri = uri.replace(/(ts=[\d]+[&]*)/, '');
+
+	      if (uri.slice(-1) === '?' || uri.slice(-1) === '&') {
+	        uri = uri.slice(0, -1);
+	      }
+
+	      window.history.replaceState({}, document.title, uri);
+	    }
+	  }]);
+	  return TimeStamp;
+	}();
+
 	exports.TopPanel = TopPanel;
 	exports.SearchResult = SearchResult;
+	exports.TimeStamp = TimeStamp;
 
 }((this.BX.Landing.Pub = this.BX.Landing.Pub || {}),BX,BX.Landing));
 //# sourceMappingURL=script.js.map

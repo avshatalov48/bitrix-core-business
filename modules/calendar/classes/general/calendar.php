@@ -2,8 +2,10 @@
 
 /** var CMain $APPLICATION */
 
+use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Util;
 use Bitrix\Main;
+use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\PushTable;
 use Bitrix\Calendar\Sync\GoogleApiSync;
@@ -507,10 +509,14 @@ class CCalendar
 				$sections[$i]['OWNER_ID'] == self::$ownerId)
 			{
 				if ($noEditAccessedCalendars && $section['PERM']['edit'])
+				{
 					$noEditAccessedCalendars = false;
+				}
 
 				if ($readOnly && ($section['PERM']['edit'] || $section['PERM']['edit_section']) && !self::$isArchivedGroup)
+				{
 					$readOnly = false;
+				}
 			}
 
 			if (self::$bSuperpose && in_array($section['ID'], $followedSectionList))
@@ -519,7 +525,9 @@ class CCalendar
 			}
 
 			if ($bCreateDefault && $section['CAL_TYPE'] == self::$type && $section['OWNER_ID'] == self::$ownerId)
+			{
 				$bCreateDefault = false;
+			}
 
 			$type = $sections[$i]['CAL_TYPE'];
 			if ($type === 'user')
@@ -542,7 +550,14 @@ class CCalendar
 		}
 
 		if ($groupOrUser && $noEditAccessedCalendars && !$bCreateDefault)
+		{
 			$readOnly = true;
+		}
+
+		if ($type === 'location')
+		{
+			$readOnly = false;
+		}
 
 		self::$readOnly = $readOnly;
 
@@ -2807,7 +2822,7 @@ class CCalendar
 		{
 			$xmlIdField = "DAV_EXCH_LABEL";
 		}
-		elseif ($connectionType === 'caldav')
+		elseif ($connectionType === Bitrix\Calendar\Sync\Caldav\Helper::CALDAV_TYPE)
 		{
 			$xmlIdField = "CAL_DAV_LABEL";
 		}
@@ -3333,7 +3348,7 @@ class CCalendar
 					CDavConnection::Add(array(
 						"ENTITY_TYPE" => 'user',
 						"ENTITY_ID" => self::$ownerId,
-						"ACCOUNT_TYPE" => 'caldav',
+						"ACCOUNT_TYPE" => Bitrix\Calendar\Sync\Caldav\Helper::CALDAV_TYPE,
 						"NAME" => $con['name'],
 						"SERVER" => $con['link'],
 						"SERVER_USERNAME" => $con['user_name'],
@@ -3357,7 +3372,9 @@ class CCalendar
 				$resCon = CDavConnection::GetList(array("ID" => "ASC"), array("ID" => $conId));
 				if ($arCon = $resCon->Fetch())
 				{
-					if($arCon['ACCOUNT_TYPE'] !== 'caldav_google_oauth' && $arCon['ACCOUNT_TYPE'] !== 'google_api_oauth')
+					/** @var Google\Helper $googleHelper */
+					$googleHelper = ServiceLocator::getInstance()->get('calendar.service.google.helper');
+					if(!$googleHelper->isGoogleConnection($arCon['ACCOUNT_TYPE']))
 					{
 						CDavConnection::Update($conId, $arFields);
 					}
@@ -3406,7 +3423,10 @@ class CCalendar
 
 		while($arCon = $res->Fetch())
 		{
-			if ($arCon['ACCOUNT_TYPE'] === 'caldav_google_oauth' || $arCon['ACCOUNT_TYPE'] === 'caldav')
+			if (
+				$arCon['ACCOUNT_TYPE'] === Google\Helper::GOOGLE_ACCOUNT_TYPE_CALDAV
+				|| $arCon['ACCOUNT_TYPE'] === Bitrix\Calendar\Sync\Caldav\Helper::CALDAV_TYPE
+			)
 			{
 				if (mb_strpos($arCon['LAST_RESULT'], "[200]") === false)
 				{
@@ -3433,7 +3453,7 @@ class CCalendar
 		$arFields = [
 			'ENTITY_TYPE' => 'user',
 			'ENTITY_ID' => $connection['user_id'],
-			'ACCOUNT_TYPE' => 'caldav',
+			'ACCOUNT_TYPE' => Bitrix\Calendar\Sync\Caldav\Helper::CALDAV_TYPE,
 			'NAME' => $connection['name'],
 			'SERVER' => $connection['link'],
 			'SERVER_USERNAME' => $connection['user_name'],
@@ -3494,11 +3514,13 @@ class CCalendar
 		if (Loader::includeModule('dav'))
 		{
 			$sections = self::getSectionsByConnectionId($params['id']);
+			$connection = (\CDavConnection::GetList(["ID" => "ASC"], ["ID" => $params['id']]))->Fetch();
+			/** @var Google\Helper $googleHelper */
+			$googleHelper = ServiceLocator::getInstance()->get('calendar.service.google.helper');
 			if (
-				($connection = (\CDavConnection::GetList(["ID" => "ASC"], ["ID" => $params['id']]))->Fetch())
-				&& is_array($connection)
+				is_array($connection)
 				&& isset($connection['ACCOUNT_TYPE'])
-				&& \Bitrix\Calendar\Util::isGoogleConnection($connection['ACCOUNT_TYPE'])
+				&& $googleHelper->isGoogleConnection($connection['ACCOUNT_TYPE'])
 			)
 			{
 				self::stopGoogleConnectionChannels($params['id']);
@@ -3529,8 +3551,17 @@ class CCalendar
 
 			if (is_array($connection))
 			{
-				$connectionType = CCalendarSync::isYandex($connection['SERVER_HOST']) ? 'yandex' : 'caldav';
-				$connectionName = Util::isGoogleConnection($connection['ACCOUNT_TYPE']) ? 'google' : $connectionType . $connection['ID'];
+				/** @var Google\Helper $googleHelper */
+				$googleHelper = ServiceLocator::getInstance()->get('calendar.service.google.helper');
+				$caldavHelper = ServiceLocator::getInstance()->get('calendar.service.caldav.helper');
+				$connectionType = $caldavHelper->isYandex($connection['SERVER_HOST'])
+					? Bitrix\Calendar\Sync\Caldav\Helper::YANDEX_TYPE
+					: Bitrix\Calendar\Sync\Caldav\Helper::CALDAV_TYPE
+				;
+				$connectionName = $googleHelper->isGoogleConnection($connection['ACCOUNT_TYPE'])
+					? 'google'
+					: $connectionType . $connection['ID']
+				;
 				Util::addPullEvent(
 					'delete_sync_connection',
 					$connection['ENTITY_ID'],
@@ -3589,7 +3620,9 @@ class CCalendar
 	public static function IsSocnetAdmin()
 	{
 		if (!isset(self::$bCurUserSocNetAdmin))
+		{
 			self::$bCurUserSocNetAdmin = self::IsSocNet() && CSocNetUser::IsCurrentUserModuleAdmin();
+		}
 
 		return self::$bCurUserSocNetAdmin;
 	}
@@ -4186,10 +4219,12 @@ class CCalendar
 	{
 		global $USER;
 
-		if (!isset(self::$curUserId) || $refresh || !self::$curUserId)
+		if (!isset(self::$curUserId)
+			|| !is_numeric(self::$curUserId)
+			|| $refresh
+		)
 		{
-			self::$curUserId =
-				is_object($USER) && $USER->IsAuthorized()
+			self::$curUserId = (is_object($USER) && $USER->IsAuthorized())
 					? (int)$USER->GetId()
 					: 0
 			;
@@ -4389,10 +4424,7 @@ class CCalendar
 				$keyMod = 'SG'.$ownerId.'_E';
 				$keyMember = 'SG'.$ownerId.'_K';
 
-				$arCodes = [];
-				$rCodes = CAccess::GetUserCodes($userId);
-				while($code = $rCodes->Fetch())
-					$arCodes[] = $code['ACCESS_CODE'];
+				$codes = Util::getUserAccessCodes($userId);
 
 				if (Loader::includeModule("socialnetwork"))
 				{
@@ -4404,17 +4436,17 @@ class CCalendar
 					}
 				}
 
-				if (in_array($keyOwner, $arCodes))// Is owner
+				if (in_array($keyOwner, $codes))// Is owner
 				{
 					$bEdit = true;
 					$bEditSection = true;
 				}
-				elseif(in_array($keyMod, $arCodes) && !self::$isArchivedGroup)// Is moderator
+				elseif(in_array($keyMod, $codes) && !self::$isArchivedGroup)// Is moderator
 				{
 					$bEdit = true;
 					$bEditSection = true;
 				}
-				elseif(in_array($keyMember, $arCodes) && !self::$isArchivedGroup)// Is member
+				elseif(in_array($keyMember, $codes) && !self::$isArchivedGroup)// Is member
 				{
 					$bEdit = true;
 					$bEditSection = false;
@@ -4975,12 +5007,16 @@ class CCalendar
 
 			$connectionList = [];
 			$res = CDavConnection::GetList(
-				array("ID" => "DESC"),
-				array(
+				["ID" => "DESC"],
+				[
 					"ENTITY_TYPE" => "user",
 					"ENTITY_ID" => self::$ownerId,
-					'ACCOUNT_TYPE' => array('caldav_google_oauth', 'google_api_oauth', 'caldav')
-				), false, false);
+					'ACCOUNT_TYPE' => [
+						Google\Helper::GOOGLE_ACCOUNT_TYPE_CALDAV,
+						Google\Helper::GOOGLE_ACCOUNT_TYPE_API,
+						Bitrix\Calendar\Sync\Caldav\Helper::CALDAV_TYPE,
+					],
+				], false, false);
 
 			if ($isGoogleApiEnabled)
 			{
@@ -5021,7 +5057,9 @@ class CCalendar
 				);
 
 				$connectionList[] = $connectionListItem;
-				if ($connection['ACCOUNT_TYPE'] == 'caldav_google_oauth' || $connection['ACCOUNT_TYPE'] == 'google_api_oauth')
+				/** @var Google\Helper $googleHelper */
+				$googleHelper = ServiceLocator::getInstance()->get('calendar.service.google.helper');
+				if ($googleHelper->isGoogleConnection($connection['ACCOUNT_TYPE']))
 				{
 					$googleApiConnections[] = $connectionListItem;
 				}
@@ -5064,10 +5102,12 @@ class CCalendar
 
 				if ($googleApiStatus['googleCalendarPrimaryId'] || !empty($googleApiConnections))
 				{
-					$serverPath = 'https://www.googleapis.com/calendar/v3';
+					$serverPath = Google\Helper::GOOGLE_SERVER_PATH_V3;
 					foreach ($googleApiConnections as $connection)
 					{
-						if (($connection['link'] == $serverPath || $connection['account_type'] == 'caldav_google_oauth') || $connection['account_type'] == 'google_api_oauth')
+						if (($connection['link'] == $serverPath
+								|| $connection['account_type'] === Google\Helper::GOOGLE_ACCOUNT_TYPE_CALDAV)
+							|| $connection['account_type'] === Google\Helper::GOOGLE_ACCOUNT_TYPE_API)
 						{
 							$googleApiStatus['last_result'] = $connection['last_result'];
 							$googleApiStatus['sync_date'] = CCalendar::Date(self::Timestamp($connection['sync_date']) + CCalendar::GetOffset(self::$ownerId), true, true, true);
@@ -5079,8 +5119,8 @@ class CCalendar
 
 					if ($addConnection)
 					{
-						$sAccountType = 'google_api_oauth';
-						$sServer = 'https://www.googleapis.com/calendar/v3';
+						$sAccountType = Bitrix\Calendar\Sync\Google\Helper::GOOGLE_ACCOUNT_TYPE_API;
+						$sServer = Google\Helper::GOOGLE_SERVER_PATH_V3;
 						$connectionData = array(
 							"ENTITY_TYPE" => 'user',
 							"ENTITY_ID" => self::$ownerId,
@@ -5138,7 +5178,7 @@ class CCalendar
 			}
 			else if ($googleCalDavStatus && $googleCalDavStatus['googleCalendarPrimaryId'])
 			{
-				$serverPath = 'https://apidata.googleusercontent.com/caldav/v2/'.$googleCalDavStatus['googleCalendarPrimaryId'].'/user';
+				$serverPath = Google\Helper::GOOGLE_SERVER_PATH_V2.$googleCalDavStatus['googleCalendarPrimaryId'].'/user';
 
 				foreach($connectionList as $connection)
 				{
@@ -5158,9 +5198,9 @@ class CCalendar
 					$conId = CDavConnection::Add(array(
 						"ENTITY_TYPE" => 'user',
 						"ENTITY_ID" => self::$ownerId,
-						"ACCOUNT_TYPE" => 'caldav_google_oauth',
+						"ACCOUNT_TYPE" => Google\Helper::GOOGLE_ACCOUNT_TYPE_CALDAV,
 						"NAME" => 'Google Calendar ('.$googleCalDavStatus['googleCalendarPrimaryId'].')',
-						"SERVER" => 'https://apidata.googleusercontent.com/caldav/v2/'.$googleCalDavStatus['googleCalendarPrimaryId'].'/user'
+						"SERVER" => Google\Helper::GOOGLE_SERVER_PATH_V2.$googleCalDavStatus['googleCalendarPrimaryId'].'/user'
 					));
 
 					if ($conId)
@@ -6082,10 +6122,10 @@ class CCalendar
 	private static function removeGoogleAuthToken(array $connection): void
 	{
 		$googleCalDavStatus = \CCalendarSync::GetGoogleCalendarConnection();
-		$serverPath = \Bitrix\Calendar\Sync\Google\Helper::GOOGLE_SERVER_PATH_V3;
-		if ($googleCalDavStatus['googleCalendarPrimaryId'] && $connection['ACCOUNT_TYPE'] === \Bitrix\Calendar\Sync\Google\Helper::GOOGLE_ACCOUNT_TYPE_CALDAV)
+		$serverPath = Google\Helper::GOOGLE_SERVER_PATH_V3;
+		if ($googleCalDavStatus['googleCalendarPrimaryId'] && $connection['ACCOUNT_TYPE'] === Google\Helper::GOOGLE_ACCOUNT_TYPE_CALDAV)
 		{
-			$serverPath = \Bitrix\Calendar\Sync\Google\Helper::GOOGLE_SERVER_PATH_V2 . $googleCalDavStatus['googleCalendarPrimaryId'] . '/user';
+			$serverPath = Google\Helper::GOOGLE_SERVER_PATH_V2 . $googleCalDavStatus['googleCalendarPrimaryId'] . '/user';
 		}
 
 		if ($connection['SERVER'] === $serverPath)

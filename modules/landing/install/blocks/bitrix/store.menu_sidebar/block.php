@@ -15,7 +15,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 		<li class="landing-block-node-section-menu-item catalog-sections-list-menu-item">
 			<a
 				href="#system_mainpage"
-				class="landing-block-node-menu-link catalog-sections-list-menu-item-link g-font-size-18"
+				class="landing-block-node-menu-link catalog-sections-list-menu-item-link g-font-size-18 g-color-gray-dark-v2 g-color-black--hover"
 			>
 				Main page
 			</a>
@@ -41,7 +41,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 		<li class="landing-block-node-section-menu-item-custom g-pl-17 g-pr-17 g-py-9 active">
 			<a
 				href="#"
-				class="landing-block-node-menu-link-custom g-text-decoration-none--hover g-opacity-0_6"
+				class="landing-block-node-menu-link-custom g-text-decoration-none--hover g-color-black-opacity-0_5 g-color-black-opacity-0_7--hover"
 			>
 				Business Card
 			</a>
@@ -49,7 +49,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 		<li class="landing-block-node-section-menu-item-custom g-pl-17 g-pr-17 g-py-9 active">
 			<a
 				href="#"
-				class="landing-block-node-menu-link-custom g-text-decoration-none--hover g-opacity-0_6"
+				class="landing-block-node-menu-link-custom g-text-decoration-none--hover g-color-black-opacity-0_5 g-color-black-opacity-0_7--hover"
 			>
 				Payment Options
 			</a>

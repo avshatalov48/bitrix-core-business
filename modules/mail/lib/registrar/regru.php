@@ -142,6 +142,34 @@ class RegRu extends Registrar
 	}
 
 	/**
+	 * Renews exists domain.
+	 * @param string $user User name.
+	 * @param string $password User password.
+	 * @param string $domain Domain name.
+	 * @param string|null &$error Error message if occurred.
+	 * @return bool|null Returns true on success.
+	 */
+	public static function renewDomain(string $user, string $password, string $domain, ?string &$error): ?bool
+	{
+		$domain = Encoding::convertEncoding($domain, SITE_CHARSET, 'UTF-8');
+		$result = \CMailRegru::renewDomain($user, $password, $domain, ['period' => 1], $error);
+
+		if ($result !== false)
+		{
+			if (isset($result['dname']) && mb_strtolower($result['dname']) == mb_strtolower($domain))
+			{
+				return true;
+			}
+			else
+			{
+				$error = 'unknown';
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Updates domain DNS.
 	 * @param string $user User name.
 	 * @param string $password User password.
@@ -192,20 +220,6 @@ class RegRu extends Registrar
 			}
 		}
 
-		\CModule::IncludeModule('mail');
-		$error = null;
-		$result = \CMailRegru::updateDns('bitrix', 'n3l6f8s6dfG!', 'dolganintest24.ru', [[
-			'action' => 'remove_record',
-			'record_type' => 'A',
-			'subdomain' => '@',
-		]], $error);
-		$error = null;
-		$result = \CMailRegru::updateDns('bitrix', 'n3l6f8s6dfG!', 'dolganintest24.ru', [[
-		     'action' => 'add_alias',
-		     'subdomain' => '@',
-		     'ipaddr' => '185.137.235.2'
-		 ]], $error);
-		var_dump($error);
 		$result = \CMailRegru::updateDns($user, $password, $domain, $params, $error);
 
 		if ($result !== false)
@@ -225,6 +239,39 @@ class RegRu extends Registrar
 			{
 				$error = 'unknown';
 			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns domain's list.
+	 * @param string $user User name.
+	 * @param string $password User password.
+	 * @param string|null &$error Error message if occurred.
+	 * @return array|null
+	 */
+	public static function getDomainsList(string $user, string  $password, ?string &$error): ?array
+	{
+		$result = \CMailRegru::getDomainsList($user, $password, $error);
+
+		if ($result !== false)
+		{
+			$list = [];
+			foreach ($result as $domain)
+			{
+				if (!empty($domain['dname']))
+				{
+					$list[$domain['dname']] = [
+						'domain_name' => $domain['dname'],
+						'creation_date' => $domain['creation_date'],
+						'expiration_date' => $domain['expiration_date'],
+						'status' => $domain['state']
+					];
+				}
+			}
+
+			return $list;
 		}
 
 		return null;

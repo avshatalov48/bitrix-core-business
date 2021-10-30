@@ -140,12 +140,7 @@ export class Content extends BasePanel
 		this.init();
 
 		Event.bind(window.top, 'keydown', this.onKeyDown.bind(this));
-
-		BX.Landing.PageObject.getInstance()
-			.view()
-			.then((frame) => {
-				void (!!frame && Event.bind(frame.contentWindow, 'keydown', this.onKeyDown.bind(this)));
-			}, console.warn);
+		BX.Landing.PageObject.getEditorWindow();
 
 		if (this.data.scrollAnimation)
 		{

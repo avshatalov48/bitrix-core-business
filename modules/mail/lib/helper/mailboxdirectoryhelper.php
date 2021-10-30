@@ -41,6 +41,13 @@ class MailboxDirectoryHelper
 		return $this->errors;
 	}
 
+	public function getDrafts()
+	{
+		$list = $this->storage->get('draft', []);
+
+		return reset($list);
+	}
+
 	public function getIncome()
 	{
 		$list = $this->storage->get('income', []);
@@ -84,6 +91,18 @@ class MailboxDirectoryHelper
 	public function getOutcomePath()
 	{
 		$dir = $this->getOutcome();
+
+		if ($dir != null)
+		{
+			return $dir->getPath();
+		}
+
+		return null;
+	}
+
+	public function getDraftsPath()
+	{
+		$dir = $this->getDrafts();
 
 		if ($dir != null)
 		{
@@ -355,6 +374,7 @@ class MailboxDirectoryHelper
 			$removeRows[] = [
 				'=PATH' => $item->getPath(),
 			];
+			//deleting subfolders
 			$removeRows[] = [
 				'%=PATH' => $item->getPath() . $item->getDelimiter() . '%',
 			];

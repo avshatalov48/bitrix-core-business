@@ -159,6 +159,24 @@ this.BX = this.BX || {};
 	      });
 	    }
 	  }, {
+	    key: "getEditPanelContent",
+	    value: function getEditPanelContent() {
+	      var _this5 = this;
+
+	      return this.cache.remember('editPanel', function () {
+	        return _this5.getRootWindow().document.querySelector('.landing-ui-panel-content.landing-ui-panel-content-edit .landing-ui-panel-content-body-content');
+	      });
+	    }
+	  }, {
+	    key: "getStylePanelContent",
+	    value: function getStylePanelContent() {
+	      var _this6 = this;
+
+	      return this.cache.remember('stylePanel', function () {
+	        return _this6.getRootWindow().document.querySelector('.landing-ui-panel-content.landing-ui-panel-style .landing-ui-panel-content-body-content');
+	      });
+	    }
+	  }, {
 	    key: "getBlocks",
 	    value: function getBlocks() {
 	      return this.getRootWindow().BX.Landing.Block.storage;

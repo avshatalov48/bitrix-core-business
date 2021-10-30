@@ -68,7 +68,7 @@ this.BX = this.BX || {};
 	  },
 	  shadow: true,
 	  font: {
-	    uri: 'https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap&subset=cyrillic',
+	    uri: 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap&subset=cyrillic',
 	    family: 'Open Sans'
 	  },
 	  border: {
@@ -93,7 +93,7 @@ this.BX = this.BX || {};
 	  },
 	  shadow: true,
 	  font: {
-	    uri: 'https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap&subset=cyrillic',
+	    uri: 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap&subset=cyrillic',
 	    family: 'Open Sans'
 	  },
 	  border: {
@@ -118,7 +118,7 @@ this.BX = this.BX || {};
 	  },
 	  shadow: true,
 	  font: {
-	    uri: 'https://fonts.googleapis.com/css?family=PT+Serif:400,700&display=swap&subset=cyrillic',
+	    uri: 'https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&display=swap&subset=cyrillic',
 	    family: 'PT Serif'
 	  },
 	  border: {
@@ -143,7 +143,7 @@ this.BX = this.BX || {};
 	  },
 	  shadow: true,
 	  font: {
-	    uri: 'https://fonts.googleapis.com/css?family=PT+Serif:400,700&display=swap&subset=cyrillic',
+	    uri: 'https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&display=swap&subset=cyrillic',
 	    family: 'PT Serif'
 	  },
 	  border: {
@@ -168,7 +168,7 @@ this.BX = this.BX || {};
 	  },
 	  shadow: true,
 	  font: {
-	    uri: 'https://fonts.googleapis.com/css?family=Pangolin&display=swap&subset=cyrillic',
+	    uri: 'https://fonts.googleapis.com/css2?family=Pangolin&display=swap&subset=cyrillic',
 	    family: 'Pangolin'
 	  },
 	  border: {
@@ -193,7 +193,7 @@ this.BX = this.BX || {};
 	  },
 	  shadow: true,
 	  font: {
-	    uri: 'https://fonts.googleapis.com/css?family=Pangolin&display=swap&subset=cyrillic',
+	    uri: 'https://fonts.googleapis.com/css2?family=Pangolin&display=swap&subset=cyrillic',
 	    family: 'Pangolin'
 	  },
 	  border: {
@@ -218,7 +218,7 @@ this.BX = this.BX || {};
 	  },
 	  shadow: true,
 	  font: {
-	    uri: 'https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap&subset=cyrillic',
+	    uri: 'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap&subset=cyrillic',
 	    family: 'Press Start 2P'
 	  },
 	  border: {
@@ -621,7 +621,8 @@ this.BX = this.BX || {};
 	            };
 
 	            if (value.font.family === landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FONT_DEFAULT')) {
-	              delete value.font;
+	              value.font.family = '';
+	              value.font.uri = '';
 	            }
 
 	            delete value.primary;

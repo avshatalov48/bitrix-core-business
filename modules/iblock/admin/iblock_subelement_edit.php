@@ -38,8 +38,8 @@ $arIBTYPE = false; // initial value
 $arElement = false; // initial value
 $prev_arElement = array(); // initial value
 $PROP = array();
-define("MODULE_ID", "iblock");
-define("ENTITY", "CIBlockDocument");
+const MODULE_ID = "iblock";
+const ENTITY = "CIBlockDocument";
 define("DOCUMENT_TYPE", "iblock_".$IBLOCK_ID);
 define("BX_SUB_SETTINGS",(isset($_REQUEST['bxsku']) && $_REQUEST['bxsku'] == 'Y'));
 

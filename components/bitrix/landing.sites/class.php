@@ -23,7 +23,7 @@ class LandingSitesComponent extends LandingBaseComponent
 	/**
 	 * Count items per page.
 	 */
-	const COUNT_PER_PAGE = 11;
+	const COUNT_PER_PAGE = 12;
 
 	/**
 	 * Rights array of sites.
@@ -206,12 +206,17 @@ class LandingSitesComponent extends LandingBaseComponent
 			$this->checkParam('PAGE_URL_SITE', '');
 			$this->checkParam('PAGE_URL_SITE_EDIT', '');
 			$this->checkParam('PAGE_URL_SITE_DESIGN', '');
+			$this->checkParam('PAGE_URL_SITE_CONTACTS', '');
 			$this->checkParam('PAGE_URL_LANDING_EDIT', '');
-			$this->checkParam('PAGE_URL_LANDING_DESIGN', '');
+			$this->checkParam('PAGE_URL_SITE_DOMAIN_EDIT', '');
 			$this->checkParam('PAGE_URL_SITE_DOMAIN_SWITCH', '');
 			$this->checkParam('DRAFT_MODE', 'N');
 			$this->checkParam('ACCESS_CODE', '');
 			$this->checkParam('~AGREEMENT', []);
+			$this->checkParam(
+				'PAGE_URL_SITE_EXPORT',
+				str_replace(-1, '#site_edit#', Transfer\Export\Site::getUrl($this->arParams['TYPE'], -1))
+			);
 
 			\Bitrix\Landing\Hook::setEditMode(true);
 
@@ -365,7 +370,7 @@ class LandingSitesComponent extends LandingBaseComponent
 					$item['PREVIEW'] = '';
 					if (isset($siteUrls[$item['ID']]))
 					{
-						$item['PUBLIC_URL'] = $this->getTimestampUrl($siteUrls[$item['ID']]);
+						$item['PUBLIC_URL'] = $siteUrls[$item['ID']];
 					}
 					if ($item['PUBLIC_URL'])
 					{

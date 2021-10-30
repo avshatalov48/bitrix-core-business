@@ -2,6 +2,7 @@
 namespace Bitrix\Landing;
 
 use \Bitrix\Main\Application;
+use Bitrix\Main\Config\Option;
 use \Bitrix\Main\Event;
 use \Bitrix\Main\EventResult;
 use \Bitrix\Main\Page\Asset;
@@ -293,8 +294,8 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			}
 			// fill meta data
 			$keys = [
-				'CREATED_BY_ID', 'MODIFIED_BY_ID', 'DATE_CREATE',
-				'DATE_MODIFY', 'INITIATOR_APP_CODE', 'VIEWS'
+				'CREATED_BY_ID', 'MODIFIED_BY_ID', 'DATE_CREATE', 'DATE_MODIFY',
+				'INITIATOR_APP_CODE', 'VIEWS', 'ACTIVE', 'PUBLIC'
 			];
 			foreach ($keys as $key)
 			{
@@ -705,7 +706,6 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 
 	/**
 	 * Get preview picture of the landing.
-	 * Is the preview of first block.
 	 * @param int $id Landing id (if null, gets for $this->id).
 	 * @param bool $skipCloud Skip getting picture from cloud.
 	 * @return string
@@ -993,7 +993,10 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				'url' => $this->getPublicUrl(),
 				'xml_id' => $this->xmlId,
 				'blocks' => Block::getRepository(),
-				'style' => Block::getStyle()
+				'style' => Block::getStyle(),
+				'mainOptions' => [
+					'saveOriginalFileName' => Option::get('main', 'save_original_file_name') === 'Y'
+				],
 			);
 			// event for redefine $options
 			$event = new Event('landing', 'onLandingView', array(

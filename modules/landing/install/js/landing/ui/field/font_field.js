@@ -2,6 +2,7 @@
 	"use strict";
 
 	BX.namespace("BX.Landing.UI.Field");
+	BX.Runtime.loadExtension('landing.ui.component.link');
 
 	var isFunction = BX.Landing.Utils.isFunction;
 	var isPlainObject = BX.Landing.Utils.isPlainObject;
@@ -10,6 +11,11 @@
 	var escapeHtml = BX.Landing.Utils.escapeHtml;
 	var addClass = BX.Landing.Utils.addClass;
 	var clone = BX.Landing.Utils.clone;
+
+	var REG_CLASS_FONT = /g-font-(?!size-|weight-)[a-z0-9-]+/ig;
+	var REG_NAME_FONT = /[a-z0-9 ]*[a-z0-9]/i;
+	var REG_SYNTAX = /['|"]/g;
+	var REG_SPACE = / /g;
 
 	/**
 	 * Implements interface for works with text field
@@ -28,6 +34,12 @@
 		this.headlessMode = data.headlessMode === true;
 		this.frame = data.frame;
 		this.items = [];
+		this.defaultFontFamily = null;
+		this.defaultFontLink = new BX.Landing.UI.Component.Link({
+			text: BX.Landing.Loc.getMessage("LANDING_EDIT_BLOCK_DEFAULT_FONT"),
+		});
+
+		addClass(this.defaultFontLink.getLayout(), "landing-ui-field-font-link");
 
 		if (isPlainObject(data.items))
 		{
@@ -51,73 +63,34 @@
 			this.input.innerHTML = this.content;
 		}
 
-		//todo: need refactoring, need use ui.component.link
-		this.link = BX.create(
-			"a",
-			{
-				props: {
-					className: "landing-ui-field-font-link",
-					text: BX.Landing.Loc.getMessage("LANDING_EDIT_BLOCK_DEFAULT_FONT")
-				}
-			}
-		);
-
 		if (this.frame)
 		{
-			var element = this.frame.document.querySelectorAll(this.selector)[0];
+			this.element = this.frame.document.querySelectorAll(this.selector)[0];
 
-			if (element)
+			if (this.element)
 			{
-				var family = BX.style(element, "font-family");
+				var family = BX.style(this.element, "font-family");
 
 				if (family)
 				{
-					family = family.replace(/['|"]/g, "");
+					family = family.replace(REG_SYNTAX, "");
 					this.content = family.split(",")[0];
 					this.input.innerHTML = this.content;
 				}
-			}
 
-			var element = this.frame.document.querySelectorAll(this.selector)[0];
-			var classList = element.classList.value;
-			var regClassFont = /g-font-(?:(?!size|weight)\w)[a-z-]*/i;
-			var regCurrentFont = /[a-z\s]*[a-z]/i;
-			var foundedClass = classList.match(regClassFont);
-			var classFontName;
-			if (foundedClass)
-			{
-				classFontName = foundedClass[0];
-			}
-			if (element)
-			{
-				var currentFont = BX.style(element, "font-family");
-				currentFont = currentFont.match(regCurrentFont);
-				if (classFontName)
-				{
-					element.classList.remove(classFontName);
-				}
-				var fontName = BX.style(element, "font-family");
-				var defaultFont = fontName.match(regCurrentFont);
-				if (classFontName)
-				{
-					element.classList.add(classFontName);
-				}
-			}
-			if (defaultFont[0] !== currentFont[0])
-			{
-				this.layout.append(this.link);
-				this.defaultFont = fontName;
+				this.createLinkContainer();
+				this.setConditionLink();
 			}
 		}
 
 		bind(this.input, "click", proxy(this.onInputClick, this));
-		bind(this.link, "click", proxy(this.onLinkClick, this));
+		this.defaultFontLink.subscribe('onClick', proxy(this.onLinkClick, this));
 	};
 
 
 	function makeFontClassName(family)
 	{
-		return "g-font-" + family.toLowerCase().replace(/ /g, "-");
+		return "g-font-" + family.toLowerCase().replace(REG_SPACE, "-");
 	}
 
 
@@ -151,33 +124,49 @@
 		 * Handles link click event
 		 * @param {MouseEvent} event
 		 */
-		onLinkClick: function(event)
+		onLinkClick: function()
 		{
-			event.preventDefault();
-			event.stopPropagation();
-
-			var element = this.frame.document.querySelectorAll(this.selector)[0];
-			var classList = element.classList.value;
-			var regClassFont = /g-font-(?:(?!size|weight)\w)[a-z-]*/i;
-			var foundedClass = classList.match(regClassFont);
-
-			if (element)
+			if (this.defaultFontFamily)
 			{
-				if (foundedClass[0])
+				var foundedClasses = this.element.classList.value.match(REG_CLASS_FONT);
+				if (foundedClasses !== null)
 				{
-					element.classList.remove(foundedClass[0]);
+					var element = this.element;
+					foundedClasses.forEach(function(foundedClass) {
+						element.classList.remove(foundedClass);
+					});
 				}
-				var family = this.defaultFont;
-				if (family)
+				this.content = this.defaultFontFamily.replace(REG_SYNTAX, "").split(",")[0];
+				var font = {
+					family: this.content
+				};
+				this.setValue(font);
+			}
+		},
+
+		createLinkContainer: function()
+		{
+			this.linkContainer = document.createElement("div");
+			this.linkContainer.classList.add('landing-ui-component-link-container');
+			this.layout.append(this.linkContainer);
+		},
+
+		setConditionLink: function()
+		{
+			this.defaultFontFamily = getComputedStyle(document.body).fontFamily;
+			this.defaultFont = this.defaultFontFamily.match(REG_NAME_FONT)[0];
+			this.currentFont = getComputedStyle(this.element).fontFamily.match(REG_NAME_FONT)[0];
+			if (this.defaultFont !== this.currentFont)
+			{
+				this.linkContainer.append(this.defaultFontLink.getLayout());
+			}
+			else
+			{
+				if (this.linkContainer.hasChildNodes())
 				{
-					family = family.replace(/['|"]/g, "");
-					this.content = family.split(",")[0];
+					this.linkContainer.removeChild(this.linkContainer.firstChild);
 				}
 			}
-			var font = {
-				family: this.content
-			};
-			this.setValue(font);
 		},
 
 		setValue: function(value)
@@ -185,10 +174,9 @@
 			if (isPlainObject(value))
 			{
 				var className = makeFontClassName(value.family);
-				var weightList = [300, 400, 500, 600, 700, 900];
-				var weightPrefix = ':wght@';
-				var weightParams = weightPrefix + weightList.join(';');
-				var family = value.family.replace(/ /g, "+");
+				var weightList = [100, 200, 300, 400, 500, 600, 700, 800, 900];
+				var weightParams = ':wght@' + weightList.join(';');
+				var family = value.family.replace(REG_SPACE, "+");
 				var familyParams = family + weightParams;
 				var href = BX.Landing.UI.Panel.GoogleFonts.getInstance().client.makeUrl({
 					family: familyParams
@@ -253,6 +241,8 @@
 						.action("Landing::updateHead", {content: headString});
 				}
 			}
+
+			this.setConditionLink();
 		},
 
 		getValue: function()

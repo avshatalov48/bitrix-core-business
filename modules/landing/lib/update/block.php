@@ -101,6 +101,10 @@ class Block extends \Bitrix\Main\Update\Stepper
 	 */
 	protected static function prepareClassesToSet($classes, array $addClasses = [], array $removeClasses = [])
 	{
+		if (is_array($classes) && isset($classes['classList']))
+		{
+			$classes = $classes['classList'];
+		}
 		if (!is_array($classes))
 		{
 			$classes = [$classes];

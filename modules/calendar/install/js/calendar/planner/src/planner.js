@@ -1476,11 +1476,10 @@ export class Planner extends EventEmitter
 
 		if (date && typeof date === 'object')
 		{
-			let
-				i, curInd = 0,
-				timestamp = date.getTime();
+			let curInd = 0;
+			const timestamp = date.getTime();
 
-			for (i = 0; i < this.scaleData.length; i++)
+			for (let i = 0; i < this.scaleData.length; i++)
 			{
 				if (timestamp >= this.scaleData[i].timestamp)
 				{
@@ -1495,7 +1494,8 @@ export class Planner extends EventEmitter
 			if (this.scaleData[curInd] && this.scaleData[curInd].cell)
 			{
 				x = this.scaleData[curInd].cell.offsetLeft;
-				let cellWidth = this.scaleData[curInd].cell.offsetWidth, deltaTs = Math.round((timestamp - this.scaleData[curInd].timestamp) / 1000);
+				const cellWidth = this.scaleData[curInd].cell.offsetWidth;
+				const deltaTs = Math.round((timestamp - this.scaleData[curInd].timestamp) / 1000);
 
 				if (deltaTs > 0)
 				{
@@ -2079,22 +2079,28 @@ export class Planner extends EventEmitter
 
 	checkTimePeriod(fromDate, toDate, data)
 	{
-		let
-			result = true,
-			entry,
-			fromTimestamp = fromDate.getTime(),
-			toTimestamp = toDate.getTime(),
-			cacheKey = fromTimestamp + '_' + toTimestamp,
-			accuracy = 60 * 1000, // 1min
-			item, i;
+		let result = true;
+		let entry;
+
+		if (!Type.isDate(fromDate) || !Type.isDate(toDate))
+		{
+			return result;
+		}
+
+		let fromTimestamp = fromDate.getTime();
+		let toTimestamp = toDate.getTime();
+		const cacheKey = fromTimestamp + '_' + toTimestamp;
+		const accuracy = 3 * 60 * 1000; // 3min
 
 		if (Type.isArray(data))
 		{
-			for (i = 0; i < data.length; i++)
+			for (let i = 0; i < data.length; i++)
 			{
-				item = data[i];
+				let item = data[i];
 				if (item.type && item.type === 'hr')
+				{
 					continue;
+				}
 
 				if ((item.fromTimestamp + accuracy) <= toTimestamp && ((item.toTimestampReal || item.toTimestamp) - accuracy) >= fromTimestamp)
 				{
@@ -2132,9 +2138,9 @@ export class Planner extends EventEmitter
 						entriesAccessibleIndex[entryId] = true;
 						if (Type.isArray(this.accessibility[entryId]))
 						{
-							for (i = 0; i < this.accessibility[entryId].length; i++)
+							for (let i = 0; i < this.accessibility[entryId].length; i++)
 							{
-								item = this.accessibility[entryId][i];
+								let item = this.accessibility[entryId][i];
 								if (item.type && item.type === 'hr')
 								{
 									continue;
@@ -2150,18 +2156,6 @@ export class Planner extends EventEmitter
 						}
 					}
 				}
-
-				// for (i = 0; i < this.entries.length; i++)
-				// {
-				// 	if (entriesAccessibleIndex[this.entries[i].id] !== undefined)
-				// 	{
-				// 		this.entries[i].currentStatus = !!entriesAccessibleIndex[this.entries[i].id];
-				// 	}
-				// 	else
-				// 	{
-				// 		this.entries[i].currentStatus = true;
-				// 	}
-				// }
 
 				this.checkTimeCache[cacheKey] = result;
 			}

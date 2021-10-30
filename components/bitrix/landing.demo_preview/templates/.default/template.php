@@ -286,7 +286,7 @@ else
 <?php if ($template['URL_PREVIEW']):?>
 <script type="text/javascript">
 	// Force init template preview layout
-	BX.Landing.TemplatePreview.getInstance({
+	BX.Landing.TemplatePreviewInstance = BX.Landing.TemplatePreview.getInstance({
 		createStore: <?= ($createStore ? 'true' : 'false') ?>,
 		disableClickHandler: <?=(isset($arResult['EXTERNAL_IMPORT']['onclick']) ? 'true' : 'false') ?>,
 		messages: {

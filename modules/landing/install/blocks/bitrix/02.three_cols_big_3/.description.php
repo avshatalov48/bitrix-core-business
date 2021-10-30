@@ -85,7 +85,7 @@ return [
 			],
 			'.landing-block-node-header' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_2_THREE_COLS_3_STYLE_LANDINGBLOCKNODEHEADER'),
-				'type' => ['border-color', 'heading'],
+				'type' => ['heading'],
 			],
 			'.landing-block-node-right-img' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_2_THREE_COLS_3_NODES_LANDINGBLOCKNODERIGHTIMG'),

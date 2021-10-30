@@ -119,7 +119,12 @@ $arComponentParameters = Array(
 			),
 			'site_master' => array(
 				'NAME' => getMessage('LANDING_CMP_PAR_SM_SITE_MASTER'),
-				'DEFAULT' => 'site/edit/#site_edit#/',
+				'DEFAULT' => 'site/master/#site_edit#/',
+				'VARIABLES' => array('site_edit')
+			),
+			'site_contacts' => array(
+				'NAME' => getMessage('LANDING_CMP_PAR_SM_SITE_CONTACTS'),
+				'DEFAULT' => 'site/contacts/#site_edit#/',
 				'VARIABLES' => array('site_edit')
 			),
 			'site_domain' => array(

@@ -19,6 +19,19 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Iblock
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_TypeLanguage_Query query()
+ * @method static EO_TypeLanguage_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_TypeLanguage_Result getById($id)
+ * @method static EO_TypeLanguage_Result getList(array $parameters = array())
+ * @method static EO_TypeLanguage_Entity getEntity()
+ * @method static \Bitrix\Iblock\EO_TypeLanguage createObject($setDefaultValues = true)
+ * @method static \Bitrix\Iblock\EO_TypeLanguage_Collection createCollection()
+ * @method static \Bitrix\Iblock\EO_TypeLanguage wakeUpObject($row)
+ * @method static \Bitrix\Iblock\EO_TypeLanguage_Collection wakeUpCollection($rows)
  */
 class TypeLanguageTable extends Entity\DataManager
 {

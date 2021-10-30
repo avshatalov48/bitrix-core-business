@@ -1,0 +1,16 @@
+.landing-ui-field-color-transparent {
+	position: relative;
+	cursor: pointer;
+	user-select: none;
+}
+
+.landing-ui-field-color-transparent:before {
+	content: '';
+	position: absolute;
+	top: 37%;
+	left: 75%;
+	width: 2px;
+	height: 13px;
+	background-color: #c85d63;
+	transform: rotate(-45deg) translate(-50%,-50%);
+}

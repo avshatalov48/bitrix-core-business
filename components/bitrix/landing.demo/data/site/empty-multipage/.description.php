@@ -24,7 +24,6 @@ return [
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'mobile',
 			'ROBOTS_USE' => 'N',
-			'THEME_CODE' => '3corporate',
 			'THEMEFONTS_CODE' => 'Open Sans',
 			'THEMEFONTS_CODE_H' => 'Open Sans',
 			'THEMEFONTS_SIZE' => '1.14286',

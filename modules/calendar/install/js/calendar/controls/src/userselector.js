@@ -170,56 +170,6 @@ export class UserSelector
 		});
 	}
 
-	// checkItemsSelected(items, itemsLast, selected, callback)
-	// {
-	// 	let codes = [], code;
-	// 	for (code in selected)
-	// 	{
-	// 		if (selected.hasOwnProperty(code))
-	// 		{
-	// 			if (selected[code] === 'users' && !items.users[code])
-	// 			{
-	// 				codes.push(code);
-	// 			}
-	// 		}
-	// 	}
-	//
-	// 	if (codes.length > 0)
-	// 	{
-	// 		let loader = this.DOM.socnetDestinationWrap.appendChild(BX.adjust(Util.getLoader(40), {style: {height: '50px'}}));
-	//
-	//
-	//
-	//
-	//
-	// 		this.calendar.request({
-	// 			type: 'get',
-	// 			data: {
-	// 				action: 'get_destination_items',
-	// 				codes: codes
-	// 			},
-	// 			handler: BX.delegate(function(response)
-	// 			{
-	// 				if (loader)
-	// 				{
-	// 					Dom.remove(loader);
-	// 				}
-	//
-	// 				this.params.items = this.calendar.util.getSocnetDestinationConfig('items');
-	// 				this.params.itemsLast = this.calendar.util.getSocnetDestinationConfig('itemsLast');
-	//
-	// 				if (Type.isFunction(callback))
-	// 				{
-	// 					callback();
-	// 				}
-	// 			}, this)
-	// 		});
-	// 		return false;
-	// 	}
-	//
-	// 	return true;
-	// }
-
 	closeAll()
 	{
 		if (top.BX.SocNetLogDestination.isOpenDialog())

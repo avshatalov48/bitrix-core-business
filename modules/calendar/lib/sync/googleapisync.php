@@ -26,6 +26,7 @@ final class GoogleApiSync
 	const SYNC_EVENTS_LIMIT = 50;
 	const SYNC_EVENTS_DATE_INTERVAL = '-4 months';
 	const DEFAULT_TIMEZONE = 'UTC';
+	const DATE_TIME_FORMAT = 'Y-m-d\TH:i:sP';
 
 	/**
 	 * @var GoogleApiTransport
@@ -522,10 +523,10 @@ final class GoogleApiSync
 			$returnData['TZ_FROM'] = Util::isTimezoneValid($event['start']['timeZone']) ? $event['start']['timeZone'] : $this->defaultTimezone;
 			$returnData['TZ_TO'] = Util::isTimezoneValid($event['end']['timeZone']) ? $event['end']['timeZone'] : $this->defaultTimezone;
 
-			$eventStartDateTime = new Type\DateTime($event['start']['dateTime'], \DateTime::RFC3339, new \DateTimeZone($this->defaultTimezone));
+			$eventStartDateTime = new Type\DateTime($event['start']['dateTime'], self::DATE_TIME_FORMAT, new \DateTimeZone($this->defaultTimezone));
 			$returnData['DATE_FROM'] = \CCalendar::Date(\CCalendar::Timestamp($eventStartDateTime->setTimeZone(new \DateTimeZone($returnData['TZ_FROM']))->format(Type\Date::convertFormatToPhp(FORMAT_DATETIME))));
 
-			$eventStartDateTime = new Type\DateTime($event['end']['dateTime'], \DateTime::RFC3339, new \DateTimeZone($this->defaultTimezone));
+			$eventStartDateTime = new Type\DateTime($event['end']['dateTime'], self::DATE_TIME_FORMAT, new \DateTimeZone($this->defaultTimezone));
 			$returnData['DATE_TO'] = \CCalendar::Date(\CCalendar::Timestamp($eventStartDateTime->setTimeZone(new \DateTimeZone($returnData['TZ_TO']))->format(Type\Date::convertFormatToPhp(FORMAT_DATETIME))));
 		}
 
@@ -579,7 +580,7 @@ final class GoogleApiSync
 					$rRuleSet = array();
 					foreach ($rRuleList as $rRuleElement)
 					{
-						list($rRuleProp, $rRuleVal) = explode('=', $rRuleElement);
+						[$rRuleProp, $rRuleVal] = explode('=', $rRuleElement);
 						switch ($rRuleProp)
 						{
 							case 'FREQ':
@@ -656,7 +657,7 @@ final class GoogleApiSync
 				if (!empty($event['originalStartTime']['dateTime']))
 				{
 					$originalTimeZone = Util::isTimezoneValid($event['originalStartTime']['timeZone']) ? $event['originalStartTime']['timeZone'] : $returnData['TZ_FROM'];
-					$eventOriginalDateFrom = new Type\DateTime($event['originalStartTime']['dateTime'], \DateTime::RFC3339, new \DateTimeZone($this->defaultTimezone));
+					$eventOriginalDateFrom = new Type\DateTime($event['originalStartTime']['dateTime'], self::DATE_TIME_FORMAT, new \DateTimeZone($this->defaultTimezone));
 					$returnData['ORIGINAL_DATE_FROM'] = \CCalendar::Date(\CCalendar::Timestamp($eventOriginalDateFrom->setTimeZone(new \DateTimeZone($originalTimeZone))->format(Type\Date::convertFormatToPhp(FORMAT_DATETIME))));
 				}
 
@@ -711,7 +712,7 @@ final class GoogleApiSync
 
 	private function prepareToSaveEvent($eventData, $params = null)
 	{
-		$newEvent = array();
+		$newEvent = [];
 		$newEvent['summary'] = $eventData['NAME'];
 		if (isset($eventData['ATTENDEES_CODES']) && count($eventData['ATTENDEES_CODES']) > 1)
 		{
@@ -723,7 +724,7 @@ final class GoogleApiSync
 			$newEvent['description'] = $eventData['DESCRIPTION'];
 		}
 
-		if (!empty($eventData['ACCESSIBILITY']) && $eventData['ACCESSIBILITY'] == 'busy')
+		if (!empty($eventData['ACCESSIBILITY']) && $eventData['ACCESSIBILITY'] === 'busy')
 		{
 			$newEvent['transparency'] = 'opaque';
 		}
@@ -739,53 +740,10 @@ final class GoogleApiSync
 
 		if (!empty($eventData['REMIND']))
 		{
-			$newEvent['reminders'] = array();
-			$newEvent['reminders']['useDefault'] = false;
-			$newEvent['reminders']['overrides'] = array();
-			foreach($eventData['REMIND'] as $remindRule)
-			{
-				$minutes = $remindRule['count'];
-				if ($remindRule['type'] == 'min')
-				{
-
-				}
-				elseif ($remindRule['type'] == 'hour')
-				{
-					$minutes = 60 * $remindRule['count'];
-				}
-				elseif ($remindRule['type'] == 'day')
-				{
-					$minutes = 24 * 60 * $remindRule['count'];
-				}
-				elseif ($remindRule['type'] === 'date')
-				{
-					$tz = Util::isTimezoneValid($eventData['TZ_FROM']) ? $this->prepareTimezone($eventData['TZ_FROM']) : $this->defaultTimezone;
-					$dateFrom = new Type\DateTime($eventData['DATE_FROM'], Type\Date::convertFormatToPhp(FORMAT_DATETIME), $tz);
-					$remind = new Type\DateTime($remindRule['value'], Type\Date::convertFormatToPhp(FORMAT_DATETIME), $tz);
-
-					if ($dateFrom->getTimestamp() > $remind->getTimestamp())
-					{
-
-						$diff = $dateFrom->getDiff($remind);
-						$d = $diff->format('%d');
-						$h = $diff->format('%h');
-						$i = $diff->format('%i');
-						$minutes = ((int)$d * 24 * 60) + ((int)$h * 60) + (int)$i;
-					}
-					else
-					{
-						continue;
-					}
-				}
-
-				$newEvent['reminders']['overrides'][] = array(
-					'minutes' => $minutes,
-					'method' => 'popup', //todo - should able to be changed in settings
-				);
-			}
+			$newEvent['reminders'] = $this->prepareRemind($eventData);
 		}
 
-		if ($eventData['DT_SKIP_TIME'] == "Y")
+		if ($eventData['DT_SKIP_TIME'] === "Y")
 		{
 			$startDate = new Type\Date($eventData['DATE_FROM']);
 			$newEvent['start']['date'] = $startDate->format('Y-m-d');
@@ -804,12 +762,12 @@ final class GoogleApiSync
 		{
 			$dateTimeZoneFrom = $this->prepareTimezone($eventData['TZ_FROM']);
 			$eventStartDateTime = new Type\DateTime($eventData['DATE_FROM'], Type\Date::convertFormatToPhp(FORMAT_DATETIME), $dateTimeZoneFrom);
-			$newEvent['start']['dateTime'] = $eventStartDateTime->format(\DateTime::RFC3339);
+			$newEvent['start']['dateTime'] = $eventStartDateTime->format(self::DATE_TIME_FORMAT);
 			$newEvent['start']['timeZone'] = $dateTimeZoneFrom->getName();
 
 			$dateTimeZoneTo = $this->prepareTimezone($eventData['TZ_TO']);
 			$eventEndDateTime = new Type\DateTime($eventData['DATE_TO'], Type\Date::convertFormatToPhp(FORMAT_DATETIME), $dateTimeZoneTo);
-			$newEvent['end']['dateTime'] = $eventEndDateTime->format(\DateTime::RFC3339);
+			$newEvent['end']['dateTime'] = $eventEndDateTime->format(self::DATE_TIME_FORMAT);
 			$newEvent['end']['timeZone'] = $dateTimeZoneTo->getName();
 
 			if (!empty($eventData['DAV_XML_ID']) && mb_stripos($eventData['DAV_XML_ID'], '@google.com') !== false)
@@ -819,53 +777,16 @@ final class GoogleApiSync
 			}
 		}
 
-		if (!empty($eventData['RRULE']) && $eventData['RRULE']['FREQ'] != 'NONE')
+		if (!empty($eventData['RRULE']) && $eventData['RRULE']['FREQ'] !== 'NONE')
 		{
-			$rRuleData = \CCalendarEvent::ParseRRULE($eventData['RRULE']);
-			$rRule = 'RRULE:';
-			$rRule .= 'FREQ=' .$rRuleData['FREQ'];
-			$rRule .= !empty($rRuleData['INTERVAL']) ? ';INTERVAL=' . $rRuleData['INTERVAL'] : '';
-			$rRule .= !empty($rRuleData['BYDAY']) ? ';BYDAY=' . $rRuleData['BYDAY'] : '';
-			if (!empty($rRuleData['COUNT']))
-			{
-				$rRule .=  ';COUNT=' . $rRuleData['COUNT'];
-			}
-			elseif (!empty($rRuleData['UNTIL']))
-			{
-				$tsTo = new Type\Date($rRuleData['UNTIL']);
-				if ($eventData['DT_SKIP_TIME'] == "N")
-				{
-					$tsTo->add('+1 day');
-				}
-				$rRule .= ';UNTIL='.$tsTo->format('Ymd\THis\Z');
-			}
-			$newEvent['recurrence'][] = $rRule;
-
-			if (!empty($eventData['EXDATE']) && $params['editNextEvents'] !== true)
-			{
-				$exDates = explode(';', $eventData['EXDATE']);
-				foreach ($exDates as $exDate)
-				{
-
-					if ($eventData['DT_SKIP_TIME'] == "Y")
-					{
-						$newEvent['recurrence'][] = 'EXDATE;VALUE=DATE:' . date('Ymd', strtotime($exDate));
-					}
-					else
-					{
-//						$exDateStr = 'EXDATE;TZID=UTC:' . date("Ymd", strtotime($exDate)) . Type\DateTime::createFromUserTime($eventData['DATE_FROM'])->setTimeZone(new \DateTimeZone('UTC'))->format('\\THis\\Z');
-						$exDateStr = 'EXDATE;TZID=UTC:' . date("Ymd", strtotime($exDate)) . (new Type\DateTime($eventData['DATE_FROM'], Type\Date::convertFormatToPhp(FORMAT_DATETIME), $dateTimeZoneFrom))->setTimeZone(new \DateTimeZone('UTC'))->format('\\THis\\Z');
-						$newEvent['recurrence'][] = $exDateStr;
-					}
-				}
-			}
+			$newEvent['recurrence'] = $this->prepareRRule($eventData, $params['editNextEvents']);
 		}
 
 		if (isset($eventData['ORIGINAL_DATE_FROM']))
 		{
 			$instanceOriginalTimeZone = $this->prepareTimezone($eventData['TZ_FROM']);
 			$eventOriginalStart = new Type\DateTime($eventData['ORIGINAL_DATE_FROM'], Type\Date::convertFormatToPhp(FORMAT_DATETIME), $instanceOriginalTimeZone);
-			$newEvent['originalStartTime'] = $eventOriginalStart->format(\DateTime::RFC3339);
+			$newEvent['originalStartTime'] = $eventOriginalStart->format(self::DATE_TIME_FORMAT);
 		}
 
 		if (isset($eventData['DAV_XML_ID']) && isset($eventData['RECURRENCE_ID']))
@@ -890,13 +811,19 @@ final class GoogleApiSync
 		return $newEvent;
 	}
 
+	/**
+	 * @param $newEvent
+	 * @param $params
+	 * @return array|mixed
+	 * @throws \Bitrix\Main\ObjectException
+	 */
 	private function sendToSaveEvent($newEvent, $params)
 	{
 		if ($params['editInstance'] === true)
 		{
 			$instanceOriginalTimeZone = $this->prepareTimezone($params['instanceTz']);
 			$eventOriginalStart = new Type\DateTime($params['originalDateFrom'], Type\Date::convertFormatToPhp(FORMAT_DATETIME), $instanceOriginalTimeZone);
-			$originalStart = $eventOriginalStart->format(\DateTime::RFC3339);
+			$originalStart = $eventOriginalStart->format(self::DATE_TIME_FORMAT);
 			$externalId = $params['gEventId'] ?: $params['originalDavXmlId'];
 			$instance = $this->syncTransport->getInstanceRecurringEvent($params['calendarId'], $externalId, $originalStart);
 
@@ -905,50 +832,48 @@ final class GoogleApiSync
 
 			if (is_array($instance['items']))
 			{
-				$externalEvent = $this->syncTransport->updateEvent($newEvent, urlencode($params['calendarId']), $instance['items'][0]['id']);
+				return $this->syncTransport->updateEvent($newEvent, urlencode($params['calendarId']), $instance['items'][0]['id']);
 			}
 		}
 		elseif ($params['editParentEvents'] === true)
 		{
-			$externalEvent = $this->syncTransport->updateEvent($newEvent, urldecode($params['calendarId']), $params['gEventId']);
+			return $this->syncTransport->updateEvent($newEvent, urldecode($params['calendarId']), $params['gEventId']);
 		}
 		elseif ($params['syncCaldav'])
 		{
-			$externalEvent = $this->syncTransport->importEvent($newEvent, urlencode($params['calendarId']));
+			return $this->syncTransport->importEvent($newEvent, urlencode($params['calendarId']));
+		}
+		elseif (!empty($params['gEventId']))
+		{
+			return $this->syncTransport->updateEvent($newEvent, urlencode($params['calendarId']), $params['gEventId']);
 		}
 		else
 		{
-			if (!empty($params['gEventId']))
-			{
-				$externalEvent = $this->syncTransport->updateEvent($newEvent, urlencode($params['calendarId']), $params['gEventId']);
-			}
-			else
-			{
-				$externalEvent = $this->syncTransport->insertEvent($newEvent, urlencode($params['calendarId']));
-			}
+			return $this->syncTransport->insertEvent($newEvent, urlencode($params['calendarId']));
 		}
 
-		return $externalEvent;
+		return [];
 	}
 
-	public function createCalendar($calendar)
+	/**
+	 * @param $calendar
+	 * @return array|null
+	 */
+	public function createCalendar($calendar): ?array
 	{
-		$data = $this->prepareCalendar($calendar);
-		$externalData = $this->syncTransport->insertCalendar($data);
+		$externalData = $this->syncTransport->insertCalendar($this->prepareCalendar($calendar));
 
-		if ($externalData)
-		{
-			return array(
-				'GAPI_CALENDAR_ID' => $externalData['id'],
-			);
-		}
-		else
-		{
-			return null;
-		}
+		return $externalData
+			? ['GAPI_CALENDAR_ID' => $externalData['id']]
+			: null
+		;
 	}
 
-	private function prepareCalendar($calendar)
+	/**
+	 * @param $calendar
+	 * @return array
+	 */
+	private function prepareCalendar($calendar): array
 	{
 		$returnData['summary'] = $calendar['NAME'];
 
@@ -1028,7 +953,7 @@ final class GoogleApiSync
 			'pageToken' => $this->nextPageToken,
 			'showDeleted' => 'true',
 			'maxResults' => self::SYNC_EVENTS_LIMIT,
-			'timeMin' => (new Type\DateTime())->add(self::SYNC_EVENTS_DATE_INTERVAL)->format(\DateTime::RFC3339),
+			'timeMin' => (new Type\DateTime())->add(self::SYNC_EVENTS_DATE_INTERVAL)->format(self::DATE_TIME_FORMAT),
 		];
 	}
 
@@ -1078,5 +1003,149 @@ final class GoogleApiSync
 		$this->nextSyncToken = $response['nextSyncToken'] ?? '';
 		$this->defaultReminderData = $response['defaultReminders'] ?? $this->defaultReminderData;
 		$this->defaultTimezone = Util::isTimezoneValid($response['timeZone']) ? $response['timeZone'] : $this->defaultTimezone;
+	}
+
+	/**
+	 * @param $eventData
+	 * @return array
+	 * @throws \Bitrix\Main\ObjectException
+	 */
+	private function prepareRemind($eventData): array
+	{
+		$reminders = [];
+		$reminders['useDefault'] = false;
+		$reminders['overrides'] = [];
+		foreach ($eventData['REMIND'] as $remindRule)
+		{
+			$minutes = $remindRule['count'];
+			if ($remindRule['type'] === 'hour')
+			{
+				$minutes = 60 * $remindRule['count'];
+			}
+			elseif ($remindRule['type'] === 'day')
+			{
+				$minutes = 24 * 60 * $remindRule['count'];
+			}
+			elseif ($remindRule['type'] === 'daybefore')
+			{
+				$dateFrom = Util::getDateObject(
+					$eventData['DATE_FROM'],
+					$eventData['DT_SKIP_TIME'] === 'Y',
+					$eventData['TZ_FROM']
+				);
+
+				$remind = clone $dateFrom;
+				if (method_exists($remind, 'setTime'))
+				{
+					$remind->setTime(0, 0, 0);
+				}
+				$remind->add("-{$remindRule['before']} days")->add("{$remindRule['time']} minutes");
+
+				if ($dateFrom->getTimestamp() < $remind->getTimestamp())
+				{
+					continue;
+				}
+
+				$minutes = $this->calculateMinutes($dateFrom, $remind);
+			}
+			elseif ($remindRule['type'] === 'date')
+			{
+				$dateFrom = Util::getDateObject(
+					$eventData['DATE_FROM'],
+					$eventData['DT_SKIP_TIME'] === 'Y',
+					$eventData['TZ_FROM']
+				);
+				$remind = Util::getDateObject(
+					$remindRule['value'],
+					$eventData['DT_SKIP_TIME'] === 'Y',
+					$eventData['TZ_FROM']
+				);
+
+				if ($dateFrom->getTimestamp() < $remind->getTimestamp())
+				{
+					continue;
+				}
+
+				$minutes = $this->calculateMinutes($dateFrom, $remind);
+			}
+
+			$reminders['overrides'][] = [
+				'minutes' => $minutes,
+				'method' => 'popup',
+			];
+		}
+
+		return $reminders;
+	}
+
+	/**
+	 * @param Type\Date $dateFrom
+	 * @param Type\Date $remind
+	 * @return int
+	 */
+	private function calculateMinutes(Type\Date $dateFrom, Type\Date $remind): int
+	{
+		$diff = $dateFrom->getDiff($remind);
+		$days = $diff->format('%d');
+		$hours = $diff->format('%h');
+		$minutes = $diff->format('%i');
+
+		return ((int)$days * 24 * 60) + ((int)$hours * 60) + (int)$minutes;
+	}
+
+	/**
+	 * @param $event
+	 * @param $editNextEvents
+	 * @return array
+	 * @throws \Bitrix\Main\ObjectException
+	 */
+	private function prepareRRule($event, $editNextEvents): array
+	{
+		$rule = [];
+		$parsedRule = \CCalendarEvent::ParseRRULE($event['RRULE']);
+		$rRule = 'RRULE:';
+		$rRule .= 'FREQ=' .$parsedRule['FREQ'];
+		$rRule .= !empty($parsedRule['INTERVAL']) ? ';INTERVAL=' . $parsedRule['INTERVAL'] : '';
+		$rRule .= !empty($parsedRule['BYDAY']) ? ';BYDAY=' . $parsedRule['BYDAY'] : '';
+
+		if (!empty($parsedRule['COUNT']))
+		{
+			$rRule .=  ';COUNT=' . $parsedRule['COUNT'];
+		}
+		elseif (!empty($parsedRule['UNTIL']))
+		{
+			$tsTo = new Type\Date($parsedRule['UNTIL']);
+			if ($event['DT_SKIP_TIME'] === "N")
+			{
+				$tsTo->add('+1 day');
+			}
+			$rRule .= ';UNTIL='.$tsTo->format('Ymd\THis\Z');
+		}
+
+		$rule[] = $rRule;
+
+		if (!empty($event['EXDATE']) && $editNextEvents !== true)
+		{
+			$exDates = explode(';', $event['EXDATE']);
+			foreach ($exDates as $exDate)
+			{
+				if ($event['DT_SKIP_TIME'] === "Y")
+				{
+					$rule[] = 'EXDATE;VALUE=DATE:' . date('Ymd', strtotime($exDate));
+				}
+				else
+				{
+					$rule[] = 'EXDATE;TZID=UTC:'
+						. date("Ymd", strtotime($exDate))
+						. (new Type\DateTime(
+							$event['DATE_FROM'],
+							Type\Date::convertFormatToPhp(FORMAT_DATETIME),
+							$this->prepareTimezone($event['TZ_FROM'])
+						))->setTimeZone(new \DateTimeZone('UTC'))->format('\\THis\\Z');
+				}
+			}
+		}
+
+		return $rule;
 	}
 }

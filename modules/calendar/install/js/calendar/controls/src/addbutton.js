@@ -127,11 +127,3 @@ export class AddButton extends EventEmitter
 		}
 	}
 }
-
-
-
-
-
-
-
-

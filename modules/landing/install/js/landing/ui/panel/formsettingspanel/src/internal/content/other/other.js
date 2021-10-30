@@ -26,6 +26,7 @@ export default class Other extends ContentWrapper
 			fields: [
 				this.getNameField(),
 				this.getUserSelectorField(),
+				this.getCheckWorkTimeField(),
 				this.getLanguageField(),
 				this.getUseSignField(),
 			],
@@ -87,6 +88,20 @@ export default class Other extends ContentWrapper
 		});
 	}
 
+	getCheckWorkTimeField(): BX.Landing.UI.Field.Checkbox
+	{
+		return this.cache.remember('checkWorkTimeField', () => {
+			return new BX.Landing.UI.Field.Checkbox({
+				selector: 'checkWorkTime',
+				compact: true,
+				value: [this.options.values.checkWorkTime],
+				items: [
+					{name: Loc.getMessage('LANDING_FORM_OTHER_CHECK_WORK_TIME'), value: 'Y'},
+				],
+			});
+		});
+	}
+
 	getLanguageField(): BX.Landing.UI.Field.Dropdown
 	{
 		return this.cache.remember('language', () => {
@@ -123,6 +138,7 @@ export default class Other extends ContentWrapper
 			},
 			responsible: {
 				users: value.users,
+				checkWorkTime: value.checkWorkTime[0] === 'Y' ? 'Y' : 'N',
 			},
 		};
 	}

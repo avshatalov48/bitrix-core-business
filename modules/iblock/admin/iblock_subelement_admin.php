@@ -6,6 +6,11 @@ CModule::IncludeModule("iblock");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
 IncludeModuleLangFile(__FILE__);
 
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
+
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
 CUtil::JSPostUnescape();
@@ -13,8 +18,8 @@ CUtil::JSPostUnescape();
  * this page only for actions and get info
  *
  */
-define('B_ADMIN_SUBELEMENTS',1);
-define('B_ADMIN_SUBELEMENTS_LIST',true);
+const B_ADMIN_SUBELEMENTS = 1;
+const B_ADMIN_SUBELEMENTS_LIST = true;
 
 $boolSubBizproc = CModule::IncludeModule("bizproc");
 $boolSubWorkFlow = CModule::IncludeModule("workflow");

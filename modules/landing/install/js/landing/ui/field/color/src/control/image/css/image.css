@@ -1,0 +1,36 @@
+.landing-ui-field-color-image-image {
+	margin-bottom: 10px;
+}
+
+.landing-ui-field-color-image-image.active .landing-ui-field-image-preview-inner:before {
+	content: '';
+	position: absolute;
+	right: -4px;
+	bottom: -3px;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	background-image: url("data:image/svg+xml,%3Csvg width='15' height='15' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Crect fill='%23FFF' width='14.819' height='14.819' rx='7.409'/%3E%3Cpath fill='%232FC6F6' d='M6.593 8.333l4.19-4.141 1.39 1.44-5.559 5.56-.021-.023-.022.023-3.398-3.415 1.39-1.44z'/%3E%3C/g%3E%3C/svg%3E");
+	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .11);
+}
+
+.landing-ui-field-color-image-size .landing-ui-field-header {
+	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	margin-bottom: 0;
+	color: rgba(82, 92, 105, .7);
+}
+
+.landing-ui-field-color-image .landing-ui-field-color-image-size {
+	margin-bottom: 20px;
+}
+
+.landing-ui-field-color-image .landing-ui-field-color-image-attachment .landing-ui-field-input {
+	border-bottom: 1px solid rgba(82, 92, 105, .1);
+	margin-bottom: 14px;
+	padding-bottom: 8px;
+}
+
+.landing-ui-field-color-image-attachment .landing-ui-field-checkbox-item-label {
+	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	color: rgba(82, 92, 105, .7) !important;
+}

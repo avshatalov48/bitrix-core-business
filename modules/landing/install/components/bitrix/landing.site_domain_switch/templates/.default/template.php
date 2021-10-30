@@ -69,6 +69,7 @@ $actionUrl = $this->getComponent()->getUri([
 		array(
 			'TYPE' => $arParams['TYPE'],
 			'DRAFT_MODE' => 'Y',
+			'OLD_TILE' => 'Y',
 			'OVER_TITLE' => Loc::getMessage('LANDING_TPL_SELECT'),
 			'PAGE_URL_SITE' => str_replace('__id__', '#site_show#', $actionUrl)
 		),

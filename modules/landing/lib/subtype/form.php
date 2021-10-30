@@ -392,12 +392,20 @@ class Form
 				}
 				else
 				{
-					$forms = self::getForms(true);  // force to preserve cycle when create form landing block
+					// try to get 1) default callback form 2) last added form 3) create new form
+					$forms = self::getFormsByFilter([
+						'XML_ID' => 'crm_preset_fb'
+					]);
 					$forms = self::prepareFormsToAttrs($forms);
 					if (empty($forms))
 					{
-						$forms = self::createDefaultForm();
+						$forms = self::getForms(true);  // force to preserve cycle when create form landing block
 						$forms = self::prepareFormsToAttrs($forms);
+						if (empty($forms))
+						{
+							$forms = self::createDefaultForm();
+							$forms = self::prepareFormsToAttrs($forms);
+						}
 					}
 
 					if (!empty($forms))

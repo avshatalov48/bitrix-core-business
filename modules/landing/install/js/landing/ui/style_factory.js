@@ -71,111 +71,80 @@
 		createField: function(options)
 		{
 			var field = null;
+			var defaultOptions = {
+				title: options.title,
+				selector: options.selector,
+				contentRoot: BX.Landing.PageObject.getStylePanelContent(),
+				style: options.style,
+				format: formatClassName,
+				frame: this.frame,
+				property: options.property,
+				pseudoElement: options.pseudoElement,
+				pseudoClass: options.pseudoClass,
+				items: options.items,
+				postfix: this.postfix,
+				onChange: options.onChange,
+				onReset: options.onReset,
+				help: options.help
+			}
 
 			if (options.type === "slider" || options.type === "range-slider")
 			{
-				field = new BX.Landing.UI.Field.Range({
-					title: options.title,
-					selector: options.selector,
-					style: options.style,
-					format: formatClassName,
-					frame: this.frame,
-					property: options.property,
-					pseudoElement: options.pseudoElement,
-					pseudoClass: options.pseudoClass,
-					items: options.items,
-					postfix: this.postfix,
-					onChange: options.onChange,
-					type: options.type === "range-slider" ? "multiple" : null
-				});
+				field = new BX.Landing.UI.Field.Range(Object.assign(
+					defaultOptions,
+					{
+						type: options.type === "range-slider" ? "multiple" : null
+					}
+				));
 			}
 
 			if (options.type === "buttons")
 			{
-				field = new BX.Landing.UI.Field.ButtonGroup({
-					title: options.title,
-					selector: options.selector,
-					style: options.style,
-					format: formatClassName,
-					frame: this.frame,
-					property: options.property,
-					pseudoElement: options.pseudoElement,
-					pseudoClass: options.pseudoClass,
-					items: options.items,
-					postfix: this.postfix,
-					onChange: options.onChange,
-					multiple: options.multiple === true
-				});
+				field = new BX.Landing.UI.Field.ButtonGroup(Object.assign(
+					defaultOptions,
+					{
+						multiple: options.multiple === true
+					}
+				));
 			}
 
 			if (options.type === "display")
 			{
-				field = new BX.Landing.UI.Field.ButtonGroup({
-					title: options.title,
-					selector: options.selector,
-					style: options.style,
-					format: formatClassName,
-					frame: this.frame,
-					property: options.property,
-					pseudoElement: options.pseudoElement,
-					pseudoClass: options.pseudoClass,
-					items: options.items,
-					postfix: this.postfix,
-					onChange: options.onChange,
-					multiple: true,
-					className: "landing-ui-display-button-group"
-				});
+				field = new BX.Landing.UI.Field.ButtonGroup(Object.assign(
+					defaultOptions,
+					{
+						multiple: true,
+						className: "landing-ui-display-button-group"
+					}
+				));
 			}
 
 			if (options.type === "palette")
 			{
-				field = new BX.Landing.UI.Field.Color({
-					title: options.title,
-					selector: options.selector,
-					style: options.style,
-					format: formatClassName,
-					frame: this.frame,
-					property: options.property,
-					pseudoElement: options.pseudoElement,
-					pseudoClass: options.pseudoClass,
-					items: options.items,
-					postfix: this.postfix,
-					onChange: options.onChange
-				});
+				field = new BX.Landing.UI.Field.ColorPalette(defaultOptions);
+			}
+
+			// todo: need save Backward compatibility for "pallette"?
+			if (options.type === "color")
+			{
+				field = new BX.Landing.UI.Field.ColorField(Object.assign(
+					defaultOptions,
+					{
+						block: options.block,
+						styleNode: options.styleNode,
+						subtype: options.subtype
+					}
+				));
 			}
 
 			if (options.type === "list" && options.style !== "font-family")
 			{
-				field = new BX.Landing.UI.Field.Dropdown({
-					title: options.title,
-					selector: options.selector,
-					style: options.style,
-					format: formatClassName,
-					frame: this.frame,
-					property: options.property,
-					pseudoElement: options.pseudoElement,
-					pseudoClass: options.pseudoClass,
-					items: options.items,
-					postfix: this.postfix,
-					onChange: options.onChange
-				});
+				field = new BX.Landing.UI.Field.Dropdown(defaultOptions);
 			}
 
 			if (options.style === "font-family")
 			{
-				field = new BX.Landing.UI.Field.Font({
-					title: options.title,
-					selector: options.selector,
-					style: options.style,
-					format: formatClassName,
-					frame: this.frame,
-					property: options.property,
-					pseudoElement: options.pseudoElement,
-					pseudoClass: options.pseudoClass,
-					items: options.items,
-					postfix: this.postfix,
-					onChange: options.onChange
-				});
+				field = new BX.Landing.UI.Field.Font(defaultOptions);
 			}
 
 			return field;

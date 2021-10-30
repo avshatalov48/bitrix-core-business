@@ -93,7 +93,7 @@ if (!$arResult['CAN_CONNECT_NEW_MAILBOX'])
 
 	function showLicenseInfoPopup()
 	{
-		BX.UI.InfoHelper.show('mail_user_mailboxes_limit');
+		BX.UI.InfoHelper.show('limit_contact_center_mail_box_number');
 	}
 
 	<? if (!$arResult['CAN_CONNECT_NEW_MAILBOX']): ?>

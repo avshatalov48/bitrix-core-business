@@ -383,7 +383,6 @@ class Manager
 				$postingAddDb = PostingTable::add(array(
 					'MAILING_ID' => $chain['MAILING_ID'],
 					'MAILING_CHAIN_ID' => $chain['ID'],
-					'CONSENT_SUPPORT' => Adapter::create($chain['MESSAGE_CODE'])->isConsentSupported()
 				));
 				if(!$postingAddDb->isSuccess()) return;
 
@@ -923,7 +922,6 @@ class Manager
 				$postingAddDb = PostingTable::add(array(
 					'MAILING_ID' => $childChain['MAILING_ID'],
 					'MAILING_CHAIN_ID' => $childChain['ID'],
-					'CONSENT_STATUS' => Adapter::create($childChain['MESSAGE_CODE'])->isConsentSupported()
 				));
 				if(!$postingAddDb->isSuccess())
 				{

@@ -76,6 +76,14 @@ function CheckForm(form)
 		}
 	}
 
+	if (
+		BX.SidePanel
+		&& BX.SidePanel.Instance.getTopSlider() === BX.SidePanel.Instance.getSliderByWindow(window)
+	)
+	{
+		oData.SLIDER = 'Y';
+	}
+
 	BX.showWait('photo_window_edit');
 	window.oPhotoEditAlbumDialogError = false;
 
@@ -101,7 +109,19 @@ function CheckForm(form)
 					{
 						eval("result = " + data + ";");
 						if (result['url'] && result['url'].length > 0)
-							BX.reload(result['url']);
+						{
+							if (
+								BX.SidePanel
+								&& BX.SidePanel.Instance.getTopSlider() === BX.SidePanel.Instance.getSliderByWindow(window)
+							)
+							{
+								window.location.href = result['url'];
+							}
+							else
+							{
+								BX.reload(result['url']);
+							}
+						}
 
 						var arrId = {"NAME" : "photo_album_name_", "DATE" : "photo_album_date_", "DESCRIPTION" : "photo_album_description_"};
 						for (var ID in arrId)

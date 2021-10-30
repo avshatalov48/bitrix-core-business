@@ -1,16 +1,17 @@
-<?
-use Bitrix\Main,
-	Bitrix\Iblock;
+<?php
+
+use Bitrix\Main;
+use Bitrix\Iblock;
 
 class CIBlockRights
 {
-	const GROUP_CODE = 1;
-	const RIGHT_ID = 2;
-	const TASK_ID = 3;
+	public const GROUP_CODE = 1;
+	public const RIGHT_ID = 2;
+	public const TASK_ID = 3;
 
-	const ANY_OPERATION = 1;
-	const ALL_OPERATIONS = 2;
-	const RETURN_OPERATIONS = 4;
+	public const ANY_OPERATION = 1;
+	public const ALL_OPERATIONS = 2;
+	public const RETURN_OPERATIONS = 4;
 
 	/** @var string Public reading */
 	public const PUBLIC_READ = 'R';
@@ -24,7 +25,7 @@ class CIBlockRights
 
 	function __construct($IBLOCK_ID)
 	{
-		$this->IBLOCK_ID = intval($IBLOCK_ID);
+		$this->IBLOCK_ID = (int)$IBLOCK_ID;
 		$this->id = $this->IBLOCK_ID;
 	}
 
@@ -194,7 +195,6 @@ class CIBlockRights
 
 	public static function GetRightsList($bTitle = true)
 	{
-		global $DB;
 		$arResult = array();
 
 		$rs = CTask::GetList(
@@ -420,7 +420,7 @@ class CIBlockRights
 	function _get_parent_object($id)
 	{
 		if($id <= 0)
-			return new CIBlockRights($this->IBLOCK_ID, $id);
+			return new CIBlockRights($this->IBLOCK_ID);
 		else
 			return new CIBlockSectionRights($this->IBLOCK_ID, $id);
 	}
@@ -490,7 +490,7 @@ class CIBlockRights
 					$GROUP_CODE,
 					$bInherit,
 					$arRightSet["TASK_ID"],
-					isset($arRightSet["XML_ID"])? $arRightSet["XML_ID"]: false
+					$arRightSet["XML_ID"] ?? false
 				);
 
 				if(!isset($arRightSet["DO_CLEAN"]) || $arRightSet["DO_CLEAN"] !== "NOT")
@@ -568,7 +568,7 @@ class CIBlockRights
 	function _update($RIGHT_ID, $GROUP_CODE, $bInherit, $TASK_ID)
 	{
 		global $DB;
-		$RIGHT_ID = intval($RIGHT_ID);
+		$RIGHT_ID = (int)$RIGHT_ID;
 		$arOperations = CTask::GetOperations($TASK_ID, /*$return_names=*/true);
 
 		$strUpdate = $DB->PrepareUpdate("b_iblock_right", array(
@@ -593,7 +593,7 @@ class CIBlockRights
 		return new CIBlockRightsStorage($this->IBLOCK_ID, 0, 0);
 	}
 
-	static function UserHasRightTo($IBLOCK_ID, $ID, $permission, $flags = 0)
+	public static function UserHasRightTo($IBLOCK_ID, $ID, $permission, $flags = 0)
 	{
 		$acc = new CAccess;
 		$acc->UpdateCodes();
@@ -612,12 +612,11 @@ class CIBlockRights
 	 */
 	static function _check_if_user_has_right($obRights, $ID, $permission, $flags = 0)
 	{
-		global $DB, $USER;
+		global $USER;
 		$USER_ID = 0;
 
 		if($USER_ID > 0 && (!is_object($USER) || $USER_ID != $USER->GetID()))
 		{
-			$user_id = intval($USER_ID);
 			$arGroups = CUser::GetUserGroup($USER_ID);
 
 			if(
@@ -639,10 +638,9 @@ class CIBlockRights
 		}
 
 		$user_id = intval($USER->GetID());
-		$arGroups = $USER->GetUserGroupArray();
 
 		$RIGHTS_MODE = CIBlock::GetArrayByID($obRights->GetIBlockID(), "RIGHTS_MODE");
-		if($RIGHTS_MODE === "E")
+		if($RIGHTS_MODE === Iblock\IblockTable::RIGHTS_EXTENDED)
 		{
 			if(is_array($ID))
 				$arOperations = $obRights->GetUserOperations($ID, $user_id);
@@ -660,7 +658,7 @@ class CIBlockRights
 			else
 				return isset($arOperations[$permission]);
 		}
-		else//if($RIGHTS_MODE === "S")
+		else//if($RIGHTS_MODE === Iblock\IblockTable::RIGHTS_SIMPLE)
 		{
 			$letter = CIBlock::GetPermission($obRights->GetIBlockID());
 			$arOperations = CIBlockRights::_mk_result($ID, CIBlockRights::LetterToOperations($letter), CIBlockRights::LetterToOperations($letter), $flags);
@@ -694,7 +692,7 @@ class CIBlockRights
 		return $result;
 	}
 
-	static function GetUserOperations($arID, $USER_ID = 0)
+	public static function GetUserOperations($arID, $USER_ID = 0)
 	{
 		global $DB, $USER;
 		$USER_ID = intval($USER_ID);
@@ -807,7 +805,7 @@ class CIBlockSectionRights extends CIBlockRights
 	function __construct($IBLOCK_ID, $SECTION_ID)
 	{
 		parent::__construct($IBLOCK_ID);
-		$this->id = intval($SECTION_ID);
+		$this->id = (int)$SECTION_ID;
 	}
 
 	function _self_check()
@@ -1003,7 +1001,7 @@ class CIBlockSectionRights extends CIBlockRights
 		$stor->CleanUp(/*$bFull=*/false);
 	}
 
-	static function UserHasRightTo($IBLOCK_ID, $ID, $permission, $flags = 0)
+	public static function UserHasRightTo($IBLOCK_ID, $ID, $permission, $flags = 0)
 	{
 		$acc = new CAccess;
 		$acc->UpdateCodes();
@@ -1022,7 +1020,7 @@ class CIBlockSectionRights extends CIBlockRights
 		return CIBlockRights::_check_if_user_has_right($obRights, $ID2CHECK, $permission, $flags);
 	}
 
-	static function GetUserOperations($arID, $USER_ID = 0)
+	public static function GetUserOperations($arID, $USER_ID = 0)
 	{
 		global $DB, $USER;
 		$USER_ID = intval($USER_ID);
@@ -1079,7 +1077,7 @@ class CIBlockElementRights extends CIBlockRights
 	function __construct($IBLOCK_ID, $ELEMENT_ID)
 	{
 		parent::__construct($IBLOCK_ID);
-		$this->id = intval($ELEMENT_ID);
+		$this->id = (int)$ELEMENT_ID;
 	}
 
 	function _self_check()
@@ -1275,7 +1273,7 @@ class CIBlockElementRights extends CIBlockRights
 		$stor->CleanUp(/*$bFull=*/false);
 	}
 
-	static function UserHasRightTo($IBLOCK_ID, $ID, $permission, $flags = 0)
+	public static function UserHasRightTo($IBLOCK_ID, $ID, $permission, $flags = 0)
 	{
 		$acc = new CAccess;
 		$acc->UpdateCodes();
@@ -1285,7 +1283,7 @@ class CIBlockElementRights extends CIBlockRights
 		return CIBlockRights::_check_if_user_has_right($obRights, $ID, $permission, $flags);
 	}
 
-	static function GetUserOperations($arID, $USER_ID = 0)
+	public static function GetUserOperations($arID, $USER_ID = 0)
 	{
 		global $DB, $USER;
 		$USER_ID = intval($USER_ID);
@@ -1329,7 +1327,7 @@ class CIBlockElementRights extends CIBlockRights
 				$sqlID = array();
 			}
 
-			$rs = $DB->Query($s="
+			$rs = $DB->Query("
 				SELECT ER.ELEMENT_ID ID, O.NAME
 				FROM b_iblock_element E
 				INNER JOIN b_iblock_element_right ER ON ER.ELEMENT_ID = E.ID
@@ -1364,16 +1362,17 @@ class CIBlockRightsStorage
 	protected $SECTION_ID = 0;
 	protected $ELEMENT_ID = 0;
 	protected $arSection = null;
+
 	function __construct($IBLOCK_ID, $SECTION_ID, $ELEMENT_ID)
 	{
-		$this->IBLOCK_ID = intval($IBLOCK_ID);
-		$this->SECTION_ID = intval($SECTION_ID);
-		$this->ELEMENT_ID = intval($ELEMENT_ID);
+		$this->IBLOCK_ID = (int)$IBLOCK_ID;
+		$this->SECTION_ID = (int)$SECTION_ID;
+		$this->ELEMENT_ID = (int)$ELEMENT_ID;
 	}
 
 	function _set_section($SECTION_ID)
 	{
-		$this->SECTION_ID = intval($SECTION_ID);
+		$this->SECTION_ID = (int)$SECTION_ID;
 		$this->arSection = null;
 	}
 
@@ -1963,7 +1962,7 @@ class CIBlockRightsStorage
 	public static function OnTaskOperationsChanged($TASK_ID, $arOld, $arNew)
 	{
 		global $DB;
-		$TASK_ID = intval($TASK_ID);
+		$TASK_ID = (int)$TASK_ID;
 
 		if(!in_array("element_read", $arOld) && in_array("element_read", $arNew))
 			$DB->Query("UPDATE b_iblock_right SET OP_EREAD = 'Y' WHERE TASK_ID = ".$TASK_ID);
@@ -1978,42 +1977,36 @@ class CIBlockRightsStorage
 
 	public static function OnGroupDelete($GROUP_ID)
 	{
-		global $DB;
-		$GROUP_ID = intval($GROUP_ID);
-
-		$DB->Query("
-			DELETE FROM b_iblock_element_right WHERE RIGHT_ID IN (
-				SELECT ID FROM b_iblock_right WHERE GROUP_CODE = 'G".$GROUP_ID."'
-			)
-		");
-		$DB->Query("
-			DELETE FROM b_iblock_section_right WHERE RIGHT_ID IN (
-				SELECT ID FROM b_iblock_right WHERE GROUP_CODE = 'G".$GROUP_ID."'
-			)
-		");
-		$DB->Query("
-			DELETE FROM b_iblock_right WHERE GROUP_CODE = 'G".$GROUP_ID."'
-		");
+		$GROUP_ID = (int)$GROUP_ID;
+		static::deleteRightsByOwner('G'.$GROUP_ID);
 	}
 
 	public static function OnUserDelete($USER_ID)
 	{
-		global $DB;
-		$USER_ID = intval($USER_ID);
+		$USER_ID = (int)$USER_ID;
+		static::deleteRightsByOwner('U'.$USER_ID);
+	}
 
-		$DB->Query("
-			DELETE FROM b_iblock_element_right WHERE RIGHT_ID IN (
-				SELECT ID FROM b_iblock_right WHERE GROUP_CODE = 'U".$USER_ID."'
-			)
+	protected static function deleteRightsByOwner(string $ownerId): void
+	{
+		$ownerId = trim($ownerId);
+		if ($ownerId === '')
+		{
+			return;
+		}
+		$conn = Main\Application::getConnection();
+		$conn->queryExecute("
+			delete r2 from b_iblock_right r
+			inner join b_iblock_element_right r2 on r2.RIGHT_ID = r.ID and r2.IBLOCK_ID = r.IBLOCK_ID
+			where r.GROUP_CODE = '".$ownerId."'
 		");
-		$DB->Query("
-			DELETE FROM b_iblock_section_right WHERE RIGHT_ID IN (
-				SELECT ID FROM b_iblock_right WHERE GROUP_CODE = 'U".$USER_ID."'
-			)
+		$conn->queryExecute("
+			delete r2 from b_iblock_right r
+			inner join b_iblock_section_right r2 on r2.RIGHT_ID = r.ID and r2.IBLOCK_ID = r.IBLOCK_ID
+			where r.GROUP_CODE = '".$ownerId."'
 		");
-		$DB->Query("
-			DELETE FROM b_iblock_right WHERE GROUP_CODE = 'U".$USER_ID."'
+		$conn->queryExecute("
+			delete from b_iblock_right where GROUP_CODE = '".$ownerId."'
 		");
 	}
 }
-?>

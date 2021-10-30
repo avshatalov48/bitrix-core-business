@@ -13,52 +13,52 @@ class Fonts extends \Bitrix\Landing\Hook\Page
 		'g-font-open-sans' => [
 			'name' => 'Open Sans',
 			'family' => '"Open Sans", Helvetica, Arial, sans-serif',
-			'url' => 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;900&subset=cyrillic',
+			'url' => 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@100;200;300;400;500;600;700;800;900&subset=cyrillic',
 		],
 		'g-font-roboto' => [
 			'name' => 'Roboto',
 			'family' => '"Roboto", Arial, sans-serif',
-			'url' => 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;900&subset=cyrillic,cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;600;700;800;900&subset=cyrillic,cyrillic-ext,latin-ext',
 		],
 		'g-font-roboto-slab' => [
 			'name' => 'Roboto Slab',
 			'family' => '"Roboto Slab", Helvetica, Arial, sans-serif',
-			'url' => 'https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;400;500;600;700;900&subset=cyrillic,cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100;200;300;400;500;600;700;800;900&subset=cyrillic,cyrillic-ext,latin-ext',
 		],
 		'g-font-montserrat' => [
 			'name' => 'Montserrat',
 			'family' => '"Montserrat", Helvetica, Arial, sans-serif',
-			'url' => 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;900&subset=cyrillic',
+			'url' => 'https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&subset=cyrillic',
 		],
 		'g-font-alegreya-sans' => [
 			'name' => 'Alegreya Sans',
 			'family' => '"Alegreya Sans", sans-serif',
-			'url' => 'https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@300;400;500;600;700;900&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@100;200;300;400;500;600;700;800;900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-cormorant-infant' => [
 			'name' => 'Cormorant Infant',
 			'family' => '"Cormorant Infant", serif',
-			'url' => 'https://fonts.googleapis.com/css2?family=Cormorant+Infant:wght@300;400;500;600;700;900&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=Cormorant+Infant:wght@100;200;300;400;500;600;700;800;900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-pt-sans-caption' => [
 			'name' => 'PT Sans Caption',
 			'family' => '"PT Sans Caption", sans-serif',
-			'url' => 'https://fonts.googleapis.com/css2?family=PT+Sans+Caption:wght@300;400;500;600;700;900&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=PT+Sans+Caption:wght@100;200;300;400;500;600;700;800;900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-pt-sans-narrow' => [
 			'name' => 'PT Sans Narrow',
 			'family' => '"PT Sans Narrow", sans-serif',
-			'url' => 'https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@300;400;500;600;700;900&PT+Sans:wght@300;400;500;600;700;900&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@100;200;300;400;500;600;700;800;900&PT+Sans:wght@100;200;300;400;500;600;700;800;900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-pt-sans' => [
 			'name' => 'PT Sans',
 			'family' => '"PT Sans", sans-serif',
-			'url' => 'https://fonts.googleapis.com/css2?family=PT+Sans:wght@300;400;500;600;700;900&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=PT+Sans:wght@100;200;300;400;500;600;700;800;900&subset=cyrillic-ext,latin-ext',
 		],
 		'g-font-lobster' => [
 			'name' => 'Lobster',
 			'family' => '"Lobster", cursive',
-			'url' => 'https://fonts.googleapis.com/css2?family=Lobster:wght@300;400;500;600;700;900&subset=cyrillic-ext,latin-ext',
+			'url' => 'https://fonts.googleapis.com/css2?family=Lobster:wght@100;200;300;400;500;600;700;800;900&subset=cyrillic-ext,latin-ext',
 		],
 	];
 

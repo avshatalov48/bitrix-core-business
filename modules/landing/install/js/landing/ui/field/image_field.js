@@ -25,9 +25,9 @@
 		BX.Landing.UI.Field.Text.apply(this, arguments);
 
 		this.dimensions = typeof data.dimensions === "object" ? data.dimensions : null;
+		this.create2xByDefault = data.create2xByDefault !== false;
 		this.uploadParams = typeof data.uploadParams === "object" ? data.uploadParams : {};
 		this.onValueChangeHandler = data.onValueChange ? data.onValueChange : (function() {});
-		this.layout.classList.add("landing-ui-field-image");
 		this.type = this.content.type || "image";
 		this.allowClear = data.allowClear;
 		this.input.innerText = this.content.src;
@@ -35,6 +35,12 @@
 		this.input2x = this.createInput();
 		this.input2x.innerText = this.content.src2x;
 		this.input2x.hidden = true;
+
+		this.layout.classList.add("landing-ui-field-image");
+		if (data.compactMode === true)
+		{
+			this.layout.classList.add("landing-ui-field-image--compact");
+		}
 
 		this.disableAltField = typeof data.disableAltField === "boolean" ? data.disableAltField : false;
 
@@ -183,7 +189,8 @@
 			options: {
 				siteId: BX.Landing.Main.getInstance().options.site_id,
 				landingId: BX.Landing.Main.getInstance().id
-			}
+			},
+			contentRoot: this.contentRoot
 		});
 
 		this.urlCheckbox = create("input", {
@@ -484,6 +491,7 @@
 		onFileChange: function(file)
 		{
 			this.showLoader();
+
 			this.upload(file)
 				.then(this.setValue.bind(this))
 				.then(this.hideLoader.bind(this))
@@ -506,10 +514,13 @@
 
 			if (!this.uploadMenu)
 			{
-				this.uploadMenu = BX.PopupMenu.create(
-					"upload_" + this.selector + (+new Date()),
-					this.bindElement,
-					[
+				this.uploadMenu = BX.Main.MenuManager.create({
+					id: "upload_" + this.selector + (+new Date()),
+					bindElement: this.bindElement,
+					bindOptions: {
+						forceBindPosition: true
+					},
+					items: [
 						{
 							text: BX.Landing.Loc.getMessage("LANDING_IMAGE_UPLOAD_MENU_UNSPLASH"),
 							onclick: this.onUnsplashShow.bind(this)
@@ -531,30 +542,36 @@
 							onclick: this.onLinkShow.bind(this)
 						}
 					],
-					{
-						events: {
-							onPopupClose: function() {
-								this.bindElement.classList.remove("landing-ui-active");
+					events: {
+						onPopupClose: function ()
+						{
+							this.bindElement.classList.remove("landing-ui-active");
 
-								if (this.uploadMenu)
-								{
-									this.uploadMenu.destroy();
-									this.uploadMenu = null;
-								}
-							}.bind(this)
-						}
-					}
-				);
-				this.bindElement.parentNode.appendChild(this.uploadMenu.popupWindow.popupContainer);
+							if (this.uploadMenu)
+							{
+								this.uploadMenu.destroy();
+								this.uploadMenu = null;
+							}
+						}.bind(this)
+					},
+					targetContainer: this.contentRoot
+				});
+				if (!this.contentRoot)
+				{
+					this.bindElement.parentNode.appendChild(this.uploadMenu.popupWindow.popupContainer);
+				}
 			}
 
 			this.bindElement.classList.add("landing-ui-active");
-			this.uploadMenu.show();
+			this.uploadMenu.toggle();
 
-			var rect = BX.pos(this.bindElement, this.bindElement.parentNode);
-			this.uploadMenu.popupWindow.popupContainer.style.top = rect.bottom + "px";
-			this.uploadMenu.popupWindow.popupContainer.style.left = "auto";
-			this.uploadMenu.popupWindow.popupContainer.style.right = "5px";
+			if (!this.contentRoot)
+			{
+				var rect = BX.pos(this.bindElement, this.bindElement.parentNode);
+				this.uploadMenu.popupWindow.popupContainer.style.top = rect.bottom + "px";
+				this.uploadMenu.popupWindow.popupContainer.style.left = "auto";
+				this.uploadMenu.popupWindow.popupContainer.style.right = "5px";
+			}
 		},
 
 		onUnsplashShow: function()
@@ -736,8 +753,9 @@
 
 		/**
 		 * @param {object} value
+		 * @param {boolean} [preventEvent = false]
 		 */
-		setValue: function(value)
+		setValue: function(value, preventEvent)
 		{
 			if (value.type !== "icon")
 			{
@@ -746,11 +764,12 @@
 					this.input.innerText = "";
 					this.preview.removeAttribute("style");
 					this.input.dataset.ext = "";
+					this.showDropzone();
 				}
 				else
 				{
 					this.input.innerText = value.src;
-					this.input2x.innerText = value.src2x;
+					this.input2x.innerText = value.src2x || '';
 					this.preview.style.backgroundImage = "url(\""+(value.src2x || value.src)+"\")";
 					this.preview.id = BX.util.getRandomString();
 					this.hiddenImage.src = value.src2x || value.src;
@@ -790,7 +809,10 @@
 				data: {value: this.getValue()},
 				compatData: [this.getValue()],
 			});
-			this.emit('change', event);
+			if (!preventEvent)
+			{
+				this.emit('change', event);
+			}
 		},
 
 		adjustEditButtonState: function()
@@ -906,15 +928,68 @@
 
 			this.showLoader();
 
-			return this.uploader
-				.upload(file, additionalParams)
-				.then(function(result) {
-					this.hideLoader();
+			var checkSize = new Promise(function(resolve) {
+				var sizes = ['1x', '2x'];
 
-					return Object.assign({}, result[0], {
-						src2x: result[1].src,
-						id2x: result[1].id
-					})
+				if (this.create2xByDefault === false)
+				{
+					var image = new Image();
+					var objectUrl = URL.createObjectURL(file);
+					var dimensions = this.dimensions;
+					image.onload = function() {
+						URL.revokeObjectURL(objectUrl);
+						if (
+							(
+								this.width >= dimensions.width
+								|| this.height >= dimensions.height
+								|| this.width >= dimensions.maxWidth
+								|| this.height >= dimensions.maxHeight
+							) === false
+						)
+						{
+							sizes = ['1x'];
+						}
+
+						resolve(sizes);
+					};
+					image.src = objectUrl;
+				}
+				else
+				{
+					resolve(sizes);
+				}
+			}.bind(this));
+
+			return checkSize
+				.then(function(allowedSizes) {
+					var sizes = (function() {
+						if (
+							this.create2xByDefault === false
+							&& BX.Type.isArrayFilled(allowedSizes)
+						)
+						{
+							return allowedSizes;
+						}
+
+						return ['1x', '2x'];
+					}.bind(this))();
+
+					return this.uploader
+						.setSizes(sizes)
+						.upload(file, additionalParams)
+						.then(function(result) {
+							this.hideLoader();
+
+							if (sizes.length === 1)
+							{
+								return result[0];
+							}
+
+							return Object.assign({}, result[0], {
+								src2x: result[1].src,
+								id2x: result[1].id
+							});
+						}.bind(this));
 				}.bind(this));
 		}
 	}

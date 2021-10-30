@@ -16,8 +16,6 @@ class User
 			return false;
 		}
 
-		$list = \Bitrix\ImOpenLines\Config::getQueueList($userId);
-
-		return !empty($list);
+		return \Bitrix\ImOpenLines\Config::isOperator($userId);
 	}
 }

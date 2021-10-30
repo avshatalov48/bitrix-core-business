@@ -6,6 +6,7 @@ $MESS["LANDING_TPL_ADD_SITE"] = "Eine Website erstellen";
 $MESS["LANDING_TPL_ADD_SITE_KNOWLEDGE"] = " Wissensbasis erstellen";
 $MESS["LANDING_TPL_ADD_SITE_PAGE"] = "Eine Website erstellen";
 $MESS["LANDING_TPL_ADD_SITE_STORE"] = "Einen Onlineshop erstellen";
+$MESS["LANDING_TPL_DEV_SITE"] = "Entwickler-Website erstellen";
 $MESS["LANDING_TPL_IMPORT_SITE_KNOWLEDGE"] = "Wissensbasis importieren";
 $MESS["LANDING_TPL_IMPORT_SITE_PAGE"] = "Website importieren";
 $MESS["LANDING_TPL_IMPORT_SITE_STORE"] = "Onlineshop importieren";

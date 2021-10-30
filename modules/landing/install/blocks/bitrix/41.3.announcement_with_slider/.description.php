@@ -79,7 +79,7 @@ return array(
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default-wo-background'),
+			'type' => array('block-default'),
 		),
 		'nodes' => array(
 			'.landing-block-node-title' => array(

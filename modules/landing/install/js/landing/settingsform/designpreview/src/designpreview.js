@@ -1,12 +1,13 @@
-import { Dom, Tag } from 'main.core';
+import { Dom, Event, Tag } from 'main.core';
 import { Control } from './internal/control';
+import { BaseEvent, EventEmitter } from 'main.core.events';
 
 import './css/style.css';
 
 type Controls = {
 	theme: {
 		use: ?Control,
-		baseColor: ?Control,
+		baseColors: ?Control,
 		corporateColor: ?Control,
 	},
 	typo: {
@@ -14,7 +15,6 @@ type Controls = {
 		textColor: ?Control,
 		textSize: ?Control,
 		textFont: ?Control,
-		font: ?Control,
 		textWeight: ?Control,
 		textLineHeight: ?Control,
 		hColor: ?Control,
@@ -24,20 +24,25 @@ type Controls = {
 	background: {
 		use: ?Control,
 		useSite: ?Control,
-		picture: ?Control,
+		field: ?Control,
+		image: ?Control,
 		position: ?Control,
 		color: ?Control,
 	},
 }
 
-export class DesignPreview
+export class DesignPreview extends EventEmitter
 {
 	static DEFAULT_FONT_SIZE = 14;
+	static HEIGHT_PAGE_TITLE_WRAP = 74;
 
 	controls: Controls;
 
 	constructor(form: HTMLElement, options: Object = {}, phrase: Object = {})
 	{
+		super();
+		this.setEventNamespace('BX.Landing.SettingsForm.DesignPreview');
+
 		this.form = form;
 		this.phrase = phrase;
 
@@ -59,26 +64,30 @@ export class DesignPreview
 		}
 		const observer = new IntersectionObserver((entries) => {
 			entries.forEach(entry => {
-				if (entry.isIntersecting)
+				const availableHeight = document.documentElement.clientHeight - DesignPreview.HEIGHT_PAGE_TITLE_WRAP;
+				if (entry.target.getBoundingClientRect().height <= availableHeight)
 				{
-					if (!this.hasOwnProperty('defaultIntersecting'))
+					if (entry.isIntersecting)
 					{
-						this.defaultIntersecting = true;
+						if (!this.hasOwnProperty('defaultIntersecting'))
+						{
+							this.defaultIntersecting = true;
+						}
+						if (this.defaultIntersecting)
+						{
+							this.unFixElement();
+						}
 					}
-					if (this.defaultIntersecting)
+					else
 					{
-						this.unFixElement();
-					}
-				}
-				else
-				{
-					if (!this.hasOwnProperty('defaultIntersecting'))
-					{
-						this.defaultIntersecting = false;
-					}
-					if (this.defaultIntersecting)
-					{
-						this.fixElement();
+						if (!this.hasOwnProperty('defaultIntersecting'))
+						{
+							this.defaultIntersecting = false;
+						}
+						if (this.defaultIntersecting)
+						{
+							this.fixElement();
+						}
 					}
 				}
 			})
@@ -113,7 +122,7 @@ export class DesignPreview
 				{
 					control.setClickHandler(this.applyStyles.bind(this));
 				}
-				if (group === 'background' && key === 'picture')
+				if (group === 'background' && key === 'field')
 				{
 					control.setClickHandler(this.applyStyles.bind(this));
 				}
@@ -145,38 +154,65 @@ export class DesignPreview
 				}
 			}
 		}
-
-		BX.addCustomEvent('BX.Landing.ColorPicker:onSelectColor', this.onApplyStyles.bind(this));
-		BX.addCustomEvent('BX.Landing.ColorPicker:onClearColorPicker', this.onApplyStyles.bind(this));
-		BX.addCustomEvent('BX.Landing.UI.Field.Image:onChangeImage', this.onApplyStyles.bind(this));
-		BX.addCustomEvent('BX.Landing.UI.Panel.GoogleFonts:onSelectFont', this.onApplyStyles.bind(this));
-
-		let fieldCode = BX('field-themefonts_code');
-		let fieldCodeH = BX('field-themefonts_code_h');
-		const panel = BX.Landing.UI.Panel.GoogleFonts.getInstance();
 		
-		BX.Dom.append(panel.layout, document.body);
-		fieldCode.setAttribute("value", this.convertFont(fieldCode.value));
-		fieldCodeH.setAttribute("value", this.convertFont(fieldCodeH.value));
+		if (this.controls.theme.corporateColor.node)
+		{
+			this.controls.theme.corporateColor.node.subscribe('onSelectColor', this.onApplyStyles.bind(this));
+		}
+		if (this.controls.background.image.node)
+		{
+			this.controls.background.image.node.subscribe('change', this.onApplyStyles.bind(this));
+		}
+		if (this.controls.typo.textColor.node)
+		{
+			EventEmitter.subscribe(this.controls.typo.textColor.node, 'BX.Landing.ColorPicker:onSelectColor', this.onApplyStyles.bind(this));
+			EventEmitter.subscribe(this.controls.typo.textColor.node, 'BX.Landing.ColorPicker:onClearColorPicker', this.onApplyStyles.bind(this));
+		}
+		if (this.controls.typo.hColor.node)
+		{
+			EventEmitter.subscribe(this.controls.typo.hColor.node, 'BX.Landing.ColorPicker:onSelectColor', this.onApplyStyles.bind(this));
+			EventEmitter.subscribe(this.controls.typo.hColor.node, 'BX.Landing.ColorPicker:onClearColorPicker', this.onApplyStyles.bind(this));
+		}
+		if (this.controls.background.color.node)
+		{
+			EventEmitter.subscribe(this.controls.background.color.node, 'BX.Landing.ColorPicker:onSelectColor', this.onApplyStyles.bind(this));
+			EventEmitter.subscribe(this.controls.background.color.node, 'BX.Landing.ColorPicker:onClearColorPicker', this.onApplyStyles.bind(this));
+		}
 
-		this.showFontPanel(panel, fieldCode);
-		this.showFontPanel(panel, fieldCodeH);
+		this.panel = BX.Landing.UI.Panel.GoogleFonts.getInstance();
+		Dom.append(this.panel.layout, document.body);
+
+		const fieldCode = this.controls.typo.textFont.node;
+		const fieldCodeH = this.controls.typo.hFont.node;
+		if (fieldCode && fieldCodeH)
+		{
+			fieldCode.setAttribute("value", this.convertFont(fieldCode.value));
+			fieldCodeH.setAttribute("value", this.convertFont(fieldCodeH.value));
+			Event.bind(fieldCode, 'click', this.onCodeClick.bind(this));
+			Event.bind(fieldCodeH, 'click', this.onCodeClick.bind(this));
+		}
 	}
 
-	showFontPanel(panel, element)
+	onCodeClick(event: BaseEvent)
 	{
-		element.onclick = function(){
-			panel.show({
-				hideOverlay: true,
-				targetWindow: 'window',
-			}).then(function(font) {
-				if (!this.response)
-				{
-					element.setAttribute("value", font.family);
-					BX.onCustomEvent('BX.Landing.UI.Panel.GoogleFonts:onSelectFont');
-				}
-			}.bind(this));
-		}
+		this.panel.show({
+			hideOverlay: true,
+			context: window,
+		}).then((font) => {
+			const element = event.target;
+			element.setAttribute("value", font.family);
+			this.onApplyStyles();
+		});
+	}
+
+	onApplyStyles()
+	{
+		this.applyStyles();
+	}
+
+	applyStyles()
+	{
+		this.styleNode.innerHTML = this.generateCss();
 	}
 
 	generateSelectorStart(className)
@@ -192,10 +228,23 @@ export class DesignPreview
 	getCSSPart1(css)
 	{
 		let colorPrimary;
-		let setColors = BX('set-colors');
-		let colorPickerElement = BX('colorpicker-theme');
-		let activeColorNode = setColors.querySelector('.active');
-		let isActiveColorPickerElement = colorPickerElement.classList.contains('active');
+		let setColors = this.controls.theme.baseColors.node;
+		let colorPickerElement;
+		if (this.controls.theme.corporateColor.node)
+		{
+			colorPickerElement = this.controls.theme.corporateColor.node.element;
+		}
+
+		let activeColorNode;
+		if (setColors)
+		{
+			activeColorNode = setColors.querySelector('.active');
+		}
+		let isActiveColorPickerElement;
+		if (colorPickerElement)
+		{
+			isActiveColorPickerElement = colorPickerElement.classList.contains('active');
+		}
 
 		if (activeColorNode)
 		{
@@ -205,9 +254,12 @@ export class DesignPreview
 		{
 			colorPrimary = colorPickerElement.dataset.value;
 		}
-		if (colorPrimary[0] !== '#')
+		if (colorPrimary)
 		{
-			colorPrimary = '#' + colorPrimary;
+			if (colorPrimary[0] !== '#')
+			{
+				colorPrimary = '#' + colorPrimary;
+			}
 		}
 		//for 'design page', if use not checked, use color from 'design site'
 		if (this.controls.theme.use.node)
@@ -224,21 +276,53 @@ export class DesignPreview
 
 	getCSSPart2(css)
 	{
-		let textColor = this.controls.typo.textColor.node.value;
-		let font = this.controls.typo.font.node.value;
-		let hFont = this.controls.typo.hFont.node.value;
-		let textSize = Math.round(this.controls.typo.textSize.node.value * DesignPreview.DEFAULT_FONT_SIZE) + 'px';
-		let fontWeight = this.controls.typo.textWeight.node.value;
-		let fontLineHeight = this.controls.typo.textLineHeight.node.value;
-		let hColor = this.controls.typo.hColor.node.value;
-		let hWeight = this.controls.typo.hWeight.node.value;
+		let textColor;
+		let textFont;
+		let hFont;
+		let textSize;
+		let fontWeight;
+		let fontLineHeight;
+		let hColor;
+		let hWeight;
+		if (this.controls.typo.textColor.node)
+		{
+			textColor = this.controls.typo.textColor.node.input.value;
+		}
+		if (this.controls.typo.textFont.node)
+		{
+			textFont = this.controls.typo.textFont.node.value;
+		}
+		if (this.controls.typo.hFont.node)
+		{
+			hFont = this.controls.typo.hFont.node.value;
+		}
+		if (this.controls.typo.textSize.node)
+		{
+			textSize = Math.round(this.controls.typo.textSize.node.value * DesignPreview.DEFAULT_FONT_SIZE) + 'px';
+		}
+		if (this.controls.typo.textWeight.node)
+		{
+			fontWeight = this.controls.typo.textWeight.node.value;
+		}
+		if (this.controls.typo.textLineHeight.node)
+		{
+			fontLineHeight = this.controls.typo.textLineHeight.node.value;
+		}
+		if (this.controls.typo.hColor.node)
+		{
+			hColor = this.controls.typo.hColor.node.input.value;
+		}
+		if (this.controls.typo.hWeight.node)
+		{
+			hWeight = this.controls.typo.hWeight.node.value;
+		}
 
 		if (this.controls.typo.use.node)
 		{
 			if (this.controls.typo.use.node.checked === false)
 			{
 				textColor = this.controls.typo.textColor.defaultValue;
-				font = this.controls.typo.font.defaultValue;
+				textFont = this.controls.typo.textFont.defaultValue;
 				hFont = this.controls.typo.hFont.defaultValue;
 				textSize = Math.round(this.controls.typo.textSize.defaultValue
 					* DesignPreview.DEFAULT_FONT_SIZE) + 'px';
@@ -249,13 +333,21 @@ export class DesignPreview
 			}
 		}
 
-		let link = this.createLink(font);
-		Dom.append(link, this.form);
-		let linkH = this.createLink(hFont);
-		Dom.append(linkH, this.form);
+		let link;
+		let linkH;
+		if (textFont)
+		{
+			link = this.createLink(textFont);
+			Dom.append(link, this.form);
+		}
+		if (hFont)
+		{
+			linkH = this.createLink(hFont);
+			Dom.append(linkH, this.form);
+		}
 
 		css += `--design-preview-color: ${textColor};`;
-		css += `--design-preview-font-theme: ${font};`;
+		css += `--design-preview-font-theme: ${textFont};`;
 		css += `--design-preview-font-size: ${textSize};`;
 		css += `--design-preview-font-weight: ${fontWeight};`;
 		css += `--design-preview-line-height: ${fontLineHeight};`;
@@ -275,22 +367,32 @@ export class DesignPreview
 		{
 			css += `--design-preview-font-weight-h: ${fontWeight};`;
 		}
-		if (this.controls.typo.hFont.node.value)
+		if (this.controls.typo.hFont.node)
 		{
 			css += `--design-preview-font-h-theme: ${hFont};`;
 		}
 		else
 		{
-			css += `--design-preview-font-h-theme: ${font};`;
+			css += `--design-preview-font-h-theme: ${textFont};`;
 		}
 
 		return css;
 	}
 
+	createLink(font)
+	{
+		let link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.href = 'https://fonts.googleapis.com/css2?family=';
+		link.href += font.replace(' ', '+');
+		link.href += ':wght@100;200;300;400;500;600;700;800;900';
+		return link;
+	}
+
 	getCSSPart3(css)
 	{
-		let bgColor = this.controls.background.color.node.value;
-		let bgFieldNode = BX('landing-form-background-field');
+		let bgColor = this.controls.background.color.node.input.value;
+		let bgFieldNode = this.controls.background.field.node;
 		let bgPictureElement = bgFieldNode.getElementsByClassName('landing-ui-field-image-hidden');
 		let bgPicture = bgPictureElement[0].getAttribute('src');
 		let bgPosition = this.controls.background.position.node.value;
@@ -307,7 +409,7 @@ export class DesignPreview
 				if (this.controls.background.useSite.defaultValue === 'Y')
 				{
 					bgColor = this.controls.background.color.defaultValue;
-					bgPicture = this.controls.background.picture.defaultValue;
+					bgPicture = this.controls.background.field.defaultValue;
 					bgPosition = this.controls.background.position.defaultValue;
 					css += `--design-preview-bg: ${bgColor};`;
 				}
@@ -344,16 +446,6 @@ export class DesignPreview
 		return css;
 	}
 
-	createLink(font)
-	{
-		let link = document.createElement('link');
-		link.rel = 'stylesheet';
-		link.href = 'https://fonts.googleapis.com/css2?family=';
-		link.href += font.replace(' ', '+');
-		link.href += ':wght@300;400;500;600;700;900';
-		return link;
-	}
-
 	generateCss()
 	{
 		let css;
@@ -364,16 +456,6 @@ export class DesignPreview
 		css = this.generateSelectorEnd(css);
 
 		return css;
-	}
-
-	onApplyStyles()
-	{
-		this.applyStyles();
-	}
-
-	applyStyles()
-	{
-		this.styleNode.innerHTML = this.generateCss();
 	}
 
 	static createLayout(phrase): HTMLDivElement

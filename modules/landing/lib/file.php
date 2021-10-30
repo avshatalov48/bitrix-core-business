@@ -436,9 +436,9 @@ class File
 	/**
 	 * Mark file as "need rebuild", but not delete them. File will be exist until not created new file.
 	 * @param int|int[] $assetId Id of landing to which attached asset. If not set - will marked all.
-	 * @return void
+	 * @return bool
 	 */
-	public static function markAssetToRebuild($assetId = []): void
+	public static function markAssetToRebuild($assetId = []): bool
 	{
 		$filter = [
 			'=ENTITY_TYPE' => self::ENTITY_TYPE_ASSET
@@ -447,20 +447,25 @@ class File
 		{
 			$filter['ENTITY_ID'] = $assetId;
 		}
+
 		$res = FileTable::getList([
 			'select' => ['ID', 'ENTITY_ID'],
 			'filter' => $filter
 		]);
-		while ($row = $res->fetch())
+		$files = $res->fetchAll();
+		$result = true;
+		foreach ($files as $file)
 		{
 			$resUpdate = FileTable::update(
-				$row['ID'],
+				$file['ID'],
 				[
-					'ENTITY_ID' => -1 * abs($row['ENTITY_ID'])
+					'ENTITY_ID' => -1 * abs($file['ENTITY_ID'])
 				]
 			);
-			$resUpdate->isSuccess();
+			$result = $result && $resUpdate->isSuccess();
 		}
+
+		return count($files) > 0 ? $result : false;
 	}
 
 	/**

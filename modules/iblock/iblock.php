@@ -867,7 +867,7 @@ function ImportXMLFile($file_name, $iblock_type="-", $site_id='', $section_actio
 	{
 		if($sync)
 			$obCatalog->EndSession();
-		return GetMessage("IBLOCK_XML2_METADATA_ERROR").implode("\n", $result);
+		return GetMessage("IBLOCK_XML2_METADATA_ERROR").' '.(is_array($result) ? implode("\n", $result) : $result);
 	}
 
 	$obCatalog->ImportSections();

@@ -1,4 +1,4 @@
-import {Tag} from 'main.core';
+import {Tag, Text} from 'main.core';
 
 export type ContentTableCellOptions = {
 	content: string | HTMLElement,
@@ -16,7 +16,7 @@ export class ContentTableCell
 	{
 		return Tag.render`
 			<div class="landing-ui-content-table-cell">
-				${this.options.content}
+				${Text.encode(this.options.content)}
 			</div>
 		`;
 	}

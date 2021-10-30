@@ -120,7 +120,7 @@ class SiteTable extends Entity\DataManager
 			)),
 			'DOMAIN_ID' => new Entity\IntegerField('DOMAIN_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_DOMAIN_ID'),
-				'required' => true
+				//'required' => true
 			)),
 			'DOMAIN' => new Entity\ReferenceField(
 				'DOMAIN',
@@ -662,6 +662,25 @@ class SiteTable extends Entity\DataManager
 			}
 			else
 			{
+				$domainProvider = self::getValueByCode(
+					$primary['ID'],
+					$fields,
+					'DOMAIN_PROVIDER'
+				);
+				if ($domainProvider)
+				{
+					if (!Restriction\Manager::isAllowed('limit_free_domen', ['trueOnNotNull' => true]))
+					{
+						$result->unsetFields($unsetFields);
+						$result->setErrors(array(
+							new Entity\EntityError(
+								Restriction\Manager::getSystemErrorMessage('limit_free_domen'),
+								'FREE_DOMAIN_IS_NOT_ALLOWED'
+							)
+						));
+						return $result;
+					}
+				}
 				$canPublicSite = Manager::checkFeature(
 					Manager::FEATURE_PUBLICATION_SITE,
 					$primary

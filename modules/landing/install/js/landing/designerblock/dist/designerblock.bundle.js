@@ -269,6 +269,7 @@ this.BX = this.BX || {};
 	      repository: options.repository,
 	      onElementSelect: this.addElement.bind(this)
 	    });
+	    this.saveButton = parent.document.getElementById('landing-design-block-save') || top.document.getElementById('landing-design-block-save') || document.getElementById('landing-design-block-save');
 	    this.preventEvents();
 	    this.initHistoryEvents();
 	    this.initTopPanel();
@@ -281,7 +282,7 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(DesignerBlock, [{
 	    key: "clearHtml",
 	    value: function clearHtml(content) {
-	      return content.replace(/<div class="[^"]*landing-designer-block-pseudo-last[^"]*"[^>]*>[\s]*<\/div>/g, '').replace(/\s*data-(landingwrapper)="[^"]+"\s*/g, ' ').replace(/\s*[\w-_]+--type-wrapper\s*/g, ' ').replace(/<div[\s]*>[\s]*<\/div>/g, '').replace(/\s*style=""/g, '');
+	      return content.replace(/<div class="[^"]*landing-designer-block-pseudo-last[^"]*"[^>]*>[\s]*<\/div>/g, '').replace(/<div class="[^"]*landing-highlight-border[^"]*"[^>]*>[\s]*<\/div>/g, '').replace(/\s*data-(landingwrapper)="[^"]+"\s*/g, ' ').replace(/\s*[\w-_]+--type-wrapper\s*/g, ' ').replace(/<div[\s]*>[\s]*<\/div>/g, '').replace(/\s*style=""/g, '');
 	    }
 	  }, {
 	    key: "preventEvents",
@@ -348,9 +349,14 @@ this.BX = this.BX || {};
 	    value: function initTopPanel() {
 	      var _this3 = this;
 
-	      // save block button on the top panel
-	      top.BX.addCustomEvent('Landing:onDesignerBlockSave', function (finishCallback) {
+	      main_core.Event.bind(this.saveButton, 'click', function () {
 	        _this3.highlight.hide();
+
+	        var finishCallback = function finishCallback() {
+	          if (BX.SidePanel && BX.SidePanel.Instance) {
+	            BX.SidePanel.Instance.close();
+	          }
+	        };
 
 	        if (!_this3.changed) {
 	          finishCallback();
@@ -363,21 +369,17 @@ this.BX = this.BX || {};
 	        }
 
 	        _this3.saving = true;
-	        setTimeout(function () {
-	          landing_backend.Backend.getInstance().action('Block::updateContent', {
-	            lid: _this3.landingId,
-	            block: _this3.blockId,
-	            content: _this3.clearHtml(_this3.originalNode.innerHTML).replaceAll(' style="', ' bxstyle="'),
-	            designed: 1
-	          }).then(function () {
-	            if (finishCallback) {
-	              _this3.saving = false;
-	              finishCallback();
-	            }
-	          });
+	        landing_backend.Backend.getInstance().action('Block::updateContent', {
+	          lid: _this3.landingId,
+	          block: _this3.blockId,
+	          content: _this3.clearHtml(_this3.originalNode.innerHTML).replaceAll(' style="', ' bxstyle="'),
+	          designed: 1
+	        }).then(function () {
+	          _this3.saving = false;
+	          finishCallback();
+	        });
 
-	          _this3.sendLabel('designerBlock', 'save' + '&designed=' + (_this3.designed ? 'Y' : 'N') + '&code=' + _this3.blockCode);
-	        }, 300);
+	        _this3.sendLabel('designerBlock', 'save' + '&designed=' + (_this3.designed ? 'Y' : 'N') + '&code=' + _this3.blockCode);
 	      });
 	    }
 	  }, {

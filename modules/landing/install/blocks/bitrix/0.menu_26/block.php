@@ -1,12 +1,12 @@
 <header class="landing-block g-pt-20 g-pb-20 u-header u-header--sticky u-header--relative g-brd-top g-brd-primary g-brd-4 g-theme-bitrix-bg-dark-v2 g-bg-transparent">
 	<div class="container">
-		<nav class="landing-block-node-navbar u-navbar-modal container navbar u-navbar-color-white u-navbar-color-white--hover g-brd-0 g-pa-0 g-mb-0 u-navbar-bg-gray-dark-v2--hover u-navbar-marker--arrow"
+		<nav class="landing-block-node-navbar u-navbar-modal container navbar u-navbar-color-white u-navbar-color-white--hover g-brd-0 g-py-0 g-mb-0 g-ml-minus-15 u-navbar-bg-gray-dark-v2--hover u-navbar-marker--arrow"
 			data-modal-alert-classes="m-sm-auto">
 
 			<!--		 	todo: u-header in other blocks z-index 101-->
 			<!--			todo: click not worked -->
 
-			<div class="landing-block-node-menu-container collapse navbar-collapse align-items-center g-pt-90 g-mt-minus-20 g-theme-bitrix-bg-dark-v2 g-font-size-16" id="navBar">
+			<div class="landing-block-node-menu-container collapse navbar-collapse align-items-center g-pt-90 g-pb-5 g-mt-minus-20 g-theme-bitrix-bg-dark-v2 g-font-size-16" id="navBar">
 				<ul class="landing-block-node-menu g-menu-multilevel w-100 navbar-nav flex-column list-unstyled js-scroll-nav">
 					<li class="landing-block-node-menu-item nav-item">
 						<a class="landing-block-node-menu-link nav-link row no-gutters align-items-center g-text-decoration-none--hover rounded g-mx-5 g-px-25 g-py-8 g-rounded-25"

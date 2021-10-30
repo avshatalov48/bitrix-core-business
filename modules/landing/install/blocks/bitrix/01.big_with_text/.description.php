@@ -51,7 +51,7 @@ return array(
 		'nodes' => array(
 			'.landing-block-node-text-container' => array(
 				'title' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_NODES_LANDINGBLOCKNODE_TEXT_CONTAINER_NEW'),
-				'type' => array('background-color', 'background-gradient', 'animation'),
+				'type' => array('background-color', 'animation'),
 			),
 			'.landing-block-node-small-title' => array(
 				'title' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_NODES_LANDINGBLOCKNODESMALLTITLE'),

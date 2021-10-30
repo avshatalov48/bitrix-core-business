@@ -1,0 +1,26 @@
+.landing-ui-field-color-popup-head {
+	display: flex;
+	align-items: center;
+	margin-bottom: 5px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid rgba(151,151,151,.29);
+}
+
+.landing-ui-field-color-recent {
+    display: flex;
+	flex-grow: 1;
+	padding-right: 5px;
+	margin: 0 -1.5px;
+	overflow: hidden;
+}
+
+.landing-ui-field-color-recent-item {
+	margin: 0 1.5px;
+    height: 22px;
+    width: 22px;
+	border-radius: 2px;
+    user-select: none;
+    cursor: pointer;
+	box-shadow: 0 0 4px rgba(128, 128, 128, .1);
+	border: 1px solid rgba(0, 0, 0, .05);
+}

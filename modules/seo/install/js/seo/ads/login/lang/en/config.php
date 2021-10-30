@@ -1,6 +1,6 @@
 <?php
-$MESS["SEO_ADS_FACEBOOK_BUSINESS_FEATURE_HINT"] = "Enable Facebook and Instagram sales feartures";
-$MESS["SEO_ADS_FACEBOOK_BUSINESS_FEATURE_TITLE"] = "Enable Facebook and Instagram sales feartures";
+$MESS["SEO_ADS_FACEBOOK_BUSINESS_FEATURE_HINT"] = "Enable Facebook and Instagram sales features";
+$MESS["SEO_ADS_FACEBOOK_BUSINESS_FEATURE_TITLE"] = "Enable Facebook and Instagram sales features";
 $MESS["SEO_ADS_FACEBOOK_BUSINESS_LOGIN_BOOK"] = "Book Now";
 $MESS["SEO_ADS_FACEBOOK_BUSINESS_LOGIN_BUTTON_TEXT"] = "Button text";
 $MESS["SEO_ADS_FACEBOOK_BUSINESS_LOGIN_BUY"] = "Buy Now";

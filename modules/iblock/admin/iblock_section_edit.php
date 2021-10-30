@@ -1287,7 +1287,7 @@ $tabControl->EndCustomField("DETAIL_PICTURE", '');
 //Add user fields tab only when there is fields defined or user has rights for adding new field
 $entity_id = "IBLOCK_".$IBLOCK_ID."_SECTION";
 if(
-	(count($USER_FIELD_MANAGER->GetUserFields($entity_id)) > 0) ||
+	(!empty($USER_FIELD_MANAGER->GetUserFields($entity_id))) ||
 	($USER_FIELD_MANAGER->GetRights($entity_id) >= "W")
 )
 {

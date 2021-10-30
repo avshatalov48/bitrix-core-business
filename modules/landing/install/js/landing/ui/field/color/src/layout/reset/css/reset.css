@@ -1,0 +1,13 @@
+.landing-ui-field-color-reset {
+	display: block;
+	width: 22px;
+	height: 22px;
+	background: url("data:image/svg+xml,%3Csvg width='11' height='11' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8.805 2.294a5.05 5.05 0 00-7.143 0l-.002.004L.025.664V5h4.336L2.664 3.302l.003-.003A3.63 3.63 0 112.2 7.858l-1.13.865a5.05 5.05 0 107.736-6.43z' fill='%23525C69' fill-rule='evenodd'/%3E%3C/svg%3E") center no-repeat;
+	transition: opacity .3s;
+	opacity: .3;
+	cursor: pointer;
+}
+
+.landing-ui-field-color-reset:hover {
+	opacity: .7;
+}

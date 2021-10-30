@@ -37,9 +37,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    var _this$selector$split = _this.selector.split('@');
 
-	    var _this$selector$split2 = babelHelpers.slicedToArray(_this$selector$split, 1);
+	    var _this$selector$split2 = babelHelpers.slicedToArray(_this$selector$split, 2);
 
-	    _this.oldIndex = _this$selector$split2[0];
+	    _this.oldIndex = _this$selector$split2[1];
 	    return _this;
 	  }
 

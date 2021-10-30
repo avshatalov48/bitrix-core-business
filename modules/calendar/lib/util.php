@@ -18,7 +18,7 @@ class Util
 	public const DATETIME_PHP_FORMAT = 'Y-m-d H:i:sP';
 
 	private static $requestUid = '';
-	private static $userAccessCodes = array();
+	private static $userAccessCodes = [];
 
 	/**
 	 * @param $managerId
@@ -27,18 +27,7 @@ class Util
 	 */
 	public static function isManagerForUser($managerId, $userId): bool
 	{
-		if (!isset(self::$userAccessCodes[$managerId]))
-		{
-			$codes = array();
-			$r = \CAccess::getUserCodes($managerId);
-			while($code = $r->fetch())
-			{
-				$codes[] = $code['ACCESS_CODE'];
-			}
-			self::$userAccessCodes[$managerId] = $codes;
-		}
-
-		return in_array('IU'.$userId, self::$userAccessCodes[$managerId]);
+		return in_array('IU'.$userId, self::getUserAccessCodes($managerId));
 	}
 
 	/**
@@ -374,15 +363,6 @@ class Util
 	}
 
 	/**
-	 * @param string|null $accountType
-	 * @return bool
-	 */
-	public static function isGoogleConnection(?string $accountType): bool
-	{
-		return in_array($accountType, ['caldav_google_oauth', 'google_api_oauth'], true);
-	}
-
-	/**
 	 * @param int $eventId
 	 * @return array|null
 	 * @throws Main\ArgumentException
@@ -560,5 +540,43 @@ class Util
 	public static function getRequestUid(): string
 	{
 		return self::$requestUid;
+	}
+
+	/**
+	 * @param int $userId
+	 * @return array
+	 */
+	public static function getUserAccessCodes(int $userId): array
+	{
+		global $USER;
+		$userId = (int)$userId;
+		if (!$userId)
+		{
+			$userId = \CCalendar::GetCurUserId();
+		}
+
+		if (!isset(self::$userAccessCodes[$userId]))
+		{
+			$codes = [];
+			$r = \CAccess::GetUserCodes($userId);
+			while($code = $r->Fetch())
+			{
+				$codes[] = $code['ACCESS_CODE'];
+			}
+
+			if (!in_array('G2', $codes))
+			{
+				$codes[] = 'G2';
+			}
+
+			if (!in_array('AU', $codes) && $USER && (int)$USER->GetId() === $userId)
+			{
+				$codes[] = 'AU';
+			}
+
+			self::$userAccessCodes[$userId] = $codes;
+		}
+
+		return self::$userAccessCodes[$userId];
 	}
 }

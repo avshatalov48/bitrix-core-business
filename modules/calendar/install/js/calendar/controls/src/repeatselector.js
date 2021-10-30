@@ -1,4 +1,5 @@
-import {Util} from 'calendar.util';
+import { Util } from 'calendar.util';
+import { DateTimeControl } from "calendar.controls";
 
 export class RepeatSelector
 {
@@ -26,22 +27,18 @@ export class RepeatSelector
 
 	create()
 	{
-		BX.bind(this.DOM.rruleType, 'change', BX.delegate(function()
-		{
+		BX.bind(this.DOM.rruleType, 'change', () => {
 			this.changeType(this.DOM.rruleType.value);
-		}, this));
+		});
 
-		BX.bind(this.DOM.until, 'click', BX.proxy(function()
-		{
-			BX.calendar({node: this.DOM.until, field: this.DOM.until, bTime: false});
-			BX.focus(this.DOM.until);
+		BX.bind(this.DOM.until, 'click', (e) => {
+			DateTimeControl.showInputCalendar(e);
 			this.DOM.rruleEndsOn.until.checked = true;
-		}, this));
+		});
 
-		BX.bind(this.DOM.count, 'click', BX.proxy(function()
-		{
+		BX.bind(this.DOM.count, 'click', () => {
 			this.DOM.rruleEndsOn.count.checked = true;
-		}, this));
+		});
 	}
 
 	changeType(type)

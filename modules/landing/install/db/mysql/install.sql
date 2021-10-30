@@ -103,6 +103,7 @@ create table if not exists b_landing_domain
     ID int(18) not null auto_increment,
     ACTIVE char(1) not null default 'Y',
     DOMAIN varchar(255) not null,
+    PREV_DOMAIN varchar(255) default null,
     XML_ID varchar(255) default null,
     PROTOCOL varchar(10) not null,
     PROVIDER varchar(50) default null,
@@ -415,4 +416,34 @@ create table if not exists b_landing_entity_lock (
     INDEX IX_ENTITY (ENTITY_ID, ENTITY_TYPE),
     INDEX IX_TYPE (LOCK_TYPE),
     PRIMARY KEY (ID)
+);
+
+create table if not exists b_landing_urlchecker_whitelist
+(
+	ID int(18) not null auto_increment,
+	DOMAIN varchar(255) not null,
+	DATE_MODIFY timestamp not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(ID),
+	INDEX IX_B_CHECKER_DOMAIN (DOMAIN)
+);
+
+create table if not exists b_landing_urlchecker_status
+(
+	ID int(18) not null auto_increment,
+	URL varchar(255) not null,
+	HASH char(32) not null,
+	STATUS varchar(255) default null,
+	DATE_MODIFY timestamp not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(ID),
+	INDEX IX_B_CHECKER_HASH (HASH)
+);
+
+create table if not exists b_landing_urlchecker_host
+(
+	ID int(18) not null auto_increment,
+	STATUS_ID int(18) not null,
+	HOST varchar(255) not null,
+	DATE_MODIFY timestamp not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(ID),
+	INDEX IX_B_CHECKER_STATUS_HOST (STATUS_ID, HOST)
 );

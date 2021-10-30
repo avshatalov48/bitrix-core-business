@@ -68,7 +68,7 @@ class CAdminList
 		$this->request = Main\Context::getCurrent()->getRequest();
 		$this->session = Main\Application::getInstance()->getSession();
 
-		$this->table_id = $table_id;
+		$this->table_id = preg_replace('/[^a-z0-9_]/i', '', $table_id);
 		$this->sort = $sort;
 
 		$this->setPublicModeState(defined('PUBLIC_MODE') && PUBLIC_MODE == 1);

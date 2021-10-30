@@ -161,18 +161,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "disable",
 	    value: function disable() {
-	      main_core.Dom.addClass(this.layout, 'landing-ui-disable');
+	      main_core.Dom.addClass(this.layout, 'landing-ui-disabled');
 	    }
 	  }, {
 	    key: "enable",
 	    value: function enable() {
-	      main_core.Dom.removeClass(this.layout, 'landing-ui-disable');
+	      main_core.Dom.removeClass(this.layout, 'landing-ui-disabled');
 	      main_core.Dom.attr(this.layout, 'disabled', null);
 	    }
 	  }, {
 	    key: "isEnabled",
 	    value: function isEnabled() {
-	      return !main_core.Dom.hasClass(this.layout, 'landing-ui-disable');
+	      return !main_core.Dom.hasClass(this.layout, 'landing-ui-disabled');
 	    }
 	  }, {
 	    key: "show",

@@ -26,7 +26,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 	/**
 	 * Default site color (lightblue bitrix color)
 	 */
-	public const BASE_COLOR = '#6ab8ee';
+	public const BASE_COLOR = '#2fc6f6';
 
 	/**
 	 * Base executable method.

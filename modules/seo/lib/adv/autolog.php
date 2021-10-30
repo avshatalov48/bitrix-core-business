@@ -24,7 +24,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Seo
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Autolog_Query query()
+ * @method static EO_Autolog_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Autolog_Result getById($id)
+ * @method static EO_Autolog_Result getList(array $parameters = array())
+ * @method static EO_Autolog_Entity getEntity()
+ * @method static \Bitrix\Seo\Adv\EO_Autolog createObject($setDefaultValues = true)
+ * @method static \Bitrix\Seo\Adv\EO_Autolog_Collection createCollection()
+ * @method static \Bitrix\Seo\Adv\EO_Autolog wakeUpObject($row)
+ * @method static \Bitrix\Seo\Adv\EO_Autolog_Collection wakeUpCollection($rows)
+ */
 
 class AutologTable extends Entity\DataManager
 {

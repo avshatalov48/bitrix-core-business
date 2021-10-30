@@ -3,6 +3,8 @@
 namespace Bitrix\Landing\Assets;
 
 use Bitrix\Landing\File;
+use Bitrix\Landing\Site;
+use Bitrix\Landing\Manager;
 use Bitrix\Main;
 use Bitrix\Main\FileTable;
 use Bitrix\Main\Security\Random;
@@ -228,7 +230,10 @@ class WebpackFile
 			throw new Main\ArgumentException('LID must be int or array of int', 'lid');
 		}
 
-		File::markAssetToRebuild($lid);
+		if (File::markAssetToRebuild($lid))
+		{
+			Manager::clearCacheForLanding($lid);
+		}
 	}
 
 	/**
@@ -236,6 +241,9 @@ class WebpackFile
 	 */
 	public static function markAllToRebuild(): void
 	{
-		File::markAssetToRebuild();
+		if (File::markAssetToRebuild())
+		{
+			Manager::clearCache();
+		}
 	}
 }

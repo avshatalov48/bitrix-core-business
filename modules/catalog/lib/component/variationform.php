@@ -128,6 +128,22 @@ class VariationForm extends BaseForm
 		);
 	}
 
+	protected function buildIblockPropertiesDescriptions(): array
+	{
+		$propertyDescriptions = [];
+
+		foreach ($this->entity->getPropertyCollection() as $property)
+		{
+			if ($property->getUserType() === \CIBlockPropertySKU::USER_TYPE)
+			{
+				continue;
+			}
+			$propertyDescriptions[] = $this->getPropertyDescription($property);
+		}
+
+		return $propertyDescriptions;
+	}
+
 	protected function getPriceDescriptions(): array
 	{
 		$descriptions = [];

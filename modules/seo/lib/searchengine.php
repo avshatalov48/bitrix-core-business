@@ -9,6 +9,22 @@ namespace Bitrix\Seo;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class SearchEngineTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SearchEngine_Query query()
+ * @method static EO_SearchEngine_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_SearchEngine_Result getById($id)
+ * @method static EO_SearchEngine_Result getList(array $parameters = array())
+ * @method static EO_SearchEngine_Entity getEntity()
+ * @method static \Bitrix\Seo\EO_SearchEngine createObject($setDefaultValues = true)
+ * @method static \Bitrix\Seo\EO_SearchEngine_Collection createCollection()
+ * @method static \Bitrix\Seo\EO_SearchEngine wakeUpObject($row)
+ * @method static \Bitrix\Seo\EO_SearchEngine_Collection wakeUpCollection($rows)
+ */
 class SearchEngineTable extends Entity\DataManager
 {
 	const INACTIVE = 'N';

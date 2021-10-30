@@ -656,6 +656,7 @@ class Imap
 
 		ksort($list);
 
+		// todo remove the different format of the data output
 		if (!preg_match('/[:,]/', $range))
 		{
 			$list = reset($list);
@@ -664,15 +665,53 @@ class Imap
 		return $list;
 	}
 
+	public function getUIDsForSpecificDay($dirPath, $internalDate)
+	{
+		$error = [];
+
+		if (!$this->select($dirPath, $error))
+		{
+			return false;
+		}
+
+		//since some mail services (example mail.ru ) do not support the 'on' search criterion
+		$command = 'UID SEARCH SINCE '.date("j-M-Y", strtotime($internalDate)).' BEFORE '.date('j-M-Y', strtotime($internalDate.' +1 day'));
+
+		$response = $this->executeCommand($command, $error);
+
+		if ($error)
+		{
+			$error = $error == Imap::ERR_COMMAND_REJECTED ? null : $error;
+			$error = $this->errorMessage(array(Imap::ERR_SEARCH, $error), $response);
+
+			return false;
+		}
+
+		$UIDs = [];
+		$regex = '/^ \* \x20 SEARCH \x20 ( .+ ) \r\n $ /ix';
+		foreach ($this->getUntagged($regex, true) as $item)
+		{
+			preg_match_all('/\d+/', $item[1][1],$UIDs);
+		}
+
+		if(count($UIDs) === 0 )
+		{
+			return [];
+		}
+
+		return $UIDs[0];
+	}
+
 	/**
 	 * Returns unseen messages count
 	 *
 	 * @param string $dirPath dir path.
 	 * @param string &$error Error message.
+	 * @param null, string $startInternalDate start internal date for count.
 	 *
 	 * @return int|false
 	 */
-	public function getUnseen($dirPath, &$error)
+	public function getUnseen($dirPath, &$error, $startInternalDate = null)
 	{
 		$error = null;
 
@@ -688,7 +727,13 @@ class Imap
 			return $unseen;
 		}
 
-		$response = $this->executeCommand('SEARCH UNSEEN', $error);
+		$command = 'SEARCH UNSEEN';
+
+		if(!is_null($startInternalDate))
+		{
+			$command .= (' SINCE '.date("j-M-Y", strtotime($startInternalDate)));
+		}
+		$response = $this->executeCommand($command, $error);
 
 		if ($error)
 		{
@@ -740,7 +785,7 @@ class Imap
 			return false;
 		}
 
-		list($min, $max) = $range;
+		[$min, $max] = $range;
 
 		$searches = array();
 
@@ -839,7 +884,7 @@ class Imap
 		);
 		foreach ($this->getUntagged($regex, true) as $item)
 		{
-			list($item, $matches) = $item;
+			[$item, $matches] = $item;
 
 			$sflags = $matches['flags'];
 			$sdelim = $matches['delim'];

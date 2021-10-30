@@ -398,7 +398,8 @@ export class FormStyleAdapter extends EventEmitter
 
 					if (value.font.family === Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FONT_DEFAULT'))
 					{
-						delete value.font;
+						value.font.family = '';
+						value.font.uri = '';
 					}
 
 					delete value.primary;

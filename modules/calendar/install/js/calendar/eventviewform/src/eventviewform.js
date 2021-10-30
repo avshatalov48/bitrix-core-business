@@ -610,10 +610,16 @@ export class EventViewForm {
 		this.entityChanged = true;
 	}
 
-	reloadSlider()
+	reloadSlider(): void
 	{
 		if (this.reloadStatus === this.RELOAD_FINISHED)
 		{
+			const activeElement = document.activeElement
+			if (['IFRAME', 'TEXTAREA'].includes(activeElement.tagName.toUpperCase()))
+			{
+				return;
+			}
+
 			// Protection from reloading same page during changes (status or reminder)
 			if (this.entityChanged)
 			{

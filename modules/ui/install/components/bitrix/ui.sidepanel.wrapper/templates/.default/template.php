@@ -142,7 +142,19 @@ if ($arResult["SHOW_BITRIX24_THEME"] == "Y")
 
 		<div class="ui-page-slider-workarea">
 		<div class="ui-side-panel-wrap-sidebar"><? $APPLICATION->ShowViewContent("sidebar"); ?></div>
-		<div id="workarea-content" class="ui-side-panel-wrap-workarea<?=($arParams['USE_PADDING'] ? ' ui-page-slider-workarea-content-padding' : '')?>">
+			<?
+			$workareaContentClass = "ui-side-panel-wrap-workarea";
+			if ($arParams['USE_PADDING'])
+			{
+				$workareaContentClass.=' ui-page-slider-workarea-content-padding';
+			}
+
+			if (!$arParams['USE_BACKGROUND_CONTENT'])
+			{
+				$workareaContentClass.=' ui-page-slider-workarea-no-background';
+			}
+			?>
+		<div id="workarea-content" class="<?=$workareaContentClass?>">
 			<?
 			include ('content.php');
 

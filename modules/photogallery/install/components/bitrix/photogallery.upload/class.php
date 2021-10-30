@@ -102,7 +102,7 @@ class CPhotogalleryUpload extends \CBitrixComponent implements Main\Engine\Contr
 		return $params;
 	}
 
-	final private function prepareActionParams(&$params)
+	private function prepareActionParams(&$params)
 	{
 		$params['NEW_ALBUM_NAME'] = GetMessage('P_NEW_ALBUM') <> '' ? GetMessage('P_NEW_ALBUM') : 'New album';
 		$params['ALBUM_PHOTO_THUMBS_WIDTH'] = intval($params['ALBUM_PHOTO_THUMBS_WIDTH'] ?: 120);
@@ -146,7 +146,7 @@ class CPhotogalleryUpload extends \CBitrixComponent implements Main\Engine\Contr
 		$params['APPROVE_BY_DEFAULT'] = ($params['APPROVE_BY_DEFAULT'] == 'N' ? 'N' : 'Y');
 	}
 
-	final private function prepareWatermarkParams(&$params)
+	private function prepareWatermarkParams(&$params)
 	{
 		if ($params['USE_WATERMARK'] !== 'Y' || !function_exists('gd_info'))
 		{
@@ -183,7 +183,7 @@ class CPhotogalleryUpload extends \CBitrixComponent implements Main\Engine\Contr
 		$params['WATERMARK_MIN_PICTURE_SIZE'] = intval($params['WATERMARK_MIN_PICTURE_SIZE'] ?: 800);
 	}
 
-	final private function prepareTemplateParams(&$params)
+	private function prepareTemplateParams(&$params)
 	{
 		foreach ([
 			'INDEX' => [],
@@ -213,6 +213,13 @@ class CPhotogalleryUpload extends \CBitrixComponent implements Main\Engine\Contr
 		{
 			$params['ACTION_URL'] = CHTTP::urlDeleteParams(htmlspecialcharsback(POST_FORM_ACTION_URI), array('view_mode', 'sessid', 'uploader_redirect'), true);
 		}
+
+		$params["ACTION_URL"] = CHTTP::urlAddParams(
+			$params["ACTION_URL"],
+			[
+				'analyticsLabel[action]' => 'uploadPhoto'
+			]
+		);
 
 		$params['SUCCESS_URL'] = CHTTP::urlDeleteParams(CComponentEngine::MakePathFromTemplate($params['~SECTION_URL'],
 			array('USER_ALIAS' => $params['USER_ALIAS'], 'SECTION_ID' => $params['SECTION_ID'])), array('sessid', 'uploader_redirect'), true);
@@ -330,10 +337,13 @@ class CPhotogalleryUpload extends \CBitrixComponent implements Main\Engine\Contr
 			'uploadFileHeight' => $this->arParams['ORIGINAL_SIZE'],
 			'uploadMaxFilesize' => $this->arParams['UPLOAD_MAX_FILE_SIZE'],
 			'events' => array(
-				'onUploadIsStarted' => array($res, 'onBeforeUpload'),
-				'onUploadIsContinued' => array($res, 'onBeforeUpload'),
+				'onPackageIsStarted' => array($res, 'onBeforeUpload'),
+				'onPackageIsContinued' => array($res, 'onBeforeUpload'),
 				'onPackageIsFinished' => array($res, 'onAfterUpload'),
 				'onFileIsUploaded' => array($res, 'handleFile')
+			),
+			'storage' => array(
+				'moduleId' => 'photogallery'
 			)
 		);
 

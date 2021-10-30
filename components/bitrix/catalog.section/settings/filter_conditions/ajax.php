@@ -1,14 +1,15 @@
-<?
+<?php
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_js.php');
-define('BX_PUBLIC_MODE', 1);
+const BX_PUBLIC_MODE = 1;
 
 if (!check_bitrix_sessid() || !\Bitrix\Main\Loader::includeModule('catalog'))
+{
 	return;
+}
 
 global $APPLICATION;
 
-$success = false;
 $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 $request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter);
 $ids = $request->get('ids');
@@ -28,32 +29,32 @@ if (!empty($ids) && is_array($ids))
 			'JS_NAME' => $ids['treeObject']
 		)
 	);
-}
 
-if ($success)
-{
-	if ($action === 'init')
+	if ($success)
 	{
-		try
+		switch ($action)
 		{
-			$condition = \Bitrix\Main\Web\Json::decode($request->get('condition'));
-		}
-		catch (Exception $e)
-		{
-			$condition = array();
-		}
+			case 'init':
+				try
+				{
+					$condition = \Bitrix\Main\Web\Json::decode($request->get('condition'));
+				}
+				catch (Exception $e)
+				{
+					$condition = [];
+				}
 
-		echo $jsLibrary;
-		$condTree->Show($condition);
-	}
-	elseif ($action === 'save')
-	{
-		$result = $condTree->Parse();
+				echo $jsLibrary;
+				$condTree->Show($condition);
+				break;
+			case 'save':
+				$result = $condTree->Parse();
 
-		$APPLICATION->RestartBuffer();
-		echo \Bitrix\Main\Web\Json::encode($result);
+				$APPLICATION->RestartBuffer();
+				echo \Bitrix\Main\Web\Json::encode($result);
+			break;
+		}
 	}
 }
 
 \CMain::FinalActions();
-die();

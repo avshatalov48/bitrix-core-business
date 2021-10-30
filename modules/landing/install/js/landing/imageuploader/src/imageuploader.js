@@ -20,6 +20,12 @@ export class ImageUploader
 		};
 	}
 
+	setSizes(sizes: Array<string>): ImageUploader
+	{
+		this.options.sizes = sizes;
+		return this;
+	}
+
 	getDimensions(): Array<number>
 	{
 		const dimensions = Object.entries(this.options.dimensions);

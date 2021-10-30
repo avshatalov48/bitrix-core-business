@@ -1,7 +1,6 @@
 import {Tag, Loc, Dom, Event, Type, Runtime} from 'main.core';
-import {Util} from 'calendar.util';
 import {PopupManager} from 'main.popup';
-import {EventEmitter, BaseEvent} from 'main.core.events';
+import {EventEmitter} from 'main.core.events';
 export class EmailSelectorControl extends EventEmitter
 {
 	DOM = {};

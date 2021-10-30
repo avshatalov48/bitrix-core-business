@@ -3,6 +3,8 @@ import { MessageBox, MessageBoxButtons } from "ui.dialogs.messagebox";
 import { EventEmitter } from "main.core.events";
 import { EventType } from "im.const";
 
+const NOT_ALLOWED_ERROR_CODE = 'NotAllowedError';
+
 const RequestPermissions = {
 	props: {
 		skipRequest: {
@@ -35,13 +37,26 @@ const RequestPermissions = {
 		requestPermissions()
 		{
 			this.getApplication().initHardware().then(() => {
-				this.$nextTick(() => this.$store.dispatch('conference/setPermissionsRequested'));
+				return navigator.mediaDevices.getUserMedia({audio: true, video: true});
+			}).then(() => {
+				this.$nextTick(() => this.$store.dispatch('conference/setPermissionsRequested', {status: true}));
 			}).catch((error) => {
-				MessageBox.show({
-					message: this.localize['BX_IM_COMPONENT_CALL_HARDWARE_ERROR'],
-					modal: true,
-					buttons: MessageBoxButtons.OK
-				});
+				if (error.name && error.name === NOT_ALLOWED_ERROR_CODE)
+				{
+					this.showMessageBox(this.localize['BX_IM_COMPONENT_CALL_NOT_ALLOWED_ERROR']);
+
+					return false;
+				}
+
+				this.showMessageBox(this.localize['BX_IM_COMPONENT_CALL_HARDWARE_ERROR']);
+			});
+		},
+		showMessageBox(text)
+		{
+			MessageBox.show({
+				message: text,
+				modal: true,
+				buttons: MessageBoxButtons.OK
 			});
 		},
 		getApplication()
@@ -55,7 +70,7 @@ const RequestPermissions = {
 			<template v-if="!skipRequest">
 				<div class="bx-im-component-call-permissions-text">{{ localize['BX_IM_COMPONENT_CALL_PERMISSIONS_TEXT'] }}</div>
 				<button @click="requestPermissions" class="ui-btn ui-btn-sm ui-btn-primary bx-im-component-call-permissions-button">
-					{{ localize['BX_IM_COMPONENT_CALL_PERMISSIONS_BUTTON'] }}
+					{{ localize['BX_IM_COMPONENT_CALL_ENABLE_DEVICES_BUTTON'] }}
 				</button>
 				<slot></slot>
 			</template>

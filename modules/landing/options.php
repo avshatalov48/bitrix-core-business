@@ -178,6 +178,11 @@ if ($postRight >= 'R'):
 		Loc::getMessage('LANDING_OPT_PUBLIC_HOOK_ON_SAVE') . ':',
 		array('checkbox')
 	);
+	/*$allOptions[] = array(
+		'strict_verification_update',
+		Loc::getMessage('LANDING_OPT_STRICT_VERIFICATION_UPDATE') . ':',
+		array('checkbox')
+	);*/
 	$allOptions[] = array(
 		'source_iblocks',
 		Loc::getMessage('LANDING_OPT_SOURCE_IBLOCKS') . ':',

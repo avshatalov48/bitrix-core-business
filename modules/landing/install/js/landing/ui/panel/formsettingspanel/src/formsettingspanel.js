@@ -11,6 +11,7 @@ import {Env} from 'landing.env';
 import {StylePanel} from 'landing.ui.panel.stylepanel';
 import {MessageBox} from 'ui.dialogs.messagebox';
 import type {FormDictionary, FormOptions} from 'crm.form.type';
+import {Alert, AlertColor} from 'ui.alerts';
 
 import HeaderAndButtonContent from './internal/content/header-and-buttons/header-and-buttons';
 import AgreementsContent from './internal/content/agreements/agreements';
@@ -269,6 +270,18 @@ export class FormSettingsPanel extends BasePresetPanel
 		return this.cache.get('currentBlock');
 	}
 
+	getSaveOriginalFileNameAlert(): HTMLElement
+	{
+		return this.cache.remember('saveOriginalFileNameAlert', () => {
+			const alert = new Alert({
+				text: Loc.getMessage('LANDING_CRM_FORM_MAIN_OPTION_WARNING'),
+				color: AlertColor.WARNING,
+			});
+
+			return alert.render();
+		});
+	}
+
 	show(
 		options: {
 			formId: number,
@@ -289,6 +302,19 @@ export class FormSettingsPanel extends BasePresetPanel
 		if (!this.isFormCreated())
 		{
 			this.disableTransparentMode();
+		}
+
+		const {mainOptions} = Env.getInstance().getOptions();
+		if (mainOptions.saveOriginalFileName === false)
+		{
+			this.prependContent(
+				this.getSaveOriginalFileNameAlert(),
+			);
+
+			const closeButtonTop = Text.toNumber(Dom.style(this.closeButton.getLayout(), 'top'));
+			const alertHeight = this.getSaveOriginalFileNameAlert().getBoundingClientRect().height;
+
+			Dom.style(this.closeButton.getLayout(), 'top', `${closeButtonTop + alertHeight}px`);
 		}
 
 		this.setCurrentBlock(options.block);
@@ -737,6 +763,7 @@ export class FormSettingsPanel extends BasePresetPanel
 		if (id === 'spam_protection')
 		{
 			return new SpamProtection({
+				dictionary: this.getFormDictionary(),
 				values: {
 					key: this.getFormOptions().captcha.key,
 					secret: this.getFormOptions().captcha.secret,
@@ -888,6 +915,7 @@ export class FormSettingsPanel extends BasePresetPanel
 					name: this.getFormOptions().name,
 					useSign: this.getFormOptions().data.useSign,
 					users: this.getFormOptions().responsible.users,
+					checkWorkTime: this.getFormOptions().responsible.checkWorkTime,
 					language: this.getFormOptions().data.language,
 				},
 			});

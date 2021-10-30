@@ -17,6 +17,19 @@ use Bitrix\Main\IO\Path;
  * Temporary data structure
  * Class SitemapRuntimeTable
  * @package Bitrix\Seo
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SitemapRuntime_Query query()
+ * @method static EO_SitemapRuntime_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_SitemapRuntime_Result getById($id)
+ * @method static EO_SitemapRuntime_Result getList(array $parameters = array())
+ * @method static EO_SitemapRuntime_Entity getEntity()
+ * @method static \Bitrix\Seo\EO_SitemapRuntime createObject($setDefaultValues = true)
+ * @method static \Bitrix\Seo\EO_SitemapRuntime_Collection createCollection()
+ * @method static \Bitrix\Seo\EO_SitemapRuntime wakeUpObject($row)
+ * @method static \Bitrix\Seo\EO_SitemapRuntime_Collection wakeUpCollection($rows)
  */
 class SitemapRuntimeTable extends Entity\DataManager
 {
@@ -46,29 +59,29 @@ class SitemapRuntimeTable extends Entity\DataManager
 	
 	public static function getMap()
 	{
-		$fieldsMap = array(
-			'ID' => array(
+		$fieldsMap = [
+			'ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-			),
-			'PID' => array(
+			],
+			'PID' => [
 				'data_type' => 'integer',
 				'required' => true,
-			),
-			'PROCESSED' => array(
+			],
+			'PROCESSED' => [
 				'data_type' => 'boolean',
-				'values' => array(self::PROCESSED, self::UNPROCESSED),
-			),
-			'ITEM_PATH' => array(
+				'values' => [self::UNPROCESSED, self::PROCESSED],
+			],
+			'ITEM_PATH' => [
 				'data_type' => 'string',
-			),
-			'ITEM_ID' => array(
+			],
+			'ITEM_ID' => [
 				'data_type' => 'integer',
-			),
-			'ITEM_TYPE' => array(
+			],
+			'ITEM_TYPE' => [
 				'data_type' => 'enum',
-				'values' => array(
+				'values' => [
 					self::ITEM_TYPE_DIR,
 					self::ITEM_TYPE_FILE,
 					self::ITEM_TYPE_IBLOCK,
@@ -76,17 +89,17 @@ class SitemapRuntimeTable extends Entity\DataManager
 					self::ITEM_TYPE_ELEMENT,
 					self::ITEM_TYPE_FORUM,
 					self::ITEM_TYPE_TOPIC,
-				),
-			),
-			'ACTIVE' => array(
+				],
+			],
+			'ACTIVE' => [
 				'data_type' => 'boolean',
-				'values' => array(self::INACTIVE, self::ACTIVE),
-			),
-			'ACTIVE_ELEMENT' => array(
+				'values' => [self::INACTIVE, self::ACTIVE],
+			],
+			'ACTIVE_ELEMENT' => [
 				'data_type' => 'boolean',
-				'values' => array(self::INACTIVE, self::ACTIVE),
-			),
-		);
+				'values' => [self::INACTIVE, self::ACTIVE],
+			],
+		];
 		
 		return $fieldsMap;
 	}

@@ -201,18 +201,6 @@ namespace Bitrix\Iblock {
 }
 namespace Bitrix\Iblock {
 	/**
-	 * @method static EO_ElementProperty_Query query()
-	 * @method static EO_ElementProperty_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ElementProperty_Result getById($id)
-	 * @method static EO_ElementProperty_Result getList(array $parameters = array())
-	 * @method static EO_ElementProperty_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_ElementProperty createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_ElementProperty_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_ElementProperty wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_ElementProperty_Collection wakeUpCollection($rows)
-	 */
-	class ElementPropertyTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -238,7 +226,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_ElementProperty_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\ElementTable:iblock/lib/elementtable.php:b25206afceaecf2e8e90345265df87e0 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\ElementTable:iblock/lib/elementtable.php:643e85b8c014fa2baa89cc9e22ecd431 */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_Element
@@ -622,17 +610,6 @@ namespace Bitrix\Iblock {
 	 * @method bool isWfLockedByUserFilled()
 	 * @method bool isWfLockedByUserChanged()
 	 * @method \Bitrix\Main\EO_User fillWfLockedByUser()
-	 * @method \Bitrix\Iblock\EO_Section_Collection getSections()
-	 * @method \Bitrix\Iblock\EO_Section_Collection requireSections()
-	 * @method \Bitrix\Iblock\EO_Section_Collection fillSections()
-	 * @method bool hasSections()
-	 * @method bool isSectionsFilled()
-	 * @method bool isSectionsChanged()
-	 * @method void addToSections(\Bitrix\Iblock\EO_Section $section)
-	 * @method void removeFromSections(\Bitrix\Iblock\EO_Section $section)
-	 * @method void removeAllSections()
-	 * @method \Bitrix\Iblock\EO_Element resetSections()
-	 * @method \Bitrix\Iblock\EO_Element unsetSections()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -757,9 +734,6 @@ namespace Bitrix\Iblock {
 	 * @method \Bitrix\Main\EO_User[] getWfLockedByUserList()
 	 * @method \Bitrix\Iblock\EO_Element_Collection getWfLockedByUserCollection()
 	 * @method \Bitrix\Main\EO_User_Collection fillWfLockedByUser()
-	 * @method \Bitrix\Iblock\EO_Section_Collection[] getSectionsList()
-	 * @method \Bitrix\Iblock\EO_Section_Collection getSectionsCollection()
-	 * @method \Bitrix\Iblock\EO_Section_Collection fillSections()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -793,18 +767,6 @@ namespace Bitrix\Iblock {
 }
 namespace Bitrix\Iblock {
 	/**
-	 * @method static EO_Element_Query query()
-	 * @method static EO_Element_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Element_Result getById($id)
-	 * @method static EO_Element_Result getList(array $parameters = array())
-	 * @method static EO_Element_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_Element createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_Element_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_Element wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_Element_Collection wakeUpCollection($rows)
-	 */
-	class ElementTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -830,7 +792,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_Element_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\IblockTable:iblock/lib/iblocktable.php:6380569c886324b68df05d40a76cee7a */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\IblockTable:iblock/lib/iblocktable.php:09185b290936f8e46030834abf457fd0 */
 namespace Bitrix\Iblock {
 	/**
 	 * Iblock
@@ -1332,18 +1294,6 @@ namespace Bitrix\Iblock {
 }
 namespace Bitrix\Iblock {
 	/**
-	 * @method static EO_Iblock_Query query()
-	 * @method static EO_Iblock_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Iblock_Result getById($id)
-	 * @method static EO_Iblock_Result getList(array $parameters = array())
-	 * @method static EO_Iblock_Entity getEntity()
-	 * @method static \Bitrix\Iblock\Iblock createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_Iblock_Collection createCollection()
-	 * @method static \Bitrix\Iblock\Iblock wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_Iblock_Collection wakeUpCollection($rows)
-	 */
-	class IblockTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1502,18 +1452,6 @@ namespace Bitrix\Iblock {
 	}
 }
 namespace Bitrix\Iblock {
-	/**
-	 * @method static EO_IblockField_Query query()
-	 * @method static EO_IblockField_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_IblockField_Result getById($id)
-	 * @method static EO_IblockField_Result getList(array $parameters = array())
-	 * @method static EO_IblockField_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_IblockField createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_IblockField_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_IblockField wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_IblockField_Collection wakeUpCollection($rows)
-	 */
-	class IblockFieldTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1675,18 +1613,6 @@ namespace Bitrix\Iblock {
 }
 namespace Bitrix\Iblock {
 	/**
-	 * @method static EO_IblockGroup_Query query()
-	 * @method static EO_IblockGroup_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_IblockGroup_Result getById($id)
-	 * @method static EO_IblockGroup_Result getList(array $parameters = array())
-	 * @method static EO_IblockGroup_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_IblockGroup createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_IblockGroup_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_IblockGroup wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_IblockGroup_Collection wakeUpCollection($rows)
-	 */
-	class IblockGroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1833,18 +1759,6 @@ namespace Bitrix\Iblock {
 	}
 }
 namespace Bitrix\Iblock {
-	/**
-	 * @method static EO_IblockMessage_Query query()
-	 * @method static EO_IblockMessage_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_IblockMessage_Result getById($id)
-	 * @method static EO_IblockMessage_Result getList(array $parameters = array())
-	 * @method static EO_IblockMessage_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_IblockMessage createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_IblockMessage_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_IblockMessage wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_IblockMessage_Collection wakeUpCollection($rows)
-	 */
-	class IblockMessageTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2011,18 +1925,6 @@ namespace Bitrix\Iblock {
 }
 namespace Bitrix\Iblock {
 	/**
-	 * @method static EO_IblockRss_Query query()
-	 * @method static EO_IblockRss_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_IblockRss_Result getById($id)
-	 * @method static EO_IblockRss_Result getList(array $parameters = array())
-	 * @method static EO_IblockRss_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_IblockRss createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_IblockRss_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_IblockRss wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_IblockRss_Collection wakeUpCollection($rows)
-	 */
-	class IblockRssTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2170,18 +2072,6 @@ namespace Bitrix\Iblock {
 	}
 }
 namespace Bitrix\Iblock {
-	/**
-	 * @method static EO_IblockSite_Query query()
-	 * @method static EO_IblockSite_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_IblockSite_Result getById($id)
-	 * @method static EO_IblockSite_Result getList(array $parameters = array())
-	 * @method static EO_IblockSite_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_IblockSite createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_IblockSite_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_IblockSite wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_IblockSite_Collection wakeUpCollection($rows)
-	 */
-	class IblockSiteTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2358,18 +2248,6 @@ namespace Bitrix\Iblock {
 	}
 }
 namespace Bitrix\Iblock {
-	/**
-	 * @method static EO_InheritedProperty_Query query()
-	 * @method static EO_InheritedProperty_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_InheritedProperty_Result getById($id)
-	 * @method static EO_InheritedProperty_Result getList(array $parameters = array())
-	 * @method static EO_InheritedProperty_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_InheritedProperty createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_InheritedProperty_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_InheritedProperty wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_InheritedProperty_Collection wakeUpCollection($rows)
-	 */
-	class InheritedPropertyTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2780,17 +2658,6 @@ namespace Bitrix\Iblock\ORM {
 	 * @method bool isWfLockedByUserFilled()
 	 * @method bool isWfLockedByUserChanged()
 	 * @method \Bitrix\Main\EO_User fillWfLockedByUser()
-	 * @method \Bitrix\Iblock\EO_Section_Collection getSections()
-	 * @method \Bitrix\Iblock\EO_Section_Collection requireSections()
-	 * @method \Bitrix\Iblock\EO_Section_Collection fillSections()
-	 * @method bool hasSections()
-	 * @method bool isSectionsFilled()
-	 * @method bool isSectionsChanged()
-	 * @method void addToSections(\Bitrix\Iblock\EO_Section $section)
-	 * @method void removeFromSections(\Bitrix\Iblock\EO_Section $section)
-	 * @method void removeAllSections()
-	 * @method \Bitrix\Iblock\ORM\EO_ElementV1 resetSections()
-	 * @method \Bitrix\Iblock\ORM\EO_ElementV1 unsetSections()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -2915,9 +2782,6 @@ namespace Bitrix\Iblock\ORM {
 	 * @method \Bitrix\Main\EO_User[] getWfLockedByUserList()
 	 * @method \Bitrix\Iblock\ORM\EO_ElementV1_Collection getWfLockedByUserCollection()
 	 * @method \Bitrix\Main\EO_User_Collection fillWfLockedByUser()
-	 * @method \Bitrix\Iblock\EO_Section_Collection[] getSectionsList()
-	 * @method \Bitrix\Iblock\EO_Section_Collection getSectionsCollection()
-	 * @method \Bitrix\Iblock\EO_Section_Collection fillSections()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -2951,18 +2815,6 @@ namespace Bitrix\Iblock\ORM {
 }
 namespace Bitrix\Iblock\ORM {
 	/**
-	 * @method static EO_ElementV1_Query query()
-	 * @method static EO_ElementV1_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ElementV1_Result getById($id)
-	 * @method static EO_ElementV1_Result getList(array $parameters = array())
-	 * @method static EO_ElementV1_Entity getEntity()
-	 * @method static \Bitrix\Iblock\ORM\EO_ElementV1 createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\ORM\EO_ElementV1_Collection createCollection()
-	 * @method static \Bitrix\Iblock\ORM\EO_ElementV1 wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\ORM\EO_ElementV1_Collection wakeUpCollection($rows)
-	 */
-	class ElementV1Table extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2988,7 +2840,7 @@ namespace Bitrix\Iblock\ORM {
 	 */
 	class EO_ElementV1_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\ORM\ElementV2Table:iblock/lib/orm/elementv2table.php:5d4103c409d0531174ec233f78e3f764 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\ORM\ElementV2Table:iblock/lib/orm/elementv2table.php:c84ed76e7ebef1aff54f2d9c8c2bd2dc */
 namespace Bitrix\Iblock\ORM {
 	/**
 	 * EO_ElementV2
@@ -3372,17 +3224,6 @@ namespace Bitrix\Iblock\ORM {
 	 * @method bool isWfLockedByUserFilled()
 	 * @method bool isWfLockedByUserChanged()
 	 * @method \Bitrix\Main\EO_User fillWfLockedByUser()
-	 * @method \Bitrix\Iblock\EO_Section_Collection getSections()
-	 * @method \Bitrix\Iblock\EO_Section_Collection requireSections()
-	 * @method \Bitrix\Iblock\EO_Section_Collection fillSections()
-	 * @method bool hasSections()
-	 * @method bool isSectionsFilled()
-	 * @method bool isSectionsChanged()
-	 * @method void addToSections(\Bitrix\Iblock\EO_Section $section)
-	 * @method void removeFromSections(\Bitrix\Iblock\EO_Section $section)
-	 * @method void removeAllSections()
-	 * @method \Bitrix\Iblock\ORM\EO_ElementV2 resetSections()
-	 * @method \Bitrix\Iblock\ORM\EO_ElementV2 unsetSections()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -3507,9 +3348,6 @@ namespace Bitrix\Iblock\ORM {
 	 * @method \Bitrix\Main\EO_User[] getWfLockedByUserList()
 	 * @method \Bitrix\Iblock\ORM\EO_ElementV2_Collection getWfLockedByUserCollection()
 	 * @method \Bitrix\Main\EO_User_Collection fillWfLockedByUser()
-	 * @method \Bitrix\Iblock\EO_Section_Collection[] getSectionsList()
-	 * @method \Bitrix\Iblock\EO_Section_Collection getSectionsCollection()
-	 * @method \Bitrix\Iblock\EO_Section_Collection fillSections()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -3543,18 +3381,6 @@ namespace Bitrix\Iblock\ORM {
 }
 namespace Bitrix\Iblock\ORM {
 	/**
-	 * @method static EO_ElementV2_Query query()
-	 * @method static EO_ElementV2_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ElementV2_Result getById($id)
-	 * @method static EO_ElementV2_Result getList(array $parameters = array())
-	 * @method static EO_ElementV2_Entity getEntity()
-	 * @method static \Bitrix\Iblock\ORM\EO_ElementV2 createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\ORM\EO_ElementV2_Collection createCollection()
-	 * @method static \Bitrix\Iblock\ORM\EO_ElementV2 wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\ORM\EO_ElementV2_Collection wakeUpCollection($rows)
-	 */
-	class ElementV2Table extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3580,7 +3406,7 @@ namespace Bitrix\Iblock\ORM {
 	 */
 	class EO_ElementV2_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\PropertyTable:iblock/lib/propertytable.php:cb2fca2907504eb0cd30c093de2b5549 */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\PropertyTable:iblock/lib/propertytable.php:f975f0fadc4e4ebf8d2ace90ba0906bf */
 namespace Bitrix\Iblock {
 	/**
 	 * Property
@@ -4009,18 +3835,6 @@ namespace Bitrix\Iblock {
 }
 namespace Bitrix\Iblock {
 	/**
-	 * @method static EO_Property_Query query()
-	 * @method static EO_Property_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Property_Result getById($id)
-	 * @method static EO_Property_Result getList(array $parameters = array())
-	 * @method static EO_Property_Entity getEntity()
-	 * @method static \Bitrix\Iblock\Property createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_Property_Collection createCollection()
-	 * @method static \Bitrix\Iblock\Property wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_Property_Collection wakeUpCollection($rows)
-	 */
-	class PropertyTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4216,18 +4030,6 @@ namespace Bitrix\Iblock {
 }
 namespace Bitrix\Iblock {
 	/**
-	 * @method static EO_PropertyEnumeration_Query query()
-	 * @method static EO_PropertyEnumeration_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PropertyEnumeration_Result getById($id)
-	 * @method static EO_PropertyEnumeration_Result getList(array $parameters = array())
-	 * @method static EO_PropertyEnumeration_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_PropertyEnumeration createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_PropertyEnumeration_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_PropertyEnumeration wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_PropertyEnumeration_Collection wakeUpCollection($rows)
-	 */
-	class PropertyEnumerationTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4405,18 +4207,6 @@ namespace Bitrix\Iblock {
 }
 namespace Bitrix\Iblock {
 	/**
-	 * @method static EO_PropertyFeature_Query query()
-	 * @method static EO_PropertyFeature_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PropertyFeature_Result getById($id)
-	 * @method static EO_PropertyFeature_Result getList(array $parameters = array())
-	 * @method static EO_PropertyFeature_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_PropertyFeature createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_PropertyFeature_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_PropertyFeature wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_PropertyFeature_Collection wakeUpCollection($rows)
-	 */
-	class PropertyFeatureTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4576,18 +4366,6 @@ namespace Bitrix\Iblock {
 	}
 }
 namespace Bitrix\Iblock {
-	/**
-	 * @method static EO_SectionElement_Query query()
-	 * @method static EO_SectionElement_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_SectionElement_Result getById($id)
-	 * @method static EO_SectionElement_Result getList(array $parameters = array())
-	 * @method static EO_SectionElement_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_SectionElement createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_SectionElement_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_SectionElement wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_SectionElement_Collection wakeUpCollection($rows)
-	 */
-	class SectionElementTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -4804,18 +4582,6 @@ namespace Bitrix\Iblock {
 }
 namespace Bitrix\Iblock {
 	/**
-	 * @method static EO_SectionProperty_Query query()
-	 * @method static EO_SectionProperty_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_SectionProperty_Result getById($id)
-	 * @method static EO_SectionProperty_Result getList(array $parameters = array())
-	 * @method static EO_SectionProperty_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_SectionProperty createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_SectionProperty_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_SectionProperty wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_SectionProperty_Collection wakeUpCollection($rows)
-	 */
-	class SectionPropertyTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4841,7 +4607,7 @@ namespace Bitrix\Iblock {
 	 */
 	class EO_SectionProperty_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Iblock\SectionTable:iblock/lib/sectiontable.php:23dca0329b3ffe9517eae111e04b9dbb */
+/* ORMENTITYANNOTATION:Bitrix\Iblock\SectionTable:iblock/lib/sectiontable.php:bf9f2b4e51964bc0d060de4c3d7ea218 */
 namespace Bitrix\Iblock {
 	/**
 	 * EO_Section
@@ -5248,18 +5014,6 @@ namespace Bitrix\Iblock {
 }
 namespace Bitrix\Iblock {
 	/**
-	 * @method static EO_Section_Query query()
-	 * @method static EO_Section_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Section_Result getById($id)
-	 * @method static EO_Section_Result getList(array $parameters = array())
-	 * @method static EO_Section_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_Section createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_Section_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_Section wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_Section_Collection wakeUpCollection($rows)
-	 */
-	class SectionTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -5406,18 +5160,6 @@ namespace Bitrix\Iblock {
 	}
 }
 namespace Bitrix\Iblock {
-	/**
-	 * @method static EO_Sequence_Query query()
-	 * @method static EO_Sequence_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Sequence_Result getById($id)
-	 * @method static EO_Sequence_Result getList(array $parameters = array())
-	 * @method static EO_Sequence_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_Sequence createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_Sequence_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_Sequence wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_Sequence_Collection wakeUpCollection($rows)
-	 */
-	class SequenceTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -5566,18 +5308,6 @@ namespace Bitrix\Iblock {
 	}
 }
 namespace Bitrix\Iblock {
-	/**
-	 * @method static EO_Site_Query query()
-	 * @method static EO_Site_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Site_Result getById($id)
-	 * @method static EO_Site_Result getList(array $parameters = array())
-	 * @method static EO_Site_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_Site createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_Site_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_Site wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_Site_Collection wakeUpCollection($rows)
-	 */
-	class SiteTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -5768,18 +5498,6 @@ namespace Bitrix\Iblock {
 }
 namespace Bitrix\Iblock {
 	/**
-	 * @method static EO_Type_Query query()
-	 * @method static EO_Type_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Type_Result getById($id)
-	 * @method static EO_Type_Result getList(array $parameters = array())
-	 * @method static EO_Type_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_Type createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_Type_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_Type wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_Type_Collection wakeUpCollection($rows)
-	 */
-	class TypeTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -5950,18 +5668,6 @@ namespace Bitrix\Iblock {
 	}
 }
 namespace Bitrix\Iblock {
-	/**
-	 * @method static EO_TypeLanguage_Query query()
-	 * @method static EO_TypeLanguage_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_TypeLanguage_Result getById($id)
-	 * @method static EO_TypeLanguage_Result getList(array $parameters = array())
-	 * @method static EO_TypeLanguage_Entity getEntity()
-	 * @method static \Bitrix\Iblock\EO_TypeLanguage createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Iblock\EO_TypeLanguage_Collection createCollection()
-	 * @method static \Bitrix\Iblock\EO_TypeLanguage wakeUpObject($row)
-	 * @method static \Bitrix\Iblock\EO_TypeLanguage_Collection wakeUpCollection($rows)
-	 */
-	class TypeLanguageTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

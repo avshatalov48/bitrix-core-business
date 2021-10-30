@@ -11,7 +11,7 @@ Loc::loadMessages(\Bitrix\Landing\Manager::getDocRoot() . '/bitrix/modules/landi
 
 $return = [
 	'block' => [
-		'name' => Loc::getMessage('LD_BLOCK_STORE_CATALOG_LIST_STORE_V3_NAME'),
+		'name' => Loc::getMessage('LD_BLOCK_STORE_CATALOG_LIST_STORE_V3_NAME2'),
 		'section' => ['store'],
 		'type' => 'store',
 		'html' => false,

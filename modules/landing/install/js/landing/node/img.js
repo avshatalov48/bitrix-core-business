@@ -391,6 +391,7 @@
 					disableLink: disableLink,
 					content: value,
 					dimensions: !!this.manifest.dimensions ? this.manifest.dimensions : {},
+					create2xByDefault: this.manifest.create2xByDefault,
 					disableAltField: isBackground(this),
 					uploadParams: this.uploadParams
 				});

@@ -1,17 +1,27 @@
 <?php
 namespace Bitrix\Iblock\Model;
 
-use Bitrix\Iblock;
+use Bitrix\Iblock\Iblock;
+use Bitrix\Iblock\IblockTable;
+use Bitrix\Iblock\SectionTable;
 
 class Section
 {
-	private static $entityInstance = array();
+	private static $entityInstance = [];
 
-	final public static function compileEntityByIblock($iblockId)
+	/**
+	 * @param int|string|Iblock $iblock Iblock object, or API_CODE, or ID
+	 *
+	 * @return SectionTable|string|null
+	 */
+	final public static function compileEntityByIblock($iblock)
 	{
-		$iblockId = (int)$iblockId;
+		$iblockId = static::resolveIblockId($iblock);
+
 		if ($iblockId <= 0)
+		{
 			return null;
+		}
 
 		if (!isset(self::$entityInstance[$iblockId]))
 		{
@@ -36,11 +46,53 @@ class Section
 					);
 					return $fields;
 				}
+				
+				public static function setDefaultScope($query)
+				{
+					return $query->where("IBLOCK_ID", '.$iblockId.');
+				}
 			}';
 			eval($entity);
 			self::$entityInstance[$iblockId] = $entityName;
 		}
 
 		return self::$entityInstance[$iblockId];
+	}
+
+	/**
+	 * @param int|string|Iblock $iblock
+	 *
+	 * @return int|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	protected static function resolveIblockId($iblock): ?int
+	{
+		$iblockId = null;
+
+		if ($iblock instanceof Iblock)
+		{
+			$iblockId = $iblock->getId();
+		}
+		elseif (is_string($iblock))
+		{
+			$row = IblockTable::query()
+				->addSelect('ID')
+				->where('API_CODE', $iblock)
+				->fetch();
+
+			if (!empty($row))
+			{
+				$iblockId = (int)$row['ID'];
+			}
+		}
+
+		if (empty($iblockId) && is_numeric($iblock))
+		{
+			$iblockId = (int)$iblock;
+		}
+
+		return $iblockId;
 	}
 }

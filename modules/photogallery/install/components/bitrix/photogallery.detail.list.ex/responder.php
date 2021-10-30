@@ -8,7 +8,7 @@ CModule::IncludeModule("photogallery");
 if (!check_bitrix_sessid())
 	die('<script>window.bxph_error = \''.GetMessage("IBLOCK_WRONG_SESSION").'\';</script>');
 
-if (CPGalleryInterface::CheckSign($_REQUEST['sigh'], $_REQUEST["checkParams"]))
+if (CPGalleryInterface::CheckSign($_REQUEST['sign'], $_REQUEST["checkParams"]))
 {
 	$APPLICATION->RestartBuffer();
 	$UCID = preg_replace("/[^a-z0-9\_]+/is" , "", $_REQUEST["UCID"]);

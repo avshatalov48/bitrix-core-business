@@ -514,8 +514,19 @@
 			}
 		},
 		finish : function(stream) {
-			if (stream !== null && this.uploader.queue.itFailed.length <= 0 && BX.type.isNotEmptyString(this.redirectUrl)) {
-				BX.reload(this.redirectUrl);
+			if (stream !== null && this.uploader.queue.itFailed.length <= 0 && BX.type.isNotEmptyString(this.redirectUrl))
+			{
+				if (
+					BX.SidePanel
+					&& BX.SidePanel.Instance.getTopSlider() === BX.SidePanel.Instance.getSliderByWindow(window)
+				)
+				{
+					window.location.href = this.redirectUrl;
+				}
+				else
+				{
+					BX.reload(this.redirectUrl);
+				}
 			}
 		},
 		terminate : function(pIndex, queue)

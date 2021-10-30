@@ -1,6 +1,7 @@
 <?php
 $MESS['LANDING_TABLE_FIELD_ACTIVE'] = 'Активность';
 $MESS['LANDING_TABLE_FIELD_DOMAIN'] = 'Домен';
+$MESS['LANDING_TABLE_FIELD_PREV_DOMAIN'] = 'Предыдущий домен';
 $MESS['LANDING_TABLE_FIELD_XML_ID'] = 'Внешний код';
 $MESS['LANDING_TABLE_FIELD_PROTOCOL'] = 'Протокол';
 $MESS['LANDING_TABLE_FIELD_PROVIDER'] = 'Провайдер регистрации';

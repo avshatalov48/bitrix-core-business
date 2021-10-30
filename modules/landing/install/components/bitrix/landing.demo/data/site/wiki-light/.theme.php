@@ -7,7 +7,6 @@ return [
 		],
 		'titleMedium' => [
 			'g-color-black',
-			//'g-font-size-38',
 			'g-font-size-30',
 			'g-font-weight-700',
 			'g-line-height-1_2',
@@ -33,7 +32,6 @@ return [
 		],
 		'subtitleMedium' => [
 			'g-color-black',
-			//'g-font-size-20',
 			'g-font-size-18',
 			'g-font-weight-700',
 			'g-line-height-1_2',
@@ -59,7 +57,6 @@ return [
 		],
 		'subtitleMediumPrimary' => [
 			'g-color-primary',
-			//'g-font-size-20',
 			'g-font-size-18',
 			'g-font-weight-700',
 			'g-line-height-1_2',
@@ -80,7 +77,6 @@ return [
 		],
 		'textMedium' => [
 			'g-color-black',
-			//'g-font-size-16',
 			'g-font-size-14',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
@@ -100,7 +96,6 @@ return [
 			'g-text-transform-none',
 		],
 		'titleImageMedium' => [
-			//'g-font-size-38',
 			'g-font-size-30',
 			'g-font-weight-700',
 			'g-line-height-1_2',
@@ -123,7 +118,6 @@ return [
 			'g-text-transform-none',
 		],
 		'subtitleImageMedium' => [
-			//'g-font-size-20',
 			'g-font-size-18',
 			'g-font-weight-700',
 			'g-line-height-1_2',
@@ -144,7 +138,6 @@ return [
 			'g-letter-spacing-0',
 		],
 		'textImageMedium' => [
-			//'g-font-size-16',
 			'g-font-size-14',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',

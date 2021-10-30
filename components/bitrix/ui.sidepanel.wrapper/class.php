@@ -95,6 +95,7 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 		$this->arParams['USE_LINK_TARGETS_REPLACING'] = isset($this->arParams['USE_LINK_TARGETS_REPLACING']) ? (bool) $this->arParams['USE_LINK_TARGETS_REPLACING'] : false;
 		$this->arParams['PLAIN_VIEW'] = isset($this->arParams['PLAIN_VIEW']) ? (bool) $this->arParams['PLAIN_VIEW'] : false;
 		$this->arParams['USE_PADDING'] = isset($this->arParams['USE_PADDING']) ? (bool) $this->arParams['USE_PADDING'] : true;
+		$this->arParams['USE_BACKGROUND_CONTENT'] = isset($this->arParams['USE_BACKGROUND_CONTENT']) ? (bool) $this->arParams['USE_BACKGROUND_CONTENT'] : true;
 		$this->arParams['BUTTONS'] = isset($this->arParams['BUTTONS']) ? $this->arParams['BUTTONS'] : [];
 		$this->arParams['PAGE_MODE'] = isset($this->arParams['PAGE_MODE']) ? (bool) $this->arParams['PAGE_MODE'] : true;
 		$this->arParams['RETURN_CONTENT'] = isset($this->arParams['RETURN_CONTENT']) ? (bool) $this->arParams['RETURN_CONTENT'] : false;

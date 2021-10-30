@@ -3436,14 +3436,14 @@
 					{
 						popupButtons = [
 							new BasketButton({
-								text: BX.message('BTN_MESSAGE_BASKET_REDIRECT'),
+								text: BX.message('BTN_MESSAGE_DETAIL_BASKET_REDIRECT'),
 								events: {
 									click: BX.delegate(this.basketRedirect, this)
 								},
 								style: {marginRight: '10px'}
 							}),
 							new BasketButton({
-								text: BX.message('BTN_MESSAGE_CLOSE_POPUP'),
+								text: BX.message('BTN_MESSAGE_DETAIL_CLOSE_POPUP'),
 								events: {
 									click: BX.delegate(this.obPopupWin.close, this.obPopupWin)
 								}
@@ -3454,7 +3454,7 @@
 					{
 						popupButtons = [
 							new BasketButton({
-								text: BX.message('BTN_MESSAGE_BASKET_REDIRECT'),
+								text: BX.message('BTN_MESSAGE_DETAIL_BASKET_REDIRECT'),
 								events: {
 									click: BX.delegate(this.basketRedirect, this)
 								}

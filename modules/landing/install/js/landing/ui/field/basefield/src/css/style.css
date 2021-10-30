@@ -9,6 +9,16 @@
 	font-size: 14px;
 	margin-bottom: 4px;
 	line-height: 17px;
+    display: flex;
+    align-items: center;
+}
+
+.landing-ui-field-header .ui-hint {
+	pointer-events: all;
+}
+
+.landing-ui-field-header .ui-hint-icon {
+    margin: 0;
 }
 
 .landing-ui-field-input {

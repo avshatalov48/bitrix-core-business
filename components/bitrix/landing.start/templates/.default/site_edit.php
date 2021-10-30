@@ -63,6 +63,7 @@ if ($arParams['TYPE'] != 'STORE')
 		'bitrix:landing.site_master',
 		'teaser',
 		array(
+			'TYPE' => $arParams['TYPE'],
 			'GET_DATA' => 'N',
 			'PAGE_URL_SITE_MASTER' => $arParams['PAGE_URL_SITE_MASTER']
 		),

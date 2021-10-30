@@ -1114,7 +1114,7 @@ class CIMNotify
 				'filter' => [
 					'=CHAT_ID' => $chatId,
 				],
-				'order' => ['ID' => 'DESC'],
+				'order' => ['DATE_CREATE' => 'DESC'],
 				'limit' => 1,
 			];
 			$lastNotification = \Bitrix\Im\Model\MessageTable::getRow($ormParams);

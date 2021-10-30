@@ -554,7 +554,7 @@ export default Vue.extend({
 											v-for="(domain,index) in config.messenger_chat.domains" 
 											class="ui-form-row"
 											>
-											<div class="ui-ctl ui-ctl-textbox ui-ctl-w100" :class="{'ui-ctl-danger': !checkDomain(config.messenger_chat.domains[index])}">
+											<div class="ui-ctl ui-ctl-after-icon ui-ctl-textbox ui-ctl-w100" :class="{'ui-ctl-danger': !checkDomain(config.messenger_chat.domains[index])}">
 												<button class="ui-ctl-after ui-ctl-icon-clear" @click="removeDomain(index)">
 												</button>
 												<input type="text" class="ui-ctl-element"

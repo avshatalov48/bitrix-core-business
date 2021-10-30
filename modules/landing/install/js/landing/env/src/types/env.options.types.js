@@ -91,7 +91,10 @@ interface EnvOptions
 	default_section: string,
 	specialType: string,
 	design_block: string,
-	design_block_allowed: boolean
+	design_block_allowed: boolean,
+	mainOptions: {
+		saveOriginalFileName: boolean,
+	},
 }
 
 export {

@@ -25,7 +25,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Seo
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_YandexCampaign_Query query()
+ * @method static EO_YandexCampaign_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_YandexCampaign_Result getById($id)
+ * @method static EO_YandexCampaign_Result getList(array $parameters = array())
+ * @method static EO_YandexCampaign_Entity getEntity()
+ * @method static \Bitrix\Seo\Adv\EO_YandexCampaign createObject($setDefaultValues = true)
+ * @method static \Bitrix\Seo\Adv\EO_YandexCampaign_Collection createCollection()
+ * @method static \Bitrix\Seo\Adv\EO_YandexCampaign wakeUpObject($row)
+ * @method static \Bitrix\Seo\Adv\EO_YandexCampaign_Collection wakeUpCollection($rows)
+ */
 
 class YandexCampaignTable extends AdvEntity
 {

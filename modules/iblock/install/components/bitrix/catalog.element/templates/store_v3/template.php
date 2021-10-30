@@ -437,7 +437,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 								<span class="product-item-price-discount" id="<?=$itemIds['OLD_PRICE_ID']?>">
 										<?=($showDiscount ? $price['PRINT_RATIO_BASE_PRICE'] : '')?>
 								</span>
-								<span class="product-item-price-discount-diff" id="<?=$itemIds['DISCOUNT_PRICE_ID']?>"><?=$price['PRINT_RATIO_DISCOUNT']?></span>
+								<span class="product-item-price-discount-diff" id="<?=$itemIds['DISCOUNT_PRICE_ID']?>"><?=($showDiscount ? $price['PRINT_RATIO_DISCOUNT'] : ''); ?></span>
 							</div>
 							<?php
 						}

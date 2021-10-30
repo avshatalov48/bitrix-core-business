@@ -217,16 +217,33 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 		},
 		logout: function (clientId)
 		{
+			var analyticsLabel =
+				!(this.provider.TYPE === "facebook" || this.provider.TYPE === "instagram")
+					? {}
+					: {
+						connect: "FBE",
+						action: "disconnect",
+						type: "disconnect"
+					}
+			;
 			this.showBlock('loading');
-			this.request('logout', {logoutClientId: clientId}, BX.delegate(function (provider) {
-				this.provider = provider;
-				if (this.clientSelector)
-				{
-					this.clientSelector.setSelected(this.provider.PROFILE);
-					this.clientSelector.setItems(this.provider.CLIENTS);
-				}
-				this.showBlockByAuth();
-			}, this));
+			this.request(
+				'logout',
+				{logoutClientId: clientId},
+				BX.delegate(
+					function (provider) {
+						this.provider = provider;
+						if (this.clientSelector)
+						{
+							this.clientSelector.setSelected(this.provider.PROFILE);
+							this.clientSelector.setItems(this.provider.CLIENTS);
+						}
+						this.showBlockByAuth();
+					},
+					this
+				),
+				analyticsLabel
+			);
 		},
 		addAudience: function (accountId)
 		{
@@ -352,25 +369,33 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 				callback.apply(this, [response.data]);
 			}
 		},
-		request: function (action, requestData, callback) {
+		request: function (action, requestData, callback, analytics) {
 			requestData.action = action;
 			requestData.type = this.provider.TYPE;
 			requestData.clientId = this.clientId;
+			analytics = analytics || {};
 
 			if (this.onRequest)
 			{
-				this.onRequest.apply(this, [requestData, BX.delegate(function (response) {
-					this.onResponse(response, callback);
-				}, this)]);
+				this.onRequest.apply(
+					this,
+					[requestData, BX.delegate(function (response) {this.onResponse(response, callback);}, this)]
+				);
 			}
 			else
 			{
-				this.sendActionRequest(action, requestData, function(response){
-					this.onResponse(response, callback);
-				});
+				this.sendActionRequest(
+					action,
+					requestData,
+					function(response){
+						this.onResponse(response, callback);
+					},
+					null,
+					analytics
+				);
 			}
 		},
-		sendActionRequest: function (action, data, callbackSuccess, callbackFailure)
+		sendActionRequest: function (action, data, callbackSuccess, callbackFailure, analytics)
 		{
 			callbackSuccess = callbackSuccess || null;
 			callbackFailure = callbackFailure || BX.proxy(this.showErrorPopup, this);
@@ -380,7 +405,8 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 			BX.ajax.runComponentAction(this.componentName, action, {
 				'mode': 'class',
 				'signedParameters': this.signedParameters,
-				'data': data
+				'data': data,
+				'analyticsLabel': analytics
 			}).then(
 				function (response)
 				{

@@ -134,16 +134,14 @@ class AuthAdapter
 
 	public function getToken()
 	{
-		$data = $this->getAuthData();
-		return $data ? $data['access_token'] : null;
+		return is_array($data = $this->getAuthData(false)) ? $data['access_token'] : null;
 	}
 
 	public function hasAuth()
 	{
-		$multiple = $this->canUseMultipleClients();
-		$authorized = count($this->getAuthorizedClientsList()) > 0;
-		$token = $this->getToken() <> '';
-		return  $multiple? $authorized : $token;
+		return $this->canUseMultipleClients()
+			? count($this->getAuthorizedClientsList()) > 0
+			: $this->getToken() <> "";
 	}
 
 	public function canUseMultipleClients()

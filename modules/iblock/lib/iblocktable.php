@@ -61,6 +61,19 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Iblock
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Iblock_Query query()
+ * @method static EO_Iblock_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Iblock_Result getById($id)
+ * @method static EO_Iblock_Result getList(array $parameters = array())
+ * @method static EO_Iblock_Entity getEntity()
+ * @method static \Bitrix\Iblock\Iblock createObject($setDefaultValues = true)
+ * @method static \Bitrix\Iblock\EO_Iblock_Collection createCollection()
+ * @method static \Bitrix\Iblock\Iblock wakeUpObject($row)
+ * @method static \Bitrix\Iblock\EO_Iblock_Collection wakeUpCollection($rows)
  */
 class IblockTable extends DataManager
 {
@@ -418,7 +431,7 @@ class IblockTable extends DataManager
 						->configureJoinType(Join::TYPE_LEFT)
 						->configureIblockElementProperty($property)
 						->configureCascadeDeletePolicy(
-							CascadePolicy::NO_ACTION // will be removed together in onAfterDelete
+							CascadePolicy::FOLLOW
 						)
 				);
 			}

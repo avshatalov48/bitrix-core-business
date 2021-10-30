@@ -419,6 +419,11 @@ class Site
 						]
 					]
 				],
+				'ADDITIONAL' => [
+					'id' => $siteId,
+					'publicUrl' => \Bitrix\Landing\Site::getPublicUrl($siteId),
+					'imageUrl' => \Bitrix\Landing\Site::getPreview($siteId)
+				]
 			];
 		}
 

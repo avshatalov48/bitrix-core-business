@@ -254,6 +254,7 @@
 .mail-msg-list-cell-nowrap,
 .mail-msg-list-subject {
 	white-space: nowrap;
+	cursor: pointer;
 }
 
 .mail-msg-list-cell-flex {

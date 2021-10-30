@@ -299,6 +299,7 @@ if($this->startResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 		}
 	}
 
+	$listPageUrl = '';
 	$arResult["ITEMS"] = array();
 	$arResult["ELEMENTS"] = array();
 	$rsElement = CIBlockElement::GetList($arSort, array_merge($arFilter , $arrFilter), false, $arNavParams, $shortSelect);
@@ -362,6 +363,11 @@ if($this->startResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 					|| $time->getTimestamp() > $arResult["ITEMS_TIMESTAMP_X"]->getTimestamp()
 				)
 					$arResult["ITEMS_TIMESTAMP_X"] = $time;
+			}
+
+			if ($listPageUrl === '' && isset($arItem['~LIST_PAGE_URL']))
+			{
+				$listPageUrl = $arItem['~LIST_PAGE_URL'];
 			}
 
 			$id = (int)$arItem["ID"];
@@ -431,10 +437,10 @@ if($this->startResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 				$pagerBaseLink = $arResult["SECTION"]["PATH"][0]["~SECTION_PAGE_URL"];
 			}
 			elseif (
-				isset($arItem) && isset($arItem["~LIST_PAGE_URL"])
+				$listPageUrl !== ''
 			)
 			{
-				$pagerBaseLink = $arItem["~LIST_PAGE_URL"];
+				$pagerBaseLink = $listPageUrl;
 			}
 		}
 

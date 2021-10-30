@@ -1,9 +1,9 @@
 <?php
 namespace Bitrix\Iblock\Model;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock;
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock;
 
 Loc::loadMessages(__FILE__);
 
@@ -420,16 +420,21 @@ class PropertyFeature
 	 *		</ul>
 	 * @return array|null
 	 */
-	protected static function getFilteredPropertyCodes($iblockId, array $filter, array $parameters = []): ?array
+	protected static function getFilteredPropertyCodes(int $iblockId, array $filter, array $parameters = []): ?array
 	{
-		if ((string)Main\Config\Option::get('iblock', 'property_features_enabled') !== 'Y')
+		if (Main\Config\Option::get('iblock', 'property_features_enabled') !== 'Y')
+		{
 			return null;
+		}
 
-		$iblockId = (int)$iblockId;
 		if ($iblockId <= 0)
+		{
 			return null;
+		}
 		if (!isset($filter['=MODULE_ID']) || !isset($filter['=FEATURE_ID']))
+		{
 			return null;
+		}
 
 		$getCode = (isset($parameters['CODE']) && $parameters['CODE'] == 'Y');
 
@@ -441,12 +446,16 @@ class PropertyFeature
 			'select' => [
 				'IBLOCK_PROPERTY_ID' => 'PROPERTY.ID',
 				'IBLOCK_PROPERTY_CODE' => 'PROPERTY.CODE',
-				'IBLOCK_PROPERTY_SORT' => 'PROPERTY.SORT'
+				'IBLOCK_PROPERTY_SORT' => 'PROPERTY.SORT',
 			],
 			'filter' => $filter,
-			'order' => ['IBLOCK_PROPERTY_SORT' => 'ASC', 'IBLOCK_PROPERTY_ID' => 'ASC']
+			'order' => [
+				'IBLOCK_PROPERTY_SORT' => 'ASC',
+				'IBLOCK_PROPERTY_ID' => 'ASC',
+			],
 		]);
 		while ($row = $iterator->fetch())
+		{
 			$result[(int)$row['IBLOCK_PROPERTY_ID']] = self::getPropertyCode(
 				[
 					'ID' => $row['IBLOCK_PROPERTY_ID'],
@@ -454,6 +463,7 @@ class PropertyFeature
 				],
 				$getCode
 			);
+		}
 		unset($row, $iterator);
 		unset($filter, $getCode);
 
@@ -467,12 +477,11 @@ class PropertyFeature
 	 * @param bool $getCode		if true, returns property code or ID (if CODE is empty). Other - returns ID.
 	 * @return string
 	 */
-	protected static function getPropertyCode(array $property, $getCode = false): string
+	protected static function getPropertyCode(array $property, bool $getCode = false): string
 	{
 		if ($getCode)
 		{
-			$code = (string)$property['CODE'];
-			return ($code !== '' ? $code : $property['ID']);
+			return ($property['CODE'] ?? $property['ID']);
 		}
 		else
 		{
@@ -533,7 +542,7 @@ class PropertyFeature
 	 */
 	public static function isEnabledFeatures(): bool
 	{
-		return ((string)Main\Config\Option::get('iblock', 'property_features_enabled') == 'Y');
+		return (Main\Config\Option::get('iblock', 'property_features_enabled') == 'Y');
 	}
 
 	/**
@@ -543,7 +552,6 @@ class PropertyFeature
 	 */
 	public static function isPropertyFeaturesExist(): bool
 	{
-		$featureCount = (int)Iblock\PropertyFeatureTable::getCount([], ['ttl' => 86400]);
-		return ($featureCount > 0);
+		return Iblock\PropertyFeatureTable::getCount([], ['ttl' => 86400]) > 0;
 	}
 }

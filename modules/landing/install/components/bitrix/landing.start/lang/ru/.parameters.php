@@ -11,6 +11,7 @@ $MESS['LANDING_CMP_PAR_SM_SITE'] = 'Страница сайта (список л
 $MESS['LANDING_CMP_PAR_SM_SITE_EDIT'] = 'Страница редактирования сайта';
 $MESS['LANDING_CMP_PAR_SM_SITE_DESIGN'] = 'Страница дизайна сайта';
 $MESS['LANDING_CMP_PAR_SM_SITE_MASTER'] = 'Мастер настройки сайта';
+$MESS['LANDING_CMP_PAR_SM_SITE_CONTACTS'] = 'Страница настроек контактов сайта';
 $MESS['LANDING_CMP_PAR_SM_SITE_DOMAIN'] = 'Страница редактирования домена сайта';
 $MESS['LANDING_CMP_PAR_SM_SITE_DOMAIN_SWITCH'] = 'Страница передачи домена другому сайту';
 $MESS['LANDING_CMP_PAR_SM_SITE_COOKIES'] = 'Страница редактирования Cookies';

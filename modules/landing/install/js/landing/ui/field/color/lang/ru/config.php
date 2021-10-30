@@ -1,0 +1,22 @@
+<?php
+$MESS['LANDING_FIELD_COLOR-PRESETS_TITLE'] = 'Сочетания цветов';
+$MESS['LANDING_FIELD_COLOR-PRESETS_MORE'] = 'больше';
+$MESS['LANDING_FIELD_COLOR-PRESETS_MORE_COLORS'] = 'Больше цветовых сочетаний';
+$MESS['LANDING_FIELD_COLOR-TAB_GRADIENT'] = 'Градиенты';
+$MESS['LANDING_FIELD_COLOR-TAB_OPACITY'] = 'Прозрачность';
+$MESS['LANDING_FIELD_COLOR-BG_COLOR'] = 'Заливка';
+$MESS['LANDING_FIELD_COLOR-BG_IMAGE'] = 'Картинка';
+$MESS['LANDING_FIELD_COLOR-BG_COVER'] = 'На весь экран';
+$MESS['LANDING_FIELD_COLOR-BG_MOSAIC'] = 'Замостить';
+$MESS['LANDING_FIELD_COLOR-BG_FIXED'] = 'Не сдвигать при прокрутке';
+$MESS['LANDING_FIELD_COLOR-BG_SIZE_TITLE'] = 'Поведение изображения';
+$MESS['LANDING_FIELD_COLOR-BG_OVERLAY'] = 'Наложение цветов';
+$MESS["LANDING_FIELD_COLOR-PRIMARY_TITLE"] = "Выбрать основной цвет сайта";
+$MESS["LANDING_FIELD_COLOR-RESET_HINT"] = "Вернуть цвет по&nbsp;умолчанию";
+$MESS["LANDING_FIELD_COLOR-BUTTON_SELECT"] = "Выбрать";
+$MESS["LANDING_FIELD_COLOR-BUTTON_CANCEL"] = "Отмена";
+$MESS["LANDING_FIELD_COLOR-GRADIENT_SWITCH_TYPE"] = "Сменить тип";
+$MESS["LANDING_FIELD_COLOR-GRADIENT_DO_LINEAR"] = "Сделать линейными";
+$MESS["LANDING_FIELD_COLOR-GRADIENT_DO_RADIAL"] = "Сделать круговыми";
+$MESS["LANDING_FIELD_COLOR-GRADIENT_ROTATE"] = "Повернуть";
+$MESS["LANDING_FIELD_COLOR-GRADIENT_SWAP"] = "Поменять местами";

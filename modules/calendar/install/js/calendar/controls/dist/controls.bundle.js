@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
-(function (exports,ui_icons_b24,calendar_entry,calendar_planner,ui_entitySelector,intranet_controlButton,main_core,main_core_events,main_popup,calendar_controls,calendar_util) {
+(function (exports,ui_icons_b24,calendar_entry,calendar_planner,ui_entitySelector,intranet_controlButton,main_core_events,calendar_util,main_core,main_popup,calendar_controls) {
 	'use strict';
 
 	var TimeSelector = /*#__PURE__*/function () {
@@ -1608,56 +1608,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        itemsSelected: this.params.itemsSelected,
 	        departmentSelectDisable: this.params.selectGroups === false
 	      });
-	    } // checkItemsSelected(items, itemsLast, selected, callback)
-	    // {
-	    // 	let codes = [], code;
-	    // 	for (code in selected)
-	    // 	{
-	    // 		if (selected.hasOwnProperty(code))
-	    // 		{
-	    // 			if (selected[code] === 'users' && !items.users[code])
-	    // 			{
-	    // 				codes.push(code);
-	    // 			}
-	    // 		}
-	    // 	}
-	    //
-	    // 	if (codes.length > 0)
-	    // 	{
-	    // 		let loader = this.DOM.socnetDestinationWrap.appendChild(BX.adjust(Util.getLoader(40), {style: {height: '50px'}}));
-	    //
-	    //
-	    //
-	    //
-	    //
-	    // 		this.calendar.request({
-	    // 			type: 'get',
-	    // 			data: {
-	    // 				action: 'get_destination_items',
-	    // 				codes: codes
-	    // 			},
-	    // 			handler: BX.delegate(function(response)
-	    // 			{
-	    // 				if (loader)
-	    // 				{
-	    // 					Dom.remove(loader);
-	    // 				}
-	    //
-	    // 				this.params.items = this.calendar.util.getSocnetDestinationConfig('items');
-	    // 				this.params.itemsLast = this.calendar.util.getSocnetDestinationConfig('itemsLast');
-	    //
-	    // 				if (Type.isFunction(callback))
-	    // 				{
-	    // 					callback();
-	    // 				}
-	    // 			}, this)
-	    // 		});
-	    // 		return false;
-	    // 	}
-	    //
-	    // 	return true;
-	    // }
-
+	    }
 	  }, {
 	    key: "closeAll",
 	    value: function closeAll() {
@@ -2484,21 +2435,18 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  babelHelpers.createClass(RepeatSelector, [{
 	    key: "create",
 	    value: function create() {
-	      BX.bind(this.DOM.rruleType, 'change', BX.delegate(function () {
-	        this.changeType(this.DOM.rruleType.value);
-	      }, this));
-	      BX.bind(this.DOM.until, 'click', BX.proxy(function () {
-	        BX.calendar({
-	          node: this.DOM.until,
-	          field: this.DOM.until,
-	          bTime: false
-	        });
-	        BX.focus(this.DOM.until);
-	        this.DOM.rruleEndsOn.until.checked = true;
-	      }, this));
-	      BX.bind(this.DOM.count, 'click', BX.proxy(function () {
-	        this.DOM.rruleEndsOn.count.checked = true;
-	      }, this));
+	      var _this = this;
+
+	      BX.bind(this.DOM.rruleType, 'change', function () {
+	        _this.changeType(_this.DOM.rruleType.value);
+	      });
+	      BX.bind(this.DOM.until, 'click', function (e) {
+	        calendar_controls.DateTimeControl.showInputCalendar(e);
+	        _this.DOM.rruleEndsOn.until.checked = true;
+	      });
+	      BX.bind(this.DOM.count, 'click', function () {
+	        _this.DOM.rruleEndsOn.count.checked = true;
+	      });
 	    }
 	  }, {
 	    key: "changeType",
@@ -4816,17 +4764,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    value: function displayAttendees() {
 	      var attendees = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 	      main_core.Dom.clean(this.DOM.attendeesList);
-	      this.attendeeList = {
-	        accepted: attendees.filter(function (user) {
-	          return ['H', 'Y'].includes(user.STATUS);
-	        }),
-	        requested: attendees.filter(function (user) {
-	          return user.STATUS === 'Q' || user.STATUS === '';
-	        }),
-	        declined: attendees.filter(function (user) {
-	          return user.STATUS === 'N';
-	        })
-	      };
+	      this.attendeeList = calendar_controls.AttendeesList.sortAttendees(attendees);
 	      var userLength = this.attendeeList.accepted.length;
 
 	      if (userLength > 0) {
@@ -4850,7 +4788,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        if (userLength === 1) {
 	          this.DOM.moreLink.innerHTML = main_core.Text.encode(main_core.Loc.getMessage('EC_ATTENDEES_ALL_COUNT').replace('#COUNT#', attendees.length));
 	        } else {
-	          this.DOM.moreLink.innerHTML = main_core.Text.encode(main_core.Loc.getMessage('EC_ATTENDEES_ALL'));
+	          this.DOM.moreLink.innerHTML = main_core.Text.encode(main_core.Loc.getMessage('EC_ATTENDEES_ALL_COUNT').replace('#COUNT#', attendees.length));
 	        }
 
 	        main_core.Dom.show(this.DOM.moreLink);
@@ -4867,78 +4805,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }, {
 	    key: "showMoreAttendeesPopup",
 	    value: function showMoreAttendeesPopup() {
-	      var _this6 = this;
-
-	      if (this.morePopup) {
-	        this.morePopup.destroy();
-	      }
-
-	      var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-	      var menuItems = [];
-	      [{
-	        code: 'accepted',
-	        // Accepted
-	        title: main_core.Loc.getMessage('EC_ATTENDEES_Y_NUM')
-	      }, {
-	        code: 'requested',
-	        // Still thinking about
-	        title: main_core.Loc.getMessage('EC_ATTENDEES_Q_NUM')
-	      }, {
-	        code: 'declined',
-	        // Declined
-	        title: main_core.Loc.getMessage('EC_ATTENDEES_N_NUM')
-	      }].forEach(function (group) {
-	        var groupUsers = _this6.attendeeList[group.code];
-
-	        if (groupUsers.length > 0) {
-	          menuItems.push({
-	            html: '<span>' + group.title.replace('#COUNT#', groupUsers.length) + '</span>',
-	            className: submenuClass
-	          });
-	          groupUsers.forEach(function (user) {
-	            user.toString = function () {
-	              return user.ID;
-	            };
-
-	            menuItems.push({
-	              text: BX.util.htmlspecialchars(user.DISPLAY_NAME),
-	              dataset: {
-	                user: user
-	              },
-	              className: 'calendar-add-popup-user-menu-item',
-	              onclick: function onclick() {
-	                BX.SidePanel.Instance.open(user.URL, {
-	                  loader: "intranet:profile",
-	                  cacheable: false,
-	                  allowChangeHistory: false,
-	                  contentClassName: "bitrix24-profile-slider-content",
-	                  width: 1100
-	                });
-
-	                _this6.morePopup.close();
-	              }
-	            });
-	          });
-	        }
-	      });
-	      this.morePopup = main_popup.MenuManager.create('compact-event-form-attendees' + Math.round(Math.random() * 100000), this.DOM.moreLink, menuItems, {
-	        closeByEsc: true,
-	        autoHide: true,
-	        zIndex: this.zIndex,
-	        offsetTop: 0,
-	        offsetLeft: 15,
-	        angle: true,
-	        cacheable: false,
-	        className: 'calendar-popup-user-menu'
-	      });
-	      this.morePopup.show();
-	      this.morePopup.menuItems.forEach(function (item) {
-	        var icon = item.layout.item.querySelector('.menu-popup-item-icon');
-
-	        if (main_core.Type.isPlainObject(item.dataset)) {
-	          icon.appendChild(UserPlannerSelector.getUserAvatarNode(item.dataset.user));
-	        }
-	      });
+	      new calendar_controls.AttendeesList(this.DOM.moreLink, this.attendeeList).showPopup();
 	    }
 	  }, {
 	    key: "setInformValue",
@@ -5587,6 +5454,131 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  return EmailLimitationDialog;
 	}(main_core_events.EventEmitter);
 
+	var AttendeesList = /*#__PURE__*/function () {
+	  function AttendeesList(node) {
+	    var attendeesList = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+	    babelHelpers.classCallCheck(this, AttendeesList);
+	    this.attendeesList = attendeesList;
+	    this.node = node;
+	  }
+
+	  babelHelpers.createClass(AttendeesList, [{
+	    key: "setAttendeesList",
+	    value: function setAttendeesList(attendeesList) {
+	      this.attendeesList = attendeesList;
+	      return this;
+	    }
+	  }, {
+	    key: "showPopup",
+	    value: function showPopup() {
+	      if (this.popup) {
+	        this.popup.destroy();
+	      }
+
+	      var menuItems = this.getMenuItems();
+	      this.popup = this.getPopup(menuItems);
+	      this.popup.show();
+	      this.addAvatarToMenuItems();
+	    }
+	  }, {
+	    key: "addAvatarToMenuItems",
+	    value: function addAvatarToMenuItems() {
+	      this.popup.menuItems.forEach(function (item) {
+	        var icon = item.layout.item.querySelector('.menu-popup-item-icon');
+
+	        if (main_core.Type.isPlainObject(item.dataset)) {
+	          icon.appendChild(calendar_controls.UserPlannerSelector.getUserAvatarNode(item.dataset.user));
+	        }
+	      });
+	    }
+	  }, {
+	    key: "getPopup",
+	    value: function getPopup(menuItems) {
+	      return main_popup.MenuManager.create('compact-event-form-attendees' + Math.round(Math.random() * 100000), this.node, menuItems, {
+	        closeByEsc: true,
+	        autoHide: true,
+	        zIndex: this.zIndex,
+	        offsetTop: 0,
+	        offsetLeft: 15,
+	        angle: true,
+	        cacheable: false,
+	        className: 'calendar-popup-user-menu'
+	      });
+	    }
+	  }, {
+	    key: "getMenuItems",
+	    value: function getMenuItems() {
+	      var _this = this;
+
+	      var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
+	      var menuItems = [];
+	      [{
+	        code: 'accepted',
+	        // Accepted
+	        title: main_core.Loc.getMessage('EC_ATTENDEES_Y_NUM')
+	      }, {
+	        code: 'requested',
+	        // Still thinking about
+	        title: main_core.Loc.getMessage('EC_ATTENDEES_Q_NUM')
+	      }, {
+	        code: 'declined',
+	        // Declined
+	        title: main_core.Loc.getMessage('EC_ATTENDEES_N_NUM')
+	      }].forEach(function (group) {
+	        var groupUsers = _this.attendeesList[group.code];
+
+	        if (groupUsers.length > 0) {
+	          menuItems.push({
+	            html: '<span>' + group.title.replace('#COUNT#', groupUsers.length) + '</span>',
+	            className: submenuClass
+	          });
+	          groupUsers.forEach(function (user) {
+	            user.toString = function () {
+	              return user.ID;
+	            };
+
+	            menuItems.push({
+	              text: BX.util.htmlspecialchars(user.DISPLAY_NAME),
+	              dataset: {
+	                user: user
+	              },
+	              className: 'calendar-add-popup-user-menu-item',
+	              onclick: function onclick() {
+	                BX.SidePanel.Instance.open(user.URL, {
+	                  loader: "intranet:profile",
+	                  cacheable: false,
+	                  allowChangeHistory: false,
+	                  contentClassName: "bitrix24-profile-slider-content",
+	                  width: 1100
+	                });
+
+	                _this.morePopup.close();
+	              }
+	            });
+	          });
+	        }
+	      });
+	      return menuItems;
+	    }
+	  }], [{
+	    key: "sortAttendees",
+	    value: function sortAttendees(attendees) {
+	      return {
+	        accepted: attendees.filter(function (user) {
+	          return ['H', 'Y'].includes(user.STATUS);
+	        }),
+	        requested: attendees.filter(function (user) {
+	          return user.STATUS === 'Q' || user.STATUS === '';
+	        }),
+	        declined: attendees.filter(function (user) {
+	          return user.STATUS === 'N';
+	        })
+	      };
+	    }
+	  }]);
+	  return AttendeesList;
+	}();
+
 	exports.Reminder = Reminder;
 	exports.Location = Location;
 	exports.UserSelector = UserSelector;
@@ -5610,6 +5602,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	exports.EmailSelectorControl = EmailSelectorControl;
 	exports.ConfirmedEmailDialog = ConfirmedEmailDialog;
 	exports.EmailLimitationDialog = EmailLimitationDialog;
+	exports.AttendeesList = AttendeesList;
 
-}((this.BX.Calendar.Controls = this.BX.Calendar.Controls || {}),BX,BX.Calendar,BX.Calendar,BX.UI.EntitySelector,BX.Intranet,BX,BX.Event,BX.Main,BX.Calendar.Controls,BX.Calendar));
+}((this.BX.Calendar.Controls = this.BX.Calendar.Controls || {}),BX,BX.Calendar,BX.Calendar,BX.UI.EntitySelector,BX.Intranet,BX.Event,BX.Calendar,BX,BX.Main,BX.Calendar.Controls));
 //# sourceMappingURL=controls.bundle.js.map

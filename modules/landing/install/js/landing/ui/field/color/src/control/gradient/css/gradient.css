@@ -1,0 +1,142 @@
+.landing-ui-field-color-gradient {
+	display: grid;
+	grid-template-columns: 1fr .5fr;
+}
+
+.landing-ui-field-color-gradient-preset-container .landing-ui-field-color-preset {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	margin: 0 -1.5px -1.5px -1.5px;
+}
+
+.landing-ui-field-color-gradient-container {
+	/*margin-top: 4px;*/
+	/*margin-bottom: 10px;*/
+	position: relative;
+	height: 77px;
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	flex-direction: column;
+	margin-left: 2px;
+	border-radius: 2px;
+}
+
+.landing-ui-field-color-gradient-container.active:before {
+	content: '';
+	position: absolute;
+	right: -4px;
+	bottom: -3px;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	background-image: url("data:image/svg+xml,%3Csvg width='15' height='15' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Crect fill='%23FFF' width='14.819' height='14.819' rx='7.409'/%3E%3Cpath fill='%232FC6F6' d='M6.593 8.333l4.19-4.141 1.39 1.44-5.559 5.56-.021-.023-.022.023-3.398-3.415 1.39-1.44z'/%3E%3C/g%3E%3C/svg%3E");
+	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .11);
+}
+
+.landing-ui-field-color-gradient-container.active .landing-ui-field-color-hex-preview.active::after {
+	display: none;
+}
+
+
+.landing-ui-field-color-gradient-open-popup {
+	position: absolute;
+	top: calc(50% - 9px);
+	right: -9px;
+	background-image: url("data:image/svg+xml,%3Csvg width='11' height='3' viewBox='0 0 11 3' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 1.5C3 2.32843 2.32843 3 1.5 3C0.671573 3 0 2.32843 0 1.5C0 0.671573 0.671573 0 1.5 0C2.32843 0 3 0.671573 3 1.5Z' fill='%237D7D7D'/%3E%3Cpath d='M7 1.5C7 2.32843 6.32843 3 5.5 3C4.67157 3 4 2.32843 4 1.5C4 0.671573 4.67157 0 5.5 0C6.32843 0 7 0.671573 7 1.5Z' fill='%237D7D7D'/%3E%3Cpath d='M11 1.5C11 2.32843 10.3284 3 9.5 3C8.67157 3 8 2.32843 8 1.5C8 0.671573 8.67157 0 9.5 0C10.3284 0 11 0.671573 11 1.5Z' fill='%237D7D7D'/%3E%3C/svg%3E%0A");
+	box-shadow: 0 0 4px rgba(128, 128, 128, .1);
+	border: 1px solid rgba(0, 0, 0, .05);
+}
+
+/*.landing-ui-field-color-gradient-preset-popup*/
+/*{*/
+/*	border-radius: 4px;*/
+/*}*/
+
+.landing-ui-field-color-gradient-preset-popup-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+}
+
+.landing-ui-field-color-gradient-switch-type {
+	font: 12px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #525c69;
+	opacity: .34;
+	user-select: none;
+	transition: opacity .3s;
+	white-space: nowrap;
+	cursor: pointer;
+	border-bottom: 1px dashed;
+}
+
+.landing-ui-field-color-gradient-open-popup,
+.landing-ui-field-color-gradient-rotate,
+.landing-ui-field-color-gradient-swap {
+	border-radius: 50%;
+	cursor: pointer;
+	opacity: .8;
+	width: 18px;
+	height: 18px;
+	background-color: #fff;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+.landing-ui-field-color-gradient-rotate
+{
+	background-image: url("data:image/svg+xml,%3Csvg width='16' height='13' viewBox='0 0 16 13' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 6.5C0 10.0899 2.96845 13 6.63021 13C6.75542 13 6.87982 12.9966 7.00331 12.9899V11.3512C6.88014 11.3602 6.75572 11.3647 6.63021 11.3647C3.88968 11.3647 1.66803 9.18671 1.66803 6.5C1.66803 3.81329 3.88968 1.63528 6.63021 1.63528C9.06935 1.63528 11.0975 3.36057 11.514 5.63425H8.6025L12.3013 9.26036L16 5.63425H13.2021C12.7703 2.45369 9.99256 0 6.63021 0C2.96845 0 0 2.91015 0 6.5Z' fill='%237D7D7D'/%3E%3C/svg%3E%0A");
+}
+
+.landing-ui-field-color-gradient-swap {
+	background-image: url("data:image/svg+xml,%3Csvg width='15' height='13' viewBox='0 0 15 13' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg opacity='1'%3E%3Cpath d='M2.35161 2.93375C2.35161 2.53983 2.6809 2.2205 3.08709 2.2205C3.49329 2.2205 3.82258 2.53983 3.82258 2.93375V11.4928C3.82258 11.8867 3.49329 12.206 3.08709 12.206C2.6809 12.206 2.35161 11.8867 2.35161 11.4928V2.93375Z' fill='%237D7D7D'/%3E%3Cpath d='M2.4634 0.335228C2.75147 -0.111743 3.42272 -0.111742 3.71079 0.335229L6.06122 3.98223C6.36739 4.45729 6.0152 5.0735 5.43753 5.0735L0.736663 5.0735C0.158985 5.0735 -0.193197 4.45728 0.112971 3.98223L2.4634 0.335228Z' fill='%237D7D7D'/%3E%3Cpath d='M11.1774 1.50724C11.1774 1.11333 11.5067 0.793994 11.9129 0.793994C12.3191 0.793994 12.6484 1.11333 12.6484 1.50724V11.4928C12.6484 11.8867 12.3191 12.206 11.9129 12.206C11.5067 12.206 11.1774 11.8867 11.1774 11.4928V1.50724Z' fill='%237D7D7D'/%3E%3Cpath d='M12.5366 12.6648C12.2485 13.1117 11.5773 13.1117 11.2892 12.6648L8.93878 9.01777C8.63261 8.54272 8.9848 7.9265 9.56247 7.9265H14.2633C14.841 7.9265 15.1932 8.54272 14.887 9.01778L12.5366 12.6648Z' fill='%237D7D7D'/%3E%3C/g%3E%3C/svg%3E%0A");
+}
+
+.landing-ui-field-color-gradient-rotate {
+	margin-right: 9px;
+}
+
+.landing-ui-field-color-gradient-open-popup:hover,
+.landing-ui-field-color-gradient-rotate:hover,
+.landing-ui-field-color-gradient-swap:hover,
+.landing-ui-field-color-gradient-switch-type:hover {
+	opacity: 1;
+}
+
+.landing-ui-field-color-gradient-open-popup.disable,
+.landing-ui-field-color-gradient-rotate.disable,
+.landing-ui-field-color-gradient-swap.disable,
+.landing-ui-field-color-gradient-switch-type.disable {
+	cursor: not-allowed;
+	opacity: .4;
+}
+
+.landing-ui-field-color-gradient .landing-ui-field-color-hex-preview.active {
+	outline: none;
+	box-shadow: none;
+}
+
+.landing-ui-field-color-gradient-btn {
+	display: block;
+	margin: 0 -10px 0 auto;
+	width: 19px;
+	height: 19px;
+	background: #fff url("data:image/svg+xml,%3Csvg width='10' height='10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.044 2.954v2.163H4.019a1 1 0 00-.993.884l-.007.117v.305H2.99v3.23H.97V4.956a2 2 0 012-2l3.075-.001zM6.07.198l3.793 3.793L6.07 7.784V.198z' fill='%23525C69' fill-rule='evenodd' opacity='.6'/%3E%3C/svg%3E") center no-repeat;
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+.landing-ui-field-color-gradient-from .landing-ui-field-color-hex-preview,
+.landing-ui-field-color-gradient-to .landing-ui-field-color-hex-preview {
+	background-color: transparent !important;
+	font-size: 10px;
+}
+
+.landing-ui-field-color-gradient-from .landing-ui-field-color-hex-preview {
+	border-bottom: 1px solid rgba(255, 255, 255, .11);
+}
+
+.landing-ui-field-color-gradient-to .landing-ui-field-color-hex-preview {
+	border-top: 1px solid rgba(255, 255, 255, .11);
+}

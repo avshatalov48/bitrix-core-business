@@ -2402,7 +2402,7 @@ window.BXPhotoSlider.prototype = {
 					sessid: BX.bitrix_sessid(),
 					ELEMENT_ID : oItem.id,
 					AUTHOR_ID : oItem.author_id,
-					sigh: this.sign,
+					sign: this.sign,
 					checkParams: this.checkParams,
 					reqParams: this.reqParams,
 					increaseCounter: bIncreaseCounter,

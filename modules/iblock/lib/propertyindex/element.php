@@ -110,10 +110,13 @@ class Element
 			));
 			while ($property = $properties->fetch())
 			{
-				self::$filterPropertyID[$iblockId][] = $property['PROPERTY_ID'];
+				self::$filterPropertyID[$iblockId][$property['PROPERTY_ID']] = $property['PROPERTY_ID'];
 			}
 			unset($property);
 			unset($properties);
+
+			self::$filterPropertyID[$iblockId] = array_values(self::$filterPropertyID[$iblockId]);
+			sort(self::$filterPropertyID[$iblockId]);
 		}
 
 		$elementList = \CIBlockElement::getPropertyValues(

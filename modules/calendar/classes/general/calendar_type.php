@@ -1,5 +1,6 @@
 <?
 use Bitrix\Main\Loader;
+use Bitrix\Calendar\Util;
 
 class CCalendarType
 {
@@ -271,16 +272,31 @@ class CCalendarType
 	{
 		global $USER;
 		if ((!$USER || !is_object($USER)) || $USER->CanDoOperation('edit_php'))
+		{
 			return true;
+		}
 
-		if (!$userId)
+		if (!is_numeric($userId))
+		{
 			$userId = CCalendar::GetCurUserId();
+		}
 
-		if (($xmlId == 'group' || $xmlId == 'user' || CCalendar::IsBitrix24()) && CCalendar::IsSocNet() && CCalendar::IsSocnetAdmin())
+		if (
+			CCalendar::IsBitrix24()
+			&& Loader::includeModule('bitrix24')
+			&& \CBitrix24::isPortalAdmin($userId)
+		)
+		{
 			return true;
+		}
 
-		if (CCalendar::IsBitrix24() && Loader::includeModule('bitrix24') && \CBitrix24::isPortalAdmin($userId))
+		if (($xmlId === 'group' || $xmlId === 'user' || CCalendar::IsBitrix24())
+			&& CCalendar::IsSocNet()
+			&& CCalendar::IsSocnetAdmin()
+		)
+		{
 			return true;
+		}
 
 		return in_array($operation, self::GetOperations($xmlId, $userId));
 	}
@@ -289,7 +305,9 @@ class CCalendarType
 	{
 		global $USER;
 		if ($userId === false)
+		{
 			$userId = CCalendar::GetCurUserId();
+		}
 
 		$opCacheKey = $xmlId.'_'.$userId;
 
@@ -299,12 +317,10 @@ class CCalendarType
 		}
 		else
 		{
-			$arCodes = array();
+			$arCodes = [];
 			if ($userId)
 			{
-				$rCodes = CAccess::GetUserCodes($userId);
-				while($code = $rCodes->Fetch())
-					$arCodes[] = $code['ACCESS_CODE'];
+				$arCodes = Util::getUserAccessCodes($userId);
 			}
 
 			if(!in_array('G2', $arCodes))

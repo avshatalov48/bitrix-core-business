@@ -326,6 +326,7 @@
 	width: 100%;
 	max-width: 260px;
 	min-width: 120px;
+	transition: background-color .3s;
 }
 
 .btn.catalog-section-item-buy-btn[disabled],
@@ -334,6 +335,10 @@
 	border-color: #121212;
 	color: #fff;
 	opacity: .2;
+}
+
+.btn.catalog-section-item-buy-btn:hover {
+	background-color: #404040;
 }
 
 .catalog-section-item-popup-buy-btn {

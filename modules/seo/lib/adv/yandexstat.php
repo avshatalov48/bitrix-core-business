@@ -28,7 +28,20 @@ use Bitrix\Seo\Engine\YandexDirectException;
  * </ul>
  *
  * @package Bitrix\Seo
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_YandexStat_Query query()
+ * @method static EO_YandexStat_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_YandexStat_Result getById($id)
+ * @method static EO_YandexStat_Result getList(array $parameters = array())
+ * @method static EO_YandexStat_Entity getEntity()
+ * @method static \Bitrix\Seo\Adv\EO_YandexStat createObject($setDefaultValues = true)
+ * @method static \Bitrix\Seo\Adv\EO_YandexStat_Collection createCollection()
+ * @method static \Bitrix\Seo\Adv\EO_YandexStat wakeUpObject($row)
+ * @method static \Bitrix\Seo\Adv\EO_YandexStat_Collection wakeUpCollection($rows)
+ */
 
 class YandexStatTable extends Entity\DataManager
 {

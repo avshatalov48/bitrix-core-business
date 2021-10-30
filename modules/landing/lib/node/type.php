@@ -10,6 +10,7 @@ class Type
 	const LINK = 'link';
 	const MAP = 'map';
 	const TEXT = 'text';
+	const STYLE_IMAGE = 'styleimg';
 
 	protected static $classes = [];
 

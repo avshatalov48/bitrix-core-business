@@ -149,14 +149,8 @@ if ($component->request('landing_mode'))
 	$arResult['DESIGNER']->execHooks();
 	?>
 	<style>
-		body {
-			background-color: #4a4b4c!important;
-		}
 		.bx-session-message {
 			display: none;
-		}
-		.landing-main {
-			background-color: #fff;
 		}
 	</style>
 	<?

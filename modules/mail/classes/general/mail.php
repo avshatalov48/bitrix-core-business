@@ -717,7 +717,7 @@ class CAllMailBox
 		$strSql = "DELETE FROM b_mail_message_uid WHERE MAILBOX_ID=".$ID;
 		if(!$DB->Query($strSql, true))
 			return false;
-		
+
 		// @TODO: make a log optional
 		//AddMessage2Log("The mailbox $ID was deleted");
 
@@ -727,6 +727,8 @@ class CAllMailBox
 
 		$DB->query(sprintf('DELETE FROM b_mail_mailbox_access WHERE MAILBOX_ID = %u', $ID));
 		$DB->query(sprintf('DELETE FROM b_mail_mailbox_dir WHERE MAILBOX_ID = %u', $ID));
+		$DB->query(sprintf('DELETE FROM b_mail_counter WHERE MAILBOX_ID = %u', $ID));
+		$DB->query(sprintf('DELETE FROM b_mail_entity_options WHERE MAILBOX_ID = %u', $ID));
 
 		CMailbox::SMTPReload();
 		$strSql = "DELETE FROM b_mail_mailbox WHERE ID=".$ID;
@@ -1936,7 +1938,7 @@ class CAllMailMessage
 					'div' => $validTagAttributes,
 					'td' =>$validTagAttributes,
 				));
-				
+
 				$arFields['BODY_HTML'] = $sanitizer->sanitizeHtml($msg);
 
 				foreach ($arMessageParts as $part)
@@ -1992,7 +1994,7 @@ class CAllMailMessage
 						$arFieldsForFilter[$key] = \Bitrix\Main\Text\Emoji::decode($arFieldsForFilter[$key]);
 					}
 				}
-				
+
 				\CMailFilter::filter($arFieldsForFilter, 'R');
 
 				\Bitrix\Main\EventManager::getInstance()->removeEventHandler('mail', 'onBeforeUserFieldSave', $eventKey);

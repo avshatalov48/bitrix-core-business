@@ -23,7 +23,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Iblock
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SectionProperty_Query query()
+ * @method static EO_SectionProperty_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_SectionProperty_Result getById($id)
+ * @method static EO_SectionProperty_Result getList(array $parameters = array())
+ * @method static EO_SectionProperty_Entity getEntity()
+ * @method static \Bitrix\Iblock\EO_SectionProperty createObject($setDefaultValues = true)
+ * @method static \Bitrix\Iblock\EO_SectionProperty_Collection createCollection()
+ * @method static \Bitrix\Iblock\EO_SectionProperty wakeUpObject($row)
+ * @method static \Bitrix\Iblock\EO_SectionProperty_Collection wakeUpCollection($rows)
+ */
 
 class SectionPropertyTable extends Entity\DataManager
 {

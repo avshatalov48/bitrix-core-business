@@ -47,7 +47,11 @@ function deleteAccessRow(link)
 		init: function()
 		{
 			// themes
-			var colorItems = slice(this.themesPalete.children);
+			var colorItems;
+			if (this.themesPalete)
+			{
+				colorItems = slice(this.themesPalete.children);
+			}
 			if(this.themesSiteColorNode)
 			{
 				colorItems = colorItems.concat(slice(this.themesSiteColorNode.children));
@@ -56,7 +60,10 @@ function deleteAccessRow(link)
 			{
 				colorItems = colorItems.concat(slice(this.themesSiteCustomColorNode.children));
 			}
-			colorItems.forEach(this.initSelectableItem, this);
+			if (colorItems)
+			{
+				colorItems.forEach(this.initSelectableItem, this);
+			}
 
 			// site group
 			if(this.siteGroupPalette )
@@ -73,7 +80,10 @@ function deleteAccessRow(link)
 				bind(this.createButton, "click", this.onCreateButtonClick);
 			}
 
-			this.setColor();
+			if (colorItems)
+			{
+				this.setColor();
+			}
 		},
 
 		setColor: function(theme) {
@@ -95,17 +105,21 @@ function deleteAccessRow(link)
 
 		getActiveColorNode: function()
 		{
-			var active = this.themesPalete.querySelector(".active");
-			if(!active && this.themesSiteColorNode)
+			var active;
+			if (this.themesPalete)
+			{
+				active = this.themesPalete.querySelector(".active");
+			}
+			if (!active && this.themesSiteColorNode)
 			{
 				active = this.themesSiteColorNode.querySelector(".active");
 			}
-			if(!active && this.themesSiteCustomColorNode)
+			if (!active && this.themesSiteCustomColorNode)
 			{
 				active = this.themesSiteCustomColorNode.querySelector(".active");
 			}
 			// by default - first
-			if(!active)
+			if (!active && this.themesPalete)
 			{
 				active = this.themesPalete.firstElementChild;
 			}
@@ -572,7 +586,7 @@ function deleteAccessRow(link)
 			this.colorPickerNode.classList.add('ui-colorpicker-selected');
 			this.colorIcon.style.backgroundColor = color;
 			this.input.value = color;
-			BX.onCustomEvent('BX.Landing.ColorPicker:onSelectColor');
+			BX.Event.EventEmitter.emit(this, 'BX.Landing.ColorPicker:onSelectColor');
 		},
 		show: function(event)
 		{
@@ -588,7 +602,7 @@ function deleteAccessRow(link)
 			this.colorPickerNode.classList.remove('ui-colorpicker-selected');
 			this.input.value = '';
 			this.picker.setSelectedColor(null);
-			BX.onCustomEvent('BX.Landing.ColorPicker:onClearColorPicker');
+			BX.Event.EventEmitter.emit(this, 'BX.Landing.ColorPicker:onClearColorPicker');
 		},
 		setColors: function()
 		{

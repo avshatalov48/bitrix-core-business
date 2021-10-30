@@ -4,6 +4,22 @@ namespace Bitrix\Seo\BusinessSuite\Internals;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class ServiceQueueTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ServiceQueue_Query query()
+ * @method static EO_ServiceQueue_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ServiceQueue_Result getById($id)
+ * @method static EO_ServiceQueue_Result getList(array $parameters = array())
+ * @method static EO_ServiceQueue_Entity getEntity()
+ * @method static \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue createObject($setDefaultValues = true)
+ * @method static \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue_Collection createCollection()
+ * @method static \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue wakeUpObject($row)
+ * @method static \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue_Collection wakeUpCollection($rows)
+ */
 final class ServiceQueueTable extends Entity\DataManager
 {
 	/**

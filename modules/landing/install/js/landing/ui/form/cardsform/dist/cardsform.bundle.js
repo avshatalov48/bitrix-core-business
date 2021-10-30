@@ -84,11 +84,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      });
 	      this.childForms.forEach(function (form, index) {
 	        var _form$selector$split = form.selector.split('@'),
-	            _form$selector$split2 = babelHelpers.slicedToArray(_form$selector$split, 2),
-	            code = _form$selector$split2[0],
-	            oldIndex = _form$selector$split2[1];
+	            _form$selector$split2 = babelHelpers.slicedToArray(_form$selector$split, 1),
+	            code = _form$selector$split2[0];
 
-	        form.oldIndex = main_core.Text.toNumber(oldIndex);
 	        form.selector = "".concat(code, "@").concat(index);
 	      });
 	    }
@@ -167,7 +165,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          bindElement: this.addButton.layout,
 	          items: Object.keys(this.presets).map(function (preset) {
 	            return {
-	              text: _this3.presets[preset].name,
+	              html: _this3.presets[preset].name,
 	              className: 'landing-ui-form-cards-preset-popup-item menu-popup-no-icon',
 	              onclick: _this3.onPresetItemClick.bind(_this3, preset)
 	            };

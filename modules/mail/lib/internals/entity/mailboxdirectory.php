@@ -73,6 +73,16 @@ class MailboxDirectory extends \Bitrix\Mail\Internals\EO_MailboxDirectory implem
 		return false;
 	}
 
+	public function isInvisibleToCounters()
+	{
+		if($this->isTrash() || $this->isSpam() || $this->isDraft() || $this->isOutcome())
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	public function isIncome()
 	{
 		if ((int)$this->getIsIncome() === (int)MailboxDirectoryTable::ACTIVE)

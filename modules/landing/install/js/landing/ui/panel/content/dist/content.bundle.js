@@ -279,9 +279,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.init();
 
 	    main_core.Event.bind(window.top, 'keydown', _this.onKeyDown.bind(babelHelpers.assertThisInitialized(_this)));
-	    BX.Landing.PageObject.getInstance().view().then(function (frame) {
-	      void (!!frame && main_core.Event.bind(frame.contentWindow, 'keydown', _this.onKeyDown.bind(babelHelpers.assertThisInitialized(_this))));
-	    }, console.warn);
+	    BX.Landing.PageObject.getEditorWindow();
 
 	    if (_this.data.scrollAnimation) {
 	      _this.scrollObserver = new IntersectionObserver(_this.onIntersecting.bind(babelHelpers.assertThisInitialized(_this)));

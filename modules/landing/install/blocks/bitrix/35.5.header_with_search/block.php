@@ -16,7 +16,7 @@ $settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 				<!-- Logo -->
 				<a href="#system_mainpage"
 				   class="landing-block-node-menu-logo-link navbar-brand g-mb-10 g-mb-0--sm g-mr-0">
-					<img class="landing-block-node-logo img-fluid g-max-width-180"
+					<img class="landing-block-node-logo img-fluid"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/logos/real-estate-logo.png" alt="Logo">
 				</a>
 				<!-- End Logo -->

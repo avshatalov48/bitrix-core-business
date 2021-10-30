@@ -142,7 +142,7 @@ class GoogleApiSection
 			$davConnections = \CDavConnection::GetList(
 				[],
 				[
-					'ACCOUNT_TYPE' => 'google_api_oauth',
+					'ACCOUNT_TYPE' => Google\Helper::GOOGLE_ACCOUNT_TYPE_API,
 					'ENTITY_TYPE' => 'user',
 					'ENTITY_ID' => $this->userId,
 				]

@@ -401,4 +401,27 @@ export default class Manager extends EventEmitter
 		this.status = this.STATUS_SUCCESS;
 		this.refreshContent();
 	}
+
+	getProviderById(id)
+	{
+		let connection = undefined;
+		for (let providerName in this.connectionsProviders)
+		{
+			if (
+				!this.connectionsProviders[providerName].connected
+				|| !['google', 'caldav', 'yandex'].includes(providerName)
+			)
+			{
+				continue;
+			}
+
+			connection = this.connectionsProviders[providerName].getConnectionById(id);
+			if (connection)
+			{
+				return [this.connectionsProviders[providerName], connection];
+			}
+		}
+
+		return null;
+	}
 }

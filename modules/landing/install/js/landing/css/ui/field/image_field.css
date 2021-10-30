@@ -2,7 +2,7 @@
 	position: relative;
 }
 
-.landing-ui-field-image-container {
+.landing-ui-field-image:not(.landing-ui-field-image--compact) .landing-ui-field-image-container {
 	display: flex;
 }
 
@@ -12,9 +12,18 @@
 	margin-right: 5px;
 }
 
+.landing-ui-field-image--compact .landing-ui-field-image-left {
+	margin-right: 0;
+}
+
 .landing-ui-field-image-right {
 	display: flex;
 	flex-direction: column;
+}
+
+.landing-ui-field-image--compact .landing-ui-field-image-right {
+	flex-direction: row;
+	justify-content: space-between;
 }
 
 
@@ -24,11 +33,19 @@
 		linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, .1) 75%),
 	linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, .1) 75%);
 	background-size: 20px 20px;
-	background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+	background-position: 0 0, 0 10px, 10px -10px, -10px 0;
 	display: flex;
 	height: 215px;
 	margin-bottom: 8px;
 	position: relative;
+}
+
+.landing-ui-field-image--compact .landing-ui-field-image-preview {
+	height: 128px;
+	background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+	border: 1px solid rgba(82,92,106,.2);
+	border-radius: 2px;
+	margin: 19px 0 13px 0;
 }
 
 .landing-ui-field-image-preview-inner {
@@ -96,6 +113,28 @@
 	background: #F6F8F9;
 }
 
+.landing-ui-field-image--compact .landing-ui-field-image-action-button {
+	border-bottom: 1px dashed rgba(155,155,155,.4);
+	font: 13px Helvetca, Arial, sans-sarif;
+	background: none;
+	color: #9b9b9b;
+	transition: border-bottom .3s;
+	text-transform: none;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	padding: 0;
+	max-width: 100%;
+}
+
+.landing-ui-field-image--compact .landing-ui-field-image-action-button:hover {
+	border-bottom: 1px dashed transparent;
+}
+
+.landing-ui-field-image--compact .landing-ui-field-image-action-button:first-child {
+	margin-right: 10px;
+}
+
 .landing-ui-field-image-action-button[disabled] {
 	opacity: .7;
 	pointer-events: none;
@@ -104,7 +143,6 @@
 	-ms-user-select: none;
 	user-select: none;
 }
-
 
 .landing-ui-field-image-dropzone {
 	position: relative;
@@ -187,11 +225,6 @@
 	overflow: hidden;
 	position: absolute;
 }
-
-
-
-
-
 
 #avpw_tool_content_header,
 #avpw_control_main_scroll_panel,

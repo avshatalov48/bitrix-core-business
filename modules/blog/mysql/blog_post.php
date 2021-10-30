@@ -858,7 +858,7 @@ class CBlogPost extends CAllBlogPost
 						$arSqls["WHERE"] .= " AND ";
 					$arSqls["WHERE"] .=
 						" EXISTS ( ".
-							"SELECT ID ".
+							"SELECT SRX.ID ".
 							"FROM b_blog_socnet_rights SRX ".
 							"LEFT JOIN b_user_access UA ON (UA.ACCESS_CODE = SRX.ENTITY AND UA.USER_ID = ".intval($arFilter["FOR_USER"]).") ".
 							"WHERE P.ID = SRX.POST_ID 

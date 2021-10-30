@@ -19,6 +19,7 @@
 
 .ui-colorpicker {
 	position: relative;
+	display: block;
 }
 
 .ui-field-background_color,

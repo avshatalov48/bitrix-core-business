@@ -1,4 +1,5 @@
-<?
+<?php
+
 /** @global \CMain $APPLICATION */
 use Bitrix\Main;
 
@@ -72,15 +73,14 @@ class CAdminSubList extends CAdminList
 		'BX.CAdminDialog.btnSave', 'BX.CAdminDialog.btnCancel'
 	);
 
-
 	/**
 	 * @param string $table_id
 	 * @param bool|CAdminSubSorting $sort
-	 * @param string $list_url
+	 * @param string|array $list_url
 	 * @param bool|array $arHideHeaders
 	 */
 
-	public function __construct($table_id, $sort = false, $list_url, $arHideHeaders = false)
+	public function __construct($table_id, $sort = false, $list_url = '', $arHideHeaders = false)
 	{
 		global $APPLICATION;
 
@@ -229,8 +229,12 @@ class CAdminSubList extends CAdminList
 	//id, name, content, sort, default
 	public function AddHeaders($aParams)
 	{
-		if (isset($_REQUEST['showallcol']) && $_REQUEST['showallcol'])
-			$_SESSION['SHALL'] = ($_REQUEST['showallcol'] == 'Y');
+		$showAll = $this->request->get('showallcol');
+		if ($showAll !== null && $showAll !== '')
+		{
+			$this->session['SHALL'] = $showAll === 'Y';
+		}
+		$showAll = isset($this->session['SHALL']) && $this->session['SHALL'];
 
 		$hiddenColumns = (!empty($this->arHideHeaders) ? array_fill_keys($this->arHideHeaders, true) : array());
 
@@ -259,7 +263,7 @@ class CAdminSubList extends CAdminList
 			{
 				$this->aHeaders[$param["id"]] = $param;
 				if (
-					(isset($_SESSION['SHALL']) && $_SESSION['SHALL'])
+					$showAll
 					|| ($bEmptyCols && $param["default"] == true)
 					|| isset($userColumns[$param["id"]])
 				)
@@ -673,7 +677,7 @@ echo '<table class="adm-list-table" id="'.$this->table_id.'">
 <?
 	}
 
-	public function DisplayList($boolFlag = true)
+	public function DisplayList($arParams = array())
 	{
 		$menu = new CAdminPopup($this->table_id."_menu", $this->table_id."_menu",false,array('zIndex' => 4000));
 		$menu->Show();
@@ -702,17 +706,19 @@ function ReloadOffers()
 	{
 		global $APPLICATION;
 
-		if (!isset($_REQUEST["mode"]))
+		if ($this->isPageMode())
+		{
 			return;
+		}
 
-		if ($_REQUEST["mode"]=='list' || $_REQUEST["mode"]=='frame')
+		if ($this->isAjaxMode())
 		{
 			ob_start();
 			$this->Display();
 			$string = ob_get_contents();
 			ob_end_clean();
 
-			if($_REQUEST["mode"]=='frame')
+			if ($this->isActionMode())
 			{
 				echo '<html><head></head><body>
 <div id="'.$this->table_id.'_result_frame_div">'.$string.'</div>
@@ -737,10 +743,15 @@ function ReloadOffers()
 			require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin_after.php");
 			die();
 		}
-		elseif ($_REQUEST["mode"]=='excel')
+		elseif ($this->isExportMode())
 		{
+			$fname = basename($APPLICATION->GetCurPage(), ".php");
+			// http response splitting defence
+			$fname = str_replace(array("\r", "\n"), "", $fname);
+
 			header("Content-Type: application/vnd.ms-excel");
-			header("Content-Disposition: filename=".basename($APPLICATION->GetCurPage(), ".php").".xls");
+			header("Content-Disposition: filename=".$fname.".xls");
+			$APPLICATION->EndBufferContentMan();
 			$this->DisplayExcel();
 			require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin_after.php");
 			die();
@@ -1608,9 +1619,13 @@ class CAdminSubForm extends CAdminForm
 				"ICON"=>"btn_settings",
 			);
 
+			$nameExists = isset($this->session["ADMIN_CUSTOM_FIELDS"])
+				&& is_array($this->session["ADMIN_CUSTOM_FIELDS"])
+				&& array_key_exists($this->name, $this->session["ADMIN_CUSTOM_FIELDS"])
+			;
 			if($this->bCustomFields)
 			{
-				if(is_array($_SESSION["ADMIN_CUSTOM_FIELDS"]) && array_key_exists($this->name, $_SESSION["ADMIN_CUSTOM_FIELDS"]))
+				if ($nameExists)
 				{
 					$aAdditionalMenu[] = array(
 						"TEXT" => GetMessage("admin_lib_sett_sett_enable_text"),
@@ -1633,9 +1648,7 @@ class CAdminSubForm extends CAdminForm
 			if (count($aAdditionalMenu) > 1)
 			{
 				$sMenuUrl = "BX.adminShowMenu(this, ".htmlspecialcharsbx(CAdminPopupEx::PhpToJavaScript($aAdditionalMenu)).", {active_class: 'bx-settings-btn-active'});";
-				$bCustomFieldsOff = is_array($_SESSION["ADMIN_CUSTOM_FIELDS"]) && array_key_exists($this->name, $_SESSION["ADMIN_CUSTOM_FIELDS"]);
-
-				$s .= '<span id="'.$this->name.'_settings_btn" class="adm-detail-subsettings adm-detail-subsettings-arrow'.($bCustomFieldsOff ? '' : ' adm-detail-subsettings-active').'" onclick="'.$sMenuUrl.'"></span>';
+				$s .= '<span id="'.$this->name.'_settings_btn" class="adm-detail-subsettings adm-detail-subsettings-arrow'.($nameExists ? '' : ' adm-detail-subsettings-active').'" onclick="'.$sMenuUrl.'"></span>';
 			}
 			else
 			{

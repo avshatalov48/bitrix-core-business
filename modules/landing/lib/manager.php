@@ -4,11 +4,9 @@ namespace Bitrix\Landing;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Config\Option;
 use \Bitrix\Main\Application;
-use \Bitrix\Main\Entity;
 use \Bitrix\Main\Loader;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Landing\Assets;
-use \Bitrix\Bitrix24\Feature;
 
 Loc::loadMessages(__FILE__);
 
@@ -1204,22 +1202,39 @@ class Manager
 	{
 		self::clearCache();
 		self::setOption('html_disabled', 'Y');
+		self::setOption('reset_to_free_time', time());
+		Restriction\Site::manageFreeDomains(false, Restriction\Site::FREE_DOMAIN_GRACE_DAYS * 86400);
+	}
+
+	/**
+	 * In cloud version on change highest plans.
+	 * @param string $licenseType License Type.
+	 * @return void
+	 */
+	public static function onBitrix24LicenseChange(string $licenseType): void
+	{
+		self::setOption('reset_to_free_time', 0);
+		Restriction\Site::manageFreeDomains(true, 5);
 	}
 
 	/**
 	 * In cloud version clear cache when tariff change
 	 * @return void
 	 */
-	public static function clearCache()
+	public static function clearCache(): void
 	{
 		// for clear cache in cloud
+		if (!self::isB24())
+		{
+			return;
+		}
 		$res = Site::getList([
 			'select' => [
-				'ID'
+				'ID',
 			],
 			'filter' => [
-				'ACTIVE' => 'Y'
-			]
+				'ACTIVE' => 'Y',
+			],
 		]);
 		while ($row = $res->fetch())
 		{
@@ -1228,9 +1243,35 @@ class Manager
 	}
 
 	/**
+	 * Clear cache in cloud only for one site by landing ID
+	 * @param int $lid
+	 */
+	public static function clearCacheForLanding(int $lid): void
+	{
+		if (!self::isB24())
+		{
+			return;
+		}
+		$res = Landing::getList([
+			'select' => [
+				'SITE_ID',
+			],
+			'filter' => [
+				'ACTIVE' => 'Y',
+				'DELETED' => 'N',
+				'ID' => $lid,
+			],
+		]);
+		if ($row = $res->fetch())
+		{
+			Site::update($row['SITE_ID'], []);
+		}
+	}
+
+	/**
 	 * Clear cache, if repository version and current is different.
-	 * @deprecated since 20.2.100
 	 * @return void
+	 * @deprecated since 20.2.100
 	 */
 	public static function checkRepositoryVersion()
 	{

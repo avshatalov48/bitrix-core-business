@@ -375,7 +375,7 @@
 				location = '<span class="calendar-timeline-stream-content-event-location">(' + BX.util.htmlspecialchars(location) + ')</span>';
 			}
 
-			wrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-content-event-name'}, html: '<span class="calendar-timeline-stream-content-event-color" style="background-color: ' + entry.color + '"></span><span class="calendar-timeline-stream-content-event-name-link">' + BX.util.htmlspecialchars(entry.name) + '</span>' + location}));
+			wrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-content-event-name'}, html: '<span class="calendar-timeline-stream-content-event-color" style="background-color: ' + entry.color + '"></span><div class="calendar-timeline-stream-content-event-name-link"><span>' + BX.util.htmlspecialchars(entry.name) + '</span></div>' + location}));
 
 			if (
 				(parseInt(this.calendar.util.userId) !== parseInt(entry.data.MEETING_HOST))
@@ -400,10 +400,7 @@
 
 			if (entry.isMeeting() && entry.getAttendees().length > 0)
 			{
-				this.showAttendees(attendesNode, entry.getAttendees().filter(function (user)
-				{
-					return user.STATUS === 'Y' || user.STATUS === 'H';
-				}), entry.getAttendees().length);
+				this.showAttendees(attendesNode, entry.getAttendees());
 			}
 			else if (entry.isPersonal())
 			{
@@ -461,14 +458,16 @@
 		}
 	};
 
-	ListView.prototype.showAttendees = function(wrap, attendees, totalCount)
+	ListView.prototype.showAttendees = function(wrapper, attendees)
 	{
 		var
 			i,
 			user,
-			MAX_USER_COUNT = 5,
+			MAX_USER_COUNT = 3,
 			userLength = attendees.length,
-			MAX_USER_COUNT_DISPLAY = 7;
+			MAX_USER_COUNT_DISPLAY = 5,
+			attendeesCount = 0
+		;
 
 		if (userLength > 0)
 		{
@@ -477,39 +476,61 @@
 				userLength = MAX_USER_COUNT;
 			}
 
-			for (i = 0; i < userLength; i++)
+			for (i = 0; i < attendees.length; i++)
 			{
 				user = attendees[i] || {};
-				wrap.appendChild(BX.create("IMG", {
-					attrs: {
-						id: 'simple_view_popup_' + user.USER_ID,
-						src: user.AVATAR || ''
-					},
-					props: {
-						title: user.DISPLAY_NAME,
-						className: 'calendar-member'
-					}}));
-				(function (userId){setTimeout(function(){BX.tooltip(userId, "simple_view_popup_" + userId);}, 100)})(user.USER_ID);
+				if (user.STATUS === 'Y' || user.STATUS === 'H')
+				{
+					attendeesCount++;
+					if (user.AVATAR !== '/bitrix/images/1.gif')
+					{
+						wrapper.appendChild(BX.create("IMG", {
+							attrs: {
+								id: 'simple_view_popup_' + user.USER_ID,
+								src: user.AVATAR || ''
+							},
+							props: {
+								title: user.DISPLAY_NAME,
+								className: 'calendar-member'
+							}
+						}));
+					}
+					else
+					{
+						var userClassName = user.EMAIL_USER ? 'ui-icon-common-user-mail' : 'ui-icon-common-user';
+						wrapper.appendChild(BX.create("DIV", {
+							props: {
+								title: user.DISPLAY_NAME,
+								className: 'ui-icon ' + userClassName,
+							},
+							html: '<i></i>',
+						}));
+					}
+					(function (userId)
+					{
+						setTimeout(function ()
+						{
+							BX.tooltip(userId, "simple_view_popup_" + userId);
+						}, 100)
+					})(user.USER_ID);
+				}
+				if (attendeesCount >= userLength)
+				{
+					break;
+				}
 			}
 
 			if (userLength < attendees.length)
 			{
-				var moreUsersLink = wrap.appendChild(BX.create("SPAN", {
+				var moreUsersLink = wrapper.appendChild(BX.create("SPAN", {
+					attrs: {'data-bx-calendar-entry-attendees-control': attendees.length},
 					props: {className: 'calendar-member-more-count'},
-					text: ' ' + BX.message('EC_ATTENDEES_MORE').replace('#COUNT#', attendees.length - userLength),
+					text: ' ' + BX.message('EC_ATTENDEES_ALL_COUNT').replace('#COUNT#', attendees.length),
 					events: {click: BX.delegate(function(){
 						this.showUserListPopup(moreUsersLink, attendees);
 					}, this)}
 				}));
 			}
-
-			//this.DOM.allUsersLink = this.DOM.attendeesWrap.appendChild(BX.create("SPAN", {
-			//	props: {className: 'calendar-member-total-count'},
-			//	text: ' (' + BX.message('EC_ATTENDEES_TOTAL_COUNT').replace('#COUNT#', totalCount) + ')',
-			//	events: {click: BX.delegate(function(){
-			//		this.showUserListPopup(this.DOM.allUsersLink, this.entry.getAttendees());
-			//	}, this)}
-			//}));
 		}
 	};
 
@@ -545,28 +566,10 @@
 				}));
 		}, this);
 
-		this.userListPopup = new BX.PopupWindow(this.calendar.id + "-view-user-list-popup",
+		(new BX.Calendar.Controls.AttendeesList(
 			node,
-			{
-				autoHide: true,
-				closeByEsc: true,
-				offsetTop: 0,
-				offsetLeft: 0,
-				width: 220,
-				resizable: false,
-				lightShadow: true,
-				content: this.DOM.userListPopupWrap,
-				className: 'calendar-user-list-popup',
-				zIndex: 4000
-			});
-
-		this.userListPopup.setAngle({offset: 36});
-		this.userListPopup.show();
-		BX.addCustomEvent(this.userListPopup, 'onPopupClose', BX.delegate(function()
-		{
-			this.popup.setAutoHide(true);
-			this.userListPopup.destroy();
-		}, this));
+			BX.Calendar.Controls.AttendeesList.sortAttendees(userList))
+		).showPopup();
 	};
 
 	ListView.prototype.appendDateGroup = function(wrap, date, animation)
@@ -1028,7 +1031,15 @@
 				params = {};
 
 			var dayCode, uid, decision, entry;
+
 			if (
+				params.target
+				&& params.target.getAttribute('data-bx-calendar-entry-attendees-control')
+			)
+			{
+				params.e.preventDefault();
+			}
+			else if (
 				params.specialTarget
 				&& params.e
 				&& (uid = params.specialTarget.getAttribute('data-bx-calendar-entry'))

@@ -21,7 +21,20 @@ use Bitrix\Main\Entity;
  * </ul>
  *
  * @package Bitrix\Seo
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Link_Query query()
+ * @method static EO_Link_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Link_Result getById($id)
+ * @method static EO_Link_Result getList(array $parameters = array())
+ * @method static EO_Link_Entity getEntity()
+ * @method static \Bitrix\Seo\Adv\EO_Link createObject($setDefaultValues = true)
+ * @method static \Bitrix\Seo\Adv\EO_Link_Collection createCollection()
+ * @method static \Bitrix\Seo\Adv\EO_Link wakeUpObject($row)
+ * @method static \Bitrix\Seo\Adv\EO_Link_Collection wakeUpCollection($rows)
+ */
 
 class LinkTable extends Entity\DataManager
 {

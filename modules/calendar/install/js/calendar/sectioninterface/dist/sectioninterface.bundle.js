@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,calendar_entry,calendar_controls,main_core_events,ui_entitySelector,main_core,calendar_util,calendar_sectionmanager) {
+(function (exports,main_core_events,ui_entitySelector,main_core,calendar_util) {
 	'use strict';
 
 	function _templateObject4() {
@@ -1275,7 +1275,6 @@ this.BX = this.BX || {};
 	    _this.calendarContext = calendarContext;
 	    _this.readonly = readonly;
 	    _this.BX = calendar_util.Util.getBX();
-	    _this.sliderOnClose = _this.hide.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.deleteSectionHandlerBinded = _this.deleteSectionHandler.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.refreshSectionListBinded = _this.refreshSectionList.bind(babelHelpers.assertThisInitialized(_this));
 
@@ -1297,7 +1296,7 @@ this.BX = this.BX || {};
 	        animationDuration: this.SLIDER_DURATION,
 	        events: {
 	          onCloseByEsc: this.escHide.bind(this),
-	          onClose: this.sliderOnClose,
+	          onClose: this.hide.bind(this),
 	          onCloseComplete: this.destroy.bind(this),
 	          onLoad: this.onLoadSlider.bind(this)
 	        }
@@ -1323,14 +1322,14 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "escHide",
 	    value: function escHide(event) {
-	      if (event && event.getSliderPage && event.getSliderPage().getUrl() === this.sliderId && this.denyClose) {
+	      if (event && event.getSlider && event.getSlider().getUrl() === this.sliderId && this.denyClose) {
 	        event.denyAction();
 	      }
 	    }
 	  }, {
 	    key: "hide",
 	    value: function hide(event) {
-	      if (event && event.getSliderPage && event.getSliderPage().getUrl() === this.sliderId) {
+	      if (event && event.getSlider && event.getSlider().getUrl() === this.sliderId) {
 	        this.closeForms();
 	        this.destroyEventEmitterSubscriptions();
 	      }
@@ -1343,13 +1342,13 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "destroy",
 	    value: function destroy(event) {
-	      if (event && event.getSliderPage && event.getSliderPage().getUrl() === this.sliderId) {
+	      if (event && event.getSlider && event.getSlider().getUrl() === this.sliderId) {
 	        this.destroyEventEmitterSubscriptions();
 	        calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Section:delete', this.deleteSectionHandlerBinded);
 	        calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Section:pull-delete', this.deleteSectionHandlerBinded);
 	        BX.removeCustomEvent("SidePanel.Slider:onCloseComplete", BX.proxy(this.destroy, this));
 	        BX.SidePanel.Instance.destroy(this.sliderId);
-	        delete this.DOM.sectionListWrap; //this.calendarContext.enableKeyHandler();
+	        delete this.DOM.sectionListWrap;
 
 	        if (this.sectionActionMenu) {
 	          this.sectionActionMenu.close();
@@ -1359,7 +1358,6 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "createContent",
 	    value: function createContent() {
-	      // this.BX.onCustomEvent(top, 'onCalendarBeforeCustomSliderCreate');
 	      this.DOM.outerWrap = main_core.Dom.create('DIV', {
 	        props: {
 	          className: 'calendar-list-slider-wrap'
@@ -1371,8 +1369,9 @@ this.BX = this.BX || {};
 	        },
 	        html: '<div class="calendar-list-slider-title">' + main_core.Loc.getMessage('EC_SECTION_BUTTON') + '</div>'
 	      }));
+	      var calendarContext = this.calendarContext || calendar_util.Util.getCalendarContext();
 
-	      if (!this.readonly) {
+	      if (calendarContext && !this.readonly && (!calendarContext.util.isUserCalendar() || calendarContext.util.userIsOwner())) {
 	        // #1. Controls
 	        this.createAddButton(); // #2. Forms
 
@@ -1380,20 +1379,20 @@ this.BX = this.BX || {};
 	          props: {
 	            className: 'calendar-list-slider-card-widget calendar-list-slider-form-wrap'
 	          },
-	          html: '<div class="calendar-list-slider-card-widget-title"><span class="calendar-list-slider-card-widget-title-text">' + main_core.Loc.getMessage('EC_SEC_SLIDER_NEW_SECTION') + '</span></div>'
+	          html: "\n\t\t\t\t\t<div class=\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">\n\t\t\t\t\t\t\t".concat(main_core.Loc.getMessage('EC_SEC_SLIDER_NEW_SECTION'), "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t")
 	        }));
 	        this.DOM.trackingCompanyFormWrap = this.DOM.outerWrap.appendChild(main_core.Dom.create('DIV', {
 	          props: {
 	            className: 'calendar-list-slider-card-widget calendar-list-slider-form-wrap'
 	          },
-	          html: '<div class="calendar-list-slider-card-widget-title"><span class="calendar-list-slider-card-widget-title-text">' + main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_COMP') + '</span></div>'
+	          html: "\n\t\t\t\t\t<div class=\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">\n\t\t\t\t\t\t\t".concat(main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_COMP'), "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t")
 	        }));
 	        this.DOM.trackingUsersFormWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject$4(), main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP')));
 	        this.DOM.trackingGroupsFormWrap = this.DOM.outerWrap.appendChild(main_core.Dom.create('DIV', {
 	          props: {
 	            className: 'calendar-list-slider-card-widget calendar-list-slider-form-wrap'
 	          },
-	          html: '<div class="calendar-list-slider-card-widget-title"><span class="calendar-list-slider-card-widget-title-text">' + main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP') + '</span></div>'
+	          html: "\n\t\t\t\t\t<div class=\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">\n\t\t\t\t\t\t\t".concat(main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP'), "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>")
 	        }));
 	      } // #3. List of sections
 
@@ -1406,10 +1405,7 @@ this.BX = this.BX || {};
 	    value: function onLoadSlider(event) {
 	      this.slider = event.getSlider();
 	      this.sliderId = this.slider.getUrl();
-	      this.DOM.content = this.slider.layout.content; // Used to execute javasctipt and attach CSS from ajax responce
-	      //this.BX.html(this.slider.layout.content, this.slider.getData().get("sliderContent"));
-	      // this.initControls(this.uid);
-	      // this.setFormValues();
+	      this.DOM.content = this.slider.layout.content;
 	    }
 	  }, {
 	    key: "createSectionList",
@@ -1434,14 +1430,14 @@ this.BX = this.BX || {};
 	          props: {
 	            className: 'calendar-list-slider-card-widget'
 	          },
-	          html: '<div class="calendar-list-slider-card-widget-title"><span class="calendar-list-slider-card-widget-title-text">' + title + '</span></div>'
+	          html: "\n\t\t\t\t\t<div class=\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">\n\t\t\t\t\t\t\t".concat(title, "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t")
 	        });
 	      } else {
 	        this.DOM.sectionListWrap = this.DOM.outerWrap.appendChild(main_core.Dom.create('DIV', {
 	          props: {
 	            className: 'calendar-list-slider-card-widget'
 	          },
-	          html: '<div class="calendar-list-slider-card-widget-title"><span class="calendar-list-slider-card-widget-title-text">' + title + '</span></div>'
+	          html: "\n\t\t\t\t\t<div class=\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">\n\t\t\t\t\t\t\t".concat(title, "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t")
 	        }));
 	      }
 
@@ -1649,20 +1645,16 @@ this.BX = this.BX || {};
 	          }));
 	          section.DOM.item = li;
 	          section.DOM.checkbox = checkbox;
-	          section.DOM.title = title; //if (sectionId !== 'tasks' || this.calendarContext.util.userIsOwner())
-
-	          {
-	            var actionCont = li.appendChild(main_core.Dom.create('DIV', {
-	              props: {
-	                className: 'calendar-list-slider-item-actions-container'
-	              },
-	              attrs: {
-	                'data-bx-calendar-section-menu': sectionId
-	              },
-	              html: '<span class="calendar-list-slider-item-context-menu"></span>'
-	            }));
-	            section.DOM.actionCont = actionCont;
-	          }
+	          section.DOM.title = title;
+	          section.DOM.actionCont = li.appendChild(main_core.Dom.create('DIV', {
+	            props: {
+	              className: 'calendar-list-slider-item-actions-container'
+	            },
+	            attrs: {
+	              'data-bx-calendar-section-menu': sectionId
+	            },
+	            html: '<span class="calendar-list-slider-item-context-menu"></span>'
+	          }));
 	        });
 	      }
 	    }
@@ -1804,13 +1796,20 @@ this.BX = this.BX || {};
 	          }
 	        });
 
-	        if (this.calendarContext.syncInterface && this.calendarContext.syncInterface.syncButton) {
+	        if ((section.isGoogle() || section.isCalDav()) && section.canDo('edit_section')) {
 	          menuItems.push({
 	            text: main_core.Loc.getMessage('EC_ACTION_EXTERNAL_ADJUST'),
 	            onclick: function onclick() {
 	              _this4.sectionActionMenu.close();
 
-	              _this4.calendarContext.syncInterface.syncButton.handleClick();
+	              var _this4$calendarContex = _this4.calendarContext.syncInterface.getProviderById(section.data.CAL_DAV_CON),
+	                  _this4$calendarContex2 = babelHelpers.slicedToArray(_this4$calendarContex, 2),
+	                  provider = _this4$calendarContex2[0],
+	                  connection = _this4$calendarContex2[1];
+
+	              if (provider) {
+	                provider.openActiveConnectionSlider(connection);
+	              }
 	            }
 	          });
 	        }
@@ -2066,5 +2065,5 @@ this.BX = this.BX || {};
 
 	exports.SectionInterface = SectionInterface;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar.Controls,BX.Event,BX.UI.EntitySelector,BX,BX.Calendar,BX.Calendar));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Event,BX.UI.EntitySelector,BX,BX.Calendar));
 //# sourceMappingURL=sectioninterface.bundle.js.map

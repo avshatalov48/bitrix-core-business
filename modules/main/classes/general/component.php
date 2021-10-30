@@ -6,6 +6,8 @@
  * @copyright 2001-2013 Bitrix
  */
 
+use Bitrix\Main\IO;
+
 class CBitrixComponent
 {
 	public $__name = "";
@@ -741,7 +743,14 @@ class CBitrixComponent
 		if (!$this->__bInited)
 			return null;
 
-		$this->__templatePage = $templatePage;
+		try
+		{
+			$this->__templatePage = IO\Path::normalize($templatePage);
+		}
+		catch (IO\InvalidPathException $e)
+		{
+			$this->__templatePage = '';
+		}
 
 		$this->__template = new CBitrixComponentTemplate();
 		$this->__template->setLanguageId($this->getLanguageId());

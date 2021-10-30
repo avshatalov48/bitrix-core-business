@@ -49,7 +49,7 @@ class CSocServFacebook extends CSocServAuth
 		if($urlPreviewEnable === 'Y')
 		{
 			$result[] = ['facebook_instagram_url_preview_enable', Loc::getMessage('socserv_fb_instagram_url_preview'), '', ['checkbox']];
-			$result[] = ['note' => Loc::getMessage('socserv_fb_sett_note_oembed')];
+			$result[] = ['note' => Loc::getMessage('socserv_fb_sett_note_oembed_2')];
 		}
 
 		return $result;

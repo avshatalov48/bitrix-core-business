@@ -61,58 +61,6 @@ $arTemplateParameters['TEMPLATE_THEME'] = array(
 	'ADDITIONAL_VALUES' => 'Y'
 );
 
-$lineElementCount = (int)$arCurrentValues['LINE_ELEMENT_COUNT'] ?: 3;
-$pageElementCount = (int)$arCurrentValues['PAGE_ELEMENT_COUNT'] ?: 18;
-
-$arTemplateParameters['PRODUCT_ROW_VARIANTS'] = array(
-	'PARENT' => 'VISUAL',
-	'NAME' => Loc::getMessage('CP_BCS_TPL_PRODUCT_ROW_VARIANTS'),
-	'TYPE' => 'CUSTOM',
-	'BIG_DATA' => 'Y',
-	'COUNT_PARAM_NAME' => 'PAGE_ELEMENT_COUNT',
-	'JS_FILE' => CatalogSectionComponent::getSettingsScript($componentPath, 'dragdrop_add'),
-	'JS_EVENT' => 'initDraggableAddControl',
-	'JS_MESSAGES' => Json::encode(array(
-		'variant' => Loc::getMessage('CP_BCS_TPL_SETTINGS_VARIANT'),
-		'delete' => Loc::getMessage('CP_BCS_TPL_SETTINGS_DELETE'),
-		'quantity' => Loc::getMessage('CP_BCS_TPL_SETTINGS_QUANTITY'),
-		'quantityBigData' => Loc::getMessage('CP_BCS_TPL_SETTINGS_QUANTITY_BIG_DATA')
-	)),
-	'JS_DATA' => Json::encode(CatalogSectionComponent::getTemplateVariantsMap()),
-	'DEFAULT' => Json::encode(CatalogSectionComponent::predictRowVariants($lineElementCount, $pageElementCount))
-);
-
-$arTemplateParameters['ENLARGE_PRODUCT'] = array(
-	'PARENT' => 'VISUAL',
-	'NAME' => Loc::getMessage('CP_BCS_TPL_ENLARGE_PRODUCT'),
-	'TYPE' => 'LIST',
-	'MULTIPLE' => 'N',
-	'ADDITIONAL_VALUES' => 'N',
-	'REFRESH' => 'Y',
-	'DEFAULT' => 'N',
-	'VALUES' => array(
-		'STRICT' => Loc::getMessage('CP_BCS_TPL_ENLARGE_PRODUCT_STRICT'),
-		'PROP' => Loc::getMessage('CP_BCS_TPL_ENLARGE_PRODUCT_PROP')
-	)
-);
-
-$arTemplateParameters['PRODUCT_BLOCKS_ORDER'] = array(
-	'PARENT' => 'VISUAL',
-	'NAME' => Loc::getMessage('CP_BCS_TPL_PRODUCT_BLOCKS_ORDER'),
-	'TYPE' => 'CUSTOM',
-	'JS_FILE' => CatalogSectionComponent::getSettingsScript($componentPath, 'dragdrop_order'),
-	'JS_EVENT' => 'initDraggableOrderControl',
-	'JS_DATA' => Json::encode(array(
-		'price' => Loc::getMessage('CP_BCS_TPL_PRODUCT_BLOCK_PRICE'),
-		'quantityLimit' => Loc::getMessage('CP_BCS_TPL_PRODUCT_BLOCK_QUANTITY_LIMIT'),
-		'quantity' => Loc::getMessage('CP_BCS_TPL_PRODUCT_BLOCK_QUANTITY'),
-		'buttons' => Loc::getMessage('CP_BCS_TPL_PRODUCT_BLOCK_BUTTONS'),
-		'props' => Loc::getMessage('CP_BCS_TPL_PRODUCT_BLOCK_PROPS'),
-		'sku' => Loc::getMessage('CP_BCS_TPL_PRODUCT_BLOCK_SKU')
-	)),
-	'DEFAULT' => 'price,props,sku,quantityLimit,quantity,buttons'
-);
-
 $arTemplateParameters['SHOW_SLIDER'] = array(
 	'PARENT' => 'VISUAL',
 	'NAME' => Loc::getMessage('CP_BCS_TPL_SHOW_SLIDER'),
@@ -215,20 +163,6 @@ if ($iblockExists)
 		);
 	}
 	unset($showedProperties);
-
-	if (isset($arCurrentValues['ENLARGE_PRODUCT']) && $arCurrentValues['ENLARGE_PRODUCT'] === 'PROP')
-	{
-		$arTemplateParameters['ENLARGE_PROP'] = array(
-			'PARENT' => 'VISUAL',
-			'NAME' => Loc::getMessage('CP_BCS_TPL_ENLARGE_PROP'),
-			'TYPE' => 'LIST',
-			'MULTIPLE' => 'N',
-			'ADDITIONAL_VALUES' => 'N',
-			'REFRESH' => 'N',
-			'DEFAULT' => '-',
-			'VALUES' => $defaultValue + $arListPropList
-		);
-	}
 
 	if ($boolSKU)
 	{

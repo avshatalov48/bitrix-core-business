@@ -109,6 +109,18 @@ class GridVariationForm extends VariationForm
 		return $description;
 	}
 
+	protected function buildIblockPropertiesDescriptions(): array
+	{
+		$propertyDescriptions = [];
+
+		foreach ($this->entity->getPropertyCollection() as $property)
+		{
+			$propertyDescriptions[] = $this->getPropertyDescription($property);
+		}
+
+		return $propertyDescriptions;
+	}
+
 	public function getColumnValues(bool $allowDefaultValues = true): array
 	{
 		$values = parent::getValues($allowDefaultValues);

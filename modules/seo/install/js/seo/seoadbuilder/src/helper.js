@@ -53,15 +53,19 @@ export class Helper
 		return this._instance;
 	}
 
-	request(action, requestData, callback)
+	request(action, requestData, callback, analytics)
 	{
 		requestData.action = action;
 		requestData.type = this.seoAccount.provider.TYPE;
 		requestData.clientId = this.seoAccount.clientId;
 
-		this.sendActionRequest(action, requestData, function(response) {
-			this.onResponse(response, callback);
-		});
+		this.sendActionRequest(
+			action,
+			requestData,
+			(response) => this.onResponse(response, callback),
+			null,
+			analytics || {}
+		);
 	}
 
 	onResponse(response, callback)
@@ -72,17 +76,23 @@ export class Helper
 		}
 	}
 
-	sendActionRequest(action, data, callbackSuccess, callbackFailure)
+	sendActionRequest(action, data, callbackSuccess, callbackFailure, analytics)
 	{
 		callbackSuccess = callbackSuccess || null;
 		callbackFailure = callbackFailure || BX.proxy(this.showErrorPopup, this);
 		data = data || {};
+		analytics = analytics || {};
 
-		BX.ajax.runComponentAction(this.seoAccount.componentName, action, {
-			'mode': 'class',
-			'signedParameters': this.signedParameters,
-			'data': data
-		}).then(
+		BX.ajax.runComponentAction(
+			this.seoAccount.componentName,
+			action,
+			{
+				mode: 'class',
+				signedParameters: this.signedParameters,
+				data: data,
+				analyticsLabel: analytics
+			})
+		.then(
 			response => {
 				const data = response.data || {};
 				if (data.error)

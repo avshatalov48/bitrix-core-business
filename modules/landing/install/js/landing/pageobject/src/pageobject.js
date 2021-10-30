@@ -59,6 +59,28 @@ export class PageObject
 		});
 	}
 
+	static getEditPanelContent(): ?HTMLDivElement
+	{
+		return this.cache.remember('editPanel', () => {
+			return this.getRootWindow()
+				.document
+				.querySelector(
+					'.landing-ui-panel-content.landing-ui-panel-content-edit .landing-ui-panel-content-body-content'
+				);
+		});
+	}
+
+	static getStylePanelContent(): ?HTMLDivElement
+	{
+		return this.cache.remember('stylePanel', () => {
+			return this.getRootWindow()
+				.document
+				.querySelector(
+					'.landing-ui-panel-content.landing-ui-panel-style .landing-ui-panel-content-body-content'
+				);
+		});
+	}
+
 	static getBlocks(): BX.Landing.Collection.BlockCollection
 	{
 		return this.getRootWindow().BX.Landing.Block.storage;

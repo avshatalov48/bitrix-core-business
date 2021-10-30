@@ -78,7 +78,7 @@ return array(
 		),
 		'.landing-block-node-header' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_4_FEATURES_4_COLS_WITH_TITLE_STYLE_LANDINGBLOCKNODEHEADER'),
-			'type' => array('border-color', 'heading-v2', 'animation'),
+			'type' => array('heading', 'animation'),
 		),
 		'.landing-block-node-element-separator' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_4_FEATURES_4_COLS_WITH_TITLE_STYLE_LANDINGBLOCKNODESEPARATOR'),

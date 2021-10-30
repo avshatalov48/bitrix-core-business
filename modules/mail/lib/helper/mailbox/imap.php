@@ -115,6 +115,194 @@ class Imap extends Mail\Helper\Mailbox
 		return 1;
 	}
 
+	public function resyncIsOldStatus()
+	{
+		$mailboxID = $this->mailbox['ID'];
+		$directoryHelper = new Mail\Helper\MailboxDirectoryHelper($mailboxID);
+		$syncDirs = $directoryHelper->getSyncDirs();
+
+		$numberOfUnSynchronizedDirs = count($syncDirs);
+
+		foreach ($syncDirs as $dir)
+		{
+			$dirPath = $dir->getPath();
+			$dirId = $dir->getId();
+
+			$internalDate = \Bitrix\Mail\Helper::getLastDeletedOldMessageInternaldate($mailboxID, $dirPath);
+
+			$keyRow = [
+				'MAILBOX_ID' => $mailboxID,
+				'ENTITY_TYPE' => 'DIR',
+				'ENTITY_ID' => $dirId,
+				'PROPERTY_NAME' => 'SYNC_IS_OLD_STATUS',
+			];
+
+			$filter = [
+				'=MAILBOX_ID' => $keyRow['MAILBOX_ID'],
+				'=ENTITY_TYPE' => $keyRow['ENTITY_TYPE'],
+				'=ENTITY_ID' => $keyRow['ENTITY_ID'],
+				'=PROPERTY_NAME' => $keyRow['PROPERTY_NAME'],
+			];
+
+			$startValue = 'started_for_date_'.$internalDate;
+
+			if(Mail\Internals\MailEntityOptionsTable::getCount($filter))
+			{
+				if(Mail\Internals\MailEntityOptionsTable::getList([
+						'select' => [
+							'VALUE',
+						],
+						'filter' => $filter,
+					])->fetchAll()[0]['VALUE'] !== 'completed')
+				{
+					Mail\Internals\MailEntityOptionsTable::update(
+						$keyRow,
+						['VALUE' => $startValue]
+					);
+
+					$synchronizationSuccess = $this->setIsOldStatusesLowerThan($internalDate,$dirPath,$mailboxID);
+
+					if($synchronizationSuccess)
+					{
+						Mail\Internals\MailEntityOptionsTable::update(
+							$keyRow,
+							['VALUE' => 'completed']
+						);
+						$numberOfUnSynchronizedDirs--;
+					}
+				}
+				else
+				{
+					$numberOfUnSynchronizedDirs--;
+				}
+			}
+			else
+			{
+				$fields = $keyRow;
+				$fields['VALUE'] = $startValue;
+				Mail\Internals\MailEntityOptionsTable::add(
+					$fields
+				);
+
+				$synchronizationSuccess = $this->setIsOldStatusesLowerThan($internalDate,$dirPath,$mailboxID);
+
+				if($synchronizationSuccess)
+				{
+					\Bitrix\Mail\Internals\MailEntityOptionsTable::update(
+						$keyRow,
+						['VALUE' => 'completed']
+					);
+					$numberOfUnSynchronizedDirs--;
+				}
+			}
+		}
+
+		if($numberOfUnSynchronizedDirs === 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public function syncFirstDay()
+	{
+		$mailboxID = $this->mailbox['ID'];
+		$directoryHelper = new Mail\Helper\MailboxDirectoryHelper($mailboxID);
+		$syncDirs = $directoryHelper->getSyncDirs();
+
+		$numberOfUnSynchronizedDirs = count($syncDirs);
+
+		foreach ($syncDirs as $dir)
+		{
+			$dirPath = $dir->getPath();
+			$dirId = $dir->getId();
+
+			$internalDate = \Bitrix\Mail\Helper::getStartInternalDateForDir($mailboxID,$dirPath);
+
+			$keyRow = [
+				'MAILBOX_ID' => $mailboxID,
+				'ENTITY_TYPE' => 'DIR',
+				'ENTITY_ID' => $dirId,
+				'PROPERTY_NAME' => 'SYNC_FIRST_DAY',
+			];
+
+			$filter = [
+				'=MAILBOX_ID' => $keyRow['MAILBOX_ID'],
+				'=ENTITY_TYPE' => $keyRow['ENTITY_TYPE'],
+				'=ENTITY_ID' => $keyRow['ENTITY_ID'],
+				'=PROPERTY_NAME' => $keyRow['PROPERTY_NAME'],
+			];
+
+			$startValue = 'started_for_date_'.$internalDate;
+
+			if(Mail\Internals\MailEntityOptionsTable::getCount($filter))
+			{
+				if(Mail\Internals\MailEntityOptionsTable::getList([
+						'select' => [
+							'VALUE',
+						],
+						'filter' => $filter,
+					])->fetchAll()[0]['VALUE'] !== 'completed')
+				{
+					Mail\Internals\MailEntityOptionsTable::update(
+						$keyRow,
+						['VALUE' => $startValue]
+					);
+
+					\CTimeZone::Disable();
+					$synchronizationSuccess = $this->syncDirForSpecificDay($dirPath,$internalDate);
+					\CTimeZone::Enable();
+
+					if($synchronizationSuccess)
+					{
+						Mail\Internals\MailEntityOptionsTable::update(
+							$keyRow,
+							['VALUE' => 'completed']
+						);
+						$numberOfUnSynchronizedDirs--;
+					}
+				}
+				else
+				{
+					$numberOfUnSynchronizedDirs--;
+				}
+			}
+			else
+			{
+				$fields = $keyRow;
+				$fields['VALUE'] = $startValue;
+				Mail\Internals\MailEntityOptionsTable::add(
+					$fields
+				);
+
+				\CTimeZone::Disable();
+				$synchronizationSuccess = $this->syncDirForSpecificDay($dirPath,$internalDate);
+				\CTimeZone::Enable();
+
+				if($synchronizationSuccess)
+				{
+					\Bitrix\Mail\Internals\MailEntityOptionsTable::update(
+						$keyRow,
+						['VALUE' => 'completed']
+					);
+					$numberOfUnSynchronizedDirs--;
+				}
+			}
+		}
+
+		if($numberOfUnSynchronizedDirs === 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	protected function syncInternal()
 	{
 		$count = $this->syncMailbox();
@@ -590,6 +778,138 @@ class Imap extends Mail\Helper\Mailbox
 		return $result;
 	}
 
+	protected function setIsOldStatusesLowerThan($internalDate, $dirPath, $mailboxId)
+	{
+		if($internalDate === false)
+		{
+			return true;
+		}
+
+		$dirsHelper = new Mail\Helper\MailboxDirectoryHelper($mailboxId);
+		$dir = $dirsHelper->getDirByPath($dirPath);
+
+		$entity = \Bitrix\Mail\MailMessageUidTable::getEntity();
+		$connection = $entity->getConnection();
+
+		$where = sprintf(
+			'(%s)',
+			Main\Entity\Query::buildFilterSql(
+					$entity,
+					[
+						'<=INTERNALDATE' => $internalDate,
+						'=DIR_MD5'	=>	$dir->getDirMd5(),
+						'=MAILBOX_ID'	=>	$mailboxId,
+						'!=IS_OLD' => 'Y',
+					]
+				)
+			);
+
+		$connection->query(sprintf(
+			'UPDATE %s SET IS_OLD = "Y", IS_SEEN = "Y" WHERE %s LIMIT 1000',
+			$connection->getSqlHelper()->quote($entity->getDbTableName()),
+			$where
+		));
+
+		if($connection->getAffectedRowsCount() === 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public function syncDirForSpecificDay($dirPath, $internalDate)
+	{
+		if($internalDate === false)
+		{
+			return true;
+		}
+
+		$mailboxID = $this->mailbox['ID'];
+
+		$dirsHelper = new Mail\Helper\MailboxDirectoryHelper($mailboxID);
+
+		$dir = $dirsHelper->getDirByPath($dirPath);
+
+		$meta = $this->client->select($dirPath, $error);
+		$uidtoken = $meta['uidvalidity'];
+
+		//checking the dir for existence or authentication failed
+		if (false === $meta)
+		{
+			return true;
+		}
+
+		$UIDsOnService  = \Bitrix\Mail\Helper::getImapUIDsForSpecificDay($mailboxID, $dirPath, $internalDate);
+
+		$chunks = array_chunk($UIDsOnService, 10);
+
+		$entity = Mail\MailMessageUidTable::getEntity();
+		$connection = $entity->getConnection();
+
+		foreach ($chunks as $chunk)
+		{
+			$connection->query(sprintf(
+				'DELETE FROM %s WHERE %s',
+				Mail\MailMessageUidTable::getTableName(),
+				Main\Entity\Query::buildFilterSql(
+					$entity,
+					[
+						'@MSG_UID' => $chunk,
+						'=MESSAGE_ID' => 0,
+						'=MAILBOX_ID' => $mailboxID,
+						'=DIR_MD5'	=>	$dir->getDirMd5()
+					]
+				)
+			));
+
+			// todo delete this hack when fetcher starts to return data always in the same format
+			if(count($chunk) === 1)
+			{
+				$chunk[] = $chunk[0];
+			}
+
+			$messages = $this->client->fetch(
+				true,
+				$dirPath,
+				join(',', $chunk),
+				'(UID FLAGS INTERNALDATE RFC822.SIZE BODYSTRUCTURE BODY.PEEK[HEADER])',
+				$error
+			);
+
+			if (empty($messages))
+			{
+				if (false === $messages)
+				{
+					$this->warnings->add($this->client->getErrors()->toArray());
+					return true;
+				}
+				break;
+			}
+
+			$this->parseHeaders($messages);
+
+			$this->blacklistMessages($dir->getPath(), $messages);
+
+			$this->prepareMessages($dir->getPath(), $uidtoken, $messages);
+
+			foreach ($messages as $id => $item)
+			{
+				$hashesMAp = [];
+				$this->syncMessage($dir->getPath(), $uidtoken, $item, $hashesMAp, true);
+
+				if ($this->isTimeQuotaExceeded())
+				{
+					return false;
+				}
+			}
+
+		}
+		return true;
+	}
+
 	protected function syncDirInternal($dir)
 	{
 		$count = 0;
@@ -609,9 +929,6 @@ class Imap extends Mail\Helper\Mailbox
 		}
 
 		$this->getDirsHelper()->updateMessageCount($dir->getId(), $meta['exists']);
-
-		$time = time();
-		$timeout = 5;
 
 		while ($range = $this->getSyncRange($dir->getPath(), $uidtoken))
 		{
@@ -664,11 +981,6 @@ class Imap extends Mail\Helper\Mailbox
 					$this->lastSyncResult['newMessageId'] = end($hashesMap);
 					$count++;
 
-					if ($time < time() - $timeout)
-					{
-						$time = time();
-					}
-
 					$numberLeftToFillTheBatch--;
 					if($numberLeftToFillTheBatch === 0 and Main\Loader::includeModule('pull'))
 					{
@@ -705,7 +1017,7 @@ class Imap extends Mail\Helper\Mailbox
 		return $count;
 	}
 
-	public function resyncDir($dirPath)
+	public function resyncDir($dirPath, $numberForResync = false)
 	{
 		$dir = $this->getDirsHelper()->getDirByPath($dirPath);
 
@@ -720,7 +1032,7 @@ class Imap extends Mail\Helper\Mailbox
 			'deleted' => -$this->lastSyncResult['deletedMessages'],
 		];
 
-		$result = $this->resyncDirInternal($dir);
+		$result = $this->resyncDirInternal($dir,$numberForResync);
 
 		$pushParams['updated'] += $this->lastSyncResult['updatedMessages'];
 		$pushParams['deleted'] += $this->lastSyncResult['deletedMessages'];
@@ -737,7 +1049,7 @@ class Imap extends Mail\Helper\Mailbox
 		}
 	}
 
-	protected function resyncDirInternal($dir)
+	protected function resyncDirInternal($dir, $numberForResync = false)
 	{
 		$meta = $this->client->select($dir->getPath(), $error);
 		if (false === $meta)
@@ -809,7 +1121,7 @@ class Imap extends Mail\Helper\Mailbox
 		};
 
 		$messagesNumberInTheMailService = $meta['exists'];
-		$messages = $fetcher($messagesNumberInTheMailService > 10000 ? sprintf('1,%u', $messagesNumberInTheMailService) : '1:*');
+		$messages = $fetcher(($messagesNumberInTheMailService > 10000 || $numberForResync !== false) ? sprintf('1,%u', $messagesNumberInTheMailService) : '1:*');
 
 		if (empty($messages))
 		{
@@ -845,6 +1157,23 @@ class Imap extends Mail\Helper\Mailbox
 		$countDeleted = $result ? $result->getCount() : 0;
 
 		$this->lastSyncResult['deletedMessages'] += $countDeleted;
+
+		//resynchronizing a certain number of messages
+		if($numberForResync !== false)
+		{
+			$range1 = $meta['exists'];
+			$range0 = max($range1 - ($numberForResync - 1), 1);
+			$messages = $fetcher(sprintf('%u:%u', $range0, $range1));
+
+			if (empty($messages))
+			{
+				return;
+			}
+
+			$this->resyncMessages($dir->getPath(), $uidtoken, $messages);
+
+			return;
+		}
 
 		if (!($meta['exists'] > 10000))
 		{
@@ -1241,7 +1570,22 @@ class Imap extends Mail\Helper\Mailbox
 		$this->lastSyncResult['deletedMessages'] += $countDeleted;
 	}
 
-	protected function syncMessage($dirPath, $uidtoken, $message, &$hashesMap = array())
+	protected function completeMessageSync($uid)
+	{
+		$result = Mail\MailMessageUidTable::update(
+			[
+				'ID' => $uid,
+				'MAILBOX_ID' => $this->mailbox['ID'],
+			],
+			[
+				'IS_OLD' => 'N',
+			]
+		);
+
+		return $result->isSuccess();
+	}
+
+	protected function syncMessage($dirPath, $uidtoken, $message, &$hashesMap = array(), $ignoreSyncFrom = false)
 	{
 		$fields = $message['__fields'];
 
@@ -1266,14 +1610,16 @@ class Imap extends Mail\Helper\Mailbox
 		{
 			if ($message['__internaldate']->getTimestamp() < strtotime(sprintf('-%u days', Mail\Helper\LicenseManager::getSyncOldLimit())))
 			{
+				$this->completeMessageSync($fields['ID']);
 				return false;
 			}
 		}
 
-		if (!empty($this->mailbox['OPTIONS']['sync_from']))
+		if (!$ignoreSyncFrom && !empty($this->mailbox['OPTIONS']['sync_from']))
 		{
 			if ($message['__internaldate']->getTimestamp() < $this->mailbox['OPTIONS']['sync_from'])
 			{
+				$this->completeMessageSync($fields['ID']);
 				return false;
 			}
 		}
@@ -1282,12 +1628,14 @@ class Imap extends Mail\Helper\Mailbox
 		{
 			if ($message['__created']->getTimestamp() < $this->mailbox['OPTIONS']['resync_from'])
 			{
+				$this->completeMessageSync($fields['ID']);
 				return false;
 			}
 		}
 
 		if ($fields['MESSAGE_ID'] > 0)
 		{
+			$this->completeMessageSync($fields['ID']);
 			return true;
 		}
 
@@ -1345,6 +1693,8 @@ class Imap extends Mail\Helper\Mailbox
 
 			$this->linkMessage($fields['ID'], $messageId);
 		}
+
+		$this->completeMessageSync($fields['ID']);
 
 		return $messageId > 0;
 	}

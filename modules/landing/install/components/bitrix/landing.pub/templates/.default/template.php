@@ -152,6 +152,17 @@ if ($arResult['SEARCH_RESULT_QUERY'])
 	}
 }
 
+if ($component->request('ts'))
+{
+	?>
+	<script>
+		BX.ready(function() {
+			void new BX.Landing.Pub.TimeStamp();
+		});
+	</script>
+	<?
+}
+
 // landing view
 $landing->view([
 	'check_permissions' => false

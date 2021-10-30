@@ -582,6 +582,7 @@
 }
 
 .ui-sidepanel-menu-counter-white .ui-sidepanel-menu-link-text-counter {
+	margin-left: 10px;
 	background-color: white;
 	color: black;
 	font: 600 11px/16px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;

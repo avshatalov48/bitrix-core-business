@@ -39,8 +39,8 @@ $find_section_section = 0;
 if (isset($_REQUEST['find_section_section']) && is_string($_REQUEST['find_section_section']))
 	$find_section_section = (int)$_REQUEST['find_section_section'];
 
-define("MODULE_ID", "iblock");
-define("ENTITY", "CIBlockDocument");
+const MODULE_ID = "iblock";
+const ENTITY = "CIBlockDocument";
 define("DOCUMENT_TYPE", "iblock_".$IBLOCK_ID);
 
 $bCustomForm = false;

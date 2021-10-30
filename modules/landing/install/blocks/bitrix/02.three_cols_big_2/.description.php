@@ -93,7 +93,7 @@ return [
 			],
 			'.landing-block-node-header' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_2_THREE_COLS_2_STYLE_LANDINGBLOCKNODEHEADER'),
-				'type' => ['border-color', 'heading'],
+				'type' => ['heading'],
 			],
 		],
 	],

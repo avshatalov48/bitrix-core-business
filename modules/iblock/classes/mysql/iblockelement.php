@@ -372,7 +372,7 @@ class CIBlockElement extends CAllIBlockElement
 						" FP".$i.".CODE='".$DB->ForSQL($propID, 200)."'\n"
 					);
 
-			if($db_prop["IBLOCK_ID"])
+			if(isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 				$this->arFilterIBlocks[$db_prop["IBLOCK_ID"]] = $db_prop["IBLOCK_ID"];
 		}
 
@@ -1656,7 +1656,7 @@ class CIBlockElement extends CAllIBlockElement
 			if(is_set($arFields, "IBLOCK_SECTION"))
 				CIBlockElement::SetElementSection($ID, $arFields["IBLOCK_SECTION"], false, $arIBlock["RIGHTS_MODE"] === "E"? $arIBlock["ID"]: 0, $IBLOCK_SECTION_ID);
 
-			if($arIBlock["RIGHTS_MODE"] === "E")
+			if ($arIBlock["RIGHTS_MODE"] === Iblock\IblockTable::RIGHTS_EXTENDED)
 			{
 				$obElementRights = new CIBlockElementRights($arIBlock["ID"], $ID);
 				if(array_key_exists("RIGHTS", $arFields) && is_array($arFields["RIGHTS"]))

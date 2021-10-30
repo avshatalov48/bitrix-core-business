@@ -57,6 +57,8 @@ class Agent
 	{
 		$maxFailCount = 7;
 
+		Rights::setGlobalOff();
+
 		// only custom domain
 		$filterDomains = array_map(function($domain)
 		{
@@ -106,11 +108,11 @@ class Agent
 						Site::randomizeDomain($rowSite['ID']);
 					}
 					// site not exist, delete domain
-					else
+					/*else
 					{
 						Debug::log('removeBadDomain-Domain::delete', var_export($rowSite, true));
 						Domain::delete($domain['ID'])->isSuccess();
-					}
+					}*/
 				}
 				else
 				{
@@ -120,6 +122,8 @@ class Agent
 				}
 			}
 		}
+
+		Rights::setGlobalOn();
 
 		return $customDomainExist ? __CLASS__ . '::' . __FUNCTION__ . '();' : '';
 	}

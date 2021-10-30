@@ -51,7 +51,7 @@
 		this.input = new BX.Landing.UI.Field.Text({
 			placeholder: BX.Landing.Loc.getMessage("FIELD_LINK_TEXT_LABEL"),
 			selector: this.selector,
-			content: this.content.text,
+			content: BX.Text.decode(this.content.text),
 			textOnly: true,
 			onValueChange: function() {
 				this.onValueChangeHandler(this);
@@ -88,6 +88,7 @@
 			placeholder: BX.Landing.Loc.getMessage("FIELD_LINK_HREF_PLACEHOLDER"),
 			selector: this.selector,
 			content: this.content.href,
+			contentRoot: this.contentRoot,
 			onInput: this.onHrefInput.bind(this),
 			textOnly: true,
 			options: this.options,
@@ -124,6 +125,7 @@
 			selector: this.selector,
 			className: "landing-ui-field-dropdown-inline",
 			content: this.content.target,
+			contentRoot: this.contentRoot,
 			items: {
 				"_self": BX.Landing.Loc.getMessage("FIELD_LINK_TARGET_SELF"),
 				"_blank": BX.Landing.Loc.getMessage("FIELD_LINK_TARGET_BLANK"),

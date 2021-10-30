@@ -66,7 +66,7 @@ class JNRouterComponent extends \CBitrixComponent
 				"status" => "failed",
 				"bitrix_sessid"=>bitrix_sessid()
 			]);
-			die();
+			\CMain::FinalActions();
 		}
 
 		\Bitrix\Main\Loader::includeModule("mobileapp");

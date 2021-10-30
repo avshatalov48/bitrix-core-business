@@ -16,6 +16,19 @@ Loc::loadMessages(__FILE__);
 /**
  * Class CallbackSubscriptionTable.
  * @package Bitrix\Seo\LeadAds\Internals
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CallbackSubscription_Query query()
+ * @method static EO_CallbackSubscription_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_CallbackSubscription_Result getById($id)
+ * @method static EO_CallbackSubscription_Result getList(array $parameters = array())
+ * @method static EO_CallbackSubscription_Entity getEntity()
+ * @method static \Bitrix\Seo\LeadAds\Internals\EO_CallbackSubscription createObject($setDefaultValues = true)
+ * @method static \Bitrix\Seo\LeadAds\Internals\EO_CallbackSubscription_Collection createCollection()
+ * @method static \Bitrix\Seo\LeadAds\Internals\EO_CallbackSubscription wakeUpObject($row)
+ * @method static \Bitrix\Seo\LeadAds\Internals\EO_CallbackSubscription_Collection wakeUpCollection($rows)
  */
 class CallbackSubscriptionTable extends Entity\DataManager
 {

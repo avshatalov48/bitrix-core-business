@@ -6,6 +6,7 @@ $MESS["LANDING_TPL_ADD_SITE"] = "Створити сайт";
 $MESS["LANDING_TPL_ADD_SITE_KNOWLEDGE"] = "Створити базу знань";
 $MESS["LANDING_TPL_ADD_SITE_PAGE"] = "Створити сайт";
 $MESS["LANDING_TPL_ADD_SITE_STORE"] = "Створити магазин";
+$MESS["LANDING_TPL_DEV_SITE"] = "Створення девелоперського сайту";
 $MESS["LANDING_TPL_IMPORT_SITE_KNOWLEDGE"] = "Імпорт бази знань";
 $MESS["LANDING_TPL_IMPORT_SITE_PAGE"] = "Імпорт сайту";
 $MESS["LANDING_TPL_IMPORT_SITE_STORE"] = "Імпорт магазину";

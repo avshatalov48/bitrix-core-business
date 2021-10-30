@@ -10,9 +10,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $arParams */
 /** @var array $arResult */
 
-use Bitrix\Crm\Integration\NotificationsManager;
+use \Bitrix\Crm\Integration\NotificationsManager;
 use \Bitrix\Landing\Manager;
-use Bitrix\Main\Loader;
+use \Bitrix\Landing\Restriction;
+use \Bitrix\Main\Loader;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Main\Localization\Loc;
 
@@ -20,6 +21,7 @@ Loc::loadMessages(__FILE__);
 
 $zone = Manager::getZone();
 $context = \Bitrix\Main\Application::getInstance()->getContext();
+$isCrm = Manager::isB24();
 $request = $context->getRequest();
 $navigation = $arResult['NAVIGATION'];
 if ($navigation)
@@ -33,9 +35,7 @@ else
 }
 
 // errors title
-Manager::setPageTitle(
-	$this->__component->getMessageType('LANDING_TPL_TITLE')
-);
+Manager::setPageTitle($component->getMessageType('LANDING_TPL_TITLE'));
 if ($arResult['ERRORS'])
 {
 	\showError(implode("\n", $arResult['ERRORS']));
@@ -48,12 +48,11 @@ if ($arResult['FATAL'])
 // assets
 Manager::setPageView(
 	'BodyClass',
-	'no-all-paddings landing-tile no-background'
+	'no-all-paddings landing-tile no-background no-hidden'
 );
-\CJSCore::init([
-	'sidepanel', 'landing_master', 'action_dialog'
+\Bitrix\Main\UI\Extension::load([
+	'sidepanel', 'landing_master', 'action_dialog', 'ui.buttons'
 ]);
-\Bitrix\Main\UI\Extension::load('ui.buttons');
 \Bitrix\Main\Page\Asset::getInstance()->addCSS(
 	'/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.css'
 );
@@ -64,6 +63,271 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 	$arResult['SITES'] = \Bitrix\Landing\Binding\Group::recognizeSiteTitle(
 		$arResult['SITES']
 	);
+}
+
+// feedback form
+if (
+	$lastPage && !$arResult['IS_DELETED'] &&
+	($arParams['TYPE'] === 'PAGE' || $arParams['TYPE'] === 'KNOWLEDGE') &&
+	(!isset($arResult['LICENSE']) || $arResult['LICENSE'] != 'nfr')
+)
+{
+	$formCode = ($arParams['TYPE'] === 'KNOWLEDGE') ? 'knowledge' : 'developer';
+	?>
+	<div style="display: none">
+		<?$APPLICATION->includeComponent(
+			'bitrix:ui.feedback.form',
+			'',
+			$component->getFeedbackParameters($formCode)
+		);?>
+	</div>
+	<?
+}
+
+// slider's script
+if ($arResult['EXPORT_DISABLED'] === 'Y')
+{
+	echo '<script>function landingExportDisabled(){' . Restriction\Manager::getActionCode('limit_sites_transfer') . '}</script>';
+}
+?>
+<?if ($request->get('IS_AJAX') != 'Y'):?>
+<script>
+	top.BX.addCustomEvent(
+		'BX.Rest.Configuration.Install:onFinish',
+		function(event)
+		{
+			if (!!event.data.elementList && event.data.elementList.length > 0)
+			{
+				var sitePath = '<?= CUtil::jsEscape($arParams['PAGE_URL_SITE']);?>';
+				var gotoSiteButton = null;
+				for (var i = 0; i < event.data.elementList.length; i++)
+				{
+					if(event.data.elementList[i].getAttribute('data-issite') === 'Y')
+					{
+						gotoSiteButton = event.data.elementList[i];
+						if (gotoSiteButton.getAttribute('href').substr(0, 1) === '#')
+						{
+							var gotoSiteId = gotoSiteButton.getAttribute('href').substr(1);
+							sitePath = sitePath.replace(/#site_show#/, gotoSiteId);
+							gotoSiteButton.setAttribute('href', sitePath);
+						}
+					}
+				}
+			}
+
+			BX.onCustomEvent('BX.Landing.Filter:apply');
+		}
+	);
+</script>
+<?endif?>
+
+<?
+if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N') !== 'Y'))
+{
+	if ($arParams['TYPE'] === 'STORE')
+	{
+		$menuItems = [
+			[
+				'text' => Loc::getMessage('LANDING_TPL_ACTION_EDIT_CATALOG'),
+				'href' => $arParams['~PAGE_URL_SITE_EDIT'] . '?tpl=catalog',
+				'sidepanel' => true
+			],
+			[
+				'text' => $component->getMessageType('LANDING_TPL_ACTION_EDIT'),
+				'href' => $arParams['~PAGE_URL_SITE_EDIT'],
+				'sidepanel' => true
+			],
+			[
+				'delimiter' => true
+			],
+			$arResult['EXPORT_DISABLED'] === 'Y'
+			? [
+				  'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
+				  'onclick' => 'landingExportDisabled();'
+			]
+			: [
+				'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
+				'href' => $arParams['~PAGE_URL_SITE_EXPORT'],
+				'sidepanel' => true
+			],
+			[
+				'text' => Loc::getMessage('LANDING_TPL_ACTION_PS'),
+				'href' => SITE_DIR . 'shop/settings/sale_pay_system/?lang=' . LANGUAGE_ID,
+			],
+			[
+				'text' => Loc::getMessage('LANDING_TPL_ACTION_ORDERS'),
+				'href' => SITE_DIR . 'crm/deal/?redirect_to',
+				'bottom' => true,
+				'code' => 'orders'
+			],
+			[
+				'text' => Loc::getMessage('LANDING_TPL_ACTION_PRODUCTS'),
+				'href' => $arParams['SEF']['site_master'] . '?redirect_to=products',
+				'sidepanel' => true,
+				'bottom' => true,
+				'code' => 'products'
+			],
+			[
+				'text' => Loc::getMessage('LANDING_TPL_ACTION_MARKETING'),
+				'href' => SITE_DIR . 'marketing/?marketing_title=Y',
+				'sidepanel' => true,
+				'bottom' => true,
+				'code' => 'marketing'
+			],
+			[
+				'text' => Loc::getMessage('LANDING_TPL_ACTION_PAGES'),
+				'href' => $arParams['~PAGE_URL_SITE'],
+				'bottom' => true,
+				'code' => 'pages'
+			],
+			[
+				'href' => $arParams['~PAGE_URL_SITE_DOMAIN'],
+				'sidepanel' => true
+			],
+			[
+				'href' => $arParams['~PAGE_URL_SITE_CONTACTS'],
+				'shortsidepanel' => true
+			],
+			[
+				'href' => '/bitrix/components/bitrix/sale.bsm.site.master/slider.php',
+				'sidepanel' => true
+			],
+			[
+				'delimiter' => true
+			]
+		];
+	}
+	else
+	{
+		$menuItems = [
+			[
+				'text' => Loc::getMessage('LANDING_TPL_ACTION_ADDPAGE2'),
+				'href' => $arParams['~PAGE_URL_LANDING_EDIT'],
+				'sidepanel' => true
+			],
+			[
+				'delimiter' => true
+			],
+			[
+				'text' => $component->getMessageType('LANDING_TPL_ACTION_EDIT'),
+				'href' => $arParams['~PAGE_URL_SITE_EDIT'],
+				'sidepanel' => true
+			],
+			[
+				'text' => $component->getMessageType('LANDING_TPL_ACTION_EDIT_DESIGN_2'),
+				'href' => $arParams['~PAGE_URL_SITE_DESIGN'],
+				'sidepanel' => true
+			],
+			[
+				'delimiter' => true
+			],
+			$arResult['EXPORT_DISABLED'] === 'Y'
+			? [
+				'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
+				'onclick' => 'landingExportDisabled();'
+			]
+			: [
+				'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
+				'href' => $arParams['~PAGE_URL_SITE_EXPORT'],
+				'sidepanel' => true
+			],
+			[
+				'text' => $component->getMessageType('LANDING_TPL_ACTION_IMPORT'),
+				'href' => \Bitrix\Landing\Transfer\Import\Site::getUrl($arParams['TYPE']),
+				'sidepanel' => true
+			],
+			[
+				'delimiter' => true
+			],
+			[
+				'text' => Loc::getMessage('LANDING_TPL_ACTION_DEALS'),
+				'href' => SITE_DIR . 'crm/deal/?redirect_to',
+				'bottom' => true,
+				'code' => 'orders'
+			],
+			[
+				'text' => Loc::getMessage('LANDING_TPL_ACTION_MARKETING'),
+				'href' => '/marketing/?marketing_title=Y',
+				'sidepanel' => true,
+				'bottom' => true,
+				'code' => 'marketing'
+			],
+			[
+				'text' => 'Cookies',
+				'href' => $arParams['~PAGE_URL_SITE_EDIT'] . '#cookies',
+				'bottom' => true,
+				'code' => 'cookies'
+			],
+			[
+				'href' => $arParams['~PAGE_URL_SITE_DOMAIN'],
+				'sidepanel' => true
+			],
+			[
+				'href' => $arParams['~PAGE_URL_SITE_CONTACTS'],
+				'shortsidepanel' => true
+			],
+			[
+				'href' => '/bitrix/components/bitrix/sale.bsm.site.master/slider.php',
+				'sidepanel' => true
+			],
+		];
+	}
+
+	if ($arResult['ACCESS_SITE_NEW'] === 'Y' && !$arResult['IS_DELETED'])
+	{
+		if ($arParams['TYPE'] === 'STORE')
+		{
+			$urlAdd = $component->getPageParam(
+				str_replace('#site_edit#', 0, $arParams['~PAGE_URL_SITE_EDIT']),
+				['super' => 'Y']
+			);
+		}
+		else
+		{
+			$urlAdd = str_replace('#site_edit#', 0, $arParams['~PAGE_URL_SITE_EDIT']);
+		}
+	}
+	else
+	{
+		$urlAdd = '';
+	}
+
+	$APPLICATION->includeComponent(
+		'bitrix:landing.site_tile',
+		'.default',
+		[
+			'ITEMS' => $arResult['SITES'],
+			'TYPE' => $arParams['TYPE'],
+			'FEEDBACK_CODE' => $formCode ?? null,
+			'PAGE_URL_SITE_ADD' => $urlAdd,
+			'PAGE_URL_SITE' => $arParams['~PAGE_URL_SITE'],
+			'PAGE_URL_DOMAIN' => $arParams['~PAGE_URL_SITE_DOMAIN'],
+			'PAGE_URL_CONTACTS' => $arParams['~PAGE_URL_SITE_CONTACTS'],
+			'PAGE_URL_SITE_DOMAIN_SWITCH' => $arParams['~PAGE_URL_SITE_DOMAIN_SWITCH'],
+			'PAGE_URL_CRM_ORDERS' => '/crm/deal/?redirect_to',
+			'MENU_ITEMS' => $menuItems,
+			'AGREEMENT' => $arResult['AGREEMENT']
+		],
+		$component
+	);
+	if ($navigation->getPageCount() > 1)
+	{
+		?>
+		<div class="landing-navigation --themes">
+			<?$APPLICATION->IncludeComponent(
+				'bitrix:main.pagenavigation',
+				'',
+				array(
+					'NAV_OBJECT' => $navigation,
+					'SEF_MODE' => 'N',
+					'BASE_LINK' => $arResult['CUR_URI']
+				),
+				false
+			);?>
+		</div>
+		<?
+	}
+	return;
 }
 ?>
 
@@ -86,14 +350,14 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 				</span>
 			</span>
 		</div>
-		<?php elseif ($arResult['ACCESS_SITE_NEW'] === 'Y'): ?>
+		<?php elseif ($arResult['ACCESS_SITE_NEW'] === 'Y' && !$arResult['IS_DELETED']): ?>
 		<div class="landing-item landing-item-add-new">
 			<?php $urlEdit = str_replace('#site_edit#', 0, $arParams['PAGE_URL_SITE_EDIT']);?>
 			<span class="landing-item-inner" data-href="<?= $urlEdit ?>">
 				<span class="landing-item-add-new-inner">
 					<span class="landing-item-add-icon"></span>
 					<span class="landing-item-text">
-						<?= $this->__component->getMessageType('LANDING_TPL_ACTION_ADD') ?>
+						<?= $component->getMessageType('LANDING_TPL_ACTION_ADD') ?>
 					</span>
 				</span>
 			</span>
@@ -269,22 +533,9 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 				'.default'
 			);
 		}
-		if (
-			$lastPage &&
-			!$arResult['IS_DELETED'] &&
-			($arParams['TYPE'] === 'PAGE' || $arParams['TYPE'] === 'KNOWLEDGE') &&
-			(!isset($arResult['LICENSE']) || $arResult['LICENSE'] != 'nfr')
-		)
+		if ($formCode ?? null)
 		{
-			$formCode = ($arParams['TYPE'] === 'KNOWLEDGE') ? 'knowledge' : 'developer';
 			?>
-			<div style="display: none">
-				<?$APPLICATION->includeComponent(
-					'bitrix:ui.feedback.form',
-					'',
-					$component->getFeedbackParameters($formCode)
-				);?>
-			</div>
 			<div class="landing-item landing-item-dev" onclick="BX.fireEvent(BX('landing-feedback-<?= $formCode?>-button'), 'click');">
 				<span class="landing-item-inner">
 					<span class="landing-item-dev-title"><?= $component->getMessageType('LANDING_TPL_DEV_HELP');?></span>
@@ -315,34 +566,6 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 <?endif;?>
 
 <script type="text/javascript">
-	<?if ($request->get('IS_AJAX') != 'Y'):?>
-	top.BX.addCustomEvent(
-		'BX.Rest.Configuration.Install:onFinish',
-		function(event)
-		{
-			if (!!event.data.elementList && event.data.elementList.length > 0)
-			{
-				var sitePath = '<?= CUtil::jsEscape($arParams['PAGE_URL_SITE']);?>';
-				var gotoSiteButton = null;
-				for (var i = 0; i < event.data.elementList.length; i++)
-				{
-					if(event.data.elementList[i].getAttribute('data-issite') === 'Y')
-					{
-						gotoSiteButton = event.data.elementList[i];
-						if (gotoSiteButton.getAttribute('href').substr(0, 1) === '#')
-						{
-							var gotoSiteId = gotoSiteButton.getAttribute('href').substr(1);
-							sitePath = sitePath.replace(/#site_show#/, gotoSiteId);
-							gotoSiteButton.setAttribute('href', sitePath);
-						}
-					}
-				}
-			}
-
-			BX.onCustomEvent('BX.Landing.Filter:apply');
-		}
-	);
-	<?php endif; ?>
 	if (
 		typeof BX.SidePanel !== 'undefined' &&
 		typeof BX.SidePanel.Instance !== 'undefined'
@@ -357,9 +580,6 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 		<?php endif; ?>
 		<?if ($arParams['PAGE_URL_LANDING_EDIT']):?>
 		condition.push('<?= str_replace(['#site_show#', '#landing_edit#', '?'], ['(\\\d+)', '(\\\d+)', '\\\?'], CUtil::jsEscape($arParams['PAGE_URL_LANDING_EDIT'])) ?>');
-		<?php endif; ?>
-		<?if ($arParams['PAGE_URL_LANDING_DESIGN']):?>
-		condition.push('<?= str_replace(['#site_show#', '#landing_edit#', '?'], ['(\\\d+)', '(\\\d+)', '\\\?'], CUtil::jsEscape($arParams['PAGE_URL_LANDING_DESIGN'])) ?>');
 		<?php endif; ?>
 		if (condition)
 		{
@@ -510,7 +730,7 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 					}
 				},
 				{
-					text: '<?= CUtil::jsEscape($this->__component->getMessageType('LANDING_TPL_ACTION_EDIT'));?>',
+					text: '<?= CUtil::jsEscape($component->getMessageType('LANDING_TPL_ACTION_EDIT'));?>',
 					href: params.editSite,
 					target: '_blank',
 					disabled: params.isDeleted || params.isSettingsDisabled,
@@ -520,7 +740,7 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 					}
 				},
 				{
-					text: '<?= CUtil::jsEscape($this->__component->getMessageType('LANDING_TPL_ACTION_EDIT_DESIGN_2'))?>',
+					text: '<?= CUtil::jsEscape($component->getMessageType('LANDING_TPL_ACTION_EDIT_DESIGN_2'))?>',
 					href: params.editSiteDesign,
 					target: '_blank',
 					disabled: params.isDeleted || params.isSettingsDisabled,
@@ -570,10 +790,30 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 					}
 				},
 				<?php endif; ?>
+				params.exportSite
+					? {
+						text: '<?= CUtil::jsEscape($component->getMessageType('LANDING_TPL_ACTION_EXPORT'));?>',
+						disabled: params.isDeleted,
+						<?if ($arResult['EXPORT_DISABLED'] == 'Y'):?>
+						onclick: function(event)
+						{
+							landingExportDisabled();
+							BX.PreventDefault(event);
+						}
+						<?php else: ?>
+						href: params.exportSite
+						<?php endif; ?>
+					}
+					: null,
+				params.exportSite
+					? {
+						delimiter: true
+					}
+					: null,
 				{
 					text: params.isDeleted
-							? '<?= CUtil::jsEscape($this->__component->getMessageType('LANDING_TPL_ACTION_UNDELETE'));?>'
-							: '<?= CUtil::jsEscape($this->__component->getMessageType('LANDING_TPL_ACTION_DELETE'));?>',
+							? '<?= CUtil::jsEscape($component->getMessageType('LANDING_TPL_ACTION_UNDELETE'));?>'
+							: '<?= CUtil::jsEscape($component->getMessageType('LANDING_TPL_ACTION_DELETE'));?>',
 					disabled: params.isDeleteDisabled,
 					href: params.deleteSite,
 					onclick: function(event)
@@ -632,27 +872,7 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 								);
 						}
 					}
-				},
-				params.exportSite
-				? {
-					delimiter: true
 				}
-				: null,
-				params.exportSite
-				? {
-					text: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_EXPORT'));?>',
-					disabled: params.isDeleted,
-					<?if ($arResult['EXPORT_DISABLED'] == 'Y'):?>
-					onclick: function(event)
-					{
-						<?= \Bitrix\Landing\Restriction\Manager::getActionCode('limit_sites_transfer');?>
-						BX.PreventDefault(event);
-					}
-					<?php else: ?>
-					href: params.exportSite
-					<?php endif; ?>
-				}
-				: null
 			];
 
 			if (!isMenuShown) {

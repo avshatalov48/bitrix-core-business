@@ -144,7 +144,8 @@
 			full: null,
 			discount: null,
 			percent: null,
-			total: null
+			total: null,
+			blockOldPrice: null
 		};
 		this.obTree = null;
 		this.obPriceRanges = null;
@@ -348,8 +349,9 @@
 					{
 						this.obPrice.full = BX(this.visual.OLD_PRICE_ID);
 						this.obPrice.discount = BX(this.visual.DISCOUNT_PRICE_ID);
+						this.obPrice.blockOldPrice = BX(this.visual.BLOCK_PRICE_OLD);
 
-						if (!this.obPrice.full || !this.obPrice.discount)
+						if (!this.obPrice.blockOldPrice || !this.obPrice.full || !this.obPrice.discount)
 						{
 							this.config.showOldPrice = false;
 						}
@@ -535,6 +537,7 @@
 					if (this.obQuantity)
 					{
 						BX.bind(this.obQuantity, 'change', BX.delegate(this.quantityChange, this));
+						BX.bind(this.obQuantity, 'input', BX.delegate(this.quantityInput, this));
 					}
 				}
 
@@ -1954,6 +1957,47 @@
 			}
 		},
 
+		quantityInput: function()
+		{
+			var curValue = 0,
+				intCount;
+
+			if (this.errorCode === 0 && this.config.showQuantity)
+			{
+				if (this.canBuy)
+				{
+					curValue = this.isDblQuantity ? parseFloat(this.obQuantity.value) : Math.round(this.obQuantity.value);
+					if (!isNaN(curValue))
+					{
+						curValue = this.checkQuantityRange(curValue);
+
+						if (this.checkQuantity)
+						{
+							if (curValue > this.maxQuantity)
+							{
+								curValue = this.maxQuantity;
+							}
+						}
+
+						this.checkPriceRange(curValue);
+
+						intCount = Math.floor(
+							Math.round(curValue * this.precisionFactor / this.stepQuantity) / this.precisionFactor
+						) || 1;
+						curValue = (intCount <= 1 ? this.stepQuantity : intCount * this.stepQuantity);
+						curValue = Math.round(curValue * this.precisionFactor) / this.precisionFactor;
+
+						if (curValue < this.minQuantity)
+						{
+							curValue = this.minQuantity;
+						}
+
+						this.obQuantityCounter.innerText = curValue;
+					}
+				}
+			}
+		},
+
 		quantitySet: function(index)
 		{
 			var strLimit, resetQuantity;
@@ -3001,11 +3045,15 @@
 							html: BX.Currency.currencyFormat(price.RATIO_BASE_PRICE, price.CURRENCY, true)
 						});
 
-						if (this.obPrice.discount)
+						if (this.obPrice.blockOldPrice)
 						{
-							economyInfo = BX.message('ECONOMY_INFO_MESSAGE');
-							economyInfo = economyInfo.replace('#ECONOMY#', BX.Currency.currencyFormat(price.RATIO_DISCOUNT, price.CURRENCY, true));
-							BX.adjust(this.obPrice.discount, {style: {display: ''}, html: economyInfo});
+							if (this.obPrice.discount)
+							{
+								economyInfo = BX.message('ECONOMY_INFO_MESSAGE');
+								economyInfo = economyInfo.replace('#ECONOMY#', BX.Currency.currencyFormat(price.RATIO_DISCOUNT, price.CURRENCY, true));
+								BX.adjust(this.obPrice.discount, {html: economyInfo});
+							}
+							BX.adjust(this.obPrice.blockOldPrice, {style: {display: ''}});
 						}
 					}
 
@@ -3023,7 +3071,14 @@
 					{
 						this.obPrice.full && BX.adjust(this.obPrice.full, {style: {display: 'none'}, html: ''});
 						this.smallCardNodes.oldPrice && BX.adjust(this.smallCardNodes.oldPrice, {style: {display: 'none'}, html: ''});
-						this.obPrice.discount && BX.adjust(this.obPrice.discount, {style: {display: 'none'}, html: ''});
+						if (this.obPrice.blockOldPrice)
+						{
+							if (this.obPrice.discount)
+							{
+								BX.adjust(this.obPrice.discount, {html: ''});
+							}
+							BX.adjust(this.obPrice.blockOldPrice, {style: {display: 'none'}});
+						}
 					}
 
 					if (this.config.showPercent)

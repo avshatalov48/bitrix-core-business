@@ -14,6 +14,22 @@ use \Bitrix\Rest\Configuration;
 class Landing
 {
 	/**
+	 * Local variable to force append REST blocks into the repository.
+	 * @var bool
+	 */
+	protected static $forceAppendRestBlocks = true;
+
+	/**
+	 * Sets local variable to force append REST blocks into the repository.
+	 * @param bool $mode Mode state.
+	 * @return void
+	 */
+	public static function setForceAppendRestBlocks(bool $mode): void
+	{
+		self::$forceAppendRestBlocks = $mode;
+	}
+
+	/**
 	 * Finds repository block and return it id.
 	 * @param string $appCode Application code.
 	 * @param string $xmlId External id application.
@@ -53,7 +69,7 @@ class Landing
 	 * @param bool $ignoreManifest Ignore manifest for detecting files.
 	 * @return array
 	 */
-	protected static function addFilesToBlock(Block $block, array $data, Configuration\Structure $structure, $ignoreManifest = false): array
+	protected static function addFilesToBlock(Block $block, array $data, Configuration\Structure $structure, bool $ignoreManifest = false): array
 	{
 		if (!$ignoreManifest)
 		{
@@ -68,7 +84,10 @@ class Landing
 				{
 					continue;
 				}
-				if ($manifest['nodes'][$selector]['type'] != Node\Type::IMAGE)
+				if (
+					$manifest['nodes'][$selector]['type'] !== Node\Type::IMAGE
+					&& $manifest['nodes'][$selector]['type'] !== Node\Type::STYLE_IMAGE
+				)
 				{
 					continue;
 				}
@@ -121,25 +140,51 @@ class Landing
 		// update style
 		if (isset($block['style']) && is_array($block['style']))
 		{
-			$updatedStyles = [];
-			foreach ($block['style'] as $selector => $classes)
+			foreach ($block['style'] as $selector => $styleData)
 			{
-				if ($selector == '#wrapper')
+				if ($selector === '#wrapper')
 				{
 					$selector = '#' . $blockInstance->getAnchor($blockInstance->getId());
 				}
-				foreach ((array)$classes as $clPos => $clVal)
+				$styleToSet = [];
+				// compatibility for old style export
+				if (!isset($styleData['classList']) && !isset($styleData['style']))
 				{
-					$selectorUpd = $selector . '@' . $clPos;
-					if (!in_array($selectorUpd, $updatedStyles))
+					foreach ((array)$styleData as $clPos => $clVal)
 					{
-						$updatedStyles[] = $selectorUpd;
-						$blockInstance->setClasses([
-							$selectorUpd => [
-								'classList' => (array)$clVal
-							]
-						]);
+						// todo: check compatibility
+						$selectorUpd = $selector . '@' . $clPos;
+						$styleToSet[$selectorUpd]['classList'] = (array)$clVal;
 					}
+				}
+
+				// new style export format (classList + style)
+				if (isset($styleData['classList']))
+				{
+					foreach ($styleData['classList'] as $clPos => $class)
+					{
+						if ($class)
+						{
+							$selectorUpd = $selector . '@' . $clPos;
+							$styleToSet[$selectorUpd]['classList'] = explode(' ', $class);
+						}
+					}
+				}
+				if (isset($styleData['style']))
+				{
+					foreach ($styleData['style'] as $stPos => $styles)
+					{
+						if (!empty($styles))
+						{
+							$selectorUpd = $selector . '@' . $stPos;
+							$styleToSet[$selectorUpd]['style'] = $styles;
+						}
+					}
+				}
+
+				if (!empty($styleToSet))
+				{
+					$blockInstance->setClasses($styleToSet);
 				}
 			}
 		}
@@ -179,13 +224,13 @@ class Landing
 	 * @param bool &$pending This block in pending mode.
 	 * @return int
 	 */
-	protected static function importBlock(LandingCore $landing, array $block, Configuration\Structure $structure, &$pending = false): int
+	protected static function importBlock(LandingCore $landing, array $block, Configuration\Structure $structure, bool &$pending = false): int
 	{
 		static $sort = 0;
 
 		$blockId = 0;
 
-		// if this is repository block
+		// if this is a REST block
 		if (
 			isset($block['repo_block']['app_code']) &&
 			isset($block['repo_block']['xml_id']) &&
@@ -193,6 +238,8 @@ class Landing
 			is_string($block['repo_block']['xml_id'])
 		)
 		{
+			unset($block['code']);
+
 			$repoId = self::getRepoId(
 				$block['repo_block']['app_code'],
 				$block['repo_block']['xml_id']
@@ -201,7 +248,32 @@ class Landing
 			{
 				$block['code'] = 'repo_' . $repoId;
 			}
-			else
+
+			// force append REST blocks
+			if (
+				!isset($block['code']) &&
+				!empty($block['repo_info']) &&
+				self::$forceAppendRestBlocks
+			)
+			{
+				$repoInfo = $block['repo_info'];
+				$res = Repo::add([
+					'APP_CODE' => $block['repo_block']['app_code'],
+					'XML_ID' => $block['repo_block']['xml_id'],
+					'NAME' => $repoInfo['NAME'] ?? null,
+					'DESCRIPTION' => $repoInfo['DESCRIPTION'] ?? null,
+					'SECTIONS' => $repoInfo['SECTIONS'] ?? null,
+					'PREVIEW' => $repoInfo['PREVIEW'] ?? null,
+					'MANIFEST' => serialize(unserialize($repoInfo['MANIFEST'] ?? '', ['allowed_classes' => false])),
+					'CONTENT' => $repoInfo['CONTENT'] ?? null
+				]);
+				if ($res->isSuccess())
+				{
+					$block['code'] = 'repo_' . $res->getId();
+				}
+			}
+
+			if (!isset($block['code']))
 			{
 				$pending = true;
 				$blockId = $landing->addBlock(

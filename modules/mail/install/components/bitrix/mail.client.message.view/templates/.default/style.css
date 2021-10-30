@@ -1,3 +1,9 @@
+@media print {
+	.mail-contact-avatar,.mail-msg-header-group,.mail-msg-view-control-wrapper,.mail-msg-title-icon,.mail-msg-view-reply-panel {
+		display:none !important;
+	}
+}
+
 /* region reset(portal styles) message wrapper styles */
 .mail-msg-view-body h1 {
 	color: black;

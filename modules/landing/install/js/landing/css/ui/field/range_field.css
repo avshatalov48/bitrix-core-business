@@ -97,6 +97,9 @@
     margin-right: 13px;
     box-sizing: border-box;
     border-bottom: 1px rgba(198, 205, 211, .4) solid;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .landing-ui-field-range-output-arrows {

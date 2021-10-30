@@ -10,10 +10,10 @@ IncludeModuleLangFile(__FILE__);
 
 class CIBlockCMLImport
 {
-	const IBLOCK_CACHE_FREEZE = 'D';
-	const IBLOCK_CACHE_FINAL = 'F';
-	const IBLOCK_CACHE_HIT = 'H';
-	const IBLOCK_CACHE_NORMAL = 'N';
+	public const IBLOCK_CACHE_FREEZE = 'D';
+	public const IBLOCK_CACHE_FINAL = 'F';
+	public const IBLOCK_CACHE_HIT = 'H';
+	public const IBLOCK_CACHE_NORMAL = 'N';
 
 	var $LAST_ERROR = "";
 	/** @var bool|array */
@@ -128,7 +128,7 @@ class CIBlockCMLImport
 	function Init(&$next_step, $files_dir = false, $use_crc = true, $preview = false, $detail = false, $use_offers = false, $use_iblock_type_id = false, $table_name = "b_xml_tree")
 	{
 		global $USER;
-		$this->currentUserId = (isset($USER) && is_object($USER) && $USER instanceof CUser ? (int)$USER->GetID() : 0);
+		$this->currentUserId = (isset($USER) && $USER instanceof CUser ? (int)$USER->GetID() : 0);
 
 		$this->next_step = &$next_step;
 		$this->files_dir = $files_dir;
@@ -813,10 +813,14 @@ class CIBlockCMLImport
 			if($ar["ATTRIBUTES"] <> '')
 			{
 				$attrs = unserialize($ar["ATTRIBUTES"], ['allowed_classes' => false]);
-				if(is_array($attrs))
+				if (is_array($attrs))
 				{
-					if(array_key_exists($this->mess["IBLOCK_XML2_UPDATE_ONLY"], $attrs))
-						$this->next_step["bUpdateOnly"] = ($attrs[$this->mess["IBLOCK_XML2_UPDATE_ONLY"]]=="true") || intval($attrs[$this->mess["IBLOCK_XML2_UPDATE_ONLY"]])? true: false;
+					if (isset($attrs[$this->mess["IBLOCK_XML2_UPDATE_ONLY"]]))
+					{
+						$this->next_step["bUpdateOnly"] = $attrs[$this->mess["IBLOCK_XML2_UPDATE_ONLY"]] === "true"
+							|| (int)$attrs[$this->mess["IBLOCK_XML2_UPDATE_ONLY"]] > 0
+						;
+					}
 				}
 			}
 
@@ -826,9 +830,10 @@ class CIBlockCMLImport
 			);
 			while($ar = $rs->Fetch())
 			{
-
 				if(isset($ar["VALUE_CLOB"]))
 					$ar["VALUE"] = $ar["VALUE_CLOB"];
+
+				$trueValue = $ar['VALUE'] === 'true' || (int)$ar['VALUE'] > 0;
 
 				if($ar["NAME"] == $this->mess["IBLOCK_XML2_ID"])
 					$arIBlock["XML_ID"] = ($this->use_iblock_type_id? $IBLOCK_TYPE."-": "").$ar["VALUE"];
@@ -852,7 +857,7 @@ class CIBlockCMLImport
 				elseif($ar["NAME"] == $this->mess["IBLOCK_XML2_METADATA_ID"])
 					$meta_data_xml_id = $ar["VALUE"];
 				elseif($ar["NAME"] == $this->mess["IBLOCK_XML2_UPDATE_ONLY"])
-					$this->next_step["bUpdateOnly"] = ($ar["VALUE"]=="true") || intval($ar["VALUE"])? true: false;
+					$this->next_step["bUpdateOnly"] = $trueValue;
 				elseif($ar["NAME"] == $this->mess["IBLOCK_XML2_BX_CODE"])
 					$arIBlock["CODE"] = $ar["VALUE"];
 				elseif($ar["NAME"] == $this->mess["IBLOCK_XML2_BX_SORT"])
@@ -866,9 +871,9 @@ class CIBlockCMLImport
 				elseif($ar["NAME"] == $this->mess["IBLOCK_XML2_BX_CANONICAL_URL"])
 					$arIBlock["CANONICAL_PAGE_URL"] = $ar["VALUE"];
 				elseif($ar["NAME"] == $this->mess["IBLOCK_XML2_BX_INDEX_ELEMENTS"])
-					$arIBlock["INDEX_ELEMENT"] = ($ar["VALUE"]=="true") || intval($ar["VALUE"])? "Y": "N";
+					$arIBlock["INDEX_ELEMENT"] = $trueValue ? "Y": "N";
 				elseif($ar["NAME"] == $this->mess["IBLOCK_XML2_BX_INDEX_SECTIONS"])
-					$arIBlock["INDEX_SECTION"] = ($ar["VALUE"]=="true") || intval($ar["VALUE"])? "Y": "N";
+					$arIBlock["INDEX_SECTION"] = $trueValue ? "Y": "N";
 				elseif($ar["NAME"] == $this->mess["IBLOCK_XML2_BX_SECTIONS_NAME"])
 					$arIBlock["SECTIONS_NAME"] = $ar["VALUE"];
 				elseif($ar["NAME"] == $this->mess["IBLOCK_XML2_BX_SECTION_NAME"])
@@ -3356,7 +3361,7 @@ class CIBlockCMLImport
 					{
 						if($value[$this->mess["IBLOCK_XML2_VALUE"]] <> '')
 						{
-							list($fileName, $description) = explode("#", $value[$this->mess["IBLOCK_XML2_VALUE"]]);
+							[$fileName, $description] = explode("#", $value[$this->mess["IBLOCK_XML2_VALUE"]]);
 							if (isset($this->arFileDescriptionsMap[$fileName]))
 							{
 								foreach($this->arFileDescriptionsMap[$fileName] as $k => $tmp)
@@ -5097,7 +5102,7 @@ class CIBlockCMLImport
 	 * @param array $counters
 	 * @return int
 	 */
-	public function updateCounters(array $counters)
+	public function updateCounters(array $counters): int
 	{
 		$result = 0;
 
@@ -5120,7 +5125,7 @@ class CIBlockCMLImport
 	 * @param bool $description
 	 * @return array
 	 */
-	public static function getIblockCacheModeList($description = false)
+	public static function getIblockCacheModeList(bool $description = false): array
 	{
 		if ($description)
 		{
@@ -5142,61 +5147,71 @@ class CIBlockCMLImport
 	/**
 	 * @return void
 	 */
-	public function freezeIblockCache()
+	public function freezeIblockCache(): void
 	{
 		if (
 			isset($this->next_step['IBLOCK_ID'])
 			&& $this->next_step['IBLOCK_ID'] > 0
 			&& !$this->isIblockCacheModeNormal()
 		)
-			CIblock::disableClearTagCache();
+		{
+			CIBlock::disableClearTagCache();
+		}
 	}
 
 	/**
 	 * @return void
 	 */
-	public function unFreezeIblockCache()
+	public function unFreezeIblockCache(): void
 	{
 		if (
 			isset($this->next_step['IBLOCK_ID'])
 			&& $this->next_step['IBLOCK_ID'] > 0
 			&& !$this->isIblockCacheModeNormal()
 		)
-			CIblock::enableClearTagCache();
+		{
+			CIBlock::enableClearTagCache();
+		}
 	}
 
 	/**
 	 * @return void
 	 */
-	public function clearIblockCacheOnHit()
+	public function clearIblockCacheOnHit(): void
 	{
 		if (
 			!isset($this->next_step['IBLOCK_ID'])
 			|| $this->next_step['IBLOCK_ID'] <= 0
 			|| !$this->isIblockCacheModeHit()
 		)
+		{
 			return;
+		}
+
 		CIBlock::clearIblockTagCache($this->next_step['IBLOCK_ID']);
 	}
 
 	/**
 	 * @return void
 	 */
-	public function clearIblockCacheAfterFinal()
+	public function clearIblockCacheAfterFinal(): void
 	{
 		if (
 			!isset($this->next_step['IBLOCK_ID'])
 			|| $this->next_step['IBLOCK_ID'] <= 0
 			|| !$this->isIblockCacheModeFinal()
 		)
+		{
 			return;
+		}
+
 		CIBlock::clearIblockTagCache($this->next_step['IBLOCK_ID']);
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getIblockCacheMode()
+	public function getIblockCacheMode(): string
 	{
 		return $this->iblockCacheMode;
 	}
@@ -5204,33 +5219,33 @@ class CIBlockCMLImport
 	/**
 	 * @return bool
 	 */
-	public function isIblockCacheModeNormal()
+	public function isIblockCacheModeNormal(): bool
 	{
-		return $this->getIblockCacheMode() == self::IBLOCK_CACHE_NORMAL;
+		return $this->getIblockCacheMode() === self::IBLOCK_CACHE_NORMAL;
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isIblockCacheModeHit()
+	public function isIblockCacheModeHit(): bool
 	{
-		return $this->getIblockCacheMode() == self::IBLOCK_CACHE_HIT;
+		return $this->getIblockCacheMode() === self::IBLOCK_CACHE_HIT;
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isIblockCacheModeFinal()
+	public function isIblockCacheModeFinal(): bool
 	{
-		return $this->getIblockCacheMode() == self::IBLOCK_CACHE_FINAL;
+		return $this->getIblockCacheMode() === self::IBLOCK_CACHE_FINAL;
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isIblockCacheModeFreeze()
+	public function isIblockCacheModeFreeze(): bool
 	{
-		return $this->getIblockCacheMode() == self::IBLOCK_CACHE_FREEZE;
+		return $this->getIblockCacheMode() === self::IBLOCK_CACHE_FREEZE;
 	}
 
 	/**
@@ -5238,7 +5253,7 @@ class CIBlockCMLImport
 	 *
 	 * @return array
 	 */
-	protected function getStoreList()
+	protected function getStoreList(): array
 	{
 		$result = array();
 		if ($this->bCatalog)
@@ -5261,7 +5276,7 @@ class CIBlockCMLImport
 	 *
 	 * @return array
 	 */
-	protected function getActiveStores()
+	protected function getActiveStores(): array
 	{
 		$result = array();
 		if ($this->bCatalog)
@@ -5605,17 +5620,21 @@ class CIBlockCMLExport
 						$arField,
 					)
 				);
-				while($arEnum = $rsEnum->GetNext())
+				if (is_object($rsEnum))
 				{
-					fwrite($this->fp,
-						"\t\t\t\t\t<".GetMessage("IBLOCK_XML2_CHOICE").">\n"
-						.$this->formatXMLNode(6, GetMessage("IBLOCK_XML2_ID"), $arEnum["XML_ID"])
-						.$this->formatXMLNode(6, GetMessage("IBLOCK_XML2_VALUE"), $arEnum["VALUE"])
-						.$this->formatXMLNode(6, GetMessage("IBLOCK_XML2_BY_DEFAULT"), ($arEnum["DEF"]=="Y"? "true": "false"))
-						.$this->formatXMLNode(6, GetMessage("IBLOCK_XML2_SORT"), intval($arEnum["SORT"]))
-						."\t\t\t\t\t</".GetMessage("IBLOCK_XML2_CHOICE").">\n"
-					);
+					while ($arEnum = $rsEnum->GetNext())
+					{
+						fwrite($this->fp,
+							"\t\t\t\t\t<".GetMessage("IBLOCK_XML2_CHOICE").">\n"
+							.$this->formatXMLNode(6, GetMessage("IBLOCK_XML2_ID"), $arEnum["XML_ID"])
+							.$this->formatXMLNode(6, GetMessage("IBLOCK_XML2_VALUE"), $arEnum["VALUE"])
+							.$this->formatXMLNode(6, GetMessage("IBLOCK_XML2_BY_DEFAULT"), ($arEnum["DEF"] == "Y" ? "true" : "false"))
+							.$this->formatXMLNode(6, GetMessage("IBLOCK_XML2_SORT"), intval($arEnum["SORT"]))
+							."\t\t\t\t\t</".GetMessage("IBLOCK_XML2_CHOICE").">\n"
+						);
+					}
 				}
+				unset($rsEnum);
 
 				fwrite($this->fp, "\t\t\t\t</".GetMessage("IBLOCK_XML2_CHOICE_VALUES").">\n");
 			}
@@ -6323,7 +6342,7 @@ class CIBlockCMLExport
 					$xml_id = $parent_xml_id;
 				else
 				{
-					list($productXmlId, $offerXmlId) = explode("#", $xml_id, 2);
+					[$productXmlId, $offerXmlId] = explode("#", $xml_id, 2);
 					if ($productXmlId !== $parent_xml_id)
 						$xml_id = $parent_xml_id."#".$xml_id;
 				}

@@ -86,8 +86,7 @@ export class CardsForm extends BaseForm
 		});
 
 		this.childForms.forEach((form, index) => {
-			const [code, oldIndex] = form.selector.split('@');
-			form.oldIndex = Text.toNumber(oldIndex);
+			const [code] = form.selector.split('@');
 			form.selector = `${code}@${index}`;
 		});
 	}
@@ -176,7 +175,7 @@ export class CardsForm extends BaseForm
 				bindElement: this.addButton.layout,
 				items: Object.keys(this.presets).map((preset) => {
 					return {
-						text: this.presets[preset].name,
+						html: this.presets[preset].name,
 						className: 'landing-ui-form-cards-preset-popup-item menu-popup-no-icon',
 						onclick: this.onPresetItemClick.bind(this, preset),
 					};

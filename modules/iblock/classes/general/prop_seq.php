@@ -190,29 +190,7 @@ class CIBlockPropertySequence
 	public static function GetUIEntityEditorProperty($settings, $value)
 	{
 		return [
-			'type' => 'custom',
+			'type' => $settings['MULTIPLE'] === 'Y' ? 'multinumber' : 'number',
 		];
-	}
-
-	public static function GetUIEntityEditorPropertyEditHtml(array $params = []) : string
-	{
-		$settings = $params['SETTINGS'] ?? [];
-		$value = $params['VALUE'] ?? '';
-		$paramsHTMLControl = [
-			'MODE' => 'iblock_element_admin',
-			'VALUE' => $params['FIELD_NAME'] ?? '',
-		];
-		return self::GetPropertyFieldHtml($settings, $value, $paramsHTMLControl);
-	}
-
-	public static function GetUIEntityEditorPropertyViewHtml(array $params = []) : string
-	{
-		$settings = $params['SETTINGS'] ?? [];
-		$value = $params['VALUE'] ?? '';
-		$paramsHTMLControl = [
-			'MODE' => 'iblock_element_admin',
-			'VALUE' => $params['FIELD_NAME'] ?? '',
-		];
-		return self::GetPropertyFieldHtml($settings, $value, $paramsHTMLControl);
 	}
 }

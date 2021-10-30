@@ -27,6 +27,7 @@ class Img extends \Bitrix\Landing\Node
 	{
 		$doc = $block->getDom();
 		$resultList = $doc->querySelectorAll($selector);
+		$files = null;
 
 		foreach ($data as $pos => $value)
 		{
@@ -55,7 +56,6 @@ class Img extends \Bitrix\Landing\Node
 				// check permissions to this file ids
 				if ($id || $id2x)
 				{
-					static $files = null;
 					if ($files === null)
 					{
 						$files = File::getFilesFromBlock($block->getId());

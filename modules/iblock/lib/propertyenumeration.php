@@ -21,7 +21,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Iblock
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_PropertyEnumeration_Query query()
+ * @method static EO_PropertyEnumeration_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_PropertyEnumeration_Result getById($id)
+ * @method static EO_PropertyEnumeration_Result getList(array $parameters = array())
+ * @method static EO_PropertyEnumeration_Entity getEntity()
+ * @method static \Bitrix\Iblock\EO_PropertyEnumeration createObject($setDefaultValues = true)
+ * @method static \Bitrix\Iblock\EO_PropertyEnumeration_Collection createCollection()
+ * @method static \Bitrix\Iblock\EO_PropertyEnumeration wakeUpObject($row)
+ * @method static \Bitrix\Iblock\EO_PropertyEnumeration_Collection wakeUpCollection($rows)
+ */
 
 class PropertyEnumerationTable extends Entity\DataManager
 {

@@ -64,7 +64,7 @@ return [
 		],
 		'.landing-block-card-text-block article' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_6_TWO_COLS_BIG_IMG_TEXT_AND_TEXT_BLOCKS_CARDS_LANDINGBLOCKCARDTEXTBLOCK'),
-			'type' => ['box', 'paddings', 'border-color', 'border-color-hover', 'animation'],
+			'type' => ['box', 'paddings', 'border-colors', 'animation'],
 		],
 		'.landing-block-node-text-block-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_6_TWO_COLS_BIG_IMG_TEXT_AND_TEXT_BLOCKS_NODES_LANDINGBLOCKNODETEXTBLOCKTITLE'),

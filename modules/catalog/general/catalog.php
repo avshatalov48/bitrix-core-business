@@ -2,6 +2,7 @@
 use Bitrix\Main,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Catalog;
+use Bitrix\Iblock;
 use Bitrix\Main\Loader;
 
 Loc::loadMessages(__FILE__);
@@ -1420,57 +1421,100 @@ class CAllCatalog
 	{
 		global $APPLICATION;
 
-		$result = true;
+		$messages = [];
 		$id = (int)$fields['ID'];
 		if ($id > 0)
 		{
+			$changeActive = isset($fields['ACTIVE']) && $fields['ACTIVE'] !== 'Y';
+			$changeMultiple = isset($fields['MULTIPLE']) && $fields['MULTIPLE'] !== 'N';
+			$changeType = isset($fields['TYPE']) || array_key_exists('USER_TYPE', $fields);
 			if (
-				isset($fields['ID'])
-				&& isset($fields['ACTIVE'])
-				&& $fields['ACTIVE'] != 'Y'
+				$changeActive
+				|| $changeMultiple
+				|| $changeType
 			)
 			{
-				$iterator = Catalog\CatalogIblockTable::getList(array(
-					'select' => array('IBLOCK_ID', 'PRODUCT_IBLOCK_ID', 'SKU_PROPERTY_ID'),
-					'filter' => array('=SKU_PROPERTY_ID' => $id)
-				));
+				$iterator = Catalog\CatalogIblockTable::getList([
+					'select' => [
+						'IBLOCK_ID',
+						'PRODUCT_IBLOCK_ID',
+						'SKU_PROPERTY_ID',
+					],
+					'filter' => ['=SKU_PROPERTY_ID' => $id],
+				]);
 				$row = $iterator->fetch();
 				unset($iterator);
 				if (!empty($row))
 				{
-					$APPLICATION->ThrowException(Loc::getMessage(
-						'BT_MOD_CATALOG_ERR_CANNOT_DEACTIVE_SKU_PROPERTY',
-						array(
-							'#SKU_PROPERTY_ID#' => $row['SKU_PROPERTY_ID'],
-							'#PRODUCT_IBLOCK_ID#' => $row['PRODUCT_IBLOCK_ID'],
-							'#IBLOCK_ID#' => $row['IBLOCK_ID'],
+					if ($changeActive)
+					{
+						$messages[] = Loc::getMessage(
+							'BT_MOD_CATALOG_ERR_CANNOT_DEACTIVE_SKU_PROPERTY',
+							[
+								'#SKU_PROPERTY_ID#' => $row['SKU_PROPERTY_ID'],
+								'#PRODUCT_IBLOCK_ID#' => $row['PRODUCT_IBLOCK_ID'],
+								'#IBLOCK_ID#' => $row['IBLOCK_ID'],
+							]
+						);
+					}
+					if ($changeMultiple)
+					{
+						$messages[] = Loc::getMessage(
+							'BT_MOD_CATALOG_ERR_CANNOT_SET_MULTIPLE_SKU_PROPERTY',
+							[
+								'#SKU_PROPERTY_ID#' => $row['SKU_PROPERTY_ID'],
+								'#PRODUCT_IBLOCK_ID#' => $row['PRODUCT_IBLOCK_ID'],
+								'#IBLOCK_ID#' => $row['IBLOCK_ID'],
+							]
+						);
+					}
+					if ($changeType)
+					{
+						if (
+							(isset($fields['TYPE']) && $fields['TYPE'] !== Iblock\PropertyTable::TYPE_ELEMENT)
+							|| (array_key_exists('USER_TYPE', $fields) && $fields['USER_TYPE'] !== \CIBlockPropertySKU::USER_TYPE)
 						)
-					));
-					$result = false;
+						{
+							$messages[] = Loc::getMessage(
+								'BT_MOD_CATALOG_ERR_CANNOT_CHANGE_TYPE_SKU_PROPERTY',
+								[
+									'#SKU_PROPERTY_ID#' => $row['SKU_PROPERTY_ID'],
+									'#PRODUCT_IBLOCK_ID#' => $row['PRODUCT_IBLOCK_ID'],
+									'#IBLOCK_ID#' => $row['IBLOCK_ID'],
+								]
+							);
+						}
+					}
 				}
 				unset($row);
 			}
-			elseif (self::isCrmCatalogBrandProperty($id))
+			if (self::isCrmCatalogBrandProperty($id))
 			{
 				$property = \CIBlockProperty::GetByID($id)->Fetch();
 
-				if ($fields['NAME'] !== $property['NAME']) {
-					$APPLICATION->throwException(GetMessage("BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_NAME"));
-					$result = false;
+				if (isset($fields['NAME']) && $fields['NAME'] !== $property['NAME'])
+				{
+					$messages[] = Loc::getMessage('BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_NAME');
 				}
-				elseif ($fields['CODE'] !== 'BRAND') {
-					$APPLICATION->throwException(GetMessage("BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_CODE"));
-					$result = false;
+				elseif (isset($fields['CODE']) && $fields['CODE'] !== 'BRAND')
+				{
+					$messages[] = Loc::getMessage('BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_CODE');
 				}
-				elseif ($fields['MULTIPLE'] !== 'Y') {
-					$APPLICATION->throwException(GetMessage("BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_MULTIPLE"));
-					$result = false;
+				elseif (isset($fields['MULTIPLE']) || $fields['MULTIPLE'] !== 'Y')
+				{
+					$messages[] = Loc::getMessage('BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_MULTIPLE');
 				}
 			}
 			unset($id);
 		}
 
-		return $result;
+		if (!empty($messages))
+		{
+			$APPLICATION->ThrowException(implode('. ', $messages));
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

@@ -23,6 +23,12 @@ this.BX = this.BX || {};
 	  }
 
 	  babelHelpers.createClass(ImageUploader, [{
+	    key: "setSizes",
+	    value: function setSizes(sizes) {
+	      this.options.sizes = sizes;
+	      return this;
+	    }
+	  }, {
 	    key: "getDimensions",
 	    value: function getDimensions() {
 	      var dimensions = Object.entries(this.options.dimensions);

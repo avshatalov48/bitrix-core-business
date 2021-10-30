@@ -34,7 +34,7 @@
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/1332x806/img1.jpg" alt="">
 					</figure>
 
-					<div class="landing-block-node-container js-animation fadeIn media d-block d-md-flex u-bg-overlay__inner g-pos-abs g-bottom-0 g-left-0 w-100 g-px-15 g-py-10 g-pa-50--lg">
+					<div class="landing-block-node-container js-animation fadeIn media d-block d-md-flex u-bg-overlay__inner g-pos-abs g-bottom-0 g-left-0 w-100 g-px-15 g-py-10 g-pa-50--lg g-pointer-events-none">
 						<div class="landing-block-node-card-date landing-semantic-subtitle-big-primary g-line-height-1 g-font-weight-700 g-font-size-36 g-color-primary g-mr-20">
 							02.07
 						</div>
@@ -62,7 +62,7 @@
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/1332x806/img2.jpg" alt="">
 					</figure>
 
-					<div class="landing-block-node-container js-animation fadeIn media d-block d-md-flex u-bg-overlay__inner g-pos-abs g-bottom-0 g-left-0 w-100 g-px-15 g-py-10 g-pa-50--lg">
+					<div class="landing-block-node-container js-animation fadeIn media d-block d-md-flex u-bg-overlay__inner g-pos-abs g-bottom-0 g-left-0 w-100 g-px-15 g-py-10 g-pa-50--lg g-pointer-events-none">
 						<div class="landing-block-node-card-date landing-semantic-subtitle-big-primary g-line-height-1 g-font-weight-700 g-font-size-36 g-color-primary g-mr-20">
 							01.07
 						</div>
@@ -90,7 +90,7 @@
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/1332x806/img3.jpg" alt="">
 					</figure>
 
-					<div class="landing-block-node-container js-animation fadeIn media d-block d-md-flex u-bg-overlay__inner g-pos-abs g-bottom-0 g-left-0 w-100 g-px-15 g-py-10 g-pa-50--lg">
+					<div class="landing-block-node-container js-animation fadeIn media d-block d-md-flex u-bg-overlay__inner g-pos-abs g-bottom-0 g-left-0 w-100 g-px-15 g-py-10 g-pa-50--lg g-pointer-events-none">
 						<div class="landing-block-node-card-date landing-semantic-subtitle-big-primary media-left g-line-height-1 g-font-weight-700 g-font-size-36 g-color-primary g-mr-20">
 							04.06
 						</div>
@@ -117,7 +117,7 @@
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/1332x806/img4.jpg" alt="">
 					</figure>
 
-					<div class="landing-block-node-container js-animation fadeIn media d-block d-md-flex u-bg-overlay__inner g-pos-abs g-bottom-0 g-left-0 w-100 g-px-15 g-py-10 g-pa-50--lg">
+					<div class="landing-block-node-container js-animation fadeIn media d-block d-md-flex u-bg-overlay__inner g-pos-abs g-bottom-0 g-left-0 w-100 g-px-15 g-py-10 g-pa-50--lg g-pointer-events-none">
 						<div class="landing-block-node-card-date landing-semantic-subtitle-big-primary media-left g-line-height-1 g-font-weight-700 g-font-size-36 g-color-primary g-mr-20">
 							02.05
 						</div>

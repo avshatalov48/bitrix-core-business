@@ -29,22 +29,21 @@ class RegionsProvider extends InterestsProvider
 
 		$items = [];
 
-		foreach($response as $value)
+		foreach ($response as $value)
 		{
-			if(!isset($value['country_code']))
+			if (!isset($value['key']))
 			{
 				continue;
 			}
 
-
 			$items[] =
 				new Item(
 					[
-						'id'                   => $value['country_code'],
-						'entityId'             => static::ENTITY_TYPE,
-						'title'                => $value['name'],
+						'id' => $value['key'],
+						'entityId' => static::ENTITY_TYPE,
+						'title' => $value['name'],
 						'tagOptions' => [
-							'bgColor' => "#{$this->stringToColor($value['country_name'])}",
+							'bgColor' => "#{$this->stringToColor($value['key'])}",
 							'textColor' => "#fff"
 						]
 					]

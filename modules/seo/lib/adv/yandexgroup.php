@@ -28,7 +28,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Seo
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_YandexGroup_Query query()
+ * @method static EO_YandexGroup_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_YandexGroup_Result getById($id)
+ * @method static EO_YandexGroup_Result getList(array $parameters = array())
+ * @method static EO_YandexGroup_Entity getEntity()
+ * @method static \Bitrix\Seo\Adv\EO_YandexGroup createObject($setDefaultValues = true)
+ * @method static \Bitrix\Seo\Adv\EO_YandexGroup_Collection createCollection()
+ * @method static \Bitrix\Seo\Adv\EO_YandexGroup wakeUpObject($row)
+ * @method static \Bitrix\Seo\Adv\EO_YandexGroup_Collection wakeUpCollection($rows)
+ */
 
 class YandexGroupTable extends AdvEntity
 {

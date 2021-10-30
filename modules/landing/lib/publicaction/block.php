@@ -680,6 +680,11 @@ class Block
 			}
 		}
 
+		if (strpos($content, 'block-wrapper'))
+		{
+			$content = preg_replace('/^<div.*?class="[^"]*block-wrapper[\s"][^>]+>(.*?)<\/div>$/is', '$1', $content);
+		}
+
 		$landing = Landing::createInstance($lid, [
 			'blocks_id' => $block
 		]);

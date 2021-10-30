@@ -4,7 +4,7 @@
   display: block;
   box-sizing: border-box;
   -webkit-touch-callout: none;
-  -webkit-user-select: none;
+  -webkit-user-select: text;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;

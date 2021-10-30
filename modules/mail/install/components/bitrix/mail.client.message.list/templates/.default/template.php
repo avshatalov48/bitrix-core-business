@@ -88,7 +88,7 @@ if ($userMailboxesLimit >= 0 && $arResult['USER_OWNED_MAILBOXES_COUNT'] >= $user
 	if (\CModule::includeModule('bitrix24'))
 	{
 		$addMailboxMenuItem = array(
-			'html' => '<div onclick="BX.UI.InfoHelper.show(\'mail_user_mailboxes_limit\')">'.
+			'html' => '<div onclick="BX.UI.InfoHelper.show(\'limit_contact_center_mail_box_number\')">'.
 				'<span class="mail-connect-lock-text">' . Loc::getMessage('MAIL_CLIENT_MAILBOX_ADD') . '</span>' .
 				'<span class="mail-connect-lock-icon"></span>' .
 			'</div>',
@@ -139,19 +139,18 @@ $settingsMenu = [
 $this->setViewTarget('mail-msg-counter-panel');
 
 ?>
-<? $isVisibleCounters = ($arResult['UNSEEN'] > 0); ?>
-	<div class="mail-msg-counter">
-		<div class="mail-msg-counter-title <?=($isVisibleCounters ? '' : 'main-ui-hide') ?>" data-role="mail-msg-counter-title">
-			<span class="mail-msg-counter-name"><?=Loc::getMessage('MAIL_MESSAGE_LIST_COUNTERS_TITLE') ?>:</span>
-			<span class="mail-msg-counter-container"
-				data-role="unreadCounter"
-				onclick="BX.Mail.Client.Message.List['<?=CUtil::JSEscape($component->getComponentId())?>'].onUnreadCounterClick()">
-				<span class="mail-msg-counter-inner">
-					<span class="mail-msg-counter-number" data-role="unread-counter-number"><?=intval($arResult['UNSEEN']) ?></span>
-					<span class="mail-msg-counter-text"><?=Loc::getMessage('MAIL_MESSAGE_LIST_COUNTERS_UNSEEN') ?></span>
-				</span>
+<div class="mail-msg-counter">
+	<div class="mail-msg-counter-title main-ui-hide" data-role="mail-msg-counter-title">
+		<span class="mail-msg-counter-name"><?=Loc::getMessage('MAIL_MESSAGE_LIST_COUNTERS_TITLE') ?>:</span>
+		<span class="mail-msg-counter-container"
+			data-role="unreadCounter"
+			onclick="BX.Mail.Client.Message.List['<?=CUtil::JSEscape($component->getComponentId())?>'].onUnreadCounterClick()">
+			<span class="mail-msg-counter-inner">
+				<span class="mail-msg-counter-number" data-role="unread-counter-number"></span>
+				<span class="mail-msg-counter-text"><?=Loc::getMessage('MAIL_MESSAGE_LIST_COUNTERS_UNSEEN') ?></span>
 			</span>
-		</div>
+		</span>
+	</div>
 	<div class="mail-read-all-button-wrapper <?=($isVisibleCounters ? '' : 'main-ui-hide') ?>" data-role="mail-read-all-button">
 		<a href="javascript:;" onclick="BX.Mail.Client.Message.List['<?=CUtil::JSEscape($component->getComponentId())?>'].onReadClick('all')" class="tasks-counter-counter-button" data-role="mail-read-all-button-a">
 			<span class="tasks-counter-counter-button-icon" data-hint="{$readAllTitle}" data-hint-no-icon></span>
@@ -267,7 +266,7 @@ $this->setViewTarget('mail-msg-counter-script');
 			'count': <?= $unseenCountInCurrentMailbox ?>
 		}
 	]);
-	
+
 	if (uiManager.getLastDir() != uiManager.getCurrentFolder())
 	{
 		uiManager.setLastDir();
@@ -329,13 +328,29 @@ if ($arResult['MAILBOX']['SYNC_LOCK'] > 0)
 		Loc::getMessage('MAIL_CLIENT_MAILBOX_INDEX_BAR')
 	) ?>
 
-</div>
-
 <?
 
 $snippet = new Main\Grid\Panel\Snippet();
 
 $actionPanelActionButtons = [
+	[
+		'TYPE' => Main\Grid\Panel\Types::BUTTON,
+		'ID' => $arResult['gridActionsData']['delete']['id'],
+		'ICON' => $arResult['gridActionsData']['delete']['icon'],
+		'TEXT' => $arResult['gridActionsData']['delete']['text'],
+		'ONCHANGE' => [
+			[
+				'ACTION' => Main\Grid\Panel\Actions::CALLBACK,
+				'CONFIRM' => true,
+				'CONFIRM_APPLY_BUTTON' => 'CONFIRM_APPLY_BUTTON',
+				'DATA' => [
+					[
+						'JS' => "BX.Mail.Client.Message.List['" . CUtil::JSEscape($component->getComponentId()) . "'].onDeleteClick()",
+					],
+				],
+			],
+		],
+	],
 	[
 		'TYPE' => \Bitrix\Main\Grid\Panel\Types::BUTTON,
 		'ID' => $arResult['gridActionsData']['read']['id'],
@@ -363,24 +378,6 @@ $actionPanelActionButtons = [
 				'DATA' => [
 					[
 						'JS' => "BX.Mail.Client.Message.List['" . CUtil::JSEscape($component->getComponentId()) . "'].onReadClick()",
-					],
-				],
-			],
-		],
-	],
-	[
-		'TYPE' => Main\Grid\Panel\Types::BUTTON,
-		'ID' => $arResult['gridActionsData']['delete']['id'],
-		'ICON' => $arResult['gridActionsData']['delete']['icon'],
-		'TEXT' => $arResult['gridActionsData']['delete']['text'],
-		'ONCHANGE' => [
-			[
-				'ACTION' => Main\Grid\Panel\Actions::CALLBACK,
-				'CONFIRM' => true,
-				'CONFIRM_APPLY_BUTTON' => 'CONFIRM_APPLY_BUTTON',
-				'DATA' => [
-					[
-						'JS' => "BX.Mail.Client.Message.List['" . CUtil::JSEscape($component->getComponentId()) . "'].onDeleteClick()",
 					],
 				],
 			],
@@ -721,7 +718,7 @@ $APPLICATION->includeComponent(
 		?>
 
 		Mail.Counters.addCounters(<?= Main\Web\Json::encode($arResult['DIRS_WITH_UNSEEN_MAIL_COUNTERS']) ?>);
-		Mail.Counters.setHiddenCountersForTotalCounter(<?= '"'.CUtil::JSEscape($arResult['spamDir']).'","'.CUtil::JSEscape($arResult['trashDir']).'"' ?>);
+		Mail.Counters.setHiddenCountersForTotalCounter(<?= Main\Web\Json::encode($arResult['invisibleDirsToCounters']) ?>);
 
 		Mail.mailboxCounters.addCounters([
 			{
@@ -765,6 +762,8 @@ $APPLICATION->includeComponent(
 			ERROR_CODE_CAN_NOT_MARK_SPAM: 'MAIL_CLIENT_SPAM_FOLDER_NOT_SELECTED_ERROR',
 			ERROR_CODE_CAN_NOT_DELETE: 'MAIL_CLIENT_TRASH_FOLDER_NOT_SELECTED_ERROR'
 		});
+
+		BX.onCustomEvent('BX.DirectoryMenu:onChangeFilter',{directory:'INBOX'});
 
 		var mailboxData = <?=Main\Web\Json::encode(array(
 			'ID'       => $arResult['MAILBOX']['ID'],

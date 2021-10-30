@@ -16,6 +16,19 @@ use Bitrix\Main\ORM\Objectify\EntityObject;
  * @subpackage iblock
  *
  * @method static ElementV1Entity getEntity()
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ElementV1_Query query()
+ * @method static EO_ElementV1_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ElementV1_Result getById($id)
+ * @method static EO_ElementV1_Result getList(array $parameters = array())
+ * @method static EO_ElementV1_Entity getEntity()
+ * @method static \Bitrix\Iblock\ORM\EO_ElementV1 createObject($setDefaultValues = true)
+ * @method static \Bitrix\Iblock\ORM\EO_ElementV1_Collection createCollection()
+ * @method static \Bitrix\Iblock\ORM\EO_ElementV1 wakeUpObject($row)
+ * @method static \Bitrix\Iblock\ORM\EO_ElementV1_Collection wakeUpCollection($rows)
  */
 class ElementV1Table extends CommonElementTable
 {

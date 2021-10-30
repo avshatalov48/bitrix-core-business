@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
-(function (exports,main_core) {
+(function (exports,main_core,main_core_events) {
 	'use strict';
 
 	var Control = /*#__PURE__*/function () {
@@ -64,23 +64,36 @@ this.BX.Landing = this.BX.Landing || {};
 
 	  return data;
 	}
-	var DesignPreview = /*#__PURE__*/function () {
+	var DesignPreview = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(DesignPreview, _EventEmitter);
+
 	  function DesignPreview(form) {
+	    var _this;
+
 	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    var phrase = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 	    babelHelpers.classCallCheck(this, DesignPreview);
-	    this.form = form;
-	    this.phrase = phrase;
-	    this.initControls(options);
-	    this.initLayout();
-	    this.applyStyles();
-	    this.onApplyStyles = this.applyStyles.bind(this);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DesignPreview).call(this));
+
+	    _this.setEventNamespace('BX.Landing.SettingsForm.DesignPreview');
+
+	    _this.form = form;
+	    _this.phrase = phrase;
+
+	    _this.initControls(options);
+
+	    _this.initLayout();
+
+	    _this.applyStyles();
+
+	    _this.onApplyStyles = _this.applyStyles.bind(babelHelpers.assertThisInitialized(_this));
+	    return _this;
 	  }
 
 	  babelHelpers.createClass(DesignPreview, [{
 	    key: "initLayout",
 	    value: function initLayout() {
-	      var _this = this;
+	      var _this2 = this;
 
 	      this.layout = DesignPreview.createLayout(this.phrase);
 	      this.styleNode = document.createElement("style");
@@ -91,21 +104,25 @@ this.BX.Landing = this.BX.Landing || {};
 	      };
 	      var observer = new IntersectionObserver(function (entries) {
 	        entries.forEach(function (entry) {
-	          if (entry.isIntersecting) {
-	            if (!_this.hasOwnProperty('defaultIntersecting')) {
-	              _this.defaultIntersecting = true;
-	            }
+	          var availableHeight = document.documentElement.clientHeight - DesignPreview.HEIGHT_PAGE_TITLE_WRAP;
 
-	            if (_this.defaultIntersecting) {
-	              _this.unFixElement();
-	            }
-	          } else {
-	            if (!_this.hasOwnProperty('defaultIntersecting')) {
-	              _this.defaultIntersecting = false;
-	            }
+	          if (entry.target.getBoundingClientRect().height <= availableHeight) {
+	            if (entry.isIntersecting) {
+	              if (!_this2.hasOwnProperty('defaultIntersecting')) {
+	                _this2.defaultIntersecting = true;
+	              }
 
-	            if (_this.defaultIntersecting) {
-	              _this.fixElement();
+	              if (_this2.defaultIntersecting) {
+	                _this2.unFixElement();
+	              }
+	            } else {
+	              if (!_this2.hasOwnProperty('defaultIntersecting')) {
+	                _this2.defaultIntersecting = false;
+	              }
+
+	              if (_this2.defaultIntersecting) {
+	                _this2.fixElement();
+	              }
 	            }
 	          }
 	        });
@@ -139,7 +156,7 @@ this.BX.Landing = this.BX.Landing || {};
 	            control.setClickHandler(this.applyStyles.bind(this));
 	          }
 
-	          if (group === 'background' && key === 'picture') {
+	          if (group === 'background' && key === 'field') {
 	            control.setClickHandler(this.applyStyles.bind(this));
 	          }
 
@@ -168,33 +185,65 @@ this.BX.Landing = this.BX.Landing || {};
 	        }
 	      }
 
-	      BX.addCustomEvent('BX.Landing.ColorPicker:onSelectColor', this.onApplyStyles.bind(this));
-	      BX.addCustomEvent('BX.Landing.ColorPicker:onClearColorPicker', this.onApplyStyles.bind(this));
-	      BX.addCustomEvent('BX.Landing.UI.Field.Image:onChangeImage', this.onApplyStyles.bind(this));
-	      BX.addCustomEvent('BX.Landing.UI.Panel.GoogleFonts:onSelectFont', this.onApplyStyles.bind(this));
-	      var fieldCode = BX('field-themefonts_code');
-	      var fieldCodeH = BX('field-themefonts_code_h');
-	      var panel = BX.Landing.UI.Panel.GoogleFonts.getInstance();
-	      BX.Dom.append(panel.layout, document.body);
-	      fieldCode.setAttribute("value", this.convertFont(fieldCode.value));
-	      fieldCodeH.setAttribute("value", this.convertFont(fieldCodeH.value));
-	      this.showFontPanel(panel, fieldCode);
-	      this.showFontPanel(panel, fieldCodeH);
+	      if (this.controls.theme.corporateColor.node) {
+	        this.controls.theme.corporateColor.node.subscribe('onSelectColor', this.onApplyStyles.bind(this));
+	      }
+
+	      if (this.controls.background.image.node) {
+	        this.controls.background.image.node.subscribe('change', this.onApplyStyles.bind(this));
+	      }
+
+	      if (this.controls.typo.textColor.node) {
+	        main_core_events.EventEmitter.subscribe(this.controls.typo.textColor.node, 'BX.Landing.ColorPicker:onSelectColor', this.onApplyStyles.bind(this));
+	        main_core_events.EventEmitter.subscribe(this.controls.typo.textColor.node, 'BX.Landing.ColorPicker:onClearColorPicker', this.onApplyStyles.bind(this));
+	      }
+
+	      if (this.controls.typo.hColor.node) {
+	        main_core_events.EventEmitter.subscribe(this.controls.typo.hColor.node, 'BX.Landing.ColorPicker:onSelectColor', this.onApplyStyles.bind(this));
+	        main_core_events.EventEmitter.subscribe(this.controls.typo.hColor.node, 'BX.Landing.ColorPicker:onClearColorPicker', this.onApplyStyles.bind(this));
+	      }
+
+	      if (this.controls.background.color.node) {
+	        main_core_events.EventEmitter.subscribe(this.controls.background.color.node, 'BX.Landing.ColorPicker:onSelectColor', this.onApplyStyles.bind(this));
+	        main_core_events.EventEmitter.subscribe(this.controls.background.color.node, 'BX.Landing.ColorPicker:onClearColorPicker', this.onApplyStyles.bind(this));
+	      }
+
+	      this.panel = BX.Landing.UI.Panel.GoogleFonts.getInstance();
+	      main_core.Dom.append(this.panel.layout, document.body);
+	      var fieldCode = this.controls.typo.textFont.node;
+	      var fieldCodeH = this.controls.typo.hFont.node;
+
+	      if (fieldCode && fieldCodeH) {
+	        fieldCode.setAttribute("value", this.convertFont(fieldCode.value));
+	        fieldCodeH.setAttribute("value", this.convertFont(fieldCodeH.value));
+	        main_core.Event.bind(fieldCode, 'click', this.onCodeClick.bind(this));
+	        main_core.Event.bind(fieldCodeH, 'click', this.onCodeClick.bind(this));
+	      }
 	    }
 	  }, {
-	    key: "showFontPanel",
-	    value: function showFontPanel(panel, element) {
-	      element.onclick = function () {
-	        panel.show({
-	          hideOverlay: true,
-	          targetWindow: 'window'
-	        }).then(function (font) {
-	          if (!this.response) {
-	            element.setAttribute("value", font.family);
-	            BX.onCustomEvent('BX.Landing.UI.Panel.GoogleFonts:onSelectFont');
-	          }
-	        }.bind(this));
-	      };
+	    key: "onCodeClick",
+	    value: function onCodeClick(event) {
+	      var _this3 = this;
+
+	      this.panel.show({
+	        hideOverlay: true,
+	        context: window
+	      }).then(function (font) {
+	        var element = event.target;
+	        element.setAttribute("value", font.family);
+
+	        _this3.onApplyStyles();
+	      });
+	    }
+	  }, {
+	    key: "onApplyStyles",
+	    value: function onApplyStyles() {
+	      this.applyStyles();
+	    }
+	  }, {
+	    key: "applyStyles",
+	    value: function applyStyles() {
+	      this.styleNode.innerHTML = this.generateCss();
 	    }
 	  }, {
 	    key: "generateSelectorStart",
@@ -210,10 +259,24 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getCSSPart1",
 	    value: function getCSSPart1(css) {
 	      var colorPrimary;
-	      var setColors = BX('set-colors');
-	      var colorPickerElement = BX('colorpicker-theme');
-	      var activeColorNode = setColors.querySelector('.active');
-	      var isActiveColorPickerElement = colorPickerElement.classList.contains('active');
+	      var setColors = this.controls.theme.baseColors.node;
+	      var colorPickerElement;
+
+	      if (this.controls.theme.corporateColor.node) {
+	        colorPickerElement = this.controls.theme.corporateColor.node.element;
+	      }
+
+	      var activeColorNode;
+
+	      if (setColors) {
+	        activeColorNode = setColors.querySelector('.active');
+	      }
+
+	      var isActiveColorPickerElement;
+
+	      if (colorPickerElement) {
+	        isActiveColorPickerElement = colorPickerElement.classList.contains('active');
+	      }
 
 	      if (activeColorNode) {
 	        colorPrimary = activeColorNode.dataset.value;
@@ -223,8 +286,10 @@ this.BX.Landing = this.BX.Landing || {};
 	        colorPrimary = colorPickerElement.dataset.value;
 	      }
 
-	      if (colorPrimary[0] !== '#') {
-	        colorPrimary = '#' + colorPrimary;
+	      if (colorPrimary) {
+	        if (colorPrimary[0] !== '#') {
+	          colorPrimary = '#' + colorPrimary;
+	        }
 	      } //for 'design page', if use not checked, use color from 'design site'
 
 
@@ -240,19 +305,51 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "getCSSPart2",
 	    value: function getCSSPart2(css) {
-	      var textColor = this.controls.typo.textColor.node.value;
-	      var font = this.controls.typo.font.node.value;
-	      var hFont = this.controls.typo.hFont.node.value;
-	      var textSize = Math.round(this.controls.typo.textSize.node.value * DesignPreview.DEFAULT_FONT_SIZE) + 'px';
-	      var fontWeight = this.controls.typo.textWeight.node.value;
-	      var fontLineHeight = this.controls.typo.textLineHeight.node.value;
-	      var hColor = this.controls.typo.hColor.node.value;
-	      var hWeight = this.controls.typo.hWeight.node.value;
+	      var textColor;
+	      var textFont;
+	      var hFont;
+	      var textSize;
+	      var fontWeight;
+	      var fontLineHeight;
+	      var hColor;
+	      var hWeight;
+
+	      if (this.controls.typo.textColor.node) {
+	        textColor = this.controls.typo.textColor.node.input.value;
+	      }
+
+	      if (this.controls.typo.textFont.node) {
+	        textFont = this.controls.typo.textFont.node.value;
+	      }
+
+	      if (this.controls.typo.hFont.node) {
+	        hFont = this.controls.typo.hFont.node.value;
+	      }
+
+	      if (this.controls.typo.textSize.node) {
+	        textSize = Math.round(this.controls.typo.textSize.node.value * DesignPreview.DEFAULT_FONT_SIZE) + 'px';
+	      }
+
+	      if (this.controls.typo.textWeight.node) {
+	        fontWeight = this.controls.typo.textWeight.node.value;
+	      }
+
+	      if (this.controls.typo.textLineHeight.node) {
+	        fontLineHeight = this.controls.typo.textLineHeight.node.value;
+	      }
+
+	      if (this.controls.typo.hColor.node) {
+	        hColor = this.controls.typo.hColor.node.input.value;
+	      }
+
+	      if (this.controls.typo.hWeight.node) {
+	        hWeight = this.controls.typo.hWeight.node.value;
+	      }
 
 	      if (this.controls.typo.use.node) {
 	        if (this.controls.typo.use.node.checked === false) {
 	          textColor = this.controls.typo.textColor.defaultValue;
-	          font = this.controls.typo.font.defaultValue;
+	          textFont = this.controls.typo.textFont.defaultValue;
 	          hFont = this.controls.typo.hFont.defaultValue;
 	          textSize = Math.round(this.controls.typo.textSize.defaultValue * DesignPreview.DEFAULT_FONT_SIZE) + 'px';
 	          fontWeight = this.controls.typo.textWeight.defaultValue;
@@ -262,12 +359,21 @@ this.BX.Landing = this.BX.Landing || {};
 	        }
 	      }
 
-	      var link = this.createLink(font);
-	      main_core.Dom.append(link, this.form);
-	      var linkH = this.createLink(hFont);
-	      main_core.Dom.append(linkH, this.form);
+	      var link;
+	      var linkH;
+
+	      if (textFont) {
+	        link = this.createLink(textFont);
+	        main_core.Dom.append(link, this.form);
+	      }
+
+	      if (hFont) {
+	        linkH = this.createLink(hFont);
+	        main_core.Dom.append(linkH, this.form);
+	      }
+
 	      css += "--design-preview-color: ".concat(textColor, ";");
-	      css += "--design-preview-font-theme: ".concat(font, ";");
+	      css += "--design-preview-font-theme: ".concat(textFont, ";");
 	      css += "--design-preview-font-size: ".concat(textSize, ";");
 	      css += "--design-preview-font-weight: ".concat(fontWeight, ";");
 	      css += "--design-preview-line-height: ".concat(fontLineHeight, ";");
@@ -284,19 +390,29 @@ this.BX.Landing = this.BX.Landing || {};
 	        css += "--design-preview-font-weight-h: ".concat(fontWeight, ";");
 	      }
 
-	      if (this.controls.typo.hFont.node.value) {
+	      if (this.controls.typo.hFont.node) {
 	        css += "--design-preview-font-h-theme: ".concat(hFont, ";");
 	      } else {
-	        css += "--design-preview-font-h-theme: ".concat(font, ";");
+	        css += "--design-preview-font-h-theme: ".concat(textFont, ";");
 	      }
 
 	      return css;
 	    }
 	  }, {
+	    key: "createLink",
+	    value: function createLink(font) {
+	      var link = document.createElement('link');
+	      link.rel = 'stylesheet';
+	      link.href = 'https://fonts.googleapis.com/css2?family=';
+	      link.href += font.replace(' ', '+');
+	      link.href += ':wght@100;200;300;400;500;600;700;800;900';
+	      return link;
+	    }
+	  }, {
 	    key: "getCSSPart3",
 	    value: function getCSSPart3(css) {
-	      var bgColor = this.controls.background.color.node.value;
-	      var bgFieldNode = BX('landing-form-background-field');
+	      var bgColor = this.controls.background.color.node.input.value;
+	      var bgFieldNode = this.controls.background.field.node;
 	      var bgPictureElement = bgFieldNode.getElementsByClassName('landing-ui-field-image-hidden');
 	      var bgPicture = bgPictureElement[0].getAttribute('src');
 	      var bgPosition = this.controls.background.position.node.value;
@@ -309,7 +425,7 @@ this.BX.Landing = this.BX.Landing || {};
 	        if (this.controls.background.useSite) {
 	          if (this.controls.background.useSite.defaultValue === 'Y') {
 	            bgColor = this.controls.background.color.defaultValue;
-	            bgPicture = this.controls.background.picture.defaultValue;
+	            bgPicture = this.controls.background.field.defaultValue;
 	            bgPosition = this.controls.background.position.defaultValue;
 	            css += "--design-preview-bg: ".concat(bgColor, ";");
 	          }
@@ -345,16 +461,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      return css;
 	    }
 	  }, {
-	    key: "createLink",
-	    value: function createLink(font) {
-	      var link = document.createElement('link');
-	      link.rel = 'stylesheet';
-	      link.href = 'https://fonts.googleapis.com/css2?family=';
-	      link.href += font.replace(' ', '+');
-	      link.href += ':wght@300;400;500;600;700;900';
-	      return link;
-	    }
-	  }, {
 	    key: "generateCss",
 	    value: function generateCss() {
 	      var css;
@@ -364,16 +470,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      css = this.getCSSPart3(css);
 	      css = this.generateSelectorEnd(css);
 	      return css;
-	    }
-	  }, {
-	    key: "onApplyStyles",
-	    value: function onApplyStyles() {
-	      this.applyStyles();
-	    }
-	  }, {
-	    key: "applyStyles",
-	    value: function applyStyles() {
-	      this.styleNode.innerHTML = this.generateCss();
 	    }
 	  }, {
 	    key: "fixElement",
@@ -429,10 +525,11 @@ this.BX.Landing = this.BX.Landing || {};
 	    }
 	  }]);
 	  return DesignPreview;
-	}();
+	}(main_core_events.EventEmitter);
 	babelHelpers.defineProperty(DesignPreview, "DEFAULT_FONT_SIZE", 14);
+	babelHelpers.defineProperty(DesignPreview, "HEIGHT_PAGE_TITLE_WRAP", 74);
 
 	exports.DesignPreview = DesignPreview;
 
-}((this.BX.Landing.SettingsForm = this.BX.Landing.SettingsForm || {}),BX));
+}((this.BX.Landing.SettingsForm = this.BX.Landing.SettingsForm || {}),BX,BX.Event));
 //# sourceMappingURL=designpreview.bundle.js.map

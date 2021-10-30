@@ -689,14 +689,16 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      var connections = this.getConnections();
 
 	      if (connections.length > 0) {
-	        connections.forEach(function (connection) {
-	          if (connection.getId() === id) {
-	            return connection;
-	          }
+	        var result = connections.filter(function (connection) {
+	          return connection.getId() == id;
 	        });
+
+	        if (result) {
+	          return result[0];
+	        }
 	      }
 
-	      return this.getConnection();
+	      return null;
 	    }
 	  }], [{
 	    key: "createInstance",
@@ -1480,6 +1482,25 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 
 	      this.status = this.STATUS_SUCCESS;
 	      this.refreshContent();
+	    }
+	  }, {
+	    key: "getProviderById",
+	    value: function getProviderById(id) {
+	      var connection = undefined;
+
+	      for (var providerName in this.connectionsProviders) {
+	        if (!this.connectionsProviders[providerName].connected || !['google', 'caldav', 'yandex'].includes(providerName)) {
+	          continue;
+	        }
+
+	        connection = this.connectionsProviders[providerName].getConnectionById(id);
+
+	        if (connection) {
+	          return [this.connectionsProviders[providerName], connection];
+	        }
+	      }
+
+	      return null;
 	    }
 	  }]);
 	  return Manager;

@@ -23,6 +23,11 @@ if (!empty($mailbox))
 }
 else
 {
+	global $USER;
+	$userId = $USER->getId();
+	$siteId = SITE_ID;
+	\CUserCounter::set($userId, 'mail_unseen', 0, $siteId);
+
 	$componentName = 'bitrix:mail.client.config';
 }
 

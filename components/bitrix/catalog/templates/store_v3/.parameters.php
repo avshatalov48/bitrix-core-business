@@ -231,71 +231,6 @@ if ($iblockExists)
 	}
 	unset($showedProperties);
 
-	$arTemplateParameters['LIST_PRODUCT_BLOCKS_ORDER'] = array(
-		'PARENT' => 'LIST_SETTINGS',
-		'NAME' => GetMessage('CP_BC_TPL_PRODUCT_BLOCKS_ORDER'),
-		'TYPE' => 'CUSTOM',
-		'JS_FILE' => CatalogSectionComponent::getSettingsScript('/bitrix/components/bitrix/catalog.section', 'dragdrop_order'),
-		'JS_EVENT' => 'initDraggableOrderControl',
-		'JS_DATA' => Json::encode(array(
-			'price' => GetMessage('CP_BC_TPL_PRODUCT_BLOCK_PRICE'),
-			'quantityLimit' => GetMessage('CP_BC_TPL_PRODUCT_BLOCK_QUANTITY_LIMIT'),
-			'quantity' => GetMessage('CP_BC_TPL_PRODUCT_BLOCK_QUANTITY'),
-			'buttons' => GetMessage('CP_BC_TPL_PRODUCT_BLOCK_BUTTONS'),
-			'props' => GetMessage('CP_BC_TPL_PRODUCT_BLOCK_PROPS'),
-			'sku' => GetMessage('CP_BC_TPL_PRODUCT_BLOCK_SKU')
-		)),
-		'DEFAULT' => 'price,props,sku,quantityLimit,quantity,buttons'
-	);
-
-	$lineElementCount = (int)$arCurrentValues['LINE_ELEMENT_COUNT'] ?: 3;
-	$pageElementCount = (int)$arCurrentValues['PAGE_ELEMENT_COUNT'] ?: 30;
-
-	$arTemplateParameters['LIST_PRODUCT_ROW_VARIANTS'] = array(
-		'PARENT' => 'LIST_SETTINGS',
-		'NAME' => GetMessage('CP_BC_TPL_PRODUCT_ROW_VARIANTS'),
-		'TYPE' => 'CUSTOM',
-		'BIG_DATA' => 'Y',
-		'COUNT_PARAM_NAME' => 'PAGE_ELEMENT_COUNT',
-		'JS_FILE' => CatalogSectionComponent::getSettingsScript('/bitrix/components/bitrix/catalog.section', 'dragdrop_add'),
-		'JS_EVENT' => 'initDraggableAddControl',
-		'JS_MESSAGES' => Json::encode(array(
-			'variant' => GetMessage('CP_BC_TPL_SETTINGS_VARIANT'),
-			'delete' => GetMessage('CP_BC_TPL_SETTINGS_DELETE'),
-			'quantity' => GetMessage('CP_BC_TPL_SETTINGS_QUANTITY'),
-			'quantityBigData' => GetMessage('CP_BC_TPL_SETTINGS_QUANTITY_BIG_DATA')
-		)),
-		'JS_DATA' => Json::encode(CatalogSectionComponent::getTemplateVariantsMap()),
-		'DEFAULT' => Json::encode(CatalogSectionComponent::predictRowVariants($lineElementCount, $pageElementCount))
-	);
-
-	$arTemplateParameters['LIST_ENLARGE_PRODUCT'] = array(
-		'PARENT' => 'LIST_SETTINGS',
-		'NAME' => GetMessage('CP_BC_TPL_ENLARGE_PRODUCT'),
-		'TYPE' => 'LIST',
-		'MULTIPLE' => 'N',
-		'ADDITIONAL_VALUES' => 'N',
-		'REFRESH' => 'Y',
-		'DEFAULT' => 'N',
-		'VALUES' => array(
-			'STRICT' => GetMessage('CP_BC_TPL_ENLARGE_PRODUCT_STRICT'),
-			'PROP' => GetMessage('CP_BC_TPL_ENLARGE_PRODUCT_PROP')
-		)
-	);
-
-	if (isset($arCurrentValues['LIST_ENLARGE_PRODUCT']) && $arCurrentValues['LIST_ENLARGE_PRODUCT'] === 'PROP')
-	{
-		$arTemplateParameters['LIST_ENLARGE_PROP'] = array(
-			'PARENT' => 'LIST_SETTINGS',
-			'NAME' => GetMessage('CP_BC_TPL_ENLARGE_PROP'),
-			'TYPE' => 'LIST',
-			'MULTIPLE' => 'N',
-			'ADDITIONAL_VALUES' => 'N',
-			'REFRESH' => 'N',
-			'DEFAULT' => '-',
-			'VALUES' => $defaultValue + $arListPropList
-		);
-	}
 	$arTemplateParameters['LIST_SHOW_SLIDER'] = array(
 		'PARENT' => 'LIST_SETTINGS',
 		'NAME' => GetMessage('CP_BC_TPL_SHOW_SLIDER'),
@@ -1053,44 +988,6 @@ $arTemplateParameters['MESS_BTN_SUBSCRIBE'] = array(
 	'DEFAULT' => GetMessage('CP_BC_TPL_MESS_BTN_SUBSCRIBE_DEFAULT')
 );
 
-if (ModuleManager::isModuleInstalled("sale"))
-{
-	$arTemplateParameters['USE_SALE_BESTSELLERS'] = array(
-		'NAME' => GetMessage('CP_BC_TPL_USE_SALE_BESTSELLERS'),
-		'TYPE' => 'CHECKBOX',
-		'DEFAULT' => 'Y'
-	);
-
-	$arTemplateParameters['USE_BIG_DATA'] = array(
-		'PARENT' => 'BIG_DATA_SETTINGS',
-		'NAME' => GetMessage('CP_BC_TPL_USE_BIG_DATA'),
-		'TYPE' => 'CHECKBOX',
-		'DEFAULT' => 'Y',
-		'REFRESH' => 'Y'
-	);
-	if (!isset($arCurrentValues['USE_BIG_DATA']) || $arCurrentValues['USE_BIG_DATA'] == 'Y')
-	{
-		$rcmTypeList = array(
-			'personal' => GetMessage('CP_BC_TPL_RCM_PERSONAL'),
-			'bestsell' => GetMessage('CP_BC_TPL_RCM_BESTSELLERS'),
-			'similar_sell' => GetMessage('CP_BC_TPL_RCM_SOLD_WITH'),
-			'similar_view' => GetMessage('CP_BC_TPL_RCM_VIEWED_WITH'),
-			'similar' => GetMessage('CP_BC_TPL_RCM_SIMILAR'),
-			'any_similar' => GetMessage('CP_BC_TPL_RCM_SIMILAR_ANY'),
-			'any_personal' => GetMessage('CP_BC_TPL_RCM_PERSONAL_WBEST'),
-			'any' => GetMessage('CP_BC_TPL_RCM_RAND')
-		);
-		$arTemplateParameters['BIG_DATA_RCM_TYPE'] = array(
-			'PARENT' => 'BIG_DATA_SETTINGS',
-			'NAME' => GetMessage('CP_BC_TPL_BIG_DATA_RCM_TYPE'),
-			'TYPE' => 'LIST',
-			'DEFAULT' => 'personal',
-			'VALUES' => $rcmTypeList
-		);
-		unset($rcmTypeList);
-	}
-}
-
 if (isset($arCurrentValues['SHOW_TOP_ELEMENTS']) && 'Y' == $arCurrentValues['SHOW_TOP_ELEMENTS'])
 {
 	$arTemplateParameters['TOP_VIEW_MODE'] = array(
@@ -1140,71 +1037,6 @@ if (isset($arCurrentValues['SHOW_TOP_ELEMENTS']) && 'Y' == $arCurrentValues['SHO
 			);
 		}
 
-		$arTemplateParameters['TOP_PRODUCT_BLOCKS_ORDER'] = array(
-			'PARENT' => 'TOP_SETTINGS',
-			'NAME' => GetMessage('CP_BC_TPL_PRODUCT_BLOCKS_ORDER'),
-			'TYPE' => 'CUSTOM',
-			'JS_FILE' => CatalogTopComponent::getSettingsScript('/bitrix/components/bitrix/catalog.top', 'dragdrop_order'),
-			'JS_EVENT' => 'initDraggableOrderControl',
-			'JS_DATA' => Json::encode(array(
-				'price' => GetMessage('CP_BC_TPL_PRODUCT_BLOCK_PRICE'),
-				'quantityLimit' => GetMessage('CP_BC_TPL_PRODUCT_BLOCK_QUANTITY_LIMIT'),
-				'quantity' => GetMessage('CP_BC_TPL_PRODUCT_BLOCK_QUANTITY'),
-				'buttons' => GetMessage('CP_BC_TPL_PRODUCT_BLOCK_BUTTONS'),
-				'props' => GetMessage('CP_BC_TPL_PRODUCT_BLOCK_PROPS'),
-				'sku' => GetMessage('CP_BC_TPL_PRODUCT_BLOCK_SKU')
-			)),
-			'DEFAULT' => 'price,props,sku,quantityLimit,quantity,buttons'
-		);
-
-		$lineElementCount = (int)$arCurrentValues['TOP_LINE_ELEMENT_COUNT'] ?: 3;
-		$pageElementCount = (int)$arCurrentValues['TOP_ELEMENT_COUNT'] ?: 9;
-
-		$arTemplateParameters['TOP_PRODUCT_ROW_VARIANTS'] = array(
-			'PARENT' => 'TOP_SETTINGS',
-			'NAME' => GetMessage('CP_BC_TPL_PRODUCT_ROW_VARIANTS'),
-			'TYPE' => 'CUSTOM',
-			'BIG_DATA' => 'N',
-			'COUNT_PARAM_NAME' => 'TOP_ELEMENT_COUNT',
-			'JS_FILE' => CatalogTopComponent::getSettingsScript('/bitrix/components/bitrix/catalog.top', 'dragdrop_add'),
-			'JS_EVENT' => 'initDraggableAddControl',
-			'JS_MESSAGES' => Json::encode(array(
-				'variant' => GetMessage('CP_BC_TPL_SETTINGS_VARIANT'),
-				'delete' => GetMessage('CP_BC_TPL_SETTINGS_DELETE'),
-				'quantity' => GetMessage('CP_BC_TPL_SETTINGS_QUANTITY'),
-				'quantityBigData' => GetMessage('CP_BC_TPL_SETTINGS_QUANTITY_BIG_DATA')
-			)),
-			'JS_DATA' => Json::encode(CatalogTopComponent::getTemplateVariantsMap()),
-			'DEFAULT' => Json::encode(CatalogTopComponent::predictRowVariants($lineElementCount, $pageElementCount))
-		);
-
-		$arTemplateParameters['TOP_ENLARGE_PRODUCT'] = array(
-			'PARENT' => 'TOP_SETTINGS',
-			'NAME' => GetMessage('CP_BC_TPL_ENLARGE_PRODUCT'),
-			'TYPE' => 'LIST',
-			'MULTIPLE' => 'N',
-			'ADDITIONAL_VALUES' => 'N',
-			'REFRESH' => 'Y',
-			'DEFAULT' => 'N',
-			'VALUES' => array(
-				'STRICT' => GetMessage('CP_BC_TPL_ENLARGE_PRODUCT_STRICT'),
-				'PROP' => GetMessage('CP_BC_TPL_ENLARGE_PRODUCT_PROP')
-			)
-		);
-
-		if (isset($arCurrentValues['TOP_ENLARGE_PRODUCT']) && $arCurrentValues['TOP_ENLARGE_PRODUCT'] === 'PROP')
-		{
-			$arTemplateParameters['TOP_ENLARGE_PROP'] = array(
-				'PARENT' => 'TOP_SETTINGS',
-				'NAME' => GetMessage('CP_BC_TPL_ENLARGE_PROP'),
-				'TYPE' => 'LIST',
-				'MULTIPLE' => 'N',
-				'ADDITIONAL_VALUES' => 'N',
-				'REFRESH' => 'N',
-				'DEFAULT' => '-',
-				'VALUES' => $defaultValue + $arListPropList
-			);
-		}
 		$arTemplateParameters['TOP_SHOW_SLIDER'] = array(
 			'PARENT' => 'TOP_SETTINGS',
 			'NAME' => GetMessage('CP_BC_TPL_SHOW_SLIDER'),

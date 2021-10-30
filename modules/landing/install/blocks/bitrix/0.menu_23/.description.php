@@ -46,7 +46,7 @@ return array(
 		'nodes' => array(
 			'.landing-block-node-navbar' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_MENU_23-NAVBAR'),
-				'type' => ['navbar-color', 'navbar-bg', 'navbar-color-hover', 'navbar-bg-hover', 'border-color', 'typo-simple'],
+				'type' => ['navbar-color', 'navbar-bg', 'navbar-color-hover', 'navbar-bg-hover', 'border-colors', 'typo-simple'],
 			),
 		),
 	),

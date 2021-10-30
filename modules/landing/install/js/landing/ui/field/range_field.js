@@ -417,6 +417,7 @@
 			result = result.length ? result[0] : null;
 
 			this.outputInput.innerText = !!result ? result.name : 0;
+			BX.Dom.attr(this.outputInput, 'title', BX.Text.encode(this.outputInput.innerText));
 		},
 
 

@@ -19,6 +19,19 @@ use Bitrix\Main\ORM\Query\Join;
 /**
  * @package    bitrix
  * @subpackage iblock
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ElementProperty_Query query()
+ * @method static EO_ElementProperty_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ElementProperty_Result getById($id)
+ * @method static EO_ElementProperty_Result getList(array $parameters = array())
+ * @method static EO_ElementProperty_Entity getEntity()
+ * @method static \Bitrix\Iblock\EO_ElementProperty createObject($setDefaultValues = true)
+ * @method static \Bitrix\Iblock\EO_ElementProperty_Collection createCollection()
+ * @method static \Bitrix\Iblock\EO_ElementProperty wakeUpObject($row)
+ * @method static \Bitrix\Iblock\EO_ElementProperty_Collection wakeUpCollection($rows)
  */
 class ElementPropertyTable extends DataManager
 {

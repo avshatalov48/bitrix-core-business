@@ -98,6 +98,7 @@
 				var observableBg = [].slice.call(entry.target.querySelectorAll('[data-lazy-bg]'));
 				observableBg.forEach(function (bg)
 				{
+					var origBg = BX.data(bg, 'bg');
 					var origStyle = BX.data(bg, 'style');
 					var origSrc = BX.data(bg, 'src');
 					var origSrc2x = BX.data(bg, 'src2x');
@@ -114,9 +115,26 @@
 						events: {
 							load: function ()
 							{
+								var newBgStyle = bg.getAttribute('style');
+								if (origBg)
+								{
+									var origBgStyle = [];
+									origBg.split('|').forEach(function (bgVal)
+									{
+										origBgStyle.push('background-image:' + bgVal);
+									});
+									newBgStyle += origBgStyle.join(';');
+									bg.style.setProperty('background-image', null);
+								}
+								else if (origStyle)
+								{
+									// compatibility with old format of lazyload attributes (before color control)
+									newBgStyle = origStyle;
+								}
+
 								BX.adjust(bg, {
 									attrs: {
-										'style': origStyle,
+										'style': newBgStyle,
 										'data-style': '',
 										'data-src': '',
 										'data-src2x': ''

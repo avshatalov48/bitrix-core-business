@@ -36,19 +36,43 @@ class Extension extends Base
 	 */
 	public function getContent(): string
     {
-		$content = '';
+		$content = "\n//extension '{$this->name}'\n";
+		$content .=$this->getLangDefinitionExpression();
 		$extensionFile = new File($this->path . '/extension.js');
-		if ($extensionFile->isExists() && $extensionContent = $extensionFile->getContents())
+		if ($extensionData = $this->getResult())
 		{
-			$localizationPhrases = $this->getLangDefinitionExpression();
-			$content .= "\n//extension '{$this->name}'\n";
-
-			$content .= $localizationPhrases;
-			$content .= $extensionContent;
-			$content .= "\n\n";
+			if ($extensionData !== '')
+			{
+				$content .= <<<JS
+this.jnExtensionData.set("{$this->name}", {$extensionData});
+JS;
+			}
 		}
 
+		if ($extensionFile->isExists() && $extensionContent = $extensionFile->getContents())
+		{
+			$content .= $extensionContent;
+		}
+
+		$content .= "\n\n";
+
 		return $content;
+	}
+
+	private function getResult(): ?string
+	{
+		$file = new File($this->path . '/extension.php');
+		$result = null;
+		if ($file->isExists())
+		{
+			$result = include($file->getPath());
+		}
+
+		if (is_array($result) && count($result) > 0 ) {
+			return json_encode($result);
+		}
+
+		return null;
 	}
 
 	public function getIncludeExpression($callbackName = 'onExtensionsLoaded'): string

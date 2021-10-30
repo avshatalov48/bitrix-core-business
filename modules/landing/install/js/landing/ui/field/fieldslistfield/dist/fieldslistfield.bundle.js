@@ -198,7 +198,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        if (this.isFieldAvailable(options.id)) {
 	          listItemOptions.title = this.getFieldItemTitle(options.id);
 	          var crmField = this.getCrmFieldById(options.id);
-	          listItemOptions.description = options.label || crmField.caption;
+	          listItemOptions.description = options.label || (crmField ? crmField.caption : '');
 	          listItemOptions.editable = true;
 	          listItemOptions.isSeparator = false;
 	          listItemOptions.fieldController = this.createResourceBookingFieldController(options);

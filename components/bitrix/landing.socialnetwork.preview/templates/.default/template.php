@@ -18,7 +18,7 @@ $this->addExternalCss('/bitrix/css/main/font-awesome.css');
 			<?if ($preview['PICTURE']):?>
 				<div class="urlpreview_landing__image">
 					<a href="<?= \htmlspecialcharsbx($preview['URL']);?>" target="_blank">
-						<img src="<?= $preview['PICTURE'];?>" alt="<?= \htmlspecialcharsbx($preview['TITLE']);?>" >
+						<img src="<?= $preview['PICTURE'];?>" style="max-width: 300px; max-height: 300px;" alt="<?= \htmlspecialcharsbx($preview['TITLE']);?>" >
 					</a>
 				</div>
 			<?endif?>

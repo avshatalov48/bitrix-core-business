@@ -258,6 +258,9 @@
 					this.field.content = value;
 					this.field.hrefInput.content = value.href;
 					this.field.hrefInput.makeDisplayedHrefValue();
+					this.field.hrefInput.setHrefTypeSwitcherValue(
+						this.field.hrefInput.getHrefStringType()
+					);
 					this.field.hrefInput.removeHrefTypeFromHrefString();
 				}
 			}

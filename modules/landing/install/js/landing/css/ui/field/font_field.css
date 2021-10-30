@@ -16,7 +16,5 @@
 }
 
 .landing-ui-field-font-link {
-	cursor: pointer;
-	border-bottom: 1px dashed;
-	font-size: 13px;
+	font-size: 13px !important;
 }

@@ -80,6 +80,7 @@ class MailboxDirectoryStorage
 		$outcome = [];
 		$spam = [];
 		$trash = [];
+		$draft = [];
 		$hashed = [];
 
 		foreach ($items as $item)
@@ -102,6 +103,11 @@ class MailboxDirectoryStorage
 				$spam[] = $item;
 			}
 
+			if ($item->isDraft())
+			{
+				$draft[] = $item;
+			}
+
 			if ($item->isTrash())
 			{
 				$trash[] = $item;
@@ -114,6 +120,7 @@ class MailboxDirectoryStorage
 		$this->setData('outcome', $outcome);
 		$this->setData('spam', $spam);
 		$this->setData('trash', $trash);
+		$this->setData('draft', $draft);
 		$this->setData('hashed', $hashed);
 	}
 }

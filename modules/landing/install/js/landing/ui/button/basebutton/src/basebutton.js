@@ -150,18 +150,18 @@ export class BaseButton extends EventEmitter
 
 	disable()
 	{
-		Dom.addClass(this.layout, 'landing-ui-disable');
+		Dom.addClass(this.layout, 'landing-ui-disabled');
 	}
 
 	enable()
 	{
-		Dom.removeClass(this.layout, 'landing-ui-disable');
+		Dom.removeClass(this.layout, 'landing-ui-disabled');
 		Dom.attr(this.layout, 'disabled', null);
 	}
 
 	isEnabled()
 	{
-		return !Dom.hasClass(this.layout, 'landing-ui-disable');
+		return !Dom.hasClass(this.layout, 'landing-ui-disabled');
 	}
 
 	show()

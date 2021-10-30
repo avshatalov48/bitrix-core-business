@@ -62,12 +62,15 @@ class CatalogImageInput extends \CBitrixComponent implements Errorable
 		elseif ($entity instanceof \Bitrix\Catalog\v2\Sku\BaseSku)
 		{
 			$product = $entity->getParent();
-			$this->arResult['JS_PARAMS'] = [
-				'saveable' => $this->arParams['ENABLE_AUTO_SAVING'],
-				'iblockId' => $product->getIblockId(),
-				'productId' => $product->getId(),
-				'skuId' => $entity->getId(),
-			];
+			if ($product instanceof \Bitrix\Catalog\v2\BaseIblockElementEntity)
+			{
+				$this->arResult['JS_PARAMS'] = [
+					'saveable' => $this->arParams['ENABLE_AUTO_SAVING'],
+					'iblockId' => $product->getIblockId(),
+					'productId' => $product->getId(),
+					'skuId' => $entity->getId(),
+				];
+			}
 		}
 
 		$this->arResult['JS_PARAMS']['inputId'] = $this->arParams['INPUT_ID'] ?? '';

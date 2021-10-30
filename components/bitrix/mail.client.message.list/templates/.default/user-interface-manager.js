@@ -18,6 +18,7 @@
 		this.ENTITY_TYPE_BLOG_POST = options.ENTITY_TYPE_BLOG_POST;
 		this.settingsMenu = options.settingsMenu;
 		this.readActionBtnRole = 'read-action';
+		this.notReadActionBtnRole = 'not-read-action';
 		this.spamActionBtnRole = 'spam-action';
 		this.crmActionBtnRole = 'crm-action';
 		this.hideClassName = 'main-ui-hide';
@@ -74,7 +75,7 @@
 			}.bind(this));
 			BX.addCustomEvent('Grid::thereSelectedRows', this.handleGridSelectItem.bind(this));
 			BX.addCustomEvent('Grid::allRowsSelected', this.handleGridSelectItem.bind(this));
-			
+
 			BX.addCustomEvent('mail:openMessageForView',
 				function(event)
 				{
@@ -465,7 +466,7 @@
 				var readBtn = BX.findParent(popupWindow.getPopupContainer().querySelector('[data-role^="read"]'), {className: 'menu-popup-item'});
 
 				var actionName = this.isSelectedRowsHaveClass('mail-msg-list-cell-unseen', tableRow.dataset.id) ? 'markAsSeen' : 'markAsUnseen';
-				
+
 				if (actionName === 'markAsSeen')
 				{
 					this.showElement(readBtn, true);
@@ -572,7 +573,7 @@
 		updateLeftMenuCounter: function ()
 		{
 			var unseen = BX.Mail.Home.mailboxCounters.getTotalCounter();
-			if (typeof top.B24 === "object" && typeof top.B24.updateCounters === "function" && unseen > 0)
+			if (typeof top.B24 === "object" && typeof top.B24.updateCounters === "function")
 			{
 				top.B24.updateCounters({mail_unseen: unseen});
 			}
@@ -615,12 +616,18 @@
 				for (var i = 0; i < selectedIds.length; i++)
 				{
 					var row = this.getGridInstance().getRows().getById(selectedIds[i]);
+					
 					if (row && row.node)
 					{
-						row.node.setAttribute("unseen", "true");
-						row.node.cells[2].classList.add('mail-msg-list-cell-unseen');
-						row.node.cells[3].classList.add('mail-msg-list-cell-unseen');
-						row.node.cells[4].classList.add('mail-msg-list-cell-unseen');
+						var oldMessage = row.node.getElementsByClassName('mail-msg-list-cell-old');
+
+						if (!(oldMessage && oldMessage.length) )
+						{
+							row.node.setAttribute("unseen", "true");
+							row.node.cells[2].classList.add('mail-msg-list-cell-unseen');
+							row.node.cells[3].classList.add('mail-msg-list-cell-unseen');
+							row.node.cells[4].classList.add('mail-msg-list-cell-unseen');
+						}
 					}
 				}
 			}
@@ -696,14 +703,27 @@
 		updateSeenBtn: function ()
 		{
 			var actionName = this.isSelectedRowsHaveClass('mail-msg-list-cell-unseen') ? 'markAsSeen' : 'markAsUnseen';
-			if (actionName === 'markAsSeen')
+			var selectedIds = this.getGridInstance().getRows().getSelectedIds();
+			var oldMessagesNumber = this.isSelectedRowsHaveClass('mail-msg-list-cell-old');
+
+			if(selectedIds.length === oldMessagesNumber)
 			{
-				this.activateBtn(this.readActionBtnRole);
+				this.disActivateBtn(this.readActionBtnRole);
+				this.disActivateBtn(this.notReadActionBtnRole);
 			}
 			else
 			{
-				this.disActivateBtn(this.readActionBtnRole);
+				this.activateBtn(this.notReadActionBtnRole);
+				if (actionName === 'markAsSeen')
+				{
+					this.activateBtn(this.readActionBtnRole);
+				}
+				else
+				{
+					this.disActivateBtn(this.readActionBtnRole);
+				}
 			}
+
 		},
 		setDefaultBtnOnShow: function (panel)
 		{
@@ -730,11 +750,11 @@
 					}
 				});
 			}
-			
+
 			var popup = BX.Main.MenuManager.getMenuById('ui-action-panel-item-popup-menu');
 			popup && popup.close();
 
-			this.toggleButton(this.readActionBtnRole, false);
+			this.toggleButton(this.readActionBtnRole, true);
 			this.toggleButton('not-' + this.readActionBtnRole, false);
 			this.activateBtn(this.crmActionBtnRole);
 			this.updateSpamBtn();

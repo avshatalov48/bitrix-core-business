@@ -400,7 +400,7 @@ export class List
 		{
 			selectedIds = [id];
 		}
-		
+
 		selectedIds = this.filterRowsByClassName(this.disabledClassName, selectedIds, true);
 		options.ids = selectedIds;
 
@@ -548,6 +548,7 @@ export class List
 
 		resultIds = this.filterRowsByClassName('mail-msg-list-cell-unseen', resultIds, actionName !== 'markAsSeen');
 		resultIds = this.filterRowsByClassName(this.disabledClassName, resultIds, true);
+
 		if (!resultIds.length)
 		{
 			return;
@@ -556,18 +557,21 @@ export class List
 		const handler = function() {
 			this.userInterfaceManager.onMessagesRead(resultIds, { action: actionName });
 			const currentFolder = this.getCurrentFolder();
+
+			const oldMessagesCount = actionName !== 'markAsSeen'? this.isSelectedRowsHaveClass('mail-msg-list-cell-old') : 0;
+			let countMessages = resultIds.length - oldMessagesCount;
+
 			if (actionName === 'markAsSeen')
 			{
-				let count = resultIds.length;
 				if ('all' === id)
 				{
-					count = BX.Mail.Home.Counters.getCounter(currentFolder);
+					countMessages = BX.Mail.Home.Counters.getCounter(currentFolder) - oldMessagesCount;
 				}
 				BX.Mail.Home.Counters.updateCounters([
 					{
 						name: currentFolder,
 						lower: true,
-						count: count,
+						count: countMessages,
 					},
 				]);
 			}
@@ -577,7 +581,7 @@ export class List
 					{
 						name: currentFolder,
 						increase: true,
-						count: resultIds.length,
+						count: countMessages,
 					},
 				]);
 			}
@@ -589,6 +593,10 @@ export class List
 			if ('all' == id)
 			{
 				resultIds['for_all'] = this.mailboxId + '-' + this.userInterfaceManager.getCurrentFolder();
+			}
+			else
+			{
+
 			}
 
 			this.userInterfaceManager.updateUnreadCounters();
@@ -703,6 +711,17 @@ export class List
 					color: BX.UI.Button.Color.DANGER,
 					text: Loc.getMessage('MAIL_MESSAGE_LIST_CONFIRM_DELETE_BTN'),
 					onclick: (function(button) {
+
+						const unseenRowsIdsCount = this.filterRowsByClassName('mail-msg-list-cell-unseen', options.ids).length;
+
+						BX.Mail.Home.Counters.updateCounters([
+							{
+								name: this.getCurrentFolder(),
+								lower: true,
+								count: unseenRowsIdsCount,
+							},
+						]);
+
 						this.runAction('delete', options,() =>
 							BX.Mail.Home.Grid.reloadTable()
 						);
@@ -740,6 +759,8 @@ export class List
 		}
 		const ids = selectedIds.length ? selectedIds : (id ? [id] : []);
 
+		let selectedLinesWithClassNumber = 0;
+
 		for (let i = 0; i < ids.length; i++)
 		{
 			const row = this.getGridInstance().getRows().getById(ids[i]);
@@ -748,11 +769,11 @@ export class List
 				const columns = row.node.getElementsByClassName(className);
 				if (columns && columns.length)
 				{
-					return true;
+					selectedLinesWithClassNumber++;
 				}
 			}
 		}
-		return false;
+		return selectedLinesWithClassNumber;
 	}
 
 	filterRowsByClassName(className, ids, isReversed)

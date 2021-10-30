@@ -503,24 +503,6 @@
 					}
 				);
 			}
-			if (BX('landing-design-block-save'))
-			{
-				BX('landing-design-block-save').addEventListener(
-					'click',
-					function()
-					{
-						top.BX.onCustomEvent(
-							'Landing:onDesignerBlockSave',
-							[
-								function()
-								{
-									BX.SidePanel.Instance.close();
-								}
-							]
-						);
-					}
-				);
-			}
 			// nav chain
 			// BX('landing-navigation-site').text = this.siteTitle;
 			// BX('landing-navigation-site').setAttribute('title', this.siteTitle);
@@ -748,6 +730,10 @@ var landingAlertMessage = function landingAlertMessage(errorText, payment, error
 				top.BX.UI.InfoHelper.show('limit_sites_number');
 			}
 		})();
+	}
+	else if (errorCode === 'FREE_DOMAIN_IS_NOT_ALLOWED')
+	{
+		top.BX.UI.InfoHelper.show('limit_free_domen');
 	}
 	else if (payment === true && typeof BX.Landing.PaymentAlertShow !== 'undefined')
 	{

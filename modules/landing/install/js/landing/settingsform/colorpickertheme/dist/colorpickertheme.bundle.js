@@ -1,19 +1,30 @@
 this.BX = this.BX || {};
-(function (exports) {
+(function (exports,main_core_events) {
 	'use strict';
 
 	/**
 	 * ColorPicker for Theme site.
 	 */
 
-	var ColorPickerTheme = /*#__PURE__*/function () {
+	var ColorPickerTheme = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(ColorPickerTheme, _EventEmitter);
+
 	  function ColorPickerTheme(node, allColors, currentColor) {
+	    var _this;
+
 	    babelHelpers.classCallCheck(this, ColorPickerTheme);
-	    this.element = node;
-	    this.input = this.element.firstElementChild;
-	    this.allColors = allColors;
-	    this.currentColor = currentColor;
-	    this.init();
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ColorPickerTheme).call(this));
+
+	    _this.setEventNamespace('BX.Landing.ColorPickerTheme');
+
+	    _this.element = node;
+	    _this.input = _this.element.firstElementChild;
+	    _this.allColors = allColors;
+	    _this.currentColor = currentColor;
+
+	    _this.init();
+
+	    return _this;
 	  }
 
 	  babelHelpers.createClass(ColorPickerTheme, [{
@@ -106,10 +117,13 @@ this.BX = this.BX || {};
 	      this.element.classList.add('ui-colorpicker-selected');
 	      this.element.dataset.value = color.substr(1);
 	      this.element.style.backgroundColor = color;
-	      BX.onCustomEvent('BX.Landing.ColorPicker:onSelectColor', [{
-	        color: color,
-	        node: this.element
-	      }]);
+	      var event = new main_core_events.BaseEvent({
+	        data: {
+	          color: color,
+	          node: this.element
+	        }
+	      });
+	      this.emit('onSelectColor', event);
 	      this.input.setAttribute('value', color);
 	      this.sendMetric(color);
 	    }
@@ -158,11 +172,11 @@ this.BX = this.BX || {};
 	    }
 	  }]);
 	  return ColorPickerTheme;
-	}();
+	}(main_core_events.EventEmitter);
 	babelHelpers.defineProperty(ColorPickerTheme, "DEFAULT_COLOR_PICKER_COLOR", '#f25a8f');
 	babelHelpers.defineProperty(ColorPickerTheme, "MATCH_HEX", /#?([0-9A-F]{3}){1,2}$/i);
 
 	exports.ColorPickerTheme = ColorPickerTheme;
 
-}((this.BX.Landing = this.BX.Landing || {})));
+}((this.BX.Landing = this.BX.Landing || {}),BX.Event));
 //# sourceMappingURL=colorpickertheme.bundle.js.map

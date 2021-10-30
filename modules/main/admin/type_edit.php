@@ -243,8 +243,8 @@ $arParams["EVENT_NAME"] = htmlspecialcharsbx($arParams["EVENT_NAME"]);
 <tr>
 	<td><?=GetMessage("EVENT_SORT_LANG")?>:</td>
 	<td>
-		<input type="hidden" name="FIELDS_OLD[<?=$arLang["ID"]?>][SORT]" value="<?=htmlspecialcharsbx($arParams["DATA_OLD"][$arLang["ID"]]["SORT"])?>">
-		<input type="text" name="FIELDS[<?=$arLang["ID"]?>][SORT]" value="<?=(intval($arParams["DATA"][$arLang["ID"]]["SORT"]) ? $arParams["DATA"][$arLang["ID"]]["SORT"] : "150")?>">
+		<input type="hidden" name="FIELDS_OLD[<?=$arLang["ID"]?>][SORT]" value="<?=(int)$arParams["DATA_OLD"][$arLang["ID"]]["SORT"]?>">
+		<input type="text" name="FIELDS[<?=$arLang["ID"]?>][SORT]" value="<?=(int)($arParams["DATA"][$arLang["ID"]]["SORT"] ?: "150")?>">
 	</td>
 </tr>
 <tr>
@@ -275,7 +275,7 @@ if ($arParams["ACTION"] == "UPDATE" && $arParams["DATA"]["EVENT_TYPE"] == EventT
 	if (is_array($arParams["DATA"]["TEMPLATES"])):
 		foreach ($arParams["DATA"]["TEMPLATES"] as $k => $v):
 ?><tr>
-	<td colspan="2">[<a href="/bitrix/admin/message_edit.php?ID=<?=$v["ID"]?>"><?=$v["ID"]?></a>]<?=(trim($v["SUBJECT"]) <> '' ? " " : "").htmlspecialcharsEx($v["SUBJECT"])?>
+	<td colspan="2">[<a href="/bitrix/admin/message_edit.php?ID=<?=(int)$v["ID"]?>&amp;lang=<?=LANGUAGE_ID?>"><?=(int)$v["ID"]?></a>]<?=(trim($v["SUBJECT"]) <> '' ? " " : "").htmlspecialcharsEx($v["SUBJECT"])?>
 	<?
 	$arLID = array();
 	$db_LID = CEventMessage::GetLang($v["ID"]);

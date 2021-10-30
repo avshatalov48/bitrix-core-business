@@ -92,7 +92,7 @@ return array(
 		),
 		'.landing-block-node-card-price-list li' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_11.2.THREE_COLS_FIX_TARIFFS_BLACK_NODES_LANDINGBLOCKNODECARDPRICE_LIST_ITEM'),
-			'type' => array('background-color', 'background-gradient'),
+			'type' => array('background-color'),
 		),
 		'.landing-block-node-card-price-list' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_11.2.THREE_COLS_FIX_TARIFFS_BLACK_NODES_LANDINGBLOCKNODECARDPRICE_LIST'),

@@ -45,6 +45,10 @@
 				this.popup = new BX.PopupMenuWindow({
 					id: this.selector+"_dropdown_popup_",
 					bindElement: this.input,
+					bindOptions: {
+						forceBindPosition: true
+					},
+					targetContainer: this.contentRoot,
 					items: this.items.map(function(item) {
 						return {
 							text: item.name,
@@ -55,14 +59,20 @@
 					}, this)
 				});
 
-				this.layout.appendChild(this.popup.popupWindow.popupContainer);
+				if (!this.contentRoot)
+				{
+					this.layout.appendChild(this.popup.popupWindow.popupContainer);
+				}
 			}
 
 			this.popup.show();
 
-			var rect = BX.pos(this.input, this.layout);
-			this.popup.popupWindow.popupContainer.style.top = rect.bottom + "px";
-			this.popup.popupWindow.popupContainer.style.left = rect.left + "px";
+			if (!this.contentRoot)
+			{
+				var rect = BX.pos(this.input, this.layout);
+				this.popup.popupWindow.popupContainer.style.top = rect.bottom + "px";
+				this.popup.popupWindow.popupContainer.style.left = rect.left + "px";
+			}
 		},
 
 		closePopup: function()

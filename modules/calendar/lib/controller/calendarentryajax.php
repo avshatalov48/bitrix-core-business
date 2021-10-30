@@ -1,17 +1,13 @@
 <?
 namespace Bitrix\Calendar\Controller;
 
-use Bitrix\Calendar\Util;
-use Bitrix\Main\Text\Encoding;
-use Bitrix\Main\Error;
 use Bitrix\Calendar\Internals;
-use \Bitrix\Main\Engine\Response;
-use Bitrix\Main\Loader;
+use Bitrix\Calendar\Sync\Google;
+use Bitrix\Calendar\UserSettings;
+use Bitrix\Calendar\Util;
+use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
-use \Bitrix\Calendar\UserSettings;
 use \Bitrix\Calendar\Integration\Bitrix24Manager;
-use \Bitrix\Main\Engine\ActionFilter\Authentication;
-use Bitrix\Main\Engine\ActionFilter\Csrf;
 
 Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/calendar/lib/controller/calendarajax.php');
 
@@ -93,7 +89,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 						"SYNCHRONIZED" => "ASC"
 					],
 					[
-						'ACCOUNT_TYPE' => 'google_api_oauth',
+						'ACCOUNT_TYPE' => Google\Helper::GOOGLE_ACCOUNT_TYPE_API,
 						'ENTITY_TYPE' => 'user',
 						'ENTITY_ID' => $ownerId
 					],
@@ -335,7 +331,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				{
 					if ($attId !== \CCalendar::GetUserId())
 					{
-						$userSettings = \Bitrix\Calendar\UserSettings::get(intval($attId));
+						$userSettings = UserSettings::get(intval($attId));
 						if ($userSettings && $userSettings['denyBusyInvitation'])
 						{
 							$usersToCheck[] = intval($attId);

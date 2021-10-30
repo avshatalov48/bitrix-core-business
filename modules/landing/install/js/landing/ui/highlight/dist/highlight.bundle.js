@@ -13,6 +13,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  function Highlight() {
 	    babelHelpers.classCallCheck(this, Highlight);
 	    this.layout = main_core.Dom.create('div');
+	    main_core.Dom.addClass(this.layout, 'landing-highlight-border');
 	    main_core.Dom.style(this.layout, {
 	      position: 'absolute',
 	      border: '2px #fe541e dashed',

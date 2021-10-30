@@ -375,7 +375,12 @@ this.BX = this.BX || {};
 
 	    elements.forEach(function (element) {
 	      element.className = entry[state].className;
-	      element.style = entry[state].style;
+
+	      if (entry[state].style) {
+	        element.style = entry[state].style;
+	      } else {
+	        element.removeAttribute('style');
+	      }
 	    });
 	    return block;
 	  }).then(function (block) {

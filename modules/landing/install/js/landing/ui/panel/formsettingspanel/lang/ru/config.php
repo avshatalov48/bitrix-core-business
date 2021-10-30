@@ -147,6 +147,7 @@ $MESS['LANDING_FORM_EMBED_TYPE_FIELD_TITLE'] = 'Выберите, где фор�
 
 $MESS['LANDING_FORM_OTHER_TITLE'] = 'Другие настройки';
 $MESS['LANDING_FORM_OTHER_TITLE_NAME_TITLE'] = 'Название формы';
+$MESS['LANDING_FORM_OTHER_CHECK_WORK_TIME'] = ' Не назначать ответственным, если не начат рабочий день или установлен перерыв';
 
 $MESS['LANDING_FORM_EMBED_TYPE_1'] = 'На внешнем сайте';
 $MESS['LANDING_FORM_EMBED_TYPE_2'] = 'Ссылка на сайте';
@@ -277,3 +278,5 @@ $MESS['LANDING_CRM_FORM_LANGUAGE'] = 'Язык';
 $MESS['LANDING_CRM_FORM_INTEGRATION_SEO_NOT_INSTALLED_HEADER'] = 'Модуль SEO не установлен';
 $MESS['LANDING_CRM_FORM_INTEGRATION_SEO_NOT_INSTALLED_FB_TEXT'] = 'Для корректной интеграции с «Facebook Lead Ads» необходимо установить модуль SEO';
 $MESS['LANDING_CRM_FORM_INTEGRATION_SEO_NOT_INSTALLED_VK_TEXT'] = 'Для корректной интеграции с «ВКонтакте» необходимо установить модуль SEO';
+
+$MESS['LANDING_CRM_FORM_MAIN_OPTION_WARNING'] = '<strong>Важно!</strong> Для корректной работы CRM-форм включите &laquo;Сохранять исходные имена загружаемых файлов&raquo; в&nbsp;настройках главного модуля.';

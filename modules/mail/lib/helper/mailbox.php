@@ -7,6 +7,7 @@ use Bitrix\Mail\MailboxTable;
 use Bitrix\Main;
 use Bitrix\Main\ORM;
 use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Mail\Helper;
 
 abstract class Mailbox
 {
@@ -94,7 +95,7 @@ abstract class Mailbox
 		return new $types[$mailbox['SERVER_TYPE']]($mailbox);
 	}
 
-	protected static function prepareMailbox($filter)
+	public static function prepareMailbox($filter)
 	{
 		if (is_scalar($filter))
 		{
@@ -184,6 +185,21 @@ abstract class Mailbox
 	public function setCheckpoint()
 	{
 		$this->checkpoint = time();
+	}
+
+	public function updateGlobalCounter($userId)
+	{
+		\CUserCounter::set(
+			$userId,
+			'mail_unseen',
+			Message::getTotalUnseenCount($userId),
+			$this->mailbox['LID']
+		);
+	}
+
+	public function updateGlobalCounterForCurrentUser()
+	{
+		$this->updateGlobalCounter($this->mailbox['USER_ID']);
 	}
 
 	public function sync()
@@ -289,15 +305,16 @@ abstract class Mailbox
 			$mailboxSyncManager->setSyncStatus($this->mailbox['ID'], $success, time());
 		}
 
+		//resynchronize messages for the start page and delete missing letters
+		$this->resyncDir('INBOX',25);
+
+		Helper::setMailboxUnseenCounter($this->mailbox['ID'],Helper::updateMailCounters($this->mailbox));
+
 		$usersWithAccessToMailbox = Mailbox\SharedMailboxesManager::getUserIdsWithAccessToMailbox($this->mailbox['ID']);
+
 		foreach ($usersWithAccessToMailbox as $userId)
 		{
-			\CUserCounter::set(
-				$userId,
-				'mail_unseen',
-				Message::getTotalUnseenCount($userId),
-				$this->mailbox['LID']
-			);
+			$this->updateGlobalCounter($userId);
 		}
 
 		return $count;
@@ -379,6 +396,19 @@ abstract class Mailbox
 		$entity = Mail\MailMessageUidTable::getEntity();
 		$connection = $entity->getConnection();
 
+		$whereConditionForOldMessages = sprintf(
+			' (%s)',
+			ORM\Query\Query::buildFilterSql(
+				$entity,
+				array(
+					'=MAILBOX_ID' => $this->mailbox['ID'],
+					'>MESSAGE_ID' => 0,
+					'<INTERNALDATE' => Main\Type\Date::createFromTimestamp(strtotime(sprintf('-%u days', Mail\Helper\LicenseManager::getSyncOldLimit()))),
+					'!=IS_OLD' => 'Y',
+				)
+			)
+		);
+
 		$where = sprintf(
 			' (%s) AND NOT EXISTS (SELECT 1 FROM %s WHERE (%s) AND (%s)) ',
 			ORM\Query\Query::buildFilterSql(
@@ -416,6 +446,12 @@ abstract class Mailbox
 				$connection->getSqlHelper()->quote(Mail\Internals\MessageDeleteQueueTable::getTableName()),
 				$connection->getSqlHelper()->quote($entity->getDbTableName()),
 				$where
+			));
+
+			$connection->query(sprintf(
+				"UPDATE %s SET IS_OLD = 'Y', IS_SEEN = 'Y' WHERE %s ORDER BY ID LIMIT 1000",
+				$connection->getSqlHelper()->quote($entity->getDbTableName()),
+				$whereConditionForOldMessages
 			));
 
 			$connection->query(sprintf(
@@ -684,6 +720,7 @@ abstract class Mailbox
 				),
 				$fields,
 				array(
+					'IS_OLD' => 'D',
 					'MAILBOX_ID'  => $this->mailbox['ID'],
 					'SESSION_ID'  => $this->session,
 					'TIMESTAMP_X' => $now,
@@ -714,6 +751,7 @@ abstract class Mailbox
 			array_merge(
 				$filter,
 				array(
+					'!=IS_OLD' => 'Y',
 					'=MAILBOX_ID' => $this->mailbox['ID'],
 				)
 			),
@@ -1389,6 +1427,8 @@ abstract class Mailbox
 		$this->resortTree($message);
 	}
 
+	abstract public function resyncIsOldStatus();
+	abstract public function syncFirstDay();
 	abstract protected function syncInternal();
 	abstract public function listDirs($pattern, $useDb = false);
 	abstract public function uploadMessage(Main\Mail\Mail $message, array &$excerpt);

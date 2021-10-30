@@ -44,7 +44,7 @@ return array(
 	'style' => array(
 		'.landing-block-node-card' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_35_6_HEADER--NODES_CARD'),
-			'type' => 'border-color',
+			'type' => 'border-colors',
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_35_6_HEADER--NODES_CARD_TITLE'),

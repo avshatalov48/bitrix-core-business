@@ -8,14 +8,14 @@ use Bitrix\Calendar\ICal\Builder\Attach;
 use Bitrix\Calendar\ICal\Builder\Attendee;
 use Bitrix\Calendar\SerializeObject;
 use Bitrix\Calendar\Util;
-use Bitrix\Mail\MailboxTable;
+use Bitrix\Mail;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Event;
 use CEvent;
 use COption;
-use Serializable;
+use \Serializable;
 
 /**
  * Class SenderInvitation
@@ -64,13 +64,9 @@ abstract class SenderInvitation implements Serializable
 		$this->context = $context;
 	}
 
-
 	/**
 	 * @return bool
 	 * @throws LoaderException
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function send(): bool
 	{
@@ -163,7 +159,7 @@ abstract class SenderInvitation implements Serializable
 	{
 		if (Loader::includeModule('mail') && empty($this->context->getAddresser()->getMailto()))
 		{
-			$boxes = MailboxTable::getUserMailboxes($this->event['MEETING_HOST']);
+			$boxes = Mail\MailboxTable::getUserMailboxes($this->event['MEETING_HOST']);
 			if (!empty($boxes) && is_array($boxes))
 			{
 				$this->context->getAddresser()->setMailto(array_shift($boxes)['EMAIL']);
@@ -241,7 +237,7 @@ abstract class SenderInvitation implements Serializable
 	{
 		if (!empty($siteName = COption::GetOptionString("main", "site_name", '', '-')))
 		{
-			return "[$siteName] ";
+			return "[{$siteName}]";
 		}
 
 		return '';
@@ -252,7 +248,7 @@ abstract class SenderInvitation implements Serializable
 	 */
 	protected function getSubjectMessage(): string
 	{
-		return $this->getSiteName().$this->getSubjectTitle();
+		return $this->getSiteName(). ' ' . $this->getSubjectTitle();
 	}
 
 	/**

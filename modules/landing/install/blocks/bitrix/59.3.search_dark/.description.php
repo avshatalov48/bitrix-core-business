@@ -25,7 +25,7 @@ return [
 		],
 		'.landing-block-node-input-container' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_59_3_INPUT'),
-			'type' => ['color', 'background-color', 'border-color'],
+			'type' => ['color', 'background-color', 'border-colors'],
 		],
 	],
 	'attrs' => [

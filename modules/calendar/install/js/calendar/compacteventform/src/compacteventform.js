@@ -144,6 +144,12 @@ export class CompactEventForm extends EventEmitter
 			&& this.checkDataBeforeCloseMode
 			&& !confirm(BX.message('EC_SAVE_ENTRY_CONFIRM')))
 		{
+			// Workaround to prevent form closing even if user don't want to and presses "cancel" in confirm
+			if (this.popup)
+			{
+				this.popup.destroyed = true;
+				setTimeout(() => {this.popup.destroyed = false;}, 0);
+			}
 			return;
 		}
 
@@ -164,7 +170,6 @@ export class CompactEventForm extends EventEmitter
 		}
 
 		Util.clearPlannerWatches();
-
 		Util.closeAllPopups();
 	}
 
@@ -369,17 +374,6 @@ export class CompactEventForm extends EventEmitter
 				);
 			}
 
-
-			// if (!this.isNewEntry() && this.canDo('edit'))
-			// {
-			// 	buttons.push(
-			// 		new BX.UI.Button({
-			// 			text : Loc.getMessage('CALENDAR_EVENT_DO_EDIT')
-			// 			//events : {click : this.save.bind(this)}
-			// 		})
-			// 	);
-			// }
-
 			if (!this.isNewEntry() && this.canDo('edit'))
 			{
 				buttons.push(
@@ -389,7 +383,6 @@ export class CompactEventForm extends EventEmitter
 						events : {click : this.editEntryInSlider.bind(this)}
 					})
 				);
-				//sideButton = true;
 			}
 
 			if (!this.isNewEntry() && this.canDo('delete'))
@@ -518,29 +511,7 @@ export class CompactEventForm extends EventEmitter
 		this.emitOnChange();
 	}
 
-	updateSetMeetingButtons()
-	{
-		const entry = this.getCurrentEntry();
-		if (entry.isMeeting())
-		{
-			//const buttonsContainer = this.popup.buttonsContainer;
-			// this.setStatusControl = new MeetingStatusControl({
-			// 	wrap: buttonsContainer,
-			// 	currentStatus: entry.getCurrentStatus()
-			// });
-			//
-			// this.setStatusControl.subscribe('onSetStatus', (event) => {
-			// 		if (event instanceof BaseEvent)
-			// 		{
-			// 			let data = event.getData();
-			// 			EntryManager.setMeetingStatus(entry, data.status);
-			// 		}
-			// 	}
-			// );
-		}
-	}
-
-	getformDataChanges(excludes = [])
+	getFormDataChanges(excludes = [])
 	{
 		const entry = this.entry;
 		let fields = [];
@@ -607,7 +578,7 @@ export class CompactEventForm extends EventEmitter
 
 	formDataChanged()
 	{
-		return this.getformDataChanges().length > 0;
+		return this.getFormDataChanges().length > 0;
 	}
 
 	setParams(params = {})
@@ -1134,8 +1105,6 @@ export class CompactEventForm extends EventEmitter
 			Dom.remove(this.DOM.userPlannerSelectorOuterWrap);
 		}
 
-		this.updateSetMeetingButtons();
-
 		let hideInfoContainer = true;
 		this.DOM.infoContainer = this.DOM.wrap.querySelector('.calendar-field-container-info');
 		for(let i = 0; i <= this.DOM.infoContainer.childNodes.length; i++)
@@ -1188,7 +1157,7 @@ export class CompactEventForm extends EventEmitter
 		if (!this.isNewEntry()
 			&& entry.isRecursive()
 			&& !options.confirmed
-			&& this.getformDataChanges(['section', 'notify']).length > 0)
+			&& this.getFormDataChanges(['section', 'notify']).length > 0)
 		{
 			EntryManager.showConfirmEditDialog({
 				callback: (params) => {
@@ -1203,7 +1172,7 @@ export class CompactEventForm extends EventEmitter
 		if (!this.isNewEntry()
 			&& entry.isMeeting()
 			&& options.sendInvitesAgain === undefined
-			&& this.getformDataChanges().includes('date&time')
+			&& this.getFormDataChanges().includes('date&time')
 			&& entry.getAttendees().find((item) => {return item.STATUS === 'N';})
 		)
 		{
@@ -1236,8 +1205,34 @@ export class CompactEventForm extends EventEmitter
 			attendeesEntityList: this.userPlannerSelector.getEntityList(),
 			sendInvitesAgain: options.sendInvitesAgain ? 'Y' : 'N',
 			hide_guests: this.userPlannerSelector.hideGuests ? 'Y' : 'N',
-			requestUid: BX.Calendar.Util.registerRequestId()
+			requestUid: BX.Calendar.Util.registerRequestId(),
 		};
+
+		let checkCurrentUsersAccessibility = !entry.id || this.checkCurrentUsersAccessibility();
+		if (!checkCurrentUsersAccessibility
+			&& this.getFormDataChanges().includes('codes'))
+		{
+			const previousAttendeesList = entry.getAttendeesEntityList();
+			const newAttendeesList = [];
+			data.attendeesEntityList.forEach(entity => {
+				if (!previousAttendeesList.find((item) => {
+					return entity.entityId === item.entityId
+						&& parseInt(entity.id) === parseInt(item.id);
+				}))
+				{
+					if (entity.entityId === 'user')
+					{
+						newAttendeesList.push(entity.id);
+					}
+					else
+					{
+						checkCurrentUsersAccessibility = true;
+					}
+				}
+			});
+			data.newAttendeesList = newAttendeesList;
+		}
+		data.checkCurrentUsersAccessibility = checkCurrentUsersAccessibility ? 'Y' : 'N';
 
 		if (entry.id && entry.isRecursive())
 		{
@@ -1373,6 +1368,7 @@ export class CompactEventForm extends EventEmitter
 		if(this.getMode() === CompactEventForm.EDIT_MODE
 			&& e.keyCode === Util.getKeyCode('enter'))
 		{
+			this.checkDataBeforeCloseMode = false;
 			this.save();
 		}
 		else if(e.keyCode === Util.getKeyCode('escape')
@@ -1553,5 +1549,10 @@ export class CompactEventForm extends EventEmitter
 				this.setFormValues();
 			}
 		}
+	}
+
+	checkCurrentUsersAccessibility()
+	{
+		return this.getFormDataChanges().includes('date&time');
 	}
 }

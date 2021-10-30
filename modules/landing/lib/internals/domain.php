@@ -65,6 +65,9 @@ class DomainTable extends Entity\DataManager
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_DOMAIN'),
 				'required' => true
 			)),
+			'PREV_DOMAIN' => new Entity\StringField('PREV_DOMAIN', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_PREV_DOMAIN')
+			)),
 			'XML_ID' => new Entity\StringField('XML_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_XML_ID')
 			)),
@@ -168,17 +171,24 @@ class DomainTable extends Entity\DataManager
 			{
 				$fields['DOMAIN'] = trim($fields['DOMAIN']);
 			}
+			$prevDomain = null;
 			$res = self::getList(array(
 				'select' => array(
 					'*'
 				),
 				'filter' => array(
-					'!ID' => $primary ? $primary['ID'] : 0,
+					'LOGIC' => 'OR',
+					'ID' => $primary['ID'] ?? 0,
 					'=DOMAIN' => $fields['DOMAIN']
 				)
 			));
-			if ($res->fetch())
+			while ($rowDomain = $res->fetch())
 			{
+				if ($rowDomain['ID'] == ($primary['ID'] ?? 0))
+				{
+					$prevDomain = $rowDomain['DOMAIN'];
+					continue;
+				}
 				$result->setErrors(array(
 					new Entity\EntityError(
 						Loc::getMessage('LANDING_TABLE_ERROR_DOMAIN_IS_NOT_UNIQUE'),
@@ -188,6 +198,10 @@ class DomainTable extends Entity\DataManager
 				return $result;
 			}
 			$update['DOMAIN'] = $fields['DOMAIN'];
+			if ($prevDomain !== $fields['DOMAIN'])
+			{
+				$update['PREV_DOMAIN'] = $prevDomain;
+			}
 		}
 
 		// force set protocol

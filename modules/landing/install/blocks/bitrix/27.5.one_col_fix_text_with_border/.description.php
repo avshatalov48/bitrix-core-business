@@ -25,7 +25,7 @@ return [
 		'nodes' => [
 			'.landing-block-node-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_27_5_ONE_COL_FIX_TEXT_BRD_NODES_LANDINGBLOCKNODE_TEXT'),
-				'type' => ['typo', 'border-color', 'border-width', 'container', 'padding-top', 'padding-bottom'],
+				'type' => ['typo', 'border-colors', 'border-width', 'container', 'padding-top', 'padding-bottom'],
 			],
 		],
 	],

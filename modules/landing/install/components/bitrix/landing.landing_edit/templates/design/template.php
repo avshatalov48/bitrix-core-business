@@ -219,7 +219,7 @@ if ($arParams['SUCCESS_SAVE'])
 													var currentColor = <?= CUtil::PhpToJSObject($arResult['CURRENT_COLORS']['currentColor']) ?>;
 													BX.ready(function ()
 													{
-														new BX.Landing.ColorPickerTheme(
+														this.corporateColor = new BX.Landing.ColorPickerTheme(
 															BX('colorpicker-theme'),
 															allColors,
 															currentColor,
@@ -310,7 +310,7 @@ if ($arParams['SUCCESS_SAVE'])
 									defaultColor: <?=CUtil::PhpToJSObject($colorMain)?>,
 								}
 								BX.ready(function() {
-									new BX.Landing.ColorPicker(BX('field-themefonts_color'), paramsColor);
+									this.textColor = new BX.Landing.ColorPicker(BX('field-themefonts_color'), paramsColor);
 								});
 							</script>
 						<?php endif;?>
@@ -342,7 +342,7 @@ if ($arParams['SUCCESS_SAVE'])
 									defaultColor: <?=CUtil::PhpToJSObject($colorTitle)?>,
 								}
 								BX.ready(function() {
-									new BX.Landing.ColorPicker(BX('field-themefonts_color_h'), paramsColorH);
+									this.hColor = new BX.Landing.ColorPicker(BX('field-themefonts_color_h'), paramsColorH);
 								});
 							</script>
 						<?php endif;?>
@@ -411,7 +411,7 @@ if ($arParams['SUCCESS_SAVE'])
 									defaultColor: <?=CUtil::PhpToJSObject(LandingEditComponent::COLOR_PICKER_DEFAULT_BG_COLOR)?>,
 								}
 								BX.ready(function() {
-									new BX.Landing.ColorPicker(BX('field-background_color'), paramsBgColor);
+									this.bgColor = new BX.Landing.ColorPicker(BX('field-background_color'), paramsBgColor);
 								});
 							</script>
 						<?php endif;?>
@@ -475,12 +475,12 @@ if ($arParams['SUCCESS_SAVE'])
 					use: {
 						control: BX('checkbox-theme-use'),
 					},
-					baseColor: {
+					baseColors: {
 						control: BX('set-colors'),
 					},
 					corporateColor: {
 						defaultValue: '<?= $themeFields['COLOR']->getValue() ?>',
-						control: BX('colorpicker-theme'),
+						control: this.corporateColor,
 					},
 				},
 				typo: {
@@ -488,10 +488,10 @@ if ($arParams['SUCCESS_SAVE'])
 						control: BX('checkbox-themefonts-use'),
 					},
 					textColor: {
-						control: BX('field-themefonts_color'),
+						control: this.textColor,
 						defaultValue: '<?= $themeFontsFields['COLOR']->getValue() ?>',
 					},
-					font: {
+					textFont: {
 						control: BX('field-themefonts_code'),
 						defaultValue: '<?= $themeFontsFields['CODE']->getValue() ?>',
 					},
@@ -508,7 +508,7 @@ if ($arParams['SUCCESS_SAVE'])
 						defaultValue: '<?= $themeFontsFields['LINE_HEIGHT']->getValue() ?>',
 					},
 					hColor: {
-						control: BX('field-themefonts_color_h'),
+						control: this.hColor,
 						defaultValue: '<?= $themeFontsFields['COLOR_H']->getValue() ?>',
 					},
 					hFont: {
@@ -527,16 +527,19 @@ if ($arParams['SUCCESS_SAVE'])
 					useSite: {
 						defaultValue: '<?= $bgFields['USE']->getValue() ?>',
 					},
-					picture: {
+					field: {
 						control: BX('landing-form-background-field'),
 						defaultValue: '<?= $bgFilePath ?>',
+					},
+					image: {
+						control: this.image,
 					},
 					position: {
 						control: BX('field-background_position'),
 						defaultValue: '<?= $bgFields['POSITION']->getValue() ?>',
 					},
 					color: {
-						control: BX('field-background_color'),
+						control: this.bgColor,
 						defaultValue: '<?= $bgFields['COLOR']->getValue() ?>',
 					},
 				},

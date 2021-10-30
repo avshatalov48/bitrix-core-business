@@ -44,6 +44,26 @@
 			);
 	};
 
+	BX.Landing.AlertShow = function(params)
+	{
+		var msg = BX.Landing.UI.Tool.ActionDialog.getInstance();
+		var promise = msg.show({
+			title: params.title ? params.title : null,
+			content: params.message,
+			contentColor: 'grey',
+			type: params.type || null
+		});
+		promise
+			.then(function()
+				{
+					top.window.location.href = '/settings/license_all.php';
+				},
+				function()
+				{
+				}
+			);
+	};
+
 	BX.ready(function()
 	{
 		var querySelector = document.querySelectorAll('.bitrix24-metrika');

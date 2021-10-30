@@ -4,12 +4,10 @@ namespace Bitrix\Mail\Helper;
 
 use Bitrix\Mail\Internals\MessageAccessTable;
 use Bitrix\Mail\Internals\MessageClosureTable;
-use Bitrix\Mail\MailboxDirectory;
 use Bitrix\Mail\MailboxTable;
-use Bitrix\Mail\MailMessageUidTable;
 use Bitrix\Main;
 use Bitrix\Main\Security;
-use Bitrix\Mail;
+use Bitrix\Mail\Internals;
 
 class Message
 {
@@ -288,13 +286,29 @@ class Message
 
 	public static function getTotalUnseenCount($userId)
 	{
-		$unseenTotal = static::getTotalUnseenForMailboxes($userId);
-		$unseen = 0;
-		foreach ($unseenTotal as $index => $item)
+		$mailboxes = MailboxTable::getUserMailboxes($userId);
+
+		if (empty($mailboxes))
 		{
-			$unseen += (int)$item['UNSEEN'];
+			return 0;
 		}
-		return $unseen;
+
+		$mailboxIds = array_column($mailboxes, 'ID');
+
+		$totalUnseen = (int)Internals\MailCounterTable::getList([
+			'select' => [
+				new \Bitrix\Main\Entity\ExpressionField(
+					'UNSEEN',
+					'SUM(VALUE)'
+				),
+			],
+			'filter' => [
+				'=ENTITY_TYPE' => 'MAILBOX',
+				'@ENTITY_ID' => $mailboxIds,
+			],
+		])->fetchAll()[0]['UNSEEN'];
+
+		return $totalUnseen;
 	}
 
 	public static function getTotalUnseenForMailboxes($userId)
@@ -306,50 +320,28 @@ class Message
 			return array();
 		}
 
-		$mailboxes = array_combine(
-			array_column($mailboxes, 'ID'),
-			$mailboxes
-		);
+		$mailboxIds = array_column($mailboxes, 'ID');
 
-		$mailboxFilter = array(
-			'LOGIC' => 'OR',
-		);
-		foreach ($mailboxes as $item)
-		{
-			$dirs = MailboxDirectory::fetchTrashAndSpamHash($item['ID']);
+		$totalUnseen = Internals\MailCounterTable::getList([
+			'select' => [
+				'VALUE',
+				'ENTITY_ID',
+			],
+			'filter' => [
+				'ENTITY_TYPE' => 'MAILBOX',
+				'@ENTITY_ID' => $mailboxIds,
+			],
+		])->fetchAll();
 
-			$mailboxFilter[] = array(
-				'=MAILBOX_ID' => $item['ID'],
-				'!@DIR_MD5' => $dirs,
-			);
-		}
-		$totalUnseen = MailMessageUidTable::getList(array(
-			'select' => array(
-				'MAILBOX_ID',
-				new \Bitrix\Main\Entity\ExpressionField('TOTAL', 'COUNT(1)'),
-				new \Bitrix\Main\Entity\ExpressionField(
-					'UNSEEN',
-					"COUNT(IF(%s IN('N','U'), 1, NULL))",
-					array('IS_SEEN')
-				),
-			),
-			'filter' => array(
-				$mailboxFilter,
-				'>MESSAGE_ID'  => 0,
-				'=DELETE_TIME' => 'IS NULL',
-			),
-			'group' => array(
-				'MAILBOX_ID',
-			),
-		))->fetchAll();
 		$result = [];
+
 		foreach ($totalUnseen as $index => $item)
 		{
-			$result[$item['MAILBOX_ID']] = [
-				'TOTAL' => $item['TOTAL'],
-				'UNSEEN' => $item['UNSEEN'],
+			$result[$item['ENTITY_ID']] = [
+				'UNSEEN' => $item['VALUE'],
 			];
 		}
+
 		return $result;
 	}
 

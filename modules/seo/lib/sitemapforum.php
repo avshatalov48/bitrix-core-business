@@ -10,6 +10,22 @@ namespace Bitrix\Seo;
 use Bitrix\Main\Entity;
 use Bitrix\Seo\SitemapEntityTable;
 
+/**
+ * Class SitemapForumTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SitemapForum_Query query()
+ * @method static EO_SitemapForum_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_SitemapForum_Result getById($id)
+ * @method static EO_SitemapForum_Result getList(array $parameters = array())
+ * @method static EO_SitemapForum_Entity getEntity()
+ * @method static \Bitrix\Seo\EO_SitemapForum createObject($setDefaultValues = true)
+ * @method static \Bitrix\Seo\EO_SitemapForum_Collection createCollection()
+ * @method static \Bitrix\Seo\EO_SitemapForum wakeUpObject($row)
+ * @method static \Bitrix\Seo\EO_SitemapForum_Collection wakeUpCollection($rows)
+ */
 class SitemapForumTable
 	extends SitemapEntityTable
 {

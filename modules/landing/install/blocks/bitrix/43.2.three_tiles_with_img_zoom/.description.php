@@ -67,6 +67,10 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_43.2.THREE_TILES_WITH_IMG_ZOOM_NODES_LANDINGBLOCKNODE_BLOCK'),
 			'type' => array('animation'),
 		),
+		'.landing-block-node-block-small' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_43.2.THREE_TILES_WITH_IMG_ZOOM_NODES_LANDINGBLOCKNODE_BLOCK'),
+			'type' => array('animation'),
+		),
 		'.landing-block-node-subtitle1' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_43.2.THREE_TILES_WITH_IMG_ZOOM_NODES_LANDINGBLOCKNODESUBTITLE1'),
 			'type' => array('typo', 'border-color'),

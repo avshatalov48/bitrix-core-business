@@ -501,6 +501,7 @@ this.BX = this.BX || {};
 	          }));
 	          resolve(response.data);
 	        }, function (response) {
+	          BX.Calendar.Util.displayError(response.errors);
 	          resolve(response.data);
 	        });
 	      });

@@ -16,6 +16,7 @@ return [
 		'ui.layout-form',
 		'ui.dialogs.messagebox',
 		'sidepanel',
+		'ui.sidepanel.layout',
 	],
 	'skip_core' => false,
 ];

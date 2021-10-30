@@ -156,7 +156,7 @@ class CatalogSectionComponent extends ElementList
 
 		// Hidden tricky parameter USED to display linked
 		// by default it is not set
-		if ($this->arParams['BY_LINK'] === 'Y')
+		if (isset($this->arParams['BY_LINK']) && $this->arParams['BY_LINK'] === 'Y')
 		{
 			$sectionResult = array(
 				'ID' => 0,
@@ -177,7 +177,7 @@ class CatalogSectionComponent extends ElementList
 			$sectionIterator->SetUrlTemplates('', $this->arParams['SECTION_URL']);
 			$sectionResult = $sectionIterator->GetNext();
 		}
-		elseif ($this->arParams['SECTION_CODE_PATH'] <> '')
+		elseif (isset($this->arParams['SECTION_CODE_PATH']) && $this->arParams['SECTION_CODE_PATH'] <> '')
 		{
 			$sectionId = CIBlockFindTools::GetSectionIDByCodePath($this->arParams['IBLOCK_ID'], $this->arParams['SECTION_CODE_PATH']);
 			if ($sectionId)
@@ -321,7 +321,7 @@ class CatalogSectionComponent extends ElementList
 			$filterFields['SECTION_GLOBAL_ACTIVE'] = 'Y';
 		}
 
-		if ($this->arParams['BY_LINK'] !== 'Y')
+		if (!isset($this->arParams['BY_LINK']) || $this->arParams['BY_LINK'] !== 'Y')
 		{
 			if ($this->arResult['ID'])
 			{
@@ -433,7 +433,7 @@ class CatalogSectionComponent extends ElementList
 			{
 				$urlDeleteSectionButton = '';
 
-				if ($arResult['IBLOCK_SECTION_ID'] > 0)
+				if (isset($arResult['IBLOCK_SECTION_ID']) && $arResult['IBLOCK_SECTION_ID'] > 0)
 				{
 					$sectionIterator = CIBlockSection::GetList(
 						array(),
@@ -499,11 +499,14 @@ class CatalogSectionComponent extends ElementList
 
 				if ($this->arParams['SET_TITLE'] || isset($arResult[$this->arParams['BROWSER_TITLE']]))
 				{
-					$this->storage['TITLE_OPTIONS'] = array(
-						'ADMIN_EDIT_LINK' => $buttons['submenu']['edit_section']['ACTION'],
-						'PUBLIC_EDIT_LINK' => $buttons['edit']['edit_section']['ACTION'],
-						'COMPONENT_NAME' => $this->getName(),
-					);
+					if (isset($buttons['submenu']['edit_section']))
+					{
+						$this->storage['TITLE_OPTIONS'] = array(
+							'ADMIN_EDIT_LINK' => $buttons['submenu']['edit_section']['ACTION'],
+							'PUBLIC_EDIT_LINK' => $buttons['edit']['edit_section']['ACTION'],
+							'COMPONENT_NAME' => $this->getName(),
+						);
+					}
 				}
 			}
 		}
@@ -515,7 +518,7 @@ class CatalogSectionComponent extends ElementList
 
 		if ($this->arParams['SET_TITLE'])
 		{
-			if ($this->arResult['IPROPERTY_VALUES']['SECTION_PAGE_TITLE'] != '')
+			if (isset($this->arResult['IPROPERTY_VALUES']['SECTION_PAGE_TITLE']) && $this->arResult['IPROPERTY_VALUES']['SECTION_PAGE_TITLE'] != '')
 			{
 				$APPLICATION->SetTitle($this->arResult['IPROPERTY_VALUES']['SECTION_PAGE_TITLE'], $this->storage['TITLE_OPTIONS']);
 			}
@@ -608,7 +611,7 @@ class CatalogSectionComponent extends ElementList
 
 		if (
 			!empty($elementIterator)
-			&& $this->arParams['BY_LINK'] !== 'Y'
+			&& (!isset($this->arParams['BY_LINK']) || $this->arParams['BY_LINK'] !== 'Y')
 			&& !$this->arParams['SHOW_ALL_WO_SECTION']
 			&& !$this->arParams['USE_MAIN_ELEMENT_SECTION']
 		)
@@ -677,7 +680,7 @@ class CatalogSectionComponent extends ElementList
 	{
 		$sections =& $this->storage['sections'];
 
-		if ($this->arParams['BY_LINK'] === 'Y')
+		if (isset($this->arParams['BY_LINK']) && $this->arParams['BY_LINK'] === 'Y')
 		{
 			if (!isset($sections[$element['IBLOCK_SECTION_ID']]))
 			{

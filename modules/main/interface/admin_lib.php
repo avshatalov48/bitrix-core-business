@@ -1905,7 +1905,7 @@ class CAdminSorting
 	{
 		$this->by_name = $by_name;
 		$this->ord_name = $ord_name;
-		$this->table_id = $table_id;
+		$this->table_id = preg_replace('/[^a-z0-9_]/i', '', $table_id);
 		$this->by_initial = $by_initial;
 		$this->order_initial = $order_initial;
 
@@ -2060,7 +2060,7 @@ class CAdminResult extends CDBResult
 	public function __construct($res, $table_id)
 	{
 		parent::__construct($res);
-		$this->table_id = $table_id;
+		$this->table_id = preg_replace('/[^a-z0-9_]/i', '', $table_id);
 	}
 
 	public function NavStart($nPageSize=20, $bShowAll=true, $iNumPage=false)

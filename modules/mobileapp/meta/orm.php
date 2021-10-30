@@ -200,18 +200,6 @@ namespace Bitrix\MobileApp {
 }
 namespace Bitrix\MobileApp {
 	/**
-	 * @method static EO_App_Query query()
-	 * @method static EO_App_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_App_Result getById($id)
-	 * @method static EO_App_Result getList(array $parameters = array())
-	 * @method static EO_App_Entity getEntity()
-	 * @method static \Bitrix\MobileApp\EO_App createObject($setDefaultValues = true)
-	 * @method static \Bitrix\MobileApp\EO_App_Collection createCollection()
-	 * @method static \Bitrix\MobileApp\EO_App wakeUpObject($row)
-	 * @method static \Bitrix\MobileApp\EO_App_Collection wakeUpCollection($rows)
-	 */
-	class AppTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -437,18 +425,6 @@ namespace Bitrix\MobileApp\Designer {
 }
 namespace Bitrix\MobileApp\Designer {
 	/**
-	 * @method static EO_App_Query query()
-	 * @method static EO_App_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_App_Result getById($id)
-	 * @method static EO_App_Result getList(array $parameters = array())
-	 * @method static EO_App_Entity getEntity()
-	 * @method static \Bitrix\MobileApp\Designer\EO_App createObject($setDefaultValues = true)
-	 * @method static \Bitrix\MobileApp\Designer\EO_App_Collection createCollection()
-	 * @method static \Bitrix\MobileApp\Designer\EO_App wakeUpObject($row)
-	 * @method static \Bitrix\MobileApp\Designer\EO_App_Collection wakeUpCollection($rows)
-	 */
-	class AppTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -607,18 +583,6 @@ namespace Bitrix\MobileApp\Designer {
 	}
 }
 namespace Bitrix\MobileApp\Designer {
-	/**
-	 * @method static EO_Config_Query query()
-	 * @method static EO_Config_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Config_Result getById($id)
-	 * @method static EO_Config_Result getList(array $parameters = array())
-	 * @method static EO_Config_Entity getEntity()
-	 * @method static \Bitrix\MobileApp\Designer\EO_Config createObject($setDefaultValues = true)
-	 * @method static \Bitrix\MobileApp\Designer\EO_Config_Collection createCollection()
-	 * @method static \Bitrix\MobileApp\Designer\EO_Config wakeUpObject($row)
-	 * @method static \Bitrix\MobileApp\Designer\EO_Config_Collection wakeUpCollection($rows)
-	 */
-	class ConfigTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

@@ -580,7 +580,13 @@ this.BX = this.BX || {};
 	      var _this9 = this;
 
 	      if (this.reloadStatus === this.RELOAD_FINISHED) {
-	        // Protection from reloading same page during changes (status or reminder)
+	        var activeElement = document.activeElement;
+
+	        if (['IFRAME', 'TEXTAREA'].includes(activeElement.tagName.toUpperCase())) {
+	          return;
+	        } // Protection from reloading same page during changes (status or reminder)
+
+
 	        if (this.entityChanged) {
 	          setTimeout(function () {
 	            _this9.entityChanged = false;

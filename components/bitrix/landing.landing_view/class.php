@@ -65,7 +65,7 @@ class LandingViewComponent extends LandingBaseComponent
 				]);
 				$url = $uriPreview->getUri();
 			}
-			\localRedirect($url, true);
+			\localRedirect($this->getTimestampUrl($url), true);
 		}
 
 		\Bitrix\Landing\Landing::setPreviewMode(false);
@@ -241,15 +241,38 @@ class LandingViewComponent extends LandingBaseComponent
 				{
 					foreach ($areas as $aId)
 					{
+						if (isset($publicIds[$aId]))
+						{
+							continue;
+						}
 						$landingArea = Landing::createInstance($aId, [
 							'skip_blocks' => true
 						]);
+						$meta = $landingArea->getMeta();
+						if ($meta['ACTIVE'] != 'Y')
+						{
+							$meta['PUBLIC'] = 'N';
+						}
+						if ($meta['PUBLIC'] == 'Y')
+						{
+							$publicIds[$aId] = true;
+							continue;
+						}
 						if (
 							$landingArea->exist() &&
 							$landingArea->publication()
 						)
 						{
 							$publicIds[$aId] = true;
+						}
+						else
+						{
+							$error = $landingArea->getError()->getFirstError();
+							$this->addError(
+								$error->getCode(),
+								$error->getMessage()
+							);
+							return false;
 						}
 					}
 				}

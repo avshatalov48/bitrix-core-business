@@ -16,7 +16,7 @@ export class Counters
 		return this.#name;
 	}
 
-	setHiddenCountersForTotalCounter(...counterNames)
+	setHiddenCountersForTotalCounter(counterNames)
 	{
 		for (let counter of counterNames)
 		{
@@ -29,7 +29,10 @@ export class Counters
 		let counters = 0;
 		for (let name in this.counters)
 		{
-			if(name in this.hiddenCountersForTotalCounter) continue;
+			if(name in this.hiddenCountersForTotalCounter)
+			{
+				continue;
+			}
 			counters += this.counters[name];
 		}
 
@@ -86,6 +89,11 @@ export class Counters
 
 	increaseCounter(name,count = 1 )
 	{
+		if(name in this.hiddenCountersForTotalCounter)
+		{
+			return "hidden counters for total counter";
+		}
+
 		if(!this.isExists(name))
 		{
 			return "no counter";
@@ -95,6 +103,11 @@ export class Counters
 
 	lowerCounter(name,count = 1 )
 	{
+		if(name in this.hiddenCountersForTotalCounter)
+		{
+			return "hidden counters for total counter";
+		}
+
 		if(!this.isExists(name))
 		{
 			return "no counter";
@@ -140,6 +153,7 @@ export class Counters
 					countersAreNotLoadedFromTheServer = true;
 				}
 			}
+
 			if(counter['increase'] && countersAreNotLoadedFromTheServer === false)
 			{
 				this.increaseCounter(name,counter['count'])

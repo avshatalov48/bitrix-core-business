@@ -51,6 +51,7 @@ export class BaseField extends EventEmitter
 		this.property = Type.isString(this.data.property) ? this.data.property : '';
 		this.style = Reflect.has(this.data, 'style') ? this.data.style : '';
 		this.cache = new Cache.MemoryCache();
+		this.contentRoot = Reflect.has(this.data, 'contentRoot') ? this.data.contentRoot : null;
 
 		const {onValueChange} = this.data;
 		this.onValueChangeHandler = Type.isFunction(onValueChange) ? onValueChange : (() => {});
@@ -82,6 +83,12 @@ export class BaseField extends EventEmitter
 		Event.bind(this.input, 'paste', this.onPaste);
 
 		this.init();
+
+		if (this.data.help)
+		{
+			BX.Dom.append(top.BX.UI.Hint.createNode(this.data.help), this.header);
+			top.BX.UI.Hint.init(BX.Landing.UI.Panel.StylePanel.getInstance().layout);
+		}
 	}
 
 	setTitle(title: string)
@@ -214,6 +221,7 @@ export class BaseField extends EventEmitter
 
 	// eslint-disable-next-line class-methods-use-this
 	reset() {}
+	onFrameLoad() {}
 
 	clone(data): BaseField
 	{
@@ -230,5 +238,34 @@ export class BaseField extends EventEmitter
 	setLayoutClass(className: string)
 	{
 		Dom.addClass(this.layout, className);
+	}
+
+	/**
+	 * If field has inline style-properties (f.e. css variables) - get name of them
+ 	 * @returns {string[]}
+	 */
+	getInlineProperties(): [string]
+	{
+		return [];
+	}
+
+	/**
+	 * If field need match computed styles by node - get name of style properties
+	 * @returns {string[]}
+	 */
+	getComputedProperties(): [string]
+	{
+		// todo: get from typeSetting
+		return [];
+	}
+
+	/**
+	 * If field work with pseudo element - return them (f.e. :after)
+	 * @returns {?string}
+	 */
+	getPseudoElement(): ?string
+	{
+		// todo: from type settings
+		return null;
 	}
 }

@@ -119,22 +119,27 @@ class CMailDomainRegistrar
 		return null;
 	}
 
-	public static function renewDomain($user, $password, $domain, &$error)
+	/**
+	 * Renews exists domain.
+	 * @param string $user User name.
+	 * @param string $password User password.
+	 * @param string $domain Domain name.
+	 * @param string|null &$error Error message if occurred.
+	 * @return bool|null Returns true on success.
+	 */
+	public static function renewDomain(string $user, string $password, string $domain, ?string &$error): ?bool
 	{
-		$domain = CharsetConverter::convertCharset($domain, SITE_CHARSET, 'UTF-8');
+		$result = self::$classRegistrar::renewDomain($user, $password, $domain, $error);
 
-		$result = CMailRegru::renewDomain($user, $password, $domain, array('period' => 1), $error);
-
-		if ($result !== false)
+		if ($result === null)
 		{
-			if (isset($result['dname']) && mb_strtolower($result['dname']) == mb_strtolower($domain))
-				return true;
-			else
-				$error = 'unknown';
+			$error = self::getErrorCode($error);
+			return null;
 		}
-
-		$error = self::getErrorCode($result['error_code']);
-		return null;
+		else
+		{
+			return $result;
+		}
 	}
 
 	/**
@@ -161,35 +166,37 @@ class CMailDomainRegistrar
 		}
 	}
 
-	public static function getDomainsList($user, $password, $filter = array(), &$error)
+	/**
+	 * Returns domain's list.
+	 * @param string $user User name.
+	 * @param string $password User password.
+	 * @param array $filter Filter array (not used).
+	 * @param string|null &$error Error message if occurred.
+	 * @return array|null Returns true on success.
+	 */
+	public static function getDomainsList(string $user, string $password, $filter = array(), &$error): ?array
 	{
-		$result = CMailRegru::getDomainsList($user, $password, $error);
+		$result = self::$classRegistrar::getDomainsList($user, $password, $error);
 
-		if ($result !== false)
+		if ($result === null)
 		{
-			$list = array();
-			foreach ($result as $domain)
-			{
-				if (!empty($domain['dname']))
-				{
-					$list[$domain['dname']] = array(
-						'creation_date'   => $domain['creation_date'],
-						'expiration_date' => $domain['expiration_date'],
-						'status'          => $domain['state'],
-					);
-				}
-			}
-
-			return $list;
+			$error = self::getErrorCode($error);
+			return null;
 		}
-
-		$error = self::getErrorCode($result['error_code']);
-		return null;
+		else
+		{
+			return $result;
+		}
 	}
 
-	private static function getErrorCode($error)
+	/**
+	 * Returns standard mail error code by error.
+	 * @param string|null $error Error.
+	 * @return int
+	 */
+	private static function getErrorCode(?string $error): int
 	{
-		$errorsList = array(
+		$errorsList = [
 			'unknown'                      => CMail::ERR_API_DEFAULT,
 			'INVALID_DOMAIN_NAME_PUNYCODE' => CMail::ERR_API_DEFAULT,
 			'TLD_DISABLED'                 => CMail::ERR_API_DEFAULT,
@@ -197,9 +204,8 @@ class CMailDomainRegistrar
 			'INVALID_DOMAIN_NAME_FORMAT'   => CMail::ERR_API_DEFAULT,
 			'DOMAIN_INVALID_LENGTH'        => CMail::ERR_API_DEFAULT,
 			'HAVE_MIXED_CODETABLES'        => CMail::ERR_API_DEFAULT
-		);
+		];
 
 		return array_key_exists($error, $errorsList) ? $errorsList[$error] : CMail::ERR_API_DEFAULT;
 	}
-
 }

@@ -21,7 +21,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Iblock
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_PropertyFeature_Query query()
+ * @method static EO_PropertyFeature_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_PropertyFeature_Result getById($id)
+ * @method static EO_PropertyFeature_Result getList(array $parameters = array())
+ * @method static EO_PropertyFeature_Entity getEntity()
+ * @method static \Bitrix\Iblock\EO_PropertyFeature createObject($setDefaultValues = true)
+ * @method static \Bitrix\Iblock\EO_PropertyFeature_Collection createCollection()
+ * @method static \Bitrix\Iblock\EO_PropertyFeature wakeUpObject($row)
+ * @method static \Bitrix\Iblock\EO_PropertyFeature_Collection wakeUpCollection($rows)
+ */
 
 class PropertyFeatureTable extends ORM\Data\DataManager
 {

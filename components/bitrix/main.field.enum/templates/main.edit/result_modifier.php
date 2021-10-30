@@ -22,8 +22,6 @@ $isMobileMode = $this->getComponent()->isMobileMode();
 
 if($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI && !$isMobileMode)
 {
-	\CJSCore::Init('ui');
-
 	$arResult['params'] = [
 		'isMulti' => $isMultiple,
 		'fieldName' => $arResult['fieldName'],
@@ -69,6 +67,11 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI && !$i
 	$arResult['block'] = $block;
 	$arResult['fieldNameJs'] = \CUtil::JSEscape($fieldName);
 
+	\CJSCore::Init(['ui']);
+	\Bitrix\Main\UI\Extension::load([
+		'ui.entity-selector',
+	]);
+
 	Asset::getInstance()->addJs(
 		'/bitrix/components/bitrix/main.field.enum/templates/main.edit/dist/display.bundle.js'
 	);
@@ -97,6 +100,11 @@ elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_DIALO
 	$arResult['targetNodeId'] = $fieldName . '_value';
 	$arResult['fieldName'] = \CUtil::JSEscape($fieldName);
 	$arResult['items'] = $this->getComponent()->getItems(true);
+
+	\CJSCore::Init(['ui']);
+	\Bitrix\Main\UI\Extension::load([
+		'ui.entity-selector',
+	]);
 
 	Asset::getInstance()->addJs(
 		'/bitrix/components/bitrix/main.field.enum/templates/main.edit/dist/display.bundle.js'

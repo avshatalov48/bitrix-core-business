@@ -21,7 +21,7 @@ export class CardForm extends BaseForm
 
 		this.labelBindings = options.labelBindings;
 		this.preset = options.preset;
-		[this.oldIndex] = this.selector.split('@');
+		[, this.oldIndex] = this.selector.split('@');
 	}
 
 	getWrapper(): HTMLDivElement

@@ -3,6 +3,7 @@ import {ProductSelector} from 'catalog.product-selector';
 import {Event, Loc, Tag} from "main.core";
 import {EventEmitter} from 'main.core.events';
 import { type AdBuilderOptions } from './types/adbuilderoptions';
+import { TagSelector } from 'ui.entity-selector';
 
 export class SeoAdBuilder
 {
@@ -698,8 +699,8 @@ export class SeoAdBuilder
 	openSlider(url, params, callback)
 	{
 		const sliderOptions = {
-			width: 990,
-			cacheable: params.cacheable ?? true,
+			width: 1150,
+			cacheable: params.cacheable || true,
 			allowChangeHistory: false,
 			requestMethod: 'post',
 			requestParams: params
@@ -954,23 +955,22 @@ export class SeoAdBuilder
 
 	buildSelector()
 	{
-		const selector = new BX.UI.EntitySelector.TagSelector({
+		const selector = new TagSelector({
 			id: 'seo-ads-regions',
 			dialogOptions: {
 				id: 'seo-ads-regions',
 				context: 'SEO_ADS_REGIONS',
-				tabs: [
-					{
-						id: 'custom-region-tab',
-						visible: true,
-						title: Loc.getMessage('SEO_AD_BUILDER_REGION'),
-						stub: true,
-						stubOptions: {
-							title: Loc.getMessage('UI_TAG_SELECTOR_START_INPUT'),
-							arrow: true
-						}
-					},
-				],
+				dropdownMode: true,
+				compactView: true,
+				showAvatars: false,
+				width: 350,
+				height: 250,
+				recentTabOptions: {
+					stub: true,
+					stubOptions: {
+						title: Loc.getMessage('UI_TAG_SELECTOR_START_INPUT')
+					}
+				},
 				searchOptions: {
 					allowCreateItem: false
 				},

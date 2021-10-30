@@ -2726,7 +2726,8 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 	font: 400 13px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.calendar-member {
+.calendar-member,
+.calendar-list-view .calendar-timeline-stream-section-content .ui-icon{
 	display: inline-block;
 	margin: 0 1px 0 2px;
 	width: 22px;
@@ -5550,6 +5551,7 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 
 .calendar-timeline-stream-content-event-time {
 	max-width: 150px;
+	min-width: 150px;
 	flex: 1;
 }
 
@@ -5558,6 +5560,7 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 	color: #525c69;
 	font: 400 13px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	transition: 200ms all ease;
+	cursor: pointer;
 }
 
 .calendar-timeline-stream-content-event-time-link:hover {
@@ -5570,6 +5573,7 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 	padding-left: 20px;
 	flex: 1;
 	width: 100%;
+	margin-right: 10px;
 }
 
 .calendar-timeline-stream-content-event-name-link {
@@ -5578,9 +5582,14 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 	color: #525c69;
 	font: 400 14px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	transition: 200ms all ease;
+	cursor: pointer;
 }
 
-.calendar-timeline-stream-content-event-name-link:hover {
+.calendar-timeline-stream-content-event-name-link span {
+	transition: .2s;
+}
+
+.calendar-timeline-stream-content-event-name-link:hover span {
 	border-bottom: 1px dashed #333;
 	color: #333;
 }
@@ -5614,7 +5623,11 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 }
 
 .calendar-timeline-stream-content-event-control {
-	margin-right: 10px;
+	text-align: center;
+}
+
+.calendar-timeline-stream-content-event-control .ui-btn-light {
+	margin: 0 12px;
 }
 
 .calendar-timeline-content-event-action-join-btn,
@@ -6034,7 +6047,8 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 	display: inline-block;
 	margin: 3px 0 0 5px;
 	border-bottom: 1px dashed transparent;
-	cursor: default;
+	cursor: pointer;
+	transition: .2s;
 }
 
 .calendar-member-more-count:hover,

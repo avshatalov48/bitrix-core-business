@@ -189,7 +189,7 @@
 
 			if (options.type === "palette")
 			{
-				return new BX.Landing.UI.Field.Color({
+				return new BX.Landing.UI.Field.ColorPalette({
 					title: options.name,
 					selector: this.selector,
 					items: options.items,
@@ -198,6 +198,23 @@
 					onValueChange: this.onValueChangeHandler,
 					attribute: options.attribute,
 					property: options.property,
+					disabled: BX.Text.toBoolean(options.disabled)
+				});
+			}
+
+			// todo: need save Backward compatibility for "pallette"?
+			if (options.type === "color")
+			{
+				return new BX.Landing.UI.Field.ColorField({
+					title: options.name,
+					selector: this.selector,
+					subtype: options.subtype,
+					// items: options.items,
+					content: options.value,
+					onChange: this.onChangeHandler,
+					onValueChange: this.onValueChangeHandler,
+					attribute: options.attribute,
+					// property: options.property,
 					disabled: BX.Text.toBoolean(options.disabled)
 				});
 			}

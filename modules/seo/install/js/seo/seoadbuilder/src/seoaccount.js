@@ -1,5 +1,6 @@
 import { Helper } from './helper';
 import { type AccountFields } from './types/account';
+import {LoginFactory} from "seo.ads.login";
 
 export class SeoAccount
 {
@@ -24,7 +25,7 @@ export class SeoAccount
 			canAddItems: true,
 			events: {
 				onNewItem: () => {
-					BX.util.popup(this.provider.AUTH_URL, 800, 600);
+					LoginFactory.getLoginObject(this.provider).login();
 				},
 				onSelectItem: item => {
 					this.setProfile(item);
@@ -55,18 +56,32 @@ export class SeoAccount
 
 	logout(clientId)
 	{
-		this._helper.showBlock('loading');
-		this._helper.request('logout', { logoutClientId: clientId }, provider =>
-			{
-				this.provider = provider;
-				if (this.clientSelector)
-				{
-					this.clientSelector.setSelected(this.provider.PROFILE);
-					this.clientSelector.setItems(this.provider.CLIENTS);
+		const analyticsLabel =
+			!(this.provider.TYPE === "facebook" || this.provider.TYPE === "instagram")
+				? {}
+				: {
+					connect: "FBE",
+					action: "disconnect",
+					type: "disconnect"
 				}
-				this._helper.setProvider(provider);
-				this._helper.showBlockByAuth();
-			}
+		;
+
+		this._helper.showBlock('loading');
+		this._helper.request(
+			'logout',
+			{logoutClientId: clientId},
+			provider =>
+				{
+					this.provider = provider;
+					if (this.clientSelector)
+					{
+						this.clientSelector.setSelected(this.provider.PROFILE);
+						this.clientSelector.setItems(this.provider.CLIENTS);
+					}
+					this._helper.setProvider(provider);
+					this._helper.showBlockByAuth();
+				},
+			analyticsLabel
 		);
 	}
 

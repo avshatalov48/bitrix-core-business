@@ -25,6 +25,7 @@ class Access
 
 	public const ACTION_INSTALL = 'install';
 	public const ACTION_OPEN = 'open';
+	public const ACTION_BUY = 'buy';
 
 	public const MODULE_ID = 'rest';
 	public const OPTION_ACCESS_ACTIVE = 'access_active';
@@ -285,6 +286,10 @@ class Access
 	 */
 	public static function getHelperCode($action = '', $entityType = '', $entityData = []) : string
 	{
+		if ($action === static::ACTION_BUY)
+		{
+			return 'limit_subscription_market_trial_access';
+		}
 
 		if ($entityType === static::ENTITY_TYPE_APP && !is_array($entityData))
 		{
@@ -306,7 +311,7 @@ class Access
 		$license = $isB24 ? \CBitrix24::getLicenseFamily() : '';
 		$isDemo = $license === 'demo';
 		$isMinLicense = $isB24 && mb_strpos($license, 'project') === 0;
-		$isMaxLicense = $isB24 && ($license === 'pro' || mb_strpos($license, 'company') === 0);
+		$isMaxLicense = $isB24 && ($license === 'ent' || $license === 'pro' || mb_strpos($license, 'company') === 0);
 
 		$isMaxApplication = false;
 		if ($maxCount >= 0 && $entity[static::ENTITY_COUNT] >= $maxCount)

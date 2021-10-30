@@ -78,7 +78,7 @@ BX.ready(function(){
 });
 </script>
 <div class="photo-window-edit" id="photo_section_edit_form">
-<form method="post" action="<?= POST_FORM_ACTION_URI?>" name="form_photo" id="form_photo" class="photo-form">
+<form method="post" action="<?= $arParams["ACTION_URL"]?>" name="form_photo" id="form_photo" class="photo-form">
 	<input type="hidden" name="save_edit" value="Y" />
 	<input type="hidden" name="edit" value="Y" />
 	<input type="hidden" name="sessid" value="<?=bitrix_sessid()?>" />

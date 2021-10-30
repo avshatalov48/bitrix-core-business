@@ -478,9 +478,7 @@ this.BX = this.BX || {};
 	 * @class
 	 */
 
-	var Compressor =
-	/*#__PURE__*/
-	function () {
+	var Compressor = /*#__PURE__*/function () {
 	  /**
 	   * The constructor of Compressor.
 	   * @param {File|Blob} file - The target image file for compressing.
@@ -868,9 +866,7 @@ this.BX = this.BX || {};
 	  });
 	}
 
-	var ImageCompressor =
-	/*#__PURE__*/
-	function () {
+	var ImageCompressor = /*#__PURE__*/function () {
 	  function ImageCompressor(file) {
 	    var _this = this;
 

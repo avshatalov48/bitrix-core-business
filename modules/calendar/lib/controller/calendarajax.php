@@ -463,15 +463,15 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		$request = $this->getRequest();
 		$responseParams = [];
 		$uniqueId = 'calendar_view_slider_'.rand();
-		$entryId = intval($request->get('entryId'));
+		$entryId = (int)$request->get('entryId');
 		$userId = \CCalendar::GetCurUserId();
-		$fromTs = \CCalendar::Timestamp($request->get('dateFrom')) - $request->get('timezoneOffset');
 
 		if ($entryId)
 		{
 			$entry = \CCalendarEvent::getEventForViewInterface($entryId,
 				[
-					'eventDate' => \CCalendar::Date($fromTs),
+					'eventDate' => $request->get('dateFrom'),
+					'timezoneOffset' => (int)$request->get('timezoneOffset'),
 					'userId' => $userId
 				]
 			);
@@ -1031,7 +1031,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		return $response;
 	}
 
-	public function getSettingsSliderAction($uid, $isPersonal, $showGeneralSettings)
+	public function getSettingsSliderAction($uid, $showPersonalSettings, $showGeneralSettings, $showAccessControl)
 	{
 		$uid = preg_replace('/[^\d|\w\_]/', '', $uid);
 
@@ -1046,8 +1046,9 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			'',
 			[
 				'id' => $uid,
-				'is_personal' => $isPersonal === 'Y',
-				'show_general_settings' => $showGeneralSettings === 'Y'
+				'is_personal' => $showPersonalSettings === 'Y',
+				'show_general_settings' => $showGeneralSettings === 'Y',
+				'show_access_control' => $showAccessControl === 'Y'
 			],
 			$additionalResponseParams
 		);
@@ -1133,5 +1134,41 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 	}
 
 	public function analyticalAction(): void
-	{}
+	{
+
+	}
+
+	public function saveSettingsAction(string $type, array $user_settings = [], string $user_timezone_name = '', array $settings = []): void
+	{
+		$request = $this->getRequest();
+		$userId = \CCalendar::GetCurUserId();
+
+		// Personal
+		UserSettings::set($user_settings);
+
+		// Save access for type
+		if (\CCalendarType::CanDo('calendar_type_edit_access', $type))
+		{
+			// General
+			if (!empty($settings) )
+			{
+				\CCalendar::SetSettings($settings);
+			}
+
+			if (!empty($request['type_access']))
+			{
+				\CCalendarType::Edit([
+					'arFields' => [
+						'XML_ID' => $type,
+						'ACCESS' => $request['type_access']
+					]
+				]);
+			}
+		}
+
+		if (!empty($user_timezone_name))
+		{
+			\CCalendar::SaveUserTimezoneName($userId, $user_timezone_name);
+		}
+	}
 }

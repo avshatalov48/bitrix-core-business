@@ -17,6 +17,19 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Iblock
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_IblockMessage_Query query()
+ * @method static EO_IblockMessage_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_IblockMessage_Result getById($id)
+ * @method static EO_IblockMessage_Result getList(array $parameters = array())
+ * @method static EO_IblockMessage_Entity getEntity()
+ * @method static \Bitrix\Iblock\EO_IblockMessage createObject($setDefaultValues = true)
+ * @method static \Bitrix\Iblock\EO_IblockMessage_Collection createCollection()
+ * @method static \Bitrix\Iblock\EO_IblockMessage wakeUpObject($row)
+ * @method static \Bitrix\Iblock\EO_IblockMessage_Collection wakeUpCollection($rows)
  */
 class IblockMessageTable extends Entity\DataManager
 {

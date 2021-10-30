@@ -9,7 +9,7 @@
 	 * @param options
 	 * @constructor
 	 */
-	BX.Landing.UI.Field.Color = function(options)
+	BX.Landing.UI.Field.ColorPalette = function(options)
 	{
 		BX.Landing.UI.Field.ButtonGroup.apply(this, arguments);
 		this.pseudoElement = typeof options.pseudoElement === "string" ? options.pseudoElement : null;
@@ -47,8 +47,8 @@
 		}
 	}
 
-	BX.Landing.UI.Field.Color.prototype = {
-		constructor: BX.Landing.UI.Field.Color,
+	BX.Landing.UI.Field.ColorPalette.prototype = {
+		constructor: BX.Landing.UI.Field.ColorPalette,
 		__proto__: BX.Landing.UI.Field.ButtonGroup.prototype,
 
 		initButtons: function()

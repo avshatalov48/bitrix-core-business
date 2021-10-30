@@ -10,6 +10,22 @@ namespace Bitrix\Seo;
 use Bitrix\Main\Entity;
 use Bitrix\Main\SiteTable;
 
+/**
+ * Class SitemapIblockTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SitemapIblock_Query query()
+ * @method static EO_SitemapIblock_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_SitemapIblock_Result getById($id)
+ * @method static EO_SitemapIblock_Result getList(array $parameters = array())
+ * @method static EO_SitemapIblock_Entity getEntity()
+ * @method static \Bitrix\Seo\EO_SitemapIblock createObject($setDefaultValues = true)
+ * @method static \Bitrix\Seo\EO_SitemapIblock_Collection createCollection()
+ * @method static \Bitrix\Seo\EO_SitemapIblock wakeUpObject($row)
+ * @method static \Bitrix\Seo\EO_SitemapIblock_Collection wakeUpCollection($rows)
+ */
 class SitemapIblockTable extends Entity\DataManager
 {
 	const ACTIVE = 'Y';

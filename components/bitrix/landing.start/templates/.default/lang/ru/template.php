@@ -20,3 +20,4 @@ $MESS['LANDING_TPL_IMPORT_SITE_PAGE'] = 'Импорт сайта';
 $MESS['LANDING_TPL_IMPORT_SITE_KNOWLEDGE'] = 'Импорт базы знаний';
 $MESS['LANDING_TPL_IMPORT_SITE_STORE'] = 'Импорт магазина';
 $MESS['LANDING_TPL_SETTING_CATALOG'] = 'Настройки каталога';
+$MESS['LANDING_TPL_DEV_SITE'] = 'Создание девелоперского сайта';

@@ -1223,7 +1223,7 @@ class CAllIBlockElement
 					}
 					else
 					{
-						if($db_prop = CIBlockProperty::GetPropertyArray($res["FIELD"], CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"], $arFilter["~IBLOCK_ID"], $arFilter["~IBLOCK_CODE"])))
+						if($db_prop = CIBlockProperty::GetPropertyArray($res["FIELD"], CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"] ?? false, $arFilter["~IBLOCK_ID"] ?? false, $arFilter["~IBLOCK_CODE"] ?? false)))
 							CIBlockElement::MkPropertyFilter($res, $cOperationType, $propVAL, $db_prop, $arJoinProps, $arSqlSearch);
 					}
 				}
@@ -1439,7 +1439,7 @@ class CAllIBlockElement
 		return $arSqlSearch;
 	}
 
-	function MkPropertyFilter($res, $cOperationType, $propVAL, $db_prop, &$arJoinProps, &$arSqlSearch)
+	public function MkPropertyFilter($res, $cOperationType, $propVAL, $db_prop, &$arJoinProps, &$arSqlSearch)
 	{
 		global $DB;
 
@@ -1673,7 +1673,7 @@ class CAllIBlockElement
 		}
 	}
 
-	function MkPropertyOrder($by, $order, $bSort, $db_prop, &$arJoinProps, &$arSqlOrder)
+	public function MkPropertyOrder($by, $order, $bSort, $db_prop, &$arJoinProps, &$arSqlOrder)
 	{
 		if($bSort && $db_prop["PROPERTY_TYPE"] != "L")
 			return;
@@ -1901,7 +1901,7 @@ class CAllIBlockElement
 
 	}
 
-	function MkPropertyGroup($db_prop, &$arJoinProps, $bSort = false)
+	public function MkPropertyGroup($db_prop, &$arJoinProps, $bSort = false)
 	{
 		if($db_prop["VERSION"] == 2 && $db_prop["MULTIPLE"]=="N")
 		{
@@ -1960,7 +1960,7 @@ class CAllIBlockElement
 		}
 	}
 
-	function MkPropertySelect($PR_ID, $db_prop, &$arJoinProps, $bWasGroup, $sGroupBy, &$sSelect, $bSort = false)
+	public function MkPropertySelect($PR_ID, $db_prop, &$arJoinProps, $bWasGroup, $sGroupBy, &$sSelect, $bSort = false)
 	{
 		global $DB, $DBType;
 
@@ -2541,7 +2541,7 @@ class CAllIBlockElement
 		}
 	}
 
-	function MkAlias($max_alias_len, $alias, &$arIBlockLongProps)
+	public function MkAlias($max_alias_len, $alias, &$arIBlockLongProps)
 	{
 		if($max_alias_len && mb_strlen($alias) > $max_alias_len)
 		{
@@ -2552,7 +2552,7 @@ class CAllIBlockElement
 		return $alias;
 	}
 
-	function PrepareGetList(
+	public function PrepareGetList(
 		&$arIblockElementFields,
 		&$arJoinProps,
 
@@ -2953,7 +2953,7 @@ class CAllIBlockElement
 					}
 					else
 					{
-						if($db_prop = CIBlockProperty::GetPropertyArray($PR_ID, CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"])))
+						if($db_prop = CIBlockProperty::GetPropertyArray($PR_ID, CIBlock::_MergeIBArrays($arFilter["IBLOCK_ID"], $arFilter["IBLOCK_CODE"] ?? false)))
 							$this->MkPropertySelect($PR_ID, $db_prop, $arJoinProps, $bWasGroup, $sGroupBy, $sSelect);
 					}
 				}
@@ -3527,7 +3527,7 @@ class CAllIBlockElement
 			if(is_set($arFields, "IBLOCK_SECTION"))
 				CIBlockElement::SetElementSection($ID, $arFields["IBLOCK_SECTION"], true, $arIBlock["RIGHTS_MODE"] === "E"? $arIBlock["ID"]: 0, $IBLOCK_SECTION_ID);
 
-			if($arIBlock["RIGHTS_MODE"] === "E")
+			if ($arIBlock["RIGHTS_MODE"] === Iblock\IblockTable::RIGHTS_EXTENDED)
 			{
 				$obElementRights = new CIBlockElementRights($arIBlock["ID"], $ID);
 				if(!is_set($arFields, "IBLOCK_SECTION") || empty($arFields["IBLOCK_SECTION"]))
@@ -4146,7 +4146,7 @@ class CAllIBlockElement
 	///////////////////////////////////////////////////////////////////
 	// Checks fields before update or insert
 	///////////////////////////////////////////////////////////////////
-	function CheckFields(&$arFields, $ID=false, $bCheckDiskQuota=true)
+	public function CheckFields(&$arFields, $ID=false, $bCheckDiskQuota=true)
 	{
 		global $DB, $APPLICATION, $USER;
 		$this->LAST_ERROR = "";
@@ -4204,13 +4204,22 @@ class CAllIBlockElement
 				elseif(($error = CFile::checkForDb($arFields, "PREVIEW_PICTURE")) !== "")
 					$this->LAST_ERROR .= GetMessage("IBLOCK_ERR_PREVIEW_PICTURE")."<br>".$error."<br>";
 			}
-			elseif(intval($arFields["PREVIEW_PICTURE"]) > 0)
+			elseif((int)$arFields["PREVIEW_PICTURE"] > 0)
 			{
 				if(
-					(intval($arFields["WF_PARENT_ELEMENT_ID"]) <= 0)
-					|| (CIBlockElement::DeleteFile($arFields["PREVIEW_PICTURE"], $ID, "PREVIEW", intval($arFields["WF_PARENT_ELEMENT_ID"]), $arFields["IBLOCK_ID"], true) <= 0)
+					(int)$arFields["WF_PARENT_ELEMENT_ID"] <= 0
+					|| CIBlockElement::DeleteFile(
+							$arFields["PREVIEW_PICTURE"],
+							$ID,
+							"PREVIEW",
+							(int)$arFields["WF_PARENT_ELEMENT_ID"],
+							$arFields["IBLOCK_ID"],
+							true
+					) <= 0
 				)
+				{
 					$this->LAST_ERROR .= GetMessage("IBLOCK_ERR_PREVIEW_PICTURE")."<br>";
+				}
 			}
 		}
 
@@ -4232,13 +4241,22 @@ class CAllIBlockElement
 				elseif(($error = CFile::checkForDb($arFields, "DETAIL_PICTURE")) !== "")
 					$this->LAST_ERROR .= GetMessage("IBLOCK_ERR_DETAIL_PICTURE")."<br>".$error."<br>";
 			}
-			elseif(intval($arFields["DETAIL_PICTURE"]) > 0)
+			elseif((int)$arFields["DETAIL_PICTURE"] > 0)
 			{
 				if(
-					(intval($arFields["WF_PARENT_ELEMENT_ID"]) <= 0)
-					|| (CIBlockElement::DeleteFile($arFields["DETAIL_PICTURE"], $ID, "DETAIL", intval($arFields["WF_PARENT_ELEMENT_ID"]), $arFields["IBLOCK_ID"], true) <= 0)
+					(int)($arFields["WF_PARENT_ELEMENT_ID"]) <= 0
+					|| CIBlockElement::DeleteFile(
+							$arFields["DETAIL_PICTURE"],
+							$ID,
+							"DETAIL",
+							(int)$arFields["WF_PARENT_ELEMENT_ID"],
+							$arFields["IBLOCK_ID"],
+							true
+					) <= 0
 				)
+				{
 					$this->LAST_ERROR .= GetMessage("IBLOCK_ERR_DETAIL_PICTURE")."<br>";
+				}
 			}
 		}
 
@@ -4251,7 +4269,7 @@ class CAllIBlockElement
 			$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_BLOCK_ID")."<br>";
 
 		//Find out IBLOCK_ID from fields or from element
-		$IBLOCK_ID = intval($arFields["IBLOCK_ID"]);
+		$IBLOCK_ID = (int)($arFields["IBLOCK_ID"] ?? 0);
 		if($IBLOCK_ID <= 0)
 		{
 			$IBLOCK_ID = 0;
@@ -4287,11 +4305,11 @@ class CAllIBlockElement
 			$ar = $IBLOCK_CACHE[$IBLOCK_ID]["FIELDS"];
 			if(is_array($ar))
 			{
-				$WF_PARENT_ELEMENT_ID = isset($arFields["WF_PARENT_ELEMENT_ID"])? intval($arFields["WF_PARENT_ELEMENT_ID"]): 0;
+				$WF_PARENT_ELEMENT_ID = (int)($arFields["WF_PARENT_ELEMENT_ID"] ?? 0);
 				if(
 					(
 						$WF_PARENT_ELEMENT_ID == 0
-						|| $WF_PARENT_ELEMENT_ID == intval($ID)
+						|| $WF_PARENT_ELEMENT_ID == (int)$ID
 					)
 					&& array_key_exists("CODE", $arFields)
 					&& $arFields["CODE"] <> ''
@@ -4305,7 +4323,7 @@ class CAllIBlockElement
 						WHERE IBLOCK_ID = ".$IBLOCK_ID."
 						AND CODE = '".$DB->ForSQL($arFields["CODE"])."'
 						AND WF_PARENT_ELEMENT_ID IS NULL
-						AND ID <> ".intval($ID)
+						AND ID <> ".(int)$ID
 					);
 					if($res->Fetch())
 						$this->LAST_ERROR .= GetMessage("IBLOCK_DUP_ELEMENT_CODE")."<br>";

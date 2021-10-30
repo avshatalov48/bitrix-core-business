@@ -193,7 +193,7 @@
 .value-settings-item {
 	display: flex;
 	align-items: center;
-	height: 35px;
+	min-height: 35px;
 	padding-left: 11px;
 	padding-right: 9px;
 	cursor: pointer;
@@ -208,7 +208,6 @@
 	margin-bottom: 0;
 	margin-left: 8px;
 	flex-grow: 1;
-	line-height: 35px;
 }
 
 .value-settings-item-separator {

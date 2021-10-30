@@ -10,6 +10,7 @@ use \Bitrix\Landing\Assets;
 use \Bitrix\Landing\Block\Cache;
 use \Bitrix\Landing\Restriction;
 use \Bitrix\Landing\Node\Type as NodeType;
+use \Bitrix\Landing\Node;
 use \Bitrix\Landing\PublicAction\Utils as UtilsAction;
 
 Loc::loadMessages(__FILE__);
@@ -85,6 +86,11 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	 * Symbolic code of preset.
 	 */
 	const PRESET_SYM_CODE = 'preset';
+
+	/**
+	 * Default setting for block wrapper style, if not set manifest[styles][block] section
+	 */
+	protected const DEFAULT_WRAPPER_STYLE = ['block-default'];
 
 	/**
 	 * Internal class.
@@ -1906,10 +1912,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		{
 			// prepare by subtype
 			if (
-				isset($manifest['block']['subtype']) &&
-				(
-					!isset($params['miss_subtype']) ||
-					$params['miss_subtype'] !== true
+				isset($manifest['block']['subtype'])
+				&& (
+					!isset($params['miss_subtype'])
+					|| $params['miss_subtype'] !== true
 				)
 			)
 			{
@@ -2005,31 +2011,56 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				$manifest['namespace'] = $this->getBlockNamespace($this->code);
 			}
 			if (
-				isset($manifest['style']) &&
-				!(
-					isset($manifest['style']['block']) &&
-					isset($manifest['style']['nodes']) &&
-					count($manifest['style']) == 2
+				isset($manifest['style'])
+				&& !(
+					isset($manifest['style']['block'])
+					&& isset($manifest['style']['nodes'])
+					&& count($manifest['style']) == 2
 				)
 			)
 			{
-				$manifest['style'] = array(
-					'block' => array(),
+				$manifest['style'] = [
+					'block' => ['type' => self::DEFAULT_WRAPPER_STYLE],
 					'nodes' => is_array($manifest['style'])
-								? $manifest['style']
-								: array()
-				);
+						? $manifest['style']
+						: []
+				];
 			}
 			elseif (
-				!isset($manifest['style']) ||
-				!is_array($manifest['style'])
+				!isset($manifest['style'])
+				|| !is_array($manifest['style'])
 			)
 			{
-				$manifest['style'] = array(
-					'block' => array(),
-					'nodes' => array()
-				);
+				$manifest['style'] = [
+					'block' => ['type' => self::DEFAULT_WRAPPER_STYLE],
+					'nodes' => []
+				];
 			}
+
+			// fake nodes for images from style
+			$styleNodes = [];
+			foreach ($manifest['style']['nodes'] as $selector => $styleNode)
+			{
+				if (!isset($manifest['nodes'][$selector]))
+				{
+					$styleNodes[$selector] = is_array($styleNode['type']) ? $styleNode['type'] : [$styleNode['type']];
+				}
+			}
+			$styleNodes['#wrapper'] = is_array($manifest['style']['block']['type'])
+				? $manifest['style']['block']['type']
+				: [$manifest['style']['block']['type']];
+
+			foreach ($styleNodes as $selector => $type)
+			{
+				if (!empty(array_intersect($type, Node\StyleImg::STYLES_WITH_IMAGE)))
+				{
+					$manifest['nodes'][$selector] = [
+						'type' => Node\Type::STYLE_IMAGE,
+						'code' => $selector,
+					];
+				}
+			}
+
 			// other
 			$manifest['code'] = $this->code;
 		}
@@ -3479,7 +3510,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				$this->updateNodes(
 					$update,
 					[
-						'sanitize' => false
+						'sanitize' => false,
+						'skipCheckAffected' => true
 					]
 				);
 				if(!$edit)
@@ -3927,8 +3959,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			return false;
 		}
 
+		$affected = [];
 		$doc = $this->getDom();
 		$manifest = $this->getManifest();
+
 		// find available nodes by manifest from data
 		foreach ($manifest['nodes'] as $selector => $node)
 		{
@@ -3941,7 +3975,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					);
 				}
 				// and save content from frontend in DOM by handler-class
-				call_user_func_array(array(
+				$affected[$selector] = call_user_func_array(array(
 					Node\Type::getClassName($node['type']),
 					'saveNode'
 				), array(
@@ -3998,7 +4032,65 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 
 		// save rebuild html as text
 		$this->saveContent($doc->saveHTML());
+
+		// check affected content in block's content
+		if (!($additional['skipCheckAffected'] ?? false) && Manager::getOption('strict_verification_update') === 'Y')
+		{
+			$pos = 0;
+			$domCorrect = true;
+			$content = $this->content;
+
+			foreach ($affected as $selector => $resultItem)
+			{
+				$selector = trim($selector, '.');
+
+				// prepare content for search
+				$content = str_replace('class="', 'class=" ', $content);
+				$content = preg_replace_callback(
+					'/class="[^"]*[\s]+(' . $selector . ')[\s"]+[^"]*"[^>]*>/s',
+					function($match) use(&$pos)
+					{
+						return str_replace($match[1], $match[1] . '@' . ($pos++), $match[0]);
+					},
+					$content
+				);
+
+				if (is_array($resultItem))
+				{
+					foreach ($resultItem as $pos => $affectedItem)
+					{
+						if ($affectedItem['content'] ?? null)
+						{
+							$affectedItem['content'] = str_replace('/', '\/', $affectedItem['content']);
+							am($affectedItem['content']);
+							$mask = '/class="[^"]*[\s]+' . $selector . '@' . $pos . '[\s"]+[^"]*"[^>]*>' . $affectedItem['content'] . '<\//s';
+							$domCorrect = preg_match_all($mask, $content);
+							if (!$domCorrect)
+							{
+								break 2;
+							}
+						}
+
+						if ($affectedItem['attrs'] ?? null)
+						{
+						//	am($affectedItem['attrs']);
+						}
+					}
+				}
+			}
+
+			if (!$domCorrect)
+			{
+				$this->error->addError(
+					'INCORRECT_AFFECTED',
+					Loc::getMessage('LANDING_BLOCK_INCORRECT_AFFECTED')
+				);
+				return false;
+			}
+		}
+
 		Assets\PreProcessing::blockUpdateNodeProcessing($this);
+
 		return true;
 	}
 
@@ -4223,10 +4315,11 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				{
 					foreach ($styleToRemove as $remove)
 					{
-						if (isset($styles[$remove]))
+						if (!is_array($remove))
 						{
-							unset($styles[$remove]);
+							$remove = [$remove => $remove];
 						}
+						$styles = array_diff_key($styles, $remove);
 					}
 					DOM\StyleInliner::setStyle($nodeChild, $styles);
 				}
@@ -4257,7 +4350,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		$manifest = $this->getManifest();
 
 		// detects position
-		$positions = array();
+		$positions = [];
 		foreach ((array)$data as $selector => $item)
 		{
 			if (mb_strpos($selector, '@') !== false)
@@ -4268,7 +4361,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			{
 				$position = -1;
 			}
-			if ($selector == '#wrapper')
+			if ($selector === '#wrapper')
 			{
 				$selector = '#block' . $this->id;
 			}
@@ -4276,9 +4369,9 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			{
 				if (!isset($positions[$selector]))
 				{
-					$positions[$selector] = array();
+					$positions[$selector] = [];
 				}
-				$positions[$selector][] = $position;
+				$positions[$selector][] = (int)$position;
 			}
 			$data[$selector] = $item;
 		}
@@ -4291,9 +4384,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			$manifest['style']['block'],
 			$manifest['style']['nodes']
 		);
-		$styles[$wrapper] = array(
-			//
-		);
+		$styles[$wrapper] = [];
 		foreach ($styles as $selector => $node)
 		{
 			if (isset($data[$selector]))
@@ -4301,22 +4392,23 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				// prepare data
 				if (!is_array($data[$selector]))
 				{
-					$data[$selector] = array(
+					$data[$selector] = [
 						$data[$selector]
-					);
+					];
 				}
+
 				if (!isset($data[$selector]['classList']))
 				{
-					$data[$selector] = array(
+					$data[$selector] = [
 						'classList' => $data[$selector]
-					);
+					];
 				}
 				if (!isset($data[$selector]['affect']))
 				{
-					$data[$selector]['affect'] = array();
+					$data[$selector]['affect'] = [];
 				}
 				// apply classes to the block
-				if ($selector == $wrapper)
+				if ($selector === $wrapper)
 				{
 					$nodesArray = $doc->getChildNodesArray();
 					$resultList = [array_pop($nodesArray)];
@@ -4328,28 +4420,43 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				}
 				foreach ($resultList as $pos => $resultNode)
 				{
-					if (
-						isset($positions[$selector]) &&
-						!in_array($pos, $positions[$selector])
-					)
+					$relativeSelector = $selector;
+					if (isset($positions[$selector]))
 					{
-						continue;
+						if (!in_array($pos, $positions[$selector], true))
+						{
+							continue;
+						}
+						$relativeSelector .= '@' . $pos;
 					}
+
 					if ($resultNode)
 					{
-						if ($resultNode->getNodeType() == $resultNode::ELEMENT_NODE)
+						if ((int)$resultNode->getNodeType() === $resultNode::ELEMENT_NODE)
 						{
 							$resultNode->setClassName(
-								implode(' ', $data[$selector]['classList'])
+								implode(' ', $data[$relativeSelector]['classList'])
 							);
 						}
+
 						// affected styles
-						if (!empty($data[$selector]['affect']))
+						if (!empty($data[$relativeSelector]['affect']))
 						{
 							$this->removeStyle(
 								$resultNode,
-								$data[$selector]['affect']
+								$data[$relativeSelector]['affect']
 							);
+						}
+
+						// inline styles
+						if (!empty($data[$relativeSelector]['style']))
+						{
+							$styles = DOM\StyleInliner::getStyle($resultNode, false);
+							DOM\StyleInliner::setStyle($resultNode, array_merge($styles, $data[$relativeSelector]['style']));
+						}
+						else
+						{
+							$resultNode->removeAttribute('style');
 						}
 					}
 				}
@@ -4784,18 +4891,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		{
 			foreach ($manifest['style']['nodes'] as $selector => $node)
 			{
-				$styles[$selector] = array();
-				$resultList = $doc->querySelectorAll($selector);
-				foreach ($resultList as $pos => $result)
+				$nodeStyle = Node\Style::getStyle($this, $selector);
+				if ($nodeStyle)
 				{
-					if ($result->getNodeType() == $result::ELEMENT_NODE)
-					{
-						$styles[$selector][$pos] = trim($result->getClassName());
-					}
-				}
-				if (empty($styles[$selector]))
-				{
-					unset($styles[$selector]);
+					$styles[$selector] = $nodeStyle;
 				}
 				// attrs
 				if (
@@ -4818,16 +4917,13 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			}
 		}
 		// get actual css from block wrapper
-		if (isset($manifest['style']['block']))
+		if (!empty($manifest['style']['block']))
 		{
-			$nodesArray = $doc->getChildNodesArray();
-			$resultList = [array_pop($nodesArray)];
-			foreach ($resultList as $pos => $result)
+			$selector = '#wrapper';
+			$wrapperStyle = Node\Style::getStyle($this, $selector);
+			if ($wrapperStyle)
 			{
-				if ($result && $result->getNodeType() == $result::ELEMENT_NODE)
-				{
-					$styles['#wrapper'][$pos] = trim($result->getClassName());
-				}
+				$styles[$selector] = $wrapperStyle;
 			}
 		}
 		// attrs

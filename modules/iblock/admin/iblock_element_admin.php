@@ -22,7 +22,6 @@ IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface
 $bBizproc = Loader::includeModule("bizproc");
 $bWorkflow = Loader::includeModule("workflow");
 $bFileman = Loader::includeModule("fileman");
-$bExcel = isset($_REQUEST["mode"]) && ($_REQUEST["mode"] == "excel");
 $dsc_cookie_name = Main\Config\Option::get('main', 'cookie_name', 'BITRIX_SM')."_DSC";
 
 /** @global CAdminPage $adminPage */
@@ -109,6 +108,8 @@ $pageConfig = array(
 	'ALLOW_USER_EDIT' => true,
 
 	'SLIDER_CRM' => false,
+	'DEFAULT_ACTION_TYPE' => CAdminUiListRow::LINK_TYPE_URL,
+	'SKIP_URL_MODIFICATION' => false,
 );
 switch ($urlBuilder->getId())
 {
@@ -122,6 +123,7 @@ switch ($urlBuilder->getId())
 		$pageConfig['ALLOW_EXTERNAL_LINK'] = false;
 		$pageConfig['ALLOW_USER_EDIT'] = false;
 		$pageConfig['SLIDER_CRM'] = $urlBuilder->isSliderMode();
+		$pageConfig['DEFAULT_ACTION_TYPE'] = CAdminUiListRow::LINK_TYPE_SLIDER;
 		break;
 	case 'CATALOG':
 		$pageConfig['LIST_ID_PREFIX'] = 'tbl_product_admin_';
@@ -184,8 +186,8 @@ if ($useElementTranslit)
 }
 $changeUserByActive = Main\Config\Option::get('iblock', 'change_user_by_group_active_modify') === 'Y';
 
-define("MODULE_ID", "iblock");
-define("ENTITY", "CIBlockDocument");
+const MODULE_ID = "iblock";
+const ENTITY = "CIBlockDocument";
 define("DOCUMENT_TYPE", "iblock_".$IBLOCK_ID);
 
 $bCatalog = Loader::includeModule("catalog");
@@ -333,6 +335,8 @@ if ($by == 'CATALOG_TYPE')
 
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 $lAdmin->bMultipart = true;
+
+$bExcel = $lAdmin->isExportMode();
 
 $groupParams = array(
 	'ENTITY_ID' => $sTableID,
@@ -974,6 +978,7 @@ if($bCatalog)
 			"align" => "left",
 			"column_sort" => 200,
 			"width" => 420,
+			"sort" => "NAME",
 		];
 	}
 
@@ -2279,7 +2284,7 @@ if ($arID = $lAdmin->GroupAction())
 }
 CJSCore::Init(array('date'));
 
-if (isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "excel")
+if ($bExcel)
 {
 	$arNavParams = false;
 }
@@ -2607,6 +2612,10 @@ foreach (array_keys($rawRows) as $rowId)
 
 	$arRes["edit_url"] = $urlBuilder->getElementDetailUrl($arRes_orig['ID'], $elementUrlParams);
 	$arRows[$itemId] = $row = $lAdmin->AddRow($itemId, $arRes, $arRes["edit_url"], GetMessage("IBEL_A_EDIT"));
+	$row->setConfig([
+		CAdminUiListRow::DEFAULT_ACTION_TYPE_FIELD => $pageConfig['DEFAULT_ACTION_TYPE'],
+		CAdminUiListRow::SKIP_URL_MODIFY_FIELD => $pageConfig['SKIP_URL_MODIFICATION'],
+	]);
 
 	if ($row->arRes['VAT_ID'] === null)
 	{
@@ -4583,7 +4592,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 
 if ($urlBuilder->isSliderMode())
 {
-	if((!isset($_REQUEST["mode"]) || $_REQUEST["mode"]=='list' || $_REQUEST["mode"]=='frame'))
+	if($lAdmin->isPageMode() || $lAdmin->isAjaxMode())
 	{
 		?><style>
 	body { background: none repeat 0 0 transparent; }
@@ -4591,7 +4600,7 @@ if ($urlBuilder->isSliderMode())
 	}
 }
 //We need javascript not in excel mode
-if((!isset($_REQUEST["mode"]) || $_REQUEST["mode"]=='list' || $_REQUEST["mode"]=='frame') && $bCatalog && $bCurrency)
+if (($lAdmin->isPageMode() || $lAdmin->isAjaxMode()) && $bCatalog && $bCurrency)
 {
 	?><script type="text/javascript">
 		top.arCatalogShowedGroups = [];
@@ -4711,9 +4720,7 @@ if (Loader::includeModule('crm') && Instagram::isAvailable() && Instagram::isAct
 }
 
 $lAdmin->DisplayFilter($filterFields);
-$lAdmin->DisplayList([
-	'SKIP_URL_MODIFICATION' => true
-]);
+$lAdmin->DisplayList();
 if($bWorkFlow || $bBizproc):
 	echo BeginNote();?>
 	<span class="adm-lamp adm-lamp-green"></span> - <?echo GetMessage("IBLOCK_GREEN_ALT")?><br>

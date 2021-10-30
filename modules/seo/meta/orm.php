@@ -187,18 +187,6 @@ namespace Bitrix\Seo\Adv {
 }
 namespace Bitrix\Seo\Adv {
 	/**
-	 * @method static EO_Autolog_Query query()
-	 * @method static EO_Autolog_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Autolog_Result getById($id)
-	 * @method static EO_Autolog_Result getList(array $parameters = array())
-	 * @method static EO_Autolog_Entity getEntity()
-	 * @method static \Bitrix\Seo\Adv\EO_Autolog createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\Adv\EO_Autolog_Collection createCollection()
-	 * @method static \Bitrix\Seo\Adv\EO_Autolog wakeUpObject($row)
-	 * @method static \Bitrix\Seo\Adv\EO_Autolog_Collection wakeUpCollection($rows)
-	 */
-	class AutologTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -352,18 +340,6 @@ namespace Bitrix\Seo\Adv {
 	}
 }
 namespace Bitrix\Seo\Adv {
-	/**
-	 * @method static EO_Link_Query query()
-	 * @method static EO_Link_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Link_Result getById($id)
-	 * @method static EO_Link_Result getList(array $parameters = array())
-	 * @method static EO_Link_Entity getEntity()
-	 * @method static \Bitrix\Seo\Adv\EO_Link createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\Adv\EO_Link_Collection createCollection()
-	 * @method static \Bitrix\Seo\Adv\EO_Link wakeUpObject($row)
-	 * @method static \Bitrix\Seo\Adv\EO_Link_Collection wakeUpCollection($rows)
-	 */
-	class LinkTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -564,18 +540,6 @@ namespace Bitrix\Seo\Adv {
 	}
 }
 namespace Bitrix\Seo\Adv {
-	/**
-	 * @method static EO_Log_Query query()
-	 * @method static EO_Log_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Log_Result getById($id)
-	 * @method static EO_Log_Result getList(array $parameters = array())
-	 * @method static EO_Log_Entity getEntity()
-	 * @method static \Bitrix\Seo\Adv\EO_Log createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\Adv\EO_Log_Collection createCollection()
-	 * @method static \Bitrix\Seo\Adv\EO_Log wakeUpObject($row)
-	 * @method static \Bitrix\Seo\Adv\EO_Log_Collection wakeUpCollection($rows)
-	 */
-	class LogTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -815,18 +779,6 @@ namespace Bitrix\Seo\Adv {
 	}
 }
 namespace Bitrix\Seo\Adv {
-	/**
-	 * @method static EO_Order_Query query()
-	 * @method static EO_Order_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Order_Result getById($id)
-	 * @method static EO_Order_Result getList(array $parameters = array())
-	 * @method static EO_Order_Entity getEntity()
-	 * @method static \Bitrix\Seo\Adv\EO_Order createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\Adv\EO_Order_Collection createCollection()
-	 * @method static \Bitrix\Seo\Adv\EO_Order wakeUpObject($row)
-	 * @method static \Bitrix\Seo\Adv\EO_Order_Collection wakeUpCollection($rows)
-	 */
-	class OrderTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1127,18 +1079,6 @@ namespace Bitrix\Seo\Adv {
 }
 namespace Bitrix\Seo\Adv {
 	/**
-	 * @method static EO_YandexBanner_Query query()
-	 * @method static EO_YandexBanner_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_YandexBanner_Result getById($id)
-	 * @method static EO_YandexBanner_Result getList(array $parameters = array())
-	 * @method static EO_YandexBanner_Entity getEntity()
-	 * @method static \Bitrix\Seo\Adv\EO_YandexBanner createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\Adv\EO_YandexBanner_Collection createCollection()
-	 * @method static \Bitrix\Seo\Adv\EO_YandexBanner wakeUpObject($row)
-	 * @method static \Bitrix\Seo\Adv\EO_YandexBanner_Collection wakeUpCollection($rows)
-	 */
-	class YandexBannerTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1363,18 +1303,6 @@ namespace Bitrix\Seo\Adv {
 	}
 }
 namespace Bitrix\Seo\Adv {
-	/**
-	 * @method static EO_YandexCampaign_Query query()
-	 * @method static EO_YandexCampaign_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_YandexCampaign_Result getById($id)
-	 * @method static EO_YandexCampaign_Result getList(array $parameters = array())
-	 * @method static EO_YandexCampaign_Entity getEntity()
-	 * @method static \Bitrix\Seo\Adv\EO_YandexCampaign createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\Adv\EO_YandexCampaign_Collection createCollection()
-	 * @method static \Bitrix\Seo\Adv\EO_YandexCampaign wakeUpObject($row)
-	 * @method static \Bitrix\Seo\Adv\EO_YandexCampaign_Collection wakeUpCollection($rows)
-	 */
-	class YandexCampaignTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1626,18 +1554,6 @@ namespace Bitrix\Seo\Adv {
 }
 namespace Bitrix\Seo\Adv {
 	/**
-	 * @method static EO_YandexGroup_Query query()
-	 * @method static EO_YandexGroup_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_YandexGroup_Result getById($id)
-	 * @method static EO_YandexGroup_Result getList(array $parameters = array())
-	 * @method static EO_YandexGroup_Entity getEntity()
-	 * @method static \Bitrix\Seo\Adv\EO_YandexGroup createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\Adv\EO_YandexGroup_Collection createCollection()
-	 * @method static \Bitrix\Seo\Adv\EO_YandexGroup wakeUpObject($row)
-	 * @method static \Bitrix\Seo\Adv\EO_YandexGroup_Collection wakeUpCollection($rows)
-	 */
-	class YandexGroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1888,18 +1804,6 @@ namespace Bitrix\Seo\Adv {
 }
 namespace Bitrix\Seo\Adv {
 	/**
-	 * @method static EO_YandexRegion_Query query()
-	 * @method static EO_YandexRegion_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_YandexRegion_Result getById($id)
-	 * @method static EO_YandexRegion_Result getList(array $parameters = array())
-	 * @method static EO_YandexRegion_Entity getEntity()
-	 * @method static \Bitrix\Seo\Adv\EO_YandexRegion createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\Adv\EO_YandexRegion_Collection createCollection()
-	 * @method static \Bitrix\Seo\Adv\EO_YandexRegion wakeUpObject($row)
-	 * @method static \Bitrix\Seo\Adv\EO_YandexRegion_Collection wakeUpCollection($rows)
-	 */
-	class YandexRegionTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1925,7 +1829,7 @@ namespace Bitrix\Seo\Adv {
 	 */
 	class EO_YandexRegion_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Seo\Adv\YandexStatTable:seo/lib/adv/yandexstat.php:3fddecd5aeaa253ba6d4baafad753bf8 */
+/* ORMENTITYANNOTATION:Bitrix\Seo\Adv\YandexStatTable:seo/lib/adv/yandexstat.php:16aed0e7a4d23ee406dec156b7c2ab4d */
 namespace Bitrix\Seo\Adv {
 	/**
 	 * EO_YandexStat
@@ -2198,18 +2102,6 @@ namespace Bitrix\Seo\Adv {
 }
 namespace Bitrix\Seo\Adv {
 	/**
-	 * @method static EO_YandexStat_Query query()
-	 * @method static EO_YandexStat_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_YandexStat_Result getById($id)
-	 * @method static EO_YandexStat_Result getList(array $parameters = array())
-	 * @method static EO_YandexStat_Entity getEntity()
-	 * @method static \Bitrix\Seo\Adv\EO_YandexStat createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\Adv\EO_YandexStat_Collection createCollection()
-	 * @method static \Bitrix\Seo\Adv\EO_YandexStat wakeUpObject($row)
-	 * @method static \Bitrix\Seo\Adv\EO_YandexStat_Collection wakeUpCollection($rows)
-	 */
-	class YandexStatTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2234,6 +2126,170 @@ namespace Bitrix\Seo\Adv {
 	 * @method \Bitrix\Seo\Adv\EO_YandexStat_Collection wakeUpCollection($rows)
 	 */
 	class EO_YandexStat_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Seo\BusinessSuite\Internals\ServiceQueueTable:seo/lib/businesssuite/internals/servicequeue.php:54a4c783f6bdac440058659c838b64a9 */
+namespace Bitrix\Seo\BusinessSuite\Internals {
+	/**
+	 * EO_ServiceQueue
+	 * @see \Bitrix\Seo\BusinessSuite\Internals\ServiceQueueTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getType()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue setType(\string|\Bitrix\Main\DB\SqlExpression $type)
+	 * @method bool hasType()
+	 * @method bool isTypeFilled()
+	 * @method bool isTypeChanged()
+	 * @method \string remindActualType()
+	 * @method \string requireType()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue resetType()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue unsetType()
+	 * @method \string fillType()
+	 * @method \string getServiceType()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue setServiceType(\string|\Bitrix\Main\DB\SqlExpression $serviceType)
+	 * @method bool hasServiceType()
+	 * @method bool isServiceTypeFilled()
+	 * @method bool isServiceTypeChanged()
+	 * @method \string remindActualServiceType()
+	 * @method \string requireServiceType()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue resetServiceType()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue unsetServiceType()
+	 * @method \string fillServiceType()
+	 * @method \int getClientId()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue setClientId(\int|\Bitrix\Main\DB\SqlExpression $clientId)
+	 * @method bool hasClientId()
+	 * @method bool isClientIdFilled()
+	 * @method bool isClientIdChanged()
+	 * @method \int remindActualClientId()
+	 * @method \int requireClientId()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue resetClientId()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue unsetClientId()
+	 * @method \int fillClientId()
+	 * @method \int getSort()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue setSort(\int|\Bitrix\Main\DB\SqlExpression $sort)
+	 * @method bool hasSort()
+	 * @method bool isSortFilled()
+	 * @method bool isSortChanged()
+	 * @method \int remindActualSort()
+	 * @method \int requireSort()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue resetSort()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue unsetSort()
+	 * @method \int fillSort()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue set($fieldName, $value)
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue reset($fieldName)
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue wakeUp($data)
+	 */
+	class EO_ServiceQueue {
+		/* @var \Bitrix\Seo\BusinessSuite\Internals\ServiceQueueTable */
+		static public $dataClass = '\Bitrix\Seo\BusinessSuite\Internals\ServiceQueueTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Seo\BusinessSuite\Internals {
+	/**
+	 * EO_ServiceQueue_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getTypeList()
+	 * @method \string[] fillType()
+	 * @method \string[] getServiceTypeList()
+	 * @method \string[] fillServiceType()
+	 * @method \int[] getClientIdList()
+	 * @method \int[] fillClientId()
+	 * @method \int[] getSortList()
+	 * @method \int[] fillSort()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue $object)
+	 * @method bool has(\Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue getByPrimary($primary)
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue[] getAll()
+	 * @method bool remove(\Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_ServiceQueue_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Seo\BusinessSuite\Internals\ServiceQueueTable */
+		static public $dataClass = '\Bitrix\Seo\BusinessSuite\Internals\ServiceQueueTable';
+	}
+}
+namespace Bitrix\Seo\BusinessSuite\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_ServiceQueue_Result exec()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue fetchObject()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_ServiceQueue_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue fetchObject()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue_Collection fetchCollection()
+	 */
+	class EO_ServiceQueue_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue createObject($setDefaultValues = true)
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue_Collection createCollection()
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue wakeUpObject($row)
+	 * @method \Bitrix\Seo\BusinessSuite\Internals\EO_ServiceQueue_Collection wakeUpCollection($rows)
+	 */
+	class EO_ServiceQueue_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Seo\LeadAds\Internals\CallbackSubscriptionTable:seo/lib/leadads/internals/callbacksubscription.php:413be8e9e60cae9d1e017c6328e0e4a8 */
 namespace Bitrix\Seo\LeadAds\Internals {
@@ -2385,18 +2441,6 @@ namespace Bitrix\Seo\LeadAds\Internals {
 	}
 }
 namespace Bitrix\Seo\LeadAds\Internals {
-	/**
-	 * @method static EO_CallbackSubscription_Query query()
-	 * @method static EO_CallbackSubscription_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_CallbackSubscription_Result getById($id)
-	 * @method static EO_CallbackSubscription_Result getList(array $parameters = array())
-	 * @method static EO_CallbackSubscription_Entity getEntity()
-	 * @method static \Bitrix\Seo\LeadAds\Internals\EO_CallbackSubscription createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\LeadAds\Internals\EO_CallbackSubscription_Collection createCollection()
-	 * @method static \Bitrix\Seo\LeadAds\Internals\EO_CallbackSubscription wakeUpObject($row)
-	 * @method static \Bitrix\Seo\LeadAds\Internals\EO_CallbackSubscription_Collection wakeUpCollection($rows)
-	 */
-	class CallbackSubscriptionTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2634,18 +2678,6 @@ namespace Bitrix\Seo\Retargeting\Internals {
 }
 namespace Bitrix\Seo\Retargeting\Internals {
 	/**
-	 * @method static EO_Queue_Query query()
-	 * @method static EO_Queue_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Queue_Result getById($id)
-	 * @method static EO_Queue_Result getList(array $parameters = array())
-	 * @method static EO_Queue_Entity getEntity()
-	 * @method static \Bitrix\Seo\Retargeting\Internals\EO_Queue createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\Retargeting\Internals\EO_Queue_Collection createCollection()
-	 * @method static \Bitrix\Seo\Retargeting\Internals\EO_Queue wakeUpObject($row)
-	 * @method static \Bitrix\Seo\Retargeting\Internals\EO_Queue_Collection wakeUpCollection($rows)
-	 */
-	class QueueTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2821,18 +2853,6 @@ namespace Bitrix\Seo\Retargeting\Internals {
 	}
 }
 namespace Bitrix\Seo\Retargeting\Internals {
-	/**
-	 * @method static EO_ServiceLog_Query query()
-	 * @method static EO_ServiceLog_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ServiceLog_Result getById($id)
-	 * @method static EO_ServiceLog_Result getList(array $parameters = array())
-	 * @method static EO_ServiceLog_Entity getEntity()
-	 * @method static \Bitrix\Seo\Retargeting\Internals\EO_ServiceLog createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\Retargeting\Internals\EO_ServiceLog_Collection createCollection()
-	 * @method static \Bitrix\Seo\Retargeting\Internals\EO_ServiceLog wakeUpObject($row)
-	 * @method static \Bitrix\Seo\Retargeting\Internals\EO_ServiceLog_Collection wakeUpCollection($rows)
-	 */
-	class ServiceLogTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -3046,18 +3066,6 @@ namespace Bitrix\Seo {
 }
 namespace Bitrix\Seo {
 	/**
-	 * @method static EO_SearchEngine_Query query()
-	 * @method static EO_SearchEngine_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_SearchEngine_Result getById($id)
-	 * @method static EO_SearchEngine_Result getList(array $parameters = array())
-	 * @method static EO_SearchEngine_Entity getEntity()
-	 * @method static \Bitrix\Seo\EO_SearchEngine createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\EO_SearchEngine_Collection createCollection()
-	 * @method static \Bitrix\Seo\EO_SearchEngine wakeUpObject($row)
-	 * @method static \Bitrix\Seo\EO_SearchEngine_Collection wakeUpCollection($rows)
-	 */
-	class SearchEngineTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3246,18 +3254,6 @@ namespace Bitrix\Seo {
 }
 namespace Bitrix\Seo {
 	/**
-	 * @method static EO_Sitemap_Query query()
-	 * @method static EO_Sitemap_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Sitemap_Result getById($id)
-	 * @method static EO_Sitemap_Result getList(array $parameters = array())
-	 * @method static EO_Sitemap_Entity getEntity()
-	 * @method static \Bitrix\Seo\EO_Sitemap createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\EO_Sitemap_Collection createCollection()
-	 * @method static \Bitrix\Seo\EO_Sitemap wakeUpObject($row)
-	 * @method static \Bitrix\Seo\EO_Sitemap_Collection wakeUpCollection($rows)
-	 */
-	class SitemapTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3283,7 +3279,7 @@ namespace Bitrix\Seo {
 	 */
 	class EO_Sitemap_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Seo\SitemapEntityTable:seo/lib/sitemapentity.php:fa0f5a41c3428bdb655d75fa444931f1 */
+/* ORMENTITYANNOTATION:Bitrix\Seo\SitemapEntityTable:seo/lib/sitemapentity.php:11a99be45557c93ccfea3c5c26429d30 */
 namespace Bitrix\Seo {
 	/**
 	 * EO_SitemapEntity
@@ -3422,18 +3418,6 @@ namespace Bitrix\Seo {
 	}
 }
 namespace Bitrix\Seo {
-	/**
-	 * @method static EO_SitemapEntity_Query query()
-	 * @method static EO_SitemapEntity_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_SitemapEntity_Result getById($id)
-	 * @method static EO_SitemapEntity_Result getList(array $parameters = array())
-	 * @method static EO_SitemapEntity_Entity getEntity()
-	 * @method static \Bitrix\Seo\EO_SitemapEntity createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\EO_SitemapEntity_Collection createCollection()
-	 * @method static \Bitrix\Seo\EO_SitemapEntity wakeUpObject($row)
-	 * @method static \Bitrix\Seo\EO_SitemapEntity_Collection wakeUpCollection($rows)
-	 */
-	class SitemapEntityTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -3600,18 +3584,6 @@ namespace Bitrix\Seo {
 }
 namespace Bitrix\Seo {
 	/**
-	 * @method static EO_SitemapForum_Query query()
-	 * @method static EO_SitemapForum_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_SitemapForum_Result getById($id)
-	 * @method static EO_SitemapForum_Result getList(array $parameters = array())
-	 * @method static EO_SitemapForum_Entity getEntity()
-	 * @method static \Bitrix\Seo\EO_SitemapForum createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\EO_SitemapForum_Collection createCollection()
-	 * @method static \Bitrix\Seo\EO_SitemapForum wakeUpObject($row)
-	 * @method static \Bitrix\Seo\EO_SitemapForum_Collection wakeUpCollection($rows)
-	 */
-	class SitemapForumTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3637,7 +3609,7 @@ namespace Bitrix\Seo {
 	 */
 	class EO_SitemapForum_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Seo\SitemapIblockTable:seo/lib/sitemapiblock.php:b9f15974e601dd2236f5384df7657d9f */
+/* ORMENTITYANNOTATION:Bitrix\Seo\SitemapIblockTable:seo/lib/sitemapiblock.php:9b87798aa2fa8a08d389a0c0fd0775b4 */
 namespace Bitrix\Seo {
 	/**
 	 * EO_SitemapIblock
@@ -3778,18 +3750,6 @@ namespace Bitrix\Seo {
 }
 namespace Bitrix\Seo {
 	/**
-	 * @method static EO_SitemapIblock_Query query()
-	 * @method static EO_SitemapIblock_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_SitemapIblock_Result getById($id)
-	 * @method static EO_SitemapIblock_Result getList(array $parameters = array())
-	 * @method static EO_SitemapIblock_Entity getEntity()
-	 * @method static \Bitrix\Seo\EO_SitemapIblock createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\EO_SitemapIblock_Collection createCollection()
-	 * @method static \Bitrix\Seo\EO_SitemapIblock wakeUpObject($row)
-	 * @method static \Bitrix\Seo\EO_SitemapIblock_Collection wakeUpCollection($rows)
-	 */
-	class SitemapIblockTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3815,7 +3775,7 @@ namespace Bitrix\Seo {
 	 */
 	class EO_SitemapIblock_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Seo\SitemapRuntimeTable:seo/lib/sitemapruntime.php:455425bcc9a2d67ee4ebc0979ef1a9f9 */
+/* ORMENTITYANNOTATION:Bitrix\Seo\SitemapRuntimeTable:seo/lib/sitemapruntime.php:9402ab4105fb9526908e661c8297ea3d */
 namespace Bitrix\Seo {
 	/**
 	 * EO_SitemapRuntime
@@ -3990,18 +3950,6 @@ namespace Bitrix\Seo {
 }
 namespace Bitrix\Seo {
 	/**
-	 * @method static EO_SitemapRuntime_Query query()
-	 * @method static EO_SitemapRuntime_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_SitemapRuntime_Result getById($id)
-	 * @method static EO_SitemapRuntime_Result getList(array $parameters = array())
-	 * @method static EO_SitemapRuntime_Entity getEntity()
-	 * @method static \Bitrix\Seo\EO_SitemapRuntime createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\EO_SitemapRuntime_Collection createCollection()
-	 * @method static \Bitrix\Seo\EO_SitemapRuntime wakeUpObject($row)
-	 * @method static \Bitrix\Seo\EO_SitemapRuntime_Collection wakeUpCollection($rows)
-	 */
-	class SitemapRuntimeTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -4165,18 +4113,6 @@ namespace Bitrix\Seo\WebHook\Internals {
 	}
 }
 namespace Bitrix\Seo\WebHook\Internals {
-	/**
-	 * @method static EO_WebHook_Query query()
-	 * @method static EO_WebHook_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_WebHook_Result getById($id)
-	 * @method static EO_WebHook_Result getList(array $parameters = array())
-	 * @method static EO_WebHook_Entity getEntity()
-	 * @method static \Bitrix\Seo\WebHook\Internals\EO_WebHook createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Seo\WebHook\Internals\EO_WebHook_Collection createCollection()
-	 * @method static \Bitrix\Seo\WebHook\Internals\EO_WebHook wakeUpObject($row)
-	 * @method static \Bitrix\Seo\WebHook\Internals\EO_WebHook_Collection wakeUpCollection($rows)
-	 */
-	class WebHookTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

@@ -103,67 +103,28 @@ this.BX = this.BX || {};
 	    key: "update",
 	    value: function update() {
 	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	      if (!main_core.Type.isPlainObject(params)) params = {};
+
+	      if (!main_core.Type.isPlainObject(params)) {
+	        params = {};
+	      }
+
 	      params.updateScaleType = !!params.updateScaleType;
 	      params.updateScaleLimits = !!params.updateScaleLimits;
 	      params.animation = !!params.animation;
-	      var from = main_core.Type.isDate(params.from) ? params.from : BX.parseDate(params.from) || this.currentDateFrom,
-	          to = main_core.Type.isDate(params.to) ? params.to : BX.parseDate(params.to) || this.currentDateTo,
-	          fullDay = params.fullDay !== undefined ? params.fullDay : this.currentFullDay;
+	      var from = main_core.Type.isDate(params.from) ? params.from : BX.parseDate(params.from) || this.currentDateFrom;
+	      var to = main_core.Type.isDate(params.to) ? params.to : BX.parseDate(params.to) || this.currentDateTo;
+	      this.fullDayMode = params.fullDay !== undefined ? params.fullDay : this.currentFullDay;
 
 	      if (main_core.Type.isDate(from) && main_core.Type.isDate(to)) {
 	        this.currentDateFrom = from;
 	        this.currentDateTo = to;
-	        this.currentFullDay = fullDay; //this.SetFullDayMode(fullDay);
+	        this.currentFullDay = this.fullDayMode;
 
-	        if (fullDay) {
+	        if (this.fullDayMode) {
 	          to = new Date(to.getTime() + calendar_util.Util.getDayLength());
 	          from.setHours(0, 0, 0, 0);
-	          to.setHours(0, 0, 0, 0); // if (this.scaleType !== '1day')
-	          // {
-	          // 	this.setScaleType('1day');
-	          // 	rebuildTimeline = true;
-	          // }
-	        } // Update limits of scale
-	        // if (params.updateScaleLimits && this.scaleType !== '1day')
-	        // {
-	        // 	let timeFrom = parseInt(from.getHours()) + Math.floor(from.getMinutes() / 60);
-	        // 	let timeTo = parseInt(to.getHours()) + Math.ceil(to.getMinutes() / 60);
-	        //
-	        // 	if (Util.formatDate(from) !== Util.formatDate(to))
-	        // 	{
-	        // 		this.extendScaleTime(0, 24);
-	        // 		rebuildTimeline = true;
-	        // 	}
-	        // 	else
-	        // 	{
-	        // 		if (timeFrom < this.shownScaleTimeFrom)
-	        // 		{
-	        // 			this.extendScaleTime(timeFrom, false);
-	        // 			rebuildTimeline = true;
-	        // 		}
-	        //
-	        // 		if (timeTo > this.shownScaleTimeTo)
-	        // 		{
-	        // 			this.extendScaleTime(false, timeTo);
-	        // 			rebuildTimeline = true;
-	        // 		}
-	        //
-	        // 		if (rebuildTimeline)
-	        // 		{
-	        // 			this.adjustCellWidth();
-	        // 		}
-	        // 	}
-	        // }
-	        //if (params.RRULE)
-	        //{
-	        //	this.HandleRecursion(params);
-	        //}
-	        // if (rebuildTimeline)
-	        // {
-	        // 	this.RebuildPlanner({updateSelector: false});
-	        // }
-	        // Update selector
+	          to.setHours(0, 0, 0, 0);
+	        } // Update selector
 
 
 	        this.show(from, to, {
@@ -175,9 +136,9 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "show",
 	    value: function show(from, to, params) {
-	      var animation = params.animation && this.useAnimation !== false,
-	          focus = params.focus,
-	          alignCenter = params.alignCenter !== false;
+	      var animation = params.animation && this.useAnimation !== false;
+	      var focus = params.focus;
+	      var alignCenter = params.alignCenter !== false;
 	      this.DOM.wrap.style.display = 'block';
 
 	      if (main_core.Type.isDate(from) && main_core.Type.isDate(to)) {
@@ -195,7 +156,7 @@ this.BX = this.BX || {};
 	          this.DOM.wrap.style.left = fromPos + 'px';
 	          this.DOM.wrap.style.width = toPos - fromPos + 'px';
 	          this.focus(false, 200, alignCenter);
-	          this.checkStatus(fromPos);
+	          this.checkStatus(fromPos, true);
 	        }
 	      }
 	    }
@@ -414,18 +375,20 @@ this.BX = this.BX || {};
 	        selectorPos = parseInt(this.getTimelineWidth()) - selectorWidth;
 	      }
 
-	      var dateFrom = this.getDateByPos(selectorPos),
-	          dateTo = this.getDateByPos(selectorPos + selectorWidth, true);
+	      var dateFrom = this.getDateByPos(selectorPos);
+	      var dateTo = this.getDateByPos(selectorPos + selectorWidth, true);
 
 	      if (dateFrom && dateTo) {
 	        this.currentDateFrom = dateFrom;
 	        this.currentDateTo = dateTo;
+	        this.currentFullDay = this.fullDayMode;
 
 	        if (this.fullDayMode) {
-	          dateTo = new Date(dateTo.getTime() - calendar_util.Util.getDayLength());
+	          var dateToTime = dateTo.getTime();
+	          this.currentDateTo = new Date(dateToTime - 1000);
+	          dateTo = new Date(dateToTime - calendar_util.Util.getDayLength());
 	        }
 
-	        this.currentFullDay = this.fullDayMode;
 	        this.emit('onChange', new main_core_events.BaseEvent({
 	          data: {
 	            dateFrom: dateFrom,
@@ -440,10 +403,10 @@ this.BX = this.BX || {};
 	    value: function checkPosition(fromPos, selectorWidth, toPos) {
 	      var scaleInfo = this.getScaleInfo();
 
-	      if (scaleInfo.shownTimeFrom !== 0 || scaleInfo.shownTimeTo !== 24 && (scaleInfo.type !== '1day' || this.fullDayMode)) {
-	        if (!fromPos) fromPos = parseInt(this.DOM.wrap.style.left);
-	        if (!selectorWidth) selectorWidth = parseInt(this.DOM.wrap.style.width);
-	        if (!toPos) toPos = fromPos + selectorWidth;
+	      if ((scaleInfo.shownTimeFrom !== 0 || scaleInfo.shownTimeTo !== 24) && (scaleInfo.type !== '1day' || this.fullDayMode)) {
+	        fromPos = fromPos || parseInt(this.DOM.wrap.style.left);
+	        selectorWidth = selectorWidth || parseInt(this.DOM.wrap.style.width);
+	        toPos = toPos || fromPos + selectorWidth;
 
 	        if (toPos > parseInt(this.getTimelineWidth())) {
 	          fromPos = parseInt(this.getTimelineWidth()) - selectorWidth;
@@ -2129,11 +2092,10 @@ this.BX = this.BX || {};
 	      }
 
 	      if (date && babelHelpers.typeof(date) === 'object') {
-	        var i,
-	            curInd = 0,
-	            timestamp = date.getTime();
+	        var curInd = 0;
+	        var timestamp = date.getTime();
 
-	        for (i = 0; i < this.scaleData.length; i++) {
+	        for (var i = 0; i < this.scaleData.length; i++) {
 	          if (timestamp >= this.scaleData[i].timestamp) {
 	            curInd = i;
 	          } else {
@@ -2143,8 +2105,8 @@ this.BX = this.BX || {};
 
 	        if (this.scaleData[curInd] && this.scaleData[curInd].cell) {
 	          x = this.scaleData[curInd].cell.offsetLeft;
-	          var cellWidth = this.scaleData[curInd].cell.offsetWidth,
-	              deltaTs = Math.round((timestamp - this.scaleData[curInd].timestamp) / 1000);
+	          var cellWidth = this.scaleData[curInd].cell.offsetWidth;
+	          var deltaTs = Math.round((timestamp - this.scaleData[curInd].timestamp) / 1000);
 
 	          if (deltaTs > 0) {
 	            x += Math.round(deltaTs * 10 / this.scaleSize * cellWidth) / 10;
@@ -2648,20 +2610,25 @@ this.BX = this.BX || {};
 	    value: function checkTimePeriod(fromDate, toDate, data) {
 	      var _this11 = this;
 
-	      var result = true,
-	          entry,
-	          fromTimestamp = fromDate.getTime(),
-	          toTimestamp = toDate.getTime(),
-	          cacheKey = fromTimestamp + '_' + toTimestamp,
-	          accuracy = 60 * 1000,
-	          // 1min
-	      item,
-	          i;
+	      var result = true;
+	      var entry;
+
+	      if (!main_core.Type.isDate(fromDate) || !main_core.Type.isDate(toDate)) {
+	        return result;
+	      }
+
+	      var fromTimestamp = fromDate.getTime();
+	      var toTimestamp = toDate.getTime();
+	      var cacheKey = fromTimestamp + '_' + toTimestamp;
+	      var accuracy = 3 * 60 * 1000; // 3min
 
 	      if (main_core.Type.isArray(data)) {
-	        for (i = 0; i < data.length; i++) {
-	          item = data[i];
-	          if (item.type && item.type === 'hr') continue;
+	        for (var i = 0; i < data.length; i++) {
+	          var item = data[i];
+
+	          if (item.type && item.type === 'hr') {
+	            continue;
+	          }
 
 	          if (item.fromTimestamp + accuracy <= toTimestamp && (item.toTimestampReal || item.toTimestamp) - accuracy >= fromTimestamp) {
 	            result = item;
@@ -2689,32 +2656,21 @@ this.BX = this.BX || {};
 	                }
 
 	                if (main_core.Type.isArray(_this11.accessibility[entryId])) {
-	                  for (i = 0; i < _this11.accessibility[entryId].length; i++) {
-	                    item = _this11.accessibility[entryId][i];
+	                  for (var _i = 0; _i < _this11.accessibility[entryId].length; _i++) {
+	                    var _item = _this11.accessibility[entryId][_i];
 
-	                    if (item.type && item.type === 'hr') {
+	                    if (_item.type && _item.type === 'hr') {
 	                      continue;
 	                    }
 
-	                    if (item.fromTimestamp + selectorAccuracy <= toTimestamp && (item.toTimestampReal || item.toTimestamp) - selectorAccuracy >= fromTimestamp) {
-	                      result = item;
+	                    if (_item.fromTimestamp + selectorAccuracy <= toTimestamp && (_item.toTimestampReal || _item.toTimestamp) - selectorAccuracy >= fromTimestamp) {
+	                      result = _item;
 	                      break;
 	                    }
 	                  }
 	                }
 	              }
-	            } // for (i = 0; i < this.entries.length; i++)
-	            // {
-	            // 	if (entriesAccessibleIndex[this.entries[i].id] !== undefined)
-	            // 	{
-	            // 		this.entries[i].currentStatus = !!entriesAccessibleIndex[this.entries[i].id];
-	            // 	}
-	            // 	else
-	            // 	{
-	            // 		this.entries[i].currentStatus = true;
-	            // 	}
-	            // }
-
+	            }
 
 	            _this11.checkTimeCache[cacheKey] = result;
 	          }

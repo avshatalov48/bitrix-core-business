@@ -21,6 +21,7 @@ $nodes = [$arResult['userField']['~id']];
 	name="<?= $arResult['fieldName'] ?>"
 	id="<?= $arResult['userField']['~id'] ?>"
 	class="mobile-grid-data-select"
+	data-is-inline-edit="false"
 	<?= ($arResult['userField']['MULTIPLE'] === 'Y' ? ' multiple' : '') ?>
 >
 	<?php

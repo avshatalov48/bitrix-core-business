@@ -350,16 +350,6 @@
 			return !BX.util.in_array(id, this.hiddenSections);
 		},
 
-		getHiddenSections: function()
-		{
-			return this.hiddenSections || [];
-		},
-
-		setHiddenSections: function(hiddenSections)
-		{
-			this.hiddenSections = hiddenSections;
-		},
-
 		getSectionsInfo: function()
 		{
 			var
@@ -454,36 +444,6 @@
 		isShown: function()
 		{
 			return this.calendar.sectionController.sectionIsShown(this.id);
-		},
-
-		show: function()
-		{
-			if (!this.isShown())
-			{
-				var hiddenSections = this.calendar.sectionController.getHiddenSections();
-				hiddenSections = BX.util.deleteFromArray(hiddenSections, BX.util.array_search(this.id, hiddenSections));
-				this.calendar.sectionController.setHiddenSections(hiddenSections);
-
-				if (this.calendarContext.util.userIsOwner())
-				{
-					BX.userOptions.save('calendar', 'hidden_sections', 'hidden_sections', hiddenSections);
-				}
-			}
-		},
-
-		hide: function()
-		{
-			if (this.isShown())
-			{
-				var hiddenSections = this.calendar.sectionController.getHiddenSections();
-				hiddenSections.push(this.id);
-				this.calendar.sectionController.setHiddenSections(hiddenSections);
-
-				if (this.calendarContext.util.userIsOwner())
-				{
-					BX.userOptions.save('calendar', 'hidden_sections', 'hidden_sections', hiddenSections);
-				}
-			}
 		},
 
 		remove: function()

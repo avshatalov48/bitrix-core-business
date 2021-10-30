@@ -370,6 +370,9 @@ class Service
 		$request = Context::getCurrent()->getRequest();
 
 		$host = $request->getHttpHost();
+		$port = (int)$request->getServerPort();
+		$host .= ($port && $port !== 80 && $port !== 443) ? ":{$port}" : '';
+
 		$isHttps = $request->isHttps();
 
 		return ($isHttps ? 'https' : 'http').'://'.$host.static::REDIRECT_URI;

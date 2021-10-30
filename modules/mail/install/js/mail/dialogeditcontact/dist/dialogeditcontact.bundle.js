@@ -3,15 +3,7 @@ this.BX.Mail = this.BX.Mail || {};
 (function (exports,main_core,mail_sidepanelwrapper,ui_dialogs_messagebox) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>\n\t\t\t\t<div data-role=\"name-container\" class=\"mail-addressbook-dialogeditcontact-item\">\n\t\t\t\t\t<label class=\"mail-addressbook-dialogeditcontact-lable\">", "\n\t\t\t\t\t\t<div id=\"mail-addressbook-dialogeditcontact-contact-email-container\" class=\"ui-ctl ui-ctl-textbox mail-addressbook-dialogeditcontact-field\">\n\t\t\t\t\t\t\t<input data-role = \"input\" value=\"", "\" class=\"ui-ctl-element\" placeholder=\"\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</label>\n\t\t\t\t\t<div data-role = \"error-title\" class=\"mail-addressbook-dialogeditcontact-contact-error\"></div>\n\t\t\t\t</div>\n\t\t\t\t<div data-role=\"email-container\" class=\"mail-addressbook-dialogeditcontact-item\">\n\t\t\t\t\t<label class=\"mail-addressbook-dialogeditcontact-lable\">", "\n\t\t\t\t\t\t<div id=\"mail-addressbook-dialogeditcontact-contact-email-container\" class=\"ui-ctl ui-ctl-textbox mail-addressbook-dialogeditcontact-field\">\n\t\t\t\t\t\t\t<input data-role = \"input\" value=\"", "\" class=\"ui-ctl-element\" placeholder=\"info@example.com\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</label>\n\t\t\t\t\t<div data-role = \"error-title\" class=\"mail-addressbook-dialogeditcontact-contact-error\">", "</div>\t\t\t\n\t\t\t\t</div>\n\t\t\t</div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	var DialogEditContact = /*#__PURE__*/function () {
 	  function DialogEditContact() {
 	    babelHelpers.classCallCheck(this, DialogEditContact);
@@ -138,7 +130,7 @@ this.BX.Mail = this.BX.Mail || {};
 	        currentEmail = main_core.Text.encode(contactConfig['contactData']['email']);
 	      }
 
-	      var content = main_core.Tag.render(_templateObject(), main_core.Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_NAME_TITLE"), currentName, main_core.Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_EMAIL_TITLE"), currentEmail, main_core.Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_EMAIL_ERROR"));
+	      var content = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>\n\t\t\t\t<div data-role=\"name-container\" class=\"mail-addressbook-dialogeditcontact-item\">\n\t\t\t\t\t<label class=\"mail-addressbook-dialogeditcontact-lable\">", "\n\t\t\t\t\t\t<div id=\"mail-addressbook-dialogeditcontact-contact-email-container\" class=\"ui-ctl ui-ctl-textbox mail-addressbook-dialogeditcontact-field\">\n\t\t\t\t\t\t\t<input data-role = \"input\" value=\"", "\" class=\"ui-ctl-element\" placeholder=\"\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</label>\n\t\t\t\t\t<div data-role = \"error-title\" class=\"mail-addressbook-dialogeditcontact-contact-error\"></div>\n\t\t\t\t</div>\n\t\t\t\t<div data-role=\"email-container\" class=\"mail-addressbook-dialogeditcontact-item\">\n\t\t\t\t\t<label class=\"mail-addressbook-dialogeditcontact-lable\">", "\n\t\t\t\t\t\t<div id=\"mail-addressbook-dialogeditcontact-contact-email-container\" class=\"ui-ctl ui-ctl-textbox mail-addressbook-dialogeditcontact-field\">\n\t\t\t\t\t\t\t<input data-role = \"input\" value=\"", "\" class=\"ui-ctl-element\" placeholder=\"info@example.com\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</label>\n\t\t\t\t\t<div data-role = \"error-title\" class=\"mail-addressbook-dialogeditcontact-contact-error\">", "</div>\t\t\t\n\t\t\t\t</div>\n\t\t\t</div>"])), main_core.Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_NAME_TITLE"), currentName, main_core.Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_EMAIL_TITLE"), currentEmail, main_core.Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_EMAIL_ERROR"));
 	      var emailItem = content.querySelector('[data-role="email-container"]');
 	      emailItem.showError = this.showError;
 	      emailItem.hideError = this.hideError;

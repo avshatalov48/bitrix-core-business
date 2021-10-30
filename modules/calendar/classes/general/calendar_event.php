@@ -22,7 +22,7 @@ use Bitrix\Disk\Uf\FileUserType;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UserTable;
-use Bitrix\Calendar\Integration\Bitrix24Manager;
+use \Bitrix\Calendar\Integration\Bitrix24Manager;
 
 
 class CCalendarEvent
@@ -60,10 +60,12 @@ class CCalendarEvent
 		$sendEditNotification = $params['sendEditNotification'] !== false;
 		$result = false;
 		$attendeesCodes = [];
+
 		// Get current user id
 		$userId = (isset($params['userId']) && (int)$params['userId'] > 0)
 			? (int)$params['userId']
 			: CCalendar::GetCurUserId();
+
 		if (!$userId && isset($entryFields['CREATED_BY']))
 		{
 			$userId = (int)$entryFields['CREATED_BY'];
@@ -285,7 +287,6 @@ class CCalendarEvent
 			{
 				$entryFields['IS_MEETING'] = false;
 			}
-
 			if ($entryFields['IS_MEETING'])
 			{
 				if (!$isNewEvent)
@@ -384,7 +385,6 @@ class CCalendarEvent
 						" WHERE ID=".intval($eventId);
 				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			}
-
 			// Deprecated. Now connection saved in the table
 			if (!Util::isSectionStructureConverted() &&
 				($isNewEvent || $sectionId !== $currentEvent['SECTION_ID']))
@@ -446,7 +446,6 @@ class CCalendarEvent
 
 			// Update search index
 			self::updateSearchIndex($eventId);
-
 			// Send invitations and notifications
 			if ($entryFields['IS_MEETING'])
 			{
@@ -514,9 +513,16 @@ class CCalendarEvent
 
 			if ($isNewEvent)
 			{
-				foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("calendar", "OnAfterCalendarEntryAdd") as $event)
+				foreach(EventManager::getInstance()->findEventHandlers("calendar", "OnAfterCalendarEntryAdd") as $event)
 				{
-					ExecuteModuleEventEx($event, array($eventId, $entryFields));
+					ExecuteModuleEventEx(
+						$event,
+						[
+							$eventId,
+							$entryFields,
+							[]
+						]
+					);
 				}
 
 				if ($entryFields['PARENT_ID'] === $eventId && $entryFields['CAL_TYPE'] !== 'location')
@@ -526,9 +532,16 @@ class CCalendarEvent
 			}
 			else
 			{
-				foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("calendar", "OnAfterCalendarEntryUpdate") as $event)
+				foreach(EventManager::getInstance()->findEventHandlers("calendar", "OnAfterCalendarEntryUpdate") as $event)
 				{
-					ExecuteModuleEventEx($event, array($eventId, $entryFields));
+					ExecuteModuleEventEx(
+						$event,
+						[
+							$eventId,
+							$entryFields,
+							$currentEvent['ATTENDEE_LIST']
+						]
+					);
 				}
 			}
 
@@ -664,16 +677,16 @@ class CCalendarEvent
 						if ($ts > 0)
 							$arSqlSearch[] = "CE.DATE_FROM_TS_UTC<=".($ts + 86399);
 					}
-					elseif($n == 'ID')
+					elseif($n === 'ID' || $n === 'PARENT_ID' || $n === 'RECURRENCE_ID')
 					{
 						if(is_array($val))
 						{
 							$val = array_map('intval', $val);
-							$arSqlSearch[] = 'CE.ID IN (\''.implode('\',\'', $val).'\')';
+							$arSqlSearch[] = 'CE.'.$n.' IN (\''.implode('\',\'', $val).'\')';
 						}
-						else if (intval($val) > 0)
+						else if ((int)$val > 0)
 						{
-							$arSqlSearch[] = "CE.ID=".intval($val);
+							$arSqlSearch[] = 'CE.'.$n.'='.(int)$val;
 						}
 					}
 					elseif($n == '>ID' && intval($val) > 0)
@@ -684,7 +697,7 @@ class CCalendarEvent
 					{
 						$arSqlSearch[] = "CE.G_EVENT_ID = '". $DB->ForSql($val)."'";
 					}
-					elseif($n == 'OWNER_ID')
+					elseif($n === 'OWNER_ID')
 					{
 						if(is_array($val))
 						{
@@ -708,15 +721,15 @@ class CCalendarEvent
 							$arSqlSearch[] = "CE.MEETING_HOST=".intval($val);
 						}
 					}
-					elseif($n == 'NAME')
+					elseif($n === 'NAME')
 					{
 						$arSqlSearch[] = "CE.NAME='".$DB->ForSql($val)."'";
 					}
-					elseif($n == 'CAL_TYPE')
+					elseif($n === 'CAL_TYPE')
 					{
 						$arSqlSearch[] = "CE.CAL_TYPE='".$DB->ForSql($val)."'";
 					}
-					elseif($n == 'CREATED_BY')
+					elseif($n === 'CREATED_BY')
 					{
 						if(is_array($val))
 						{
@@ -728,7 +741,7 @@ class CCalendarEvent
 							$arSqlSearch[] = "CE.CREATED_BY=".intval($val);
 						}
 					}
-					elseif($n == 'SECTION')
+					elseif($n === 'SECTION')
 					{
 						if (!is_array($val))
 							$val = array($val);
@@ -1624,7 +1637,7 @@ class CCalendarEvent
 			if (
 				(!$fromTS || $fromTS < $evFromTS - CCalendar::GetDayLen()) // Emergensy exit (mantis: 56981)
 				|| ($rrule['COUNT'] > 0 && $realCount >= $rrule['COUNT'])
-				|| (!$rrule['COUNT'] && $fromTS >= $limitToTS)
+				|| ($fromTS >= $limitToTS)
 				|| ($instanceCount && $dispCount >= $instanceCount)
 				|| ($loadLimit && $dispCount >= $loadLimit)
 			)
@@ -1832,7 +1845,9 @@ class CCalendarEvent
 	public static function GetExDate($exDate = '')
 	{
 		if (!is_array($exDate))
-			$exDate = $exDate == '' ? array() : explode(';', $exDate);
+		{
+			$exDate = $exDate == '' ? [] : explode(';', $exDate);
+		}
 		return $exDate;
 	}
 
@@ -3084,7 +3099,7 @@ class CCalendarEvent
 						CCalendarSect::UpdateModificationLabel($arAffectedSections);
 					}
 
-					foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("calendar", "OnAfterCalendarEventDelete") as $event)
+					foreach(EventManager::getInstance()->findEventHandlers("calendar", "OnAfterCalendarEventDelete") as $event)
 					{
 						ExecuteModuleEventEx($event, [$id, $entry]);
 					}
@@ -3278,7 +3293,7 @@ class CCalendarEvent
 					$addedPullUserList[] = $attendee['id'];
 				}
 			}
-			
+
 			$pullUserId = (int)$event['CREATED_BY'] > 0 ? (int)$event['CREATED_BY'] : $userId;
 			if ($pullUserId && !in_array($pullUserId, $addedPullUserList))
 			{
@@ -3709,7 +3724,7 @@ class CCalendarEvent
 		global $DB;
 		if (Util::isSectionStructureConverted())
 		{
-			$strSql = 'SELECT CE.ID, CE.LOCATION 
+			$strSql = 'SELECT CE.ID, CE.LOCATION
 				FROM b_calendar_event CE
 				LEFT JOIN b_calendar_section CS ON (CS.ID=CE.SECTION_ID)
 				WHERE CS.ID is null';
@@ -4356,12 +4371,15 @@ class CCalendarEvent
 
 	public static function getEventForViewInterface($entryId, $params = [])
 	{
+		$fromTs = \CCalendar::Timestamp($params['eventDate']) - $params['timezoneOffset'];
+		$userDateFrom = \CCalendar::Date($fromTs);
+
 		$entry = \CCalendarEvent::GetList([
 			'arFilter' => [
 				"ID" => $entryId,
 				"DELETED" => "N",
-				"FROM_LIMIT" => $params['eventDate'],
-				"TO_LIMIT" => $params['eventDate']
+				"FROM_LIMIT" => $userDateFrom,
+				"TO_LIMIT" => $userDateFrom
 			],
 			'parseRecursion' => true,
 			'maxInstanceCount' => 1,
@@ -4370,6 +4388,32 @@ class CCalendarEvent
 			'checkPermissions' => true,
 			'setDefaultLimit' => false
 		]);
+
+		if ($params['eventDate']
+			&& is_array($entry[0])
+			&& $entry[0]['RRULE']
+			&& $entry[0]['EXDATE']
+			&& in_array($params['eventDate'], self::GetExDate($entry[0]['EXDATE']))
+		)
+		{
+			$entry = \CCalendarEvent::GetList([
+				  'arFilter' => [
+					  "RECURRENCE_ID" => $entryId,
+					  "DELETED" => "N",
+					  "FROM_LIMIT" => $params['eventDate'],
+					  "TO_LIMIT" => $params['eventDate']
+				  ],
+				  'parseRecursion' => true,
+				  'maxInstanceCount' => 1,
+				  'preciseLimits' => true,
+				  'fetchAttendees' => true,
+				  'checkPermissions' => true,
+				  'setDefaultLimit' => false
+			  ]);
+
+
+			echo '!!!!';
+		}
 
 		if (!$entry || !is_array($entry[0]))
 		{

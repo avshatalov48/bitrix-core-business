@@ -1,15 +1,19 @@
 import './css/style.css';
+import { EventEmitter, BaseEvent } from 'main.core.events';
 
 /**
  * ColorPicker for Theme site.
  */
-export class ColorPickerTheme
+export class ColorPickerTheme extends EventEmitter
 {
 	static DEFAULT_COLOR_PICKER_COLOR = '#f25a8f';
 	static MATCH_HEX = /#?([0-9A-F]{3}){1,2}$/i;
 
 	constructor(node: HTMLElement, allColors, currentColor)
 	{
+		super();
+		this.setEventNamespace('BX.Landing.ColorPickerTheme');
+
 		this.element = node;
 		this.input = this.element.firstElementChild;
 		this.allColors = allColors;
@@ -112,10 +116,10 @@ export class ColorPickerTheme
 		this.element.classList.add('ui-colorpicker-selected');
 		this.element.dataset.value = color.substr(1);
 		this.element.style.backgroundColor = color;
-		BX.onCustomEvent('BX.Landing.ColorPicker:onSelectColor', [{
-			color: color,
-			node: this.element,
-		}]);
+
+		const event = new BaseEvent({data: {color: color, node: this.element}});
+		this.emit('onSelectColor', event);
+
 		this.input.setAttribute('value', color);
 
 		this.sendMetric(color);

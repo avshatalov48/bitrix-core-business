@@ -76,6 +76,10 @@ export class ConferenceModel extends VuexBuilderModel
 			},
 			setPermissionsRequested: (store, payload) =>
 			{
+				if (typeof payload.status !== 'boolean')
+				{
+					return false;
+				}
 				store.commit('setPermissionsRequested', payload);
 			},
 			setPresenters: (store, payload) =>
@@ -207,7 +211,7 @@ export class ConferenceModel extends VuexBuilderModel
 			},
 			setPermissionsRequested: (state, payload) =>
 			{
-				state.common.permissionsRequested = true;
+				state.common.permissionsRequested = payload.status;
 			},
 			startCall: (state, payload) =>
 			{

@@ -73,6 +73,7 @@ class Template
 	public function showField(string $name, Field $field): void
 	{
 		$type = $field->getType();
+		$code = $field->getCode();
 		?>
 		<div class="ui-form-row">
 			<?php if ($type !== 'checkbox'): ?>
@@ -89,6 +90,9 @@ class Template
 			<div class="<?= self::getCssByType($type) ?>">
 				<?php if ($type === 'select'): ?>
 					<div class="ui-ctl-after ui-ctl-icon-angle"></div>
+				<?php endif; ?>
+				<?php if ($code === 'THEMEFONTS_CODE' || $code === 'THEMEFONTS_CODE_H'): ?>
+					<div class="ui-ctl-after ui-ctl-icon-angle fa-rotate-270"></div>
 				<?php endif; ?>
 				<?=$field->viewForm([
 					'id' => 'field-' . strtolower($name),
@@ -179,6 +183,7 @@ class Template
 						});
 						<?php endif;?>
 					}
+					this.image = imageField;
 				}
 			});
 		</script>
@@ -207,7 +212,7 @@ class Template
 				}
 			case 'text':
 				{
-					$css = 'ui-ctl-textbox';
+					$css = 'ui-ctl-textbox ui-ctl';
 					break;
 				}
 			case 'checkbox':

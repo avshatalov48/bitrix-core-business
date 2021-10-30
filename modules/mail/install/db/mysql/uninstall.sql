@@ -20,3 +20,5 @@ drop table if exists b_mail_user_message;
 drop table if exists b_mail_message_closure;
 drop table if exists b_mail_message_delete_queue;
 drop table if exists b_mail_mailbox_dir;
+drop table if exists b_mail_counter;
+drop table if exists b_mail_entity_options;

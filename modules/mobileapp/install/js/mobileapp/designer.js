@@ -1182,7 +1182,7 @@
 			},
 			validate: function (value)
 			{
-				return (/^[a-zA-Z0-9_]+$/.test(value) == false && value.length > 0)
+				return (/^[a-zA-Z_]+$/.test(value) == false && value.length > 0)
 			},
 			reset: function ()
 			{

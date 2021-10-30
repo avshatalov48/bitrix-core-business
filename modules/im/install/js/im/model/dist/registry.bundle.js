@@ -350,6 +350,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          store.commit('changeRightPanelMode', payload);
 	        },
 	        setPermissionsRequested: function setPermissionsRequested(store, payload) {
+	          if (typeof payload.status !== 'boolean') {
+	            return false;
+	          }
+
 	          store.commit('setPermissionsRequested', payload);
 	        },
 	        setPresenters: function setPresenters(store, payload) {
@@ -466,7 +470,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          state.common.rightPanelMode = mode;
 	        },
 	        setPermissionsRequested: function setPermissionsRequested(state, payload) {
-	          state.common.permissionsRequested = true;
+	          state.common.permissionsRequested = payload.status;
 	        },
 	        startCall: function startCall(state, payload) {
 	          state.common.state = im_const.ConferenceStateType.call;

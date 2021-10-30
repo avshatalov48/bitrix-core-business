@@ -2,25 +2,26 @@ this.BX = this.BX || {};
 (function (exports,main_core_events,main_core) {
 	'use strict';
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<li class=\"ui-sidepanel-menu-item ui-sidepanel-menu-counter-white\">\n\t\t\t\t<a style=\"padding-left: ", "px\" class=\"ui-sidepanel-menu-link\">\n\t\t\t\t\t<div class=\"ui-sidepanel-menu-link-text\">\n\t\t\t\t\t\t<span class=\"ui-sidepanel-menu-link-text-item\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<span class=\"ui-sidepanel-menu-link-text-counter\">", "</span>\n\t\t\t\t</a>\n\t\t\t</li>"]);
+	var _templateObject, _templateObject2;
 
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
+	var _count = /*#__PURE__*/new WeakMap();
 
-	  return data;
-	}
+	var _nameOriginal = /*#__PURE__*/new WeakMap();
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"mail-menu-directory-item-container\"></div>"]);
+	var _name = /*#__PURE__*/new WeakMap();
 
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
+	var _counterElement = /*#__PURE__*/new WeakMap();
 
-	  return data;
-	}
+	var _itemElement = /*#__PURE__*/new WeakMap();
+
+	var _isActive = /*#__PURE__*/new WeakMap();
+
+	var _path = /*#__PURE__*/new WeakMap();
+
+	var _shiftWidthInPixels = /*#__PURE__*/new WeakMap();
+
+	var _zeroLevelShiftWidth = /*#__PURE__*/new WeakMap();
+
 	var Item = /*#__PURE__*/function () {
 	  babelHelpers.createClass(Item, [{
 	    key: "setCount",
@@ -133,8 +134,8 @@ this.BX = this.BX || {};
 	    babelHelpers.classPrivateFieldSet(this, _path, directory['path']);
 	    babelHelpers.classPrivateFieldSet(this, _nameOriginal, directory['name']);
 	    babelHelpers.classPrivateFieldSet(this, _name, babelHelpers.classPrivateFieldGet(this, _nameOriginal).charAt(0).toUpperCase() + babelHelpers.classPrivateFieldGet(this, _nameOriginal).slice(1));
-	    var itemContainer = main_core.Tag.render(_templateObject());
-	    var itemElement = main_core.Tag.render(_templateObject2(), babelHelpers.classPrivateFieldGet(this, _zeroLevelShiftWidth) + babelHelpers.classPrivateFieldGet(this, _shiftWidthInPixels) * nestingLevel, babelHelpers.classPrivateFieldGet(this, _name), directory['count']);
+	    var itemContainer = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"mail-menu-directory-item-container\"></div>"])));
+	    var itemElement = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<li class=\"ui-sidepanel-menu-item ui-sidepanel-menu-counter-white\">\n\t\t\t\t<a style=\"padding-left: ", "px\" class=\"ui-sidepanel-menu-link\">\n\t\t\t\t\t<div class=\"ui-sidepanel-menu-link-text\">\n\t\t\t\t\t\t<span class=\"ui-sidepanel-menu-link-text-item\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<span class=\"ui-sidepanel-menu-link-text-counter\">", "</span>\n\t\t\t\t</a>\n\t\t\t</li>"])), babelHelpers.classPrivateFieldGet(this, _zeroLevelShiftWidth) + babelHelpers.classPrivateFieldGet(this, _shiftWidthInPixels) * nestingLevel, babelHelpers.classPrivateFieldGet(this, _name), directory['count']);
 	    itemContainer.append(itemElement);
 
 	    itemElement.onclick = function () {
@@ -186,39 +187,22 @@ this.BX = this.BX || {};
 	  return Item;
 	}();
 
-	var _count = new WeakMap();
+	var _templateObject$1;
 
-	var _nameOriginal = new WeakMap();
-
-	var _name = new WeakMap();
-
-	var _counterElement = new WeakMap();
-
-	var _itemElement = new WeakMap();
-
-	var _isActive = new WeakMap();
-
-	var _path = new WeakMap();
-
-	var _shiftWidthInPixels = new WeakMap();
-
-	var _zeroLevelShiftWidth = new WeakMap();
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<ul class=\"ui-mail-left-directory-menu\"></ul>"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+	var _activeDir = /*#__PURE__*/new WeakMap();
+
+	var _menu = /*#__PURE__*/new WeakMap();
+
+	var _dirsWithUnseenMailCounters = /*#__PURE__*/new WeakMap();
+
+	var _items = /*#__PURE__*/new WeakMap();
+
 	var DirectoryMenu = /*#__PURE__*/function () {
 	  babelHelpers.createClass(DirectoryMenu, [{
 	    key: "getActiveDir",
@@ -391,7 +375,7 @@ this.BX = this.BX || {};
 
 	    _menu.set(this, {
 	      writable: true,
-	      value: main_core.Tag.render(_templateObject$1())
+	      value: main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<ul class=\"ui-mail-left-directory-menu\"></ul>"])))
 	    });
 
 	    _dirsWithUnseenMailCounters.set(this, {
@@ -429,14 +413,6 @@ this.BX = this.BX || {};
 	  }]);
 	  return DirectoryMenu;
 	}();
-
-	var _activeDir = new WeakMap();
-
-	var _menu = new WeakMap();
-
-	var _dirsWithUnseenMailCounters = new WeakMap();
-
-	var _items = new WeakMap();
 
 	exports.DirectoryMenu = DirectoryMenu;
 

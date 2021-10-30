@@ -22,6 +22,7 @@ class Stepper
 			'Bitrix\Landing\Update\Domain\Check',
 			'Bitrix\Landing\Update\Assets\WebpackClear',
 			'Bitrix\Landing\Update\Assets\FontFix',
+			'Bitrix\Landing\Update\Assets\FontWeightFix',
 		);
 	}
 	

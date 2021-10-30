@@ -110,7 +110,8 @@ class StoreCatalogDetailBlock extends \Bitrix\Landing\LandingBlock
 					'CODE'
 				),
 				'filter' => array(
-					'IBLOCK_ID' => $this->params['IBLOCK_ID']
+					'IBLOCK_ID' => $this->params['IBLOCK_ID'],
+					'!CODE' => false
 				),
 				'limit' => 1
 			));

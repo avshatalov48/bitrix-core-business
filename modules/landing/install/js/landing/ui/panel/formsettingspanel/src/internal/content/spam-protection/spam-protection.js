@@ -4,6 +4,7 @@ import {FormSettingsForm} from 'landing.ui.form.formsettingsform';
 import {TextField} from 'landing.ui.field.textfield';
 import {RadioButtonField} from 'landing.ui.field.radiobuttonfield';
 import {ContentWrapper} from 'landing.ui.panel.basepresetpanel';
+import {Type} from 'main.core';
 
 import './css/style.css';
 
@@ -44,37 +45,25 @@ export default class SpamProtection extends ContentWrapper
 
 		this.addItem(header);
 		this.addItem(captchaTypeForm);
-		this.addItem(this.getKeysCheckbox());
+		if (this.hasDefaultRecaptchaKeys())
+		{
+			this.addItem(this.getKeysCheckbox());
+		}
 		this.addItem(this.getKeysForm());
 
 		const hasKeys = this.options.values.key && this.options.values.secret;
 
 		if (captchaTypeForm.fields[0].getValue() === 'disabled')
 		{
-			this.hideKeysCheckbox();
+			if (this.hasDefaultRecaptchaKeys())
+			{
+				this.hideKeysCheckbox();
+			}
 			this.hideKeysForm();
 		}
 		else
 		{
-			this.showKeysCheckbox();
-			this.getKeysCheckbox().fields[0].setValue([hasKeys ? 'useCustomKeys' : '']);
-			if (hasKeys)
-			{
-				this.showKeysForm();
-			}
-			else
-			{
-				this.hideKeysForm();
-			}
-		}
-
-		captchaTypeForm.subscribe('onChange', () => {
-			if (captchaTypeForm.fields[0].getValue() === 'disabled')
-			{
-				this.hideKeysCheckbox();
-				this.hideKeysForm();
-			}
-			else
+			if (this.hasDefaultRecaptchaKeys())
 			{
 				this.showKeysCheckbox();
 				this.getKeysCheckbox().fields[0].setValue([hasKeys ? 'useCustomKeys' : '']);
@@ -85,6 +74,41 @@ export default class SpamProtection extends ContentWrapper
 				else
 				{
 					this.hideKeysForm();
+				}
+			}
+			else
+			{
+				this.showKeysForm();
+			}
+		}
+
+		captchaTypeForm.subscribe('onChange', () => {
+			if (captchaTypeForm.fields[0].getValue() === 'disabled')
+			{
+				if (this.hasDefaultRecaptchaKeys())
+				{
+					this.hideKeysCheckbox();
+				}
+				this.hideKeysForm();
+			}
+			else
+			{
+				if (this.hasDefaultRecaptchaKeys())
+				{
+					this.showKeysCheckbox();
+					this.getKeysCheckbox().fields[0].setValue([hasKeys ? 'useCustomKeys' : '']);
+					if (hasKeys)
+					{
+						this.showKeysForm();
+					}
+					else
+					{
+						this.hideKeysForm();
+					}
+				}
+				else
+				{
+					this.showKeysForm();
 				}
 			}
 		});
@@ -173,11 +197,15 @@ export default class SpamProtection extends ContentWrapper
 	// eslint-disable-next-line class-methods-use-this
 	valueReducer(sourceValue: {[p: string]: any}): {[p: string]: any}
 	{
-		const useCustomKeys = sourceValue.useCustomKeys.length > 0;
+		const useCustomKeys = !this.hasDefaultRecaptchaKeys() || sourceValue.useCustomKeys.length > 0;
 
 		return {
 			recaptcha: {
-				use: sourceValue.use === 'hidden',
+				use: (
+					sourceValue.use === 'hidden'
+					&& Type.isStringFilled(sourceValue.key)
+					&& Type.isStringFilled(sourceValue.secret)
+				),
 				key: useCustomKeys ? sourceValue.key : '',
 				secret: useCustomKeys ? sourceValue.secret : '',
 			},
@@ -187,5 +215,10 @@ export default class SpamProtection extends ContentWrapper
 	onChange(event: BaseEvent)
 	{
 		this.emit('onChange', {...event.getData(), skipPrepare: true});
+	}
+
+	hasDefaultRecaptchaKeys(): boolean
+	{
+		return this.options.dictionary.captcha.hasDefaults;
 	}
 }

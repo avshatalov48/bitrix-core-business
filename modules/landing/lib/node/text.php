@@ -13,15 +13,16 @@ class Text extends \Bitrix\Landing\Node
 	}
 
 	/**
-	 * Save data for this node.
+	 * Saves data for this node. Returns affected content for the selector.
 	 * @param \Bitrix\Landing\Block $block Block instance.
 	 * @param string $selector Selector.
 	 * @param array $data Data array.
 	 * @param array $additional Additional prams for save.
-	 * @return void
+	 * @return array
 	 */
-	public static function saveNode(\Bitrix\Landing\Block $block, $selector, array $data, $additional = [])
+	public static function saveNode(\Bitrix\Landing\Block $block, $selector, array $data, $additional = []): array
 	{
+		$result = [];
 		$doc = $block->getDom();
 		$resultList = $doc->querySelectorAll($selector);
 		$additional['sanitize'] = !isset($additional['sanitize']) ||
@@ -55,24 +56,42 @@ class Text extends \Bitrix\Landing\Node
 
 			if (isset($resultList[$pos]))
 			{
+				$result[$pos] = [];
+
 				if ($additional['sanitize'])
 				{
 					$value = \Bitrix\Landing\Manager::sanitize($value, $bad);
 				}
+
 				// clear some amp
-				$value = preg_replace('/&amp;([^\s]{1})/is', '&$1', $value);
-				$value = str_replace(
-					' bxstyle="',
-					' style="',
-					$value
-				);
-				$resultList[$pos]->setInnerHTML(!strlen($value) ? ' ' : $value);
+				if ($value)
+				{
+					$value = preg_replace('/&amp;([^\s]{1})/is', '&$1', $value);
+					$value = str_replace(
+						' bxstyle="',
+						' style="',
+						$value
+					);
+				}
+				else
+				{
+					$value = ' ';
+				}
+
+				$result[$pos]['content'] = $value;
+				$resultList[$pos]->setInnerHTML($value);
+
 				if ($url)
 				{
+					$result[$pos]['attrs'] = [
+						'data-pseudo-url' => $url
+					];
 					$resultList[$pos]->setAttribute('data-pseudo-url', $url);
 				}
 			}
 		}
+
+		return $result;
 	}
 
 	/**

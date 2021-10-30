@@ -97,10 +97,16 @@ this.BX = this.BX || {};
 	        }
 
 	        BX.onCustomEvent(BX.Landing.PageObject.getRootWindow(), 'BX.Landing.Backend:action', [_action, data]);
+	        /*if (!response.result) {
+	        	BX.Landing.ErrorManager.getInstance().add({
+	        		type: 'error'
+	        	});
+	        }*/
+
 	        return response.result;
 	      }).catch(function (err) {
 	        if (requestBody.action !== 'Landing::downBlock' && requestBody.action !== 'Landing::upBlock') {
-	          if (requestBody.action !== 'Block::getById' && requestBody.action !== 'Block::publication' && requestBody.action !== 'Landing::move' && requestBody.action !== 'Landing::copy' && requestBody.action !== 'Landing::publication' && requestBody.action !== 'Site::publication' && requestBody.action !== 'Site::moveFolder') {
+	          if (requestBody.action !== 'Block::getById' && requestBody.action !== 'Block::publication' && requestBody.action !== 'Landing::move' && requestBody.action !== 'Landing::copy' && requestBody.action !== 'Landing::publication' && requestBody.action !== 'Site::publication' && requestBody.action !== 'Site::moveFolder' && requestBody.action !== 'Site::markDelete') {
 	            var error = main_core.Type.isString(err) ? {
 	              type: 'error'
 	            } : err;
@@ -138,6 +144,12 @@ this.BX = this.BX || {};
 	        // eslint-disable-next-line
 	        BX.Landing.UI.Panel.StatusPanel.getInstance().update();
 	        BX.onCustomEvent(BX.Landing.PageObject.getRootWindow(), 'BX.Landing.Backend:batch', [action, data]);
+	        /*if (!response.result) {
+	        	BX.Landing.ErrorManager.getInstance().add({
+	        		type: 'error'
+	        	});
+	        }*/
+
 	        return response;
 	      }).catch(function (err) {
 	        if (requestBody.action !== 'Landing::downBlock' && requestBody.action !== 'Landing::upBlock') {
@@ -495,7 +507,7 @@ this.BX = this.BX || {};
 	          onsuccess: function onsuccess(sourceResponse) {
 	            var response = Backend.makeResponse(xhr, sourceResponse);
 
-	            if (main_core.Type.isStringFilled(response.sessid) && additionalRequestCompleted) {
+	            if (main_core.Type.isStringFilled(response.sessid) && main_core.Loc.getMessage('bitrix_sessid') !== response.sessid && additionalRequestCompleted) {
 	              main_core.Loc.setMessage('bitrix_sessid', response.sessid);
 	              additionalRequestCompleted = false;
 	              var newData = babelHelpers.objectSpread({}, data, {
@@ -540,6 +552,7 @@ this.BX = this.BX || {};
 	  }]);
 	  return Backend;
 	}();
+	babelHelpers.defineProperty(Backend, "instance", null);
 
 	exports.Backend = Backend;
 

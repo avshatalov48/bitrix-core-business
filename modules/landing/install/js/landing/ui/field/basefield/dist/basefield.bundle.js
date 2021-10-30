@@ -92,6 +92,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.property = main_core.Type.isString(_this.data.property) ? _this.data.property : '';
 	    _this.style = Reflect.has(_this.data, 'style') ? _this.data.style : '';
 	    _this.cache = new main_core.Cache.MemoryCache();
+	    _this.contentRoot = Reflect.has(_this.data, 'contentRoot') ? _this.data.contentRoot : null;
 	    var onValueChange = _this.data.onValueChange;
 	    _this.onValueChangeHandler = main_core.Type.isFunction(onValueChange) ? onValueChange : function () {};
 	    _this.onPaste = _this.onPaste.bind(babelHelpers.assertThisInitialized(_this));
@@ -119,6 +120,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    main_core.Event.bind(_this.input, 'paste', _this.onPaste);
 
 	    _this.init();
+
+	    if (_this.data.help) {
+	      BX.Dom.append(top.BX.UI.Hint.createNode(_this.data.help), _this.header);
+	      top.BX.UI.Hint.init(BX.Landing.UI.Panel.StylePanel.getInstance().layout);
+	    }
 
 	    return _this;
 	  }
@@ -167,6 +173,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 
 	      return window;
+	    }
+	  }, {
+	    key: "getContentRoot",
+	    value: function getContentRoot() {
+	      return this.contentRoot; // return this.contentRoot || this.getContext().document.body;
 	    } // eslint-disable-next-line class-methods-use-this
 
 	  }, {
@@ -247,6 +258,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "reset",
 	    value: function reset() {}
 	  }, {
+	    key: "onFrameLoad",
+	    value: function onFrameLoad() {}
+	  }, {
 	    key: "clone",
 	    value: function clone(data) {
 	      return new this.constructor(main_core.Runtime.clone(data || this.data));
@@ -260,6 +274,38 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "setLayoutClass",
 	    value: function setLayoutClass(className) {
 	      main_core.Dom.addClass(this.layout, className);
+	    }
+	    /**
+	     * If field has inline style-properties (f.e. css variables) - get name of them
+	    	 * @returns {string[]}
+	     */
+
+	  }, {
+	    key: "getInlineProperties",
+	    value: function getInlineProperties() {
+	      return [];
+	    }
+	    /**
+	     * If field need match computed styles by node - get name of style properties
+	     * @returns {string[]}
+	     */
+
+	  }, {
+	    key: "getComputedProperties",
+	    value: function getComputedProperties() {
+	      // todo: get from typeSetting
+	      return [];
+	    }
+	    /**
+	     * If field work with pseudo element - return them (f.e. :after)
+	     * @returns {?string}
+	     */
+
+	  }, {
+	    key: "getPseudoElement",
+	    value: function getPseudoElement() {
+	      // todo: from type settings
+	      return null;
 	    }
 	  }]);
 	  return BaseField;

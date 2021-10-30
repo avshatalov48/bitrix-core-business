@@ -1,0 +1,60 @@
+:root {
+	--saturation: 100%;
+}
+
+.landing-ui-field-color-spectrum {
+	background: linear-gradient(to bottom, white 0%, transparent 50%, black 100%),
+	linear-gradient(
+		to right,
+		hsl(0, var(--saturation), 50%) 0%,
+		hsl(30, var(--saturation), 50%) 8%,
+		hsl(60, var(--saturation), 50%) 16%,
+		hsl(90, var(--saturation), 50%) 24%,
+		hsl(120, var(--saturation), 50%) 32%,
+		hsl(150, var(--saturation), 50%) 40%,
+		hsl(180, var(--saturation), 50%) 48%,
+		hsl(210, var(--saturation), 50%) 56%,
+		hsl(240, var(--saturation), 50%) 64%,
+		hsl(270, var(--saturation), 50%) 72%,
+		hsl(300, var(--saturation), 50%) 80%,
+		hsl(330, var(--saturation), 50%) 88%,
+		hsl(360, var(--saturation), 50%) 95.7%,
+		rgb(128, 128, 128) 96.3%,
+		rgb(128, 128, 128) 100%
+	);
+
+	position: relative;
+	width: 100%;
+	height: 150px;
+	margin-top: 8px;
+	border-radius: 2px;
+}
+
+.landing-ui-field-color-spectrum-picker {
+	background: url('images/picker.svg') 50% 50% no-repeat;
+	width: 13px;
+	height: 13px;
+	margin-left: -6px;
+	margin-top: -6px;
+	position: absolute;
+	z-index: 20;
+	top: 20px;
+	left: 20px;
+	cursor: pointer;
+}
+
+.landing-ui-field-color-spectrum-picker.hidden {
+	display: none;
+}
+
+.landing-ui-field-color-draggable {
+	user-select: none;
+}
+
+.landing-ui-field-color-draggable .landing-ui-field-color-spectrum {
+	cursor: pointer;
+}
+
+.landing-ui-field-color-draggable .landing-ui-field-color-spectrum-picker {
+	pointer-events: none;
+}

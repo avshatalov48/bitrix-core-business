@@ -280,6 +280,7 @@ export class SectionManager
 						resolve(response.data);
 					},
 					(response) => {
+						BX.Calendar.Util.displayError(response.errors);
 						resolve(response.data);
 					}
 				);

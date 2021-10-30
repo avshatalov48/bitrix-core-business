@@ -203,14 +203,15 @@ export class ConnectionProvider
 		const connections = this.getConnections();
 		if (connections.length > 0)
 		{
-			connections.forEach(connection => {
-				if (connection.getId() === id)
-				{
-					return connection;
-				}
-			})
+			const result = connections.filter(connection => {
+				return connection.getId() == id;
+			});
+			if (result)
+			{
+				return result[0];
+			}
 		}
 
-		return this.getConnection();
+		return null;
 	}
 }

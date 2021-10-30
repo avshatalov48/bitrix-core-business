@@ -280,6 +280,10 @@ class Broadcast
 			return false;
 		}
 
+		$params['SOCNET_RIGHTS'] = array_map(static function ($right) {
+			return ($right === 'G2' ? 'UA' : $right);
+		}, $params['SOCNET_RIGHTS']);
+
 		if (
 			!empty($params['SOCNET_RIGHTS_OLD'])
 			&& is_array($params['SOCNET_RIGHTS_OLD'])

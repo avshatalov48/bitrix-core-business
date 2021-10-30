@@ -39,7 +39,7 @@ return array(
 	'style' => array(
 		'.landing-block-node-card' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.3.FOUR_COLUMNS_TEXT_WITH_IMG_NODES_LANDINGBLOCKNODECARD_TITLE'),
-			'type' => array('background-color', 'background-gradient'),
+			'type' => array('background-color'),
 		),
 		'.landing-block-node-card-text-container' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.3.FOUR_COLUMNS_TEXT_WITH_IMG_NODES_LANDINGBLOCKNODECARD_TEXT_CONTAINER'),

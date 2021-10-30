@@ -5,6 +5,7 @@ import {Planner} from "calendar.planner";
 import {Popup, MenuManager} from 'main.popup';
 import {Dialog as EntitySelectorDialog} from 'ui.entity-selector';
 import { ControlButton } from 'intranet.control-button';
+import {AttendeesList} from "calendar.controls";
 
 export class UserPlannerSelector extends EventEmitter
 {
@@ -392,11 +393,7 @@ export class UserPlannerSelector extends EventEmitter
 	displayAttendees(attendees = [])
 	{
 		Dom.clean(this.DOM.attendeesList);
-		this.attendeeList = {
-			accepted : attendees.filter((user) => {return ['H', 'Y'].includes(user.STATUS);}),
-			requested : attendees.filter((user) => {return user.STATUS === 'Q' || user.STATUS === ''}),
-			declined : attendees.filter((user) => {return user.STATUS === 'N'})
-		};
+		this.attendeeList = AttendeesList.sortAttendees(attendees);
 
 		let userLength = this.attendeeList.accepted.length;
 		if (userLength > 0)
@@ -430,7 +427,7 @@ export class UserPlannerSelector extends EventEmitter
 			}
 			else
 			{
-				this.DOM.moreLink.innerHTML = Text.encode(Loc.getMessage('EC_ATTENDEES_ALL'));
+				this.DOM.moreLink.innerHTML = Text.encode(Loc.getMessage('EC_ATTENDEES_ALL_COUNT').replace('#COUNT#', attendees.length));
 			}
 			Dom.show(this.DOM.moreLink);
 		}
@@ -475,88 +472,8 @@ export class UserPlannerSelector extends EventEmitter
 
 	showMoreAttendeesPopup()
 	{
-		if (this.morePopup)
-		{
-			this.morePopup.destroy();
-		}
-
-		const submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-		const menuItems = [];
-
-		[
-			{
-				code: 'accepted', // Accepted
-				title: Loc.getMessage('EC_ATTENDEES_Y_NUM')
-			},
-			{
-				code: 'requested', // Still thinking about
-				title: Loc.getMessage('EC_ATTENDEES_Q_NUM')
-			},
-			{
-				code: 'declined', // Declined
-				title: Loc.getMessage('EC_ATTENDEES_N_NUM')
-			},
-		].forEach((group) => {
-			let groupUsers = this.attendeeList[group.code];
-			if (groupUsers.length > 0)
-			{
-				menuItems.push({
-					html: '<span>' + group.title.replace('#COUNT#', groupUsers.length) + '</span>',
-					className: submenuClass
-				});
-
-				groupUsers.forEach((user) => {
-					user.toString = () => {return user.ID};
-					menuItems.push(
-						{
-							text: BX.util.htmlspecialchars(user.DISPLAY_NAME),
-							dataset: {user: user},
-							className: 'calendar-add-popup-user-menu-item',
-							onclick: () => {
-								BX.SidePanel.Instance.open(
-									user.URL,
-									{
-										loader: "intranet:profile",
-										cacheable: false,
-										allowChangeHistory: false,
-										contentClassName: "bitrix24-profile-slider-content",
-										width: 1100
-									}
-								);
-								this.morePopup.close();
-							}
-						}
-					);
-				});
-			}
-		});
-
-		this.morePopup = MenuManager.create(
-			'compact-event-form-attendees' + Math.round(Math.random() * 100000),
-			this.DOM.moreLink,
-			menuItems,
-			{
-				closeByEsc : true,
-				autoHide : true,
-				zIndex: this.zIndex,
-				offsetTop: 0,
-				offsetLeft: 15,
-				angle: true,
-				cacheable: false,
-				className: 'calendar-popup-user-menu'
-			}
-		);
-
-		this.morePopup.show();
-		this.morePopup.menuItems.forEach((item) => {
-			const icon = item.layout.item.querySelector('.menu-popup-item-icon');
-			if (Type.isPlainObject(item.dataset))
-			{
-				icon.appendChild(UserPlannerSelector.getUserAvatarNode(item.dataset.user))
-			}
-		});
+		(new AttendeesList(this.DOM.moreLink, this.attendeeList)).showPopup();
 	}
-
 
 	setInformValue(value)
 	{

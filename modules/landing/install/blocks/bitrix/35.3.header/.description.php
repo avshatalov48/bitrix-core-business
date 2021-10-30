@@ -86,7 +86,7 @@ return array(
 	'style' => array(
 		'.landing-block-node-card' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_35.3.HEADER_NODES_LANDINGBLOCK_CARD'),
-			'type' => 'border-color',
+			'type' => 'border-colors',
 		),
 		'.landing-block-node-card-title-style' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_35.3.HEADER_NODES_LANDINGBLOCK_CARD_TITLE'),

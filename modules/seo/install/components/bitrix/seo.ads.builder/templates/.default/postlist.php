@@ -5,7 +5,12 @@ use Bitrix\Main\Localization\Loc;
 $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "") . "no-all-paddings no-background");
 \Bitrix\Main\UI\Extension::load([
-	"ui.buttons", "ui.icons", "ui.progressbar", "seo.seoadbuilder",
+	"ui.buttons",
+	"ui.icons",
+	"ui.progressbar",
+	"ui.sidepanel-content",
+	"ui.sidepanel.layout",
+	"seo.seoadbuilder",
 ]);
 \CJSCore::Init("loader");
 
@@ -17,8 +22,10 @@ $type = $arParams['TYPE'];
 
 ?>
 
+<div class="ui-sidepanel-layout-header" style="padding-left: 0">
+	<div class="ui-sidepanel-layout-title"><?php echo Loc::getMessage('CRM_ADS_RTG_POST_LIST_TITLE')?></div>
+</div>
 <div class="crm-order-instagram-view crm-ads-new-campaign">
-	<div class="crm-ads-new-campaign-expert-header"><?php echo Loc::getMessage('CRM_ADS_RTG_POST_LIST_TITLE')?></div>
 	<div class="crm-order-instagram-edit-block" style="display: none;">
 		<div class="crm-order-instagram-view-list">
 		</div>

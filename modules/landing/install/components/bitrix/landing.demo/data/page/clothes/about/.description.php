@@ -225,33 +225,9 @@ return array(
 			'attrs' => array(),
 		),
 		5 => array(
-			'.landing-block-node-card' => array(
-				'source' => array(
-					0 => array(
-						'value' => 0,
-						'type' => 'card',
-					),
-					1 => array(
-						'value' => 0,
-						'type' => 'card',
-					),
-					2 => array(
-						'value' => 0,
-						'type' => 'card',
-					),
-					3 => array(
-						'value' => 0,
-						'type' => 'card',
-					),
-					4 => array(
-						'value' => 0,
-						'type' => 'card',
-					),
-					5 => array(
-						'value' => 0,
-						'type' => 'card',
-					),
-				),
+			'code' => '24.3.image_gallery_6_cols_fix_3',
+			'cards' => array(
+				'.landing-block-node-card' => 6,
 			),
 			'nodes' => array(
 				'.landing-block-node-img' => array(
@@ -286,7 +262,7 @@ return array(
 					<img class="landing-block-node-img g-width-120" src="https://cdn.bitrix24.site/bitrix/images/landing/business/x74/img1.png" alt="" data-fileid="-1" />
 				',
 						'href' => 'https://bitrix24.ru',
-						'target' => '_blank',
+						'target' => '_self',
 						'attrs' => array(
 							'data-embed' => NULL,
 							'data-url' => NULL,
@@ -297,7 +273,7 @@ return array(
 					<img class="landing-block-node-img g-width-120" src="https://cdn.bitrix24.site/bitrix/images/landing/business/x74/img2.png" alt="" data-fileid="-1" />
 				',
 						'href' => 'https://bitrix24.ru',
-						'target' => '_blank',
+						'target' => '_self',
 						'attrs' => array(
 							'data-embed' => NULL,
 							'data-url' => NULL,
@@ -308,7 +284,7 @@ return array(
 					<img class="landing-block-node-img g-width-120" src="https://cdn.bitrix24.site/bitrix/images/landing/business/x74/img3.png" alt="" data-fileid="-1" />
 				',
 						'href' => 'https://bitrix24.ru',
-						'target' => '_blank',
+						'target' => '_self',
 						'attrs' => array(
 							'data-embed' => NULL,
 							'data-url' => NULL,
@@ -319,7 +295,7 @@ return array(
 					<img class="landing-block-node-img g-width-120" src="https://cdn.bitrix24.site/bitrix/images/landing/business/x74/img4.png" alt="" data-fileid="-1" />
 				',
 						'href' => 'https://bitrix24.ru',
-						'target' => '_blank',
+						'target' => '_self',
 						'attrs' => array(
 							'data-embed' => NULL,
 							'data-url' => NULL,
@@ -330,7 +306,7 @@ return array(
 					<img class="landing-block-node-img g-width-120" src="https://cdn.bitrix24.site/bitrix/images/landing/business/x74/img4.png" alt="" data-fileid="-1" />
 				',
 						'href' => 'https://bitrix24.ru',
-						'target' => '_blank',
+						'target' => '_self',
 						'attrs' => array(
 							'data-embed' => NULL,
 							'data-url' => NULL,
@@ -341,7 +317,7 @@ return array(
 					<img class="landing-block-node-img g-width-120" src="https://cdn.bitrix24.site/bitrix/images/landing/business/x74/img6.png" alt="" data-fileid="-1" />
 				',
 						'href' => 'https://bitrix24.ru',
-						'target' => '_blank',
+						'target' => '_self',
 						'attrs' => array(
 							'data-embed' => NULL,
 							'data-url' => NULL,
@@ -351,12 +327,7 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-card' => array(
-					0 => 'landing-block-node-card col-md-4 col-lg-2 g-flex-centered g-brd-bottom g-brd-right g-brd-gray-light-v4 g-py-50',
-					1 => 'landing-block-node-card col-md-4 col-lg-2 g-flex-centered g-brd-bottom g-brd-right g-brd-gray-light-v4 g-py-50',
-					2 => 'landing-block-node-card col-md-4 col-lg-2 g-flex-centered g-brd-bottom g-brd-right g-brd-gray-light-v4 g-py-50',
-					3 => 'landing-block-node-card col-md-4 col-lg-2 g-flex-centered g-brd-bottom g-brd-right g-brd-gray-light-v4 g-py-50',
-					4 => 'landing-block-node-card col-md-4 col-lg-2 g-flex-centered g-brd-bottom g-brd-right g-brd-gray-light-v4 g-py-50',
-					5 => 'landing-block-node-card col-md-4 col-lg-2 g-flex-centered g-brd-bottom g-brd-right g-brd-gray-light-v4 g-py-50',
+					0 => 'landing-block-node-card col-md-4 col-lg-2 d-flex flex-column align-items-center justify-content-center g-brd-bottom g-brd-right g-brd-color-inherit g-py-50',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block js-animation text-center animated g-pt-0 g-pb-20 fadeInLeft',

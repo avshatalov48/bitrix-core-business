@@ -26,11 +26,10 @@ $MESS["EC_MESS_VIEW_OWN_CALENDAR_OUT"] = "Посмотреть другие со
 $MESS["EC_MESS_INVITE_TITLE"] = "Приглашение на встречу \"#TITLE#\" от пользователя #OWNER_NAME#";
 $MESS["EC_MESS_INVITE_CHANGED_TITLE"] = "Изменение встречи \"#TITLE#\" с вашим участием";
 $MESS["EC_MESS_INVITE_CANCEL_TITLE"] = "Встреча \"#TITLE#\" отменена";
-$MESS["EC_MESS_INVITE_ACCEPTED"] = "Пользователь #GUEST_NAME# примет участие в организованной вами встрече \"#TITLE#\"";
-$MESS["EC_MESS_INVITE_ACCEPTED_SITE"] = "Я приму участие в организованной вами встрече \"[B]#TITLE#[/B]\"";
-$MESS["EC_MESS_INVITE_DECLINED"] = "Пользователь #GUEST_NAME# не примет участие в организованной вами встрече \"#TITLE#\"";
-$MESS["EC_MESS_INVITE_DECLINED_SITE"] = "Я не приму участие в организованной вами встрече \"[B]#TITLE#[/B]\"";
-
+$MESS["EC_MESS_INVITE_ACCEPTED_1"] = "Пользователь #GUEST_NAME# примет участие в организованной вами встрече \"#TITLE#\", #ACTIVE_FROM#";
+$MESS["EC_MESS_INVITE_ACCEPTED_SITE_1"] = "Я приму участие в организованной вами встрече \"#TITLE#\", #ACTIVE_FROM#";
+$MESS["EC_MESS_INVITE_DECLINED_1"] = "Пользователь #GUEST_NAME# не примет участие в организованной вами встрече \"#TITLE#\", #ACTIVE_FROM#";
+$MESS["EC_MESS_INVITE_DECLINED_SITE_1"] = "Я не приму участие в организованной вами встрече \"#TITLE#\", #ACTIVE_FROM#";
 $MESS["EC_NOTIFY_TITLE_CHANGED"] = "Изменено название встречи с вашим участием с \"#OLD_TITLE#\" на \"#NEW_TITLE#\", дата проведения встречи - #ACTIVE_FROM#";
 $MESS["EC_NOTIFY_DATE_FROM_CHANGED"] = "Изменено время проведения встречи \"#TITLE#\" с вашим участием с \"#OLD_DATE_FROM#\", на \"#NEW_DATE_FROM#\"";
 $MESS["EC_NOTIFY_DATE_TO_CHANGED"] = "Изменено время окончания встречи \"#TITLE#\" с вашим участием с \"#OLD_DATE_TO#\", на \"#NEW_DATE_TO#\"";

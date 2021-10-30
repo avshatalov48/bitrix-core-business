@@ -12,6 +12,7 @@ header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 
 IncludeModuleLangFile(__FILE__);
 
+global $APPLICATION;
 $APPLICATION->RestartBuffer();
 
 // NOTICE

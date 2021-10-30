@@ -1,6 +1,6 @@
 {
   "name": "avshatalov48/bitrix-core-business",
-  "version": "21.600.100",
+  "version": "21.600.500",
   "description": "1C-Bitrix: Site Management Core. Business",
   "license": "MIT",
   "keywords": [
@@ -23,6 +23,6 @@
     }
   ],
   "require": {
-    "php": ">=7.0"
+    "php": ">=7.3"
   }
 }

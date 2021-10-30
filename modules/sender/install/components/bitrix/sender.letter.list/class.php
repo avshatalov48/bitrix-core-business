@@ -188,7 +188,6 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 					'COUNT_READ' => 'CURRENT_POSTING.COUNT_READ',
 					'COUNT_CLICK' => 'CURRENT_POSTING.COUNT_CLICK',
 					'COUNT_UNSUB' => 'CURRENT_POSTING.COUNT_UNSUB',
-					'CONSENT_SUPPORT' => 'CURRENT_POSTING.CONSENT_SUPPORT',
 				]
 			)
 		);
@@ -208,9 +207,11 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			try
 			{
 				$letter->loadByArray($item);
+				$approveConfirmation = $letter->getMessage()->getConfiguration()->getOption('APPROVE_CONFIRMATION');
+				$approveConfirmation = $approveConfirmation ? $approveConfirmation->getValue() : null;
 				$item['MESSAGE_CODE'] = $letter->getMessage()->getCode();
 				$item['MESSAGE_NAME'] = $letter->getMessage()->getName();
-				$item['CONSENT_SUPPORT'] = $letter->get('CONSENT_SUPPORT') === 'Y';
+				$item['CONSENT_SUPPORT'] = $approveConfirmation === 'Y';
 				$message = $letter->getMessage();
 				$options = $message->getConfiguration()->getOptions();
 				foreach ($options as $option)

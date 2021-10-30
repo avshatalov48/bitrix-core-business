@@ -1522,7 +1522,7 @@ $arJsParams = array(
 
 	function showLicenseInfoPopup()
 	{
-		BX.UI.InfoHelper.show('mail_sync_old_limit');
+		BX.UI.InfoHelper.show('limit_contact_center_mail_storage');
 	}
 
 </script>

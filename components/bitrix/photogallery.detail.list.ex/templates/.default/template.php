@@ -20,7 +20,7 @@ CJSCore::Init(array('window', 'ajax', 'tooltip', 'popup'));
 ********************************************************************/
 // PICTURE
 $temp = array("STRING" => preg_replace("/[^0-9]/is", "/", $arParams["THUMBNAIL_SIZE"]));
-list($temp["WIDTH"], $temp["HEIGHT"]) = explode("/", $temp["STRING"]);
+[$temp["WIDTH"], $temp["HEIGHT"]] = explode("/", $temp["STRING"]);
 $arParams["THUMBNAIL_SIZE"] = (intval($temp["WIDTH"]) > 0 ? intval($temp["WIDTH"]) : 120);
 
 if ($arParams["PICTURES_SIGHT"] != "standart" && intval($arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"]) > 0)
@@ -197,7 +197,7 @@ BX.ready(function(){
 		id: '<?= $arParams["~JSID"]?>',
 		userSettings: <?= CUtil::PhpToJSObject($arParams["USER_SETTINGS"])?>,
 		actionUrl: '<?= CUtil::JSEscape($arParams["ACTION_URL"])?>',
-		responderUrl: '/bitrix/components/bitrix/photogallery.detail.list.ex/responder.php',
+		responderUrl: '/bitrix/components/bitrix/photogallery.detail.list.ex/responder.php?analyticsLabel[action]=viewPhoto',
 		actionPostUrl: <?= ($arParams['CHECK_ACTION_URL'] == 'Y' ? 'false' : 'true')?>,
 		sections: <?= CUtil::PhpToJSObject(array(array(
 				"ID" => $arResult['SECTION']["ID"],

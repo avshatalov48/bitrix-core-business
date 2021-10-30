@@ -36,7 +36,14 @@ export default function editStyle(state, entry)
 
 			elements.forEach((element) => {
 				element.className = entry[state].className;
-				element.style = entry[state].style;
+				if (entry[state].style)
+				{
+					element.style = entry[state].style;
+				}
+				else
+				{
+					element.removeAttribute('style');
+				}
 			});
 			return block;
 		})

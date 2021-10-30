@@ -439,18 +439,21 @@ class Theme extends Page
 		Asset::getInstance()->addString(
 			'<style type="text/css">
 				:root {
-					--theme-color-primary: ' . $colorHex . ';
-					--theme-color-primary-darken-1: hsl(' . $hslColor[0] . ', ' . $hslColor[1] . '%, ' . min($hslColor[2] - 2, 100) . '%)' . ';
-					--theme-color-primary-darken-2: hsl(' . $hslColor[0] . ', ' . $hslColor[1] . '%, ' . min($hslColor[2] - 5, 100) . '%)' . ';
-					--theme-color-primary-darken-3: hsl(' . $hslColor[0] . ', ' . $hslColor[1] . '%, ' . min($hslColor[2] - 10, 100) . '%)' . ';
-					--theme-color-primary-lighten-1: hsl(' . $hslColor[0] . ', ' . $hslColor[1] . '%, ' . max($hslColor[2] + 10, 0) . '%)' . ';
-					--theme-color-primary-opacity-0_1: rgba('.$rgbTemplate.', 0.1);
-					--theme-color-primary-opacity-0_2: rgba('.$rgbTemplate.', 0.2);
-					--theme-color-primary-opacity-0_3: rgba('.$rgbTemplate.', 0.3);
-					--theme-color-primary-opacity-0_4: rgba('.$rgbTemplate.', 0.4);
-					--theme-color-primary-opacity-0_6: rgba('.$rgbTemplate.', 0.6);
-					--theme-color-primary-opacity-0_8: rgba('.$rgbTemplate.', 0.8);
-					--theme-color-primary-opacity-0_9: rgba('.$rgbTemplate.', 0.9);
+					--primary: ' . $colorHex . ' !important' .';
+					--primary-darken-1: hsl(' . $hslColor[0] . ', ' . $hslColor[1] . '%, ' . min($hslColor[2] - 2, 100) . '%)' . ';
+					--primary-darken-2: hsl(' . $hslColor[0] . ', ' . $hslColor[1] . '%, ' . min($hslColor[2] - 5, 100) . '%)' . ';
+					--primary-darken-3: hsl(' . $hslColor[0] . ', ' . $hslColor[1] . '%, ' . min($hslColor[2] - 10, 100) . '%)' . ';
+					--primary-lighten-1: hsl(' . $hslColor[0] . ', ' . $hslColor[1] . '%, ' . max($hslColor[2] + 10, 0) . '%)' . ';
+					--primary-opacity-0: rgba('.$rgbTemplate.', 0);
+					--primary-opacity-0_1: rgba('.$rgbTemplate.', 0.1);
+					--primary-opacity-0_2: rgba('.$rgbTemplate.', 0.2);
+					--primary-opacity-0_3: rgba('.$rgbTemplate.', 0.3);
+					--primary-opacity-0_4: rgba('.$rgbTemplate.', 0.4);
+					--primary-opacity-0_5: rgba('.$rgbTemplate.', 0.5);
+					--primary-opacity-0_6: rgba('.$rgbTemplate.', 0.6);
+					--primary-opacity-0_7: rgba('.$rgbTemplate.', 0.7);
+					--primary-opacity-0_8: rgba('.$rgbTemplate.', 0.8);
+					--primary-opacity-0_9: rgba('.$rgbTemplate.', 0.9);
 					--theme-color-main: ' . $colorMain . ';
 					--theme-color-secondary: ' . $colorSecondary . ';
 					--theme-color-title: ' . $colorTitle . ';

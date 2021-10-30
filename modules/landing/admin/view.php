@@ -84,8 +84,12 @@ if ($landing = $res->fetch())
 	$mainPageLogo = 'landing_site.php?lang=' . LANGUAGE_ID . '&logo&site=' . $site;
 	$landingsPage = 'landing_site.php?lang=' . LANGUAGE_ID . '&siteId=#site_show#' . ($site ? '&site=' . $site : '');
 	$editPage = $landingsPage . '&cmp=landing_edit&id=#landing_edit#';
+	$designPage = $landingsPage . '&cmp=landing_edit&id=#landing_edit#&componentTemplate=design';
+	$designPage .= ($template ? '&template=' . $template : '');
 	$editSite = $landingsPage . '&cmp=site_edit';
 	$editSite .= ($template ? '&template=' . $template : '');
+	$designSite = $landingsPage . '&cmp=site_edit&componentTemplate=design';
+	$designSite .= ($template ? '&template=' . $template : '');
 	$viewPage ='landing_view.php?lang=' . LANGUAGE_ID . '&id=#landing_edit#'.  ($site ? '&site=' . $site : '');
 	$viewPage .= ($template ? '&template=' . $template : '');
 
@@ -120,13 +124,16 @@ if ($landing = $res->fetch())
 				'PAGE_URL_LANDINGS' => str_replace(array_keys($replace), $replace, $landingsPage),
 				'PAGE_URL_LANDING_EDIT' => str_replace(array_keys($replace), $replace, $editPage),
 				'PAGE_URL_SITE_EDIT' => str_replace(array_keys($replace), $replace, $editSite),
+				'PAGE_URL_LANDING_DESIGN' => str_replace(array_keys($replace), $replace, $designPage),
 				'PAGE_URL_URL_SITES' => $mainPageLogo,
 				'PARAMS' => array(
 					'sef_url' => array(
 						'landing_edit' => $editPage,
 						'landing_view' => $viewPage,
+						'landing_design' => $designPage,
 						'site_show' => $landingsPage,
-						'site_edit' => str_replace('#site_show#', '#site_edit#', $editSite)
+						'site_edit' => str_replace('#site_show#', '#site_edit#', $editSite),
+						'site_design' => str_replace('#site_show#', '#site_edit#', $designSite)
 					)
 				)
 			),

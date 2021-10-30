@@ -41,8 +41,7 @@ $component = $this->getComponent();
 						&&
 						(
 							!$isWasSelect
-                            ||
-                            ($arResult['userField']['MULTIPLE'] === 'Y')
+							|| $arResult['userField']['MULTIPLE'] === 'Y'
 						)
 					);
 					$isWasSelect = $isWasSelect || $isSelected;
@@ -131,7 +130,7 @@ $component = $this->getComponent();
 
 		BX.ready(function(){
 
-			var params = {$arResult['params']};			
+			var params = {$arResult['params']};
 
 			BX('{$arResult['controlNodeIdJs']}').appendChild(BX.decl({
 				block: '{$arResult['block']}',
@@ -141,7 +140,7 @@ $component = $this->getComponent();
 				params: params,
 				valueDelete: false
 			}));
-			
+
 			BX.addCustomEvent(
 				window,
 				'UI::Select::change',
@@ -175,7 +174,7 @@ EOT;
 		}
 
 		$isWasSelect = false;
-		foreach($arResult['userField']['USER_TYPE']['FIELDS'] as $key => $val)
+		foreach((array)$arResult['userField']['USER_TYPE']['FIELDS'] as $key => $val)
 		{
 			?>
 			<span
@@ -193,11 +192,10 @@ EOT;
 
 			$isSelected = (
 				in_array($key, $arResult['value'])
-                &&
+				&&
 				(
 					!$isWasSelect
-                    ||
-                    ($arResult['userField']['MULTIPLE'] === 'Y')
+					|| $arResult['userField']['MULTIPLE'] === 'Y'
 				));
 
 			$isWasSelect = $isWasSelect || $isSelected;

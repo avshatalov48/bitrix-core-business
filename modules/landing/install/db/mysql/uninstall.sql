@@ -23,3 +23,6 @@ drop table if exists b_landing_chat_binding;
 drop table if exists b_landing_cookies_agreement;
 drop table if exists b_landing_entity_lock;
 drop table if exists b_landing_designer_repo;
+drop table if exists b_landing_urlchecker_whitelist;
+drop table if exists b_landing_urlchecker_status;
+drop table if exists b_landing_urlchecker_host;

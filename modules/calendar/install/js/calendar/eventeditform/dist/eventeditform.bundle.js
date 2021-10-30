@@ -67,8 +67,28 @@ this.BX = this.BX || {};
 	  return SliderDateTimeControl;
 	}(calendar_controls.DateTimeControl);
 
-	function _templateObject6() {
+	function _templateObject8() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<div></div>"]);
+
+	  _templateObject8 = function _templateObject8() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject7() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<span></span>"]);
+
+	  _templateObject7 = function _templateObject7() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject6() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input type=\"hidden\" name=\"checkCurrentUsersAccessibility\" value=\"", "\">\n\t\t"]);
 
 	  _templateObject6 = function _templateObject6() {
 	    return data;
@@ -78,7 +98,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span></span>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<input type=\"hidden\" name=\"newAttendeesList[]\" value=\"", "\">\n\t\t\t\t\t\t"]);
 
 	  _templateObject5 = function _templateObject5() {
 	    return data;
@@ -374,12 +394,31 @@ this.BX = this.BX || {};
 
 	      this.DOM.requestUid.value = calendar_util.Util.registerRequestId(); // Save attendees from userSelector
 
+	      var attendeesEntityList = this.getUserSelectorEntityList();
 	      main_core.Dom.clean(this.DOM.userSelectorValueWarp);
-	      this.getUserSelectorEntityList().forEach(function (entity, index) {
+	      attendeesEntityList.forEach(function (entity, index) {
 	        _this2.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_templateObject3(), index, entity.entityId));
 
 	        _this2.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_templateObject4(), index, entity.id));
 	      });
+	      var checkCurrentUsersAccessibility = !this.entry.id || this.checkCurrentUsersAccessibility();
+
+	      if (!checkCurrentUsersAccessibility && this.getFormDataChanges().includes('codes')) {
+	        var previousAttendeesList = this.entry.getAttendeesEntityList();
+	        attendeesEntityList.forEach(function (entity) {
+	          if (!previousAttendeesList.find(function (item) {
+	            return entity.entityId === item.entityId && parseInt(entity.id) === parseInt(item.id);
+	          })) {
+	            if (entity.entityId === 'user') {
+	              _this2.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_templateObject5(), parseInt(entity.id)));
+	            } else {
+	              checkCurrentUsersAccessibility = true;
+	            }
+	          }
+	        });
+	      }
+
+	      this.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_templateObject6(), checkCurrentUsersAccessibility ? 'Y' : 'N'));
 	      this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', {
 	        data: new FormData(this.DOM.form),
 	        analyticsLabel: {
@@ -883,7 +922,7 @@ this.BX = this.BX || {};
 
 	      this.reminderValues = [];
 	      this.DOM.reminderWrap = this.DOM.content.querySelector("#".concat(uid, "_reminder"));
-	      this.DOM.reminderInputsWrap = this.DOM.reminderWrap.appendChild(main_core.Tag.render(_templateObject5()));
+	      this.DOM.reminderInputsWrap = this.DOM.reminderWrap.appendChild(main_core.Tag.render(_templateObject7()));
 	      this.remindersControl = new calendar_controls.Reminder({
 	        wrap: this.DOM.reminderWrap,
 	        zIndex: this.zIndex
@@ -1042,7 +1081,7 @@ this.BX = this.BX || {};
 	    key: "initAttendeesControl",
 	    value: function initAttendeesControl(uid) {
 	      this.DOM.userSelectorWrap = this.DOM.content.querySelector('.calendar-attendees-selector-wrap');
-	      this.DOM.userSelectorValueWarp = this.DOM.userSelectorWrap.appendChild(main_core.Tag.render(_templateObject6()));
+	      this.DOM.userSelectorValueWarp = this.DOM.userSelectorWrap.appendChild(main_core.Tag.render(_templateObject8()));
 	      this.userTagSelector = new ui_entitySelector.TagSelector({
 	        dialogOptions: {
 	          context: 'CALENDAR',
@@ -1708,6 +1747,11 @@ this.BX = this.BX || {};
 	      }
 
 	      return fields;
+	    }
+	  }, {
+	    key: "checkCurrentUsersAccessibility",
+	    value: function checkCurrentUsersAccessibility() {
+	      return this.getFormDataChanges().includes('date&time');
 	    }
 	  }, {
 	    key: "formDataChanged",

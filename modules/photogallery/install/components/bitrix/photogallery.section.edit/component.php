@@ -15,8 +15,25 @@ if (empty($arParams["INDEX_URL"]) && !empty($arParams["SECTIONS_TOP_URL"]))
 ********************************************************************/
 /***************** BASE ********************************************/
 	$arParams["BX_PHOTO_AJAX"] = isset($_REQUEST["bx_photo_ajax"]);
-	$arParams["ACTION_URL"] = CHTTP::urlDeleteParams(htmlspecialcharsback(POST_FORM_ACTION_URI), array("clear_cache", "bitrix_include_areas", "bitrix_show_mode", "back_url_admin", "bx_photo_ajax", "change_view_mode_data", "sessid"));
-	$arParams["ACTION_URL"] = $arParams["ACTION_URL"].(mb_strpos($arParams["ACTION_URL"], "?") === false ? "?" : "&")."bx_photo_ajax=Y&sessid=".bitrix_sessid();
+	$arParams["ACTION_URL"] = CHTTP::urlDeleteParams(
+		htmlspecialcharsback(POST_FORM_ACTION_URI),
+		[
+			"clear_cache",
+			"bitrix_include_areas",
+			"bitrix_show_mode",
+			"back_url_admin",
+			"bx_photo_ajax",
+			"change_view_mode_data",
+			"sessid"
+		]
+	);
+	$arParams["ACTION_URL"] = CHTTP::urlAddParams(
+		$arParams["ACTION_URL"],
+		[
+			'bx_photo_ajax' => 'Y',
+			'analyticsLabel[action]' => 'editPhotoAlbum'
+		]
+	);
 
 	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
 	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
@@ -395,6 +412,15 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 			$arResultSection = $rsSection->GetNext();
 			$arResult["URL"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_URL"],
 				array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $ID));
+
+			$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+			if ($request->get('SLIDER') === 'Y')
+			{
+				$uri = new Bitrix\Main\Web\Uri($arResult['URL']);
+				$uri->addParams([ 'IFRAME' => 'Y' ]);
+				$arResult['URL'] = $uri->getUri();
+			}
+
 			$arResultFields = Array(
 				"IBLOCK_ID" => $iblockId,
 				"DATE" => PhotoDateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($_REQUEST["UF_DATE"], CSite::GetDateFormat())),
@@ -439,15 +465,25 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 				ExecuteModuleEventEx($arEvent, array($arResult["SECTION"]["ID"], $arEventFields, $arParams, $arResult));
 
 			// /Must Be deleted
-			if ($arParams["BEHAVIOUR"] == "USER" && intval($arResult["SECTION"]["IBLOCK_SECTION_ID"]) == intval($arResult["GALLERY"]["ID"]))
+			if (
+				$arParams["BEHAVIOUR"] === "USER"
+				&& (int)$arResult["SECTION"]["IBLOCK_SECTION_ID"] === (int)$arResult["GALLERY"]["ID"]
+			)
+			{
 				$arResult["URL"] = CComponentEngine::MakePathFromTemplate($arParams["~GALLERY_URL"],
-				array("USER_ALIAS" => $arParams["USER_ALIAS"]));
-			elseif (intval($arResult["SECTION"]["IBLOCK_SECTION_ID"]) > 0)
+					array("USER_ALIAS" => $arParams["USER_ALIAS"]));
+			}
+			elseif ((int)$arResult["SECTION"]["IBLOCK_SECTION_ID"] > 0)
+			{
 				$arResult["URL"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_URL"],
-				array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arResult["SECTION"]["IBLOCK_SECTION_ID"]));
+					array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arResult["SECTION"]["IBLOCK_SECTION_ID"]));
+			}
 			else
+			{
 				$arResult["URL"] = CComponentEngine::MakePathFromTemplate($arParams["~INDEX_URL"],
-				array());
+					array());
+			}
+
 			$arResultFields = Array(
 				"ID" => $arResult["SECTION"]["ID"],
 				"error" => "",

@@ -1540,29 +1540,32 @@ function ImgShw(ID, width, height, alt)
 		if(is_array($strImage))
 		{
 			$arImgParams = $strImage;
-			$iImageID = isset($arImgParams['ID']) ? intval($arImgParams['ID']) : 0;
+			$iImageID = isset($arImgParams['ID']) ? (int)$arImgParams['ID'] : 0;
 		}
 		else
 		{
 			$arImgParams = static::_GetImgParams($strImage, $iSizeWHTTP, $iSizeHHTTP);
-			$iImageID = intval($strImage);
+			$iImageID = (int)$strImage;
 		}
 
 		if(!$arImgParams)
+		{
 			return "";
+		}
 
-		$iMaxW = intval($iMaxW);
-		$iMaxH = intval($iMaxH);
-		$intWidth = $arImgParams['WIDTH'];
-		$intHeight = $arImgParams['HEIGHT'];
+		$iMaxW = (int)$iMaxW;
+		$iMaxH = (int)$iMaxH;
+		$intWidth = (int)$arImgParams['WIDTH'];
+		$intHeight = (int)$arImgParams['HEIGHT'];
 		if(
-			$iMaxW > 0 && $iMaxH > 0
+			$iMaxW > 0
+			&& $iMaxH > 0
 			&& ($intWidth > $iMaxW || $intHeight > $iMaxH)
 		)
 		{
 			$coeff = ($intWidth/$iMaxW > $intHeight/$iMaxH? $intWidth/$iMaxW : $intHeight/$iMaxH);
-			$iHeight = intval(roundEx($intHeight/$coeff));
-			$iWidth = intval(roundEx($intWidth/$coeff));
+			$iHeight = (int)roundEx($intHeight/$coeff);
+			$iWidth = (int)roundEx($intWidth/$coeff);
 		}
 		else
 		{
@@ -1582,7 +1585,9 @@ function ImgShw(ID, width, height, alt)
 		}
 
 		if (!preg_match("/^https?:/i", $strImage))
+		{
 			$strImage = CHTTP::urnEncode($strImage, "UTF-8");
+		}
 
 		if(GetFileType($strImage) == "FLASH")
 		{
@@ -1594,11 +1599,11 @@ function ImgShw(ID, width, height, alt)
 					WIDTH="'.$iWidth.'"
 					HEIGHT="'.$iHeight.'"
 					ALIGN="">
-						<PARAM NAME="movie" VALUE="'.$strImage.'" />
+						<PARAM NAME="movie" VALUE="'.htmlspecialcharsbx($strImage).'" />
 						<PARAM NAME="quality" VALUE="high" />
 						<PARAM NAME="bgcolor" VALUE="#FFFFFF" />
 						<embed
-							src="'.$strImage.'"
+							src="'.htmlspecialcharsbx($strImage).'"
 							quality="high"
 							bgcolor="#FFFFFF"
 							WIDTH="'.$iWidth.'"
@@ -1616,24 +1621,30 @@ function ImgShw(ID, width, height, alt)
 			$strAlt = $arImgParams['ALT']? $arImgParams['ALT']: $arImgParams['DESCRIPTION'];
 
 			if($sParams === null || $sParams === false)
+			{
 				$sParams = 'border="0" alt="'.htmlspecialcharsEx($strAlt).'"';
+			}
 			elseif(!preg_match('/(^|\\s)alt\\s*=\\s*(["\']?)(.*?)(\\2)/is', $sParams))
+			{
 				$sParams .= ' alt="'.htmlspecialcharsEx($strAlt).'"';
+			}
 
 			if($coeff === 1 || !$bPopup)
 			{
-				$strReturn = '<img src="'.$strImage.'" '.$sParams.' width="'.$iWidth.'" height="'.$iHeight.'" />';
+				$strReturn = '<img src="'.htmlspecialcharsbx($strImage).'" '.$sParams.' width="'.$iWidth.'" height="'.$iHeight.'" />';
 			}
 			else
 			{
 				if($sPopupTitle === false)
+				{
 					$sPopupTitle = GetMessage('FILE_ENLARGE');
+				}
 
 				if($strImageUrl <> '')
 				{
 					$strReturn =
-						'<a href="'.$strImageUrl.'" title="'.$sPopupTitle.'" target="_blank">'.
-						'<img src="'.$strImage.'" '.$sParams.' width="'.$iWidth.'" height="'.$iHeight.'" title="'.htmlspecialcharsEx($sPopupTitle).'" />'.
+						'<a href="'.$strImageUrl.'" title="'.htmlspecialcharsEx($sPopupTitle).'" target="_blank">'.
+						'<img src="'.htmlspecialcharsbx($strImage).'" '.$sParams.' width="'.$iWidth.'" height="'.$iHeight.'" title="'.htmlspecialcharsEx($sPopupTitle).'" />'.
 						'</a>';
 				}
 				else
@@ -1641,8 +1652,12 @@ function ImgShw(ID, width, height, alt)
 					static::OutputJSImgShw();
 
 					$strReturn =
-						'<a title="'.$sPopupTitle.'" onclick="ImgShw(\''.CUtil::addslashes($strImage).'\', '.$intWidth.', '.$intHeight.', \''.CUtil::addslashes(htmlspecialcharsEx(htmlspecialcharsEx($strAlt))).'\'); return false;" href="'.$strImage.'" target="_blank">'.
-						'<img src="'.$strImage.'" '.$sParams.' width="'.$iWidth.'" height="'.$iHeight.'" />'.
+						'<a title="'.$sPopupTitle.'" '.
+							'onclick="ImgShw(\''.htmlspecialcharsbx(CUtil::addslashes($strImage)).'\', '.$intWidth.', '.$intHeight.', \''.CUtil::addslashes(htmlspecialcharsEx(htmlspecialcharsEx($strAlt))).'\'); return false;" '.
+							'href="'.htmlspecialcharsbx($strImage).'" '.
+							'target="_blank"'.
+						'>'.
+							'<img src="'.htmlspecialcharsbx($strImage).'" '.$sParams.' width="'.$iWidth.'" height="'.$iHeight.'" />'.
 						'</a>';
 				}
 			}

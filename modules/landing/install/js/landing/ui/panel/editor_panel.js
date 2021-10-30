@@ -162,6 +162,11 @@
 				var pos = BX.pos(jsDD.current_node);
 				offsetLeft = Math.max(Math.abs(x - pos.left), 0);
 				offsetTop = Math.max(Math.abs(y - pos.top), 0);
+				if (editor.currentElement.closest('.landing-ui-panel'))
+				{
+					offsetTop += BX.Landing.PageObject.getEditorWindow().scrollY;
+				}
+
 				offsetCalculates = true;
 			}
 

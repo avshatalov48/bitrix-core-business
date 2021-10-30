@@ -5,7 +5,7 @@
 /** @global string $strSubIBlockType */
 /** @global int $intSubPropValue */
 /** @global int $strSubTMP_ID */
-/** @global array $arCatalog */
+/** @global array $arSubCatalog */
 /** @global array $arSubIBlock */
 /** @global string $by */
 /** @global string $order */
@@ -102,8 +102,8 @@ if ($boolSubCatalog)
 }
 $changeUserByActive = Main\Config\Option::get('iblock', 'change_user_by_group_active_modify') === 'Y';
 
-define("MODULE_ID", "iblock");
-define("ENTITY", "CIBlockDocument");
+const MODULE_ID = "iblock";
+const ENTITY = "CIBlockDocument";
 define("DOCUMENT_TYPE", "iblock_".$intSubIBlockID);
 
 $currentUser = array(
@@ -153,7 +153,7 @@ while($arProp = $iterator->fetch())
 
 $sTableID = "tbl_iblock_sub_element_".md5($strSubIBlockType.".".$intSubIBlockID);
 
-$arHideFields = array('PROPERTY_'.$arCatalog['SKU_PROPERTY_ID']);
+$arHideFields = array('PROPERTY_'.$arSubCatalog['SKU_PROPERTY_ID']);
 $lAdmin = new CAdminSubList($sTableID,false,$strSubElementAjaxPath,$arHideFields);
 
 $groupParams = array(
@@ -174,7 +174,7 @@ if ($by == 'CATALOG_TYPE')
 
 // only sku property filter
 $arFilterFields = array(
-	"find_el_property_".$arCatalog['SKU_PROPERTY_ID'],
+	"find_el_property_".$arSubCatalog['SKU_PROPERTY_ID'],
 );
 
 $find_section_section = -1;
@@ -1393,7 +1393,7 @@ if (true == B_ADMIN_SUBELEMENTS_LIST)
 
 if (!(false == B_ADMIN_SUBELEMENTS_LIST && $bCopy))
 {
-	if(isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "excel")
+	if ($lAdmin->isExportMode())
 	{
 		$arNavParams = false;
 	}

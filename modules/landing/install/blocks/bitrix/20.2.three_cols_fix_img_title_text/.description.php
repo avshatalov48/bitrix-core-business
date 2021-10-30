@@ -35,7 +35,7 @@ return [
 	'style' => [
 		'.landing-block-card' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_7_TWO_COLS_FIX_IMG_TITLE_TEXT_NODES_LANDINGBLOCK_CARD'),
-			'type' => ['columns', 'background-color', 'background-gradient', 'animation'],
+			'type' => ['columns', 'background-color', 'animation'],
 		],
 		'.landing-block-inner' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_7_TWO_COLS_FIX_IMG_TITLE_TEXT_STYLE_LANDINGBLOCK_INNER'),

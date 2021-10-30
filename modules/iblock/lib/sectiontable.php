@@ -42,7 +42,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Iblock
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Section_Query query()
+ * @method static EO_Section_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Section_Result getById($id)
+ * @method static EO_Section_Result getList(array $parameters = array())
+ * @method static EO_Section_Entity getEntity()
+ * @method static \Bitrix\Iblock\EO_Section createObject($setDefaultValues = true)
+ * @method static \Bitrix\Iblock\EO_Section_Collection createCollection()
+ * @method static \Bitrix\Iblock\EO_Section wakeUpObject($row)
+ * @method static \Bitrix\Iblock\EO_Section_Collection wakeUpCollection($rows)
+ */
 
 class SectionTable extends ORM\Data\DataManager
 {
@@ -248,7 +261,7 @@ class SectionTable extends ORM\Data\DataManager
 		\CIBlock::clearIblockTagCache($section->getIblockId());
 
 		// recount tree
-		\CAllIBlockSection::recountTreeAfterAdd($section->collectValues());
+		\CIBlockSection::recountTreeAfterAdd($section->collectValues());
 	}
 
 	public static function onUpdate(Event $event)
@@ -271,7 +284,7 @@ class SectionTable extends ORM\Data\DataManager
 		\CIBlock::clearIblockTagCache($section->getIblockId());
 
 		// recount tree
-		\CAllIBlockSection::recountTreeAfterUpdate($section->collectValues(), $section->customData->get('RECOUNT_TREE_OLD_VALUES'));
+		\CIBlockSection::recountTreeAfterUpdate($section->collectValues(), $section->customData->get('RECOUNT_TREE_OLD_VALUES'));
 	}
 
 	public static function onDelete(Event $event)
@@ -286,6 +299,6 @@ class SectionTable extends ORM\Data\DataManager
 	public static function onAfterDelete(Event $event)
 	{
 		// recount tree
-		\CAllIBlockSection::recountTreeOnDelete(['ID' => $event->getParameter('id')]);
+		\CIBlockSection::recountTreeOnDelete(['ID' => $event->getParameter('id')]);
 	}
 }

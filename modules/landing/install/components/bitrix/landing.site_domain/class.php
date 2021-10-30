@@ -99,7 +99,7 @@ class LandingSiteDomainComponent extends LandingBaseComponent
 	 * @param string $siteId Site id.
 	 * @return bool
 	 */
-	protected function actionSwitch(string $siteId): bool
+	protected function actionSwitchToThis(string $siteId): bool
 	{
 		$siteId = intval($siteId);
 		if ($this->checkAccess())

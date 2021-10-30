@@ -651,7 +651,7 @@ $arVisibleColumnsMap = array();
 foreach($arVisibleColumns as $value)
 	$arVisibleColumnsMap[$value] = true;
 
-if (isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "excel")
+if ($lAdmin->isExportMode())
 {
 	$arNavParams = false;
 }
@@ -724,6 +724,9 @@ while ($arRes = $rsData->Fetch())
 	));
 
 	$arRows[$arRes["ID"]] = $row = $lAdmin->AddRow($arRes["ID"], $arRes, $sec_list_url, GetMessage("IBSEC_A_LIST"));
+	$row->setConfig([
+		CAdminUiListRow::DEFAULT_ACTION_TYPE_FIELD => CAdminUiListRow::LINK_TYPE_URL,
+	]);
 	$USER_FIELD_MANAGER->AddUserFields($entity_id, $arRes, $row);
 
 	$row->AddViewField("ID", '<a href="'.$edit_url.'" title="'.GetMessage("IBSEC_A_EDIT").'">'.$arRes["ID"].'</a>');
@@ -1129,7 +1132,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 
 
 $lAdmin->DisplayFilter($filterFields);
-$lAdmin->DisplayList(array("default_action" => true));
+$lAdmin->DisplayList();
 if($pageConfig['IBLOCK_EDIT'] && CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, 'iblock_edit'))
 {
 	echo

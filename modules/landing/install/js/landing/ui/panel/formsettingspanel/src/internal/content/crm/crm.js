@@ -366,7 +366,11 @@ export default class CrmContent extends ContentWrapper
 		return this.options.formDictionary.document.schemes.find((scheme) => {
 			return (
 				(String(scheme.id) === String(id))
-				|| (id === 'smart' && scheme.dynamic)
+				|| (
+					id === 'smart'
+					&& scheme.dynamic
+					&& String(scheme.id) === String(this.getSelectedSchemeId())
+				)
 			);
 		});
 	}

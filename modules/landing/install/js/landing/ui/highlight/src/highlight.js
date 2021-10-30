@@ -11,6 +11,7 @@ export class Highlight
 	constructor()
 	{
 		this.layout = Dom.create('div');
+		Dom.addClass(this.layout, 'landing-highlight-border');
 
 		Dom.style(this.layout, {
 			position: 'absolute',

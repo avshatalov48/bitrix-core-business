@@ -29,7 +29,7 @@ return [
 	],
 	'style' => [
 		'block' => [
-			'type' => ['block-default-wo-background', 'animation', 'background-color', 'background-gradient'],
+			'type' => ['block-default-wo-background', 'animation', 'background-color'],
 		],
 		'nodes' => [
 			'.landing-block-container' => [

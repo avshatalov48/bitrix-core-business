@@ -118,11 +118,12 @@ class Lazyload
 
 	protected function parseBg(DOM\Element $node, string $selector): void
 	{
-		$origStyle = $node->getAttribute('style');
-		if (!$origStyle)
+		$styles = DOM\StyleInliner::getStyle($node, false);
+		if (!$styles['background-image'])
 		{
 			return;
 		}
+		$origBg = implode('|', $styles['background-image']);
 
 		// get sizes for placeholder
 		if (
@@ -143,13 +144,12 @@ class Lazyload
 			$width = $height = self::BG_PLACEHOLDER_SIZE_DEFAULT;
 		}
 
-		$lazySrc = $this->createPlaceholderImage($width, $height);
-		$lazyStyle = "background-image: url({$lazySrc});";
-
 		$node->setAttribute('data-lazy-bg', 'Y');
-		$node->setAttribute('data-style', $origStyle);
-		$node->setAttribute('style', $lazyStyle);
-		if($origSrc = self::getSrcByBgStyle($origStyle))
+		$node->setAttribute('data-bg', $origBg);
+
+		$lazySrc = $this->createPlaceholderImage($width, $height);
+		DOM\StyleInliner::setStyle($node, array_merge($styles, ['background-image' => ["url({$lazySrc})"]]));
+		if ($origSrc = self::getSrcByBgStyle($origBg))
 		{
 			if ($origSrc['src'])
 			{

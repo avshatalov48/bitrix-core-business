@@ -9,10 +9,11 @@
 }
 
 .catalog-sections-list-container {
-	padding: 0 0 18px;
+	padding: 0 12px;
+	margin-bottom: 0;
 	white-space: nowrap;
 	overflow: auto;
-	height: 230px;
+	height: 247px;
 	display: flex;
 	align-items: stretch;
 	flex-wrap: nowrap;
@@ -39,6 +40,10 @@
 	display: inline-block;
 	padding: 0 6px;
 	margin: 0;
+}
+
+.catalog-section-list-item:hover .catalog-section-list-item-inner {
+	opacity: 1;
 }
 
 .catalog-sections-list-container .catalog-section-list-item:first-child {
@@ -75,6 +80,7 @@
 	justify-content: center;
 	opacity: 0.9;
 	padding: 8px 36px 6px 8px;
+	transition: opacity .3s;
 }
 
 .catalog-section-list-item-inner:after {

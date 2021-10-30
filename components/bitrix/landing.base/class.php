@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Crm\Integration\Landing\FormLanding;
 use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Manager;
+use \Bitrix\Landing\Site;
 use \Bitrix\Main\Loader;
 use \Bitrix\Main\Application;
 use \Bitrix\Main\Localization\Loc;
@@ -108,6 +109,35 @@ class LandingBaseComponent extends \CBitrixComponent
 		$this->initRequest();
 
 		return $init;
+	}
+
+	/**
+	 * Updates site's and main page's titles.
+	 * @param int $siteId Site id.
+	 * @param array $update Data array.
+	 * @return void
+	 */
+	protected function updateMainTitles(int $siteId, array $update): void
+	{
+		$res = Site::update($siteId, $update);
+		if ($res->isSuccess())
+		{
+			$res = Site::getList([
+				'select' => [
+				'LANDING_ID_INDEX'
+				],
+				'filter' => [
+				'ID' => $siteId
+				]
+			]);
+			$row = $res->fetch();
+			if (!empty($row['LANDING_ID_INDEX']))
+			{
+				Landing::update($row['LANDING_ID_INDEX'], [
+					'TITLE' => $update['TITLE']
+				]);
+			}
+		}
 	}
 
 	/**
@@ -758,7 +788,7 @@ class LandingBaseComponent extends \CBitrixComponent
 	protected function getTimestampUrl($url)
 	{
 		// temporary disable this function
-		if (false && Manager::isB24())
+		if (Manager::isB24())
 		{
 			return rtrim($url, '/') . '/?ts=' . time();
 		}

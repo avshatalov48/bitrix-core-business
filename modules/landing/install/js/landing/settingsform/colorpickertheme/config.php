@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/colorpickertheme.bundle.js',
 	'rel' => [
 		'main.polyfill.core',
+		'main.core.events',
 	],
 	'skip_core' => true,
 ];
